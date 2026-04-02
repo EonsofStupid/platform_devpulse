@@ -204,7 +204,7 @@ export function friendlySlotLabel(slotId: string): string {
 		"vision.embedder": "Vision",
 		"voice.tts.primary": "Clyffy's Voice",
 		"voice.snac": "Audio Decoder",
-		"voice.tts.fallback": "Backup Voice",
+		"voice.tts.fallback": "Clyffy's Backup Voice",
 		"voice.stt": "Voice Input",
 		"voice.stt.upgrade": "Enhanced Voice Input",
 	};

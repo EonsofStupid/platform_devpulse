@@ -13,7 +13,7 @@ use tauri::{Emitter, State};
 /// Serializable slot info for the frontend (maps from model-loader Slot).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct SlotInfo {
-    /// Slot identifier (e.g. `"chat.brain"`).
+    /// Slot identifier (e.g. `"chat.brain"`, `"voice.tts.primary"`).
     pub id: String,
     /// Human-readable label (e.g. `"AI Brain"`).
     pub label: String,
@@ -21,12 +21,20 @@ pub struct SlotInfo {
     pub capability: String,
     /// Preferred device placement (GPU/CPU/Auto).
     pub preferred_device: String,
-    /// When to load the model (Hot/Warm/OnDemand/Signal).
+    /// When to load the model (Hot/Warm/OnDemand/Signal/Coupled).
     pub loading_strategy: String,
     /// Currently assigned model registry ID, if any.
     pub assigned_model_id: Option<String>,
     /// Fallback slot ID for escalation chains.
     pub fallback: Option<String>,
+    /// Preferred inference backend (Candle/LlamaCpp/Ort/Sherpa).
+    pub runtime: Option<String>,
+    /// Default model filename for auto-assignment.
+    pub default_model: Option<String>,
+    /// Slot IDs that must be co-loaded.
+    pub requires: Vec<String>,
+    /// Slot ID this can replace when conditions are met.
+    pub overrides: Option<String>,
 }
 
 /// Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
@@ -173,6 +181,10 @@ pub async fn get_slots(
             loading_strategy: format!("{:?}", s.loading),
             assigned_model_id: s.assigned_model,
             fallback: s.fallback,
+            runtime: s.runtime.map(|r| r.to_string()),
+            default_model: s.default_model,
+            requires: s.requires,
+            overrides: s.overrides,
         })
         .collect())
 }

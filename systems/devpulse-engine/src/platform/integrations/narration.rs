@@ -159,7 +159,7 @@ fn friendly_slot_name(slot_id: &str) -> &str {
         "vision.embedder" => "the Vision System",
         "voice.tts.primary" => "Clyffy's Voice",
         "voice.snac" => "the Audio Decoder",
-        "voice.tts.fallback" => "the Backup Voice",
+        "voice.tts.fallback" => "Clyffy's Backup Voice",
         "voice.stt" => "Voice Input",
         "voice.stt.upgrade" => "Enhanced Voice Input",
         _ => slot_id,

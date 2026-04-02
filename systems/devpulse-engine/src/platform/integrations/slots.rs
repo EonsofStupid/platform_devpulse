@@ -130,7 +130,7 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
         },
         Slot {
             id: "voice.tts.fallback".into(),
-            label: "Backup Voice (Kokoro)".into(),
+            label: "Clyffy Voice (Kokoro)".into(),
             capability: ModelCapability::TextToSpeech,
             preferred_device: DevicePreference::Cpu,
             loading: LoadingStrategy::OnDemand,
