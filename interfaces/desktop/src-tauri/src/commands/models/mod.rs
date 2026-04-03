@@ -379,8 +379,14 @@ pub async fn auto_configure(
     serde_json::to_string(&config).map_err(|e| e.to_string())
 }
 
-/// Called when the setup wizard finishes. Verifies models are present,
-/// emits the models-ready signal, and opens the chat window.
+/// Called when the setup wizard finishes.
+///
+/// 1. Re-scans the model registry to pick up any newly downloaded/imported models.
+/// 2. Auto-assigns unassigned models to matching slots by capability.
+/// 3. Verifies at least the chat.brain slot has an assigned model.
+/// 4. Only THEN emits the models-ready signal and opens the chat window.
+///
+/// Returns error if no text-generation model is available for chat.brain.
 #[tauri::command]
 #[specta::specta]
 pub async fn complete_model_setup(
@@ -388,14 +394,69 @@ pub async fn complete_model_setup(
     state: State<'_, PlatformState>,
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
-    let registry = loader.get_registry().await;
+
+    // Re-scan to pick up anything downloaded/imported during wizard
+    if let Err(e) = loader.scan_models().await {
+        tracing::warn!(error = %e, "Post-wizard scan failed (non-fatal)");
+    }
+
+    // Auto-assign: for each unassigned user-managed slot, find a compatible model
     let slots = loader.list_slots().await;
-    let assigned = slots.iter().filter(|s| s.assigned_model.is_some()).count();
+    let registry = loader.get_registry().await;
+
+    for slot in &slots {
+        if slot.assigned_model.is_some() {
+            continue; // Already assigned
+        }
+        // Find first compatible model by capability
+        for model in &registry {
+            let cap_str = slot.capability.to_string();
+            if model.compatible_capabilities.iter().any(|c| c.to_string() == cap_str) {
+                if let Err(e) = loader.assign_model(&slot.id, &model.id).await {
+                    tracing::warn!(slot = %slot.id, model = %model.id, error = %e,
+                        "Auto-assign failed (non-fatal)");
+                } else {
+                    tracing::info!(slot = %slot.id, model = %model.filename,
+                        "Auto-assigned model to slot");
+                }
+                break; // One model per slot
+            }
+        }
+    }
+
+    // Verify: chat.brain MUST have a model assigned
+    let slots_after = loader.list_slots().await;
+    let brain = slots_after.iter().find(|s| s.id == "chat.brain");
+    let brain_assigned = brain.map(|s| s.assigned_model.is_some()).unwrap_or(false);
+
+    let assigned_count = slots_after.iter().filter(|s| s.assigned_model.is_some()).count();
+    let registry_count = loader.get_registry().await.len();
+
+    if !brain_assigned {
+        tracing::warn!(
+            models = registry_count,
+            assigned = assigned_count,
+            "Model setup incomplete — no chat brain model available"
+        );
+        // Still emit status but with ready=false so UI knows
+        let _ = app.emit(
+            "platform:models-status",
+            serde_json::json!({
+                "ready": false,
+                "firstRun": false,
+                "modelCount": registry_count,
+                "slotCount": slots_after.len(),
+                "assignedCount": assigned_count,
+                "error": "No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
+            }),
+        );
+        return Err("No AI brain model available. Import or download a GGUF model first.".into());
+    }
 
     tracing::info!(
-        models = registry.len(),
-        assigned,
-        "Model setup complete — signaling ready"
+        models = registry_count,
+        assigned = assigned_count,
+        "Model setup verified — chat brain assigned, signaling ready"
     );
 
     // Emit ready signal to frontend
@@ -404,9 +465,9 @@ pub async fn complete_model_setup(
         serde_json::json!({
             "ready": true,
             "firstRun": false,
-            "modelCount": registry.len(),
-            "slotCount": slots.len(),
-            "assignedCount": assigned,
+            "modelCount": registry_count,
+            "slotCount": slots_after.len(),
+            "assignedCount": assigned_count,
         }),
     );
 

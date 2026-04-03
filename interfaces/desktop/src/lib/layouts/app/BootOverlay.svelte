@@ -81,15 +81,24 @@ $effect(() => {
 	}
 });
 
+let setupError = $state<string | null>(null);
+
 /** Called when the SetupWizard finishes (models downloaded + assigned). */
 async function handleWizardComplete(): Promise<void> {
+	setupError = null;
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("complete_model_setup");
-		// The command emits "platform:models-status" with ready=true,
+		const { commands } = await import("$lib/sys/generated/bindings.js");
+		const result = await commands.completeModelSetup();
+		if (result.status === "error") {
+			setupError = result.error;
+			console.error("[BootOverlay] complete_model_setup:", result.error);
+		}
+		// On success, the command emits "platform:models-status" with ready=true,
 		// which updates platformState.modelsReady → isFullyReady → fade.
 	} catch (e) {
-		console.error("[BootOverlay] complete_model_setup failed:", e);
+		const msg = e instanceof Error ? e.message : String(e);
+		setupError = msg;
+		console.error("[BootOverlay] complete_model_setup failed:", msg);
 	}
 }
 </script>
@@ -207,6 +216,12 @@ async function handleWizardComplete(): Promise<void> {
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
+			{#if setupError}
+				<div class="rounded-lg border-l-4 px-4 py-3" style="border-color: var(--signal-error); background: var(--surface-base);">
+					<p class="text-sm font-semibold" style="color: var(--signal-error);">{setupError}</p>
+					<p class="mt-1 text-xs opacity-70">Import or download a model, then try again.</p>
+				</div>
+			{/if}
 			{#await import("$lib/domains/app/models/components/SetupWizard.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}
