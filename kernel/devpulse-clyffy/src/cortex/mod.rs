@@ -1,3 +1,5 @@
+/// Integration adapters (safety, persistence wrappers, KV cache).
+pub mod adapters;
 /// Context-Augmented Generation (CAG) retrieval pipeline.
 pub mod cag;
 /// KV cache tier for attention optimization.
@@ -8,6 +10,8 @@ pub mod minions;
 pub mod persistence;
 /// Reasoning pipeline (chains, HMM).
 pub mod reasoning;
+/// Trait definitions (memory, reasoning, security contracts).
+pub mod traits;
 
 /// Cortex brain state container.
 #[derive(Default)]

@@ -47,6 +47,16 @@ candle-nn = "0.8"
 candle-transformers = "0.8"
 ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "ndarray", "load-dynamic"] }
 
+# AST Analysis (GUARDIAN — tree-sitter powered security + refactoring safety)
+tree-sitter = "0.24"
+tree-sitter-rust = "0.23"
+tree-sitter-typescript = "0.23"
+tree-sitter-javascript = "0.23"
+tree-sitter-python = "0.23"
+tree-sitter-go = "0.23"
+tree-sitter-java = "0.23"
+tree-sitter-c = "0.23"
+
 # Ops (xtask Support)
 xshell = "0.2" # Shell scripting in Rust
 clap = { version = "4.5", features = ["derive"] } # CLI parsing
