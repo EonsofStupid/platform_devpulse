@@ -177,29 +177,58 @@ const recommendations = $derived.by((): ModelRec[] => {
 		file: "nomic-embed-text-v1.5.Q8_0.gguf",
 	};
 
+	// Voice models — mandatory for all tiers, runs on CPU
+	const whisper: ModelRec = {
+		name: "Voice Input",
+		purpose: "Speech recognition",
+		sizeMb: 466,
+		vramMb: 0,
+		fit: "green" as FitIndicator,
+		repo: "ggerganov/whisper.cpp",
+		file: "ggml-small.bin",
+	};
+
+	const kokoro: ModelRec = {
+		name: "Voice Output",
+		purpose: "Text to speech",
+		sizeMb: 82,
+		vramMb: 0,
+		fit: "green" as FitIndicator,
+		repo: "hexgrad/Kokoro-82M-v1.0-GGUF",
+		file: "kokoro-v1.0.gguf",
+	};
+
 	switch (hardwareState.tier) {
 		case "high":
 			return [
 				brain("AI Brain", 8100, 9200, "bartowski/Qwen3-14B-GGUF", "Qwen3-14B-Q4_K_M.gguf"),
 				worker(700, 400, "qwen3-0.6b-q8_0.gguf"),
 				embedder,
+				whisper,
+				kokoro,
 			];
 		case "medium":
 			return [
 				brain("AI Brain", 2600, 3200, "bartowski/Qwen3-4B-GGUF", "Qwen3-4B-Q4_K_M.gguf"),
 				worker(500, 350, "qwen3-0.6b-q4_k_m.gguf"),
 				embedder,
+				whisper,
+				kokoro,
 			];
 		case "low":
 			return [
 				brain("AI Brain", 1200, 1500, "bartowski/Qwen3-1.7B-GGUF", "Qwen3-1.7B-Q4_K_M.gguf"),
 				worker(500, 350, "qwen3-0.6b-q4_k_m.gguf"),
 				embedder,
+				whisper,
+				kokoro,
 			];
 		default:
 			return [
 				brain("AI Brain (CPU)", 500, 350, "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf"),
 				embedder,
+				whisper,
+				kokoro,
 			];
 	}
 });

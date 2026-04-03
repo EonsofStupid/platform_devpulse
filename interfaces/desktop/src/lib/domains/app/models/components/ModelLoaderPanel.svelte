@@ -4,7 +4,7 @@
   ALL styling via renderForge + cssVarString. Zero raw values.
 -->
 <script lang="ts">
-import { HardDrive, Search, Zap } from "lucide-svelte";
+import { FolderOpen, HardDrive, Search, Zap } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
@@ -12,7 +12,7 @@ import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
-import { downloadModel } from "../services/download.service.js";
+import { downloadModel, importLocalModel } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 import ClyffyNarration from "./ClyffyNarration.svelte";
 import ModelSearch from "./ModelSearch.svelte";
@@ -27,10 +27,19 @@ let showSearch = $state(false);
 async function handleDownload(repoId: string, filename: string) {
 	try {
 		await downloadModel(repoId, filename);
-		// Re-scan after download starts
 		modelsState.scan();
 	} catch (e) {
 		console.error("[ModelLoaderPanel] Download failed:", e);
+	}
+}
+
+async function handleImportLocal() {
+	try {
+		const filename = await importLocalModel();
+		console.info(`[ModelLoaderPanel] Imported: ${filename}`);
+		modelsState.scan();
+	} catch (e) {
+		console.error("[ModelLoaderPanel] Import failed:", e);
 	}
 }
 
@@ -216,6 +225,16 @@ const clyffyType = $derived.by(() => {
 		>
 			<HardDrive size={14} />
 			{showSearch ? "Hide Search" : "Download Model"}
+		</button>
+
+		<button
+			{...mActionScan.dataAttrs}
+			style={cssVarString(mActionScan.cssVars)}
+			class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:brightness-110"
+			onclick={handleImportLocal}
+		>
+			<FolderOpen size={14} />
+			Import from Disk
 		</button>
 	</div>
 

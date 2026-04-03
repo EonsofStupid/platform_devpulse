@@ -317,11 +317,17 @@ pub async fn search_huggingface(
     query: String,
     limit: Option<u32>,
 ) -> Result<Vec<HfSearchResultInfo>, String> {
-    let loader = get_loader(&state).await?;
+    let loader = get_loader(&state).await.map_err(|e| {
+        tracing::error!(query = %query, error = %e, "search_huggingface: loader unavailable");
+        e
+    })?;
     let results = loader
         .search_huggingface(&query, limit.unwrap_or(20))
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(query = %query, error = %e, "search_huggingface: HF API failed");
+            e.to_string()
+        })?;
 
     Ok(results
         .into_iter()
@@ -395,6 +401,63 @@ pub async fn complete_model_setup(
     }
 
     Ok(())
+}
+
+/// Import a model from the local filesystem.
+///
+/// Opens a native file picker filtered to GGUF files. Copies the selected
+/// file to the models directory and re-scans the registry.
+/// Returns the filename of the imported model, or error.
+#[tauri::command]
+#[specta::specta]
+pub async fn import_local_model(
+    state: State<'_, PlatformState>,
+) -> Result<String, String> {
+    // Open native file dialog on a blocking thread (rfd is sync)
+    let picked = tokio::task::spawn_blocking(|| {
+        rfd::FileDialog::new()
+            .set_title("Import AI Model")
+            .add_filter("GGUF Models", &["gguf"])
+            .add_filter("All Files", &["*"])
+            .pick_file()
+    })
+    .await
+    .map_err(|e| format!("File dialog failed: {e}"))?;
+
+    let source_path = picked.ok_or_else(|| "No file selected".to_string())?;
+
+    let filename = source_path
+        .file_name()
+        .ok_or_else(|| "Invalid filename".to_string())?
+        .to_string_lossy()
+        .to_string();
+
+    // Get data directory from platform config
+    let loader = get_loader(&state).await?;
+
+    // Resolve models dir — same path boot uses: {data_dir}/models/chat/
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let data_dir = platform.data_dir();
+    let dest_dir = data_dir.join("models").join("chat");
+    drop(guard);
+
+    std::fs::create_dir_all(&dest_dir).map_err(|e| format!("Failed to create models/chat/: {e}"))?;
+    let dest_path = dest_dir.join(&filename);
+
+    if dest_path.exists() {
+        return Err(format!("Model '{filename}' already exists in models/chat/"));
+    }
+
+    tracing::info!(source = %source_path.display(), dest = %dest_path.display(), "Importing local model");
+    std::fs::copy(&source_path, &dest_path)
+        .map_err(|e| format!("Failed to copy model: {e}"))?;
+
+    // Re-scan registry to discover the new model
+    loader.scan_models().await.map_err(|e| format!("Scan failed: {e}"))?;
+
+    tracing::info!(filename = %filename, "Local model imported successfully");
+    Ok(filename)
 }
 
 /// Generate text using a loaded model slot.

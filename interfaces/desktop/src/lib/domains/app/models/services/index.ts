@@ -2,6 +2,7 @@ export {
 	autoConfigureHardware,
 	cancelDownload,
 	downloadModel,
+	importLocalModel,
 	onDownloadComplete,
 	onDownloadProgress,
 } from "./download.service.js";

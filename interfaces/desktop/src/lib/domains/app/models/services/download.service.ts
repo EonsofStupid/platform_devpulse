@@ -55,6 +55,20 @@ export async function autoConfigureHardware(): Promise<AutoConfig> {
 	}
 }
 
+/** Import a model from the local filesystem via native file picker. */
+export async function importLocalModel(): Promise<string> {
+	logInfo("models.download", "Opening file picker for local model import...");
+	try {
+		const filename = await invoke<string>("import_local_model");
+		logInfo("models.download", `Local model imported: ${filename}`);
+		return filename;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("models.download", `Import FAILED: ${msg}`);
+		throw new Error(`Import failed: ${msg}`);
+	}
+}
+
 /** Listen to download progress events. Returns unsubscribe function. */
 export function onDownloadProgress(callback: (progress: DownloadProgress) => void): () => void {
 	let unlisten: (() => void) | null = null;

@@ -66,6 +66,7 @@ pub fn run() {
         commands::models::download_model,
         commands::models::cancel_download,
         commands::models::search_huggingface,
+        commands::models::import_local_model,
         commands::models::auto_configure,
         commands::models::complete_model_setup,
         commands::models::inference_generate,

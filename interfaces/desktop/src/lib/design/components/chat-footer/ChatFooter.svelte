@@ -61,7 +61,7 @@ const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 	{...m.dataAttrs}
 	data-slot="chat-footer"
 	style={cssVarString(m.cssVars)}
-	class={cn("flex items-center gap-2", className)}
+	class={cn("flex items-center gap-3 px-4 py-3 min-h-16", className)}
 	{...rest}
 >
 	<TextField
