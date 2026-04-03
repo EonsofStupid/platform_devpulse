@@ -5,7 +5,7 @@
   ALL styling via renderForge + cssVarString + Tailwind layout.
 -->
 <script lang="ts">
-import { CircleCheck, Download, Scan, Sparkles, Zap } from "lucide-svelte";
+import { CircleCheck, Download, FolderOpen, Scan, Sparkles, Zap } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -17,6 +17,7 @@ import { modelsState } from "../runes/models.runes.svelte.js";
 import { loadWizardContent, type WizardContent } from "../services/content.service.js";
 import {
 	downloadModel,
+	importLocalModel,
 	onDownloadComplete,
 	onDownloadProgress,
 } from "../services/download.service.js";
@@ -338,6 +339,19 @@ async function handleSetup(): Promise<void> {
 	}
 }
 
+/** Import a model from the local filesystem via native file picker. */
+async function handleImportLocal(): Promise<void> {
+	try {
+		await importLocalModel();
+		await scanModels();
+		await modelsState.refresh();
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		error = msg;
+		console.error("[SetupWizard] Import failed:", e);
+	}
+}
+
 function handleManualSetup(): void {
 	// Skip wizard, let user configure manually via Model Control
 	onComplete?.();
@@ -470,10 +484,32 @@ const fitColorMap: Record<string, string> = {
 			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
 		</div>
 
-		<!-- Search — full width below the grid -->
+		<!-- Import from local disk -->
+		<div class="flex items-center gap-3 py-1">
+			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
+			<Text size="xs" color="muted">or load from your computer</Text>
+			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
+		</div>
+
+		<button
+			class="flex items-center gap-2 self-center rounded-lg px-6 py-2.5 text-sm font-semibold transition-all hover:brightness-125"
+			style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+			onclick={handleImportLocal}
+		>
+			<FolderOpen size={16} />
+			Import Model from Disk
+		</button>
+
+		<!-- Search HuggingFace -->
+		<div class="flex items-center gap-3 py-1">
+			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
+			<Text size="xs" color="muted">or search HuggingFace</Text>
+			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
+		</div>
+
 		<ModelSearch onDownload={handleSearchDownload} />
 
-		<!-- Error from previous download attempt -->
+		<!-- Error from previous download/import attempt -->
 		{#if error}
 			<ClyffyNarration message={error} type="error" />
 		{/if}
