@@ -2,10 +2,11 @@
  * @file Hardware State Rune
  * @module @devpulse/domains/app/models/runes/hardware
  *
- * Reactive hardware metrics with automatic polling.
- * Uses specta-generated HardwareInfo type (snake_case fields).
+ * Purely reactive hardware metrics — Rust pushes data via Tauri events.
+ * No setInterval, no browser throttling issues. Frontend just listens.
  */
 
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { fetchHardwareMetrics, type HardwareInfo } from "../services/hardware.service.js";
 import type { FitIndicator, HardwareTier } from "../types/models.types.js";
 import { calculateFit } from "../types/models.types.js";
@@ -14,44 +15,44 @@ class HardwareState {
 	metrics = $state<HardwareInfo | null>(null);
 	loading = $state(false);
 	error = $state<string | null>(null);
-	private intervalId: ReturnType<typeof setInterval> | null = null;
+	private unlisten: UnlistenFn | null = null;
 
-	/** Fetch fresh hardware metrics. Stores error in state — does NOT swallow. */
+	/** Fetch once on demand (initial load, manual refresh). */
 	async refresh(): Promise<void> {
 		this.loading = true;
 		try {
 			this.metrics = await fetchHardwareMetrics();
-			this.error = null; // clear previous error on success
+			this.error = null;
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			this.error = msg;
-			// In dev mode: stop polling on first failure so the error is visible
-			this.stopPolling();
 			console.error(`[HardwareState] HARD FAIL: ${msg}`);
 		} finally {
 			this.loading = false;
 		}
 	}
 
-	/** Start polling at the given interval. Stops on first error. */
-	startPolling(intervalMs = 2000): void {
-		this.stopPolling();
-		this.refresh();
-		this.intervalId = setInterval(() => {
-			// Don't poll if we have an error — force user to see it
-			if (this.error) {
-				this.stopPolling();
-				return;
-			}
-			this.refresh();
-		}, intervalMs);
+	/**
+	 * Start listening to Rust-pushed hardware events.
+	 * Replaces setInterval polling — Rust runs a 2s loop that is never
+	 * throttled by browser visibility/focus state.
+	 */
+	async startListening(): Promise<void> {
+		this.stopListening();
+		// Initial fetch so we have data immediately
+		await this.refresh();
+
+		this.unlisten = await listen<HardwareInfo>("model:hardware", (event) => {
+			this.metrics = event.payload;
+			this.error = null;
+		});
 	}
 
-	/** Stop polling. */
-	stopPolling(): void {
-		if (this.intervalId !== null) {
-			clearInterval(this.intervalId);
-			this.intervalId = null;
+	/** Stop listening to hardware events. */
+	stopListening(): void {
+		if (this.unlisten) {
+			this.unlisten();
+			this.unlisten = null;
 		}
 	}
 
@@ -61,7 +62,6 @@ class HardwareState {
 		return this.metrics?.gpu_name !== null && this.metrics?.gpu_name !== undefined;
 	}
 
-	/** Why GPU detection failed, if applicable. */
 	get gpuError(): string | null {
 		return this.metrics?.gpu_error ?? null;
 	}
@@ -83,15 +83,13 @@ class HardwareState {
 		return (this.vramUsedMb / this.vramTotalMb) * 100;
 	}
 
-	/** Color for the VRAM gauge: green < 60%, yellow 60-85%, red > 85%. */
 	get vramColor(): string {
 		const pct = this.vramPercent;
-		if (pct < 60) return "oklch(0.75 0.18 155)"; // green
-		if (pct < 85) return "oklch(0.82 0.16 85)"; // yellow
-		return "oklch(0.65 0.22 25)"; // red
+		if (pct < 60) return "var(--signal-success)";
+		if (pct < 85) return "var(--signal-warning)";
+		return "var(--signal-error)";
 	}
 
-	/** Detect hardware tier. */
 	get tier(): HardwareTier {
 		const vram = this.vramTotalMb;
 		if (!this.hasGpu) return "cpu_only";
@@ -101,7 +99,6 @@ class HardwareState {
 		return "minimal";
 	}
 
-	/** Calculate fit for a model given current hardware state. */
 	fitForModel(vramEstimateMb: number): FitIndicator {
 		return calculateFit(
 			vramEstimateMb,

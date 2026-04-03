@@ -5,11 +5,11 @@
  * Reactive state for HuggingFace model search.
  */
 
-import { type HfSearchResult, searchHuggingFace } from "../services/search.service.js";
+import { type HfSearchResultInfo, searchHuggingFace } from "../services/search.service.js";
 
 class SearchState {
 	query = $state("");
-	results = $state<HfSearchResult[]>([]);
+	results = $state<HfSearchResultInfo[]>([]);
 	searching = $state(false);
 	error = $state<string | null>(null);
 

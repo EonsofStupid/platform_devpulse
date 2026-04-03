@@ -41,10 +41,10 @@ const mActionScan = $derived(renderForge({ kind: "model-action", preset: "info" 
 const mActionDownload = $derived(renderForge({ kind: "model-action", preset: "success" }));
 
 $effect(() => {
-	hardwareState.startPolling(2000);
+	hardwareState.startListening();
 	modelsState.refresh();
 	return () => {
-		hardwareState.stopPolling();
+		hardwareState.stopListening();
 	};
 });
 
@@ -60,7 +60,7 @@ const clyffyMessage = $derived.by(() => {
 
 	if (modelsState.firstRun && modelCount === 0) {
 		return hardwareState.hasGpu
-			? `I see you have a ${hw.gpuName} with ${formatMb(hardwareState.vramTotalMb)} GPU memory. Let me recommend some models that fit your hardware.`
+			? `I see you have a ${hw.gpu_name} with ${formatMb(hardwareState.vramTotalMb)} GPU memory. Let me recommend some models that fit your hardware.`
 			: "No GPU detected — I'll set things up for CPU mode. It's slower but everything works.";
 	}
 
@@ -120,6 +120,7 @@ const clyffyType = $derived.by(() => {
 			usedMb={hardwareState.vramUsedMb}
 			totalMb={hardwareState.vramTotalMb}
 			hasGpu={hardwareState.hasGpu}
+			gpuError={hardwareState.gpuError}
 			label={layman ? "GPU Memory" : "VRAM"}
 		/>
 
@@ -132,36 +133,36 @@ const clyffyType = $derived.by(() => {
 				<div>
 					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">CPU</Text>
-						<Text size="xs" color="secondary">{hardwareState.metrics.cpuUsagePercent.toFixed(0)}%</Text>
+						<Text size="xs" color="secondary">{hardwareState.metrics.cpu_usage_percent.toFixed(0)}%</Text>
 					</div>
 					<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-						<div class="h-full rounded-full" style="width: {hardwareState.metrics.cpuUsagePercent}%; background: var(--color);"></div>
+						<div class="h-full rounded-full" style="width: {hardwareState.metrics.cpu_usage_percent}%; background: var(--color);"></div>
 					</div>
 				</div>
 				<div>
 					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">RAM</Text>
-						<Text size="xs" color="secondary">{formatMb(hardwareState.metrics.ramUsedMb)} / {formatMb(hardwareState.metrics.ramTotalMb)}</Text>
+						<Text size="xs" color="secondary">{formatMb(hardwareState.metrics.ram_used_mb)} / {formatMb(hardwareState.metrics.ram_total_mb)}</Text>
 					</div>
 					<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-						<div class="h-full rounded-full" style="width: {(hardwareState.metrics.ramUsedMb / hardwareState.metrics.ramTotalMb) * 100}%; background: var(--color);"></div>
+						<div class="h-full rounded-full" style="width: {(hardwareState.metrics.ram_used_mb / hardwareState.metrics.ram_total_mb) * 100}%; background: var(--color);"></div>
 					</div>
 				</div>
-				{#if hardwareState.hasGpu && hardwareState.metrics.gpuUtilizationPercent !== null}
+				{#if hardwareState.hasGpu && hardwareState.metrics.gpu_utilization_percent !== null}
 					<div>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="muted">GPU Load</Text>
-							<Text size="xs" color="secondary">{hardwareState.metrics.gpuUtilizationPercent.toFixed(0)}%</Text>
+							<Text size="xs" color="secondary">{hardwareState.metrics.gpu_utilization_percent.toFixed(0)}%</Text>
 						</div>
 						<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-							<div class="h-full rounded-full" style="width: {hardwareState.metrics.gpuUtilizationPercent}%; background: var(--color);"></div>
+							<div class="h-full rounded-full" style="width: {hardwareState.metrics.gpu_utilization_percent}%; background: var(--color);"></div>
 						</div>
 					</div>
 				{/if}
-				{#if hardwareState.hasGpu && hardwareState.metrics.gpuTemperatureC !== null}
+				{#if hardwareState.hasGpu && hardwareState.metrics.gpu_temperature_c !== null}
 					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">GPU Temp</Text>
-						<Text size="xs" color="secondary">{hardwareState.metrics.gpuTemperatureC}°C</Text>
+						<Text size="xs" color="secondary">{hardwareState.metrics.gpu_temperature_c}°C</Text>
 					</div>
 				{/if}
 			</div>
@@ -172,7 +173,7 @@ const clyffyType = $derived.by(() => {
 	{#if hardwareState.metrics}
 		<div class={hstack({ justify: "center", gap: "2" })}>
 			{#if hardwareState.hasGpu}
-				<Badge variant="positive" size="sm">{hardwareState.metrics.gpuName}</Badge>
+				<Badge variant="positive" size="sm">{hardwareState.metrics.gpu_name}</Badge>
 			{:else}
 				<Badge variant="neutral" size="sm">CPU Only</Badge>
 			{/if}

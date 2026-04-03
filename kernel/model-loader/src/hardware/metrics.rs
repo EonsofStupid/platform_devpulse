@@ -24,6 +24,8 @@ pub struct HardwareMetrics {
     pub ram_available_mb: u64,
 
     // GPU (all `None` if no NVIDIA GPU detected)
+    /// Why GPU detection failed (None = success or not attempted).
+    pub gpu_error: Option<String>,
     /// GPU model name.
     pub gpu_name: Option<String>,
     /// Total VRAM in MB.
@@ -143,7 +145,8 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
     let nvml = match Nvml::init() {
         Ok(n) => n,
         Err(e) => {
-            tracing::debug!("NVML init failed (no NVIDIA driver?): {e}");
+            tracing::warn!("NVML init failed — GPU detection unavailable: {e}");
+            metrics.gpu_error = Some(format!("NVML driver: {e}"));
             return;
         }
     };
@@ -151,7 +154,8 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
     let device = match nvml.device_by_index(0) {
         Ok(d) => d,
         Err(e) => {
-            tracing::debug!("NVML device 0 not found: {e}");
+            tracing::warn!("NVML device 0 not found: {e}");
+            metrics.gpu_error = Some(format!("No NVIDIA device: {e}"));
             return;
         }
     };
