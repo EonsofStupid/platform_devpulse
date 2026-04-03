@@ -53,9 +53,9 @@ $effect(() => {
 	loadWizardContent().then((c) => {
 		content = c;
 	});
-	hardwareState.startPolling(2000);
+	hardwareState.startListening();
 	return () => {
-		hardwareState.stopPolling();
+		hardwareState.stopListening();
 		if (knowledgeTimer) clearInterval(knowledgeTimer);
 	};
 });

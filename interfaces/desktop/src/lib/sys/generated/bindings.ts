@@ -591,6 +591,10 @@ ram_used_mb: number;
  */
 ram_available_mb: number; 
 /**
+ * Why GPU detection failed (None = success or not attempted).
+ */
+gpu_error: string | null; 
+/**
  * GPU model name (None if no GPU).
  */
 gpu_name: string | null; 
@@ -1019,7 +1023,11 @@ export type WindowRole =
 /**
  * Model loader — slot management
  */
-"ModelLoader"
+"ModelLoader" | 
+/**
+ * Voice Lab — TTS/STT config devtool
+ */
+"VoiceLab"
 
 /** tauri-specta globals **/
 

@@ -3,7 +3,8 @@
   @module @devpulse/layouts/app/BootOverlay
 
   Full-viewport overlay during platform boot.
-  Shows per-subsystem progress with status indicators and latencies.
+  Phase 1: Subsystem progress (narrow centered column).
+  Phase 2: Model setup wizard (wider, scrollable).
   Fades out and unmounts when boot completes.
 
   All layout via utils (hstack, stack, box -> class strings).
@@ -36,6 +37,7 @@ let visible = $state(true);
 let fading = $state(false);
 
 const subsystems = $derived(platformState.subsystemList());
+const isWizardPhase = $derived(platformState.needsModelSetup);
 
 function stateToVariant(state: SubsystemState): BadgeVariant {
 	switch (state) {
@@ -106,7 +108,20 @@ async function handleWizardComplete(): Promise<void> {
 		variant="boot"
 		src="/imgs/backgrounds/maincontentbackground.png"
 	/>
-	<div class={cn(stack({ gap: "24", align: "center" }), "min-w-[320px] max-w-[400px] p-[var(--space-32)]")}>
+
+	<!--
+		Two-phase container:
+		Boot phase → narrow centered column (400px) for subsystem list.
+		Wizard phase → wider (768px) with scroll for model setup.
+	-->
+	<div class={cn(
+		stack({ gap: "6", align: "center" }),
+		"overflow-y-auto scrollbar-thin",
+		isWizardPhase
+			? "w-full max-w-3xl max-h-[90vh] px-8 py-6"
+			: "min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
+		"transition-all duration-300 ease-out",
+	)}>
 		<!-- Wordmark -->
 		<div class={stack({ gap: "4", align: "center" })}>
 			<Text size="lg" weight="bold">DevPulse</Text>
@@ -118,78 +133,80 @@ async function handleWizardComplete(): Promise<void> {
 			</div>
 		</div>
 
-		<!-- Subsystem list -->
-		<div class={cn(stack({ gap: "8" }), "w-full")}>
-			{#each subsystems as sub (sub.name)}
-				{@const Icon = getIcon(sub.name)}
-				{@const label = stateToLabel(sub.state, sub.latencyMs)}
+		<!-- Subsystem list — always visible during boot, collapses during wizard -->
+		{#if !isWizardPhase}
+			<div class={cn(stack({ gap: "8" }), "w-full")}>
+				{#each subsystems as sub (sub.name)}
+					{@const Icon = getIcon(sub.name)}
+					{@const label = stateToLabel(sub.state, sub.latencyMs)}
+					<div
+						class={cn(
+							box({ paddingX: "12", paddingY: "6" }),
+							"rounded-md",
+							sub.state === "skipped" && "opacity-50",
+						)}
+						data-kind="box"
+						data-slot="root"
+					>
+						<div class={hstack({ gap: "12", align: "center" })}>
+							<Badge
+								variant={stateToVariant(sub.state)}
+								size="sm"
+								decorative
+								class="h-2 w-2 min-w-0 p-0"
+							>
+								&ZeroWidthSpace;
+							</Badge>
+							{#if Icon}
+								{@const IconComponent = Icon}
+								<IconComponent size={14} class="shrink-0 text-text-muted" />
+							{/if}
+							<Text size="sm" color={sub.state === "skipped" ? "muted" : "secondary"} class="flex-1">
+								{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
+							</Text>
+							{#if label}
+								<Text size="xs" color="muted">{label}</Text>
+							{/if}
+						</div>
+					</div>
+				{/each}
+
+				{#if subsystems.length === 0}
+					<Text size="xs" color="muted">Waiting for engine to start...</Text>
+				{/if}
+			</div>
+
+			<!-- Progress bar -->
+			<Progress
+				value={platformState.progress}
+				max={100}
+				size="sm"
+				class="w-full"
+			/>
+
+			<!-- Elapsed time -->
+			{#if platformState.isBooting}
+				<Text size="xs" color="muted">{platformState.bootElapsedFormatted} elapsed</Text>
+			{/if}
+
+			<!-- Error state -->
+			{#if platformState.hasFailed && platformState.error}
 				<div
 					class={cn(
-						box({ paddingX: "12", paddingY: "6" }),
-						"rounded-md",
-						sub.state === "skipped" && "opacity-50",
+						box({ paddingX: "12", paddingY: "8" }),
+						"w-full text-center rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
 					)}
 					data-kind="box"
 					data-slot="root"
 				>
-					<div class={hstack({ gap: "12", align: "center" })}>
-						<Badge
-							variant={stateToVariant(sub.state)}
-							size="sm"
-							decorative
-							class="h-2 w-2 min-w-0 p-0"
-						>
-							&ZeroWidthSpace;
-						</Badge>
-						{#if Icon}
-							{@const IconComponent = Icon}
-							<IconComponent size={14} class="shrink-0 text-text-muted" />
-						{/if}
-						<Text size="sm" color={sub.state === "skipped" ? "muted" : "secondary"} class="flex-1">
-							{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
-						</Text>
-						{#if label}
-							<Text size="xs" color="muted">{label}</Text>
-						{/if}
-					</div>
+					<Text size="xs" color="accent">{platformState.error}</Text>
 				</div>
-			{/each}
-
-			{#if subsystems.length === 0}
-				<Text size="xs" color="muted">Waiting for engine to start...</Text>
 			{/if}
-		</div>
-
-		<!-- Progress bar -->
-		<Progress
-			value={platformState.progress}
-			max={100}
-			size="sm"
-			class="w-full"
-		/>
-
-		<!-- Elapsed time -->
-		{#if platformState.isBooting}
-			<Text size="xs" color="muted">{platformState.bootElapsedFormatted} elapsed</Text>
-		{/if}
-
-		<!-- Error state -->
-		{#if platformState.hasFailed && platformState.error}
-			<div
-				class={cn(
-					box({ paddingX: "12", paddingY: "8" }),
-					"w-full text-center rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
-				)}
-				data-kind="box"
-				data-slot="root"
-			>
-				<Text size="xs" color="accent">{platformState.error}</Text>
-			</div>
 		{/if}
 
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
-		{#if platformState.needsModelSetup}
+		{#if isWizardPhase}
 			{#await import("$lib/domains/app/models/components/BootSetupWizard.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}

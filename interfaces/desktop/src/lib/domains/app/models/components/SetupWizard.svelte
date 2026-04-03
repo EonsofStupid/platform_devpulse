@@ -180,7 +180,7 @@ const clyffyMessage = $derived.by((): string => {
 			return "Let me check what hardware you've got...";
 		case "recommendation":
 			if (hardwareState.hasGpu) {
-				return `I see a ${hardwareState.metrics?.gpuName} with ${formatMb(hardwareState.vramTotalMb)}. Here's what I recommend for your setup.`;
+				return `I see a ${hardwareState.metrics?.gpu_name} with ${formatMb(hardwareState.vramTotalMb)}. Here's what I recommend for your setup.`;
 			}
 			return "No GPU detected — I'll set up CPU-friendly models. Slower but everything works.";
 		case "downloading":
@@ -278,7 +278,8 @@ async function handleSetup() {
 				usedMb={hardwareState.vramUsedMb}
 				totalMb={hardwareState.vramTotalMb}
 				hasGpu={hardwareState.hasGpu}
-				label={hardwareState.hasGpu ? hardwareState.metrics?.gpuName ?? "GPU" : "CPU Mode"}
+				gpuError={hardwareState.gpuError}
+				label={hardwareState.hasGpu ? hardwareState.metrics?.gpu_name ?? "GPU" : "CPU Mode"}
 			/>
 			<Badge variant="positive" size="sm">{tierLabel}</Badge>
 		</div>

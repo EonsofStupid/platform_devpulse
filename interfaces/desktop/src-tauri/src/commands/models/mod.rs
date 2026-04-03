@@ -77,6 +77,8 @@ pub struct HardwareInfo {
     pub ram_used_mb: u64,
     /// Available system RAM (MB).
     pub ram_available_mb: u64,
+    /// Why GPU detection failed (None = success or not attempted).
+    pub gpu_error: Option<String>,
     /// GPU model name (None if no GPU).
     pub gpu_name: Option<String>,
     /// Total GPU VRAM (MB).
@@ -121,6 +123,7 @@ pub async fn get_hardware_metrics(
         ram_total_mb: m.ram_total_mb,
         ram_used_mb: m.ram_used_mb,
         ram_available_mb: m.ram_available_mb,
+        gpu_error: m.gpu_error,
         gpu_name: m.gpu_name,
         gpu_vram_total_mb: m.gpu_vram_total_mb,
         gpu_vram_used_mb: m.gpu_vram_used_mb,

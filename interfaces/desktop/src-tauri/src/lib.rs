@@ -307,6 +307,11 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 }),
             );
 
+            // ── Hardware metrics push loop ───────────────────────
+            // Rust-driven: no frontend polling. Browser throttling can't
+            // affect this — Rust tokio runtime is never throttled.
+            spawn_hardware_push(app.clone());
+
             // ── Model readiness check ────────────────────────────
             // Query the model loader to determine if models are present
             // and assigned. Frontend uses this to decide: show app or
@@ -391,6 +396,34 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             );
         }
     }
+}
+
+/// Rust-driven hardware metrics push — replaces frontend setInterval polling.
+///
+/// Runs every 2s. Emits `"model:hardware"` Tauri events with fresh metrics.
+/// The frontend just listens — no timers, no browser throttling issues.
+fn spawn_hardware_push(app: tauri::AppHandle) {
+    let state = app.state::<PlatformState>();
+    let platform_lock = state.platform.clone();
+
+    tauri::async_runtime::spawn(async move {
+        let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
+        loop {
+            interval.tick().await;
+
+            let guard = platform_lock.read().await;
+            let Some(ref platform) = *guard else {
+                continue;
+            };
+
+            let Some(loader) = platform.model_loader() else {
+                continue;
+            };
+
+            let metrics = loader.hardware_metrics().await;
+            let _ = app.emit("model:hardware", &metrics);
+        }
+    });
 }
 
 /// Seed sample data for dev mode — only if tables are empty.

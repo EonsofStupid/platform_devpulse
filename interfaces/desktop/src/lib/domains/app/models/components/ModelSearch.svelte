@@ -10,6 +10,7 @@ import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { searchState } from "../runes/search.runes.svelte.js";
+import ClyffyNarration from "./ClyffyNarration.svelte";
 import HfModelCard from "./HfModelCard.svelte";
 
 interface Props {
@@ -76,13 +77,10 @@ function handleClear() {
 			<Text size="sm" color="muted">Searching HuggingFace...</Text>
 		</div>
 	{:else if searchState.error}
-		<div class="rounded-lg border-l-4 border-red-500/50 px-3 py-2">
-			<Text size="xs" weight="bold" color="primary">Search Error</Text>
-			<Text size="xs" color="muted">{searchState.error}</Text>
-		</div>
+		<ClyffyNarration message={searchState.error} type="error" />
 	{:else if searchState.results.length > 0}
 		<div class={`${stack({ gap: "2" })} max-h-96 overflow-y-auto`}>
-			{#each searchState.results as result (result.repoId)}
+			{#each searchState.results as result (result.repo_id)}
 				<HfModelCard {result} {onDownload} />
 			{/each}
 		</div>
