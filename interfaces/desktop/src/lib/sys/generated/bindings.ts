@@ -330,6 +330,21 @@ async searchHuggingface(query: string, limit: number | null) : Promise<Result<Hf
 }
 },
 /**
+ * Import a model from the local filesystem.
+ * 
+ * Opens a native file picker filtered to GGUF files. Copies the selected
+ * file to the models directory and re-scans the registry.
+ * Returns the filename of the imported model, or error.
+ */
+async importLocalModel() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("import_local_model") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Auto-configure model recommendations based on detected hardware.
  */
 async autoConfigure() : Promise<Result<string, string>> {
@@ -945,7 +960,15 @@ requires: string[];
 /**
  * Slot ID this can replace when conditions are met.
  */
-overrides: string | null }
+overrides: string | null;
+/**
+ * Whether this slot's model is bundled with the app (not user-managed).
+ */
+embedded: boolean;
+/**
+ * Path relative to models dir for bundled models.
+ */
+bundled_path: string | null }
 /**
  * Health of an individual subsystem (database, cache, etc.).
  */

@@ -147,11 +147,8 @@ export function friendlySlotLabel(slotId: string): string {
 		"rag.embedder": "Search Engine",
 		"rag.reranker": "Relevance Scorer",
 		"vision.embedder": "Vision",
-		"voice.tts.primary": "Clyffy's Voice",
-		"voice.snac": "Audio Decoder",
-		"voice.tts.fallback": "Clyffy's Backup Voice",
+		"voice.tts": "Clyffy's Voice",
 		"voice.stt": "Voice Input",
-		"voice.stt.upgrade": "Enhanced Voice Input",
 	};
 	return map[slotId] ?? slotId;
 }
@@ -165,11 +162,8 @@ export function friendlySlotPurpose(slotId: string): string {
 		"rag.embedder": "finding relevant code",
 		"rag.reranker": "ranking search results",
 		"vision.embedder": "understanding screenshots",
-		"voice.tts.primary": "speaking to you",
-		"voice.snac": "converting voice signals to sound",
-		"voice.tts.fallback": "speaking when main voice isn't available",
+		"voice.tts": "speaking to you",
 		"voice.stt": "listening to your voice",
-		"voice.stt.upgrade": "better voice recognition",
 	};
 	return map[slotId] ?? "its job";
 }

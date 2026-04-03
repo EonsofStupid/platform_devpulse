@@ -50,6 +50,10 @@ pub use devpulse_clyffy::cortex::persistence::{
     AnalyticsAdapter, CacheAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
+// Re-export model loader types needed by Tauri command layer
+#[cfg(feature = "inference")]
+pub use devpulse_clyffy::model_loader::ModelSourceTier;
+
 use anyhow::Result;
 use std::path::PathBuf;
 use std::sync::Arc;

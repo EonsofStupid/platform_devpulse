@@ -5,4 +5,4 @@ pub mod registry;
 pub mod types;
 
 pub use registry::SlotRegistry;
-pub use types::{DevicePreference, LoadingStrategy, ModelCapability, Slot};
+pub use types::{DevicePreference, LoadingStrategy, ModelCapability, ModelSourceTier, Slot};

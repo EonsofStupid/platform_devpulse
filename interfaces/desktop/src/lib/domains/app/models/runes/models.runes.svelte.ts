@@ -163,7 +163,28 @@ class ModelsState {
 		return this.models.find((m) => m.id === slot.assigned_model_id) ?? null;
 	}
 
-	/** Slots grouped by subsystem. */
+	/** User-managed slots only (visible in Model Loader UI). */
+	get userSlots(): SlotInfo[] {
+		return this.slots.filter((s) => !s.embedded);
+	}
+
+	/** Bundled slots (invisible in UI, auto-loaded on boot). */
+	get bundledSlots(): SlotInfo[] {
+		return this.slots.filter((s) => s.embedded);
+	}
+
+	/** User-managed slots grouped by subsystem (for Model Loader panel). */
+	get userSubsystems(): Record<string, SlotInfo[]> {
+		const groups: Record<string, SlotInfo[]> = {};
+		this.userSlots.forEach((s) => {
+			const sub = s.id.split(".")[0];
+			if (!groups[sub]) groups[sub] = [];
+			groups[sub].push(s);
+		});
+		return groups;
+	}
+
+	/** All slots grouped by subsystem (for dev tools / connectome). */
 	get subsystems(): Record<string, SlotInfo[]> {
 		const groups: Record<string, SlotInfo[]> = {};
 		this.slots.forEach((s) => {

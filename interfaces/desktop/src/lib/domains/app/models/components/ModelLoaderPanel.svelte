@@ -195,7 +195,7 @@ const clyffyType = $derived.by(() => {
 
 	<!-- Subsystem slot groups -->
 	<div class={stack({ gap: "2" })}>
-		{#each Object.entries(modelsState.subsystems) as [sub, slots] (sub)}
+		{#each Object.entries(modelsState.userSubsystems) as [sub, slots] (sub)}
 			<SubsystemGroup
 				name={sub}
 				label={modelsState.subsystemLabels[sub] ?? sub}

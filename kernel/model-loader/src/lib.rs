@@ -26,7 +26,7 @@ pub use backends::bridge::{InferenceHandle, InferenceResponse};
 pub use backends::voice::{AudioDecoderBackend, AudioSamples, SttBackend, TtsBackend};
 
 // Slot types
-pub use slots::{DevicePreference, LoadingStrategy, ModelCapability, Slot, SlotRegistry};
+pub use slots::{DevicePreference, LoadingStrategy, ModelCapability, ModelSourceTier, Slot, SlotRegistry};
 
 // Model types
 pub use models::{

@@ -35,6 +35,11 @@ pub struct SlotInfo {
     pub requires: Vec<String>,
     /// Slot ID this can replace when conditions are met.
     pub overrides: Option<String>,
+    /// Whether this slot's model is bundled with the app (not user-managed).
+    /// Bundled slots are invisible in the Model Loader UI.
+    pub embedded: bool,
+    /// Path relative to models dir for bundled models (e.g. `"voice/kokoro/model_quantized.onnx"`).
+    pub bundled_path: Option<String>,
 }
 
 /// Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
@@ -176,18 +181,28 @@ pub async fn get_slots(
 
     Ok(slots
         .into_iter()
-        .map(|s| SlotInfo {
-            id: s.id,
-            label: s.label,
-            capability: s.capability.to_string(),
-            preferred_device: s.preferred_device.to_string(),
-            loading_strategy: format!("{:?}", s.loading),
-            assigned_model_id: s.assigned_model,
-            fallback: s.fallback,
-            runtime: s.runtime.map(|r| r.to_string()),
-            default_model: s.default_model,
-            requires: s.requires,
-            overrides: s.overrides,
+        .map(|s| {
+            let (embedded, bundled_path) = match &s.source_tier {
+                devpulse_engine::platform::ModelSourceTier::Bundled { bundled_path } => {
+                    (true, Some(bundled_path.clone()))
+                }
+                devpulse_engine::platform::ModelSourceTier::UserManaged => (false, None),
+            };
+            SlotInfo {
+                id: s.id,
+                label: s.label,
+                capability: s.capability.to_string(),
+                preferred_device: s.preferred_device.to_string(),
+                loading_strategy: format!("{:?}", s.loading),
+                assigned_model_id: s.assigned_model,
+                fallback: s.fallback,
+                runtime: s.runtime.map(|r| r.to_string()),
+                default_model: s.default_model,
+                requires: s.requires,
+                overrides: s.overrides,
+                embedded,
+                bundled_path,
+            }
         })
         .collect())
 }

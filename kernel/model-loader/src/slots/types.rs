@@ -43,8 +43,31 @@ pub struct Slot {
     /// Slot ID that this slot can replace when conditions are met.
     pub overrides: Option<String>,
 
+    /// Whether this model is bundled with the app or user-managed.
+    pub source_tier: ModelSourceTier,
+
     /// Backend-specific configuration (voice_profile, vad, sample_rate, etc.).
     pub extensions: std::collections::HashMap<String, String>,
+}
+
+/// Whether a slot's model ships with the app or is user-managed.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub enum ModelSourceTier {
+    /// Ships with the app binary. Auto-loads on boot from bundled path.
+    /// User never downloads or manages these.
+    Bundled {
+        /// Path relative to models_dir (e.g. `"voice/kokoro/model_quantized.onnx"`).
+        bundled_path: String,
+    },
+    /// User downloads and manages via Model Loader UI.
+    UserManaged,
+}
+
+impl Default for ModelSourceTier {
+    fn default() -> Self {
+        Self::UserManaged
+    }
 }
 
 /// What kind of inference a model supports.
