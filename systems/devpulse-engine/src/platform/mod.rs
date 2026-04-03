@@ -26,6 +26,8 @@
 
 mod boot;
 pub mod config;
+#[allow(missing_docs)]
+pub mod facade;
 pub mod health;
 pub mod init;
 #[cfg(feature = "inference")]

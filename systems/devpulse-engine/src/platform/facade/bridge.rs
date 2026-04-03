@@ -1,0 +1,127 @@
+//! # Facade Bridge
+//!
+//! The runtime async task that sits on the internal event bus
+//! and fans out to two output channels:
+//!
+//! 1. **Dev channel** — raw `InternalEvent`, no translation, no filtering.
+//!    Consumed by Connectome, Lab tools.
+//!
+//! 2. **Surface channel** — translated `SurfaceEvent`, filtered and redacted.
+//!    Consumed by main UI, Clyffy chat.
+//!
+//! The bridge runs as a `tokio::spawn`ed task for the lifetime of the app.
+//! It reads the config on every event (cheap: just `RwLock::read()`).
+//!
+//! # Backpressure
+//!
+//! `tokio::broadcast` drops oldest messages when receivers lag.
+//! This is the correct behavior: if the UI can't keep up, stale
+//! events should be dropped rather than queued indefinitely.
+
+use std::sync::Arc;
+use std::time::Instant;
+
+use tokio::sync::{broadcast, RwLock};
+use tracing::{debug, trace, warn};
+
+use super::config::WhitelistConfig;
+use super::events::InternalEvent;
+use super::filter::FilterPipeline;
+use super::surface::SurfaceEvent;
+use super::translator::TranslationRegistry;
+
+/// The bridge task. Created by `FacadeHandle::spawn()`.
+pub struct FacadeBridge {
+    internal_rx: broadcast::Receiver<InternalEvent>,
+    surface_tx: broadcast::Sender<SurfaceEvent>,
+    dev_tx: broadcast::Sender<InternalEvent>,
+    config: Arc<RwLock<WhitelistConfig>>,
+    registry: Arc<TranslationRegistry>,
+}
+
+impl FacadeBridge {
+    pub fn new(
+        internal_rx: broadcast::Receiver<InternalEvent>,
+        surface_tx: broadcast::Sender<SurfaceEvent>,
+        dev_tx: broadcast::Sender<InternalEvent>,
+        config: Arc<RwLock<WhitelistConfig>>,
+        registry: Arc<TranslationRegistry>,
+    ) -> Self {
+        Self {
+            internal_rx,
+            surface_tx,
+            dev_tx,
+            config,
+            registry,
+        }
+    }
+
+    /// Main event loop. Runs until the internal sender is dropped.
+    pub async fn run(mut self) {
+        let start = Instant::now();
+        let mut pipeline = FilterPipeline::new(5);
+        let mut dev_dropped: u64 = 0;
+        let mut surface_dropped: u64 = 0;
+
+        loop {
+            match self.internal_rx.recv().await {
+                Ok(event) => {
+                    let elapsed_ms = start.elapsed().as_millis() as u64;
+
+                    // ── Dev channel: always forward raw event ────────
+                    if self.dev_tx.receiver_count() > 0 {
+                        if self.dev_tx.send(event.clone()).is_err() {
+                            dev_dropped += 1;
+                            if dev_dropped % 100 == 0 {
+                                warn!(dropped = dev_dropped, "Dev channel: receivers lagging");
+                            }
+                        }
+                    }
+
+                    // ── Surface channel: translate → filter → emit ───
+                    if self.surface_tx.receiver_count() > 0 {
+                        let config = self.config.read().await;
+
+                        let category = event.category();
+                        if !config.allows(category) {
+                            trace!(?category, "Blocked by whitelist");
+                            continue;
+                        }
+
+                        let Some(mut surface_event) = self.registry.translate(&event, &config) else {
+                            trace!(?category, "Translator returned None");
+                            continue;
+                        };
+
+                        surface_event.timestamp_ms = elapsed_ms;
+
+                        let Some(final_event) = pipeline.apply(surface_event, &config) else {
+                            trace!(?category, "Filtered by pipeline");
+                            continue;
+                        };
+
+                        if self.surface_tx.send(final_event).is_err() {
+                            surface_dropped += 1;
+                            if surface_dropped % 100 == 0 {
+                                warn!(dropped = surface_dropped, "Surface channel: receivers lagging");
+                            }
+                        }
+                    }
+                }
+
+                Err(broadcast::error::RecvError::Lagged(n)) => {
+                    warn!(lagged = n, "Facade bridge lagged — {n} events skipped");
+                }
+
+                Err(broadcast::error::RecvError::Closed) => {
+                    debug!("Internal event bus closed. Facade bridge shutting down.");
+                    break;
+                }
+            }
+        }
+
+        if dev_dropped > 0 || surface_dropped > 0 {
+            warn!(dev_dropped, surface_dropped, "Facade bridge shutdown. Total dropped.");
+        }
+    }
+}
