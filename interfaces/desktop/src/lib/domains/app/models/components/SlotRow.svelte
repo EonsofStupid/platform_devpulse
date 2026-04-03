@@ -27,7 +27,7 @@ const compatibleModels = $derived(modelsState.modelsForCapability(slot.capabilit
 
 const fit: FitIndicator = $derived.by(() => {
 	if (!assigned) return "gray";
-	return hardwareState.fitForModel(assigned.vramEstimateMb);
+	return hardwareState.fitForModel(assigned.vram_estimate_mb);
 });
 
 const fitIntent: SemanticIntent = $derived.by(() => {
@@ -108,7 +108,7 @@ async function handleAssign(modelId: string) {
 				</button>
 				{#if !layman}
 					<span class="text-xs opacity-60">
-						{formatMb(assigned.vramEstimateMb)} VRAM
+						{formatMb(assigned.vram_estimate_mb)} VRAM
 					</span>
 				{/if}
 			{:else}
@@ -172,7 +172,7 @@ async function handleAssign(modelId: string) {
 			<Text size="xs" color="muted">No compatible models found. Download one first.</Text>
 		{:else}
 			{#each compatibleModels as model (model.id)}
-				{@const modelFit = hardwareState.fitForModel(model.vramEstimateMb)}
+				{@const modelFit = hardwareState.fitForModel(model.vram_estimate_mb)}
 				{@const modelIntent = modelFit === "green" ? "success" : modelFit === "yellow" ? "warning" : modelFit === "red" ? "danger" : "neutral"}
 				{@const modelM = renderForge({ kind: "model-pick-row", preset: modelIntent })}
 				<button
@@ -190,7 +190,7 @@ async function handleAssign(modelId: string) {
 							{model.filename}
 						</div>
 						<div class="text-xs opacity-50">
-							{model.architecture} · {model.quantLevel ?? "?"} · {formatMb(model.vramEstimateMb)} VRAM
+							{model.architecture} · {model.quant_level ?? "?"} · {formatMb(model.vram_estimate_mb)} VRAM
 						</div>
 					</div>
 					<Badge

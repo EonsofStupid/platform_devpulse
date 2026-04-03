@@ -51,8 +51,10 @@ const mActionDownload = $derived(renderForge({ kind: "model-action", preset: "su
 $effect(() => {
 	hardwareState.startListening();
 	modelsState.refresh();
+	modelsState.startStatusListener();
 	return () => {
 		hardwareState.stopListening();
+		modelsState.stopStatusListener();
 	};
 });
 
@@ -115,7 +117,7 @@ const clyffyType = $derived.by(() => {
 		</div>
 		<button
 			class="rounded px-2 py-1 text-xs transition-colors hover:brightness-110"
-			style="background: var(-bg); color: var(--color);"
+			style="background: var(--bg); color: var(--color);"
 			onclick={() => (layman = !layman)}
 		>
 			{layman ? "Advanced" : "Simple"}

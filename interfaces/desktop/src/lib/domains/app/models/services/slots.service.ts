@@ -3,18 +3,24 @@
  * @module @devpulse/domains/app/models/services/slots
  *
  * Slot management — assignment, loading, unloading.
+ * Uses specta-generated bindings for type-safe IPC.
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { commands, type SlotInfo } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
-import type { SlotInfo } from "../types/models.types.js";
+
+/** Unwrap a specta Result or throw. */
+function unwrap<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (result.status === "ok") return result.data;
+	throw new Error(result.error);
+}
 
 /** Get all registered slots. Throws on failure. */
 export async function getSlots(): Promise<SlotInfo[]> {
 	logInfo("models.slots", "Fetching slots...");
 	try {
-		const slots = await invoke<SlotInfo[]>("get_slots");
+		const slots = unwrap(await commands.getSlots());
 		logInfo("models.slots", `Got ${slots.length} slots`);
 		return slots;
 	} catch (e) {
@@ -28,7 +34,7 @@ export async function getSlots(): Promise<SlotInfo[]> {
 export async function assignModelToSlot(slotId: string, modelId: string): Promise<void> {
 	logInfo("models.slots", `Assigning model ${modelId} to slot ${slotId}`);
 	try {
-		await invoke("assign_model_to_slot", { slotId, modelId });
+		unwrap(await commands.assignModelToSlot(slotId, modelId));
 		logInfo("models.slots", `Assignment complete: ${slotId} ← ${modelId}`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -41,7 +47,7 @@ export async function assignModelToSlot(slotId: string, modelId: string): Promis
 export async function loadSlot(slotId: string): Promise<void> {
 	logInfo("models.slots", `Loading slot ${slotId}...`);
 	try {
-		await invoke("load_slot", { slotId });
+		unwrap(await commands.loadSlot(slotId));
 		logInfo("models.slots", `Slot ${slotId} loaded`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -54,7 +60,7 @@ export async function loadSlot(slotId: string): Promise<void> {
 export async function unloadSlot(slotId: string): Promise<void> {
 	logInfo("models.slots", `Unloading slot ${slotId}...`);
 	try {
-		await invoke("unload_slot", { slotId });
+		unwrap(await commands.unloadSlot(slotId));
 		logInfo("models.slots", `Slot ${slotId} unloaded`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -66,7 +72,7 @@ export async function unloadSlot(slotId: string): Promise<void> {
 /** Check if first run. Throws on failure. */
 export async function isFirstRun(): Promise<boolean> {
 	try {
-		return await invoke<boolean>("is_first_run");
+		return unwrap(await commands.isFirstRun());
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("models.slots", `First-run check FAILED: ${msg}`);

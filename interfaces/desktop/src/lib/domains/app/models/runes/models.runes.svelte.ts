@@ -5,6 +5,8 @@
  * Combined state for registry, slots, assignments, statuses.
  */
 
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
 import {
 	assignModelToSlot,
 	getSlots,
@@ -13,16 +15,11 @@ import {
 	scanModels,
 	unloadSlot,
 } from "../services/index.js";
-import type {
-	ModelCapability,
-	ModelRegistryEntry,
-	ModelStatus,
-	SlotInfo,
-} from "../types/models.types.js";
+import type { ModelStatus } from "../types/models.types.js";
 
 class ModelsState {
 	// ── Registry ────────────────────────────────────────
-	models = $state<ModelRegistryEntry[]>([]);
+	models = $state<ModelInfo[]>([]);
 	scanning = $state(false);
 
 	// ── Slots ───────────────────────────────────────────
@@ -33,6 +30,7 @@ class ModelsState {
 	firstRun = $state(true);
 	loading = $state(false);
 	error = $state<string | null>(null);
+	private statusUnlisten: UnlistenFn | null = null;
 
 	// ── Actions ─────────────────────────────────────────
 
@@ -84,7 +82,7 @@ class ModelsState {
 			// Update local state
 			const slot = this.slots.find((s) => s.id === slotId);
 			if (slot) {
-				slot.assignedModelId = modelId;
+				slot.assigned_model_id = modelId;
 			}
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : String(e);
@@ -131,18 +129,38 @@ class ModelsState {
 		}
 	}
 
+	/**
+	 * Listen for platform:models-status events from Rust.
+	 * Emitted after boot and after complete_model_setup.
+	 * Triggers a refresh so the UI reflects the latest state.
+	 */
+	async startStatusListener(): Promise<void> {
+		this.stopStatusListener();
+		this.statusUnlisten = await listen("platform:models-status", () => {
+			this.refresh();
+		});
+	}
+
+	/** Stop listening for platform:models-status. */
+	stopStatusListener(): void {
+		if (this.statusUnlisten) {
+			this.statusUnlisten();
+			this.statusUnlisten = null;
+		}
+	}
+
 	// ── Derived ─────────────────────────────────────────
 
 	/** Models compatible with a specific capability. */
-	modelsForCapability(cap: ModelCapability): ModelRegistryEntry[] {
-		return this.models.filter((m) => m.compatibleCapabilities.includes(cap));
+	modelsForCapability(cap: string): ModelInfo[] {
+		return this.models.filter((m) => m.compatible_capabilities.includes(cap));
 	}
 
 	/** Get assigned model for a slot. */
-	assignedModel(slotId: string): ModelRegistryEntry | null {
+	assignedModel(slotId: string): ModelInfo | null {
 		const slot = this.slots.find((s) => s.id === slotId);
-		if (!slot?.assignedModelId) return null;
-		return this.models.find((m) => m.id === slot.assignedModelId) ?? null;
+		if (!slot?.assigned_model_id) return null;
+		return this.models.find((m) => m.id === slot.assigned_model_id) ?? null;
 	}
 
 	/** Slots grouped by subsystem. */

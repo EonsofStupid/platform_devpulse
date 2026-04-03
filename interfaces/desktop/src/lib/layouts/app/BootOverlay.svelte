@@ -81,7 +81,7 @@ $effect(() => {
 	}
 });
 
-/** Called when the BootSetupWizard finishes (models downloaded + assigned). */
+/** Called when the SetupWizard finishes (models downloaded + assigned). */
 async function handleWizardComplete(): Promise<void> {
 	try {
 		const { invoke } = await import("@tauri-apps/api/core");
@@ -207,7 +207,7 @@ async function handleWizardComplete(): Promise<void> {
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
-			{#await import("$lib/domains/app/models/components/BootSetupWizard.svelte") then module}
+			{#await import("$lib/domains/app/models/components/SetupWizard.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}
 		{/if}
