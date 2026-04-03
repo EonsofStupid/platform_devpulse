@@ -73,7 +73,7 @@ pub async fn search_huggingface(
     limit: u32,
 ) -> anyhow::Result<Vec<HfSearchResult>> {
     let url = format!(
-        "https://huggingface.co/api/models?search={}&filter=gguf&sort=downloads&direction=-1&limit={}",
+        "https://huggingface.co/api/models?search={}&filter=gguf&sort=downloads&direction=-1&limit={}&full=true&config=false",
         urlencoded(query),
         limit,
     );
