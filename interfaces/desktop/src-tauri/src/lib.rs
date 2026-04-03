@@ -232,6 +232,18 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
 
+    // Create model-loader event bridge — emits Tauri events for load/download progress
+    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = {
+        let app_for_events = app.clone();
+        Some(std::sync::Arc::new(
+            devpulse_engine::platform::integrations::EventBridge::new(
+                std::sync::Arc::new(move |event_name: &str, payload: serde_json::Value| {
+                    let _ = app_for_events.emit(event_name, payload);
+                }),
+            ),
+        ))
+    };
+
     // Platform::boot() now writes boot.log in real-time via BootLog.
     // The callback here is ONLY for Tauri event bridging + tracker.
     let result = Platform::boot(data_dir.clone(), move |event: InitEvent| {
@@ -267,7 +279,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
 
         // Bridge to frontend StatusBar
         let _ = app_for_callback.emit("platform:subsystem-status", &event);
-    })
+    }, model_event_sink)
     .await;
 
     let total_ms = boot_start.elapsed().as_millis() as u64;

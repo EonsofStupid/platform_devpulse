@@ -17,4 +17,8 @@ pub mod slots;
 
 // Re-export inference bridge types for Tauri command layer
 #[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::{InferenceHandle, InferenceResponse};
+pub use devpulse_clyffy::model_loader::{InferenceHandle, InferenceResponse, LoaderEventSink};
+
+// Re-export EventBridge for desktop layer
+#[cfg(feature = "inference")]
+pub use events::EventBridge;

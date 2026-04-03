@@ -116,13 +116,14 @@ pub async fn execute(
     data_dir: &Path,
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
+    model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
 ) -> Result<BootedServices> {
     // ── Boot log: real-time sink to file + stderr ──────────────
     let boot_log = BootLog::open(data_dir)?;
 
     // ── Boot timeout from config ──────────────────────────────
     let timeout_dur = std::time::Duration::from_secs(boot_config.boot.timeout_secs);
-    let result = tokio::time::timeout(timeout_dur, execute_inner(data_dir, boot_config, on_event, &boot_log)).await;
+    let result = tokio::time::timeout(timeout_dur, execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink)).await;
 
     match result {
         Ok(inner_result) => inner_result,
@@ -146,6 +147,7 @@ async fn execute_inner(
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
+    model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
 ) -> Result<BootedServices> {
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
@@ -266,11 +268,20 @@ async fn execute_inner(
 
     // ── Stage 12: Model Loader (Inference) — feature-gated ──────
     #[cfg(feature = "inference")]
+    let loader_event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>> =
+        model_event_sink.and_then(|any| {
+            any.downcast::<crate::platform::integrations::events::EventBridge>()
+                .ok()
+                .map(|bridge| bridge as std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>)
+        });
+
+    #[cfg(feature = "inference")]
     let model_loader_svc = model_loader::boot(
         data_dir,
         &boot_config.services.system.model_loader,
         on_event,
         &boot_log,
+        loader_event_sink,
     ).await;
     #[cfg(not(feature = "inference"))]
     {

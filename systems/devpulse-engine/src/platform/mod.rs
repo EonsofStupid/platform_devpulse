@@ -190,11 +190,12 @@ impl Platform {
     pub async fn boot(
         data_dir: PathBuf,
         on_event: impl Fn(InitEvent) + Send + 'static,
+        model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
     ) -> Result<Self> {
         let boot_time = Instant::now();
         let boot_config = PlatformBootConfig::load(&data_dir)?;
 
-        let booted = boot::execute(&data_dir, &boot_config, &on_event).await?;
+        let booted = boot::execute(&data_dir, &boot_config, &on_event, model_event_sink).await?;
 
         Ok(Self {
             system_relational: booted.system_relational,

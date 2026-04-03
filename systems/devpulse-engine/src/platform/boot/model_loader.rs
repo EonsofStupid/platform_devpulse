@@ -31,6 +31,7 @@ pub async fn boot(
     entry: &ModelLoaderServiceEntry,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
+    event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
 ) -> Option<Arc<ModelLoaderService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped("Model Loader"));
@@ -48,7 +49,7 @@ pub async fn boot(
     // Boot is sync (file I/O, GGUF parsing) — offload to blocking thread
     let data_dir_owned = data_dir.to_path_buf();
     let result = tokio::task::spawn_blocking(move || {
-        ModelLoaderService::boot(&data_dir_owned, default_slots)
+        ModelLoaderService::boot(&data_dir_owned, default_slots, event_sink)
     })
     .await
     .map_err(|e| anyhow::anyhow!("Model Loader spawn_blocking failed: {e}"));

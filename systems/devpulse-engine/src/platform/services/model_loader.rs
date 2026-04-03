@@ -27,12 +27,13 @@ impl ModelLoaderService {
     pub fn boot(
         data_dir: &std::path::Path,
         default_slots: Vec<Slot>,
+        events: Option<Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
     ) -> Result<Self> {
         let models_dir = data_dir.join("models");
         let log_path = data_dir.join("logs").join("model-loader.log");
         let config = Box::new(MemoryConfig::new());
         let events: Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink> =
-            Arc::new(FileEventSink::new(log_path));
+            events.unwrap_or_else(|| Arc::new(FileEventSink::new(log_path)));
 
         let mut service = Inner::new(config, events, models_dir)?;
 

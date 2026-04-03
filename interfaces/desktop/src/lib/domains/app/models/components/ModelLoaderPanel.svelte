@@ -35,8 +35,7 @@ async function handleDownload(repoId: string, filename: string) {
 
 async function handleImportLocal() {
 	try {
-		const filename = await importLocalModel();
-		console.info(`[ModelLoaderPanel] Imported: ${filename}`);
+		await importLocalModel();
 		modelsState.scan();
 	} catch (e) {
 		console.error("[ModelLoaderPanel] Import failed:", e);
