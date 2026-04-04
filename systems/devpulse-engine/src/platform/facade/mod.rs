@@ -23,6 +23,7 @@ pub mod events;
 mod filter;
 pub mod surface;
 pub mod translator;
+pub mod visibility;
 
 pub use bridge::FacadeBridge;
 pub use config::{DetailLevel, RedactionLevel, WhitelistConfig};
@@ -30,6 +31,7 @@ pub use events::{EventCategory, InternalEvent};
 pub use filter::FilterPipeline;
 pub use surface::{Severity, SurfaceCategory, SurfaceEvent};
 pub use translator::{EventTranslator, TranslationRegistry};
+pub use visibility::{Visibility, classify, narration_hint};
 
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
