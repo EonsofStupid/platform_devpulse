@@ -175,13 +175,18 @@ impl InferenceHandle {
     }
 
     /// Get current memory usage.
-    pub async fn memory_usage(&self) -> MemoryFootprint {
+    ///
+    /// Returns error if the inference thread is dead or disconnected.
+    pub async fn memory_usage(&self) -> anyhow::Result<MemoryFootprint> {
         let (reply_tx, reply_rx) = flume::bounded(1);
-        let _ = self
-            .sender
+        self.sender
             .send_async(InferenceRequest::MemoryUsage { reply: reply_tx })
-            .await;
-        reply_rx.recv_async().await.unwrap_or_default()
+            .await
+            .map_err(|_| anyhow::anyhow!("Inference thread disconnected (send failed)"))?;
+        reply_rx
+            .recv_async()
+            .await
+            .map_err(|_| anyhow::anyhow!("Inference thread disconnected (recv failed)"))
     }
 
     /// Shutdown the inference thread.
@@ -215,7 +220,19 @@ impl InferenceBridge {
         let thread = std::thread::Builder::new()
             .name("inference-worker".into())
             .spawn(move || {
-                inference_thread_loop(&mut backend, rx);
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    inference_thread_loop(&mut backend, rx);
+                }));
+                if let Err(panic) = result {
+                    let msg = if let Some(s) = panic.downcast_ref::<&str>() {
+                        s.to_string()
+                    } else if let Some(s) = panic.downcast_ref::<String>() {
+                        s.clone()
+                    } else {
+                        "unknown panic".to_string()
+                    };
+                    tracing::error!(panic = %msg, "Inference thread panicked — channel will close");
+                }
             })
             .map_err(|e| anyhow::anyhow!("Failed to spawn inference thread: {e}"))?;
 

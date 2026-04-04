@@ -157,13 +157,16 @@ impl ModelLoaderService {
     }
 
     /// Search HuggingFace for GGUF models.
+    ///
+    /// Does NOT hold the Mutex — search is a stateless HTTP call.
+    /// Holding the lock across a 15s network timeout would freeze
+    /// every other model loader command.
     pub async fn search_huggingface(
         &self,
         query: &str,
         limit: u32,
     ) -> Result<Vec<devpulse_clyffy::model_loader::HfSearchResult>> {
-        let inner = self.inner.lock().await;
-        inner.search_huggingface(query, limit).await
+        devpulse_clyffy::model_loader::search_huggingface(query, limit).await
     }
 }
 

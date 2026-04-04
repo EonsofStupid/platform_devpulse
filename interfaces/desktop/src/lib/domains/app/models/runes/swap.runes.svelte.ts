@@ -82,40 +82,44 @@ class SwapState {
 
 	/** Subscribe to Tauri model loading events. Call once on mount. */
 	async startListening(): Promise<void> {
-		this.unlisteners.push(
-			await listen<{ slot_id: string; stage: string; progress: number }>(
-				"model:loading-stage",
-				(event) => {
+		try {
+			this.unlisteners.push(
+				await listen<{ slot_id: string; stage: string; progress: number }>(
+					"model:loading-stage",
+					(event) => {
+						if (this.active && event.payload.slot_id === this.slotId) {
+							this.updateStage(event.payload.stage, event.payload.progress);
+						}
+					},
+				),
+			);
+
+			this.unlisteners.push(
+				await listen<{ slot_id: string }>("model:loading-complete", (event) => {
 					if (this.active && event.payload.slot_id === this.slotId) {
-						this.updateStage(event.payload.stage, event.payload.progress);
+						this.complete();
 					}
-				},
-			),
-		);
+				}),
+			);
 
-		this.unlisteners.push(
-			await listen<{ slot_id: string }>("model:loading-complete", (event) => {
-				if (this.active && event.payload.slot_id === this.slotId) {
-					this.complete();
-				}
-			}),
-		);
+			this.unlisteners.push(
+				await listen<{ slot_id: string; error: string }>("model:loading-failed", (event) => {
+					if (this.active && event.payload.slot_id === this.slotId) {
+						this.fail(event.payload.error);
+					}
+				}),
+			);
 
-		this.unlisteners.push(
-			await listen<{ slot_id: string; error: string }>("model:loading-failed", (event) => {
-				if (this.active && event.payload.slot_id === this.slotId) {
-					this.fail(event.payload.error);
-				}
-			}),
-		);
-
-		this.unlisteners.push(
-			await listen<{ slot_id: string }>("model:unload-complete", (event) => {
-				if (this.active && event.payload.slot_id === this.slotId) {
-					this.complete();
-				}
-			}),
-		);
+			this.unlisteners.push(
+				await listen<{ slot_id: string }>("model:unload-complete", (event) => {
+					if (this.active && event.payload.slot_id === this.slotId) {
+						this.complete();
+					}
+				}),
+			);
+		} catch (e) {
+			console.error("[SwapState] Failed to register event listeners:", e);
+		}
 	}
 
 	/** Unsubscribe from all Tauri events. Call on unmount. */

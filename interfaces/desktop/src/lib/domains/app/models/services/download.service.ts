@@ -79,9 +79,13 @@ export function onDownloadProgress(callback: (progress: DownloadProgress) => voi
 
 	listen<DownloadProgress>("model:download-progress", (event) => {
 		callback(event.payload);
-	}).then((fn) => {
-		unlisten = fn;
-	});
+	})
+		.then((fn) => {
+			unlisten = fn;
+		})
+		.catch((e) => {
+			console.error("[download.service] Failed to register progress listener:", e);
+		});
 
 	return () => {
 		unlisten?.();
@@ -94,9 +98,13 @@ export function onDownloadComplete(callback: (data: { downloadId: string }) => v
 
 	listen<{ downloadId: string }>("model:download-complete", (event) => {
 		callback(event.payload);
-	}).then((fn) => {
-		unlisten = fn;
-	});
+	})
+		.then((fn) => {
+			unlisten = fn;
+		})
+		.catch((e) => {
+			console.error("[download.service] Failed to register complete listener:", e);
+		});
 
 	return () => {
 		unlisten?.();

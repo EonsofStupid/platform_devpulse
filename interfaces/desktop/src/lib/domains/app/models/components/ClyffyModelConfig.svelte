@@ -14,7 +14,11 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
-import { downloadModel, importLocalModel } from "../services/download.service.js";
+import {
+	downloadModel,
+	importLocalModel,
+	onDownloadProgress,
+} from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 import ClyffyNarration from "./ClyffyNarration.svelte";
 import ModelSearch from "./ModelSearch.svelte";
@@ -183,8 +187,8 @@ async function loadHealth(): Promise<void> {
 				latency_us: s.latency_us,
 			}));
 		}
-	} catch {
-		// Health not available during early boot
+	} catch (e) {
+		console.warn("[ClyffyModelConfig] Health check failed:", e);
 	}
 }
 
@@ -231,15 +235,24 @@ async function handleDownload(slotId: string): Promise<void> {
 	const opt = config.options[optIdx];
 	error = null;
 
+	const unsubProgress = onDownloadProgress((p) => {
+		if (p.totalBytes > 0) {
+			downloading[slotId] = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+		}
+	});
+
 	try {
 		downloading[slotId] = 0;
 		await downloadModel(opt.repo, opt.file);
+		downloading[slotId] = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
 		delete downloading[slotId];
 	} catch (e) {
 		delete downloading[slotId];
 		error = `Download failed for ${config.label}: ${e instanceof Error ? e.message : String(e)}`;
+	} finally {
+		unsubProgress();
 	}
 }
 
@@ -348,7 +361,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 					{#if isDownloading}
 						<div class={hstack({ gap: "1", align: "center" })}>
 							<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
-							<Text size="xs" color="muted">Downloading...</Text>
+							<Text size="xs" color="muted">Downloading {downloading[slotId] ?? 0}%</Text>
 						</div>
 					{:else if !hasModel}
 						<button

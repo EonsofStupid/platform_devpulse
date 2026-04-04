@@ -41,8 +41,8 @@ pub use hardware::{
     AutoConfig, HardwareMetrics, HardwareMonitor, HardwareTier, SlotRecommendation, VramBudget,
 };
 
-// Search types
-pub use models::search::{HfFileInfo, HfSearchResult};
+// Search types + function
+pub use models::search::{HfFileInfo, HfSearchResult, search_huggingface};
 
 // Trait re-exports
 pub use traits::{
