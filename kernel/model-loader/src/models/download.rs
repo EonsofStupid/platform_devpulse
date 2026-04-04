@@ -203,6 +203,7 @@ fn execute_download(
     events.emit(LoaderEvent::DownloadProgress {
         download_id: download_id.to_string(),
         bytes_downloaded: 0,
+        total_bytes: file_size,
         speed_bps: 0,
     });
 
@@ -213,6 +214,7 @@ fn execute_download(
     events.emit(LoaderEvent::DownloadProgress {
         download_id: download_id.to_string(),
         bytes_downloaded: file_size,
+        total_bytes: file_size,
         speed_bps: 0,
     });
 

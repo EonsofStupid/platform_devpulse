@@ -207,6 +207,7 @@ async fn execute_inner(
             on_event,
             &boot_log,
             loader_event_sink,
+            system_relational.as_ref().map(|svc| svc.adapter().clone()),
         )
     );
 

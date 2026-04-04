@@ -10,8 +10,6 @@ use crate::platform::config::ModelLoaderServiceEntry;
 #[cfg(feature = "inference")]
 use crate::platform::init::InitEvent;
 #[cfg(feature = "inference")]
-use crate::platform::integrations::slots::devpulse_default_slots;
-#[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
 
 #[cfg(feature = "inference")]
@@ -32,6 +30,7 @@ pub async fn boot(
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
     event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
+    libsql_adapter: Option<std::sync::Arc<devpulse_clyffy::cortex::persistence::LibSqlAdapter>>,
 ) -> Option<Arc<ModelLoaderService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped("Model Loader"));
@@ -43,13 +42,23 @@ pub async fn boot(
     boot_log.running("Model Loader", "booting...");
     let start = Instant::now();
 
-    let default_slots = devpulse_default_slots();
+    let default_slots = match entry.build_slots() {
+        Ok(slots) => slots,
+        Err(e) => {
+            tracing::error!(error = ?e, "Model Loader HARD FAIL — no slots defined in TOML");
+            on_event(InitEvent::error("Model Loader", &format!("{e:#}")));
+            boot_log.fail("Model Loader", &format!("{e:#}"));
+            return None;
+        }
+    };
     let slot_count = default_slots.len();
+    let models_dir = entry.resolve_models_dir(data_dir);
+    let subdirs = entry.subdir_names();
 
     // Boot is sync (file I/O, GGUF parsing) — offload to blocking thread
     let data_dir_owned = data_dir.to_path_buf();
     let result = tokio::task::spawn_blocking(move || {
-        ModelLoaderService::boot(&data_dir_owned, default_slots, event_sink)
+        ModelLoaderService::boot(&data_dir_owned, default_slots, event_sink, models_dir, subdirs, libsql_adapter)
     })
     .await
     .map_err(|e| anyhow::anyhow!("Model Loader spawn_blocking failed: {e}"));

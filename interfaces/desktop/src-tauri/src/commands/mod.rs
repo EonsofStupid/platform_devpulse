@@ -19,5 +19,6 @@ pub mod devpulse;
 pub mod models;
 pub mod sys;
 pub mod thinkclyffy;
+pub mod voice;
 pub mod window;
 pub mod wiredfront;

@@ -7,10 +7,12 @@
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use super::model_loader_log::FileEventSink;
+use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
 use devpulse_clyffy::model_loader::{
-    AutoConfig, HardwareMetrics, MemoryConfig, ModelLoaderService as Inner,
+    AutoConfig, HardwareMetrics, ModelLoaderService as Inner,
     ModelRegistryEntry, Slot, SlotStatus,
 };
+use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -20,22 +22,31 @@ pub struct ModelLoaderService {
 }
 
 impl ModelLoaderService {
-    /// Boot the model loader from a data directory.
+    /// Boot the model loader.
     ///
-    /// Creates `{data_dir}/models/` and subdirectories.
-    /// Registers default slots, restores assignments, scans registry.
+    /// `models_dir`, `subdirs`, and `default_slots` all come from the parsed TOML config.
+    /// There is no hardcoded fallback — if the config is empty, boot fails.
     pub fn boot(
         data_dir: &std::path::Path,
         default_slots: Vec<Slot>,
         events: Option<Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
+        models_dir: std::path::PathBuf,
+        subdirs: Vec<String>,
+        libsql_adapter: Option<Arc<LibSqlAdapter>>,
     ) -> Result<Self> {
-        let models_dir = data_dir.join("models");
         let log_path = data_dir.join("logs").join("model-loader.log");
-        let config = Box::new(MemoryConfig::new());
+        let config: Box<dyn devpulse_clyffy::model_loader::ConfigBackend> =
+            if let Some(adapter) = libsql_adapter {
+                tracing::info!("Model Loader using LibSQL persistence (assignments survive restarts)");
+                Box::new(LibSqlConfig::new(adapter))
+            } else {
+                tracing::warn!("Model Loader using MemoryConfig (assignments lost on restart)");
+                Box::new(MemoryConfig::new())
+            };
         let events: Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink> =
             events.unwrap_or_else(|| Arc::new(FileEventSink::new(log_path)));
 
-        let mut service = Inner::new(config, events, models_dir)?;
+        let mut service = Inner::new(config, events, models_dir, subdirs)?;
 
         // Register platform-specific slots
         service.register_slots(default_slots).map_err(|e| {

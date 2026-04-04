@@ -117,6 +117,181 @@ model_path = "system/candle/whisper"
 # Always enabled — DevPulse ships with models, this manages them.
 enabled = true
 critical = false
+models_dir = "models"
+
+[services.system.model_loader.subdirs]
+chat = "chat"
+voice = "voice"
+rag = "rag"
+vision = "vision"
+
+# ── Slot definitions (SSOT — no hardcoded fallback) ──────────────
+
+[[services.system.model_loader.slots]]
+id = "chat.brain"
+label = "AI Brain"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "Hot"
+source_tier = "UserManaged"
+
+[[services.system.model_loader.slots]]
+id = "minion.shared"
+label = "Minion Engine"
+capability = "TextGeneration"
+preferred_device = "GpuWithCpuFallback"
+loading = "Hot"
+source_tier = "UserManaged"
+
+[[services.system.model_loader.slots]]
+id = "minion.escalation"
+label = "Deep Reasoning"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "Warm"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
+[[services.system.model_loader.slots]]
+id = "rag.embedder"
+label = "Search Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+source_tier = "UserManaged"
+
+[[services.system.model_loader.slots]]
+id = "rag.reranker"
+label = "Relevance Scorer"
+capability = "Reranking"
+preferred_device = "Cpu"
+loading = "OnDemand"
+source_tier = "UserManaged"
+
+[[services.system.model_loader.slots]]
+id = "vision.embedder"
+label = "Vision System"
+capability = "VisionEmbedding"
+preferred_device = "Cpu"
+loading = { Signal = "screenshot.captured" }
+runtime = "Ort"
+default_model = "vision_model_int8.onnx"
+source_tier = { Bundled = { bundled_path = "vision/siglip2-base/vision_model_int8.onnx" } }
+
+[[services.system.model_loader.slots]]
+id = "voice.tts"
+label = "Clyffy's Voice"
+capability = "TextToSpeech"
+preferred_device = "Cpu"
+loading = { Signal = "speech.requested" }
+runtime = "Ort"
+default_model = "model_quantized.onnx"
+source_tier = { Bundled = { bundled_path = "voice/kokoro/model_quantized.onnx" } }
+
+[services.system.model_loader.slots.extensions]
+voice_profile = "af_heart"
+
+[[services.system.model_loader.slots]]
+id = "voice.stt"
+label = "Voice Input"
+capability = "SpeechToText"
+preferred_device = "Cpu"
+loading = { Signal = "voice.activated" }
+runtime = "Ort"
+default_model = "small-encoder.int8.onnx"
+source_tier = { Bundled = { bundled_path = "voice/whisper-small/" } }
+
+# ── Download catalog (what the frontend shows) ───────────────────
+
+[[services.system.model_loader.catalog]]
+slot_id = "chat.brain"
+label = "Clyffy's Brain"
+description = "Main reasoning model for chat"
+
+[[services.system.model_loader.catalog.options]]
+label = "4B (Fast)"
+repo = "bartowski/Qwen3-4B-GGUF"
+file = "Qwen3-4B-Q4_K_M.gguf"
+size_mb = 2600
+
+[[services.system.model_loader.catalog.options]]
+label = "7B (Balanced)"
+repo = "bartowski/Qwen3-7B-GGUF"
+file = "Qwen3-7B-Q4_K_M.gguf"
+size_mb = 4100
+
+[[services.system.model_loader.catalog.options]]
+label = "14B (Smart)"
+repo = "bartowski/Qwen3-14B-GGUF"
+file = "Qwen3-14B-Q4_K_M.gguf"
+size_mb = 8100
+
+[[services.system.model_loader.catalog]]
+slot_id = "minion.shared"
+label = "Minion Brain"
+description = "Fast background tasks"
+
+[[services.system.model_loader.catalog.options]]
+label = "0.6B"
+repo = "Qwen/Qwen3-0.6B-GGUF"
+file = "qwen3-0.6b-q4_k_m.gguf"
+size_mb = 500
+
+[[services.system.model_loader.catalog]]
+slot_id = "voice.stt"
+label = "Voice — Speech Recognition"
+description = "Whisper speech-to-text"
+
+[[services.system.model_loader.catalog.options]]
+label = "Whisper Large v3 Turbo"
+repo = "csukuangfj/sherpa-onnx-whisper-large-v3-turbo"
+file = "large-v3-turbo-encoder.int8.onnx"
+size_mb = 1600
+is_dir = true
+
+[[services.system.model_loader.catalog]]
+slot_id = "voice.tts"
+label = "Voice — Text to Speech"
+description = "Kokoro voice synthesis"
+
+[[services.system.model_loader.catalog.options]]
+label = "Kokoro v1.0 fp16"
+repo = "onnx-community/Kokoro-82M-v1.0-ONNX"
+file = "model_fp16.onnx"
+size_mb = 163
+
+[[services.system.model_loader.catalog]]
+slot_id = "vision.embedder"
+label = "Vision — Screen Analysis"
+description = "SigLIP2 screenshot understanding"
+
+[[services.system.model_loader.catalog.options]]
+label = "SigLIP2 Base int8"
+repo = "onnx-community/siglip2-base-patch16-256-ONNX"
+file = "vision_model_int8.onnx"
+size_mb = 95
+
+[[services.system.model_loader.catalog]]
+slot_id = "rag.embedder"
+label = "Search — Embedder"
+description = "Vector search for code and docs"
+
+[[services.system.model_loader.catalog.options]]
+label = "nomic-embed-v1.5"
+repo = "nomic-ai/nomic-embed-text-v1.5-GGUF"
+file = "nomic-embed-text-v1.5.Q8_0.gguf"
+size_mb = 300
+
+[[services.system.model_loader.catalog]]
+slot_id = "rag.reranker"
+label = "Search — Reranker"
+description = "Relevance scoring for search results"
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3-Reranker-0.6B"
+repo = "Qwen/Qwen3-Reranker-0.6B-GGUF"
+file = "qwen3-reranker-0.6b.Q8_0.gguf"
+size_mb = 300
 
 [services.system.devforge]
 # Managed VSCode/code-oss process — dedicated editor instance.

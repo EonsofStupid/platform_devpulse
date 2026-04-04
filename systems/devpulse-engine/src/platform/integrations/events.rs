@@ -65,10 +65,11 @@ impl LoaderEventSink for EventBridge {
             LoaderEvent::DownloadProgress {
                 download_id,
                 bytes_downloaded,
+                total_bytes,
                 speed_bps,
             } => (
                 "model:download-progress",
-                json!({ "download_id": download_id, "bytesDownloaded": bytes_downloaded, "speedBps": speed_bps }),
+                json!({ "download_id": download_id, "bytesDownloaded": bytes_downloaded, "totalBytes": total_bytes, "speedBps": speed_bps }),
             ),
             LoaderEvent::DownloadComplete {
                 download_id,

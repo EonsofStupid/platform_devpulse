@@ -54,6 +54,8 @@ pub enum LoaderEvent {
         download_id: String,
         /// Bytes downloaded so far.
         bytes_downloaded: u64,
+        /// Total expected bytes (from `DownloadStarted`).
+        total_bytes: u64,
         /// Current download speed in bytes per second.
         speed_bps: u64,
     },

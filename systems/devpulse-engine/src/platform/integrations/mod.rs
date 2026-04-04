@@ -4,7 +4,7 @@
 //! - `LibSqlConfig` implements `ConfigBackend` using the platform's LibSQL
 //! - `TauriEventBridge` implements `LoaderEventSink` using Tauri events
 //! - `narration` maps `LoaderEvent` to Clyffy messages
-//! - `slots` provides the default DevPulse slot configuration
+//! - Slot definitions come from `platform.default.toml` (SSOT)
 
 #[cfg(feature = "inference")]
 pub mod config;
@@ -12,8 +12,6 @@ pub mod config;
 pub mod events;
 #[cfg(feature = "inference")]
 pub mod narration;
-#[cfg(feature = "inference")]
-pub mod slots;
 
 // Re-export inference bridge types for Tauri command layer
 #[cfg(feature = "inference")]

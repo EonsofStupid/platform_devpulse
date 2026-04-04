@@ -207,6 +207,22 @@ pub async fn get_slots(
         .collect())
 }
 
+/// Get the model download catalog from the TOML config.
+///
+/// Returns the full catalog of downloadable models per slot.
+/// The frontend uses this instead of hardcoded constants.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_model_catalog(
+    state: State<'_, PlatformState>,
+) -> Result<Vec<devpulse_engine::platform::config::CatalogEntry>, String> {
+    let platform = state.platform.read().await;
+    let platform = platform
+        .as_ref()
+        .ok_or_else(|| "Platform not booted".to_string())?;
+    Ok(platform.model_loader_catalog().to_vec())
+}
+
 /// Check if this is the first run (no models configured).
 #[tauri::command]
 #[specta::specta]

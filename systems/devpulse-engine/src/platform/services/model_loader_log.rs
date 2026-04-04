@@ -114,10 +114,10 @@ impl LoaderEventSink for FileEventSink {
                     "[model-loader] Download started"
                 );
             }
-            LoaderEvent::DownloadProgress { download_id, bytes_downloaded, speed_bps } => {
+            LoaderEvent::DownloadProgress { download_id, bytes_downloaded, total_bytes, speed_bps } => {
                 self.write_line(
                     "DEBUG",
-                    &format!("Download progress: id={download_id} bytes={bytes_downloaded} speed={speed_bps}B/s"),
+                    &format!("Download progress: id={download_id} bytes={bytes_downloaded}/{total_bytes} speed={speed_bps}B/s"),
                 );
             }
             LoaderEvent::DownloadComplete { download_id, registry_entry } => {

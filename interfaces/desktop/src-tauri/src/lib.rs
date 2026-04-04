@@ -59,6 +59,7 @@ pub fn run() {
         commands::models::get_hardware_metrics,
         commands::models::scan_models,
         commands::models::get_slots,
+        commands::models::get_model_catalog,
         commands::models::is_first_run,
         commands::models::assign_model_to_slot,
         commands::models::load_slot,
@@ -71,6 +72,18 @@ pub fn run() {
         commands::models::auto_configure,
         commands::models::complete_model_setup,
         commands::models::inference_generate,
+        // Voice management
+        commands::voice::speak,
+        commands::voice::stop_speaking,
+        commands::voice::is_speaking,
+        commands::voice::list_voices,
+        commands::voice::preview_voice,
+        commands::voice::test_microphone,
+        commands::voice::transcribe_audio,
+        commands::voice::list_voice_profiles,
+        commands::voice::save_voice_profile,
+        commands::voice::delete_voice_profile,
+        commands::voice::activate_voice_profile,
     ]);
 
     // Dev: export typed TS bindings on every build

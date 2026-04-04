@@ -347,6 +347,11 @@ impl Platform {
         self.model_loader.as_ref()
     }
 
+    /// Get the model download catalog from the boot config.
+    pub fn model_loader_catalog(&self) -> &[config::CatalogEntry] {
+        &self.boot_config.services.system.model_loader.catalog
+    }
+
     // ── DevForge accessor ────────────────────────────────────────
 
     /// Get the DevForge service (if enabled and booted).

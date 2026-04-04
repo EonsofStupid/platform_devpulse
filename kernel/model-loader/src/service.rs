@@ -44,14 +44,16 @@ impl ModelLoaderService {
     /// Create a new service instance.
     ///
     /// `models_dir` is where GGUF/SafeTensors files live (e.g. `~/.devpulse/models/`).
+    /// `subdirs` defines the subdirectory names for model discovery (e.g. `["chat", "voice", "rag", "vision"]`).
     pub fn new(
         config: Box<dyn ConfigBackend>,
         events: Arc<dyn LoaderEventSink>,
         models_dir: PathBuf,
+        subdirs: Vec<String>,
     ) -> anyhow::Result<Self> {
         // Ensure models directory exists — organized by purpose
         if !models_dir.exists() {
-            for subdir in ["chat", "voice", "rag", "vision"] {
+            for subdir in &subdirs {
                 std::fs::create_dir_all(models_dir.join(subdir))?;
                 tracing::info!(
                     path = %models_dir.join(subdir).display(),
