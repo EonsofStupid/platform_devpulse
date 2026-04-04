@@ -63,6 +63,7 @@ pub fn run() {
         commands::models::assign_model_to_slot,
         commands::models::load_slot,
         commands::models::unload_slot,
+        commands::models::swap_slot_model,
         commands::models::download_model,
         commands::models::cancel_download,
         commands::models::search_huggingface,

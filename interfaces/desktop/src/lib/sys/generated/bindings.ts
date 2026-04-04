@@ -296,6 +296,21 @@ async unloadSlot(slotId: string) : Promise<Result<null, string>> {
 }
 },
 /**
+ * Atomically swap the model on a slot (unload → reassign → load).
+ * 
+ * Blocks inference to the slot for the entire duration. The frontend
+ * should show SwapOverlay while this runs — events are emitted via
+ * `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
+ */
+async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("swap_slot_model", { slotId, newModelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Start downloading a model from HuggingFace.
  * Returns the download ID for progress tracking.
  */

@@ -11,6 +11,7 @@ use crate::hardware::auto_config::{self, AutoConfig};
 use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
 use crate::hardware::vram;
 use crate::loading::states::{LoadParams, ModelStatus, SlotStatus};
+use crate::loading::swap::SwapGuard;
 use crate::models::registry::{ModelRegistry, ModelRegistryEntry};
 use crate::slots::fallback;
 use crate::slots::registry::SlotRegistry;
@@ -35,6 +36,8 @@ pub struct ModelLoaderService {
     downloads: DownloadManager,
     /// slot_id → InferenceHandle (cloned from pool)
     slot_handles: HashMap<String, InferenceHandle>,
+    /// Tracks slots mid-swap to block inference during transitions.
+    swap_guard: SwapGuard,
 }
 
 impl ModelLoaderService {
@@ -76,6 +79,7 @@ impl ModelLoaderService {
             pool: BackendPool::new(),
             downloads,
             slot_handles: HashMap::new(),
+            swap_guard: SwapGuard::new(),
         })
     }
 
@@ -594,20 +598,29 @@ impl ModelLoaderService {
     }
 
     /// Get an inference handle for a slot, resolving fallback chain.
-    #[must_use]
-    pub fn inference_handle(&self, slot_id: &str) -> Option<InferenceHandle> {
+    ///
+    /// Returns `Err(SlotSwapping)` if the slot is mid-swap. Returns `Ok(None)`
+    /// if no model is loaded and no fallback is available.
+    pub fn inference_handle(&self, slot_id: &str) -> Result<Option<InferenceHandle>, LoaderError> {
+        // Block inference during swap — clean error, not a missing model
+        if self.swap_guard.is_swapping(slot_id) {
+            return Err(LoaderError::SlotSwapping {
+                slot_id: slot_id.to_string(),
+            });
+        }
+
         // Direct handle
         if let Some(h) = self.slot_handles.get(slot_id) {
-            return Some(h.clone());
+            return Ok(Some(h.clone()));
         }
 
         // Try fallback chain
         let loaded_set: HashSet<String> = self.slot_handles.keys().cloned().collect();
         if let Some(fallback_id) = fallback::resolve_fallback(&self.slots, slot_id, &loaded_set) {
-            return self.slot_handles.get(&fallback_id).cloned();
+            return Ok(self.slot_handles.get(&fallback_id).cloned());
         }
 
-        None
+        Ok(None)
     }
 
     /// Get the current status of a slot.
@@ -640,6 +653,113 @@ impl ModelLoaderService {
             active_fallback,
             shared_with: Vec::new(), // Phase 4: populated by BackendPool
         }
+    }
+
+    // ── Swap (atomic unload → reassign → load) ─────────────────
+
+    /// Atomically swap the model assigned to a slot.
+    ///
+    /// If the slot is currently loaded, unloads first. Then reassigns and loads
+    /// the new model. The swap guard blocks inference to this slot for the entire
+    /// duration — callers get `LoaderError::SlotSwapping` instead of a crash.
+    ///
+    /// On failure, the slot is left in an unloaded/failed state. We do NOT
+    /// attempt to reload the old model — that's a different failure mode the
+    /// user should handle explicitly.
+    pub async fn swap_model(
+        &mut self,
+        slot_id: &str,
+        new_model_id: &str,
+    ) -> Result<(), LoaderError> {
+        // Validate slot exists
+        let slot = self.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound {
+            slot_id: slot_id.to_string(),
+        })?;
+
+        let old_model_id = slot.assigned_model.clone();
+
+        // Don't swap to the same model
+        if old_model_id.as_deref() == Some(new_model_id) {
+            tracing::debug!(slot = %slot_id, model = %new_model_id, "Swap skipped — same model");
+            return Ok(());
+        }
+
+        // Validate new model exists and is compatible (same check as assign_model)
+        let entry = self
+            .registry
+            .get(new_model_id)
+            .ok_or(LoaderError::Internal {
+                message: format!("Model '{new_model_id}' not found in registry"),
+            })?;
+
+        if !entry.compatible_capabilities.contains(&slot.capability) {
+            return Err(LoaderError::IncompatibleModel {
+                model_id: new_model_id.to_string(),
+                capability: slot.capability.to_string(),
+            });
+        }
+
+        // Begin swap — block inference to this slot
+        self.swap_guard.begin(slot_id);
+
+        self.events.emit(LoaderEvent::SwapStarted {
+            slot_id: slot_id.to_string(),
+            from_model: old_model_id.clone(),
+            to_model: new_model_id.to_string(),
+        });
+
+        tracing::info!(
+            slot = %slot_id,
+            from = ?old_model_id,
+            to = %new_model_id,
+            "Swap started"
+        );
+
+        // Step 1: Unload if currently loaded
+        if self.is_slot_loaded(slot_id) {
+            if let Err(e) = self.unload_slot(slot_id).await {
+                let error_msg = format!("Swap failed during unload: {e}");
+                self.swap_guard.end(slot_id);
+                self.events.emit(LoaderEvent::SwapFailed {
+                    slot_id: slot_id.to_string(),
+                    error: error_msg.clone(),
+                });
+                return Err(LoaderError::Internal { message: error_msg });
+            }
+        }
+
+        // Step 2: Reassign
+        if let Err(e) = self.assign_model(slot_id, new_model_id) {
+            let error_msg = format!("Swap failed during assignment: {e}");
+            self.swap_guard.end(slot_id);
+            self.events.emit(LoaderEvent::SwapFailed {
+                slot_id: slot_id.to_string(),
+                error: error_msg.clone(),
+            });
+            return Err(LoaderError::Internal { message: error_msg });
+        }
+
+        // Step 3: Load the new model
+        if let Err(e) = self.load_slot(slot_id).await {
+            let error_msg = format!("Swap failed during load: {e}");
+            self.swap_guard.end(slot_id);
+            self.events.emit(LoaderEvent::SwapFailed {
+                slot_id: slot_id.to_string(),
+                error: error_msg.clone(),
+            });
+            return Err(LoaderError::Internal { message: error_msg });
+        }
+
+        // Done — release the guard
+        self.swap_guard.end(slot_id);
+
+        self.events.emit(LoaderEvent::SwapComplete {
+            slot_id: slot_id.to_string(),
+            model_id: new_model_id.to_string(),
+        });
+
+        tracing::info!(slot = %slot_id, model = %new_model_id, "Swap complete");
+        Ok(())
     }
 
     // ── Hardware ───────────────────────────────────────────────

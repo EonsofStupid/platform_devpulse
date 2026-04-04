@@ -121,6 +121,13 @@ pub enum LoaderError {
         slot_id: String,
     },
 
+    /// Slot is mid-swap (unload → reassign → load). Inference must wait.
+    #[error("Slot '{slot_id}' is swapping models — try again in a moment")]
+    SlotSwapping {
+        /// Slot that is mid-swap.
+        slot_id: String,
+    },
+
     /// Internal error — catch-all for unexpected failures.
     #[error("{message}")]
     Internal {

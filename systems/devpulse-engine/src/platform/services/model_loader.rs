@@ -144,16 +144,27 @@ impl ModelLoaderService {
         inner.get_registry().to_vec()
     }
 
+    /// Atomically swap the model on a slot (unload → reassign → load).
+    ///
+    /// Blocks inference to the slot for the entire duration via SwapGuard.
+    pub async fn swap_model(&self, slot_id: &str, new_model_id: &str) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.swap_model(slot_id, new_model_id).await.map_err(|e| {
+            anyhow::anyhow!("{e}")
+        })
+    }
+
     /// Get an inference handle for a slot (resolves fallback chain).
     ///
     /// Returns a cloned handle — caller can use it without holding the Mutex.
     /// This is critical: generation is long-running, we must NOT hold the lock.
+    /// Returns `Err` if the slot is mid-swap.
     pub async fn inference_handle(
         &self,
         slot_id: &str,
-    ) -> Option<devpulse_clyffy::model_loader::InferenceHandle> {
+    ) -> Result<Option<devpulse_clyffy::model_loader::InferenceHandle>> {
         let inner = self.inner.lock().await;
-        inner.inference_handle(slot_id)
+        inner.inference_handle(slot_id).map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Search HuggingFace for GGUF models.

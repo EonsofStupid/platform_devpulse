@@ -88,6 +88,22 @@ impl LoaderEventSink for EventBridge {
                 "model:slot-assigned",
                 json!({ "slot_id": slot_id, "model_id": model_id }),
             ),
+            LoaderEvent::SwapStarted {
+                slot_id,
+                from_model,
+                to_model,
+            } => (
+                "model:swap-started",
+                json!({ "slot_id": slot_id, "from_model": from_model, "to_model": to_model }),
+            ),
+            LoaderEvent::SwapComplete { slot_id, model_id } => (
+                "model:swap-complete",
+                json!({ "slot_id": slot_id, "model_id": model_id }),
+            ),
+            LoaderEvent::SwapFailed { slot_id, error } => (
+                "model:swap-failed",
+                json!({ "slot_id": slot_id, "error": error }),
+            ),
             _ => {
                 // Other events: log via tracing, don't emit to frontend
                 tracing::debug!(event = ?event, "Model loader event (not bridged)");

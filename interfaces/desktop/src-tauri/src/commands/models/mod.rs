@@ -260,6 +260,25 @@ pub async fn unload_slot(
         .map_err(|e| e.to_string())
 }
 
+/// Atomically swap the model on a slot (unload → reassign → load).
+///
+/// Blocks inference to the slot for the entire duration. The frontend
+/// should show SwapOverlay while this runs — events are emitted via
+/// `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
+#[tauri::command]
+#[specta::specta]
+pub async fn swap_slot_model(
+    state: State<'_, PlatformState>,
+    slot_id: String,
+    new_model_id: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .swap_model(&slot_id, &new_model_id)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Start downloading a model from HuggingFace.
 /// Returns the download ID for progress tracking.
 #[tauri::command]
@@ -556,6 +575,7 @@ pub async fn inference_generate(
     let handle = loader
         .inference_handle(&slot_id)
         .await
+        .map_err(|e| e.to_string())?
         .ok_or_else(|| {
             format!(
                 "No model loaded in slot '{slot_id}'. Open Model Control to set up your AI."

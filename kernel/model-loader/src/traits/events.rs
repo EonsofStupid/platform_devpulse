@@ -116,6 +116,31 @@ pub enum LoaderEvent {
         freed: MemoryFootprint,
     },
 
+    // ── Swap ───────────────────────────────────────────────
+    /// Atomic model swap started (unload → reassign → load).
+    SwapStarted {
+        /// Slot being swapped.
+        slot_id: String,
+        /// Registry ID of the model being replaced (None if slot was empty).
+        from_model: Option<String>,
+        /// Registry ID of the new model being loaded.
+        to_model: String,
+    },
+    /// Swap completed successfully — new model is loaded and ready.
+    SwapComplete {
+        /// Slot that finished swapping.
+        slot_id: String,
+        /// Registry ID of the now-loaded model.
+        model_id: String,
+    },
+    /// Swap failed — slot may be in an unloaded state.
+    SwapFailed {
+        /// Slot that failed to swap.
+        slot_id: String,
+        /// Human-readable error description.
+        error: String,
+    },
+
     // ── VRAM ───────────────────────────────────────────────
     /// VRAM budget exceeded — load cannot proceed without action.
     VramInsufficient {
@@ -194,6 +219,20 @@ impl LoaderEventSink for TracingEventSink {
                     available_mb,
                     "VRAM insufficient for requested load"
                 );
+            }
+            LoaderEvent::SwapStarted { slot_id, from_model, to_model } => {
+                tracing::info!(
+                    slot = %slot_id,
+                    from = ?from_model,
+                    to = %to_model,
+                    "Model swap started"
+                );
+            }
+            LoaderEvent::SwapComplete { slot_id, model_id } => {
+                tracing::info!(slot = %slot_id, model = %model_id, "Model swap complete");
+            }
+            LoaderEvent::SwapFailed { slot_id, error } => {
+                tracing::error!(slot = %slot_id, error = %error, "Model swap failed");
             }
             _ => {
                 tracing::debug!("LoaderEvent: {event:?}");

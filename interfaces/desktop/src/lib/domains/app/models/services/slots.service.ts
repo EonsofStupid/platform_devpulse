@@ -69,6 +69,19 @@ export async function unloadSlot(slotId: string): Promise<void> {
 	}
 }
 
+/** Atomically swap the model on a slot (unload → reassign → load). Throws on failure. */
+export async function swapSlotModel(slotId: string, newModelId: string): Promise<void> {
+	logInfo("models.slots", `Swapping model on ${slotId} → ${newModelId}`);
+	try {
+		unwrap(await commands.swapSlotModel(slotId, newModelId));
+		logInfo("models.slots", `Swap complete: ${slotId} → ${newModelId}`);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("models.slots", `Swap FAILED for ${slotId}: ${msg}`);
+		throw new Error(`Failed to swap model on ${slotId}: ${msg}`);
+	}
+}
+
 /** Check if first run. Throws on failure. */
 export async function isFirstRun(): Promise<boolean> {
 	try {

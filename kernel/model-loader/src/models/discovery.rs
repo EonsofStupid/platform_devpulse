@@ -9,7 +9,11 @@ use std::path::Path;
 /// Discover all models in the models directory — GGUF, ONNX, and Sherpa directories.
 ///
 /// Walks ALL subdirectories recursively. Models organized by purpose:
-/// `chat/`, `voice/`, `rag/`, `vision/` — but discovery doesn't care about folder names.
+/// `chat/`, `voice/`, `rag/`, `vision/`, `general/`.
+///
+/// After discovery, applies folder-aware capability hints: if a model is in
+/// `voice/`, it gains Speech capabilities even if the architecture string is
+/// unfamiliar. This supplements (not overrides) architecture-based inference.
 pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEntry>> {
     if !models_dir.exists() {
         tracing::debug!(path = %models_dir.display(), "Models directory does not exist");
@@ -21,6 +25,9 @@ pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEnt
     // Walk everything recursively — discover by file type, not folder name
     walk_all(models_dir, &mut entries)?;
 
+    // Post-process: folder-aware capability hints
+    apply_folder_hints(models_dir, &mut entries);
+
     tracing::info!(
         count = entries.len(),
         path = %models_dir.display(),
@@ -30,6 +37,7 @@ pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEnt
 }
 
 /// Recursively walk a directory, discovering GGUF files, ONNX files, and Sherpa model dirs.
+/// Folder-aware hints are applied after walk completes (in `discover_models`).
 fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result<()> {
     let read_dir = match std::fs::read_dir(dir) {
         Ok(rd) => rd,
@@ -419,6 +427,55 @@ fn now_epoch_ms() -> i64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0)
+}
+
+/// Apply folder-aware capability hints to discovered models.
+///
+/// If a model sits under a known purpose directory (relative to `models_dir`),
+/// supplement its inferred capabilities. This ensures manually placed models
+/// show up as compatible for the right slots even if the architecture string
+/// is unfamiliar (e.g., a custom ONNX file in `voice/`).
+///
+/// Hints ADD capabilities — they never remove what architecture parsing inferred.
+fn apply_folder_hints(models_dir: &Path, entries: &mut [ModelRegistryEntry]) {
+    for entry in entries.iter_mut() {
+        // Get the path relative to models_dir
+        let relative = match entry.path.strip_prefix(models_dir) {
+            Ok(rel) => rel,
+            Err(_) => continue,
+        };
+
+        // First component of relative path is the purpose folder
+        let folder = match relative.components().next() {
+            Some(std::path::Component::Normal(name)) => name.to_string_lossy(),
+            _ => continue,
+        };
+
+        let hints: &[ModelCapability] = match folder.as_ref() {
+            "chat" | "general" => &[ModelCapability::TextGeneration],
+            "voice" => &[ModelCapability::SpeechToText, ModelCapability::TextToSpeech],
+            "rag" => &[ModelCapability::Embedding, ModelCapability::Reranking],
+            "vision" => &[ModelCapability::VisionEmbedding],
+            _ => continue,
+        };
+
+        let mut added = false;
+        for cap in hints {
+            if !entry.compatible_capabilities.contains(cap) {
+                entry.compatible_capabilities.push(*cap);
+                added = true;
+            }
+        }
+
+        if added {
+            tracing::debug!(
+                file = %entry.filename,
+                folder = %folder,
+                caps = ?entry.compatible_capabilities,
+                "Folder hint applied"
+            );
+        }
+    }
 }
 
 #[cfg(test)]

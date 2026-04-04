@@ -69,7 +69,16 @@ async function handleUnload() {
 }
 
 async function handleAssign(modelId: string) {
-	await modelsState.assign(slot.id, modelId);
+	if (isLoaded) {
+		// Slot is loaded — use atomic swap (unload → reassign → load)
+		try {
+			await modelsState.swap(slot.id, modelId);
+		} catch (e) {
+			console.error(`[SlotRow] Swap FAILED for ${slot.id}:`, e);
+		}
+	} else {
+		await modelsState.assign(slot.id, modelId);
+	}
 	showPicker = false;
 }
 </script>

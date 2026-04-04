@@ -117,6 +117,36 @@ class SwapState {
 					}
 				}),
 			);
+
+			// ── Swap events (atomic unload → reassign → load) ────
+			this.unlisteners.push(
+				await listen<{ slot_id: string; from_model: string | null; to_model: string }>(
+					"model:swap-started",
+					(event) => {
+						// If not already active (e.g. started via modelsState.swap()),
+						// the swap-started event ensures the overlay shows.
+						if (!this.active) {
+							this.startLoad(event.payload.slot_id);
+						}
+					},
+				),
+			);
+
+			this.unlisteners.push(
+				await listen<{ slot_id: string; model_id: string }>("model:swap-complete", (event) => {
+					if (this.active && event.payload.slot_id === this.slotId) {
+						this.complete();
+					}
+				}),
+			);
+
+			this.unlisteners.push(
+				await listen<{ slot_id: string; error: string }>("model:swap-failed", (event) => {
+					if (this.active && event.payload.slot_id === this.slotId) {
+						this.fail(event.payload.error);
+					}
+				}),
+			);
 		} catch (e) {
 			console.error("[SwapState] Failed to register event listeners:", e);
 		}

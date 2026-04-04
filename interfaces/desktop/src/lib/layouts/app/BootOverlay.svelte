@@ -216,7 +216,7 @@ async function handleWizardComplete(): Promise<void> {
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
-			{#await import("$lib/domains/app/models/components/ClyffyModelConfig.svelte") then module}
+			{#await import("$lib/domains/app/models/components/ModelLoaderPanel.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}
 		{/if}

@@ -1,272 +1,504 @@
 <!--
-  @file ModelLoaderPanel — Main model management UI.
-  Layman-friendly by default. Advanced toggle for power users.
-  ALL styling via renderForge + cssVarString. Zero raw values.
+  @file ModelLoaderPanel — Model slot management, download, load/unload, swap.
+  Shows every slot with download/load status, size selectors, one-click actions.
+  Uses atomic swap when changing models on loaded slots.
+  ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
-import { FolderOpen, HardDrive, Search, Zap } from "lucide-svelte";
+import {
+	Download,
+	FolderOpen,
+	Loader2,
+	Power,
+	PowerOff,
+	RefreshCw,
+	Search,
+	Zap,
+} from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
-import { downloadModel, importLocalModel } from "../services/download.service.js";
+import {
+	downloadModel,
+	importLocalModel,
+	onDownloadProgress,
+} from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 import ClyffyNarration from "./ClyffyNarration.svelte";
 import ModelSearch from "./ModelSearch.svelte";
-import SetupWizard from "./SetupWizard.svelte";
-import SubsystemGroup from "./SubsystemGroup.svelte";
 import VramGauge from "./VramGauge.svelte";
 
-let layman = $state(true);
-let showWizard = $state(true);
+// ── Props ─────────────────────────────────────────────────────
+
+interface Props {
+	onComplete?: () => void;
+}
+
+let { onComplete }: Props = $props();
+
+// ── Local State ───────────────────────────────────────────────
+
 let showSearch = $state(false);
+let error = $state<string | null>(null);
+let downloading = $state<Record<string, number>>({});
+let health = $state<{ name: string; status: string; latency_us: number | null }[]>([]);
 
-async function handleDownload(repoId: string, filename: string) {
-	try {
-		await downloadModel(repoId, filename);
-		modelsState.scan();
-	} catch (e) {
-		console.error("[ModelLoaderPanel] Download failed:", e);
-	}
+// ── Baseline Models — exact HF repos per slot ─────────────────
+
+interface ModelOption {
+	label: string;
+	repo: string;
+	file: string;
+	sizeMb: number;
+	isDir?: boolean;
 }
 
-async function handleImportLocal() {
-	try {
-		await importLocalModel();
-		modelsState.scan();
-	} catch (e) {
-		console.error("[ModelLoaderPanel] Import failed:", e);
-	}
+interface SlotConfig {
+	label: string;
+	description: string;
+	options: ModelOption[];
 }
 
-const mPanel = $derived(renderForge({ kind: "model-panel", preset: "primary" }));
-const mError = $derived(renderForge({ kind: "model-error", preset: "danger" }));
-const mMetrics = $derived(renderForge({ kind: "model-metrics", preset: "neutral" }));
-const mActionScan = $derived(renderForge({ kind: "model-action", preset: "info" }));
-const mActionDownload = $derived(renderForge({ kind: "model-action", preset: "success" }));
+const SLOTS: Record<string, SlotConfig> = {
+	"chat.brain": {
+		label: "Clyffy's Brain",
+		description: "Main reasoning model for chat",
+		options: [
+			{
+				label: "4B (Fast)",
+				repo: "bartowski/Qwen3-4B-GGUF",
+				file: "Qwen3-4B-Q4_K_M.gguf",
+				sizeMb: 2600,
+			},
+			{
+				label: "7B (Balanced)",
+				repo: "bartowski/Qwen3-7B-GGUF",
+				file: "Qwen3-7B-Q4_K_M.gguf",
+				sizeMb: 4100,
+			},
+			{
+				label: "14B (Smart)",
+				repo: "bartowski/Qwen3-14B-GGUF",
+				file: "Qwen3-14B-Q4_K_M.gguf",
+				sizeMb: 8100,
+			},
+		],
+	},
+	"minion.shared": {
+		label: "Minion Brain",
+		description: "Fast background tasks",
+		options: [
+			{ label: "0.6B", repo: "Qwen/Qwen3-0.6B-GGUF", file: "qwen3-0.6b-q4_k_m.gguf", sizeMb: 500 },
+		],
+	},
+	"voice.stt": {
+		label: "Voice \u2014 Speech Recognition (STT)",
+		description: "Whisper speech-to-text",
+		options: [
+			{
+				label: "Whisper Large v3 Turbo",
+				repo: "csukuangfj/sherpa-onnx-whisper-large-v3-turbo",
+				file: "large-v3-turbo-encoder.int8.onnx",
+				sizeMb: 1600,
+				isDir: true,
+			},
+		],
+	},
+	"voice.tts": {
+		label: "Voice \u2014 Text to Speech (TTS)",
+		description: "Kokoro voice synthesis",
+		options: [
+			{
+				label: "Kokoro v1.0 fp16",
+				repo: "onnx-community/Kokoro-82M-v1.0-ONNX",
+				file: "model_fp16.onnx",
+				sizeMb: 163,
+			},
+		],
+	},
+	"vision.embedder": {
+		label: "Vision \u2014 Screen Analysis",
+		description: "SigLIP2 screenshot understanding",
+		options: [
+			{
+				label: "SigLIP2 Base int8",
+				repo: "onnx-community/siglip2-base-patch16-256-ONNX",
+				file: "vision_model_int8.onnx",
+				sizeMb: 95,
+			},
+		],
+	},
+	"rag.embedder": {
+		label: "Search \u2014 Embedder",
+		description: "Vector search for code and docs",
+		options: [
+			{
+				label: "nomic-embed-v1.5",
+				repo: "nomic-ai/nomic-embed-text-v1.5-GGUF",
+				file: "nomic-embed-text-v1.5.Q8_0.gguf",
+				sizeMb: 300,
+			},
+		],
+	},
+	"rag.reranker": {
+		label: "Search \u2014 Reranker",
+		description: "Relevance scoring for search results",
+		options: [
+			{
+				label: "Qwen3-Reranker-0.6B",
+				repo: "Qwen/Qwen3-Reranker-0.6B-GGUF",
+				file: "qwen3-reranker-0.6b.Q8_0.gguf",
+				sizeMb: 300,
+			},
+		],
+	},
+};
+
+const slotOrder = [
+	"chat.brain",
+	"minion.shared",
+	"voice.stt",
+	"voice.tts",
+	"vision.embedder",
+	"rag.embedder",
+	"rag.reranker",
+];
+
+// ── Selected size per multi-option slot ───────────────────────
+
+let selectedOption = $state<Record<string, number>>({
+	"chat.brain": 0,
+});
+
+const m = $derived(renderForge({ kind: "model-config", preset: "primary" }));
+
+// ── Init ──────────────────────────────────────────────────────
 
 $effect(() => {
 	hardwareState.startListening();
 	modelsState.refresh();
 	modelsState.startStatusListener();
+	loadHealth();
 	return () => {
 		hardwareState.stopListening();
 		modelsState.stopStatusListener();
 	};
 });
 
-const clyffyMessage = $derived.by(() => {
-	if (modelsState.loading) return "Checking your system...";
-	if (modelsState.error) return `Something went wrong: ${modelsState.error}`;
-
-	const hw = hardwareState.metrics;
-	if (!hw) return "Detecting your hardware...";
-
-	const modelCount = modelsState.models.length;
-	const loadedCount = Object.values(modelsState.statuses).filter((s) => s.type === "loaded").length;
-
-	if (modelsState.firstRun && modelCount === 0) {
-		return hardwareState.hasGpu
-			? `I see you have a ${hw.gpu_name} with ${formatMb(hardwareState.vramTotalMb)} GPU memory. Let me recommend some models that fit your hardware.`
-			: "No GPU detected — I'll set things up for CPU mode. It's slower but everything works.";
+async function loadHealth(): Promise<void> {
+	try {
+		const result = await commands.getStatus();
+		if (result.status === "ok" && result.data.subsystems) {
+			health = result.data.subsystems.map((s) => ({
+				name: s.name,
+				status: s.status,
+				latency_us: s.latency_us,
+			}));
+		}
+	} catch (e) {
+		console.warn("[ModelLoaderPanel] Health check failed:", e);
 	}
+}
 
-	if (modelCount === 0) {
-		return "No models found yet. Click 'Scan Models' or download one from HuggingFace.";
+// ── Slot Status Helpers ───────────────────────────────────────
+
+function slotStatus(
+	slotId: string,
+): "not_downloaded" | "downloaded" | "loading" | "loaded" | "error" {
+	const status = modelsState.statuses[slotId];
+	if (!status) {
+		const slot = modelsState.slots.find((s) => s.id === slotId);
+		if (slot?.assigned_model_id) return "downloaded";
+		return "not_downloaded";
 	}
+	return status.type === "not_loaded"
+		? "downloaded"
+		: (status.type as "loading" | "loaded" | "error");
+}
 
-	if (loadedCount > 0) {
-		return `${loadedCount} model${loadedCount > 1 ? "s" : ""} loaded. ${
-			hardwareState.hasGpu
-				? `Using ${formatMb(hardwareState.vramUsedMb)} of ${formatMb(hardwareState.vramTotalMb)} GPU memory.`
-				: "Running in CPU mode."
-		}`;
+function statusBadge(status: string): {
+	label: string;
+	variant: "positive" | "negative" | "neutral";
+} {
+	switch (status) {
+		case "loaded":
+			return { label: "Loaded", variant: "positive" };
+		case "loading":
+			return { label: "Loading...", variant: "neutral" };
+		case "downloaded":
+			return { label: "Ready", variant: "neutral" };
+		case "error":
+			return { label: "Error", variant: "negative" };
+		default:
+			return { label: "Not Downloaded", variant: "neutral" };
 	}
+}
 
-	return `${modelCount} model${modelCount > 1 ? "s" : ""} in your library. Assign and load them to get started.`;
-});
+// ── Actions ───────────────────────────────────────────────────
 
-const clyffyType = $derived.by(() => {
-	if (modelsState.error) return "error" as const;
-	if (modelsState.firstRun && modelsState.models.length === 0) return "info" as const;
-	const loadedCount = Object.values(modelsState.statuses).filter((s) => s.type === "loaded").length;
-	if (loadedCount > 0) return "success" as const;
-	return "info" as const;
-});
+async function handleDownload(slotId: string): Promise<void> {
+	const config = SLOTS[slotId];
+	if (!config) return;
+	const optIdx = selectedOption[slotId] ?? 0;
+	const opt = config.options[optIdx];
+	error = null;
+
+	const unsubProgress = onDownloadProgress((p) => {
+		if (p.totalBytes > 0) {
+			downloading[slotId] = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+		}
+	});
+
+	try {
+		downloading[slotId] = 0;
+		await downloadModel(opt.repo, opt.file);
+		downloading[slotId] = 100;
+		await modelsState.scan();
+		await modelsState.refresh();
+		delete downloading[slotId];
+	} catch (e) {
+		delete downloading[slotId];
+		error = `Download failed for ${config.label}: ${e instanceof Error ? e.message : String(e)}`;
+	} finally {
+		unsubProgress();
+	}
+}
+
+async function handleLoad(slotId: string): Promise<void> {
+	error = null;
+	try {
+		await modelsState.load(slotId);
+	} catch (e) {
+		error = `Load failed: ${e instanceof Error ? e.message : String(e)}`;
+	}
+}
+
+async function handleUnload(slotId: string): Promise<void> {
+	error = null;
+	try {
+		await modelsState.unload(slotId);
+	} catch (e) {
+		error = `Unload failed: ${e instanceof Error ? e.message : String(e)}`;
+	}
+}
+
+async function handleSwap(slotId: string): Promise<void> {
+	error = null;
+	try {
+		await modelsState.swap(slotId, slotId);
+	} catch (e) {
+		error = `Swap failed: ${e instanceof Error ? e.message : String(e)}`;
+	}
+}
+
+async function handleImport(): Promise<void> {
+	error = null;
+	try {
+		await importLocalModel();
+		await modelsState.scan();
+		await modelsState.refresh();
+	} catch (e) {
+		error = `Import failed: ${e instanceof Error ? e.message : String(e)}`;
+	}
+}
+
+async function handleSearchDownload(repoId: string, filename: string): Promise<void> {
+	error = null;
+	try {
+		await downloadModel(repoId, filename);
+		await modelsState.scan();
+		await modelsState.refresh();
+	} catch (e) {
+		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
+	}
+}
+
+async function handleApplyAndLaunch(): Promise<void> {
+	error = null;
+	try {
+		const result = await commands.completeModelSetup();
+		if (result.status === "error") {
+			error = result.error;
+		} else {
+			onComplete?.();
+		}
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+	}
+}
 </script>
 
-{#if modelsState.firstRun && modelsState.models.length === 0 && showWizard}
-	<div data-component="model-loader-setup">
-		<SetupWizard onComplete={() => { showWizard = false; }} />
-	</div>
-{:else}
 <div
-	{...mPanel.dataAttrs}
-	style={cssVarString(mPanel.cssVars)}
-	class={stack({ gap: "4" })}
+	style={cssVarString(m.cssVars)}
+	class={`${stack({ gap: "4" })} w-full`}
 	data-component="model-loader-panel"
 >
 	<!-- Header -->
 	<div class={hstack({ justify: "between", align: "center" })}>
 		<div class={hstack({ gap: "2", align: "center" })}>
-			<Zap size={18} style="color: var(--color);" />
 			<Text size="lg" weight="bold" color="primary">Model Control</Text>
 		</div>
-		<button
-			class="rounded px-2 py-1 text-xs transition-colors hover:brightness-110"
-			style="background: var(--bg); color: var(--color);"
-			onclick={() => (layman = !layman)}
-		>
-			{layman ? "Advanced" : "Simple"}
-		</button>
-	</div>
-
-	<!-- Hardware gauges -->
-	<div class={hstack({ gap: "4", justify: "center", align: "start" })}>
 		<VramGauge
 			usedMb={hardwareState.vramUsedMb}
 			totalMb={hardwareState.vramTotalMb}
 			hasGpu={hardwareState.hasGpu}
 			gpuError={hardwareState.gpuError}
-			label={layman ? "GPU Memory" : "VRAM"}
+			label={hardwareState.hasGpu ? hardwareState.metrics?.gpu_name ?? "GPU" : "CPU Mode"}
 		/>
-
-		{#if !layman && hardwareState.metrics}
-			<div
-				{...mMetrics.dataAttrs}
-				style={cssVarString(mMetrics.cssVars)}
-				class={stack({ gap: "2" })}
-			>
-				<div>
-					<div class={hstack({ justify: "between" })}>
-						<Text size="xs" color="muted">CPU</Text>
-						<Text size="xs" color="secondary">{hardwareState.metrics.cpu_usage_percent.toFixed(0)}%</Text>
-					</div>
-					<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-						<div class="h-full rounded-full" style="width: {hardwareState.metrics.cpu_usage_percent}%; background: var(--color);"></div>
-					</div>
-				</div>
-				<div>
-					<div class={hstack({ justify: "between" })}>
-						<Text size="xs" color="muted">RAM</Text>
-						<Text size="xs" color="secondary">{formatMb(hardwareState.metrics.ram_used_mb)} / {formatMb(hardwareState.metrics.ram_total_mb)}</Text>
-					</div>
-					<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-						<div class="h-full rounded-full" style="width: {(hardwareState.metrics.ram_used_mb / hardwareState.metrics.ram_total_mb) * 100}%; background: var(--color);"></div>
-					</div>
-				</div>
-				{#if hardwareState.hasGpu && hardwareState.metrics.gpu_utilization_percent !== null}
-					<div>
-						<div class={hstack({ justify: "between" })}>
-							<Text size="xs" color="muted">GPU Load</Text>
-							<Text size="xs" color="secondary">{hardwareState.metrics.gpu_utilization_percent.toFixed(0)}%</Text>
-						</div>
-						<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-							<div class="h-full rounded-full" style="width: {hardwareState.metrics.gpu_utilization_percent}%; background: var(--color);"></div>
-						</div>
-					</div>
-				{/if}
-				{#if hardwareState.hasGpu && hardwareState.metrics.gpu_temperature_c !== null}
-					<div class={hstack({ justify: "between" })}>
-						<Text size="xs" color="muted">GPU Temp</Text>
-						<Text size="xs" color="secondary">{hardwareState.metrics.gpu_temperature_c}°C</Text>
-					</div>
-				{/if}
-			</div>
-		{/if}
 	</div>
 
-	<!-- GPU name + tier -->
-	{#if hardwareState.metrics}
-		<div class={hstack({ justify: "center", gap: "2" })}>
-			{#if hardwareState.hasGpu}
-				<Badge variant="positive" size="sm">{hardwareState.metrics.gpu_name}</Badge>
-			{:else}
-				<Badge variant="neutral" size="sm">CPU Only</Badge>
+	<!-- Slot Rows -->
+	{#each slotOrder as slotId (slotId)}
+		{@const config = SLOTS[slotId]}
+		{@const status = slotStatus(slotId)}
+		{@const badge = statusBadge(status)}
+		{@const optIdx = selectedOption[slotId] ?? 0}
+		{@const opt = config.options[optIdx]}
+		{@const isDownloading = slotId in downloading}
+		{@const isLoaded = status === "loaded"}
+		{@const hasModel = status !== "not_downloaded"}
+
+		<div
+			class="rounded-lg border px-4 py-3 transition-colors"
+			style="border-color: var(--border-subtle); background: var(--surface-base);"
+		>
+			<div class={hstack({ justify: "between", align: "start" })}>
+				<!-- Left: label + description -->
+				<div class={stack({ gap: "1" })}>
+					<div class={hstack({ gap: "2", align: "center" })}>
+						<Text size="sm" weight="bold" color="primary">{config.label}</Text>
+						<Badge variant={badge.variant} size="sm">{badge.label}</Badge>
+					</div>
+					<Text size="xs" color="muted">{config.description}</Text>
+				</div>
+
+				<!-- Right: actions -->
+				<div class={hstack({ gap: "2", align: "center" })}>
+					{#if isDownloading}
+						<div class={hstack({ gap: "1", align: "center" })}>
+							<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
+							<Text size="xs" color="muted">Downloading {downloading[slotId] ?? 0}%</Text>
+						</div>
+					{:else if !hasModel}
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-semibold transition-all hover:brightness-125"
+							style="background: var(--accent-teal-main); color: var(--surface-base);"
+							onclick={() => handleDownload(slotId)}
+						>
+							<Download size={12} />
+							Download ({formatMb(opt.sizeMb)})
+						</button>
+					{:else if isLoaded}
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+							onclick={() => handleUnload(slotId)}
+						>
+							<PowerOff size={12} />
+							Unload
+						</button>
+					{:else}
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-semibold transition-all hover:brightness-125"
+							style="background: var(--accent-teal-main); color: var(--surface-base);"
+							onclick={() => handleLoad(slotId)}
+						>
+							<Power size={12} />
+							Load
+						</button>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Size selector (for multi-option slots like chat.brain) -->
+			{#if config.options.length > 1}
+				<div class="mt-2 flex gap-2">
+					{#each config.options as opt, i (opt.label)}
+						<button
+							class="rounded px-3 py-1 text-xs font-medium transition-all"
+							style={selectedOption[slotId] === i
+								? "background: var(--accent-teal-main); color: var(--surface-base);"
+								: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"}
+							onclick={() => { selectedOption[slotId] = i; }}
+						>
+							{opt.label} ({formatMb(opt.sizeMb)})
+						</button>
+					{/each}
+				</div>
 			{/if}
-			<Badge variant="neutral" size="sm">
-				{hardwareState.tier === "high" ? "High-End" : hardwareState.tier === "medium" ? "Mid-Range" : hardwareState.tier === "low" ? "Entry" : hardwareState.tier === "minimal" ? "Basic" : "CPU Mode"}
-			</Badge>
+
+			<!-- Model file info -->
+			<div class="mt-1">
+				<Text size="xs" color="muted">{opt.file}</Text>
+			</div>
+		</div>
+	{/each}
+
+	<!-- Platform Status Bar -->
+	{#if health.length > 0}
+		<div class="rounded-lg border px-4 py-3" style="border-color: var(--border-subtle); background: var(--surface-base);">
+			<Text size="xs" weight="bold" color="secondary" class="mb-2">Platform Status</Text>
+			<div class="flex flex-wrap gap-3">
+				{#each health as svc (svc.name)}
+					<div class={hstack({ gap: "1", align: "center" })}>
+						<div
+							class="h-2 w-2 rounded-full"
+							style="background: {svc.status === 'Healthy' ? 'var(--signal-success)' : svc.status === 'Down' ? 'var(--signal-error)' : 'var(--text-muted)'};"
+						></div>
+						<Text size="xs" color="muted">
+							{svc.name}
+							{#if svc.latency_us !== null}
+								<span class="opacity-50">({Math.round(svc.latency_us / 1000)}ms)</span>
+							{/if}
+						</Text>
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 
-	<!-- Subsystem slot groups -->
-	<div class={stack({ gap: "2" })}>
-		{#each Object.entries(modelsState.userSubsystems) as [sub, slots] (sub)}
-			<SubsystemGroup
-				name={sub}
-				label={modelsState.subsystemLabels[sub] ?? sub}
-				{slots}
-				{layman}
-			/>
-		{/each}
-	</div>
+	<!-- Error display -->
+	{#if error}
+		<ClyffyNarration message={error} type="error" />
+	{/if}
 
-	<!-- Actions -->
-	<div class={hstack({ gap: "2", justify: "center" })}>
+	<!-- Bottom Actions -->
+	<div class="flex flex-wrap items-center justify-center gap-3">
 		<button
-			{...mActionScan.dataAttrs}
-			style={cssVarString(mActionScan.cssVars)}
-			class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:brightness-110"
-			onclick={() => modelsState.scan()}
-			disabled={modelsState.scanning}
-		>
-			<Search size={14} />
-			{modelsState.scanning ? "Scanning..." : "Scan Models"}
-		</button>
-
-		<button
-			{...mActionDownload.dataAttrs}
-			style={cssVarString(mActionDownload.cssVars)}
-			class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:brightness-110"
-			onclick={() => (showSearch = !showSearch)}
-		>
-			<HardDrive size={14} />
-			{showSearch ? "Hide Search" : "Download Model"}
-		</button>
-
-		<button
-			{...mActionScan.dataAttrs}
-			style={cssVarString(mActionScan.cssVars)}
-			class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:brightness-110"
-			onclick={handleImportLocal}
+			class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:brightness-110"
+			style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+			onclick={handleImport}
 		>
 			<FolderOpen size={14} />
 			Import from Disk
 		</button>
+
+		<button
+			class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:brightness-110"
+			style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+			onclick={() => (showSearch = !showSearch)}
+		>
+			<Search size={14} />
+			{showSearch ? "Hide Search" : "Search HuggingFace"}
+		</button>
+
+		<button
+			class="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all hover:brightness-125"
+			style="background: var(--accent-teal-main); color: var(--surface-base); box-shadow: 0 0 0.75rem var(--accent-teal-glow);"
+			onclick={handleApplyAndLaunch}
+		>
+			<Zap size={16} />
+			Apply and Launch Clyffy
+		</button>
 	</div>
 
-	<!-- HuggingFace search (inline, toggled) -->
+	<!-- Inline HF Search -->
 	{#if showSearch}
-		<ModelSearch onDownload={handleDownload} onClose={() => (showSearch = false)} />
+		<ModelSearch onDownload={handleSearchDownload} onClose={() => (showSearch = false)} />
 	{/if}
-
-	<!-- Hard error display -->
-	{#if hardwareState.error}
-		<div
-			{...mError.dataAttrs}
-			style={cssVarString(mError.cssVars)}
-			class="flex flex-col gap-1 rounded-lg border-l-4 px-3 py-2"
-		>
-			<Text size="xs" weight="bold" style="color: var(--color);">HARDWARE ERROR</Text>
-			<Text size="xs" color="secondary">{hardwareState.error}</Text>
-		</div>
-	{/if}
-
-	{#if modelsState.error}
-		<div
-			{...mError.dataAttrs}
-			style={cssVarString(mError.cssVars)}
-			class="flex flex-col gap-1 rounded-lg border-l-4 px-3 py-2"
-		>
-			<Text size="xs" weight="bold" style="color: var(--color);">MODEL LOADER ERROR</Text>
-			<Text size="xs" color="secondary">{modelsState.error}</Text>
-		</div>
-	{/if}
-
-	<ClyffyNarration message={clyffyMessage} type={clyffyType} />
 </div>
-{/if}

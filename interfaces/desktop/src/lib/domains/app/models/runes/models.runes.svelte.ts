@@ -13,6 +13,7 @@ import {
 	isFirstRun,
 	loadSlot,
 	scanModels,
+	swapSlotModel,
 	unloadSlot,
 } from "../services/index.js";
 import type { ModelStatus } from "../types/models.types.js";
@@ -125,6 +126,33 @@ class ModelsState {
 			this.statuses[slotId] = { type: "failed", error: msg };
 			swapState.fail(msg);
 			console.error(`[ModelsState] HARD FAIL on unload ${slotId}: ${msg}`);
+			throw e;
+		}
+	}
+
+	/**
+	 * Atomically swap the model on a loaded slot.
+	 * Triggers SwapOverlay via swap events from Rust.
+	 * If slot is not loaded, falls back to assign().
+	 */
+	async swap(slotId: string, newModelId: string): Promise<void> {
+		const { swapState } = await import("./swap.runes.svelte.js");
+		swapState.startLoad(slotId);
+		this.error = null;
+		try {
+			await swapSlotModel(slotId, newModelId);
+			// SwapOverlay is driven by Tauri events (swap-complete/swap-failed),
+			// not by this Promise. The overlay auto-dismisses on completion.
+			// Update local slot state
+			const slot = this.slots.find((s) => s.id === slotId);
+			if (slot) {
+				slot.assigned_model_id = newModelId;
+			}
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			this.error = msg;
+			// swapState.fail() is called by the swap-failed event listener
+			console.error(`[ModelsState] HARD FAIL on swap ${slotId}: ${msg}`);
 			throw e;
 		}
 	}

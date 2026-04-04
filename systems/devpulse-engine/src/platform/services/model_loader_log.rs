@@ -218,6 +218,23 @@ impl LoaderEventSink for FileEventSink {
                 self.write_line("INFO", &format!("Slot UNASSIGNED: {slot_id}"));
                 tracing::info!(slot = %slot_id, "[model-loader] Slot unassigned");
             }
+
+            // ── Swap ──────────────────────────────────────────────
+            LoaderEvent::SwapStarted { slot_id, from_model, to_model } => {
+                self.write_line(
+                    "INFO",
+                    &format!("Swap STARTED: slot={slot_id} from={from_model:?} to={to_model}"),
+                );
+                tracing::info!(slot = %slot_id, from = ?from_model, to = %to_model, "[model-loader] Swap started");
+            }
+            LoaderEvent::SwapComplete { slot_id, model_id } => {
+                self.write_line("INFO", &format!("Swap COMPLETE: slot={slot_id} model={model_id}"));
+                tracing::info!(slot = %slot_id, model = %model_id, "[model-loader] Swap complete");
+            }
+            LoaderEvent::SwapFailed { slot_id, error } => {
+                self.write_line("ERROR", &format!("Swap FAILED: slot={slot_id} error={error}"));
+                tracing::error!(slot = %slot_id, error = %error, "[model-loader] Swap FAILED");
+            }
         }
     }
 }
