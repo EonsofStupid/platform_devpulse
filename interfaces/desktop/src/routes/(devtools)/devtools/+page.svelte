@@ -1,0 +1,348 @@
+<!--
+  @file DevPulse Tools
+  @route /devtools
+  @window DevTools (Ctrl+Shift+Z)
+
+  Unified dev toolbox panel. Floating always-on-top child window.
+  Tab-organized sub-tools for developers and juniors.
+-->
+<script lang="ts">
+import { invoke } from "@tauri-apps/api/core";
+import { Activity, ExternalLink, Grid3x3, Palette, Settings, X } from "lucide-svelte";
+import { Button } from "$lib/design/components/button/index.js";
+import Text from "$lib/design/components/text/Text.svelte";
+import type { LaneToggle, LaneTraceConfig, PlatformConfig } from "$lib/sys/generated/bindings.js";
+import { commands } from "$lib/sys/generated/bindings.js";
+
+// ── Tab state ────────────────────────────────────────────────
+type TabId = "overview" | "lanes" | "config";
+
+const tabs = [
+	{ id: "overview" as const, label: "Overview", Icon: Grid3x3 },
+	{ id: "lanes" as const, label: "Lanes", Icon: Activity },
+	{ id: "config" as const, label: "Config", Icon: Settings },
+] as const;
+
+let activeTab = $state<TabId>("overview");
+
+// ── Lane config state ────────────────────────────────────────
+let laneConfig = $state<LaneTraceConfig | null>(null);
+let laneError = $state<string | null>(null);
+let laneLoading = $state(false);
+
+async function loadLaneConfig(): Promise<void> {
+	laneLoading = true;
+	laneError = null;
+	const result = await commands.getLaneConfig();
+	if (result.status === "ok") {
+		laneConfig = result.data;
+	} else {
+		laneError = result.error;
+	}
+	laneLoading = false;
+}
+
+async function toggleLane(lane: LaneToggle): Promise<void> {
+	if (!laneConfig) return;
+	const updated: LaneTraceConfig = {
+		...laneConfig,
+		lanes: laneConfig.lanes.map((l) => (l.lane === lane.lane ? { ...l, enabled: !l.enabled } : l)),
+	};
+	const result = await commands.setLaneConfig(updated);
+	if (result.status === "ok") {
+		laneConfig = updated;
+	}
+}
+
+async function setPreset(preset: "off" | "standard" | "debug"): Promise<void> {
+	if (!laneConfig) return;
+
+	const standardLanes = new Set([
+		"BrainInference",
+		"HelperInference",
+		"EscalationInference",
+		"Embedding",
+		"Reranking",
+		"VectorRetrieval",
+		"PromptAssembly",
+		"ThinkingPipeline",
+	]);
+
+	const updated: LaneTraceConfig = {
+		...laneConfig,
+		verbose: preset === "debug",
+		lanes: laneConfig.lanes.map((l) => ({
+			...l,
+			enabled: preset === "debug" ? true : preset === "off" ? false : standardLanes.has(l.lane),
+		})),
+	};
+	const result = await commands.setLaneConfig(updated);
+	if (result.status === "ok") {
+		laneConfig = updated;
+	}
+}
+
+// ── Platform config state ────────────────────────────────────
+let platformConfig = $state<PlatformConfig | null>(null);
+let configError = $state<string | null>(null);
+
+async function loadPlatformConfig(): Promise<void> {
+	const result = await commands.getSettings();
+	if (result.status === "ok") {
+		platformConfig = result.data;
+	} else {
+		configError = result.error;
+	}
+}
+
+// ── Tab change triggers data load ────────────────────────────
+$effect(() => {
+	if (activeTab === "lanes" && !laneConfig && !laneLoading) {
+		loadLaneConfig();
+	}
+	if (activeTab === "config" && !platformConfig) {
+		loadPlatformConfig();
+	}
+});
+
+// ── Window control ───────────────────────────────────────────
+function handleClose(): void {
+	invoke("close_window", { label: "devtools" });
+}
+
+function openWindow(role: string): void {
+	commands.openWindow(role as Parameters<typeof commands.openWindow>[0]);
+}
+
+// ── Lane grouping helper ─────────────────────────────────────
+type LaneGroup = { label: string; lanes: LaneToggle[] };
+
+let laneGroups = $derived<LaneGroup[]>(
+	laneConfig
+		? [
+				{
+					label: "GPU",
+					lanes: laneConfig.lanes.filter((l) =>
+						["BrainInference", "HelperInference", "EscalationInference"].includes(l.lane),
+					),
+				},
+				{
+					label: "CPU",
+					lanes: laneConfig.lanes.filter((l) =>
+						[
+							"Embedding",
+							"Reranking",
+							"SpeechToText",
+							"TextToSpeech",
+							"VisionEmbedding",
+							"PromptAssembly",
+							"ThinkingPipeline",
+						].includes(l.lane),
+					),
+				},
+				{
+					label: "Storage",
+					lanes: laneConfig.lanes.filter((l) =>
+						["VectorRetrieval", "RelationalQuery", "AnalyticalQuery", "CacheLookup"].includes(
+							l.lane,
+						),
+					),
+				},
+			]
+		: [],
+);
+</script>
+
+<div class="flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)]">
+	<!-- ── Titlebar + drag region ──────────────────────────────── -->
+	<header
+		class="flex items-center justify-between h-9 px-3 border-b border-[var(--border-subtle)]"
+		data-tauri-drag-region
+	>
+		<div class="flex items-center gap-2" data-tauri-drag-region>
+			<Text size="xs" weight="semibold" preset="default">DEVPULSE TOOLS</Text>
+		</div>
+		<Button preset="ghost" size="sm" onclick={handleClose}>
+			<X size={12} />
+		</Button>
+	</header>
+
+	<!-- ── Tab bar ─────────────────────────────────────────────── -->
+	<nav class="flex border-b border-[var(--border-subtle)]">
+		{#each tabs as tab}
+			<button
+				class="flex items-center gap-1.5 px-3 py-2 text-xs transition-colors
+					{activeTab === tab.id
+						? 'text-[var(--color-teal-400)] border-b-2 border-[var(--color-teal-400)]'
+						: 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+				onclick={() => (activeTab = tab.id)}
+			>
+				<tab.Icon size={14} />
+				{tab.label}
+			</button>
+		{/each}
+	</nav>
+
+	<!-- ── Tab content ─────────────────────────────────────────── -->
+	<main class="flex-1 overflow-y-auto p-4">
+
+		<!-- OVERVIEW TAB -->
+		{#if activeTab === "overview"}
+			<div class="grid grid-cols-2 gap-3">
+				<!-- Inline tools -->
+				<button
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+					onclick={() => (activeTab = "lanes")}
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Lane Tracing</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Toggle inference pipeline traces. Baseline analysis.</span>
+				</button>
+
+				<button
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+					onclick={() => (activeTab = "config")}
+				>
+					<div class="flex items-center gap-2">
+						<Settings size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Config Inspector</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">View platform config, services, data paths.</span>
+				</button>
+
+				<!-- External window tools -->
+				<button
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+					onclick={() => openWindow("VoiceLab")}
+				>
+					<div class="flex items-center gap-2">
+						<ExternalLink size={14} class="text-[var(--text-secondary)]" />
+						<span class="text-sm font-medium">Voice Lab</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">TTS/STT configuration. Opens separate window.</span>
+				</button>
+
+				<button
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+					onclick={() => openWindow("ModelLoader")}
+				>
+					<div class="flex items-center gap-2">
+						<ExternalLink size={14} class="text-[var(--text-secondary)]" />
+						<span class="text-sm font-medium">Model Control</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Slot management, downloads. Opens separate window.</span>
+				</button>
+
+				<button
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+					onclick={() => openWindow("CortexViewer")}
+				>
+					<div class="flex items-center gap-2">
+						<ExternalLink size={14} class="text-[var(--text-secondary)]" />
+						<span class="text-sm font-medium">Cortex Viewer</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Telemetry graph. Opens separate window.</span>
+				</button>
+
+				<!-- Placeholder for VPB -->
+				<div
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-dashed border-[var(--border-subtle)] opacity-50"
+				>
+					<div class="flex items-center gap-2">
+						<Palette size={16} class="text-[var(--text-secondary)]" />
+						<span class="text-sm font-medium">StyleOS / VPB</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Visual page builder. Coming soon.</span>
+				</div>
+			</div>
+
+		<!-- LANES TAB -->
+		{:else if activeTab === "lanes"}
+			{#if laneLoading}
+				<Text size="sm" color="muted">Loading lane config...</Text>
+			{:else if laneError}
+				<Text size="sm" color="muted">{laneError}</Text>
+			{:else if laneConfig}
+				<!-- Preset buttons -->
+				<div class="flex items-center gap-2 mb-4">
+					<Text size="xs" color="secondary">Preset:</Text>
+					<button class="px-2 py-1 text-xs rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)]" onclick={() => setPreset("off")}>Off</button>
+					<button class="px-2 py-1 text-xs rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)]" onclick={() => setPreset("standard")}>Standard</button>
+					<button class="px-2 py-1 text-xs rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)]" onclick={() => setPreset("debug")}>Debug</button>
+				</div>
+
+				<!-- Global toggles -->
+				<div class="flex items-center gap-4 mb-4 px-1">
+					<label class="flex items-center gap-2 text-xs">
+						<input type="checkbox" bind:checked={laneConfig.verbose} onchange={() => laneConfig && commands.setLaneConfig(laneConfig)} />
+						Verbose
+					</label>
+					<label class="flex items-center gap-2 text-xs">
+						<input type="checkbox" bind:checked={laneConfig.persist_to_duckdb} onchange={() => laneConfig && commands.setLaneConfig(laneConfig)} />
+						Persist to DuckDB
+					</label>
+				</div>
+
+				<!-- Lane groups -->
+				{#each laneGroups as group}
+					<div class="mb-4">
+						<Text size="xs" weight="semibold" color="secondary">{group.label}</Text>
+						<div class="mt-1 space-y-1">
+							{#each group.lanes as lane}
+								<label class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-[var(--surface-raised)] cursor-pointer">
+									<span class="text-xs">{lane.lane}</span>
+									<input
+										type="checkbox"
+										checked={lane.enabled}
+										onchange={() => toggleLane(lane)}
+										class="accent-[var(--color-teal-400)]"
+									/>
+								</label>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			{/if}
+
+		<!-- CONFIG TAB -->
+		{:else if activeTab === "config"}
+			{#if configError}
+				<Text size="sm" color="muted">{configError}</Text>
+			{:else if platformConfig}
+				<div class="space-y-3">
+					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
+						<Text size="xs" weight="semibold" color="secondary">Platform</Text>
+						<div class="mt-2 space-y-1 text-xs">
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">Data Directory</span>
+								<span class="font-mono text-xs">{platformConfig.data_dir}</span>
+							</div>
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">Portable Mode</span>
+								<span>{platformConfig.portable ? "Yes" : "No"}</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
+						<Text size="xs" weight="semibold" color="secondary">Services</Text>
+						<div class="mt-2 space-y-1 text-xs">
+							{#each Object.entries(platformConfig.databases) as [key, enabled]}
+								<div class="flex justify-between">
+									<span class="text-[var(--text-secondary)]">{key.replace(/_/g, " ")}</span>
+									<span style={`color: ${enabled ? "var(--signal-success)" : "var(--text-secondary)"}`}>
+										{enabled ? "Enabled" : "Disabled"}
+									</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				</div>
+			{:else}
+				<Text size="sm" color="muted">Loading config...</Text>
+			{/if}
+		{/if}
+	</main>
+</div>

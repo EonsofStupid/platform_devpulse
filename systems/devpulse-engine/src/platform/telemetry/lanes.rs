@@ -198,12 +198,19 @@ pub struct LaneTraceGuard {
 
 /// Metrics provided by the caller when completing a trace.
 pub struct TraceMetrics {
+    /// Input payload size in bytes (tokens × sizeof for inference, query length for retrieval).
     pub input_size: u64,
+    /// Output payload size in bytes (generated tokens × sizeof, result count for retrieval).
     pub output_size: u64,
+    /// Whether a cache layer satisfied the request without full execution.
     pub cache_hit: bool,
+    /// Whether this was the first invocation after model load (cold start penalty).
     pub cold_start: bool,
+    /// Microseconds spent waiting in the execution queue before processing began.
     pub queue_wait_us: u64,
+    /// Registry ID of the model used for this trace (if applicable).
     pub model_id: Option<String>,
+    /// Slot ID that serviced this request (if applicable).
     pub slot_id: Option<String>,
 }
 

@@ -102,6 +102,8 @@ pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, Stri
         WindowRole::Chat,
         WindowRole::CortexViewer,
         WindowRole::ModelLoader,
+        WindowRole::VoiceLab,
+        WindowRole::DevTools,
     ];
 
     let mut windows = Vec::new();
@@ -126,6 +128,28 @@ pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, Stri
 pub async fn focus_window(label: String, app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window(&label) {
         window.set_focus().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Dev tools toggle
+// ═══════════════════════════════════════════════════════════════
+
+/// Toggle the dev tools panel — open if closed, close if open.
+///
+/// Bound to Ctrl+Shift+Z global shortcut.
+///
+/// # Errors
+/// Returns an error string if the window cannot be created or closed.
+#[tauri::command]
+#[specta::specta]
+pub async fn toggle_devtools(app: tauri::AppHandle) -> Result<(), String> {
+    let label = WindowRole::DevTools.label();
+    if let Some(window) = app.get_webview_window(label) {
+        window.close().map_err(|e| e.to_string())?;
+    } else {
+        open_window(app, WindowRole::DevTools).await?;
     }
     Ok(())
 }

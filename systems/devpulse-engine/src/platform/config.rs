@@ -928,13 +928,21 @@ impl Default for ModelSubdirsConfig {
 /// TOML-side `ModelCapability` — deserialized from config, converts to kernel type.
 #[derive(Debug, Clone, Deserialize)]
 pub enum ModelCapabilityConfig {
+    /// LLM — chat, reasoning, translation.
     TextGeneration,
+    /// Bi-encoder — vector generation for search.
     Embedding,
+    /// Cross-encoder — relevance scoring.
     Reranking,
+    /// Multimodal — image + text understanding.
     VisionLanguage,
+    /// Image to vector (SigLIP2 etc.).
     VisionEmbedding,
+    /// Speech-to-text (Whisper).
     SpeechToText,
+    /// Text-to-speech (Kokoro).
     TextToSpeech,
+    /// Neural audio codec (SNAC — speech token decoding).
     AudioDecoding,
 }
 
@@ -958,9 +966,13 @@ impl ModelCapabilityConfig {
 /// TOML-side `DevicePreference`.
 #[derive(Debug, Clone, Deserialize)]
 pub enum DevicePreferenceConfig {
+    /// Must run on GPU (generation models).
     Gpu,
+    /// Prefer CPU (embedders, rerankers).
     Cpu,
+    /// Try GPU, fall back to CPU if VRAM insufficient.
     GpuWithCpuFallback,
+    /// Loader decides based on VRAM budget.
     Any,
 }
 
@@ -980,11 +992,19 @@ impl DevicePreferenceConfig {
 /// TOML-side `LoadingStrategy`.
 #[derive(Debug, Clone, Deserialize)]
 pub enum LoadingStrategyConfig {
+    /// Keep loaded while platform is active.
     Hot,
+    /// Load proactively when conditions suggest need.
     Warm,
+    /// Load when first request arrives, unload after idle.
     OnDemand,
+    /// Load when a specific signal fires (e.g. `"voice.activated"`).
     Signal(String),
-    Coupled { parent: String },
+    /// Loaded/unloaded alongside a parent slot.
+    Coupled {
+        /// The parent slot ID that controls this slot's lifecycle.
+        parent: String,
+    },
 }
 
 #[cfg(feature = "inference")]
@@ -1004,9 +1024,13 @@ impl LoadingStrategyConfig {
 /// TOML-side `BackendType`.
 #[derive(Debug, Clone, Deserialize)]
 pub enum BackendTypeConfig {
+    /// Candle (canonical — Rust-native, llguidance integration).
     Candle,
+    /// llama.cpp via FFI (secondary — broader architecture support).
     LlamaCpp,
+    /// ONNX Runtime via ort crate (SNAC, small inference models).
     Ort,
+    /// sherpa-rs (Whisper STT, Kokoro TTS).
     Sherpa,
 }
 
@@ -1026,8 +1050,13 @@ impl BackendTypeConfig {
 /// TOML-side `ModelSourceTier`.
 #[derive(Debug, Clone, Deserialize)]
 pub enum SourceTierConfig {
+    /// User downloads and manages via Model Loader UI.
     UserManaged,
-    Bundled { bundled_path: String },
+    /// Ships with the app binary, auto-loads on boot.
+    Bundled {
+        /// Path relative to models_dir (e.g. `"voice/kokoro/model_quantized.onnx"`).
+        bundled_path: String,
+    },
 }
 
 #[cfg(feature = "inference")]

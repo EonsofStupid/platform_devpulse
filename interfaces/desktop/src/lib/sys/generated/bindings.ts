@@ -94,6 +94,37 @@ async getProcessMetrics() : Promise<Result<ProcessMetrics, string>> {
 }
 },
 /**
+ * Get the current lane tracing configuration.
+ * 
+ * # Errors
+ * Returns error if platform is still booting or telemetry is disabled.
+ */
+async getLaneConfig() : Promise<Result<LaneTraceConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_lane_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Update the lane tracing configuration at runtime.
+ * 
+ * Changes take effect immediately — no restart required.
+ * The background writer respects the new config on the next trace.
+ * 
+ * # Errors
+ * Returns error if platform is still booting or telemetry is disabled.
+ */
+async setLaneConfig(config: LaneTraceConfig) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_lane_config", { config }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.
@@ -219,6 +250,22 @@ async focusWindow(label: string) : Promise<Result<null, string>> {
 }
 },
 /**
+ * Toggle the dev tools panel — open if closed, close if open.
+ * 
+ * Bound to Ctrl+Shift+Z global shortcut.
+ * 
+ * # Errors
+ * Returns an error string if the window cannot be created or closed.
+ */
+async toggleDevtools() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("toggle_devtools") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get hardware metrics from the model loader's hardware monitor.
  */
 async getHardwareMetrics() : Promise<Result<HardwareInfo, string>> {
@@ -246,6 +293,20 @@ async scanModels() : Promise<Result<ModelInfo[], string>> {
 async getSlots() : Promise<Result<SlotInfo[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_slots") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the model download catalog from the TOML config.
+ * 
+ * Returns the full catalog of downloadable models per slot.
+ * The frontend uses this instead of hardcoded constants.
+ */
+async getModelCatalog() : Promise<Result<CatalogEntry[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_model_catalog") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -402,6 +463,127 @@ async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, tempe
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Speak text using TTS.
+ */
+async speak(text: string, voice: string | null, slot: string | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("speak", { text, voice, slot }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop current speech.
+ */
+async stopSpeaking() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("stop_speaking") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if TTS is currently active.
+ */
+async isSpeaking() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_speaking") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List available TTS voices.
+ */
+async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_voices", { slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Preview a voice by playing a sample.
+ */
+async previewVoice(voice: string, slotId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("preview_voice", { voice, slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Test the microphone and return audio stats.
+ */
+async testMicrophone() : Promise<Result<MicTestResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("test_microphone") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Transcribe audio from the microphone.
+ */
+async transcribeAudio() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("transcribe_audio") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List saved voice profiles.
+ */
+async listVoiceProfiles() : Promise<Result<VoiceProfile[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_voice_profiles") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Save a voice profile.
+ */
+async saveVoiceProfile(profile: VoiceProfile) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_voice_profile", { profile }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a voice profile.
+ */
+async deleteVoiceProfile(profileId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_voice_profile", { profileId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Activate a voice profile.
+ */
+async activateVoiceProfile(profileId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("activate_voice_profile", { profileId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -463,6 +645,50 @@ entry_count: number;
  * Hard ceiling configured at boot. Entries beyond this are evicted LRU.
  */
 max_capacity: number }
+/**
+ * A download catalog entry — one per slot. Each has one or more download options.
+ */
+export type CatalogEntry = { 
+/**
+ * Slot ID this catalog entry is for.
+ */
+slot_id: string; 
+/**
+ * Human-readable label (e.g., "Clyffy's Brain").
+ */
+label: string; 
+/**
+ * Description for the UI.
+ */
+description: string; 
+/**
+ * Download options for this slot.
+ */
+options: CatalogOption[] }
+/**
+ * A single download option within a catalog entry.
+ */
+export type CatalogOption = { 
+/**
+ * Human-readable label (e.g., "4B (Fast)").
+ */
+label: string; 
+/**
+ * HuggingFace repository ID.
+ */
+repo: string; 
+/**
+ * Filename to download.
+ */
+file: string; 
+/**
+ * Approximate size in MB.
+ */
+size_mb: number; 
+/**
+ * Whether this is a directory download (e.g., Whisper models).
+ */
+is_dir?: boolean }
 /**
  * A chat message returned to the frontend.
  * 
@@ -598,6 +824,69 @@ whisper_enabled: boolean;
  * DevForge service enabled (VSCode).
  */
 devforge_enabled: boolean }
+/**
+ * Hardware execution lane in the inference pipeline.
+ * 
+ * Each variant maps to a model slot + device combination.
+ * Names are PUBLIC equivalents only — kernel terms never appear here.
+ */
+export type ExecutionLane = 
+/**
+ * Brain model (configurable size). GPU Hot.
+ */
+"BrainInference" | 
+/**
+ * Helper model (shared slot). GPU Hot/Standby.
+ */
+"HelperInference" | 
+/**
+ * Escalation path. GPU Warm. Fallback to brain.
+ */
+"EscalationInference" | 
+/**
+ * Dense text embedding. CPU burst.
+ */
+"Embedding" | 
+/**
+ * Cross-encoder reranking. CPU burst.
+ */
+"Reranking" | 
+/**
+ * Speech-to-text (Whisper). CPU burst.
+ */
+"SpeechToText" | 
+/**
+ * Text-to-speech (Kokoro). CPU burst.
+ */
+"TextToSpeech" | 
+/**
+ * Vision embedding (SigLIP2). CPU.
+ */
+"VisionEmbedding" | 
+/**
+ * Vector search (RRO/Qdrant). Disk-backed.
+ */
+"VectorRetrieval" | 
+/**
+ * Relational query (libSQL). File-backed.
+ */
+"RelationalQuery" | 
+/**
+ * Analytical query (DuckDB). File-backed.
+ */
+"AnalyticalQuery" | 
+/**
+ * In-memory cache lookup (Moka).
+ */
+"CacheLookup" | 
+/**
+ * Prompt assembly. CPU-bound string construction.
+ */
+"PromptAssembly" | 
+/**
+ * Full thinking pipeline (end-to-end trace).
+ */
+"ThinkingPipeline"
 /**
  * Hardware metrics for the frontend.
  */
@@ -780,6 +1069,34 @@ export type InitStatus =
  */
 "Skipped"
 /**
+ * Per-lane toggle state (public, TS-exported).
+ */
+export type LaneToggle = { 
+/**
+ * Which lane this toggle controls.
+ */
+lane: ExecutionLane; 
+/**
+ * Whether tracing is enabled for this lane.
+ */
+enabled: boolean }
+/**
+ * Lane tracing configuration (public, TS-exported, runtime-mutable).
+ */
+export type LaneTraceConfig = { 
+/**
+ * Per-lane toggle states.
+ */
+lanes: LaneToggle[]; 
+/**
+ * Log input/output content (expensive, never in prod).
+ */
+verbose: boolean; 
+/**
+ * Write every trace to DuckDB for baseline analysis.
+ */
+persist_to_duckdb: boolean }
+/**
  * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
  */
 export type MessageStats = { 
@@ -791,6 +1108,26 @@ total_messages: number;
  * Distinct sessions (open + closed). A session with 0 messages still counts.
  */
 total_sessions: number }
+/**
+ * Microphone test result.
+ */
+export type MicTestResult = { 
+/**
+ * Whether the mic was detected.
+ */
+detected: boolean; 
+/**
+ * Peak amplitude (0.0 - 1.0).
+ */
+peak_amplitude: number; 
+/**
+ * Average amplitude.
+ */
+avg_amplitude: number; 
+/**
+ * Noise floor estimate.
+ */
+noise_floor: number }
 /**
  * Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
  */
@@ -1033,6 +1370,50 @@ uptime_secs: number;
  */
 subsystems: SubsystemHealth[] }
 /**
+ * Voice information for the frontend.
+ */
+export type VoiceInfo = { 
+/**
+ * Voice identifier.
+ */
+id: string; 
+/**
+ * Display label.
+ */
+label: string; 
+/**
+ * Gender: "male" | "female" | "neutral".
+ */
+gender: string; 
+/**
+ * Sample text for preview.
+ */
+sample_text: string }
+/**
+ * Voice profile — saved user configuration.
+ */
+export type VoiceProfile = { 
+/**
+ * Profile identifier (UUID).
+ */
+id: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * TTS voice ID.
+ */
+tts_voice_id: string; 
+/**
+ * STT model preference: "standard" | "high_quality" | "best".
+ */
+stt_quality: string; 
+/**
+ * Whether this profile is currently active.
+ */
+active: boolean }
+/**
  * Tracks an open window's state.
  */
 export type WindowInfo = { 
@@ -1072,7 +1453,11 @@ export type WindowRole =
 /**
  * Voice Lab — TTS/STT config devtool
  */
-"VoiceLab"
+"VoiceLab" | 
+/**
+ * Unified dev toolbox panel (Ctrl+Shift+Z)
+ */
+"DevTools"
 
 /** tauri-specta globals **/
 

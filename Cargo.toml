@@ -76,10 +76,7 @@ must_use_candidate = "allow"
 unsafe_code = "deny"
 missing_docs = "warn"
 
-# Patch surrealkv — commit 2e58059 is PR #365 (Windows fsync fix), still version 0.20.2.
-# Remove once surrealdb ships with surrealkv >= 0.20.3 that includes this fix.
 [patch.crates-io]
-surrealkv = { git = "https://github.com/surrealdb/surrealkv", rev = "2e58059734567573cf55379325d718ce1889e004" }
 # RRO's fork of tar with set_sync method for snapshot serialization
 tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 # ort: fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)

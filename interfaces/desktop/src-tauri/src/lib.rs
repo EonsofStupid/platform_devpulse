@@ -57,6 +57,7 @@ pub fn run() {
         commands::window::open_chat_window,
         commands::window::close_window,
         commands::window::focus_window,
+        commands::window::toggle_devtools,
         // Model management
         commands::models::get_hardware_metrics,
         commands::models::scan_models,
@@ -107,6 +108,7 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {
             builder.mount_events(app);
@@ -169,6 +171,25 @@ pub fn run() {
                 tauri::async_runtime::spawn(
                     boot_task(handle, data_dir, tracker_clone)
                 );
+            }
+
+            // ── Global shortcuts ──────────────────────────────────
+            // Ctrl+Shift+Z toggles the dev tools panel
+            {
+                use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, Modifiers, Code};
+                let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyZ);
+                let app_handle = app.handle().clone();
+                app.global_shortcut().on_shortcut(shortcut, move |_app, _shortcut, event| {
+                    if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                        let h = app_handle.clone();
+                        tauri::async_runtime::spawn(async move {
+                            if let Err(e) = commands::window::toggle_devtools(h).await {
+                                tracing::warn!(error = %e, "Failed to toggle devtools");
+                            }
+                        });
+                    }
+                }).map_err(|e| anyhow::anyhow!("Failed to register Ctrl+Shift+Z: {e}"))?;
+                tracing::info!("Registered Ctrl+Shift+Z → dev tools panel");
             }
 
             Ok(())
