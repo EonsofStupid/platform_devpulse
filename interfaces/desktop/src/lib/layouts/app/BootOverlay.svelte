@@ -216,13 +216,7 @@ async function handleWizardComplete(): Promise<void> {
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
-			{#if setupError}
-				<div class="rounded-lg border-l-4 px-4 py-3" style="border-color: var(--signal-error); background: var(--surface-base);">
-					<p class="text-sm font-semibold" style="color: var(--signal-error);">{setupError}</p>
-					<p class="mt-1 text-xs opacity-70">Import or download a model, then try again.</p>
-				</div>
-			{/if}
-			{#await import("$lib/domains/app/models/components/SetupWizard.svelte") then module}
+			{#await import("$lib/domains/app/models/components/ClyffyModelConfig.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}
 		{/if}

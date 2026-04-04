@@ -1,3 +1,4 @@
+export { default as ClyffyModelConfig } from "./components/ClyffyModelConfig.svelte";
 export { default as ClyffyNarration } from "./components/ClyffyNarration.svelte";
 export { default as HfModelCard } from "./components/HfModelCard.svelte";
 // Component exports — routes import from here, not from components/ directly

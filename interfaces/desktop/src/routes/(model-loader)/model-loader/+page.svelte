@@ -12,7 +12,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { X } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
-import { ModelLoaderPanel } from "$lib/domains/app/models/index.js";
+import { ClyffyModelConfig } from "$lib/domains/app/models/index.js";
 
 function handleClose(): void {
 	invoke("close_window", { label: "model-loader" });
@@ -31,6 +31,6 @@ function handleClose(): void {
 	</header>
 
 	<main class="flex-1 overflow-y-auto p-4">
-		<ModelLoaderPanel />
+		<ClyffyModelConfig />
 	</main>
 </div>
