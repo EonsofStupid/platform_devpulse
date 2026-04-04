@@ -26,9 +26,9 @@ let { advanced = false }: Props = $props();
 
 const VISION_OPTION = {
 	label: "Built-in (recommended)",
-	repo: "onnx-community/siglip2-base-patch16-256-ONNX",
-	file: "vision_model_int8.onnx",
-	sizeMb: 95,
+	repo: "onnx-community/siglip2-base-patch16-224-ONNX",
+	file: "onnx/vision_model_q4.onnx",
+	sizeMb: 63,
 };
 
 const SLOT_ID = "vision.embedder";

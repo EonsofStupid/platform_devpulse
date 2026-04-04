@@ -4,7 +4,7 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Loader2, Mic, Play, Power, PowerOff, Volume2 } from "lucide-svelte";
+import { Download, Loader2, Mic, Play, Volume2 } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -28,9 +28,9 @@ const STT_OPTIONS = [
 	{
 		label: "Standard",
 		description: "Good accuracy, fast",
-		repo: "csukuangfj/sherpa-onnx-whisper-large-v3-turbo",
-		file: "large-v3-turbo-encoder.int8.onnx",
-		sizeMb: 1600,
+		repo: "csukuangfj/sherpa-onnx-whisper-turbo",
+		file: "turbo-encoder.int8.onnx",
+		sizeMb: 1040,
 		isDir: true,
 	},
 ];
@@ -39,8 +39,8 @@ const TTS_OPTIONS = [
 	{
 		label: "Kokoro v1.0",
 		repo: "onnx-community/Kokoro-82M-v1.0-ONNX",
-		file: "model_fp16.onnx",
-		sizeMb: 163,
+		file: "onnx/model_quantized.onnx",
+		sizeMb: 92,
 	},
 ];
 

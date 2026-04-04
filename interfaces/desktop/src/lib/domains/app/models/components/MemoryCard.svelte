@@ -28,14 +28,14 @@ const EMBEDDER = {
 	label: "nomic-embed-v1.5",
 	repo: "nomic-ai/nomic-embed-text-v1.5-GGUF",
 	file: "nomic-embed-text-v1.5.Q8_0.gguf",
-	sizeMb: 300,
+	sizeMb: 146,
 };
 
 const RERANKER = {
 	label: "Qwen3-Reranker-0.6B",
-	repo: "Qwen/Qwen3-Reranker-0.6B-GGUF",
-	file: "qwen3-reranker-0.6b.Q8_0.gguf",
-	sizeMb: 300,
+	repo: "Mungert/Qwen3-Reranker-0.6B-GGUF",
+	file: "Qwen3-Reranker-0.6B-q8_0.gguf",
+	sizeMb: 639,
 };
 
 const EMBEDDER_SLOT = "rag.embedder";

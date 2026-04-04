@@ -28,23 +28,23 @@ const BRAIN_OPTIONS = [
 	{
 		label: "Fast",
 		description: "Quick responses, lighter on your PC",
-		repo: "bartowski/Qwen3-4B-GGUF",
-		file: "Qwen3-4B-Q4_K_M.gguf",
-		sizeMb: 2600,
+		repo: "bartowski/Qwen_Qwen3-4B-GGUF",
+		file: "Qwen_Qwen3-4B-Q4_K_M.gguf",
+		sizeMb: 2500,
 	},
 	{
 		label: "Balanced",
 		description: "Recommended for most PCs",
-		repo: "bartowski/Qwen3-7B-GGUF",
-		file: "Qwen3-7B-Q4_K_M.gguf",
-		sizeMb: 4100,
+		repo: "bartowski/Qwen_Qwen3-8B-GGUF",
+		file: "Qwen_Qwen3-8B-Q4_K_M.gguf",
+		sizeMb: 5030,
 	},
 	{
 		label: "Smart",
 		description: "Best reasoning, needs more graphics card",
-		repo: "bartowski/Qwen3-14B-GGUF",
-		file: "Qwen3-14B-Q4_K_M.gguf",
-		sizeMb: 8100,
+		repo: "bartowski/Qwen_Qwen3-14B-GGUF",
+		file: "Qwen_Qwen3-14B-Q4_K_M.gguf",
+		sizeMb: 9000,
 	},
 ];
 

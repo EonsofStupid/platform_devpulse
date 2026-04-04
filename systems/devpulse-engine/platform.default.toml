@@ -210,21 +210,21 @@ description = "Main reasoning model for chat"
 
 [[services.system.model_loader.catalog.options]]
 label = "4B (Fast)"
-repo = "bartowski/Qwen3-4B-GGUF"
-file = "Qwen3-4B-Q4_K_M.gguf"
-size_mb = 2600
+repo = "bartowski/Qwen_Qwen3-4B-GGUF"
+file = "Qwen_Qwen3-4B-Q4_K_M.gguf"
+size_mb = 2500
 
 [[services.system.model_loader.catalog.options]]
-label = "7B (Balanced)"
-repo = "bartowski/Qwen3-7B-GGUF"
-file = "Qwen3-7B-Q4_K_M.gguf"
-size_mb = 4100
+label = "8B (Balanced)"
+repo = "bartowski/Qwen_Qwen3-8B-GGUF"
+file = "Qwen_Qwen3-8B-Q4_K_M.gguf"
+size_mb = 5030
 
 [[services.system.model_loader.catalog.options]]
 label = "14B (Smart)"
-repo = "bartowski/Qwen3-14B-GGUF"
-file = "Qwen3-14B-Q4_K_M.gguf"
-size_mb = 8100
+repo = "bartowski/Qwen_Qwen3-14B-GGUF"
+file = "Qwen_Qwen3-14B-Q4_K_M.gguf"
+size_mb = 9000
 
 [[services.system.model_loader.catalog]]
 slot_id = "minion.shared"
@@ -233,9 +233,9 @@ description = "Fast background tasks"
 
 [[services.system.model_loader.catalog.options]]
 label = "0.6B"
-repo = "Qwen/Qwen3-0.6B-GGUF"
-file = "qwen3-0.6b-q4_k_m.gguf"
-size_mb = 500
+repo = "bartowski/Qwen_Qwen3-0.6B-GGUF"
+file = "Qwen_Qwen3-0.6B-Q4_K_M.gguf"
+size_mb = 484
 
 [[services.system.model_loader.catalog]]
 slot_id = "voice.stt"
@@ -243,10 +243,10 @@ label = "Voice — Speech Recognition"
 description = "Whisper speech-to-text"
 
 [[services.system.model_loader.catalog.options]]
-label = "Whisper Large v3 Turbo"
-repo = "csukuangfj/sherpa-onnx-whisper-large-v3-turbo"
-file = "large-v3-turbo-encoder.int8.onnx"
-size_mb = 1600
+label = "Whisper Turbo (int8)"
+repo = "csukuangfj/sherpa-onnx-whisper-turbo"
+file = "turbo-encoder.int8.onnx"
+size_mb = 1040
 is_dir = true
 
 [[services.system.model_loader.catalog]]
@@ -255,10 +255,10 @@ label = "Voice — Text to Speech"
 description = "Kokoro voice synthesis"
 
 [[services.system.model_loader.catalog.options]]
-label = "Kokoro v1.0 fp16"
+label = "Kokoro v1.0 (quantized)"
 repo = "onnx-community/Kokoro-82M-v1.0-ONNX"
-file = "model_fp16.onnx"
-size_mb = 163
+file = "onnx/model_quantized.onnx"
+size_mb = 92
 
 [[services.system.model_loader.catalog]]
 slot_id = "vision.embedder"
@@ -266,10 +266,10 @@ label = "Vision — Screen Analysis"
 description = "SigLIP2 screenshot understanding"
 
 [[services.system.model_loader.catalog.options]]
-label = "SigLIP2 Base int8"
-repo = "onnx-community/siglip2-base-patch16-256-ONNX"
-file = "vision_model_int8.onnx"
-size_mb = 95
+label = "SigLIP2 Base (q4)"
+repo = "onnx-community/siglip2-base-patch16-224-ONNX"
+file = "onnx/vision_model_q4.onnx"
+size_mb = 63
 
 [[services.system.model_loader.catalog]]
 slot_id = "rag.embedder"
@@ -277,10 +277,10 @@ label = "Search — Embedder"
 description = "Vector search for code and docs"
 
 [[services.system.model_loader.catalog.options]]
-label = "nomic-embed-v1.5"
+label = "nomic-embed-v1.5 (Q8)"
 repo = "nomic-ai/nomic-embed-text-v1.5-GGUF"
 file = "nomic-embed-text-v1.5.Q8_0.gguf"
-size_mb = 300
+size_mb = 146
 
 [[services.system.model_loader.catalog]]
 slot_id = "rag.reranker"
@@ -288,10 +288,10 @@ label = "Search — Reranker"
 description = "Relevance scoring for search results"
 
 [[services.system.model_loader.catalog.options]]
-label = "Qwen3-Reranker-0.6B"
-repo = "Qwen/Qwen3-Reranker-0.6B-GGUF"
-file = "qwen3-reranker-0.6b.Q8_0.gguf"
-size_mb = 300
+label = "Qwen3-Reranker-0.6B (Q8)"
+repo = "Mungert/Qwen3-Reranker-0.6B-GGUF"
+file = "Qwen3-Reranker-0.6B-q8_0.gguf"
+size_mb = 639
 
 [services.system.devforge]
 # Managed VSCode/code-oss process — dedicated editor instance.
