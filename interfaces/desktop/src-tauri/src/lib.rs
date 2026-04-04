@@ -45,6 +45,8 @@ pub fn run() {
         commands::sys::logger::log,
         commands::sys::boot::get_boot_state,
         commands::sys::metrics::get_process_metrics,
+        commands::sys::telemetry::get_lane_config,
+        commands::sys::telemetry::set_lane_config,
         commands::devclyffy::get_status,
         commands::devpulse::fetch_dashboard,
         commands::thinkclyffy::create_canvas,

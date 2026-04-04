@@ -189,4 +189,40 @@ CREATE TABLE IF NOT EXISTS signal_metrics (
     latency_ms INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
+
+-- ── Lane Traces ───────────────────────────────────────────────
+
+-- Per-execution-lane trace spans for inference pipeline instrumentation.
+-- Written by the LaneTraceWriter background task in batches.
+CREATE TABLE IF NOT EXISTS lane_traces (
+    lane              VARCHAR NOT NULL,
+    device_category   VARCHAR NOT NULL,
+    duration_us       BIGINT NOT NULL,
+    cache_hit         BOOLEAN DEFAULT FALSE,
+    cold_start        BOOLEAN DEFAULT FALSE,
+    queue_wait_us     BIGINT DEFAULT 0,
+    input_size        BIGINT DEFAULT 0,
+    output_size       BIGINT DEFAULT 0,
+    model_id          VARCHAR,
+    slot_id           VARCHAR,
+    created_at        TIMESTAMP DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_lane_traces_lane
+    ON lane_traces(lane, created_at);
+
+-- Computed baseline percentiles per lane.
+-- Populated by analytical queries, not the writer.
+CREATE TABLE IF NOT EXISTS lane_baselines (
+    lane              VARCHAR NOT NULL,
+    sample_count      INTEGER NOT NULL,
+    p50_us            BIGINT NOT NULL,
+    p95_us            BIGINT NOT NULL,
+    p99_us            BIGINT NOT NULL,
+    avg_queue_wait_us BIGINT DEFAULT 0,
+    cache_hit_rate    DOUBLE DEFAULT 0.0,
+    cold_start_rate   DOUBLE DEFAULT 0.0,
+    computed_at       TIMESTAMP DEFAULT now(),
+    PRIMARY KEY (lane)
+);
 ";

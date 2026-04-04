@@ -5,3 +5,4 @@ pub mod config;
 pub mod guard;
 pub mod logger;
 pub mod metrics;
+pub mod telemetry;

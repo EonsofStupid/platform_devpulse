@@ -392,6 +392,51 @@ skip_canonicalize = true
 max_path_depth = 200
 
 # ══════════════════════════════════════════════════════════════════
+# TELEMETRY — lane tracing for inference pipeline instrumentation
+# ══════════════════════════════════════════════════════════════════
+# Every hardware execution path (lane) in the inference pipeline can
+# be individually toggled for tracing. Traces are written to DuckDB
+# (system/duckdb/analytics.duckdb) for baseline analysis.
+#
+# Presets:
+#   "off"      — all lanes disabled (zero overhead)
+#   "standard" — critical path only (inference, orchestration, retrieval)
+#   "debug"    — all lanes enabled, verbose output
+
+[telemetry]
+enabled = true
+
+[telemetry.lanes]
+# Preset selects default lane toggles. Per-lane overrides below
+# take precedence over the preset when uncommented.
+preset = "standard"
+
+# Global flags
+verbose = false          # Log input/output content (expensive, never in prod)
+persist_to_duckdb = true # Write every trace to analytics.duckdb
+
+# ── Per-lane overrides (uncomment to override preset) ────────────
+# GPU lanes
+# brain_inference = true
+# helper_inference = true
+# escalation_inference = true
+# CPU burst lanes
+# embedding = true
+# reranking = true
+# speech_to_text = false
+# text_to_speech = false
+# CPU persistent lanes
+# vision_embedding = false
+# Storage lanes
+# vector_retrieval = true
+# relational_query = false
+# analytical_query = false
+# cache_lookup = false
+# Orchestration lanes
+# prompt_assembly = true
+# thinking_pipeline = true
+
+# ══════════════════════════════════════════════════════════════════
 # BUILD — single source of truth for the entire build toolchain
 # ══════════════════════════════════════════════════════════════════
 # xtask reads this section and sets all env vars / flags accordingly.

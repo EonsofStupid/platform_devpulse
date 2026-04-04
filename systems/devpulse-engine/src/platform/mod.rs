@@ -35,10 +35,11 @@ pub mod integrations;
 pub mod metrics;
 pub mod server;
 pub mod services;
+pub mod telemetry;
 
 pub use config::{
-    DataScope, DatabaseConfig, PlatformBootConfig, PlatformConfig,
-    sanitize_path,
+    DataScope, DatabaseConfig, ExecutionLane, LaneTraceConfig, LaneToggle,
+    PlatformBootConfig, PlatformConfig, sanitize_path,
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
@@ -75,6 +76,7 @@ use services::whisper::WhisperService;
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
 use services::devforge::DevForgeService;
+use telemetry::TelemetryHandle;
 
 // ═══════════════════════════════════════════════════════════════
 // Service enumeration macro — THE single point of service listing
@@ -171,6 +173,8 @@ pub struct Platform {
     model_loader: Option<Arc<ModelLoaderService>>,
     // ── DevForge (VSCode) ─────────────────────────────────────
     devforge: Option<Arc<DevForgeService>>,
+    // ── Telemetry (lane tracing) ─────────────────────────────
+    telemetry: Option<TelemetryHandle>,
     // ── Meta ────────────────────────────────────────────────────
     boot_config: PlatformBootConfig,
     boot_time: Instant,
@@ -203,6 +207,23 @@ impl Platform {
 
         let booted = boot::execute(&data_dir, &boot_config, &on_event, model_event_sink).await?;
 
+        // Spawn telemetry handle after services boot.
+        // Requires analytics service (DuckDB) for trace persistence.
+        let telemetry = if boot_config.telemetry.enabled {
+            booted.system_analytics.as_ref().map(|analytics| {
+                let lane_config = boot_config.telemetry.lanes.to_lane_trace_config();
+                tracing::info!(
+                    preset = %boot_config.telemetry.lanes.preset,
+                    persist = lane_config.persist_to_duckdb,
+                    "Lane tracing enabled"
+                );
+                TelemetryHandle::spawn(lane_config, Arc::clone(analytics))
+            })
+        } else {
+            tracing::info!("Lane tracing disabled");
+            None
+        };
+
         Ok(Self {
             system_relational: booted.system_relational,
             system_analytics: booted.system_analytics,
@@ -220,6 +241,7 @@ impl Platform {
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
             devforge: booted.devforge,
+            telemetry,
             boot_config,
             boot_time,
             data_dir,
@@ -357,6 +379,16 @@ impl Platform {
     /// Get the DevForge service (if enabled and booted).
     pub fn devforge(&self) -> Option<&Arc<DevForgeService>> {
         self.devforge.as_ref()
+    }
+
+    // ── Telemetry accessor ──────────────────────────────────────
+
+    /// Get the telemetry handle (if enabled and analytics booted).
+    ///
+    /// Not a `Service` — no lifecycle, no ping. The handle's background
+    /// writer shuts down naturally when the `Platform` drops.
+    pub fn telemetry(&self) -> Option<&TelemetryHandle> {
+        self.telemetry.as_ref()
     }
 
     /// Graceful shutdown — close all services in reverse boot order.

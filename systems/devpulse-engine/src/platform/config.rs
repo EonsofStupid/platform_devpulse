@@ -64,6 +64,175 @@ pub struct DatabaseConfig {
 }
 
 // DatabaseConfig has NO Default impl by design.
+
+// ═══════════════════════════════════════════════════════════════
+// Public telemetry types (TS-exported)
+// ═══════════════════════════════════════════════════════════════
+
+/// Hardware execution lane in the inference pipeline.
+///
+/// Each variant maps to a model slot + device combination.
+/// Names are PUBLIC equivalents only — kernel terms never appear here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+pub enum ExecutionLane {
+    // ── GPU lanes ────────────────────────────────────────────
+    /// Brain model (configurable size). GPU Hot.
+    BrainInference,
+    /// Helper model (shared slot). GPU Hot/Standby.
+    HelperInference,
+    /// Escalation path. GPU Warm. Fallback to brain.
+    EscalationInference,
+    // ── CPU burst lanes ─────────────────────────────────────
+    /// Dense text embedding. CPU burst.
+    Embedding,
+    /// Cross-encoder reranking. CPU burst.
+    Reranking,
+    /// Speech-to-text (Whisper). CPU burst.
+    SpeechToText,
+    /// Text-to-speech (Kokoro). CPU burst.
+    TextToSpeech,
+    // ── CPU persistent lanes ────────────────────────────────
+    /// Vision embedding (SigLIP2). CPU.
+    VisionEmbedding,
+    // ── Storage lanes ───────────────────────────────────────
+    /// Vector search (RRO/Qdrant). Disk-backed.
+    VectorRetrieval,
+    /// Relational query (libSQL). File-backed.
+    RelationalQuery,
+    /// Analytical query (DuckDB). File-backed.
+    AnalyticalQuery,
+    /// In-memory cache lookup (Moka).
+    CacheLookup,
+    // ── Orchestration lanes ─────────────────────────────────
+    /// Prompt assembly. CPU-bound string construction.
+    PromptAssembly,
+    /// Full thinking pipeline (end-to-end trace).
+    ThinkingPipeline,
+}
+
+impl ExecutionLane {
+    /// All lane variants in definition order.
+    pub const ALL: &'static [Self] = &[
+        Self::BrainInference,
+        Self::HelperInference,
+        Self::EscalationInference,
+        Self::Embedding,
+        Self::Reranking,
+        Self::SpeechToText,
+        Self::TextToSpeech,
+        Self::VisionEmbedding,
+        Self::VectorRetrieval,
+        Self::RelationalQuery,
+        Self::AnalyticalQuery,
+        Self::CacheLookup,
+        Self::PromptAssembly,
+        Self::ThinkingPipeline,
+    ];
+
+    /// Device category for this lane.
+    pub fn device_category(&self) -> &'static str {
+        match self {
+            Self::BrainInference
+            | Self::HelperInference
+            | Self::EscalationInference => "gpu",
+
+            Self::Embedding
+            | Self::Reranking
+            | Self::SpeechToText
+            | Self::TextToSpeech
+            | Self::VisionEmbedding
+            | Self::PromptAssembly
+            | Self::ThinkingPipeline => "cpu",
+
+            Self::VectorRetrieval
+            | Self::RelationalQuery
+            | Self::AnalyticalQuery => "disk",
+
+            Self::CacheLookup => "memory",
+        }
+    }
+
+    /// `tracing` span name for this lane.
+    pub fn span_name(&self) -> &'static str {
+        match self {
+            Self::BrainInference => "lane.brain",
+            Self::HelperInference => "lane.helper",
+            Self::EscalationInference => "lane.escalation",
+            Self::Embedding => "lane.embed",
+            Self::Reranking => "lane.rerank",
+            Self::SpeechToText => "lane.stt",
+            Self::TextToSpeech => "lane.tts",
+            Self::VisionEmbedding => "lane.vision",
+            Self::VectorRetrieval => "lane.vector",
+            Self::RelationalQuery => "lane.relational",
+            Self::AnalyticalQuery => "lane.analytical",
+            Self::CacheLookup => "lane.cache",
+            Self::PromptAssembly => "lane.prompt",
+            Self::ThinkingPipeline => "lane.thinking",
+        }
+    }
+
+    /// TOML key name for this lane (snake_case).
+    pub fn toml_key(&self) -> &'static str {
+        match self {
+            Self::BrainInference => "brain_inference",
+            Self::HelperInference => "helper_inference",
+            Self::EscalationInference => "escalation_inference",
+            Self::Embedding => "embedding",
+            Self::Reranking => "reranking",
+            Self::SpeechToText => "speech_to_text",
+            Self::TextToSpeech => "text_to_speech",
+            Self::VisionEmbedding => "vision_embedding",
+            Self::VectorRetrieval => "vector_retrieval",
+            Self::RelationalQuery => "relational_query",
+            Self::AnalyticalQuery => "analytical_query",
+            Self::CacheLookup => "cache_lookup",
+            Self::PromptAssembly => "prompt_assembly",
+            Self::ThinkingPipeline => "thinking_pipeline",
+        }
+    }
+
+    /// Expected latency bucket in milliseconds (initial estimates).
+    /// Replaced by measured p50 after baseline collection.
+    pub fn expected_latency_ms(&self) -> u64 {
+        match self {
+            Self::CacheLookup => 1,
+            Self::RelationalQuery => 5,
+            Self::AnalyticalQuery => 10,
+            Self::VectorRetrieval => 20,
+            Self::Embedding => 50,
+            Self::PromptAssembly => 50,
+            Self::Reranking => 80,
+            Self::VisionEmbedding => 200,
+            Self::HelperInference => 200,
+            Self::TextToSpeech => 300,
+            Self::SpeechToText => 500,
+            Self::EscalationInference => 500,
+            Self::BrainInference => 3000,
+            Self::ThinkingPipeline => 5000,
+        }
+    }
+}
+
+/// Per-lane toggle state (public, TS-exported).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct LaneToggle {
+    /// Which lane this toggle controls.
+    pub lane: ExecutionLane,
+    /// Whether tracing is enabled for this lane.
+    pub enabled: bool,
+}
+
+/// Lane tracing configuration (public, TS-exported, runtime-mutable).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct LaneTraceConfig {
+    /// Per-lane toggle states.
+    pub lanes: Vec<LaneToggle>,
+    /// Log input/output content (expensive, never in prod).
+    pub verbose: bool,
+    /// Write every trace to DuckDB for baseline analysis.
+    pub persist_to_duckdb: bool,
+}
 // The ONLY way to construct it is via PlatformBootConfig::to_database_config(),
 // which reads real values from the parsed TOML. This prevents config drift.
 
@@ -89,6 +258,9 @@ pub struct PlatformBootConfig {
     /// Windows-specific hardening options.
     #[serde(default)]
     pub windows: WindowsConfig,
+    /// Telemetry — lane tracing for inference pipeline instrumentation.
+    #[serde(default)]
+    pub telemetry: TelemetryBootConfig,
 }
 
 /// Portable mode configuration.
@@ -1279,6 +1451,233 @@ pub fn sanitize_path(path: &Path, config: &WindowsConfig) -> PathBuf {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// Internal telemetry boot config (TOML-driven, NOT TS-exported)
+// ═══════════════════════════════════════════════════════════════
+
+/// Telemetry configuration from TOML. Internal only — not TS-exported.
+#[derive(Debug, Clone, Deserialize)]
+pub struct TelemetryBootConfig {
+    /// Whether the telemetry subsystem is enabled at all.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Lane tracing configuration.
+    #[serde(default)]
+    pub lanes: LaneTraceBootConfig,
+}
+
+impl Default for TelemetryBootConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            lanes: LaneTraceBootConfig::default(),
+        }
+    }
+}
+
+/// Lane tracing boot config — TOML-driven defaults.
+///
+/// `preset` selects the base toggle set. Per-lane `Option<bool>` fields
+/// override the preset when present (Some). Missing keys (None) fall
+/// through to the preset value.
+#[derive(Debug, Clone, Deserialize)]
+pub struct LaneTraceBootConfig {
+    /// Preset name: "off", "standard", "debug".
+    #[serde(default = "default_lane_preset")]
+    pub preset: String,
+    /// Log input/output content (expensive).
+    #[serde(default)]
+    pub verbose: bool,
+    /// Write every trace to DuckDB.
+    #[serde(default = "default_true")]
+    pub persist_to_duckdb: bool,
+    // ── Per-lane overrides (None = use preset default) ───────
+    /// Override: brain model inference (GPU).
+    #[serde(default)]
+    pub brain_inference: Option<bool>,
+    /// Override: helper model inference (GPU).
+    #[serde(default)]
+    pub helper_inference: Option<bool>,
+    /// Override: escalation inference (GPU).
+    #[serde(default)]
+    pub escalation_inference: Option<bool>,
+    /// Override: dense text embedding (CPU burst).
+    #[serde(default)]
+    pub embedding: Option<bool>,
+    /// Override: cross-encoder reranking (CPU burst).
+    #[serde(default)]
+    pub reranking: Option<bool>,
+    /// Override: speech-to-text (CPU burst).
+    #[serde(default)]
+    pub speech_to_text: Option<bool>,
+    /// Override: text-to-speech (CPU burst).
+    #[serde(default)]
+    pub text_to_speech: Option<bool>,
+    /// Override: vision embedding (CPU).
+    #[serde(default)]
+    pub vision_embedding: Option<bool>,
+    /// Override: vector search (disk).
+    #[serde(default)]
+    pub vector_retrieval: Option<bool>,
+    /// Override: relational query (disk).
+    #[serde(default)]
+    pub relational_query: Option<bool>,
+    /// Override: analytical query (disk).
+    #[serde(default)]
+    pub analytical_query: Option<bool>,
+    /// Override: in-memory cache lookup.
+    #[serde(default)]
+    pub cache_lookup: Option<bool>,
+    /// Override: prompt assembly (CPU).
+    #[serde(default)]
+    pub prompt_assembly: Option<bool>,
+    /// Override: full thinking pipeline (end-to-end).
+    #[serde(default)]
+    pub thinking_pipeline: Option<bool>,
+}
+
+impl Default for LaneTraceBootConfig {
+    fn default() -> Self {
+        Self {
+            preset: default_lane_preset(),
+            verbose: false,
+            persist_to_duckdb: true,
+            brain_inference: None,
+            helper_inference: None,
+            escalation_inference: None,
+            embedding: None,
+            reranking: None,
+            speech_to_text: None,
+            text_to_speech: None,
+            vision_embedding: None,
+            vector_retrieval: None,
+            relational_query: None,
+            analytical_query: None,
+            cache_lookup: None,
+            prompt_assembly: None,
+            thinking_pipeline: None,
+        }
+    }
+}
+
+impl LaneTraceBootConfig {
+    /// Resolve preset + per-lane overrides into the public `LaneTraceConfig`.
+    pub fn to_lane_trace_config(&self) -> LaneTraceConfig {
+        let preset_defaults = match self.preset.as_str() {
+            "off" => LanePreset::off(),
+            "debug" => LanePreset::debug(),
+            _ => LanePreset::standard(), // "standard" or unknown → standard
+        };
+
+        let resolve = |override_val: Option<bool>, preset_val: bool| -> bool {
+            override_val.unwrap_or(preset_val)
+        };
+
+        let lanes = vec![
+            LaneToggle { lane: ExecutionLane::BrainInference, enabled: resolve(self.brain_inference, preset_defaults.brain_inference) },
+            LaneToggle { lane: ExecutionLane::HelperInference, enabled: resolve(self.helper_inference, preset_defaults.helper_inference) },
+            LaneToggle { lane: ExecutionLane::EscalationInference, enabled: resolve(self.escalation_inference, preset_defaults.escalation_inference) },
+            LaneToggle { lane: ExecutionLane::Embedding, enabled: resolve(self.embedding, preset_defaults.embedding) },
+            LaneToggle { lane: ExecutionLane::Reranking, enabled: resolve(self.reranking, preset_defaults.reranking) },
+            LaneToggle { lane: ExecutionLane::SpeechToText, enabled: resolve(self.speech_to_text, preset_defaults.speech_to_text) },
+            LaneToggle { lane: ExecutionLane::TextToSpeech, enabled: resolve(self.text_to_speech, preset_defaults.text_to_speech) },
+            LaneToggle { lane: ExecutionLane::VisionEmbedding, enabled: resolve(self.vision_embedding, preset_defaults.vision_embedding) },
+            LaneToggle { lane: ExecutionLane::VectorRetrieval, enabled: resolve(self.vector_retrieval, preset_defaults.vector_retrieval) },
+            LaneToggle { lane: ExecutionLane::RelationalQuery, enabled: resolve(self.relational_query, preset_defaults.relational_query) },
+            LaneToggle { lane: ExecutionLane::AnalyticalQuery, enabled: resolve(self.analytical_query, preset_defaults.analytical_query) },
+            LaneToggle { lane: ExecutionLane::CacheLookup, enabled: resolve(self.cache_lookup, preset_defaults.cache_lookup) },
+            LaneToggle { lane: ExecutionLane::PromptAssembly, enabled: resolve(self.prompt_assembly, preset_defaults.prompt_assembly) },
+            LaneToggle { lane: ExecutionLane::ThinkingPipeline, enabled: resolve(self.thinking_pipeline, preset_defaults.thinking_pipeline) },
+        ];
+
+        LaneTraceConfig {
+            lanes,
+            verbose: self.verbose,
+            persist_to_duckdb: self.persist_to_duckdb,
+        }
+    }
+}
+
+/// Internal preset definitions — per-lane defaults for each named preset.
+struct LanePreset {
+    brain_inference: bool,
+    helper_inference: bool,
+    escalation_inference: bool,
+    embedding: bool,
+    reranking: bool,
+    speech_to_text: bool,
+    text_to_speech: bool,
+    vision_embedding: bool,
+    vector_retrieval: bool,
+    relational_query: bool,
+    analytical_query: bool,
+    cache_lookup: bool,
+    prompt_assembly: bool,
+    thinking_pipeline: bool,
+}
+
+impl LanePreset {
+    /// All lanes disabled.
+    fn off() -> Self {
+        Self {
+            brain_inference: false,
+            helper_inference: false,
+            escalation_inference: false,
+            embedding: false,
+            reranking: false,
+            speech_to_text: false,
+            text_to_speech: false,
+            vision_embedding: false,
+            vector_retrieval: false,
+            relational_query: false,
+            analytical_query: false,
+            cache_lookup: false,
+            prompt_assembly: false,
+            thinking_pipeline: false,
+        }
+    }
+
+    /// Critical path: inference + orchestration + retrieval. Skip noisy lanes.
+    fn standard() -> Self {
+        Self {
+            brain_inference: true,
+            helper_inference: true,
+            escalation_inference: true,
+            embedding: true,
+            reranking: true,
+            speech_to_text: false,
+            text_to_speech: false,
+            vision_embedding: false,
+            vector_retrieval: true,
+            relational_query: false,
+            analytical_query: false,
+            cache_lookup: false,
+            prompt_assembly: true,
+            thinking_pipeline: true,
+        }
+    }
+
+    /// All lanes enabled for comprehensive baseline collection.
+    fn debug() -> Self {
+        Self {
+            brain_inference: true,
+            helper_inference: true,
+            escalation_inference: true,
+            embedding: true,
+            reranking: true,
+            speech_to_text: true,
+            text_to_speech: true,
+            vision_embedding: true,
+            vector_retrieval: true,
+            relational_query: true,
+            analytical_query: true,
+            cache_lookup: true,
+            prompt_assembly: true,
+            thinking_pipeline: true,
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // Serde defaults
 // ═══════════════════════════════════════════════════════════════
 
@@ -1338,4 +1737,7 @@ fn default_bind() -> String {
 }
 fn default_boot_timeout() -> u64 {
     60
+}
+fn default_lane_preset() -> String {
+    "standard".to_string()
 }
