@@ -37,5 +37,11 @@ flume = "0.11"
 rfd = "0.15"
 sysinfo = "0.38.4"
 
+[features]
+default = ["inference"]
+# Model loader + hardware push — always on for now.
+# Separate feature so release builds can control binary size.
+inference = []
+
 [lints]
 workspace = true

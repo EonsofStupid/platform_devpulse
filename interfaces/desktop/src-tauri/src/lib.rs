@@ -432,11 +432,14 @@ fn spawn_hardware_push(app: tauri::AppHandle) {
                 continue;
             };
 
-            let Some(loader) = platform.model_loader() else {
-                continue;
-            };
-            let metrics = loader.hardware_metrics().await;
-            let _ = app.emit("model:hardware", &metrics);
+            #[cfg(feature = "inference")]
+            {
+                let Some(loader) = platform.model_loader() else {
+                    continue;
+                };
+                let metrics = loader.hardware_metrics().await;
+                let _ = app.emit("model:hardware", &metrics);
+            }
         }
     });
 }
