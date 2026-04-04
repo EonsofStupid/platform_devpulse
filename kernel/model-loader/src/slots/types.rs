@@ -119,7 +119,10 @@ pub enum LoadingStrategy {
     /// Load when a specific signal fires.
     Signal(String),
     /// Loaded/unloaded alongside a parent slot.
-    Coupled { parent: String },
+    Coupled {
+        /// The parent slot ID that controls this slot's lifecycle.
+        parent: String,
+    },
 }
 
 impl Slot {

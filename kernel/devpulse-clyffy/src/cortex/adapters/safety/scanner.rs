@@ -10,7 +10,6 @@ use tree_sitter::{Parser, Query, QueryCursor};
 use streaming_iterator::StreamingIterator;
 
 use super::language::LangId;
-use super::patterns::patterns_for_lang;
 
 /// A single finding from an AST scan.
 #[derive(Debug, Clone)]

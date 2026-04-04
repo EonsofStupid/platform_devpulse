@@ -10,12 +10,19 @@ use tree_sitter::Language;
 /// Identifier for a supported language.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LangId {
+    /// The Rust programming language.
     Rust,
+    /// The TypeScript programming language.
     TypeScript,
+    /// The JavaScript programming language.
     JavaScript,
+    /// The Python programming language.
     Python,
+    /// The Go programming language.
     Go,
+    /// The Java programming language.
     Java,
+    /// The C programming language.
     C,
 }
 

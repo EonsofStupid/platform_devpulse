@@ -74,12 +74,23 @@ pub async fn boot_consolidated(
 
     let adapter = {
         let path = surreal_path.clone();
+        // Per-attempt timeout: if SurrealKV hangs (stale lock, WAL recovery),
+        // kill the attempt after 15s and retry. Without this, one hung attempt
+        // blocks the entire boot timeout.
+        let per_attempt_timeout = std::time::Duration::from_secs(15);
+
         let result = retry::retry_on_lock_async(&retry_cfg, "Graph store (SurrealDB)", || {
             let p = path.clone();
             let n = ns.clone();
             let d = db.clone();
             async move {
-                SurrealAdapter::open_with_ns(&p, &n, &d, SYSTEM_GRAPH_SCHEMA).await
+                match tokio::time::timeout(per_attempt_timeout, SurrealAdapter::open_with_ns(&p, &n, &d, SYSTEM_GRAPH_SCHEMA)).await {
+                    Ok(result) => result,
+                    Err(_elapsed) => {
+                        tracing::error!("SurrealDB open timed out after 15s — retrying");
+                        Err(anyhow::anyhow!("SurrealDB open timed out (15s) — likely stale lock or WAL recovery hang"))
+                    }
+                }
             }
         })
         .await;

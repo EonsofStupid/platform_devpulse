@@ -20,8 +20,6 @@ pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
-#[cfg(feature = "kokoros")]
-pub mod kokoros;
 // llguidance constrained decoding — wired when fork is ready
 // #[cfg(feature = "outlines")]
 // pub mod llguidance;
@@ -38,8 +36,6 @@ pub use moka::{MokaAdapter, MokaCacheConfig};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
 pub use surreal::SurrealAdapter;
-#[cfg(feature = "kokoros")]
-pub use kokoros::KokorosAdapter;
 #[cfg(feature = "candle")]
 pub use embedder::CandleEmbedder;
 #[cfg(feature = "candle")]

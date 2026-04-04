@@ -10,6 +10,7 @@ use tree_sitter::{Parser, Query, QueryCursor};
 #[cfg(feature = "guardian")]
 use streaming_iterator::StreamingIterator;
 
+#[cfg(feature = "guardian")]
 use super::language::LangId;
 
 /// A single reference to a symbol found via AST.
@@ -160,6 +161,7 @@ fn classify_ref(node: tree_sitter::Node<'_>) -> RefKind {
 
 // ── Per-language identifier queries ─────────────────────────────
 
+#[cfg(feature = "guardian")]
 fn rust_identifier_query(symbol: &str) -> String {
     format!(
         r#"[
@@ -169,6 +171,7 @@ fn rust_identifier_query(symbol: &str) -> String {
     )
 }
 
+#[cfg(feature = "guardian")]
 fn ts_identifier_query(symbol: &str) -> String {
     format!(
         r#"[
@@ -178,6 +181,7 @@ fn ts_identifier_query(symbol: &str) -> String {
     )
 }
 
+#[cfg(feature = "guardian")]
 fn python_identifier_query(symbol: &str) -> String {
     format!(
         r#"[
@@ -187,6 +191,7 @@ fn python_identifier_query(symbol: &str) -> String {
     )
 }
 
+#[cfg(feature = "guardian")]
 fn go_identifier_query(symbol: &str) -> String {
     format!(
         r#"[
@@ -196,6 +201,7 @@ fn go_identifier_query(symbol: &str) -> String {
     )
 }
 
+#[cfg(feature = "guardian")]
 fn java_identifier_query(symbol: &str) -> String {
     format!(
         r#"[
@@ -205,6 +211,7 @@ fn java_identifier_query(symbol: &str) -> String {
     )
 }
 
+#[cfg(feature = "guardian")]
 fn c_identifier_query(symbol: &str) -> String {
     format!(
         r#"[
@@ -216,6 +223,7 @@ fn c_identifier_query(symbol: &str) -> String {
 
 /// Build a query for string literals containing the symbol name.
 /// Returns `None` if the language's string node type isn't handled.
+#[cfg(feature = "guardian")]
 fn string_literal_query(lang: LangId, symbol: &str) -> Option<String> {
     let node_type = match lang {
         LangId::Rust => "string_literal",

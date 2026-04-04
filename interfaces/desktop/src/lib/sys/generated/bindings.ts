@@ -356,8 +356,14 @@ async autoConfigure() : Promise<Result<string, string>> {
 }
 },
 /**
- * Called when the setup wizard finishes. Verifies models are present,
- * emits the models-ready signal, and opens the chat window.
+ * Called when the setup wizard finishes.
+ * 
+ * 1. Re-scans the model registry to pick up any newly downloaded/imported models.
+ * 2. Auto-assigns unassigned models to matching slots by capability.
+ * 3. Verifies at least the chat.brain slot has an assigned model.
+ * 4. Only THEN emits the models-ready signal and opens the chat window.
+ * 
+ * Returns error if no text-generation model is available for chat.brain.
  */
 async completeModelSetup() : Promise<Result<null, string>> {
     try {
@@ -960,13 +966,14 @@ requires: string[];
 /**
  * Slot ID this can replace when conditions are met.
  */
-overrides: string | null;
+overrides: string | null; 
 /**
  * Whether this slot's model is bundled with the app (not user-managed).
+ * Bundled slots are invisible in the Model Loader UI.
  */
-embedded: boolean;
+embedded: boolean; 
 /**
- * Path relative to models dir for bundled models.
+ * Path relative to models dir for bundled models (e.g. `"voice/kokoro/model_quantized.onnx"`).
  */
 bundled_path: string | null }
 /**

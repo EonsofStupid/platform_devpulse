@@ -10,6 +10,7 @@
 use crate::backends::voice::{AudioDecoderBackend, AudioSamples};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
+#[cfg(feature = "ort-backend")]
 use std::sync::Mutex;
 
 /// Samples per SNAC decode window (48 frames × 512 samples/frame).
@@ -26,6 +27,7 @@ pub struct SnacDecoder {
 }
 
 impl SnacDecoder {
+    /// Create a new SNAC audio decoder instance (unloaded).
     #[must_use]
     pub fn new() -> Self {
         Self {

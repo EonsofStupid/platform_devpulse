@@ -25,6 +25,7 @@ pub struct WhisperStt {
 }
 
 impl WhisperStt {
+    /// Create a new Whisper STT instance (unloaded).
     #[must_use]
     pub fn new() -> Self {
         Self {

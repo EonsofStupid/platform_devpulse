@@ -20,6 +20,7 @@ pub struct KokoroTts {
 }
 
 impl KokoroTts {
+    /// Create a new Kokoro TTS instance (unloaded).
     #[must_use]
     pub fn new() -> Self {
         Self {

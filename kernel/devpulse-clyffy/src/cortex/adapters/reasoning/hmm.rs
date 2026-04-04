@@ -1,5 +1,6 @@
 use crate::cortex::traits::reasoning::ReasoningEngine;
 
+/// Adapter that implements [`ReasoningEngine`] using a Hidden Markov Model.
 pub struct HmmAdapter;
 
 impl ReasoningEngine for HmmAdapter {

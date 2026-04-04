@@ -19,10 +19,10 @@ use std::path::{Path, PathBuf};
 // ── Token Constants (verified from orpheus-tts-local) ──────────────
 
 /// Marks the start of audio generation in the LLM output.
-const START_TOKEN_ID: u32 = 128259;
+const _START_TOKEN_ID: u32 = 128259;
 
 /// Marks the beginning of actual audio code tokens.
-const CODE_START_TOKEN_ID: u32 = 128257;
+const _CODE_START_TOKEN_ID: u32 = 128257;
 
 /// Offset subtracted from raw token IDs to get codebook indices (0-4095).
 const CODE_TOKEN_OFFSET: u32 = 128266;
@@ -37,7 +37,7 @@ const CODEBOOK_SIZE: u32 = 4096;
 const TOKENS_PER_FRAME: usize = 7;
 
 /// Minimum frames before first decode (4 frames = 28 tokens).
-const MIN_FRAMES_BEFORE_DECODE: usize = 4;
+const _MIN_FRAMES_BEFORE_DECODE: usize = 4;
 
 /// Available voice names for Orpheus.
 pub const VOICES: [&str; 8] = ["tara", "leah", "jess", "leo", "dan", "mia", "zac", "zoe"];
@@ -53,6 +53,7 @@ pub struct OrpheusTts {
 }
 
 impl OrpheusTts {
+    /// Create a new Orpheus TTS instance (unloaded).
     #[must_use]
     pub fn new() -> Self {
         Self {
