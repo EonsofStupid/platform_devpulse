@@ -58,7 +58,7 @@ function handleClear() {
 			oninput={handleInput}
 			placeholder="Search for AI models (e.g. Qwen, Llama, Mistral...)"
 			class="w-full rounded-lg border border-[var(--border-subtle)] py-2.5 pl-9 pr-9 text-sm transition-colors focus:outline-none focus:ring-1 focus:ring-[var(--color)]"
-			style="background: oklch(0.15 0.01 270 / 0.5); color: var(--color);"
+			style="background: var(--surface-base); color: var(--color);"
 		/>
 		{#if searchState.query}
 			<button

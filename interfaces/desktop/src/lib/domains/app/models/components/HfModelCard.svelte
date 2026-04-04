@@ -81,10 +81,10 @@ function fileFits(file: HfFileInfoItem): "green" | "yellow" | "red" | "gray" {
 }
 
 const fitColorMap: Record<string, string> = {
-	green: "oklch(0.75 0.15 145)",
-	yellow: "oklch(0.8 0.15 85)",
-	red: "oklch(0.65 0.2 25)",
-	gray: "oklch(0.6 0 0)",
+	green: "var(--signal-success)",
+	yellow: "var(--signal-warning)",
+	red: "var(--signal-error)",
+	gray: "var(--text-muted)",
 };
 </script>
 
@@ -145,7 +145,7 @@ const fitColorMap: Record<string, string> = {
 			{#each result.gguf_files as file (file.filename)}
 				{@const fit = fileFits(file)}
 				<div class="flex items-center gap-2 rounded px-2 py-1.5 text-xs hover:brightness-110 transition-colors"
-					style="background: oklch(0.2 0.01 270 / 0.3);"
+					style="background: var(--surface-base);"
 				>
 					<div class="h-2 w-2 shrink-0 rounded-full" style="background: {fitColorMap[fit]};"></div>
 					<div class="flex-1 min-w-0">
@@ -162,7 +162,7 @@ const fitColorMap: Record<string, string> = {
 					</div>
 					<button
 						class="shrink-0 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors hover:brightness-125"
-						style="background: oklch(0.45 0.12 170 / 0.4); color: oklch(0.85 0.1 170);"
+						style="background: var(--accent-teal-main); color: var(--surface-base);"
 						onclick={() => onDownload?.(result.repo_id, file.filename)}
 					>
 						<Download size={12} />
