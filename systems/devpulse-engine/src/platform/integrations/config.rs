@@ -20,8 +20,8 @@ use std::sync::Arc;
 ///
 /// Uses the system LibSQL's `kv_store` table with a `model_loader.` prefix.
 /// The ConfigBackend trait is sync; LibSQL is async. We bridge via
-/// `tokio::runtime::Handle::current().block_on()` which is safe because
-/// model-loader boot runs inside `spawn_blocking`.
+/// `tokio::task::block_in_place(|| handle.block_on(...))` which yields the
+/// current tokio worker thread to run the async block without nesting runtimes.
 #[cfg(feature = "inference")]
 pub struct LibSqlConfig {
     adapter: Arc<LibSqlAdapter>,
@@ -53,7 +53,7 @@ impl ConfigBackend for LibSqlConfig {
         let adapter = self.adapter.clone();
         let pk = Self::prefixed_key(key);
 
-        self.handle.block_on(async {
+        tokio::task::block_in_place(|| self.handle.block_on(async {
             let conn = adapter.connection().await;
             let mut rows = conn
                 .query("SELECT value FROM kv_store WHERE key = ?1", [pk.as_str()])
@@ -72,7 +72,7 @@ impl ConfigBackend for LibSqlConfig {
             } else {
                 Ok(None)
             }
-        })
+        }))
     }
 
     fn set(&self, key: &str, value: &str) -> anyhow::Result<()> {
@@ -80,7 +80,7 @@ impl ConfigBackend for LibSqlConfig {
         let pk = Self::prefixed_key(key);
         let val = value.to_string();
 
-        self.handle.block_on(async {
+        tokio::task::block_in_place(|| self.handle.block_on(async {
             let conn = adapter.connection().await;
             conn.execute(
                 "INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?1, CAST(?2 AS BLOB), unixepoch())",
@@ -89,27 +89,27 @@ impl ConfigBackend for LibSqlConfig {
             .await
             .map_err(|e| anyhow::anyhow!("LibSqlConfig set failed: {e}"))?;
             Ok(())
-        })
+        }))
     }
 
     fn delete(&self, key: &str) -> anyhow::Result<()> {
         let adapter = self.adapter.clone();
         let pk = Self::prefixed_key(key);
 
-        self.handle.block_on(async {
+        tokio::task::block_in_place(|| self.handle.block_on(async {
             let conn = adapter.connection().await;
             conn.execute("DELETE FROM kv_store WHERE key = ?1", [pk.as_str()])
                 .await
                 .map_err(|e| anyhow::anyhow!("LibSqlConfig delete failed: {e}"))?;
             Ok(())
-        })
+        }))
     }
 
     fn list_by_prefix(&self, prefix: &str) -> anyhow::Result<Vec<(String, String)>> {
         let adapter = self.adapter.clone();
         let full_prefix = Self::prefixed_key(prefix);
 
-        self.handle.block_on(async {
+        tokio::task::block_in_place(|| self.handle.block_on(async {
             let conn = adapter.connection().await;
             let like_pattern = format!("{full_prefix}%");
             let mut rows = conn
@@ -140,6 +140,6 @@ impl ConfigBackend for LibSqlConfig {
                 results.push((key, String::from_utf8(blob)?));
             }
             Ok(results)
-        })
+        }))
     }
 }
