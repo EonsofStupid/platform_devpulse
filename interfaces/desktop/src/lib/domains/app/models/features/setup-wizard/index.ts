@@ -9,9 +9,20 @@
 export { slotToModelPath, slotToSubdir } from "./import-router.js";
 // Seed families
 export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js";
-
+// Step components
+export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
+export { default as WelcomeStep } from "./steps/WelcomeStep.svelte";
 // State
 export { wizardState } from "./wizard.runes.svelte.js";
+// Service
+export {
+	checkOnboardingComplete,
+	evaluateContinueGate,
+	fetchRecommendations,
+	markOnboardingComplete,
+	startHardwareScan,
+} from "./wizard.service.js";
+
 // Types
 export type {
 	ContinueGate,
