@@ -9,12 +9,17 @@
 <script lang="ts">
 import { ArrowLeft, ArrowRight } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import VramGauge from "../../../components/VramGauge.svelte";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
-import { pickVariation } from "../seed-families.js";
+import { modelsState } from "../../../runes/models.runes.svelte.js";
+import { wizardState } from "../wizard.runes.svelte.js";
+import { downloadAndAssign } from "../wizard.service.js";
+import type { ModelRec } from "../wizard.types.js";
+import ImportPrompt from "./ImportPrompt.svelte";
+import ModelBrowserPopup from "./ModelBrowserPopup.svelte";
+import ResourceAllocationPanel from "./ResourceAllocationPanel.svelte";
 import SlotAssignmentPanel from "./SlotAssignmentPanel.svelte";
 
 interface Props {
@@ -25,7 +30,56 @@ interface Props {
 }
 
 let { onContinue, onBack, continueEnabled, continueBlockers }: Props = $props();
+
+async function handleBrowserDownload(
+	repoId: string,
+	filename: string,
+	targetSlot: string,
+): Promise<void> {
+	const rec: ModelRec = wizardState.recommendations.find(
+		(r) => r.repo === repoId && r.file === filename,
+	) ?? {
+		name: filename,
+		purpose: "",
+		slot: targetSlot,
+		sizeMb: 0,
+		vramMb: 0,
+		repo: repoId,
+		file: filename,
+		device: "any" as const,
+	};
+	await downloadAndAssign(rec);
+	wizardState.showModelBrowser = false;
+}
+
+function handleBrowserImport(targetSlot: string): void {
+	wizardState.importTargetSlot = targetSlot;
+	wizardState.showImportPrompt = true;
+	wizardState.showModelBrowser = false;
+}
+
+async function handleImportComplete(_filename: string): Promise<void> {
+	wizardState.showImportPrompt = false;
+	await modelsState.scan();
+	await modelsState.refresh();
+}
 </script>
+
+{#if wizardState.showModelBrowser}
+	<ModelBrowserPopup
+		onClose={() => (wizardState.showModelBrowser = false)}
+		onDownload={handleBrowserDownload}
+		onImport={handleBrowserImport}
+	/>
+{/if}
+
+{#if wizardState.showImportPrompt && wizardState.importTargetSlot}
+	<ImportPrompt
+		targetSlot={wizardState.importTargetSlot}
+		onClose={() => (wizardState.showImportPrompt = false)}
+		onComplete={handleImportComplete}
+	/>
+{/if}
 
 <div class={`${stack({ gap: "6" })} w-full flex-1`}>
 	<!-- VRAM Budget Bar -->
@@ -45,16 +99,12 @@ let { onContinue, onBack, continueEnabled, continueBlockers }: Props = $props();
 	<div class="grid grid-cols-[3fr_2fr] gap-6 flex-1 min-h-0">
 		<!-- Left: Slot Assignment (60%) -->
 		<SlotAssignmentPanel
-			onBrowseModels={() => {}}
-			onImport={() => {}}
+			onBrowseModels={() => (wizardState.showModelBrowser = true)}
+			onImport={() => { wizardState.importTargetSlot = "chat.brain"; wizardState.showImportPrompt = true; }}
 		/>
 
-		<!-- Right: Placeholder for ResourceAllocationPanel (Sprint 4) -->
-		<div class={`${stack({ gap: "4" })} overflow-y-auto`}>
-			<Text size="sm" color="muted">
-				{pickVariation("resource.allocation_tip")}
-			</Text>
-		</div>
+		<!-- Right: Resource Allocation (40%) -->
+		<ResourceAllocationPanel />
 	</div>
 
 	<!-- Navigation -->

@@ -12,7 +12,9 @@ export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js
 // Step components
 export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
 export { default as ImportPrompt } from "./steps/ImportPrompt.svelte";
+export { default as ModelBrowserPopup } from "./steps/ModelBrowserPopup.svelte";
 export { default as ModelLoaderStep } from "./steps/ModelLoaderStep.svelte";
+export { default as ResourceAllocationPanel } from "./steps/ResourceAllocationPanel.svelte";
 export { default as SlotAssignmentPanel } from "./steps/SlotAssignmentPanel.svelte";
 export { default as WelcomeStep } from "./steps/WelcomeStep.svelte";
 // State
