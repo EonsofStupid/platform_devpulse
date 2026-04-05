@@ -115,19 +115,24 @@ async function handleApplyAndLaunch(): Promise<void> {
 			<Text size="xs" color="muted">Choose what Clyffy can do on your PC</Text>
 		</div>
 		<div class={hstack({ gap: "3", align: "center" })}>
-			<VramGauge
-				usedMb={hardwareState.vramUsedMb}
-				totalMb={hardwareState.vramTotalMb}
-				hasGpu={hardwareState.hasGpu}
-				gpuError={hardwareState.gpuError}
-				label={hardwareState.hasGpu ? hardwareState.metrics?.gpu_name ?? "GPU" : "CPU Mode"}
-			/>
+			<div title="Shows how much of your graphics card memory is being used by AI models — if you don't have a graphics card, models run on CPU using regular RAM instead">
+				<VramGauge
+					usedMb={hardwareState.vramUsedMb}
+					totalMb={hardwareState.vramTotalMb}
+					hasGpu={hardwareState.hasGpu}
+					gpuError={hardwareState.gpuError}
+					label={hardwareState.hasGpu ? hardwareState.metrics?.gpu_name ?? "GPU" : "CPU Mode"}
+				/>
+			</div>
 			<button
 				class="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors hover:brightness-110"
 				style={advancedMode
 					? "background: var(--accent-teal-main); color: var(--surface-base);"
 					: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-muted);"}
 				onclick={() => { advancedMode = !advancedMode; }}
+				title={advancedMode
+					? "Switch back to the simple view — hides technical details"
+					: "Show advanced details — slot IDs, file paths, formats, and technical info for developers"}
 			>
 				<Settings size={12} />
 				{advancedMode ? "Simple" : "Advanced"}
@@ -177,6 +182,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 			class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:brightness-110"
 			style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
 			onclick={handleImport}
+			title="Pick a model file (.gguf) from your computer and copy it into Clyffy's model folder"
 		>
 			<FolderOpen size={14} />
 			Import from Disk
@@ -186,6 +192,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 			class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:brightness-110"
 			style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
 			onclick={() => (showSearch = !showSearch)}
+			title="Search HuggingFace for AI models — browse thousands of community models and download them directly"
 		>
 			<Search size={14} />
 			{showSearch ? "Hide Search" : "Search HuggingFace"}
@@ -195,6 +202,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 			class="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all hover:brightness-125"
 			style="background: var(--accent-teal-main); color: var(--surface-base); box-shadow: 0 0 0.75rem var(--accent-teal-glow);"
 			onclick={handleApplyAndLaunch}
+			title="Save your model choices and open the chat — Clyffy will load the selected models and be ready to talk"
 		>
 			<Zap size={16} />
 			Apply and Launch Clyffy

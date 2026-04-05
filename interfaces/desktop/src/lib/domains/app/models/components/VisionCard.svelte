@@ -133,6 +133,7 @@ async function handleUnload(): Promise<void> {
 	class="rounded-xl border p-5 transition-all"
 	style="border-color: var(--border-subtle); background: var(--surface-base);"
 	data-component="vision-card"
+	title="Lets Clyffy see what's on your screen — helps with error dialogs, layout issues, and visual problems"
 >
 	<div class={stack({ gap: "3" })}>
 		<!-- Header -->
@@ -147,6 +148,11 @@ async function handleUnload(): Promise<void> {
 			<Badge
 				variant={isLoaded ? "positive" : hasModel ? "neutral" : "neutral"}
 				size="sm"
+				title={isLoaded
+					? "Vision is active — Clyffy can see your screen"
+					: hasModel
+						? "Vision model is downloaded — click Activate to turn it on"
+						: "You need to install the vision model so Clyffy can see your screen"}
 			>
 				{isLoaded ? "Active" : hasModel ? "Ready" : "Not installed"}
 			</Badge>
@@ -155,12 +161,12 @@ async function handleUnload(): Promise<void> {
 		<!-- Status description -->
 		<div class="rounded-lg px-3 py-2" style="background: oklch(0.15 0 0 / 0.3);">
 			{#if brainHasVision}
-				<Text size="sm" color="secondary">
+				<Text size="sm" color="secondary" title="Your Brain model already includes vision — no separate download needed">
 					Using built-in vision from your Brain model (recommended).
 					No extra download needed.
 				</Text>
 			{:else}
-				<Text size="sm" color="secondary">
+				<Text size="sm" color="secondary" title="A small separate model that lets Clyffy understand screenshots and UI elements">
 					Clyffy uses a separate eye to see your screen and help with visual
 					problems like error dialogs and layout issues.
 				</Text>
@@ -169,7 +175,7 @@ async function handleUnload(): Promise<void> {
 
 		<!-- Settings -->
 		<div class="flex gap-4">
-			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);">
+			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);" title="When on, Clyffy automatically takes screenshots when you switch windows or tabs">
 				<input
 					type="checkbox"
 					bind:checked={autoCapture}
@@ -178,7 +184,7 @@ async function handleUnload(): Promise<void> {
 				Auto-capture
 			</label>
 
-			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);">
+			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);" title="Higher quality captures more detail but uses more memory — Standard is fine for most uses">
 				Quality:
 				<select
 					bind:value={screenshotQuality}
@@ -204,6 +210,7 @@ async function handleUnload(): Promise<void> {
 						class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 						style="background: var(--accent-teal-main); color: var(--surface-base);"
 						onclick={handleDownload}
+					title="Download the vision model so Clyffy can see your screen — small download, runs on CPU"
 					>
 						<Download size={14} />
 						Install ({formatMb(visionSizeMb)})
@@ -213,6 +220,7 @@ async function handleUnload(): Promise<void> {
 						class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
 						onclick={handleUnload}
+					title="Turn off vision to save memory — Clyffy won't see your screen until you reactivate"
 					>
 						<PowerOff size={12} />
 						Deactivate
@@ -222,6 +230,7 @@ async function handleUnload(): Promise<void> {
 						class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 						style="background: var(--accent-teal-main); color: var(--surface-base);"
 						onclick={handleLoad}
+					title="Turn on vision so Clyffy can see your screen and help with visual problems"
 					>
 						<Power size={14} />
 						Activate

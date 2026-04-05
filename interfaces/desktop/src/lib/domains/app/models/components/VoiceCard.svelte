@@ -4,7 +4,8 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Loader2, Mic, Play, Volume2 } from "lucide-svelte";
+import { invoke } from "@tauri-apps/api/core";
+import { Download, ExternalLink, Loader2, Mic, Play, Volume2 } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -141,6 +142,7 @@ async function handleDownloadTts(): Promise<void> {
 	class="rounded-xl border p-5 transition-all"
 	style="border-color: var(--border-subtle); background: var(--surface-base);"
 	data-component="voice-card"
+	title="Voice lets you talk to Clyffy using your microphone and hear her respond in her own voice"
 >
 	<div class={stack({ gap: "3" })}>
 		<!-- Header -->
@@ -211,8 +213,8 @@ async function handleDownloadTts(): Promise<void> {
 		</div>
 
 		<!-- Voice settings -->
-		<div class="flex gap-4">
-			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);">
+		<div class="flex flex-wrap gap-4">
+			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);" title="Changes how Clyffy sounds when she speaks — Default is natural, Casual is relaxed, Focused is precise">
 				Voice style:
 				<select
 					bind:value={voiceStyle}
@@ -225,7 +227,7 @@ async function handleDownloadTts(): Promise<void> {
 				</select>
 			</label>
 
-			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);">
+			<label class="flex items-center gap-2 text-sm" style="color: var(--text-secondary);" title="When on, you hold a key to talk. When off, Clyffy listens continuously.">
 				<input
 					type="checkbox"
 					bind:checked={pushToTalk}
@@ -233,6 +235,17 @@ async function handleDownloadTts(): Promise<void> {
 				/>
 				Push-to-talk
 			</label>
+
+			<!-- Cross-link to full Voice Lab -->
+			<button
+				class="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors hover:brightness-110"
+				style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+				onclick={() => invoke("open_window", { label: "voice-lab" })}
+				title="Open the full Voice Lab — test microphone, preview voices, manage voice profiles"
+			>
+				<ExternalLink size={10} />
+				Voice Lab
+			</button>
 		</div>
 
 		<!-- Advanced view -->

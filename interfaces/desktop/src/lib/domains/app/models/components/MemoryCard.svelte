@@ -159,6 +159,7 @@ async function handleDownloadAll(): Promise<void> {
 	class="rounded-xl border p-5 transition-all"
 	style="border-color: var(--border-subtle); background: var(--surface-base);"
 	data-component="memory-card"
+	title="Memory lets Clyffy remember your code, docs, and project context — the more memory, the better Clyffy understands your project"
 >
 	<div class={stack({ gap: "3" })}>
 		<!-- Header -->
@@ -173,13 +174,18 @@ async function handleDownloadAll(): Promise<void> {
 			<Badge
 				variant={memoryReady ? "positive" : "neutral"}
 				size="sm"
+				title={memoryReady
+					? "Memory is active — Clyffy can search and remember your project files"
+					: bothInstalled
+						? "Memory models are downloaded — ready to activate"
+						: "Two small models need to be installed for Clyffy to remember your project"}
 			>
 				{memoryReady ? "Active" : bothInstalled ? "Ready" : "Setup needed"}
 			</Badge>
 		</div>
 
 		<!-- Memory depth slider -->
-		<div class={stack({ gap: "1" })}>
+		<div class={stack({ gap: "1" })} title="Controls how many pieces of your project Clyffy searches through when answering questions — higher means more thorough but slower">
 			<div class={hstack({ justify: "between", align: "center" })}>
 				<Text size="sm" color="secondary">Memory depth</Text>
 				<Text size="xs" color="muted">{depthLabel}</Text>
@@ -205,6 +211,7 @@ async function handleDownloadAll(): Promise<void> {
 							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 							style="background: var(--accent-teal-main); color: var(--surface-base);"
 							onclick={handleDownloadAll}
+							title="Download both memory models — a search engine and a relevance scorer. They work together to help Clyffy find the right code and docs."
 						>
 							<Download size={14} />
 							Install both ({formatMb(embedSizeMb + rerankSizeMb)})

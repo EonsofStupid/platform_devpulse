@@ -143,6 +143,7 @@ async function handleSwap(): Promise<void> {
 	class="rounded-xl border p-5 transition-all"
 	style="border-color: var(--border-subtle); background: var(--surface-base);"
 	data-component="brain-card"
+	title="This is Clyffy's main thinking engine — the AI model that powers chat, reasoning, and code help"
 >
 	<div class={stack({ gap: "3" })}>
 		<!-- Header -->
@@ -154,39 +155,55 @@ async function handleSwap(): Promise<void> {
 			<Badge
 				variant={isLoaded ? "positive" : hasModel ? "neutral" : "neutral"}
 				size="sm"
+				title={isLoaded
+					? "This model is running and ready to use"
+					: hasModel
+						? "Model is downloaded but not running yet — click Activate to start it"
+						: "You need to download this model before Clyffy can think"}
 			>
 				{isLoaded ? "Active" : hasModel ? "Ready" : "Not installed"}
 			</Badge>
 		</div>
 
-		<!-- Size selector -->
-		<div class="flex gap-2">
-			{#each catalogOptions as brainOpt, i (brainOpt.label)}
-				<button
-					class="flex-1 rounded-lg px-3 py-2 text-center transition-all"
-					style={selectedIdx === i
-						? "background: var(--accent-teal-main); color: var(--surface-base);"
-						: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"}
-					onclick={() => { selectedIdx = i; }}
-				>
-					<div class="text-sm font-semibold">{brainOpt.label}</div>
-					<div class="mt-0.5 text-xs opacity-70">{formatMb(brainOpt.size_mb)}</div>
-				</button>
-			{/each}
-		</div>
+		<!-- Size selector — pick how smart vs how fast -->
+		{#if catalogOptions.length > 0}
+			<div>
+				<Text size="xs" color="muted" title="Smaller models respond faster but give simpler answers. Larger models think deeper but need more graphics card memory.">Pick a size for your PC:</Text>
+				<div class="mt-1 flex gap-2">
+					{#each catalogOptions as brainOpt, i (brainOpt.label)}
+						<button
+							class="flex-1 rounded-lg px-3 py-2 text-center transition-all"
+							style={selectedIdx === i
+								? "background: var(--accent-teal-main); color: var(--surface-base);"
+								: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"}
+							onclick={() => { selectedIdx = i; }}
+							title={brainOpt.label.includes("Fast") || brainOpt.label.includes("4B")
+								? "Optimized for speed — quick responses, works on most PCs (needs ~3 GB graphics card memory)"
+								: brainOpt.label.includes("Smart") || brainOpt.label.includes("14B")
+									? "Optimized for quality — best reasoning, needs a powerful graphics card (~10 GB)"
+									: "Good balance of speed and quality — recommended for most PCs (~5 GB graphics card memory)"}
+						>
+							<div class="text-sm font-semibold">{brainOpt.label}</div>
+							<div class="mt-0.5 text-xs opacity-70">{formatMb(brainOpt.size_mb)}</div>
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
 		<!-- Action bar -->
 		<div class={hstack({ gap: "2", align: "center" })}>
 			{#if downloading}
 				<div class={hstack({ gap: "1", align: "center" })}>
 					<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
-					<Text size="xs" color="muted">Downloading {downloadPct}%</Text>
+					<Text size="xs" color="muted" title="Downloading the model from HuggingFace — this may take a few minutes depending on your internet speed">Downloading {downloadPct}%</Text>
 				</div>
 			{:else if !hasModel}
 				<button
 					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 					style="background: var(--accent-teal-main); color: var(--surface-base);"
 					onclick={handleDownload}
+					title="Download this AI model to your computer — it's a one-time download and runs entirely on your PC (no cloud needed)"
 				>
 					<Download size={14} />
 					Install ({formatMb(opt.size_mb)})
@@ -196,6 +213,7 @@ async function handleSwap(): Promise<void> {
 					class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
 					onclick={handleUnload}
+					title="Turn off this model to free up graphics card memory — you can turn it back on anytime"
 				>
 					<PowerOff size={12} />
 					Deactivate
@@ -204,6 +222,7 @@ async function handleSwap(): Promise<void> {
 					class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
 					onclick={handleSwap}
+					title="Switch to the selected size without losing your place — Clyffy will briefly pause while switching"
 				>
 					<RefreshCw size={12} />
 					Switch Size
@@ -213,6 +232,7 @@ async function handleSwap(): Promise<void> {
 					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 					style="background: var(--accent-teal-main); color: var(--surface-base);"
 					onclick={handleLoad}
+					title="Turn on this AI model so Clyffy can start thinking — this loads it into your graphics card memory"
 				>
 					<Power size={14} />
 					Activate
@@ -224,7 +244,7 @@ async function handleSwap(): Promise<void> {
 		{#if advanced}
 			<div class="rounded border px-3 py-2" style="border-color: var(--border-subtle); background: oklch(0.15 0 0 / 0.5);">
 				<Text size="xs" color="muted">
-					Slot: {SLOT_ID} | File: {opt.file} | Size: {opt.size_mb}MB
+					Slot: {SLOT_ID} | File: {opt.file} | Format: GGUF | Size: {opt.size_mb}MB
 				</Text>
 			</div>
 		{/if}
