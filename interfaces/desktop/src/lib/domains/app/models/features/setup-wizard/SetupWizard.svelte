@@ -9,18 +9,20 @@
   On subsequent launch: checks if onboarding complete, skips if so.
 -->
 <script lang="ts">
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
+import { friendlySlotLabel } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import {
-	checkOnboardingComplete,
 	evaluateContinueGate,
 	fetchRecommendations,
 	markOnboardingComplete,
 	startHardwareScan,
+	subsequentLaunchCheck,
 } from "./wizard.service.js";
 import { PHASE_INFO, WIZARD_PHASES, type WizardPhase } from "./wizard.types.js";
 
@@ -31,20 +33,52 @@ interface Props {
 let { onComplete }: Props = $props();
 
 let initialized = $state(false);
+let showRepairMode = $state(false);
+let showHardwareChangeNotice = $state(false);
 
 $effect(() => {
 	init();
 });
 
 async function init(): Promise<void> {
-	const done = await checkOnboardingComplete();
-	if (done) {
-		onComplete?.();
-		return;
+	const result = await subsequentLaunchCheck();
+
+	switch (result.action) {
+		case "skip":
+			onComplete?.();
+			return;
+		case "wizard":
+			await hardwareState.startListening();
+			await modelsState.refresh();
+			initialized = true;
+			break;
+		case "repair":
+			wizardState.missingModels = result.missingSlots;
+			showRepairMode = true;
+			await modelsState.refresh();
+			initialized = true;
+			break;
+		case "redetect":
+			showHardwareChangeNotice = true;
+			await hardwareState.startListening();
+			await modelsState.refresh();
+			initialized = true;
+			break;
 	}
-	await hardwareState.startListening();
-	await modelsState.refresh();
-	initialized = true;
+}
+
+function handleRedetect(): void {
+	showHardwareChangeNotice = false;
+	wizardState.currentPhase = "hardware";
+}
+
+function handleSkipRedetect(): void {
+	showHardwareChangeNotice = false;
+	onComplete?.();
+}
+
+function handleRepairComplete(): void {
+	onComplete?.();
 }
 
 const currentGate = $derived(evaluateContinueGate(wizardState.currentPhase));
@@ -105,8 +139,62 @@ async function handleComplete(): Promise<void> {
 		{/each}
 	</div>
 
-	<!-- Phase content -->
-	{#if initialized}
+	<!-- Repair mode (missing models on subsequent launch) -->
+	{#if showRepairMode}
+		<div class={`${stack({ gap: "4", align: "center" })} w-full max-w-lg`}>
+			<Text size="lg" weight="bold" color="primary">Missing Models</Text>
+			<Text size="sm" color="muted">
+				Some models are no longer available at their registered paths.
+			</Text>
+			{#each wizardState.missingModels as slotId (slotId)}
+				<div class={hstack({ gap: "3", align: "center" })}>
+					<Text size="sm" color="secondary">{friendlySlotLabel(slotId)}</Text>
+					<Badge variant="negative" size="sm">Missing</Badge>
+					<button
+						class="rounded px-3 py-1 text-xs"
+						style="color: var(--text-muted);"
+						onclick={() => { wizardState.missingModels = wizardState.missingModels.filter(s => s !== slotId); }}
+					>
+						Skip
+					</button>
+				</div>
+			{/each}
+			<button
+				class="rounded-lg px-6 py-2 text-sm font-bold"
+				style="background: var(--accent-teal-main); color: var(--surface-base);"
+				onclick={handleRepairComplete}
+			>
+				Continue to DevPulse
+			</button>
+		</div>
+
+	<!-- Hardware change notice -->
+	{:else if showHardwareChangeNotice}
+		<div class={`${stack({ gap: "4", align: "center" })} w-full max-w-lg`}>
+			<Text size="lg" weight="bold" color="primary">Hardware Changed</Text>
+			<Text size="sm" color="muted">
+				Your GPU changed since last run. Want to re-run hardware detection?
+			</Text>
+			<div class={hstack({ gap: "3" })}>
+				<button
+					class="rounded-lg px-4 py-2 text-sm font-bold"
+					style="background: var(--accent-teal-main); color: var(--surface-base);"
+					onclick={handleRedetect}
+				>
+					Re-detect Hardware
+				</button>
+				<button
+					class="rounded-lg px-4 py-2 text-sm border"
+					style="border-color: var(--border-subtle); color: var(--text-secondary);"
+					onclick={handleSkipRedetect}
+				>
+					Keep Current Config
+				</button>
+			</div>
+		</div>
+
+	<!-- Normal wizard phase content -->
+	{:else if initialized}
 		{#if wizardState.currentPhase === "hardware"}
 			{#if !wizardState.hardwareScanned}
 				{#await import("./steps/WelcomeStep.svelte") then mod}

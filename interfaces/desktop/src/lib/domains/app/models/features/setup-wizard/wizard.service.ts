@@ -226,3 +226,72 @@ export async function markOnboardingComplete(): Promise<void> {
 		console.error("[wizard.service] Failed to complete onboarding:", e);
 	}
 }
+
+// ── Subsequent Launch Detection ────────────────────────
+
+/** Check if all assigned models still exist on disk. */
+export async function validateModelPaths(): Promise<{ valid: boolean; missing: string[] }> {
+	const missing: string[] = [];
+
+	await modelsState.refresh();
+
+	modelsState.slots.forEach((slot) => {
+		if (slot.assigned_model_id) {
+			const model = modelsState.models.find((m) => m.id === slot.assigned_model_id);
+			if (!model) {
+				missing.push(slot.id);
+			}
+		}
+	});
+
+	wizardState.missingModels = missing;
+	return { valid: missing.length === 0, missing };
+}
+
+/** Check if hardware changed since last run. */
+export async function detectHardwareChange(): Promise<boolean> {
+	try {
+		const { invoke } = await import("@tauri-apps/api/core");
+		const lastGpu = await invoke<string | null>("get_preference", { key: "last_gpu_name" });
+
+		await hardwareState.refresh();
+		const currentGpu = hardwareState.gpuName;
+
+		await invoke("set_preference", { key: "last_gpu_name", value: currentGpu });
+
+		if (lastGpu === null) {
+			return false;
+		}
+
+		const changed = lastGpu !== currentGpu;
+		wizardState.hardwareChanged = changed;
+		return changed;
+	} catch {
+		return false;
+	}
+}
+
+/** Full subsequent launch check. Returns what to do. */
+export async function subsequentLaunchCheck(): Promise<
+	| { action: "skip"; reason: "complete_and_valid" }
+	| { action: "wizard"; reason: "not_complete" }
+	| { action: "repair"; missingSlots: string[] }
+	| { action: "redetect"; reason: "hardware_changed" }
+> {
+	const complete = await checkOnboardingComplete();
+	if (!complete) {
+		return { action: "wizard", reason: "not_complete" };
+	}
+
+	const hwChanged = await detectHardwareChange();
+	if (hwChanged) {
+		return { action: "redetect", reason: "hardware_changed" };
+	}
+
+	const { valid, missing } = await validateModelPaths();
+	if (!valid) {
+		return { action: "repair", missingSlots: missing };
+	}
+
+	return { action: "skip", reason: "complete_and_valid" };
+}

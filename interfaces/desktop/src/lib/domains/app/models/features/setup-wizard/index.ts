@@ -34,12 +34,15 @@ export {
 	checkDevProfile,
 	checkOnboardingComplete,
 	createDevProfile,
+	detectHardwareChange,
 	downloadAndAssign,
 	evaluateContinueGate,
 	fetchRecommendations,
 	markOnboardingComplete,
 	startHardwareScan,
+	subsequentLaunchCheck,
 	testInference,
+	validateModelPaths,
 } from "./wizard.service.js";
 
 // Types
