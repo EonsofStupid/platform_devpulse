@@ -10,6 +10,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 
@@ -22,24 +23,34 @@ interface Props {
 
 let { advanced = false }: Props = $props();
 
-// ── Catalog ───────────────────────────────────────────────────
-
-const EMBEDDER = {
-	label: "nomic-embed-v1.5",
-	repo: "nomic-ai/nomic-embed-text-v1.5-GGUF",
-	file: "nomic-embed-text-v1.5.Q8_0.gguf",
-	sizeMb: 146,
-};
-
-const RERANKER = {
-	label: "Qwen3-Reranker-0.6B",
-	repo: "Mungert/Qwen3-Reranker-0.6B-GGUF",
-	file: "Qwen3-Reranker-0.6B-q8_0.gguf",
-	sizeMb: 639,
-};
+// ── Catalog from Rust TOML ───────────────────────────────────
 
 const EMBEDDER_SLOT = "rag.embedder";
 const RERANKER_SLOT = "rag.reranker";
+
+let embedRepo = $state("");
+let embedFile = $state("");
+let embedSizeMb = $state(0);
+let rerankRepo = $state("");
+let rerankFile = $state("");
+let rerankSizeMb = $state(0);
+
+$effect(() => {
+	getCatalogForSlot(EMBEDDER_SLOT).then((entry) => {
+		if (entry && entry.options.length > 0) {
+			embedRepo = entry.options[0].repo;
+			embedFile = entry.options[0].file;
+			embedSizeMb = entry.options[0].size_mb;
+		}
+	});
+	getCatalogForSlot(RERANKER_SLOT).then((entry) => {
+		if (entry && entry.options.length > 0) {
+			rerankRepo = entry.options[0].repo;
+			rerankFile = entry.options[0].file;
+			rerankSizeMb = entry.options[0].size_mb;
+		}
+	});
+});
 
 // ── State ─────────────────────────────────────────────────────
 
@@ -97,7 +108,7 @@ async function handleDownloadEmbed(): Promise<void> {
 			embedPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
 	});
 	try {
-		await downloadModel(EMBEDDER.repo, EMBEDDER.file);
+		await downloadModel(embedRepo, embedFile);
 		embedPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -118,7 +129,7 @@ async function handleDownloadRerank(): Promise<void> {
 			rerankPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
 	});
 	try {
-		await downloadModel(RERANKER.repo, RERANKER.file);
+		await downloadModel(rerankRepo, rerankFile);
 		rerankPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -188,7 +199,7 @@ async function handleDownloadAll(): Promise<void> {
 							onclick={handleDownloadAll}
 						>
 							<Download size={14} />
-							Install both ({formatMb(EMBEDDER.sizeMb + RERANKER.sizeMb)})
+							Install both ({formatMb(embedSizeMb + rerankSizeMb)})
 						</button>
 					{:else}
 						{#if embedStatus === "not_downloaded"}
@@ -204,7 +215,7 @@ async function handleDownloadAll(): Promise<void> {
 									onclick={handleDownloadEmbed}
 								>
 									<Download size={10} />
-									Search ({formatMb(EMBEDDER.sizeMb)})
+									Search ({formatMb(embedSizeMb)})
 								</button>
 							{/if}
 						{/if}
@@ -221,7 +232,7 @@ async function handleDownloadAll(): Promise<void> {
 									onclick={handleDownloadRerank}
 								>
 									<Download size={10} />
-									Ranking ({formatMb(RERANKER.sizeMb)})
+									Ranking ({formatMb(rerankSizeMb)})
 								</button>
 							{/if}
 						{/if}

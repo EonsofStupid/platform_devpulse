@@ -10,6 +10,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 
@@ -22,16 +23,24 @@ interface Props {
 
 let { advanced = false }: Props = $props();
 
-// ── Catalog ───────────────────────────────────────────────────
-
-const VISION_OPTION = {
-	label: "Built-in (recommended)",
-	repo: "onnx-community/siglip2-base-patch16-224-ONNX",
-	file: "onnx/vision_model_q4.onnx",
-	sizeMb: 63,
-};
+// ── Catalog from Rust TOML ───────────────────────────────────
 
 const SLOT_ID = "vision.embedder";
+
+let visionRepo = $state("");
+let visionFile = $state("");
+let visionSizeMb = $state(0);
+
+$effect(() => {
+	getCatalogForSlot(SLOT_ID).then((entry) => {
+		if (entry && entry.options.length > 0) {
+			const opt = entry.options[0];
+			visionRepo = opt.repo;
+			visionFile = opt.file;
+			visionSizeMb = opt.size_mb;
+		}
+	});
+});
 
 // ── State ─────────────────────────────────────────────────────
 
@@ -85,7 +94,7 @@ async function handleDownload(): Promise<void> {
 	});
 
 	try {
-		await downloadModel(VISION_OPTION.repo, VISION_OPTION.file);
+		await downloadModel(visionRepo, visionFile);
 		downloadPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -193,7 +202,7 @@ async function handleUnload(): Promise<void> {
 						onclick={handleDownload}
 					>
 						<Download size={14} />
-						Install ({formatMb(VISION_OPTION.sizeMb)})
+						Install ({formatMb(visionSizeMb)})
 					</button>
 				{:else if isLoaded}
 					<button
@@ -221,7 +230,7 @@ async function handleUnload(): Promise<void> {
 		{#if advanced}
 			<div class="rounded border px-3 py-2" style="border-color: var(--border-subtle); background: oklch(0.15 0 0 / 0.5);">
 				<Text size="xs" color="muted">
-					Slot: {SLOT_ID} | File: {VISION_OPTION.file} | Brain VLM: {brainHasVision ? "yes" : "no"}
+					Slot: {SLOT_ID} | File: {visionFile} | Brain VLM: {brainHasVision ? "yes" : "no"}
 				</Text>
 			</div>
 		{/if}

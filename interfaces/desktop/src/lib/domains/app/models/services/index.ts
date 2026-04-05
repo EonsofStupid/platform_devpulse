@@ -1,4 +1,9 @@
 export {
+	getCatalog,
+	getCatalogForSlot,
+	refreshCatalog,
+} from "./catalog.service.js";
+export {
 	autoConfigureHardware,
 	cancelDownload,
 	downloadModel,

@@ -10,6 +10,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 
@@ -22,33 +23,25 @@ interface Props {
 
 let { advanced = false }: Props = $props();
 
-// ── Catalog data (hardcoded until Wave 5 frontend switch) ────
-
-const BRAIN_OPTIONS = [
-	{
-		label: "Fast",
-		description: "Quick responses, lighter on your PC",
-		repo: "bartowski/Qwen_Qwen3-4B-GGUF",
-		file: "Qwen_Qwen3-4B-Q4_K_M.gguf",
-		sizeMb: 2500,
-	},
-	{
-		label: "Balanced",
-		description: "Recommended for most PCs",
-		repo: "bartowski/Qwen_Qwen3-8B-GGUF",
-		file: "Qwen_Qwen3-8B-Q4_K_M.gguf",
-		sizeMb: 5030,
-	},
-	{
-		label: "Smart",
-		description: "Best reasoning, needs more graphics card",
-		repo: "bartowski/Qwen_Qwen3-14B-GGUF",
-		file: "Qwen_Qwen3-14B-Q4_K_M.gguf",
-		sizeMb: 9000,
-	},
-];
+// ── Catalog from Rust TOML (no hardcoded constants) ──────────
 
 const SLOT_ID = "chat.brain";
+
+import type { CatalogOption } from "$lib/sys/generated/bindings.js";
+
+let catalogOptions = $state<CatalogOption[]>([]);
+let catalogLabel = $state("Clyffy's Brain");
+let catalogDescription = $state("Main reasoning model for chat");
+
+$effect(() => {
+	getCatalogForSlot(SLOT_ID).then((entry) => {
+		if (entry) {
+			catalogLabel = entry.label;
+			catalogDescription = entry.description;
+			catalogOptions = entry.options;
+		}
+	});
+});
 
 // ── State ─────────────────────────────────────────────────────
 
@@ -59,7 +52,7 @@ let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
 
-const opt = $derived(BRAIN_OPTIONS[selectedIdx]);
+const opt = $derived(catalogOptions[selectedIdx]);
 
 function slotStatus(
 	slotId: string,
@@ -147,8 +140,8 @@ async function handleSwap(): Promise<void> {
 		<!-- Header -->
 		<div class={hstack({ justify: "between", align: "center" })}>
 			<div class={stack({ gap: "1" })}>
-				<Text size="base" weight="bold" color="primary">Clyffy's Brain</Text>
-				<Text size="xs" color="muted">How Clyffy thinks and reasons</Text>
+				<Text size="base" weight="bold" color="primary">{catalogLabel}</Text>
+				<Text size="xs" color="muted">{catalogDescription}</Text>
 			</div>
 			<Badge
 				variant={isLoaded ? "positive" : hasModel ? "neutral" : "neutral"}
@@ -160,7 +153,7 @@ async function handleSwap(): Promise<void> {
 
 		<!-- Size selector -->
 		<div class="flex gap-2">
-			{#each BRAIN_OPTIONS as brainOpt, i (brainOpt.label)}
+			{#each catalogOptions as brainOpt, i (brainOpt.label)}
 				<button
 					class="flex-1 rounded-lg px-3 py-2 text-center transition-all"
 					style={selectedIdx === i
@@ -169,7 +162,7 @@ async function handleSwap(): Promise<void> {
 					onclick={() => { selectedIdx = i; }}
 				>
 					<div class="text-sm font-semibold">{brainOpt.label}</div>
-					<div class="mt-0.5 text-xs opacity-70">{brainOpt.description}</div>
+					<div class="mt-0.5 text-xs opacity-70">{formatMb(brainOpt.size_mb)}</div>
 				</button>
 			{/each}
 		</div>
@@ -188,7 +181,7 @@ async function handleSwap(): Promise<void> {
 					onclick={handleDownload}
 				>
 					<Download size={14} />
-					Install ({formatMb(opt.sizeMb)})
+					Install ({formatMb(opt.size_mb)})
 				</button>
 			{:else if isLoaded}
 				<button
@@ -223,7 +216,7 @@ async function handleSwap(): Promise<void> {
 		{#if advanced}
 			<div class="rounded border px-3 py-2" style="border-color: var(--border-subtle); background: oklch(0.15 0 0 / 0.5);">
 				<Text size="xs" color="muted">
-					Slot: {SLOT_ID} | File: {opt.file} | Size: {opt.sizeMb}MB
+					Slot: {SLOT_ID} | File: {opt.file} | Size: {opt.size_mb}MB
 				</Text>
 			</div>
 		{/if}

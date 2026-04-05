@@ -78,6 +78,15 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
                         tracing::warn!(file = %path.display(), error = %e, "Failed to parse GGUF file — skipping");
                     }
                 },
+                "safetensors" => match parse_safetensors_entry(&path) {
+                    Ok(registry_entry) => {
+                        tracing::debug!(file = %path.display(), "Discovered SafeTensors model");
+                        entries.push(registry_entry);
+                    }
+                    Err(e) => {
+                        tracing::warn!(file = %path.display(), error = %e, "Failed to parse SafeTensors file — skipping");
+                    }
+                },
                 "onnx" => match parse_onnx_entry(&path) {
                     Ok(registry_entry) => {
                         tracing::debug!(file = %path.display(), "Discovered ONNX model");
@@ -96,9 +105,20 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
 }
 
 /// Discover a single model file and set its source to HuggingFace.
-/// Used after downloading a model from HF.
+/// Used after downloading a model from HF. Handles GGUF, SafeTensors, and ONNX.
 pub fn discover_single(path: &Path, repo_id: &str) -> anyhow::Result<ModelRegistryEntry> {
-    let mut entry = parse_gguf_entry(path)?;
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("");
+
+    let mut entry = match ext {
+        "gguf" => parse_gguf_entry(path)?,
+        "safetensors" => parse_safetensors_entry(path)?,
+        "onnx" => parse_onnx_entry(path)?,
+        _ => anyhow::bail!("Unsupported model format: .{ext}"),
+    };
+
     entry.source = ModelSource::HuggingFace {
         repo_id: repo_id.to_string(),
         revision: "main".to_string(),
@@ -361,6 +381,82 @@ fn parse_sherpa_dir_entry(dir: &Path) -> anyhow::Result<ModelRegistryEntry> {
         source: ModelSource::Local,
         discovered_at: now_epoch_ms(),
     })
+}
+
+/// Parse a SafeTensors file into a registry entry.
+///
+/// SafeTensors files don't embed architecture metadata like GGUF headers do.
+/// We infer architecture from the filename and companion `config.json` if present.
+fn parse_safetensors_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
+    let file_size = std::fs::metadata(path)?.len();
+    let filename = path
+        .file_name()
+        .map(|f| f.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    // Try to read config.json from the same directory for architecture info
+    let (architecture, context_length, parameter_count) = if let Some(parent) = path.parent() {
+        read_config_json(parent)
+    } else {
+        ("unknown".to_string(), 0, None)
+    };
+
+    let capabilities = infer_capabilities(&architecture);
+    let backends = vec![BackendType::Candle]; // SafeTensors → Candle only
+
+    Ok(ModelRegistryEntry {
+        id: uuid::Uuid::now_v7().to_string(),
+        filename,
+        path: path.to_path_buf(),
+        format: ModelFormat::SafeTensors,
+        architecture,
+        parameter_count,
+        quant_level: Some("F16".to_string()), // SafeTensors are typically f16/bf16
+        context_length,
+        size_bytes: file_size,
+        vram_estimate_mb: file_size / (1024 * 1024), // SafeTensors ≈ 1:1 file:VRAM
+        supported_backends: backends,
+        compatible_capabilities: capabilities,
+        source: ModelSource::Local,
+        discovered_at: now_epoch_ms(),
+    })
+}
+
+/// Read config.json from a model directory for architecture metadata.
+/// Returns (architecture, context_length, parameter_count).
+fn read_config_json(dir: &Path) -> (String, usize, Option<u64>) {
+    let config_path = dir.join("config.json");
+    if !config_path.exists() {
+        return ("unknown".to_string(), 0, None);
+    }
+
+    let content = match std::fs::read_to_string(&config_path) {
+        Ok(c) => c,
+        Err(_) => return ("unknown".to_string(), 0, None),
+    };
+
+    // Parse as generic JSON — we only need a few fields
+    let json: serde_json::Value = match serde_json::from_str(&content) {
+        Ok(v) => v,
+        Err(_) => return ("unknown".to_string(), 0, None),
+    };
+
+    let architecture = json
+        .get("model_type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown")
+        .to_string();
+
+    let context_length = json
+        .get("max_position_embeddings")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0) as usize;
+
+    let parameter_count = json
+        .get("num_parameters")
+        .and_then(|v| v.as_u64());
+
+    (architecture, context_length, parameter_count)
 }
 
 /// Parse an ONNX file into a registry entry.

@@ -10,6 +10,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 
@@ -22,30 +23,34 @@ interface Props {
 
 let { advanced = false }: Props = $props();
 
-// ── Catalog ───────────────────────────────────────────────────
-
-const STT_OPTIONS = [
-	{
-		label: "Standard",
-		description: "Good accuracy, fast",
-		repo: "csukuangfj/sherpa-onnx-whisper-turbo",
-		file: "turbo-encoder.int8.onnx",
-		sizeMb: 1040,
-		isDir: true,
-	},
-];
-
-const TTS_OPTIONS = [
-	{
-		label: "Kokoro v1.0",
-		repo: "onnx-community/Kokoro-82M-v1.0-ONNX",
-		file: "onnx/model_quantized.onnx",
-		sizeMb: 92,
-	},
-];
+// ── Catalog from Rust TOML ───────────────────────────────────
 
 const STT_SLOT = "voice.stt";
 const TTS_SLOT = "voice.tts";
+
+let sttRepo = $state("");
+let sttFile = $state("");
+let sttSizeMb = $state(0);
+let ttsRepo = $state("");
+let ttsFile = $state("");
+let ttsSizeMb = $state(0);
+
+$effect(() => {
+	getCatalogForSlot(STT_SLOT).then((entry) => {
+		if (entry && entry.options.length > 0) {
+			sttRepo = entry.options[0].repo;
+			sttFile = entry.options[0].file;
+			sttSizeMb = entry.options[0].size_mb;
+		}
+	});
+	getCatalogForSlot(TTS_SLOT).then((entry) => {
+		if (entry && entry.options.length > 0) {
+			ttsRepo = entry.options[0].repo;
+			ttsFile = entry.options[0].file;
+			ttsSizeMb = entry.options[0].size_mb;
+		}
+	});
+});
 
 // ── State ─────────────────────────────────────────────────────
 
@@ -90,7 +95,7 @@ async function handleDownloadStt(): Promise<void> {
 			sttPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
 	});
 	try {
-		await downloadModel(STT_OPTIONS[0].repo, STT_OPTIONS[0].file);
+		await downloadModel(sttRepo, sttFile);
 		sttPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -111,7 +116,7 @@ async function handleDownloadTts(): Promise<void> {
 			ttsPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
 	});
 	try {
-		await downloadModel(TTS_OPTIONS[0].repo, TTS_OPTIONS[0].file);
+		await downloadModel(ttsRepo, ttsFile);
 		ttsPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -166,7 +171,7 @@ async function handleDownloadTts(): Promise<void> {
 						onclick={handleDownloadStt}
 					>
 						<Download size={10} />
-						Install ({formatMb(STT_OPTIONS[0].sizeMb)})
+						Install ({formatMb(sttSizeMb)})
 					</button>
 				{/if}
 			</div>
@@ -191,7 +196,7 @@ async function handleDownloadTts(): Promise<void> {
 						onclick={handleDownloadTts}
 					>
 						<Download size={10} />
-						Install ({formatMb(TTS_OPTIONS[0].sizeMb)})
+						Install ({formatMb(ttsSizeMb)})
 					</button>
 				{/if}
 			</div>
