@@ -81,25 +81,12 @@ $effect(() => {
 	}
 });
 
-let setupError = $state<string | null>(null);
-
-/** Called when the SetupWizard finishes (models downloaded + assigned). */
-async function handleWizardComplete(): Promise<void> {
-	setupError = null;
-	try {
-		const { commands } = await import("$lib/sys/generated/bindings.js");
-		const result = await commands.completeModelSetup();
-		if (result.status === "error") {
-			setupError = result.error;
-			console.error("[BootOverlay] complete_model_setup:", result.error);
-		}
-		// On success, the command emits "platform:models-status" with ready=true,
-		// which updates platformState.modelsReady → isFullyReady → fade.
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		setupError = msg;
-		console.error("[BootOverlay] complete_model_setup failed:", msg);
-	}
+/** Called when the SetupWizard finishes.
+ * The wizard's markOnboardingComplete() already calls completeModelSetup(),
+ * which emits platform:models-status → platformState.modelsReady → fade.
+ */
+function handleWizardComplete(): void {
+	// Wizard handles everything internally via markOnboardingComplete()
 }
 </script>
 
@@ -127,7 +114,7 @@ async function handleWizardComplete(): Promise<void> {
 		stack({ gap: "6", align: "center" }),
 		"overflow-y-auto scrollbar-thin",
 		isWizardPhase
-			? "w-full max-w-5xl max-h-[95vh] px-8 py-6"
+			? "w-full h-full"
 			: "min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
 		"transition-all duration-300 ease-out",
 	)}>
@@ -216,7 +203,7 @@ async function handleWizardComplete(): Promise<void> {
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
-			{#await import("$lib/domains/app/models/components/SetupWizard.svelte") then module}
+			{#await import("$lib/domains/app/models/features/setup-wizard/SetupWizard.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}
 		{/if}

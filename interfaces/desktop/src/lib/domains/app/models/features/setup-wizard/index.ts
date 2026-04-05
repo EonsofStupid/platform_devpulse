@@ -7,6 +7,8 @@
 
 // Import routing
 export { slotToModelPath, slotToSubdir } from "./import-router.js";
+// Main component
+export { default as SetupWizard } from "./SetupWizard.svelte";
 // Seed families
 export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js";
 export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";
