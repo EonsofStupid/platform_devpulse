@@ -60,10 +60,18 @@ export async function autoConfigureHardware(): Promise<string> {
 }
 
 /** Import a model from the local filesystem via native file picker. */
-export async function importLocalModel(): Promise<string> {
-	logInfo("models.download", "Opening file picker for local model import...");
+export async function importLocalModel(targetSlot?: string, importMode?: string): Promise<string> {
+	logInfo(
+		"models.download",
+		`Importing model for slot=${targetSlot ?? "chat"} mode=${importMode ?? "copy"}`,
+	);
 	try {
-		const filename = unwrap(await commands.importLocalModel());
+		// Use raw invoke until specta bindings regenerate with new params
+		const { invoke } = await import("@tauri-apps/api/core");
+		const filename = await invoke<string>("import_local_model", {
+			target_slot: targetSlot ?? null,
+			import_mode: importMode ?? null,
+		});
 		logInfo("models.download", `Local model imported: ${filename}`);
 		return filename;
 	} catch (e) {

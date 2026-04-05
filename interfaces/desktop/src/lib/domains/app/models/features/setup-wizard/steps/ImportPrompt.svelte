@@ -32,10 +32,8 @@ async function handleImport(): Promise<void> {
 	importing = true;
 	error = null;
 	try {
-		// TODO(Sprint-5): Pass targetSlot + importMode to backend
-		// Current backend hardcodes to models/chat/ — Sprint 5 fixes this
 		const { importLocalModel } = await import("../../../services/download.service.js");
-		const filename = await importLocalModel();
+		const filename = await importLocalModel(targetSlot, importMode);
 		onComplete(filename);
 	} catch (e) {
 		error = e instanceof Error ? e.message : String(e);

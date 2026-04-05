@@ -583,6 +583,8 @@ pub async fn complete_model_setup(
 #[specta::specta]
 pub async fn import_local_model(
     state: State<'_, PlatformState>,
+    target_slot: Option<String>,
+    import_mode: Option<String>,
 ) -> Result<String, String> {
     // Open native file dialog on a blocking thread (rfd is sync)
     let picked = tokio::task::spawn_blocking(|| {
@@ -606,23 +608,70 @@ pub async fn import_local_model(
     // Get data directory from platform config
     let loader = get_loader(&state).await?;
 
-    // Resolve models dir — same path boot uses: {data_dir}/models/chat/
+    // Route to correct subdirectory based on target slot
+    let subdir = match target_slot.as_deref() {
+        Some(slot) => {
+            let prefix = slot.split('.').next().unwrap_or("chat");
+            match prefix {
+                "chat" | "minion" => "chat",
+                "voice" => "voice",
+                "rag" => "rag",
+                "vision" => "vision",
+                _ => "chat",
+            }
+        }
+        None => "chat",
+    };
+
     let guard = state.platform.read().await;
     let platform = guard.as_ref().ok_or("Platform not ready")?;
     let data_dir = platform.data_dir();
-    let dest_dir = data_dir.join("models").join("chat");
+    let dest_dir = data_dir.join("models").join(subdir);
     drop(guard);
 
-    std::fs::create_dir_all(&dest_dir).map_err(|e| format!("Failed to create models/chat/: {e}"))?;
+    std::fs::create_dir_all(&dest_dir)
+        .map_err(|e| format!("Failed to create models/{subdir}/: {e}"))?;
     let dest_path = dest_dir.join(&filename);
 
     if dest_path.exists() {
-        return Err(format!("Model '{filename}' already exists in models/chat/"));
+        return Err(format!("Model '{filename}' already exists in models/{subdir}/"));
     }
 
-    tracing::info!(source = %source_path.display(), dest = %dest_path.display(), "Importing local model");
-    std::fs::copy(&source_path, &dest_path)
-        .map_err(|e| format!("Failed to copy model: {e}"))?;
+    let mode = import_mode.as_deref().unwrap_or("copy");
+    match mode {
+        "symlink" => {
+            #[cfg(target_os = "windows")]
+            {
+                std::os::windows::fs::symlink_file(&source_path, &dest_path)
+                    .map_err(|e| format!(
+                        "Failed to create symlink (Windows may require administrator privileges): {e}"
+                    ))?;
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                std::os::unix::fs::symlink(&source_path, &dest_path)
+                    .map_err(|e| format!("Failed to create symlink: {e}"))?;
+            }
+            tracing::info!(
+                source = %source_path.display(),
+                dest = %dest_path.display(),
+                mode = "symlink",
+                subdir = subdir,
+                "Created symlink for model"
+            );
+        }
+        _ => {
+            std::fs::copy(&source_path, &dest_path)
+                .map_err(|e| format!("Failed to copy model: {e}"))?;
+            tracing::info!(
+                source = %source_path.display(),
+                dest = %dest_path.display(),
+                mode = "copy",
+                subdir = subdir,
+                "Copied model file"
+            );
+        }
+    }
 
     // Re-scan registry to discover the new model
     loader.scan_models().await.map_err(|e| format!("Scan failed: {e}"))?;
