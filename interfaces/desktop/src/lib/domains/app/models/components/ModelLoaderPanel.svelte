@@ -12,6 +12,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { narrationState } from "../runes/narration.runes.svelte.js";
 import { downloadModel, importLocalModel } from "../services/download.service.js";
 import BrainCard from "./BrainCard.svelte";
 import ClyffyNarration from "./ClyffyNarration.svelte";
@@ -42,10 +43,12 @@ $effect(() => {
 	hardwareState.startListening();
 	modelsState.refresh();
 	modelsState.startStatusListener();
+	narrationState.startListening();
 	loadHealth();
 	return () => {
 		hardwareState.stopListening();
 		modelsState.stopStatusListener();
+		narrationState.stopListening();
 	};
 });
 
