@@ -52,7 +52,9 @@ let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
 
-const opt = $derived(catalogOptions[selectedIdx]);
+const opt = $derived(
+	catalogOptions[selectedIdx] ?? { label: "", repo: "", file: "", size_mb: 0, is_dir: false },
+);
 
 function slotStatus(
 	slotId: string,
@@ -75,6 +77,7 @@ const hasModel = $derived(brainStatus !== "not_downloaded");
 // ── Actions ───────────────────────────────────────────────────
 
 async function handleDownload(): Promise<void> {
+	if (!opt.repo) return;
 	error = null;
 	downloading = true;
 	downloadPct = 0;
