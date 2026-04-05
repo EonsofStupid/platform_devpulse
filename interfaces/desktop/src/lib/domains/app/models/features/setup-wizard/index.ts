@@ -11,12 +11,17 @@ export { slotToModelPath, slotToSubdir } from "./import-router.js";
 export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js";
 // Step components
 export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
+export { default as ImportPrompt } from "./steps/ImportPrompt.svelte";
+export { default as ModelLoaderStep } from "./steps/ModelLoaderStep.svelte";
+export { default as SlotAssignmentPanel } from "./steps/SlotAssignmentPanel.svelte";
 export { default as WelcomeStep } from "./steps/WelcomeStep.svelte";
 // State
 export { wizardState } from "./wizard.runes.svelte.js";
 // Service
 export {
+	bulkDownloadAndAssign,
 	checkOnboardingComplete,
+	downloadAndAssign,
 	evaluateContinueGate,
 	fetchRecommendations,
 	markOnboardingComplete,

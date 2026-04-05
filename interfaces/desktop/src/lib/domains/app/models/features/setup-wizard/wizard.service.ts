@@ -8,10 +8,14 @@
 
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
-import { autoConfigureHardware } from "../../services/download.service.js";
+import {
+	autoConfigureHardware,
+	downloadModel,
+	onDownloadComplete,
+} from "../../services/download.service.js";
 import type { AutoConfig } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
-import type { ContinueGate, WizardPhase } from "./wizard.types.js";
+import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
 
 // ── Phase 1: Hardware ──────────────────────────────────
 
@@ -92,6 +96,64 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 			};
 		}
 	}
+}
+
+// ── Phase 2: Download + Assign ─────────────────────────
+
+/** Download a single model and assign it to its target slot. */
+export async function downloadAndAssign(rec: ModelRec): Promise<void> {
+	wizardState.error = null;
+	try {
+		const downloadId = await downloadModel(rec.repo, rec.file);
+
+		await new Promise<void>((resolve, reject) => {
+			const unsub = onDownloadComplete((data) => {
+				if (data.downloadId === downloadId) {
+					unsub();
+					resolve();
+				}
+			});
+			setTimeout(
+				() => {
+					unsub();
+					reject(new Error("Download timed out after 30 minutes"));
+				},
+				30 * 60 * 1000,
+			);
+		});
+
+		await modelsState.scan();
+		await modelsState.refresh();
+
+		const model = modelsState.models.find((m) => m.filename === rec.file);
+		if (!model) {
+			throw new Error(`Downloaded ${rec.file} but not found in registry after scan`);
+		}
+
+		await modelsState.assign(rec.slot, model.id);
+	} catch (e) {
+		wizardState.error = e instanceof Error ? e.message : String(e);
+		throw e;
+	}
+}
+
+/** Download all recommendations sequentially, assigning each after download. */
+export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
+	wizardState.downloadQueue = [...recs];
+	wizardState.error = null;
+
+	for (let i = 0; i < recs.length; i++) {
+		wizardState.downloadingIndex = i;
+		wizardState.downloadProgress = 0;
+		try {
+			await downloadAndAssign(recs[i]);
+		} catch (e) {
+			console.error(`[wizard] Failed to download ${recs[i].file}:`, e);
+		}
+	}
+
+	wizardState.downloadingIndex = -1;
+	wizardState.downloadQueue = [];
 }
 
 // ── Onboarding Persistence ─────────────────────────────
