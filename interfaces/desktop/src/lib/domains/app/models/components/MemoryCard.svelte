@@ -112,6 +112,10 @@ async function handleDownloadEmbed(): Promise<void> {
 		embedPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
+		const embedModel = modelsState.models.find((m) => m.filename === embedFile);
+		if (embedModel) {
+			await modelsState.assign(EMBEDDER_SLOT, embedModel.id);
+		}
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
@@ -133,6 +137,10 @@ async function handleDownloadRerank(): Promise<void> {
 		rerankPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
+		const rerankModel = modelsState.models.find((m) => m.filename === rerankFile);
+		if (rerankModel) {
+			await modelsState.assign(RERANKER_SLOT, rerankModel.id);
+		}
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {

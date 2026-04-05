@@ -98,6 +98,10 @@ async function handleDownload(): Promise<void> {
 		downloadPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
+		const model = modelsState.models.find((m) => m.filename === visionFile);
+		if (model) {
+			await modelsState.assign(SLOT_ID, model.id);
+		}
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {

@@ -99,6 +99,10 @@ async function handleDownloadStt(): Promise<void> {
 		sttPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
+		const sttModel = modelsState.models.find((m) => m.filename === sttFile);
+		if (sttModel) {
+			await modelsState.assign(STT_SLOT, sttModel.id);
+		}
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
@@ -120,6 +124,10 @@ async function handleDownloadTts(): Promise<void> {
 		ttsPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
+		const ttsModel = modelsState.models.find((m) => m.filename === ttsFile);
+		if (ttsModel) {
+			await modelsState.assign(TTS_SLOT, ttsModel.id);
+		}
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {

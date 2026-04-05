@@ -90,6 +90,11 @@ async function handleDownload(): Promise<void> {
 		downloadPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
+		// Auto-assign downloaded model to this slot
+		const model = modelsState.models.find((m) => m.filename === opt.file);
+		if (model) {
+			await modelsState.assign(SLOT_ID, model.id);
+		}
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
