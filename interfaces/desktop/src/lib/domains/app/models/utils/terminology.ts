@@ -139,3 +139,86 @@ export function translateStatus(status: string, level: CompetencyLevel = 0): str
 			return status;
 	}
 }
+
+/** Translate a loading stage name to user-friendly text. */
+export function translateLoadingStage(
+	stage: string,
+	pct: number,
+	level: CompetencyLevel = 0,
+): string {
+	if (level === 2) return `${stage} ${pct}%`;
+	switch (stage) {
+		case "Verifying":
+			return level === 0 ? "Checking the model file..." : `Verifying integrity (${pct}%)`;
+		case "Allocating":
+			return level === 0
+				? "Reserving memory on your graphics card..."
+				: `Allocating VRAM (${pct}%)`;
+		case "LoadingWeights":
+			return level === 0 ? `Loading the brain — ${pct}% done...` : `Loading weights (${pct}%)`;
+		case "LoadingTokenizer":
+			return level === 0 ? "Setting up the language processor..." : `Loading tokenizer (${pct}%)`;
+		case "WarmingUp":
+			return level === 0 ? "Almost ready — warming up..." : `Warm-up pass (${pct}%)`;
+		default:
+			return level === 0 ? `Loading... ${pct}%` : `${stage} (${pct}%)`;
+	}
+}
+
+/** Translate a narration event type to user-friendly text. */
+export function translateNarrationEvent(
+	eventType: string,
+	slotId: string,
+	level: CompetencyLevel = 0,
+	detail?: string,
+): string {
+	const slot = friendlySlotName(slotId, level);
+
+	switch (eventType) {
+		case "loading-started":
+			return level === 0
+				? `Loading up — pulling model weights into memory...`
+				: `Loading ${slot} into memory`;
+		case "loading-complete":
+			return level === 0
+				? "Ready to go! Model is loaded and active."
+				: `${slot} loaded successfully`;
+		case "loading-failed":
+			return level === 0
+				? `Couldn't load the model — ${detail ?? "unknown error"}`
+				: `${slot} FAILED: ${detail ?? "unknown"}`;
+		case "download-started":
+			return level === 0
+				? "Downloading from HuggingFace — sit tight..."
+				: `Downloading model from HF`;
+		case "download-complete":
+			return level === 0 ? "Download complete! Model is ready to activate." : "Download finished";
+		case "download-failed":
+			return level === 0
+				? `Download failed — ${detail ?? "unknown error"}`
+				: `Download FAILED: ${detail ?? "unknown"}`;
+		case "swap-started":
+			return level === 0
+				? "Switching models — Clyffy will pause briefly..."
+				: `Hot-swapping ${slot}`;
+		case "swap-complete":
+			return level === 0 ? "Model switched! Back online." : `${slot} swap complete`;
+		default:
+			return detail ?? eventType;
+	}
+}
+
+/** Friendly slot name for narration. */
+function friendlySlotName(slotId: string, level: CompetencyLevel): string {
+	if (level === 2) return slotId;
+	const map: Record<string, string> = {
+		"chat.brain": "the AI Brain",
+		"minion.shared": "the quick worker",
+		"vision.embedder": "vision",
+		"voice.stt": "voice input",
+		"voice.tts": "voice output",
+		"rag.embedder": "the search engine",
+		"rag.reranker": "the relevance scorer",
+	};
+	return map[slotId] ?? slotId;
+}

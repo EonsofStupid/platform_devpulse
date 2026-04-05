@@ -207,6 +207,66 @@ pub async fn get_slots(
         .collect())
 }
 
+/// VRAM budget plan — per-slot VRAM allocation breakdown.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct VramBudgetInfo {
+    /// Total VRAM on the GPU in MB (0 if no GPU).
+    pub total_vram_mb: u64,
+    /// Currently used VRAM across all loaded models in MB.
+    pub currently_used_mb: u64,
+    /// VRAM needed by all planned-to-load slots.
+    pub planned_load_mb: u64,
+    /// Remaining VRAM after all planned loads. Negative means won't fit.
+    pub remaining_after_plan_mb: i64,
+    /// Whether all planned loads fit in available VRAM.
+    pub fits: bool,
+    /// Per-slot breakdown.
+    pub per_slot: Vec<SlotBudgetEntryInfo>,
+}
+
+/// A single slot's VRAM contribution.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct SlotBudgetEntryInfo {
+    /// Slot identifier.
+    pub slot_id: String,
+    /// Assigned model name (for display).
+    pub model_name: String,
+    /// Estimated VRAM for this model in MB.
+    pub vram_estimate_mb: u64,
+    /// Status: "loaded", "planned", "wont_fit", "unassigned", "shared".
+    pub status: String,
+    /// Other slot IDs sharing this model instance.
+    pub shared_with: Vec<String>,
+}
+
+/// Get the VRAM budget plan — per-slot VRAM allocation breakdown.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_vram_budget(
+    state: State<'_, PlatformState>,
+) -> Result<VramBudgetInfo, String> {
+    let loader = get_loader(&state).await?;
+    let budget = loader.vram_budget_plan().await;
+    Ok(VramBudgetInfo {
+        total_vram_mb: budget.total_vram_mb,
+        currently_used_mb: budget.currently_used_mb,
+        planned_load_mb: budget.planned_load_mb,
+        remaining_after_plan_mb: budget.remaining_after_plan_mb,
+        fits: budget.fits(),
+        per_slot: budget
+            .per_slot
+            .into_iter()
+            .map(|s| SlotBudgetEntryInfo {
+                slot_id: s.slot_id,
+                model_name: s.model_name,
+                vram_estimate_mb: s.vram_estimate_mb,
+                status: format!("{:?}", s.status).to_lowercase(),
+                shared_with: s.shared_with,
+            })
+            .collect(),
+    })
+}
+
 /// Get the model download catalog from the TOML config.
 ///
 /// Returns the full catalog of downloadable models per slot.

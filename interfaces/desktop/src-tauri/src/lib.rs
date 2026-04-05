@@ -41,6 +41,8 @@ pub fn run() {
         commands::chat::history::load_recent,
         commands::chat::interactions::post_reaction,
         commands::sys::config::get_settings,
+        commands::sys::config::get_preference,
+        commands::sys::config::set_preference,
         commands::sys::guard::verify,
         commands::sys::logger::log,
         commands::sys::boot::get_boot_state,
@@ -75,7 +77,9 @@ pub fn run() {
         commands::models::auto_configure,
         commands::models::complete_model_setup,
         commands::models::inference_generate,
+        commands::models::get_vram_budget,
         // Voice management
+        commands::voice::get_voice_status,
         commands::voice::speak,
         commands::voice::stop_speaking,
         commands::voice::is_speaking,

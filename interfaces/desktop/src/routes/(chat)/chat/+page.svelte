@@ -13,8 +13,39 @@
 import { Sparkles } from "lucide-svelte";
 import ChatThread from "$lib/design/blocks/chat/ChatThread.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
+import { ModelEventCard, modelsState, narrationState } from "$lib/domains/app/models/index.js";
 import { chatState } from "$lib/domains/chat/index.js";
+
+let dismissedEvents = $state(new Set<string>());
+
+/** Active model events (loading/loaded/failed) across all slots, not dismissed. */
+const activeModelEvents = $derived.by(() => {
+	const events: { slotId: string; status: (typeof modelsState.statuses)[string] }[] = [];
+	Object.entries(modelsState.statuses).forEach(([slotId, status]) => {
+		if (!status) return;
+		if (dismissedEvents.has(slotId)) return;
+		if (status.type === "loading" || status.type === "loaded" || status.type === "failed") {
+			events.push({ slotId, status });
+		}
+	});
+	return events;
+});
+
+function dismissEvent(slotId: string): void {
+	dismissedEvents = new Set([...dismissedEvents, slotId]);
+}
 </script>
+
+<!-- Model events overlay -->
+{#each activeModelEvents as event (event.slotId)}
+	{@const msg = narrationState.forSlot(event.slotId)}
+	<ModelEventCard
+		slotId={event.slotId}
+		status={event.status}
+		clyffyMessage={msg?.text ?? "Working on it..."}
+		onDismiss={() => dismissEvent(event.slotId)}
+	/>
+{/each}
 
 {#if chatState.loading}
 	<div class="flex items-center justify-center py-8 flex-1">

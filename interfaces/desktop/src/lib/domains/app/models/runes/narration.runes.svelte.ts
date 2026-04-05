@@ -7,6 +7,8 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { competencyTracker } from "../services/competency.service.js";
+import { translateLoadingStage, translateNarrationEvent } from "../utils/terminology.js";
 
 export interface NarrationMessage {
 	slotId: string;
@@ -42,7 +44,11 @@ class NarrationState {
 			await listen<{ slot_id: string; model_id: string }>("model:loading-started", (e) => {
 				this.push({
 					slotId: e.payload.slot_id,
-					text: "Loading up — pulling model weights into memory...",
+					text: translateNarrationEvent(
+						"loading-started",
+						e.payload.slot_id,
+						competencyTracker.level,
+					),
 					type: "info",
 					timestamp: Date.now(),
 				});
@@ -53,18 +59,10 @@ class NarrationState {
 			await listen<{ slot_id: string; stage: string; progress: number }>(
 				"model:loading-stage",
 				(e) => {
-					const stage = e.payload.stage;
 					const pct = Math.round(e.payload.progress);
-					let text = `Loading... ${pct}%`;
-					if (stage === "Verifying") text = "Checking the model file...";
-					else if (stage === "Allocating") text = "Reserving memory on your graphics card...";
-					else if (stage === "LoadingWeights") text = `Loading the brain — ${pct}% done...`;
-					else if (stage === "LoadingTokenizer") text = "Setting up the language processor...";
-					else if (stage === "WarmingUp") text = "Almost ready — warming up...";
-
 					this.push({
 						slotId: e.payload.slot_id,
-						text,
+						text: translateLoadingStage(e.payload.stage, pct, competencyTracker.level),
 						type: "info",
 						timestamp: Date.now(),
 					});
@@ -76,7 +74,11 @@ class NarrationState {
 			await listen<{ slot_id: string }>("model:loading-complete", (e) => {
 				this.push({
 					slotId: e.payload.slot_id,
-					text: "Ready to go! Model is loaded and active.",
+					text: translateNarrationEvent(
+						"loading-complete",
+						e.payload.slot_id,
+						competencyTracker.level,
+					),
 					type: "success",
 					timestamp: Date.now(),
 				});
@@ -87,7 +89,12 @@ class NarrationState {
 			await listen<{ slot_id: string; error: string }>("model:loading-failed", (e) => {
 				this.push({
 					slotId: e.payload.slot_id,
-					text: `Couldn't load the model — ${e.payload.error}`,
+					text: translateNarrationEvent(
+						"loading-failed",
+						e.payload.slot_id,
+						competencyTracker.level,
+						e.payload.error,
+					),
 					type: "error",
 					timestamp: Date.now(),
 				});
@@ -98,7 +105,7 @@ class NarrationState {
 			await listen<{ download_id: string; repo_id: string }>("model:download-started", () => {
 				this.push({
 					slotId: "*",
-					text: `Downloading from HuggingFace — sit tight...`,
+					text: translateNarrationEvent("download-started", "*", competencyTracker.level),
 					type: "info",
 					timestamp: Date.now(),
 				});
@@ -109,7 +116,7 @@ class NarrationState {
 			await listen<{ download_id: string }>("model:download-complete", () => {
 				this.push({
 					slotId: "*",
-					text: "Download complete! Model is ready to activate.",
+					text: translateNarrationEvent("download-complete", "*", competencyTracker.level),
 					type: "success",
 					timestamp: Date.now(),
 				});
@@ -120,7 +127,12 @@ class NarrationState {
 			await listen<{ download_id: string; error: string }>("model:download-failed", (e) => {
 				this.push({
 					slotId: "*",
-					text: `Download failed — ${e.payload.error}`,
+					text: translateNarrationEvent(
+						"download-failed",
+						"*",
+						competencyTracker.level,
+						e.payload.error,
+					),
 					type: "error",
 					timestamp: Date.now(),
 				});
@@ -131,7 +143,7 @@ class NarrationState {
 			await listen<{ slot_id: string }>("model:swap-started", (e) => {
 				this.push({
 					slotId: e.payload.slot_id,
-					text: "Switching models — Clyffy will pause briefly...",
+					text: translateNarrationEvent("swap-started", e.payload.slot_id, competencyTracker.level),
 					type: "info",
 					timestamp: Date.now(),
 				});
@@ -142,7 +154,11 @@ class NarrationState {
 			await listen<{ slot_id: string }>("model:swap-complete", (e) => {
 				this.push({
 					slotId: e.payload.slot_id,
-					text: "Model switched! Back online.",
+					text: translateNarrationEvent(
+						"swap-complete",
+						e.payload.slot_id,
+						competencyTracker.level,
+					),
 					type: "success",
 					timestamp: Date.now(),
 				});

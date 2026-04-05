@@ -52,6 +52,54 @@ pub struct MicTestResult {
     pub noise_floor: f32,
 }
 
+/// Voice subsystem status for the frontend.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct VoiceStatusInfo {
+    /// Whether the STT slot has a model loaded.
+    pub stt_loaded: bool,
+    /// Whether the TTS slot has a model loaded.
+    pub tts_loaded: bool,
+    /// Whether a microphone was detected (best-effort; actual detection requires audio sprint).
+    pub mic_detected: bool,
+    /// Currently active voice profile ID.
+    pub active_profile: String,
+    /// Currently active TTS voice ID.
+    pub active_voice: String,
+}
+
+/// Get the current voice subsystem status.
+///
+/// Derives STT/TTS loaded state from model loader slot statuses.
+/// Mic detection is best-effort until the audio sprint wires real device enumeration.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_voice_status(
+    state: State<'_, PlatformState>,
+) -> Result<VoiceStatusInfo, String> {
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+
+    let (stt_loaded, tts_loaded) = if let Some(loader) = platform.model_loader() {
+        use devpulse_engine::platform::services::model_loader::SlotModelStatus;
+        let stt_status = loader.slot_status("voice.stt").await;
+        let tts_status = loader.slot_status("voice.tts").await;
+        (
+            matches!(stt_status.model_status, SlotModelStatus::Loaded { .. }),
+            matches!(tts_status.model_status, SlotModelStatus::Loaded { .. }),
+        )
+    } else {
+        (false, false)
+    };
+
+    Ok(VoiceStatusInfo {
+        stt_loaded,
+        tts_loaded,
+        mic_detected: false, // Real detection requires audio sprint
+        active_profile: "default".to_string(),
+        active_voice: "af_heart".to_string(),
+    })
+}
+
 // ── TTS Commands ──────────────────────────────────────────────
 
 /// Speak text using TTS.

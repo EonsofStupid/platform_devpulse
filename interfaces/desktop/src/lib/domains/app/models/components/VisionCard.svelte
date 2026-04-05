@@ -10,6 +10,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
@@ -246,6 +247,19 @@ async function handleUnload(): Promise<void> {
 					Slot: {SLOT_ID} | File: {visionFile} | Brain VLM: {brainHasVision ? "yes" : "no"}
 				</Text>
 			</div>
+		{/if}
+
+		<!-- Clyffy narration -->
+		{#if narrationState.forSlot(SLOT_ID)}
+			{@const msg = narrationState.forSlot(SLOT_ID)}
+			{#if msg}
+				<div
+					class="rounded-lg border-l-2 px-3 py-2 text-xs"
+					style="background: oklch(0.15 0.02 185 / 0.3); border-color: var(--accent-teal-main); color: var(--text-secondary);"
+				>
+					{msg.text}
+				</div>
+			{/if}
 		{/if}
 
 		<!-- Error -->

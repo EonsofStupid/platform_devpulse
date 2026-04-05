@@ -50,6 +50,32 @@ async getSettings() : Promise<Result<PlatformConfig, string>> {
 }
 },
 /**
+ * Get a user preference by key.
+ * 
+ * Reads from `{data_dir}/preferences.json`. Returns `None` if key not found.
+ */
+async getPreference(key: string) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_preference", { key }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Set a user preference by key.
+ * 
+ * Writes to `{data_dir}/preferences.json`. Creates the file if it doesn't exist.
+ */
+async setPreference(key: string, value: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_preference", { key, value }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Verify system guard checks.
  */
 async verify() : Promise<void> {
@@ -459,6 +485,31 @@ async completeModelSetup() : Promise<Result<null, string>> {
 async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("inference_generate", { slotId, prompt, maxTokens, temperature }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the VRAM budget plan — per-slot VRAM allocation breakdown.
+ */
+async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_vram_budget") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the current voice subsystem status.
+ * 
+ * Derives STT/TTS loaded state from model loader slot statuses.
+ * Mic detection is best-effort until the audio sprint wires real device enumeration.
+ */
+async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_voice_status") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1272,6 +1323,30 @@ export type ServiceState =
  */
 "Failed"
 /**
+ * A single slot's VRAM contribution.
+ */
+export type SlotBudgetEntryInfo = { 
+/**
+ * Slot identifier.
+ */
+slot_id: string; 
+/**
+ * Assigned model name (for display).
+ */
+model_name: string; 
+/**
+ * Estimated VRAM for this model in MB.
+ */
+vram_estimate_mb: number; 
+/**
+ * Status: "loaded", "planned", "wont_fit", "unassigned", "shared".
+ */
+status: string; 
+/**
+ * Other slot IDs sharing this model instance.
+ */
+shared_with: string[] }
+/**
  * Serializable slot info for the frontend (maps from model-loader Slot).
  */
 export type SlotInfo = { 
@@ -1413,6 +1488,58 @@ stt_quality: string;
  * Whether this profile is currently active.
  */
 active: boolean }
+/**
+ * Voice subsystem status for the frontend.
+ */
+export type VoiceStatusInfo = { 
+/**
+ * Whether the STT slot has a model loaded.
+ */
+stt_loaded: boolean; 
+/**
+ * Whether the TTS slot has a model loaded.
+ */
+tts_loaded: boolean; 
+/**
+ * Whether a microphone was detected (best-effort; actual detection requires audio sprint).
+ */
+mic_detected: boolean; 
+/**
+ * Currently active voice profile ID.
+ */
+active_profile: string; 
+/**
+ * Currently active TTS voice ID.
+ */
+active_voice: string }
+/**
+ * VRAM budget plan — per-slot VRAM allocation breakdown.
+ */
+export type VramBudgetInfo = { 
+/**
+ * Total VRAM on the GPU in MB (0 if no GPU).
+ */
+total_vram_mb: number; 
+/**
+ * Currently used VRAM across all loaded models in MB.
+ */
+currently_used_mb: number; 
+/**
+ * VRAM needed by all planned-to-load slots.
+ */
+planned_load_mb: number; 
+/**
+ * Remaining VRAM after all planned loads. Negative means won't fit.
+ */
+remaining_after_plan_mb: number; 
+/**
+ * Whether all planned loads fit in available VRAM.
+ */
+fits: boolean; 
+/**
+ * Per-slot breakdown.
+ */
+per_slot: SlotBudgetEntryInfo[] }
 /**
  * Tracks an open window's state.
  */

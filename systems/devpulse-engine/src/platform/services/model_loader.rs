@@ -10,8 +10,10 @@ use super::model_loader_log::FileEventSink;
 use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
 use devpulse_clyffy::model_loader::{
     AutoConfig, HardwareMetrics, ModelLoaderService as Inner,
-    ModelRegistryEntry, Slot, SlotStatus,
+    ModelRegistryEntry, Slot, SlotStatus, VramBudget,
 };
+// Re-export for downstream crates (desktop backend) that cannot depend on kernel directly.
+pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -176,6 +178,12 @@ impl ModelLoaderService {
     ) -> Result<Option<devpulse_clyffy::model_loader::InferenceHandle>> {
         let inner = self.inner.lock().await;
         inner.inference_handle(slot_id).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Compute VRAM budget plan across all slots.
+    pub async fn vram_budget_plan(&self) -> VramBudget {
+        let mut inner = self.inner.lock().await;
+        inner.vram_budget_plan()
     }
 
     /// Search HuggingFace for GGUF models.

@@ -127,7 +127,7 @@ async function handleWizardComplete(): Promise<void> {
 		stack({ gap: "6", align: "center" }),
 		"overflow-y-auto scrollbar-thin",
 		isWizardPhase
-			? "w-full max-w-3xl max-h-[90vh] px-8 py-6"
+			? "w-full max-w-5xl max-h-[95vh] px-8 py-6"
 			: "min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
 		"transition-all duration-300 ease-out",
 	)}>
@@ -216,7 +216,7 @@ async function handleWizardComplete(): Promise<void> {
 		<!-- Model Setup Wizard Phase -->
 		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
-			{#await import("$lib/domains/app/models/components/ModelLoaderPanel.svelte") then module}
+			{#await import("$lib/domains/app/models/components/SetupWizard.svelte") then module}
 				<module.default onComplete={handleWizardComplete} />
 			{/await}
 		{/if}

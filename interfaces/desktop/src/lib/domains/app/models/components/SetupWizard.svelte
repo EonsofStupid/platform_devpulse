@@ -194,8 +194,26 @@ const recommendations = $derived.by((): ModelRec[] => {
 		file: "nomic-embed-text-v1.5.Q8_0.gguf",
 	};
 
-	// Voice + vision models are BUNDLED with the app — not shown here.
-	// This wizard only handles user-managed models (brain, worker, embedder).
+	// Voice models — mandatory for all tiers. Not optional.
+	const stt: ModelRec = {
+		name: "Voice Input (Whisper)",
+		purpose: "Hear your voice",
+		sizeMb: 466,
+		vramMb: 500,
+		fit: calcFit(500),
+		repo: "ggerganov/whisper.cpp",
+		file: "ggml-small.bin",
+	};
+
+	const tts: ModelRec = {
+		name: "Clyffy's Voice (Kokoro)",
+		purpose: "Speak to you",
+		sizeMb: 82,
+		vramMb: 100,
+		fit: calcFit(100),
+		repo: "hexgrad/Kokoro-82M-v1.0-GGUF",
+		file: "kokoro-v1.0.gguf",
+	};
 
 	switch (hardwareState.tier) {
 		case "high":
@@ -203,23 +221,31 @@ const recommendations = $derived.by((): ModelRec[] => {
 				brain("AI Brain", 8100, 9200, "bartowski/Qwen3-14B-GGUF", "Qwen3-14B-Q4_K_M.gguf"),
 				worker(700, 400, "qwen3-0.6b-q8_0.gguf"),
 				embedder,
+				stt,
+				tts,
 			];
 		case "medium":
 			return [
 				brain("AI Brain", 2600, 3200, "bartowski/Qwen3-4B-GGUF", "Qwen3-4B-Q4_K_M.gguf"),
 				worker(500, 350, "qwen3-0.6b-q4_k_m.gguf"),
 				embedder,
+				stt,
+				tts,
 			];
 		case "low":
 			return [
 				brain("AI Brain", 1200, 1500, "bartowski/Qwen3-1.7B-GGUF", "Qwen3-1.7B-Q4_K_M.gguf"),
 				worker(500, 350, "qwen3-0.6b-q4_k_m.gguf"),
 				embedder,
+				stt,
+				tts,
 			];
 		default:
 			return [
 				brain("AI Brain (CPU)", 500, 350, "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf"),
 				embedder,
+				stt,
+				tts,
 			];
 	}
 });

@@ -27,6 +27,7 @@
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
+import { formatMb, hardwareState, modelsState } from "$lib/domains/app/models/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
@@ -34,6 +35,7 @@ import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
+const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "loaded");
 </script>
 
 <div class="flex w-full items-center justify-between" aria-label="System status">
@@ -109,6 +111,21 @@ const subsystems = $derived(platformState.subsystemList());
 				></span>
 				<Text size="xs" color="secondary">{platformState.connectionStatus}</Text>
 			</Badge>
+
+			<!-- Model status segment -->
+			<Badge variant={brainLoaded ? "positive" : "neutral"} size="sm" class="gap-1">
+				<span
+					class="status-dot h-1.5 w-1.5 rounded-full"
+					data-subsystem-state={brainLoaded ? "ready" : "pending"}
+					aria-hidden="true"
+				></span>
+				<Text size="xs" color="secondary">Brain: {brainLoaded ? "ON" : "OFF"}</Text>
+			</Badge>
+			{#if hardwareState.hasGpu}
+				<Badge variant="neutral" size="sm">
+					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb)}/{formatMb(hardwareState.vramTotalMb)}</Text>
+				</Badge>
+			{/if}
 
 			{#if DEV_MODE}
 				{#each subsystems as sub}

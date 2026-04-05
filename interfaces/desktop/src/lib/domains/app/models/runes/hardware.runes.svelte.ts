@@ -90,6 +90,18 @@ class HardwareState {
 		return "var(--signal-error)";
 	}
 
+	get gpuUtilPercent(): number {
+		return this.metrics?.gpu_utilization_percent ?? 0;
+	}
+
+	get gpuTempC(): number | null {
+		return this.metrics?.gpu_temperature_c ?? null;
+	}
+
+	get gpuName(): string {
+		return this.metrics?.gpu_name ?? "No GPU";
+	}
+
 	get tier(): HardwareTier {
 		const vram = this.vramTotalMb;
 		if (!this.hasGpu) return "cpu_only";

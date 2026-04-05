@@ -21,6 +21,12 @@ import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import {
+	ContextGauge,
+	GpuUtilGauge,
+	hardwareState,
+	VramGauge,
+} from "$lib/domains/app/models/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 const langColors: Record<string, string> = {
@@ -137,6 +143,38 @@ $effect(() => {
 					<Text size="sm" weight="semibold" preset="default">{devpulseState.data.user.streak}d streak</Text>
 					<Text size="xs" preset="default">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
 				</Card>
+			</div>
+		</Widget>
+	</div>
+
+	<!-- Row 1.5: AI Model Gauges -->
+	<div class="col-span-12">
+		<Widget
+			title="AI Models"
+			icon={Gauge}
+			preset="glass-minimal"
+		>
+			<div class="flex items-center justify-center gap-8 py-2">
+				<VramGauge
+					usedMb={hardwareState.vramUsedMb}
+					totalMb={hardwareState.vramTotalMb}
+					hasGpu={hardwareState.hasGpu}
+					gpuError={hardwareState.gpuError}
+					label={hardwareState.hasGpu ? hardwareState.gpuName : "CPU Mode"}
+					size={130}
+				/>
+				<GpuUtilGauge
+					utilPercent={hardwareState.gpuUtilPercent}
+					tempC={hardwareState.gpuTempC}
+					label="GPU Load"
+					size={130}
+				/>
+				<ContextGauge
+					usedTokens={devpulseState.data.system.contextLoad.value * 15}
+					maxTokens={devpulseState.data.system.contextLoad.max * 15}
+					label="Context Window"
+					size={130}
+				/>
 			</div>
 		</Widget>
 	</div>

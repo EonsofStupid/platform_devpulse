@@ -13,11 +13,13 @@ import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
+import { competencyTracker } from "../services/competency.service.js";
 import { downloadModel, importLocalModel } from "../services/download.service.js";
 import BrainCard from "./BrainCard.svelte";
 import ClyffyNarration from "./ClyffyNarration.svelte";
 import MemoryCard from "./MemoryCard.svelte";
 import ModelSearch from "./ModelSearch.svelte";
+import SubsystemGroup from "./SubsystemGroup.svelte";
 import VisionCard from "./VisionCard.svelte";
 import VoiceCard from "./VoiceCard.svelte";
 import VramGauge from "./VramGauge.svelte";
@@ -44,6 +46,7 @@ $effect(() => {
 	modelsState.refresh();
 	modelsState.startStatusListener();
 	narrationState.startListening();
+	competencyTracker.load();
 	loadHealth();
 	return () => {
 		hardwareState.stopListening();
@@ -91,6 +94,14 @@ async function handleSearchDownload(repoId: string, filename: string): Promise<v
 	}
 }
 
+const subsystemLabels: Record<string, string> = {
+	chat: "Chat & Reasoning",
+	minion: "Background Workers",
+	vision: "Vision",
+	voice: "Voice",
+	rag: "Memory & Search",
+};
+
 async function handleApplyAndLaunch(): Promise<void> {
 	error = null;
 	try {
@@ -107,7 +118,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 </script>
 
 <div
-	class={`${stack({ gap: "4" })} w-full`}
+	class={`${stack({ gap: "4" })} w-full min-h-full`}
 	style="background: var(--surface-base); color: var(--text-primary);"
 	data-component="model-loader-panel"
 >
@@ -132,7 +143,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 				style={advancedMode
 					? "background: var(--accent-teal-main); color: var(--surface-base);"
 					: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-muted);"}
-				onclick={() => { advancedMode = !advancedMode; }}
+				onclick={() => { advancedMode = !advancedMode; competencyTracker.setLevel(advancedMode ? 2 : 0); }}
 				title={advancedMode
 					? "Switch back to the simple view — hides technical details"
 					: "Show advanced details — slot IDs, file paths, formats, and technical info for developers"}
@@ -143,13 +154,36 @@ async function handleApplyAndLaunch(): Promise<void> {
 		</div>
 	</div>
 
-	<!-- 4-Card Grid -->
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		<BrainCard advanced={advancedMode} />
-		<VisionCard advanced={advancedMode} />
-		<VoiceCard advanced={advancedMode} />
-		<MemoryCard advanced={advancedMode} />
-	</div>
+	<!-- Model UI — Consumer cards or Advanced subsystem groups -->
+	{#if advancedMode}
+		{@const subsystems = (() => {
+			const groups = new Map<string, typeof modelsState.slots>();
+			modelsState.slots.forEach((slot) => {
+				const prefix = slot.id.split(".")[0];
+				const existing = groups.get(prefix) ?? [];
+				existing.push(slot);
+				groups.set(prefix, existing);
+			});
+			return groups;
+		})()}
+		<div class="flex flex-col gap-3">
+			{#each [...subsystems.entries()] as [prefix, slots] (prefix)}
+				<SubsystemGroup
+					name={prefix}
+					label={subsystemLabels[prefix] ?? prefix}
+					{slots}
+					layman={false}
+				/>
+			{/each}
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			<BrainCard advanced={advancedMode} />
+			<VisionCard advanced={advancedMode} />
+			<VoiceCard advanced={advancedMode} />
+			<MemoryCard advanced={advancedMode} />
+		</div>
+	{/if}
 
 	<!-- Platform Status Bar -->
 	{#if health.length > 0}
