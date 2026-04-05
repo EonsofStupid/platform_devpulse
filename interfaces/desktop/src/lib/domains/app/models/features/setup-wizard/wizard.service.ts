@@ -14,6 +14,7 @@ import {
 	onDownloadComplete,
 } from "../../services/download.service.js";
 import type { AutoConfig } from "../../types/models.types.js";
+import { isInferenceReady } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
 
@@ -58,15 +59,15 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 			return { phase, conditions, allMet, blockers };
 		}
 		case "models": {
-			const conditions = ["Brain model (chat.brain) must be LOADED"];
+			const conditions = ["Brain model (chat.brain) must be inference-ready"];
 			const brainStatus = modelsState.statuses["chat.brain"];
-			const brainLoaded = brainStatus?.type === "loaded";
+			const brainReady = brainStatus ? isInferenceReady(brainStatus) : false;
 			const blockers: string[] = [];
-			if (!brainLoaded)
+			if (!brainReady)
 				blockers.push(
 					"We need the main brain loaded before we can move on. Pick a model and hit Load.",
 				);
-			return { phase, conditions, allMet: brainLoaded, blockers };
+			return { phase, conditions, allMet: brainReady, blockers };
 		}
 		case "voice": {
 			const conditions = ["STT model assigned", "TTS model assigned"];

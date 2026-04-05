@@ -23,10 +23,6 @@ function setDeliveryMode(mode: VoiceDeliveryMode): void {
 	wizardState.voiceConfig = { ...wizardState.voiceConfig, deliveryMode: mode };
 }
 
-function setProtocol(proto: "rkyv" | "bincode" | "msgpack"): void {
-	wizardState.voiceConfig = { ...wizardState.voiceConfig, memoryLaneProtocol: proto };
-}
-
 $effect(() => {
 	persistConfig();
 });
@@ -109,29 +105,5 @@ async function persistConfig(): Promise<void> {
 			{/each}
 		</div>
 
-		<!-- Memory lane protocol -->
-		<div class={stack({ gap: "2" })}>
-			<Text size="xs" weight="bold" color="secondary">Memory Lane Protocol</Text>
-			{#each [
-				{ id: "rkyv" as const, label: "rkyv", desc: "Zero-copy, fastest" },
-				{ id: "bincode" as const, label: "bincode", desc: "Rust-to-Rust, slightly slower" },
-				{ id: "msgpack" as const, label: "msgpack", desc: "Cross-language, for future plugin system" },
-			] as proto (proto.id)}
-				<label class="flex items-start gap-2 cursor-pointer">
-					<input
-						type="radio"
-						name="protocol"
-						value={proto.id}
-						checked={wizardState.voiceConfig.memoryLaneProtocol === proto.id}
-						onchange={() => setProtocol(proto.id)}
-						class="mt-0.5 accent-[var(--accent-teal-main)]"
-					/>
-					<div>
-						<Text size="xs" weight="bold" color="primary">{proto.label}</Text>
-						<Text size="xs" color="muted">{proto.desc}</Text>
-					</div>
-				</label>
-			{/each}
-		</div>
 	</div>
 </div>

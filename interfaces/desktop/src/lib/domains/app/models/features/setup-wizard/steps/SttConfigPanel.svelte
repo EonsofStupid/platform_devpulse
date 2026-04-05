@@ -16,7 +16,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
 import { statusLabel } from "../../../types/models.types.js";
 
-const sttStatus = $derived(modelsState.statuses["voice.stt"] ?? { type: "not_loaded" as const });
+const sttStatus = $derived(modelsState.statuses["voice.stt"] ?? { type: "cold" as const });
 const sttModel = $derived(modelsState.assignedModel("voice.stt"));
 
 let micTestError = $state<string | null>(null);
@@ -47,7 +47,7 @@ async function testMic(): Promise<void> {
 				Speech-to-Text (STT)
 			</Text>
 			<Badge
-				variant={sttStatus.type === "loaded" ? "positive" : sttStatus.type === "failed" ? "negative" : "neutral"}
+				variant={sttStatus.type === "hot" || sttStatus.type === "standby" ? "positive" : sttStatus.type === "failed" ? "negative" : "neutral"}
 				size="sm"
 			>
 				{statusLabel(sttStatus)}

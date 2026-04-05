@@ -4,9 +4,10 @@
  *
  * All types for the 5-phase dev onboarding wizard.
  * Does NOT duplicate types from models.types.ts — imports them.
+ * Derives from engine SSOT: events.rs (AllocationMode, LoadingState, SlotId).
  */
 
-import type { DevicePreference, HardwareTier } from "../../types/models.types.js";
+import type { DevicePreference, HardwareTier, SlotId } from "../../types/models.types.js";
 
 // ── Phases ─────────────────────────────────────────────
 
@@ -31,29 +32,50 @@ export const PHASE_INFO: PhaseInfo[] = [
 	{ phase: "project", label: "Project", description: "Set up dev profile and index code" },
 ];
 
-// ── Hardware Profiles ──────────────────────────────────
+// ── Allocation Mode (mirrors engine AllocationMode from events.rs) ──
 
-/** Hardware profile tiers from the spec — maps to curated recommendations. */
-export type HardwareProfile =
-	| "ENTRY_8GB"
-	| "MID_12GB"
-	| "HIGH_16GB"
-	| "ENTHUSIAST_24GB"
-	| "CPU_ONLY";
+/**
+ * Hardware allocation mode — mirrors engine AllocationMode.
+ * Determines the VRAM budget envelope for the entire session.
+ */
+export type AllocationMode = "cpu_only" | "budget" | "standard" | "high" | "flagship";
 
-/** Map HardwareTier (from models.types) to HardwareProfile (wizard-specific). */
-export function tierToProfile(tier: HardwareTier): HardwareProfile {
+export const ALLOCATION_MODES: AllocationMode[] = [
+	"cpu_only",
+	"budget",
+	"standard",
+	"high",
+	"flagship",
+];
+
+/** Map HardwareTier to AllocationMode. */
+export function tierToAllocation(tier: HardwareTier, vramTotalMb?: number): AllocationMode {
 	switch (tier) {
 		case "high":
-			return "ENTHUSIAST_24GB";
+			return (vramTotalMb ?? 0) >= 16000 ? "flagship" : "high";
 		case "medium":
-			return "ENTRY_8GB";
+			return "standard";
 		case "low":
-			return "ENTRY_8GB";
+			return "budget";
 		case "minimal":
-			return "CPU_ONLY";
 		case "cpu_only":
-			return "CPU_ONLY";
+			return "cpu_only";
+	}
+}
+
+/** Human label for allocation mode. */
+export function allocationLabel(mode: AllocationMode): string {
+	switch (mode) {
+		case "cpu_only":
+			return "CPU Only";
+		case "budget":
+			return "Budget (6 GB)";
+		case "standard":
+			return "Standard (8 GB)";
+		case "high":
+			return "High (12 GB)";
+		case "flagship":
+			return "Flagship (16 GB+)";
 	}
 }
 
@@ -65,8 +87,8 @@ export interface ModelRec {
 	name: string;
 	/** Why the user needs it: "Your main AI brain" */
 	purpose: string;
-	/** Target slot ID: "chat.brain", "voice.stt", etc. */
-	slot: string;
+	/** Target slot ID — typed against platform.default.toml registry. */
+	slot: SlotId;
 	/** Download size in MB */
 	sizeMb: number;
 	/** Estimated VRAM usage in MB (0 for CPU-only models) */
@@ -83,19 +105,6 @@ export interface ModelRec {
 
 /** Import mode for local model files. */
 export type ImportMode = "copy" | "symlink";
-
-// ── Resource Allocation ────────────────────────────────
-
-/** Resource allocation tier for VRAM/RAM budget planning. */
-export type ResourceTier = "gpu_reserved" | "gpu_shared" | "cpu_ddr" | "disk_cold";
-
-/** Per-slot resource allocation rule. */
-export interface ResourceRule {
-	slotId: string;
-	tier: ResourceTier;
-	/** Lower = higher priority for shared GPU access. */
-	priority: number;
-}
 
 // ── Continue Gates ─────────────────────────────────────
 
@@ -119,7 +128,6 @@ export type VoiceDeliveryMode = "stream" | "buffer" | "hybrid";
 export interface VoiceConfig {
 	latencyToleranceMs: number;
 	deliveryMode: VoiceDeliveryMode;
-	memoryLaneProtocol: "rkyv" | "bincode" | "msgpack";
 }
 
 // ── Model Browser ──────────────────────────────────────

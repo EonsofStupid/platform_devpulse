@@ -28,6 +28,16 @@ Each sprint is broken out into its own fully-researched document with exact impo
 | 8 | [SPRINT-08-ORCHESTRATOR.md](dev-onboarding/SPRINT-08-ORCHESTRATOR.md) | SetupWizard.svelte orchestrator, BootOverlay wiring, old wizard delete |
 | 9 | [SPRINT-09-SUBSEQUENT-LAUNCH.md](dev-onboarding/SPRINT-09-SUBSEQUENT-LAUNCH.md) | Return user skip, missing model repair, hardware change detection |
 
+### Phase 2: Gap Fixes (from audit against DEV ONBOARDING SPECIFICATION)
+
+| Sprint | File | Summary |
+|--------|------|---------|
+| 10 | [SPRINT-10-SSOT-ALIGNMENT.md](dev-onboarding/SPRINT-10-SSOT-ALIGNMENT.md) | **CRITICAL** — Align all types to events.rs: SlotId, ModelStatus→LoadingState, AllocationMode, delete ResourceTier/memoryLaneProtocol |
+| 11 | [SPRINT-11-RUST-HARDWARE-SLOTS.md](dev-onboarding/SPRINT-11-RUST-HARDWARE-SLOTS.md) | Rust: HardwareInfo 5 fields + SlotInfo 3 view fields + voice.brain TOML slot |
+| 12 | [SPRINT-12-RUST-KEYRING.md](dev-onboarding/SPRINT-12-RUST-KEYRING.md) | Rust: keyring crate, 4 credential commands |
+| 13 | [SPRINT-13-FRONTEND-FIXES.md](dev-onboarding/SPRINT-13-FRONTEND-FIXES.md) | Frontend: CompletionStep mount, browser filter, resource panel read-only, path fix |
+| 14 | [SPRINT-14-VOICE-OVERHAUL.md](dev-onboarding/SPRINT-14-VOICE-OVERHAUL.md) | Voice: ConversationalBrain, EscalationConfig, API keys UI, FullPipelineTest |
+
 ---
 
 ## ABSOLUTE RULES

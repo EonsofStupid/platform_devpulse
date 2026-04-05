@@ -16,7 +16,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
 import { statusLabel } from "../../../types/models.types.js";
 
-const ttsStatus = $derived(modelsState.statuses["voice.tts"] ?? { type: "not_loaded" as const });
+const ttsStatus = $derived(modelsState.statuses["voice.tts"] ?? { type: "cold" as const });
 const ttsModel = $derived(modelsState.assignedModel("voice.tts"));
 
 let voices = $state<Array<{ id: string; label: string; gender: string }>>([]);
@@ -70,7 +70,7 @@ async function testVoice(): Promise<void> {
 				Text-to-Speech (TTS)
 			</Text>
 			<Badge
-				variant={ttsStatus.type === "loaded" ? "positive" : ttsStatus.type === "failed" ? "negative" : "neutral"}
+				variant={ttsStatus.type === "hot" || ttsStatus.type === "standby" ? "positive" : ttsStatus.type === "failed" ? "negative" : "neutral"}
 				size="sm"
 			>
 				{statusLabel(ttsStatus)}

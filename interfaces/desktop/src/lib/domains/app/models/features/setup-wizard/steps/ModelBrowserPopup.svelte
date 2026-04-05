@@ -119,7 +119,7 @@ function estimateVramFromBytes(sizeBytes: number): number {
 		{#if wizardState.recommendations.length > 0 && !searchQuery}
 			<div class={stack({ gap: "3" })}>
 				<Text size="sm" weight="bold" color="secondary">
-					Recommended for {wizardState.hardwareProfile}
+					Recommended for {wizardState.allocationMode}
 				</Text>
 				{#each wizardState.recommendations as rec (rec.slot + rec.file)}
 					{@const fit = calculateFit(rec.vramMb, hardwareState.vramFreeMb, hardwareState.vramTotalMb)}

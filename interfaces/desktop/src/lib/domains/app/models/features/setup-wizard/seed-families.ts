@@ -151,6 +151,38 @@ register({
 // ── Loading States ─────────────────────────────────────
 
 register({
+	id: "state.warm",
+	coreFacts: [
+		"Weights cached in system RAM",
+		"Fast reload to GPU (<500ms)",
+		"Not actively running inference",
+	],
+	variations: [
+		"Model weights are cached in RAM. Not active, but can reload to GPU in under half a second.",
+		"Warm state \u2014 the model was loaded before and its weights are still in system memory. Quick to reactivate.",
+		"Cached and ready to go. The model isn't using GPU right now, but can be back in action almost instantly.",
+		"Think of it as 'paused' \u2014 the weights are still in RAM, so reloading to GPU is nearly instant.",
+	],
+	contextTriggers: ["slot_status:warm"],
+});
+
+register({
+	id: "state.standby",
+	coreFacts: [
+		"Session created, ready to activate",
+		"Activation under 500ms",
+		"Minimal resource usage while waiting",
+	],
+	variations: [
+		"Standing by \u2014 the model has a session ready and can start inference in under half a second.",
+		"Standby mode. The session is created and waiting. First inference will be nearly instant.",
+		"Ready but idle. The model is prepared with a session and can respond the moment you need it.",
+		"In standby \u2014 one step below fully active. Activation is sub-500ms, no perceivable delay.",
+	],
+	contextTriggers: ["slot_status:standby"],
+});
+
+register({
 	id: "state.loading",
 	coreFacts: [
 		"Model being loaded into GPU/RAM",

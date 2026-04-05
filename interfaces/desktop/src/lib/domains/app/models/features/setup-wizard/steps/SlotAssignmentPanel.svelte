@@ -35,13 +35,15 @@ let { onBrowseModels, onImport }: Props = $props();
 
 function statusToVariant(status: ModelStatus): "positive" | "informative" | "negative" | "neutral" {
 	switch (status.type) {
-		case "loaded":
+		case "hot":
+		case "standby":
 			return "positive";
+		case "warm":
 		case "loading":
 			return "informative";
 		case "failed":
 			return "negative";
-		case "not_loaded":
+		case "cold":
 		case "unloading":
 			return "neutral";
 	}
@@ -78,7 +80,7 @@ async function handleBulkInstall(): Promise<void> {
 	<!-- Slot rows -->
 	{#each modelsState.userSlots as slot (slot.id)}
 		{@const model = modelsState.assignedModel(slot.id)}
-		{@const status = modelsState.statuses[slot.id] ?? { type: "not_loaded" as const }}
+		{@const status = modelsState.statuses[slot.id] ?? { type: "cold" as const }}
 		{@const rec = wizardState.recommendations.find((r) => r.slot === slot.id)}
 		<div
 			class={cn(box({ paddingX: "12", paddingY: "8" }), "rounded-md w-full border")}
@@ -128,7 +130,7 @@ async function handleBulkInstall(): Promise<void> {
 							Get
 						</button>
 					{/if}
-					{#if model && status.type === "not_loaded"}
+					{#if model && status.type === "cold"}
 						<button
 							class="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
 							style="background: var(--accent-teal-main); color: var(--surface-base);"

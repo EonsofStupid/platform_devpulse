@@ -14,6 +14,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import VramGauge from "../../../components/VramGauge.svelte";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
+import type { SlotId } from "../../../types/models.types.js";
 import { wizardState } from "../wizard.runes.svelte.js";
 import { downloadAndAssign } from "../wizard.service.js";
 import type { ModelRec } from "../wizard.types.js";
@@ -41,7 +42,7 @@ async function handleBrowserDownload(
 	) ?? {
 		name: filename,
 		purpose: "",
-		slot: targetSlot,
+		slot: targetSlot as SlotId,
 		sizeMb: 0,
 		vramMb: 0,
 		repo: repoId,
@@ -53,7 +54,7 @@ async function handleBrowserDownload(
 }
 
 function handleBrowserImport(targetSlot: string): void {
-	wizardState.importTargetSlot = targetSlot;
+	wizardState.importTargetSlot = targetSlot as SlotId;
 	wizardState.showImportPrompt = true;
 	wizardState.showModelBrowser = false;
 }
@@ -100,7 +101,7 @@ async function handleImportComplete(_filename: string): Promise<void> {
 		<!-- Left: Slot Assignment (60%) -->
 		<SlotAssignmentPanel
 			onBrowseModels={() => (wizardState.showModelBrowser = true)}
-			onImport={() => { wizardState.importTargetSlot = "chat.brain"; wizardState.showImportPrompt = true; }}
+			onImport={() => { wizardState.importTargetSlot = "chat.brain" as SlotId; wizardState.showImportPrompt = true; }}
 		/>
 
 		<!-- Right: Resource Allocation (40%) -->

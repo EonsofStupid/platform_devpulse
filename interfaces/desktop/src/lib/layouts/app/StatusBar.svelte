@@ -35,7 +35,7 @@ import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
-const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "loaded");
+const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot");
 </script>
 
 <div class="flex w-full items-center justify-between" aria-label="System status">

@@ -36,7 +36,7 @@ let lastRoundTripMs = $state<number | null>(null);
 let pipelineError = $state<string | null>(null);
 
 const brainStatus = $derived(modelsState.statuses["chat.brain"]);
-const brainLoaded = $derived(brainStatus?.type === "loaded");
+const brainLoaded = $derived(brainStatus?.type === "hot" || brainStatus?.type === "standby");
 
 async function sendMessage(): Promise<void> {
 	if (!inputText.trim() || generating) return;
@@ -142,7 +142,7 @@ function handleKeydown(e: KeyboardEvent): void {
 	>
 		<div class={hstack({ gap: "8", align: "center" })}>
 			<Text size="xs" color="muted">
-				Brain: {brainLoaded ? "loaded" : "idle"}
+				Brain: {brainLoaded ? "hot" : "cold"}
 			</Text>
 			<Text size="xs" color="muted">
 				VRAM: {formatMb(hardwareState.vramUsedMb)}/{formatMb(hardwareState.vramTotalMb)}

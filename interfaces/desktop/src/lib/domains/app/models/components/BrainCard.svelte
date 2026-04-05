@@ -66,9 +66,11 @@ function slotStatus(
 		if (slot?.assigned_model_id) return "downloaded";
 		return "not_downloaded";
 	}
-	return status.type === "not_loaded"
-		? "downloaded"
-		: (status.type as "loading" | "loaded" | "error");
+	if (status.type === "cold" || status.type === "warm") return "downloaded";
+	if (status.type === "hot" || status.type === "standby") return "loaded";
+	if (status.type === "loading") return "loading";
+	if (status.type === "failed") return "error";
+	return "downloaded";
 }
 
 const brainStatus = $derived(slotStatus(SLOT_ID));

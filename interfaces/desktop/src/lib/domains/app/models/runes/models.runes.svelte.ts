@@ -48,7 +48,7 @@ class ModelsState {
 			// Initialize statuses for all slots
 			slots.forEach((s) => {
 				if (!this.statuses[s.id]) {
-					this.statuses[s.id] = { type: "not_loaded" };
+					this.statuses[s.id] = { type: "cold" };
 				}
 			});
 		} catch (e) {
@@ -99,7 +99,7 @@ class ModelsState {
 		try {
 			await loadSlot(slotId);
 			this.statuses[slotId] = {
-				type: "loaded",
+				type: "hot",
 				footprint: { ramBytes: 0, vramBytes: 0 },
 			};
 			swapState.complete();
@@ -118,7 +118,7 @@ class ModelsState {
 		this.statuses[slotId] = { type: "unloading" };
 		try {
 			await unloadSlot(slotId);
-			this.statuses[slotId] = { type: "not_loaded" };
+			this.statuses[slotId] = { type: "cold" };
 			swapState.complete();
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);

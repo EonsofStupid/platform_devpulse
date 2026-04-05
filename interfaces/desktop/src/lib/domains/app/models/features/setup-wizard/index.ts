@@ -47,16 +47,20 @@ export {
 
 // Types
 export type {
+	AllocationMode,
 	ContinueGate,
-	HardwareProfile,
 	ImportMode,
 	ModelBrowserFilter,
 	ModelRec,
 	PhaseInfo,
-	ResourceRule,
-	ResourceTier,
 	VoiceConfig,
 	VoiceDeliveryMode,
 	WizardPhase,
 } from "./wizard.types.js";
-export { PHASE_INFO, tierToProfile, WIZARD_PHASES } from "./wizard.types.js";
+export {
+	ALLOCATION_MODES,
+	allocationLabel,
+	PHASE_INFO,
+	tierToAllocation,
+	WIZARD_PHASES,
+} from "./wizard.types.js";

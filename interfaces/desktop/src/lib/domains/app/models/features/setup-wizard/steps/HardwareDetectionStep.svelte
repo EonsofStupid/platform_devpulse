@@ -16,8 +16,8 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
 import { formatMb } from "../../../types/models.types.js";
 import { pickVariation } from "../seed-families.js";
-import type { HardwareProfile } from "../wizard.types.js";
-import { tierToProfile } from "../wizard.types.js";
+import type { AllocationMode } from "../wizard.types.js";
+import { tierToAllocation } from "../wizard.types.js";
 
 interface Props {
 	onContinue: () => void;
@@ -26,7 +26,9 @@ interface Props {
 
 let { onContinue, continueEnabled }: Props = $props();
 
-const profile = $derived<HardwareProfile>(tierToProfile(hardwareState.tier));
+const allocation = $derived<AllocationMode>(
+	tierToAllocation(hardwareState.tier, hardwareState.vramTotalMb),
+);
 const isScanning = $derived(hardwareState.loading);
 const hasData = $derived(hardwareState.metrics !== null);
 const m = $derived(hardwareState.metrics);
@@ -54,7 +56,7 @@ const clyfMessage = $derived(
 		{/if}
 		<Text size="base" weight="bold" color="primary">Hardware Scan</Text>
 		{#if hasData}
-			<Badge variant="informative" size="sm">{profile}</Badge>
+			<Badge variant="informative" size="sm">{allocation}</Badge>
 		{/if}
 	</div>
 

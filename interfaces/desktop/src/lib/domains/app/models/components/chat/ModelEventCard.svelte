@@ -24,7 +24,8 @@ const icon = $derived.by(() => {
 	switch (status.type) {
 		case "loading":
 			return "⏳";
-		case "loaded":
+		case "hot":
+		case "standby":
 			return "✅";
 		case "failed":
 			return "❌";
@@ -37,7 +38,8 @@ const icon = $derived.by(() => {
 
 const intent: SemanticIntent = $derived.by(() => {
 	switch (status.type) {
-		case "loaded":
+		case "hot":
+		case "standby":
 			return "success";
 		case "loading":
 			return "info";
@@ -61,7 +63,7 @@ const mNarration = $derived(renderForge({ kind: "model-event-narration", preset:
 		<div class={hstack({ gap: "2", align: "center" })}>
 			<span class="text-sm">{icon}</span>
 			<Text size="xs" weight="semibold" color="secondary">
-				MODEL {status.type === "loading" ? "LOADING" : status.type === "loaded" ? "READY" : status.type.toUpperCase()}
+				MODEL {status.type === "loading" ? "LOADING" : status.type === "hot" ? "READY" : status.type.toUpperCase()}
 			</Text>
 		</div>
 		{#if onDismiss}
@@ -82,7 +84,7 @@ const mNarration = $derived(renderForge({ kind: "model-event-narration", preset:
 		</div>
 	{/if}
 
-	{#if status.type === "loaded"}
+	{#if status.type === "hot"}
 		<Text size="xs" color="muted">{formatMb(status.footprint.vramBytes / (1024 * 1024))} VRAM</Text>
 	{/if}
 

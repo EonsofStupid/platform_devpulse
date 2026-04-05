@@ -22,7 +22,7 @@ interface Props {
 let { slot, layman = true }: Props = $props();
 
 const assigned = $derived(modelsState.assignedModel(slot.id));
-const status = $derived(modelsState.statuses[slot.id] ?? ({ type: "not_loaded" } as ModelStatus));
+const status = $derived(modelsState.statuses[slot.id] ?? ({ type: "cold" } as ModelStatus));
 const compatibleModels = $derived(modelsState.modelsForCapability(slot.capability));
 
 const fit: FitIndicator = $derived.by(() => {
@@ -46,7 +46,7 @@ const fitIntent: SemanticIntent = $derived.by(() => {
 const m = $derived(renderForge({ kind: "slot-row", preset: fitIntent }));
 const mPicker = $derived(renderForge({ kind: "slot-picker", preset: "neutral" }));
 
-const isLoaded = $derived(status.type === "loaded");
+const isLoaded = $derived(status.type === "hot");
 const isLoading = $derived(status.type === "loading");
 const canLoad = $derived(assigned !== null && !isLoaded && !isLoading);
 

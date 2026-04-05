@@ -18,6 +18,33 @@ export type HardwareTier = "high" | "medium" | "low" | "minimal" | "cpu_only";
 
 export type DevicePreference = "gpu" | "cpu" | "gpu_with_cpu_fallback" | "any";
 
+// ── Slot Identity (SSOT: platform.default.toml) ───────
+
+/** Canonical slot identifiers — matches platform.default.toml slot registry. */
+export type SlotId =
+	| "chat.brain"
+	| "minion.shared"
+	| "minion.escalation"
+	| "rag.embedder"
+	| "rag.reranker"
+	| "vision.embedder"
+	| "voice.stt"
+	| "voice.tts"
+	| "voice.brain";
+
+/** All known slot IDs for iteration. */
+export const SLOT_IDS: SlotId[] = [
+	"chat.brain",
+	"minion.shared",
+	"minion.escalation",
+	"rag.embedder",
+	"rag.reranker",
+	"vision.embedder",
+	"voice.stt",
+	"voice.tts",
+	"voice.brain",
+];
+
 export type ModelCapability =
 	| "text_generation"
 	| "embedding"
@@ -42,23 +69,39 @@ export interface MemoryFootprint {
 	vramBytes: number;
 }
 
+/**
+ * Frontend model status — superset of engine LoadingState (events.rs).
+ *
+ * Mapping from engine LoadingState:
+ *   Cold    → { type: "cold" }         — on disk only
+ *   Warm    → { type: "warm" }         — weights cached, fast reload
+ *   Standby → { type: "standby" }      — session created, <500ms activation
+ *   Hot     → { type: "hot" }          — active on GPU/CPU, inference-ready
+ *
+ * Frontend-only transient states:
+ *   loading   → transitioning between states
+ *   failed    → transition failed with error
+ *   unloading → being removed from memory
+ */
 export type ModelStatus =
-	| { type: "not_loaded" }
+	| { type: "cold" }
+	| { type: "warm" }
+	| { type: "standby" }
+	| { type: "hot"; footprint: MemoryFootprint }
 	| { type: "loading"; stage: LoadingStage; progressPct: number }
-	| { type: "loaded"; footprint: MemoryFootprint }
 	| { type: "failed"; error: string }
 	| { type: "unloading" };
 
 export interface SlotStatus {
-	slotId: string;
+	slotId: SlotId;
 	modelStatus: ModelStatus;
-	activeFallback: string | null;
-	sharedWith: string[];
+	activeFallback: SlotId | null;
+	sharedWith: SlotId[];
 }
 
 // ── VRAM Budget ─────────────────────────────────────────
 
-export type BudgetStatus = "loaded" | "planned" | "wont_fit" | "unassigned" | "shared_instance";
+export type BudgetStatus = "hot" | "planned" | "wont_fit" | "unassigned" | "shared_instance";
 
 export interface SlotBudgetEntry {
 	slotId: string;
@@ -139,7 +182,7 @@ export function formatMb(mb: number): string {
 }
 
 /** Friendly slot label for layman mode */
-export function friendlySlotLabel(slotId: string): string {
+export function friendlySlotLabel(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
 		"chat.brain": "AI Brain",
 		"minion.shared": "Quick Worker",
@@ -149,12 +192,13 @@ export function friendlySlotLabel(slotId: string): string {
 		"vision.embedder": "Vision",
 		"voice.tts": "Clyffy's Voice",
 		"voice.stt": "Voice Input",
+		"voice.brain": "Voice Conversation",
 	};
 	return map[slotId] ?? slotId;
 }
 
 /** Friendly slot purpose for Clyffy narration */
-export function friendlySlotPurpose(slotId: string): string {
+export function friendlySlotPurpose(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
 		"chat.brain": "the heavy thinking",
 		"minion.shared": "quick background tasks",
@@ -164,6 +208,7 @@ export function friendlySlotPurpose(slotId: string): string {
 		"vision.embedder": "understanding screenshots",
 		"voice.tts": "speaking to you",
 		"voice.stt": "listening to your voice",
+		"voice.brain": "desk conversation",
 	};
 	return map[slotId] ?? "its job";
 }
@@ -182,15 +227,19 @@ export function fitColor(fit: FitIndicator): string {
 	}
 }
 
-/** Status label for slot display */
+/** Status label for slot display — covers all 7 ModelStatus variants. */
 export function statusLabel(status: ModelStatus): string {
 	switch (status.type) {
-		case "not_loaded":
+		case "cold":
 			return "Not Loaded";
+		case "warm":
+			return "Cached";
+		case "standby":
+			return "Ready";
+		case "hot":
+			return "Active";
 		case "loading":
 			return `Loading ${Math.round(status.progressPct)}%`;
-		case "loaded":
-			return "Loaded";
 		case "failed":
 			return "Failed";
 		case "unloading":
@@ -198,17 +247,26 @@ export function statusLabel(status: ModelStatus): string {
 	}
 }
 
-/** Status color for slot display */
+/** Status color for slot display — uses signal CSS vars. */
 export function statusColor(status: ModelStatus): string {
 	switch (status.type) {
-		case "loaded":
-			return "oklch(0.75 0.18 155)";
+		case "hot":
+			return "var(--signal-success)";
+		case "standby":
+			return "var(--signal-success)";
+		case "warm":
+			return "var(--accent-teal-main)";
 		case "loading":
-			return "oklch(0.82 0.16 85)";
+			return "var(--signal-warning)";
 		case "failed":
-			return "oklch(0.65 0.22 25)";
-		case "not_loaded":
+			return "var(--signal-error)";
+		case "cold":
 		case "unloading":
-			return "oklch(0.55 0.02 260)";
+			return "var(--text-muted)";
 	}
+}
+
+/** Whether a model status means the slot can serve inference. */
+export function isInferenceReady(status: ModelStatus): boolean {
+	return status.type === "hot" || status.type === "standby";
 }

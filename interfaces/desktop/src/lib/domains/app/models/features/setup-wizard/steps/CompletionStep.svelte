@@ -48,7 +48,7 @@ async function handleEnter(): Promise<void> {
 	<div class={`${stack({ gap: "3" })} w-full`}>
 		{#each modelsState.userSlots as slot (slot.id)}
 			{@const model = modelsState.assignedModel(slot.id)}
-			{@const status = modelsState.statuses[slot.id] ?? { type: "not_loaded" as const }}
+			{@const status = modelsState.statuses[slot.id] ?? { type: "cold" as const }}
 			<div class={hstack({ gap: "3", align: "center" })}>
 				{#if model}
 					<Check size={14} style="color: var(--signal-success);" />
@@ -64,7 +64,7 @@ async function handleEnter(): Promise<void> {
 					<Text size="xs" color="muted">Not assigned</Text>
 				{/if}
 				<Badge
-					variant={status.type === "loaded" ? "positive" : status.type === "failed" ? "negative" : "neutral"}
+					variant={status.type === "hot" || status.type === "standby" ? "positive" : status.type === "failed" ? "negative" : "neutral"}
 					size="sm"
 				>
 					{statusLabel(status)}

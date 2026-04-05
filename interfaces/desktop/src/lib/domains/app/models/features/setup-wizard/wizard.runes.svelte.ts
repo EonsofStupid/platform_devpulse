@@ -3,17 +3,16 @@
  * @module @devpulse/domains/app/models/features/setup-wizard/runes
  *
  * Svelte 5 rune state for the dev onboarding wizard orchestrator.
- * Tracks current phase, continue gates, recommendations, download state.
+ * Types derive from engine SSOT (events.rs AllocationMode, LoadingState).
  */
 
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
-import type { AutoConfig } from "../../types/models.types.js";
+import type { AutoConfig, SlotId } from "../../types/models.types.js";
 import { friendlySlotPurpose } from "../../types/models.types.js";
 import {
-	type HardwareProfile,
+	type AllocationMode,
 	type ModelRec,
-	type ResourceRule,
-	tierToProfile,
+	tierToAllocation,
 	type VoiceConfig,
 	WIZARD_PHASES,
 	type WizardPhase,
@@ -24,7 +23,9 @@ class WizardState {
 	currentPhase = $state<WizardPhase>("hardware");
 
 	// ── Phase 1: Hardware ────────────────────────────────
-	hardwareProfile = $derived<HardwareProfile>(tierToProfile(hardwareState.tier));
+	allocationMode = $derived<AllocationMode>(
+		tierToAllocation(hardwareState.tier, hardwareState.vramTotalMb),
+	);
 	hardwareScanned = $state(false);
 
 	// ── Phase 2: Models ──────────────────────────────────
@@ -32,16 +33,14 @@ class WizardState {
 	downloadQueue = $state<ModelRec[]>([]);
 	downloadingIndex = $state(-1);
 	downloadProgress = $state(0);
-	resourceRules = $state<ResourceRule[]>([]);
 	showModelBrowser = $state(false);
 	showImportPrompt = $state(false);
-	importTargetSlot = $state<string | null>(null);
+	importTargetSlot = $state<SlotId | null>(null);
 
 	// ── Phase 3: Voice ───────────────────────────────────
 	voiceConfig = $state<VoiceConfig>({
 		latencyToleranceMs: 2500,
 		deliveryMode: "buffer",
-		memoryLaneProtocol: "rkyv",
 	});
 
 	// ── Phase 4: Clyffy ──────────────────────────────────
@@ -97,7 +96,7 @@ class WizardState {
 		this.recommendations = config.recommendations.map((rec) => ({
 			name: rec.modelFilename.replace(/\.gguf$/i, "").replace(/-/g, " "),
 			purpose: friendlySlotPurpose(rec.slotId),
-			slot: rec.slotId,
+			slot: rec.slotId as SlotId,
 			sizeMb: rec.modelSizeMb,
 			vramMb: rec.vramEstimateMb,
 			repo: rec.modelRepoId,

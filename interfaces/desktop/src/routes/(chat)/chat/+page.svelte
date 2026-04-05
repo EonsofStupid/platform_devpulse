@@ -24,7 +24,7 @@ const activeModelEvents = $derived.by(() => {
 	Object.entries(modelsState.statuses).forEach(([slotId, status]) => {
 		if (!status) return;
 		if (dismissedEvents.has(slotId)) return;
-		if (status.type === "loading" || status.type === "loaded" || status.type === "failed") {
+		if (status.type === "loading" || status.type === "hot" || status.type === "failed") {
 			events.push({ slotId, status });
 		}
 	});
