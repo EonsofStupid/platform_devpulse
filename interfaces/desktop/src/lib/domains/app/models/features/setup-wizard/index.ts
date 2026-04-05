@@ -9,12 +9,15 @@
 export { slotToModelPath, slotToSubdir } from "./import-router.js";
 // Seed families
 export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js";
+export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";
+export { default as CompletionStep } from "./steps/CompletionStep.svelte";
 // Step components
 export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
 export { default as ImportPrompt } from "./steps/ImportPrompt.svelte";
 export { default as LatencyTuningPanel } from "./steps/LatencyTuningPanel.svelte";
 export { default as ModelBrowserPopup } from "./steps/ModelBrowserPopup.svelte";
 export { default as ModelLoaderStep } from "./steps/ModelLoaderStep.svelte";
+export { default as ProjectSetupStep } from "./steps/ProjectSetupStep.svelte";
 export { default as ResourceAllocationPanel } from "./steps/ResourceAllocationPanel.svelte";
 export { default as SlotAssignmentPanel } from "./steps/SlotAssignmentPanel.svelte";
 export { default as SttConfigPanel } from "./steps/SttConfigPanel.svelte";
@@ -26,12 +29,15 @@ export { wizardState } from "./wizard.runes.svelte.js";
 // Service
 export {
 	bulkDownloadAndAssign,
+	checkDevProfile,
 	checkOnboardingComplete,
+	createDevProfile,
 	downloadAndAssign,
 	evaluateContinueGate,
 	fetchRecommendations,
 	markOnboardingComplete,
 	startHardwareScan,
+	testInference,
 } from "./wizard.service.js";
 
 // Types

@@ -156,6 +156,44 @@ export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 	wizardState.downloadQueue = [];
 }
 
+// ── Phase 4: Clyffy Activation ──────────────────────────
+
+/** Test inference by sending a prompt to the brain. */
+export async function testInference(prompt: string): Promise<string> {
+	const { generateText } = await import("../../services/inference.service.js");
+	return generateText("chat.brain", prompt, 256, 0.7);
+}
+
+// ── Phase 5: Project Setup ──────────────────────────────
+
+/** Create initial dev profile in preferences. */
+export async function createDevProfile(): Promise<void> {
+	const { invoke } = await import("@tauri-apps/api/core");
+	const profile = {
+		type: "dev",
+		created: new Date().toISOString(),
+		indexedProjects: [],
+	};
+	await invoke("set_preference", {
+		key: "dev_profile",
+		value: JSON.stringify(profile),
+	});
+	wizardState.devProfileExists = true;
+}
+
+/** Check if dev profile exists. */
+export async function checkDevProfile(): Promise<boolean> {
+	try {
+		const { invoke } = await import("@tauri-apps/api/core");
+		const result = await invoke<string | null>("get_preference", { key: "dev_profile" });
+		const exists = result !== null;
+		wizardState.devProfileExists = exists;
+		return exists;
+	} catch {
+		return false;
+	}
+}
+
 // ── Onboarding Persistence ─────────────────────────────
 
 /** Check if onboarding was already completed (subsequent launch). */
