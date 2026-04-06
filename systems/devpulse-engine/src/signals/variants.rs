@@ -7,7 +7,8 @@ use specta::Type;
 
 use super::kinds::SinkKind;
 use super::payloads::{
-    AnalyticsPayload, ChatPayload, ContextPayload, InferencePayload, SystemPayload,
+    AnalyticsPayload, ChatPayload, ContextPayload, GovernancePayload, InferencePayload,
+    SystemPayload,
 };
 
 /// The master enum of all signal output types.
@@ -25,6 +26,8 @@ pub enum SignalVariant {
     Inference(InferencePayload),
     /// System status change
     System(SystemPayload),
+    /// Governance event (lane routing, rate limits, council)
+    Governance(GovernancePayload),
 }
 
 impl SignalVariant {
@@ -36,6 +39,7 @@ impl SignalVariant {
             SignalVariant::Context(_) => &[SinkKind::Broadcast, SinkKind::Cache],
             SignalVariant::Inference(_) => &[SinkKind::Analytics, SinkKind::Cache],
             SignalVariant::System(_) => &[SinkKind::Broadcast],
+            SignalVariant::Governance(_) => &[SinkKind::Broadcast, SinkKind::Analytics],
         }
     }
 
@@ -47,6 +51,7 @@ impl SignalVariant {
             SignalVariant::Context(_) => "context",
             SignalVariant::Inference(_) => "inference",
             SignalVariant::System(_) => "system",
+            SignalVariant::Governance(_) => "governance",
         }
     }
 }

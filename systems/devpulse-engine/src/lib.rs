@@ -34,6 +34,9 @@ pub mod signals;
 /// Platform facade — public API for persistence, health, config.
 pub mod platform;
 
+/// Claude integration — MCP server, tool registry, council, provider client.
+pub mod claude;
+
 // ═══════════════════════════════════════════════════════════════
 // Re-exports
 // ═══════════════════════════════════════════════════════════════

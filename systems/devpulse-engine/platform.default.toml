@@ -311,6 +311,83 @@ binary_path = "devforge/"
 workspace_path = "."
 port = 8443
 
+[services.system.claude]
+# Claude integration — MCP server, dual-lane governance, sidecar, API provider.
+# Sidecar + Claude Code + workstation tools: internal builds only (compiled out of release).
+# API provider: always available (customer path).
+enabled = true
+critical = false
+
+[services.system.claude.mcp]
+auto_start = true
+tool_surface = "full"  # "full" | "devpulse_only" | "workstation_only" | "custom"
+
+[services.system.claude.mcp.sse]
+enabled = true
+port = 9315
+bind = "127.0.0.1"
+
+[services.system.claude.mcp.stdio]
+enabled = true  # only meaningful in internal builds
+
+[services.system.claude.sidecar]
+enabled = true
+sidecar_name = "claude-desktop"
+auto_launch = false
+kill_on_exit = true
+max_restart_attempts = 3
+
+[services.system.claude.claude_code]
+enabled = true
+auto_configure = true
+binary_path = ""
+
+[services.system.claude.api]
+enabled = true
+default_provider = "claude"
+
+[[services.system.claude.api.providers]]
+id = "claude"
+display_name = "Claude (Anthropic)"
+api_url = "https://api.anthropic.com/v1/messages"
+default_model = "claude-sonnet-4-20250514"
+max_tokens = 4096
+
+[[services.system.claude.api.providers]]
+id = "gpt"
+display_name = "GPT (OpenAI)"
+api_url = "https://api.openai.com/v1/chat/completions"
+default_model = "gpt-4o"
+max_tokens = 4096
+
+[[services.system.claude.api.providers]]
+id = "gemini"
+display_name = "Gemini (Google)"
+api_url = "https://generativelanguage.googleapis.com/v1beta/models"
+default_model = "gemini-2.5-flash"
+max_tokens = 4096
+
+[services.system.claude.lanes.internal]
+max_requests_per_minute = 60
+max_tokens_per_day = 1_000_000
+cooldown_after_429_ms = 5000
+cost_cap_daily_usd = 0.0    # 0 = no cap (subscription)
+
+[services.system.claude.lanes.api]
+max_requests_per_minute = 20
+max_tokens_per_day = 500_000
+cooldown_after_429_ms = 10000
+cost_cap_daily_usd = 50.0
+
+[services.system.claude.council]
+mode = "rule_based"          # future: "forge_jit"
+prefer_internal = true        # try internal lane first
+escalation_on_rate_limit = true
+
+[services.system.claude.browser]
+chrome_agent_enabled = true   # internal builds only
+desktop_agent_enabled = true  # internal builds only
+
 # ── User services ────────────────────────────────────────────────
 # User-owned data. Sessions, messages, tasks, preferences, personal memory.
 # All auto-saved and auto-managed — the user never touches this config.

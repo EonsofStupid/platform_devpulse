@@ -7,6 +7,7 @@ edition = "2021"
 default = ["kernel"]
 kernel = []
 engine = []
+internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled OUT of release.
 rro = ["devpulse-clyffy/rro"]
 candle = ["devpulse-clyffy/candle"]
 inference = ["devpulse-clyffy/model-loader"]
@@ -25,9 +26,11 @@ chrono = { workspace = true }
 # Kernel (the brain — always linked, facade controls exposure)
 devpulse-clyffy = { path = "../../kernel/devpulse-clyffy" }
 
-# HTTP server (SurrealDB endpoint on :8822)
+# HTTP server (SurrealDB endpoint on :8822, MCP SSE on :9315)
 axum = "0.8"
 base64 = "0.22"
+async-stream = "0.3"
+futures-core = "0.3"
 
 # Config
 toml = "0.8"

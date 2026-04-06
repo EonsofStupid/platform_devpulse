@@ -150,3 +150,39 @@ pub enum SystemStatus {
     /// System is shutting down.
     Shutdown,
 }
+
+// =============================================================================
+// GOVERNANCE
+// =============================================================================
+
+/// Governance event payload — lane routing, rate limiting, council arbitration.
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
+pub struct GovernancePayload {
+    /// What happened.
+    pub event: GovernanceEvent,
+    /// Which lane triggered this. "internal" or "api".
+    pub lane: String,
+    /// Provider involved (if applicable). "claude", "gpt", "gemini".
+    pub provider: Option<String>,
+    /// Human-readable detail.
+    pub detail: String,
+}
+
+/// Governance event classification.
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
+pub enum GovernanceEvent {
+    /// A provider was selected for a request.
+    ProviderSelected,
+    /// Rate limit hit — request queued or rejected.
+    RateLimitHit,
+    /// Daily budget threshold reached (warning or hard stop).
+    BudgetThresholdReached,
+    /// Cooldown period started after 429 response.
+    CooldownStarted,
+    /// Cooldown period ended — lane available again.
+    CooldownEnded,
+    /// Council chose between multiple lane responses.
+    CouncilArbitration,
+    /// Request escalated from one lane to another.
+    LaneEscalation,
+}

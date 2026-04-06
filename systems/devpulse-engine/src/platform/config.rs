@@ -360,6 +360,9 @@ pub struct SystemServicesConfig {
     /// DevForge service (managed VSCode process).
     #[serde(default)]
     pub devforge: DevForgeServiceEntry,
+    /// Claude integration (MCP server, lanes, sidecar, API provider).
+    #[serde(default)]
+    pub claude: ClaudeServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -375,6 +378,7 @@ impl Default for SystemServicesConfig {
             whisper: WhisperServiceEntry::default(),
             model_loader: ModelLoaderServiceEntry::default(),
             devforge: DevForgeServiceEntry::default(),
+            claude: ClaudeServiceEntry::default(),
         }
     }
 }
@@ -1224,6 +1228,144 @@ impl DevForgeServiceEntry {
         PathBuf::from(&self.workspace_path)
     }
 }
+
+/// Claude integration service entry — MCP server, lanes, sidecar, API provider.
+///
+/// Wraps the full ClaudeConfig from `crate::claude` with standard service
+/// `enabled` + `critical` fields for the platform boot lifecycle.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ClaudeServiceEntry {
+    /// Whether Claude integration is enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Whether boot fails if Claude integration fails.
+    #[serde(default)]
+    pub critical: bool,
+    /// MCP server configuration.
+    #[serde(default)]
+    pub mcp: crate::claude::McpServerConfig,
+    /// Sidecar configuration (internal builds only).
+    #[serde(default)]
+    pub sidecar: crate::claude::SidecarConfig,
+    /// Claude Code CLI configuration (internal builds only).
+    #[serde(default)]
+    pub claude_code: crate::claude::ClaudeCodeConfig,
+    /// API provider configuration (always available).
+    #[serde(default)]
+    pub api: crate::claude::ApiProviderConfig,
+    /// Lane rate limit configuration.
+    #[serde(default)]
+    pub lanes: ClaudeLanesConfig,
+    /// Council configuration.
+    #[serde(default)]
+    pub council: ClaudeCouncilConfig,
+    /// Browser automation configuration (internal builds only).
+    #[serde(default)]
+    pub browser: crate::claude::BrowserAutomationConfig,
+}
+
+/// Lane rate limit configuration — internal + API lanes.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ClaudeLanesConfig {
+    /// Internal lane (Jesse's subscription).
+    #[serde(default)]
+    pub internal: LaneRateLimitEntry,
+    /// API lane (customer key).
+    #[serde(default)]
+    pub api: LaneRateLimitEntry,
+}
+
+impl Default for ClaudeLanesConfig {
+    fn default() -> Self {
+        Self {
+            internal: LaneRateLimitEntry {
+                max_requests_per_minute: 60,
+                max_tokens_per_day: 1_000_000,
+                cooldown_after_429_ms: 5000,
+                cost_cap_daily_usd: 0.0,
+            },
+            api: LaneRateLimitEntry {
+                max_requests_per_minute: 20,
+                max_tokens_per_day: 500_000,
+                cooldown_after_429_ms: 10_000,
+                cost_cap_daily_usd: 50.0,
+            },
+        }
+    }
+}
+
+/// Rate limit configuration for a single lane.
+#[derive(Debug, Clone, Deserialize)]
+pub struct LaneRateLimitEntry {
+    /// Max requests per minute before throttling.
+    #[serde(default = "default_lane_rpm")]
+    pub max_requests_per_minute: u32,
+    /// Max tokens per day before hard stop.
+    #[serde(default = "default_lane_tpd")]
+    pub max_tokens_per_day: u64,
+    /// Cooldown in ms after receiving a 429 from provider.
+    #[serde(default = "default_lane_cooldown")]
+    pub cooldown_after_429_ms: u64,
+    /// Daily cost cap in USD. 0.0 = no cap.
+    #[serde(default)]
+    pub cost_cap_daily_usd: f64,
+}
+
+impl Default for LaneRateLimitEntry {
+    fn default() -> Self {
+        Self {
+            max_requests_per_minute: 20,
+            max_tokens_per_day: 500_000,
+            cooldown_after_429_ms: 10_000,
+            cost_cap_daily_usd: 50.0,
+        }
+    }
+}
+
+/// Council arbitration configuration.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ClaudeCouncilConfig {
+    /// Arbitration mode. "rule_based" now, "forge_jit" future.
+    #[serde(default = "default_council_mode")]
+    pub mode: String,
+    /// Try internal lane first.
+    #[serde(default = "default_true")]
+    pub prefer_internal: bool,
+    /// Escalate to other lane on rate limit.
+    #[serde(default = "default_true")]
+    pub escalation_on_rate_limit: bool,
+}
+
+impl Default for ClaudeCouncilConfig {
+    fn default() -> Self {
+        Self {
+            mode: "rule_based".to_string(),
+            prefer_internal: true,
+            escalation_on_rate_limit: true,
+        }
+    }
+}
+
+impl Default for ClaudeServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            critical: false,
+            mcp: crate::claude::McpServerConfig::default(),
+            sidecar: crate::claude::SidecarConfig::default(),
+            claude_code: crate::claude::ClaudeCodeConfig::default(),
+            api: crate::claude::ApiProviderConfig::default(),
+            lanes: ClaudeLanesConfig::default(),
+            council: ClaudeCouncilConfig::default(),
+            browser: crate::claude::BrowserAutomationConfig::default(),
+        }
+    }
+}
+
+fn default_lane_rpm() -> u32 { 20 }
+fn default_lane_tpd() -> u64 { 500_000 }
+fn default_lane_cooldown() -> u64 { 10_000 }
+fn default_council_mode() -> String { "rule_based".to_string() }
 
 fn default_system_user() -> String { "devpulse_engine".to_string() }
 fn default_system_password() -> String { "dp_sys_2026!".to_string() }

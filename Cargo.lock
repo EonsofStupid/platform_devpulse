@@ -2820,11 +2820,13 @@ name = "devpulse-engine"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-stream",
  "axum 0.8.8",
  "base64 0.22.1",
  "chrono",
  "devpulse-clyffy",
  "flume",
+ "futures-core",
  "rodio",
  "serde",
  "serde_json",
@@ -2844,6 +2846,7 @@ dependencies = [
  "chrono",
  "devpulse-engine",
  "flume",
+ "keyring",
  "rfd",
  "serde",
  "serde_json",
@@ -5720,6 +5723,16 @@ dependencies = [
  "bitflags 2.11.0",
  "serde",
  "unicode-segmentation",
+]
+
+[[package]]
+name = "keyring"
+version = "3.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eebcc3aff044e5944a8fbaf69eb277d11986064cba30c468730e8b9909fb551c"
+dependencies = [
+ "log",
+ "zeroize",
 ]
 
 [[package]]
