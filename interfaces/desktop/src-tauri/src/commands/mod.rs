@@ -14,6 +14,7 @@
 //! @since 1.0.0
 
 pub mod chat;
+pub mod credentials;
 pub mod devclyffy;
 pub mod devpulse;
 pub mod models;

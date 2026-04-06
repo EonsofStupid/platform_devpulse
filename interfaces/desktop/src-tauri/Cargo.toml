@@ -37,6 +37,7 @@ devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro"
 flume = "0.11"
 rfd = "0.15"
 sysinfo = "0.38.4"
+keyring = "3"
 
 [features]
 default = ["inference"]

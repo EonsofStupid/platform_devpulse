@@ -91,6 +91,11 @@ pub fn run() {
         commands::voice::save_voice_profile,
         commands::voice::delete_voice_profile,
         commands::voice::activate_voice_profile,
+        // Credential management (keyring)
+        commands::credentials::store_api_key,
+        commands::credentials::get_api_key,
+        commands::credentials::delete_api_key,
+        commands::credentials::get_api_key_status,
     ]);
 
     // Dev: export typed TS bindings on every build
