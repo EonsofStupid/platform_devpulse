@@ -24,7 +24,7 @@ import {
 	startHardwareScan,
 	subsequentLaunchCheck,
 } from "./wizard.service.js";
-import { PHASE_INFO, WIZARD_PHASES, type WizardPhase } from "./wizard.types.js";
+import { PHASE_INFO, WIZARD_PHASES } from "./wizard.types.js";
 
 interface Props {
 	onComplete?: () => void;
@@ -238,9 +238,13 @@ async function handleComplete(): Promise<void> {
 		{:else if wizardState.currentPhase === "project"}
 			{#await import("./steps/ProjectSetupStep.svelte") then mod}
 				<mod.default
-					onContinue={handleComplete}
+					onContinue={handleAdvance}
 					onBack={handleBack}
 				/>
+			{/await}
+		{:else if wizardState.currentPhase === "completion"}
+			{#await import("./steps/CompletionStep.svelte") then mod}
+				<mod.default onComplete={handleComplete} />
 			{/await}
 		{/if}
 	{:else}

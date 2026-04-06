@@ -37,6 +37,8 @@ let pipelineError = $state<string | null>(null);
 
 const brainStatus = $derived(modelsState.statuses["chat.brain"]);
 const brainLoaded = $derived(brainStatus?.type === "hot" || brainStatus?.type === "standby");
+const sttStatus = $derived(modelsState.statuses["voice.stt"]);
+const ttsStatus = $derived(modelsState.statuses["voice.tts"]);
 
 async function sendMessage(): Promise<void> {
 	if (!inputText.trim() || generating) return;
@@ -140,15 +142,27 @@ function handleKeydown(e: KeyboardEvent): void {
 		class={cn(box({ paddingX: "8", paddingY: "4" }), "rounded border")}
 		style="background: var(--surface-elevated); border-color: var(--border-subtle);"
 	>
-		<div class={hstack({ gap: "8", align: "center" })}>
+		<div class="flex flex-wrap gap-x-6 gap-y-1">
+			<Text size="xs" color="muted">
+				STT: {sttStatus?.type === "hot" || sttStatus?.type === "standby" ? "ready" : "offline"}
+			</Text>
 			<Text size="xs" color="muted">
 				Brain: {brainLoaded ? "hot" : "cold"}
+			</Text>
+			<Text size="xs" color="muted">
+				TTS: {ttsStatus?.type === "hot" || ttsStatus?.type === "standby" ? "ready" : "offline"}
 			</Text>
 			<Text size="xs" color="muted">
 				VRAM: {formatMb(hardwareState.vramUsedMb)}/{formatMb(hardwareState.vramTotalMb)}
 			</Text>
 			<Text size="xs" color="muted">
 				Last: {lastRoundTripMs !== null ? `${lastRoundTripMs}ms` : "—"}
+			</Text>
+			<Text size="xs" color="muted">
+				Token/s: —
+			</Text>
+			<Text size="xs" color="muted">
+				Voice latency: —
 			</Text>
 			<Text size="xs" color="muted">
 				Round-trips: {wizardState.roundTripCount}/3

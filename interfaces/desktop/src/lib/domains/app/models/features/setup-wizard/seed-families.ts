@@ -183,6 +183,38 @@ register({
 });
 
 register({
+	id: "state.hot",
+	coreFacts: [
+		"Model is loaded and actively running inference",
+		"GPU memory allocated and weights in VRAM",
+		"Lowest possible latency — no load time",
+	],
+	variations: [
+		"Clyffy's brain is fully warmed up and ready to think.",
+		"This model is live — responses come as fast as hardware allows.",
+		"Loaded and locked in. Zero wait time.",
+		"Running hot — the model has everything it needs in memory right now.",
+	],
+	contextTriggers: ["slot_status:hot"],
+});
+
+register({
+	id: "state.cold",
+	coreFacts: [
+		"Model file exists on disk but is not loaded into memory",
+		"Must be loaded before inference (takes seconds to minutes)",
+		"Zero resource usage while cold",
+	],
+	variations: [
+		"This model is on disk but hasn't been loaded yet.",
+		"Sitting on the shelf. Need to load it before Clyffy can use it.",
+		"Cold storage — the file is there, but it needs to be brought into memory.",
+		"Not using any resources right now. Load it when you're ready.",
+	],
+	contextTriggers: ["slot_status:cold"],
+});
+
+register({
 	id: "state.loading",
 	coreFacts: [
 		"Model being loaded into GPU/RAM",

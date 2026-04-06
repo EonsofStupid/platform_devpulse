@@ -12,10 +12,17 @@ import type { DevicePreference, HardwareTier, SlotId } from "../../types/models.
 // ── Phases ─────────────────────────────────────────────
 
 /** The 5 phases of dev onboarding, in order. */
-export type WizardPhase = "hardware" | "models" | "voice" | "clyffy" | "project";
+export type WizardPhase = "hardware" | "models" | "voice" | "clyffy" | "project" | "completion";
 
 /** All phases in order, for iteration. */
-export const WIZARD_PHASES: WizardPhase[] = ["hardware", "models", "voice", "clyffy", "project"];
+export const WIZARD_PHASES: WizardPhase[] = [
+	"hardware",
+	"models",
+	"voice",
+	"clyffy",
+	"project",
+	"completion",
+];
 
 /** Phase display metadata. */
 export interface PhaseInfo {
@@ -30,6 +37,7 @@ export const PHASE_INFO: PhaseInfo[] = [
 	{ phase: "voice", label: "Voice", description: "Configure speech-to-text and text-to-speech" },
 	{ phase: "clyffy", label: "Clyffy", description: "First conversation and pipeline test" },
 	{ phase: "project", label: "Project", description: "Set up dev profile and index code" },
+	{ phase: "completion", label: "Done", description: "Review configuration and launch" },
 ];
 
 // ── Allocation Mode (mirrors engine AllocationMode from events.rs) ──

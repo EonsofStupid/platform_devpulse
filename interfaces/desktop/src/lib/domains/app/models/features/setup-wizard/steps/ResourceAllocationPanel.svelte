@@ -86,12 +86,23 @@ const gpuUsedEstimate = $derived(
 		</div>
 	{/if}
 
-	<!-- Timing estimates -->
+	<!-- Per-slot timing estimates -->
 	<div class={stack({ gap: "1" })}>
-		<Text size="xs" weight="bold" color="secondary">Load Times</Text>
-		<Text size="xs" color="muted">GPU reserved: instant (always in VRAM)</Text>
-		<Text size="xs" color="muted">CPU burst: ~1-3s (from DDR)</Text>
-		<Text size="xs" color="muted">Cold storage: 3-30s (from disk)</Text>
+		<Text size="xs" weight="bold" color="secondary">Estimated Load Times</Text>
+		{#each modelsState.userSlots as slot (slot.id)}
+			{@const model = modelsState.assignedModel(slot.id)}
+			{@const isGpu = slot.preferred_device === "Gpu" || slot.preferred_device === "GpuWithCpuFallback"}
+			{#if model}
+				<Text size="xs" color="muted">
+					{friendlySlotLabel(slot.id)}: {isGpu
+						? (model.vram_estimate_mb ?? 0) > 4000 ? "~5-15s (large GPU model)" : "~2-5s (GPU)"
+						: (model.vram_estimate_mb ?? 0) > 1000 ? "~3-10s (CPU, large)" : "~1-3s (CPU)"}
+				</Text>
+			{/if}
+		{/each}
+		{#if modelsState.userSlots.every((s) => !modelsState.assignedModel(s.id))}
+			<Text size="xs" color="muted">Assign models to see load time estimates.</Text>
+		{/if}
 	</div>
 
 	<!-- VRAM tight warning -->

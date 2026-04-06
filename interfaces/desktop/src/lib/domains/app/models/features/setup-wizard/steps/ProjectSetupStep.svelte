@@ -3,6 +3,7 @@
   @module @devpulse/domains/app/models/features/setup-wizard/steps/ProjectSetupStep
 
   Phase 5. Dogfood profile check. Offer to index DevPulse codebase.
+  Path derived from .userdata (portable). External paths get symlinked.
   Indexing WILL fail (RAG not wired) — error displayed raw. Skip always available.
 -->
 <script lang="ts">
@@ -13,6 +14,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { wizardState } from "../wizard.runes.svelte.js";
+import { checkDevProfile, createDevProfile } from "../wizard.service.js";
 
 interface Props {
 	onContinue: () => void;
@@ -24,35 +26,55 @@ let { onContinue, onBack }: Props = $props();
 let selectedOption = $state<"devpulse" | "browse" | "skip">("devpulse");
 let creatingProfile = $state(false);
 let error = $state<string | null>(null);
+let browsedPath = $state("");
+let showPortableNotice = $state(false);
+let detectedDataDir = $state("");
+
+/**
+ * Derive .userdata/ path from get_hardware_metrics model_dir field.
+ * Uses raw invoke because specta bindings haven't regenerated yet (Sprint 11 added model_dir).
+ */
+$effect(() => {
+	resolveDataDir();
+});
+
+async function resolveDataDir(): Promise<void> {
+	try {
+		const { invoke } = await import("@tauri-apps/api/core");
+		const metrics = await invoke<Record<string, unknown>>("get_hardware_metrics");
+		const modelDir = typeof metrics.model_dir === "string" ? metrics.model_dir : "";
+		detectedDataDir = modelDir.replace(/[/\\]models[/\\]?$/, "");
+	} catch {
+		// Non-critical — path will show "(detecting...)"
+	}
+}
+
+const projectsDir = $derived(detectedDataDir ? `${detectedDataDir}/projects` : "");
+
+$effect(() => {
+	checkDevProfile();
+});
+
+function handleBrowsePathInput(path: string): void {
+	browsedPath = path;
+	// Show portable notice if path is outside .userdata
+	showPortableNotice = !!(detectedDataDir && path && !path.startsWith(detectedDataDir));
+}
 
 async function handleFinish(): Promise<void> {
 	if (!wizardState.devProfileExists) {
-		await createDevProfile();
-	}
-	onContinue();
-}
-
-async function createDevProfile(): Promise<void> {
-	creatingProfile = true;
-	error = null;
-	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		const profile = {
-			type: "dev",
-			created: new Date().toISOString(),
-			selectedOption,
-			indexedProjects: [],
-		};
-		await invoke("set_preference", {
-			key: "dev_profile",
-			value: JSON.stringify(profile),
-		});
-		wizardState.devProfileExists = true;
-	} catch (e) {
-		error = e instanceof Error ? e.message : String(e);
-	} finally {
+		creatingProfile = true;
+		error = null;
+		try {
+			await createDevProfile();
+		} catch (e) {
+			error = e instanceof Error ? e.message : String(e);
+			creatingProfile = false;
+			return;
+		}
 		creatingProfile = false;
 	}
+	onContinue();
 }
 </script>
 
@@ -89,7 +111,7 @@ async function createDevProfile(): Promise<void> {
 					Index DevPulse source (recommended)
 				</Text>
 				<Text size="xs" color="muted">
-					Path: D:\localdev\platform_devpulse\
+					Path: {projectsDir || "(detecting...)"}
 				</Text>
 			</div>
 		</label>
@@ -109,9 +131,49 @@ async function createDevProfile(): Promise<void> {
 			<FolderOpen size={16} class="shrink-0 mt-0.5" style="color: var(--text-secondary);" />
 			<div class={stack({ gap: "1" })}>
 				<Text size="sm" weight="bold" color="primary">Add a different project</Text>
-				<Text size="xs" color="muted">Browse for a project folder</Text>
+				<Text size="xs" color="muted">Paste or type the project folder path</Text>
 			</div>
 		</label>
+
+		{#if selectedOption === "browse"}
+			<div class={cn(box({ paddingX: "12", paddingY: "6" }), "rounded-lg border")}
+				style="background: var(--surface-base); border-color: var(--border-subtle);"
+			>
+				<div class={stack({ gap: "3" })}>
+					<input
+						type="text"
+						placeholder="Paste project path..."
+						value={browsedPath}
+						oninput={(e) => handleBrowsePathInput(e.currentTarget.value)}
+						class="w-full rounded-lg px-3 py-2 text-sm border"
+						style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
+						aria-label="Project folder path"
+					/>
+					{#if showPortableNotice}
+						<div
+							class={cn(box({ paddingX: "8", paddingY: "6" }), "rounded border")}
+							style="background: var(--surface-elevated); border-color: var(--accent-teal-main);"
+						>
+							<div class={stack({ gap: "2" })}>
+								<Text size="xs" weight="bold" color="primary">
+									Portability Notice
+								</Text>
+								<Text size="xs" color="secondary">
+									For a fully portable install, copy this project into
+									<strong>{projectsDir}</strong>.
+									We can copy it for you — remember to delete the original
+									if you want the space back.
+								</Text>
+								<Text size="xs" color="muted">
+									If you skip copying, we'll create a symlink so DevPulse
+									can find the project, but it won't be portable.
+								</Text>
+							</div>
+						</div>
+					{/if}
+				</div>
+			</div>
+		{/if}
 
 		<label
 			class={cn("flex gap-3 rounded-lg p-4 cursor-pointer border transition-colors")}
@@ -177,9 +239,9 @@ async function createDevProfile(): Promise<void> {
 			style="background: var(--accent-teal-main); color: var(--surface-base);"
 			onclick={handleFinish}
 			disabled={creatingProfile}
-			aria-label="Finish setup"
+			aria-label="Continue to review"
 		>
-			{creatingProfile ? "Setting up..." : "Finish"}
+			{creatingProfile ? "Setting up..." : "Continue"}
 		</button>
 	</div>
 </div>

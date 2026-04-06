@@ -16,21 +16,42 @@ import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
+import { modelsState } from "../../../runes/models.runes.svelte.js";
 import { searchState } from "../../../runes/search.runes.svelte.js";
-import type { FitIndicator } from "../../../types/models.types.js";
-import { calculateFit, formatBytes, formatMb } from "../../../types/models.types.js";
+import type { FitIndicator, SlotId } from "../../../types/models.types.js";
+import {
+	calculateFit,
+	formatBytes,
+	formatMb,
+	friendlySlotLabel,
+} from "../../../types/models.types.js";
 import { pickVariation } from "../seed-families.js";
 import { wizardState } from "../wizard.runes.svelte.js";
+import type { ModelBrowserFilter } from "../wizard.types.js";
 
 interface Props {
+	targetSlot: SlotId;
 	onClose: () => void;
 	onDownload: (repoId: string, filename: string, targetSlot: string) => void;
 	onImport: (targetSlot: string) => void;
 }
 
-let { onClose, onDownload, onImport }: Props = $props();
+let { targetSlot, onClose, onDownload, onImport }: Props = $props();
 
+let selectedSlot = $state<SlotId>("chat.brain");
 let searchQuery = $state("");
+
+$effect(() => {
+	selectedSlot = targetSlot;
+});
+let filter = $state<ModelBrowserFilter>({ format: "gguf", maxSizeMb: null, fitOnly: false });
+
+const filteredResults = $derived(
+	searchState.results.filter((r) => {
+		if (filter.format === "gguf") return r.gguf_files.length > 0;
+		return true;
+	}),
+);
 
 function handleSearchInput(value: string): void {
 	searchQuery = value;
@@ -115,6 +136,45 @@ function estimateVramFromBytes(sizeBytes: number): number {
 			/>
 		</div>
 
+		<!-- Target slot selector + format filter -->
+		<div class={hstack({ gap: "4", align: "center" })}>
+			<div class={hstack({ gap: "2", align: "center" })}>
+				<Text size="xs" weight="bold" color="secondary">Slot:</Text>
+				<select
+					class="rounded-lg px-3 py-1.5 text-xs border"
+					style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
+					value={selectedSlot}
+					onchange={(e) => { selectedSlot = e.currentTarget.value as SlotId; }}
+				>
+					{#each modelsState.userSlots as slot (slot.id)}
+						<option value={slot.id}>{friendlySlotLabel(slot.id)}</option>
+					{/each}
+				</select>
+			</div>
+			<div class={hstack({ gap: "2", align: "center" })}>
+				<Text size="xs" weight="bold" color="secondary">Format:</Text>
+				<select
+					class="rounded-lg px-3 py-1.5 text-xs border"
+					style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
+					value={filter.format}
+					onchange={(e) => { filter = { ...filter, format: e.currentTarget.value as ModelBrowserFilter["format"] }; }}
+				>
+					<option value="gguf">GGUF only</option>
+					<option value="safetensors">SafeTensors only</option>
+					<option value="all">All formats</option>
+				</select>
+			</div>
+			<label class="flex items-center gap-1.5 cursor-pointer">
+				<input
+					type="checkbox"
+					checked={filter.fitOnly}
+					onchange={(e) => { filter = { ...filter, fitOnly: e.currentTarget.checked }; }}
+					class="accent-[var(--accent-teal-main)]"
+				/>
+				<Text size="xs" color="muted">Fits GPU only</Text>
+			</label>
+		</div>
+
 		<!-- Section 1: Curated Recommendations -->
 		{#if wizardState.recommendations.length > 0 && !searchQuery}
 			<div class={stack({ gap: "3" })}>
@@ -158,14 +218,14 @@ function estimateVramFromBytes(sizeBytes: number): number {
 		{#if searchQuery}
 			<div class={stack({ gap: "3" })}>
 				<Text size="sm" weight="bold" color="secondary">
-					{searchState.searching ? "Searching..." : `HuggingFace Results (${searchState.results.length})`}
+					{searchState.searching ? "Searching..." : `HuggingFace Results (${filteredResults.length})`}
 				</Text>
 
 				{#if searchState.error}
 					<Text size="xs" color="accent">{searchState.error}</Text>
 				{/if}
 
-				{#each searchState.results as result (result.repo_id)}
+				{#each filteredResults as result (result.repo_id)}
 					<div
 						class={cn(box({ paddingX: "12", paddingY: "8" }), "rounded-md border")}
 						style="background: var(--surface-base); border-color: var(--border-subtle);"
@@ -202,7 +262,7 @@ function estimateVramFromBytes(sizeBytes: number): number {
 									<button
 										class="flex items-center gap-1 rounded px-2 py-1 text-xs"
 										style="background: var(--accent-teal-main); color: var(--surface-base);"
-										onclick={() => onDownload(result.repo_id, file.filename, "chat.brain")}
+										onclick={() => onDownload(result.repo_id, file.filename, selectedSlot)}
 										aria-label="Download {file.filename}"
 									>
 										<Download size={12} />
@@ -213,7 +273,7 @@ function estimateVramFromBytes(sizeBytes: number): number {
 					</div>
 				{/each}
 
-				{#if !searchState.searching && searchState.results.length === 0 && searchQuery.length > 2}
+				{#if !searchState.searching && filteredResults.length === 0 && searchQuery.length > 2}
 					<Text size="xs" color="muted">No GGUF models found for "{searchQuery}"</Text>
 				{/if}
 			</div>
@@ -226,7 +286,7 @@ function estimateVramFromBytes(sizeBytes: number): number {
 				<button
 					class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-colors border"
 					style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
-					onclick={() => onImport("chat.brain")}
+					onclick={() => onImport(selectedSlot)}
 					aria-label="Import model from disk"
 				>
 					<FolderOpen size={14} />
@@ -235,7 +295,7 @@ function estimateVramFromBytes(sizeBytes: number): number {
 				<button
 					class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-colors border"
 					style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
-					onclick={() => onImport("chat.brain")}
+					onclick={() => onImport(selectedSlot)}
 					aria-label="Create symlink to model"
 				>
 					<Link size={14} />

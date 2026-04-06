@@ -32,6 +32,8 @@ interface Props {
 
 let { onContinue, onBack, continueEnabled, continueBlockers }: Props = $props();
 
+let browserTargetSlot = $state<SlotId>("chat.brain");
+
 async function handleBrowserDownload(
 	repoId: string,
 	filename: string,
@@ -68,6 +70,7 @@ async function handleImportComplete(_filename: string): Promise<void> {
 
 {#if wizardState.showModelBrowser}
 	<ModelBrowserPopup
+		targetSlot={browserTargetSlot}
 		onClose={() => (wizardState.showModelBrowser = false)}
 		onDownload={handleBrowserDownload}
 		onImport={handleBrowserImport}

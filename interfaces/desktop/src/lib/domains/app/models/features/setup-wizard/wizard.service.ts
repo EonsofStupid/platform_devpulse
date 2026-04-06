@@ -91,7 +91,15 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 		case "project": {
 			return {
 				phase: "project",
-				conditions: ["Dev profile exists"],
+				conditions: ["Dev profile created or skipped"],
+				allMet: true,
+				blockers: [],
+			};
+		}
+		case "completion": {
+			return {
+				phase: "completion",
+				conditions: [],
 				allMet: true,
 				blockers: [],
 			};
