@@ -11,6 +11,8 @@ import type { AutoConfig, SlotId } from "../../types/models.types.js";
 import { friendlySlotPurpose } from "../../types/models.types.js";
 import {
 	type AllocationMode,
+	DEFAULT_ESCALATION,
+	type EscalationConfig,
 	type ModelRec,
 	tierToAllocation,
 	type VoiceConfig,
@@ -42,6 +44,7 @@ class WizardState {
 		latencyToleranceMs: 2500,
 		deliveryMode: "buffer",
 	});
+	escalationConfig = $state<EscalationConfig>(DEFAULT_ESCALATION);
 
 	// ── Phase 4: Clyffy ──────────────────────────────────
 	roundTripCount = $state(0);

@@ -337,6 +337,22 @@ register({
 });
 
 register({
+	id: "escalation.voice_brain",
+	coreFacts: [
+		"Small CPU model handles quick conversational responses",
+		"Escalates to GPU brain for complex reasoning",
+		"Keeps GPU free for heavy tasks while voice stays responsive",
+	],
+	variations: [
+		"Think of this as Clyffy's quick-thinking mode \u2014 fast answers without firing up the big brain.",
+		"The voice brain handles chit-chat and simple questions on the CPU. Anything harder gets escalated.",
+		"This keeps your GPU free. Quick answers come from this small model, complex reasoning from the main brain.",
+		"Like having a receptionist \u2014 handles the easy stuff, routes the hard questions to the expert.",
+	],
+	contextTriggers: ["escalation_config"],
+});
+
+register({
 	id: "resource.vram_tight",
 	coreFacts: ["VRAM near full", "Consider moving models to CPU", "Shared models may conflict"],
 	variations: [

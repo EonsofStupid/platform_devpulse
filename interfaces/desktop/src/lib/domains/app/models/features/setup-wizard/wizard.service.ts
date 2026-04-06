@@ -70,15 +70,18 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 			return { phase, conditions, allMet: brainReady, blockers };
 		}
 		case "voice": {
-			const conditions = ["STT model assigned", "TTS model assigned"];
+			const conditions = ["STT model assigned", "TTS model assigned", "Voice brain assigned"];
 			const sttSlot = modelsState.slots.find((s) => s.id === "voice.stt");
 			const ttsSlot = modelsState.slots.find((s) => s.id === "voice.tts");
+			const brainSlot = modelsState.slots.find((s) => s.id === "voice.brain");
 			const sttAssigned = !!sttSlot?.assigned_model_id;
 			const ttsAssigned = !!ttsSlot?.assigned_model_id;
-			const allMet = sttAssigned && ttsAssigned;
+			const brainAssigned = !!brainSlot?.assigned_model_id;
+			const allMet = sttAssigned && ttsAssigned && brainAssigned;
 			const blockers: string[] = [];
 			if (!sttAssigned) blockers.push("Voice Input (STT) needs a model assigned");
 			if (!ttsAssigned) blockers.push("Clyffy's Voice (TTS) needs a model assigned");
+			if (!brainAssigned) blockers.push("Voice Brain needs a model assigned for quick responses");
 			return { phase, conditions, allMet, blockers };
 		}
 		case "clyffy": {
@@ -167,10 +170,15 @@ export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 
 // ── Phase 4: Clyffy Activation ──────────────────────────
 
-/** Test inference by sending a prompt to the brain. */
-export async function testInference(prompt: string): Promise<string> {
+/** Test inference by sending a prompt to a slot. */
+export async function testInference(
+	slotId: string,
+	prompt: string,
+	maxTokens = 256,
+	temperature = 0.7,
+): Promise<string> {
 	const { generateText } = await import("../../services/inference.service.js");
-	return generateText("chat.brain", prompt, 256, 0.7);
+	return generateText(slotId, prompt, maxTokens, temperature);
 }
 
 // ── Phase 5: Project Setup ──────────────────────────────

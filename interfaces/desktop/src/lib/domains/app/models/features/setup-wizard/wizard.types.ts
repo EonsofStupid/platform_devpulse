@@ -138,6 +138,54 @@ export interface VoiceConfig {
 	deliveryMode: VoiceDeliveryMode;
 }
 
+// ── Escalation Config ─────────────────────────────────
+
+/** Source type for an escalation priority. */
+export type EscalationSource = "local_slot" | "api";
+
+/** A single priority in the escalation chain. */
+export interface EscalationPriority {
+	/** 1 = highest priority (tried first). */
+	priority: number;
+	/** Where inference runs. */
+	source: EscalationSource;
+	/** Slot ID if source is "local_slot". */
+	slotId?: SlotId;
+	/** API provider name if source is "api". */
+	apiProvider?: "Anthropic" | "OpenAI";
+	/** Human label for display. */
+	label: string;
+}
+
+/** Full escalation configuration. */
+export interface EscalationConfig {
+	/** Ordered priority chain. */
+	priorities: EscalationPriority[];
+	/** Detection mode — "rule_based" only for now. */
+	detectionMode: "rule_based";
+}
+
+/** Default escalation chain. */
+export const DEFAULT_ESCALATION: EscalationConfig = {
+	priorities: [
+		{ priority: 1, source: "local_slot", slotId: "voice.brain", label: "Voice Brain (CPU, fast)" },
+		{
+			priority: 2,
+			source: "local_slot",
+			slotId: "chat.brain",
+			label: "Main Brain (GPU, full reasoning)",
+		},
+		{
+			priority: 3,
+			source: "api",
+			apiProvider: "Anthropic",
+			label: "Anthropic API (cloud fallback)",
+		},
+		{ priority: 4, source: "api", apiProvider: "OpenAI", label: "OpenAI API (cloud fallback)" },
+	],
+	detectionMode: "rule_based",
+};
+
 // ── Model Browser ──────────────────────────────────────
 
 /** Filter state for the model browser popup. */

@@ -13,6 +13,9 @@ export { default as SetupWizard } from "./SetupWizard.svelte";
 export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js";
 export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";
 export { default as CompletionStep } from "./steps/CompletionStep.svelte";
+export { default as ConversationalBrainPanel } from "./steps/ConversationalBrainPanel.svelte";
+export { default as EscalationConfigPanel } from "./steps/EscalationConfigPanel.svelte";
+export { default as FullPipelineTest } from "./steps/FullPipelineTest.svelte";
 // Step components
 export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
 export { default as ImportPrompt } from "./steps/ImportPrompt.svelte";
@@ -49,6 +52,9 @@ export {
 export type {
 	AllocationMode,
 	ContinueGate,
+	EscalationConfig,
+	EscalationPriority,
+	EscalationSource,
 	ImportMode,
 	ModelBrowserFilter,
 	ModelRec,
@@ -60,6 +66,7 @@ export type {
 export {
 	ALLOCATION_MODES,
 	allocationLabel,
+	DEFAULT_ESCALATION,
 	PHASE_INFO,
 	tierToAllocation,
 	WIZARD_PHASES,
