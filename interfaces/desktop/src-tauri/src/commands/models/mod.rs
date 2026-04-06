@@ -40,6 +40,12 @@ pub struct SlotInfo {
     pub embedded: bool,
     /// Path relative to models dir for bundled models (e.g. `"voice/kokoro/model_quantized.onnx"`).
     pub bundled_path: Option<String>,
+    /// Architecture of the assigned model (e.g. "qwen3", "llama"). None if unassigned.
+    pub architecture: Option<String>,
+    /// Maximum context window in tokens of the assigned model. None if unassigned.
+    pub context_length: Option<u32>,
+    /// Active inference backend (e.g. "candle", "llamacpp", "sherpa"). None if not loaded.
+    pub backend: Option<String>,
 }
 
 /// Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
@@ -100,6 +106,16 @@ pub struct HardwareInfo {
     pub process_ram_mb: u64,
     /// DevPulse process VRAM usage (MB).
     pub process_vram_mb: u64,
+    /// Number of logical CPU threads (hyperthreaded count).
+    pub cpu_threads: Option<u32>,
+    /// Free disk space on model storage drive (MB).
+    pub disk_free_mb: Option<u64>,
+    /// CUDA toolkit version (e.g. "12.4"). None if no CUDA.
+    pub cuda_version: Option<String>,
+    /// Whether NVML (nvidia-smi library) is accessible.
+    pub nvml_available: bool,
+    /// Path to the model storage directory.
+    pub model_dir: String,
 }
 
 /// Helper: get the model loader service from platform state.
@@ -121,6 +137,15 @@ pub async fn get_hardware_metrics(
     let loader = get_loader(&state).await?;
     let m = loader.hardware_metrics().await;
 
+    // Derive model_dir from platform data_dir
+    let model_dir = {
+        let guard = state.platform.read().await;
+        guard
+            .as_ref()
+            .map(|p| p.data_dir().join("models").display().to_string())
+            .unwrap_or_default()
+    };
+
     Ok(HardwareInfo {
         cpu_usage_percent: m.cpu_usage_percent,
         cpu_cores: m.cpu_cores,
@@ -137,6 +162,13 @@ pub async fn get_hardware_metrics(
         gpu_temperature_c: m.gpu_temperature_c,
         process_ram_mb: m.process_ram_mb,
         process_vram_mb: m.process_vram_mb,
+        // New fields — populated from sysinfo/nvml when kernel exposes them
+        // TODO: Wire to kernel HardwareMetrics once fields are added there
+        cpu_threads: None,
+        disk_free_mb: None,
+        cuda_version: None,
+        nvml_available: m.gpu_name.is_some(),
+        model_dir,
     })
 }
 
@@ -178,6 +210,7 @@ pub async fn get_slots(
 ) -> Result<Vec<SlotInfo>, String> {
     let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
+    let models = loader.scan_models().await.unwrap_or_default();
 
     Ok(slots
         .into_iter()
@@ -188,6 +221,13 @@ pub async fn get_slots(
                 }
                 devpulse_engine::platform::ModelSourceTier::UserManaged => (false, None),
             };
+
+            // Look up assigned model for view fields
+            let assigned_model = s
+                .assigned_model
+                .as_ref()
+                .and_then(|mid| models.iter().find(|m| &m.id == mid));
+
             SlotInfo {
                 id: s.id,
                 label: s.label,
@@ -202,6 +242,9 @@ pub async fn get_slots(
                 overrides: s.overrides,
                 embedded,
                 bundled_path,
+                architecture: assigned_model.map(|m| m.architecture.clone()),
+                context_length: assigned_model.map(|m| m.context_length as u32),
+                backend: None, // Populated from runtime pool when slot is loaded (future)
             }
         })
         .collect())

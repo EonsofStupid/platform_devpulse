@@ -201,6 +201,15 @@ runtime = "Ort"
 default_model = "small-encoder.int8.onnx"
 source_tier = { Bundled = { bundled_path = "voice/whisper-small/" } }
 
+[[services.system.model_loader.slots]]
+id = "voice.brain"
+label = "Voice Conversation"
+capability = "TextGeneration"
+preferred_device = "Cpu"
+loading = "Hot"
+fallback = "minion.escalation"
+source_tier = "UserManaged"
+
 # ── Download catalog (what the frontend shows) ───────────────────
 
 [[services.system.model_loader.catalog]]
