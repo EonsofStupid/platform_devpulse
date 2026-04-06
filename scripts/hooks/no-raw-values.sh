@@ -28,7 +28,7 @@ FILTERED_FILES=$(echo "$STAGED_FILES" \
   | grep -v 'design/.cowlevel/' \
   | grep -v 'sys/debug/vpb/' \
   | grep -v 'styledictionary/' \
-  | grep -v 'domains/app/models/components/' \
+  | grep -v 'domains/app/models/' \
   | grep -v 'layouts/app/BootOverlay' \
   || true)
 

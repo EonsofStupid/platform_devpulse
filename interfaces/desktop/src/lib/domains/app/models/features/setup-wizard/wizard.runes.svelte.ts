@@ -39,6 +39,84 @@ class WizardState {
 	showImportPrompt = $state(false);
 	importTargetSlot = $state<SlotId | null>(null);
 
+	// ── Per-Download Progress (wired to Rust events via wizard.service.ts) ──
+	activeDownloads = $state<
+		Record<
+			string,
+			{
+				downloadId: string;
+				slot: SlotId;
+				filename: string;
+				bytesDownloaded: number;
+				totalBytes: number;
+				speedBps: number;
+				status: "active" | "complete" | "failed" | "cancelled";
+				error?: string;
+			}
+		>
+	>({});
+
+	trackDownload(downloadId: string, slot: SlotId, filename: string): void {
+		this.activeDownloads = {
+			...this.activeDownloads,
+			[downloadId]: {
+				downloadId,
+				slot,
+				filename,
+				bytesDownloaded: 0,
+				totalBytes: 0,
+				speedBps: 0,
+				status: "active",
+			},
+		};
+	}
+
+	updateDownloadProgress(
+		downloadId: string,
+		bytesDownloaded: number,
+		totalBytes: number,
+		speedBps: number,
+	): void {
+		const dl = this.activeDownloads[downloadId];
+		if (dl) {
+			this.activeDownloads = {
+				...this.activeDownloads,
+				[downloadId]: { ...dl, bytesDownloaded, totalBytes, speedBps },
+			};
+		}
+	}
+
+	completeDownload(downloadId: string): void {
+		const dl = this.activeDownloads[downloadId];
+		if (dl) {
+			this.activeDownloads = {
+				...this.activeDownloads,
+				[downloadId]: { ...dl, status: "complete" },
+			};
+		}
+	}
+
+	failDownload(downloadId: string, error: string): void {
+		const dl = this.activeDownloads[downloadId];
+		if (dl) {
+			this.activeDownloads = {
+				...this.activeDownloads,
+				[downloadId]: { ...dl, status: "failed", error },
+			};
+		}
+	}
+
+	downloadForSlot(slotId: SlotId) {
+		return (
+			Object.values(this.activeDownloads).find((d) => d.slot === slotId && d.status === "active") ??
+			null
+		);
+	}
+
+	get hasActiveDownloads(): boolean {
+		return Object.values(this.activeDownloads).some((d) => d.status === "active");
+	}
+
 	// ── Phase 3: Voice ───────────────────────────────────
 	voiceConfig = $state<VoiceConfig>({
 		latencyToleranceMs: 2500,

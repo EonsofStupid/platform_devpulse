@@ -1,47 +1,32 @@
 <!--
   @file SwapOverlay — Full-screen block during model load/unload.
   Prevents user interaction while weights are being swapped in memory.
-  Only renders when swapState.active is true.
+  ColdLight glass card, lucide icons, multi-step progress, retry on failure.
 -->
 <script lang="ts">
+import { AlertTriangle, CheckCircle, LoaderCircle } from "lucide-svelte";
+import { Card } from "$lib/design/components/card/index.js";
+import { Progress } from "$lib/design/components/progress/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
+import { modelsState } from "../runes/models.runes.svelte.js";
 import { swapState } from "../runes/swap.runes.svelte.js";
 import { friendlySlotLabel } from "../types/models.types.js";
 
-const m = $derived(
-	renderForge({
-		kind: "swap-overlay",
-		preset: swapState.error ? "danger" : "info",
-	}),
-);
+const cardM = $derived(renderForge({ kind: "card", preset: "glass" }));
 
 const slotLabel = $derived(swapState.slotId ? friendlySlotLabel(swapState.slotId) : "model");
 
-/** Translate raw Rust error strings to layman-friendly messages. */
-function laymanError(raw: string): string {
-	if (raw.includes("VRAM") || raw.includes("vram") || raw.includes("out of memory"))
-		return "Not enough graphics memory. Try closing other apps or choosing a smaller model.";
-	if (raw.includes("not found") || raw.includes("No such file"))
-		return "The model file couldn't be found. It may need to be downloaded again.";
-	if (raw.includes("corrupt") || raw.includes("invalid") || raw.includes("parse"))
-		return "The model file appears damaged. Try deleting and re-downloading it.";
-	if (raw.includes("timeout") || raw.includes("timed out"))
-		return "Loading took too long. Your hardware might be under heavy load — try again.";
-	if (raw.includes("locked") || raw.includes("in use"))
-		return "The model is being used by another process. Wait a moment and try again.";
-	if (raw.includes("permission") || raw.includes("access denied"))
-		return "DevPulse doesn't have permission to access the model file. Check your folder permissions.";
-	return raw;
-}
-
 const headline = $derived.by(() => {
-	if (swapState.error) return "Something went wrong";
+	if (swapState.error) return "Load Failed";
 	if (swapState.operation === "unload") return `Releasing ${slotLabel}`;
 	return `Loading ${slotLabel}`;
 });
 
-const stageLabel = $derived.by(() => {
-	if (!swapState.stage) return "";
+const STAGES = ["Verifying", "Allocating", "Loading Weights", "Tokenizer", "Warming Up"] as const;
+
+function stageToLabel(stage: string | null): string {
+	if (!stage) return "";
 	const labels: Record<string, string> = {
 		Preparing: "Getting ready...",
 		Verifying: "Checking model file...",
@@ -52,8 +37,29 @@ const stageLabel = $derived.by(() => {
 		Ready: "Almost there...",
 		"Releasing memory": "Freeing memory...",
 	};
-	return labels[swapState.stage] ?? swapState.stage;
+	return labels[stage] ?? stage;
+}
+
+const currentStageIdx = $derived.by(() => {
+	if (!swapState.stage) return -1;
+	const map: Record<string, number> = {
+		Verifying: 0,
+		Allocating: 1,
+		LoadingWeights: 2,
+		LoadingTokenizer: 3,
+		WarmingUp: 4,
+		Ready: 4,
+	};
+	return map[swapState.stage] ?? -1;
 });
+
+const isVramError = $derived(swapState.error?.toLowerCase().match(/vram|memory|out of/) != null);
+
+function handleRetry(): void {
+	const slotId = swapState.slotId;
+	swapState.dismiss();
+	if (slotId) modelsState.load(slotId);
+}
 
 function handleDismiss(): void {
 	swapState.dismiss();
@@ -62,42 +68,90 @@ function handleDismiss(): void {
 
 {#if swapState.active}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-		style={cssVarString(m.cssVars)}
-		data-kind={m.kind}
+		class="fixed inset-0 z-50 flex items-center justify-center"
+		style="background: var(--glass-void); backdrop-filter: blur(8px);"
 		role="alertdialog"
 		aria-modal="true"
 		aria-label={headline}
 	>
-		<div class="flex flex-col items-center gap-6 max-w-md px-8 py-12 text-center">
+		<div
+			{...cardM.dataAttrs}
+			style={cssVarString(cardM.cssVars)}
+			class="flex flex-col items-center gap-6 max-w-lg w-full mx-4 p-8 rounded-xl text-center"
+		>
 			{#if swapState.error}
-				<!-- Error state: show message + dismiss button -->
-				<div class="text-5xl">⚠️</div>
-				<h2 class="text-xl font-semibold text-red-400">{headline}</h2>
-				<p class="text-sm text-neutral-300">{laymanError(swapState.error)}</p>
-				<button
-					class="mt-4 px-6 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-medium transition-colors"
-					onclick={handleDismiss}
-				>
-					Got it
-				</button>
-			{:else}
-				<!-- Loading state: show progress -->
-				<div class="text-5xl animate-pulse">🧠</div>
-				<h2 class="text-xl font-semibold text-teal-300">{headline}</h2>
-				<p class="text-sm text-neutral-400">{stageLabel}</p>
+				<!-- Error state -->
+				<div style="color: var(--signal-error);">
+					<AlertTriangle size={40} />
+				</div>
+				<Text size="lg" weight="bold" color="primary">{headline}</Text>
+				<Text size="sm" color="muted">{swapState.error}</Text>
 
-				<!-- Progress bar -->
-				<div class="w-full h-2 rounded-full bg-neutral-700 overflow-hidden">
-					<div
-						class="h-full rounded-full bg-teal-500 transition-all duration-300"
-						style="width: {swapState.progress}%"
-					></div>
+				<div class="flex gap-3 mt-2">
+					<button
+						class="rounded-lg px-5 py-2 text-sm font-bold transition-colors"
+						style="background: var(--accent-teal-main); color: var(--surface-base);"
+						onclick={handleRetry}
+						aria-label="Retry loading model"
+					>
+						Retry
+					</button>
+					{#if isVramError}
+						<button
+							class="rounded-lg px-5 py-2 text-sm transition-colors border"
+							style="border-color: var(--border-subtle); color: var(--text-secondary);"
+							aria-label="Try loading with CPU instead"
+						>
+							Try CPU Mode
+						</button>
+					{/if}
+					<button
+						class="rounded-lg px-5 py-2 text-sm transition-colors"
+						style="color: var(--text-muted);"
+						onclick={handleDismiss}
+						aria-label="Dismiss error"
+					>
+						Dismiss
+					</button>
+				</div>
+			{:else}
+				<!-- Loading state -->
+				<div style="color: var(--accent-teal-main);">
+					<LoaderCircle size={40} class="animate-spin" />
+				</div>
+				<Text size="lg" weight="bold" color="primary">{headline}</Text>
+				<Text size="sm" color="muted">{stageToLabel(swapState.stage)}</Text>
+
+				<!-- Multi-step stage indicator -->
+				<div class="flex gap-2 items-center justify-center flex-wrap">
+					{#each STAGES as stage, i (stage)}
+						<div class="flex items-center gap-1.5">
+							<div
+								class="w-3 h-3 rounded-full transition-colors"
+								style="background: {i < currentStageIdx ? 'var(--signal-success)' : i === currentStageIdx ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
+							></div>
+							<Text
+								size="sm"
+								color={i === currentStageIdx ? "primary" : "muted"}
+								weight={i === currentStageIdx ? "bold" : "normal"}
+							>
+								{stage}
+							</Text>
+						</div>
+						{#if i < STAGES.length - 1}
+							<div class="w-4 h-px" style="background: var(--border-subtle);"></div>
+						{/if}
+					{/each}
 				</div>
 
-				<p class="text-xs text-neutral-500">
+				<!-- Progress bar -->
+				<div class="w-full">
+					<Progress value={swapState.progress} max={100} size="lg" />
+				</div>
+
+				<Text size="sm" color="muted">
 					Do not close the app while this is in progress
-				</p>
+				</Text>
 			{/if}
 		</div>
 	</div>

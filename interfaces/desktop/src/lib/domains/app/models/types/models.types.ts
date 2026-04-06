@@ -197,6 +197,22 @@ export function friendlySlotLabel(slotId: SlotId | string): string {
 	return map[slotId] ?? slotId;
 }
 
+/** One-line layman description of what the slot does */
+export function slotDescription(slotId: SlotId | string): string {
+	const map: Record<string, string> = {
+		"chat.brain": "Talks to you, writes code, answers questions",
+		"minion.shared": "Fast background tasks — summarizing, formatting",
+		"minion.escalation": "Complex analysis when the main AI needs help",
+		"rag.embedder": "Finds relevant code and docs for context",
+		"rag.reranker": "Ranks search results by relevance",
+		"vision.embedder": "Understands screenshots and diagrams",
+		"voice.tts": "Speaks AI responses out loud",
+		"voice.stt": "Converts your speech to text",
+		"voice.brain": "Quick conversational responses for voice chat",
+	};
+	return map[slotId] ?? "";
+}
+
 /** Friendly slot purpose for Clyffy narration */
 export function friendlySlotPurpose(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
@@ -269,4 +285,40 @@ export function statusColor(status: ModelStatus): string {
 /** Whether a model status means the slot can serve inference. */
 export function isInferenceReady(status: ModelStatus): boolean {
 	return status.type === "hot" || status.type === "standby";
+}
+
+/** Format bytes-per-second to human-readable download speed */
+export function formatSpeed(bps: number): string {
+	if (bps < 1024) return `${bps} B/s`;
+	if (bps < 1024 * 1024) return `${(bps / 1024).toFixed(0)} KB/s`;
+	return `${(bps / (1024 * 1024)).toFixed(1)} MB/s`;
+}
+
+/** Format seconds to human-readable ETA */
+export function formatEta(seconds: number): string {
+	if (seconds < 0 || !Number.isFinite(seconds)) return "calculating...";
+	if (seconds < 60) return `${Math.ceil(seconds)}s`;
+	if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${Math.ceil(seconds % 60)}s`;
+	return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+}
+
+/** Format context length to readable form */
+export function formatContext(tokens: number): string {
+	if (tokens <= 0) return "unknown";
+	if (tokens < 1024) return `${tokens} tokens`;
+	return `${(tokens / 1024).toFixed(0)}K context`;
+}
+
+/** Fit label for layman display */
+export function fitLabel(fit: FitIndicator): string {
+	switch (fit) {
+		case "green":
+			return "fits comfortably";
+		case "yellow":
+			return "tight fit";
+		case "red":
+			return "won't fit — will use CPU";
+		case "gray":
+			return "no GPU detected";
+	}
 }

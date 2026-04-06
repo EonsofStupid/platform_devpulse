@@ -10,11 +10,13 @@ import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
 import {
 	autoConfigureHardware,
+	cancelDownload,
 	downloadModel,
 	onDownloadComplete,
+	onDownloadProgress,
 } from "../../services/download.service.js";
 import type { AutoConfig } from "../../types/models.types.js";
-import { isInferenceReady } from "../../types/models.types.js";
+import { friendlySlotLabel, isInferenceReady } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
 
@@ -112,12 +114,50 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 
 // ── Phase 2: Download + Assign ─────────────────────────
 
-/** Download a single model and assign it to its target slot. */
+/**
+ * Download a model from HuggingFace and assign it to a slot.
+ *
+ * @throws {Error} If download fails (network, disk, timeout)
+ * @throws {Error} If model not found in registry after successful download
+ * @throws {Error} If slot assignment fails
+ *
+ * Side effects:
+ * - Registers and cleans up onDownloadProgress listener
+ * - Updates wizardState.activeDownloads throughout lifecycle
+ * - Calls modelsState.scan() and modelsState.refresh() on success
+ * - Calls modelsState.assign() on success
+ * - Fires toast notifications (start, complete/fail)
+ */
 export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 	wizardState.error = null;
-	try {
-		const downloadId = await downloadModel(rec.repo, rec.file);
+	const { toast } = await import("svelte-sonner");
 
+	let downloadId: string;
+	try {
+		downloadId = await downloadModel(rec.repo, rec.file);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		wizardState.error = msg;
+		toast.error(`Download failed: ${msg}`);
+		throw e;
+	}
+
+	wizardState.trackDownload(downloadId, rec.slot, rec.file);
+	toast.info(`Downloading ${rec.name}...`);
+
+	// Wire progress events — THIS WAS THE MISSING LINK
+	const unsubProgress = onDownloadProgress((progress) => {
+		if (progress.downloadId === downloadId) {
+			wizardState.updateDownloadProgress(
+				downloadId,
+				progress.bytesDownloaded,
+				progress.totalBytes,
+				progress.speedBps,
+			);
+		}
+	});
+
+	try {
 		await new Promise<void>((resolve, reject) => {
 			const unsub = onDownloadComplete((data) => {
 				if (data.downloadId === downloadId) {
@@ -134,6 +174,10 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 			);
 		});
 
+		unsubProgress();
+		wizardState.completeDownload(downloadId);
+		toast.success(`${rec.name} downloaded`);
+
 		await modelsState.scan();
 		await modelsState.refresh();
 
@@ -143,9 +187,67 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 		}
 
 		await modelsState.assign(rec.slot, model.id);
+		toast.success(`${rec.name} assigned to ${friendlySlotLabel(rec.slot)}`);
 	} catch (e) {
-		wizardState.error = e instanceof Error ? e.message : String(e);
+		unsubProgress();
+		const msg = e instanceof Error ? e.message : String(e);
+		wizardState.failDownload(downloadId, msg);
+		wizardState.error = msg;
+		toast.error(`Download failed: ${msg}`);
 		throw e;
+	}
+}
+
+/** Cancel an in-progress download.
+ *
+ * @throws {Error} If download ID not found or cancel IPC fails
+ * Side effects: updates wizardState, fires toast
+ */
+export async function cancelActiveDownload(downloadId: string): Promise<void> {
+	await cancelDownload(downloadId);
+	const dl = wizardState.activeDownloads[downloadId];
+	if (dl) {
+		wizardState.activeDownloads = {
+			...wizardState.activeDownloads,
+			[downloadId]: { ...dl, status: "cancelled" },
+		};
+	}
+	const { toast } = await import("svelte-sonner");
+	toast.info("Download cancelled");
+}
+
+/**
+ * Auto-assign compatible models to all unassigned user slots.
+ * Picks the smallest-VRAM model that has the right capability.
+ * OPT-IN — user clicks "Auto-Configure" button.
+ *
+ * Side effects: calls modelsState.assign() per slot, fires toasts
+ */
+export async function autoAssignAllSlots(): Promise<void> {
+	const { toast } = await import("svelte-sonner");
+	let assigned = 0;
+
+	for (const slot of modelsState.userSlots) {
+		if (slot.assigned_model_id) continue;
+
+		const compatible = modelsState.modelsForCapability(slot.capability);
+		if (compatible.length === 0) continue;
+
+		const sorted = [...compatible].sort((a, b) => a.vram_estimate_mb - b.vram_estimate_mb);
+		const pick = sorted[0];
+
+		try {
+			await modelsState.assign(slot.id, pick.id);
+			toast.success(`${pick.filename} → ${friendlySlotLabel(slot.id)}`);
+			assigned++;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			toast.error(`Failed to assign ${friendlySlotLabel(slot.id)}: ${msg}`);
+		}
+	}
+
+	if (assigned === 0) {
+		toast.info("No unassigned slots with compatible models found");
 	}
 }
 
