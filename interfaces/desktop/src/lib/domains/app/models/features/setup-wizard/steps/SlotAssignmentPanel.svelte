@@ -28,6 +28,7 @@ import { Progress } from "$lib/design/components/progress/index.js";
 import { Separator } from "$lib/design/components/separator/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
@@ -47,8 +48,10 @@ import {
 	slotDescription,
 	statusLabel,
 } from "../../../types/models.types.js";
+import { translateLoadingStage } from "../../../utils/terminology.js";
 import { wizardState } from "../wizard.runes.svelte.js";
 import {
+	assignAndLoad,
 	autoAssignAllSlots,
 	bulkDownloadAndAssign,
 	cancelActiveDownload,
@@ -66,6 +69,9 @@ let { onBrowseModels, onImport }: Props = $props();
 
 // ── State ──────────────────────────────────────────────
 let expandedSlot = $state<string | null>(null);
+let showVramWarning = $state(false);
+let pendingLoadSlot = $state<string | null>(null);
+let pendingLoadModel = $state<ModelInfo | null>(null);
 const cardMacro = $derived(renderForge({ kind: "card", preset: "glass" }));
 
 // ── Icon map ───────────────────────────────────────────
@@ -118,20 +124,6 @@ function statusToVariant(status: ModelStatus): "positive" | "informative" | "neg
 	}
 }
 
-// ── VRAM guard ─────────────────────────────────────────
-function canLoadModel(model: ModelInfo | null): boolean {
-	if (!model) return false;
-	if (!hardwareState.hasGpu) return true;
-	return model.vram_estimate_mb <= hardwareState.vramTotalMb;
-}
-function vramGuardMsg(model: ModelInfo | null): string | null {
-	if (!model || !hardwareState.hasGpu) return null;
-	if (model.vram_estimate_mb > hardwareState.vramTotalMb) {
-		return `Too large for your GPU (needs ${formatMb(model.vram_estimate_mb)}, GPU has ${formatMb(hardwareState.vramTotalMb)})`;
-	}
-	return null;
-}
-
 // ── Actions ────────────────────────────────────────────
 async function handleDownload(rec: ModelRec): Promise<void> {
 	await downloadAndAssign(rec);
@@ -143,6 +135,25 @@ async function handleLoad(slotId: string): Promise<void> {
 		/* error in modelsState.statuses */
 	}
 }
+function handleLoadWithGuard(slotId: string): void {
+	const model = modelsState.assignedModel(slotId);
+	if (!model) return;
+	if (hardwareState.hasGpu && model.vram_estimate_mb > hardwareState.vramFreeMb) {
+		pendingLoadSlot = slotId;
+		pendingLoadModel = model;
+		showVramWarning = true;
+		return;
+	}
+	handleLoad(slotId);
+}
+async function confirmVramLoad(): Promise<void> {
+	showVramWarning = false;
+	if (pendingLoadSlot) {
+		await handleLoad(pendingLoadSlot);
+		pendingLoadSlot = null;
+		pendingLoadModel = null;
+	}
+}
 async function handleUnload(slotId: string): Promise<void> {
 	try {
 		await modelsState.unload(slotId);
@@ -152,10 +163,10 @@ async function handleUnload(slotId: string): Promise<void> {
 }
 async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	try {
-		await modelsState.assign(slotId, modelId);
+		await assignAndLoad(slotId, modelId);
 		expandedSlot = null;
 	} catch {
-		/* error in modelsState.error */
+		/* errors surface via toast + modelsState.statuses */
 	}
 }
 </script>
@@ -324,6 +335,7 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 						class="model-list-enter rounded-md p-3 mb-3 border"
 						style="background: var(--surface-elevated); border-color: var(--border-subtle);"
 						role="listbox"
+						tabindex="0"
 						aria-label="Compatible models for {friendlySlotLabel(slot.id)}"
 						onkeydown={(e) => { if (e.key === "Escape") expandedSlot = null; }}
 					>
@@ -352,24 +364,6 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 							</div>
 						{/each}
 
-						{#if modelsState.models.filter((m) => !m.compatible_capabilities.includes(slot.capability)).length > 0}
-							<Text size="sm" color="muted" class="mt-3 mb-1">Other models — may not work</Text>
-							{#each modelsState.models.filter((m) => !m.compatible_capabilities.includes(slot.capability)) as m (m.id)}
-								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<div
-									class="model-row flex items-center gap-3 rounded-md px-3 py-2 cursor-pointer opacity-50"
-									role="option"
-									aria-selected={false}
-									tabindex="0"
-									onclick={() => handleAssign(slot.id, m.id)}
-									onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleAssign(slot.id, m.id); } }}
-								>
-									<Text size="sm" color="muted" class="flex-1 truncate">{m.filename}</Text>
-									<Text size="sm" color="muted">{formatMb(m.size_mb)}</Text>
-								</div>
-							{/each}
-						{/if}
-
 						<!-- Import for this slot -->
 						<button
 							class="flex items-center gap-1.5 rounded-md px-3 py-2 mt-2 text-sm transition-colors w-full border border-dashed"
@@ -386,54 +380,68 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 				<!-- ACTIONS -->
 				<div class="flex items-center gap-2 flex-wrap">
 					<!-- Assign / Change -->
-					<button
-						class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors border"
-						style="border-color: var(--border-subtle); color: var(--text-secondary);"
-						onclick={() => (expandedSlot = isExpanded ? null : slot.id)}
-						aria-label="{model ? 'Change' : 'Assign'} model for {friendlySlotLabel(slot.id)}"
-					>
-						{#if isExpanded}<ChevronUp size={14} />{:else}<ChevronDown size={14} />{/if}
-						{model ? "Change Model" : "Assign"}
-					</button>
+					<Tooltip openDelay={400}>
+						<TooltipTrigger>
+							<button
+								class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors border"
+								style="border-color: var(--border-subtle); color: var(--text-secondary);"
+								onclick={() => (expandedSlot = isExpanded ? null : slot.id)}
+								aria-label="{model ? 'Change' : 'Assign'} model for {friendlySlotLabel(slot.id)}"
+							>
+								{#if isExpanded}<ChevronUp size={14} />{:else}<ChevronDown size={14} />{/if}
+								{model ? "Change Model" : "Assign"}
+							</button>
+						</TooltipTrigger>
+						<TooltipContent>{model ? "Pick a different model from your disk" : "Choose a model to use for this slot"}</TooltipContent>
+					</Tooltip>
 
 					<!-- Load -->
 					{#if model && (status.type === "cold" || isFailed)}
-						{@const guardMsg = vramGuardMsg(model)}
-						<button
-							class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-							style="background: var(--accent-teal-main); color: var(--surface-base);"
-							onclick={() => handleLoad(slot.id)}
-							disabled={!canLoadModel(model)}
-							aria-label="Load {friendlySlotLabel(slot.id)} model into memory"
-							title={guardMsg ?? undefined}
-						>
-							<Power size={14} />
-							Load into Memory
-						</button>
-						{#if guardMsg}
-							<Text size="sm" style="color: var(--signal-error);">{guardMsg}</Text>
-						{/if}
+						<Tooltip openDelay={400}>
+							<TooltipTrigger>
+								<button
+									class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-bold transition-colors"
+									style="background: var(--accent-teal-main); color: var(--surface-base);"
+									onclick={() => handleLoadWithGuard(slot.id)}
+									aria-label="Load {friendlySlotLabel(slot.id)} model into memory"
+								>
+									<Power size={14} />
+									Load into Memory
+								</button>
+							</TooltipTrigger>
+							<TooltipContent>Load this model so {friendlySlotLabel(slot.id)} can work</TooltipContent>
+						</Tooltip>
 					{/if}
 
 					<!-- Unload -->
 					{#if isLoaded}
-						<button
-							class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors border"
-							style="border-color: var(--signal-warning); color: var(--signal-warning);"
-							onclick={() => handleUnload(slot.id)}
-							aria-label="Unload {friendlySlotLabel(slot.id)} model from memory"
-						>
-							<PowerOff size={14} />
-							Unload
-						</button>
+						<Tooltip openDelay={400}>
+							<TooltipTrigger>
+								<button
+									class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors border"
+									style="border-color: var(--signal-warning); color: var(--signal-warning);"
+									onclick={() => handleUnload(slot.id)}
+									aria-label="Unload {friendlySlotLabel(slot.id)} model from memory"
+								>
+									<PowerOff size={14} />
+									Unload
+								</button>
+							</TooltipTrigger>
+							<TooltipContent>Free memory by removing this model</TooltipContent>
+						</Tooltip>
 					{/if}
 
-					<!-- Loading spinner -->
+					<!-- Loading progress -->
 					{#if status.type === "loading"}
-						<Spinner size="sm" />
-						<Text size="sm" color="muted">
-							{#if "stage" in status}{status.stage}{:else}Loading...{/if}
-						</Text>
+						<div class="flex flex-col gap-1 flex-1">
+							<div class="flex items-center gap-2">
+								<Spinner size="sm" />
+								<Text size="sm" color="muted">
+									{translateLoadingStage(status.stage, status.progressPct, 0)}
+								</Text>
+							</div>
+							<Progress value={status.progressPct} max={100} size="sm" />
+						</div>
 					{/if}
 				</div>
 			</div>
@@ -456,25 +464,35 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 
 	<!-- Bulk actions -->
 	<div class="flex items-center gap-3 justify-center flex-wrap">
-		<button
-			class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors border"
-			style="border-color: var(--border-subtle); color: var(--text-secondary);"
-			onclick={autoAssignAllSlots}
-			aria-label="Auto-configure all slots with compatible models"
-		>
-			Auto-Configure All
-		</button>
+		<Tooltip openDelay={400}>
+			<TooltipTrigger>
+				<button
+					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors border"
+					style="border-color: var(--border-subtle); color: var(--text-secondary);"
+					onclick={autoAssignAllSlots}
+					aria-label="Auto-configure all slots with compatible models"
+				>
+					Auto-Configure All
+				</button>
+			</TooltipTrigger>
+			<TooltipContent>Automatically pick the best model for each empty slot based on your hardware</TooltipContent>
+		</Tooltip>
 
 		{#if wizardState.recommendations.length > 0}
-			<button
-				class="flex items-center gap-1.5 rounded-lg px-5 py-2 text-sm font-bold transition-colors"
-				style="background: var(--accent-teal-main); color: var(--surface-base);"
-				onclick={() => bulkDownloadAndAssign(wizardState.recommendations)}
-				aria-label="Download and assign all suggested models"
-			>
-				<Download size={14} />
-				Download All Recommended
-			</button>
+			<Tooltip openDelay={400}>
+				<TooltipTrigger>
+					<button
+						class="flex items-center gap-1.5 rounded-lg px-5 py-2 text-sm font-bold transition-colors"
+						style="background: var(--accent-teal-main); color: var(--surface-base);"
+						onclick={() => bulkDownloadAndAssign(wizardState.recommendations)}
+						aria-label="Download and assign all suggested models"
+					>
+						<Download size={14} />
+						Download All Recommended
+					</button>
+				</TooltipTrigger>
+				<TooltipContent>Download and install all recommended models at once</TooltipContent>
+			</Tooltip>
 		{/if}
 
 	</div>
@@ -503,6 +521,52 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 			await downloadAndAssign(rec);
 		}}
 	/>
+
+	<!-- VRAM warning dialog -->
+	{#if showVramWarning && pendingLoadModel}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center"
+			style="background: oklch(0 0 0 / 0.6);"
+			role="presentation"
+			onclick={() => { showVramWarning = false; }}
+			onkeydown={(e) => { if (e.key === "Escape") showVramWarning = false; }}
+		>
+			<div
+				class="mx-4 w-full max-w-md rounded-xl p-6"
+				style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				role="alertdialog"
+				tabindex="-1"
+				aria-modal="true"
+				aria-labelledby="vram-warn-title"
+				aria-describedby="vram-warn-msg"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => { if (e.key === "Escape") showVramWarning = false; }}
+			>
+				<Text id="vram-warn-title" size="lg" weight="bold" color="primary" class="mb-2">Model Too Large for GPU</Text>
+				<Text id="vram-warn-msg" size="sm" color="muted" class="mb-6">
+					{pendingLoadModel.filename} needs ~{formatMb(pendingLoadModel.vram_estimate_mb)} VRAM
+					but you only have {formatMb(hardwareState.vramFreeMb)} free.
+					It will run on CPU instead (slower).
+				</Text>
+				<div class="flex justify-end gap-3">
+					<button
+						class="rounded-lg px-4 py-2 text-sm transition-colors"
+						style="color: var(--text-secondary); border: 1px solid var(--border-subtle);"
+						onclick={() => { showVramWarning = false; }}
+					>
+						Cancel
+					</button>
+					<button
+						class="rounded-lg px-4 py-2 text-sm font-bold transition-colors"
+						style="background: var(--accent-teal-main); color: var(--surface-base);"
+						onclick={confirmVramLoad}
+					>
+						Load on CPU
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -512,11 +576,11 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	}
 	.slot-card[data-loaded="true"] {
 		border-color: var(--accent-teal-main);
-		box-shadow: var(--glow-teal);
+		box-shadow: 0 0 1.5rem 0.25rem oklch(0.65 0.17 185 / 0.5);
 	}
 	.slot-card[data-status="failed"] {
 		border-color: var(--signal-error);
-		box-shadow: var(--glow-ember);
+		box-shadow: 0 0 1.5rem 0.25rem oklch(0.55 0.2 25 / 0.4);
 	}
 	.model-list-enter {
 		animation: model-list-expand var(--motion-duration-fast) ease-out;

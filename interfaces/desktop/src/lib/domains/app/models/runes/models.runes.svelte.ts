@@ -15,6 +15,7 @@ import {
 	scanModels,
 	swapSlotModel,
 	unloadSlot,
+	warmSlot,
 } from "../services/index.js";
 import type { ModelStatus } from "../types/models.types.js";
 
@@ -87,6 +88,25 @@ class ModelsState {
 			}
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : String(e);
+			throw e;
+		}
+	}
+
+	/** Warm a slot — load weights to CPU RAM only. Fast activation later. */
+	async warm(slotId: string): Promise<void> {
+		const { swapState } = await import("./swap.runes.svelte.js");
+		swapState.startLoad(slotId);
+		this.statuses[slotId] = { type: "loading", stage: "loading_weights", progressPct: 0 };
+		try {
+			await warmSlot(slotId);
+			this.statuses[slotId] = {
+				type: "warm",
+			};
+			swapState.complete();
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			this.statuses[slotId] = { type: "failed", error: msg };
+			swapState.fail(msg);
 			throw e;
 		}
 	}

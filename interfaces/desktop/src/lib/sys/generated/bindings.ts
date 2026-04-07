@@ -151,6 +151,31 @@ async setLaneConfig(config: LaneTraceConfig) : Promise<Result<null, string>> {
 }
 },
 /**
+ * Query span traces from DuckDB.
+ * 
+ * If `trace_id` is provided, returns all spans for that trace (tree view).
+ * Otherwise returns the most recent spans up to `limit`.
+ */
+async querySpanTraces(traceId: string | null, limit: number | null) : Promise<Result<SpanTraceRow[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("query_span_traces", { traceId, limit }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Query lane trace baselines (percentiles per lane).
+ */
+async queryLaneBaselines() : Promise<Result<LaneBaselineRow[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("query_lane_baselines") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.
@@ -421,6 +446,32 @@ async cancelDownload(downloadId: string) : Promise<Result<null, string>> {
 }
 },
 /**
+ * Warm a slot — load weights to CPU RAM only, no GPU allocation.
+ * 
+ * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
+ */
+async warmSlot(slotId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("warm_slot", { slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a model from disk and remove from registry.
+ * 
+ * Clears any slot assignments. Refuses if the model is currently loaded.
+ */
+async deleteModel(modelId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_model", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Search HuggingFace for GGUF models.
  */
 async searchHuggingface(query: string, limit: number | null) : Promise<Result<HfSearchResultInfo[], string>> {
@@ -643,7 +694,10 @@ async activateVoiceProfile(profileId: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Store an API key in the platform keychain.
+ * Store an API key in the platform keychain AND sync to libSQL.
+ * 
+ * Keychain is the primary secure store. libSQL gets a masked hint
+ * so the engine can check key availability without accessing the keychain.
  */
 async storeApiKey(provider: ApiProvider, key: string) : Promise<Result<null, string>> {
     try {
@@ -666,7 +720,7 @@ async getApiKey(provider: ApiProvider) : Promise<Result<string | null, string>> 
 }
 },
 /**
- * Delete an API key from the platform keychain.
+ * Delete an API key from the platform keychain AND libSQL.
  */
 async deleteApiKey(provider: ApiProvider) : Promise<Result<null, string>> {
     try {
@@ -717,7 +771,7 @@ stored: boolean;
  */
 masked_preview: string | null }
 /**
- * Supported API providers for voice escalation.
+ * Supported API providers for voice escalation and Council routing.
  */
 export type ApiProvider = 
 /**
@@ -727,7 +781,11 @@ export type ApiProvider =
 /**
  * OpenAI (GPT) API.
  */
-"OpenAI"
+"OpenAI" | 
+/**
+ * Google (Gemini) API.
+ */
+"Google"
 /**
  * Boot phase — serialized to frontend as `PascalCase`.
  */
@@ -1220,6 +1278,10 @@ export type InitStatus =
  */
 "Skipped"
 /**
+ * A lane baseline row from DuckDB.
+ */
+export type LaneBaselineRow = { lane: string; sample_count: number; p50_us: number; p95_us: number; p99_us: number; avg_queue_wait_us: number; cache_hit_rate: number; cold_start_rate: number; computed_at: string }
+/**
  * Per-lane toggle state (public, TS-exported).
  */
 export type LaneToggle = { 
@@ -1515,6 +1577,10 @@ context_length: number | null;
  * Active inference backend (e.g. "candle", "llamacpp", "sherpa"). None if not loaded.
  */
 backend: string | null }
+/**
+ * A span trace row from DuckDB, serialized for the frontend.
+ */
+export type SpanTraceRow = { trace_id: string; span_id: number; parent_span_id: number | null; name: string; target: string; level: string; duration_us: number; fields_json: string | null; created_at: string }
 /**
  * Health of an individual subsystem (database, cache, etc.).
  */

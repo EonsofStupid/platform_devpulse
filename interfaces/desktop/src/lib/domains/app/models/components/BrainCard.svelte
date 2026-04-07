@@ -4,9 +4,10 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Loader2, Power, PowerOff, RefreshCw, X } from "lucide-svelte";
+import { Download, Flame, Loader2, Power, PowerOff, RefreshCw, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
@@ -84,6 +85,7 @@ const modelStatus = $derived(modelsState.statuses[SLOT_ID]);
 const isTransitioning = $derived(
 	modelStatus?.type === "loading" || modelStatus?.type === "unloading",
 );
+const isWarm = $derived(modelStatus?.type === "warm");
 
 // ── Actions ───────────────────────────────────────────────────
 
@@ -157,6 +159,15 @@ async function handleUnload(): Promise<void> {
 	}
 }
 
+async function handleWarm(): Promise<void> {
+	error = null;
+	try {
+		await modelsState.warm(SLOT_ID);
+	} catch (e) {
+		error = `Warm failed: ${e instanceof Error ? e.message : String(e)}`;
+	}
+}
+
 async function handleSwap(): Promise<void> {
 	const model = modelsState.models.find((m) => m.filename === opt.file);
 	if (!model) {
@@ -186,15 +197,17 @@ async function handleSwap(): Promise<void> {
 				<Text size="xs" color="muted">{catalogDescription}</Text>
 			</div>
 			<Badge
-				variant={isLoaded ? "positive" : hasModel ? "neutral" : "neutral"}
+				variant={isLoaded ? "positive" : isWarm ? "positive" : hasModel ? "neutral" : "neutral"}
 				size="sm"
 				title={isLoaded
 					? "This model is running and ready to use"
-					: hasModel
-						? "Model is downloaded but not running yet — click Activate to start it"
-						: "You need to download this model before Clyffy can think"}
+					: isWarm
+						? "Model is pre-loaded in RAM — click Activate for full speed"
+						: hasModel
+							? "Model is downloaded but not running yet — click Activate to start it"
+							: "You need to download this model before Clyffy can think"}
 			>
-				{isLoaded ? "Active" : hasModel ? "Ready" : "Not installed"}
+				{isLoaded ? "Active" : isWarm ? "Warmed" : hasModel ? "Ready" : "Not installed"}
 			</Badge>
 		</div>
 
@@ -296,49 +309,108 @@ async function handleSwap(): Promise<void> {
 							{formatMb(opt.size_mb)} download · {formatMb(hardwareState.diskFreeMb)} free on disk
 						</Text>
 					{/if}
-					<button
-						class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
-						style="background: var(--accent-teal-main); color: var(--surface-base);"
-						onclick={handleDownload}
-						disabled={isTransitioning}
-						title="Download this AI model to your computer — it's a one-time download and runs entirely on your PC (no cloud needed)"
-					>
-						<Download size={14} />
-						Install ({formatMb(opt.size_mb)})
-					</button>
+					<Tooltip openDelay={400}>
+						<TooltipTrigger>
+							<button
+								class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
+								style="background: var(--accent-teal-main); color: var(--surface-base);"
+								onclick={handleDownload}
+								disabled={isTransitioning}
+							>
+								<Download size={14} />
+								Install ({formatMb(opt.size_mb)})
+							</button>
+						</TooltipTrigger>
+						<TooltipContent>One-time download — runs entirely on your PC, no cloud needed</TooltipContent>
+					</Tooltip>
 				</div>
 			{:else if isLoaded}
-				<button
-					class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
-					onclick={handleUnload}
-					disabled={isTransitioning}
-					title="Turn off this model to free up graphics card memory — you can turn it back on anytime"
-				>
-					<PowerOff size={12} />
-					Deactivate
-				</button>
-				<button
-					class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
-					onclick={handleSwap}
-					disabled={isTransitioning}
-					title="Switch to the selected size without losing your place — Clyffy will briefly pause while switching"
-				>
-					<RefreshCw size={12} />
-					Switch Size
-				</button>
+				<Tooltip openDelay={400}>
+					<TooltipTrigger>
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+							onclick={handleUnload}
+							disabled={isTransitioning}
+						>
+							<PowerOff size={12} />
+							Deactivate
+						</button>
+					</TooltipTrigger>
+					<TooltipContent>Turn off to free graphics card memory</TooltipContent>
+				</Tooltip>
+				<Tooltip openDelay={400}>
+					<TooltipTrigger>
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+							onclick={handleSwap}
+							disabled={isTransitioning}
+						>
+							<RefreshCw size={12} />
+							Switch Size
+						</button>
+					</TooltipTrigger>
+					<TooltipContent>Switch to the selected size — Clyffy pauses briefly</TooltipContent>
+				</Tooltip>
+			{:else if isWarm}
+				<Tooltip openDelay={400}>
+					<TooltipTrigger>
+						<button
+							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
+							style="background: var(--accent-teal-main); color: var(--surface-base);"
+							onclick={handleLoad}
+							disabled={isTransitioning}
+						>
+							<Power size={14} />
+							Activate (fast — already in RAM)
+						</button>
+					</TooltipTrigger>
+					<TooltipContent>Move from RAM to GPU for full-speed inference</TooltipContent>
+				</Tooltip>
+				<Tooltip openDelay={400}>
+					<TooltipTrigger>
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+							onclick={handleUnload}
+							disabled={isTransitioning}
+						>
+							<PowerOff size={12} />
+							Release RAM
+						</button>
+					</TooltipTrigger>
+					<TooltipContent>Remove from RAM to free memory</TooltipContent>
+				</Tooltip>
 			{:else}
-				<button
-					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
-					style="background: var(--accent-teal-main); color: var(--surface-base);"
-					onclick={handleLoad}
-					disabled={isTransitioning}
-					title="Turn on this AI model so Clyffy can start thinking — this loads it into your graphics card memory"
-				>
-					<Power size={14} />
-					Activate
-				</button>
+				<Tooltip openDelay={400}>
+					<TooltipTrigger>
+						<button
+							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
+							style="background: var(--accent-teal-main); color: var(--surface-base);"
+							onclick={handleLoad}
+							disabled={isTransitioning}
+						>
+							<Power size={14} />
+							Activate
+						</button>
+					</TooltipTrigger>
+					<TooltipContent>Load this model into your graphics card so Clyffy can think</TooltipContent>
+				</Tooltip>
+				<Tooltip openDelay={400}>
+					<TooltipTrigger>
+						<button
+							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+							onclick={handleWarm}
+							disabled={isTransitioning}
+						>
+							<Flame size={12} />
+							Warm Up
+						</button>
+					</TooltipTrigger>
+					<TooltipContent>Pre-load into RAM without GPU — makes activation faster later</TooltipContent>
+				</Tooltip>
 			{/if}
 		</div>
 

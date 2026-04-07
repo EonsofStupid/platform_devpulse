@@ -82,6 +82,36 @@ export async function swapSlotModel(slotId: string, newModelId: string): Promise
 	}
 }
 
+/** Warm a slot — load weights to CPU RAM only. Throws on failure. */
+export async function warmSlot(slotId: string): Promise<void> {
+	logInfo("models.slots", `Warming slot ${slotId}...`);
+	try {
+		// Use raw invoke until specta bindings regenerate with warm_slot
+		const { invoke } = await import("@tauri-apps/api/core");
+		await invoke("warm_slot", { slotId });
+		logInfo("models.slots", `Slot ${slotId} warmed`);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("models.slots", `Warm FAILED for ${slotId}: ${msg}`);
+		throw new Error(`Failed to warm ${slotId}: ${msg}`);
+	}
+}
+
+/** Delete a model from disk and registry. Clears slot assignments. Throws on failure. */
+export async function deleteModel(modelId: string): Promise<void> {
+	logInfo("models.slots", `Deleting model ${modelId}...`);
+	try {
+		// Use raw invoke until specta bindings regenerate with delete_model
+		const { invoke } = await import("@tauri-apps/api/core");
+		await invoke("delete_model", { modelId });
+		logInfo("models.slots", `Model ${modelId} deleted`);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("models.slots", `Delete FAILED for ${modelId}: ${msg}`);
+		throw new Error(`Failed to delete model: ${msg}`);
+	}
+}
+
 /** Check if first run. Throws on failure. */
 export async function isFirstRun(): Promise<boolean> {
 	try {

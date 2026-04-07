@@ -20,8 +20,12 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Model Loader service — managed by the platform boot pipeline.
+///
+/// Uses `Arc<Mutex<Inner>>` so that `scan_models()` can move a clone into
+/// `spawn_blocking` — GGUF header parsing is synchronous filesystem I/O and
+/// must not run on the async runtime thread (causes "Not Responding" freeze).
 pub struct ModelLoaderService {
-    inner: Mutex<Inner>,
+    inner: Arc<Mutex<Inner>>,
 }
 
 impl ModelLoaderService {
@@ -72,7 +76,7 @@ impl ModelLoaderService {
         }
 
         Ok(Self {
-            inner: Mutex::new(service),
+            inner: Arc::new(Mutex::new(service)),
         })
     }
 
@@ -83,9 +87,19 @@ impl ModelLoaderService {
     }
 
     /// Scan models directory.
+    ///
+    /// Runs on a blocking thread via `spawn_blocking` because the inner
+    /// `scan_models()` does synchronous GGUF header parsing (filesystem I/O).
+    /// Without this, the async runtime thread is blocked and the UI freezes.
     pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>> {
-        let mut inner = self.inner.lock().await;
-        inner.scan_models().map_err(Into::into)
+        let inner = Arc::clone(&self.inner);
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard.scan_models()
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("scan_models task panicked: {e}"))?
+        .map_err(Into::into)
     }
 
     /// List all registered slots.
@@ -120,6 +134,14 @@ impl ModelLoaderService {
     pub async fn unload_slot(&self, slot_id: &str) -> Result<()> {
         let mut inner = self.inner.lock().await;
         inner.unload_slot(slot_id).await.map_err(|e| {
+            anyhow::anyhow!("{e}")
+        })
+    }
+
+    /// Warm a slot — load weights to CPU RAM only, no GPU.
+    pub async fn warm_slot(&self, slot_id: &str) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.warm_slot(slot_id).await.map_err(|e| {
             anyhow::anyhow!("{e}")
         })
     }

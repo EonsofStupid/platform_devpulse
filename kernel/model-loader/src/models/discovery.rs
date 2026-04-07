@@ -684,17 +684,46 @@ fn filter_safetensor_shards(entries: &mut Vec<ModelRegistryEntry>) {
     });
 }
 
-/// Deduplicate registry entries by canonical path.
+/// Deduplicate registry entries by normalized path string.
 ///
 /// If the same file appears via symlink and direct path, keep only one entry.
-/// Preference: entries from purpose directories (`chat/`, `voice/`, etc.)
-/// over entries from `general/` or root.
+/// Uses `normalize_path` instead of raw `canonicalize()` because Windows
+/// `canonicalize()` returns `\\?\`-prefixed UNC paths that don't match
+/// non-canonical paths, causing duplicates.
 fn deduplicate_by_path(entries: &mut Vec<ModelRegistryEntry>) {
     let mut seen = std::collections::HashSet::new();
     entries.retain(|entry| {
-        let canonical = entry.path.canonicalize().unwrap_or_else(|_| entry.path.clone());
-        seen.insert(canonical)
+        let normalized = normalize_path(&entry.path);
+        seen.insert(normalized)
     });
+}
+
+/// Normalize a path for deduplication on Windows.
+///
+/// - Resolves symlinks via `canonicalize()` (falls back to original on error)
+/// - Strips `\\?\` UNC prefix that Windows `canonicalize()` adds
+/// - Converts all backslashes to forward slashes
+/// - Lowercases the drive letter (`C:` → `c:`)
+fn normalize_path(path: &std::path::Path) -> String {
+    let canonical = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+    let mut s = canonical.to_string_lossy().to_string();
+
+    // Strip \\?\ prefix that Windows canonicalize adds
+    if s.starts_with(r"\\?\") {
+        s = s[4..].to_string();
+    }
+
+    // Forward slashes only
+    s = s.replace('\\', "/");
+
+    // Lowercase drive letter: C: → c:
+    if s.len() >= 2 && s.as_bytes()[1] == b':' {
+        let mut chars: Vec<char> = s.chars().collect();
+        chars[0] = chars[0].to_ascii_lowercase();
+        s = chars.into_iter().collect();
+    }
+
+    s
 }
 
 #[cfg(test)]

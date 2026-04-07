@@ -2,6 +2,6 @@
 	"$schema": "../gen/schemas/desktop-schema.json",
 	"identifier": "default",
 	"description": "Default capability — all windows",
-	"windows": ["main", "chat", "devtools"],
+	"windows": ["main", "chat", "devtools", "cortex-viewer", "model-loader", "voice-lab"],
 	"permissions": ["core:default", "shell:allow-open", "global-shortcut:allow-register"]
 }

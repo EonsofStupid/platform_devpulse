@@ -17,7 +17,7 @@ import {
 	onDownloadProgress,
 } from "../../services/download.service.js";
 import type { AutoConfig } from "../../types/models.types.js";
-import { friendlySlotLabel, isInferenceReady } from "../../types/models.types.js";
+import { formatMb, friendlySlotLabel, isInferenceReady } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
 
@@ -276,6 +276,37 @@ export async function autoAssignAllSlots(): Promise<void> {
 
 	if (assigned === 0) {
 		toast.info("No unassigned slots with compatible models found");
+	}
+}
+
+/**
+ * Assign a model to a slot and immediately load it. Single-click UX.
+ *
+ * @throws {Error} If assignment or load fails
+ * @sideeffects Updates modelsState via assign() and load(), fires toasts
+ */
+export async function assignAndLoad(slotId: string, modelId: string): Promise<void> {
+	const { toast } = await import("svelte-sonner");
+	const model = modelsState.models.find((m) => m.id === modelId);
+	if (!model) {
+		throw new Error(`Model ${modelId} not found in registry`);
+	}
+
+	if (hardwareState.hasGpu && model.vram_estimate_mb > hardwareState.vramFreeMb) {
+		toast.warning(
+			`${model.filename} needs ~${formatMb(model.vram_estimate_mb)} VRAM but only ${formatMb(hardwareState.vramFreeMb)} free. Loading on CPU.`,
+		);
+	}
+
+	try {
+		await modelsState.assign(slotId, modelId);
+		await modelsState.load(slotId);
+		toast.success(`${friendlySlotLabel(slotId)} is active`);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.assignAndLoad", `Failed: slot=${slotId} model=${modelId} error=${msg}`);
+		toast.error(`Failed to activate ${friendlySlotLabel(slotId)}: ${msg}`);
+		throw e;
 	}
 }
 

@@ -51,6 +51,18 @@ pub enum ModelStatus {
         /// Progress percentage (0.0–100.0).
         progress_pct: f32,
     },
+    /// Model weights loaded in RAM but not on GPU. Fast activation possible.
+    /// Use `warm_slot()` to reach this state, `activate_slot()` to promote to Loaded.
+    Warm {
+        /// Memory consumed (RAM only, vram_bytes = 0).
+        footprint: MemoryFootprint,
+    },
+    /// Session created and ready for inference with <500ms activation.
+    /// Model is in a low-power state — not consuming active GPU compute.
+    Standby {
+        /// Memory consumed by the standby session.
+        footprint: MemoryFootprint,
+    },
     /// Model is loaded and available for inference.
     Loaded {
         /// Memory consumed by the loaded model.
@@ -115,6 +127,8 @@ impl std::fmt::Display for ModelStatus {
         match self {
             Self::NotLoaded => write!(f, "not_loaded"),
             Self::Loading { stage, .. } => write!(f, "loading:{stage}"),
+            Self::Warm { .. } => write!(f, "warm"),
+            Self::Standby { .. } => write!(f, "standby"),
             Self::Loaded { .. } => write!(f, "loaded"),
             Self::Failed { .. } => write!(f, "failed"),
             Self::Unloading => write!(f, "unloading"),

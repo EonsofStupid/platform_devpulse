@@ -17,9 +17,11 @@ export { getModelRegistry, scanModels } from "./registry.service.js";
 export { searchHuggingFace } from "./search.service.js";
 export {
 	assignModelToSlot,
+	deleteModel,
 	getSlots,
 	isFirstRun,
 	loadSlot,
 	swapSlotModel,
 	unloadSlot,
+	warmSlot,
 } from "./slots.service.js";

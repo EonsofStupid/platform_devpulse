@@ -150,19 +150,23 @@ export function translateLoadingStage(
 	if (level === 2) return `${stage} ${pct}%`;
 	switch (stage) {
 		case "Verifying":
-			return level === 0 ? "Checking the model file..." : `Verifying integrity (${pct}%)`;
+			return level === 0 ? "Checking the model file is intact..." : `Verifying integrity (${pct}%)`;
 		case "Allocating":
-			return level === 0
-				? "Reserving memory on your graphics card..."
-				: `Allocating VRAM (${pct}%)`;
+			return level === 0 ? "Reserving space on your graphics card..." : `Allocating VRAM (${pct}%)`;
 		case "LoadingWeights":
-			return level === 0 ? `Loading the brain — ${pct}% done...` : `Loading weights (${pct}%)`;
+			return level === 0
+				? `Loading Clyffy's brain into memory — ${pct}% done...`
+				: `Loading weights (${pct}%)`;
 		case "LoadingTokenizer":
-			return level === 0 ? "Setting up the language processor..." : `Loading tokenizer (${pct}%)`;
+			return level === 0
+				? "Teaching Clyffy how to read your words..."
+				: `Loading tokenizer (${pct}%)`;
 		case "WarmingUp":
-			return level === 0 ? "Almost ready — warming up..." : `Warm-up pass (${pct}%)`;
+			return level === 0
+				? "Almost ready — Clyffy is stretching her neurons..."
+				: `Warm-up pass (${pct}%)`;
 		default:
-			return level === 0 ? `Loading... ${pct}%` : `${stage} (${pct}%)`;
+			return level === 0 ? `Getting ready... ${pct}%` : `${stage} (${pct}%)`;
 	}
 }
 
@@ -213,13 +217,15 @@ export function translateNarrationEvent(
 function friendlySlotName(slotId: string, level: CompetencyLevel): string {
 	if (level === 2) return slotId;
 	const map: Record<string, string> = {
-		"chat.brain": "the AI Brain",
-		"minion.shared": "the quick worker",
-		"vision.embedder": "vision",
-		"voice.stt": "voice input",
-		"voice.tts": "voice output",
-		"rag.embedder": "the search engine",
-		"rag.reranker": "the relevance scorer",
+		"chat.brain": "the Main AI",
+		"minion.shared": "the Quick Helper",
+		"minion.escalation": "the Deep Thinker",
+		"vision.embedder": "Clyffy's Eyes",
+		"voice.stt": "Clyffy's Ears",
+		"voice.tts": "Clyffy's Voice",
+		"voice.brain": "the Voice Brain",
+		"rag.embedder": "the Search Engine",
+		"rag.reranker": "the Search Refiner",
 	};
 	return map[slotId] ?? slotId;
 }

@@ -617,6 +617,136 @@ impl ModelLoaderService {
         self.unload_slot(slot_id).await
     }
 
+    /// Warm a slot — load weights to CPU RAM only, no GPU allocation.
+    ///
+    /// This puts the model in a `Warm` state where it consumes RAM but not VRAM.
+    /// Activation (Warm→Loaded) is fast because weights are already in memory.
+    /// Useful for preloading models that will be needed soon.
+    pub async fn warm_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
+        if !self.slots.contains(slot_id) {
+            return Err(LoaderError::SlotNotFound {
+                slot_id: slot_id.to_string(),
+            });
+        }
+
+        let slot = self.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound {
+            slot_id: slot_id.to_string(),
+        })?;
+
+        let model_id = slot.assigned_model.clone().ok_or(LoaderError::NoModelAssigned {
+            slot_id: slot_id.to_string(),
+        })?;
+
+        // Check if already warm or loaded
+        match self.slot_statuses.get(slot_id) {
+            Some(ModelStatus::Loaded { .. }) | Some(ModelStatus::Warm { .. }) => {
+                tracing::debug!(slot = %slot_id, "Already warm or loaded — skipping");
+                return Ok(());
+            }
+            Some(ModelStatus::Loading { .. }) => {
+                return Err(LoaderError::AlreadyLoading {
+                    slot_id: slot_id.to_string(),
+                });
+            }
+            _ => {}
+        }
+
+        let entry = self.registry.get(&model_id).ok_or(LoaderError::ModelFileMissing {
+            path: std::path::PathBuf::new(),
+            slot_id: Some(slot_id.to_string()),
+            can_redownload: false,
+        })?;
+
+        if !entry.path.exists() {
+            return Err(LoaderError::ModelFileMissing {
+                path: entry.path.clone(),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: false,
+            });
+        }
+
+        let model_path = entry.path.clone();
+        let capability = slot.capability;
+        let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
+
+        // Force CPU-only loading for warm state
+        let params = LoadParams {
+            device: "cpu".to_string(),
+            context_length: entry.context_length,
+            gpu_layers: Some(0),
+        };
+
+        self.slot_statuses.insert(
+            slot_id.to_string(),
+            ModelStatus::Loading {
+                stage: crate::loading::states::LoadingStage::Allocating,
+                progress_pct: 5.0,
+            },
+        );
+        self.events.emit(LoaderEvent::LoadingStarted {
+            slot_id: slot_id.to_string(),
+            model_id: model_id.clone(),
+        });
+
+        let load_result = match backend {
+            BackendType::Ort | BackendType::Sherpa => {
+                self.voice_pool.load(slot_id, &model_path, capability, params)
+            }
+            #[cfg(feature = "candle-backend")]
+            BackendType::Candle | BackendType::LlamaCpp => {
+                match self.pool.acquire(&model_id, &model_path, params).await {
+                    Ok((handle, memory)) => {
+                        self.slot_handles.insert(slot_id.to_string(), handle);
+                        Ok(memory)
+                    }
+                    Err(e) => Err(e),
+                }
+            }
+            #[cfg(not(feature = "candle-backend"))]
+            BackendType::Candle | BackendType::LlamaCpp => {
+                Err(anyhow::anyhow!("Candle backend not compiled — cannot warm slot '{slot_id}'"))
+            }
+        };
+
+        match load_result {
+            Ok(memory) => {
+                // Mark as Warm (not Loaded) — weights in RAM, no GPU inference
+                let footprint = crate::loading::states::MemoryFootprint {
+                    ram_bytes: memory.ram_bytes,
+                    vram_bytes: 0, // Warm = CPU only
+                };
+                self.slot_statuses.insert(
+                    slot_id.to_string(),
+                    ModelStatus::Warm { footprint },
+                );
+                self.events.emit(LoaderEvent::LoadingComplete {
+                    slot_id: slot_id.to_string(),
+                    memory: footprint,
+                });
+                tracing::info!(
+                    slot = %slot_id,
+                    model = %model_id,
+                    ram_mb = footprint.ram_mb(),
+                    "Slot warmed (CPU RAM only)"
+                );
+                Ok(())
+            }
+            Err(e) => {
+                let error_msg = e.to_string();
+                self.slot_statuses.insert(
+                    slot_id.to_string(),
+                    ModelStatus::Failed { error: error_msg.clone() },
+                );
+                self.events.emit(LoaderEvent::LoadingFailed {
+                    slot_id: slot_id.to_string(),
+                    error: error_msg.clone(),
+                });
+                tracing::error!(slot = %slot_id, error = %error_msg, "Warm failed");
+                Err(LoaderError::Internal { message: error_msg })
+            }
+        }
+    }
+
     /// Check if a slot is currently loaded.
     #[must_use]
     pub fn is_slot_loaded(&self, slot_id: &str) -> bool {
@@ -845,6 +975,62 @@ impl ModelLoaderService {
         let hw = self.hardware.metrics().clone();
         let downloaded = self.registry.filenames();
         auto_config::auto_configure(&hw, &downloaded)
+    }
+
+    /// Delete a model from disk and remove it from the registry.
+    ///
+    /// If any slot has this model assigned, the assignment is cleared first.
+    /// If the model is currently loaded, it must be unloaded first — returns error.
+    pub async fn delete_model(&mut self, model_id: &str) -> Result<(), LoaderError> {
+        // Check if model is currently loaded — refuse to delete
+        if self.pool.is_loaded(model_id) {
+            return Err(LoaderError::Internal {
+                message: format!(
+                    "Model '{model_id}' is currently loaded. Unload it before deleting."
+                ),
+            });
+        }
+
+        // Get model info before removing
+        let entry = self.registry.get(model_id).ok_or(LoaderError::Internal {
+            message: format!("Model '{model_id}' not found in registry"),
+        })?;
+        let file_path = entry.path.clone();
+        let filename = entry.filename.clone();
+
+        // Clear any slot assignments pointing to this model
+        let slots_to_clear: Vec<String> = self
+            .slots
+            .list_slots()
+            .iter()
+            .filter(|s| s.assigned_model.as_deref() == Some(model_id))
+            .map(|s| s.id.clone())
+            .collect();
+
+        for slot_id in &slots_to_clear {
+            if let Err(e) = self.unassign_slot(slot_id) {
+                tracing::warn!(slot = %slot_id, error = %e, "Failed to unassign during delete");
+            }
+        }
+
+        // Delete file from disk
+        if file_path.exists() {
+            std::fs::remove_file(&file_path).map_err(|e| LoaderError::Internal {
+                message: format!("Failed to delete model file '{}': {e}", file_path.display()),
+            })?;
+        }
+
+        // Remove from registry
+        self.registry.remove(model_id);
+
+        tracing::info!(
+            model_id = %model_id,
+            filename = %filename,
+            cleared_slots = ?slots_to_clear,
+            "Model deleted from disk and registry"
+        );
+
+        Ok(())
     }
 
     /// Check if this is the first run (no slot assignments exist).

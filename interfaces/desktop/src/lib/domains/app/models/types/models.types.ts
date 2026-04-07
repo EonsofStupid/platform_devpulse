@@ -184,15 +184,15 @@ export function formatMb(mb: number): string {
 /** Friendly slot label for layman mode */
 export function friendlySlotLabel(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
-		"chat.brain": "AI Brain",
-		"minion.shared": "Quick Worker",
+		"chat.brain": "Main AI",
+		"minion.shared": "Quick Helper",
 		"minion.escalation": "Deep Thinker",
 		"rag.embedder": "Search Engine",
-		"rag.reranker": "Relevance Scorer",
-		"vision.embedder": "Vision",
-		"voice.tts": "Clyffy's Voice",
-		"voice.stt": "Voice Input",
-		"voice.brain": "Voice Conversation",
+		"rag.reranker": "Search Refiner",
+		"vision.embedder": "Eyes",
+		"voice.tts": "Voice",
+		"voice.stt": "Ears",
+		"voice.brain": "Voice Brain",
 	};
 	return map[slotId] ?? slotId;
 }
@@ -201,16 +201,52 @@ export function friendlySlotLabel(slotId: SlotId | string): string {
 export function slotDescription(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
 		"chat.brain": "Talks to you, writes code, answers questions",
-		"minion.shared": "Fast background tasks — summarizing, formatting",
-		"minion.escalation": "Complex analysis when the main AI needs help",
-		"rag.embedder": "Finds relevant code and docs for context",
-		"rag.reranker": "Ranks search results by relevance",
-		"vision.embedder": "Understands screenshots and diagrams",
-		"voice.tts": "Speaks AI responses out loud",
-		"voice.stt": "Converts your speech to text",
-		"voice.brain": "Quick conversational responses for voice chat",
+		"minion.shared": "Fast background tasks — summarizing, formatting, quick lookups",
+		"minion.escalation": "Complex analysis when the main AI needs deeper thinking",
+		"rag.embedder": "Finds relevant code and docs so Clyffy knows your project",
+		"rag.reranker": "Picks the most relevant results from search",
+		"vision.embedder": "Sees your screen — helps with errors, layouts, and diagrams",
+		"voice.tts": "Speaks Clyffy's responses out loud in her voice",
+		"voice.stt": "Listens to your voice and converts speech to text",
+		"voice.brain": "Quick conversational responses for real-time voice chat",
 	};
 	return map[slotId] ?? "";
+}
+
+/** Layman-friendly quant description */
+export function quantDescription(quant: string | null): string {
+	if (!quant) return "Unknown";
+	if (quant.includes("Q2") || quant.includes("IQ2"))
+		return "Fastest — smallest file, basic quality";
+	if (quant.includes("Q3") || quant.includes("IQ3")) return "Fast — small file, decent quality";
+	if (quant.includes("Q4_K_S")) return "Balanced (compact) — good quality, smaller size";
+	if (quant.includes("Q4_K_M") || quant.includes("Q4_K_L"))
+		return "Balanced — recommended for most PCs";
+	if (quant.includes("Q5")) return "Quality — better results, larger file";
+	if (quant.includes("Q6")) return "High Quality — near-perfect, needs more memory";
+	if (quant.includes("Q8")) return "Maximum Quality — best possible, large file";
+	if (quant.includes("F16") || quant.includes("F32"))
+		return "Full Precision — research grade, very large";
+	return quant;
+}
+
+/** Layman-friendly context length description */
+export function contextDescription(tokens: number): string {
+	if (tokens <= 0) return "Unknown memory span";
+	const pages = Math.round(tokens / 1300);
+	if (pages < 5) return `Short memory — about ${pages} pages of conversation`;
+	if (pages < 50) return `Good memory — about ${pages} pages of conversation`;
+	if (pages < 100) return `Long memory — about ${pages} pages of conversation`;
+	return `Excellent memory — about ${pages} pages of conversation`;
+}
+
+/** Layman-friendly VRAM usage as percentage */
+export function vramDescription(vramMb: number, totalVramMb: number | null): string {
+	if (!totalVramMb || totalVramMb === 0) return `~${formatMb(vramMb)} (runs on CPU)`;
+	const pct = Math.round((vramMb / totalVramMb) * 100);
+	if (pct > 100) return `Won't fit — needs ${formatMb(vramMb)}, you have ${formatMb(totalVramMb)}`;
+	if (pct > 85) return `Tight fit — uses ${pct}% of your graphics card`;
+	return `Uses ${pct}% of your graphics card`;
 }
 
 /** Friendly slot purpose for Clyffy narration */

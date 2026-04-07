@@ -102,6 +102,10 @@ class HardwareState {
 		return this.metrics?.gpu_name ?? "No GPU";
 	}
 
+	get diskFreeMb(): number | null {
+		return this.metrics?.disk_free_mb ?? null;
+	}
+
 	get tier(): HardwareTier {
 		const vram = this.vramTotalMb;
 		if (!this.hasGpu) return "cpu_only";

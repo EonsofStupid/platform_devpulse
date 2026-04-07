@@ -463,6 +463,22 @@ pub struct HfFileInfoItem {
     pub quant_level: Option<String>,
 }
 
+/// Warm a slot — load weights to CPU RAM only, no GPU allocation.
+///
+/// Model enters "Warm" state: weights in RAM, fast activation to GPU later.
+#[tauri::command]
+#[specta::specta]
+pub async fn warm_slot(
+    state: State<'_, PlatformState>,
+    slot_id: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .warm_slot(&slot_id)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Delete a model from disk and remove from registry.
 ///
 /// Clears any slot assignments. Refuses if the model is currently loaded.

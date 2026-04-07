@@ -16,6 +16,10 @@ use std::path::Path;
 use std::sync::Mutex;
 
 /// A loaded voice session in the pool.
+///
+/// Variants are only constructed when `ort-backend` feature is enabled,
+/// but matched unconditionally in `synthesize()`/`transcribe()`.
+#[cfg_attr(not(feature = "ort-backend"), allow(dead_code))]
 enum VoiceSession {
     /// Text-to-Speech backend (Kokoro).
     Tts(Box<dyn TtsBackend>),
