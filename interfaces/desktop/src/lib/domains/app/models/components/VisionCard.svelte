@@ -4,16 +4,25 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Eye, Loader2, Power, PowerOff } from "lucide-svelte";
+import { Download, Eye, Loader2, Power, PowerOff, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
-import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb, slotDisplayStatus } from "../types/models.types.js";
+import { cancelDownload, downloadModel, onDownloadProgress } from "../services/download.service.js";
+import {
+	formatEta,
+	formatMb,
+	formatSpeed,
+	slotDisplayStatus,
+	statusColor,
+	statusLabel,
+} from "../types/models.types.js";
+import ModelPicker from "./ModelPicker.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -46,7 +55,10 @@ $effect(() => {
 // ── State ─────────────────────────────────────────────────────
 
 let downloading = $state(false);
+let downloadId = $state<string | null>(null);
 let downloadPct = $state(0);
+let downloadSpeedBps = $state(0);
+let downloadEtaSecs = $state(-1);
 let autoCapture = $state(true);
 let screenshotQuality = $state<"standard" | "high">("standard");
 let error = $state<string | null>(null);
@@ -61,6 +73,13 @@ const visionStatus = $derived(
 );
 const isLoaded = $derived(visionStatus === "active");
 const hasModel = $derived(visionStatus !== "not_downloaded");
+const slotCapability = $derived(
+	modelsState.slots.find((s) => s.id === SLOT_ID)?.capability ?? "vision_embedding",
+);
+const modelStatus = $derived(modelsState.statuses[SLOT_ID]);
+const isTransitioning = $derived(
+	modelStatus?.type === "loading" || modelStatus?.type === "unloading",
+);
 
 // Check if the brain model has built-in vision (Phi-4, Qwen3-VL, Qwen3.5)
 const brainHasVision = $derived.by(() => {
@@ -83,10 +102,14 @@ async function handleDownload(): Promise<void> {
 		if (p.totalBytes > 0) {
 			downloadPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
 		}
+		downloadSpeedBps = p.speedBps;
+		downloadEtaSecs = p.etaSecs;
+		if (!downloadId && p.downloadId) downloadId = p.downloadId;
 	});
 
 	try {
-		await downloadModel(visionRepo, visionFile);
+		const id = await downloadModel(visionRepo, visionFile);
+		downloadId = id;
 		downloadPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -98,7 +121,20 @@ async function handleDownload(): Promise<void> {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
 		downloading = false;
+		downloadId = null;
 		unsubProgress();
+	}
+}
+
+async function handleCancelDownload(): Promise<void> {
+	if (!downloadId) return;
+	try {
+		await cancelDownload(downloadId);
+		downloading = false;
+		downloadId = null;
+		downloadPct = 0;
+	} catch (e) {
+		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
 	}
 }
 
@@ -189,30 +225,88 @@ async function handleUnload(): Promise<void> {
 			</label>
 		</div>
 
-		<!-- Action bar (hidden if brain has built-in vision) -->
+		<!-- Model picker + action bar (hidden if brain has built-in vision) -->
 		{#if !brainHasVision}
+			<ModelPicker
+				slotId={SLOT_ID}
+				capability={slotCapability}
+				onAssign={() => { error = null; }}
+			/>
+
+			<!-- Loading progress -->
+			{#if isTransitioning && modelStatus}
+				<div class={stack({ gap: "1" })}>
+					<div class={hstack({ gap: "2", align: "center" })}>
+						<Loader2 size={14} class="animate-spin" style="color: {statusColor(modelStatus)};" />
+						<Text size="xs" color="muted">{statusLabel(modelStatus)}</Text>
+					</div>
+					{#if modelStatus.type === "loading"}
+						<div
+							class="h-1.5 w-full overflow-hidden rounded-full"
+							style="background: var(--border-subtle);"
+						>
+							<div
+								class="h-full rounded-full transition-all duration-300"
+								style="width: {modelStatus.progressPct}%; background: var(--accent-teal-main);"
+							></div>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
 			<div class={hstack({ gap: "2", align: "center" })}>
 				{#if downloading}
-					<div class={hstack({ gap: "1", align: "center" })}>
-						<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
-						<Text size="xs" color="muted">Downloading {downloadPct}%</Text>
+					<div class={stack({ gap: "1" })} style="flex: 1;">
+						<div class={hstack({ justify: "between", align: "center" })}>
+							<div class={hstack({ gap: "1", align: "center" })}>
+								<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
+								<Text size="xs" color="muted">Downloading {downloadPct}%</Text>
+							</div>
+							<div class={hstack({ gap: "2", align: "center" })}>
+								{#if downloadSpeedBps > 0}
+									<Text size="xs" color="muted">{formatSpeed(downloadSpeedBps)}</Text>
+								{/if}
+								{#if downloadEtaSecs >= 0}
+									<Text size="xs" color="muted">{formatEta(downloadEtaSecs)}</Text>
+								{/if}
+								<button
+									class="rounded p-1 transition-colors hover:brightness-125"
+									style="color: var(--signal-error);"
+									onclick={handleCancelDownload}
+									title="Cancel download"
+									aria-label="Cancel download"
+								>
+									<X size={12} />
+								</button>
+							</div>
+						</div>
+						<div class="h-1.5 w-full overflow-hidden rounded-full" style="background: var(--border-subtle);">
+							<div class="h-full rounded-full transition-all duration-300" style="width: {downloadPct}%; background: var(--accent-teal-main);"></div>
+						</div>
 					</div>
 				{:else if !hasModel}
-					<button
-						class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
-						style="background: var(--accent-teal-main); color: var(--surface-base);"
-						onclick={handleDownload}
-					title="Download the vision model so Clyffy can see your screen — small download, runs on CPU"
-					>
-						<Download size={14} />
-						Install ({formatMb(visionSizeMb)})
-					</button>
+					<div class={stack({ gap: "1" })}>
+						{#if hardwareState.diskFreeMb !== null && visionSizeMb > 0}
+							<Text size="xs" color="muted">{formatMb(visionSizeMb)} download · {formatMb(hardwareState.diskFreeMb)} free on disk</Text>
+						{/if}
+						<button
+							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
+							style="background: var(--accent-teal-main); color: var(--surface-base);"
+							onclick={handleDownload}
+							disabled={isTransitioning}
+							title="Download the vision model so Clyffy can see your screen — small download, runs on CPU"
+						>
+							<Download size={14} />
+							Install ({formatMb(visionSizeMb)})
+						</button>
+					</div>
 				{:else if isLoaded}
 					<button
 						class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
 						onclick={handleUnload}
-					title="Turn off vision to save memory — Clyffy won't see your screen until you reactivate"
+						disabled={isTransitioning}
+						title="Turn off vision to save memory — Clyffy won't see your screen until you reactivate"
 					>
 						<PowerOff size={12} />
 						Deactivate
@@ -222,7 +316,8 @@ async function handleUnload(): Promise<void> {
 						class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 						style="background: var(--accent-teal-main); color: var(--surface-base);"
 						onclick={handleLoad}
-					title="Turn on vision so Clyffy can see your screen and help with visual problems"
+						disabled={isTransitioning}
+						title="Turn on vision so Clyffy can see your screen and help with visual problems"
 					>
 						<Power size={14} />
 						Activate

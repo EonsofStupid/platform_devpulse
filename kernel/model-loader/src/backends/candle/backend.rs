@@ -54,6 +54,7 @@ impl CandleBackend {
     ///
     /// Returns the full generated text. Calls `on_token` for each token
     /// as it's generated (for streaming).
+    #[tracing::instrument(skip(self, on_token), fields(prompt_len = prompt.len(), max_new_tokens, temperature))]
     pub fn generate(
         &mut self,
         prompt: &str,

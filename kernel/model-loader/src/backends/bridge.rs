@@ -58,6 +58,8 @@ pub enum InferenceRequest {
         temperature: f32,
         /// Channel for streaming token responses.
         token_sink: flume::Sender<InferenceResponse>,
+        /// Trace ID for cross-thread span correlation. Empty string if untraced.
+        trace_id: String,
     },
     /// Query current memory usage of the loaded model.
     MemoryUsage {
@@ -155,11 +157,15 @@ impl InferenceHandle {
     }
 
     /// Generate text with streaming token callback.
+    ///
+    /// `trace_id` propagates the request trace across the flume channel
+    /// boundary to the inference OS thread for span correlation in DuckDB.
     pub async fn generate(
         &self,
         prompt: String,
         max_tokens: u32,
         temperature: f32,
+        trace_id: String,
     ) -> anyhow::Result<flume::Receiver<InferenceResponse>> {
         let (token_tx, token_rx) = flume::unbounded();
         self.sender
@@ -168,6 +174,7 @@ impl InferenceHandle {
                 max_tokens,
                 temperature,
                 token_sink: token_tx,
+                trace_id,
             })
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread disconnected"))?;
@@ -306,7 +313,17 @@ fn inference_thread_loop(
                 max_tokens,
                 temperature,
                 token_sink,
+                trace_id,
             } => {
+                if !trace_id.is_empty() {
+                    tracing::debug!(
+                        trace_id = %trace_id,
+                        prompt_len = prompt.len(),
+                        max_tokens,
+                        temperature,
+                        "Inference thread: generate request received"
+                    );
+                }
                 let result = backend.generate(&prompt, max_tokens, temperature, |id, text| {
                     let _ = token_sink.send(InferenceResponse::Token {
                         id,

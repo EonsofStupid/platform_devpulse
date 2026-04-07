@@ -72,6 +72,7 @@ pub fn run() {
         commands::models::swap_slot_model,
         commands::models::download_model,
         commands::models::cancel_download,
+        commands::models::delete_model,
         commands::models::search_huggingface,
         commands::models::import_local_model,
         commands::models::auto_configure,
@@ -126,15 +127,17 @@ pub fn run() {
 
             // ── Logging: stderr + file ────────────────────────────
             let _ = logging::rotate_logs(&data_dir);
-            match logging::init(&data_dir) {
-                Ok(guard) => {
-                    // Leak the guard so file logging lives for the entire process
-                    std::mem::forget(guard);
+            let mut span_rx = match logging::init(&data_dir) {
+                Ok(handle) => {
+                    // Leak the file guard so file logging lives for the entire process
+                    std::mem::forget(handle.file_guard);
+                    Some(handle.span_rx)
                 }
                 Err(_) => {
                     logging::init_stderr_only();
+                    None
                 }
-            }
+            };
             tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
 
             // ── Platform state (empty until boot completes) ───────
@@ -162,7 +165,7 @@ pub fn run() {
                 // ONLY after boot succeeds does the window become visible.
                 tracing::info!("Dev mode — BLOCKING boot (window hidden until all services confirm)");
                 tauri::async_runtime::block_on(
-                    boot_task(handle, data_dir, tracker_clone)
+                    boot_task(handle, data_dir, tracker_clone, span_rx.take())
                 );
 
                 // Boot complete — NOW show the window
@@ -178,7 +181,7 @@ pub fn run() {
                 // Window starts hidden. boot_task shows it when ready.
                 tracing::info!("Release mode — async boot (window hidden until ready)");
                 tauri::async_runtime::spawn(
-                    boot_task(handle, data_dir, tracker_clone)
+                    boot_task(handle, data_dir, tracker_clone, span_rx.take())
                 );
             }
 
@@ -264,7 +267,12 @@ fn resolve_data_dir(app: &tauri::App) -> Result<PathBuf, Box<dyn std::error::Err
 /// The engine's `BootLog` handles real-time file + stderr logging.
 /// This function handles Tauri-specific concerns: events, state, seeding.
 #[allow(clippy::too_many_lines)]
-async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateTracker) {
+async fn boot_task(
+    app: tauri::AppHandle,
+    data_dir: PathBuf,
+    tracker: BootStateTracker,
+    span_rx: Option<tokio::sync::mpsc::Receiver<devpulse_engine::platform::telemetry::SpanRecord>>,
+) {
     use devpulse_engine::platform::InitEvent;
 
     tracing::info!("Boot task started");
@@ -350,6 +358,20 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
 
             // Record in tracker before emitting
             tracker.set_ready(health.clone());
+
+            // Spawn span trace writer now that analytics is available
+            if let Some(rx) = span_rx {
+                if let Some(analytics) = platform.analytics() {
+                    let writer = devpulse_engine::platform::telemetry::SpanTraceWriter::new(
+                        rx,
+                        analytics.clone(),
+                    );
+                    tokio::spawn(writer.run());
+                    tracing::info!("Span trace writer spawned — DuckDB span persistence active");
+                } else {
+                    tracing::warn!("Analytics service not available — span traces will buffer and drop");
+                }
+            }
 
             // Set platform in managed state
             let state = app.state::<PlatformState>();

@@ -132,6 +132,7 @@ impl TtsBackend for KokoroTts {
     }
 
     #[cfg(feature = "ort-backend")]
+    #[tracing::instrument(skip(self), fields(text_len = text.len(), voice))]
     fn synthesize(&self, text: &str, voice: &str) -> anyhow::Result<AudioSamples> {
         if !self.loaded {
             anyhow::bail!("Kokoro TTS not loaded");

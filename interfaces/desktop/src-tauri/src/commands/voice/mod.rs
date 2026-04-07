@@ -110,6 +110,7 @@ pub async fn get_voice_status(
 /// then plays the PCM audio through rodio.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(text_len = text.len()))]
 pub async fn speak(
     state: State<'_, PlatformState>,
     text: String,
@@ -268,6 +269,7 @@ pub async fn test_microphone(
 /// then runs it through the Whisper STT model loaded in voice.stt slot.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state))]
 pub async fn transcribe_audio(
     state: State<'_, PlatformState>,
 ) -> Result<String, String> {

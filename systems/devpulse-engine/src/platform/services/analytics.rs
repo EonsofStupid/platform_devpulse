@@ -225,4 +225,27 @@ CREATE TABLE IF NOT EXISTS lane_baselines (
     computed_at       TIMESTAMP DEFAULT now(),
     PRIMARY KEY (lane)
 );
+
+-- ── Span Traces ──────────────────────────────────────────────
+
+-- Distributed tracing spans from the tracing::Layer subscriber.
+-- Written by SpanTraceWriter background task in batches.
+-- Correlates with lane_traces via trace_id for end-to-end request trees.
+CREATE TABLE IF NOT EXISTS span_traces (
+    trace_id          VARCHAR NOT NULL,
+    span_id           BIGINT NOT NULL,
+    parent_span_id    BIGINT,
+    name              VARCHAR NOT NULL,
+    target            VARCHAR NOT NULL,
+    level             VARCHAR NOT NULL,
+    duration_us       BIGINT NOT NULL,
+    fields_json       JSON,
+    created_at        TIMESTAMP DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_span_traces_trace
+    ON span_traces(trace_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_span_traces_name
+    ON span_traces(name, created_at);
 ";

@@ -5,16 +5,25 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { Download, ExternalLink, Loader2, Mic, Play, Volume2 } from "lucide-svelte";
+import { Download, ExternalLink, Loader2, Mic, Play, Volume2, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
-import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb, slotDisplayStatus } from "../types/models.types.js";
+import { cancelDownload, downloadModel, onDownloadProgress } from "../services/download.service.js";
+import {
+	formatEta,
+	formatMb,
+	formatSpeed,
+	slotDisplayStatus,
+	statusColor,
+	statusLabel,
+} from "../types/models.types.js";
+import ModelPicker from "./ModelPicker.svelte";
 import VoiceSlotStatus from "./VoiceSlotStatus.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
@@ -59,8 +68,14 @@ $effect(() => {
 
 let downloadingStt = $state(false);
 let downloadingTts = $state(false);
+let sttDownloadId = $state<string | null>(null);
+let ttsDownloadId = $state<string | null>(null);
 let sttPct = $state(0);
 let ttsPct = $state(0);
+let sttSpeedBps = $state(0);
+let ttsSpeedBps = $state(0);
+let sttEtaSecs = $state(-1);
+let ttsEtaSecs = $state(-1);
 let pushToTalk = $state(false);
 let voiceStyle = $state<"default" | "casual" | "focused">("default");
 let error = $state<string | null>(null);
@@ -82,6 +97,20 @@ const ttsStatus = $derived(
 const sttReady = $derived(sttStatus === "active" || sttStatus === "downloaded");
 const ttsReady = $derived(ttsStatus === "active" || ttsStatus === "downloaded");
 const voiceReady = $derived(sttReady && ttsReady);
+const sttCapability = $derived(
+	modelsState.slots.find((s) => s.id === STT_SLOT)?.capability ?? "speech_to_text",
+);
+const ttsCapability = $derived(
+	modelsState.slots.find((s) => s.id === TTS_SLOT)?.capability ?? "text_to_speech",
+);
+const sttModelStatus = $derived(modelsState.statuses[STT_SLOT]);
+const ttsModelStatus = $derived(modelsState.statuses[TTS_SLOT]);
+const sttTransitioning = $derived(
+	sttModelStatus?.type === "loading" || sttModelStatus?.type === "unloading",
+);
+const ttsTransitioning = $derived(
+	ttsModelStatus?.type === "loading" || ttsModelStatus?.type === "unloading",
+);
 
 // ── Actions ───────────────────────────────────────────────────
 
@@ -89,12 +118,18 @@ async function handleDownloadStt(): Promise<void> {
 	error = null;
 	downloadingStt = true;
 	sttPct = 0;
+	sttSpeedBps = 0;
+	sttEtaSecs = -1;
 	const unsub = onDownloadProgress((p) => {
 		if (p.totalBytes > 0)
 			sttPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+		sttSpeedBps = p.speedBps;
+		sttEtaSecs = p.etaSecs;
+		if (!sttDownloadId && p.downloadId) sttDownloadId = p.downloadId;
 	});
 	try {
-		await downloadModel(sttRepo, sttFile);
+		const id = await downloadModel(sttRepo, sttFile);
+		sttDownloadId = id;
 		sttPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -106,7 +141,20 @@ async function handleDownloadStt(): Promise<void> {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
 		downloadingStt = false;
+		sttDownloadId = null;
 		unsub();
+	}
+}
+
+async function handleCancelStt(): Promise<void> {
+	if (!sttDownloadId) return;
+	try {
+		await cancelDownload(sttDownloadId);
+		downloadingStt = false;
+		sttDownloadId = null;
+		sttPct = 0;
+	} catch (e) {
+		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
 	}
 }
 
@@ -114,12 +162,18 @@ async function handleDownloadTts(): Promise<void> {
 	error = null;
 	downloadingTts = true;
 	ttsPct = 0;
+	ttsSpeedBps = 0;
+	ttsEtaSecs = -1;
 	const unsub = onDownloadProgress((p) => {
 		if (p.totalBytes > 0)
 			ttsPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+		ttsSpeedBps = p.speedBps;
+		ttsEtaSecs = p.etaSecs;
+		if (!ttsDownloadId && p.downloadId) ttsDownloadId = p.downloadId;
 	});
 	try {
-		await downloadModel(ttsRepo, ttsFile);
+		const id = await downloadModel(ttsRepo, ttsFile);
+		ttsDownloadId = id;
 		ttsPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -131,7 +185,20 @@ async function handleDownloadTts(): Promise<void> {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
 		downloadingTts = false;
+		ttsDownloadId = null;
 		unsub();
+	}
+}
+
+async function handleCancelTts(): Promise<void> {
+	if (!ttsDownloadId) return;
+	try {
+		await cancelDownload(ttsDownloadId);
+		downloadingTts = false;
+		ttsDownloadId = null;
+		ttsPct = 0;
+	} catch (e) {
+		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
 	}
 }
 </script>
@@ -178,18 +245,39 @@ async function handleDownloadTts(): Promise<void> {
 					<div class={hstack({ gap: "1", align: "center" })}>
 						<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
 						<Text size="xs" color="muted">{sttPct}%</Text>
+						{#if sttSpeedBps > 0}
+							<Text size="xs" color="muted">{formatSpeed(sttSpeedBps)}</Text>
+						{/if}
+						{#if sttEtaSecs >= 0}
+							<Text size="xs" color="muted">{formatEta(sttEtaSecs)}</Text>
+						{/if}
+						<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={handleCancelStt} title="Cancel" aria-label="Cancel STT download">
+							<X size={10} />
+						</button>
 					</div>
 				{:else if sttStatus === "not_downloaded"}
 					<button
 						class="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold transition-all hover:brightness-125"
 						style="background: var(--accent-teal-main); color: var(--surface-base);"
 						onclick={handleDownloadStt}
+						disabled={sttTransitioning}
 					>
 						<Download size={10} />
 						Install ({formatMb(sttSizeMb)})
 					</button>
 				{/if}
 			</div>
+			<ModelPicker
+				slotId={STT_SLOT}
+				capability={sttCapability}
+				onAssign={() => { error = null; }}
+			/>
+			{#if sttTransitioning && sttModelStatus}
+				<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
+					<Loader2 size={12} class="animate-spin" style="color: {statusColor(sttModelStatus)};" />
+					<Text size="xs" color="muted">{statusLabel(sttModelStatus)}</Text>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Speaking section -->
@@ -203,18 +291,39 @@ async function handleDownloadTts(): Promise<void> {
 					<div class={hstack({ gap: "1", align: "center" })}>
 						<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
 						<Text size="xs" color="muted">{ttsPct}%</Text>
+						{#if ttsSpeedBps > 0}
+							<Text size="xs" color="muted">{formatSpeed(ttsSpeedBps)}</Text>
+						{/if}
+						{#if ttsEtaSecs >= 0}
+							<Text size="xs" color="muted">{formatEta(ttsEtaSecs)}</Text>
+						{/if}
+						<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={handleCancelTts} title="Cancel" aria-label="Cancel TTS download">
+							<X size={10} />
+						</button>
 					</div>
 				{:else if ttsStatus === "not_downloaded"}
 					<button
 						class="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold transition-all hover:brightness-125"
 						style="background: var(--accent-teal-main); color: var(--surface-base);"
 						onclick={handleDownloadTts}
+						disabled={ttsTransitioning}
 					>
 						<Download size={10} />
 						Install ({formatMb(ttsSizeMb)})
 					</button>
 				{/if}
 			</div>
+			<ModelPicker
+				slotId={TTS_SLOT}
+				capability={ttsCapability}
+				onAssign={() => { error = null; }}
+			/>
+			{#if ttsTransitioning && ttsModelStatus}
+				<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
+					<Loader2 size={12} class="animate-spin" style="color: {statusColor(ttsModelStatus)};" />
+					<Text size="xs" color="muted">{statusLabel(ttsModelStatus)}</Text>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Voice settings -->

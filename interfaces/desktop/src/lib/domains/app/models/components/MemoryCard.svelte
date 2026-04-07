@@ -4,16 +4,25 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Brain, Download, Loader2, Power } from "lucide-svelte";
+import { Brain, Download, Loader2, Power, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
-import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb, slotDisplayStatus } from "../types/models.types.js";
+import { cancelDownload, downloadModel, onDownloadProgress } from "../services/download.service.js";
+import {
+	formatEta,
+	formatMb,
+	formatSpeed,
+	slotDisplayStatus,
+	statusColor,
+	statusLabel,
+} from "../types/models.types.js";
+import ModelPicker from "./ModelPicker.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -57,8 +66,14 @@ $effect(() => {
 
 let downloadingEmbed = $state(false);
 let downloadingRerank = $state(false);
+let embedDownloadId = $state<string | null>(null);
+let rerankDownloadId = $state<string | null>(null);
 let embedPct = $state(0);
 let rerankPct = $state(0);
+let embedSpeedBps = $state(0);
+let rerankSpeedBps = $state(0);
+let embedEtaSecs = $state(-1);
+let rerankEtaSecs = $state(-1);
 let memoryDepth = $state(5); // Maps to retrieval top-k
 let error = $state<string | null>(null);
 
@@ -83,6 +98,20 @@ const memoryReady = $derived(
 const bothInstalled = $derived(
 	embedStatus !== "not_downloaded" && rerankStatus !== "not_downloaded",
 );
+const embedCapability = $derived(
+	modelsState.slots.find((s) => s.id === EMBEDDER_SLOT)?.capability ?? "embedding",
+);
+const rerankCapability = $derived(
+	modelsState.slots.find((s) => s.id === RERANKER_SLOT)?.capability ?? "reranking",
+);
+const embedModelStatus = $derived(modelsState.statuses[EMBEDDER_SLOT]);
+const rerankModelStatus = $derived(modelsState.statuses[RERANKER_SLOT]);
+const embedTransitioning = $derived(
+	embedModelStatus?.type === "loading" || embedModelStatus?.type === "unloading",
+);
+const rerankTransitioning = $derived(
+	rerankModelStatus?.type === "loading" || rerankModelStatus?.type === "unloading",
+);
 
 const depthLabels: Record<number, string> = {
 	1: "Minimal — remembers very little",
@@ -100,12 +129,18 @@ async function handleDownloadEmbed(): Promise<void> {
 	error = null;
 	downloadingEmbed = true;
 	embedPct = 0;
+	embedSpeedBps = 0;
+	embedEtaSecs = -1;
 	const unsub = onDownloadProgress((p) => {
 		if (p.totalBytes > 0)
 			embedPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+		embedSpeedBps = p.speedBps;
+		embedEtaSecs = p.etaSecs;
+		if (!embedDownloadId && p.downloadId) embedDownloadId = p.downloadId;
 	});
 	try {
-		await downloadModel(embedRepo, embedFile);
+		const id = await downloadModel(embedRepo, embedFile);
+		embedDownloadId = id;
 		embedPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -117,7 +152,20 @@ async function handleDownloadEmbed(): Promise<void> {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
 		downloadingEmbed = false;
+		embedDownloadId = null;
 		unsub();
+	}
+}
+
+async function handleCancelEmbed(): Promise<void> {
+	if (!embedDownloadId) return;
+	try {
+		await cancelDownload(embedDownloadId);
+		downloadingEmbed = false;
+		embedDownloadId = null;
+		embedPct = 0;
+	} catch (e) {
+		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
 	}
 }
 
@@ -125,12 +173,18 @@ async function handleDownloadRerank(): Promise<void> {
 	error = null;
 	downloadingRerank = true;
 	rerankPct = 0;
+	rerankSpeedBps = 0;
+	rerankEtaSecs = -1;
 	const unsub = onDownloadProgress((p) => {
 		if (p.totalBytes > 0)
 			rerankPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+		rerankSpeedBps = p.speedBps;
+		rerankEtaSecs = p.etaSecs;
+		if (!rerankDownloadId && p.downloadId) rerankDownloadId = p.downloadId;
 	});
 	try {
-		await downloadModel(rerankRepo, rerankFile);
+		const id = await downloadModel(rerankRepo, rerankFile);
+		rerankDownloadId = id;
 		rerankPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
@@ -142,7 +196,20 @@ async function handleDownloadRerank(): Promise<void> {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
 		downloadingRerank = false;
+		rerankDownloadId = null;
 		unsub();
+	}
+}
+
+async function handleCancelRerank(): Promise<void> {
+	if (!rerankDownloadId) return;
+	try {
+		await cancelDownload(rerankDownloadId);
+		downloadingRerank = false;
+		rerankDownloadId = null;
+		rerankPct = 0;
+	} catch (e) {
+		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
 	}
 }
 
@@ -196,6 +263,38 @@ async function handleDownloadAll(): Promise<void> {
 			/>
 		</div>
 
+		<!-- Model pickers for embedder + reranker -->
+		<div class={stack({ gap: "2" })}>
+			<div>
+				<Text size="xs" color="muted">Search engine model:</Text>
+				<ModelPicker
+					slotId={EMBEDDER_SLOT}
+					capability={embedCapability}
+					onAssign={() => { error = null; }}
+				/>
+				{#if embedTransitioning && embedModelStatus}
+					<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
+						<Loader2 size={12} class="animate-spin" style="color: {statusColor(embedModelStatus)};" />
+						<Text size="xs" color="muted">{statusLabel(embedModelStatus)}</Text>
+					</div>
+				{/if}
+			</div>
+			<div>
+				<Text size="xs" color="muted">Relevance scorer model:</Text>
+				<ModelPicker
+					slotId={RERANKER_SLOT}
+					capability={rerankCapability}
+					onAssign={() => { error = null; }}
+				/>
+				{#if rerankTransitioning && rerankModelStatus}
+					<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
+						<Loader2 size={12} class="animate-spin" style="color: {statusColor(rerankModelStatus)};" />
+						<Text size="xs" color="muted">{statusLabel(rerankModelStatus)}</Text>
+					</div>
+				{/if}
+			</div>
+		</div>
+
 		<!-- Install status -->
 		{#if !bothInstalled}
 			<div class="rounded-lg px-3 py-2" style="background: oklch(0.15 0 0 / 0.3);">
@@ -218,7 +317,16 @@ async function handleDownloadAll(): Promise<void> {
 							{#if downloadingEmbed}
 								<div class={hstack({ gap: "1", align: "center" })}>
 									<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
-									<Text size="xs" color="muted">Search engine {embedPct}%</Text>
+									<Text size="xs" color="muted">Search {embedPct}%</Text>
+									{#if embedSpeedBps > 0}
+										<Text size="xs" color="muted">{formatSpeed(embedSpeedBps)}</Text>
+									{/if}
+									{#if embedEtaSecs >= 0}
+										<Text size="xs" color="muted">{formatEta(embedEtaSecs)}</Text>
+									{/if}
+									<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={handleCancelEmbed} title="Cancel" aria-label="Cancel embedder download">
+										<X size={10} />
+									</button>
 								</div>
 							{:else}
 								<button
@@ -236,6 +344,15 @@ async function handleDownloadAll(): Promise<void> {
 								<div class={hstack({ gap: "1", align: "center" })}>
 									<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
 									<Text size="xs" color="muted">Ranking {rerankPct}%</Text>
+									{#if rerankSpeedBps > 0}
+										<Text size="xs" color="muted">{formatSpeed(rerankSpeedBps)}</Text>
+									{/if}
+									{#if rerankEtaSecs >= 0}
+										<Text size="xs" color="muted">{formatEta(rerankEtaSecs)}</Text>
+									{/if}
+									<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={handleCancelRerank} title="Cancel" aria-label="Cancel reranker download">
+										<X size={10} />
+									</button>
 								</div>
 							{:else}
 								<button

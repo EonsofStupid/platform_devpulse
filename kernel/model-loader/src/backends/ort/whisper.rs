@@ -197,6 +197,7 @@ impl SttBackend for WhisperStt {
     }
 
     #[cfg(feature = "ort-backend")]
+    #[tracing::instrument(skip(self, samples), fields(sample_count = samples.data.len(), sample_rate = samples.sample_rate))]
     fn transcribe(&self, samples: &AudioSamples) -> anyhow::Result<String> {
         if !self.loaded {
             anyhow::bail!("Whisper STT not loaded");

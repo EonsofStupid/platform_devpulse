@@ -124,6 +124,14 @@ impl ModelLoaderService {
         })
     }
 
+    /// Delete a model from disk and registry. Clears slot assignments.
+    pub async fn delete_model(&self, model_id: &str) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.delete_model(model_id).await.map_err(|e| {
+            anyhow::anyhow!("{e}")
+        })
+    }
+
     /// Check if this is the first run.
     pub async fn is_first_run(&self) -> bool {
         let inner = self.inner.lock().await;
@@ -173,6 +181,7 @@ impl ModelLoaderService {
     /// Returns a cloned handle — caller can use it without holding the Mutex.
     /// This is critical: generation is long-running, we must NOT hold the lock.
     /// Returns `Err` if the slot is mid-swap.
+    #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn inference_handle(
         &self,
         slot_id: &str,
@@ -201,6 +210,7 @@ impl ModelLoaderService {
     }
 
     /// Synthesize speech via the TTS model loaded in a slot.
+    #[tracing::instrument(skip(self, text), fields(slot_id, voice, text_len = text.len()))]
     pub async fn synthesize(
         &self,
         slot_id: &str,
@@ -212,6 +222,7 @@ impl ModelLoaderService {
     }
 
     /// Transcribe audio via the STT model loaded in a slot.
+    #[tracing::instrument(skip(self, samples), fields(slot_id))]
     pub async fn transcribe(
         &self,
         slot_id: &str,

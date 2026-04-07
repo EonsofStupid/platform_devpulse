@@ -4,16 +4,25 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Loader2, Power, PowerOff, RefreshCw } from "lucide-svelte";
+import { Download, Loader2, Power, PowerOff, RefreshCw, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
-import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb, slotDisplayStatus } from "../types/models.types.js";
+import { cancelDownload, downloadModel, onDownloadProgress } from "../services/download.service.js";
+import {
+	formatEta,
+	formatMb,
+	formatSpeed,
+	slotDisplayStatus,
+	statusColor,
+	statusLabel,
+} from "../types/models.types.js";
+import ModelPicker from "./ModelPicker.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -48,7 +57,10 @@ $effect(() => {
 
 let selectedIdx = $state(0);
 let downloading = $state(false);
+let downloadId = $state<string | null>(null);
 let downloadPct = $state(0);
+let downloadSpeedBps = $state(0);
+let downloadEtaSecs = $state(-1);
 let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
@@ -65,6 +77,13 @@ const brainStatus = $derived(
 );
 const isLoaded = $derived(brainStatus === "active");
 const hasModel = $derived(brainStatus !== "not_downloaded");
+const slotCapability = $derived(
+	modelsState.slots.find((s) => s.id === SLOT_ID)?.capability ?? "text_generation",
+);
+const modelStatus = $derived(modelsState.statuses[SLOT_ID]);
+const isTransitioning = $derived(
+	modelStatus?.type === "loading" || modelStatus?.type === "unloading",
+);
 
 // ── Actions ───────────────────────────────────────────────────
 
@@ -73,19 +92,28 @@ async function handleDownload(): Promise<void> {
 	error = null;
 	downloading = true;
 	downloadPct = 0;
+	downloadSpeedBps = 0;
+	downloadEtaSecs = -1;
 
 	const unsubProgress = onDownloadProgress((p) => {
 		if (p.totalBytes > 0) {
 			downloadPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
 		}
+		downloadSpeedBps = p.speedBps;
+		downloadEtaSecs = p.etaSecs;
+		if (!downloadId && p.downloadId) {
+			downloadId = p.downloadId;
+		}
 	});
 
 	try {
-		await downloadModel(opt.repo, opt.file);
+		const id = await downloadModel(opt.repo, opt.file);
+		downloadId = id;
+		// Wait for download-complete event (downloadModel returns after start, not completion)
+		// The progress listener updates until 100%
 		downloadPct = 100;
 		await modelsState.scan();
 		await modelsState.refresh();
-		// Auto-assign downloaded model to this slot
 		const model = modelsState.models.find((m) => m.filename === opt.file);
 		if (model) {
 			await modelsState.assign(SLOT_ID, model.id);
@@ -94,7 +122,20 @@ async function handleDownload(): Promise<void> {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
 		downloading = false;
+		downloadId = null;
 		unsubProgress();
+	}
+}
+
+async function handleCancelDownload(): Promise<void> {
+	if (!downloadId) return;
+	try {
+		await cancelDownload(downloadId);
+		downloading = false;
+		downloadId = null;
+		downloadPct = 0;
+	} catch (e) {
+		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
 	}
 }
 
@@ -183,28 +224,95 @@ async function handleSwap(): Promise<void> {
 			</div>
 		{/if}
 
+		<!-- Local model picker -->
+		<ModelPicker
+			slotId={SLOT_ID}
+			capability={slotCapability}
+			onAssign={() => { error = null; }}
+		/>
+
+		<!-- Loading progress -->
+		{#if isTransitioning && modelStatus}
+			<div class={stack({ gap: "1" })}>
+				<div class={hstack({ gap: "2", align: "center" })}>
+					<Loader2 size={14} class="animate-spin" style="color: {statusColor(modelStatus)};" />
+					<Text size="xs" color="muted">{statusLabel(modelStatus)}</Text>
+				</div>
+				{#if modelStatus.type === "loading"}
+					<div
+						class="h-1.5 w-full overflow-hidden rounded-full"
+						style="background: var(--border-subtle);"
+					>
+						<div
+							class="h-full rounded-full transition-all duration-300"
+							style="width: {modelStatus.progressPct}%; background: var(--accent-teal-main);"
+						></div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+
 		<!-- Action bar -->
 		<div class={hstack({ gap: "2", align: "center" })}>
 			{#if downloading}
-				<div class={hstack({ gap: "1", align: "center" })}>
-					<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
-					<Text size="xs" color="muted" title="Downloading the model from HuggingFace — this may take a few minutes depending on your internet speed">Downloading {downloadPct}%</Text>
+				<div class={stack({ gap: "1" })} style="flex: 1;">
+					<div class={hstack({ justify: "between", align: "center" })}>
+						<div class={hstack({ gap: "1", align: "center" })}>
+							<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
+							<Text size="xs" color="muted">Downloading {downloadPct}%</Text>
+						</div>
+						<div class={hstack({ gap: "2", align: "center" })}>
+							{#if downloadSpeedBps > 0}
+								<Text size="xs" color="muted">{formatSpeed(downloadSpeedBps)}</Text>
+							{/if}
+							{#if downloadEtaSecs >= 0}
+								<Text size="xs" color="muted">{formatEta(downloadEtaSecs)}</Text>
+							{/if}
+							<button
+								class="rounded p-1 transition-colors hover:brightness-125"
+								style="color: var(--signal-error);"
+								onclick={handleCancelDownload}
+								title="Cancel download"
+								aria-label="Cancel download"
+							>
+								<X size={12} />
+							</button>
+						</div>
+					</div>
+					<div
+						class="h-1.5 w-full overflow-hidden rounded-full"
+						style="background: var(--border-subtle);"
+					>
+						<div
+							class="h-full rounded-full transition-all duration-300"
+							style="width: {downloadPct}%; background: var(--accent-teal-main);"
+						></div>
+					</div>
 				</div>
 			{:else if !hasModel}
-				<button
-					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
-					style="background: var(--accent-teal-main); color: var(--surface-base);"
-					onclick={handleDownload}
-					title="Download this AI model to your computer — it's a one-time download and runs entirely on your PC (no cloud needed)"
-				>
-					<Download size={14} />
-					Install ({formatMb(opt.size_mb)})
-				</button>
+				<div class={stack({ gap: "1" })}>
+					{#if hardwareState.diskFreeMb !== null && opt.size_mb > 0}
+						<Text size="xs" color="muted">
+							{formatMb(opt.size_mb)} download · {formatMb(hardwareState.diskFreeMb)} free on disk
+						</Text>
+					{/if}
+					<button
+						class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
+						style="background: var(--accent-teal-main); color: var(--surface-base);"
+						onclick={handleDownload}
+						disabled={isTransitioning}
+						title="Download this AI model to your computer — it's a one-time download and runs entirely on your PC (no cloud needed)"
+					>
+						<Download size={14} />
+						Install ({formatMb(opt.size_mb)})
+					</button>
+				</div>
 			{:else if isLoaded}
 				<button
 					class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
 					onclick={handleUnload}
+					disabled={isTransitioning}
 					title="Turn off this model to free up graphics card memory — you can turn it back on anytime"
 				>
 					<PowerOff size={12} />
@@ -214,6 +322,7 @@ async function handleSwap(): Promise<void> {
 					class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
 					onclick={handleSwap}
+					disabled={isTransitioning}
 					title="Switch to the selected size without losing your place — Clyffy will briefly pause while switching"
 				>
 					<RefreshCw size={12} />
@@ -224,6 +333,7 @@ async function handleSwap(): Promise<void> {
 					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 					style="background: var(--accent-teal-main); color: var(--surface-base);"
 					onclick={handleLoad}
+					disabled={isTransitioning}
 					title="Turn on this AI model so Clyffy can start thinking — this loads it into your graphics card memory"
 				>
 					<Power size={14} />

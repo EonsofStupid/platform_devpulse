@@ -1,22 +1,45 @@
-//! Structured logging with file persistence.
+//! Structured logging with file persistence + DuckDB span tracing.
 //!
-//! Single-phase init: stderr (pretty, INFO) + file (JSON, DEBUG) together.
+//! Three-layer subscriber:
+//! 1. stderr (pretty, INFO) — developer console
+//! 2. file (JSON, DEBUG) — session log persistence
+//! 3. DuckDB span layer — completed spans → batched DuckDB writes
+//!
+//! The DuckDB layer's channel is created here (before boot).
+//! The writer is spawned separately after analytics boots.
+//! Spans buffer in the channel during boot startup.
+//!
 //! Log rotation: keeps last 3 session logs, deletes older ones.
 
 use std::path::{Path, PathBuf};
+use tokio::sync::mpsc;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 
-/// Initialize all logging — stderr + file in one shot.
+use devpulse_engine::platform::telemetry::{DuckDbLayer, SpanRecord, SPAN_CHANNEL_CAPACITY};
+
+/// Result of logging initialization — holds guards and the span receiver
+/// that must be connected to `SpanTraceWriter` after analytics boots.
+pub struct LoggingHandle {
+    /// File logging guard — must be held for app lifetime.
+    pub file_guard: WorkerGuard,
+    /// Receiver for completed spans — spawn `SpanTraceWriter` with this
+    /// after DuckDB analytics service is available.
+    pub span_rx: mpsc::Receiver<SpanRecord>,
+}
+
+/// Initialize all logging — stderr + file + DuckDB span layer.
 /// Must be called once `data_dir` is known (in setup).
-/// Returns a guard that must be held for the app lifetime.
+///
+/// Returns a `LoggingHandle` containing the file guard (must be held)
+/// and the span receiver (must be connected to `SpanTraceWriter` after boot).
 ///
 /// # Errors
 /// Returns error if log directory or file creation fails.
-pub fn init(data_dir: &Path) -> anyhow::Result<WorkerGuard> {
+pub fn init(data_dir: &Path) -> anyhow::Result<LoggingHandle> {
     let logs_dir = data_dir.join("logs");
     std::fs::create_dir_all(&logs_dir)?;
 
@@ -24,6 +47,9 @@ pub fn init(data_dir: &Path) -> anyhow::Result<WorkerGuard> {
     let filename = format!("session-{timestamp}.jsonl");
     let file = std::fs::File::create(logs_dir.join(filename))?;
     let (non_blocking, guard) = tracing_appender::non_blocking(file);
+
+    // Create the span channel — sender goes to Layer, receiver waits for analytics
+    let (span_tx, span_rx) = mpsc::channel(SPAN_CHANNEL_CAPACITY);
 
     let filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
@@ -46,9 +72,13 @@ pub fn init(data_dir: &Path) -> anyhow::Result<WorkerGuard> {
                 .with_file(true)
                 .with_line_number(true),
         )
+        .with(DuckDbLayer::new(span_tx))
         .init();
 
-    Ok(guard)
+    Ok(LoggingHandle {
+        file_guard: guard,
+        span_rx,
+    })
 }
 
 /// Initialize stderr-only logging (fallback if `data_dir` isn't available yet).

@@ -463,6 +463,22 @@ pub struct HfFileInfoItem {
     pub quant_level: Option<String>,
 }
 
+/// Delete a model from disk and remove from registry.
+///
+/// Clears any slot assignments. Refuses if the model is currently loaded.
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_model(
+    state: State<'_, PlatformState>,
+    model_id: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .delete_model(&model_id)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Search HuggingFace for GGUF models.
 #[tauri::command]
 #[specta::specta]
@@ -751,9 +767,20 @@ pub async fn inference_generate(
             )
         })?;
 
+    // Stamp request with trace ID for cross-thread span correlation
+    let trace_ctx = devpulse_engine::platform::telemetry::TraceContext::new();
+    tracing::info!(
+        trace_id = %trace_ctx.trace_id,
+        slot = %slot_id,
+        prompt_len = prompt.len(),
+        max_tokens,
+        temperature,
+        "inference_generate: starting"
+    );
+
     // Start generation — returns a receiver for streaming tokens
     let token_rx = handle
-        .generate(prompt, max_tokens, temperature)
+        .generate(prompt, max_tokens, temperature, trace_ctx.trace_id.clone())
         .await
         .map_err(|e| format!("Inference failed: {e:#}"))?;
 
