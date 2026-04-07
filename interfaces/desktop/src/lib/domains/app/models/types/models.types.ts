@@ -287,6 +287,39 @@ export function isInferenceReady(status: ModelStatus): boolean {
 	return status.type === "hot" || status.type === "standby";
 }
 
+/**
+ * Slot-level display status — SSOT for all card components.
+ *
+ * Handles the "no status yet" case by checking whether the slot
+ * has an assigned model. This replaces the per-card `slotStatus()`
+ * functions that were copy-pasted across BrainCard, MemoryCard,
+ * VisionCard, and VoiceCard.
+ */
+export type SlotDisplayStatus = "not_downloaded" | "downloaded" | "loading" | "active" | "error";
+
+export function slotDisplayStatus(
+	status: ModelStatus | undefined,
+	hasAssignedModel: boolean,
+): SlotDisplayStatus {
+	if (!status) {
+		return hasAssignedModel ? "downloaded" : "not_downloaded";
+	}
+	switch (status.type) {
+		case "cold":
+		case "warm":
+			return "downloaded";
+		case "hot":
+		case "standby":
+			return "active";
+		case "loading":
+			return "loading";
+		case "failed":
+			return "error";
+		case "unloading":
+			return "downloaded";
+	}
+}
+
 /** Format bytes-per-second to human-readable download speed */
 export function formatSpeed(bps: number): string {
 	if (bps < 1024) return `${bps} B/s`;

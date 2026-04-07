@@ -384,7 +384,7 @@ fn sample_token(logits: &[f32], temperature: f32) -> anyhow::Result<u32> {
             .iter()
             .enumerate()
             .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
-            .unwrap();
+            .ok_or_else(|| anyhow::anyhow!("Greedy argmax failed — logits empty after filter"))?;
         return Ok(idx as u32);
     }
 

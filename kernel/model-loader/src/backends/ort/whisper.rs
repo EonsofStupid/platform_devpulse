@@ -18,20 +18,28 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 /// Whisper expects 16kHz input audio.
+#[cfg(feature = "ort-backend")]
 const WHISPER_SAMPLE_RATE: u32 = 16000;
 /// Number of mel filterbank channels.
+#[cfg(feature = "ort-backend")]
 const N_MELS: usize = 80;
 /// FFT window size in samples (25ms at 16kHz).
+#[cfg(feature = "ort-backend")]
 const N_FFT: usize = 400;
 /// Hop length in samples (10ms at 16kHz).
+#[cfg(feature = "ort-backend")]
 const HOP_LENGTH: usize = 160;
 /// Maximum audio length in frames (30 seconds).
+#[cfg(feature = "ort-backend")]
 const MAX_FRAMES: usize = 3000;
 /// SOT (start of transcript) token ID.
+#[cfg(feature = "ort-backend")]
 const SOT_TOKEN: i64 = 50258;
 /// EOT (end of transcript) token ID.
+#[cfg(feature = "ort-backend")]
 const EOT_TOKEN: i64 = 50257;
 /// Maximum decoder steps to prevent infinite loop.
+#[cfg(feature = "ort-backend")]
 const MAX_DECODE_STEPS: usize = 448;
 
 /// Whisper STT backed by ort (ONNX Runtime).
@@ -117,8 +125,8 @@ impl SttBackend for WhisperStt {
 
                 tracing::debug!(
                     component = "Whisper STT",
-                    encoder_inputs = ?enc_session.inputs.iter().map(|i| &i.name).collect::<Vec<_>>(),
-                    encoder_outputs = ?enc_session.outputs.iter().map(|o| &o.name).collect::<Vec<_>>(),
+                    encoder_inputs = ?enc_session.inputs().iter().map(|i| i.name()).collect::<Vec<_>>(),
+                    encoder_outputs = ?enc_session.outputs().iter().map(|o| o.name()).collect::<Vec<_>>(),
                     "Encoder session created"
                 );
 
@@ -133,8 +141,8 @@ impl SttBackend for WhisperStt {
 
                 tracing::debug!(
                     component = "Whisper STT",
-                    decoder_inputs = ?dec_session.inputs.iter().map(|i| &i.name).collect::<Vec<_>>(),
-                    decoder_outputs = ?dec_session.outputs.iter().map(|o| &o.name).collect::<Vec<_>>(),
+                    decoder_inputs = ?dec_session.inputs().iter().map(|i| i.name()).collect::<Vec<_>>(),
+                    decoder_outputs = ?dec_session.outputs().iter().map(|o| o.name()).collect::<Vec<_>>(),
                     "Decoder session created"
                 );
 
@@ -148,20 +156,29 @@ impl SttBackend for WhisperStt {
             }
         }
 
-        let size = dir_size(path);
-        self.model_path = Some(path.to_path_buf());
-        self.loaded = true;
-
-        tracing::info!(
-            component = "Whisper STT",
-            size_mb = size / (1024 * 1024),
-            "Whisper STT loaded"
+        #[cfg(not(feature = "ort-backend"))]
+        anyhow::bail!(
+            "ort-backend feature not compiled — cannot load Whisper STT. \
+             Enable 'ort-backend' feature in model-loader Cargo.toml."
         );
 
-        Ok(MemoryFootprint {
-            ram_bytes: size,
-            vram_bytes: 0,
-        })
+        #[cfg(feature = "ort-backend")]
+        {
+            let size = dir_size(path);
+            self.model_path = Some(path.to_path_buf());
+            self.loaded = true;
+
+            tracing::info!(
+                component = "Whisper STT",
+                size_mb = size / (1024 * 1024),
+                "Whisper STT loaded"
+            );
+
+            Ok(MemoryFootprint {
+                ram_bytes: size,
+                vram_bytes: 0,
+            })
+        }
     }
 
     fn unload(&mut self) -> anyhow::Result<()> {
@@ -242,8 +259,7 @@ impl SttBackend for WhisperStt {
                 .map_err(|e| anyhow::anyhow!("Failed to create ort Value for decoder input: {e}"))?;
 
             // Clone encoder hidden states for each decoder step
-            let v_hidden = hidden_states.try_clone()
-                .map_err(|e| anyhow::anyhow!("Failed to clone encoder hidden states: {e}"))?;
+            let v_hidden = hidden_states.clone();
 
             let dec_outputs = decoder
                 .run(ort::inputs![v_ids, v_hidden])
@@ -254,8 +270,7 @@ impl SttBackend for WhisperStt {
                 .try_extract_tensor::<f32>()
                 .map_err(|e| anyhow::anyhow!("Failed to extract decoder logits: {e}"))?;
 
-            let logits_slice = logits.as_slice()
-                .ok_or_else(|| anyhow::anyhow!("Decoder logits not contiguous"))?;
+            let logits_slice = logits.1;
 
             // Argmax over the last position's vocabulary
             let vocab_size = self.tokens.len();
@@ -340,6 +355,7 @@ fn find_onnx_file(dir: &Path, pattern: &str) -> anyhow::Result<PathBuf> {
 ///
 /// Standard Whisper preprocessing: STFT → mel filterbank → log scale.
 /// Simplified implementation — no external DSP crate needed.
+#[cfg(feature = "ort-backend")]
 fn compute_mel_spectrogram(audio: &[f32]) -> anyhow::Result<Vec<f32>> {
     let n_frames = (audio.len() / HOP_LENGTH).min(MAX_FRAMES);
     if n_frames == 0 {
@@ -400,6 +416,7 @@ fn compute_mel_spectrogram(audio: &[f32]) -> anyhow::Result<Vec<f32>> {
 /// Build a mel filterbank matrix.
 ///
 /// Returns [N_MELS * n_freq] flat array.
+#[cfg(feature = "ort-backend")]
 fn build_mel_filterbank(n_mels: usize, n_freq: usize, sample_rate: f32) -> Vec<f32> {
     let f_min = 0.0f32;
     let f_max = sample_rate / 2.0;
@@ -444,6 +461,7 @@ fn build_mel_filterbank(n_mels: usize, n_freq: usize, sample_rate: f32) -> Vec<f
 }
 
 /// Simple linear resampling.
+#[cfg(feature = "ort-backend")]
 fn resample(audio: &[f32], from_rate: u32, to_rate: u32) -> Vec<f32> {
     if from_rate == to_rate {
         return audio.to_vec();

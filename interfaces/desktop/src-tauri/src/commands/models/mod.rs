@@ -234,7 +234,7 @@ pub async fn get_slots(
                 label: s.label,
                 capability: s.capability.to_string(),
                 preferred_device: s.preferred_device.to_string(),
-                loading_strategy: format!("{:?}", s.loading),
+                loading_strategy: s.loading.to_string(),
                 assigned_model_id: s.assigned_model,
                 fallback: s.fallback,
                 runtime: s.runtime.map(|r| r.to_string()),
@@ -304,7 +304,7 @@ pub async fn get_vram_budget(
                 slot_id: s.slot_id,
                 model_name: s.model_name,
                 vram_estimate_mb: s.vram_estimate_mb,
-                status: format!("{:?}", s.status).to_lowercase(),
+                status: s.status.to_string(),
                 shared_with: s.shared_with,
             })
             .collect(),

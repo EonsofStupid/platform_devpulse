@@ -525,7 +525,7 @@ impl ModelLoaderService {
                         ));
                         tracing::warn!(slot = %slot_id, model = %mid, attempt, "Unload retry — model not in pool");
                         if attempt < 2 {
-                            std::thread::sleep(std::time::Duration::from_millis(500));
+                            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
                         }
                     }
                 }

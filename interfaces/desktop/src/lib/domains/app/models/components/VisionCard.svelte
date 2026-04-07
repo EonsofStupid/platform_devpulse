@@ -13,7 +13,7 @@ import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb } from "../types/models.types.js";
+import { formatMb, slotDisplayStatus } from "../types/models.types.js";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -53,24 +53,13 @@ let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
 
-function slotStatus(
-	slotId: string,
-): "not_downloaded" | "downloaded" | "loading" | "loaded" | "error" {
-	const status = modelsState.statuses[slotId];
-	if (!status) {
-		const slot = modelsState.slots.find((s) => s.id === slotId);
-		if (slot?.assigned_model_id) return "downloaded";
-		return "not_downloaded";
-	}
-	if (status.type === "cold" || status.type === "warm") return "downloaded";
-	if (status.type === "hot" || status.type === "standby") return "loaded";
-	if (status.type === "loading") return "loading";
-	if (status.type === "failed") return "error";
-	return "downloaded";
-}
-
-const visionStatus = $derived(slotStatus(SLOT_ID));
-const isLoaded = $derived(visionStatus === "loaded");
+const visionStatus = $derived(
+	slotDisplayStatus(
+		modelsState.statuses[SLOT_ID],
+		!!modelsState.slots.find((s) => s.id === SLOT_ID)?.assigned_model_id,
+	),
+);
+const isLoaded = $derived(visionStatus === "active");
 const hasModel = $derived(visionStatus !== "not_downloaded");
 
 // Check if the brain model has built-in vision (Phi-4, Qwen3-VL, Qwen3.5)

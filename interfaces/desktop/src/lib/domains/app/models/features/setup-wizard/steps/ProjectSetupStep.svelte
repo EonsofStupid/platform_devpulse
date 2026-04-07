@@ -4,7 +4,7 @@
 
   Phase 5. Dogfood profile check. Offer to index DevPulse codebase.
   Path derived from .userdata (portable). External paths get symlinked.
-  Indexing WILL fail (RAG not wired) — error displayed raw. Skip always available.
+  Indexing WILL fail (knowledge retrieval not wired) — error displayed raw. Skip always available.
 -->
 <script lang="ts">
 import { ArrowLeft, Database, FolderOpen } from "lucide-svelte";
@@ -203,7 +203,7 @@ async function handleFinish(): Promise<void> {
 		</Text>
 	</div>
 
-	<!-- Warning about RAG -->
+	<!-- Warning about knowledge retrieval -->
 	<div
 		class={cn(box({ paddingX: "8", paddingY: "4" }), "rounded border")}
 		style="background: var(--signal-warning); border-color: var(--border-subtle);"

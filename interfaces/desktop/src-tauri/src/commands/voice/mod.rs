@@ -329,7 +329,10 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
         .build_input_stream(
             &config.into(),
             move |data: &[f32], _: &rodio::cpal::InputCallbackInfo| {
-                let mut buf = buf_clone.lock().unwrap_or_else(|e| e.into_inner());
+                let Ok(mut buf) = buf_clone.lock() else {
+                    tracing::error!("Mic buffer mutex poisoned — dropping audio frame");
+                    return;
+                };
                 if buf.len() < total_samples {
                     buf.extend_from_slice(data);
                 } else {
@@ -357,7 +360,9 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
 
     drop(stream);
 
-    let raw = buffer.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    let raw = buffer.lock()
+        .map_err(|e| format!("Mic buffer mutex poisoned after capture: {e}"))?
+        .clone();
 
     // Convert to mono if stereo
     let mono: Vec<f32> = if channels > 1 {

@@ -48,6 +48,18 @@ pub enum BudgetStatus {
     SharedInstance,
 }
 
+impl std::fmt::Display for BudgetStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Loaded => write!(f, "loaded"),
+            Self::Planned => write!(f, "planned"),
+            Self::WontFit => write!(f, "wont_fit"),
+            Self::Unassigned => write!(f, "unassigned"),
+            Self::SharedInstance => write!(f, "shared_instance"),
+        }
+    }
+}
+
 impl VramBudget {
     /// Whether all planned loads fit in available VRAM.
     #[must_use]

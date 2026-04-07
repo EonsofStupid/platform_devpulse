@@ -125,6 +125,18 @@ pub enum LoadingStrategy {
     },
 }
 
+impl std::fmt::Display for LoadingStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Hot => write!(f, "hot"),
+            Self::Warm => write!(f, "warm"),
+            Self::OnDemand => write!(f, "on_demand"),
+            Self::Signal(sig) => write!(f, "signal:{sig}"),
+            Self::Coupled { parent } => write!(f, "coupled:{parent}"),
+        }
+    }
+}
+
 impl Slot {
     /// Extract the subsystem portion of the slot ID (everything before the first `.`).
     #[must_use]

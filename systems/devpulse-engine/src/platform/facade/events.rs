@@ -47,6 +47,7 @@ pub enum SlotId {
     VisionEmbedder,
     VoiceStt,
     VoiceTts,
+    VoiceBrain,
     Custom(String),
 }
 

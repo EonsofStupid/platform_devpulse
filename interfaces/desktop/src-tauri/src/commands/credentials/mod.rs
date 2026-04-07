@@ -12,6 +12,7 @@
 //! (secondary, for platform-level access by engine consumers like Council).
 
 use crate::state::PlatformState;
+use devpulse_engine::platform::SqlAdapter;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
@@ -100,15 +101,12 @@ pub async fn store_api_key(
         if let Some(svc) = platform.user_relational() {
             let adapter = svc.adapter();
             let adapter_name = provider.adapter_name().to_string();
+            let key_id = format!("key-{adapter_name}");
             let hint_clone = hint.clone();
             if let Err(e) = adapter
                 .execute(
                     "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, 'user-1', ?, ?, datetime('now'))",
-                    &[
-                        devpulse_engine::platform::SqlValue::Text(format!("key-{adapter_name}")),
-                        devpulse_engine::platform::SqlValue::Text(adapter_name.clone()),
-                        devpulse_engine::platform::SqlValue::Text(hint_clone),
-                    ],
+                    &[key_id.as_str(), adapter_name.as_str(), hint_clone.as_str()],
                 )
                 .await
             {
@@ -178,7 +176,7 @@ pub async fn delete_api_key(
             if let Err(e) = adapter
                 .execute(
                     "DELETE FROM api_keys WHERE adapter = ?",
-                    &[devpulse_engine::platform::SqlValue::Text(adapter_name)],
+                    &[adapter_name.as_str()],
                 )
                 .await
             {

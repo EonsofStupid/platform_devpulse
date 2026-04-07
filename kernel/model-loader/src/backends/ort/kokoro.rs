@@ -23,6 +23,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 /// Output sample rate for Kokoro models.
+#[cfg(feature = "ort-backend")]
 const SAMPLE_RATE: u32 = 24000;
 
 /// Kokoro TTS backed by ort (ONNX Runtime).
@@ -84,8 +85,8 @@ impl TtsBackend for KokoroTts {
 
             tracing::debug!(
                 component = "Kokoro TTS",
-                inputs = ?session.inputs.iter().map(|i| &i.name).collect::<Vec<_>>(),
-                outputs = ?session.outputs.iter().map(|o| &o.name).collect::<Vec<_>>(),
+                inputs = ?session.inputs().iter().map(|i| i.name()).collect::<Vec<_>>(),
+                outputs = ?session.outputs().iter().map(|o| o.name()).collect::<Vec<_>>(),
                 "Session created — inspecting tensor names"
             );
 
@@ -93,20 +94,29 @@ impl TtsBackend for KokoroTts {
                 .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? = Some(session);
         }
 
-        let file_size = std::fs::metadata(path)?.len();
-        self.model_path = Some(path.to_path_buf());
-        self.loaded = true;
-
-        tracing::info!(
-            component = "Kokoro TTS",
-            size_mb = file_size / (1024 * 1024),
-            "Kokoro TTS loaded"
+        #[cfg(not(feature = "ort-backend"))]
+        anyhow::bail!(
+            "ort-backend feature not compiled — cannot load Kokoro TTS. \
+             Enable 'ort-backend' feature in model-loader Cargo.toml."
         );
 
-        Ok(MemoryFootprint {
-            ram_bytes: file_size,
-            vram_bytes: 0,
-        })
+        #[cfg(feature = "ort-backend")]
+        {
+            let file_size = std::fs::metadata(path)?.len();
+            self.model_path = Some(path.to_path_buf());
+            self.loaded = true;
+
+            tracing::info!(
+                component = "Kokoro TTS",
+                size_mb = file_size / (1024 * 1024),
+                "Kokoro TTS loaded"
+            );
+
+            Ok(MemoryFootprint {
+                ram_bytes: file_size,
+                vram_bytes: 0,
+            })
+        }
     }
 
     fn unload(&mut self) -> anyhow::Result<()> {
@@ -181,9 +191,7 @@ impl TtsBackend for KokoroTts {
             .try_extract_tensor::<f32>()
             .map_err(|e| anyhow::anyhow!("Failed to extract Kokoro audio output: {e}"))?;
 
-        let pcm: Vec<f32> = audio_tensor.as_slice()
-            .ok_or_else(|| anyhow::anyhow!("Kokoro audio tensor not contiguous"))?
-            .to_vec();
+        let pcm: Vec<f32> = audio_tensor.1.to_vec();
 
         tracing::info!(
             component = "Kokoro TTS",

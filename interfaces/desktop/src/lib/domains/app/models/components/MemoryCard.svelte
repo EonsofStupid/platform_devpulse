@@ -1,6 +1,6 @@
 <!--
   @file MemoryCard — "How much Clyffy remembers" card for the consumer model loader.
-  RAG pipeline shown as unified "memory" system. Depth slider. Zero jargon.
+  Knowledge retrieval pipeline shown as unified "memory" system. Depth slider. Zero jargon.
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
@@ -13,7 +13,7 @@ import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb } from "../types/models.types.js";
+import { formatMb, slotDisplayStatus } from "../types/models.types.js";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -64,27 +64,21 @@ let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
 
-function slotStatus(
-	slotId: string,
-): "not_downloaded" | "downloaded" | "loading" | "loaded" | "error" {
-	const status = modelsState.statuses[slotId];
-	if (!status) {
-		const slot = modelsState.slots.find((s) => s.id === slotId);
-		if (slot?.assigned_model_id) return "downloaded";
-		return "not_downloaded";
-	}
-	if (status.type === "cold" || status.type === "warm") return "downloaded";
-	if (status.type === "hot" || status.type === "standby") return "loaded";
-	if (status.type === "loading") return "loading";
-	if (status.type === "failed") return "error";
-	return "downloaded";
-}
-
-const embedStatus = $derived(slotStatus(EMBEDDER_SLOT));
-const rerankStatus = $derived(slotStatus(RERANKER_SLOT));
+const embedStatus = $derived(
+	slotDisplayStatus(
+		modelsState.statuses[EMBEDDER_SLOT],
+		!!modelsState.slots.find((s) => s.id === EMBEDDER_SLOT)?.assigned_model_id,
+	),
+);
+const rerankStatus = $derived(
+	slotDisplayStatus(
+		modelsState.statuses[RERANKER_SLOT],
+		!!modelsState.slots.find((s) => s.id === RERANKER_SLOT)?.assigned_model_id,
+	),
+);
 const memoryReady = $derived(
-	(embedStatus === "loaded" || embedStatus === "downloaded") &&
-		(rerankStatus === "loaded" || rerankStatus === "downloaded"),
+	(embedStatus === "active" || embedStatus === "downloaded") &&
+		(rerankStatus === "active" || rerankStatus === "downloaded"),
 );
 const bothInstalled = $derived(
 	embedStatus !== "not_downloaded" && rerankStatus !== "not_downloaded",

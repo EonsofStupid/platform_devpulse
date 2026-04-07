@@ -227,7 +227,7 @@ class ModelsState {
 	get subsystemLabels(): Record<string, string> {
 		return {
 			chat: "Chat",
-			minion: "Minions",
+			minion: "Helpers",
 			rag: "Search Pipeline",
 			vision: "Vision",
 			voice: "Voice",

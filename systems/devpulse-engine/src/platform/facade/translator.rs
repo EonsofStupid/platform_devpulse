@@ -451,6 +451,7 @@ fn slot_name(slot: &SlotId, show_model_names: bool) -> String {
             SlotId::VisionEmbedder => "SigLIP2 vision".to_string(),
             SlotId::VoiceStt => "Whisper STT".to_string(),
             SlotId::VoiceTts => "Kokoro TTS".to_string(),
+            SlotId::VoiceBrain => "Voice conversation (LLM)".to_string(),
             SlotId::Custom(name) => name.clone(),
         }
     } else {
@@ -463,6 +464,7 @@ fn slot_name(slot: &SlotId, show_model_names: bool) -> String {
             SlotId::VisionEmbedder => "the vision system".to_string(),
             SlotId::VoiceStt => "the listening system".to_string(),
             SlotId::VoiceTts => "Clyffy's voice".to_string(),
+            SlotId::VoiceBrain => "the voice conversation system".to_string(),
             SlotId::Custom(name) => name.clone(),
         }
     }

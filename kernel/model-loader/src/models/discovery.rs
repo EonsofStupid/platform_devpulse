@@ -25,6 +25,13 @@ pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEnt
     // Walk everything recursively — discover by file type, not folder name
     walk_all(models_dir, &mut entries)?;
 
+    // Filter out safetensor shards — keep only the first shard or non-shard files.
+    // Shards like `model-00002-of-00005.safetensors` are parts of the same model.
+    filter_safetensor_shards(&mut entries);
+
+    // Deduplicate by canonical path — same model discovered via symlink or copy
+    deduplicate_by_path(&mut entries);
+
     // Post-process: folder-aware capability hints
     apply_folder_hints(models_dir, &mut entries);
 
@@ -96,6 +103,30 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
                         tracing::warn!(file = %path.display(), error = %e, "Failed to parse ONNX file — skipping");
                     }
                 },
+                "bin" => {
+                    // Whisper GGML `.bin` format — only register if filename
+                    // matches a known Whisper pattern (e.g. `ggml-small.bin`).
+                    let filename = path.file_name()
+                        .and_then(|f| f.to_str())
+                        .unwrap_or("");
+                    if filename.starts_with("ggml-") && filename.contains("whisper")
+                        || filename.starts_with("ggml-tiny")
+                        || filename.starts_with("ggml-base")
+                        || filename.starts_with("ggml-small")
+                        || filename.starts_with("ggml-medium")
+                        || filename.starts_with("ggml-large")
+                    {
+                        match parse_whisper_bin_entry(&path) {
+                            Ok(registry_entry) => {
+                                tracing::debug!(file = %path.display(), "Discovered Whisper GGML model");
+                                entries.push(registry_entry);
+                            }
+                            Err(e) => {
+                                tracing::warn!(file = %path.display(), error = %e, "Failed to parse Whisper .bin — skipping");
+                            }
+                        }
+                    }
+                }
                 _ => {}
             }
         }
@@ -572,6 +603,98 @@ fn apply_folder_hints(models_dir: &Path, entries: &mut [ModelRegistryEntry]) {
             );
         }
     }
+}
+
+/// Parse a Whisper GGML `.bin` file into a registry entry.
+///
+/// Whisper GGML models are standalone binary files (e.g. `ggml-small.bin`).
+/// They run through Sherpa or Candle's Whisper implementation.
+fn parse_whisper_bin_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
+    let file_size = std::fs::metadata(path)?.len();
+    let filename = path
+        .file_name()
+        .map(|f| f.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    // Infer size variant from filename
+    let variant = if filename.contains("tiny") {
+        "tiny"
+    } else if filename.contains("base") {
+        "base"
+    } else if filename.contains("small") {
+        "small"
+    } else if filename.contains("medium") {
+        "medium"
+    } else if filename.contains("large") {
+        "large"
+    } else {
+        "unknown"
+    };
+
+    Ok(ModelRegistryEntry {
+        id: uuid::Uuid::now_v7().to_string(),
+        filename,
+        path: path.to_path_buf(),
+        format: ModelFormat::Gguf, // Closest format marker for GGML
+        architecture: format!("whisper-{variant}"),
+        parameter_count: None,
+        quant_level: None,
+        context_length: 0,
+        size_bytes: file_size,
+        vram_estimate_mb: file_size / (1024 * 1024),
+        supported_backends: vec![BackendType::Sherpa],
+        compatible_capabilities: vec![ModelCapability::SpeechToText],
+        source: ModelSource::Local,
+        discovered_at: now_epoch_ms(),
+    })
+}
+
+/// Filter out safetensor shards, keeping only the first shard per model.
+///
+/// Pattern: `model-NNNNN-of-NNNNN.safetensors` — keep only `00001`,
+/// which represents the "model is here" entry. Skip shards 00002+.
+fn filter_safetensor_shards(entries: &mut Vec<ModelRegistryEntry>) {
+    entries.retain(|entry| {
+        if entry.format != ModelFormat::SafeTensors {
+            return true;
+        }
+
+        let filename = &entry.filename;
+
+        // Check for shard pattern: `model-XXXXX-of-YYYYY.safetensors`
+        if let Some(dash_of) = filename.find("-of-") {
+            // Find the shard number before "-of-"
+            let prefix = &filename[..dash_of];
+            if let Some(last_dash) = prefix.rfind('-') {
+                let shard_str = &prefix[last_dash + 1..];
+                if let Ok(shard_num) = shard_str.parse::<u32>() {
+                    if shard_num > 1 {
+                        tracing::debug!(
+                            file = %filename,
+                            shard = shard_num,
+                            "Filtering out safetensor shard (keeping only shard 1)"
+                        );
+                        return false;
+                    }
+                }
+            }
+        }
+
+        true
+    });
+}
+
+/// Deduplicate registry entries by canonical path.
+///
+/// If the same file appears via symlink and direct path, keep only one entry.
+/// Preference: entries from purpose directories (`chat/`, `voice/`, etc.)
+/// over entries from `general/` or root.
+fn deduplicate_by_path(entries: &mut Vec<ModelRegistryEntry>) {
+    let mut seen = std::collections::HashSet::new();
+    entries.retain(|entry| {
+        let canonical = entry.path.canonicalize().unwrap_or_else(|_| entry.path.clone());
+        seen.insert(canonical)
+    });
 }
 
 #[cfg(test)]

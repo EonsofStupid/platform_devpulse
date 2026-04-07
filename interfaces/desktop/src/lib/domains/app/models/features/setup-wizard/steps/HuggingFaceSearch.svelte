@@ -113,7 +113,7 @@ function formatDownloads(n: number): string {
 
 	<!-- Results -->
 	{#if !searchState.searching && searchState.results.length > 0}
-		<Text size="sm" color="muted">{searchState.results.length} results</Text>
+		<Text size="sm" color="muted">{searchState.results.length} result{searchState.results.length === 1 ? "" : "s"}</Text>
 
 		{#each searchState.results as result (result.repo_id)}
 			<div
@@ -141,50 +141,70 @@ function formatDownloads(n: number): string {
 				{#if result.gguf_files.length > 0}
 					<Separator class="my-2" />
 					<Text size="sm" weight="bold" color="secondary" class="mb-2">
-						GGUF Files ({result.gguf_files.length})
+						Available Files ({result.gguf_files.length})
 					</Text>
 
 					{#each result.gguf_files as file (file.filename)}
 						{@const fileSizeMb = Math.round(file.size_bytes / (1024 * 1024))}
 						{@const fit = calculateFit(fileSizeMb, hardwareState.vramFreeMb, hardwareState.vramTotalMb)}
+						{@const fitLabel = fit === "green" ? "Fits GPU" : fit === "yellow" ? "CPU only" : "Too large"}
 						{@const fileKey = `${result.repo_id}/${file.filename}`}
 						{@const isDownloading = downloadingFile === fileKey}
+						{@const selectedSlot = selectedSlotForDownload[fileKey] ?? modelsState.userSlots[0]?.id ?? "chat.brain"}
 
-						<div class="gguf-row flex items-center gap-3 rounded-md px-3 py-2">
-							<Text size="sm" color="primary" class="flex-1 truncate">{file.filename}</Text>
-							{#if file.quant_level}
-								<Badge variant="neutral" size="sm">{file.quant_level}</Badge>
-							{/if}
-							<Text size="sm" color="muted">{formatMb(fileSizeMb)}</Text>
-							<div class="w-2 h-2 rounded-full" style="background: {fitColor(fit)};"></div>
-
-							<!-- Slot selector for this file -->
-							<select
-								class="rounded px-2 py-1 text-sm border"
-								style="background: var(--surface-base); color: var(--text-primary); border-color: var(--border-subtle);"
-								value={selectedSlotForDownload[fileKey] ?? modelsState.userSlots[0]?.id ?? ""}
-								onchange={(e) => selectSlotForFile(fileKey, (e.target as HTMLSelectElement).value)}
-								aria-label="Target slot for {file.filename}"
-							>
-								{#each modelsState.userSlots as slot (slot.id)}
-									<option value={slot.id}>{friendlySlotLabel(slot.id)}</option>
-								{/each}
-							</select>
-
-							<button
-								class="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-bold transition-colors disabled:opacity-40"
-								style="background: var(--accent-teal-main); color: var(--surface-base);"
-								onclick={() => handleDownloadFile(result.repo_id, file.filename, fileKey)}
-								disabled={isDownloading}
-								aria-label="Download {file.filename}"
-							>
-								{#if isDownloading}
-									<Spinner size="sm" />
-								{:else}
-									<Download size={14} />
+						<div class="gguf-row rounded-lg p-3 mb-2 border" style="border-color: var(--border-subtle);">
+							<!-- File info row -->
+							<div class="flex items-center gap-3 mb-2">
+								<Text size="sm" weight="bold" color="primary" class="flex-1 truncate">{file.filename}</Text>
+								{#if file.quant_level}
+									<Badge variant="neutral" size="sm">{file.quant_level}</Badge>
 								{/if}
-								Download
-							</button>
+								<Text size="sm" color="muted">{formatMb(fileSizeMb)}</Text>
+								<Badge
+									variant={fit === "green" ? "positive" : fit === "yellow" ? "notice" : "negative"}
+									size="sm"
+								>
+									{fitLabel}
+								</Badge>
+							</div>
+
+							<!-- Slot selector: inline chip buttons -->
+							<div class="flex items-center gap-2 flex-wrap mb-2">
+								<Text size="xs" color="muted">Install to:</Text>
+								{#each modelsState.userSlots as slot (slot.id)}
+									{@const isSelected = selectedSlot === slot.id}
+									<button
+										class="rounded-full px-3 py-1 text-xs font-bold transition-all border"
+										style={isSelected
+											? "background: var(--accent-teal-main); color: var(--surface-base); border-color: var(--accent-teal-main);"
+											: "background: transparent; color: var(--text-secondary); border-color: var(--border-subtle);"}
+										onclick={() => selectSlotForFile(fileKey, slot.id)}
+										aria-label="Install to {friendlySlotLabel(slot.id)}"
+										aria-pressed={isSelected}
+									>
+										{friendlySlotLabel(slot.id)}
+									</button>
+								{/each}
+							</div>
+
+							<!-- Download button -->
+							<div class="flex justify-end">
+								<button
+									class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-colors disabled:opacity-40"
+									style="background: var(--accent-teal-main); color: var(--surface-base);"
+									onclick={() => handleDownloadFile(result.repo_id, file.filename, fileKey)}
+									disabled={isDownloading}
+									aria-label="Download {file.filename} to {friendlySlotLabel(selectedSlot)}"
+								>
+									{#if isDownloading}
+										<Spinner size="sm" />
+										Downloading...
+									{:else}
+										<Download size={14} />
+										Download to {friendlySlotLabel(selectedSlot)}
+									{/if}
+								</button>
+							</div>
 						</div>
 					{/each}
 				{:else}
@@ -192,6 +212,26 @@ function formatDownloads(n: number): string {
 				{/if}
 			</div>
 		{/each}
+
+		<!-- Load More -->
+		{#if searchState.hasMore}
+			<div class="flex justify-center py-4">
+				<button
+					class="flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-bold border transition-colors disabled:opacity-40"
+					style="border-color: var(--accent-teal-main); color: var(--accent-teal-main);"
+					onclick={() => searchState.loadMore()}
+					disabled={searchState.loadingMore}
+					aria-label="Load more search results"
+				>
+					{#if searchState.loadingMore}
+						<Spinner size="sm" />
+						Loading more...
+					{:else}
+						Load More Results
+					{/if}
+				</button>
+			</div>
+		{/if}
 	{/if}
 
 	<!-- Empty state -->

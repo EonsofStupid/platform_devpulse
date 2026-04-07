@@ -15,6 +15,12 @@ import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
+import { getCatalogForSlot } from "../../services/catalog.service.js";
+import {
+	downloadModel,
+	onDownloadComplete,
+	onDownloadProgress,
+} from "../../services/download.service.js";
 import { friendlySlotLabel } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import {
@@ -35,6 +41,9 @@ let { onComplete }: Props = $props();
 let initialized = $state(false);
 let showRepairMode = $state(false);
 let showHardwareChangeNotice = $state(false);
+let repairDownloading = $state<Record<string, boolean>>({});
+let repairReassigning = $state<string | null>(null);
+let repairError = $state<string | null>(null);
 
 $effect(() => {
 	init();
@@ -79,6 +88,67 @@ function handleSkipRedetect(): void {
 
 function handleRepairComplete(): void {
 	onComplete?.();
+}
+
+/** Redownload a missing model from the catalog for a slot. */
+async function handleRedownload(slotId: string): Promise<void> {
+	repairError = null;
+	repairDownloading = { ...repairDownloading, [slotId]: true };
+
+	try {
+		const catalog = await getCatalogForSlot(slotId);
+		if (!catalog || catalog.options.length === 0) {
+			repairError = `No download source found for ${friendlySlotLabel(slotId)}. Use Reassign to pick a local model instead.`;
+			return;
+		}
+
+		const opt = catalog.options[0];
+		const downloadId = await downloadModel(opt.repo, opt.file);
+
+		const unsubProgress = onDownloadProgress((p) => {
+			if (p.downloadId === downloadId) {
+				// Progress tracked — repair UI shows downloading state
+			}
+		});
+
+		await new Promise<void>((resolve, reject) => {
+			const unsub = onDownloadComplete((data) => {
+				if (data.downloadId === downloadId) {
+					unsub();
+					resolve();
+				}
+			});
+			setTimeout(() => {
+				unsub();
+				reject(new Error("Download timed out"));
+			}, 600_000);
+		});
+
+		unsubProgress();
+		await modelsState.refresh();
+
+		// Remove from missing list on success
+		wizardState.missingModels = wizardState.missingModels.filter((s) => s !== slotId);
+		const { toast } = await import("svelte-sonner");
+		toast.success(`${friendlySlotLabel(slotId)} redownloaded`);
+	} catch (e) {
+		repairError = e instanceof Error ? e.message : String(e);
+	} finally {
+		repairDownloading = { ...repairDownloading, [slotId]: false };
+	}
+}
+
+/** Enter reassign mode — navigate to model loader phase for this slot. */
+function handleReassign(slotId: string): void {
+	repairReassigning = slotId;
+	showRepairMode = false;
+	wizardState.currentPhase = "models";
+	wizardState.importTargetSlot = slotId as import("../../types/models.types.js").SlotId;
+}
+
+/** Skip a missing slot — remove from repair list. */
+function handleRepairSkip(slotId: string): void {
+	wizardState.missingModels = wizardState.missingModels.filter((s) => s !== slotId);
 }
 
 const currentGate = $derived(evaluateContinueGate(wizardState.currentPhase));
@@ -141,28 +211,78 @@ async function handleComplete(): Promise<void> {
 
 	<!-- Repair mode (missing models on subsequent launch) -->
 	{#if showRepairMode}
-		<div class={`${stack({ gap: "4", align: "center" })} w-full max-w-lg`}>
+		<div class={`${stack({ gap: "5", align: "center" })} w-full max-w-lg`}>
 			<Text size="lg" weight="bold" color="primary">Missing Models</Text>
 			<Text size="sm" color="muted">
 				Some models are no longer available at their registered paths.
+				Redownload from the catalog, reassign to a different local model, or skip.
 			</Text>
+
+			{#if repairError}
+				<div class="w-full rounded-lg px-4 py-3 border" style="background: oklch(0.25 0.05 25 / 0.5); border-color: var(--signal-error);">
+					<Text size="sm" color="primary">{repairError}</Text>
+				</div>
+			{/if}
+
 			{#each wizardState.missingModels as slotId (slotId)}
-				<div class={hstack({ gap: "3", align: "center" })}>
-					<Text size="sm" color="secondary">{friendlySlotLabel(slotId)}</Text>
-					<Badge variant="negative" size="sm">Missing</Badge>
-					<button
-						class="rounded px-3 py-1 text-xs"
-						style="color: var(--text-muted);"
-						onclick={() => { wizardState.missingModels = wizardState.missingModels.filter(s => s !== slotId); }}
-					>
-						Skip
-					</button>
+				{@const isDownloading = !!repairDownloading[slotId]}
+				<div
+					class="w-full rounded-lg p-4 border flex flex-col gap-3"
+					style="background: var(--surface-elevated); border-color: var(--border-subtle);"
+				>
+					<div class={hstack({ gap: "3", align: "center" })}>
+						<Text size="base" weight="bold" color="primary">{friendlySlotLabel(slotId)}</Text>
+						<Badge variant="negative" size="sm">Missing</Badge>
+						<Text size="xs" color="muted" class="ml-auto">{slotId}</Text>
+					</div>
+
+					<div class={hstack({ gap: "2", justify: "end" })}>
+						<button
+							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition-colors disabled:opacity-40"
+							style="background: var(--accent-teal-main); color: var(--surface-base);"
+							onclick={() => handleRedownload(slotId)}
+							disabled={isDownloading}
+							aria-label="Redownload model for {friendlySlotLabel(slotId)}"
+						>
+							{#if isDownloading}
+								Downloading...
+							{:else}
+								Redownload
+							{/if}
+						</button>
+
+						<button
+							class="rounded-lg px-4 py-2 text-sm font-bold border transition-colors"
+							style="border-color: var(--accent-teal-main); color: var(--accent-teal-main);"
+							onclick={() => handleReassign(slotId)}
+							disabled={isDownloading}
+							aria-label="Reassign a different model to {friendlySlotLabel(slotId)}"
+						>
+							Reassign
+						</button>
+
+						<button
+							class="rounded-lg px-4 py-2 text-sm border transition-colors"
+							style="border-color: var(--border-subtle); color: var(--text-muted);"
+							onclick={() => handleRepairSkip(slotId)}
+							disabled={isDownloading}
+							aria-label="Skip repair for {friendlySlotLabel(slotId)}"
+						>
+							Skip
+						</button>
+					</div>
 				</div>
 			{/each}
+
+			{#if wizardState.missingModels.length === 0}
+				<Text size="sm" color="secondary">All issues resolved.</Text>
+			{/if}
+
 			<button
-				class="rounded-lg px-6 py-2 text-sm font-bold"
+				class="rounded-lg px-6 py-2.5 text-sm font-bold transition-colors"
 				style="background: var(--accent-teal-main); color: var(--surface-base);"
 				onclick={handleRepairComplete}
+				aria-label="Continue to DevPulse"
 			>
 				Continue to DevPulse
 			</button>

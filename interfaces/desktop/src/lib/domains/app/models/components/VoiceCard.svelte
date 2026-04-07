@@ -14,7 +14,7 @@ import { modelsState } from "../runes/models.runes.svelte.js";
 import { narrationState } from "../runes/narration.runes.svelte.js";
 import { getCatalogForSlot } from "../services/catalog.service.js";
 import { downloadModel, onDownloadProgress } from "../services/download.service.js";
-import { formatMb } from "../types/models.types.js";
+import { formatMb, slotDisplayStatus } from "../types/models.types.js";
 import VoiceSlotStatus from "./VoiceSlotStatus.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
@@ -67,26 +67,20 @@ let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
 
-function slotStatus(
-	slotId: string,
-): "not_downloaded" | "downloaded" | "loading" | "loaded" | "error" {
-	const status = modelsState.statuses[slotId];
-	if (!status) {
-		const slot = modelsState.slots.find((s) => s.id === slotId);
-		if (slot?.assigned_model_id) return "downloaded";
-		return "not_downloaded";
-	}
-	if (status.type === "cold" || status.type === "warm") return "downloaded";
-	if (status.type === "hot" || status.type === "standby") return "loaded";
-	if (status.type === "loading") return "loading";
-	if (status.type === "failed") return "error";
-	return "downloaded";
-}
-
-const sttStatus = $derived(slotStatus(STT_SLOT));
-const ttsStatus = $derived(slotStatus(TTS_SLOT));
-const sttReady = $derived(sttStatus === "loaded" || sttStatus === "downloaded");
-const ttsReady = $derived(ttsStatus === "loaded" || ttsStatus === "downloaded");
+const sttStatus = $derived(
+	slotDisplayStatus(
+		modelsState.statuses[STT_SLOT],
+		!!modelsState.slots.find((s) => s.id === STT_SLOT)?.assigned_model_id,
+	),
+);
+const ttsStatus = $derived(
+	slotDisplayStatus(
+		modelsState.statuses[TTS_SLOT],
+		!!modelsState.slots.find((s) => s.id === TTS_SLOT)?.assigned_model_id,
+	),
+);
+const sttReady = $derived(sttStatus === "active" || sttStatus === "downloaded");
+const ttsReady = $derived(ttsStatus === "active" || ttsStatus === "downloaded");
 const voiceReady = $derived(sttReady && ttsReady);
 
 // ── Actions ───────────────────────────────────────────────────
@@ -168,8 +162,8 @@ async function handleDownloadTts(): Promise<void> {
 
 		<!-- Voice status indicators -->
 		<VoiceSlotStatus
-			sttActive={sttStatus === "loaded"}
-			ttsActive={ttsStatus === "loaded"}
+			sttActive={sttStatus === "active"}
+			ttsActive={ttsStatus === "active"}
 			micDetected={false}
 		/>
 

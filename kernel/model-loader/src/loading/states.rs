@@ -110,6 +110,18 @@ impl std::fmt::Display for LoadingStage {
     }
 }
 
+impl std::fmt::Display for ModelStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotLoaded => write!(f, "not_loaded"),
+            Self::Loading { stage, .. } => write!(f, "loading:{stage}"),
+            Self::Loaded { .. } => write!(f, "loaded"),
+            Self::Failed { .. } => write!(f, "failed"),
+            Self::Unloading => write!(f, "unloading"),
+        }
+    }
+}
+
 impl Default for ModelStatus {
     fn default() -> Self {
         Self::NotLoaded

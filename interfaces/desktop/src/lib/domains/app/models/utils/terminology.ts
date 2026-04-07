@@ -117,11 +117,16 @@ export function translateLoading(strategy: string, level: CompetencyLevel = 0): 
 	}
 }
 
-/** Translate slot status to user-friendly label. */
+/**
+ * Translate slot display status to user-friendly label.
+ *
+ * Uses `SlotDisplayStatus` vocabulary from models.types.ts SSOT:
+ *   "not_downloaded" | "downloaded" | "loading" | "active" | "error"
+ */
 export function translateStatus(status: string, level: CompetencyLevel = 0): string {
 	if (level === 2) return status;
 	switch (status) {
-		case "loaded":
+		case "active":
 			return "Active";
 		case "loading":
 			return "Starting up...";
@@ -129,12 +134,8 @@ export function translateStatus(status: string, level: CompetencyLevel = 0): str
 			return "Ready to activate";
 		case "not_downloaded":
 			return "Not installed";
-		case "not_loaded":
-			return "Installed, not running";
 		case "error":
 			return "Something went wrong";
-		case "failed":
-			return "Failed to start";
 		default:
 			return status;
 	}
