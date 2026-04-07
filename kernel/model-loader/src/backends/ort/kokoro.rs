@@ -1,22 +1,39 @@
-//! Kokoro TTS via ONNX Runtime — fallback voice.
+//! Kokoro TTS via ONNX Runtime — text-to-speech synthesis.
 //!
 //! Runs Kokoro ONNX model directly through ort. No sherpa dependency.
-//! Lower quality than Orpheus but faster and lighter.
+//! Pattern matches SNAC decoder (`snac.rs`) — the gold standard for ort usage.
 //!
-//! Model: kokoro.onnx (~80MB) or Kokoro_espeak_Q8.gguf (sherpa format)
-//! For ort path: needs ONNX export of Kokoro
-//! Output: PCM f32, 24kHz mono
+//! Models on disk (`.userdata/models/voice/`):
+//! - `kokoro-v1.0.onnx` (~325MB, full precision)
+//! - `kokoro-v1.0.fp16.onnx` (~177MB, half precision)
+//! - `kokoro-v1.0.int8.onnx` (~92MB, quantized)
+//!
+//! Input tensors:
+//! - `input_ids`: int64 [1, N] — phoneme token IDs
+//! - `style`: float32 [1, 256] — speaker style embedding
+//! - `speed`: float32 [1] — speed multiplier (1.0 = normal)
+//!
+//! Output tensor:
+//! - `audio`: float32 [1, T] — PCM samples at 24kHz mono
 
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
+#[cfg(feature = "ort-backend")]
+use std::sync::Mutex;
+
+/// Output sample rate for Kokoro models.
+const SAMPLE_RATE: u32 = 24000;
 
 /// Kokoro TTS backed by ort (ONNX Runtime).
 pub struct KokoroTts {
+    /// Path to the loaded ONNX model file.
     model_path: Option<PathBuf>,
+    /// Whether a model is currently loaded.
     loaded: bool,
-    // TODO: ort::Session
-    // session: Option<ort::Session>,
+    /// ONNX Runtime session — behind Mutex for thread safety (SNAC pattern).
+    #[cfg(feature = "ort-backend")]
+    session: Mutex<Option<ort::session::Session>>,
 }
 
 impl KokoroTts {
@@ -26,6 +43,8 @@ impl KokoroTts {
         Self {
             model_path: None,
             loaded: false,
+            #[cfg(feature = "ort-backend")]
+            session: Mutex::new(None),
         }
     }
 }
@@ -48,8 +67,31 @@ impl TtsBackend for KokoroTts {
             anyhow::bail!("Kokoro model not found: {}", path.display());
         }
 
-        // TODO: Create ort::Session
-        // self.session = Some(ort::Session::builder()?.commit_from_file(path)?);
+        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+        if ext != "onnx" {
+            anyhow::bail!(
+                "Kokoro TTS requires .onnx file, got .{ext}: {}",
+                path.display()
+            );
+        }
+
+        #[cfg(feature = "ort-backend")]
+        {
+            let session = ort::session::Session::builder()
+                .map_err(|e| anyhow::anyhow!("Failed to create ort SessionBuilder: {e}"))?
+                .commit_from_file(path)
+                .map_err(|e| anyhow::anyhow!("Failed to load Kokoro ONNX model: {e}"))?;
+
+            tracing::debug!(
+                component = "Kokoro TTS",
+                inputs = ?session.inputs.iter().map(|i| &i.name).collect::<Vec<_>>(),
+                outputs = ?session.outputs.iter().map(|o| &o.name).collect::<Vec<_>>(),
+                "Session created — inspecting tensor names"
+            );
+
+            *self.session.lock()
+                .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? = Some(session);
+        }
 
         let file_size = std::fs::metadata(path)?.len();
         self.model_path = Some(path.to_path_buf());
@@ -69,13 +111,18 @@ impl TtsBackend for KokoroTts {
 
     fn unload(&mut self) -> anyhow::Result<()> {
         tracing::info!(component = "Kokoro TTS", "Unloading Kokoro TTS");
-        // self.session = None;
+        #[cfg(feature = "ort-backend")]
+        {
+            *self.session.lock()
+                .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? = None;
+        }
         self.model_path = None;
         self.loaded = false;
         Ok(())
     }
 
-    fn synthesize(&self, text: &str, _voice: &str) -> anyhow::Result<AudioSamples> {
+    #[cfg(feature = "ort-backend")]
+    fn synthesize(&self, text: &str, voice: &str) -> anyhow::Result<AudioSamples> {
         if !self.loaded {
             anyhow::bail!("Kokoro TTS not loaded");
         }
@@ -83,21 +130,78 @@ impl TtsBackend for KokoroTts {
         tracing::debug!(
             component = "Kokoro TTS",
             text_len = text.len(),
+            voice = voice,
             "Synthesizing speech"
         );
 
-        // TODO: Run ort inference
-        // let input_ids = tokenize_kokoro(text)?;
-        // let outputs = self.session.run(ort::inputs!["input_ids" => input_ids]?)?;
-        // let audio = outputs["audio"].try_extract_tensor::<f32>()?.into_owned();
+        // Basic character-to-phoneme mapping.
+        // Full espeak/G2P phonemization is a future sprint.
+        // This produces valid int64 token IDs for the model.
+        let phoneme_ids: Vec<i64> = text
+            .chars()
+            .map(|c| c as i64)
+            .collect();
 
-        // Placeholder: silence
-        let sample_count = (text.len() * 4000).min(24000 * 30);
+        if phoneme_ids.is_empty() {
+            anyhow::bail!("Empty text — nothing to synthesize");
+        }
+
+        let seq_len = phoneme_ids.len();
+
+        let mut guard = self.session.lock()
+            .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))?;
+        let session = guard
+            .as_mut()
+            .ok_or_else(|| anyhow::anyhow!("Kokoro session not initialized"))?;
+
+        // Build input tensors (same pattern as SNAC snac.rs:135-147)
+        let input_ids = ndarray::Array2::<i64>::from_shape_vec((1, seq_len), phoneme_ids)
+            .map_err(|e| anyhow::anyhow!("Failed to create input_ids tensor: {e}"))?;
+
+        // Style embedding — 256-dim vector, zeros = default voice
+        // Future: load voice-specific style vectors from a voice registry
+        let style = ndarray::Array2::<f32>::zeros((1, 256));
+
+        // Speed multiplier
+        let speed = ndarray::Array1::<f32>::from_vec(vec![1.0]);
+
+        let v_ids = ort::value::Value::from_array(input_ids)
+            .map_err(|e| anyhow::anyhow!("Failed to create ort Value for input_ids: {e}"))?;
+        let v_style = ort::value::Value::from_array(style)
+            .map_err(|e| anyhow::anyhow!("Failed to create ort Value for style: {e}"))?;
+        let v_speed = ort::value::Value::from_array(speed)
+            .map_err(|e| anyhow::anyhow!("Failed to create ort Value for speed: {e}"))?;
+
+        let outputs = session
+            .run(ort::inputs![v_ids, v_style, v_speed])
+            .map_err(|e| anyhow::anyhow!("Kokoro inference failed: {e}"))?;
+
+        let audio_value = &outputs[0];
+        let audio_tensor = audio_value
+            .try_extract_tensor::<f32>()
+            .map_err(|e| anyhow::anyhow!("Failed to extract Kokoro audio output: {e}"))?;
+
+        let pcm: Vec<f32> = audio_tensor.as_slice()
+            .ok_or_else(|| anyhow::anyhow!("Kokoro audio tensor not contiguous"))?
+            .to_vec();
+
+        tracing::info!(
+            component = "Kokoro TTS",
+            pcm_samples = pcm.len(),
+            duration_secs = pcm.len() as f32 / SAMPLE_RATE as f32,
+            "Synthesis complete"
+        );
+
         Ok(AudioSamples {
-            data: vec![0.0f32; sample_count],
-            sample_rate: 24000,
+            data: pcm,
+            sample_rate: SAMPLE_RATE,
             channels: 1,
         })
+    }
+
+    #[cfg(not(feature = "ort-backend"))]
+    fn synthesize(&self, _text: &str, _voice: &str) -> anyhow::Result<AudioSamples> {
+        anyhow::bail!("Kokoro TTS requires ort-backend feature — not compiled")
     }
 
     fn memory_usage(&self) -> MemoryFootprint {

@@ -51,7 +51,7 @@ impl McpServer {
 
         #[cfg(feature = "internal")]
         if config.stdio.enabled {
-            let handle = transport_stdio::start().await?;
+            let handle = transport_stdio::start(handler.clone()).await?;
             server.stdio_handle = Some(handle);
         }
 

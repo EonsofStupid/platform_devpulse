@@ -26,18 +26,38 @@ pub fn register(registry: &mut ToolRegistry) {
                 "required": ["path"]
             }),
         },
-        Box::new(|_platform, args| {
+        Box::new(|platform, args| {
             Box::pin(async move {
                 let path_str = match args.get("path").and_then(|v| v.as_str()) {
                     Some(s) => s,
                     None => return error_result("Missing required parameter: path".to_string()),
                 };
 
+                let workspace_root = platform
+                    .data_dir()
+                    .parent()
+                    .unwrap_or(platform.data_dir())
+                    .to_path_buf();
+
                 let file_path = PathBuf::from(path_str);
                 let resolved = match file_path.canonicalize() {
                     Ok(p) => p,
                     Err(e) => return error_result(format!("Cannot resolve path: {e}")),
                 };
+
+                // Workspace containment — prevent arbitrary filesystem reads
+                if !resolved.starts_with(&workspace_root) {
+                    tracing::warn!(
+                        path = %resolved.display(),
+                        workspace = %workspace_root.display(),
+                        "MCP repo.get_file: path outside workspace"
+                    );
+                    return error_result(format!(
+                        "Path must be within project workspace ({}). Got: {}",
+                        workspace_root.display(),
+                        resolved.display()
+                    ));
+                }
 
                 match tokio::fs::read_to_string(&resolved).await {
                     Ok(contents) => {

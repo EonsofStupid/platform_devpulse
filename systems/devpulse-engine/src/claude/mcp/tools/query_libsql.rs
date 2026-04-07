@@ -42,14 +42,36 @@ pub fn register(registry: &mut ToolRegistry) {
                     None => return error_result("Missing required parameter: sql".to_string()),
                 };
 
-                // Read-only enforcement
+                // Read-only enforcement — scan FULL query, not just prefix.
+                // Blocks write keywords anywhere in the SQL to prevent
+                // CTE-wrapped or subquery-embedded mutations.
                 let upper = sql.trim().to_uppercase();
-                for keyword in &["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"] {
-                    if upper.starts_with(keyword) {
-                        return error_result(
-                            "Write operations not allowed via MCP. SELECT only.".to_string(),
-                        );
+
+                // Strip string literals before scanning to avoid false positives
+                // on keywords inside quoted values (e.g. WHERE name = 'DROP TABLE').
+                let sanitized = strip_sql_strings(&upper);
+
+                const WRITE_KEYWORDS: &[&str] = &[
+                    "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE",
+                    "REPLACE", "TRUNCATE", "MERGE", "UPSERT", "ATTACH",
+                    "DETACH", "REINDEX", "VACUUM", "PRAGMA",
+                ];
+
+                for keyword in WRITE_KEYWORDS {
+                    // Match as whole word: keyword must be preceded/followed by
+                    // non-alphanumeric or be at string boundary.
+                    if contains_sql_keyword(&sanitized, keyword) {
+                        return error_result(format!(
+                            "Write operations not allowed via MCP. Found '{keyword}' in query. SELECT only."
+                        ));
                     }
+                }
+
+                // Must begin with SELECT or WITH (for CTEs that resolve to SELECT)
+                if !sanitized.starts_with("SELECT") && !sanitized.starts_with("WITH") {
+                    return error_result(
+                        "Query must begin with SELECT or WITH. Write operations not allowed via MCP.".to_string(),
+                    );
                 }
 
                 let params: Vec<String> = args
@@ -85,4 +107,67 @@ pub fn register(registry: &mut ToolRegistry) {
             })
         }),
     );
+}
+
+/// Strip SQL string literals (both single and double quoted) from a query.
+/// Replaces quoted content with empty strings to prevent false keyword matches
+/// inside string values like `WHERE name = 'DROP TABLE'`.
+fn strip_sql_strings(sql: &str) -> String {
+    let mut result = String::with_capacity(sql.len());
+    let mut chars = sql.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if ch == '\'' || ch == '"' {
+            let quote = ch;
+            // Skip everything until matching close quote (handling escaped quotes)
+            loop {
+                match chars.next() {
+                    Some(c) if c == quote => {
+                        // Check for escaped quote (doubled)
+                        if chars.peek() == Some(&quote) {
+                            chars.next(); // skip the escape
+                        } else {
+                            break;
+                        }
+                    }
+                    None => break, // Unterminated string — stop
+                    _ => {}
+                }
+            }
+            // Replace the entire string literal with a space
+            result.push(' ');
+        } else {
+            result.push(ch);
+        }
+    }
+
+    result
+}
+
+/// Check if `sql` contains `keyword` as a whole word (not as a substring of
+/// an identifier like `UPDATED_AT` or `DELETED_FLAG`).
+fn contains_sql_keyword(sql: &str, keyword: &str) -> bool {
+    let keyword_bytes = keyword.as_bytes();
+    let sql_bytes = sql.as_bytes();
+    let klen = keyword_bytes.len();
+
+    if sql_bytes.len() < klen {
+        return false;
+    }
+
+    for i in 0..=(sql_bytes.len() - klen) {
+        if &sql_bytes[i..i + klen] == keyword_bytes {
+            // Check left boundary: must be start of string or non-alphanumeric
+            let left_ok = i == 0 || !sql_bytes[i - 1].is_ascii_alphanumeric();
+            // Check right boundary: must be end of string or non-alphanumeric
+            let right_ok =
+                i + klen == sql_bytes.len() || !sql_bytes[i + klen].is_ascii_alphanumeric();
+
+            if left_ok && right_ok {
+                return true;
+            }
+        }
+    }
+
+    false
 }

@@ -38,6 +38,7 @@ flume = "0.11"
 rfd = "0.15"
 sysinfo = "0.38.4"
 keyring = "3"
+rodio = "0.19"
 
 [features]
 default = ["inference"]

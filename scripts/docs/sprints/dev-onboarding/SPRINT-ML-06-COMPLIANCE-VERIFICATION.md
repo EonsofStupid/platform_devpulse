@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | `PLANNED` |
+| **Status** | `EXECUTED` |
 | **Depends on** | ML-01 through ML-05 (all UI and backend complete) |
 | **Blocks** | Model loader declared DONE |
 | **Files** | 2 modified, 1 created |

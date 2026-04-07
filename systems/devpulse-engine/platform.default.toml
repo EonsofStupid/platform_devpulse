@@ -333,6 +333,7 @@ enabled = true  # only meaningful in internal builds
 [services.system.claude.sidecar]
 enabled = true
 sidecar_name = "claude-desktop"
+launch_args = []
 auto_launch = false
 kill_on_exit = true
 max_restart_attempts = 3

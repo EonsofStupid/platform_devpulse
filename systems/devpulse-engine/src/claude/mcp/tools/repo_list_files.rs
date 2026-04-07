@@ -26,7 +26,7 @@ pub fn register(registry: &mut ToolRegistry) {
                 "required": ["path"]
             }),
         },
-        Box::new(|_platform, args| {
+        Box::new(|platform, args| {
             Box::pin(async move {
                 let path_str = match args.get("path").and_then(|v| v.as_str()) {
                     Some(s) => s,
@@ -35,11 +35,31 @@ pub fn register(registry: &mut ToolRegistry) {
 
                 let recursive = args.get("recursive").and_then(|v| v.as_bool()).unwrap_or(false);
 
+                let workspace_root = platform
+                    .data_dir()
+                    .parent()
+                    .unwrap_or(platform.data_dir())
+                    .to_path_buf();
+
                 let dir_path = PathBuf::from(path_str);
                 let resolved = match dir_path.canonicalize() {
                     Ok(p) => p,
                     Err(e) => return error_result(format!("Cannot resolve path: {e}")),
                 };
+
+                // Workspace containment — prevent arbitrary filesystem listing
+                if !resolved.starts_with(&workspace_root) {
+                    tracing::warn!(
+                        path = %resolved.display(),
+                        workspace = %workspace_root.display(),
+                        "MCP repo.list_files: path outside workspace"
+                    );
+                    return error_result(format!(
+                        "Path must be within project workspace ({}). Got: {}",
+                        workspace_root.display(),
+                        resolved.display()
+                    ));
+                }
 
                 if !resolved.is_dir() {
                     return error_result(format!("Not a directory: {}", resolved.display()));

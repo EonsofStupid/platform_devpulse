@@ -5,8 +5,11 @@
 //! LoaderEventSink) — this struct knows nothing about Tauri, libSQL, or Clyffy.
 
 use crate::backends::bridge::InferenceHandle;
+use crate::backends::router::select_backend;
+use crate::backends::voice_pool::VoicePool;
 use crate::backends::BackendPool;
 use crate::models::download::DownloadManager;
+use crate::models::registry::BackendType;
 use crate::hardware::auto_config::{self, AutoConfig};
 use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
 use crate::hardware::vram;
@@ -33,6 +36,7 @@ pub struct ModelLoaderService {
     slot_statuses: HashMap<String, ModelStatus>,
     hardware: HardwareMonitor,
     pool: BackendPool,
+    voice_pool: VoicePool,
     downloads: DownloadManager,
     /// slot_id → InferenceHandle (cloned from pool)
     slot_handles: HashMap<String, InferenceHandle>,
@@ -79,6 +83,7 @@ impl ModelLoaderService {
             slot_statuses: HashMap::new(),
             hardware: HardwareMonitor::new(),
             pool: BackendPool::new(),
+            voice_pool: VoicePool::new(),
             downloads,
             slot_handles: HashMap::new(),
             swap_guard: SwapGuard::new(),
@@ -308,9 +313,11 @@ impl ModelLoaderService {
 
     /// Load the model assigned to a slot.
     ///
-    /// Uses the `BackendPool` — if another slot already loaded the same model,
-    /// this slot gets a shared handle (ref count bumped, no duplicate load).
-    #[cfg(feature = "candle-backend")]
+    /// Routes to the correct backend based on model format + capability:
+    /// - GGUF/SafeTensors → `BackendPool` (Candle inference thread)
+    /// - ONNX/SherpaDir + SpeechToText → `VoicePool` (Whisper STT)
+    /// - ONNX/SherpaDir + TextToSpeech → `VoicePool` (Kokoro TTS)
+    /// - ONNX + Embedding/Reranking → `VoicePool` (reuse ort pool for now)
     pub async fn load_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         if !self.slots.contains(slot_id) {
             return Err(LoaderError::SlotNotFound {
@@ -353,6 +360,9 @@ impl ModelLoaderService {
         }
 
         let model_path = entry.path.clone();
+        let capability = slot.capability;
+        let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
+
         let device_str = match slot.preferred_device {
             crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
             crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
@@ -394,10 +404,34 @@ impl ModelLoaderService {
             gpu_layers: None,
         };
 
-        // Acquire from pool (handles shared instances automatically)
-        match self.pool.acquire(&model_id, &model_path, params).await {
-            Ok((handle, memory)) => {
-                self.slot_handles.insert(slot_id.to_string(), handle);
+        // Route to the correct pool based on backend + capability
+        let load_result = match backend {
+            BackendType::Ort | BackendType::Sherpa => {
+                // Voice/ONNX models → VoicePool
+                match self.voice_pool.load(slot_id, &model_path, capability, params) {
+                    Ok(memory) => Ok(memory),
+                    Err(e) => Err(e),
+                }
+            }
+            #[cfg(feature = "candle-backend")]
+            BackendType::Candle | BackendType::LlamaCpp => {
+                // LLM models → BackendPool (Candle inference thread)
+                match self.pool.acquire(&model_id, &model_path, params).await {
+                    Ok((handle, memory)) => {
+                        self.slot_handles.insert(slot_id.to_string(), handle);
+                        Ok(memory)
+                    }
+                    Err(e) => Err(e),
+                }
+            }
+            #[cfg(not(feature = "candle-backend"))]
+            BackendType::Candle | BackendType::LlamaCpp => {
+                Err(anyhow::anyhow!("Candle backend not compiled — cannot load LLM slot '{slot_id}'"))
+            }
+        };
+
+        match load_result {
+            Ok(memory) => {
                 self.slot_statuses.insert(
                     slot_id.to_string(),
                     ModelStatus::Loaded { footprint: memory },
@@ -411,6 +445,7 @@ impl ModelLoaderService {
                 tracing::info!(
                     slot = %slot_id,
                     model = %model_id,
+                    backend = ?backend,
                     ram_mb = memory.ram_mb(),
                     vram_mb = memory.vram_mb(),
                     "Slot loaded successfully"
@@ -435,14 +470,6 @@ impl ModelLoaderService {
                 Err(LoaderError::Internal { message: error_msg })
             }
         }
-    }
-
-    /// Load slot — no-op when candle feature disabled.
-    #[cfg(not(feature = "candle-backend"))]
-    pub async fn load_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
-        Err(LoaderError::Internal {
-            message: format!("Candle backend not compiled — cannot load slot '{slot_id}'"),
-        })
     }
 
     /// Unload the model from a slot.
@@ -881,5 +908,23 @@ impl ModelLoaderService {
         limit: u32,
     ) -> anyhow::Result<Vec<crate::models::search::HfSearchResult>> {
         crate::models::search::search_huggingface(query, limit).await
+    }
+
+    // ── Voice Pool Access ────────────────────────────────────────
+
+    /// Synthesize speech using the TTS model loaded in a slot.
+    pub fn synthesize(&self, slot_id: &str, text: &str, voice: &str) -> anyhow::Result<crate::backends::voice::AudioSamples> {
+        self.voice_pool.synthesize(slot_id, text, voice)
+    }
+
+    /// Transcribe audio using the STT model loaded in a slot.
+    pub fn transcribe(&self, slot_id: &str, samples: &crate::backends::voice::AudioSamples) -> anyhow::Result<String> {
+        self.voice_pool.transcribe(slot_id, samples)
+    }
+
+    /// Check if a voice model is loaded in a slot.
+    #[must_use]
+    pub fn voice_loaded(&self, slot_id: &str) -> bool {
+        self.voice_pool.is_loaded(slot_id)
     }
 }

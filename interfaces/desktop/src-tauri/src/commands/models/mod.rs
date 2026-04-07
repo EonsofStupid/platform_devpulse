@@ -146,6 +146,9 @@ pub async fn get_hardware_metrics(
             .unwrap_or_default()
     };
 
+    // Compute before struct literal — gpu_name moves into the struct
+    let has_gpu = m.gpu_name.is_some();
+
     Ok(HardwareInfo {
         cpu_usage_percent: m.cpu_usage_percent,
         cpu_cores: m.cpu_cores,
@@ -162,12 +165,10 @@ pub async fn get_hardware_metrics(
         gpu_temperature_c: m.gpu_temperature_c,
         process_ram_mb: m.process_ram_mb,
         process_vram_mb: m.process_vram_mb,
-        // New fields — populated from sysinfo/nvml when kernel exposes them
-        // TODO: Wire to kernel HardwareMetrics once fields are added there
         cpu_threads: None,
         disk_free_mb: None,
         cuda_version: None,
-        nvml_available: m.gpu_name.is_some(),
+        nvml_available: has_gpu,
         model_dir,
     })
 }

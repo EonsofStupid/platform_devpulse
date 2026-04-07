@@ -23,10 +23,13 @@ pub const MCP_SESSION_HEADER: &str = "Mcp-Session-Id";
 /// Incoming JSON-RPC request.
 #[derive(Debug, Clone, Deserialize)]
 pub struct JsonRpcRequest {
+    /// Protocol version — must be `"2.0"`.
     pub jsonrpc: String,
     /// Request ID (absent for notifications).
     pub id: Option<Value>,
+    /// Method name (e.g. `"initialize"`, `"tools/call"`).
     pub method: String,
+    /// Method parameters, if any.
     #[serde(default)]
     pub params: Option<Value>,
 }
@@ -34,10 +37,14 @@ pub struct JsonRpcRequest {
 /// Outgoing JSON-RPC response.
 #[derive(Debug, Clone, Serialize)]
 pub struct JsonRpcResponse {
+    /// Protocol version — always `"2.0"`.
     pub jsonrpc: String,
+    /// Request ID this response corresponds to.
     pub id: Value,
+    /// Result payload on success.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<Value>,
+    /// Error payload on failure.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<JsonRpcError>,
 }
@@ -67,18 +74,26 @@ impl JsonRpcResponse {
 /// JSON-RPC error object.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcError {
+    /// Numeric error code (see [`error_codes`]).
     pub code: i32,
+    /// Human-readable error description.
     pub message: String,
+    /// Additional structured error data.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<Value>,
 }
 
 /// Standard JSON-RPC error codes.
 pub mod error_codes {
+    /// Invalid JSON was received by the server.
     pub const PARSE_ERROR: i32 = -32700;
+    /// The JSON sent is not a valid JSON-RPC request.
     pub const INVALID_REQUEST: i32 = -32600;
+    /// The method does not exist or is not available.
     pub const METHOD_NOT_FOUND: i32 = -32601;
+    /// Invalid method parameters.
     pub const INVALID_PARAMS: i32 = -32602;
+    /// Internal server error.
     pub const INTERNAL_ERROR: i32 = -32603;
 }
 
@@ -90,9 +105,12 @@ pub mod error_codes {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InitializeParams {
+    /// MCP protocol version the client supports.
     pub protocol_version: String,
+    /// Client capabilities (opaque — server does not validate).
     #[serde(default)]
     pub capabilities: Value,
+    /// Client identification (name + version).
     #[serde(default)]
     pub client_info: Option<ClientInfo>,
 }
@@ -100,7 +118,9 @@ pub struct InitializeParams {
 /// Client identification.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClientInfo {
+    /// Client application name (e.g. `"claude-code"`).
     pub name: String,
+    /// Client version string.
     #[serde(default)]
     pub version: Option<String>,
 }
@@ -109,21 +129,27 @@ pub struct ClientInfo {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InitializeResult {
+    /// MCP protocol version the server supports.
     pub protocol_version: String,
+    /// Server capabilities advertised to the client.
     pub capabilities: ServerCapabilities,
+    /// Server identification (name + version).
     pub server_info: ServerInfo,
 }
 
 /// Server identification.
 #[derive(Debug, Clone, Serialize)]
 pub struct ServerInfo {
+    /// Server application name (e.g. `"devpulse"`).
     pub name: String,
+    /// Server version from `Cargo.toml`.
     pub version: String,
 }
 
 /// Server capabilities advertised during initialization.
 #[derive(Debug, Clone, Serialize)]
 pub struct ServerCapabilities {
+    /// Tools capability — present if server exposes tools.
     pub tools: Option<ToolsCapability>,
 }
 
@@ -131,6 +157,7 @@ pub struct ServerCapabilities {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolsCapability {
+    /// Whether the tool list can change after initialization.
     pub list_changed: bool,
 }
 
@@ -142,15 +169,20 @@ pub struct ToolsCapability {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolDefinition {
+    /// Tool name used in `tools/call` requests.
     pub name: String,
+    /// Human-readable tool description for the client.
     pub description: String,
+    /// JSON Schema describing the tool's input parameters.
     pub input_schema: Value,
 }
 
 /// Tool call request params.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ToolCallParams {
+    /// Name of the tool to invoke.
     pub name: String,
+    /// Arguments to pass to the tool handler.
     #[serde(default)]
     pub arguments: Value,
 }
@@ -158,7 +190,9 @@ pub struct ToolCallParams {
 /// Tool call result.
 #[derive(Debug, Clone, Serialize)]
 pub struct ToolCallResult {
+    /// Content blocks in the response.
     pub content: Vec<ToolContent>,
+    /// `true` if the tool execution failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_error: Option<bool>,
 }
@@ -167,6 +201,10 @@ pub struct ToolCallResult {
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
 pub enum ToolContent {
+    /// Plain text content.
     #[serde(rename = "text")]
-    Text { text: String },
+    Text {
+        /// The text payload.
+        text: String,
+    },
 }

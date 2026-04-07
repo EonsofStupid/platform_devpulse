@@ -33,7 +33,9 @@ pub type ToolHandler = Box<
 
 /// A registered tool with its definition and handler.
 pub struct RegisteredTool {
+    /// Wire-protocol definition (name, description, input schema).
     pub definition: ToolDefinition,
+    /// Async function that executes the tool logic.
     pub handler: ToolHandler,
 }
 

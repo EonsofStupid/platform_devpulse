@@ -213,9 +213,11 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 						</Text>
 						<Text size="sm" color="muted">{slotDescription(slot.id)}</Text>
 					</div>
-					<Badge variant={statusToVariant(status)} size="sm">
-						{statusLabel(status)}
-					</Badge>
+					<span aria-live="polite">
+						<Badge variant={statusToVariant(status)} size="sm">
+							{statusLabel(status)}
+						</Badge>
+					</span>
 				</div>
 
 				<!-- MODEL INFO (when assigned) -->
@@ -291,7 +293,7 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 
 				<!-- FAILED STATE -->
 				{#if isFailed && "error" in status}
-					<div class="rounded-md p-3 mb-3 border" style="background: var(--signal-error); border-color: var(--signal-error);">
+					<div class="rounded-md p-3 mb-3 border" style="background: var(--signal-error); border-color: var(--signal-error);" aria-live="assertive">
 						<Text size="sm" color="primary" class="mb-2">{status.error}</Text>
 						<div class="flex gap-2">
 							<button
@@ -317,7 +319,14 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 
 				<!-- INLINE EXPANDABLE MODEL LIST -->
 				{#if isExpanded}
-					<div class="model-list-enter rounded-md p-3 mb-3 border" style="background: var(--surface-elevated); border-color: var(--border-subtle);">
+					<!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
+					<div
+						class="model-list-enter rounded-md p-3 mb-3 border"
+						style="background: var(--surface-elevated); border-color: var(--border-subtle);"
+						role="listbox"
+						aria-label="Compatible models for {friendlySlotLabel(slot.id)}"
+						onkeydown={(e) => { if (e.key === "Escape") expandedSlot = null; }}
+					>
 						<Text size="sm" weight="bold" color="secondary" class="mb-2">
 							Compatible models ({modelsState.models.filter((m) => m.compatible_capabilities.includes(slot.capability)).length})
 						</Text>
@@ -440,7 +449,7 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 
 	<!-- Global error -->
 	{#if wizardState.error}
-		<div class="rounded-lg p-4 border" style="background: var(--signal-error); border-color: var(--signal-error);">
+		<div class="rounded-lg p-4 border" style="background: var(--signal-error); border-color: var(--signal-error);" aria-live="assertive">
 			<Text size="sm" color="primary">{wizardState.error}</Text>
 		</div>
 	{/if}

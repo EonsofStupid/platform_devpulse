@@ -14,6 +14,7 @@ use devpulse_clyffy::model_loader::{
 };
 // Re-export for downstream crates (desktop backend) that cannot depend on kernel directly.
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
+pub use devpulse_clyffy::model_loader::AudioSamples;
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -197,6 +198,33 @@ impl ModelLoaderService {
         limit: u32,
     ) -> Result<Vec<devpulse_clyffy::model_loader::HfSearchResult>> {
         devpulse_clyffy::model_loader::search_huggingface(query, limit).await
+    }
+
+    /// Synthesize speech via the TTS model loaded in a slot.
+    pub async fn synthesize(
+        &self,
+        slot_id: &str,
+        text: &str,
+        voice: &str,
+    ) -> Result<devpulse_clyffy::model_loader::AudioSamples> {
+        let inner = self.inner.lock().await;
+        inner.synthesize(slot_id, text, voice).map_err(Into::into)
+    }
+
+    /// Transcribe audio via the STT model loaded in a slot.
+    pub async fn transcribe(
+        &self,
+        slot_id: &str,
+        samples: &devpulse_clyffy::model_loader::AudioSamples,
+    ) -> Result<String> {
+        let inner = self.inner.lock().await;
+        inner.transcribe(slot_id, samples).map_err(Into::into)
+    }
+
+    /// Check if a voice model is loaded in a slot.
+    pub async fn voice_loaded(&self, slot_id: &str) -> bool {
+        let inner = self.inner.lock().await;
+        inner.voice_loaded(slot_id)
     }
 }
 

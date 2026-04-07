@@ -6,6 +6,7 @@
  * NOT a rune — a service with async methods. Does NOT import .svelte files.
  */
 
+import { logError } from "$lib/sys/logger.js";
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
 import {
@@ -22,18 +23,30 @@ import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
 
 // ── Phase 1: Hardware ──────────────────────────────────
 
-/** Start hardware detection. Called when user clicks "Let's Go" on WelcomeStep. */
+/**
+ * Start hardware detection. Called when user clicks "Let's Go" on WelcomeStep.
+ *
+ * @throws {Error} If hardware polling fails (NVML unavailable, permission denied)
+ * @sideeffects Sets wizardState.hardwareScanned on success, wizardState.error on failure
+ */
 export async function startHardwareScan(): Promise<void> {
 	wizardState.error = null;
 	try {
 		await hardwareState.startListening();
 		wizardState.hardwareScanned = true;
 	} catch (e) {
-		wizardState.error = e instanceof Error ? e.message : String(e);
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.hardware", `Hardware scan failed: ${msg}`);
+		wizardState.error = msg;
 	}
 }
 
-/** Fetch auto-configuration recommendations based on detected hardware. */
+/**
+ * Fetch auto-configuration recommendations based on detected hardware.
+ *
+ * @throws {Error} If auto-configure IPC or JSON parse fails
+ * @sideeffects Updates wizardState.recommendations on success, wizardState.error on failure
+ */
 export async function fetchRecommendations(): Promise<void> {
 	wizardState.error = null;
 	try {
@@ -41,13 +54,19 @@ export async function fetchRecommendations(): Promise<void> {
 		const config: AutoConfig = JSON.parse(raw);
 		wizardState.setRecommendations(config);
 	} catch (e) {
-		wizardState.error = e instanceof Error ? e.message : String(e);
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.recommendations", `Fetch recommendations failed: ${msg}`);
+		wizardState.error = msg;
 	}
 }
 
 // ── Continue Gates ─────────────────────────────────────
 
-/** Evaluate continue gate for a phase. */
+/**
+ * Evaluate continue gate for a phase. Determines if user can advance.
+ *
+ * @returns ContinueGate with conditions, allMet flag, and blockers
+ */
 export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 	switch (phase) {
 		case "hardware": {
@@ -191,6 +210,10 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 	} catch (e) {
 		unsubProgress();
 		const msg = e instanceof Error ? e.message : String(e);
+		logError(
+			"wizard.download",
+			`Download failed: repo=${rec.repo} file=${rec.file} slot=${rec.slot} received=${wizardState.activeDownloads[downloadId]?.bytesDownloaded ?? 0}/${wizardState.activeDownloads[downloadId]?.totalBytes ?? 0} error=${msg}`,
+		);
 		wizardState.failDownload(downloadId, msg);
 		wizardState.error = msg;
 		toast.error(`Download failed: ${msg}`);
@@ -221,7 +244,8 @@ export async function cancelActiveDownload(downloadId: string): Promise<void> {
  * Picks the smallest-VRAM model that has the right capability.
  * OPT-IN — user clicks "Auto-Configure" button.
  *
- * Side effects: calls modelsState.assign() per slot, fires toasts
+ * @throws {Error} If assignment IPC fails for a slot (per-slot, non-fatal)
+ * @sideeffects Calls modelsState.assign() per slot, fires toast per assignment
  */
 export async function autoAssignAllSlots(): Promise<void> {
 	const { toast } = await import("svelte-sonner");
@@ -242,6 +266,10 @@ export async function autoAssignAllSlots(): Promise<void> {
 			assigned++;
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
+			logError(
+				"wizard.autoAssign",
+				`Auto-assign failed: slot=${slot.id} model=${pick.filename} error=${msg}`,
+			);
 			toast.error(`Failed to assign ${friendlySlotLabel(slot.id)}: ${msg}`);
 		}
 	}
@@ -251,7 +279,12 @@ export async function autoAssignAllSlots(): Promise<void> {
 	}
 }
 
-/** Download all recommendations sequentially, assigning each after download. */
+/**
+ * Download all recommendations sequentially, assigning each after download.
+ *
+ * @throws {Error} Per-download failures are caught and logged (non-fatal)
+ * @sideeffects Updates wizardState.downloadQueue and downloadingIndex throughout lifecycle
+ */
 export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 	wizardState.downloadQueue = [...recs];
 	wizardState.error = null;
@@ -262,7 +295,11 @@ export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 		try {
 			await downloadAndAssign(recs[i]);
 		} catch (e) {
-			console.error(`[wizard] Failed to download ${recs[i].file}:`, e);
+			const msg = e instanceof Error ? e.message : String(e);
+			logError(
+				"wizard.bulkDownload",
+				`Bulk download [${i}] failed: repo=${recs[i].repo} file=${recs[i].file} slot=${recs[i].slot} error=${msg}`,
+			);
 		}
 	}
 
@@ -272,7 +309,12 @@ export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 
 // ── Phase 4: Clyffy Activation ──────────────────────────
 
-/** Test inference by sending a prompt to a slot. */
+/**
+ * Test inference by sending a prompt to a slot.
+ *
+ * @throws {Error} If slot has no loaded model or inference fails
+ * @sideeffects Calls engine inference_generate via IPC
+ */
 export async function testInference(
 	slotId: string,
 	prompt: string,
@@ -285,7 +327,12 @@ export async function testInference(
 
 // ── Phase 5: Project Setup ──────────────────────────────
 
-/** Create initial dev profile in preferences. */
+/**
+ * Create initial dev profile in preferences.
+ *
+ * @throws {Error} If set_preference IPC fails
+ * @sideeffects Writes to libSQL preferences via Tauri, sets wizardState.devProfileExists
+ */
 export async function createDevProfile(): Promise<void> {
 	const { invoke } = await import("@tauri-apps/api/core");
 	const profile = {
@@ -300,7 +347,11 @@ export async function createDevProfile(): Promise<void> {
 	wizardState.devProfileExists = true;
 }
 
-/** Check if dev profile exists. */
+/**
+ * Check if dev profile exists in preferences.
+ *
+ * @sideeffects Sets wizardState.devProfileExists. Returns false on any error (silent).
+ */
 export async function checkDevProfile(): Promise<boolean> {
 	try {
 		const { invoke } = await import("@tauri-apps/api/core");
@@ -315,7 +366,11 @@ export async function checkDevProfile(): Promise<boolean> {
 
 // ── Onboarding Persistence ─────────────────────────────
 
-/** Check if onboarding was already completed (subsequent launch). */
+/**
+ * Check if onboarding was already completed (subsequent launch).
+ *
+ * @sideeffects Reads from libSQL preferences. Returns false on any error (silent).
+ */
 export async function checkOnboardingComplete(): Promise<boolean> {
 	try {
 		const { invoke } = await import("@tauri-apps/api/core");
@@ -328,7 +383,12 @@ export async function checkOnboardingComplete(): Promise<boolean> {
 	}
 }
 
-/** Mark onboarding as complete and signal platform. */
+/**
+ * Mark onboarding as complete and signal platform.
+ *
+ * @sideeffects Writes to libSQL preferences, calls complete_model_setup Rust command,
+ *   sets wizardState.onboardingComplete. Logs errors but does not throw.
+ */
 export async function markOnboardingComplete(): Promise<void> {
 	try {
 		const { invoke } = await import("@tauri-apps/api/core");
@@ -337,18 +397,23 @@ export async function markOnboardingComplete(): Promise<void> {
 		const { commands } = await import("$lib/sys/generated/bindings.js");
 		const result = await commands.completeModelSetup();
 		if (result.status === "error") {
-			console.error("[wizard.service] complete_model_setup:", result.error);
+			logError("wizard.onboarding", `complete_model_setup returned error: ${result.error}`);
 		}
 
 		wizardState.onboardingComplete = true;
 	} catch (e) {
-		console.error("[wizard.service] Failed to complete onboarding:", e);
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.onboarding", `Failed to complete onboarding: ${msg}`);
 	}
 }
 
 // ── Subsequent Launch Detection ────────────────────────
 
-/** Check if all assigned models still exist on disk. */
+/**
+ * Check if all assigned models still exist on disk.
+ *
+ * @sideeffects Refreshes modelsState, sets wizardState.missingModels
+ */
 export async function validateModelPaths(): Promise<{ valid: boolean; missing: string[] }> {
 	const missing: string[] = [];
 
@@ -367,7 +432,12 @@ export async function validateModelPaths(): Promise<{ valid: boolean; missing: s
 	return { valid: missing.length === 0, missing };
 }
 
-/** Check if hardware changed since last run. */
+/**
+ * Check if hardware changed since last run (compares GPU name).
+ *
+ * @sideeffects Reads/writes last_gpu_name preference, sets wizardState.hardwareChanged.
+ *   Returns false on any error (silent).
+ */
 export async function detectHardwareChange(): Promise<boolean> {
 	try {
 		const { invoke } = await import("@tauri-apps/api/core");
@@ -390,7 +460,12 @@ export async function detectHardwareChange(): Promise<boolean> {
 	}
 }
 
-/** Full subsequent launch check. Returns what to do. */
+/**
+ * Full subsequent launch check. Determines wizard action on app start.
+ *
+ * @sideeffects Calls checkOnboardingComplete, detectHardwareChange, validateModelPaths.
+ *   Side effects of each sub-function apply.
+ */
 export async function subsequentLaunchCheck(): Promise<
 	| { action: "skip"; reason: "complete_and_valid" }
 	| { action: "wizard"; reason: "not_complete" }

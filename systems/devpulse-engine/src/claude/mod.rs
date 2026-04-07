@@ -164,6 +164,7 @@ pub struct ProviderFrame {
 
     /// Provider-specific quirks and tuning
     /// (stored as key-value pairs, interpreted by the prompt builder)
+    #[serde(default)]
     pub tuning: std::collections::HashMap<String, String>,
 }
 
@@ -241,6 +242,7 @@ pub struct BrowserAutomationConfig {
     pub desktop_agent_enabled: bool,
 
     /// Tools Claude can launch and interact with
+    #[serde(default)]
     pub external_tools: Vec<ExternalToolConfig>,
 }
 

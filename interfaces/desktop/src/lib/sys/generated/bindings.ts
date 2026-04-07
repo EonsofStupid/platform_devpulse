@@ -438,9 +438,9 @@ async searchHuggingface(query: string, limit: number | null) : Promise<Result<Hf
  * file to the models directory and re-scans the registry.
  * Returns the filename of the imported model, or error.
  */
-async importLocalModel() : Promise<Result<string, string>> {
+async importLocalModel(targetSlot: string | null, importMode: string | null) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("import_local_model") };
+    return { status: "ok", data: await TAURI_INVOKE("import_local_model", { targetSlot, importMode }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -517,6 +517,9 @@ async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
 },
 /**
  * Speak text using TTS.
+ * 
+ * Synthesizes via the TTS model loaded in the voice.tts slot,
+ * then plays the PCM audio through rodio.
  */
 async speak(text: string, voice: string | null, slot: string | null) : Promise<Result<null, string>> {
     try {
@@ -560,7 +563,7 @@ async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
 }
 },
 /**
- * Preview a voice by playing a sample.
+ * Preview a voice by synthesizing and playing a sample phrase.
  */
 async previewVoice(voice: string, slotId: string) : Promise<Result<null, string>> {
     try {
@@ -571,7 +574,7 @@ async previewVoice(voice: string, slotId: string) : Promise<Result<null, string>
 }
 },
 /**
- * Test the microphone and return audio stats.
+ * Test the microphone — capture 500ms and return amplitude stats.
  */
 async testMicrophone() : Promise<Result<MicTestResult, string>> {
     try {
@@ -583,6 +586,9 @@ async testMicrophone() : Promise<Result<MicTestResult, string>> {
 },
 /**
  * Transcribe audio from the microphone.
+ * 
+ * Captures ~3 seconds of audio from the default input device via rodio/cpal,
+ * then runs it through the Whisper STT model loaded in voice.stt slot.
  */
 async transcribeAudio() : Promise<Result<string, string>> {
     try {
@@ -635,6 +641,52 @@ async activateVoiceProfile(profileId: string) : Promise<Result<null, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Store an API key in the platform keychain.
+ */
+async storeApiKey(provider: ApiProvider, key: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("store_api_key", { provider, key }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Retrieve an API key from the platform keychain.
+ * Returns the actual key — used by backend services for escalation, NOT sent to frontend display.
+ */
+async getApiKey(provider: ApiProvider) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_api_key", { provider }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete an API key from the platform keychain.
+ */
+async deleteApiKey(provider: ApiProvider) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_api_key", { provider }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check which API keys are stored (without returning the keys themselves).
+ * Safe for frontend display — only shows masked previews.
+ */
+async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_api_key_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -648,6 +700,34 @@ async activateVoiceProfile(profileId: string) : Promise<Result<null, string>> {
 
 /** user-defined types **/
 
+/**
+ * Status of a stored API key (NEVER returns the actual key to frontend).
+ */
+export type ApiKeyStatus = { 
+/**
+ * Provider display name.
+ */
+provider: string; 
+/**
+ * Whether a key is stored for this provider.
+ */
+stored: boolean; 
+/**
+ * Masked preview for display (e.g. "sk-ant-a3...****"). None if not stored.
+ */
+masked_preview: string | null }
+/**
+ * Supported API providers for voice escalation.
+ */
+export type ApiProvider = 
+/**
+ * Anthropic (Claude) API.
+ */
+"Anthropic" | 
+/**
+ * OpenAI (GPT) API.
+ */
+"OpenAI"
 /**
  * Boot phase — serialized to frontend as `PascalCase`.
  */
@@ -1001,7 +1081,27 @@ process_ram_mb: number;
 /**
  * DevPulse process VRAM usage (MB).
  */
-process_vram_mb: number }
+process_vram_mb: number; 
+/**
+ * Number of logical CPU threads (hyperthreaded count).
+ */
+cpu_threads: number | null; 
+/**
+ * Free disk space on model storage drive (MB).
+ */
+disk_free_mb: number | null; 
+/**
+ * CUDA toolkit version (e.g. "12.4"). None if no CUDA.
+ */
+cuda_version: string | null; 
+/**
+ * Whether NVML (nvidia-smi library) is accessible.
+ */
+nvml_available: boolean; 
+/**
+ * Path to the model storage directory.
+ */
+model_dir: string }
 /**
  * Health status enum.
  */
@@ -1402,7 +1502,19 @@ embedded: boolean;
 /**
  * Path relative to models dir for bundled models (e.g. `"voice/kokoro/model_quantized.onnx"`).
  */
-bundled_path: string | null }
+bundled_path: string | null; 
+/**
+ * Architecture of the assigned model (e.g. "qwen3", "llama"). None if unassigned.
+ */
+architecture: string | null; 
+/**
+ * Maximum context window in tokens of the assigned model. None if unassigned.
+ */
+context_length: number | null; 
+/**
+ * Active inference backend (e.g. "candle", "llamacpp", "sherpa"). None if not loaded.
+ */
+backend: string | null }
 /**
  * Health of an individual subsystem (database, cache, etc.).
  */

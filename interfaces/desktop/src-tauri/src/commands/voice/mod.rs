@@ -83,10 +83,12 @@ pub async fn get_voice_status(
         use devpulse_engine::platform::services::model_loader::SlotModelStatus;
         let stt_status = loader.slot_status("voice.stt").await;
         let tts_status = loader.slot_status("voice.tts").await;
-        (
-            matches!(stt_status.model_status, SlotModelStatus::Loaded { .. }),
-            matches!(tts_status.model_status, SlotModelStatus::Loaded { .. }),
-        )
+        let stt_via_slot = matches!(stt_status.model_status, SlotModelStatus::Loaded { .. });
+        let tts_via_slot = matches!(tts_status.model_status, SlotModelStatus::Loaded { .. });
+        // Also check VoicePool (ort-backed models report loaded there)
+        let stt_via_voice = loader.voice_loaded("voice.stt").await;
+        let tts_via_voice = loader.voice_loaded("voice.tts").await;
+        (stt_via_slot || stt_via_voice, tts_via_slot || tts_via_voice)
     } else {
         (false, false)
     };
@@ -103,15 +105,58 @@ pub async fn get_voice_status(
 // ── TTS Commands ──────────────────────────────────────────────
 
 /// Speak text using TTS.
+///
+/// Synthesizes via the TTS model loaded in the voice.tts slot,
+/// then plays the PCM audio through rodio.
 #[tauri::command]
 #[specta::specta]
 pub async fn speak(
-    _state: State<'_, PlatformState>,
-    _text: String,
-    _voice: Option<String>,
-    _slot: Option<String>,
+    state: State<'_, PlatformState>,
+    text: String,
+    voice: Option<String>,
+    slot: Option<String>,
 ) -> Result<(), String> {
-    Err("Voice TTS not yet available — voice inference sprint required".to_string())
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let loader = platform
+        .model_loader()
+        .ok_or("Model Loader not available")?;
+
+    let slot_id = slot.as_deref().unwrap_or("voice.tts");
+    let voice_name = voice.as_deref().unwrap_or("af_heart");
+
+    let samples = loader
+        .synthesize(slot_id, &text, voice_name)
+        .await
+        .map_err(|e| format!("TTS synthesis failed: {e}"))?;
+
+    // Play audio via rodio on a blocking thread (rodio is sync)
+    tokio::task::spawn_blocking(move || {
+        use rodio::{OutputStream, Sink, Source};
+        let (_stream, stream_handle) = OutputStream::try_default()
+            .map_err(|e| format!("Audio output failed: {e}"))?;
+        let sink = Sink::try_new(&stream_handle)
+            .map_err(|e| format!("Audio sink failed: {e}"))?;
+
+        let source = rodio::buffer::SamplesBuffer::new(
+            samples.channels,
+            samples.sample_rate,
+            samples.data,
+        );
+        // Source trait methods — channels() and sample_rate() require trait in scope
+        tracing::debug!(
+            channels = source.channels(),
+            sample_rate = source.sample_rate(),
+            "Playing TTS audio via rodio"
+        );
+        sink.append(source);
+        sink.sleep_until_end();
+        Ok::<(), String>(())
+    })
+    .await
+    .map_err(|e| format!("Audio playback thread failed: {e}"))??;
+
+    Ok(())
 }
 
 /// Stop current speech.
@@ -162,35 +207,189 @@ pub async fn list_voices(
     ])
 }
 
-/// Preview a voice by playing a sample.
+/// Preview a voice by synthesizing and playing a sample phrase.
 #[tauri::command]
 #[specta::specta]
 pub async fn preview_voice(
-    _state: State<'_, PlatformState>,
-    _voice: String,
-    _slot_id: String,
+    state: State<'_, PlatformState>,
+    voice: String,
+    slot_id: String,
 ) -> Result<(), String> {
-    Err("Voice preview not yet available — voice inference sprint required".to_string())
+    // Use the same speak path with a canned sample
+    let sample_text = match voice.as_str() {
+        "af_heart" => "Hi! I'm Clyffy, your AI assistant.",
+        "af_star" => "Hey there! What can I help with?",
+        "am_adam" => "Hello, I'm here to help you out.",
+        _ => "This is a voice preview.",
+    };
+    speak(state, sample_text.to_string(), Some(voice), Some(slot_id)).await
 }
 
 // ── STT Commands ──────────────────────────────────────────────
 
-/// Test the microphone and return audio stats.
+/// Test the microphone — capture 500ms and return amplitude stats.
 #[tauri::command]
 #[specta::specta]
 pub async fn test_microphone(
     _state: State<'_, PlatformState>,
 ) -> Result<MicTestResult, String> {
-    Err("Microphone test not yet available — voice inference sprint required".to_string())
+    tokio::task::spawn_blocking(|| {
+        let samples = capture_mic_samples(0.5, 16000)?;
+        if samples.is_empty() {
+            return Ok(MicTestResult {
+                detected: false,
+                peak_amplitude: 0.0,
+                avg_amplitude: 0.0,
+                noise_floor: 0.0,
+            });
+        }
+        let peak = samples.iter().map(|s| s.abs()).fold(0.0f32, f32::max);
+        let avg = samples.iter().map(|s| s.abs()).sum::<f32>() / samples.len() as f32;
+        // Noise floor: average of bottom 10% of absolute values
+        let mut sorted: Vec<f32> = samples.iter().map(|s| s.abs()).collect();
+        sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+        let floor_count = (sorted.len() / 10).max(1);
+        let noise_floor = sorted[..floor_count].iter().sum::<f32>() / floor_count as f32;
+
+        Ok(MicTestResult {
+            detected: true,
+            peak_amplitude: peak,
+            avg_amplitude: avg,
+            noise_floor,
+        })
+    })
+    .await
+    .map_err(|e| format!("Mic test thread failed: {e}"))?
 }
 
 /// Transcribe audio from the microphone.
+///
+/// Captures ~3 seconds of audio from the default input device via rodio/cpal,
+/// then runs it through the Whisper STT model loaded in voice.stt slot.
 #[tauri::command]
 #[specta::specta]
 pub async fn transcribe_audio(
-    _state: State<'_, PlatformState>,
+    state: State<'_, PlatformState>,
 ) -> Result<String, String> {
-    Err("Speech-to-text not yet available — voice inference sprint required".to_string())
+    use devpulse_engine::platform::services::model_loader::AudioSamples;
+
+    // Capture audio on a blocking thread (cpal/rodio is sync)
+    let pcm_data = tokio::task::spawn_blocking(|| {
+        capture_mic_samples(3.0, 16000)
+    })
+    .await
+    .map_err(|e| format!("Mic capture thread failed: {e}"))??;
+
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let loader = platform
+        .model_loader()
+        .ok_or("Model Loader not available")?;
+
+    let audio = AudioSamples {
+        data: pcm_data,
+        sample_rate: 16000,
+        channels: 1,
+    };
+
+    loader
+        .transcribe("voice.stt", &audio)
+        .await
+        .map_err(|e| format!("STT transcription failed: {e}"))
+}
+
+/// Capture PCM audio from the default microphone.
+///
+/// Uses rodio's input stream (backed by cpal). Returns mono f32 samples
+/// at the requested sample rate. Duration in seconds.
+fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Vec<f32>, String> {
+    use std::sync::{Arc, Mutex};
+
+    // rodio doesn't expose input devices directly — use cpal
+    let host = rodio::cpal::default_host();
+    let device = rodio::cpal::traits::HostTrait::default_input_device(&host)
+        .ok_or_else(|| "No microphone detected".to_string())?;
+
+    use rodio::cpal::traits::DeviceTrait;
+    let config = device
+        .default_input_config()
+        .map_err(|e| format!("Failed to get mic config: {e}"))?;
+
+    let sample_rate = config.sample_rate().0;
+    let channels = config.channels() as usize;
+    let total_samples = (duration_secs * sample_rate as f32) as usize * channels;
+
+    let buffer: Arc<Mutex<Vec<f32>>> = Arc::new(Mutex::new(Vec::with_capacity(total_samples)));
+    let buf_clone = buffer.clone();
+    let done = Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let done_clone = done.clone();
+
+    use rodio::cpal::traits::StreamTrait;
+    let stream = device
+        .build_input_stream(
+            &config.into(),
+            move |data: &[f32], _: &rodio::cpal::InputCallbackInfo| {
+                let mut buf = buf_clone.lock().unwrap_or_else(|e| e.into_inner());
+                if buf.len() < total_samples {
+                    buf.extend_from_slice(data);
+                } else {
+                    done_clone.store(true, std::sync::atomic::Ordering::Relaxed);
+                }
+            },
+            |err| {
+                tracing::error!(error = %err, "Mic capture error");
+            },
+            None,
+        )
+        .map_err(|e| format!("Failed to build input stream: {e}"))?;
+
+    stream.play().map_err(|e| format!("Failed to start mic capture: {e}"))?;
+
+    // Wait for capture to complete
+    let start = std::time::Instant::now();
+    let max_wait = std::time::Duration::from_secs_f32(duration_secs + 1.0);
+    while !done.load(std::sync::atomic::Ordering::Relaxed) {
+        if start.elapsed() > max_wait {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+
+    drop(stream);
+
+    let raw = buffer.lock().unwrap_or_else(|e| e.into_inner()).clone();
+
+    // Convert to mono if stereo
+    let mono: Vec<f32> = if channels > 1 {
+        raw.chunks(channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
+            .collect()
+    } else {
+        raw
+    };
+
+    // Resample to target rate if needed (simple linear interpolation)
+    if sample_rate != target_sample_rate {
+        let ratio = target_sample_rate as f64 / sample_rate as f64;
+        let new_len = (mono.len() as f64 * ratio) as usize;
+        let mut resampled = Vec::with_capacity(new_len);
+        for i in 0..new_len {
+            let src_pos = i as f64 / ratio;
+            let idx = src_pos as usize;
+            let frac = src_pos - idx as f64;
+            let sample = if idx + 1 < mono.len() {
+                mono[idx] * (1.0 - frac as f32) + mono[idx + 1] * frac as f32
+            } else if idx < mono.len() {
+                mono[idx]
+            } else {
+                0.0
+            };
+            resampled.push(sample);
+        }
+        Ok(resampled)
+    } else {
+        Ok(mono)
+    }
 }
 
 // ── Profile Commands ──────────────────────────────────────────

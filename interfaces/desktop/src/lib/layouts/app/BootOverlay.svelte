@@ -93,9 +93,9 @@ function handleWizardComplete(): void {
 {#if visible}
 <div
 	class={cn(
-		"fixed inset-0 z-[9999] flex items-center justify-center",
+		"fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none",
 		"transition-opacity duration-500 ease-out",
-		fading && "opacity-0 pointer-events-none",
+		fading && "opacity-0",
 	)}
 	aria-label="Platform booting"
 	role="status"
@@ -112,7 +112,7 @@ function handleWizardComplete(): void {
 	-->
 	<div class={cn(
 		stack({ gap: "6", align: "center" }),
-		"overflow-y-auto scrollbar-thin",
+		"overflow-y-auto scrollbar-thin pointer-events-auto",
 		isWizardPhase
 			? "w-full h-full"
 			: "min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
