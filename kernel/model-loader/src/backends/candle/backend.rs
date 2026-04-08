@@ -176,6 +176,7 @@ impl InferenceBackend for CandleBackend {
             } else {
                 0
             },
+            kv_cache_bytes: 0,
         };
 
         self.model = Some(LoadedModel {

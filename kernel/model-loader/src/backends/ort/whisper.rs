@@ -177,6 +177,7 @@ impl SttBackend for WhisperStt {
             Ok(MemoryFootprint {
                 ram_bytes: size,
                 vram_bytes: 0,
+                kv_cache_bytes: 0,
             })
         }
     }
@@ -319,6 +320,7 @@ impl SttBackend for WhisperStt {
             MemoryFootprint {
                 ram_bytes: size,
                 vram_bytes: 0,
+                kv_cache_bytes: 0,
             }
         } else {
             MemoryFootprint::default()

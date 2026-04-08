@@ -217,6 +217,258 @@
 				"value": "oklch(0.63 0.1 160 / 0.08)",
 				"type": "color",
 				"extensions": null
+			},
+			{
+				"name": "accent-cyan-main",
+				"path": [
+					"accent",
+					"cyan",
+					"main"
+				],
+				"cssVar": "--accent-cyan-main",
+				"value": "#17deef",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-cyan-glow",
+				"path": [
+					"accent",
+					"cyan",
+					"glow"
+				],
+				"cssVar": "--accent-cyan-glow",
+				"value": "oklch(0.82 0.14 195 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-cyan-fill",
+				"path": [
+					"accent",
+					"cyan",
+					"fill"
+				],
+				"cssVar": "--accent-cyan-fill",
+				"value": "oklch(0.82 0.14 195 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-green-main",
+				"path": [
+					"accent",
+					"green",
+					"main"
+				],
+				"cssVar": "--accent-green-main",
+				"value": "#29b468",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-green-glow",
+				"path": [
+					"accent",
+					"green",
+					"glow"
+				],
+				"cssVar": "--accent-green-glow",
+				"value": "oklch(0.66 0.17 155 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-green-fill",
+				"path": [
+					"accent",
+					"green",
+					"fill"
+				],
+				"cssVar": "--accent-green-fill",
+				"value": "oklch(0.66 0.17 155 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-hotpink-main",
+				"path": [
+					"accent",
+					"hotpink",
+					"main"
+				],
+				"cssVar": "--accent-hotpink-main",
+				"value": "#f8397a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-hotpink-glow",
+				"path": [
+					"accent",
+					"hotpink",
+					"glow"
+				],
+				"cssVar": "--accent-hotpink-glow",
+				"value": "oklch(0.66 0.22 10 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-hotpink-fill",
+				"path": [
+					"accent",
+					"hotpink",
+					"fill"
+				],
+				"cssVar": "--accent-hotpink-fill",
+				"value": "oklch(0.66 0.22 10 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-coral-main",
+				"path": [
+					"accent",
+					"coral",
+					"main"
+				],
+				"cssVar": "--accent-coral-main",
+				"value": "#fc6b83",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-coral-glow",
+				"path": [
+					"accent",
+					"coral",
+					"glow"
+				],
+				"cssVar": "--accent-coral-glow",
+				"value": "oklch(0.72 0.16 15 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-coral-fill",
+				"path": [
+					"accent",
+					"coral",
+					"fill"
+				],
+				"cssVar": "--accent-coral-fill",
+				"value": "oklch(0.72 0.16 15 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-blue-main",
+				"path": [
+					"accent",
+					"blue",
+					"main"
+				],
+				"cssVar": "--accent-blue-main",
+				"value": "#3ea4ea",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-blue-glow",
+				"path": [
+					"accent",
+					"blue",
+					"glow"
+				],
+				"cssVar": "--accent-blue-glow",
+				"value": "oklch(0.68 0.14 240 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-blue-fill",
+				"path": [
+					"accent",
+					"blue",
+					"fill"
+				],
+				"cssVar": "--accent-blue-fill",
+				"value": "oklch(0.68 0.14 240 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-salmon-main",
+				"path": [
+					"accent",
+					"salmon",
+					"main"
+				],
+				"cssVar": "--accent-salmon-main",
+				"value": "#f16971",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-salmon-glow",
+				"path": [
+					"accent",
+					"salmon",
+					"glow"
+				],
+				"cssVar": "--accent-salmon-glow",
+				"value": "oklch(0.68 0.18 20 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-salmon-fill",
+				"path": [
+					"accent",
+					"salmon",
+					"fill"
+				],
+				"cssVar": "--accent-salmon-fill",
+				"value": "oklch(0.68 0.18 20 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-gold-main",
+				"path": [
+					"accent",
+					"gold",
+					"main"
+				],
+				"cssVar": "--accent-gold-main",
+				"value": "#d6d232",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-gold-glow",
+				"path": [
+					"accent",
+					"gold",
+					"glow"
+				],
+				"cssVar": "--accent-gold-glow",
+				"value": "oklch(0.83 0.16 100 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-gold-fill",
+				"path": [
+					"accent",
+					"gold",
+					"fill"
+				],
+				"cssVar": "--accent-gold-fill",
+				"value": "oklch(0.83 0.16 100 / 0.08)",
+				"type": "color",
+				"extensions": null
 			}
 		]
 	},
@@ -2038,7 +2290,7 @@
 					"3xs"
 				],
 				"cssVar": "--text-size-3xs",
-				"value": "clamp(0.4823rem, -0.1799vw + 0.5182rem, 0.3563rem)",
+				"value": "clamp(0.3563rem, 0.1799vw + 0.3203rem, 0.4823rem)",
 				"type": "dimension",
 				"extensions": null
 			},
@@ -2049,7 +2301,7 @@
 					"2xs"
 				],
 				"cssVar": "--text-size-2xs",
-				"value": "0.5787rem",
+				"value": "0.475rem",
 				"type": "dimension",
 				"extensions": null
 			},
@@ -2060,7 +2312,7 @@
 					"xs"
 				],
 				"cssVar": "--text-size-xs",
-				"value": "0.6944rem",
+				"value": "0.6331rem",
 				"type": "dimension",
 				"extensions": null
 			},
@@ -3285,6 +3537,930 @@
 				],
 				"cssVar": "--color-cyber-950",
 				"value": "oklch(0.12 0.1 160)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-50",
+				"path": [
+					"color",
+					"brand-cyan",
+					"50"
+				],
+				"cssVar": "--color-brand-cyan-50",
+				"value": "oklch(0.97 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-100",
+				"path": [
+					"color",
+					"brand-cyan",
+					"100"
+				],
+				"cssVar": "--color-brand-cyan-100",
+				"value": "oklch(0.885 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-200",
+				"path": [
+					"color",
+					"brand-cyan",
+					"200"
+				],
+				"cssVar": "--color-brand-cyan-200",
+				"value": "oklch(0.8 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-300",
+				"path": [
+					"color",
+					"brand-cyan",
+					"300"
+				],
+				"cssVar": "--color-brand-cyan-300",
+				"value": "oklch(0.715 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-400",
+				"path": [
+					"color",
+					"brand-cyan",
+					"400"
+				],
+				"cssVar": "--color-brand-cyan-400",
+				"value": "oklch(0.63 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-500",
+				"path": [
+					"color",
+					"brand-cyan",
+					"500"
+				],
+				"cssVar": "--color-brand-cyan-500",
+				"value": "oklch(0.545 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-600",
+				"path": [
+					"color",
+					"brand-cyan",
+					"600"
+				],
+				"cssVar": "--color-brand-cyan-600",
+				"value": "oklch(0.46 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-700",
+				"path": [
+					"color",
+					"brand-cyan",
+					"700"
+				],
+				"cssVar": "--color-brand-cyan-700",
+				"value": "oklch(0.375 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-800",
+				"path": [
+					"color",
+					"brand-cyan",
+					"800"
+				],
+				"cssVar": "--color-brand-cyan-800",
+				"value": "oklch(0.29 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-900",
+				"path": [
+					"color",
+					"brand-cyan",
+					"900"
+				],
+				"cssVar": "--color-brand-cyan-900",
+				"value": "oklch(0.205 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-cyan-950",
+				"path": [
+					"color",
+					"brand-cyan",
+					"950"
+				],
+				"cssVar": "--color-brand-cyan-950",
+				"value": "oklch(0.12 0.14 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-50",
+				"path": [
+					"color",
+					"brand-green",
+					"50"
+				],
+				"cssVar": "--color-brand-green-50",
+				"value": "oklch(0.97 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-100",
+				"path": [
+					"color",
+					"brand-green",
+					"100"
+				],
+				"cssVar": "--color-brand-green-100",
+				"value": "oklch(0.885 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-200",
+				"path": [
+					"color",
+					"brand-green",
+					"200"
+				],
+				"cssVar": "--color-brand-green-200",
+				"value": "oklch(0.8 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-300",
+				"path": [
+					"color",
+					"brand-green",
+					"300"
+				],
+				"cssVar": "--color-brand-green-300",
+				"value": "oklch(0.715 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-400",
+				"path": [
+					"color",
+					"brand-green",
+					"400"
+				],
+				"cssVar": "--color-brand-green-400",
+				"value": "oklch(0.63 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-500",
+				"path": [
+					"color",
+					"brand-green",
+					"500"
+				],
+				"cssVar": "--color-brand-green-500",
+				"value": "oklch(0.545 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-600",
+				"path": [
+					"color",
+					"brand-green",
+					"600"
+				],
+				"cssVar": "--color-brand-green-600",
+				"value": "oklch(0.46 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-700",
+				"path": [
+					"color",
+					"brand-green",
+					"700"
+				],
+				"cssVar": "--color-brand-green-700",
+				"value": "oklch(0.375 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-800",
+				"path": [
+					"color",
+					"brand-green",
+					"800"
+				],
+				"cssVar": "--color-brand-green-800",
+				"value": "oklch(0.29 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-900",
+				"path": [
+					"color",
+					"brand-green",
+					"900"
+				],
+				"cssVar": "--color-brand-green-900",
+				"value": "oklch(0.205 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-green-950",
+				"path": [
+					"color",
+					"brand-green",
+					"950"
+				],
+				"cssVar": "--color-brand-green-950",
+				"value": "oklch(0.12 0.17 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-50",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"50"
+				],
+				"cssVar": "--color-brand-hotpink-50",
+				"value": "oklch(0.97 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-100",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"100"
+				],
+				"cssVar": "--color-brand-hotpink-100",
+				"value": "oklch(0.885 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-200",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"200"
+				],
+				"cssVar": "--color-brand-hotpink-200",
+				"value": "oklch(0.8 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-300",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"300"
+				],
+				"cssVar": "--color-brand-hotpink-300",
+				"value": "oklch(0.715 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-400",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"400"
+				],
+				"cssVar": "--color-brand-hotpink-400",
+				"value": "oklch(0.63 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-500",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"500"
+				],
+				"cssVar": "--color-brand-hotpink-500",
+				"value": "oklch(0.545 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-600",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"600"
+				],
+				"cssVar": "--color-brand-hotpink-600",
+				"value": "oklch(0.46 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-700",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"700"
+				],
+				"cssVar": "--color-brand-hotpink-700",
+				"value": "oklch(0.375 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-800",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"800"
+				],
+				"cssVar": "--color-brand-hotpink-800",
+				"value": "oklch(0.29 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-900",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"900"
+				],
+				"cssVar": "--color-brand-hotpink-900",
+				"value": "oklch(0.205 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-hotpink-950",
+				"path": [
+					"color",
+					"brand-hotpink",
+					"950"
+				],
+				"cssVar": "--color-brand-hotpink-950",
+				"value": "oklch(0.12 0.22 355)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-50",
+				"path": [
+					"color",
+					"brand-coral",
+					"50"
+				],
+				"cssVar": "--color-brand-coral-50",
+				"value": "oklch(0.97 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-100",
+				"path": [
+					"color",
+					"brand-coral",
+					"100"
+				],
+				"cssVar": "--color-brand-coral-100",
+				"value": "oklch(0.885 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-200",
+				"path": [
+					"color",
+					"brand-coral",
+					"200"
+				],
+				"cssVar": "--color-brand-coral-200",
+				"value": "oklch(0.8 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-300",
+				"path": [
+					"color",
+					"brand-coral",
+					"300"
+				],
+				"cssVar": "--color-brand-coral-300",
+				"value": "oklch(0.715 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-400",
+				"path": [
+					"color",
+					"brand-coral",
+					"400"
+				],
+				"cssVar": "--color-brand-coral-400",
+				"value": "oklch(0.63 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-500",
+				"path": [
+					"color",
+					"brand-coral",
+					"500"
+				],
+				"cssVar": "--color-brand-coral-500",
+				"value": "oklch(0.545 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-600",
+				"path": [
+					"color",
+					"brand-coral",
+					"600"
+				],
+				"cssVar": "--color-brand-coral-600",
+				"value": "oklch(0.46 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-700",
+				"path": [
+					"color",
+					"brand-coral",
+					"700"
+				],
+				"cssVar": "--color-brand-coral-700",
+				"value": "oklch(0.375 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-800",
+				"path": [
+					"color",
+					"brand-coral",
+					"800"
+				],
+				"cssVar": "--color-brand-coral-800",
+				"value": "oklch(0.29 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-900",
+				"path": [
+					"color",
+					"brand-coral",
+					"900"
+				],
+				"cssVar": "--color-brand-coral-900",
+				"value": "oklch(0.205 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-coral-950",
+				"path": [
+					"color",
+					"brand-coral",
+					"950"
+				],
+				"cssVar": "--color-brand-coral-950",
+				"value": "oklch(0.12 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-50",
+				"path": [
+					"color",
+					"brand-blue",
+					"50"
+				],
+				"cssVar": "--color-brand-blue-50",
+				"value": "oklch(0.97 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-100",
+				"path": [
+					"color",
+					"brand-blue",
+					"100"
+				],
+				"cssVar": "--color-brand-blue-100",
+				"value": "oklch(0.885 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-200",
+				"path": [
+					"color",
+					"brand-blue",
+					"200"
+				],
+				"cssVar": "--color-brand-blue-200",
+				"value": "oklch(0.8 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-300",
+				"path": [
+					"color",
+					"brand-blue",
+					"300"
+				],
+				"cssVar": "--color-brand-blue-300",
+				"value": "oklch(0.715 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-400",
+				"path": [
+					"color",
+					"brand-blue",
+					"400"
+				],
+				"cssVar": "--color-brand-blue-400",
+				"value": "oklch(0.63 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-500",
+				"path": [
+					"color",
+					"brand-blue",
+					"500"
+				],
+				"cssVar": "--color-brand-blue-500",
+				"value": "oklch(0.545 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-600",
+				"path": [
+					"color",
+					"brand-blue",
+					"600"
+				],
+				"cssVar": "--color-brand-blue-600",
+				"value": "oklch(0.46 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-700",
+				"path": [
+					"color",
+					"brand-blue",
+					"700"
+				],
+				"cssVar": "--color-brand-blue-700",
+				"value": "oklch(0.375 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-800",
+				"path": [
+					"color",
+					"brand-blue",
+					"800"
+				],
+				"cssVar": "--color-brand-blue-800",
+				"value": "oklch(0.29 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-900",
+				"path": [
+					"color",
+					"brand-blue",
+					"900"
+				],
+				"cssVar": "--color-brand-blue-900",
+				"value": "oklch(0.205 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-blue-950",
+				"path": [
+					"color",
+					"brand-blue",
+					"950"
+				],
+				"cssVar": "--color-brand-blue-950",
+				"value": "oklch(0.12 0.14 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-50",
+				"path": [
+					"color",
+					"brand-salmon",
+					"50"
+				],
+				"cssVar": "--color-brand-salmon-50",
+				"value": "oklch(0.97 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-100",
+				"path": [
+					"color",
+					"brand-salmon",
+					"100"
+				],
+				"cssVar": "--color-brand-salmon-100",
+				"value": "oklch(0.885 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-200",
+				"path": [
+					"color",
+					"brand-salmon",
+					"200"
+				],
+				"cssVar": "--color-brand-salmon-200",
+				"value": "oklch(0.8 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-300",
+				"path": [
+					"color",
+					"brand-salmon",
+					"300"
+				],
+				"cssVar": "--color-brand-salmon-300",
+				"value": "oklch(0.715 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-400",
+				"path": [
+					"color",
+					"brand-salmon",
+					"400"
+				],
+				"cssVar": "--color-brand-salmon-400",
+				"value": "oklch(0.63 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-500",
+				"path": [
+					"color",
+					"brand-salmon",
+					"500"
+				],
+				"cssVar": "--color-brand-salmon-500",
+				"value": "oklch(0.545 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-600",
+				"path": [
+					"color",
+					"brand-salmon",
+					"600"
+				],
+				"cssVar": "--color-brand-salmon-600",
+				"value": "oklch(0.46 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-700",
+				"path": [
+					"color",
+					"brand-salmon",
+					"700"
+				],
+				"cssVar": "--color-brand-salmon-700",
+				"value": "oklch(0.375 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-800",
+				"path": [
+					"color",
+					"brand-salmon",
+					"800"
+				],
+				"cssVar": "--color-brand-salmon-800",
+				"value": "oklch(0.29 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-900",
+				"path": [
+					"color",
+					"brand-salmon",
+					"900"
+				],
+				"cssVar": "--color-brand-salmon-900",
+				"value": "oklch(0.205 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-salmon-950",
+				"path": [
+					"color",
+					"brand-salmon",
+					"950"
+				],
+				"cssVar": "--color-brand-salmon-950",
+				"value": "oklch(0.12 0.18 15)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-50",
+				"path": [
+					"color",
+					"brand-gold",
+					"50"
+				],
+				"cssVar": "--color-brand-gold-50",
+				"value": "oklch(0.97 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-100",
+				"path": [
+					"color",
+					"brand-gold",
+					"100"
+				],
+				"cssVar": "--color-brand-gold-100",
+				"value": "oklch(0.885 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-200",
+				"path": [
+					"color",
+					"brand-gold",
+					"200"
+				],
+				"cssVar": "--color-brand-gold-200",
+				"value": "oklch(0.8 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-300",
+				"path": [
+					"color",
+					"brand-gold",
+					"300"
+				],
+				"cssVar": "--color-brand-gold-300",
+				"value": "oklch(0.715 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-400",
+				"path": [
+					"color",
+					"brand-gold",
+					"400"
+				],
+				"cssVar": "--color-brand-gold-400",
+				"value": "oklch(0.63 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-500",
+				"path": [
+					"color",
+					"brand-gold",
+					"500"
+				],
+				"cssVar": "--color-brand-gold-500",
+				"value": "oklch(0.545 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-600",
+				"path": [
+					"color",
+					"brand-gold",
+					"600"
+				],
+				"cssVar": "--color-brand-gold-600",
+				"value": "oklch(0.46 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-700",
+				"path": [
+					"color",
+					"brand-gold",
+					"700"
+				],
+				"cssVar": "--color-brand-gold-700",
+				"value": "oklch(0.375 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-800",
+				"path": [
+					"color",
+					"brand-gold",
+					"800"
+				],
+				"cssVar": "--color-brand-gold-800",
+				"value": "oklch(0.29 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-900",
+				"path": [
+					"color",
+					"brand-gold",
+					"900"
+				],
+				"cssVar": "--color-brand-gold-900",
+				"value": "oklch(0.205 0.16 100)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-gold-950",
+				"path": [
+					"color",
+					"brand-gold",
+					"950"
+				],
+				"cssVar": "--color-brand-gold-950",
+				"value": "oklch(0.12 0.16 100)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6694,6 +7870,237 @@
 				"extensions": null
 			},
 			{
+				"name": "gradient-surface-brand-cyan",
+				"path": [
+					"gradient",
+					"surface-brand-cyan"
+				],
+				"cssVar": "--gradient-surface-brand-cyan",
+				"value": "linear-gradient(180deg, oklch(0.13 0.03 195), oklch(0.07 0.03 195))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-cyan",
+				"path": [
+					"gradient",
+					"glow-brand-cyan"
+				],
+				"cssVar": "--gradient-glow-brand-cyan",
+				"value": "radial-gradient(oklch(0.24 0.09 195 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-cyan",
+				"path": [
+					"gradient",
+					"accent-brand-cyan"
+				],
+				"cssVar": "--gradient-accent-brand-cyan",
+				"value": "linear-gradient(135deg, oklch(0.24 0.12 195), oklch(0.04 0.06 195))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-surface-brand-green",
+				"path": [
+					"gradient",
+					"surface-brand-green"
+				],
+				"cssVar": "--gradient-surface-brand-green",
+				"value": "linear-gradient(180deg, oklch(0.13 0.03 155), oklch(0.07 0.03 155))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-green",
+				"path": [
+					"gradient",
+					"glow-brand-green"
+				],
+				"cssVar": "--gradient-glow-brand-green",
+				"value": "radial-gradient(oklch(0.24 0.09 155 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-green",
+				"path": [
+					"gradient",
+					"accent-brand-green"
+				],
+				"cssVar": "--gradient-accent-brand-green",
+				"value": "linear-gradient(135deg, oklch(0.24 0.12 155), oklch(0.04 0.06 155))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-surface-brand-hotpink",
+				"path": [
+					"gradient",
+					"surface-brand-hotpink"
+				],
+				"cssVar": "--gradient-surface-brand-hotpink",
+				"value": "linear-gradient(180deg, oklch(0.13 0.04 355), oklch(0.07 0.04 355))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-hotpink",
+				"path": [
+					"gradient",
+					"glow-brand-hotpink"
+				],
+				"cssVar": "--gradient-glow-brand-hotpink",
+				"value": "radial-gradient(oklch(0.24 0.12 355 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-hotpink",
+				"path": [
+					"gradient",
+					"accent-brand-hotpink"
+				],
+				"cssVar": "--gradient-accent-brand-hotpink",
+				"value": "linear-gradient(135deg, oklch(0.24 0.16 355), oklch(0.04 0.08 355))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-surface-brand-coral",
+				"path": [
+					"gradient",
+					"surface-brand-coral"
+				],
+				"cssVar": "--gradient-surface-brand-coral",
+				"value": "linear-gradient(180deg, oklch(0.13 0.03 10), oklch(0.07 0.03 10))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-coral",
+				"path": [
+					"gradient",
+					"glow-brand-coral"
+				],
+				"cssVar": "--gradient-glow-brand-coral",
+				"value": "radial-gradient(oklch(0.24 0.09 10 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-coral",
+				"path": [
+					"gradient",
+					"accent-brand-coral"
+				],
+				"cssVar": "--gradient-accent-brand-coral",
+				"value": "linear-gradient(135deg, oklch(0.24 0.12 10), oklch(0.04 0.06 10))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-surface-brand-blue",
+				"path": [
+					"gradient",
+					"surface-brand-blue"
+				],
+				"cssVar": "--gradient-surface-brand-blue",
+				"value": "linear-gradient(180deg, oklch(0.13 0.03 240), oklch(0.07 0.03 240))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-blue",
+				"path": [
+					"gradient",
+					"glow-brand-blue"
+				],
+				"cssVar": "--gradient-glow-brand-blue",
+				"value": "radial-gradient(oklch(0.24 0.09 240 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-blue",
+				"path": [
+					"gradient",
+					"accent-brand-blue"
+				],
+				"cssVar": "--gradient-accent-brand-blue",
+				"value": "linear-gradient(135deg, oklch(0.24 0.12 240), oklch(0.04 0.06 240))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-surface-brand-salmon",
+				"path": [
+					"gradient",
+					"surface-brand-salmon"
+				],
+				"cssVar": "--gradient-surface-brand-salmon",
+				"value": "linear-gradient(180deg, oklch(0.13 0.03 15), oklch(0.07 0.03 15))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-salmon",
+				"path": [
+					"gradient",
+					"glow-brand-salmon"
+				],
+				"cssVar": "--gradient-glow-brand-salmon",
+				"value": "radial-gradient(oklch(0.24 0.09 15 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-salmon",
+				"path": [
+					"gradient",
+					"accent-brand-salmon"
+				],
+				"cssVar": "--gradient-accent-brand-salmon",
+				"value": "linear-gradient(135deg, oklch(0.24 0.12 15), oklch(0.04 0.06 15))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-surface-brand-gold",
+				"path": [
+					"gradient",
+					"surface-brand-gold"
+				],
+				"cssVar": "--gradient-surface-brand-gold",
+				"value": "linear-gradient(180deg, oklch(0.13 0.03 100), oklch(0.07 0.03 100))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-glow-brand-gold",
+				"path": [
+					"gradient",
+					"glow-brand-gold"
+				],
+				"cssVar": "--gradient-glow-brand-gold",
+				"value": "radial-gradient(oklch(0.24 0.09 100 / 0.4), transparent)",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "gradient-accent-brand-gold",
+				"path": [
+					"gradient",
+					"accent-brand-gold"
+				],
+				"cssVar": "--gradient-accent-brand-gold",
+				"value": "linear-gradient(135deg, oklch(0.24 0.12 100), oklch(0.04 0.06 100))",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
 				"name": "gradient-animated-1",
 				"path": [
 					"gradient",
@@ -6723,6 +8130,94 @@
 				],
 				"cssVar": "--gradient-teal-purple",
 				"value": "oklch(0.1149 0.0423 190.54 / 0.702)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-cyan-green",
+				"path": [
+					"gradient",
+					"cyan-green"
+				],
+				"cssVar": "--gradient-cyan-green",
+				"value": "#17deef",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-green-blend",
+				"path": [
+					"gradient",
+					"green-blend"
+				],
+				"cssVar": "--gradient-green-blend",
+				"value": "#29b468",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-magenta-pink",
+				"path": [
+					"gradient",
+					"magenta-pink"
+				],
+				"cssVar": "--gradient-magenta-pink",
+				"value": "#eb1ec2",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-hotpink-blend",
+				"path": [
+					"gradient",
+					"hotpink-blend"
+				],
+				"cssVar": "--gradient-hotpink-blend",
+				"value": "#f8397a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-coral-blue",
+				"path": [
+					"gradient",
+					"coral-blue"
+				],
+				"cssVar": "--gradient-coral-blue",
+				"value": "#fc6b83",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-blue-blend",
+				"path": [
+					"gradient",
+					"blue-blend"
+				],
+				"cssVar": "--gradient-blue-blend",
+				"value": "#3ea4ea",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-salmon-gold",
+				"path": [
+					"gradient",
+					"salmon-gold"
+				],
+				"cssVar": "--gradient-salmon-gold",
+				"value": "#f16971",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-gold-blend",
+				"path": [
+					"gradient",
+					"gold-blend"
+				],
+				"cssVar": "--gradient-gold-blend",
+				"value": "#d6d232",
 				"type": "color",
 				"extensions": null
 			}

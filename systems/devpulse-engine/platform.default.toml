@@ -185,8 +185,8 @@ capability = "TextToSpeech"
 preferred_device = "Cpu"
 loading = { Signal = "speech.requested" }
 runtime = "Ort"
-default_model = "model_quantized.onnx"
-source_tier = { Bundled = { bundled_path = "voice/kokoro/model_quantized.onnx" } }
+default_model = "kokoro-v1.0.int8.onnx"
+source_tier = { Bundled = { bundled_path = "voice/kokoro-v1.0.int8.onnx" } }
 
 [services.system.model_loader.slots.extensions]
 voice_profile = "af_heart"
@@ -198,8 +198,8 @@ capability = "SpeechToText"
 preferred_device = "Cpu"
 loading = { Signal = "voice.activated" }
 runtime = "Ort"
-default_model = "small-encoder.int8.onnx"
-source_tier = { Bundled = { bundled_path = "voice/whisper-small/" } }
+default_model = "ggml-small.bin"
+source_tier = { Bundled = { bundled_path = "voice/ggml-small.bin" } }
 
 [[services.system.model_loader.slots]]
 id = "voice.brain"

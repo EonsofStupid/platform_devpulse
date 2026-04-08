@@ -13,7 +13,7 @@ use crate::models::registry::BackendType;
 use crate::hardware::auto_config::{self, AutoConfig};
 use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
 use crate::hardware::vram;
-use crate::loading::states::{LoadParams, ModelStatus, SlotStatus};
+use crate::loading::states::{LoadParams, LoadingStage, ModelStatus, SlotStatus};
 use crate::loading::swap::SwapGuard;
 use crate::models::registry::{ModelRegistry, ModelRegistryEntry};
 use crate::slots::fallback;
@@ -402,6 +402,7 @@ impl ModelLoaderService {
             device: device_str,
             context_length: entry.context_length,
             gpu_layers: None,
+            auto_prime: false,
         };
 
         // Route to the correct pool based on backend + capability
@@ -458,6 +459,7 @@ impl ModelLoaderService {
                     slot_id.to_string(),
                     ModelStatus::Failed {
                         error: error_msg.clone(),
+                        failed_at: LoadingStage::LoadingWeights,
                     },
                 );
                 self.events.emit(LoaderEvent::LoadingFailed {
@@ -538,6 +540,7 @@ impl ModelLoaderService {
                 slot_id.to_string(),
                 ModelStatus::Failed {
                     error: error_msg.clone(),
+                    failed_at: LoadingStage::Verifying,
                 },
             );
             return Err(LoaderError::Internal { message: error_msg });
@@ -674,6 +677,7 @@ impl ModelLoaderService {
             device: "cpu".to_string(),
             context_length: entry.context_length,
             gpu_layers: Some(0),
+            auto_prime: false,
         };
 
         self.slot_statuses.insert(
@@ -714,6 +718,7 @@ impl ModelLoaderService {
                 let footprint = crate::loading::states::MemoryFootprint {
                     ram_bytes: memory.ram_bytes,
                     vram_bytes: 0, // Warm = CPU only
+                    kv_cache_bytes: 0, // No KV cache for warm state
                 };
                 self.slot_statuses.insert(
                     slot_id.to_string(),
@@ -735,7 +740,7 @@ impl ModelLoaderService {
                 let error_msg = e.to_string();
                 self.slot_statuses.insert(
                     slot_id.to_string(),
-                    ModelStatus::Failed { error: error_msg.clone() },
+                    ModelStatus::Failed { error: error_msg.clone(), failed_at: LoadingStage::LoadingWeights },
                 );
                 self.events.emit(LoaderEvent::LoadingFailed {
                     slot_id: slot_id.to_string(),
@@ -811,6 +816,8 @@ impl ModelLoaderService {
             model_status,
             active_fallback,
             shared_with: Vec::new(), // Phase 4: populated by BackendPool
+            last_inference_ms: None,
+            avg_tokens_per_sec: None,
         }
     }
 

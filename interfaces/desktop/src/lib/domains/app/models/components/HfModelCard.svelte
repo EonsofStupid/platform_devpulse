@@ -15,6 +15,7 @@ import {
 	Eye,
 	Heart,
 	Layers,
+	LoaderCircle,
 	Mic,
 	Search,
 	Volume2,
@@ -31,9 +32,10 @@ import { formatBytes } from "../types/models.types.js";
 interface Props {
 	result: HfSearchResultInfo;
 	onDownload?: (repoId: string, filename: string) => void;
+	downloading?: boolean;
 }
 
-let { result, onDownload }: Props = $props();
+let { result, onDownload, downloading = false }: Props = $props();
 let expanded = $state(false);
 
 const m = $derived(renderForge({ kind: "hf-model-card", preset: "neutral" }));
@@ -162,11 +164,17 @@ const fitColorMap: Record<string, string> = {
 					</div>
 					<button
 						class="shrink-0 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors hover:brightness-125"
-						style="background: var(--accent-teal-main); color: var(--surface-base);"
+						style="background: {downloading ? 'var(--surface-raised)' : 'var(--accent-teal-main)'}; color: {downloading ? 'var(--text-muted)' : 'var(--surface-base)'};"
 						onclick={() => onDownload?.(result.repo_id, file.filename)}
+						disabled={downloading}
 					>
-						<Download size={12} />
-						Get
+						{#if downloading}
+							<LoaderCircle size={12} class="animate-spin" />
+							Downloading
+						{:else}
+							<Download size={12} />
+							Get
+						{/if}
 					</button>
 				</div>
 			{/each}

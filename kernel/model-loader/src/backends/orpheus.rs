@@ -184,6 +184,7 @@ impl TtsBackend for OrpheusTts {
         Ok(MemoryFootprint {
             ram_bytes: file_size,
             vram_bytes: 0,
+            kv_cache_bytes: 0,
         })
     }
 
@@ -241,6 +242,7 @@ impl TtsBackend for OrpheusTts {
         MemoryFootprint {
             ram_bytes: llm_size + snac_size.ram_bytes,
             vram_bytes: snac_size.vram_bytes,
+            kv_cache_bytes: 0,
         }
     }
 

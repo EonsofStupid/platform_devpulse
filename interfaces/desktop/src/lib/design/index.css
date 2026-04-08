@@ -24,6 +24,9 @@
 /* 7. Animation keyframes */
 @import "./generated/keyframes.css";
 
+/* 7b. Brand diagonal blends + multi-color utilities */
+@import "./generated/diagonal-blends.css";
+
 /* 8. SVG Filters (neumorphism) */
 @import "./svg/filters/filters.css";
 

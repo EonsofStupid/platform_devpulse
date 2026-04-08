@@ -1,247 +1,189 @@
 <!--
   @file ProjectSetupStep.svelte
-  @module @devpulse/domains/app/models/features/setup-wizard/steps/ProjectSetupStep
-
-  Phase 5. Dogfood profile check. Offer to index DevPulse codebase.
-  Path derived from .userdata (portable). External paths get symlinked.
-  Indexing WILL fail (knowledge retrieval not wired) — error displayed raw. Skip always available.
+  "About You" — name, experience, project folder.
+  Uses pick_directory and create_dev_profile (now exist).
+  ColdLight tokens. All optional.
 -->
 <script lang="ts">
-import { ArrowLeft, Database, FolderOpen } from "lucide-svelte";
-import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { ArrowLeft, ArrowRight, Code, FolderOpen, User } from "lucide-svelte";
 import { wizardState } from "../wizard.runes.svelte.js";
-import { checkDevProfile, createDevProfile } from "../wizard.service.js";
 
 interface Props {
 	onContinue: () => void;
 	onBack: () => void;
 }
-
 let { onContinue, onBack }: Props = $props();
 
-let selectedOption = $state<"devpulse" | "browse" | "skip">("devpulse");
-let creatingProfile = $state(false);
-let error = $state<string | null>(null);
-let browsedPath = $state("");
-let showPortableNotice = $state(false);
-let detectedDataDir = $state("");
+let devName = $state("");
+let experienceLevel = $state<"beginner" | "intermediate" | "advanced">("intermediate");
+let projectPath = $state("");
+let saving = $state(false);
 
-/**
- * Derive .userdata/ path from get_hardware_metrics model_dir field.
- * Uses raw invoke because specta bindings haven't regenerated yet (Sprint 11 added model_dir).
- */
-$effect(() => {
-	resolveDataDir();
-});
-
-async function resolveDataDir(): Promise<void> {
+async function handleBrowse(): Promise<void> {
 	try {
 		const { invoke } = await import("@tauri-apps/api/core");
-		const metrics = await invoke<Record<string, unknown>>("get_hardware_metrics");
-		const modelDir = typeof metrics.model_dir === "string" ? metrics.model_dir : "";
-		detectedDataDir = modelDir.replace(/[/\\]models[/\\]?$/, "");
+		const result = await invoke<string>("pick_directory", { title: "Select your project folder" });
+		if (result) projectPath = result;
 	} catch {
-		// Non-critical — path will show "(detecting...)"
+		// User cancelled — fine
 	}
 }
 
-const projectsDir = $derived(detectedDataDir ? `${detectedDataDir}/projects` : "");
-
-$effect(() => {
-	checkDevProfile();
-});
-
-function handleBrowsePathInput(path: string): void {
-	browsedPath = path;
-	// Show portable notice if path is outside .userdata
-	showPortableNotice = !!(detectedDataDir && path && !path.startsWith(detectedDataDir));
-}
-
-async function handleFinish(): Promise<void> {
-	if (!wizardState.devProfileExists) {
-		creatingProfile = true;
-		error = null;
-		try {
-			await createDevProfile();
-		} catch (e) {
-			error = e instanceof Error ? e.message : String(e);
-			creatingProfile = false;
-			return;
-		}
-		creatingProfile = false;
+async function handleContinue(): Promise<void> {
+	saving = true;
+	try {
+		const { invoke } = await import("@tauri-apps/api/core");
+		await invoke("create_dev_profile", {
+			name: devName || "Developer",
+			experience: experienceLevel,
+			projectPath: projectPath || null,
+		});
+		wizardState.devProfileExists = true;
+	} catch (e) {
+		// Non-fatal — profile creation failing shouldn't block wizard
+		console.error("[ProjectSetupStep] Profile save failed:", e);
 	}
+	saving = false;
 	onContinue();
 }
+
+const LEVELS = [
+	{
+		value: "beginner" as const,
+		label: "Beginner",
+		desc: "New to coding or AI tools",
+		color: "var(--wiz-green)",
+	},
+	{
+		value: "intermediate" as const,
+		label: "Intermediate",
+		desc: "Comfortable with code, exploring AI",
+		color: "var(--wiz-blue)",
+	},
+	{
+		value: "advanced" as const,
+		label: "Advanced",
+		desc: "Professional developer, power user",
+		color: "var(--wiz-coral)",
+	},
+];
 </script>
 
-<div class={`${stack({ gap: "6" })} w-full flex-1`}>
-	<Text size="lg" weight="bold" color="primary">Project Setup</Text>
+<div class="project-step">
+	<h2 class="step-title">About You</h2>
+	<p class="step-desc">Help Clyffy understand how to help you. All optional — skip if you want.</p>
 
-	<!-- Clyffy narration -->
-	<div
-		class={cn(box({ paddingX: "12", paddingY: "8" }), "rounded-lg border")}
-		style="background: var(--surface-elevated); border-color: var(--border-subtle);"
-	>
-		<Text size="sm" color="secondary">
-			Last step. Let's give me something to work with.
-		</Text>
+	<!-- Name -->
+	<div class="field">
+		<label class="field-label"><User size={14} /> Your Name</label>
+		<input
+			class="field-input"
+			type="text"
+			placeholder="What should Clyffy call you?"
+			bind:value={devName}
+		/>
 	</div>
 
-	<!-- Options -->
-	<div class={stack({ gap: "4" })}>
-		<label
-			class={cn("flex gap-3 rounded-lg p-4 cursor-pointer border transition-colors")}
-			style="background: var(--surface-base); border-color: {selectedOption === 'devpulse' ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-		>
-			<input
-				type="radio"
-				name="project-option"
-				value="devpulse"
-				checked={selectedOption === "devpulse"}
-				onchange={() => (selectedOption = "devpulse")}
-				class="sr-only"
-			/>
-			<Database size={16} class="shrink-0 mt-0.5" style="color: var(--text-secondary);" />
-			<div class={stack({ gap: "1" })}>
-				<Text size="sm" weight="bold" color="primary">
-					Index DevPulse source (recommended)
-				</Text>
-				<Text size="xs" color="muted">
-					Path: {projectsDir || "(detecting...)"}
-				</Text>
-			</div>
-		</label>
-
-		<label
-			class={cn("flex gap-3 rounded-lg p-4 cursor-pointer border transition-colors")}
-			style="background: var(--surface-base); border-color: {selectedOption === 'browse' ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-		>
-			<input
-				type="radio"
-				name="project-option"
-				value="browse"
-				checked={selectedOption === "browse"}
-				onchange={() => (selectedOption = "browse")}
-				class="sr-only"
-			/>
-			<FolderOpen size={16} class="shrink-0 mt-0.5" style="color: var(--text-secondary);" />
-			<div class={stack({ gap: "1" })}>
-				<Text size="sm" weight="bold" color="primary">Add a different project</Text>
-				<Text size="xs" color="muted">Paste or type the project folder path</Text>
-			</div>
-		</label>
-
-		{#if selectedOption === "browse"}
-			<div class={cn(box({ paddingX: "12", paddingY: "6" }), "rounded-lg border")}
-				style="background: var(--surface-base); border-color: var(--border-subtle);"
-			>
-				<div class={stack({ gap: "3" })}>
-					<input
-						type="text"
-						placeholder="Paste project path..."
-						value={browsedPath}
-						oninput={(e) => handleBrowsePathInput(e.currentTarget.value)}
-						class="w-full rounded-lg px-3 py-2 text-sm border"
-						style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
-						aria-label="Project folder path"
-					/>
-					{#if showPortableNotice}
-						<div
-							class={cn(box({ paddingX: "8", paddingY: "6" }), "rounded border")}
-							style="background: var(--surface-elevated); border-color: var(--accent-teal-main);"
-						>
-							<div class={stack({ gap: "2" })}>
-								<Text size="xs" weight="bold" color="primary">
-									Portability Notice
-								</Text>
-								<Text size="xs" color="secondary">
-									For a fully portable install, copy this project into
-									<strong>{projectsDir}</strong>.
-									We can copy it for you — remember to delete the original
-									if you want the space back.
-								</Text>
-								<Text size="xs" color="muted">
-									If you skip copying, we'll create a symlink so DevPulse
-									can find the project, but it won't be portable.
-								</Text>
-							</div>
-						</div>
-					{/if}
-				</div>
-			</div>
-		{/if}
-
-		<label
-			class={cn("flex gap-3 rounded-lg p-4 cursor-pointer border transition-colors")}
-			style="background: var(--surface-base); border-color: {selectedOption === 'skip' ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-		>
-			<input
-				type="radio"
-				name="project-option"
-				value="skip"
-				checked={selectedOption === "skip"}
-				onchange={() => (selectedOption = "skip")}
-				class="sr-only"
-			/>
-			<div class={stack({ gap: "1" })}>
-				<Text size="sm" weight="bold" color="primary">Skip for now</Text>
-				<Text size="xs" color="muted">Can add projects later from settings</Text>
-			</div>
-		</label>
-	</div>
-
-	<!-- Indexing best practices -->
-	<div class={stack({ gap: "2" })}>
-		<Text size="xs" weight="bold" color="secondary">Indexing Best Practices</Text>
-		<Text size="xs" color="muted">
-			.git, node_modules, dist, target/ excluded by default. Files &gt;500KB skipped.
-			Chunking: semantic (code-aware). Re-index detects changed files only.
-		</Text>
-	</div>
-
-	<!-- Warning about knowledge retrieval -->
-	<div
-		class={cn(box({ paddingX: "8", paddingY: "4" }), "rounded border")}
-		style="background: var(--signal-warning); border-color: var(--border-subtle);"
-	>
-		<Text size="xs" color="primary">
-			Project indexing requires the search pipeline (not yet wired). Attempting to index will show a real error. You can skip for now.
-		</Text>
-	</div>
-
-	<!-- Error -->
-	{#if error}
-		<div
-			class={cn(box({ paddingX: "12", paddingY: "8" }), "rounded-md")}
-			style="background: var(--signal-error); color: var(--text-primary);"
-		>
-			<Text size="xs" color="primary">{error}</Text>
+	<!-- Experience -->
+	<div class="field">
+		<label class="field-label"><Code size={14} /> Experience Level</label>
+		<div class="level-cards">
+			{#each LEVELS as level (level.value)}
+				<button
+					class="level-card"
+					class:selected={experienceLevel === level.value}
+					style="--level-color: {level.color};"
+					onclick={() => (experienceLevel = level.value)}
+				>
+					<span class="level-name">{level.label}</span>
+					<span class="level-desc">{level.desc}</span>
+				</button>
+			{/each}
 		</div>
-	{/if}
+	</div>
+
+	<!-- Project folder -->
+	<div class="field">
+		<label class="field-label"><FolderOpen size={14} /> Project Folder</label>
+		<div class="folder-row">
+			<input
+				class="field-input folder-input"
+				type="text"
+				placeholder="Optional — select your main project"
+				value={projectPath}
+				readonly
+			/>
+			<button class="btn-browse" onclick={handleBrowse}>Browse</button>
+		</div>
+		<span class="field-hint">Clyffy can index your code to give better help. You can add this later.</span>
+	</div>
 
 	<!-- Navigation -->
-	<div class={hstack({ gap: "4", align: "center", justify: "between" })}>
-		<button
-			class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition-colors"
-			style="color: var(--text-muted);"
-			onclick={onBack}
-			aria-label="Back to Clyffy activation"
-		>
-			<ArrowLeft size={14} />
-			Back
-		</button>
-		<button
-			class="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all disabled:opacity-40"
-			style="background: var(--accent-teal-main); color: var(--surface-base);"
-			onclick={handleFinish}
-			disabled={creatingProfile}
-			aria-label="Continue to review"
-		>
-			{creatingProfile ? "Setting up..." : "Continue"}
+	<div class="nav">
+		<button class="btn-back" onclick={onBack}><ArrowLeft size={14} /> Back</button>
+		<button class="btn-continue" onclick={handleContinue} disabled={saving}>
+			{devName ? `Let's go, ${devName}!` : "Continue"} <ArrowRight size={14} />
 		</button>
 	</div>
 </div>
+
+<style>
+	.project-step {
+		display: flex; flex-direction: column; gap: 1.25rem;
+		width: 100%; max-width: 28rem;
+	}
+	.step-title { font-size: 1.25rem; font-weight: 800; color: var(--wiz-text); margin: 0; }
+	.step-desc { font-size: var(--wiz-text-sm); color: var(--wiz-text-sub); margin: 0; }
+
+	.field { display: flex; flex-direction: column; gap: 0.375rem; }
+	.field-label {
+		display: flex; align-items: center; gap: 0.375rem;
+		font-size: var(--wiz-text-sm); font-weight: 600; color: var(--wiz-text-sub);
+	}
+	.field-input {
+		padding: 0.5rem 0.75rem; border-radius: var(--wiz-radius-md);
+		border: 1px solid var(--wiz-border); background: var(--wiz-inset);
+		color: var(--wiz-text); font-size: var(--wiz-text-sm); outline: none;
+	}
+	.field-input:focus { border-color: var(--wiz-border-focus); }
+	.field-input::placeholder { color: var(--wiz-text-muted); }
+	.field-hint { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
+
+	.folder-row { display: flex; gap: 0.5rem; }
+	.folder-input { flex: 1; cursor: default; }
+	.btn-browse {
+		padding: 0.5rem 0.75rem; border-radius: var(--wiz-radius-md);
+		border: 1px solid var(--wiz-border); background: transparent;
+		color: var(--wiz-text-sub); font-size: var(--wiz-text-sm); cursor: pointer;
+	}
+	.btn-browse:hover { border-color: var(--wiz-cyan); color: var(--wiz-text); }
+
+	.level-cards { display: flex; gap: 0.5rem; }
+	.level-card {
+		flex: 1; display: flex; flex-direction: column; gap: 0.125rem;
+		padding: 0.625rem 0.75rem; border-radius: var(--wiz-radius-md);
+		border: 1px solid var(--wiz-border); background: transparent;
+		cursor: pointer; text-align: left; transition: all var(--wiz-duration-fast);
+	}
+	.level-card:hover { border-color: var(--wiz-void-500); }
+	.level-card.selected {
+		border-color: var(--level-color); background: var(--wiz-card);
+	}
+	.level-name { font-size: var(--wiz-text-sm); font-weight: 700; color: var(--wiz-text); }
+	.level-desc { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
+
+	.nav { display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; }
+	.btn-back {
+		display: inline-flex; align-items: center; gap: 0.375rem;
+		padding: 0.5rem 1rem; border-radius: var(--wiz-radius-md); border: none;
+		background: transparent; color: var(--wiz-text-muted); font-size: var(--wiz-text-sm); cursor: pointer;
+	}
+	.btn-continue {
+		display: inline-flex; align-items: center; gap: 0.375rem;
+		padding: 0.5rem 1.5rem; border-radius: var(--wiz-radius-md); border: none;
+		background: var(--wiz-cyan); color: var(--wiz-void-950);
+		font-size: var(--wiz-text-sm); font-weight: 700; cursor: pointer;
+	}
+	.btn-continue:hover { filter: brightness(1.15); }
+	.btn-continue:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>

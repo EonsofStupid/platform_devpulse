@@ -662,16 +662,22 @@ pub async fn import_local_model(
     target_slot: Option<String>,
     import_mode: Option<String>,
 ) -> Result<String, String> {
-    // Open native file dialog on a blocking thread (rfd is sync)
-    let picked = tokio::task::spawn_blocking(|| {
-        rfd::FileDialog::new()
+    // Open native file dialog on a blocking thread (rfd is sync).
+    // This runs BEFORE acquiring any async locks to avoid deadlock.
+    // On Windows, rfd may open behind the Tauri window — we use
+    // AsyncFileDialog if available, otherwise spawn_blocking.
+    let picked = {
+        let dialog = rfd::AsyncFileDialog::new()
             .set_title("Import AI Model")
+            .add_filter("AI Models", &["gguf", "safetensors", "onnx", "bin"])
             .add_filter("GGUF Models", &["gguf"])
+            .add_filter("SafeTensors", &["safetensors"])
+            .add_filter("ONNX Models", &["onnx"])
             .add_filter("All Files", &["*"])
             .pick_file()
-    })
-    .await
-    .map_err(|e| format!("File dialog failed: {e}"))?;
+            .await;
+        dialog.map(|f| f.path().to_path_buf())
+    };
 
     let source_path = picked.ok_or_else(|| "No file selected".to_string())?;
 
@@ -756,6 +762,70 @@ pub async fn import_local_model(
     Ok(filename)
 }
 
+/// Open a native folder picker dialog.
+///
+/// Returns the selected directory path, or error if cancelled.
+#[tauri::command]
+#[specta::specta]
+pub async fn pick_directory(
+    title: String,
+) -> Result<String, String> {
+    let picked = rfd::AsyncFileDialog::new()
+        .set_title(&title)
+        .pick_folder()
+        .await;
+
+    let folder = picked.ok_or_else(|| "No folder selected".to_string())?;
+    Ok(folder.path().to_string_lossy().to_string())
+}
+
+/// Create a developer profile and persist it as a preference.
+///
+/// Stores a JSON blob with name, experience level, and optional project path.
+/// Uses the same preferences.json storage as `set_preference`.
+#[tauri::command]
+#[specta::specta]
+pub async fn create_dev_profile(
+    state: State<'_, PlatformState>,
+    name: String,
+    experience: String,
+    project_path: Option<String>,
+) -> Result<(), String> {
+    let profile = serde_json::json!({
+        "type": "dev",
+        "name": name,
+        "experience": experience,
+        "project_path": project_path,
+        "created": chrono::Utc::now().to_rfc3339(),
+    });
+
+    // Write to preferences.json — same storage as set_preference command
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let prefs_path = platform.config().data_dir.clone();
+    drop(guard);
+
+    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+
+    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
+        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).unwrap_or_default()
+    } else {
+        std::collections::HashMap::new()
+    };
+
+    prefs.insert("dev_profile".to_string(), profile.to_string());
+    let json = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
+
+    if let Some(parent) = prefs_file.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(&prefs_file, json).map_err(|e| e.to_string())?;
+
+    tracing::info!(name = %name, experience = %experience, "Developer profile created");
+    Ok(())
+}
+
 /// Generate text using a loaded model slot.
 ///
 /// Gets an InferenceHandle from the model loader (resolves fallback chain),
@@ -819,4 +889,19 @@ pub async fn inference_generate(
     }
 
     Ok(full_text)
+}
+
+/// Simplified inference for wizard test chat.
+///
+/// Wraps `inference_generate` with sensible defaults so the frontend
+/// only needs to send `slot_id` and `prompt`.
+#[tauri::command]
+#[specta::specta]
+pub async fn test_inference(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+    slot_id: String,
+    prompt: String,
+) -> Result<String, String> {
+    inference_generate(app, state, slot_id, prompt, 256, 0.7).await
 }

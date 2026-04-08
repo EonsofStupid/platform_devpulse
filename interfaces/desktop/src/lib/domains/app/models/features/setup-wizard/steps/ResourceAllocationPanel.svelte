@@ -1,145 +1,99 @@
 <!--
   @file ResourceAllocationPanel.svelte
-  @module @devpulse/domains/app/models/features/setup-wizard/steps/ResourceAllocationPanel
-
-  Right panel in ModelLoaderStep. VRAM stacked bar, per-slot breakdown,
-  allocation mode, load time estimates.
+  VRAM/RAM stacked bar. Per-slot segments. Over-budget warning. Disk space.
+  Colocated CSS. No renderForge.
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Separator } from "$lib/design/components/separator/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { AlertTriangle } from "lucide-svelte";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
-import { formatMb, friendlySlotLabel, isInferenceReady } from "../../../types/models.types.js";
-import { wizardState } from "../wizard.runes.svelte.js";
-import { allocationLabel } from "../wizard.types.js";
+import { formatMb, isInferenceReady } from "../../../types/models.types.js";
+
+const COLORS: Record<string, string> = {
+	"chat.brain": "oklch(0.65 0.17 185)",
+	"minion.shared": "oklch(0.6 0.15 260)",
+	"rag.embedder": "oklch(0.7 0.15 150)",
+	"rag.reranker": "oklch(0.65 0.12 100)",
+	"vision.encoder": "oklch(0.7 0.12 300)",
+	"voice.stt": "oklch(0.7 0.15 50)",
+	"voice.tts": "oklch(0.65 0.18 330)",
+};
+const LABELS: Record<string, string> = {
+	"chat.brain": "Main AI",
+	"minion.shared": "Helper",
+	"rag.embedder": "Search",
+	"rag.reranker": "Reranker",
+	"vision.encoder": "Vision",
+	"voice.stt": "Ears",
+	"voice.tts": "Voice",
+};
 
 const gpuSlots = $derived(
-	modelsState.userSlots.filter(
-		(s) => s.preferred_device === "Gpu" || s.preferred_device === "GpuWithCpuFallback",
-	),
+	modelsState.userSlots
+		.map((s) => {
+			const m = modelsState.assignedModel(s.id);
+			return {
+				id: s.id,
+				vram: m?.vram_estimate_mb ?? 0,
+				loaded: isInferenceReady(modelsState.statuses[s.id] ?? { type: "cold" }),
+			};
+		})
+		.filter((s) => s.vram > 0),
 );
-
-const cpuSlots = $derived(modelsState.userSlots.filter((s) => s.preferred_device === "Cpu"));
-
-const gpuUsedEstimate = $derived(
-	gpuSlots.reduce((sum, s) => {
-		const model = modelsState.assignedModel(s.id);
-		return sum + (model?.vram_estimate_mb ?? 0);
-	}, 0),
-);
-
-const isOverBudget = $derived(hardwareState.hasGpu && gpuUsedEstimate > hardwareState.vramTotalMb);
-
-const overBudgetMb = $derived(isOverBudget ? gpuUsedEstimate - hardwareState.vramTotalMb : 0);
+const totalUsed = $derived(gpuSlots.reduce((a, s) => a + s.vram, 0));
+const vramTotal = $derived(hardwareState.vramTotalMb ?? 0);
+const overBudget = $derived(vramTotal > 0 && totalUsed > vramTotal);
 </script>
 
-<div class="flex flex-col gap-4">
-	<!-- Allocation mode -->
-	<div class="flex items-center gap-3">
-		<Text size="sm" weight="bold" color="secondary">Mode</Text>
-		<Badge variant="informative" size="sm">{allocationLabel(wizardState.allocationMode)}</Badge>
-	</div>
+<div class="rp">
+	<h3 class="title">Resource Allocation</h3>
 
-	<!-- VRAM stacked bar -->
-	{#if hardwareState.hasGpu}
-		<div>
-			<Text size="sm" weight="bold" color="secondary" class="mb-2">GPU Memory</Text>
-			<div class="vram-bar flex h-6 rounded-lg overflow-hidden border" style="border-color: var(--border-subtle);">
-				{#each gpuSlots as slot (slot.id)}
-					{@const model = modelsState.assignedModel(slot.id)}
-					{@const vram = model?.vram_estimate_mb ?? 0}
-					{@const pct = hardwareState.vramTotalMb > 0 ? (vram / hardwareState.vramTotalMb) * 100 : 0}
-					{@const loaded = isInferenceReady(modelsState.statuses[slot.id] ?? { type: "cold" })}
-					{#if vram > 0}
-						<div
-							class="transition-all"
-							style="width: {pct}%; background: {loaded ? 'var(--accent-teal-main)' : 'var(--text-muted)'};"
-							title="{friendlySlotLabel(slot.id)}: {formatMb(vram)}"
-						></div>
-					{/if}
+	{#if hardwareState.hasGpu && vramTotal > 0}
+		<div class="sec">
+			<div class="row-between"><span class="lbl">GPU VRAM</span><span class="val" class:over={overBudget}>{formatMb(totalUsed)} / {formatMb(vramTotal)}</span></div>
+			<div class="bar">
+				{#each gpuSlots as s (s.id)}
+					<div class="seg" class:loaded={s.loaded} style="width:{(s.vram/vramTotal)*100}%;background:{COLORS[s.id] ?? 'oklch(0.5 0.05 220)'};" title="{LABELS[s.id] ?? s.id}: {formatMb(s.vram)}"></div>
 				{/each}
-				<div class="flex-1" style="background: var(--surface-base);"></div>
+				<div class="free"></div>
 			</div>
-			<div class="flex justify-between mt-1">
-				<Text size="sm" color="muted">
-					{formatMb(gpuUsedEstimate)} planned / {formatMb(hardwareState.vramTotalMb)} total
-				</Text>
-				<Text size="sm" color="muted">{formatMb(hardwareState.vramTotalMb - gpuUsedEstimate)} free</Text>
-			</div>
-			{#if isOverBudget}
-				<Text size="sm" style="color: var(--signal-error);" class="mt-1">
-					Over budget by {formatMb(overBudgetMb)} — some models will fall back to CPU
-				</Text>
-			{/if}
+			<div class="legend">{#each gpuSlots as s (s.id)}<div class="li"><span class="ld" style="background:{COLORS[s.id]??''}"></span><span class="lt">{LABELS[s.id]??s.id} {formatMb(s.vram)}</span></div>{/each}</div>
 		</div>
+		{#if overBudget}<div class="warn"><AlertTriangle size={16}/><span>Over budget by {formatMb(totalUsed - vramTotal)} — some models will use CPU</span></div>{/if}
 	{:else}
-		<Text size="sm" color="muted">No GPU — all models run on CPU</Text>
+		<p class="muted">No GPU detected. All models run on CPU.</p>
 	{/if}
 
-	<Separator />
-
-	<!-- GPU slots -->
-	{#if gpuSlots.length > 0}
-		<div class="flex flex-col gap-2">
-			<Text size="sm" weight="bold" color="secondary">GPU Slots</Text>
-			{#each gpuSlots as slot (slot.id)}
-				{@const model = modelsState.assignedModel(slot.id)}
-				{@const loaded = isInferenceReady(modelsState.statuses[slot.id] ?? { type: "cold" })}
-				<div class="flex items-center gap-3">
-					<div
-						class="w-2 h-2 rounded-full"
-						style="background: {loaded ? 'var(--signal-success)' : model ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-					></div>
-					<Text size="sm" color="primary" class="flex-1">{friendlySlotLabel(slot.id)}</Text>
-					{#if model?.vram_estimate_mb}
-						<Text size="sm" color="muted">{formatMb(model.vram_estimate_mb)}</Text>
-					{:else}
-						<Text size="sm" color="muted">—</Text>
-					{/if}
-				</div>
-			{/each}
+	{#if hardwareState.ramTotalMb}
+		<div class="sec">
+			<div class="row-between"><span class="lbl">RAM</span><span class="val">{formatMb(hardwareState.ramAvailableMb ?? 0)} free / {formatMb(hardwareState.ramTotalMb)}</span></div>
+			<div class="sbar"><div class="sfill" style="width:{Math.min(100,((hardwareState.ramTotalMb-(hardwareState.ramAvailableMb??0))/hardwareState.ramTotalMb)*100)}%"></div></div>
 		</div>
 	{/if}
 
-	<!-- CPU slots -->
-	{#if cpuSlots.length > 0}
-		<div class="flex flex-col gap-2">
-			<Text size="sm" weight="bold" color="secondary">CPU Slots</Text>
-			{#each cpuSlots as slot (slot.id)}
-				{@const model = modelsState.assignedModel(slot.id)}
-				{@const loaded = isInferenceReady(modelsState.statuses[slot.id] ?? { type: "cold" })}
-				<div class="flex items-center gap-3">
-					<div
-						class="w-2 h-2 rounded-full"
-						style="background: {loaded ? 'var(--signal-success)' : model ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-					></div>
-					<Text size="sm" color="primary" class="flex-1">{friendlySlotLabel(slot.id)}</Text>
-					<Text size="sm" color="muted">CPU</Text>
-				</div>
-			{/each}
-		</div>
+	{#if hardwareState.diskFreeMb}
+		<div class="sec"><div class="row-between"><span class="lbl">Disk</span><span class="val">{formatMb(hardwareState.diskFreeMb)} free</span></div></div>
 	{/if}
-
-	<Separator />
-
-	<!-- Load time estimates -->
-	<div class="flex flex-col gap-1">
-		<Text size="sm" weight="bold" color="secondary">Estimated Load Times</Text>
-		{#each modelsState.userSlots as slot (slot.id)}
-			{@const model = modelsState.assignedModel(slot.id)}
-			{@const isGpu = slot.preferred_device === "Gpu" || slot.preferred_device === "GpuWithCpuFallback"}
-			{#if model}
-				<Text size="sm" color="muted">
-					{friendlySlotLabel(slot.id)}: {isGpu
-						? (model.vram_estimate_mb ?? 0) > 4000 ? "~5-15s (large GPU model)" : "~2-5s (GPU)"
-						: (model.vram_estimate_mb ?? 0) > 1000 ? "~3-10s (CPU, large)" : "~1-3s (CPU)"}
-				</Text>
-			{/if}
-		{/each}
-		{#if modelsState.userSlots.every((s) => !modelsState.assignedModel(s.id))}
-			<Text size="sm" color="muted">Assign models to see load time estimates.</Text>
-		{/if}
-	</div>
 </div>
+
+<style>
+	.rp { display:flex;flex-direction:column;gap:1rem;background:oklch(0.12 0.025 220/0.65);border:1px solid oklch(0.3 0.03 220/0.4);border-radius:0.75rem;padding:1.25rem;backdrop-filter:blur(12px); }
+	.title { font-size:1rem;font-weight:700;color:oklch(0.93 0.015 224);margin:0; }
+	.sec { display:flex;flex-direction:column;gap:0.375rem; }
+	.row-between { display:flex;justify-content:space-between;align-items:center; }
+	.lbl { font-size:0.8125rem;font-weight:600;color:oklch(0.7 0.02 220); }
+	.val { font-size:0.8125rem;color:oklch(0.8 0.015 224); }
+	.val.over { color:oklch(0.7 0.18 25);font-weight:700; }
+	.bar { display:flex;height:1.5rem;border-radius:0.5rem;overflow:hidden;border:1px solid oklch(0.25 0.02 220/0.5); }
+	.seg { transition:width 300ms;min-width:2px;opacity:0.7; }
+	.seg.loaded { opacity:1; }
+	.free { flex:1;background:oklch(0.15 0.01 220/0.3); }
+	.legend { display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem; }
+	.li { display:flex;align-items:center;gap:0.25rem; }
+	.ld { width:0.5rem;height:0.5rem;border-radius:9999px; }
+	.lt { font-size:0.875rem;color:oklch(0.6 0.02 220); }
+	.warn { display:flex;align-items:center;gap:0.5rem;padding:0.75rem;border-radius:0.5rem;background:oklch(0.2 0.08 25/0.2);border:1px solid oklch(0.6 0.18 25/0.3);color:oklch(0.8 0.12 25);font-size:0.8125rem; }
+	.muted { font-size:0.875rem;color:oklch(0.55 0.02 220);font-style:italic;margin:0; }
+	.sbar { height:0.75rem;border-radius:0.375rem;background:oklch(0.15 0.01 220/0.3);overflow:hidden; }
+	.sfill { height:100%;background:oklch(0.55 0.12 185/0.6);border-radius:0.375rem;transition:width 300ms; }
+</style>

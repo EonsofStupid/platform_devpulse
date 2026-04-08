@@ -97,10 +97,13 @@ impl DownloadManager {
             total_bytes: 0, // Updated once we know the size
         });
 
-        let gguf_dir = self.models_dir.join("gguf");
-        std::fs::create_dir_all(&gguf_dir)?;
+        // Route to purpose folder based on file extension and name heuristics.
+        // GGUF text-gen → chat/, embedding → rag/, voice → voice/
+        let subdir = infer_download_folder(filename);
+        let dest_dir = self.models_dir.join(subdir);
+        std::fs::create_dir_all(&dest_dir)?;
 
-        let target_path = gguf_dir.join(filename);
+        let target_path = dest_dir.join(filename);
         let repo_id_owned = repo_id.to_string();
         let filename_owned = filename.to_string();
         let events_clone = events.clone();
@@ -229,5 +232,40 @@ fn execute_download(
     // Build a registry entry for the downloaded model
     let entry = crate::models::discovery::discover_single(target_path, repo_id)?;
     Ok(entry)
+}
+
+/// Infer the purpose folder for a downloaded file based on filename.
+///
+/// Routes models into the correct subfolder so discovery folder-hints
+/// can assign capabilities. This is the layman path — no config.json
+/// needed, no manual folder creation.
+fn infer_download_folder(filename: &str) -> &'static str {
+    let lower = filename.to_lowercase();
+
+    // Voice models
+    if lower.contains("whisper") || lower.contains("kokoro") || lower.contains("tts")
+        || lower.contains("stt") || lower.contains("piper") || lower.contains("snac")
+        || lower.contains("orpheus")
+    {
+        return "voice";
+    }
+
+    // Embedding / RAG models
+    if lower.contains("embed") || lower.contains("nomic") || lower.contains("bge")
+        || lower.contains("rerank") || lower.contains("minilm") || lower.contains("e5-")
+        || lower.contains("gte-")
+    {
+        return "rag";
+    }
+
+    // Vision models
+    if lower.contains("siglip") || lower.contains("clip") || lower.contains("vision")
+        || lower.contains("vit-")
+    {
+        return "vision";
+    }
+
+    // Default: chat/reasoning models
+    "chat"
 }
 

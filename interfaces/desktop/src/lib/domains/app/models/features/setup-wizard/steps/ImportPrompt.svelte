@@ -1,160 +1,87 @@
 <!--
   @file ImportPrompt.svelte
-  @module @devpulse/domains/app/models/features/setup-wizard/steps/ImportPrompt
-
-  Modal overlay for import mode selection: copy (portable) or symlink (saves space).
-  NOTE: Until Sprint 5 modifies Rust command, import always copies to models/chat/.
+  Import mode selection overlay: copy or symlink. Slot picker.
+  Colocated CSS. No renderForge.
 -->
 <script lang="ts">
-import { Copy, Link, X } from "lucide-svelte";
-import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
-import { friendlySlotLabel } from "../../../types/models.types.js";
-import { slotToSubdir } from "../import-router.js";
-import type { ImportMode } from "../wizard.types.js";
+import { Copy, FolderOpen, Link, X } from "lucide-svelte";
 
 interface Props {
-	targetSlot: string;
-	onClose: () => void;
-	onComplete: (filename: string) => void;
+	open: boolean;
+	filePath: string;
+	slotId: string;
+	onConfirm: (mode: "copy" | "symlink") => void;
+	onCancel: () => void;
 }
+let { open, filePath, slotId, onConfirm, onCancel }: Props = $props();
 
-let { targetSlot, onClose, onComplete }: Props = $props();
-
-let importMode = $state<ImportMode>("copy");
-let importing = $state(false);
-let error = $state<string | null>(null);
-
-async function handleImport(): Promise<void> {
-	importing = true;
-	error = null;
-	try {
-		const { importLocalModel } = await import("../../../services/download.service.js");
-		const filename = await importLocalModel(targetSlot, importMode);
-		onComplete(filename);
-	} catch (e) {
-		error = e instanceof Error ? e.message : String(e);
-	} finally {
-		importing = false;
-	}
-}
+let mode = $state<"copy" | "symlink">("copy");
+const filename = $derived(filePath.split(/[\\/]/).pop() ?? filePath);
 </script>
 
-<!-- Overlay backdrop -->
-<div
-	class="fixed inset-0 z-50 flex items-center justify-center"
-	style="background: var(--overlay-backdrop);"
-	role="dialog"
-	aria-label="Import model"
->
-	<div
-		class={cn(stack({ gap: "6" }), "w-full max-w-lg rounded-xl p-6 border")}
-		style="background: var(--surface-elevated); border-color: var(--border-subtle);"
-	>
-		<!-- Header -->
-		<div class={hstack({ gap: "4", align: "center", justify: "between" })}>
-			<Text size="lg" weight="bold" color="primary">Import Model</Text>
-			<button
-				class="rounded p-1 transition-colors"
-				style="color: var(--text-muted);"
-				onclick={onClose}
-				aria-label="Close import dialog"
-			>
-				<X size={18} />
-			</button>
-		</div>
-
-		<!-- Target info -->
-		<div class={stack({ gap: "2" })}>
-			<Text size="sm" color="secondary">
-				Importing for: <strong>{friendlySlotLabel(targetSlot)}</strong>
-			</Text>
-			<Text size="xs" color="muted">
-				Target: ~/.devpulse/models/{slotToSubdir(targetSlot)}/
-			</Text>
-		</div>
-
-		<!-- Mode selection -->
-		<div class={stack({ gap: "4" })}>
-			<!-- Copy option -->
-			<label
-				class={cn("flex gap-3 rounded-lg p-4 cursor-pointer border transition-colors",
-					importMode === "copy" ? "border-[var(--accent-teal-main)]" : "")}
-				style="background: var(--surface-base); border-color: {importMode === 'copy' ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-			>
-				<input
-					type="radio"
-					name="import-mode"
-					value="copy"
-					checked={importMode === "copy"}
-					onchange={() => (importMode = "copy")}
-					class="sr-only"
-				/>
-				<Copy size={16} class="shrink-0 mt-0.5" style="color: var(--text-secondary);" />
-				<div class={stack({ gap: "1" })}>
-					<Text size="sm" weight="bold" color="primary">Copy to DevPulse</Text>
-					<Text size="xs" color="muted">
-						Portable — model travels with your DevPulse install.
-						Uses additional disk space.
-					</Text>
-				</div>
-			</label>
-
-			<!-- Symlink option -->
-			<label
-				class={cn("flex gap-3 rounded-lg p-4 cursor-pointer border transition-colors",
-					importMode === "symlink" ? "border-[var(--accent-teal-main)]" : "")}
-				style="background: var(--surface-base); border-color: {importMode === 'symlink' ? 'var(--accent-teal-main)' : 'var(--border-subtle)'};"
-			>
-				<input
-					type="radio"
-					name="import-mode"
-					value="symlink"
-					checked={importMode === "symlink"}
-					onchange={() => (importMode = "symlink")}
-					class="sr-only"
-				/>
-				<Link size={16} class="shrink-0 mt-0.5" style="color: var(--text-secondary);" />
-				<div class={stack({ gap: "1" })}>
-					<Text size="sm" weight="bold" color="primary">Create Symlink</Text>
-					<Text size="xs" color="muted">
-						No additional disk space. NOT portable — breaks if source file moves.
-						Use this if you also run Ollama, LM Studio, or other tools sharing the same model files.
-					</Text>
-				</div>
-			</label>
-		</div>
-
-		<!-- Error display — raw -->
-		{#if error}
-			<div
-				class={cn(box({ paddingX: "12", paddingY: "8" }), "rounded-md")}
-				style="background: var(--signal-error); color: var(--text-primary);"
-			>
-				<Text size="xs" color="primary">{error}</Text>
+{#if open}
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div class="backdrop" onclick={onCancel}>
+		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+		<div class="dialog" role="dialog" aria-modal="true" onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => { if (e.key === "Escape") onCancel(); }}>
+			<div class="dialog-header">
+				<h3 class="dialog-title">Import Model</h3>
+				<button class="btn-x" onclick={onCancel} aria-label="Close"><X size={18} /></button>
 			</div>
-		{/if}
 
-		<!-- Actions -->
-		<div class={hstack({ gap: "3", justify: "end" })}>
-			<button
-				class="rounded-lg px-4 py-2 text-sm transition-colors"
-				style="color: var(--text-muted);"
-				onclick={onClose}
-			>
-				Cancel
-			</button>
-			<button
-				class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all disabled:opacity-40"
-				style="background: var(--accent-teal-main); color: var(--surface-base);"
-				onclick={handleImport}
-				disabled={importing}
-			>
-				{importing ? "Importing..." : "Import"}
-			</button>
+			<p class="dialog-desc">
+				Import <strong>{filename}</strong> for the <strong>{slotId}</strong> slot.
+				Choose how to store it:
+			</p>
+
+			<div class="options">
+				<label class="option" class:selected={mode === "copy"}>
+					<input type="radio" name="import-mode" value="copy" bind:group={mode} />
+					<Copy size={20} />
+					<div>
+						<span class="opt-label">Copy to models folder</span>
+						<span class="opt-desc">Portable — file is duplicated. Uses more disk space but independent of original location.</span>
+					</div>
+				</label>
+
+				<label class="option" class:selected={mode === "symlink"}>
+					<input type="radio" name="import-mode" value="symlink" bind:group={mode} />
+					<Link size={20} />
+					<div>
+						<span class="opt-label">Create link (symlink)</span>
+						<span class="opt-desc">Saves space — points to original file. If you move or delete the original, the model breaks.</span>
+					</div>
+				</label>
+			</div>
+
+			<div class="dialog-actions">
+				<button class="btn-outline" onclick={onCancel}>Cancel</button>
+				<button class="btn-primary" onclick={() => onConfirm(mode)}>
+					<FolderOpen size={14} /> Import as {mode === "copy" ? "Copy" : "Link"}
+				</button>
+			</div>
 		</div>
 	</div>
-</div>
+{/if}
+
+<style>
+	.backdrop { position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:oklch(0 0 0/0.6); }
+	.dialog { width:100%;max-width:28rem;margin:1rem;padding:1.5rem;background:oklch(0.1 0.02 220);border:1px solid oklch(0.3 0.02 220/0.4);border-radius:0.75rem; }
+	.dialog-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem; }
+	.dialog-title { font-size:1.125rem;font-weight:700;color:oklch(0.93 0.015 224);margin:0; }
+	.btn-x { background:none;border:none;color:oklch(0.5 0.02 220);cursor:pointer; }
+	.dialog-desc { font-size:0.875rem;color:oklch(0.65 0.02 220);margin:0 0 1rem;line-height:1.5; }
+	.dialog-desc strong { color:oklch(0.9 0.015 224); }
+
+	.options { display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.25rem; }
+	.option { display:flex;align-items:flex-start;gap:0.75rem;padding:0.875rem;border-radius:0.5rem;border:1px solid oklch(0.3 0.02 220/0.4);background:oklch(0.15 0.02 220/0.3);cursor:pointer;color:oklch(0.6 0.02 220); }
+	.option.selected { border-color:oklch(0.65 0.17 185);background:oklch(0.15 0.03 185/0.2); }
+	.option input { accent-color:oklch(0.65 0.17 185);margin-top:0.25rem; }
+	.opt-label { display:block;font-size:0.875rem;font-weight:600;color:oklch(0.9 0.015 224); }
+	.opt-desc { display:block;font-size:0.875rem;color:oklch(0.55 0.02 220);margin-top:0.25rem;line-height:1.4; }
+
+	.dialog-actions { display:flex;justify-content:flex-end;gap:0.75rem; }
+	.btn-primary { display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;border-radius:0.5rem;border:none;background:oklch(0.65 0.17 185);color:oklch(0.12 0.02 220);font-size:0.875rem;font-weight:700;cursor:pointer; }
+	.btn-outline { display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid oklch(0.3 0.03 220/0.5);background:transparent;color:oklch(0.75 0.02 220);font-size:0.875rem;cursor:pointer; }
+</style>

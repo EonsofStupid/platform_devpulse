@@ -1,7 +1,7 @@
 {
 	"gradient": {
 		"$type": "color",
-		"$description": "Animated gradient layer fills — used in containers with animatedBg. Dual-layer with mix-blend-mode overlay.",
+		"$description": "Gradient layer fills. Diagonal blends: color-a top-left, color-b bottom-right, scatter at center.",
 		"animated-1": {
 			"$value": "oklch(0.1407 0.0433 220.15 / 0.6)",
 			"$description": "Primary gradient layer — slow 25s ease-in-out infinite shift"
@@ -13,6 +13,38 @@
 		"teal-purple": {
 			"$value": "oklch(0.1149 0.0423 190.54 / 0.702)",
 			"$description": "Teal-to-purple gradient midpoint for button primary"
+		},
+		"cyan-green": {
+			"$value": "#17deef",
+			"$description": "Diagonal blend A: cyan (#17deef) top-left → green (#29b468) bottom-right"
+		},
+		"green-blend": {
+			"$value": "#29b468",
+			"$description": "Diagonal blend B: green (#29b468) — pairs with cyan"
+		},
+		"magenta-pink": {
+			"$value": "#eb1ec2",
+			"$description": "Diagonal blend A: magenta (#eb1ec2) top-left → hot pink (#f8397a) bottom-right"
+		},
+		"hotpink-blend": {
+			"$value": "#f8397a",
+			"$description": "Diagonal blend B: hot pink (#f8397a) — pairs with magenta"
+		},
+		"coral-blue": {
+			"$value": "#fc6b83",
+			"$description": "Diagonal blend A: coral (#fc6b83) top-left → blue (#3ea4ea) bottom-right"
+		},
+		"blue-blend": {
+			"$value": "#3ea4ea",
+			"$description": "Diagonal blend B: blue (#3ea4ea) — pairs with coral"
+		},
+		"salmon-gold": {
+			"$value": "#f16971",
+			"$description": "Diagonal blend A: salmon (#f16971) top-left → gold (#d6d232) bottom-right"
+		},
+		"gold-blend": {
+			"$value": "#d6d232",
+			"$description": "Diagonal blend B: gold (#d6d232) — pairs with salmon"
 		}
 	},
 	"gradientDuration": {

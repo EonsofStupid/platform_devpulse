@@ -498,6 +498,33 @@ async importLocalModel(targetSlot: string | null, importMode: string | null) : P
 }
 },
 /**
+ * Open a native folder picker dialog.
+ * 
+ * Returns the selected directory path, or error if cancelled.
+ */
+async pickDirectory(title: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pick_directory", { title }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Create a developer profile and persist it as a preference.
+ * 
+ * Stores a JSON blob with name, experience level, and optional project path.
+ * Uses the same preferences.json storage as `set_preference`.
+ */
+async createDevProfile(name: string, experience: string, projectPath: string | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("create_dev_profile", { name, experience, projectPath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Auto-configure model recommendations based on detected hardware.
  */
 async autoConfigure() : Promise<Result<string, string>> {
@@ -536,6 +563,20 @@ async completeModelSetup() : Promise<Result<null, string>> {
 async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("inference_generate", { slotId, prompt, maxTokens, temperature }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Simplified inference for wizard test chat.
+ * 
+ * Wraps `inference_generate` with sensible defaults so the frontend
+ * only needs to send `slot_id` and `prompt`.
+ */
+async testInference(slotId: string, prompt: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("test_inference", { slotId, prompt }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

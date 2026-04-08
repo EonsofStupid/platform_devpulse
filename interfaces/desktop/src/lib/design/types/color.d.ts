@@ -71,6 +71,83 @@ export const ColorTokens = [
 	"cyber-800",
 	"cyber-900",
 	"cyber-950",
+	"brand-cyan-50",
+	"brand-cyan-100",
+	"brand-cyan-200",
+	"brand-cyan-300",
+	"brand-cyan-400",
+	"brand-cyan-500",
+	"brand-cyan-600",
+	"brand-cyan-700",
+	"brand-cyan-800",
+	"brand-cyan-900",
+	"brand-cyan-950",
+	"brand-green-50",
+	"brand-green-100",
+	"brand-green-200",
+	"brand-green-300",
+	"brand-green-400",
+	"brand-green-500",
+	"brand-green-600",
+	"brand-green-700",
+	"brand-green-800",
+	"brand-green-900",
+	"brand-green-950",
+	"brand-hotpink-50",
+	"brand-hotpink-100",
+	"brand-hotpink-200",
+	"brand-hotpink-300",
+	"brand-hotpink-400",
+	"brand-hotpink-500",
+	"brand-hotpink-600",
+	"brand-hotpink-700",
+	"brand-hotpink-800",
+	"brand-hotpink-900",
+	"brand-hotpink-950",
+	"brand-coral-50",
+	"brand-coral-100",
+	"brand-coral-200",
+	"brand-coral-300",
+	"brand-coral-400",
+	"brand-coral-500",
+	"brand-coral-600",
+	"brand-coral-700",
+	"brand-coral-800",
+	"brand-coral-900",
+	"brand-coral-950",
+	"brand-blue-50",
+	"brand-blue-100",
+	"brand-blue-200",
+	"brand-blue-300",
+	"brand-blue-400",
+	"brand-blue-500",
+	"brand-blue-600",
+	"brand-blue-700",
+	"brand-blue-800",
+	"brand-blue-900",
+	"brand-blue-950",
+	"brand-salmon-50",
+	"brand-salmon-100",
+	"brand-salmon-200",
+	"brand-salmon-300",
+	"brand-salmon-400",
+	"brand-salmon-500",
+	"brand-salmon-600",
+	"brand-salmon-700",
+	"brand-salmon-800",
+	"brand-salmon-900",
+	"brand-salmon-950",
+	"brand-gold-50",
+	"brand-gold-100",
+	"brand-gold-200",
+	"brand-gold-300",
+	"brand-gold-400",
+	"brand-gold-500",
+	"brand-gold-600",
+	"brand-gold-700",
+	"brand-gold-800",
+	"brand-gold-900",
+	"brand-gold-950",
 	"void-50",
 	"void-100",
 	"void-200",
@@ -408,6 +485,83 @@ export type ColorCSSVar =
 	| "--color-cyber-800"
 	| "--color-cyber-900"
 	| "--color-cyber-950"
+	| "--color-brand-cyan-50"
+	| "--color-brand-cyan-100"
+	| "--color-brand-cyan-200"
+	| "--color-brand-cyan-300"
+	| "--color-brand-cyan-400"
+	| "--color-brand-cyan-500"
+	| "--color-brand-cyan-600"
+	| "--color-brand-cyan-700"
+	| "--color-brand-cyan-800"
+	| "--color-brand-cyan-900"
+	| "--color-brand-cyan-950"
+	| "--color-brand-green-50"
+	| "--color-brand-green-100"
+	| "--color-brand-green-200"
+	| "--color-brand-green-300"
+	| "--color-brand-green-400"
+	| "--color-brand-green-500"
+	| "--color-brand-green-600"
+	| "--color-brand-green-700"
+	| "--color-brand-green-800"
+	| "--color-brand-green-900"
+	| "--color-brand-green-950"
+	| "--color-brand-hotpink-50"
+	| "--color-brand-hotpink-100"
+	| "--color-brand-hotpink-200"
+	| "--color-brand-hotpink-300"
+	| "--color-brand-hotpink-400"
+	| "--color-brand-hotpink-500"
+	| "--color-brand-hotpink-600"
+	| "--color-brand-hotpink-700"
+	| "--color-brand-hotpink-800"
+	| "--color-brand-hotpink-900"
+	| "--color-brand-hotpink-950"
+	| "--color-brand-coral-50"
+	| "--color-brand-coral-100"
+	| "--color-brand-coral-200"
+	| "--color-brand-coral-300"
+	| "--color-brand-coral-400"
+	| "--color-brand-coral-500"
+	| "--color-brand-coral-600"
+	| "--color-brand-coral-700"
+	| "--color-brand-coral-800"
+	| "--color-brand-coral-900"
+	| "--color-brand-coral-950"
+	| "--color-brand-blue-50"
+	| "--color-brand-blue-100"
+	| "--color-brand-blue-200"
+	| "--color-brand-blue-300"
+	| "--color-brand-blue-400"
+	| "--color-brand-blue-500"
+	| "--color-brand-blue-600"
+	| "--color-brand-blue-700"
+	| "--color-brand-blue-800"
+	| "--color-brand-blue-900"
+	| "--color-brand-blue-950"
+	| "--color-brand-salmon-50"
+	| "--color-brand-salmon-100"
+	| "--color-brand-salmon-200"
+	| "--color-brand-salmon-300"
+	| "--color-brand-salmon-400"
+	| "--color-brand-salmon-500"
+	| "--color-brand-salmon-600"
+	| "--color-brand-salmon-700"
+	| "--color-brand-salmon-800"
+	| "--color-brand-salmon-900"
+	| "--color-brand-salmon-950"
+	| "--color-brand-gold-50"
+	| "--color-brand-gold-100"
+	| "--color-brand-gold-200"
+	| "--color-brand-gold-300"
+	| "--color-brand-gold-400"
+	| "--color-brand-gold-500"
+	| "--color-brand-gold-600"
+	| "--color-brand-gold-700"
+	| "--color-brand-gold-800"
+	| "--color-brand-gold-900"
+	| "--color-brand-gold-950"
 	| "--color-void-50"
 	| "--color-void-100"
 	| "--color-void-200"
@@ -743,6 +897,97 @@ export type ColorRecord = {
 		"950": string;
 	};
 	cyber: {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-cyan": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-green": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-hotpink": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-coral": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-blue": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-salmon": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-gold": {
 		"50": string;
 		"100": string;
 		"200": string;

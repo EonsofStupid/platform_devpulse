@@ -503,8 +503,12 @@ fn parse_onnx_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
         vec![ModelCapability::AudioDecoding]
     } else if filename.contains("whisper") {
         vec![ModelCapability::SpeechToText]
+    } else if filename.contains("kokoro") || filename.contains("tts") || filename.contains("piper") {
+        vec![ModelCapability::TextToSpeech]
     } else if filename.contains("embed") || filename.contains("siglip") {
         vec![ModelCapability::Embedding]
+    } else if filename.contains("vision") || filename.contains("vit") {
+        vec![ModelCapability::VisionEmbedding]
     } else {
         // Unknown ONNX — log and assume generic
         tracing::debug!(file = %filename, "Unknown ONNX model capability — not auto-assigned");

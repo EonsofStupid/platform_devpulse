@@ -313,6 +313,15 @@ const SCALES = {
 		frost: colorRamp(220, 0.06),
 		cyber: colorRamp(160, 0.1),
 
+		// ── Brand accent hues (7 named brand colors) ─────────
+		'brand-cyan': colorRamp(195, 0.14),       // #17deef
+		'brand-green': colorRamp(155, 0.17),      // #29b468
+		'brand-hotpink': colorRamp(355, 0.22),    // #f8397a
+		'brand-coral': colorRamp(10, 0.16),       // #fc6b83
+		'brand-blue': colorRamp(240, 0.14),       // #3ea4ea
+		'brand-salmon': colorRamp(15, 0.18),      // #f16971
+		'brand-gold': colorRamp(100, 0.16),       // #d6d232
+
 		// ── App background ────────────────────────────────────
 		void: voidRamp(220, 0.01),
 
@@ -354,6 +363,13 @@ const SCALES = {
 		frost: { hue: 220, chroma: 0.015, baseL: 0.09 },
 		cyber: { hue: 160, chroma: 0.02, baseL: 0.09 },
 		magenta: { hue: 330, chroma: 0.03, baseL: 0.09 },
+		'brand-cyan': { hue: 195, chroma: 0.03, baseL: 0.09 },
+		'brand-green': { hue: 155, chroma: 0.03, baseL: 0.09 },
+		'brand-hotpink': { hue: 355, chroma: 0.04, baseL: 0.09 },
+		'brand-coral': { hue: 10, chroma: 0.03, baseL: 0.09 },
+		'brand-blue': { hue: 240, chroma: 0.03, baseL: 0.09 },
+		'brand-salmon': { hue: 15, chroma: 0.03, baseL: 0.09 },
+		'brand-gold': { hue: 100, chroma: 0.03, baseL: 0.09 },
 	}),
 
 	// Effects: easing (hand-authored design decisions)

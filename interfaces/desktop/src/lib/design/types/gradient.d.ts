@@ -23,9 +23,38 @@ export const GradientTokens = [
 	"surface-magenta",
 	"glow-magenta",
 	"accent-magenta",
+	"surface-brand-cyan",
+	"glow-brand-cyan",
+	"accent-brand-cyan",
+	"surface-brand-green",
+	"glow-brand-green",
+	"accent-brand-green",
+	"surface-brand-hotpink",
+	"glow-brand-hotpink",
+	"accent-brand-hotpink",
+	"surface-brand-coral",
+	"glow-brand-coral",
+	"accent-brand-coral",
+	"surface-brand-blue",
+	"glow-brand-blue",
+	"accent-brand-blue",
+	"surface-brand-salmon",
+	"glow-brand-salmon",
+	"accent-brand-salmon",
+	"surface-brand-gold",
+	"glow-brand-gold",
+	"accent-brand-gold",
 	"animated-1",
 	"animated-2",
 	"teal-purple",
+	"cyan-green",
+	"green-blend",
+	"magenta-pink",
+	"hotpink-blend",
+	"coral-blue",
+	"blue-blend",
+	"salmon-gold",
+	"gold-blend",
 ] as const;
 export type GradientToken = (typeof GradientTokens)[number];
 
@@ -48,9 +77,38 @@ export type GradientCSSVar =
 	| "--gradient-surface-magenta"
 	| "--gradient-glow-magenta"
 	| "--gradient-accent-magenta"
+	| "--gradient-surface-brand-cyan"
+	| "--gradient-glow-brand-cyan"
+	| "--gradient-accent-brand-cyan"
+	| "--gradient-surface-brand-green"
+	| "--gradient-glow-brand-green"
+	| "--gradient-accent-brand-green"
+	| "--gradient-surface-brand-hotpink"
+	| "--gradient-glow-brand-hotpink"
+	| "--gradient-accent-brand-hotpink"
+	| "--gradient-surface-brand-coral"
+	| "--gradient-glow-brand-coral"
+	| "--gradient-accent-brand-coral"
+	| "--gradient-surface-brand-blue"
+	| "--gradient-glow-brand-blue"
+	| "--gradient-accent-brand-blue"
+	| "--gradient-surface-brand-salmon"
+	| "--gradient-glow-brand-salmon"
+	| "--gradient-accent-brand-salmon"
+	| "--gradient-surface-brand-gold"
+	| "--gradient-glow-brand-gold"
+	| "--gradient-accent-brand-gold"
 	| "--gradient-animated-1"
 	| "--gradient-animated-2"
-	| "--gradient-teal-purple";
+	| "--gradient-teal-purple"
+	| "--gradient-cyan-green"
+	| "--gradient-green-blend"
+	| "--gradient-magenta-pink"
+	| "--gradient-hotpink-blend"
+	| "--gradient-coral-blue"
+	| "--gradient-blue-blend"
+	| "--gradient-salmon-gold"
+	| "--gradient-gold-blend";
 
 export type GradientRecord = {
 	"surface-teal": string;
@@ -71,7 +129,36 @@ export type GradientRecord = {
 	"surface-magenta": string;
 	"glow-magenta": string;
 	"accent-magenta": string;
+	"surface-brand-cyan": string;
+	"glow-brand-cyan": string;
+	"accent-brand-cyan": string;
+	"surface-brand-green": string;
+	"glow-brand-green": string;
+	"accent-brand-green": string;
+	"surface-brand-hotpink": string;
+	"glow-brand-hotpink": string;
+	"accent-brand-hotpink": string;
+	"surface-brand-coral": string;
+	"glow-brand-coral": string;
+	"accent-brand-coral": string;
+	"surface-brand-blue": string;
+	"glow-brand-blue": string;
+	"accent-brand-blue": string;
+	"surface-brand-salmon": string;
+	"glow-brand-salmon": string;
+	"accent-brand-salmon": string;
+	"surface-brand-gold": string;
+	"glow-brand-gold": string;
+	"accent-brand-gold": string;
 	"animated-1": string;
 	"animated-2": string;
 	"teal-purple": string;
+	"cyan-green": string;
+	"green-blend": string;
+	"magenta-pink": string;
+	"hotpink-blend": string;
+	"coral-blue": string;
+	"blue-blend": string;
+	"salmon-gold": string;
+	"gold-blend": string;
 };

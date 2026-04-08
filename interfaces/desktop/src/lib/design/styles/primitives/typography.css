@@ -4,9 +4,9 @@
 
 @layer tokens.primitives {
   :root {
-  --text-size-3xs: clamp(0.4823rem, -0.1799vw + 0.5182rem, 0.3563rem);
-  --text-size-2xs: 0.5787rem;
-  --text-size-xs: 0.6944rem;
+  --text-size-3xs: clamp(0.3563rem, 0.1799vw + 0.3203rem, 0.4823rem);
+  --text-size-2xs: 0.475rem;
+  --text-size-xs: 0.6331rem;
   --text-size-sm: 0.8333rem;
   --text-size-base: clamp(1rem, 0.1786vw + 0.9643rem, 1.125rem);
   --text-size-lg: clamp(1.2rem, 0.428vw + 1.1144rem, 1.4996rem);

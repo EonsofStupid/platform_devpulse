@@ -1,19 +1,16 @@
 <!--
   @file ModelLoaderStep.svelte
-  @module @devpulse/domains/app/models/features/setup-wizard/steps/ModelLoaderStep
-
-  Phase 2 orchestrator. Two-column layout: left slots, right VRAM + resources.
-  Toaster mounted. Scan on entry. No popup overlays.
+  Phase 2 orchestrator. Two-column: left=slot assignment, right=VRAM+resources.
+  Scans models on mount. Mounts Toaster. Colocated CSS.
 -->
 <script lang="ts">
 import { ArrowLeft, ArrowRight } from "lucide-svelte";
-import { Text } from "$lib/design/components/text/index.js";
 import { Toaster } from "$lib/design/components/toaster/index.js";
-import VramGauge from "../../../components/VramGauge.svelte";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
-import { importLocalModel } from "../../../services/download.service.js";
+import { importLocalModel as importModel } from "../../../services/download.service.js";
 import type { SlotId } from "../../../types/models.types.js";
+import { formatMb } from "../../../types/models.types.js";
 import ResourceAllocationPanel from "./ResourceAllocationPanel.svelte";
 import SlotAssignmentPanel from "./SlotAssignmentPanel.svelte";
 
@@ -23,10 +20,8 @@ interface Props {
 	continueEnabled: boolean;
 	continueBlockers: string[];
 }
-
 let { onContinue, onBack, continueEnabled, continueBlockers }: Props = $props();
 
-// Scan models on Phase 2 entry — discover everything on disk
 let scanned = $state(false);
 $effect(() => {
 	if (!scanned) {
@@ -37,7 +32,7 @@ $effect(() => {
 
 async function handleImport(slotId: SlotId): Promise<void> {
 	try {
-		await importLocalModel(slotId);
+		await importModel(slotId);
 		await modelsState.scan();
 		await modelsState.refresh();
 	} catch (e) {
@@ -48,62 +43,62 @@ async function handleImport(slotId: SlotId): Promise<void> {
 
 <Toaster position="bottom-right" />
 
-<div class="flex flex-col gap-6 w-full flex-1 min-h-0">
-	<!-- Header -->
-	<div class="flex items-center justify-between">
-		<Text size="lg" weight="bold" color="primary">Model Loader</Text>
-	</div>
+<div class="loader-step">
+	<h2 class="step-title">Set Up Your AI Models</h2>
+	<p class="step-desc">
+		Assign models to each capability. Models on your disk are auto-detected.
+		{#if hardwareState.hasGpu}
+			Your GPU ({hardwareState.gpuName}) has {formatMb(hardwareState.vramFreeMb)} VRAM free.
+		{:else}
+			No GPU detected — models will run on CPU.
+		{/if}
+	</p>
 
-	<!-- Two-column layout -->
-	<div class="grid grid-cols-[1fr_22rem] gap-6 flex-1 min-h-0">
-		<!-- Left: Slot Assignment (scrollable) -->
-		<div class="overflow-y-auto min-h-0">
+	<div class="two-col">
+		<!-- Left: Slot assignment -->
+		<div class="col-left">
 			<SlotAssignmentPanel
-				onBrowseModels={() => { /* HF search inline in ML-05 */ }}
+				onBrowseModels={() => {}}
 				onImport={handleImport}
 			/>
 		</div>
 
-		<!-- Right: VRAM + Resources (sticky) -->
-		<div class="flex flex-col gap-4 overflow-y-auto">
-			<VramGauge
-				usedMb={hardwareState.vramUsedMb}
-				totalMb={hardwareState.vramTotalMb}
-				hasGpu={hardwareState.hasGpu}
-				gpuError={hardwareState.gpuError}
-				label={hardwareState.gpuName}
-				size={140}
-			/>
+		<!-- Right: Resources -->
+		<div class="col-right">
 			<ResourceAllocationPanel />
 		</div>
 	</div>
 
 	<!-- Navigation -->
-	<div class="flex items-center justify-between">
-		<button
-			class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition-colors"
-			style="color: var(--text-muted);"
-			onclick={onBack}
-			aria-label="Back to hardware detection"
-		>
-			<ArrowLeft size={14} />
-			Back
-		</button>
-
-		<div class="flex flex-col items-end gap-2">
+	<div class="nav">
+		<button class="btn-back" onclick={onBack}><ArrowLeft size={14} /> Back</button>
+		<div class="nav-right">
 			{#if !continueEnabled && continueBlockers.length > 0}
-				<Text size="sm" style="color: var(--signal-warning);">{continueBlockers[0]}</Text>
+				<span class="blocker">{continueBlockers[0]}</span>
 			{/if}
-			<button
-				class="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-				style="background: var(--accent-teal-main); color: var(--surface-base);"
-				onclick={onContinue}
-				disabled={!continueEnabled}
-				aria-label="Continue to voice pipeline"
-			>
-				Continue
-				<ArrowRight size={14} />
+			<button class="btn-continue" onclick={onContinue} disabled={!continueEnabled}>
+				Continue <ArrowRight size={14} />
 			</button>
 		</div>
 	</div>
 </div>
+
+<style>
+	.loader-step { display:flex;flex-direction:column;gap:1rem;width:100%;flex:1;min-height:0; }
+	.step-title { font-size:1.25rem;font-weight:800;color:oklch(0.93 0.015 224);margin:0; }
+	.step-desc { font-size:0.875rem;color:oklch(0.6 0.02 220);margin:0; }
+
+	.two-col { display:grid;grid-template-columns:1fr 22rem;gap:1.5rem;flex:1;min-height:0; }
+	.col-left { overflow-y:auto;min-height:0; }
+	.col-right { display:flex;flex-direction:column;gap:1rem;overflow-y:auto; }
+
+	.nav { display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-top:0.5rem; }
+	.nav-right { display:flex;align-items:center;gap:0.75rem; }
+	.blocker { font-size:0.75rem;color:oklch(0.55 0.02 220); }
+
+	.btn-back { display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;border-radius:0.5rem;border:none;background:transparent;color:oklch(0.6 0.02 220);font-size:0.875rem;cursor:pointer; }
+	.btn-back:hover { color:oklch(0.8 0.02 220); }
+	.btn-continue { display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 1.5rem;border-radius:0.5rem;border:none;background:oklch(0.65 0.17 185);color:oklch(0.12 0.02 220);font-size:0.875rem;font-weight:700;cursor:pointer; }
+	.btn-continue:hover { filter:brightness(1.15); }
+	.btn-continue:disabled { opacity:0.4;cursor:not-allowed; }
+</style>

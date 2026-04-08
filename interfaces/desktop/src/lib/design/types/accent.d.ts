@@ -23,6 +23,27 @@ export const AccentTokens = [
 	"cyber-main",
 	"cyber-glow",
 	"cyber-fill",
+	"cyan-main",
+	"cyan-glow",
+	"cyan-fill",
+	"green-main",
+	"green-glow",
+	"green-fill",
+	"hotpink-main",
+	"hotpink-glow",
+	"hotpink-fill",
+	"coral-main",
+	"coral-glow",
+	"coral-fill",
+	"blue-main",
+	"blue-glow",
+	"blue-fill",
+	"salmon-main",
+	"salmon-glow",
+	"salmon-fill",
+	"gold-main",
+	"gold-glow",
+	"gold-fill",
 ] as const;
 export type AccentToken = (typeof AccentTokens)[number];
 
@@ -44,7 +65,28 @@ export type AccentCSSVar =
 	| "--accent-frost-fill"
 	| "--accent-cyber-main"
 	| "--accent-cyber-glow"
-	| "--accent-cyber-fill";
+	| "--accent-cyber-fill"
+	| "--accent-cyan-main"
+	| "--accent-cyan-glow"
+	| "--accent-cyan-fill"
+	| "--accent-green-main"
+	| "--accent-green-glow"
+	| "--accent-green-fill"
+	| "--accent-hotpink-main"
+	| "--accent-hotpink-glow"
+	| "--accent-hotpink-fill"
+	| "--accent-coral-main"
+	| "--accent-coral-glow"
+	| "--accent-coral-fill"
+	| "--accent-blue-main"
+	| "--accent-blue-glow"
+	| "--accent-blue-fill"
+	| "--accent-salmon-main"
+	| "--accent-salmon-glow"
+	| "--accent-salmon-fill"
+	| "--accent-gold-main"
+	| "--accent-gold-glow"
+	| "--accent-gold-fill";
 
 export type AccentRecord = {
 	teal: {
@@ -73,6 +115,41 @@ export type AccentRecord = {
 		fill: string;
 	};
 	cyber: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	cyan: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	green: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	hotpink: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	coral: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	blue: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	salmon: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	gold: {
 		main: string;
 		glow: string;
 		fill: string;

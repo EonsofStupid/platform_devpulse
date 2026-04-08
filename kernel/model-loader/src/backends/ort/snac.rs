@@ -87,6 +87,7 @@ impl AudioDecoderBackend for SnacDecoder {
         Ok(MemoryFootprint {
             ram_bytes: file_size,
             vram_bytes: 0,
+            kv_cache_bytes: 0,
         })
     }
 
@@ -181,6 +182,7 @@ impl AudioDecoderBackend for SnacDecoder {
             MemoryFootprint {
                 ram_bytes: size,
                 vram_bytes: 0,
+                kv_cache_bytes: 0,
             }
         } else {
             MemoryFootprint::default()

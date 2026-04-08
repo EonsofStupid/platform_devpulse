@@ -2,17 +2,18 @@
  * @file Wizard State Rune
  * @module @devpulse/domains/app/models/features/setup-wizard/runes
  *
- * Svelte 5 rune state for the dev onboarding wizard orchestrator.
- * Types derive from engine SSOT (events.rs AllocationMode, LoadingState).
+ * Svelte 5 rune state for the 8-phase dev onboarding wizard.
+ * Follows 10 Commandments: preset-first, layman names, background downloads.
  */
 
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import type { AutoConfig, SlotId } from "../../types/models.types.js";
-import { friendlySlotPurpose } from "../../types/models.types.js";
 import {
 	type AllocationMode,
 	DEFAULT_ESCALATION,
+	type DownloadTracker,
 	type EscalationConfig,
+	friendlyName,
 	type ModelRec,
 	tierToAllocation,
 	type VoiceConfig,
@@ -30,43 +31,53 @@ class WizardState {
 	);
 	hardwareScanned = $state(false);
 
-	// ── Phase 2: Models ──────────────────────────────────
+	// ── Phase 2: Models (preset-first) ──────────────────
 	recommendations = $state<ModelRec[]>([]);
-	downloadQueue = $state<ModelRec[]>([]);
-	downloadingIndex = $state(-1);
-	downloadProgress = $state(0);
-	showModelBrowser = $state(false);
+
+	// ── Phase 3: Browse ─────────────────────────────────
+	browseTab = $state<"local" | "huggingface">("local");
 	showImportPrompt = $state(false);
 	importTargetSlot = $state<SlotId | null>(null);
 
-	// ── Per-Download Progress (wired to Rust events via wizard.service.ts) ──
-	activeDownloads = $state<
-		Record<
-			string,
-			{
-				downloadId: string;
-				slot: SlotId;
-				filename: string;
-				bytesDownloaded: number;
-				totalBytes: number;
-				speedBps: number;
-				status: "active" | "complete" | "failed" | "cancelled";
-				error?: string;
-			}
-		>
-	>({});
+	// ── Phase 4: Clyffy ─────────────────────────────────
+	roundTripCount = $state(0);
+	clyfConfirmed = $state(false);
+
+	// ── Phase 5: Project ────────────────────────────────
+	devProfileExists = $state(false);
+
+	// ── UI State ─────────────────────────────────────────
+	showCurrentSetup = $state(false);
+	error = $state<string | null>(null);
+	onboardingComplete = $state(false);
+
+	// ── Subsequent Launch ────────────────────────────────
+	missingModels = $state<string[]>([]);
+	hardwareChanged = $state(false);
+
+	// ── Voice Config ─────────────────────────────────────
+	voiceConfig = $state<VoiceConfig>({
+		latencyToleranceMs: 2500,
+		deliveryMode: "buffer",
+	});
+	escalationConfig = $state<EscalationConfig>(DEFAULT_ESCALATION);
+
+	// ── Download Queue (Commandment #7: background downloads) ──
+
+	activeDownloads = $state<Record<string, DownloadTracker>>({});
 
 	trackDownload(downloadId: string, slot: SlotId, filename: string): void {
 		this.activeDownloads = {
 			...this.activeDownloads,
 			[downloadId]: {
 				downloadId,
-				slot,
+				slotId: slot,
 				filename,
+				friendlyName: friendlyName(slot),
 				bytesDownloaded: 0,
 				totalBytes: 0,
 				speedBps: 0,
-				status: "active",
+				status: "queued",
 			},
 		};
 	}
@@ -81,7 +92,7 @@ class WizardState {
 		if (dl) {
 			this.activeDownloads = {
 				...this.activeDownloads,
-				[downloadId]: { ...dl, bytesDownloaded, totalBytes, speedBps },
+				[downloadId]: { ...dl, bytesDownloaded, totalBytes, speedBps, status: "downloading" },
 			};
 		}
 	}
@@ -106,39 +117,23 @@ class WizardState {
 		}
 	}
 
-	downloadForSlot(slotId: SlotId) {
+	downloadForSlot(slotId: SlotId): DownloadTracker | null {
 		return (
-			Object.values(this.activeDownloads).find((d) => d.slot === slotId && d.status === "active") ??
-			null
+			Object.values(this.activeDownloads).find(
+				(d) => d.slotId === slotId && (d.status === "downloading" || d.status === "queued"),
+			) ?? null
 		);
 	}
 
 	get hasActiveDownloads(): boolean {
-		return Object.values(this.activeDownloads).some((d) => d.status === "active");
+		return Object.values(this.activeDownloads).some(
+			(d) => d.status === "downloading" || d.status === "queued",
+		);
 	}
 
-	// ── Phase 3: Voice ───────────────────────────────────
-	voiceConfig = $state<VoiceConfig>({
-		latencyToleranceMs: 2500,
-		deliveryMode: "buffer",
-	});
-	escalationConfig = $state<EscalationConfig>(DEFAULT_ESCALATION);
-
-	// ── Phase 4: Clyffy ──────────────────────────────────
-	roundTripCount = $state(0);
-	clyfConfirmed = $state(false);
-
-	// ── Phase 5: Project ─────────────────────────────────
-	devProfileExists = $state(false);
-	indexingStarted = $state(false);
-
-	// ── Subsequent Launch ────────────────────────────────
-	missingModels = $state<string[]>([]);
-	hardwareChanged = $state(false);
-
-	// ── Global ───────────────────────────────────────────
-	error = $state<string | null>(null);
-	onboardingComplete = $state(false);
+	get downloadList(): DownloadTracker[] {
+		return Object.values(this.activeDownloads);
+	}
 
 	// ── Phase Index ──────────────────────────────────────
 
@@ -170,19 +165,25 @@ class WizardState {
 		}
 	}
 
+	/** Jump to a specific phase (for Customize/Browse escape hatches). */
+	goTo(phase: WizardPhase): void {
+		this.currentPhase = phase;
+	}
+
 	// ── Recommendations ──────────────────────────────────
 
 	/** Convert kernel AutoConfig to wizard ModelRec array. */
 	setRecommendations(config: AutoConfig): void {
 		this.recommendations = config.recommendations.map((rec) => ({
 			name: rec.modelFilename.replace(/\.gguf$/i, "").replace(/-/g, " "),
-			purpose: friendlySlotPurpose(rec.slotId),
+			purpose: friendlyName(rec.slotId),
 			slot: rec.slotId as SlotId,
 			sizeMb: rec.modelSizeMb,
 			vramMb: rec.vramEstimateMb,
 			repo: rec.modelRepoId,
 			file: rec.modelFilename,
 			device: rec.device,
+			alreadyDownloaded: rec.alreadyDownloaded,
 		}));
 	}
 }

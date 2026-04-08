@@ -102,6 +102,22 @@ class HardwareState {
 		return this.metrics?.gpu_name ?? "No GPU";
 	}
 
+	get cpuName(): string {
+		return this.metrics?.cpu_name ?? "Unknown CPU";
+	}
+
+	get cpuCores(): number {
+		return this.metrics?.cpu_cores ?? 0;
+	}
+
+	get ramTotalMb(): number {
+		return this.metrics?.ram_total_mb ?? 0;
+	}
+
+	get ramAvailableMb(): number {
+		return this.metrics?.ram_available_mb ?? 0;
+	}
+
 	get diskFreeMb(): number | null {
 		return this.metrics?.disk_free_mb ?? null;
 	}

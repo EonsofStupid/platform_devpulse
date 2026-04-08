@@ -78,9 +78,12 @@ pub fn run() {
         commands::models::delete_model,
         commands::models::search_huggingface,
         commands::models::import_local_model,
+        commands::models::pick_directory,
+        commands::models::create_dev_profile,
         commands::models::auto_configure,
         commands::models::complete_model_setup,
         commands::models::inference_generate,
+        commands::models::test_inference,
         commands::models::get_vram_budget,
         // Voice management
         commands::voice::get_voice_status,

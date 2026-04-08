@@ -22,8 +22,37 @@
   --gradient-surface-magenta: linear-gradient(180deg, oklch(0.13 0.03 330), oklch(0.07 0.03 330)); /** magenta surface depth gradient */
   --gradient-glow-magenta: radial-gradient(oklch(0.24 0.09 330 / 0.4), transparent); /** magenta glow radial */
   --gradient-accent-magenta: linear-gradient(135deg, oklch(0.24 0.12 330), oklch(0.04 0.06 330)); /** magenta accent dramatic gradient */
+  --gradient-surface-brand-cyan: linear-gradient(180deg, oklch(0.13 0.03 195), oklch(0.07 0.03 195)); /** brand-cyan surface depth gradient */
+  --gradient-glow-brand-cyan: radial-gradient(oklch(0.24 0.09 195 / 0.4), transparent); /** brand-cyan glow radial */
+  --gradient-accent-brand-cyan: linear-gradient(135deg, oklch(0.24 0.12 195), oklch(0.04 0.06 195)); /** brand-cyan accent dramatic gradient */
+  --gradient-surface-brand-green: linear-gradient(180deg, oklch(0.13 0.03 155), oklch(0.07 0.03 155)); /** brand-green surface depth gradient */
+  --gradient-glow-brand-green: radial-gradient(oklch(0.24 0.09 155 / 0.4), transparent); /** brand-green glow radial */
+  --gradient-accent-brand-green: linear-gradient(135deg, oklch(0.24 0.12 155), oklch(0.04 0.06 155)); /** brand-green accent dramatic gradient */
+  --gradient-surface-brand-hotpink: linear-gradient(180deg, oklch(0.13 0.04 355), oklch(0.07 0.04 355)); /** brand-hotpink surface depth gradient */
+  --gradient-glow-brand-hotpink: radial-gradient(oklch(0.24 0.12 355 / 0.4), transparent); /** brand-hotpink glow radial */
+  --gradient-accent-brand-hotpink: linear-gradient(135deg, oklch(0.24 0.16 355), oklch(0.04 0.08 355)); /** brand-hotpink accent dramatic gradient */
+  --gradient-surface-brand-coral: linear-gradient(180deg, oklch(0.13 0.03 10), oklch(0.07 0.03 10)); /** brand-coral surface depth gradient */
+  --gradient-glow-brand-coral: radial-gradient(oklch(0.24 0.09 10 / 0.4), transparent); /** brand-coral glow radial */
+  --gradient-accent-brand-coral: linear-gradient(135deg, oklch(0.24 0.12 10), oklch(0.04 0.06 10)); /** brand-coral accent dramatic gradient */
+  --gradient-surface-brand-blue: linear-gradient(180deg, oklch(0.13 0.03 240), oklch(0.07 0.03 240)); /** brand-blue surface depth gradient */
+  --gradient-glow-brand-blue: radial-gradient(oklch(0.24 0.09 240 / 0.4), transparent); /** brand-blue glow radial */
+  --gradient-accent-brand-blue: linear-gradient(135deg, oklch(0.24 0.12 240), oklch(0.04 0.06 240)); /** brand-blue accent dramatic gradient */
+  --gradient-surface-brand-salmon: linear-gradient(180deg, oklch(0.13 0.03 15), oklch(0.07 0.03 15)); /** brand-salmon surface depth gradient */
+  --gradient-glow-brand-salmon: radial-gradient(oklch(0.24 0.09 15 / 0.4), transparent); /** brand-salmon glow radial */
+  --gradient-accent-brand-salmon: linear-gradient(135deg, oklch(0.24 0.12 15), oklch(0.04 0.06 15)); /** brand-salmon accent dramatic gradient */
+  --gradient-surface-brand-gold: linear-gradient(180deg, oklch(0.13 0.03 100), oklch(0.07 0.03 100)); /** brand-gold surface depth gradient */
+  --gradient-glow-brand-gold: radial-gradient(oklch(0.24 0.09 100 / 0.4), transparent); /** brand-gold glow radial */
+  --gradient-accent-brand-gold: linear-gradient(135deg, oklch(0.24 0.12 100), oklch(0.04 0.06 100)); /** brand-gold accent dramatic gradient */
   --gradient-animated-1: oklch(0.1407 0.0433 220.15 / 0.6); /** Primary gradient layer — slow 25s ease-in-out infinite shift */
   --gradient-animated-2: oklch(0.1206 0.0595 280.32 / 0.4); /** Secondary gradient layer — reverse shift, mix-blend-mode overlay */
   --gradient-teal-purple: oklch(0.1149 0.0423 190.54 / 0.702); /** Teal-to-purple gradient midpoint for button primary */
+  --gradient-cyan-green: oklch(0.8226 0.1381 204.82); /** Diagonal blend A: cyan (#17deef) top-left → green (#29b468) bottom-right */
+  --gradient-green-blend: oklch(0.6806 0.1601 153.63); /** Diagonal blend B: green (#29b468) — pairs with cyan */
+  --gradient-magenta-pink: oklch(0.6441 0.2688 338.83); /** Diagonal blend A: magenta (#eb1ec2) top-left → hot pink (#f8397a) bottom-right */
+  --gradient-hotpink-blend: oklch(0.6534 0.2270 6.32); /** Diagonal blend B: hot pink (#f8397a) — pairs with magenta */
+  --gradient-coral-blue: oklch(0.7123 0.1775 12.65); /** Diagonal blend A: coral (#fc6b83) top-left → blue (#3ea4ea) bottom-right */
+  --gradient-blue-blend: oklch(0.6910 0.1386 242.82); /** Diagonal blend B: blue (#3ea4ea) — pairs with coral */
+  --gradient-salmon-gold: oklch(0.6899 0.1677 19.03); /** Diagonal blend A: salmon (#f16971) top-left → gold (#d6d232) bottom-right */
+  --gradient-gold-blend: oklch(0.8409 0.1681 108.03); /** Diagonal blend B: gold (#d6d232) — pairs with salmon */
   }
 }

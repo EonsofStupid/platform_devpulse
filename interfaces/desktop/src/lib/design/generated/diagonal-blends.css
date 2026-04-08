@@ -1,0 +1,155 @@
+/**
+ * @file diagonal-blends.css
+ * Brand color diagonal gradient blends.
+ * Pattern: color-a top-left corner → color-b bottom-right corner.
+ * Colors meet diagonally at center, scatter and blend.
+ *
+ * 8 brand colors in 4 pairs:
+ *   cyan (#17deef) + green (#29b468)
+ *   magenta (#eb1ec2) + hotpink (#f8397a)
+ *   coral (#fc6b83) + blue (#3ea4ea)
+ *   salmon (#f16971) + gold (#d6d232)
+ *
+ * Usage: class="blend-cyan-green" on any element.
+ * Each blend sets background as diagonal gradient with scatter at center.
+ */
+
+/* ── Brand color custom properties ──────────────────────── */
+:root {
+	--brand-cyan: oklch(0.82 0.14 195);
+	--brand-green: oklch(0.66 0.17 155);
+	--brand-magenta: oklch(0.62 0.26 340);
+	--brand-hotpink: oklch(0.65 0.22 10);
+	--brand-coral: oklch(0.72 0.16 15);
+	--brand-blue: oklch(0.68 0.14 240);
+	--brand-salmon: oklch(0.68 0.18 20);
+	--brand-gold: oklch(0.83 0.16 100);
+}
+
+/* ── Diagonal blend utilities ───────────────────────────── */
+
+.blend-cyan-green {
+	background:
+		linear-gradient(135deg,
+			oklch(0.82 0.14 195 / 0.8) 0%,
+			oklch(0.74 0.155 175 / 0.5) 35%,
+			oklch(0.66 0.17 155 / 0.3) 50%,
+			oklch(0.66 0.17 155 / 0.5) 65%,
+			oklch(0.66 0.17 155 / 0.8) 100%
+		);
+}
+
+.blend-magenta-hotpink {
+	background:
+		linear-gradient(135deg,
+			oklch(0.62 0.26 340 / 0.8) 0%,
+			oklch(0.635 0.24 355 / 0.5) 35%,
+			oklch(0.65 0.22 10 / 0.3) 50%,
+			oklch(0.65 0.22 10 / 0.5) 65%,
+			oklch(0.65 0.22 10 / 0.8) 100%
+		);
+}
+
+.blend-coral-blue {
+	background:
+		linear-gradient(135deg,
+			oklch(0.72 0.16 15 / 0.8) 0%,
+			oklch(0.70 0.15 308 / 0.5) 35%,
+			oklch(0.68 0.14 240 / 0.3) 50%,
+			oklch(0.68 0.14 240 / 0.5) 65%,
+			oklch(0.68 0.14 240 / 0.8) 100%
+		);
+}
+
+.blend-salmon-gold {
+	background:
+		linear-gradient(135deg,
+			oklch(0.68 0.18 20 / 0.8) 0%,
+			oklch(0.755 0.17 60 / 0.5) 35%,
+			oklch(0.83 0.16 100 / 0.3) 50%,
+			oklch(0.83 0.16 100 / 0.5) 65%,
+			oklch(0.83 0.16 100 / 0.8) 100%
+		);
+}
+
+/* ── Subtle versions (for card backgrounds) ─────────────── */
+
+.blend-cyan-green-subtle {
+	background:
+		linear-gradient(135deg,
+			oklch(0.82 0.14 195 / 0.12) 0%,
+			oklch(0.74 0.155 175 / 0.06) 50%,
+			oklch(0.66 0.17 155 / 0.12) 100%
+		);
+}
+
+.blend-magenta-hotpink-subtle {
+	background:
+		linear-gradient(135deg,
+			oklch(0.62 0.26 340 / 0.12) 0%,
+			oklch(0.635 0.24 355 / 0.06) 50%,
+			oklch(0.65 0.22 10 / 0.12) 100%
+		);
+}
+
+.blend-coral-blue-subtle {
+	background:
+		linear-gradient(135deg,
+			oklch(0.72 0.16 15 / 0.12) 0%,
+			oklch(0.70 0.15 308 / 0.06) 50%,
+			oklch(0.68 0.14 240 / 0.12) 100%
+		);
+}
+
+.blend-salmon-gold-subtle {
+	background:
+		linear-gradient(135deg,
+			oklch(0.68 0.18 20 / 0.12) 0%,
+			oklch(0.755 0.17 60 / 0.06) 50%,
+			oklch(0.83 0.16 100 / 0.12) 100%
+		);
+}
+
+/* ── Glow shadows per brand color ───────────────────────── */
+
+.glow-cyan { box-shadow: 0 0 1.5rem 0.25rem oklch(0.82 0.14 195 / 0.4); }
+.glow-green { box-shadow: 0 0 1.5rem 0.25rem oklch(0.66 0.17 155 / 0.4); }
+.glow-magenta { box-shadow: 0 0 1.5rem 0.25rem oklch(0.62 0.26 340 / 0.4); }
+.glow-hotpink { box-shadow: 0 0 1.5rem 0.25rem oklch(0.65 0.22 10 / 0.4); }
+.glow-coral { box-shadow: 0 0 1.5rem 0.25rem oklch(0.72 0.16 15 / 0.4); }
+.glow-blue { box-shadow: 0 0 1.5rem 0.25rem oklch(0.68 0.14 240 / 0.4); }
+.glow-salmon { box-shadow: 0 0 1.5rem 0.25rem oklch(0.68 0.18 20 / 0.4); }
+.glow-gold { box-shadow: 0 0 1.5rem 0.25rem oklch(0.83 0.16 100 / 0.4); }
+
+/* ── Text colors per brand ──────────────────────────────── */
+
+.text-cyan { color: oklch(0.82 0.14 195); }
+.text-green { color: oklch(0.66 0.17 155); }
+.text-magenta { color: oklch(0.62 0.26 340); }
+.text-hotpink { color: oklch(0.65 0.22 10); }
+.text-coral { color: oklch(0.72 0.16 15); }
+.text-blue { color: oklch(0.68 0.14 240); }
+.text-salmon { color: oklch(0.68 0.18 20); }
+.text-gold { color: oklch(0.83 0.16 100); }
+
+/* ── Border colors per brand ────────────────────────────── */
+
+.border-cyan { border-color: oklch(0.82 0.14 195 / 0.4); }
+.border-green { border-color: oklch(0.66 0.17 155 / 0.4); }
+.border-magenta { border-color: oklch(0.62 0.26 340 / 0.4); }
+.border-hotpink { border-color: oklch(0.65 0.22 10 / 0.4); }
+.border-coral { border-color: oklch(0.72 0.16 15 / 0.4); }
+.border-blue { border-color: oklch(0.68 0.14 240 / 0.4); }
+.border-salmon { border-color: oklch(0.68 0.18 20 / 0.4); }
+.border-gold { border-color: oklch(0.83 0.16 100 / 0.4); }
+
+/* ── Button accent variants ─────────────────────────────── */
+
+.btn-cyan { background: oklch(0.82 0.14 195); color: oklch(0.1 0.02 195); }
+.btn-green { background: oklch(0.66 0.17 155); color: oklch(0.1 0.02 155); }
+.btn-magenta { background: oklch(0.62 0.26 340); color: oklch(0.97 0.01 340); }
+.btn-hotpink { background: oklch(0.65 0.22 10); color: oklch(0.1 0.02 10); }
+.btn-coral { background: oklch(0.72 0.16 15); color: oklch(0.1 0.02 15); }
+.btn-blue { background: oklch(0.68 0.14 240); color: oklch(0.1 0.02 240); }
+.btn-salmon { background: oklch(0.68 0.18 20); color: oklch(0.1 0.02 20); }
+.btn-gold { background: oklch(0.83 0.16 100); color: oklch(0.1 0.02 100); }

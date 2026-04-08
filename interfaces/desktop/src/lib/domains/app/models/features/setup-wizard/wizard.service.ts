@@ -17,7 +17,7 @@ import {
 	onDownloadProgress,
 } from "../../services/download.service.js";
 import type { AutoConfig } from "../../types/models.types.js";
-import { formatMb, friendlySlotLabel, isInferenceReady } from "../../types/models.types.js";
+import { formatMb, friendlySlotLabel } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
 
@@ -80,30 +80,18 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 			return { phase, conditions, allMet, blockers };
 		}
 		case "models": {
-			const conditions = ["Brain model (chat.brain) must be inference-ready"];
-			const brainStatus = modelsState.statuses["chat.brain"];
-			const brainReady = brainStatus ? isInferenceReady(brainStatus) : false;
+			const conditions = ["At least one model assigned or downloads started"];
+			const anyAssigned = modelsState.userSlots.some((s) => !!s.assigned_model_id);
+			const anyDownloading = wizardState.hasActiveDownloads;
+			const allMet = anyAssigned || anyDownloading;
 			const blockers: string[] = [];
-			if (!brainReady)
-				blockers.push(
-					"We need the main brain loaded before we can move on. Pick a model and hit Load.",
-				);
-			return { phase, conditions, allMet: brainReady, blockers };
-		}
-		case "voice": {
-			const conditions = ["STT model assigned", "TTS model assigned", "Voice brain assigned"];
-			const sttSlot = modelsState.slots.find((s) => s.id === "voice.stt");
-			const ttsSlot = modelsState.slots.find((s) => s.id === "voice.tts");
-			const brainSlot = modelsState.slots.find((s) => s.id === "voice.brain");
-			const sttAssigned = !!sttSlot?.assigned_model_id;
-			const ttsAssigned = !!ttsSlot?.assigned_model_id;
-			const brainAssigned = !!brainSlot?.assigned_model_id;
-			const allMet = sttAssigned && ttsAssigned && brainAssigned;
-			const blockers: string[] = [];
-			if (!sttAssigned) blockers.push("Voice Input (STT) needs a model assigned");
-			if (!ttsAssigned) blockers.push("Clyffy's Voice (TTS) needs a model assigned");
-			if (!brainAssigned) blockers.push("Voice Brain needs a model assigned for quick responses");
+			if (!allMet) blockers.push("Set up your AI models to continue.");
 			return { phase, conditions, allMet, blockers };
+		}
+		case "customize":
+		case "browse": {
+			// Sub-pages — always passable, user navigates back to models
+			return { phase, conditions: [], allMet: true, blockers: [] };
 		}
 		case "clyffy": {
 			const conditions = ["3+ successful exchanges OR manual confirm"];

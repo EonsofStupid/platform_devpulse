@@ -2,35 +2,31 @@
  * @file Setup Wizard Module — Barrel Exports
  * @module @devpulse/domains/app/models/features/setup-wizard
  *
- * Self-contained module for the 5-phase dev onboarding wizard.
+ * Self-contained module for the 7-phase dev onboarding wizard.
+ * Follows 10 Commandments: preset-first, layman names, role colors.
  */
 
-// Import routing
-export { slotToModelPath, slotToSubdir } from "./import-router.js";
+export { default as CurrentSetupPopup } from "./components/CurrentSetupPopup.svelte";
+// Shared components
+export { default as PresetCard } from "./components/PresetCard.svelte";
+export { default as SlotCard } from "./components/SlotCard.svelte";
+export { default as SlotSwapPopup } from "./components/SlotSwapPopup.svelte";
+export { default as VramBar } from "./components/VramBar.svelte";
 // Main component
 export { default as SetupWizard } from "./SetupWizard.svelte";
-// Seed families
-export { getAllFamilyIds, getCoreFacts, pickVariation } from "./seed-families.js";
 export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";
 export { default as CompletionStep } from "./steps/CompletionStep.svelte";
-export { default as ConversationalBrainPanel } from "./steps/ConversationalBrainPanel.svelte";
-export { default as EscalationConfigPanel } from "./steps/EscalationConfigPanel.svelte";
-export { default as FullPipelineTest } from "./steps/FullPipelineTest.svelte";
-// Step components
+export { default as CustomizeStep } from "./steps/CustomizeStep.svelte";
 export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
-export { default as ImportPrompt } from "./steps/ImportPrompt.svelte";
-export { default as LatencyTuningPanel } from "./steps/LatencyTuningPanel.svelte";
-export { default as ModelBrowserPopup } from "./steps/ModelBrowserPopup.svelte";
-export { default as ModelLoaderStep } from "./steps/ModelLoaderStep.svelte";
+export { default as ModelsStep } from "./steps/ModelsStep.svelte";
 export { default as ProjectSetupStep } from "./steps/ProjectSetupStep.svelte";
-export { default as ResourceAllocationPanel } from "./steps/ResourceAllocationPanel.svelte";
-export { default as SlotAssignmentPanel } from "./steps/SlotAssignmentPanel.svelte";
-export { default as SttConfigPanel } from "./steps/SttConfigPanel.svelte";
-export { default as TtsConfigPanel } from "./steps/TtsConfigPanel.svelte";
-export { default as VoicePipelineStep } from "./steps/VoicePipelineStep.svelte";
+export { default as SearchBrowseStep } from "./steps/SearchBrowseStep.svelte";
+// Step components
 export { default as WelcomeStep } from "./steps/WelcomeStep.svelte";
+
 // State
 export { wizardState } from "./wizard.runes.svelte.js";
+
 // Service
 export {
 	bulkDownloadAndAssign,
@@ -52,6 +48,7 @@ export {
 export type {
 	AllocationMode,
 	ContinueGate,
+	DownloadTracker,
 	EscalationConfig,
 	EscalationPriority,
 	EscalationSource,
@@ -59,6 +56,8 @@ export type {
 	ModelBrowserFilter,
 	ModelRec,
 	PhaseInfo,
+	SlotLabel,
+	SlotRole,
 	VoiceConfig,
 	VoiceDeliveryMode,
 	WizardPhase,
@@ -67,7 +66,12 @@ export {
 	ALLOCATION_MODES,
 	allocationLabel,
 	DEFAULT_ESCALATION,
+	friendlyName,
+	getSlotLabel,
 	PHASE_INFO,
+	PROGRESS_PHASES,
+	ROLE_COLORS,
+	SLOT_LABELS,
 	tierToAllocation,
 	WIZARD_PHASES,
 } from "./wizard.types.js";
