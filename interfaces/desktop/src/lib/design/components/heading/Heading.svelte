@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useHeading } from "$lib/design/behaviors/heading/index.js";
+import { useHeading } from "$lib/design/behaviors/display/heading/index.js";
 import { headingAnatomy } from "$lib/design/primitives/heading/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

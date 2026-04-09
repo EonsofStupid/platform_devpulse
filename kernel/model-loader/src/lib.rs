@@ -38,7 +38,7 @@ pub use loading::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotSt
 
 // Hardware types
 pub use hardware::{
-    AutoConfig, HardwareMetrics, HardwareMonitor, HardwareTier, SlotRecommendation, VramBudget,
+    AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor, HardwareTier, SlotRecommendation, VramBudget,
 };
 
 // Search types + function

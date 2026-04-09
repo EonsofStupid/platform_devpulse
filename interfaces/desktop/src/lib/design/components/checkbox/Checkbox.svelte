@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
+import { useCheckbox } from "$lib/design/behaviors/inputs/checkbox/use-checkbox.svelte.js";
 import { checkboxAnatomy } from "$lib/design/primitives/checkbox/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

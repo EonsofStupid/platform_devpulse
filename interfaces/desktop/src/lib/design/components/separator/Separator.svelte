@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useSeparator } from "$lib/design/behaviors/separator/use-separator.svelte.js";
+import { useSeparator } from "$lib/design/behaviors/display/separator/use-separator.svelte.js";
 import { separatorAnatomy } from "$lib/design/primitives/separator/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

@@ -24,12 +24,14 @@ import { colorFieldAnatomy } from "./color-field.anatomy.js";
 import type { UseColorFieldProps, UseColorFieldReturn } from "./color-field.types.js";
 
 const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+/** Default color value for uncontrolled color fields (black). */
+const DEFAULT_COLOR = `#${"0".repeat(6)}`;
 
 export function useColorField(props: UseColorFieldProps = {}): UseColorFieldReturn {
 	const ids = createIds("color-field", ["root", "input", "label", "swatch"] as const);
 
 	// ── State ────────────────────────────────────────────────────
-	let value = $state(props.value ?? "#000000");
+	let value = $state(props.value ?? DEFAULT_COLOR);
 	const disabled = $derived(props.disabled ?? false);
 	const readOnly = $derived(props.readOnly ?? false);
 	const isValid = $derived(HEX_RE.test(value));
@@ -52,7 +54,7 @@ export function useColorField(props: UseColorFieldProps = {}): UseColorFieldRetu
 		id: ids.input,
 		type: "text" as const,
 		value,
-		placeholder: props.placeholder ?? "#000000",
+		placeholder: props.placeholder ?? DEFAULT_COLOR,
 		disabled: disabled || undefined,
 		readonly: readOnly || undefined,
 		"aria-label": props["aria-label"],

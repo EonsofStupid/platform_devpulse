@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useSheet } from "$lib/design/behaviors/sheet/use-sheet.svelte.js";
+import { useSheet } from "$lib/design/behaviors/overlays/sheet/use-sheet.svelte.js";
 import { sheetAnatomy } from "$lib/design/primitives/sheet/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

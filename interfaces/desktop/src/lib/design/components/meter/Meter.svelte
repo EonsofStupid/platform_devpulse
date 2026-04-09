@@ -19,7 +19,7 @@
 }
 -->
 <script lang="ts">
-import { useMeter } from "$lib/design/behaviors/meter/index.js";
+import { useMeter } from "$lib/design/behaviors/display/meter/index.js";
 import { meterAnatomy } from "$lib/design/primitives/meter/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

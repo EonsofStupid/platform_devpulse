@@ -14,7 +14,7 @@ export type {
 	SlotInfo,
 } from "$lib/sys/generated/bindings.js";
 
-export type HardwareTier = "high" | "medium" | "low" | "minimal" | "cpu_only";
+export type HardwareTier = "High" | "JessePrimary" | "Mid" | "Floor" | "Minimal" | "CpuOnly";
 
 export type DevicePreference = "gpu" | "cpu" | "gpu_with_cpu_fallback" | "any";
 
@@ -131,12 +131,32 @@ export interface SlotRecommendation {
 	device: DevicePreference;
 }
 
+/** Matches Rust SlotRecommendation serialization (snake_case). */
+export interface SlotRecommendation {
+	slot_id: string;
+	model_repo_id: string;
+	model_filename: string;
+	model_size_mb: number;
+	vram_estimate_mb: number;
+	already_downloaded: boolean;
+	device: DevicePreference;
+}
+
+/** Matches Rust AutoConfig serialization (snake_case). */
 export interface AutoConfig {
 	tier: HardwareTier;
+	preset_name: string;
+	brain_policy: BrainSwapPolicy;
 	recommendations: SlotRecommendation[];
-	totalVramNeededMb: number;
-	totalDownloadSizeMb: number;
+	total_vram_needed_mb: number;
+	total_download_size_mb: number;
 }
+
+/** Brain swap policy — how the brain model changes based on user activity. */
+export type BrainSwapPolicy =
+	| "Static"
+	| { ActiveIdle: { active_model: string; idle_model: string; idle_after_secs: number } }
+	| "ApiEnhanced";
 
 // ── Download ────────────────────────────────────────────
 

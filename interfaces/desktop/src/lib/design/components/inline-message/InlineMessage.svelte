@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useInlineMessage } from "$lib/design/behaviors/inline-message/index.js";
+import { useInlineMessage } from "$lib/design/behaviors/display/inline-message/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineMessageProps, InlineMessageTone } from "./types.js";

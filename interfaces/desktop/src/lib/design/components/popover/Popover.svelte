@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { usePopover } from "$lib/design/behaviors/popover/use-popover.svelte.js";
+import { usePopover } from "$lib/design/behaviors/overlays/popover/use-popover.svelte.js";
 import { popoverAnatomy } from "$lib/design/primitives/popover/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

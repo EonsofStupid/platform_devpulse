@@ -40,3 +40,44 @@ This is Chromium/WebView2 standard behavior for background tabs/windows. DevPuls
 
 ### Recommendation
 Option B — Tauri knows the real OS focus state. Frontend uses it to pause/resume gracefully. On refocus, do one immediate refresh of all stale data. This is 2 files: one Rust event hook + one Svelte rune.
+
+---
+
+## [2026-04-09T19:10] Blocker: 7 days thrashing — complete reset needed
+
+**Sprint**: Model Loader Wizard
+**Task**: ALL — nothing works end-to-end
+**Status**: AWAITING_DECISION
+
+### Context
+7 days. The wizard welcome page renders but:
+- No color — 31 `--wizard-*` SD5 tokens generated, only 3 consumed
+- 49 `--wiz-*` refs in domain step files still reference deleted `.wizard-shell`
+- No fluid clamp — token source has raw values, no min/max ranges set
+- "Let's Go" does nothing — Rust `auto_configure` returns empty/error
+- Route pages exist but the domain step components are orphaned
+- SD5 builds but the output isn't wired to what renders
+
+### The Real Problem
+Surface work (CSS shuffling, plans, route restructuring) instead of:
+1. SD5 tokens flowing end-to-end: JSON → transform → CSS var → component
+2. Rust `auto_configure` returning real data
+3. One system, not two competing ones (domain steps vs route pages)
+
+### Options
+
+**A: Backend first, tokens second**
+Fix `auto_configure` → data flows → step components render (ugly but functional) → then migrate `--wiz-*` → `--wizard-*`.
+Tradeoff: Ugly first, works first.
+
+**B: Tokens first, backend second**  
+Migrate all `--wiz-*` → `--wizard-*`, add fluid clamp to wizard.json, delete old defs.
+Tradeoff: Pretty but empty — still no data.
+
+**C: Scrap domain steps, route pages only with `--wizard-*` tokens**
+Delete all step .svelte files. Route pages are the ONLY UI. Already use `--wizard-*`. Fix backend.
+Tradeoff: Cleanest end state. Biggest delete. No migration — old code is gone.
+
+**D: Keep domain steps but they become dumb presentational components**
+Steps stay but lose all `--wiz-*` CSS. They become ColdLight-only components that routes import. The `--wizard-*` tokens go into a shared CSS file imported by the route layout. Fix backend.
+Tradeoff: Preserves domain pattern. Steps become reusable. Medium effort.

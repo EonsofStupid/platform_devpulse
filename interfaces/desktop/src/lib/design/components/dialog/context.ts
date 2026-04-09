@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseDialogReturn } from "$lib/design/behaviors/dialog/dialog.types.js";
+import type { UseDialogReturn } from "$lib/design/behaviors/overlays/dialog/dialog.types.js";
 import type { DialogIds, DialogSize } from "./types.js";
 
 export interface DialogContext {

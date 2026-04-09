@@ -22,7 +22,7 @@
 	}
 -->
 <script lang="ts">
-import { useButton } from "$lib/design/behaviors/button/index.js";
+import { useButton } from "$lib/design/behaviors/inputs/button/index.js";
 import { buttonAnatomy } from "$lib/design/primitives/button/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

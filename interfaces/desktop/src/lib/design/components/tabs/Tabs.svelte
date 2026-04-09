@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useTabs } from "$lib/design/behaviors/tabs/use-tabs.svelte.js";
+import { useTabs } from "$lib/design/behaviors/navigation/tabs/use-tabs.svelte.js";
 import { tabsAnatomy } from "$lib/design/primitives/tabs/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

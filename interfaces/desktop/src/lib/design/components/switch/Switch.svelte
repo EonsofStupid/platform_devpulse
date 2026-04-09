@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useSwitch } from "$lib/design/behaviors/switch/use-switch.svelte.js";
+import { useSwitch } from "$lib/design/behaviors/inputs/switch/use-switch.svelte.js";
 import { switchAnatomy } from "$lib/design/primitives/switch/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

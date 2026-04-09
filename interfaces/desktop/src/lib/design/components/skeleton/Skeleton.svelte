@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useSkeleton } from "$lib/design/behaviors/skeleton/index.js";
+import { useSkeleton } from "$lib/design/behaviors/display/skeleton/index.js";
 import { skeletonAnatomy } from "$lib/design/primitives/skeleton/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

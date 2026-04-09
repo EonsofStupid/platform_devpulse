@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseComboBoxReturn } from "$lib/design/behaviors/combobox/combobox.types.js";
+import type { UseComboBoxReturn } from "$lib/design/behaviors/inputs/combobox/combobox.types.js";
 
 export interface ComboboxContext {
 	readonly hook: UseComboBoxReturn;

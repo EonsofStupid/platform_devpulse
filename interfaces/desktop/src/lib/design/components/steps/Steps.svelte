@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useSteps } from "$lib/design/behaviors/steps/index.js";
+import { useSteps } from "$lib/design/behaviors/display/steps/index.js";
 import { stepsAnatomy } from "$lib/design/primitives/steps/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

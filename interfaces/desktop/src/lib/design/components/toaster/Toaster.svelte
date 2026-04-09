@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useToaster } from "$lib/design/behaviors/toaster/index.js";
+import { useToaster } from "$lib/design/behaviors/overlays/toaster/index.js";
 import { toasterAnatomy } from "$lib/design/primitives/toaster/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

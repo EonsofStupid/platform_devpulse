@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useComboBox } from "$lib/design/behaviors/combobox/use-combobox.svelte.js";
+import { useComboBox } from "$lib/design/behaviors/inputs/combobox/use-combobox.svelte.js";
 import { comboboxAnatomy } from "$lib/design/primitives/combobox/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

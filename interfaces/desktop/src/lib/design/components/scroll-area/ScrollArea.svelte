@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useScrollArea } from "$lib/design/behaviors/scroll-area/index.js";
+import { useScrollArea } from "$lib/design/behaviors/interaction/scroll-area/index.js";
 import { scrollAreaAnatomy } from "$lib/design/primitives/scroll-area/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

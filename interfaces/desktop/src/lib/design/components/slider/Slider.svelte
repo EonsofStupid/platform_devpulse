@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useSlider } from "$lib/design/behaviors/slider/use-slider.svelte.js";
+import { useSlider } from "$lib/design/behaviors/inputs/slider/use-slider.svelte.js";
 import { sliderAnatomy } from "$lib/design/primitives/slider/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

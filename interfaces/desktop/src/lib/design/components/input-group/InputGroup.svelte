@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useInputGroup } from "$lib/design/behaviors/input-group/index.js";
+import { useInputGroup } from "$lib/design/behaviors/inputs/input-group/index.js";
 import { inputGroupAnatomy } from "$lib/design/primitives/input-group/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

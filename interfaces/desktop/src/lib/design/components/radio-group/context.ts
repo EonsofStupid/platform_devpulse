@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseRadioGroupReturn } from "$lib/design/behaviors/radio-group/radio-group.types.js";
+import type { UseRadioGroupReturn } from "$lib/design/behaviors/inputs/radio-group/radio-group.types.js";
 
 export interface RadioGroupContext {
 	readonly hook: UseRadioGroupReturn;

@@ -24,7 +24,7 @@
 <script lang="ts">
 import { untrack } from "svelte";
 import { slide } from "svelte/transition";
-import { useBanner } from "$lib/design/behaviors/banner/index.js";
+import { useBanner } from "$lib/design/behaviors/display/banner/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BannerProps } from "./types.js";

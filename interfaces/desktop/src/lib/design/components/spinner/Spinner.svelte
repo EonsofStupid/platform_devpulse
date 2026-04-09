@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useSpinner } from "$lib/design/behaviors/spinner/index.js";
+import { useSpinner } from "$lib/design/behaviors/display/spinner/index.js";
 import { spinnerAnatomy } from "$lib/design/primitives/spinner/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

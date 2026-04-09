@@ -177,18 +177,19 @@ class WizardState {
 
 	// ── Recommendations ──────────────────────────────────
 
-	/** Convert kernel AutoConfig to wizard ModelRec array. */
+	/** Convert kernel AutoConfig to wizard ModelRec array.
+	 *  Rust serializes as snake_case — field names match Rust struct. */
 	setRecommendations(config: AutoConfig): void {
 		this.recommendations = config.recommendations.map((rec) => ({
-			name: rec.modelFilename.replace(/\.gguf$/i, "").replace(/-/g, " "),
-			purpose: friendlyName(rec.slotId),
-			slot: rec.slotId as SlotId,
-			sizeMb: rec.modelSizeMb,
-			vramMb: rec.vramEstimateMb,
-			repo: rec.modelRepoId,
-			file: rec.modelFilename,
+			name: rec.model_filename.replace(/\.gguf$/i, "").replace(/-/g, " "),
+			purpose: friendlyName(rec.slot_id),
+			slot: rec.slot_id as SlotId,
+			sizeMb: rec.model_size_mb,
+			vramMb: rec.vram_estimate_mb,
+			repo: rec.model_repo_id,
+			file: rec.model_filename,
 			device: rec.device,
-			alreadyDownloaded: rec.alreadyDownloaded,
+			alreadyDownloaded: rec.already_downloaded,
 		}));
 	}
 }

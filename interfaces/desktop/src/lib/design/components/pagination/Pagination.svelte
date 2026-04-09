@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { usePagination } from "$lib/design/behaviors/pagination/index.js";
+import { usePagination } from "$lib/design/behaviors/navigation/pagination/index.js";
 import { paginationAnatomy } from "$lib/design/primitives/pagination/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UsePopoverReturn } from "$lib/design/behaviors/popover/popover.types.js";
+import type { UsePopoverReturn } from "$lib/design/behaviors/overlays/popover/popover.types.js";
 
 export interface PopoverContext {
 	readonly hook: UsePopoverReturn;

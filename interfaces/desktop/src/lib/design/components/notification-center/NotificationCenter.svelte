@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useNotificationCenter } from "$lib/design/behaviors/notification-center/index.js";
+import { useNotificationCenter } from "$lib/design/behaviors/overlays/notification-center/index.js";
 import { notificationCenterAnatomy } from "$lib/design/primitives/notification-center/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";

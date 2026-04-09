@@ -7,7 +7,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseSelectReturn } from "$lib/design/behaviors/select/select.types.js";
+import type { UseSelectReturn } from "$lib/design/behaviors/inputs/select/select.types.js";
 
 export interface SelectContext {
 	readonly hook: UseSelectReturn;
