@@ -62,14 +62,23 @@ pub async fn set_lane_config(
 /// A span trace row from DuckDB, serialized for the frontend.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct SpanTraceRow {
+    /// Unique trace identifier (groups spans into a single execution path).
     pub trace_id: String,
+    /// Unique span identifier within this trace.
     pub span_id: i64,
+    /// Parent span ID for tree reconstruction. `None` for root spans.
     pub parent_span_id: Option<i64>,
+    /// Human-readable span name (e.g. "boot_task", "surreal_init").
     pub name: String,
+    /// Rust module target that emitted this span (e.g. "devpulse_engine::platform").
     pub target: String,
+    /// Tracing level: TRACE, DEBUG, INFO, WARN, ERROR.
     pub level: String,
+    /// Wall-clock duration of this span in microseconds.
     pub duration_us: i64,
+    /// Structured fields captured during span execution, JSON-encoded.
     pub fields_json: Option<String>,
+    /// ISO-8601 timestamp when the span was created.
     pub created_at: String,
 }
 
@@ -152,17 +161,26 @@ pub async fn query_span_traces(
     Ok(results)
 }
 
-/// A lane baseline row from DuckDB.
+/// A lane baseline row from DuckDB — percentile stats per execution lane.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct LaneBaselineRow {
+    /// Lane identifier (e.g. "inference", "embedding", "boot").
     pub lane: String,
+    /// Number of samples used to compute these baselines.
     pub sample_count: i32,
+    /// 50th percentile (median) duration in microseconds.
     pub p50_us: i64,
+    /// 95th percentile duration in microseconds.
     pub p95_us: i64,
+    /// 99th percentile duration in microseconds.
     pub p99_us: i64,
+    /// Average queue wait time before execution started, in microseconds.
     pub avg_queue_wait_us: i64,
+    /// Fraction of requests served from cache (0.0–1.0).
     pub cache_hit_rate: f64,
+    /// Fraction of requests that required cold-start initialization (0.0–1.0).
     pub cold_start_rate: f64,
+    /// ISO-8601 timestamp when these baselines were last computed.
     pub computed_at: String,
 }
 
