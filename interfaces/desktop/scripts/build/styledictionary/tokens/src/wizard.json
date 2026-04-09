@@ -1,0 +1,83 @@
+{
+	"wizard": {
+		"$description": "Model loader wizard domain tokens. Role colors, surfaces, glow, and shadows for the setup wizard UI.",
+		"role": {
+			"$type": "color",
+			"$description": "Role-based accent colors for model slot categories.",
+			"brain": {
+				"main": { "$value": "#9b6dff", "$description": "Purple — Clyffy brain / reasoning" },
+				"glow": { "$value": "oklch(0.63 0.12 280 / 0.4)", "$description": "Brain glow emission" },
+				"fill": { "$value": "oklch(0.63 0.12 280 / 0.08)", "$description": "Brain subtle bg" }
+			},
+			"minion": {
+				"main": { "$value": "#29b468", "$description": "Green — minion / observation helpers" },
+				"glow": { "$value": "oklch(0.66 0.17 155 / 0.4)", "$description": "Minion glow emission" },
+				"fill": { "$value": "oklch(0.66 0.17 155 / 0.08)", "$description": "Minion subtle bg" }
+			},
+			"encoder": {
+				"main": { "$value": "#3ea4ea", "$description": "Blue — encoder / search / vision" },
+				"glow": { "$value": "oklch(0.68 0.14 240 / 0.4)", "$description": "Encoder glow emission" },
+				"fill": { "$value": "oklch(0.68 0.14 240 / 0.08)", "$description": "Encoder subtle bg" }
+			},
+			"voice": {
+				"main": { "$value": "#fc6b83", "$description": "Coral — voice / STT / TTS" },
+				"glow": { "$value": "oklch(0.72 0.16 10 / 0.4)", "$description": "Voice glow emission" },
+				"fill": { "$value": "oklch(0.72 0.16 10 / 0.08)", "$description": "Voice subtle bg" }
+			}
+		},
+		"surface": {
+			"$type": "color",
+			"$description": "Wizard-specific surface colors.",
+			"base": { "$value": "#0a0e14", "$description": "Wizard page background — deep void" },
+			"card": { "$value": "oklch(0.12 0.015 220 / 0.8)", "$description": "Wizard card / glass-deep" },
+			"card-raised": { "$value": "oklch(0.15 0.01 220 / 0.6)", "$description": "Wizard raised card / glass-smoke" },
+			"overlay": { "$value": "oklch(0.10 0.02 220 / 0.9)", "$description": "Wizard modal overlay" },
+			"inset": { "$value": "#060a10", "$description": "Wizard input / inset background" }
+		},
+		"text": {
+			"$type": "color",
+			"$description": "Wizard text hierarchy.",
+			"primary": { "$value": "#edf0f4", "$description": "Wizard heading / primary text" },
+			"secondary": { "$value": "#8898a8", "$description": "Wizard supporting text" },
+			"muted": { "$value": "#556070", "$description": "Wizard hint / disabled text" }
+		},
+		"border": {
+			"$type": "color",
+			"$description": "Wizard border colors.",
+			"subtle": { "$value": "oklch(0.25 0.015 220 / 0.5)", "$description": "Wizard default border" },
+			"strong": { "$value": "oklch(0.35 0.02 220)", "$description": "Wizard emphasized border" },
+			"focus": { "$value": "#17deef", "$description": "Wizard focus ring — brand cyan" }
+		},
+		"shadow": {
+			"$type": "shadow",
+			"$description": "Wizard elevation shadows.",
+			"glow-sm": {
+				"$value": { "offsetX": "0", "offsetY": "0", "blur": "6px", "spread": "0", "color": "oklch(0.66 0.17 155 / 0.3)" },
+				"$description": "Small green glow"
+			},
+			"glow-md": {
+				"$value": { "offsetX": "0", "offsetY": "0", "blur": "10px", "spread": "0", "color": "oklch(0.82 0.14 195 / 0.4)" },
+				"$description": "Medium cyan glow"
+			},
+			"glow-lg": {
+				"$value": { "offsetX": "0", "offsetY": "0", "blur": "20px", "spread": "0", "color": "oklch(0.82 0.14 195 / 0.3)" },
+				"$description": "Large cyan glow — mascot drop-shadow"
+			},
+			"elevation-md": {
+				"$value": { "offsetX": "0", "offsetY": "4px", "blur": "16px", "spread": "0", "color": "oklch(0 0 0 / 0.25)" },
+				"$description": "Wizard card elevation"
+			},
+			"elevation-lg": {
+				"$value": { "offsetX": "0", "offsetY": "8px", "blur": "32px", "spread": "0", "color": "oklch(0 0 0 / 0.35)" },
+				"$description": "Wizard modal elevation"
+			}
+		},
+		"ember": {
+			"$type": "color",
+			"$description": "Wizard error/warning shades.",
+			"200": { "$value": "#d4705a", "$description": "Error text light" },
+			"300": { "$value": "#b85a48", "$description": "Error text medium" },
+			"600": { "$value": "#6b3528", "$description": "Error border" }
+		}
+	}
+}

@@ -49,8 +49,7 @@ function handleSelect(modelId: string): void {
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="popup-backdrop" onclick={onClose} onkeydown={(e) => e.key === "Escape" && onClose()}>
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="popup" onclick={(e) => e.stopPropagation()} role="dialog" aria-label="Change model for {label?.name ?? slotId}">
+	<div class="popup" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.key === "Escape" && onClose()} role="dialog" aria-label="Change model for {label?.name ?? slotId}" tabindex="-1">
 		<div class="popup-header" style="border-bottom-color: {roleColor?.accent ?? 'var(--wiz-border)'};">
 			<h3 class="popup-title">Change {label?.name ?? slotId}</h3>
 			<button class="btn-close" onclick={onClose} aria-label="Close"><X size={16} /></button>

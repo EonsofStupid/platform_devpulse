@@ -34,6 +34,11 @@ class WizardState {
 	// ── Phase 2: Models (preset-first) ──────────────────
 	recommendations = $state<ModelRec[]>([]);
 
+	// ── Bulk Download State ─────────────────────────────
+	downloadQueue = $state<ModelRec[]>([]);
+	downloadingIndex = $state(-1);
+	downloadProgress = $state(0);
+
 	// ── Phase 3: Browse ─────────────────────────────────
 	browseTab = $state<"local" | "huggingface">("local");
 	showImportPrompt = $state(false);

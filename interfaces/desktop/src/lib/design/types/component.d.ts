@@ -3407,6 +3407,128 @@ export type GlassBlurRecord = {
 	frost: string;
 };
 
+export const WizardTokens = [
+	"role-brain-main",
+	"role-brain-glow",
+	"role-brain-fill",
+	"role-minion-main",
+	"role-minion-glow",
+	"role-minion-fill",
+	"role-encoder-main",
+	"role-encoder-glow",
+	"role-encoder-fill",
+	"role-voice-main",
+	"role-voice-glow",
+	"role-voice-fill",
+	"surface-base",
+	"surface-card",
+	"surface-card-raised",
+	"surface-overlay",
+	"surface-inset",
+	"text-primary",
+	"text-secondary",
+	"text-muted",
+	"border-subtle",
+	"border-strong",
+	"border-focus",
+	"shadow-glow-sm",
+	"shadow-glow-md",
+	"shadow-glow-lg",
+	"shadow-elevation-md",
+	"shadow-elevation-lg",
+	"ember-200",
+	"ember-300",
+	"ember-600",
+] as const;
+export type WizardToken = (typeof WizardTokens)[number];
+
+export type WizardCSSVar =
+	| "--wizard-role-brain-main"
+	| "--wizard-role-brain-glow"
+	| "--wizard-role-brain-fill"
+	| "--wizard-role-minion-main"
+	| "--wizard-role-minion-glow"
+	| "--wizard-role-minion-fill"
+	| "--wizard-role-encoder-main"
+	| "--wizard-role-encoder-glow"
+	| "--wizard-role-encoder-fill"
+	| "--wizard-role-voice-main"
+	| "--wizard-role-voice-glow"
+	| "--wizard-role-voice-fill"
+	| "--wizard-surface-base"
+	| "--wizard-surface-card"
+	| "--wizard-surface-card-raised"
+	| "--wizard-surface-overlay"
+	| "--wizard-surface-inset"
+	| "--wizard-text-primary"
+	| "--wizard-text-secondary"
+	| "--wizard-text-muted"
+	| "--wizard-border-subtle"
+	| "--wizard-border-strong"
+	| "--wizard-border-focus"
+	| "--wizard-shadow-glow-sm"
+	| "--wizard-shadow-glow-md"
+	| "--wizard-shadow-glow-lg"
+	| "--wizard-shadow-elevation-md"
+	| "--wizard-shadow-elevation-lg"
+	| "--wizard-ember-200"
+	| "--wizard-ember-300"
+	| "--wizard-ember-600";
+
+export type WizardRecord = {
+	role: {
+		brain: {
+			main: string;
+			glow: string;
+			fill: string;
+		};
+		minion: {
+			main: string;
+			glow: string;
+			fill: string;
+		};
+		encoder: {
+			main: string;
+			glow: string;
+			fill: string;
+		};
+		voice: {
+			main: string;
+			glow: string;
+			fill: string;
+		};
+	};
+	surface: {
+		base: string;
+		card: string;
+		"card-raised": string;
+		overlay: string;
+		inset: string;
+	};
+	text: {
+		primary: string;
+		secondary: string;
+		muted: string;
+	};
+	border: {
+		subtle: string;
+		strong: string;
+		focus: string;
+	};
+	shadow: {
+		"glow-sm": string;
+		"glow-md": string;
+		"glow-lg": string;
+		"elevation-md": string;
+		"elevation-lg": string;
+	};
+	ember: {
+		"200": string;
+		"300": string;
+		"600": string;
+	};
+};
+
 export const BorderRiseTokens = [
 	"subtle-color",
 	"subtle-width",

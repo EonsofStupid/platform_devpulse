@@ -1,0 +1,354 @@
+# POAM: Model Loader Wizard — Full Rewrite
+
+| Field | Value |
+|-------|-------|
+| **Status** | `EXECUTING — SPRINT 1` |
+| **Date** | 2026-04-08 |
+| **Owner** | Jesse |
+| **Scope** | Setup wizard, model loading, Lexicon voice, graceful shutdown, tests |
+| **Supersedes** | ALL prior model-loader sprint docs (see bottom) |
+| **SSOT** | `scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md` + 10 Commandments |
+
+---
+
+## MODEL INVENTORY (CONCRETE)
+
+### Brain Models — Qwen 3 Family (GGUF + SafeTensors)
+
+| Tier | Slot | HF Repo | Filename | Size | VRAM | Notes |
+|------|------|---------|----------|------|------|-------|
+| High | chat.brain | bartowski/Qwen3-14B-GGUF | Qwen3-14B-Q4_K_M.gguf | 8.1 GB | 9.2 GB | Clyffy 14B brain |
+| Medium | chat.brain | bartowski/Qwen3-8B-GGUF | Qwen3-8B-Q4_K_M.gguf | 4.9 GB | 5.8 GB | Clyffy 8B brain |
+| Low | chat.brain | bartowski/Qwen3-4B-GGUF | Qwen3-4B-Q4_K_M.gguf | 2.6 GB | 3.2 GB | Clyffy 4B — MINIMUM |
+| All | minion.shared | Qwen/Qwen3-0.6B-GGUF | qwen3-0.6b-q8_0.gguf | 700 MB | 400 MB | 1 shared instance, 8 minions ref-count it |
+| All | minion.escalation | — | — | — | — | Pointer to chat.brain (or independent on 24GB+) |
+
+### Minion Architecture (LOCKED — from owner's MINION BRAIN ARCHITECTURE spec)
+
+Minions are NOT simple watchers. They are **specialist AI agents** with their own
+inference path, escalation chain, and brain-sharing model.
+
+- 8 minions: GUARDIAN, ENFORCER, DIARY, PSYCH, TEACHER, SCRIBE, VISION, RESEARCHER
+- ALL share ONE 0.6B instance (ref-counted via BackendPool Arc)
+- Specialist identity from system prompt + llguidance constrained output schemas
+- Why shared: 0.6B × 1 = 0.5GB vs 0.6B × 8 = 4.8GB. Sequential per signal.
+- Complexity check determines escalation (rule-based Phase 1, MLP scorer Phase 2)
+- Escalation chain: minion.escalation → chat.brain → queue+degrade
+- Same prompt + constrained schema regardless of backend size (0.6B or 14B)
+- BackendPool ref-counting: escalation and brain share same Arc when same model
+
+### Dynamic Brain Policy — ActiveIdle (from owner's spec)
+
+| VRAM | Policy | Active (LARGE_LLM) | Idle (SMALL_LLM) |
+|------|--------|---------------------|-------------------|
+| 8GB floor | Static | 4B only | — |
+| 12GB mid | ActiveIdle | 9-15B | 4B |
+| 16GB high | ActiveIdle | 14-15B | 4-9B |
+| 24GB ultra | Static | 27B+ | — |
+
+- User chatting → swap to LARGE_LLM. Idle 5min → swap to SMALL_LLM.
+- Swap: drain pending → unload → load new → emit BrainSwapped.
+- Clyffy narrates: "Let me think on that for a sec..."
+- Config: BrainSwapPolicy enum (Static / ActiveIdle / EscalationDriven).
+
+**RULES:**
+- Clyffy brain minimum = **4B**. NEVER 1.7B, NEVER 0.6B.
+- Minion shared = **0.6B**. Escalation via fallback to brain when complex.
+- Both GGUF and SafeTensors versions must be downloadable.
+
+### Encoder Models — 0.6B
+
+| Slot | HF Repo | Filename | Size | VRAM | Format |
+|------|---------|----------|------|------|--------|
+| rag.embedder | BAAI/bge-m3 | model.safetensors | 600 MB | 600 MB | SafeTensors |
+| rag.reranker | Qwen/Qwen3-Reranker-0.6B | model.safetensors | 600 MB | 600 MB | SafeTensors |
+
+### Vision Model
+
+| Slot | HF Repo | Filename | Size | VRAM | Format |
+|------|---------|----------|------|------|--------|
+| vision.embedder | google/siglip2-so400m-patch14-384 | model.safetensors | 400 MB | 500 MB | SafeTensors/ONNX |
+
+### Voice Models (Lexicon System)
+
+| Slot | Backend | HF Repo | Filename | Size | Device |
+|------|---------|---------|----------|------|--------|
+| voice.tts | Qwen3-TTS (default) | Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice | model.safetensors | 600 MB | GPU/CPU |
+| voice.tts | Kokoro (fallback) | hexgrad/Kokoro-82M-v1.0-GGUF | kokoro-v1.0.gguf | 82 MB | CPU |
+| voice.stt | Whisper | ggerganov/whisper.cpp | ggml-small.bin | 466 MB | CPU |
+
+---
+
+## FOLDER STRUCTURE
+
+```
+.userdata/models/
+├── chat/           ← brain GGUF/SafeTensors (Clyffy + minion if separate)
+├── rag/            ← embedder + reranker SafeTensors
+├── vision/         ← SigLIP2 SafeTensors/ONNX
+└── voice/          ← Whisper .bin, Kokoro .gguf, Qwen3-TTS SafeTensors
+```
+
+**Flow:** Download from HF → verify file integrity → copy to `.userdata/models/{kind}/` → register in model registry → confirm in UI.
+
+---
+
+## LOADING PIPELINE (Which Backend Loads What)
+
+| Format | Backend | Rust Module | Loader |
+|--------|---------|-------------|--------|
+| `.gguf` | llama.cpp FFI | `backends/bridge.rs` | `LlamaCppBackend` |
+| `.safetensors` | Candle | `backends/candle/backend.rs` | `CandleBackend` |
+| `.onnx` | ORT | `backends/ort/mod.rs` | `OrtBackend` |
+| `.bin` (Whisper GGML) | sherpa-rs | `backends/ort/whisper.rs` | `WhisperBackend` |
+
+**Router:** `backends/router.rs` — inspects file extension + header, routes to correct backend.
+
+---
+
+## AUDIT FINDINGS (2026-04-08 — this session)
+
+### CRITICAL RUNTIME BUGS (found by full read of all 18 wizard files)
+
+| # | File | Bug | Fix |
+|---|------|-----|-----|
+| 1 | `wizard.types.ts:78-83` | ROLE_COLORS uses ColdLight vars (`--accent-purple-main` etc.) — these DON'T EXIST in `--wiz-*` scope. Role colors INVISIBLE on slot cards, preset borders, completion dots. | Replace with `var(--wiz-role-brain)` etc. **DONE** |
+| 2 | `wizard.service.ts:308-326` | `bulkDownloadAndAssign` references `downloadQueue`, `downloadingIndex`, `downloadProgress` — NONE exist in WizardState. Runtime crash on bulk download. | Add properties to WizardState. **DONE** |
+| 3 | `HuggingFaceSearch.svelte:328-406` | ~60 lines of HARDCODED oklch CSS. Zero `--wiz-*` vars. Violates local CSS rule. | Full CSS rewrite with `--wiz-*`. **DONE** |
+| 4 | `wizard.types.ts:98` | Minion description: "helpers watching your project" — owner said they THINK, not just watch. | Changed to "specialist helpers thinking about your project". **DONE** |
+| 5 | `WelcomeStep.svelte:82` | `border: 2px solid var(--wiz-glow-purple)` — glow is a BOX-SHADOW value, not a color. Invisible border. | Use `var(--wiz-role-brain)` + add `box-shadow`. **DONE** |
+| 6 | `HardwareDetectionStep.svelte:227` | Hardcoded `oklch(0.63 0.08 173 / 0.35)` hover color. | Replaced with `var(--wiz-border-focus)`. **DONE** |
+| 7 | `SearchBrowseStep.svelte:15` | Unused imports `getSlotLabel`, `ROLE_COLORS`. Type error on `targetSlot` (string vs SlotId). No loading state on import button. | Fixed imports, cast, added importing state. **DONE** |
+
+### UX PROBLEMS (not yet fixed — Sprint 2)
+
+| # | Problem | Evidence |
+|---|---------|----------|
+| 8 | HuggingFace search is tiny, hard to find, unclear messaging | Owner: "search hugging face is fucking tiny and hard to find" |
+| 9 | No loading indicators when model loading — UI freezes | Owner: "no fucking clue if you are loading a model shit just freezes" |
+| 10 | Folder browsing has no loading state during file dialog | Import button shows no feedback while rfd dialog is open |
+| 11 | No E2E tests — nothing proves the wizard works | Zero vitest-browser or playwright tests |
+| 12 | No ColdLight base component verification (Spinner import used in wizard) | Spinner from `$lib/design/` used — needs to work without ColdLight scope |
+
+---
+
+## SPRINT 1: FIX ALL RUNTIME BUGS + VERIFY COMPILATION
+
+**Goal:** Every file compiles. Zero type errors. Zero biome errors. Runtime crashes eliminated.
+**Max 5 files per phase. Verification after each edit.**
+
+### 1.1 Fix ROLE_COLORS (wizard.types.ts) ✅ DONE
+- Replaced ColdLight vars with `--wiz-*` role vars
+
+### 1.2 Fix missing WizardState properties (wizard.runes.svelte.ts) ✅ DONE
+- Added `downloadQueue`, `downloadingIndex`, `downloadProgress`
+
+### 1.3 Fix minion description (wizard.types.ts) ✅ DONE
+- "specialist helpers thinking about your project"
+
+### 1.4 Fix WelcomeStep avatar border ✅ DONE
+- Border uses `--wiz-role-brain`, glow via `box-shadow`
+
+### 1.5 Fix HardwareDetectionStep hardcoded oklch ✅ DONE
+- Hover uses `--wiz-border-focus`
+
+### 1.6 Fix HuggingFaceSearch CSS ✅ DONE
+- All ~60 hardcoded oklch → `--wiz-*` vars
+
+### 1.7 Fix SearchBrowseStep diagnostics ✅ DONE
+- Removed unused imports, fixed SlotId type, added importing state
+
+### 1.8 Fix auto_config.rs brain minimums
+File: `kernel/model-loader/src/hardware/auto_config.rs`
+- Line 113: Low tier brain → **4B** (currently 1.7B — VIOLATES 4B minimum)
+- Line 117: Minimal/CpuOnly brain → **4B** (currently 0.6B — VIOLATES 4B minimum)
+
+### 1.9 Verification gate
+```bash
+cargo check -p model-loader
+cargo check -p devpulse-engine
+cargo check -p devpulse_desktop_backend
+cd interfaces/desktop && pnpm svelte-check
+npx biome check src/lib/domains/app/models/ --diagnostic-level=warn
+```
+ALL must pass. Sprint 1 not done until all 5 pass.
+
+**Acceptance:** All checks green. Brain minimums enforced. Zero runtime crashes from missing vars/state.
+
+---
+
+## SPRINT 2: COMMERCIAL-QUALITY UX + E2E TESTING
+
+**Goal:** A layman can configure Clyffy, load models, see real progress, understand every screen. Proven by E2E tests running in vitest-browser where Jesse can watch.
+
+### Phase A: Search & Download UX Overhaul (3 files)
+
+#### A.1 SearchBrowseStep.svelte — Make HF search PROMINENT
+- "Search Online" tab: larger text, cyan accent, icon prominent
+- Add descriptive subheading: "Search HuggingFace for thousands of AI models"
+- When downloading from search: show inline progress bar (not just toast)
+- Import button: clear "Importing..." loading state with spinner (DONE in 1.7)
+- Add "What are these?" help text explaining GGUF vs SafeTensors in layman terms
+
+#### A.2 HuggingFaceSearch.svelte — Clear loading/progress messaging
+- Search button larger, more prominent
+- During search: "Searching HuggingFace..." with animated spinner, center of screen
+- Results: larger cards, clearer model names (strip technical suffixes)
+- Download button: shows progress inline "Downloading Clyffy's Brain... 2.3 / 4.9 GB"
+- After download: "✓ Downloaded — assigning to [slot name]..."
+- Error: action buttons (Retry / Try Different / Skip)
+- Empty state: "No models found. Try searching for 'Qwen3' or 'Llama'"
+
+#### A.3 ModelsStep.svelte — Loading state for model activation
+- When "Download & Set Up" clicked: clear step-by-step progress
+  1. "Downloading Clyffy's Brain..." (progress bar)
+  2. "Downloading Minion Core..." (progress bar)
+  3. "Setting up..." (spinner)
+  4. "Ready!" (green check)
+- Each model shows ETA: "about 4 min left"
+- Cancel button per download
+- If model loading after download: "Loading into GPU memory..."
+
+### Phase B: Loading States Everywhere (3 files)
+
+#### B.1 SlotCard.svelte — Real-time slot status
+- When model is loading: animated progress indicator
+- When model is loaded: "Ready" with green check animation
+- When model fails: red X with "Retry" and "Change" buttons
+- Tooltip on hover: "This model is loaded in GPU memory and ready to use"
+
+#### B.2 VramBar.svelte — Live updates during loading
+- Show loading animation when VRAM is being allocated
+- Per-model VRAM segments with role colors
+- Tooltip: "Clyffy's Brain: 3.2 GB | Minion Core: 0.4 GB | Free: 6.4 GB"
+
+#### B.3 ClyfActivationStep.svelte — Loading feedback for inference
+- When sending message: "Clyffy is thinking..." with brain pulse animation
+- If brain not loaded: clear CTA "Go back and set up Clyffy's Brain first"
+- First response: celebration "Clyffy is alive! 🎉"
+- Voice toggle: clear "Voice not available — download Voice Output model first"
+
+### Phase C: E2E Tests with vitest-browser (Jesse watches)
+
+#### C.1 Test setup
+File: `interfaces/desktop/src/lib/domains/app/models/features/setup-wizard/__tests__/wizard.browser.test.ts`
+- vitest-browser config: opens real Chromium
+- Test utilities: mock Tauri invoke, mock hardware state, mock model state
+
+#### C.2 Test: Welcome → Hardware → Models happy path
+- Renders WelcomeStep with hardware preview
+- Click "Let's Go" → transitions to HardwareDetectionStep
+- Tier badge shows correct tier for mocked VRAM
+- Click "Continue" → transitions to ModelsStep
+- PresetCard shows recommendations with layman names
+- Role color borders visible (not transparent)
+- VRAM bar shows budget
+
+#### C.3 Test: Download & Set Up flow
+- Click "Download & Set Up" on PresetCard
+- Download progress bars appear with friendly names
+- Progress updates (mock download events)
+- Completion: success message, models assigned
+
+#### C.4 Test: Search & Browse flow
+- Navigate to SearchBrowseStep
+- "Search Online" tab visible and clickable
+- Search for "Qwen3" → results appear with model cards
+- Download button shows slot selector
+- Import button shows loading state during file pick
+
+#### C.5 Test: Customize flow
+- Navigate to CustomizeStep
+- Slot cards grouped by role (Thinking, Watching, Understanding, Talking)
+- Role color borders visible
+- Click "Change" → SlotSwapPopup with 2-4 options
+- Select model → popup closes, slot updated
+
+#### C.6 Test: Completion summary
+- Navigate to CompletionStep
+- All assigned slots show with role colors
+- Ready count accurate
+- "Launch DevPulse" button enabled
+
+### Phase D: Verification
+```bash
+cd interfaces/desktop && pnpm svelte-check          # 0 errors
+npx biome check src/lib/domains/app/models/ --diagnostic-level=warn  # 0 errors
+pnpm vitest run --browser src/lib/domains/app/models/features/setup-wizard/  # all pass
+```
+
+**Acceptance:**
+- Layman can complete wizard without knowing AI terminology
+- Every loading state has visible feedback (spinner, progress bar, message)
+- HuggingFace search is prominent and easy to use
+- Download progress shows per-model with friendly names and ETA
+- E2E tests prove it all works — Jesse can watch in browser
+- Zero hardcoded oklch in any wizard component
+- All --wiz-* CSS vars resolve correctly (role colors visible)
+
+---
+
+## SPRINTS 3-6 (OUTLINED — DETAILED WHEN SPRINTS 1-2 COMPLETE)
+
+### Sprint 3: Real Backend State & Honest UI
+- VramBar reads actual GPU data (not mock)
+- Slot status from Rust backend, not frontend guess
+- Download progress from EventBridge events
+- Config-driven brain mode toggle
+- Dynamic tooltips from model metadata
+
+### Sprint 4: Lexicon Voice System
+- Create `engine/src/lexicon/` module structure
+- Implement `TtsBackend` + `SttBackend` traits
+- Wire WhisperBackend (sherpa-rs)
+- Wire Qwen3TtsBackend (qwen_tts crate)
+- Wire KokoroBackend (fallback)
+- Register voice slots in slot system
+- Config loading from TOML
+
+### Sprint 5: Tests + Clyffy Sprite
+- Vitest unit: types, runes, services
+- Vitest browser: component rendering (STARTED in Sprint 2)
+- Playwright E2E: full happy path
+- Rust: model loading, auto-config, import
+- Clyffy sprite spinner asset
+
+### Sprint 6: Graceful Shutdown
+- `on_window_close` handler in Tauri
+- Signal all services to stop
+- 3-check/30s timeout: check progress at 0s, 10s, 20s
+- Force kill at 30s ONLY if no progress since last check
+- Verify: no orphan processes, no leaked VRAM
+- Tests prove cleanup works
+
+---
+
+## WAVE DEPENDENCIES
+
+```
+Sprint 1 (fix bugs) ──> Sprint 2 (UX + E2E tests)
+                            │
+                            ├──> Sprint 3 (real state)
+                            ├──> Sprint 4 (Lexicon voice)
+                            │
+                            └──> Sprint 5 (more tests) ← continuous alongside 3+4
+                                     │
+                                     └──> Sprint 6 (graceful shutdown)
+```
+
+---
+
+## SUPERSEDED DOCUMENTS
+
+These sprint docs are DEAD. Do not follow them:
+- `SPRINT-MODEL-LOADER-UX.md`
+- `SPRINT-MODEL-LOADER-REAL.md`
+- `SPRINT-MODEL-LOADER-WAVES.md`
+- `SPRINT-MODEL-LOADER-COMPLETE.md`
+- `SPRINT-DEV-ONBOARDING-WIZARD.md`
+- `SPRINT-ML-01-FOUNDATION.md`
+- `SPRINT-ML-02-BROWSE-LOAD.md`
+- `SPRINT-BOOT-HALT-WIZARD.md`
+- `SPRINT-BOOT-WIZARD-FIX.md`
+
+**This POAM is the SOLE AUTHORITY for model loader, wizard, and voice work.**

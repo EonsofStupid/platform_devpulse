@@ -23866,6 +23866,425 @@
 			}
 		]
 	},
+	"wizard": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "wizard-role-brain-main",
+				"path": [
+					"wizard",
+					"role",
+					"brain",
+					"main"
+				],
+				"cssVar": "--wizard-role-brain-main",
+				"value": "#9b6dff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-brain-glow",
+				"path": [
+					"wizard",
+					"role",
+					"brain",
+					"glow"
+				],
+				"cssVar": "--wizard-role-brain-glow",
+				"value": "oklch(0.63 0.12 280 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-brain-fill",
+				"path": [
+					"wizard",
+					"role",
+					"brain",
+					"fill"
+				],
+				"cssVar": "--wizard-role-brain-fill",
+				"value": "oklch(0.63 0.12 280 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-minion-main",
+				"path": [
+					"wizard",
+					"role",
+					"minion",
+					"main"
+				],
+				"cssVar": "--wizard-role-minion-main",
+				"value": "#29b468",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-minion-glow",
+				"path": [
+					"wizard",
+					"role",
+					"minion",
+					"glow"
+				],
+				"cssVar": "--wizard-role-minion-glow",
+				"value": "oklch(0.66 0.17 155 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-minion-fill",
+				"path": [
+					"wizard",
+					"role",
+					"minion",
+					"fill"
+				],
+				"cssVar": "--wizard-role-minion-fill",
+				"value": "oklch(0.66 0.17 155 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-encoder-main",
+				"path": [
+					"wizard",
+					"role",
+					"encoder",
+					"main"
+				],
+				"cssVar": "--wizard-role-encoder-main",
+				"value": "#3ea4ea",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-encoder-glow",
+				"path": [
+					"wizard",
+					"role",
+					"encoder",
+					"glow"
+				],
+				"cssVar": "--wizard-role-encoder-glow",
+				"value": "oklch(0.68 0.14 240 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-encoder-fill",
+				"path": [
+					"wizard",
+					"role",
+					"encoder",
+					"fill"
+				],
+				"cssVar": "--wizard-role-encoder-fill",
+				"value": "oklch(0.68 0.14 240 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-voice-main",
+				"path": [
+					"wizard",
+					"role",
+					"voice",
+					"main"
+				],
+				"cssVar": "--wizard-role-voice-main",
+				"value": "#fc6b83",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-voice-glow",
+				"path": [
+					"wizard",
+					"role",
+					"voice",
+					"glow"
+				],
+				"cssVar": "--wizard-role-voice-glow",
+				"value": "oklch(0.72 0.16 10 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-role-voice-fill",
+				"path": [
+					"wizard",
+					"role",
+					"voice",
+					"fill"
+				],
+				"cssVar": "--wizard-role-voice-fill",
+				"value": "oklch(0.72 0.16 10 / 0.08)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-surface-base",
+				"path": [
+					"wizard",
+					"surface",
+					"base"
+				],
+				"cssVar": "--wizard-surface-base",
+				"value": "#0a0e14",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-surface-card",
+				"path": [
+					"wizard",
+					"surface",
+					"card"
+				],
+				"cssVar": "--wizard-surface-card",
+				"value": "oklch(0.12 0.015 220 / 0.8)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-surface-card-raised",
+				"path": [
+					"wizard",
+					"surface",
+					"card-raised"
+				],
+				"cssVar": "--wizard-surface-card-raised",
+				"value": "oklch(0.15 0.01 220 / 0.6)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-surface-overlay",
+				"path": [
+					"wizard",
+					"surface",
+					"overlay"
+				],
+				"cssVar": "--wizard-surface-overlay",
+				"value": "oklch(0.10 0.02 220 / 0.9)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-surface-inset",
+				"path": [
+					"wizard",
+					"surface",
+					"inset"
+				],
+				"cssVar": "--wizard-surface-inset",
+				"value": "#060a10",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-text-primary",
+				"path": [
+					"wizard",
+					"text",
+					"primary"
+				],
+				"cssVar": "--wizard-text-primary",
+				"value": "#edf0f4",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-text-secondary",
+				"path": [
+					"wizard",
+					"text",
+					"secondary"
+				],
+				"cssVar": "--wizard-text-secondary",
+				"value": "#8898a8",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-text-muted",
+				"path": [
+					"wizard",
+					"text",
+					"muted"
+				],
+				"cssVar": "--wizard-text-muted",
+				"value": "#556070",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-border-subtle",
+				"path": [
+					"wizard",
+					"border",
+					"subtle"
+				],
+				"cssVar": "--wizard-border-subtle",
+				"value": "oklch(0.25 0.015 220 / 0.5)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-border-strong",
+				"path": [
+					"wizard",
+					"border",
+					"strong"
+				],
+				"cssVar": "--wizard-border-strong",
+				"value": "oklch(0.35 0.02 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-border-focus",
+				"path": [
+					"wizard",
+					"border",
+					"focus"
+				],
+				"cssVar": "--wizard-border-focus",
+				"value": "#17deef",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-shadow-glow-sm",
+				"path": [
+					"wizard",
+					"shadow",
+					"glow-sm"
+				],
+				"cssVar": "--wizard-shadow-glow-sm",
+				"value": {
+					"offsetX": "0",
+					"offsetY": "0",
+					"blur": "6px",
+					"spread": "0",
+					"color": "oklch(0.66 0.17 155 / 0.3)"
+				},
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "wizard-shadow-glow-md",
+				"path": [
+					"wizard",
+					"shadow",
+					"glow-md"
+				],
+				"cssVar": "--wizard-shadow-glow-md",
+				"value": {
+					"offsetX": "0",
+					"offsetY": "0",
+					"blur": "10px",
+					"spread": "0",
+					"color": "oklch(0.82 0.14 195 / 0.4)"
+				},
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "wizard-shadow-glow-lg",
+				"path": [
+					"wizard",
+					"shadow",
+					"glow-lg"
+				],
+				"cssVar": "--wizard-shadow-glow-lg",
+				"value": {
+					"offsetX": "0",
+					"offsetY": "0",
+					"blur": "20px",
+					"spread": "0",
+					"color": "oklch(0.82 0.14 195 / 0.3)"
+				},
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "wizard-shadow-elevation-md",
+				"path": [
+					"wizard",
+					"shadow",
+					"elevation-md"
+				],
+				"cssVar": "--wizard-shadow-elevation-md",
+				"value": {
+					"offsetX": "0",
+					"offsetY": "4px",
+					"blur": "16px",
+					"spread": "0",
+					"color": "oklch(0 0 0 / 0.25)"
+				},
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "wizard-shadow-elevation-lg",
+				"path": [
+					"wizard",
+					"shadow",
+					"elevation-lg"
+				],
+				"cssVar": "--wizard-shadow-elevation-lg",
+				"value": {
+					"offsetX": "0",
+					"offsetY": "8px",
+					"blur": "32px",
+					"spread": "0",
+					"color": "oklch(0 0 0 / 0.35)"
+				},
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "wizard-ember-200",
+				"path": [
+					"wizard",
+					"ember",
+					"200"
+				],
+				"cssVar": "--wizard-ember-200",
+				"value": "#d4705a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-ember-300",
+				"path": [
+					"wizard",
+					"ember",
+					"300"
+				],
+				"cssVar": "--wizard-ember-300",
+				"value": "#b85a48",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "wizard-ember-600",
+				"path": [
+					"wizard",
+					"ember",
+					"600"
+				],
+				"cssVar": "--wizard-ember-600",
+				"value": "#6b3528",
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
 	"borderRise": {
 		"extensions": {},
 		"tokens": [

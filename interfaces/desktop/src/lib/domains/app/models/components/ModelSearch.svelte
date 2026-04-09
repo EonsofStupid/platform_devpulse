@@ -245,7 +245,7 @@ function formatBytes(bytes: number): string {
 		{#if searchState.searching}
 			<div class="flex items-center justify-center gap-3 py-16">
 				<LoaderCircle size={24} class="animate-spin opacity-50" />
-				<Text size="md" color="muted">Searching HuggingFace...</Text>
+				<Text size="base" color="muted">Searching HuggingFace...</Text>
 			</div>
 		{:else if searchState.error}
 			<ClyffyNarration message={searchState.error} type="error" />
@@ -277,12 +277,12 @@ function formatBytes(bytes: number): string {
 		{:else if searchState.query.trim()}
 			<div class="flex flex-col items-center gap-3 py-16 opacity-50">
 				<Search size={32} />
-				<Text size="md" color="muted">No {activeFormat.toUpperCase()} models found for "{searchState.query}"</Text>
+				<Text size="base" color="muted">No {activeFormat.toUpperCase()} models found for "{searchState.query}"</Text>
 			</div>
 		{:else}
 			<div class="flex flex-col items-center gap-3 py-16 opacity-40">
 				<Search size={32} />
-				<Text size="md" color="muted">Search HuggingFace for AI models to download</Text>
+				<Text size="base" color="muted">Search HuggingFace for AI models to download</Text>
 				<Text size="sm" color="muted">
 					{activeFormat === "gguf"
 						? "GGUF models work with llama.cpp — optimized for local inference"

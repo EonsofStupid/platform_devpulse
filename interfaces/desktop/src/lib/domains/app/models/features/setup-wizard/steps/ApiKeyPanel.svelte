@@ -166,7 +166,7 @@ function handleKeydown(e: KeyboardEvent): void {
 	</div>
 
 	<!-- Security note -->
-	<div class="security-note"
+	<div class="security-note" role="note"
 		onmouseenter={() => showTooltip("security")}
 		onmouseleave={hideTooltip}>
 		<Shield size={14} />
@@ -281,7 +281,7 @@ function handleKeydown(e: KeyboardEvent): void {
 	{/each}
 
 	<!-- Why section -->
-	<div class="why-section"
+	<div class="why-section" role="note"
 		onmouseenter={() => showTooltip("why")}
 		onmouseleave={hideTooltip}>
 		<h4 class="why-title">Why add API keys?</h4>

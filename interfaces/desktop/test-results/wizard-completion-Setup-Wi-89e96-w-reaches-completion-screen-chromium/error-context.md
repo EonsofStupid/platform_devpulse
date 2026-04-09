@@ -1,0 +1,76 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - status "Platform booting":
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: DevPulse
+        - generic [ref=e8]: Connecting to engine...
+      - generic [ref=e10]: Waiting for engine to start...
+      - progressbar [ref=e11]
+      - generic [ref=e12]: 17s elapsed
+  - generic [ref=e13]:
+    - banner [ref=e14]:
+      - toolbar [ref=e15]:
+        - generic [ref=e16]:
+          - button "Toggle sidebar" [ref=e17] [cursor=pointer]:
+            - img [ref=e18]
+          - generic [ref=e20]:
+            - generic [ref=e21]: D
+            - generic [ref=e22]: e
+            - generic [ref=e23]: v
+            - generic [ref=e24]: P
+            - generic [ref=e25]: U
+            - generic [ref=e26]: L
+            - generic [ref=e27]: S
+            - generic [ref=e28]: E
+        - generic [ref=e30]: PULSE FEED
+        - generic [ref=e31]:
+          - button "Search" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+          - button "Notifications" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - button "Open Chat" [ref=e36] [cursor=pointer]:
+            - img [ref=e37]
+          - generic [ref=e39]: Clyffy
+          - img "User avatar" [ref=e40]:
+            - generic [ref=e41]: DP
+    - complementary [ref=e42]:
+      - navigation "Primary" [ref=e43]:
+        - generic [ref=e44]:
+          - link "Home" [ref=e45] [cursor=pointer]:
+            - /url: /devpulse
+            - button "Home" [ref=e46]:
+              - img [ref=e47]
+          - link "UI Demo" [ref=e48] [cursor=pointer]:
+            - /url: /ui-demo
+            - button "UI Demo" [ref=e49]:
+              - img [ref=e50]
+          - link "OverMind" [ref=e51] [cursor=pointer]:
+            - /url: /overmind
+            - button "OverMind" [ref=e52]:
+              - img [ref=e53]
+          - link "WiredFront" [ref=e54] [cursor=pointer]:
+            - /url: /wiredfront
+            - button "WiredFront" [ref=e55]:
+              - img [ref=e56]
+          - link "DevForge" [ref=e57] [cursor=pointer]:
+            - /url: /devforge
+            - button "DevForge" [ref=e58]:
+              - img [ref=e59]
+          - link "Clyffy" [ref=e60] [cursor=pointer]:
+            - /url: /clyffy
+            - button "Clyffy" [ref=e61]:
+              - img [ref=e62]
+        - button "Expand sidebar" [ref=e64] [cursor=pointer]:
+          - img [ref=e65]
+    - main [ref=e66]:
+      - generic [ref=e68]: Loading dashboard data...
+    - complementary [ref=e69]
+    - contentinfo [ref=e70]:
+      - generic "System status" [ref=e71]:
+        - generic [ref=e73]: Initializing...
+        - generic [ref=e75]: 0%
+    - button
+```

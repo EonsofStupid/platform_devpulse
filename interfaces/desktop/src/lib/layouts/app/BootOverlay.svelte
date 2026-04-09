@@ -20,7 +20,9 @@
 }
 -->
 <script lang="ts">
+import { invoke } from "@tauri-apps/api/core";
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
+import { Button } from "$lib/design/components/button/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -81,12 +83,8 @@ $effect(() => {
 	}
 });
 
-/** Called when the SetupWizard finishes.
- * The wizard's markOnboardingComplete() already calls completeModelSetup(),
- * which emits platform:models-status → platformState.modelsReady → fade.
- */
-function handleWizardComplete(): void {
-	// Wizard handles everything internally via markOnboardingComplete()
+async function openModelLoader(): Promise<void> {
+	await invoke("open_window", { role: "ModelLoader" });
 }
 </script>
 
@@ -201,12 +199,50 @@ function handleWizardComplete(): void {
 		{/if}
 
 		<!-- Model Setup Wizard Phase -->
-		<!-- Shows when platform is ready but models aren't configured -->
 		{#if isWizardPhase}
-			{#await import("$lib/domains/app/models/features/setup-wizard/SetupWizard.svelte") then module}
-				<module.default onComplete={handleWizardComplete} />
-			{/await}
+			<div class={cn(stack({ gap: "6", align: "center" }), "w-full max-w-[560px] p-8")}>
+				<div class="wizard-gate">
+					<span class="wizard-gate-chip">Model Setup Required</span>
+					<Text size="lg" weight="bold">Complete Clyffy model setup</Text>
+					<Text size="sm" color="muted">
+					Platform services are ready. Finish model setup in the Model Loader routes.
+					</Text>
+					<Button preset="primary" size="md" onclick={openModelLoader}>
+						Open Model Loader
+					</Button>
+				</div>
+			</div>
 		{/if}
 	</div>
 </div>
 {/if}
+
+<style>
+	.wizard-gate {
+		width: 100%;
+		max-width: 26rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.625rem;
+		text-align: center;
+		padding: 1rem 1.25rem;
+		border-radius: 0.875rem;
+		border: 1px solid var(--border-subtle, #1a2030);
+		background: var(--glass-deep, oklch(0.12 0.015 220 / 0.84));
+		box-shadow: 0 14px 32px oklch(0 0 0 / 0.35);
+	}
+	.wizard-gate-chip {
+		display: inline-flex;
+		align-items: center;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		padding: 0.2rem 0.5rem;
+		border-radius: 9999px;
+		color: var(--brand-cyan, #17deef);
+		background: oklch(0.82 0.14 195 / 0.11);
+		border: 1px solid oklch(0.82 0.14 195 / 0.3);
+	}
+</style>

@@ -138,7 +138,7 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 				const { toast } = await import("svelte-sonner");
 				try {
 					const dlId = await downloadModel(repoId, filename);
-					wizardState.trackDownload(dlId, targetSlot ?? "chat.brain", filename);
+					wizardState.trackDownload(dlId, (targetSlot ?? "chat.brain") as import("../../../types/models.types.js").SlotId, filename);
 					toast.info(`Downloading ${filename}...`);
 				} catch (e) {
 					toast.error(e instanceof Error ? e.message : String(e));

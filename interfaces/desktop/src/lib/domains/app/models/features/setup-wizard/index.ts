@@ -1,28 +1,21 @@
 /**
- * @file Setup Wizard Module — Barrel Exports
+ * @file Setup Wizard Module — Public API
  * @module @devpulse/domains/app/models/features/setup-wizard
  *
- * Self-contained module for the 7-phase dev onboarding wizard.
- * Follows 10 Commandments: preset-first, layman names, role colors.
+ * Domain logic for the model setup wizard.
+ * Routes at (model-loader)/model-loader/ compose these exports.
+ * Routes import ONLY from this file — never deep into the module.
  */
 
+// Shared components (used by route pages)
 export { default as CurrentSetupPopup } from "./components/CurrentSetupPopup.svelte";
-// Shared components
+export { default as HuggingFaceSearch } from "./components/HuggingFaceSearch.svelte";
 export { default as PresetCard } from "./components/PresetCard.svelte";
 export { default as SlotCard } from "./components/SlotCard.svelte";
 export { default as SlotSwapPopup } from "./components/SlotSwapPopup.svelte";
 export { default as VramBar } from "./components/VramBar.svelte";
-// Main component
-export { default as SetupWizard } from "./SetupWizard.svelte";
-export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";
-export { default as CompletionStep } from "./steps/CompletionStep.svelte";
-export { default as CustomizeStep } from "./steps/CustomizeStep.svelte";
-export { default as HardwareDetectionStep } from "./steps/HardwareDetectionStep.svelte";
-export { default as ModelsStep } from "./steps/ModelsStep.svelte";
-export { default as ProjectSetupStep } from "./steps/ProjectSetupStep.svelte";
-export { default as SearchBrowseStep } from "./steps/SearchBrowseStep.svelte";
-// Step components
-export { default as WelcomeStep } from "./steps/WelcomeStep.svelte";
+export { default as WizardHelpTip } from "./components/WizardHelpTip.svelte";
+export { default as WizardInfoPopup } from "./components/WizardInfoPopup.svelte";
 
 // State
 export { wizardState } from "./wizard.runes.svelte.js";
@@ -30,6 +23,7 @@ export { wizardState } from "./wizard.runes.svelte.js";
 // Service
 export {
 	bulkDownloadAndAssign,
+	cancelActiveDownload,
 	checkDevProfile,
 	checkOnboardingComplete,
 	createDevProfile,

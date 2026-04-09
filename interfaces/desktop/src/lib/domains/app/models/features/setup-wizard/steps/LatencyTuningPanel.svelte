@@ -84,7 +84,7 @@ let showAdvanced = $state(false);
 <style>
 	.latency-panel { display:flex;flex-direction:column;gap:1rem;background:oklch(0.12 0.025 220/0.65);border:1px solid oklch(0.3 0.03 220/0.4);border-radius:0.75rem;padding:1.25rem;backdrop-filter:blur(12px); }
 	.header { display:flex;align-items:flex-start;gap:0.75rem; }
-	.icon { color:oklch(0.65 0.17 185); }
+	:global(.icon) { color:oklch(0.65 0.17 185); }
 	.title { font-size:1rem;font-weight:700;color:oklch(0.93 0.015 224);margin:0; }
 	.subtitle { font-size:0.8125rem;color:oklch(0.6 0.02 220);margin:0.25rem 0 0; }
 	.section { display:flex;flex-direction:column;gap:0.5rem; }

@@ -110,11 +110,11 @@ fn recommendations_for_tier(
             rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::GpuWithCpuFallback, downloaded),
         ],
         HardwareTier::Low => vec![
-            rec("chat.brain", "bartowski/Qwen3-1.7B-GGUF", "Qwen3-1.7B-Q4_K_M.gguf", 1_200, 1_500, DevicePreference::Gpu, downloaded),
+            rec("chat.brain", "bartowski/Qwen3-4B-GGUF", "Qwen3-4B-Q4_K_M.gguf", 2_600, 3_200, DevicePreference::Gpu, downloaded),
             rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::GpuWithCpuFallback, downloaded),
         ],
         HardwareTier::Minimal | HardwareTier::CpuOnly => vec![
-            rec("chat.brain", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::Cpu, downloaded),
+            rec("chat.brain", "bartowski/Qwen3-4B-GGUF", "Qwen3-4B-Q4_K_M.gguf", 2_600, 3_200, DevicePreference::Cpu, downloaded),
         ],
     };
 

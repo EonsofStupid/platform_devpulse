@@ -20,10 +20,10 @@ const filename = $derived(filePath.split(/[\\/]/).pop() ?? filePath);
 </script>
 
 {#if open}
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="backdrop" onclick={onCancel}>
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="dialog" role="dialog" aria-modal="true" onclick={(e) => e.stopPropagation()}
+	<div class="backdrop" role="button" tabindex="0" aria-label="Close dialog"
+		onclick={onCancel} onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") onCancel(); }}>
+		<div class="dialog" role="dialog" aria-modal="true" tabindex="-1"
+			onclick={(e) => e.stopPropagation()}
 			onkeydown={(e) => { if (e.key === "Escape") onCancel(); }}>
 			<div class="dialog-header">
 				<h3 class="dialog-title">Import Model</h3>

@@ -31,8 +31,7 @@ function close(): void {
 {#if wizardState.showCurrentSetup}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="popup-backdrop" onclick={close} onkeydown={(e) => e.key === "Escape" && close()}>
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="popup" onclick={(e) => e.stopPropagation()} role="dialog" aria-label="Current setup overview">
+		<div class="popup" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.key === "Escape" && close()} role="dialog" aria-label="Current setup overview" tabindex="-1">
 			<div class="popup-header">
 				<h3 class="popup-title">Current Setup</h3>
 				<button class="btn-close" onclick={close} aria-label="Close"><X size={16} /></button>

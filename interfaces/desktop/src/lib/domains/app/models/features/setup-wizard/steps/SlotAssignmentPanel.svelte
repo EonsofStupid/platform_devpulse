@@ -336,7 +336,7 @@ function capabilityFilter(capId: string): string {
 		{#each CAPABILITIES as cap (cap.id)}
 			{@const ready = isInferenceReady(modelsState.statuses[cap.id] ?? { type: "cold" })}
 			{@const assigned = !!modelsState.assignedModel(cap.id)}
-			<div class="ready-item"
+			<div class="ready-item" role="group"
 				onmouseenter={() => showTooltip(`ready-${cap.id}`)}
 				onmouseleave={hideTooltip}>
 				<span class="dot" class:dot-ready={ready} class:dot-assigned={assigned && !ready} class:dot-empty={!assigned}></span>
@@ -481,7 +481,7 @@ function capabilityFilter(capId: string): string {
 
 					<div class="model-tags">
 						{#if model.quant_level}
-							<span class="tag"
+							<span class="tag" role="group"
 								onmouseenter={() => showTooltip(`q-${cap.id}`)}
 								onmouseleave={hideTooltip}>
 								{model.quant_level}
@@ -497,7 +497,7 @@ function capabilityFilter(capId: string): string {
 					<!-- VRAM fit with description -->
 					<div class="model-fit">
 						<span class="fit-dot" style="background:{fitColor(fit)}"></span>
-						<span class="fit-text"
+						<span class="fit-text" role="group"
 							onmouseenter={() => showTooltip(`fit-${cap.id}`)}
 							onmouseleave={hideTooltip}>
 							{vramDescription(model.vram_estimate_mb, hardwareState.vramTotalMb)} — {fitLabel(fit)}
@@ -516,7 +516,7 @@ function capabilityFilter(capId: string): string {
 					{#if model.context_length > 0}
 						{@const ctx = getContextOverride(cap.id, model)}
 						<div class="ctx-editor">
-							<span class="ctx-label"
+							<span class="ctx-label" role="group"
 								onmouseenter={() => showTooltip(`ctx-${cap.id}`)}
 								onmouseleave={hideTooltip}>
 								Context: {formatContext(ctx)}
@@ -738,10 +738,10 @@ function capabilityFilter(capId: string): string {
 
 	<!-- VRAM warning dialog -->
 	{#if showVramWarning && pendingLoadModel}
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="dialog-backdrop" onclick={() => { showVramWarning = false; }}>
-			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-			<div class="dialog" onclick={(e) => e.stopPropagation()} role="alertdialog" aria-modal="true"
+		<div class="dialog-backdrop" role="button" tabindex="0" aria-label="Close dialog"
+			onclick={() => { showVramWarning = false; }}
+			onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") showVramWarning = false; }}>
+			<div class="dialog" onclick={(e) => e.stopPropagation()} role="alertdialog" aria-modal="true" tabindex="-1"
 				onkeydown={(e) => { if (e.key === "Escape") showVramWarning = false; }}>
 				<h3 class="dialog-title"><AlertTriangle size={18} /> Model Too Large for GPU</h3>
 				<p class="dialog-msg">
@@ -761,10 +761,10 @@ function capabilityFilter(capId: string): string {
 
 	<!-- Delete confirmation dialog (#46) -->
 	{#if showDeleteConfirm && deleteTargetModel}
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="dialog-backdrop" onclick={() => { showDeleteConfirm = false; }}>
-			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-			<div class="dialog" onclick={(e) => e.stopPropagation()} role="alertdialog" aria-modal="true"
+		<div class="dialog-backdrop" role="button" tabindex="0" aria-label="Close dialog"
+			onclick={() => { showDeleteConfirm = false; }}
+			onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") showDeleteConfirm = false; }}>
+			<div class="dialog" onclick={(e) => e.stopPropagation()} role="alertdialog" aria-modal="true" tabindex="-1"
 				onkeydown={(e) => { if (e.key === "Escape") showDeleteConfirm = false; }}>
 				<h3 class="dialog-title"><Trash2 size={18} /> Delete Model</h3>
 				<p class="dialog-msg">
@@ -783,10 +783,10 @@ function capabilityFilter(capId: string): string {
 
 	<!-- Model detail overlay (#47) -->
 	{#if showDetailOverlay && detailModel}
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="dialog-backdrop" onclick={() => { showDetailOverlay = false; }}>
-			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-			<div class="detail-overlay" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
+		<div class="dialog-backdrop" role="button" tabindex="0" aria-label="Close dialog"
+			onclick={() => { showDetailOverlay = false; }}
+			onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") showDetailOverlay = false; }}>
+			<div class="detail-overlay" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1"
 				onkeydown={(e) => { if (e.key === "Escape") showDetailOverlay = false; }}>
 				<div class="detail-header">
 					<h3 class="detail-title">{detailModel.filename}</h3>
@@ -852,10 +852,10 @@ function capabilityFilter(capId: string): string {
 
 	<!-- Auto-configure confirmation overlay -->
 	{#if showAutoConfirm}
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="dialog-backdrop" onclick={() => { showAutoConfirm = false; }}>
-			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-			<div class="confirm-overlay" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
+		<div class="dialog-backdrop" role="button" tabindex="0" aria-label="Close dialog"
+			onclick={() => { showAutoConfirm = false; }}
+			onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") showAutoConfirm = false; }}>
+			<div class="confirm-overlay" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1"
 				onkeydown={(e) => { if (e.key === "Escape") showAutoConfirm = false; }}>
 				<h3 class="confirm-title"><Zap size={20} /> Auto-Configure Review</h3>
 				<p class="confirm-desc">
@@ -940,7 +940,7 @@ function capabilityFilter(capId: string): string {
 
 	/* Capability card */
 	.cap-card { background:oklch(0.12 0.025 220/0.65);border:1px solid oklch(0.3 0.03 220/0.4);border-radius:0.75rem;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;backdrop-filter:blur(12px);transition:border-color 150ms,box-shadow 150ms; }
-	.cap-card.loaded { /* color set inline per-capability */ }
+
 	.cap-card.failed { border-color:oklch(0.6 0.22 25);box-shadow:0 0 1rem 0.25rem oklch(0.55 0.2 25/0.35); }
 
 	.cap-header { display:flex;align-items:flex-start;gap:0.75rem; }

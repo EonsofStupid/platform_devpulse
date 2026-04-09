@@ -74,12 +74,12 @@ export interface SlotLabel {
 /** Role groupings for color coding (10 Commandments #4). */
 export type SlotRole = "reasoning" | "observation" | "encoder" | "voice";
 
-/** Role → CSS accent mapping. */
+/** Role → CSS accent mapping. Uses --wiz-* local vars (wizard is ColdLight exception). */
 export const ROLE_COLORS: Record<SlotRole, { accent: string; glow: string }> = {
-	reasoning: { accent: "var(--accent-purple-main)", glow: "var(--accent-purple-glow)" },
-	observation: { accent: "var(--brand-green)", glow: "var(--accent-cyber-glow)" },
-	encoder: { accent: "var(--brand-blue)", glow: "var(--accent-frost-glow)" },
-	voice: { accent: "var(--brand-coral)", glow: "var(--accent-ember-glow)" },
+	reasoning: { accent: "var(--wiz-role-brain)", glow: "var(--wiz-glow-purple)" },
+	observation: { accent: "var(--wiz-role-minion)", glow: "var(--wiz-glow-green)" },
+	encoder: { accent: "var(--wiz-role-encoder)", glow: "var(--wiz-glow-cyan)" },
+	voice: { accent: "var(--wiz-role-voice)", glow: "var(--wiz-glow-ember)" },
 };
 
 /** The definitive slot label list. EXACT from owner's spec. */
@@ -93,7 +93,7 @@ export const SLOT_LABELS: SlotLabel[] = [
 	{
 		id: "minion.shared",
 		name: "Minion Core",
-		description: "helpers watching your project",
+		description: "specialist helpers thinking about your project",
 		role: "observation",
 	},
 	{
@@ -109,7 +109,7 @@ export const SLOT_LABELS: SlotLabel[] = [
 		role: "encoder",
 	},
 	{
-		id: "vision.encoder",
+		id: "vision.embedder",
 		name: "Screen Reader",
 		description: "understands screenshots",
 		role: "encoder",

@@ -5,7 +5,7 @@
   Technical model name in small gray text.
 -->
 <script lang="ts">
-import { Check, Loader2, RefreshCw, X } from "lucide-svelte";
+import { Check, LoaderCircle, RefreshCw, X } from "lucide-svelte";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
 import { formatMb, isInferenceReady } from "../../../types/models.types.js";
 import type { SlotLabel } from "../wizard.types.js";
@@ -29,10 +29,19 @@ const ready = $derived(status ? isInferenceReady(status) : false);
 const statusText = $derived.by(() => {
 	if (!assignedModel) return "Not set up";
 	if (ready) return "Ready";
-	if (status?.type === "loading") return "Loading...";
+	if (status?.type === "loading") return "Loading into memory...";
 	if (status?.type === "warm") return "Standby";
-	if (status?.type === "failed") return "Failed";
+	if (status?.type === "failed") return "Failed — click Change to fix";
 	return "Assigned";
+});
+
+const statusTooltip = $derived.by(() => {
+	if (!assignedModel) return "No model selected — click Change to pick one";
+	if (ready) return "This model is loaded and ready to use";
+	if (status?.type === "loading") return "Loading model into GPU memory — this takes a few seconds";
+	if (status?.type === "warm") return "Model is in system RAM, ready to activate quickly";
+	if (status?.type === "failed") return "Something went wrong loading this model";
+	return "Model selected but not yet loaded into memory";
 });
 
 const statusClass = $derived.by(() => {
@@ -55,16 +64,21 @@ const statusClass = $derived.by(() => {
 		</div>
 
 		<div class="card-right">
-			<span class="status-badge {statusClass}">
+			<span class="status-badge {statusClass}" title={statusTooltip}>
 				{#if ready}
 					<Check size={10} />
 				{:else if status?.type === "loading"}
-					<Loader2 size={10} class="animate-spin" />
+					<LoaderCircle size={10} class="animate-spin" />
 				{:else if status?.type === "failed"}
 					<X size={10} />
 				{/if}
 				{statusText}
 			</span>
+			{#if status?.type === "failed"}
+				<button class="btn-retry" onclick={async () => { await modelsState.load(slotId); }}>
+					Retry
+				</button>
+			{/if}
 			<button class="btn-change" onclick={onChange}>
 				<RefreshCw size={12} /> Change
 			</button>
@@ -101,6 +115,14 @@ const statusClass = $derived.by(() => {
 	.status-failed { color: var(--wiz-salmon); background: var(--wiz-fill-ember); }
 	.status-empty { color: var(--wiz-text-muted); background: var(--wiz-void-800); }
 
+	.btn-retry {
+		display: inline-flex; align-items: center;
+		padding: 0.25rem 0.5rem; border-radius: var(--wiz-radius-sm);
+		border: 1px solid var(--wiz-ember-600); background: var(--wiz-fill-ember);
+		color: var(--wiz-salmon); font-size: var(--wiz-text-xs); cursor: pointer;
+		transition: all var(--wiz-duration-fast);
+	}
+	.btn-retry:hover { background: var(--wiz-ember-600); color: var(--wiz-text); }
 	.btn-change {
 		display: inline-flex; align-items: center; gap: 0.25rem;
 		padding: 0.25rem 0.5rem; border-radius: var(--wiz-radius-sm);

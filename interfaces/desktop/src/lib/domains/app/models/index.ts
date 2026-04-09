@@ -16,6 +16,7 @@ export { default as VramGauge } from "./components/VramGauge.svelte";
 export { default as SetupWizard } from "./features/setup-wizard/SetupWizard.svelte";
 export { hardwareState, modelsState, searchState, swapState } from "./runes/index.js";
 export { narrationState } from "./runes/narration.runes.svelte.js";
+export { downloadModel, importLocalModel } from "./services/download.service.js";
 export type * from "./types/models.types.js";
 export {
 	calculateFit,
@@ -25,6 +26,7 @@ export {
 	formatMb,
 	friendlySlotLabel,
 	friendlySlotPurpose,
+	isInferenceReady,
 	quantDescription,
 	statusColor,
 	statusLabel,
