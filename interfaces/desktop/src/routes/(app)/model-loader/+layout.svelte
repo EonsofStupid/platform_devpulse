@@ -1,13 +1,13 @@
 <!--
   @file Model Loader Layout
-  @route (model-loader)/model-loader
+  @route (app)/model-loader
 
   Shell for all wizard pages. Background image, progress steps, current setup button.
   ColdLight components. Rune state from domain.
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { Settings2, X } from "lucide-svelte";
+import { goto } from "$app/navigation";
 import { page } from "$app/stores";
 import { Button } from "$lib/design/components/button/index.js";
 import { Steps } from "$lib/design/components/steps/index.js";
@@ -24,7 +24,7 @@ interface Props {
 let { children }: Props = $props();
 
 function handleClose(): void {
-	invoke("close_window", { label: "model-loader" });
+	goto("/devpulse");
 }
 
 /** Current step index based on URL path. */
@@ -135,8 +135,8 @@ const stepLabels = PROGRESS_PHASES.map((phase) => {
 		background: var(--color-void-700);
 		transition: var(--transition-all-fast);
 	}
-	.step-dot.done { background: var(--brand-green); box-shadow: var(--wiz-glow-sm); }
-	.step-dot.current { background: var(--brand-cyan); box-shadow: var(--wiz-glow-md); }
+	.step-dot.done { background: var(--brand-green); box-shadow: var(--wizard-shadow-glow-sm); }
+	.step-dot.current { background: var(--brand-cyan); box-shadow: var(--wizard-shadow-glow-md); }
 	.step-label { font-size: 0.75rem; color: var(--text-muted); }
 	.step-label.active { color: var(--text-primary); font-weight: 700; }
 	.step-label.done-label { color: var(--text-secondary); }

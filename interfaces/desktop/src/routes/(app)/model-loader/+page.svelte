@@ -8,11 +8,11 @@
   Route composes and renders. Nothing else.
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
+import { goto } from "$app/navigation";
 import SetupWizard from "$lib/domains/app/models/features/setup-wizard/SetupWizard.svelte";
 
 function handleComplete(): void {
-	invoke("close_window", { label: "model-loader" });
+	goto("/devpulse");
 }
 </script>
 
