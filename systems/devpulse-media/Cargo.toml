@@ -1,0 +1,43 @@
+[package]
+name = "devpulse-media"
+version = "0.1.0"
+edition = "2021"
+description = "Media pipeline for DevPulse — camera capture, background removal, composition, virtual camera output"
+
+[features]
+default = ["capture", "matting"]
+capture = ["nokhwa"]
+matting = []  # Background removal via Candle/ORT models
+compositor = ["wgpu"]  # GPU-accelerated compositing (Phase 2)
+virtual-cam = []  # Virtual camera output (Phase 2)
+streaming = []  # RTMP/WebRTC output (Phase 3)
+
+[dependencies]
+# Core
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+# Camera capture (cross-platform)
+nokhwa = { version = "0.10", features = ["input-msmf"], optional = true }
+
+# Image processing
+image = "0.25"
+
+# GPU rendering (Phase 2)
+wgpu = { version = "24", optional = true }
+
+# Async channels for frame pipeline
+flume = "0.11"
+
+# Frame timing
+chrono = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[lints]
+workspace = true
