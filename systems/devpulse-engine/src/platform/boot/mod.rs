@@ -154,12 +154,15 @@ async fn execute_inner(
 ) -> Result<BootedServices> {
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
-    boot_log.running("preflight", "creating data directories...");
-    preflight::ensure_scoped_dirs(data_dir, boot_config)?;
+    {
+        let _spin = boot_log.running("preflight", "creating data directories...");
+        preflight::ensure_scoped_dirs(data_dir, boot_config)?;
+    }
     on_event(InitEvent::ok("preflight", "Directories ready"));
     boot_log.ok("preflight", "directories ready");
 
     // ── Stage 2: System relational (LibSQL) — CRITICAL ────────
+    let _spin = boot_log.running("System relational", "connecting LibSQL...");
     let system_relational = relational::boot(
         data_dir,
         &boot_config.services.system.relational,
@@ -171,6 +174,8 @@ async fn execute_inner(
     ).await;
 
     // ── Stage 3: System analytics (DuckDB) ────────────────────
+    drop(_spin);
+    let _spin = boot_log.running("System analytics", "connecting DuckDB...");
     let system_analytics = analytics::boot(
         data_dir,
         &boot_config.services.system.analytics,
@@ -180,6 +185,8 @@ async fn execute_inner(
         on_event,
         &boot_log,
     ).await;
+
+    drop(_spin);
 
     // ── Prepare Model Loader event sink early (needed for parallel boot) ──
     #[cfg(feature = "inference")]
@@ -198,6 +205,7 @@ async fn execute_inner(
     // tokio::join! runs both futures on the same task — no Send/'static
     // requirement. Both share &on_event and &boot_log safely.
     // ── Stage 4 + 12: Graph + Model Loader in parallel ─────────
+    let _spin = boot_log.running("Graph + Model Loader", "initializing in parallel...");
     #[cfg(feature = "inference")]
     let ((system_graph, user_graph, global_graph), model_loader_svc) = tokio::join!(
         graph::boot_consolidated(data_dir, boot_config, on_event, &boot_log),
@@ -230,6 +238,8 @@ async fn execute_inner(
         }
     }
 
+    drop(_spin);
+
     // ── Stage 5: System cache (Moka) ──────────────────────────
     let system_cache = cache::boot(
         &boot_config.services.system.cache,
@@ -238,6 +248,7 @@ async fn execute_inner(
     );
 
     // ── Stage 6: User relational (LibSQL) ─────────────────────
+    let _spin = boot_log.running("User relational", "connecting LibSQL...");
     let user_relational = relational::boot(
         data_dir,
         &boot_config.services.user.relational,
@@ -249,6 +260,8 @@ async fn execute_inner(
     ).await;
 
     // ── Stage 7: Vector store (RRO) — feature-gated ──────────
+    drop(_spin);
+    let _spin = boot_log.running("Vector store", "verifying RRO...");
     #[cfg(feature = "rro")]
     let vector = vector::boot(
         data_dir,
@@ -266,6 +279,8 @@ async fn execute_inner(
             );
         }
     }
+
+    drop(_spin);
 
     // ── Stage 9: Grammar (kernel-owned constrained decoding) ───
     on_event(InitEvent::skipped("Grammar service"));

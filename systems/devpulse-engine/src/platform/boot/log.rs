@@ -111,13 +111,16 @@ impl BootLog {
         self.fail_count.load(std::sync::atomic::Ordering::Relaxed)
     }
 
-    /// Log a running/in-progress stage (no newline after — will be overwritten).
-    pub fn running(&self, stage: &str, detail: &str) {
-        // Only write to stderr (progress indicator), not to file.
-        // File only gets final outcomes.
+    /// Log a running/in-progress stage with animated spinner.
+    ///
+    /// Returns a [`SpinnerGuard`] that animates on stderr until dropped.
+    /// Drop happens automatically when the service finishes and `.ok()` / `.fail()` is called.
+    /// Only writes to stderr — file gets final outcomes only.
+    pub fn running(&self, stage: &str, detail: &str) -> SpinnerGuard {
         let tag = self.elapsed_tag();
         eprint!("\r[{tag}] [  >> ] {stage}: {detail}");
         let _ = std::io::stderr().flush();
+        SpinnerGuard::start(self.start.clone(), stage.to_string(), detail.to_string())
     }
 
     /// Log the final ready line — all critical services confirmed.
@@ -185,6 +188,61 @@ impl BootLog {
         format!("+{secs:03}.{ms:03}s")
     }
 
+}
+
+// ── Spinner ───────────────────────────────────────────────────
+
+/// Animated spinner that runs on a background thread until dropped.
+///
+/// Prints `⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏` braille frames to stderr at ~80ms intervals.
+/// The line is carriage-returned so it overwrites in place.
+/// When the guard drops, the spinner thread stops and the line is cleared.
+pub struct SpinnerGuard {
+    stop: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    handle: Option<std::thread::JoinHandle<()>>,
+}
+
+impl SpinnerGuard {
+    /// Start the spinner on a background thread.
+    fn start(boot_start: Instant, stage: String, detail: String) -> Self {
+        let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let stop_clone = stop.clone();
+
+        let handle = std::thread::spawn(move || {
+            const FRAMES: &[char] = &['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+            let mut i = 0usize;
+            while !stop_clone.load(std::sync::atomic::Ordering::Relaxed) {
+                let e = boot_start.elapsed();
+                let secs = e.as_secs();
+                let ms = e.subsec_millis();
+                let tag = format!("+{secs:03}.{ms:03}s");
+                let frame = FRAMES[i % FRAMES.len()];
+                eprint!("\r[{tag}] [ {frame}  ] {stage}: {detail}   ");
+                let _ = std::io::stderr().flush();
+                std::thread::sleep(std::time::Duration::from_millis(80));
+                i += 1;
+            }
+            // Clear the spinner line
+            eprint!("\r{}\r", " ".repeat(100));
+            let _ = std::io::stderr().flush();
+        });
+
+        Self {
+            stop: Some(stop),
+            handle: Some(handle),
+        }
+    }
+}
+
+impl Drop for SpinnerGuard {
+    fn drop(&mut self) {
+        if let Some(stop) = self.stop.take() {
+            stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+        if let Some(handle) = self.handle.take() {
+            let _ = handle.join();
+        }
+    }
 }
 
 /// UTC timestamp string.
