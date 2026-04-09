@@ -3,9 +3,8 @@
   @route (setup)/model-loader
 
   Bare full-screen shell for the setup wizard.
-  Background image only. No Frame, no sidebar, no nav, no progress dots.
-  SetupWizard.svelte owns all wizard chrome (progress dots, navigation, phase switching).
-  This layout just provides the full-screen container + background.
+  Background image only. No Frame, no sidebar, no nav.
+  Each route page owns its own content. Layout provides bg + container.
 -->
 <script lang="ts">
 let { children }: { children: import("svelte").Snippet } = $props();

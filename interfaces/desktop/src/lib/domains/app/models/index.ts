@@ -13,7 +13,7 @@ export { default as SubsystemGroup } from "./components/SubsystemGroup.svelte";
 export { default as SwapOverlay } from "./components/SwapOverlay.svelte";
 export { default as VramBudgetPlanner } from "./components/VramBudgetPlanner.svelte";
 export { default as VramGauge } from "./components/VramGauge.svelte";
-export { default as SetupWizard } from "./features/setup-wizard/SetupWizard.svelte";
+// SetupWizard deleted — wizard is route-based at (setup)/model-loader/
 export { hardwareState, modelsState, searchState, swapState } from "./runes/index.js";
 export { narrationState } from "./runes/narration.runes.svelte.js";
 export { downloadModel, importLocalModel } from "./services/download.service.js";
