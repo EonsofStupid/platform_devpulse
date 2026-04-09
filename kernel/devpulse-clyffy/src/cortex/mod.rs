@@ -2,6 +2,8 @@
 pub mod adapters;
 /// Context-Augmented Generation (CAG) retrieval pipeline.
 pub mod cag;
+/// Grammar and constrained decoding runtime ownership.
+pub mod grammar;
 /// KV cache tier for attention optimization.
 pub mod kv_cache;
 /// Minion task workers.

@@ -10,7 +10,6 @@ pub mod manifest;
 pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;
-// Grammar service — llguidance integration is a future sprint
 #[cfg(feature = "candle")]
 pub mod embedder;
 #[cfg(feature = "candle")]
@@ -39,7 +38,7 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
-    /// Grammar service (llguidance — constrained decoding). Future sprint.
+    /// Grammar service (kernel-owned constrained decoding).
     Grammar,
     /// Embedder service (Candle — dense text embedding).
     Embedder,

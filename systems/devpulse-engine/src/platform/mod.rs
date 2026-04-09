@@ -66,9 +66,6 @@ use services::graph::GraphService;
 use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
-// Grammar (llguidance) — future sprint
-// #[cfg(feature = "outlines")]
-// use services::grammar::GrammarService;
 #[cfg(feature = "candle")]
 use services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
@@ -161,7 +158,7 @@ pub struct Platform {
     // ── Vector (RRO) ──────────────────────────────────────────
     #[cfg(feature = "rro")]
     vector: Option<Arc<VectorService>>,
-    // ── Grammar (llguidance) — future sprint ────────────────────
+    // ── Grammar is kernel-owned; facade wiring lands separately ─────────
     // ── Embedder (Candle) ─────────────────────────────────────
     #[cfg(feature = "candle")]
     embedder: Option<Arc<EmbedderService>>,
@@ -324,9 +321,6 @@ impl Platform {
     pub fn vector(&self) -> Option<&Arc<VectorService>> {
         self.vector.as_ref()
     }
-
-
-    // Grammar (llguidance) — getter added in future sprint
 
     // ── User scope accessors ────────────────────────────────────
 

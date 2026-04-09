@@ -12,7 +12,7 @@
 //! - [`whisper`] — Candle speech-to-text
 //! - [`model_loader`] — AI model management + inference
 //! - [`devforge`] — Managed VSCode (code-oss)
-//! - grammar — llguidance (future sprint, currently skipped)
+//! - grammar — kernel-owned constrained decoding service (facade stage pending)
 //!
 //! # Boot Sequence (14 stages)
 //!  1. **Preflight** — validate config, create directory hierarchy
@@ -23,7 +23,7 @@
 //!  5. **System cache** (Moka) — CRITICAL
 //!  6. **User relational** (LibSQL) — CRITICAL
 //!  7. **Vector store** (RRO) — feature-gated
-//!  9. **Grammar** (llguidance) — SKIPPED (future sprint)
+//!  9. **Grammar** (kernel-owned constrained decoding) — temporarily skipped
 //! 10. **Embedder** (Candle) — feature-gated
 //! 11. **Whisper** (Candle) — feature-gated
 //! 13. **DevForge** (VSCode) — non-critical
@@ -267,9 +267,9 @@ async fn execute_inner(
         }
     }
 
-    // ── Stage 9: Grammar (llguidance) — future sprint, skipped ──
+    // ── Stage 9: Grammar (kernel-owned constrained decoding) ───
     on_event(InitEvent::skipped("Grammar service"));
-    boot_log.skip("Grammar service", "llguidance not yet wired — future sprint");
+    boot_log.skip("Grammar service", "kernel grammar service not yet attached to facade boot");
 
     // ── Stage 10: Embedder (Candle) — feature-gated ─────────
     #[cfg(feature = "candle")]

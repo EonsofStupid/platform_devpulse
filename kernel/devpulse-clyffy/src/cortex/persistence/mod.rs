@@ -20,9 +20,6 @@ pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
-// llguidance constrained decoding — wired when fork is ready
-// #[cfg(feature = "outlines")]
-// pub mod llguidance;
 #[cfg(feature = "candle")]
 pub mod embedder;
 #[cfg(feature = "candle")]

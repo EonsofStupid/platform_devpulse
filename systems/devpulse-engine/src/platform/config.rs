@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
+use devpulse_clyffy::cortex::grammar::GrammarConfig;
 
 // ═══════════════════════════════════════════════════════════════
 // Public types (TS-exported)
@@ -53,7 +54,7 @@ pub struct DatabaseConfig {
     pub global_graph_enabled: bool,
     /// Vector store enabled (`RRO`).
     pub vector_enabled: bool,
-    /// Grammar service enabled (`llguidance` — future sprint).
+    /// Grammar service enabled.
     pub grammar_enabled: bool,
     /// Embedder service enabled (Candle).
     pub embedder_enabled: bool,
@@ -345,9 +346,9 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
-    /// Grammar service (`llguidance` — future sprint) — structured generation engine.
+    /// Grammar service — structured generation engine.
     #[serde(default)]
-    pub grammar: GrammarServiceEntry,
+    pub grammar: GrammarConfig,
     /// Embedder service (Candle — dense text embedding, CPU burst).
     #[serde(default)]
     pub embedder: EmbedderServiceEntry,
@@ -373,7 +374,7 @@ impl Default for SystemServicesConfig {
             graph: GraphServiceEntry::system_default(),
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
-            grammar: GrammarServiceEntry::default(),
+            grammar: GrammarConfig::default(),
             embedder: EmbedderServiceEntry::default(),
             whisper: WhisperServiceEntry::default(),
             model_loader: ModelLoaderServiceEntry::default(),
@@ -732,35 +733,6 @@ impl VectorServiceEntry {
     }
 }
 
-/// Configuration for the grammar service (llguidance — future sprint).
-/// Kept for config deserialization compatibility. Defaults to disabled.
-#[derive(Debug, Clone, Deserialize)]
-pub struct GrammarServiceEntry {
-    /// Whether this service is enabled.
-    #[serde(default)]
-    pub enabled: bool,
-    /// Whether boot fails if this service fails.
-    #[serde(default)]
-    pub critical: bool,
-    /// Service kind identifier.
-    #[serde(default = "default_grammar_kind")]
-    pub kind: String,
-}
-
-fn default_grammar_kind() -> String {
-    "llguidance".to_string()
-}
-
-impl Default for GrammarServiceEntry {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            critical: false,
-            kind: default_grammar_kind(),
-        }
-    }
-}
-
 /// Configuration for the embedder service (Candle — dense text embedding).
 #[derive(Debug, Clone, Deserialize)]
 pub struct EmbedderServiceEntry {
@@ -1028,7 +1000,7 @@ impl LoadingStrategyConfig {
 /// TOML-side `BackendType`.
 #[derive(Debug, Clone, Deserialize)]
 pub enum BackendTypeConfig {
-    /// Candle (canonical — Rust-native, llguidance integration).
+    /// Candle (canonical — Rust-native backend).
     Candle,
     /// llama.cpp via FFI (secondary — broader architecture support).
     LlamaCpp,
