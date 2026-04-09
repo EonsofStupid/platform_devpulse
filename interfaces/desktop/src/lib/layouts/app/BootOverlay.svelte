@@ -22,7 +22,6 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -84,7 +83,9 @@ $effect(() => {
 });
 
 async function openModelLoader(): Promise<void> {
-	await invoke("open_window", { role: "ModelLoader" });
+	const { goto } = await import("$app/navigation");
+	await goto("/model-loader");
+	fading = true;
 }
 </script>
 
@@ -198,20 +199,9 @@ async function openModelLoader(): Promise<void> {
 			{/if}
 		{/if}
 
-		<!-- Model Setup Wizard Phase -->
+		<!-- Model Setup Wizard Phase — auto-navigate to Clyffy welcome -->
 		{#if isWizardPhase}
-			<div class={cn(stack({ gap: "6", align: "center" }), "w-full max-w-[560px] p-8")}>
-				<div class="wizard-gate">
-					<span class="wizard-gate-chip">Model Setup Required</span>
-					<Text size="lg" weight="bold">Complete Clyffy model setup</Text>
-					<Text size="sm" color="muted">
-					Platform services are ready. Finish model setup in the Model Loader routes.
-					</Text>
-					<Button preset="primary" size="md" onclick={openModelLoader}>
-						Open Model Loader
-					</Button>
-				</div>
-			</div>
+			{@const _nav = openModelLoader()}
 		{/if}
 	</div>
 </div>
