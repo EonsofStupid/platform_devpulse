@@ -23,8 +23,10 @@
 }
 -->
 <script lang="ts">
-import { useDataTable } from "$lib/design/behaviors/navigation/data-table/index.js";
-import { dataTableAnatomy } from "$lib/design/primitives/data-table/index.js";
+import {
+	dataTableAnatomy,
+	useDataTable,
+} from "$lib/design/behaviors/navigation/data-table/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DataTableComponentProps } from "./types.js";

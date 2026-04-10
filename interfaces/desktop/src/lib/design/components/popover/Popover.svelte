@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { popoverAnatomy } from "$lib/design/behaviors/overlays/popover/index.js";
 import { usePopover } from "$lib/design/behaviors/overlays/popover/use-popover.svelte.js";
-import { popoverAnatomy } from "$lib/design/primitives/popover/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";

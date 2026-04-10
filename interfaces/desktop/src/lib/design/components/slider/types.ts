@@ -10,7 +10,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { SliderPrimitiveProps } from "$lib/design/primitives/slider/index.js";
+import type { SliderPrimitiveProps } from "$lib/design/behaviors/inputs/slider/index.js";
 
 export type SliderPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

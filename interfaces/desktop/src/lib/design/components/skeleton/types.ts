@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { SkeletonPrimitiveProps } from "$lib/design/primitives/skeleton/index.js";
+import type { SkeletonPrimitiveProps } from "$lib/design/behaviors/display/skeleton/index.js";
 
 export type SkeletonVariant = "text" | "circular" | "rectangular";
 

@@ -6,4 +6,5 @@
 
 export { meterAnatomy } from "./meter.anatomy.js";
 export type * from "./meter.types.js";
+export type * from "./primitive-props.js";
 export { useMeter } from "./use-meter.svelte.js";

@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { TogglePrimitiveProps } from "$lib/design/primitives/toggle/index.js";
+import type { TogglePrimitiveProps } from "$lib/design/behaviors/inputs/toggle/index.js";
 
 export type ToggleSize = "sm" | "md" | "lg";
 export type TogglePreset = "default" | "stark" | "glass" | "flat" | "matte";

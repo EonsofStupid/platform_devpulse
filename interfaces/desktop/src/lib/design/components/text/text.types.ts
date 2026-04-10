@@ -3,7 +3,7 @@
  * @kind text
  */
 
-import type { TextPrimitiveProps } from "$lib/design/primitives/text/index.js";
+import type { TextPrimitiveProps } from "$lib/design/behaviors/display/text/index.js";
 
 export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";
 export type TextPreset = "default" | "stark" | "glass" | "flat" | "matte";

@@ -21,8 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useForm } from "$lib/design/behaviors/inputs/form/index.js";
-import { formAnatomy } from "$lib/design/primitives/form/index.js";
+import { formAnatomy, useForm } from "$lib/design/behaviors/inputs/form/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormComponentProps } from "./types.js";

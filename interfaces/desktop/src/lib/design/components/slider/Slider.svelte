@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { sliderAnatomy } from "$lib/design/behaviors/inputs/slider/index.js";
 import { useSlider } from "$lib/design/behaviors/inputs/slider/use-slider.svelte.js";
-import { sliderAnatomy } from "$lib/design/primitives/slider/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";

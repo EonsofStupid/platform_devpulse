@@ -22,8 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useSidebar } from "$lib/design/behaviors/navigation/sidebar/index.js";
-import { sidebarAnatomy } from "$lib/design/primitives/sidebar/index.js";
+import { sidebarAnatomy, useSidebar } from "$lib/design/behaviors/navigation/sidebar/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SidebarComponentProps } from "./types.js";

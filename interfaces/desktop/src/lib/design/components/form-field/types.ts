@@ -6,7 +6,7 @@
  * Extends FormFieldPrimitiveProps with visual preset and size.
  */
 
-import type { FormFieldPrimitiveProps } from "$lib/design/primitives/form-field/index.js";
+import type { FormFieldPrimitiveProps } from "$lib/design/behaviors/inputs/form-field/index.js";
 
 export type FormFieldSize = "sm" | "md" | "lg";
 export type FormFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";

@@ -3,9 +3,9 @@
  * @kind heading
  */
 
-import type { HeadingPrimitiveProps } from "$lib/design/primitives/heading/index.js";
+import type { HeadingPrimitiveProps } from "$lib/design/behaviors/display/heading/index.js";
 
-export type { HeadingLevel } from "$lib/design/primitives/heading/index.js";
+export type { HeadingLevel } from "$lib/design/behaviors/display/heading/index.js";
 
 export type HeadingPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type HeadingSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";

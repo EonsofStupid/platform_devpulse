@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { SidebarPrimitiveProps } from "$lib/design/primitives/sidebar/index.js";
+import type { SidebarPrimitiveProps } from "$lib/design/behaviors/navigation/sidebar/index.js";
 
 export type SidebarSize = "sm" | "md" | "lg";
 

@@ -6,7 +6,7 @@
  * Extends ToolbarPrimitiveProps with visual preset, sizing, and ARIA state.
  */
 
-import type { ToolbarPrimitiveProps } from "$lib/design/primitives/toolbar/index.js";
+import type { ToolbarPrimitiveProps } from "$lib/design/behaviors/navigation/toolbar/index.js";
 
 export type ToolbarSize = "sm" | "md" | "lg";
 

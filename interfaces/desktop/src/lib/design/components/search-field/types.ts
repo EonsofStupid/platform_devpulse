@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { SearchFieldPrimitiveProps } from "$lib/design/primitives/search-field/index.js";
+import type { SearchFieldPrimitiveProps } from "$lib/design/behaviors/inputs/search-field/index.js";
 
 export type SearchFieldSize = "sm" | "md" | "lg";
 export type SearchFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";

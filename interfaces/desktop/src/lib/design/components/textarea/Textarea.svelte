@@ -21,8 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useTextarea } from "$lib/design/behaviors/inputs/textarea/index.js";
-import { textareaAnatomy } from "$lib/design/primitives/textarea/index.js";
+import { textareaAnatomy, useTextarea } from "$lib/design/behaviors/inputs/textarea/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextareaProps } from "./types.js";

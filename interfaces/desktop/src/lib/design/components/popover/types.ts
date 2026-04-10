@@ -5,7 +5,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { PopoverPrimitiveProps } from "$lib/design/primitives/popover/index.js";
+import type { PopoverPrimitiveProps } from "$lib/design/behaviors/overlays/popover/index.js";
 
 export type PopoverPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

@@ -8,7 +8,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { SelectPrimitiveProps } from "$lib/design/primitives/select/index.js";
+import type { SelectPrimitiveProps } from "$lib/design/behaviors/inputs/select/index.js";
 
 // =============================================================================
 // ROOT

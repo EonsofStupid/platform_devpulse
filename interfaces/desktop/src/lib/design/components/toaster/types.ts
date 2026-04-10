@@ -7,11 +7,11 @@
  * Component layer owns ARIA — primitive is structureless.
  */
 
-import type { ToasterPrimitiveProps } from "$lib/design/primitives/toaster/index.js";
+import type { ToasterPrimitiveProps } from "$lib/design/behaviors/overlays/toaster/index.js";
 
 export type ToasterPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export type { ToasterPosition } from "$lib/design/primitives/toaster/index.js";
+export type { ToasterPosition } from "$lib/design/behaviors/overlays/toaster/index.js";
 
 /** Toaster component props — extends primitive + preset */
 export interface ToasterComponentProps extends ToasterPrimitiveProps {

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { emptyStateAnatomy } from "$lib/design/primitives/empty-state/index.js";
+import { emptyStateAnatomy } from "$lib/design/behaviors/display/empty-state/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { EmptyStateProps, EmptyStateSize } from "./types.js";

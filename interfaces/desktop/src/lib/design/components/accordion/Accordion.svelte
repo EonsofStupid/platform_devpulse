@@ -23,8 +23,8 @@
 }
 -->
 <script lang="ts">
+import { accordionAnatomy } from "$lib/design/behaviors/navigation/accordion/index.js";
 import { useAccordion } from "$lib/design/behaviors/navigation/accordion/use-accordion.svelte.js";
-import { accordionAnatomy } from "$lib/design/primitives/accordion/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";

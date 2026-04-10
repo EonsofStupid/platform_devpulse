@@ -7,7 +7,7 @@
  * Component layer owns ARIA — primitive is structureless.
  */
 
-import type { SkipLinkPrimitiveProps } from "$lib/design/primitives/skip-link/index.js";
+import type { SkipLinkPrimitiveProps } from "$lib/design/behaviors/navigation/skip-link/index.js";
 
 export type SkipLinkPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

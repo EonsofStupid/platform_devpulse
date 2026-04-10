@@ -8,7 +8,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { TooltipPrimitiveProps } from "$lib/design/primitives/tooltip/index.js";
+import type { TooltipPrimitiveProps } from "$lib/design/behaviors/overlays/tooltip/index.js";
 
 export type TooltipPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

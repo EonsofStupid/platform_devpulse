@@ -6,4 +6,5 @@
 
 export { badgeAnatomy } from "./badge.anatomy.js";
 export type * from "./badge.types.js";
+export type * from "./primitive-props.js";
 export { useBadge } from "./use-badge.svelte.js";

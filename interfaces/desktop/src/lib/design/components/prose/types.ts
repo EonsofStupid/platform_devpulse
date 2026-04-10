@@ -9,7 +9,7 @@
  * Extends ProsePrimitiveProps from primitives.
  */
 
-import type { ProsePrimitiveProps } from "$lib/design/primitives/prose/index.js";
+import type { ProsePrimitiveProps } from "$lib/design/behaviors/display/prose/index.js";
 
 export type ProsePreset = "default" | "stark" | "glass" | "flat" | "matte";
 

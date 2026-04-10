@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { LabelPrimitiveProps } from "$lib/design/primitives/label/index.js";
+import type { LabelPrimitiveProps } from "$lib/design/behaviors/display/label/index.js";
 
 export type LabelSize = "sm" | "md" | "lg";
 export type LabelPreset = "default" | "stark" | "glass" | "flat" | "matte";

@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { InputGroupPrimitiveProps } from "$lib/design/primitives/input-group/index.js";
+import type { InputGroupPrimitiveProps } from "$lib/design/behaviors/inputs/input-group/index.js";
 
 export type InputGroupSize = "sm" | "md" | "lg";
 export type InputGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";

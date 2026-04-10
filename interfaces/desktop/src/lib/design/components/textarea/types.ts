@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { TextareaPrimitiveProps } from "$lib/design/primitives/textarea/index.js";
+import type { TextareaPrimitiveProps } from "$lib/design/behaviors/inputs/textarea/index.js";
 
 export type TextareaSize = "sm" | "md" | "lg";
 

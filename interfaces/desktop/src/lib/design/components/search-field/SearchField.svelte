@@ -21,8 +21,10 @@
 }
 -->
 <script lang="ts">
-import { useSearchField } from "$lib/design/behaviors/inputs/search-field/index.js";
-import { searchFieldAnatomy } from "$lib/design/primitives/search-field/index.js";
+import {
+	searchFieldAnatomy,
+	useSearchField,
+} from "$lib/design/behaviors/inputs/search-field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SearchFieldProps, SearchFieldSize } from "./types.js";

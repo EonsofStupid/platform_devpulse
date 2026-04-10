@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { TreePrimitiveProps } from "$lib/design/primitives/tree/index.js";
+import type { TreePrimitiveProps } from "$lib/design/behaviors/navigation/tree/index.js";
 
 export type TreePreset = "default" | "stark" | "glass" | "flat" | "matte";
 

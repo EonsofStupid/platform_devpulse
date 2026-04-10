@@ -11,7 +11,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { AlertDialogPrimitiveProps } from "$lib/design/primitives/alert-dialog/index.js";
+import type { AlertDialogPrimitiveProps } from "$lib/design/behaviors/overlays/alert-dialog/index.js";
 
 export type AlertDialogVariant =
 	| "confirmation"

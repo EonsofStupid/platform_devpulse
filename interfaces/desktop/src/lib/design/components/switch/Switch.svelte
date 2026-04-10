@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { switchAnatomy } from "$lib/design/behaviors/inputs/switch/index.js";
 import { useSwitch } from "$lib/design/behaviors/inputs/switch/use-switch.svelte.js";
-import { switchAnatomy } from "$lib/design/primitives/switch/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SwitchProps, SwitchSize } from "./types.js";

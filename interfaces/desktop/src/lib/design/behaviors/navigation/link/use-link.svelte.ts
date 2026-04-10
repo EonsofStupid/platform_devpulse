@@ -7,8 +7,8 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/link/
  */
 
-import { kbd } from "../_internal/utils/kbd.js";
-import { uid } from "../_internal/utils/uid.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { linkAnatomy } from "./link.anatomy.js";
 import type { UseLinkProps, UseLinkReturn } from "./link.types.js";
 

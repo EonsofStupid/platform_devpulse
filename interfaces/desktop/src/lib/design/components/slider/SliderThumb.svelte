@@ -7,7 +7,7 @@
 	Draggable thumb. ARIA role="slider" from hook via context.
 -->
 <script lang="ts">
-import { sliderAnatomy } from "$lib/design/primitives/slider/index.js";
+import { sliderAnatomy } from "$lib/design/behaviors/inputs/slider/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getSliderContext } from "./context.js";
 import type { SliderThumbProps } from "./types.js";

@@ -6,4 +6,5 @@
 
 export { colorSliderAnatomy } from "./color-slider.anatomy.js";
 export type * from "./color-slider.types.js";
+export type * from "./primitive-props.js";
 export { useColorSlider } from "./use-color-slider.svelte.js";

@@ -7,9 +7,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { kbd } from "../_internal/utils/kbd.js";
-import { createIds } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { numberFieldAnatomy } from "./number-field.anatomy.js";
 import type { UseNumberFieldProps, UseNumberFieldReturn } from "./number-field.types.js";
 

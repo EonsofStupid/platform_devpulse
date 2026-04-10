@@ -20,8 +20,8 @@
  * ```
  */
 
-import { createIds } from "../_internal/utils/uid.js";
-import { announce } from "../_shared/live-region/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
+import { announce } from "../../_shared/live-region/index.js";
 import { progressAnatomy } from "./progress.anatomy.js";
 import type { UseProgressProps, UseProgressReturn } from "./progress.types.js";
 

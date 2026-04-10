@@ -7,7 +7,7 @@
 	Floating tooltip content. StyleMacro (visual). Visible when hook.open.
 -->
 <script lang="ts">
-import { tooltipAnatomy } from "$lib/design/primitives/tooltip/index.js";
+import { tooltipAnatomy } from "$lib/design/behaviors/overlays/tooltip/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";

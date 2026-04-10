@@ -11,7 +11,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { DialogPrimitiveProps } from "$lib/design/primitives/dialog/index.js";
+import type { DialogPrimitiveProps } from "$lib/design/behaviors/overlays/dialog/index.js";
 
 // =============================================================================
 // SHARED

@@ -22,8 +22,10 @@
 }
 -->
 <script lang="ts">
-import { useDescriptionList } from "$lib/design/behaviors/display/description-list/index.js";
-import { descriptionListAnatomy } from "$lib/design/primitives/description-list/index.js";
+import {
+	descriptionListAnatomy,
+	useDescriptionList,
+} from "$lib/design/behaviors/display/description-list/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListProps } from "./types.js";

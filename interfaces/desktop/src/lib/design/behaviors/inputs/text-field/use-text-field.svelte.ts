@@ -5,8 +5,8 @@
  * Parts: root, input, label, description, error.
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { createIds } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { textFieldAnatomy } from "./text-field.anatomy.js";
 import type { UseTextFieldProps, UseTextFieldReturn } from "./text-field.types.js";
 

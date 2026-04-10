@@ -7,7 +7,7 @@
 	Native <dialog> element. showModal() for focus trap + top-layer.
 -->
 <script lang="ts">
-import { dialogAnatomy } from "$lib/design/primitives/dialog/index.js";
+import { dialogAnatomy } from "$lib/design/behaviors/overlays/dialog/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getDialogContext } from "./context.js";

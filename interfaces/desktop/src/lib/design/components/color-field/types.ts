@@ -12,12 +12,12 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
+import type { ColorFieldPrimitiveProps } from "$lib/design/behaviors/inputs/color-field/index.js";
 import type {
 	ColorChannel,
 	ColorSpace,
 	ColorValue,
 } from "$lib/design/components/color-area/types.js";
-import type { ColorFieldPrimitiveProps } from "$lib/design/primitives/color-field/index.js";
 
 // =============================================================================
 // CALLBACK DETAILS

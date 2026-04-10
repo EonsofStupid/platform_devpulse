@@ -8,8 +8,8 @@
  * The error slot uses role=alert + aria-live=polite for screen reader announcements.
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { createIds } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { fieldAnatomy } from "./field.anatomy.js";
 import type { UseFieldProps, UseFieldReturn } from "./field.types.js";
 

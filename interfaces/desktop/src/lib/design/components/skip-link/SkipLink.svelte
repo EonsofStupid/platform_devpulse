@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { skipLinkAnatomy } from "$lib/design/primitives/skip-link/index.js";
+import { skipLinkAnatomy } from "$lib/design/behaviors/navigation/skip-link/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkipLinkComponentProps } from "./types.js";

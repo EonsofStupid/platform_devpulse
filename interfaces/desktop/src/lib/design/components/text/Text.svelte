@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { textAnatomy } from "$lib/design/primitives/text/index.js";
+import { textAnatomy } from "$lib/design/behaviors/display/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextProps, TextSize, TextWeight } from "./text.types.js";

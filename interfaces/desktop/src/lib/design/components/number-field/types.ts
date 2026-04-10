@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { NumberFieldPrimitiveProps } from "$lib/design/primitives/number-field/index.js";
+import type { NumberFieldPrimitiveProps } from "$lib/design/behaviors/inputs/number-field/index.js";
 
 export type NumberFieldSize = "sm" | "md" | "lg";
 export type NumberFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";

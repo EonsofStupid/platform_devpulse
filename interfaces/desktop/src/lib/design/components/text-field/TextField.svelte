@@ -21,8 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useTextField } from "$lib/design/behaviors/inputs/text-field/index.js";
-import { textFieldAnatomy } from "$lib/design/primitives/text-field/index.js";
+import { textFieldAnatomy, useTextField } from "$lib/design/behaviors/inputs/text-field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";

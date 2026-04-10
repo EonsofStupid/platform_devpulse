@@ -8,11 +8,11 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
  */
 
-import { kbd } from "../_internal/utils/kbd.js";
-import { uid } from "../_internal/utils/uid.js";
-import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
-import { useEscapeLayer } from "../_shared/escape-layer/index.js";
-import { usePresence } from "../_shared/presence/index.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
+import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
+import { useEscapeLayer } from "../../_shared/escape-layer/index.js";
+import { usePresence } from "../../_shared/presence/index.js";
 import { menuAnatomy } from "./menu.anatomy.js";
 import type { UseMenuProps, UseMenuReturn } from "./menu.types.js";
 

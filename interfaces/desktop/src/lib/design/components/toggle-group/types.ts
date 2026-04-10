@@ -12,12 +12,12 @@
 
 import type { Snippet } from "svelte";
 import type { SvelteSet } from "svelte/reactivity";
-import type { ToggleGroupPrimitiveProps } from "$lib/design/primitives/toggle-group/index.js";
+import type { ToggleGroupPrimitiveProps } from "$lib/design/behaviors/inputs/toggle-group/index.js";
 
 export type ToggleGroupSize = "sm" | "md" | "lg";
 
 export type ToggleGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
-export type { ToggleGroupOrientation } from "$lib/design/primitives/toggle-group/index.js";
+export type { ToggleGroupOrientation } from "$lib/design/behaviors/inputs/toggle-group/index.js";
 
 /** Item definition for toggle group */
 export interface ToggleGroupItem {

@@ -6,7 +6,7 @@
  * Extends ScrollAreaPrimitiveProps with visual preset and sizing.
  */
 
-import type { ScrollAreaPrimitiveProps } from "$lib/design/primitives/scroll-area/index.js";
+import type { ScrollAreaPrimitiveProps } from "$lib/design/behaviors/interaction/scroll-area/index.js";
 
 export type ScrollAreaSize = "sm" | "md" | "lg";
 export type ScrollAreaOrientation = "horizontal" | "vertical";

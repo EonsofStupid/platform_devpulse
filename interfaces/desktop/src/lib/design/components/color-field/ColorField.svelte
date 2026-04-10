@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { colorFieldAnatomy } from "$lib/design/primitives/color-field/index.js";
+import { colorFieldAnatomy } from "$lib/design/behaviors/inputs/color-field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorFieldContext } from "./context.js";

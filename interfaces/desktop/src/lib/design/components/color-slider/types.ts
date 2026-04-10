@@ -10,12 +10,12 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
+import type { ColorSliderPrimitiveProps } from "$lib/design/behaviors/inputs/color-slider/index.js";
 import type {
 	ColorChannel,
 	ColorSpace,
 	ColorValue,
 } from "$lib/design/components/color-area/types.js";
-import type { ColorSliderPrimitiveProps } from "$lib/design/primitives/color-slider/index.js";
 
 // =============================================================================
 // SHARED

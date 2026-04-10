@@ -3,9 +3,9 @@
  * @kind button
  */
 
-import type { ButtonPrimitiveProps } from "$lib/design/primitives/button/index.js";
+import type { ButtonPrimitiveProps } from "$lib/design/behaviors/inputs/button/index.js";
 
-export type { ButtonType } from "$lib/design/primitives/button/index.js";
+export type { ButtonType } from "$lib/design/behaviors/inputs/button/index.js";
 
 export type ButtonPreset = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";

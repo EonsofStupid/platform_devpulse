@@ -21,8 +21,8 @@
 }
 -->
 <script lang="ts">
+import { labelAnatomy } from "$lib/design/behaviors/display/label/index.js";
 import { useLabel } from "$lib/design/behaviors/display/label/use-label.svelte.js";
-import { labelAnatomy } from "$lib/design/primitives/label/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LabelProps, LabelSize } from "./types.js";

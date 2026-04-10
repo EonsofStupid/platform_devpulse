@@ -142,14 +142,17 @@ export const ALLOCATION_MODES: AllocationMode[] = [
 
 export function tierToAllocation(tier: HardwareTier, vramTotalMb?: number): AllocationMode {
 	switch (tier) {
-		case "high":
+		case "High":
+			return "flagship";
+		case "JessePrimary":
 			return (vramTotalMb ?? 0) >= 16000 ? "flagship" : "high";
-		case "medium":
+		case "Mid":
+			return "high";
+		case "Floor":
 			return "standard";
-		case "low":
+		case "Minimal":
 			return "budget";
-		case "minimal":
-		case "cpu_only":
+		case "CpuOnly":
 			return "cpu_only";
 	}
 }

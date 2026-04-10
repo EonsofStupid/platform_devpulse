@@ -6,4 +6,5 @@
 
 export { comboboxAnatomy } from "./combobox.anatomy.js";
 export type * from "./combobox.types.js";
+export type * from "./primitive-props.js";
 export { useComboBox } from "./use-combobox.svelte.js";

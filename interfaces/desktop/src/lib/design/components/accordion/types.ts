@@ -8,7 +8,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { AccordionPrimitiveProps } from "$lib/design/primitives/accordion/index.js";
+import type { AccordionPrimitiveProps } from "$lib/design/behaviors/navigation/accordion/index.js";
 
 // =============================================================================
 // CALLBACK DETAILS

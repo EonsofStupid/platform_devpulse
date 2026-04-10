@@ -6,7 +6,7 @@
  * Extends DataTablePrimitiveProps with visual preset, sizing, and variant.
  */
 
-import type { DataTablePrimitiveProps } from "$lib/design/primitives/data-table/index.js";
+import type { DataTablePrimitiveProps } from "$lib/design/behaviors/navigation/data-table/index.js";
 
 export type DataTableSize = "sm" | "md" | "lg";
 export type DataTableVariant = "default" | "striped" | "bordered";

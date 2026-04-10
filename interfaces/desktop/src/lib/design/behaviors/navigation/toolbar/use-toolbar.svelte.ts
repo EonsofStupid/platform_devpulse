@@ -8,9 +8,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { getNextKey, getPrevKey, kbd } from "../_internal/utils/kbd.js";
-import { uid } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { getNextKey, getPrevKey, kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { toolbarAnatomy } from "./toolbar.anatomy.js";
 import type { UseToolbarProps, UseToolbarReturn } from "./toolbar.types.js";
 

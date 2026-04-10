@@ -1,3 +1,4 @@
+import type { Snippet } from "svelte";
 import type { HTMLButtonAttributes } from "svelte/elements";
 
 export type ButtonType = "button" | "submit" | "reset";
@@ -26,4 +27,16 @@ export interface UseButtonReturn {
 	press(): void;
 	unpress(): void;
 	toggle(): void;
+}
+
+// PrimitiveProps — used by Component layer to extend
+export interface ButtonPrimitiveProps extends Omit<HTMLButtonAttributes, "children"> {
+	children?: Snippet;
+	class?: string;
+	type?: ButtonType;
+	disabled?: boolean;
+	loading?: boolean;
+	pressed?: boolean;
+	onPressedChange?: (pressed: boolean) => void;
+	expanded?: boolean;
 }

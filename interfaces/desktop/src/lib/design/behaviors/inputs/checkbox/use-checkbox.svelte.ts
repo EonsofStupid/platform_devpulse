@@ -23,9 +23,9 @@
  * ```
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { kbd } from "../_internal/utils/kbd.js";
-import { createIds } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { checkboxAnatomy } from "./checkbox.anatomy.js";
 import type { CheckboxState, UseCheckboxProps, UseCheckboxReturn } from "./checkbox.types.js";
 

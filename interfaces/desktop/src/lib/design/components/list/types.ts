@@ -9,7 +9,7 @@
  * Extends ListPrimitiveProps from primitives.
  */
 
-import type { ListPrimitiveProps } from "$lib/design/primitives/list/index.js";
+import type { ListPrimitiveProps } from "$lib/design/behaviors/display/list/index.js";
 
 export type ListSize = "sm" | "md" | "lg";
 export type ListVariant = "none" | "disc" | "decimal";

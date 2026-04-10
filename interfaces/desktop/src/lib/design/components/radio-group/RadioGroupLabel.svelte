@@ -7,7 +7,7 @@
 	Label for a radio item. ARIA from hook.getLabel(value).
 -->
 <script lang="ts">
-import { radioGroupAnatomy } from "$lib/design/primitives/radio-group/index.js";
+import { radioGroupAnatomy } from "$lib/design/behaviors/inputs/radio-group/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
 import type { RadioGroupLabelProps } from "./types.js";

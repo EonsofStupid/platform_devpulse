@@ -5,9 +5,9 @@
  */
 
 import type { Snippet } from "svelte";
-import type { SheetPrimitiveProps } from "$lib/design/primitives/sheet/index.js";
+import type { SheetPrimitiveProps } from "$lib/design/behaviors/overlays/sheet/index.js";
 
-export type { SheetSide } from "$lib/design/primitives/sheet/index.js";
+export type { SheetSide } from "$lib/design/behaviors/overlays/sheet/index.js";
 
 export type SheetSize = "sm" | "md" | "lg" | "xl" | "full";
 export type SheetPreset = "default" | "stark" | "glass" | "flat" | "matte";

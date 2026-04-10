@@ -23,8 +23,8 @@
 }
 -->
 <script lang="ts">
+import { sheetAnatomy } from "$lib/design/behaviors/overlays/sheet/index.js";
 import { useSheet } from "$lib/design/behaviors/overlays/sheet/use-sheet.svelte.js";
-import { sheetAnatomy } from "$lib/design/primitives/sheet/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";

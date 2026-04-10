@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { CheckboxPrimitiveProps } from "$lib/design/primitives/checkbox/index.js";
+import type { CheckboxPrimitiveProps } from "$lib/design/behaviors/inputs/checkbox/index.js";
 
 export type CheckboxPreset = "default";
 export type CheckboxSize = "sm" | "md" | "lg";

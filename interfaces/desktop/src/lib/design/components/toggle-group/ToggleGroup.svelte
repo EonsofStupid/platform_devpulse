@@ -22,8 +22,10 @@
 }
 -->
 <script lang="ts">
-import { useToggleGroup } from "$lib/design/behaviors/inputs/toggle-group/index.js";
-import { toggleGroupAnatomy } from "$lib/design/primitives/toggle-group/index.js";
+import {
+	toggleGroupAnatomy,
+	useToggleGroup,
+} from "$lib/design/behaviors/inputs/toggle-group/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleGroupComponentProps } from "./types.js";

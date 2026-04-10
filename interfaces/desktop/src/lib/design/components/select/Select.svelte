@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { selectAnatomy } from "$lib/design/behaviors/inputs/select/index.js";
 import { useSelect } from "$lib/design/behaviors/inputs/select/use-select.svelte.js";
-import { selectAnatomy } from "$lib/design/primitives/select/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";

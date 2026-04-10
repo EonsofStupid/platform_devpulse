@@ -6,7 +6,7 @@
  * Extends PaginationPrimitiveProps with visual preset and sizing.
  */
 
-import type { PaginationPrimitiveProps } from "$lib/design/primitives/pagination/index.js";
+import type { PaginationPrimitiveProps } from "$lib/design/behaviors/navigation/pagination/index.js";
 
 export type PaginationSize = "sm" | "md" | "lg";
 export type PaginationPreset = "default" | "stark" | "glass" | "flat" | "matte";

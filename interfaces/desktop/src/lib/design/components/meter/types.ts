@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { MeterPrimitiveProps } from "$lib/design/primitives/meter/index.js";
+import type { MeterPrimitiveProps } from "$lib/design/behaviors/display/meter/index.js";
 
 export type MeterPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

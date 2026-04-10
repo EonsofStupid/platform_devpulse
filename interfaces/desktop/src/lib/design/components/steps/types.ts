@@ -6,7 +6,7 @@
  * Extends StepsPrimitiveProps with visual preset, sizing, and ARIA state.
  */
 
-import type { StepsPrimitiveProps } from "$lib/design/primitives/steps/index.js";
+import type { StepsPrimitiveProps } from "$lib/design/behaviors/display/steps/index.js";
 
 export type StepsSize = "sm" | "md" | "lg";
 

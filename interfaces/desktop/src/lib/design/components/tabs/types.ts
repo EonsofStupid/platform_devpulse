@@ -8,7 +8,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { TabsRootProps as TabsPrimitiveRootProps } from "$lib/design/primitives/tabs/index.js";
+import type { TabsRootProps as TabsPrimitiveRootProps } from "$lib/design/behaviors/navigation/tabs/index.js";
 
 export type TabsPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

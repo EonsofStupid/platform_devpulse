@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { radioGroupAnatomy } from "$lib/design/behaviors/inputs/radio-group/index.js";
 import { useRadioGroup } from "$lib/design/behaviors/inputs/radio-group/use-radio-group.svelte.js";
-import { radioGroupAnatomy } from "$lib/design/primitives/radio-group/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";

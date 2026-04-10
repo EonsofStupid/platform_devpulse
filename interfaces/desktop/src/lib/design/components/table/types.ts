@@ -6,7 +6,7 @@
  * Extends TablePrimitiveProps with visual preset and sizing.
  */
 
-import type { TablePrimitiveProps } from "$lib/design/primitives/table/index.js";
+import type { TablePrimitiveProps } from "$lib/design/behaviors/navigation/table/index.js";
 
 export type TableSize = "sm" | "md" | "lg";
 

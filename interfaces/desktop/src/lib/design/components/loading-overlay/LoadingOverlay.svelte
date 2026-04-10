@@ -21,8 +21,10 @@
 }
 -->
 <script lang="ts">
-import { useLoadingOverlay } from "$lib/design/behaviors/display/loading-overlay/index.js";
-import { loadingOverlayAnatomy } from "$lib/design/primitives/loading-overlay/index.js";
+import {
+	loadingOverlayAnatomy,
+	useLoadingOverlay,
+} from "$lib/design/behaviors/display/loading-overlay/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";

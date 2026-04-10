@@ -20,7 +20,7 @@
  * ```
  */
 
-import { createIds } from "../_internal/utils/uid.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { meterAnatomy } from "./meter.anatomy.js";
 import type { MeterStatus, UseMeterProps, UseMeterReturn } from "./meter.types.js";
 

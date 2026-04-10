@@ -23,12 +23,12 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { colorSliderAnatomy } from "$lib/design/behaviors/inputs/color-slider/index.js";
 import {
 	getChannelRange,
 	percentToValue,
 	roundToStep,
 } from "$lib/design/components/color-area/color-utils.js";
-import { colorSliderAnatomy } from "$lib/design/primitives/color-slider/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorSliderContext } from "./context.js";

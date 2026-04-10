@@ -23,8 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useList } from "$lib/design/behaviors/display/list/index.js";
-import { listAnatomy } from "$lib/design/primitives/list/index.js";
+import { listAnatomy, useList } from "$lib/design/behaviors/display/list/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ListProps } from "./types.js";

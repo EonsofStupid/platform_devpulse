@@ -8,7 +8,7 @@
 	Keyboard action for arrow/page/home/end navigation.
 -->
 <script lang="ts">
-import { colorSliderAnatomy } from "$lib/design/primitives/color-slider/index.js";
+import { colorSliderAnatomy } from "$lib/design/behaviors/inputs/color-slider/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getColorSliderContext } from "./context.js";
 import type { ColorSliderThumbProps } from "./types.js";

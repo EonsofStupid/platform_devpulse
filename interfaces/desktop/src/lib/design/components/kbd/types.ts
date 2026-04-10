@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { KbdPrimitiveProps } from "$lib/design/primitives/kbd/index.js";
+import type { KbdPrimitiveProps } from "$lib/design/behaviors/display/kbd/index.js";
 
 export type KbdSize = "sm" | "md" | "lg";
 export type KbdPreset = "default" | "stark" | "glass" | "flat" | "matte";

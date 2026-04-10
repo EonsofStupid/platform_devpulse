@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { SpinnerPrimitiveProps } from "$lib/design/primitives/spinner/index.js";
+import type { SpinnerPrimitiveProps } from "$lib/design/behaviors/display/spinner/index.js";
 
 export type SpinnerSize = "sm" | "md" | "lg";
 

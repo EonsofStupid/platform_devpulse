@@ -21,8 +21,10 @@
 }
 -->
 <script lang="ts">
-import { useTableOfContents } from "$lib/design/behaviors/navigation/table-of-contents/index.js";
-import { tableOfContentsAnatomy } from "$lib/design/primitives/table-of-contents/index.js";
+import {
+	tableOfContentsAnatomy,
+	useTableOfContents,
+} from "$lib/design/behaviors/navigation/table-of-contents/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsProps } from "./types.js";

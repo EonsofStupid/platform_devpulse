@@ -5,9 +5,9 @@
  * Parts: root (grid), item (row, parameterized).
  */
 
-import { disabledAttr } from "../_internal/utils/data-attr.js";
-import { kbd } from "../_internal/utils/kbd.js";
-import { uid } from "../_internal/utils/uid.js";
+import { disabledAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { gridListAnatomy } from "./grid-list.anatomy.js";
 import type { UseGridListProps, UseGridListReturn } from "./grid-list.types.js";
 

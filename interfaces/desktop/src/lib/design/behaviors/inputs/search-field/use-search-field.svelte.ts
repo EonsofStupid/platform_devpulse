@@ -6,9 +6,9 @@
  * Parts: root, input, icon, clear.
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { kbd } from "../_internal/utils/kbd.js";
-import { createIds } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { searchFieldAnatomy } from "./search-field.anatomy.js";
 import type { UseSearchFieldProps, UseSearchFieldReturn } from "./search-field.types.js";
 

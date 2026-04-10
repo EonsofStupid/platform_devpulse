@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { toolbarAnatomy } from "$lib/design/primitives/toolbar/index.js";
+import { toolbarAnatomy } from "$lib/design/behaviors/navigation/toolbar/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToolbarComponentProps } from "./types.js";

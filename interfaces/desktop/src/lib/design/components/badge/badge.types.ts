@@ -3,7 +3,7 @@
  * @kind badge
  */
 
-import type { BadgePrimitiveProps } from "$lib/design/primitives/badge/index.js";
+import type { BadgePrimitiveProps } from "$lib/design/behaviors/display/badge/index.js";
 
 export type BadgeVariant =
 	| "neutral"

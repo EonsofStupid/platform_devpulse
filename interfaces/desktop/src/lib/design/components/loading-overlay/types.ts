@@ -7,7 +7,7 @@
  * Component layer owns ARIA — primitive is structureless.
  */
 
-import type { LoadingOverlayPrimitiveProps } from "$lib/design/primitives/loading-overlay/index.js";
+import type { LoadingOverlayPrimitiveProps } from "$lib/design/behaviors/display/loading-overlay/index.js";
 
 export type LoadingOverlayPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

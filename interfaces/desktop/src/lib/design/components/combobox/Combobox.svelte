@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { comboboxAnatomy } from "$lib/design/behaviors/inputs/combobox/index.js";
 import { useComboBox } from "$lib/design/behaviors/inputs/combobox/use-combobox.svelte.js";
-import { comboboxAnatomy } from "$lib/design/primitives/combobox/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";

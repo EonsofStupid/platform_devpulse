@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { SwitchPrimitiveProps } from "$lib/design/primitives/switch/index.js";
+import type { SwitchPrimitiveProps } from "$lib/design/behaviors/inputs/switch/index.js";
 
 export type SwitchSize = "sm" | "md" | "lg";
 export type SwitchPreset = "default" | "stark" | "glass" | "flat" | "matte";

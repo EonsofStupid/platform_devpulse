@@ -18,8 +18,7 @@
 }
 -->
 <script lang="ts">
-import { useField } from "$lib/design/behaviors/inputs/field/index.js";
-import { fieldAnatomy } from "$lib/design/primitives/field/index.js";
+import { fieldAnatomy, useField } from "$lib/design/behaviors/inputs/field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FieldProps } from "./types.js";

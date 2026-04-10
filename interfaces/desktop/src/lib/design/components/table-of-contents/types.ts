@@ -9,7 +9,7 @@
  * Extends TableOfContentsPrimitiveProps from primitives.
  */
 
-import type { TableOfContentsPrimitiveProps } from "$lib/design/primitives/table-of-contents/index.js";
+import type { TableOfContentsPrimitiveProps } from "$lib/design/behaviors/navigation/table-of-contents/index.js";
 
 export type TableOfContentsSize = "sm" | "md" | "lg";
 

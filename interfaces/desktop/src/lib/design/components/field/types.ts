@@ -5,7 +5,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { FieldPrimitiveProps } from "$lib/design/primitives/field/index.js";
+import type { FieldPrimitiveProps } from "$lib/design/behaviors/inputs/field/index.js";
 
 export type FieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

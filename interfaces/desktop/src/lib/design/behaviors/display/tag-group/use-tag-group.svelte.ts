@@ -5,9 +5,9 @@
  * Parts: root (grid), tag (row, parameterized), label, description, remove (parameterized).
  */
 
-import { dataAttr } from "../_internal/utils/data-attr.js";
-import { kbd } from "../_internal/utils/kbd.js";
-import { uid } from "../_internal/utils/uid.js";
+import { dataAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { tagGroupAnatomy } from "./tag-group.anatomy.js";
 import type { UseTagGroupProps, UseTagGroupReturn } from "./tag-group.types.js";
 

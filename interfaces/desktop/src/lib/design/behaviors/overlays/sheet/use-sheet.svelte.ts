@@ -7,10 +7,10 @@
  * Parts: trigger, overlay, content, title, description, close.
  */
 
-import { createIds } from "../_internal/utils/uid.js";
-import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
-import { usePresence } from "../_shared/presence/index.js";
-import { useScrollLock } from "../_shared/scroll-lock/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
+import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
+import { usePresence } from "../../_shared/presence/index.js";
+import { useScrollLock } from "../../_shared/scroll-lock/index.js";
 import { sheetAnatomy } from "./sheet.anatomy.js";
 import type { UseSheetProps, UseSheetReturn } from "./sheet.types.js";
 

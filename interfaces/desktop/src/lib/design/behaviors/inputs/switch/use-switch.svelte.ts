@@ -7,9 +7,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/switch/
  */
 
-import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
-import { kbd } from "../_internal/utils/kbd.js";
-import { uid } from "../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { switchAnatomy } from "./switch.anatomy.js";
 import type { UseSwitchProps, UseSwitchReturn } from "./switch.types.js";
 

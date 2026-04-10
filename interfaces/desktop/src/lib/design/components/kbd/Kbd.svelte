@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { kbdAnatomy } from "$lib/design/primitives/kbd/index.js";
+import { kbdAnatomy } from "$lib/design/behaviors/display/kbd/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { KbdProps, KbdSize } from "./types.js";

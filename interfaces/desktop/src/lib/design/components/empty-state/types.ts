@@ -4,7 +4,7 @@
  * @layer components
  */
 
-import type { EmptyStatePrimitiveProps } from "$lib/design/primitives/empty-state/index.js";
+import type { EmptyStatePrimitiveProps } from "$lib/design/behaviors/display/empty-state/index.js";
 
 export type EmptyStateSize = "sm" | "md" | "lg";
 export type EmptyStatePreset = "default" | "stark" | "glass" | "flat" | "matte";

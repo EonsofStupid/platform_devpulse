@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { ComboboxPrimitiveProps } from "$lib/design/primitives/combobox/index.js";
+import type { ComboboxPrimitiveProps } from "$lib/design/behaviors/inputs/combobox/index.js";
 
 export type ComboboxPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type ComboboxSize = "sm" | "md" | "lg";

@@ -8,7 +8,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
  */
 
-import { uid } from "../_internal/utils/uid.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { tooltipAnatomy } from "./tooltip.anatomy.js";
 import type { UseTooltipProps, UseTooltipReturn } from "./tooltip.types.js";
 

@@ -8,7 +8,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { RadioGroupPrimitiveProps } from "$lib/design/primitives/radio-group/index.js";
+import type { RadioGroupPrimitiveProps } from "$lib/design/behaviors/inputs/radio-group/index.js";
 
 export type RadioGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
 

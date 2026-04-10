@@ -124,11 +124,12 @@ class HardwareState {
 
 	get tier(): HardwareTier {
 		const vram = this.vramTotalMb;
-		if (!this.hasGpu) return "cpu_only";
-		if (vram >= 16000) return "high";
-		if (vram >= 8000) return "medium";
-		if (vram >= 4000) return "low";
-		return "minimal";
+		if (!this.hasGpu) return "CpuOnly";
+		if (vram >= 24000) return "High";
+		if (vram >= 16000) return "JessePrimary";
+		if (vram >= 12000) return "Mid";
+		if (vram >= 8000) return "Floor";
+		return "Minimal";
 	}
 
 	fitForModel(vramEstimateMb: number): FitIndicator {

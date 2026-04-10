@@ -6,7 +6,7 @@
  * Extends FormPrimitiveProps with visual preset and size.
  */
 
-import type { FormPrimitiveProps } from "$lib/design/primitives/form/index.js";
+import type { FormPrimitiveProps } from "$lib/design/behaviors/inputs/form/index.js";
 
 export type FormSize = "sm" | "md" | "lg";
 export type FormPreset = "default" | "stark" | "glass" | "flat" | "matte";

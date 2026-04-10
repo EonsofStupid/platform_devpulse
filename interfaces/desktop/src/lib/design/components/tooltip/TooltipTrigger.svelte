@@ -7,7 +7,7 @@
 	Element that triggers the tooltip on hover/focus. ARIA from hook.
 -->
 <script lang="ts">
-import { tooltipAnatomy } from "$lib/design/primitives/tooltip/index.js";
+import { tooltipAnatomy } from "$lib/design/behaviors/overlays/tooltip/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
 import type { TooltipTriggerProps } from "./types.js";

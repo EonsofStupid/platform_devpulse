@@ -22,8 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useFormField } from "$lib/design/behaviors/inputs/form-field/index.js";
-import { formFieldAnatomy } from "$lib/design/primitives/form-field/index.js";
+import { formFieldAnatomy, useFormField } from "$lib/design/behaviors/inputs/form-field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormFieldComponentProps } from "./types.js";

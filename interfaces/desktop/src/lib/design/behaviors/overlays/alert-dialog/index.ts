@@ -6,4 +6,5 @@
 
 export { alertDialogAnatomy } from "./alert-dialog.anatomy.js";
 export type * from "./alert-dialog.types.js";
+export type * from "./primitive-props.js";
 export { useAlertDialog } from "./use-alert-dialog.svelte.js";

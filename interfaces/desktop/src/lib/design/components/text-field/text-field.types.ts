@@ -4,7 +4,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { TextFieldPrimitiveProps } from "$lib/design/primitives/text-field/index.js";
+import type { TextFieldPrimitiveProps } from "$lib/design/behaviors/inputs/text-field/index.js";
 
 export type TextFieldSize = "sm" | "md" | "lg";
 export type TextFieldType = "text" | "email" | "password" | "url" | "tel";

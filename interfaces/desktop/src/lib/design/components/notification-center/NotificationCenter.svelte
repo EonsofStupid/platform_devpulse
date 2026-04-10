@@ -22,8 +22,10 @@
 }
 -->
 <script lang="ts">
-import { useNotificationCenter } from "$lib/design/behaviors/overlays/notification-center/index.js";
-import { notificationCenterAnatomy } from "$lib/design/primitives/notification-center/index.js";
+import {
+	notificationCenterAnatomy,
+	useNotificationCenter,
+} from "$lib/design/behaviors/overlays/notification-center/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NotificationCenterComponentProps } from "./types.js";

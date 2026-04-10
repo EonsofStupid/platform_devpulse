@@ -1039,7 +1039,7 @@ global_graph_enabled: boolean;
  */
 vector_enabled: boolean; 
 /**
- * Grammar service enabled (`llguidance` — future sprint).
+ * Grammar service enabled.
  */
 grammar_enabled: boolean; 
 /**
@@ -1319,9 +1319,45 @@ export type InitStatus =
  */
 "Skipped"
 /**
- * A lane baseline row from DuckDB.
+ * A lane baseline row from DuckDB — percentile stats per execution lane.
  */
-export type LaneBaselineRow = { lane: string; sample_count: number; p50_us: number; p95_us: number; p99_us: number; avg_queue_wait_us: number; cache_hit_rate: number; cold_start_rate: number; computed_at: string }
+export type LaneBaselineRow = { 
+/**
+ * Lane identifier (e.g. "inference", "embedding", "boot").
+ */
+lane: string; 
+/**
+ * Number of samples used to compute these baselines.
+ */
+sample_count: number; 
+/**
+ * 50th percentile (median) duration in microseconds.
+ */
+p50_us: number; 
+/**
+ * 95th percentile duration in microseconds.
+ */
+p95_us: number; 
+/**
+ * 99th percentile duration in microseconds.
+ */
+p99_us: number; 
+/**
+ * Average queue wait time before execution started, in microseconds.
+ */
+avg_queue_wait_us: number; 
+/**
+ * Fraction of requests served from cache (0.0–1.0).
+ */
+cache_hit_rate: number; 
+/**
+ * Fraction of requests that required cold-start initialization (0.0–1.0).
+ */
+cold_start_rate: number; 
+/**
+ * ISO-8601 timestamp when these baselines were last computed.
+ */
+computed_at: string }
 /**
  * Per-lane toggle state (public, TS-exported).
  */
@@ -1621,7 +1657,43 @@ backend: string | null }
 /**
  * A span trace row from DuckDB, serialized for the frontend.
  */
-export type SpanTraceRow = { trace_id: string; span_id: number; parent_span_id: number | null; name: string; target: string; level: string; duration_us: number; fields_json: string | null; created_at: string }
+export type SpanTraceRow = { 
+/**
+ * Unique trace identifier (groups spans into a single execution path).
+ */
+trace_id: string; 
+/**
+ * Unique span identifier within this trace.
+ */
+span_id: number; 
+/**
+ * Parent span ID for tree reconstruction. `None` for root spans.
+ */
+parent_span_id: number | null; 
+/**
+ * Human-readable span name (e.g. "boot_task", "surreal_init").
+ */
+name: string; 
+/**
+ * Rust module target that emitted this span (e.g. "devpulse_engine::platform").
+ */
+target: string; 
+/**
+ * Tracing level: TRACE, DEBUG, INFO, WARN, ERROR.
+ */
+level: string; 
+/**
+ * Wall-clock duration of this span in microseconds.
+ */
+duration_us: number; 
+/**
+ * Structured fields captured during span execution, JSON-encoded.
+ */
+fields_json: string | null; 
+/**
+ * ISO-8601 timestamp when the span was created.
+ */
+created_at: string }
 /**
  * Health of an individual subsystem (database, cache, etc.).
  */

@@ -4,6 +4,7 @@
  * @layer behavior
  */
 
+export type * from "./primitive-props.js";
 export { toggleAnatomy } from "./toggle.anatomy.js";
 export type * from "./toggle.types.js";
 export { useToggle } from "./use-toggle.svelte.js";

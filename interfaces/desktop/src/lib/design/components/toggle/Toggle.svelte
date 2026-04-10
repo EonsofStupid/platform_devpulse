@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { toggleAnatomy } from "$lib/design/behaviors/inputs/toggle/index.js";
 import { useToggle } from "$lib/design/behaviors/inputs/toggle/use-toggle.svelte.js";
-import { toggleAnatomy } from "$lib/design/primitives/toggle/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleProps, ToggleSize } from "./types.js";

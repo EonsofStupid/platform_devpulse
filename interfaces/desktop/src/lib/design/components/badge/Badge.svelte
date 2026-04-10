@@ -21,8 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useBadge } from "$lib/design/behaviors/display/badge/index.js";
-import { badgeAnatomy } from "$lib/design/primitives/badge/index.js";
+import { badgeAnatomy, useBadge } from "$lib/design/behaviors/display/badge/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BadgeProps, BadgeSize } from "./badge.types.js";

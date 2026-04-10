@@ -22,8 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useProgress } from "$lib/design/behaviors/display/progress/index.js";
-import { progressAnatomy } from "$lib/design/primitives/progress/index.js";
+import { progressAnatomy, useProgress } from "$lib/design/behaviors/display/progress/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProgressProps, ProgressSize } from "./progress.types.js";

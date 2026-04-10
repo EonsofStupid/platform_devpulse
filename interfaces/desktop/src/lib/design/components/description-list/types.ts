@@ -9,7 +9,7 @@
  * Extends DescriptionListPrimitiveProps from primitives.
  */
 
-import type { DescriptionListPrimitiveProps } from "$lib/design/primitives/description-list/index.js";
+import type { DescriptionListPrimitiveProps } from "$lib/design/behaviors/display/description-list/index.js";
 
 export type DescriptionListSize = "sm" | "md" | "lg";
 export type DescriptionListVariant = "default" | "inline" | "grid";

@@ -4,9 +4,9 @@
  * @layer components
  */
 
-import type { SeparatorPrimitiveProps } from "$lib/design/primitives/separator/index.js";
+import type { SeparatorPrimitiveProps } from "$lib/design/behaviors/display/separator/index.js";
 
-export type { SeparatorOrientation } from "$lib/design/primitives/separator/index.js";
+export type { SeparatorOrientation } from "$lib/design/behaviors/display/separator/index.js";
 
 export type SeparatorVariant = "solid" | "dashed" | "dotted";
 export type SeparatorPreset = "default" | "stark" | "glass" | "flat" | "matte";

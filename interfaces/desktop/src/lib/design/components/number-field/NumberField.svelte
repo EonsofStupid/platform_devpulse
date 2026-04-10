@@ -22,8 +22,10 @@
 }
 -->
 <script lang="ts">
-import { useNumberField } from "$lib/design/behaviors/inputs/number-field/index.js";
-import { numberFieldAnatomy } from "$lib/design/primitives/number-field/index.js";
+import {
+	numberFieldAnatomy,
+	useNumberField,
+} from "$lib/design/behaviors/inputs/number-field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NumberFieldProps, NumberFieldSize } from "./types.js";

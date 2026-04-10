@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
-import type { ProseSize } from "$lib/design/primitives/prose/index.js";
-import { proseAnatomy } from "$lib/design/primitives/prose/index.js";
+import type { ProseSize } from "$lib/design/behaviors/display/prose/index.js";
+import { proseAnatomy } from "$lib/design/behaviors/display/prose/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProseProps } from "./types.js";

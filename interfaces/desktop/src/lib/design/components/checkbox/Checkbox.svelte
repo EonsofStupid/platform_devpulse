@@ -22,8 +22,8 @@
 }
 -->
 <script lang="ts">
+import { checkboxAnatomy } from "$lib/design/behaviors/inputs/checkbox/index.js";
 import { useCheckbox } from "$lib/design/behaviors/inputs/checkbox/use-checkbox.svelte.js";
-import { checkboxAnatomy } from "$lib/design/primitives/checkbox/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";

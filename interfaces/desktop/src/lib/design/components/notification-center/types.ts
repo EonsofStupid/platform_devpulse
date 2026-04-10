@@ -7,7 +7,7 @@
  * Component layer owns ARIA — primitive is structureless.
  */
 
-import type { NotificationCenterPrimitiveProps } from "$lib/design/primitives/notification-center/index.js";
+import type { NotificationCenterPrimitiveProps } from "$lib/design/behaviors/overlays/notification-center/index.js";
 
 export type NotificationCenterPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
