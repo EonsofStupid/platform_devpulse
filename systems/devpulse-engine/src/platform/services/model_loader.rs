@@ -21,6 +21,8 @@ pub use devpulse_clyffy::model_loader::{
     ModelsCopy, ProfileCopy, ScanningCopy, StepTooltips, TierDisplay, TierRole, TooltipEntry,
     WizardCopy,
 };
+// Voice registry — SSOT for TTS voice catalog
+pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -264,6 +266,51 @@ impl ModelLoaderService {
     pub async fn voice_loaded(&self, slot_id: &str) -> bool {
         let inner = self.inner.lock().await;
         inner.voice_loaded(slot_id)
+    }
+
+    /// Embed a batch of texts via the embedder model loaded in a slot.
+    #[tracing::instrument(skip(self, texts), fields(slot_id, count = texts.len()))]
+    pub async fn embed(&self, slot_id: &str, texts: &[&str]) -> Result<Vec<Vec<f32>>> {
+        let inner = self.inner.lock().await;
+        inner.embed(slot_id, texts).map_err(Into::into)
+    }
+
+    /// Rerank documents against a query via the reranker model loaded in a slot.
+    #[tracing::instrument(skip(self, documents), fields(slot_id, count = documents.len()))]
+    pub async fn rerank(
+        &self,
+        slot_id: &str,
+        query: &str,
+        documents: &[&str],
+    ) -> Result<Vec<f32>> {
+        let inner = self.inner.lock().await;
+        inner.rerank(slot_id, query, documents).map_err(Into::into)
+    }
+
+    /// Encode an image file via the vision encoder loaded in a slot.
+    #[tracing::instrument(skip(self), fields(slot_id, path))]
+    pub async fn encode_image(
+        &self,
+        slot_id: &str,
+        path: &std::path::Path,
+    ) -> Result<Vec<f32>> {
+        let inner = self.inner.lock().await;
+        inner.encode_image(slot_id, path).map_err(Into::into)
+    }
+
+    /// Encode raw RGB pixel data via the vision encoder loaded in a slot.
+    #[tracing::instrument(skip(self, rgb_bytes), fields(slot_id, width, height))]
+    pub async fn encode_rgb(
+        &self,
+        slot_id: &str,
+        rgb_bytes: &[u8],
+        width: u32,
+        height: u32,
+    ) -> Result<Vec<f32>> {
+        let inner = self.inner.lock().await;
+        inner
+            .encode_rgb(slot_id, rgb_bytes, width, height)
+            .map_err(Into::into)
     }
 }
 

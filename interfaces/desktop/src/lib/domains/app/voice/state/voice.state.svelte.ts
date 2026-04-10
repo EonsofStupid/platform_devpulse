@@ -32,6 +32,12 @@ class VoiceState {
 	/** Last STT transcription result. */
 	lastTranscription = $state("");
 
+	/** Last transcript produced by an upload or STS run (distinct from mic). */
+	lastTranscript = $state("");
+
+	/** Last reply text produced by the STS pipeline. */
+	lastReply = $state("");
+
 	/** Last microphone test result. */
 	micTest = $state<MicTestResult | null>(null);
 

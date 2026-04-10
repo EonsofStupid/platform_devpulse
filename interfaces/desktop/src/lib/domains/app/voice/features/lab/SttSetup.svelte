@@ -61,21 +61,25 @@ async function handleMicTest(): Promise<void> {
 
 			{#if voiceState.micTest}
 				<div class="flex flex-col gap-1">
-					<Text size="xs" preset="default">Device: {voiceState.micTest.deviceName}</Text>
+					<Text size="xs" preset="default">
+						Device: {voiceState.micTest.detected ? "Detected" : "Not found"}
+					</Text>
 					<div class="flex items-center gap-2">
 						<Text size="xs" preset="default" class="w-12">Level:</Text>
 						<div class="flex-1 h-2 rounded-full bg-[var(--glass-void)] overflow-hidden">
 							<div
 								class="h-full rounded-full bg-[var(--accent-teal-main)] transition-all"
-								style="width: {Math.round(voiceState.micTest.avgLevel * 100)}%"
+								style="width: {Math.round(voiceState.micTest.avg_amplitude * 100)}%"
 							></div>
 						</div>
 						<Text size="xs" preset="default" class="w-10 text-right">
-							{Math.round(voiceState.micTest.avgLevel * 100)}%
+							{Math.round(voiceState.micTest.avg_amplitude * 100)}%
 						</Text>
 					</div>
 					<Text size="xs" preset="default" class="text-[var(--text-muted)]">
-						Peak: {voiceState.micTest.peakLevel.toFixed(2)} | Avg: {voiceState.micTest.avgLevel.toFixed(2)} | Duration: {(voiceState.micTest.durationMs / 1000).toFixed(1)}s
+						Peak: {voiceState.micTest.peak_amplitude.toFixed(2)} |
+						Avg: {voiceState.micTest.avg_amplitude.toFixed(2)} |
+						Noise floor: {voiceState.micTest.noise_floor.toFixed(3)}
 					</Text>
 				</div>
 			{/if}

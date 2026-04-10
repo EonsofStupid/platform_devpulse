@@ -87,6 +87,11 @@ pub fn run() {
         commands::models::inference_generate,
         commands::models::test_inference,
         commands::models::get_vram_budget,
+        // Capability backends — embedder, reranker, vision encoder
+        commands::models::embed_text,
+        commands::models::embed_batch,
+        commands::models::rerank_documents,
+        commands::models::encode_image,
         // Voice management
         commands::voice::get_voice_status,
         commands::voice::speak,
@@ -96,6 +101,8 @@ pub fn run() {
         commands::voice::preview_voice,
         commands::voice::test_microphone,
         commands::voice::transcribe_audio,
+        commands::voice::transcribe_audio_file,
+        commands::voice::run_sts_pipeline,
         commands::voice::list_voice_profiles,
         commands::voice::save_voice_profile,
         commands::voice::delete_voice_profile,

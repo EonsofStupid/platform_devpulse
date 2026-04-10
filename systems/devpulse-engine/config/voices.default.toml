@@ -1,0 +1,104 @@
+# Voice Registry — Single Source of Truth for TTS voice catalog
+#
+# This file is the SSOT for every voice available in the Voice UI. The
+# frontend pulls this catalog at runtime via `list_voices()`; nothing about
+# voices is hardcoded in Rust or Svelte.
+#
+# Override at `{userdata}/config/voices.toml` (same schema) — if present,
+# it fully replaces this default instead of merging. That keeps overrides
+# obvious and prevents partial-config confusion.
+#
+# Fields per voice:
+#   id             — stable identifier consumed by the TTS engine
+#   label          — human-friendly display name shown in the UI picker
+#   gender         — "male" | "female" | "neutral" (drives UI filtering)
+#   language       — BCP-47 tag, e.g. "en-US", "en-GB", "de-DE"
+#   engine         — which TTS backend owns this voice: "kokoro" | "piper"
+#   style          — freeform descriptor ("calm", "expressive", "news")
+#   sample_text    — preview line played by the "Preview" button
+#   description    — one-line blurb shown under the label
+
+# ── Kokoro voices ─────────────────────────────────────────────────
+# Kokoro is the primary TTS engine. Voice IDs below match the Kokoro v1.0
+# style-embedding names (`af_*` = American female, `am_*` = American male,
+# `bf_*` = British female, `bm_*` = British male).
+
+[[voice]]
+id = "af_heart"
+label = "Clyffy"
+gender = "female"
+language = "en-US"
+engine = "kokoro"
+style = "warm"
+sample_text = "Hi! I'm Clyffy, your AI assistant."
+description = "Default assistant voice — warm and clear"
+
+[[voice]]
+id = "af_star"
+label = "Nova"
+gender = "female"
+language = "en-US"
+engine = "kokoro"
+style = "casual"
+sample_text = "Hey there! What can I help with today?"
+description = "Casual female voice — friendly and upbeat"
+
+[[voice]]
+id = "af_bella"
+label = "Bella"
+gender = "female"
+language = "en-US"
+engine = "kokoro"
+style = "expressive"
+sample_text = "I love helping you build cool things."
+description = "Expressive female voice — emotive range"
+
+[[voice]]
+id = "af_sarah"
+label = "Sarah"
+gender = "female"
+language = "en-US"
+engine = "kokoro"
+style = "professional"
+sample_text = "Ready when you are. Let's get started."
+description = "Professional female voice — clean delivery"
+
+[[voice]]
+id = "am_adam"
+label = "Adam"
+gender = "male"
+language = "en-US"
+engine = "kokoro"
+style = "grounded"
+sample_text = "Hello. I'm here to help you out."
+description = "Grounded male voice — steady and reassuring"
+
+[[voice]]
+id = "am_michael"
+label = "Michael"
+gender = "male"
+language = "en-US"
+engine = "kokoro"
+style = "confident"
+sample_text = "Alright, let's tackle this together."
+description = "Confident male voice — engineer vibes"
+
+[[voice]]
+id = "bf_emma"
+label = "Emma"
+gender = "female"
+language = "en-GB"
+engine = "kokoro"
+style = "refined"
+sample_text = "Good afternoon. How may I assist you?"
+description = "Refined British female — measured and polite"
+
+[[voice]]
+id = "bm_george"
+label = "George"
+gender = "male"
+language = "en-GB"
+engine = "kokoro"
+style = "distinguished"
+sample_text = "Quite right. Let's have a look, shall we?"
+description = "Distinguished British male — classic BBC tone"

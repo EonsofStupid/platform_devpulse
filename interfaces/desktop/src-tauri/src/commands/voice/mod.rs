@@ -12,16 +12,27 @@ use crate::state::PlatformState;
 // ── Types ─────────────────────────────────────────────────────
 
 /// Voice information for the frontend.
+///
+/// Mirrors [`model_loader::VoiceEntry`] — every field comes from the
+/// voice registry TOML (`voices.default.toml`). Nothing here is hardcoded.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct VoiceInfo {
-    /// Voice identifier.
+    /// Voice identifier (e.g. `af_heart`).
     pub id: String,
-    /// Display label.
+    /// Human-friendly display label.
     pub label: String,
-    /// Gender: "male" | "female" | "neutral".
+    /// Gender: `male`, `female`, or `neutral`.
     pub gender: String,
-    /// Sample text for preview.
+    /// BCP-47 language tag (`en-US`, `en-GB`, …).
+    pub language: String,
+    /// Which TTS backend owns this voice (`kokoro` | `piper`).
+    pub engine: String,
+    /// Freeform style descriptor (`warm`, `casual`, `professional`).
+    pub style: String,
+    /// Sample text played by the Preview button.
     pub sample_text: String,
+    /// One-line blurb shown under the label in the picker.
+    pub description: String,
 }
 
 /// Voice profile — saved user configuration.
@@ -179,36 +190,44 @@ pub async fn is_speaking(
 }
 
 /// List available TTS voices.
+///
+/// Reads the voice registry TOML (`voices.default.toml` plus any user
+/// override at `{userdata}/config/voices.toml`) — nothing is hardcoded.
+/// The `slot_id` parameter is accepted for API symmetry but not used:
+/// the registry is global, not per-slot.
 #[tauri::command]
 #[specta::specta]
 pub async fn list_voices(
-    _state: State<'_, PlatformState>,
+    state: State<'_, PlatformState>,
     _slot_id: String,
 ) -> Result<Vec<VoiceInfo>, String> {
-    // Return built-in voice options (Kokoro voices)
-    Ok(vec![
-        VoiceInfo {
-            id: "af_heart".to_string(),
-            label: "Clyffy (Default)".to_string(),
-            gender: "female".to_string(),
-            sample_text: "Hi! I'm Clyffy, your AI assistant.".to_string(),
-        },
-        VoiceInfo {
-            id: "af_star".to_string(),
-            label: "Clyffy (Casual)".to_string(),
-            gender: "female".to_string(),
-            sample_text: "Hey there! What can I help with?".to_string(),
-        },
-        VoiceInfo {
-            id: "am_adam".to_string(),
-            label: "Leo (Male)".to_string(),
-            gender: "male".to_string(),
-            sample_text: "Hello, I'm here to help you out.".to_string(),
-        },
-    ])
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+
+    let userdata = platform.data_dir().to_path_buf();
+    let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
+        .map_err(|e| format!("Failed to load voice registry: {e}"))?;
+
+    Ok(registry
+        .all()
+        .iter()
+        .map(|v| VoiceInfo {
+            id: v.id.clone(),
+            label: v.label.clone(),
+            gender: v.gender.clone(),
+            language: v.language.clone(),
+            engine: v.engine.clone(),
+            style: v.style.clone(),
+            sample_text: v.sample_text.clone(),
+            description: v.description.clone(),
+        })
+        .collect())
 }
 
-/// Preview a voice by synthesizing and playing a sample phrase.
+/// Preview a voice by synthesizing and playing its registry `sample_text`.
+///
+/// Looks up the voice in the registry — returns an error if the voice is
+/// not registered, rather than playing a canned fallback line.
 #[tauri::command]
 #[specta::specta]
 pub async fn preview_voice(
@@ -216,14 +235,19 @@ pub async fn preview_voice(
     voice: String,
     slot_id: String,
 ) -> Result<(), String> {
-    // Use the same speak path with a canned sample
-    let sample_text = match voice.as_str() {
-        "af_heart" => "Hi! I'm Clyffy, your AI assistant.",
-        "af_star" => "Hey there! What can I help with?",
-        "am_adam" => "Hello, I'm here to help you out.",
-        _ => "This is a voice preview.",
+    let sample_text = {
+        let guard = state.platform.read().await;
+        let platform = guard.as_ref().ok_or("Platform not ready")?;
+        let userdata = platform.data_dir().to_path_buf();
+        let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
+            .map_err(|e| format!("Failed to load voice registry: {e}"))?;
+        registry
+            .find(&voice)
+            .ok_or_else(|| format!("Voice '{voice}' not found in registry"))?
+            .sample_text
+            .clone()
     };
-    speak(state, sample_text.to_string(), Some(voice), Some(slot_id)).await
+    speak(state, sample_text, Some(voice), Some(slot_id)).await
 }
 
 // ── STT Commands ──────────────────────────────────────────────
@@ -447,4 +471,245 @@ pub async fn activate_voice_profile(
     _profile_id: String,
 ) -> Result<(), String> {
     Err("Voice profile persistence not yet available — GlobalDb sprint required".to_string())
+}
+
+// ── Audio file upload + STS pipeline ──────────────────────────
+
+/// Decode an audio file on disk to mono f32 PCM at the requested sample rate.
+///
+/// Uses rodio's `Decoder` which delegates to symphonia/minimp3/etc. under
+/// the hood — WAV, MP3, FLAC, Vorbis are all supported out of the box.
+/// Stereo tracks are downmixed to mono by averaging channels. If the source
+/// sample rate differs from `target_rate`, simple linear interpolation
+/// resamples — good enough for Whisper's 16 kHz input.
+///
+/// Runs on the current thread (caller should wrap in `spawn_blocking`).
+fn decode_audio_file_to_pcm(path: &std::path::Path, target_rate: u32) -> Result<Vec<f32>, String> {
+    use rodio::{Decoder, Source};
+
+    let file = std::fs::File::open(path)
+        .map_err(|e| format!("Failed to open audio file {}: {e}", path.display()))?;
+    let reader = std::io::BufReader::new(file);
+
+    let decoder = Decoder::new(reader)
+        .map_err(|e| format!("Failed to decode audio file {}: {e}", path.display()))?;
+
+    let source_rate = decoder.sample_rate();
+    let source_channels = decoder.channels() as usize;
+    tracing::info!(
+        path = %path.display(),
+        sample_rate = source_rate,
+        channels = source_channels,
+        "Decoding uploaded audio file"
+    );
+
+    // rodio's Decoder yields i16 samples; convert to f32 in [-1.0, 1.0]
+    let raw: Vec<f32> = decoder.map(|s| f32::from(s) / 32_768.0).collect();
+    if raw.is_empty() {
+        return Err(format!("Audio file {} decoded to zero samples", path.display()));
+    }
+
+    // Downmix to mono by averaging channels
+    let mono: Vec<f32> = if source_channels > 1 {
+        raw.chunks(source_channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / source_channels as f32)
+            .collect()
+    } else {
+        raw
+    };
+
+    // Resample via linear interpolation if needed
+    if source_rate == target_rate {
+        return Ok(mono);
+    }
+    let ratio = f64::from(target_rate) / f64::from(source_rate);
+    let new_len = (mono.len() as f64 * ratio) as usize;
+    let mut resampled = Vec::with_capacity(new_len);
+    for i in 0..new_len {
+        let src_pos = i as f64 / ratio;
+        let idx = src_pos as usize;
+        let frac = (src_pos - idx as f64) as f32;
+        let sample = if idx + 1 < mono.len() {
+            mono[idx] * (1.0 - frac) + mono[idx + 1] * frac
+        } else if idx < mono.len() {
+            mono[idx]
+        } else {
+            0.0
+        };
+        resampled.push(sample);
+    }
+    Ok(resampled)
+}
+
+/// Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
+///
+/// Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
+/// upload any supported audio file and get back a transcript without
+/// going through the microphone path.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(path))]
+pub async fn transcribe_audio_file(
+    state: State<'_, PlatformState>,
+    path: String,
+) -> Result<String, String> {
+    use devpulse_engine::platform::services::model_loader::AudioSamples;
+
+    let pcm = {
+        let path = std::path::PathBuf::from(&path);
+        tokio::task::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
+            .await
+            .map_err(|e| format!("Audio decode thread failed: {e}"))??
+    };
+
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let loader = platform
+        .model_loader()
+        .ok_or("Model Loader not available")?;
+
+    let audio = AudioSamples {
+        data: pcm,
+        sample_rate: 16000,
+        channels: 1,
+    };
+
+    loader
+        .transcribe("voice.stt", &audio)
+        .await
+        .map_err(|e| format!("STT transcription failed: {e}"))
+}
+
+/// Result of a full STS (speech-to-speech) pipeline run.
+///
+/// The pipeline: uploaded audio → STT (transcript) → brain (reply) → TTS (audio).
+/// Returns both the transcript and the reply text so the UI can display
+/// the conversation turn. The TTS audio is played directly through the
+/// default output device — it is not returned over IPC.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct StsPipelineResult {
+    /// Transcript produced by the STT stage.
+    pub transcript: String,
+    /// Reply text produced by the brain stage.
+    pub reply: String,
+    /// TTS voice used to synthesize the reply.
+    pub voice: String,
+}
+
+/// Run the full speech-to-speech pipeline.
+///
+/// Stages:
+/// 1. **STT** — transcribe `audio_path` via voice.stt slot
+/// 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
+/// 3. **TTS** — synthesize the reply via voice.tts slot with `voice`
+/// 4. **Playback** — play through the default output device
+///
+/// Errors from any stage are returned with enough context that the UI can
+/// show which stage failed.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(audio_path, brain_slot, voice))]
+pub async fn run_sts_pipeline(
+    state: State<'_, PlatformState>,
+    audio_path: String,
+    brain_slot: Option<String>,
+    voice: Option<String>,
+    max_tokens: Option<u32>,
+) -> Result<StsPipelineResult, String> {
+    use devpulse_engine::platform::integrations::InferenceResponse;
+    use devpulse_engine::platform::services::model_loader::AudioSamples;
+    use devpulse_engine::platform::telemetry::TraceContext;
+
+    let brain_slot_id = brain_slot.unwrap_or_else(|| "chat.brain".to_string());
+    let voice_name = voice.unwrap_or_else(|| "af_heart".to_string());
+    let max_tokens = max_tokens.unwrap_or(256);
+
+    // Stage 1: STT — decode + transcribe
+    let pcm = {
+        let path = std::path::PathBuf::from(&audio_path);
+        tokio::task::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
+            .await
+            .map_err(|e| format!("STS stage 1 (decode) thread failed: {e}"))??
+    };
+
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let loader = platform
+        .model_loader()
+        .ok_or("Model Loader not available")?;
+
+    let samples = AudioSamples {
+        data: pcm,
+        sample_rate: 16000,
+        channels: 1,
+    };
+
+    let transcript = loader
+        .transcribe("voice.stt", &samples)
+        .await
+        .map_err(|e| format!("STS stage 1 (STT) failed: {e}"))?;
+    tracing::info!(transcript_len = transcript.len(), "STS stage 1 complete");
+
+    // Stage 2: Brain — chain transcript into inference
+    let handle = loader
+        .inference_handle(&brain_slot_id)
+        .await
+        .map_err(|e| format!("STS stage 2 (brain lookup) failed: {e}"))?
+        .ok_or_else(|| format!("STS stage 2: no model loaded in brain slot '{brain_slot_id}'"))?;
+
+    let trace_ctx = TraceContext::new();
+    let token_rx = handle
+        .generate(transcript.clone(), max_tokens, 0.7, trace_ctx.trace_id.clone())
+        .await
+        .map_err(|e| format!("STS stage 2 (generate) failed: {e:#}"))?;
+
+    let mut reply = String::new();
+    while let Ok(response) = token_rx.recv_async().await {
+        match response {
+            InferenceResponse::Token { text, .. } => reply.push_str(&text),
+            InferenceResponse::Done(text) => {
+                reply = text;
+                break;
+            }
+            InferenceResponse::Error(e) => {
+                return Err(format!("STS stage 2 (generate) error: {e}"));
+            }
+        }
+    }
+    tracing::info!(reply_len = reply.len(), "STS stage 2 complete");
+
+    // Stage 3: TTS — synthesize the reply
+    let tts_samples = loader
+        .synthesize("voice.tts", &reply, &voice_name)
+        .await
+        .map_err(|e| format!("STS stage 3 (TTS) failed: {e}"))?;
+    tracing::info!(
+        samples = tts_samples.data.len(),
+        "STS stage 3 complete — playing audio"
+    );
+
+    // Stage 4: Playback — reuse the same rodio path as speak()
+    tokio::task::spawn_blocking(move || {
+        use rodio::{OutputStream, Sink};
+        let (_stream, stream_handle) = OutputStream::try_default()
+            .map_err(|e| format!("Audio output failed: {e}"))?;
+        let sink = Sink::try_new(&stream_handle)
+            .map_err(|e| format!("Audio sink failed: {e}"))?;
+        let source = rodio::buffer::SamplesBuffer::new(
+            tts_samples.channels,
+            tts_samples.sample_rate,
+            tts_samples.data,
+        );
+        sink.append(source);
+        sink.sleep_until_end();
+        Ok::<(), String>(())
+    })
+    .await
+    .map_err(|e| format!("STS stage 4 (playback thread) failed: {e}"))??;
+
+    Ok(StsPipelineResult {
+        transcript,
+        reply,
+        voice: voice_name,
+    })
 }

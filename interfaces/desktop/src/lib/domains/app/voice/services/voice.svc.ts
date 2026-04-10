@@ -4,7 +4,12 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { MicTestResult, VoiceInfo, VoiceProfile } from "../contracts/voice.contract.js";
+import type {
+	MicTestResult,
+	StsPipelineResult,
+	VoiceInfo,
+	VoiceProfile,
+} from "../contracts/voice.contract.js";
 
 /** Speak text through the active TTS slot. */
 export async function speak(text: string, voice?: string, slot?: string): Promise<void> {
@@ -39,6 +44,36 @@ export async function testMicrophone(): Promise<MicTestResult> {
 /** Record and transcribe speech. */
 export async function transcribeAudio(): Promise<string> {
 	return invoke("transcribe_audio");
+}
+
+/**
+ * Transcribe an audio file on disk.
+ *
+ * Supported formats: MP3, WAV, FLAC, Vorbis. Decoded to mono 16 kHz PCM
+ * via rodio, then passed to the Whisper STT slot. Path must be absolute.
+ */
+export async function transcribeAudioFile(path: string): Promise<string> {
+	return invoke("transcribe_audio_file", { path });
+}
+
+/**
+ * Run the full speech-to-speech pipeline on an audio file.
+ *
+ * Stages: decode → STT → brain inference → TTS → playback.
+ * Returns the transcript, the model reply, and the voice used.
+ */
+export async function runStsPipeline(
+	audioPath: string,
+	brainSlot: string | null,
+	voice: string | null,
+	maxTokens: number | null,
+): Promise<StsPipelineResult> {
+	return invoke("run_sts_pipeline", {
+		audioPath,
+		brainSlot,
+		voice,
+		maxTokens,
+	});
 }
 
 /** List saved voice profiles. */

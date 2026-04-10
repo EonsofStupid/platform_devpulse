@@ -1,30 +1,50 @@
-//! Voice pool — manages TTS, STT, and audio decoder sessions.
+//! Voice/capability pool — manages non-LLM model sessions.
 //!
 //! Separate from `BackendPool` (which manages LLM inference via Candle).
-//! Voice models run through `ort` (ONNX Runtime) and produce/consume audio,
-//! not text tokens.
+//! This pool owns every "capability" backend that runs through `ort` or
+//! Candle-vision and produces things other than next-token logits:
+//!
+//! - **TTS** (Kokoro) — text → PCM
+//! - **STT** (Whisper) — PCM → text
+//! - **Text embedding** (Qwen3 embedder) — text → dense vector
+//! - **Reranker** (Qwen3 cross-encoder) — (query, docs) → relevance scores
+//! - **Vision embedding** (SigLIP2) — image → dense vector
+//!
+//! Name is historical — it started as "VoicePool" when only TTS/STT lived
+//! here. The rest of the code still calls it voice_pool; renaming is a
+//! separate cleanup.
 //!
 //! Thread safety: `sessions` and `footprints` are behind `Mutex` because
-//! Tauri commands are concurrent — `speak()` and `transcribe_audio()` can
-//! fire simultaneously. Pattern matches SNAC decoder (`snac.rs:26`).
+//! Tauri commands are concurrent — `speak()`, `transcribe_audio()`, and
+//! `embed_text()` can fire simultaneously. Pattern matches SNAC decoder.
 
 use crate::backends::voice::{AudioSamples, SttBackend, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::slots::types::ModelCapability;
+use crate::traits::capability::{EmbeddingBackend, RerankerBackend, VisionEmbeddingBackend};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Mutex;
 
-/// A loaded voice session in the pool.
+/// A loaded capability session in the pool.
 ///
-/// Variants are only constructed when `ort-backend` feature is enabled,
-/// but matched unconditionally in `synthesize()`/`transcribe()`.
-#[cfg_attr(not(feature = "ort-backend"), allow(dead_code))]
+/// Variants are only constructed inside the `load()` method, which is
+/// gated on `feature = "ort-backend"`. Under the default build (candle
+/// only) none of the variants are reachable — dead-code analysis is
+/// suppressed unconditionally since the dispatch methods below still
+/// need to match on all of them.
+#[allow(dead_code)]
 enum VoiceSession {
     /// Text-to-Speech backend (Kokoro).
     Tts(Box<dyn TtsBackend>),
     /// Speech-to-Text backend (Whisper).
     Stt(Box<dyn SttBackend>),
+    /// Dense text embedder (Qwen3-Embedding via ort).
+    Embedding(Box<dyn EmbeddingBackend>),
+    /// Cross-encoder reranker (Qwen3-Reranker via ort).
+    Reranking(Box<dyn RerankerBackend>),
+    /// Image encoder (SigLIP2 via Candle).
+    Vision(Box<dyn VisionEmbeddingBackend>),
 }
 
 /// Manages voice model sessions — one per slot.
@@ -86,6 +106,55 @@ impl VoicePool {
                 tracing::info!(slot = %slot_id, "VoicePool: STT model loaded");
                 Ok(footprint)
             }
+            ModelCapability::Embedding => {
+                let mut backend = crate::backends::ort::embedder::Qwen3Embedder::new();
+                let footprint = backend.load(model_path, params)?;
+                let mut sessions = self.sessions.lock()
+                    .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+                let mut footprints = self.footprints.lock()
+                    .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
+                sessions.insert(slot_id.to_string(), VoiceSession::Embedding(Box::new(backend)));
+                footprints.insert(slot_id.to_string(), footprint);
+                tracing::info!(slot = %slot_id, "VoicePool: embedder model loaded");
+                Ok(footprint)
+            }
+            ModelCapability::Reranking => {
+                let mut backend = crate::backends::ort::reranker::Qwen3Reranker::new();
+                let footprint = backend.load(model_path, params)?;
+                let mut sessions = self.sessions.lock()
+                    .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+                let mut footprints = self.footprints.lock()
+                    .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
+                sessions.insert(slot_id.to_string(), VoiceSession::Reranking(Box::new(backend)));
+                footprints.insert(slot_id.to_string(), footprint);
+                tracing::info!(slot = %slot_id, "VoicePool: reranker model loaded");
+                Ok(footprint)
+            }
+            ModelCapability::VisionEmbedding => {
+                #[cfg(feature = "candle-backend")]
+                {
+                    let mut backend = crate::backends::candle::SigLipVision::new();
+                    let footprint = backend.load(model_path, params)?;
+                    let mut sessions = self.sessions.lock()
+                        .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+                    let mut footprints = self.footprints.lock()
+                        .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
+                    sessions.insert(
+                        slot_id.to_string(),
+                        VoiceSession::Vision(Box::new(backend)),
+                    );
+                    footprints.insert(slot_id.to_string(), footprint);
+                    tracing::info!(slot = %slot_id, "VoicePool: vision encoder loaded");
+                    Ok(footprint)
+                }
+                #[cfg(not(feature = "candle-backend"))]
+                {
+                    let _ = (slot_id, model_path, params);
+                    anyhow::bail!(
+                        "VisionEmbedding requires `candle-backend` feature — not compiled"
+                    );
+                }
+            }
             other => {
                 anyhow::bail!("VoicePool does not handle capability: {other}");
             }
@@ -131,7 +200,10 @@ impl VoicePool {
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Tts(backend)) => backend.synthesize(text, voice),
-            Some(VoiceSession::Stt(_)) => anyhow::bail!("Slot '{slot_id}' is STT, not TTS"),
+            Some(other) => anyhow::bail!(
+                "Slot '{slot_id}' is {}, not TTS",
+                session_kind(other)
+            ),
             None => anyhow::bail!("No voice model loaded in slot '{slot_id}'"),
         }
     }
@@ -142,8 +214,85 @@ impl VoicePool {
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Stt(backend)) => backend.transcribe(samples),
-            Some(VoiceSession::Tts(_)) => anyhow::bail!("Slot '{slot_id}' is TTS, not STT"),
+            Some(other) => anyhow::bail!(
+                "Slot '{slot_id}' is {}, not STT",
+                session_kind(other)
+            ),
             None => anyhow::bail!("No voice model loaded in slot '{slot_id}'"),
+        }
+    }
+
+    /// Embed a batch of texts via an embedder slot.
+    ///
+    /// Returns one dense vector per input. Fails if the slot holds a
+    /// non-embedder backend — no silent fallback.
+    pub fn embed(&self, slot_id: &str, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
+        let sessions = self.sessions.lock()
+            .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+        match sessions.get(slot_id) {
+            Some(VoiceSession::Embedding(backend)) => backend.embed(texts),
+            Some(other) => anyhow::bail!(
+                "Slot '{slot_id}' is {}, not an embedder",
+                session_kind(other)
+            ),
+            None => anyhow::bail!("No embedder loaded in slot '{slot_id}'"),
+        }
+    }
+
+    /// Rerank documents against a query via a reranker slot.
+    ///
+    /// Returns one score per document in `[0.0, 1.0]` (higher = more relevant).
+    pub fn rerank(
+        &self,
+        slot_id: &str,
+        query: &str,
+        documents: &[&str],
+    ) -> anyhow::Result<Vec<f32>> {
+        let sessions = self.sessions.lock()
+            .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+        match sessions.get(slot_id) {
+            Some(VoiceSession::Reranking(backend)) => backend.rerank(query, documents),
+            Some(other) => anyhow::bail!(
+                "Slot '{slot_id}' is {}, not a reranker",
+                session_kind(other)
+            ),
+            None => anyhow::bail!("No reranker loaded in slot '{slot_id}'"),
+        }
+    }
+
+    /// Encode an image file on disk via a vision encoder slot.
+    pub fn encode_image(&self, slot_id: &str, path: &Path) -> anyhow::Result<Vec<f32>> {
+        let sessions = self.sessions.lock()
+            .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+        match sessions.get(slot_id) {
+            Some(VoiceSession::Vision(backend)) => backend.encode_image(path),
+            Some(other) => anyhow::bail!(
+                "Slot '{slot_id}' is {}, not a vision encoder",
+                session_kind(other)
+            ),
+            None => anyhow::bail!("No vision encoder loaded in slot '{slot_id}'"),
+        }
+    }
+
+    /// Encode raw RGB pixel data via a vision encoder slot.
+    pub fn encode_rgb(
+        &self,
+        slot_id: &str,
+        rgb_bytes: &[u8],
+        width: u32,
+        height: u32,
+    ) -> anyhow::Result<Vec<f32>> {
+        let sessions = self.sessions.lock()
+            .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+        match sessions.get(slot_id) {
+            Some(VoiceSession::Vision(backend)) => {
+                backend.encode_rgb(rgb_bytes, width, height)
+            }
+            Some(other) => anyhow::bail!(
+                "Slot '{slot_id}' is {}, not a vision encoder",
+                session_kind(other)
+            ),
+            None => anyhow::bail!("No vision encoder loaded in slot '{slot_id}'"),
         }
     }
 
@@ -183,5 +332,16 @@ impl VoicePool {
 impl Default for VoicePool {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Human-readable kind label for a loaded session, used in mismatch errors.
+fn session_kind(session: &VoiceSession) -> &'static str {
+    match session {
+        VoiceSession::Tts(_) => "TTS",
+        VoiceSession::Stt(_) => "STT",
+        VoiceSession::Embedding(_) => "embedder",
+        VoiceSession::Reranking(_) => "reranker",
+        VoiceSession::Vision(_) => "vision encoder",
     }
 }

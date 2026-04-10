@@ -15,6 +15,7 @@ pub mod models;
 pub mod service;
 pub mod slots;
 pub mod traits;
+pub mod voices;
 pub mod wizard;
 
 // Top-level re-exports for convenience
@@ -25,6 +26,9 @@ pub use backends::bridge::{InferenceHandle, InferenceResponse};
 
 // Voice backend types
 pub use backends::voice::{AudioDecoderBackend, AudioSamples, SttBackend, TtsBackend};
+
+// Voice registry — SSOT for TTS voice catalog
+pub use voices::{VoiceEntry, VoiceRegistry};
 
 // Capability backend types — embedder, reranker, vision encoder
 pub use backends::candle::SigLipVision;

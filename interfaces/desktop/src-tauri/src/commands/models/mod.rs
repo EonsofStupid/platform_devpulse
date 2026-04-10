@@ -937,3 +937,80 @@ pub async fn test_inference(
 ) -> Result<String, String> {
     inference_generate(app, state, slot_id, prompt, 256, 0.7).await
 }
+
+// ── Capability commands: embedder / reranker / vision ───────────────
+
+/// Embed a batch of texts via the embedder model loaded in a slot.
+///
+/// Returns one dense vector per input string, all the same dimensionality.
+/// Hard-fails if the slot has no embedder loaded — no silent fallback.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id, count = texts.len()))]
+pub async fn embed_batch(
+    state: State<'_, PlatformState>,
+    slot_id: String,
+    texts: Vec<String>,
+) -> Result<Vec<Vec<f32>>, String> {
+    let loader = get_loader(&state).await?;
+    let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
+    loader
+        .embed(&slot_id, &refs)
+        .await
+        .map_err(|e| format!("Embedding failed: {e:#}"))
+}
+
+/// Embed a single text — convenience wrapper over [`embed_batch`].
+#[tauri::command]
+#[specta::specta]
+pub async fn embed_text(
+    state: State<'_, PlatformState>,
+    slot_id: String,
+    text: String,
+) -> Result<Vec<f32>, String> {
+    let mut vectors = embed_batch(state, slot_id, vec![text]).await?;
+    vectors
+        .pop()
+        .ok_or_else(|| "Embedding returned empty result".to_string())
+}
+
+/// Rerank documents against a query via the reranker model loaded in a slot.
+///
+/// Returns one score in `[0.0, 1.0]` per document, higher = more relevant.
+/// Used as the second-stage refinement after initial vector search.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state, documents), fields(slot_id, count = documents.len()))]
+pub async fn rerank_documents(
+    state: State<'_, PlatformState>,
+    slot_id: String,
+    query: String,
+    documents: Vec<String>,
+) -> Result<Vec<f32>, String> {
+    let loader = get_loader(&state).await?;
+    let refs: Vec<&str> = documents.iter().map(String::as_str).collect();
+    loader
+        .rerank(&slot_id, &query, &refs)
+        .await
+        .map_err(|e| format!("Rerank failed: {e:#}"))
+}
+
+/// Encode an image file on disk via the vision encoder loaded in a slot.
+///
+/// Returns a dense embedding vector (e.g. 1152-dim for SigLIP2-SO400M).
+/// Used for screenshot understanding, visual search, cross-modal retrieval.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id, path))]
+pub async fn encode_image(
+    state: State<'_, PlatformState>,
+    slot_id: String,
+    path: String,
+) -> Result<Vec<f32>, String> {
+    let loader = get_loader(&state).await?;
+    let img_path = std::path::PathBuf::from(path);
+    loader
+        .encode_image(&slot_id, &img_path)
+        .await
+        .map_err(|e| format!("Image encode failed: {e:#}"))
+}

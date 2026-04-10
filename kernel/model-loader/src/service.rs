@@ -1120,4 +1120,39 @@ impl ModelLoaderService {
     pub fn voice_loaded(&self, slot_id: &str) -> bool {
         self.voice_pool.is_loaded(slot_id)
     }
+
+    /// Embed a batch of texts via an embedder slot.
+    pub fn embed(&self, slot_id: &str, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
+        self.voice_pool.embed(slot_id, texts)
+    }
+
+    /// Rerank documents against a query via a reranker slot.
+    pub fn rerank(
+        &self,
+        slot_id: &str,
+        query: &str,
+        documents: &[&str],
+    ) -> anyhow::Result<Vec<f32>> {
+        self.voice_pool.rerank(slot_id, query, documents)
+    }
+
+    /// Encode an image file via a vision encoder slot.
+    pub fn encode_image(
+        &self,
+        slot_id: &str,
+        path: &std::path::Path,
+    ) -> anyhow::Result<Vec<f32>> {
+        self.voice_pool.encode_image(slot_id, path)
+    }
+
+    /// Encode raw RGB pixel data via a vision encoder slot.
+    pub fn encode_rgb(
+        &self,
+        slot_id: &str,
+        rgb_bytes: &[u8],
+        width: u32,
+        height: u32,
+    ) -> anyhow::Result<Vec<f32>> {
+        self.voice_pool.encode_rgb(slot_id, rgb_bytes, width, height)
+    }
 }
