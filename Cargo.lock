@@ -3083,6 +3083,9 @@ dependencies = [
  "devpulse-engine",
  "flume",
  "keyring",
+ "portpicker",
+ "rand 0.8.5",
+ "reqwest 0.12.28",
  "rfd",
  "rodio",
  "serde",
@@ -8594,6 +8597,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "091397be61a01d4be58e7841595bd4bfedb15f1cd54977d79b8271e94ed799a3"
 dependencies = [
  "portable-atomic",
+]
+
+[[package]]
+name = "portpicker"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be97d76faf1bfab666e1375477b23fde79eccf0276e9b63b92a39d676a889ba9"
+dependencies = [
+ "rand 0.8.5",
 ]
 
 [[package]]

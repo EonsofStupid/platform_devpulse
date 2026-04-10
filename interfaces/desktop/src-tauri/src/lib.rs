@@ -52,6 +52,10 @@ pub fn run() {
         commands::sys::telemetry::query_span_traces,
         commands::sys::telemetry::query_lane_baselines,
         commands::devclyffy::get_status,
+        commands::devforge::spawn_reh_server,
+        commands::devforge::stop_reh_server,
+        commands::devforge::get_reh_status,
+        commands::devforge::get_connection_url,
         commands::devpulse::fetch_dashboard,
         commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
@@ -81,6 +85,8 @@ pub fn run() {
         commands::models::pick_directory,
         commands::models::create_dev_profile,
         commands::models::auto_configure,
+        commands::models::list_presets,
+        commands::models::config_for_tier,
         commands::models::get_wizard_copy,
         commands::models::get_tier_display,
         commands::models::complete_model_setup,
@@ -158,6 +164,7 @@ pub fn run() {
             // ── Platform state (empty until boot completes) ───────
             app.manage(PlatformState {
                 platform: RwLock::new(None),
+                reh: RwLock::new(None),
             });
             app.manage(BootStateTracker::new());
 
@@ -228,6 +235,20 @@ pub fn run() {
                 tracing::info!("Tauri exit event — initiating platform shutdown");
                 let state = app.state::<PlatformState>();
                 tauri::async_runtime::block_on(async {
+                    // Stop the DevForge REH server first so we don't leave
+                    // an orphan Node process if the platform shutdown stalls.
+                    let reh_manager = {
+                        let mut guard = state.reh.write().await;
+                        guard.take()
+                    };
+                    if let Some(manager) = reh_manager {
+                        if let Err(e) = manager.stop().await {
+                            tracing::warn!(error = %e, "REH server shutdown failed");
+                        } else {
+                            tracing::info!("REH server stopped");
+                        }
+                    }
+
                     let lock = state.platform.read().await;
                     if let Some(platform) = lock.as_ref() {
                         platform.shutdown().await;
