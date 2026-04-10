@@ -18,6 +18,7 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { cn } from "$lib/design/utils/cn.js";
+import SetupWizardOverlay from "$lib/domains/app/models/features/setup-wizard/SetupWizardOverlay.svelte";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
@@ -122,4 +123,11 @@ const SLOTS = {
 
 	<!-- Model swap overlay — full-screen block during load/unload only -->
 	<SwapOverlay />
+
+	<!-- Setup wizard overlay — first-run + manual reconfigure path.
+	     Renders inside the app shell on top of whatever view is active.
+	     Visibility driven by wizardState.isOpen — NOT a route, NOT a
+	     separate layout, NOT its own chrome. Same data-layout="app" the
+	     rest of the frame uses. -->
+	<SetupWizardOverlay />
 </div>

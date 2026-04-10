@@ -73,12 +73,15 @@ mod tests {
             capability: ModelCapability::TextGeneration,
             preferred_device: DevicePreference::Any,
             loading: LoadingStrategy::Hot,
+            persistence_class: crate::slots::PersistenceClass::OnDemand,
+            lane: crate::hardware::LaneKind::Vram,
             assigned_model: None,
             fallback: fallback.map(String::from),
             runtime: None,
             default_model: None,
             requires: Vec::new(),
             overrides: None,
+            source_tier: crate::slots::ModelSourceTier::UserManaged,
             extensions: std::collections::HashMap::new(),
         }
     }

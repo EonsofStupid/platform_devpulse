@@ -6,6 +6,7 @@
  * NOT a rune — a service with async methods. Does NOT import .svelte files.
  */
 
+import { invoke } from "@tauri-apps/api/core";
 import { logError } from "$lib/sys/logger.js";
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
@@ -44,19 +45,69 @@ export async function startHardwareScan(): Promise<void> {
 /**
  * Fetch auto-configuration recommendations based on detected hardware.
  *
- * @throws {Error} If auto-configure IPC or JSON parse fails
+ * Returns the parsed config on success and `null` on failure so the caller
+ * can react — previously errors were swallowed into `wizardState.error` and
+ * the welcome page would silently render a blank "detected" state.
+ *
  * @sideeffects Updates wizardState.recommendations on success, wizardState.error on failure
  */
-export async function fetchRecommendations(): Promise<void> {
+export async function fetchRecommendations(): Promise<AutoConfig | null> {
 	wizardState.error = null;
 	try {
 		const raw = await autoConfigureHardware();
 		const config: AutoConfig = JSON.parse(raw);
 		wizardState.setRecommendations(config);
+		wizardState.selectedPresetName = config.preset_name;
+		return config;
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.recommendations", `Fetch recommendations failed: ${msg}`);
 		wizardState.error = msg;
+		return null;
+	}
+}
+
+/**
+ * List every hardware preset the platform knows about, in display order
+ * (highest tier first). Used by the welcome preset picker so the owner
+ * can override the auto-detected default.
+ *
+ * Returns an empty array on failure so callers can show a fallback state
+ * without having to catch.
+ */
+export async function listAllPresets(): Promise<AutoConfig[]> {
+	try {
+		const raw = await invoke<string>("list_presets");
+		return JSON.parse(raw) as AutoConfig[];
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.presets", `list_presets failed: ${msg}`);
+		return [];
+	}
+}
+
+/**
+ * Switch the wizard to a specific preset — used when the owner picks a
+ * non-default preset from the welcome picker. Fetches the fresh config
+ * for that tier (so `already_downloaded` flags are accurate) and updates
+ * `wizardState.recommendations` + `selectedPresetName`.
+ *
+ * `tier` must be one of: `high`, `jesse_primary`, `mid`, `floor`,
+ * `minimal`, `cpu_only`.
+ */
+export async function selectPreset(tier: string): Promise<AutoConfig | null> {
+	wizardState.error = null;
+	try {
+		const raw = await invoke<string>("config_for_tier", { tier });
+		const config: AutoConfig = JSON.parse(raw);
+		wizardState.setRecommendations(config);
+		wizardState.selectedPresetName = config.preset_name;
+		return config;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.presets", `selectPreset(${tier}) failed: ${msg}`);
+		wizardState.error = msg;
+		return null;
 	}
 }
 

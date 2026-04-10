@@ -1,0 +1,177 @@
+# ═══════════════════════════════════════════════════════════════
+# SLOTS — Kernel SSOT
+# ═══════════════════════════════════════════════════════════════
+#
+# Every user-configurable model binding point lives in this file. The
+# kernel `model-loader::slots::defaults` loader embeds it at compile
+# time via `include_str!` and loads any user override from
+# `{userdata}/config/slots.toml`.
+#
+# This file absorbs the previously-inline
+# `[[services.system.model_loader.slots]]` array from
+# `systems/devpulse-engine/platform.default.toml`. The platform config
+# now points here instead of carrying its own shadow copy.
+#
+# ── Schema ─────────────────────────────────────────────────────
+#
+# Each `[[slots]]` entry produces one `Slot` (see
+# `kernel/model-loader/src/slots/types.rs`). Required fields:
+#
+#   id                  — unique dotted identifier (e.g. "chat.brain")
+#   label               — human-readable name
+#   capability          — ModelCapability variant (see enum)
+#   preferred_device    — DevicePreference (Gpu | Cpu | GpuWithCpuFallback | Any)
+#   loading             — LoadingStrategy (Hot | Warm | OnDemand | { Signal = "…" } | { Coupled = { parent = "…" } })
+#   persistence_class   — PersistenceClass (on_demand | warm_standby | always_on)
+#   lane                — LaneKind (vram | ddr | cpu | ssd)
+#   source_tier         — "UserManaged" or { Bundled = { bundled_path = "…" } }
+#
+# Optional fields:
+#
+#   fallback            — another slot id to try when this one has no model loaded
+#   runtime             — override backend routing ("Candle" | "LlamaCpp" | "Ort")
+#   default_model       — filename the loader should auto-assign on first boot
+#   requires            — array of slot ids that must be loaded alongside this one
+#   overrides           — slot id this slot can replace when conditions hold
+#   extensions          — table of backend-specific key/value strings
+#
+# ── Extension pattern ──────────────────────────────────────────
+#
+# To add a new slot:
+#   1. Append a new `[[slots]]` block here with every required field.
+#   2. If a new capability is needed, add a variant to
+#      `ModelCapability` in `kernel/model-loader/src/slots/types.rs`.
+#   3. Add the slot id to `kernel/model-loader/src/slots/defaults.rs`
+#      `BASELINE_SLOT_IDS` so the baseline test picks it up.
+#   4. If an auto-config preset should populate it, edit
+#      `kernel/model-loader/config/presets.default.toml` and add an
+#      entry under the appropriate `[[presets.<tier>.recommendations]]`.
+# Nothing else changes — the frontend picks up the new slot via
+# `list_presets`, the Slot Config overlay shows it in the Slots tab,
+# and the VRAM/DDR budgeter plans against it automatically.
+#
+# ═══════════════════════════════════════════════════════════════
+
+# ── 1. chat.brain — Primary reasoning LLM ─────────────────────
+
+[[slots]]
+id = "chat.brain"
+label = "AI Brain"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "Hot"
+persistence_class = "warm_standby"
+lane = "vram"
+source_tier = "UserManaged"
+
+# ── 2. minion.shared — Shared helper brain ────────────────────
+
+[[slots]]
+id = "minion.shared"
+label = "Helper Engine"
+capability = "TextGeneration"
+preferred_device = "GpuWithCpuFallback"
+loading = "Hot"
+persistence_class = "warm_standby"
+lane = "vram"
+source_tier = "UserManaged"
+
+# ── 3. minion.escalation — Deep reasoning escalation ──────────
+
+[[slots]]
+id = "minion.escalation"
+label = "Deep Reasoning"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "Warm"
+persistence_class = "on_demand"
+lane = "vram"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
+# ── 4. vision.embedder — Image encoder ────────────────────────
+#
+# Bundled SigLIP2 by default. When the user picks an omni-capable
+# `chat.brain` model, the Slot Config overlay auto-configures this
+# slot to route through the brain instead of loading a separate
+# encoder (D6 — omni override warning required if user overrides).
+
+[[slots]]
+id = "vision.embedder"
+label = "Vision System"
+capability = "VisionEmbedding"
+preferred_device = "Cpu"
+loading = { Signal = "screenshot.captured" }
+persistence_class = "on_demand"
+lane = "cpu"
+runtime = "Ort"
+default_model = "vision_model_int8.onnx"
+source_tier = { Bundled = { bundled_path = "vision/siglip2-base/vision_model_int8.onnx" } }
+
+# ── 5. voice.tts — Text to speech ─────────────────────────────
+
+[[slots]]
+id = "voice.tts"
+label = "Clyffy's Voice"
+capability = "TextToSpeech"
+preferred_device = "Cpu"
+loading = { Signal = "speech.requested" }
+persistence_class = "on_demand"
+lane = "cpu"
+runtime = "Ort"
+default_model = "kokoro-v1.0.int8.onnx"
+source_tier = { Bundled = { bundled_path = "voice/kokoro-v1.0.int8.onnx" } }
+
+[slots.extensions]
+voice_profile = "af_heart"
+
+# ── 6. voice.stt — Speech to text ─────────────────────────────
+
+[[slots]]
+id = "voice.stt"
+label = "Voice Input"
+capability = "SpeechToText"
+preferred_device = "Cpu"
+loading = { Signal = "voice.activated" }
+persistence_class = "on_demand"
+lane = "cpu"
+runtime = "Ort"
+default_model = "ggml-small.bin"
+source_tier = { Bundled = { bundled_path = "voice/ggml-small.bin" } }
+
+# ── 7. voice.brain — Optional dedicated voice LLM ─────────────
+#
+# Toggleable (D1/P1). When enabled, runs a small LLM dedicated to
+# speech. When disabled (default), voice conversations fall back to
+# the main `chat.brain` via the `fallback` chain.
+
+[[slots]]
+id = "voice.brain"
+label = "Voice Conversation"
+capability = "TextGeneration"
+preferred_device = "Cpu"
+loading = "Hot"
+persistence_class = "on_demand"
+lane = "cpu"
+fallback = "minion.escalation"
+source_tier = "UserManaged"
+
+# ── 8. voice.wake — Optional user wake-word override ──────────
+#
+# Per D9, the platform ships a built-in always-on wake-word detector
+# (see `built_ins.default.toml`). This slot is the *user override* —
+# when the user assigns a model here, it takes precedence over the
+# built-in. Default is empty (no model), so the built-in detector
+# handles wake events out of the box. `persistence_class = always_on`
+# because once enabled, the wake word must never be evicted — it's
+# the user's only way back into voice mode.
+
+[[slots]]
+id = "voice.wake"
+label = "Wake Word"
+capability = "SpeechToText"
+preferred_device = "Cpu"
+loading = "Hot"
+persistence_class = "always_on"
+lane = "cpu"
+source_tier = "UserManaged"

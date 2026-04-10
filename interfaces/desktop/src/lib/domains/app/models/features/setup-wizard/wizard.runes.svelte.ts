@@ -22,6 +22,20 @@ import {
 } from "./wizard.types.js";
 
 class WizardState {
+	// ── Overlay open/close ───────────────────────────────
+	/**
+	 * Whether the Setup Wizard overlay is currently mounted and visible.
+	 *
+	 * Set to `true` by `platformState.init()` when `is_first_run` returns
+	 * truthy, or by manual calls to `wizardState.open()`. Set to `false` by
+	 * `wizardState.close()` when the user exits or the final phase runs
+	 * `complete_model_setup`. The overlay component subscribes to this
+	 * field and renders inside `Frame.svelte` as a sibling of
+	 * `SwapOverlay` — it is not a route, it is not its own shell, it is a
+	 * component mounted over whatever (app) view the user is on.
+	 */
+	isOpen = $state(false);
+
 	// ── Phase Navigation ─────────────────────────────────
 	currentPhase = $state<WizardPhase>("hardware");
 
@@ -33,6 +47,14 @@ class WizardState {
 
 	// ── Phase 2: Models (preset-first) ──────────────────
 	recommendations = $state<ModelRec[]>([]);
+
+	/**
+	 * Name of the hardware preset the owner has currently selected — either
+	 * auto-detected on scan or manually overridden in the welcome preset picker.
+	 * Matches `AutoConfig.preset_name` from the Rust side (e.g. "Jesse Primary
+	 * (16GB)", "Floor (8GB)", "Floor — CPU Mode").
+	 */
+	selectedPresetName = $state<string | null>(null);
 
 	// ── Bulk Download State ─────────────────────────────
 	downloadQueue = $state<ModelRec[]>([]);
@@ -173,6 +195,25 @@ class WizardState {
 	/** Jump to a specific phase (for Customize/Browse escape hatches). */
 	goTo(phase: WizardPhase): void {
 		this.currentPhase = phase;
+	}
+
+	// ── Overlay lifecycle ────────────────────────────────
+
+	/**
+	 * Open the Setup Wizard overlay. Idempotent — calling while already
+	 * open does nothing. Triggered on first run or manual invocation.
+	 */
+	open(): void {
+		this.isOpen = true;
+	}
+
+	/**
+	 * Close the Setup Wizard overlay. Idempotent. Called when the user
+	 * finishes the final phase, explicitly dismisses the overlay, or the
+	 * platform reports the setup is complete.
+	 */
+	close(): void {
+		this.isOpen = false;
 	}
 
 	// ── Recommendations ──────────────────────────────────

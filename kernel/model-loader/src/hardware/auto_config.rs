@@ -22,7 +22,7 @@ use crate::slots::types::DevicePreference;
 use serde::{Deserialize, Serialize};
 
 /// Hardware tier — maps to a default preset.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum HardwareTier {
     /// 24 GB+ VRAM — Preset 4 (High). Static, 14B+ brain.
@@ -109,118 +109,64 @@ pub fn detect_tier(metrics: &HardwareMetrics) -> HardwareTier {
     }
 }
 
-/// Generate auto-configuration for a hardware tier.
+/// Generate auto-configuration for the currently-detected hardware tier.
 ///
-/// `downloaded_filenames` — set of filenames already in the local registry.
-/// Used to mark recommendations as `already_downloaded`.
+/// `metrics` — live hardware metrics used to compute the tier.
+/// `downloaded_filenames` — set of filenames already in the local registry;
+/// used to mark recommendations as `already_downloaded`.
+/// `presets` — every preset the kernel knows about, typically pre-loaded at
+/// boot via [`crate::hardware::load_default_presets`] and cached in the
+/// model loader service. If no preset exists for the detected tier, the
+/// function returns an empty `AutoConfig` for that tier rather than
+/// panicking — the caller can surface a warning in the UI.
+#[must_use]
 pub fn auto_configure(
     metrics: &HardwareMetrics,
     downloaded_filenames: &std::collections::HashSet<String>,
+    presets: &[crate::hardware::presets::PresetBlueprint],
 ) -> AutoConfig {
     let tier = detect_tier(metrics);
-    let (preset_name, brain_policy, recs) = preset_for_tier(tier, downloaded_filenames);
-    let total_vram = recs.iter().map(|r| r.vram_estimate_mb).sum();
-    let total_download: u64 = recs
-        .iter()
-        .filter(|r| !r.already_downloaded)
-        .map(|r| r.model_size_mb)
-        .sum();
-
-    AutoConfig {
-        tier,
-        preset_name,
-        brain_policy,
-        recommendations: recs,
-        total_vram_needed_mb: total_vram,
-        total_download_size_mb: total_download,
-    }
+    config_for_tier(tier, downloaded_filenames, presets)
 }
 
-/// Returns (preset_name, brain_policy, recommendations) for a tier.
-fn preset_for_tier(
+/// Build an `AutoConfig` for any tier — regardless of the currently-detected
+/// hardware. The wizard uses this to present every preset in a picker so the
+/// owner can override the auto-detection (e.g. force API-only on a 24 GB box).
+///
+/// This is a pure function of `tier`, the download set, and the cached
+/// preset catalog; it does not touch the live `HardwareMetrics`.
+#[must_use]
+pub fn config_for_tier(
     tier: HardwareTier,
-    dl: &std::collections::HashSet<String>,
-) -> (String, BrainSwapPolicy, Vec<SlotRecommendation>) {
-    let mut recs = Vec::new();
-
-    let (name, policy) = match tier {
-        // ── Preset 4: High (24GB+) — Static, 14B brain ──────────
-        HardwareTier::High => {
-            recs.push(rec("chat.brain", "bartowski/Qwen3-14B-GGUF", "Qwen3-14B-Q4_K_M.gguf", 8_100, 9_200, DevicePreference::Gpu, dl));
-            recs.push(rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q8_0.gguf", 700, 400, DevicePreference::Gpu, dl));
-            ("High (24GB)".into(), BrainSwapPolicy::Static)
-        }
-
-        // ── Preset 3: Jesse Primary (16GB) — ActiveIdle, Phi-4 15B / 4B ──
-        HardwareTier::JessePrimary => {
-            recs.push(rec("chat.brain", "microsoft/Phi-4-reasoning-vision-15B-GGUF", "Phi-4-reasoning-vision-15B-Q4_K_M.gguf", 9_500, 10_000, DevicePreference::Gpu, dl));
-            recs.push(rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::Gpu, dl));
-            ("Jesse Primary (16GB)".into(), BrainSwapPolicy::ActiveIdle {
-                active_model: "Phi-4-reasoning-vision-15B-Q4_K_M.gguf".into(),
-                idle_model: "Qwen3-VL-4B-Q4_K_M.gguf".into(),
-                idle_after_secs: 300,
-            })
-        }
-
-        // ── Preset 2: Mid (12GB) — ActiveIdle, Qwen3.5-9B / 4B ──
-        HardwareTier::Mid => {
-            recs.push(rec("chat.brain", "bartowski/Qwen3.5-9B-GGUF", "Qwen3.5-9B-Q4_K_M.gguf", 5_300, 5_800, DevicePreference::Gpu, dl));
-            recs.push(rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::Gpu, dl));
-            ("Mid ActiveIdle (12GB)".into(), BrainSwapPolicy::ActiveIdle {
-                active_model: "Qwen3.5-9B-Q4_K_M.gguf".into(),
-                idle_model: "Qwen3-VL-4B-Q4_K_M.gguf".into(),
-                idle_after_secs: 300,
-            })
-        }
-
-        // ── Preset 1: Floor (8GB) — Static, Qwen3-VL-4B ────────
-        HardwareTier::Floor => {
-            recs.push(rec("chat.brain", "bartowski/Qwen3-VL-4B-GGUF", "Qwen3-VL-4B-Q4_K_M.gguf", 2_600, 3_200, DevicePreference::Gpu, dl));
-            recs.push(rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::GpuWithCpuFallback, dl));
-            ("Floor (8GB)".into(), BrainSwapPolicy::Static)
-        }
-
-        // ── Preset 1 on CPU or Preset 7 (API) ───────────────────
-        HardwareTier::Minimal | HardwareTier::CpuOnly => {
-            recs.push(rec("chat.brain", "bartowski/Qwen3-VL-4B-GGUF", "Qwen3-VL-4B-Q4_K_M.gguf", 2_600, 3_200, DevicePreference::Cpu, dl));
-            recs.push(rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::Cpu, dl));
-            ("Floor — CPU Mode".into(), BrainSwapPolicy::Static)
-        }
-    };
-
-    // ── Common slots — EVERY preset gets these ───────────────────
-    // RAG: embedding + reranking
-    recs.push(rec("rag.embedder", "Qwen/Qwen3-Embedding-0.6B", "model.safetensors", 420, 0, DevicePreference::Cpu, dl));
-    recs.push(rec("rag.reranker", "Qwen/Qwen3-Reranker-0.6B", "model.safetensors", 420, 0, DevicePreference::Cpu, dl));
-
-    // Vision
-    recs.push(rec("vision.embedder", "google/siglip2-so400m-patch14-384", "model.safetensors", 390, 0, DevicePreference::Cpu, dl));
-
-    // Voice: STT (Whisper via sherpa-rs) + TTS (Qwen3-TTS)
-    recs.push(rec("voice.stt", "ggerganov/whisper.cpp", "ggml-small.bin", 466, 0, DevicePreference::Cpu, dl));
-    recs.push(rec("voice.tts", "Qwen/Qwen3-TTS-0.6B", "model.safetensors", 600, 0, DevicePreference::Cpu, dl));
-
-    (name, policy, recs)
+    downloaded_filenames: &std::collections::HashSet<String>,
+    presets: &[crate::hardware::presets::PresetBlueprint],
+) -> AutoConfig {
+    match presets.iter().find(|bp| bp.tier == tier).cloned() {
+        Some(blueprint) => blueprint.into_auto_config(downloaded_filenames),
+        None => AutoConfig {
+            tier,
+            preset_name: format!("{tier:?} — no preset defined"),
+            brain_policy: BrainSwapPolicy::Static,
+            recommendations: Vec::new(),
+            total_vram_needed_mb: 0,
+            total_download_size_mb: 0,
+        },
+    }
 }
 
-fn rec(
-    slot_id: &str,
-    repo_id: &str,
-    filename: &str,
-    size_mb: u64,
-    vram_mb: u64,
-    device: DevicePreference,
-    downloaded: &std::collections::HashSet<String>,
-) -> SlotRecommendation {
-    SlotRecommendation {
-        slot_id: slot_id.to_string(),
-        model_repo_id: repo_id.to_string(),
-        model_filename: filename.to_string(),
-        model_size_mb: size_mb,
-        vram_estimate_mb: vram_mb,
-        already_downloaded: downloaded.contains(filename),
-        device,
-    }
+/// Materialise every preset into an [`AutoConfig`], in kernel display order.
+/// Used by the wizard preset picker so the owner can switch off the
+/// auto-detected default and pick any other tier manually.
+#[must_use]
+pub fn list_all_presets(
+    downloaded_filenames: &std::collections::HashSet<String>,
+    presets: &[crate::hardware::presets::PresetBlueprint],
+) -> Vec<AutoConfig> {
+    presets
+        .iter()
+        .cloned()
+        .map(|bp| bp.into_auto_config(downloaded_filenames))
+        .collect()
 }
 
 #[cfg(test)]
@@ -275,17 +221,29 @@ mod tests {
         assert_eq!(detect_tier(&metrics_with_vram(None)), HardwareTier::CpuOnly);
     }
 
+    /// Load presets from the kernel SSOT TOML for every test that needs
+    /// to exercise the auto-configure path. The embedded default is always
+    /// present, so the `/nonexistent` userdata path is fine — it skips the
+    /// user override branch and reads only the embedded catalog.
+    fn load_presets() -> Vec<crate::hardware::presets::PresetBlueprint> {
+        crate::hardware::presets::load_default_presets(std::path::Path::new("/nonexistent"))
+            .expect("embedded presets.default.toml must load")
+    }
+
     #[test]
-    fn floor_has_all_9_slots() {
+    fn floor_preset_has_every_required_slot() {
         let hw = metrics_with_vram(Some(8_000));
         let dl = std::collections::HashSet::new();
-        let config = auto_configure(&hw, &dl);
+        let presets = load_presets();
+        let config = auto_configure(&hw, &dl, &presets);
 
         assert_eq!(config.tier, HardwareTier::Floor);
         assert_eq!(config.preset_name, "Floor (8GB)");
-        assert_eq!(config.recommendations.len(), 9);
+        // 2 tier-specific (chat.brain, minion.shared) + 5 common
+        // (rag.embedder, rag.reranker, vision.embedder, voice.stt, voice.tts)
+        // = 7 total.
+        assert_eq!(config.recommendations.len(), 7);
 
-        // Verify all required slots present
         let slots: Vec<&str> = config.recommendations.iter().map(|r| r.slot_id.as_str()).collect();
         assert!(slots.contains(&"chat.brain"));
         assert!(slots.contains(&"minion.shared"));
@@ -300,7 +258,8 @@ mod tests {
     fn mid_has_active_idle_policy() {
         let hw = metrics_with_vram(Some(12_000));
         let dl = std::collections::HashSet::new();
-        let config = auto_configure(&hw, &dl);
+        let presets = load_presets();
+        let config = auto_configure(&hw, &dl, &presets);
 
         assert_eq!(config.tier, HardwareTier::Mid);
         assert!(matches!(config.brain_policy, BrainSwapPolicy::ActiveIdle { .. }));
@@ -310,7 +269,8 @@ mod tests {
     fn floor_brain_is_4b_minimum() {
         let hw = metrics_with_vram(Some(8_000));
         let dl = std::collections::HashSet::new();
-        let config = auto_configure(&hw, &dl);
+        let presets = load_presets();
+        let config = auto_configure(&hw, &dl, &presets);
 
         let brain = config.recommendations.iter().find(|r| r.slot_id == "chat.brain").unwrap();
         assert!(brain.model_filename.contains("4B"), "Brain must be 4B minimum, got {}", brain.model_filename);
@@ -321,8 +281,9 @@ mod tests {
         let hw = metrics_with_vram(Some(12_000));
         let mut dl = std::collections::HashSet::new();
         dl.insert("Qwen3.5-9B-Q4_K_M.gguf".to_string());
+        let presets = load_presets();
 
-        let config = auto_configure(&hw, &dl);
+        let config = auto_configure(&hw, &dl, &presets);
 
         let brain = config.recommendations.iter().find(|r| r.slot_id == "chat.brain").unwrap();
         assert!(brain.already_downloaded);

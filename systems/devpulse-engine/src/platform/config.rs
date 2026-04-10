@@ -818,10 +818,12 @@ pub struct ModelLoaderServiceEntry {
     /// Subdirectory names for model discovery.
     #[serde(default)]
     pub subdirs: ModelSubdirsConfig,
-    /// Slot definitions — SSOT. If empty at boot, engine hard-fails.
-    #[serde(default)]
-    pub slots: Vec<SlotConfigEntry>,
     /// Download catalog — HF repos and options per slot.
+    ///
+    /// Slots themselves are NOT defined here — the kernel owns the slot
+    /// registry via `kernel/model-loader/config/slots.default.toml`. The
+    /// catalog is engine-level presentation data that the frontend model
+    /// browser renders against each kernel slot id.
     #[serde(default)]
     pub catalog: Vec<CatalogEntry>,
 }
@@ -833,7 +835,6 @@ impl Default for ModelLoaderServiceEntry {
             critical: false,
             models_dir: default_models_dir(),
             subdirs: ModelSubdirsConfig::default(),
-            slots: Vec::new(),
             catalog: Vec::new(),
         }
     }
@@ -853,21 +854,6 @@ impl ModelLoaderServiceEntry {
             self.subdirs.rag.clone(),
             self.subdirs.vision.clone(),
         ]
-    }
-
-    /// Convert config slot entries to kernel `Slot` types.
-    ///
-    /// # Errors
-    /// Returns an error if no slots are defined (TOML is SSOT — no fallback).
-    #[cfg(feature = "inference")]
-    pub fn build_slots(&self) -> anyhow::Result<Vec<devpulse_clyffy::model_loader::Slot>> {
-        if self.slots.is_empty() {
-            anyhow::bail!(
-                "No slots defined in [services.system.model_loader.slots] — \
-                 TOML is the SSOT, there is no fallback. Add slot definitions to platform.default.toml."
-            );
-        }
-        Ok(self.slots.iter().map(SlotConfigEntry::to_kernel_slot).collect())
     }
 }
 
@@ -899,225 +885,13 @@ impl Default for ModelSubdirsConfig {
     }
 }
 
-// ── TOML-side config enums (deser from TOML, convert to kernel) ──
-
-/// TOML-side `ModelCapability` — deserialized from config, converts to kernel type.
-#[derive(Debug, Clone, Deserialize)]
-pub enum ModelCapabilityConfig {
-    /// LLM — chat, reasoning, translation.
-    TextGeneration,
-    /// Bi-encoder — vector generation for search.
-    Embedding,
-    /// Cross-encoder — relevance scoring.
-    Reranking,
-    /// Multimodal — image + text understanding.
-    VisionLanguage,
-    /// Image to vector (SigLIP2 etc.).
-    VisionEmbedding,
-    /// Speech-to-text (Whisper).
-    SpeechToText,
-    /// Text-to-speech (Kokoro).
-    TextToSpeech,
-    /// Neural audio codec (SNAC — speech token decoding).
-    AudioDecoding,
-}
-
-#[cfg(feature = "inference")]
-impl ModelCapabilityConfig {
-    fn to_kernel(&self) -> devpulse_clyffy::model_loader::ModelCapability {
-        use devpulse_clyffy::model_loader::ModelCapability;
-        match self {
-            Self::TextGeneration => ModelCapability::TextGeneration,
-            Self::Embedding => ModelCapability::Embedding,
-            Self::Reranking => ModelCapability::Reranking,
-            Self::VisionLanguage => ModelCapability::VisionLanguage,
-            Self::VisionEmbedding => ModelCapability::VisionEmbedding,
-            Self::SpeechToText => ModelCapability::SpeechToText,
-            Self::TextToSpeech => ModelCapability::TextToSpeech,
-            Self::AudioDecoding => ModelCapability::AudioDecoding,
-        }
-    }
-}
-
-/// TOML-side `DevicePreference`.
-#[derive(Debug, Clone, Deserialize)]
-pub enum DevicePreferenceConfig {
-    /// Must run on GPU (generation models).
-    Gpu,
-    /// Prefer CPU (embedders, rerankers).
-    Cpu,
-    /// Try GPU, fall back to CPU if VRAM insufficient.
-    GpuWithCpuFallback,
-    /// Loader decides based on VRAM budget.
-    Any,
-}
-
-#[cfg(feature = "inference")]
-impl DevicePreferenceConfig {
-    fn to_kernel(&self) -> devpulse_clyffy::model_loader::DevicePreference {
-        use devpulse_clyffy::model_loader::DevicePreference;
-        match self {
-            Self::Gpu => DevicePreference::Gpu,
-            Self::Cpu => DevicePreference::Cpu,
-            Self::GpuWithCpuFallback => DevicePreference::GpuWithCpuFallback,
-            Self::Any => DevicePreference::Any,
-        }
-    }
-}
-
-/// TOML-side `LoadingStrategy`.
-#[derive(Debug, Clone, Deserialize)]
-pub enum LoadingStrategyConfig {
-    /// Keep loaded while platform is active.
-    Hot,
-    /// Load proactively when conditions suggest need.
-    Warm,
-    /// Load when first request arrives, unload after idle.
-    OnDemand,
-    /// Load when a specific signal fires (e.g. `"voice.activated"`).
-    Signal(String),
-    /// Loaded/unloaded alongside a parent slot.
-    Coupled {
-        /// The parent slot ID that controls this slot's lifecycle.
-        parent: String,
-    },
-}
-
-#[cfg(feature = "inference")]
-impl LoadingStrategyConfig {
-    fn to_kernel(&self) -> devpulse_clyffy::model_loader::LoadingStrategy {
-        use devpulse_clyffy::model_loader::LoadingStrategy;
-        match self {
-            Self::Hot => LoadingStrategy::Hot,
-            Self::Warm => LoadingStrategy::Warm,
-            Self::OnDemand => LoadingStrategy::OnDemand,
-            Self::Signal(s) => LoadingStrategy::Signal(s.clone()),
-            Self::Coupled { parent } => LoadingStrategy::Coupled { parent: parent.clone() },
-        }
-    }
-}
-
-/// TOML-side `BackendType`.
-#[derive(Debug, Clone, Deserialize)]
-pub enum BackendTypeConfig {
-    /// Candle (canonical — Rust-native backend).
-    Candle,
-    /// llama.cpp via FFI (secondary — broader architecture support).
-    LlamaCpp,
-    /// ONNX Runtime via ort crate (SNAC, small inference models).
-    Ort,
-    /// sherpa-rs (Whisper STT, Kokoro TTS).
-    Sherpa,
-}
-
-#[cfg(feature = "inference")]
-impl BackendTypeConfig {
-    fn to_kernel(&self) -> devpulse_clyffy::model_loader::BackendType {
-        use devpulse_clyffy::model_loader::BackendType;
-        match self {
-            Self::Candle => BackendType::Candle,
-            Self::LlamaCpp => BackendType::LlamaCpp,
-            Self::Ort => BackendType::Ort,
-            Self::Sherpa => BackendType::Sherpa,
-        }
-    }
-}
-
-/// TOML-side `ModelSourceTier`.
-#[derive(Debug, Clone, Deserialize)]
-pub enum SourceTierConfig {
-    /// User downloads and manages via Model Loader UI.
-    UserManaged,
-    /// Ships with the app binary, auto-loads on boot.
-    Bundled {
-        /// Path relative to models_dir (e.g. `"voice/kokoro/model_quantized.onnx"`).
-        bundled_path: String,
-    },
-}
-
-#[cfg(feature = "inference")]
-impl SourceTierConfig {
-    fn to_kernel(&self) -> devpulse_clyffy::model_loader::ModelSourceTier {
-        use devpulse_clyffy::model_loader::ModelSourceTier;
-        match self {
-            Self::UserManaged => ModelSourceTier::UserManaged,
-            Self::Bundled { bundled_path } => ModelSourceTier::Bundled {
-                bundled_path: bundled_path.clone(),
-            },
-        }
-    }
-}
-
-impl Default for SourceTierConfig {
-    fn default() -> Self {
-        Self::UserManaged
-    }
-}
-
-// ── Slot config entry (TOML → kernel::Slot) ──
-
-/// A slot definition from TOML. All fields from kernel `Slot` except `assigned_model`
-/// (always None at boot — restored from persistence/MemoryConfig).
-#[derive(Debug, Clone, Deserialize)]
-pub struct SlotConfigEntry {
-    /// Unique identifier (e.g., `"chat.brain"`).
-    pub id: String,
-    /// Human-readable label.
-    pub label: String,
-    /// What kind of model this slot accepts.
-    pub capability: ModelCapabilityConfig,
-    /// Preferred device placement.
-    #[serde(default = "default_device_any")]
-    pub preferred_device: DevicePreferenceConfig,
-    /// Loading strategy.
-    #[serde(default = "default_loading_hot")]
-    pub loading: LoadingStrategyConfig,
-    /// Fallback slot ID.
-    #[serde(default)]
-    pub fallback: Option<String>,
-    /// Override inference backend.
-    #[serde(default)]
-    pub runtime: Option<BackendTypeConfig>,
-    /// Default model filename for auto-assignment.
-    #[serde(default)]
-    pub default_model: Option<String>,
-    /// Slot IDs that must be loaded alongside this slot.
-    #[serde(default)]
-    pub requires: Vec<String>,
-    /// Slot ID that this slot can replace.
-    #[serde(default)]
-    pub overrides: Option<String>,
-    /// Whether bundled or user-managed.
-    #[serde(default)]
-    pub source_tier: SourceTierConfig,
-    /// Backend-specific key-value config.
-    #[serde(default)]
-    pub extensions: std::collections::HashMap<String, String>,
-}
-
-#[cfg(feature = "inference")]
-impl SlotConfigEntry {
-    /// Convert to the kernel `Slot` type. `assigned_model` is always `None` at boot.
-    fn to_kernel_slot(&self) -> devpulse_clyffy::model_loader::Slot {
-        devpulse_clyffy::model_loader::Slot {
-            id: self.id.clone(),
-            label: self.label.clone(),
-            capability: self.capability.to_kernel(),
-            preferred_device: self.preferred_device.to_kernel(),
-            loading: self.loading.to_kernel(),
-            assigned_model: None,
-            fallback: self.fallback.clone(),
-            runtime: self.runtime.as_ref().map(BackendTypeConfig::to_kernel),
-            default_model: self.default_model.clone(),
-            requires: self.requires.clone(),
-            overrides: self.overrides.clone(),
-            source_tier: self.source_tier.to_kernel(),
-            extensions: self.extensions.clone(),
-        }
-    }
-}
-
 // ── Catalog entry (exposed to frontend via specta) ──
+//
+// Slot / capability / device / loading-strategy / backend-type / source-tier
+// shadow types used to live here. They are deleted — the engine no longer
+// carries a parallel definition of the kernel's Slot vocabulary. Every
+// deserialization of a slot now goes through kernel/model-loader/src/slots/
+// defaults.rs via load_default_slots() at boot.
 
 /// A download catalog entry — one per slot. Each has one or more download options.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -1153,8 +927,6 @@ fn default_subdir_chat() -> String { "chat".to_string() }
 fn default_subdir_voice() -> String { "voice".to_string() }
 fn default_subdir_rag() -> String { "rag".to_string() }
 fn default_subdir_vision() -> String { "vision".to_string() }
-fn default_device_any() -> DevicePreferenceConfig { DevicePreferenceConfig::Any }
-fn default_loading_hot() -> LoadingStrategyConfig { LoadingStrategyConfig::Hot }
 
 /// Configuration for the DevForge service (managed VSCode process).
 #[derive(Debug, Clone, Deserialize)]

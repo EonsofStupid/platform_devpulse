@@ -42,6 +42,14 @@ pub struct ModelLoaderService {
     slot_handles: HashMap<String, InferenceHandle>,
     /// Tracks slots mid-swap to block inference during transitions.
     swap_guard: SwapGuard,
+    /// Preset catalog loaded from `presets.default.toml` at boot time.
+    ///
+    /// The auto-configure / list-all-presets / config-for-tier methods
+    /// consult this cached catalog instead of re-parsing TOML on every
+    /// call. The cache is immutable after construction — the catalog
+    /// represents kernel SSOT and cannot change at runtime without a
+    /// user override and a restart.
+    presets: Vec<crate::hardware::presets::PresetBlueprint>,
 }
 
 impl ModelLoaderService {
@@ -49,11 +57,15 @@ impl ModelLoaderService {
     ///
     /// `models_dir` is where GGUF/SafeTensors files live (e.g. `~/.devpulse/models/`).
     /// `subdirs` defines the subdirectory names for model discovery (e.g. `["chat", "voice", "rag", "vision"]`).
+    /// `presets` is the cached preset catalog — typically loaded at boot
+    /// via [`crate::hardware::load_default_presets`] and handed in so the
+    /// service never has to re-parse TOML on an auto-configure call.
     pub fn new(
         config: Box<dyn ConfigBackend>,
         events: Arc<dyn LoaderEventSink>,
         models_dir: PathBuf,
         subdirs: Vec<String>,
+        presets: Vec<crate::hardware::presets::PresetBlueprint>,
     ) -> anyhow::Result<Self> {
         // Ensure models directory exists — organized by purpose
         if !models_dir.exists() {
@@ -87,6 +99,7 @@ impl ModelLoaderService {
             downloads,
             slot_handles: HashMap::new(),
             swap_guard: SwapGuard::new(),
+            presets,
         })
     }
 
@@ -978,10 +991,30 @@ impl ModelLoaderService {
     }
 
     /// Auto-configure based on detected hardware.
+    ///
+    /// Consults the cached preset catalog loaded at boot from
+    /// `kernel/model-loader/config/presets.default.toml`. No re-parsing.
     pub fn auto_configure(&mut self) -> AutoConfig {
         let hw = self.hardware.metrics().clone();
         let downloaded = self.registry.filenames();
-        auto_config::auto_configure(&hw, &downloaded)
+        auto_config::auto_configure(&hw, &downloaded, &self.presets)
+    }
+
+    /// Return every known hardware preset, in display order.
+    ///
+    /// Used by the wizard preset picker to let the owner override the
+    /// auto-detected default. `already_downloaded` flags reflect the
+    /// current model registry so the UI can accurately show download sizes.
+    pub fn list_all_presets(&self) -> Vec<AutoConfig> {
+        let downloaded = self.registry.filenames();
+        auto_config::list_all_presets(&downloaded, &self.presets)
+    }
+
+    /// Build the `AutoConfig` for a specific tier — used when the owner
+    /// manually selects a non-default preset in the wizard picker.
+    pub fn config_for_tier(&self, tier: crate::hardware::HardwareTier) -> AutoConfig {
+        let downloaded = self.registry.filenames();
+        auto_config::config_for_tier(tier, &downloaded, &self.presets)
     }
 
     /// Delete a model from disk and remove it from the registry.

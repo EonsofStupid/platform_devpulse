@@ -1,5 +1,7 @@
 //! Slot system types — hierarchical named positions for model assignment.
 
+use super::persistence_class::PersistenceClass;
+use crate::hardware::lanes::LaneKind;
 use serde::{Deserialize, Serialize};
 
 /// A slot is a named position where a model can be assigned.
@@ -24,6 +26,24 @@ pub struct Slot {
     /// Loading strategy — when should this model be loaded?
     pub loading: LoadingStrategy,
 
+    /// Residency contract — how the budgeter treats this slot under
+    /// memory pressure. `OnDemand` is fully evictable, `WarmStandby`
+    /// evicts last, `AlwaysOn` is non-evictable.
+    ///
+    /// Defaults to `OnDemand` when missing from TOML — see
+    /// [`PersistenceClass::default`].
+    #[serde(default)]
+    pub persistence_class: PersistenceClass,
+
+    /// Which compute lane this slot is assigned to. Drives the
+    /// backend pool routing and the lane-scoped capacity accounting.
+    ///
+    /// Defaults to `Vram` for GPU-preferred slots; TOML files override
+    /// this on a per-slot basis. Serialised in lowercase to match the
+    /// TOML key vocabulary (`vram` / `ddr` / `cpu` / `ssd`).
+    #[serde(default = "default_lane_vram")]
+    pub lane: LaneKind,
+
     /// Currently assigned model (registry entry ID), if any.
     pub assigned_model: Option<String>,
 
@@ -38,16 +58,26 @@ pub struct Slot {
     pub default_model: Option<String>,
 
     /// Slot IDs that must be loaded alongside this slot.
+    #[serde(default)]
     pub requires: Vec<String>,
 
     /// Slot ID that this slot can replace when conditions are met.
     pub overrides: Option<String>,
 
     /// Whether this model is bundled with the app or user-managed.
+    #[serde(default)]
     pub source_tier: ModelSourceTier,
 
     /// Backend-specific configuration (voice_profile, vad, sample_rate, etc.).
+    #[serde(default)]
     pub extensions: std::collections::HashMap<String, String>,
+}
+
+/// Default lane for slots that don't specify one — GPU-first since the
+/// main brain and helpers live on VRAM. CPU-preferred slots override
+/// this in their TOML entry.
+fn default_lane_vram() -> LaneKind {
+    LaneKind::Vram
 }
 
 /// Whether a slot's model ships with the app or is user-managed.

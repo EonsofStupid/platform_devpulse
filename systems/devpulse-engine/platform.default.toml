@@ -125,90 +125,13 @@ voice = "voice"
 rag = "rag"
 vision = "vision"
 
-# ── Slot definitions (SSOT — no hardcoded fallback) ──────────────
-
-[[services.system.model_loader.slots]]
-id = "chat.brain"
-label = "AI Brain"
-capability = "TextGeneration"
-preferred_device = "Gpu"
-loading = "Hot"
-source_tier = "UserManaged"
-
-[[services.system.model_loader.slots]]
-id = "minion.shared"
-label = "Minion Engine"
-capability = "TextGeneration"
-preferred_device = "GpuWithCpuFallback"
-loading = "Hot"
-source_tier = "UserManaged"
-
-[[services.system.model_loader.slots]]
-id = "minion.escalation"
-label = "Deep Reasoning"
-capability = "TextGeneration"
-preferred_device = "Gpu"
-loading = "Warm"
-fallback = "chat.brain"
-source_tier = "UserManaged"
-
-[[services.system.model_loader.slots]]
-id = "rag.embedder"
-label = "Search Engine"
-capability = "Embedding"
-preferred_device = "Cpu"
-loading = "OnDemand"
-source_tier = "UserManaged"
-
-[[services.system.model_loader.slots]]
-id = "rag.reranker"
-label = "Relevance Scorer"
-capability = "Reranking"
-preferred_device = "Cpu"
-loading = "OnDemand"
-source_tier = "UserManaged"
-
-[[services.system.model_loader.slots]]
-id = "vision.embedder"
-label = "Vision System"
-capability = "VisionEmbedding"
-preferred_device = "Cpu"
-loading = { Signal = "screenshot.captured" }
-runtime = "Ort"
-default_model = "vision_model_int8.onnx"
-source_tier = { Bundled = { bundled_path = "vision/siglip2-base/vision_model_int8.onnx" } }
-
-[[services.system.model_loader.slots]]
-id = "voice.tts"
-label = "Clyffy's Voice"
-capability = "TextToSpeech"
-preferred_device = "Cpu"
-loading = { Signal = "speech.requested" }
-runtime = "Ort"
-default_model = "kokoro-v1.0.int8.onnx"
-source_tier = { Bundled = { bundled_path = "voice/kokoro-v1.0.int8.onnx" } }
-
-[services.system.model_loader.slots.extensions]
-voice_profile = "af_heart"
-
-[[services.system.model_loader.slots]]
-id = "voice.stt"
-label = "Voice Input"
-capability = "SpeechToText"
-preferred_device = "Cpu"
-loading = { Signal = "voice.activated" }
-runtime = "Ort"
-default_model = "ggml-small.bin"
-source_tier = { Bundled = { bundled_path = "voice/ggml-small.bin" } }
-
-[[services.system.model_loader.slots]]
-id = "voice.brain"
-label = "Voice Conversation"
-capability = "TextGeneration"
-preferred_device = "Cpu"
-loading = "Hot"
-fallback = "minion.escalation"
-source_tier = "UserManaged"
+# ── Slot definitions: kernel SSOT ─────────────────────────────────
+# Slots used to be inlined here as [[services.system.model_loader.slots]]
+# blocks. They now live in kernel/model-loader/config/slots.default.toml
+# and are loaded at boot via model_loader::load_default_slots(data_dir),
+# with optional user override at {data_dir}/config/slots.toml.
+#
+# See kernel/model-loader/src/slots/defaults.rs for the loader contract.
 
 # ── Download catalog (what the frontend shows) ───────────────────
 

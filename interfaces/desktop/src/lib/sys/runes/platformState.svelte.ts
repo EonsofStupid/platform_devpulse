@@ -282,6 +282,17 @@ class PlatformState {
 				"boot",
 				`Models status: ready=${e.payload.ready} models=${e.payload.modelCount} assigned=${e.payload.assignedCount}`,
 			);
+
+			// First-run trigger — open the Setup Wizard overlay when the
+			// platform reports this is a fresh install. The overlay mounts
+			// inside Frame.svelte so it appears over the (app) view the
+			// moment the app shell renders.
+			if (e.payload.firstRun) {
+				import("$lib/domains/app/models/features/setup-wizard/wizard.runes.svelte.js").then((m) => {
+					logInfo("boot", "First-run detected — opening Setup Wizard overlay");
+					m.wizardState.open();
+				});
+			}
 		});
 		this.unlisteners.push(unlistenModels);
 

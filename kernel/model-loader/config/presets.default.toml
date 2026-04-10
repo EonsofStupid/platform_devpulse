@@ -1,0 +1,255 @@
+# ═══════════════════════════════════════════════════════════════
+# PRESETS — Kernel SSOT
+# ═══════════════════════════════════════════════════════════════
+#
+# Per-tier model recommendations. Absorbed from the hardcoded
+# `preset_for_tier()` function in `hardware/auto_config.rs`.
+#
+# Each `[[presets]]` block describes one hardware tier's default
+# configuration: a display name, a brain swap policy, and the list of
+# slots it populates with a suggested model.
+#
+# The kernel loader at `hardware/presets.rs` parses this file at build
+# time via `include_str!` and honours `{userdata}/config/presets.toml`
+# as a user override (full-replace, same pattern as every other
+# kernel-owned config file).
+#
+# ── Tier → preset mapping ──────────────────────────────────────
+#
+# `hardware/auto_config.rs::detect_tier` maps VRAM to a
+# [`HardwareTier`] variant:
+#
+#   High         — 24 GB+     → Preset 4 (Static 14B brain)
+#   JessePrimary — 16 GB      → Preset 3 (ActiveIdle Phi-4 15B / 4B)
+#   Mid          — 12 GB      → Preset 2 (ActiveIdle 9B / 4B)
+#   Floor        —  8 GB      → Preset 1 (Static 4B brain)
+#   Minimal      — <8 GB      → Preset 1 on CPU
+#   CpuOnly      — no GPU     → Preset 1 on CPU
+#
+# The tier name in each `[[presets]]` block matches one of the
+# enum variants above (case-sensitive).
+#
+# ── Brain swap policy values ───────────────────────────────────
+#
+#   brain_policy = "Static"
+#
+#   brain_policy = { ActiveIdle = {
+#     active_model = "FileName.gguf",
+#     idle_model = "FileName.gguf",
+#     idle_after_secs = 300,
+#   } }
+#
+#   brain_policy = "ApiEnhanced"
+#
+# ── Common slots ───────────────────────────────────────────────
+#
+# Every preset inherits the slots listed in `[common]` at the bottom
+# of the file. Tier-specific slots override matching ids. Consumers
+# rely on this split so "add a new voice slot" is one edit, not
+# seven copy-paste edits across every preset.
+#
+# ── Extension pattern ──────────────────────────────────────────
+#
+# To add a new preset:
+#
+#   1. Add a new `HardwareTier` enum variant in `auto_config.rs`.
+#   2. Append a `[[presets]]` block here with every slot the tier
+#      should populate.
+#   3. Update `detect_tier` to route hardware into the new variant.
+#   4. Update the `list_all_presets` ordering helper.
+#
+# The wizard preset picker picks up the new preset automatically.
+#
+# ═══════════════════════════════════════════════════════════════
+
+# ── Preset 4: High (24 GB+) — Static 14B brain ────────────────
+
+[[presets]]
+tier = "High"
+preset_name = "High (24GB)"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-14B-GGUF"
+model_filename = "Qwen3-14B-Q4_K_M.gguf"
+model_size_mb = 8100
+vram_estimate_mb = 9200
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q8_0.gguf"
+model_size_mb = 700
+vram_estimate_mb = 400
+device = "Gpu"
+
+# ── Preset 3: Jesse Primary (16 GB) — ActiveIdle Phi-4 15B / 4B ─
+
+[[presets]]
+tier = "JessePrimary"
+preset_name = "Jesse Primary (16GB)"
+
+[presets.brain_policy.ActiveIdle]
+active_model = "Phi-4-reasoning-vision-15B-Q4_K_M.gguf"
+idle_model = "Qwen3-VL-4B-Q4_K_M.gguf"
+idle_after_secs = 300
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "microsoft/Phi-4-reasoning-vision-15B-GGUF"
+model_filename = "Phi-4-reasoning-vision-15B-Q4_K_M.gguf"
+model_size_mb = 9500
+vram_estimate_mb = 10000
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Gpu"
+
+# ── Preset 2: Mid (12 GB) — ActiveIdle Qwen3.5-9B / 4B ──────────
+
+[[presets]]
+tier = "Mid"
+preset_name = "Mid ActiveIdle (12GB)"
+
+[presets.brain_policy.ActiveIdle]
+active_model = "Qwen3.5-9B-Q4_K_M.gguf"
+idle_model = "Qwen3-VL-4B-Q4_K_M.gguf"
+idle_after_secs = 300
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3.5-9B-GGUF"
+model_filename = "Qwen3.5-9B-Q4_K_M.gguf"
+model_size_mb = 5300
+vram_estimate_mb = 5800
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Gpu"
+
+# ── Preset 1: Floor (8 GB) — Static Qwen3-VL-4B ────────────────
+
+[[presets]]
+tier = "Floor"
+preset_name = "Floor (8GB)"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-VL-4B-GGUF"
+model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
+model_size_mb = 2600
+vram_estimate_mb = 3200
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "GpuWithCpuFallback"
+
+# ── Preset 1 (Minimal) — <8 GB VRAM, CPU chat.brain ────────────
+
+[[presets]]
+tier = "Minimal"
+preset_name = "Floor — CPU Mode"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-VL-4B-GGUF"
+model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
+model_size_mb = 2600
+vram_estimate_mb = 3200
+device = "Cpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Cpu"
+
+# ── Preset 1 (CpuOnly) — no GPU, CPU everywhere ────────────────
+
+[[presets]]
+tier = "CpuOnly"
+preset_name = "Floor — CPU Mode"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-VL-4B-GGUF"
+model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
+model_size_mb = 2600
+vram_estimate_mb = 3200
+device = "Cpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Cpu"
+
+# ── Common slots — inherited by every preset ───────────────────
+#
+# These five entries are added to every preset's recommendation list
+# unless an entry with the same `slot_id` already exists in the tier's
+# own block. The loader handles the merge deterministically.
+
+[[common.slots]]
+slot_id = "rag.embedder"
+model_repo_id = "Qwen/Qwen3-Embedding-0.6B"
+model_filename = "model.safetensors"
+model_size_mb = 420
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "rag.reranker"
+model_repo_id = "Qwen/Qwen3-Reranker-0.6B"
+model_filename = "model.safetensors"
+model_size_mb = 420
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "vision.embedder"
+model_repo_id = "google/siglip2-so400m-patch14-384"
+model_filename = "model.safetensors"
+model_size_mb = 390
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "voice.stt"
+model_repo_id = "ggerganov/whisper.cpp"
+model_filename = "ggml-small.bin"
+model_size_mb = 466
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "voice.tts"
+model_repo_id = "Qwen/Qwen3-TTS-0.6B"
+model_filename = "model.safetensors"
+model_size_mb = 600
+vram_estimate_mb = 0
+device = "Cpu"

@@ -19,10 +19,13 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════
-   App Shell — Default Circuit Board Background (fallback)
+   App + Setup Shells — Default Circuit Board Background
+   Shared fallback for every full-viewport shell that doesn't
+   override via a domain-specific [data-route] variant below.
    ═══════════════════════════════════════════════════════ */
 
-[data-layout="app"] {
+[data-layout="app"],
+[data-layout="setup"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
 		linear-gradient(

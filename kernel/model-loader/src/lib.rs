@@ -9,6 +9,8 @@
 //! to wire into their own persistence and event systems.
 
 pub mod backends;
+pub mod build_mode;
+pub mod built_ins;
 pub mod hardware;
 pub mod loading;
 pub mod models;
@@ -19,6 +21,8 @@ pub mod voices;
 pub mod wizard;
 
 // Top-level re-exports for convenience
+pub use build_mode::BuildMode;
+pub use built_ins::{load_default_built_ins, BuiltIn, BuiltInsError};
 pub use service::ModelLoaderService;
 
 // Inference bridge types
@@ -44,7 +48,10 @@ pub use backends::piper::PiperTts;
 pub use backends::phoneme::{KokoroVocab, text_to_phonemes, text_to_kokoro_ids};
 
 // Slot types
-pub use slots::{DevicePreference, LoadingStrategy, ModelCapability, ModelSourceTier, Slot, SlotRegistry};
+pub use slots::{
+    load_default_slots, DevicePreference, LoadingStrategy, ModelCapability, ModelSourceTier,
+    PersistenceClass, Slot, SlotDefaultsError, SlotRegistry, BASELINE_SLOT_IDS,
+};
 
 // Model types
 pub use models::{
@@ -56,7 +63,9 @@ pub use loading::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotSt
 
 // Hardware types
 pub use hardware::{
-    AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor, HardwareTier, SlotRecommendation, VramBudget,
+    load_default_presets, AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor,
+    HardwareTier, LaneAllocation, LaneBudget, LaneCapacity, LaneKind, LaneStatus, PresetBlueprint,
+    PresetsError, SlotRecommendation, VramBudget,
 };
 
 // Wizard types — copy, tier display, tooltips

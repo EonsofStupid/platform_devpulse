@@ -550,6 +550,52 @@ pub async fn auto_configure(
     serde_json::to_string(&config).map_err(|e| e.to_string())
 }
 
+/// List every known hardware preset — returned as a JSON-encoded
+/// `Vec<AutoConfig>` so the wizard preset picker can show all options
+/// (Floor / Mid / Jesse Primary / High / Minimal / CPU Only) with live
+/// download sizes based on the current model registry.
+///
+/// JSON is used instead of a specta-typed return because `AutoConfig`
+/// nests `BrainSwapPolicy` which is a struct-variant enum — parsing
+/// client-side is simpler than generating a discriminated union.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_presets(
+    state: State<'_, PlatformState>,
+) -> Result<String, String> {
+    let loader = get_loader(&state).await?;
+    let presets = loader.list_all_presets().await;
+    serde_json::to_string(&presets).map_err(|e| e.to_string())
+}
+
+/// Build the `AutoConfig` for a manually-selected hardware tier. Used
+/// when the owner overrides the auto-detection in the preset picker.
+///
+/// Tier is passed as a lowercase string (`high`, `jesse_primary`, `mid`,
+/// `floor`, `minimal`, `cpu_only`) to keep the IPC surface simple.
+#[tauri::command]
+#[specta::specta]
+pub async fn config_for_tier(
+    state: State<'_, PlatformState>,
+    tier: String,
+) -> Result<String, String> {
+    use devpulse_engine::platform::services::model_loader::HardwareTier;
+
+    let parsed = match tier.as_str() {
+        "high" | "High" => HardwareTier::High,
+        "jesse_primary" | "jessePrimary" | "JessePrimary" => HardwareTier::JessePrimary,
+        "mid" | "Mid" => HardwareTier::Mid,
+        "floor" | "Floor" => HardwareTier::Floor,
+        "minimal" | "Minimal" => HardwareTier::Minimal,
+        "cpu_only" | "cpuOnly" | "CpuOnly" => HardwareTier::CpuOnly,
+        other => return Err(format!("Unknown hardware tier: {other}")),
+    };
+
+    let loader = get_loader(&state).await?;
+    let config = loader.config_for_tier(parsed).await;
+    serde_json::to_string(&config).map_err(|e| e.to_string())
+}
+
 /// Get all wizard copy strings (titles, subtitles, tooltips, button labels).
 ///
 /// Loads from `.userdata/config/wizard_copy.toml` if present, falls back to

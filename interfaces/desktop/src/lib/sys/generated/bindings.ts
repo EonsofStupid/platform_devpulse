@@ -189,6 +189,69 @@ async getStatus() : Promise<Result<SystemHealth, string>> {
 }
 },
 /**
+ * Spawn the REH web server with the supplied configuration.
+ * 
+ * If a server is already running, returns its current status without
+ * spawning a second process. The frontend should call
+ * [`stop_reh_server`] first if it wants to restart with different config.
+ * 
+ * # Errors
+ * Returns a stringified error if the server cannot be spawned or fails
+ * the startup health check within the timeout.
+ */
+async spawnRehServer(config: RehConfig) : Promise<Result<RehStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("spawn_reh_server", { config }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop the running REH web server, if any.
+ * 
+ * Idempotent — returns `Ok(())` if no server is running.
+ * 
+ * # Errors
+ * Returns a stringified error if the child process cannot be killed.
+ */
+async stopRehServer() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("stop_reh_server") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Return the current status of the REH web server.
+ * 
+ * Always succeeds — if no server is running, returns an empty status
+ * with `running: false`.
+ */
+async getRehStatus() : Promise<Result<RehStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_reh_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Return the full connection URL (including token) for the running server.
+ * 
+ * # Errors
+ * Returns an error string if no server is currently running.
+ */
+async getConnectionUrl() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_connection_url") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetch dashboard data from all services.
  * 
  * Queries:
@@ -536,6 +599,67 @@ async autoConfigure() : Promise<Result<string, string>> {
 }
 },
 /**
+ * List every known hardware preset — returned as a JSON-encoded
+ * `Vec<AutoConfig>` so the wizard preset picker can show all options
+ * (Floor / Mid / Jesse Primary / High / Minimal / CPU Only) with live
+ * download sizes based on the current model registry.
+ * 
+ * JSON is used instead of a specta-typed return because `AutoConfig`
+ * nests `BrainSwapPolicy` which is a struct-variant enum — parsing
+ * client-side is simpler than generating a discriminated union.
+ */
+async listPresets() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_presets") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Build the `AutoConfig` for a manually-selected hardware tier. Used
+ * when the owner overrides the auto-detection in the preset picker.
+ * 
+ * Tier is passed as a lowercase string (`high`, `jesse_primary`, `mid`,
+ * `floor`, `minimal`, `cpu_only`) to keep the IPC surface simple.
+ */
+async configForTier(tier: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("config_for_tier", { tier }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get all wizard copy strings (titles, subtitles, tooltips, button labels).
+ * 
+ * Loads from `.userdata/config/wizard_copy.toml` if present, falls back to
+ * embedded `wizard_copy.default.toml`. Frontend caches the result.
+ */
+async getWizardCopy() : Promise<Result<WizardCopy, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_wizard_copy") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the display metadata for the detected hardware tier.
+ * 
+ * Returns the tier name, description, semantic role, and tooltip.
+ * Frontend maps `role` to SD5 design tokens via `ROLE_TOKENS` constant.
+ */
+async getTierDisplay() : Promise<Result<TierDisplay, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_tier_display") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Called when the setup wizard finishes.
  * 
  * 1. Re-scans the model registry to pick up any newly downloaded/imported models.
@@ -594,6 +718,59 @@ async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
 }
 },
 /**
+ * Embed a single text — convenience wrapper over [`embed_batch`].
+ */
+async embedText(slotId: string, text: string) : Promise<Result<number[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("embed_text", { slotId, text }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Embed a batch of texts via the embedder model loaded in a slot.
+ * 
+ * Returns one dense vector per input string, all the same dimensionality.
+ * Hard-fails if the slot has no embedder loaded — no silent fallback.
+ */
+async embedBatch(slotId: string, texts: string[]) : Promise<Result<number[][], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("embed_batch", { slotId, texts }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Rerank documents against a query via the reranker model loaded in a slot.
+ * 
+ * Returns one score in `[0.0, 1.0]` per document, higher = more relevant.
+ * Used as the second-stage refinement after initial vector search.
+ */
+async rerankDocuments(slotId: string, query: string, documents: string[]) : Promise<Result<number[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("rerank_documents", { slotId, query, documents }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Encode an image file on disk via the vision encoder loaded in a slot.
+ * 
+ * Returns a dense embedding vector (e.g. 1152-dim for SigLIP2-SO400M).
+ * Used for screenshot understanding, visual search, cross-modal retrieval.
+ */
+async encodeImage(slotId: string, path: string) : Promise<Result<number[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("encode_image", { slotId, path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current voice subsystem status.
  * 
  * Derives STT/TTS loaded state from model loader slot statuses.
@@ -645,6 +822,11 @@ async isSpeaking() : Promise<Result<boolean, string>> {
 },
 /**
  * List available TTS voices.
+ * 
+ * Reads the voice registry TOML (`voices.default.toml` plus any user
+ * override at `{userdata}/config/voices.toml`) — nothing is hardcoded.
+ * The `slot_id` parameter is accepted for API symmetry but not used:
+ * the registry is global, not per-slot.
  */
 async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
     try {
@@ -655,7 +837,10 @@ async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
 }
 },
 /**
- * Preview a voice by synthesizing and playing a sample phrase.
+ * Preview a voice by synthesizing and playing its registry `sample_text`.
+ * 
+ * Looks up the voice in the registry — returns an error if the voice is
+ * not registered, rather than playing a canned fallback line.
  */
 async previewVoice(voice: string, slotId: string) : Promise<Result<null, string>> {
     try {
@@ -685,6 +870,41 @@ async testMicrophone() : Promise<Result<MicTestResult, string>> {
 async transcribeAudio() : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("transcribe_audio") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
+ * 
+ * Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
+ * upload any supported audio file and get back a transcript without
+ * going through the microphone path.
+ */
+async transcribeAudioFile(path: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("transcribe_audio_file", { path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run the full speech-to-speech pipeline.
+ * 
+ * Stages:
+ * 1. **STT** — transcribe `audio_path` via voice.stt slot
+ * 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
+ * 3. **TTS** — synthesize the reply via voice.tts slot with `voice`
+ * 4. **Playback** — play through the default output device
+ * 
+ * Errors from any stage are returned with enough context that the UI can
+ * show which stage failed.
+ */
+async runStsPipeline(audioPath: string, brainSlot: string | null, voice: string | null, maxTokens: number | null) : Promise<Result<StsPipelineResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("run_sts_pipeline", { audioPath, brainSlot, voice, maxTokens }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -796,6 +1016,58 @@ async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], string>> {
 /** user-defined types **/
 
 /**
+ * Clyffy chat activation screen.
+ */
+export type ActivateCopy = { 
+/**
+ * Heading for the activation step (e.g. "Say hi to Clyffy").
+ */
+title: string; 
+/**
+ * First chat bubble Clyffy sends automatically when the activation step loads.
+ */
+greeting_message: string; 
+/**
+ * Template for the progress indicator while models are still loading; may include `{n}` remaining count placeholder.
+ */
+progress_remaining_template: string; 
+/**
+ * Label shown in the progress area once all models have finished loading.
+ */
+progress_complete_label: string; 
+/**
+ * Heading for the inline error card shown when the brain (LLM) slot is not filled.
+ */
+brain_missing_title: string; 
+/**
+ * Detail text for the brain-missing error, explaining how to go back and select a model.
+ */
+brain_missing_detail: string; 
+/**
+ * Inline notice shown in the voice button area when no voice model is available.
+ */
+voice_unavailable_message: string; 
+/**
+ * Status label shown in the chat bubble area while Clyffy is generating a response.
+ */
+thinking_label: string; 
+/**
+ * Template for the error bubble Clyffy sends when inference fails; may include `{error}` placeholder.
+ */
+error_message_template: string; 
+/**
+ * `aria-label` for the chat message send button.
+ */
+send_aria: string; 
+/**
+ * `aria-label` for the voice toggle button when voice is currently off.
+ */
+voice_enable_aria: string; 
+/**
+ * `aria-label` for the voice toggle button when voice is currently active.
+ */
+voice_disable_aria: string }
+/**
  * Status of a stored API key (NEVER returns the actual key to frontend).
  */
 export type ApiKeyStatus = { 
@@ -863,6 +1135,70 @@ health: SystemHealth | null;
  * Error message if boot failed.
  */
 error: string | null }
+/**
+ * Browse / Search models screen.
+ */
+export type BrowseCopy = { 
+/**
+ * Heading for the browse / search step (e.g. "Find a model").
+ */
+title: string; 
+/**
+ * Supporting line explaining how to search HuggingFace or scan local folders.
+ */
+subtitle: string; 
+/**
+ * Label for the tab that lists models already downloaded to disk.
+ */
+local_tab_label: string; 
+/**
+ * Label for the tab that searches the online model registry.
+ */
+online_tab_label: string; 
+/**
+ * Placeholder text inside the model search input field.
+ */
+search_placeholder: string; 
+/**
+ * Visible label on the search submit button.
+ */
+search_button_label: string; 
+/**
+ * Heading shown in the results area when a search returns no matches.
+ */
+no_results_title: string; 
+/**
+ * Hint below the no-results heading suggesting alternative search terms or formats.
+ */
+no_results_hint: string; 
+/**
+ * Heading shown in the results area before the user has typed a search query.
+ */
+welcome_search_title: string; 
+/**
+ * Hint below the welcome heading that encourages the user to try a search.
+ */
+welcome_search_hint: string; 
+/**
+ * Heading for the collapsible section that explains supported model file formats.
+ */
+format_help_title: string; 
+/**
+ * One-line description of the GGUF format shown in the format help section.
+ */
+format_gguf_help: string; 
+/**
+ * One-line description of the Safetensors format shown in the format help section.
+ */
+format_safetensors_help: string; 
+/**
+ * Label on the button that triggers a local-file import dialog.
+ */
+import_button_label: string; 
+/**
+ * Label shown on the import button while a file is being copied / indexed.
+ */
+importing_label: string }
 /**
  * Snapshot of the Moka in-memory cache. Changes between calls.
  */
@@ -946,6 +1282,74 @@ content: string;
  * `SQLite` `DEFAULT (strftime('%s','now'))` — epoch seconds, not millis.
  */
 created_at: number }
+/**
+ * Completion screen — summary and launch.
+ */
+export type CompletionCopy = { 
+/**
+ * Heading for the completion step (e.g. "You're all set!").
+ */
+title: string; 
+/**
+ * Template subtitle shown below the heading; may include `{name}` placeholder for personalisation.
+ */
+subtitle_template: string; 
+/**
+ * Section heading above the API-key summary list.
+ */
+api_section_label: string; 
+/**
+ * Message shown inside the API section when no provider keys have been configured.
+ */
+api_empty_message: string; 
+/**
+ * Label on the primary "Launch DevPulse" button that closes the wizard.
+ */
+launch_label: string; 
+/**
+ * Small hint below the launch button (e.g. reassurance that settings can be changed later).
+ */
+hint: string }
+/**
+ * Customize screen — slot cards grouped by role.
+ */
+export type CustomizeCopy = { 
+/**
+ * Heading for the customization step (e.g. "Fine-tune your setup").
+ */
+title: string; 
+/**
+ * Supporting line explaining that users can swap individual model slots.
+ */
+subtitle: string; 
+/**
+ * Section heading for the "Thinking" role group (language / reasoning models).
+ */
+group_thinking: string; 
+/**
+ * Section heading for the "Watching" role group (vision models).
+ */
+group_watching: string; 
+/**
+ * Section heading for the "Understanding" role group (embedding / memory models).
+ */
+group_understanding: string; 
+/**
+ * Section heading for the "Talking" role group (voice synthesis / STT models).
+ */
+group_talking: string; 
+/**
+ * Link text that opens the browse / search models panel from the customization step.
+ */
+browse_link_label: string; 
+/**
+ * Label on the button that confirms the custom slot selections and advances the wizard.
+ */
+done_label: string; 
+/**
+ * Label on the button that returns to the model-selection step.
+ */
+back_label: string }
 /**
  * One row per day from the `DuckDB` `daily_stats` table.
  * 
@@ -1117,6 +1521,102 @@ export type ExecutionLane =
  * Full thinking pipeline (end-to-end trace).
  */
 "ThinkingPipeline"
+/**
+ * Welcome screen — Clyffy greeting and CTA.
+ */
+export type GreetingCopy = { 
+/**
+ * Main heading shown at the top of the welcome screen (e.g. "Hey! I'm Clyffy.").
+ */
+title: string; 
+/**
+ * Supporting line below the heading that briefly explains what Clyffy does.
+ */
+subtitle: string; 
+/**
+ * Alt text for the Clyffy mascot illustration on the welcome screen.
+ */
+mascot_alt: string; 
+/**
+ * Small contextual hint shown beneath the CTA (e.g. keyboard shortcut or next-step note).
+ */
+hint: string; 
+/**
+ * Visible label on the primary "Get started" button.
+ */
+cta_label: string; 
+/**
+ * `aria-label` for the primary CTA button (screen-reader description of the action).
+ */
+cta_aria: string }
+/**
+ * Hardware detected screen — tier badge, metric cards, tooltips.
+ */
+export type HardwareCopy = { 
+/**
+ * Heading for the hardware results step (e.g. "Here's what you're working with").
+ */
+title: string; 
+/**
+ * Card label for the detected GPU name metric.
+ */
+gpu_label: string; 
+/**
+ * Card label for the detected VRAM capacity metric.
+ */
+vram_label: string; 
+/**
+ * Card label for the detected CPU model metric.
+ */
+cpu_label: string; 
+/**
+ * Card label for the detected system RAM metric.
+ */
+ram_label: string; 
+/**
+ * Card label for the available disk space metric.
+ */
+disk_label: string; 
+/**
+ * Tooltip body explaining what the GPU card shows and why it matters.
+ */
+gpu_tooltip: string; 
+/**
+ * Tooltip body explaining VRAM and how it affects model size limits.
+ */
+vram_tooltip: string; 
+/**
+ * Tooltip body explaining the CPU card and its role when no GPU is present.
+ */
+cpu_tooltip: string; 
+/**
+ * Tooltip body explaining system RAM and its relevance to inference.
+ */
+ram_tooltip: string; 
+/**
+ * Tooltip body explaining disk space and what the models will consume.
+ */
+disk_tooltip: string; 
+/**
+ * Heading for the inline warning shown when no compatible GPU is detected.
+ */
+no_gpu_warning_title: string; 
+/**
+ * Detail text for the no-GPU warning, explaining CPU-only inference limitations.
+ */
+no_gpu_warning_detail: string; 
+/**
+ * Template string used to describe what the wizard recommends next; may include a `{tier}` placeholder.
+ */
+next_step_template: string; 
+/**
+ * Visible label on the "Continue" button that advances to model selection.
+ */
+continue_label: string; 
+/**
+ * `aria-label` for the continue button (screen-reader description).
+ */
+continue_aria: string }
 /**
  * Hardware metrics for the frontend.
  */
@@ -1463,6 +1963,62 @@ supported_backends: string[];
  */
 compatible_capabilities: string[] }
 /**
+ * Models setup screen — preset card, recommendations.
+ */
+export type ModelsCopy = { 
+/**
+ * Heading for the model-selection step (e.g. "Let's pick your brain").
+ */
+title: string; 
+/**
+ * Subtitle shown when tier-based model recommendations are available.
+ */
+subtitle_with_recs: string; 
+/**
+ * Subtitle shown when no tier recommendations could be determined.
+ */
+subtitle_no_recs: string; 
+/**
+ * Label on the primary "Set up recommended models" action button.
+ */
+setup_button_label: string; 
+/**
+ * Label replacing the setup button while downloads / setup is running.
+ */
+setup_in_progress_label: string; 
+/**
+ * Inline success message shown when all recommended models are ready.
+ */
+setup_complete_message: string; 
+/**
+ * Label on the retry action shown inside an error state card.
+ */
+error_retry_label: string; 
+/**
+ * Label on the "pick manually" fallback link shown in the error state.
+ */
+error_pick_manually_label: string; 
+/**
+ * Label on the "skip for now" option shown in the error state.
+ */
+error_skip_label: string; 
+/**
+ * Link text that navigates to the per-slot customization step.
+ */
+customize_link_label: string; 
+/**
+ * Link text that navigates to the browse / search models step.
+ */
+browse_link_label: string; 
+/**
+ * Label on the button that advances to the next wizard step.
+ */
+continue_label: string; 
+/**
+ * Label on the button that returns to the hardware step.
+ */
+back_label: string }
+/**
  * Public platform configuration.
  * 
  * This is what Tauri and the frontend see for settings display.
@@ -1507,6 +2063,58 @@ uptime_secs: number;
  */
 pid: number }
 /**
+ * Project setup / About You screen.
+ */
+export type ProfileCopy = { 
+/**
+ * Heading for the profile / About You step (e.g. "Tell me a bit about yourself").
+ */
+title: string; 
+/**
+ * Supporting line explaining why this information personalises the experience.
+ */
+subtitle: string; 
+/**
+ * Label for the developer name input field.
+ */
+name_label: string; 
+/**
+ * Placeholder text inside the name input (e.g. "Your name or handle").
+ */
+name_placeholder: string; 
+/**
+ * Label for the experience-level selector (e.g. "How long have you been coding?").
+ */
+experience_label: string; 
+/**
+ * Label for the project root-folder picker field.
+ */
+project_folder_label: string; 
+/**
+ * Placeholder shown inside the folder path input when no folder has been selected.
+ */
+project_folder_placeholder: string; 
+/**
+ * Small hint below the folder field explaining why a project folder is useful.
+ */
+project_folder_hint: string; 
+/**
+ * Label on the button that opens the native folder-picker dialog.
+ */
+browse_button_label: string; 
+/**
+ * Label on the button that saves profile data and advances to the next step.
+ */
+continue_label: string; 
+/**
+ * Template variant of the continue label that embeds the user's name (e.g. "Let's go, {name}!").
+ */
+continue_template: string; 
+/**
+ * Label on the button that returns to the previous wizard step.
+ */
+back_label: string }
+/**
  * A project row from `LibSQL` — maps 1:1 to the `projects` table.
  */
 export type ProjectRow = { 
@@ -1534,6 +2142,72 @@ created_at: number;
  * Epoch seconds. Updated on every project open; drives dashboard sort order.
  */
 last_accessed: number }
+/**
+ * Configuration supplied by the frontend when spawning the REH server.
+ * 
+ * `server_dir` must point at the root of a `vscode-reh-web-*` layout that
+ * contains `bin/devforge-server.cmd` (Windows) or `bin/devforge-server.sh`
+ * (Unix) and `out/server-main.js`.
+ * 
+ * `workspace_path` is the folder the server will open by default. The
+ * frontend is responsible for validating that this path exists.
+ * 
+ * `extensions_dir` is optional — when set, the REH server stores/loads
+ * extensions from this directory, allowing DevForge to manage extensions
+ * outside the default user profile.
+ */
+export type RehConfig = { 
+/**
+ * Path to the REH web server build directory.
+ */
+serverDir: string; 
+/**
+ * Workspace folder the server will open on start.
+ */
+workspacePath: string; 
+/**
+ * Optional extensions directory override.
+ */
+extensionsDir: string | null }
+/**
+ * Runtime status of the REH web server.
+ * 
+ * Returned from `spawn_reh_server` and `get_reh_status`. All optional
+ * fields are populated only when the server is actually running.
+ */
+export type RehStatus = { 
+/**
+ * Whether the server process is currently alive.
+ */
+running: boolean; 
+/**
+ * Port the server is listening on, if running.
+ */
+port: number | null; 
+/**
+ * Full connection URL including the auth token, if running.
+ */
+url: string | null; 
+/**
+ * Process ID of the spawned `node.exe`, if running.
+ */
+pid: number | null }
+/**
+ * Scanning state — shown during hardware detection.
+ */
+export type ScanningCopy = { 
+/**
+ * Heading displayed while the hardware probe is running (e.g. "Checking your gear…").
+ */
+title: string; 
+/**
+ * Secondary line that reassures the user while detection is in progress.
+ */
+subtitle: string; 
+/**
+ * Alt text for the animated Clyffy mascot shown during the scanning state.
+ */
+mascot_alt: string }
 /**
  * Lifecycle state of a platform service.
  * 
@@ -1695,6 +2369,27 @@ fields_json: string | null;
  */
 created_at: string }
 /**
+ * Result of a full STS (speech-to-speech) pipeline run.
+ * 
+ * The pipeline: uploaded audio → STT (transcript) → brain (reply) → TTS (audio).
+ * Returns both the transcript and the reply text so the UI can display
+ * the conversation turn. The TTS audio is played directly through the
+ * default output device — it is not returned over IPC.
+ */
+export type StsPipelineResult = { 
+/**
+ * Transcript produced by the STT stage.
+ */
+transcript: string; 
+/**
+ * Reply text produced by the brain stage.
+ */
+reply: string; 
+/**
+ * TTS voice used to synthesize the reply.
+ */
+voice: string }
+/**
  * Health of an individual subsystem (database, cache, etc.).
  */
 export type SubsystemHealth = { 
@@ -1736,25 +2431,95 @@ uptime_secs: number;
  */
 subsystems: SubsystemHealth[] }
 /**
+ * Display metadata for a hardware tier.
+ * 
+ * All user-facing strings. Frontend renders these directly inside ColdLight
+ * `<Heading>`, `<Text>`, `<Badge>` components.
+ */
+export type TierDisplay = { 
+/**
+ * Layman tier name shown on the badge (e.g. "Mainstream", "Workstation").
+ */
+name: string; 
+/**
+ * One-line description shown under the badge name (e.g. "All models at full quality").
+ */
+description: string; 
+/**
+ * Semantic role for color coding. Frontend maps to SD5 tokens.
+ */
+role: TierRole; 
+/**
+ * Educational tooltip explaining what this tier means.
+ */
+tooltip: string }
+/**
+ * Semantic role for visual coding. Frontend maps to SD5 design tokens.
+ */
+export type TierRole = 
+/**
+ * Workstation tier — purple, top-of-line
+ */
+"workstation" | 
+/**
+ * Prosumer tier — cyan, brand primary
+ */
+"prosumer" | 
+/**
+ * Mainstream tier — green, healthy default
+ */
+"mainstream" | 
+/**
+ * Entry tier — gold, capable but constrained
+ */
+"entry" | 
+/**
+ * CPU mode — coral, fallback
+ */
+"cpumode" | 
+/**
+ * Minimal tier — salmon, last resort
+ */
+"minimal"
+/**
  * Voice information for the frontend.
+ * 
+ * Mirrors [`model_loader::VoiceEntry`] — every field comes from the
+ * voice registry TOML (`voices.default.toml`). Nothing here is hardcoded.
  */
 export type VoiceInfo = { 
 /**
- * Voice identifier.
+ * Voice identifier (e.g. `af_heart`).
  */
 id: string; 
 /**
- * Display label.
+ * Human-friendly display label.
  */
 label: string; 
 /**
- * Gender: "male" | "female" | "neutral".
+ * Gender: `male`, `female`, or `neutral`.
  */
 gender: string; 
 /**
- * Sample text for preview.
+ * BCP-47 language tag (`en-US`, `en-GB`, …).
  */
-sample_text: string }
+language: string; 
+/**
+ * Which TTS backend owns this voice (`kokoro` | `piper`).
+ */
+engine: string; 
+/**
+ * Freeform style descriptor (`warm`, `casual`, `professional`).
+ */
+style: string; 
+/**
+ * Sample text played by the Preview button.
+ */
+sample_text: string; 
+/**
+ * One-line blurb shown under the label in the picker.
+ */
+description: string }
 /**
  * Voice profile — saved user configuration.
  */
@@ -1876,6 +2641,46 @@ export type WindowRole =
  * Unified dev toolbox panel (Ctrl+Shift+Z)
  */
 "DevTools"
+/**
+ * All wizard copy. One root struct, one Tauri call to fetch everything.
+ */
+export type WizardCopy = { 
+/**
+ * Copy for the welcome / greeting step.
+ */
+greeting: GreetingCopy; 
+/**
+ * Copy shown while hardware detection is running.
+ */
+scanning: ScanningCopy; 
+/**
+ * Copy for the hardware results step.
+ */
+hardware: HardwareCopy; 
+/**
+ * Copy for the model-selection step.
+ */
+models: ModelsCopy; 
+/**
+ * Copy for the per-slot customization step.
+ */
+customize: CustomizeCopy; 
+/**
+ * Copy for the browse / search models step.
+ */
+browse: BrowseCopy; 
+/**
+ * Copy for the Clyffy chat activation step.
+ */
+activate: ActivateCopy; 
+/**
+ * Copy for the user profile / project-setup step.
+ */
+profile: ProfileCopy; 
+/**
+ * Copy for the final completion / launch step.
+ */
+completion: CompletionCopy }
 
 /** tauri-specta globals **/
 

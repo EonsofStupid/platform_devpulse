@@ -9,12 +9,16 @@ use anyhow::Result;
 use super::model_loader_log::FileEventSink;
 use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
 use devpulse_clyffy::model_loader::{
-    AutoConfig, HardwareMetrics, ModelLoaderService as Inner,
+    HardwareMetrics, ModelLoaderService as Inner,
     ModelRegistryEntry, Slot, SlotStatus, VramBudget,
 };
 // Re-export for downstream crates (desktop backend) that cannot depend on kernel directly.
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 pub use devpulse_clyffy::model_loader::AudioSamples;
+// Auto-config + preset types — used in both signatures and Tauri return values.
+pub use devpulse_clyffy::model_loader::{
+    AutoConfig, BrainSwapPolicy, HardwareTier, SlotRecommendation,
+};
 // Wizard SSOT types — copy strings, tier display, semantic roles
 pub use devpulse_clyffy::model_loader::{
     ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
@@ -39,11 +43,16 @@ pub struct ModelLoaderService {
 impl ModelLoaderService {
     /// Boot the model loader.
     ///
-    /// `models_dir`, `subdirs`, and `default_slots` all come from the parsed TOML config.
-    /// There is no hardcoded fallback — if the config is empty, boot fails.
+    /// Slots and presets are loaded from kernel SSOT:
+    /// - `kernel/model-loader/config/slots.default.toml` → 8 baseline slots
+    /// - `kernel/model-loader/config/presets.default.toml` → 6 tier presets
+    ///
+    /// Both files honour optional user overrides at
+    /// `{data_dir}/config/slots.toml` and `{data_dir}/config/presets.toml`.
+    /// The engine boot path is a thin wrapper around the kernel loaders —
+    /// the engine carries no shadow definitions of its own.
     pub fn boot(
         data_dir: &std::path::Path,
-        default_slots: Vec<Slot>,
         events: Option<Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
         models_dir: std::path::PathBuf,
         subdirs: Vec<String>,
@@ -61,7 +70,20 @@ impl ModelLoaderService {
         let events: Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink> =
             events.unwrap_or_else(|| Arc::new(FileEventSink::new(log_path)));
 
-        let mut service = Inner::new(config, events, models_dir, subdirs)?;
+        // ── Load kernel SSOT ──────────────────────────────────────
+        let default_slots =
+            devpulse_clyffy::model_loader::load_default_slots(data_dir).map_err(|e| {
+                anyhow::anyhow!("Failed to load kernel slot SSOT: {e}")
+            })?;
+        let presets = devpulse_clyffy::model_loader::load_default_presets(data_dir)
+            .map_err(|e| anyhow::anyhow!("Failed to load kernel preset SSOT: {e:?}"))?;
+        tracing::info!(
+            slots = default_slots.len(),
+            presets = presets.len(),
+            "Loaded kernel SSOT (slots + presets)"
+        );
+
+        let mut service = Inner::new(config, events, models_dir, subdirs, presets)?;
 
         // Register platform-specific slots
         service.register_slots(default_slots).map_err(|e| {
@@ -172,6 +194,19 @@ impl ModelLoaderService {
     pub async fn auto_configure(&self) -> AutoConfig {
         let mut inner = self.inner.lock().await;
         inner.auto_configure()
+    }
+
+    /// List every known hardware preset — used by the wizard preset picker.
+    pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
+        let inner = self.inner.lock().await;
+        inner.list_all_presets()
+    }
+
+    /// Build the `AutoConfig` for a specific tier when the owner manually
+    /// selects a non-default preset in the picker.
+    pub async fn config_for_tier(&self, tier: HardwareTier) -> AutoConfig {
+        let inner = self.inner.lock().await;
+        inner.config_for_tier(tier)
     }
 
     /// Start downloading a model from HuggingFace.
