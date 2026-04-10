@@ -15,6 +15,12 @@ use devpulse_clyffy::model_loader::{
 // Re-export for downstream crates (desktop backend) that cannot depend on kernel directly.
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 pub use devpulse_clyffy::model_loader::AudioSamples;
+// Wizard SSOT types — copy strings, tier display, semantic roles
+pub use devpulse_clyffy::model_loader::{
+    ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
+    ModelsCopy, ProfileCopy, ScanningCopy, StepTooltips, TierDisplay, TierRole, TooltipEntry,
+    WizardCopy,
+};
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
 use tokio::sync::Mutex;

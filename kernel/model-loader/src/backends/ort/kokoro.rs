@@ -16,6 +16,9 @@
 //! Output tensor:
 //! - `audio`: float32 [1, T] — PCM samples at 24kHz mono
 
+use crate::backends::phoneme::KokoroVocab;
+#[cfg(feature = "ort-backend")]
+use crate::backends::phoneme::text_to_kokoro_ids;
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
@@ -32,6 +35,12 @@ pub struct KokoroTts {
     model_path: Option<PathBuf>,
     /// Whether a model is currently loaded.
     loaded: bool,
+    /// Phoneme vocabulary loaded from `vocab.json` next to the model.
+    vocab: Option<KokoroVocab>,
+    /// eSpeak voice identifier (e.g. `"en-us"`). Defaults to `"en-us"`;
+    /// override via `synthesize(text, voice)`.
+    #[cfg_attr(not(feature = "ort-backend"), allow(dead_code))]
+    default_voice: String,
     /// ONNX Runtime session — behind Mutex for thread safety (SNAC pattern).
     #[cfg(feature = "ort-backend")]
     session: Mutex<Option<ort::session::Session>>,
@@ -44,6 +53,8 @@ impl KokoroTts {
         Self {
             model_path: None,
             loaded: false,
+            vocab: None,
+            default_voice: "en-us".to_string(),
             #[cfg(feature = "ort-backend")]
             session: Mutex::new(None),
         }
@@ -92,6 +103,27 @@ impl TtsBackend for KokoroTts {
 
             *self.session.lock()
                 .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? = Some(session);
+
+            // Vocab lives next to the model as `vocab.json`. Required for real
+            // phoneme → id conversion; without it we cannot synthesize.
+            let vocab_path = path
+                .parent()
+                .ok_or_else(|| anyhow::anyhow!("Kokoro model has no parent dir"))?
+                .join("vocab.json");
+            if !vocab_path.exists() {
+                anyhow::bail!(
+                    "Kokoro vocab.json not found at {} — required for phonemization",
+                    vocab_path.display()
+                );
+            }
+            let vocab = KokoroVocab::from_file(&vocab_path)?;
+            tracing::info!(
+                component = "Kokoro TTS",
+                vocab_size = vocab.len(),
+                vocab_path = %vocab.source().display(),
+                "Kokoro phoneme vocab loaded"
+            );
+            self.vocab = Some(vocab);
         }
 
         #[cfg(not(feature = "ort-backend"))]
@@ -129,6 +161,7 @@ impl TtsBackend for KokoroTts {
         }
         self.model_path = None;
         self.loaded = false;
+        self.vocab = None;
         Ok(())
     }
 
@@ -146,16 +179,20 @@ impl TtsBackend for KokoroTts {
             "Synthesizing speech"
         );
 
-        // Basic character-to-phoneme mapping.
-        // Full espeak/G2P phonemization is a future sprint.
-        // This produces valid int64 token IDs for the model.
-        let phoneme_ids: Vec<i64> = text
-            .chars()
-            .map(|c| c as i64)
-            .collect();
+        // Real phonemization: eSpeak NG → IPA → Kokoro vocab ID lookup.
+        // Gated behind the `espeak-phonemizer` feature; returns a clear error
+        // on default builds rather than emitting garbage IDs.
+        let vocab = self
+            .vocab
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Kokoro vocab not loaded"))?;
 
-        if phoneme_ids.is_empty() {
-            anyhow::bail!("Empty text — nothing to synthesize");
+        let voice_id = if voice.is_empty() { &self.default_voice } else { voice };
+        let phoneme_ids = text_to_kokoro_ids(text, voice_id, vocab)?;
+
+        if phoneme_ids.len() <= 2 {
+            // Only the two pad tokens — input produced no real phonemes.
+            anyhow::bail!("Phonemization produced empty sequence for input: {text:?}");
         }
 
         let seq_len = phoneme_ids.len();

@@ -3,6 +3,8 @@
 pub mod bridge;
 pub mod candle;
 pub mod orpheus;
+pub mod phoneme;
+pub mod piper;
 pub mod ort;
 pub mod pool;
 pub mod router;

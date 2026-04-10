@@ -277,3 +277,172 @@ export interface ModelBrowserFilter {
 	maxSizeMb: number | null;
 	fitOnly: boolean;
 }
+
+// ── Wizard Copy (mirrors Rust WizardCopy) ─────────────
+//
+// All user-facing strings come from Rust via the get_wizard_copy command.
+// Rust loads from .userdata/config/wizard_copy.toml or embedded default.
+// Frontend never hardcodes wizard text — it calls the command and renders.
+
+export interface GreetingCopy {
+	title: string;
+	subtitle: string;
+	mascot_alt: string;
+	hint: string;
+	cta_label: string;
+	cta_aria: string;
+}
+
+export interface ScanningCopy {
+	title: string;
+	subtitle: string;
+	mascot_alt: string;
+}
+
+export interface HardwareCopy {
+	title: string;
+	gpu_label: string;
+	vram_label: string;
+	cpu_label: string;
+	ram_label: string;
+	disk_label: string;
+	gpu_tooltip: string;
+	vram_tooltip: string;
+	cpu_tooltip: string;
+	ram_tooltip: string;
+	disk_tooltip: string;
+	no_gpu_warning_title: string;
+	no_gpu_warning_detail: string;
+	next_step_template: string;
+	continue_label: string;
+	continue_aria: string;
+}
+
+export interface ModelsCopy {
+	title: string;
+	subtitle_with_recs: string;
+	subtitle_no_recs: string;
+	setup_button_label: string;
+	setup_in_progress_label: string;
+	setup_complete_message: string;
+	error_retry_label: string;
+	error_pick_manually_label: string;
+	error_skip_label: string;
+	customize_link_label: string;
+	browse_link_label: string;
+	continue_label: string;
+	back_label: string;
+}
+
+export interface CustomizeCopy {
+	title: string;
+	subtitle: string;
+	group_thinking: string;
+	group_watching: string;
+	group_understanding: string;
+	group_talking: string;
+	browse_link_label: string;
+	done_label: string;
+	back_label: string;
+}
+
+export interface BrowseCopy {
+	title: string;
+	subtitle: string;
+	local_tab_label: string;
+	online_tab_label: string;
+	search_placeholder: string;
+	search_button_label: string;
+	no_results_title: string;
+	no_results_hint: string;
+	welcome_search_title: string;
+	welcome_search_hint: string;
+	format_help_title: string;
+	format_gguf_help: string;
+	format_safetensors_help: string;
+	import_button_label: string;
+	importing_label: string;
+}
+
+export interface ActivateCopy {
+	title: string;
+	greeting_message: string;
+	progress_remaining_template: string;
+	progress_complete_label: string;
+	brain_missing_title: string;
+	brain_missing_detail: string;
+	voice_unavailable_message: string;
+	thinking_label: string;
+	error_message_template: string;
+	send_aria: string;
+	voice_enable_aria: string;
+	voice_disable_aria: string;
+}
+
+export interface ProfileCopy {
+	title: string;
+	subtitle: string;
+	name_label: string;
+	name_placeholder: string;
+	experience_label: string;
+	project_folder_label: string;
+	project_folder_placeholder: string;
+	project_folder_hint: string;
+	browse_button_label: string;
+	continue_label: string;
+	continue_template: string;
+	back_label: string;
+}
+
+export interface CompletionCopy {
+	title: string;
+	subtitle_template: string;
+	api_section_label: string;
+	api_empty_message: string;
+	launch_label: string;
+	hint: string;
+}
+
+/** Root copy struct — one Tauri call returns everything. */
+export interface WizardCopy {
+	greeting: GreetingCopy;
+	scanning: ScanningCopy;
+	hardware: HardwareCopy;
+	models: ModelsCopy;
+	customize: CustomizeCopy;
+	browse: BrowseCopy;
+	activate: ActivateCopy;
+	profile: ProfileCopy;
+	completion: CompletionCopy;
+}
+
+// ── Tier Display (mirrors Rust TierDisplay) ───────────
+
+/**
+ * Semantic role for hardware tier color coding. Returned from Rust.
+ * Frontend maps to SD5 design tokens via TIER_TOKENS below.
+ */
+export type TierRole = "workstation" | "prosumer" | "mainstream" | "entry" | "cpumode" | "minimal";
+
+/** Display metadata for a hardware tier — name, description, role, tooltip. */
+export interface TierDisplay {
+	name: string;
+	description: string;
+	role: TierRole;
+	tooltip: string;
+}
+
+/**
+ * Tier role → SD5 design tokens.
+ *
+ * SINGLE source of truth for tier color presentation. Rebrand purple → blue
+ * here, NOT in Rust. Rust returns semantic intent (`role`), frontend translates.
+ */
+export const TIER_TOKENS: Record<TierRole, { color: string; glow: string }> = {
+	workstation: { color: "var(--accent-purple-main)", glow: "var(--accent-purple-glow)" },
+	prosumer: { color: "var(--accent-cyan-main)", glow: "var(--accent-cyan-glow)" },
+	mainstream: { color: "var(--accent-green-main)", glow: "var(--accent-green-glow)" },
+	entry: { color: "var(--accent-gold-main)", glow: "var(--accent-gold-glow)" },
+	cpumode: { color: "var(--accent-coral-main)", glow: "var(--accent-coral-glow)" },
+	minimal: { color: "var(--accent-salmon-main)", glow: "var(--accent-salmon-glow)" },
+};

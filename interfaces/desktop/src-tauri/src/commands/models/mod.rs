@@ -550,6 +550,38 @@ pub async fn auto_configure(
     serde_json::to_string(&config).map_err(|e| e.to_string())
 }
 
+/// Get all wizard copy strings (titles, subtitles, tooltips, button labels).
+///
+/// Loads from `.userdata/config/wizard_copy.toml` if present, falls back to
+/// embedded `wizard_copy.default.toml`. Frontend caches the result.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_wizard_copy(
+    state: State<'_, PlatformState>,
+) -> Result<devpulse_engine::platform::services::model_loader::WizardCopy, String> {
+    let lock = state.platform.read().await;
+    let platform = lock
+        .as_ref()
+        .ok_or_else(|| "Platform is still booting".to_string())?;
+    let userdata = platform.data_dir();
+    devpulse_engine::platform::services::model_loader::WizardCopy::load(userdata)
+        .map_err(|e| format!("Failed to load wizard copy: {e}"))
+}
+
+/// Get the display metadata for the detected hardware tier.
+///
+/// Returns the tier name, description, semantic role, and tooltip.
+/// Frontend maps `role` to SD5 design tokens via `ROLE_TOKENS` constant.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_tier_display(
+    state: State<'_, PlatformState>,
+) -> Result<devpulse_engine::platform::services::model_loader::TierDisplay, String> {
+    let loader = get_loader(&state).await?;
+    let config = loader.auto_configure().await;
+    Ok(config.tier.display())
+}
+
 /// Called when the setup wizard finishes.
 ///
 /// 1. Re-scans the model registry to pick up any newly downloaded/imported models.

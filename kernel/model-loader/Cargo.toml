@@ -12,8 +12,14 @@ candle-backend = [
     "dep:candle-transformers",
     "dep:tokenizers",
     "dep:hf-hub",
+    "dep:image",
 ]
 ort-backend = ["dep:ort", "dep:ndarray", "dep:rustfft"]
+# Embedder + reranker — TBD, will use direct ort crate (avoids fastembed version conflict)
+# Kokoro phonemization via espeak-ng C library — PRIMARY TTS path
+espeak-phonemizer = ["dep:espeakng-sys"]
+# Piper TTS — alternate TTS backend for A/B testing
+piper-backend = ["dep:piper-rs"]
 nvml = ["dep:nvml-wrapper"]
 cuda = []
 specta = ["dep:specta"]
@@ -22,6 +28,7 @@ specta = ["dep:specta"]
 # Core (always)
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+toml = "0.9"
 uuid = { version = "1.10", features = ["v7", "serde"] }
 anyhow = "1.0"
 thiserror = "2.0"
@@ -39,6 +46,19 @@ candle-nn = { workspace = true, optional = true }
 candle-transformers = { workspace = true, optional = true }
 tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
 hf-hub = { version = "0.4", optional = true }
+
+# Image preprocessing for vision encoders (SigLIP2)
+image = { version = "0.25", optional = true, default-features = false, features = ["jpeg", "png", "webp"] }
+
+# Embedder + reranker — TBD: fastembed conflicts with workspace ort fork,
+# will implement directly against the existing ort crate (whisper.rs pattern)
+
+# Kokoro phonemizer — eSpeak NG FFI bindings (requires espeak-ng C library installed on system)
+# Windows: vcpkg install espeak-ng  OR  prebuilt espeak-ng.dll on PATH
+espeakng-sys = { version = "0.3", optional = true }
+
+# Piper TTS — pure Rust alternate TTS backend (brings its own espeak-rs for phonemization)
+piper-rs = { version = "0.1.9", optional = true }
 
 # HTTP client for HuggingFace API search
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }

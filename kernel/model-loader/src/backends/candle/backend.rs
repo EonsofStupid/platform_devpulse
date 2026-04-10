@@ -1,21 +1,41 @@
-//! Candle backend — implements `InferenceBackend` for GGUF models.
+//! Candle backend — implements `InferenceBackend` for GGUF *and* SafeTensors models.
 //!
-//! Uses `candle_core::quantized` for GGUF loading and
-//! `candle_transformers::models::quantized_llama` for forward passes.
-//! Covers Llama, Mistral, Qwen2/3, and other Llama-family architectures.
+//! Two loading paths:
+//!
+//! - **GGUF** (quantized): `candle_core::quantized` parser →
+//!   `candle_transformers::models::quantized_llama::ModelWeights`. Covers Llama,
+//!   Mistral, Qwen2/3 quantized, and the rest of the Llama-family GGUF exports.
+//! - **SafeTensors** (full precision): HF-style model directory with `config.json`,
+//!   `tokenizer.json`, and `model.safetensors` (single-file or sharded). Dispatches
+//!   to `candle_transformers::models::qwen2::ModelForCausalLM`, which covers the
+//!   Qwen2 / Qwen2.5 family. Qwen3 full-precision requires a candle-transformers
+//!   upgrade (0.9+); use the GGUF route for quantized Qwen3 builds until then.
+//!
+//! Path selection is by extension: `*.gguf` → GGUF path, directory or
+//! `*.safetensors` → SafeTensors path.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::ModelMetadata;
 use crate::traits::backend::InferenceBackend;
 use candle_core::quantized::gguf_file::Content;
-use candle_core::{Device, Tensor};
+use candle_core::{DType, Device, Tensor};
+use candle_nn::VarBuilder;
 use candle_transformers::models::quantized_llama as qlm;
+use candle_transformers::models::qwen2;
 use std::io::BufReader;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Loaded model variant — GGUF quantized or SafeTensors full-precision.
+enum LoadedWeights {
+    /// Quantized Llama-family weights from a GGUF file.
+    Gguf(qlm::ModelWeights),
+    /// Full-precision Qwen3 weights from a HF SafeTensors directory.
+    Qwen2Safetensors(qwen2::ModelForCausalLM),
+}
 
 /// Loaded model state — weights + tokenizer + metadata.
 struct LoadedModel {
-    weights: qlm::ModelWeights,
+    weights: LoadedWeights,
     tokenizer: tokenizers::Tokenizer,
     metadata: ModelMetadata,
     footprint: MemoryFootprint,
@@ -75,15 +95,10 @@ impl CandleBackend {
         let prompt_tokens: Vec<u32> = tokens.get_ids().to_vec();
         let mut all_tokens = prompt_tokens.clone();
 
-        // Feed the prompt through the model
-        let mut logits = Vec::new();
-        for (i, &token) in prompt_tokens.iter().enumerate() {
-            let input = Tensor::new(&[token], &self.device)?;
-            let out = model.weights.forward(&input, i)?;
-            if i == prompt_tokens.len() - 1 {
-                logits = out.squeeze(0)?.to_vec1::<f32>()?;
-            }
-        }
+        // Feed the prompt through the model. GGUF wants one token at a time with a
+        // rank-1 input, SafeTensors Qwen3 wants a rank-2 [batch, seq] input and
+        // returns logits only for the last position (narrowed inside forward()).
+        let mut logits = forward_prefill(&mut model.weights, &prompt_tokens, &self.device)?;
 
         // Generate tokens
         let mut generated = Vec::new();
@@ -107,9 +122,7 @@ impl CandleBackend {
 
             // Forward pass for next token
             let pos = prompt_tokens.len() + i as usize;
-            let input = Tensor::new(&[next_token], &self.device)?;
-            let out = model.weights.forward(&input, pos)?;
-            logits = out.squeeze(0)?.to_vec1::<f32>()?;
+            logits = forward_step(&mut model.weights, next_token, pos, &self.device)?;
         }
 
         // Decode all generated tokens
@@ -124,7 +137,7 @@ impl CandleBackend {
 
 impl InferenceBackend for CandleBackend {
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint> {
-        tracing::info!(path = %path.display(), device = %params.device, "Loading GGUF model via Candle");
+        tracing::info!(path = %path.display(), device = %params.device, "Loading model via Candle");
 
         let device = if params.device == "cpu" {
             Device::Cpu
@@ -141,58 +154,31 @@ impl InferenceBackend for CandleBackend {
         };
         self.device = device.clone();
 
-        // Parse GGUF
-        let file = std::fs::File::open(path)?;
-        let file_size = file.metadata()?.len();
-        let mut reader = BufReader::new(file);
-        let content = Content::read(&mut reader)?;
+        // Dispatch by file layout. GGUF is a single file; SafeTensors is a
+        // directory (or a single .safetensors next to config.json + tokenizer.json).
+        let is_gguf = path
+            .extension()
+            .and_then(|s| s.to_str())
+            .map(|s| s.eq_ignore_ascii_case("gguf"))
+            .unwrap_or(false);
 
-        // Extract metadata
-        let metadata = extract_model_metadata(&content)?;
-        tracing::info!(
-            arch = %metadata.architecture,
-            ctx = metadata.context_length,
-            vocab = metadata.vocab_size,
-            "GGUF metadata parsed"
-        );
-
-        // Load tokenizer from GGUF metadata
-        let tokenizer = load_tokenizer_from_gguf(&content, path)?;
-
-        // Build model weights
-        let model_weights = qlm::ModelWeights::from_gguf(content, &mut reader, &device)?;
-
-        // Detect EOS token
-        let eos_token = detect_eos_token(&tokenizer);
-
-        let footprint = MemoryFootprint {
-            ram_bytes: if matches!(device, Device::Cpu) {
-                file_size
-            } else {
-                0
-            },
-            vram_bytes: if !matches!(device, Device::Cpu) {
-                file_size
-            } else {
-                0
-            },
-            kv_cache_bytes: 0,
+        let loaded = if is_gguf {
+            load_gguf(path, &device)?
+        } else {
+            load_safetensors(path, &device)?
         };
 
-        self.model = Some(LoadedModel {
-            weights: model_weights,
-            tokenizer,
-            metadata,
-            footprint,
-            eos_token,
-        });
-
         tracing::info!(
-            ram_mb = footprint.ram_mb(),
-            vram_mb = footprint.vram_mb(),
+            arch = %loaded.metadata.architecture,
+            ctx = loaded.metadata.context_length,
+            vocab = loaded.metadata.vocab_size,
+            ram_mb = loaded.footprint.ram_mb(),
+            vram_mb = loaded.footprint.vram_mb(),
             "Model loaded successfully"
         );
 
+        let footprint = loaded.footprint;
+        self.model = Some(loaded);
         Ok(footprint)
     }
 
@@ -415,6 +401,207 @@ fn sample_token(logits: &[f32], temperature: f32) -> anyhow::Result<u32> {
 
     // Fallback to last token
     Ok((probs.len() - 1) as u32)
+}
+
+/// Prefill: push the full prompt through the model and return the logits at the
+/// last position as a Vec<f32>. Handles both GGUF (rank-1 stepwise) and Qwen3
+/// SafeTensors (rank-2 full-sequence) paths.
+fn forward_prefill(
+    weights: &mut LoadedWeights,
+    prompt_tokens: &[u32],
+    device: &Device,
+) -> anyhow::Result<Vec<f32>> {
+    match weights {
+        LoadedWeights::Gguf(model) => {
+            let mut logits = Vec::new();
+            for (i, &tok) in prompt_tokens.iter().enumerate() {
+                let input = Tensor::new(&[tok], device)?;
+                let out = model.forward(&input, i)?;
+                if i == prompt_tokens.len() - 1 {
+                    logits = out.squeeze(0)?.to_vec1::<f32>()?;
+                }
+            }
+            Ok(logits)
+        }
+        LoadedWeights::Qwen2Safetensors(model) => {
+            let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
+            let out = model.forward(&input, 0)?;
+            // [batch=1, seq=1, vocab] — squeeze both batch and seq dims.
+            let logits = out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?;
+            Ok(logits)
+        }
+    }
+}
+
+/// Single-token decode step. Same dispatch as `forward_prefill`.
+fn forward_step(
+    weights: &mut LoadedWeights,
+    token: u32,
+    position: usize,
+    device: &Device,
+) -> anyhow::Result<Vec<f32>> {
+    match weights {
+        LoadedWeights::Gguf(model) => {
+            let input = Tensor::new(&[token], device)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Qwen2Safetensors(model) => {
+            let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+    }
+}
+
+/// GGUF loading path — parses the file, builds quantized Llama weights, attaches
+/// a tokenizer either from GGUF metadata or `tokenizer.json` on disk.
+fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
+    let file = std::fs::File::open(path)?;
+    let file_size = file.metadata()?.len();
+    let mut reader = BufReader::new(file);
+    let content = Content::read(&mut reader)?;
+
+    let metadata = extract_model_metadata(&content)?;
+    tracing::info!(
+        arch = %metadata.architecture,
+        ctx = metadata.context_length,
+        "GGUF metadata parsed"
+    );
+
+    let tokenizer = load_tokenizer_from_gguf(&content, path)?;
+    let model_weights = qlm::ModelWeights::from_gguf(content, &mut reader, device)?;
+    let eos_token = detect_eos_token(&tokenizer);
+
+    let footprint = make_footprint(device, file_size);
+
+    Ok(LoadedModel {
+        weights: LoadedWeights::Gguf(model_weights),
+        tokenizer,
+        metadata,
+        footprint,
+        eos_token,
+    })
+}
+
+/// SafeTensors loading path — expects a HuggingFace-style directory with
+/// `config.json`, `tokenizer.json`, and one or more `*.safetensors` files.
+/// Currently only the Qwen3 architecture is supported.
+fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
+    let model_dir = if path.is_dir() {
+        path.to_path_buf()
+    } else {
+        path.parent()
+            .ok_or_else(|| anyhow::anyhow!("SafeTensors path has no parent: {}", path.display()))?
+            .to_path_buf()
+    };
+
+    let config_path = model_dir.join("config.json");
+    if !config_path.exists() {
+        anyhow::bail!("config.json not found in {}", model_dir.display());
+    }
+    let tokenizer_path = model_dir.join("tokenizer.json");
+    if !tokenizer_path.exists() {
+        anyhow::bail!("tokenizer.json not found in {}", model_dir.display());
+    }
+
+    let config_bytes = std::fs::read(&config_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read config.json: {e}"))?;
+    let config_json: serde_json::Value = serde_json::from_slice(&config_bytes)
+        .map_err(|e| anyhow::anyhow!("Failed to parse config.json: {e}"))?;
+
+    // Architecture gate — only Qwen2 / Qwen2.5 are wired (candle 0.8 has no qwen3).
+    let arch = config_json
+        .get("architectures")
+        .and_then(|a| a.as_array())
+        .and_then(|a| a.first())
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    if !arch.starts_with("Qwen2") {
+        anyhow::bail!(
+            "SafeTensors architecture `{arch}` is not yet supported — only Qwen2* \
+             is wired (candle-transformers 0.8). Use a GGUF build or upgrade candle."
+        );
+    }
+
+    let qwen2_config: qwen2::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Qwen2 config.json: {e}"))?;
+
+    let tokenizer = tokenizers::Tokenizer::from_file(&tokenizer_path)
+        .map_err(|e| anyhow::anyhow!("Failed to load tokenizer.json: {e}"))?;
+
+    let safetensor_files = find_safetensor_shards(&model_dir)?;
+    if safetensor_files.is_empty() {
+        anyhow::bail!("No .safetensors files found in {}", model_dir.display());
+    }
+    let total_size: u64 = safetensor_files
+        .iter()
+        .filter_map(|p| std::fs::metadata(p).ok().map(|m| m.len()))
+        .sum();
+
+    // SAFETY: candle's mmap API is unsafe because the backing files must not
+    // be mutated concurrently. Model directories are read-only at runtime.
+    #[allow(unsafe_code)]
+    let vb = unsafe {
+        VarBuilder::from_mmaped_safetensors(&safetensor_files, DType::F32, device)
+            .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors: {e}"))?
+    };
+
+    let model = qwen2::ModelForCausalLM::new(&qwen2_config, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Qwen2 model: {e}"))?;
+
+    let eos_token = detect_eos_token(&tokenizer);
+
+    let metadata = ModelMetadata {
+        architecture: arch.to_string(),
+        parameter_count: None,
+        quant_level: Some("fp32".to_string()),
+        context_length: qwen2_config.max_position_embeddings,
+        vocab_size: qwen2_config.vocab_size,
+    };
+
+    let footprint = make_footprint(device, total_size);
+
+    Ok(LoadedModel {
+        weights: LoadedWeights::Qwen2Safetensors(model),
+        tokenizer,
+        metadata,
+        footprint,
+        eos_token,
+    })
+}
+
+/// Find all `*.safetensors` shards in a model directory. Used for both single-file
+/// and sharded HF exports.
+fn find_safetensor_shards(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
+    let mut files = Vec::new();
+    let entries = std::fs::read_dir(dir)
+        .map_err(|e| anyhow::anyhow!("Failed to read directory {}: {e}", dir.display()))?;
+    for entry in entries.flatten() {
+        let p = entry.path();
+        if p.extension().and_then(|s| s.to_str()) == Some("safetensors") {
+            files.push(p);
+        }
+    }
+    files.sort();
+    Ok(files)
+}
+
+/// Build a `MemoryFootprint` attributing the loaded bytes to RAM (CPU) or VRAM (GPU).
+fn make_footprint(device: &Device, bytes: u64) -> MemoryFootprint {
+    if matches!(device, Device::Cpu) {
+        MemoryFootprint {
+            ram_bytes: bytes,
+            vram_bytes: 0,
+            kv_cache_bytes: 0,
+        }
+    } else {
+        MemoryFootprint {
+            ram_bytes: 0,
+            vram_bytes: bytes,
+            kv_cache_bytes: 0,
+        }
+    }
 }
 
 /// Simple pseudo-random float in [0, 1) using thread-local state.

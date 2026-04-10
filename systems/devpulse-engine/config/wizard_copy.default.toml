@@ -1,0 +1,171 @@
+# Wizard Copy — Default
+#
+# All user-facing strings for the model setup wizard.
+# Edit this file (or create an override at .userdata/config/wizard_copy.toml)
+# to change copy without recompiling.
+#
+# Schema: kernel/model-loader/src/wizard/copy.rs
+
+# ─────────────────────────────────────────────────────────────────────
+# Welcome screen — Clyffy greeting
+# ─────────────────────────────────────────────────────────────────────
+[greeting]
+title = "Hey! I'm Clyffy."
+subtitle = "I'll help you set up your AI models. It only takes a minute."
+mascot_alt = "Clyffy mascot waving"
+hint = "I'll recommend the best models for your hardware."
+cta_label = "Let's Go"
+cta_aria = "Start hardware scan and model setup"
+
+# ─────────────────────────────────────────────────────────────────────
+# Scanning state — shown during hardware detection
+# ─────────────────────────────────────────────────────────────────────
+[scanning]
+title = "Scanning your hardware..."
+subtitle = "Checking GPU, CPU, RAM, and disk space"
+mascot_alt = "Clyffy scanning your hardware"
+
+# ─────────────────────────────────────────────────────────────────────
+# Hardware detected screen
+# ─────────────────────────────────────────────────────────────────────
+[hardware]
+title = "Hardware Detected"
+gpu_label = "GPU"
+vram_label = "VRAM"
+cpu_label = "CPU"
+ram_label = "RAM"
+disk_label = "Disk"
+
+# Tooltips — structural explanations
+gpu_tooltip = "Your graphics card. AI models run on GPU for fast inference. More VRAM = bigger models."
+vram_tooltip = "Video RAM — dedicated GPU memory. Each AI model uses some. Green = room. Yellow = tight. Red = full."
+cpu_tooltip = "Your processor. Fallback when GPU is full. Models run ~5-10x slower on CPU."
+ram_tooltip = "System memory. Used for loading model files before GPU. 16GB+ ideal."
+disk_tooltip = "Free storage. AI models are 1-10 GB each. Need at least 5GB for recommended setup."
+
+no_gpu_warning_title = "No GPU detected."
+no_gpu_warning_detail = "Models run on CPU — slower but fully functional."
+next_step_template = "Next: I'll recommend AI models sized for your {tier} hardware."
+
+continue_label = "Looks Good — Continue"
+continue_aria = "Continue to model selection"
+
+# ─────────────────────────────────────────────────────────────────────
+# Models setup screen
+# ─────────────────────────────────────────────────────────────────────
+[models]
+title = "Set Up Your AI"
+subtitle_with_recs = "We picked the best models for your hardware. One click and you're ready."
+subtitle_no_recs = "Scan your hardware first to get recommendations."
+
+setup_button_label = "Download & Set Up Everything"
+setup_in_progress_label = "Setting up..."
+setup_complete_message = "All models are set up and ready to use."
+
+error_retry_label = "Retry"
+error_pick_manually_label = "Pick manually"
+error_skip_label = "Skip for now"
+
+customize_link_label = "Customize individual models"
+browse_link_label = "Browse or import models"
+
+continue_label = "Continue"
+back_label = "Back"
+
+# ─────────────────────────────────────────────────────────────────────
+# Customize screen — slot cards by role
+# ─────────────────────────────────────────────────────────────────────
+[customize]
+title = "Customize Models"
+subtitle = "Change individual AI models. Click 'Change' on any slot."
+
+group_thinking = "Thinking"
+group_watching = "Watching"
+group_understanding = "Understanding"
+group_talking = "Talking"
+
+browse_link_label = "Browse or download more models"
+done_label = "Done Customizing"
+back_label = "Back to Setup"
+
+# ─────────────────────────────────────────────────────────────────────
+# Browse / Search models screen
+# ─────────────────────────────────────────────────────────────────────
+[browse]
+title = "Find Models"
+subtitle = "Browse models on your computer or search HuggingFace."
+
+local_tab_label = "On Your Computer"
+online_tab_label = "Search HuggingFace"
+
+search_placeholder = "Search for models (e.g. Qwen3, Llama, Mistral)..."
+search_button_label = "Search HuggingFace"
+
+no_results_title = "No models found"
+no_results_hint = "Try a different search term"
+
+welcome_search_title = "Search for AI models to download"
+welcome_search_hint = "Type a model name above and click Search"
+
+format_help_title = "What are GGUF and SafeTensors?"
+format_gguf_help = "GGUF = Single file, ready to use. Best for most users."
+format_safetensors_help = "SafeTensors = May have multiple parts. Used for very large models."
+
+import_button_label = "Import Model from File"
+importing_label = "Importing — please wait..."
+
+# ─────────────────────────────────────────────────────────────────────
+# Clyffy chat activation screen
+# ─────────────────────────────────────────────────────────────────────
+[activate]
+title = "Talk to Clyffy"
+greeting_message = "Hey! I'm Clyffy. Try asking me something — like 'what can you help me with?' — so we can make sure everything works."
+
+progress_remaining_template = "Send {count} more message{plural} to continue."
+progress_complete_label = "Clyffy is working! You can continue."
+
+brain_missing_title = "Clyffy's Brain isn't loaded yet"
+brain_missing_detail = "You need to download and load a brain model before Clyffy can chat."
+
+voice_unavailable_message = "Voice not available — download Voice Output model first"
+thinking_label = "Clyffy is thinking..."
+error_message_template = "Something went wrong: {error}. Try again?"
+
+send_aria = "Send message to Clyffy"
+voice_enable_aria = "Enable voice"
+voice_disable_aria = "Disable voice"
+
+# ─────────────────────────────────────────────────────────────────────
+# Project setup / About You screen
+# ─────────────────────────────────────────────────────────────────────
+[profile]
+title = "About You"
+subtitle = "Help Clyffy understand how to help you. All optional — skip if you want."
+
+name_label = "Your Name"
+name_placeholder = "What should Clyffy call you?"
+
+experience_label = "Experience Level"
+
+project_folder_label = "Project Folder"
+project_folder_placeholder = "Optional — select your main project"
+project_folder_hint = "Clyffy can index your code to give better help. You can add this later."
+
+browse_button_label = "Browse"
+
+continue_label = "Continue"
+continue_template = "Let's go, {name}!"
+back_label = "Back"
+
+# ─────────────────────────────────────────────────────────────────────
+# Completion screen — summary and launch
+# ─────────────────────────────────────────────────────────────────────
+[completion]
+title = "You're All Set!"
+subtitle_template = "{ready} of {total} capabilities ready. {assigned} models assigned."
+
+api_section_label = "Cloud AI"
+api_empty_message = "No API keys configured. Clyffy runs fully local. Add keys anytime in Settings."
+
+launch_label = "Launch DevPulse"
+hint = "You can change models anytime from Settings."

@@ -40,20 +40,32 @@ export {
 
 // Types
 export type {
+	ActivateCopy,
 	AllocationMode,
+	BrowseCopy,
+	CompletionCopy,
 	ContinueGate,
+	CustomizeCopy,
 	DownloadTracker,
 	EscalationConfig,
 	EscalationPriority,
 	EscalationSource,
+	GreetingCopy,
+	HardwareCopy,
 	ImportMode,
 	ModelBrowserFilter,
 	ModelRec,
+	ModelsCopy,
 	PhaseInfo,
+	ProfileCopy,
+	ScanningCopy,
 	SlotLabel,
 	SlotRole,
+	TierDisplay,
+	TierRole,
 	VoiceConfig,
 	VoiceDeliveryMode,
+	WizardCopy,
 	WizardPhase,
 } from "./wizard.types.js";
 export {
@@ -66,6 +78,7 @@ export {
 	PROGRESS_PHASES,
 	ROLE_COLORS,
 	SLOT_LABELS,
+	TIER_TOKENS,
 	tierToAllocation,
 	WIZARD_PHASES,
 } from "./wizard.types.js";

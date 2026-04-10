@@ -81,6 +81,8 @@ pub fn run() {
         commands::models::pick_directory,
         commands::models::create_dev_profile,
         commands::models::auto_configure,
+        commands::models::get_wizard_copy,
+        commands::models::get_tier_display,
         commands::models::complete_model_setup,
         commands::models::inference_generate,
         commands::models::test_inference,
