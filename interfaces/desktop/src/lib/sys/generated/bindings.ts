@@ -911,6 +911,22 @@ async runStsPipeline(audioPath: string, brainSlot: string | null, voice: string 
 }
 },
 /**
+ * Closed-loop voice smoke test: TTS → STT round-trip.
+ * 
+ * Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
+ * and feeds it into `voice.stt`. No audio is played and no files are
+ * needed. Failure at any stage is captured in the report rather than
+ * bubbled up, so the UI can show a two-green-check or a pinpoint error.
+ */
+async voiceSmokeTest() : Promise<Result<VoiceSmokeReport, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("voice_smoke_test") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * List saved voice profiles.
  */
 async listVoiceProfiles() : Promise<Result<VoiceProfile[], string>> {
@@ -2544,6 +2560,40 @@ stt_quality: string;
  * Whether this profile is currently active.
  */
 active: boolean }
+/**
+ * Result of a voice smoke test — closed-loop TTS→STT round-trip.
+ * 
+ * Runs without any bundled assets: synthesizes a fixed phrase via the
+ * voice.tts slot, then feeds the PCM output straight into the voice.stt
+ * slot. Reports per-stage success so the UI can pinpoint which side of
+ * the pipeline is broken when a user hits "Run smoke test" in the Voice
+ * Lab.
+ */
+export type VoiceSmokeReport = { 
+/**
+ * Whether the TTS stage returned non-empty audio.
+ */
+tts_ok: boolean; 
+/**
+ * Whether the STT stage returned a non-empty transcript.
+ */
+stt_ok: boolean; 
+/**
+ * The phrase synthesized at the TTS stage (fixed, for reference).
+ */
+spoken: string; 
+/**
+ * Transcript returned by the STT stage (empty if stt_ok is false).
+ */
+transcript: string; 
+/**
+ * Total wall time for the round-trip in milliseconds.
+ */
+duration_ms: number; 
+/**
+ * Error from whichever stage failed first, if any.
+ */
+error: string | null }
 /**
  * Voice subsystem status for the frontend.
  */
