@@ -156,15 +156,15 @@ lane = "cpu"
 fallback = "minion.escalation"
 source_tier = "UserManaged"
 
-# ── 8. voice.wake — Optional user wake-word override ──────────
+# ── 8. voice.wake — Wake-word detector ────────────────────────
 #
-# Per D9, the platform ships a built-in always-on wake-word detector
-# (see `built_ins.default.toml`). This slot is the *user override* —
-# when the user assigns a model here, it takes precedence over the
-# built-in. Default is empty (no model), so the built-in detector
-# handles wake events out of the box. `persistence_class = always_on`
-# because once enabled, the wake word must never be evicted — it's
-# the user's only way back into voice mode.
+# Always-on keyword spotter that gates voice mode entry. The built-in
+# default model ships with the binary; the devtool can swap it for a
+# user-managed model file like every other slot. `builtin = true`
+# tags it as a platform essential so the System tab in the Slot
+# Config overlay groups it with the other essentials. Toggling and
+# swapping go through the same mutation path as user-facing slots —
+# `builtin` is just a filter flag, not a parallel system.
 
 [[slots]]
 id = "voice.wake"
@@ -175,3 +175,66 @@ loading = "Hot"
 persistence_class = "always_on"
 lane = "cpu"
 source_tier = "UserManaged"
+builtin = true
+
+# ─── BUILT-IN ESSENTIALS ──────────────────────────────────────
+#
+# The remaining slots are platform built-ins. They live in the same
+# slot table as the user-facing slots above, share the same loader,
+# the same mutation path, the same devtool surface. The `builtin`
+# flag controls only how the devtool groups them in its UI — the
+# Slot Config overlay's "System" tab filters by `builtin == true`,
+# the "Slots" tab filters by `builtin == false`. Same data, two
+# views, one source of truth. There is no second TOML file.
+
+# ── 9. vector.store — Embedded vector memory ──────────────────
+#
+# RRO (Reason Ready Object) — the kernel's vector similarity store.
+# Always loaded at boot. The model file is the storage engine, not
+# a model in the LLM sense — but the slot semantics still apply
+# (lane = cpu, persistence = always_on, builtin = true).
+
+[[slots]]
+id = "vector.store"
+label = "Vector Memory"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "Hot"
+persistence_class = "always_on"
+lane = "cpu"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 10. rag.embedder — Primary text encoder ──────────────────
+#
+# Default: Qwen3-Embedding-0.6B. Upgradeable through the devtool to
+# any compatible BERT-family or Qwen embedding model. Used by the
+# vector store and the search filter.
+
+[[slots]]
+id = "rag.embedder"
+label = "Search Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 11. rag.reranker — Search result filter ──────────────────
+#
+# Cross-encoder that refines vector search results. Default:
+# Qwen3-Reranker-0.6B. Devtool can swap. Lives on CPU because
+# reranking is a burst workload.
+
+[[slots]]
+id = "rag.reranker"
+label = "Result Filter"
+capability = "Reranking"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "on_demand"
+lane = "cpu"
+source_tier = "UserManaged"
+builtin = true

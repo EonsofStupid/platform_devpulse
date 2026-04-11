@@ -10,7 +10,6 @@
 
 pub mod backends;
 pub mod build_mode;
-pub mod built_ins;
 pub mod hardware;
 pub mod loading;
 pub mod models;
@@ -22,7 +21,6 @@ pub mod wizard;
 
 // Top-level re-exports for convenience
 pub use build_mode::BuildMode;
-pub use built_ins::{load_default_built_ins, BuiltIn, BuiltInsError};
 pub use service::ModelLoaderService;
 
 // Inference bridge types

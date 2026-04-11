@@ -146,6 +146,7 @@ mod tests {
             overrides: None,
             source_tier: crate::slots::ModelSourceTier::UserManaged,
             extensions: std::collections::HashMap::new(),
+            builtin: false,
         }
     }
 

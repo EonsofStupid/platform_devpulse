@@ -39,9 +39,15 @@ const DEFAULT_TOML: &str = include_str!("../../config/slots.default.toml");
 /// asserts every id here is present after `load_default_slots` returns,
 /// and the wizard / slot-config overlays assume these exist.
 ///
+/// The list is split into "user-facing" and "built-in" groups. The
+/// `builtin` flag on each slot controls how the devtool renders them
+/// (System tab vs Slots tab) — there is no second TOML file. Same
+/// data, two views.
+///
 /// When the list grows, update this constant AND `slots.default.toml`
 /// in the same commit.
 pub const BASELINE_SLOT_IDS: &[&str] = &[
+    // User-facing slots — appear in the "Slots" tab of the devtool
     "chat.brain",
     "minion.shared",
     "minion.escalation",
@@ -50,6 +56,10 @@ pub const BASELINE_SLOT_IDS: &[&str] = &[
     "voice.stt",
     "voice.brain",
     "voice.wake",
+    // Platform built-ins — appear in the "System" tab of the devtool
+    "vector.store",
+    "rag.embedder",
+    "rag.reranker",
 ];
 
 /// TOML file shape — a single `slots` array of entries.
@@ -100,6 +110,10 @@ struct SlotEntry {
     source_tier: crate::slots::ModelSourceTier,
     #[serde(default)]
     extensions: std::collections::HashMap<String, String>,
+    /// Built-in flag — see [`Slot::builtin`]. Defaults to `false` so
+    /// regular user-facing slots don't need to set it.
+    #[serde(default)]
+    builtin: bool,
 }
 
 fn default_device_any() -> crate::slots::DevicePreference {
@@ -132,6 +146,7 @@ impl SlotEntry {
             overrides: self.overrides,
             source_tier: self.source_tier,
             extensions: self.extensions,
+            builtin: self.builtin,
         }
     }
 }
@@ -333,5 +348,63 @@ mod tests {
             .find(|s| s.id == "chat.brain")
             .expect("chat.brain must be in baseline");
         assert_eq!(brain.lane, LaneKind::Vram);
+    }
+
+    /// User-facing slots default to `builtin = false`. The flag is opt-in.
+    #[test]
+    fn user_facing_slots_are_not_builtin() {
+        let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
+        for slot_id in [
+            "chat.brain",
+            "minion.shared",
+            "minion.escalation",
+            "voice.tts",
+            "voice.stt",
+            "voice.brain",
+        ] {
+            let slot = slots
+                .iter()
+                .find(|s| s.id == slot_id)
+                .unwrap_or_else(|| panic!("{slot_id} must exist"));
+            assert!(
+                !slot.builtin,
+                "{slot_id} must not be flagged builtin"
+            );
+        }
+    }
+
+    /// Platform essentials (vector store, embedder, reranker, wake-word)
+    /// must carry `builtin = true` so the devtool can group them in the
+    /// System tab.
+    #[test]
+    fn platform_essentials_are_builtin() {
+        let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
+        for slot_id in ["vector.store", "rag.embedder", "rag.reranker", "voice.wake"] {
+            let slot = slots
+                .iter()
+                .find(|s| s.id == slot_id)
+                .unwrap_or_else(|| panic!("{slot_id} must exist"));
+            assert!(
+                slot.builtin,
+                "{slot_id} must be flagged builtin"
+            );
+        }
+    }
+
+    /// The two filtered views the devtool renders must produce
+    /// non-empty, disjoint sets that together cover the entire baseline.
+    #[test]
+    fn builtin_filter_produces_disjoint_views() {
+        let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
+        let user_facing: Vec<&str> = slots.iter().filter(|s| !s.builtin).map(|s| s.id.as_str()).collect();
+        let builtins: Vec<&str> = slots.iter().filter(|s| s.builtin).map(|s| s.id.as_str()).collect();
+
+        assert!(!user_facing.is_empty(), "user-facing view must not be empty");
+        assert!(!builtins.is_empty(), "built-in view must not be empty");
+        assert_eq!(
+            user_facing.len() + builtins.len(),
+            slots.len(),
+            "every slot must land in exactly one view"
+        );
     }
 }

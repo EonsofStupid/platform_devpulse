@@ -428,4 +428,30 @@ mod tests {
             .unwrap();
         assert!(brain.already_downloaded);
     }
+
+    /// CRITICAL CROSS-CHECK: every `slot_id` referenced anywhere in
+    /// `presets.default.toml` must resolve to a real slot defined in
+    /// `slots.default.toml`. If a preset writes a recommendation for a
+    /// slot that does not exist, the auto-configure pipeline silently
+    /// drops it on the floor at boot. This test catches that drift the
+    /// moment it's introduced.
+    #[test]
+    fn every_preset_slot_id_resolves_to_a_slot() {
+        let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
+        let slots =
+            crate::slots::load_default_slots(Path::new("/nonexistent")).expect("slots load");
+        let slot_ids: std::collections::HashSet<&str> =
+            slots.iter().map(|s| s.id.as_str()).collect();
+
+        for bp in &blueprints {
+            for rec in &bp.recommendations {
+                assert!(
+                    slot_ids.contains(rec.slot_id.as_str()),
+                    "preset {:?} references unknown slot '{}'",
+                    bp.tier,
+                    rec.slot_id
+                );
+            }
+        }
+    }
 }

@@ -71,6 +71,29 @@ pub struct Slot {
     /// Backend-specific configuration (voice_profile, vad, sample_rate, etc.).
     #[serde(default)]
     pub extensions: std::collections::HashMap<String, String>,
+
+    /// Whether this slot is a platform built-in.
+    ///
+    /// Built-in slots are platform-essential services (vector store,
+    /// primary encoder, search filter, wake-word detector). They live in
+    /// the same slot table and use the same mutation path as every other
+    /// slot — the devtool can toggle them, swap their model, reassign
+    /// their lane, change their persistence class, all through the
+    /// normal slot UI.
+    ///
+    /// The flag exists so the devtool can render two filtered views
+    /// against the same data:
+    ///
+    /// - **System tab**: `slots.iter().filter(|s| s.builtin)` — shows
+    ///   the platform essentials grouped together.
+    /// - **Slots tab**: `slots.iter().filter(|s| !s.builtin)` — shows
+    ///   the user-facing slots (chat brain, helpers, voice surfaces).
+    ///
+    /// Same data, two views. There is no second TOML file, no second
+    /// loader, no second mutation path. Senior pattern: built-in is a
+    /// property, not a parallel system.
+    #[serde(default)]
+    pub builtin: bool,
 }
 
 /// Default lane for slots that don't specify one — GPU-first since the
