@@ -59,7 +59,7 @@ module.exports = {
       ],
     ],
     'scope-empty': [1, 'never'],  // Warn on missing scope
-    'subject-case': [2, 'never', ['sentence-case', 'start-case', 'pascal-case', 'upper-case']],
+    'subject-case': [0],
     'header-max-length': [2, 'always', 100],
   },
 };
