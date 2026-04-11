@@ -322,6 +322,101 @@ impl ModelLoaderService {
         Ok(())
     }
 
+    /// Auto-assign every slot whose `source_tier` is `Bundled` to its
+    /// shipped model file. Called at boot after `restore_assignments`
+    /// so persisted user assignments win — if the user has already
+    /// assigned something to `voice.tts`, that assignment is not
+    /// overwritten.
+    ///
+    /// This looks up each slot's `bundled_path` relative to
+    /// `models_dir` and matches it against the already-scanned model
+    /// registry by filename. The registry scan that runs at boot is
+    /// what actually discovers bundled files on disk (via
+    /// [`crate::models::discovery::discover_models`]); this method
+    /// just wires the discovered entries into their target slots.
+    ///
+    /// If the bundled file is missing from the registry the function
+    /// logs a warning and skips that slot. It does NOT fail the whole
+    /// boot — bundled files might be symlinked later from `.userdata`,
+    /// and the devtool covers manual recovery.
+    ///
+    /// Returns the number of slots that were successfully hydrated.
+    pub fn auto_assign_bundled_slots(&mut self) -> anyhow::Result<usize> {
+        use crate::slots::ModelSourceTier;
+
+        let mut hydrated = 0usize;
+
+        // Collect the work first so we can mutate the slot registry
+        // after the immutable slot list borrow ends.
+        let bundled: Vec<(String, String)> = self
+            .slots
+            .list_slots()
+            .into_iter()
+            .filter_map(|slot| {
+                if slot.assigned_model.is_some() {
+                    return None; // User override wins.
+                }
+                match &slot.source_tier {
+                    ModelSourceTier::Bundled { bundled_path } => {
+                        Some((slot.id.clone(), bundled_path.clone()))
+                    }
+                    ModelSourceTier::UserManaged => None,
+                }
+            })
+            .collect();
+
+        for (slot_id, bundled_path) in bundled {
+            // `bundled_path` is e.g. "voice/kokoro-v1.0.int8.onnx".
+            // The registry indexes entries by filename (not full path),
+            // so split the path and match on the filename component.
+            let filename = match std::path::Path::new(&bundled_path)
+                .file_name()
+                .and_then(|s| s.to_str())
+            {
+                Some(name) => name.to_string(),
+                None => {
+                    tracing::warn!(
+                        slot = %slot_id,
+                        path = %bundled_path,
+                        "Bundled path has no filename component — skipping"
+                    );
+                    continue;
+                }
+            };
+
+            let Some(entry) = self.registry.get_by_filename(&filename) else {
+                tracing::warn!(
+                    slot = %slot_id,
+                    bundled_path = %bundled_path,
+                    "Bundled model file missing from registry — skipping \
+                     auto-assign. User can symlink the file into \
+                     {{data_dir}}/models/ and re-scan, or assign via devtool."
+                );
+                continue;
+            };
+
+            let model_id = entry.id.clone();
+
+            if let Some(slot) = self.slots.get_slot_mut(&slot_id) {
+                slot.assigned_model = Some(model_id.clone());
+                tracing::info!(
+                    slot = %slot_id,
+                    model = %model_id,
+                    bundled_path = %bundled_path,
+                    "Auto-assigned bundled model"
+                );
+                // Persist so the next boot goes through restore_assignments
+                // instead of auto-assign.
+                let _ = self
+                    .config
+                    .set(&format!("slot.{slot_id}.model"), &model_id);
+                hydrated += 1;
+            }
+        }
+
+        Ok(hydrated)
+    }
+
     // ── Loading (Phase 4+) ─────────────────────────────────────
 
     /// Load the model assigned to a slot.
@@ -1187,5 +1282,170 @@ impl ModelLoaderService {
         height: u32,
     ) -> anyhow::Result<Vec<f32>> {
         self.voice_pool.encode_rgb(slot_id, rgb_bytes, width, height)
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Tests
+// ─────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::hardware::lanes::LaneKind;
+    use crate::models::{BackendType, ModelFormat, ModelRegistryEntry, ModelSource};
+    use crate::slots::{
+        DevicePreference, LoadingStrategy, ModelCapability, ModelSourceTier, PersistenceClass,
+    };
+    use crate::traits::config::MemoryConfig;
+    use crate::traits::events::NullEventSink;
+
+    /// Hand-build a minimal `ModelRegistryEntry` for a given filename so
+    /// tests can populate the registry without touching disk.
+    fn fake_entry(filename: &str, models_dir: &std::path::Path) -> ModelRegistryEntry {
+        ModelRegistryEntry {
+            id: format!("test-{filename}"),
+            filename: filename.to_string(),
+            path: models_dir.join(filename),
+            format: ModelFormat::Onnx,
+            architecture: "test".to_string(),
+            parameter_count: None,
+            quant_level: None,
+            context_length: 0,
+            size_bytes: 0,
+            vram_estimate_mb: 0,
+            supported_backends: vec![BackendType::Ort],
+            compatible_capabilities: vec![ModelCapability::TextToSpeech],
+            source: ModelSource::Local,
+            discovered_at: 0,
+        }
+    }
+
+    /// Hand-build a Bundled Slot pointing at a specific bundled_path.
+    fn bundled_slot(id: &str, bundled_path: &str) -> Slot {
+        Slot {
+            id: id.to_string(),
+            label: id.to_string(),
+            capability: ModelCapability::TextToSpeech,
+            preferred_device: DevicePreference::Cpu,
+            loading: LoadingStrategy::Hot,
+            persistence_class: PersistenceClass::OnDemand,
+            lane: LaneKind::Cpu,
+            assigned_model: None,
+            fallback: None,
+            runtime: Some(BackendType::Ort),
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            source_tier: ModelSourceTier::Bundled {
+                bundled_path: bundled_path.to_string(),
+            },
+            extensions: std::collections::HashMap::new(),
+            builtin: true,
+        }
+    }
+
+    fn fresh_service() -> ModelLoaderService {
+        let tmp = std::env::temp_dir().join(format!(
+            "devpulse-ml-test-{}",
+            uuid::Uuid::now_v7()
+        ));
+        ModelLoaderService::new(
+            Box::new(MemoryConfig::new()),
+            Arc::new(NullEventSink),
+            tmp,
+            vec!["voice".to_string()],
+            Vec::new(),
+        )
+        .expect("ModelLoaderService::new must succeed with MemoryConfig")
+    }
+
+    /// `auto_assign_bundled_slots` wires a Bundled slot to a matching
+    /// registry entry by filename. This is the contract the engine
+    /// boot path relies on.
+    #[test]
+    fn bundled_slot_hydrates_from_registry() {
+        let mut service = fresh_service();
+
+        // Register a Bundled slot that points at "kokoro-v1.0.int8.onnx"
+        // under the `voice/` subdirectory.
+        let slot = bundled_slot("voice.tts", "voice/kokoro-v1.0.int8.onnx");
+        service.register_slot(slot).unwrap();
+
+        // Drop a matching entry into the registry (by filename only —
+        // no disk I/O).
+        let entry = fake_entry("kokoro-v1.0.int8.onnx", &service.models_dir);
+        let expected_id = entry.id.clone();
+        service.registry.add(entry);
+
+        // Run the hydrator.
+        let hydrated = service.auto_assign_bundled_slots().unwrap();
+        assert_eq!(hydrated, 1, "exactly one slot should hydrate");
+
+        // The slot must now carry the registry id as its assigned model.
+        let slot = service.slots.get_slot("voice.tts").unwrap();
+        assert_eq!(slot.assigned_model.as_deref(), Some(expected_id.as_str()));
+    }
+
+    /// User assignments persisted via `restore_assignments` win over
+    /// bundled defaults — hydrator must never overwrite a slot that
+    /// already has a model.
+    #[test]
+    fn bundled_hydrate_respects_user_assignment() {
+        let mut service = fresh_service();
+
+        let mut slot = bundled_slot("voice.tts", "voice/kokoro-v1.0.int8.onnx");
+        slot.assigned_model = Some("user-picked-model".to_string());
+        service.register_slot(slot).unwrap();
+
+        let entry = fake_entry("kokoro-v1.0.int8.onnx", &service.models_dir);
+        service.registry.add(entry);
+
+        let hydrated = service.auto_assign_bundled_slots().unwrap();
+        assert_eq!(hydrated, 0, "user assignment must not be overwritten");
+
+        let slot = service.slots.get_slot("voice.tts").unwrap();
+        assert_eq!(slot.assigned_model.as_deref(), Some("user-picked-model"));
+    }
+
+    /// When the registry has no matching filename, the hydrator logs a
+    /// warning and leaves the slot empty. This is the expected path
+    /// when bundled files are missing from disk (not yet symlinked).
+    #[test]
+    fn bundled_hydrate_skips_missing_files() {
+        let mut service = fresh_service();
+
+        let slot = bundled_slot("voice.tts", "voice/kokoro-v1.0.int8.onnx");
+        service.register_slot(slot).unwrap();
+        // No registry entry added — the matching file is "missing".
+
+        let hydrated = service.auto_assign_bundled_slots().unwrap();
+        assert_eq!(hydrated, 0, "missing files should skip, not error");
+
+        let slot = service.slots.get_slot("voice.tts").unwrap();
+        assert!(
+            slot.assigned_model.is_none(),
+            "slot must stay empty when registry has no match"
+        );
+    }
+
+    /// `UserManaged` slots are not touched by the bundled hydrator —
+    /// they only get assignments through explicit user action.
+    #[test]
+    fn user_managed_slots_are_not_auto_hydrated() {
+        let mut service = fresh_service();
+
+        let mut slot = bundled_slot("chat.brain", "chat/qwen3-4b.gguf");
+        slot.source_tier = ModelSourceTier::UserManaged;
+        service.register_slot(slot).unwrap();
+
+        let entry = fake_entry("qwen3-4b.gguf", &service.models_dir);
+        service.registry.add(entry);
+
+        let hydrated = service.auto_assign_bundled_slots().unwrap();
+        assert_eq!(hydrated, 0, "user-managed slots must not auto-hydrate");
+
+        let slot = service.slots.get_slot("chat.brain").unwrap();
+        assert!(slot.assigned_model.is_none());
     }
 }

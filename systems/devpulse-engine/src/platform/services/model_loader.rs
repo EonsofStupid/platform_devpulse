@@ -95,7 +95,10 @@ impl ModelLoaderService {
             tracing::warn!(error = %e, "Failed to restore model assignments (non-fatal)");
         }
 
-        // Initial model scan
+        // Initial model scan — populates the registry with every file
+        // discoverable under models_dir. Bundled auto-assign below
+        // matches bundled_path values against this registry, so scan
+        // must run first.
         match service.scan_models() {
             Ok(count) => {
                 tracing::info!(models = count.len(), "Initial model scan complete");
@@ -105,9 +108,91 @@ impl ModelLoaderService {
             }
         }
 
+        // Hydrate bundled slots against the scanned registry. This
+        // wires slots whose source_tier = Bundled to their shipped
+        // model files so downstream load_slot / synthesize / transcribe
+        // calls can actually find them. User assignments persisted via
+        // restore_assignments above win — this only fills gaps.
+        match service.auto_assign_bundled_slots() {
+            Ok(hydrated) => {
+                tracing::info!(
+                    hydrated,
+                    "Auto-assigned bundled slots to registry entries"
+                );
+            }
+            Err(e) => {
+                tracing::warn!(
+                    error = %e,
+                    "Bundled slot auto-assign failed (non-fatal) — \
+                     voice/vision slots will require manual assignment \
+                     via the devtool"
+                );
+            }
+        }
+
+        // NOTE on Hot-slot auto-load: `load_slot` is async but `boot()`
+        // runs inside spawn_blocking. Async work does not belong here.
+        // The caller (`boot/model_loader.rs`) performs the Hot-slot
+        // auto-load AFTER spawn_blocking returns, using the async
+        // `ModelLoaderService` wrapper that does its own locking.
+
         Ok(Self {
             inner: Arc::new(Mutex::new(service)),
         })
+    }
+
+    /// Proactively load every slot marked `LoadingStrategy::Hot` that
+    /// has a model assigned (either via persistence or via the bundled
+    /// auto-assign pass in `boot`). Called by the boot caller AFTER
+    /// [`ModelLoaderService::boot`] returns, because the inner
+    /// `load_slot` is async and `boot` runs inside `spawn_blocking`.
+    ///
+    /// Iterates all registered slots, filters to the Hot set, and
+    /// calls `load_slot` on each. Failures are logged and the loop
+    /// continues — boot must not fail just because one bundled file
+    /// is corrupt.
+    ///
+    /// Returns the number of slots that successfully transitioned to
+    /// loaded state.
+    pub async fn auto_load_hot_slots(&self) -> usize {
+        use devpulse_clyffy::model_loader::LoadingStrategy;
+
+        // Snapshot the set of Hot + assigned slots first so we don't
+        // hold the lock across an await on load_slot.
+        let targets: Vec<String> = {
+            let inner = self.inner.lock().await;
+            inner
+                .list_slots()
+                .iter()
+                .filter(|s| {
+                    matches!(s.loading, LoadingStrategy::Hot)
+                        && s.assigned_model.is_some()
+                })
+                .map(|s| s.id.clone())
+                .collect()
+        };
+
+        let mut loaded = 0usize;
+        for slot_id in targets {
+            let result = {
+                let mut inner = self.inner.lock().await;
+                inner.load_slot(&slot_id).await
+            };
+            match result {
+                Ok(()) => {
+                    loaded += 1;
+                    tracing::info!(slot = %slot_id, "Auto-loaded Hot slot");
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        slot = %slot_id,
+                        error = %e,
+                        "Auto-load failed for Hot slot (non-fatal)"
+                    );
+                }
+            }
+        }
+        loaded
     }
 
     /// Get hardware metrics.

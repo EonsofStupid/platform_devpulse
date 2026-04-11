@@ -158,21 +158,28 @@ source_tier = "UserManaged"
 
 # ── 8. voice.wake — Wake-word detector ────────────────────────
 #
-# Always-on keyword spotter that gates voice mode entry. The built-in
-# default model ships with the binary; the devtool can swap it for a
-# user-managed model file like every other slot. `builtin = true`
-# tags it as a platform essential so the System tab in the Slot
-# Config overlay groups it with the other essentials. Toggling and
-# swapping go through the same mutation path as user-facing slots —
-# `builtin` is just a filter flag, not a parallel system.
+# Keyword spotter that gates voice mode entry. No default model file
+# ships yet — when the user assigns one via the devtool, the slot
+# transitions to loaded and the wake detector becomes active.
+#
+# `loading = OnDemand` is deliberate: until a model is assigned the
+# slot is empty and the budgeter must not reserve capacity for it.
+# The previous `Hot` + `AlwaysOn` combination would deadlock the
+# boot loader (try to load a model that doesn't exist, hold the
+# always-on reservation forever). Once a user picks a model, the
+# devtool flips this to `Hot` + `AlwaysOn` via the override path in
+# `{userdata}/config/slots.toml`.
+#
+# `builtin = true` tags it as a platform essential so the System tab
+# groups it with the other essentials.
 
 [[slots]]
 id = "voice.wake"
 label = "Wake Word"
 capability = "SpeechToText"
 preferred_device = "Cpu"
-loading = "Hot"
-persistence_class = "always_on"
+loading = "OnDemand"
+persistence_class = "on_demand"
 lane = "cpu"
 source_tier = "UserManaged"
 builtin = true
@@ -186,30 +193,25 @@ builtin = true
 # Slot Config overlay's "System" tab filters by `builtin == true`,
 # the "Slots" tab filters by `builtin == false`. Same data, two
 # views, one source of truth. There is no second TOML file.
-
-# ── 9. vector.store — Embedded vector memory ──────────────────
 #
-# RRO (Reason Ready Object) — the kernel's vector similarity store.
-# Always loaded at boot. The model file is the storage engine, not
-# a model in the LLM sense — but the slot semantics still apply
-# (lane = cpu, persistence = always_on, builtin = true).
+# NOTE: The vector store (RRO) is NOT a slot. It's a storage
+# adapter that lives in `kernel/devpulse-clyffy/src/cortex/
+# persistence/rro.rs` — pure storage, no model file, no model
+# capability that fits the slot schema. The devtool surfaces RRO
+# status through a direct kernel query in the System tab, not
+# through the slot registry. Forcing it into slots would have
+# required inventing a capability variant for storage adapters.
 
-[[slots]]
-id = "vector.store"
-label = "Vector Memory"
-capability = "Embedding"
-preferred_device = "Cpu"
-loading = "Hot"
-persistence_class = "always_on"
-lane = "cpu"
-source_tier = "UserManaged"
-builtin = true
-
-# ── 10. rag.embedder — Primary text encoder ──────────────────
+# ── 9. rag.embedder — Primary text encoder ──────────────────
 #
 # Default: Qwen3-Embedding-0.6B. Upgradeable through the devtool to
 # any compatible BERT-family or Qwen embedding model. Used by the
-# vector store and the search filter.
+# vector store adapter + search filter.
+#
+# `default_model` points at the filename the auto-configure pipeline
+# will place under `{data_dir}/models/rag/` on first boot. The
+# pipeline writes the file there and the discovery pass picks it up
+# — no manual symlink needed if the user accepts the auto-download.
 
 [[slots]]
 id = "rag.embedder"
@@ -219,10 +221,12 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
+runtime = "Ort"
+default_model = "qwen3-embedding-0.6b.safetensors"
 source_tier = "UserManaged"
 builtin = true
 
-# ── 11. rag.reranker — Search result filter ──────────────────
+# ── 10. rag.reranker — Search result filter ──────────────────
 #
 # Cross-encoder that refines vector search results. Default:
 # Qwen3-Reranker-0.6B. Devtool can swap. Lives on CPU because
@@ -236,5 +240,7 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "on_demand"
 lane = "cpu"
+runtime = "Ort"
+default_model = "qwen3-reranker-0.6b.safetensors"
 source_tier = "UserManaged"
 builtin = true

@@ -56,8 +56,11 @@ pub const BASELINE_SLOT_IDS: &[&str] = &[
     "voice.stt",
     "voice.brain",
     "voice.wake",
-    // Platform built-ins — appear in the "System" tab of the devtool
-    "vector.store",
+    // Platform built-ins — appear in the "System" tab of the devtool.
+    // Vector store (RRO) is NOT in this list — it's a storage adapter,
+    // not a model binding point, and lives in cortex/persistence/rro.rs.
+    // The devtool queries RRO status directly through the kernel rather
+    // than through the slot registry.
     "rag.embedder",
     "rag.reranker",
 ];
@@ -326,16 +329,25 @@ mod tests {
         );
     }
 
-    /// `voice.wake` must be `AlwaysOn` — the whole point of a wake
-    /// word is that it cannot be evicted.
+    /// `voice.wake` defaults to `OnDemand` when no user model has been
+    /// assigned yet. The previous default of `Hot + AlwaysOn` caused a
+    /// boot deadlock: the budgeter reserved capacity for a slot that
+    /// had no model to load and no fallback chain, so it held the
+    /// reservation forever. The devtool flips this to
+    /// `Hot + AlwaysOn` via the `{userdata}/config/slots.toml`
+    /// override path once the user picks a wake-word model.
     #[test]
-    fn voice_wake_is_always_on() {
+    fn voice_wake_defaults_to_on_demand_until_model_assigned() {
         let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
         let wake = slots
             .iter()
             .find(|s| s.id == "voice.wake")
             .expect("voice.wake must be in baseline");
-        assert_eq!(wake.persistence_class, PersistenceClass::AlwaysOn);
+        assert_eq!(wake.persistence_class, PersistenceClass::OnDemand);
+        assert!(
+            wake.default_model.is_none(),
+            "voice.wake must ship without a default model — user picks via devtool"
+        );
     }
 
     /// The main brain must be on VRAM — we never want it relegated
@@ -373,13 +385,15 @@ mod tests {
         }
     }
 
-    /// Platform essentials (vector store, embedder, reranker, wake-word)
-    /// must carry `builtin = true` so the devtool can group them in the
-    /// System tab.
+    /// Platform essentials (embedder, reranker, wake-word) must carry
+    /// `builtin = true` so the devtool can group them in the System tab.
+    /// The vector store (RRO) is intentionally NOT in this list — it's
+    /// a storage adapter, not a slot, and is surfaced through a
+    /// separate kernel query.
     #[test]
     fn platform_essentials_are_builtin() {
         let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
-        for slot_id in ["vector.store", "rag.embedder", "rag.reranker", "voice.wake"] {
+        for slot_id in ["rag.embedder", "rag.reranker", "voice.wake"] {
             let slot = slots
                 .iter()
                 .find(|s| s.id == slot_id)
@@ -389,6 +403,22 @@ mod tests {
                 "{slot_id} must be flagged builtin"
             );
         }
+    }
+
+    /// Regression guard: the slot registry must NOT contain a
+    /// `vector.store` slot. RRO is a storage adapter, not a model slot.
+    /// Adding it back would re-introduce the capability-mismatch bug
+    /// from the previous refactor where `vector.store` was tagged
+    /// `Embedding` (which it is not — it consumes embeddings, it
+    /// doesn't produce them).
+    #[test]
+    fn vector_store_is_not_a_slot() {
+        let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
+        assert!(
+            slots.iter().all(|s| s.id != "vector.store"),
+            "vector.store must NOT be in the slot registry — RRO is a \
+             storage adapter, not a model binding point"
+        );
     }
 
     /// The two filtered views the devtool renders must produce

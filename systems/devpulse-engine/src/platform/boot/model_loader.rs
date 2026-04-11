@@ -68,15 +68,23 @@ pub async fn boot(
             // baseline default if a user override in slots.toml adds/removes
             // rows).
             let slot_count = service.list_slots().await.len();
+
+            // Proactively load every Hot-strategy slot that has a model
+            // assigned. Runs AFTER the sync boot path returns so we can
+            // await the async load_slot calls on the inner service.
+            let hot_loaded = service.auto_load_hot_slots().await;
             tracing::info!(
                 step = "Model Loader",
-                status = "ready",
                 slots = slot_count,
+                hot_loaded,
                 latency_ms = elapsed_ms,
-                "Model Loader booted"
+                "Model Loader booted and Hot slots hydrated"
             );
             on_event(InitEvent::ok_with_latency("Model Loader", start.elapsed()));
-            boot_log.ok("Model Loader", &format!("{slot_count} slots ({elapsed_ms}ms)"));
+            boot_log.ok(
+                "Model Loader",
+                &format!("{slot_count} slots ({hot_loaded} hot, {elapsed_ms}ms)"),
+            );
             Some(Arc::new(service))
         }
         Err(e) => {

@@ -580,6 +580,150 @@ pub async fn transcribe_audio_file(
         .map_err(|e| format!("STT transcription failed: {e}"))
 }
 
+/// Result of a voice smoke test — closed-loop TTS→STT round-trip.
+///
+/// Runs without any bundled assets: synthesizes a fixed phrase via the
+/// voice.tts slot, then feeds the PCM output straight into the voice.stt
+/// slot. Reports per-stage success so the UI can pinpoint which side of
+/// the pipeline is broken when a user hits "Run smoke test" in the Voice
+/// Lab.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct VoiceSmokeReport {
+    /// Whether the TTS stage returned non-empty audio.
+    pub tts_ok: bool,
+    /// Whether the STT stage returned a non-empty transcript.
+    pub stt_ok: bool,
+    /// The phrase synthesized at the TTS stage (fixed, for reference).
+    pub spoken: String,
+    /// Transcript returned by the STT stage (empty if stt_ok is false).
+    pub transcript: String,
+    /// Total wall time for the round-trip in milliseconds.
+    pub duration_ms: u64,
+    /// Error from whichever stage failed first, if any.
+    pub error: Option<String>,
+}
+
+/// Closed-loop voice smoke test: TTS → STT round-trip.
+///
+/// Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
+/// and feeds it into `voice.stt`. No audio is played and no files are
+/// needed. Failure at any stage is captured in the report rather than
+/// bubbled up, so the UI can show a two-green-check or a pinpoint error.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state))]
+pub async fn voice_smoke_test(
+    state: State<'_, PlatformState>,
+) -> Result<VoiceSmokeReport, String> {
+    use devpulse_engine::platform::services::model_loader::AudioSamples;
+
+    let spoken = "Smoke test one two three.".to_string();
+    let start = std::time::Instant::now();
+
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    let loader = platform
+        .model_loader()
+        .ok_or("Model Loader not available")?;
+
+    // Stage 1: TTS
+    let tts_samples = match loader.synthesize("voice.tts", &spoken, "af_heart").await {
+        Ok(s) if !s.data.is_empty() => s,
+        Ok(_) => {
+            return Ok(VoiceSmokeReport {
+                tts_ok: false,
+                stt_ok: false,
+                spoken,
+                transcript: String::new(),
+                duration_ms: start.elapsed().as_millis() as u64,
+                error: Some("TTS returned zero samples".to_string()),
+            });
+        }
+        Err(e) => {
+            return Ok(VoiceSmokeReport {
+                tts_ok: false,
+                stt_ok: false,
+                spoken,
+                transcript: String::new(),
+                duration_ms: start.elapsed().as_millis() as u64,
+                error: Some(format!("TTS failed: {e}")),
+            });
+        }
+    };
+
+    // Resample to 16 kHz mono for Whisper. Downmix channels first, then
+    // linear-interpolate to the target rate (same cheap path the file
+    // decoder uses — good enough for a smoke test).
+    let channels = tts_samples.channels as usize;
+    let source_rate = tts_samples.sample_rate;
+    let raw = tts_samples.data;
+    let mono: Vec<f32> = if channels > 1 {
+        raw.chunks(channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
+            .collect()
+    } else {
+        raw
+    };
+    let resampled = if source_rate == 16_000 {
+        mono
+    } else {
+        let ratio = 16_000.0_f64 / f64::from(source_rate);
+        let new_len = (mono.len() as f64 * ratio) as usize;
+        let mut out = Vec::with_capacity(new_len);
+        for i in 0..new_len {
+            let src_pos = i as f64 / ratio;
+            let idx = src_pos as usize;
+            let frac = (src_pos - idx as f64) as f32;
+            let sample = if idx + 1 < mono.len() {
+                mono[idx] * (1.0 - frac) + mono[idx + 1] * frac
+            } else if idx < mono.len() {
+                mono[idx]
+            } else {
+                0.0
+            };
+            out.push(sample);
+        }
+        out
+    };
+
+    let stt_input = AudioSamples {
+        data: resampled,
+        sample_rate: 16_000,
+        channels: 1,
+    };
+
+    // Stage 2: STT
+    let transcript = match loader.transcribe("voice.stt", &stt_input).await {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(VoiceSmokeReport {
+                tts_ok: true,
+                stt_ok: false,
+                spoken,
+                transcript: String::new(),
+                duration_ms: start.elapsed().as_millis() as u64,
+                error: Some(format!("STT failed: {e}")),
+            });
+        }
+    };
+
+    let stt_ok = !transcript.trim().is_empty();
+    let error = if stt_ok {
+        None
+    } else {
+        Some("STT returned empty transcript".to_string())
+    };
+
+    Ok(VoiceSmokeReport {
+        tts_ok: true,
+        stt_ok,
+        spoken,
+        transcript,
+        duration_ms: start.elapsed().as_millis() as u64,
+        error,
+    })
+}
+
 /// Result of a full STS (speech-to-speech) pipeline run.
 ///
 /// The pipeline: uploaded audio → STT (transcript) → brain (reply) → TTS (audio).

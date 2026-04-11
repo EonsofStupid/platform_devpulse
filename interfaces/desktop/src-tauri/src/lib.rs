@@ -109,6 +109,7 @@ pub fn run() {
         commands::voice::transcribe_audio,
         commands::voice::transcribe_audio_file,
         commands::voice::run_sts_pipeline,
+        commands::voice::voice_smoke_test,
         commands::voice::list_voice_profiles,
         commands::voice::save_voice_profile,
         commands::voice::delete_voice_profile,

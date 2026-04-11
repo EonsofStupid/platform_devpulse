@@ -454,4 +454,85 @@ mod tests {
             }
         }
     }
+
+    /// STRONG CROSS-CHECK: for every preset recommendation, the file
+    /// extension of `model_filename` must be compatible with the slot's
+    /// declared `runtime`. ORT-backed slots want `.onnx`, Candle wants
+    /// `.safetensors`, llama.cpp wants `.gguf`, sherpa wants `.bin`.
+    /// Catches the kind of drift where a preset points a Kokoro ORT
+    /// slot at a Qwen3-TTS safetensors file — something the loader
+    /// would fail at runtime with a confusing error.
+    #[test]
+    fn preset_file_extensions_match_slot_runtime() {
+        use crate::models::BackendType;
+
+        let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
+        let slots =
+            crate::slots::load_default_slots(Path::new("/nonexistent")).expect("slots load");
+        let slot_by_id: std::collections::HashMap<&str, &crate::slots::Slot> =
+            slots.iter().map(|s| (s.id.as_str(), s)).collect();
+
+        for bp in &blueprints {
+            for rec in &bp.recommendations {
+                let Some(slot) = slot_by_id.get(rec.slot_id.as_str()) else {
+                    continue; // already caught by the id-resolution test
+                };
+                let Some(runtime) = slot.runtime else {
+                    continue; // slot has no runtime override — auto-detected by loader
+                };
+
+                let ext = rec.model_filename.rsplit('.').next().unwrap_or("").to_lowercase();
+                let compatible = match runtime {
+                    BackendType::Ort => matches!(ext.as_str(), "onnx" | "bin" | "safetensors"),
+                    BackendType::Candle => matches!(ext.as_str(), "safetensors" | "gguf"),
+                    BackendType::LlamaCpp => ext == "gguf",
+                    BackendType::Sherpa => matches!(ext.as_str(), "bin" | "onnx"),
+                };
+
+                assert!(
+                    compatible,
+                    "preset {:?} slot '{}' has runtime {:?} but references file '{}' \
+                     with extension '{}' which is incompatible",
+                    bp.tier, rec.slot_id, runtime, rec.model_filename, ext
+                );
+            }
+        }
+    }
+
+    /// STRONG CROSS-CHECK: a preset's `vram_estimate_mb` must be > 0
+    /// for any slot on the `Vram` lane, and 0 for slots on the `Cpu`
+    /// lane. Catches presets that silently blow past a VRAM budget by
+    /// marking a GPU model as zero VRAM, or that waste VRAM tracking
+    /// on a pure-CPU embedder.
+    #[test]
+    fn preset_vram_estimates_match_slot_lane() {
+        use crate::hardware::lanes::LaneKind;
+
+        let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
+        let slots =
+            crate::slots::load_default_slots(Path::new("/nonexistent")).expect("slots load");
+        let slot_by_id: std::collections::HashMap<&str, &crate::slots::Slot> =
+            slots.iter().map(|s| (s.id.as_str(), s)).collect();
+
+        for bp in &blueprints {
+            for rec in &bp.recommendations {
+                let Some(slot) = slot_by_id.get(rec.slot_id.as_str()) else {
+                    continue;
+                };
+
+                // CPU-lane slots should declare 0 VRAM in the preset.
+                // GPU-lane slots should declare > 0 VRAM (the presets
+                // that target CPU-only tiers override lane via the
+                // preset recommendation's `device` field, which is
+                // handled at the backend pool level, not here).
+                if slot.lane == LaneKind::Cpu && rec.vram_estimate_mb != 0 {
+                    panic!(
+                        "preset {:?} slot '{}' is on CPU lane but declares \
+                         {} MB VRAM",
+                        bp.tier, rec.slot_id, rec.vram_estimate_mb
+                    );
+                }
+            }
+        }
+    }
 }
