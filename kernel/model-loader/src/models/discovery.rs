@@ -181,7 +181,7 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     let quant_level = infer_quant_from_filename(&filename);
 
     Ok(ModelRegistryEntry {
-        id: uuid::Uuid::now_v7().to_string(),
+        id: stable_id_for_path(path),
         filename,
         path: path.to_path_buf(),
         format: ModelFormat::Gguf,
@@ -213,7 +213,7 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     let quant_level = infer_quant_from_filename(&filename);
 
     Ok(ModelRegistryEntry {
-        id: uuid::Uuid::now_v7().to_string(),
+        id: stable_id_for_path(path),
         filename,
         path: path.to_path_buf(),
         format: ModelFormat::Gguf,
@@ -397,7 +397,7 @@ fn parse_sherpa_dir_entry(dir: &Path) -> anyhow::Result<ModelRegistryEntry> {
     let size = dir_size_bytes(dir);
 
     Ok(ModelRegistryEntry {
-        id: uuid::Uuid::now_v7().to_string(),
+        id: stable_id_for_path(dir),
         filename: dir_name,
         path: dir.to_path_buf(),
         format: ModelFormat::SherpaDir,
@@ -436,7 +436,7 @@ fn parse_safetensors_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     let backends = vec![BackendType::Candle]; // SafeTensors → Candle only
 
     Ok(ModelRegistryEntry {
-        id: uuid::Uuid::now_v7().to_string(),
+        id: stable_id_for_path(path),
         filename,
         path: path.to_path_buf(),
         format: ModelFormat::SafeTensors,
@@ -516,7 +516,7 @@ fn parse_onnx_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     };
 
     Ok(ModelRegistryEntry {
-        id: uuid::Uuid::now_v7().to_string(),
+        id: stable_id_for_path(path),
         filename,
         path: path.to_path_buf(),
         format: ModelFormat::Onnx,
@@ -636,7 +636,7 @@ fn parse_whisper_bin_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     };
 
     Ok(ModelRegistryEntry {
-        id: uuid::Uuid::now_v7().to_string(),
+        id: stable_id_for_path(path),
         filename,
         path: path.to_path_buf(),
         format: ModelFormat::Gguf, // Closest format marker for GGML
@@ -700,6 +700,23 @@ fn deduplicate_by_path(entries: &mut Vec<ModelRegistryEntry>) {
         let normalized = normalize_path(&entry.path);
         seen.insert(normalized)
     });
+}
+
+/// Build a stable UUIDv5 from a file path so the same file on disk
+/// always gets the same registry id across rescans, reboots, and
+/// rebuilds. Persisted slot assignments reference registry entries by
+/// id — if the id churned on every scan (which it did when discovery
+/// used `Uuid::now_v7()`), every restored assignment would be dead on
+/// arrival.
+///
+/// Uses [`normalize_path`] so symlink vs real-path, backslash vs
+/// forward-slash, and drive-letter case all collapse to the same name,
+/// which feeds into `Uuid::new_v5` with the URL namespace. Two scans of
+/// the same file produce byte-identical UUIDs. Renaming the file
+/// (correctly) yields a fresh UUID because the name is the identity.
+pub(crate) fn stable_id_for_path(path: &std::path::Path) -> String {
+    let name = normalize_path(path);
+    uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_URL, name.as_bytes()).to_string()
 }
 
 /// Normalize a path for deduplication on Windows.

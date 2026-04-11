@@ -90,15 +90,15 @@ impl ModelLoaderService {
             anyhow::anyhow!("Failed to register default slots: {e}")
         })?;
 
-        // Restore saved slot assignments
-        if let Err(e) = service.restore_assignments() {
-            tracing::warn!(error = %e, "Failed to restore model assignments (non-fatal)");
-        }
-
         // Initial model scan — populates the registry with every file
-        // discoverable under models_dir. Bundled auto-assign below
-        // matches bundled_path values against this registry, so scan
-        // must run first.
+        // discoverable under models_dir. This MUST run before
+        // restore_assignments so the restore path validates persisted
+        // model ids against the fresh registry, not the stale snapshot
+        // loaded from registry.json at Inner construction. scan_models
+        // generates new UUIDs each run (discover_models creates them);
+        // persisted assignments from a prior session are dead ids after
+        // a rescan, so restore must see the new registry to clear them
+        // and hand the slot back to auto_assign_bundled_slots below.
         match service.scan_models() {
             Ok(count) => {
                 tracing::info!(models = count.len(), "Initial model scan complete");
@@ -106,6 +106,14 @@ impl ModelLoaderService {
             Err(e) => {
                 tracing::warn!(error = %e, "Initial model scan failed (non-fatal)");
             }
+        }
+
+        // Restore saved slot assignments. Any persisted id that no
+        // longer resolves in the freshly-scanned registry is dropped
+        // (restore_assignments deletes the dead config entry) so the
+        // slot falls through to auto_assign_bundled_slots.
+        if let Err(e) = service.restore_assignments() {
+            tracing::warn!(error = %e, "Failed to restore model assignments (non-fatal)");
         }
 
         // Hydrate bundled slots against the scanned registry. This
