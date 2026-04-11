@@ -7,7 +7,7 @@
  */
 
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
-import type { AutoConfig, SlotId } from "../../types/models.types.js";
+import type { AutoConfig, HardwareTier, SlotId } from "../../types/models.types.js";
 import {
 	type AllocationMode,
 	DEFAULT_ESCALATION,
@@ -55,6 +55,14 @@ class WizardState {
 	 * (16GB)", "Floor (8GB)", "Floor — CPU Mode").
 	 */
 	selectedPresetName = $state<string | null>(null);
+
+	/**
+	 * Hardware tier of the currently-selected preset. Tracked alongside
+	 * `selectedPresetName` so the Models page brain-chooser can highlight
+	 * the active chip without having to reverse-map the display name back
+	 * into a tier.
+	 */
+	selectedTier = $state<HardwareTier | null>(null);
 
 	// ── Bulk Download State ─────────────────────────────
 	downloadQueue = $state<ModelRec[]>([]);
@@ -221,6 +229,8 @@ class WizardState {
 	/** Convert kernel AutoConfig to wizard ModelRec array.
 	 *  Rust serializes as snake_case — field names match Rust struct. */
 	setRecommendations(config: AutoConfig): void {
+		this.selectedTier = config.tier;
+		this.selectedPresetName = config.preset_name;
 		this.recommendations = config.recommendations.map((rec) => ({
 			name: rec.model_filename.replace(/\.gguf$/i, "").replace(/-/g, " "),
 			purpose: friendlyName(rec.slot_id),

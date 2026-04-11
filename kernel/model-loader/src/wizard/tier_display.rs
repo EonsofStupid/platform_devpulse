@@ -18,6 +18,8 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "lowercase")]
 pub enum TierRole {
+    /// Ultra tier — magenta, flagship / 40GB+
+    Ultra,
     /// Workstation tier — purple, top-of-line
     Workstation,
     /// Prosumer tier — cyan, brand primary
@@ -57,6 +59,12 @@ impl HardwareTier {
     #[must_use]
     pub fn display(&self) -> TierDisplay {
         match self {
+            Self::Ultra => TierDisplay {
+                name: "Flagship".into(),
+                description: "Qwen3-30B MoE brain — near-instant reasoning at 30B quality".into(),
+                role: TierRole::Ultra,
+                tooltip: "Your GPU has 40GB+ VRAM. You can run the Qwen3-30B-A3B Mixture-of-Experts brain: 30 billion total parameters but only ~3 billion active per token, so it runs as fast as a 4B while reasoning like a 30B.".into(),
+            },
             Self::High => TierDisplay {
                 name: "Workstation".into(),
                 description: "All models at full quality".into(),

@@ -14,7 +14,14 @@ export type {
 	SlotInfo,
 } from "$lib/sys/generated/bindings.js";
 
-export type HardwareTier = "High" | "JessePrimary" | "Mid" | "Floor" | "Minimal" | "CpuOnly";
+export type HardwareTier =
+	| "Ultra"
+	| "High"
+	| "JessePrimary"
+	| "Mid"
+	| "Floor"
+	| "Minimal"
+	| "CpuOnly";
 
 export type DevicePreference = "gpu" | "cpu" | "gpu_with_cpu_fallback" | "any";
 

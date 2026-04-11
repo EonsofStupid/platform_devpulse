@@ -100,6 +100,8 @@ $effect(() => {
 // by the config_for_tier command.
 function tierToArg(t: HardwareTier): string {
 	switch (t) {
+		case "Ultra":
+			return "ultra";
 		case "High":
 			return "high";
 		case "JessePrimary":

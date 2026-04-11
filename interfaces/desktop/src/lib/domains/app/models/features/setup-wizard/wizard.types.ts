@@ -142,6 +142,8 @@ export const ALLOCATION_MODES: AllocationMode[] = [
 
 export function tierToAllocation(tier: HardwareTier, vramTotalMb?: number): AllocationMode {
 	switch (tier) {
+		case "Ultra":
+			return "flagship";
 		case "High":
 			return "flagship";
 		case "JessePrimary":

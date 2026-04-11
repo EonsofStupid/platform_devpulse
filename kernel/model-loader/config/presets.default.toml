@@ -62,6 +62,63 @@
 #
 # ═══════════════════════════════════════════════════════════════
 
+# ── Preset 5: Ultra (40 GB+) — Qwen3-30B-A3B MoE brain ────────
+#
+# Top tier for users with 40+ GB of VRAM (RTX 5090, A6000, dual-GPU
+# setups). Qwen3-30B-A3B is a Mixture-of-Experts model — 30 B total
+# parameters but only ~3 B active per token, so inference speed is
+# close to a 4 B dense model while reasoning quality approaches a
+# 30 B dense model. Static load, no ActiveIdle needed.
+
+[[presets]]
+tier = "Ultra"
+preset_name = "Ultra (40GB+) — 30B MoE"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-30B-A3B-Instruct-GGUF"
+model_filename = "Qwen3-30B-A3B-Instruct-Q4_K_M.gguf"
+model_size_mb = 18500
+vram_estimate_mb = 20500
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q8_0.gguf"
+model_size_mb = 700
+vram_estimate_mb = 400
+device = "Gpu"
+
+# ── Preset 5: Ultra (40 GB+) — Qwen3-30B-A3B MoE brain ────────
+#
+# Top tier for users with 40+ GB of VRAM (RTX 5090, A6000, dual-GPU).
+# Qwen3-30B-A3B is Mixture-of-Experts — 30 B total parameters, ~3 B
+# active per token, so inference speed is close to a 4 B dense model
+# while reasoning quality approaches a 30 B dense model. Static load.
+
+[[presets]]
+tier = "Ultra"
+preset_name = "Ultra (40GB+) — 30B MoE"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-30B-A3B-Instruct-GGUF"
+model_filename = "Qwen3-30B-A3B-Instruct-Q4_K_M.gguf"
+model_size_mb = 18500
+vram_estimate_mb = 20500
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q8_0.gguf"
+model_size_mb = 700
+vram_estimate_mb = 400
+device = "Gpu"
+
 # ── Preset 4: High (24 GB+) — Static 14B brain ────────────────
 
 [[presets]]

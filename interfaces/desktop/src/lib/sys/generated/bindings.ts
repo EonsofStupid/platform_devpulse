@@ -2474,6 +2474,10 @@ tooltip: string }
  */
 export type TierRole = 
 /**
+ * Ultra tier — magenta, flagship / 40GB+
+ */
+"ultra" | 
+/**
  * Workstation tier — purple, top-of-line
  */
 "workstation" | 

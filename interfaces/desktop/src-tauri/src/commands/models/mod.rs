@@ -582,6 +582,7 @@ pub async fn config_for_tier(
     use devpulse_engine::platform::services::model_loader::HardwareTier;
 
     let parsed = match tier.as_str() {
+        "ultra" | "Ultra" => HardwareTier::Ultra,
         "high" | "High" => HardwareTier::High,
         "jesse_primary" | "jessePrimary" | "JessePrimary" => HardwareTier::JessePrimary,
         "mid" | "Mid" => HardwareTier::Mid,

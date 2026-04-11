@@ -25,6 +25,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum HardwareTier {
+    /// 40 GB+ VRAM — Preset 5 (Ultra). Static Qwen3-30B-A3B MoE brain.
+    Ultra,
     /// 24 GB+ VRAM — Preset 4 (High). Static, 14B+ brain.
     High,
     /// 16 GB VRAM — Preset 3 (Jesse Primary). ActiveIdle, 15B/4B swap.
@@ -100,6 +102,7 @@ pub struct SlotRecommendation {
 #[must_use]
 pub fn detect_tier(metrics: &HardwareMetrics) -> HardwareTier {
     match metrics.gpu_vram_total_mb {
+        Some(vram) if vram >= 40_000 => HardwareTier::Ultra,
         Some(vram) if vram >= 24_000 => HardwareTier::High,
         Some(vram) if vram >= 16_000 => HardwareTier::JessePrimary,
         Some(vram) if vram >= 12_000 => HardwareTier::Mid,
@@ -187,8 +190,16 @@ mod tests {
     }
 
     #[test]
+    fn tier_ultra() {
+        assert_eq!(detect_tier(&metrics_with_vram(Some(48_000))), HardwareTier::Ultra);
+        assert_eq!(detect_tier(&metrics_with_vram(Some(40_000))), HardwareTier::Ultra);
+    }
+
+    #[test]
     fn tier_high() {
         assert_eq!(detect_tier(&metrics_with_vram(Some(24_000))), HardwareTier::High);
+        // 32 GB still falls into High (under the 40 GB Ultra floor).
+        assert_eq!(detect_tier(&metrics_with_vram(Some(32_000))), HardwareTier::High);
     }
 
     #[test]
@@ -293,6 +304,7 @@ mod tests {
 impl std::fmt::Display for HardwareTier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::Ultra => write!(f, "Ultra (40GB+ VRAM)"),
             Self::High => write!(f, "High (24GB+ VRAM)"),
             Self::JessePrimary => write!(f, "Jesse Primary (16GB VRAM)"),
             Self::Mid => write!(f, "Mid (12GB VRAM)"),

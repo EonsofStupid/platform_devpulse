@@ -355,6 +355,7 @@ mod tests {
         let tiers: std::collections::HashSet<HardwareTier> =
             blueprints.iter().map(|bp| bp.tier).collect();
         for required in [
+            HardwareTier::Ultra,
             HardwareTier::High,
             HardwareTier::JessePrimary,
             HardwareTier::Mid,
