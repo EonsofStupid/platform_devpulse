@@ -72,8 +72,6 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 
 $effect(() => {
 	// Gate on FULL readiness: platform services AND models configured.
-	// If platform is ready but models aren't, the wizard phase takes over
-	// inside this overlay — keeping the gate closed until setup completes.
 	if (platformState.isFullyReady && !fading) {
 		fading = true;
 		setTimeout(() => {
@@ -82,11 +80,29 @@ $effect(() => {
 	}
 });
 
-async function openModelLoader(): Promise<void> {
-	const { goto } = await import("$app/navigation");
-	await goto("/model-loader");
-	fading = true;
-}
+// When the wizard phase kicks in (platform is ready but models
+// need setup), navigate to the route-based wizard exactly once
+// and dismiss this overlay immediately so the route UI gets the
+// clicks. The previous implementation triggered navigation from
+// inside a `{@const}` expression, which re-runs on every render
+// and fires `openModelLoader()` in a loop — and the overlay
+// container in wizard phase is `pointer-events-auto w-full
+// h-full` with no children, so it silently ate every click on
+// the route underneath. Result: you could never click anything
+// on the model-loader wizard.
+let wizardNavigated = $state(false);
+$effect(() => {
+	if (isWizardPhase && !wizardNavigated) {
+		wizardNavigated = true;
+		void (async () => {
+			const { goto } = await import("$app/navigation");
+			await goto("/model-loader/models");
+			// Immediately unmount — the route owns the wizard UI
+			// from here on, and BootOverlay has nothing left to show.
+			visible = false;
+		})();
+	}
+});
 </script>
 
 {#if visible}
@@ -199,10 +215,12 @@ async function openModelLoader(): Promise<void> {
 			{/if}
 		{/if}
 
-		<!-- Model Setup Wizard Phase — auto-navigate to Clyffy welcome -->
-		{#if isWizardPhase}
-			{@const _nav = openModelLoader()}
-		{/if}
+		<!--
+			Model Setup Wizard Phase — navigation happens in the
+			`$effect` at the top of the script block. Nothing renders
+			here because the route-based wizard at /model-loader/models
+			owns the wizard UI and this overlay is about to unmount.
+		-->
 	</div>
 </div>
 {/if}
