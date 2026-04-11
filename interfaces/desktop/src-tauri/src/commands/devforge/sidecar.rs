@@ -73,6 +73,8 @@ impl RehManager {
             .arg("--connection-token")
             .arg(&token)
             .arg("--accept-server-license-terms")
+            .arg("--user-data-dir")
+            .arg(&config.user_data_dir)
             .arg("--folder-uri")
             .arg(folder_uri(&config.workspace_path));
 

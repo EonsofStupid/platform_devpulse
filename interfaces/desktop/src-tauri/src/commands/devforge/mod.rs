@@ -15,13 +15,18 @@
 //! On Tauri `Exit`, `lib.rs` takes the manager and calls `stop` so we
 //! don't leak Node processes on shutdown.
 
+pub mod bootstrap;
+pub mod paths;
 pub mod sidecar;
+pub mod state_file;
 pub mod types;
 
 use crate::state::PlatformState;
 use sidecar::RehManager;
+use state_file::DevforgeState;
+use std::path::PathBuf;
 use tauri::State;
-use types::{RehConfig, RehStatus};
+use types::{DevforgeBootstrapStatus, RehConfig, RehStatus};
 
 /// Spawn the REH web server with the supplied configuration.
 ///
@@ -112,4 +117,103 @@ pub async fn get_connection_url(state: State<'_, PlatformState>) -> Result<Strin
         .as_ref()
         .map(RehManager::connection_url)
         .ok_or_else(|| "REH server is not running".to_string())
+}
+
+/// Unified DevForge status for the frontend — combines install state,
+/// runtime state, and persisted preferences.
+///
+/// Frontends that mount *after* the `devforge://ready` event has fired
+/// call this to catch up, instead of relying on re-emission.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_get_status(
+    state: State<'_, PlatformState>,
+) -> Result<DevforgeBootstrapStatus, String> {
+    let paths = &state.devforge_paths;
+    let installed = paths.resolve_reh_server_dir().is_some();
+    let persisted = DevforgeState::load(&paths.state_file());
+
+    let guard = state.reh.read().await;
+    let (running, url, port, workspace) = if let Some(mgr) = guard.as_ref() {
+        let s = mgr.status();
+        (s.running, s.url, s.port, persisted.last_workspace.clone())
+    } else {
+        (false, None, None, persisted.last_workspace.clone())
+    };
+
+    Ok(DevforgeBootstrapStatus {
+        installed,
+        running,
+        url,
+        port,
+        workspace,
+        reh_version: persisted.reh_version,
+    })
+}
+
+/// Enumerate workspace directories under `devforge/workspaces/`.
+///
+/// # Errors
+/// Returns an error string if the workspaces directory cannot be read.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_list_workspaces(
+    state: State<'_, PlatformState>,
+) -> Result<Vec<PathBuf>, String> {
+    state
+        .devforge_paths
+        .list_workspaces()
+        .map_err(|e| format!("Failed to list workspaces: {e:#}"))
+}
+
+/// Create a new empty workspace directory under `devforge/workspaces/`.
+///
+/// The `name` is used as the directory name verbatim — callers must pass
+/// a filesystem-safe string. Returns the absolute path to the new folder.
+///
+/// # Errors
+/// - Name is empty or contains path separators
+/// - Directory already exists
+/// - Filesystem error during creation
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_create_workspace(
+    state: State<'_, PlatformState>,
+    name: String,
+) -> Result<PathBuf, String> {
+    if name.is_empty() || name.contains('/') || name.contains('\\') {
+        return Err(format!("Invalid workspace name: {name:?}"));
+    }
+    let path = state.devforge_paths.workspaces_root().join(&name);
+    if path.exists() {
+        return Err(format!("Workspace already exists: {}", path.display()));
+    }
+    std::fs::create_dir_all(&path)
+        .map_err(|e| format!("Failed to create workspace {}: {e}", path.display()))?;
+    Ok(path)
+}
+
+/// Toggle the `fresh_instance_on_open` preference in `state.json`.
+///
+/// When enabled, DevForge ignores the last-used workspace on startup and
+/// always opens the default (empty) one.
+///
+/// # Errors
+/// Returns an error if `state.json` cannot be read or written.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_set_fresh_instance(
+    state: State<'_, PlatformState>,
+    enabled: bool,
+) -> Result<(), String> {
+    let path = state.devforge_paths.state_file();
+    let mut persisted = DevforgeState::load(&path);
+    persisted.fresh_instance_on_open = enabled;
+    persisted
+        .save(&path)
+        .map_err(|e| format!("Failed to save state.json: {e:#}"))
 }

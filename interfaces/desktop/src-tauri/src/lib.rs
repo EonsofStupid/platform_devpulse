@@ -56,6 +56,10 @@ pub fn run() {
         commands::devforge::stop_reh_server,
         commands::devforge::get_reh_status,
         commands::devforge::get_connection_url,
+        commands::devforge::devforge_get_status,
+        commands::devforge::devforge_list_workspaces,
+        commands::devforge::devforge_create_workspace,
+        commands::devforge::devforge_set_fresh_instance,
         commands::devpulse::fetch_dashboard,
         commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
@@ -163,11 +167,23 @@ pub fn run() {
             tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
 
             // ── Platform state (empty until boot completes) ───────
+            let devforge_paths = commands::devforge::paths::DevforgePaths::from_data_dir(&data_dir);
             app.manage(PlatformState {
                 platform: RwLock::new(None),
                 reh: RwLock::new(None),
+                devforge_paths,
             });
             app.manage(BootStateTracker::new());
+
+            // ── DevForge preload ──────────────────────────────────
+            // Fire-and-forget: starts the REH web server in the background
+            // so "click DevPulse → click DevForge" has zero spawn latency.
+            // Status is delivered to the frontend via the `devforge://ready`
+            // event (and pullable via `devforge_get_status`).
+            tauri::async_runtime::spawn(commands::devforge::bootstrap::run(
+                app.handle().clone(),
+                data_dir.clone(),
+            ));
 
             // ── Boot strategy: blocking (dev) vs async (release) ──
             //

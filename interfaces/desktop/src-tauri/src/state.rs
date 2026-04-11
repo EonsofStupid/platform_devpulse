@@ -5,6 +5,7 @@
 //! - `BootStateTracker`: accumulates boot events so the frontend can
 //!   catch up even if it mounts after boot finishes.
 
+use crate::commands::devforge::paths::DevforgePaths;
 use crate::commands::devforge::sidecar::RehManager;
 use devpulse_engine::platform::{InitEvent, SystemHealth};
 use serde::Serialize;
@@ -20,14 +21,20 @@ use tokio::sync::RwLock;
 /// Commands must handle the `None` case gracefully.
 ///
 /// `reh` holds the DevForge REH web server manager. It is `None` until
-/// `spawn_reh_server` is invoked and is cleared again by `stop_reh_server`
-/// or by the app-exit handler in `lib.rs`.
+/// bootstrap (or an explicit `spawn_reh_server` call) succeeds, and is
+/// cleared again by `stop_reh_server` or the app-exit handler in `lib.rs`.
+///
+/// `devforge_paths` is computed once at startup from the resolved data
+/// directory and shared immutably — commands consult it for canonical
+/// workspace / user-data / install paths.
 pub struct PlatformState {
     /// Platform engine (owns all services, bridges to clyffy kernel).
     /// None while boot task is running, Some after completion.
     pub platform: RwLock<Option<Arc<Platform>>>,
     /// DevForge REH web server lifecycle manager.
     pub reh: RwLock<Option<RehManager>>,
+    /// DevForge directory layout — immutable, safe to read from anywhere.
+    pub devforge_paths: DevforgePaths,
 }
 
 /// Boot phase — serialized to frontend as `PascalCase`.
