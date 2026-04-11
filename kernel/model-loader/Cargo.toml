@@ -81,5 +81,8 @@ rustfft = { version = "6.2", optional = true }
 # GPU metrics (optional)
 nvml-wrapper = { version = "0.10", optional = true }
 
+[dev-dependencies]
+tokio = { version = "1", features = ["time", "macros", "rt", "rt-multi-thread"] }
+
 [lints]
 workspace = true

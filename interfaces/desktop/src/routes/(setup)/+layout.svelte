@@ -16,8 +16,9 @@ let { children } = $props();
 	   Defines the --wiz-* token layer the wizard steps consume.
 	   These were previously referenced but never defined anywhere, so
 	   every step rendered on flat black. Each token maps to a
-	   ColdLight design token; owning them here keeps the wizard
-	   overrideable without polluting the global token layer.
+	   ColdLight design token (fluid `--space-*` + `--radius-*` +
+	   `--shadow-z*` where one exists) so the wizard scales with the
+	   rest of the platform instead of freezing at a single size.
 
 	   Role colours follow the owner's 10 Commandments:
 	   - brain    → purple
@@ -32,11 +33,13 @@ let { children } = $props();
 		--wiz-role-encoder: var(--brand-blue, oklch(0.7 0.18 240));
 		--wiz-role-voice: var(--brand-coral, oklch(0.72 0.18 30));
 
-		/* Role glows — wider, softer drop-shadows used on hover */
-		--wiz-glow-purple: 0 0 1.5rem oklch(0.65 0.2 300 / 0.35);
-		--wiz-glow-green: 0 0 1.5rem oklch(0.75 0.2 145 / 0.35);
-		--wiz-glow-cyan: 0 0 1.5rem oklch(0.75 0.18 200 / 0.35);
-		--wiz-glow-ember: 0 0 1.5rem oklch(0.72 0.18 30 / 0.35);
+		/* Role glows — wider, softer drop-shadows used on hover. Radius
+		   uses the fluid --space-24 token so the glow scales with the
+		   same clamp() range as everything else. */
+		--wiz-glow-purple: 0 0 var(--space-24) oklch(0.65 0.2 300 / 0.35);
+		--wiz-glow-green: 0 0 var(--space-24) oklch(0.75 0.2 145 / 0.35);
+		--wiz-glow-cyan: 0 0 var(--space-24) oklch(0.75 0.18 200 / 0.35);
+		--wiz-glow-ember: 0 0 var(--space-24) oklch(0.72 0.18 30 / 0.35);
 
 		/* Role fills — semi-transparent tints for full-card backgrounds */
 		--wiz-fill-purple: oklch(0.65 0.2 300 / 0.08);
@@ -87,18 +90,18 @@ let { children } = $props();
 		--wiz-text-xs: 0.75rem;
 		--wiz-text-sm: 0.875rem;
 
-		/* Radii */
-		--wiz-radius-xs: 0.25rem;
-		--wiz-radius-sm: 0.375rem;
-		--wiz-radius-md: 0.5rem;
-		--wiz-radius-lg: 0.75rem;
-		--wiz-radius-xl: 1rem;
-		--wiz-radius-full: 624.9375rem;
+		/* Radii — map onto the fluid --radius-* token family */
+		--wiz-radius-xs: var(--radius-xs);
+		--wiz-radius-sm: var(--radius-sm);
+		--wiz-radius-md: var(--radius-md);
+		--wiz-radius-lg: var(--radius-lg);
+		--wiz-radius-xl: var(--radius-xl);
+		--wiz-radius-full: var(--radius-full);
 
-		/* Shadows */
-		--wiz-shadow-md: 0 0.25rem 0.75rem oklch(0 0 0 / 0.3);
-		--wiz-shadow-lg: 0 0.5rem 1.5rem oklch(0 0 0 / 0.4);
-		--wiz-shadow-xl: 0 1rem 3rem oklch(0 0 0 / 0.5);
+		/* Shadows — reuse the fluid --shadow-z* elevation scale */
+		--wiz-shadow-md: var(--shadow-z2);
+		--wiz-shadow-lg: var(--shadow-z3);
+		--wiz-shadow-xl: var(--shadow-z4);
 
 		/* Motion */
 		--wiz-duration-fast: var(--motion-duration-fast, 160ms);

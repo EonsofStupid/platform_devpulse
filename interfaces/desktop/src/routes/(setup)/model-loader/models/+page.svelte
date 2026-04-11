@@ -551,10 +551,10 @@ const canContinue = $derived(
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1.25rem;
+		gap: var(--space-20);
 		width: 100%;
 		max-width: 44rem;
-		padding: 1.5rem 1rem 3rem;
+		padding: var(--space-24) var(--space-16) var(--space-48);
 		margin: 0 auto;
 	}
 
@@ -562,7 +562,7 @@ const canContinue = $derived(
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		width: 100%;
 	}
 
@@ -570,7 +570,7 @@ const canContinue = $derived(
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.375rem;
+		gap: var(--space-6);
 	}
 
 	:global(.subtitle) {
@@ -580,15 +580,15 @@ const canContinue = $derived(
 	.section-label-row {
 		display: flex;
 		align-items: center;
-		gap: 0.35rem;
+		gap: var(--space-6);
 	}
 
 	.loading-state {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.75rem;
-		padding: 3rem 0;
+		gap: var(--space-12);
+		padding: var(--space-48) 0;
 	}
 	.loading-mascot {
 		width: 5rem;
@@ -600,37 +600,37 @@ const canContinue = $derived(
 	.brain-row {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		width: 100%;
-		padding: 0.875rem 1rem;
+		padding: var(--space-14) var(--space-16);
 		border-radius: var(--wiz-radius-lg);
 		background: linear-gradient(
 			135deg,
 			var(--wiz-fill-purple),
 			var(--wiz-card) 60%
 		);
-		border: 0.0625rem solid var(--wiz-border);
+		border: var(--space-1) solid var(--wiz-border);
 		box-shadow: var(--wiz-shadow-md);
 	}
 	.brain-row-head {
 		display: flex;
 		align-items: center;
-		gap: 0.35rem;
+		gap: var(--space-6);
 	}
 	.brain-chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem;
+		gap: var(--space-8);
 	}
 	.brain-chip {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
-		padding: 0.5rem 0.75rem;
+		gap: var(--space-4);
+		padding: var(--space-8) var(--space-12);
 		border-radius: var(--wiz-radius-md);
 		background: var(--wiz-inset);
-		border: 0.0625rem solid var(--wiz-border);
+		border: var(--space-1) solid var(--wiz-border);
 		color: var(--wiz-text);
 		cursor: pointer;
 		transition:
@@ -643,7 +643,7 @@ const canContinue = $derived(
 	.brain-chip:hover:not(:disabled) {
 		border-color: var(--wiz-role-brain);
 		box-shadow: var(--wiz-glow-purple);
-		transform: translateY(-0.0625rem);
+		transform: translateY(calc(-1 * var(--space-1)));
 	}
 	.brain-chip.active {
 		background: linear-gradient(
@@ -664,7 +664,7 @@ const canContinue = $derived(
 	.brain-chip-head {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
+		gap: var(--space-6);
 		font-size: var(--wiz-text-sm);
 		font-weight: 700;
 	}
@@ -681,15 +681,15 @@ const canContinue = $derived(
 	.brain-chip-meta {
 		display: flex;
 		align-items: center;
-		gap: 0.3rem;
+		gap: var(--space-5);
 		font-size: 0.7rem;
 		color: var(--wiz-text-muted);
 		font-variant-numeric: tabular-nums;
 	}
 	.brain-chip-spinner {
 		position: absolute;
-		top: 0.375rem;
-		right: 0.375rem;
+		top: var(--space-6);
+		right: var(--space-6);
 		color: var(--wiz-role-brain);
 	}
 	.active-preset {
@@ -700,7 +700,7 @@ const canContinue = $derived(
 	.section {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		width: 100%;
 	}
 
@@ -708,17 +708,17 @@ const canContinue = $derived(
 	.rec-list {
 		display: flex;
 		flex-direction: column;
-		gap: 0.625rem;
+		gap: var(--space-10);
 	}
 	.rec-card {
 		display: flex;
 		align-items: center;
-		gap: 0.875rem;
-		padding: 0.875rem 1rem;
+		gap: var(--space-14);
+		padding: var(--space-14) var(--space-16);
 		border-radius: var(--wiz-radius-lg);
 		background: var(--wiz-card);
-		border: 0.0625rem solid var(--wiz-border);
-		border-left: 0.25rem solid var(--role-accent, var(--wiz-border-strong));
+		border: var(--space-1) solid var(--wiz-border);
+		border-left: var(--space-4) solid var(--role-accent, var(--wiz-border-strong));
 		transition:
 			box-shadow var(--wiz-duration-fast),
 			border-color var(--wiz-duration-fast),
@@ -770,19 +770,19 @@ const canContinue = $derived(
 	.rec-icon {
 		flex-shrink: 0;
 		color: var(--role-accent, var(--wiz-text-muted));
-		filter: drop-shadow(0 0 0.375rem var(--role-accent, transparent));
+		filter: drop-shadow(0 0 var(--space-6) var(--role-accent, transparent));
 	}
 	.rec-info {
 		display: flex;
 		flex-direction: column;
-		gap: 0.15rem;
+		gap: var(--space-2);
 		flex: 1;
 		min-width: 0;
 	}
 	.rec-name-row {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
+		gap: var(--space-6);
 	}
 	.rec-name {
 		font-size: 0.9375rem;
@@ -806,17 +806,17 @@ const canContinue = $derived(
 	.download-queue {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		width: 100%;
 	}
 	.dl-row {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 0.75rem;
+		gap: var(--space-8);
+		padding: var(--space-8) var(--space-12);
 		border-radius: var(--wiz-radius-md);
 		background: var(--wiz-card);
-		border: 0.0625rem solid var(--wiz-border);
+		border: var(--space-1) solid var(--wiz-border);
 	}
 	.dl-row.active {
 		border-color: var(--wiz-cyan);
@@ -853,7 +853,7 @@ const canContinue = $derived(
 	.dl-done {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.25rem;
+		gap: var(--space-4);
 		color: var(--wiz-green);
 		font-size: var(--wiz-text-xs);
 		font-weight: 600;
@@ -868,13 +868,13 @@ const canContinue = $derived(
 	.success-banner {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		justify-content: center;
 		width: 100%;
-		padding: 0.875rem;
+		padding: var(--space-14);
 		border-radius: var(--wiz-radius-lg);
 		background: var(--wiz-fill-green);
-		border: 0.0625rem solid var(--wiz-green);
+		border: var(--space-1) solid var(--wiz-green);
 		color: var(--wiz-green);
 		font-size: var(--wiz-text-sm);
 		font-weight: 700;
@@ -882,27 +882,27 @@ const canContinue = $derived(
 	.error-banner {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		width: 100%;
-		padding: 0.875rem;
+		padding: var(--space-14);
 		border-radius: var(--wiz-radius-lg);
 		background: var(--wiz-fill-ember);
-		border: 0.0625rem solid var(--wiz-ember-600);
+		border: var(--space-1) solid var(--wiz-ember-600);
 	}
 	.error-actions {
 		display: flex;
-		gap: 0.5rem;
+		gap: var(--space-8);
 	}
 	:global(.error-card) {
-		padding: 1rem;
+		padding: var(--space-16);
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--space-8);
 	}
 
 	.escape {
 		display: flex;
-		gap: 1rem;
+		gap: var(--space-16);
 	}
 	.nav {
 		display: flex;
@@ -920,7 +920,7 @@ const canContinue = $derived(
 		position: fixed;
 		inset: 0;
 		background: var(--wiz-overlay);
-		backdrop-filter: blur(0.5rem);
+		backdrop-filter: blur(var(--space-8));
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -939,11 +939,11 @@ const canContinue = $derived(
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.75rem;
-		padding: 2rem 2.5rem;
+		gap: var(--space-12);
+		padding: var(--space-32) var(--space-40);
 		border-radius: var(--wiz-radius-xl);
 		background: var(--wiz-card-raised);
-		border: 0.0625rem solid var(--wiz-border-strong);
+		border: var(--space-1) solid var(--wiz-border-strong);
 		box-shadow: var(--wiz-shadow-xl);
 		max-width: 32rem;
 		width: 90vw;
@@ -956,14 +956,14 @@ const canContinue = $derived(
 	.overlay-queue {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--space-8);
 		width: 100%;
 		margin-top: 0.75rem;
 	}
 	.overlay-dl {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
+		gap: var(--space-4);
 	}
 	.overlay-dl-name {
 		font-size: var(--wiz-text-xs);
