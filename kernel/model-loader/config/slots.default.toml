@@ -53,6 +53,11 @@
 # ═══════════════════════════════════════════════════════════════
 
 # ── 1. chat.brain — Primary reasoning LLM ─────────────────────
+#
+# Bundled with a small Qwen3-0.6B GGUF so a portable .userdata ships
+# with a working brain out of the box. Users swap to a larger model
+# through the devtool — any existing assignment wins over the bundled
+# default per `auto_assign_bundled_slots` semantics.
 
 [[slots]]
 id = "chat.brain"
@@ -62,9 +67,15 @@ preferred_device = "Gpu"
 loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
-source_tier = "UserManaged"
+runtime = "LlamaCpp"
+default_model = "Qwen3-0.6B-Q4_K_M.gguf"
+source_tier = { Bundled = { bundled_path = "chat/Qwen3-0.6B-Q4_K_M.gguf" } }
 
 # ── 2. minion.shared — Shared helper brain ────────────────────
+#
+# Bundled with the same Qwen3-0.6B. The BackendPool ref-counts the
+# underlying weights so chat.brain and minion.shared share one
+# loaded copy rather than doubling VRAM.
 
 [[slots]]
 id = "minion.shared"
@@ -74,7 +85,9 @@ preferred_device = "GpuWithCpuFallback"
 loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
-source_tier = "UserManaged"
+runtime = "LlamaCpp"
+default_model = "Qwen3-0.6B-Q4_K_M.gguf"
+source_tier = { Bundled = { bundled_path = "chat/Qwen3-0.6B-Q4_K_M.gguf" } }
 
 # ── 3. minion.escalation — Deep reasoning escalation ──────────
 
@@ -204,14 +217,11 @@ builtin = true
 
 # ── 9. rag.embedder — Primary text encoder ──────────────────
 #
-# Default: Qwen3-Embedding-0.6B. Upgradeable through the devtool to
-# any compatible BERT-family or Qwen embedding model. Used by the
-# vector store adapter + search filter.
-#
-# `default_model` points at the filename the auto-configure pipeline
-# will place under `{data_dir}/models/rag/` on first boot. The
-# pipeline writes the file there and the discovery pass picks it up
-# — no manual symlink needed if the user accepts the auto-download.
+# Seed suggestion: nomic-embed-text-v1.5 GGUF, bundled in the
+# portable .userdata so the search path has a working default on
+# first boot. The devtool swaps this to any Qwen/BERT-family model
+# the user prefers — bundled is a suggestion, the user override
+# always wins via `auto_assign_bundled_slots` semantics.
 
 [[slots]]
 id = "rag.embedder"
@@ -221,16 +231,17 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
-runtime = "Ort"
-default_model = "qwen3-embedding-0.6b.safetensors"
-source_tier = "UserManaged"
+runtime = "LlamaCpp"
+default_model = "nomic-embed-text-v1.5.Q8_0.gguf"
+source_tier = { Bundled = { bundled_path = "rag/nomic-embed-text-v1.5.Q8_0.gguf" } }
 builtin = true
 
 # ── 10. rag.reranker — Search result filter ──────────────────
 #
-# Cross-encoder that refines vector search results. Default:
-# Qwen3-Reranker-0.6B. Devtool can swap. Lives on CPU because
-# reranking is a burst workload.
+# Cross-encoder that refines vector search results. No file ships
+# in the portable .userdata yet — the slot stays UserManaged so the
+# devtool prompts the user to pick one. No `default_model` hint
+# until a real file lands under `models/rag/`.
 
 [[slots]]
 id = "rag.reranker"
@@ -240,7 +251,5 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "on_demand"
 lane = "cpu"
-runtime = "Ort"
-default_model = "qwen3-reranker-0.6b.safetensors"
 source_tier = "UserManaged"
 builtin = true

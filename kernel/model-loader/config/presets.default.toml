@@ -216,9 +216,9 @@ device = "Cpu"
 
 [[common.slots]]
 slot_id = "rag.embedder"
-model_repo_id = "Qwen/Qwen3-Embedding-0.6B"
-model_filename = "model.safetensors"
-model_size_mb = 420
+model_repo_id = "nomic-ai/nomic-embed-text-v1.5-GGUF"
+model_filename = "nomic-embed-text-v1.5.Q8_0.gguf"
+model_size_mb = 140
 vram_estimate_mb = 0
 device = "Cpu"
 
