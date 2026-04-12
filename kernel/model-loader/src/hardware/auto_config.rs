@@ -250,10 +250,10 @@ mod tests {
 
         assert_eq!(config.tier, HardwareTier::Floor);
         assert_eq!(config.preset_name, "Floor (8GB)");
-        // 2 tier-specific (chat.brain, minion.shared) + 5 common
-        // (rag.embedder, rag.reranker, vision.embedder, voice.stt, voice.tts)
-        // = 7 total.
-        assert_eq!(config.recommendations.len(), 7);
+        // 2 tier-specific (chat.brain, minion.shared) + 6 common
+        // (rag.embedder, rag.reranker, vision.embedder, voice.stt,
+        // voice.tts, voice.wake) = 8 total.
+        assert_eq!(config.recommendations.len(), 8);
 
         let slots: Vec<&str> = config.recommendations.iter().map(|r| r.slot_id.as_str()).collect();
         assert!(slots.contains(&"chat.brain"));
@@ -262,6 +262,7 @@ mod tests {
         assert!(slots.contains(&"rag.reranker"));
         assert!(slots.contains(&"vision.embedder"));
         assert!(slots.contains(&"voice.stt"));
+        assert!(slots.contains(&"voice.wake"));
         assert!(slots.contains(&"voice.tts"));
     }
 

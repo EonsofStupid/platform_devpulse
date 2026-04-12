@@ -8,6 +8,7 @@ use crate::backends::bridge::InferenceHandle;
 use crate::backends::router::select_backend;
 use crate::backends::voice_pool::VoicePool;
 use crate::backends::BackendPool;
+use crate::assistant::{AssistantConfig, KeywordActionEntry, VoiceCloneEntry};
 use crate::models::download::DownloadManager;
 use crate::models::registry::BackendType;
 use crate::models::secrets::Secrets;
@@ -43,6 +44,17 @@ pub struct ModelLoaderService {
     /// `{models_dir}/../secrets.toml` and mirrored into the download
     /// manager on every mutation.
     secrets: Secrets,
+    /// Assistant configuration — identity, wake phrase, voice brain
+    /// toggle, TTS voice profile, custom voice clones, keyword actions,
+    /// window idle behaviour, partial-offload hints. Persisted to
+    /// `{userdata_dir}/config/assistant.toml`. Mutated via the
+    /// `set_assistant_*` / `add_keyword_action` / `register_voice_clone`
+    /// methods below, which all call `AssistantConfig::save` on change.
+    assistant: AssistantConfig,
+    /// Directory where `assistant.toml` (and other user overrides)
+    /// live. Derived from `models_dir.parent()` so that a hand-off to
+    /// the same `data_dir` path the boot pipeline uses stays implicit.
+    userdata_dir: PathBuf,
     /// slot_id → InferenceHandle (cloned from pool)
     slot_handles: HashMap<String, InferenceHandle>,
     /// Tracks slots mid-swap to block inference during transitions.
@@ -100,6 +112,24 @@ impl ModelLoaderService {
         });
         downloads.set_hf_token(secrets.hf_token().map(String::from));
 
+        // `assistant.toml` lives under `{userdata_dir}/config/`. The
+        // models directory sits inside the same userdata tree — we
+        // derive the userdata root by walking one level up. First
+        // launch is valid state: `AssistantConfig::load` silently
+        // falls back to the embedded default when no override exists.
+        let userdata_dir = models_dir
+            .parent()
+            .map(std::path::Path::to_path_buf)
+            .unwrap_or_else(|| models_dir.clone());
+        let assistant = AssistantConfig::load(&userdata_dir).unwrap_or_else(|e| {
+            tracing::warn!(
+                target: "assistant",
+                error = %e,
+                "Failed to load assistant config — using embedded defaults"
+            );
+            AssistantConfig::load_default().unwrap_or_default()
+        });
+
         Ok(Self {
             config,
             events,
@@ -112,6 +142,8 @@ impl ModelLoaderService {
             voice_pool: VoicePool::new(),
             downloads,
             secrets,
+            assistant,
+            userdata_dir,
             slot_handles: HashMap::new(),
             swap_guard: SwapGuard::new(),
             presets,
@@ -505,6 +537,37 @@ impl ModelLoaderService {
             }
         };
 
+        // Resolve `llama_cpp_ngl` partial-offload hint.
+        //
+        // Priority order:
+        //   1. Slot-local `extensions.llama_cpp_ngl` — if the preset
+        //      TOML assigned this slot an explicit layer count, that
+        //      wins. Jesse Primary's `chat.brain` uses this path to
+        //      pin 50 GPU layers for the 30B-A3B partial-offload.
+        //   2. Assistant config `offload.brain_ngl` — if the slot is
+        //      `chat.brain` and no slot-level value is set, the user's
+        //      Voice Lab slider feeds here. Default `50`.
+        //   3. `None` — whole-model load (`ngl = -1` in llama.cpp).
+        //
+        // `-1` is the "all layers" sentinel on both sides. Negative
+        // values map to `None` so the backend sees "no hint, load
+        // everything on the target device".
+        let gpu_layers: Option<u32> = {
+            let slot_hint = slot
+                .extensions
+                .get("llama_cpp_ngl")
+                .and_then(|s| s.parse::<i32>().ok());
+            let assistant_hint = if slot_id == "chat.brain" {
+                Some(self.assistant.offload.brain_ngl)
+            } else {
+                None
+            };
+            match slot_hint.or(assistant_hint) {
+                Some(n) if n >= 0 => Some(n as u32),
+                _ => None,
+            }
+        };
+
         // Emit loading started
         self.slot_statuses.insert(
             slot_id.to_string(),
@@ -524,7 +587,7 @@ impl ModelLoaderService {
         let params = LoadParams {
             device: device_str,
             context_length: entry.context_length,
-            gpu_layers: None,
+            gpu_layers,
             auto_prime: false,
         };
 
@@ -1224,6 +1287,174 @@ impl ModelLoaderService {
     /// Clear the stored HF token. Shortcut for `set_hf_token(None)`.
     pub fn clear_hf_token(&mut self) -> Result<(), LoaderError> {
         self.set_hf_token(None)
+    }
+
+    /// Return the last `n` characters of the stored HF token for the
+    /// devtool "masked pill" display. Never returns more than what is
+    /// requested — the full token never leaves the secrets store. If
+    /// no token is stored, returns `None`.
+    ///
+    /// The full token itself stays on disk; this helper produces a
+    /// display suffix like `"xxxxx"` so the UI can render
+    /// `"••••••••hf_xxxxx"` without the plaintext ever landing in
+    /// frontend state.
+    #[must_use]
+    pub fn hf_token_suffix(&self, n: usize) -> Option<String> {
+        self.secrets.hf_token().map(|t| {
+            let chars: Vec<char> = t.chars().collect();
+            let start = chars.len().saturating_sub(n);
+            chars[start..].iter().collect()
+        })
+    }
+
+    // ── Assistant Config (name, wake, voice brain, TTS, keywords) ──
+
+    /// Return a clone of the current assistant configuration. The
+    /// Voice Lab panel in the setup wizard calls this once on mount
+    /// and re-reads it after every mutation so the UI stays in sync
+    /// with the persisted state on disk.
+    #[must_use]
+    pub fn get_assistant_config(&self) -> AssistantConfig {
+        self.assistant.clone()
+    }
+
+    /// Rename the assistant. New name persists immediately.
+    pub fn set_assistant_name(&mut self, name: String) -> Result<(), LoaderError> {
+        self.assistant
+            .set_name(&self.userdata_dir, name)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist assistant name: {e}"),
+            })
+    }
+
+    /// Replace the wake phrase. Takes effect on the next KWS worker
+    /// reload — the sherpa-onnx open-vocabulary model does not need
+    /// retraining.
+    pub fn set_wake_phrase(&mut self, phrase: String) -> Result<(), LoaderError> {
+        self.assistant
+            .set_wake_phrase(&self.userdata_dir, phrase)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist wake phrase: {e}"),
+            })
+    }
+
+    /// Toggle 24/7 wake detection.
+    pub fn set_wake_enabled(&mut self, enabled: bool) -> Result<(), LoaderError> {
+        self.assistant
+            .set_wake_enabled(&self.userdata_dir, enabled)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist wake enabled flag: {e}"),
+            })
+    }
+
+    /// Toggle the 24/7 Moshi voice brain. When `false`, voice falls
+    /// back to the cascaded STT -> LLM -> TTS path.
+    pub fn set_voice_brain_24_7(&mut self, enabled: bool) -> Result<(), LoaderError> {
+        self.assistant
+            .set_voice_brain_24_7(&self.userdata_dir, enabled)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist voice brain 24/7 flag: {e}"),
+            })
+    }
+
+    /// Replace the TTS voice profile. Accepts `kokoro:<id>` or
+    /// `custom:<clone_name>`. Validation happens at speech-synthesis
+    /// time inside the voice pool.
+    pub fn set_voice_profile(&mut self, profile: String) -> Result<(), LoaderError> {
+        self.assistant
+            .set_voice_profile(&self.userdata_dir, profile)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist voice profile: {e}"),
+            })
+    }
+
+    /// Register a new custom voice clone. The UI calls this after a
+    /// successful MP3 upload. Duplicate names replace the existing
+    /// entry in place.
+    pub fn register_voice_clone(
+        &mut self,
+        entry: VoiceCloneEntry,
+    ) -> Result<(), LoaderError> {
+        self.assistant
+            .register_voice_clone(&self.userdata_dir, entry)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to register voice clone: {e}"),
+            })
+    }
+
+    /// Remove a registered voice clone by name.
+    pub fn remove_voice_clone(&mut self, name: &str) -> Result<(), LoaderError> {
+        self.assistant
+            .remove_voice_clone(&self.userdata_dir, name)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to remove voice clone: {e}"),
+            })
+    }
+
+    /// Add or replace a keyword action. Duplicates match on `phrase`.
+    pub fn add_keyword_action(
+        &mut self,
+        entry: KeywordActionEntry,
+    ) -> Result<(), LoaderError> {
+        self.assistant
+            .add_keyword_action(&self.userdata_dir, entry)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist keyword action: {e}"),
+            })
+    }
+
+    /// Remove a keyword action by phrase.
+    pub fn remove_keyword_action(&mut self, phrase: &str) -> Result<(), LoaderError> {
+        self.assistant
+            .remove_keyword_action(&self.userdata_dir, phrase)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to remove keyword action: {e}"),
+            })
+    }
+
+    /// Replace an existing keyword action in place. Silent no-op
+    /// when `phrase` does not match any stored entry.
+    pub fn update_keyword_action(
+        &mut self,
+        phrase: &str,
+        new_entry: KeywordActionEntry,
+    ) -> Result<(), LoaderError> {
+        self.assistant
+            .update_keyword_action(&self.userdata_dir, phrase, new_entry)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to update keyword action: {e}"),
+            })
+    }
+
+    /// Replace the window idle timeout (seconds). `0` disables
+    /// auto-minimise entirely.
+    pub fn set_idle_timeout(&mut self, secs: u32) -> Result<(), LoaderError> {
+        self.assistant
+            .set_idle_timeout(&self.userdata_dir, secs)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist idle timeout: {e}"),
+            })
+    }
+
+    /// Replace the partial GPU offload layer count for `chat.brain`.
+    /// Value is passed through to `llama.cpp` as `-ngl`. Takes effect
+    /// on the next `chat.brain` swap — currently-loaded models keep
+    /// their existing partition until unloaded.
+    pub fn set_brain_ngl(&mut self, ngl: i32) -> Result<(), LoaderError> {
+        self.assistant
+            .set_brain_ngl(&self.userdata_dir, ngl)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist brain ngl: {e}"),
+            })
+    }
+
+    /// Directory where user voice samples are stored
+    /// (`{userdata_dir}/voice/custom/`). Returned as a `PathBuf` so
+    /// the Tauri `upload_voice_sample` command knows where to place
+    /// incoming MP3 files.
+    #[must_use]
+    pub fn voice_custom_dir(&self) -> PathBuf {
+        self.userdata_dir.join("voice").join("custom")
     }
 
     // ── Download (Phase 5) ─────────────────────────────────────

@@ -50,8 +50,13 @@ import {
 	type HardwareTier,
 	hardwareState,
 } from "$lib/domains/app/models/index.js";
+import type { SlotId } from "$lib/domains/app/models/types/models.types.js";
 import { commands } from "$lib/sys/generated/bindings.js";
+import ClyffyTooltip from "./components/ClyffyTooltip.svelte";
 import HfTokenModal from "./components/HfTokenModal.svelte";
+import type { RoleId } from "./components/RoleCard.svelte";
+import RoleCardGrid from "./components/RoleCardGrid.svelte";
+import type { DownloadTracker } from "./wizard.types.js";
 
 type Phase = "welcome" | "scanning" | "detected" | "error";
 
@@ -232,6 +237,50 @@ function handleRecommendedContinue(): void {
 function handleAdvancedContinue(): void {
 	wizardState.close();
 }
+
+// ── Role card handlers (Phase 5 drift fix) ─────────────────
+// The RoleCardGrid below renders four cards — brain / minion /
+// encoder / voice — and forwards these callbacks when the user
+// clicks Change or when a download row needs to cancel/retry.
+// Phase 6 wires the full ModelChangePopup; for now the Change
+// button dispatches a placeholder intent that Phase 6 will
+// consume.
+
+function handleRoleChange(role: RoleId, slotId: SlotId): void {
+	console.info("[overlay] role change requested", { role, slotId });
+	// TODO(phase-6): open ModelChangePopup for `slotId` with the
+	// correct tab defaults (Recommended for the owner's tier,
+	// HF Search if an HF token is stored, Local Browse otherwise).
+}
+
+async function handleCancelDownload(downloadId: string): Promise<void> {
+	try {
+		const result = await commands.cancelDownload(downloadId);
+		if (result.status === "error") {
+			console.warn("[overlay] cancel_download failed", result.error);
+			wizardState.failDownload(downloadId, result.error);
+		}
+	} catch (e) {
+		console.warn("[overlay] cancel_download threw", e);
+		wizardState.failDownload(downloadId, e instanceof Error ? e.message : String(e));
+	}
+}
+
+async function handleRetryDownload(tracker: DownloadTracker): Promise<void> {
+	// Clear the failed tracker first so the UI doesn't double-render
+	wizardState.dismissDownload(tracker.downloadId);
+	// TODO(phase-6): the DownloadTracker needs to carry `repoId`
+	// so we can re-dispatch `commands.downloadModel(repoId, filename)`
+	// deterministically. For now the Change button re-enters the
+	// pick flow.
+	console.info("[overlay] retry download requested", tracker);
+}
+
+function handleRetryLoad(slotId: string): void {
+	wizardState.clearLoad(slotId as SlotId);
+	// TODO(phase-6): actual `commands.loadSlot(slotId)` re-dispatch.
+	console.info("[overlay] retry load requested", { slotId });
+}
 </script>
 
 {#if isOpen}
@@ -255,6 +304,11 @@ function handleAdvancedContinue(): void {
 		>
 			<div class="wizard-header-actions">
 				{#if copy}
+					<ClyffyTooltip
+						copy={copy.clyffy_tooltips}
+						copyKey="hf_token_info"
+						label="What is a HuggingFace token?"
+					/>
 					<button
 						type="button"
 						class="wizard-token-pill"
@@ -323,7 +377,7 @@ function handleAdvancedContinue(): void {
 						<Card preset="glass">
 							<div class="hw-list" role="list" aria-label="Detected hardware">
 								{#if hardwareState.gpuName}
-									<div class="hw-row" role="listitem" title={copy.hardware.gpu_tooltip}>
+									<div class="hw-row" role="listitem">
 										<Monitor size={16} aria-hidden="true" />
 										<Text size="xs" weight="bold" color="muted" class="hw-label">
 											{copy.hardware.gpu_label}
@@ -333,6 +387,11 @@ function handleAdvancedContinue(): void {
 											<Badge preset="glass">
 												{formatMb(hardwareState.vramTotalMb)} {copy.hardware.vram_label}
 											</Badge>
+											<ClyffyTooltip
+												copy={copy.clyffy_tooltips}
+												copyKey="vram_info"
+												label="What is VRAM?"
+											/>
 										{/if}
 									</div>
 								{/if}
@@ -417,7 +476,7 @@ function handleAdvancedContinue(): void {
 						<Card preset="danger">
 							<div class="error-content" role="alert">
 								<Text size="sm" color="danger">{scanError}</Text>
-								<Button preset="secondary" size="sm" onclick={handleStart}>
+								<Button preset="secondary" size="md" onclick={handleStart}>
 									{copy.models.error_retry_label}
 								</Button>
 							</div>
@@ -441,7 +500,15 @@ function handleAdvancedContinue(): void {
 
 					<!-- Preset picker — SHOW EVERY PRESET so the owner can override auto-detect -->
 					<div class="picker-header">
-						<Heading level={3} size="md">Pick a hardware preset</Heading>
+						<div class="picker-heading-row">
+							<Heading level={3} size="md">Pick a hardware preset</Heading>
+							<ClyffyTooltip
+								copy={copy.clyffy_tooltips}
+								copyKey="preset_picker_info"
+								label="What is a preset?"
+								size="md"
+							/>
+						</div>
 						<Text size="xs" color="muted">
 							{selectedPresetName ? `Selected: ${selectedPresetName}` : "No preset selected"}
 						</Text>
@@ -496,6 +563,19 @@ function handleAdvancedContinue(): void {
 								</button>
 							{/each}
 						</div>
+					{/if}
+
+					{#if selectedPresetName}
+						<RoleCardGrid
+							copy={copy.role_cards}
+							tooltips={copy.clyffy_tooltips}
+							downloadsCopy={copy.downloads}
+							loadingCopy={copy.loading}
+							onRoleChange={handleRoleChange}
+							onCancelDownload={handleCancelDownload}
+							onRetryDownload={handleRetryDownload}
+							onRetryLoad={handleRetryLoad}
+						/>
 					{/if}
 
 					<div class="choice-row" role="group" aria-label="Setup mode selection">
@@ -718,6 +798,12 @@ function handleAdvancedContinue(): void {
 		align-items: center;
 		gap: 0.25rem;
 		margin-top: clamp(0.5rem, 1.5vw, 1rem);
+	}
+
+	.picker-heading-row {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
 	}
 
 	.preset-grid {

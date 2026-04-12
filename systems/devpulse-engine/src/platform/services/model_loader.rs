@@ -25,6 +25,11 @@ pub use devpulse_clyffy::model_loader::{
     ModelsCopy, ProfileCopy, ScanningCopy, StepTooltips, TierDisplay, TierRole, TooltipEntry,
     WizardCopy,
 };
+// Assistant config — identity, wake, voice brain, keywords, offload
+pub use devpulse_clyffy::model_loader::{
+    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig,
+    TtsConfig, VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+};
 // Voice registry — SSOT for TTS voice catalog
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
@@ -334,6 +339,106 @@ impl ModelLoaderService {
     pub async fn clear_hf_token(&self) -> Result<()> {
         let mut inner = self.inner.lock().await;
         inner.clear_hf_token().map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Return the last `n` characters of the stored HF token, for
+    /// the devtool "masked pill" display. `None` if no token stored.
+    pub async fn hf_token_suffix(&self, n: usize) -> Option<String> {
+        let inner = self.inner.lock().await;
+        inner.hf_token_suffix(n)
+    }
+
+    // ── Assistant Config facade ────────────────────────────────
+
+    /// Snapshot the current assistant configuration.
+    pub async fn get_assistant_config(&self) -> AssistantConfig {
+        let inner = self.inner.lock().await;
+        inner.get_assistant_config()
+    }
+
+    /// Rename the assistant.
+    pub async fn set_assistant_name(&self, name: String) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_assistant_name(name).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Replace the wake phrase.
+    pub async fn set_wake_phrase(&self, phrase: String) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_wake_phrase(phrase).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Toggle 24/7 wake detection.
+    pub async fn set_wake_enabled(&self, enabled: bool) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_wake_enabled(enabled).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Toggle the 24/7 Moshi voice brain.
+    pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_voice_brain_24_7(enabled).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Replace the TTS voice profile.
+    pub async fn set_voice_profile(&self, profile: String) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_voice_profile(profile).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Register a new custom voice clone.
+    pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.register_voice_clone(entry).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Remove a registered voice clone by name.
+    pub async fn remove_voice_clone(&self, name: String) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.remove_voice_clone(&name).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Add or replace a keyword action.
+    pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.add_keyword_action(entry).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Remove a keyword action by phrase.
+    pub async fn remove_keyword_action(&self, phrase: String) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.remove_keyword_action(&phrase).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Replace an existing keyword action in place.
+    pub async fn update_keyword_action(
+        &self,
+        phrase: String,
+        new_entry: KeywordActionEntry,
+    ) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner
+            .update_keyword_action(&phrase, new_entry)
+            .map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Replace the window idle timeout in seconds.
+    pub async fn set_idle_timeout(&self, secs: u32) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_idle_timeout(secs).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Replace the partial GPU offload layer count for `chat.brain`.
+    pub async fn set_brain_ngl(&self, ngl: i32) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_brain_ngl(ngl).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Absolute path to the custom voice clones directory. Used by
+    /// `upload_voice_sample` to place incoming MP3 files on disk.
+    pub async fn voice_custom_dir(&self) -> std::path::PathBuf {
+        let inner = self.inner.lock().await;
+        inner.voice_custom_dir()
     }
 
     /// Get model registry (without scanning).

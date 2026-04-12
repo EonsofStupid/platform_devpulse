@@ -393,15 +393,17 @@ mod tests {
         }
     }
 
-    /// Floor preset has exactly 7 recommendations: 2 tier-specific +
-    /// 5 common. Matches the contract the old `preset_for_tier` test
-    /// was re-validated against earlier.
+    /// Floor preset has exactly 8 recommendations: 2 tier-specific
+    /// (chat.brain, minion.shared) + 6 common slots (rag.embedder,
+    /// rag.reranker, vision.embedder, voice.stt, voice.tts,
+    /// voice.wake). Breaks if either the Floor preset's tier block
+    /// or the `[[common.slots]]` table changes count.
     #[test]
-    fn floor_preset_has_seven_recommendations() {
+    fn floor_preset_has_eight_recommendations() {
         let downloaded = std::collections::HashSet::new();
         let cfg = config_for_tier(HardwareTier::Floor, &downloaded, Path::new("/nonexistent"))
             .unwrap();
-        assert_eq!(cfg.recommendations.len(), 7);
+        assert_eq!(cfg.recommendations.len(), 8);
         assert_eq!(cfg.preset_name, "Floor (8GB)");
     }
 

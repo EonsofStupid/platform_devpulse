@@ -71,6 +71,30 @@ runtime = "LlamaCpp"
 default_model = "Qwen3-0.6B-Q4_K_M.gguf"
 source_tier = { Bundled = { bundled_path = "chat/Qwen3-0.6B-Q4_K_M.gguf" } }
 
+# ── 1b. chat.fast — Routing / simple-turn brain ──────────────
+#
+# Small always-hot dense model that handles quick routing,
+# classification, tagging, and simple turns. Keeps the primary
+# chat.brain free to stay warm for heavy reasoning. In the Jesse
+# Primary loadout this is Qwen3-4B Q4_K_M (~2.5 GB VRAM) sitting
+# alongside Moshi 7B (voice.brain). On lower tiers chat.fast
+# shares its model with minion.shared via BackendPool ref-count.
+#
+# Uses `GpuWithCpuFallback` so CPU-only tiers inherit it without
+# breaking the "small always-hot" contract.
+
+[[slots]]
+id = "chat.fast"
+label = "Quick Brain"
+capability = "TextGeneration"
+preferred_device = "GpuWithCpuFallback"
+loading = "Hot"
+persistence_class = "warm_standby"
+lane = "vram"
+runtime = "LlamaCpp"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
 # ── 2. minion.shared — Shared helper brain ────────────────────
 #
 # Bundled with the same Qwen3-0.6B. The BackendPool ref-counts the
@@ -121,6 +145,37 @@ runtime = "Ort"
 default_model = "vision_model_int8.onnx"
 source_tier = { Bundled = { bundled_path = "vision/siglip2-base/vision_model_int8.onnx" } }
 
+# ── 4b. chat.vision — Vision-language chat model ──────────────
+#
+# Dedicated vision-capable LLM (Qwen3-VL family). Distinct from
+# `vision.embedder` — that slot is a pure image encoder (SigLIP2)
+# that produces embedding vectors, this slot is a full VL chat
+# model that answers questions about pasted images. Loads on the
+# `image.pasted` signal, unloads after idle.
+#
+# On omni presets (Ultra w/ Qwen3-VL-30B-A3B) this slot shares its
+# model with `chat.brain` via BackendPool ref-count — one copy in
+# VRAM, two slot ids. On non-omni tiers it holds a smaller VL
+# model paired with the text brain (Qwen3-VL-2B on Jesse Primary,
+# Qwen3-VL-8B on High).
+#
+# llama.cpp GGUF vision models require a paired `mmproj-*.gguf`
+# file — see the Jesse Primary preset's `chat.vision` entry which
+# carries both `model_filename` and an `mmproj_filename` field in
+# the slot extensions.
+
+[[slots]]
+id = "chat.vision"
+label = "Vision Reasoning"
+capability = "VisionLanguage"
+preferred_device = "Gpu"
+loading = { Signal = "image.pasted" }
+persistence_class = "on_demand"
+lane = "vram"
+runtime = "LlamaCpp"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
 # ── 5. voice.tts — Text to speech ─────────────────────────────
 
 [[slots]]
@@ -152,20 +207,29 @@ runtime = "Ort"
 default_model = "ggml-small.bin"
 source_tier = { Bundled = { bundled_path = "voice/ggml-small.bin" } }
 
-# ── 7. voice.brain — Optional dedicated voice LLM ─────────────
+# ── 7. voice.brain — Full-duplex speech-to-speech brain ───────
 #
-# Toggleable (D1/P1). When enabled, runs a small LLM dedicated to
-# speech. When disabled (default), voice conversations fall back to
-# the main `chat.brain` via the `fallback` chain.
+# Runs a native STS model (Moshi 7B by Kyutai is the default) for
+# 24/7 full-duplex voice conversation. When enabled the slot stays
+# hot on GPU — Moshi's 180 ms latency only works with CUDA/Metal
+# acceleration. The AssistantConfig `voice_brain.enabled_24_7`
+# field controls whether this slot is reserved at boot; when the
+# user disables 24/7 voice in the Voice Lab, the slot stays
+# unloaded and voice falls back to the cascaded path (wake -> STT
+# -> chat.fast -> TTS).
+#
+# Fallback chain: if Moshi can't load (missing model, insufficient
+# VRAM, driver crash) voice falls through to minion.escalation,
+# which itself fallbacks to chat.brain.
 
 [[slots]]
 id = "voice.brain"
 label = "Voice Conversation"
 capability = "TextGeneration"
-preferred_device = "Cpu"
+preferred_device = "Gpu"
 loading = "Hot"
-persistence_class = "on_demand"
-lane = "cpu"
+persistence_class = "warm_standby"
+lane = "vram"
 fallback = "minion.escalation"
 source_tier = "UserManaged"
 
@@ -232,8 +296,37 @@ loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
 runtime = "LlamaCpp"
-default_model = "nomic-embed-text-v1.5.Q8_0.gguf"
-source_tier = { Bundled = { bundled_path = "rag/nomic-embed-text-v1.5.Q8_0.gguf" } }
+default_model = "Qwen3-Embedding-0.6B-Q8_0.gguf"
+source_tier = { Bundled = { bundled_path = "rag/Qwen3-Embedding-0.6B-Q8_0.gguf" } }
+builtin = true
+
+# ── 9b. rag.encoder — Vector store query encoder ─────────────
+#
+# Second Qwen3-Embedding-0.6B instance dedicated to the RRO
+# (Qdrant) query path. Keeping it separate from `rag.embedder`
+# means the owner can swap the document-side and query-side
+# encoders independently — a common tuning trick for retrieval
+# quality. On first boot both slots load the same bundled model,
+# so there's no cold-start penalty.
+#
+# The BackendPool ref-counts identical model IDs so a fresh
+# install only materialises ONE copy of the 0.6B weights in CPU
+# memory even though two slots reference it.
+#
+# `builtin = true` groups this under the System tab alongside
+# `rag.embedder` and the other vector-store essentials.
+
+[[slots]]
+id = "rag.encoder"
+label = "Query Encoder"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "Hot"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "LlamaCpp"
+default_model = "Qwen3-Embedding-0.6B-Q8_0.gguf"
+source_tier = { Bundled = { bundled_path = "rag/Qwen3-Embedding-0.6B-Q8_0.gguf" } }
 builtin = true
 
 # ── 10. rag.reranker — Search result filter ──────────────────

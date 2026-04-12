@@ -1,0 +1,150 @@
+# Assistant configuration — default SSOT
+#
+# Shipped with the app and copied to {userdata}/config/assistant.toml on
+# first run. The user-facing Voice Lab UI mutates the userdata copy;
+# this file is the fallback. Every field is overridable.
+#
+# Schema: kernel/model-loader/src/assistant/config.rs
+
+# ── Identity ────────────────────────────────────────────────────
+#
+# `name` is the user-facing label the assistant answers to — Clyffy
+# by default, can be anything. Injected into prompt templates via
+# `{assistant_name}` and used as the wake phrase root when the user
+# leaves `wake_phrase` empty.
+
+[identity]
+name = "Clyffy"
+tagline = "your local AI co-pilot"
+
+# ── Wake detection ──────────────────────────────────────────────
+#
+# Drives the bundled sherpa-onnx KWS zipformer-zh-en-3M open-vocab
+# keyword spotter. Because the model is open-vocabulary, changing
+# `phrase` takes effect without retraining — just the KWS worker
+# reloads its keywords.txt.
+#
+# `enabled=false` disables 24/7 listening entirely; the assistant
+# will only respond to explicit push-to-talk.
+
+[wake]
+enabled = true
+phrase = "hey clyffy"
+# Minimum detection confidence 0.0..=1.0 — raise for fewer false
+# triggers in noisy environments.
+sensitivity = 0.5
+# Cooldown in ms after a wake event before the next one fires.
+cooldown_ms = 1500
+
+# ── 24/7 full-duplex voice brain (Moshi) ───────────────────────
+#
+# Controls whether `voice.brain` (Moshi 7B) stays hot for real-time
+# speech-to-speech. When `enabled=false`, voice falls back to the
+# cascaded path: wake → STT (Whisper small) → chat.fast → TTS (Kokoro).
+#
+# `escalate_on_complex` lets Moshi hand the prompt off to chat.brain
+# (Qwen3-30B-A3B) for heavy reasoning queries. When the handoff
+# triggers, Moshi streams a short "let me think" acknowledgement,
+# unloads, loads the 30B, runs inference, reloads Moshi, speaks the
+# result. Same duplex experience to the user, just slower on the
+# one call.
+
+[voice_brain]
+enabled_24_7 = true
+escalate_on_complex = true
+# ms of silence before Moshi considers a turn complete
+turn_end_silence_ms = 600
+# User-facing label for the "heavy thinking" spinner shown during
+# escalation. Layman language, never model names.
+escalation_label = "Clyffy is thinking deeply..."
+
+# ── TTS voice profile ──────────────────────────────────────────
+#
+# Selected voice for Kokoro (when Moshi is off OR as a cascaded-path
+# fallback). Format:
+#   "kokoro:<voice_id>"        — built-in Kokoro voice (am_eric, af_bella, etc)
+#   "custom:<filename_stem>"   — user-uploaded MP3 cloned via CosyVoice2-0.5B
+#
+# Built-in Kokoro voices are enumerated at runtime by reading the
+# bundled voices manifest. Uploaded samples live under
+# `{userdata}/voice/custom/*.mp3` and their stems are the custom IDs.
+
+[tts]
+profile = "kokoro:am_eric"
+# Speech rate multiplier (1.0 = natural). Kokoro accepts 0.5..=2.0.
+rate = 1.0
+# Volume gain in dB. 0 = unchanged.
+gain_db = 0
+
+# ── Custom voice clones ────────────────────────────────────────
+#
+# Each entry is a user-uploaded reference sample registered with
+# CosyVoice2-0.5B via sherpa-onnx. The UI populates this list as the
+# user uploads; manual edits require an app restart to reload.
+#
+# [[voice_clones]]
+# name = "my_male"
+# reference_path = "{userdata}/voice/custom/my_male.mp3"
+# transcript = "This is me speaking for six seconds."
+
+# ── Keyword actions ────────────────────────────────────────────
+#
+# Each entry is a phrase the assistant listens for AFTER the wake
+# phrase fires. The `action` field names a built-in action handler;
+# `payload` is a free-form string the handler consumes.
+#
+# Built-in actions:
+#   "start_recording"   — open the voice note recorder
+#   "stop_recording"    — close the voice note recorder
+#   "screenshot"        — capture the full screen to userdata/screenshots/
+#   "open_app"          — launch an app by name (payload = app bundle ID / exe)
+#   "run_command"       — run a shell command (payload = command string)
+#   "open_url"          — open a URL in the default browser (payload = URL)
+#   "open_file"         — open a file in its default handler (payload = path)
+#   "custom"            — emit a custom event the frontend can bind to
+
+[[keyword_actions]]
+phrase = "take notes"
+action = "start_recording"
+payload = ""
+enabled = true
+
+[[keyword_actions]]
+phrase = "stop notes"
+action = "stop_recording"
+payload = ""
+enabled = true
+
+[[keyword_actions]]
+phrase = "screenshot"
+action = "screenshot"
+payload = ""
+enabled = true
+
+# ── Window + idle behaviour ────────────────────────────────────
+#
+# `idle_timeout_secs` is how long the main app window stays focused
+# without user input before it auto-minimises to the system tray.
+# Set to 0 to disable auto-minimise entirely.
+
+[window]
+idle_timeout_secs = 300
+minimize_to_tray = true
+
+# ── Partial model offload hints ────────────────────────────────
+#
+# Applied to any slot whose backend is llama.cpp and whose model
+# exceeds the GPU VRAM budget. Values are layer counts:
+#
+#   `brain_ngl`  — layers of chat.brain (30B-A3B) on GPU when hot
+#   `fast_ngl`   — layers of chat.fast (Qwen3-4B) on GPU
+#   `vision_ngl` — layers of chat.vision (Qwen3-VL-2B) on GPU
+#
+# A value of -1 means "all layers" (full GPU load). 0 means CPU only.
+# Positive integers mean that many transformer blocks on GPU, rest
+# stay in system RAM and stream over PCIe on each forward pass.
+
+[offload]
+brain_ngl = 50
+fast_ngl = -1
+vision_ngl = -1

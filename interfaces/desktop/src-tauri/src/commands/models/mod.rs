@@ -471,6 +471,330 @@ pub async fn clear_hf_token(state: State<'_, PlatformState>) -> Result<(), Strin
     loader.clear_hf_token().await.map_err(|e| e.to_string())
 }
 
+/// Return the last `n` characters of the stored HF token, or `null`
+/// if no token is stored. Used by the HfTokenModal masked-pill display
+/// so the UI can render `"••••••••hf_xxxxx"` without the plaintext
+/// ever landing in frontend state.
+#[tauri::command]
+#[specta::specta]
+pub async fn hf_token_suffix(
+    state: State<'_, PlatformState>,
+    count: u32,
+) -> Result<Option<String>, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.hf_token_suffix(count as usize).await)
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ASSISTANT CONFIG COMMANDS
+// ═══════════════════════════════════════════════════════════════
+
+/// Read the current assistant configuration. Voice Lab panel calls
+/// this once on mount and re-reads after every mutation.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_assistant_config(
+    state: State<'_, PlatformState>,
+) -> Result<devpulse_engine::platform::services::model_loader::AssistantConfig, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.get_assistant_config().await)
+}
+
+/// Rename the assistant. Persists immediately to
+/// `{userdata_dir}/config/assistant.toml`.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_assistant_name(
+    state: State<'_, PlatformState>,
+    name: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_assistant_name(name)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Replace the wake phrase. The sherpa-onnx KWS worker reloads its
+/// keywords file on next run — no model retraining needed.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_wake_phrase(
+    state: State<'_, PlatformState>,
+    phrase: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_wake_phrase(phrase)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Toggle 24/7 wake detection on or off.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_wake_enabled(
+    state: State<'_, PlatformState>,
+    enabled: bool,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_wake_enabled(enabled)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Toggle the 24/7 Moshi voice brain. When `false`, voice falls back
+/// to the cascaded STT -> LLM -> TTS path.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_voice_brain_24_7(
+    state: State<'_, PlatformState>,
+    enabled: bool,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_voice_brain_24_7(enabled)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Replace the TTS voice profile. Accepts `kokoro:<id>` or
+/// `custom:<clone_name>`.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_voice_profile(
+    state: State<'_, PlatformState>,
+    profile: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_voice_profile(profile)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Register a new custom voice clone entry. The UI calls this after a
+/// successful MP3 upload. `reference_path` is the absolute path on
+/// disk (produced by `upload_voice_sample`).
+#[tauri::command]
+#[specta::specta]
+pub async fn register_voice_clone(
+    state: State<'_, PlatformState>,
+    entry: devpulse_engine::platform::services::model_loader::VoiceCloneEntry,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .register_voice_clone(entry)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Remove a registered voice clone by name.
+#[tauri::command]
+#[specta::specta]
+pub async fn remove_voice_clone(
+    state: State<'_, PlatformState>,
+    name: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .remove_voice_clone(name)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Add or replace a keyword action.
+#[tauri::command]
+#[specta::specta]
+pub async fn add_keyword_action(
+    state: State<'_, PlatformState>,
+    entry: devpulse_engine::platform::services::model_loader::KeywordActionEntry,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .add_keyword_action(entry)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Remove a keyword action by phrase.
+#[tauri::command]
+#[specta::specta]
+pub async fn remove_keyword_action(
+    state: State<'_, PlatformState>,
+    phrase: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .remove_keyword_action(phrase)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Replace an existing keyword action by phrase. No-op if the phrase
+/// does not match any stored entry.
+#[tauri::command]
+#[specta::specta]
+pub async fn update_keyword_action(
+    state: State<'_, PlatformState>,
+    phrase: String,
+    new_entry: devpulse_engine::platform::services::model_loader::KeywordActionEntry,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .update_keyword_action(phrase, new_entry)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Replace the window idle timeout in seconds. `0` disables
+/// auto-minimise entirely.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_idle_timeout(
+    state: State<'_, PlatformState>,
+    secs: u32,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_idle_timeout(secs)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Replace the partial GPU offload layer count for `chat.brain`.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_brain_ngl(
+    state: State<'_, PlatformState>,
+    ngl: i32,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .set_brain_ngl(ngl)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Copy an MP3 file from an arbitrary source path into the custom
+/// voice clones directory and return the destination absolute path.
+/// The UI then passes that path to `register_voice_clone` to finalise
+/// the registration. Keeping the copy + register operations split
+/// keeps each Tauri command single-purpose.
+///
+/// Only `.mp3`, `.wav`, and `.flac` files are accepted. The source
+/// path must exist. The destination filename is derived from `name`
+/// to keep the user's chosen label alongside the file on disk.
+#[tauri::command]
+#[specta::specta]
+pub async fn upload_voice_sample(
+    state: State<'_, PlatformState>,
+    name: String,
+    source_path: String,
+) -> Result<String, String> {
+    let loader = get_loader(&state).await?;
+    let src = std::path::PathBuf::from(&source_path);
+    if !src.exists() {
+        return Err(format!("Source file does not exist: {source_path}"));
+    }
+    let ext = src
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase())
+        .unwrap_or_default();
+    if !["mp3", "wav", "flac"].contains(&ext.as_str()) {
+        return Err(format!("Unsupported audio format: .{ext} (accepted: mp3, wav, flac)"));
+    }
+
+    let dest_dir = loader.voice_custom_dir().await;
+    std::fs::create_dir_all(&dest_dir).map_err(|e| format!("Failed to create voice dir: {e}"))?;
+
+    // Sanitize `name` for filesystem safety — keep alnum, dash, underscore.
+    let safe_name: String = name
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect();
+    if safe_name.is_empty() {
+        return Err("Voice sample name must contain at least one alphanumeric character".into());
+    }
+    let dest = dest_dir.join(format!("{safe_name}.{ext}"));
+
+    std::fs::copy(&src, &dest)
+        .map_err(|e| format!("Failed to copy voice sample: {e}"))?;
+
+    Ok(dest.to_string_lossy().into_owned())
+}
+
+/// A single Kokoro voice available via the bundled ONNX runtime.
+/// Returned by [`list_kokoro_voices`] so the Voice Lab picker can
+/// group by gender and render preview buttons.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct KokoroVoiceInfo {
+    /// Voice ID (e.g. `"am_eric"`, `"af_bella"`).
+    pub id: String,
+    /// Layman label (e.g. `"American Male — Eric"`).
+    pub label: String,
+    /// `"male"` or `"female"`.
+    pub gender: String,
+    /// Short region / accent tag (e.g. `"American"`, `"British"`).
+    pub region: String,
+}
+
+/// Enumerate the built-in Kokoro voices available through the bundled
+/// ONNX model. The current English v0.19 release ships with ~20
+/// voices split American / British + male / female. Custom voice
+/// clones registered via `register_voice_clone` are NOT included
+/// here — the UI joins the two lists for the final picker.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_kokoro_voices(
+    _state: State<'_, PlatformState>,
+) -> Result<Vec<KokoroVoiceInfo>, String> {
+    // Kokoro English v0.19 voice catalog. Stable — the model file
+    // carries these IDs. Updating the bundled ONNX to a later
+    // release is the only reason this list changes.
+    let voices = [
+        ("af_alloy", "American Female — Alloy", "female", "American"),
+        ("af_aoede", "American Female — Aoede", "female", "American"),
+        ("af_bella", "American Female — Bella", "female", "American"),
+        ("af_heart", "American Female — Heart", "female", "American"),
+        ("af_jessica", "American Female — Jessica", "female", "American"),
+        ("af_kore", "American Female — Kore", "female", "American"),
+        ("af_nicole", "American Female — Nicole", "female", "American"),
+        ("af_nova", "American Female — Nova", "female", "American"),
+        ("af_river", "American Female — River", "female", "American"),
+        ("af_sarah", "American Female — Sarah", "female", "American"),
+        ("af_sky", "American Female — Sky", "female", "American"),
+        ("am_adam", "American Male — Adam", "male", "American"),
+        ("am_echo", "American Male — Echo", "male", "American"),
+        ("am_eric", "American Male — Eric", "male", "American"),
+        ("am_fenrir", "American Male — Fenrir", "male", "American"),
+        ("am_liam", "American Male — Liam", "male", "American"),
+        ("am_michael", "American Male — Michael", "male", "American"),
+        ("am_onyx", "American Male — Onyx", "male", "American"),
+        ("am_puck", "American Male — Puck", "male", "American"),
+        ("am_santa", "American Male — Santa", "male", "American"),
+        ("bf_alice", "British Female — Alice", "female", "British"),
+        ("bf_emma", "British Female — Emma", "female", "British"),
+        ("bf_isabella", "British Female — Isabella", "female", "British"),
+        ("bf_lily", "British Female — Lily", "female", "British"),
+        ("bm_daniel", "British Male — Daniel", "male", "British"),
+        ("bm_fable", "British Male — Fable", "male", "British"),
+        ("bm_george", "British Male — George", "male", "British"),
+        ("bm_lewis", "British Male — Lewis", "male", "British"),
+    ];
+    Ok(voices
+        .iter()
+        .map(|(id, label, gender, region)| KokoroVoiceInfo {
+            id: (*id).to_string(),
+            label: (*label).to_string(),
+            gender: (*gender).to_string(),
+            region: (*region).to_string(),
+        })
+        .collect())
+}
+
 /// Search result from HuggingFace.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HfSearchResultInfo {
