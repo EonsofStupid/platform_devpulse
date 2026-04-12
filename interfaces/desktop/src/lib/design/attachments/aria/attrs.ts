@@ -8,11 +8,8 @@
  * and current state. Reads the slot's AriaSpec from the contract and
  * sets role, required attributes, and optional attributes based on state.
  *
- * For MeltUI-backed primitives (ariaStateProvider: "meltui"), this is
- * a no-op — MeltUI handles ARIA via its builder pattern.
- *
- * For ColdLight-backed primitives (ariaStateProvider: "coldlight"),
- * this attachment reads the contract and applies attributes.
+ * ColdLight primitives declare `ariaStateProvider: "coldlight"` on their contract.
+ * This attachment reads the contract and applies ARIA attributes for the slot.
  *
  * @example
  * ```svelte
@@ -68,7 +65,7 @@ interface SlotSpec {
 
 interface ContractShape {
 	readonly kind: string;
-	readonly ariaStateProvider: "meltui" | "coldlight";
+	readonly ariaStateProvider: "coldlight";
 	readonly slotSpec: Record<string, SlotSpec>;
 }
 
@@ -165,10 +162,6 @@ function cleanupAll(node: HTMLElement, slotSpec: SlotSpec): void {
  */
 export function ariaAttrs(node: HTMLElement, options: () => AriaAttrsOptions): () => void {
 	const { contract, slot, state = {} } = options();
-
-	if (contract.ariaStateProvider === "meltui") {
-		return () => {};
-	}
 
 	const slotSpec = contract.slotSpec[slot];
 	if (!slotSpec) {

@@ -4,7 +4,7 @@
 	"generatedAt": "2026-03-02T20:24:02.636Z",
 	"config": {
 		"framework": "svelte5",
-		"adapter": "meltui",
+		"adapter": "coldlight",
 		"ariaStateProvider": "coldlight"
 	},
 	"tokens": {
@@ -815,7 +815,7 @@
 			{
 				"kind": "accordion",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "item", "trigger", "content"],
 					"optional": [],
@@ -965,7 +965,7 @@
 			{
 				"kind": "alert-dialog",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "overlay", "content", "title", "description", "action", "cancel"],
 					"optional": [],
@@ -1110,7 +1110,7 @@
 			{
 				"kind": "avatar",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root"],
 					"optional": ["image", "fallback"],
@@ -1455,7 +1455,7 @@
 			{
 				"kind": "calendar",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "header", "grid", "heading", "cell", "prev-button", "next-button"],
 					"optional": [],
@@ -1839,7 +1839,7 @@
 			{
 				"kind": "collapsible",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content"],
 					"optional": [],
@@ -1967,7 +1967,7 @@
 			{
 				"kind": "combobox",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["input", "trigger", "content", "option"],
 					"optional": ["label"],
@@ -2061,7 +2061,7 @@
 			{
 				"kind": "command-palette",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "input", "list", "item"],
 					"optional": ["group", "separator", "empty"],
@@ -2208,7 +2208,7 @@
 			{
 				"kind": "context-menu",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content", "item"],
 					"optional": [
@@ -2526,7 +2526,7 @@
 			{
 				"kind": "date-field",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "segment", "label"],
 					"optional": [],
@@ -2587,7 +2587,7 @@
 			{
 				"kind": "date-picker",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "field", "trigger", "content", "calendar"],
 					"optional": ["label"],
@@ -2694,7 +2694,7 @@
 			{
 				"kind": "date-range-field",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "start-segment", "end-segment", "label"],
 					"optional": ["separator"],
@@ -2777,7 +2777,7 @@
 			{
 				"kind": "date-range-picker",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "start-field", "end-field", "trigger", "content", "calendar"],
 					"optional": ["label"],
@@ -2954,7 +2954,7 @@
 			{
 				"kind": "dialog",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content"],
 					"optional": ["overlay", "title", "description", "close"],
@@ -3088,7 +3088,7 @@
 			{
 				"kind": "dropdown-menu",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content", "item"],
 					"optional": [
@@ -3330,7 +3330,7 @@
 			{
 				"kind": "file-upload",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "trigger", "hiddenInput"],
 					"optional": [],
@@ -3923,7 +3923,7 @@
 			{
 				"kind": "link-preview",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content"],
 					"optional": [],
@@ -4087,7 +4087,7 @@
 			{
 				"kind": "menubar",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "menu", "trigger", "content", "item"],
 					"optional": [
@@ -4611,7 +4611,7 @@
 			{
 				"kind": "pagination",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "previous", "next", "page"],
 					"optional": ["ellipsis"],
@@ -4694,7 +4694,7 @@
 			{
 				"kind": "pin-input",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "input"],
 					"optional": [],
@@ -4744,7 +4744,7 @@
 			{
 				"kind": "popover",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content"],
 					"optional": ["arrow"],
@@ -4807,7 +4807,7 @@
 			{
 				"kind": "progress",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root"],
 					"optional": ["indicator"],
@@ -4895,7 +4895,7 @@
 			{
 				"kind": "radio-group",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "item"],
 					"optional": [],
@@ -4946,7 +4946,7 @@
 			{
 				"kind": "range-calendar",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "header", "grid", "heading", "cell", "prev-button", "next-button"],
 					"optional": [],
@@ -5205,7 +5205,7 @@
 			{
 				"kind": "select",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content", "option"],
 					"optional": ["label"],
@@ -5541,7 +5541,7 @@
 			{
 				"kind": "slider",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "thumb"],
 					"optional": ["range"],
@@ -6130,7 +6130,7 @@
 			{
 				"kind": "tabs",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["triggerList", "trigger", "content"],
 					"optional": [],
@@ -6192,7 +6192,7 @@
 			{
 				"kind": "tags-input",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "tag", "tag-delete", "input"],
 					"optional": [],
@@ -6370,7 +6370,7 @@
 			{
 				"kind": "toaster",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "content", "close"],
 					"optional": ["title", "description"],
@@ -6455,7 +6455,7 @@
 			{
 				"kind": "toggle",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger"],
 					"optional": [],
@@ -6585,7 +6585,7 @@
 			{
 				"kind": "tooltip",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["trigger", "content"],
 					"optional": ["arrow"],
@@ -6648,7 +6648,7 @@
 			{
 				"kind": "tree",
 				"status": "contract-only",
-				"ariaStateProvider": "meltui",
+				"ariaStateProvider": "coldlight",
 				"slots": {
 					"required": ["root", "item"],
 					"optional": [],

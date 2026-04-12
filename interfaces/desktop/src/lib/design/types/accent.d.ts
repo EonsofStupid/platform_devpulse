@@ -44,6 +44,9 @@ export const AccentTokens = [
 	"gold-main",
 	"gold-glow",
 	"gold-fill",
+	"violet-main",
+	"violet-glow",
+	"violet-fill",
 ] as const;
 export type AccentToken = (typeof AccentTokens)[number];
 
@@ -86,7 +89,10 @@ export type AccentCSSVar =
 	| "--accent-salmon-fill"
 	| "--accent-gold-main"
 	| "--accent-gold-glow"
-	| "--accent-gold-fill";
+	| "--accent-gold-fill"
+	| "--accent-violet-main"
+	| "--accent-violet-glow"
+	| "--accent-violet-fill";
 
 export type AccentRecord = {
 	teal: {
@@ -150,6 +156,11 @@ export type AccentRecord = {
 		fill: string;
 	};
 	gold: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	violet: {
 		main: string;
 		glow: string;
 		fill: string;

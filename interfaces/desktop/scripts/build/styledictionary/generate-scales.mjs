@@ -104,6 +104,7 @@ const BRAND_ACCENT_HUES = [
 	{ id: 'brand-blue', hue: 240, chroma: 0.14, description: 'Brand blue — #3ea4ea family.' },
 	{ id: 'brand-salmon', hue: 15, chroma: 0.18, description: 'Brand salmon — #f16971 family.' },
 	{ id: 'brand-gold', hue: 100, chroma: 0.16, description: 'Brand gold — #d6d232 family.' },
+	{ id: 'brand-violet', hue: 285, chroma: 0.20, description: 'Brand violet — #9b6dff family.' },
 ];
 
 /**
@@ -400,10 +401,12 @@ function buildColorRampFile({ id, hue, chroma, description }) {
 	}
 	return {
 		$description: HEADER_WARNING,
-		[id]: {
-			$type: 'color',
-			$description: description,
-			...stops,
+		color: {
+			[id]: {
+				$type: 'color',
+				$description: description,
+				...stops,
+			},
 		},
 	};
 }
@@ -439,11 +442,13 @@ function buildVoidRampFile() {
 	};
 	return {
 		$description: HEADER_WARNING,
-		void: {
-			$type: 'color',
-			$description:
-				'Ultra-low-chroma dark scale plus a base anchor. Deepest app backgrounds and void surfaces.',
-			...stops,
+		color: {
+			void: {
+				$type: 'color',
+				$description:
+					'Ultra-low-chroma dark scale plus a base anchor. Deepest app backgrounds and void surfaces.',
+				...stops,
+			},
 		},
 	};
 }
@@ -462,14 +467,16 @@ function buildNeutralRampFile() {
 function buildWhiteFile() {
 	return {
 		$description: HEADER_WARNING,
-		white: {
-			$type: 'color',
-			$value: dtcgColor({
-				colorSpace: 'oklch',
-				components: [1, 0, 0],
-				hex: '#ffffff',
-			}),
-			$description: 'Absolute white.',
+		color: {
+			white: {
+				$type: 'color',
+				$value: dtcgColor({
+					colorSpace: 'oklch',
+					components: [1, 0, 0],
+					hex: '#ffffff',
+				}),
+				$description: 'Absolute white.',
+			},
 		},
 	};
 }
@@ -478,14 +485,16 @@ function buildWhiteFile() {
 function buildBlackFile() {
 	return {
 		$description: HEADER_WARNING,
-		black: {
-			$type: 'color',
-			$value: dtcgColor({
-				colorSpace: 'oklch',
-				components: [0, 0, 0],
-				hex: '#000000',
-			}),
-			$description: 'Absolute black.',
+		color: {
+			black: {
+				$type: 'color',
+				$value: dtcgColor({
+					colorSpace: 'oklch',
+					components: [0, 0, 0],
+					hex: '#000000',
+				}),
+				$description: 'Absolute black.',
+			},
 		},
 	};
 }

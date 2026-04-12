@@ -22,7 +22,7 @@ import type { ComponentContract } from "../_schema/contract.js";
 
 export const contract: ComponentContract = {
   kind: "tabs",
-  engine: "meltui",  // "coldlight" (default) or "meltui" (exception)
+  engine: "coldlight",  // ColdLight-owned headless only
 
   slots: {
     required: ["root", "list", "trigger", "content"],
@@ -51,7 +51,7 @@ export const contract: ComponentContract = {
 | Field | Purpose |
 |-------|---------|
 | kind | Component identity |
-| engine | Who provides ARIA — `"coldlight"` (default) or `"meltui"` (exception) |
+| engine | Always `"coldlight"` — ColdLight provides ARIA and behavior |
 | slots.required | Slots that MUST exist |
 | slots.optional | Slots that MAY exist |
 | aria | Per-slot ARIA role and required attributes |
@@ -65,10 +65,7 @@ export const contract: ComponentContract = {
 
 | Value | Meaning | Usage |
 |-------|---------|-------|
-| `"coldlight"` | ColdLight handles ARIA natively (DEFAULT) | 60+ kinds |
-| `"meltui"` | MeltUI adapter handles complex ARIA (EXCEPTION) | ~20 kinds |
-
-ColdLight-owned is the default. Only use `"meltui"` when ARIA complexity justifies it (dialog focus trap, combobox listbox virtualization).
+| `"coldlight"` | ColdLight handles ARIA, focus, and keyboard for the kind | All kinds |
 
 ---
 
@@ -80,7 +77,7 @@ Contracts pair with kind definitions in `registry/kind-definitions.ts`:
 {
   kind: "tabs",
   label: "Tabs",
-  engine: "meltui",
+  engine: "coldlight",
   defaultPreset: "tabs-default",
   defaultRecipe: "tabs.default",
   blockCategory: "navigation",

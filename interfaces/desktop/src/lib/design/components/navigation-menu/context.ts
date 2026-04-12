@@ -7,7 +7,7 @@
  * 1. Root context: NavigationMenuRootCtx (set by NavigationMenu.svelte)
  * 2. Item context: NavigationMenuItemCtx (set by NavigationMenuItem.svelte)
  *
- * ColdLight-owned — no MeltUI adapter. Symbol-keyed context + typed get/set helpers.
+ * ColdLight-owned — symbol-keyed context + typed get/set helpers.
  */
 
 import { getContext, setContext } from "svelte";

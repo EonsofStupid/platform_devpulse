@@ -1,10 +1,13 @@
 <!--
   @file WelcomeStep.svelte
   Entry screen. Clyffy greeting. Hardware preview. "Let's Go" CTA.
-  ColdLight tokens. Zero hardcoded colors.
+  ColdLight components + tokens. Zero hardcoded colors.
 -->
 <script lang="ts">
 import { Cpu, HardDrive, Monitor, Sparkles, Zap } from "lucide-svelte";
+import { Button } from "$lib/design/components/button/index.js";
+import { Heading } from "$lib/design/components/heading/index.js";
+import Text from "$lib/design/components/text/Text.svelte";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
 import { formatMb } from "../../../types/models.types.js";
 
@@ -14,16 +17,18 @@ interface Props {
 let { onContinue }: Props = $props();
 </script>
 
-<div class="welcome">
+<div class="flex flex-col items-center justify-center gap-5 min-h-[60vh] text-center p-8">
 	<!-- Clyffy avatar -->
 	<div class="avatar">
-		<span class="avatar-letter">C</span>
+		<span class="text-2xl font-extrabold" style="color: var(--accent-purple-main);">C</span>
 		<div class="avatar-glow"></div>
 	</div>
 
 	<!-- Greeting -->
-	<h2 class="greeting">Hey! I'm Clyffy.</h2>
-	<p class="sub">I'll help you set up your AI models. It only takes a minute.</p>
+	<Heading level={2} size="xl">Hey! I'm Clyffy.</Heading>
+	<Text as="p" size="base" style="color: var(--text-secondary); max-width: 24rem;">
+		I'll help you set up your AI models. It only takes a minute.
+	</Text>
 
 	<!-- Quick hardware preview -->
 	{#if hardwareState.gpuName || hardwareState.cpuName}
@@ -62,56 +67,73 @@ let { onContinue }: Props = $props();
 		</div>
 	{/if}
 
-	<p class="ready">I'll recommend the best models for your hardware.</p>
+	<Text as="p" size="sm" style="color: var(--text-muted);">
+		I'll recommend the best models for your hardware.
+	</Text>
 
 	<!-- CTA -->
-	<button class="cta" onclick={onContinue} aria-label="Start setup">
+	<Button preset="primary" onclick={onContinue}>
 		<Sparkles size={18} />
 		Let's Go
-	</button>
+	</Button>
 </div>
 
 <style>
-	.welcome {
-		display: flex; flex-direction: column; align-items: center; justify-content: center;
-		gap: 1.25rem; min-height: 60vh; text-align: center; padding: 2rem;
-	}
-
+	/* Avatar — accent-purple circle with glow halo */
 	.avatar {
-		position: relative; width: 5rem; height: 5rem; border-radius: var(--wiz-radius-full);
-		background: var(--wiz-fill-purple); border: 2px solid var(--wiz-glow-purple);
-		display: flex; align-items: center; justify-content: center;
+		position: relative;
+		width: 5rem;
+		height: 5rem;
+		border-radius: var(--radius-full);
+		background: var(--accent-purple-fill);
+		border: 2px solid var(--accent-purple-glow);
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
-	.avatar-letter { font-size: 2rem; font-weight: 800; color: var(--wiz-role-brain); }
 	.avatar-glow {
-		position: absolute; inset: -0.5rem; border-radius: var(--wiz-radius-full);
-		background: var(--wiz-fill-purple); filter: blur(12px); z-index: -1;
+		position: absolute;
+		inset: -0.5rem;
+		border-radius: var(--radius-full);
+		background: var(--accent-purple-fill);
+		filter: blur(0.75rem);
+		z-index: -1;
 	}
 
-	.greeting { font-size: 1.5rem; font-weight: 800; color: var(--wiz-text); margin: 0; }
-	.sub { font-size: 0.9375rem; color: var(--wiz-text-sub); margin: 0; max-width: 24rem; }
-	.ready { font-size: var(--wiz-text-sm); color: var(--wiz-text-muted); margin: 0; }
-
+	/* Hardware preview card */
 	.hw-preview {
-		display: flex; flex-direction: column; gap: 0.5rem;
-		background: var(--wiz-card); border: 1px solid var(--wiz-border);
-		border-radius: var(--wiz-radius-lg); padding: 1rem; width: 100%; max-width: 22rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		background: var(--surface-raised);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-lg);
+		padding: var(--space-4);
+		width: 100%;
+		max-width: 22rem;
 	}
-	.hw-row { display: flex; align-items: center; gap: 0.5rem; color: var(--wiz-text-sub); }
-	.hw-label { font-size: var(--wiz-text-xs); font-weight: 700; color: var(--wiz-text-muted); width: 2.5rem; }
-	.hw-value { flex: 1; font-size: var(--wiz-text-sm); color: var(--wiz-text); }
+	.hw-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		color: var(--text-secondary);
+	}
+	.hw-label {
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: var(--text-muted);
+		width: 2.5rem;
+	}
+	.hw-value {
+		flex: 1;
+		font-size: 0.875rem;
+		color: var(--text-primary);
+	}
 	.hw-tag {
-		font-size: var(--wiz-text-xs); padding: 0.125rem 0.375rem; border-radius: var(--wiz-radius-sm);
-		background: var(--wiz-fill-cyan); color: var(--wiz-cyan);
+		font-size: 0.75rem;
+		padding: 0.125rem 0.375rem;
+		border-radius: var(--radius-sm);
+		background: var(--accent-teal-fill);
+		color: var(--accent-teal-main);
 	}
-
-	.cta {
-		display: inline-flex; align-items: center; gap: 0.5rem;
-		padding: 0.75rem 2rem; border-radius: var(--wiz-radius-lg); border: none;
-		background: var(--wiz-cyan); color: var(--wiz-void-950);
-		font-size: 1rem; font-weight: 800; cursor: pointer;
-		box-shadow: 0 0 1.5rem 0.25rem var(--wiz-glow-cyan);
-		transition: filter var(--wiz-duration-fast), box-shadow var(--wiz-duration-fast);
-	}
-	.cta:hover { filter: brightness(1.15); box-shadow: 0 0 2rem 0.5rem var(--wiz-glow-cyan); }
 </style>

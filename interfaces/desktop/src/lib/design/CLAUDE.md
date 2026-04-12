@@ -1,4 +1,4 @@
-# ColdLight Design System — SvelteKit 5 + Melt UI + Tailwind 4
+# ColdLight Design System — SvelteKit 5 + Tailwind 4
 
 ## Authority
 ColdLight is the SOLE authority for all CSS, components, and UI generation in this directory.
@@ -21,14 +21,13 @@ No `ui/` folder. No middle layer. Component IS the product.
 
 ## Rules
 - Config-driven. `coldlight.config.ts` is SSOT. Read it before generating.
-- ColdLight wraps Melt primitives. NEVER import @melt-ui directly.
+- Headless behavior is **ColdLight-owned** (ARIA, focus, keyboard). Vocabulary aligns with **React Spectrum S2** patterns; no third-party headless UI runtime in product code.
 - ArkType for validation (Zod is DROPPED). Check if migration complete.
 - Inspired by React Spectrum S2 macros — 100% senior patterns.
 - No inline styles. TailwindCSS 4 utility classes only.
 - DTCG token format. No --dp-* prefix. Direct: --hue-*, --surface-*, etc.
 
 ## Dependencies
-- @melt-ui/svelte (wrapped by ColdLight, never imported directly)
 - svelte-sonner (controlled by provider)
 - @tanstack/svelte-table, svelte-query, svelte-virtual
 - tailwindcss ^4.1.18

@@ -3,7 +3,7 @@
  * @package @devpulse/coldlight
  *
  * failOnParity: true   — parity errors BLOCK manifest generation.
- *                         Every meltui primitive MUST have a complete adapter folder.
+ *                         Every coldlight primitive MUST meet contract + parity rules.
  *                         Adapter folders MUST contain all 8 required files.
  *                         No orphan adapter folders allowed.
  * failOnContractLoad: true — bad contracts ARE fatal (corrupt SSOT).

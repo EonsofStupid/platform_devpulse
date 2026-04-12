@@ -80,7 +80,7 @@ const groupExtensions = new Map();
 const brandHues = ['teal', 'purple', 'magenta', 'ember', 'frost', 'cyber'];
 const brandAccentHues = [
 	'brand-blue', 'brand-coral', 'brand-cyan', 'brand-gold',
-	'brand-green', 'brand-hotpink', 'brand-salmon',
+	'brand-green', 'brand-hotpink', 'brand-salmon', 'brand-violet',
 ];
 const wheelHues = [
 	'amber', 'azure', 'blue', 'chartreuse', 'crimson', 'cyan',
@@ -94,14 +94,11 @@ const achromatics = ['neutral', 'void', 'white', 'black'];
 /** Token tier paths — determines which @layer a token lands in */
 const tiers = {
 	primitive: [
-		// Legacy
 		'color', 'shadow', 'bevel', 'glow', 'glow-dot', 'glowSpread', 'blur',
 		'glass', 'matte', 'radius', 'space', 'padding', 'size', 'breakpoint',
 		'zIndex', 'font', 'fontFeatureSettings', 'fontVariationSettings',
 		'textSize', 'leading', 'tracking',
 		'motion', 'gradient', 'layout',
-		// New DTCG primitives (file-per-atom layout)
-		...brandHues, ...brandAccentHues, ...wheelHues, ...achromatics,
 		'font-size', 'depth', 'duration', 'easing', 'animation',
 		'opacity', 'outlineOffset', 'borderWidth', 'borderRise',
 		'z-index',
@@ -139,7 +136,11 @@ const tw4Remap = {
 	},
 };
 
-/** Build paths (relative to CWD = interfaces/desktop/) */
+/**
+ * Build paths (relative to CWD = interfaces/desktop/).
+ * Token CSS only → design/styles + design/theme + design/types + generated/token-manifest.json.
+ * SVG preset vars → design/svg/presets. Do not emit non-token glue here.
+ */
 const paths = {
 	source: 'scripts/build/styledictionary/tokens/src',
 	design: 'src/lib/design',
@@ -927,17 +928,17 @@ const config = {
 		},
 
 		// ── Theme: per-domain @theme files ────────────────────────
-		// Color: ONLY brand hues + utility colors. Full spectrum stays in :root CSS only.
+		// Color: brand hues + brand-accent hues + achromatics for Tailwind @theme.
 		'theme-color': {
 			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('color.css', (token) => {
 				if (token.path[0] !== 'color') return false;
-				const BRAND = new Set(['teal', 'purple', 'magenta', 'ember', 'frost', 'cyber', 'void', 'neutral']);
-				// white/black are path length 2: ['color', 'white']
+				const THEME_HUES = new Set([...brandHues, ...brandAccentHues, ...achromatics]);
+				// white/black are path length 3 now: ['color', 'white']
 				if (token.path.length === 2) return true;
-				// Brand hues: ['color', 'teal', '500']
-				return BRAND.has(token.path[1]);
+				// Brand + accent hues: ['color', 'teal', '500']
+				return THEME_HUES.has(token.path[1]);
 			})],
 		},
 		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('shadow.css', pathFilter('shadow'))] },

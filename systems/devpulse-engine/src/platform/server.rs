@@ -29,12 +29,15 @@ use tokio::net::TcpListener;
 /// Default bind address for the `SurrealDB` HTTP server.
 const DEFAULT_BIND: &str = "127.0.0.1";
 
+/// Max request body size: 1 MB. Prevents local processes from
+/// sending unbounded queries that consume all available memory.
+const MAX_BODY_SIZE: usize = 1024 * 1024;
+
 /// Shared state for the axum server.
 #[derive(Clone)]
 struct ServerState {
     adapter: Arc<SurrealAdapter>,
     /// Expected credentials for Basic Auth (username:password base64 encoded).
-    /// Empty string = auth disabled (for backwards compat during dev).
     auth_token: String,
 }
 
@@ -45,26 +48,33 @@ struct ServerState {
 /// runs until the tokio runtime shuts down.
 ///
 /// # Auth
-/// If `system_user` and `system_password` are non-empty, Basic Auth is
-/// enforced on the `/sql` endpoint. Health and version are always public.
+/// Basic Auth is always enforced. Empty `system_user` is rejected at
+/// start time — auth cannot be disabled.
 ///
 /// # Errors
-/// Returns error if the TCP listener cannot bind to the configured port.
+/// Returns error if:
+/// - `system_user` is empty (auth cannot be disabled)
+/// - The TCP listener cannot bind to the configured port
 pub async fn start(
     adapter: Arc<SurrealAdapter>,
     port: u16,
     system_user: &str,
     system_password: &str,
 ) -> Result<u16> {
+    // Reject empty credentials — auth must always be enabled
+    if system_user.is_empty() {
+        anyhow::bail!(
+            "SurrealDB HTTP server requires system_user to be configured. \
+             Set [services.system.graph].system_user in platform.default.toml. \
+             Auth cannot be disabled."
+        );
+    }
+
     // Pre-compute the expected Basic Auth header value
     use base64::Engine;
-    let auth_token = if system_user.is_empty() {
-        String::new()
-    } else {
-        let credentials = format!("{system_user}:{system_password}");
-        let encoded = base64::engine::general_purpose::STANDARD.encode(credentials);
-        format!("Basic {encoded}")
-    };
+    let credentials = format!("{system_user}:{system_password}");
+    let encoded = base64::engine::general_purpose::STANDARD.encode(credentials);
+    let auth_token = format!("Basic {encoded}");
 
     let state = ServerState { adapter, auth_token };
 
@@ -72,6 +82,7 @@ pub async fn start(
         .route("/sql", post(handle_sql))
         .route("/health", get(handle_health))
         .route("/version", get(handle_version))
+        .layer(axum::extract::DefaultBodyLimit::max(MAX_BODY_SIZE))
         .with_state(state);
 
     let bind = format!("{DEFAULT_BIND}:{port}");
@@ -85,11 +96,12 @@ pub async fn start(
         )
     })?;
 
-    if system_user.is_empty() {
-        tracing::warn!(bind = %bind, "SurrealDB HTTP server listening (NO AUTH — dev mode)");
-    } else {
-        tracing::info!(bind = %bind, user = system_user, "SurrealDB HTTP server listening (Basic Auth enabled)");
-    }
+    tracing::info!(
+        bind = %bind,
+        user = system_user,
+        max_body_bytes = MAX_BODY_SIZE,
+        "SurrealDB HTTP server listening (Basic Auth enforced)"
+    );
 
     tokio::spawn(async move {
         if let Err(e) = axum::serve(listener, app).await {
@@ -102,10 +114,10 @@ pub async fn start(
 
 /// `POST /sql` — execute `SurrealQL` query.
 ///
-/// Requires Basic Auth if system credentials are configured.
+/// Requires Basic Auth (always enforced).
 ///
 /// Headers:
-/// - `Authorization: Basic <base64(user:pass)>` — required when auth enabled
+/// - `Authorization: Basic <base64(user:pass)>` — required
 /// - `NS` or `surreal-ns`: target namespace (default: "global")
 /// - `DB` or `surreal-db`: target database (default: "knowledge")
 ///
@@ -116,22 +128,22 @@ async fn handle_sql(
     body: String,
 ) -> impl IntoResponse {
     // ── Auth check ────────────────────────────────────────────
-    if !state.auth_token.is_empty() {
-        let auth_header = headers
-            .get("Authorization")
-            .or_else(|| headers.get("authorization"))
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("");
+    let auth_header = headers
+        .get("Authorization")
+        .or_else(|| headers.get("authorization"))
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
 
-        if auth_header != state.auth_token {
-            return (
-                StatusCode::UNAUTHORIZED,
-                axum::Json(serde_json::json!({
-                    "error": "Unauthorized — provide Basic Auth credentials. \
-                              See [services.system.graph].system_user in platform.default.toml"
-                })),
-            );
-        }
+    // Constant-time comparison to prevent timing side-channel attacks.
+    // Even though this is localhost-only, do it right.
+    if !constant_time_eq(auth_header.as_bytes(), state.auth_token.as_bytes()) {
+        return (
+            StatusCode::UNAUTHORIZED,
+            axum::Json(serde_json::json!({
+                "error": "Unauthorized — provide Basic Auth credentials. \
+                          See [services.system.graph].system_user in platform.default.toml"
+            })),
+        );
     }
 
     // ── Execute query ─────────────────────────────────────────
@@ -164,9 +176,12 @@ async fn handle_sql(
 }
 
 /// `GET /health` — liveness check. No auth required.
+///
+/// Runs `SELECT * FROM kv LIMIT 1` in `global/knowledge` to verify
+/// the WAL can serve reads, not just that the connection exists.
 async fn handle_health(State(state): State<ServerState>) -> impl IntoResponse {
-    match state.adapter.ping().await {
-        Ok(()) => (
+    match state.adapter.query_in_ns("global", "knowledge", "SELECT * FROM kv LIMIT 1").await {
+        Ok(_) => (
             StatusCode::OK,
             axum::Json(serde_json::json!({
                 "status": "healthy",
@@ -201,4 +216,19 @@ fn extract_header(headers: &HeaderMap, primary: &str, fallback: &str) -> Option<
         .or_else(|| headers.get(fallback))
         .and_then(|v| v.to_str().ok())
         .map(String::from)
+}
+
+/// Constant-time byte comparison to prevent timing side-channel attacks.
+///
+/// XORs all bytes and reduces to a single equality check. Always
+/// processes both slices fully regardless of where they differ.
+fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut result: u8 = 0;
+    for (x, y) in a.iter().zip(b.iter()) {
+        result |= x ^ y;
+    }
+    result == 0
 }

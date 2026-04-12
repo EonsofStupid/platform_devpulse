@@ -17,6 +17,12 @@ export { default as VramBar } from "./components/VramBar.svelte";
 export { default as WizardHelpTip } from "./components/WizardHelpTip.svelte";
 export { default as WizardInfoPopup } from "./components/WizardInfoPopup.svelte";
 
+// Canonical wizard steps
+export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";
+export { default as CompletionStep } from "./steps/CompletionStep.svelte";
+export { default as ProjectSetupStep } from "./steps/ProjectSetupStep.svelte";
+export { default as WelcomeStep } from "./steps/WelcomeStep.svelte";
+
 // State
 export { wizardState } from "./wizard.runes.svelte.js";
 

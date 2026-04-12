@@ -1,4 +1,11 @@
 {
+	"$extensions": {
+		"com.coldlight": {
+			"semanticFamilies": ["surface", "elevation", "frame", "motion"],
+			"format": "coldlight-style-presets-v1",
+			"note": "Composite preset leaves — elevation uses DTCG shadow; surface uses color/dimension; keep render glue out of token values."
+		}
+	},
 	"preset": {
 		"neuro-elevated": {
 			"background-color": {

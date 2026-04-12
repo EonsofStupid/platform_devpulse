@@ -4,7 +4,7 @@
  * @layer components
  *
  * Prop types for all Menubar sub-components.
- * MeltUI spatialmenu transport adapter provides ARIA — types declare structural props only.
+ * ColdLight-owned menubar behavior — types declare structural props only.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
  */

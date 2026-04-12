@@ -203,106 +203,6 @@ const primitiveSchema: FileSchemaRule = {
 };
 
 // =============================================================================
-// COLDLIGHT — ADAPTERS (_internal)
-// =============================================================================
-
-const internalFactory: FileSchemaRule = {
-	name: "internal-factory",
-	match: /^api\/adapters\/meltui\/_internal\/[^/]+\/factory\.ts$/,
-	namespace: "@devpulse/coldlight",
-	language: "typescript",
-	requiredTags: ["@file", "@package", "@internal"],
-	generateHeader: (ctx) => `/**
- * @file api/adapters/meltui/_internal/${ctx.kind}/factory.ts
- * @package @devpulse/coldlight
- * @internal
- *
- * MeltUI ${ctx.kindPascal} Factory — ONLY file that imports from \`melt\` for ${ctx.kind}.
- * Wraps melt v0.44 ${ctx.kindPascal} class (class-based builder API).
- *
- * ColdLight cloaks this entirely. Consumers NEVER import from melt or this file.
- * All access is via the transport layer (_transport/).
- *
- * @builder new ${ctx.kindPascal}()${ariaLink(ctx.kind)}
- */
-
-`,
-};
-
-const internalTransportTypes: FileSchemaRule = {
-	name: "internal-transport-types",
-	match: /^api\/adapters\/meltui\/_internal\/[^/]+\/_transport\/types\.ts$/,
-	namespace: "@devpulse/coldlight",
-	language: "typescript",
-	requiredTags: ["@file", "@package", "@internal"],
-	generateHeader: (ctx) => `/**
- * @file api/adapters/meltui/_internal/${ctx.kind}/_transport/types.ts
- * @package @devpulse/coldlight
- * @internal
- *
- * Typed transport interface for the MeltUI ${ctx.kind} adapter.
- * Maps melt v0.44 ${ctx.kindPascal} API to ColdLight slot vocabulary.
- *
- * @transport ${ctx.kindPascal}Transport${ariaLink(ctx.kind)}
- */
-
-`,
-};
-
-const internalTransportFactory: FileSchemaRule = {
-	name: "internal-transport-factory",
-	match: /^api\/adapters\/meltui\/_internal\/[^/]+\/_transport\/factory\.ts$/,
-	namespace: "@devpulse/coldlight",
-	language: "typescript",
-	requiredTags: ["@file", "@package", "@internal"],
-	generateHeader: (ctx) => `/**
- * @file api/adapters/meltui/_internal/${ctx.kind}/_transport/factory.ts
- * @package @devpulse/coldlight
- * @internal
- *
- * Creates a ColdLight ${ctx.kind} transport from melt v0.44 ${ctx.kindPascal}.
- * Maps melt ${ctx.kindPascal} getters to ColdLight slot vocabulary.
- */
-
-`,
-};
-
-const internalTransportIndex: FileSchemaRule = {
-	name: "internal-transport-index",
-	match: /^api\/adapters\/meltui\/_internal\/[^/]+\/_transport\/index\.ts$/,
-	namespace: "@devpulse/coldlight",
-	language: "typescript",
-	requiredTags: ["@file", "@package"],
-	generateHeader: (ctx) => `/**
- * @file api/adapters/meltui/_internal/${ctx.kind}/_transport/index.ts
- * @package @devpulse/coldlight
- *
- * Transport barrel for the ${ctx.kind} MeltUI adapter.
- * Re-exports: factory function, all transport types.
- */
-
-`,
-};
-
-const internalIndex: FileSchemaRule = {
-	name: "internal-index",
-	match: /^api\/adapters\/meltui\/_internal\/[^/]+\/index\.ts$/,
-	namespace: "@devpulse/coldlight",
-	language: "typescript",
-	requiredTags: ["@file", "@package", "@internal"],
-	generateHeader: (ctx) => `/**
- * @file api/adapters/meltui/_internal/${ctx.kind}/index.ts
- * @package @devpulse/coldlight
- * @internal
- *
- * Top-level barrel for the ${ctx.kind} MeltUI _internal adapter.
- * Re-exports transport layer. Import enforcement: components import from here only.
- */
-
-`,
-};
-
-// =============================================================================
 // COLDLIGHT — COLDLIGHT ADAPTER (_internal)
 // =============================================================================
 
@@ -1129,13 +1029,6 @@ export const FILE_SCHEMA: readonly FileSchemaRule[] = [
 	primitiveSvelte,
 	primitiveIndex,
 	primitiveRootFile,
-
-	// ── ColdLight Adapters: MeltUI (_internal) ───────────────────────────────
-	internalTransportTypes,
-	internalTransportFactory,
-	internalTransportIndex,
-	internalFactory,
-	internalIndex,
 
 	// ── ColdLight Adapters: ColdLight (_internal) ────────────────────────────
 	coldlightAdapterSvelteTs,

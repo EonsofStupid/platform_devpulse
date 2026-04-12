@@ -4,7 +4,7 @@
  * @layer components
  *
  * Compound component: exports root + all sub-components.
- * ColdLight-owned — no MeltUI adapter.
+ * ColdLight-owned navigation menu.
  */
 
 export type { NavigationMenuItemCtx, NavigationMenuRootCtx } from "./context.js";

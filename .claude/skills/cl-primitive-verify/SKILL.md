@@ -57,7 +57,7 @@ primitives/{kind}/
 - [ ] For component primitives: proper ARIA roles (button, dialog, tablist, etc.)
 - [ ] For interaction utilities (hover, press, focus): returns interaction state, no ARIA roles needed
 - [ ] NO direct DOM manipulation (no `document.querySelector`)
-- [ ] NO imports from `@melt-ui/svelte`
+- [ ] NO imports from third-party headless UI libraries (Melt, Bits UI, etc.)
 
 ### 2. Types — `{kind}.types.ts`
 
@@ -102,7 +102,7 @@ primitives/{kind}/
 - [ ] Applies `class={cn(className)}`
 - [ ] Spreads `{...rest}`
 - [ ] Renders `{@render children?.()}` (unless self-closing)
-- [ ] ZERO: role=, aria-*, id=, onclick/onkeydown, @melt-ui imports, inline styles
+- [ ] ZERO: role=, aria-*, id=, onclick/onkeydown, third-party headless imports, inline styles
 - [ ] The shell does NOT call the hook — that's the component layer's job
 
 ### 7. Barrel — `index.ts`
@@ -118,8 +118,8 @@ primitives/{kind}/
 
 ### 8. Zero Tolerance
 
-- [ ] ZERO `@melt-ui/svelte` imports
-- [ ] ZERO `use:melt` directives
+- [ ] ZERO third-party headless UI imports
+- [ ] ZERO vendor-specific headless directives (e.g. `use:melt`)
 - [ ] ZERO `any` types
 - [ ] ZERO legacy Svelte stores (`$:`, `writable`, `readable`)
 - [ ] ZERO imports from deleted paths (`coldlight/`, `dsadapters/`, `taxonomy/`, `api/`)

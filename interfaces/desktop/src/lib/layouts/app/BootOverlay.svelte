@@ -5,7 +5,8 @@
   Full-viewport overlay during platform boot.
   Phase 1: Subsystem progress (narrow centered column).
   Phase 2: Model setup wizard (wider, scrollable).
-  Fades out and unmounts when boot completes.
+  Fades out and unmounts only when platform + models are fully ready.
+  No timeout dismissal — core services must complete or fail visibly.
 
   All layout via utils (hstack, stack, box -> class strings).
   All visual via ColdLight components (Badge, Text, Progress).
@@ -20,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
+import { goto } from "$app/navigation";
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
@@ -39,6 +40,7 @@ let fading = $state(false);
 
 const subsystems = $derived(platformState.subsystemList());
 const isWizardPhase = $derived(platformState.needsModelSetup);
+const hasSubsystemFailure = $derived(platformState.hasSubsystemFailure);
 
 function stateToVariant(state: SubsystemState): BadgeVariant {
 	switch (state) {
@@ -80,44 +82,19 @@ $effect(() => {
 	}
 });
 
-// Boot timeout — if the engine hasn't finished in 30 seconds,
-// dismiss the overlay anyway so the user can interact. The
-// platform continues booting services in the background. Better
-// a partially-booted app than a permanently-frozen splash.
-$effect(() => {
-	if (!visible) return;
-	const timer = setTimeout(() => {
-		if (visible && !platformState.isFullyReady) {
-			console.warn("[boot-overlay] Boot timeout after 30s — dismissing overlay to unblock UI");
-			fading = true;
-			setTimeout(() => {
-				visible = false;
-			}, 600);
-		}
-	}, 30_000);
-	return () => clearTimeout(timer);
-});
-
-// When the wizard phase kicks in (platform is ready but models
-// need setup), open the SetupWizardOverlay (which lives as a
-// sibling inside Frame.svelte) and dismiss this boot overlay.
-// The old implementation navigated to `/model-loader/models`
-// which was a route that NO LONGER EXISTS — the wizard was
-// absorbed into the overlay component per the 2026-04-11 ruling.
+// When the wizard phase kicks in (platform is ready but models need setup),
+// route into the dedicated setup overlay under src/routes/(setup)/ so there
+// is exactly one rendering path for onboarding.
 let wizardNavigated = $state(false);
 $effect(() => {
 	if (isWizardPhase && !wizardNavigated) {
 		wizardNavigated = true;
-		// Import wizardState lazily to avoid a circular dep
-		// (BootOverlay lives under layouts/, wizardState under domains/).
-		import("$lib/domains/app/models/features/setup-wizard/wizard.runes.svelte.js")
-			.then(({ wizardState }) => {
-				wizardState.open();
+		goto("/model-loader", { replaceState: true, noScroll: true })
+			.then(() => {
 				visible = false;
 			})
 			.catch((e) => {
-				console.error("[boot-overlay] Failed to open wizard:", e);
-				visible = false;
+				console.error("[boot-overlay] Failed to navigate to setup route:", e);
 			});
 	}
 });
@@ -218,7 +195,7 @@ $effect(() => {
 				<Text size="xs" color="muted">{platformState.bootElapsedFormatted} elapsed</Text>
 			{/if}
 
-			<!-- Error state -->
+			<!-- Error state — boot phase failed or platform error string -->
 			{#if platformState.hasFailed && platformState.error}
 				<div
 					class={cn(
@@ -229,6 +206,34 @@ $effect(() => {
 					data-slot="root"
 				>
 					<Text size="xs" color="accent">{platformState.error}</Text>
+				</div>
+			{/if}
+
+			<!-- Subsystem failures — blocking until resolved; no timeout escape -->
+			{#if hasSubsystemFailure}
+				<div
+					class={cn(
+						box({ paddingX: "12", paddingY: "8" }),
+						"w-full rounded-md border border-[var(--signal-error)]/25 bg-[var(--signal-error)]/8",
+					)}
+					data-kind="box"
+					data-slot="root"
+				>
+					<Text size="sm" weight="semibold" color="accent" class="mb-2">
+						Core service failed — fix and restart the app
+					</Text>
+					<ul class="list-disc pl-4 text-left space-y-1">
+						{#each subsystems.filter((s) => s.state === "failed") as sub (sub.name)}
+							<li>
+								<Text size="xs" color="secondary">
+									{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
+									{#if sub.message}
+										— {sub.message}
+									{/if}
+								</Text>
+							</li>
+						{/each}
+					</ul>
 				</div>
 			{/if}
 		{/if}

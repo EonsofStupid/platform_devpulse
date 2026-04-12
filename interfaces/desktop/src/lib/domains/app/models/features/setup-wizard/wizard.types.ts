@@ -74,12 +74,12 @@ export interface SlotLabel {
 /** Role groupings for color coding (10 Commandments #4). */
 export type SlotRole = "reasoning" | "observation" | "encoder" | "voice";
 
-/** Role → CSS accent mapping. Uses --wiz-* local vars (wizard is ColdLight exception). */
+/** Role → central accent color mapping. Generic color names from accent.css. */
 export const ROLE_COLORS: Record<SlotRole, { accent: string; glow: string }> = {
-	reasoning: { accent: "var(--wiz-role-brain)", glow: "var(--wiz-glow-purple)" },
-	observation: { accent: "var(--wiz-role-minion)", glow: "var(--wiz-glow-green)" },
-	encoder: { accent: "var(--wiz-role-encoder)", glow: "var(--wiz-glow-cyan)" },
-	voice: { accent: "var(--wiz-role-voice)", glow: "var(--wiz-glow-ember)" },
+	reasoning: { accent: "var(--accent-violet-main)", glow: "var(--accent-violet-glow)" },
+	observation: { accent: "var(--accent-green-main)", glow: "var(--accent-green-glow)" },
+	encoder: { accent: "var(--accent-blue-main)", glow: "var(--accent-blue-glow)" },
+	voice: { accent: "var(--accent-coral-main)", glow: "var(--accent-coral-glow)" },
 };
 
 /** The definitive slot label list. EXACT from owner's spec. */

@@ -437,4 +437,51 @@ mod tests {
             "every slot must land in exactly one view"
         );
     }
+
+    /// IP boundary — the public `label` on every slot must never contain
+    /// a competitive-tactic term that leaks implementation approach.
+    ///
+    /// This is narrowed from the full `.claude/rules/ip-protection.md`
+    /// list to only the *tactic / dep / library* names that would tell
+    /// a reader "DevPulse uses X technique for Y". Internal codenames
+    /// (DIARY, GUARDIAN, PSYCH, Minion, Cortex, Trinity) are not on this
+    /// list — they are labels for industry-standard things ("agent skill",
+    /// "specialist agent", "data layer") and naming them internally
+    /// doesn't leak anything useful to a competitor.
+    ///
+    /// Case-insensitive substring match. Add terms only when they name a
+    /// real competitive tactic that must not show up verbatim in the UI.
+    #[test]
+    fn slot_labels_do_not_leak_competitive_tactics() {
+        const FORBIDDEN: &[&str] = &[
+            // Retrieval tactics — public labels say "memory search", not these.
+            "rag",
+            "cag",
+            "reranker",
+            "reranking",
+            "rrf",
+            "reciprocal rank",
+            "bm25",
+            "hybrid search",
+            // Context pipeline tactics
+            "costar",
+            "rumination",
+            // Vector store dep names
+            "qdrant",
+            "rro",
+        ];
+        let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
+        for slot in &slots {
+            let lower = slot.label.to_lowercase();
+            for term in FORBIDDEN {
+                assert!(
+                    !lower.contains(term),
+                    "slot '{}' has label '{}' which leaks tactic term '{}'",
+                    slot.id,
+                    slot.label,
+                    term
+                );
+            }
+        }
+    }
 }

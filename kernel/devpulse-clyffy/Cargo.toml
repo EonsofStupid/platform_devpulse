@@ -33,6 +33,7 @@ thiserror = { workspace = true }
 futures = { workspace = true }
 
 # Persistence Layer
+base64 = "0.22"
 libsql = { workspace = true }
 duckdb = { workspace = true }
 surrealdb = { workspace = true }

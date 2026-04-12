@@ -238,7 +238,7 @@ export const SLOT_ACTIONS = [
 // ARIA STATE PROVIDERS — Who provides ARIA + state behavior per contract
 // =============================================================================
 
-export const ARIA_STATE_PROVIDERS = ["meltui", "coldlight"] as const;
+export const ARIA_STATE_PROVIDERS = ["coldlight"] as const;
 
 // =============================================================================
 // HTML ELEMENTS — Standard HTML element tags for slot rendering

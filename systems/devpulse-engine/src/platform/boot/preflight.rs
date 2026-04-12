@@ -105,6 +105,30 @@ pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Resul
                 }
             }
         }
+
+        // Remove legacy `surreal/reasoning/` directory from pre-consolidated boot.
+        // The old code opened SurrealKV at `surreal/reasoning/` with the clyffy
+        // default namespace. Consolidated boot uses `surreal/devpulse/` instead.
+        // The stale directory has a LOCK file that never gets cleaned and the
+        // sstables directory caused "Access is denied" (OS error 5) on Windows.
+        let legacy_reasoning = data_dir.join("surreal").join("reasoning");
+        if legacy_reasoning.exists() {
+            match std::fs::remove_dir_all(&legacy_reasoning) {
+                Ok(()) => {
+                    tracing::info!(
+                        path = %legacy_reasoning.display(),
+                        "Removed legacy surreal/reasoning/ directory (pre-consolidated)"
+                    );
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        path = %legacy_reasoning.display(),
+                        error = %e,
+                        "Failed to remove legacy surreal/reasoning/ — manual cleanup needed"
+                    );
+                }
+            }
+        }
     }
 
     Ok(())

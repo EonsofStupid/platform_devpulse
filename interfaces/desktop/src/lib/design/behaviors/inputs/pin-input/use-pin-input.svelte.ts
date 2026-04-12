@@ -5,8 +5,8 @@
  * that hands back typed input attributes, keyboard handlers, and
  * paste auto-distribution logic.
  *
- * Behaviour follows the industry pattern used by React Aria, Melt UI,
- * and Zag.js pin-input machines:
+ * Behaviour follows the same interaction model as common pin-input
+ * implementations (React Aria, Spectrum-style patterns, Zag.js):
  *
  * - Printable character → write current cell, advance focus
  * - Backspace on empty → clear previous cell and focus it

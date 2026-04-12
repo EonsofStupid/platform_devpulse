@@ -6,7 +6,7 @@
   :root {
   --border-subtle: oklch(0.4256 0.0453 163.89 / 0.22); /** Default container border — teal tint at low alpha. */
   --border-strong: oklch(0.5133 0.0547 163.65 / 0.302); /** Emphasised container border — teal tint at higher alpha. */
-  --border-focus: var(--teal-400); /** Focus ring colour — alias into the primitive teal ramp at stop 400. */
+  --border-focus: var(--color-teal-400); /** Focus ring colour — alias into the primitive teal ramp at stop 400. */
   --border-divider: oklch(1.0032 0.0305 28.88 / 0.059); /** Section separator — luminance edge at near-zero alpha. */
   --border-soft: oklch(0.5133 0.0547 163.65 / 0.3); /** Soft container border — teal tint at moderate alpha. Alias-equivalent to `strong` at the same opacity. */
   --border-emphasis: var(--border-strong); /** Emphasised border — alias for strong. */

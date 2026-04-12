@@ -145,7 +145,7 @@ export async function bootstrapDownloadBridge(): Promise<() => void> {
 		const fns: UnlistenFn[] = await Promise.all([
 			listen<DownloadStartedPayload>("model:download-started", (event) => {
 				const p = event.payload;
-				const slotId = "chat.brain" as SlotId; // overridden by explicit trackDownload call
+				const pendingSlot = "system.pending" as SlotId;
 				const existing = wizardState.activeDownloads[p.download_id];
 				if (existing) {
 					wizardState.updateDownloadProgress(
@@ -154,11 +154,18 @@ export async function bootstrapDownloadBridge(): Promise<() => void> {
 						p.totalBytes,
 						existing.speedBps,
 					);
+					logInfo(
+						"download-bridge",
+						`download-started: ${p.filename} (${p.totalBytes} B) id=${p.download_id}`,
+					);
 				} else {
-					wizardState.trackDownload(p.download_id, slotId, p.filename);
+					wizardState.trackDownload(p.download_id, pendingSlot, p.filename);
 					wizardState.updateDownloadProgress(p.download_id, 0, p.totalBytes, 0);
+					logInfo(
+						"download-bridge",
+						`download-started: ${p.filename} (${p.totalBytes} B) id=${p.download_id} slot=system.pending (until UI trackDownload)`,
+					);
 				}
-				logInfo("download-bridge", `download-started: ${p.filename} (${p.totalBytes} B)`);
 			}),
 
 			listen<DownloadProgressPayload>("model:download-progress", (event) => {

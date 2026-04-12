@@ -140,17 +140,13 @@
 							"level": "error",
 							"options": {
 								"paths": {
-									"@melt-ui/svelte": "builders/ must not import MeltUI. ColdLight builders are melt-free.",
-									"@melt-ui/svelte/internal/helpers": "builders/ must not import MeltUI internals."
+									"@melt-ui/svelte": "builders/ must not import third-party headless libraries. ColdLight-owned only.",
+									"@melt-ui/svelte/internal/helpers": "builders/ must not import third-party headless internals."
 								},
 								"patterns": [
 									{
 										"group": ["**/_archive/*", "**/_archive/**"],
 										"message": "Archive imports are banned. Build from taxonomy contracts."
-									},
-									{
-										"group": ["**/api/adapters/meltui/*", "**/api/adapters/meltui/**"],
-										"message": "builders/ must not import MeltUI adapters. Builders are ColdLight-owned."
 									}
 								]
 							}

@@ -37,7 +37,9 @@ export type SlotId =
 	| "vision.embedder"
 	| "voice.stt"
 	| "voice.tts"
-	| "voice.brain";
+	| "voice.brain"
+	/** UI-only: download started before explicit slot assignment (kernel bridge). */
+	| "system.pending";
 
 /** All known slot IDs for iteration. */
 export const SLOT_IDS: SlotId[] = [
@@ -220,6 +222,7 @@ export function friendlySlotLabel(slotId: SlotId | string): string {
 		"voice.tts": "Voice",
 		"voice.stt": "Ears",
 		"voice.brain": "Voice Brain",
+		"system.pending": "Assigning slot…",
 	};
 	return map[slotId] ?? slotId;
 }

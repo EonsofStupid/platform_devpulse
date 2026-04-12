@@ -72,7 +72,7 @@ Motion axes are universal (not family-gated).
 - `ColdLightProps` / `PreparedComponentProps` — deleted
 - Hardcoded colors in components — never
 - Shorthand transforms in SD5 — removed
-- Direct `@melt-ui/svelte` imports
+- Third-party headless UI libraries in product code
 - `any` types
 - jsdom testing
 - Inventing CSS variable names without checking SD5 output

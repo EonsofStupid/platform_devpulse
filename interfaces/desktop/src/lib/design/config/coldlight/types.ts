@@ -35,7 +35,7 @@ export type AriaStateProvider =
  * These are OPTIONAL behavior providers that run UNDER ColdLight.
  * ColdLight is the SSOT and public API — adapters are internal details.
  */
-export type AdapterId = "meltui";
+export type AdapterId = "coldlight";
 
 /** Tailwind v4 @theme namespace mapping for a token category */
 type ThemeMapping = Readonly<{

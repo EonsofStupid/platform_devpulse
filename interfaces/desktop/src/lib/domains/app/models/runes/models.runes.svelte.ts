@@ -81,11 +81,7 @@ class ModelsState {
 		this.error = null;
 		try {
 			await assignModelToSlot(slotId, modelId);
-			// Update local state
-			const slot = this.slots.find((s) => s.id === slotId);
-			if (slot) {
-				slot.assigned_model_id = modelId;
-			}
+			await this.refresh();
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : String(e);
 			throw e;
@@ -163,11 +159,7 @@ class ModelsState {
 			await swapSlotModel(slotId, newModelId);
 			// SwapOverlay is driven by Tauri events (swap-complete/swap-failed),
 			// not by this Promise. The overlay auto-dismisses on completion.
-			// Update local slot state
-			const slot = this.slots.find((s) => s.id === slotId);
-			if (slot) {
-				slot.assigned_model_id = newModelId;
-			}
+			await this.refresh();
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			this.error = msg;

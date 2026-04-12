@@ -78,24 +78,24 @@ const HEADER_PATTERNS: Record<string, RegExp> = {
 
 /** Map of kind → category, from the master inventory */
 const CATEGORY_MAP: Record<string, PrimitiveCategory> = {
-	// Melt-backed (17)
-	accordion: "melt-backed",
-	avatar: "melt-backed",
-	collapsible: "melt-backed",
-	combobox: "melt-backed",
-	dialog: "melt-backed",
-	"file-upload": "melt-backed",
-	"pin-input": "melt-backed",
-	popover: "melt-backed",
-	progress: "melt-backed",
-	"radio-group": "melt-backed",
-	select: "melt-backed",
-	slider: "melt-backed",
-	tabs: "melt-backed",
-	toaster: "melt-backed",
-	toggle: "melt-backed",
-	tooltip: "melt-backed",
-	tree: "melt-backed",
+	// Compound / high-interaction primitives (ColdLight-owned headless)
+	accordion: "compound",
+	avatar: "compound",
+	collapsible: "compound",
+	combobox: "compound",
+	dialog: "compound",
+	"file-upload": "compound",
+	"pin-input": "compound",
+	popover: "compound",
+	progress: "compound",
+	"radio-group": "compound",
+	select: "compound",
+	slider: "compound",
+	tabs: "compound",
+	toaster: "compound",
+	toggle: "compound",
+	tooltip: "compound",
+	tree: "compound",
 
 	// Interactive (22)
 	button: "interactive",
@@ -312,11 +312,11 @@ function checkHeaderCompliance(filePath: string): {
 // CONTRACT LOADING (text-based, no dynamic import)
 // =============================================================================
 
-function readAriaStateProvider(contractPath: string): "meltui" | "coldlight" | null {
+function readAriaStateProvider(contractPath: string): "coldlight" | null {
 	try {
 		const content = fs.readFileSync(contractPath, "utf-8");
-		const match = content.match(/ariaStateProvider:\s*["'](meltui|coldlight)["']/);
-		return match ? (match[1] as "meltui" | "coldlight") : null;
+		const match = content.match(/ariaStateProvider:\s*["'](coldlight)["']/);
+		return match ? "coldlight" : null;
 	} catch {
 		return null;
 	}
@@ -328,7 +328,6 @@ function readAriaStateProvider(contractPath: string): "meltui" | "coldlight" | n
 
 function scanPrimitives(): PrimitiveSummary[] {
 	const primitivesRoot = path.join(ROOTS.design, "primitives");
-	const meltRoot = path.join(ROOTS.design, "api/adapters/meltui/_internal");
 	const coldlightAdapterRoot = path.join(ROOTS.design, "api/adapters/coldlight/_internal");
 	const buildersRoot = path.join(ROOTS.design, "builders");
 
@@ -346,11 +345,6 @@ function scanPrimitives(): PrimitiveSummary[] {
 		const hasSvelte = svelteFiles.length > 0;
 		const hasTest = files.some((f) => f.endsWith(".test.ts"));
 
-		// Adapter checks — use directory-friendly kind names
-		// MeltUI uses flat names: "fileupload" not "file-upload", "radiogroup" not "radio-group"
-		const meltKindName = kind.replace(/-/g, "");
-		const hasMeltAdapter =
-			fileExists(path.join(meltRoot, meltKindName)) || fileExists(path.join(meltRoot, kind));
 		const hasColdlightAdapter = fileExists(path.join(coldlightAdapterRoot, kind));
 		const hasBuilder = fileExists(path.join(buildersRoot, kind));
 
@@ -358,15 +352,7 @@ function scanPrimitives(): PrimitiveSummary[] {
 		const contractPath = path.join(kindDir, "contract.ts");
 		const ariaStateProvider = hasContract ? readAriaStateProvider(contractPath) : null;
 
-		// Parity check
-		let hasParity: boolean;
-		if (ariaStateProvider === "meltui") {
-			hasParity = hasContract && hasMeltAdapter && hasSvelte;
-		} else if (ariaStateProvider === "coldlight") {
-			hasParity = hasContract && hasSvelte;
-		} else {
-			hasParity = false;
-		}
+		const hasParity = ariaStateProvider === "coldlight" && hasContract && hasSvelte;
 
 		const category = CATEGORY_MAP[kind] ?? "interactive";
 
@@ -380,7 +366,6 @@ function scanPrimitives(): PrimitiveSummary[] {
 			hasIndex,
 			hasSvelte,
 			hasTest,
-			hasMeltAdapter,
 			hasColdlightAdapter,
 			hasBuilder,
 			hasParity,
@@ -762,7 +747,6 @@ function computeStats(
 		primitivesWithSvelte: prims.filter((p) => p.hasSvelte).length,
 		primitivesWithContract: prims.filter((p) => p.hasContract).length,
 		primitivesWithParity: prims.filter((p) => p.hasParity).length,
-		meltAdapters: manifest.coldlight.adapters.meltui.length,
 		coldlightAdapters: manifest.coldlight.adapters.coldlight.length,
 		builders: manifest.coldlight.builders.length,
 		components: manifest.coldlight.components.length,
@@ -779,8 +763,7 @@ function computeStats(
 	// File counts by layer (approximation from categories)
 	const byLayer: Record<string, number> = {
 		primitives: prims.length,
-		adapters:
-			manifest.coldlight.adapters.meltui.length + manifest.coldlight.adapters.coldlight.length,
+		adapters: manifest.coldlight.adapters.coldlight.length,
 		builders: manifest.coldlight.builders.length,
 		components: manifest.coldlight.components.length,
 		recipes: manifest.coldlight.recipes.length,
@@ -811,7 +794,6 @@ export function scanPlatform(): PlatformScanResult {
 
 	// ── ColdLight ────────────────────────────────────────────────────────────
 	const primitives = scanPrimitives();
-	const meltAdapters = scanAdapterKinds(path.join(ROOTS.design, "api/adapters/meltui/_internal"));
 	const coldlightAdapters = scanAdapterKinds(
 		path.join(ROOTS.design, "api/adapters/coldlight/_internal"),
 	);
@@ -846,7 +828,7 @@ export function scanPlatform(): PlatformScanResult {
 		generatedAt: new Date().toISOString(),
 		coldlight: {
 			primitives,
-			adapters: { meltui: meltAdapters, coldlight: coldlightAdapters },
+			adapters: { coldlight: coldlightAdapters },
 			builders,
 			components,
 			recipes,
@@ -897,7 +879,7 @@ function printReport(result: PlatformScanResult): void {
 	console.log("─── ColdLight Primitives ───────────────────────────────────\n");
 
 	const categories: PrimitiveCategory[] = [
-		"melt-backed",
+		"compound",
 		"interactive",
 		"layout",
 		"typography",
@@ -931,10 +913,8 @@ function printReport(result: PlatformScanResult): void {
 
 	// ── ColdLight Adapters ───────────────────────────────────────────────────
 	console.log("─── ColdLight Adapters ─────────────────────────────────────\n");
-	const meltComplete = cl.adapters.meltui.filter((a) => a.isComplete).length;
-	console.log(`  MeltUI:     ${meltComplete}/${cl.adapters.meltui.length} complete`);
 	const clComplete = cl.adapters.coldlight.filter((a) => a.isComplete).length;
-	console.log(`  ColdLight:  ${clComplete}/${cl.adapters.coldlight.length} complete\n`);
+	console.log(`  ColdLight adapters:  ${clComplete}/${cl.adapters.coldlight.length} complete\n`);
 
 	// ── ColdLight Builders ──────────────────────────────────────────────────
 	console.log("─── ColdLight Builders ─────────────────────────────────────\n");
@@ -992,7 +972,6 @@ function printReport(result: PlatformScanResult): void {
 	console.log(`  With .svelte:           ${stats.coldlight.primitivesWithSvelte}`);
 	console.log(`  With Contract:          ${stats.coldlight.primitivesWithContract}`);
 	console.log(`  With Parity:            ${stats.coldlight.primitivesWithParity}`);
-	console.log(`  MeltUI Adapters:        ${stats.coldlight.meltAdapters}`);
 	console.log(`  ColdLight Adapters:     ${stats.coldlight.coldlightAdapters}`);
 	console.log(`  ColdLight Builders:     ${stats.coldlight.builders}`);
 	console.log(`  Component Layer Kinds:  ${stats.coldlight.components}`);

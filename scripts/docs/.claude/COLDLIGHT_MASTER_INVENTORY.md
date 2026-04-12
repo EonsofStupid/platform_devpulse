@@ -425,7 +425,7 @@ Run `pnpm headers:fix` to patch missing tags and inject missing headers.
 Sprints are carved FROM this inventory. When a sprint completes, regenerate this file.
 
 ### Next Sprint: SPRINT-MELT-SVELTE
-**Scope**: All 17 melt-backed .svelte primitives
+**Scope**: All compound-interaction .svelte primitives (ColdLight-owned headless)
 **Prerequisite**: _internal transport layer (DONE)
 **Pattern**: Structureless primitives consuming transport, ColdLight ARIA per contract
 

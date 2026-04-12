@@ -4,20 +4,15 @@
  *
  * Declares the design-system adapter configuration.
  *
- * ColdLight OWNS everything by default. Adapters are OPTIONAL fallbacks
- * used only when ARIA/focus/keyboard complexity genuinely justifies it.
+ * ColdLight OWNS headless behavior end-to-end: ARIA, focus, keyboard, state.
+ * Terminology and patterns align with React Spectrum S2; there is no third-party
+ * headless runtime in the product stack.
  *
- * DEFAULT ariaStateProvider is "coldlight" — ColdLight handles ARIA directly.
- * MeltUI is available as an adapter for complex widgets (dialog, combobox, etc.)
- * but is NEVER the default authority.
- *
- * ColdLight is always the SSOT and the public API — adapters are internal.
+ * ColdLight is always the SSOT and the public API.
  */
 
 export const ADAPTERS = {
-	enabled: { meltui: true },
-	/** MeltUI is available but ColdLight is the default owner */
-	active: "meltui",
-	/** DEFAULT: ColdLight owns ARIA. Per-primitive contracts override to "meltui" when justified */
+	enabled: { coldlight: true },
+	active: "coldlight",
 	ariaStateProvider: "coldlight",
 } as const;

@@ -4,6 +4,10 @@
  *
  * Orchestrates wizard operations. Calls IPC commands, coordinates state updates.
  * NOT a rune — a service with async methods. Does NOT import .svelte files.
+ *
+ * Runtime truth (slots, registry, presets, auto-config) lives in the engine/Rust
+ * side — this module is orchestration + view-model updates only. Never treat
+ * `wizardState` mirrors as authoritative over IPC results.
  */
 
 import { invoke } from "@tauri-apps/api/core";

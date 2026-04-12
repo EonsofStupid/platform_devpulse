@@ -14,6 +14,6 @@ paths:
 - ColdLight is SOLE AUTHORITY for all UI components and tokens
 - Validation: ArkType everywhere (Zod is DROPPED across entire platform)
 - Type-safe IPC: Specta + tauri-specta for TS bindings from Rust types
-- NEVER import from @melt-ui directly — ColdLight wraps Melt primitives
+- Headless UI is ColdLight-owned only — do not add third-party headless libraries (e.g. Melt, Bits) to product `src/`
 - Server Components don't exist in SvelteKit — this is NOT Next.js
 - "use client" does not exist here — do NOT add React directives

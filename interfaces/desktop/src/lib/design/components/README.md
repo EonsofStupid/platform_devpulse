@@ -8,7 +8,7 @@
 
 Semantics are **user-facing styled components** created by combining:
 
-- **Primitive** (behavior from Melt UI)
+- **Primitive** (ColdLight-owned behavior — ARIA, focus, keyboard)
 - **Semantic preset** (`.btn-main`, etc.)
 - **Variant payload** (`.v-s1z2l3t1m2`)
 
@@ -186,7 +186,7 @@ const PrimaryButtonBlueprint = {
 | `<style>` blocks | Use recipe classes |
 | Inline `style=""` | Use variant classes |
 | Raw colors | Use tokens via recipes |
-| Direct Melt imports | Use primitives |
+| Third-party headless imports | Use ColdLight primitives / hooks only |
 
 ---
 

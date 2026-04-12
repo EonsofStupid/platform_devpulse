@@ -1,13 +1,17 @@
-//! `SurrealDB` adapter for reasoning system
+//! `SurrealDB` adapter for the reasoning system.
 //!
-//! Handles: reasoning graph, state transitions, knowledge relationships
-//! Namespace: clyffy/devpulse/reasoning/ with sub-categories
+//! Two public types:
+//! - `SurrealAdapter` — owns the `Surreal<Db>` connection (one per `SurrealKV` instance).
+//! - `ScopedGraphHandle` — namespace-scoped operations. Every query is prefixed
+//!   with `USE NS {ns} DB {db};` so namespace isolation is real, not implicit.
 //!
-//! This is the "brain" storage for the AI reasoning system.
+//! Boot opens ONE `SurrealKV` at `surreal/devpulse`. The adapter creates
+//! `ScopedGraphHandle` instances for each namespace (system, user, global).
+//! Each handle scopes every operation — no shared implicit context.
 
 use crate::cortex::persistence::config::SurrealNamespace;
-use crate::cortex::persistence::traits::{GraphAdapter, PersistenceAdapter};
 use anyhow::{Context, Result};
+use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
@@ -16,7 +20,15 @@ use surrealdb::types::SurrealValue;
 use surrealdb::Surreal;
 use tokio::sync::RwLock;
 
-/// `SurrealDB` adapter for reasoning graph.
+// ═══════════════════════════════════════════════════════════════
+// SurrealAdapter — connection owner
+// ═══════════════════════════════════════════════════════════════
+
+/// `SurrealDB` adapter — owns a single `Surreal<Db>` connection.
+///
+/// This is the connection holder only. All scoped operations go through
+/// `ScopedGraphHandle`. Direct methods here are for boot-time setup
+/// (schema init, namespace creation) that require root-level access.
 pub struct SurrealAdapter {
     db: Arc<RwLock<Surreal<Db>>>,
 }
@@ -24,7 +36,8 @@ pub struct SurrealAdapter {
 impl SurrealAdapter {
     /// Open database at path with `SurrealKV` backend (pure Rust).
     ///
-    /// Uses the default clyffy reasoning namespace/database/schema.
+    /// Uses the default kernel reasoning namespace/database/schema.
+    /// This is the kernel's own entry point — engine boot uses `open_with_ns`.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -40,13 +53,11 @@ impl SurrealAdapter {
 
     /// Open database at path with explicit namespace, database, and schema.
     ///
-    /// This is the primary constructor — `open()` delegates here with
-    /// clyffy defaults. Engine-level scoped stores pass their own
-    /// namespace/database/schema from config.
-    ///
-    /// The schema runs first as root (to create users/tables), then the
-    /// connection signs in as the dedicated system user for all subsequent
-    /// operations. This ensures the platform engine has a scoped identity.
+    /// This is the primary constructor. The schema runs as implicit root
+    /// (embedded `SurrealKV` has root access). After schema init, the
+    /// connection is left at the given namespace/database context — but
+    /// all runtime operations MUST go through `ScopedGraphHandle` which
+    /// prefixes every query with explicit `USE NS ... DB ...;`.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -75,11 +86,15 @@ impl SurrealAdapter {
                 )
             })?;
 
-        // Embedded SurrealKV has implicit root access — no signin needed.
-        // DEFINE USER in schema creates namespace-scoped accounts for the
-        // HTTP API boundary (:8822) where external tools authenticate.
-        // The embedded connection operates as root by design.
+        tracing::info!(
+            path = %path.display(),
+            namespace,
+            database,
+            "SurrealKV opened — selecting namespace"
+        );
 
+        // Select initial namespace for schema init. Write lock because
+        // use_ns/use_db mutate the session's active context.
         db.use_ns(namespace)
             .use_db(database)
             .await
@@ -91,8 +106,10 @@ impl SurrealAdapter {
             db: Arc::new(RwLock::new(db)),
         };
 
-        // Initialize schema as root — this creates the system user + tables
+        // Initialize schema as root — this creates tables/indexes.
         adapter.init_schema(schema).await?;
+
+        tracing::info!(namespace, database, "SurrealDB schema initialized");
 
         Ok(adapter)
     }
@@ -124,39 +141,24 @@ impl SurrealAdapter {
     /// Initialize the database schema with provided DDL.
     async fn init_schema(&self, schema: &str) -> Result<()> {
         let db = self.db.read().await;
-
         db.query(schema)
             .await
             .context("Failed to initialize SurrealDB schema")?;
-
-        Ok(())
-    }
-
-    /// Execute raw SurrealQL on the current namespace/database context.
-    ///
-    /// Used by the boot pipeline to run config-driven DDL (DEFINE USER, etc.)
-    /// that can't be in static schema constants because it contains runtime values.
-    ///
-    /// # Errors
-    /// Returns error if the query fails.
-    pub async fn raw_query(&self, surql: &str) -> Result<()> {
-        let db = self.db.read().await;
-        db.query(surql)
-            .await
-            .with_context(|| format!("raw_query failed: {}", surql.chars().take(80).collect::<String>()))?;
         Ok(())
     }
 
     /// Initialize an additional namespace/database with its own schema.
     ///
-    /// Switches to the given ns/db context, runs the schema DDL, then
-    /// returns. The session context is left pointing at this ns/db.
-    /// Use this to bootstrap multiple scopes on a single `SurrealKV` instance.
+    /// Acquires the WRITE lock because `use_ns`/`use_db` mutate session
+    /// state. This prevents concurrent namespace switches from racing.
     ///
     /// # Errors
     /// Returns error if namespace selection or schema init fails.
     pub async fn init_namespace(&self, namespace: &str, database: &str, schema: &str) -> Result<()> {
-        let db = self.db.read().await;
+        // Write lock — use_ns/use_db are session-level mutations.
+        let db = self.db.write().await;
+
+        tracing::debug!(namespace, database, "Initializing namespace");
 
         db.use_ns(namespace)
             .use_db(database)
@@ -171,13 +173,28 @@ impl SurrealAdapter {
                 format!("Failed to initialize schema for '{namespace}/{database}'")
             })?;
 
+        tracing::info!(namespace, database, "Namespace schema initialized");
+
         Ok(())
     }
 
-    /// Execute a raw `SurrealQL` query in a specific namespace/database context.
+    /// Create a `ScopedGraphHandle` for a specific namespace/database.
     ///
-    /// Prefixes the query with `USE NS ... DB ...;` to scope it.
-    /// Returns the raw JSON response.
+    /// The handle carries the namespace and database, prefixing every
+    /// query with `USE NS {ns} DB {db};`. This is the ONLY way runtime
+    /// code should interact with the database — never use implicit context.
+    pub fn scoped_handle(self: &Arc<Self>, namespace: &str, database: &str) -> ScopedGraphHandle {
+        ScopedGraphHandle {
+            adapter: Arc::clone(self),
+            namespace: namespace.to_string(),
+            database: database.to_string(),
+        }
+    }
+
+    /// Execute a scoped query — prefixes with `USE NS {ns} DB {db};`.
+    ///
+    /// Returns the result of the first user statement (index 1 after USE).
+    /// Used by `ScopedGraphHandle` and boot pipeline for namespace-scoped ops.
     ///
     /// # Errors
     /// Returns error if the query fails.
@@ -196,7 +213,6 @@ impl SurrealAdapter {
             .context("SurrealDB query failed")?;
 
         // The USE NS/DB statement is index 0, user query starts at index 1.
-        // SurrealDB v3 `take()` requires Vec<T>/Option<T>, not raw Value.
         let rows: Vec<serde_json::Value> = response
             .take(1)
             .context("Failed to extract query results")?;
@@ -204,195 +220,268 @@ impl SurrealAdapter {
         Ok(serde_json::Value::Array(rows))
     }
 
-    /// Get database handle for advanced queries.
-    pub async fn database(&self) -> tokio::sync::RwLockReadGuard<'_, Surreal<Db>> {
-        self.db.read().await
+    /// Execute scoped DDL — runs a statement in a specific namespace.
+    ///
+    /// Like `query_in_ns` but ignores the result. Used for DEFINE USER,
+    /// DEFINE TABLE, and other DDL that returns nothing useful.
+    ///
+    /// # Errors
+    /// Returns error if the DDL fails.
+    pub async fn execute_in_ns(
+        &self,
+        namespace: &str,
+        database: &str,
+        ddl: &str,
+    ) -> Result<()> {
+        let db = self.db.read().await;
+
+        let scoped_ddl = format!("USE NS {namespace} DB {database}; {ddl}");
+        db.query(scoped_ddl)
+            .await
+            .with_context(|| {
+                format!(
+                    "DDL failed in {namespace}/{database}: {}",
+                    ddl.chars().take(80).collect::<String>()
+                )
+            })?;
+
+        Ok(())
     }
 
     /// Get a clone of the inner database handle for sharing.
     ///
-    /// Used by the `SurrealDB` HTTP server to share the same instance.
+    /// Used by the HTTP server to share the embedded connection.
     pub fn db_handle(&self) -> Arc<RwLock<Surreal<Db>>> {
         Arc::clone(&self.db)
     }
 
-    /// Graceful shutdown — flush and release the `SurrealKV` instance.
+    /// Lightweight health check — executes `SELECT 1` in the default namespace.
     ///
-    /// `SurrealKV` uses a WAL that needs to be flushed on shutdown.
-    /// Dropping the `Surreal<Db>` handle triggers the flush. We acquire
-    /// the write lock first to ensure no queries are in flight.
-    pub async fn close(&self) {
-        tracing::debug!("SurrealDB: flushing and closing");
-        // Acquire write lock — blocks all pending reads/writes
-        let _db = self.db.write().await;
-        // Write lock held. When this scope exits, the RwLockWriteGuard drops,
-        // but we've ensured exclusive access. The actual Surreal<Db> drops
-        // when all Arc references reach zero (handled by Platform::shutdown).
-        tracing::debug!("SurrealDB: closed");
-    }
-
-    /// Ping database — executes `INFO FOR DB`.
-    ///
-    /// # Errors
-    /// Returns error if the database is unreachable.
+    /// Called by the persistence manager's `ping_surreal` via `Arc<SurrealAdapter>`.
     pub async fn ping(&self) -> Result<()> {
         let db = self.db.read().await;
-        db.query("INFO FOR DB")
+        let mut response = db
+            .query("SELECT 1")
             .await
             .context("SurrealDB ping failed")?;
+        let _: Option<serde_json::Value> = response
+            .take(0)
+            .context("SurrealDB ping returned no result")?;
         Ok(())
+    }
+
+    /// Quiesce — block all pending queries and prepare for shutdown.
+    ///
+    /// Acquires the write lock to ensure no queries are in flight.
+    /// The actual `Surreal<Db>` drops (and flushes WAL) when the last
+    /// `Arc<SurrealAdapter>` drops. This method ensures orderly drain.
+    pub async fn quiesce(&self) {
+        tracing::info!("SurrealDB: quiescing — draining pending queries");
+        let _db = self.db.write().await;
+        // Write lock held. All pending reads blocked, ensuring drain.
+        // WAL flush happens when the Surreal<Db> is dropped (Arc refcount → 0).
+        tracing::info!("SurrealDB: quiesced — all queries drained");
     }
 }
 
-impl PersistenceAdapter for SurrealAdapter {
-    async fn set(&self, key: &str, value: &[u8]) -> Result<()> {
-        let db = self.db.read().await;
+// ═══════════════════════════════════════════════════════════════
+// ScopedGraphHandle — namespace-scoped operations
+// ═══════════════════════════════════════════════════════════════
 
-        let record = KvRecord {
-            key: key.to_string(),
-            value: value.to_vec(),
-        };
-
-        db.create::<Option<KvRecord>>(("kv", key))
-            .content(record)
-            .await
-            .context("Failed to set value in SurrealDB")?;
-
-        Ok(())
-    }
-
-    async fn get(&self, key: &str) -> Result<Option<Vec<u8>>> {
-        let db = self.db.read().await;
-
-        let result: Option<KvRecord> = db
-            .select(("kv", key))
-            .await
-            .context("Failed to get value from SurrealDB")?;
-
-        Ok(result.map(|r| r.value))
-    }
-
-    async fn delete(&self, key: &str) -> Result<bool> {
-        let db = self.db.read().await;
-
-        let result: Option<KvRecord> = db
-            .delete(("kv", key))
-            .await
-            .context("Failed to delete from SurrealDB")?;
-
-        Ok(result.is_some())
-    }
-
-    async fn exists(&self, key: &str) -> Result<bool> {
-        let db = self.db.read().await;
-
-        let result: Option<KvRecord> = db
-            .select(("kv", key))
-            .await
-            .context("Failed to check existence in SurrealDB")?;
-
-        Ok(result.is_some())
-    }
+/// Namespace-scoped handle to a shared `SurrealDB` connection.
+///
+/// Every query is prefixed with `USE NS {namespace} DB {database};`
+/// so namespace isolation is enforced at the query level, not by
+/// relying on implicit session context.
+///
+/// This is the ONLY way runtime code should access the graph store.
+pub struct ScopedGraphHandle {
+    adapter: Arc<SurrealAdapter>,
+    namespace: String,
+    database: String,
 }
 
-impl GraphAdapter for SurrealAdapter {
-    async fn create_node(&self, table: &str, id: &str, props: serde_json::Value) -> Result<()> {
-        let db = self.db.read().await;
+impl ScopedGraphHandle {
+    /// The namespace this handle is scoped to.
+    pub fn namespace(&self) -> &str {
+        &self.namespace
+    }
 
-        // Use parameterized query to prevent injection
-        // Convert to owned strings for surrealdb bind API
-        let table = table.to_string();
-        let id = id.to_string();
-        db.query("CREATE type::thing($table, $id) CONTENT $props")
-            .bind(("table", table))
-            .bind(("id", id))
-            .bind(("props", props))
+    /// The database this handle is scoped to.
+    pub fn database(&self) -> &str {
+        &self.database
+    }
+
+    /// Get the underlying adapter (for HTTP server sharing).
+    pub fn adapter(&self) -> &Arc<SurrealAdapter> {
+        &self.adapter
+    }
+
+    /// Execute a query and return results.
+    ///
+    /// # Errors
+    /// Returns error if the query fails.
+    pub async fn query(&self, surql: &str) -> Result<serde_json::Value> {
+        self.adapter
+            .query_in_ns(&self.namespace, &self.database, surql)
             .await
-            .context("Failed to create node")?;
+    }
 
+    /// Execute DDL (DEFINE, CREATE, UPDATE, DELETE) — ignores result.
+    ///
+    /// # Errors
+    /// Returns error if the statement fails.
+    pub async fn execute(&self, surql: &str) -> Result<()> {
+        self.adapter
+            .execute_in_ns(&self.namespace, &self.database, surql)
+            .await
+    }
+
+    /// Health check — verifies the WAL can serve reads in THIS namespace.
+    ///
+    /// Runs `SELECT * FROM kv LIMIT 1` which proves:
+    /// 1. The connection is alive
+    /// 2. The namespace/database exists
+    /// 3. The schema was applied (kv table exists)
+    /// 4. The WAL can serve reads (not just metadata)
+    ///
+    /// # Errors
+    /// Returns error if the database is unreachable or the namespace is broken.
+    pub async fn ping(&self) -> Result<()> {
+        self.adapter
+            .query_in_ns(&self.namespace, &self.database, "SELECT * FROM kv LIMIT 1")
+            .await
+            .with_context(|| {
+                format!(
+                    "SurrealDB health check failed for {}/{}",
+                    self.namespace, self.database
+                )
+            })?;
         Ok(())
     }
 
-    async fn create_edge(
+    /// Create a node in a table.
+    ///
+    /// # Errors
+    /// Returns error if the node cannot be created.
+    pub async fn create_node(&self, table: &str, id: &str, props: &serde_json::Value) -> Result<()> {
+        let surql = format!(
+            "CREATE type::thing('{table}', '{id}') CONTENT {props};"
+        );
+        self.execute(&surql).await
+    }
+
+    /// Create an edge between two nodes.
+    ///
+    /// # Errors
+    /// Returns error if the edge cannot be created.
+    pub async fn create_edge(
         &self,
-        table: &str,
+        edge_table: &str,
         from_id: &str,
         to_id: &str,
-        props: serde_json::Value,
+        props: &serde_json::Value,
     ) -> Result<()> {
-        let db = self.db.read().await;
-
-        // Use parameterized query to prevent injection
-        let table = table.to_string();
-        let from_id = from_id.to_string();
-        let to_id = to_id.to_string();
-        let edge_id = uuid::Uuid::new_v4().to_string();
-        db.query("RELATE $from->type::thing($table, $edge_id)->$to CONTENT $props")
-            .bind(("from", from_id))
-            .bind(("table", table))
-            .bind(("edge_id", edge_id))
-            .bind(("to", to_id))
-            .bind(("props", props))
-            .await
-            .context("Failed to create edge")?;
-
-        Ok(())
+        let edge_id = uuid::Uuid::new_v4();
+        let surql = format!(
+            "RELATE {from_id}->type::thing('{edge_table}', '{edge_id}')->{to_id} CONTENT {props};"
+        );
+        self.execute(&surql).await
     }
 
-    async fn query_nodes(&self, table: &str, filter: &str) -> Result<Vec<serde_json::Value>> {
-        let db = self.db.read().await;
-
-        // Convert to owned for bind API
-        let table = table.to_string();
-        let filter = filter.to_string();
-
-        // Note: filter is expected to be a safe field reference, not user input
-        // For user-facing queries, use parameterized conditions
-        let mut response = if filter.is_empty() {
-            db.query("SELECT * FROM type::table($table)")
-                .bind(("table", table))
-                .await
+    /// Query all nodes from a table, optionally filtered.
+    ///
+    /// # Errors
+    /// Returns error if the query fails.
+    pub async fn query_nodes(&self, table: &str, filter: &str) -> Result<Vec<serde_json::Value>> {
+        let surql = if filter.is_empty() {
+            format!("SELECT * FROM {table};")
         } else {
-            // Filter must be validated/sanitized by caller for complex conditions
-            db.query("SELECT * FROM type::table($table) WHERE $filter")
-                .bind(("table", table))
-                .bind(("filter", filter))
-                .await
+            format!("SELECT * FROM {table} WHERE {filter};")
+        };
+        let result = self.query(&surql).await?;
+        match result {
+            serde_json::Value::Array(rows) => Ok(rows),
+            other => Ok(vec![other]),
         }
-        .context("Failed to query nodes")?;
-
-        let results: Vec<serde_json::Value> = response.take(0).context("Failed to take results")?;
-
-        Ok(results)
     }
 
-    async fn traverse(
+    /// Traverse edges from a starting node.
+    ///
+    /// # Errors
+    /// Returns error if the traversal fails.
+    pub async fn traverse(
         &self,
         start_id: &str,
         edge_type: &str,
         depth: u32,
     ) -> Result<Vec<serde_json::Value>> {
-        let db = self.db.read().await;
+        let surql = format!(
+            "SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};"
+        );
+        let result = self.query(&surql).await?;
+        match result {
+            serde_json::Value::Array(rows) => Ok(rows),
+            other => Ok(vec![other]),
+        }
+    }
 
-        // Convert to owned for bind API
-        let edge_type = edge_type.to_string();
-        let start_id = start_id.to_string();
+    /// Set a key-value pair in the scoped kv table.
+    ///
+    /// # Errors
+    /// Returns error if the upsert fails.
+    pub async fn kv_set(&self, key: &str, value: &[u8]) -> Result<()> {
+        let encoded = base64::engine::general_purpose::STANDARD.encode(value);
+        let surql = format!(
+            "UPSERT kv:`{key}` SET key = '{key}', value = encoding::base64::decode('{encoded}');"
+        );
+        self.execute(&surql).await
+    }
 
-        let mut response = db
-            .query("SELECT ->type::table($edge)->* AS connected FROM $start LIMIT $depth")
-            .bind(("edge", edge_type))
-            .bind(("start", start_id))
-            .bind(("depth", depth))
-            .await
-            .context("Failed to traverse graph")?;
+    /// Get a value from the scoped kv table.
+    ///
+    /// # Errors
+    /// Returns error if the query fails.
+    pub async fn kv_get(&self, key: &str) -> Result<Option<Vec<u8>>> {
+        let result = self.query(&format!("SELECT value FROM kv:`{key}`;")).await?;
+        // Result is an array. If empty or value is null, return None.
+        if let serde_json::Value::Array(rows) = &result {
+            if let Some(row) = rows.first() {
+                if let Some(val) = row.get("value") {
+                    if !val.is_null() {
+                        // SurrealDB returns bytes as a base64 string in JSON
+                        if let Some(s) = val.as_str() {
+                            let bytes = base64::engine::general_purpose::STANDARD
+                                .decode(s)
+                                .context("Failed to decode base64 kv value")?;
+                            return Ok(Some(bytes));
+                        }
+                    }
+                }
+            }
+        }
+        Ok(None)
+    }
 
-        let results: Vec<serde_json::Value> = response.take(0).context("Failed to take results")?;
-
-        Ok(results)
+    /// Delete a key from the scoped kv table.
+    ///
+    /// # Errors
+    /// Returns error if the deletion fails.
+    pub async fn kv_delete(&self, key: &str) -> Result<bool> {
+        let result = self.query(&format!("DELETE kv:`{key}` RETURN BEFORE;")).await?;
+        // If RETURN BEFORE has rows, the key existed
+        if let serde_json::Value::Array(rows) = &result {
+            return Ok(!rows.is_empty());
+        }
+        Ok(false)
     }
 }
 
-/// Key-value record for signal-based storage
+// ═══════════════════════════════════════════════════════════════
+// Data types
+// ═══════════════════════════════════════════════════════════════
+
+/// Key-value record for signal-based storage.
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[surreal(crate = "surrealdb::types")]
 struct KvRecord {
@@ -400,7 +489,7 @@ struct KvRecord {
     value: Vec<u8>,
 }
 
-/// Reasoning node in the graph
+/// Reasoning node in the graph.
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[surreal(crate = "surrealdb::types")]
 pub struct ReasoningNode {
@@ -416,7 +505,7 @@ pub struct ReasoningNode {
     pub created_at: i64,
 }
 
-/// State in the reasoning HMM
+/// State in the reasoning context switcher.
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[surreal(crate = "surrealdb::types")]
 pub struct ReasoningState {
@@ -430,7 +519,7 @@ pub struct ReasoningState {
     pub emissions: Vec<String>,
 }
 
-/// Transition between reasoning states
+/// Transition between reasoning states.
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[surreal(crate = "surrealdb::types")]
 pub struct StateTransition {
@@ -444,39 +533,47 @@ pub struct StateTransition {
     pub trigger: String,
 }
 
-/// Schema for reasoning system.
-const REASONING_SCHEMA: &str = r"
+// ═══════════════════════════════════════════════════════════════
+// Kernel reasoning schema (used by SurrealAdapter::open)
+// ═══════════════════════════════════════════════════════════════
+
+/// Schema for the kernel reasoning system.
+///
+/// This is the kernel's own schema — used when the kernel opens its
+/// own `SurrealAdapter` via `open()`. The engine-level schemas in
+/// `services/graph.rs` cover the platform scopes (system/user/global).
+pub const REASONING_SCHEMA: &str = r"
 -- Key-value store for signal-based access
-DEFINE TABLE kv SCHEMAFULL;
-DEFINE FIELD key ON kv TYPE string;
-DEFINE FIELD value ON kv TYPE bytes;
-DEFINE INDEX kv_key ON kv FIELDS key UNIQUE;
+DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS key ON kv TYPE string;
+DEFINE FIELD IF NOT EXISTS value ON kv TYPE bytes;
+DEFINE INDEX IF NOT EXISTS kv_key ON kv FIELDS key UNIQUE;
 
 -- Reasoning nodes (concepts, facts, decisions)
-DEFINE TABLE nodes SCHEMAFULL;
-DEFINE FIELD node_type ON nodes TYPE string;
-DEFINE FIELD content ON nodes TYPE string;
-DEFINE FIELD metadata ON nodes TYPE object;
-DEFINE FIELD created_at ON nodes TYPE datetime DEFAULT time::now();
-DEFINE INDEX nodes_type ON nodes FIELDS node_type;
+DEFINE TABLE IF NOT EXISTS nodes SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS node_type ON nodes TYPE string;
+DEFINE FIELD IF NOT EXISTS content ON nodes TYPE string;
+DEFINE FIELD IF NOT EXISTS metadata ON nodes TYPE object;
+DEFINE FIELD IF NOT EXISTS created_at ON nodes TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS nodes_type ON nodes FIELDS node_type;
 
 -- Reasoning edges (relationships between nodes)
-DEFINE TABLE relates SCHEMAFULL;
-DEFINE FIELD relation_type ON relates TYPE string;
-DEFINE FIELD weight ON relates TYPE float DEFAULT 1.0;
-DEFINE FIELD created_at ON relates TYPE datetime DEFAULT time::now();
+DEFINE TABLE IF NOT EXISTS relates SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS relation_type ON relates TYPE string;
+DEFINE FIELD IF NOT EXISTS weight ON relates TYPE float DEFAULT 1.0;
+DEFINE FIELD IF NOT EXISTS created_at ON relates TYPE datetime DEFAULT time::now();
 
--- HMM states for reasoning
-DEFINE TABLE states SCHEMAFULL;
-DEFINE FIELD name ON states TYPE string;
-DEFINE FIELD probability ON states TYPE float;
-DEFINE FIELD emissions ON states TYPE array;
-DEFINE INDEX states_name ON states FIELDS name UNIQUE;
+-- Context switching states
+DEFINE TABLE IF NOT EXISTS states SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS name ON states TYPE string;
+DEFINE FIELD IF NOT EXISTS probability ON states TYPE float;
+DEFINE FIELD IF NOT EXISTS emissions ON states TYPE array;
+DEFINE INDEX IF NOT EXISTS states_name ON states FIELDS name UNIQUE;
 
 -- State transitions
-DEFINE TABLE transitions SCHEMAFULL;
-DEFINE FIELD from_state ON transitions TYPE record(states);
-DEFINE FIELD to_state ON transitions TYPE record(states);
-DEFINE FIELD probability ON transitions TYPE float;
-DEFINE FIELD trigger ON transitions TYPE string;
+DEFINE TABLE IF NOT EXISTS transitions SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS from_state ON transitions TYPE record(states);
+DEFINE FIELD IF NOT EXISTS to_state ON transitions TYPE record(states);
+DEFINE FIELD IF NOT EXISTS probability ON transitions TYPE float;
+DEFINE FIELD IF NOT EXISTS trigger ON transitions TYPE string;
 ";

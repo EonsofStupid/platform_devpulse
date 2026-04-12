@@ -4,7 +4,7 @@
  * @layer components
  *
  * Prop types for all NavigationMenu sub-components.
- * ColdLight-owned — no MeltUI adapter. Native ARIA on semantic HTML elements.
+ * ColdLight-owned — native ARIA on semantic HTML elements.
  * No matching primitive — extends UIBaseProps.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/

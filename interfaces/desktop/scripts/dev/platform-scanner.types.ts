@@ -34,8 +34,8 @@ export interface PrimitiveSummary {
 	readonly kind: string;
 	/** PascalCase kind (e.g. "Button", "Dialog") */
 	readonly kindPascal: string;
-	/** ARIA state provider: "meltui" | "coldlight" */
-	readonly ariaStateProvider: "meltui" | "coldlight" | null;
+	/** ARIA state provider — ColdLight-owned headless only */
+	readonly ariaStateProvider: "coldlight" | null;
 	/** Category grouping for inventory display */
 	readonly category: PrimitiveCategory;
 
@@ -47,8 +47,6 @@ export interface PrimitiveSummary {
 	readonly hasTest: boolean;
 
 	// ── Parity status ────────────────────────────────────────────────────────
-	/** MeltUI adapter folder exists in _internal/ */
-	readonly hasMeltAdapter: boolean;
 	/** ColdLight adapter folder exists in _internal/ */
 	readonly hasColdlightAdapter: boolean;
 	/** ColdLight builder exists in builders/{kind}/ */
@@ -61,7 +59,7 @@ export interface PrimitiveSummary {
 }
 
 export type PrimitiveCategory =
-	| "melt-backed"
+	| "compound"
 	| "interactive"
 	| "layout"
 	| "typography"
@@ -205,7 +203,6 @@ export interface PlatformStats {
 		readonly primitivesWithSvelte: number;
 		readonly primitivesWithContract: number;
 		readonly primitivesWithParity: number;
-		readonly meltAdapters: number;
 		readonly coldlightAdapters: number;
 		readonly builders: number;
 		readonly components: number;
@@ -231,7 +228,6 @@ export interface DevPulseManifest {
 	readonly coldlight: {
 		readonly primitives: readonly PrimitiveSummary[];
 		readonly adapters: {
-			readonly meltui: readonly AdapterKindSummary[];
 			readonly coldlight: readonly AdapterKindSummary[];
 		};
 		readonly builders: readonly BuilderKindSummary[];

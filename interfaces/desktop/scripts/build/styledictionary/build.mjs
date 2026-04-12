@@ -10,6 +10,14 @@
  *   1. Collect colocated component tokens.ts → DTCG JSON
  *   2. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
  *   3. Write barrel index files (CSS, theme, types)
+ *
+ * Output boundary (no second token pipeline):
+ * - src/lib/design/styles/  — token custom properties (@layer tokens.*)
+ * - src/lib/design/theme/   — Tailwind @theme blocks
+ * - src/lib/design/types/   — generated .d.ts unions
+ * - src/lib/design/generated/token-manifest.json — VPB manifest
+ * Non-token CSS (generated/*.css outside SD5, svg glue) is authored separately
+ * and imported from src/lib/design/index.css — not emitted here.
  */
 
 import { execSync } from 'node:child_process';

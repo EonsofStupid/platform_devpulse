@@ -4,44 +4,47 @@
 
 @layer tokens.semantic {
   :root {
-  --accent-teal-main: var(--teal-400); /** Primary indicator colour — teal ramp stop 400. */
+  --accent-teal-main: var(--color-teal-400); /** Primary indicator colour — teal ramp stop 400. */
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle background tint. */
-  --accent-purple-main: var(--purple-400); /** Primary indicator colour — purple ramp stop 400. */
+  --accent-purple-main: var(--color-purple-400); /** Primary indicator colour — purple ramp stop 400. */
   --accent-purple-glow: oklch(0.63 0.12 280 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-purple-fill: oklch(0.63 0.12 280 / 0.08); /** Sparkline area fill, subtle background tint. */
-  --accent-magenta-main: var(--magenta-400); /** Primary indicator colour — magenta ramp stop 400. */
+  --accent-magenta-main: var(--color-magenta-400); /** Primary indicator colour — magenta ramp stop 400. */
   --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08); /** Sparkline area fill, subtle background tint. */
-  --accent-ember-main: var(--ember-400); /** Primary indicator colour — ember ramp stop 400. */
+  --accent-ember-main: var(--color-ember-400); /** Primary indicator colour — ember ramp stop 400. */
   --accent-ember-glow: oklch(0.63 0.12 25 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-ember-fill: oklch(0.63 0.12 25 / 0.08); /** Sparkline area fill, subtle background tint. */
-  --accent-frost-main: var(--frost-400); /** Primary indicator colour — frost ramp stop 400. */
+  --accent-frost-main: var(--color-frost-400); /** Primary indicator colour — frost ramp stop 400. */
   --accent-frost-glow: oklch(0.63 0.06 220 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-frost-fill: oklch(0.63 0.06 220 / 0.08); /** Sparkline area fill, subtle background tint. */
-  --accent-cyber-main: var(--cyber-400); /** Primary indicator colour — cyber ramp stop 400. */
+  --accent-cyber-main: var(--color-cyber-400); /** Primary indicator colour — cyber ramp stop 400. */
   --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08); /** Sparkline area fill, subtle background tint. */
-  --accent-cyan-main: var(--brand-cyan-500); /** Bright cyan indicator — brand-cyan ramp stop 500. */
+  --accent-cyan-main: var(--color-brand-cyan-500); /** Bright cyan indicator — brand-cyan ramp stop 500. */
   --accent-cyan-glow: oklch(0.82 0.14 195 / 0.35); /** Cyan glow emission. */
   --accent-cyan-fill: oklch(0.82 0.14 195 / 0.08); /** Cyan area fill. */
-  --accent-green-main: var(--brand-green-500); /** Vivid green indicator — brand-green ramp stop 500. */
+  --accent-green-main: var(--color-brand-green-500); /** Vivid green indicator — brand-green ramp stop 500. */
   --accent-green-glow: oklch(0.66 0.17 155 / 0.35); /** Green glow emission. */
   --accent-green-fill: oklch(0.66 0.17 155 / 0.08); /** Green area fill. */
-  --accent-hotpink-main: var(--brand-hotpink-500); /** Hot pink indicator — brand-hotpink ramp stop 500. */
+  --accent-hotpink-main: var(--color-brand-hotpink-500); /** Hot pink indicator — brand-hotpink ramp stop 500. */
   --accent-hotpink-glow: oklch(0.66 0.22 10 / 0.35); /** Hot pink glow emission. */
   --accent-hotpink-fill: oklch(0.66 0.22 10 / 0.08); /** Hot pink area fill. */
-  --accent-coral-main: var(--brand-coral-500); /** Coral indicator — brand-coral ramp stop 500. */
+  --accent-coral-main: var(--color-brand-coral-500); /** Coral indicator — brand-coral ramp stop 500. */
   --accent-coral-glow: oklch(0.72 0.16 15 / 0.35); /** Coral glow emission. */
   --accent-coral-fill: oklch(0.72 0.16 15 / 0.08); /** Coral area fill. */
-  --accent-blue-main: var(--brand-blue-500); /** Vivid blue indicator — brand-blue ramp stop 500. */
+  --accent-blue-main: var(--color-brand-blue-500); /** Vivid blue indicator — brand-blue ramp stop 500. */
   --accent-blue-glow: oklch(0.68 0.14 240 / 0.35); /** Blue glow emission. */
   --accent-blue-fill: oklch(0.68 0.14 240 / 0.08); /** Blue area fill. */
-  --accent-salmon-main: var(--brand-salmon-500); /** Salmon indicator — brand-salmon ramp stop 500. */
+  --accent-salmon-main: var(--color-brand-salmon-500); /** Salmon indicator — brand-salmon ramp stop 500. */
   --accent-salmon-glow: oklch(0.68 0.18 20 / 0.35); /** Salmon glow emission. */
   --accent-salmon-fill: oklch(0.68 0.18 20 / 0.08); /** Salmon area fill. */
-  --accent-gold-main: var(--brand-gold-500); /** Gold indicator — brand-gold ramp stop 500. */
+  --accent-gold-main: var(--color-brand-gold-500); /** Gold indicator — brand-gold ramp stop 500. */
   --accent-gold-glow: oklch(0.83 0.16 100 / 0.35); /** Gold glow emission. */
   --accent-gold-fill: oklch(0.83 0.16 100 / 0.08); /** Gold area fill. */
+  --accent-violet-main: var(--color-brand-violet-500); /** Violet indicator — brand-violet ramp stop 500. */
+  --accent-violet-glow: oklch(0.63 0.2 285 / 0.4); /** Violet glow emission. */
+  --accent-violet-fill: oklch(0.63 0.2 285 / 0.08); /** Violet area fill. */
   }
 }

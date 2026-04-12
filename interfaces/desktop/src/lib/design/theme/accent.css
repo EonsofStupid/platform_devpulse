@@ -42,4 +42,7 @@
   --accent-gold-main: oklch(0.55 0.16 100);
   --accent-gold-glow: oklch(0.83 0.16 100 / 0.35);
   --accent-gold-fill: oklch(0.83 0.16 100 / 0.08);
+  --accent-violet-main: oklch(0.55 0.2 285);
+  --accent-violet-glow: oklch(0.63 0.2 285 / 0.4);
+  --accent-violet-fill: oklch(0.63 0.2 285 / 0.08);
 }

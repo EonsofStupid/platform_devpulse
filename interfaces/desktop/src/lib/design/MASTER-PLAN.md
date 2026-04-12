@@ -21,7 +21,7 @@
 | **CSS** | Tailwind CSS v4 | `@tailwindcss/vite` plugin, `@theme {}` directive |
 | **Tokens** | Style Dictionary v5.3.2 | DTCG 1.0 JSON → CSS + TypeScript + Tailwind @theme + VPB manifest |
 | **Token Format** | DTCG 1.0 | `$type`, `$value`, `$description`, `$extensions.com.coldlight` |
-| **Adapter** | Melt UI (optional) | Headless ARIA/state adapter — EXCEPTION ONLY for complex widgets |
+| **Headless** | ColdLight-owned | ARIA, focus, keyboard, and state live in ColdLight primitives/builders (terminology aligned with React Spectrum S2) |
 | **Validation** | Zod | Token schemas, contract validation, boundary enforcement |
 | **Unit Testing** | Vitest + vitest-browser-svelte | Real Chromium browser tests |
 | **E2E Testing** | Playwright | Via `@vitest/browser-playwright` |
@@ -53,10 +53,9 @@
 
 | Provider | Role |
 |----------|------|
-| **ColdLight-Owned (DEFAULT)** | Owns `role`, `aria-*`, `tabindex`, focus, keyboard. 60+ kinds. |
-| **MeltUI Adapter (EXCEPTION)** | Complex ARIA only (dialog focus trap, combobox listbox). ~20 kinds. |
+| **ColdLight-owned headless** | Owns `role`, `aria-*`, `tabindex`, focus, keyboard, and compound-widget behavior for all kinds. |
 
-ColdLight is ALWAYS the public API. Users never import `@melt-ui/svelte` directly.
+ColdLight is ALWAYS the public API. No third-party headless runtime in the product stack.
 
 ### Three Data Attributes
 
@@ -69,28 +68,30 @@ ColdLight is ALWAYS the public API. Users never import `@melt-ui/svelte` directl
 ## Token Pipeline (SD5)
 
 ### Source
-17 DTCG JSON files at `scripts/build/styledictionary/tokens/src/`:
-color, shadow, glow, bevel, blur, radius, spacing, border, typography, gradient, surface, motion, interaction, overlay, scrollbar, backdrop, component
+DTCG token JSON under `scripts/build/styledictionary/tokens/src/`:
+- Top-level `*.json` plus `primitives/**/*.tokens.json` and `semantic/**/*.tokens.json` (see `sd.config.mjs` `source` globs)
+- Colocated component tokens collected into SD input by `build.mjs`
 
 ### Build
-- **Config**: `scripts/build/styledictionary/sd.config.ts` (664 lines, enum-authored)
-- **Runner**: `scripts/build/styledictionary/build.ts`
+- **Config**: `scripts/build/styledictionary/sd.config.mjs` — transforms, formats, platforms (SSOT for SD5 output paths)
+- **Runner**: `scripts/build/styledictionary/build.mjs` — collectors + `buildAllPlatforms()` + barrel files
 - **Command**: `pnpm ds:tokens:build`
-- **Transforms**: 11 CSS + 1 custom (colorOklch, sizePxToRem, shadowCssShorthand, gradient/css/shorthand, etc.)
-- **Preprocessor**: `coldlight/capture-extensions` — captures `$extensions.com.coldlight` before SD5 strips them
+- **Transforms**: DTCG flatteners + `colorOklch`, `dimensionToCss`, `shadowCssShorthand`, `gradientCssShorthand`, etc.
+- **Preprocessor**: `coldlight/capture-extensions` — captures `$extensions.com.coldlight` before SD5 strips group-level extensions
 - **Formats**: `coldlight/css`, `coldlight/tailwind-theme`, `coldlight/types`, `coldlight/manifest`
-- **Platforms**: 28 total (11 css-primitives, 9 css-semantic, 1 css-components, 17 theme-*, 8 types-*, 1 manifest)
+- **Platforms**: css-primitives, css-semantic, css-components, theme-*, types-*, manifest, css-svg-presets (see `sd.config.mjs`)
 
 ### Output
 ```
-css/primitives/*.css    — @layer tokens.primitives (11 files)
-css/semantic/*.css      — @layer tokens.semantic (9 files)
-css/components/*.css    — @layer tokens.components (1 file)
-theme/*.css             — Tailwind v4 @theme blocks per domain
-types/*.d.ts            — TypeScript const arrays + union types
-generated/token-manifest.json  — VPB metadata
-generated/variants.css  — 8-axis @utility rules
+src/lib/design/styles/primitives/*.css   — @layer tokens.primitives
+src/lib/design/styles/semantic/*.css     — @layer tokens.semantic
+src/lib/design/styles/components/*.css   — @layer tokens.components (generated)
+src/lib/design/theme/*.css               — Tailwind v4 @theme blocks per domain
+src/lib/design/types/*.d.ts              — TypeScript const arrays + union types
+src/lib/design/generated/token-manifest.json — VPB metadata
+src/lib/design/svg/presets/svg-presets.generated.css — SVG preset vars
 ```
+Non-token runtime CSS (`generated/*.css` for typography/focus/keyframes, `svg/*` glue) stays outside `styles/` and is imported from `src/lib/design/index.css`.
 
 ### CSS Variable Names (What SD5 ACTUALLY Generates)
 
@@ -120,14 +121,18 @@ src/app.css
   @import "$lib/design/index.css";
 
 src/lib/design/index.css
-  @import "./css/index.css";           ← SD5 token CSS (3-tier layers)
-  @import "./theme/index.css";         ← SD5 Tailwind @theme
-  @import "./generated/variants.css";  ← 8-axis encoding utilities
+  @import "./styles/index.css";        ← SD5 token CSS (3-tier @layer)
+  @import "./theme/index.css";        ← SD5 Tailwind @theme
   @import "./generated/typography.css";
   @import "./generated/focus.css";
   @import "./generated/scrollbars.css";
   @import "./generated/keyframes.css";
-  @import "./svg/filters/filters.css"; ← SVG neumorphism
+  @import "./generated/diagonal-blends.css";
+  @import "./svg/filters/filters.css";
+  @import "./generated/render-base.css";
+  @import "./svg/svg-macro-base.css";
+  @import "./svg/svg-accent-defaults.css";
+  @import "./svg/presets/svg-presets.generated.css";
 ```
 
 ### Token Authoring Rules
@@ -376,7 +381,7 @@ Features:
 {
   kind: "button",
   label: "Button",
-  engine: "coldlight",       // "coldlight" | "meltui"
+  engine: "coldlight",       // always ColdLight-owned headless
   defaultPreset: "btn-primary",
   defaultRecipe: "button.default",
   blockCategory: "interactions",
@@ -403,12 +408,12 @@ Build validator enforces: preset exists, recipe exists, contract exists, require
 | 7 | Transitions — DTCG `$type: "transition"` composite `{ duration, delay, timingFunction }` | **Locked** |
 | 8 | VPB — no-code visual editor with directional gradients, sliders, knobs | **Locked** |
 | 9 | 3x heavy visuals, optimized — not conservative, not MVP. Full neumorphic depth. | **Locked** |
-| 10 | ColdLight-owned ARIA by default. MeltUI adapter exception only. | **Locked** |
+| 10 | ColdLight-owned headless — ARIA, focus, keyboard for all primitives | **Locked** |
 | 11 | `data-kind`, `data-slot`, `data-state` — three data attributes | **Locked** |
 | 12 | Pre-release mode — no backwards compat, no shims. Aggressively reauthor. | **Locked** |
 | 13 | Compile-check after every file edit | **Locked** |
 
-| 15 | components/ IS the primitives — MeltUI direct where needed | **Locked** |
+| 15 | `components/` is the product surface — primitives stay ColdLight-owned | **Locked** |
 
 ---
 
@@ -416,8 +421,8 @@ Build validator enforces: preset exists, recipe exists, contract exists, require
 
 | File | Purpose | Status |
 |------|---------|--------|
-| `scripts/build/styledictionary/sd.config.ts` | SD5 config (enum-authored) | Working |
-| `scripts/build/styledictionary/build.ts` | Build runner + barrels | Working |
+| `scripts/build/styledictionary/sd.config.mjs` | SD5 config (enum-authored) | Working |
+| `scripts/build/styledictionary/build.mjs` | Build runner + barrels | Working |
 | `scripts/build/styledictionary/tokens/src/*.json` | 17 DTCG source files | Working |
 | `src/lib/design/registry/token-categories.ts` | 8-axis SSOT | FIXING tokenRefs |
 | `src/lib/design/registry/presets.ts` | 60+ style IDs | Working |

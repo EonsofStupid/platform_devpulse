@@ -22,7 +22,7 @@ import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
 import type { SystemHealth } from "$lib/sys/generated/health.types.js";
 import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
-import { logError, logInfo, logWarn, markIpcReady } from "$lib/sys/logger.js";
+import { logError, logInfo, markIpcReady } from "$lib/sys/logger.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "failed";
@@ -126,6 +126,14 @@ class PlatformState {
 	/** Platform AND models both ready — the full app can render. */
 	get isFullyReady(): boolean {
 		return this.phase === "ready" && this.modelsReady;
+	}
+
+	/** Any non-skipped subsystem reported `Error` — blocking until fixed. */
+	get hasSubsystemFailure(): boolean {
+		for (const s of this.subsystems.values()) {
+			if (s.state === "failed") return true;
+		}
+		return false;
 	}
 
 	/** Platform booted but models need setup — show the wizard. */
@@ -239,7 +247,7 @@ class PlatformState {
 			logInfo("boot", `Boot snapshot: phase=${snapshot.phase}, events=${snapshot.events.length}`);
 			this.applySnapshot(snapshot);
 		} catch (e) {
-			logWarn("boot", `get_boot_state failed, relying on events: ${e}`);
+			logError("boot", `get_boot_state failed — boot snapshot unavailable: ${e}`);
 		}
 
 		if (this.destroyed) return;
@@ -273,25 +281,29 @@ class PlatformState {
 			modelCount: number;
 			slotCount: number;
 			assignedCount: number;
+			error?: string;
 		}>("platform:models-status", (e) => {
-			this.modelsReady = e.payload.ready;
-			this.modelsFirstRun = e.payload.firstRun;
-			this.modelCount = e.payload.modelCount;
-			this.assignedCount = e.payload.assignedCount;
+			const p = e.payload;
+			this.modelsReady = p.ready;
+			this.modelsFirstRun = p.firstRun;
+			this.modelCount = p.modelCount;
+			this.assignedCount = p.assignedCount;
+			if (typeof p.error === "string" && p.error.length > 0) {
+				this.error = p.error;
+				logError("boot", `Models status error: ${p.error}`);
+			} else if (p.ready) {
+				this.error = null;
+			}
 			logInfo(
 				"boot",
-				`Models status: ready=${e.payload.ready} models=${e.payload.modelCount} assigned=${e.payload.assignedCount}`,
+				`Models status: ready=${p.ready} models=${p.modelCount} assigned=${p.assignedCount}`,
 			);
 
-			// First-run trigger — open the Setup Wizard overlay when the
-			// platform reports this is a fresh install. The overlay mounts
-			// inside Frame.svelte so it appears over the (app) view the
-			// moment the app shell renders.
-			if (e.payload.firstRun) {
-				import("$lib/domains/app/models/features/setup-wizard/wizard.runes.svelte.js").then((m) => {
-					logInfo("boot", "First-run detected — opening Setup Wizard overlay");
-					m.wizardState.open();
-				});
+			// First-run trigger is now route-hosted under src/routes/(setup).
+			// BootOverlay handles the actual navigation into /model-loader so
+			// there is a single rendering path for onboarding.
+			if (p.firstRun) {
+				logInfo("boot", "First-run detected — setup route required");
 			}
 		});
 		this.unlisteners.push(unlistenModels);
@@ -343,6 +355,7 @@ class PlatformState {
 			this.bootStepLabel = `${friendlyName} ready`;
 		} else if (state === "failed") {
 			this.bootStepLabel = `${friendlyName} failed`;
+			logError("boot", `Subsystem failed: step=${event.step} message=${event.message ?? "none"}`);
 		}
 	}
 

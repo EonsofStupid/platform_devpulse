@@ -5,5 +5,5 @@
  * Maps adapter-specific factories to ColdLight-generic names.
  * Primitives import ONLY from this file. Zero adapter awareness.
  *
- * Active adapter: meltui
+ * Active adapter: coldlight
  */

@@ -1,25 +1,35 @@
 //! Graph service wrapper (`SurrealDB`).
 //!
+//! Each `GraphService` holds a `ScopedGraphHandle` — every query is
+//! explicitly scoped to its namespace/database. No shared implicit context.
+//!
 //! Three scoped schemas:
-//! - **System**: FSM state machine, kernel reasoning, state transitions
-//! - **User**: knowledge graph, learning patterns, memory relationships
-//! - **Global**: cross-project concepts, shared knowledge base
+//! - **System**: FSM state machine, thinking state, quality check outputs
+//! - **User**: knowledge graph, memory with staging, corrections
+//! - **Global**: cross-project concepts, shared learnings, dev profile
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::SurrealAdapter;
+use devpulse_clyffy::cortex::persistence::{ScopedGraphHandle, SurrealAdapter};
 use std::path::Path;
 use std::sync::Arc;
 
-/// Graph store backed by `SurrealDB`.
+/// Graph store backed by `SurrealDB` with explicit namespace scoping.
+///
+/// Every operation goes through `ScopedGraphHandle` which prefixes
+/// queries with `USE NS {ns} DB {db};`. Namespace isolation is real.
 pub struct GraphService {
-    adapter: Arc<SurrealAdapter>,
+    handle: ScopedGraphHandle,
     /// Scoped name for health checks (e.g., "System graph", "User graph").
     label: &'static str,
 }
 
 impl GraphService {
-    /// Boot the graph store with explicit namespace, database, and schema.
+    /// Boot a standalone graph store with its own `SurrealKV` instance.
+    ///
+    /// Opens a new `SurrealAdapter` at the given path and creates a
+    /// scoped handle for the given namespace/database. Used for
+    /// project-scoped graph stores that live outside the consolidated instance.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -31,24 +41,34 @@ impl GraphService {
         label: &'static str,
     ) -> Result<Self> {
         let adapter = SurrealAdapter::open_with_ns(path, namespace, database, schema).await?;
-        Ok(Self {
-            adapter: Arc::new(adapter),
-            label,
-        })
+        let adapter = Arc::new(adapter);
+        let handle = adapter.scoped_handle(namespace, database);
+        Ok(Self { handle, label })
     }
 
-    /// Create a graph store from a shared adapter.
+    /// Create a graph service from a shared adapter with explicit scope.
     ///
-    /// Used when all graph stores share a single `SurrealDB` instance
+    /// Used when all graph stores share a single `SurrealKV` instance
     /// with multiple namespaces. The adapter must already have the
     /// target namespace initialized via `init_namespace()`.
-    pub fn from_shared(adapter: Arc<SurrealAdapter>, label: &'static str) -> Self {
-        Self { adapter, label }
+    pub fn from_shared(
+        adapter: &Arc<SurrealAdapter>,
+        namespace: &str,
+        database: &str,
+        label: &'static str,
+    ) -> Self {
+        let handle = adapter.scoped_handle(namespace, database);
+        Self { handle, label }
     }
 
-    /// Get the underlying adapter for typed access.
+    /// Get the scoped handle for typed graph operations.
+    pub fn handle(&self) -> &ScopedGraphHandle {
+        &self.handle
+    }
+
+    /// Get the underlying adapter (for HTTP server sharing).
     pub fn adapter(&self) -> &Arc<SurrealAdapter> {
-        &self.adapter
+        self.handle.adapter()
     }
 }
 
@@ -62,7 +82,7 @@ impl Service for GraphService {
     }
 
     async fn ping(&self) -> Result<()> {
-        self.adapter.ping().await
+        self.handle.ping().await
     }
 
     fn state(&self) -> ServiceState {
@@ -70,20 +90,27 @@ impl Service for GraphService {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        tracing::info!(service = self.label, "Shutting down SurrealDB service");
-        self.adapter.close().await;
+        tracing::info!(
+            service = self.label,
+            namespace = self.handle.namespace(),
+            database = self.handle.database(),
+            "Shutting down graph service"
+        );
+        self.handle.adapter().quiesce().await;
         Ok(())
     }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// System scope schema
+// System scope schema — uses PUBLIC equivalents only
 // ═══════════════════════════════════════════════════════════════
 
 /// Schema for the system-scoped graph store.
 ///
-/// Contains kernel FSM state machine, reasoning nodes/edges,
-/// state transitions, and HMM states. Never user-facing data.
+/// Contains FSM state machine, reasoning nodes/edges, state transitions,
+/// quality check outputs, prompt builder tracking, thinking state.
+///
+/// All table/field names use PUBLIC equivalents per ip-protection rules.
 pub const SYSTEM_GRAPH_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
@@ -105,7 +132,7 @@ DEFINE FIELD IF NOT EXISTS relation_type ON relates TYPE string;
 DEFINE FIELD IF NOT EXISTS weight ON relates TYPE float DEFAULT 1.0;
 DEFINE FIELD IF NOT EXISTS created_at ON relates TYPE datetime DEFAULT time::now();
 
--- HMM states for reasoning state machine
+-- Context switching states
 DEFINE TABLE IF NOT EXISTS states SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS name ON states TYPE string;
 DEFINE FIELD IF NOT EXISTS probability ON states TYPE float;
@@ -119,42 +146,42 @@ DEFINE FIELD IF NOT EXISTS to_state ON transitions TYPE record(states);
 DEFINE FIELD IF NOT EXISTS probability ON transitions TYPE float;
 DEFINE FIELD IF NOT EXISTS trigger ON transitions TYPE string;
 
--- Sub-agent outputs (diary, guardian, psych, teacher, scribe)
-DEFINE TABLE IF NOT EXISTS agent_outputs SCHEMAFULL;
-DEFINE FIELD IF NOT EXISTS agent ON agent_outputs TYPE string;
-DEFINE FIELD IF NOT EXISTS layer ON agent_outputs TYPE string;
-DEFINE FIELD IF NOT EXISTS output ON agent_outputs TYPE object;
-DEFINE FIELD IF NOT EXISTS confidence ON agent_outputs TYPE float;
-DEFINE FIELD IF NOT EXISTS session_id ON agent_outputs TYPE string;
-DEFINE FIELD IF NOT EXISTS trace_id ON agent_outputs TYPE string;
-DEFINE FIELD IF NOT EXISTS triggered_at ON agent_outputs TYPE datetime;
-DEFINE FIELD IF NOT EXISTS completed_at ON agent_outputs TYPE datetime DEFAULT time::now();
-DEFINE INDEX IF NOT EXISTS agent_outputs_agent ON agent_outputs FIELDS agent;
-DEFINE INDEX IF NOT EXISTS agent_outputs_session ON agent_outputs FIELDS session_id;
+-- Quality check outputs (memory, quality_check, etc.)
+DEFINE TABLE IF NOT EXISTS check_outputs SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS check_type ON check_outputs TYPE string;
+DEFINE FIELD IF NOT EXISTS layer ON check_outputs TYPE string;
+DEFINE FIELD IF NOT EXISTS output ON check_outputs TYPE object;
+DEFINE FIELD IF NOT EXISTS confidence ON check_outputs TYPE float;
+DEFINE FIELD IF NOT EXISTS session_id ON check_outputs TYPE string;
+DEFINE FIELD IF NOT EXISTS trace_id ON check_outputs TYPE string;
+DEFINE FIELD IF NOT EXISTS triggered_at ON check_outputs TYPE datetime;
+DEFINE FIELD IF NOT EXISTS completed_at ON check_outputs TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS check_outputs_type ON check_outputs FIELDS check_type;
+DEFINE INDEX IF NOT EXISTS check_outputs_session ON check_outputs FIELDS session_id;
 
--- COSTAR prompt tracking
-DEFINE TABLE IF NOT EXISTS costar_prompts SCHEMAFULL;
-DEFINE FIELD IF NOT EXISTS session_id ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS context_summary ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS objective ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS style ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS tone ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS audience ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS response_format ON costar_prompts TYPE string;
-DEFINE FIELD IF NOT EXISTS completeness_score ON costar_prompts TYPE float;
-DEFINE FIELD IF NOT EXISTS total_tokens ON costar_prompts TYPE int;
-DEFINE FIELD IF NOT EXISTS created_at ON costar_prompts TYPE datetime DEFAULT time::now();
-DEFINE INDEX IF NOT EXISTS costar_session ON costar_prompts FIELDS session_id;
+-- Prompt builder tracking
+DEFINE TABLE IF NOT EXISTS prompt_templates SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS session_id ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS context_summary ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS objective ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS style ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS tone ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS audience ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS response_format ON prompt_templates TYPE string;
+DEFINE FIELD IF NOT EXISTS completeness_score ON prompt_templates TYPE float;
+DEFINE FIELD IF NOT EXISTS total_tokens ON prompt_templates TYPE int;
+DEFINE FIELD IF NOT EXISTS created_at ON prompt_templates TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS prompt_session ON prompt_templates FIELDS session_id;
 
--- Rumination state per session
-DEFINE TABLE IF NOT EXISTS rumination_state SCHEMAFULL;
-DEFINE FIELD IF NOT EXISTS session_id ON rumination_state TYPE string;
-DEFINE FIELD IF NOT EXISTS rolling_summary ON rumination_state TYPE string;
-DEFINE FIELD IF NOT EXISTS rolling_summary_tokens ON rumination_state TYPE int;
-DEFINE FIELD IF NOT EXISTS current_layer ON rumination_state TYPE string DEFAULT 'background';
-DEFINE FIELD IF NOT EXISTS is_processing ON rumination_state TYPE bool DEFAULT false;
-DEFINE FIELD IF NOT EXISTS updated_at ON rumination_state TYPE datetime DEFAULT time::now();
-DEFINE INDEX IF NOT EXISTS rumination_session ON rumination_state FIELDS session_id UNIQUE;
+-- Thinking state per session
+DEFINE TABLE IF NOT EXISTS thinking_state SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS session_id ON thinking_state TYPE string;
+DEFINE FIELD IF NOT EXISTS rolling_summary ON thinking_state TYPE string;
+DEFINE FIELD IF NOT EXISTS rolling_summary_tokens ON thinking_state TYPE int;
+DEFINE FIELD IF NOT EXISTS current_phase ON thinking_state TYPE string DEFAULT 'idle';
+DEFINE FIELD IF NOT EXISTS is_processing ON thinking_state TYPE bool DEFAULT false;
+DEFINE FIELD IF NOT EXISTS updated_at ON thinking_state TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS thinking_session ON thinking_state FIELDS session_id UNIQUE;
 ";
 
 // ═══════════════════════════════════════════════════════════════
@@ -298,7 +325,7 @@ DEFINE FIELD IF NOT EXISTS last_reinforced_at ON shared_learnings TYPE datetime 
 DEFINE FIELD IF NOT EXISTS created_at ON shared_learnings TYPE datetime DEFAULT time::now();
 DEFINE INDEX IF NOT EXISTS learnings_confidence ON shared_learnings FIELDS confidence;
 
--- Developer profile preferences (synced from SurrealDB session context)
+-- Developer profile preferences (synced from session context)
 DEFINE TABLE IF NOT EXISTS dev_profile SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS key ON dev_profile TYPE string;
 DEFINE FIELD IF NOT EXISTS value ON dev_profile TYPE string;

@@ -46,6 +46,8 @@ pub async fn get_preference(
 /// Set a user preference by key.
 ///
 /// Writes to `{data_dir}/preferences.json`. Creates the file if it doesn't exist.
+/// User scope only — does not mutate kernel slot/preset defaults or project bindings.
+/// One key per call; other keys in the file are preserved.
 #[tauri::command]
 #[specta::specta]
 pub async fn set_preference(

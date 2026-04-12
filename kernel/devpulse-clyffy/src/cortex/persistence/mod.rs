@@ -32,7 +32,7 @@ pub use libsql::LibSqlAdapter;
 pub use moka::{MokaAdapter, MokaCacheConfig};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
-pub use surreal::SurrealAdapter;
+pub use surreal::{ScopedGraphHandle, SurrealAdapter};
 #[cfg(feature = "candle")]
 pub use embedder::CandleEmbedder;
 #[cfg(feature = "candle")]
@@ -215,7 +215,7 @@ impl PersistenceLayer {
         }
     }
 
-    /// Ping `SurrealDB` — executes `INFO FOR DB`.
+    /// Ping `SurrealDB` — executes `SELECT 1` to verify connection.
     ///
     /// # Errors
     /// Returns error if `SurrealDB` is not initialized or unreachable.

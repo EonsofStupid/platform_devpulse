@@ -1,6 +1,12 @@
 {
 	"$description": "Hand-authored semantic border colours. Named presets plus aliases into the generator-emitted teal primitive ramp.",
 	"border": {
+		"$extensions": {
+			"com.coldlight": {
+				"semanticFamily": "frame",
+				"tokenTier": "semantic"
+			}
+		},
 		"$type": "color",
 		"$description": "Named border colour presets.",
 		"subtle": {
@@ -32,7 +38,7 @@
 			}
 		},
 		"focus": {
-			"$value": "{teal.400}",
+			"$value": "{color.teal.400}",
 			"$description": "Focus ring colour — alias into the primitive teal ramp at stop 400."
 		},
 		"divider": {

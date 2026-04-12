@@ -4,6 +4,10 @@
 //! initializes system, user, and global namespaces. Then starts the
 //! HTTP server on the configured port for external tool access.
 //!
+//! Each `GraphService` gets a `ScopedGraphHandle` that prefixes every
+//! query with `USE NS {ns} DB {db};`. Namespace isolation is enforced
+//! at the query level — no shared implicit context.
+//!
 //! # Recovery Policy
 //! Uses the standard retry utility with exponential backoff on file lock errors.
 //! **NEVER delete data.** Transient failures must not destroy the knowledge graph.
@@ -59,7 +63,7 @@ pub async fn boot_consolidated(
     // Ensure parent directory exists
     if let Some(parent) = surreal_path.parent() {
         if let Err(e) = std::fs::create_dir_all(parent) {
-            tracing::error!(error = ?e, "Failed to create SurrealDB directory");
+            tracing::error!(error = ?e, path = %surreal_path.display(), "Failed to create SurrealDB directory");
             on_event(InitEvent::error("Graph store", &format!("{e:#}")));
             boot_log.fail("Graph store", &format!("directory creation failed: {e:#}"));
             return (None, None, None);
@@ -108,18 +112,28 @@ pub async fn boot_consolidated(
 
     let adapter = Arc::new(adapter);
 
-    // Create system account for HTTP API boundary on the system namespace.
-    // Embedded connection is implicit root — this user is for external tools
-    // (Claude Code, surreal sql CLI) connecting via HTTP on :8822.
+    // ── Create system account — explicitly scoped to system namespace ──
+    // Embedded connection is implicit root. This user is for external tools
+    // (Claude Code, scripts) connecting via HTTP on :8822.
     let sys_user_ddl = format!(
         "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
         sys_cfg.system_user, sys_cfg.system_password,
     );
-    if let Err(e) = adapter.raw_query(&sys_user_ddl).await {
-        tracing::warn!(error = ?e, "Failed to create system user on system namespace (non-fatal)");
+    if let Err(e) = adapter.execute_in_ns(&sys_cfg.namespace, &sys_cfg.database, &sys_user_ddl).await {
+        tracing::warn!(
+            error = ?e,
+            namespace = %sys_cfg.namespace,
+            "Failed to create system user on system namespace (non-fatal)"
+        );
+    } else {
+        tracing::info!(
+            namespace = %sys_cfg.namespace,
+            user = %sys_cfg.system_user,
+            "System user created on system namespace"
+        );
     }
 
-    // Initialize user namespace on the same instance
+    // ── Initialize user namespace on the same instance ──
     let usr_cfg = &boot_config.services.user.graph;
     if usr_cfg.enabled {
         if let Err(e) = adapter.init_namespace(
@@ -127,20 +141,30 @@ pub async fn boot_consolidated(
             &usr_cfg.database,
             USER_GRAPH_SCHEMA,
         ).await {
-            tracing::error!(error = ?e, "Failed to init user graph namespace");
+            tracing::error!(error = ?e, namespace = %usr_cfg.namespace, "Failed to init user graph namespace");
             on_event(InitEvent::error("User graph namespace", &format!("{e:#}")));
         }
-        // System account for user namespace HTTP API access
+        // System account for user namespace — explicitly scoped
         let usr_user_ddl = format!(
             "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
             usr_cfg.system_user, usr_cfg.system_password,
         );
-        if let Err(e) = adapter.raw_query(&usr_user_ddl).await {
-            tracing::warn!(error = ?e, "Failed to create system user on user namespace (non-fatal)");
+        if let Err(e) = adapter.execute_in_ns(&usr_cfg.namespace, &usr_cfg.database, &usr_user_ddl).await {
+            tracing::warn!(
+                error = ?e,
+                namespace = %usr_cfg.namespace,
+                "Failed to create system user on user namespace (non-fatal)"
+            );
+        } else {
+            tracing::info!(
+                namespace = %usr_cfg.namespace,
+                user = %usr_cfg.system_user,
+                "System user created on user namespace"
+            );
         }
     }
 
-    // Initialize global namespace on the same instance
+    // ── Initialize global namespace on the same instance ──
     let glb_cfg = &boot_config.services.global.graph;
     if glb_cfg.enabled {
         if let Err(e) = adapter.init_namespace(
@@ -148,16 +172,26 @@ pub async fn boot_consolidated(
             &glb_cfg.database,
             GLOBAL_GRAPH_SCHEMA,
         ).await {
-            tracing::error!(error = ?e, "Failed to init global graph namespace");
+            tracing::error!(error = ?e, namespace = %glb_cfg.namespace, "Failed to init global graph namespace");
             on_event(InitEvent::error("Global graph namespace", &format!("{e:#}")));
         }
-        // System account for global namespace HTTP API access
+        // System account for global namespace — explicitly scoped
         let glb_user_ddl = format!(
             "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
             glb_cfg.system_user, glb_cfg.system_password,
         );
-        if let Err(e) = adapter.raw_query(&glb_user_ddl).await {
-            tracing::warn!(error = ?e, "Failed to create system user on global namespace (non-fatal)");
+        if let Err(e) = adapter.execute_in_ns(&glb_cfg.namespace, &glb_cfg.database, &glb_user_ddl).await {
+            tracing::warn!(
+                error = ?e,
+                namespace = %glb_cfg.namespace,
+                "Failed to create system user on global namespace (non-fatal)"
+            );
+        } else {
+            tracing::info!(
+                namespace = %glb_cfg.namespace,
+                user = %glb_cfg.system_user,
+                "System user created on global namespace"
+            );
         }
     }
 
@@ -172,7 +206,7 @@ pub async fn boot_consolidated(
     on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
     boot_log.ok("Graph store", &format!("SurrealDB consolidated 3 namespaces ({elapsed_ms}ms)"));
 
-    // Start HTTP server on configured port
+    // ── Start HTTP server on configured port ──
     let graph_api = &boot_config.services.network.graph_api;
     if graph_api.enabled {
         let api_port = graph_api.port;
@@ -197,21 +231,38 @@ pub async fn boot_consolidated(
         boot_log.skip("SurrealDB HTTP", "disabled in config");
     }
 
-    // Build scoped graph services from the shared adapter
+    // ── Build scoped graph services from the shared adapter ──
+    // Each GraphService gets a ScopedGraphHandle with explicit namespace/database.
+    // Every query prefixed with USE NS ... DB ...; — isolation is real.
     let system_graph = if boot_config.services.system.graph.enabled {
-        Some(Arc::new(GraphService::from_shared(Arc::clone(&adapter), "System graph")))
+        Some(Arc::new(GraphService::from_shared(
+            &adapter,
+            &sys_cfg.namespace,
+            &sys_cfg.database,
+            "System graph",
+        )))
     } else {
         None
     };
 
     let user_graph = if boot_config.services.user.graph.enabled {
-        Some(Arc::new(GraphService::from_shared(Arc::clone(&adapter), "User graph")))
+        Some(Arc::new(GraphService::from_shared(
+            &adapter,
+            &usr_cfg.namespace,
+            &usr_cfg.database,
+            "User graph",
+        )))
     } else {
         None
     };
 
     let global_graph = if boot_config.services.global.graph.enabled {
-        Some(Arc::new(GraphService::from_shared(adapter, "Global graph")))
+        Some(Arc::new(GraphService::from_shared(
+            &adapter,
+            &glb_cfg.namespace,
+            &glb_cfg.database,
+            "Global graph",
+        )))
     } else {
         None
     };
