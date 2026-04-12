@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
+import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import SetupWizardOverlay from "$lib/domains/app/models/features/setup-wizard/SetupWizardOverlay.svelte";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
@@ -91,6 +92,10 @@ const SLOTS = {
 	data-context={globalState.context_mode}
 	data-route={globalState.current_domain}
 >
+	<!-- Animated background — absolutely positioned behind everything.
+	     Configurable via props. Default: void-breathe + teal palette. -->
+	<BackgroundScene variation="void-breathe" palette="teal" speed="normal" intensity="normal" motion="on" />
+
 	<header data-kind="shell" data-slot="topbar" class={SLOTS.topbar}>
 		<TopBar />
 	</header>

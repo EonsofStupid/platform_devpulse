@@ -54,8 +54,10 @@ import type { SlotId } from "$lib/domains/app/models/types/models.types.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import ClyffyTooltip from "./components/ClyffyTooltip.svelte";
 import HfTokenModal from "./components/HfTokenModal.svelte";
+import ModelChangePopup from "./components/ModelChangePopup.svelte";
 import type { RoleId } from "./components/RoleCard.svelte";
 import RoleCardGrid from "./components/RoleCardGrid.svelte";
+import VoiceLabPanel from "./components/VoiceLabPanel.svelte";
 import type { DownloadTracker } from "./wizard.types.js";
 
 type Phase = "welcome" | "scanning" | "detected" | "error";
@@ -238,19 +240,69 @@ function handleAdvancedContinue(): void {
 	wizardState.close();
 }
 
-// ── Role card handlers (Phase 5 drift fix) ─────────────────
-// The RoleCardGrid below renders four cards — brain / minion /
-// encoder / voice — and forwards these callbacks when the user
-// clicks Change or when a download row needs to cancel/retry.
-// Phase 6 wires the full ModelChangePopup; for now the Change
-// button dispatches a placeholder intent that Phase 6 will
-// consume.
+// ── Role card + model change handlers ───────────────────────
+
+// Which role's ModelChangePopup is currently open. `null` means
+// the 4-card grid is visible; a non-null value means the popup
+// replaced the grid for that role.
+let changePopupRole = $state<RoleId | null>(null);
+let changePopupSlot = $state<SlotId | null>(null);
+
+const changePopupRoleName = $derived(() => {
+	if (!copy) return "";
+	switch (changePopupRole) {
+		case "brain":
+			return copy.role_cards.brain_title;
+		case "minion":
+			return copy.role_cards.minion_title;
+		case "encoder":
+			return copy.role_cards.encoder_title;
+		case "voice":
+			return copy.role_cards.voice_title;
+		default:
+			return "";
+	}
+});
 
 function handleRoleChange(role: RoleId, slotId: SlotId): void {
-	console.info("[overlay] role change requested", { role, slotId });
-	// TODO(phase-6): open ModelChangePopup for `slotId` with the
-	// correct tab defaults (Recommended for the owner's tier,
-	// HF Search if an HF token is stored, Local Browse otherwise).
+	changePopupRole = role;
+	changePopupSlot = slotId;
+}
+
+function closeChangePopup(): void {
+	changePopupRole = null;
+	changePopupSlot = null;
+}
+
+async function handlePopupDownload(
+	repoId: string,
+	filename: string,
+	targetSlot: string,
+): Promise<void> {
+	try {
+		const result = await commands.downloadModel(repoId, filename);
+		if (result.status === "ok") {
+			const downloadId = result.data;
+			wizardState.trackDownload(downloadId, targetSlot as SlotId, filename);
+			closeChangePopup();
+		} else {
+			console.error("[overlay] download_model failed", result.error);
+		}
+	} catch (e) {
+		console.error("[overlay] download_model threw", e);
+	}
+}
+
+async function handlePopupImport(slotId: string, _importMode: "copy" | "symlink"): Promise<void> {
+	try {
+		await invoke("import_local_model", {
+			targetSlot: slotId,
+			importMode: _importMode,
+		});
+		closeChangePopup();
+	} catch (e) {
+		console.error("[overlay] import_local_model failed", e);
+	}
 }
 
 async function handleCancelDownload(downloadId: string): Promise<void> {
@@ -566,16 +618,35 @@ function handleRetryLoad(slotId: string): void {
 					{/if}
 
 					{#if selectedPresetName}
-						<RoleCardGrid
-							copy={copy.role_cards}
-							tooltips={copy.clyffy_tooltips}
-							downloadsCopy={copy.downloads}
-							loadingCopy={copy.loading}
-							onRoleChange={handleRoleChange}
-							onCancelDownload={handleCancelDownload}
-							onRetryDownload={handleRetryDownload}
-							onRetryLoad={handleRetryLoad}
-						/>
+						{#if changePopupRole === "voice" && changePopupSlot}
+							<VoiceLabPanel
+								open={true}
+								onClose={closeChangePopup}
+							/>
+						{:else if changePopupRole && changePopupSlot && copy}
+							<ModelChangePopup
+								open={true}
+								slotId={changePopupSlot}
+								roleName={changePopupRoleName()}
+								roleAccent={changePopupRole}
+								copy={copy.browse}
+								tooltips={copy.clyffy_tooltips}
+								onClose={closeChangePopup}
+								onDownload={handlePopupDownload}
+								onImport={handlePopupImport}
+							/>
+						{:else}
+							<RoleCardGrid
+								copy={copy.role_cards}
+								tooltips={copy.clyffy_tooltips}
+								downloadsCopy={copy.downloads}
+								loadingCopy={copy.loading}
+								onRoleChange={handleRoleChange}
+								onCancelDownload={handleCancelDownload}
+								onRetryDownload={handleRetryDownload}
+								onRetryLoad={handleRetryLoad}
+							/>
+						{/if}
 					{/if}
 
 					<div class="choice-row" role="group" aria-label="Setup mode selection">

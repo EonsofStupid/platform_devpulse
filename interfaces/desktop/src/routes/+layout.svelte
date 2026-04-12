@@ -2,6 +2,7 @@
 import "../app.css";
 // Style presets compiled via SD5 DTCG pipeline → components.generated.css
 // Loaded via app.css → design/index.css → css/index.css import chain
+import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
@@ -44,8 +45,48 @@ onMount(() => {
 			logError("layout", `platformState.init() FAILED: ${e}`);
 		});
 
+	// ── Idle auto-minimize ─────────────────────────────────
+	// Track last pointer/keyboard activity. When the window has been
+	// idle for N seconds (read from assistant.toml via the kernel),
+	// minimize to the system tray. Default 300s = 5 min.
+	let lastActivity = Date.now();
+	let idleTimeoutSecs = 300;
+
+	function markActive() {
+		lastActivity = Date.now();
+	}
+	document.addEventListener("pointermove", markActive, { passive: true });
+	document.addEventListener("keydown", markActive, { passive: true });
+
+	// Fetch the configured timeout from the kernel (non-blocking).
+	invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config")
+		.then((cfg) => {
+			if (cfg?.window?.idle_timeout_secs > 0) {
+				idleTimeoutSecs = cfg.window.idle_timeout_secs;
+			}
+		})
+		.catch(() => {});
+
+	const idleInterval = setInterval(async () => {
+		if (idleTimeoutSecs <= 0) return;
+		const elapsed = (Date.now() - lastActivity) / 1000;
+		if (elapsed >= idleTimeoutSecs) {
+			try {
+				const { getCurrentWindow } = await import("@tauri-apps/api/window");
+				await getCurrentWindow().minimize();
+				logInfo("layout", `idle ${Math.round(elapsed)}s — minimized`);
+				lastActivity = Date.now();
+			} catch (e) {
+				logError("layout", `idle minimize failed: ${e}`);
+			}
+		}
+	}, 30_000);
+
 	return () => {
 		detachDownloadBridge?.();
+		document.removeEventListener("pointermove", markActive);
+		document.removeEventListener("keydown", markActive);
+		clearInterval(idleInterval);
 		platformState.destroy();
 	};
 });

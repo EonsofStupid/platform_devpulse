@@ -80,16 +80,12 @@ impl WindowRole {
     }
 
     /// Whether this window should have OS decorations.
+    ///
+    /// Every spawnable window is decorated — a real OS titlebar with
+    /// drag, minimize, maximize, and close. No frameless child windows.
     #[must_use]
     pub fn decorations(&self) -> bool {
-        match self {
-            Self::Main => true,
-            Self::Chat => false,
-            Self::CortexViewer => false,
-            Self::ModelLoader => true,
-            Self::VoiceLab => true,
-            Self::DevTools => false,
-        }
+        true
     }
 
     /// Whether this window should be always on top.
@@ -102,12 +98,13 @@ impl WindowRole {
     }
 
     /// Whether this window should be transparent.
+    ///
+    /// Transparent windows on Windows require `decorations=false`. Since every
+    /// window now has a real OS titlebar, none are transparent at the OS level —
+    /// glass/blur effects are rendered by the content layer instead.
     #[must_use]
     pub fn transparent(&self) -> bool {
-        match self {
-            Self::Chat | Self::CortexViewer | Self::DevTools => true,
-            Self::Main | Self::ModelLoader | Self::VoiceLab => false,
-        }
+        false
     }
 }
 

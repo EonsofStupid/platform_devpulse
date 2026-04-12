@@ -607,6 +607,206 @@ async clearHfToken() : Promise<Result<null, string>> {
 }
 },
 /**
+ * Return the last `n` characters of the stored HF token, or `null`
+ * if no token is stored. Used by the HfTokenModal masked-pill display
+ * so the UI can render `"••••••••hf_xxxxx"` without the plaintext
+ * ever landing in frontend state.
+ */
+async hfTokenSuffix(count: number) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("hf_token_suffix", { count }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Read the current assistant configuration. Voice Lab panel calls
+ * this once on mount and re-reads after every mutation.
+ */
+async getAssistantConfig() : Promise<Result<AssistantConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_assistant_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Rename the assistant. Persists immediately to
+ * `{userdata_dir}/config/assistant.toml`.
+ */
+async setAssistantName(name: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_assistant_name", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replace the wake phrase. The sherpa-onnx KWS worker reloads its
+ * keywords file on next run — no model retraining needed.
+ */
+async setWakePhrase(phrase: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_wake_phrase", { phrase }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Toggle 24/7 wake detection on or off.
+ */
+async setWakeEnabled(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_wake_enabled", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Toggle the 24/7 Moshi voice brain. When `false`, voice falls back
+ * to the cascaded STT -> LLM -> TTS path.
+ */
+async setVoiceBrain247(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_voice_brain_24_7", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replace the TTS voice profile. Accepts `kokoro:<id>` or
+ * `custom:<clone_name>`.
+ */
+async setVoiceProfile(profile: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_voice_profile", { profile }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Register a new custom voice clone entry. The UI calls this after a
+ * successful MP3 upload. `reference_path` is the absolute path on
+ * disk (produced by `upload_voice_sample`).
+ */
+async registerVoiceClone(entry: VoiceCloneEntry) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("register_voice_clone", { entry }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Remove a registered voice clone by name.
+ */
+async removeVoiceClone(name: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("remove_voice_clone", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Add or replace a keyword action.
+ */
+async addKeywordAction(entry: KeywordActionEntry) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("add_keyword_action", { entry }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Remove a keyword action by phrase.
+ */
+async removeKeywordAction(phrase: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("remove_keyword_action", { phrase }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replace an existing keyword action by phrase. No-op if the phrase
+ * does not match any stored entry.
+ */
+async updateKeywordAction(phrase: string, newEntry: KeywordActionEntry) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_keyword_action", { phrase, newEntry }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replace the window idle timeout in seconds. `0` disables
+ * auto-minimise entirely.
+ */
+async setIdleTimeout(secs: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_idle_timeout", { secs }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replace the partial GPU offload layer count for `chat.brain`.
+ */
+async setBrainNgl(ngl: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_brain_ngl", { ngl }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Copy an MP3 file from an arbitrary source path into the custom
+ * voice clones directory and return the destination absolute path.
+ * The UI then passes that path to `register_voice_clone` to finalise
+ * the registration. Keeping the copy + register operations split
+ * keeps each Tauri command single-purpose.
+ * 
+ * Only `.mp3`, `.wav`, and `.flac` files are accepted. The source
+ * path must exist. The destination filename is derived from `name`
+ * to keep the user's chosen label alongside the file on disk.
+ */
+async uploadVoiceSample(name: string, sourcePath: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("upload_voice_sample", { name, sourcePath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Enumerate the built-in Kokoro voices available through the bundled
+ * ONNX model. The current English v0.19 release ships with ~20
+ * voices split American / British + male / female. Custom voice
+ * clones registered via `register_voice_clone` are NOT included
+ * here — the UI joins the two lists for the final picker.
+ */
+async listKokoroVoices() : Promise<Result<KokoroVoiceInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_kokoro_voices") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Warm a slot — load weights to CPU RAM only, no GPU allocation.
  * 
  * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
@@ -1213,6 +1413,85 @@ export type ApiProvider =
  * Google (Gemini) API.
  */
 "Google"
+/**
+ * Built-in keyword action types the assistant can dispatch.
+ * 
+ * Handlers are implemented on the frontend side inside the
+ * `assistant-actions.ts` dispatch table. New variants require both a
+ * Rust addition here and a matching frontend handler.
+ */
+export type AssistantAction = 
+/**
+ * Start the voice note recorder.
+ */
+"start_recording" | 
+/**
+ * Stop the voice note recorder.
+ */
+"stop_recording" | 
+/**
+ * Capture the full screen to `{userdata}/screenshots/`.
+ */
+"screenshot" | 
+/**
+ * Launch an app. Payload = bundle ID (macOS) or executable path.
+ */
+"open_app" | 
+/**
+ * Run a shell command. Payload = command string.
+ */
+"run_command" | 
+/**
+ * Open a URL in the default browser. Payload = URL.
+ */
+"open_url" | 
+/**
+ * Open a file in its default handler. Payload = absolute path.
+ */
+"open_file" | 
+/**
+ * Emit a custom event the frontend can bind to arbitrary logic.
+ * Payload = event name.
+ */
+"custom"
+/**
+ * Root assistant configuration struct. One TOML file, one Tauri call
+ * returns the whole thing, the UI mutates sub-sections via targeted
+ * Tauri commands.
+ */
+export type AssistantConfig = { 
+/**
+ * Who the assistant is.
+ */
+identity: IdentityConfig; 
+/**
+ * Wake phrase detection.
+ */
+wake: WakeConfig; 
+/**
+ * 24/7 voice brain (Moshi) toggles.
+ */
+voice_brain: VoiceBrainConfig; 
+/**
+ * Active TTS voice profile.
+ */
+tts: TtsConfig; 
+/**
+ * Registered custom voice clones from user-uploaded MP3 samples.
+ */
+voice_clones?: VoiceCloneEntry[]; 
+/**
+ * Keyword action mappings.
+ */
+keyword_actions?: KeywordActionEntry[]; 
+/**
+ * Window idle + tray behaviour.
+ */
+window: WindowConfig; 
+/**
+ * Partial GPU offload hints.
+ */
+offload: OffloadConfig }
 /**
  * Boot phase — serialized to frontend as `PascalCase`.
  */
@@ -2125,6 +2404,23 @@ save_error_template: string;
  */
 lock_icon_aria: string }
 /**
+ * Identity of the local assistant.
+ * 
+ * `name` drives every prompt template via `{assistant_name}` and the
+ * default wake phrase root. `tagline` is displayed under the name in
+ * the welcome overlay and boot splash.
+ */
+export type IdentityConfig = { 
+/**
+ * User-facing label the assistant answers to. Default "Clyffy".
+ */
+name: string; 
+/**
+ * One-line descriptor shown under the name. Default
+ * `"your local AI co-pilot"`.
+ */
+tagline: string }
+/**
  * Event emitted during platform initialization.
  */
 export type InitEvent = { 
@@ -2165,6 +2461,55 @@ export type InitStatus =
  * Step was skipped (e.g., disabled in config).
  */
 "Skipped"
+/**
+ * A named action the assistant can run when its associated phrase is
+ * detected after the wake phrase fires.
+ * 
+ * The `action` field names a handler; `payload` is a handler-specific
+ * free-form string. Handlers live frontend-side; see
+ * `interfaces/desktop/src/lib/domains/app/models/features/setup-wizard/
+ * assistant-actions.ts` for the dispatch table.
+ */
+export type KeywordActionEntry = { 
+/**
+ * Phrase to listen for (case-insensitive, open vocabulary).
+ */
+phrase: string; 
+/**
+ * Action identifier — see [`AssistantAction`] variants.
+ */
+action: AssistantAction; 
+/**
+ * Free-form handler payload (app name, shell command, URL,
+ * file path). Interpretation is action-specific.
+ */
+payload?: string; 
+/**
+ * Whether this entry is currently active.
+ */
+enabled: boolean }
+/**
+ * A single Kokoro voice available via the bundled ONNX runtime.
+ * Returned by [`list_kokoro_voices`] so the Voice Lab picker can
+ * group by gender and render preview buttons.
+ */
+export type KokoroVoiceInfo = { 
+/**
+ * Voice ID (e.g. `"am_eric"`, `"af_bella"`).
+ */
+id: string; 
+/**
+ * Layman label (e.g. `"American Male — Eric"`).
+ */
+label: string; 
+/**
+ * `"male"` or `"female"`.
+ */
+gender: string; 
+/**
+ * Short region / accent tag (e.g. `"American"`, `"British"`).
+ */
+region: string }
 /**
  * A lane baseline row from DuckDB — percentile stats per execution lane.
  */
@@ -2414,6 +2759,32 @@ continue_label: string;
  * Label on the button that returns to the hardware step.
  */
 back_label: string }
+/**
+ * Partial GPU offload hints for llama.cpp-backed slots that exceed
+ * the GPU VRAM budget.
+ * 
+ * Values are transformer layer counts:
+ * - `-1` = all layers on GPU (full load)
+ * - `0` = CPU only
+ * - positive integer N = N layers on GPU, rest on CPU
+ * 
+ * The three fields target the three llama.cpp slots in the preset
+ * loadout: `chat.brain` (the 30B-A3B warm brain), `chat.fast` (the
+ * Qwen3-4B hot routing brain), and `chat.vision` (Qwen3-VL-2B).
+ */
+export type OffloadConfig = { 
+/**
+ * Layers of `chat.brain` on GPU.
+ */
+brain_ngl: number; 
+/**
+ * Layers of `chat.fast` on GPU.
+ */
+fast_ngl: number; 
+/**
+ * Layers of `chat.vision` on GPU.
+ */
+vision_ngl: number }
 /**
  * Public platform configuration.
  * 
@@ -3020,6 +3391,85 @@ export type TierRole =
  */
 "minimal"
 /**
+ * Text-to-speech voice profile.
+ * 
+ * The `profile` field is the canonical identifier. Two forms are
+ * accepted:
+ * 
+ * - `kokoro:<voice_id>` — a built-in Kokoro voice from the bundled
+ * English v0.19 release. Voice IDs follow the `am_*` (American
+ * male) / `af_*` (American female) / `bm_*` (British male) /
+ * `bf_*` (British female) convention.
+ * - `custom:<filename_stem>` — a user-uploaded reference sample
+ * cloned via `CosyVoice2-0.5B`. The stem matches the filename in
+ * `{userdata_dir}/voice/custom/*.mp3`.
+ */
+export type TtsConfig = { 
+/**
+ * Canonical voice profile identifier.
+ */
+profile: string; 
+/**
+ * Speech rate multiplier. `1.0` = natural. Kokoro accepts
+ * `0.5..=2.0`; values outside that range clamp at runtime.
+ */
+rate: number; 
+/**
+ * Output gain in decibels. `0` = unchanged.
+ */
+gain_db: number }
+/**
+ * 24/7 full-duplex voice brain (Moshi) configuration.
+ * 
+ * When `enabled_24_7 = true`, `voice.brain` stays hot and handles
+ * real-time speech-to-speech with native turn-taking. When `false`,
+ * the cascaded path (wake -> STT -> chat.fast -> TTS) handles voice
+ * interactions instead.
+ */
+export type VoiceBrainConfig = { 
+/**
+ * Whether Moshi stays hot in VRAM for always-on STS.
+ */
+enabled_24_7: boolean; 
+/**
+ * Whether Moshi may hand complex queries off to `chat.brain`
+ * (Qwen3-30B-A3B) via the kernel escalation path.
+ */
+escalate_on_complex: boolean; 
+/**
+ * Silence threshold in milliseconds that marks a user turn as
+ * complete. Moshi's own VAD handles the low-latency path; this
+ * value is the fallback for the cascaded path.
+ */
+turn_end_silence_ms: number; 
+/**
+ * Layman-language label shown on the thinking spinner during an
+ * escalation handoff. Never model names.
+ */
+escalation_label: string }
+/**
+ * Registered user-uploaded voice clone sample.
+ * 
+ * The UI populates this list as the user uploads MP3 files through
+ * the Voice Lab panel. Each entry is passed to `CosyVoice2-0.5B` via
+ * sherpa-onnx for zero-shot cloning on the next TTS call that
+ * selects `custom:<name>`.
+ */
+export type VoiceCloneEntry = { 
+/**
+ * Short name the user gave this clone (e.g. `"my_male"`).
+ */
+name: string; 
+/**
+ * Absolute path to the reference audio file on disk.
+ */
+reference_path: string; 
+/**
+ * Optional transcript of the reference audio — improves clone
+ * quality when provided but not required.
+ */
+transcript?: string }
+/**
  * Voice information for the frontend.
  * 
  * Mirrors [`model_loader::VoiceEntry`] — every field comes from the
@@ -3168,6 +3618,51 @@ fits: boolean;
  * Per-slot breakdown.
  */
 per_slot: SlotBudgetEntryInfo[] }
+/**
+ * Wake phrase detector configuration.
+ * 
+ * Drives the bundled sherpa-onnx KWS zipformer open-vocab keyword
+ * spotter. Changing `phrase` reloads the KWS worker's keywords file
+ * at runtime — no model retraining required.
+ */
+export type WakeConfig = { 
+/**
+ * Whether 24/7 wake listening is active. `false` disables the
+ * microphone entirely; the assistant only responds to explicit
+ * push-to-talk or UI clicks.
+ */
+enabled: boolean; 
+/**
+ * The phrase to listen for. Case-insensitive. Open vocabulary —
+ * any string works without retraining the KWS model.
+ */
+phrase: string; 
+/**
+ * Minimum detection confidence in `[0.0, 1.0]`. Raise for fewer
+ * false positives in noisy rooms.
+ */
+sensitivity: number; 
+/**
+ * Cooldown in milliseconds between consecutive wake events.
+ */
+cooldown_ms: number }
+/**
+ * Window auto-minimise behaviour.
+ * 
+ * The Tauri main window registers focus / pointer / keydown listeners
+ * and tracks a last-activity timestamp. When the window has been
+ * unfocused for `idle_timeout_secs`, it auto-minimises. Setting the
+ * value to `0` disables the behaviour entirely.
+ */
+export type WindowConfig = { 
+/**
+ * Seconds of inactivity before auto-minimise. `0` disables.
+ */
+idle_timeout_secs: number; 
+/**
+ * Minimise to the system tray instead of the taskbar.
+ */
+minimize_to_tray: boolean }
 /**
  * Tracks an open window's state.
  */

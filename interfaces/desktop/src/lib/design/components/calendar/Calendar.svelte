@@ -51,21 +51,47 @@ let {
 }: CalendarRootProps = $props();
 
 const cal = useCalendar({
-	value,
-	defaultValue,
+	get value() {
+		return value;
+	},
+	get defaultValue() {
+		return defaultValue;
+	},
 	onValueChange: (d) => onValueChange?.({ value: d.value }),
-	focusedValue,
-	defaultFocusedValue,
+	get focusedValue() {
+		return focusedValue;
+	},
+	get defaultFocusedValue() {
+		return defaultFocusedValue;
+	},
 	onFocusChange: (d) => onFocusChange?.({ date: d.date }),
-	isDateUnavailable,
-	disabled: isDisabled,
-	readOnly: isReadOnly,
-	invalid: isInvalid,
-	minValue,
-	maxValue,
-	firstDayOfWeek,
-	locale,
-	dir,
+	get isDateUnavailable() {
+		return isDateUnavailable;
+	},
+	get disabled() {
+		return isDisabled;
+	},
+	get readOnly() {
+		return isReadOnly;
+	},
+	get invalid() {
+		return isInvalid;
+	},
+	get minValue() {
+		return minValue;
+	},
+	get maxValue() {
+		return maxValue;
+	},
+	get firstDayOfWeek() {
+		return firstDayOfWeek;
+	},
+	get locale() {
+		return locale;
+	},
+	get dir() {
+		return dir;
+	},
 });
 
 setCalendarContext(cal);
