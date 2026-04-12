@@ -80,27 +80,45 @@ $effect(() => {
 	}
 });
 
+// Boot timeout — if the engine hasn't finished in 30 seconds,
+// dismiss the overlay anyway so the user can interact. The
+// platform continues booting services in the background. Better
+// a partially-booted app than a permanently-frozen splash.
+$effect(() => {
+	if (!visible) return;
+	const timer = setTimeout(() => {
+		if (visible && !platformState.isFullyReady) {
+			console.warn("[boot-overlay] Boot timeout after 30s — dismissing overlay to unblock UI");
+			fading = true;
+			setTimeout(() => {
+				visible = false;
+			}, 600);
+		}
+	}, 30_000);
+	return () => clearTimeout(timer);
+});
+
 // When the wizard phase kicks in (platform is ready but models
-// need setup), navigate to the route-based wizard exactly once
-// and dismiss this overlay immediately so the route UI gets the
-// clicks. The previous implementation triggered navigation from
-// inside a `{@const}` expression, which re-runs on every render
-// and fires `openModelLoader()` in a loop — and the overlay
-// container in wizard phase is `pointer-events-auto w-full
-// h-full` with no children, so it silently ate every click on
-// the route underneath. Result: you could never click anything
-// on the model-loader wizard.
+// need setup), open the SetupWizardOverlay (which lives as a
+// sibling inside Frame.svelte) and dismiss this boot overlay.
+// The old implementation navigated to `/model-loader/models`
+// which was a route that NO LONGER EXISTS — the wizard was
+// absorbed into the overlay component per the 2026-04-11 ruling.
 let wizardNavigated = $state(false);
 $effect(() => {
 	if (isWizardPhase && !wizardNavigated) {
 		wizardNavigated = true;
-		void (async () => {
-			const { goto } = await import("$app/navigation");
-			await goto("/model-loader/models");
-			// Immediately unmount — the route owns the wizard UI
-			// from here on, and BootOverlay has nothing left to show.
-			visible = false;
-		})();
+		// Import wizardState lazily to avoid a circular dep
+		// (BootOverlay lives under layouts/, wizardState under domains/).
+		import("$lib/domains/app/models/features/setup-wizard/wizard.runes.svelte.js")
+			.then(({ wizardState }) => {
+				wizardState.open();
+				visible = false;
+			})
+			.catch((e) => {
+				console.error("[boot-overlay] Failed to open wizard:", e);
+				visible = false;
+			});
 	}
 });
 </script>
