@@ -2,37 +2,18 @@
  * @file Calendar Context
  * @kind calendar
  * @layer components
+ *
+ * Carries the UseCalendarReturn across the compound component so sub-slots
+ * (header / grid / cell) pull every reactive value, attribute object, and
+ * action from the same instance of the hook.
  */
 
 import { getContext, setContext } from "svelte";
-import type { CalendarIds } from "./types.js";
-
-export interface CalendarContext {
-	readonly currentMonth: Date;
-	readonly selectedDate: Date | null | undefined;
-	readonly focusedDate: Date | null;
-	readonly today: Date;
-	readonly minValue: Date | null | undefined;
-	readonly maxValue: Date | null | undefined;
-	readonly isDisabled: boolean;
-	readonly isReadOnly: boolean;
-	readonly isInvalid: boolean;
-	readonly locale: string;
-	readonly dir: "ltr" | "rtl";
-	readonly ids: Partial<CalendarIds>;
-	readonly headingId: string;
-	readonly isDateUnavailable: ((date: Date) => boolean) | undefined;
-	prevMonth(): void;
-	nextMonth(): void;
-	selectDate(date: Date): void;
-	focusDate(date: Date): void;
-	isDateDisabled(date: Date): boolean;
-	isOutsideMonth(date: Date): boolean;
-	isSelected(date: Date): boolean;
-	isToday(date: Date): boolean;
-}
+import type { UseCalendarReturn } from "$lib/design/behaviors/inputs/calendar/index.js";
 
 const CALENDAR_CTX = Symbol("coldlight-calendar");
+
+export type CalendarContext = UseCalendarReturn;
 
 export function setCalendarContext(ctx: CalendarContext): void {
 	setContext(CALENDAR_CTX, ctx);

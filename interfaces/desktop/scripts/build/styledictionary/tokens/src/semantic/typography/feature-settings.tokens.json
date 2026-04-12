@@ -1,0 +1,26 @@
+{
+	"$description": "Hand-authored OpenType feature and variation settings per font stack. DTCG 2025.10 has no first-class `fontFeatureSettings` or `fontVariationSettings` type, so these are emitted with `$type: string` — the CSS transform passes them through verbatim.",
+	"fontFeatureSettings": {
+		"$type": "string",
+		"$description": "OpenType feature settings per stack — enables ligatures, tabular nums, character variants.",
+		"sans": {
+			"$value": "\"cv01\" 1, \"cv02\" 1",
+			"$description": "Inter character variants — rounder punctuation."
+		},
+		"display": {
+			"$value": "\"tnum\" 1",
+			"$description": "Orbitron tabular numerals — stat alignment."
+		},
+		"mono": {
+			"$value": "\"liga\" 1, \"calt\" 1, \"zero\" 1",
+			"$description": "JetBrains Mono ligatures + contextual alts + slashed zero."
+		}
+	},
+	"fontVariationSettings": {
+		"$type": "string",
+		"$description": "Variable font axis settings per stack.",
+		"sans": { "$value": "normal", "$description": "Default weight / width / optical size." },
+		"display": { "$value": "normal", "$description": "Default axis values." },
+		"mono": { "$value": "normal", "$description": "Default axis values." }
+	}
+}

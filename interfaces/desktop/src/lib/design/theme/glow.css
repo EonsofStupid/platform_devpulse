@@ -3,16 +3,16 @@
  */
 
 @theme {
-  --drop-shadow-off: 0 0 0 0 oklch(0 0 0 / 0);
-  --drop-shadow-teal: 0 0 1.875rem 0.75rem oklch(0.586 0.0624 164.59 / 0.702);
-  --drop-shadow-purple: 0 0 1.875rem 0.75rem oklch(0.5517 0.1399 232.9 / 0.702);
-  --drop-shadow-magenta: 0 0 1.875rem 0.75rem oklch(0.5513 0.1128 329.06 / 0.702);
-  --drop-shadow-ember: 0 0 1.875rem 0.75rem oklch(0.5507 0.1776 16.41 / 0.702);
-  --drop-shadow-frost: 0 0 1.875rem 0.75rem oklch(0.5844 0.0833 202.74 / 0.6);
-  --drop-shadow-cyber: 0 0 1.875rem 0.75rem oklch(0.5725 0.0715 136.04 / 0.702);
-  --drop-shadow-blue: 0 0 1.875rem 0.75rem oklch(0.5412 0.1105 249.72 / 0.702);
   --glow-spread-sm: 0.75rem;
   --glow-spread-md: 1.25rem;
   --glow-spread-lg: 1.875rem;
   --glow-spread-xl: 2.5rem;
+  --drop-shadow-off: 0rem 0rem 0rem 0rem #00000000;
+  --drop-shadow-teal: 0rem 0rem 1.875rem 0.75rem #588873b3;
+  --drop-shadow-purple: 0rem 0rem 1.875rem 0.75rem #027ca9b3;
+  --drop-shadow-magenta: 0rem 0rem 1.875rem 0.75rem #965892b3;
+  --drop-shadow-ember: 0rem 0rem 1.875rem 0.75rem #c3354cb3;
+  --drop-shadow-frost: 0rem 0rem 1.875rem 0.75rem #318a9199;
+  --drop-shadow-cyber: 0rem 0rem 1.875rem 0.75rem #658257b3;
+  --drop-shadow-blue: 0rem 0rem 1.875rem 0.75rem #3673acb3;
 }

@@ -1,0 +1,23 @@
+{
+	"$description": "Hand-authored modal-overlay scrim fills — translucent backdrops that sit behind modals / dialogs / sheets. Two alpha tiers (standard 40 %, heavy 60 %) plus two name aliases to keep existing consumers working.",
+	"overlay": {
+		"$type": "color",
+		"$description": "Named overlay backdrop presets.",
+		"scrim": {
+			"$value": { "colorSpace": "oklch", "components": [0.0971, 0.0114, 185.78], "alpha": 0.4, "hex": "#010403" },
+			"$description": "Standard modal backdrop."
+		},
+		"scrim-heavy": {
+			"$value": { "colorSpace": "oklch", "components": [0.0971, 0.0114, 185.78], "alpha": 0.6, "hex": "#010403" },
+			"$description": "Heavy backdrop for critical dialogs."
+		},
+		"bg": {
+			"$value": "{overlay.scrim}",
+			"$description": "Alias — overlay background (same as scrim)."
+		},
+		"bg-heavy": {
+			"$value": "{overlay.scrim-heavy}",
+			"$description": "Alias — heavy overlay background (same as scrim-heavy)."
+		}
+	}
+}

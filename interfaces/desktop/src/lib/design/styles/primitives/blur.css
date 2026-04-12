@@ -4,11 +4,11 @@
 
 @layer tokens.primitives {
   :root {
-  --blur-off: 0;
-  --blur-sm: 0.25rem;
-  --blur-md: 0.5rem;
-  --blur-lg: 0.75rem;
-  --blur-xl: 1rem;
-  --blur-2xl: 1.5rem;
+  --blur-off: 0rem; /** No blur. */
+  --blur-sm: 0.25rem; /** Small backdrop blur — subtle frosted glass. */
+  --blur-md: 0.5rem; /** Medium backdrop blur — standard glass surface. */
+  --blur-lg: 0.75rem; /** Large backdrop blur — deep glass with atmosphere. */
+  --blur-xl: 1rem; /** Extra-large backdrop blur — heavy defocus. */
+  --blur-2xl: 1.5rem; /** Maximum backdrop blur — full obscurity. */
   }
 }

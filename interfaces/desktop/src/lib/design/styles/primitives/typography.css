@@ -4,25 +4,14 @@
 
 @layer tokens.primitives {
   :root {
-  --text-size-3xs: clamp(0.3563rem, 0.1799vw + 0.3203rem, 0.4823rem);
-  --text-size-2xs: 0.475rem;
-  --text-size-xs: 0.6331rem;
-  --text-size-sm: 0.8333rem;
-  --text-size-base: clamp(1rem, 0.1786vw + 0.9643rem, 1.125rem);
-  --text-size-lg: clamp(1.2rem, 0.428vw + 1.1144rem, 1.4996rem);
-  --text-size-xl: clamp(1.44rem, 0.7986vw + 1.2803rem, 1.999rem);
-  --text-size-2xl: clamp(1.728rem, 1.3381vw + 1.4604rem, 2.6647rem);
-  --text-size-3xl: clamp(2.0736rem, 2.112vw + 1.6512rem, 3.552rem);
-  --text-size-4xl: clamp(2.4883rem, 3.2093vw + 1.8465rem, 4.7348rem);
-  --text-size-5xl: clamp(2.986rem, 4.7508vw + 2.0358rem, 6.3115rem);
-  --font-display: Orbitron, system-ui, sans-serif;
-  --font-sans: Inter, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --font-feature-settings-sans: "cv01" 1, "cv02" 1;
-  --font-feature-settings-display: "tnum" 1;
-  --font-feature-settings-mono: "liga" 1, "calt" 1, "zero" 1;
-  --font-variation-settings-sans: normal;
-  --font-variation-settings-display: normal;
-  --font-variation-settings-mono: normal;
+  --font-display: Orbitron, system-ui, sans-serif; /** Display headings — Orbitron with system fallback. */
+  --font-sans: Inter, system-ui, sans-serif; /** Body text — Inter with system fallback. */
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace; /** Code / terminal — JetBrains Mono with Fira Code fallback. */
+  --font-feature-settings-sans: "cv01" 1, "cv02" 1; /** Inter character variants — rounder punctuation. */
+  --font-feature-settings-display: "tnum" 1; /** Orbitron tabular numerals — stat alignment. */
+  --font-feature-settings-mono: "liga" 1, "calt" 1, "zero" 1; /** JetBrains Mono ligatures + contextual alts + slashed zero. */
+  --font-variation-settings-sans: normal; /** Default weight / width / optical size. */
+  --font-variation-settings-display: normal; /** Default axis values. */
+  --font-variation-settings-mono: normal; /** Default axis values. */
   }
 }

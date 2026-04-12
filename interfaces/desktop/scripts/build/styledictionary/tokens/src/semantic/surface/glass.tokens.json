@@ -1,0 +1,79 @@
+{
+	"$description": "Hand-authored semantic glass fills. Translucent oklch surfaces with alpha, 8-tier system from near-opaque to heavy accent tint. Consumed by the `surface` named-preset file.",
+	"glass": {
+		"$type": "color",
+		"$description": "Glass surface fills — translucent with alpha. 8-tier system from near-opaque to transparent.",
+		"void": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.0612, 0.0072, 185.78],
+				"alpha": 0.878,
+				"hex": "#000101"
+			},
+			"$description": "Darkest glass — near-opaque, deep space."
+		},
+		"deep": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.0906, 0.0149, 205.53],
+				"alpha": 0.8,
+				"hex": "#000304"
+			},
+			"$description": "Heavy glass — overlays, inputs, chat panels."
+		},
+		"smoke": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.1407, 0.0033, 189.37],
+				"alpha": 0.651,
+				"hex": "#080a09"
+			},
+			"$description": "Smoky glass — raised cards, panels."
+		},
+		"standard": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.1206, 0.0095, 200.12],
+				"alpha": 0.702,
+				"hex": "#030707"
+			},
+			"$description": "Default glass — most common container treatment."
+		},
+		"light": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.1809, 0.0065, 195.41],
+				"alpha": 0.549,
+				"hex": "#0f1313"
+			},
+			"$description": "Light glass — secondary panels, toolbars."
+		},
+		"frost": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.9228, 0.0189, 30.62],
+				"alpha": 0.4,
+				"hex": "#f2e1de"
+			},
+			"$description": "Frosted glass — light mode, headers."
+		},
+		"teal": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.1149, 0.0123, 158.92],
+				"alpha": 0.749,
+				"hex": "#030604"
+			},
+			"$description": "Teal-tinted glass — accent panels."
+		},
+		"purple": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.1001, 0.0644, 218.28],
+				"alpha": 0.749,
+				"hex": "#000406"
+			},
+			"$description": "Purple-tinted glass — accent panels."
+		}
+	}
+}

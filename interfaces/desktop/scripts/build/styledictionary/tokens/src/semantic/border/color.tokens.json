@@ -1,0 +1,61 @@
+{
+	"$description": "Hand-authored semantic border colours. Named presets plus aliases into the generator-emitted teal primitive ramp.",
+	"border": {
+		"$type": "color",
+		"$description": "Named border colour presets.",
+		"subtle": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.4256, 0.0453, 163.89],
+				"alpha": 0.22,
+				"hex": "#375748"
+			},
+			"$description": "Default container border — teal tint at low alpha.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"cssExpression": "oklch(from var(--color-teal-700) l c h / 0.22)"
+				}
+			}
+		},
+		"strong": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.5133, 0.0547, 163.65],
+				"alpha": 0.302,
+				"hex": "#49715e"
+			},
+			"$description": "Emphasised container border — teal tint at higher alpha.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"cssExpression": "oklch(from var(--color-teal-600) l c h / 0.30)"
+				}
+			}
+		},
+		"focus": {
+			"$value": "{teal.400}",
+			"$description": "Focus ring colour — alias into the primitive teal ramp at stop 400."
+		},
+		"divider": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [1.0032, 0.0305, 28.88],
+				"alpha": 0.059,
+				"hex": "#ffffff"
+			},
+			"$description": "Section separator — luminance edge at near-zero alpha."
+		},
+		"soft": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.5133, 0.0547, 163.65],
+				"alpha": 0.3,
+				"hex": "#49715e"
+			},
+			"$description": "Soft container border — teal tint at moderate alpha. Alias-equivalent to `strong` at the same opacity."
+		},
+		"emphasis": {
+			"$value": "{border.strong}",
+			"$description": "Emphasised border — alias for strong."
+		}
+	}
+}

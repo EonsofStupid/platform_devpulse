@@ -4,13 +4,13 @@
 
 @layer tokens.primitives {
   :root {
-  --radius-none: 0;
-  --radius-xs: 0.125rem;
-  --radius-sm: 0.25rem;
-  --radius-md: clamp(0.5rem, 0.1786vw + 0.4643rem, 0.625rem);
-  --radius-lg: clamp(0.75rem, 0.1786vw + 0.7143rem, 0.875rem);
-  --radius-xl: clamp(1rem, 0.3571vw + 0.9286rem, 1.25rem);
-  --radius-2xl: clamp(1.5rem, 0.3571vw + 1.4286rem, 1.75rem);
-  --radius-full: 624.9375rem;
+  --radius-none: 0rem; /** No radius — sharp corners. */
+  --radius-xs: 0.125rem; /** Extra-small radius — 2 px equivalent. */
+  --radius-sm: 0.25rem; /** Small radius — 4 px. */
+  --radius-md: 0.5rem; /** Medium radius — 8 px. Default button / input radius. */
+  --radius-lg: 0.75rem; /** Large radius — 12 px. Cards and panels. */
+  --radius-xl: 1rem; /** Extra-large radius — 16 px. Overlays and sheets. */
+  --radius-2xl: 1.5rem; /** Double extra-large radius — 24 px. */
+  --radius-full: 624.9375rem; /** Pill / circle radius — effectively infinite. */
   }
 }

@@ -1,0 +1,31 @@
+{
+	"$description": "Hand-authored backdrop glow colours — radial/linear gradient centres per hub colour, used as page-level backdrop accents behind the circuit-board grid.",
+	"backdrop-glow": {
+		"$type": "color",
+		"$description": "Background glow colours keyed by hub accent.",
+		"teal": {
+			"$value": { "colorSpace": "oklch", "components": [0.308, 0.0382, 190.54], "alpha": 0.302, "hex": "#163634" },
+			"$description": "DevPulse teal backdrop glow."
+		},
+		"purple": {
+			"$value": { "colorSpace": "oklch", "components": [0.2075, 0.1083, 225.17], "alpha": 0.251, "hex": "#011b25" },
+			"$description": "Clyffy purple backdrop glow."
+		},
+		"purple-fade": {
+			"$value": { "colorSpace": "oklch", "components": [0.1974, 0.0364, 209.13], "alpha": 0.102, "hex": "#01191d" },
+			"$description": "Faded purple glow — secondary Clyffy surfaces."
+		},
+		"ember": {
+			"$value": { "colorSpace": "oklch", "components": [0.1929, 0.0595, 15.58], "alpha": 0.251, "hex": "#2a060b" },
+			"$description": "DevForge ember backdrop glow."
+		},
+		"cyber": {
+			"$value": { "colorSpace": "oklch", "components": [0.2669, 0.0305, 144.73], "alpha": 0.251, "hex": "#1c2a1c" },
+			"$description": "WiredFront cyber backdrop glow."
+		},
+		"magenta": {
+			"$value": { "colorSpace": "oklch", "components": [0.206, 0.0483, 310.37], "alpha": 0.251, "hex": "#1e1028" },
+			"$description": "OverMind magenta backdrop glow."
+		}
+	}
+}

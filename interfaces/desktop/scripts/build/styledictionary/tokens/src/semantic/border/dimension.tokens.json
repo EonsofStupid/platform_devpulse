@@ -1,0 +1,35 @@
+{
+	"$description": "Hand-authored semantic border-width + outline-offset scales. Pure dimensions — no colour, no style.",
+	"borderWidth": {
+		"$type": "dimension",
+		"$description": "Border width scale. Consumed by every border composite downstream.",
+		"thin": {
+			"$value": { "value": 0.0625, "unit": "rem" },
+			"$description": "Default border, dividers, grid lines. 1 px."
+		},
+		"medium": {
+			"$value": { "value": 0.125, "unit": "rem" },
+			"$description": "Focus rings, emphasis borders. 2 px."
+		},
+		"thick": {
+			"$value": { "value": 0.1875, "unit": "rem" },
+			"$description": "Active state, strong emphasis. 3 px."
+		}
+	},
+	"outlineOffset": {
+		"$type": "dimension",
+		"$description": "Outline-offset scale — distance between the element edge and the focus outline.",
+		"sm": {
+			"$value": { "value": 0.0625, "unit": "rem" },
+			"$description": "Tight focus ring — 1 px."
+		},
+		"md": {
+			"$value": { "value": 0.125, "unit": "rem" },
+			"$description": "Standard focus ring — 2 px."
+		},
+		"lg": {
+			"$value": { "value": 0.25, "unit": "rem" },
+			"$description": "Prominent focus ring — 4 px."
+		}
+	}
+}

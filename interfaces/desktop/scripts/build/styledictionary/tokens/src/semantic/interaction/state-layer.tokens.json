@@ -1,0 +1,43 @@
+{
+	"$description": "Hand-authored state-layer overlays — luminance edges at varying alpha consumed as ::before overlays on hover / active / selected / disabled interactive surfaces.",
+	"interaction": {
+		"$type": "color",
+		"$description": "Named interaction state presets — luminance overlays at varying alpha.",
+		"hover": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [1.0032, 0.0305, 28.88],
+				"alpha": 0.059,
+				"hex": "#ffffff"
+			},
+			"$description": "Hover overlay — subtle lighten."
+		},
+		"active": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [1.0032, 0.0305, 28.88],
+				"alpha": 0.102,
+				"hex": "#ffffff"
+			},
+			"$description": "Active/pressed overlay."
+		},
+		"selected": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [1.0032, 0.0305, 28.88],
+				"alpha": 0.149,
+				"hex": "#ffffff"
+			},
+			"$description": "Selected/checked overlay."
+		},
+		"disabled": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [1.0032, 0.0305, 28.88],
+				"alpha": 0.031,
+				"hex": "#ffffff"
+			},
+			"$description": "Disabled state overlay."
+		}
+	}
+}

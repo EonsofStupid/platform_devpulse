@@ -1,0 +1,31 @@
+{
+	"$description": "Hand-authored backdrop-filter blur radii per glass tier. One-to-one pairing with glass.tokens.json — every glass surface has a corresponding blur strength. Values converted from px to rem (1 rem = 16 px).",
+	"glass-blur": {
+		"$type": "dimension",
+		"$description": "Backdrop-filter blur per glass tier. Applied alongside the glass color fill.",
+		"void": {
+			"$value": { "value": 1.25, "unit": "rem" },
+			"$description": "Maximum blur — near-opaque surfaces. 20 px."
+		},
+		"deep": {
+			"$value": { "value": 1, "unit": "rem" },
+			"$description": "Heavy blur — overlays, deep panels. 16 px."
+		},
+		"smoke": {
+			"$value": { "value": 0.875, "unit": "rem" },
+			"$description": "Strong blur — raised surfaces. 14 px."
+		},
+		"standard": {
+			"$value": { "value": 0.75, "unit": "rem" },
+			"$description": "Default blur — most containers. 12 px."
+		},
+		"light": {
+			"$value": { "value": 0.5, "unit": "rem" },
+			"$description": "Light blur — secondary surfaces. 8 px."
+		},
+		"frost": {
+			"$value": { "value": 0.375, "unit": "rem" },
+			"$description": "Gentle blur — frosted glass. 6 px."
+		}
+	}
+}

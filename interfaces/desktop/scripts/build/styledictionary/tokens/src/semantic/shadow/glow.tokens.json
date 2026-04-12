@@ -1,0 +1,127 @@
+{
+	"$description": "Hand-authored semantic glow emission halo shadows per accent colour. Heavy neumorphic — 30 px blur, 12 px spread, 70 %+ opacity. One DTCG shadow token per hub accent.",
+	"glow": {
+		"$type": "shadow",
+		"$description": "Emission halo shadows per accent colour.",
+		"off": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0, 0, 0],
+					"alpha": 0,
+					"hex": "#000000"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 0, "unit": "rem" },
+				"spread": { "value": 0, "unit": "rem" }
+			},
+			"$description": "No glow — flat surface."
+		},
+		"teal": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.586, 0.0624, 164.59],
+					"alpha": 0.702,
+					"hex": "#588873"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Teal emission halo — DevPulse primary brand glow."
+		},
+		"purple": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.5517, 0.1399, 232.9],
+					"alpha": 0.702,
+					"hex": "#027ca9"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Purple emission halo — Clyffy agent brand glow."
+		},
+		"magenta": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.5513, 0.1128, 329.06],
+					"alpha": 0.702,
+					"hex": "#965892"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Magenta emission halo — OverMind brand glow."
+		},
+		"ember": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.5507, 0.1776, 16.41],
+					"alpha": 0.702,
+					"hex": "#c3354c"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Ember emission halo — DevForge brand glow."
+		},
+		"frost": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.5844, 0.0833, 202.74],
+					"alpha": 0.6,
+					"hex": "#318a91"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Frost emission halo — cool neutral glow."
+		},
+		"cyber": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.5725, 0.0715, 136.04],
+					"alpha": 0.702,
+					"hex": "#658257"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Cyber emission halo — WiredFront brand glow."
+		},
+		"blue": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.5412, 0.1105, 249.72],
+					"alpha": 0.702,
+					"hex": "#3673ac"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 1.875, "unit": "rem" },
+				"spread": { "value": 0.75, "unit": "rem" }
+			},
+			"$description": "Blue emission halo — info signal glow."
+		}
+	}
+}

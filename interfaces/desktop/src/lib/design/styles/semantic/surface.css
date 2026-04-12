@@ -4,13 +4,13 @@
 
 @layer tokens.semantic {
   :root {
-  --surface-base: var(--glass-void); /** App background */
-  --surface-raised: var(--glass-smoke); /** Card, panel on top of base */
-  --surface-overlay: var(--glass-deep); /** Dialog, popover, dropdown */
-  --surface-frosted: var(--glass-frost); /** Frosted glass toolbar, header */
-  --surface-inset: var(--matte-dark); /** Inset well, input background */
-  --surface-subtle: var(--matte-medium); /** Subtle raised area, sidebar */
-  --surface-chrome: var(--matte-light); /** UI chrome, toolbar background */
-  --surface-primary: var(--glass-void); /** Generic primary surface — alias of base */
+  --surface-base: var(--glass-void); /** App background — the deepest surface in the stacking order. */
+  --surface-raised: var(--glass-smoke); /** Card, panel on top of base. */
+  --surface-overlay: var(--glass-deep); /** Dialog, popover, dropdown — surfaces that hover above the main flow. */
+  --surface-frosted: var(--glass-frost); /** Frosted glass toolbar, header — light-mode surface tint. */
+  --surface-inset: var(--matte-dark); /** Inset well, input background — opaque recess. */
+  --surface-subtle: var(--matte-medium); /** Subtle raised area, sidebar. */
+  --surface-chrome: var(--matte-light); /** UI chrome, toolbar background. */
+  --surface-primary: var(--glass-void); /** Generic primary surface — alias of base for layout flexibility. */
   }
 }

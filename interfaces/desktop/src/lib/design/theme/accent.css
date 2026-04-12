@@ -3,43 +3,43 @@
  */
 
 @theme {
-  --accent-teal-main: oklch(0.63 0.08 173);
+  --accent-teal-main: oklch(0.65 0.08 173);
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35);
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08);
-  --accent-purple-main: oklch(0.63 0.12 280);
+  --accent-purple-main: oklch(0.65 0.12 280);
   --accent-purple-glow: oklch(0.63 0.12 280 / 0.35);
   --accent-purple-fill: oklch(0.63 0.12 280 / 0.08);
-  --accent-magenta-main: oklch(0.63 0.14 330);
+  --accent-magenta-main: oklch(0.65 0.14 330);
   --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35);
   --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08);
-  --accent-ember-main: oklch(0.63 0.12 25);
+  --accent-ember-main: oklch(0.65 0.12 25);
   --accent-ember-glow: oklch(0.63 0.12 25 / 0.35);
   --accent-ember-fill: oklch(0.63 0.12 25 / 0.08);
-  --accent-frost-main: oklch(0.63 0.06 220);
+  --accent-frost-main: oklch(0.65 0.06 220);
   --accent-frost-glow: oklch(0.63 0.06 220 / 0.35);
   --accent-frost-fill: oklch(0.63 0.06 220 / 0.08);
-  --accent-cyber-main: oklch(0.63 0.1 160);
+  --accent-cyber-main: oklch(0.65 0.1 160);
   --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35);
   --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08);
-  --accent-cyan-main: oklch(0.8226 0.1381 204.82);
+  --accent-cyan-main: oklch(0.55 0.14 195);
   --accent-cyan-glow: oklch(0.82 0.14 195 / 0.35);
   --accent-cyan-fill: oklch(0.82 0.14 195 / 0.08);
-  --accent-green-main: oklch(0.6806 0.1601 153.63);
+  --accent-green-main: oklch(0.55 0.17 155);
   --accent-green-glow: oklch(0.66 0.17 155 / 0.35);
   --accent-green-fill: oklch(0.66 0.17 155 / 0.08);
-  --accent-hotpink-main: oklch(0.6534 0.2270 6.32);
+  --accent-hotpink-main: oklch(0.55 0.22 355);
   --accent-hotpink-glow: oklch(0.66 0.22 10 / 0.35);
   --accent-hotpink-fill: oklch(0.66 0.22 10 / 0.08);
-  --accent-coral-main: oklch(0.7123 0.1775 12.65);
+  --accent-coral-main: oklch(0.55 0.16 10);
   --accent-coral-glow: oklch(0.72 0.16 15 / 0.35);
   --accent-coral-fill: oklch(0.72 0.16 15 / 0.08);
-  --accent-blue-main: oklch(0.6910 0.1386 242.82);
+  --accent-blue-main: oklch(0.55 0.14 240);
   --accent-blue-glow: oklch(0.68 0.14 240 / 0.35);
   --accent-blue-fill: oklch(0.68 0.14 240 / 0.08);
-  --accent-salmon-main: oklch(0.6899 0.1677 19.03);
+  --accent-salmon-main: oklch(0.55 0.18 15);
   --accent-salmon-glow: oklch(0.68 0.18 20 / 0.35);
   --accent-salmon-fill: oklch(0.68 0.18 20 / 0.08);
-  --accent-gold-main: oklch(0.8409 0.1681 108.03);
+  --accent-gold-main: oklch(0.55 0.16 100);
   --accent-gold-glow: oklch(0.83 0.16 100 / 0.35);
   --accent-gold-fill: oklch(0.83 0.16 100 / 0.08);
 }

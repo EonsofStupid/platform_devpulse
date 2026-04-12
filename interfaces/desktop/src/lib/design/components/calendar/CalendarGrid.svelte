@@ -4,8 +4,9 @@
 	@slot grid
 	@layer components
 
-	Grid table with day-of-week headers and week rows.
-	role="grid" with aria-labelledby.
+	Tabular day grid. All cells pull their attributes from useCalendar
+	so keyboard navigation, roving tabindex, and ARIA selection state
+	are single-sourced.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
@@ -13,87 +14,26 @@ import { getCalendarContext } from "./context.js";
 import type { CalendarGridProps } from "./types.js";
 
 let { children, class: className, ...rest }: CalendarGridProps = $props();
-const ctx = getCalendarContext();
-
-const weekDayNames = $derived(
-	Array.from({ length: 7 }, (_, i) => {
-		const sunday = new Date(2024, 0, i - 1);
-		return sunday.toLocaleDateString(ctx.locale, { weekday: "short" });
-	}),
-);
-
-function getCalendarDates(month: Date): Date[][] {
-	const year = month.getFullYear();
-	const m = month.getMonth();
-	const firstDay = new Date(year, m, 1);
-	const startOffset = firstDay.getDay();
-	const start = new Date(year, m, 1 - startOffset);
-
-	const weeks: Date[][] = [];
-	const current = new Date(start);
-
-	for (let w = 0; w < 6; w++) {
-		const week: Date[] = [];
-		for (let d = 0; d < 7; d++) {
-			week.push(new Date(current));
-			current.setDate(current.getDate() + 1);
-		}
-		weeks.push(week);
-		if (current.getMonth() !== m && w >= 3) break;
-	}
-	return weeks;
-}
-
-const weeks = $derived(getCalendarDates(ctx.currentMonth));
+const cal = getCalendarContext();
 </script>
 
-<table
-	role="grid"
-	id={ctx.ids.grid}
-	aria-labelledby={ctx.headingId}
-	class={cn(className)}
-	data-kind="calendar"
-	data-slot="grid"
-	{...rest}
->
+<table {...cal.grid} class={cn(className)} {...rest}>
 	{#if children}
 		{@render children()}
 	{:else}
 		<thead>
 			<tr>
-				{#each weekDayNames as dayName}
-					<th scope="col" class="" abbr={dayName}>
-						{dayName}
-					</th>
+				{#each cal.weekDays as day (day.index)}
+					<th {...cal.columnHeader(day)}>{day.abbr}</th>
 				{/each}
 			</tr>
 		</thead>
 		<tbody>
-			{#each weeks as week}
+			{#each cal.weeks as week, weekIdx (weekIdx)}
 				<tr>
-					{#each week as date}
-						{@const isSelected = ctx.isSelected(date)}
-						{@const isToday = ctx.isToday(date)}
-						{@const isDateDisabled = ctx.isDateDisabled(date)}
-						{@const isOutside = ctx.isOutsideMonth(date)}
-						{@const state = isSelected ? "selected" : isToday ? "today" : isDateDisabled ? "disabled" : isOutside ? "outside-month" : undefined}
+					{#each week as date (`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`)}
 						<td>
-							<button
-								type="button"
-								role="gridcell"
-								class=""
-								aria-selected={isSelected}
-								aria-disabled={isDateDisabled || undefined}
-								aria-current={isToday ? "date" : undefined}
-								data-kind="calendar"
-								data-slot="cell"
-								data-state={state}
-								tabindex={isSelected || (isToday && !ctx.selectedDate) ? 0 : -1}
-								disabled={isDateDisabled || isOutside}
-								onclick={() => ctx.selectDate(date)}
-							>
-								{date.getDate()}
-							</button>
+							<button {...cal.cell(date)}>{date.getDate()}</button>
 						</td>
 					{/each}
 				</tr>

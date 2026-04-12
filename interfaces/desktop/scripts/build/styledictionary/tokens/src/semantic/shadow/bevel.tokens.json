@@ -1,0 +1,307 @@
+{
+	"$description": "Hand-authored neumorphic bevel stacks. Seven depth levels from off → deep, each composed of 1–7 DTCG shadow layers that alternate luminance-edge highlights against black shadow wells. `$extensions.com.devpulse.coldlight.svgFilter` carries the SVG feSpecularLighting parameters for the SVG-backed variant.",
+	"bevel": {
+		"$type": "shadow",
+		"$description": "Neumorphic inset shadow treatments — progressive depth via stacked layers.",
+		"off": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0, 0, 0],
+					"alpha": 0,
+					"hex": "#000000"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 0, "unit": "rem" },
+				"spread": { "value": 0, "unit": "rem" }
+			},
+			"$description": "No bevel — flat surface.",
+			"$extensions": {
+				"com.devpulse.coldlight": { "inset": true, "axis": "bevel", "scope": "primitive" }
+			}
+		},
+		"subtle": {
+			"$value": [
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.102, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.0625, "unit": "rem" },
+					"blur": { "value": 0, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.161, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.0625, "unit": "rem" },
+					"blur": { "value": 0.0625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				}
+			],
+			"$description": "Visible edge highlight — light/dark pair.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": { "x": 0, "y": -1, "z": 1 }
+					}
+				}
+			}
+		},
+		"soft": {
+			"$value": [
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.122, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.0625, "unit": "rem" },
+					"blur": { "value": 0.0625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.078, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.125, "unit": "rem" },
+					"blur": { "value": 0.25, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.2, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.0625, "unit": "rem" },
+					"blur": { "value": 0.1875, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				}
+			],
+			"$description": "Gentle depth — 3 layers with soft blur.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": { "x": 0, "y": -1, "z": 1.5 }
+					}
+				}
+			}
+		},
+		"medium": {
+			"$value": [
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.149, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.0625, "unit": "rem" },
+					"blur": { "value": 0.0625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.102, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.125, "unit": "rem" },
+					"blur": { "value": 0.3125, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.251, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.0625, "unit": "rem" },
+					"blur": { "value": 0.1875, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.161, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.1875, "unit": "rem" },
+					"blur": { "value": 0.375, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				}
+			],
+			"$description": "Noticeable depth — 4 layers with graduated offsets.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": { "x": 0, "y": -1, "z": 2 }
+					}
+				}
+			}
+		},
+		"pronounced": {
+			"$value": [
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.2, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.0625, "unit": "rem" },
+					"blur": { "value": 0.0625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.141, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.125, "unit": "rem" },
+					"blur": { "value": 0.3125, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.078, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.25, "unit": "rem" },
+					"blur": { "value": 0.625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.278, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.0625, "unit": "rem" },
+					"blur": { "value": 0.1875, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.2, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.25, "unit": "rem" },
+					"blur": { "value": 0.5, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				}
+			],
+			"$description": "Strong neumorphic effect — 5 layers with wide blur range.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": { "x": 0, "y": -1, "z": 2.5 }
+					}
+				}
+			}
+		},
+		"pressed": {
+			"$value": [
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.278, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.0625, "unit": "rem" },
+					"blur": { "value": 0.1875, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.161, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.125, "unit": "rem" },
+					"blur": { "value": 0.375, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.051, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.0625, "unit": "rem" },
+					"blur": { "value": 0.0625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				}
+			],
+			"$description": "Inset/pressed bevel — inverted depth for inputs, wells, pressed states.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": -2,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": { "x": 0, "y": 1, "z": 1 }
+					}
+				}
+			}
+		},
+		"deep": {
+			"$value": [
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.239, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.0625, "unit": "rem" },
+					"blur": { "value": 0.0625, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.18, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.125, "unit": "rem" },
+					"blur": { "value": 0.25, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.102, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.25, "unit": "rem" },
+					"blur": { "value": 0.5, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.051, "hex": "#ffffff" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": 0.375, "unit": "rem" },
+					"blur": { "value": 0.875, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.322, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.0625, "unit": "rem" },
+					"blur": { "value": 0.1875, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.239, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.25, "unit": "rem" },
+					"blur": { "value": 0.5, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				},
+				{
+					"color": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.141, "hex": "#000000" },
+					"offsetX": { "value": 0, "unit": "rem" },
+					"offsetY": { "value": -0.5, "unit": "rem" },
+					"blur": { "value": 1, "unit": "rem" },
+					"spread": { "value": 0, "unit": "rem" }
+				}
+			],
+			"$description": "Maximum CSS depth — 7 layers simulating true bevel relief.",
+			"$extensions": {
+				"com.devpulse.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": { "x": 0, "y": -1, "z": 3 }
+					}
+				}
+			}
+		}
+	}
+}

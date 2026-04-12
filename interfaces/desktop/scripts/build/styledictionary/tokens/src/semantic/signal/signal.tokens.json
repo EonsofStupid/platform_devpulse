@@ -1,0 +1,23 @@
+{
+	"$description": "Hand-authored semantic signal colours — status and feedback roles. Each one is a perceptually-tuned OKLCH token with a computed sRGB hex fallback.",
+	"signal": {
+		"$type": "color",
+		"$description": "Semantic signal colours — status and feedback.",
+		"success": {
+			"$value": { "colorSpace": "oklch", "components": [0.65, 0.18, 145], "hex": "#31aa40" },
+			"$description": "Positive outcome, confirmed, complete."
+		},
+		"warning": {
+			"$value": { "colorSpace": "oklch", "components": [0.75, 0.15, 85], "hex": "#d9a514" },
+			"$description": "Caution, degraded, needs attention."
+		},
+		"error": {
+			"$value": { "colorSpace": "oklch", "components": [0.6, 0.2, 25], "hex": "#de3b3d" },
+			"$description": "Failure, destructive, blocking."
+		},
+		"info": {
+			"$value": { "colorSpace": "oklch", "components": [0.65, 0.14, 230], "hex": "#139ccd" },
+			"$description": "Informational, neutral status update."
+		}
+	}
+}

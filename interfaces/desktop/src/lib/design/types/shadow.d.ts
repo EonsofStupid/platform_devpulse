@@ -34,22 +34,20 @@ export type BevelRecord = {
 	deep: string;
 };
 
-export const ShadowTokens = ["z0", "z1", "z2", "z3", "z4"] as const;
-export type ShadowToken = (typeof ShadowTokens)[number];
+export const GlowSpreadTokens = ["sm", "md", "lg", "xl"] as const;
+export type GlowSpreadToken = (typeof GlowSpreadTokens)[number];
 
-export type ShadowCSSVar =
-	| "--shadow-z0"
-	| "--shadow-z1"
-	| "--shadow-z2"
-	| "--shadow-z3"
-	| "--shadow-z4";
+export type GlowSpreadCSSVar =
+	| "--glow-spread-sm"
+	| "--glow-spread-md"
+	| "--glow-spread-lg"
+	| "--glow-spread-xl";
 
-export type ShadowRecord = {
-	z0: string;
-	z1: string;
-	z2: string;
-	z3: string;
-	z4: string;
+export type GlowSpreadRecord = {
+	sm: string;
+	md: string;
+	lg: string;
+	xl: string;
 };
 
 export const GlowTokens = [
@@ -83,20 +81,4 @@ export type GlowRecord = {
 	frost: string;
 	cyber: string;
 	blue: string;
-};
-
-export const GlowSpreadTokens = ["sm", "md", "lg", "xl"] as const;
-export type GlowSpreadToken = (typeof GlowSpreadTokens)[number];
-
-export type GlowSpreadCSSVar =
-	| "--glow-spread-sm"
-	| "--glow-spread-md"
-	| "--glow-spread-lg"
-	| "--glow-spread-xl";
-
-export type GlowSpreadRecord = {
-	sm: string;
-	md: string;
-	lg: string;
-	xl: string;
 };

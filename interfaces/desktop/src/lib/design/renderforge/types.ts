@@ -14,16 +14,16 @@ import type { PresetId, SemanticIntent } from "../visual/preset-id.js";
 // ═══════════════════════════════════════════════════════════════
 
 /** Runtime state — closed enum. No extension. */
-export type MacroState = "default" | "disabled" | "active";
+export type RenderState = "default" | "disabled" | "active";
 
 /** What the component provides to the resolver */
-export interface MacroInput {
+export interface StyleMacro {
 	/** Scoped kind string — KindName for primitives, any string for domain components */
 	kind: KindName | `${KindName}/${string}` | (string & {});
 	/** Preset ID or semantic intent — resolved to concrete PresetId */
 	preset?: PresetId | SemanticIntent | (string & {});
 	/** Runtime state — defaults to "default" */
-	state?: MacroState;
+	state?: RenderState;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -31,7 +31,7 @@ export interface MacroInput {
 // ═══════════════════════════════════════════════════════════════
 
 /** Data attributes applied to the semantic root element */
-export interface MacroDataAttrs {
+export interface StyleDataAttrs {
 	"data-kind": string;
 	[key: `data-cl-${string}`]: "";
 }
@@ -41,7 +41,7 @@ export interface ResolvedMacro {
 	/** The kind string, echoed back for reference */
 	kind: string;
 	/** Data attributes: data-kind + data-cl-{family} markers */
-	dataAttrs: MacroDataAttrs;
+	dataAttrs: StyleDataAttrs;
 	/** CSS custom property map — serialized via cssVarString(). Canonical names only. */
 	cssVars: Record<string, string>;
 }

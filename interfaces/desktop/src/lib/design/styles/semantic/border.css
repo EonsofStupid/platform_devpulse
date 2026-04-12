@@ -4,23 +4,38 @@
 
 @layer tokens.semantic {
   :root {
-  --border-subtle: oklch(0.4256 0.0453 163.89 / 0.22); /** Default container border */
-  --border-strong: oklch(0.5133 0.0547 163.65 / 0.302); /** Emphasized container border */
-  --border-focus: var(--color-teal-400); /** Focus ring color */
-  --border-divider: oklch(1.0032 0.0305 28.88 / 0.059); /** Section separator */
-  --border-soft: oklch(0.5133 0.0547 163.65 / 0.30); /** Soft container border — alias for strong at same opacity */
-  --border-emphasis: var(--border-strong); /** Emphasized border — alias for strong */
-  --border-preset-default-color: var(--border-subtle); /** Standard container border */
-  --border-preset-default-width: 0.0625rem; /** Standard container border */
-  --border-preset-default-style: solid; /** Standard container border */
-  --border-preset-strong-color: var(--border-strong); /** Emphasized container border */
-  --border-preset-strong-width: 0.0625rem; /** Emphasized container border */
-  --border-preset-strong-style: solid; /** Emphasized container border */
-  --border-preset-focus-color: var(--border-focus); /** Focus ring */
-  --border-preset-focus-width: 0.125rem; /** Focus ring */
-  --border-preset-focus-style: solid; /** Focus ring */
-  --border-preset-divider-color: var(--border-divider); /** Section separator */
-  --border-preset-divider-width: 0.0625rem; /** Section separator */
-  --border-preset-divider-style: solid; /** Section separator */
+  --border-subtle: oklch(0.4256 0.0453 163.89 / 0.22); /** Default container border — teal tint at low alpha. */
+  --border-strong: oklch(0.5133 0.0547 163.65 / 0.302); /** Emphasised container border — teal tint at higher alpha. */
+  --border-focus: var(--teal-400); /** Focus ring colour — alias into the primitive teal ramp at stop 400. */
+  --border-divider: oklch(1.0032 0.0305 28.88 / 0.059); /** Section separator — luminance edge at near-zero alpha. */
+  --border-soft: oklch(0.5133 0.0547 163.65 / 0.3); /** Soft container border — teal tint at moderate alpha. Alias-equivalent to `strong` at the same opacity. */
+  --border-emphasis: var(--border-strong); /** Emphasised border — alias for strong. */
+  --border-preset-default-color-color-space: oklch; /** Standard container border. */
+  --border-preset-default-color-components: 0.4256,0.0453,163.89; /** Standard container border. */
+  --border-preset-default-color-alpha: 0.22; /** Standard container border. */
+  --border-preset-default-color-hex: #375748; /** Standard container border. */
+  --border-preset-default-width-value: 0.0625; /** Standard container border. */
+  --border-preset-default-width-unit: rem; /** Standard container border. */
+  --border-preset-default-style: solid; /** Standard container border. */
+  --border-preset-strong-color-color-space: oklch; /** Emphasised container border. */
+  --border-preset-strong-color-components: 0.5133,0.0547,163.65; /** Emphasised container border. */
+  --border-preset-strong-color-alpha: 0.302; /** Emphasised container border. */
+  --border-preset-strong-color-hex: #49715e; /** Emphasised container border. */
+  --border-preset-strong-width-value: 0.0625; /** Emphasised container border. */
+  --border-preset-strong-width-unit: rem; /** Emphasised container border. */
+  --border-preset-strong-style: solid; /** Emphasised container border. */
+  --border-preset-focus-color-color-space: oklch; /** Focus ring. */
+  --border-preset-focus-color-components: 0.65,0.08,173; /** Focus ring. */
+  --border-preset-focus-color-hex: #579f8a; /** Focus ring. */
+  --border-preset-focus-width-value: 0.125; /** Focus ring. */
+  --border-preset-focus-width-unit: rem; /** Focus ring. */
+  --border-preset-focus-style: solid; /** Focus ring. */
+  --border-preset-divider-color-color-space: oklch; /** Section separator. */
+  --border-preset-divider-color-components: 1.0032,0.0305,28.88; /** Section separator. */
+  --border-preset-divider-color-alpha: 0.059; /** Section separator. */
+  --border-preset-divider-color-hex: #ffffff; /** Section separator. */
+  --border-preset-divider-width-value: 0.0625; /** Section separator. */
+  --border-preset-divider-width-unit: rem; /** Section separator. */
+  --border-preset-divider-style: solid; /** Section separator. */
   }
 }

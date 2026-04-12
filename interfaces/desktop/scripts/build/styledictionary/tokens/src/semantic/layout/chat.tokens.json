@@ -1,0 +1,117 @@
+{
+	"$description": "Hand-authored chat window shell tokens — dimensions, opacity, transitions, mode accent colours, and the voice-active pulse shadow. Mixed `$type` group so every leaf declares its own. The chat `height` token uses viewport-percent units which DTCG does not cover natively, so its value lives in `$extensions.com.devpulse.coldlight.viewportPercent` and the CSS transform re-emits it as `60vh`.",
+	"chat": {
+		"z-index": {
+			"$type": "number",
+			"$value": 1000,
+			"$description": "Chat window z-index layer."
+		},
+		"overlay-z": {
+			"$type": "number",
+			"$value": 1001,
+			"$description": "Chat overlay z-index (above chat frame)."
+		},
+		"idle-opacity": {
+			"$type": "number",
+			"$value": 0.35,
+			"$description": "Opacity when not engaged."
+		},
+		"engaged-opacity": {
+			"$type": "number",
+			"$value": 1,
+			"$description": "Opacity when engaged."
+		},
+		"width": {
+			"$type": "dimension",
+			"$value": { "value": 25, "unit": "rem" },
+			"$description": "Default chat window width. 400 px."
+		},
+		"min-width": {
+			"$type": "dimension",
+			"$value": { "value": 20, "unit": "rem" },
+			"$description": "Minimum chat window width. 320 px."
+		},
+		"max-width": {
+			"$type": "dimension",
+			"$value": { "value": 37.5, "unit": "rem" },
+			"$description": "Maximum chat window width. 600 px."
+		},
+		"height": {
+			"$type": "dimension",
+			"$value": { "value": 60, "unit": "rem" },
+			"$description": "Default chat window height. Authoritative DTCG value is 60 rem; the CSS transform reads the viewport-percent extension and emits `60vh`.",
+			"$extensions": { "com.devpulse.coldlight": { "viewportPercent": 60 } }
+		},
+		"min-height": {
+			"$type": "dimension",
+			"$value": { "value": 25, "unit": "rem" },
+			"$description": "Minimum chat window height. 400 px."
+		},
+		"topbar-height": {
+			"$type": "dimension",
+			"$value": { "value": 2.5, "unit": "rem" },
+			"$description": "Chat topbar row height. 40 px."
+		},
+		"footer-height": {
+			"$type": "dimension",
+			"$value": { "value": 3.5, "unit": "rem" },
+			"$description": "Chat footer row height. 56 px."
+		},
+		"sidebar-width": {
+			"$type": "dimension",
+			"$value": { "value": 3.5, "unit": "rem" },
+			"$description": "Chat mode selector column width. 56 px."
+		},
+		"context-width": {
+			"$type": "dimension",
+			"$value": { "value": 12, "unit": "rem" },
+			"$description": "Chat context panel column width. 192 px."
+		},
+		"grid-gap": {
+			"$type": "dimension",
+			"$value": { "value": 0.25, "unit": "rem" },
+			"$description": "Gap between chat grid zones. 4 px."
+		},
+		"transition-duration": {
+			"$type": "duration",
+			"$value": { "value": 300, "unit": "ms" },
+			"$description": "State change transition duration."
+		},
+		"mode-developer": {
+			"$type": "color",
+			"$value": { "colorSpace": "oklch", "components": [0.7, 0.15, 173], "hex": "#32b797" },
+			"$description": "Developer mode accent colour — teal."
+		},
+		"mode-planning": {
+			"$type": "color",
+			"$value": { "colorSpace": "oklch", "components": [0.65, 0.15, 300], "hex": "#9e77dc" },
+			"$description": "Planning mode accent colour — purple."
+		},
+		"mode-image": {
+			"$type": "color",
+			"$value": { "colorSpace": "oklch", "components": [0.7, 0.15, 60], "hex": "#e18528" },
+			"$description": "Image mode accent colour — orange."
+		},
+		"mode-general": {
+			"$type": "color",
+			"$value": { "colorSpace": "oklch", "components": [0.6, 0.02, 224], "hex": "#748389" },
+			"$description": "General mode accent colour — muted."
+		},
+		"voice-active": {
+			"$type": "color",
+			"$value": { "colorSpace": "oklch", "components": [0.7, 0.18, 145], "hex": "#45ba50" },
+			"$description": "Voice-active indicator colour."
+		},
+		"voice-pulse": {
+			"$type": "shadow",
+			"$value": {
+				"color": { "colorSpace": "oklch", "components": [0.7, 0.18, 145], "hex": "#45ba50" },
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 0.75, "unit": "rem" },
+				"spread": { "value": 0, "unit": "rem" }
+			},
+			"$description": "Voice-active pulse glow."
+		}
+	}
+}

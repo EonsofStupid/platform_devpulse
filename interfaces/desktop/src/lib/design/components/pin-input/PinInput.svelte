@@ -3,7 +3,8 @@
 	@kind pin-input
 	@layer component
 	@category interactive
-	@description Segmented single-character input fields for entering verification codes or PINs
+	@description Segmented single-character input fields for entering verification codes, PINs, or one-time passwords.
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/textbox/
 	@container false
 	@compound true
 	@blockCategory form
@@ -21,11 +22,13 @@
 }
 -->
 <script lang="ts">
+import { usePinInput } from "$lib/design/behaviors/inputs/pin-input/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PinInputComponentProps } from "./types.js";
 
 let {
+	preset = "default",
 	size = "md",
 	length = 4,
 	value = "",
@@ -34,22 +37,54 @@ let {
 	disabled = false,
 	mask = false,
 	placeholder = "\u25CB",
-	children,
 	class: className,
+	"aria-label": ariaLabel = "Enter code",
+	"aria-describedby": ariaDescribedBy,
 	...rest
 }: PinInputComponentProps = $props();
 
-// Resolve ColdLight visual props
-const classes = $derived(cn(className));
+const pin = $derived(
+	usePinInput({
+		length,
+		value,
+		onValueChange,
+		onComplete,
+		disabled,
+		mask,
+		placeholder,
+		"aria-label": ariaLabel,
+	}),
+);
+
+const m = $derived(renderForge({ kind: "pin-input", preset }));
+
+const SIZE: Record<NonNullable<PinInputComponentProps["size"]>, string> = {
+	sm: "h-8 w-8 text-sm",
+	md: "h-10 w-10 text-base",
+	lg: "h-12 w-12 text-lg",
+};
+
+const cellClass = $derived(SIZE[size] ?? SIZE.md);
 </script>
 
 <div
 	{...rest}
-	class={classes}
-	role="group"
-	data-kind="pin-input"
-	data-slot="root"
-	aria-disabled={disabled || undefined}
+	{...pin.root}
+	{...m.dataAttrs}
+	aria-describedby={ariaDescribedBy}
+	style={cssVarString(m.cssVars)}
+	class={cn("inline-flex items-center gap-2", className)}
 >
-	{@render children?.()}
+	{#each Array.from({ length }, (_, i) => i) as index (index)}
+		<input
+			{...pin.cell(index)}
+			class={cn(
+				"text-center font-medium tabular-nums rounded-md border outline-none",
+				"bg-[var(--background-color)] text-[var(--color)] border-[var(--border-color)]",
+				"focus-visible:outline-2 focus-visible:outline-offset-2",
+				"disabled:opacity-50 disabled:pointer-events-none",
+				cellClass,
+			)}
+		/>
+	{/each}
 </div>

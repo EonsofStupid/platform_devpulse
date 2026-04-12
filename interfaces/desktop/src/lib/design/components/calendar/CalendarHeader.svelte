@@ -5,64 +5,25 @@
 	@layer components
 
 	Header with month/year heading and prev/next navigation buttons.
+	Every attribute comes from useCalendar via context — no inline ARIA,
+	no hand-rolled keyboard handling.
 -->
 <script lang="ts">
+import { ChevronLeft, ChevronRight } from "lucide-svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { getCalendarContext } from "./context.js";
 import type { CalendarHeaderProps } from "./types.js";
 
 let { children, class: className, ...rest }: CalendarHeaderProps = $props();
-const ctx = getCalendarContext();
-
-const headingText = $derived(
-	ctx.currentMonth.toLocaleDateString(ctx.locale, {
-		month: "long",
-		year: "numeric",
-	}),
-);
+const cal = getCalendarContext();
 </script>
 
-<div
-	class={cn(className)}
-	data-kind="calendar"
-	data-slot="header"
-	{...rest}
->
+<div class={cn(className)} data-kind="calendar" data-slot="header" {...rest}>
 	{#if children}
 		{@render children()}
 	{:else}
-		<button
-			type="button"
-			id={ctx.ids.prevButton}
-			class=""
-			aria-label="Previous month"
-			data-kind="calendar"
-			data-slot="prev-button"
-			onclick={() => ctx.prevMonth()}
-			disabled={ctx.isDisabled}
-		>
-			&#8249;
-		</button>
-		<div
-			id={ctx.headingId}
-			class=""
-			aria-live="polite"
-			data-kind="calendar"
-			data-slot="heading"
-		>
-			{headingText}
-		</div>
-		<button
-			type="button"
-			id={ctx.ids.nextButton}
-			class=""
-			aria-label="Next month"
-			data-kind="calendar"
-			data-slot="next-button"
-			onclick={() => ctx.nextMonth()}
-			disabled={ctx.isDisabled}
-		>
-			&#8250;
-		</button>
+		<button {...cal.prevButton}><ChevronLeft size={16} aria-hidden="true" /></button>
+		<div {...cal.heading}>{cal.headingText}</div>
+		<button {...cal.nextButton}><ChevronRight size={16} aria-hidden="true" /></button>
 	{/if}
 </div>

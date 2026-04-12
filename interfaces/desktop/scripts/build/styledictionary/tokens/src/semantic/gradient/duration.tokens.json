@@ -1,0 +1,19 @@
+{
+	"$description": "Hand-authored gradient animation durations. Three speeds for ambient gradient cycles.",
+	"gradient-duration": {
+		"$type": "duration",
+		"$description": "Animation duration for gradient shifts.",
+		"slow": {
+			"$value": { "value": 25000, "unit": "ms" },
+			"$description": "Background ambient gradient — 25 s cycle."
+		},
+		"medium": {
+			"$value": { "value": 15000, "unit": "ms" },
+			"$description": "Mid-speed gradient — 15 s cycle."
+		},
+		"fast": {
+			"$value": { "value": 8000, "unit": "ms" },
+			"$description": "Active gradient — 8 s cycle."
+		}
+	}
+}

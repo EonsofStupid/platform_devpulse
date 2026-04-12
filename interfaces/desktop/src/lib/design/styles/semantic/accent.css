@@ -4,44 +4,44 @@
 
 @layer tokens.semantic {
   :root {
-  --accent-teal-main: var(--color-teal-400); /** Primary indicator color */
-  --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission */
-  --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle bg tint */
-  --accent-purple-main: var(--color-purple-400); /** Primary indicator color */
-  --accent-purple-glow: oklch(0.63 0.12 280 / 0.35); /** Drop-shadow / box-shadow emission */
-  --accent-purple-fill: oklch(0.63 0.12 280 / 0.08); /** Sparkline area fill, subtle bg tint */
-  --accent-magenta-main: var(--color-magenta-400); /** Primary indicator color */
-  --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35); /** Drop-shadow / box-shadow emission */
-  --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08); /** Sparkline area fill, subtle bg tint */
-  --accent-ember-main: var(--color-ember-400); /** Primary indicator color */
-  --accent-ember-glow: oklch(0.63 0.12 25 / 0.35); /** Drop-shadow / box-shadow emission */
-  --accent-ember-fill: oklch(0.63 0.12 25 / 0.08); /** Sparkline area fill, subtle bg tint */
-  --accent-frost-main: var(--color-frost-400); /** Primary indicator color */
-  --accent-frost-glow: oklch(0.63 0.06 220 / 0.35); /** Drop-shadow / box-shadow emission */
-  --accent-frost-fill: oklch(0.63 0.06 220 / 0.08); /** Sparkline area fill, subtle bg tint */
-  --accent-cyber-main: var(--color-cyber-400); /** Primary indicator color */
-  --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35); /** Drop-shadow / box-shadow emission */
-  --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08); /** Sparkline area fill, subtle bg tint */
-  --accent-cyan-main: oklch(0.8226 0.1381 204.82); /** Bright cyan indicator */
-  --accent-cyan-glow: oklch(0.82 0.14 195 / 0.35); /** Cyan glow emission */
-  --accent-cyan-fill: oklch(0.82 0.14 195 / 0.08); /** Cyan area fill */
-  --accent-green-main: oklch(0.6806 0.1601 153.63); /** Vivid green indicator */
-  --accent-green-glow: oklch(0.66 0.17 155 / 0.35); /** Green glow emission */
-  --accent-green-fill: oklch(0.66 0.17 155 / 0.08); /** Green area fill */
-  --accent-hotpink-main: oklch(0.6534 0.2270 6.32); /** Hot pink indicator */
-  --accent-hotpink-glow: oklch(0.66 0.22 10 / 0.35); /** Hot pink glow emission */
-  --accent-hotpink-fill: oklch(0.66 0.22 10 / 0.08); /** Hot pink area fill */
-  --accent-coral-main: oklch(0.7123 0.1775 12.65); /** Coral indicator */
-  --accent-coral-glow: oklch(0.72 0.16 15 / 0.35); /** Coral glow emission */
-  --accent-coral-fill: oklch(0.72 0.16 15 / 0.08); /** Coral area fill */
-  --accent-blue-main: oklch(0.6910 0.1386 242.82); /** Vivid blue indicator */
-  --accent-blue-glow: oklch(0.68 0.14 240 / 0.35); /** Blue glow emission */
-  --accent-blue-fill: oklch(0.68 0.14 240 / 0.08); /** Blue area fill */
-  --accent-salmon-main: oklch(0.6899 0.1677 19.03); /** Salmon indicator */
-  --accent-salmon-glow: oklch(0.68 0.18 20 / 0.35); /** Salmon glow emission */
-  --accent-salmon-fill: oklch(0.68 0.18 20 / 0.08); /** Salmon area fill */
-  --accent-gold-main: oklch(0.8409 0.1681 108.03); /** Gold indicator */
-  --accent-gold-glow: oklch(0.83 0.16 100 / 0.35); /** Gold glow emission */
-  --accent-gold-fill: oklch(0.83 0.16 100 / 0.08); /** Gold area fill */
+  --accent-teal-main: var(--teal-400); /** Primary indicator colour — teal ramp stop 400. */
+  --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission tint. */
+  --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle background tint. */
+  --accent-purple-main: var(--purple-400); /** Primary indicator colour — purple ramp stop 400. */
+  --accent-purple-glow: oklch(0.63 0.12 280 / 0.35); /** Drop-shadow / box-shadow emission tint. */
+  --accent-purple-fill: oklch(0.63 0.12 280 / 0.08); /** Sparkline area fill, subtle background tint. */
+  --accent-magenta-main: var(--magenta-400); /** Primary indicator colour — magenta ramp stop 400. */
+  --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35); /** Drop-shadow / box-shadow emission tint. */
+  --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08); /** Sparkline area fill, subtle background tint. */
+  --accent-ember-main: var(--ember-400); /** Primary indicator colour — ember ramp stop 400. */
+  --accent-ember-glow: oklch(0.63 0.12 25 / 0.35); /** Drop-shadow / box-shadow emission tint. */
+  --accent-ember-fill: oklch(0.63 0.12 25 / 0.08); /** Sparkline area fill, subtle background tint. */
+  --accent-frost-main: var(--frost-400); /** Primary indicator colour — frost ramp stop 400. */
+  --accent-frost-glow: oklch(0.63 0.06 220 / 0.35); /** Drop-shadow / box-shadow emission tint. */
+  --accent-frost-fill: oklch(0.63 0.06 220 / 0.08); /** Sparkline area fill, subtle background tint. */
+  --accent-cyber-main: var(--cyber-400); /** Primary indicator colour — cyber ramp stop 400. */
+  --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35); /** Drop-shadow / box-shadow emission tint. */
+  --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08); /** Sparkline area fill, subtle background tint. */
+  --accent-cyan-main: var(--brand-cyan-500); /** Bright cyan indicator — brand-cyan ramp stop 500. */
+  --accent-cyan-glow: oklch(0.82 0.14 195 / 0.35); /** Cyan glow emission. */
+  --accent-cyan-fill: oklch(0.82 0.14 195 / 0.08); /** Cyan area fill. */
+  --accent-green-main: var(--brand-green-500); /** Vivid green indicator — brand-green ramp stop 500. */
+  --accent-green-glow: oklch(0.66 0.17 155 / 0.35); /** Green glow emission. */
+  --accent-green-fill: oklch(0.66 0.17 155 / 0.08); /** Green area fill. */
+  --accent-hotpink-main: var(--brand-hotpink-500); /** Hot pink indicator — brand-hotpink ramp stop 500. */
+  --accent-hotpink-glow: oklch(0.66 0.22 10 / 0.35); /** Hot pink glow emission. */
+  --accent-hotpink-fill: oklch(0.66 0.22 10 / 0.08); /** Hot pink area fill. */
+  --accent-coral-main: var(--brand-coral-500); /** Coral indicator — brand-coral ramp stop 500. */
+  --accent-coral-glow: oklch(0.72 0.16 15 / 0.35); /** Coral glow emission. */
+  --accent-coral-fill: oklch(0.72 0.16 15 / 0.08); /** Coral area fill. */
+  --accent-blue-main: var(--brand-blue-500); /** Vivid blue indicator — brand-blue ramp stop 500. */
+  --accent-blue-glow: oklch(0.68 0.14 240 / 0.35); /** Blue glow emission. */
+  --accent-blue-fill: oklch(0.68 0.14 240 / 0.08); /** Blue area fill. */
+  --accent-salmon-main: var(--brand-salmon-500); /** Salmon indicator — brand-salmon ramp stop 500. */
+  --accent-salmon-glow: oklch(0.68 0.18 20 / 0.35); /** Salmon glow emission. */
+  --accent-salmon-fill: oklch(0.68 0.18 20 / 0.08); /** Salmon area fill. */
+  --accent-gold-main: var(--brand-gold-500); /** Gold indicator — brand-gold ramp stop 500. */
+  --accent-gold-glow: oklch(0.83 0.16 100 / 0.35); /** Gold glow emission. */
+  --accent-gold-fill: oklch(0.83 0.16 100 / 0.08); /** Gold area fill. */
   }
 }

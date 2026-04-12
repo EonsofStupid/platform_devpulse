@@ -1,0 +1,37 @@
+{
+	"$description": "Hand-authored small glow dots for status indicators and health badges. Distinct from the main `glow` file because the blur radius is deliberately tiny and there's no spread — these are for 4–12 px dot indicators.",
+	"glow-dot": {
+		"$type": "shadow",
+		"$description": "Small status-dot indicator glows — health badges, pulse indicators.",
+		"sm": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.586, 0.0624, 164.59],
+					"alpha": 0.6,
+					"hex": "#588873"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 0.375, "unit": "rem" },
+				"spread": { "value": 0, "unit": "rem" }
+			},
+			"$description": "Small dot glow — 6 px blur. Idle status indicators."
+		},
+		"md": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [0.586, 0.0624, 164.59],
+					"alpha": 0.6,
+					"hex": "#588873"
+				},
+				"offsetX": { "value": 0, "unit": "rem" },
+				"offsetY": { "value": 0, "unit": "rem" },
+				"blur": { "value": 0.5, "unit": "rem" },
+				"spread": { "value": 0, "unit": "rem" }
+			},
+			"$description": "Medium dot glow — 8 px blur. Active status indicators."
+		}
+	}
+}

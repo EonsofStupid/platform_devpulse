@@ -117,25 +117,27 @@ Every component calls `renderForge()`. There is no second path.
 
 ```typescript
 // ── Input: what the component provides ──────────────────
-interface MacroInput {
+interface StyleMacro {
   kind: string;           // scoped kind string (see Law 3)
   preset?: string;        // defaults to 'primary'
-  state?: MacroState;     // runtime state only
+  state?: RenderState;    // runtime state only
 }
 
-type MacroState = 'default' | 'disabled' | 'active';
+type RenderState = 'default' | 'disabled' | 'active';
 
 // ── Output: sealed contract, no escape hatches ──────────
 interface ResolvedMacro {
   kind: string;
-  dataAttrs: {
-    'data-kind': string;
-    [key: `data-cl-${string}`]: '';  // family markers
-  };
+  dataAttrs: StyleDataAttrs;
   cssVars: Record<string, string>;   // canonical axis names
 }
 
-function renderForge(input: MacroInput): ResolvedMacro;
+interface StyleDataAttrs {
+  'data-kind': string;
+  [key: `data-cl-${string}`]: '';    // family markers
+}
+
+function renderForge(input: StyleMacro): ResolvedMacro;
 ```
 
 ### Resolution Chain

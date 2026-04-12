@@ -4,12 +4,12 @@
 
 @layer tokens.primitives {
   :root {
-  --bevel-off: inset 0 0 0 0 oklch(0 0 0 / 0);
-  --bevel-subtle: inset 0 0.0625rem 0 0 oklch(1.0032 0.0305 28.88 / 0.102), inset 0 -0.0625rem 0.0625rem 0 oklch(0 0 0 / 0.161); /** Visible edge highlight — light/dark pair */
-  --bevel-soft: inset 0 0.0625rem 0.0625rem 0 oklch(1.0032 0.0305 28.88 / 0.122), inset 0 0.125rem 0.25rem 0 oklch(1.0032 0.0305 28.88 / 0.078), inset 0 -0.0625rem 0.1875rem 0 oklch(0 0 0 / 0.2); /** Gentle depth — 3 layers with soft blur */
-  --bevel-medium: inset 0 0.0625rem 0.0625rem 0 oklch(1.0032 0.0305 28.88 / 0.149), inset 0 0.125rem 0.3125rem 0 oklch(1.0032 0.0305 28.88 / 0.102), inset 0 -0.0625rem 0.1875rem 0 oklch(0 0 0 / 0.251), inset 0 -0.1875rem 0.375rem 0 oklch(0 0 0 / 0.161); /** Noticeable depth — 4 layers with graduated offsets */
-  --bevel-pronounced: inset 0 0.0625rem 0.0625rem 0 oklch(1.0032 0.0305 28.88 / 0.2), inset 0 0.125rem 0.3125rem 0 oklch(1.0032 0.0305 28.88 / 0.141), inset 0 0.25rem 0.625rem 0 oklch(1.0032 0.0305 28.88 / 0.078), inset 0 -0.0625rem 0.1875rem 0 oklch(0 0 0 / 0.278), inset 0 -0.25rem 0.5rem 0 oklch(0 0 0 / 0.2); /** Strong neumorphic effect — 5 layers with wide blur range */
-  --bevel-pressed: inset 0 0.0625rem 0.1875rem 0 oklch(0 0 0 / 0.278), inset 0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.161), inset 0 -0.0625rem 0.0625rem 0 oklch(1.0032 0.0305 28.88 / 0.051); /** Inset/pressed bevel — inverted depth for inputs, wells, pressed states */
-  --bevel-deep: inset 0 0.0625rem 0.0625rem 0 oklch(1.0032 0.0305 28.88 / 0.239), inset 0 0.125rem 0.25rem 0 oklch(1.0032 0.0305 28.88 / 0.18), inset 0 0.25rem 0.5rem 0 oklch(1.0032 0.0305 28.88 / 0.102), inset 0 0.375rem 0.875rem 0 oklch(1.0032 0.0305 28.88 / 0.051), inset 0 -0.0625rem 0.1875rem 0 oklch(0 0 0 / 0.322), inset 0 -0.25rem 0.5rem 0 oklch(0 0 0 / 0.239), inset 0 -0.5rem 1rem 0 oklch(0 0 0 / 0.141); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-off: 0rem 0rem 0rem 0rem #00000000; /** No bevel — flat surface. */
+  --bevel-subtle: 0rem 0.0625rem 0rem 0rem #ffffff1a, 0rem -0.0625rem 0.0625rem 0rem #00000029; /** Visible edge highlight — light/dark pair. */
+  --bevel-soft: 0rem 0.0625rem 0.0625rem 0rem #ffffff1f, 0rem 0.125rem 0.25rem 0rem #ffffff14, 0rem -0.0625rem 0.1875rem 0rem #00000033; /** Gentle depth — 3 layers with soft blur. */
+  --bevel-medium: 0rem 0.0625rem 0.0625rem 0rem #ffffff26, 0rem 0.125rem 0.3125rem 0rem #ffffff1a, 0rem -0.0625rem 0.1875rem 0rem #00000040, 0rem -0.1875rem 0.375rem 0rem #00000029; /** Noticeable depth — 4 layers with graduated offsets. */
+  --bevel-pronounced: 0rem 0.0625rem 0.0625rem 0rem #ffffff33, 0rem 0.125rem 0.3125rem 0rem #ffffff24, 0rem 0.25rem 0.625rem 0rem #ffffff14, 0rem -0.0625rem 0.1875rem 0rem #00000047, 0rem -0.25rem 0.5rem 0rem #00000033; /** Strong neumorphic effect — 5 layers with wide blur range. */
+  --bevel-pressed: 0rem 0.0625rem 0.1875rem 0rem #00000047, 0rem 0.125rem 0.375rem 0rem #00000029, 0rem -0.0625rem 0.0625rem 0rem #ffffff0d; /** Inset/pressed bevel — inverted depth for inputs, wells, pressed states. */
+  --bevel-deep: 0rem 0.0625rem 0.0625rem 0rem #ffffff3d, 0rem 0.125rem 0.25rem 0rem #ffffff2e, 0rem 0.25rem 0.5rem 0rem #ffffff1a, 0rem 0.375rem 0.875rem 0rem #ffffff0d, 0rem -0.0625rem 0.1875rem 0rem #00000052, 0rem -0.25rem 0.5rem 0rem #0000003d, 0rem -0.5rem 1rem 0rem #00000024; /** Maximum CSS depth — 7 layers simulating true bevel relief. */
   }
 }

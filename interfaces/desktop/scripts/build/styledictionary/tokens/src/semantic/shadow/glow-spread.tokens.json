@@ -1,0 +1,23 @@
+{
+	"$description": "Hand-authored glow spread radius scale. Pure dimensions consumed by any glow that needs to parameterise its spread separately from blur.",
+	"glowSpread": {
+		"$type": "dimension",
+		"$description": "Glow spread radius scale. 12 → 40 px equivalent.",
+		"sm": {
+			"$value": { "value": 0.75, "unit": "rem" },
+			"$description": "Small spread — 12 px. Tight halo."
+		},
+		"md": {
+			"$value": { "value": 1.25, "unit": "rem" },
+			"$description": "Medium spread — 20 px. Standard halo."
+		},
+		"lg": {
+			"$value": { "value": 1.875, "unit": "rem" },
+			"$description": "Large spread — 30 px. Wide halo."
+		},
+		"xl": {
+			"$value": { "value": 2.5, "unit": "rem" },
+			"$description": "Extra-large spread — 40 px. Maximum halo."
+		}
+	}
+}

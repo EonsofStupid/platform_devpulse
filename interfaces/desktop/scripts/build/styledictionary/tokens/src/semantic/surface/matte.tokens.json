@@ -1,0 +1,31 @@
+{
+	"$description": "Hand-authored opaque matte surface fills. Flat finishes with no translucency — used for inset wells, sidebars, chrome backgrounds where transparency would reveal underlying content.",
+	"matte": {
+		"$type": "color",
+		"$description": "Matte surface fills — opaque flat finishes.",
+		"dark": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.14, 0.0014, 314.64],
+				"hex": "#090909"
+			},
+			"$description": "Darkest matte — inset wells, input backgrounds."
+		},
+		"medium": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.2216, 0.0023, 9.36],
+				"hex": "#1c1a1b"
+			},
+			"$description": "Medium matte — sidebar, subtle raised surfaces."
+		},
+		"light": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.301, 0.005, 20.6],
+				"hex": "#312d2d"
+			},
+			"$description": "Lightest matte — UI chrome, toolbar backgrounds."
+		}
+	}
+}

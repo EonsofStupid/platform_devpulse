@@ -25,54 +25,115 @@ export type BorderRecord = {
 };
 
 export const BorderPresetTokens = [
-	"default-color",
-	"default-width",
+	"default-color-colorSpace",
+	"default-color-components",
+	"default-color-alpha",
+	"default-color-hex",
+	"default-width-value",
+	"default-width-unit",
 	"default-style",
-	"strong-color",
-	"strong-width",
+	"strong-color-colorSpace",
+	"strong-color-components",
+	"strong-color-alpha",
+	"strong-color-hex",
+	"strong-width-value",
+	"strong-width-unit",
 	"strong-style",
-	"focus-color",
-	"focus-width",
+	"focus-color-colorSpace",
+	"focus-color-components",
+	"focus-color-hex",
+	"focus-width-value",
+	"focus-width-unit",
 	"focus-style",
-	"divider-color",
-	"divider-width",
+	"divider-color-colorSpace",
+	"divider-color-components",
+	"divider-color-alpha",
+	"divider-color-hex",
+	"divider-width-value",
+	"divider-width-unit",
 	"divider-style",
 ] as const;
 export type BorderPresetToken = (typeof BorderPresetTokens)[number];
 
 export type BorderPresetCSSVar =
-	| "--border-preset-default-color"
-	| "--border-preset-default-width"
+	| "--border-preset-default-color-color-space"
+	| "--border-preset-default-color-components"
+	| "--border-preset-default-color-alpha"
+	| "--border-preset-default-color-hex"
+	| "--border-preset-default-width-value"
+	| "--border-preset-default-width-unit"
 	| "--border-preset-default-style"
-	| "--border-preset-strong-color"
-	| "--border-preset-strong-width"
+	| "--border-preset-strong-color-color-space"
+	| "--border-preset-strong-color-components"
+	| "--border-preset-strong-color-alpha"
+	| "--border-preset-strong-color-hex"
+	| "--border-preset-strong-width-value"
+	| "--border-preset-strong-width-unit"
 	| "--border-preset-strong-style"
-	| "--border-preset-focus-color"
-	| "--border-preset-focus-width"
+	| "--border-preset-focus-color-color-space"
+	| "--border-preset-focus-color-components"
+	| "--border-preset-focus-color-hex"
+	| "--border-preset-focus-width-value"
+	| "--border-preset-focus-width-unit"
 	| "--border-preset-focus-style"
-	| "--border-preset-divider-color"
-	| "--border-preset-divider-width"
+	| "--border-preset-divider-color-color-space"
+	| "--border-preset-divider-color-components"
+	| "--border-preset-divider-color-alpha"
+	| "--border-preset-divider-color-hex"
+	| "--border-preset-divider-width-value"
+	| "--border-preset-divider-width-unit"
 	| "--border-preset-divider-style";
 
 export type BorderPresetRecord = {
 	default: {
-		color: string;
-		width: string;
+		color: {
+			colorSpace: string;
+			components: string;
+			alpha: string;
+			hex: string;
+		};
+		width: {
+			value: string;
+			unit: string;
+		};
 		style: string;
 	};
 	strong: {
-		color: string;
-		width: string;
+		color: {
+			colorSpace: string;
+			components: string;
+			alpha: string;
+			hex: string;
+		};
+		width: {
+			value: string;
+			unit: string;
+		};
 		style: string;
 	};
 	focus: {
-		color: string;
-		width: string;
+		color: {
+			colorSpace: string;
+			components: string;
+			hex: string;
+		};
+		width: {
+			value: string;
+			unit: string;
+		};
 		style: string;
 	};
 	divider: {
-		color: string;
-		width: string;
+		color: {
+			colorSpace: string;
+			components: string;
+			alpha: string;
+			hex: string;
+		};
+		width: {
+			value: string;
+			unit: string;
+		};
 		style: string;
 	};
 };

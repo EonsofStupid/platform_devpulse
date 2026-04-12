@@ -1,0 +1,51 @@
+{
+	"$description": "Hand-authored gradient layer fill colours — used as stops in animated ambient gradients and diagonal blend pairs. Every entry is a DTCG color. Hex-origin entries are emitted in sRGB space; oklch-origin entries stay in oklch.",
+	"gradient": {
+		"$type": "color",
+		"$description": "Gradient layer fills.",
+		"animated-1": {
+			"$value": { "colorSpace": "oklch", "components": [0.1407, 0.0433, 220.15], "alpha": 0.6, "hex": "#000c11" },
+			"$description": "Primary gradient layer — slow 25s ease-in-out infinite shift."
+		},
+		"animated-2": {
+			"$value": { "colorSpace": "oklch", "components": [0.1206, 0.0595, 280.32], "alpha": 0.4, "hex": "#04021c" },
+			"$description": "Secondary gradient layer — reverse shift, mix-blend-mode overlay."
+		},
+		"teal-purple": {
+			"$value": { "colorSpace": "oklch", "components": [0.1149, 0.0423, 190.54], "alpha": 0.702, "hex": "#000706" },
+			"$description": "Teal-to-purple gradient midpoint for button primary."
+		},
+		"cyan-green": {
+			"$value": { "colorSpace": "srgb", "components": [0.0902, 0.8706, 0.9373], "hex": "#17deef" },
+			"$description": "Diagonal blend A — cyan top-left → green bottom-right."
+		},
+		"green-blend": {
+			"$value": { "colorSpace": "srgb", "components": [0.1608, 0.7059, 0.4078], "hex": "#29b468" },
+			"$description": "Diagonal blend B — green pairs with cyan."
+		},
+		"magenta-pink": {
+			"$value": { "colorSpace": "srgb", "components": [0.9216, 0.1176, 0.7608], "hex": "#eb1ec2" },
+			"$description": "Diagonal blend A — magenta top-left → hot pink bottom-right."
+		},
+		"hotpink-blend": {
+			"$value": { "colorSpace": "srgb", "components": [0.9725, 0.2235, 0.4784], "hex": "#f8397a" },
+			"$description": "Diagonal blend B — hot pink pairs with magenta."
+		},
+		"coral-blue": {
+			"$value": { "colorSpace": "srgb", "components": [0.9882, 0.4196, 0.5137], "hex": "#fc6b83" },
+			"$description": "Diagonal blend A — coral top-left → blue bottom-right."
+		},
+		"blue-blend": {
+			"$value": { "colorSpace": "srgb", "components": [0.2431, 0.6431, 0.9176], "hex": "#3ea4ea" },
+			"$description": "Diagonal blend B — blue pairs with coral."
+		},
+		"salmon-gold": {
+			"$value": { "colorSpace": "srgb", "components": [0.9451, 0.4118, 0.4431], "hex": "#f16971" },
+			"$description": "Diagonal blend A — salmon top-left → gold bottom-right."
+		},
+		"gold-blend": {
+			"$value": { "colorSpace": "srgb", "components": [0.8392, 0.8235, 0.1961], "hex": "#d6d232" },
+			"$description": "Diagonal blend B — gold pairs with salmon."
+		}
+	}
+}

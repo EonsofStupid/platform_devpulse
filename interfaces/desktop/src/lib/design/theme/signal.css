@@ -5,6 +5,6 @@
 @theme {
   --signal-success: oklch(0.65 0.18 145);
   --signal-warning: oklch(0.75 0.15 85);
-  --signal-error: oklch(0.60 0.20 25);
+  --signal-error: oklch(0.6 0.2 25);
   --signal-info: oklch(0.65 0.14 230);
 }

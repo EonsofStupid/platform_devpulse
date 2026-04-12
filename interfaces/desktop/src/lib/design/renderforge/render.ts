@@ -65,7 +65,7 @@
 
 import { KIND_FAMILIES } from "./generated/kind-families.js";
 import { resolveIntent } from "./intent.js";
-import type { CssFamily, MacroDataAttrs, MacroInput, ResolvedMacro } from "./types.js";
+import type { CssFamily, ResolvedMacro, StyleDataAttrs, StyleMacro } from "./types.js";
 
 /** Default families applied when KIND_FAMILIES entry is missing */
 const DEFAULT_FAMILIES: CssFamily[] = ["surface", "text", "frame"];
@@ -76,7 +76,7 @@ const DEFAULT_FAMILIES: CssFamily[] = ["surface", "text", "frame"];
  * @param input - kind, preset, state
  * @returns Sealed ResolvedMacro — dataAttrs + cssVars
  */
-export function renderForge(input: MacroInput): ResolvedMacro {
+export function renderForge(input: StyleMacro): ResolvedMacro {
 	const { kind, preset = "primary", state = "default" } = input;
 
 	const resolved = resolveIntent(preset);
@@ -138,7 +138,7 @@ export function renderForge(input: MacroInput): ResolvedMacro {
 
 	const families: CssFamily[] = KIND_FAMILIES[kind] ?? DEFAULT_FAMILIES;
 
-	const dataAttrs = { "data-kind": kind } as MacroDataAttrs;
+	const dataAttrs = { "data-kind": kind } as StyleDataAttrs;
 	families.forEach((fam) => {
 		(dataAttrs as unknown as Record<string, string>)[`data-cl-${fam}`] = "";
 	});
