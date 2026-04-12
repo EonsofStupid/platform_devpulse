@@ -22,7 +22,7 @@ import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
 import type { SystemHealth } from "$lib/sys/generated/health.types.js";
 import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
-import { logError, logInfo, markIpcReady } from "$lib/sys/logger.js";
+import { logDebug, logError, logInfo, logWarn, markIpcReady } from "$lib/sys/logger.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "failed";
@@ -247,7 +247,11 @@ class PlatformState {
 			logInfo("boot", `Boot snapshot: phase=${snapshot.phase}, events=${snapshot.events.length}`);
 			this.applySnapshot(snapshot);
 		} catch (e) {
-			logError("boot", `get_boot_state failed — boot snapshot unavailable: ${e}`);
+			// Non-terminal: live `platform:subsystem-status` / `platform:boot-phase` can still converge.
+			logWarn(
+				"boot",
+				`get_boot_state failed — continuing on live events only (snapshot unavailable): ${String(e)}`,
+			);
 		}
 
 		if (this.destroyed) return;
@@ -328,7 +332,10 @@ class PlatformState {
 		}
 
 		if (snapshot.health) this.health = snapshot.health;
-		if (snapshot.error) this.error = snapshot.error;
+		if (snapshot.error) {
+			this.error = snapshot.error;
+			logWarn("boot", `Boot snapshot carried error: ${snapshot.error}`);
+		}
 		if (this.phase === "ready") this.startHealthPolling();
 	}
 
@@ -414,9 +421,12 @@ class PlatformState {
 			this.error = null;
 		} catch (e) {
 			if (this.destroyed) return;
-			// Platform might still be booting — silently ignore
+			const msg = e instanceof Error ? e.message : String(e);
 			if (this.isReady) {
 				this.error = e instanceof Error ? e.message : String(e);
+				logWarn("health", `get_status failed while platform ready — UI error set: ${msg}`);
+			} else {
+				logDebug("health", `get_status ignored during boot: ${msg}`);
 			}
 		}
 	}

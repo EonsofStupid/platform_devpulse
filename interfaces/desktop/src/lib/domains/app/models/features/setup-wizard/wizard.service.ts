@@ -11,7 +11,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "$lib/sys/logger.js";
+import { logError, logInfo } from "$lib/sys/logger.js";
 import { hardwareState } from "../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../runes/models.runes.svelte.js";
 import {
@@ -36,9 +36,11 @@ import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
  */
 export async function startHardwareScan(): Promise<void> {
 	wizardState.error = null;
+	logInfo("wizard.hardware", "startHardwareScan() — hardwareState.startListening()");
 	try {
 		await hardwareState.startListening();
 		wizardState.hardwareScanned = true;
+		logInfo("wizard.hardware", "startHardwareScan() ok — hardwareScanned=true");
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.hardware", `Hardware scan failed: ${msg}`);
@@ -57,11 +59,16 @@ export async function startHardwareScan(): Promise<void> {
  */
 export async function fetchRecommendations(): Promise<AutoConfig | null> {
 	wizardState.error = null;
+	logInfo("wizard.recommendations", "fetchRecommendations() — autoConfigureHardware()");
 	try {
 		const raw = await autoConfigureHardware();
 		const config: AutoConfig = JSON.parse(raw);
 		wizardState.setRecommendations(config);
 		wizardState.selectedPresetName = config.preset_name;
+		logInfo(
+			"wizard.recommendations",
+			`fetchRecommendations() ok — preset=${config.preset_name} recs=${config.recommendations?.length ?? 0}`,
+		);
 		return config;
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -80,9 +87,12 @@ export async function fetchRecommendations(): Promise<AutoConfig | null> {
  * without having to catch.
  */
 export async function listAllPresets(): Promise<AutoConfig[]> {
+	logInfo("wizard.presets", "listAllPresets() — list_presets IPC");
 	try {
 		const raw = await invoke<string>("list_presets");
-		return JSON.parse(raw) as AutoConfig[];
+		const out = JSON.parse(raw) as AutoConfig[];
+		logInfo("wizard.presets", `listAllPresets() ok — count=${out.length}`);
+		return out;
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.presets", `list_presets failed: ${msg}`);
@@ -101,11 +111,13 @@ export async function listAllPresets(): Promise<AutoConfig[]> {
  */
 export async function selectPreset(tier: string): Promise<AutoConfig | null> {
 	wizardState.error = null;
+	logInfo("wizard.presets", `selectPreset() — tier=${tier} (config_for_tier IPC)`);
 	try {
 		const raw = await invoke<string>("config_for_tier", { tier });
 		const config: AutoConfig = JSON.parse(raw);
 		wizardState.setRecommendations(config);
 		wizardState.selectedPresetName = config.preset_name;
+		logInfo("wizard.presets", `selectPreset() ok — preset=${config.preset_name}`);
 		return config;
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -193,10 +205,15 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 	wizardState.error = null;
 	const { toast } = await import("svelte-sonner");
+	logInfo(
+		"wizard.download",
+		`downloadAndAssign() start — slot=${rec.slot} file=${rec.file} repo=${rec.repo}`,
+	);
 
 	let downloadId: string;
 	try {
 		downloadId = await downloadModel(rec.repo, rec.file);
+		logInfo("wizard.download", `downloadModel() ok — downloadId=${downloadId} slot=${rec.slot}`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		wizardState.error = msg;
@@ -240,6 +257,7 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 		wizardState.completeDownload(downloadId);
 		toast.success(`${rec.name} downloaded`);
 
+		logInfo("wizard.download", `post-download — scanModels + refresh slot=${rec.slot}`);
 		await modelsState.scan();
 		await modelsState.refresh();
 
@@ -248,8 +266,13 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 			throw new Error(`Downloaded ${rec.file} but not found in registry after scan`);
 		}
 
+		logInfo(
+			"wizard.download",
+			`assign after download — slot=${rec.slot} modelId=${model.id} file=${rec.file}`,
+		);
 		await modelsState.assign(rec.slot, model.id);
 		toast.success(`${rec.name} assigned to ${friendlySlotLabel(rec.slot)}`);
+		logInfo("wizard.download", `downloadAndAssign() complete — slot=${rec.slot}`);
 	} catch (e) {
 		unsubProgress();
 		const msg = e instanceof Error ? e.message : String(e);
@@ -342,9 +365,12 @@ export async function assignAndLoad(slotId: string, modelId: string): Promise<vo
 	}
 
 	try {
+		logInfo("wizard.assignAndLoad", `assignAndLoad() — assign slot=${slotId} modelId=${modelId}`);
 		await modelsState.assign(slotId, modelId);
+		logInfo("wizard.assignAndLoad", `assignAndLoad() — load slot=${slotId}`);
 		await modelsState.load(slotId);
 		toast.success(`${friendlySlotLabel(slotId)} is active`);
+		logInfo("wizard.assignAndLoad", `assignAndLoad() complete — slot=${slotId}`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.assignAndLoad", `Failed: slot=${slotId} model=${modelId} error=${msg}`);
@@ -362,10 +388,15 @@ export async function assignAndLoad(slotId: string, modelId: string): Promise<vo
 export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 	wizardState.downloadQueue = [...recs];
 	wizardState.error = null;
+	logInfo("wizard.bulkDownload", `bulkDownloadAndAssign() start — count=${recs.length}`);
 
 	for (let i = 0; i < recs.length; i++) {
 		wizardState.downloadingIndex = i;
 		wizardState.downloadProgress = 0;
+		logInfo(
+			"wizard.bulkDownload",
+			`bulk item [${i + 1}/${recs.length}] slot=${recs[i].slot} file=${recs[i].file}`,
+		);
 		try {
 			await downloadAndAssign(recs[i]);
 		} catch (e) {
@@ -379,6 +410,7 @@ export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
 
 	wizardState.downloadingIndex = -1;
 	wizardState.downloadQueue = [];
+	logInfo("wizard.bulkDownload", "bulkDownloadAndAssign() finished — queue cleared");
 }
 
 // ── Phase 4: Clyffy Activation ──────────────────────────

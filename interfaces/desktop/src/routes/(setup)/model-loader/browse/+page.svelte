@@ -302,8 +302,12 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 
 <style>
 	.browse-page {
-		display: flex; flex-direction: column; gap: 1rem;
-		width: 100%; max-width: 40rem; padding: 1rem 0;
+		display: flex;
+		flex-direction: column;
+		gap: clamp(0.875rem, 0.75rem + 0.6vw, 1rem);
+		width: 100%;
+		max-width: 40rem;
+		padding: clamp(0.875rem, 0.75rem + 0.6vw, 1rem) 0;
 	}
 	.help-row {
 		display: flex;
@@ -322,9 +326,9 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	}
 	.tab:hover { color: var(--text-secondary); background: var(--glass-deep); }
 	.tab.active {
-		color: var(--brand-cyan);
-		border-bottom-color: var(--brand-cyan);
-		background: var(--wiz-fill-cyan);
+		color: var(--accent-cyan-main);
+		border-bottom-color: var(--accent-cyan-main);
+		background: color-mix(in oklch, var(--accent-teal-fill) 92%, transparent);
 		font-weight: 700;
 	}
 
@@ -363,8 +367,9 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	}
 	.btn-assign:hover { border-color: var(--assign-color); color: var(--text-primary); }
 	.btn-assign.assigned {
-		border-color: var(--brand-green); color: var(--brand-green);
-		background: var(--wiz-fill-green);
+		border-color: var(--accent-green-main);
+		color: var(--accent-green-main);
+		background: color-mix(in oklch, var(--accent-green-fill) 92%, transparent);
 	}
 	.btn-assign:disabled { cursor: default; }
 
@@ -379,7 +384,8 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	.import-error {
 		display: flex; align-items: center; justify-content: space-between;
 		padding: 0.5rem 0.75rem; border-radius: 0.5rem;
-		background: var(--wiz-fill-ember); border: var(--border-preset-default-width) solid var(--brand-salmon);
+		background: color-mix(in oklch, var(--accent-coral-fill) 92%, transparent);
+		border: var(--border-preset-default-width) solid var(--color-brand-salmon-500);
 	}
 
 	/* Nav */

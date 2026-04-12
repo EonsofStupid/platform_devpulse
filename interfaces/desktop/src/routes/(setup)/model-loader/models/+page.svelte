@@ -50,6 +50,7 @@ import {
 	hardwareState,
 	modelsState,
 } from "$lib/domains/app/models/index.js";
+import { logError, logInfo } from "$lib/sys/logger.js";
 
 // ── local state ─────────────────────────────────────────────
 let setupInProgress = $state(false);
@@ -168,24 +169,37 @@ onMount(() => {
 async function loadPresetsAndRecs(): Promise<void> {
 	loadingRecs = true;
 	recsError = null;
+	logInfo(
+		"wizard.modelsPage",
+		"loadPresetsAndRecs() start — listAllPresets + fetchRecommendations (parallel)",
+	);
 	try {
 		// Fire both in parallel — they don't depend on each other.
 		const [presets] = await Promise.all([listAllPresets(), fetchRecommendations()]);
 		allPresets = presets;
+		logInfo(
+			"wizard.modelsPage",
+			`loadPresetsAndRecs() ok — presets=${presets.length} wizardRecs=${wizardState.recommendations.length}`,
+		);
 	} catch (e) {
 		recsError = e instanceof Error ? e.message : String(e);
+		logError("wizard.modelsPage", `loadPresetsAndRecs() FAILED: ${recsError}`);
 	} finally {
 		loadingRecs = false;
+		logInfo("wizard.modelsPage", "loadPresetsAndRecs() finally — loadingRecs=false");
 	}
 }
 
 async function handleTierSwitch(tier: HardwareTier): Promise<void> {
 	if (switchingTier !== null || setupInProgress) return;
 	switchingTier = tier;
+	logInfo("wizard.modelsPage", `handleTierSwitch() — tier=${tier}`);
 	try {
 		await selectPreset(tier);
+		logInfo("wizard.modelsPage", `handleTierSwitch() ok — tier=${tier}`);
 	} catch (e) {
 		setupError = e instanceof Error ? e.message : String(e);
+		logError("wizard.modelsPage", `handleTierSwitch() FAILED tier=${tier}: ${setupError}`);
 	} finally {
 		switchingTier = null;
 	}
@@ -195,28 +209,51 @@ async function handleSetup(): Promise<void> {
 	setupInProgress = true;
 	setupError = null;
 	const { toast } = await import("svelte-sonner");
+	logInfo(
+		"wizard.modelsPage",
+		`handleSetup() start — recs=${recs.length} alreadyOnDisk=${recs.filter((r) => r.alreadyDownloaded).length}`,
+	);
 	try {
 		const toDownload = recs.filter((r) => !r.alreadyDownloaded);
 		if (toDownload.length > 0) {
+			logInfo("wizard.modelsPage", `handleSetup() bulk download — count=${toDownload.length}`);
 			toast.info(`Downloading ${toDownload.length} model${toDownload.length > 1 ? "s" : ""}...`);
 			await bulkDownloadAndAssign(toDownload);
+			logInfo("wizard.modelsPage", "handleSetup() bulk download branch finished");
 		}
-		for (const rec of recs.filter((r) => r.alreadyDownloaded)) {
+		const onDisk = recs.filter((r) => r.alreadyDownloaded);
+		logInfo("wizard.modelsPage", `handleSetup() assign on-disk recs — count=${onDisk.length}`);
+		for (const rec of onDisk) {
 			const model = modelsState.models.find((m) => m.filename === rec.file);
 			if (model) {
 				try {
+					logInfo(
+						"wizard.modelsPage",
+						`handleSetup() assign on-disk — slot=${rec.slot} modelId=${model.id}`,
+					);
 					await modelsState.assign(rec.slot, model.id);
-				} catch {
-					/* already assigned, non-fatal */
+				} catch (e) {
+					logInfo(
+						"wizard.modelsPage",
+						`handleSetup() assign skipped/non-fatal — slot=${rec.slot}: ${e instanceof Error ? e.message : String(e)}`,
+					);
 				}
+			} else {
+				logInfo(
+					"wizard.modelsPage",
+					`handleSetup() no registry model for on-disk file=${rec.file} slot=${rec.slot}`,
+				);
 			}
 		}
+		logInfo("wizard.modelsPage", "handleSetup() scanModels + refresh()");
 		await modelsState.scan();
 		await modelsState.refresh();
 		setupComplete = true;
 		toast.success("All models set up!");
+		logInfo("wizard.modelsPage", "handleSetup() complete");
 	} catch (e) {
 		setupError = e instanceof Error ? e.message : String(e);
+		logError("wizard.modelsPage", `handleSetup() FAILED: ${setupError}`);
 	} finally {
 		setupInProgress = false;
 	}
@@ -551,10 +588,11 @@ const canContinue = $derived(
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--space-20);
+		gap: clamp(1.25rem, 1rem + 1vw, 2rem);
 		width: 100%;
 		max-width: 44rem;
-		padding: var(--space-24) var(--space-16) var(--space-48);
+		padding: clamp(1.25rem, 1rem + 1vw, 2rem) clamp(1rem, 0.75rem + 1vw, 1.5rem)
+			clamp(2rem, 1.5rem + 2vw, 3.5rem);
 		margin: 0 auto;
 	}
 
@@ -562,7 +600,7 @@ const canContinue = $derived(
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--space-8);
+		gap: clamp(0.5rem, 0.375rem + 0.5vw, 0.75rem);
 		width: 100%;
 	}
 
@@ -570,29 +608,30 @@ const canContinue = $derived(
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: var(--space-6);
+		gap: 0.375rem;
 	}
 
 	:global(.subtitle) {
 		text-align: center;
+		max-width: 38rem;
 	}
 
 	.section-label-row {
 		display: flex;
 		align-items: center;
-		gap: var(--space-6);
+		gap: 0.375rem;
 	}
 
 	.loading-state {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--space-12);
-		padding: var(--space-48) 0;
+		gap: clamp(0.75rem, 0.5rem + 1vw, 1rem);
+		padding-block: clamp(2rem, 1rem + 4vw, 3.5rem);
 	}
 	.loading-mascot {
-		width: 5rem;
-		height: 5rem;
+		width: clamp(4rem, 3.25rem + 2vw, 5rem);
+		height: clamp(4rem, 3.25rem + 2vw, 5rem);
 		object-fit: contain;
 	}
 
@@ -600,59 +639,63 @@ const canContinue = $derived(
 	.brain-row {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-8);
+		gap: 0.75rem;
 		width: 100%;
-		padding: var(--space-14) var(--space-16);
-		border-radius: var(--wiz-radius-lg);
+		padding: clamp(0.875rem, 0.75rem + 0.5vw, 1rem) clamp(1rem, 0.75rem + 1vw, 1.25rem);
+		border-radius: 1rem;
 		background: linear-gradient(
 			135deg,
-			var(--wiz-fill-purple),
-			var(--wiz-card) 60%
+			color-mix(in oklch, var(--accent-purple-fill) 85%, transparent),
+			var(--glass-deep) 60%
 		);
-		border: var(--space-1) solid var(--wiz-border);
-		box-shadow: var(--wiz-shadow-md);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		box-shadow: var(--shadow-z2);
 	}
 	.brain-row-head {
 		display: flex;
 		align-items: center;
-		gap: var(--space-6);
+		gap: 0.375rem;
 	}
 	.brain-chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--space-8);
+		gap: 0.5rem;
 	}
 	.brain-chip {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-4);
-		padding: var(--space-8) var(--space-12);
-		border-radius: var(--wiz-radius-md);
-		background: var(--wiz-inset);
-		border: var(--space-1) solid var(--wiz-border);
-		color: var(--wiz-text);
+		gap: 0.375rem;
+		padding: 0.625rem 0.875rem;
+		border-radius: 0.875rem;
+		background: var(--surface-inset);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		color: var(--text-primary);
 		cursor: pointer;
 		transition:
-			background var(--wiz-duration-fast),
-			border-color var(--wiz-duration-fast),
-			box-shadow var(--wiz-duration-fast),
-			transform var(--wiz-duration-fast);
-		min-width: 10rem;
+			background var(--motion-duration-fast),
+			border-color var(--motion-duration-fast),
+			box-shadow var(--motion-duration-fast),
+			transform var(--motion-duration-fast);
+		min-width: clamp(10rem, 8rem + 6vw, 13rem);
 	}
 	.brain-chip:hover:not(:disabled) {
-		border-color: var(--wiz-role-brain);
-		box-shadow: var(--wiz-glow-purple);
-		transform: translateY(calc(-1 * var(--space-1)));
+		border-color: var(--accent-purple-main);
+		box-shadow:
+			0 0 0 var(--space-1) color-mix(in oklch, var(--accent-purple-main) 28%, transparent),
+			var(--shadow-z2);
+		transform: translateY(-0.125rem);
 	}
 	.brain-chip.active {
 		background: linear-gradient(
 			135deg,
-			var(--wiz-fill-purple),
-			var(--wiz-card-raised)
+			color-mix(in oklch, var(--accent-purple-fill) 85%, transparent),
+			var(--glass-smoke)
 		);
-		border-color: var(--wiz-role-brain);
-		box-shadow: var(--wiz-glow-purple);
+		border-color: var(--accent-purple-main);
+		box-shadow:
+			0 0 0 var(--space-1) color-mix(in oklch, var(--accent-purple-main) 32%, transparent),
+			var(--shadow-z2);
 	}
 	.brain-chip.switching {
 		opacity: 0.7;
@@ -664,8 +707,8 @@ const canContinue = $derived(
 	.brain-chip-head {
 		display: flex;
 		align-items: center;
-		gap: var(--space-6);
-		font-size: var(--wiz-text-sm);
+		gap: 0.375rem;
+		font-size: 0.875rem;
 		font-weight: 700;
 	}
 	.brain-chip-name {
@@ -676,21 +719,21 @@ const canContinue = $derived(
 		white-space: nowrap;
 	}
 	:global(.brain-chip-check) {
-		color: var(--wiz-green);
+		color: var(--accent-green-main);
 	}
 	.brain-chip-meta {
 		display: flex;
 		align-items: center;
-		gap: var(--space-5);
-		font-size: 0.7rem;
-		color: var(--wiz-text-muted);
+		gap: 0.3125rem;
+		font-size: 0.75rem;
+		color: var(--text-muted);
 		font-variant-numeric: tabular-nums;
 	}
 	.brain-chip-spinner {
 		position: absolute;
-		top: var(--space-6);
-		right: var(--space-6);
-		color: var(--wiz-role-brain);
+		top: 0.5rem;
+		right: 0.5rem;
+		color: var(--accent-purple-main);
 	}
 	.active-preset {
 		text-align: right;
@@ -700,7 +743,7 @@ const canContinue = $derived(
 	.section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-8);
+		gap: 0.75rem;
 		width: 100%;
 	}
 
@@ -708,94 +751,92 @@ const canContinue = $derived(
 	.rec-list {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-10);
+		gap: 0.75rem;
 	}
 	.rec-card {
 		display: flex;
 		align-items: center;
-		gap: var(--space-14);
-		padding: var(--space-14) var(--space-16);
-		border-radius: var(--wiz-radius-lg);
-		background: var(--wiz-card);
-		border: var(--space-1) solid var(--wiz-border);
-		border-left: var(--space-4) solid var(--role-accent, var(--wiz-border-strong));
+		gap: clamp(0.75rem, 0.625rem + 0.5vw, 0.875rem);
+		padding: clamp(0.875rem, 0.75rem + 0.5vw, 1rem) clamp(1rem, 0.75rem + 1vw, 1.25rem);
+		border-radius: 1rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		border-left: 0.25rem solid var(--role-accent, var(--border-strong));
 		transition:
-			box-shadow var(--wiz-duration-fast),
-			border-color var(--wiz-duration-fast),
-			background var(--wiz-duration-fast);
+			box-shadow var(--motion-duration-fast),
+			border-color var(--motion-duration-fast),
+			background var(--motion-duration-fast);
 	}
 	.rec-card:hover {
-		background: var(--wiz-card-raised);
-		box-shadow: var(--role-glow, var(--wiz-shadow-md));
+		background: var(--glass-smoke);
+		box-shadow:
+			0 0 0 var(--space-1) color-mix(in oklch, var(--role-accent, var(--border-strong)) 20%, transparent),
+			var(--shadow-z2);
 	}
 	.rec-card.rec-optional {
-		opacity: 0.86;
+		opacity: 0.9;
 	}
 	.rec-card[data-role="reasoning"] {
-		--role-accent: var(--wiz-role-brain);
-		--role-glow: var(--wiz-glow-purple);
+		--role-accent: var(--accent-purple-main);
 		background: linear-gradient(
 			90deg,
-			var(--wiz-fill-purple),
-			var(--wiz-card) 30%
+			color-mix(in oklch, var(--accent-purple-fill) 92%, transparent),
+			var(--glass-deep) 30%
 		);
 	}
 	.rec-card[data-role="observation"] {
-		--role-accent: var(--wiz-role-minion);
-		--role-glow: var(--wiz-glow-green);
+		--role-accent: var(--accent-green-main);
 		background: linear-gradient(
 			90deg,
-			var(--wiz-fill-green),
-			var(--wiz-card) 30%
+			color-mix(in oklch, var(--accent-green-fill) 92%, transparent),
+			var(--glass-deep) 30%
 		);
 	}
 	.rec-card[data-role="encoder"] {
-		--role-accent: var(--wiz-role-encoder);
-		--role-glow: var(--wiz-glow-cyan);
+		--role-accent: var(--accent-blue-main);
 		background: linear-gradient(
 			90deg,
-			var(--wiz-fill-cyan),
-			var(--wiz-card) 30%
+			color-mix(in oklch, var(--accent-teal-fill) 92%, transparent),
+			var(--glass-deep) 30%
 		);
 	}
 	.rec-card[data-role="voice"] {
-		--role-accent: var(--wiz-role-voice);
-		--role-glow: var(--wiz-glow-ember);
+		--role-accent: var(--accent-coral-main);
 		background: linear-gradient(
 			90deg,
-			var(--wiz-fill-ember),
-			var(--wiz-card) 30%
+			color-mix(in oklch, var(--accent-coral-fill) 92%, transparent),
+			var(--glass-deep) 30%
 		);
 	}
 	.rec-icon {
 		flex-shrink: 0;
-		color: var(--role-accent, var(--wiz-text-muted));
-		filter: drop-shadow(0 0 var(--space-6) var(--role-accent, transparent));
+		color: var(--role-accent, var(--text-muted));
+		filter: drop-shadow(0 0 0.75rem color-mix(in oklch, var(--role-accent, transparent) 38%, transparent));
 	}
 	.rec-info {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-2);
+		gap: 0.125rem;
 		flex: 1;
 		min-width: 0;
 	}
 	.rec-name-row {
 		display: flex;
 		align-items: center;
-		gap: var(--space-6);
+		gap: 0.375rem;
 	}
 	.rec-name {
 		font-size: 0.9375rem;
 		font-weight: 700;
-		color: var(--wiz-text);
+		color: var(--text-primary);
 	}
 	.rec-desc {
-		font-size: var(--wiz-text-xs);
-		color: var(--wiz-text-sub);
+		font-size: 0.75rem;
+		color: var(--text-secondary);
 	}
 	.rec-tech {
-		font-size: 0.7rem;
-		color: var(--wiz-text-muted);
+		font-size: 0.75rem;
+		color: var(--text-muted);
 		font-family: monospace;
 	}
 	.rec-status {
@@ -806,25 +847,26 @@ const canContinue = $derived(
 	.download-queue {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-8);
+		gap: 0.75rem;
 		width: 100%;
 	}
 	.dl-row {
 		display: flex;
 		align-items: center;
-		gap: var(--space-8);
-		padding: var(--space-8) var(--space-12);
-		border-radius: var(--wiz-radius-md);
-		background: var(--wiz-card);
-		border: var(--space-1) solid var(--wiz-border);
+		gap: 0.5rem;
+		padding: 0.625rem 0.75rem;
+		border-radius: 0.875rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
 	}
 	.dl-row.active {
-		border-color: var(--wiz-cyan);
+		border-color: var(--accent-cyan-main);
+		box-shadow: 0 0 0 var(--space-1) color-mix(in oklch, var(--accent-cyan-main) 20%, transparent);
 	}
 	.dl-name {
-		font-size: var(--wiz-text-sm);
+		font-size: 0.875rem;
 		font-weight: 600;
-		color: var(--wiz-text);
+		color: var(--text-primary);
 		flex: 0 0 9rem;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -833,19 +875,19 @@ const canContinue = $derived(
 	.dl-bar {
 		flex: 1;
 		height: 0.375rem;
-		border-radius: var(--wiz-radius-full);
-		background: var(--wiz-void-800);
+		border-radius: var(--radius-full);
+		background: var(--color-void-800);
 		overflow: hidden;
 	}
 	.dl-fill {
 		height: 100%;
-		border-radius: var(--wiz-radius-full);
-		background: linear-gradient(90deg, var(--wiz-cyan), var(--wiz-role-brain));
-		transition: width var(--wiz-duration-fast);
+		border-radius: var(--radius-full);
+		background: linear-gradient(90deg, var(--accent-cyan-main), var(--accent-purple-main));
+		transition: width var(--motion-duration-fast);
 	}
 	.dl-pct {
-		font-size: var(--wiz-text-xs);
-		color: var(--wiz-text-muted);
+		font-size: 0.75rem;
+		color: var(--text-muted);
 		width: 2.5rem;
 		text-align: right;
 		font-variant-numeric: tabular-nums;
@@ -853,14 +895,14 @@ const canContinue = $derived(
 	.dl-done {
 		display: inline-flex;
 		align-items: center;
-		gap: var(--space-4);
-		color: var(--wiz-green);
-		font-size: var(--wiz-text-xs);
+		gap: 0.25rem;
+		color: var(--accent-green-main);
+		font-size: 0.75rem;
 		font-weight: 600;
 	}
 	.dl-failed {
-		color: var(--wiz-ember-300);
-		font-size: var(--wiz-text-xs);
+		color: var(--signal-error);
+		font-size: 0.75rem;
 		font-weight: 600;
 	}
 
@@ -868,41 +910,43 @@ const canContinue = $derived(
 	.success-banner {
 		display: flex;
 		align-items: center;
-		gap: var(--space-8);
+		gap: 0.5rem;
 		justify-content: center;
 		width: 100%;
-		padding: var(--space-14);
-		border-radius: var(--wiz-radius-lg);
-		background: var(--wiz-fill-green);
-		border: var(--space-1) solid var(--wiz-green);
-		color: var(--wiz-green);
-		font-size: var(--wiz-text-sm);
+		padding: 0.875rem;
+		border-radius: 1rem;
+		background: color-mix(in oklch, var(--accent-green-main) 14%, transparent);
+		border: var(--border-preset-default-width) solid var(--accent-green-main);
+		color: var(--accent-green-main);
+		font-size: 0.875rem;
 		font-weight: 700;
 	}
 	.error-banner {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-8);
+		gap: 0.5rem;
 		width: 100%;
-		padding: var(--space-14);
-		border-radius: var(--wiz-radius-lg);
-		background: var(--wiz-fill-ember);
-		border: var(--space-1) solid var(--wiz-ember-600);
+		padding: 0.875rem;
+		border-radius: 1rem;
+		background: color-mix(in oklch, var(--signal-error) 12%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--signal-error) 45%, transparent);
 	}
 	.error-actions {
 		display: flex;
-		gap: var(--space-8);
+		gap: 0.5rem;
 	}
 	:global(.error-card) {
-		padding: var(--space-16);
+		padding: clamp(1rem, 0.75rem + 0.75vw, 1.25rem);
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-8);
+		gap: 0.5rem;
 	}
 
 	.escape {
 		display: flex;
-		gap: var(--space-16);
+		gap: 1rem;
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 	.nav {
 		display: flex;
@@ -919,13 +963,13 @@ const canContinue = $derived(
 	.setup-overlay {
 		position: fixed;
 		inset: 0;
-		background: var(--wiz-overlay);
-		backdrop-filter: blur(var(--space-8));
+		background: color-mix(in oklch, var(--color-void-950) 88%, transparent);
+		backdrop-filter: blur(0.75rem);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		z-index: var(--wiz-z-modal);
-		animation: overlay-in var(--wiz-duration-normal) ease-out;
+		z-index: 1100;
+		animation: overlay-in var(--motion-duration-normal) ease-out;
 	}
 	@keyframes overlay-in {
 		from {
@@ -939,14 +983,14 @@ const canContinue = $derived(
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--space-12);
-		padding: var(--space-32) var(--space-40);
-		border-radius: var(--wiz-radius-xl);
-		background: var(--wiz-card-raised);
-		border: var(--space-1) solid var(--wiz-border-strong);
-		box-shadow: var(--wiz-shadow-xl);
+		gap: 0.75rem;
+		padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) clamp(1.25rem, 1rem + 1.5vw, 2rem);
+		border-radius: clamp(1rem, 0.75rem + 0.5vw, 1.25rem);
+		background: var(--glass-smoke);
+		border: var(--border-preset-default-width) solid var(--border-strong);
+		box-shadow: var(--shadow-z4);
 		max-width: 32rem;
-		width: 90vw;
+		width: min(90vw, 32rem);
 	}
 	.setup-overlay-mascot {
 		width: 6rem;
@@ -956,29 +1000,50 @@ const canContinue = $derived(
 	.overlay-queue {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-8);
+		gap: 0.5rem;
 		width: 100%;
 		margin-top: 0.75rem;
 	}
 	.overlay-dl {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-4);
+		gap: 0.25rem;
 	}
 	.overlay-dl-name {
-		font-size: var(--wiz-text-xs);
-		color: var(--wiz-text-sub);
+		font-size: 0.75rem;
+		color: var(--text-secondary);
 	}
 	.overlay-dl-bar {
 		height: 0.375rem;
-		border-radius: var(--wiz-radius-full);
-		background: var(--wiz-void-800);
+		border-radius: var(--radius-full);
+		background: var(--color-void-800);
 		overflow: hidden;
 	}
 	.overlay-dl-fill {
 		height: 100%;
-		border-radius: var(--wiz-radius-full);
-		background: linear-gradient(90deg, var(--wiz-cyan), var(--wiz-role-brain));
-		transition: width var(--wiz-duration-fast);
+		border-radius: var(--radius-full);
+		background: linear-gradient(90deg, var(--accent-cyan-main), var(--accent-purple-main));
+		transition: width var(--motion-duration-fast);
+	}
+
+	@media (max-width: var(--breakpoint-sm)) {
+		.escape,
+		.nav,
+		.error-actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.dl-row,
+		.rec-card {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+
+		.dl-name,
+		.rec-status {
+			width: 100%;
+			flex: initial;
+		}
 	}
 </style>
