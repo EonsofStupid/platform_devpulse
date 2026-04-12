@@ -10,6 +10,7 @@ use crate::backends::voice_pool::VoicePool;
 use crate::backends::BackendPool;
 use crate::models::download::DownloadManager;
 use crate::models::registry::BackendType;
+use crate::models::secrets::Secrets;
 use crate::hardware::auto_config::{self, AutoConfig};
 use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
 use crate::hardware::vram;
@@ -38,6 +39,10 @@ pub struct ModelLoaderService {
     pool: BackendPool,
     voice_pool: VoicePool,
     downloads: DownloadManager,
+    /// User-scoped secrets (HF token, etc.) — persisted to
+    /// `{models_dir}/../secrets.toml` and mirrored into the download
+    /// manager on every mutation.
+    secrets: Secrets,
     /// slot_id → InferenceHandle (cloned from pool)
     slot_handles: HashMap<String, InferenceHandle>,
     /// Tracks slots mid-swap to block inference during transitions.
@@ -84,7 +89,16 @@ impl ModelLoaderService {
             ModelRegistry::new(models_dir.clone())
         });
 
-        let downloads = DownloadManager::new(models_dir.clone());
+        let mut downloads = DownloadManager::new(models_dir.clone());
+
+        // Load persistent secrets (HF token, etc.) and seed the download
+        // manager so the very first download uses the stored token instead
+        // of waiting for an explicit `set_hf_token` round-trip.
+        let secrets = Secrets::load(&models_dir).unwrap_or_else(|e| {
+            tracing::warn!(error = %e, "Failed to load secrets — continuing without stored HF token");
+            Secrets::default()
+        });
+        downloads.set_hf_token(secrets.hf_token().map(String::from));
 
         Ok(Self {
             config,
@@ -97,6 +111,7 @@ impl ModelLoaderService {
             pool: BackendPool::new(),
             voice_pool: VoicePool::new(),
             downloads,
+            secrets,
             slot_handles: HashMap::new(),
             swap_guard: SwapGuard::new(),
             presets,
@@ -1174,6 +1189,41 @@ impl ModelLoaderService {
             .list_by_prefix("slot.")
             .map(|v| v.is_empty())
             .unwrap_or(true)
+    }
+
+    // ── HF Secrets ─────────────────────────────────────────────
+
+    /// Store or replace the HuggingFace access token.
+    ///
+    /// Pass `Some(token)` to write, `None` to clear. The new value is
+    /// persisted to the secrets TOML file and immediately applied to the
+    /// download manager so the next `download_model` call authenticates.
+    /// Returns an error only if the on-disk write fails.
+    pub fn set_hf_token(&mut self, token: Option<String>) -> Result<(), LoaderError> {
+        self.secrets.set_hf_token(token);
+        self.secrets
+            .save(&self.models_dir)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist HF token: {e}"),
+            })?;
+        self.downloads
+            .set_hf_token(self.secrets.hf_token().map(String::from));
+        tracing::info!(
+            has_token = self.secrets.has_hf_token(),
+            "HF token updated"
+        );
+        Ok(())
+    }
+
+    /// Whether an HF token is currently stored.
+    #[must_use]
+    pub fn has_hf_token(&self) -> bool {
+        self.secrets.has_hf_token()
+    }
+
+    /// Clear the stored HF token. Shortcut for `set_hf_token(None)`.
+    pub fn clear_hf_token(&mut self) -> Result<(), LoaderError> {
+        self.set_hf_token(None)
     }
 
     // ── Download (Phase 5) ─────────────────────────────────────

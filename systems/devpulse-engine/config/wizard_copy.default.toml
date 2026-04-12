@@ -169,3 +169,117 @@ api_empty_message = "No API keys configured. Clyffy runs fully local. Add keys a
 
 launch_label = "Launch DevPulse"
 hint = "You can change models anytime from Settings."
+
+# ─────────────────────────────────────────────────────────────────────
+# HuggingFace token entry — powers authenticated downloads and search
+# ─────────────────────────────────────────────────────────────────────
+[hf_token]
+title = "HuggingFace Access Token"
+subtitle = "Paste your token to unlock private repos, bigger rate limits, and faster downloads. Clyffy never sends the token anywhere except HuggingFace."
+field_label = "Token"
+field_placeholder = "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+save_label = "Save"
+save_aria = "Save HuggingFace access token"
+clear_label = "Clear"
+clear_aria = "Remove the stored HuggingFace token"
+cancel_label = "Cancel"
+close_aria = "Close token entry modal"
+saved_badge = "Token stored"
+unsaved_badge = "No token"
+help_link_label = "Where do I get one?"
+help_url = "https://huggingface.co/settings/tokens"
+save_error_template = "Couldn't save token: {error}"
+lock_icon_aria = "HuggingFace token storage"
+
+# ─────────────────────────────────────────────────────────────────────
+# Download progress rows — live MB/s, ETA, cancel, retry
+# ─────────────────────────────────────────────────────────────────────
+[downloads]
+title = "Downloads"
+empty_message = "No downloads in progress."
+row_aria_template = "{model_name} — {percent}% of {total_mb}"
+progress_aria_template = "{percent} percent, {bytes_mb} of {total_mb} megabytes, {speed_mb_per_s} megabytes per second"
+speed_template = "{mb_per_s} MB/s"
+eta_template = "{minutes} min remaining"
+eta_seconds_template = "{seconds} s remaining"
+eta_computing_label = "Calculating..."
+starting_label = "Starting download..."
+verifying_label = "Verifying file..."
+importing_label = "Importing into registry..."
+complete_label = "Download complete"
+failed_label_template = "Download failed: {error}"
+cancelled_label = "Cancelled"
+cancel_label = "Cancel"
+cancel_aria = "Cancel this download"
+retry_label = "Retry"
+retry_aria = "Retry this download"
+dismiss_label = "Dismiss"
+dismiss_aria = "Remove this row from the list"
+
+# ─────────────────────────────────────────────────────────────────────
+# Model loading feedback — stage narration with Clyffy spinner
+# ─────────────────────────────────────────────────────────────────────
+[loading]
+title_template = "Loading {model_name}..."
+subtitle_template = "Clyffy is getting {role} ready. This usually takes a few seconds."
+stage_reading_label = "Reading the model from disk"
+stage_memory_label = "Reserving memory"
+stage_warmup_label = "Warming up the model"
+stage_ready_label = "Ready"
+stage_failed_label = "Something went wrong"
+retry_label = "Try again"
+retry_aria = "Retry loading this model"
+mascot_alt = "Clyffy is thinking while loading"
+progress_aria_template = "Loading {model_name}: {stage_label}"
+
+# ─────────────────────────────────────────────────────────────────────
+# Role cards — Thinking / Helpers / Searching / Talking
+# Each card pulls its accent from the DTCG wizard role tokens.
+# ─────────────────────────────────────────────────────────────────────
+[role_cards]
+group_title = "Your AI setup"
+group_subtitle = "Each card covers one job. Change any of them anytime."
+
+brain_title = "Thinking"
+brain_layman = "Clyffy's main brain — the model that answers your questions and writes code."
+brain_empty_label = "No brain picked yet"
+brain_change_label = "Change brain"
+brain_change_aria = "Change the model that powers Clyffy's main brain"
+
+minion_title = "Helpers"
+minion_layman = "Small, fast models that run background tasks like classification and routing so the main brain stays free."
+minion_empty_label = "No helpers picked yet"
+minion_change_label = "Change helpers"
+minion_change_aria = "Change the helper models"
+
+encoder_title = "Searching"
+encoder_layman = "The model that finds related code, memory, and documents across your project."
+encoder_empty_label = "No search model picked yet"
+encoder_change_label = "Change search"
+encoder_change_aria = "Change the search and memory model"
+
+voice_title = "Talking"
+voice_layman = "The models that hear you speak and let Clyffy talk back."
+voice_empty_label = "No voice models picked yet"
+voice_change_label = "Change voice"
+voice_change_aria = "Change the voice models"
+
+status_empty = "Empty"
+status_downloading = "Downloading"
+status_warming = "Warming up"
+status_ready = "Ready"
+status_error = "Error"
+vram_estimate_template = "{mb} MB VRAM"
+
+# ─────────────────────────────────────────────────────────────────────
+# Clyffy tooltips — layman explanations for every "?" icon on the overlay
+# ─────────────────────────────────────────────────────────────────────
+[clyffy_tooltips]
+hf_token_info = "HuggingFace tokens are free. They let Clyffy download private or gated models and give you higher rate limits on public ones."
+vram_info = "VRAM is the memory on your graphics card. Bigger models need more VRAM to run fast."
+role_brain_info = "The brain is the main model Clyffy uses to answer questions, write code, and reason step by step."
+role_minion_info = "Helpers are small models that handle background work — classification, routing, tagging — so the brain stays free."
+role_encoder_info = "The search model turns your notes and code into numbers so Clyffy can find related things fast."
+role_voice_info = "Voice models hear what you say and let Clyffy speak back. Uses Whisper for listening and Kokoro for talking."
+preset_picker_info = "Presets are tested bundles of models that fit a hardware tier. Pick the one closest to your machine."
+symlink_info = "A symlink is a pointer. Clyffy references the file where it already lives instead of copying it — saves disk space."

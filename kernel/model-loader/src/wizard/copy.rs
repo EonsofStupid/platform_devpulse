@@ -36,6 +36,26 @@ pub struct WizardCopy {
     pub profile: ProfileCopy,
     /// Copy for the final completion / launch step.
     pub completion: CompletionCopy,
+    /// Copy for the HuggingFace token entry modal.
+    ///
+    /// `#[serde(default)]` lets older user overrides that pre-date this
+    /// section continue to parse — missing fields use struct `Default`.
+    #[serde(default)]
+    pub hf_token: HfTokenCopy,
+    /// Copy for the download progress rows (per-download cancel, retry,
+    /// speed, ETA). Rendered inside the overlay while downloads are active.
+    #[serde(default)]
+    pub downloads: DownloadsCopy,
+    /// Copy for the per-slot model loading feedback (Clyffy spinner stage
+    /// narration: reading, memory, warmup, ready, failed).
+    #[serde(default)]
+    pub loading: LoadingCopy,
+    /// Copy for the four role cards (Thinking / Helpers / Searching / Talking).
+    #[serde(default)]
+    pub role_cards: RoleCardsCopy,
+    /// Layman explanations for every "?" icon across the overlay.
+    #[serde(default)]
+    pub clyffy_tooltips: ClyffyTooltipsCopy,
 }
 
 /// Welcome screen — Clyffy greeting and CTA.
@@ -274,6 +294,222 @@ pub struct CompletionCopy {
     pub launch_label: String,
     /// Small hint below the launch button (e.g. reassurance that settings can be changed later).
     pub hint: String,
+}
+
+/// Copy for the HuggingFace token entry modal.
+///
+/// Surface: a dialog rendered inside `SetupWizardOverlay` with a password
+/// field, save / clear / cancel buttons, and a help link back to HF's
+/// token settings page.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct HfTokenCopy {
+    /// Dialog heading.
+    pub title: String,
+    /// One-line explanation of what the token unlocks.
+    pub subtitle: String,
+    /// Label beside the password input.
+    pub field_label: String,
+    /// Placeholder text inside the password input.
+    pub field_placeholder: String,
+    /// Label on the save button.
+    pub save_label: String,
+    /// `aria-label` on the save button.
+    pub save_aria: String,
+    /// Label on the clear button shown when a token is already stored.
+    pub clear_label: String,
+    /// `aria-label` on the clear button.
+    pub clear_aria: String,
+    /// Label on the cancel / dismiss button.
+    pub cancel_label: String,
+    /// `aria-label` on the top-right X-close button.
+    pub close_aria: String,
+    /// Badge text shown in the overlay header when a token is stored.
+    pub saved_badge: String,
+    /// Badge text shown when no token is stored.
+    pub unsaved_badge: String,
+    /// Label of the help link ("Where do I get one?").
+    pub help_link_label: String,
+    /// URL the help link points at.
+    pub help_url: String,
+    /// Error template for failed save / clear. `{error}` placeholder.
+    pub save_error_template: String,
+    /// `aria-label` for the lock-icon indicator pill.
+    pub lock_icon_aria: String,
+}
+
+/// Copy for the download progress rows rendered inside the overlay while
+/// downloads are active.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct DownloadsCopy {
+    /// Section heading above the active downloads list.
+    pub title: String,
+    /// Message shown when no downloads are active.
+    pub empty_message: String,
+    /// `aria-label` template for a download row. Placeholders:
+    /// `{model_name}`, `{percent}`, `{total_mb}`.
+    pub row_aria_template: String,
+    /// `aria-valuetext` template for the progress bar. Placeholders:
+    /// `{percent}`, `{bytes_mb}`, `{total_mb}`, `{speed_mb_per_s}`.
+    pub progress_aria_template: String,
+    /// Visible speed template. Placeholder `{mb_per_s}`.
+    pub speed_template: String,
+    /// ETA template when remaining > 60 s. Placeholder `{minutes}`.
+    pub eta_template: String,
+    /// ETA template when remaining <= 60 s. Placeholder `{seconds}`.
+    pub eta_seconds_template: String,
+    /// Placeholder ETA label while the first sample is pending.
+    pub eta_computing_label: String,
+    /// Label while the kernel is starting the HF request.
+    pub starting_label: String,
+    /// Label while the kernel is hashing / verifying the file after download.
+    pub verifying_label: String,
+    /// Label while the kernel is symlinking / copying into the registry.
+    pub importing_label: String,
+    /// Label on a completed row before it's dismissed.
+    pub complete_label: String,
+    /// Template for a failed row. Placeholder `{error}`.
+    pub failed_label_template: String,
+    /// Label on a cancelled row.
+    pub cancelled_label: String,
+    /// Cancel button label.
+    pub cancel_label: String,
+    /// `aria-label` on the cancel button.
+    pub cancel_aria: String,
+    /// Retry button label.
+    pub retry_label: String,
+    /// `aria-label` on the retry button.
+    pub retry_aria: String,
+    /// Dismiss button label on a completed / cancelled row.
+    pub dismiss_label: String,
+    /// `aria-label` on the dismiss button.
+    pub dismiss_aria: String,
+}
+
+/// Copy for the per-slot model loading feedback. Rendered by
+/// `ClyffyLoadSpinner` inside each role card while the slot is loading.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct LoadingCopy {
+    /// Title template. Placeholder `{model_name}`.
+    pub title_template: String,
+    /// Subtitle template. Placeholders `{model_name}`, `{role}`.
+    pub subtitle_template: String,
+    /// Stage label — file mmap / disk read.
+    pub stage_reading_label: String,
+    /// Stage label — KV cache allocation / VRAM reservation.
+    pub stage_memory_label: String,
+    /// Stage label — warmup inference pass.
+    pub stage_warmup_label: String,
+    /// Stage label — ready.
+    pub stage_ready_label: String,
+    /// Stage label — failed.
+    pub stage_failed_label: String,
+    /// Retry button label on a failed load.
+    pub retry_label: String,
+    /// `aria-label` on the retry button.
+    pub retry_aria: String,
+    /// Alt text for the Clyffy loading mascot.
+    pub mascot_alt: String,
+    /// `aria-valuetext` template. Placeholders `{model_name}`, `{stage_label}`.
+    pub progress_aria_template: String,
+}
+
+/// Copy for the four role cards (Thinking / Helpers / Searching / Talking).
+///
+/// Role colours come from the DTCG `wizard.role.{brain, minion, encoder,
+/// voice}` tokens; this struct carries only strings.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct RoleCardsCopy {
+    /// Section heading above the four-card grid.
+    pub group_title: String,
+    /// Supporting line under the section heading.
+    pub group_subtitle: String,
+
+    /// Brain card — layman name for the primary reasoning model.
+    pub brain_title: String,
+    /// Brain card — plain-English purpose line.
+    pub brain_layman: String,
+    /// Brain card — label shown when no model is assigned.
+    pub brain_empty_label: String,
+    /// Brain card — change button label.
+    pub brain_change_label: String,
+    /// Brain card — change button `aria-label`.
+    pub brain_change_aria: String,
+
+    /// Minion card — layman name for background helper models.
+    pub minion_title: String,
+    /// Minion card — plain-English purpose line.
+    pub minion_layman: String,
+    /// Minion card — label shown when no helpers are assigned.
+    pub minion_empty_label: String,
+    /// Minion card — change button label.
+    pub minion_change_label: String,
+    /// Minion card — change button `aria-label`.
+    pub minion_change_aria: String,
+
+    /// Encoder card — layman name for search / memory models.
+    pub encoder_title: String,
+    /// Encoder card — plain-English purpose line.
+    pub encoder_layman: String,
+    /// Encoder card — label shown when no search model is assigned.
+    pub encoder_empty_label: String,
+    /// Encoder card — change button label.
+    pub encoder_change_label: String,
+    /// Encoder card — change button `aria-label`.
+    pub encoder_change_aria: String,
+
+    /// Voice card — layman name for STT + TTS models.
+    pub voice_title: String,
+    /// Voice card — plain-English purpose line.
+    pub voice_layman: String,
+    /// Voice card — label shown when no voice models are assigned.
+    pub voice_empty_label: String,
+    /// Voice card — change button label.
+    pub voice_change_label: String,
+    /// Voice card — change button `aria-label`.
+    pub voice_change_aria: String,
+
+    /// Status badge — no model assigned.
+    pub status_empty: String,
+    /// Status badge — download in progress.
+    pub status_downloading: String,
+    /// Status badge — warming up on device.
+    pub status_warming: String,
+    /// Status badge — ready for inference.
+    pub status_ready: String,
+    /// Status badge — error state.
+    pub status_error: String,
+    /// VRAM estimate template. Placeholder `{mb}`.
+    pub vram_estimate_template: String,
+}
+
+/// Layman explanations rendered by `ClyffyTooltip` components.
+///
+/// Every "?" icon in the overlay pulls its body text from this struct.
+/// Fields are flat string keys so the frontend can reference them by
+/// stable names without parsing a nested path.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct ClyffyTooltipsCopy {
+    /// "What's an HF token?"
+    pub hf_token_info: String,
+    /// "What's VRAM?"
+    pub vram_info: String,
+    /// "What does the brain do?"
+    pub role_brain_info: String,
+    /// "What are helpers?"
+    pub role_minion_info: String,
+    /// "What does the search model do?"
+    pub role_encoder_info: String,
+    /// "How does voice work?"
+    pub role_voice_info: String,
+    /// "What's a preset?"
+    pub preset_picker_info: String,
+    /// "What's a symlink?"
+    pub symlink_info: String,
 }
 
 impl WizardCopy {

@@ -252,6 +252,71 @@ async getConnectionUrl() : Promise<Result<string, string>> {
 }
 },
 /**
+ * Unified DevForge status for the frontend — combines install state,
+ * runtime state, and persisted preferences.
+ * 
+ * Frontends that mount *after* the `devforge://ready` event has fired
+ * call this to catch up, instead of relying on re-emission.
+ */
+async devforgeGetStatus() : Promise<Result<DevforgeBootstrapStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_get_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Enumerate workspace directories under `devforge/workspaces/`.
+ * 
+ * # Errors
+ * Returns an error string if the workspaces directory cannot be read.
+ */
+async devforgeListWorkspaces() : Promise<Result<string[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_list_workspaces") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Create a new empty workspace directory under `devforge/workspaces/`.
+ * 
+ * The `name` is used as the directory name verbatim — callers must pass
+ * a filesystem-safe string. Returns the absolute path to the new folder.
+ * 
+ * # Errors
+ * - Name is empty or contains path separators
+ * - Directory already exists
+ * - Filesystem error during creation
+ */
+async devforgeCreateWorkspace(name: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_create_workspace", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Toggle the `fresh_instance_on_open` preference in `state.json`.
+ * 
+ * When enabled, DevForge ignores the last-used workspace on startup and
+ * always opens the default (empty) one.
+ * 
+ * # Errors
+ * Returns an error if `state.json` cannot be read or written.
+ */
+async devforgeSetFreshInstance(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_set_fresh_instance", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetch dashboard data from all services.
  * 
  * Queries:
@@ -503,6 +568,39 @@ async downloadModel(repoId: string, filename: string) : Promise<Result<string, s
 async cancelDownload(downloadId: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("cancel_download", { downloadId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Store or replace the HuggingFace access token. Empty string clears it.
+ */
+async setHfToken(token: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_hf_token", { token }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Whether an HF token is currently stored.
+ */
+async hasHfToken() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("has_hf_token") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Clear the stored HF token.
+ */
+async clearHfToken() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clear_hf_token") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1299,6 +1397,46 @@ content: string;
  */
 created_at: number }
 /**
+ * Layman explanations rendered by `ClyffyTooltip` components.
+ * 
+ * Every "?" icon in the overlay pulls its body text from this struct.
+ * Fields are flat string keys so the frontend can reference them by
+ * stable names without parsing a nested path.
+ */
+export type ClyffyTooltipsCopy = { 
+/**
+ * "What's an HF token?"
+ */
+hf_token_info: string; 
+/**
+ * "What's VRAM?"
+ */
+vram_info: string; 
+/**
+ * "What does the brain do?"
+ */
+role_brain_info: string; 
+/**
+ * "What are helpers?"
+ */
+role_minion_info: string; 
+/**
+ * "What does the search model do?"
+ */
+role_encoder_info: string; 
+/**
+ * "How does voice work?"
+ */
+role_voice_info: string; 
+/**
+ * "What's a preset?"
+ */
+preset_picker_info: string; 
+/**
+ * "What's a symlink?"
+ */
+symlink_info: string }
+/**
  * Completion screen — summary and launch.
  */
 export type CompletionCopy = { 
@@ -1474,6 +1612,127 @@ whisper_enabled: boolean;
  * DevForge service enabled (VSCode).
  */
 devforge_enabled: boolean }
+/**
+ * Unified status returned by [`devforge_get_status`](super::devforge_get_status)
+ * and emitted on the `devforge://ready` event after bootstrap.
+ * 
+ * Combines "is the REH binary installed on disk" with "is it currently
+ * running" so the frontend can pick between three UI states in a single
+ * payload: needs-install, installing/booting, ready-to-open.
+ */
+export type DevforgeBootstrapStatus = { 
+/**
+ * `true` if a valid REH build exists at the resolved server_dir.
+ */
+installed: boolean; 
+/**
+ * `true` if the REH child process is currently alive.
+ */
+running: boolean; 
+/**
+ * Full connection URL (includes token) — frontend loads this in a
+ * `WebviewWindow` or iframe.
+ */
+url: string | null; 
+/**
+ * Port REH is listening on.
+ */
+port: number | null; 
+/**
+ * Workspace REH was spawned against.
+ */
+workspace: string | null; 
+/**
+ * Installed REH bundle version, if known.
+ */
+rehVersion: string | null }
+/**
+ * Copy for the download progress rows rendered inside the overlay while
+ * downloads are active.
+ */
+export type DownloadsCopy = { 
+/**
+ * Section heading above the active downloads list.
+ */
+title: string; 
+/**
+ * Message shown when no downloads are active.
+ */
+empty_message: string; 
+/**
+ * `aria-label` template for a download row. Placeholders:
+ * `{model_name}`, `{percent}`, `{total_mb}`.
+ */
+row_aria_template: string; 
+/**
+ * `aria-valuetext` template for the progress bar. Placeholders:
+ * `{percent}`, `{bytes_mb}`, `{total_mb}`, `{speed_mb_per_s}`.
+ */
+progress_aria_template: string; 
+/**
+ * Visible speed template. Placeholder `{mb_per_s}`.
+ */
+speed_template: string; 
+/**
+ * ETA template when remaining > 60 s. Placeholder `{minutes}`.
+ */
+eta_template: string; 
+/**
+ * ETA template when remaining <= 60 s. Placeholder `{seconds}`.
+ */
+eta_seconds_template: string; 
+/**
+ * Placeholder ETA label while the first sample is pending.
+ */
+eta_computing_label: string; 
+/**
+ * Label while the kernel is starting the HF request.
+ */
+starting_label: string; 
+/**
+ * Label while the kernel is hashing / verifying the file after download.
+ */
+verifying_label: string; 
+/**
+ * Label while the kernel is symlinking / copying into the registry.
+ */
+importing_label: string; 
+/**
+ * Label on a completed row before it's dismissed.
+ */
+complete_label: string; 
+/**
+ * Template for a failed row. Placeholder `{error}`.
+ */
+failed_label_template: string; 
+/**
+ * Label on a cancelled row.
+ */
+cancelled_label: string; 
+/**
+ * Cancel button label.
+ */
+cancel_label: string; 
+/**
+ * `aria-label` on the cancel button.
+ */
+cancel_aria: string; 
+/**
+ * Retry button label.
+ */
+retry_label: string; 
+/**
+ * `aria-label` on the retry button.
+ */
+retry_aria: string; 
+/**
+ * Dismiss button label on a completed / cancelled row.
+ */
+dismiss_label: string; 
+/**
+ * `aria-label` on the dismiss button.
+ */
+dismiss_aria: string }
 /**
  * Hardware execution lane in the inference pipeline.
  * 
@@ -1794,6 +2053,78 @@ gguf_files: HfFileInfoItem[];
  */
 last_modified: string }
 /**
+ * Copy for the HuggingFace token entry modal.
+ * 
+ * Surface: a dialog rendered inside `SetupWizardOverlay` with a password
+ * field, save / clear / cancel buttons, and a help link back to HF's
+ * token settings page.
+ */
+export type HfTokenCopy = { 
+/**
+ * Dialog heading.
+ */
+title: string; 
+/**
+ * One-line explanation of what the token unlocks.
+ */
+subtitle: string; 
+/**
+ * Label beside the password input.
+ */
+field_label: string; 
+/**
+ * Placeholder text inside the password input.
+ */
+field_placeholder: string; 
+/**
+ * Label on the save button.
+ */
+save_label: string; 
+/**
+ * `aria-label` on the save button.
+ */
+save_aria: string; 
+/**
+ * Label on the clear button shown when a token is already stored.
+ */
+clear_label: string; 
+/**
+ * `aria-label` on the clear button.
+ */
+clear_aria: string; 
+/**
+ * Label on the cancel / dismiss button.
+ */
+cancel_label: string; 
+/**
+ * `aria-label` on the top-right X-close button.
+ */
+close_aria: string; 
+/**
+ * Badge text shown in the overlay header when a token is stored.
+ */
+saved_badge: string; 
+/**
+ * Badge text shown when no token is stored.
+ */
+unsaved_badge: string; 
+/**
+ * Label of the help link ("Where do I get one?").
+ */
+help_link_label: string; 
+/**
+ * URL the help link points at.
+ */
+help_url: string; 
+/**
+ * Error template for failed save / clear. `{error}` placeholder.
+ */
+save_error_template: string; 
+/**
+ * `aria-label` for the lock-icon indicator pill.
+ */
+lock_icon_aria: string }
+/**
  * Event emitted during platform initialization.
  */
 export type InitEvent = { 
@@ -1902,6 +2233,55 @@ verbose: boolean;
  * Write every trace to DuckDB for baseline analysis.
  */
 persist_to_duckdb: boolean }
+/**
+ * Copy for the per-slot model loading feedback. Rendered by
+ * `ClyffyLoadSpinner` inside each role card while the slot is loading.
+ */
+export type LoadingCopy = { 
+/**
+ * Title template. Placeholder `{model_name}`.
+ */
+title_template: string; 
+/**
+ * Subtitle template. Placeholders `{model_name}`, `{role}`.
+ */
+subtitle_template: string; 
+/**
+ * Stage label — file mmap / disk read.
+ */
+stage_reading_label: string; 
+/**
+ * Stage label — KV cache allocation / VRAM reservation.
+ */
+stage_memory_label: string; 
+/**
+ * Stage label — warmup inference pass.
+ */
+stage_warmup_label: string; 
+/**
+ * Stage label — ready.
+ */
+stage_ready_label: string; 
+/**
+ * Stage label — failed.
+ */
+stage_failed_label: string; 
+/**
+ * Retry button label on a failed load.
+ */
+retry_label: string; 
+/**
+ * `aria-label` on the retry button.
+ */
+retry_aria: string; 
+/**
+ * Alt text for the Clyffy loading mascot.
+ */
+mascot_alt: string; 
+/**
+ * `aria-valuetext` template. Placeholders `{model_name}`, `{stage_label}`.
+ */
+progress_aria_template: string }
 /**
  * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
  */
@@ -2159,18 +2539,22 @@ created_at: number;
  */
 last_accessed: number }
 /**
- * Configuration supplied by the frontend when spawning the REH server.
+ * Configuration supplied when spawning the REH server.
  * 
- * `server_dir` must point at the root of a `vscode-reh-web-*` layout that
- * contains `bin/devforge-server.cmd` (Windows) or `bin/devforge-server.sh`
- * (Unix) and `out/server-main.js`.
+ * Most callers will not construct this by hand — [`bootstrap`](super::bootstrap)
+ * builds it from [`DevforgePaths`](super::paths::DevforgePaths) and the
+ * persisted [`DevforgeState`](super::state_file::DevforgeState). It is
+ * still exposed to the frontend so a "custom workspace" power-user path
+ * can call `spawn_reh_server` directly with an arbitrary folder.
  * 
- * `workspace_path` is the folder the server will open by default. The
- * frontend is responsible for validating that this path exists.
- * 
- * `extensions_dir` is optional — when set, the REH server stores/loads
- * extensions from this directory, allowing DevForge to manage extensions
- * outside the default user profile.
+ * - `server_dir` must contain `out/server-main.js` and a bundled
+ * `node.exe` (Windows) or `node` (Unix).
+ * - `workspace_path` is the folder REH will open on start — must exist.
+ * - `user_data_dir` is passed to REH via `--user-data-dir`. This is what
+ * enables VS Code profiles, settings, keybindings, and state to
+ * persist across DevForge sessions.
+ * - `extensions_dir` is optional — when set, REH loads/stores extensions
+ * from this directory instead of the user-data-dir default.
  */
 export type RehConfig = { 
 /**
@@ -2181,6 +2565,10 @@ serverDir: string;
  * Workspace folder the server will open on start.
  */
 workspacePath: string; 
+/**
+ * VS Code user-data directory (profiles, settings, state).
+ */
+userDataDir: string; 
 /**
  * Optional extensions directory override.
  */
@@ -2208,6 +2596,125 @@ url: string | null;
  * Process ID of the spawned `node.exe`, if running.
  */
 pid: number | null }
+/**
+ * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
+ * 
+ * Role colours come from the DTCG `wizard.role.{brain, minion, encoder,
+ * voice}` tokens; this struct carries only strings.
+ */
+export type RoleCardsCopy = { 
+/**
+ * Section heading above the four-card grid.
+ */
+group_title: string; 
+/**
+ * Supporting line under the section heading.
+ */
+group_subtitle: string; 
+/**
+ * Brain card — layman name for the primary reasoning model.
+ */
+brain_title: string; 
+/**
+ * Brain card — plain-English purpose line.
+ */
+brain_layman: string; 
+/**
+ * Brain card — label shown when no model is assigned.
+ */
+brain_empty_label: string; 
+/**
+ * Brain card — change button label.
+ */
+brain_change_label: string; 
+/**
+ * Brain card — change button `aria-label`.
+ */
+brain_change_aria: string; 
+/**
+ * Minion card — layman name for background helper models.
+ */
+minion_title: string; 
+/**
+ * Minion card — plain-English purpose line.
+ */
+minion_layman: string; 
+/**
+ * Minion card — label shown when no helpers are assigned.
+ */
+minion_empty_label: string; 
+/**
+ * Minion card — change button label.
+ */
+minion_change_label: string; 
+/**
+ * Minion card — change button `aria-label`.
+ */
+minion_change_aria: string; 
+/**
+ * Encoder card — layman name for search / memory models.
+ */
+encoder_title: string; 
+/**
+ * Encoder card — plain-English purpose line.
+ */
+encoder_layman: string; 
+/**
+ * Encoder card — label shown when no search model is assigned.
+ */
+encoder_empty_label: string; 
+/**
+ * Encoder card — change button label.
+ */
+encoder_change_label: string; 
+/**
+ * Encoder card — change button `aria-label`.
+ */
+encoder_change_aria: string; 
+/**
+ * Voice card — layman name for STT + TTS models.
+ */
+voice_title: string; 
+/**
+ * Voice card — plain-English purpose line.
+ */
+voice_layman: string; 
+/**
+ * Voice card — label shown when no voice models are assigned.
+ */
+voice_empty_label: string; 
+/**
+ * Voice card — change button label.
+ */
+voice_change_label: string; 
+/**
+ * Voice card — change button `aria-label`.
+ */
+voice_change_aria: string; 
+/**
+ * Status badge — no model assigned.
+ */
+status_empty: string; 
+/**
+ * Status badge — download in progress.
+ */
+status_downloading: string; 
+/**
+ * Status badge — warming up on device.
+ */
+status_warming: string; 
+/**
+ * Status badge — ready for inference.
+ */
+status_ready: string; 
+/**
+ * Status badge — error state.
+ */
+status_error: string; 
+/**
+ * VRAM estimate template. Placeholder `{mb}`.
+ */
+vram_estimate_template: string }
 /**
  * Scanning state — shown during hardware detection.
  */
@@ -2332,6 +2839,17 @@ embedded: boolean;
  * Path relative to models dir for bundled models (e.g. `"voice/kokoro/model_quantized.onnx"`).
  */
 bundled_path: string | null; 
+/**
+ * Whether this slot is a platform built-in (System tab in the devtool).
+ * 
+ * Built-in slots are platform-essential services (primary encoder, result
+ * filter, wake-word detector). They live in the same slot table as user
+ * slots and use the same mutation path — this flag just drives the
+ * devtool grouping: Slots tab filters `!builtin`, System tab filters `builtin`.
+ * Kernel SSOT: `kernel/model-loader/config/slots.default.toml` with
+ * `builtin = true` per entry.
+ */
+builtin: boolean; 
 /**
  * Architecture of the assigned model (e.g. "qwen3", "llama"). None if unassigned.
  */
@@ -2734,7 +3252,32 @@ profile: ProfileCopy;
 /**
  * Copy for the final completion / launch step.
  */
-completion: CompletionCopy }
+completion: CompletionCopy; 
+/**
+ * Copy for the HuggingFace token entry modal.
+ * 
+ * `#[serde(default)]` lets older user overrides that pre-date this
+ * section continue to parse — missing fields use struct `Default`.
+ */
+hf_token?: HfTokenCopy; 
+/**
+ * Copy for the download progress rows (per-download cancel, retry,
+ * speed, ETA). Rendered inside the overlay while downloads are active.
+ */
+downloads?: DownloadsCopy; 
+/**
+ * Copy for the per-slot model loading feedback (Clyffy spinner stage
+ * narration: reading, memory, warmup, ready, failed).
+ */
+loading?: LoadingCopy; 
+/**
+ * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
+ */
+role_cards?: RoleCardsCopy; 
+/**
+ * Layman explanations for every "?" icon across the overlay.
+ */
+clyffy_tooltips?: ClyffyTooltipsCopy }
 
 /** tauri-specta globals **/
 

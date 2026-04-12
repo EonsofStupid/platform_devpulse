@@ -14,6 +14,8 @@ import {
 	type DownloadTracker,
 	type EscalationConfig,
 	friendlyName,
+	type LoadingStageKind,
+	type LoadingTracker,
 	type ModelRec,
 	tierToAllocation,
 	type VoiceConfig,
@@ -168,6 +170,87 @@ class WizardState {
 
 	get downloadList(): DownloadTracker[] {
 		return Object.values(this.activeDownloads);
+	}
+
+	dismissDownload(downloadId: string): void {
+		if (!(downloadId in this.activeDownloads)) return;
+		const next: Record<string, DownloadTracker> = {};
+		for (const [id, dl] of Object.entries(this.activeDownloads)) {
+			if (id !== downloadId) next[id] = dl;
+		}
+		this.activeDownloads = next;
+	}
+
+	// ── Load Queue (per-slot model loading progress) ─────────────
+	//
+	// Populated by `download-bootstrap.ts` — every `LoadingStarted`,
+	// `LoadingStage`, `LoadingComplete`, and `LoadingFailed` event the
+	// kernel emits flows into these methods. The overlay's role cards
+	// subscribe to `activeLoads[slotId]` and flip to a Clyffy spinner
+	// whenever the tracker is non-null.
+	//
+	// Keyed by `slotId` — only one load per slot can be in-flight at a
+	// time, enforced by the kernel's `SwapGuard`.
+
+	activeLoads = $state<Record<SlotId, LoadingTracker>>({} as Record<SlotId, LoadingTracker>);
+
+	startLoad(slotId: SlotId, modelId: string, friendly: string): void {
+		this.activeLoads = {
+			...this.activeLoads,
+			[slotId]: {
+				slotId,
+				modelId,
+				friendlyName: friendly,
+				stage: "reading",
+				progressPct: null,
+				error: null,
+				startedAtMs: Date.now(),
+			},
+		};
+	}
+
+	updateLoadStage(slotId: SlotId, stage: LoadingStageKind, progressPct: number | null): void {
+		const lt = this.activeLoads[slotId];
+		if (!lt) return;
+		this.activeLoads = {
+			...this.activeLoads,
+			[slotId]: { ...lt, stage, progressPct },
+		};
+	}
+
+	completeLoad(slotId: SlotId): void {
+		const lt = this.activeLoads[slotId];
+		if (!lt) return;
+		this.activeLoads = {
+			...this.activeLoads,
+			[slotId]: { ...lt, stage: "ready", progressPct: 100 },
+		};
+	}
+
+	failLoad(slotId: SlotId, error: string): void {
+		const lt = this.activeLoads[slotId];
+		if (!lt) return;
+		this.activeLoads = {
+			...this.activeLoads,
+			[slotId]: { ...lt, stage: "failed", error },
+		};
+	}
+
+	clearLoad(slotId: SlotId): void {
+		if (!(slotId in this.activeLoads)) return;
+		const next = {} as Record<SlotId, LoadingTracker>;
+		for (const [id, lt] of Object.entries(this.activeLoads) as [SlotId, LoadingTracker][]) {
+			if (id !== slotId) next[id] = lt;
+		}
+		this.activeLoads = next;
+	}
+
+	loadForSlot(slotId: SlotId): LoadingTracker | null {
+		return this.activeLoads[slotId] ?? null;
+	}
+
+	get hasActiveLoads(): boolean {
+		return Object.values(this.activeLoads).some((l) => l.stage !== "ready" && l.stage !== "failed");
 	}
 
 	// ── Phase Index ──────────────────────────────────────

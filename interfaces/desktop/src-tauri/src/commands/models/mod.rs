@@ -40,6 +40,15 @@ pub struct SlotInfo {
     pub embedded: bool,
     /// Path relative to models dir for bundled models (e.g. `"voice/kokoro/model_quantized.onnx"`).
     pub bundled_path: Option<String>,
+    /// Whether this slot is a platform built-in (System tab in the devtool).
+    ///
+    /// Built-in slots are platform-essential services (primary encoder, result
+    /// filter, wake-word detector). They live in the same slot table as user
+    /// slots and use the same mutation path — this flag just drives the
+    /// devtool grouping: Slots tab filters `!builtin`, System tab filters `builtin`.
+    /// Kernel SSOT: `kernel/model-loader/config/slots.default.toml` with
+    /// `builtin = true` per entry.
+    pub builtin: bool,
     /// Architecture of the assigned model (e.g. "qwen3", "llama"). None if unassigned.
     pub architecture: Option<String>,
     /// Maximum context window in tokens of the assigned model. None if unassigned.
@@ -243,6 +252,7 @@ pub async fn get_slots(
                 overrides: s.overrides,
                 embedded,
                 bundled_path,
+                builtin: s.builtin,
                 architecture: assigned_model.map(|m| m.architecture.clone()),
                 context_length: assigned_model.map(|m| m.context_length as u32),
                 backend: None, // Populated from runtime pool when slot is loaded (future)
@@ -427,6 +437,38 @@ pub async fn cancel_download(
         .cancel_download(&download_id)
         .await
         .map_err(|e| e.to_string())
+}
+
+/// Store or replace the HuggingFace access token. Empty string clears it.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_hf_token(
+    state: State<'_, PlatformState>,
+    token: String,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    let value = if token.trim().is_empty() {
+        None
+    } else {
+        Some(token)
+    };
+    loader.set_hf_token(value).await.map_err(|e| e.to_string())
+}
+
+/// Whether an HF token is currently stored.
+#[tauri::command]
+#[specta::specta]
+pub async fn has_hf_token(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.has_hf_token().await)
+}
+
+/// Clear the stored HF token.
+#[tauri::command]
+#[specta::specta]
+pub async fn clear_hf_token(state: State<'_, PlatformState>) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader.clear_hf_token().await.map_err(|e| e.to_string())
 }
 
 /// Search result from HuggingFace.

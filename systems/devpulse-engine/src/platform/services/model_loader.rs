@@ -318,6 +318,24 @@ impl ModelLoaderService {
         })
     }
 
+    /// Persist or replace the stored HuggingFace token. `None` clears it.
+    pub async fn set_hf_token(&self, token: Option<String>) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.set_hf_token(token).map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Whether an HF token is currently stored.
+    pub async fn has_hf_token(&self) -> bool {
+        let inner = self.inner.lock().await;
+        inner.has_hf_token()
+    }
+
+    /// Clear the stored HF token.
+    pub async fn clear_hf_token(&self) -> Result<()> {
+        let mut inner = self.inner.lock().await;
+        inner.clear_hf_token().map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
     /// Get model registry (without scanning).
     pub async fn get_registry(&self) -> Vec<ModelRegistryEntry> {
         let inner = self.inner.lock().await;

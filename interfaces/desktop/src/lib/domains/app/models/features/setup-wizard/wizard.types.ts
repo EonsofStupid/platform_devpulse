@@ -224,6 +224,47 @@ export interface DownloadTracker {
 	speedBps: number;
 	status: "queued" | "downloading" | "complete" | "failed" | "cancelled";
 	error?: string;
+	/**
+	 * Retry context so a `DownloadProgressRow` can re-dispatch `download_model`
+	 * without the overlay having to stash the original args somewhere else.
+	 */
+	repoId?: string;
+	/** Start timestamp in ms for ETA calculation. */
+	startedAtMs?: number;
+}
+
+/**
+ * Stage in the kernel's `LoadingStage` event stream. Matches the Rust
+ * `LoadingStage` variants emitted by `kernel/model-loader/src/loading/states.rs`
+ * — the bridge normalises them into this union so the overlay only has
+ * to reason about layman labels, not Rust enum variants.
+ */
+export type LoadingStageKind = "reading" | "memory" | "warmup" | "ready" | "failed";
+
+/**
+ * Per-slot loading tracker populated by the download-bootstrap event bridge.
+ *
+ * A card enters the `loading` visual state whenever `wizardState.activeLoads[slotId]`
+ * is non-null. The `stage` field drives which layman label the
+ * `ClyffyLoadSpinner` renders, the `progressPct` drives an indeterminate-to-
+ * determinate transition on the ARIA progressbar, and `error` populates the
+ * inline Retry card when a load fails.
+ */
+export interface LoadingTracker {
+	/** Slot being loaded (e.g. `"chat.brain"`). */
+	slotId: SlotId;
+	/** Registry ID of the model (stable across sessions). */
+	modelId: string;
+	/** Layman-friendly name shown in the card. Never a raw filename. */
+	friendlyName: string;
+	/** Current stage of the load. */
+	stage: LoadingStageKind;
+	/** 0 – 100 percent if the kernel emitted a progress hint, otherwise null. */
+	progressPct: number | null;
+	/** Error string when `stage === "failed"`. */
+	error: string | null;
+	/** Start timestamp in ms for diagnostics. */
+	startedAtMs: number;
 }
 
 // ── Voice Config ───────────────────────────────────────
@@ -405,6 +446,114 @@ export interface CompletionCopy {
 	hint: string;
 }
 
+/** Copy for the HuggingFace token modal (matches Rust `HfTokenCopy`). */
+export interface HfTokenCopy {
+	title: string;
+	subtitle: string;
+	field_label: string;
+	field_placeholder: string;
+	save_label: string;
+	save_aria: string;
+	clear_label: string;
+	clear_aria: string;
+	cancel_label: string;
+	close_aria: string;
+	saved_badge: string;
+	unsaved_badge: string;
+	help_link_label: string;
+	help_url: string;
+	save_error_template: string;
+	lock_icon_aria: string;
+}
+
+/** Copy for download progress rows (matches Rust `DownloadsCopy`). */
+export interface DownloadsCopy {
+	title: string;
+	empty_message: string;
+	row_aria_template: string;
+	progress_aria_template: string;
+	speed_template: string;
+	eta_template: string;
+	eta_seconds_template: string;
+	eta_computing_label: string;
+	starting_label: string;
+	verifying_label: string;
+	importing_label: string;
+	complete_label: string;
+	failed_label_template: string;
+	cancelled_label: string;
+	cancel_label: string;
+	cancel_aria: string;
+	retry_label: string;
+	retry_aria: string;
+	dismiss_label: string;
+	dismiss_aria: string;
+}
+
+/** Copy for the Clyffy load spinner (matches Rust `LoadingCopy`). */
+export interface LoadingCopy {
+	title_template: string;
+	subtitle_template: string;
+	stage_reading_label: string;
+	stage_memory_label: string;
+	stage_warmup_label: string;
+	stage_ready_label: string;
+	stage_failed_label: string;
+	retry_label: string;
+	retry_aria: string;
+	mascot_alt: string;
+	progress_aria_template: string;
+}
+
+/** Copy for the four role cards (matches Rust `RoleCardsCopy`). */
+export interface RoleCardsCopy {
+	group_title: string;
+	group_subtitle: string;
+
+	brain_title: string;
+	brain_layman: string;
+	brain_empty_label: string;
+	brain_change_label: string;
+	brain_change_aria: string;
+
+	minion_title: string;
+	minion_layman: string;
+	minion_empty_label: string;
+	minion_change_label: string;
+	minion_change_aria: string;
+
+	encoder_title: string;
+	encoder_layman: string;
+	encoder_empty_label: string;
+	encoder_change_label: string;
+	encoder_change_aria: string;
+
+	voice_title: string;
+	voice_layman: string;
+	voice_empty_label: string;
+	voice_change_label: string;
+	voice_change_aria: string;
+
+	status_empty: string;
+	status_downloading: string;
+	status_warming: string;
+	status_ready: string;
+	status_error: string;
+	vram_estimate_template: string;
+}
+
+/** Layman tooltip strings (matches Rust `ClyffyTooltipsCopy`). */
+export interface ClyffyTooltipsCopy {
+	hf_token_info: string;
+	vram_info: string;
+	role_brain_info: string;
+	role_minion_info: string;
+	role_encoder_info: string;
+	role_voice_info: string;
+	preset_picker_info: string;
+	symlink_info: string;
+}
+
 /** Root copy struct — one Tauri call returns everything. */
 export interface WizardCopy {
 	greeting: GreetingCopy;
@@ -416,6 +565,11 @@ export interface WizardCopy {
 	activate: ActivateCopy;
 	profile: ProfileCopy;
 	completion: CompletionCopy;
+	hf_token: HfTokenCopy;
+	downloads: DownloadsCopy;
+	loading: LoadingCopy;
+	role_cards: RoleCardsCopy;
+	clyffy_tooltips: ClyffyTooltipsCopy;
 }
 
 // ── Tier Display (mirrors Rust TierDisplay) ───────────

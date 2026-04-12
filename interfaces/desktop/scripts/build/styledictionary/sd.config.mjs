@@ -43,7 +43,15 @@ const clTransforms = {
 	gradientCssShorthand: 'coldlight/gradient-css-shorthand',
 	shadowCssShorthand: 'coldlight/shadow-css-shorthand',
 	dimensionToCss: 'coldlight/dimension-to-css',
+	dtcgColorToHex: 'coldlight/dtcg-color-to-hex',
+	dtcgDimensionFlatten: 'coldlight/dtcg-dimension-flatten',
+	dtcgDurationFlatten: 'coldlight/dtcg-duration-flatten',
+	dtcgCubicBezierFlatten: 'coldlight/dtcg-cubic-bezier-flatten',
+	fluidDimensionToClamp: 'coldlight/fluid-dimension-to-clamp',
 };
+
+/** DevPulse ColdLight extension key (new DTCG tree) */
+const DP_EXT = 'com.devpulse.coldlight';
 
 /** Custom preprocessor names */
 const clPreprocessors = {
@@ -64,19 +72,48 @@ const CL_EXT = 'com.coldlight';
  */
 const groupExtensions = new Map();
 
+/**
+ * Top-level roots introduced by the new DTCG 2025.10 tree
+ * (tokens/src/primitives/**, tokens/src/semantic/**).
+ * Brand hues + wheel hues + achromatics are hoisted to root in the new tree.
+ */
+const brandHues = ['teal', 'purple', 'magenta', 'ember', 'frost', 'cyber'];
+const brandAccentHues = [
+	'brand-blue', 'brand-coral', 'brand-cyan', 'brand-gold',
+	'brand-green', 'brand-hotpink', 'brand-salmon',
+];
+const wheelHues = [
+	'amber', 'azure', 'blue', 'chartreuse', 'crimson', 'cyan',
+	'green', 'green-cyan', 'green-yellow', 'indigo', 'lime', 'mint',
+	'orange', 'pink', 'red', 'red-orange', 'rose', 'royal',
+	'sky', 'sunset', 'violet', 'yellow',
+	'aurora', 'spring',
+];
+const achromatics = ['neutral', 'void', 'white', 'black'];
+
 /** Token tier paths — determines which @layer a token lands in */
 const tiers = {
 	primitive: [
+		// Legacy
 		'color', 'shadow', 'bevel', 'glow', 'glow-dot', 'glowSpread', 'blur',
 		'glass', 'matte', 'radius', 'space', 'padding', 'size', 'breakpoint',
 		'zIndex', 'font', 'fontFeatureSettings', 'fontVariationSettings',
 		'textSize', 'leading', 'tracking',
 		'motion', 'gradient', 'layout',
+		// New DTCG primitives (file-per-atom layout)
+		...brandHues, ...brandAccentHues, ...wheelHues, ...achromatics,
+		'font-size', 'depth', 'duration', 'easing', 'animation',
+		'opacity', 'outlineOffset', 'borderWidth', 'borderRise',
+		'z-index',
 	],
 	semantic: [
 		'elevation', 'surface', 'border', 'borderPreset', 'transition',
 		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
 		'text', 'signal', 'accent',
+		// New DTCG semantic roots
+		'glass-blur', 'backdrop-glow', 'backdrop-grid',
+		'backdrop-grid-line', 'backdrop-grid-size',
+		'gradient-duration', 'scrollbar-size', 'chat', 'wizard',
 	],
 };
 
@@ -142,6 +179,135 @@ const pxToRem = (val) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
+// DTCG 2025.10 NORMALIZERS
+//
+// The new tokens/src/**/*.tokens.json tree emits DTCG Color Module
+// objects (`{ colorSpace, components, alpha?, hex }`), dimension
+// objects (`{ value, unit }`), duration objects, and cubic-bezier
+// arrays. SD5 built-ins (colorOklch, etc.) expect string inputs.
+//
+// These transforms run EARLY and flatten DTCG object values to the
+// string form the downstream built-ins expect. Legacy string values
+// pass through untouched.
+// ═══════════════════════════════════════════════════════════════
+
+const isPlainObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+StyleDictionary.registerTransform({
+	name: clTransforms.dtcgColorToHex,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		return type === 'color' && isPlainObj(token.$value ?? token.value);
+	},
+	transform: (token) => {
+		const val = token.$value ?? token.value;
+		// oklch colourspace: emit native oklch() so gamut info survives.
+		if (val.colorSpace === 'oklch' && Array.isArray(val.components)) {
+			const [L, C, H] = val.components;
+			const alpha = typeof val.alpha === 'number' && val.alpha < 1 ? ` / ${val.alpha}` : '';
+			return `oklch(${L} ${C} ${H}${alpha})`;
+		}
+		// srgb w/ hex: the fast path — generators always emit hex alongside components.
+		if (typeof val.hex === 'string') {
+			if (typeof val.alpha === 'number' && val.alpha < 1) {
+				const a = Math.round(val.alpha * 255);
+				return `${val.hex}${a.toString(16).padStart(2, '0')}`;
+			}
+			return val.hex;
+		}
+		if (val.colorSpace === 'srgb' && Array.isArray(val.components)) {
+			const [r, g, b] = val.components;
+			const hex = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+			return `#${hex(r)}${hex(g)}${hex(b)}`;
+		}
+		return val;
+	},
+});
+
+StyleDictionary.registerTransform({
+	name: clTransforms.dtcgDimensionFlatten,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		if (type !== 'dimension') return false;
+		const v = token.$value ?? token.value;
+		return isPlainObj(v) && typeof v.value === 'number' && typeof v.unit === 'string';
+	},
+	transform: (token) => {
+		const v = token.$value ?? token.value;
+		return `${v.value}${v.unit}`;
+	},
+});
+
+StyleDictionary.registerTransform({
+	name: clTransforms.dtcgDurationFlatten,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		if (type !== 'duration') return false;
+		const v = token.$value ?? token.value;
+		return isPlainObj(v) && typeof v.value === 'number' && typeof v.unit === 'string';
+	},
+	transform: (token) => {
+		const v = token.$value ?? token.value;
+		return `${v.value}${v.unit}`;
+	},
+});
+
+StyleDictionary.registerTransform({
+	name: clTransforms.dtcgCubicBezierFlatten,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		if (type !== 'cubicBezier') return false;
+		const v = token.$value ?? token.value;
+		return Array.isArray(v) && v.length === 4;
+	},
+	transform: (token) => {
+		const v = token.$value ?? token.value;
+		return `cubic-bezier(${v.join(', ')})`;
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
+// FLUID DIMENSION TRANSFORM
+//
+// New DTCG primitives carry $extensions.com.devpulse.coldlight.fluid
+// with { minPx, maxPx, minViewportPx, maxViewportPx }. When present,
+// emit a clamp() expression — the VPB and CSS both consume the final
+// clamp string. If no fluid extension, pass through (handled by the
+// regular dimension transform).
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerTransform({
+	name: clTransforms.fluidDimensionToClamp,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		if (type !== 'dimension') return false;
+		return !!token.$extensions?.[DP_EXT]?.fluid;
+	},
+	transform: (token) => {
+		const f = token.$extensions[DP_EXT].fluid;
+		const minRem = f.minPx / 16;
+		const maxRem = f.maxPx / 16;
+		const minVw = f.minViewportPx ?? 360;
+		const maxVw = f.maxViewportPx ?? 1440;
+		const slope = (f.maxPx - f.minPx) / (maxVw - minVw);
+		const intercept = (f.minPx - slope * minVw) / 16;
+		const vw = (slope * 100).toFixed(4);
+		const base = intercept.toFixed(4);
+		return `clamp(${minRem}rem, ${base}rem + ${vw}vw, ${maxRem}rem)`;
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
 // CUSTOM TRANSFORM: shadow/css/shorthand
 //
 // DTCG shadow: single object or array of { color, offsetX, offsetY, blur, spread }.
@@ -169,16 +335,44 @@ StyleDictionary.registerTransform({
 		const inset = token.$extensions?.[CL_EXT]?.inset === true;
 		const layers = Array.isArray(val) ? val : [val];
 
+		// DTCG dimension object { value, unit } or legacy string → rem
+		const dim = (d) => {
+			if (isPlainObj(d) && typeof d.value === 'number') {
+				if (d.unit === 'rem') return `${d.value}rem`;
+				if (d.unit === 'px') return `${d.value / 16}rem`;
+				return `${d.value}${d.unit ?? ''}`;
+			}
+			return pxToRem(d);
+		};
+		// DTCG color object → hex(+alpha)
+		const col = (c) => {
+			if (isPlainObj(c)) {
+				if (typeof c.hex === 'string') {
+					if (typeof c.alpha === 'number' && c.alpha < 1) {
+						const a = Math.round(c.alpha * 255);
+						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
+					}
+					return c.hex;
+				}
+				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+					const [r, g, b] = c.components;
+					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+					return `#${h(r)}${h(g)}${h(b)}`;
+				}
+			}
+			return c;
+		};
+
 		return layers
 			.map((layer) => {
 				const parts = [];
-				if (inset) parts.push('inset');
+				if (inset || layer.inset === true) parts.push('inset');
 				parts.push(
-					pxToRem(layer.offsetX),
-					pxToRem(layer.offsetY),
-					pxToRem(layer.blur),
-					pxToRem(layer.spread),
-					layer.color,
+					dim(layer.offsetX),
+					dim(layer.offsetY),
+					dim(layer.blur),
+					dim(layer.spread),
+					col(layer.color),
 				);
 				return parts.join(' ');
 			})
@@ -203,16 +397,37 @@ StyleDictionary.registerTransform({
 		const val = token.$value ?? token.value;
 		if (!Array.isArray(val)) return val;
 
+		const colorOf = (c) => {
+			if (isPlainObj(c)) {
+				if (typeof c.hex === 'string') {
+					if (typeof c.alpha === 'number' && c.alpha < 1) {
+						const a = Math.round(c.alpha * 255);
+						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
+					}
+					return c.hex;
+				}
+				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+					const [r, g, b] = c.components;
+					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+					return `#${h(r)}${h(g)}${h(b)}`;
+				}
+			}
+			return c;
+		};
+
 		const stops = val
 			.map((stop) => {
 				const pos = typeof stop.position === 'number'
 					? ` ${stop.position * 100}%`
 					: '';
-				return `${stop.color}${pos}`;
+				return `${colorOf(stop.color)}${pos}`;
 			})
 			.join(', ');
 
-		const angle = token.$extensions?.[CL_EXT]?.angle ?? '135deg';
+		const angle =
+			token.$extensions?.[DP_EXT]?.gradient?.angle
+			?? token.$extensions?.[CL_EXT]?.angle
+			?? '135deg';
 		return `linear-gradient(${angle}, ${stops})`;
 	},
 });
@@ -304,6 +519,13 @@ StyleDictionary.registerTransform({
 const CSS_TRANSFORMS = [
 	transforms.attributeCti,
 	transforms.nameKebab,
+	// DTCG 2025.10 normalizers run BEFORE built-ins so downstream
+	// transforms (colorOklch, dimensionToCss) see flat strings.
+	clTransforms.fluidDimensionToClamp,
+	clTransforms.dtcgDimensionFlatten,
+	clTransforms.dtcgDurationFlatten,
+	clTransforms.dtcgCubicBezierFlatten,
+	clTransforms.dtcgColorToHex,
 	transforms.timeSeconds,
 	clTransforms.dimensionToCss,
 	transforms.colorOklch,
@@ -605,13 +827,25 @@ const typesFile = (dest, filter) => ({
 // ═══════════════════════════════════════════════════════════════
 
 const config = {
-	source: [`${paths.source}/*.json`],
+	source: [
+		`${paths.source}/*.json`,
+		`${paths.source}/primitives/**/*.tokens.json`,
+		`${paths.source}/semantic/**/*.tokens.json`,
+	],
 	usesDtcg: true,
 	expand: (token) => {
-		// Shadow tokens are composed to CSS shorthand by coldlight/shadow-css-shorthand.
-		// All other composite types (border, transition, typography) still expand.
+		// DTCG 2025.10 composite types that must stay as object leaves —
+		// they are flattened to strings by our own transforms. Expanding them
+		// would split `{value, unit}` or `{colorSpace, components}` into
+		// sibling sub-tokens and explode the type unions downstream.
 		const type = token.$type ?? token.type;
 		if (type === 'shadow') return false;
+		if (type === 'dimension') return false;
+		if (type === 'duration') return false;
+		if (type === 'color') return false;
+		if (type === 'cubicBezier') return false;
+		if (type === 'gradient') return false;
+		// typography, transition, border still expand into sub-properties.
 		return true;
 	},
 	preprocessors: [clPreprocessors.captureExtensions],
@@ -746,7 +980,7 @@ const config = {
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
 				typesFile('blur.d.ts', pathFilter('blur')),
 				typesFile('surface.d.ts', pathFilter('glass', 'matte', 'surface')),
-				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex')),
+				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index')),
 				typesFile('typography.d.ts', pathFilter('font', 'textSize', 'textStyle')),
 				typesFile('motion.d.ts', pathFilter('motion', 'transition')),
 				typesFile('gradient.d.ts', pathFilter('gradient')),

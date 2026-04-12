@@ -4,6 +4,7 @@ pub mod discovery;
 pub mod download;
 pub mod registry;
 pub mod search;
+pub mod secrets;
 
 pub use registry::{
     BackendType, ModelFormat, ModelMetadata, ModelRegistry, ModelRegistryEntry, ModelSource,

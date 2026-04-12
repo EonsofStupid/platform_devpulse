@@ -27,7 +27,7 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { Cpu, HardDrive, Monitor, Sparkles, X, Zap } from "lucide-svelte";
+import { Cpu, HardDrive, KeyRound, Lock, Monitor, Sparkles, X, Zap } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
@@ -50,6 +50,8 @@ import {
 	type HardwareTier,
 	hardwareState,
 } from "$lib/domains/app/models/index.js";
+import { commands } from "$lib/sys/generated/bindings.js";
+import HfTokenModal from "./components/HfTokenModal.svelte";
 
 type Phase = "welcome" | "scanning" | "detected" | "error";
 
@@ -61,6 +63,34 @@ let tier = $state<TierDisplay | null>(null);
 let presets = $state<AutoConfig[]>([]);
 let presetsError = $state<string | null>(null);
 let switchingTier = $state<string | null>(null);
+
+// ── HF Token state (local to this overlay instance) ────────────
+// The plaintext token is never stored in rune state or passed around the
+// frontend — we only cache the has-token boolean so the header pill
+// can reflect whether one is stored without an extra round-trip.
+let hfTokenModalOpen = $state(false);
+let hasHfTokenCached = $state(false);
+
+async function refreshHasHfToken(): Promise<void> {
+	try {
+		const result = await commands.hasHfToken();
+		if (result.status === "ok") {
+			hasHfTokenCached = result.data;
+		}
+	} catch (e) {
+		console.warn("hasHfToken check failed", e);
+	}
+}
+
+function openHfTokenModal(): void {
+	hfTokenModalOpen = true;
+}
+function closeHfTokenModal(): void {
+	hfTokenModalOpen = false;
+}
+function handleHfTokenSaved(hasToken: boolean): void {
+	hasHfTokenCached = hasToken;
+}
 
 const selectedPresetName = $derived(wizardState.selectedPresetName);
 const tierToken = $derived(tier ? TIER_TOKENS[tier.role] : null);
@@ -81,6 +111,14 @@ $effect(() => {
 			copyError = e instanceof Error ? e.message : String(e);
 		}
 	})();
+});
+
+// Refresh the HF token pill state every time the overlay opens — the
+// kernel is the source of truth, not the frontend. A token could have
+// been set via command-line or a previous session.
+$effect(() => {
+	if (!isOpen) return;
+	refreshHasHfToken();
 });
 
 // Lock the background scroll while the overlay is open so the underlying
@@ -215,14 +253,44 @@ function handleAdvancedContinue(): void {
 			aria-label="Clyffy Setup Wizard"
 			tabindex="-1"
 		>
-			<button
-				type="button"
-				class="wizard-close"
-				onclick={handleDismiss}
-				aria-label="Close setup wizard"
-			>
-				<X size={16} aria-hidden="true" />
-			</button>
+			<div class="wizard-header-actions">
+				{#if copy}
+					<button
+						type="button"
+						class="wizard-token-pill"
+						class:wizard-token-pill-set={hasHfTokenCached}
+						onclick={openHfTokenModal}
+						aria-label={copy.hf_token.lock_icon_aria}
+						title={hasHfTokenCached ? copy.hf_token.saved_badge : copy.hf_token.unsaved_badge}
+					>
+						{#if hasHfTokenCached}
+							<Lock size={12} aria-hidden="true" />
+							<span>{copy.hf_token.saved_badge}</span>
+						{:else}
+							<KeyRound size={12} aria-hidden="true" />
+							<span>{copy.hf_token.unsaved_badge}</span>
+						{/if}
+					</button>
+				{/if}
+				<button
+					type="button"
+					class="wizard-close"
+					onclick={handleDismiss}
+					aria-label="Close setup wizard"
+				>
+					<X size={16} aria-hidden="true" />
+				</button>
+			</div>
+
+			{#if copy}
+				<HfTokenModal
+					open={hfTokenModalOpen}
+					copy={copy.hf_token}
+					initiallyHasToken={hasHfTokenCached}
+					onClose={closeHfTokenModal}
+					onSaved={handleHfTokenSaved}
+				/>
+			{/if}
 
 			<div class="wizard-body">
 				{#if copyError}
@@ -488,10 +556,47 @@ function handleAdvancedContinue(): void {
 		box-shadow: var(--wizard-shadow-glow-lg);
 	}
 
-	.wizard-close {
+	.wizard-header-actions {
 		position: absolute;
 		top: 0.75rem;
 		right: 0.75rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		z-index: 2;
+	}
+
+	.wizard-token-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.25rem 0.625rem;
+		border-radius: 999px;
+		border: 0.0625rem solid var(--border-subtle);
+		background: var(--surface-overlay);
+		color: var(--text-secondary);
+		font-size: 0.6875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition:
+			background var(--motion-duration-fast),
+			border-color var(--motion-duration-fast),
+			color var(--motion-duration-fast);
+	}
+	.wizard-token-pill:hover {
+		background: var(--surface-raised);
+		color: var(--text-primary);
+		border-color: var(--accent-cyan-main);
+	}
+	.wizard-token-pill-set {
+		border-color: var(--accent-teal-main);
+		color: var(--accent-teal-main);
+	}
+	.wizard-token-pill-set:hover {
+		border-color: var(--accent-teal-main);
+	}
+
+	.wizard-close {
 		width: 2rem;
 		height: 2rem;
 		display: inline-flex;

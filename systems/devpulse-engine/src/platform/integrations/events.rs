@@ -85,6 +85,10 @@ impl LoaderEventSink for EventBridge {
                 "model:download-failed",
                 json!({ "download_id": download_id, "error": error }),
             ),
+            LoaderEvent::DownloadCancelled { download_id } => (
+                "model:download-cancelled",
+                json!({ "download_id": download_id }),
+            ),
             LoaderEvent::SlotAssigned { slot_id, model_id } => (
                 "model:slot-assigned",
                 json!({ "slot_id": slot_id, "model_id": model_id }),

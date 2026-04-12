@@ -5,6 +5,7 @@ import "../app.css";
 import { onMount } from "svelte";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
+import { bootstrapDownloadBridge } from "$lib/domains/app/models/features/setup-wizard/download-bootstrap.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
@@ -18,6 +19,22 @@ onMount(() => {
 	logInfo("layout", "Root layout mounted");
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
+
+	// Single subscription point for every kernel model-loader event —
+	// downloads, loads, cancels. Routes through wizardState rune methods
+	// so the overlay reflects live state whether it is currently open or
+	// dismissed. Attached here (root layout) so downloads started before
+	// the overlay opens still populate when the overlay mounts.
+	let detachDownloadBridge: (() => void) | null = null;
+	bootstrapDownloadBridge()
+		.then((detach) => {
+			detachDownloadBridge = detach;
+			logInfo("layout", "download-bridge attached");
+		})
+		.catch((e) => {
+			logError("layout", `download-bridge FAILED to attach: ${e}`);
+		});
+
 	platformState
 		.init()
 		.then(() => {
@@ -26,7 +43,11 @@ onMount(() => {
 		.catch((e) => {
 			logError("layout", `platformState.init() FAILED: ${e}`);
 		});
-	return () => platformState.destroy();
+
+	return () => {
+		detachDownloadBridge?.();
+		platformState.destroy();
+	};
 });
 </script>
 

@@ -23,8 +23,8 @@ export { renderForge } from "./render.js";
 // Types — public contract
 export type {
 	CssFamily,
-	MacroDataAttrs,
-	MacroInput,
-	MacroState,
+	RenderState,
 	ResolvedMacro,
+	StyleDataAttrs,
+	StyleMacro,
 } from "./types.js";
