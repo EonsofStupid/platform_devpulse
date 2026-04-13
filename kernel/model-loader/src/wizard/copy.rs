@@ -190,32 +190,88 @@ pub struct BrowseCopy {
     pub title: String,
     /// Supporting line explaining how to search HuggingFace or scan local folders.
     pub subtitle: String,
+    /// Label for the in-popup tab that shows preset recommendations for the selected slot.
+    pub recommended_tab_label: String,
     /// Label for the tab that lists models already downloaded to disk.
     pub local_tab_label: String,
     /// Label for the tab that searches the online model registry.
     pub online_tab_label: String,
+    /// Label for the in-popup tab that opens a local file picker.
+    pub local_browse_tab_label: String,
+    /// Short description shown above the inline HuggingFace search panel.
+    pub search_panel_description: String,
     /// Placeholder text inside the model search input field.
     pub search_placeholder: String,
+    /// Screen-reader label for the model search input field.
+    pub search_input_aria: String,
     /// Visible label on the search submit button.
     pub search_button_label: String,
+    /// Label for the filter tab that shows every supported model format.
+    pub all_formats_label: String,
+    /// Tooltip text explaining what the all-formats filter does.
+    pub all_formats_tooltip: String,
     /// Heading shown in the results area when a search returns no matches.
     pub no_results_title: String,
+    /// Template shown when a search returns no matches; may include a `{query}` placeholder.
+    pub no_results_title_template: String,
     /// Hint below the no-results heading suggesting alternative search terms or formats.
     pub no_results_hint: String,
     /// Heading shown in the results area before the user has typed a search query.
     pub welcome_search_title: String,
     /// Hint below the welcome heading that encourages the user to try a search.
     pub welcome_search_hint: String,
+    /// Label shown above the quick-search chips after a failed search.
+    pub popular_searches_label: String,
+    /// Label shown above the quick-search chips before the first search.
+    pub try_one_of_these_label: String,
     /// Heading for the collapsible section that explains supported model file formats.
     pub format_help_title: String,
     /// One-line description of the GGUF format shown in the format help section.
     pub format_gguf_help: String,
     /// One-line description of the Safetensors format shown in the format help section.
     pub format_safetensors_help: String,
+    /// Template shown while the online search request is running; may include a `{query}` placeholder.
+    pub search_loading_template: String,
+    /// Secondary hint shown below the active search spinner.
+    pub search_loading_hint: String,
+    /// Label on the retry action inside the search error state.
+    pub retry_label: String,
+    /// Label on the clear action inside the search error state.
+    pub clear_label: String,
+    /// Singular noun used in the search result count.
+    pub result_label_singular: String,
+    /// Plural noun used in the search result count.
+    pub result_label_plural: String,
+    /// Section label shown above GGUF files inside a search result card.
+    pub gguf_section_label: String,
+    /// Section label shown above Safetensors shards inside a search result card.
+    pub safetensors_section_label: String,
+    /// Template for shard counts; may include `{count}` and `{plural}` placeholders.
+    pub shard_count_template: String,
+    /// Summary template for all Safetensors shards; may include `{count}`, `{plural}`, and `{size}` placeholders.
+    pub all_shards_summary_template: String,
+    /// Label shown before the per-file slot selector chips.
+    pub install_to_label: String,
+    /// Template for the GGUF download button; may include a `{slot}` placeholder.
+    pub download_to_template: String,
+    /// Label shown while a GGUF file download request is being dispatched.
+    pub downloading_label: String,
+    /// Template for the Safetensors download button; may include a `{slot}` placeholder.
+    pub download_all_shards_template: String,
+    /// Label shown while a Safetensors multi-file download request is being dispatched.
+    pub downloading_all_shards_label: String,
+    /// Warning shown when disk space is too low; may include `{needed}` and `{free}` placeholders.
+    pub disk_space_warning_template: String,
+    /// Template shown when a repository has no files matching the selected format; may include `{format}`.
+    pub no_format_files_template: String,
     /// Label on the button that triggers a local-file import dialog.
     pub import_button_label: String,
     /// Label shown on the import button while a file is being copied / indexed.
     pub importing_label: String,
+    /// Label on the button that fetches the next page of online search results.
+    pub load_more_label: String,
+    /// Label shown while the next page of online search results is loading.
+    pub loading_more_label: String,
 }
 
 /// Clyffy chat activation screen.

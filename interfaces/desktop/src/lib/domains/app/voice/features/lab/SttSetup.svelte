@@ -6,6 +6,7 @@
 import { Button } from "$lib/design/components/button/index.js";
 import Card from "$lib/design/components/card/Card.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
+import { commands, type SlotInfo, type VoiceStatusInfo } from "$lib/sys/generated/bindings.js";
 import { testMicrophone } from "../../services/voice.svc.js";
 import { voiceState } from "../../state/voice.state.svelte.js";
 
@@ -21,6 +22,56 @@ const LANGUAGES = [
 	{ code: "ru", label: "Russian" },
 	{ code: "ar", label: "Arabic" },
 ];
+
+let sttSlot = $state<SlotInfo | null>(null);
+let voiceStatus = $state<VoiceStatusInfo | null>(null);
+let loadError = $state<string | null>(null);
+
+function describeSlotConfig(slot: SlotInfo | null): string {
+	if (!slot) return "Slot not found in registry";
+	if (slot.assigned_model_id) return "Assigned from model registry";
+	if (slot.default_model) return "Bundled default configured";
+	return "No model assigned";
+}
+
+async function refreshSttRuntime(): Promise<void> {
+	try {
+		const [statusResult, slotsResult] = await Promise.all([
+			commands.getVoiceStatus(),
+			commands.getSlots(),
+		]);
+		if (statusResult.status === "error") {
+			throw new Error(statusResult.error);
+		}
+		if (slotsResult.status === "error") {
+			throw new Error(slotsResult.error);
+		}
+		voiceStatus = statusResult.data;
+		sttSlot = slotsResult.data.find((slot) => slot.id === "voice.stt") ?? null;
+		loadError = null;
+	} catch (e) {
+		loadError = e instanceof Error ? e.message : String(e);
+	}
+}
+
+$effect(() => {
+	void refreshSttRuntime();
+});
+
+async function handleLoadStt(): Promise<void> {
+	voiceState.loading = true;
+	try {
+		const result = await commands.loadSlot("voice.stt");
+		if (result.status === "error") {
+			throw new Error(result.error);
+		}
+		await refreshSttRuntime();
+	} catch (e) {
+		voiceState.error = e instanceof Error ? e.message : String(e);
+	} finally {
+		voiceState.loading = false;
+	}
+}
 
 async function handleMicTest(): Promise<void> {
 	voiceState.loading = true;
@@ -38,8 +89,12 @@ async function handleMicTest(): Promise<void> {
 	<!-- Model status -->
 	<div class="flex items-center justify-between">
 		<div>
-			<Text size="sm" weight="semibold" preset="default">Model: Whisper Small</Text>
+			<Text size="sm" weight="semibold" preset="default">{sttSlot?.label ?? "Voice Input"}</Text>
 			<Text size="xs" preset="default" class="text-[var(--text-muted)]">Slot: voice.stt</Text>
+			<Text size="xs" preset="default" class="text-[var(--text-muted)]">
+				{voiceStatus?.stt_loaded ? "Loaded" : "Not loaded"} · {sttSlot?.runtime ?? "Unknown backend"} · {sttSlot?.loading_strategy ?? "Unknown loading"}
+			</Text>
+			<Text size="xs" preset="default" class="text-[var(--text-muted)]">{describeSlotConfig(sttSlot)}</Text>
 		</div>
 		<div class="flex items-center gap-3">
 			<Text size="xs" preset="default">Language:</Text>
@@ -51,8 +106,15 @@ async function handleMicTest(): Promise<void> {
 					<option value={lang.code}>{lang.label}</option>
 				{/each}
 			</select>
+			<Button preset="secondary" size="sm" onclick={handleLoadStt} disabled={voiceState.loading || voiceStatus?.stt_loaded}>
+				{voiceStatus?.stt_loaded ? "Loaded" : "Load voice input"}
+			</Button>
 		</div>
 	</div>
+
+	{#if loadError}
+		<Text size="xs" preset="default" class="text-[var(--accent-ember-main)]">{loadError}</Text>
+	{/if}
 
 	<!-- Microphone test -->
 	<Card preset="neuro-minimal">
@@ -109,14 +171,16 @@ async function handleMicTest(): Promise<void> {
 		</Text>
 	</div>
 
-	<!-- Upgrade option -->
+	<!-- Runtime note -->
 	<Card preset="glass-minimal">
 		<div class="p-3 flex items-center justify-between">
 			<div>
-				<Text size="xs" weight="semibold" preset="default">Upgrade: Whisper Turbo (GPU)</Text>
-				<Text size="xs" preset="default" class="text-[var(--text-muted)]">~2GB VRAM, faster + more accurate</Text>
+				<Text size="xs" weight="semibold" preset="default">Live slot, not a fake profile</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Swap the STT model through slot assignment, then load `voice.stt` here to test the runtime you actually configured.</Text>
 			</div>
-			<Button preset="ghost" size="sm">Load for this session</Button>
+			<Button preset="ghost" size="sm" onclick={handleLoadStt} disabled={voiceState.loading || voiceStatus?.stt_loaded}>
+				{voiceStatus?.stt_loaded ? "Ready" : "Load now"}
+			</Button>
 		</div>
 	</Card>
 </div>

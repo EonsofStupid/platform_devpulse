@@ -1,46 +1,102 @@
 # SPRINT: DevForge — Frontend Integration (Phase 3)
 
 > **Status**: READY FOR IMPLEMENTATION
-> **Depends on**: Phase 1 + Phase 2 backend (merged on `feat/llguidance-runtime`) ✅ DONE
+> **Depends on**: Phase 1 + Phase 2 backend (merged) ✅ DONE
 > **Assigned to**: fresh Claude session — pick up from this spec, do not re-design
 
 ---
 
-## What's already done (do not rebuild)
+## What already exists (do not recreate)
 
-Phases 1 + 2 landed the full Rust side: sidecar lifecycle, filesystem
-layout, persistent state, and bootstrap preload. The frontend does not
-need to know how any of it works internally — only the IPC contract
-below.
-
-### Files that exist (reference only, don't modify unless the spec says so)
+### Rust backend (Phase 1 + 2, DO NOT modify)
 
 ```
 interfaces/desktop/src-tauri/src/commands/devforge/
 ├── mod.rs             # Tauri commands
-├── bootstrap.rs       # Preload orchestration, fires on app start
+├── bootstrap.rs       # Preload — spawns REH on app start (non-blocking)
 ├── paths.rs           # DevforgePaths — directory layout
 ├── sidecar.rs         # RehManager — Node child lifecycle
 ├── state_file.rs      # DevforgeState — persisted JSON
 └── types.rs           # IPC types (cross-boundary via specta)
 
 interfaces/desktop/src-tauri/src/
-├── state.rs           # PlatformState now holds `devforge_paths`
-└── lib.rs             # spawns bootstrap::run() from the setup hook
+├── state.rs           # PlatformState holds `devforge_paths`
+└── lib.rs             # spawns bootstrap::run() from setup hook
 ```
 
-### Filesystem layout (dev resolves to `.userdata/devforge/`)
+### Existing frontend scaffolding (EXTEND these, do not replace)
+
+```
+src/lib/domains/app/devforge/
+├── index.ts              # barrel — currently empty, add exports here
+├── features/
+│   └── friends/          # unrelated, leave alone
+└── pages/
+    └── DevDashboard.svelte  # unused — you may repurpose or ignore
+
+src/routes/(app)/devforge/
+└── +page.svelte          # ⚠ EXISTING dashboard with Widgets — AUGMENT, do not replace
+
+src/lib/layouts/app/Sidebar.svelte
+→ line 55: { id: "devforge", icon: Wrench, label: "DevForge", href: "/devforge" }
+  (already wired — do NOT add another nav entry)
+```
+
+### Existing dashboard — `src/routes/(app)/devforge/+page.svelte`
+
+Already has a full Widget-based dashboard using the DevPulse design
+system (`Widget`, `Badge`, `Text`, `cn`, `hstack`, `stack`, lucide
+icons, `glass-deep` surfaces, `glow` accents). Contains 5 widget
+sections: Build Pipeline, CI/CD, Environments, Node CLI, Packages.
+
+**You MUST augment this file, not replace it.** Add the DevForge
+editor launcher as a new Row 0 at the TOP of the grid, above the
+existing Build Pipeline row. The existing widgets stay as-is.
+
+### Design system components available
+
+- `Widget` — `$lib/design/blocks/widgets/index.js`
+- `Badge` — `$lib/design/components/badge/index.js`
+- `Text` — `$lib/design/components/text/index.js`
+- `Button` — `$lib/design/components/button/index.js`
+- `cn` — `$lib/design/utils/cn.js`
+- `hstack` — `$lib/design/utils/hstack/index.js`
+- `stack` — `$lib/design/utils/stack/index.js`
+- lucide-svelte icons — already in devDeps
+
+### Domain pattern to follow
+
+The **exact** pattern used by `src/lib/domains/app/devpulse/`:
+
+```
+src/lib/domains/app/<hub>/
+├── index.ts                           # barrel
+├── runes/<hub>.runes.svelte.ts        # Svelte 5 CLASS with $state fields
+├── services/<hub>.service.ts          # async fns calling Tauri IPC
+└── types/<hub>.types.ts               # TypeScript interfaces
+```
+
+- Runes are **class-based** using `$state` (see `devpulse.runes.svelte.ts`
+  for the pattern — `class FooState { data = $state(...); ... }`)
+- Service files export plain async functions, use the generated bindings
+- Routes import ONLY from `index.ts` — never deep into subdirs
+
+### Filesystem layout created by bootstrap (`.userdata/devforge/`)
 
 ```
 devforge/
 ├── install/current/   ← REH binaries (dev uses repo junction at deps/code-oss-reh-web)
-├── workspaces/
-│   └── default/       ← auto-created first-run workspace
 ├── user-data/         ← VS Code profiles, settings, keybindings (--user-data-dir)
 ├── extensions/        ← installed VS Code extensions (--extensions-dir)
-├── logs/
-└── state.json         ← persisted DevforgeState
+├── logs/              ← REH stdout/stderr
+└── state.json         ← { lastWorkspace, freshInstanceOnOpen, rehVersion }
 ```
+
+**Workspaces are NOT generated folders.** They are real project
+directories (e.g. `D:/localdev/platform_devpulse`) that the user has
+open. `state.json.lastWorkspace` remembers the last-opened path so
+bootstrap restores it. On first run (no `lastWorkspace`), REH starts
+with no folder open — the user picks one inside VS Code.
 
 ---
 
@@ -49,47 +105,43 @@ devforge/
 ### Events
 
 **`devforge://ready`** — emitted once during bootstrap (success OR failure).
-Subscribers that mount after emission must call `devforgeGetStatus()` to
-catch up. Payload:
+Late-mounting frontends call `devforgeGetStatus()` to catch up.
 
 ```ts
 type DevforgeBootstrapStatus = {
-  installed: boolean;        // true if a valid REH build was resolved
-  running:   boolean;        // true if the child process is alive
-  url:       string | null;  // http://127.0.0.1:<port>/?tkn=<token>
+  installed: boolean;        // true if valid REH build found
+  running:   boolean;        // true if child process alive
+  url:       string | null;  // http://127.0.0.1:<port>/?tkn=<hex>
   port:      number | null;
-  workspace: string | null;  // absolute path
+  workspace: string | null;  // last project path, or null on first run
   rehVersion: string | null;
 };
 ```
 
-### Commands (generated into `src/lib/sys/generated/bindings.ts` via tauri-specta)
+### Commands (generated into `src/lib/sys/generated/bindings.ts`)
 
 ```ts
-// Unified status — prefer this over the lower-level getters
+// Primary — frontend uses these
 devforgeGetStatus(): Promise<DevforgeBootstrapStatus>;
-
-// Workspace management
-devforgeListWorkspaces(): Promise<string[]>;                  // abs paths
-devforgeCreateWorkspace(name: string): Promise<string>;       // returns abs path
-
-// Preference toggle — when true, bootstrap always opens `workspaces/default/`
-// instead of restoring `state.lastWorkspace`
 devforgeSetFreshInstance(enabled: boolean): Promise<void>;
 
-// Lower-level lifecycle (power users / custom workspace flows)
+// Recent projects — real directories the user has opened
+devforgeListRecentProjects(): Promise<string[]>;     // newest first, max 20
+devforgeAddProject(path: string): Promise<void>;     // validates dir exists
+devforgeRemoveProject(path: string): Promise<void>;  // idempotent
+
+// Lifecycle — power user / restart flows
 spawnRehServer(config: RehConfig): Promise<RehStatus>;
 stopRehServer(): Promise<void>;
 getRehStatus(): Promise<RehStatus>;
-getConnectionUrl(): Promise<string>;  // errors if not running
+getConnectionUrl(): Promise<string>;
 
 type RehConfig = {
-  serverDir:     string;           // REH build root
-  workspacePath: string;           // folder to open
-  userDataDir:   string;           // --user-data-dir
-  extensionsDir: string | null;    // --extensions-dir
+  serverDir:     string;
+  workspacePath: string | null;  // null = no folder, user picks inside VS Code
+  userDataDir:   string;
+  extensionsDir: string | null;
 };
-
 type RehStatus = {
   running: boolean;
   port:    number | null;
@@ -98,472 +150,414 @@ type RehStatus = {
 };
 ```
 
-**Import from:** `$lib/sys/generated/bindings` (re-exported via specta
-export on every dev build — do not hand-edit that file).
+**Import from:** `$lib/sys/generated/bindings` — never hand-edit.
 
 ---
 
 ## Frontend deliverables
 
-### 1. Domain module: `src/lib/domains/devforge/`
+### 1. Domain module: `src/lib/domains/app/devforge/`
 
-Follow the pattern established by
-`src/lib/domains/app/models/features/setup-wizard/`:
-
-```
-src/lib/domains/devforge/
-├── index.ts                        # barrel — ONLY public API
-├── devforge.runes.svelte.ts        # runes state ($state, $derived)
-├── devforge.service.ts             # wraps bindings, handles events,
-│                                   # owns the WebviewWindow open/close API
-└── components/
-    ├── DevForgeLanding.svelte      # dashboard with the two mode buttons
-    ├── ModeCard.svelte             # reusable card for Lite / Full buttons
-    ├── InstallCta.svelte           # shown when installed === false
-    ├── WorkspacePicker.svelte      # list + create workspaces
-    ├── FreshInstanceToggle.svelte  # preference toggle
-    └── StatusPill.svelte           # "ready / booting / not installed" chip
-```
-
-**Landing surface behavior.** The DevForge route inside DevPulse's main
-window **is not the editor** — it's a dashboard. It renders:
-
-- A header with the current workspace + status pill
-- Two large mode cards side by side (see §1a below)
-- Workspace picker + fresh-instance toggle below the cards
-- Install CTA occupying the whole body when `installed === false`
-
-#### 1a. Two-mode entry — the core UX
-
-This is the click path the owner described:
-
-> *User clicks DevPulse → clicks DevForge tab → sees two buttons →
-> clicks a button → a fully-chromed Tauri window opens, resizable,
-> independent, but killed when DevPulse exits.*
-
-Two modes, each launched via `WebviewWindow`:
-
-| Mode | Label | Window label | URL source | Use case |
-|---|---|---|---|---|
-| **Monaco Lite** | "Lite Editor" | `devforge-lite` | `tauri://localhost/devforge/lite` (SvelteKit route) | Config files, snippets, quick one-off edits. No extension host, instant launch, ~3MB runtime overhead. |
-| **Full VS Code** | "Full Editor" | `devforge-full` | `devforgeState.status.url` (REH connection URL) | Full IDE with extensions, Claude Code, marketplace, terminals. Requires bootstrap to have succeeded. |
-
-**Rules both modes share:**
-- Each mode uses a unique `WebviewWindow` label. Re-clicking the button
-  focuses the existing window instead of spawning a duplicate.
-- Windows are independently resizable and have normal native chrome
-  (`decorations: true`).
-- Windows close automatically when DevPulse exits (Tauri default — no
-  extra wiring needed because they live in the same app process).
-- Monaco Lite is **always available** once the frontend mounts. It does
-  not depend on `devforgeState.installed` or the REH bootstrap —
-  Monaco ships with DevPulse itself.
-- Full VS Code is disabled until `devforgeState.isReady === true`.
-
-### 1b. Monaco Lite — the SvelteKit route
-
-Create a new route inside the existing SvelteKit tree:
+Add new files to the existing directory:
 
 ```
-src/routes/devforge/lite/
-├── +layout.svelte   # no chrome — fill the window
-├── +layout.ts       # export const ssr = false; export const prerender = false;
-└── +page.svelte     # mounts <MonacoEditor /> full-bleed
+src/lib/domains/app/devforge/
+├── index.ts                            # EXISTING — replace contents
+├── runes/
+│   └── devforge.runes.svelte.ts        # NEW
+├── services/
+│   └── devforge.service.ts             # NEW
+├── types/
+│   └── devforge.types.ts               # NEW
+├── components/
+│   └── EditorLauncherWidget.svelte     # NEW — the Widget for the dashboard
+├── features/friends/                   # EXISTING — leave alone
+└── pages/DevDashboard.svelte           # EXISTING — leave alone
 ```
 
-The route must render **without** any DevPulse chrome (header, nav,
-statusbar). Wrap in a minimal layout that sets `html, body, #root {
-height: 100%; margin: 0 }` and nothing else.
-
-**Monaco integration:**
-- Package: `monaco-editor` (already pulled in by `@monaco-editor/loader`
-  if present — check `package.json` before adding). If not present, add
-  `monaco-editor` as a direct dep.
-- Use the `esm` entrypoint: `import * as monaco from "monaco-editor"`.
-- Vite needs the `monaco-editor-webpack-plugin` equivalent for Vite —
-  use `vite-plugin-monaco-editor` or manual worker config. Check
-  `vite.config.ts` for existing Monaco config before adding.
-- File operations go through Tauri's `@tauri-apps/plugin-fs` — the
-  `tauri-plugin-fs` plugin is already registered in `lib.rs`. If not,
-  add it. (Double-check by grepping `lib.rs` for `tauri_plugin_fs`.)
-- URL query params pass the initial file: `?file=<abs-path>`. If absent,
-  open with an empty untitled buffer.
-- Save via `writeTextFile`. Ctrl+S keybind. Dirty state in the window
-  title.
-
-**Opening the window** — in `devforge.service.ts`:
+### 2. `types/devforge.types.ts`
 
 ```ts
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+/**
+ * @file DevForge Domain Types
+ * @module @devpulse/domains/app/devforge/types
+ */
 
-export async function openLiteEditor(initialFile?: string): Promise<void> {
-  const label = "devforge-lite";
-  const existing = await WebviewWindow.getByLabel(label);
-  if (existing) {
-    await existing.setFocus();
-    return;
-  }
-  const qs = initialFile ? `?file=${encodeURIComponent(initialFile)}` : "";
-  new WebviewWindow(label, {
-    url: `/devforge/lite${qs}`,     // SvelteKit route, served by Tauri dev/prod
-    title: "DevForge — Lite Editor",
-    width: 1100, height: 750,
-    minWidth: 600, minHeight: 400,
-    resizable: true,
-    decorations: true,
-  });
-}
+/** Window labels for the managed Tauri child windows. */
+export const DEVFORGE_WINDOW_LABEL = "devforge-full" as const;
 ```
 
-### 1c. Full VS Code — external URL window
-
-No SvelteKit route involved. The window loads the REH connection URL
-directly:
+### 3. `runes/devforge.runes.svelte.ts`
 
 ```ts
-export async function openFullEditor(): Promise<void> {
-  const s = devforgeState.status;
-  if (!s.url) throw new Error("DevForge REH not ready");
-  const label = "devforge-full";
-  const existing = await WebviewWindow.getByLabel(label);
-  if (existing) {
-    await existing.setFocus();
-    return;
-  }
-  new WebviewWindow(label, {
-    url: s.url,                     // http://127.0.0.1:<port>/?tkn=<hex>
-    title: "DevForge — Full Editor",
-    width: 1600, height: 1000,
-    minWidth: 800, minHeight: 500,
-    resizable: true,
-    decorations: true,
-  });
-}
-```
+/**
+ * @file DevForge Hub Runes
+ * @module @devpulse/domains/app/devforge/runes
+ *
+ * Svelte 5 runes for the DevForge code editor hub.
+ * Does NOT auto-fetch — bootstrap event or initDevforge triggers hydration.
+ */
 
-Tauri v2 allows external `http://127.0.0.1:*` URLs in `WebviewWindow` —
-confirm `tauri.conf.json` has no CSP restriction blocking this (should
-be fine because the connection URL is localhost-bound).
-
-**Rules (match the rest of the project):**
-- Routes and other domains import **only** from `index.ts` — never deep.
-- Runes file uses `.svelte.ts` extension and exports a single `devforgeState` object.
-- Service file exports plain async functions — no classes.
-- No direct `@tauri-apps/api` imports — use the generated `bindings`.
-
-### 2. `devforge.runes.svelte.ts`
-
-```ts
 import type { DevforgeBootstrapStatus } from "$lib/sys/generated/bindings";
 
-// Single exported state object — destructure in components.
-function createDevforgeState() {
-  let status = $state<DevforgeBootstrapStatus>({
-    installed: false, running: false,
-    url: null, port: null, workspace: null, rehVersion: null,
+class DevForgeState {
+  status = $state<DevforgeBootstrapStatus>({
+    installed: false,
+    running: false,
+    url: null,
+    port: null,
+    workspace: null,
+    rehVersion: null,
   });
-  let error = $state<string | null>(null);
-  let workspaces = $state<string[]>([]);
+  error = $state<string | null>(null);
 
-  return {
-    get status() { return status; },
-    get error()  { return error; },
-    get workspaces() { return workspaces; },
-    get isReady() { return status.installed && status.running && !!status.url; },
-    get needsInstall() { return !status.installed; },
-    setStatus(s: DevforgeBootstrapStatus) { status = s; },
-    setError(e: string | null) { error = e; },
-    setWorkspaces(w: string[]) { workspaces = w; },
-  };
+  get isReady(): boolean {
+    return this.status.installed && this.status.running && !!this.status.url;
+  }
+
+  get needsInstall(): boolean {
+    return !this.status.installed;
+  }
+
+  get currentProject(): string | null {
+    if (!this.status.workspace) return null;
+    // Extract folder name from full path for display
+    const parts = this.status.workspace.replace(/\\/g, "/").split("/");
+    return parts[parts.length - 1] || null;
+  }
 }
 
-export const devforgeState = createDevforgeState();
+export const devforgeState = new DevForgeState();
 ```
 
-### 3. `devforge.service.ts`
-
-Handles the event subscription + command calls. All exports are plain
-async functions.
+### 4. `services/devforge.service.ts`
 
 ```ts
+/**
+ * @file DevForge Domain Service
+ * @module @devpulse/domains/app/devforge/services
+ *
+ * Handles event subscription, IPC calls, and WebviewWindow lifecycle.
+ */
+
 import { listen } from "@tauri-apps/api/event";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import {
-  devforgeGetStatus, devforgeListWorkspaces,
-  devforgeCreateWorkspace, devforgeSetFreshInstance,
+  devforgeGetStatus,
+  devforgeSetFreshInstance,
   stopRehServer,
 } from "$lib/sys/generated/bindings";
-import { devforgeState } from "./devforge.runes.svelte.js";
+import type { DevforgeBootstrapStatus } from "$lib/sys/generated/bindings";
+import { logInfo, logError } from "$lib/sys/logger.js";
+import { devforgeState } from "../runes/devforge.runes.svelte.js";
+import { DEVFORGE_WINDOW_LABEL } from "../types/devforge.types.js";
 
 /**
  * Initialize the DevForge domain.
  *
- * Call ONCE from the app root layout's onMount. Subscribes to the
- * `devforge://ready` event AND pulls the current status via
- * `devforgeGetStatus()` to cover the case where bootstrap fired
- * before the frontend mounted.
+ * Call ONCE from the (app) layout's onMount. Subscribes to the
+ * `devforge://ready` event AND pulls the current status to cover
+ * the case where bootstrap fired before the frontend mounted.
  *
- * Returns an unlisten fn — the caller is responsible for cleanup.
+ * Returns an unlisten fn — caller is responsible for cleanup.
  */
 export async function initDevforge(): Promise<() => void> {
   // Catch-up pull for late mounts
   try {
     const status = await devforgeGetStatus();
-    devforgeState.setStatus(status);
+    devforgeState.status = status;
+    logInfo("devforge", `Status: installed=${status.installed}, running=${status.running}`);
   } catch (e) {
-    devforgeState.setError(String(e));
+    devforgeState.error = String(e);
+    logError("devforge", `Init failed: ${e}`);
   }
 
-  // Live subscription for the first boot
+  // Live subscription for the bootstrap event
   const unlisten = await listen<DevforgeBootstrapStatus>(
     "devforge://ready",
-    (evt) => devforgeState.setStatus(evt.payload),
+    (evt) => {
+      devforgeState.status = evt.payload;
+      logInfo("devforge", `Ready event: running=${evt.payload.running}`);
+    },
   );
-
-  // Initial workspace list
-  refreshWorkspaces().catch(() => {});
 
   return unlisten;
 }
 
-export async function refreshWorkspaces(): Promise<void> {
-  const list = await devforgeListWorkspaces();
-  devforgeState.setWorkspaces(list);
-}
+/**
+ * Open the Full VS Code editor as a managed Tauri child window.
+ *
+ * This is the primary DevForge action. The window loads the REH
+ * connection URL directly — full VS Code with extension support,
+ * Claude Code, terminals, everything.
+ *
+ * Idempotent: if the window is already open, focuses it.
+ */
+export async function openFullEditor(): Promise<void> {
+  if (!devforgeState.isReady || !devforgeState.status.url) {
+    throw new Error("DevForge is not ready — REH server not running");
+  }
 
-export async function createWorkspace(name: string): Promise<string> {
-  const path = await devforgeCreateWorkspace(name);
-  await refreshWorkspaces();
-  return path;
-}
+  const existing = await WebviewWindow.getByLabel(DEVFORGE_WINDOW_LABEL);
+  if (existing) {
+    await existing.setFocus();
+    return;
+  }
 
-export async function setFreshInstance(enabled: boolean): Promise<void> {
-  await devforgeSetFreshInstance(enabled);
+  new WebviewWindow(DEVFORGE_WINDOW_LABEL, {
+    url: devforgeState.status.url,
+    title: `DevForge — ${devforgeState.currentProject ?? "VS Code"}`,
+    width: 1600,
+    height: 1000,
+    minWidth: 800,
+    minHeight: 500,
+    resizable: true,
+    decorations: true,
+  });
+
+  logInfo("devforge", `Opened full editor: ${devforgeState.status.url}`);
 }
 
 /**
- * Stop the REH server — use before the app exits or when the user
- * wants to switch workspaces. (Workspace switch = stop + restart via
- * spawnRehServer with a new RehConfig. Phase 3.5 if time permits.)
+ * Stop the REH server and close the editor window if open.
  */
 export async function stopDevforge(): Promise<void> {
+  const existing = await WebviewWindow.getByLabel(DEVFORGE_WINDOW_LABEL);
+  if (existing) {
+    await existing.close();
+  }
   await stopRehServer();
+}
+
+/**
+ * Toggle the "always open fresh" preference.
+ */
+export async function setFreshInstance(enabled: boolean): Promise<void> {
+  await devforgeSetFreshInstance(enabled);
 }
 ```
 
-### 4. `DevForgeLanding.svelte` — the dashboard
+### 5. `components/EditorLauncherWidget.svelte`
 
-Composes the whole landing surface. Pseudocode:
+The launcher widget that sits at the top of the DevForge dashboard.
+**One big button: click it, full VS Code opens.** Clean and direct.
 
 ```svelte
+<!--
+  @file EditorLauncherWidget — primary DevForge action
+  Opens the Full VS Code editor as a managed Tauri window.
+-->
 <script lang="ts">
-  import { devforgeState } from "../devforge.runes.svelte.js";
-  import { openLiteEditor, openFullEditor } from "../devforge.service.js";
-  import InstallCta from "./InstallCta.svelte";
-  import ModeCard from "./ModeCard.svelte";
-  import WorkspacePicker from "./WorkspacePicker.svelte";
-  import FreshInstanceToggle from "./FreshInstanceToggle.svelte";
-  import StatusPill from "./StatusPill.svelte";
+  import { MonitorUp } from "lucide-svelte";
+  import { Widget } from "$lib/design/blocks/widgets/index.js";
+  import { Badge } from "$lib/design/components/badge/index.js";
+  import { Button } from "$lib/design/components/button/index.js";
+  import { Text } from "$lib/design/components/text/index.js";
+  import { hstack } from "$lib/design/utils/hstack/index.js";
+  import { stack } from "$lib/design/utils/stack/index.js";
+  import { devforgeState } from "$lib/domains/app/devforge/index.js";
+  import { openFullEditor } from "$lib/domains/app/devforge/index.js";
 </script>
 
-{#if devforgeState.needsInstall}
-  <InstallCta />
-{:else}
-  <header>
-    <h1>DevForge</h1>
-    <StatusPill />
-  </header>
+<Widget
+  title="Code Editor"
+  icon={MonitorUp}
+  surface="glass-deep"
+  depth="z2"
+  bevel="soft"
+  glow="cyan"
+  frame="accent-teal"
+  radius="lg"
+>
+  <div class={stack({ gap: "3" })}>
+    <div class={hstack({ justify: "between", align: "center" })}>
+      <div class={stack({ gap: "1" })}>
+        <Text weight="semibold">Full VS Code</Text>
+        <Text size="xs" color="muted">
+          Extensions, Claude Code, terminals, full IDE
+        </Text>
+      </div>
 
-  <section class="modes">
-    <ModeCard
-      title="Lite Editor"
-      subtitle="Monaco — fast single-file editing"
-      enabled={true}
-      onclick={() => openLiteEditor()}
-    />
-    <ModeCard
-      title="Full Editor"
-      subtitle="VS Code with extensions, Claude Code, terminals"
-      enabled={devforgeState.isReady}
+      {#if devforgeState.isReady}
+        <Badge variant="positive" size="sm">Ready</Badge>
+      {:else if devforgeState.status.installed}
+        <Badge variant="warning" size="sm">Starting…</Badge>
+      {:else}
+        <Badge variant="neutral" size="sm">Not Installed</Badge>
+      {/if}
+    </div>
+
+    <Button
+      variant="primary"
+      size="lg"
+      disabled={!devforgeState.isReady}
       onclick={() => openFullEditor()}
-    />
-  </section>
+    >
+      <MonitorUp size={18} />
+      Launch DevForge
+    </Button>
 
-  <section class="config">
-    <WorkspacePicker />
-    <FreshInstanceToggle />
-  </section>
-{/if}
+    {#if devforgeState.status.workspace}
+      <Text size="xs" color="secondary">
+        Project: {devforgeState.currentProject}
+      </Text>
+    {:else if devforgeState.isReady}
+      <Text size="xs" color="muted">
+        No project open — pick a folder after launch
+      </Text>
+    {/if}
+
+    {#if devforgeState.status.port}
+      <Text size="xs" color="muted">REH :{devforgeState.status.port}</Text>
+    {/if}
+  </div>
+</Widget>
 ```
 
-`ModeCard` is a dumb presentational component — big title, subtitle,
-icon, click handler, disabled state. Follow the existing coldlight
-token system for colors/spacing; look at `PresetCard.svelte` in the
-setup-wizard feature for style reference.
+### 6. Modify existing `+page.svelte` — add the launcher row
 
-### 5. `InstallCta.svelte`
+**File: `src/routes/(app)/devforge/+page.svelte`**
 
-Shown when `devforgeState.needsInstall === true`. For Phase 3 this is a
-placeholder that says "DevForge is not yet installed" with a disabled
-button. Phase 4 (update channel) wires the button to the installer
-download. **Do not implement download logic in this sprint.**
+Two changes only:
 
-### 6. `WorkspacePicker.svelte`
+1. Add import at the top of `<script>`:
+```ts
+import { EditorLauncherWidget } from "$lib/domains/app/devforge/index.js";
+```
 
-Lists `devforgeState.workspaces`, shows the currently-active one
-(`devforgeState.status.workspace`), and has a text input + button to
-create a new workspace via `createWorkspace()`. Switching workspaces is
-out of scope (Phase 3.5) — for now the picker is informational after
-creation.
+2. Add Row 0 immediately after `<div class="grid grid-cols-12 gap-4"`:
+```svelte
+  <!-- Row 0: Code Editor Launcher -->
+  <div class="col-span-12">
+    <EditorLauncherWidget />
+  </div>
+```
 
-### 7. `index.ts` barrel
+**Do NOT delete or modify the existing Widget rows.**
+
+### 7. Update `index.ts` barrel
+
+**File: `src/lib/domains/app/devforge/index.ts`** (replace contents)
 
 ```ts
-export { devforgeState } from "./devforge.runes.svelte.js";
+/**
+ * @file domains/app/devforge/index.ts
+ * @module @devpulse/domains/app/devforge
+ * @description IDE integration, code workspace, and DevForge editor hub
+ */
+
+// State
+export { devforgeState } from "./runes/devforge.runes.svelte.js";
+
+// Service
 export {
   initDevforge,
-  stopDevforge,
-  refreshWorkspaces,
-  createWorkspace,
-  setFreshInstance,
-  openLiteEditor,
   openFullEditor,
-} from "./devforge.service.js";
-export { default as DevForgeLanding } from "./components/DevForgeLanding.svelte";
+  stopDevforge,
+  setFreshInstance,
+} from "./services/devforge.service.js";
+
+// Types
+export { DEVFORGE_WINDOW_LABEL } from "./types/devforge.types.js";
+
+// Components
+export { default as EditorLauncherWidget } from "./components/EditorLauncherWidget.svelte";
 ```
 
 ---
 
-## Integration points
+## Integration point
 
-### A. Init hook (root layout)
+Call `initDevforge()` from the `(app)` layout's `onMount`:
 
-Call `initDevforge()` once from the root layout's `onMount`:
+```ts
+// Inside src/routes/(app)/+layout.svelte's existing <script>
+import { initDevforge } from "$lib/domains/app/devforge/index.js";
 
-```svelte
-<!-- src/routes/+layout.svelte (or the closest equivalent root) -->
-<script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-  import { initDevforge } from "$lib/domains/devforge";
+// In the existing onMount (DO NOT create a second one):
+const unlistenDevforge = await initDevforge();
 
-  let unlisten: (() => void) | null = null;
-
-  onMount(async () => {
-    unlisten = await initDevforge();
-  });
-
-  onDestroy(() => unlisten?.());
-</script>
+// In onDestroy:
+unlistenDevforge?.();
 ```
 
-### B. DevForge route (the dashboard)
+**Sidebar is already wired — no changes needed.**
 
-Create `src/routes/(app)/devforge/+page.svelte` (or the equivalent route
-group — check where other hubs like `devclyffy`/`devpulse` land) that
-renders `<DevForgeLanding />`. This route is what the dock/nav button
-links to.
+---
 
-### C. Monaco Lite route (separate window target)
+## What happens end-to-end
 
-Create `src/routes/devforge/lite/+page.svelte` **outside** any `(app)`
-group so it renders chrome-free. This is what the Lite Editor window
-loads when `openLiteEditor()` is called.
-
-### D. Dock/nav button
-
-Find wherever hub navigation lives (grep for `devclyffy` route links,
-or the main sidebar component) and add a DevForge entry pointing at
-`/devforge`. If unclear, ask before guessing.
+1. User launches DevPulse
+2. `lib.rs` setup hook spawns `devforge::bootstrap::run()` in background
+3. Bootstrap creates `.userdata/devforge/` layout, resolves REH build
+   from `deps/code-oss-reh-web` (dev) or `install/current/` (prod),
+   restores `lastWorkspace` from `state.json`, spawns the Node REH
+   server, waits for health, emits `devforge://ready`
+4. Frontend mounts, `initDevforge()` catches the event (or pulls via
+   `devforgeGetStatus()`), hydrates `devforgeState`
+5. User navigates to `/devforge` in sidebar — sees the dashboard with
+   "Launch DevForge" button showing "Ready" badge
+6. User clicks the button → `openFullEditor()` → new `WebviewWindow`
+   opens pointed at `http://127.0.0.1:<port>/?tkn=<hex>` → full VS Code
+   with extension support, profiles, settings all persisted
+7. User installs Claude extension inside VS Code → works immediately
+8. On DevPulse quit → Exit handler kills REH child, all windows close
 
 ---
 
 ## Acceptance criteria
 
-1. **Cold start** — launch `pnpm tauri dev`. Watch the terminal for
-   `DevForge bootstrap: spawning REH server` → `DevForge bootstrap complete`.
-2. **Directory created** — confirm `.userdata/devforge/` exists with
-   `workspaces/default/`, `user-data/`, `extensions/`, `logs/`, `state.json`.
-3. **Event received** — add a `console.log` in the `initDevforge` event
-   handler, confirm `devforge://ready` fires with `installed: true,
-   running: true`.
-4. **Late mount** — reload the frontend (Ctrl+R in devtools). Confirm the
-   catch-up `devforgeGetStatus()` call hydrates `devforgeState` even
-   though the event already fired.
-5. **Dashboard renders** — navigate to `/devforge`, see the DevForge
-   landing page with both mode cards. Full Editor card is enabled,
-   workspace picker shows `default`.
-6. **Monaco Lite opens** — click "Lite Editor". A new Tauri window
-   titled "DevForge — Lite Editor" opens at ~1100×750, resizable,
-   renders an empty Monaco editor, has normal OS chrome.
-7. **Full Editor opens** — click "Full Editor". A new Tauri window
-   titled "DevForge — Full Editor" opens at ~1600×1000, loads VS Code
-   against the connection URL with the bundled token. Resizable.
-8. **Window idempotency** — click "Lite Editor" again while the window
-   is open. No second window is created; the existing one is focused.
-   Same for Full Editor.
-9. **Independent windows** — resize Lite and Full windows independently,
-   move them between monitors. DevPulse main window is unaffected.
-10. **Profile persistence** — inside the Full Editor, change the color
-    theme. Close the window. Re-open via the button. The theme
-    should persist (proves `--user-data-dir` is wired).
-11. **Workspace persistence** — inside Full Editor, create a file in the
-    default workspace. Close the Full Editor window, quit DevPulse
-    entirely, relaunch. On next boot, bootstrap should restore the same
-    workspace and the file should still be there.
-12. **Shutdown tie** — with both Lite and Full windows open, quit
-    DevPulse from the main window (File → Quit, or Ctrl+Q). Both child
-    windows must close automatically. In Task Manager, confirm no
-    orphan `node.exe` from `deps/code-oss-reh-web` remains.
-13. **Lite file round-trip** — call `openLiteEditor("D:/some/file.ts")`.
-    The Lite window opens with that file loaded. Edit it, Ctrl+S,
-    close the window. Reopen the file in any other editor and verify
-    the changes persisted.
+1. **Cold start** — `pnpm tauri dev`, terminal shows `DevForge bootstrap
+   complete — REH ready`
+2. **Layout created** — `.userdata/devforge/` has `user-data/`,
+   `extensions/`, `logs/`, `state.json`
+3. **Event fires** — console.log in `initDevforge` confirms
+   `devforge://ready` with `installed: true, running: true`
+4. **Late mount** — Ctrl+R reload, `devforgeGetStatus()` hydrates state
+5. **Dashboard** — `/devforge` shows "Launch DevForge" button + "Ready"
+   badge at top, existing Build Pipeline / CI/CD / etc. widgets below
+6. **Launch** — click button → new native Tauri window opens, full
+   VS Code loads, resizable, decorations present
+7. **Idempotent** — click button again → existing window focuses, no dup
+8. **Extensions work** — inside the VS Code window, open Extensions panel,
+   install any extension, it loads
+9. **Profile persistence** — change VS Code color theme, close window,
+   reopen → theme persists (proves `--user-data-dir` wired)
+10. **Project persistence** — open a folder in VS Code, quit DevPulse,
+    relaunch → bootstrap restores that folder (check `state.json`)
+11. **Shutdown** — quit DevPulse, no orphan `node.exe` in Task Manager
+12. **First run** — delete `state.json`, relaunch → VS Code opens with
+    no folder, user can pick one
 
 ---
 
 ## Out of scope (separate sprints)
 
-- **Phase 3.5** — Workspace switching (stop + respawn on pick) and
-  multi-workspace parallel sessions.
-- **Phase 4** — Update channel. Manifest fetch, download, sha256 verify,
-  extract, junction swap. Wire `InstallCta` to this.
-- **Phase 5** — Claude extension ↔ DevPulse DB bridge. See
-  [`SPRINT-DEVFORGE-CLAUDE-BRIDGE.md`](./SPRINT-DEVFORGE-CLAUDE-BRIDGE.md)
-  for the architecture. Required for Claude Code running inside the
-  Full Editor to read/write DevPulse's projects/sessions/turns tables.
-- **Phase 6** — Extension management UI (list, install, uninstall,
-  search marketplace).
-- **Theme wiring** — Making the DevForge VS Code window inherit DevPulse
-  design tokens (accent colors). The theme-devforge extension is
-  already bundled in `deps/code-oss`; sprint not needed unless tokens
-  need to resync.
+- **Monaco Lite** editor — separate WebviewWindow with SvelteKit route,
+  chrome-free Monaco editor. Future sprint, not needed for Phase 3.
+- **Phase 4** — Update channel (manifest, download, verify, swap)
+- **Phase 5** — Claude extension ↔ DevPulse DB bridge (see
+  `SPRINT-DEVFORGE-CLAUDE-BRIDGE.md`)
+- **Phase 6** — Extension management UI
+- **Theme wiring** — accent color sync between DevPulse and VS Code
 
 ---
 
 ## Rules and gotchas
 
-- **Never hand-edit `src/lib/sys/generated/bindings.ts`.** It is
-  regenerated on every Rust debug build by tauri-specta.
-- The REH URL includes `?tkn=<32-char-hex>`. Do not log it or expose it
-  in user-visible UI — treat it like a short-lived secret.
-- `WebviewWindow` labels must be unique per session. Always check for an
-  existing `"devforge"` label before creating a new one.
-- Bootstrap runs exactly once at app start. If it fails with
-  `installed: true, running: false`, the frontend should offer a "Retry"
-  button that calls `spawnRehServer()` directly with a `RehConfig`
-  rebuilt from `devforgeGetStatus()`'s `workspace` field — but **do not
-  implement retry logic until the happy path is proven working**.
-- `tauri-plugin-shell` and `tauri-plugin-single-instance` are already
-  initialized in `lib.rs`. You do not need new plugins.
-- When in doubt about file locations or style, look at
-  `src/lib/domains/app/models/features/setup-wizard/` and mirror it.
+- **Never hand-edit `src/lib/sys/generated/bindings.ts`.**
+- The REH URL contains `?tkn=<32-char-hex>` — do not log or expose in UI.
+- `WebviewWindow` labels must be unique. Always check `getByLabel` first.
+- Tauri v2 allows `http://127.0.0.1:*` in `WebviewWindow` — verify
+  `tauri.conf.json` has no CSP blocking localhost.
+- `Button` component: check if it accepts an `onclick` prop or uses
+  Svelte's `on:click`. Adapt the `EditorLauncherWidget` accordingly.
+- When in doubt about style, look at `+page.svelte` and mirror.
 
----
-
-## How to verify you didn't break the backend
+## Verify backend is intact
 
 ```
 cargo check -p devpulse_desktop_backend
 ```
 
-Should finish clean. If it errors, revert your frontend changes and
-re-read this spec — you shouldn't be touching Rust.
+Must finish clean. If it errors, you've touched Rust — revert.

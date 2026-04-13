@@ -1,9 +1,11 @@
 //! Relational service wrapper (`LibSQL`).
 //!
 //! Two scoped schemas:
-//! - **System**: platform config, guardian state (git/file drift)
+//! - **System**: platform config, guardian state (git/file drift),
+//!   constrained-decoding service status, protected defaults, dev baselines
 //! - **User**: profiles, preferences, projects, sessions, turns,
-//!   anchors, open loops, corrections, learnings, concepts, psych
+//!   anchors, open loops, corrections, learnings, concepts, psych,
+//!   grammar preferences, per-project schemas/bindings
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
@@ -116,6 +118,39 @@ CREATE TABLE IF NOT EXISTS boot_history (
     total_latency_ms INTEGER,
     error_message TEXT
 );
+
+-- Constrained decoding / grammar engine runtime (system-owned)
+CREATE TABLE IF NOT EXISTS grammar_service (
+    id TEXT PRIMARY KEY,
+    enabled INTEGER NOT NULL DEFAULT 0,
+    service_kind TEXT NOT NULL DEFAULT '',
+    last_boot_ok INTEGER,
+    last_error TEXT,
+    runtime_json TEXT,
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+
+-- Protected default payloads (kernel-shaped JSON; system writes only)
+CREATE TABLE IF NOT EXISTS grammar_defaults (
+    id TEXT PRIMARY KEY,
+    payload_json TEXT NOT NULL,
+    schema_version INTEGER NOT NULL DEFAULT 1,
+    source TEXT NOT NULL DEFAULT 'system',
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_grammar_defaults_source ON grammar_defaults(source);
+
+-- Devtool baselines (hardware + lane snapshots for regression compares)
+CREATE TABLE IF NOT EXISTS grammar_baselines (
+    id TEXT PRIMARY KEY,
+    label TEXT NOT NULL,
+    captured_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    context_json TEXT NOT NULL,
+    fingerprint TEXT,
+    promoted INTEGER NOT NULL DEFAULT 0,
+    notes TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_grammar_baselines_captured ON grammar_baselines(captured_at);
 ";
 
 // ═══════════════════════════════════════════════════════════════
@@ -125,7 +160,8 @@ CREATE TABLE IF NOT EXISTS boot_history (
 /// Schema for the user-scoped relational store.
 ///
 /// Contains all user-owned data: identity, preferences, projects,
-/// sessions, conversation history, memory corrections, learnings.
+/// sessions, conversation history, memory corrections, learnings,
+/// grammar preferences, and per-project grammar schemas/bindings.
 pub const USER_SCHEMA: &str = r"
 -- Key-value store for user signal-based access
 CREATE TABLE IF NOT EXISTS kv_store (
@@ -168,6 +204,17 @@ CREATE TABLE IF NOT EXISTS preferences (
     updated_at INTEGER DEFAULT (unixepoch()),
     UNIQUE(user_id)
 );
+
+-- Grammar / constrained decoding preferences (devtools + UX toggles)
+CREATE TABLE IF NOT EXISTS grammar_preferences (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    devtool_json TEXT,
+    strictness TEXT DEFAULT 'balanced',
+    updated_at INTEGER DEFAULT (unixepoch()),
+    UNIQUE(user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_grammar_prefs_user ON grammar_preferences(user_id);
 
 -- API keys (encrypted, per adapter)
 CREATE TABLE IF NOT EXISTS api_keys (
@@ -244,6 +291,35 @@ CREATE TABLE IF NOT EXISTS project_context (
     created_at INTEGER DEFAULT (unixepoch()),
     updated_at INTEGER DEFAULT (unixepoch())
 );
+
+-- Per-project grammar definitions (schemas live in user DB; rows are project-owned)
+CREATE TABLE IF NOT EXISTS grammar_schemas (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    dialect TEXT NOT NULL DEFAULT 'json_schema',
+    body TEXT NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    UNIQUE(project_id, name)
+);
+CREATE INDEX IF NOT EXISTS idx_grammar_schemas_project ON grammar_schemas(project_id);
+
+-- Bind schemas to inference lanes / roles within a project
+CREATE TABLE IF NOT EXISTS grammar_bindings (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    schema_id TEXT NOT NULL REFERENCES grammar_schemas(id) ON DELETE CASCADE,
+    lane TEXT NOT NULL,
+    enforcement TEXT NOT NULL DEFAULT 'soft',
+    priority INTEGER NOT NULL DEFAULT 50,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    UNIQUE(project_id, lane, schema_id)
+);
+CREATE INDEX IF NOT EXISTS idx_grammar_bindings_project ON grammar_bindings(project_id);
+CREATE INDEX IF NOT EXISTS idx_grammar_bindings_schema ON grammar_bindings(schema_id);
 
 -- ── Sessions & Conversation ──────────────────────────────────
 

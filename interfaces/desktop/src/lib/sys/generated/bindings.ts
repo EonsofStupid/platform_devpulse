@@ -66,6 +66,8 @@ async getPreference(key: string) : Promise<Result<string | null, string>> {
  * Set a user preference by key.
  * 
  * Writes to `{data_dir}/preferences.json`. Creates the file if it doesn't exist.
+ * User scope only — does not mutate kernel slot/preset defaults or project bindings.
+ * One key per call; other keys in the file are preserved.
  */
 async setPreference(key: string, value: string) : Promise<Result<null, string>> {
     try {
@@ -267,33 +269,48 @@ async devforgeGetStatus() : Promise<Result<DevforgeBootstrapStatus, string>> {
 }
 },
 /**
- * Enumerate workspace directories under `devforge/workspaces/`.
+ * List recently opened project paths (newest first).
  * 
- * # Errors
- * Returns an error string if the workspaces directory cannot be read.
+ * These are real directories the user has opened in DevForge, persisted
+ * in `state.json`. The frontend uses this for a "recent projects" picker.
  */
-async devforgeListWorkspaces() : Promise<Result<string[], string>> {
+async devforgeListRecentProjects() : Promise<Result<string[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("devforge_list_workspaces") };
+    return { status: "ok", data: await TAURI_INVOKE("devforge_list_recent_projects") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Create a new empty workspace directory under `devforge/workspaces/`.
+ * Add a real project directory to the recent projects list.
  * 
- * The `name` is used as the directory name verbatim — callers must pass
- * a filesystem-safe string. Returns the absolute path to the new folder.
+ * Validates the path exists on disk. Moves it to the front if already
+ * present. Caps the list at 20 entries.
  * 
  * # Errors
- * - Name is empty or contains path separators
- * - Directory already exists
- * - Filesystem error during creation
+ * - Path does not exist or is not a directory
+ * - Failed to write `state.json`
  */
-async devforgeCreateWorkspace(name: string) : Promise<Result<string, string>> {
+async devforgeAddProject(path: string) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("devforge_create_workspace", { name }) };
+    return { status: "ok", data: await TAURI_INVOKE("devforge_add_project", { path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Remove a project path from the recent projects list.
+ * 
+ * Idempotent — returns Ok even if the path wasn't in the list.
+ * 
+ * # Errors
+ * - Failed to write `state.json`
+ */
+async devforgeRemoveProject(path: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_remove_project", { path }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1541,6 +1558,10 @@ title: string;
  */
 subtitle: string; 
 /**
+ * Label for the in-popup tab that shows preset recommendations for the selected slot.
+ */
+recommended_tab_label: string; 
+/**
  * Label for the tab that lists models already downloaded to disk.
  */
 local_tab_label: string; 
@@ -1549,17 +1570,41 @@ local_tab_label: string;
  */
 online_tab_label: string; 
 /**
+ * Label for the in-popup tab that opens a local file picker.
+ */
+local_browse_tab_label: string; 
+/**
+ * Short description shown above the inline HuggingFace search panel.
+ */
+search_panel_description: string; 
+/**
  * Placeholder text inside the model search input field.
  */
 search_placeholder: string; 
+/**
+ * Screen-reader label for the model search input field.
+ */
+search_input_aria: string; 
 /**
  * Visible label on the search submit button.
  */
 search_button_label: string; 
 /**
+ * Label for the filter tab that shows every supported model format.
+ */
+all_formats_label: string; 
+/**
+ * Tooltip text explaining what the all-formats filter does.
+ */
+all_formats_tooltip: string; 
+/**
  * Heading shown in the results area when a search returns no matches.
  */
 no_results_title: string; 
+/**
+ * Template shown when a search returns no matches; may include a `{query}` placeholder.
+ */
+no_results_title_template: string; 
 /**
  * Hint below the no-results heading suggesting alternative search terms or formats.
  */
@@ -1573,6 +1618,14 @@ welcome_search_title: string;
  */
 welcome_search_hint: string; 
 /**
+ * Label shown above the quick-search chips after a failed search.
+ */
+popular_searches_label: string; 
+/**
+ * Label shown above the quick-search chips before the first search.
+ */
+try_one_of_these_label: string; 
+/**
  * Heading for the collapsible section that explains supported model file formats.
  */
 format_help_title: string; 
@@ -1585,13 +1638,89 @@ format_gguf_help: string;
  */
 format_safetensors_help: string; 
 /**
+ * Template shown while the online search request is running; may include a `{query}` placeholder.
+ */
+search_loading_template: string; 
+/**
+ * Secondary hint shown below the active search spinner.
+ */
+search_loading_hint: string; 
+/**
+ * Label on the retry action inside the search error state.
+ */
+retry_label: string; 
+/**
+ * Label on the clear action inside the search error state.
+ */
+clear_label: string; 
+/**
+ * Singular noun used in the search result count.
+ */
+result_label_singular: string; 
+/**
+ * Plural noun used in the search result count.
+ */
+result_label_plural: string; 
+/**
+ * Section label shown above GGUF files inside a search result card.
+ */
+gguf_section_label: string; 
+/**
+ * Section label shown above Safetensors shards inside a search result card.
+ */
+safetensors_section_label: string; 
+/**
+ * Template for shard counts; may include `{count}` and `{plural}` placeholders.
+ */
+shard_count_template: string; 
+/**
+ * Summary template for all Safetensors shards; may include `{count}`, `{plural}`, and `{size}` placeholders.
+ */
+all_shards_summary_template: string; 
+/**
+ * Label shown before the per-file slot selector chips.
+ */
+install_to_label: string; 
+/**
+ * Template for the GGUF download button; may include a `{slot}` placeholder.
+ */
+download_to_template: string; 
+/**
+ * Label shown while a GGUF file download request is being dispatched.
+ */
+downloading_label: string; 
+/**
+ * Template for the Safetensors download button; may include a `{slot}` placeholder.
+ */
+download_all_shards_template: string; 
+/**
+ * Label shown while a Safetensors multi-file download request is being dispatched.
+ */
+downloading_all_shards_label: string; 
+/**
+ * Warning shown when disk space is too low; may include `{needed}` and `{free}` placeholders.
+ */
+disk_space_warning_template: string; 
+/**
+ * Template shown when a repository has no files matching the selected format; may include `{format}`.
+ */
+no_format_files_template: string; 
+/**
  * Label on the button that triggers a local-file import dialog.
  */
 import_button_label: string; 
 /**
  * Label shown on the import button while a file is being copied / indexed.
  */
-importing_label: string }
+importing_label: string; 
+/**
+ * Label on the button that fetches the next page of online search results.
+ */
+load_more_label: string; 
+/**
+ * Label shown while the next page of online search results is loading.
+ */
+loading_more_label: string }
 /**
  * Snapshot of the Moka in-memory cache. Changes between calls.
  */
@@ -2933,9 +3062,10 @@ export type RehConfig = {
  */
 serverDir: string; 
 /**
- * Workspace folder the server will open on start.
+ * Project folder the server will open on start. `None` means REH
+ * starts with no folder — the user picks one inside VS Code.
  */
-workspacePath: string; 
+workspacePath: string | null; 
 /**
  * VS Code user-data directory (profiles, settings, state).
  */
@@ -3158,7 +3288,7 @@ shared_with: string[] }
  */
 export type SlotInfo = { 
 /**
- * Slot identifier (e.g. `"chat.brain"`, `"voice.tts.primary"`).
+ * Slot identifier (e.g. `"chat.brain"`, `"voice.tts"`).
  */
 id: string; 
 /**

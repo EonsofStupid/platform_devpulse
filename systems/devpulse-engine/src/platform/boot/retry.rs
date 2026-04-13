@@ -31,10 +31,11 @@ impl Default for RetryConfig {
     }
 }
 
-/// Retry an async file operation on sharing violations.
+/// Retry an async file operation on transient storage-open failures.
 ///
 /// Retries with exponential backoff when the error message indicates
-/// a file lock (sharing violation, access denied, os error 32/33).
+/// a file lock (sharing violation, access denied, os error 32/33) or a
+/// Surreal graph-open timeout that points at stale locks / WAL recovery.
 /// Cross-platform — detects Windows, Linux, and macOS lock error patterns.
 ///
 /// # Errors
@@ -54,9 +55,9 @@ where
             Ok(val) => return Ok(val),
             Err(e) => {
                 let err_str = format!("{e:#}");
-                let is_lock_error = is_file_lock_error(&err_str);
+                let is_retryable = is_retryable_error(operation, &err_str);
 
-                if is_lock_error && attempt + 1 < config.max_retries {
+                if is_retryable && attempt + 1 < config.max_retries {
                     let delay = u64::from(1u32 << attempt.min(3))
                         * config.base_delay_ms;
                     tracing::warn!(
@@ -64,7 +65,8 @@ where
                         attempt = attempt + 1,
                         max = config.max_retries,
                         delay_ms = delay,
-                        "File lock detected — retrying"
+                        error = %err_str,
+                        "Transient store-open failure detected — retrying"
                     );
                     tokio::time::sleep(Duration::from_millis(delay)).await;
                     last_err = Some(e);
@@ -94,4 +96,41 @@ fn is_file_lock_error(err: &str) -> bool {
         || err.contains("EAGAIN")
         || err.contains("Resource temporarily unavailable")
         || err.contains("database is locked")
+}
+
+fn is_retryable_error(operation: &str, err: &str) -> bool {
+    if is_file_lock_error(err) {
+        return true;
+    }
+
+    let operation_lower = operation.to_ascii_lowercase();
+    let err_lower = err.to_ascii_lowercase();
+    let is_surreal_graph_open = operation_lower.contains("surrealdb");
+    let is_timeout = err_lower.contains("timed out");
+    let points_at_lock_or_recovery = err_lower.contains("stale lock")
+        || err_lower.contains("wal recovery")
+        || err_lower.contains("surrealkv open");
+
+    is_surreal_graph_open && is_timeout && points_at_lock_or_recovery
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_retryable_error;
+
+    #[test]
+    fn retries_surreal_timeout_that_points_at_stale_lock() {
+        assert!(is_retryable_error(
+            "Graph store (SurrealDB)",
+            "SurrealDB open timed out (15s) — likely stale lock or WAL recovery hang",
+        ));
+    }
+
+    #[test]
+    fn does_not_retry_arbitrary_timeouts() {
+        assert!(!is_retryable_error(
+            "System analytics",
+            "operation timed out after 15s",
+        ));
+    }
 }

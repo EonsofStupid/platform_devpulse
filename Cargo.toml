@@ -32,6 +32,9 @@ moka = { version = "0.12", features = ["future"] }
 wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
 rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
 
+# Constrained decoding (kernel — optional feature on `devpulse-clyffy`)
+llguidance = "1.7"
+
 # Observability
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }

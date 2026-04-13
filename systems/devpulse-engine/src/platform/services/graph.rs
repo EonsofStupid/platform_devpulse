@@ -182,6 +182,34 @@ DEFINE FIELD IF NOT EXISTS current_phase ON thinking_state TYPE string DEFAULT '
 DEFINE FIELD IF NOT EXISTS is_processing ON thinking_state TYPE bool DEFAULT false;
 DEFINE FIELD IF NOT EXISTS updated_at ON thinking_state TYPE datetime DEFAULT time::now();
 DEFINE INDEX IF NOT EXISTS thinking_session ON thinking_state FIELDS session_id UNIQUE;
+
+-- Constrained decoding service (system-owned mirror of LibSQL grammar tables)
+DEFINE TABLE IF NOT EXISTS grammar_service SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS singleton_key ON grammar_service TYPE string;
+DEFINE FIELD IF NOT EXISTS enabled ON grammar_service TYPE bool DEFAULT false;
+DEFINE FIELD IF NOT EXISTS service_kind ON grammar_service TYPE string;
+DEFINE FIELD IF NOT EXISTS last_boot_ok ON grammar_service TYPE option<bool>;
+DEFINE FIELD IF NOT EXISTS last_error ON grammar_service TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS runtime ON grammar_service TYPE option<object>;
+DEFINE FIELD IF NOT EXISTS updated_at ON grammar_service TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS grammar_service_singleton ON grammar_service FIELDS singleton_key UNIQUE;
+
+DEFINE TABLE IF NOT EXISTS grammar_defaults SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS logical_id ON grammar_defaults TYPE string;
+DEFINE FIELD IF NOT EXISTS payload ON grammar_defaults TYPE object;
+DEFINE FIELD IF NOT EXISTS schema_version ON grammar_defaults TYPE int DEFAULT 1;
+DEFINE FIELD IF NOT EXISTS source ON grammar_defaults TYPE string DEFAULT 'system';
+DEFINE FIELD IF NOT EXISTS updated_at ON grammar_defaults TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS grammar_defaults_id ON grammar_defaults FIELDS logical_id UNIQUE;
+
+DEFINE TABLE IF NOT EXISTS grammar_baselines SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS label ON grammar_baselines TYPE string;
+DEFINE FIELD IF NOT EXISTS captured_at ON grammar_baselines TYPE datetime DEFAULT time::now();
+DEFINE FIELD IF NOT EXISTS context ON grammar_baselines TYPE object;
+DEFINE FIELD IF NOT EXISTS fingerprint ON grammar_baselines TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS promoted ON grammar_baselines TYPE bool DEFAULT false;
+DEFINE FIELD IF NOT EXISTS notes ON grammar_baselines TYPE option<string>;
+DEFINE INDEX IF NOT EXISTS grammar_baselines_time ON grammar_baselines FIELDS captured_at;
 ";
 
 // ═══════════════════════════════════════════════════════════════
@@ -254,6 +282,38 @@ DEFINE FIELD IF NOT EXISTS absorbed ON corrections TYPE bool DEFAULT false;
 DEFINE FIELD IF NOT EXISTS created_at ON corrections TYPE datetime DEFAULT time::now();
 DEFINE INDEX IF NOT EXISTS corrections_project ON corrections FIELDS project_id;
 DEFINE INDEX IF NOT EXISTS corrections_absorbed ON corrections FIELDS absorbed;
+
+-- User grammar preferences (devtools layout, strictness presets)
+DEFINE TABLE IF NOT EXISTS grammar_preferences SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS user_id ON grammar_preferences TYPE string;
+DEFINE FIELD IF NOT EXISTS devtool ON grammar_preferences TYPE option<object>;
+DEFINE FIELD IF NOT EXISTS strictness ON grammar_preferences TYPE string DEFAULT 'balanced';
+DEFINE FIELD IF NOT EXISTS updated_at ON grammar_preferences TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS grammar_prefs_user ON grammar_preferences FIELDS user_id UNIQUE;
+
+-- Project-owned grammar schemas and lane bindings
+DEFINE TABLE IF NOT EXISTS grammar_schemas SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS project_id ON grammar_schemas TYPE string;
+DEFINE FIELD IF NOT EXISTS name ON grammar_schemas TYPE string;
+DEFINE FIELD IF NOT EXISTS dialect ON grammar_schemas TYPE string DEFAULT 'json_schema';
+DEFINE FIELD IF NOT EXISTS body ON grammar_schemas TYPE string;
+DEFINE FIELD IF NOT EXISTS is_active ON grammar_schemas TYPE bool DEFAULT true;
+DEFINE FIELD IF NOT EXISTS created_at ON grammar_schemas TYPE datetime DEFAULT time::now();
+DEFINE FIELD IF NOT EXISTS updated_at ON grammar_schemas TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS grammar_schemas_project ON grammar_schemas FIELDS project_id;
+DEFINE INDEX IF NOT EXISTS grammar_schemas_name ON grammar_schemas FIELDS name;
+
+DEFINE TABLE IF NOT EXISTS grammar_bindings SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS project_id ON grammar_bindings TYPE string;
+DEFINE FIELD IF NOT EXISTS schema_id ON grammar_bindings TYPE string;
+DEFINE FIELD IF NOT EXISTS lane ON grammar_bindings TYPE string;
+DEFINE FIELD IF NOT EXISTS enforcement ON grammar_bindings TYPE string DEFAULT 'soft';
+DEFINE FIELD IF NOT EXISTS priority ON grammar_bindings TYPE int DEFAULT 50;
+DEFINE FIELD IF NOT EXISTS created_at ON grammar_bindings TYPE datetime DEFAULT time::now();
+DEFINE FIELD IF NOT EXISTS updated_at ON grammar_bindings TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS grammar_bindings_project ON grammar_bindings FIELDS project_id;
+DEFINE INDEX IF NOT EXISTS grammar_bindings_schema ON grammar_bindings FIELDS schema_id;
+DEFINE INDEX IF NOT EXISTS grammar_bindings_lane ON grammar_bindings FIELDS lane;
 ";
 
 // ═══════════════════════════════════════════════════════════════

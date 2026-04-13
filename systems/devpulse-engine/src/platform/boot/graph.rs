@@ -91,7 +91,11 @@ pub async fn boot_consolidated(
                 match tokio::time::timeout(per_attempt_timeout, SurrealAdapter::open_with_ns(&p, &n, &d, SYSTEM_GRAPH_SCHEMA)).await {
                     Ok(result) => result,
                     Err(_elapsed) => {
-                        tracing::error!("SurrealDB open timed out after 15s — retrying");
+                        tracing::warn!(
+                            path = %p.display(),
+                            timeout_s = per_attempt_timeout.as_secs(),
+                            "SurrealDB open timed out — delegating to retry policy"
+                        );
                         Err(anyhow::anyhow!("SurrealDB open timed out (15s) — likely stale lock or WAL recovery hang"))
                     }
                 }

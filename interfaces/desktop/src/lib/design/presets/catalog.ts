@@ -1,0 +1,55 @@
+/**
+ * @file Preset Catalog — canonical preset library API
+ * @package @devpulse/coldlight
+ *
+ * `design/presets` is the public owner of preset schema, families, IDs,
+ * and query helpers. Family-authored definitions are still sourced from
+ * the existing visual library modules while the runtime layer is reduced
+ * to resolution concerns.
+ */
+
+import { CHROME_PRESETS } from "../visual/presets/chrome.js";
+import { FLAT_PRESETS } from "../visual/presets/flat.js";
+import { GLASS_PRESETS } from "../visual/presets/glass.js";
+import { NEURO_PRESETS } from "../visual/presets/neuro.js";
+import { RETRO_PRESETS } from "../visual/presets/retro.js";
+import { STARK_PRESETS } from "../visual/presets/stark.js";
+import type { PresetFamily } from "./families.js";
+import type { PresetId, PresetVariant } from "./ids.js";
+import type { PresetDefinition } from "./schema.js";
+
+export { CHROME_PRESETS } from "../visual/presets/chrome.js";
+export { FLAT_PRESETS } from "../visual/presets/flat.js";
+export { GLASS_PRESETS } from "../visual/presets/glass.js";
+export { NEURO_PRESETS } from "../visual/presets/neuro.js";
+export { RETRO_PRESETS } from "../visual/presets/retro.js";
+export { STARK_PRESETS } from "../visual/presets/stark.js";
+
+export const ALL_PRESETS: readonly PresetDefinition[] = [
+	...NEURO_PRESETS,
+	...GLASS_PRESETS,
+	...RETRO_PRESETS,
+	...CHROME_PRESETS,
+	...FLAT_PRESETS,
+	...STARK_PRESETS,
+] as const;
+
+export const PRESET_LIBRARY: ReadonlyMap<PresetId, PresetDefinition> = new Map(
+	ALL_PRESETS.map((preset) => [preset.id, preset]),
+);
+
+export function getPresetsByFamily(family: PresetFamily): readonly PresetDefinition[] {
+	return ALL_PRESETS.filter((preset) => preset.family === family);
+}
+
+export function getPreset(id: PresetId): PresetDefinition | undefined {
+	return PRESET_LIBRARY.get(id);
+}
+
+export function getPresetIds(): readonly PresetId[] {
+	return ALL_PRESETS.map((preset) => preset.id);
+}
+
+export function getPresetsByVariant(variant: PresetVariant): readonly PresetDefinition[] {
+	return ALL_PRESETS.filter((preset) => preset.variant === variant);
+}

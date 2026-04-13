@@ -198,7 +198,8 @@ impl Slot {
     }
 
     /// Validate slot ID format: must contain at least one `.` separator.
-    /// Allows hierarchical IDs like `voice.tts.primary`.
+    /// Multi-segment IDs remain valid for future extensions, but the
+    /// current platform voice baseline is the canonical `voice.tts` slot.
     #[must_use]
     pub fn is_valid_id(id: &str) -> bool {
         let parts: Vec<&str> = id.split('.').collect();

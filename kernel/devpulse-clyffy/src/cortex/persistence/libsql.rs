@@ -103,6 +103,23 @@ impl LibSqlAdapter {
         let _ = rows.next().await;
         Ok(())
     }
+
+    /// Execute one SQL statement with bound parameters (for example `libsql::params![..]`).
+    ///
+    /// # Errors
+    /// Returns an error if LibSQL rejects the statement.
+    pub async fn execute_bound(
+        &self,
+        sql: &str,
+        params: impl libsql::params::IntoParams + Send,
+    ) -> Result<u64> {
+        let conn = self.conn.read().await;
+        let affected = conn
+            .execute(sql, params)
+            .await
+            .with_context(|| format!("LibSQL execute failed: {sql}"))?;
+        Ok(affected)
+    }
 }
 
 impl PersistenceAdapter for LibSqlAdapter {

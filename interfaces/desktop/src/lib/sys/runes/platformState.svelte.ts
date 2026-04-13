@@ -303,11 +303,11 @@ class PlatformState {
 				`Models status: ready=${p.ready} models=${p.modelCount} assigned=${p.assignedCount}`,
 			);
 
-			// First-run trigger is now route-hosted under src/routes/(setup).
-			// BootOverlay handles the actual navigation into /model-loader so
-			// there is a single rendering path for onboarding.
+			// First-run now opens the shell-mounted setup overlay.
+			// BootOverlay drops away once platform boot is complete so
+			// onboarding stays inside the app layout instead of routing away.
 			if (p.firstRun) {
-				logInfo("boot", "First-run detected — setup route required");
+				logInfo("boot", "First-run detected — setup overlay required");
 			}
 		});
 		this.unlisteners.push(unlistenModels);

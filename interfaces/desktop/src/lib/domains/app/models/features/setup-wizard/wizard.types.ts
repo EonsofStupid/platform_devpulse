@@ -392,19 +392,47 @@ export interface CustomizeCopy {
 export interface BrowseCopy {
 	title: string;
 	subtitle: string;
+	recommended_tab_label: string;
 	local_tab_label: string;
 	online_tab_label: string;
+	local_browse_tab_label: string;
+	search_panel_description: string;
 	search_placeholder: string;
+	search_input_aria: string;
 	search_button_label: string;
+	all_formats_label: string;
+	all_formats_tooltip: string;
 	no_results_title: string;
+	no_results_title_template: string;
 	no_results_hint: string;
 	welcome_search_title: string;
 	welcome_search_hint: string;
+	popular_searches_label: string;
+	try_one_of_these_label: string;
 	format_help_title: string;
 	format_gguf_help: string;
 	format_safetensors_help: string;
+	search_loading_template: string;
+	search_loading_hint: string;
+	retry_label: string;
+	clear_label: string;
+	result_label_singular: string;
+	result_label_plural: string;
+	gguf_section_label: string;
+	safetensors_section_label: string;
+	shard_count_template: string;
+	all_shards_summary_template: string;
+	install_to_label: string;
+	download_to_template: string;
+	downloading_label: string;
+	download_all_shards_template: string;
+	downloading_all_shards_label: string;
+	disk_space_warning_template: string;
+	no_format_files_template: string;
 	import_button_label: string;
 	importing_label: string;
+	load_more_label: string;
+	loading_more_label: string;
 }
 
 export interface ActivateCopy {

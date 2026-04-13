@@ -152,48 +152,65 @@ pub async fn devforge_get_status(
     })
 }
 
-/// Enumerate workspace directories under `devforge/workspaces/`.
+/// List recently opened project paths (newest first).
 ///
-/// # Errors
-/// Returns an error string if the workspaces directory cannot be read.
+/// These are real directories the user has opened in DevForge, persisted
+/// in `state.json`. The frontend uses this for a "recent projects" picker.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn devforge_list_workspaces(
+pub async fn devforge_list_recent_projects(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<PathBuf>, String> {
-    state
-        .devforge_paths
-        .list_workspaces()
-        .map_err(|e| format!("Failed to list workspaces: {e:#}"))
+    let persisted = DevforgeState::load(&state.devforge_paths.state_file());
+    Ok(persisted.recent_projects)
 }
 
-/// Create a new empty workspace directory under `devforge/workspaces/`.
+/// Add a real project directory to the recent projects list.
 ///
-/// The `name` is used as the directory name verbatim — callers must pass
-/// a filesystem-safe string. Returns the absolute path to the new folder.
+/// Validates the path exists on disk. Moves it to the front if already
+/// present. Caps the list at 20 entries.
 ///
 /// # Errors
-/// - Name is empty or contains path separators
-/// - Directory already exists
-/// - Filesystem error during creation
+/// - Path does not exist or is not a directory
+/// - Failed to write `state.json`
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn devforge_create_workspace(
+pub async fn devforge_add_project(
     state: State<'_, PlatformState>,
-    name: String,
-) -> Result<PathBuf, String> {
-    if name.is_empty() || name.contains('/') || name.contains('\\') {
-        return Err(format!("Invalid workspace name: {name:?}"));
+    path: PathBuf,
+) -> Result<(), String> {
+    if !path.is_dir() {
+        return Err(format!("Not a directory: {}", path.display()));
     }
-    let path = state.devforge_paths.workspaces_root().join(&name);
-    if path.exists() {
-        return Err(format!("Workspace already exists: {}", path.display()));
-    }
-    std::fs::create_dir_all(&path)
-        .map_err(|e| format!("Failed to create workspace {}: {e}", path.display()))?;
-    Ok(path)
+    let state_path = state.devforge_paths.state_file();
+    let mut persisted = DevforgeState::load(&state_path);
+    persisted.push_recent(path);
+    persisted
+        .save(&state_path)
+        .map_err(|e| format!("Failed to save state.json: {e:#}"))
+}
+
+/// Remove a project path from the recent projects list.
+///
+/// Idempotent — returns Ok even if the path wasn't in the list.
+///
+/// # Errors
+/// - Failed to write `state.json`
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_remove_project(
+    state: State<'_, PlatformState>,
+    path: PathBuf,
+) -> Result<(), String> {
+    let state_path = state.devforge_paths.state_file();
+    let mut persisted = DevforgeState::load(&state_path);
+    persisted.recent_projects.retain(|p| p != &path);
+    persisted
+        .save(&state_path)
+        .map_err(|e| format!("Failed to save state.json: {e:#}"))
 }
 
 /// Toggle the `fresh_instance_on_open` preference in `state.json`.

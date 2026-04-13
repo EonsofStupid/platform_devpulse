@@ -1,6 +1,10 @@
 //! Hardware metrics — CPU, RAM, GPU, VRAM detection and polling.
 
 use serde::{Deserialize, Serialize};
+#[cfg(windows)]
+use std::process::Command;
+#[cfg(windows)]
+use std::sync::OnceLock;
 
 /// System-wide hardware metrics. Model Loader is app-agnostic — no
 /// DevPulse-specific field names.
@@ -23,7 +27,7 @@ pub struct HardwareMetrics {
     /// Available system RAM in MB.
     pub ram_available_mb: u64,
 
-    // GPU (all `None` if no NVIDIA GPU detected)
+    // GPU (`None` if no dedicated GPU could be identified)
     /// Why GPU detection failed (None = success or not attempted).
     pub gpu_error: Option<String>,
     /// GPU model name.
@@ -77,6 +81,154 @@ impl HardwareMetrics {
     }
 }
 
+fn normalize_metric_text(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    if trimmed.eq_ignore_ascii_case("unknown") {
+        return None;
+    }
+
+    Some(trimmed.to_string())
+}
+
+fn resolve_cpu_name(sys: &sysinfo::System) -> String {
+    if let Some(name) = sys
+        .cpus()
+        .first()
+        .and_then(|cpu| normalize_metric_text(cpu.brand()))
+    {
+        return name;
+    }
+
+    #[cfg(windows)]
+    {
+        if let Ok(identifier) = std::env::var("PROCESSOR_IDENTIFIER") {
+            if let Some(name) = normalize_metric_text(&identifier) {
+                return name;
+            }
+        }
+    }
+
+    format!("{} logical cores", sys.cpus().len())
+}
+
+#[cfg(windows)]
+#[derive(Clone, Debug)]
+struct WindowsGpuFallback {
+    name: String,
+    total_vram_mb: Option<u64>,
+}
+
+#[cfg(windows)]
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum WindowsGpuQuery {
+    One(WindowsGpuRaw),
+    Many(Vec<WindowsGpuRaw>),
+}
+
+#[cfg(windows)]
+#[derive(Debug, Deserialize)]
+struct WindowsGpuRaw {
+    #[serde(rename = "Name")]
+    name: Option<String>,
+    #[serde(rename = "AdapterRAM")]
+    adapter_ram: Option<i64>,
+}
+
+#[cfg(windows)]
+fn windows_gpu_fallback() -> Option<WindowsGpuFallback> {
+    static CACHE: OnceLock<Option<WindowsGpuFallback>> = OnceLock::new();
+    CACHE.get_or_init(query_windows_gpu_fallback).clone()
+}
+
+#[cfg(windows)]
+fn query_windows_gpu_fallback() -> Option<WindowsGpuFallback> {
+    let output = Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Get-CimInstance Win32_VideoController | Select-Object Name,AdapterRAM | ConvertTo-Json -Compress",
+        ])
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        tracing::warn!(status = ?output.status.code(), "Windows GPU fallback command failed");
+        return None;
+    }
+
+    let stdout = String::from_utf8(output.stdout).ok()?;
+    let payload = stdout.trim();
+    if payload.is_empty() {
+        return None;
+    }
+
+    let entries = match serde_json::from_str::<WindowsGpuQuery>(payload).ok()? {
+        WindowsGpuQuery::One(entry) => vec![entry],
+        WindowsGpuQuery::Many(entries) => entries,
+    };
+
+    entries
+        .into_iter()
+        .filter_map(|entry| {
+            let name = normalize_metric_text(entry.name.as_deref()?)?;
+            let lowered = name.to_ascii_lowercase();
+            if lowered.contains("microsoft basic")
+                || lowered.contains("remote display")
+                || lowered.contains("virtual display")
+            {
+                return None;
+            }
+
+            let total_vram_mb = entry
+                .adapter_ram
+                .and_then(|bytes| u64::try_from(bytes).ok())
+                .map(|bytes| bytes / (1024 * 1024))
+                .filter(|mb| *mb > 0);
+
+            Some(WindowsGpuFallback {
+                name,
+                total_vram_mb,
+            })
+        })
+        .max_by_key(|entry| entry.total_vram_mb.unwrap_or(0))
+}
+
+#[cfg(windows)]
+fn apply_windows_gpu_fallback(metrics: &mut HardwareMetrics) {
+    if metrics.gpu_name.is_some() {
+        return;
+    }
+
+    let Some(fallback) = windows_gpu_fallback() else {
+        return;
+    };
+
+    tracing::info!(
+        gpu = %fallback.name,
+        vram_mb = fallback.total_vram_mb.unwrap_or(0),
+        "Using Windows GPU fallback"
+    );
+
+    metrics.gpu_name = Some(fallback.name);
+    if metrics.gpu_vram_total_mb.is_none() {
+        metrics.gpu_vram_total_mb = fallback.total_vram_mb;
+    }
+    if metrics.gpu_error.is_none() {
+        metrics.gpu_error = Some(
+            "Live GPU telemetry unavailable — using Windows display adapter fallback".to_string(),
+        );
+    }
+}
+
+#[cfg(not(windows))]
+fn apply_windows_gpu_fallback(_metrics: &mut HardwareMetrics) {}
+
 /// Collects hardware metrics using `sysinfo` (CPU/RAM) and optionally NVML (GPU).
 ///
 /// This is a sync operation — call from `spawn_blocking` if in async context.
@@ -90,15 +242,14 @@ pub fn collect_hardware() -> HardwareMetrics {
             .with_memory(MemoryRefreshKind::everything()),
     );
 
+    sys.refresh_memory();
+    sys.refresh_cpu_all();
+
     // Two refreshes needed for accurate CPU usage (sysinfo requirement).
     std::thread::sleep(std::time::Duration::from_millis(200));
     sys.refresh_cpu_all();
 
-    let cpu_name = sys
-        .cpus()
-        .first()
-        .map(|c| c.brand().to_string())
-        .unwrap_or_default();
+    let cpu_name = resolve_cpu_name(&sys);
 
     let cpu_usage = sys.global_cpu_usage();
     let cpu_cores = sys.cpus().len();
@@ -134,6 +285,8 @@ pub fn collect_hardware() -> HardwareMetrics {
     {
         collect_gpu_metrics(&mut metrics);
     }
+
+    apply_windows_gpu_fallback(&mut metrics);
 
     metrics
 }

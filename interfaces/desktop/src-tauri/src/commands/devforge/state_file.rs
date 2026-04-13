@@ -14,26 +14,44 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct DevforgeState {
-    /// Last workspace the user had open. Bootstrap restores this unless
-    /// `fresh_instance_on_open` is set.
+    /// Last project folder the user had open. Bootstrap restores this
+    /// unless `fresh_instance_on_open` is set.
     pub last_workspace: Option<PathBuf>,
 
-    /// If `true`, bootstrap always opens the default (empty) workspace
-    /// instead of restoring `last_workspace`. User-toggled preference.
+    /// If `true`, bootstrap opens VS Code with no folder instead of
+    /// restoring `last_workspace`. User-toggled preference.
     pub fresh_instance_on_open: bool,
+
+    /// Recently opened project paths — real directories on disk, not
+    /// generated folders. Newest first, capped at [`MAX_RECENT`].
+    pub recent_projects: Vec<PathBuf>,
 
     /// Version string of the installed REH bundle, if known. Populated by
     /// the update channel after a successful install.
     pub reh_version: Option<String>,
 }
 
+/// Maximum number of recent projects to persist.
+pub const MAX_RECENT: usize = 20;
+
 impl Default for DevforgeState {
     fn default() -> Self {
         Self {
             last_workspace: None,
             fresh_instance_on_open: false,
+            recent_projects: Vec::new(),
             reh_version: None,
         }
+    }
+}
+
+impl DevforgeState {
+    /// Record a project path as recently opened. Moves it to the front
+    /// if already present, caps the list at [`MAX_RECENT`].
+    pub fn push_recent(&mut self, path: PathBuf) {
+        self.recent_projects.retain(|p| p != &path);
+        self.recent_projects.insert(0, path);
+        self.recent_projects.truncate(MAX_RECENT);
     }
 }
 

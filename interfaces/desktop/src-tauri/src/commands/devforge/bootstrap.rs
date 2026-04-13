@@ -69,17 +69,14 @@ pub async fn run(app: AppHandle, data_dir: PathBuf) {
         return;
     };
 
-    // Workspace selection: fresh-instance preference wins, otherwise the
-    // last-used workspace if it still exists on disk, otherwise the
-    // default empty workspace we just created in ensure_layout().
-    let workspace = if state.fresh_instance_on_open {
-        paths.default_workspace()
+    // Workspace selection: if `fresh_instance_on_open` is set, ignore
+    // last_workspace and start with no folder open. Otherwise restore the
+    // last-used project path if it still exists on disk. If none exists
+    // (first run), REH starts with no folder — the user picks one.
+    let workspace: Option<PathBuf> = if state.fresh_instance_on_open {
+        None
     } else {
-        state
-            .last_workspace
-            .clone()
-            .filter(|p| p.exists())
-            .unwrap_or_else(|| paths.default_workspace())
+        state.last_workspace.clone().filter(|p| p.exists())
     };
 
     let config = RehConfig {
@@ -90,7 +87,7 @@ pub async fn run(app: AppHandle, data_dir: PathBuf) {
     };
 
     tracing::info!(
-        workspace = %workspace.display(),
+        workspace = ?workspace,
         user_data_dir = %config.user_data_dir.display(),
         "DevForge bootstrap: spawning REH server"
     );
@@ -99,10 +96,14 @@ pub async fn run(app: AppHandle, data_dir: PathBuf) {
         Ok(manager) => {
             let reh_status = manager.status();
 
-            // Persist the chosen workspace so next start restores it.
-            state.last_workspace = Some(workspace.clone());
-            if let Err(e) = state.save(&state_path) {
-                tracing::warn!(error = %e, "DevForge: failed to persist state.json");
+            // Persist the chosen workspace so next start restores it,
+            // and add it to the recent projects list.
+            if let Some(ref ws) = workspace {
+                state.last_workspace = Some(ws.clone());
+                state.push_recent(ws.clone());
+                if let Err(e) = state.save(&state_path) {
+                    tracing::warn!(error = %e, "DevForge: failed to persist state.json");
+                }
             }
 
             // Install the manager into shared state so commands can reach it.
@@ -117,7 +118,7 @@ pub async fn run(app: AppHandle, data_dir: PathBuf) {
                 running: reh_status.running,
                 url: reh_status.url,
                 port: reh_status.port,
-                workspace: Some(workspace),
+                workspace,
                 reh_version: state.reh_version.clone(),
             };
             emit(&app, payload);

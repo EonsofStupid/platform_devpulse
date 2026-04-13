@@ -78,10 +78,15 @@ impl InitEvent {
 
     /// Create a "skipped" event (store disabled in config).
     pub fn skipped(step: &str) -> Self {
+        Self::skipped_with_message(step, "Disabled in config")
+    }
+
+    /// Create a "skipped" event with an explicit reason (dependency missing, deferred work, etc.).
+    pub fn skipped_with_message(step: &str, message: &str) -> Self {
         Self {
             step: step.to_string(),
             status: InitStatus::Skipped,
-            message: Some("Disabled in config".to_string()),
+            message: Some(message.to_string()),
             latency_us: None,
         }
     }

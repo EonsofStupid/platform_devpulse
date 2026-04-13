@@ -3,6 +3,10 @@
  * @description Reads kernel_terms.toml (SSOT) and generates typed TypeScript
  * for the frontend terminology registry. Run via `pnpm generate:terminology`.
  *
+ * Naming and alias SSOT only.
+ * This file does NOT replace `src/lib/cfg/flags.ts`.
+ * Flags own visibility, build stripping, and builder/operator/customer gating.
+ *
  * Output: src/lib/sys/generated/terminology.ts
  *
  * This ensures Rust ip_term!() and frontend resolveLabel() are driven
@@ -116,6 +120,8 @@ function generate(): void {
 	lines.push("");
 
 	// ── Features ──
+	// Mirrors engine-side terminology feature metadata.
+	// This is descriptive UI metadata, not the product exposure/build-strip SSOT.
 
 	lines.push("export interface Feature {");
 	lines.push("\tenabled: boolean;");
@@ -208,8 +214,8 @@ function generate(): void {
 	lines.push("}");
 	lines.push("");
 
-	// DEV_MODE flag (replaces flags.ts DEV_MODE)
-	lines.push("/** DEV_MODE flag — true in dev, false in prod (replaces flags.ts) */");
+	// DEV_MODE label helper. Exposure/build stripping still belongs to flags.ts.
+	lines.push("/** DEV_MODE label helper — true in dev, false in prod. Exposure/build stripping still belongs to flags.ts. */");
 	lines.push("export const DEV_MODE = IS_DEV;");
 	lines.push("");
 

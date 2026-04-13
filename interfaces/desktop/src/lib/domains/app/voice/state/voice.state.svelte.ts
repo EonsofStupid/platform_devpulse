@@ -48,10 +48,10 @@ class VoiceState {
 	error = $state<string | null>(null);
 
 	/** Currently selected TTS voice for preview. */
-	selectedVoice = $state<string>("tara");
+	selectedVoice = $state<string>("af_heart");
 
 	/** Currently selected TTS slot. */
-	selectedTtsSlot = $state<string>("voice.tts.primary");
+	selectedTtsSlot = $state<string>("voice.tts");
 
 	/** Speech speed multiplier. */
 	speechSpeed = $state(1.0);

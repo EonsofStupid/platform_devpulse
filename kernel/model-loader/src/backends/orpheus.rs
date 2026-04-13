@@ -169,7 +169,7 @@ impl TtsBackend for OrpheusTts {
 
         // Orpheus GGUF loads through InferenceHandle (llama.cpp bridge).
         // This TtsBackend tracks state but delegates weight loading.
-        // TODO: Wire to InferenceHandle.load() for voice.tts.primary slot
+        // TODO: Wire to InferenceHandle.load() for a future alternate TTS slot.
 
         let file_size = std::fs::metadata(path)?.len();
         self.model_path = Some(path.to_path_buf());

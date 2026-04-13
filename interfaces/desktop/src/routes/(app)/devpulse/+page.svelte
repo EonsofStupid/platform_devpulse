@@ -160,7 +160,7 @@ $effect(() => {
 					totalMb={hardwareState.vramTotalMb}
 					hasGpu={hardwareState.hasGpu}
 					gpuError={hardwareState.gpuError}
-					label={hardwareState.hasGpu ? hardwareState.gpuName : "CPU Mode"}
+					label={hardwareState.hasGpu ? (hardwareState.gpuName ?? undefined) : "CPU Mode"}
 					size={130}
 				/>
 				<GpuUtilGauge

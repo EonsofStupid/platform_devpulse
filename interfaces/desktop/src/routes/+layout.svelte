@@ -7,6 +7,7 @@ import { onMount } from "svelte";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge } from "$lib/domains/app/models/features/setup-wizard/download-bootstrap.js";
+import { hardwareState } from "$lib/domains/app/models/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
@@ -34,6 +35,15 @@ onMount(() => {
 		})
 		.catch((e) => {
 			logError("layout", `download-bridge FAILED to attach: ${e}`);
+		});
+
+	hardwareState
+		.ensureListening("root-layout")
+		.then(() => {
+			logInfo("layout", "hardware telemetry attached");
+		})
+		.catch((e) => {
+			logError("layout", `hardware telemetry FAILED to attach: ${e}`);
 		});
 
 	platformState
@@ -84,6 +94,7 @@ onMount(() => {
 
 	return () => {
 		detachDownloadBridge?.();
+		hardwareState.stopListening();
 		document.removeEventListener("pointermove", markActive);
 		document.removeEventListener("keydown", markActive);
 		clearInterval(idleInterval);

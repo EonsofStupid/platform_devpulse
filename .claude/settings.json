@@ -27,7 +27,13 @@
       "Bash(pip install:*)",
       "Bash(pip3 install:*)",
       "Bash(python -m pip:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(*biome*--write*)",
+      "Bash(*biome*--fix*)",
+      "Bash(*biome check --apply*)",
+      "Bash(*biome format --write*)",
+      "Bash(*prettier*--write*)",
+      "Bash(*eslint*--fix*)"
     ]
   },
   "hooks": {
@@ -111,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"const i=require('fs').readFileSync(0,'utf8');if(/pip install|pip3 install|docker |python -m pip/i.test(i)){process.stderr.write('BLOCKED: prohibited command');process.exit(2)}\""
+            "command": "node -e \"const i=require('fs').readFileSync(0,'utf8');if(/pip install|pip3 install|docker |python -m pip/i.test(i)){process.stderr.write('BLOCKED: prohibited command');process.exit(2)}if(/biome[^|;&]*(--write|--fix|--apply)|prettier[^|;&]*--write|eslint[^|;&]*--fix/i.test(i)){process.stderr.write('BLOCKED: formatter auto-fix forbidden. --write removes unused imports and masks incomplete work. Run check-only, fix manually.');process.exit(2)}\""
           }
         ]
       }

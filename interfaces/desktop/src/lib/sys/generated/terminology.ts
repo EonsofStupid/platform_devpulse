@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-04-12T15:22:29.171Z
+ * Generated: 2026-04-13T19:50:11.614Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -496,6 +496,6 @@ export function isFeatureEnabled(feature: string): boolean {
 	return FEATURES[feature]?.enabled ?? false;
 }
 
-/** DEV_MODE flag — true in dev, false in prod (replaces flags.ts) */
+/** DEV_MODE label helper — true in dev, false in prod. Exposure/build stripping still belongs to flags.ts. */
 export const DEV_MODE = IS_DEV;
 

@@ -23,7 +23,7 @@
 //!  5. **System cache** (Moka) — CRITICAL
 //!  6. **User relational** (LibSQL) — CRITICAL
 //!  7. **Vector store** (RRO) — feature-gated
-//!  9. **Grammar** (kernel-owned constrained decoding) — temporarily skipped
+//!  9. **Grammar** — kernel persists `grammar_service` row to system LibSQL
 //! 10. **Embedder** (Candle) — feature-gated
 //! 11. **Whisper** (Candle) — feature-gated
 //! 13. **DevForge** (VSCode) — non-critical
@@ -76,6 +76,7 @@ use crate::platform::services::whisper::WhisperService;
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
 use crate::platform::services::devforge::DevForgeService;
+use devpulse_clyffy::cortex::grammar::sync_grammar_service_from_config;
 
 use anyhow::Result;
 use log::BootLog;
@@ -282,9 +283,53 @@ async fn execute_inner(
 
     drop(_spin);
 
-    // ── Stage 9: Grammar (kernel-owned constrained decoding) ───
-    on_event(InitEvent::skipped("Grammar service"));
-    boot_log.skip("Grammar service", "kernel grammar service not yet attached to facade boot");
+    // ── Stage 9: Grammar — system LibSQL row (kernel-owned contract) ───
+    match &system_relational {
+        Some(svc) => {
+            on_event(InitEvent::running(
+                "Grammar service",
+                "Synchronizing system grammar row",
+            ));
+            match sync_grammar_service_from_config(svc.adapter().as_ref(), &boot_config.services.system.grammar)
+                .await
+            {
+                Ok(()) => {
+                    on_event(InitEvent::ok(
+                        "Grammar service",
+                        "system grammar_service row synchronized",
+                    ));
+                    boot_log.ok(
+                        "Grammar service",
+                        "system grammar_service row synchronized",
+                    );
+                }
+                Err(e) => {
+                    let msg = format!("{e:#}");
+                    if boot_config.services.system.grammar.critical {
+                        on_event(InitEvent::error("Grammar service", &msg));
+                        boot_log.fail("Grammar service", &msg);
+                        return Err(e);
+                    }
+                    tracing::warn!(error = %e, "Grammar service row sync failed (non-critical)");
+                    on_event(InitEvent::skipped_with_message(
+                        "Grammar service",
+                        "row sync failed — continuing (grammar not critical)",
+                    ));
+                    boot_log.skip("Grammar service", "row sync failed — continuing");
+                }
+            }
+        }
+        None => {
+            on_event(InitEvent::skipped_with_message(
+                "Grammar service",
+                "system relational store unavailable",
+            ));
+            boot_log.skip(
+                "Grammar service",
+                "system relational unavailable — grammar row not written",
+            );
+        }
+    }
 
     // ── Stage 10: Embedder (Candle) — feature-gated ─────────
     #[cfg(feature = "candle")]

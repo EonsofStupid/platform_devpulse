@@ -21,7 +21,6 @@
 }
 -->
 <script lang="ts">
-import { goto } from "$app/navigation";
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
@@ -30,6 +29,7 @@ import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { wizardState } from "$lib/domains/app/models/features/setup-wizard/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
@@ -82,20 +82,15 @@ $effect(() => {
 	}
 });
 
-// When the wizard phase kicks in (platform is ready but models need setup),
-// route into the dedicated setup overlay under src/routes/(setup)/ so there
-// is exactly one rendering path for onboarding.
-let wizardNavigated = $state(false);
+// When the platform is ready but models still need setup, reveal the
+// shell-mounted overlay and drop this boot gate so onboarding has a single owner.
+let wizardOpened = $state(false);
 $effect(() => {
-	if (isWizardPhase && !wizardNavigated) {
-		wizardNavigated = true;
-		goto("/model-loader", { replaceState: true, noScroll: true })
-			.then(() => {
-				visible = false;
-			})
-			.catch((e) => {
-				console.error("[boot-overlay] Failed to navigate to setup route:", e);
-			});
+	if (isWizardPhase && !wizardOpened) {
+		wizardOpened = true;
+		wizardState.goTo("hardware");
+		wizardState.open();
+		visible = false;
 	}
 });
 </script>
@@ -238,12 +233,7 @@ $effect(() => {
 			{/if}
 		{/if}
 
-		<!--
-			Model Setup Wizard Phase — navigation happens in the
-			`$effect` at the top of the script block. Nothing renders
-			here because the route-based wizard at /model-loader/models
-			owns the wizard UI and this overlay is about to unmount.
-		-->
+		<!-- Model setup now lives in the shell-mounted overlay. -->
 	</div>
 </div>
 {/if}

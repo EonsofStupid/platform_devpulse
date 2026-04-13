@@ -12,7 +12,7 @@
 
 use anyhow::{anyhow, Context, Result};
 use rand::Rng;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tokio::process::{Child, Command};
 use tokio::time::{sleep, Instant};
@@ -74,9 +74,11 @@ impl RehManager {
             .arg(&token)
             .arg("--accept-server-license-terms")
             .arg("--user-data-dir")
-            .arg(&config.user_data_dir)
-            .arg("--folder-uri")
-            .arg(folder_uri(&config.workspace_path));
+            .arg(&config.user_data_dir);
+
+        if let Some(ws) = &config.workspace_path {
+            cmd.arg("--folder-uri").arg(folder_uri(ws));
+        }
 
         if let Some(ext_dir) = &config.extensions_dir {
             cmd.arg("--extensions-dir").arg(ext_dir);
@@ -216,7 +218,7 @@ fn generate_token() -> String {
 
 /// Convert a filesystem path into the `file://` URI the REH server expects
 /// for `--folder-uri`.
-fn folder_uri(path: &PathBuf) -> String {
+fn folder_uri(path: &Path) -> String {
     // Normalize Windows backslashes to forward slashes and add a file:// prefix.
     // We don't use the `url` crate here to avoid pulling in another dep.
     let s = path.to_string_lossy().replace('\\', "/");

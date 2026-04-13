@@ -55,7 +55,7 @@ export async function fetchHardwareMetrics(): Promise<HardwareInfo> {
 		}
 		logInfo(
 			"models.hardware",
-			`GPU: ${result.data.gpu_name ?? "none"}, VRAM: ${result.data.gpu_vram_total_mb ?? 0} MB`,
+			`hardware metrics ok — cpu=${result.data.cpu_name || "empty"} gpu=${result.data.gpu_name ?? "none"} gpuError=${result.data.gpu_error ?? "none"} vram=${result.data.gpu_vram_total_mb ?? 0}MB`,
 		);
 		return result.data;
 	} catch (e) {

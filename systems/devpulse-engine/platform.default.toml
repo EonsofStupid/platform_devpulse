@@ -79,12 +79,13 @@ path = "system/rro/storage"
 
 # [services.system.voice] — DELETED
 # Voice is now slot-managed through the Model Loader (SPRINT-VOICE-SLOTS).
-# Voice models live in .userdata/models/voice/ and are registered as slots:
-#   voice.tts.primary    (Kokoro, ort — primary voice, ONNX, supports voice packs)
-#   voice.tts.secondary  (Orpheus, llama.cpp FFI — higher quality, heavier)
-#   voice.snac           (SNAC decoder, ort — coupled to voice.tts.secondary)
-#   voice.stt            (Whisper small, sherpa)
-#   voice.stt.upgrade    (Whisper turbo, sherpa, GPU)
+# Voice models live under the model root's voice/ directory and are
+# managed through canonical slots:
+#   voice.tts    (Kokoro baseline voice output)
+#   voice.stt    (Whisper voice input)
+#   voice.brain  (optional full-duplex voice conversation)
+# There is no separate platform-level Kokoro service. Voice stays
+# kernel-driven through slots; the engine exposes layman controls only.
 
 # [services.system.grammar]
 # Reserved for llguidance constrained decoding — future sprint.

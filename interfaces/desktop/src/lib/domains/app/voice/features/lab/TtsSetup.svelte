@@ -7,6 +7,7 @@ import { Button } from "$lib/design/components/button/index.js";
 import Card from "$lib/design/components/card/Card.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
+import { commands, type SlotInfo, type VoiceStatusInfo } from "$lib/sys/generated/bindings.js";
 import type { VoiceInfo } from "../../contracts/voice.contract.js";
 import {
 	listVoices,
@@ -20,6 +21,10 @@ import { voiceState } from "../../state/voice.state.svelte.js";
 let voices = $state<VoiceInfo[]>([]);
 let loadError = $state<string | null>(null);
 let filterGender = $state<"all" | "female" | "male" | "neutral">("all");
+let voiceStatus = $state<VoiceStatusInfo | null>(null);
+let ttsSlot = $state<SlotInfo | null>(null);
+let voiceBrainSlot = $state<SlotInfo | null>(null);
+let savingDefault = $state(false);
 
 const filteredVoices = $derived(
 	filterGender === "all" ? voices : voices.filter((v) => v.gender === filterGender),
@@ -27,9 +32,54 @@ const filteredVoices = $derived(
 
 const m = $derived(renderForge({ kind: "card", preset: "glass-deep" }));
 
-async function loadVoiceRegistry(): Promise<void> {
+function describeSlotConfig(slot: SlotInfo | null): string {
+	if (!slot) return "Slot not found in registry";
+	if (slot.assigned_model_id) return "Assigned from model registry";
+	if (slot.default_model) return "Bundled default configured";
+	return "No model assigned";
+}
+
+function voiceLabelFor(voiceId: string | null | undefined): string {
+	if (!voiceId) return "None";
+	return voices.find((voice) => voice.id === voiceId)?.label ?? voiceId;
+}
+
+async function ensureSlotLoaded(slotId: string): Promise<void> {
+	const result = await commands.loadSlot(slotId);
+	if (result.status === "error") {
+		throw new Error(result.error);
+	}
+}
+
+async function refreshVoiceRuntime(): Promise<void> {
 	try {
-		voices = await listVoices(voiceState.selectedTtsSlot);
+		const [voiceList, statusResult, slotsResult] = await Promise.all([
+			listVoices(voiceState.selectedTtsSlot),
+			commands.getVoiceStatus(),
+			commands.getSlots(),
+		]);
+
+		if (statusResult.status === "error") {
+			throw new Error(statusResult.error);
+		}
+		if (slotsResult.status === "error") {
+			throw new Error(slotsResult.error);
+		}
+
+		voices = voiceList;
+		voiceStatus = statusResult.data;
+		ttsSlot = slotsResult.data.find((slot) => slot.id === voiceState.selectedTtsSlot) ?? null;
+		voiceBrainSlot = slotsResult.data.find((slot) => slot.id === "voice.brain") ?? null;
+
+		if (statusResult.data.active_voice) {
+			voiceState.selectedVoice = statusResult.data.active_voice;
+		} else if (
+			!voiceList.some((voice) => voice.id === voiceState.selectedVoice) &&
+			voiceList.length > 0
+		) {
+			voiceState.selectedVoice = voiceList[0].id;
+		}
+
 		loadError = null;
 	} catch (e) {
 		loadError = e instanceof Error ? e.message : String(e);
@@ -37,13 +87,15 @@ async function loadVoiceRegistry(): Promise<void> {
 }
 
 $effect(() => {
-	loadVoiceRegistry();
+	void refreshVoiceRuntime();
 });
 
 async function handlePreview(voice: VoiceInfo): Promise<void> {
-	voiceState.selectedVoice = voice.id;
 	try {
+		await ensureSlotLoaded(voiceState.selectedTtsSlot);
+		voiceState.selectedVoice = voice.id;
 		await previewVoice(voice.id, voiceState.selectedTtsSlot);
+		await refreshVoiceRuntime();
 	} catch (e) {
 		voiceState.error = e instanceof Error ? e.message : String(e);
 	}
@@ -62,6 +114,7 @@ async function handleMp3Upload(event: Event): Promise<void> {
 		return;
 	}
 	try {
+		await ensureSlotLoaded("voice.stt");
 		const transcript = await transcribeAudioFile(path);
 		voiceState.lastTranscript = transcript;
 	} catch (e) {
@@ -79,34 +132,74 @@ async function handleStsRun(event: Event): Promise<void> {
 		return;
 	}
 	try {
-		const result = await runStsPipeline(path, null, voiceState.selectedVoice, 256);
+		await Promise.all([
+			ensureSlotLoaded("voice.stt"),
+			ensureSlotLoaded(voiceState.selectedTtsSlot),
+			ensureSlotLoaded("chat.brain"),
+		]);
+		const result = await runStsPipeline(path, "chat.brain", voiceState.selectedVoice, 256);
 		voiceState.lastTranscript = result.transcript;
 		voiceState.lastReply = result.reply;
 	} catch (e) {
 		voiceState.error = e instanceof Error ? e.message : String(e);
 	}
 }
+
+async function handleLoadVoiceOutput(): Promise<void> {
+	try {
+		await ensureSlotLoaded(voiceState.selectedTtsSlot);
+		await refreshVoiceRuntime();
+	} catch (e) {
+		voiceState.error = e instanceof Error ? e.message : String(e);
+	}
+}
+
+async function handleSetDefaultVoice(): Promise<void> {
+	if (!voiceState.selectedVoice) return;
+	savingDefault = true;
+	try {
+		const result = await commands.setVoiceProfile(`kokoro:${voiceState.selectedVoice}`);
+		if (result.status === "error") {
+			throw new Error(result.error);
+		}
+		await refreshVoiceRuntime();
+	} catch (e) {
+		voiceState.error = e instanceof Error ? e.message : String(e);
+	} finally {
+		savingDefault = false;
+	}
+}
 </script>
 
 <div class="flex gap-6">
-	<!-- Left: Slot cards -->
+	<!-- Left: Live slot cards -->
 	<div class="flex flex-col gap-4 w-64 shrink-0">
-		<Text size="sm" weight="semibold" preset="default">TTS Slots</Text>
+		<Text size="sm" weight="semibold" preset="default">Voice Runtime</Text>
 
 		<Card preset="neuro-minimal">
 			<div class="p-3 flex flex-col gap-2">
-				<Text size="xs" weight="semibold" preset="default">Primary Voice</Text>
-				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Slot: voice.tts.primary</Text>
-				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Model: Kokoro (ort)</Text>
+				<Text size="xs" weight="semibold" preset="default">{ttsSlot?.label ?? "Voice Output"}</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Slot: {voiceState.selectedTtsSlot}</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">
+					{voiceStatus?.tts_loaded ? "Loaded" : "Not loaded"} · {ttsSlot?.runtime ?? "Unknown backend"} · {ttsSlot?.loading_strategy ?? "Unknown loading"}
+				</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">{describeSlotConfig(ttsSlot)}</Text>
+				{#if !voiceStatus?.tts_loaded}
+					<Button preset="secondary" size="sm" onclick={handleLoadVoiceOutput}>Load voice output</Button>
+				{/if}
 			</div>
 		</Card>
 
 		<Card preset="neuro-minimal">
 			<div class="p-3 flex flex-col gap-2">
-				<Text size="xs" weight="semibold" preset="default">Premium Voice</Text>
-				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Slot: voice.tts.secondary</Text>
-				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Model: Orpheus (llama.cpp)</Text>
-				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Requires: SNAC decoder</Text>
+				<Text size="xs" weight="semibold" preset="default">{voiceBrainSlot?.label ?? "Voice Conversation"}</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">Slot: voice.brain</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">
+					{voiceBrainSlot?.runtime ?? "Unknown backend"} · {voiceBrainSlot?.loading_strategy ?? "Unknown loading"}
+				</Text>
+				<Text size="xs" preset="default" class="text-[var(--text-muted)]">
+					24/7 voice uses this slot when it is configured; file-based STS in this tab runs through chat.brain.
+				</Text>
 			</div>
 		</Card>
 	</div>
@@ -134,6 +227,10 @@ async function handleStsRun(event: Event): Promise<void> {
 		{#if loadError}
 			<Text size="xs" preset="default" class="text-[var(--accent-ember-main)]">
 				Failed to load voice registry: {loadError}
+			</Text>
+		{:else if voices.length === 0}
+			<Text size="xs" preset="default" class="text-[var(--text-muted)]">
+				No voices are available for the configured TTS slot yet.
 			</Text>
 		{/if}
 
@@ -217,10 +314,11 @@ async function handleStsRun(event: Event): Promise<void> {
 		<!-- Default indicator -->
 		<div class="flex items-center justify-between mt-4 p-3 rounded-lg bg-[var(--glass-void)]">
 			<Text size="sm" preset="default">
-				Default Voice: <strong>{voices.find((v) => v.id === voiceState.selectedVoice)?.label ?? "None"}</strong>
-				({voices.find((v) => v.id === voiceState.selectedVoice)?.gender ?? ""})
+				Default Voice: <strong>{voiceLabelFor(voiceStatus?.active_voice)}</strong>
 			</Text>
-			<Button preset="primary" size="sm">Set as Default</Button>
+			<Button preset="primary" size="sm" onclick={handleSetDefaultVoice} disabled={savingDefault || !voiceState.selectedVoice}>
+				{savingDefault ? "Saving..." : "Set as Default"}
+			</Button>
 		</div>
 	</div>
 </div>

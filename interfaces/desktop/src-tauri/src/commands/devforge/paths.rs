@@ -8,13 +8,16 @@
 //! .userdata/devforge/
 //! ├── install/           — REH binaries (prod). Dev uses the repo junction.
 //! │   └── current/       — junction/symlink to the active version
-//! ├── workspaces/
-//! │   └── default/       — auto-created first-run workspace
 //! ├── user-data/         — VS Code profiles, settings, keybindings, state
 //! ├── extensions/        — installed VS Code extensions
 //! ├── logs/              — REH stdout/stderr tail
 //! └── state.json         — DevforgeState
 //! ```
+//!
+//! **Workspaces are real project directories** (e.g. `D:/localdev/platform_devpulse`).
+//! They are NOT generated or managed under this layout — the user's actual
+//! project folders are passed to REH via `--folder-uri`. DevforgeState
+//! remembers the last-opened project path so bootstrap can restore it.
 //!
 //! [`DevforgePaths`] is cheap to clone and held in [`PlatformState`]
 //! so any command can ask for a canonical subpath without re-resolving.
@@ -48,18 +51,6 @@ impl DevforgePaths {
     #[must_use]
     pub fn install_current(&self) -> PathBuf {
         self.install_dir().join("current")
-    }
-
-    /// Parent directory holding all user workspaces.
-    #[must_use]
-    pub fn workspaces_root(&self) -> PathBuf {
-        self.root.join("workspaces")
-    }
-
-    /// Default (empty) workspace auto-created on first run.
-    #[must_use]
-    pub fn default_workspace(&self) -> PathBuf {
-        self.workspaces_root().join("default")
     }
 
     /// VS Code user-data directory — profiles, settings, keybindings, state.
@@ -97,8 +88,6 @@ impl DevforgePaths {
         for dir in [
             self.root.clone(),
             self.install_dir(),
-            self.workspaces_root(),
-            self.default_workspace(),
             self.user_data_dir(),
             self.extensions_dir(),
             self.logs_dir(),
@@ -144,27 +133,5 @@ impl DevforgePaths {
         } else {
             None
         }
-    }
-
-    /// Enumerate workspace directories under `workspaces/`.
-    ///
-    /// # Errors
-    /// Returns an error if `workspaces_root()` cannot be read.
-    pub fn list_workspaces(&self) -> Result<Vec<PathBuf>> {
-        let root = self.workspaces_root();
-        if !root.exists() {
-            return Ok(Vec::new());
-        }
-        let mut out = Vec::new();
-        for entry in std::fs::read_dir(&root)
-            .with_context(|| format!("Failed to read {}", root.display()))?
-        {
-            let entry = entry?;
-            if entry.file_type()?.is_dir() {
-                out.push(entry.path());
-            }
-        }
-        out.sort();
-        Ok(out)
     }
 }

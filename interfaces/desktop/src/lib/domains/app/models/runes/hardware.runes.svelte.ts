@@ -7,29 +7,72 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { logError, logInfo } from "$lib/sys/logger.js";
 import { fetchHardwareMetrics, type HardwareInfo } from "../services/hardware.service.js";
 import type { FitIndicator, HardwareTier } from "../types/models.types.js";
 import { calculateFit } from "../types/models.types.js";
+
+function normalizeMetricText(value: string | null | undefined): string | null {
+	const trimmed = value?.trim();
+	return trimmed ? trimmed : null;
+}
+
+function metricsSignature(metrics: HardwareInfo): string {
+	return JSON.stringify({
+		cpu: normalizeMetricText(metrics.cpu_name),
+		gpu: normalizeMetricText(metrics.gpu_name),
+		gpuError: normalizeMetricText(metrics.gpu_error),
+		vram: metrics.gpu_vram_total_mb ?? 0,
+		ram: metrics.ram_total_mb ?? 0,
+		disk: metrics.disk_free_mb ?? 0,
+	});
+}
 
 class HardwareState {
 	metrics = $state<HardwareInfo | null>(null);
 	loading = $state(false);
 	error = $state<string | null>(null);
 	private unlisten: UnlistenFn | null = null;
+	private refreshPromise: Promise<void> | null = null;
+	private listenPromise: Promise<void> | null = null;
+	private lastSignature: string | null = null;
+
+	private applyMetrics(metrics: HardwareInfo, source: "refresh" | "push"): void {
+		this.metrics = metrics;
+		this.error = null;
+
+		const signature = metricsSignature(metrics);
+		if (signature !== this.lastSignature) {
+			logInfo(
+				"models.hardware",
+				`${source} snapshot — cpu=${normalizeMetricText(metrics.cpu_name) ?? "none"} gpu=${normalizeMetricText(metrics.gpu_name) ?? "none"} gpuError=${normalizeMetricText(metrics.gpu_error) ?? "none"} vram=${metrics.gpu_vram_total_mb ?? 0}MB ram=${metrics.ram_total_mb}MB`,
+			);
+			this.lastSignature = signature;
+		}
+	}
 
 	/** Fetch once on demand (initial load, manual refresh). */
-	async refresh(): Promise<void> {
+	async refresh(reason = "manual"): Promise<void> {
+		if (this.refreshPromise) return this.refreshPromise;
+
 		this.loading = true;
-		try {
-			this.metrics = await fetchHardwareMetrics();
-			this.error = null;
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			console.error(`[HardwareState] HARD FAIL: ${msg}`);
-		} finally {
-			this.loading = false;
-		}
+		logInfo("models.hardware", `refresh() start — reason=${reason}`);
+
+		this.refreshPromise = (async () => {
+			try {
+				const metrics = await fetchHardwareMetrics();
+				this.applyMetrics(metrics, "refresh");
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.error = msg;
+				logError("models.hardware", `refresh() failed — reason=${reason}: ${msg}`);
+			} finally {
+				this.loading = false;
+				this.refreshPromise = null;
+			}
+		})();
+
+		return this.refreshPromise;
 	}
 
 	/**
@@ -38,19 +81,43 @@ class HardwareState {
 	 * throttled by browser visibility/focus state.
 	 */
 	async startListening(): Promise<void> {
-		this.stopListening();
-		// Initial fetch so we have data immediately
-		await this.refresh();
+		return this.ensureListening("legacy-startListening");
+	}
 
-		this.unlisten = await listen<HardwareInfo>("model:hardware", (event) => {
-			this.metrics = event.payload;
-			this.error = null;
+	/**
+	 * Idempotent app-wide listener bootstrap.
+	 * Any caller can request telemetry without racing or resetting listeners.
+	 */
+	async ensureListening(reason = "manual"): Promise<void> {
+		if (this.unlisten) {
+			if (!this.metrics && !this.loading) {
+				await this.refresh(`ensureListening:${reason}`);
+			}
+			return;
+		}
+
+		if (this.listenPromise) return this.listenPromise;
+
+		this.listenPromise = (async () => {
+			logInfo("models.hardware", `ensureListening() start — reason=${reason}`);
+			await this.refresh(`listen:${reason}`);
+
+			this.unlisten = await listen<HardwareInfo>("model:hardware", (event) => {
+				this.applyMetrics(event.payload, "push");
+			});
+
+			logInfo("models.hardware", `ensureListening() attached — reason=${reason}`);
+		})().finally(() => {
+			this.listenPromise = null;
 		});
+
+		return this.listenPromise;
 	}
 
 	/** Stop listening to hardware events. */
 	stopListening(): void {
 		if (this.unlisten) {
+			logInfo("models.hardware", "stopListening() — detached hardware listener");
 			this.unlisten();
 			this.unlisten = null;
 		}
@@ -58,12 +125,23 @@ class HardwareState {
 
 	// ── Derived Values ──────────────────────────────────
 
+	get hasSnapshot(): boolean {
+		return this.metrics !== null;
+	}
+
+	get status(): "idle" | "loading" | "ready" | "error" {
+		if (this.loading) return "loading";
+		if (this.error) return "error";
+		if (this.metrics) return "ready";
+		return "idle";
+	}
+
 	get hasGpu(): boolean {
-		return this.metrics?.gpu_name !== null && this.metrics?.gpu_name !== undefined;
+		return this.gpuName !== null;
 	}
 
 	get gpuError(): string | null {
-		return this.metrics?.gpu_error ?? null;
+		return normalizeMetricText(this.metrics?.gpu_error);
 	}
 
 	get vramUsedMb(): number {
@@ -98,12 +176,18 @@ class HardwareState {
 		return this.metrics?.gpu_temperature_c ?? null;
 	}
 
-	get gpuName(): string {
-		return this.metrics?.gpu_name ?? "No GPU";
+	get gpuName(): string | null {
+		return normalizeMetricText(this.metrics?.gpu_name);
 	}
 
-	get cpuName(): string {
-		return this.metrics?.cpu_name ?? "Unknown CPU";
+	get gpuSummary(): string {
+		if (!this.hasSnapshot) return "Scanning your hardware...";
+		if (this.gpuName) return this.gpuName;
+		return "No dedicated GPU detected";
+	}
+
+	get cpuName(): string | null {
+		return normalizeMetricText(this.metrics?.cpu_name);
 	}
 
 	get cpuCores(): number {

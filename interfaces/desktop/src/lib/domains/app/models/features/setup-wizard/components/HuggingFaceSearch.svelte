@@ -5,6 +5,7 @@
   Colocated CSS. No renderForge.
 -->
 <script lang="ts">
+import { invoke } from "@tauri-apps/api/core";
 import { Download, FileText, Layers, Search } from "lucide-svelte";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
@@ -17,12 +18,62 @@ import {
 	formatMb,
 	friendlySlotLabel,
 } from "../../../types/models.types.js";
+import type { BrowseCopy, WizardCopy } from "../wizard.types.js";
+
+const DEFAULT_BROWSE_COPY: BrowseCopy = {
+	title: "Find Models",
+	subtitle: "Browse models on your computer or search HuggingFace.",
+	recommended_tab_label: "Recommended",
+	local_tab_label: "On Your Computer",
+	online_tab_label: "Search HuggingFace",
+	local_browse_tab_label: "Local Browse",
+	search_panel_description: "Find AI models from thousands of open-source options.",
+	search_placeholder: "Search for models (e.g. Qwen3, Llama, Mistral)...",
+	search_input_aria: "Search HuggingFace for models",
+	search_button_label: "Search HuggingFace",
+	all_formats_label: "All Formats",
+	all_formats_tooltip: "Show every supported model file format.",
+	no_results_title: "No models found",
+	no_results_title_template: 'No models found for "{query}"',
+	no_results_hint: "Try a different search term",
+	welcome_search_title: "Search for AI models to download",
+	welcome_search_hint: "Type a model name above and click Search",
+	popular_searches_label: "Popular searches:",
+	try_one_of_these_label: "Try one of these:",
+	format_help_title: "What are GGUF and SafeTensors?",
+	format_gguf_help: "Single file, ready to use. Best for most local setups.",
+	format_safetensors_help: "May have multiple parts. All shards download together as one model.",
+	search_loading_template: 'Searching HuggingFace for "{query}"...',
+	search_loading_hint: "This usually takes a few seconds.",
+	retry_label: "Retry",
+	clear_label: "Clear",
+	result_label_singular: "result",
+	result_label_plural: "results",
+	gguf_section_label: "GGUF Files",
+	safetensors_section_label: "SafeTensors",
+	shard_count_template: "{count} shard{plural}",
+	all_shards_summary_template: "{count} shard{plural}, {size} total",
+	install_to_label: "Install to",
+	download_to_template: "Download to {slot}",
+	downloading_label: "Downloading...",
+	download_all_shards_template: "Download All Shards to {slot}",
+	downloading_all_shards_label: "Downloading all shards...",
+	disk_space_warning_template: "Not enough disk space. Need {needed}, only {free} free.",
+	no_format_files_template: "No {format} files in this repo",
+	import_button_label: "Import Model from File",
+	importing_label: "Importing — please wait...",
+	load_more_label: "Load More Results",
+	loading_more_label: "Loading more...",
+};
+
+const POPULAR_SEARCHES = ["Qwen3", "Llama", "Mistral", "Phi"];
 
 interface Props {
+	copy?: BrowseCopy | null;
 	onDownload: (repoId: string, filename: string, targetSlot: string) => Promise<void>;
 }
 
-let { onDownload }: Props = $props();
+let { copy = null, onDownload }: Props = $props();
 
 let searchInput = $state("");
 let downloadingFile = $state<string | null>(null);
@@ -30,6 +81,19 @@ let selectedSlotForDownload = $state<Record<string, string>>({});
 let formatTab = $state<"gguf" | "safetensors" | "all">("all");
 let tooltipVisible = $state<string | null>(null);
 let tooltipTimer = $state<ReturnType<typeof setTimeout> | null>(null);
+let browseCopy = $state<BrowseCopy>(copy ?? DEFAULT_BROWSE_COPY);
+
+let copyRequested = false;
+
+$effect(() => {
+	if (copy) {
+		browseCopy = copy;
+		return;
+	}
+	if (copyRequested) return;
+	copyRequested = true;
+	void loadBrowseCopy();
+});
 
 function showTooltip(id: string) {
 	if (tooltipTimer) clearTimeout(tooltipTimer);
@@ -40,6 +104,27 @@ function showTooltip(id: string) {
 function hideTooltip() {
 	if (tooltipTimer) clearTimeout(tooltipTimer);
 	tooltipVisible = null;
+}
+
+async function loadBrowseCopy(): Promise<void> {
+	try {
+		const wizardCopy = await invoke<WizardCopy>("get_wizard_copy");
+		browseCopy = wizardCopy.browse;
+	} catch (error) {
+		console.warn("[wizard][hf-search] failed to load browse copy", error);
+	}
+}
+
+function applyTemplate(template: string, values: Record<string, number | string>): string {
+	let resolved = template;
+	Object.entries(values).forEach(([key, value]) => {
+		resolved = resolved.replaceAll(`{${key}}`, String(value));
+	});
+	return resolved;
+}
+
+function pluralSuffix(count: number): string {
+	return count === 1 ? "" : "s";
 }
 
 function handleSearch(): void {
@@ -85,29 +170,34 @@ function isSafetensorFile(filename: string): boolean {
 </script>
 
 <div class="hf-section">
-	<h3 class="hf-title"><Search size={18} /> Search HuggingFace</h3>
-	<p class="hf-desc">Find AI models from thousands of open-source options</p>
+	<h3 class="hf-title"><Search size={18} /> {browseCopy.online_tab_label}</h3>
+	<p class="hf-desc">{browseCopy.search_panel_description}</p>
 
 	<!-- Search input — full width, prominent -->
 	<div class="search-row">
 		<input
 			type="text"
 			bind:value={searchInput}
-			placeholder="Search for models (e.g. Qwen3, Llama, Mistral)..."
+			placeholder={browseCopy.search_placeholder}
 			class="search-input"
 			onkeydown={handleInputKeydown}
-			aria-label="Search HuggingFace for models"
+			aria-label={browseCopy.search_input_aria}
 		/>
 	</div>
-	<button class="btn-search-main" onclick={handleSearch} disabled={!searchInput.trim()} aria-label="Search">
-		<Search size={16} /> Search HuggingFace
+	<button
+		class="btn-search-main"
+		onclick={handleSearch}
+		disabled={!searchInput.trim()}
+		aria-label={browseCopy.search_button_label}
+	>
+		<Search size={16} /> {browseCopy.search_button_label}
 	</button>
 
 	<!-- Format filter tabs -->
 	<div class="format-tabs">
 		<button class="format-tab" class:active={formatTab === "all"} onclick={() => (formatTab = "all")}
 			onmouseenter={() => showTooltip("tab-all")} onmouseleave={hideTooltip}>
-			All Formats
+			{browseCopy.all_formats_label}
 		</button>
 		<button class="format-tab" class:active={formatTab === "gguf"} onclick={() => (formatTab = "gguf")}
 			onmouseenter={() => showTooltip("tab-gguf")} onmouseleave={hideTooltip}>
@@ -118,13 +208,13 @@ function isSafetensorFile(filename: string): boolean {
 			<Layers size={14} /> SafeTensors
 		</button>
 		{#if tooltipVisible === "tab-all"}
-			<div class="tooltip">Show all model files regardless of format</div>
+			<div class="tooltip">{browseCopy.all_formats_tooltip}</div>
 		{/if}
 		{#if tooltipVisible === "tab-gguf"}
-			<div class="tooltip">GGUF files — single file, ready to use. Best for local inference with llama.cpp or Candle.</div>
+			<div class="tooltip">{browseCopy.format_gguf_help}</div>
 		{/if}
 		{#if tooltipVisible === "tab-st"}
-			<div class="tooltip">SafeTensors files — may have multiple shards. Used for larger models split across files. All shards download together.</div>
+			<div class="tooltip">{browseCopy.format_safetensors_help}</div>
 		{/if}
 	</div>
 
@@ -132,8 +222,8 @@ function isSafetensorFile(filename: string): boolean {
 	{#if searchState.searching}
 		<div class="search-loading">
 			<Spinner size="sm" />
-			<span class="loading-text">Searching HuggingFace for "{searchInput}"...</span>
-			<span class="loading-hint">This usually takes a few seconds</span>
+			<span class="loading-text">{applyTemplate(browseCopy.search_loading_template, { query: searchInput })}</span>
+			<span class="loading-hint">{browseCopy.search_loading_hint}</span>
 		</div>
 	{/if}
 
@@ -142,15 +232,20 @@ function isSafetensorFile(filename: string): boolean {
 		<div class="error-box">
 			<span class="error-text">{searchState.error}</span>
 			<div class="error-actions">
-				<button class="btn-accent" onclick={handleSearch}>Retry</button>
-				<button class="btn-ghost" onclick={() => { searchInput = ""; }}>Clear</button>
+				<button class="btn-accent" onclick={handleSearch}>{browseCopy.retry_label}</button>
+				<button class="btn-ghost" onclick={() => { searchInput = ""; }}>{browseCopy.clear_label}</button>
 			</div>
 		</div>
 	{/if}
 
 	<!-- Results -->
 	{#if !searchState.searching && searchState.results.length > 0}
-		<span class="result-count">{searchState.results.length} result{searchState.results.length === 1 ? "" : "s"}</span>
+		<span class="result-count">
+			{searchState.results.length}
+			{searchState.results.length === 1
+				? ` ${browseCopy.result_label_singular}`
+				: ` ${browseCopy.result_label_plural}`}
+		</span>
 
 		{#each searchState.results as result (result.repo_id)}
 			{@const ggufFiles = result.gguf_files?.filter((f) =>
@@ -184,8 +279,8 @@ function isSafetensorFile(filename: string): boolean {
 					<!-- GGUF section -->
 					{#if hasGguf && (formatTab === "all" || formatTab === "gguf")}
 						<div class="format-section">
-							<span class="format-label"><FileText size={14} /> GGUF Files ({ggufOnly.length})</span>
-							<span class="format-hint">Single file, ready to use. Pick a quantization level:</span>
+							<span class="format-label"><FileText size={14} /> {browseCopy.gguf_section_label} ({ggufOnly.length})</span>
+							<span class="format-hint">{browseCopy.format_gguf_help}</span>
 						</div>
 						{#each ggufOnly as file (file.filename)}
 							{@const fileSizeMb = Math.round(file.size_bytes / (1024 * 1024))}
@@ -206,7 +301,7 @@ function isSafetensorFile(filename: string): boolean {
 
 								<!-- Slot selector -->
 								<div class="slot-chips">
-									<span class="slot-label">Install to:</span>
+									<span class="slot-label">{browseCopy.install_to_label}:</span>
 									{#each modelsState.userSlots as slot (slot.id)}
 										{@const isSelected = selectedSlot === slot.id}
 										<button
@@ -225,14 +320,17 @@ function isSafetensorFile(filename: string): boolean {
 									onclick={() => handleDownloadFile(result.repo_id, file.filename, fileKey)}
 									aria-label="Download {file.filename} to {friendlySlotLabel(selectedSlot)}"
 								>
-									{#if isDownloading}<Spinner size="sm" /> Downloading...
-									{:else}<Download size={14} /> Download to {friendlySlotLabel(selectedSlot)}{/if}
+									{#if isDownloading}<Spinner size="sm" /> {browseCopy.downloading_label}
+									{:else}<Download size={14} /> {applyTemplate(browseCopy.download_to_template, { slot: friendlySlotLabel(selectedSlot) })}{/if}
 								</button>
 
 								<!-- Disk space warning -->
 								{#if hardwareState.diskFreeMb && fileSizeMb > hardwareState.diskFreeMb * 0.9}
 									<div class="disk-warn">
-										Not enough disk space. Need {formatMb(fileSizeMb)}, only {formatMb(hardwareState.diskFreeMb)} free.
+										{applyTemplate(browseCopy.disk_space_warning_template, {
+											needed: formatMb(fileSizeMb),
+											free: formatMb(hardwareState.diskFreeMb),
+										})}
 									</div>
 								{/if}
 							</div>
@@ -242,8 +340,11 @@ function isSafetensorFile(filename: string): boolean {
 					<!-- SafeTensors section -->
 					{#if hasSafetensors && (formatTab === "all" || formatTab === "safetensors")}
 						<div class="format-section">
-							<span class="format-label"><Layers size={14} /> SafeTensors ({safetensorShards.length} shard{safetensorShards.length === 1 ? "" : "s"})</span>
-							<span class="format-hint">Multi-shard model. All shards download together as one model.</span>
+							<span class="format-label"><Layers size={14} /> {browseCopy.safetensors_section_label} ({applyTemplate(browseCopy.shard_count_template, {
+								count: safetensorShards.length,
+								plural: pluralSuffix(safetensorShards.length),
+							})})</span>
+							<span class="format-hint">{browseCopy.format_safetensors_help}</span>
 						</div>
 						{@const totalSizeMb = safetensorShards.reduce((sum, f) => sum + Math.round(f.size_bytes / (1024 * 1024)), 0)}
 						{@const fit = calculateFit(totalSizeMb, hardwareState.vramFreeMb, hardwareState.vramTotalMb)}
@@ -253,7 +354,11 @@ function isSafetensorFile(filename: string): boolean {
 
 						<div class="shard-group">
 							<div class="shard-summary">
-								<span class="shard-total">{safetensorShards.length} shards &middot; {formatMb(totalSizeMb)} total</span>
+								<span class="shard-total">{applyTemplate(browseCopy.all_shards_summary_template, {
+									count: safetensorShards.length,
+									plural: pluralSuffix(safetensorShards.length),
+									size: formatMb(totalSizeMb),
+								})}</span>
 								<span class="fit-badge" style="color:{fitColor(fit)}">{fitLabel(fit)}</span>
 							</div>
 							<div class="shard-list">
@@ -265,7 +370,7 @@ function isSafetensorFile(filename: string): boolean {
 							</div>
 
 							<div class="slot-chips">
-								<span class="slot-label">Install to:</span>
+								<span class="slot-label">{browseCopy.install_to_label}:</span>
 								{#each modelsState.userSlots as slot (slot.id)}
 									{@const isSelected = selectedSlot === slot.id}
 									<button
@@ -284,13 +389,16 @@ function isSafetensorFile(filename: string): boolean {
 								onclick={() => handleDownloadFile(result.repo_id, safetensorShards[0].filename, groupKey)}
 								aria-label="Download all shards to {friendlySlotLabel(selectedSlot)}"
 							>
-								{#if isDownloading}<Spinner size="sm" /> Downloading all shards...
-								{:else}<Download size={14} /> Download All Shards to {friendlySlotLabel(selectedSlot)}{/if}
+								{#if isDownloading}<Spinner size="sm" /> {browseCopy.downloading_all_shards_label}
+								{:else}<Download size={14} /> {applyTemplate(browseCopy.download_all_shards_template, { slot: friendlySlotLabel(selectedSlot) })}{/if}
 							</button>
 
 							{#if hardwareState.diskFreeMb && totalSizeMb > hardwareState.diskFreeMb * 0.9}
 								<div class="disk-warn">
-									Not enough disk space. Need {formatMb(totalSizeMb)}, only {formatMb(hardwareState.diskFreeMb)} free.
+									{applyTemplate(browseCopy.disk_space_warning_template, {
+										needed: formatMb(totalSizeMb),
+										free: formatMb(hardwareState.diskFreeMb),
+									})}
 								</div>
 							{/if}
 						</div>
@@ -298,7 +406,9 @@ function isSafetensorFile(filename: string): boolean {
 
 					<!-- No matching files for this format tab -->
 					{#if ggufFiles.length === 0 && formatTab !== "all"}
-						<span class="no-files">No {formatTab === "gguf" ? "GGUF" : "SafeTensors"} files in this repo</span>
+						<span class="no-files">{applyTemplate(browseCopy.no_format_files_template, {
+							format: formatTab === "gguf" ? "GGUF" : "SafeTensors",
+						})}</span>
 					{/if}
 				</div>
 			{/if}
@@ -308,8 +418,8 @@ function isSafetensorFile(filename: string): boolean {
 		{#if searchState.hasMore}
 			<div class="center-actions">
 				<button class="btn-outline-lg" onclick={() => searchState.loadMore()} disabled={searchState.loadingMore} aria-label="Load more search results">
-					{#if searchState.loadingMore}<Spinner size="sm" /> Loading more...
-					{:else}Load More Results{/if}
+					{#if searchState.loadingMore}<Spinner size="sm" /> {browseCopy.loading_more_label}
+					{:else}{browseCopy.load_more_label}{/if}
 				</button>
 			</div>
 		{/if}
@@ -319,14 +429,13 @@ function isSafetensorFile(filename: string): boolean {
 	{#if !searchState.searching && searchState.query && searchState.results.length === 0 && !searchState.error}
 		<div class="empty-search">
 			<Search size={28} />
-			<span class="empty-title">No models found for "{searchState.query}"</span>
-			<span class="empty-hint">Try a different search term</span>
+			<span class="empty-title">{applyTemplate(browseCopy.no_results_title_template, { query: searchState.query })}</span>
+			<span class="empty-hint">{browseCopy.no_results_hint}</span>
 			<div class="empty-suggestions">
-				<span class="suggest-label">Popular searches:</span>
-				<button class="suggest-btn" onclick={() => { searchInput = "Qwen3"; handleSearch(); }}>Qwen3</button>
-				<button class="suggest-btn" onclick={() => { searchInput = "Llama"; handleSearch(); }}>Llama</button>
-				<button class="suggest-btn" onclick={() => { searchInput = "Mistral"; handleSearch(); }}>Mistral</button>
-				<button class="suggest-btn" onclick={() => { searchInput = "Phi"; handleSearch(); }}>Phi</button>
+				<span class="suggest-label">{browseCopy.popular_searches_label}</span>
+				{#each POPULAR_SEARCHES as suggestion (suggestion)}
+					<button class="suggest-btn" onclick={() => { searchInput = suggestion; handleSearch(); }}>{suggestion}</button>
+				{/each}
 			</div>
 		</div>
 	{/if}
@@ -335,19 +444,18 @@ function isSafetensorFile(filename: string): boolean {
 	{#if !searchState.query && !searchState.searching}
 		<div class="welcome-search">
 			<Search size={32} />
-			<span class="welcome-title">Search for AI models to download</span>
-			<span class="welcome-hint">Type a model name above and click Search</span>
+			<span class="welcome-title">{browseCopy.welcome_search_title}</span>
+			<span class="welcome-hint">{browseCopy.welcome_search_hint}</span>
 			<div class="welcome-suggestions">
-				<span class="suggest-label">Try one of these:</span>
-				<button class="suggest-btn" onclick={() => { searchInput = "Qwen3"; handleSearch(); }}>Qwen3</button>
-				<button class="suggest-btn" onclick={() => { searchInput = "Llama"; handleSearch(); }}>Llama</button>
-				<button class="suggest-btn" onclick={() => { searchInput = "Mistral"; handleSearch(); }}>Mistral</button>
-				<button class="suggest-btn" onclick={() => { searchInput = "Phi"; handleSearch(); }}>Phi</button>
+				<span class="suggest-label">{browseCopy.try_one_of_these_label}</span>
+				{#each POPULAR_SEARCHES as suggestion (suggestion)}
+					<button class="suggest-btn" onclick={() => { searchInput = suggestion; handleSearch(); }}>{suggestion}</button>
+				{/each}
 			</div>
 			<div class="format-help">
-				<span class="help-title">What are GGUF and SafeTensors?</span>
-				<span class="help-text"><strong>GGUF</strong> = Single file, ready to use. Best for most users.</span>
-				<span class="help-text"><strong>SafeTensors</strong> = May have multiple parts. Used for very large models.</span>
+				<span class="help-title">{browseCopy.format_help_title}</span>
+				<span class="help-text"><strong>GGUF</strong> - {browseCopy.format_gguf_help}</span>
+				<span class="help-text"><strong>SafeTensors</strong> - {browseCopy.format_safetensors_help}</span>
 			</div>
 		</div>
 	{/if}

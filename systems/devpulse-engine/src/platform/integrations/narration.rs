@@ -157,11 +157,9 @@ fn friendly_slot_name(slot_id: &str) -> &str {
         "rag.embedder" => "the Search Engine",
         "rag.reranker" => "the Relevance Scorer",
         "vision.embedder" => "the Vision System",
-        "voice.tts.primary" => "Clyffy's Voice",
-        "voice.tts.secondary" => "Clyffy's Premium Voice",
-        "voice.snac" => "the Audio Decoder",
+        "voice.tts" => "Clyffy's Voice",
         "voice.stt" => "Voice Input",
-        "voice.stt.upgrade" => "Enhanced Voice Input",
+        "voice.brain" => "Live Voice Conversation",
         _ => slot_id,
     }
 }
@@ -175,11 +173,9 @@ fn friendly_slot_purpose(slot_id: &str) -> &str {
         "rag.embedder" => "finding relevant code and docs",
         "rag.reranker" => "ranking search results",
         "vision.embedder" => "understanding screenshots",
-        "voice.tts.primary" => "speaking to you",
-        "voice.tts.secondary" => "high-quality speech when you need it",
-        "voice.snac" => "converting voice signals to sound",
+        "voice.tts" => "speaking to you",
         "voice.stt" => "listening to your voice",
-        "voice.stt.upgrade" => "better voice recognition",
+        "voice.brain" => "full-duplex live voice conversation",
         _ => "its assigned task",
     }
 }

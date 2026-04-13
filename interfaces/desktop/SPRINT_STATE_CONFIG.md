@@ -2,6 +2,27 @@
 > **Goal**: Establish a strictly typed, hyper-modular Configuration and State architecture.
 > **Philosophy**: "Rust Logic, Svelte Glass." Strict types first.
 
+## 0. Boundary Clarification (2026-04-13)
+
+The repo must keep these responsibilities separate:
+
+1. `src/lib/cfg/flags.ts` remains the canonical visibility and build-stripping SSOT.
+2. `systems/devpulse-engine/ip/kernel_terms.toml` is the naming and alias SSOT only.
+3. `systems/devpulse-engine/src/platform/facade/*` is the runtime emission boundary that decides what actually leaves the engine.
+
+Public capability names may be visible when intentionally chosen, including `CAG`, `RAG`, and `RRO`.
+
+Private recipe details remain hidden:
+
+1. prompt preparation and COSTAR satisfaction
+2. pre-Clyffy context conditioning
+3. encoder and Qdrant composition
+4. retrieval fusion, reranking, and governance heuristics
+5. JIT/native execution details
+
+During `run-dev`, local builder tooling may see raw traces if flags allow it.
+Customer builds must ship only filtered, wrapped surfaces.
+
 ## 1. Configuration Architecture (`src/lib/cfg/`)
 > **Senior Note**: We place this in `lib` to allow `$lib/cfg` imports. Root `src/cfg` breaks module purity in Svelte.
 
@@ -11,7 +32,7 @@
 > **Serialization**: **rkyv** (Zero-Copy) for high-performance endpoint conversion.
 
 *   **`lib/cfg/`**
-    *   `flags.ts` (SSOT: Feature Flags & IP Protection)
+    *   `flags.ts` (SSOT: visibility, build stripping, builder/operator/customer gating)
     *   `devpulse/` (Home Config)
     *   `clyffy/` (The AI Kernel)
         *   `minions/` (Persona, Voice, Identity)

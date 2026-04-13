@@ -11,6 +11,7 @@ internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled 
 rro = ["devpulse-clyffy/rro"]
 candle = ["devpulse-clyffy/candle"]
 inference = ["devpulse-clyffy/model-loader"]
+llguidance = ["devpulse-clyffy/llguidance"]
 
 [dependencies]
 # Core

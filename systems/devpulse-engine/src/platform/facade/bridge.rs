@@ -4,10 +4,16 @@
 //! and fans out to two output channels:
 //!
 //! 1. **Dev channel** — raw `InternalEvent`, no translation, no filtering.
-//!    Consumed by Connectome, Lab tools.
+//!    This is local builder tooling for `run-dev`, not a customer contract.
+//!    It must be flag/capability/build gated out of shipped customer surfaces.
 //!
 //! 2. **Surface channel** — translated `SurfaceEvent`, filtered and redacted.
 //!    Consumed by main UI, Clyffy chat.
+//!    This is the safe wrapped contract the product can rely on.
+//!
+//! If normal devtools need kernel management in shipped builds, that must be
+//! provided via a filtered operator-safe contract, not by wiring raw dev events
+//! into the renderer.
 //!
 //! The bridge runs as a `tokio::spawn`ed task for the lifetime of the app.
 //! It reads the config on every event (cheap: just `RwLock::read()`).
@@ -68,7 +74,7 @@ impl FacadeBridge {
                 Ok(event) => {
                     let elapsed_ms = start.elapsed().as_millis() as u64;
 
-                    // ── Dev channel: always forward raw event ────────
+                    // ── Dev channel: local builder stream only ───────
                     if self.dev_tx.receiver_count() > 0 {
                         if self.dev_tx.send(event.clone()).is_err() {
                             dev_dropped += 1;

@@ -3,8 +3,8 @@
  * @module @devpulse/domains/app/models/features/setup-wizard
  *
  * Domain logic for the model setup wizard.
- * Routes at (model-loader)/model-loader/ compose these exports.
- * Routes import ONLY from this file — never deep into the module.
+ * The app shell and any thin route adapters compose these exports.
+ * Import ONLY from this file — never deep into the module.
  */
 
 // Shared components (used by route pages)
@@ -16,6 +16,7 @@ export { default as SlotSwapPopup } from "./components/SlotSwapPopup.svelte";
 export { default as VramBar } from "./components/VramBar.svelte";
 export { default as WizardHelpTip } from "./components/WizardHelpTip.svelte";
 export { default as WizardInfoPopup } from "./components/WizardInfoPopup.svelte";
+export { default as SetupWizardOverlay } from "./SetupWizardOverlay.svelte";
 
 // Canonical wizard steps
 export { default as ClyfActivationStep } from "./steps/ClyfActivationStep.svelte";

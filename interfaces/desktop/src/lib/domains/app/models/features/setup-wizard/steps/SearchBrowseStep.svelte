@@ -1,33 +1,107 @@
 <!--
   @file SearchBrowseStep.svelte
-  Commandment #9: Detect local models first.
-  Tabbed: Browse Local | Search Online.
-  Local tab shows models on disk. Import button uses fixed AsyncFileDialog.
-  Online tab wraps HuggingFaceSearch.
+  Canonical browse/import step.
+  Groups local inventory by layman role, keeps online search, and restores route help affordances.
 -->
 <script lang="ts">
-import { ArrowLeft, Check, FolderOpen, Search, Upload } from "lucide-svelte";
+import { ArrowLeft, Brain, Check, Eye, FolderOpen, Search, Upload, Volume2 } from "lucide-svelte";
+import { Button } from "$lib/design/components/button/index.js";
+import Text from "$lib/design/components/text/Text.svelte";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
 import { importLocalModel } from "../../../services/download.service.js";
+import type { SlotId } from "../../../types/models.types.js";
 import { formatMb } from "../../../types/models.types.js";
 import VramBar from "../components/VramBar.svelte";
+import WizardHelpTip from "../components/WizardHelpTip.svelte";
+import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
 import { wizardState } from "../wizard.runes.svelte.js";
-import { friendlyName, getSlotLabel, ROLE_COLORS } from "../wizard.types.js";
+import { friendlyName, ROLE_COLORS, type SlotRole } from "../wizard.types.js";
 import HuggingFaceSearch from "./HuggingFaceSearch.svelte";
 
 interface Props {
 	onBack: () => void;
 	onDone: () => void;
 }
+
 let { onBack, onDone }: Props = $props();
 
 let activeTab = $state<"local" | "online">("local");
 let importError = $state<string | null>(null);
+let importing = $state(false);
+let showPageHelp = $state(false);
 
-/** All discovered models grouped by inferred capability. */
-const localModels = $derived(modelsState.models);
+function capInfo(capability: string): { label: string; role: SlotRole; desc: string } {
+	if (capability === "TextGeneration") {
+		return {
+			label: "Chat & Thinking",
+			role: "reasoning",
+			desc: "Powers the main coding brain and helpers",
+		};
+	}
+	if (capability === "Embedding") {
+		return { label: "Memory Search", role: "encoder", desc: "Turns code into searchable memory" };
+	}
+	if (capability === "Reranking") {
+		return { label: "Quality Filter", role: "encoder", desc: "Picks the best search results" };
+	}
+	if (capability === "VisionEmbedding") {
+		return { label: "Screen Reader", role: "encoder", desc: "Understands screenshots and images" };
+	}
+	if (capability === "SpeechToText") {
+		return { label: "Voice Input", role: "voice", desc: "Converts speech into text" };
+	}
+	if (capability === "TextToSpeech") {
+		return { label: "Voice Output", role: "voice", desc: "Speaks replies out loud" };
+	}
+	return { label: capability, role: "encoder", desc: "Supporting model role" };
+}
+
+function roleColor(role: SlotRole): string {
+	return ROLE_COLORS[role]?.accent ?? "var(--text-muted)";
+}
+
+function roleIcon(role: SlotRole): typeof Brain {
+	if (role === "reasoning") return Brain;
+	if (role === "observation") return Eye;
+	if (role === "encoder") return Search;
+	if (role === "voice") return Volume2;
+	return Brain;
+}
+
+function cleanName(filename: string): string {
+	return filename.replace(/\.(gguf|safetensors|onnx|bin)$/i, "").replace(/-/g, " ");
+}
+
+const grouped = $derived.by(() => {
+	const groups: Record<SlotRole, Array<(typeof modelsState.models)[0]>> = {
+		reasoning: [],
+		observation: [],
+		encoder: [],
+		voice: [],
+	};
+
+	modelsState.models.forEach((model) => {
+		const primaryCap = model.compatible_capabilities[0] ?? "";
+		const info = capInfo(primaryCap);
+		groups[info.role].push(model);
+	});
+
+	return groups;
+});
+
+const groupOrder: Array<{ role: SlotRole; title: string; desc: string }> = [
+	{
+		role: "reasoning",
+		title: "Thinking",
+		desc: "Brain and helper models for coding and reasoning",
+	},
+	{ role: "encoder", title: "Understanding", desc: "Search, ranking, and vision models" },
+	{ role: "voice", title: "Voice", desc: "Speech recognition and spoken replies" },
+	{ role: "observation", title: "Helpers", desc: "Background and support tasks" },
+];
 
 async function handleImport(): Promise<void> {
+	importing = true;
 	importError = null;
 	const { toast } = await import("svelte-sonner");
 	try {
@@ -35,12 +109,14 @@ async function handleImport(): Promise<void> {
 		await modelsState.scan();
 		await modelsState.refresh();
 		toast.success("Model imported");
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		if (msg !== "Import failed: No file selected") {
-			importError = msg;
-			toast.error(`Import failed: ${msg}`);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		if (message !== "Import failed: No file selected") {
+			importError = message;
+			toast.error(`Import failed: ${message}`);
 		}
+	} finally {
+		importing = false;
 	}
 }
 
@@ -49,99 +125,140 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	try {
 		await modelsState.assign(slotId, modelId);
 		toast.success(`Assigned to ${friendlyName(slotId)}`);
-	} catch (e) {
-		toast.error(e instanceof Error ? e.message : String(e));
+	} catch (error) {
+		toast.error(error instanceof Error ? error.message : String(error));
 	}
 }
 </script>
 
 <div class="browse-step">
-	<div class="step-header">
-		<button class="btn-back" onclick={onBack}><ArrowLeft size={14} /> Back to Setup</button>
-		<h2 class="step-title">Find Models</h2>
-		<p class="step-desc">Browse models on your computer or search HuggingFace to download new ones.</p>
-	</div>
+	<header class="step-header">
+		<Button preset="ghost" size="sm" onclick={onBack}>
+			<ArrowLeft size={14} /> Back to Setup
+		</Button>
+		<Text size="xl" weight="bold">Find Models</Text>
+		<Text size="sm" class="step-subtitle">
+			Browse models on your computer first, or search HuggingFace when you need to download new ones.
+		</Text>
+		<div class="help-row">
+			<WizardHelpTip tip="Use local models first if they already exist on disk. Use online search when you need to fill missing roles or replace a model." />
+			<Button preset="ghost" size="sm" onclick={() => (showPageHelp = true)}>
+				How this page works
+			</Button>
+		</div>
+	</header>
 
-	<!-- Tab bar -->
 	<div class="tab-bar">
-		<button class="tab" class:active={activeTab === "local"} onclick={() => (activeTab = "local")}>
-			<FolderOpen size={14} /> On Your Computer
+		<button class="tab" class:tab-active={activeTab === "local"} onclick={() => (activeTab = "local")}>
+			<FolderOpen size={16} /> On Your Computer
 		</button>
-		<button class="tab" class:active={activeTab === "online"} onclick={() => (activeTab = "online")}>
-			<Search size={14} /> Search Online
+		<button class="tab" class:tab-active={activeTab === "online"} onclick={() => (activeTab = "online")}>
+			<Search size={16} /> Search HuggingFace
 		</button>
 	</div>
 
-	<!-- Local tab -->
-	{#if activeTab === "local"}
-		<div class="local-section">
-			{#if localModels.length === 0}
-				<div class="empty-state">
-					<p>No models found on disk yet.</p>
-					<p class="empty-hint">Import a model file or download one from the online tab.</p>
-				</div>
-			{:else}
-				<div class="local-list">
-					{#each localModels as model (model.id)}
-						<div class="local-row">
-							<div class="local-info">
-								<span class="local-name">{model.filename}</span>
-								<span class="local-meta">
-									{formatMb(model.size_mb)}
-									{#if model.quant_level} · {model.quant_level}{/if}
-									{#if model.architecture !== "unknown"} · {model.architecture}{/if}
-								</span>
-								<span class="local-caps">
-									{model.compatible_capabilities.join(", ")}
-								</span>
-							</div>
-							<div class="local-actions">
-								{#each modelsState.userSlots.filter((s) => model.compatible_capabilities.includes(s.capability)) as slot (slot.id)}
-									{@const isAssigned = slot.assigned_model_id === model.id}
-									<button
-										class="btn-assign"
-										class:assigned={isAssigned}
-										onclick={() => handleAssign(slot.id, model.id)}
-										disabled={isAssigned}
-									>
-										{#if isAssigned}
-											<Check size={10} /> {friendlyName(slot.id)}
-										{:else}
-											Use for {friendlyName(slot.id)}
-										{/if}
-									</button>
-								{/each}
-							</div>
+	{#if wizardState.hasActiveDownloads}
+		<div class="download-banner">
+			<Text size="xs" weight="bold" class="download-kicker">Downloading models...</Text>
+			{#each wizardState.downloadList as dl (dl.downloadId)}
+				{#if dl.status === "downloading" || dl.status === "queued"}
+					<div class="download-row">
+						<span class="download-name">{dl.friendlyName}</span>
+						<div class="download-bar">
+							<div class="download-fill" style="width: {dl.totalBytes > 0 ? (dl.bytesDownloaded / dl.totalBytes) * 100 : 0}%;"></div>
 						</div>
-					{/each}
-				</div>
-			{/if}
-
-			<button class="btn-import" onclick={handleImport}>
-				<Upload size={14} /> Import Model from File
-			</button>
-
-			{#if importError}
-				<div class="import-error">
-					<span>{importError}</span>
-					<button class="error-dismiss" onclick={() => (importError = null)}>Dismiss</button>
-				</div>
-			{/if}
+					</div>
+				{/if}
+			{/each}
 		</div>
 	{/if}
 
-	<!-- Online tab -->
-	{#if activeTab === "online"}
+	{#if activeTab === "local"}
+		<div class="local-groups">
+			{#each groupOrder as group (group.role)}
+				{@const models = grouped[group.role]}
+				{@const color = roleColor(group.role)}
+				{@const Icon = roleIcon(group.role)}
+
+				<section class="group">
+					<div class="group-header" style="color: {color};">
+						<Icon size={16} />
+						<div class="group-copy">
+							<Text size="sm" weight="bold">{group.title}</Text>
+							<Text size="xs" class="group-desc">{group.desc}</Text>
+						</div>
+					</div>
+
+					{#if models.length === 0}
+						<div class="group-empty">
+							<Text size="sm" class="empty-copy">No {group.title.toLowerCase()} models found yet.</Text>
+							<Button preset="ghost" size="sm" onclick={() => (activeTab = "online")}>
+								Download from HuggingFace
+							</Button>
+						</div>
+					{:else}
+						<div class="local-list">
+							{#each models as model (model.id)}
+								<div class="local-row" style="--group-color: {color};">
+									<div class="local-info">
+										<span class="local-name">{cleanName(model.filename)}</span>
+										<span class="local-meta">
+											{formatMb(model.size_mb)}
+											{#if model.quant_level} · {model.quant_level}{/if}
+											{#if model.architecture !== "unknown"} · {model.architecture}{/if}
+										</span>
+										<span class="local-caps">
+											{model.compatible_capabilities.map((capability) => capInfo(capability).label).join(", ")}
+										</span>
+									</div>
+									<div class="local-actions">
+										{#each modelsState.userSlots.filter((slot) => model.compatible_capabilities.includes(slot.capability)) as slot (slot.id)}
+											{@const isAssigned = slot.assigned_model_id === model.id}
+											<button
+												class="assign-btn"
+												class:assign-btn-assigned={isAssigned}
+												style="--assign-color: {roleColor(capInfo(slot.capability).role)};"
+												onclick={() => handleAssign(slot.id, model.id)}
+												disabled={isAssigned}
+											>
+												{#if isAssigned}
+													<Check size={10} /> {friendlyName(slot.id)}
+												{:else}
+													Use for {friendlyName(slot.id)}
+												{/if}
+											</button>
+										{/each}
+									</div>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</section>
+			{/each}
+
+			<Button preset="secondary" size="md" onclick={handleImport} disabled={importing}>
+				<Upload size={14} />
+				{#if importing}Importing - please wait...{:else}Import Model from File{/if}
+			</Button>
+
+			{#if importError}
+				<div class="import-error">
+					<Text size="xs" class="import-error-copy">{importError}</Text>
+					<Button preset="ghost" size="sm" onclick={() => (importError = null)}>Dismiss</Button>
+				</div>
+			{/if}
+		</div>
+	{:else}
 		<HuggingFaceSearch
 			onDownload={async (repoId, filename, targetSlot) => {
 				const { downloadModel } = await import("../../../services/download.service.js");
 				const { toast } = await import("svelte-sonner");
 				try {
-					const dlId = await downloadModel(repoId, filename);
-					wizardState.trackDownload(dlId, (targetSlot ?? "chat.brain") as import("../../../types/models.types.js").SlotId, filename);
-					toast.info(`Downloading ${filename}...`);
-				} catch (e) {
-					toast.error(e instanceof Error ? e.message : String(e));
+					const downloadId = await downloadModel(repoId, filename);
+					wizardState.trackDownload(downloadId, (targetSlot ?? "chat.brain") as SlotId, filename);
+					toast.info(`Downloading ${cleanName(filename)}...`);
+				} catch (error) {
+					toast.error(error instanceof Error ? error.message : String(error));
 				}
 			}}
 		/>
@@ -150,103 +267,277 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	<VramBar />
 
 	<div class="nav">
-		<button class="btn-done" onclick={onDone}>
+		<Button preset="primary" size="md" onclick={onDone}>
 			<Check size={14} /> Done
-		</button>
+		</Button>
 	</div>
 </div>
 
+<WizardInfoPopup
+	open={showPageHelp}
+	title="Browse and assign models"
+	summary="This page helps you fill missing roles using either models already on your machine or fresh downloads from HuggingFace."
+	points={[
+		"On Your Computer: assign models you already have before downloading anything new.",
+		"Search HuggingFace: download missing models directly into the right role.",
+		"Model names are cleaned for display, but assignments still use the real file underneath.",
+		"This step is the manual override path when the recommended plan is not what you want.",
+	]}
+	imageSrc="/imgs/mascot/clyffy-df-icon-interaction2.png"
+	onClose={() => (showPageHelp = false)}
+/>
+
 <style>
 	.browse-step {
-		display: flex; flex-direction: column; gap: 1rem;
-		width: 100%; max-width: 40rem; padding: 1rem 0;
+		display: flex;
+		flex-direction: column;
+		gap: clamp(1rem, 0.75rem + 1vw, 1.5rem);
+		width: 100%;
+		max-width: 42rem;
+		padding: clamp(1rem, 0.75rem + 1vw, 1.5rem) 0;
 	}
-	.step-header { display: flex; flex-direction: column; gap: 0.375rem; }
-	.step-title { font-size: 1.25rem; font-weight: 800; color: var(--wiz-text); margin: 0; }
-	.step-desc { font-size: var(--wiz-text-sm); color: var(--wiz-text-sub); margin: 0; }
-	.btn-back {
-		display: inline-flex; align-items: center; gap: 0.25rem; align-self: flex-start;
-		border: none; background: transparent; color: var(--wiz-text-muted);
-		font-size: var(--wiz-text-xs); cursor: pointer; padding: 0; margin-bottom: 0.25rem;
-	}
-	.btn-back:hover { color: var(--wiz-cyan); }
 
-	/* Tabs */
-	.tab-bar { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--wiz-border); }
+	.step-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	:global(.step-subtitle) {
+		color: var(--text-secondary);
+	}
+
+	.help-row {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.375rem;
+		flex-wrap: wrap;
+	}
+
+	.tab-bar {
+		display: flex;
+		gap: 0;
+		border-bottom: var(--border-preset-default-width) solid var(--border-subtle);
+	}
+
 	.tab {
-		display: inline-flex; align-items: center; gap: 0.375rem;
-		padding: 0.5rem 1rem; border: none; background: transparent;
-		color: var(--wiz-text-muted); font-size: var(--wiz-text-sm); cursor: pointer;
-		border-bottom: 2px solid transparent; transition: all var(--wiz-duration-fast);
-	}
-	.tab:hover { color: var(--wiz-text-sub); }
-	.tab.active {
-		color: var(--wiz-cyan); border-bottom-color: var(--wiz-cyan);
-		background: var(--wiz-fill-cyan);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		flex: 1;
+		padding: 0.75rem 1rem;
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		cursor: pointer;
+		border-bottom: 0.1875rem solid transparent;
+		transition: var(--transition-all-fast);
 	}
 
-	/* Local section */
-	.local-section { display: flex; flex-direction: column; gap: 0.75rem; }
-	.empty-state { padding: 2rem; text-align: center; }
-	.empty-state p { font-size: var(--wiz-text-sm); color: var(--wiz-text-muted); margin: 0; }
-	.empty-hint { font-size: var(--wiz-text-xs); color: var(--wiz-void-500); }
+	.tab:hover {
+		color: var(--text-secondary);
+		background: var(--glass-deep);
+	}
 
-	.local-list { display: flex; flex-direction: column; gap: 0.375rem; max-height: 24rem; overflow-y: auto; }
+	.tab-active {
+		color: var(--accent-cyan-main);
+		border-bottom-color: var(--accent-cyan-main);
+		background: color-mix(in oklch, var(--accent-teal-fill) 92%, transparent);
+	}
+
+	.download-banner {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		padding: 0.75rem;
+		border-radius: 1rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+	}
+
+	:global(.download-kicker) {
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--accent-cyan-main);
+	}
+
+	.download-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.download-name {
+		flex: 0 0 7rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--text-primary);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.download-bar {
+		flex: 1;
+		height: 0.25rem;
+		border-radius: var(--radius-full);
+		background: var(--color-void-800);
+		overflow: hidden;
+	}
+
+	.download-fill {
+		height: 100%;
+		border-radius: var(--radius-full);
+		background: linear-gradient(90deg, var(--accent-cyan-main), var(--accent-purple-main));
+		transition: width var(--motion-duration-fast);
+	}
+
+	.local-groups {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.group-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.25rem 0;
+	}
+
+	.group-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	:global(.group-desc) {
+		color: var(--text-muted);
+	}
+
+	.group-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 1rem;
+		border-radius: 0.875rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) dashed var(--border-subtle);
+	}
+
+	:global(.empty-copy) {
+		color: var(--text-muted);
+	}
+
+	.local-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
 	.local-row {
-		display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
-		padding: 0.625rem 0.75rem; border-radius: var(--wiz-radius-md);
-		background: var(--wiz-card); border: 1px solid var(--wiz-border);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.75rem 0.875rem;
+		border-radius: 0.875rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		border-left: 0.1875rem solid var(--group-color, var(--border-strong));
 	}
-	.local-info { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; flex: 1; }
+
+	.local-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
+		flex: 1;
+	}
+
 	.local-name {
-		font-size: var(--wiz-text-sm); font-weight: 600; color: var(--wiz-text);
-		overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text-primary);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
-	.local-meta { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
-	.local-caps { font-size: var(--wiz-text-xs); color: var(--wiz-void-400); }
-	.local-actions { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 
-	.btn-assign {
-		display: inline-flex; align-items: center; gap: 0.25rem;
-		padding: 0.25rem 0.5rem; border-radius: var(--wiz-radius-sm);
-		border: 1px solid var(--wiz-border); background: transparent;
-		color: var(--wiz-text-muted); font-size: var(--wiz-text-xs); cursor: pointer;
-		transition: all var(--wiz-duration-fast);
+	.local-meta {
+		font-size: 0.75rem;
+		color: var(--text-muted);
 	}
-	.btn-assign:hover { border-color: var(--wiz-cyan); color: var(--wiz-text); }
-	.btn-assign.assigned {
-		border-color: var(--wiz-green); color: var(--wiz-green);
-		background: var(--wiz-fill-green);
-	}
-	.btn-assign:disabled { cursor: default; }
 
-	.btn-import {
-		display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
-		padding: 0.625rem 1rem; border-radius: var(--wiz-radius-md);
-		border: 1px dashed var(--wiz-border); background: transparent;
-		color: var(--wiz-text-sub); font-size: var(--wiz-text-sm); cursor: pointer;
-		transition: all var(--wiz-duration-fast);
+	.local-caps {
+		font-size: 0.75rem;
+		color: var(--text-secondary);
 	}
-	.btn-import:hover { border-color: var(--wiz-cyan); color: var(--wiz-text); }
+
+	.local-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+	}
+
+	.assign-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.25rem 0.5rem;
+		border-radius: var(--radius-sm);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: transparent;
+		color: var(--text-muted);
+		font-size: 0.75rem;
+		cursor: pointer;
+		transition: var(--transition-all-fast);
+	}
+
+	.assign-btn:hover {
+		border-color: var(--assign-color);
+		color: var(--text-primary);
+	}
+
+	.assign-btn-assigned {
+		border-color: var(--accent-green-main);
+		color: var(--accent-green-main);
+		background: color-mix(in oklch, var(--accent-green-fill) 92%, transparent);
+	}
+
+	.assign-btn:disabled {
+		cursor: default;
+	}
 
 	.import-error {
-		display: flex; align-items: center; justify-content: space-between;
-		padding: 0.5rem 0.75rem; border-radius: var(--wiz-radius-md);
-		background: var(--wiz-fill-ember); border: 1px solid var(--wiz-ember-600);
-		font-size: var(--wiz-text-xs); color: var(--wiz-ember-200);
-	}
-	.error-dismiss {
-		border: none; background: transparent; color: var(--wiz-ember-300);
-		font-size: var(--wiz-text-xs); cursor: pointer; text-decoration: underline;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0.625rem 0.75rem;
+		border-radius: 0.875rem;
+		background: color-mix(in oklch, var(--signal-error) 12%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--signal-error) 45%, transparent);
 	}
 
-	/* Navigation */
-	.nav { display: flex; justify-content: flex-end; padding-top: 0.5rem; }
-	.btn-done {
-		display: inline-flex; align-items: center; gap: 0.375rem;
-		padding: 0.5rem 1.25rem; border-radius: var(--wiz-radius-md); border: none;
-		background: var(--wiz-cyan); color: var(--wiz-void-950);
-		font-size: var(--wiz-text-sm); font-weight: 700; cursor: pointer;
+	:global(.import-error-copy) {
+		color: var(--text-secondary);
 	}
-	.btn-done:hover { filter: brightness(1.15); }
+
+	.nav {
+		display: flex;
+		justify-content: flex-end;
+		padding-top: 0.5rem;
+	}
 </style>

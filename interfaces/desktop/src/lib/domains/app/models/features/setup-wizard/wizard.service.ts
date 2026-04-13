@@ -36,11 +36,17 @@ import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
  */
 export async function startHardwareScan(): Promise<void> {
 	wizardState.error = null;
-	logInfo("wizard.hardware", "startHardwareScan() — hardwareState.startListening()");
+	logInfo("wizard.hardware", "startHardwareScan() — ensure app hardware telemetry");
 	try {
-		await hardwareState.startListening();
-		wizardState.hardwareScanned = true;
-		logInfo("wizard.hardware", "startHardwareScan() ok — hardwareScanned=true");
+		await hardwareState.ensureListening("wizard-start");
+		if (!hardwareState.hasSnapshot) {
+			await hardwareState.refresh("wizard-start:no-snapshot");
+		}
+		wizardState.hardwareScanned = hardwareState.hasSnapshot;
+		logInfo(
+			"wizard.hardware",
+			`startHardwareScan() ok — hardwareScanned=${String(wizardState.hardwareScanned)} cpu=${hardwareState.cpuName ?? "none"} gpu=${hardwareState.gpuName ?? "none"} gpuError=${hardwareState.gpuError ?? "none"}`,
+		);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.hardware", `Hardware scan failed: ${msg}`);

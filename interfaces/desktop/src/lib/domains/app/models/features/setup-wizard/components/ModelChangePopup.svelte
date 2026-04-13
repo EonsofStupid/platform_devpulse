@@ -139,7 +139,7 @@ const TABS: Tab[] = ["recommended", "search", "browse"];
 				onclick={() => (activeTab = "recommended")}
 			>
 				<Sparkles size={14} aria-hidden="true" />
-				{copy.local_tab_label || "Recommended"}
+				{copy.recommended_tab_label}
 			</button>
 			<button
 				type="button"
@@ -164,7 +164,7 @@ const TABS: Tab[] = ["recommended", "search", "browse"];
 				onclick={() => (activeTab = "browse")}
 			>
 				<FolderOpen size={14} aria-hidden="true" />
-				{copy.import_button_label || "Local Browse"}
+				{copy.local_browse_tab_label}
 			</button>
 		</div>
 
@@ -209,7 +209,7 @@ const TABS: Tab[] = ["recommended", "search", "browse"];
 				</div>
 			{:else if activeTab === "search"}
 				<div id="panel-search" role="tabpanel" aria-labelledby="tab-search" class="mcp-panel">
-					<HuggingFaceSearch onDownload={handleDownload} />
+					<HuggingFaceSearch copy={copy} onDownload={handleDownload} />
 				</div>
 			{:else}
 				<div id="panel-browse" role="tabpanel" aria-labelledby="tab-browse" class="mcp-panel">

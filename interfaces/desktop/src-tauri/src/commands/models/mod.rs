@@ -13,7 +13,7 @@ use tauri::{Emitter, State};
 /// Serializable slot info for the frontend (maps from model-loader Slot).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct SlotInfo {
-    /// Slot identifier (e.g. `"chat.brain"`, `"voice.tts.primary"`).
+    /// Slot identifier (e.g. `"chat.brain"`, `"voice.tts"`).
     pub id: String,
     /// Human-readable label (e.g. `"AI Brain"`).
     pub label: String,
@@ -155,8 +155,9 @@ pub async fn get_hardware_metrics(
             .unwrap_or_default()
     };
 
-    // Compute before struct literal — gpu_name moves into the struct
+    // Compute before struct literal — fields move into the struct
     let has_gpu = m.gpu_name.is_some();
+    let nvml_available = m.gpu_error.is_none() && has_gpu;
 
     Ok(HardwareInfo {
         cpu_usage_percent: m.cpu_usage_percent,
@@ -177,7 +178,7 @@ pub async fn get_hardware_metrics(
         cpu_threads: None,
         disk_free_mb: None,
         cuda_version: None,
-        nvml_available: has_gpu,
+        nvml_available,
         model_dir,
     })
 }

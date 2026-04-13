@@ -28,8 +28,9 @@ use std::path::PathBuf;
 pub struct RehConfig {
     /// Path to the REH web server build directory.
     pub server_dir: PathBuf,
-    /// Workspace folder the server will open on start.
-    pub workspace_path: PathBuf,
+    /// Project folder the server will open on start. `None` means REH
+    /// starts with no folder — the user picks one inside VS Code.
+    pub workspace_path: Option<PathBuf>,
     /// VS Code user-data directory (profiles, settings, state).
     pub user_data_dir: PathBuf,
     /// Optional extensions directory override.
