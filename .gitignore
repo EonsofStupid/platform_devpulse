@@ -40,4 +40,5 @@ history.txt
 lefthook.yml
 pnpm-lock.yaml
 .claude/settings.local.json
+.claude/worktrees/
 deps/
