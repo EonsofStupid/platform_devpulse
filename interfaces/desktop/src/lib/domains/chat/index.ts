@@ -1,9 +1,14 @@
 /**
  * @file domains/chat/index.ts
  * @module @devpulse/domains/chat
- * @description Chat domain — state, services, types
+ * @description Chat domain public API (Nx library-types)
  */
 
-export { chatState } from "./runes/chat.runes.svelte.js";
-export { loadMessages, sendMessage } from "./services/chat.service.js";
-export type { BlockChatMessage, ChatMessage, ChatMode, ChatThread } from "./types/chat.types.js";
+export { loadMessages, sendMessage } from "./data-access/chat.service.js";
+export { chatState } from "./data-access/chat.state.svelte.js";
+export type {
+	BlockChatMessage,
+	ChatMessage,
+	ChatMode,
+	ChatThread,
+} from "./util/chat.types.js";

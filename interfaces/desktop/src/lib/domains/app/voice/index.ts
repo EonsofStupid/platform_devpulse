@@ -1,8 +1,9 @@
 /**
- * @file Voice domain — public API.
+ * @file Voice domain — public API (Nx library-types).
  * @domain voice
  */
 
-export * from "./contracts/voice.contract.js";
-export * from "./services/voice.svc.js";
-export { voiceState } from "./state/voice.state.svelte.js";
+export { voiceState } from "./data-access/voice.state.svelte.js";
+export * from "./data-access/voice.svc.js";
+export { default as VoiceLabPanel } from "./feature/lab/VoiceLabPanel.svelte";
+export * from "./util/voice.contract.js";

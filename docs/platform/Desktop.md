@@ -43,7 +43,7 @@ Every domain is organized by **library type**, not by "what file extension is th
 |--------------|----------|-----------------|---------------|
 | `feature/` | Smart/orchestrating Svelte 5 components. Routed pages compose these. Owns rune-glue, effects, and calls `data-access`. | `ui`, `data-access`, `util`, ColdLight, other domains' `index.ts` | "It knows what's on screen *and* what the data layer is." |
 | `ui/` | Dumb/presentational Svelte 5 components. Props in, events out. No `$effect` talking to services, no IPC calls. | `util`, ColdLight | "Could be shown in Storybook with fake data." |
-| `data-access/` | Rune state modules (`*.state.svelte.ts`), services (`*.svc.ts`), Tauri IPC adapters, subscriptions. The ONLY place reactive domain state lives. | `util`, `sys/adapters`, `sys/streams` | "If you ripped out the UI, this still compiles and runs." |
+| `data-access/` | Rune state modules (`*.state.svelte.ts`), services (`*.service.ts`), Tauri IPC adapters, subscriptions. The ONLY place reactive domain state lives. | `util`, `sys/adapters`, `sys/streams` | "If you ripped out the UI, this still compiles and runs." |
 | `util/` | Pure TypeScript: Zod/ArkType contracts, types, constants, formatters, enums. Zero runtime side effects, zero Svelte. | Nothing domain-specific | "Safe to import from literally anywhere, including tests." |
 
 **Dependency direction (strict, enforced by preflight):**
@@ -115,7 +115,7 @@ src/lib/domains/app/{domain}/
     {domain}.format.ts                # Pure formatters (optional)
   data-access/
     {domain}.state.svelte.ts          # Rune state ($state, $derived)
-    {domain}.svc.ts                   # Services: Tauri invoke(), business ops
+    {domain}.service.ts               # Services: Tauri invoke(), business ops
     {domain}.events.ts                # IPC event subscriptions (optional)
   ui/
     {Something}Card.svelte            # Dumb component — props in, events out
@@ -131,7 +131,7 @@ src/lib/domains/app/{domain}/
 **Mandatory per domain:**
 - `index.ts` — public API surface (re-exports from `data-access` + `util` + selected `feature` entries)
 - `util/` — at minimum one `*.contract.ts` with Zod/ArkType domain metadata
-- `data-access/` — at minimum one `*.state.svelte.ts` and one `*.svc.ts`
+- `data-access/` — at minimum one `*.state.svelte.ts` and one `*.service.ts`
 - `feature/dashboard/` — every domain gets a dashboard
 
 **Optional per domain:**
@@ -168,7 +168,7 @@ Domain                                      Route
 ──────                                      ─────
 util/{domain}.contract.ts               →   +page.ts imports types
 data-access/{domain}.state.svelte.ts    →   +page.svelte binds rune state
-data-access/{domain}.svc.ts             →   +page.ts load() calls service
+data-access/{domain}.service.ts         →   +page.ts load() calls service
 feature/dashboard/                      →   dashboard/+page.svelte composes feature
 index.ts                                →   ALL route files import through here
 ```
@@ -339,7 +339,7 @@ src/lib/domains/app/models/
     models.types.ts
   data-access/
     models.state.svelte.ts
-    models.svc.ts
+    models.service.ts
   ui/                           # (created on demand)
   feature/
     dashboard/
@@ -482,7 +482,7 @@ folder structure:
 | Type | Location | Pattern | Example |
 |------|----------|---------|---------|
 | Domain state | `data-access/` | `*.state.svelte.ts` | `chat.state.svelte.ts` |
-| Domain service | `data-access/` | `*.svc.ts` | `chat.svc.ts` |
+| Domain service | `data-access/` | `*.service.ts` | `chat.service.ts` |
 | Domain events | `data-access/` | `*.events.ts` | `chat.events.ts` |
 | Domain contract | `util/` | `*.contract.ts` | `chat.contract.ts` |
 | Domain types | `util/` | `*.types.ts` | `chat.types.ts` |

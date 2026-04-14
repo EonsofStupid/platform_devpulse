@@ -1,19 +1,19 @@
 /**
  * @file domains/app/devpulse/index.ts
  * @module @devpulse/domains/app/devpulse
- * @description Dashboard, community, profile, settings
+ * @description Dashboard, community, profile, settings (Nx library-types)
  */
 
-export { devpulseState } from "./runes/devpulse.runes.svelte.js";
 export {
 	fetchDashboardData,
 	fetchProcessMetrics,
 	getEmptyDashboard,
 	mapPayloadToDashboard,
-} from "./services/devpulse.service.js";
+} from "./data-access/devpulse.service.js";
+export { devpulseState } from "./data-access/devpulse.state.svelte.js";
 export type {
 	CommunityStats,
 	DashboardData,
 	RecentProject,
 	UserStats,
-} from "./types/devpulse.types.js";
+} from "./util/devpulse.types.js";

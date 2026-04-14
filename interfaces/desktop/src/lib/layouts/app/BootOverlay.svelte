@@ -29,7 +29,7 @@ import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { wizardState } from "$lib/domains/app/models/features/setup-wizard/index.js";
+import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";

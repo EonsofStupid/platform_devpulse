@@ -19,7 +19,7 @@
 import type { Snippet } from "svelte";
 import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { SetupWizardOverlay } from "$lib/domains/app/models/features/setup-wizard/index.js";
+import { SetupWizardOverlay } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";

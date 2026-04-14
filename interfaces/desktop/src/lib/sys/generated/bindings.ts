@@ -2596,7 +2596,7 @@ export type InitStatus =
  * 
  * The `action` field names a handler; `payload` is a handler-specific
  * free-form string. Handlers live frontend-side; see
- * `interfaces/desktop/src/lib/domains/app/models/features/setup-wizard/
+ * `interfaces/desktop/src/lib/domains/app/models/feature/setup-wizard/
  * assistant-actions.ts` for the dispatch table.
  */
 export type KeywordActionEntry = { 

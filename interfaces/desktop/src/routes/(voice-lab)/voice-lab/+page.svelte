@@ -13,7 +13,7 @@ import { X } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Tabs } from "$lib/design/components/tabs/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
-import VoiceLabPanel from "$lib/domains/app/voice/features/lab/VoiceLabPanel.svelte";
+import { VoiceLabPanel } from "$lib/domains/app/voice/index.js";
 
 function handleClose(): void {
 	invoke("close_window", { label: "voice-lab" });

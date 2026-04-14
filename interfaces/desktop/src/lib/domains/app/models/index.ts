@@ -1,23 +1,41 @@
-export { default as ClyffyNarration } from "./components/ClyffyNarration.svelte";
-export { default as ContextGauge } from "./components/ContextGauge.svelte";
-// Component exports — routes import from here, not from components/ directly
-export { default as ModelEventCard } from "./components/chat/ModelEventCard.svelte";
-export { default as GpuUtilGauge } from "./components/GpuUtilGauge.svelte";
-export { default as HfModelCard } from "./components/HfModelCard.svelte";
-export { default as ModelDetailPanel } from "./components/ModelDetailPanel.svelte";
-export { default as ModelLoaderPanel } from "./components/ModelLoaderPanel.svelte";
-export { default as ModelPicker } from "./components/ModelPicker.svelte";
-export { default as ModelSearch } from "./components/ModelSearch.svelte";
-export { default as SlotRow } from "./components/SlotRow.svelte";
-export { default as SubsystemGroup } from "./components/SubsystemGroup.svelte";
-export { default as SwapOverlay } from "./components/SwapOverlay.svelte";
-export { default as VramBudgetPlanner } from "./components/VramBudgetPlanner.svelte";
-export { default as VramGauge } from "./components/VramGauge.svelte";
-// Setup wizard is mounted by the app shell overlay, not a dedicated route tree.
-export { hardwareState, modelsState, searchState, swapState } from "./runes/index.js";
-export { narrationState } from "./runes/narration.runes.svelte.js";
-export { downloadModel, importLocalModel } from "./services/download.service.js";
-export type * from "./types/models.types.js";
+/**
+ * @module @devpulse/domains/app/models
+ *
+ * Public API for the models domain. Routes and other domains MUST import from
+ * this file. Never reach into `data-access/`, `feature/`, `ui/`, or `util/`
+ * directly from outside this domain.
+ *
+ * Layout (Nx library-types, LOCKED 2026-04-14 — see docs/platform/Desktop.md §1.1.1):
+ *   util/         — pure types + Zod/ArkType contracts
+ *   data-access/  — rune state + Tauri services
+ *   ui/           — dumb/presentational Svelte components
+ *   feature/      — smart/orchestrating Svelte components + routed features
+ */
+
+export { downloadModel, importLocalModel } from "./data-access/download.service.js";
+export { hardwareState } from "./data-access/hardware.state.svelte.js";
+export { generateText } from "./data-access/inference.service.js";
+export { modelsState } from "./data-access/models.state.svelte.js";
+export { narrationState } from "./data-access/narration.state.svelte.js";
+export { searchState } from "./data-access/search.state.svelte.js";
+export { swapState } from "./data-access/swap.state.svelte.js";
+export { default as HfModelCard } from "./feature/components/HfModelCard.svelte";
+export { default as ModelDetailPanel } from "./feature/components/ModelDetailPanel.svelte";
+export { default as ModelLoaderPanel } from "./feature/components/ModelLoaderPanel.svelte";
+export { default as ModelPicker } from "./feature/components/ModelPicker.svelte";
+export { default as ModelSearch } from "./feature/components/ModelSearch.svelte";
+export { default as SlotRow } from "./feature/components/SlotRow.svelte";
+export { default as SubsystemGroup } from "./feature/components/SubsystemGroup.svelte";
+export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte";
+export { default as VramBudgetPlanner } from "./feature/components/VramBudgetPlanner.svelte";
+export { bootstrapDownloadBridge } from "./feature/setup-wizard/download-bootstrap.js";
+export { default as ClyffyNarration } from "./ui/ClyffyNarration.svelte";
+export { default as ContextGauge } from "./ui/ContextGauge.svelte";
+export { default as ModelEventCard } from "./ui/chat/ModelEventCard.svelte";
+export { default as GpuUtilGauge } from "./ui/GpuUtilGauge.svelte";
+export { default as VoiceSlotStatus } from "./ui/VoiceSlotStatus.svelte";
+export { default as VramGauge } from "./ui/VramGauge.svelte";
+export type * from "./util/models.types.js";
 export {
 	calculateFit,
 	contextDescription,
@@ -31,4 +49,4 @@ export {
 	statusColor,
 	statusLabel,
 	vramDescription,
-} from "./types/models.types.js";
+} from "./util/models.types.js";
