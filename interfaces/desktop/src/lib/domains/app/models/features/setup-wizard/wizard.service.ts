@@ -17,10 +17,11 @@ import { modelsState } from "../../runes/models.runes.svelte.js";
 import {
 	autoConfigureHardware,
 	cancelDownload,
+	type DownloadCompleteEvent,
 	downloadModel,
+	onDownloadCancelled,
 	onDownloadComplete,
 	onDownloadFailed,
-	onDownloadProgress,
 } from "../../services/download.service.js";
 import type { AutoConfig, SlotId } from "../../types/models.types.js";
 import { formatMb, friendlySlotLabel } from "../../types/models.types.js";
@@ -196,6 +197,57 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 // ── Phase 2: Download + Assign ─────────────────────────
 
 /**
+ * Wait for a single download to reach a real terminal state.
+ *
+ * Ownership of live progress stays with the root `download-bootstrap`
+ * bridge. This helper only gates orchestration on terminal kernel events:
+ * complete, failed, or cancelled.
+ */
+function waitForDownloadTerminalState(downloadId: string): Promise<DownloadCompleteEvent> {
+	return new Promise<DownloadCompleteEvent>((resolve, reject) => {
+		let settled = false;
+		let unsubComplete = () => {};
+		let unsubFailed = () => {};
+		let unsubCancelled = () => {};
+
+		const timeout = setTimeout(
+			() => {
+				finish();
+				reject(new Error("Download timed out after 30 minutes"));
+			},
+			30 * 60 * 1000,
+		);
+
+		const finish = (): void => {
+			if (settled) return;
+			settled = true;
+			clearTimeout(timeout);
+			unsubComplete();
+			unsubFailed();
+			unsubCancelled();
+		};
+
+		unsubComplete = onDownloadComplete((data) => {
+			if (data.downloadId !== downloadId) return;
+			finish();
+			resolve(data);
+		});
+
+		unsubFailed = onDownloadFailed((data) => {
+			if (data.downloadId !== downloadId) return;
+			finish();
+			reject(new Error(data.error));
+		});
+
+		unsubCancelled = onDownloadCancelled((data) => {
+			if (data.downloadId !== downloadId) return;
+			finish();
+			reject(new Error("Cancelled by user"));
+		});
+	});
+}
+
+/**
  * Download a model from HuggingFace and assign it to a slot.
  *
  * @throws {Error} If download fails (network, disk, timeout)
@@ -203,7 +255,7 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
  * @throws {Error} If slot assignment fails
  *
  * Side effects:
- * - Registers and cleans up onDownloadProgress listener
+ * - Waits for terminal kernel download events
  * - Updates wizardState.activeDownloads throughout lifecycle
  * - Calls modelsState.scan() and modelsState.refresh() on success
  * - Calls modelsState.assign() on success
@@ -231,36 +283,9 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 	wizardState.trackDownload(downloadId, rec.slot, rec.file);
 	toast.info(`Downloading ${rec.name}...`);
 
-	// Wire progress events — THIS WAS THE MISSING LINK
-	const unsubProgress = onDownloadProgress((progress) => {
-		if (progress.downloadId === downloadId) {
-			wizardState.updateDownloadProgress(
-				downloadId,
-				progress.bytesDownloaded,
-				progress.totalBytes,
-				progress.speedBps,
-			);
-		}
-	});
-
 	try {
-		await new Promise<void>((resolve, reject) => {
-			const unsub = onDownloadComplete((data) => {
-				if (data.downloadId === downloadId) {
-					unsub();
-					resolve();
-				}
-			});
-			setTimeout(
-				() => {
-					unsub();
-					reject(new Error("Download timed out after 30 minutes"));
-				},
-				30 * 60 * 1000,
-			);
-		});
+		await waitForDownloadTerminalState(downloadId);
 
-		unsubProgress();
 		wizardState.completeDownload(downloadId);
 		toast.success(`${rec.name} downloaded`);
 
@@ -281,7 +306,6 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 		toast.success(`${rec.name} assigned to ${friendlySlotLabel(rec.slot)}`);
 		logInfo("wizard.download", `downloadAndAssign() complete — slot=${rec.slot}`);
 	} catch (e) {
-		unsubProgress();
 		const msg = e instanceof Error ? e.message : String(e);
 		logError(
 			"wizard.download",
@@ -322,54 +346,20 @@ export async function downloadAndAssignFile(
 	wizardState.trackDownload(downloadId, slotId, filename);
 	toast.info(`Downloading ${filename}...`);
 
-	await new Promise<void>((resolve, reject) => {
-		let settled = false;
-		const timeout = setTimeout(
-			() => {
-				finish();
-				reject(new Error("Download timed out after 30 minutes"));
-			},
-			30 * 60 * 1000,
-		);
-
-		const finish = (): void => {
-			if (settled) return;
-			settled = true;
-			clearTimeout(timeout);
-			unsubComplete();
-			unsubFailed();
-		};
-
-		const unsubComplete = onDownloadComplete((data) => {
-			if (data.downloadId !== downloadId) return;
-			finish();
-			void (async () => {
-				try {
-					wizardState.completeDownload(downloadId);
-					await modelsState.scan();
-					await modelsState.refresh();
-					await modelsState.assign(slotId, data.modelId);
-					toast.success(`${filename} assigned to ${slotLabel}`);
-					resolve();
-				} catch (e) {
-					const msg = e instanceof Error ? e.message : String(e);
-					wizardState.failDownload(downloadId, `Downloaded, but slot apply failed: ${msg}`);
-					wizardState.error = msg;
-					toast.error(`Downloaded, but slot apply failed: ${msg}`);
-					reject(e instanceof Error ? e : new Error(msg));
-				}
-			})();
-		});
-
-		const unsubFailed = onDownloadFailed((data) => {
-			if (data.downloadId !== downloadId) return;
-			finish();
-			wizardState.failDownload(downloadId, data.error);
-			wizardState.error = data.error;
-			toast.error(`Download failed: ${data.error}`);
-			reject(new Error(data.error));
-		});
-	});
+	try {
+		const data = await waitForDownloadTerminalState(downloadId);
+		wizardState.completeDownload(downloadId);
+		await modelsState.scan();
+		await modelsState.refresh();
+		await modelsState.assign(slotId, data.modelId);
+		toast.success(`${filename} assigned to ${slotLabel}`);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		wizardState.failDownload(downloadId, msg);
+		wizardState.error = msg;
+		toast.error(`Download failed: ${msg}`);
+		throw e instanceof Error ? e : new Error(msg);
+	}
 }
 
 /** Cancel an in-progress download.

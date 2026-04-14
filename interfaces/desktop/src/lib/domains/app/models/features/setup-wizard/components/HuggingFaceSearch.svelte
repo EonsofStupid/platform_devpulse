@@ -7,7 +7,10 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Download, FileText, Layers, Search } from "lucide-svelte";
+import { Button } from "$lib/design/components/button/index.js";
+import { SearchField } from "$lib/design/components/search-field/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import Text from "$lib/design/components/text/Text.svelte";
 import { hardwareState } from "../../../runes/hardware.runes.svelte.js";
 import { modelsState } from "../../../runes/models.runes.svelte.js";
 import { searchState } from "../../../runes/search.runes.svelte.js";
@@ -67,6 +70,11 @@ const DEFAULT_BROWSE_COPY: BrowseCopy = {
 };
 
 const POPULAR_SEARCHES = ["Qwen3", "Llama", "Mistral", "Phi"];
+const SEARCH_TRUTH_CHIPS = [
+	"Kernel-backed search",
+	"Real queue downloads",
+	"Slot-aware install targets",
+];
 
 interface Props {
 	copy?: BrowseCopy | null;
@@ -81,7 +89,7 @@ let selectedSlotForDownload = $state<Record<string, string>>({});
 let formatTab = $state<"gguf" | "safetensors" | "all">("all");
 let tooltipVisible = $state<string | null>(null);
 let tooltipTimer = $state<ReturnType<typeof setTimeout> | null>(null);
-let browseCopy = $state<BrowseCopy>(copy ?? DEFAULT_BROWSE_COPY);
+let browseCopy = $state<BrowseCopy>(DEFAULT_BROWSE_COPY);
 
 let copyRequested = false;
 
@@ -127,12 +135,31 @@ function pluralSuffix(count: number): string {
 	return count === 1 ? "" : "s";
 }
 
-function handleSearch(): void {
-	searchState.setQuery(searchInput);
+async function handleSearch(): Promise<void> {
+	const query = searchInput.trim();
+	if (!query) {
+		clearSearch();
+		return;
+	}
+	searchInput = query;
+	await searchState.submitQuery(query);
 }
 
 function handleInputKeydown(e: KeyboardEvent): void {
-	if (e.key === "Enter") handleSearch();
+	if (e.key === "Enter") {
+		e.preventDefault();
+		void handleSearch();
+	}
+}
+
+function clearSearch(): void {
+	searchInput = "";
+	searchState.clear();
+}
+
+function runSuggestedSearch(suggestion: string): void {
+	searchInput = suggestion;
+	void searchState.submitQuery(suggestion);
 }
 
 function selectSlotForFile(fileKey: string, slotId: string): void {
@@ -170,28 +197,60 @@ function isSafetensorFile(filename: string): boolean {
 </script>
 
 <div class="hf-section">
-	<h3 class="hf-title"><Search size={18} /> {browseCopy.online_tab_label}</h3>
-	<p class="hf-desc">{browseCopy.search_panel_description}</p>
-
-	<!-- Search input — full width, prominent -->
-	<div class="search-row">
-		<input
-			type="text"
-			bind:value={searchInput}
-			placeholder={browseCopy.search_placeholder}
-			class="search-input"
-			onkeydown={handleInputKeydown}
-			aria-label={browseCopy.search_input_aria}
-		/>
+	<div class="search-hero">
+		<div class="search-hero-copy">
+			<Text size="xs" weight="bold" class="search-kicker">Kernel Search</Text>
+			<div class="search-title-row">
+				<Search size={18} />
+				<Text size="lg" weight="bold" class="hf-title">{browseCopy.online_tab_label}</Text>
+			</div>
+			<Text size="sm" class="hf-desc">{browseCopy.search_panel_description}</Text>
+		</div>
+		<div class="search-pill-row" aria-label="Search truths">
+			{#each SEARCH_TRUTH_CHIPS as chip (chip)}
+				<span class="search-pill">{chip}</span>
+			{/each}
+		</div>
 	</div>
-	<button
-		class="btn-search-main"
-		onclick={handleSearch}
-		disabled={!searchInput.trim()}
-		aria-label={browseCopy.search_button_label}
-	>
-		<Search size={16} /> {browseCopy.search_button_label}
-	</button>
+
+	<div class="search-shell">
+		<SearchField
+			class="search-field"
+			preset="glass"
+			size="lg"
+			value={searchInput}
+			onValueChange={(value) => {
+				searchInput = value;
+				if (!value.trim()) {
+					searchState.clear();
+				}
+			}}
+			onClear={clearSearch}
+			placeholder={browseCopy.search_placeholder}
+			aria-label={browseCopy.search_input_aria}
+			onkeydown={handleInputKeydown}
+		/>
+		<Button
+			preset="primary"
+			size="md"
+			class="search-submit"
+			onclick={() => void handleSearch()}
+			disabled={!searchInput.trim() || searchState.searching}
+		>
+			{#if searchState.searching}
+				<Spinner size="sm" /> Searching...
+			{:else}
+				<Search size={16} /> {browseCopy.search_button_label}
+			{/if}
+		</Button>
+	</div>
+
+	<div class="quick-search-row">
+		<span class="suggest-label">{browseCopy.popular_searches_label}</span>
+		{#each POPULAR_SEARCHES as suggestion (suggestion)}
+			<button class="suggest-btn" onclick={() => runSuggestedSearch(suggestion)}>{suggestion}</button>
+		{/each}
+	</div>
 
 	<!-- Format filter tabs -->
 	<div class="format-tabs">
@@ -222,7 +281,7 @@ function isSafetensorFile(filename: string): boolean {
 	{#if searchState.searching}
 		<div class="search-loading">
 			<Spinner size="sm" />
-			<span class="loading-text">{applyTemplate(browseCopy.search_loading_template, { query: searchInput })}</span>
+			<span class="loading-text">{applyTemplate(browseCopy.search_loading_template, { query: searchState.query || searchInput })}</span>
 			<span class="loading-hint">{browseCopy.search_loading_hint}</span>
 		</div>
 	{/if}
@@ -232,8 +291,8 @@ function isSafetensorFile(filename: string): boolean {
 		<div class="error-box">
 			<span class="error-text">{searchState.error}</span>
 			<div class="error-actions">
-				<button class="btn-accent" onclick={handleSearch}>{browseCopy.retry_label}</button>
-				<button class="btn-ghost" onclick={() => { searchInput = ""; }}>{browseCopy.clear_label}</button>
+				<button class="btn-accent" onclick={() => void handleSearch()}>{browseCopy.retry_label}</button>
+				<button class="btn-ghost" onclick={clearSearch}>{browseCopy.clear_label}</button>
 			</div>
 		</div>
 	{/if}
@@ -434,7 +493,7 @@ function isSafetensorFile(filename: string): boolean {
 			<div class="empty-suggestions">
 				<span class="suggest-label">{browseCopy.popular_searches_label}</span>
 				{#each POPULAR_SEARCHES as suggestion (suggestion)}
-					<button class="suggest-btn" onclick={() => { searchInput = suggestion; handleSearch(); }}>{suggestion}</button>
+					<button class="suggest-btn" onclick={() => runSuggestedSearch(suggestion)}>{suggestion}</button>
 				{/each}
 			</div>
 		</div>
@@ -449,7 +508,7 @@ function isSafetensorFile(filename: string): boolean {
 			<div class="welcome-suggestions">
 				<span class="suggest-label">{browseCopy.try_one_of_these_label}</span>
 				{#each POPULAR_SEARCHES as suggestion (suggestion)}
-					<button class="suggest-btn" onclick={() => { searchInput = suggestion; handleSearch(); }}>{suggestion}</button>
+					<button class="suggest-btn" onclick={() => runSuggestedSearch(suggestion)}>{suggestion}</button>
 				{/each}
 			</div>
 			<div class="format-help">
@@ -462,226 +521,518 @@ function isSafetensorFile(filename: string): boolean {
 </div>
 
 <style>
-	.hf-section { display: flex; flex-direction: column; gap: 0.75rem; }
-	.hf-title {
-		display: flex; align-items: center; gap: 0.5rem;
-		font-size: 1.125rem; font-weight: 800; color: var(--wiz-text); margin: 0;
+	.hf-section {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
-	/* Search */
-	.search-row { display: flex; gap: 0.5rem; }
-	.search-input {
-		flex: 1; padding: 0.625rem 0.875rem; border-radius: var(--wiz-radius-md);
-		border: 1px solid var(--wiz-border); background: var(--wiz-inset);
-		color: var(--wiz-text); font-size: var(--wiz-text-sm); outline: none;
-	}
-	.search-input::placeholder { color: var(--wiz-text-muted); }
-	.search-input:focus { border-color: var(--wiz-border-focus); }
-
-	/* Format tabs */
-	.format-tabs {
-		display: flex; gap: 0.25rem; padding: 0.25rem;
-		background: var(--wiz-inset); border-radius: var(--wiz-radius-md); position: relative;
-	}
-	.format-tab {
-		display: inline-flex; align-items: center; gap: 0.375rem;
-		padding: 0.5rem 0.875rem; border-radius: var(--wiz-radius-sm);
-		border: none; background: transparent; color: var(--wiz-text-muted);
-		font-size: var(--wiz-text-sm); font-weight: 600; cursor: pointer;
-		transition: all var(--wiz-duration-fast);
-	}
-	.format-tab.active { background: var(--wiz-fill-cyan); color: var(--wiz-cyan); }
-	.format-tab:hover:not(.active) { background: var(--wiz-card); }
-
-	/* Results */
-	.result-count { font-size: var(--wiz-text-sm); color: var(--wiz-text-muted); }
-	.result-card {
-		background: var(--wiz-card); border: 1px solid var(--wiz-border);
-		border-radius: var(--wiz-radius-lg); padding: 1rem;
-		display: flex; flex-direction: column; gap: 0.75rem;
-	}
-	.result-header { display: flex; align-items: flex-start; gap: 0.75rem; }
-	.result-meta { flex: 1; min-width: 0; }
-	.result-name { display: block; font-size: 0.9375rem; font-weight: 700; color: var(--wiz-text); }
-	.result-author { display: block; font-size: var(--wiz-text-sm); color: var(--wiz-text-muted); }
-	.result-stats { display: flex; gap: 0.75rem; flex-shrink: 0; }
-	.stat { font-size: var(--wiz-text-sm); color: var(--wiz-text-muted); }
-	.pipeline-badge {
-		display: inline-block; padding: 0.125rem 0.5rem; border-radius: var(--wiz-radius-sm);
-		background: var(--wiz-void-800); color: var(--wiz-text-sub);
-		font-size: var(--wiz-text-xs); align-self: flex-start;
+	.search-hero {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 1rem;
+		padding: 1rem 1.125rem;
+		border-radius: 1.125rem;
+		background:
+			linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 90%, transparent), transparent 54%),
+			linear-gradient(330deg, color-mix(in oklch, var(--accent-purple-fill) 82%, transparent), transparent 62%),
+			var(--glass-deep);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 28%, transparent);
+		box-shadow: var(--shadow-z1);
 	}
 
-	/* Format section headers */
-	.format-section {
-		display: flex; flex-direction: column; gap: 0.125rem;
-		padding-top: 0.5rem; border-top: 1px solid var(--wiz-border);
-	}
-	.format-label {
-		display: flex; align-items: center; gap: 0.375rem;
-		font-size: var(--wiz-text-sm); font-weight: 700; color: var(--wiz-text-sub);
-	}
-	.format-hint { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
-
-	/* File rows */
-	.file-row {
-		background: var(--wiz-card-raised); border-radius: var(--wiz-radius-md);
-		padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;
-	}
-	.file-row:hover { border-color: var(--wiz-border-focus); }
-	.file-info { display: flex; flex-direction: column; gap: 0.25rem; }
-	.file-name {
-		font-size: var(--wiz-text-sm); font-weight: 600; color: var(--wiz-text);
-		overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-	}
-	.file-tags { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; }
-
-	/* SafeTensor shards */
-	.shard-group {
-		background: var(--wiz-card-raised); border-radius: var(--wiz-radius-md);
-		padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;
-	}
-	.shard-summary { display: flex; align-items: center; gap: 0.75rem; }
-	.shard-total { font-size: var(--wiz-text-sm); font-weight: 600; color: var(--wiz-text); }
-	.shard-list {
-		display: flex; flex-direction: column; gap: 0.125rem; padding: 0.5rem;
-		background: var(--wiz-inset); border-radius: var(--wiz-radius-sm);
-		max-height: 8rem; overflow-y: auto;
-	}
-	.shard-item { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); font-family: monospace; }
-
-	/* Slot chips */
-	.slot-chips { display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; }
-	.slot-label { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
-	.slot-chip {
-		padding: 0.25rem 0.625rem; border-radius: var(--wiz-radius-full);
-		border: 1px solid var(--wiz-border); background: transparent;
-		color: var(--wiz-text-sub); font-size: var(--wiz-text-xs); font-weight: 600;
-		cursor: pointer; transition: all var(--wiz-duration-fast);
-	}
-	.slot-chip.selected {
-		background: var(--wiz-cyan); color: var(--wiz-void-950);
-		border-color: var(--wiz-cyan);
-	}
-	.slot-chip:hover:not(.selected) { background: var(--wiz-card); }
-
-	/* Tags */
-	.tag {
-		font-size: var(--wiz-text-xs); padding: 0.125rem 0.5rem;
-		border-radius: var(--wiz-radius-sm); background: var(--wiz-void-800);
-		color: var(--wiz-text-sub);
-	}
-	.tag-muted { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
-	.fit-badge { font-size: var(--wiz-text-xs); font-weight: 600; }
-
-	/* Disk warning */
-	.disk-warn {
-		padding: 0.5rem 0.75rem; border-radius: var(--wiz-radius-sm);
-		background: var(--wiz-fill-ember); border: 1px solid var(--wiz-ember-600);
-		color: var(--wiz-ember-200); font-size: var(--wiz-text-xs);
+	.search-hero-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
 	}
 
-	/* Buttons */
-	.btn-accent {
-		display: inline-flex; align-items: center; gap: 0.375rem;
-		padding: 0.5rem 1rem; border-radius: var(--wiz-radius-md); border: none;
-		background: var(--wiz-cyan); color: var(--wiz-void-950);
-		font-size: var(--wiz-text-sm); font-weight: 700; cursor: pointer; align-self: flex-end;
+	:global(.search-kicker) {
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--accent-cyan-main);
 	}
-	.btn-accent:hover { filter: brightness(1.15); }
-	.btn-accent:disabled { opacity: 0.4; cursor: not-allowed; }
-	.btn-outline-lg {
-		display: inline-flex; align-items: center; gap: 0.5rem;
-		padding: 0.625rem 1.5rem; border-radius: var(--wiz-radius-lg);
-		border: 1px solid var(--wiz-border); background: transparent;
-		color: var(--wiz-cyan); font-size: var(--wiz-text-sm); font-weight: 600; cursor: pointer;
+
+	.search-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--text-primary);
 	}
-	.btn-outline-lg:disabled { opacity: 0.4; cursor: not-allowed; }
-	.btn-outline-lg:hover:not(:disabled) { background: var(--wiz-fill-cyan); }
 
-	/* Description */
-	.hf-desc { font-size: var(--wiz-text-sm); color: var(--wiz-text-sub); margin: 0; }
-
-	/* Main search button — full width, prominent */
-	.btn-search-main {
-		display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-		width: 100%; padding: 0.75rem; border-radius: var(--wiz-radius-md); border: none;
-		background: var(--wiz-cyan); color: var(--wiz-void-950);
-		font-size: 0.9375rem; font-weight: 700; cursor: pointer;
-		transition: all var(--wiz-duration-fast);
+	:global(.hf-title) {
+		color: var(--text-primary);
 	}
-	.btn-search-main:hover { filter: brightness(1.15); }
-	.btn-search-main:disabled { opacity: 0.4; cursor: not-allowed; }
 
-	/* Ghost button for error actions */
-	.btn-ghost {
-		padding: 0.375rem 0.75rem; border-radius: var(--wiz-radius-md);
-		border: none; background: transparent; color: var(--wiz-text-muted);
-		font-size: var(--wiz-text-xs); cursor: pointer;
+	:global(.hf-desc) {
+		color: var(--text-secondary);
 	}
-	.btn-ghost:hover { color: var(--wiz-text-sub); }
 
-	/* Search loading state */
-	.search-loading {
-		display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-		padding: 3rem 0; min-height: 10rem; justify-content: center;
+	.search-pill-row {
+		display: flex;
+		align-items: flex-start;
+		justify-content: flex-end;
+		gap: 0.375rem;
+		flex-wrap: wrap;
+		max-width: 20rem;
 	}
-	.loading-text { font-size: var(--wiz-text-sm); color: var(--wiz-text); font-weight: 600; }
-	.loading-hint { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
 
-	/* Error with actions */
-	.error-text { font-size: var(--wiz-text-sm); }
-	.error-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-
-	/* Empty/welcome states */
-	.empty-search, .welcome-search {
-		display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-		padding: 2.5rem 1rem; color: var(--wiz-text-muted); text-align: center;
+	.search-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.3125rem 0.625rem;
+		border-radius: 999px;
+		background: color-mix(in oklch, var(--surface-base, #0c1220) 84%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 20%, transparent);
+		color: var(--text-secondary);
+		font-size: 0.6875rem;
+		font-weight: 700;
 	}
-	.empty-title, .welcome-title { font-size: 0.9375rem; font-weight: 700; color: var(--wiz-text-sub); }
-	.empty-hint, .welcome-hint { font-size: var(--wiz-text-sm); color: var(--wiz-text-muted); }
 
-	/* Suggestion chips */
-	.empty-suggestions, .welcome-suggestions {
-		display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; justify-content: center;
+	.search-shell {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 0.75rem;
+		align-items: center;
 	}
-	.suggest-label { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
+
+	:global(.search-field) {
+		min-width: 0;
+	}
+
+	:global(.search-submit) {
+		min-width: 11rem;
+	}
+
+	.quick-search-row,
+	.empty-suggestions,
+	.welcome-suggestions {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		flex-wrap: wrap;
+	}
+
+	.quick-search-row {
+		justify-content: flex-start;
+	}
+
+	.suggest-label {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+
 	.suggest-btn {
-		padding: 0.25rem 0.75rem; border-radius: var(--wiz-radius-full);
-		border: 1px solid var(--wiz-border); background: transparent;
-		color: var(--wiz-cyan); font-size: var(--wiz-text-xs); font-weight: 600;
-		cursor: pointer; transition: all var(--wiz-duration-fast);
+		padding: 0.3125rem 0.75rem;
+		border-radius: 999px;
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		color: var(--accent-cyan-main);
+		font-size: 0.75rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: var(--transition-all-fast);
 	}
-	.suggest-btn:hover { background: var(--wiz-fill-cyan); border-color: var(--wiz-cyan); }
 
-	/* Format help */
-	.format-help {
-		display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.5rem;
-		padding: 0.75rem; border-radius: var(--wiz-radius-md);
-		background: var(--wiz-card); border: 1px solid var(--wiz-border);
-		text-align: left; max-width: 22rem;
+	.suggest-btn:hover {
+		border-color: var(--accent-cyan-main);
+		background: color-mix(in oklch, var(--accent-cyan-fill) 88%, transparent);
+		color: var(--text-primary);
 	}
-	.help-title { font-size: var(--wiz-text-xs); font-weight: 700; color: var(--wiz-text-sub); }
-	.help-text { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); }
-	.help-text strong { color: var(--wiz-text-sub); }
 
-	/* Misc states */
-	.center-actions { display: flex; justify-content: center; padding: 1rem 0; }
-	.no-files { font-size: var(--wiz-text-xs); color: var(--wiz-text-muted); font-style: italic; }
+	.format-tabs {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		position: relative;
+	}
+
+	.format-tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.5rem 0.875rem;
+		border-radius: 999px;
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		color: var(--text-secondary);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: var(--transition-all-fast);
+	}
+
+	.format-tab.active,
+	.format-tab:hover {
+		border-color: var(--accent-cyan-main);
+		background: color-mix(in oklch, var(--accent-cyan-fill) 88%, transparent);
+		color: var(--text-primary);
+	}
+
+	.search-loading,
+	.empty-search,
+	.welcome-search {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 2rem 1rem;
+		border-radius: 1rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		text-align: center;
+	}
+
+	.loading-text,
+	.empty-title,
+	.welcome-title {
+		font-size: 0.9375rem;
+		font-weight: 700;
+		color: var(--text-primary);
+	}
+
+	.loading-hint,
+	.empty-hint,
+	.welcome-hint {
+		font-size: 0.8125rem;
+		color: var(--text-muted);
+	}
+
 	.error-box {
-		padding: 0.75rem; border-radius: var(--wiz-radius-md);
-		background: var(--wiz-fill-ember); border: 1px solid var(--wiz-ember-600);
-		color: var(--wiz-ember-200); font-size: var(--wiz-text-sm);
+		padding: 0.875rem 1rem;
+		border-radius: 1rem;
+		background: color-mix(in oklch, var(--signal-error) 12%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--signal-error) 40%, transparent);
+		color: var(--text-primary);
 	}
 
-	/* Tooltip */
+	.error-text {
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	.error-actions {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 0.625rem;
+		flex-wrap: wrap;
+	}
+
+	.result-count {
+		font-size: 0.8125rem;
+		color: var(--text-muted);
+	}
+
+	.result-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.875rem;
+		padding: 1rem;
+		border-radius: 1rem;
+		background: var(--glass-deep);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		box-shadow: var(--shadow-z1);
+	}
+
+	.result-header {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		justify-content: space-between;
+	}
+
+	.result-meta {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.result-name {
+		display: block;
+		font-size: 0.9375rem;
+		font-weight: 700;
+		color: var(--text-primary);
+	}
+
+	.result-author,
+	.stat,
+	.format-hint,
+	.tag-muted,
+	.no-files {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+
+	.result-stats {
+		display: flex;
+		gap: 0.75rem;
+		flex-shrink: 0;
+	}
+
+	.pipeline-badge {
+		display: inline-block;
+		align-self: flex-start;
+		padding: 0.1875rem 0.5rem;
+		border-radius: 999px;
+		background: color-mix(in oklch, var(--accent-purple-fill) 88%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-purple-main) 30%, transparent);
+		color: var(--text-secondary);
+		font-size: 0.6875rem;
+		font-weight: 700;
+	}
+
+	.format-section {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		padding-top: 0.625rem;
+		border-top: var(--border-preset-default-width) solid var(--border-subtle);
+	}
+
+	.format-label {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		font-size: 0.8125rem;
+		font-weight: 700;
+		color: var(--text-secondary);
+	}
+
+	.file-row,
+	.shard-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		padding: 0.875rem;
+		border-radius: 1rem;
+		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		transition: var(--transition-all-fast);
+	}
+
+	.file-row:hover,
+	.shard-group:hover {
+		border-color: color-mix(in oklch, var(--accent-cyan-main) 36%, transparent);
+	}
+
+	.file-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.file-name,
+	.shard-total {
+		font-size: 0.875rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.file-tags,
+	.shard-summary,
+	.slot-chips {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		flex-wrap: wrap;
+	}
+
+	.shard-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		padding: 0.625rem 0.75rem;
+		background: color-mix(in oklch, var(--surface-base, #0c1220) 82%, transparent);
+		border-radius: 0.875rem;
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		max-height: 8rem;
+		overflow-y: auto;
+	}
+
+	.shard-item {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+		font-family: var(--font-family-mono, monospace);
+	}
+
+	.slot-label {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+
+	.slot-chip {
+		padding: 0.25rem 0.625rem;
+		border-radius: 999px;
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: transparent;
+		color: var(--text-secondary);
+		font-size: 0.75rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: var(--transition-all-fast);
+	}
+
+	.slot-chip.selected,
+	.slot-chip:hover {
+		border-color: var(--accent-cyan-main);
+		background: color-mix(in oklch, var(--accent-cyan-fill) 88%, transparent);
+		color: var(--text-primary);
+	}
+
+	.tag {
+		font-size: 0.6875rem;
+		padding: 0.1875rem 0.5rem;
+		border-radius: 999px;
+		background: color-mix(in oklch, var(--glass-elevated) 86%, transparent);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		color: var(--text-secondary);
+	}
+
+	.fit-badge {
+		font-size: 0.6875rem;
+		font-weight: 700;
+	}
+
+	.disk-warn {
+		padding: 0.625rem 0.75rem;
+		border-radius: 0.875rem;
+		background: color-mix(in oklch, var(--accent-gold-main) 12%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-gold-main) 38%, transparent);
+		color: var(--text-secondary);
+		font-size: 0.75rem;
+	}
+
+	.btn-accent,
+	.btn-outline-lg,
+	.btn-ghost {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.375rem;
+		border-radius: 0.875rem;
+		font-size: 0.8125rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: var(--transition-all-fast);
+	}
+
+	.btn-accent {
+		padding: 0.5625rem 1rem;
+		border: none;
+		background: var(--accent-cyan-main);
+		color: var(--surface-base, #0c1220);
+		align-self: flex-end;
+	}
+
+	.btn-accent:hover:not(:disabled) {
+		filter: brightness(1.08);
+	}
+
+	.btn-outline-lg {
+		padding: 0.625rem 1.25rem;
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-elevated) 80%, transparent);
+		color: var(--text-primary);
+	}
+
+	.btn-outline-lg:hover:not(:disabled) {
+		border-color: var(--accent-cyan-main);
+		background: color-mix(in oklch, var(--accent-cyan-fill) 88%, transparent);
+	}
+
+	.btn-ghost {
+		padding: 0.5rem 0.875rem;
+		border: var(--border-preset-default-width) solid transparent;
+		background: transparent;
+		color: var(--text-muted);
+	}
+
+	.btn-ghost:hover {
+		border-color: var(--border-subtle);
+		color: var(--text-primary);
+	}
+
+	.btn-accent:disabled,
+	.btn-outline-lg:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.format-help {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		margin-top: 0.25rem;
+		padding: 0.875rem 1rem;
+		border-radius: 1rem;
+		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
+		text-align: left;
+		max-width: 24rem;
+	}
+
+	.help-title {
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: var(--text-primary);
+	}
+
+	.help-text {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+
+	.help-text strong {
+		color: var(--text-secondary);
+	}
+
+	.center-actions {
+		display: flex;
+		justify-content: center;
+		padding: 0.5rem 0 0;
+	}
+
 	.tooltip {
-		position: absolute; z-index: var(--wiz-z-tooltip);
-		bottom: calc(100% + 0.5rem); left: 50%; transform: translateX(-50%);
-		white-space: normal; max-width: 18rem; padding: 0.5rem 0.75rem;
-		border-radius: var(--wiz-radius-md); background: var(--wiz-overlay);
-		border: 1px solid var(--wiz-border-strong); color: var(--wiz-text);
-		font-size: var(--wiz-text-sm); line-height: 1.4; box-shadow: var(--wiz-shadow-lg);
+		position: absolute;
+		z-index: 220;
+		top: calc(100% + 0.5rem);
+		left: 0;
+		max-width: 18rem;
+		padding: 0.625rem 0.75rem;
+		border-radius: 0.875rem;
+		background: color-mix(in oklch, var(--surface-overlay) 94%, transparent);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 24%, transparent);
+		color: var(--text-secondary);
+		font-size: 0.75rem;
+		line-height: 1.45;
+		box-shadow: var(--shadow-z3);
 		pointer-events: none;
+	}
+
+	@media (max-width: 48rem) {
+		.search-hero,
+		.search-shell,
+		.result-header,
+		.file-row,
+		.shard-group {
+			grid-template-columns: 1fr;
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.search-pill-row {
+			justify-content: flex-start;
+			max-width: none;
+		}
+
+		:global(.search-submit) {
+			width: 100%;
+		}
+
+		.btn-accent {
+			align-self: stretch;
+		}
 	}
 </style>

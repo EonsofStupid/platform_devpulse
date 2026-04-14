@@ -227,13 +227,17 @@ file = "Qwen3-Reranker-0.6B-q8_0.gguf"
 size_mb = 639
 
 [services.system.devforge]
-# Managed VSCode/code-oss process — dedicated editor instance.
-# Clone VSCode fork into deps/code-oss/ and build to enable.
-enabled = false
+# Managed DevPulse-branded code-oss editor — bundled as a Tauri resource.
+# xtask stages a prebuilt Electron tree (see [build.deps.devforge]) into
+# src-tauri/resources/devforge/. At runtime the desktop shell resolves
+# the launcher from {app_data}/devforge/ (update channel) and falls back
+# to the bundled baseline under the Tauri resourceDir.
+enabled = true
 critical = false
-binary_path = "devforge/"
+binary_path = "devforge/DevPulse.exe"
 workspace_path = "."
 port = 8443
+update_channel_url = "https://releases.devpulse.dev/devforge/channel.toml"
 
 [services.system.claude]
 # Claude integration — MCP server, dual-lane governance, sidecar, API provider.
@@ -481,6 +485,11 @@ extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 path = "cmake"
 env = []
 extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+
+[build.deps.code_oss]
+# External DevForge/code-oss source tree. xtask uses this to decide
+# whether the code-oss dependency should be built during dev preflight.
+enabled = true
 
 # ort/ort-sys: owned fork at deps/ort/, patched via [patch.crates-io].
 # Builds from source using local MSVC toolchain — no pre-built binaries.

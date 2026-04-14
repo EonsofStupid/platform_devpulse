@@ -56,18 +56,23 @@ function handleOverlayClick(event: MouseEvent): void {
 			<div class="popup-head">
 				<div class="popup-title-wrap">
 					<img src={imageSrc} alt={imageAlt} class="popup-img" />
-					<Text size="base" weight="bold">{title}</Text>
+					<div class="popup-title-copy">
+						<Text size="xs" weight="bold" class="popup-kicker">Knowledge Drop</Text>
+						<Text size="base" weight="bold">{title}</Text>
+					</div>
 				</div>
 				<Button preset="ghost" size="sm" onclick={onClose} aria-label="Close help">
 					<X size={14} />
 				</Button>
 			</div>
 
-			<Text size="sm" color="secondary">{summary}</Text>
+			<div class="popup-summary-shell">
+				<Text size="sm" color="secondary">{summary}</Text>
+			</div>
 
 			<ul class="popup-points">
 				{#each points as point (point)}
-					<li>{point}</li>
+					<li class="popup-point">{point}</li>
 				{/each}
 			</ul>
 
@@ -83,7 +88,7 @@ function handleOverlayClick(event: MouseEvent): void {
 		position: fixed;
 		inset: 0;
 		background: rgba(4, 8, 16, 0.72);
-		backdrop-filter: blur(2px);
+		backdrop-filter: blur(6px);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -96,11 +101,14 @@ function handleOverlayClick(event: MouseEvent): void {
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
-		border-radius: 0.75rem;
-		border: 1px solid var(--border-subtle, #1a2030);
-		background: var(--surface-base, #0c1220);
-		padding: 1rem;
-		box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+		border-radius: 1.25rem;
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 24%, var(--border-subtle));
+		background:
+			linear-gradient(145deg, color-mix(in oklch, var(--accent-cyan-fill) 14%, transparent), transparent 42%),
+			linear-gradient(330deg, color-mix(in oklch, var(--accent-purple-fill) 12%, transparent), transparent 46%),
+			var(--surface-base, #0c1220);
+		padding: 1.125rem;
+		box-shadow: var(--shadow-z4);
 	}
 
 	.popup-head {
@@ -116,20 +124,49 @@ function handleOverlayClick(event: MouseEvent): void {
 		gap: 0.5rem;
 	}
 
+	.popup-title-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	:global(.popup-kicker) {
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--accent-cyan-main);
+	}
+
 	.popup-img {
-		width: 1.8rem;
-		height: 1.8rem;
+		width: 2.25rem;
+		height: 2.25rem;
 		object-fit: contain;
+	}
+
+	.popup-summary-shell {
+		padding: 0.875rem 1rem;
+		border-radius: 0.875rem;
+		background:
+			linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 88%, transparent), transparent 62%),
+			var(--glass-deep);
+		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 22%, transparent);
 	}
 
 	.popup-points {
 		margin: 0;
-		padding-left: 1rem;
+		padding: 0;
+		list-style: none;
 		display: flex;
 		flex-direction: column;
-		gap: 0.375rem;
+		gap: 0.5rem;
 		color: var(--text-secondary, #b5bfd2);
 		font-size: 0.8125rem;
+	}
+
+	.popup-point {
+		padding: 0.75rem 0.875rem;
+		border-radius: 0.875rem;
+		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		border: var(--border-preset-default-width) solid var(--border-subtle);
 	}
 
 	.popup-actions {

@@ -24,8 +24,16 @@
 ## Hard Rules
 - NEVER suggest Python, Docker, npm servers, or external services
 - NEVER use `unwrap()` in production Rust — use `?` or explicit handling
-- NEVER create /core, /utils, /helpers — use feature-based modules
+- NEVER create /core, /helpers, or domain-level `utils/` — domains use Nx library-types: `feature` / `ui` / `data-access` / `util`. See @docs/platform/Desktop.md §1.1.1 and §2.1.
 - NEVER reference kernel terms outside kernel/ — see @.claude/rules/ip-protection.md
+
+## Domain Library-Types (LOCKED 2026-04-14)
+- `feature/` — smart/routed Svelte 5 components. May import `ui`, `data-access`, `util`.
+- `ui/` — dumb/presentational Svelte 5 components. May import `util` only.
+- `data-access/` — rune state (`*.state.svelte.ts`) + services (`*.svc.ts`) + IPC. May import `util` only.
+- `util/` — Zod/ArkType contracts, types, pure helpers. Imports nothing else in-domain.
+- Cross-domain: always through the target domain's `index.ts`. No reaching into internals.
+- Dep direction enforced by preflight. Forbidden: `ui → data-access`, `data-access → feature`, `util → *`.
 
 ## Countermeasures (CC-001 through CC-007)
 - After EVERY edit: run `cargo check -p <crate>` or `pnpm svelte-check`

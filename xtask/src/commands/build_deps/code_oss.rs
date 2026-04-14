@@ -1,7 +1,7 @@
 //! code-oss (VSCode fork) dependency build.
 //!
 //! Source: `deps/code-oss/`
-//! Build: `yarn && yarn compile` (Electron-based)
+//! Build: `npm install && npm run compile` (Electron-based)
 //! Output: `deps/code-oss/out/` → copied to `.userdata/bin/code-oss/`
 //!
 //! Only rebuilds when source files in `deps/code-oss/src/` change.
@@ -37,10 +37,10 @@ impl DepBuild for CodeOss {
     }
 
     fn enabled(&self, ws: &Workspace) -> bool {
-        // Respect [services.system.devforge].enabled from platform.default.toml
+        // Respect the dedicated build toggle instead of the runtime DevForge service.
         let config_enabled = ws.platform_config()
             .ok()
-            .and_then(|c| c.services.system.devforge)
+            .and_then(|c| c.build.deps.code_oss)
             .is_some_and(|d| d.enabled);
 
         if !config_enabled {
@@ -54,32 +54,43 @@ impl DepBuild for CodeOss {
 
     fn build(&self, ws: &Workspace) -> Result<()> {
         let source = ws.root().join(self.source_dir());
+        let (program, install_args, compile_args) = resolve_package_manager(ws)?;
 
-        // Step 1: yarn install (if needed)
+        // Step 1: install dependencies (if needed)
         let node_modules = source.join("node_modules");
         if !node_modules.exists() {
-            println!("    > yarn install");
-            let status = std::process::Command::new("yarn")
-                .arg("install")
+            println!("    > {}", install_args.join(" "));
+            let status = std::process::Command::new(&program)
+                .args(&install_args)
                 .current_dir(&source)
                 .status()
-                .context("failed to run yarn install for code-oss")?;
+                .with_context(|| {
+                    format!(
+                        "failed to run {} for code-oss",
+                        install_args.join(" ")
+                    )
+                })?;
 
             if !status.success() {
-                anyhow::bail!("yarn install failed for code-oss");
+                anyhow::bail!("{} failed for code-oss", install_args.join(" "));
             }
         }
 
-        // Step 2: yarn compile
-        println!("    > yarn compile");
-        let status = std::process::Command::new("yarn")
-            .arg("compile")
+        // Step 2: build code-oss
+        println!("    > {}", compile_args.join(" "));
+        let status = std::process::Command::new(&program)
+            .args(&compile_args)
             .current_dir(&source)
             .status()
-            .context("failed to run yarn compile for code-oss")?;
+            .with_context(|| {
+                format!(
+                    "failed to run {} for code-oss",
+                    compile_args.join(" ")
+                )
+            })?;
 
         if !status.success() {
-            anyhow::bail!("yarn compile failed for code-oss");
+            anyhow::bail!("{} failed for code-oss", compile_args.join(" "));
         }
 
         Ok(())
@@ -111,6 +122,25 @@ impl DepBuild for CodeOss {
 
         Ok(())
     }
+}
+
+fn resolve_package_manager(ws: &Workspace) -> Result<(std::path::PathBuf, Vec<&'static str>, Vec<&'static str>)> {
+    if let Ok(npm) = ws.resolve("npm") {
+        return Ok((npm, vec!["install"], vec!["run", "compile"]));
+    }
+
+    if let Ok(yarn) = ws.resolve("yarn") {
+        return Ok((yarn, vec!["install"], vec!["compile"]));
+    }
+
+    let corepack = ws.resolve("corepack")
+        .context("failed to resolve `npm`, `yarn`, or `corepack` for code-oss build")?;
+
+    Ok((
+        corepack,
+        vec!["yarn", "install"],
+        vec!["yarn", "compile"],
+    ))
 }
 
 /// Recursively copy a directory tree.

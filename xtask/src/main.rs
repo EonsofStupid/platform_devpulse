@@ -15,6 +15,7 @@ mod zombie;
 
 use clap::{Parser, Subcommand};
 use commands::Task;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "xtask", about = "DevPulse Orchestrator")]
@@ -35,6 +36,17 @@ enum Commands {
     Verify,
     /// Verify IP boundary: desktop must not depend on clyffy.
     VerifyIpBoundary,
+    /// Copy a built DevForge REH tree into the committed per-platform
+    /// resource dir. Manual — run after rebuilding REH externally.
+    RefreshDevforge {
+        /// Target platform subdir: `win32-x64`, `darwin-arm64`,
+        /// `darwin-x64`, or `linux-x64`.
+        #[arg(long)]
+        target: String,
+        /// Source REH build root. Defaults to `deps/code-oss-reh-web/`.
+        #[arg(long)]
+        source: Option<PathBuf>,
+    },
 }
 
 fn main() -> anyhow::Result<()> {
@@ -47,6 +59,9 @@ fn main() -> anyhow::Result<()> {
         Commands::RunDev => Box::new(commands::dev::Dev),
         Commands::Verify => Box::new(commands::verify::Verify),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
+        Commands::RefreshDevforge { target, source } => {
+            Box::new(commands::refresh_devforge::RefreshDevForge { target, source })
+        }
     };
 
     eprintln!("xtask: {}", task.name());

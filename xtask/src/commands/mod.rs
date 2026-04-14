@@ -8,6 +8,7 @@ pub mod deps;
 pub mod dev;
 pub mod ip_boundary;
 pub mod preflight;
+pub mod refresh_devforge;
 pub mod verify;
 
 use crate::workspace::Workspace;

@@ -187,7 +187,28 @@ pub fn run() {
             tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
 
             // ── Platform state (empty until boot completes) ───────
-            let devforge_paths = commands::devforge::paths::DevforgePaths::from_data_dir(&data_dir);
+            // Resolve the per-platform bundled REH seed tree inside the
+            // Tauri resource dir. `resources/devforge/` (base of the bundle
+            // is just `devforge/` once installed — per-target configs strip
+            // the platform subdir prefix at bundle time).
+            let devforge_paths = match app.path().resource_dir() {
+                Ok(resource_dir) => {
+                    let bundled = resource_dir.join("devforge");
+                    commands::devforge::paths::DevforgePaths::from_paths(&data_dir, bundled)
+                }
+                Err(_) => commands::devforge::paths::DevforgePaths::from_data_dir(&data_dir),
+            };
+
+            // First-launch seed: copy the bundled REH tree into the
+            // runtime install dir if the install is empty. Idempotent —
+            // no-op once `install/current/` points at a valid tree.
+            if let Err(err) = devforge_paths.ensure_layout() {
+                tracing::warn!(%err, "DevForge: ensure_layout failed");
+            }
+            if let Err(err) = devforge_paths.seed_install_from_bundle() {
+                tracing::warn!(%err, "DevForge: seed_install_from_bundle failed");
+            }
+
             app.manage(PlatformState {
                 platform: RwLock::new(None),
                 reh: RwLock::new(None),

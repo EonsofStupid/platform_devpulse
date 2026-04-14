@@ -29,33 +29,61 @@ the feature, and the route IS the page — properly structured, not lazily flat.
 
 | Layer | Location | Role |
 |-------|----------|------|
-| Domains | `src/lib/domains/**` | Logic, state, services, contracts — the source |
+| Domains | `src/lib/domains/**` | Nx library-types (`feature`/`ui`/`data-access`/`util`) — the source |
 | Routes | `src/routes/**` | Pages that mirror domains — the surface |
 | Design | `src/lib/design/**` | ColdLight — visual system |
 | System | `src/lib/sys/**` | Platform backbone — generated types, registries |
 | Policy | `scripts/docs/policy/**` | Enforcement truth |
 
+### 1.1.1 Nx Library-Types (LOCKED 2026-04-14)
+
+Every domain is organized by **library type**, not by "what file extension is this." This is the Nx model — battle-tested in Angular and React monorepos, trivially portable to SvelteKit. It maps cleanly to what Svelte 5 already wants: dumb components (`ui`), smart orchestration (`feature`), reactive state + IPC (`data-access`), and pure helpers (`util`).
+
+| Library type | Contains | Imports allowed | Rule of thumb |
+|--------------|----------|-----------------|---------------|
+| `feature/` | Smart/orchestrating Svelte 5 components. Routed pages compose these. Owns rune-glue, effects, and calls `data-access`. | `ui`, `data-access`, `util`, ColdLight, other domains' `index.ts` | "It knows what's on screen *and* what the data layer is." |
+| `ui/` | Dumb/presentational Svelte 5 components. Props in, events out. No `$effect` talking to services, no IPC calls. | `util`, ColdLight | "Could be shown in Storybook with fake data." |
+| `data-access/` | Rune state modules (`*.state.svelte.ts`), services (`*.svc.ts`), Tauri IPC adapters, subscriptions. The ONLY place reactive domain state lives. | `util`, `sys/adapters`, `sys/streams` | "If you ripped out the UI, this still compiles and runs." |
+| `util/` | Pure TypeScript: Zod/ArkType contracts, types, constants, formatters, enums. Zero runtime side effects, zero Svelte. | Nothing domain-specific | "Safe to import from literally anywhere, including tests." |
+
+**Dependency direction (strict, enforced by preflight):**
+
+```
+       feature ──────► ui
+          │            │
+          ▼            ▼
+     data-access ───► util
+          │            ▲
+          └────────────┘
+```
+
+- `ui` NEVER imports `data-access` or `feature`.
+- `data-access` NEVER imports `feature` or `ui`.
+- `util` NEVER imports anything else in the domain.
+- `feature` is the only layer allowed to wire `data-access` to `ui`.
+- Cross-domain imports go through the target domain's `index.ts` — never reach into `feature/`, `ui/`, `data-access/`, or `util/` directly.
+
 ### 1.2 Routes are Parallel Pages, Not "Thin Adapters"
 
 Routes are properly structured pages that:
 
-- **Mirror their domain sister's folder hierarchy exactly**
-- Import state, services, and contracts from their domain counterpart
+- **Mirror their domain sister's `feature/` hierarchy**
+- Import state, services, and types from their domain counterpart via `index.ts`
 - Use runes (`$state`, `$derived`, `$effect`) for reactive rendering
-- Compose domain features and ColdLight components into real pages
-- Leverage SvelteKit load functions that call domain services
+- Compose `feature/` components (and `ui/` where appropriate) into real pages
+- Leverage SvelteKit load functions that call domain `data-access` services
 
 What routes do NOT do:
 
-- Own business logic (that lives in the domain)
-- Own application state (that lives in `*.state.svelte.ts`)
-- Define data contracts (that lives in domain `contracts/`)
+- Own business logic (that lives in `data-access/`)
+- Own application state (that lives in `data-access/**/*.state.svelte.ts`)
+- Define data contracts (that lives in `util/`)
 - Bypass their domain sister's `index.ts` public API
 
 ### 1.3 Runes-First State
 
 - All reactive state: `$state`, `$derived`, `$effect` — runes everywhere
-- Shared state modules: `domains/**/state/*.state.svelte.ts`
+- Shared state modules: `domains/**/data-access/*.state.svelte.ts`
 - Component-local state: runes directly in component script blocks
 - Streams/subscriptions: only in `sys/streams/**` (rare, explicit boundary)
 
@@ -74,34 +102,40 @@ Generated route helpers for all navigation. Raw string paths forbidden.
 
 ## 2. The Parallel Sister Pattern
 
-### 2.1 Domain Structure (Logic Owner)
+### 2.1 Domain Structure (Nx Library-Types)
 
 Every domain follows the same template. No exceptions.
 
 ```
 src/lib/domains/app/{domain}/
-  index.ts                    # Public API — the ONLY import routes use
-  contracts/
-    {domain}.contract.ts      # Zod schemas, types, interfaces
-  state/
-    {domain}.state.svelte.ts  # Rune state ($state, $derived)
-  services/
-    {domain}.svc.ts           # Data fetching, IPC, business ops
-  features/
-    dashboard/                # Every domain has a dashboard
-      DashboardOverview.svelte
+  index.ts                            # Public API — the ONLY import routes use
+  util/
+    {domain}.contract.ts              # Zod/ArkType schemas + inferred types
+    {domain}.types.ts                 # Pure type aliases, enums, constants
+    {domain}.format.ts                # Pure formatters (optional)
+  data-access/
+    {domain}.state.svelte.ts          # Rune state ($state, $derived)
+    {domain}.svc.ts                   # Services: Tauri invoke(), business ops
+    {domain}.events.ts                # IPC event subscriptions (optional)
+  ui/
+    {Something}Card.svelte            # Dumb component — props in, events out
+    {Something}List.svelte
+  feature/
+    dashboard/                        # Every domain has a dashboard
+      DashboardOverview.svelte        # Smart — wires data-access → ui
       DashboardStats.svelte
-    {feature-a}/              # Domain-specific features
+    {feature-a}/                      # Domain-specific smart features
     {feature-b}/
-  utils/                      # Domain-private utilities
 ```
 
 **Mandatory per domain:**
-- `index.ts` — public API surface
-- `contracts/` — Zod-validated types
-- `state/` — rune state module
-- `services/` — data layer
-- `features/dashboard/` — every domain gets a dashboard
+- `index.ts` — public API surface (re-exports from `data-access` + `util` + selected `feature` entries)
+- `util/` — at minimum one `*.contract.ts` with Zod/ArkType domain metadata
+- `data-access/` — at minimum one `*.state.svelte.ts` and one `*.svc.ts`
+- `feature/dashboard/` — every domain gets a dashboard
+
+**Optional per domain:**
+- `ui/` — only created when the domain has reusable dumb components. Domains whose feature components are one-offs may skip this.
 
 ### 2.2 Route Structure (Page Mirror)
 
@@ -130,22 +164,23 @@ src/routes/(app)/{domain}/
 ### 2.3 The Flow: Domain to Route
 
 ```
-Domain                              Route
-──────                              ─────
-contracts/{domain}.contract.ts  →   +page.ts imports types
-state/{domain}.state.svelte.ts  →   +page.svelte binds rune state
-services/{domain}.svc.ts        →   +page.ts load() calls service
-features/dashboard/             →   dashboard/+page.svelte composes features
-index.ts                        →   ALL route files import through here
+Domain                                      Route
+──────                                      ─────
+util/{domain}.contract.ts               →   +page.ts imports types
+data-access/{domain}.state.svelte.ts    →   +page.svelte binds rune state
+data-access/{domain}.svc.ts             →   +page.ts load() calls service
+feature/dashboard/                      →   dashboard/+page.svelte composes feature
+index.ts                                →   ALL route files import through here
 ```
 
 **Example — Chat domain:**
 
 ```typescript
 // src/lib/domains/app/chat/index.ts
-export { chatState } from './state/chat.state.svelte.js';
-export { ChatService } from './services/chat.svc.js';
-export type { ChatMessage, ChatSession } from './contracts/chat.contract.js';
+export { chatState } from './data-access/chat.state.svelte.js';
+export { ChatService } from './data-access/chat.svc.js';
+export type { ChatMessage, ChatSession } from './util/chat.contract.js';
+export { default as ChatPanel } from './feature/chat/ChatPanel.svelte';
 
 // src/routes/(app)/chat/+page.ts
 import { ChatService } from '$lib/domains/app/chat/index.js';
@@ -155,12 +190,13 @@ export async function load() {
 
 // src/routes/(app)/chat/+page.svelte
 <script lang="ts">
-  import { chatState } from '$lib/domains/app/chat/index.js';
-  import ChatPanel from '$lib/domains/app/chat/features/chat/ChatPanel.svelte';
+  import { chatState, ChatPanel } from '$lib/domains/app/chat/index.js';
   let { data } = $props();
 </script>
 <ChatPanel sessions={data.sessions} state={chatState} />
 ```
+
+> Inside the domain, `feature/` files may import peers via relative paths (`../data-access/chat.state.svelte.js`). `ui/` files may only reach into `../util/`. Routes and other domains always go through `index.ts`.
 
 ### 2.4 Route Groups Define App Shells
 
@@ -187,8 +223,8 @@ This is a hard rule. When a domain is created, it gets a dashboard. The dashboar
 is the landing page for that domain — it summarizes the domain's state.
 
 ```
-domains/app/devpulse/features/dashboard/
-  DashboardOverview.svelte      # Summary cards, key metrics
+domains/app/devpulse/feature/dashboard/
+  DashboardOverview.svelte      # Smart — reads devpulseState, composes ui/
   DashboardStats.svelte         # Charts, activity feed
   DashboardActions.svelte       # Quick actions for this domain
 
@@ -205,7 +241,7 @@ full domain + route parallel structure including the dashboard.
 
 ### 4.1 Build-Time Catalog Generation
 
-At build, every domain's `index.ts` and `contracts/*.contract.ts` are scanned
+At build, every domain's `index.ts` and `util/*.contract.ts` are scanned
 to produce a central catalog:
 
 ```
@@ -258,7 +294,7 @@ The catalog generator fails the build if:
 Every domain declares its category in its contract:
 
 ```typescript
-// domains/app/chat/contracts/chat.contract.ts
+// domains/app/chat/util/chat.contract.ts
 import { z } from 'zod';
 
 export const ChatDomainMeta = z.object({
@@ -298,16 +334,16 @@ Node CLI that enforces the parallel sister pattern and generates the catalog.
 ```
 src/lib/domains/app/models/
   index.ts
-  contracts/
+  util/
     models.contract.ts
-  state/
+    models.types.ts
+  data-access/
     models.state.svelte.ts
-  services/
     models.svc.ts
-  features/
+  ui/                           # (created on demand)
+  feature/
     dashboard/
       DashboardOverview.svelte
-  utils/
 
 src/routes/(app)/models/
   +layout.svelte
@@ -383,8 +419,8 @@ export const chatState = {
 
 | Where | What | Pattern |
 |-------|------|---------|
-| `domains/**/state/*.state.svelte.ts` | Shared domain state | Exported rune modules |
-| Component `<script>` blocks | Local UI state | `let x = $state(...)` |
+| `domains/**/data-access/*.state.svelte.ts` | Shared domain state | Exported rune modules |
+| Component `<script>` blocks (in `feature/` or `ui/`) | Local UI state | `let x = $state(...)` |
 | `+page.ts` / `+layout.ts` | Load data | Return from `load()`, never store |
 | `sys/streams/**` | Long-lived subscriptions | Explicit, rare |
 
@@ -443,16 +479,19 @@ folder structure:
 
 ## 9. Naming Conventions
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| Domain state | `*.state.svelte.ts` | `chat.state.svelte.ts` |
-| Domain service | `*.svc.ts` | `chat.svc.ts` |
-| Domain contract | `*.contract.ts` | `chat.contract.ts` |
-| Domain pages | feature Svelte components | `DashboardOverview.svelte` |
-| Route pages | `+page.svelte` | SvelteKit convention |
-| Route loads | `+page.ts` | SvelteKit convention |
-| Route layouts | `+layout.svelte` / `+layout.ts` | SvelteKit convention |
-| Registries | `*.registry.ts` | `routes.registry.ts` |
+| Type | Location | Pattern | Example |
+|------|----------|---------|---------|
+| Domain state | `data-access/` | `*.state.svelte.ts` | `chat.state.svelte.ts` |
+| Domain service | `data-access/` | `*.svc.ts` | `chat.svc.ts` |
+| Domain events | `data-access/` | `*.events.ts` | `chat.events.ts` |
+| Domain contract | `util/` | `*.contract.ts` | `chat.contract.ts` |
+| Domain types | `util/` | `*.types.ts` | `chat.types.ts` |
+| Dumb component | `ui/` | `{Pascal}.svelte` | `ChatBubble.svelte` |
+| Smart component | `feature/{name}/` | `{Pascal}.svelte` | `ChatPanel.svelte` |
+| Route pages | `routes/` | `+page.svelte` | SvelteKit convention |
+| Route loads | `routes/` | `+page.ts` | SvelteKit convention |
+| Route layouts | `routes/` | `+layout.svelte` / `+layout.ts` | SvelteKit convention |
+| Registries | `sys/registries/` | `*.registry.ts` | `routes.registry.ts` |
 
 ---
 
@@ -467,14 +506,15 @@ scripts/docs/preflight/
     report.ts                 # Reporting
     registry.ts               # Check registry
   checks/
-    check.domain-boundaries.ts    # Routes only import from domain index.ts
-    check.typed-routes.ts         # No raw route strings
-    check.naming.ts               # File naming conventions
-    check.parallel-structure.ts   # Route mirrors domain folder tree
-    check.dashboard-exists.ts     # Every domain has features/dashboard/
-    check.contract-exists.ts      # Every domain has contracts/
-    check.state-boundary.ts       # State only in *.state.svelte.ts
-    check.no-legacy-stores.ts     # No writable/readable/derived imports
+    check.domain-boundaries.ts       # Routes / other domains only import from index.ts
+    check.library-type-deps.ts       # Nx dep direction: ui↛data-access, util↛*, etc.
+    check.typed-routes.ts            # No raw route strings
+    check.naming.ts                  # File naming conventions
+    check.parallel-structure.ts      # Route mirrors domain feature/ tree
+    check.dashboard-exists.ts        # Every domain has feature/dashboard/
+    check.contract-exists.ts         # Every domain has util/*.contract.ts
+    check.state-boundary.ts          # State only in data-access/*.state.svelte.ts
+    check.no-legacy-stores.ts        # No writable/readable/derived imports
   fixers/
     fix.domain-index.ts           # Generate missing index.ts
     fix.inject-jsdoc.ts           # JSDoc injection
@@ -501,13 +541,14 @@ devpulse catalog:verify
 
 **Hard-fails if:**
 - Route exists without domain sister
-- Domain exists without dashboard
-- Route imports bypass domain index.ts
+- Domain exists without `feature/dashboard/`
+- Route imports bypass domain `index.ts`
 - Raw route strings outside allowlist
 - Legacy store imports detected
-- State declared outside *.state.svelte.ts
+- State declared outside `data-access/*.state.svelte.ts`
 - Contract name collision across domains
 - Naming convention violation
+- Nx library-type dependency violation (e.g. `ui/` imports `data-access/`, `util/` imports anything in-domain, `data-access/` imports `feature/`)
 
 ---
 
@@ -536,9 +577,10 @@ src/lib/sys/
 
 | Principle | Implementation |
 |-----------|----------------|
-| Parallel sisters | Routes mirror domain folder structure exactly |
+| Parallel sisters | Routes mirror domain `feature/` structure exactly |
+| Nx library-types | `feature` / `ui` / `data-access` / `util` — strict dep direction |
 | Code flows domain → route | Domain owns logic, route composes and renders |
-| Every domain has a dashboard | `features/dashboard/` mandatory per domain |
+| Every domain has a dashboard | `feature/dashboard/` mandatory per domain |
 | Runes-first, runes-only | `$state`, `$derived`, `$effect` — no legacy stores |
 | Typed routes mandatory | `ROUTES.ts` generated, raw strings forbidden |
 | Central API catalog | `api.catalog.json` — deduplicated, categorized at build |

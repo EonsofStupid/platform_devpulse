@@ -14,7 +14,7 @@ use crate::stage::Stage;
 use crate::workspace::Workspace;
 use anyhow::{Context, Result};
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Trait for a buildable external dependency.
 ///
@@ -40,6 +40,15 @@ pub trait DepBuild {
 
     /// Copy build output to `.userdata/bin/{dep}/`.
     fn install(&self, ws: &Workspace) -> Result<()>;
+
+    /// Absolute path to the source tree used for change detection.
+    ///
+    /// Defaults to `ws.root().join(self.source_dir())`. Override when the
+    /// source lives outside the workspace (e.g. a prebuilt sibling checkout
+    /// staged into the Tauri bundle).
+    fn abs_source(&self, ws: &Workspace) -> PathBuf {
+        ws.root().join(self.source_dir())
+    }
 }
 
 /// All registered dependency builders.
@@ -74,7 +83,7 @@ pub fn build_all(ws: &Workspace) -> Result<()> {
             continue;
         }
 
-        let source_dir = ws.root().join(dep.source_dir());
+        let source_dir = dep.abs_source(ws);
         if !source_dir.exists() {
             let s = Stage::start(dep.name());
             s.warn(format!("source dir not found: {}", dep.source_dir()));

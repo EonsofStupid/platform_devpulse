@@ -1,0 +1,7 @@
+{
+	"bundle": {
+		"resources": {
+			"resources/devforge/darwin-arm64/**/*": "devforge/"
+		}
+	}
+}

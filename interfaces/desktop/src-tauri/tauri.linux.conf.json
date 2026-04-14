@@ -1,0 +1,7 @@
+{
+	"bundle": {
+		"resources": {
+			"resources/devforge/linux-x64/**/*": "devforge/"
+		}
+	}
+}

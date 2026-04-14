@@ -41,6 +41,14 @@ interface WireDownloadFailedEvent {
 	error: string;
 }
 
+export interface DownloadCancelledEvent {
+	downloadId: string;
+}
+
+interface WireDownloadCancelledEvent {
+	download_id: string;
+}
+
 /** Unwrap a specta Result or throw. */
 function unwrap<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {
 	if (result.status === "ok") return result.data;
@@ -70,6 +78,12 @@ function normalizeDownloadFailed(payload: WireDownloadFailedEvent): DownloadFail
 	return {
 		downloadId: payload.download_id,
 		error: payload.error,
+	};
+}
+
+function normalizeDownloadCancelled(payload: WireDownloadCancelledEvent): DownloadCancelledEvent {
+	return {
+		downloadId: payload.download_id,
 	};
 }
 
@@ -194,6 +208,28 @@ export function onDownloadFailed(callback: (data: DownloadFailedEvent) => void):
 			logError(
 				"models.download",
 				`Failed to register failure listener: ${e instanceof Error ? e.message : String(e)}`,
+			);
+		});
+
+	return () => {
+		unlisten?.();
+	};
+}
+
+/** Listen to download cancelled events. Returns unsubscribe function. */
+export function onDownloadCancelled(callback: (data: DownloadCancelledEvent) => void): () => void {
+	let unlisten: (() => void) | null = null;
+
+	listen<WireDownloadCancelledEvent>("model:download-cancelled", (event) => {
+		callback(normalizeDownloadCancelled(event.payload));
+	})
+		.then((fn) => {
+			unlisten = fn;
+		})
+		.catch((e) => {
+			logError(
+				"models.download",
+				`Failed to register cancelled listener: ${e instanceof Error ? e.message : String(e)}`,
 			);
 		});
 

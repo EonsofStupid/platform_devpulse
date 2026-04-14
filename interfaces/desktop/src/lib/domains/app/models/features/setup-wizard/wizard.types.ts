@@ -91,15 +91,39 @@ export const SLOT_LABELS: SlotLabel[] = [
 		role: "reasoning",
 	},
 	{
+		id: "chat.fast",
+		name: "Quick Brain",
+		description: "handles fast turns and routing",
+		role: "reasoning",
+	},
+	{
+		id: "chat.vision",
+		name: "Vision Reasoning",
+		description: "answers questions about images and screenshots",
+		role: "encoder",
+	},
+	{
 		id: "minion.shared",
 		name: "Minion Core",
 		description: "specialist helpers thinking about your project",
 		role: "observation",
 	},
 	{
+		id: "minion.escalation",
+		name: "Deep Reasoning",
+		description: "heavy fallback thinking when a task gets harder",
+		role: "observation",
+	},
+	{
 		id: "rag.embedder",
 		name: "Memory Search",
 		description: "finds relevant code",
+		role: "encoder",
+	},
+	{
+		id: "rag.encoder",
+		name: "Query Encoder",
+		description: "packs retrieval queries for the vector store",
 		role: "encoder",
 	},
 	{
@@ -116,6 +140,18 @@ export const SLOT_LABELS: SlotLabel[] = [
 	},
 	{ id: "voice.stt", name: "Voice Input", description: "Clyffy hears you", role: "voice" },
 	{ id: "voice.tts", name: "Voice Output", description: "Clyffy talks back", role: "voice" },
+	{
+		id: "voice.brain",
+		name: "Voice Conversation",
+		description: "keeps live speech-to-speech conversation moving",
+		role: "voice",
+	},
+	{
+		id: "voice.wake",
+		name: "Wake Word",
+		description: "listens for the hands-free wake phrase",
+		role: "voice",
+	},
 ];
 
 /** Look up a slot label by ID. */

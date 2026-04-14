@@ -1,0 +1,7 @@
+{
+	"bundle": {
+		"resources": {
+			"resources/devforge/win32-x64/**/*": "devforge/"
+		}
+	}
+}

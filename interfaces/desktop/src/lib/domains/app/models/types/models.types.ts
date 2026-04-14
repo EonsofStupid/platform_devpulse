@@ -30,28 +30,36 @@ export type DevicePreference = "gpu" | "cpu" | "gpu_with_cpu_fallback" | "any";
 /** Canonical slot identifiers — matches platform.default.toml slot registry. */
 export type SlotId =
 	| "chat.brain"
+	| "chat.fast"
+	| "chat.vision"
 	| "minion.shared"
 	| "minion.escalation"
 	| "rag.embedder"
+	| "rag.encoder"
 	| "rag.reranker"
 	| "vision.embedder"
 	| "voice.stt"
 	| "voice.tts"
 	| "voice.brain"
+	| "voice.wake"
 	/** UI-only: download started before explicit slot assignment (kernel bridge). */
 	| "system.pending";
 
 /** All known slot IDs for iteration. */
 export const SLOT_IDS: SlotId[] = [
 	"chat.brain",
+	"chat.fast",
+	"chat.vision",
 	"minion.shared",
 	"minion.escalation",
 	"rag.embedder",
+	"rag.encoder",
 	"rag.reranker",
 	"vision.embedder",
 	"voice.stt",
 	"voice.tts",
 	"voice.brain",
+	"voice.wake",
 ];
 
 export type ModelCapability =
@@ -214,14 +222,18 @@ export function formatMb(mb: number): string {
 export function friendlySlotLabel(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
 		"chat.brain": "Main AI",
+		"chat.fast": "Quick Brain",
+		"chat.vision": "Vision Reasoning",
 		"minion.shared": "Quick Helper",
 		"minion.escalation": "Deep Thinker",
 		"rag.embedder": "Search Engine",
+		"rag.encoder": "Query Encoder",
 		"rag.reranker": "Search Refiner",
 		"vision.embedder": "Eyes",
 		"voice.tts": "Voice",
 		"voice.stt": "Ears",
 		"voice.brain": "Voice Brain",
+		"voice.wake": "Wake Word",
 		"system.pending": "Assigning slot…",
 	};
 	return map[slotId] ?? slotId;
@@ -231,14 +243,18 @@ export function friendlySlotLabel(slotId: SlotId | string): string {
 export function slotDescription(slotId: SlotId | string): string {
 	const map: Record<string, string> = {
 		"chat.brain": "Talks to you, writes code, answers questions",
+		"chat.fast": "Handles fast-turn routing and short assistant hops",
+		"chat.vision": "Reasons about screenshots and other visual context",
 		"minion.shared": "Fast background tasks — summarizing, formatting, quick lookups",
 		"minion.escalation": "Complex analysis when the main AI needs deeper thinking",
 		"rag.embedder": "Finds relevant code and docs so Clyffy knows your project",
+		"rag.encoder": "Encodes retrieval queries before memory search runs",
 		"rag.reranker": "Picks the most relevant results from search",
 		"vision.embedder": "Sees your screen — helps with errors, layouts, and diagrams",
 		"voice.tts": "Speaks Clyffy's responses out loud in her voice",
 		"voice.stt": "Listens to your voice and converts speech to text",
 		"voice.brain": "Quick conversational responses for real-time voice chat",
+		"voice.wake": "Listens for the wake phrase so hands-free voice can start",
 	};
 	return map[slotId] ?? "";
 }

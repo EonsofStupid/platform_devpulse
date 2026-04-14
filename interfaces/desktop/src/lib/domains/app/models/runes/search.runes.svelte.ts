@@ -22,6 +22,19 @@ class SearchState {
 	private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private currentLimit = PAGE_SIZE;
 
+	private cancelDebounce(): void {
+		if (this.debounceTimer) {
+			clearTimeout(this.debounceTimer);
+			this.debounceTimer = null;
+		}
+	}
+
+	private resetForEmptyQuery(): void {
+		this.results = [];
+		this.error = null;
+		this.hasMore = false;
+	}
+
 	/** Execute search with current query (first page). */
 	async search(): Promise<void> {
 		if (!this.query.trim()) {
@@ -68,20 +81,29 @@ class SearchState {
 	setQuery(q: string): void {
 		this.query = q;
 
-		if (this.debounceTimer) {
-			clearTimeout(this.debounceTimer);
-		}
+		this.cancelDebounce();
 
 		if (!q.trim()) {
-			this.results = [];
-			this.error = null;
-			this.hasMore = false;
+			this.resetForEmptyQuery();
 			return;
 		}
 
 		this.debounceTimer = setTimeout(() => {
-			this.search();
+			void this.search();
 		}, 300);
+	}
+
+	/** Set the query and run search immediately. */
+	async submitQuery(q: string): Promise<void> {
+		this.query = q.trim();
+		this.cancelDebounce();
+
+		if (!this.query) {
+			this.resetForEmptyQuery();
+			return;
+		}
+
+		await this.search();
 	}
 
 	/** Clear search state. */
@@ -93,10 +115,7 @@ class SearchState {
 		this.loadingMore = false;
 		this.hasMore = false;
 		this.currentLimit = PAGE_SIZE;
-		if (this.debounceTimer) {
-			clearTimeout(this.debounceTimer);
-			this.debounceTimer = null;
-		}
+		this.cancelDebounce();
 	}
 }
 
