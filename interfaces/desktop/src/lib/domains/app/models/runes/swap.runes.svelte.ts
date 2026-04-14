@@ -84,11 +84,11 @@ class SwapState {
 	async startListening(): Promise<void> {
 		try {
 			this.unlisteners.push(
-				await listen<{ slot_id: string; stage: string; progress: number }>(
+				await listen<{ slot_id: string; stage: string; progress_pct: number }>(
 					"model:loading-stage",
 					(event) => {
 						if (this.active && event.payload.slot_id === this.slotId) {
-							this.updateStage(event.payload.stage, event.payload.progress);
+							this.updateStage(event.payload.stage, event.payload.progress_pct);
 						}
 					},
 				),

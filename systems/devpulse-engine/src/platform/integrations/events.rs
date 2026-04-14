@@ -28,6 +28,8 @@ impl EventBridge {
 
 impl LoaderEventSink for EventBridge {
     fn emit(&self, event: LoaderEvent) {
+        // Frontend wire payloads stay snake_case so every Rust-originated
+        // event follows one predictable contract.
         let (event_name, payload) = match &event {
             LoaderEvent::LoadingStarted { slot_id, model_id } => (
                 "model:loading-started",
@@ -39,7 +41,7 @@ impl LoaderEventSink for EventBridge {
                 progress_pct,
             } => (
                 "model:loading-stage",
-                json!({ "slot_id": slot_id, "stage": format!("{stage:?}"), "progress": progress_pct }),
+                json!({ "slot_id": slot_id, "stage": format!("{stage:?}"), "progress_pct": progress_pct }),
             ),
             LoaderEvent::LoadingComplete { slot_id, memory } => (
                 "model:loading-complete",
@@ -60,7 +62,7 @@ impl LoaderEventSink for EventBridge {
                 total_bytes,
             } => (
                 "model:download-started",
-                json!({ "download_id": download_id, "repo_id": repo_id, "filename": filename, "totalBytes": total_bytes }),
+                json!({ "download_id": download_id, "repo_id": repo_id, "filename": filename, "total_bytes": total_bytes }),
             ),
             LoaderEvent::DownloadProgress {
                 download_id,
@@ -69,7 +71,7 @@ impl LoaderEventSink for EventBridge {
                 speed_bps,
             } => (
                 "model:download-progress",
-                json!({ "download_id": download_id, "bytesDownloaded": bytes_downloaded, "totalBytes": total_bytes, "speedBps": speed_bps }),
+                json!({ "download_id": download_id, "bytes_downloaded": bytes_downloaded, "total_bytes": total_bytes, "speed_bps": speed_bps }),
             ),
             LoaderEvent::DownloadComplete {
                 download_id,

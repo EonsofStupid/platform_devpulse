@@ -108,6 +108,7 @@ $effect(() => {
 	<DynamicBackground
 		variant="boot"
 		src="/imgs/backgrounds/maincontentbackground.png"
+		animated
 	/>
 
 	<!--

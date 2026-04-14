@@ -20,7 +20,10 @@ import ClyffyNarration from "./ClyffyNarration.svelte";
 import HfModelCard from "./HfModelCard.svelte";
 
 interface Props {
-	onDownload?: (repoId: string, filename: string) => void;
+	onDownload?: (
+		repoId: string,
+		filename: string,
+	) => Promise<string | undefined> | string | undefined;
 	onClose?: () => void;
 }
 
@@ -57,30 +60,30 @@ let unlistenProgress: (() => void) | null = null;
 let unlistenComplete: (() => void) | null = null;
 
 $effect(() => {
-	listen<{ download_id: string; bytesDownloaded: number; totalBytes: number; speedBps: number }>(
+	listen<{ download_id: string; bytes_downloaded: number; total_bytes: number; speed_bps: number }>(
 		"model:download-progress",
 		(event) => {
 			const p = event.payload;
 			const idx = activeDownloads.findIndex((d) => d.downloadId === p.download_id);
 			if (idx >= 0) {
-				activeDownloads[idx].bytesDownloaded = p.bytesDownloaded;
-				activeDownloads[idx].totalBytes = p.totalBytes;
-				activeDownloads[idx].speedBps = p.speedBps;
+				activeDownloads[idx].bytesDownloaded = p.bytes_downloaded;
+				activeDownloads[idx].totalBytes = p.total_bytes;
+				activeDownloads[idx].speedBps = p.speed_bps;
 			}
 		},
 	).then((fn) => {
 		unlistenProgress = fn;
 	});
 
-	listen<{ downloadId: string }>("model:download-complete", (event) => {
-		const idx = activeDownloads.findIndex((d) => d.downloadId === event.payload.downloadId);
+	listen<{ download_id: string }>("model:download-complete", (event) => {
+		const idx = activeDownloads.findIndex((d) => d.downloadId === event.payload.download_id);
 		if (idx >= 0) {
 			activeDownloads[idx].complete = true;
 			completedDownload = activeDownloads[idx];
 			activeDownloads = activeDownloads.filter((_, i) => i !== idx);
 		}
-		modelsState.scan();
-		modelsState.refresh();
+		void modelsState.scan();
+		void modelsState.refresh();
 	}).then((fn) => {
 		unlistenComplete = fn;
 	});
@@ -101,10 +104,13 @@ function handleClear() {
 	searchState.clear();
 }
 
-function handleDownload(repoId: string, filename: string) {
-	// Track this download locally
+async function handleDownload(repoId: string, filename: string): Promise<void> {
+	const downloadId = await onDownload?.(repoId, filename);
+	if (typeof downloadId !== "string" || downloadId.length === 0) return;
+
+	// Track this download locally with the real backend UUID.
 	const dl: ActiveDownload = {
-		downloadId: `${repoId}/${filename}`,
+		downloadId,
 		repoId,
 		filename,
 		bytesDownloaded: 0,
@@ -113,9 +119,6 @@ function handleDownload(repoId: string, filename: string) {
 		complete: false,
 	};
 	activeDownloads = [...activeDownloads, dl];
-
-	// Fire the actual download — the download service returns the real download ID
-	onDownload?.(repoId, filename);
 }
 
 async function handleLoadNow() {

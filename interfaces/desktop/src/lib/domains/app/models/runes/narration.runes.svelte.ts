@@ -56,10 +56,10 @@ class NarrationState {
 		);
 
 		this.unlisteners.push(
-			await listen<{ slot_id: string; stage: string; progress: number }>(
+			await listen<{ slot_id: string; stage: string; progress_pct: number }>(
 				"model:loading-stage",
 				(e) => {
-					const pct = Math.round(e.payload.progress);
+					const pct = Math.round(e.payload.progress_pct);
 					this.push({
 						slotId: e.payload.slot_id,
 						text: translateLoadingStage(e.payload.stage, pct, competencyTracker.level),

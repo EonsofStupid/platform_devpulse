@@ -25,6 +25,7 @@
 Source: `src/routes/(setup)/+layout.svelte`
 
 - Full DevPulse background treatment, not a dead opaque blocker.
+- Use the animated DevPulse `maincontentbackground.png` treatment behind the setup shell, not a static fallback image.
 - Framed glass panel with soft border, blur, shadow, and responsive `clamp()` sizing.
 - Header/body shell separation.
 - Mobile fallback that collapses to full-screen without weird inset framing.
@@ -130,6 +131,7 @@ Source: `src/routes/(setup)/model-loader/complete/+page.svelte`
 
 Source: `src/lib/domains/app/models/features/setup-wizard/SetupWizardOverlay.svelte`
 
+- Keep `DynamicBackground` on `/imgs/backgrounds/maincontentbackground.png` animated anywhere the setup shell owns the viewport.
 - Existing role-card / model-change / voice-lab flows need explicit reintegration or deletion by design decision.
 - Download/load tracker UI must remain coherent with the new step flow.
 - Closing behavior must stop conflicting with the step sequence.

@@ -40,24 +40,22 @@ import { friendlyName, type LoadingStageKind } from "./wizard.types.js";
 /**
  * Payload shape for `model:download-started`.
  *
- * Note the mixed casing — the event bridge in `events.rs` emits
- * `download_id`, `repo_id`, `filename` as snake_case and `totalBytes` as
- * camelCase. This struct mirrors the wire format so no rename layer is
- * needed.
+ * Tauri event payloads are snake_case SSOT. Frontend state may normalize
+ * afterwards, but the wire contract itself does not mix styles.
  */
 interface DownloadStartedPayload {
 	download_id: string;
 	repo_id: string;
 	filename: string;
-	totalBytes: number;
+	total_bytes: number;
 }
 
 /** Payload for `model:download-progress`. */
 interface DownloadProgressPayload {
 	download_id: string;
-	bytesDownloaded: number;
-	totalBytes: number;
-	speedBps: number;
+	bytes_downloaded: number;
+	total_bytes: number;
+	speed_bps: number;
 }
 
 /** Payload for `model:download-complete`. */
@@ -88,7 +86,7 @@ interface LoadingStartedPayload {
 interface LoadingStagePayload {
 	slot_id: string;
 	stage: string;
-	progress: number;
+	progress_pct: number;
 }
 
 /** Payload for `model:loading-complete`. */
@@ -151,19 +149,19 @@ export async function bootstrapDownloadBridge(): Promise<() => void> {
 					wizardState.updateDownloadProgress(
 						p.download_id,
 						existing.bytesDownloaded,
-						p.totalBytes,
+						p.total_bytes,
 						existing.speedBps,
 					);
 					logInfo(
 						"download-bridge",
-						`download-started: ${p.filename} (${p.totalBytes} B) id=${p.download_id}`,
+						`download-started: ${p.filename} (${p.total_bytes} B) id=${p.download_id}`,
 					);
 				} else {
 					wizardState.trackDownload(p.download_id, pendingSlot, p.filename);
-					wizardState.updateDownloadProgress(p.download_id, 0, p.totalBytes, 0);
+					wizardState.updateDownloadProgress(p.download_id, 0, p.total_bytes, 0);
 					logInfo(
 						"download-bridge",
-						`download-started: ${p.filename} (${p.totalBytes} B) id=${p.download_id} slot=system.pending (until UI trackDownload)`,
+						`download-started: ${p.filename} (${p.total_bytes} B) id=${p.download_id} slot=system.pending (until UI trackDownload)`,
 					);
 				}
 			}),
@@ -172,9 +170,9 @@ export async function bootstrapDownloadBridge(): Promise<() => void> {
 				const p = event.payload;
 				wizardState.updateDownloadProgress(
 					p.download_id,
-					p.bytesDownloaded,
-					p.totalBytes,
-					p.speedBps,
+					p.bytes_downloaded,
+					p.total_bytes,
+					p.speed_bps,
 				);
 			}),
 
@@ -207,7 +205,7 @@ export async function bootstrapDownloadBridge(): Promise<() => void> {
 				const p = event.payload;
 				const slot = p.slot_id as SlotId;
 				const stage = mapStage(p.stage);
-				const pct = Number.isFinite(p.progress) ? p.progress : null;
+				const pct = Number.isFinite(p.progress_pct) ? p.progress_pct : null;
 				wizardState.updateLoadStage(slot, stage, pct);
 			}),
 

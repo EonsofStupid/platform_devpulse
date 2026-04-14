@@ -15,6 +15,7 @@ import VramBar from "../components/VramBar.svelte";
 import WizardHelpTip from "../components/WizardHelpTip.svelte";
 import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
 import { wizardState } from "../wizard.runes.svelte.js";
+import { downloadAndAssignFile } from "../wizard.service.js";
 import { friendlyName, ROLE_COLORS, type SlotRole } from "../wizard.types.js";
 import HuggingFaceSearch from "./HuggingFaceSearch.svelte";
 
@@ -251,13 +252,10 @@ async function handleAssign(slotId: string, modelId: string): Promise<void> {
 	{:else}
 		<HuggingFaceSearch
 			onDownload={async (repoId, filename, targetSlot) => {
-				const { downloadModel } = await import("../../../services/download.service.js");
-				const { toast } = await import("svelte-sonner");
 				try {
-					const downloadId = await downloadModel(repoId, filename);
-					wizardState.trackDownload(downloadId, (targetSlot ?? "chat.brain") as SlotId, filename);
-					toast.info(`Downloading ${cleanName(filename)}...`);
+					await downloadAndAssignFile(repoId, filename, (targetSlot ?? "chat.brain") as SlotId);
 				} catch (error) {
+					const { toast } = await import("svelte-sonner");
 					toast.error(error instanceof Error ? error.message : String(error));
 				}
 			}}

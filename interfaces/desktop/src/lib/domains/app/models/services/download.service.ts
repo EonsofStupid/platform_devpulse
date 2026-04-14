@@ -12,10 +12,65 @@ import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import type { DownloadProgress } from "../types/models.types.js";
 
+interface WireDownloadProgress {
+	download_id: string;
+	bytes_downloaded: number;
+	total_bytes: number;
+	speed_bps: number;
+}
+
+export interface DownloadCompleteEvent {
+	downloadId: string;
+	modelId: string;
+	filename: string;
+}
+
+interface WireDownloadCompleteEvent {
+	download_id: string;
+	model_id: string;
+	filename: string;
+}
+
+export interface DownloadFailedEvent {
+	downloadId: string;
+	error: string;
+}
+
+interface WireDownloadFailedEvent {
+	download_id: string;
+	error: string;
+}
+
 /** Unwrap a specta Result or throw. */
 function unwrap<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {
 	if (result.status === "ok") return result.data;
 	throw new Error(result.error);
+}
+
+function normalizeDownloadProgress(payload: WireDownloadProgress): DownloadProgress {
+	const remaining = Math.max(0, payload.total_bytes - payload.bytes_downloaded);
+	return {
+		downloadId: payload.download_id,
+		bytesDownloaded: payload.bytes_downloaded,
+		totalBytes: payload.total_bytes,
+		speedBps: payload.speed_bps,
+		etaSecs: payload.speed_bps > 0 ? Math.ceil(remaining / payload.speed_bps) : 0,
+	};
+}
+
+function normalizeDownloadComplete(payload: WireDownloadCompleteEvent): DownloadCompleteEvent {
+	return {
+		downloadId: payload.download_id,
+		modelId: payload.model_id,
+		filename: payload.filename,
+	};
+}
+
+function normalizeDownloadFailed(payload: WireDownloadFailedEvent): DownloadFailedEvent {
+	return {
+		downloadId: payload.download_id,
+		error: payload.error,
+	};
 }
 
 /** Start downloading a model from HuggingFace. Returns download ID. */
@@ -85,14 +140,17 @@ export async function importLocalModel(targetSlot?: string, importMode?: string)
 export function onDownloadProgress(callback: (progress: DownloadProgress) => void): () => void {
 	let unlisten: (() => void) | null = null;
 
-	listen<DownloadProgress>("model:download-progress", (event) => {
-		callback(event.payload);
+	listen<WireDownloadProgress>("model:download-progress", (event) => {
+		callback(normalizeDownloadProgress(event.payload));
 	})
 		.then((fn) => {
 			unlisten = fn;
 		})
 		.catch((e) => {
-			console.error("[download.service] Failed to register progress listener:", e);
+			logError(
+				"models.download",
+				`Failed to register progress listener: ${e instanceof Error ? e.message : String(e)}`,
+			);
 		});
 
 	return () => {
@@ -101,17 +159,42 @@ export function onDownloadProgress(callback: (progress: DownloadProgress) => voi
 }
 
 /** Listen to download complete events. Returns unsubscribe function. */
-export function onDownloadComplete(callback: (data: { downloadId: string }) => void): () => void {
+export function onDownloadComplete(callback: (data: DownloadCompleteEvent) => void): () => void {
 	let unlisten: (() => void) | null = null;
 
-	listen<{ downloadId: string }>("model:download-complete", (event) => {
-		callback(event.payload);
+	listen<WireDownloadCompleteEvent>("model:download-complete", (event) => {
+		callback(normalizeDownloadComplete(event.payload));
 	})
 		.then((fn) => {
 			unlisten = fn;
 		})
 		.catch((e) => {
-			console.error("[download.service] Failed to register complete listener:", e);
+			logError(
+				"models.download",
+				`Failed to register complete listener: ${e instanceof Error ? e.message : String(e)}`,
+			);
+		});
+
+	return () => {
+		unlisten?.();
+	};
+}
+
+/** Listen to download failure events. Returns unsubscribe function. */
+export function onDownloadFailed(callback: (data: DownloadFailedEvent) => void): () => void {
+	let unlisten: (() => void) | null = null;
+
+	listen<WireDownloadFailedEvent>("model:download-failed", (event) => {
+		callback(normalizeDownloadFailed(event.payload));
+	})
+		.then((fn) => {
+			unlisten = fn;
+		})
+		.catch((e) => {
+			logError(
+				"models.download",
+				`Failed to register failure listener: ${e instanceof Error ? e.message : String(e)}`,
+			);
 		});
 
 	return () => {

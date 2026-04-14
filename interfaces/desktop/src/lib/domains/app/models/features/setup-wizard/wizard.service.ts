@@ -19,9 +19,10 @@ import {
 	cancelDownload,
 	downloadModel,
 	onDownloadComplete,
+	onDownloadFailed,
 	onDownloadProgress,
 } from "../../services/download.service.js";
-import type { AutoConfig } from "../../types/models.types.js";
+import type { AutoConfig, SlotId } from "../../types/models.types.js";
 import { formatMb, friendlySlotLabel } from "../../types/models.types.js";
 import { wizardState } from "./wizard.runes.svelte.js";
 import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
@@ -291,6 +292,84 @@ export async function downloadAndAssign(rec: ModelRec): Promise<void> {
 		toast.error(`Download failed: ${msg}`);
 		throw e;
 	}
+}
+
+/**
+ * Download an arbitrary HuggingFace file, wait for the real backend completion
+ * event, then assign the resulting registry model to the chosen slot.
+ *
+ * Used by the Browse step where we do not have a full `ModelRec` upfront.
+ */
+export async function downloadAndAssignFile(
+	repoId: string,
+	filename: string,
+	slotId: SlotId,
+): Promise<void> {
+	wizardState.error = null;
+	const { toast } = await import("svelte-sonner");
+	const slotLabel = friendlySlotLabel(slotId);
+
+	let downloadId: string;
+	try {
+		downloadId = await downloadModel(repoId, filename);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		wizardState.error = msg;
+		toast.error(`Download failed: ${msg}`);
+		throw e;
+	}
+
+	wizardState.trackDownload(downloadId, slotId, filename);
+	toast.info(`Downloading ${filename}...`);
+
+	await new Promise<void>((resolve, reject) => {
+		let settled = false;
+		const timeout = setTimeout(
+			() => {
+				finish();
+				reject(new Error("Download timed out after 30 minutes"));
+			},
+			30 * 60 * 1000,
+		);
+
+		const finish = (): void => {
+			if (settled) return;
+			settled = true;
+			clearTimeout(timeout);
+			unsubComplete();
+			unsubFailed();
+		};
+
+		const unsubComplete = onDownloadComplete((data) => {
+			if (data.downloadId !== downloadId) return;
+			finish();
+			void (async () => {
+				try {
+					wizardState.completeDownload(downloadId);
+					await modelsState.scan();
+					await modelsState.refresh();
+					await modelsState.assign(slotId, data.modelId);
+					toast.success(`${filename} assigned to ${slotLabel}`);
+					resolve();
+				} catch (e) {
+					const msg = e instanceof Error ? e.message : String(e);
+					wizardState.failDownload(downloadId, `Downloaded, but slot apply failed: ${msg}`);
+					wizardState.error = msg;
+					toast.error(`Downloaded, but slot apply failed: ${msg}`);
+					reject(e instanceof Error ? e : new Error(msg));
+				}
+			})();
+		});
+
+		const unsubFailed = onDownloadFailed((data) => {
+			if (data.downloadId !== downloadId) return;
+			finish();
+			wizardState.failDownload(downloadId, data.error);
+			wizardState.error = data.error;
+			toast.error(`Download failed: ${data.error}`);
+			reject(new Error(data.error));
+		});
+	});
 }
 
 /** Cancel an in-progress download.

@@ -104,6 +104,7 @@ class WizardState {
 	activeDownloads = $state<Record<string, DownloadTracker>>({});
 
 	trackDownload(downloadId: string, slot: SlotId, filename: string): void {
+		const existing = this.activeDownloads[downloadId];
 		this.activeDownloads = {
 			...this.activeDownloads,
 			[downloadId]: {
@@ -111,10 +112,13 @@ class WizardState {
 				slotId: slot,
 				filename,
 				friendlyName: friendlyName(slot),
-				bytesDownloaded: 0,
-				totalBytes: 0,
-				speedBps: 0,
-				status: "queued",
+				bytesDownloaded: existing?.bytesDownloaded ?? 0,
+				totalBytes: existing?.totalBytes ?? 0,
+				speedBps: existing?.speedBps ?? 0,
+				status: existing?.status ?? "queued",
+				error: existing?.error,
+				repoId: existing?.repoId,
+				startedAtMs: existing?.startedAtMs ?? Date.now(),
 			},
 		};
 	}

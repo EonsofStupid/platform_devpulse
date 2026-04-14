@@ -91,14 +91,13 @@ async function handleImportForSlot(slotId: string): Promise<void> {
 	}
 }
 
-async function handleSearchDownload(repoId: string, filename: string): Promise<void> {
+async function handleSearchDownload(repoId: string, filename: string): Promise<string> {
 	error = null;
 	try {
-		await downloadModel(repoId, filename);
-		await modelsState.scan();
-		await modelsState.refresh();
+		return await downloadModel(repoId, filename);
 	} catch (e) {
 		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
+		throw e;
 	}
 }
 
