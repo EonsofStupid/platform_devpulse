@@ -77,6 +77,41 @@
 			"$value": { "value": 600, "unit": "ms" },
 			"$description": "Flip — one-shot card flip.",
 			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-flip", "easing": [0.4, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"presence-breathe": {
+			"$value": { "value": 3200, "unit": "ms" },
+			"$description": "Presence orb — gentle idle breathing, brightness+scale.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-breathe", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-pulse": {
+			"$value": { "value": 1400, "unit": "ms" },
+			"$description": "Presence orb — working pulse, strong scale.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-pulse", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-think": {
+			"$value": { "value": 2400, "unit": "ms" },
+			"$description": "Presence orb — thinking, rotate+hue-shift.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-think", "easing": [0, 0, 1, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-listen": {
+			"$value": { "value": 1600, "unit": "ms" },
+			"$description": "Presence orb — listening, squash/stretch attentive.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-listen", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-rest": {
+			"$value": { "value": 6000, "unit": "ms" },
+			"$description": "Presence orb — resting, slow desaturated breathing.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-rest", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-halo": {
+			"$value": { "value": 3200, "unit": "ms" },
+			"$description": "Presence orb — outer halo breathing, pairs with any core.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-halo", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-alert": {
+			"$value": { "value": 900, "unit": "ms" },
+			"$description": "Presence orb — alert, fast asymmetric pulse.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-alert", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
 		}
 	}
 }

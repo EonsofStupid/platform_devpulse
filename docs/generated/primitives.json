@@ -1,10 +1,10 @@
 {
   "generated": "2026-01-23T02:50:40.668Z",
   "version": "0.1.0",
-  "primitives": [
+  "behaviors
     {
       "name": "D:",
-      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/types.ts",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/behaviors/types.ts",
       "interfaces": [
         {
           "name": "BaseProps",

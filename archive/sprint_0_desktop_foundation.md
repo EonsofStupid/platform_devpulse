@@ -74,7 +74,7 @@ interfaces/desktop/
 │   ├── lib/
 │   │   ├── layouts/             # Dumb Shells (AppFrame)
 │   │   ├── domains/             # Smart Logic (Chat, WiredFront)
-│   │   └── primitives/          # Atomic UI (Button, Icon)
+│   │   └── behaviors      # Atomic UI (Button, Icon)
 │   └── routes/
 │       ├── +layout.svelte       # AppFrame Instance
 │       ├── +page.svelte         # Chat Domain

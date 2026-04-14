@@ -15,14 +15,14 @@ Verify primitive: $ARGUMENTS
 Verifies a ColdLight primitive against the gold standard architecture (2026-03-20).
 Every primitive MUST pass this checklist before being considered complete.
 
-If `$ARGUMENTS` is "all", verify every primitive in design/primitives/.
+If `$ARGUMENTS` is "all", verify every primitive in design/behaviors/.
 
 ## Architecture (CURRENT — 2026-03-20)
 
 - **design/ IS ColdLight.** No coldlight/ subfolder. No taxonomy/ folder.
-- **Primitives ARE behavioral hooks WITH ARIA.** They are NOT empty shells.
+- **Behaviors ARE behavioral hooks WITH ARIA.** They are NOT empty shells.
 - **SD5 engine drives all visuals.** DTCG tokens → CSS custom properties → Tailwind @theme → TypeScript types.
-- **Components consume primitives.** Import hook from primitives/, add visual via useColdLight() + recipes.
+- **Components consume behaviors.** Import hook from behaviors/, add visual via useColdLight() + recipes.
 - **Shared infra:** `_internal/` (kbd, uid, data-attr, dismiss, scroll-lock, presence), `schema/` (a11y, anatomy).
 
 ### What a Gold Standard Primitive Looks Like
@@ -30,7 +30,7 @@ If `$ARGUMENTS` is "all", verify every primitive in design/primitives/.
 Reference: accordion, dialog, tabs, button — these are verified good.
 
 ```
-primitives/{kind}/
+behaviors/{kind}/
   use-{kind}.svelte.ts   ← Svelte 5 runes hook. ARIA, keyboard, state. The behavior.
   {kind}.types.ts         ← Hook prop and return types. Fully typed, no `any`.
   {kind}.a11y.ts          ← WAI-ARIA APG spec declaration (roles, required attrs, keyboard, focus strategy)
@@ -54,7 +54,7 @@ primitives/{kind}/
 - [ ] Keyboard handling where APG requires it (Space, Enter, Arrow keys, etc.)
 - [ ] Event handlers (onclick, onkeydown) where APG requires interaction
 - [ ] WAI-ARIA APG pattern URL in JSDoc
-- [ ] For component primitives: proper ARIA roles (button, dialog, tablist, etc.)
+- [ ] For component behaviors: proper ARIA roles (button, dialog, tablist, etc.)
 - [ ] For interaction utilities (hover, press, focus): returns interaction state, no ARIA roles needed
 - [ ] NO direct DOM manipulation (no `document.querySelector`)
 - [ ] NO imports from third-party headless UI libraries (Melt, Bits UI, etc.)
@@ -70,7 +70,7 @@ primitives/{kind}/
 
 ### 3. A11y Spec — `{kind}.a11y.ts`
 
-- [ ] Exists (for ARIA primitives; interaction utilities may skip)
+- [ ] Exists (for ARIA behaviors; interaction utilities may skip)
 - [ ] Imports `A11ySpec` type from `../../schema/a11y.schema.js`
 - [ ] Declares: `roles` per slot, `requiredAttrs`, `keyboard` bindings, `focusStrategy`
 - [ ] APG pattern URL
@@ -126,7 +126,7 @@ primitives/{kind}/
 
 ## Execution
 
-1. Read ALL files in primitives/{kind}/
+1. Read ALL files in behaviors/{kind}/
 2. Check EVERY item above against the actual file content
 3. For "all": produce a summary table
 

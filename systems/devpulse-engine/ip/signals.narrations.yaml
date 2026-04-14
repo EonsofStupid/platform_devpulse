@@ -1,0 +1,229 @@
+# Seed narration catalog for DevPulse signals.
+# Ownership: hand-curated (Option X). ML extension comes later, same lint.
+# Interpolation tokens: {role}, {subject}, {target}, {label} resolved at emit time.
+#
+# Doctrine: .claude/rules/ip-protection.md
+# Registry: ./signals.registry.yaml
+
+version: 0.1.0
+registry: ./signals.registry.yaml
+
+# ─────────────────────────────────────────────────────────────
+# FAMILY: context
+# ─────────────────────────────────────────────────────────────
+rro.state.idle:
+  layman: ["clyffy is resting", "nothing on the stove"]
+  visibility: low
+
+rro.state.gathering:
+  layman:
+    - "rounding up context"
+    - "performing the dark arts for context"
+    - "digging through the vault"
+    - "asking the scouts to look around"
+  learning:
+    - "watch what the scout pulls — prompt quality is decided here, not in the answer"
+  visibility: educational
+
+rro.state.processing:
+  layman:
+    - "sorting through what was found"
+    - "stacking the pieces in order"
+    - "making sense of the haul"
+  visibility: medium
+
+rro.state.ruminating:
+  layman:
+    - "thinking this through properly"
+    - "letting the gears turn"
+    - "weighing the options"
+    - "clyffy is pacing the room"
+  learning:
+    - "rumination is the pause before acting — this is where senior instincts live"
+    - "if rumination runs long, something is unclear in the context, not in the question"
+  visibility: educational
+
+rro.state.ready:
+  layman: ["context is locked and loaded", "ready to act"]
+  visibility: medium
+
+rro.state.purged:
+  layman: ["threw out the old context", "starting fresh"]
+  learning: ["when context goes stale, the fastest fix is purge and regather — not fight through it"]
+  visibility: educational
+
+rro.state.forked:
+  layman: ["branched into alternatives", "holding two paths open"]
+  learning: ["forks let clyffy compare approaches without committing — same trick you use when you're unsure"]
+  visibility: educational
+
+# ─────────────────────────────────────────────────────────────
+# FAMILY: interaction
+# ─────────────────────────────────────────────────────────────
+prompt.state.drafting:
+  layman: ["drafting the ask", "shaping the request"]
+  visibility: medium
+
+prompt.state.refining:
+  layman: ["tightening the wording", "sharpening the ask"]
+  learning: ["refinement is where vague requests become answerable — notice which parts change"]
+  visibility: educational
+
+prompt.state.contracted:
+  layman: ["the ask is locked", "contract sealed"]
+  visibility: medium
+
+prompt.state.delivered:
+  layman: ["handed off to {target}", "ask delivered to {target}"]
+  visibility: medium
+
+prompt.state.constructive_rewrite:
+  layman: ["reworded that to stay constructive", "kept the meaning, dropped the heat"]
+  learning:
+    - "rage and vulgarity get reworded to protect your ROTI — meaning preserved, tone neutralized"
+    - "constructive rewrites avoid regression — the same complaint lands harder when it's specific"
+  visibility: educational
+
+a2ui.intent.collect_context:
+  layman: ["need a bit more from you to do this right", "gathering the details that matter"]
+  visibility: medium
+
+a2ui.intent.confirm_decision:
+  layman: ["confirm before clyffy commits"]
+  visibility: medium
+
+a2ui.intent.teach_pattern:
+  layman: ["showing you the pattern as it happens"]
+  visibility: educational
+
+a2ui.intent.offer_fork:
+  layman: ["here are the paths clyffy is weighing"]
+  learning: ["forks are offered when either path is defensible — pick the one that matches your taste"]
+  visibility: educational
+
+# ─────────────────────────────────────────────────────────────
+# FAMILY: action
+# ─────────────────────────────────────────────────────────────
+minion.state.spawning:
+  layman:
+    - "{role} minion is spinning up"
+    - "{role} reporting for duty"
+    - "{role} crawled out of the background"
+  visibility: always
+
+minion.state.working:
+  layman: ["{role} is on it", "{role} is digging"]
+  visibility: medium
+
+minion.state.reporting:
+  layman: ["{role} is back with findings", "{role} has something to share"]
+  visibility: medium
+
+minion.state.resting:
+  layman: ["{role} is standing by"]
+  visibility: low
+
+minion.state.retired:
+  layman: ["{role} is done for now"]
+  visibility: low
+
+recipe.state.selected:
+  layman: ["picked the {label} recipe"]
+  visibility: medium
+
+recipe.state.running:
+  layman: ["running the {label} recipe"]
+  visibility: medium
+
+recipe.state.completed:
+  layman: ["{label} recipe finished clean"]
+  visibility: medium
+
+recipe.state.aborted:
+  layman: ["{label} recipe was halted"]
+  learning: ["recipes abort when their invariants break — the reason matters more than the stop itself"]
+  visibility: educational
+
+# ─────────────────────────────────────────────────────────────
+# FAMILY: diagnostics
+# ─────────────────────────────────────────────────────────────
+diagnostics.state.monitoring:
+  layman: ["proximity sensor watching"]
+  visibility: low
+
+diagnostics.state.triggered:
+  layman: ["diagnostics triggered", "something caught the sensor's attention"]
+  visibility: medium
+
+diagnostics.state.analyzing:
+  layman: ["running self-analysis", "clyffy is checking itself"]
+  visibility: medium
+
+diagnostics.state.resolved:
+  layman: ["self-analysis complete, nothing to do"]
+  visibility: low
+
+diagnostics.proximity.caution:
+  layman: ["minor drift noticed"]
+  visibility: low
+
+diagnostics.proximity.warning:
+  layman: ["friction building", "something is drifting"]
+  learning: ["when friction rises, the fastest fix is almost always fresh context, not more reasoning"]
+  visibility: educational
+
+diagnostics.proximity.critical:
+  layman: ["threshold crossed", "pausing to re-center"]
+  learning: ["critical proximity means the current path won't recover without intervention — purge or fork"]
+  visibility: educational
+
+diagnostics.action.pause:
+  layman: ["pausing for review"]
+  visibility: medium
+
+diagnostics.action.fork:
+  layman: ["offering a fork"]
+  visibility: medium
+
+diagnostics.action.purge:
+  layman: ["purging recent context"]
+  learning: ["purge is aggressive but honest — holding stale context is the more expensive choice"]
+  visibility: educational
+
+diagnostics.action.refresh_context:
+  layman: ["gathering fresh context"]
+  visibility: medium
+
+diagnostics.action.jit:
+  layman: ["adjusting on the fly"]
+  visibility: low
+
+diagnostics.action.continue:
+  layman: ["nothing to fix, proceeding"]
+  visibility: low
+
+# ─────────────────────────────────────────────────────────────
+# FAMILY: learning
+# ─────────────────────────────────────────────────────────────
+lesson.kind.observation:
+  layman: ["worth noting: {subject}"]
+  visibility: educational
+
+lesson.kind.tradeoff:
+  layman: ["decision point: {subject}"]
+  learning: ["tradeoffs have no right answer — they have a right answer for you"]
+  visibility: educational
+
+lesson.kind.anti_pattern:
+  layman: ["heads up — {subject}"]
+  learning: ["anti-patterns show up in context so you learn to spot them before they cost you"]
+  visibility: educational
+
+lesson.kind.confirmation:
+  layman: ["good call on {subject}"]
+  visibility: educational
+
+lesson.kind.alternative:
+  layman: ["considered but didn't take: {subject}"]
+  learning: ["alternatives are shown so you see what clyffy weighed, not just what it picked"]
+  visibility: educational

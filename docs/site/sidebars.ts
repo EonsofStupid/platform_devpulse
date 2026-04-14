@@ -12,11 +12,11 @@ const sidebars: SidebarsConfig = {
 				"coldlight/inventory",
 				{
 					type: "category",
-					label: "Primitives",
+					label: "Behaviors",
 					items: [
-						"coldlight/primitives/index",
-						"coldlight/primitives/contracts",
-						"coldlight/primitives/testing",
+						"coldlight/behaviors/index",
+						"coldlight/behaviors/contracts",
+						"coldlight/behaviors/testing",
 					],
 				},
 				{

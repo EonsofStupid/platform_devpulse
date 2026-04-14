@@ -2,16 +2,16 @@
 
 ## Context
 
-The design system has been over-layered (primitives → dumb components → ui wrappers = 3 layers). No enterprise system does this. The correct 2026 pattern is 2 layers: primitive hooks for behavior + styled components as the product. Every session has been patching instead of authoring the foundation correctly. This plan establishes the correct pattern from the ground up.
+The design system has been over-layered (behaviors → dumb components → ui wrappers = 3 layers). No enterprise system does this. The correct 2026 pattern is 2 layers: primitive hooks for behavior + styled components as the product. Every session has been patching instead of authoring the foundation correctly. This plan establishes the correct pattern from the ground up.
 
 ## Architecture (2 Layers)
 
-### Layer 1: Primitive Hooks (`primitives/{kind}/`)
+### Layer 1: Primitive Hooks (`behaviors/{kind}/`)
 
 Pure behavior. WAI-ARIA APG compliant. No styling. No schema.
 
 ```
-primitives/{kind}/
+behaviors/{kind}/
   {kind}.anatomy.ts       — createAnatomy(kind, slots) → data-kind + data-slot per part
   {kind}.types.ts         — behavioral props, per-slot typed attrs, return type
   use-{kind}.svelte.ts    — $state + $derived. ARIA, keyboard, focus, state.
@@ -35,7 +35,7 @@ components/{kind}/
 Pattern:
 ```svelte
 <script lang="ts">
-  import { useButton } from "$lib/design/primitives/button/index.js";
+  import { useButton } from "$lib/design/behaviors/button/index.js";
   import { StyleMacro } from "$lib/design/style/index.js";
   import type { ButtonProps, ButtonSize } from "./button.types.js";
 
@@ -80,7 +80,7 @@ Pattern:
 
 ### What Stays
 
-- `primitives/` — hooks, anatomy, types (behavioral layer)
+- `behaviors/` — hooks, anatomy, types (behavioral layer)
 - `components/_base/` — ComponentProps, schema.ts (11-axis Zod), registry.ts
 - `components/{kind}/` — the product (hook + StyleMacro)
 - `style/` — StyleMacro, macro-mappings, base-state
@@ -90,7 +90,7 @@ Pattern:
 
 ## _base Contract
 
-`_base` is for styling, not primitives. It provides:
+`_base` is for styling, not behaviors. It provides:
 
 - `ComponentProps` — `class?: string`, `children?: Snippet`
 - `SlotTokenAxesSchema` — 11 DTCG axes (Zod, for VPB)

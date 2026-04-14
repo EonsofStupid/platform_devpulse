@@ -15,7 +15,7 @@
 
 | Layer | Folder | What |
 |-------|--------|------|
-| **Primitive Hook** | `primitives/{kind}/` | Behavior. WAI-ARIA APG. ARIA, keyboard, focus, state. NO styling. |
+| **BEHAVIORS Hook** | `behaviors/{kind}/` | Behavior. WAI-ARIA APG. ARIA, keyboard, focus, state. NO styling. |
 | **Component** | `components/{kind}/` | THE PRODUCT. Hook + RenderForge in ONE file. What users import. |
 
 **There is NO `ui/` folder. NO dumb middle layer. The component IS the product.**

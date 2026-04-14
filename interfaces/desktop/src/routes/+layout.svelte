@@ -7,6 +7,7 @@ import { onMount } from "svelte";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, hardwareState } from "$lib/domains/app/models/index.js";
+import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
@@ -54,6 +55,10 @@ onMount(() => {
 			logError("layout", `platformState.init() FAILED: ${e}`);
 		});
 
+	// Clyffy presence — mood runes derived from platform + model events.
+	// Owns its own $effect.root internally; returns a teardown fn.
+	const stopClyffyStatus = clyffyStatus.start();
+
 	// ── Idle auto-minimize ─────────────────────────────────
 	// Track last pointer/keyboard activity. When the window has been
 	// idle for N seconds (read from assistant.toml via the kernel),
@@ -94,6 +99,7 @@ onMount(() => {
 	return () => {
 		detachDownloadBridge?.();
 		hardwareState.stopListening();
+		stopClyffyStatus();
 		document.removeEventListener("pointermove", markActive);
 		document.removeEventListener("keydown", markActive);
 		clearInterval(idleInterval);

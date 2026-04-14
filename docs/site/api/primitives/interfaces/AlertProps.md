@@ -1,8 +1,8 @@
 # Interface: AlertProps
 
-Defined in: [primitives/alert/types.ts:32](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/alert/types.ts#L32)
+Defined in: [behaviorsalert/types.ts:32](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/behaviorsalert/types.ts#L32)
 
-Base props for primitives that EXTEND OmitStyle<HTMLElement>.
+Base props for behaviorsthat EXTEND OmitStyle<HTMLElement>.
 These already get `class` from HTMLAttributes - do NOT redefine it here.
 
 ## Extends
@@ -21,7 +21,7 @@ These already get `class` from HTMLAttributes - do NOT redefine it here.
 
 > `optional` **children**: `Snippet`\<\[\]\>
 
-Defined in: [primitives/alert/types.ts:33](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/alert/types.ts#L33)
+Defined in: [behaviorslert/types.ts:33](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/behaviorstypes.ts#L33)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [primitives/alert/types.ts:33](https://github.com/EonsofStupid/platf
 
 > `optional` **data-id**: `string`
 
-Defined in: [primitives/types.ts:100](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/types.ts#L100)
+Defined in: [behaviors](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/behaviors
 
 User-defined stable ID for tooling
 

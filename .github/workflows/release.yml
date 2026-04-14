@@ -49,9 +49,9 @@ jobs:
         working-directory: tools/docgen
         run: pnpm install
 
-      - name: Extract primitives documentation
+      - name: Extract behaviorsmentation
         working-directory: tools/docgen
-        run: pnpm extract:primitives
+        run: pnpm extract:behaviors
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4

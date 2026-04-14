@@ -1,6 +1,6 @@
 # Interface: AspectRatioProps
 
-Defined in: [primitives/aspect-ratio/types.ts:52](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/aspect-ratio/types.ts#L52)
+Defined in: [behaviorsaspect-ratio/types.ts:52](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/behaviorsct-ratio/types.ts#L52)
 
 AspectRatioProps — props for the aspect-ratio primitive.
 
@@ -24,7 +24,7 @@ The `class` prop receives recipe-generated strings from the component layer.
 
 > `optional` **children**: `Snippet`\<\[\]\>
 
-Defined in: [primitives/aspect-ratio/types.ts:53](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/aspect-ratio/types.ts#L53)
+Defined in: [behaviorses.ts:53](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/behaviors
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [primitives/aspect-ratio/types.ts:53](https://github.com/EonsofStupi
 
 > `optional` **data-id**: `string`
 
-Defined in: [primitives/types.ts:100](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/types.ts#L100)
+Defined in: [behaviorsStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/types.ts#L100)
 
 User-defined stable ID for tooling
 

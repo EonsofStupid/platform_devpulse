@@ -30,7 +30,7 @@ module.exports = {
         
         // Design System
         'coldlight',
-        'primitives',
+        'behaviors',
         'tokens',
         'recipes',
         'taxonomy',

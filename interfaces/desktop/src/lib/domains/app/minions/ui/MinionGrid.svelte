@@ -17,28 +17,28 @@ interface MinionState {
 
 // Minion states — wired to real data in Phase 10
 const minions: MinionState[] = [
-	{ name: "GUARDIAN", icon: "🛡️", status: "active", modelLabel: "0.6B", device: "CPU" },
-	{ name: "ENFORCER", icon: "⚖️", status: "active", modelLabel: "0.6B", device: "CPU" },
-	{ name: "DIARY", icon: "📔", status: "idle", modelLabel: "0.6B", device: "CPU" },
+	{ name: "Sentinel", icon: "🛡️", status: "active", modelLabel: "0.6B", device: "CPU" },
+	{ name: "Warden", icon: "⚖️", status: "active", modelLabel: "0.6B", device: "CPU" },
+	{ name: "Archivist", icon: "📔", status: "idle", modelLabel: "0.6B", device: "CPU" },
 	{
-		name: "PSYCH",
+		name: "Analyst",
 		icon: "🧠",
 		status: "escalated",
 		modelLabel: "→ Brain",
 		device: "GPU",
 		escalated: true,
 	},
-	{ name: "TEACHER", icon: "📚", status: "idle", modelLabel: "0.6B", device: "CPU" },
-	{ name: "SCRIBE", icon: "✍️", status: "active", modelLabel: "0.6B", device: "CPU" },
-	{ name: "VISION", icon: "👁️", status: "signal", modelLabel: "SigLIP2", device: "on-demand" },
-	{ name: "RESEARCHER", icon: "🔍", status: "idle", modelLabel: "0.6B", device: "CPU" },
+	{ name: "Herald", icon: "📚", status: "idle", modelLabel: "0.6B", device: "CPU" },
+	{ name: "Scribe", icon: "✍️", status: "active", modelLabel: "0.6B", device: "CPU" },
+	{ name: "Scout", icon: "👁️", status: "signal", modelLabel: "SigLIP2", device: "on-demand" },
+	{ name: "Runner", icon: "🔍", status: "idle", modelLabel: "0.6B", device: "CPU" },
 ];
 
 const hasEscalated = $derived(minions.some((m) => m.escalated));
 
 const clyffyMessage = $derived.by(() => {
 	if (hasEscalated) {
-		return "PSYCH needed deeper analysis — I escalated it to the main brain. The others are handling their tasks on the fast model.";
+		return "Analyst needed deeper reasoning — I escalated it to the main brain. The others are handling their tasks on the fast model.";
 	}
 	const activeCount = minions.filter((m) => m.status === "active").length;
 	if (activeCount > 0) {

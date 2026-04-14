@@ -19,13 +19,12 @@ import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
 import { Avatar } from "$lib/design/components/avatar/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
+import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
@@ -98,14 +97,8 @@ function onKey(e: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		<!-- Clyffy status badge -->
-		<Badge variant={platformState.isReady ? "positive" : "neutral"} size="sm" class="gap-1.5">
-			<span
-				class="h-2 w-2 rounded-full"
-				style="background: {platformState.isReady ? 'var(--color-teal-400)' : 'var(--text-muted)'}; box-shadow: var(--glow-dot-sm);"
-			></span>
-			<Text size="xs" weight="semibold">Clyffy</Text>
-		</Badge>
+		<!-- Clyffy presence orb -->
+		<ClyffyStatusOrb size="sm" />
 
 		<Avatar size={32} alt="User avatar" fallback="DP" />
 	</div>

@@ -1,4 +1,4 @@
-# primitives
+# behaviors
 
 ## Interfaces
 
@@ -43,7 +43,7 @@
 
 - [HeadingLevel](type-aliases/HeadingLevel.md)
 - [OmitStyle](type-aliases/OmitStyle.md)
-- [PrimitiveState](type-aliases/PrimitiveState.md)
+- [Behaviorstate](type-aliases/Behaviorsate.md)
 
 ## Variables
 
@@ -103,7 +103,7 @@
 - [paginationContract](variables/paginationContract.md)
 - [pinInputContract](variables/pinInputContract.md)
 - [popoverContract](variables/popoverContract.md)
-- [PrimitiveStates](variables/PrimitiveStates.md)
+- [Behaviors](variables/PBehaviors
 - [progressContract](variables/progressContract.md)
 - [proseContract](variables/proseContract.md)
 - [radioGroupContract](variables/radioGroupContract.md)

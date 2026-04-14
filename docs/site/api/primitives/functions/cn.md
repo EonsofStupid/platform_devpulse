@@ -2,7 +2,7 @@
 
 > **cn**(...`inputs`): `string`
 
-Defined in: [primitives/types.ts:133](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/primitives/types.ts#L133)
+Defined in: [behaviorstypes.ts:133](https://github.com/EonsofStupid/platform_devpulse/blob/67216c2b467cf993e9f2044f8cbec2e66dc2fcf0/interfaces/desktop/src/lib/design/behaviorstypes.ts#L133)
 
 Merge class names with Tailwind-aware deduplication.
 Uses clsx for conditional classes + tailwind-merge for specificity.

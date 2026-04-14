@@ -60,7 +60,7 @@ export default {
         "entryPoints": [
           "../../interfaces/desktop/src/lib/design/index.ts",
           "../../interfaces/desktop/src/lib/design/tokens/tokens.ts",
-          "../../interfaces/desktop/src/lib/design/primitives/index.ts",
+          "../../interfaces/desktop/src/lib/design/behaviorsex.ts",
           "../../interfaces/desktop/src/lib/design/actions/index.ts",
           "../../interfaces/desktop/src/lib/design/utils/index.ts"
         ],

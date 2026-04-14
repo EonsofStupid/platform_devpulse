@@ -10,7 +10,7 @@
 ## Styling SSOT
 
 - No `--wiz-*` variables survive the final pass.
-- Use semantic ColdLight variables generated from primitives and aliases:
+- Use semantic ColdLight variables generated from behaviorsaliases:
   - surfaces: `--surface-base`, `--surface-raised`, `--surface-overlay`, `--surface-inset`, `--surface-subtle`
   - glass/matte: `--glass-deep`, `--glass-smoke`, `--matte-dark`, `--matte-medium`
   - text: `--text-primary`, `--text-secondary`, `--text-muted`, `--text-accent`, `--text-link`
@@ -116,7 +116,7 @@ Source: `src/routes/(setup)/model-loader/profile/+page.svelte`
 - Route wrapper is already thin.
 - Main missing work is overlay progression into `ProjectSetupStep.svelte` after activation.
 - Keep help row, explainer popup, level cards, and folder browse flow.
-- Future improvement: align raw inputs to fuller ColdLight input field primitives.
+- Future improvement: align raw inputs to fuller ColdLight input field behaviors
 
 ## Completion Screen Absorb List
 

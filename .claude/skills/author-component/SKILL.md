@@ -11,7 +11,7 @@ Zero exceptions. No backwards compat. No shortcuts.
 
 ## Architecture (2 Layers — ADR-001 LOCKED)
 
-### Layer 1: Primitive Hook (`primitives/{kind}/`)
+### Layer 1: Primitive Hook (`behaviors/{kind}/`)
 - Pure behavior. WAI-ARIA APG. No styling. No schema.
 - `{kind}.anatomy.ts` — `createAnatomy(kind, slots)`
 - `{kind}.types.ts` — behavioral props, per-slot typed attrs, return type
@@ -194,7 +194,7 @@ When fixing an existing component to align:
 - `accent` as a prop name for preset selection (use `intent`)
 - Hardcoded colors in components
 - Visual CSS classes that bypass the token pipeline
-- `.svelte` components in primitives
+- `.svelte` components in behaviors
 - Shorthand transforms in SD5
 - Backwards compatibility shims
 

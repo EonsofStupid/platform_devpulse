@@ -42,7 +42,7 @@ pre-commit:
     # GritQL plugins handle .css files via biome check above
     no-raw-values:
       glob: "interfaces/desktop/src/**/*.{svelte,css,ts}"
-      run: bash scripts/hooks/no-raw-values.sh
+      run: node scripts/hooks/no-raw-values.mjs
 
     # Documentation preflight checks
     docs-preflight:

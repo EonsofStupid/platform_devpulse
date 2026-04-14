@@ -1,0 +1,275 @@
+# SSOT — DevPulse public signal vocabulary.
+# Shape: OpenTelemetry semantic convention registry (extended with families,
+# relationships, visibility tiers, narrations).
+# Rule: ONE-SIDED. Anything not declared here is kernel-only by definition.
+# Extends: OTel GenAI semconv (gen_ai.*) — https://opentelemetry.io/docs/specs/semconv/gen-ai/
+#
+# Doctrine: .claude/rules/ip-protection.md
+# Narrations: ./signals.narrations.yaml
+
+version: 0.1.0
+extends: [gen_ai]
+
+families:
+  - id: context
+    brief: "How Clyffy understands the current situation."
+    related_to: [interaction, diagnostics]
+    learning_visibility: high
+    groups: [rro]
+
+  - id: interaction
+    brief: "How Clyffy communicates with the viber and with other AI systems."
+    related_to: [context, action]
+    learning_visibility: high
+    groups: [prompt, a2ui]
+
+  - id: action
+    brief: "What Clyffy is actively doing."
+    related_to: [diagnostics, context]
+    learning_visibility: medium
+    groups: [minion, recipe]
+
+  - id: diagnostics
+    brief: "Clyffy's self-assessment and system health."
+    related_to: [context, action]
+    learning_visibility: low
+    groups: [diagnostics]
+
+  - id: learning
+    brief: "Educational narration track — what the viber learns by watching Clyffy work."
+    related_to: [context, interaction, action]
+    learning_visibility: always
+    groups: [lesson]
+
+groups:
+  # ─────────────────────────────────────────────────────────────
+  # FAMILY: context
+  # ─────────────────────────────────────────────────────────────
+  - id: rro
+    family: context
+    stability: stable
+    brief: "Reasoning-ready object lifecycle — gathering and preparing context before acting."
+    attributes:
+      - id: rro.state
+        brief: "Current lifecycle state of the RRO."
+        type:
+          members:
+            - { id: idle,       brief: "No active RRO." }
+            - { id: gathering,  brief: "Collecting relevant context." }
+            - { id: processing, brief: "Structuring collected context." }
+            - { id: ruminating, brief: "Weighing alternatives before committing." }
+            - { id: ready,      brief: "Context prepared, ready to act." }
+            - { id: purged,     brief: "Context discarded as stale or contaminated." }
+            - { id: forked,     brief: "Context branched into alternative paths." }
+        stability: stable
+        requirement_level: required
+
+      - id: rro.depth
+        brief: "How deeply Clyffy ruminates before acting."
+        type:
+          members:
+            - { id: shallow, brief: "Fast-path, minimal deliberation." }
+            - { id: normal,  brief: "Standard deliberation." }
+            - { id: deep,    brief: "Extended deliberation." }
+        stability: stable
+        requirement_level: recommended
+
+      - id: rro.source
+        brief: "Opaque origin identifier for provenance. Never a backend, store, or algorithm name."
+        type: string
+        stability: stable
+        requirement_level: optional
+
+  # ─────────────────────────────────────────────────────────────
+  # FAMILY: interaction
+  # ─────────────────────────────────────────────────────────────
+  - id: prompt
+    family: interaction
+    stability: stable
+    aliases: [costar, costar_plus]   # legacy input accepted, never the canonical form
+    brief: "Prompt contract lifecycle — assembling and delivering asks."
+    attributes:
+      - id: prompt.state
+        brief: "Current lifecycle state of the prompt contract."
+        type:
+          members:
+            - { id: drafting,             brief: "Initial assembly." }
+            - { id: refining,             brief: "Iterating on contract slots." }
+            - { id: contracted,           brief: "Locked and ready to dispatch." }
+            - { id: delivered,            brief: "Sent to its target." }
+            - { id: constructive_rewrite, brief: "Rage or vulgarity reworded in place to remain constructive without regression." }
+        stability: stable
+        requirement_level: required
+
+      - id: prompt.target
+        brief: "Layman label for the delivery target. Never a provider's internal routing identifier."
+        type:
+          members:
+            - { id: clyffy_local,      brief: "Clyffy's local brain." }
+            - { id: api_subscription,  brief: "Subscription-backed AI partner." }
+            - { id: browser_assistant, brief: "Browser-based AI partner watched and learned from." }
+        stability: stable
+        requirement_level: recommended
+
+  - id: a2ui
+    family: interaction
+    stability: stable
+    brief: "Adaptive UI library — templated surfaces populated by Clyffy to collect or convey advanced context."
+    attributes:
+      - id: a2ui.surface
+        brief: "Layman label for the active adaptive UI surface."
+        type: string
+        stability: stable
+        requirement_level: required
+
+      - id: a2ui.intent
+        brief: "What the surface is collecting or conveying."
+        type:
+          members:
+            - { id: collect_context,  brief: "Gathering situational detail from the viber." }
+            - { id: confirm_decision, brief: "Confirming an action before committing." }
+            - { id: teach_pattern,    brief: "Demonstrating a practice for the viber to learn." }
+            - { id: offer_fork,       brief: "Presenting alternative paths." }
+        stability: stable
+        requirement_level: recommended
+
+  # ─────────────────────────────────────────────────────────────
+  # FAMILY: action
+  # ─────────────────────────────────────────────────────────────
+  - id: minion
+    family: action
+    stability: stable
+    brief: "Worker signals — layman vocabulary for Clyffy's helper processes, rendered as sprites."
+    attributes:
+      - id: minion.state
+        brief: "Current lifecycle state of a minion."
+        type:
+          members:
+            - { id: spawning,  brief: "Spinning up." }
+            - { id: working,   brief: "Actively performing its task." }
+            - { id: reporting, brief: "Delivering findings." }
+            - { id: resting,   brief: "Idle but available." }
+            - { id: retired,   brief: "Dismissed." }
+        stability: stable
+        requirement_level: required
+
+      - id: minion.role
+        brief: "Layman archetype label. Never a kernel identity."
+        type:
+          members:
+            - { id: scout,     brief: "Gathers context from surroundings." }
+            - { id: scribe,    brief: "Records decisions and outcomes." }
+            - { id: runner,    brief: "Carries tasks between systems." }
+            - { id: sentinel,  brief: "Watches for friction and drift." }
+            - { id: archivist, brief: "Retrieves past work and memories." }
+            - { id: analyst,   brief: "Compares options and tradeoffs." }
+            - { id: herald,    brief: "Announces results to the viber." }
+            - { id: warden,    brief: "Guards boundaries and invariants." }
+        stability: stable
+        requirement_level: required
+
+  - id: recipe
+    family: action
+    stability: stable
+    brief: "Recipe lifecycle — layman name for Clyffy's workflow templates. Recipe bodies are kernel-only."
+    attributes:
+      - id: recipe.state
+        brief: "Current lifecycle state of a recipe execution."
+        type:
+          members:
+            - { id: selected,  brief: "Chosen for the task." }
+            - { id: running,   brief: "Executing." }
+            - { id: completed, brief: "Finished successfully." }
+            - { id: aborted,   brief: "Halted." }
+        stability: stable
+        requirement_level: required
+
+      - id: recipe.label
+        brief: "Layman label for the recipe. Never the internal template identifier."
+        type: string
+        stability: stable
+        requirement_level: required
+
+  # ─────────────────────────────────────────────────────────────
+  # FAMILY: diagnostics
+  # ─────────────────────────────────────────────────────────────
+  - id: diagnostics
+    family: diagnostics
+    stability: stable
+    brief: "Self-analysis — proximity sensing, system health, recovery actions."
+    attributes:
+      - id: diagnostics.state
+        brief: "Current diagnostic activity."
+        type:
+          members:
+            - { id: idle,       brief: "No active self-analysis." }
+            - { id: monitoring, brief: "Passive proximity sensing." }
+            - { id: triggered,  brief: "A proximity threshold was crossed." }
+            - { id: analyzing,  brief: "Evaluating the triggering signal." }
+            - { id: resolved,   brief: "Self-analysis complete." }
+        stability: stable
+        requirement_level: required
+
+      - id: diagnostics.proximity
+        brief: "How close the system is to a friction boundary."
+        type:
+          members:
+            - { id: normal,   brief: "All conditions nominal." }
+            - { id: caution,  brief: "Minor drift detected." }
+            - { id: warning,  brief: "Friction building toward a threshold." }
+            - { id: critical, brief: "A threshold has been crossed." }
+        stability: stable
+        requirement_level: required
+
+      - id: diagnostics.action
+        brief: "Recovery action proposed or taken in response to a diagnostic trigger."
+        type:
+          members:
+            - { id: pause,           brief: "Halt current work for viber review." }
+            - { id: fork,            brief: "Offer alternative paths." }
+            - { id: purge,           brief: "Discard recent context." }
+            - { id: refresh_context, brief: "Gather fresh context before continuing." }
+            - { id: jit,             brief: "Just-in-time adjustment without stopping." }
+            - { id: continue,        brief: "No action needed, proceed." }
+        stability: stable
+        requirement_level: required
+
+      - id: diagnostics.reason
+        brief: "Sanitized layman description of the trigger. Free-form but lint-checked."
+        type: string
+        stability: stable
+        requirement_level: recommended
+
+  # ─────────────────────────────────────────────────────────────
+  # FAMILY: learning
+  # ─────────────────────────────────────────────────────────────
+  - id: lesson
+    family: learning
+    stability: experimental
+    brief: "Educational narration signals — what the viber learns by watching Clyffy work."
+    attributes:
+      - id: lesson.kind
+        brief: "Category of lesson being surfaced."
+        type:
+          members:
+            - { id: observation,  brief: "A fact about the current situation worth noting." }
+            - { id: tradeoff,     brief: "A decision point with multiple viable paths." }
+            - { id: anti_pattern, brief: "A practice to avoid, surfaced in context." }
+            - { id: confirmation, brief: "A validated good practice worth reinforcing." }
+            - { id: alternative,  brief: "An option Clyffy considered but did not take." }
+        stability: experimental
+        requirement_level: recommended
+
+      - id: lesson.subject
+        brief: "Layman description of what the lesson is about."
+        type: string
+        stability: experimental
+        requirement_level: required
+
+visibility_tiers:
+  - { id: always,      brief: "Always rendered regardless of inspector mode." }
+  - { id: educational, brief: "Rendered in educational/rumination view; muted in compact view." }
+  - { id: medium,      brief: "Rendered in standard view; muted in compact view." }
+  - { id: low,         brief: "Muted by default; rendered only on trigger or explicit toggle." }
+  - { id: debug,       brief: "Rendered only in dev mode." }
+  - { id: internal,    brief: "Emitted for metrics only, never narrated to the viber." }

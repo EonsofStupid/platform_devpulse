@@ -2,7 +2,7 @@
   @file OverMind Dashboard
   @route /overmind
   @domain overmind
-  Hub: Model Loader (primary), Playground, Experiments
+  Experimental hub: Playground, Experiments. Model control is dev-gated under /devtools.
 -->
 <script lang="ts">
 import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
@@ -11,23 +11,24 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { ModelLoaderPanel } from "$lib/domains/app/models/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="overmind-dashboard">
-	<!-- Row 1: Model Loader (main feature) -->
+	<!-- Row 1: Prompt Playground (experimental primary) -->
 	<div class="col-span-8">
 		<Widget
-			title="Model Control"
-			icon={Activity}
+			title="Prompt Playground"
+			icon={FlaskConical}
 			surface="glass-deep"
 			depth="z2"
 			bevel="subtle"
-			glow="teal"
-			frame="accent-teal"
+			glow="purple"
+			frame="accent-purple"
 			radius="lg"
 		>
-			<ModelLoaderPanel />
+			<Text as="p" size="sm" color="muted">
+				Interactive prompt playground. Requires a loaded model.
+			</Text>
 		</Widget>
 	</div>
 

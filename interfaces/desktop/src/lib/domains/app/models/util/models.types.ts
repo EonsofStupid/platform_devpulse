@@ -138,16 +138,6 @@ export interface VramBudget {
 
 // ── Auto Config ─────────────────────────────────────────
 
-export interface SlotRecommendation {
-	slotId: string;
-	modelRepoId: string;
-	modelFilename: string;
-	modelSizeMb: number;
-	vramEstimateMb: number;
-	alreadyDownloaded: boolean;
-	device: DevicePreference;
-}
-
 /** Matches Rust SlotRecommendation serialization (snake_case). */
 export interface SlotRecommendation {
 	slot_id: string;
