@@ -14,6 +14,7 @@ pub mod build_mode;
 pub mod hardware;
 pub mod loading;
 pub mod models;
+pub mod registry;
 pub mod service;
 pub mod slots;
 pub mod traits;

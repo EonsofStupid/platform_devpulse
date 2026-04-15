@@ -12,6 +12,11 @@ use devpulse_clyffy::model_loader::{
     HardwareMetrics, ModelLoaderService as Inner,
     ModelRegistryEntry, Slot, SlotStatus, VramBudget,
 };
+// Typed load-error surface — the single wire type for load-path failures.
+// Every slot mutation method converts kernel-internal `LoaderError` or
+// `anyhow::Error` into `LoadError` at this boundary so the Tauri command
+// layer returns a discriminated union to the frontend instead of a string.
+pub use devpulse_clyffy::model_loader::registry::LoadError;
 // Re-export for downstream crates (desktop backend) that cannot depend on kernel directly.
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 pub use devpulse_clyffy::model_loader::AudioSamples;
@@ -243,43 +248,63 @@ impl ModelLoaderService {
     }
 
     /// Assign a model to a slot.
-    pub async fn assign_model(&self, slot_id: &str, model_id: &str) -> Result<()> {
+    ///
+    /// Returns a typed [`LoadError`] on failure. Possible variants:
+    /// `SlotNotFound`, `IncompatibleModel`, `ConfigCorrupt`.
+    #[tracing::instrument(skip(self), fields(slot_id, model_id))]
+    pub async fn assign_model(
+        &self,
+        slot_id: &str,
+        model_id: &str,
+    ) -> std::result::Result<(), LoadError> {
+        tracing::info!("assign_model");
         let mut inner = self.inner.lock().await;
-        inner.assign_model(slot_id, model_id).map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
+        inner
+            .assign_model(slot_id, model_id)
+            .map_err(LoadError::from)
     }
 
-    /// Load a slot's assigned model.
-    pub async fn load_slot(&self, slot_id: &str) -> Result<()> {
+    /// Load a slot's assigned model into memory.
+    ///
+    /// Returns a typed [`LoadError`] on failure. This is the main
+    /// load-path surface: errors here cover every failure mode in
+    /// the pipeline — compatibility (`UnknownArchitecture`,
+    /// `UnsupportedArchitecture`), filesystem (`ModelFileMissing`,
+    /// `ModelCorrupt`, `MissingFile`), resources (`VramInsufficient`,
+    /// `RamExhausted`), backend initialisation (`BackendInit`,
+    /// `TokenizerLoad`), and slot state (`SlotNotFound`,
+    /// `NoModelAssigned`, `AlreadyLoading`).
+    #[tracing::instrument(skip(self), fields(slot_id))]
+    pub async fn load_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
+        tracing::info!("load_slot");
         let mut inner = self.inner.lock().await;
-        inner.load_slot(slot_id).await.map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
+        inner.load_slot(slot_id).await.map_err(LoadError::from)
     }
 
-    /// Unload a slot's model.
-    pub async fn unload_slot(&self, slot_id: &str) -> Result<()> {
+    /// Unload a slot's model. Typed errors cover slot state issues.
+    #[tracing::instrument(skip(self), fields(slot_id))]
+    pub async fn unload_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
+        tracing::info!("unload_slot");
         let mut inner = self.inner.lock().await;
-        inner.unload_slot(slot_id).await.map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
+        inner.unload_slot(slot_id).await.map_err(LoadError::from)
     }
 
-    /// Warm a slot — load weights to CPU RAM only, no GPU.
-    pub async fn warm_slot(&self, slot_id: &str) -> Result<()> {
+    /// Warm a slot — load weights to CPU RAM only, no GPU copy yet.
+    /// Used for progressive hydration during boot. Typed errors
+    /// match [`load_slot`](Self::load_slot).
+    #[tracing::instrument(skip(self), fields(slot_id))]
+    pub async fn warm_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
+        tracing::info!("warm_slot");
         let mut inner = self.inner.lock().await;
-        inner.warm_slot(slot_id).await.map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
+        inner.warm_slot(slot_id).await.map_err(LoadError::from)
     }
 
     /// Delete a model from disk and registry. Clears slot assignments.
-    pub async fn delete_model(&self, model_id: &str) -> Result<()> {
+    #[tracing::instrument(skip(self), fields(model_id))]
+    pub async fn delete_model(&self, model_id: &str) -> std::result::Result<(), LoadError> {
+        tracing::info!("delete_model");
         let mut inner = self.inner.lock().await;
-        inner.delete_model(model_id).await.map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
+        inner.delete_model(model_id).await.map_err(LoadError::from)
     }
 
     /// Check if this is the first run.
@@ -450,11 +475,20 @@ impl ModelLoaderService {
     /// Atomically swap the model on a slot (unload → reassign → load).
     ///
     /// Blocks inference to the slot for the entire duration via SwapGuard.
-    pub async fn swap_model(&self, slot_id: &str, new_model_id: &str) -> Result<()> {
+    /// Returns a typed [`LoadError`] — swaps can fail at any step
+    /// (assign, unload, load) and the variant reflects where.
+    #[tracing::instrument(skip(self), fields(slot_id, new_model_id))]
+    pub async fn swap_model(
+        &self,
+        slot_id: &str,
+        new_model_id: &str,
+    ) -> std::result::Result<(), LoadError> {
+        tracing::info!("swap_model");
         let mut inner = self.inner.lock().await;
-        inner.swap_model(slot_id, new_model_id).await.map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
+        inner
+            .swap_model(slot_id, new_model_id)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Get an inference handle for a slot (resolves fallback chain).

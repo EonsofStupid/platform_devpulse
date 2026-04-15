@@ -30,6 +30,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
+import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
@@ -189,6 +190,13 @@ $effect(() => {
 			<!-- Elapsed time -->
 			{#if platformState.isBooting}
 				<Text size="xs" color="muted">{platformState.bootElapsedFormatted} elapsed</Text>
+			{/if}
+
+			<!-- Rotating DYK / KDROPS / T&T content while waiting -->
+			{#if platformState.isBooting}
+				<div class="w-full max-w-[24rem]">
+					<LoadingContentCard rotateEveryMs={9000} />
+				</div>
 			{/if}
 
 			<!-- Error state — boot phase failed or platform error string -->

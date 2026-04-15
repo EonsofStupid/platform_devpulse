@@ -128,6 +128,10 @@ pub struct HardwareInfo {
 }
 
 /// Helper: get the model loader service from platform state.
+///
+/// String-error variant — retained for the many legacy commands that
+/// return `Result<T, String>`. New load-path commands should prefer
+/// [`get_loader_typed`] which returns a typed `LoadError`.
 async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderService>, String> {
     let guard = state.platform.read().await;
     let platform = guard.as_ref().ok_or("Platform not ready")?;
@@ -135,6 +139,29 @@ async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderS
         .model_loader()
         .cloned()
         .ok_or_else(|| "Model Loader not available (disabled or failed to boot)".to_string())
+}
+
+/// Helper: get the model loader service with a typed error.
+///
+/// Returns a `LoadError::Other` variant when the platform isn't ready
+/// or the model loader service is disabled — this keeps the load-path
+/// commands on a single typed error surface end-to-end so the
+/// frontend can pattern-match without special-casing boot state.
+async fn get_loader_typed(
+    state: &State<'_, PlatformState>,
+) -> Result<Arc<ModelLoaderService>, devpulse_engine::platform::LoadError> {
+    let guard = state.platform.read().await;
+    let platform = guard
+        .as_ref()
+        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+            message: "Platform not ready".to_string(),
+        })?;
+    platform
+        .model_loader()
+        .cloned()
+        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+            message: "Model Loader not available (disabled or failed to boot)".to_string(),
+        })
 }
 
 /// Get hardware metrics from the model loader's hardware monitor.
@@ -351,44 +378,47 @@ pub async fn is_first_run(
 /// Assign a model to a slot.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id, model_id))]
 pub async fn assign_model_to_slot(
     state: State<'_, PlatformState>,
     slot_id: String,
     model_id: String,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .assign_model(&slot_id, &model_id)
-        .await
-        .map_err(|e| e.to_string())
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd assign_model_to_slot");
+    let loader = get_loader_typed(&state).await?;
+    loader.assign_model(&slot_id, &model_id).await
 }
 
 /// Load a slot's assigned model into memory.
+///
+/// Returns a typed [`LoadError`] covering the full load-path failure
+/// surface — compatibility, filesystem, resources, backend init,
+/// slot state. The frontend renders each variant with targeted UI
+/// (alternatives for compatibility errors, retry for network errors,
+/// slot reassignment for `NoModelAssigned`, etc.).
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id))]
 pub async fn load_slot(
     state: State<'_, PlatformState>,
     slot_id: String,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .load_slot(&slot_id)
-        .await
-        .map_err(|e| e.to_string())
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd load_slot");
+    let loader = get_loader_typed(&state).await?;
+    loader.load_slot(&slot_id).await
 }
 
 /// Unload a slot's model from memory.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id))]
 pub async fn unload_slot(
     state: State<'_, PlatformState>,
     slot_id: String,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .unload_slot(&slot_id)
-        .await
-        .map_err(|e| e.to_string())
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd unload_slot");
+    let loader = get_loader_typed(&state).await?;
+    loader.unload_slot(&slot_id).await
 }
 
 /// Atomically swap the model on a slot (unload → reassign → load).
@@ -398,16 +428,15 @@ pub async fn unload_slot(
 /// `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id, new_model_id))]
 pub async fn swap_slot_model(
     state: State<'_, PlatformState>,
     slot_id: String,
     new_model_id: String,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .swap_model(&slot_id, &new_model_id)
-        .await
-        .map_err(|e| e.to_string())
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd swap_slot_model");
+    let loader = get_loader_typed(&state).await?;
+    loader.swap_model(&slot_id, &new_model_id).await
 }
 
 /// Start downloading a model from HuggingFace.
@@ -833,17 +862,17 @@ pub struct HfFileInfoItem {
 /// Warm a slot — load weights to CPU RAM only, no GPU allocation.
 ///
 /// Model enters "Warm" state: weights in RAM, fast activation to GPU later.
+/// Returns a typed [`LoadError`] with the same surface as `load_slot`.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id))]
 pub async fn warm_slot(
     state: State<'_, PlatformState>,
     slot_id: String,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .warm_slot(&slot_id)
-        .await
-        .map_err(|e| e.to_string())
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd warm_slot");
+    let loader = get_loader_typed(&state).await?;
+    loader.warm_slot(&slot_id).await
 }
 
 /// Delete a model from disk and remove from registry.
@@ -851,15 +880,14 @@ pub async fn warm_slot(
 /// Clears any slot assignments. Refuses if the model is currently loaded.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(skip(state), fields(model_id))]
 pub async fn delete_model(
     state: State<'_, PlatformState>,
     model_id: String,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .delete_model(&model_id)
-        .await
-        .map_err(|e| e.to_string())
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd delete_model");
+    let loader = get_loader_typed(&state).await?;
+    loader.delete_model(&model_id).await
 }
 
 /// Search HuggingFace for GGUF models.
@@ -1427,4 +1455,66 @@ pub async fn encode_image(
         .encode_image(&slot_id, &img_path)
         .await
         .map_err(|e| format!("Image encode failed: {e:#}"))
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Compatibility registry — architecture × backend matrix and the
+// pre-download resolver. See `kernel/model-loader/src/registry/`
+// for the authoring source.
+// ─────────────────────────────────────────────────────────────────
+
+/// Return the full backend compatibility matrix for this build.
+///
+/// The frontend calls this once at boot and caches it in a rune
+/// (`modelBackendMatrix.svelte.ts`) so the `ModelCompatibilityCard`
+/// can render immediately for every model tile without additional
+/// IPC. The matrix reflects:
+///
+/// - Every architecture in the registry (Qwen3, Qwen3-MoE, Phi-3,
+///   legacy Qwen2, etc.) with its tier + metadata.
+/// - Every backend declaration, with an `installed` flag derived
+///   from this build's Cargo features at compile time.
+/// - Per-backend `(arch, format)` support declarations.
+///
+/// Cheap call — the matrix is a static const array with serialized
+/// metadata; there's no IO or allocation on the hot path.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument]
+#[allow(clippy::missing_errors_doc)]
+pub async fn list_backend_matrix() -> Result<devpulse_engine::platform::BackendMatrix, String> {
+    Ok(devpulse_engine::platform::installed_backends())
+}
+
+/// Resolve a `(arch, format)` compatibility query and return either
+/// a concrete plan or an `Unsupported` variant with alternatives.
+///
+/// Called by the frontend pre-download gate: before starting any
+/// download, the UI calls this with the arch classification of the
+/// target repo and the file format. If the resolver returns
+/// `Unsupported`, the UI surfaces the reason + alternatives to the
+/// user and refuses to start the download.
+///
+/// The `arch_raw` argument is the `architectures[0]` string from
+/// the HF config.json. The `model_type` is the optional fallback
+/// used to disambiguate Qwen2.5 from Qwen2.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(fields(arch_raw, model_type, format))]
+#[allow(clippy::missing_errors_doc)]
+pub async fn resolve_architecture_compatibility(
+    arch_raw: String,
+    model_type: Option<String>,
+    format: devpulse_engine::platform::ModelFormat,
+) -> Result<devpulse_engine::platform::Resolution, String> {
+    let classified =
+        devpulse_engine::platform::classify_arch_from_hf_config(&arch_raw, model_type.as_deref())
+            .ok_or_else(|| {
+                format!(
+                    "Architecture `{arch_raw}` (model_type={model_type:?}) is not in the registry"
+                )
+            })?;
+    Ok(devpulse_engine::platform::resolve_compatibility(
+        classified, format,
+    ))
 }

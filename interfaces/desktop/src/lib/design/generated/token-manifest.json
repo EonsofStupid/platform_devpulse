@@ -28413,6 +28413,104 @@
 				},
 				"type": "duration",
 				"extensions": null
+			},
+			{
+				"name": "animation-presence-breathe",
+				"path": [
+					"animation",
+					"presence-breathe"
+				],
+				"cssVar": "--animation-presence-breathe",
+				"value": {
+					"value": 3200,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "animation-presence-pulse",
+				"path": [
+					"animation",
+					"presence-pulse"
+				],
+				"cssVar": "--animation-presence-pulse",
+				"value": {
+					"value": 1400,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "animation-presence-think",
+				"path": [
+					"animation",
+					"presence-think"
+				],
+				"cssVar": "--animation-presence-think",
+				"value": {
+					"value": 2400,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "animation-presence-listen",
+				"path": [
+					"animation",
+					"presence-listen"
+				],
+				"cssVar": "--animation-presence-listen",
+				"value": {
+					"value": 1600,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "animation-presence-rest",
+				"path": [
+					"animation",
+					"presence-rest"
+				],
+				"cssVar": "--animation-presence-rest",
+				"value": {
+					"value": 6000,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "animation-presence-halo",
+				"path": [
+					"animation",
+					"presence-halo"
+				],
+				"cssVar": "--animation-presence-halo",
+				"value": {
+					"value": 3200,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "animation-presence-alert",
+				"path": [
+					"animation",
+					"presence-alert"
+				],
+				"cssVar": "--animation-presence-alert",
+				"value": {
+					"value": 900,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
 			}
 		]
 	},

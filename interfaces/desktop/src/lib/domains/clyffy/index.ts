@@ -13,6 +13,20 @@
  *   MCP tool wiring) lives in devtools — never here.
  */
 
+export { default as LoadingContentCard } from "./learning/LoadingContentCard.svelte";
+// ── Learning (DYK / KDROPS / T&T rotating content)
+export {
+	createLoadingContent,
+	type LoadingContentRotator,
+	loadingContent,
+} from "./learning/learning.state.svelte.js";
+export {
+	allEntries as allLoadingContent,
+	entriesByKind as loadingContentByKind,
+	entriesByTag as loadingContentByTag,
+	type LoadingContentEntry,
+	type LoadingContentKind,
+} from "./learning/loading-content.js";
 export { default as ClyffyStatusOrb } from "./status/ClyffyStatusOrb.svelte";
 // ── Status (presence + mood)
 export {

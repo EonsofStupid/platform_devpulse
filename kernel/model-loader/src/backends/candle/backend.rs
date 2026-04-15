@@ -1,35 +1,79 @@
-//! Candle backend — implements `InferenceBackend` for GGUF *and* SafeTensors models.
+//! Candle backend — first-class GGUF **and** SafeTensors loading for the
+//! Qwen3 family, Phi-3, and the legacy Qwen2 fallback.
 //!
-//! Two loading paths:
+//! # Loading paths
 //!
-//! - **GGUF** (quantized): `candle_core::quantized` parser →
-//!   `candle_transformers::models::quantized_llama::ModelWeights`. Covers Llama,
-//!   Mistral, Qwen2/3 quantized, and the rest of the Llama-family GGUF exports.
-//! - **SafeTensors** (full precision): HF-style model directory with `config.json`,
-//!   `tokenizer.json`, and `model.safetensors` (single-file or sharded). Dispatches
-//!   to `candle_transformers::models::qwen2::ModelForCausalLM`, which covers the
-//!   Qwen2 / Qwen2.5 family. Qwen3 full-precision requires a candle-transformers
-//!   upgrade (0.9+); use the GGUF route for quantized Qwen3 builds until then.
+//! ## GGUF (quantized)
+//! Dispatched by the GGUF-level `general.architecture` field to the
+//! matching arch-specific quantized loader in `candle-transformers` 0.9:
 //!
-//! Path selection is by extension: `*.gguf` → GGUF path, directory or
-//! `*.safetensors` → SafeTensors path.
+//! | Source arch | Loader | Notes |
+//! |---|---|---|
+//! | `qwen3` | `quantized_qwen3::ModelWeights` | Primary. Arch-native. |
+//! | `phi3` | `quantized_phi3::ModelWeights` | Primary. Arch-native. |
+//! | `qwen2`, `llama`, `mistral`, etc. | `quantized_llama::ModelWeights` | Legacy + Llama-compatible metadata. |
+//!
+//! For the llama fallback we still rewrite `<arch>.*` metadata keys to
+//! `llama.*` (the same trick llama.cpp uses) so older quantized exports
+//! without an arch-native loader keep working.
+//!
+//! ## SafeTensors (full precision)
+//! HF-style model directory with `config.json`, `tokenizer.json`, and
+//! one or more `model*.safetensors` shards. Dispatched by
+//! `config.json.architectures[0]` to the matching loader in
+//! `candle-transformers` 0.9:
+//!
+//! | architectures[0] prefix | Loader | Tier |
+//! |---|---|---|
+//! | `Qwen3`  (non-MoE, non-VL) | `qwen3::ModelForCausalLM` | Primary |
+//! | `Qwen3MoeForCausalLM`     | `qwen3_moe::ModelForCausalLM` | Primary |
+//! | `Phi3ForCausalLM`          | `phi3::Model` | Primary |
+//! | `Qwen2*`                   | `qwen2::ModelForCausalLM` | Legacy fallback |
+//!
+//! Unknown architectures return a typed error carrying the arch name so
+//! the frontend can surface an actionable "use GGUF instead" fallback.
+//!
+//! Path selection: `*.gguf` → GGUF path, directory or `*.safetensors`
+//! neighbour of `config.json` → SafeTensors path.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::ModelMetadata;
+use crate::registry::{
+    classify_arch_from_gguf, classify_arch_from_hf_config, Alternative, AlternativeKind, ArchId,
+    LoadError, UnsupportedReason,
+};
 use crate::traits::backend::InferenceBackend;
 use candle_core::quantized::gguf_file::Content;
 use candle_core::{DType, Device, Tensor};
 use candle_nn::VarBuilder;
-use candle_transformers::models::quantized_llama as qlm;
-use candle_transformers::models::qwen2;
+use candle_transformers::models::{
+    phi3, quantized_llama as qlm, quantized_phi3, quantized_qwen3, qwen2, qwen3, qwen3_moe,
+};
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 
-/// Loaded model variant — GGUF quantized or SafeTensors full-precision.
+/// Loaded model variant — one of the supported weight layouts.
+///
+/// Variants are split by concrete loader type because each Candle model
+/// struct has its own `forward()` signature. The dispatch at inference
+/// time (`forward_prefill` / `forward_step`) matches on this enum.
 enum LoadedWeights {
-    /// Quantized Llama-family weights from a GGUF file.
+    /// Generic llama-family GGUF (Llama, Mistral, Qwen2, or any arch
+    /// whose metadata was rewritten to the `llama.*` prefix). Covers
+    /// the fallback path for GGUF exports without an arch-native
+    /// quantized loader.
     Gguf(qlm::ModelWeights),
-    /// Full-precision Qwen3 weights from a HF SafeTensors directory.
+    /// Arch-native Qwen3 quantized weights.
+    QuantizedQwen3(quantized_qwen3::ModelWeights),
+    /// Arch-native Phi-3 quantized weights.
+    QuantizedPhi3(quantized_phi3::ModelWeights),
+    /// Full-precision Qwen3 (non-MoE, non-VL) safetensors.
+    Qwen3Safetensors(qwen3::ModelForCausalLM),
+    /// Full-precision Qwen3 MoE (30B-A3B etc.) safetensors.
+    Qwen3MoeSafetensors(qwen3_moe::ModelForCausalLM),
+    /// Full-precision Phi-3 safetensors (mini/medium, standard attn).
+    Phi3Safetensors(phi3::Model),
+    /// Full-precision Qwen2 / Qwen2.5 safetensors. Legacy fallback.
     Qwen2Safetensors(qwen2::ModelForCausalLM),
 }
 
@@ -566,9 +610,17 @@ fn sample_token(logits: &[f32], temperature: f32) -> anyhow::Result<u32> {
     Ok((probs.len() - 1) as u32)
 }
 
-/// Prefill: push the full prompt through the model and return the logits at the
-/// last position as a Vec<f32>. Handles both GGUF (rank-1 stepwise) and Qwen3
-/// SafeTensors (rank-2 full-sequence) paths.
+/// Prefill: push the full prompt through the model and return the
+/// logits at the last position as a `Vec<f32>`.
+///
+/// Two input-tensor shapes exist across the loaders:
+///
+/// - **Rank-1 stepwise** (`quantized_*`): one token at a time, rank-1
+///   input, output is `[1, vocab]` — squeeze once.
+/// - **Rank-2 whole-sequence** (`qwen3`, `qwen3_moe`, `phi3`, `qwen2`):
+///   full prompt fed once as `[batch=1, seq]`, output is
+///   `[batch=1, seq=1, vocab]` (narrowed to the last position inside
+///   the model) — squeeze twice.
 fn forward_prefill(
     weights: &mut LoadedWeights,
     prompt_tokens: &[u32],
@@ -586,17 +638,53 @@ fn forward_prefill(
             }
             Ok(logits)
         }
+        LoadedWeights::QuantizedQwen3(model) => {
+            let mut logits = Vec::new();
+            for (i, &tok) in prompt_tokens.iter().enumerate() {
+                let input = Tensor::new(&[tok], device)?.unsqueeze(0)?;
+                let out = model.forward(&input, i)?;
+                if i == prompt_tokens.len() - 1 {
+                    logits = out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?;
+                }
+            }
+            Ok(logits)
+        }
+        LoadedWeights::QuantizedPhi3(model) => {
+            let mut logits = Vec::new();
+            for (i, &tok) in prompt_tokens.iter().enumerate() {
+                let input = Tensor::new(&[tok], device)?.unsqueeze(0)?;
+                let out = model.forward(&input, i)?;
+                if i == prompt_tokens.len() - 1 {
+                    logits = out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?;
+                }
+            }
+            Ok(logits)
+        }
+        LoadedWeights::Qwen3Safetensors(model) => {
+            let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
+            let out = model.forward(&input, 0)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Qwen3MoeSafetensors(model) => {
+            let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
+            let out = model.forward(&input, 0)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Phi3Safetensors(model) => {
+            let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
+            let out = model.forward(&input, 0)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
         LoadedWeights::Qwen2Safetensors(model) => {
             let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
             let out = model.forward(&input, 0)?;
-            // [batch=1, seq=1, vocab] — squeeze both batch and seq dims.
-            let logits = out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?;
-            Ok(logits)
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
         }
     }
 }
 
-/// Single-token decode step. Same dispatch as `forward_prefill`.
+/// Single-token decode step. Same dispatch logic as `forward_prefill`
+/// but for one token at `position`.
 fn forward_step(
     weights: &mut LoadedWeights,
     token: u32,
@@ -608,6 +696,31 @@ fn forward_step(
             let input = Tensor::new(&[token], device)?;
             let out = model.forward(&input, position)?;
             Ok(out.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::QuantizedQwen3(model) => {
+            let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::QuantizedPhi3(model) => {
+            let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Qwen3Safetensors(model) => {
+            let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Qwen3MoeSafetensors(model) => {
+            let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Phi3Safetensors(model) => {
+            let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
+            let out = model.forward(&input, position)?;
+            Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
         }
         LoadedWeights::Qwen2Safetensors(model) => {
             let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
@@ -758,8 +871,24 @@ fn synthesize_missing_llama_fields(
     }
 }
 
-/// GGUF loading path — parses the file, builds quantized Llama weights, attaches
-/// a tokenizer either from GGUF metadata or `tokenizer.json` on disk.
+/// GGUF loading path — parses the file, picks an arch-specific
+/// quantized loader when one exists, falls back to the llama-family
+/// loader with metadata rewriting otherwise.
+///
+/// Dispatch order:
+///
+/// 1. `general.architecture == "qwen3"` → `quantized_qwen3`
+/// 2. `general.architecture == "phi3"`  → `quantized_phi3`
+/// 3. Anything else → `quantized_llama` with `<arch>.* → llama.*`
+///    metadata rewrite (the community-standard trick for loading
+///    newer quantized models through the llama loader)
+///
+/// The arch-native loaders (`quantized_qwen3`, `quantized_phi3`) give
+/// higher-fidelity generation because they use the model's real
+/// attention math instead of shimming through the llama loader. The
+/// llama fallback is still needed for Llama, Mistral, Qwen2, Gemma,
+/// and the long tail of derivative fine-tunes that don't have their
+/// own arch-native loader in candle-transformers yet.
 fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     let file = std::fs::File::open(path)?;
     let file_size = file.metadata()?.len();
@@ -773,31 +902,63 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
         "GGUF metadata parsed"
     );
 
-    // Candle's quantized llama loader hardcodes the `llama.*` metadata
-    // prefix — it reads `llama.attention.head_count`, `llama.block_count`,
-    // etc. Modern GGUFs quantized as `qwen3`, `qwen2`, `mistral`,
-    // `phi3`, etc. store the exact same fields under their own arch
-    // prefix, and at the weight level the models are llama-layout-
-    // compatible. Renaming the metadata keys from `<arch>.*` to
-    // `llama.*` before handing the Content to `from_gguf` lets the
-    // loader consume them without a separate per-arch code path.
-    //
-    // This is the same trick the llama.cpp community uses for loading
-    // newer quantized models through older server builds. It does NOT
-    // change the tensor data — only the string keys in the metadata
-    // map. If the tensor layout actually diverges (e.g. some future
-    // Qwen variant with a different attention shape), the weights
-    // won't load anyway and this rewrite doesn't change that outcome.
-    rewrite_arch_metadata_to_llama(&mut content.metadata, &metadata.architecture);
-
     let tokenizer = load_tokenizer_from_gguf(&content, path)?;
-    let model_weights = qlm::ModelWeights::from_gguf(content, &mut reader, device)?;
     let eos_token = detect_eos_token(&tokenizer);
-
     let footprint = make_footprint(device, file_size);
 
+    // Classify via the canonical registry helper. Unknown archs fall
+    // through to the llama fallback path (which works for any
+    // llama-compatible quantized tensor layout via metadata rewrite).
+    // Known archs with an arch-native loader take that loader;
+    // everything else uses the fallback.
+    let classified = classify_arch_from_gguf(&metadata.architecture);
+    let weights = match classified {
+        Some(ArchId::Qwen3 | ArchId::Qwen3Moe) => {
+            tracing::info!(
+                arch_id = ?classified,
+                "Loading GGUF via arch-native quantized_qwen3 path"
+            );
+            let model = quantized_qwen3::ModelWeights::from_gguf(content, &mut reader, device)
+                .map_err(|e| anyhow::anyhow!("quantized_qwen3 load failed: {e}"))?;
+            LoadedWeights::QuantizedQwen3(model)
+        }
+        Some(ArchId::Phi3 | ArchId::Phi3Moe) => {
+            tracing::info!(
+                arch_id = ?classified,
+                "Loading GGUF via arch-native quantized_phi3 path"
+            );
+            // `use_flash_attn` is CUDA-only and optional — pass false
+            // for portability. The load picks the standard attention
+            // kernel which works on CPU + CUDA + Metal.
+            let model = quantized_phi3::ModelWeights::from_gguf(
+                false,
+                content,
+                &mut reader,
+                device,
+            )
+            .map_err(|e| anyhow::anyhow!("quantized_phi3 load failed: {e}"))?;
+            LoadedWeights::QuantizedPhi3(model)
+        }
+        _ => {
+            tracing::info!(
+                arch = %metadata.architecture,
+                arch_id = ?classified,
+                "Loading GGUF via llama fallback path with metadata rewrite"
+            );
+            // Candle's quantized llama loader hardcodes the `llama.*`
+            // metadata prefix. Rewriting `<arch>.*` → `llama.*` lets
+            // the loader consume it without a per-arch code path.
+            // Does NOT change tensor data — only string keys. If the
+            // actual tensor layout diverges, load_gguf would fail
+            // anyway and this rewrite doesn't change that outcome.
+            rewrite_arch_metadata_to_llama(&mut content.metadata, &metadata.architecture);
+            let model = qlm::ModelWeights::from_gguf(content, &mut reader, device)?;
+            LoadedWeights::Gguf(model)
+        }
+    };
+
     Ok(LoadedModel {
-        weights: LoadedWeights::Gguf(model_weights),
+        weights,
         tokenizer,
         metadata,
         footprint,
@@ -805,9 +966,20 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     })
 }
 
-/// SafeTensors loading path — expects a HuggingFace-style directory with
-/// `config.json`, `tokenizer.json`, and one or more `*.safetensors` files.
-/// Currently only the Qwen3 architecture is supported.
+/// Top-level SafeTensors loader. Resolves the model directory, reads
+/// `config.json`, classifies the architecture, and dispatches to the
+/// matching arch-specific loader.
+///
+/// Supported architectures (see `classify_arch` for the full mapping):
+///
+/// - `Qwen3` (non-MoE, non-VL)  → primary
+/// - `Qwen3MoeForCausalLM`      → primary
+/// - `Phi3ForCausalLM`          → primary
+/// - `Qwen2*` / `Qwen2.5*`      → legacy fallback
+///
+/// Anything else returns a typed error carrying the arch name so the
+/// caller can translate it into an actionable `LoadError` + alternative
+/// suggestion through the registry resolver.
 fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     let model_dir = if path.is_dir() {
         path.to_path_buf()
@@ -831,22 +1003,31 @@ fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel>
     let config_json: serde_json::Value = serde_json::from_slice(&config_bytes)
         .map_err(|e| anyhow::anyhow!("Failed to parse config.json: {e}"))?;
 
-    // Architecture gate — only Qwen2 / Qwen2.5 are wired (candle 0.8 has no qwen3).
-    let arch = config_json
+    let arch_raw = config_json
         .get("architectures")
         .and_then(|a| a.as_array())
         .and_then(|a| a.first())
         .and_then(|v| v.as_str())
         .unwrap_or("");
-    if !arch.starts_with("Qwen2") {
-        anyhow::bail!(
-            "SafeTensors architecture `{arch}` is not yet supported — only Qwen2* \
-             is wired (candle-transformers 0.8). Use a GGUF build or upgrade candle."
-        );
-    }
+    let model_type = config_json
+        .get("model_type")
+        .and_then(|v| v.as_str());
 
-    let qwen2_config: qwen2::Config = serde_json::from_value(config_json.clone())
-        .map_err(|e| anyhow::anyhow!("Failed to parse Qwen2 config.json: {e}"))?;
+    // Single source of truth for arch classification — the same
+    // function the resolver + pre-download gate use, so the frontend
+    // matrix and the actual loader can never drift.
+    let arch_id = classify_arch_from_hf_config(arch_raw, model_type).ok_or_else(|| {
+        anyhow::Error::new(LoadError::UnknownArchitecture {
+            raw: arch_raw.to_string(),
+        })
+    })?;
+
+    tracing::info!(
+        arch_raw = %arch_raw,
+        model_type = ?model_type,
+        arch_id = ?arch_id,
+        "Dispatching safetensors load"
+    );
 
     let tokenizer = tokenizers::Tokenizer::from_file(&tokenizer_path)
         .map_err(|e| anyhow::anyhow!("Failed to load tokenizer.json: {e}"))?;
@@ -868,28 +1049,121 @@ fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel>
             .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors: {e}"))?
     };
 
-    let model = qwen2::ModelForCausalLM::new(&qwen2_config, vb)
-        .map_err(|e| anyhow::anyhow!("Failed to build Qwen2 model: {e}"))?;
+    // Dispatch on the canonical ArchId. Any arch the registry knows
+    // but the Candle backend can't load safetensors for (Llama, Mistral,
+    // Gemma, Qwen3-VL experimental, the planned Qwen 3.5 slot) lands in
+    // the fallthrough with a typed `UnsupportedArchitecture` error so
+    // the caller can surface alternatives.
+    let (weights, context_length, vocab_size) = match arch_id {
+        ArchId::Qwen3 => build_qwen3(&config_json, vb)?,
+        ArchId::Qwen3Moe => build_qwen3_moe(&config_json, vb)?,
+        ArchId::Phi3 | ArchId::Phi3Moe => build_phi3(&config_json, vb, device)?,
+        ArchId::Qwen2 | ArchId::Qwen25 => build_qwen2(&config_json, vb)?,
+        unsupported => {
+            return Err(anyhow::Error::new(LoadError::UnsupportedArchitecture {
+                arch: unsupported,
+                format: crate::registry::backends::ModelFormat::Safetensors,
+                reason: UnsupportedReason::FormatNotWired {
+                    detail: format!(
+                        "The Candle safetensors loader doesn't cover {unsupported:?} yet. \
+                         Try the GGUF build of this model."
+                    ),
+                },
+                alternatives: vec![Alternative {
+                    kind: AlternativeKind::SwitchFormat,
+                    repo_id: None,
+                    filename: None,
+                    reason: "Same repo usually has a GGUF alternative — Candle's GGUF path \
+                             has broader architecture coverage than safetensors."
+                        .to_string(),
+                }],
+            }));
+        }
+    };
 
     let eos_token = detect_eos_token(&tokenizer);
 
     let metadata = ModelMetadata {
-        architecture: arch.to_string(),
+        architecture: arch_raw.to_string(),
         parameter_count: None,
         quant_level: Some("fp32".to_string()),
-        context_length: qwen2_config.max_position_embeddings,
-        vocab_size: qwen2_config.vocab_size,
+        context_length,
+        vocab_size,
     };
 
     let footprint = make_footprint(device, total_size);
 
     Ok(LoadedModel {
-        weights: LoadedWeights::Qwen2Safetensors(model),
+        weights,
         tokenizer,
         metadata,
         footprint,
         eos_token,
     })
+}
+
+/// Build a Qwen3 dense model from a parsed config + weights builder.
+/// Returns the weights wrapper plus the `(context_length, vocab_size)`
+/// pair extracted from the config so the outer loader can stamp the
+/// canonical metadata record without re-parsing.
+fn build_qwen3(
+    config_json: &serde_json::Value,
+    vb: VarBuilder,
+) -> anyhow::Result<(LoadedWeights, usize, usize)> {
+    let cfg: qwen3::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Qwen3 config.json: {e}"))?;
+    let ctx = cfg.max_position_embeddings;
+    let vocab = cfg.vocab_size;
+    let model = qwen3::ModelForCausalLM::new(&cfg, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Qwen3 model: {e}"))?;
+    Ok((LoadedWeights::Qwen3Safetensors(model), ctx, vocab))
+}
+
+/// Build a Qwen3 MoE model (e.g. 30B-A3B) from config + weights.
+fn build_qwen3_moe(
+    config_json: &serde_json::Value,
+    vb: VarBuilder,
+) -> anyhow::Result<(LoadedWeights, usize, usize)> {
+    let cfg: qwen3_moe::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Qwen3-MoE config.json: {e}"))?;
+    let ctx = cfg.max_position_embeddings;
+    let vocab = cfg.vocab_size;
+    let model = qwen3_moe::ModelForCausalLM::new(&cfg, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Qwen3-MoE model: {e}"))?;
+    Ok((LoadedWeights::Qwen3MoeSafetensors(model), ctx, vocab))
+}
+
+/// Build a Phi-3 model from config + weights. Phi-3's public API is
+/// `phi3::Model` (not `ModelForCausalLM`) and it needs the device at
+/// construction time for rotary embedding precomputation.
+fn build_phi3(
+    config_json: &serde_json::Value,
+    vb: VarBuilder,
+    _device: &Device,
+) -> anyhow::Result<(LoadedWeights, usize, usize)> {
+    let cfg: phi3::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Phi-3 config.json: {e}"))?;
+    let ctx = cfg.max_position_embeddings;
+    let vocab = cfg.vocab_size;
+    let model = phi3::Model::new(&cfg, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Phi-3 model: {e}"))?;
+    Ok((LoadedWeights::Phi3Safetensors(model), ctx, vocab))
+}
+
+/// Build a Qwen2 / Qwen2.5 model from config + weights. Legacy path —
+/// kept because Qwen2 safetensors are still widely deployed and some
+/// fine-tunes haven't been ported to Qwen3 yet.
+fn build_qwen2(
+    config_json: &serde_json::Value,
+    vb: VarBuilder,
+) -> anyhow::Result<(LoadedWeights, usize, usize)> {
+    let cfg: qwen2::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Qwen2 config.json: {e}"))?;
+    let ctx = cfg.max_position_embeddings;
+    let vocab = cfg.vocab_size;
+    let model = qwen2::ModelForCausalLM::new(&cfg, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Qwen2 model: {e}"))?;
+    Ok((LoadedWeights::Qwen2Safetensors(model), ctx, vocab))
 }
 
 /// Find all `*.safetensors` shards in a model directory. Used for both single-file

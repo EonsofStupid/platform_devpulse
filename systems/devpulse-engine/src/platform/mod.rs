@@ -55,6 +55,20 @@ pub use devpulse_clyffy::cortex::persistence::{
 #[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::ModelSourceTier;
 
+// Re-export architecture + backend registry for the Tauri command
+// layer. These are the public faces of the compatibility matrix —
+// the resolver gets called before every download and the matrix is
+// served to the frontend on boot for the ModelCompatibilityCard.
+#[cfg(feature = "inference")]
+pub use devpulse_clyffy::model_loader::registry::{
+    classify_arch_from_gguf, classify_arch_from_hf_config, installed_backends,
+    resolve_compatibility, Alternative, AlternativeKind, ArchFamily, ArchId, ArchitectureSpec,
+    BackendId, BackendInfo, BackendMatrix, FormatSupport, LoadError, Resolution, SupportStatus,
+    SupportTier, UnsupportedReason,
+};
+#[cfg(feature = "inference")]
+pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
+
 use anyhow::Result;
 use std::path::PathBuf;
 use std::sync::Arc;

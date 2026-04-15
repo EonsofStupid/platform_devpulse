@@ -246,6 +246,51 @@ let laneGroups = $derived<LaneGroup[]>(
 					<span class="text-xs text-[var(--text-secondary)]">Telemetry graph. Opens separate window.</span>
 				</button>
 
+				<!-- STS / TTS / STT / Cortex subtabs -->
+				<a
+					href="/devtools/sts"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Speech-to-Speech</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Wake word, routing, council config.</span>
+				</a>
+
+				<a
+					href="/devtools/tts"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Text-to-Speech</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Kokoro / Piper voice config.</span>
+				</a>
+
+				<a
+					href="/devtools/stt"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Speech-to-Text</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Whisper / Sherpa input + VAD.</span>
+				</a>
+
+				<a
+					href="/devtools/cortex"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Knowledge Engine</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Prompt builder, memory, councils.</span>
+				</a>
+
 				<!-- Placeholder for VPB -->
 				<div
 					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-dashed border-[var(--border-subtle)] opacity-50"

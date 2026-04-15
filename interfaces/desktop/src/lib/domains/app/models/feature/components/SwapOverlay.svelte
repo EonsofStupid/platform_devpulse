@@ -4,11 +4,13 @@
   ColdLight glass card, lucide icons, multi-step progress, retry on failure.
 -->
 <script lang="ts">
-import { AlertTriangle, CheckCircle, LoaderCircle } from "lucide-svelte";
+import { AlertTriangle, CheckCircle } from "lucide-svelte";
 import { Card } from "$lib/design/components/card/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
+import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
 import { swapState } from "../../data-access/swap.state.svelte.js";
 import { friendlySlotLabel } from "../../util/models.types.js";
@@ -116,9 +118,7 @@ function handleDismiss(): void {
 				</div>
 			{:else}
 				<!-- Loading state -->
-				<div style="color: var(--accent-teal-main);">
-					<LoaderCircle size={40} class="animate-spin" />
-				</div>
+				<Spinner size="xl" tone="accent" />
 				<Text size="lg" weight="bold" color="primary">{headline}</Text>
 				<Text size="sm" color="muted">{stageToLabel(swapState.stage)}</Text>
 
@@ -147,6 +147,11 @@ function handleDismiss(): void {
 				<!-- Progress bar -->
 				<div class="w-full">
 					<Progress value={swapState.progress} max={100} size="lg" />
+				</div>
+
+				<!-- Rotating DYK / KDROPS / T&T content -->
+				<div class="w-full">
+					<LoadingContentCard rotateEveryMs={7000} />
 				</div>
 
 				<Text size="sm" color="muted">

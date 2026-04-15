@@ -256,10 +256,51 @@ fn execute_download(
         tracing::info!(repo = %repo_id, file = %entry, "Bundle entry");
     }
 
-    // Step 2: shared aggregated Progress bridge across every file in the
-    // bundle. init() from each file appends its size to the running total
-    // (so the user sees a single progress bar covering the whole bundle)
-    // and update() increments the shared `current` counter.
+    // Step 2: pre-flight disk scan. For each bundle entry, check if
+    // the destination file already exists with a non-zero size. This
+    // lets partial-bundle downloads resume automatically — if the
+    // user already has shards 1-3 of 7 on disk from a previous run
+    // (or an aborted download), the loop below skips those files
+    // entirely and only fetches shards 4-7.
+    //
+    // We're intentionally conservative: a file is skipped only if it
+    // exists AND has non-zero length. Size-matching against the HF
+    // sibling metadata would be stricter but requires an extra HEAD
+    // per file — the non-zero-length check catches the common cases
+    // (fully-downloaded previous runs, hf-hub cache hits) without
+    // adding latency.
+    let mut already_present: std::collections::HashSet<String> =
+        std::collections::HashSet::new();
+    for file_name in &bundle {
+        let dest = dest_dir.join(file_name);
+        if let Ok(meta) = std::fs::metadata(&dest) {
+            if meta.is_file() && meta.len() > 0 {
+                already_present.insert(file_name.clone());
+                tracing::info!(
+                    repo = %repo_id,
+                    file = %file_name,
+                    size = meta.len(),
+                    "Bundle entry already on disk — skipping"
+                );
+            }
+        }
+    }
+    let skip_count = already_present.len();
+    if skip_count > 0 {
+        tracing::info!(
+            repo = %repo_id,
+            already_present = skip_count,
+            total = bundle.len(),
+            remaining = bundle.len() - skip_count,
+            "Resuming partial bundle"
+        );
+    }
+
+    // Step 3: shared aggregated Progress bridge across every file in
+    // the bundle. init() from each file appends its size to the
+    // running total (so the user sees a single progress bar covering
+    // the whole bundle) and update() increments the shared `current`
+    // counter.
     let bridge = Arc::new(std::sync::Mutex::new(AggregateProgress::new(
         download_id.to_string(),
         events.clone(),
@@ -270,6 +311,17 @@ fn execute_download(
     for file_name in &bundle {
         if cancel.load(Ordering::Relaxed) {
             anyhow::bail!("Download cancelled");
+        }
+
+        // Skip entries that are already on disk. Primary-file case
+        // still needs a dest path for the registry entry downstream,
+        // so we populate `primary_target` without touching the network.
+        if already_present.contains(file_name) {
+            let dest = dest_dir.join(file_name);
+            if file_name == filename {
+                primary_target = Some(dest);
+            }
+            continue;
         }
 
         let file_bridge = BundleFileProgress {

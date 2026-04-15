@@ -4,9 +4,10 @@
   Layman-friendly introduction, live hardware snapshot, and one clear CTA.
 -->
 <script lang="ts">
-import { Cpu, HardDrive, LoaderCircle, Monitor, Sparkles, Zap } from "lucide-svelte";
+import { Cpu, HardDrive, Monitor, Sparkles, Zap } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { formatMb } from "../../../util/models.types.js";
@@ -59,7 +60,7 @@ let showPageHelp = $state(false);
 
 			{#if hardwareState.status === "loading" && !hardwareState.hasSnapshot}
 				<div class="snapshot-row snapshot-row-loading">
-					<LoaderCircle size={16} class="animate-spin" />
+					<Spinner size="sm" tone="accent" />
 					<span class="snapshot-value">Scanning your hardware...</span>
 				</div>
 			{:else if hardwareState.hasSnapshot}

@@ -221,6 +221,7 @@ impl ModelLoaderService {
     // ── Assignment ─────────────────────────────────────────────
 
     /// Assign a model to a slot. Validates compatibility and persists.
+    #[tracing::instrument(skip(self), fields(slot_id, model_id))]
     pub fn assign_model(
         &mut self,
         slot_id: &str,
@@ -473,6 +474,7 @@ impl ModelLoaderService {
     /// - ONNX/SherpaDir + SpeechToText → `VoicePool` (Whisper STT)
     /// - ONNX/SherpaDir + TextToSpeech → `VoicePool` (Kokoro TTS)
     /// - ONNX + Embedding/Reranking → `VoicePool` (reuse ort pool for now)
+    #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn load_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         if !self.slots.contains(slot_id) {
             return Err(LoaderError::SlotNotFound {
@@ -664,6 +666,7 @@ impl ModelLoaderService {
     ///
     /// Retries release twice (500ms between attempts) then hard fails.
     /// No silent swallowing — every failure is logged and propagated.
+    #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn unload_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         if !self.slots.contains(slot_id) {
             return Err(LoaderError::SlotNotFound {
@@ -811,6 +814,7 @@ impl ModelLoaderService {
     /// This puts the model in a `Warm` state where it consumes RAM but not VRAM.
     /// Activation (Warm→Loaded) is fast because weights are already in memory.
     /// Useful for preloading models that will be needed soon.
+    #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn warm_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         if !self.slots.contains(slot_id) {
             return Err(LoaderError::SlotNotFound {
@@ -1018,6 +1022,7 @@ impl ModelLoaderService {
     /// On failure, the slot is left in an unloaded/failed state. We do NOT
     /// attempt to reload the old model — that's a different failure mode the
     /// user should handle explicitly.
+    #[tracing::instrument(skip(self), fields(slot_id, new_model_id))]
     pub async fn swap_model(
         &mut self,
         slot_id: &str,
@@ -1194,6 +1199,7 @@ impl ModelLoaderService {
     ///
     /// If any slot has this model assigned, the assignment is cleared first.
     /// If the model is currently loaded, it must be unloaded first — returns error.
+    #[tracing::instrument(skip(self), fields(model_id))]
     pub async fn delete_model(&mut self, model_id: &str) -> Result<(), LoaderError> {
         // Check if model is currently loaded — refuse to delete
         if self.pool.is_loaded(model_id) {

@@ -122,6 +122,9 @@ pub fn run() {
         commands::models::embed_batch,
         commands::models::rerank_documents,
         commands::models::encode_image,
+        // Compatibility registry — architecture × backend matrix
+        commands::models::list_backend_matrix,
+        commands::models::resolve_architecture_compatibility,
         // Voice management
         commands::voice::get_voice_status,
         commands::voice::speak,

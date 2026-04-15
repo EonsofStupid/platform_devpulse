@@ -52,6 +52,7 @@ import {
 	type HardwareTier,
 	hardwareState,
 } from "$lib/domains/app/models/index.js";
+import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import ClyffyTooltip from "./components/ClyffyTooltip.svelte";
 import HfTokenModal from "./components/HfTokenModal.svelte";
@@ -348,6 +349,9 @@ function handleRecommendedContinue(): void {
 					<div class="loading-block">
 						<Spinner size="md" />
 						<Text size="sm" color="muted">Loading wizard...</Text>
+						<div class="mt-4 w-full max-w-[28rem]">
+							<LoadingContentCard rotateEveryMs={8000} />
+						</div>
 					</div>
 				{:else if phase === "welcome"}
 					<WelcomeStep
@@ -365,6 +369,9 @@ function handleRecommendedContinue(): void {
 					<Heading level={2} size="lg">{copy.scanning.title}</Heading>
 					<Text size="sm" color="muted">{copy.scanning.subtitle}</Text>
 					<Spinner size="md" />
+					<div class="mt-4 w-full max-w-[28rem]">
+						<LoadingContentCard rotateEveryMs={7000} />
+					</div>
 				{:else if wizardState.currentPhase === "clyffy"}
 					<ClyfActivationStep
 						onBack={() => wizardState.goTo("models")}
