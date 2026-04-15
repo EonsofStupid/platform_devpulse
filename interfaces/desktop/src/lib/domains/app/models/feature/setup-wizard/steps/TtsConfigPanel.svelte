@@ -10,7 +10,6 @@ import {
 	Check,
 	ChevronDown,
 	ChevronUp,
-	LoaderCircle,
 	Pause,
 	Play,
 	Power,
@@ -165,7 +164,7 @@ async function startTraining(): Promise<void> {
 			{#if isReady}
 				<Check size={14} /> Ready
 			{:else if isLoading}
-				<LoaderCircle size={14} class="animate-spin" /> Loading
+				<Spinner size="sm" tone="warning" /> Loading
 			{:else if isFailed}
 				<AlertTriangle size={14} /> Failed
 			{:else}
@@ -290,7 +289,7 @@ async function startTraining(): Promise<void> {
 	<div class="section">
 		<button class="btn-primary" onclick={testVoice} disabled={testing || !isReady}>
 			{#if testing}
-				<LoaderCircle size={14} class="animate-spin" /> Speaking...
+				<Spinner size="sm" tone="accent" /> Speaking...
 			{:else}
 				<Play size={14} /> Test Voice
 			{/if}
@@ -347,9 +346,9 @@ async function startTraining(): Promise<void> {
 				<button class="btn-primary" onclick={startTraining}
 					disabled={trainingStatus !== "idle"}>
 					{#if trainingStatus === "uploading"}
-						<LoaderCircle size={14} class="animate-spin" /> Uploading...
+						<Spinner size="sm" tone="accent" /> Uploading...
 					{:else if trainingStatus === "processing"}
-						<LoaderCircle size={14} class="animate-spin" /> Processing...
+						<Spinner size="sm" tone="accent" /> Processing...
 					{:else if trainingStatus === "done"}
 						<Check size={14} /> Training Complete
 					{:else}

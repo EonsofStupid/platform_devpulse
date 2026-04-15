@@ -84,6 +84,36 @@ const RULES = [
 	},
 ];
 
+/**
+ * Fence rules — stricter than `RULES` because the broad `ALLOW_LIST`
+ * does NOT exempt them. These enforce SSOT boundaries around
+ * primitives that have a single canonical component surface.
+ *
+ * Each fence rule carries its own `allow` list so only the canonical
+ * primitive folder can contain the raw form.
+ */
+const FENCE_RULES = [
+	{
+		id: "lucide-spinner",
+		label: "Banned lucide spinner icon (use Spinner from $lib/design/components/spinner)",
+		// Matches an import binding of `Loader2` or `LoaderCircle`
+		// anywhere in the file. The classifier runs after comment
+		// stripping so JSDoc / HTML comment mentions are ignored.
+		pattern: /\b(Loader2|LoaderCircle)\b/g,
+		allow: [
+			"interfaces/desktop/src/lib/design/components/spinner/",
+		],
+	},
+	{
+		id: "animate-spin",
+		label: "Banned raw `animate-spin` class (compose <Spinner /> instead)",
+		pattern: /\banimate-spin\b/g,
+		allow: [
+			"interfaces/desktop/src/lib/design/",
+		],
+	},
+];
+
 /** Return the list of staged files, or empty array. */
 function getStagedFiles() {
 	try {
@@ -185,11 +215,42 @@ function scanChunk(text, ruleSubset) {
 	return hits;
 }
 
+/** True if the given path is exempted from a specific fence rule. */
+function isFenceAllowed(path, rule) {
+	const normalized = path.split(sep).join("/");
+	return rule.allow.some((prefix) => normalized.includes(prefix));
+}
+
+/**
+ * Run the fence rules (which ignore `ALLOW_LIST` and have their own
+ * per-rule exclusion) against a comment-stripped source chunk.
+ */
+function scanFence(text, rules) {
+	const lines = text.split(/\r?\n/);
+	const hits = [];
+	lines.forEach((line, idx) => {
+		for (const rule of rules) {
+			rule.pattern.lastIndex = 0;
+			let m;
+			while ((m = rule.pattern.exec(line)) !== null) {
+				hits.push({ rule: rule.id, label: rule.label, line: idx + 1, match: m[0] });
+			}
+		}
+	});
+	return hits;
+}
+
 /**
  * Scan a single file. Returns an array of violations with line numbers
  * relative to the original source.
+ *
+ * @param path     relative path from repo root
+ * @param strict   if true, apply the broad `RULES` (hex/px/--cl-).
+ *                  If false, skip the broad rules and apply only the
+ *                  fence rules. Allow-listed files run with
+ *                  `strict=false`.
  */
-function scanFile(path) {
+function scanFile(path, strict) {
 	const absolute = resolve(REPO_ROOT, path);
 	let source;
 	try {
@@ -197,6 +258,10 @@ function scanFile(path) {
 	} catch {
 		return [];
 	}
+
+	// Fence rules that apply to this file — those whose exclusion
+	// list does NOT contain the file's path.
+	const applicableFenceRules = FENCE_RULES.filter((r) => !isFenceAllowed(path, r));
 
 	if (path.endsWith(".svelte")) {
 		const regions = extractSvelteRegions(source);
@@ -207,28 +272,40 @@ function scanFile(path) {
 		// Script body: only flag --cl- prefix. Raw hex/px in TS logic
 		// is usually legitimate (dimensions passed through a design
 		// token helper), and the noise ratio makes the rule useless.
-		const scriptRules = RULES.filter((r) => r.id === "clPrefix");
+		const scriptRules = strict ? RULES.filter((r) => r.id === "clPrefix") : [];
+		const fullRules = strict ? RULES : [];
 
-		// Template: scan everything (catches inline style=, class=[...])
-		// Style block: scan everything (the main target)
-		return [
-			...scanChunk(template, RULES),
+		const hits = [
+			...scanChunk(template, fullRules),
 			...scanChunk(script, scriptRules),
-			...scanChunk(style, RULES),
+			...scanChunk(style, fullRules),
+			// Fence rules apply across EVERY region (script imports,
+			// template classes, style bodies) so imports AND class
+			// usages are both caught.
+			...scanFence(template, applicableFenceRules),
+			...scanFence(script, applicableFenceRules),
+			...scanFence(style, applicableFenceRules),
 		];
+		return hits;
 	}
 
 	if (path.endsWith(".css")) {
 		const stripped = stripComments(source, "css");
-		return scanChunk(stripped, RULES);
+		return [
+			...scanChunk(stripped, strict ? RULES : []),
+			...scanFence(stripped, applicableFenceRules),
+		];
 	}
 
 	if (path.endsWith(".ts")) {
 		const stripped = stripComments(source, "ts");
 		// TS: only --cl- prefix is meaningful. px/hex in TS is generally
 		// inside logic like `formatMb(model.vram_estimate_mb)` — not CSS.
-		const tsRules = RULES.filter((r) => r.id === "clPrefix");
-		return scanChunk(stripped, tsRules);
+		const tsRules = strict ? RULES.filter((r) => r.id === "clPrefix") : [];
+		return [
+			...scanChunk(stripped, tsRules),
+			...scanFence(stripped, applicableFenceRules),
+		];
 	}
 
 	return [];
@@ -236,7 +313,10 @@ function scanFile(path) {
 
 function main() {
 	const staged = getStagedFiles();
-	const candidates = staged.filter((p) => isTrackedExt(p) && !isAllowListed(p));
+	// Scan every tracked staged file. Allow-listed files get the
+	// fence-only pass; non-allow-listed get the full `RULES` sweep
+	// plus the fence.
+	const candidates = staged.filter(isTrackedExt);
 
 	if (candidates.length === 0) {
 		process.exit(0);
@@ -244,7 +324,8 @@ function main() {
 
 	const violations = [];
 	for (const path of candidates) {
-		const hits = scanFile(path);
+		const strict = !isAllowListed(path);
+		const hits = scanFile(path, strict);
 		if (hits.length > 0) {
 			violations.push({ path, hits });
 		}
@@ -255,8 +336,9 @@ function main() {
 	}
 
 	const out = process.stderr;
-	out.write("\nERROR: Raw CSS values detected. All values must use design tokens.\n");
-	out.write("Use var(--*) token references or Tailwind theme utilities.\n\n");
+	out.write("\nERROR: Raw CSS values / banned imports detected.\n");
+	out.write("All visual values must use design tokens; all loading indicators\n");
+	out.write("must compose <Spinner /> from $lib/design/components/spinner.\n\n");
 	out.write("Violations:\n");
 	for (const { path, hits } of violations) {
 		out.write(`  ${relative(REPO_ROOT, path).split(sep).join("/")}\n`);
@@ -266,7 +348,8 @@ function main() {
 		out.write("\n");
 	}
 	out.write("Token source: scripts/build/styledictionary/tokens/src/*.json\n");
-	out.write("Build tokens: pnpm ds:tokens:build\n\n");
+	out.write("Build tokens: pnpm ds:tokens:build\n");
+	out.write("Spinner guide: src/lib/design/components/spinner/index.ts\n\n");
 	process.exit(1);
 }
 

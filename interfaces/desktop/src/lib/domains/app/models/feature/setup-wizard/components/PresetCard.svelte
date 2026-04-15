@@ -6,7 +6,8 @@
   Local models show checkmark (Commandment #9).
 -->
 <script lang="ts">
-import { Check, Download, Loader2 } from "lucide-svelte";
+import { Check, Download } from "lucide-svelte";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { formatMb } from "../../../util/models.types.js";
 import { wizardState } from "../wizard.state.svelte.js";
@@ -81,7 +82,7 @@ const gpuLabel = $derived(hardwareState.gpuName ?? "CPU");
 
 		<button class="btn-setup" onclick={onSetup} disabled={loading}>
 			{#if loading}
-				<Loader2 size={16} class="animate-spin" /> Setting up...
+				<Spinner size="sm" tone="accent" /> Setting up...
 			{:else if needsDownload > 0}
 				<Download size={16} /> Download & Set Up
 			{:else}

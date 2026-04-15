@@ -10,7 +10,6 @@ import {
 	Check,
 	ChevronDown,
 	ChevronUp,
-	LoaderCircle,
 	Mic,
 	MicOff,
 	Power,
@@ -119,7 +118,7 @@ async function testMicrophone(): Promise<void> {
 			{#if isReady}
 				<Check size={14} /> Ready
 			{:else if isLoading}
-				<LoaderCircle size={14} class="animate-spin" /> Loading
+				<Spinner size="sm" tone="warning" /> Loading
 			{:else if isFailed}
 				<AlertTriangle size={14} /> Failed
 			{:else}
@@ -236,7 +235,7 @@ async function testMicrophone(): Promise<void> {
 		<div class="mic-test">
 			<button class="btn-outline" onclick={testMicrophone} disabled={micTesting}>
 				{#if micTesting}
-					<LoaderCircle size={14} class="animate-spin" /> Testing...
+					<Spinner size="sm" tone="accent" /> Testing...
 				{:else}
 					<Mic size={14} /> Test Microphone
 				{/if}

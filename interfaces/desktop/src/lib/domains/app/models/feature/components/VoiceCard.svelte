@@ -5,8 +5,9 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { Download, ExternalLink, Loader2, Mic, Play, Volume2, X } from "lucide-svelte";
+import { Download, ExternalLink, Mic, Play, Volume2, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
@@ -27,6 +28,7 @@ import {
 	slotDisplayStatus,
 	statusColor,
 	statusLabel,
+	statusToTone,
 } from "../../util/models.types.js";
 import ModelPicker from "./ModelPicker.svelte";
 
@@ -247,7 +249,7 @@ async function handleCancelTts(): Promise<void> {
 				</div>
 				{#if downloadingStt}
 					<div class={hstack({ gap: "1", align: "center" })}>
-						<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
+						<Spinner size="xs" tone="accent" />
 						<Text size="xs" color="muted">{sttPct}%</Text>
 						{#if sttSpeedBps > 0}
 							<Text size="xs" color="muted">{formatSpeed(sttSpeedBps)}</Text>
@@ -278,7 +280,7 @@ async function handleCancelTts(): Promise<void> {
 			/>
 			{#if sttTransitioning && sttModelStatus}
 				<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
-					<Loader2 size={12} class="animate-spin" style="color: {statusColor(sttModelStatus)};" />
+					<Spinner size="xs" tone={statusToTone(sttModelStatus)} />
 					<Text size="xs" color="muted">{statusLabel(sttModelStatus)}</Text>
 				</div>
 			{/if}
@@ -293,7 +295,7 @@ async function handleCancelTts(): Promise<void> {
 				</div>
 				{#if downloadingTts}
 					<div class={hstack({ gap: "1", align: "center" })}>
-						<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
+						<Spinner size="xs" tone="accent" />
 						<Text size="xs" color="muted">{ttsPct}%</Text>
 						{#if ttsSpeedBps > 0}
 							<Text size="xs" color="muted">{formatSpeed(ttsSpeedBps)}</Text>
@@ -324,7 +326,7 @@ async function handleCancelTts(): Promise<void> {
 			/>
 			{#if ttsTransitioning && ttsModelStatus}
 				<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
-					<Loader2 size={12} class="animate-spin" style="color: {statusColor(ttsModelStatus)};" />
+					<Spinner size="xs" tone={statusToTone(ttsModelStatus)} />
 					<Text size="xs" color="muted">{statusLabel(ttsModelStatus)}</Text>
 				</div>
 			{/if}

@@ -5,7 +5,8 @@
   Technical model name in small gray text.
 -->
 <script lang="ts">
-import { Check, LoaderCircle, RefreshCw, X } from "lucide-svelte";
+import { Check, RefreshCw, X } from "lucide-svelte";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { formatMb, isInferenceReady } from "../../../util/models.types.js";
 import type { SlotLabel } from "../wizard.types.js";
@@ -68,7 +69,7 @@ const statusClass = $derived.by(() => {
 				{#if ready}
 					<Check size={10} />
 				{:else if status?.type === "loading"}
-					<LoaderCircle size={10} class="animate-spin" />
+					<Spinner size="xs" tone="warning" />
 				{:else if status?.type === "failed"}
 					<X size={10} />
 				{/if}

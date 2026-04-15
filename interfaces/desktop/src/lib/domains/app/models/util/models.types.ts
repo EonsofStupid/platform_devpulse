@@ -354,6 +354,35 @@ export function statusColor(status: ModelStatus): string {
 	}
 }
 
+/**
+ * Status → canonical `SpinnerTone` so card components can pass
+ * `tone={statusToTone(status)}` to `<Spinner />` / `<SpinnerRow />`
+ * without reaching for `style="color: var(--x)"` overrides.
+ *
+ * This is the ONLY bridge between `ModelStatus` and the spinner
+ * color family — any new tone needed for a new model status
+ * variant should extend `SpinnerTone` in the design layer and add
+ * a case here. Never hardcode a color in a consumer.
+ */
+export function statusToTone(
+	status: ModelStatus,
+): "success" | "accent" | "warning" | "error" | "muted" {
+	switch (status.type) {
+		case "hot":
+		case "standby":
+			return "success";
+		case "warm":
+			return "accent";
+		case "loading":
+			return "warning";
+		case "failed":
+			return "error";
+		case "cold":
+		case "unloading":
+			return "muted";
+	}
+}
+
 /** Whether a model status means the slot can serve inference. */
 export function isInferenceReady(status: ModelStatus): boolean {
 	return status.type === "hot" || status.type === "standby";

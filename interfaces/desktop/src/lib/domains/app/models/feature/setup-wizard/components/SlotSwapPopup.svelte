@@ -9,7 +9,6 @@ import {
 	ChevronRight,
 	Download,
 	FolderOpen,
-	LoaderCircle,
 	Monitor,
 	Search,
 	Sparkles,
@@ -17,6 +16,7 @@ import {
 	X,
 } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import type { ModelInfo } from "$lib/sys/generated/bindings.js";
 import { importLocalModel } from "../../../data-access/download.service.js";
@@ -289,7 +289,7 @@ async function handleSearchDownload(
 							</div>
 							<Button preset="primary" size="md" onclick={handleRecommendedAction} disabled={busyAction === "recommended"}>
 								{#if busyAction === "recommended"}
-									<LoaderCircle size={14} class="animate-spin" /> Working...
+									<Spinner size="sm" tone="accent" /> Working...
 								{:else if recommendation.alreadyDownloaded}
 									<Check size={14} /> Use Recommended
 								{:else}
@@ -325,7 +325,7 @@ async function handleSearchDownload(
 							</div>
 							<Button preset="ghost" size="sm" onclick={handleImport} disabled={busyAction === "import"}>
 								{#if busyAction === "import"}
-									<LoaderCircle size={14} class="animate-spin" /> Importing...
+									<Spinner size="sm" tone="accent" /> Importing...
 								{:else}
 									<Upload size={14} /> Import file
 								{/if}

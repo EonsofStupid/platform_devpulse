@@ -5,7 +5,8 @@
   Colocated CSS. No renderForge.
 -->
 <script lang="ts">
-import { Brain, Check, LoaderCircle, Mic, Play, RotateCcw, Volume2, X } from "lucide-svelte";
+import { Brain, Check, Mic, Play, RotateCcw, Volume2, X } from "lucide-svelte";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 
 interface TestStep {
 	id: string;
@@ -136,7 +137,7 @@ const allDone = $derived(steps.every((s) => s.status === "pass" || s.status === 
 			{@const Icon = step.icon}
 			<div class="step" class:pass={step.status === "pass"} class:fail={step.status === "fail"} class:running={step.status === "running"}>
 				<div class="step-icon">
-					{#if step.status === "running"}<LoaderCircle size={18} class="animate-spin" />
+					{#if step.status === "running"}<Spinner size="md" tone="accent" />
 					{:else if step.status === "pass"}<Check size={18} />
 					{:else if step.status === "fail"}<X size={18} />
 					{:else}<Icon size={18} />{/if}
@@ -163,7 +164,7 @@ const allDone = $derived(steps.every((s) => s.status === "pass" || s.status === 
 
 	<div class="actions">
 		<button class="btn-primary" onclick={runTests} disabled={running}>
-			{#if running}<LoaderCircle size={14} class="animate-spin" /> Running...
+			{#if running}<Spinner size="sm" tone="accent" /> Running...
 			{:else if allDone}<RotateCcw size={14} /> Run Again
 			{:else}<Play size={14} /> Run Pipeline Test{/if}
 		</button>

@@ -3,7 +3,8 @@
   Phase 1. Hardware metrics with tooltips. Tier badge. ColdLight tokens.
 -->
 <script lang="ts">
-import { ArrowRight, Check, Cpu, HardDrive, Info, LoaderCircle, Monitor, Zap } from "lucide-svelte";
+import { ArrowRight, Check, Cpu, HardDrive, Info, Monitor, Zap } from "lucide-svelte";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { formatMb } from "../../../util/models.types.js";
 
@@ -86,7 +87,7 @@ const tier = $derived.by(() => {
 <div class="hw-step">
 	{#if scanning}
 		<div class="scanning">
-			<LoaderCircle size={32} class="animate-spin" style="color: var(--wiz-cyan);" />
+			<Spinner size="lg" tone="accent" />
 			<h2 class="scan-title">Scanning your hardware...</h2>
 			<p class="scan-sub">Checking GPU, CPU, RAM, and disk space</p>
 		</div>

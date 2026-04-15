@@ -4,7 +4,7 @@
   Accessible from every wizard page via the "Setup" button.
 -->
 <script lang="ts">
-import { Check, Loader2, X } from "lucide-svelte";
+import { Check, X } from "lucide-svelte";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { formatMb, isInferenceReady } from "../../../util/models.types.js";
 import { wizardState } from "../wizard.state.svelte.js";

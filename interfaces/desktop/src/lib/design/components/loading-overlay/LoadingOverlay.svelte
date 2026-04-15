@@ -25,6 +25,7 @@ import {
 	loadingOverlayAnatomy,
 	useLoadingOverlay,
 } from "$lib/design/behaviors/display/loading-overlay/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
@@ -56,12 +57,10 @@ const m = $derived(renderForge({ kind: "loading-overlay", preset }));
 		{#if children}
 			{@render children()}
 		{:else}
-			<div class="animate-spin size-6" data-kind="loading-overlay" data-slot="spinner" aria-hidden="true">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="size-full">
-					<circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-					<path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
-				</svg>
-			</div>
+			<!-- Default body: compose the canonical Spinner. Never
+			     re-implement the SVG inline — the Spinner primitive
+			     is the single source of truth for loading visuals. -->
+			<Spinner size="md" tone="accent" />
 		{/if}
 	</div>
 {/if}

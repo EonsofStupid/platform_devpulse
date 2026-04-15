@@ -4,8 +4,9 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Flame, Loader2, Power, PowerOff, RefreshCw, X } from "lucide-svelte";
+import { Download, Flame, Power, PowerOff, RefreshCw, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -26,6 +27,7 @@ import {
 	slotDisplayStatus,
 	statusColor,
 	statusLabel,
+	statusToTone,
 } from "../../util/models.types.js";
 import ModelPicker from "./ModelPicker.svelte";
 
@@ -252,7 +254,7 @@ async function handleSwap(): Promise<void> {
 		{#if isTransitioning && modelStatus}
 			<div class={stack({ gap: "1" })}>
 				<div class={hstack({ gap: "2", align: "center" })}>
-					<Loader2 size={14} class="animate-spin" style="color: {statusColor(modelStatus)};" />
+					<Spinner size="sm" tone={statusToTone(modelStatus)} />
 					<Text size="xs" color="muted">{statusLabel(modelStatus)}</Text>
 				</div>
 				{#if modelStatus.type === "loading"}
@@ -275,7 +277,7 @@ async function handleSwap(): Promise<void> {
 				<div class={stack({ gap: "1" })} style="flex: 1;">
 					<div class={hstack({ justify: "between", align: "center" })}>
 						<div class={hstack({ gap: "1", align: "center" })}>
-							<Loader2 size={14} class="animate-spin" style="color: var(--accent-teal-main);" />
+							<Spinner size="sm" tone="accent" />
 							<Text size="xs" color="muted">Downloading {downloadPct}%</Text>
 						</div>
 						<div class={hstack({ gap: "2", align: "center" })}>

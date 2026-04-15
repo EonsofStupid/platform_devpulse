@@ -4,8 +4,9 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Brain, Download, Loader2, Power, X } from "lucide-svelte";
+import { Brain, Download, Power, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
@@ -25,6 +26,7 @@ import {
 	slotDisplayStatus,
 	statusColor,
 	statusLabel,
+	statusToTone,
 } from "../../util/models.types.js";
 import ModelPicker from "./ModelPicker.svelte";
 
@@ -278,7 +280,7 @@ async function handleDownloadAll(): Promise<void> {
 				/>
 				{#if embedTransitioning && embedModelStatus}
 					<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
-						<Loader2 size={12} class="animate-spin" style="color: {statusColor(embedModelStatus)};" />
+						<Spinner size="xs" tone={statusToTone(embedModelStatus)} />
 						<Text size="xs" color="muted">{statusLabel(embedModelStatus)}</Text>
 					</div>
 				{/if}
@@ -292,7 +294,7 @@ async function handleDownloadAll(): Promise<void> {
 				/>
 				{#if rerankTransitioning && rerankModelStatus}
 					<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
-						<Loader2 size={12} class="animate-spin" style="color: {statusColor(rerankModelStatus)};" />
+						<Spinner size="xs" tone={statusToTone(rerankModelStatus)} />
 						<Text size="xs" color="muted">{statusLabel(rerankModelStatus)}</Text>
 					</div>
 				{/if}
@@ -320,7 +322,7 @@ async function handleDownloadAll(): Promise<void> {
 						{#if embedStatus === "not_downloaded"}
 							{#if downloadingEmbed}
 								<div class={hstack({ gap: "1", align: "center" })}>
-									<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
+									<Spinner size="xs" tone="accent" />
 									<Text size="xs" color="muted">Search {embedPct}%</Text>
 									{#if embedSpeedBps > 0}
 										<Text size="xs" color="muted">{formatSpeed(embedSpeedBps)}</Text>
@@ -346,7 +348,7 @@ async function handleDownloadAll(): Promise<void> {
 						{#if rerankStatus === "not_downloaded"}
 							{#if downloadingRerank}
 								<div class={hstack({ gap: "1", align: "center" })}>
-									<Loader2 size={12} class="animate-spin" style="color: var(--accent-teal-main);" />
+									<Spinner size="xs" tone="accent" />
 									<Text size="xs" color="muted">Ranking {rerankPct}%</Text>
 									{#if rerankSpeedBps > 0}
 										<Text size="xs" color="muted">{formatSpeed(rerankSpeedBps)}</Text>

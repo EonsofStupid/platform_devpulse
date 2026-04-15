@@ -11,7 +11,6 @@ import {
 	Check,
 	Download,
 	Eye,
-	LoaderCircle,
 	Mic,
 	Search,
 	Settings2,
@@ -19,6 +18,7 @@ import {
 	Volume2,
 } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
@@ -502,7 +502,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 							<span>~{formatMb(brain.vramMb)} VRAM</span>
 						</div>
 						{#if isSwitching}
-							<div class="brain-chip-spinner"><LoaderCircle size={14} class="animate-spin" /></div>
+							<div class="brain-chip-spinner"><Spinner size="sm" tone="accent" /></div>
 						{/if}
 					</button>
 				{/each}
@@ -612,7 +612,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 					</div>
 				{:else}
 					<div class="setup-status-card">
-						<LoaderCircle size={16} class="animate-spin" />
+						<Spinner size="sm" tone="accent" />
 						<span>Assigning the recommended models that are already on disk.</span>
 					</div>
 				{/if}
@@ -622,7 +622,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		{#if !setupComplete}
 			<Button preset="primary" size="lg" onclick={handleSetup} disabled={setupInProgress} class="setup-cta">
 				{#if setupInProgress}
-					<LoaderCircle size={18} class="animate-spin" /> {copy.setup_in_progress_label}
+					<Spinner size="md" tone="accent" /> {copy.setup_in_progress_label}
 				{:else}
 					<Download size={18} /> {copy.setup_button_label}
 				{/if}

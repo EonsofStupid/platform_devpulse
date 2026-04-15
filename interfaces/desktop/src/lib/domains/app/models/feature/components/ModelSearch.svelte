@@ -7,9 +7,10 @@
 -->
 <script lang="ts">
 import { listen } from "@tauri-apps/api/event";
-import { ArrowRight, Check, Download, LoaderCircle, Search, X } from "lucide-svelte";
+import { ArrowRight, Check, Download, Search, X } from "lucide-svelte";
 import { Card } from "$lib/design/components/card/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -225,7 +226,7 @@ function formatBytes(bytes: number): string {
 		<div class="px-6 pb-2">
 			{#each activeDownloads as dl (dl.downloadId)}
 				<div class="flex items-center gap-3 rounded-lg px-4 py-2 mb-1" style="background: var(--surface-raised);">
-					<LoaderCircle size={16} class="animate-spin shrink-0" style="color: var(--color-teal-400);" />
+					<Spinner size="sm" tone="accent" class="shrink-0" />
 					<div class="flex-1 min-w-0">
 						<Text size="xs" weight="medium" color="primary" class="truncate">{dl.filename}</Text>
 						<div class="mt-1">
@@ -246,8 +247,8 @@ function formatBytes(bytes: number): string {
 	<!-- ── Results ─────────────────────────────────────────────── -->
 	<main class="flex-1 overflow-y-auto px-6 pb-6">
 		{#if searchState.searching}
-			<div class="flex items-center justify-center gap-3 py-16">
-				<LoaderCircle size={24} class="animate-spin opacity-50" />
+			<div class="flex items-center justify-center gap-3 py-16 opacity-50">
+				<Spinner size="md" tone="muted" />
 				<Text size="base" color="muted">Searching HuggingFace...</Text>
 			</div>
 		{:else if searchState.error}
@@ -269,7 +270,7 @@ function formatBytes(bytes: number): string {
 						disabled={searchState.loadingMore}
 					>
 						{#if searchState.loadingMore}
-							<LoaderCircle size={14} class="animate-spin" />
+							<Spinner size="sm" tone="default" />
 							Loading more...
 						{:else}
 							Load more results

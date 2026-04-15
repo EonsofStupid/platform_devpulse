@@ -11,7 +11,6 @@ import {
 	Check,
 	ChevronDown,
 	ChevronUp,
-	LoaderCircle,
 	Power,
 	PowerOff,
 	Settings,
@@ -72,7 +71,7 @@ async function handleUnload(): Promise<void> {
 		</div>
 		<div class="status-badge" class:ready={isReady} class:failed={isFailed} class:loading={isLoading}>
 			{#if isReady}<Check size={14} /> Ready
-			{:else if isLoading}<LoaderCircle size={14} class="animate-spin" /> Loading
+			{:else if isLoading}<Spinner size="sm" tone="warning" /> Loading
 			{:else if isFailed}<AlertTriangle size={14} /> Failed
 			{:else}Not Loaded{/if}
 		</div>

@@ -15,12 +15,12 @@ import {
 	Eye,
 	Heart,
 	Layers,
-	LoaderCircle,
 	Mic,
 	Search,
 	Volume2,
 } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -169,7 +169,7 @@ const fitColorMap: Record<string, string> = {
 						disabled={downloading}
 					>
 						{#if downloading}
-							<LoaderCircle size={12} class="animate-spin" />
+							<Spinner size="xs" tone="accent" />
 							Downloading
 						{:else}
 							<Download size={12} />

@@ -1,8 +1,22 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 
-/** Spinner size presets */
-export type SpinnerSize = "sm" | "md" | "lg";
+/**
+ * Spinner size presets.
+ *
+ * Five steps covering the real use range in the product:
+ *
+ * - `xs` — inline chips, status pills, table cells
+ * - `sm` — button labels, form fields, inline "X is happening" rows
+ * - `md` — page-level inline waits (the default)
+ * - `lg` — centered card spinners
+ * - `xl` — full-screen overlay spinners
+ *
+ * Kept in lockstep with `SpinnerSize` in
+ * `$lib/design/components/spinner/types.ts` — the component layer
+ * re-exports from here so there's one SSOT.
+ */
+export type SpinnerSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 /**
  * Structural props for the Spinner primitive.
