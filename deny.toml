@@ -41,6 +41,8 @@ ignore = [
     "RUSTSEC-2026-0044", # aws-lc x509 bypass (transitive via surrealdb)
     "RUSTSEC-2026-0048", # aws-lc CRL scope (transitive via surrealdb)
     "RUSTSEC-2026-0049", # aws-lc CRL matching (transitive via surrealdb)
+    "RUSTSEC-2026-0098", # rustls-webpki URI name constraints (transitive via libsql/rustls 0.22)
+    "RUSTSEC-2026-0099", # rustls-webpki wildcard DNS constraints (transitive via libsql/rustls 0.22)
 ]
 
 [licenses]
