@@ -212,11 +212,20 @@ repo = "Mungert/Qwen3-Reranker-0.6B-GGUF"
 file = "Qwen3-Reranker-0.6B-q8_0.gguf"
 size_mb = 639
 
-# ── DELETED: [services.system.devforge]
-# DevForge lifecycle is managed by bootstrap.rs → RehManager::spawn(),
-# NOT the platform service system. The dedicated Tauri window opens via
-# open_devforge_window command. REH tree fetched from GitHub release
-# via `cargo xtask fetch-devforge`. No platform service entry needed.
+[services.system.devforge]
+# Layer 1 infrastructure service — managed REH (Remote Extension Host)
+# web server. Full VS Code with full extension support in a dedicated
+# Tauri WebviewWindow. Boots through the platform pipeline like every
+# other service. REH tree fetched from github.com/EonsofStupid/devforge
+# releases via `cargo xtask fetch-devforge --target <platform>`.
+enabled = true
+critical = false
+mode = "reh"
+port = 0
+user_data_dir = "devforge/user-data"
+extensions_dir = "devforge/extensions"
+workspace_path = "."
+update_channel_url = "https://releases.devpulse.dev/devforge/channel.toml"
 
 [services.system.claude]
 # Claude integration — MCP server, dual-lane governance, sidecar, API provider.

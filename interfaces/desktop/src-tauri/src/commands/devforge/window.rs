@@ -11,13 +11,12 @@
 //!
 //! # Lifecycle
 //!
-//! 1. The main Tauri setup fires `bootstrap::run()` which spawns the REH
-//!    server in the background and stores the [`RehManager`] in
-//!    [`PlatformState::reh`].
+//! 1. Platform boot spawns DevForge REH as a Layer 1 service via
+//!    `DevForgeService::boot_reh()` — same pipeline as libSQL/DuckDB.
 //! 2. The frontend invokes [`open_devforge_window`] (from any surface —
 //!    the `/devforge` route button, a toolbar action, a keyboard shortcut).
-//! 3. This command reads the current [`RehManager`] from state, resolves
-//!    the connection URL (`http://127.0.0.1:<port>/?tkn=<token>`), and
+//! 3. This command reads the `DevForgeService` from `Platform::devforge()`,
+//!    resolves the connection URL (`http://127.0.0.1:<port>/?tkn=<token>`), and
 //!    opens or focuses a `WebviewWindow` labeled `"devforge"` pointed at
 //!    that external URL.
 //! 4. The window is parented to the main DevPulse window so closing the
@@ -66,19 +65,20 @@ pub async fn open_devforge_window(
     app: AppHandle,
     state: State<'_, PlatformState>,
 ) -> Result<DevforgeBootstrapStatus, String> {
-    // ── 1. Pull the connection URL out of the REH manager. ────────
+    // ── 1. Pull the connection URL from the platform DevForge service.
     let (connection_url, port) = {
-        let guard = state.reh.read().await;
-        let manager = guard.as_ref().ok_or_else(|| {
-            "DevForge REH server is not running yet — wait for the \
-             `devforge://ready` event before opening the window."
+        let guard = state.platform.read().await;
+        let platform = guard.as_ref().ok_or_else(|| {
+            "Platform not booted yet — wait for boot to complete.".to_string()
+        })?;
+        let service = platform.devforge().ok_or_else(|| {
+            "DevForge REH service is not running. Check boot log for errors, \
+             or ensure [services.system.devforge] enabled = true in platform.default.toml."
                 .to_string()
         })?;
-        let status = manager.status();
-        let url = status.url.clone().ok_or_else(|| {
-            "REH manager reported running but has no connection URL".to_string()
-        })?;
-        (url, status.port)
+        let url = service.connection_url();
+        let p = service.port();
+        (url, Some(p))
     };
 
     // ── 2. If a DevForge window is already open, just focus it. ────

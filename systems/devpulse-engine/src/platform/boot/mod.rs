@@ -55,8 +55,6 @@ pub mod preflight;
 mod relational;
 pub mod retry;
 mod vector;
-mod embedder;
-mod whisper;
 mod model_loader;
 mod devforge;
 
@@ -70,9 +68,9 @@ use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
 #[cfg(feature = "candle")]
-use crate::platform::services::embedder::EmbedderService;
+// EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
-use crate::platform::services::whisper::WhisperService;
+// WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
 use crate::platform::services::devforge::DevForgeService;
@@ -94,10 +92,7 @@ pub struct BootedServices {
     pub global_graph: Option<Arc<GraphService>>,
     #[cfg(feature = "rro")]
     pub vector: Option<Arc<VectorService>>,
-    #[cfg(feature = "candle")]
-    pub embedder: Option<Arc<EmbedderService>>,
-    #[cfg(feature = "candle")]
-    pub whisper: Option<Arc<WhisperService>>,
+    // Embedder + Whisper removed — slot-managed by model loader.
     #[cfg(feature = "inference")]
     pub model_loader: Option<Arc<ModelLoaderService>>,
     pub devforge: Option<Arc<DevForgeService>>,
@@ -331,51 +326,19 @@ async fn execute_inner(
         }
     }
 
-    // ── Stage 10: Embedder (Candle) — feature-gated ─────────
-    #[cfg(feature = "candle")]
-    let embedder = embedder::boot(
-        data_dir,
-        &boot_config.services.system.embedder,
-        on_event,
-        &boot_log,
-    ).await;
-    #[cfg(not(feature = "candle"))]
-    {
-        if boot_config.services.system.embedder.enabled {
-            boot_log.fail("Embedder service", "enabled in config but 'candle' feature not compiled");
-            anyhow::bail!(
-                "FATAL: Embedder service is enabled in config but the 'candle' feature is not compiled in. \
-                 Add features = [\"candle\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
-            );
-        }
-    }
+    // Stages 10-11 (Embedder, Whisper) REMOVED — slot-managed by model loader.
+    // rag.embedder and voice.stt slots handle these capabilities through Layer 2.
 
-    // ── Stage 11: Whisper ASR (Candle) — feature-gated ────────
-    #[cfg(feature = "candle")]
-    let whisper = whisper::boot(
-        data_dir,
-        &boot_config.services.system.whisper,
-        on_event,
-        &boot_log,
-    ).await;
-    #[cfg(not(feature = "candle"))]
-    {
-        if boot_config.services.system.whisper.enabled {
-            boot_log.fail("Whisper service", "enabled in config but 'candle' feature not compiled");
-            anyhow::bail!(
-                "FATAL: Whisper service is enabled in config but the 'candle' feature is not compiled in. \
-                 Add features = [\"candle\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
-            );
-        }
-    }
-
-    // ── Stage 13: DevForge (VSCode) ───────────────────────────
+    // ── Stage 13: DevForge (REH web server) ────────────────────
+    // Layer 1 infrastructure service — same pattern as libSQL/DuckDB.
+    // Boots through the platform pipeline, NOT a parallel Tauri bootstrap.
     let devforge = devforge::boot(
         data_dir,
         &boot_config.services.system.devforge,
         on_event,
         &boot_log,
-    );
+    )
+    .await;
 
     // ── Stage 14: Validate critical services ─────────────────
     // Config-driven: is_enabled_and_critical() reads from parsed TOML.
@@ -395,10 +358,7 @@ async fn execute_inner(
         ];
         #[cfg(feature = "rro")]
         checks.push(("Vector Store", vector.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System)));
-        #[cfg(feature = "candle")]
-        checks.push(("Embedding Engine", embedder.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Embedder, DataScope::System)));
-        #[cfg(feature = "candle")]
-        checks.push(("Speech Recognition", whisper.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Whisper, DataScope::System)));
+        // Embedder + Whisper removed — slot-managed by model loader (Layer 2).
         #[cfg(feature = "inference")]
         checks.push(("Model Manager", model_loader_svc.is_some(), boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System)));
         checks.push(("Code Editor", devforge.is_some(), boot_config.is_enabled_and_critical(ServiceRole::DevForge, DataScope::System)));
@@ -439,10 +399,6 @@ async fn execute_inner(
         global_graph,
         #[cfg(feature = "rro")]
         vector,
-        #[cfg(feature = "candle")]
-        embedder,
-        #[cfg(feature = "candle")]
-        whisper,
         #[cfg(feature = "inference")]
         model_loader: model_loader_svc,
         devforge,

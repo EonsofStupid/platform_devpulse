@@ -10,10 +10,7 @@ pub mod manifest;
 pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;
-#[cfg(feature = "candle")]
-pub mod embedder;
-#[cfg(feature = "candle")]
-pub mod whisper;
+// embedder + whisper modules DELETED — slot-managed by model loader (Layer 2).
 #[cfg(feature = "inference")]
 pub mod model_loader;
 #[cfg(feature = "inference")]
@@ -40,11 +37,7 @@ pub enum ServiceRole {
     Vector,
     /// Grammar service (kernel-owned constrained decoding).
     Grammar,
-    /// Embedder service (Candle — dense text embedding).
-    Embedder,
-    /// Whisper service (Candle — speech-to-text).
-    Whisper,
-    /// DevForge service (managed VSCode process).
+    /// DevForge service (managed REH web server).
     DevForge,
     /// Model Loader service (AI model management, inference).
     ModelLoader,

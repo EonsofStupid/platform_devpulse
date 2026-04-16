@@ -96,20 +96,7 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         public_name: "Grammar Engine",
         feature_gate: None, // Skipped at runtime, not feature-gated
     },
-    ServiceMeta {
-        role: ServiceRole::Embedder,
-        scope: DataScope::System,
-        stage: 10,
-        public_name: "Embedding Engine",
-        feature_gate: Some("candle"),
-    },
-    ServiceMeta {
-        role: ServiceRole::Whisper,
-        scope: DataScope::System,
-        stage: 11,
-        public_name: "Speech Recognition",
-        feature_gate: Some("candle"),
-    },
+    // Stages 10-11 (Embedder, Whisper) DELETED — slot-managed by model loader.
     ServiceMeta {
         role: ServiceRole::ModelLoader,
         scope: DataScope::System,
@@ -145,10 +132,8 @@ pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
         ServiceRole::Cache => 3,
         ServiceRole::Vector => 7,
         ServiceRole::Grammar => 8,
-        ServiceRole::Embedder => 9,
-        ServiceRole::Whisper => 10,
-        ServiceRole::ModelLoader => 11,
-        ServiceRole::DevForge => 12,
+        ServiceRole::ModelLoader => 9,
+        ServiceRole::DevForge => 10,
     };
     &SERVICE_MANIFEST[idx]
 }

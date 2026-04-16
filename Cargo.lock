@@ -3071,6 +3071,8 @@ dependencies = [
  "devpulse-clyffy",
  "flume",
  "futures-core",
+ "portpicker",
+ "rand 0.8.5",
  "rodio",
  "serde",
  "serde_json",

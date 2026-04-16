@@ -43,6 +43,10 @@ sysinfo = "0.33"
 # Sync→async channel bridge (audio command queue)
 flume = "0.11"
 
+# DevForge REH service — port allocation + token generation
+portpicker = "0.1"
+rand = "0.8"
+
 # Audio playback (TTS output → speakers)
 rodio = "0.19"
 

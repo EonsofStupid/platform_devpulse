@@ -6,7 +6,6 @@
 //!   catch up even if it mounts after boot finishes.
 
 use crate::commands::devforge::paths::DevforgePaths;
-use crate::commands::devforge::sidecar::RehManager;
 use devpulse_engine::platform::{InitEvent, SystemHealth};
 use serde::Serialize;
 use specta::Type;
@@ -20,9 +19,8 @@ use tokio::sync::RwLock;
 /// `platform` is `None` during boot and `Some(Arc<Platform>)` after.
 /// Commands must handle the `None` case gracefully.
 ///
-/// `reh` holds the DevForge REH web server manager. It is `None` until
-/// bootstrap (or an explicit `spawn_reh_server` call) succeeds, and is
-/// cleared again by `stop_reh_server` or the app-exit handler in `lib.rs`.
+/// DevForge REH lifecycle is now owned by `Platform::devforge()` (the
+/// engine-level service). No more separate `reh` field — one pipeline.
 ///
 /// `devforge_paths` is computed once at startup from the resolved data
 /// directory and shared immutably — commands consult it for canonical
@@ -31,8 +29,6 @@ pub struct PlatformState {
     /// Platform engine (owns all services, bridges to clyffy kernel).
     /// None while boot task is running, Some after completion.
     pub platform: RwLock<Option<Arc<Platform>>>,
-    /// DevForge REH web server lifecycle manager.
-    pub reh: RwLock<Option<RehManager>>,
     /// DevForge directory layout — immutable, safe to read from anywhere.
     pub devforge_paths: DevforgePaths,
 }

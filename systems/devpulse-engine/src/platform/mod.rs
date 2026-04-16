@@ -81,9 +81,9 @@ use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
 #[cfg(feature = "candle")]
-use services::embedder::EmbedderService;
+// EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
-use services::whisper::WhisperService;
+// WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
 use services::devforge::DevForgeService;
@@ -116,10 +116,6 @@ macro_rules! for_each_service {
         // Feature-gated services
         #[cfg(feature = "rro")]
         $action!($self.vector);
-        #[cfg(feature = "candle")]
-        $action!($self.embedder);
-        #[cfg(feature = "candle")]
-        $action!($self.whisper);
         #[cfg(feature = "inference")]
         $action!($self.model_loader);
         // Non-critical
@@ -133,10 +129,6 @@ macro_rules! for_each_service_rev {
         $action!($self.devforge);
         #[cfg(feature = "inference")]
         $action!($self.model_loader);
-        #[cfg(feature = "candle")]
-        $action!($self.whisper);
-        #[cfg(feature = "candle")]
-        $action!($self.embedder);
         #[cfg(feature = "rro")]
         $action!($self.vector);
         $action!($self.global_graph);
@@ -173,12 +165,7 @@ pub struct Platform {
     #[cfg(feature = "rro")]
     vector: Option<Arc<VectorService>>,
     // ── Grammar is kernel-owned; facade wiring lands separately ─────────
-    // ── Embedder (Candle) ─────────────────────────────────────
-    #[cfg(feature = "candle")]
-    embedder: Option<Arc<EmbedderService>>,
-    // ── Whisper (Candle) ──────────────────────────────────────
-    #[cfg(feature = "candle")]
-    whisper: Option<Arc<WhisperService>>,
+    // Embedder + Whisper removed — slot-managed by model loader.
     // ── Model Loader (Inference) ──────────────────────────────
     #[cfg(feature = "inference")]
     model_loader: Option<Arc<ModelLoaderService>>,
@@ -245,10 +232,6 @@ impl Platform {
             global_graph: booted.global_graph,
             #[cfg(feature = "rro")]
             vector: booted.vector,
-            #[cfg(feature = "candle")]
-            embedder: booted.embedder,
-            #[cfg(feature = "candle")]
-            whisper: booted.whisper,
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
             devforge: booted.devforge,
@@ -355,19 +338,7 @@ impl Platform {
         self.global_graph.as_ref()
     }
 
-    // ── Candle scope accessors ──────────────────────────────────
-
-    /// Get the embedder service (if enabled and booted).
-    #[cfg(feature = "candle")]
-    pub fn embedder(&self) -> Option<&Arc<EmbedderService>> {
-        self.embedder.as_ref()
-    }
-
-    /// Get the whisper service (if enabled and booted).
-    #[cfg(feature = "candle")]
-    pub fn whisper(&self) -> Option<&Arc<WhisperService>> {
-        self.whisper.as_ref()
-    }
+    // Embedder + Whisper accessors removed — slot-managed by model loader.
 
     // ── Model Loader accessor ──────────────────────────────────────
 

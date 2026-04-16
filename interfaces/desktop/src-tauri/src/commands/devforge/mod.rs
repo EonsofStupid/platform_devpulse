@@ -1,133 +1,95 @@
-//! DevForge sidecar commands — spawn, stop, and query the REH web server.
+//! DevForge commands — query and control the REH web server.
 //!
-//! The REH web server is the browser-capable VS Code Remote Extension Host.
-//! In dev, the REH tree lives at `deps/code-oss-reh-web/`. In production,
-//! it's fetched from `github.com/EonsofStupid/devforge` releases via
-//! `cargo xtask fetch-devforge` and bundled into the Tauri installer.
-//! DevForge runs it as a Tauri
-//! managed child process so the frontend can load VS Code inside a
-//! WebviewWindow (or iframe) with full extension support.
+//! DevForge REH is a Layer 1 infrastructure service that boots through
+//! the platform service pipeline (`boot/devforge.rs`). The Tauri commands
+//! here are the frontend's interface to the running service — they read
+//! from `Platform::devforge()`, not from a separate `PlatformState::reh`.
 //!
-//! # Lifecycle
-//!
-//! The manager is stored in [`PlatformState::reh`](crate::state::PlatformState)
-//! behind an `RwLock<Option<RehManager>>`. Only one REH server runs at a
-//! time — calling [`spawn_reh_server`] while one is already alive returns
-//! the existing status without spawning a second process.
-//!
-//! On Tauri `Exit`, `lib.rs` takes the manager and calls `stop` so we
-//! don't leak Node processes on shutdown.
+//! The REH tree is fetched from `github.com/EonsofStupid/devforge`
+//! releases via `cargo xtask fetch-devforge`. In dev, it lives at
+//! `deps/code-oss-reh-web/`. The dedicated `WebviewWindow` loads the
+//! REH connection URL for a full VS Code experience with full extension
+//! support.
 
-pub mod bootstrap;
 pub mod paths;
-pub mod sidecar;
 pub mod state_file;
 pub mod types;
 pub mod window;
 
 use crate::state::PlatformState;
-use sidecar::RehManager;
 use state_file::DevforgeState;
 use std::path::PathBuf;
 use tauri::State;
 use types::{DevforgeBootstrapStatus, RehConfig, RehStatus};
 
-/// Spawn the REH web server with the supplied configuration.
+/// Spawn the REH web server — now boot-managed.
 ///
-/// If a server is already running, returns its current status without
-/// spawning a second process. The frontend should call
-/// [`stop_reh_server`] first if it wants to restart with different config.
-///
-/// # Errors
-/// Returns a stringified error if the server cannot be spawned or fails
-/// the startup health check within the timeout.
+/// DevForge REH boots through the platform service pipeline. This command
+/// is kept for frontend compat but returns the current service state
+/// instead of spawning a second process.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn spawn_reh_server(
     state: State<'_, PlatformState>,
-    config: RehConfig,
+    _config: RehConfig,
 ) -> Result<RehStatus, String> {
-    {
-        let guard = state.reh.read().await;
-        if let Some(existing) = guard.as_ref() {
-            tracing::info!("REH server already running — returning existing status");
-            return Ok(existing.status());
-        }
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not booted")?;
+    match platform.devforge() {
+        Some(service) => Ok(RehStatus {
+            running: true,
+            port: Some(service.port()),
+            url: Some(service.connection_url()),
+            pid: None,
+        }),
+        None => Ok(RehStatus::default()),
     }
-
-    let manager = RehManager::spawn(&config)
-        .await
-        .map_err(|e| format!("Failed to spawn REH server: {e:#}"))?;
-
-    let status = manager.status();
-
-    let mut guard = state.reh.write().await;
-    *guard = Some(manager);
-
-    Ok(status)
 }
 
-/// Stop the running REH web server, if any.
+/// Stop the REH server — now boot-managed.
 ///
-/// Idempotent — returns `Ok(())` if no server is running.
-///
-/// # Errors
-/// Returns a stringified error if the child process cannot be killed.
+/// Platform shutdown handles this. This command is a no-op kept for
+/// frontend compat.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn stop_reh_server(state: State<'_, PlatformState>) -> Result<(), String> {
-    let manager = {
-        let mut guard = state.reh.write().await;
-        guard.take()
-    };
-
-    if let Some(manager) = manager {
-        manager
-            .stop()
-            .await
-            .map_err(|e| format!("Failed to stop REH server: {e:#}"))?;
-    }
-
+pub async fn stop_reh_server(_state: State<'_, PlatformState>) -> Result<(), String> {
     Ok(())
 }
 
 /// Return the current status of the REH web server.
-///
-/// Always succeeds — if no server is running, returns an empty status
-/// with `running: false`.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_reh_status(state: State<'_, PlatformState>) -> Result<RehStatus, String> {
-    let guard = state.reh.read().await;
-    Ok(guard
-        .as_ref()
-        .map(RehManager::status)
-        .unwrap_or_default())
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not booted")?;
+    match platform.devforge() {
+        Some(service) => Ok(RehStatus {
+            running: true,
+            port: Some(service.port()),
+            url: Some(service.connection_url()),
+            pid: None,
+        }),
+        None => Ok(RehStatus::default()),
+    }
 }
 
 /// Return the full connection URL (including token) for the running server.
-///
-/// # Errors
-/// Returns an error string if no server is currently running.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_connection_url(state: State<'_, PlatformState>) -> Result<String, String> {
-    let guard = state.reh.read().await;
-    guard
-        .as_ref()
-        .map(RehManager::connection_url)
-        .ok_or_else(|| "REH server is not running".to_string())
+    let guard = state.platform.read().await;
+    let platform = guard.as_ref().ok_or("Platform not booted")?;
+    let service = platform
+        .devforge()
+        .ok_or("DevForge REH not running")?;
+    Ok(service.connection_url())
 }
 
-/// Unified DevForge status for the frontend — combines install state,
-/// runtime state, and persisted preferences.
-///
-/// Frontends that mount *after* the `devforge://ready` event has fired
-/// call this to catch up, instead of relying on re-emission.
+/// Unified DevForge status for the frontend.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -138,12 +100,14 @@ pub async fn devforge_get_status(
     let installed = paths.resolve_reh_server_dir().is_some();
     let persisted = DevforgeState::load(&paths.state_file());
 
-    let guard = state.reh.read().await;
-    let (running, url, port, workspace) = if let Some(mgr) = guard.as_ref() {
-        let s = mgr.status();
-        (s.running, s.url, s.port, persisted.last_workspace.clone())
+    let guard = state.platform.read().await;
+    let (running, url, port) = if let Some(ref platform) = *guard {
+        match platform.devforge() {
+            Some(service) => (true, Some(service.connection_url()), Some(service.port())),
+            None => (false, None, None),
+        }
     } else {
-        (false, None, None, persisted.last_workspace.clone())
+        (false, None, None)
     };
 
     Ok(DevforgeBootstrapStatus {
@@ -151,7 +115,7 @@ pub async fn devforge_get_status(
         running,
         url,
         port,
-        workspace,
+        workspace: persisted.last_workspace.clone(),
         reh_version: persisted.reh_version,
     })
 }

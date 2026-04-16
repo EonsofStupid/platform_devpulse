@@ -56,11 +56,7 @@ pub struct DatabaseConfig {
     pub vector_enabled: bool,
     /// Grammar service enabled.
     pub grammar_enabled: bool,
-    /// Embedder service enabled (Candle).
-    pub embedder_enabled: bool,
-    /// Whisper ASR service enabled (Candle).
-    pub whisper_enabled: bool,
-    /// DevForge service enabled (VSCode).
+    /// DevForge service enabled (REH).
     pub devforge_enabled: bool,
 }
 
@@ -349,12 +345,6 @@ pub struct SystemServicesConfig {
     /// Grammar service — structured generation engine.
     #[serde(default)]
     pub grammar: GrammarConfig,
-    /// Embedder service (Candle — dense text embedding, CPU burst).
-    #[serde(default)]
-    pub embedder: EmbedderServiceEntry,
-    /// Whisper service (Candle — speech-to-text, CPU burst).
-    #[serde(default)]
-    pub whisper: WhisperServiceEntry,
     /// Model Loader service (AI model management, inference).
     #[serde(default)]
     pub model_loader: ModelLoaderServiceEntry,
@@ -375,8 +365,6 @@ impl Default for SystemServicesConfig {
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
             grammar: GrammarConfig::default(),
-            embedder: EmbedderServiceEntry::default(),
-            whisper: WhisperServiceEntry::default(),
             model_loader: ModelLoaderServiceEntry::default(),
             devforge: DevForgeServiceEntry::default(),
             claude: ClaudeServiceEntry::default(),
@@ -733,76 +721,6 @@ impl VectorServiceEntry {
     }
 }
 
-/// Configuration for the embedder service (Candle — dense text embedding).
-#[derive(Debug, Clone, Deserialize)]
-pub struct EmbedderServiceEntry {
-    /// Whether this service is enabled.
-    #[serde(default)]
-    pub enabled: bool,
-    /// Whether boot fails if this service fails.
-    #[serde(default)]
-    pub critical: bool,
-    /// Service kind identifier.
-    #[serde(default = "default_candle_kind")]
-    pub kind: String,
-    /// Relative path from data directory for model files.
-    #[serde(default = "default_embedder_model_path")]
-    pub model_path: String,
-}
-
-impl Default for EmbedderServiceEntry {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            critical: false,
-            kind: default_candle_kind(),
-            model_path: default_embedder_model_path(),
-        }
-    }
-}
-
-impl EmbedderServiceEntry {
-    /// Resolve the model directory from data directory.
-    pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
-        data_dir.join(&self.model_path)
-    }
-}
-
-/// Configuration for the Whisper ASR service (Candle — speech-to-text).
-#[derive(Debug, Clone, Deserialize)]
-pub struct WhisperServiceEntry {
-    /// Whether this service is enabled.
-    #[serde(default)]
-    pub enabled: bool,
-    /// Whether boot fails if this service fails.
-    #[serde(default)]
-    pub critical: bool,
-    /// Service kind identifier.
-    #[serde(default = "default_candle_kind")]
-    pub kind: String,
-    /// Relative path from data directory for model files.
-    #[serde(default = "default_whisper_model_path")]
-    pub model_path: String,
-}
-
-impl Default for WhisperServiceEntry {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            critical: false,
-            kind: default_candle_kind(),
-            model_path: default_whisper_model_path(),
-        }
-    }
-}
-
-impl WhisperServiceEntry {
-    /// Resolve the model directory from data directory.
-    pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
-        data_dir.join(&self.model_path)
-    }
-}
-
 /// Configuration for the Model Loader service (AI model management, inference).
 #[derive(Debug, Clone, Deserialize)]
 pub struct ModelLoaderServiceEntry {
@@ -928,7 +846,17 @@ fn default_subdir_voice() -> String { "voice".to_string() }
 fn default_subdir_rag() -> String { "rag".to_string() }
 fn default_subdir_vision() -> String { "vision".to_string() }
 
-/// Configuration for the DevForge service (managed VSCode process).
+/// Configuration for the DevForge service (managed REH web server).
+///
+/// DevForge is a Layer 1 infrastructure service — a managed Node process
+/// running the VS Code REH (Remote Extension Host) server. It boots
+/// through the platform service pipeline like libSQL, DuckDB, etc.
+///
+/// The REH tree is fetched from `github.com/EonsofStupid/devforge`
+/// releases via `cargo xtask fetch-devforge` and lives under
+/// `interfaces/desktop/src-tauri/resources/devforge/<platform>/` at
+/// build time. At runtime, the `server_dir` field points to either the
+/// dev checkout or the fetched/bundled tree.
 #[derive(Debug, Clone, Deserialize)]
 pub struct DevForgeServiceEntry {
     /// Whether this service is enabled.
@@ -937,39 +865,64 @@ pub struct DevForgeServiceEntry {
     /// Whether boot fails if this service fails.
     #[serde(default)]
     pub critical: bool,
-    /// Relative path from project root to the VSCode binary.
-    #[serde(default = "default_devforge_binary_path")]
-    pub binary_path: String,
-    /// Workspace path to open.
+    /// Service mode: "reh" (client/server, full extension support) or
+    /// "standalone" (legacy Electron — deprecated).
+    #[serde(default = "default_devforge_mode")]
+    pub mode: String,
+    /// Port for the REH server. 0 = auto-pick a free port.
+    #[serde(default)]
+    pub port: u16,
+    /// User data directory (relative to data_dir). REH `--user-data-dir`.
+    #[serde(default = "default_devforge_user_data_dir")]
+    pub user_data_dir: String,
+    /// Extensions directory (relative to data_dir). REH `--extensions-dir`.
+    #[serde(default = "default_devforge_extensions_dir")]
+    pub extensions_dir: String,
+    /// Workspace to open. "." means the platform_devpulse repo root.
     #[serde(default = "default_devforge_workspace_path")]
     pub workspace_path: String,
-    /// Port for VSCode server.
-    #[serde(default = "default_devforge_port")]
-    pub port: u16,
+    /// Update channel URL for runtime patching.
+    #[serde(default)]
+    pub update_channel_url: String,
+    /// Legacy binary path — only used in "standalone" mode.
+    #[serde(default)]
+    pub binary_path: String,
 }
+
+fn default_devforge_mode() -> String { "reh".to_string() }
+fn default_devforge_user_data_dir() -> String { "devforge/user-data".to_string() }
+fn default_devforge_extensions_dir() -> String { "devforge/extensions".to_string() }
 
 impl Default for DevForgeServiceEntry {
     fn default() -> Self {
         Self {
             enabled: false,
             critical: false,
-            binary_path: default_devforge_binary_path(),
+            mode: default_devforge_mode(),
+            port: 0,
+            user_data_dir: default_devforge_user_data_dir(),
+            extensions_dir: default_devforge_extensions_dir(),
             workspace_path: default_devforge_workspace_path(),
-            port: default_devforge_port(),
+            update_channel_url: String::new(),
+            binary_path: String::new(),
         }
     }
 }
 
 impl DevForgeServiceEntry {
-    /// Resolve the binary path from data directory.
-    pub fn resolve_binary_path(&self, _data_dir: &Path) -> PathBuf {
-        // Binary is relative to project root, not data dir
-        PathBuf::from(&self.binary_path)
+    /// Resolve the user data directory from data_dir.
+    pub fn resolve_user_data_dir(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.user_data_dir)
     }
 
-    /// Resolve the workspace path from data directory.
-    pub fn resolve_workspace_path(&self, _data_dir: &Path) -> PathBuf {
-        PathBuf::from(&self.workspace_path)
+    /// Resolve the extensions directory from data_dir.
+    pub fn resolve_extensions_dir(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.extensions_dir)
+    }
+
+    /// Whether this entry is configured for REH mode.
+    pub fn is_reh(&self) -> bool {
+        self.mode == "reh"
     }
 }
 
@@ -1113,12 +1066,7 @@ fn default_council_mode() -> String { "rule_based".to_string() }
 
 fn default_system_user() -> String { "devpulse_engine".to_string() }
 fn default_system_password() -> String { "dp_sys_2026!".to_string() }
-fn default_candle_kind() -> String { "candle".to_string() }
-fn default_embedder_model_path() -> String { "system/candle/embedder".to_string() }
-fn default_whisper_model_path() -> String { "system/candle/whisper".to_string() }
-fn default_devforge_binary_path() -> String { "deps/code-oss/bin/code-oss".to_string() }
 fn default_devforge_workspace_path() -> String { ".".to_string() }
-fn default_devforge_port() -> u16 { 8443 }
 
 // ═══════════════════════════════════════════════════════════════
 // Network services + boot gate
@@ -1291,12 +1239,6 @@ impl PlatformBootConfig {
             (ServiceRole::Grammar, DataScope::System) => {
                 self.services.system.grammar.enabled && self.services.system.grammar.critical
             }
-            (ServiceRole::Embedder, DataScope::System) => {
-                self.services.system.embedder.enabled && self.services.system.embedder.critical
-            }
-            (ServiceRole::Whisper, DataScope::System) => {
-                self.services.system.whisper.enabled && self.services.system.whisper.critical
-            }
             (ServiceRole::ModelLoader, DataScope::System) => {
                 self.services.system.model_loader.enabled && self.services.system.model_loader.critical
             }
@@ -1329,8 +1271,6 @@ impl PlatformBootConfig {
             global_graph_enabled: self.services.global.graph.enabled,
             vector_enabled: self.services.system.vector.enabled,
             grammar_enabled: self.services.system.grammar.enabled,
-            embedder_enabled: self.services.system.embedder.enabled,
-            whisper_enabled: self.services.system.whisper.enabled,
             devforge_enabled: self.services.system.devforge.enabled,
         }
     }

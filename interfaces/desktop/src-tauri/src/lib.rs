@@ -227,20 +227,14 @@ pub fn run() {
 
             app.manage(PlatformState {
                 platform: RwLock::new(None),
-                reh: RwLock::new(None),
                 devforge_paths,
             });
             app.manage(BootStateTracker::new());
 
-            // ── DevForge preload ──────────────────────────────────
-            // Fire-and-forget: starts the REH web server in the background
-            // so "click DevPulse → click DevForge" has zero spawn latency.
-            // Status is delivered to the frontend via the `devforge://ready`
-            // event (and pullable via `devforge_get_status`).
-            tauri::async_runtime::spawn(commands::devforge::bootstrap::run(
-                app.handle().clone(),
-                data_dir.clone(),
-            ));
+            // DevForge REH now boots through the platform service pipeline
+            // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
+            // the async_runtime::spawn(bootstrap::run(...)) call. The
+            // devforge://ready event is emitted from the boot callback.
 
             // ── Boot strategy: blocking (dev) vs async (release) ──
             //
@@ -309,19 +303,9 @@ pub fn run() {
                 tracing::info!("Tauri exit event — initiating platform shutdown");
                 let state = app.state::<PlatformState>();
                 tauri::async_runtime::block_on(async {
-                    // Stop the DevForge REH server first so we don't leave
-                    // an orphan Node process if the platform shutdown stalls.
-                    let reh_manager = {
-                        let mut guard = state.reh.write().await;
-                        guard.take()
-                    };
-                    if let Some(manager) = reh_manager {
-                        if let Err(e) = manager.stop().await {
-                            tracing::warn!(error = %e, "REH server shutdown failed");
-                        } else {
-                            tracing::info!("REH server stopped");
-                        }
-                    }
+                    // DevForge REH shutdown is now handled by Platform::shutdown()
+                    // via the DevForgeService::shutdown() impl — same pipeline
+                    // as every other Layer 1 service.
 
                     let lock = state.platform.read().await;
                     if let Some(platform) = lock.as_ref() {
