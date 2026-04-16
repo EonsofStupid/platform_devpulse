@@ -1,0 +1,167 @@
+//! Dedicated DevForge `WebviewWindow` — a full second Tauri window that
+//! loads the REH web server's connection URL directly.
+//!
+//! # Why a dedicated window, not an embedded iframe
+//!
+//! Embedding VS Code as an iframe inside the main window works, but it's
+//! fighting Svelte routing, window chrome, and focus propagation for no
+//! real benefit. A standalone `WebviewWindow` gives the user a real OS
+//! window they can move, resize, snap, and Alt-Tab to like any other app,
+//! while keeping DevForge's lifetime bound to the DevPulse parent process.
+//!
+//! # Lifecycle
+//!
+//! 1. The main Tauri setup fires `bootstrap::run()` which spawns the REH
+//!    server in the background and stores the [`RehManager`] in
+//!    [`PlatformState::reh`].
+//! 2. The frontend invokes [`open_devforge_window`] (from any surface —
+//!    the `/devforge` route button, a toolbar action, a keyboard shortcut).
+//! 3. This command reads the current [`RehManager`] from state, resolves
+//!    the connection URL (`http://127.0.0.1:<port>/?tkn=<token>`), and
+//!    opens or focuses a `WebviewWindow` labeled `"devforge"` pointed at
+//!    that external URL.
+//! 4. The window is parented to the main DevPulse window so closing the
+//!    app tears DevForge down with it.
+//!
+//! # Why external URL is fine
+//!
+//! The REH server is always bound to `127.0.0.1` with a random port and a
+//! per-session auth token, so the webview is talking to a loopback
+//! process owned by the same user. Tauri has no problem loading external
+//! URLs in a `WebviewWindow`; the user data persists under
+//! `{data_dir}/devforge/user-data/` via REH's `--user-data-dir` flag.
+
+use crate::commands::devforge::types::DevforgeBootstrapStatus;
+use crate::state::PlatformState;
+use tauri::{AppHandle, Manager, State, Url, WebviewUrl, WebviewWindowBuilder};
+
+/// Tauri window label for the DevForge window. Must be stable — callers
+/// use this to focus or close an already-open window.
+pub const DEVFORGE_WINDOW_LABEL: &str = "devforge";
+
+/// Default window size. DevForge runs a full IDE, so we want a generous
+/// default instead of the cramped cockpit sizes used for Chat / ModelLoader.
+const DEFAULT_WIDTH: f64 = 1400.0;
+const DEFAULT_HEIGHT: f64 = 900.0;
+const MIN_WIDTH: f64 = 960.0;
+const MIN_HEIGHT: f64 = 600.0;
+
+/// Open (or focus) the dedicated DevForge window.
+///
+/// If the REH server is not yet running, returns an error string telling
+/// the frontend to wait for the `devforge://ready` event before retrying.
+///
+/// Returns a [`DevforgeBootstrapStatus`] snapshot so the caller can update
+/// its own UI state without a second round-trip to `devforge_get_status`.
+///
+/// # Errors
+/// - REH server is not running (bootstrap still in flight, or install missing)
+/// - Connection URL fails to parse as a valid `Url`
+/// - Tauri fails to create the `WebviewWindow`
+/// - Focusing an already-open DevForge window fails
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn open_devforge_window(
+    app: AppHandle,
+    state: State<'_, PlatformState>,
+) -> Result<DevforgeBootstrapStatus, String> {
+    // ── 1. Pull the connection URL out of the REH manager. ────────
+    let (connection_url, port) = {
+        let guard = state.reh.read().await;
+        let manager = guard.as_ref().ok_or_else(|| {
+            "DevForge REH server is not running yet — wait for the \
+             `devforge://ready` event before opening the window."
+                .to_string()
+        })?;
+        let status = manager.status();
+        let url = status.url.clone().ok_or_else(|| {
+            "REH manager reported running but has no connection URL".to_string()
+        })?;
+        (url, status.port)
+    };
+
+    // ── 2. If a DevForge window is already open, just focus it. ────
+    if let Some(window) = app.get_webview_window(DEVFORGE_WINDOW_LABEL) {
+        window
+            .show()
+            .map_err(|e| format!("failed to show existing DevForge window: {e}"))?;
+        window
+            .set_focus()
+            .map_err(|e| format!("failed to focus existing DevForge window: {e}"))?;
+        return Ok(DevforgeBootstrapStatus {
+            installed: true,
+            running: true,
+            url: Some(connection_url),
+            port,
+            workspace: None,
+            reh_version: None,
+        });
+    }
+
+    // ── 3. Parse the REH URL and build a new dedicated window. ─────
+    let parsed: Url = connection_url.parse().map_err(|e| {
+        format!("REH connection URL is not a valid Url: {e} (url={connection_url})")
+    })?;
+
+    let mut builder = WebviewWindowBuilder::new(
+        &app,
+        DEVFORGE_WINDOW_LABEL,
+        WebviewUrl::External(parsed),
+    )
+    .title("DevForge")
+    .inner_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+    .min_inner_size(MIN_WIDTH, MIN_HEIGHT)
+    .resizable(true)
+    .decorations(true)
+    .visible(true);
+
+    // Parent to the main DevPulse window so closing the parent tears
+    // DevForge down with it. This matches the cockpit pattern used by
+    // chat / cortex-viewer / model-loader in
+    // [`crate::commands::window::open_window`].
+    if let Some(main_window) = app.get_webview_window("main") {
+        builder = builder
+            .parent(&main_window)
+            .map_err(|e| format!("failed to set DevForge window parent: {e}"))?;
+    }
+
+    let _window = builder
+        .build()
+        .map_err(|e| format!("failed to build DevForge window: {e}"))?;
+
+    tracing::info!(
+        label = DEVFORGE_WINDOW_LABEL,
+        ?port,
+        "DevForge window opened — REH webview live"
+    );
+
+    Ok(DevforgeBootstrapStatus {
+        installed: true,
+        running: true,
+        url: Some(connection_url),
+        port,
+        workspace: None,
+        reh_version: None,
+    })
+}
+
+/// Close the DevForge window, if one is open. Idempotent.
+///
+/// Does **not** stop the REH server — that stays alive under
+/// `PlatformState.reh` so a subsequent [`open_devforge_window`] call
+/// reuses the same process.
+///
+/// # Errors
+/// Returns a stringified error if `Window::close()` fails.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn close_devforge_window(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window(DEVFORGE_WINDOW_LABEL) {
+        window
+            .close()
+            .map_err(|e| format!("failed to close DevForge window: {e}"))?;
+    }
+    Ok(())
+}

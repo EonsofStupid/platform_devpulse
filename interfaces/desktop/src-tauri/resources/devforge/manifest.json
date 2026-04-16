@@ -1,0 +1,27 @@
+{
+	"schema": 1,
+	"product": "devforge",
+	"version": "1.112.0",
+	"tag": "v1.112.0",
+	"repository": "https://github.com/EonsofStupid/devforge",
+	"releaseUrl": "https://github.com/EonsofStupid/devforge/releases/tag/v1.112.0",
+	"comment": "SSOT for which DevForge REH release DevPulse ships. Bump explicitly by editing `version`, `tag`, and each artifact's `url` + `sha256` + `fileName`. `cargo xtask fetch-devforge --target <t>` downloads and SHA-verifies the pinned artifact. Schema mirrors the upstream devforge release manifest.json with an added `sha256` field per artifact for pinned verification.",
+	"artifacts": [
+		{
+			"url": "https://github.com/EonsofStupid/devforge/releases/download/v1.112.0/devforge-reh-web-win32-x64-v1.112.0.zip",
+			"platform": "win32",
+			"kind": "reh-web-min",
+			"arch": "x64",
+			"fileName": "devforge-reh-web-win32-x64-v1.112.0.zip",
+			"sha256": "67e75cd3b6f94b20a140d9197f80fc8f0221431e71cd7e10f47bea210d1b6bc4"
+		},
+		{
+			"url": "https://github.com/EonsofStupid/devforge/releases/download/v1.112.0/devforge-client-win32-x64-v1.112.0.zip",
+			"platform": "win32",
+			"kind": "client-min",
+			"arch": "x64",
+			"fileName": "devforge-client-win32-x64-v1.112.0.zip",
+			"sha256": "75a25e77eae163b1ab77b50a2b8331fddd6cb61bbc4f4344807358240a644668"
+		}
+	]
+}

@@ -213,6 +213,7 @@
 			"!**/src/lib/design/plugins",
 			"!**/src/lib/design/primitives/_archive",
 			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
+			"!**/src-tauri/resources/devforge",
 			"!**/src-tauri/gen",
 			"!**/taxonomy/.generated/coldlight.manifest.json"
 		]

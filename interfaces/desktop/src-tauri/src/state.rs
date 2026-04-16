@@ -48,8 +48,31 @@ pub enum BootPhase {
     Failed,
 }
 
+/// Model readiness snapshot — survives the frontend mount race.
+///
+/// Emitted as `platform:models-status` from the boot task, AND stored in
+/// the `BootStateTracker` so `get_boot_state` returns it to late-mounting
+/// frontends that missed the live event.
+#[derive(Debug, Clone, Serialize, Type, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelsStatusSnapshot {
+    /// Whether models are present AND at least one slot is assigned.
+    pub ready: bool,
+    /// No slot assignments exist — show setup wizard.
+    pub first_run: bool,
+    /// Number of model files found by the registry scan.
+    pub model_count: usize,
+    /// Total slots configured.
+    pub slot_count: usize,
+    /// Slots that have an assigned model.
+    pub assigned_count: usize,
+    /// Optional error from the model readiness check.
+    pub error: Option<String>,
+}
+
 /// Snapshot of boot state — returned by `get_boot_state` command.
 #[derive(Debug, Clone, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
 pub struct BootSnapshot {
     /// Current boot phase.
     pub phase: BootPhase,
@@ -59,6 +82,11 @@ pub struct BootSnapshot {
     pub health: Option<SystemHealth>,
     /// Error message if boot failed.
     pub error: Option<String>,
+    /// Model readiness — populated after the model loader check runs.
+    /// Frontend reads this in `applySnapshot()` to catch up on
+    /// `platform:models-status` events that fired before the listener
+    /// was mounted.
+    pub models_status: Option<ModelsStatusSnapshot>,
 }
 
 /// Accumulates boot events so the frontend can catch up at any time.
@@ -84,6 +112,7 @@ impl BootStateTracker {
                 events: Vec::with_capacity(10),
                 health: None,
                 error: None,
+                models_status: None,
             })),
         }
     }
@@ -126,6 +155,18 @@ impl BootStateTracker {
         let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
         snap.phase = BootPhase::Failed;
         snap.error = Some(error);
+    }
+
+    /// Store model readiness so late-mounting frontends can catch up via
+    /// `get_boot_state` instead of relying on the live `platform:models-status`
+    /// event which fires before the SvelteKit listener mounts in dev mode.
+    ///
+    /// # Panics
+    /// Panics if the internal mutex is poisoned.
+    #[allow(clippy::expect_used)]
+    pub fn set_models_status(&self, status: ModelsStatusSnapshot) {
+        let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
+        snap.models_status = Some(status);
     }
 
     /// Return a clone of the current boot snapshot.

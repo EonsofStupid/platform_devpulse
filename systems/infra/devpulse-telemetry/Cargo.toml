@@ -1,0 +1,27 @@
+[package]
+name = "devpulse-telemetry"
+version = "0.1.0"
+edition = "2021"
+description = "Kitchen-sink observability primitives for DevPulse: tracing, OTel 0.31 SDK, spawn wrappers, Envelope<T> channel context propagation, boot-order safety, DuckDB sinks. See ADR-002."
+
+# Infra-layer tag — read by preflight check.infra-layer-deps.ts to enforce
+# that crates under systems/infra/* may not depend on devpulse-engine,
+# devpulse-media, devpulse-clyffy, or model-loader.
+[package.metadata.devpulse]
+layer = "infra"
+
+[lints]
+workspace = true
+
+[dependencies]
+# P2 — Envelope<T>, TracedSender/Receiver, spawn wrappers
+opentelemetry = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+flume = { workspace = true }
+
+# Remaining phases add:
+#   P3: opentelemetry_sdk, opentelemetry-otlp, tracing-opentelemetry, arc-swap
+#   P4: duckdb, chrono, serde_json (inherited when sinks move in)
+#   P6: build-script reads systems/devpulse-engine/ip/signals.registry.yaml
+#   P7: handled in devpulse-telemetry-macros companion crate

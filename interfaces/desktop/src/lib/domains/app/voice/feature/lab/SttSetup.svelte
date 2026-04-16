@@ -6,6 +6,7 @@
 import { Button } from "$lib/design/components/button/index.js";
 import Card from "$lib/design/components/card/Card.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
+import { formatLoadError } from "$lib/domains/app/models/data-access/compatibility.service.js";
 import { commands, type SlotInfo, type VoiceStatusInfo } from "$lib/sys/generated/bindings.js";
 import { voiceState } from "../../data-access/voice.state.svelte.js";
 import { testMicrophone } from "../../data-access/voice.svc.js";
@@ -63,7 +64,7 @@ async function handleLoadStt(): Promise<void> {
 	try {
 		const result = await commands.loadSlot("voice.stt");
 		if (result.status === "error") {
-			throw new Error(result.error);
+			throw new Error(formatLoadError(result.error));
 		}
 		await refreshSttRuntime();
 	} catch (e) {

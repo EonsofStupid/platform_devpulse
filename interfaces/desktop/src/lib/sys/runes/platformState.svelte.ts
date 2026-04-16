@@ -336,6 +336,27 @@ class PlatformState {
 			this.error = snapshot.error;
 			logWarn("boot", `Boot snapshot carried error: ${snapshot.error}`);
 		}
+
+		// Catch up on models-status that fired before the live listener mounted.
+		// This is the fix for the dev-mode race: Rust emits platform:models-status
+		// during blocking boot (before the window shows), then the frontend mounts
+		// and registers the listener — but the event is already gone. The snapshot
+		// stores the same payload so we don't lose it.
+		if (snapshot.modelsStatus) {
+			const m = snapshot.modelsStatus;
+			this.modelsReady = m.ready;
+			this.modelsFirstRun = m.firstRun;
+			this.modelCount = m.modelCount;
+			this.assignedCount = m.assignedCount;
+			if (typeof m.error === "string" && m.error.length > 0) {
+				this.error = m.error;
+			}
+			logInfo(
+				"boot",
+				`Models status from snapshot: ready=${m.ready} models=${m.modelCount} assigned=${m.assignedCount}`,
+			);
+		}
+
 		if (this.phase === "ready") this.startHealthPolling();
 	}
 

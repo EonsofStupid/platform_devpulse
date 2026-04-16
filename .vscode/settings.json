@@ -1,5 +1,11 @@
 {
   "rust-analyzer.cargo.features": [],
   "rust-analyzer.check.command": "check",
-  "rust-analyzer.check.extraArgs": ["-p", "devpulse_desktop_backend"]
+  "rust-analyzer.check.extraArgs": [
+    "-p",
+    "devpulse_desktop_backend"
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "git add": true
+  }
 }

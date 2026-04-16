@@ -35,16 +35,27 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum ArchId {
+    /// Qwen 3 dense decoder-only language models.
     Qwen3,
+    /// Qwen 3 mixture-of-experts language models.
     Qwen3Moe,
+    /// Qwen 3 vision-language models.
     Qwen3Vl,
+    /// Reserved slot for the upcoming Qwen 3.5 family.
     Qwen35,
+    /// Qwen 2.5 language models still supported as a fallback tier.
     Qwen25,
+    /// Legacy Qwen 2 models kept for backward compatibility.
     Qwen2,
+    /// Phi-3 dense language models.
     Phi3,
+    /// Phi-3 mixture-of-experts variants such as 30B-A3B.
     Phi3Moe,
+    /// Llama-family and Llama-derived checkpoints.
     Llama,
+    /// Mistral-family checkpoints.
     Mistral,
+    /// Gemma-family checkpoints.
     Gemma,
 }
 
@@ -54,10 +65,15 @@ pub enum ArchId {
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum ArchFamily {
+    /// Qwen-family architectures.
     Qwen,
+    /// Phi-family architectures.
     Phi,
+    /// Llama-family architectures.
     Llama,
+    /// Mistral-family architectures.
     Mistral,
+    /// Gemma-family architectures.
     Gemma,
 }
 
@@ -66,9 +82,13 @@ pub enum ArchFamily {
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum SupportTier {
+    /// First-class path shown as the default recommendation.
     Primary,
+    /// Supported fallback path when the primary tier is not available.
     Secondary,
+    /// Deprecated but still loadable for existing model inventories.
     Legacy,
+    /// Reserved entry that should render as coming soon, not loadable.
     Planned,
 }
 
@@ -79,9 +99,13 @@ pub enum SupportTier {
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum SupportStatus {
+    /// Shipped and expected to work in routine use.
     Stable,
+    /// Shipped behind cautionary messaging due to maturity risk.
     Experimental,
+    /// Declared in the registry but not yet implemented.
     Planned,
+    /// Explicitly unsupported for this backend/format pairing.
     Unsupported,
 }
 

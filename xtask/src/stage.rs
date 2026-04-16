@@ -173,12 +173,19 @@ fn clear_line() {
 /// When `estimated_total > 0`, shows "X of ~Y" progress.
 /// Errors print immediately. Warnings are counted. Summary at the end.
 ///
-/// Returns the child's exit status.
+/// Returns the child's exit status plus transport-level diagnostics.
+pub struct CargoMonitorResult {
+    /// Exit status returned by cargo.
+    pub status: std::process::ExitStatus,
+    /// Whether stderr contained the characteristic sccache transport crash.
+    pub saw_sccache_transport_error: bool,
+}
+
 pub fn monitor_cargo_child(
     label: &str,
     mut child: std::process::Child,
     estimated_total: u32,
-) -> anyhow::Result<std::process::ExitStatus> {
+) -> anyhow::Result<CargoMonitorResult> {
     use std::io::BufRead;
     use std::sync::{Arc, Mutex};
     use std::thread;
@@ -197,6 +204,7 @@ pub fn monitor_cargo_child(
     let mut errors = Vec::<String>::new();
     let mut current_layer = "";
     let mut in_error_block = false;
+    let mut saw_sccache_transport_error = false;
 
     // Shared state for the heartbeat thread to display live elapsed time
     // even when cargo is silent (e.g. during long native C++ compilations).
@@ -256,6 +264,10 @@ pub fn monitor_cargo_child(
         };
 
         let trimmed = line.trim();
+
+        if is_sccache_transport_failure(trimmed) {
+            saw_sccache_transport_error = true;
+        }
 
         if trimmed.starts_with("Compiling ") || trimmed.starts_with("Checking ") {
             in_error_block = false;
@@ -366,7 +378,17 @@ pub fn monitor_cargo_child(
         }
     }
 
-    Ok(status)
+    Ok(CargoMonitorResult {
+        status,
+        saw_sccache_transport_error,
+    })
+}
+
+fn is_sccache_transport_failure(line: &str) -> bool {
+    line.contains("sccache:")
+        && (line.contains("error reading compile response from server")
+            || line.contains("Failed to read response header")
+            || line.contains("forcibly closed by the remote host"))
 }
 
 /// Shared state between the main reader loop and the heartbeat thread.

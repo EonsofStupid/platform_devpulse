@@ -6,6 +6,7 @@
 import { Button } from "$lib/design/components/button/index.js";
 import Card from "$lib/design/components/card/Card.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
+import { formatLoadError } from "$lib/domains/app/models/data-access/compatibility.service.js";
 import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
 import { voiceState } from "../../data-access/voice.state.svelte.js";
 import { speak, stopSpeaking, transcribeAudio } from "../../data-access/voice.svc.js";
@@ -19,7 +20,7 @@ let smokeRunning = $state(false);
 async function ensureSlotLoaded(slotId: string): Promise<void> {
 	const result = await commands.loadSlot(slotId);
 	if (result.status === "error") {
-		throw new Error(result.error);
+		throw new Error(formatLoadError(result.error));
 	}
 }
 

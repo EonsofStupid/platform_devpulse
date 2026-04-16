@@ -22,6 +22,7 @@ pub enum Resolution {
     /// The registry has a backend that can load this `(arch, format)`
     /// in the current build.
     Ok {
+        /// Backend chosen to satisfy the load request.
         backend: BackendId,
         /// Non-fatal advisories — e.g. "this is a legacy fallback
         /// backend, Qwen3 is recommended".
@@ -30,9 +31,13 @@ pub enum Resolution {
     /// No loader is available. The frontend should show the reason
     /// and offer the alternatives.
     Unsupported {
+        /// Architecture the caller requested.
         arch: ArchId,
+        /// File format the caller requested.
         format: ModelFormat,
+        /// Canonical reason no backend could satisfy the request.
         reason: UnsupportedReason,
+        /// Ordered follow-up actions the UI can surface.
         alternatives: Vec<Alternative>,
     },
 }

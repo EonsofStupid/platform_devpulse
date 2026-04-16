@@ -42,3 +42,13 @@ pnpm-lock.yaml
 .claude/settings.local.json
 .claude/worktrees/
 deps/
+
+# DevForge REH trees — fetched via `cargo xtask fetch-devforge` from
+# github.com/EonsofStupid/devforge releases. The committed manifest.json
+# is the SSOT; extracted trees are reproducible from it and must never
+# be committed (70+ MB per platform).
+interfaces/desktop/src-tauri/resources/devforge/win32-x64/
+interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/
+interfaces/desktop/src-tauri/resources/devforge/darwin-x64/
+interfaces/desktop/src-tauri/resources/devforge/linux-x64/
+!interfaces/desktop/src-tauri/resources/devforge/manifest.json

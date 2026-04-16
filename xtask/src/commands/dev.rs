@@ -14,6 +14,7 @@
 //! rustc — everything. No zombie processes. Ever.
 
 use crate::commands::preflight::Preflight;
+use crate::commands::sccache;
 use crate::commands::Task;
 use crate::net;
 use crate::stage::{self, Stage};
@@ -123,6 +124,18 @@ impl Task for Dev {
             log.stage_timed("build_lock", "OK", "lock is free", lock_start)?;
         }
 
+        // ── Stage 5.7: Compile cache (sccache) ──
+        // Transparent rustc caching. If sccache is installed, every rustc
+        // invocation from here on routes through it — surviving `cargo
+        // clean`, feature-flag flips, and toolchain bumps. If not installed,
+        // this stage prints an install hint and proceeds without caching.
+        // See xtask/src/commands/sccache.rs for the rationale (sccache vs
+        // wrapper-crate staging).
+        stage::section("Compile Cache");
+        let sccache_start = Instant::now();
+        let sccache_guard = sccache::Guard::new(ws)?;
+        log.stage_timed("sccache", "OK", "compile cache checked", sccache_start)?;
+
         // ── Stage 6: Backend compile with live progress ──
         let estimated = stage::estimate_crate_count(ws.root(), "devpulse_desktop_backend");
         if estimated > 0 {
@@ -154,11 +167,50 @@ impl Task for Dev {
             }
         }
 
-        let status = stage::monitor_cargo_child("backend", cargo_child, estimated)?;
+        let mut compile = stage::monitor_cargo_child("backend", cargo_child, estimated)?;
+        let mut retried_without_sccache = false;
 
-        if !status.success() {
+        if !compile.status.success()
+            && compile.saw_sccache_transport_error
+            && sccache_guard.is_active()
+        {
+            retried_without_sccache = true;
+            eprintln!(
+                "  [WARN] sccache transport failed — retrying backend compile without compile cache"
+            );
+            log.stage(
+                "sccache",
+                "WARN",
+                "transport failed — retrying backend compile without cache",
+            )?;
+            sccache_guard.disable_for_retry();
+
+            let retry_child = ws.spawn_in_stderr_piped(
+                ws.root(),
+                "cargo",
+                &["check", "-p", "devpulse_desktop_backend"],
+            )?;
+
+            #[cfg(windows)]
+            if let Some(ref guard) = _job_guard {
+                if let Err(e) = guard.assign(&retry_child) {
+                    eprintln!("  [!!] failed to assign retry cargo to job: {e}");
+                }
+            }
+
+            compile = stage::monitor_cargo_child("backend (retry)", retry_child, estimated)?;
+        }
+
+        if !compile.status.success() {
             log.stage_timed("backend_compile", "FAIL", "compilation errors", compile_start)?;
             log.footer(run_start)?;
+            if retried_without_sccache {
+                anyhow::bail!(
+                    "Backend compilation failed after retrying without sccache — fix the Rust errors above.\n  \
+                     Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
+                     (LibSQL, DuckDB, SurrealDB, Moka)."
+                );
+            }
             anyhow::bail!(
                 "Backend compilation failed — fix the Rust errors above.\n  \
                  Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
@@ -172,6 +224,12 @@ impl Task for Dev {
             &format!("{estimated} crates in {compile_secs:.1}s"),
             compile_start,
         )?;
+
+        // Diff sccache stats against the pre-compile snapshot so the dev
+        // server UX shows the hit rate this build got from the cache.
+        if !retried_without_sccache {
+            sccache_guard.report();
+        }
 
         // Re-verify port — something might have grabbed it during compile
         if !net::port_is_free(dev_port) {

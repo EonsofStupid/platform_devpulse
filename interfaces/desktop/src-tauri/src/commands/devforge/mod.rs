@@ -1,7 +1,10 @@
 //! DevForge sidecar commands — spawn, stop, and query the REH web server.
 //!
-//! The REH web server is the browser-capable VS Code Remote Extension Host
-//! that ships inside `deps/code-oss-reh-web`. DevForge runs it as a Tauri
+//! The REH web server is the browser-capable VS Code Remote Extension Host.
+//! In dev, the REH tree lives at `deps/code-oss-reh-web/`. In production,
+//! it's fetched from `github.com/EonsofStupid/devforge` releases via
+//! `cargo xtask fetch-devforge` and bundled into the Tauri installer.
+//! DevForge runs it as a Tauri
 //! managed child process so the frontend can load VS Code inside a
 //! WebviewWindow (or iframe) with full extension support.
 //!
@@ -20,6 +23,7 @@ pub mod paths;
 pub mod sidecar;
 pub mod state_file;
 pub mod types;
+pub mod window;
 
 use crate::state::PlatformState;
 use sidecar::RehManager;

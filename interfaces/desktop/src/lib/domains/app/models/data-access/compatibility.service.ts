@@ -187,3 +187,55 @@ export function canProceed(resolution: Resolution): resolution is Resolution & {
 export function alternativesOf(resolution: Resolution): Alternative[] {
 	return resolution.kind === "unsupported" ? resolution.alternatives : [];
 }
+
+/**
+ * Render a `LoadError` as a human-readable one-line string.
+ *
+ * Bridge between the typed Tauri command layer and legacy call
+ * sites that still expect `throw new Error(string)`. The canonical
+ * consumer should pattern-match on the `LoadError` variant and
+ * render interactive UI (alternatives, retry buttons). Only use
+ * `formatLoadError` at the string boundary.
+ */
+export function formatLoadError(err: import("$lib/sys/generated/bindings.js").LoadError): string {
+	switch (err.kind) {
+		case "unknown-architecture":
+			return `Unknown architecture '${err.raw}' — not in the registry.`;
+		case "unsupported-architecture":
+			return `${err.arch} in ${err.format} format is not loadable in this build.`;
+		case "missing-file":
+			return `Required file '${err.which}' missing in ${err.dir}.`;
+		case "model-corrupt":
+			return `Model file corrupt: ${err.path}${err.can_redownload ? " (re-download available)" : ""}.`;
+		case "model-file-missing":
+			return `Model file missing: ${err.path}${err.slot_id ? ` (slot ${err.slot_id})` : ""}.`;
+		case "vram-insufficient":
+			return `Not enough GPU memory: need ${err.needed_mb} MB, only ${err.available_mb} MB free.`;
+		case "ram-exhausted":
+			return `System out of RAM: ${err.used_mb}/${err.total_mb} MB.`;
+		case "disk-full":
+			return `Disk space insufficient: need ${err.needed_mb} MB, only ${err.available_mb} MB free.`;
+		case "no-gpu-driver":
+			return "GPU driver not found — falling back to CPU.";
+		case "download-failed":
+			return `Download failed: ${err.reason}${err.can_retry ? " (retry available)" : ""}.`;
+		case "slot-not-found":
+			return `Slot '${err.slot_id}' does not exist.`;
+		case "no-model-assigned":
+			return `No model assigned to slot '${err.slot_id}'.`;
+		case "already-loading":
+			return `Slot '${err.slot_id}' is already loading.`;
+		case "slot-swapping":
+			return `Slot '${err.slot_id}' is swapping models — try again in a moment.`;
+		case "incompatible-model":
+			return `Model '${err.model_id}' is not compatible with slot capability '${err.capability}'.`;
+		case "config-corrupt":
+			return `Config data corrupt${err.recovered ? " — recovered to defaults" : " — recovery failed"}.`;
+		case "backend-init":
+			return `Backend ${err.backend} failed to init: ${err.message}`;
+		case "tokenizer-load":
+			return `Tokenizer load failed: ${err.message}`;
+		case "other":
+			return err.message;
+	}
+}

@@ -7,6 +7,7 @@ import { Button } from "$lib/design/components/button/index.js";
 import Card from "$lib/design/components/card/Card.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
+import { formatLoadError } from "$lib/domains/app/models/data-access/compatibility.service.js";
 import { commands, type SlotInfo, type VoiceStatusInfo } from "$lib/sys/generated/bindings.js";
 import { voiceState } from "../../data-access/voice.state.svelte.js";
 import {
@@ -47,7 +48,7 @@ function voiceLabelFor(voiceId: string | null | undefined): string {
 async function ensureSlotLoaded(slotId: string): Promise<void> {
 	const result = await commands.loadSlot(slotId);
 	if (result.status === "error") {
-		throw new Error(result.error);
+		throw new Error(formatLoadError(result.error));
 	}
 }
 

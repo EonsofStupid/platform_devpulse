@@ -40,7 +40,12 @@ export interface TauriEventStream<T> {
  * @param eventName The Tauri event name (e.g. `"model:loading-started"`).
  */
 export function createTauriEvent<T>(eventName: string): TauriEventStream<T> {
-	let handlers = $state(new Set<(payload: T) => void>());
+	// Plain Set — NOT $state. Reassigning a $state Set inside handle()
+	// triggers effect re-evaluation which calls the cleanup which
+	// reassigns again → effect_update_depth_exceeded. The Set is
+	// internal bookkeeping; only subscriberCount needs reactivity.
+	const handlers = new Set<(payload: T) => void>();
+	let count = $state(0);
 	let unlisten: UnlistenFn | null = null;
 	let attaching: Promise<void> | null = null;
 
@@ -84,20 +89,20 @@ export function createTauriEvent<T>(eventName: string): TauriEventStream<T> {
 	return {
 		handle(callback: (payload: T) => void): () => void {
 			handlers.add(callback);
-			handlers = new Set(handlers);
+			count = handlers.size;
 			if (handlers.size === 1) {
 				void attach();
 			}
 			return () => {
 				handlers.delete(callback);
-				handlers = new Set(handlers);
+				count = handlers.size;
 				if (handlers.size === 0) {
 					detach();
 				}
 			};
 		},
 		get subscriberCount(): number {
-			return handlers.size;
+			return count;
 		},
 	};
 }

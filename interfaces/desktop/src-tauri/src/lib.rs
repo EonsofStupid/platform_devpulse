@@ -21,7 +21,7 @@ pub mod logging;
 pub mod state;
 
 use devpulse_engine::platform::{InitStatus, Platform};
-use state::{BootStateTracker, PlatformState};
+use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
@@ -61,6 +61,8 @@ pub fn run() {
         commands::devforge::devforge_add_project,
         commands::devforge::devforge_remove_project,
         commands::devforge::devforge_set_fresh_instance,
+        commands::devforge::window::open_devforge_window,
+        commands::devforge::window::close_devforge_window,
         commands::devpulse::fetch_dashboard,
         commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
@@ -157,6 +159,17 @@ pub fn run() {
             "../src/lib/sys/generated/bindings.ts",
         )
         .expect("Failed to export specta TypeScript bindings");
+
+    // Export-only mode: `DEVPULSE_BINDINGS_EXPORT_ONLY=1 cargo run
+    // -p devpulse_desktop_backend` writes bindings.ts and exits
+    // before the Tauri builder touches the window system. Used by
+    // the pre-push hook + CI regen pipeline so svelte-check always
+    // sees current types without needing to launch the whole app.
+    #[cfg(debug_assertions)]
+    if std::env::var("DEVPULSE_BINDINGS_EXPORT_ONLY").is_ok() {
+        eprintln!("[bindings-export] specta bindings written; exiting early");
+        return;
+    }
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -513,6 +526,14 @@ async fn boot_task(
                             ready,
                             "Model readiness check"
                         );
+                        let models_snapshot = ModelsStatusSnapshot {
+                            ready,
+                            first_run,
+                            model_count: registry.len(),
+                            slot_count: slots.len(),
+                            assigned_count: assigned,
+                            error: None,
+                        };
                         let _ = app.emit(
                             "platform:models-status",
                             serde_json::json!({
@@ -523,6 +544,9 @@ async fn boot_task(
                                 "assignedCount": assigned,
                             }),
                         );
+                        // Store in tracker so get_boot_state catches up
+                        // late-mounting frontends that missed the live event.
+                        tracker.set_models_status(models_snapshot);
                         ready
                     } else {
                         tracing::warn!("Model Loader not available — models not ready");

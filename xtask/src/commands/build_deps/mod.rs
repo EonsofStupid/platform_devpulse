@@ -8,8 +8,6 @@
 //! it in `ALL_DEPS`. Each dep is self-contained — source dir, build cmd,
 //! output binary, hash file.
 
-pub mod code_oss;
-
 use crate::stage::Stage;
 use crate::workspace::Workspace;
 use anyhow::{Context, Result};
@@ -22,13 +20,13 @@ use std::path::{Path, PathBuf};
 /// Cargo-native deps (libsql, surrealdb, duckdb, moka) don't need this —
 /// they rebuild via Cargo's incremental compilation automatically.
 pub trait DepBuild {
-    /// Human-readable name (e.g., "code-oss").
+    /// Human-readable name for this dependency.
     fn name(&self) -> &'static str;
 
-    /// Source directory relative to workspace root (e.g., "deps/code-oss").
+    /// Source directory relative to workspace root.
     fn source_dir(&self) -> &'static str;
 
-    /// Output binary path relative to `.userdata/bin/` (e.g., "code-oss/code-oss.cmd").
+    /// Output binary path relative to `.userdata/bin/`.
     fn bin_path(&self) -> &'static str;
 
     /// Whether this dep is enabled in the current config.
@@ -55,10 +53,8 @@ pub trait DepBuild {
 /// Add new deps here — they get picked up automatically by the orchestrator.
 pub fn all_deps() -> Vec<Box<dyn DepBuild>> {
     vec![
-        Box::new(code_oss::CodeOss),
-        // Add more deps here as they're created:
-        // Box::new(rro::Rro),
-        // Box::new(kokoros::Kokoros),
+        // DevForge REH is fetched via `cargo xtask fetch-devforge`, not built here.
+        // Add future non-cargo deps here if needed.
     ]
 }
 
@@ -119,7 +115,7 @@ pub fn build_all(ws: &Workspace) -> Result<()> {
             }
             Err(e) => {
                 s.fail(format!("build failed: {e:#}"));
-                // Non-fatal — warn and continue. Optional deps (code-oss)
+                // Non-fatal — warn and continue. Optional deps
                 // should not block the entire dev server.
                 println!("  [WARN] External dep build issue: {e:#}");
             }

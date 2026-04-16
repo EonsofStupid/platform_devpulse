@@ -1,0 +1,18 @@
+[package]
+name = "devpulse-telemetry-macros"
+version = "0.1.0"
+edition = "2021"
+description = "Proc-macro companion to devpulse-telemetry. Owns #[devpulse_command] for Tauri IPC instrumentation. See ADR-002."
+
+[package.metadata.devpulse]
+layer = "infra"
+
+[lib]
+proc-macro = true
+
+[lints]
+workspace = true
+
+[dependencies]
+# Deliberately empty in P1. P7 adds syn, quote, proc-macro2 when authoring
+# the #[devpulse_command] attribute macro.

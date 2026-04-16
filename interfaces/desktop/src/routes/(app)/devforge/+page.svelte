@@ -5,16 +5,75 @@
   Hub: Build Pipeline, CI/CD, Environments, Node CLI, Packages
 -->
 <script lang="ts">
-import { GitBranch, Hammer, Package, Server, Terminal } from "lucide-svelte";
+import { invoke } from "@tauri-apps/api/core";
+import { GitBranch, Hammer, Package, Play, Server, Terminal } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+
+/**
+ * Tracks the in-flight state of the "Open DevForge" button. `idle` is the
+ * default, `opening` is during the Tauri command round-trip, `error` holds
+ * the stringified failure. The backend command is idempotent — if the
+ * DevForge window already exists, it focuses it instead of spawning a
+ * second one.
+ */
+let openState: { kind: "idle" } | { kind: "opening" } | { kind: "error"; msg: string } = $state({
+	kind: "idle",
+});
+
+async function openDevForgeWindow() {
+	openState = { kind: "opening" };
+	try {
+		await invoke("open_devforge_window");
+		openState = { kind: "idle" };
+	} catch (err) {
+		openState = { kind: "error", msg: String(err) };
+	}
+}
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="devforge-dashboard">
+	<!-- Row 0: Dedicated DevForge window launcher -->
+	<div class="col-span-12">
+		<Widget
+			title="DevForge IDE"
+			icon={Server}
+			surface="glass-deep"
+			depth="z2"
+			bevel="soft"
+			glow="teal"
+			frame="accent-teal"
+			radius="lg"
+		>
+			<div class={hstack({ justify: "between", align: "center", gap: "4" })}>
+				<div class={stack({ gap: "1" })}>
+					<Text weight="semibold">Open the full VS Code IDE in a dedicated window</Text>
+					<Text size="sm" color="muted">
+						Launches the bundled DevForge REH client/server as its own Tauri window.
+						Extensions, settings, and user data persist under .userdata/devforge/.
+					</Text>
+					{#if openState.kind === "error"}
+						<Text size="sm" color="negative">DevForge window failed to open: {openState.msg}</Text>
+					{/if}
+				</div>
+				<Button
+					preset="primary"
+					size="md"
+					onclick={openDevForgeWindow}
+					disabled={openState.kind === "opening"}
+				>
+					<Play size={16} />
+					{openState.kind === "opening" ? "Opening…" : "Open DevForge"}
+				</Button>
+			</div>
+		</Widget>
+	</div>
+
 	<!-- Row 1: Build Pipeline + CI/CD -->
 	<div class="col-span-8">
 		<Widget
@@ -145,7 +204,9 @@ import { stack } from "$lib/design/utils/stack/index.js";
 			]}
 			activeTab="deps"
 		>
-			<Text as="p" size="sm" color="muted">Package dependencies, version tracking, and update management.</Text>
+			<Text as="p" size="sm" color="muted">
+				Package dependencies, version tracking, and update management.
+			</Text>
 		</Widget>
 	</div>
 </div>

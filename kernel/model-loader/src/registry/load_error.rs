@@ -64,9 +64,13 @@ pub enum LoadError {
     /// load it in the requested format. The `alternatives` list is
     /// ordered by tier — present them in order.
     UnsupportedArchitecture {
+        /// Canonical architecture the user attempted to load.
         arch: ArchId,
+        /// File format the user attempted to load.
         format: ModelFormat,
+        /// Why the known architecture could not be resolved.
         reason: UnsupportedReason,
+        /// Ordered alternatives the UI can offer as follow-up actions.
         alternatives: Vec<Alternative>,
     },
 
@@ -140,20 +144,37 @@ pub enum LoadError {
     // ── Slot / service state failures ─────────────────────────────
 
     /// Requested slot ID does not exist in the registry.
-    SlotNotFound { slot_id: String },
+    SlotNotFound {
+        /// Slot identifier requested by the caller.
+        slot_id: String,
+    },
     /// Slot has no model assigned — cannot load.
-    NoModelAssigned { slot_id: String },
+    NoModelAssigned {
+        /// Slot identifier that is still empty.
+        slot_id: String,
+    },
     /// Slot is already mid-load — cannot start another load.
-    AlreadyLoading { slot_id: String },
+    AlreadyLoading {
+        /// Slot identifier already in the loading state.
+        slot_id: String,
+    },
     /// Slot is mid-swap. Inference / load must wait.
-    SlotSwapping { slot_id: String },
+    SlotSwapping {
+        /// Slot identifier currently being swapped.
+        slot_id: String,
+    },
     /// Model cannot serve the slot's required capability.
     IncompatibleModel {
+        /// Model identifier that failed the capability check.
         model_id: String,
+        /// Capability required by the slot.
         capability: String,
     },
     /// Persisted config data is corrupt — the service reset to defaults.
-    ConfigCorrupt { recovered: bool },
+    ConfigCorrupt {
+        /// Whether the loader recovered by resetting to defaults.
+        recovered: bool,
+    },
 
     // ── Backend failures ──────────────────────────────────────────
 
@@ -161,13 +182,18 @@ pub enum LoadError {
     /// Covers corrupt weights, mismatched config, candle init errors,
     /// ORT session creation failures, etc.
     BackendInit {
+        /// Backend that raised the initialization failure.
         backend: BackendId,
+        /// Human-readable backend error detail.
         message: String,
     },
     /// Tokenizer failed to load or build. Usually means a bad
     /// `tokenizer.json` or a GGUF with incomplete embedded tokenizer
     /// metadata.
-    TokenizerLoad { message: String },
+    TokenizerLoad {
+        /// Human-readable tokenizer failure detail.
+        message: String,
+    },
 
     // ── Catch-all ─────────────────────────────────────────────────
 
@@ -175,7 +201,10 @@ pub enum LoadError {
     /// crashes, unexpected failures from deeper in the stack). Keep
     /// this rare — prefer adding a specific variant when a new class
     /// of failure emerges.
-    Other { message: String },
+    Other {
+        /// Human-readable fallback message for uncategorized failures.
+        message: String,
+    },
 }
 
 impl LoadError {
@@ -303,7 +332,9 @@ pub enum UnsupportedReason {
     /// A backend declares support but its Cargo feature is off in
     /// this build.
     BackendNotInstalled {
+        /// Backend that would satisfy the request if enabled.
         backend: BackendId,
+        /// Cargo feature that must be enabled for that backend.
         feature_flag: String,
     },
     /// The architecture's tier is `Planned` — no loader exists yet.
@@ -318,6 +349,7 @@ pub enum UnsupportedReason {
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct Alternative {
+    /// Category of follow-up action the UI should offer.
     pub kind: AlternativeKind,
     /// Same repo id if the alternative is a sibling file; `None` if
     /// the frontend should search for a different repo.

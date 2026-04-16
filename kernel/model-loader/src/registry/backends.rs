@@ -62,6 +62,7 @@ pub enum BackendId {
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct BackendInfo {
+    /// Canonical backend identifier used by the resolver and UI.
     pub id: BackendId,
     /// Short display name for the devtools matrix view.
     pub display: &'static str,
@@ -83,8 +84,11 @@ pub struct BackendInfo {
 #[derive(Debug, Clone, Copy, Serialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct FormatSupport {
+    /// Architecture covered by this backend support row.
     pub arch: ArchId,
+    /// File format covered by this support row.
     pub format: ModelFormat,
+    /// Maturity of this `(arch, format)` path.
     pub status: SupportStatus,
 }
 
@@ -98,9 +102,13 @@ pub struct FormatSupport {
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum ModelFormat {
+    /// Quantized GGUF model weights.
     Gguf,
+    /// Safetensors model shards and metadata.
     Safetensors,
+    /// ONNX model assets.
     Onnx,
+    /// Raw PyTorch checkpoints.
     Pytorch,
 }
 

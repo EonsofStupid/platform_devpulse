@@ -160,7 +160,9 @@ impl DevforgePaths {
     /// Lookup order:
     ///
     /// 1. **Dev** (`debug_assertions`): repo junction at
-    ///    `<repo>/deps/code-oss-reh-web/` — the live developer REH build.
+    ///    `<repo>/deps/code-oss-reh-web/` — the live developer REH build
+    ///    (kept as code-oss-reh-web for dev-only backwards compat; production
+    ///    uses the fetched devforge release under `resources/devforge/`).
     ///    Always wins in dev so `cargo xtask run-dev` iterates on the
     ///    working tree without an install step.
     /// 2. **Runtime install**: `<install>/current/` — populated by the

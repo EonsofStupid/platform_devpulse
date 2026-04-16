@@ -252,15 +252,18 @@ pub struct BuildDepsConfig {
     /// CMake (for ort-sys source builds).
     #[serde(default)]
     pub cmake: Option<BuildDepEntry>,
-    /// code-oss external dependency build toggle.
+    /// Legacy code-oss build toggle — disabled, kept for TOML compat only.
+    /// DevForge REH is now fetched via `cargo xtask fetch-devforge`.
     #[serde(default)]
+    #[allow(dead_code)]
     pub code_oss: Option<BuildToggleEntry>,
 }
 
 /// Simple enable/disable entry for build-only external dependencies.
+/// Kept for backward-compatible TOML deserialization of `[build.deps.code_oss]`.
 #[derive(Debug, Default, Deserialize)]
+#[allow(dead_code)]
 pub struct BuildToggleEntry {
-    /// Whether this dependency should be considered by xtask.
     #[serde(default)]
     pub enabled: bool,
 }

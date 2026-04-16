@@ -334,6 +334,47 @@ async devforgeSetFreshInstance(enabled: boolean) : Promise<Result<null, string>>
 }
 },
 /**
+ * Open (or focus) the dedicated DevForge window.
+ * 
+ * If the REH server is not yet running, returns an error string telling
+ * the frontend to wait for the `devforge://ready` event before retrying.
+ * 
+ * Returns a [`DevforgeBootstrapStatus`] snapshot so the caller can update
+ * its own UI state without a second round-trip to `devforge_get_status`.
+ * 
+ * # Errors
+ * - REH server is not running (bootstrap still in flight, or install missing)
+ * - Connection URL fails to parse as a valid `Url`
+ * - Tauri fails to create the `WebviewWindow`
+ * - Focusing an already-open DevForge window fails
+ */
+async openDevforgeWindow() : Promise<Result<DevforgeBootstrapStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_devforge_window") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Close the DevForge window, if one is open. Idempotent.
+ * 
+ * Does **not** stop the REH server — that stays alive under
+ * `PlatformState.reh` so a subsequent [`open_devforge_window`] call
+ * reuses the same process.
+ * 
+ * # Errors
+ * Returns a stringified error if `Window::close()` fails.
+ */
+async closeDevforgeWindow() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("close_devforge_window") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetch dashboard data from all services.
  * 
  * Queries:
@@ -522,7 +563,7 @@ async isFirstRun() : Promise<Result<boolean, string>> {
 /**
  * Assign a model to a slot.
  */
-async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, string>> {
+async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, LoadError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("assign_model_to_slot", { slotId, modelId }) };
 } catch (e) {
@@ -532,8 +573,14 @@ async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, 
 },
 /**
  * Load a slot's assigned model into memory.
+ * 
+ * Returns a typed [`LoadError`] covering the full load-path failure
+ * surface — compatibility, filesystem, resources, backend init,
+ * slot state. The frontend renders each variant with targeted UI
+ * (alternatives for compatibility errors, retry for network errors,
+ * slot reassignment for `NoModelAssigned`, etc.).
  */
-async loadSlot(slotId: string) : Promise<Result<null, string>> {
+async loadSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("load_slot", { slotId }) };
 } catch (e) {
@@ -544,7 +591,7 @@ async loadSlot(slotId: string) : Promise<Result<null, string>> {
 /**
  * Unload a slot's model from memory.
  */
-async unloadSlot(slotId: string) : Promise<Result<null, string>> {
+async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("unload_slot", { slotId }) };
 } catch (e) {
@@ -559,7 +606,7 @@ async unloadSlot(slotId: string) : Promise<Result<null, string>> {
  * should show SwapOverlay while this runs — events are emitted via
  * `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
  */
-async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, string>> {
+async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, LoadError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("swap_slot_model", { slotId, newModelId }) };
 } catch (e) {
@@ -827,8 +874,9 @@ async listKokoroVoices() : Promise<Result<KokoroVoiceInfo[], string>> {
  * Warm a slot — load weights to CPU RAM only, no GPU allocation.
  * 
  * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
+ * Returns a typed [`LoadError`] with the same surface as `load_slot`.
  */
-async warmSlot(slotId: string) : Promise<Result<null, string>> {
+async warmSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("warm_slot", { slotId }) };
 } catch (e) {
@@ -841,7 +889,7 @@ async warmSlot(slotId: string) : Promise<Result<null, string>> {
  * 
  * Clears any slot assignments. Refuses if the model is currently loaded.
  */
-async deleteModel(modelId: string) : Promise<Result<null, string>> {
+async deleteModel(modelId: string) : Promise<Result<null, LoadError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("delete_model", { modelId }) };
 } catch (e) {
@@ -1080,6 +1128,53 @@ async rerankDocuments(slotId: string, query: string, documents: string[]) : Prom
 async encodeImage(slotId: string, path: string) : Promise<Result<number[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("encode_image", { slotId, path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Return the full backend compatibility matrix for this build.
+ * 
+ * The frontend calls this once at boot and caches it in a rune
+ * (`modelBackendMatrix.svelte.ts`) so the `ModelCompatibilityCard`
+ * can render immediately for every model tile without additional
+ * IPC. The matrix reflects:
+ * 
+ * - Every architecture in the registry (Qwen3, Qwen3-MoE, Phi-3,
+ * legacy Qwen2, etc.) with its tier + metadata.
+ * - Every backend declaration, with an `installed` flag derived
+ * from this build's Cargo features at compile time.
+ * - Per-backend `(arch, format)` support declarations.
+ * 
+ * Cheap call — the matrix is a static const array with serialized
+ * metadata; there's no IO or allocation on the hot path.
+ */
+async listBackendMatrix() : Promise<Result<BackendMatrix, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_backend_matrix") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Resolve a `(arch, format)` compatibility query and return either
+ * a concrete plan or an `Unsupported` variant with alternatives.
+ * 
+ * Called by the frontend pre-download gate: before starting any
+ * download, the UI calls this with the arch classification of the
+ * target repo and the file format. If the resolver returns
+ * `Unsupported`, the UI surfaces the reason + alternatives to the
+ * user and refuses to start the download.
+ * 
+ * The `arch_raw` argument is the `architectures[0]` string from
+ * the HF config.json. The `model_type` is the optional fallback
+ * used to disambiguate Qwen2.5 from Qwen2.
+ */
+async resolveArchitectureCompatibility(archRaw: string, modelType: string | null, format: ModelFormat) : Promise<Result<Resolution, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("resolve_architecture_compatibility", { archRaw, modelType, format }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1399,6 +1494,52 @@ voice_enable_aria: string;
  */
 voice_disable_aria: string }
 /**
+ * A suggested alternative path the user could take. The frontend
+ * renders each as a one-click action.
+ */
+export type Alternative = { 
+/**
+ * Category of follow-up action the UI should offer.
+ */
+kind: AlternativeKind; 
+/**
+ * Same repo id if the alternative is a sibling file; `None` if
+ * the frontend should search for a different repo.
+ */
+repo_id: string | null; 
+/**
+ * Specific filename to target if the alternative is a sibling.
+ */
+filename: string | null; 
+/**
+ * Human-readable explanation, e.g. "GGUF version in the same \
+ * repo has an arch-native loader".
+ */
+reason: string }
+/**
+ * Categorical hint for how the frontend should render the
+ * alternative suggestion.
+ */
+export type AlternativeKind = 
+/**
+ * Same repo, different file (most common — suggest GGUF when
+ * safetensors isn't supported).
+ */
+"switch-format" | 
+/**
+ * Same repo, different quant level (suggest Q5_K_M when Q2 is
+ * too low quality, or vice versa for VRAM fit).
+ */
+"switch-quant" | 
+/**
+ * Different repo entirely (Qwen3 as replacement for Qwen2).
+ */
+"switch-model" | 
+/**
+ * Update the build to pick up a newer backend feature.
+ */
+"upgrade-build"
+/**
  * Status of a stored API key (NEVER returns the actual key to frontend).
  */
 export type ApiKeyStatus = { 
@@ -1430,6 +1571,131 @@ export type ApiProvider =
  * Google (Gemini) API.
  */
 "Google"
+/**
+ * Architecture family. Drives grouping in the frontend matrix view
+ * and lets the resolver suggest same-family alternatives.
+ */
+export type ArchFamily = 
+/**
+ * Qwen-family architectures.
+ */
+"qwen" | 
+/**
+ * Phi-family architectures.
+ */
+"phi" | 
+/**
+ * Llama-family architectures.
+ */
+"llama" | 
+/**
+ * Mistral-family architectures.
+ */
+"mistral" | 
+/**
+ * Gemma-family architectures.
+ */
+"gemma"
+/**
+ * Canonical architecture identifiers. String-valued so specta can
+ * emit them as TypeScript union literals and the frontend gets
+ * exhaustive matching without a runtime cast.
+ * 
+ * Both `Serialize` and `Deserialize` are derived because this type
+ * is used in both directions across the Tauri boundary (returned
+ * from `list_backend_matrix`, expected to be accepted as input by
+ * future commands like `get_architecture_details(arch: ArchId)`).
+ */
+export type ArchId = 
+/**
+ * Qwen 3 dense decoder-only language models.
+ */
+"qwen-3" | 
+/**
+ * Qwen 3 mixture-of-experts language models.
+ */
+"qwen-3-moe" | 
+/**
+ * Qwen 3 vision-language models.
+ */
+"qwen-3-vl" | 
+/**
+ * Reserved slot for the upcoming Qwen 3.5 family.
+ */
+"qwen-35" | 
+/**
+ * Qwen 2.5 language models still supported as a fallback tier.
+ */
+"qwen-25" | 
+/**
+ * Legacy Qwen 2 models kept for backward compatibility.
+ */
+"qwen-2" | 
+/**
+ * Phi-3 dense language models.
+ */
+"phi-3" | 
+/**
+ * Phi-3 mixture-of-experts variants such as 30B-A3B.
+ */
+"phi-3-moe" | 
+/**
+ * Llama-family and Llama-derived checkpoints.
+ */
+"llama" | 
+/**
+ * Mistral-family checkpoints.
+ */
+"mistral" | 
+/**
+ * Gemma-family checkpoints.
+ */
+"gemma"
+/**
+ * A single architecture row. Every field is `'static` so the catalog
+ * can live in a `const` array with zero runtime allocation.
+ * 
+ * Serialize-only because the `&'static str` fields can't cleanly
+ * round-trip through serde's `Deserialize` (would need `Cow<str>`).
+ * This type flows one direction: kernel registry → Tauri command
+ * return → frontend. Never accepted as an input.
+ */
+export type ArchitectureSpec = { 
+/**
+ * Canonical id used by the resolver.
+ */
+id: ArchId; 
+/**
+ * Human display name for the matrix UI.
+ */
+display: string; 
+/**
+ * Family grouping.
+ */
+family: ArchFamily; 
+/**
+ * Tier for recommendation ordering.
+ */
+tier: SupportTier; 
+/**
+ * `[min, max]` context window bounds for this architecture.
+ * Used by the frontend to sanity-check user slot configurations.
+ */
+context_range: [number, number]; 
+/**
+ * Approximate VRAM cost per billion parameters in FP16. Used by
+ * the VRAM planner + wizard recommendation pass.
+ */
+min_vram_mb_per_b_params: number; 
+/**
+ * Whether this architecture should be included in the benchmark
+ * bench automatically (30B-A3B evaluation, etc.).
+ */
+requires_benchmark: boolean; 
+/**
+ * Short free-form note shown to the user in the detail panel.
+ */
+note: string }
 /**
  * Built-in keyword action types the assistant can dispatch.
  * 
@@ -1510,6 +1776,118 @@ window: WindowConfig;
  */
 offload: OffloadConfig }
 /**
+ * Stable identifier for an inference backend. Each variant maps to
+ * one concrete Candle / ORT / llama.cpp loader path.
+ */
+export type BackendId = 
+/**
+ * Candle quantized_llama — generic GGUF path with arch metadata
+ * rewriting. Fallback for archs without a dedicated quantized
+ * loader.
+ */
+"candle-quantized-llama" | 
+/**
+ * Candle quantized_qwen3 — arch-native Qwen3 GGUF loader.
+ */
+"candle-quantized-qwen-3" | 
+/**
+ * Candle quantized_phi3 — arch-native Phi-3 GGUF loader.
+ */
+"candle-quantized-phi-3" | 
+/**
+ * Candle qwen3::ModelForCausalLM — safetensors FP32.
+ */
+"candle-safetensors-qwen-3" | 
+/**
+ * Candle qwen3_moe::ModelForCausalLM — safetensors FP32 MoE.
+ */
+"candle-safetensors-qwen-3-moe" | 
+/**
+ * Candle qwen3_vl — vision-language safetensors. Planned.
+ */
+"candle-safetensors-qwen-3-vl" | 
+/**
+ * Candle phi3::Model — safetensors FP32.
+ */
+"candle-safetensors-phi-3" | 
+/**
+ * Candle qwen2::ModelForCausalLM — legacy fallback safetensors.
+ */
+"candle-safetensors-qwen-2" | 
+/**
+ * Candle SigLIP / SigLIP2 vision encoder — safetensors.
+ */
+"candle-siglip-vision" | 
+/**
+ * ORT kokoro TTS.
+ */
+"ort-kokoro-tts" | 
+/**
+ * ORT whisper STT.
+ */
+"ort-whisper-stt" | 
+/**
+ * ORT embedder (BGE, nomic, etc.).
+ */
+"ort-embedder" | 
+/**
+ * ORT reranker (cross-encoder).
+ */
+"ort-reranker" | 
+/**
+ * Sherpa-onnx streaming ASR — used by the always-on STS pipeline.
+ */
+"sherpa-onnx-stt" | 
+/**
+ * Sherpa-onnx keyword spotter — wake word detection for STS.
+ */
+"sherpa-onnx-kws" | 
+/**
+ * llama.cpp FFI — planned. Secondary GGUF path with broader
+ * arch coverage for fine-tunes candle-transformers hasn't ported.
+ */
+"llama-cpp-ffi"
+/**
+ * Metadata for a single backend row. Field-level `pub` so specta can
+ * walk the struct.
+ */
+export type BackendInfo = { 
+/**
+ * Canonical backend identifier used by the resolver and UI.
+ */
+id: BackendId; 
+/**
+ * Short display name for the devtools matrix view.
+ */
+display: string; 
+/**
+ * Cargo feature that must be enabled for this backend. Empty
+ * string when the backend is part of the default build.
+ */
+feature_flag: string; 
+/**
+ * Whether the feature flag is currently compiled in.
+ */
+installed: boolean; 
+/**
+ * Which architectures this backend can load, and in which
+ * format. Flattened for the frontend.
+ */
+supports: FormatSupport[] }
+/**
+ * Full `(arch × backend)` compatibility grid, ready for the frontend.
+ */
+export type BackendMatrix = { 
+/**
+ * Every backend declaration, with `installed` reflecting this
+ * build's Cargo features.
+ */
+backends: BackendInfo[]; 
+/**
+ * Every architecture the registry knows about.
+ */
+architectures: ArchitectureSpec[] }
+/**
  * Boot phase — serialized to frontend as `PascalCase`.
  */
 export type BootPhase = 
@@ -1544,7 +1922,14 @@ health: SystemHealth | null;
 /**
  * Error message if boot failed.
  */
-error: string | null }
+error: string | null; 
+/**
+ * Model readiness — populated after the model loader check runs.
+ * Frontend reads this in `applySnapshot()` to catch up on
+ * `platform:models-status` events that fired before the listener
+ * was mounted.
+ */
+modelsStatus: ModelsStatusSnapshot | null }
 /**
  * Browse / Search models screen.
  */
@@ -2205,6 +2590,26 @@ export type ExecutionLane =
  */
 "ThinkingPipeline"
 /**
+ * A single `(arch, format)` support declaration. The resolver
+ * iterates backends looking for an entry that matches its query.
+ * 
+ * Serialize-only — part of the static catalog, flows outbound
+ * from `list_backend_matrix` → frontend, never accepted as input.
+ */
+export type FormatSupport = { 
+/**
+ * Architecture covered by this backend support row.
+ */
+arch: ArchId; 
+/**
+ * File format covered by this support row.
+ */
+format: ModelFormat; 
+/**
+ * Maturity of this `(arch, format)` path.
+ */
+status: SupportStatus }
+/**
  * Welcome screen — Clyffy greeting and CTA.
  */
 export type GreetingCopy = { 
@@ -2596,7 +3001,7 @@ export type InitStatus =
  * 
  * The `action` field names a handler; `payload` is a handler-specific
  * free-form string. Handlers live frontend-side; see
- * `interfaces/desktop/src/lib/domains/app/models/feature/setup-wizard/
+ * `interfaces/desktop/src/lib/domains/app/models/features/setup-wizard/
  * assistant-actions.ts` for the dispatch table.
  */
 export type KeywordActionEntry = { 
@@ -2708,6 +3113,125 @@ verbose: boolean;
  */
 persist_to_duckdb: boolean }
 /**
+ * The single public wire type for every load-path failure. Returned
+ * across the Tauri command boundary, serialized by specta, matched
+ * exhaustively by the frontend narration + error-surface layers.
+ * 
+ * # Why one type
+ * 
+ * Historically the kernel raised several different error types
+ * (`LoaderError`, `anyhow::Error`, raw strings) and the frontend got
+ * opaque `String` errors at the Tauri boundary. This discarded every
+ * bit of actionable context — the UI couldn't show alternatives,
+ * couldn't offer a retry, couldn't distinguish VRAM exhaustion from
+ * a missing file.
+ * 
+ * `LoadError` is the funnel point. Internal kernel errors
+ * ([`crate::traits::errors::LoaderError`], [`anyhow::Error`]) are
+ * converted into `LoadError` at the engine facade boundary via
+ * [`From<LoaderError>`] and [`LoadError::from_anyhow`]. From there
+ * the frontend gets a typed discriminated union it can pattern-match
+ * on to render specific UI for every failure mode.
+ * 
+ * # Error trait
+ * 
+ * Implements [`std::error::Error`] + [`std::fmt::Display`] so it
+ * composes cleanly with `anyhow::Error::new(LoadError::...)` and
+ * can be boxed into `Box<dyn Error>`. The `Display` rendering is
+ * layman-friendly — the UI can call `err.to_string()` and get a
+ * readable message, but should prefer matching on the variant to
+ * render interactive affordances (alternatives, retry buttons).
+ */
+export type LoadError = 
+/**
+ * The architecture is not in the registry at all. The frontend
+ * should show "unknown architecture, consider filing an issue".
+ */
+{ kind: "unknown-architecture"; raw: string } | 
+/**
+ * The architecture is known, but no backend in this build can
+ * load it in the requested format. The `alternatives` list is
+ * ordered by tier — present them in order.
+ */
+{ kind: "unsupported-architecture"; arch: ArchId; format: ModelFormat; reason: UnsupportedReason; alternatives: Alternative[] } | 
+/**
+ * A required file is missing from the model directory
+ * (`config.json`, `tokenizer.json`, shards, etc.).
+ */
+{ kind: "missing-file"; which: string; dir: string } | 
+/**
+ * The model file is on disk but corrupt, truncated, or has an
+ * invalid header. UI should offer re-download or re-scan.
+ */
+{ kind: "model-corrupt"; path: string; can_redownload: boolean } | 
+/**
+ * The registry referenced a file but it no longer exists on disk.
+ */
+{ kind: "model-file-missing"; path: string; slot_id: string | null; can_redownload: boolean } | 
+/**
+ * Not enough GPU memory to load the requested model.
+ */
+{ kind: "vram-insufficient"; needed_mb: number; available_mb: number } | 
+/**
+ * System RAM exhausted — model cannot be loaded even on CPU.
+ */
+{ kind: "ram-exhausted"; used_mb: number; total_mb: number } | 
+/**
+ * No disk space for the download or extraction.
+ */
+{ kind: "disk-full"; needed_mb: number; available_mb: number } | 
+/**
+ * No NVIDIA GPU driver found — UI should offer CPU fallback.
+ */
+{ kind: "no-gpu-driver" } | 
+/**
+ * HuggingFace download failed (network, auth, or server error).
+ */
+{ kind: "download-failed"; reason: string; can_retry: boolean; bytes_completed: number } | 
+/**
+ * Requested slot ID does not exist in the registry.
+ */
+{ kind: "slot-not-found"; slot_id: string } | 
+/**
+ * Slot has no model assigned — cannot load.
+ */
+{ kind: "no-model-assigned"; slot_id: string } | 
+/**
+ * Slot is already mid-load — cannot start another load.
+ */
+{ kind: "already-loading"; slot_id: string } | 
+/**
+ * Slot is mid-swap. Inference / load must wait.
+ */
+{ kind: "slot-swapping"; slot_id: string } | 
+/**
+ * Model cannot serve the slot's required capability.
+ */
+{ kind: "incompatible-model"; model_id: string; capability: string } | 
+/**
+ * Persisted config data is corrupt — the service reset to defaults.
+ */
+{ kind: "config-corrupt"; recovered: boolean } | 
+/**
+ * The backend is installed but failed to instantiate the model.
+ * Covers corrupt weights, mismatched config, candle init errors,
+ * ORT session creation failures, etc.
+ */
+{ kind: "backend-init"; backend: BackendId; message: string } | 
+/**
+ * Tokenizer failed to load or build. Usually means a bad
+ * `tokenizer.json` or a GGUF with incomplete embedded tokenizer
+ * metadata.
+ */
+{ kind: "tokenizer-load"; message: string } | 
+/**
+ * Plumbing errors that don't fit the above (IO, generic backend
+ * crashes, unexpected failures from deeper in the stack). Keep
+ * this rare — prefer adding a specific variant when a new class
+ * of failure emerges.
+ */
+{ kind: "other"; message: string }
+/**
  * Copy for the per-slot model loading feedback. Rendered by
  * `ClyffyLoadSpinner` inside each role card while the slot is loading.
  */
@@ -2788,6 +3312,31 @@ avg_amplitude: number;
  * Noise floor estimate.
  */
 noise_floor: number }
+/**
+ * High-level file format. Matches the frontend's storage convention.
+ * 
+ * Both `Serialize` and `Deserialize` are derived because this enum
+ * crosses the Tauri command boundary in both directions — it's
+ * returned from `list_backend_matrix` and accepted as an input
+ * argument by `resolve_architecture_compatibility`.
+ */
+export type ModelFormat = 
+/**
+ * Quantized GGUF model weights.
+ */
+"gguf" | 
+/**
+ * Safetensors model shards and metadata.
+ */
+"safetensors" | 
+/**
+ * ONNX model assets.
+ */
+"onnx" | 
+/**
+ * Raw PyTorch checkpoints.
+ */
+"pytorch"
 /**
  * Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
  */
@@ -2888,6 +3437,38 @@ continue_label: string;
  * Label on the button that returns to the hardware step.
  */
 back_label: string }
+/**
+ * Model readiness snapshot — survives the frontend mount race.
+ * 
+ * Emitted as `platform:models-status` from the boot task, AND stored in
+ * the `BootStateTracker` so `get_boot_state` returns it to late-mounting
+ * frontends that missed the live event.
+ */
+export type ModelsStatusSnapshot = { 
+/**
+ * Whether models are present AND at least one slot is assigned.
+ */
+ready: boolean; 
+/**
+ * No slot assignments exist — show setup wizard.
+ */
+firstRun: boolean; 
+/**
+ * Number of model files found by the registry scan.
+ */
+modelCount: number; 
+/**
+ * Total slots configured.
+ */
+slotCount: number; 
+/**
+ * Slots that have an assigned model.
+ */
+assignedCount: number; 
+/**
+ * Optional error from the model readiness check.
+ */
+error: string | null }
 /**
  * Partial GPU offload hints for llama.cpp-backed slots that exceed
  * the GPU VRAM budget.
@@ -3097,6 +3678,21 @@ url: string | null;
  * Process ID of the spawned `node.exe`, if running.
  */
 pid: number | null }
+/**
+ * Resolver output. Either a concrete plan or a typed failure with
+ * alternatives.
+ */
+export type Resolution = 
+/**
+ * The registry has a backend that can load this `(arch, format)`
+ * in the current build.
+ */
+{ kind: "ok"; backend: BackendId; notes: string[] } | 
+/**
+ * No loader is available. The frontend should show the reason
+ * and offer the alternatives.
+ */
+{ kind: "unsupported"; arch: ArchId; format: ModelFormat; reason: UnsupportedReason; alternatives: Alternative[] }
 /**
  * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
  * 
@@ -3450,6 +4046,48 @@ latency_us: number | null;
  */
 message: string | null }
 /**
+ * Whether the backend for this format is stable, experimental, or
+ * not yet shipped. Used by the resolver to decide whether to surface
+ * a compatibility warning alongside a successful plan.
+ */
+export type SupportStatus = 
+/**
+ * Shipped and expected to work in routine use.
+ */
+"stable" | 
+/**
+ * Shipped behind cautionary messaging due to maturity risk.
+ */
+"experimental" | 
+/**
+ * Declared in the registry but not yet implemented.
+ */
+"planned" | 
+/**
+ * Explicitly unsupported for this backend/format pairing.
+ */
+"unsupported"
+/**
+ * Relative priority for recommendation order.
+ */
+export type SupportTier = 
+/**
+ * First-class path shown as the default recommendation.
+ */
+"primary" | 
+/**
+ * Supported fallback path when the primary tier is not available.
+ */
+"secondary" | 
+/**
+ * Deprecated but still loadable for existing model inventories.
+ */
+"legacy" | 
+/**
+ * Reserved entry that should render as coming soon, not loadable.
+ */
+"planned"
+/**
  * Overall system health status.
  */
 export type SystemHealth = { 
@@ -3548,6 +4186,29 @@ rate: number;
  * Output gain in decibels. `0` = unchanged.
  */
 gain_db: number }
+/**
+ * Why a known architecture cannot be loaded in the requested format.
+ */
+export type UnsupportedReason = 
+/**
+ * The registry has no backend that declares support for this
+ * `(arch, format)` combination.
+ */
+{ kind: "format-not-wired"; detail: string } | 
+/**
+ * A backend declares support but its Cargo feature is off in
+ * this build.
+ */
+{ kind: "backend-not-installed"; backend: BackendId; feature_flag: string } | 
+/**
+ * The architecture's tier is `Planned` — no loader exists yet.
+ */
+{ kind: "planned-slot" } | 
+/**
+ * The architecture is marked `Legacy` and the owner has opted
+ * out of legacy fallbacks in settings.
+ */
+{ kind: "legacy-disabled" }
 /**
  * 24/7 full-duplex voice brain (Moshi) configuration.
  * 

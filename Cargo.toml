@@ -5,9 +5,16 @@ members = [
     "kernel/model-loader",
     "systems/devpulse-engine",
     "systems/*",
+    "systems/infra/*", # Hypermodular foundational infra crates — see ADR-002
     "interfaces/desktop/src-tauri",
     "xtask" # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
+]
+exclude = [
+    # `systems/infra/` is a grouping directory, not a crate — `systems/*`
+    # would otherwise match it and expect a Cargo.toml at its root.
+    # Its children are picked up via the explicit `systems/infra/*` glob above.
+    "systems/infra",
 ]
 
 [workspace.dependencies]
@@ -35,10 +42,22 @@ rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
 # Constrained decoding (kernel — optional feature on `devpulse-clyffy`)
 llguidance = "1.7"
 
-# Observability
+# Observability — OTel 0.31 pin set (SPRINT-TELEMETRY-FOUNDATION, ADR-002)
+# Pinned 2026-04-15 after Q1/Q2 2026 research. Do not bump independently.
+# opentelemetry 0.28+ removed `global::shutdown_tracer_provider()` — use
+# devpulse_telemetry::TelemetryGuard::shutdown().await.
+# opentelemetry-otlp 0.31 ships gRPC-tonic ONLY; HTTP/reqwest exporter dead.
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 tracing-appender = "0.2"
+opentelemetry = "0.31"
+opentelemetry_sdk = "0.31"
+opentelemetry-otlp = "0.31"
+tracing-opentelemetry = "0.32"
+opentelemetry-semantic-conventions = "0.31"
+
+# Sync→async channel bridge (MPMC) — wrapped by devpulse-telemetry::channel::flume
+flume = "0.11"
 
 # Error Handling
 anyhow = "1.0"

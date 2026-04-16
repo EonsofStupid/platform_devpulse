@@ -11,6 +11,15 @@ which = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
 toml = "0.8"
+# Fetch pipeline for DevForge release artifacts (commands::fetch_devforge).
+# Sync HTTP + SHA256 + zip extraction. Native-tls keeps us off aws-lc-sys
+# in xtask — the workspace already has NASM wired for the main build but
+# xtask should stay light and use Windows Schannel.
+ureq = { version = "2.10", default-features = false, features = ["native-tls", "gzip"] }
+native-tls = "0.2"
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+sha2 = "0.10"
+hex = "0.4"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [

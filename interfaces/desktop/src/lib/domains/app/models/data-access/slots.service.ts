@@ -7,13 +7,27 @@
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
-import { commands, type SlotInfo } from "$lib/sys/generated/bindings.js";
+import { commands, type LoadError, type SlotInfo } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
+import { formatLoadError } from "./compatibility.service.js";
 
-/** Unwrap a specta Result or throw. */
-function unwrap<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+/**
+ * Unwrap a specta Result or throw.
+ *
+ * The error type is generic so this helper works for both:
+ * - legacy commands that return `Result<T, string>`
+ * - typed load-path commands that return `Result<T, LoadError>`
+ *
+ * LoadError values are rendered via `formatLoadError` at the throw
+ * boundary. Consumers who want the typed variant should not use
+ * `unwrap` — they should pattern-match on the result directly.
+ */
+function unwrap<T>(
+	result: { status: "ok"; data: T } | { status: "error"; error: string | LoadError },
+): T {
 	if (result.status === "ok") return result.data;
-	throw new Error(result.error);
+	const msg = typeof result.error === "string" ? result.error : formatLoadError(result.error);
+	throw new Error(msg);
 }
 
 /** Get all registered slots. Throws on failure. */

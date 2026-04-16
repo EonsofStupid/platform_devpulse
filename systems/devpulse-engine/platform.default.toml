@@ -92,25 +92,11 @@ path = "system/rro/storage"
 # enabled = false
 # kind = "llguidance"
 
-[services.system.embedder]
-# Candle-based dense text embedder — CPU burst mode.
-# Used by CAG pipeline to generate vectors for RRO (Qdrant).
-# Model: BERT-family (e.g. all-MiniLM-L6-v2, bge-small-en-v1.5).
-# Download model files into .userdata/system/candle/embedder/ to enable.
-enabled = false
-critical = false
-kind = "candle"
-model_path = "system/candle/embedder"
-
-[services.system.whisper]
-# Candle-based Whisper ASR — CPU burst speech-to-text.
-# Transcribes audio to text on demand (not streaming).
-# Model: Whisper tiny/base/small (safetensors format).
-# Download model files into .userdata/system/candle/whisper/ to enable.
-enabled = false
-critical = false
-kind = "candle"
-model_path = "system/candle/whisper"
+# ── DELETED: [services.system.embedder] and [services.system.whisper]
+# These were legacy standalone Candle services that duplicated what the
+# model loader slot system already manages (rag.embedder, voice.stt).
+# ONE SSOT: model loader slots. Removed so boot shows zero misleading
+# SKIP lines for capabilities the slot system already handles.
 
 [services.system.model_loader]
 # AI model management — slot-based model registry, HuggingFace downloads,
@@ -226,18 +212,11 @@ repo = "Mungert/Qwen3-Reranker-0.6B-GGUF"
 file = "Qwen3-Reranker-0.6B-q8_0.gguf"
 size_mb = 639
 
-[services.system.devforge]
-# Managed DevPulse-branded code-oss editor — bundled as a Tauri resource.
-# xtask stages a prebuilt Electron tree (see [build.deps.devforge]) into
-# src-tauri/resources/devforge/. At runtime the desktop shell resolves
-# the launcher from {app_data}/devforge/ (update channel) and falls back
-# to the bundled baseline under the Tauri resourceDir.
-enabled = true
-critical = false
-binary_path = "devforge/DevPulse.exe"
-workspace_path = "."
-port = 8443
-update_channel_url = "https://releases.devpulse.dev/devforge/channel.toml"
+# ── DELETED: [services.system.devforge]
+# DevForge lifecycle is managed by bootstrap.rs → RehManager::spawn(),
+# NOT the platform service system. The dedicated Tauri window opens via
+# open_devforge_window command. REH tree fetched from GitHub release
+# via `cargo xtask fetch-devforge`. No platform service entry needed.
 
 [services.system.claude]
 # Claude integration — MCP server, dual-lane governance, sidecar, API provider.
@@ -487,9 +466,13 @@ env = []
 extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
 [build.deps.code_oss]
-# External DevForge/code-oss source tree. xtask uses this to decide
-# whether the code-oss dependency should be built during dev preflight.
-enabled = true
+# DEPRECATED — replaced by `cargo xtask fetch-devforge` which grabs the
+# prebuilt REH release from github.com/EonsofStupid/devforge instead of
+# building code-oss from source every preflight. Left here disabled so
+# the xtask build_deps orchestrator short-circuits without touching
+# deps/code-oss/. The entire build_deps::code_oss module is dead code
+# until it's torn out in a follow-up pass.
+enabled = false
 
 # ort/ort-sys: owned fork at deps/ort/, patched via [patch.crates-io].
 # Builds from source using local MSVC toolchain — no pre-built binaries.
