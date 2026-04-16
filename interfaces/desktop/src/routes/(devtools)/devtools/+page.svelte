@@ -291,6 +291,73 @@ let laneGroups = $derived<LaneGroup[]>(
 					<span class="text-xs text-[var(--text-secondary)]">Prompt builder, memory, councils.</span>
 				</a>
 
+				<!-- Infrastructure service devtools -->
+				<a
+					href="/devtools/libsql"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">LibSQL</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">System + User relational stores. WAL, schema, queries.</span>
+				</a>
+
+				<a
+					href="/devtools/duckdb"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-purple-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-purple-400)]" />
+						<span class="text-sm font-medium">DuckDB</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Analytics engine. Telemetry spans, OLAP queries.</span>
+				</a>
+
+				<a
+					href="/devtools/surreal"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">SurrealDB</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Knowledge graph. 3 namespaces. HTTP :8822.</span>
+				</a>
+
+				<a
+					href="/devtools/rro"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">RRO / Vector</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Qdrant vector store + dense encoder.</span>
+				</a>
+
+				<a
+					href="/devtools/devforge"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">DevForge</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">REH server health, extensions, update channel.</span>
+				</a>
+
+				<a
+					href="/devtools/mongodb"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-dashed border-[var(--border-subtle)] opacity-50 text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--text-secondary)]" />
+						<span class="text-sm font-medium">MongoDB</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Document store. Planned — not active.</span>
+				</a>
+
 				<!-- Placeholder for VPB -->
 				<div
 					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-dashed border-[var(--border-subtle)] opacity-50"
