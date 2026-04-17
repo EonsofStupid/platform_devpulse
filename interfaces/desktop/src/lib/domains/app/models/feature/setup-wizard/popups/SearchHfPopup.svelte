@@ -98,7 +98,8 @@ const filteredResults = $derived.by(() => {
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="popup-backdrop" onclick={onClose} onkeydown={handleKeydown}>
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<div class="popup-panel" onclick|stopPropagation role="dialog" aria-modal="true" aria-label="Search HuggingFace — {slotLabel}">
+	<!-- svelte-ignore a11y_interactive_supports_focus -->
+	<div class="popup-panel" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Search HuggingFace — {slotLabel}">
 		<div class="popup-header">
 			<Heading level={3} size="lg">Search HuggingFace — {slotLabel}</Heading>
 			<Button preset="button-ghost" size="sm" onclick={onClose} aria-label="Close">
@@ -225,8 +226,6 @@ const filteredResults = $derived.by(() => {
 						{#if result.tags.some((t) => t.includes("safetensors")) && (formatFilter === "all" || formatFilter === "safetensors")}
 							<div class="file-section">
 								<Text size="xs" weight="bold" class="section-label">SafeTensors</Text>
-								{@const fileKey = `${result.repo_id}/safetensors`}
-								{@const isDownloading = downloadingFile === fileKey}
 								<div class="file-row">
 									<div class="file-info">
 										<Text size="xs" class="file-name">{result.repo_id} (all shards)</Text>
@@ -235,7 +234,7 @@ const filteredResults = $derived.by(() => {
 										preset="button-primary"
 										size="sm"
 										onclick={() => handleDownload(result.repo_id, "model.safetensors")}
-										disabled={isDownloading}
+										disabled={downloadingFile === `${result.repo_id}/safetensors`}
 									>
 										{#if isDownloading}
 											<Spinner size="xs" />

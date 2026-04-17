@@ -116,7 +116,8 @@ function handleKeydown(e: KeyboardEvent): void {
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="popup-backdrop" onclick={onClose} onkeydown={handleKeydown}>
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<div class="popup-panel" onclick|stopPropagation role="dialog" aria-modal="true" aria-label="Local Models — {slotLabel}">
+	<!-- svelte-ignore a11y_interactive_supports_focus -->
+	<div class="popup-panel" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Local Models — {slotLabel}">
 		<div class="popup-header">
 			<Heading level={3} size="lg">Local Models — {slotLabel}</Heading>
 			<Button preset="button-ghost" size="sm" onclick={onClose} aria-label="Close">
