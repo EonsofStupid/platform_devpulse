@@ -759,9 +759,18 @@ impl Default for ModelLoaderServiceEntry {
 }
 
 impl ModelLoaderServiceEntry {
-    /// Resolve the full models directory path from the data directory.
+    /// Resolve the full models directory path.
+    ///
+    /// If `models_dir` is an absolute path, use it directly (dev mode
+    /// points at the repo root `models/` folder). If relative, join
+    /// with `data_dir` (release mode uses `.userdata/models/`).
     pub fn resolve_models_dir(&self, data_dir: &Path) -> PathBuf {
-        data_dir.join(&self.models_dir)
+        let p = std::path::Path::new(&self.models_dir);
+        if p.is_absolute() {
+            p.to_path_buf()
+        } else {
+            data_dir.join(&self.models_dir)
+        }
     }
 
     /// Get the list of subdirectory names for model discovery.

@@ -42,7 +42,28 @@ pub async fn boot(
     boot_log.running("Model Loader", "booting...");
     let start = Instant::now();
 
-    let models_dir = entry.resolve_models_dir(data_dir);
+    let mut models_dir = entry.resolve_models_dir(data_dir);
+
+    // Dev mode: prefer the repo-root `models/` folder over `.userdata/models/`.
+    // This is where the developer keeps full HuggingFace checkpoints (safetensors,
+    // ONNX, GGUF) organized by model family. The portable `.userdata/` copy is
+    // for release builds. Repo root derived from CARGO_MANIFEST_DIR at compile
+    // time — same pattern as DevForge resolver in boot/devforge.rs.
+    #[cfg(debug_assertions)]
+    {
+        let manifest = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        if let Some(repo_root) = manifest.parent().and_then(std::path::Path::parent) {
+            let dev_models = repo_root.join("models");
+            if dev_models.is_dir() {
+                tracing::info!(
+                    dev_models = %dev_models.display(),
+                    "Dev mode: using repo-root models/ instead of .userdata/models/"
+                );
+                models_dir = dev_models;
+            }
+        }
+    }
+
     let subdirs = entry.subdir_names();
 
     // Boot is sync (file I/O, GGUF parsing) — offload to blocking thread.

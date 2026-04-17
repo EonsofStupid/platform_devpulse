@@ -116,13 +116,10 @@ fn resolve_reh_server_dir(data_dir: &Path) -> Option<std::path::PathBuf> {
             .parent() // systems/
             .and_then(std::path::Path::parent) // repo root
         {
-            // 1. Dev checkout
-            let dev_reh = repo_root.join("deps").join("code-oss-reh-web");
-            if dev_reh.join("out").join("server-main.js").is_file() {
-                return Some(dev_reh);
-            }
-
-            // 2. Fetched release tree
+            // 1. Fetched release tree FIRST — complete with native modules.
+            // The dev junction at deps/code-oss-reh-web/ may be a symlink
+            // to an incomplete local build missing @parcel/watcher etc.
+            // The fetched tree from GitHub release is SHA-verified complete.
             #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
             let platform = "win32-x64";
             #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
@@ -141,6 +138,12 @@ fn resolve_reh_server_dir(data_dir: &Path) -> Option<std::path::PathBuf> {
                 .join(platform);
             if fetched.join("out").join("server-main.js").is_file() {
                 return Some(fetched);
+            }
+
+            // 2. Dev checkout fallback — only if fetched tree doesn't exist
+            let dev_reh = repo_root.join("deps").join("code-oss-reh-web");
+            if dev_reh.join("out").join("server-main.js").is_file() {
+                return Some(dev_reh);
             }
         }
     }

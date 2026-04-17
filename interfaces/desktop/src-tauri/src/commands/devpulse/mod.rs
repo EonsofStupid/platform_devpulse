@@ -136,9 +136,9 @@ pub async fn fetch_dashboard(
 
         // Message + session counts
         let msg_rows = adapter
-            .query("SELECT COUNT(*) FROM messages", &[])
+            .query("SELECT COUNT(*) FROM turns", &[])
             .await
-            .map_err(|e| format!("Failed to count messages: {e}"))?;
+            .map_err(|e| format!("Failed to count turns: {e}"))?;
         let total_messages = msg_rows
             .first()
             .and_then(|r| r.first())

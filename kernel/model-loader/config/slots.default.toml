@@ -67,9 +67,9 @@ preferred_device = "Gpu"
 loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
-runtime = "LlamaCpp"
-default_model = "Qwen3-0.6B-Q4_K_M.gguf"
-source_tier = { Bundled = { bundled_path = "chat/Qwen3-0.6B-Q4_K_M.gguf" } }
+runtime = "Candle"
+default_model = "model.safetensors"
+source_tier = { Bundled = { bundled_path = "Qwen3-0.6B/model.safetensors" } }
 
 # ── 1b. chat.fast — Routing / simple-turn brain ──────────────
 #
@@ -109,9 +109,9 @@ preferred_device = "GpuWithCpuFallback"
 loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
-runtime = "LlamaCpp"
-default_model = "Qwen3-0.6B-Q4_K_M.gguf"
-source_tier = { Bundled = { bundled_path = "chat/Qwen3-0.6B-Q4_K_M.gguf" } }
+runtime = "Candle"
+default_model = "model.safetensors"
+source_tier = { Bundled = { bundled_path = "Qwen3-0.6B/model.safetensors" } }
 
 # ── 3. minion.escalation — Deep reasoning escalation ──────────
 
@@ -141,9 +141,9 @@ preferred_device = "Cpu"
 loading = { Signal = "screenshot.captured" }
 persistence_class = "on_demand"
 lane = "cpu"
-runtime = "Ort"
-default_model = "vision_model_int8.onnx"
-source_tier = { Bundled = { bundled_path = "vision/siglip2-base/vision_model_int8.onnx" } }
+runtime = "Candle"
+default_model = "model.safetensors"
+source_tier = { Bundled = { bundled_path = "SigLIP2/model.safetensors" } }
 
 # ── 4b. chat.vision — Vision-language chat model ──────────────
 #
@@ -186,9 +186,9 @@ preferred_device = "Cpu"
 loading = { Signal = "speech.requested" }
 persistence_class = "on_demand"
 lane = "cpu"
-runtime = "Ort"
-default_model = "kokoro-v1.0.int8.onnx"
-source_tier = { Bundled = { bundled_path = "voice/kokoro-v1.0.int8.onnx" } }
+runtime = "Candle"
+default_model = "model.safetensors"
+source_tier = { Bundled = { bundled_path = "Qwen3-TTS-0.6B/model.safetensors" } }
 
 [slots.extensions]
 voice_profile = "af_heart"
@@ -204,8 +204,7 @@ loading = { Signal = "voice.activated" }
 persistence_class = "on_demand"
 lane = "cpu"
 runtime = "Ort"
-default_model = "ggml-small.bin"
-source_tier = { Bundled = { bundled_path = "voice/ggml-small.bin" } }
+source_tier = { Bundled = { bundled_path = "Whisper-small/" } }
 
 # ── 7. voice.brain — Full-duplex speech-to-speech brain ───────
 #
@@ -295,9 +294,9 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
-runtime = "LlamaCpp"
-default_model = "Qwen3-Embedding-0.6B-Q8_0.gguf"
-source_tier = { Bundled = { bundled_path = "rag/Qwen3-Embedding-0.6B-Q8_0.gguf" } }
+runtime = "Candle"
+default_model = "model.safetensors"
+source_tier = { Bundled = { bundled_path = "Qwen3-Embedding-0.6B/model.safetensors" } }
 builtin = true
 
 # ── 9b. rag.encoder — Vector store query encoder ─────────────
@@ -324,9 +323,9 @@ preferred_device = "Cpu"
 loading = "Hot"
 persistence_class = "warm_standby"
 lane = "cpu"
-runtime = "LlamaCpp"
-default_model = "Qwen3-Embedding-0.6B-Q8_0.gguf"
-source_tier = { Bundled = { bundled_path = "rag/Qwen3-Embedding-0.6B-Q8_0.gguf" } }
+runtime = "Candle"
+default_model = "model.safetensors"
+source_tier = { Bundled = { bundled_path = "Qwen3-Embedding-0.6B/model.safetensors" } }
 builtin = true
 
 # ── 10. rag.reranker — Search result filter ──────────────────

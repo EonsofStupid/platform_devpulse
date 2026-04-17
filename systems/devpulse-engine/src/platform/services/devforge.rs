@@ -36,7 +36,6 @@ pub struct DevForgeService {
     child: Mutex<Option<Child>>,
     port: u16,
     token: String,
-    server_dir: PathBuf,
 }
 
 impl DevForgeService {
@@ -127,7 +126,6 @@ impl DevForgeService {
             child: Mutex::new(Some(child)),
             port,
             token,
-            server_dir: server_dir.to_path_buf(),
         };
 
         // ── Wait for the server to start ─────────────────────────
