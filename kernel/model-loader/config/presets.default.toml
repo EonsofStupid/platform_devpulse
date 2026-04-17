@@ -21,7 +21,7 @@
 #
 #   High         — 24 GB+     → Preset 4 (Static 14B brain)
 #   JessePrimary — 16 GB      → Preset 3 (ActiveIdle Phi-4 15B / 4B)
-#   Mid          — 12 GB      → Preset 2 (ActiveIdle 9B / 4B)
+#   Mid          — 10 GB+     → Preset 2 (ActiveIdle 9B / 4B)
 #   Floor        —  8 GB      → Preset 1 (Static 4B brain)
 #   Minimal      — <8 GB      → Preset 1 on CPU
 #   CpuOnly      — no GPU     → Preset 1 on CPU
@@ -123,9 +123,9 @@ device = "Gpu"
 
 [[presets.slots]]
 slot_id = "rag.encoder"
-model_repo_id = "Qwen/Qwen3-Embedding-0.6B-GGUF"
-model_filename = "Qwen3-Embedding-0.6B-Q8_0.gguf"
-model_size_mb = 639
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 
@@ -200,9 +200,9 @@ device = "Gpu"
 
 [[presets.slots]]
 slot_id = "rag.encoder"
-model_repo_id = "Qwen/Qwen3-Embedding-0.6B-GGUF"
-model_filename = "Qwen3-Embedding-0.6B-Q8_0.gguf"
-model_size_mb = 639
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 
@@ -295,16 +295,14 @@ model_size_mb = 0
 vram_estimate_mb = 0
 device = "Gpu"
 
-# rag.encoder — second Qwen3-Embedding-0.6B instance on CPU for
-# the RRO (Qdrant) query path. Distinct from rag.embedder (which
-# holds the document-side encoder). Same file on disk — the
-# BackendPool ref-counts the underlying weights so there's only
-# one copy in memory even though both slots reference it.
+# rag.encoder — Harrier 0.6B on CPU for the RRO (Qdrant) query path.
+# Same model as rag.embedder — BackendPool ref-counts the underlying
+# weights so there's only one copy in memory.
 [[presets.slots]]
 slot_id = "rag.encoder"
-model_repo_id = "Qwen/Qwen3-Embedding-0.6B-GGUF"
-model_filename = "Qwen3-Embedding-0.6B-Q8_0.gguf"
-model_size_mb = 639
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 
@@ -422,8 +420,8 @@ device = "Cpu"
 # unless a tier-specific entry with the same `slot_id` already
 # exists. The loader handles the merge deterministically.
 #
-# rag.embedder switched from nomic-embed to Qwen3-Embedding-0.6B
-# (April 2026 SOTA multilingual, 100+ languages, same CPU footprint).
+# rag.embedder uses Microsoft Harrier 0.6B (Qwen3-based encoder,
+# optimised for retrieval, already on disk as microsoftharrier-oss-v1-0.6b).
 # voice.wake added for the bundled sherpa-onnx KWS zipformer so
 # 24/7 wake detection works out-of-the-box with no user config.
 # voice.tts uses Kokoro English v0.19 — the same ONNX file the
@@ -431,9 +429,9 @@ device = "Cpu"
 
 [[common.slots]]
 slot_id = "rag.embedder"
-model_repo_id = "Qwen/Qwen3-Embedding-0.6B-GGUF"
-model_filename = "Qwen3-Embedding-0.6B-Q8_0.gguf"
-model_size_mb = 639
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 

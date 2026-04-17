@@ -248,7 +248,7 @@ pub async fn get_slots(
 ) -> Result<Vec<SlotInfo>, String> {
     let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
-    let models = loader.scan_models().await.unwrap_or_default();
+    let models = loader.get_registry().await;
 
     Ok(slots
         .into_iter()

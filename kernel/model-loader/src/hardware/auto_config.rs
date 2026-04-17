@@ -31,7 +31,7 @@ pub enum HardwareTier {
     High,
     /// 16 GB VRAM — Preset 3 (Jesse Primary). ActiveIdle, 15B/4B swap.
     JessePrimary,
-    /// 12 GB VRAM — Preset 2 (Mid). ActiveIdle, 9B/4B swap.
+    /// 10 GB+ VRAM — Preset 2 (Mid). ActiveIdle, 9B/4B swap.
     Mid,
     /// 8 GB VRAM — Preset 1 (Floor). Static, 4B brain.
     Floor,
@@ -105,7 +105,7 @@ pub fn detect_tier(metrics: &HardwareMetrics) -> HardwareTier {
         Some(vram) if vram >= 40_000 => HardwareTier::Ultra,
         Some(vram) if vram >= 24_000 => HardwareTier::High,
         Some(vram) if vram >= 16_000 => HardwareTier::JessePrimary,
-        Some(vram) if vram >= 12_000 => HardwareTier::Mid,
+        Some(vram) if vram >= 10_000 => HardwareTier::Mid,
         Some(vram) if vram >= 8_000 => HardwareTier::Floor,
         Some(_) => HardwareTier::Minimal,
         None => HardwareTier::CpuOnly,
@@ -213,8 +213,10 @@ mod tests {
     }
 
     #[test]
-    fn tier_floor() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(10_000))), HardwareTier::Floor);
+    fn tier_mid_10gb() {
+        // RTX 3080 (10 GB) should get Mid, not Floor
+        assert_eq!(detect_tier(&metrics_with_vram(Some(10_000))), HardwareTier::Mid);
+        assert_eq!(detect_tier(&metrics_with_vram(Some(10_240))), HardwareTier::Mid);
     }
 
     #[test]
@@ -308,7 +310,7 @@ impl std::fmt::Display for HardwareTier {
             Self::Ultra => write!(f, "Ultra (40GB+ VRAM)"),
             Self::High => write!(f, "High (24GB+ VRAM)"),
             Self::JessePrimary => write!(f, "Jesse Primary (16GB VRAM)"),
-            Self::Mid => write!(f, "Mid (12GB VRAM)"),
+            Self::Mid => write!(f, "Mid (10GB+ VRAM)"),
             Self::Floor => write!(f, "Floor (8GB VRAM)"),
             Self::Minimal => write!(f, "Minimal (<8GB VRAM)"),
             Self::CpuOnly => write!(f, "CPU Only"),

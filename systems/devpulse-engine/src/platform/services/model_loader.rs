@@ -221,18 +221,14 @@ impl ModelLoaderService {
 
     /// Scan models directory.
     ///
-    /// Runs on a blocking thread via `spawn_blocking` because the inner
-    /// `scan_models()` does synchronous GGUF header parsing (filesystem I/O).
-    /// Without this, the async runtime thread is blocked and the UI freezes.
+    /// Acquires the async lock first, then runs the blocking filesystem I/O
+    /// (GGUF header parsing) while holding it. Using `lock().await` instead
+    /// of `spawn_blocking` + `blocking_lock()` prevents deadlocks when other
+    /// async methods (list_slots, get_registry) contend on the same Mutex.
+    /// The scan takes 1-3 seconds — acceptable on the Tauri async runtime.
     pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>> {
-        let inner = Arc::clone(&self.inner);
-        tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
-            guard.scan_models()
-        })
-        .await
-        .map_err(|e| anyhow::anyhow!("scan_models task panicked: {e}"))?
-        .map_err(Into::into)
+        let mut guard = self.inner.lock().await;
+        guard.scan_models().map_err(Into::into)
     }
 
     /// List all registered slots.

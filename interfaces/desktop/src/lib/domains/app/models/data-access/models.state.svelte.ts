@@ -78,15 +78,21 @@ class ModelsState {
 		});
 	}
 
-	/** Scan the models directory for new GGUF files. Hard fail. */
+	/** Scan the models directory. 15s timeout — if IPC hangs, fail loud. */
 	async scan(): Promise<void> {
-		return withAction("models.scan", "Scanning the models folder for GGUF files…", async () => {
+		return withAction("models.scan", "Scanning local models…", async () => {
 			this.scanning = true;
 			this.error = null;
 			logInfo("models", "scan() start — scanModels()");
 			try {
-				this.models = await scanModels();
-				logInfo("models", `scan() ok — models=${this.models.length}`);
+				const timeout = new Promise<never>((_, reject) =>
+					setTimeout(
+						() => reject(new Error("Model scan timed out after 15s — IPC response lost")),
+						15_000,
+					),
+				);
+				this.models = await Promise.race([scanModels(), timeout]);
+				logInfo("models", `scan() ok — ${this.models.length} models found`);
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : String(e);
 				this.error = msg;

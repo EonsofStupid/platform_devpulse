@@ -183,7 +183,7 @@ preferred_device = "Cpu"
 loading = { Signal = "speech.requested" }
 persistence_class = "on_demand"
 lane = "cpu"
-runtime = "Candle"
+runtime = "Ort"
 source_tier = "UserManaged"
 
 [slots.extensions]
