@@ -1,8 +1,8 @@
 # DevPulse Platform — Rust + Svelte 5 + Tauri 2 Monorepo
 
 ## Structure
-- `kernel/clyffy/` — SENSITIVE IP. AI orchestrator. DO NOT reference internal terms outside kernel/
-- `systems/engine/` — Rust engine, managed by desktop facade
+- `kernel/devpulse-clyffy/` — SENSITIVE IP. AI orchestrator. Kernel **paths and filenames are OK to cite**; kernel **vocabulary, recipes, and prompt bodies** are banned outside `kernel/`. See @.claude/rules/ip-protection.md.
+- `systems/devpulse-engine/` — Rust engine, managed by desktop facade
 - `interfaces/desktop/` — Tauri 2 + SvelteKit 5 desktop app
 - `lab/` — Observer pattern, subscribes only, separate DB instances
 
@@ -10,7 +10,7 @@
 - `cargo check -p <crate>` — typecheck specific crate (NOT full workspace)
 - `cargo clippy -p <crate>` — lint specific crate
 - `cd interfaces/desktop && pnpm dev` — start dev server
-- `cd interfaces/desktop && pnpm svelte-check` — TypeScript check
+- `cd interfaces/desktop && pnpm check` — TypeScript check (runs svelte-check)
 
 ## Stack
 - Rust (engine, kernel, Tauri backend) — **NO PYTHON. NO EXCEPTIONS.**
@@ -31,12 +31,12 @@
 - `feature/` — smart/routed Svelte 5 components. May import `ui`, `data-access`, `util`.
 - `ui/` — dumb/presentational Svelte 5 components. May import `util` only.
 - `data-access/` — rune state (`*.state.svelte.ts`) + services (`*.svc.ts`) + IPC. May import `util` only.
-- `util/` — Zod/ArkType contracts, types, pure helpers. Imports nothing else in-domain.
+- `util/` — ArkType contracts, types, pure helpers. Imports nothing else in-domain.
 - Cross-domain: always through the target domain's `index.ts`. No reaching into internals.
 - Dep direction enforced by preflight. Forbidden: `ui → data-access`, `data-access → feature`, `util → *`.
 
 ## Countermeasures (CC-001 through CC-007)
-- After EVERY edit: run `cargo check -p <crate>` or `pnpm svelte-check`
+- After EVERY edit: run `cargo check -p <crate>` or `pnpm check`
 - FORBIDDEN from reporting "Done" until verification passes zero errors
 - Before EVERY edit: re-read the file. After EVERY edit: read again to confirm.
 - Max 3 edits to same file without verification read.

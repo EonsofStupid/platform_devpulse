@@ -27,6 +27,24 @@ The registry is **one-sided** on purpose. A mapping table that says "public `rro
 
 ---
 
+## Public vs Protected, in one glance
+
+**OK to quote anywhere (docs, chat, commits, READMEs, screenshots):**
+- Filesystem paths — including `kernel/...` paths and filenames.
+- Module names of kernel files.
+- Mechanics: which Tauri command writes which table, data-directory layout, how to wipe `user.db`, build commands, crate boundaries.
+- Anything already declared in `signals.registry.yaml`.
+
+**Never outside `kernel/` (registry-enforced, CI-blocked):**
+- Kernel-internal vocabulary (algorithm / infra / architecture / sub-agent names — see full list below).
+- **Orchestration recipes.** Any description of *how* the kernel composes behaviors that would let a reader reproduce hosted-assistant-style capability. Treat recipes as trade secrets even when no banned term appears.
+- Prompt and template bodies (names may be registry-aliased; bodies never surface).
+- Distillation / training pipelines, slot wiring that encodes capability.
+
+**Rule of thumb:** pointing at a file is fine. Explaining the recipe inside it is kernel-only.
+
+---
+
 ## Why This Shape
 
 The doctrine converges on how the AI product leaders actually structure their public surfaces:
@@ -76,8 +94,8 @@ Concrete list. CI regex blocks these anywhere outside `kernel/` and explicitly a
 **Sub-agent identities (the literal words — note `Minion` is NOT banned; it is the public layman worker vocabulary):**
 `DIARY`, `GUARDIAN`, `PSYCH`, `TEACHER`, `ENFORCER`, `sub-agent`, `sub_agent`
 
-**Template contents:**
-The literal body of any prompt recipe template. The *name* `COSTAR+` is accepted as a legacy alias for the `prompt` group; the template body is not.
+**Template contents and orchestration recipes:**
+The literal body of any prompt recipe template, and any description of how kernel components compose to produce hosted-assistant-style behavior. The *name* `COSTAR+` is accepted as a legacy alias for the `prompt` group; the template body and the recipe are not.
 
 This list is not exhaustive. The real rule: **if it is not in `signals.registry.yaml`, it is kernel-only.**
 
