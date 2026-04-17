@@ -14733,6 +14733,1054 @@
 				"value": "1",
 				"type": "number",
 				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-background-color",
+				"path": [
+					"preset",
+					"button-primary",
+					"background-color"
+				],
+				"cssVar": "--preset-button-primary-background-color",
+				"value": "oklch(0.55 0.14 180)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-border-radius",
+				"path": [
+					"preset",
+					"button-primary",
+					"border-radius"
+				],
+				"cssVar": "--preset-button-primary-border-radius",
+				"value": "0.5rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-box-shadow",
+				"path": [
+					"preset",
+					"button-primary",
+					"box-shadow"
+				],
+				"cssVar": "--preset-button-primary-box-shadow",
+				"value": "0 0 1rem 0 oklch(0.55 0.14 180 / 0.35)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-color",
+				"path": [
+					"preset",
+					"button-primary",
+					"color"
+				],
+				"cssVar": "--preset-button-primary-color",
+				"value": "oklch(0.97 0.01 180)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-border-color",
+				"path": [
+					"preset",
+					"button-primary",
+					"border-color"
+				],
+				"cssVar": "--preset-button-primary-border-color",
+				"value": "oklch(0.6 0.12 180 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-border-width",
+				"path": [
+					"preset",
+					"button-primary",
+					"border-width"
+				],
+				"cssVar": "--preset-button-primary-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-backdrop-filter",
+				"path": [
+					"preset",
+					"button-primary",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-button-primary-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-opacity",
+				"path": [
+					"preset",
+					"button-primary",
+					"opacity"
+				],
+				"cssVar": "--preset-button-primary-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-animation",
+				"path": [
+					"preset",
+					"button-primary",
+					"animation"
+				],
+				"cssVar": "--preset-button-primary-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-transition-duration",
+				"path": [
+					"preset",
+					"button-primary",
+					"transition-duration"
+				],
+				"cssVar": "--preset-button-primary-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-transition-timing-function",
+				"path": [
+					"preset",
+					"button-primary",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-button-primary-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-gradient",
+				"path": [
+					"preset",
+					"button-primary",
+					"gradient"
+				],
+				"cssVar": "--preset-button-primary-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-font-family",
+				"path": [
+					"preset",
+					"button-primary",
+					"font-family"
+				],
+				"cssVar": "--preset-button-primary-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-font-size",
+				"path": [
+					"preset",
+					"button-primary",
+					"font-size"
+				],
+				"cssVar": "--preset-button-primary-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-font-weight",
+				"path": [
+					"preset",
+					"button-primary",
+					"font-weight"
+				],
+				"cssVar": "--preset-button-primary-font-weight",
+				"value": "600",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-letter-spacing",
+				"path": [
+					"preset",
+					"button-primary",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-button-primary-letter-spacing",
+				"value": "0.01em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-line-height",
+				"path": [
+					"preset",
+					"button-primary",
+					"line-height"
+				],
+				"cssVar": "--preset-button-primary-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-background-image",
+				"path": [
+					"preset",
+					"button-primary",
+					"background-image"
+				],
+				"cssVar": "--preset-button-primary-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-background-alpha",
+				"path": [
+					"preset",
+					"button-primary",
+					"background-alpha"
+				],
+				"cssVar": "--preset-button-primary-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-hover-background-color",
+				"path": [
+					"preset",
+					"button-primary-hover",
+					"background-color"
+				],
+				"cssVar": "--preset-button-primary-hover-background-color",
+				"value": "oklch(0.48 0.13 180)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-hover-box-shadow",
+				"path": [
+					"preset",
+					"button-primary-hover",
+					"box-shadow"
+				],
+				"cssVar": "--preset-button-primary-hover-box-shadow",
+				"value": "0 0 1.5rem 0.125rem oklch(0.55 0.14 180 / 0.5)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-hover-border-color",
+				"path": [
+					"preset",
+					"button-primary-hover",
+					"border-color"
+				],
+				"cssVar": "--preset-button-primary-hover-border-color",
+				"value": "oklch(0.65 0.12 180 / 0.5)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-active-background-color",
+				"path": [
+					"preset",
+					"button-primary-active",
+					"background-color"
+				],
+				"cssVar": "--preset-button-primary-active-background-color",
+				"value": "oklch(0.42 0.12 180)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-primary-disabled-opacity",
+				"path": [
+					"preset",
+					"button-primary-disabled",
+					"opacity"
+				],
+				"cssVar": "--preset-button-primary-disabled-opacity",
+				"value": "0.35",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-background-color",
+				"path": [
+					"preset",
+					"button-secondary",
+					"background-color"
+				],
+				"cssVar": "--preset-button-secondary-background-color",
+				"value": "oklch(0.2 0.01 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-border-radius",
+				"path": [
+					"preset",
+					"button-secondary",
+					"border-radius"
+				],
+				"cssVar": "--preset-button-secondary-border-radius",
+				"value": "0.5rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-box-shadow",
+				"path": [
+					"preset",
+					"button-secondary",
+					"box-shadow"
+				],
+				"cssVar": "--preset-button-secondary-box-shadow",
+				"value": "0 0 0.5rem 0 oklch(0 0 0 / 0.3)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-color",
+				"path": [
+					"preset",
+					"button-secondary",
+					"color"
+				],
+				"cssVar": "--preset-button-secondary-color",
+				"value": "oklch(0.8 0.01 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-border-color",
+				"path": [
+					"preset",
+					"button-secondary",
+					"border-color"
+				],
+				"cssVar": "--preset-button-secondary-border-color",
+				"value": "oklch(0.3 0.01 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-border-width",
+				"path": [
+					"preset",
+					"button-secondary",
+					"border-width"
+				],
+				"cssVar": "--preset-button-secondary-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-backdrop-filter",
+				"path": [
+					"preset",
+					"button-secondary",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-button-secondary-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-opacity",
+				"path": [
+					"preset",
+					"button-secondary",
+					"opacity"
+				],
+				"cssVar": "--preset-button-secondary-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-animation",
+				"path": [
+					"preset",
+					"button-secondary",
+					"animation"
+				],
+				"cssVar": "--preset-button-secondary-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-transition-duration",
+				"path": [
+					"preset",
+					"button-secondary",
+					"transition-duration"
+				],
+				"cssVar": "--preset-button-secondary-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-transition-timing-function",
+				"path": [
+					"preset",
+					"button-secondary",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-button-secondary-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-gradient",
+				"path": [
+					"preset",
+					"button-secondary",
+					"gradient"
+				],
+				"cssVar": "--preset-button-secondary-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-font-family",
+				"path": [
+					"preset",
+					"button-secondary",
+					"font-family"
+				],
+				"cssVar": "--preset-button-secondary-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-font-size",
+				"path": [
+					"preset",
+					"button-secondary",
+					"font-size"
+				],
+				"cssVar": "--preset-button-secondary-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-font-weight",
+				"path": [
+					"preset",
+					"button-secondary",
+					"font-weight"
+				],
+				"cssVar": "--preset-button-secondary-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-letter-spacing",
+				"path": [
+					"preset",
+					"button-secondary",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-button-secondary-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-line-height",
+				"path": [
+					"preset",
+					"button-secondary",
+					"line-height"
+				],
+				"cssVar": "--preset-button-secondary-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-background-image",
+				"path": [
+					"preset",
+					"button-secondary",
+					"background-image"
+				],
+				"cssVar": "--preset-button-secondary-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-background-alpha",
+				"path": [
+					"preset",
+					"button-secondary",
+					"background-alpha"
+				],
+				"cssVar": "--preset-button-secondary-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-secondary-hover-background-color",
+				"path": [
+					"preset",
+					"button-secondary-hover",
+					"background-color"
+				],
+				"cssVar": "--preset-button-secondary-hover-background-color",
+				"value": "oklch(0.25 0.015 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-background-color",
+				"path": [
+					"preset",
+					"button-ghost",
+					"background-color"
+				],
+				"cssVar": "--preset-button-ghost-background-color",
+				"value": "oklch(0 0 0 / 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-border-radius",
+				"path": [
+					"preset",
+					"button-ghost",
+					"border-radius"
+				],
+				"cssVar": "--preset-button-ghost-border-radius",
+				"value": "0.5rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-box-shadow",
+				"path": [
+					"preset",
+					"button-ghost",
+					"box-shadow"
+				],
+				"cssVar": "--preset-button-ghost-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-color",
+				"path": [
+					"preset",
+					"button-ghost",
+					"color"
+				],
+				"cssVar": "--preset-button-ghost-color",
+				"value": "oklch(0.65 0.01 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-border-color",
+				"path": [
+					"preset",
+					"button-ghost",
+					"border-color"
+				],
+				"cssVar": "--preset-button-ghost-border-color",
+				"value": "oklch(0 0 0 / 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-border-width",
+				"path": [
+					"preset",
+					"button-ghost",
+					"border-width"
+				],
+				"cssVar": "--preset-button-ghost-border-width",
+				"value": "0rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-backdrop-filter",
+				"path": [
+					"preset",
+					"button-ghost",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-button-ghost-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-opacity",
+				"path": [
+					"preset",
+					"button-ghost",
+					"opacity"
+				],
+				"cssVar": "--preset-button-ghost-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-animation",
+				"path": [
+					"preset",
+					"button-ghost",
+					"animation"
+				],
+				"cssVar": "--preset-button-ghost-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-transition-duration",
+				"path": [
+					"preset",
+					"button-ghost",
+					"transition-duration"
+				],
+				"cssVar": "--preset-button-ghost-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-transition-timing-function",
+				"path": [
+					"preset",
+					"button-ghost",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-button-ghost-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-gradient",
+				"path": [
+					"preset",
+					"button-ghost",
+					"gradient"
+				],
+				"cssVar": "--preset-button-ghost-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-font-family",
+				"path": [
+					"preset",
+					"button-ghost",
+					"font-family"
+				],
+				"cssVar": "--preset-button-ghost-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-font-size",
+				"path": [
+					"preset",
+					"button-ghost",
+					"font-size"
+				],
+				"cssVar": "--preset-button-ghost-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-font-weight",
+				"path": [
+					"preset",
+					"button-ghost",
+					"font-weight"
+				],
+				"cssVar": "--preset-button-ghost-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-letter-spacing",
+				"path": [
+					"preset",
+					"button-ghost",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-button-ghost-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-line-height",
+				"path": [
+					"preset",
+					"button-ghost",
+					"line-height"
+				],
+				"cssVar": "--preset-button-ghost-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-background-image",
+				"path": [
+					"preset",
+					"button-ghost",
+					"background-image"
+				],
+				"cssVar": "--preset-button-ghost-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-background-alpha",
+				"path": [
+					"preset",
+					"button-ghost",
+					"background-alpha"
+				],
+				"cssVar": "--preset-button-ghost-background-alpha",
+				"value": "0",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-hover-background-color",
+				"path": [
+					"preset",
+					"button-ghost-hover",
+					"background-color"
+				],
+				"cssVar": "--preset-button-ghost-hover-background-color",
+				"value": "oklch(0.2 0.01 240 / 0.5)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-ghost-hover-color",
+				"path": [
+					"preset",
+					"button-ghost-hover",
+					"color"
+				],
+				"cssVar": "--preset-button-ghost-hover-color",
+				"value": "oklch(0.88 0.01 240)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-background-color",
+				"path": [
+					"preset",
+					"button-destructive",
+					"background-color"
+				],
+				"cssVar": "--preset-button-destructive-background-color",
+				"value": "oklch(0.45 0.18 25)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-border-radius",
+				"path": [
+					"preset",
+					"button-destructive",
+					"border-radius"
+				],
+				"cssVar": "--preset-button-destructive-border-radius",
+				"value": "0.5rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-box-shadow",
+				"path": [
+					"preset",
+					"button-destructive",
+					"box-shadow"
+				],
+				"cssVar": "--preset-button-destructive-box-shadow",
+				"value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-color",
+				"path": [
+					"preset",
+					"button-destructive",
+					"color"
+				],
+				"cssVar": "--preset-button-destructive-color",
+				"value": "oklch(0.97 0.01 25)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-border-color",
+				"path": [
+					"preset",
+					"button-destructive",
+					"border-color"
+				],
+				"cssVar": "--preset-button-destructive-border-color",
+				"value": "oklch(0.55 0.2 25 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-border-width",
+				"path": [
+					"preset",
+					"button-destructive",
+					"border-width"
+				],
+				"cssVar": "--preset-button-destructive-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-backdrop-filter",
+				"path": [
+					"preset",
+					"button-destructive",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-button-destructive-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-opacity",
+				"path": [
+					"preset",
+					"button-destructive",
+					"opacity"
+				],
+				"cssVar": "--preset-button-destructive-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-animation",
+				"path": [
+					"preset",
+					"button-destructive",
+					"animation"
+				],
+				"cssVar": "--preset-button-destructive-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-transition-duration",
+				"path": [
+					"preset",
+					"button-destructive",
+					"transition-duration"
+				],
+				"cssVar": "--preset-button-destructive-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-transition-timing-function",
+				"path": [
+					"preset",
+					"button-destructive",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-button-destructive-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-gradient",
+				"path": [
+					"preset",
+					"button-destructive",
+					"gradient"
+				],
+				"cssVar": "--preset-button-destructive-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-font-family",
+				"path": [
+					"preset",
+					"button-destructive",
+					"font-family"
+				],
+				"cssVar": "--preset-button-destructive-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-font-size",
+				"path": [
+					"preset",
+					"button-destructive",
+					"font-size"
+				],
+				"cssVar": "--preset-button-destructive-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-font-weight",
+				"path": [
+					"preset",
+					"button-destructive",
+					"font-weight"
+				],
+				"cssVar": "--preset-button-destructive-font-weight",
+				"value": "600",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-letter-spacing",
+				"path": [
+					"preset",
+					"button-destructive",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-button-destructive-letter-spacing",
+				"value": "0.01em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-line-height",
+				"path": [
+					"preset",
+					"button-destructive",
+					"line-height"
+				],
+				"cssVar": "--preset-button-destructive-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-background-image",
+				"path": [
+					"preset",
+					"button-destructive",
+					"background-image"
+				],
+				"cssVar": "--preset-button-destructive-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-background-alpha",
+				"path": [
+					"preset",
+					"button-destructive",
+					"background-alpha"
+				],
+				"cssVar": "--preset-button-destructive-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-hover-background-color",
+				"path": [
+					"preset",
+					"button-destructive-hover",
+					"background-color"
+				],
+				"cssVar": "--preset-button-destructive-hover-background-color",
+				"value": "oklch(0.4 0.17 25)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-button-destructive-hover-box-shadow",
+				"path": [
+					"preset",
+					"button-destructive-hover",
+					"box-shadow"
+				],
+				"cssVar": "--preset-button-destructive-hover-box-shadow",
+				"value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+				"type": "shadow",
+				"extensions": null
 			}
 		]
 	},
@@ -25564,6 +26612,81 @@
 			}
 		]
 	},
+	"backdrop-blur": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "backdrop-blur-sm",
+				"path": [
+					"backdrop-blur",
+					"sm"
+				],
+				"cssVar": "--backdrop-blur-sm",
+				"value": {
+					"value": 0.375,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-md",
+				"path": [
+					"backdrop-blur",
+					"md"
+				],
+				"cssVar": "--backdrop-blur-md",
+				"value": {
+					"value": 0.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-lg",
+				"path": [
+					"backdrop-blur",
+					"lg"
+				],
+				"cssVar": "--backdrop-blur-lg",
+				"value": {
+					"value": 1,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-xl",
+				"path": [
+					"backdrop-blur",
+					"xl"
+				],
+				"cssVar": "--backdrop-blur-xl",
+				"value": {
+					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-2xl",
+				"path": [
+					"backdrop-blur",
+					"2xl"
+				],
+				"cssVar": "--backdrop-blur-2xl",
+				"value": {
+					"value": 2,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
 	"blur": {
 		"extensions": {},
 		"tokens": [
@@ -25646,6 +26769,53 @@
 				"cssVar": "--blur-2xl",
 				"value": {
 					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"border-width": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "border-width-hairline",
+				"path": [
+					"border-width",
+					"hairline"
+				],
+				"cssVar": "--border-width-hairline",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-thin",
+				"path": [
+					"border-width",
+					"thin"
+				],
+				"cssVar": "--border-width-thin",
+				"value": {
+					"value": 0.125,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-medium",
+				"path": [
+					"border-width",
+					"medium"
+				],
+				"cssVar": "--border-width-medium",
+				"value": {
+					"value": 0.1875,
 					"unit": "rem"
 				},
 				"type": "dimension",
@@ -28692,6 +29862,20 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "duration-instant",
+				"path": [
+					"duration",
+					"instant"
+				],
+				"cssVar": "--duration-instant",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
 				"name": "duration-snap",
 				"path": [
 					"duration",
@@ -28706,6 +29890,48 @@
 				"extensions": null
 			},
 			{
+				"name": "duration-micro",
+				"path": [
+					"duration",
+					"micro"
+				],
+				"cssVar": "--duration-micro",
+				"value": {
+					"value": 80,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "duration-swift",
+				"path": [
+					"duration",
+					"swift"
+				],
+				"cssVar": "--duration-swift",
+				"value": {
+					"value": 100,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "duration-quick",
+				"path": [
+					"duration",
+					"quick"
+				],
+				"cssVar": "--duration-quick",
+				"value": {
+					"value": 120,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
 				"name": "duration-fast",
 				"path": [
 					"duration",
@@ -28714,6 +29940,34 @@
 				"cssVar": "--duration-fast",
 				"value": {
 					"value": 150,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "duration-ease",
+				"path": [
+					"duration",
+					"ease"
+				],
+				"cssVar": "--duration-ease",
+				"value": {
+					"value": 180,
+					"unit": "ms"
+				},
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "duration-gentle",
+				"path": [
+					"duration",
+					"gentle"
+				],
+				"cssVar": "--duration-gentle",
+				"value": {
+					"value": 200,
 					"unit": "ms"
 				},
 				"type": "duration",
@@ -28873,6 +30127,50 @@
 					0.27,
 					1.55
 				],
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "easing-step-1",
+				"path": [
+					"easing",
+					"step-1"
+				],
+				"cssVar": "--easing-step-1",
+				"value": "steps(1, end)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "easing-step-2",
+				"path": [
+					"easing",
+					"step-2"
+				],
+				"cssVar": "--easing-step-2",
+				"value": "steps(2, end)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "easing-step-3",
+				"path": [
+					"easing",
+					"step-3"
+				],
+				"cssVar": "--easing-step-3",
+				"value": "steps(3, end)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "easing-step-4",
+				"path": [
+					"easing",
+					"step-4"
+				],
+				"cssVar": "--easing-step-4",
+				"value": "steps(4, end)",
 				"type": "cubicBezier",
 				"extensions": null
 			}
@@ -29463,6 +30761,210 @@
 					"unit": "rem"
 				},
 				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"font-weight": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "font-weight-regular",
+				"path": [
+					"font-weight",
+					"regular"
+				],
+				"cssVar": "--font-weight-regular",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "font-weight-medium",
+				"path": [
+					"font-weight",
+					"medium"
+				],
+				"cssVar": "--font-weight-medium",
+				"value": 500,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "font-weight-semibold",
+				"path": [
+					"font-weight",
+					"semibold"
+				],
+				"cssVar": "--font-weight-semibold",
+				"value": 600,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "font-weight-bold",
+				"path": [
+					"font-weight",
+					"bold"
+				],
+				"cssVar": "--font-weight-bold",
+				"value": 700,
+				"type": "fontWeight",
+				"extensions": null
+			}
+		]
+	},
+	"letter-spacing": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "letter-spacing-none",
+				"path": [
+					"letter-spacing",
+					"none"
+				],
+				"cssVar": "--letter-spacing-none",
+				"value": {
+					"value": 0,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-tight",
+				"path": [
+					"letter-spacing",
+					"tight"
+				],
+				"cssVar": "--letter-spacing-tight",
+				"value": {
+					"value": 0.01,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-normal",
+				"path": [
+					"letter-spacing",
+					"normal"
+				],
+				"cssVar": "--letter-spacing-normal",
+				"value": {
+					"value": 0.02,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-wide",
+				"path": [
+					"letter-spacing",
+					"wide"
+				],
+				"cssVar": "--letter-spacing-wide",
+				"value": {
+					"value": 0.03,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-wider",
+				"path": [
+					"letter-spacing",
+					"wider"
+				],
+				"cssVar": "--letter-spacing-wider",
+				"value": {
+					"value": 0.04,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-widest",
+				"path": [
+					"letter-spacing",
+					"widest"
+				],
+				"cssVar": "--letter-spacing-widest",
+				"value": {
+					"value": 0.05,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-ultra",
+				"path": [
+					"letter-spacing",
+					"ultra"
+				],
+				"cssVar": "--letter-spacing-ultra",
+				"value": {
+					"value": 0.06,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-mega",
+				"path": [
+					"letter-spacing",
+					"mega"
+				],
+				"cssVar": "--letter-spacing-mega",
+				"value": {
+					"value": 0.08,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"line-height": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "line-height-tight",
+				"path": [
+					"line-height",
+					"tight"
+				],
+				"cssVar": "--line-height-tight",
+				"value": 1.4,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "line-height-normal",
+				"path": [
+					"line-height",
+					"normal"
+				],
+				"cssVar": "--line-height-normal",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "line-height-relaxed",
+				"path": [
+					"line-height",
+					"relaxed"
+				],
+				"cssVar": "--line-height-relaxed",
+				"value": 1.6,
+				"type": "number",
 				"extensions": null
 			}
 		]
@@ -33730,6 +35232,715 @@
 					],
 					"alpha": 0.878,
 					"hex": "#000101"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-elevated-bg",
+				"path": [
+					"surface",
+					"neuro-elevated",
+					"bg"
+				],
+				"cssVar": "--surface-neuro-elevated-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.18,
+						0.015,
+						240
+					],
+					"hex": "#0c1118"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-elevated-bg-active",
+				"path": [
+					"surface",
+					"neuro-elevated",
+					"bg-active"
+				],
+				"cssVar": "--surface-neuro-elevated-bg-active",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.16,
+						0.015,
+						240
+					],
+					"hex": "#090e15"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-elevated-text",
+				"path": [
+					"surface",
+					"neuro-elevated",
+					"text"
+				],
+				"cssVar": "--surface-neuro-elevated-text",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.93,
+						0.015,
+						224
+					],
+					"hex": "#e3eaee"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-elevated-text-disabled",
+				"path": [
+					"surface",
+					"neuro-elevated",
+					"text-disabled"
+				],
+				"cssVar": "--surface-neuro-elevated-text-disabled",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.005,
+						224
+					],
+					"hex": "#82898d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-elevated-border",
+				"path": [
+					"surface",
+					"neuro-elevated",
+					"border"
+				],
+				"cssVar": "--surface-neuro-elevated-border",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.1,
+						180
+					],
+					"alpha": 0.2,
+					"hex": "#278070"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-elevated-border-hover",
+				"path": [
+					"surface",
+					"neuro-elevated",
+					"border-hover"
+				],
+				"cssVar": "--surface-neuro-elevated-border-hover",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.12,
+						180
+					],
+					"alpha": 0.3,
+					"hex": "#2d9480"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-deep-bg",
+				"path": [
+					"surface",
+					"neuro-deep",
+					"bg"
+				],
+				"cssVar": "--surface-neuro-deep-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.012,
+						240
+					],
+					"hex": "#04080f"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-deep-bg-hover",
+				"path": [
+					"surface",
+					"neuro-deep",
+					"bg-hover"
+				],
+				"cssVar": "--surface-neuro-deep-bg-hover",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.14,
+						0.014,
+						240
+					],
+					"hex": "#060b12"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-deep-bg-active",
+				"path": [
+					"surface",
+					"neuro-deep",
+					"bg-active"
+				],
+				"cssVar": "--surface-neuro-deep-bg-active",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.1,
+						0.01,
+						240
+					],
+					"hex": "#02050b"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-deep-text",
+				"path": [
+					"surface",
+					"neuro-deep",
+					"text"
+				],
+				"cssVar": "--surface-neuro-deep-text",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.85,
+						0.01,
+						224
+					],
+					"hex": "#c3cacd"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-deep-text-disabled",
+				"path": [
+					"surface",
+					"neuro-deep",
+					"text-disabled"
+				],
+				"cssVar": "--surface-neuro-deep-text-disabled",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.005,
+						224
+					],
+					"hex": "#6c7376"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-deep-border",
+				"path": [
+					"surface",
+					"neuro-deep",
+					"border"
+				],
+				"cssVar": "--surface-neuro-deep-border",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.3,
+						0.02,
+						240
+					],
+					"alpha": 0.3,
+					"hex": "#1e2631"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-minimal-bg",
+				"path": [
+					"surface",
+					"neuro-minimal",
+					"bg"
+				],
+				"cssVar": "--surface-neuro-minimal-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.16,
+						0.01,
+						240
+					],
+					"hex": "#080d14"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-minimal-bg-hover",
+				"path": [
+					"surface",
+					"neuro-minimal",
+					"bg-hover"
+				],
+				"cssVar": "--surface-neuro-minimal-bg-hover",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.18,
+						0.012,
+						240
+					],
+					"hex": "#0b1018"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-minimal-bg-active",
+				"path": [
+					"surface",
+					"neuro-minimal",
+					"bg-active"
+				],
+				"cssVar": "--surface-neuro-minimal-bg-active",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.14,
+						0.008,
+						240
+					],
+					"hex": "#050a10"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-minimal-text",
+				"path": [
+					"surface",
+					"neuro-minimal",
+					"text"
+				],
+				"cssVar": "--surface-neuro-minimal-text",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.8,
+						0.008,
+						224
+					],
+					"hex": "#b3b9bd"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-minimal-text-disabled",
+				"path": [
+					"surface",
+					"neuro-minimal",
+					"text-disabled"
+				],
+				"cssVar": "--surface-neuro-minimal-text-disabled",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.005,
+						224
+					],
+					"hex": "#6c7376"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-minimal-border",
+				"path": [
+					"surface",
+					"neuro-minimal",
+					"border"
+				],
+				"cssVar": "--surface-neuro-minimal-border",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.4,
+						0.01,
+						240
+					],
+					"alpha": 0.15,
+					"hex": "#353c44"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-solid-bg",
+				"path": [
+					"surface",
+					"neuro-solid",
+					"bg"
+				],
+				"cssVar": "--surface-neuro-solid-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.2,
+						0.018,
+						240
+					],
+					"hex": "#0e141d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-solid-bg-active",
+				"path": [
+					"surface",
+					"neuro-solid",
+					"bg-active"
+				],
+				"cssVar": "--surface-neuro-solid-bg-active",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.18,
+						0.016,
+						240
+					],
+					"hex": "#0b101a"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-solid-text",
+				"path": [
+					"surface",
+					"neuro-solid",
+					"text"
+				],
+				"cssVar": "--surface-neuro-solid-text",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.015,
+						224
+					],
+					"hex": "#ebf1f5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-solid-text-disabled",
+				"path": [
+					"surface",
+					"neuro-solid",
+					"text-disabled"
+				],
+				"cssVar": "--surface-neuro-solid-text-disabled",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.005,
+						224
+					],
+					"hex": "#82898d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-solid-border",
+				"path": [
+					"surface",
+					"neuro-solid",
+					"border"
+				],
+				"cssVar": "--surface-neuro-solid-border",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.5,
+						0.06,
+						180
+					],
+					"alpha": 0.25,
+					"hex": "#246b5e"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-bg",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"bg"
+				],
+				"cssVar": "--surface-neuro-glow-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.16,
+						0.02,
+						220
+					],
+					"hex": "#060e15"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-bg-active",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"bg-active"
+				],
+				"cssVar": "--surface-neuro-glow-bg-active",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.14,
+						0.025,
+						220
+					],
+					"hex": "#030a12"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-text",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"text"
+				],
+				"cssVar": "--surface-neuro-glow-text",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.9,
+						0.06,
+						180
+					],
+					"hex": "#b8e4d7"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-text-disabled",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"text-disabled"
+				],
+				"cssVar": "--surface-neuro-glow-text-disabled",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.5,
+						0.02,
+						180
+					],
+					"hex": "#557169"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-border",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"border"
+				],
+				"cssVar": "--surface-neuro-glow-border",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.7,
+						0.15,
+						180
+					],
+					"alpha": 0.35,
+					"hex": "#3bb89b"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-border-hover",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"border-hover"
+				],
+				"cssVar": "--surface-neuro-glow-border-hover",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.18,
+						180
+					],
+					"alpha": 0.5,
+					"hex": "#41d0ad"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-glow-border-active",
+				"path": [
+					"surface",
+					"neuro-glow",
+					"border-active"
+				],
+				"cssVar": "--surface-neuro-glow-border-active",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.8,
+						0.2,
+						180
+					],
+					"alpha": 0.6,
+					"hex": "#4ae8c0"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-muted-bg",
+				"path": [
+					"surface",
+					"neuro-muted",
+					"bg"
+				],
+				"cssVar": "--surface-neuro-muted-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.14,
+						0.005,
+						240
+					],
+					"hex": "#060a0f"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-muted-bg-hover",
+				"path": [
+					"surface",
+					"neuro-muted",
+					"bg-hover"
+				],
+				"cssVar": "--surface-neuro-muted-bg-hover",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.16,
+						0.008,
+						240
+					],
+					"hex": "#080c13"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-muted-text",
+				"path": [
+					"surface",
+					"neuro-muted",
+					"text"
+				],
+				"cssVar": "--surface-neuro-muted-text",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.005,
+						224
+					],
+					"hex": "#929a9d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-muted-text-disabled",
+				"path": [
+					"surface",
+					"neuro-muted",
+					"text-disabled"
+				],
+				"cssVar": "--surface-neuro-muted-text-disabled",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.45,
+						0.003,
+						224
+					],
+					"hex": "#505659"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "surface-neuro-muted-border",
+				"path": [
+					"surface",
+					"neuro-muted",
+					"border"
+				],
+				"cssVar": "--surface-neuro-muted-border",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.35,
+						0.005,
+						240
+					],
+					"alpha": 0.2,
+					"hex": "#2c3239"
 				},
 				"type": "color",
 				"extensions": null

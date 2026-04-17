@@ -160,7 +160,10 @@ export async function selectPreset(tier: string): Promise<AutoConfig | null> {
  */
 export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 	switch (phase) {
-		case "hardware": {
+		case "welcome":
+			return { phase, conditions: [], allMet: true, blockers: [] };
+
+		case "systemcheck": {
 			const conditions = ["Hardware metrics detected"];
 			const metricsPresent = hardwareState.metrics !== null;
 			const notLoading = !hardwareState.loading;
@@ -170,43 +173,30 @@ export function evaluateContinueGate(phase: WizardPhase): ContinueGate {
 			if (hardwareState.loading) blockers.push("Scan in progress...");
 			return { phase, conditions, allMet, blockers };
 		}
-		case "models": {
-			const conditions = ["At least one model assigned or downloads started"];
-			const anyAssigned = modelsState.userSlots.some((s) => !!s.assigned_model_id);
-			const anyDownloading = wizardState.hasActiveDownloads;
-			const allMet = anyAssigned || anyDownloading;
+
+		case "brain": {
+			const conditions = ["chat.brain has a model assigned"];
+			const brainSlot = modelsState.userSlots.find((s) => s.id === "chat.brain");
+			const allMet = !!brainSlot?.assigned_model_id;
 			const blockers: string[] = [];
-			if (!allMet) blockers.push("Set up your AI models to continue.");
+			if (!allMet) blockers.push("Assign a model to the Brain slot to continue.");
 			return { phase, conditions, allMet, blockers };
 		}
-		case "customize":
-		case "browse": {
-			// Sub-pages — always passable, user navigates back to models
+
+		case "encoder":
+		case "voice":
+		case "helpers":
+			// Optional role steps — always passable
+			return { phase, conditions: [], allMet: true, blockers: [] };
+
+		case "activate": {
+			// Step-6 manages its own 3-exchange local state — gate is always open,
+			// the step component controls its own Continue button
 			return { phase, conditions: [], allMet: true, blockers: [] };
 		}
-		case "clyffy": {
-			const conditions = ["3+ successful exchanges OR manual confirm"];
-			const allMet = wizardState.roundTripCount >= 3 || wizardState.clyfConfirmed;
-			const blockers: string[] = [];
-			if (!allMet) blockers.push("Have a conversation with Clyffy or confirm manually");
-			return { phase, conditions, allMet, blockers };
-		}
-		case "project": {
-			return {
-				phase: "project",
-				conditions: ["Dev profile created or skipped"],
-				allMet: true,
-				blockers: [],
-			};
-		}
-		case "completion": {
-			return {
-				phase: "completion",
-				conditions: [],
-				allMet: true,
-				blockers: [],
-			};
-		}
+
+		case "complete":
+			return { phase, conditions: [], allMet: true, blockers: [] };
 	}
 }
 
@@ -396,45 +386,7 @@ export async function cancelActiveDownload(downloadId: string): Promise<void> {
 	toast.info("Download cancelled");
 }
 
-/**
- * Auto-assign compatible models to all unassigned user slots.
- * Picks the smallest-VRAM model that has the right capability.
- * OPT-IN — user clicks "Auto-Configure" button.
- *
- * @throws {Error} If assignment IPC fails for a slot (per-slot, non-fatal)
- * @sideeffects Calls modelsState.assign() per slot, fires toast per assignment
- */
-export async function autoAssignAllSlots(): Promise<void> {
-	const { toast } = await import("svelte-sonner");
-	let assigned = 0;
-
-	for (const slot of modelsState.userSlots) {
-		if (slot.assigned_model_id) continue;
-
-		const compatible = modelsState.modelsForCapability(slot.capability);
-		if (compatible.length === 0) continue;
-
-		const sorted = [...compatible].sort((a, b) => a.vram_estimate_mb - b.vram_estimate_mb);
-		const pick = sorted[0];
-
-		try {
-			await modelsState.assign(slot.id, pick.id);
-			toast.success(`${pick.filename} → ${friendlySlotLabel(slot.id)}`);
-			assigned++;
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			logError(
-				"wizard.autoAssign",
-				`Auto-assign failed: slot=${slot.id} model=${pick.filename} error=${msg}`,
-			);
-			toast.error(`Failed to assign ${friendlySlotLabel(slot.id)}: ${msg}`);
-		}
-	}
-
-	if (assigned === 0) {
-		toast.info("No unassigned slots with compatible models found");
-	}
-}
+// autoAssignAllSlots() DELETED — wizard now uses explicit per-slot assignment
 
 /**
  * Assign a model to a slot and immediately load it. Single-click UX.
@@ -470,39 +422,7 @@ export async function assignAndLoad(slotId: string, modelId: string): Promise<vo
 	}
 }
 
-/**
- * Download all recommendations sequentially, assigning each after download.
- *
- * @throws {Error} Per-download failures are caught and logged (non-fatal)
- * @sideeffects Updates wizardState.downloadQueue and downloadingIndex throughout lifecycle
- */
-export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
-	wizardState.downloadQueue = [...recs];
-	wizardState.error = null;
-	logInfo("wizard.bulkDownload", `bulkDownloadAndAssign() start — count=${recs.length}`);
-
-	for (let i = 0; i < recs.length; i++) {
-		wizardState.downloadingIndex = i;
-		wizardState.downloadProgress = 0;
-		logInfo(
-			"wizard.bulkDownload",
-			`bulk item [${i + 1}/${recs.length}] slot=${recs[i].slot} file=${recs[i].file}`,
-		);
-		try {
-			await downloadAndAssign(recs[i]);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			logError(
-				"wizard.bulkDownload",
-				`Bulk download [${i}] failed: repo=${recs[i].repo} file=${recs[i].file} slot=${recs[i].slot} error=${msg}`,
-			);
-		}
-	}
-
-	wizardState.downloadingIndex = -1;
-	wizardState.downloadQueue = [];
-	logInfo("wizard.bulkDownload", "bulkDownloadAndAssign() finished — queue cleared");
-}
+// bulkDownloadAndAssign() DELETED — wizard uses per-model download, no bulk queue
 
 // ── Phase 4: Clyffy Activation ──────────────────────────
 
@@ -522,41 +442,7 @@ export async function testInference(
 	return generateText(slotId, prompt, maxTokens, temperature);
 }
 
-// ── Phase 5: Project Setup ──────────────────────────────
-
-/**
- * Create initial dev profile in preferences.
- *
- * @throws {Error} If set_preference IPC fails
- * @sideeffects Writes to libSQL preferences via Tauri, sets wizardState.devProfileExists
- */
-export async function createDevProfile(): Promise<void> {
-	return withAction("wizard.createDevProfile", "Creating your dev profile…", async () => {
-		const profile = {
-			type: "dev",
-			created: new Date().toISOString(),
-			indexedProjects: [],
-		};
-		unwrap(await commands.setPreference("dev_profile", JSON.stringify(profile)));
-		wizardState.devProfileExists = true;
-	});
-}
-
-/**
- * Check if dev profile exists in preferences.
- *
- * @sideeffects Sets wizardState.devProfileExists. Returns false on any error (silent).
- */
-export async function checkDevProfile(): Promise<boolean> {
-	try {
-		const result = unwrap(await commands.getPreference("dev_profile"));
-		const exists = result !== null;
-		wizardState.devProfileExists = exists;
-		return exists;
-	} catch {
-		return false;
-	}
-}
+// createDevProfile/checkDevProfile DELETED — optional section in Step-7, not separate phase
 
 // ── Onboarding Persistence ─────────────────────────────
 
@@ -589,8 +475,6 @@ export async function markOnboardingComplete(): Promise<void> {
 			if (result.status === "error") {
 				logError("wizard.onboarding", `complete_model_setup returned error: ${result.error}`);
 			}
-
-			wizardState.onboardingComplete = true;
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			logError("wizard.onboarding", `Failed to complete onboarding: ${msg}`);
@@ -598,84 +482,5 @@ export async function markOnboardingComplete(): Promise<void> {
 	});
 }
 
-// ── Subsequent Launch Detection ────────────────────────
-
-/**
- * Check if all assigned models still exist on disk.
- *
- * @sideeffects Refreshes modelsState, sets wizardState.missingModels
- */
-export async function validateModelPaths(): Promise<{ valid: boolean; missing: string[] }> {
-	const missing: string[] = [];
-
-	await modelsState.refresh();
-
-	modelsState.slots.forEach((slot) => {
-		if (slot.assigned_model_id) {
-			const model = modelsState.models.find((m) => m.id === slot.assigned_model_id);
-			if (!model) {
-				missing.push(slot.id);
-			}
-		}
-	});
-
-	wizardState.missingModels = missing;
-	return { valid: missing.length === 0, missing };
-}
-
-/**
- * Check if hardware changed since last run (compares GPU name).
- *
- * @sideeffects Reads/writes last_gpu_name preference, sets wizardState.hardwareChanged.
- *   Returns false on any error (silent).
- */
-export async function detectHardwareChange(): Promise<boolean> {
-	try {
-		const lastGpu = unwrap(await commands.getPreference("last_gpu_name"));
-
-		await hardwareState.refresh();
-		const currentGpu = hardwareState.gpuName;
-
-		unwrap(await commands.setPreference("last_gpu_name", currentGpu ?? ""));
-
-		if (lastGpu === null) {
-			return false;
-		}
-
-		const changed = lastGpu !== currentGpu;
-		wizardState.hardwareChanged = changed;
-		return changed;
-	} catch {
-		return false;
-	}
-}
-
-/**
- * Full subsequent launch check. Determines wizard action on app start.
- *
- * @sideeffects Calls checkOnboardingComplete, detectHardwareChange, validateModelPaths.
- *   Side effects of each sub-function apply.
- */
-export async function subsequentLaunchCheck(): Promise<
-	| { action: "skip"; reason: "complete_and_valid" }
-	| { action: "wizard"; reason: "not_complete" }
-	| { action: "repair"; missingSlots: string[] }
-	| { action: "redetect"; reason: "hardware_changed" }
-> {
-	const complete = await checkOnboardingComplete();
-	if (!complete) {
-		return { action: "wizard", reason: "not_complete" };
-	}
-
-	const hwChanged = await detectHardwareChange();
-	if (hwChanged) {
-		return { action: "redetect", reason: "hardware_changed" };
-	}
-
-	const { valid, missing } = await validateModelPaths();
-	if (!valid) {
-		return { action: "repair", missingSlots: missing };
-	}
-
-	return { action: "skip", reason: "complete_and_valid" };
-}
+// validateModelPaths/detectHardwareChange/subsequentLaunchCheck DELETED
+// Subsequent launch detection moves to Sprint 4 with setup_complete flag

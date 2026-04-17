@@ -10,25 +10,27 @@ import type { DevicePreference, HardwareTier, SlotId } from "../../util/models.t
 
 // ── Phases ─────────────────────────────────────────────
 
-/** The 8 phases of dev onboarding, in order. */
+/** The 8 phases of the setup wizard, in sequential order. One step per phase. */
 export type WizardPhase =
-	| "hardware"
-	| "models"
-	| "customize"
-	| "browse"
-	| "clyffy"
-	| "project"
-	| "completion";
+	| "welcome"
+	| "systemcheck"
+	| "brain"
+	| "encoder"
+	| "voice"
+	| "helpers"
+	| "activate"
+	| "complete";
 
-/** All phases in order, for iteration. */
+/** All phases in order, for iteration and progress dots. */
 export const WIZARD_PHASES: WizardPhase[] = [
-	"hardware",
-	"models",
-	"customize",
-	"browse",
-	"clyffy",
-	"project",
-	"completion",
+	"welcome",
+	"systemcheck",
+	"brain",
+	"encoder",
+	"voice",
+	"helpers",
+	"activate",
+	"complete",
 ];
 
 /** Phase display metadata — layman labels. */
@@ -39,27 +41,22 @@ export interface PhaseInfo {
 }
 
 export const PHASE_INFO: PhaseInfo[] = [
+	{ phase: "welcome", label: "Welcome", description: "Meet Clyffy and see your hardware" },
 	{
-		phase: "hardware",
-		label: "Your Hardware",
-		description: "Detect CPU, GPU, memory, and storage",
+		phase: "systemcheck",
+		label: "System Check",
+		description: "Detect GPU, CPU, memory, and storage",
 	},
-	{ phase: "models", label: "Set Up AI", description: "Download recommended AI models" },
-	{ phase: "customize", label: "Customize", description: "Change individual model slots" },
-	{ phase: "browse", label: "Find Models", description: "Browse local files or search online" },
-	{ phase: "clyffy", label: "Test Chat", description: "Have a test conversation" },
-	{ phase: "project", label: "About You", description: "Set up your developer profile" },
-	{ phase: "completion", label: "Ready!", description: "Review and launch" },
+	{ phase: "brain", label: "Brain", description: "Choose your primary reasoning model" },
+	{ phase: "encoder", label: "Encoder", description: "Search, understanding, and vision models" },
+	{ phase: "voice", label: "Voice", description: "Speech-to-text and text-to-speech" },
+	{ phase: "helpers", label: "Helpers", description: "Background workers and fast routing" },
+	{ phase: "activate", label: "Test Chat", description: "Verify the brain responds" },
+	{ phase: "complete", label: "Ready!", description: "Review and launch" },
 ];
 
-/** Phases that appear in the progress dots (skip customize/browse — they're sub-pages). */
-export const PROGRESS_PHASES: WizardPhase[] = [
-	"hardware",
-	"models",
-	"clyffy",
-	"project",
-	"completion",
-];
+/** All phases show in progress dots — no hidden sub-pages. */
+export const PROGRESS_PHASES: WizardPhase[] = WIZARD_PHASES;
 
 // ── Slot Labels (10 Commandments #3) ─────────────────
 
@@ -81,6 +78,55 @@ export const ROLE_COLORS: Record<SlotRole, { accent: string; glow: string }> = {
 	encoder: { accent: "var(--accent-blue-main)", glow: "var(--accent-blue-glow)" },
 	voice: { accent: "var(--accent-coral-main)", glow: "var(--accent-coral-glow)" },
 };
+
+/**
+ * Role frame — one per wizard step (Steps 2-5). Groups slots by function.
+ * Each step renders SlotCards for these slots.
+ */
+export interface RoleFrame {
+	id: string;
+	label: string;
+	description: string;
+	slots: SlotId[];
+	color: string;
+	phase: WizardPhase;
+}
+
+/** The 4 role frames matching wizard Steps 2-5. */
+export const ROLE_FRAMES: RoleFrame[] = [
+	{
+		id: "brain",
+		label: "Brain",
+		description: "Your primary reasoning engine",
+		slots: ["chat.brain"],
+		color: "teal",
+		phase: "brain",
+	},
+	{
+		id: "encoder",
+		label: "Encoder",
+		description: "Search, understanding, and vision",
+		slots: ["rag.embedder", "rag.reranker", "rag.encoder", "vision.embedder"],
+		color: "purple",
+		phase: "encoder",
+	},
+	{
+		id: "voice",
+		label: "Voice",
+		description: "Speech-to-text, text-to-speech, voice brain",
+		slots: ["voice.stt", "voice.tts", "voice.brain", "voice.wake"],
+		color: "amber",
+		phase: "voice",
+	},
+	{
+		id: "helpers",
+		label: "Helpers",
+		description: "Background workers and fast routing",
+		slots: ["minion.shared", "minion.escalation", "chat.fast", "chat.vision"],
+		color: "gray",
+		phase: "helpers",
+	},
+];
 
 /** The definitive slot label list. EXACT from owner's spec. */
 export const SLOT_LABELS: SlotLabel[] = [
@@ -303,51 +349,8 @@ export interface LoadingTracker {
 	startedAtMs: number;
 }
 
-// ── Voice Config ───────────────────────────────────────
-
-export type VoiceDeliveryMode = "stream" | "buffer" | "hybrid";
-
-export interface VoiceConfig {
-	latencyToleranceMs: number;
-	deliveryMode: VoiceDeliveryMode;
-}
-
-// ── Escalation Config ─────────────────────────────────
-
-export type EscalationSource = "local_slot" | "api";
-
-export interface EscalationPriority {
-	priority: number;
-	source: EscalationSource;
-	slotId?: SlotId;
-	apiProvider?: "Anthropic" | "OpenAI";
-	label: string;
-}
-
-export interface EscalationConfig {
-	priorities: EscalationPriority[];
-	detectionMode: "rule_based";
-}
-
-export const DEFAULT_ESCALATION: EscalationConfig = {
-	priorities: [
-		{ priority: 1, source: "local_slot", slotId: "voice.brain", label: "Voice Brain (CPU, fast)" },
-		{
-			priority: 2,
-			source: "local_slot",
-			slotId: "chat.brain",
-			label: "Main Brain (GPU, full reasoning)",
-		},
-		{
-			priority: 3,
-			source: "api",
-			apiProvider: "Anthropic",
-			label: "Anthropic API (cloud fallback)",
-		},
-		{ priority: 4, source: "api", apiProvider: "OpenAI", label: "OpenAI API (cloud fallback)" },
-	],
-	detectionMode: "rule_based",
-};
+// ── Voice Config / Escalation Config ──────────────────
+// DEFERRED to devtools. See _archive/ for old implementations.
 
 // ── Model Browser Filter ──────────────────────────────
 

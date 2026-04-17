@@ -57,6 +57,41 @@ export const SurfaceTokens = [
 	"subtle",
 	"chrome",
 	"primary",
+	"neuro-elevated-bg",
+	"neuro-elevated-bg-active",
+	"neuro-elevated-text",
+	"neuro-elevated-text-disabled",
+	"neuro-elevated-border",
+	"neuro-elevated-border-hover",
+	"neuro-deep-bg",
+	"neuro-deep-bg-hover",
+	"neuro-deep-bg-active",
+	"neuro-deep-text",
+	"neuro-deep-text-disabled",
+	"neuro-deep-border",
+	"neuro-minimal-bg",
+	"neuro-minimal-bg-hover",
+	"neuro-minimal-bg-active",
+	"neuro-minimal-text",
+	"neuro-minimal-text-disabled",
+	"neuro-minimal-border",
+	"neuro-solid-bg",
+	"neuro-solid-bg-active",
+	"neuro-solid-text",
+	"neuro-solid-text-disabled",
+	"neuro-solid-border",
+	"neuro-glow-bg",
+	"neuro-glow-bg-active",
+	"neuro-glow-text",
+	"neuro-glow-text-disabled",
+	"neuro-glow-border",
+	"neuro-glow-border-hover",
+	"neuro-glow-border-active",
+	"neuro-muted-bg",
+	"neuro-muted-bg-hover",
+	"neuro-muted-text",
+	"neuro-muted-text-disabled",
+	"neuro-muted-border",
 ] as const;
 export type SurfaceToken = (typeof SurfaceTokens)[number];
 
@@ -68,7 +103,42 @@ export type SurfaceCSSVar =
 	| "--surface-inset"
 	| "--surface-subtle"
 	| "--surface-chrome"
-	| "--surface-primary";
+	| "--surface-primary"
+	| "--surface-neuro-elevated-bg"
+	| "--surface-neuro-elevated-bg-active"
+	| "--surface-neuro-elevated-text"
+	| "--surface-neuro-elevated-text-disabled"
+	| "--surface-neuro-elevated-border"
+	| "--surface-neuro-elevated-border-hover"
+	| "--surface-neuro-deep-bg"
+	| "--surface-neuro-deep-bg-hover"
+	| "--surface-neuro-deep-bg-active"
+	| "--surface-neuro-deep-text"
+	| "--surface-neuro-deep-text-disabled"
+	| "--surface-neuro-deep-border"
+	| "--surface-neuro-minimal-bg"
+	| "--surface-neuro-minimal-bg-hover"
+	| "--surface-neuro-minimal-bg-active"
+	| "--surface-neuro-minimal-text"
+	| "--surface-neuro-minimal-text-disabled"
+	| "--surface-neuro-minimal-border"
+	| "--surface-neuro-solid-bg"
+	| "--surface-neuro-solid-bg-active"
+	| "--surface-neuro-solid-text"
+	| "--surface-neuro-solid-text-disabled"
+	| "--surface-neuro-solid-border"
+	| "--surface-neuro-glow-bg"
+	| "--surface-neuro-glow-bg-active"
+	| "--surface-neuro-glow-text"
+	| "--surface-neuro-glow-text-disabled"
+	| "--surface-neuro-glow-border"
+	| "--surface-neuro-glow-border-hover"
+	| "--surface-neuro-glow-border-active"
+	| "--surface-neuro-muted-bg"
+	| "--surface-neuro-muted-bg-hover"
+	| "--surface-neuro-muted-text"
+	| "--surface-neuro-muted-text-disabled"
+	| "--surface-neuro-muted-border";
 
 export type SurfaceRecord = {
 	base: string;
@@ -79,4 +149,51 @@ export type SurfaceRecord = {
 	subtle: string;
 	chrome: string;
 	primary: string;
+	"neuro-elevated": {
+		bg: string;
+		"bg-active": string;
+		text: string;
+		"text-disabled": string;
+		border: string;
+		"border-hover": string;
+	};
+	"neuro-deep": {
+		bg: string;
+		"bg-hover": string;
+		"bg-active": string;
+		text: string;
+		"text-disabled": string;
+		border: string;
+	};
+	"neuro-minimal": {
+		bg: string;
+		"bg-hover": string;
+		"bg-active": string;
+		text: string;
+		"text-disabled": string;
+		border: string;
+	};
+	"neuro-solid": {
+		bg: string;
+		"bg-active": string;
+		text: string;
+		"text-disabled": string;
+		border: string;
+	};
+	"neuro-glow": {
+		bg: string;
+		"bg-active": string;
+		text: string;
+		"text-disabled": string;
+		border: string;
+		"border-hover": string;
+		"border-active": string;
+	};
+	"neuro-muted": {
+		bg: string;
+		"bg-hover": string;
+		text: string;
+		"text-disabled": string;
+		border: string;
+	};
 };

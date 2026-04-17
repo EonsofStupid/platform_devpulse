@@ -313,6 +313,20 @@ impl ModelLoaderService {
         inner.is_first_run()
     }
 
+    /// Mark the setup wizard as complete. Persists to LibSQL.
+    pub async fn mark_setup_complete(&self) -> Result<(), LoadError> {
+        let inner = self.inner.lock().await;
+        inner
+            .mark_setup_complete()
+            .map_err(|e| LoadError::Other { message: format!("Failed to mark setup complete: {e}") })
+    }
+
+    /// Check if the setup wizard was previously completed.
+    pub async fn is_setup_complete(&self) -> bool {
+        let inner = self.inner.lock().await;
+        inner.is_setup_complete()
+    }
+
     /// Auto-configure based on hardware.
     pub async fn auto_configure(&self) -> AutoConfig {
         let mut inner = self.inner.lock().await;

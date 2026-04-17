@@ -3,6 +3,11 @@
 import type { CssFamily } from "../types.js";
 
 export const KIND_FAMILIES: Record<string, CssFamily[]> = {
+	button: ["frame", "interactive", "surface", "text"],
+	"button-destructive": ["surface"],
+	"button-ghost": ["surface", "text"],
+	"button-primary": ["surface"],
+	"button-secondary": ["surface"],
 	"chat-bubble": ["frame", "surface", "text"],
 	"chat-bubble-ai": ["frame", "surface", "text"],
 	"chat-cortex": ["frame", "surface", "text"],

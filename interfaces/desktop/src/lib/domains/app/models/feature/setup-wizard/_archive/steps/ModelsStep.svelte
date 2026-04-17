@@ -465,7 +465,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 			<Text size="sm" weight="semibold">Couldn't auto-detect your model plan</Text>
 			<Text size="sm" class="error-copy">{recommendationsError}</Text>
 			<div class="error-actions">
-				<Button preset="primary" size="sm" onclick={onRetryRecommendations}>{copy.error_retry_label}</Button>
+				<Button preset="neuro-glow" size="sm" onclick={onRetryRecommendations}>{copy.error_retry_label}</Button>
 				<Button preset="secondary" size="sm" onclick={onBrowse}>{copy.browse_link_label}</Button>
 			</div>
 		</div>
@@ -631,7 +631,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		{/if}
 
 		{#if !setupComplete}
-			<Button preset="primary" size="lg" onclick={handleSetup} disabled={setupInProgress} class="w-full">
+			<Button preset="neuro-glow" size="lg" onclick={handleSetup} disabled={setupInProgress} class="w-full">
 				{#if setupInProgress}
 					<Spinner size="md" /> {copy.setup_in_progress_label}
 				{:else}
@@ -650,7 +650,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 				<Text size="sm" weight="semibold">Setup hit a real error</Text>
 				<Text size="sm" color="secondary">{setupError}</Text>
 				<div class="flex items-center gap-2">
-					<Button preset="primary" size="sm" onclick={handleRetry}>{copy.error_retry_label}</Button>
+					<Button preset="neuro-glow" size="sm" onclick={handleRetry}>{copy.error_retry_label}</Button>
 					<Button preset="secondary" size="sm" onclick={onBrowse}>{copy.browse_link_label}</Button>
 					<Button preset="ghost" size="sm" onclick={onCustomize}>{copy.error_pick_manually_label}</Button>
 				</div>
@@ -673,7 +673,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		<Button preset="ghost" size="sm" onclick={onBack}>
 			<ArrowLeft size={14} /> {copy.back_label}
 		</Button>
-		<Button preset="primary" size="md" onclick={onContinue} disabled={!canContinue || setupInProgress}>
+		<Button preset="neuro-glow" size="md" onclick={onContinue} disabled={!canContinue || setupInProgress}>
 			{copy.continue_label} <ArrowRight size={14} />
 		</Button>
 	</div>

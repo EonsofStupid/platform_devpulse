@@ -4,8 +4,14 @@
 
 @layer tokens.primitives {
   :root {
+  --duration-instant: 0ms; /** Zero — retro step transitions, no animation. */
   --duration-snap: 50ms; /** Instant feedback — micro-interactions. */
-  --duration-fast: 150ms; /** Quick — most UI transitions. */
+  --duration-micro: 80ms; /** Micro — flat-muted, stark-muted quick fade. */
+  --duration-swift: 100ms; /** Swift — neuro-muted, stark-minimal transitions. */
+  --duration-quick: 120ms; /** Quick — neuro-minimal, flat-elevated, stark-glow. */
+  --duration-fast: 150ms; /** Fast — most UI transitions. */
+  --duration-ease: 180ms; /** Ease — chrome-deep, glass-solid transitions. */
+  --duration-gentle: 200ms; /** Gentle — glass-elevated, neuro-glow, chrome-elevated. */
   --duration-normal: 250ms; /** Default — standard transition speed. */
   --duration-smooth: 400ms; /** Smooth — emphasised transitions, drawer open. */
   --duration-glacial: 700ms; /** Slow — dramatic entrances. */
@@ -16,5 +22,9 @@
   --easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /** Ease in-out — smooth both ends. */
   --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /** Spring — overshoot-then-settle. */
   --easing-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55); /** Bounce — aggressive overshoot both ends. */
+  --easing-step-1: steps(1, end); /** Step 1 — retro-deep, retro-muted instant snap. */
+  --easing-step-2: steps(2, end); /** Step 2 — retro-solid pixelated transition. */
+  --easing-step-3: steps(3, end); /** Step 3 — retro-elevated CRT transition. */
+  --easing-step-4: steps(4, end); /** Step 4 — retro-glow neon transition. */
   }
 }

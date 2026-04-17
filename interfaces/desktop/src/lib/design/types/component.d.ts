@@ -1216,6 +1216,92 @@ export const PresetTokens = [
 	"chat-frame-shell-line-height",
 	"chat-frame-shell-background-image",
 	"chat-frame-shell-background-alpha",
+	"button-primary-background-color",
+	"button-primary-border-radius",
+	"button-primary-box-shadow",
+	"button-primary-color",
+	"button-primary-border-color",
+	"button-primary-border-width",
+	"button-primary-backdrop-filter",
+	"button-primary-opacity",
+	"button-primary-animation",
+	"button-primary-transition-duration",
+	"button-primary-transition-timing-function",
+	"button-primary-gradient",
+	"button-primary-font-family",
+	"button-primary-font-size",
+	"button-primary-font-weight",
+	"button-primary-letter-spacing",
+	"button-primary-line-height",
+	"button-primary-background-image",
+	"button-primary-background-alpha",
+	"button-primary-hover-background-color",
+	"button-primary-hover-box-shadow",
+	"button-primary-hover-border-color",
+	"button-primary-active-background-color",
+	"button-primary-disabled-opacity",
+	"button-secondary-background-color",
+	"button-secondary-border-radius",
+	"button-secondary-box-shadow",
+	"button-secondary-color",
+	"button-secondary-border-color",
+	"button-secondary-border-width",
+	"button-secondary-backdrop-filter",
+	"button-secondary-opacity",
+	"button-secondary-animation",
+	"button-secondary-transition-duration",
+	"button-secondary-transition-timing-function",
+	"button-secondary-gradient",
+	"button-secondary-font-family",
+	"button-secondary-font-size",
+	"button-secondary-font-weight",
+	"button-secondary-letter-spacing",
+	"button-secondary-line-height",
+	"button-secondary-background-image",
+	"button-secondary-background-alpha",
+	"button-secondary-hover-background-color",
+	"button-ghost-background-color",
+	"button-ghost-border-radius",
+	"button-ghost-box-shadow",
+	"button-ghost-color",
+	"button-ghost-border-color",
+	"button-ghost-border-width",
+	"button-ghost-backdrop-filter",
+	"button-ghost-opacity",
+	"button-ghost-animation",
+	"button-ghost-transition-duration",
+	"button-ghost-transition-timing-function",
+	"button-ghost-gradient",
+	"button-ghost-font-family",
+	"button-ghost-font-size",
+	"button-ghost-font-weight",
+	"button-ghost-letter-spacing",
+	"button-ghost-line-height",
+	"button-ghost-background-image",
+	"button-ghost-background-alpha",
+	"button-ghost-hover-background-color",
+	"button-ghost-hover-color",
+	"button-destructive-background-color",
+	"button-destructive-border-radius",
+	"button-destructive-box-shadow",
+	"button-destructive-color",
+	"button-destructive-border-color",
+	"button-destructive-border-width",
+	"button-destructive-backdrop-filter",
+	"button-destructive-opacity",
+	"button-destructive-animation",
+	"button-destructive-transition-duration",
+	"button-destructive-transition-timing-function",
+	"button-destructive-gradient",
+	"button-destructive-font-family",
+	"button-destructive-font-size",
+	"button-destructive-font-weight",
+	"button-destructive-letter-spacing",
+	"button-destructive-line-height",
+	"button-destructive-background-image",
+	"button-destructive-background-alpha",
+	"button-destructive-hover-background-color",
+	"button-destructive-hover-box-shadow",
 ] as const;
 export type PresetToken = (typeof PresetTokens)[number];
 
@@ -2430,7 +2516,93 @@ export type PresetCSSVar =
 	| "--preset-chat-frame-shell-letter-spacing"
 	| "--preset-chat-frame-shell-line-height"
 	| "--preset-chat-frame-shell-background-image"
-	| "--preset-chat-frame-shell-background-alpha";
+	| "--preset-chat-frame-shell-background-alpha"
+	| "--preset-button-primary-background-color"
+	| "--preset-button-primary-border-radius"
+	| "--preset-button-primary-box-shadow"
+	| "--preset-button-primary-color"
+	| "--preset-button-primary-border-color"
+	| "--preset-button-primary-border-width"
+	| "--preset-button-primary-backdrop-filter"
+	| "--preset-button-primary-opacity"
+	| "--preset-button-primary-animation"
+	| "--preset-button-primary-transition-duration"
+	| "--preset-button-primary-transition-timing-function"
+	| "--preset-button-primary-gradient"
+	| "--preset-button-primary-font-family"
+	| "--preset-button-primary-font-size"
+	| "--preset-button-primary-font-weight"
+	| "--preset-button-primary-letter-spacing"
+	| "--preset-button-primary-line-height"
+	| "--preset-button-primary-background-image"
+	| "--preset-button-primary-background-alpha"
+	| "--preset-button-primary-hover-background-color"
+	| "--preset-button-primary-hover-box-shadow"
+	| "--preset-button-primary-hover-border-color"
+	| "--preset-button-primary-active-background-color"
+	| "--preset-button-primary-disabled-opacity"
+	| "--preset-button-secondary-background-color"
+	| "--preset-button-secondary-border-radius"
+	| "--preset-button-secondary-box-shadow"
+	| "--preset-button-secondary-color"
+	| "--preset-button-secondary-border-color"
+	| "--preset-button-secondary-border-width"
+	| "--preset-button-secondary-backdrop-filter"
+	| "--preset-button-secondary-opacity"
+	| "--preset-button-secondary-animation"
+	| "--preset-button-secondary-transition-duration"
+	| "--preset-button-secondary-transition-timing-function"
+	| "--preset-button-secondary-gradient"
+	| "--preset-button-secondary-font-family"
+	| "--preset-button-secondary-font-size"
+	| "--preset-button-secondary-font-weight"
+	| "--preset-button-secondary-letter-spacing"
+	| "--preset-button-secondary-line-height"
+	| "--preset-button-secondary-background-image"
+	| "--preset-button-secondary-background-alpha"
+	| "--preset-button-secondary-hover-background-color"
+	| "--preset-button-ghost-background-color"
+	| "--preset-button-ghost-border-radius"
+	| "--preset-button-ghost-box-shadow"
+	| "--preset-button-ghost-color"
+	| "--preset-button-ghost-border-color"
+	| "--preset-button-ghost-border-width"
+	| "--preset-button-ghost-backdrop-filter"
+	| "--preset-button-ghost-opacity"
+	| "--preset-button-ghost-animation"
+	| "--preset-button-ghost-transition-duration"
+	| "--preset-button-ghost-transition-timing-function"
+	| "--preset-button-ghost-gradient"
+	| "--preset-button-ghost-font-family"
+	| "--preset-button-ghost-font-size"
+	| "--preset-button-ghost-font-weight"
+	| "--preset-button-ghost-letter-spacing"
+	| "--preset-button-ghost-line-height"
+	| "--preset-button-ghost-background-image"
+	| "--preset-button-ghost-background-alpha"
+	| "--preset-button-ghost-hover-background-color"
+	| "--preset-button-ghost-hover-color"
+	| "--preset-button-destructive-background-color"
+	| "--preset-button-destructive-border-radius"
+	| "--preset-button-destructive-box-shadow"
+	| "--preset-button-destructive-color"
+	| "--preset-button-destructive-border-color"
+	| "--preset-button-destructive-border-width"
+	| "--preset-button-destructive-backdrop-filter"
+	| "--preset-button-destructive-opacity"
+	| "--preset-button-destructive-animation"
+	| "--preset-button-destructive-transition-duration"
+	| "--preset-button-destructive-transition-timing-function"
+	| "--preset-button-destructive-gradient"
+	| "--preset-button-destructive-font-family"
+	| "--preset-button-destructive-font-size"
+	| "--preset-button-destructive-font-weight"
+	| "--preset-button-destructive-letter-spacing"
+	| "--preset-button-destructive-line-height"
+	| "--preset-button-destructive-background-image"
+	| "--preset-button-destructive-background-alpha"
+	| "--preset-button-destructive-hover-background-color"
+	| "--preset-button-destructive-hover-box-shadow";
 
 export type PresetRecord = {
 	"neuro-elevated": {
@@ -3956,4 +4128,205 @@ export type PresetRecord = {
 		"background-image": string;
 		"background-alpha": string;
 	};
+	"button-primary": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"button-primary-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"button-primary-active": {
+		"background-color": string;
+	};
+	"button-primary-disabled": {
+		opacity: string;
+	};
+	"button-secondary": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"button-secondary-hover": {
+		"background-color": string;
+	};
+	"button-ghost": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"button-ghost-hover": {
+		"background-color": string;
+		color: string;
+	};
+	"button-destructive": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"button-destructive-hover": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+};
+
+export const BackdropBlurTokens = ["sm", "md", "lg", "xl", "2xl"] as const;
+export type BackdropBlurToken = (typeof BackdropBlurTokens)[number];
+
+export type BackdropBlurCSSVar =
+	| "--backdrop-blur-sm"
+	| "--backdrop-blur-md"
+	| "--backdrop-blur-lg"
+	| "--backdrop-blur-xl"
+	| "--backdrop-blur-2xl";
+
+export type BackdropBlurRecord = {
+	sm: string;
+	md: string;
+	lg: string;
+	xl: string;
+	"2xl": string;
+};
+
+export const BorderWidthTokens = ["hairline", "thin", "medium"] as const;
+export type BorderWidthToken = (typeof BorderWidthTokens)[number];
+
+export type BorderWidthCSSVar =
+	| "--border-width-hairline"
+	| "--border-width-thin"
+	| "--border-width-medium";
+
+export type BorderWidthRecord = {
+	hairline: string;
+	thin: string;
+	medium: string;
+};
+
+export const FontWeightTokens = ["regular", "medium", "semibold", "bold"] as const;
+export type FontWeightToken = (typeof FontWeightTokens)[number];
+
+export type FontWeightCSSVar =
+	| "--font-weight-regular"
+	| "--font-weight-medium"
+	| "--font-weight-semibold"
+	| "--font-weight-bold";
+
+export type FontWeightRecord = {
+	regular: string;
+	medium: string;
+	semibold: string;
+	bold: string;
+};
+
+export const LetterSpacingTokens = [
+	"none",
+	"tight",
+	"normal",
+	"wide",
+	"wider",
+	"widest",
+	"ultra",
+	"mega",
+] as const;
+export type LetterSpacingToken = (typeof LetterSpacingTokens)[number];
+
+export type LetterSpacingCSSVar =
+	| "--letter-spacing-none"
+	| "--letter-spacing-tight"
+	| "--letter-spacing-normal"
+	| "--letter-spacing-wide"
+	| "--letter-spacing-wider"
+	| "--letter-spacing-widest"
+	| "--letter-spacing-ultra"
+	| "--letter-spacing-mega";
+
+export type LetterSpacingRecord = {
+	none: string;
+	tight: string;
+	normal: string;
+	wide: string;
+	wider: string;
+	widest: string;
+	ultra: string;
+	mega: string;
+};
+
+export const LineHeightTokens = ["tight", "normal", "relaxed"] as const;
+export type LineHeightToken = (typeof LineHeightTokens)[number];
+
+export type LineHeightCSSVar =
+	| "--line-height-tight"
+	| "--line-height-normal"
+	| "--line-height-relaxed";
+
+export type LineHeightRecord = {
+	tight: string;
+	normal: string;
+	relaxed: string;
 };

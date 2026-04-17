@@ -375,6 +375,30 @@ pub async fn is_first_run(
     Ok(loader.is_first_run().await)
 }
 
+/// Mark the setup wizard as complete. Persists to LibSQL.
+/// Called by the frontend when the user finishes the wizard.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn mark_setup_complete(
+    state: State<'_, PlatformState>,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader.mark_setup_complete().await.map_err(|e| e.to_string())
+}
+
+/// Check if the setup wizard was previously completed.
+/// Used at boot to decide whether to show the wizard overlay.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn is_setup_complete(
+    state: State<'_, PlatformState>,
+) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.is_setup_complete().await)
+}
+
 /// Assign a model to a slot.
 #[tauri::command]
 #[specta::specta]
@@ -1045,29 +1069,8 @@ pub async fn complete_model_setup(
         tracing::warn!(error = %e, "Post-wizard scan failed (non-fatal)");
     }
 
-    // Auto-assign: for each unassigned user-managed slot, find a compatible model
-    let slots = loader.list_slots().await;
-    let registry = loader.get_registry().await;
-
-    for slot in &slots {
-        if slot.assigned_model.is_some() {
-            continue; // Already assigned
-        }
-        // Find first compatible model by capability
-        for model in &registry {
-            let cap_str = slot.capability.to_string();
-            if model.compatible_capabilities.iter().any(|c| c.to_string() == cap_str) {
-                if let Err(e) = loader.assign_model(&slot.id, &model.id).await {
-                    tracing::warn!(slot = %slot.id, model = %model.id, error = %e,
-                        "Auto-assign failed (non-fatal)");
-                } else {
-                    tracing::info!(slot = %slot.id, model = %model.filename,
-                        "Auto-assigned model to slot");
-                }
-                break; // One model per slot
-            }
-        }
-    }
+    // Auto-assign loop REMOVED — wizard handles explicit per-slot assignment.
+    // complete_model_setup() now only verifies and signals.
 
     // Verify: chat.brain MUST have a model assigned
     let slots_after = loader.list_slots().await;

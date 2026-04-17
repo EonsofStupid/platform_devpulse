@@ -28,7 +28,13 @@ export { default as SlotRow } from "./feature/components/SlotRow.svelte";
 export { default as SubsystemGroup } from "./feature/components/SubsystemGroup.svelte";
 export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte";
 export { default as VramBudgetPlanner } from "./feature/components/VramBudgetPlanner.svelte";
+export { default as VramBar } from "./feature/setup-wizard/components/VramBar.svelte";
 export { bootstrapDownloadBridge } from "./feature/setup-wizard/download-bootstrap.js";
+export {
+	getSlotLabel,
+	ROLE_COLORS,
+	ROLE_FRAMES,
+} from "./feature/setup-wizard/wizard.types.js";
 export { default as ClyffyNarration } from "./ui/ClyffyNarration.svelte";
 export { default as ContextGauge } from "./ui/ContextGauge.svelte";
 export { default as ModelEventCard } from "./ui/chat/ModelEventCard.svelte";

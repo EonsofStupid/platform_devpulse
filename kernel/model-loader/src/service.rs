@@ -1260,6 +1260,23 @@ impl ModelLoaderService {
             .unwrap_or(true)
     }
 
+    /// Mark the setup wizard as complete. Persists to LibSQL.
+    /// Called by the frontend when the user finishes Step-7.
+    pub fn mark_setup_complete(&self) -> anyhow::Result<()> {
+        self.config.set("setup_complete", "true")
+    }
+
+    /// Check if the setup wizard was previously completed.
+    /// Used at boot to decide whether to show the wizard overlay.
+    pub fn is_setup_complete(&self) -> bool {
+        self.config
+            .get("setup_complete")
+            .ok()
+            .flatten()
+            .map(|v| v == "true")
+            .unwrap_or(false)
+    }
+
     // ── HF Secrets ─────────────────────────────────────────────
 
     /// Store or replace the HuggingFace access token.

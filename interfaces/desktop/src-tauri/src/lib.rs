@@ -88,6 +88,8 @@ pub fn run() {
         commands::models::get_slots,
         commands::models::get_model_catalog,
         commands::models::is_first_run,
+        commands::models::mark_setup_complete,
+        commands::models::is_setup_complete,
         commands::models::assign_model_to_slot,
         commands::models::load_slot,
         commands::models::unload_slot,

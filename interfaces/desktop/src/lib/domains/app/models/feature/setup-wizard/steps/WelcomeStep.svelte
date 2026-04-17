@@ -125,7 +125,7 @@ let showPageHelp = $state(false);
 		</Text>
 	</div>
 
-	<Button preset="primary" size="lg" onclick={onContinue} aria-label={greeting.cta_aria}>
+	<Button preset="neuro-glow" size="lg" onclick={onContinue} aria-label={greeting.cta_aria}>
 		<Sparkles size={18} />
 		{greeting.cta_label}
 	</Button>

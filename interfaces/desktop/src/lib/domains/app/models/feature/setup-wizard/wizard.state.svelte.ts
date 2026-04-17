@@ -10,15 +10,12 @@ import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import type { AutoConfig, HardwareTier, SlotId } from "../../util/models.types.js";
 import {
 	type AllocationMode,
-	DEFAULT_ESCALATION,
 	type DownloadTracker,
-	type EscalationConfig,
 	friendlyName,
 	type LoadingStageKind,
 	type LoadingTracker,
 	type ModelRec,
 	tierToAllocation,
-	type VoiceConfig,
 	WIZARD_PHASES,
 	type WizardPhase,
 } from "./wizard.types.js";
@@ -39,7 +36,7 @@ class WizardState {
 	isOpen = $state(false);
 
 	// ── Phase Navigation ─────────────────────────────────
-	currentPhase = $state<WizardPhase>("hardware");
+	currentPhase = $state<WizardPhase>("welcome");
 
 	// ── Phase 1: Hardware ────────────────────────────────
 	allocationMode = $derived<AllocationMode>(
@@ -66,38 +63,15 @@ class WizardState {
 	 */
 	selectedTier = $state<HardwareTier | null>(null);
 
-	// ── Bulk Download State ─────────────────────────────
-	downloadQueue = $state<ModelRec[]>([]);
-	downloadingIndex = $state(-1);
-	downloadProgress = $state(0);
-
-	// ── Phase 3: Browse ─────────────────────────────────
-	browseTab = $state<"local" | "huggingface">("local");
-	showImportPrompt = $state(false);
-	importTargetSlot = $state<SlotId | null>(null);
-
-	// ── Phase 4: Clyffy ─────────────────────────────────
-	roundTripCount = $state(0);
-	clyfConfirmed = $state(false);
-
-	// ── Phase 5: Project ────────────────────────────────
-	devProfileExists = $state(false);
+	// ── System Check Results (Step-1) ───────────────────
+	systemCheckResults = $state<
+		Array<{ label: string; status: "pending" | "running" | "done" | "error"; result: string }>
+	>([]);
+	recommendedTier = $state<string | null>(null);
 
 	// ── UI State ─────────────────────────────────────────
 	showCurrentSetup = $state(false);
 	error = $state<string | null>(null);
-	onboardingComplete = $state(false);
-
-	// ── Subsequent Launch ────────────────────────────────
-	missingModels = $state<string[]>([]);
-	hardwareChanged = $state(false);
-
-	// ── Voice Config ─────────────────────────────────────
-	voiceConfig = $state<VoiceConfig>({
-		latencyToleranceMs: 2500,
-		deliveryMode: "buffer",
-	});
-	escalationConfig = $state<EscalationConfig>(DEFAULT_ESCALATION);
 
 	// ── Download Queue (Commandment #7: background downloads) ──
 
