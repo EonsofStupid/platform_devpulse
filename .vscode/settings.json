@@ -6,6 +6,7 @@
     "devpulse_desktop_backend"
   ],
   "chat.tools.terminal.autoApprove": {
-    "git add": true
+    "git add": true,
+    "pnpm": true
   }
 }
