@@ -31,14 +31,16 @@ import { formatMb, hardwareState, modelsState } from "$lib/domains/app/models/in
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { groupSubsystems } from "./StatusBar.types.js";
 
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
 const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot");
+const subsystemGroups = $derived(groupSubsystems(subsystems));
 </script>
 
-<div class="flex w-full items-center justify-between" aria-label="System status">
+<div class="statusbar-surface flex w-full items-center justify-between" aria-label="System status">
 	{#if platformState.isBooting}
 		<!-- Boot progress mode -->
 		<div class={hstack({ gap: "2", align: "center" })}>
@@ -128,27 +130,22 @@ const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot")
 			{/if}
 
 			{#if DEV_MODE}
-				{#each subsystems as sub}
-					{@const Icon = getIcon(sub.name)}
-					<Badge
-						variant={sub.state === "ready" ? "positive" : sub.state === "failed" ? "negative" : "neutral"}
-						size="sm"
-						class="gap-1"
-					>
-						<span
-							class="status-dot h-1.5 w-1.5 rounded-full"
-							data-subsystem-state={sub.state}
-							aria-hidden="true"
-						></span>
-						{#if Icon}
-							{@const IconComponent = Icon}
-							<IconComponent size={12} class="shrink-0" />
-						{/if}
-						<Text size="xs" preset="default">{devLabel(sub.name)}</Text>
-						{#if sub.latencyMs !== null}
-							<Text size="xs" preset="default">{sub.latencyMs}ms</Text>
-						{/if}
-					</Badge>
+				{#each subsystemGroups as group (group.label)}
+					<span class="group-separator" aria-hidden="true"></span>
+					<Text size="xs" color="muted" class="group-label">{group.label}</Text>
+					{#each group.subs as sub (sub.name)}
+						{@const Icon = getIcon(sub.name)}
+						<Badge
+							variant={sub.state === "ready" ? "positive" : sub.state === "failed" ? "negative" : "neutral"}
+							size="sm"
+							class="gap-1"
+						>
+							<span class="status-dot h-1.5 w-1.5 rounded-full" data-subsystem-state={sub.state} aria-hidden="true"></span>
+							{#if Icon}<Icon size={12} class="shrink-0" />{/if}
+							<Text size="xs" preset="default">{devLabel(sub.name)}</Text>
+							{#if sub.latencyMs !== null}<Text size="xs" preset="default">{sub.latencyMs}ms</Text>{/if}
+						</Badge>
+					{/each}
 				{/each}
 			{/if}
 		</div>
@@ -165,6 +162,14 @@ const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot")
 </div>
 
 <style>
+	.statusbar-surface {
+		background: var(--glass-deep);
+		backdrop-filter: blur(var(--blur-lg));
+		-webkit-backdrop-filter: blur(var(--blur-lg));
+		box-shadow: inset var(--bevel-subtle), var(--glow-dot-sm);
+		border-radius: 0;
+	}
+
 	.status-dot {
 		box-shadow: var(--glow-dot-sm);
 	}
@@ -190,6 +195,21 @@ const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot")
 	.status-dot[data-subsystem-state="pending"] {
 		background-color: var(--text-muted);
 	}
+	.group-separator {
+		width: 0.0625rem;
+		height: 1rem;
+		background: var(--border-soft);
+		flex-shrink: 0;
+	}
+
+	:global(.group-label) {
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-size: 0.5625rem;
+		opacity: 0.6;
+		flex-shrink: 0;
+	}
+
 	@keyframes pulse {
 		0%, 100% { opacity: 1; }
 		50% { opacity: 0.4; }

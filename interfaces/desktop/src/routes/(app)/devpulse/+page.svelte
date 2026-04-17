@@ -27,6 +27,7 @@ import {
 	hardwareState,
 	VramGauge,
 } from "$lib/domains/app/models/index.js";
+import { groupHealthSubsystems } from "$lib/layouts/app/StatusBar.types.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 const langColors: Record<string, string> = {
@@ -42,6 +43,10 @@ const healthColors: Record<string, string> = {
 	Down: "var(--accent-ember-main)",
 	Unknown: "var(--text-muted)",
 };
+
+const healthGroups = $derived(
+	platformState.health ? groupHealthSubsystems(platformState.health.subsystems) : [],
+);
 
 // Fetch dashboard data only after platform boot completes
 $effect(() => {
@@ -239,27 +244,32 @@ $effect(() => {
 			preset="neuro-deep"
 		>
 			<div class={stack({ gap: "3" })}>
-				{#if platformState.health}
-					{#each platformState.health.subsystems as sub}
-						<Card preset="neuro-minimal" class="flex items-center justify-between px-3 py-2">
-							<div class={stack({ gap: "0" })}>
-								<Text size="sm" weight="semibold" preset="default">{sub.name}</Text>
-								{#if sub.latency_us != null}
-									<Text size="xs" preset="default">{sub.latency_us >= 1000 ? `${Math.round(sub.latency_us / 1000)}ms` : `${sub.latency_us}µs`}</Text>
-								{/if}
-							</div>
-							<Badge
-								variant="positive"
-								size="sm"
-								class="gap-1.5"
-							>
-								<span
-									class="inline-block h-1.5 w-1.5 rounded-full"
-									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: var(--glow-dot-sm);"
-								></span>
-								{sub.state ?? sub.status}
-							</Badge>
-						</Card>
+				{#if platformState.health && healthGroups.length > 0}
+					{#each healthGroups as group}
+						<div class={stack({ gap: "1" })}>
+							<Text size="xs" weight="semibold" preset="default" class="uppercase tracking-wider opacity-60 px-1">{group.label}</Text>
+							{#each group.subs as sub}
+								<Card preset="neuro-minimal" class="flex items-center justify-between px-3 py-2">
+									<div class={stack({ gap: "0" })}>
+										<Text size="sm" weight="semibold" preset="default">{sub.name}</Text>
+										{#if sub.latency_us != null}
+											<Text size="xs" preset="default">{sub.latency_us >= 1000 ? `${Math.round(sub.latency_us / 1000)}ms` : `${sub.latency_us}µs`}</Text>
+										{/if}
+									</div>
+									<Badge
+										variant={sub.status === "Healthy" ? "positive" : sub.status === "Down" ? "negative" : "neutral"}
+										size="sm"
+										class="gap-1.5"
+									>
+										<span
+											class="inline-block h-1.5 w-1.5 rounded-full"
+											style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: var(--glow-dot-sm);"
+										></span>
+										{sub.state ?? sub.status}
+									</Badge>
+								</Card>
+							{/each}
+						</div>
 					{/each}
 					<div class={cn(hstack({ justify: "between" }), "px-1")}>
 						<Text size="xs" preset="default">Uptime</Text>
