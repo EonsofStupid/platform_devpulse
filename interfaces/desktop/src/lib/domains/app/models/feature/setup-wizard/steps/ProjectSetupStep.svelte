@@ -7,6 +7,8 @@
 import { ArrowLeft, ArrowRight, Code, FolderOpen, User } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import WizardHelpTip from "../components/WizardHelpTip.svelte";
 import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
 import { wizardState } from "../wizard.state.svelte.js";
@@ -24,25 +26,37 @@ let projectPath = $state("");
 let saving = $state(false);
 let showPageHelp = $state(false);
 
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: unknown }): T {
+	if (r.status === "error") {
+		const msg = typeof r.error === "string" ? r.error : String(r.error);
+		throw new Error(msg);
+	}
+	return r.data;
+}
+
 async function handleBrowse(): Promise<void> {
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		const result = await invoke<string>("pick_directory", { title: "Select your project folder" });
-		if (result) projectPath = result;
+		const path = await withAction("wizard.pickDirectory", "Opening the folder picker…", async () =>
+			unwrap(await commands.pickDirectory("Select your project folder")),
+		);
+		if (path) projectPath = path;
 	} catch {
-		// User cancelled.
+		// User cancelled or error.
 	}
 }
 
 async function handleContinue(): Promise<void> {
 	saving = true;
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("create_dev_profile", {
-			name: devName || "Developer",
-			experience: experienceLevel,
-			projectPath: projectPath || null,
-		});
+		await withAction("wizard.createDevProfile", "Saving your dev profile…", async () =>
+			unwrap(
+				await commands.createDevProfile(
+					devName || "Developer",
+					experienceLevel,
+					projectPath || null,
+				),
+			),
+		);
 		wizardState.devProfileExists = true;
 	} catch (e) {
 		console.error("[profile] Save failed:", e);

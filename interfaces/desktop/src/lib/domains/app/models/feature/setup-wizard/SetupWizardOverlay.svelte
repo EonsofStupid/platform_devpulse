@@ -26,7 +26,6 @@
   Never a blank screen.
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { Cpu, HardDrive, KeyRound, Lock, Monitor, Sparkles, X, Zap } from "lucide-svelte";
 import { tick } from "svelte";
 import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
@@ -51,6 +50,7 @@ import {
 	formatMb,
 	type HardwareTier,
 	hardwareState,
+	modelsState,
 } from "$lib/domains/app/models/index.js";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
@@ -74,6 +74,12 @@ let tier = $state<TierDisplay | null>(null);
 let presets = $state<AutoConfig[]>([]);
 let presetsError = $state<string | null>(null);
 let switchingTier = $state<string | null>(null);
+
+// System check step tracking — verbatim messaging during scan
+type ScanStepState = "pending" | "running" | "done" | "error";
+type ScanStep = { label: string; state: ScanStepState; detail?: string };
+let scanSteps = $state<ScanStep[]>([]);
+let modelsRefreshed = $state(false);
 
 // HF token state is local to this overlay instance.
 // The plaintext token is never stored in rune state or passed around the
@@ -117,11 +123,24 @@ $effect(() => {
 	if (!isOpen || copy) return;
 	(async () => {
 		try {
-			copy = await invoke<WizardCopy>("get_wizard_copy");
+			const r = await commands.getWizardCopy();
+			if (r.status === "ok") {
+				copy = r.data;
+			} else {
+				copyError = r.error;
+			}
 		} catch (e) {
 			copyError = e instanceof Error ? e.message : String(e);
 		}
 	})();
+});
+
+// Populate modelsState on first overlay open only.
+// Without this, the "On Your Computer" tab in SlotSwapPopup is empty.
+$effect(() => {
+	if (!isOpen || modelsRefreshed) return;
+	modelsRefreshed = true;
+	void modelsState.refresh();
 });
 
 // Refresh the HF token pill state every time the overlay opens - the
@@ -176,44 +195,98 @@ async function handleStart(): Promise<void> {
 	presetsError = null;
 	wizardState.goTo("hardware");
 
+	// Initialize step checklist — sequential, no parallel Mutex contention
+	scanSteps = [
+		{ label: "Detecting GPU, CPU, and available memory", state: "pending" },
+		{ label: "Analyzing hardware for best model plan", state: "pending" },
+		{ label: "Identifying your hardware tier", state: "pending" },
+		{ label: "Loading hardware presets", state: "pending" },
+		{ label: "Scanning local model files", state: "pending" },
+	];
+
 	await waitForWizardPaint();
 
-	// Step 1: Hardware scan. If this fails entirely we still advance to
-	// the detected phase with an error - never leave the user on a blank
-	// scanning state.
-	await startHardwareScan();
-
-	const [autoConfig, detectedTier, availablePresets] = await Promise.all([
-		fetchRecommendations(),
-		invoke<TierDisplay>("get_tier_display")
-			.then((result) => ({ ok: true as const, result }))
-			.catch((error) => ({ ok: false as const, error })),
-		listAllPresets(),
-	]);
-
-	// Step 2: Auto-configure recommendations. Error becomes scanError but
-	// we keep going so we can still show the preset picker.
-	if (!autoConfig) {
-		scanError = wizardState.error ?? "Auto-configuration failed";
+	// ── Step 1: Hardware scan ──────────────────────────────────
+	scanSteps[0].state = "running";
+	try {
+		await startHardwareScan();
+		const gpu = hardwareState.gpuName ?? "No GPU";
+		const cpu = hardwareState.cpuName ?? "Unknown CPU";
+		const vram = hardwareState.metrics?.gpu_vram_total_mb;
+		scanSteps[0].detail = vram
+			? `${gpu} \u2014 ${Math.round((vram / 1024) * 10) / 10}GB VRAM \u00b7 ${cpu}`
+			: `${cpu} (no dedicated GPU detected)`;
+		scanSteps[0].state = "done";
+	} catch (e) {
+		scanSteps[0].state = "error";
+		scanSteps[0].detail = e instanceof Error ? e.message : String(e);
 	}
 
-	// Step 3: Tier display metadata. Null tier is handled in the template
-	// with a fallback - the overlay never goes blank.
-	if (detectedTier.ok) {
-		tier = detectedTier.result;
-	} else {
-		scanError =
-			scanError ??
-			(detectedTier.error instanceof Error
-				? detectedTier.error.message
-				: String(detectedTier.error));
+	// ── Step 2: Auto-configure recommendations (needs lock) ───
+	scanSteps[1].state = "running";
+	let autoConfig: AutoConfig | null = null;
+	try {
+		autoConfig = await fetchRecommendations();
+		if (autoConfig) {
+			scanSteps[1].detail = `Preset: ${autoConfig.preset_name} \u2014 ${autoConfig.recommendations?.length ?? 0} model recommendations`;
+			scanSteps[1].state = "done";
+		} else {
+			scanSteps[1].state = "error";
+			scanSteps[1].detail = wizardState.error ?? "Auto-configuration returned empty";
+			scanError = scanSteps[1].detail;
+		}
+	} catch (e) {
+		scanSteps[1].state = "error";
+		scanSteps[1].detail = e instanceof Error ? e.message : String(e);
+		scanError = scanSteps[1].detail;
 	}
 
-	// Step 4: Load every known preset for the picker. These are the 6
-	// hardware tiers so the owner can override the auto-detection.
-	presets = availablePresets;
-	if (presets.length === 0) {
-		presetsError = "No presets available - rust list_presets returned empty";
+	// ── Step 3: Tier display (needs lock \u2014 sequential) ────────
+	scanSteps[2].state = "running";
+	try {
+		const tierResult = await commands.getTierDisplay();
+		if (tierResult.status === "ok") {
+			tier = tierResult.data;
+			scanSteps[2].detail = `${tier.label ?? tier.tier} tier detected`;
+			scanSteps[2].state = "done";
+		} else {
+			scanSteps[2].state = "error";
+			scanSteps[2].detail = tierResult.error;
+		}
+	} catch (e) {
+		scanSteps[2].state = "error";
+		scanSteps[2].detail = e instanceof Error ? e.message : String(e);
+		if (!scanError) scanError = scanSteps[2].detail;
+	}
+
+	// ── Step 4: Load presets (needs lock \u2014 sequential) ────────
+	scanSteps[3].state = "running";
+	try {
+		const availablePresets = await listAllPresets();
+		presets = availablePresets;
+		if (presets.length === 0) {
+			presetsError = "No presets available";
+			scanSteps[3].state = "error";
+			scanSteps[3].detail = presetsError;
+		} else {
+			scanSteps[3].detail = `${presets.length} hardware presets loaded`;
+			scanSteps[3].state = "done";
+		}
+	} catch (e) {
+		scanSteps[3].state = "error";
+		scanSteps[3].detail = e instanceof Error ? e.message : String(e);
+	}
+
+	// ── Step 5: Scan local models ─────────────────────────────
+	scanSteps[4].state = "running";
+	try {
+		await modelsState.refresh();
+		modelsRefreshed = true;
+		scanSteps[4].detail = `${modelsState.models.length} models found on disk`;
+		scanSteps[4].state = "done";
+	} catch (e) {
+		scanSteps[4].state = "error";
+		scanSteps[4].detail = e instanceof Error ? e.message : String(e);
 	}
 
 	wizardState.goTo("models");
@@ -366,9 +439,37 @@ function handleRecommendedContinue(): void {
 						alt={copy.scanning.mascot_alt}
 						class="mascot-loading"
 					/>
-					<Heading level={2} size="lg">{copy.scanning.title}</Heading>
-					<Text size="sm" color="muted">{copy.scanning.subtitle}</Text>
-					<Spinner size="md" />
+					<Heading level={2} size="lg">System Check</Heading>
+					<Text size="sm" color="muted">Running diagnostics before setting up your AI stack.</Text>
+
+					<div class="scan-checklist">
+						{#each scanSteps as step, i (i)}
+							<div class="scan-step" data-state={step.state}>
+								<div class="scan-step-indicator">
+									{#if step.state === "done"}
+										<span class="scan-check">&#10003;</span>
+									{:else if step.state === "running"}
+										<Spinner size="sm" />
+									{:else if step.state === "error"}
+										<span class="scan-error">&#10007;</span>
+									{:else}
+										<span class="scan-pending">&#8226;</span>
+									{/if}
+								</div>
+								<div class="scan-step-content">
+									<Text size="sm" weight={step.state === "running" ? "semibold" : "normal"}>
+										{step.label}
+									</Text>
+									{#if step.detail}
+										<Text size="xs" color={step.state === "error" ? "accent" : "muted"}>
+											{step.detail}
+										</Text>
+									{/if}
+								</div>
+							</div>
+						{/each}
+					</div>
+
 					<div class="mt-4 w-full max-w-[28rem]">
 						<LoadingContentCard rotateEveryMs={7000} />
 					</div>
@@ -623,5 +724,61 @@ function handleRecommendedContinue(): void {
 		width: clamp(3rem, 6vw, 5rem);
 		height: clamp(3rem, 6vw, 5rem);
 		object-fit: contain;
+	}
+
+	/* System check step checklist — layout only, colors from tokens */
+	.scan-checklist {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+		max-width: 28rem;
+		text-align: left;
+	}
+
+	.scan-step {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.625rem;
+		padding: 0.375rem 0;
+		transition: opacity var(--motion-duration-fast);
+	}
+
+	.scan-step[data-state="pending"] {
+		opacity: 0.4;
+	}
+
+	.scan-step-indicator {
+		width: 1.25rem;
+		height: 1.25rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		margin-top: 0.0625rem;
+	}
+
+	.scan-check {
+		color: var(--accent-teal-main);
+		font-size: 0.875rem;
+		font-weight: 700;
+	}
+
+	.scan-error {
+		color: var(--signal-error);
+		font-size: 0.875rem;
+		font-weight: 700;
+	}
+
+	.scan-pending {
+		color: var(--text-muted);
+		font-size: 0.75rem;
+	}
+
+	.scan-step-content {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
 	}
 </style>

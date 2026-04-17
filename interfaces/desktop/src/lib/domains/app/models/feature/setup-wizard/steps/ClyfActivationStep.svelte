@@ -9,9 +9,19 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import WizardHelpTip from "../components/WizardHelpTip.svelte";
 import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
 import { testInference } from "../wizard.service.js";
+
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (r.status === "error") {
+		throw new Error(r.error);
+	}
+	return r.data;
+}
+
 import { wizardState } from "../wizard.state.svelte.js";
 
 interface Props {
@@ -57,8 +67,9 @@ async function sendMessage(): Promise<void> {
 
 		if (voiceEnabled && ttsReady) {
 			try {
-				const { invoke } = await import("@tauri-apps/api/core");
-				await invoke("speak", { text: response, voice: "default" });
+				await withAction("wizard.speak", "Speaking Clyffy's reply…", async () => {
+					unwrap(await commands.speak(response, "default", null));
+				});
 			} catch {
 				// Voice output is optional. Chat validation remains valid.
 			}

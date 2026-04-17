@@ -7,6 +7,7 @@
  */
 
 import { listen } from "@tauri-apps/api/event";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 
@@ -23,16 +24,20 @@ export async function generateText(
 	maxTokens = 256,
 	temperature = 0.7,
 ): Promise<string> {
-	try {
-		logInfo("inference", `Generating from ${slotId}: "${prompt.slice(0, 50)}..."`);
-		const result = unwrap(await commands.inferenceGenerate(slotId, prompt, maxTokens, temperature));
-		logInfo("inference", `Generation complete: ${result.length} chars`);
-		return result;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("inference", `Generation failed: ${msg}`);
-		throw new Error(msg);
-	}
+	return withAction("models.inference", "Running inference on your loaded model…", async () => {
+		try {
+			logInfo("inference", `Generating from ${slotId}: "${prompt.slice(0, 50)}..."`);
+			const result = unwrap(
+				await commands.inferenceGenerate(slotId, prompt, maxTokens, temperature),
+			);
+			logInfo("inference", `Generation complete: ${result.length} chars`);
+			return result;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("inference", `Generation failed: ${msg}`);
+			throw new Error(msg);
+		}
+	});
 }
 
 /** Subscribe to streaming token events during generation. Rust emits bare string payloads. */

@@ -6,6 +6,7 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import type { ModelStatus } from "../util/models.types.js";
@@ -39,132 +40,157 @@ class ModelsState {
 
 	/** Full refresh — slots + registry + first-run check. Hard fails visible. */
 	async refresh(): Promise<void> {
-		this.loading = true;
-		logInfo("models", "refresh() start — getSlots + scanModels + isFirstRun (parallel)");
-		try {
-			const [slots, models, first] = await Promise.all([getSlots(), scanModels(), isFirstRun()]);
-			this.slots = slots;
-			this.models = models;
-			this.firstRun = first;
-			this.error = null;
-
-			// Initialize statuses for all slots
-			slots.forEach((s) => {
-				if (!this.statuses[s.id]) {
-					this.statuses[s.id] = { type: "cold" };
-				}
-			});
+		return withAction("models.refresh", "Refreshing models and slots…", async () => {
+			this.loading = true;
 			logInfo(
 				"models",
-				`refresh() ok — slots=${slots.length} models=${models.length} firstRun=${first}`,
+				"refresh() start — getSlots + isFirstRun (parallel), then scanModels (sequential)",
 			);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError("models", `refresh() FAILED: ${msg}`);
-		} finally {
-			this.loading = false;
-		}
+			try {
+				// getSlots internally calls scan_models on the same Mutex — calling
+				// scanModels in parallel causes lock contention and UI freeze.
+				// Sequence: slots + firstRun in parallel, then models after lock is free.
+				const [slots, first] = await Promise.all([getSlots(), isFirstRun()]);
+				const models = await scanModels();
+				this.slots = slots;
+				this.models = models;
+				this.firstRun = first;
+				this.error = null;
+
+				// Initialize statuses for all slots
+				slots.forEach((s) => {
+					if (!this.statuses[s.id]) {
+						this.statuses[s.id] = { type: "cold" };
+					}
+				});
+				logInfo(
+					"models",
+					`refresh() ok — slots=${slots.length} models=${models.length} firstRun=${first}`,
+				);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.error = msg;
+				logError("models", `refresh() FAILED: ${msg}`);
+				throw e;
+			} finally {
+				this.loading = false;
+			}
+		});
 	}
 
 	/** Scan the models directory for new GGUF files. Hard fail. */
 	async scan(): Promise<void> {
-		this.scanning = true;
-		this.error = null;
-		logInfo("models", "scan() start — scanModels()");
-		try {
-			this.models = await scanModels();
-			logInfo("models", `scan() ok — models=${this.models.length}`);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError("models", `scan() FAILED: ${msg}`);
-		} finally {
-			this.scanning = false;
-		}
+		return withAction("models.scan", "Scanning the models folder for GGUF files…", async () => {
+			this.scanning = true;
+			this.error = null;
+			logInfo("models", "scan() start — scanModels()");
+			try {
+				this.models = await scanModels();
+				logInfo("models", `scan() ok — models=${this.models.length}`);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.error = msg;
+				logError("models", `scan() FAILED: ${msg}`);
+				throw e;
+			} finally {
+				this.scanning = false;
+			}
+		});
 	}
 
 	/** Assign a model to a slot. Hard fail — no silent catch. */
 	async assign(slotId: string, modelId: string): Promise<void> {
-		this.error = null;
-		logInfo("models", `assign() start — slot=${slotId} modelId=${modelId}`);
-		try {
-			await assignModelToSlot(slotId, modelId);
-			logInfo("models", `assign() IPC assignModelToSlot ok — slot=${slotId}`);
-			await this.refresh();
-			logInfo("models", `assign() complete — slot=${slotId} modelId=${modelId}`);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError("models", `assign() FAILED — slot=${slotId} modelId=${modelId}: ${msg}`);
-			throw e;
-		}
+		return withAction("models.assign", "Assigning the model to your slot…", async () => {
+			this.error = null;
+			logInfo("models", `assign() start — slot=${slotId} modelId=${modelId}`);
+			try {
+				await assignModelToSlot(slotId, modelId);
+				logInfo("models", `assign() IPC assignModelToSlot ok — slot=${slotId}`);
+				await this.refresh();
+				logInfo("models", `assign() complete — slot=${slotId} modelId=${modelId}`);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.error = msg;
+				logError("models", `assign() FAILED — slot=${slotId} modelId=${modelId}: ${msg}`);
+				throw e;
+			}
+		});
 	}
 
 	/** Warm a slot — load weights to CPU RAM only. Fast activation later. */
 	async warm(slotId: string): Promise<void> {
-		logInfo("models", `warm() start — slot=${slotId}`);
-		const { swapState } = await import("./swap.state.svelte.js");
-		swapState.startLoad(slotId);
-		this.statuses[slotId] = { type: "loading", stage: "loading_weights", progressPct: 0 };
-		try {
-			await warmSlot(slotId);
-			this.statuses[slotId] = {
-				type: "warm",
-			};
-			swapState.complete();
-			logInfo("models", `warm() complete — slot=${slotId}`);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.statuses[slotId] = { type: "failed", error: msg };
-			swapState.fail(msg);
-			logError("models", `warm() FAILED — slot=${slotId}: ${msg}`);
-			throw e;
-		}
+		return withAction(
+			"models.warm",
+			"Warming weights into memory for faster activation…",
+			async () => {
+				logInfo("models", `warm() start — slot=${slotId}`);
+				const { swapState } = await import("./swap.state.svelte.js");
+				swapState.startLoad(slotId);
+				this.statuses[slotId] = { type: "loading", stage: "loading_weights", progressPct: 0 };
+				try {
+					await warmSlot(slotId);
+					this.statuses[slotId] = {
+						type: "warm",
+					};
+					swapState.complete();
+					logInfo("models", `warm() complete — slot=${slotId}`);
+				} catch (e) {
+					const msg = e instanceof Error ? e.message : String(e);
+					this.statuses[slotId] = { type: "failed", error: msg };
+					swapState.fail(msg);
+					logError("models", `warm() FAILED — slot=${slotId}: ${msg}`);
+					throw e;
+				}
+			},
+		);
 	}
 
 	/** Load a slot's model. Activates SwapOverlay for full-screen block. */
 	async load(slotId: string): Promise<void> {
-		logInfo("models", `load() start — slot=${slotId}`);
-		const { swapState } = await import("./swap.state.svelte.js");
-		swapState.startLoad(slotId);
-		this.statuses[slotId] = { type: "loading", stage: "verifying", progressPct: 0 };
-		try {
-			await loadSlot(slotId);
-			this.statuses[slotId] = {
-				type: "hot",
-				footprint: { ramBytes: 0, vramBytes: 0 },
-			};
-			swapState.complete();
-			logInfo("models", `load() complete — slot=${slotId}`);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.statuses[slotId] = { type: "failed", error: msg };
-			swapState.fail(msg);
-			logError("models", `load() FAILED — slot=${slotId}: ${msg}`);
-			throw e;
-		}
+		return withAction("models.load", "Loading the model into your GPU or CPU…", async () => {
+			logInfo("models", `load() start — slot=${slotId}`);
+			const { swapState } = await import("./swap.state.svelte.js");
+			swapState.startLoad(slotId);
+			this.statuses[slotId] = { type: "loading", stage: "verifying", progressPct: 0 };
+			try {
+				await loadSlot(slotId);
+				this.statuses[slotId] = {
+					type: "hot",
+					footprint: { ramBytes: 0, vramBytes: 0 },
+				};
+				swapState.complete();
+				logInfo("models", `load() complete — slot=${slotId}`);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.statuses[slotId] = { type: "failed", error: msg };
+				swapState.fail(msg);
+				logError("models", `load() FAILED — slot=${slotId}: ${msg}`);
+				throw e;
+			}
+		});
 	}
 
 	/** Unload a slot's model. Activates SwapOverlay. Hard fail — error surfaces. */
 	async unload(slotId: string): Promise<void> {
-		logInfo("models", `unload() start — slot=${slotId}`);
-		const { swapState } = await import("./swap.state.svelte.js");
-		swapState.startUnload(slotId);
-		this.statuses[slotId] = { type: "unloading" };
-		try {
-			await unloadSlot(slotId);
-			this.statuses[slotId] = { type: "cold" };
-			swapState.complete();
-			logInfo("models", `unload() complete — slot=${slotId}`);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			this.statuses[slotId] = { type: "failed", error: msg };
-			swapState.fail(msg);
-			logError("models", `unload() FAILED — slot=${slotId}: ${msg}`);
-			throw e;
-		}
+		return withAction("models.unload", "Unloading the model to free memory…", async () => {
+			logInfo("models", `unload() start — slot=${slotId}`);
+			const { swapState } = await import("./swap.state.svelte.js");
+			swapState.startUnload(slotId);
+			this.statuses[slotId] = { type: "unloading" };
+			try {
+				await unloadSlot(slotId);
+				this.statuses[slotId] = { type: "cold" };
+				swapState.complete();
+				logInfo("models", `unload() complete — slot=${slotId}`);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.error = msg;
+				this.statuses[slotId] = { type: "failed", error: msg };
+				swapState.fail(msg);
+				logError("models", `unload() FAILED — slot=${slotId}: ${msg}`);
+				throw e;
+			}
+		});
 	}
 
 	/**
@@ -173,24 +199,26 @@ class ModelsState {
 	 * If slot is not loaded, falls back to assign().
 	 */
 	async swap(slotId: string, newModelId: string): Promise<void> {
-		logInfo("models", `swap() start — slot=${slotId} newModelId=${newModelId}`);
-		const { swapState } = await import("./swap.state.svelte.js");
-		swapState.startLoad(slotId);
-		this.error = null;
-		try {
-			await swapSlotModel(slotId, newModelId);
-			logInfo("models", `swap() IPC swapSlotModel ok — slot=${slotId}`);
-			// SwapOverlay is driven by Tauri events (swap-complete/swap-failed),
-			// not by this Promise. The overlay auto-dismisses on completion.
-			await this.refresh();
-			logInfo("models", `swap() complete — slot=${slotId}`);
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			// swapState.fail() is called by the swap-failed event listener
-			logError("models", `swap() FAILED — slot=${slotId} newModelId=${newModelId}: ${msg}`);
-			throw e;
-		}
+		return withAction("models.swap", "Swapping to a different model on this slot…", async () => {
+			logInfo("models", `swap() start — slot=${slotId} newModelId=${newModelId}`);
+			const { swapState } = await import("./swap.state.svelte.js");
+			swapState.startLoad(slotId);
+			this.error = null;
+			try {
+				await swapSlotModel(slotId, newModelId);
+				logInfo("models", `swap() IPC swapSlotModel ok — slot=${slotId}`);
+				// SwapOverlay is driven by Tauri events (swap-complete/swap-failed),
+				// not by this Promise. The overlay auto-dismisses on completion.
+				await this.refresh();
+				logInfo("models", `swap() complete — slot=${slotId}`);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e);
+				this.error = msg;
+				// swapState.fail() is called by the swap-failed event listener
+				logError("models", `swap() FAILED — slot=${slotId} newModelId=${newModelId}: ${msg}`);
+				throw e;
+			}
+		});
 	}
 
 	/**

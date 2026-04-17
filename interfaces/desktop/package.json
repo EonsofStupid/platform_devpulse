@@ -9,6 +9,7 @@
 		"build": "pnpm generate:terminology && vite build",
 		"preview": "vite preview",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"check:ipc": "node scripts/dev/check-no-raw-invoke.mjs",
 		"lint": "biome check src/",
 		"lint:fix": "biome check --write src/",
 		"format": "biome format --write src/",

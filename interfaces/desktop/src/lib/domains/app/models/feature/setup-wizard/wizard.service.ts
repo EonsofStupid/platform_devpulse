@@ -10,7 +10,8 @@
  * `wizardState` mirrors as authoritative over IPC results.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import {
 	autoConfigureHardware,
@@ -27,6 +28,13 @@ import type { AutoConfig, SlotId } from "../../util/models.types.js";
 import { formatMb, friendlySlotLabel } from "../../util/models.types.js";
 import { wizardState } from "./wizard.state.svelte.js";
 import type { ContinueGate, ModelRec, WizardPhase } from "./wizard.types.js";
+
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (r.status === "error") {
+		throw new Error(r.error);
+	}
+	return r.data;
+}
 
 // ── Phase 1: Hardware ──────────────────────────────────
 
@@ -95,12 +103,14 @@ export async function fetchRecommendations(): Promise<AutoConfig | null> {
  * without having to catch.
  */
 export async function listAllPresets(): Promise<AutoConfig[]> {
-	logInfo("wizard.presets", "listAllPresets() — list_presets IPC");
 	try {
-		const raw = await invoke<string>("list_presets");
-		const out = JSON.parse(raw) as AutoConfig[];
-		logInfo("wizard.presets", `listAllPresets() ok — count=${out.length}`);
-		return out;
+		return await withAction("wizard.listPresets", "Loading hardware presets…", async () => {
+			logInfo("wizard.presets", "listAllPresets() — list_presets IPC");
+			const raw = unwrap(await commands.listPresets());
+			const out = JSON.parse(raw) as AutoConfig[];
+			logInfo("wizard.presets", `listAllPresets() ok — count=${out.length}`);
+			return out;
+		});
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.presets", `list_presets failed: ${msg}`);
@@ -119,14 +129,20 @@ export async function listAllPresets(): Promise<AutoConfig[]> {
  */
 export async function selectPreset(tier: string): Promise<AutoConfig | null> {
 	wizardState.error = null;
-	logInfo("wizard.presets", `selectPreset() — tier=${tier} (config_for_tier IPC)`);
 	try {
-		const raw = await invoke<string>("config_for_tier", { tier });
-		const config: AutoConfig = JSON.parse(raw);
-		wizardState.setRecommendations(config);
-		wizardState.selectedPresetName = config.preset_name;
-		logInfo("wizard.presets", `selectPreset() ok — preset=${config.preset_name}`);
-		return config;
+		return await withAction(
+			"wizard.selectPreset",
+			"Applying the selected hardware preset…",
+			async () => {
+				logInfo("wizard.presets", `selectPreset() — tier=${tier} (config_for_tier IPC)`);
+				const raw = unwrap(await commands.configForTier(tier));
+				const config: AutoConfig = JSON.parse(raw);
+				wizardState.setRecommendations(config);
+				wizardState.selectedPresetName = config.preset_name;
+				logInfo("wizard.presets", `selectPreset() ok — preset=${config.preset_name}`);
+				return config;
+			},
+		);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("wizard.presets", `selectPreset(${tier}) failed: ${msg}`);
@@ -515,17 +531,15 @@ export async function testInference(
  * @sideeffects Writes to libSQL preferences via Tauri, sets wizardState.devProfileExists
  */
 export async function createDevProfile(): Promise<void> {
-	const { invoke } = await import("@tauri-apps/api/core");
-	const profile = {
-		type: "dev",
-		created: new Date().toISOString(),
-		indexedProjects: [],
-	};
-	await invoke("set_preference", {
-		key: "dev_profile",
-		value: JSON.stringify(profile),
+	return withAction("wizard.createDevProfile", "Creating your dev profile…", async () => {
+		const profile = {
+			type: "dev",
+			created: new Date().toISOString(),
+			indexedProjects: [],
+		};
+		unwrap(await commands.setPreference("dev_profile", JSON.stringify(profile)));
+		wizardState.devProfileExists = true;
 	});
-	wizardState.devProfileExists = true;
 }
 
 /**
@@ -535,8 +549,7 @@ export async function createDevProfile(): Promise<void> {
  */
 export async function checkDevProfile(): Promise<boolean> {
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		const result = await invoke<string | null>("get_preference", { key: "dev_profile" });
+		const result = unwrap(await commands.getPreference("dev_profile"));
 		const exists = result !== null;
 		wizardState.devProfileExists = exists;
 		return exists;
@@ -554,10 +567,7 @@ export async function checkDevProfile(): Promise<boolean> {
  */
 export async function checkOnboardingComplete(): Promise<boolean> {
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		const result = await invoke<string | null>("get_preference", {
-			key: "onboarding_complete",
-		});
+		const result = unwrap(await commands.getPreference("onboarding_complete"));
 		return result === "true";
 	} catch {
 		return false;
@@ -571,21 +581,21 @@ export async function checkOnboardingComplete(): Promise<boolean> {
  *   sets wizardState.onboardingComplete. Logs errors but does not throw.
  */
 export async function markOnboardingComplete(): Promise<void> {
-	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("set_preference", { key: "onboarding_complete", value: "true" });
+	await withAction("wizard.complete", "Finishing setup and applying your choices…", async () => {
+		try {
+			unwrap(await commands.setPreference("onboarding_complete", "true"));
 
-		const { commands } = await import("$lib/sys/generated/bindings.js");
-		const result = await commands.completeModelSetup();
-		if (result.status === "error") {
-			logError("wizard.onboarding", `complete_model_setup returned error: ${result.error}`);
+			const result = await commands.completeModelSetup();
+			if (result.status === "error") {
+				logError("wizard.onboarding", `complete_model_setup returned error: ${result.error}`);
+			}
+
+			wizardState.onboardingComplete = true;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("wizard.onboarding", `Failed to complete onboarding: ${msg}`);
 		}
-
-		wizardState.onboardingComplete = true;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("wizard.onboarding", `Failed to complete onboarding: ${msg}`);
-	}
+	});
 }
 
 // ── Subsequent Launch Detection ────────────────────────
@@ -621,13 +631,12 @@ export async function validateModelPaths(): Promise<{ valid: boolean; missing: s
  */
 export async function detectHardwareChange(): Promise<boolean> {
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		const lastGpu = await invoke<string | null>("get_preference", { key: "last_gpu_name" });
+		const lastGpu = unwrap(await commands.getPreference("last_gpu_name"));
 
 		await hardwareState.refresh();
 		const currentGpu = hardwareState.gpuName;
 
-		await invoke("set_preference", { key: "last_gpu_name", value: currentGpu });
+		unwrap(await commands.setPreference("last_gpu_name", currentGpu ?? ""));
 
 		if (lastGpu === null) {
 			return false;

@@ -17,9 +17,14 @@ import {
 	Sparkles,
 	Volume2,
 } from "lucide-svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Card } from "$lib/design/components/card/index.js";
+import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { AutoConfig, HardwareTier } from "../../../util/models.types.js";
@@ -465,13 +470,13 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 			</div>
 		</div>
 	{:else if hasRecs}
-		<section class="brain-row" aria-label="Brain options">
-			<div class="section-head">
-				<div class="section-title-row">
-					<Text size="xs" weight="bold" class="section-kicker">Brain Options</Text>
+		<Card preset="neuro-elevated" label="Brain options" class="w-full p-4">
+			<div class="flex flex-col gap-1 w-full">
+				<div class="flex items-center gap-1.5">
+					<Text size="xs" weight="bold" class="uppercase tracking-wide text-[var(--text-muted)]">Brain Options</Text>
 					<WizardHelpTip tip="This is the main coding brain. Larger options generally reason better, but they need more VRAM and take longer to download." />
 				</div>
-				<Text size="sm" class="section-copy">
+				<Text size="sm" color="secondary">
 					Pick the main model first. Everything else below is grouped by what it does for you.
 				</Text>
 			</div>
@@ -480,38 +485,40 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 				{#each brainOptions as brain (brain.filename)}
 					{@const isActive = brain.tier === activeTier}
 					{@const isSwitching = switchingTier === brain.tier}
-					<button
-						type="button"
-						class="brain-chip"
-						class:brain-chip-active={isActive}
-						class:brain-chip-switching={isSwitching}
+					<Card
+						as="button"
+						preset={isActive ? "neuro-elevated" : "neuro-minimal"}
 						disabled={setupInProgress || isSwitching}
-						title={brain.presetName}
+						class={cn(
+							"relative min-w-[10.5rem] p-3 gap-1.5 text-left cursor-pointer transition-transform",
+							isSwitching && "opacity-65 cursor-not-allowed",
+							isActive && "ring-1 ring-[var(--accent-purple-main)]",
+						)}
 						onclick={() => onSelectTier(brain.tier)}
 					>
-						<div class="brain-chip-head">
+						<div class="flex items-center gap-1.5">
 							<Brain size={14} />
-							<span class="brain-chip-name">{brain.displayName}</span>
+							<span class="flex-1 min-w-0 truncate text-sm font-bold">{brain.displayName}</span>
 							{#if brain.alreadyDownloaded}
-								<Check size={12} class="brain-chip-check" />
+								<Check size={12} class="text-[var(--accent-green-main)]" />
 							{/if}
 						</div>
-						<div class="brain-chip-meta">
+						<div class="flex items-center gap-1.5 text-xs text-[var(--text-muted)] tabular-nums">
 							<span>{formatMb(brain.sizeMb)}</span>
 							<span>·</span>
 							<span>~{formatMb(brain.vramMb)} VRAM</span>
 						</div>
 						{#if isSwitching}
-							<div class="brain-chip-spinner"><Spinner size="sm" tone="accent" /></div>
+							<div class="absolute top-2 right-2"><Spinner size="sm" /></div>
 						{/if}
-					</button>
+					</Card>
 				{/each}
 			</div>
 
 			{#if activePresetName}
-				<Text size="xs" class="active-preset">Active preset: {activePresetName}</Text>
+				<Text size="xs" color="muted" class="w-full text-right">Active preset: {activePresetName}</Text>
 			{/if}
-		</section>
+		</Card>
 
 		<section class="slot-plan-shell">
 			<div class="section-head">
@@ -522,13 +529,13 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 				<Text size="sm" class="section-copy">Every slot is surfaced during dev, even when the active preset only needs part of the stack right now.</Text>
 			</div>
 
-			<div class="slot-plan-callout">
-				<img src="/imgs/mascot/clyffy-df-icon-interaction1.png" alt="" aria-hidden="true" class="callout-mascot" />
-				<div class="callout-copy-block">
-					<Text size="xs" weight="bold" class="callout-kicker">Clyffy Guidance</Text>
-					<Text size="sm" class="callout-body">Use the recommended button for the fastest baseline, then open any slot to browse local files, import a model, or search HuggingFace without leaving setup.</Text>
+			<Card preset="glass-deep" class="grid grid-cols-[auto_1fr] gap-3.5 p-4">
+				<img src="/imgs/mascot/clyffy-df-icon-interaction1.png" alt="" aria-hidden="true" class="w-[4.25rem] h-[4.25rem] object-contain" />
+				<div class="flex flex-col gap-1">
+					<Text size="xs" weight="bold" class="uppercase tracking-wider text-[var(--accent-cyan-main)]">Clyffy Guidance</Text>
+					<Text size="sm" color="secondary">Use the recommended button for the fastest baseline, then open any slot to browse local files, import a model, or search HuggingFace without leaving setup.</Text>
 				</div>
-			</div>
+			</Card>
 
 			{#each slotGroups as group (group.id)}
 				<section class="slot-group-shell" data-role={group.id}>
@@ -539,33 +546,37 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 					<div class="slot-card-grid">
 						{#each group.cards as slot (slot.slotId)}
 							{@const Icon = slot.icon}
-							<article class="slot-card-shell" data-role={slot.role} data-state={slot.state}>
-								<div class="slot-card-head">
-									<div class="slot-card-title-wrap">
-										<div class="slot-card-title-row">
-											<span class="slot-card-icon"><Icon size={18} /></span>
-											<span class="slot-card-title">{slot.title}</span>
+							<Card preset="neuro-solid" class="p-4 gap-3 border-l-4 border-l-[var(--accent-teal-main)]" data-role={slot.role} data-state={slot.state}>
+								<div class="flex items-start justify-between gap-3">
+									<div class="flex flex-col gap-0.5 min-w-0 flex-1">
+										<div class="flex items-center gap-1.5">
+											<Icon size={18} class="text-[var(--accent-teal-main)] shrink-0" />
+											<span class="text-[0.9375rem] font-bold">{slot.title}</span>
 											<WizardHelpTip tip={roleTooltip(slot.slotId)} label={slot.title} />
 										</div>
-										<span class="slot-card-desc">{slot.description}</span>
+										<Text size="xs" color="muted">{slot.description}</Text>
 									</div>
-									<span class="slot-state-pill">{slot.stateLabel}</span>
+									<Badge
+										variant={slot.state === "ready" ? "positive" : slot.state === "failed" ? "negative" : slot.state === "loading" ? "informative" : "neutral"}
+										size="sm"
+									>
+										{slot.stateLabel}
+									</Badge>
 								</div>
-								<div class="slot-card-body">
-									<span class="slot-primary-line">{slot.assignedName ?? "No model assigned yet"}</span>
-									<span class="slot-secondary-line">{slot.techLabel}</span>
+								<div class="flex flex-col gap-0.5">
+									<Text size="sm" weight="semibold">{slot.assignedName ?? "No model assigned yet"}</Text>
+									<Text size="xs" color="muted">{slot.techLabel}</Text>
 								</div>
-								<div class="slot-chip-row">
+								<div class="flex items-center gap-1.5 flex-wrap">
 									{#if slot.recommended}
-										<span class="slot-chip slot-chip-accent">
+										<Badge variant="informative" size="sm">
 											{slot.recommended.alreadyDownloaded ? "On disk" : `Recommended · ${formatMb(slot.recommended.sizeMb)}`}
-										</span>
+										</Badge>
 									{:else}
-										<span class="slot-chip">Manual pick</span>
+										<Badge variant="neutral" size="sm">Manual pick</Badge>
 									{/if}
-									<span class="slot-chip">{slot.stateLabel}</span>
 								</div>
-								<div class="slot-action-row">
+								<div class="flex items-center gap-2 flex-wrap">
 									<Button preset="secondary" size="sm" onclick={() => void handleRecommendedSlotAction(slot.slotId)}>
 										{#if slot.recommended?.alreadyDownloaded}
 											<Check size={14} /> Use recommended
@@ -578,7 +589,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 									<Button preset="ghost" size="sm" onclick={() => openSlotManager(slot.slotId, "local")}>Browse</Button>
 									<Button preset="ghost" size="sm" onclick={() => openSlotManager(slot.slotId, "search")}>Search HF</Button>
 								</div>
-							</article>
+							</Card>
 						{/each}
 					</div>
 				</section>
@@ -586,10 +597,10 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		</section>
 
 		{#if visibleSetupDownloads.length > 0 || setupInProgress}
-			<section class="download-queue">
-				<div class="section-head">
-					<Text size="xs" weight="bold" class="section-kicker">Live Setup</Text>
-					<Text size="sm" class="section-copy">
+			<Card preset="neuro-minimal" class="w-full p-4 gap-3">
+				<div class="flex flex-col gap-1 w-full">
+					<Text size="xs" weight="bold" class="uppercase tracking-wide text-[var(--text-muted)]">Live Setup</Text>
+					<Text size="sm" color="secondary">
 						{#if visibleSetupDownloads.length > 0}
 							Real kernel download state. Bytes, failures, and cancel events land here.
 						{:else}
@@ -598,7 +609,7 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 					</Text>
 				</div>
 				{#if visibleSetupDownloads.length > 0}
-					<div class="download-queue-list">
+					<div class="flex flex-col gap-3">
 						{#each visibleSetupDownloads as tracker (tracker.downloadId)}
 							<DownloadProgressRow
 								tracker={tracker}
@@ -611,39 +622,39 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 						{/each}
 					</div>
 				{:else}
-					<div class="setup-status-card">
-						<Spinner size="sm" tone="accent" />
-						<span>Assigning the recommended models that are already on disk.</span>
-					</div>
+					<Card preset="glass-deep" class="flex items-center justify-center gap-2 p-3.5">
+						<Spinner size="sm" />
+						<Text size="sm" color="secondary">Assigning the recommended models that are already on disk.</Text>
+					</Card>
 				{/if}
-			</section>
+			</Card>
 		{/if}
 
 		{#if !setupComplete}
-			<Button preset="primary" size="lg" onclick={handleSetup} disabled={setupInProgress} class="setup-cta">
+			<Button preset="primary" size="lg" onclick={handleSetup} disabled={setupInProgress} class="w-full">
 				{#if setupInProgress}
-					<Spinner size="md" tone="accent" /> {copy.setup_in_progress_label}
+					<Spinner size="md" /> {copy.setup_in_progress_label}
 				{:else}
 					<Download size={18} /> {copy.setup_button_label}
 				{/if}
 			</Button>
 		{:else}
-			<div class="success-banner">
-				<Check size={18} />
-				<span>{copy.setup_complete_message}</span>
-			</div>
+			<Card preset="glass-deep" class="flex items-center justify-center gap-2 w-full p-3.5">
+				<Check size={18} class="text-[var(--accent-green-main)]" />
+				<Text size="sm" weight="semibold" class="text-[var(--accent-green-main)]">{copy.setup_complete_message}</Text>
+			</Card>
 		{/if}
 
 		{#if setupError}
-			<div class="error-banner">
+			<Card preset="neuro-minimal" class="w-full p-4 gap-2 border-l-4 border-l-[var(--signal-error)]">
 				<Text size="sm" weight="semibold">Setup hit a real error</Text>
-				<Text size="sm" class="error-copy">{setupError}</Text>
-				<div class="error-actions">
+				<Text size="sm" color="secondary">{setupError}</Text>
+				<div class="flex items-center gap-2">
 					<Button preset="primary" size="sm" onclick={handleRetry}>{copy.error_retry_label}</Button>
 					<Button preset="secondary" size="sm" onclick={onBrowse}>{copy.browse_link_label}</Button>
 					<Button preset="ghost" size="sm" onclick={onCustomize}>{copy.error_pick_manually_label}</Button>
 				</div>
-			</div>
+			</Card>
 		{/if}
 	{/if}
 
@@ -693,6 +704,9 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 {/if}
 
 <style>
+	/* Layout only — all visual properties come from ColdLight presets via renderForge.
+	   NO hardcoded colors, shadows, borders, or gradients. */
+
 	.models-step {
 		display: flex;
 		flex-direction: column;
@@ -709,16 +723,6 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		align-items: center;
 		gap: 0.5rem;
 		text-align: center;
-	}
-
-	:global(.step-subtitle) {
-		max-width: 38rem;
-		color: var(--text-secondary);
-	}
-
-	:global(.step-guidance) {
-		max-width: 38rem;
-		color: var(--text-muted);
 	}
 
 	.step-help-row {
@@ -743,8 +747,11 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		object-fit: contain;
 	}
 
-	:global(.loading-copy) {
-		color: var(--text-muted);
+	.brain-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		width: 100%;
 	}
 
 	.section-head {
@@ -760,237 +767,11 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		gap: 0.375rem;
 	}
 
-	:global(.section-kicker) {
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--text-muted);
-	}
-
-	:global(.section-copy) {
-		color: var(--text-secondary);
-	}
-
-	.brain-row {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		width: 100%;
-		padding: 1rem 1.125rem;
-		border-radius: 1rem;
-		background:
-			linear-gradient(135deg, color-mix(in oklch, var(--accent-purple-fill) 85%, transparent), transparent 55%),
-			var(--glass-deep);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		box-shadow: var(--shadow-z2);
-	}
-
-	.brain-chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.brain-chip {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		gap: 0.375rem;
-		padding: 0.625rem 0.875rem;
-		min-width: 10.5rem;
-		border-radius: 0.875rem;
-		background: var(--surface-inset);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		color: var(--text-primary);
-		cursor: pointer;
-		transition:
-			background var(--motion-duration-fast),
-			border-color var(--motion-duration-fast),
-			box-shadow var(--motion-duration-fast),
-			transform var(--motion-duration-fast);
-	}
-
-	.brain-chip:hover:not(:disabled) {
-		border-color: var(--accent-purple-main);
-		box-shadow: 0 0 0 var(--space-1) color-mix(in oklch, var(--accent-purple-main) 24%, transparent), var(--shadow-z2);
-		transform: translateY(-0.125rem);
-	}
-
-	.brain-chip-active {
-		background:
-			linear-gradient(135deg, color-mix(in oklch, var(--accent-purple-fill) 88%, transparent), transparent 60%),
-			var(--glass-smoke);
-		border-color: var(--accent-purple-main);
-		box-shadow: 0 0 0 var(--space-1) color-mix(in oklch, var(--accent-purple-main) 28%, transparent), var(--shadow-z2);
-	}
-
-	.brain-chip-switching,
-	.brain-chip:disabled {
-		opacity: 0.65;
-		cursor: not-allowed;
-	}
-
-	.brain-chip-head {
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-		font-size: 0.875rem;
-		font-weight: 700;
-	}
-
-	.brain-chip-name {
-		flex: 1;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	:global(.brain-chip-check) {
-		color: var(--accent-green-main);
-	}
-
-	.brain-chip-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.3125rem;
-		font-size: 0.75rem;
-		color: var(--text-muted);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.brain-chip-spinner {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		color: var(--accent-purple-main);
-	}
-
-	:global(.active-preset) {
-		width: 100%;
-		text-align: right;
-		color: var(--text-muted);
-	}
-
-	.download-queue {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		width: 100%;
-	}
-
-	.download-queue-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.setup-status-card {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		padding: 0.875rem 1rem;
-		border-radius: 1rem;
-		background:
-			linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 84%, transparent), transparent 55%),
-			var(--glass-deep);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 32%, transparent);
-		color: var(--text-secondary);
-	}
-
-	.success-banner {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		width: 100%;
-		padding: 0.875rem;
-		border-radius: 1rem;
-		background: color-mix(in oklch, var(--accent-green-main) 14%, transparent);
-		border: var(--border-preset-default-width) solid var(--accent-green-main);
-		color: var(--accent-green-main);
-		font-size: 0.875rem;
-		font-weight: 700;
-	}
-
-	.error-banner {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		width: 100%;
-		padding: 0.875rem;
-		border-radius: 1rem;
-		background: color-mix(in oklch, var(--signal-error) 12%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--signal-error) 45%, transparent);
-	}
-
-	:global(.error-copy) {
-		color: var(--text-secondary);
-	}
-
-	.error-actions,
-	.escape-actions,
-	.nav {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		width: 100%;
-	}
-
-	.escape-actions {
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	.nav {
-		justify-content: space-between;
-		padding-top: 0.5rem;
-	}
-
-	:global(.setup-cta) {
-		width: 100%;
-	}
-
 	.slot-plan-shell {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
 		width: 100%;
-	}
-
-	.slot-plan-callout {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.875rem;
-		padding: 1rem;
-		border-radius: 1.125rem;
-		background:
-			linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 90%, transparent), transparent 54%),
-			linear-gradient(320deg, color-mix(in oklch, var(--accent-purple-fill) 85%, transparent), transparent 60%),
-			var(--glass-deep);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 28%, transparent);
-	}
-
-	.callout-mascot {
-		width: 4.25rem;
-		height: 4.25rem;
-		object-fit: contain;
-	}
-
-	.callout-copy-block {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	:global(.callout-kicker) {
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--accent-cyan-main);
-	}
-
-	:global(.callout-body) {
-		color: var(--text-secondary);
 	}
 
 	.slot-group-shell {
@@ -1011,145 +792,27 @@ async function handleRecommendedSlotAction(slotId: string): Promise<void> {
 		gap: 0.75rem;
 	}
 
-	.slot-card-shell {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		padding: 1rem;
-		border-radius: 1.125rem;
-		background: var(--glass-deep);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		border-left: 0.25rem solid var(--role-accent, var(--border-strong));
-		box-shadow: var(--shadow-z1);
-	}
-
-	.slot-card-shell[data-role="reasoning"] {
-		--role-accent: var(--accent-purple-main);
-		background: linear-gradient(135deg, color-mix(in oklch, var(--accent-purple-fill) 92%, transparent), transparent 62%), var(--glass-deep);
-	}
-
-	.slot-card-shell[data-role="observation"] {
-		--role-accent: var(--accent-green-main);
-		background: linear-gradient(135deg, color-mix(in oklch, var(--accent-green-fill) 92%, transparent), transparent 62%), var(--glass-deep);
-	}
-
-	.slot-card-shell[data-role="encoder"] {
-		--role-accent: var(--accent-cyan-main);
-		background: linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 92%, transparent), transparent 62%), var(--glass-deep);
-	}
-
-	.slot-card-shell[data-role="voice"] {
-		--role-accent: var(--accent-coral-main);
-		background: linear-gradient(135deg, color-mix(in oklch, var(--accent-coral-fill) 92%, transparent), transparent 62%), var(--glass-deep);
-	}
-
-	.slot-card-shell[data-state="failed"] {
-		border-color: color-mix(in oklch, var(--signal-error) 46%, transparent);
-	}
-
-	.slot-card-head {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 0.75rem;
-	}
-
-	.slot-card-title-wrap {
-		display: flex;
-		flex-direction: column;
-		gap: 0.1875rem;
-		min-width: 0;
-		flex: 1;
-	}
-
-	.slot-card-title-row {
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-	}
-
-	.slot-card-icon {
-		color: var(--role-accent, var(--text-muted));
-	}
-
-	.slot-card-title {
-		font-size: 0.9375rem;
-		font-weight: 700;
-		color: var(--text-primary);
-	}
-
-	.slot-card-desc,
-	.slot-secondary-line {
-		font-size: 0.75rem;
-		color: var(--text-muted);
-	}
-
-	.slot-state-pill {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.1875rem 0.5rem;
-		border-radius: 999px;
-		background: color-mix(in oklch, var(--surface-base, #0c1220) 84%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--role-accent, var(--border-subtle)) 32%, transparent);
-		color: var(--text-secondary);
-		font-size: 0.6875rem;
-		font-weight: 700;
-	}
-
-	.slot-card-body {
-		display: flex;
-		flex-direction: column;
-		gap: 0.1875rem;
-	}
-
-	.slot-primary-line {
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--text-primary);
-	}
-
-	.slot-chip-row {
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-		flex-wrap: wrap;
-	}
-
-	.slot-chip {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.1875rem 0.5rem;
-		border-radius: 999px;
-		background: color-mix(in oklch, var(--surface-base, #0c1220) 86%, transparent);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		color: var(--text-muted);
-		font-size: 0.6875rem;
-		font-weight: 700;
-	}
-
-	.slot-chip-accent {
-		color: var(--role-accent, var(--accent-cyan-main));
-		border-color: color-mix(in oklch, var(--role-accent, var(--accent-cyan-main)) 36%, transparent);
-	}
-
-	.slot-action-row {
+	.escape-actions,
+	.nav {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.escape-actions {
+		justify-content: center;
 		flex-wrap: wrap;
 	}
 
-	@media (max-width: 48rem) {
-		.slot-plan-callout {
-			grid-template-columns: 1fr;
-		}
+	.nav {
+		justify-content: space-between;
+		padding-top: 0.5rem;
+	}
 
+	@media (max-width: 48rem) {
 		.slot-card-grid {
 			grid-template-columns: 1fr;
-		}
-
-		.slot-action-row {
-			align-items: stretch;
 		}
 	}
 </style>

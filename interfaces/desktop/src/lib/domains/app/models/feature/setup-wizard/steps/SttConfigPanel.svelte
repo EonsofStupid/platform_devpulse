@@ -18,6 +18,8 @@ import {
 } from "lucide-svelte";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { SlotId } from "../../../util/models.types.js";
@@ -28,6 +30,13 @@ import {
 	formatMb,
 	isInferenceReady,
 } from "../../../util/models.types.js";
+
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (r.status === "error") {
+		throw new Error(r.error);
+	}
+	return r.data;
+}
 
 const SLOT_ID: SlotId = "voice.stt";
 
@@ -94,8 +103,9 @@ async function testMicrophone(): Promise<void> {
 	micLevel = 0;
 
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("test_microphone");
+		await withAction("wizard.testMicrophone", "Testing your microphone…", async () => {
+			unwrap(await commands.testMicrophone());
+		});
 		micTestResult = "success";
 	} catch (e) {
 		micTestResult = "error";

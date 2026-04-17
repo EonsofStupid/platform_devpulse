@@ -10,10 +10,17 @@
  * Persists to preferences.json via Tauri IPC.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { commands } from "$lib/sys/generated/bindings.js";
 import type { CompetencyLevel } from "../util/terminology.js";
 
 const PREF_KEY = "competency_level";
+
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (r.status === "error") {
+		throw new Error(r.error);
+	}
+	return r.data;
+}
 
 class CompetencyTracker {
 	level: CompetencyLevel = 0;
@@ -23,7 +30,7 @@ class CompetencyTracker {
 	async load(): Promise<void> {
 		if (this.loaded) return;
 		try {
-			const value = await invoke<string | null>("get_preference", { key: PREF_KEY });
+			const value = unwrap(await commands.getPreference(PREF_KEY));
 			if (value !== null) {
 				const parsed = Number(value);
 				if (parsed === 0 || parsed === 1 || parsed === 2) {
@@ -41,7 +48,7 @@ class CompetencyTracker {
 	async setLevel(level: CompetencyLevel): Promise<void> {
 		this.level = level;
 		try {
-			await invoke("set_preference", { key: PREF_KEY, value: String(level) });
+			unwrap(await commands.setPreference(PREF_KEY, String(level)));
 		} catch (e) {
 			console.warn("[CompetencyTracker] Failed to persist preference:", e);
 		}

@@ -9,6 +9,7 @@
 <script lang="ts">
 import { Check, Cloud, Eye, EyeOff, Key, Plus, Shield, Trash2, X } from "lucide-svelte";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import { type ApiKeyStatus, type ApiProvider, commands } from "$lib/sys/generated/bindings.js";
 
 // ── Provider metadata (layman-friendly) ────────────────
@@ -116,7 +117,11 @@ async function saveKey(): Promise<void> {
 	error = null;
 	successMsg = null;
 	try {
-		const result = await commands.storeApiKey(editingProvider, inputValue.trim());
+		const result = await withAction(
+			"wizard.storeApiKey",
+			"Saving your API key securely…",
+			async () => commands.storeApiKey(editingProvider, inputValue.trim()),
+		);
 		if (result.status === "ok") {
 			successMsg = `${editingProvider} key saved securely`;
 			inputValue = "";
@@ -136,7 +141,11 @@ async function deleteKey(provider: ApiProvider): Promise<void> {
 	deleting = provider;
 	error = null;
 	try {
-		const result = await commands.deleteApiKey(provider);
+		const result = await withAction(
+			"wizard.deleteApiKey",
+			"Removing the stored API key…",
+			async () => commands.deleteApiKey(provider),
+		);
 		if (result.status === "ok") {
 			successMsg = `${provider} key removed`;
 			await loadStatuses();

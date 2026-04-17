@@ -21,11 +21,7 @@
   - WAI-ARIA dialog (role="dialog", aria-modal, focus trap, Escape
     dismiss, click-outside dismiss, return focus on close).
   - Copy strings come from `copy.hf_token.*` — zero hardcoded text.
-  - Uses the Specta-generated `commands` binding for everything except
-    `hf_token_suffix`, which is invoked via raw `invoke()` because the
-    bindings.ts regen only runs on app boot (cargo check does not
-    touch it). Next boot the command will appear in bindings and the
-    raw invoke can be migrated to `commands.hfTokenSuffix`.
+  - Uses the Specta-generated `commands` binding including `hfTokenSuffix`.
 
   **Parent contract**
     interface Props {
@@ -37,11 +33,11 @@
     }
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { Check, Copy, ExternalLink, Eye, EyeOff, X } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
 import type { HfTokenCopy } from "../wizard.types.js";
@@ -92,10 +88,13 @@ async function refreshStoredSuffix(): Promise<void> {
 		return;
 	}
 	try {
-		// TODO: migrate to `commands.hfTokenSuffix` once the Specta
-		// bindings regen picks up the new command (runs on next app
-		// boot). Raw invoke works today.
-		const suffix = await invoke<string | null>("hf_token_suffix", { count: 5 });
+		const suffix = await withAction("models.hfTokenSuffix", "Loading token mask…", async () => {
+			const r = await commands.hfTokenSuffix(5);
+			if (r.status === "error") {
+				throw new Error(r.error);
+			}
+			return r.data;
+		});
 		storedSuffix = suffix;
 	} catch (e) {
 		// Non-fatal — the pill falls back to the unsaved badge.
@@ -178,7 +177,11 @@ async function handleSave(): Promise<void> {
 	saving = true;
 	error = null;
 	try {
-		const result = await commands.setHfToken(token);
+		const result = await withAction(
+			"models.setHfToken",
+			"Saving your Hugging Face token…",
+			async () => commands.setHfToken(token),
+		);
 		if (result.status === "error") {
 			error = copy.save_error_template.replace("{error}", result.error);
 			return;
@@ -198,7 +201,11 @@ async function handleClear(): Promise<void> {
 	saving = true;
 	error = null;
 	try {
-		const result = await commands.clearHfToken();
+		const result = await withAction(
+			"models.clearHfToken",
+			"Clearing your Hugging Face token…",
+			async () => commands.clearHfToken(),
+		);
 		if (result.status === "error") {
 			error = copy.save_error_template.replace("{error}", result.error);
 			return;

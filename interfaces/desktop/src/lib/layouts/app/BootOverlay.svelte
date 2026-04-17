@@ -40,7 +40,7 @@ let visible = $state(true);
 let fading = $state(false);
 
 const subsystems = $derived(platformState.subsystemList());
-const isWizardPhase = $derived(platformState.needsModelSetup);
+const bootComplete = $derived(platformState.isReady);
 const hasSubsystemFailure = $derived(platformState.hasSubsystemFailure);
 
 function stateToVariant(state: SubsystemState): BadgeVariant {
@@ -73,25 +73,19 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 	}
 }
 
+// When boot completes, ALWAYS hand off to the setup wizard.
+// The overlay NEVER auto-dismisses. The wizard stays until the user
+// explicitly completes the setup flow or closes it via Ctrl+Shift+Z.
+let wizardOpened = $state(false);
 $effect(() => {
-	// Gate on FULL readiness: platform services AND models configured.
-	if (platformState.isFullyReady && !fading) {
+	if (bootComplete && !wizardOpened) {
+		wizardOpened = true;
+		wizardState.goTo("hardware");
+		wizardState.open();
 		fading = true;
 		setTimeout(() => {
 			visible = false;
 		}, 600);
-	}
-});
-
-// When the platform is ready but models still need setup, reveal the
-// shell-mounted overlay and drop this boot gate so onboarding has a single owner.
-let wizardOpened = $state(false);
-$effect(() => {
-	if (isWizardPhase && !wizardOpened) {
-		wizardOpened = true;
-		wizardState.goTo("hardware");
-		wizardState.open();
-		visible = false;
 	}
 });
 </script>
@@ -120,9 +114,7 @@ $effect(() => {
 	<div class={cn(
 		stack({ gap: "6", align: "center" }),
 		"overflow-y-auto scrollbar-thin pointer-events-auto",
-		isWizardPhase
-			? "w-full h-full"
-			: "min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
+		"min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
 		"transition-all duration-300 ease-out",
 	)}>
 		<!-- Wordmark -->
@@ -137,7 +129,7 @@ $effect(() => {
 		</div>
 
 		<!-- Subsystem list — always visible during boot, collapses during wizard -->
-		{#if !isWizardPhase}
+		<!-- Subsystem progress always visible during boot -->
 			<div class={cn(stack({ gap: "8" }), "w-full")}>
 				{#each subsystems as sub (sub.name)}
 					{@const Icon = getIcon(sub.name)}
@@ -240,39 +232,8 @@ $effect(() => {
 					</ul>
 				</div>
 			{/if}
-		{/if}
 
 		<!-- Model setup now lives in the shell-mounted overlay. -->
 	</div>
 </div>
 {/if}
-
-<style>
-	.wizard-gate {
-		width: 100%;
-		max-width: 26rem;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.625rem;
-		text-align: center;
-		padding: 1rem 1.25rem;
-		border-radius: 0.875rem;
-		border: 1px solid var(--border-subtle, #1a2030);
-		background: var(--glass-deep, oklch(0.12 0.015 220 / 0.84));
-		box-shadow: 0 14px 32px oklch(0 0 0 / 0.35);
-	}
-	.wizard-gate-chip {
-		display: inline-flex;
-		align-items: center;
-		font-size: 0.6875rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		padding: 0.2rem 0.5rem;
-		border-radius: 9999px;
-		color: var(--brand-cyan, #17deef);
-		background: oklch(0.82 0.14 195 / 0.11);
-		border: 1px solid oklch(0.82 0.14 195 / 0.3);
-	}
-</style>

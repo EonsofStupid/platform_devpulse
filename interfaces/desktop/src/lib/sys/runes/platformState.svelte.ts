@@ -42,7 +42,7 @@ const TAURI_READY_TIMEOUT_MS = 30_000;
 /**
  * Wait for Tauri IPC bridge to be available.
  * The webview can mount before the Rust backend connects the IPC channel.
- * Without this, `listen()` and `invoke()` crash with "Cannot read properties of undefined".
+ * Without this, `listen` and IPC invoke crash with "Cannot read properties of undefined".
  */
 function waitForTauri(): Promise<void> {
 	return new Promise((resolve, reject) => {

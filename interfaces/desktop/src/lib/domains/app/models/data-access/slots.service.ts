@@ -7,6 +7,7 @@
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import { commands, type LoadError, type SlotInfo } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { formatLoadError } from "./compatibility.service.js";
@@ -100,9 +101,7 @@ export async function swapSlotModel(slotId: string, newModelId: string): Promise
 export async function warmSlot(slotId: string): Promise<void> {
 	logInfo("models.slots", `Warming slot ${slotId}...`);
 	try {
-		// Use raw invoke until specta bindings regenerate with warm_slot
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("warm_slot", { slotId });
+		unwrap(await commands.warmSlot(slotId));
 		logInfo("models.slots", `Slot ${slotId} warmed`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -113,17 +112,17 @@ export async function warmSlot(slotId: string): Promise<void> {
 
 /** Delete a model from disk and registry. Clears slot assignments. Throws on failure. */
 export async function deleteModel(modelId: string): Promise<void> {
-	logInfo("models.slots", `Deleting model ${modelId}...`);
-	try {
-		// Use raw invoke until specta bindings regenerate with delete_model
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("delete_model", { modelId });
-		logInfo("models.slots", `Model ${modelId} deleted`);
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("models.slots", `Delete FAILED for ${modelId}: ${msg}`);
-		throw new Error(`Failed to delete model: ${msg}`);
-	}
+	return withAction("models.delete", "Removing the model from disk…", async () => {
+		logInfo("models.slots", `Deleting model ${modelId}...`);
+		try {
+			unwrap(await commands.deleteModel(modelId));
+			logInfo("models.slots", `Model ${modelId} deleted`);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("models.slots", `Delete FAILED for ${modelId}: ${msg}`);
+			throw new Error(`Failed to delete model: ${msg}`);
+		}
+	});
 }
 
 /** Check if first run. Throws on failure. */

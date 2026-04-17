@@ -7,6 +7,15 @@
 <script lang="ts">
 import { Brain, Check, Mic, Play, RotateCcw, Volume2, X } from "lucide-svelte";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands } from "$lib/sys/generated/bindings.js";
+
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (r.status === "error") {
+		throw new Error(r.error);
+	}
+	return r.data;
+}
 
 interface TestStep {
 	id: string;
@@ -79,29 +88,37 @@ async function runTests(): Promise<void> {
 
 		const start = performance.now();
 		try {
-			const { invoke } = await import("@tauri-apps/api/core");
 			switch (steps[i].id) {
 				case "stt-load":
-					await invoke("load_slot", { slotId: "voice.stt" });
+					await withAction("wizard.loadSlot", "Loading the speech-to-text model…", async () =>
+						unwrap(await commands.loadSlot("voice.stt")),
+					);
 					break;
 				case "stt-test":
-					await invoke("test_microphone");
+					await withAction("wizard.testMicrophone", "Running the microphone check…", async () =>
+						unwrap(await commands.testMicrophone()),
+					);
 					break;
 				case "brain-test":
-					await invoke("test_inference", {
-						slotId: "chat.brain",
-						prompt: "Hello, can you hear me?",
-					});
+					await withAction("wizard.testInference", "Testing the brain slot…", async () =>
+						unwrap(await commands.testInference("chat.brain", "Hello, can you hear me?")),
+					);
 					break;
 				case "tts-load":
-					await invoke("load_slot", { slotId: "voice.tts" });
+					await withAction("wizard.loadSlot", "Loading the voice output model…", async () =>
+						unwrap(await commands.loadSlot("voice.tts")),
+					);
 					break;
 				case "tts-test":
-					await invoke("speak", {
-						text: "I can hear you! Everything is working.",
-						voice: "default-female",
-						slot: "voice.tts",
-					});
+					await withAction("wizard.speak", "Playing the voice output test…", async () =>
+						unwrap(
+							await commands.speak(
+								"I can hear you! Everything is working.",
+								"default-female",
+								"voice.tts",
+							),
+						),
+					);
 					break;
 			}
 			const ms = Math.round(performance.now() - start);

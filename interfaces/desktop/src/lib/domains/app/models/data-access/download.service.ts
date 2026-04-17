@@ -8,6 +8,7 @@
  */
 
 import { listen } from "@tauri-apps/api/event";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import type { DownloadProgress } from "../util/models.types.js";
@@ -89,65 +90,70 @@ function normalizeDownloadCancelled(payload: WireDownloadCancelledEvent): Downlo
 
 /** Start downloading a model from HuggingFace. Returns download ID. */
 export async function downloadModel(repoId: string, filename: string): Promise<string> {
-	logInfo("models.download", `Starting download: ${repoId}/${filename}`);
-	try {
-		const id = unwrap(await commands.downloadModel(repoId, filename));
-		logInfo("models.download", `Download started: ${id}`);
-		return id;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("models.download", `Download FAILED: ${msg}`);
-		throw new Error(`Download failed: ${msg}`);
-	}
+	return withAction("models.download", `Downloading ${filename} from Hugging Face…`, async () => {
+		logInfo("models.download", `Starting download: ${repoId}/${filename}`);
+		try {
+			const id = unwrap(await commands.downloadModel(repoId, filename));
+			logInfo("models.download", `Download started: ${id}`);
+			return id;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("models.download", `Download FAILED: ${msg}`);
+			throw new Error(`Download failed: ${msg}`);
+		}
+	});
 }
 
 /** Cancel an active download. */
 export async function cancelDownload(downloadId: string): Promise<void> {
-	logInfo("models.download", `Cancelling download: ${downloadId}`);
-	try {
-		unwrap(await commands.cancelDownload(downloadId));
-		logInfo("models.download", `Download cancelled: ${downloadId}`);
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("models.download", `Cancel FAILED: ${msg}`);
-		throw new Error(`Cancel failed: ${msg}`);
-	}
+	return withAction("models.cancelDownload", "Cancelling the download…", async () => {
+		logInfo("models.download", `Cancelling download: ${downloadId}`);
+		try {
+			unwrap(await commands.cancelDownload(downloadId));
+			logInfo("models.download", `Download cancelled: ${downloadId}`);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("models.download", `Cancel FAILED: ${msg}`);
+			throw new Error(`Cancel failed: ${msg}`);
+		}
+	});
 }
 
 /** Get hardware-aware model recommendations. Returns raw JSON string. */
 export async function autoConfigureHardware(): Promise<string> {
-	logInfo("models.download", "Fetching auto-configuration...");
-	try {
-		const config = unwrap(await commands.autoConfigure());
-		logInfo("models.download", "Auto-config received");
-		return config;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("models.download", `Auto-configure FAILED: ${msg}`);
-		throw new Error(`Auto-configure failed: ${msg}`);
-	}
+	return withAction("models.autoConfigure", "Fetching a hardware-aware model plan…", async () => {
+		logInfo("models.download", "Fetching auto-configuration...");
+		try {
+			const config = unwrap(await commands.autoConfigure());
+			logInfo("models.download", "Auto-config received");
+			return config;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("models.download", `Auto-configure FAILED: ${msg}`);
+			throw new Error(`Auto-configure failed: ${msg}`);
+		}
+	});
 }
 
 /** Import a model from the local filesystem via native file picker. */
 export async function importLocalModel(targetSlot?: string, importMode?: string): Promise<string> {
-	logInfo(
-		"models.download",
-		`Importing model for slot=${targetSlot ?? "chat"} mode=${importMode ?? "copy"}`,
-	);
-	try {
-		// Use raw invoke until specta bindings regenerate with new params
-		const { invoke } = await import("@tauri-apps/api/core");
-		const filename = await invoke<string>("import_local_model", {
-			target_slot: targetSlot ?? null,
-			import_mode: importMode ?? null,
-		});
-		logInfo("models.download", `Local model imported: ${filename}`);
-		return filename;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("models.download", `Import FAILED: ${msg}`);
-		throw new Error(`Import failed: ${msg}`);
-	}
+	return withAction("models.import", "Importing a model from disk…", async () => {
+		logInfo(
+			"models.download",
+			`Importing model for slot=${targetSlot ?? "chat"} mode=${importMode ?? "copy"}`,
+		);
+		try {
+			const filename = unwrap(
+				await commands.importLocalModel(targetSlot ?? null, importMode ?? null),
+			);
+			logInfo("models.download", `Local model imported: ${filename}`);
+			return filename;
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("models.download", `Import FAILED: ${msg}`);
+			throw new Error(`Import failed: ${msg}`);
+		}
+	});
 }
 
 /** Listen to download progress events. Returns unsubscribe function. */

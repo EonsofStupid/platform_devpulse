@@ -21,6 +21,8 @@ import {
 } from "lucide-svelte";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { SlotId } from "../../../util/models.types.js";
@@ -31,6 +33,13 @@ import {
 	formatMb,
 	isInferenceReady,
 } from "../../../util/models.types.js";
+
+function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: string }): T {
+	if (r.status === "error") {
+		throw new Error(r.error);
+	}
+	return r.data;
+}
 
 const SLOT_ID: SlotId = "voice.tts";
 
@@ -68,11 +77,7 @@ $effect(() => {
 
 async function loadVoices(): Promise<void> {
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		const result = await invoke<Array<{ id: string; label: string; gender: string }>>(
-			"list_voices",
-			{ slotId: SLOT_ID },
-		);
+		const result = unwrap(await commands.listVoices(SLOT_ID));
 		if (result.length > 0) voices = result;
 	} catch {
 		/* use defaults */
@@ -104,11 +109,14 @@ async function testVoice(): Promise<void> {
 	testing = true;
 	testError = null;
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		await invoke("speak", {
-			text: "Hello! I'm your AI assistant. How can I help you today?",
-			voice: selectedVoice,
-			slot: SLOT_ID,
+		await withAction("wizard.speak", "Playing a voice test clip…", async () => {
+			unwrap(
+				await commands.speak(
+					"Hello! I'm your AI assistant. How can I help you today?",
+					selectedVoice,
+					SLOT_ID,
+				),
+			);
 		});
 	} catch (e) {
 		testError = e instanceof Error ? e.message : String(e);
@@ -132,19 +140,24 @@ async function startTraining(): Promise<void> {
 	if (trainingFiles.length === 0) return;
 	trainingStatus = "uploading";
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		// Upload files for voice baseline training
-		for (const file of trainingFiles) {
-			const buffer = await file.arrayBuffer();
-			await invoke("upload_voice_sample", {
-				filename: file.name,
-				data: Array.from(new Uint8Array(buffer)),
-				voice: selectedVoice,
-			});
-		}
-		trainingStatus = "processing";
-		await invoke("train_voice_baseline", { voice: selectedVoice });
-		trainingStatus = "done";
+		await withAction(
+			"wizard.trainVoiceBaseline",
+			"Training your custom voice baseline…",
+			async () => {
+				const { invoke } = await import("@tauri-apps/api/core");
+				for (const file of trainingFiles) {
+					const buffer = await file.arrayBuffer();
+					await invoke("upload_voice_sample", {
+						filename: file.name,
+						data: Array.from(new Uint8Array(buffer)),
+						voice: selectedVoice,
+					});
+				}
+				trainingStatus = "processing";
+				await invoke("train_voice_baseline", { voice: selectedVoice });
+				trainingStatus = "done";
+			},
+		);
 	} catch (e) {
 		testError = e instanceof Error ? e.message : String(e);
 		trainingStatus = "idle";
