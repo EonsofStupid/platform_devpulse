@@ -107,6 +107,16 @@ export function installGlobalHandlers(): void {
 export function log(level: LogLevel, target: string, message: string): void {
 	const timestamp = new Date().toISOString();
 
+	// Action channel: structured JSON only — no console spam (HUD + action.jsonl).
+	if (target === "action") {
+		if (ipcReady) {
+			invoke("log", { level, target, message }).catch(() => {});
+		} else {
+			buffer.push({ level, target, message, timestamp });
+		}
+		return;
+	}
+
 	// Always write to console so devtools captures it
 	const consoleFn =
 		level === "error"

@@ -10,10 +10,30 @@
 import type { PresetFamily } from "./preset-families.js";
 
 /** Variant within a family — the intensity/mood modifier */
-export type PresetVariant = "elevated" | "deep" | "minimal" | "solid" | "glow" | "muted";
+export type CorePresetVariant = "elevated" | "deep" | "minimal" | "solid" | "glow" | "muted";
 
-/** Runtime array for VPB variant selector */
-export const PRESET_VARIANTS: readonly PresetVariant[] = [
+/** Chat golden-pattern variants (family is always `chat`) */
+export type ChatPresetVariant =
+	| "bubble-user"
+	| "bubble-ai-developer"
+	| "bubble-ai-planning"
+	| "bubble-ai-image"
+	| "bubble-ai-general"
+	| "bubble-system"
+	| "mode-pill-active"
+	| "mode-pill-idle"
+	| "decision-card"
+	| "voice-orb-idle"
+	| "voice-orb-listening"
+	| "cortex-node"
+	| "session-row-active"
+	| "frame-shell";
+
+/** Union of all preset variant segments */
+export type PresetVariant = CorePresetVariant | ChatPresetVariant;
+
+/** Runtime array for VPB variant selector (core families only) */
+export const PRESET_VARIANTS: readonly CorePresetVariant[] = [
 	"elevated",
 	"deep",
 	"minimal",
@@ -23,7 +43,9 @@ export const PRESET_VARIANTS: readonly PresetVariant[] = [
 ] as const;
 
 /** Full preset ID: "{family}-{variant}" */
-export type PresetId = `${PresetFamily}-${PresetVariant}`;
+export type PresetId =
+	| `${Exclude<PresetFamily, "chat">}-${CorePresetVariant}`
+	| `chat-${ChatPresetVariant}`;
 
 /**
  * Semantic intent names — user-facing labels that map to preset IDs.
@@ -64,8 +86,8 @@ export const SEMANTIC_INTENTS: readonly SemanticIntent[] = [
 	"stark",
 ] as const;
 
-/** Human-readable variant labels for VPB */
-export const VARIANT_LABELS: Record<PresetVariant, string> = {
+/** Human-readable variant labels for VPB (core variants; chat uses preset labels) */
+export const VARIANT_LABELS: Record<CorePresetVariant, string> = {
 	elevated: "Elevated",
 	deep: "Deep",
 	minimal: "Minimal",

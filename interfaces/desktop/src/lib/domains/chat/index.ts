@@ -1,14 +1,16 @@
 /**
- * @file domains/chat/index.ts
+ * @file domains/chat — public barrel (golden pattern)
  * @module @devpulse/domains/chat
- * @description Chat domain public API (Nx library-types)
  */
 
-export { loadMessages, sendMessage } from "./data-access/chat.service.js";
 export { chatState } from "./data-access/chat.state.svelte.js";
+export { sessionsState } from "./data-access/sessions.state.svelte.js";
+export { ChatRoot } from "./feature/index.js";
 export type {
 	BlockChatMessage,
 	ChatMessage,
 	ChatMode,
-	ChatThread,
-} from "./util/chat.types.js";
+	ExportFormat,
+	Message,
+	Session,
+} from "./util/index.js";

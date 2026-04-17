@@ -3,6 +3,14 @@
 import type { CssFamily } from "../types.js";
 
 export const KIND_FAMILIES: Record<string, CssFamily[]> = {
+	"chat-bubble": ["frame", "surface", "text"],
+	"chat-bubble-ai": ["frame", "surface", "text"],
+	"chat-cortex": ["frame", "surface", "text"],
+	"chat-decision": ["frame", "surface", "text"],
+	"chat-frame": ["frame", "surface", "text"],
+	"chat-mode-pill": ["frame", "surface", "text"],
+	"chat-session-row": ["frame", "surface", "text"],
+	"chat-voice-orb": ["frame", "surface", "text"],
 	chrome: ["frame", "surface", "text"],
 	"chrome-deep": ["surface"],
 	"chrome-elevated": ["surface"],

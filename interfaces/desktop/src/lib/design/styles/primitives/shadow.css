@@ -4,10 +4,10 @@
 
 @layer tokens.primitives {
   :root {
-  --shadow-z0: none;
-  --shadow-z1: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.15), 0 0.0188rem 0.0938rem oklch(0 0 0 / 0.1);
-  --shadow-z2: 0 0.1875rem 0.5625rem oklch(0 0 0 / 0.15), 0 0.0563rem 0.2813rem oklch(0 0 0 / 0.1);
-  --shadow-z3: 0 0.625rem 1.875rem oklch(0 0 0 / 0.15), 0 0.1875rem 0.9375rem oklch(0 0 0 / 0.1);
-  --shadow-z4: 0 0.9375rem 2.8125rem oklch(0 0 0 / 0.15), 0 0.2813rem 1.4063rem oklch(0 0 0 / 0.1);
+  --depth-z0: 0rem 0rem 0rem 0rem #11171900; /** No elevation — flat surface. */
+  --depth-z1: 0rem 0.0625rem 0.1875rem 0rem #11171926, 0rem 0.0188rem 0.0938rem 0rem #1117191a; /** Elevation z1 — multiplier 1× base offset/blur, two layered drop shadows. */
+  --depth-z2: 0rem 0.1875rem 0.5625rem 0rem #11171926, 0rem 0.0563rem 0.2813rem 0rem #1117191a; /** Elevation z2 — multiplier 3× base offset/blur, two layered drop shadows. */
+  --depth-z3: 0rem 0.625rem 1.875rem 0rem #11171926, 0rem 0.1875rem 0.9375rem 0rem #1117191a; /** Elevation z3 — multiplier 10× base offset/blur, two layered drop shadows. */
+  --depth-z4: 0rem 0.9375rem 2.8125rem 0rem #11171926, 0rem 0.2813rem 1.4063rem 0rem #1117191a; /** Elevation z4 — multiplier 15× base offset/blur, two layered drop shadows. */
   }
 }

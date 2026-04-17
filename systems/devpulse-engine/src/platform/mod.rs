@@ -48,7 +48,7 @@ pub use services::{Service, ServiceRole, ServiceState};
 
 // Re-export clyffy persistence traits and types for Tauri command layer
 pub use devpulse_clyffy::cortex::persistence::{
-    AnalyticsAdapter, CacheAdapter, SqlAdapter, SqlRow, SqlValue,
+    AnalyticsAdapter, CacheAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
 // Re-export model loader types needed by Tauri command layer

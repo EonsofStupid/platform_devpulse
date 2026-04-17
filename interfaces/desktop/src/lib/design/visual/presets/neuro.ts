@@ -44,12 +44,10 @@ export const neuroElevated: PresetDefinition = {
 			},
 		],
 		border: { width: "0.0625rem", style: "solid", color: "oklch(0.55 0.1 180 / 0.2)" },
-		animation: {
-			name: "cl-breathe",
-			duration: "4s",
-			timingFunction: "ease-in-out",
-			iterationCount: "infinite",
-		},
+		// Structural surfaces do not ambient-animate — infinite cl-breathe caused
+		// global shrink/grow on every neuro-elevated card. Intent-driven motion
+		// lives on TypingIndicator, ClyffyStatusOrb, Skeleton, etc. only.
+		animation: "none",
 		transition: { duration: "150ms", delay: "0ms", timingFunction: "cubic-bezier(0, 0, 0.2, 1)" },
 		typography: {
 			fontFamily: "{font.sans}",

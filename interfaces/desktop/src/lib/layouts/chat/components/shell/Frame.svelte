@@ -6,7 +6,7 @@
   TopBar includes buttons to spawn peer child windows (CortexViewer, ModelLoader).
   Per cockpit architecture — these are separate OS windows, not grid columns.
 
-  Data flow: chatState (domain) → this shell (wires callbacks) → route page (renders messages)
+  Layout chrome only — message stream + composer live inside `ChatRoot` on the route.
   Rendered in a separate Tauri child window via open_chat_window.
 -->
 <script lang="ts">
@@ -15,10 +15,8 @@ import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
-import { ChatFooter } from "$lib/design/components/chat-footer/index.js";
 import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
 import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
-import { chatState } from "$lib/domains/chat/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 
 interface Props {
@@ -30,16 +28,6 @@ let { children }: Props = $props();
 const frameState = $derived<"open" | "minimized" | "closed">(
 	globalState.chat_minimized ? "minimized" : "open",
 );
-
-$effect(() => {
-	if (chatState.loading) {
-		chatState.loadMessages();
-	}
-});
-
-function handleSendMessage(content: string): void {
-	chatState.sendMessage(content);
-}
 
 function handleMinimize(): void {
 	globalState.minimizeChat();
@@ -78,9 +66,4 @@ function openModelLoader(): void {
 	<ChatDashboard>
 		{@render children()}
 	</ChatDashboard>
-
-	<ChatFooter
-		onSend={handleSendMessage}
-		disabled={chatState.sending}
-	/>
 </ChatFrame>

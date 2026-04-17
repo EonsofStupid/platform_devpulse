@@ -6,24 +6,88 @@
 
 export const commands = {
 /**
- * Send a chat message — persists to `LibSQL` and returns the stored message.
+ * Native save dialog — returns absolute path or `None` if cancelled.
  */
-async sendMessage(content: string) : Promise<Result<ChatMessage, string>> {
+async pickSaveFile(defaultName: string) : Promise<Result<string | null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("send_message", { content }) };
+    return { status: "ok", data: await TAURI_INVOKE("pick_save_file", { defaultName }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Load recent chat messages from `LibSQL`.
- * 
- * Returns the last 50 messages from the most recent active session.
+ * Persist a user turn into `turns` for the active (or new) session in `project_id`.
  */
-async loadRecent() : Promise<Result<ChatMessage[], string>> {
+async sendMessage(projectId: string, content: string) : Promise<Result<ChatMessage, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("load_recent") };
+    return { status: "ok", data: await TAURI_INVOKE("send_message", { projectId, content }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load recent turns for a project. When `session_id` is `None`, uses the latest session for the project.
+ */
+async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<ChatMessage[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_recent", { projectId, sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List all chat sessions (most recently touched first).
+ */
+async listSessions() : Promise<Result<ChatSession[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_sessions") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete one session — cascades `turns` / anchors / open_loops` per engine schema.
+ */
+async deleteSession(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_session", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Wipe all chat sessions for every project (cascades turns).
+ */
+async clearAllChatHistory() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clear_all_chat_history") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Export one session to disk at `dest_path`.
+ */
+async exportSession(sessionId: string, format: ExportFormat, destPath: string) : Promise<Result<ExportSummary, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("export_session", { sessionId, format, destPath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Export all sessions into one file (concatenated markdown or JSON array of sessions).
+ */
+async exportAllSessions(format: ExportFormat, destPath: string) : Promise<Result<ExportSummary, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("export_all_sessions", { format, destPath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -86,11 +150,36 @@ async verify() : Promise<void> {
 /**
  * Log a message from the frontend.
  * 
- * Maps frontend log levels to tracing macros. All messages are tagged
+ * Maps frontend log levels to tracing macros. Non-action messages are tagged
  * with `target: "frontend"` and include the source module name.
+ * 
+ * Action events (`target == "action"`) are written only to the action JSONL
+ * file (plain JSON lines) to avoid double-encoding inside the session log.
  */
 async log(level: string, target: string, message: string) : Promise<void> {
     await TAURI_INVOKE("log", { level, target, message });
+},
+/**
+ * Read new lines from the action log starting at `from_offset` (byte offset).
+ */
+async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("tail_action_log", { fromOffset }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Open the `logs` directory under the portable data dir in the OS file manager.
+ */
+async openActionLogsFolder() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_action_logs_folder") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 },
 /**
  * Return the current boot state snapshot.
@@ -191,15 +280,11 @@ async getStatus() : Promise<Result<SystemHealth, string>> {
 }
 },
 /**
- * Spawn the REH web server with the supplied configuration.
+ * Spawn the REH web server — now boot-managed.
  * 
- * If a server is already running, returns its current status without
- * spawning a second process. The frontend should call
- * [`stop_reh_server`] first if it wants to restart with different config.
- * 
- * # Errors
- * Returns a stringified error if the server cannot be spawned or fails
- * the startup health check within the timeout.
+ * DevForge REH boots through the platform service pipeline. This command
+ * is kept for frontend compat but returns the current service state
+ * instead of spawning a second process.
  */
 async spawnRehServer(config: RehConfig) : Promise<Result<RehStatus, string>> {
     try {
@@ -210,12 +295,10 @@ async spawnRehServer(config: RehConfig) : Promise<Result<RehStatus, string>> {
 }
 },
 /**
- * Stop the running REH web server, if any.
+ * Stop the REH server — now boot-managed.
  * 
- * Idempotent — returns `Ok(())` if no server is running.
- * 
- * # Errors
- * Returns a stringified error if the child process cannot be killed.
+ * Platform shutdown handles this. This command is a no-op kept for
+ * frontend compat.
  */
 async stopRehServer() : Promise<Result<null, string>> {
     try {
@@ -227,9 +310,6 @@ async stopRehServer() : Promise<Result<null, string>> {
 },
 /**
  * Return the current status of the REH web server.
- * 
- * Always succeeds — if no server is running, returns an empty status
- * with `running: false`.
  */
 async getRehStatus() : Promise<Result<RehStatus, string>> {
     try {
@@ -241,9 +321,6 @@ async getRehStatus() : Promise<Result<RehStatus, string>> {
 },
 /**
  * Return the full connection URL (including token) for the running server.
- * 
- * # Errors
- * Returns an error string if no server is currently running.
  */
 async getConnectionUrl() : Promise<Result<string, string>> {
     try {
@@ -254,11 +331,7 @@ async getConnectionUrl() : Promise<Result<string, string>> {
 }
 },
 /**
- * Unified DevForge status for the frontend — combines install state,
- * runtime state, and persisted preferences.
- * 
- * Frontends that mount *after* the `devforge://ready` event has fired
- * call this to catch up, instead of relying on re-emission.
+ * Unified DevForge status for the frontend.
  */
 async devforgeGetStatus() : Promise<Result<DevforgeBootstrapStatus, string>> {
     try {
@@ -1442,6 +1515,18 @@ async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], string>> {
 /** user-defined types **/
 
 /**
+ * Incremental tail of today's action JSONL file.
+ */
+export type ActionLogTail = { 
+/**
+ * New complete lines read from the log file since `from_offset`.
+ */
+lines: string[]; 
+/**
+ * Byte offset at end of file after this read (pass to the next poll).
+ */
+next_offset: number }
+/**
  * Clyffy chat activation screen.
  */
 export type ActivateCopy = { 
@@ -2163,32 +2248,13 @@ size_mb: number;
  */
 is_dir?: boolean }
 /**
- * A chat message returned to the frontend.
- * 
- * Serialized as JSON over IPC via `send_message`. The frontend renders
- * these in the chat panel, keyed by `id` for dedup.
+ * A chat turn returned to the frontend (`turns.id` is a string key).
  */
-export type ChatMessage = { 
+export type ChatMessage = { id: string; sessionId: string; role: string; content: string; createdAt: number; tokenCount: number | null; modelUsed: string | null; latencyMs: number | null }
 /**
- * Auto-increment primary key from the `messages` table.
+ * Session row for sidebar / grouping.
  */
-id: number; 
-/**
- * Format: `"sess-{epoch_millis}"`. Auto-created if no open session exists.
- */
-session_id: string; 
-/**
- * Either `"user"` or `"assistant"` — no other values currently.
- */
-role: string; 
-/**
- * Raw text as entered. No markdown processing server-side.
- */
-content: string; 
-/**
- * `SQLite` `DEFAULT (strftime('%s','now'))` — epoch seconds, not millis.
- */
-created_at: number }
+export type ChatSession = { id: string; title: string | null; projectId: string; isActive: boolean; createdAt: number; updatedAt: number; endedAt: number | null; messageCount: number }
 /**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
@@ -2394,15 +2460,7 @@ vector_enabled: boolean;
  */
 grammar_enabled: boolean; 
 /**
- * Embedder service enabled (Candle).
- */
-embedder_enabled: boolean; 
-/**
- * Whisper ASR service enabled (Candle).
- */
-whisper_enabled: boolean; 
-/**
- * DevForge service enabled (VSCode).
+ * DevForge service enabled (REH).
  */
 devforge_enabled: boolean }
 /**
@@ -2589,6 +2647,14 @@ export type ExecutionLane =
  * Full thinking pipeline (end-to-end trace).
  */
 "ThinkingPipeline"
+/**
+ * Export format for chat transcripts.
+ */
+export type ExportFormat = "json" | "markdown"
+/**
+ * Result summary after an export command writes to disk.
+ */
+export type ExportSummary = { sessionsExported: number; rowsExported: number; path: string }
 /**
  * A single `(arch, format)` support declaration. The resolver
  * iterates backends looking for an entry that matches its query.

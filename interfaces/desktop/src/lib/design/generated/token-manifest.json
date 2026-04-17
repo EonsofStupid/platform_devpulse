@@ -106,7 +106,7 @@
 					"animation"
 				],
 				"cssVar": "--preset-neuro-elevated-animation",
-				"value": "cl-breathe 4s ease-in-out infinite",
+				"value": "none",
 				"type": "string",
 				"extensions": null
 			},
@@ -11484,6 +11484,3254 @@
 				"cssVar": "--preset-stark-muted-disabled-border-color",
 				"value": "oklch(0.35 0.003 250 / 0.12)",
 				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-background-color",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-bubble-user-background-color",
+				"value": "var(--accent-teal-fill)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-border-radius",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-bubble-user-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-box-shadow",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-bubble-user-box-shadow",
+				"value": "0 0.125rem 0.75rem 0 var(--accent-teal-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-color",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-user-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-border-color",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-bubble-user-border-color",
+				"value": "var(--accent-teal-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-border-width",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-bubble-user-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-bubble-user-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-opacity",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-bubble-user-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-animation",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"animation"
+				],
+				"cssVar": "--preset-chat-bubble-user-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-transition-duration",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-bubble-user-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-bubble-user-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-gradient",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-bubble-user-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-font-family",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-bubble-user-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-font-size",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-bubble-user-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-font-weight",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-bubble-user-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-letter-spacing",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-bubble-user-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-line-height",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-bubble-user-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-background-image",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-bubble-user-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-user-background-alpha",
+				"path": [
+					"preset",
+					"chat-bubble-user",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-bubble-user-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-background-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-border-radius",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-box-shadow",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-box-shadow",
+				"value": "0 0.125rem 0.5rem 0 var(--accent-teal-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-border-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-border-color",
+				"value": "var(--chat-mode-developer)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-border-width",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-opacity",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-animation",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"animation"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-transition-duration",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-gradient",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-font-family",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-font-size",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-font-weight",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-letter-spacing",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-line-height",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-background-image",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-developer-background-alpha",
+				"path": [
+					"preset",
+					"chat-bubble-ai-developer",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-bubble-ai-developer-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-background-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-border-radius",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-box-shadow",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-box-shadow",
+				"value": "0 0.125rem 0.5rem 0 var(--accent-purple-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-border-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-border-color",
+				"value": "var(--chat-mode-planning)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-border-width",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-opacity",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-animation",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"animation"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-transition-duration",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-gradient",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-font-family",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-font-size",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-font-weight",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-letter-spacing",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-line-height",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-background-image",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-planning-background-alpha",
+				"path": [
+					"preset",
+					"chat-bubble-ai-planning",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-bubble-ai-planning-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-background-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-border-radius",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-box-shadow",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-box-shadow",
+				"value": "0 0.125rem 0.5rem 0 var(--accent-ember-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-border-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-border-color",
+				"value": "var(--chat-mode-image)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-border-width",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-opacity",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-animation",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"animation"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-transition-duration",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-gradient",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-font-family",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-font-size",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-font-weight",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-letter-spacing",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-line-height",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-background-image",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-image-background-alpha",
+				"path": [
+					"preset",
+					"chat-bubble-ai-image",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-bubble-ai-image-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-background-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-border-radius",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-box-shadow",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-border-color",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-border-color",
+				"value": "var(--chat-mode-general)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-border-width",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-opacity",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-animation",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"animation"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-transition-duration",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-gradient",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-font-family",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-font-size",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-font-weight",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-letter-spacing",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-line-height",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-background-image",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-ai-general-background-alpha",
+				"path": [
+					"preset",
+					"chat-bubble-ai-general",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-bubble-ai-general-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-background-color",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-bubble-system-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-border-radius",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-bubble-system-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-box-shadow",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-bubble-system-box-shadow",
+				"value": "0 0 0.75rem 0 var(--accent-ember-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-color",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-system-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-border-color",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-bubble-system-border-color",
+				"value": "var(--accent-ember-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-border-width",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-bubble-system-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-bubble-system-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-opacity",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-bubble-system-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-animation",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"animation"
+				],
+				"cssVar": "--preset-chat-bubble-system-animation",
+				"value": "cl-glow-pulse 3s ease-in-out infinite",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-transition-duration",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-bubble-system-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-bubble-system-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-gradient",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-bubble-system-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-font-family",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-bubble-system-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-font-size",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-bubble-system-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-font-weight",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-bubble-system-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-letter-spacing",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-bubble-system-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-line-height",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-bubble-system-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-background-image",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-bubble-system-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-bubble-system-background-alpha",
+				"path": [
+					"preset",
+					"chat-bubble-system",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-bubble-system-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-background-color",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-background-color",
+				"value": "var(--chat-mode-developer)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-border-radius",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-box-shadow",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-box-shadow",
+				"value": "0 0 0.75rem 0 var(--accent-teal-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-color",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"color"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-border-color",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-border-color",
+				"value": "var(--accent-teal-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-border-width",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-opacity",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-animation",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"animation"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-animation",
+				"value": "cl-glow-pulse 4s ease-in-out infinite",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-transition-duration",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-gradient",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-font-family",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-font-size",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-font-size",
+				"value": "0.6875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-font-weight",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-font-weight",
+				"value": "600",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-letter-spacing",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-line-height",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-background-image",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-active-background-alpha",
+				"path": [
+					"preset",
+					"chat-mode-pill-active",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-mode-pill-active-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-background-color",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-border-radius",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-box-shadow",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-color",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"color"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-color",
+				"value": "var(--text-muted)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-border-color",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-border-color",
+				"value": "var(--border-subtle)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-border-width",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-opacity",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-animation",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"animation"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-transition-duration",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-gradient",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-font-family",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-font-size",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-font-size",
+				"value": "0.6875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-font-weight",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-letter-spacing",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-line-height",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-background-image",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-mode-pill-idle-background-alpha",
+				"path": [
+					"preset",
+					"chat-mode-pill-idle",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-mode-pill-idle-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-background-color",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-decision-card-background-color",
+				"value": "var(--surface-subtle)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-border-radius",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-decision-card-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-box-shadow",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-decision-card-box-shadow",
+				"value": "0 0 0.75rem 0 var(--accent-purple-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-color",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"color"
+				],
+				"cssVar": "--preset-chat-decision-card-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-border-color",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-decision-card-border-color",
+				"value": "var(--accent-purple-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-border-width",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-decision-card-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-decision-card-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-opacity",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-decision-card-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-animation",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"animation"
+				],
+				"cssVar": "--preset-chat-decision-card-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-transition-duration",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-decision-card-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-decision-card-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-gradient",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-decision-card-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-font-family",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-decision-card-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-font-size",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-decision-card-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-font-weight",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-decision-card-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-letter-spacing",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-decision-card-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-line-height",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-decision-card-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-background-image",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-decision-card-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-decision-card-background-alpha",
+				"path": [
+					"preset",
+					"chat-decision-card",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-decision-card-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-background-color",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-background-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-border-radius",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-box-shadow",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-box-shadow",
+				"value": "0 0 0.5rem 0 var(--accent-teal-glow)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-color",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"color"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-border-color",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-border-color",
+				"value": "var(--accent-teal-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-border-width",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-border-width",
+				"value": "0.125rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-opacity",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-animation",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"animation"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-transition-duration",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-gradient",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-font-family",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-font-size",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-font-weight",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-letter-spacing",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-line-height",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-background-image",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-idle-background-alpha",
+				"path": [
+					"preset",
+					"chat-voice-orb-idle",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-voice-orb-idle-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-background-color",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-background-color",
+				"value": "var(--chat-voice-active)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-border-radius",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-box-shadow",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-box-shadow",
+				"value": "0 0 0.75rem 0 var(--chat-voice-pulse)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-color",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"color"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-border-color",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-border-color",
+				"value": "var(--signal-error)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-border-width",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-border-width",
+				"value": "0.125rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-opacity",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-animation",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"animation"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-animation",
+				"value": "cl-alert-pulse 1.5s ease-in-out infinite",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-transition-duration",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-gradient",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-font-family",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-font-size",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-font-weight",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-letter-spacing",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-line-height",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-background-image",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-voice-orb-listening-background-alpha",
+				"path": [
+					"preset",
+					"chat-voice-orb-listening",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-voice-orb-listening-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-background-color",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-cortex-node-background-color",
+				"value": "var(--surface-inset)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-border-radius",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-cortex-node-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-box-shadow",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-cortex-node-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-color",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"color"
+				],
+				"cssVar": "--preset-chat-cortex-node-color",
+				"value": "var(--text-muted)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-border-color",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-cortex-node-border-color",
+				"value": "var(--accent-teal-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-border-width",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-cortex-node-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-cortex-node-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-opacity",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-cortex-node-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-animation",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"animation"
+				],
+				"cssVar": "--preset-chat-cortex-node-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-transition-duration",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-cortex-node-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-cortex-node-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-gradient",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-cortex-node-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-font-family",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-cortex-node-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-font-size",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-cortex-node-font-size",
+				"value": "0.625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-font-weight",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-cortex-node-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-letter-spacing",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-cortex-node-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-line-height",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-cortex-node-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-background-image",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-cortex-node-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-cortex-node-background-alpha",
+				"path": [
+					"preset",
+					"chat-cortex-node",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-cortex-node-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-background-color",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-session-row-active-background-color",
+				"value": "var(--accent-teal-fill)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-border-radius",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-session-row-active-border-radius",
+				"value": "0.5rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-box-shadow",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-session-row-active-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-color",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"color"
+				],
+				"cssVar": "--preset-chat-session-row-active-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-border-color",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-session-row-active-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-border-width",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-session-row-active-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-session-row-active-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-opacity",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-session-row-active-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-animation",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"animation"
+				],
+				"cssVar": "--preset-chat-session-row-active-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-transition-duration",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-session-row-active-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-session-row-active-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-gradient",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-session-row-active-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-font-family",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-session-row-active-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-font-size",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-session-row-active-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-font-weight",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-session-row-active-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-letter-spacing",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-session-row-active-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-line-height",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-session-row-active-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-background-image",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-session-row-active-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-session-row-active-background-alpha",
+				"path": [
+					"preset",
+					"chat-session-row-active",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-session-row-active-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-background-color",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"background-color"
+				],
+				"cssVar": "--preset-chat-frame-shell-background-color",
+				"value": "var(--surface-chrome)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-border-radius",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"border-radius"
+				],
+				"cssVar": "--preset-chat-frame-shell-border-radius",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-box-shadow",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"box-shadow"
+				],
+				"cssVar": "--preset-chat-frame-shell-box-shadow",
+				"value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 0.5rem 0 var(--accent-teal-glow), inset 0 0.0625rem 0 0 oklch(1 0 0 / 0.06)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-color",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"color"
+				],
+				"cssVar": "--preset-chat-frame-shell-color",
+				"value": "var(--text-primary)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-border-color",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"border-color"
+				],
+				"cssVar": "--preset-chat-frame-shell-border-color",
+				"value": "var(--accent-teal-main)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-border-width",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"border-width"
+				],
+				"cssVar": "--preset-chat-frame-shell-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-backdrop-filter",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-chat-frame-shell-backdrop-filter",
+				"value": "none",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-opacity",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"opacity"
+				],
+				"cssVar": "--preset-chat-frame-shell-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-animation",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"animation"
+				],
+				"cssVar": "--preset-chat-frame-shell-animation",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-transition-duration",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"transition-duration"
+				],
+				"cssVar": "--preset-chat-frame-shell-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-transition-timing-function",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-chat-frame-shell-transition-timing-function",
+				"value": "cubic-bezier(0, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-gradient",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"gradient"
+				],
+				"cssVar": "--preset-chat-frame-shell-gradient",
+				"value": "none",
+				"type": "gradient",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-font-family",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"font-family"
+				],
+				"cssVar": "--preset-chat-frame-shell-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-font-size",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"font-size"
+				],
+				"cssVar": "--preset-chat-frame-shell-font-size",
+				"value": "0.875rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-font-weight",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"font-weight"
+				],
+				"cssVar": "--preset-chat-frame-shell-font-weight",
+				"value": "500",
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-letter-spacing",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"letter-spacing"
+				],
+				"cssVar": "--preset-chat-frame-shell-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-line-height",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"line-height"
+				],
+				"cssVar": "--preset-chat-frame-shell-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-background-image",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"background-image"
+				],
+				"cssVar": "--preset-chat-frame-shell-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chat-frame-shell-background-alpha",
+				"path": [
+					"preset",
+					"chat-frame-shell",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chat-frame-shell-background-alpha",
+				"value": "1",
+				"type": "number",
 				"extensions": null
 			}
 		]

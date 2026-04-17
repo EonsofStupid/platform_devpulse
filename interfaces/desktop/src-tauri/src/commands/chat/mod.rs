@@ -1,97 +1,183 @@
-//! Chat commands — message persistence via `LibSQL`.
-//!
-//! Messages are stored in the `messages` table with session tracking.
-//! Each message gets a session — creates one if none active.
+//! Chat commands — `turns` + `sessions` SSOT in user-scoped LibSQL.
 
 pub mod history;
 pub mod interactions;
+pub mod sessions;
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::SqlAdapter;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
+use uuid::Uuid;
 
-/// A chat message returned to the frontend.
-///
-/// Serialized as JSON over IPC via `send_message`. The frontend renders
-/// these in the chat panel, keyed by `id` for dedup.
-#[derive(Debug, Clone, Serialize, Type)]
+/// A chat turn returned to the frontend (`turns.id` is a string key).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
-    /// Auto-increment primary key from the `messages` table.
-    pub id: i64,
-    /// Format: `"sess-{epoch_millis}"`. Auto-created if no open session exists.
-    pub session_id: String,
-    /// Either `"user"` or `"assistant"` — no other values currently.
-    pub role: String,
-    /// Raw text as entered. No markdown processing server-side.
-    pub content: String,
-    /// `SQLite` `DEFAULT (strftime('%s','now'))` — epoch seconds, not millis.
-    pub created_at: i64,
+	pub id: String,
+	pub session_id: String,
+	pub role: String,
+	pub content: String,
+	pub created_at: i64,
+	pub token_count: Option<i64>,
+	pub model_used: Option<String>,
+	pub latency_ms: Option<i64>,
 }
 
-/// Send a chat message — persists to `LibSQL` and returns the stored message.
+/// Session row for sidebar / grouping.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct ChatSession {
+	pub id: String,
+	pub title: Option<String>,
+	pub project_id: String,
+	pub is_active: bool,
+	pub created_at: i64,
+	pub updated_at: i64,
+	pub ended_at: Option<i64>,
+	pub message_count: i64,
+}
+
+/// Export format for chat transcripts.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type)]
+#[serde(rename_all = "lowercase")]
+pub enum ExportFormat {
+	Json,
+	Markdown,
+}
+
+/// Result summary after an export command writes to disk.
+#[derive(Debug, Clone, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportSummary {
+	pub sessions_exported: i64,
+	pub rows_exported: i64,
+	pub path: String,
+}
+
+/// Native save dialog — returns absolute path or `None` if cancelled.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
+pub fn pick_save_file(default_name: String) -> Result<Option<String>, String> {
+	Ok(rfd::FileDialog::new()
+		.set_file_name(&default_name)
+		.save_file()
+		.map(|p| p.to_string_lossy().into_owned()))
+}
+
+/// Persist a user turn into `turns` for the active (or new) session in `project_id`.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc, clippy::too_many_lines)]
 pub async fn send_message(
-    content: String,
-    state: State<'_, PlatformState>,
+	project_id: String,
+	content: String,
+	state: State<'_, PlatformState>,
 ) -> Result<ChatMessage, String> {
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	let lock = state.platform.read().await;
+	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	let svc = platform
+		.relational()
+		.ok_or("Relational service not available")?;
+	let adapter = svc.adapter();
 
-    let svc = platform
-        .relational()
-        .ok_or("Relational service not available")?;
-    let adapter = svc.adapter();
+	let proj = adapter
+		.query("SELECT id FROM projects WHERE id = ? LIMIT 1", &[project_id.as_str()])
+		.await
+		.map_err(|e| format!("Failed to resolve project: {e}"))?;
+	if proj.is_empty() {
+		return Err(format!("Unknown project_id: {project_id}"));
+	}
 
-    // Get or create active session
-    let session_rows = adapter
-        .query(
-            "SELECT id FROM sessions WHERE ended_at IS NULL ORDER BY created_at DESC LIMIT 1",
-            &[],
-        )
-        .await
-        .map_err(|e| format!("Failed to query sessions: {e}"))?;
+	let session_rows = adapter
+		.query(
+			"SELECT id FROM sessions WHERE project_id = ? AND ended_at IS NULL \
+			 ORDER BY updated_at DESC LIMIT 1",
+			&[project_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to query sessions: {e}"))?;
 
-    let session_id = if let Some(id) = session_rows.first().and_then(|r| r.first()) {
-        id.to_string()
-    } else {
-        let new_id = format!("sess-{}", chrono::Utc::now().timestamp_millis());
-        adapter
-            .execute("INSERT INTO sessions (id) VALUES (?)", &[new_id.as_str()])
-            .await
-            .map_err(|e| format!("Failed to create session: {e}"))?;
-        new_id
-    };
+	let session_id = if let Some(id) = session_rows.first().and_then(|r| r.first()) {
+		id.to_string()
+	} else {
+		let new_id = format!("sess-{}", Uuid::new_v4());
+		adapter
+			.execute(
+				"INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, NULL, 1)",
+				&[new_id.as_str(), project_id.as_str()],
+			)
+			.await
+			.map_err(|e| format!("Failed to create session: {e}"))?;
+		new_id
+	};
 
-    // Insert user message
-    adapter
-        .execute(
-            "INSERT INTO messages (session_id, role, content) VALUES (?, 'user', ?)",
-            &[session_id.as_str(), content.as_str()],
-        )
-        .await
-        .map_err(|e| format!("Failed to insert message: {e}"))?;
+	let seq_rows = adapter
+		.query(
+			"SELECT COALESCE(MAX(sequence_num), 0) + 1 AS next_seq FROM turns WHERE session_id = ?",
+			&[session_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to read sequence: {e}"))?;
+	let sequence_num = seq_rows
+		.first()
+		.and_then(|r| r.first())
+		.and_then(devpulse_engine::platform::SqlValue::as_integer)
+		.unwrap_or(1);
 
-    // Get the inserted message back (with id and timestamp)
-    let rows = adapter
-        .query(
-            "SELECT id, session_id, role, content, created_at FROM messages \
-             WHERE session_id = ? ORDER BY id DESC LIMIT 1",
-            &[session_id.as_str()],
-        )
-        .await
-        .map_err(|e| format!("Failed to read back message: {e}"))?;
+	let turn_id = format!("turn-{}", Uuid::new_v4());
+	let trimmed = content.trim();
+	if trimmed.is_empty() {
+		return Err("Message content is empty".to_string());
+	}
+	let body = trimmed.to_string();
+	let seq_str = sequence_num.to_string();
 
-    let row = rows.first().ok_or("No message returned after insert")?;
+	adapter
+		.execute(
+			"INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, \
+			 token_count, model_used, latency_ms) VALUES (?, ?, ?, 'user', ?, ?, NULL, NULL, NULL)",
+			&[
+				turn_id.as_str(),
+				session_id.as_str(),
+				project_id.as_str(),
+				body.as_str(),
+				seq_str.as_str(),
+			],
+		)
+		.await
+		.map_err(|e| format!("Failed to insert turn: {e}"))?;
 
-    Ok(ChatMessage {
-        id: row.first().and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
-        session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
-    })
+	adapter
+		.execute(
+			"UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
+			 WHERE id = ?",
+			&[session_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to touch session: {e}"))?;
+
+	let created_rows = adapter
+		.query(
+			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
+			 FROM turns WHERE id = ? LIMIT 1",
+			&[turn_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to read turn: {e}"))?;
+
+	let row = created_rows.first().ok_or("Turn not found after insert")?;
+
+	Ok(ChatMessage {
+		id: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
+		session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+		role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+		content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+		created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+		token_count: row.get(5).and_then(devpulse_engine::platform::SqlValue::as_integer),
+		model_used: row.get(6).and_then(|v| v.as_text()).map(std::string::ToString::to_string),
+		latency_ms: row.get(7).and_then(devpulse_engine::platform::SqlValue::as_integer),
+	})
 }

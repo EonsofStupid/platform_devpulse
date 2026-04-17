@@ -4,16 +4,23 @@
 
 @layer tokens.semantic {
   :root {
-  --backdrop-glow-teal: oklch(0.308 0.0382 190.54 / 0.302);
-  --backdrop-glow-purple: oklch(0.2075 0.1083 225.17 / 0.251);
-  --backdrop-glow-purple-fade: oklch(0.1974 0.0364 209.13 / 0.102);
-  --backdrop-glow-ember: oklch(0.1929 0.0595 15.58 / 0.251);
-  --backdrop-glow-cyber: oklch(0.2669 0.0305 144.73 / 0.251);
-  --backdrop-glow-magenta: oklch(0.206 0.0483 310.37 / 0.251);
-  --backdrop-grid-teal: oklch(0.322 0.032 179.71 / 0.078);
-  --backdrop-grid-purple: oklch(0.2139 0.1089 222.07 / 0.059);
-  --backdrop-grid-ember: oklch(0.1999 0.0551 18.59 / 0.059);
-  --backdrop-grid-cyber: oklch(0.3068 0.0385 135.71 / 0.059);
-  --backdrop-grid-magenta: oklch(0.206 0.0483 310.37 / 0.059);
+  --backdrop-glow-teal: oklch(0.308 0.0382 190.54 / 0.302); /** DevPulse teal backdrop glow. */
+  --backdrop-glow-purple: oklch(0.2075 0.1083 225.17 / 0.251); /** Clyffy purple backdrop glow. */
+  --backdrop-glow-purple-fade: oklch(0.1974 0.0364 209.13 / 0.102); /** Faded purple glow — secondary Clyffy surfaces. */
+  --backdrop-glow-ember: oklch(0.1929 0.0595 15.58 / 0.251); /** DevForge ember backdrop glow. */
+  --backdrop-glow-cyber: oklch(0.2669 0.0305 144.73 / 0.251); /** WiredFront cyber backdrop glow. */
+  --backdrop-glow-magenta: oklch(0.206 0.0483 310.37 / 0.251); /** OverMind magenta backdrop glow. */
+  --backdrop-grid-teal: oklch(0.322 0.032 179.71 / 0.078); /** DevPulse teal grid lines. */
+  --backdrop-grid-purple: oklch(0.2139 0.1089 222.07 / 0.059); /** Clyffy purple grid lines. */
+  --backdrop-grid-ember: oklch(0.1999 0.0551 18.59 / 0.059); /** DevForge ember grid lines. */
+  --backdrop-grid-cyber: oklch(0.3068 0.0385 135.71 / 0.059); /** WiredFront cyber grid lines. */
+  --backdrop-grid-magenta: oklch(0.206 0.0483 310.37 / 0.059); /** OverMind magenta grid lines. */
+  --backdrop-grid-size-neural: 1.75rem; /** Chat neural network — tightest grid. 28 px. */
+  --backdrop-grid-size-magenta: 2rem; /** OverMind grid spacing. 32 px. */
+  --backdrop-grid-size-purple: 2.25rem; /** Clyffy grid spacing. 36 px. */
+  --backdrop-grid-size-cyber: 2.375rem; /** WiredFront grid spacing. 38 px. */
+  --backdrop-grid-size-teal: 2.5rem; /** DevPulse default grid spacing. 40 px. */
+  --backdrop-grid-size-ember: 2.75rem; /** DevForge grid spacing. 44 px. */
+  --backdrop-grid-line-width: 0.0625rem; /** Hairline grid stroke. 1 px. */
   }
 }

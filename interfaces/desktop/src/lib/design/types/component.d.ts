@@ -950,6 +950,272 @@ export const PresetTokens = [
 	"stark-muted-disabled-color",
 	"stark-muted-disabled-opacity",
 	"stark-muted-disabled-border-color",
+	"chat-bubble-user-background-color",
+	"chat-bubble-user-border-radius",
+	"chat-bubble-user-box-shadow",
+	"chat-bubble-user-color",
+	"chat-bubble-user-border-color",
+	"chat-bubble-user-border-width",
+	"chat-bubble-user-backdrop-filter",
+	"chat-bubble-user-opacity",
+	"chat-bubble-user-animation",
+	"chat-bubble-user-transition-duration",
+	"chat-bubble-user-transition-timing-function",
+	"chat-bubble-user-gradient",
+	"chat-bubble-user-font-family",
+	"chat-bubble-user-font-size",
+	"chat-bubble-user-font-weight",
+	"chat-bubble-user-letter-spacing",
+	"chat-bubble-user-line-height",
+	"chat-bubble-user-background-image",
+	"chat-bubble-user-background-alpha",
+	"chat-bubble-ai-developer-background-color",
+	"chat-bubble-ai-developer-border-radius",
+	"chat-bubble-ai-developer-box-shadow",
+	"chat-bubble-ai-developer-color",
+	"chat-bubble-ai-developer-border-color",
+	"chat-bubble-ai-developer-border-width",
+	"chat-bubble-ai-developer-backdrop-filter",
+	"chat-bubble-ai-developer-opacity",
+	"chat-bubble-ai-developer-animation",
+	"chat-bubble-ai-developer-transition-duration",
+	"chat-bubble-ai-developer-transition-timing-function",
+	"chat-bubble-ai-developer-gradient",
+	"chat-bubble-ai-developer-font-family",
+	"chat-bubble-ai-developer-font-size",
+	"chat-bubble-ai-developer-font-weight",
+	"chat-bubble-ai-developer-letter-spacing",
+	"chat-bubble-ai-developer-line-height",
+	"chat-bubble-ai-developer-background-image",
+	"chat-bubble-ai-developer-background-alpha",
+	"chat-bubble-ai-planning-background-color",
+	"chat-bubble-ai-planning-border-radius",
+	"chat-bubble-ai-planning-box-shadow",
+	"chat-bubble-ai-planning-color",
+	"chat-bubble-ai-planning-border-color",
+	"chat-bubble-ai-planning-border-width",
+	"chat-bubble-ai-planning-backdrop-filter",
+	"chat-bubble-ai-planning-opacity",
+	"chat-bubble-ai-planning-animation",
+	"chat-bubble-ai-planning-transition-duration",
+	"chat-bubble-ai-planning-transition-timing-function",
+	"chat-bubble-ai-planning-gradient",
+	"chat-bubble-ai-planning-font-family",
+	"chat-bubble-ai-planning-font-size",
+	"chat-bubble-ai-planning-font-weight",
+	"chat-bubble-ai-planning-letter-spacing",
+	"chat-bubble-ai-planning-line-height",
+	"chat-bubble-ai-planning-background-image",
+	"chat-bubble-ai-planning-background-alpha",
+	"chat-bubble-ai-image-background-color",
+	"chat-bubble-ai-image-border-radius",
+	"chat-bubble-ai-image-box-shadow",
+	"chat-bubble-ai-image-color",
+	"chat-bubble-ai-image-border-color",
+	"chat-bubble-ai-image-border-width",
+	"chat-bubble-ai-image-backdrop-filter",
+	"chat-bubble-ai-image-opacity",
+	"chat-bubble-ai-image-animation",
+	"chat-bubble-ai-image-transition-duration",
+	"chat-bubble-ai-image-transition-timing-function",
+	"chat-bubble-ai-image-gradient",
+	"chat-bubble-ai-image-font-family",
+	"chat-bubble-ai-image-font-size",
+	"chat-bubble-ai-image-font-weight",
+	"chat-bubble-ai-image-letter-spacing",
+	"chat-bubble-ai-image-line-height",
+	"chat-bubble-ai-image-background-image",
+	"chat-bubble-ai-image-background-alpha",
+	"chat-bubble-ai-general-background-color",
+	"chat-bubble-ai-general-border-radius",
+	"chat-bubble-ai-general-box-shadow",
+	"chat-bubble-ai-general-color",
+	"chat-bubble-ai-general-border-color",
+	"chat-bubble-ai-general-border-width",
+	"chat-bubble-ai-general-backdrop-filter",
+	"chat-bubble-ai-general-opacity",
+	"chat-bubble-ai-general-animation",
+	"chat-bubble-ai-general-transition-duration",
+	"chat-bubble-ai-general-transition-timing-function",
+	"chat-bubble-ai-general-gradient",
+	"chat-bubble-ai-general-font-family",
+	"chat-bubble-ai-general-font-size",
+	"chat-bubble-ai-general-font-weight",
+	"chat-bubble-ai-general-letter-spacing",
+	"chat-bubble-ai-general-line-height",
+	"chat-bubble-ai-general-background-image",
+	"chat-bubble-ai-general-background-alpha",
+	"chat-bubble-system-background-color",
+	"chat-bubble-system-border-radius",
+	"chat-bubble-system-box-shadow",
+	"chat-bubble-system-color",
+	"chat-bubble-system-border-color",
+	"chat-bubble-system-border-width",
+	"chat-bubble-system-backdrop-filter",
+	"chat-bubble-system-opacity",
+	"chat-bubble-system-animation",
+	"chat-bubble-system-transition-duration",
+	"chat-bubble-system-transition-timing-function",
+	"chat-bubble-system-gradient",
+	"chat-bubble-system-font-family",
+	"chat-bubble-system-font-size",
+	"chat-bubble-system-font-weight",
+	"chat-bubble-system-letter-spacing",
+	"chat-bubble-system-line-height",
+	"chat-bubble-system-background-image",
+	"chat-bubble-system-background-alpha",
+	"chat-mode-pill-active-background-color",
+	"chat-mode-pill-active-border-radius",
+	"chat-mode-pill-active-box-shadow",
+	"chat-mode-pill-active-color",
+	"chat-mode-pill-active-border-color",
+	"chat-mode-pill-active-border-width",
+	"chat-mode-pill-active-backdrop-filter",
+	"chat-mode-pill-active-opacity",
+	"chat-mode-pill-active-animation",
+	"chat-mode-pill-active-transition-duration",
+	"chat-mode-pill-active-transition-timing-function",
+	"chat-mode-pill-active-gradient",
+	"chat-mode-pill-active-font-family",
+	"chat-mode-pill-active-font-size",
+	"chat-mode-pill-active-font-weight",
+	"chat-mode-pill-active-letter-spacing",
+	"chat-mode-pill-active-line-height",
+	"chat-mode-pill-active-background-image",
+	"chat-mode-pill-active-background-alpha",
+	"chat-mode-pill-idle-background-color",
+	"chat-mode-pill-idle-border-radius",
+	"chat-mode-pill-idle-box-shadow",
+	"chat-mode-pill-idle-color",
+	"chat-mode-pill-idle-border-color",
+	"chat-mode-pill-idle-border-width",
+	"chat-mode-pill-idle-backdrop-filter",
+	"chat-mode-pill-idle-opacity",
+	"chat-mode-pill-idle-animation",
+	"chat-mode-pill-idle-transition-duration",
+	"chat-mode-pill-idle-transition-timing-function",
+	"chat-mode-pill-idle-gradient",
+	"chat-mode-pill-idle-font-family",
+	"chat-mode-pill-idle-font-size",
+	"chat-mode-pill-idle-font-weight",
+	"chat-mode-pill-idle-letter-spacing",
+	"chat-mode-pill-idle-line-height",
+	"chat-mode-pill-idle-background-image",
+	"chat-mode-pill-idle-background-alpha",
+	"chat-decision-card-background-color",
+	"chat-decision-card-border-radius",
+	"chat-decision-card-box-shadow",
+	"chat-decision-card-color",
+	"chat-decision-card-border-color",
+	"chat-decision-card-border-width",
+	"chat-decision-card-backdrop-filter",
+	"chat-decision-card-opacity",
+	"chat-decision-card-animation",
+	"chat-decision-card-transition-duration",
+	"chat-decision-card-transition-timing-function",
+	"chat-decision-card-gradient",
+	"chat-decision-card-font-family",
+	"chat-decision-card-font-size",
+	"chat-decision-card-font-weight",
+	"chat-decision-card-letter-spacing",
+	"chat-decision-card-line-height",
+	"chat-decision-card-background-image",
+	"chat-decision-card-background-alpha",
+	"chat-voice-orb-idle-background-color",
+	"chat-voice-orb-idle-border-radius",
+	"chat-voice-orb-idle-box-shadow",
+	"chat-voice-orb-idle-color",
+	"chat-voice-orb-idle-border-color",
+	"chat-voice-orb-idle-border-width",
+	"chat-voice-orb-idle-backdrop-filter",
+	"chat-voice-orb-idle-opacity",
+	"chat-voice-orb-idle-animation",
+	"chat-voice-orb-idle-transition-duration",
+	"chat-voice-orb-idle-transition-timing-function",
+	"chat-voice-orb-idle-gradient",
+	"chat-voice-orb-idle-font-family",
+	"chat-voice-orb-idle-font-size",
+	"chat-voice-orb-idle-font-weight",
+	"chat-voice-orb-idle-letter-spacing",
+	"chat-voice-orb-idle-line-height",
+	"chat-voice-orb-idle-background-image",
+	"chat-voice-orb-idle-background-alpha",
+	"chat-voice-orb-listening-background-color",
+	"chat-voice-orb-listening-border-radius",
+	"chat-voice-orb-listening-box-shadow",
+	"chat-voice-orb-listening-color",
+	"chat-voice-orb-listening-border-color",
+	"chat-voice-orb-listening-border-width",
+	"chat-voice-orb-listening-backdrop-filter",
+	"chat-voice-orb-listening-opacity",
+	"chat-voice-orb-listening-animation",
+	"chat-voice-orb-listening-transition-duration",
+	"chat-voice-orb-listening-transition-timing-function",
+	"chat-voice-orb-listening-gradient",
+	"chat-voice-orb-listening-font-family",
+	"chat-voice-orb-listening-font-size",
+	"chat-voice-orb-listening-font-weight",
+	"chat-voice-orb-listening-letter-spacing",
+	"chat-voice-orb-listening-line-height",
+	"chat-voice-orb-listening-background-image",
+	"chat-voice-orb-listening-background-alpha",
+	"chat-cortex-node-background-color",
+	"chat-cortex-node-border-radius",
+	"chat-cortex-node-box-shadow",
+	"chat-cortex-node-color",
+	"chat-cortex-node-border-color",
+	"chat-cortex-node-border-width",
+	"chat-cortex-node-backdrop-filter",
+	"chat-cortex-node-opacity",
+	"chat-cortex-node-animation",
+	"chat-cortex-node-transition-duration",
+	"chat-cortex-node-transition-timing-function",
+	"chat-cortex-node-gradient",
+	"chat-cortex-node-font-family",
+	"chat-cortex-node-font-size",
+	"chat-cortex-node-font-weight",
+	"chat-cortex-node-letter-spacing",
+	"chat-cortex-node-line-height",
+	"chat-cortex-node-background-image",
+	"chat-cortex-node-background-alpha",
+	"chat-session-row-active-background-color",
+	"chat-session-row-active-border-radius",
+	"chat-session-row-active-box-shadow",
+	"chat-session-row-active-color",
+	"chat-session-row-active-border-color",
+	"chat-session-row-active-border-width",
+	"chat-session-row-active-backdrop-filter",
+	"chat-session-row-active-opacity",
+	"chat-session-row-active-animation",
+	"chat-session-row-active-transition-duration",
+	"chat-session-row-active-transition-timing-function",
+	"chat-session-row-active-gradient",
+	"chat-session-row-active-font-family",
+	"chat-session-row-active-font-size",
+	"chat-session-row-active-font-weight",
+	"chat-session-row-active-letter-spacing",
+	"chat-session-row-active-line-height",
+	"chat-session-row-active-background-image",
+	"chat-session-row-active-background-alpha",
+	"chat-frame-shell-background-color",
+	"chat-frame-shell-border-radius",
+	"chat-frame-shell-box-shadow",
+	"chat-frame-shell-color",
+	"chat-frame-shell-border-color",
+	"chat-frame-shell-border-width",
+	"chat-frame-shell-backdrop-filter",
+	"chat-frame-shell-opacity",
+	"chat-frame-shell-animation",
+	"chat-frame-shell-transition-duration",
+	"chat-frame-shell-transition-timing-function",
+	"chat-frame-shell-gradient",
+	"chat-frame-shell-font-family",
+	"chat-frame-shell-font-size",
+	"chat-frame-shell-font-weight",
+	"chat-frame-shell-letter-spacing",
+	"chat-frame-shell-line-height",
+	"chat-frame-shell-background-image",
+	"chat-frame-shell-background-alpha",
 ] as const;
 export type PresetToken = (typeof PresetTokens)[number];
 
@@ -1898,7 +2164,273 @@ export type PresetCSSVar =
 	| "--preset-stark-muted-disabled-background-color"
 	| "--preset-stark-muted-disabled-color"
 	| "--preset-stark-muted-disabled-opacity"
-	| "--preset-stark-muted-disabled-border-color";
+	| "--preset-stark-muted-disabled-border-color"
+	| "--preset-chat-bubble-user-background-color"
+	| "--preset-chat-bubble-user-border-radius"
+	| "--preset-chat-bubble-user-box-shadow"
+	| "--preset-chat-bubble-user-color"
+	| "--preset-chat-bubble-user-border-color"
+	| "--preset-chat-bubble-user-border-width"
+	| "--preset-chat-bubble-user-backdrop-filter"
+	| "--preset-chat-bubble-user-opacity"
+	| "--preset-chat-bubble-user-animation"
+	| "--preset-chat-bubble-user-transition-duration"
+	| "--preset-chat-bubble-user-transition-timing-function"
+	| "--preset-chat-bubble-user-gradient"
+	| "--preset-chat-bubble-user-font-family"
+	| "--preset-chat-bubble-user-font-size"
+	| "--preset-chat-bubble-user-font-weight"
+	| "--preset-chat-bubble-user-letter-spacing"
+	| "--preset-chat-bubble-user-line-height"
+	| "--preset-chat-bubble-user-background-image"
+	| "--preset-chat-bubble-user-background-alpha"
+	| "--preset-chat-bubble-ai-developer-background-color"
+	| "--preset-chat-bubble-ai-developer-border-radius"
+	| "--preset-chat-bubble-ai-developer-box-shadow"
+	| "--preset-chat-bubble-ai-developer-color"
+	| "--preset-chat-bubble-ai-developer-border-color"
+	| "--preset-chat-bubble-ai-developer-border-width"
+	| "--preset-chat-bubble-ai-developer-backdrop-filter"
+	| "--preset-chat-bubble-ai-developer-opacity"
+	| "--preset-chat-bubble-ai-developer-animation"
+	| "--preset-chat-bubble-ai-developer-transition-duration"
+	| "--preset-chat-bubble-ai-developer-transition-timing-function"
+	| "--preset-chat-bubble-ai-developer-gradient"
+	| "--preset-chat-bubble-ai-developer-font-family"
+	| "--preset-chat-bubble-ai-developer-font-size"
+	| "--preset-chat-bubble-ai-developer-font-weight"
+	| "--preset-chat-bubble-ai-developer-letter-spacing"
+	| "--preset-chat-bubble-ai-developer-line-height"
+	| "--preset-chat-bubble-ai-developer-background-image"
+	| "--preset-chat-bubble-ai-developer-background-alpha"
+	| "--preset-chat-bubble-ai-planning-background-color"
+	| "--preset-chat-bubble-ai-planning-border-radius"
+	| "--preset-chat-bubble-ai-planning-box-shadow"
+	| "--preset-chat-bubble-ai-planning-color"
+	| "--preset-chat-bubble-ai-planning-border-color"
+	| "--preset-chat-bubble-ai-planning-border-width"
+	| "--preset-chat-bubble-ai-planning-backdrop-filter"
+	| "--preset-chat-bubble-ai-planning-opacity"
+	| "--preset-chat-bubble-ai-planning-animation"
+	| "--preset-chat-bubble-ai-planning-transition-duration"
+	| "--preset-chat-bubble-ai-planning-transition-timing-function"
+	| "--preset-chat-bubble-ai-planning-gradient"
+	| "--preset-chat-bubble-ai-planning-font-family"
+	| "--preset-chat-bubble-ai-planning-font-size"
+	| "--preset-chat-bubble-ai-planning-font-weight"
+	| "--preset-chat-bubble-ai-planning-letter-spacing"
+	| "--preset-chat-bubble-ai-planning-line-height"
+	| "--preset-chat-bubble-ai-planning-background-image"
+	| "--preset-chat-bubble-ai-planning-background-alpha"
+	| "--preset-chat-bubble-ai-image-background-color"
+	| "--preset-chat-bubble-ai-image-border-radius"
+	| "--preset-chat-bubble-ai-image-box-shadow"
+	| "--preset-chat-bubble-ai-image-color"
+	| "--preset-chat-bubble-ai-image-border-color"
+	| "--preset-chat-bubble-ai-image-border-width"
+	| "--preset-chat-bubble-ai-image-backdrop-filter"
+	| "--preset-chat-bubble-ai-image-opacity"
+	| "--preset-chat-bubble-ai-image-animation"
+	| "--preset-chat-bubble-ai-image-transition-duration"
+	| "--preset-chat-bubble-ai-image-transition-timing-function"
+	| "--preset-chat-bubble-ai-image-gradient"
+	| "--preset-chat-bubble-ai-image-font-family"
+	| "--preset-chat-bubble-ai-image-font-size"
+	| "--preset-chat-bubble-ai-image-font-weight"
+	| "--preset-chat-bubble-ai-image-letter-spacing"
+	| "--preset-chat-bubble-ai-image-line-height"
+	| "--preset-chat-bubble-ai-image-background-image"
+	| "--preset-chat-bubble-ai-image-background-alpha"
+	| "--preset-chat-bubble-ai-general-background-color"
+	| "--preset-chat-bubble-ai-general-border-radius"
+	| "--preset-chat-bubble-ai-general-box-shadow"
+	| "--preset-chat-bubble-ai-general-color"
+	| "--preset-chat-bubble-ai-general-border-color"
+	| "--preset-chat-bubble-ai-general-border-width"
+	| "--preset-chat-bubble-ai-general-backdrop-filter"
+	| "--preset-chat-bubble-ai-general-opacity"
+	| "--preset-chat-bubble-ai-general-animation"
+	| "--preset-chat-bubble-ai-general-transition-duration"
+	| "--preset-chat-bubble-ai-general-transition-timing-function"
+	| "--preset-chat-bubble-ai-general-gradient"
+	| "--preset-chat-bubble-ai-general-font-family"
+	| "--preset-chat-bubble-ai-general-font-size"
+	| "--preset-chat-bubble-ai-general-font-weight"
+	| "--preset-chat-bubble-ai-general-letter-spacing"
+	| "--preset-chat-bubble-ai-general-line-height"
+	| "--preset-chat-bubble-ai-general-background-image"
+	| "--preset-chat-bubble-ai-general-background-alpha"
+	| "--preset-chat-bubble-system-background-color"
+	| "--preset-chat-bubble-system-border-radius"
+	| "--preset-chat-bubble-system-box-shadow"
+	| "--preset-chat-bubble-system-color"
+	| "--preset-chat-bubble-system-border-color"
+	| "--preset-chat-bubble-system-border-width"
+	| "--preset-chat-bubble-system-backdrop-filter"
+	| "--preset-chat-bubble-system-opacity"
+	| "--preset-chat-bubble-system-animation"
+	| "--preset-chat-bubble-system-transition-duration"
+	| "--preset-chat-bubble-system-transition-timing-function"
+	| "--preset-chat-bubble-system-gradient"
+	| "--preset-chat-bubble-system-font-family"
+	| "--preset-chat-bubble-system-font-size"
+	| "--preset-chat-bubble-system-font-weight"
+	| "--preset-chat-bubble-system-letter-spacing"
+	| "--preset-chat-bubble-system-line-height"
+	| "--preset-chat-bubble-system-background-image"
+	| "--preset-chat-bubble-system-background-alpha"
+	| "--preset-chat-mode-pill-active-background-color"
+	| "--preset-chat-mode-pill-active-border-radius"
+	| "--preset-chat-mode-pill-active-box-shadow"
+	| "--preset-chat-mode-pill-active-color"
+	| "--preset-chat-mode-pill-active-border-color"
+	| "--preset-chat-mode-pill-active-border-width"
+	| "--preset-chat-mode-pill-active-backdrop-filter"
+	| "--preset-chat-mode-pill-active-opacity"
+	| "--preset-chat-mode-pill-active-animation"
+	| "--preset-chat-mode-pill-active-transition-duration"
+	| "--preset-chat-mode-pill-active-transition-timing-function"
+	| "--preset-chat-mode-pill-active-gradient"
+	| "--preset-chat-mode-pill-active-font-family"
+	| "--preset-chat-mode-pill-active-font-size"
+	| "--preset-chat-mode-pill-active-font-weight"
+	| "--preset-chat-mode-pill-active-letter-spacing"
+	| "--preset-chat-mode-pill-active-line-height"
+	| "--preset-chat-mode-pill-active-background-image"
+	| "--preset-chat-mode-pill-active-background-alpha"
+	| "--preset-chat-mode-pill-idle-background-color"
+	| "--preset-chat-mode-pill-idle-border-radius"
+	| "--preset-chat-mode-pill-idle-box-shadow"
+	| "--preset-chat-mode-pill-idle-color"
+	| "--preset-chat-mode-pill-idle-border-color"
+	| "--preset-chat-mode-pill-idle-border-width"
+	| "--preset-chat-mode-pill-idle-backdrop-filter"
+	| "--preset-chat-mode-pill-idle-opacity"
+	| "--preset-chat-mode-pill-idle-animation"
+	| "--preset-chat-mode-pill-idle-transition-duration"
+	| "--preset-chat-mode-pill-idle-transition-timing-function"
+	| "--preset-chat-mode-pill-idle-gradient"
+	| "--preset-chat-mode-pill-idle-font-family"
+	| "--preset-chat-mode-pill-idle-font-size"
+	| "--preset-chat-mode-pill-idle-font-weight"
+	| "--preset-chat-mode-pill-idle-letter-spacing"
+	| "--preset-chat-mode-pill-idle-line-height"
+	| "--preset-chat-mode-pill-idle-background-image"
+	| "--preset-chat-mode-pill-idle-background-alpha"
+	| "--preset-chat-decision-card-background-color"
+	| "--preset-chat-decision-card-border-radius"
+	| "--preset-chat-decision-card-box-shadow"
+	| "--preset-chat-decision-card-color"
+	| "--preset-chat-decision-card-border-color"
+	| "--preset-chat-decision-card-border-width"
+	| "--preset-chat-decision-card-backdrop-filter"
+	| "--preset-chat-decision-card-opacity"
+	| "--preset-chat-decision-card-animation"
+	| "--preset-chat-decision-card-transition-duration"
+	| "--preset-chat-decision-card-transition-timing-function"
+	| "--preset-chat-decision-card-gradient"
+	| "--preset-chat-decision-card-font-family"
+	| "--preset-chat-decision-card-font-size"
+	| "--preset-chat-decision-card-font-weight"
+	| "--preset-chat-decision-card-letter-spacing"
+	| "--preset-chat-decision-card-line-height"
+	| "--preset-chat-decision-card-background-image"
+	| "--preset-chat-decision-card-background-alpha"
+	| "--preset-chat-voice-orb-idle-background-color"
+	| "--preset-chat-voice-orb-idle-border-radius"
+	| "--preset-chat-voice-orb-idle-box-shadow"
+	| "--preset-chat-voice-orb-idle-color"
+	| "--preset-chat-voice-orb-idle-border-color"
+	| "--preset-chat-voice-orb-idle-border-width"
+	| "--preset-chat-voice-orb-idle-backdrop-filter"
+	| "--preset-chat-voice-orb-idle-opacity"
+	| "--preset-chat-voice-orb-idle-animation"
+	| "--preset-chat-voice-orb-idle-transition-duration"
+	| "--preset-chat-voice-orb-idle-transition-timing-function"
+	| "--preset-chat-voice-orb-idle-gradient"
+	| "--preset-chat-voice-orb-idle-font-family"
+	| "--preset-chat-voice-orb-idle-font-size"
+	| "--preset-chat-voice-orb-idle-font-weight"
+	| "--preset-chat-voice-orb-idle-letter-spacing"
+	| "--preset-chat-voice-orb-idle-line-height"
+	| "--preset-chat-voice-orb-idle-background-image"
+	| "--preset-chat-voice-orb-idle-background-alpha"
+	| "--preset-chat-voice-orb-listening-background-color"
+	| "--preset-chat-voice-orb-listening-border-radius"
+	| "--preset-chat-voice-orb-listening-box-shadow"
+	| "--preset-chat-voice-orb-listening-color"
+	| "--preset-chat-voice-orb-listening-border-color"
+	| "--preset-chat-voice-orb-listening-border-width"
+	| "--preset-chat-voice-orb-listening-backdrop-filter"
+	| "--preset-chat-voice-orb-listening-opacity"
+	| "--preset-chat-voice-orb-listening-animation"
+	| "--preset-chat-voice-orb-listening-transition-duration"
+	| "--preset-chat-voice-orb-listening-transition-timing-function"
+	| "--preset-chat-voice-orb-listening-gradient"
+	| "--preset-chat-voice-orb-listening-font-family"
+	| "--preset-chat-voice-orb-listening-font-size"
+	| "--preset-chat-voice-orb-listening-font-weight"
+	| "--preset-chat-voice-orb-listening-letter-spacing"
+	| "--preset-chat-voice-orb-listening-line-height"
+	| "--preset-chat-voice-orb-listening-background-image"
+	| "--preset-chat-voice-orb-listening-background-alpha"
+	| "--preset-chat-cortex-node-background-color"
+	| "--preset-chat-cortex-node-border-radius"
+	| "--preset-chat-cortex-node-box-shadow"
+	| "--preset-chat-cortex-node-color"
+	| "--preset-chat-cortex-node-border-color"
+	| "--preset-chat-cortex-node-border-width"
+	| "--preset-chat-cortex-node-backdrop-filter"
+	| "--preset-chat-cortex-node-opacity"
+	| "--preset-chat-cortex-node-animation"
+	| "--preset-chat-cortex-node-transition-duration"
+	| "--preset-chat-cortex-node-transition-timing-function"
+	| "--preset-chat-cortex-node-gradient"
+	| "--preset-chat-cortex-node-font-family"
+	| "--preset-chat-cortex-node-font-size"
+	| "--preset-chat-cortex-node-font-weight"
+	| "--preset-chat-cortex-node-letter-spacing"
+	| "--preset-chat-cortex-node-line-height"
+	| "--preset-chat-cortex-node-background-image"
+	| "--preset-chat-cortex-node-background-alpha"
+	| "--preset-chat-session-row-active-background-color"
+	| "--preset-chat-session-row-active-border-radius"
+	| "--preset-chat-session-row-active-box-shadow"
+	| "--preset-chat-session-row-active-color"
+	| "--preset-chat-session-row-active-border-color"
+	| "--preset-chat-session-row-active-border-width"
+	| "--preset-chat-session-row-active-backdrop-filter"
+	| "--preset-chat-session-row-active-opacity"
+	| "--preset-chat-session-row-active-animation"
+	| "--preset-chat-session-row-active-transition-duration"
+	| "--preset-chat-session-row-active-transition-timing-function"
+	| "--preset-chat-session-row-active-gradient"
+	| "--preset-chat-session-row-active-font-family"
+	| "--preset-chat-session-row-active-font-size"
+	| "--preset-chat-session-row-active-font-weight"
+	| "--preset-chat-session-row-active-letter-spacing"
+	| "--preset-chat-session-row-active-line-height"
+	| "--preset-chat-session-row-active-background-image"
+	| "--preset-chat-session-row-active-background-alpha"
+	| "--preset-chat-frame-shell-background-color"
+	| "--preset-chat-frame-shell-border-radius"
+	| "--preset-chat-frame-shell-box-shadow"
+	| "--preset-chat-frame-shell-color"
+	| "--preset-chat-frame-shell-border-color"
+	| "--preset-chat-frame-shell-border-width"
+	| "--preset-chat-frame-shell-backdrop-filter"
+	| "--preset-chat-frame-shell-opacity"
+	| "--preset-chat-frame-shell-animation"
+	| "--preset-chat-frame-shell-transition-duration"
+	| "--preset-chat-frame-shell-transition-timing-function"
+	| "--preset-chat-frame-shell-gradient"
+	| "--preset-chat-frame-shell-font-family"
+	| "--preset-chat-frame-shell-font-size"
+	| "--preset-chat-frame-shell-font-weight"
+	| "--preset-chat-frame-shell-letter-spacing"
+	| "--preset-chat-frame-shell-line-height"
+	| "--preset-chat-frame-shell-background-image"
+	| "--preset-chat-frame-shell-background-alpha";
 
 export type PresetRecord = {
 	"neuro-elevated": {
@@ -3129,5 +3661,299 @@ export type PresetRecord = {
 		color: string;
 		opacity: string;
 		"border-color": string;
+	};
+	"chat-bubble-user": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-bubble-ai-developer": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-bubble-ai-planning": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-bubble-ai-image": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-bubble-ai-general": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-bubble-system": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-mode-pill-active": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-mode-pill-idle": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-decision-card": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-voice-orb-idle": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-voice-orb-listening": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-cortex-node": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-session-row-active": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
+	};
+	"chat-frame-shell": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		opacity: string;
+		animation: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+		gradient: string;
+		"font-family": string;
+		"font-size": string;
+		"font-weight": string;
+		"letter-spacing": string;
+		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 };

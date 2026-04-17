@@ -18,6 +18,7 @@
 
 pub mod commands;
 pub mod logging;
+pub mod paths;
 pub mod state;
 
 use devpulse_engine::platform::{InitStatus, Platform};
@@ -37,14 +38,22 @@ use tokio::sync::RwLock;
 pub fn run() {
     // ── specta: typed IPC bindings ──────────────────────────────
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+        commands::chat::pick_save_file,
         commands::chat::send_message,
         commands::chat::history::load_recent,
+        commands::chat::sessions::list_sessions,
+        commands::chat::sessions::delete_session,
+        commands::chat::sessions::clear_all_chat_history,
+        commands::chat::sessions::export_session,
+        commands::chat::sessions::export_all_sessions,
         commands::chat::interactions::post_reaction,
         commands::sys::config::get_settings,
         commands::sys::config::get_preference,
         commands::sys::config::set_preference,
         commands::sys::guard::verify,
         commands::sys::logger::log,
+        commands::sys::action_log::tail_action_log,
+        commands::sys::action_log::open_action_logs_folder,
         commands::sys::boot::get_boot_state,
         commands::sys::metrics::get_process_metrics,
         commands::sys::telemetry::get_lane_config,
@@ -185,7 +194,10 @@ pub fn run() {
         .setup(move |app| {
             builder.mount_events(app);
             // ── Data directory resolution ─────────────────────────
-            let data_dir = resolve_data_dir(app)?;
+            let data_dir = crate::paths::resolve_data_dir(app).map_err(|e| {
+                Box::new(std::io::Error::new(std::io::ErrorKind::Other, e))
+                    as Box<dyn std::error::Error>
+            })?;
 
             // ── Logging: stderr + file ────────────────────────────
             let _ = logging::rotate_logs(&data_dir);
@@ -315,42 +327,6 @@ pub fn run() {
                 tracing::info!("Platform shutdown complete — process exiting");
             }
         });
-}
-
-/// Resolve the data directory — portable-first.
-///
-/// Dev: `.userdata/` at project root (CARGO_MANIFEST_DIR → up 3 levels).
-/// Release: `.userdata/` next to binary (portable), or OS app data dir.
-fn resolve_data_dir(app: &tauri::App) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    if cfg!(debug_assertions) {
-        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let project_root = manifest
-            .parent() // interfaces/desktop
-            .and_then(|p| p.parent()) // interfaces
-            .and_then(|p| p.parent()) // project root
-            .expect("Failed to resolve project root from CARGO_MANIFEST_DIR");
-        let dev_data = project_root.join(".userdata");
-        std::fs::create_dir_all(&dev_data)
-            .expect("Failed to create .userdata directory");
-        Ok(dev_data)
-    } else {
-        let exe_dir = std::env::current_exe()
-            .expect("Failed to resolve current executable path")
-            .parent()
-            .expect("Executable has no parent directory")
-            .to_path_buf();
-        let portable_dir = exe_dir.join(".userdata");
-        if portable_dir.exists() {
-            Ok(portable_dir)
-        } else {
-            let os_dir = app.path()
-                .app_data_dir()
-                .expect("Failed to resolve app data dir");
-            std::fs::create_dir_all(&os_dir)
-                .expect("Failed to create app data directory");
-            Ok(os_dir)
-        }
-    }
 }
 
 /// Boot task — boots all platform services and emits progress events.

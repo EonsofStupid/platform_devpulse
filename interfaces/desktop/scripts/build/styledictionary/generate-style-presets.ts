@@ -26,6 +26,15 @@ import type { AnimationValue, BackgroundImageValue, PresetDefinition, ShadowLaye
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT = path.join(__dirname, "tokens", "src", "style-presets.json");
 
+/** SD5 / VPB metadata — always emitted so coldlight-style-presets-v1 stays valid */
+const DEFAULT_STYLE_PRESET_EXTENSIONS = {
+	"com.coldlight": {
+		semanticFamilies: ["surface", "elevation", "frame", "motion"],
+		format: "coldlight-style-presets-v1",
+		note: "Composite preset leaves — elevation uses DTCG shadow; surface uses color/dimension; keep render glue out of token values.",
+	},
+} as const;
+
 function shadowToString(layers: readonly ShadowLayer[]): string {
 	if (layers.length === 0) return "none";
 	return layers
@@ -120,9 +129,20 @@ ALL_PRESETS.forEach((p) => {
 	}
 });
 
-const output = { preset };
+	let extensions: Record<string, unknown> = JSON.parse(
+		JSON.stringify(DEFAULT_STYLE_PRESET_EXTENSIONS),
+	) as Record<string, unknown>;
+	try {
+		const existing = fs.readFileSync(OUTPUT, "utf-8");
+		const parsed = JSON.parse(existing) as { $extensions?: Record<string, unknown> };
+		if (parsed.$extensions) extensions = parsed.$extensions;
+	} catch {
+		// no prior file or invalid JSON — use DEFAULT_STYLE_PRESET_EXTENSIONS
+	}
 
-fs.writeFileSync(OUTPUT, JSON.stringify(output, null, "\t") + "\n", "utf-8");
+	const output: Record<string, unknown> = { $extensions: extensions, preset };
+
+	fs.writeFileSync(OUTPUT, JSON.stringify(output, null, "\t") + "\n", "utf-8");
 
 const presetCount = ALL_PRESETS.length;
 const entryCount = Object.keys(preset).length;

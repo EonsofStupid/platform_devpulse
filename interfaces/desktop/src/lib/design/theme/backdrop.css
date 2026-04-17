@@ -14,4 +14,11 @@
   --backdrop-grid-ember: oklch(0.1999 0.0551 18.59 / 0.059);
   --backdrop-grid-cyber: oklch(0.3068 0.0385 135.71 / 0.059);
   --backdrop-grid-magenta: oklch(0.206 0.0483 310.37 / 0.059);
+  --backdrop-grid-size-neural: 1.75rem;
+  --backdrop-grid-size-magenta: 2rem;
+  --backdrop-grid-size-purple: 2.25rem;
+  --backdrop-grid-size-cyber: 2.375rem;
+  --backdrop-grid-size-teal: 2.5rem;
+  --backdrop-grid-size-ember: 2.75rem;
+  --backdrop-grid-line-width: 0.0625rem;
 }

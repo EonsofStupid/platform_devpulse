@@ -130,5 +130,26 @@ pub fn rotate_logs(data_dir: &Path) -> anyhow::Result<()> {
         }
     }
 
+    // Rotate daily action JSONL files — keep last 3 calendar files.
+    let mut action_files: Vec<PathBuf> = std::fs::read_dir(&logs_dir)?
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            let name = entry.file_name().to_string_lossy().to_string();
+            if name.starts_with("action-") && name.ends_with(".jsonl") {
+                Some(entry.path())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    action_files.sort();
+    if action_files.len() > keep {
+        let to_delete = action_files.len() - keep;
+        for path in action_files.iter().take(to_delete) {
+            let _ = std::fs::remove_file(path);
+        }
+    }
+
     Ok(())
 }

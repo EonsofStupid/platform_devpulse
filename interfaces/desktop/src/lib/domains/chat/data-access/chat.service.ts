@@ -1,71 +1,108 @@
 /**
- * @file Chat Domain Service
- * @module @devpulse/domains/chat/services
- *
- * IPC boundary for chat operations.
- * ALL Tauri invoke calls for chat go through here — nowhere else.
- * Mirrors devpulse.service.ts pattern.
+ * @file Chat IPC boundary — ONLY `invoke` site for this domain
+ * @module @devpulse/domains/chat/data-access/chat.service
  */
 
-import { invoke } from "@tauri-apps/api/core";
-import { generateText } from "$lib/domains/app/models/index.js";
+import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import {
+	type ChatMessage,
+	type ChatSession,
+	commands,
+	type ExportFormat,
+	type ExportSummary,
+} from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
-import type { ChatMessage } from "../util/chat.types.js";
 
-/**
- * Load recent chat messages from LibSQL via Tauri IPC.
- */
-export async function loadMessages(): Promise<ChatMessage[]> {
-	logInfo("chat", "Loading recent messages via IPC...");
-	try {
-		const messages = await invoke<ChatMessage[]>("load_recent");
-		logInfo("chat", `Loaded ${messages.length} messages`);
-		return messages;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("chat", `Message load FAILED: ${msg}`);
-		throw e;
-	}
+function activeProjectId(): string | null {
+	const id = devpulseState.data.recentProjects[0]?.id ?? null;
+	return id;
 }
 
-/**
- * Send a chat message via Tauri IPC.
- * Backend persists to LibSQL and returns the stored message.
- */
-export async function sendMessage(content: string): Promise<ChatMessage> {
-	logInfo("chat", "Sending message via IPC...");
-	try {
-		const stored = await invoke<ChatMessage>("send_message", { content });
-		logInfo("chat", `Message sent: id=${stored.id}`);
-		return stored;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("chat", `Message send FAILED: ${msg}`);
-		throw e;
+function ok<T>(r: { status: "ok"; data: T } | { status: "error"; error: unknown }): T {
+	if (r.status === "error") {
+		const msg = typeof r.error === "string" ? r.error : String(r.error);
+		throw new Error(msg);
 	}
+	return r.data;
 }
 
-/**
- * Send a message and get an AI response from the loaded brain model.
- *
- * 1. Persist user message via IPC
- * 2. Attempt local inference via chat.brain slot
- * 3. Return both user message and AI response (or error)
- */
-export async function sendMessageWithInference(
-	content: string,
-): Promise<{ userMessage: ChatMessage; aiResponse: string | null; error: string | null }> {
-	// Step 1: persist user message
-	const userMessage = await sendMessage(content);
+export async function loadRecent(
+	projectId: string,
+	sessionId: string | null,
+): Promise<ChatMessage[]> {
+	return withAction("chat.loadRecent", "Loading recent chat messages…", async () => {
+		logInfo("chat", "load_recent");
+		const pid = projectId || activeProjectId();
+		if (!pid) throw new Error("No active project — open a project in DevPulse first.");
+		const r = await commands.loadRecent(pid, sessionId);
+		return ok(r);
+	});
+}
 
-	// Step 2: try local inference
-	try {
-		const response = await generateText("chat.brain", content, 256, 0.7);
-		logInfo("chat", `AI response generated: ${response.length} chars`);
-		return { userMessage, aiResponse: response, error: null };
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logInfo("chat", `No AI response (model may not be loaded): ${msg}`);
-		return { userMessage, aiResponse: null, error: msg };
-	}
+export async function sendMessage(projectId: string, content: string): Promise<ChatMessage> {
+	return withAction("chat.send", "Sending your message to the model…", async () => {
+		logInfo("chat", "send_message");
+		const pid = projectId || activeProjectId();
+		if (!pid) throw new Error("No active project — open a project in DevPulse first.");
+		const r = await commands.sendMessage(pid, content);
+		return ok(r);
+	});
+}
+
+export async function listSessions(): Promise<ChatSession[]> {
+	return withAction("chat.listSessions", "Listing chat sessions…", async () => {
+		const r = await commands.listSessions();
+		return ok(r);
+	});
+}
+
+export async function deleteSession(sessionId: string): Promise<void> {
+	return withAction("chat.deleteSession", "Deleting this chat session…", async () => {
+		const r = await commands.deleteSession(sessionId);
+		if (r.status === "error") {
+			const msg = typeof r.error === "string" ? r.error : String(r.error);
+			logError("chat", `delete_session: ${msg}`);
+			throw new Error(msg);
+		}
+	});
+}
+
+export async function clearAllChatHistory(): Promise<void> {
+	return withAction("chat.clearAll", "Clearing all chat history…", async () => {
+		const r = await commands.clearAllChatHistory();
+		if (r.status === "error") {
+			const msg = typeof r.error === "string" ? r.error : String(r.error);
+			logError("chat", `clear_all: ${msg}`);
+			throw new Error(msg);
+		}
+	});
+}
+
+export async function exportSession(
+	sessionId: string,
+	format: ExportFormat,
+	destPath: string,
+): Promise<ExportSummary> {
+	return withAction("chat.export", "Exporting this chat session…", async () => {
+		const r = await commands.exportSession(sessionId, format, destPath);
+		return ok(r);
+	});
+}
+
+export async function exportAllSessions(
+	format: ExportFormat,
+	destPath: string,
+): Promise<ExportSummary> {
+	return withAction("chat.exportAll", "Exporting all chat sessions…", async () => {
+		const r = await commands.exportAllSessions(format, destPath);
+		return ok(r);
+	});
+}
+
+export async function pickSaveFile(defaultName: string): Promise<string | null> {
+	return withAction("chat.pickSaveFile", "Choosing where to save…", async () => {
+		const r = await commands.pickSaveFile(defaultName);
+		return ok(r);
+	});
 }

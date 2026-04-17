@@ -10,6 +10,7 @@
 import type { PresetDefinition } from "../preset-definition.js";
 import type { PresetFamily } from "../preset-families.js";
 import type { PresetId, PresetVariant } from "../preset-id.js";
+import { CHAT_PRESETS } from "./chat.js";
 import { CHROME_PRESETS } from "./chrome.js";
 import { FLAT_PRESETS } from "./flat.js";
 import { GLASS_PRESETS } from "./glass.js";
@@ -18,6 +19,7 @@ import { NEURO_PRESETS } from "./neuro.js";
 import { RETRO_PRESETS } from "./retro.js";
 import { STARK_PRESETS } from "./stark.js";
 
+export { CHAT_PRESETS } from "./chat.js";
 // Re-export family arrays
 export { CHROME_PRESETS } from "./chrome.js";
 export { FLAT_PRESETS } from "./flat.js";
@@ -26,7 +28,7 @@ export { NEURO_PRESETS } from "./neuro.js";
 export { RETRO_PRESETS } from "./retro.js";
 export { STARK_PRESETS } from "./stark.js";
 
-/** All presets as a flat array — 36 total (6 families × 6 variants) */
+/** All presets — core families (36) + golden chat family */
 export const ALL_PRESETS: readonly PresetDefinition[] = [
 	...NEURO_PRESETS,
 	...GLASS_PRESETS,
@@ -34,6 +36,7 @@ export const ALL_PRESETS: readonly PresetDefinition[] = [
 	...CHROME_PRESETS,
 	...FLAT_PRESETS,
 	...STARK_PRESETS,
+	...CHAT_PRESETS,
 ] as const;
 
 /** Lookup by PresetId — O(1) access for renderForge and VPB */

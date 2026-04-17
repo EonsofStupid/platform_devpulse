@@ -1,6 +1,6 @@
 //! `LibSQL` adapter for relational data
 //!
-//! Handles: users, settings, projects, sessions, messages, decisions
+//! Handles: users, settings, projects, KV/config (chat lives in engine user schema)
 //! This is the "clean" queryable layer for UI and cross-project data.
 
 use crate::cortex::persistence::traits::{PersistenceAdapter, SqlAdapter, SqlRow, SqlValue};
@@ -256,27 +256,8 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE INDEX IF NOT EXISTS idx_projects_path ON projects(root_path);
 
--- Sessions
-CREATE TABLE IF NOT EXISTS sessions (
-    id TEXT PRIMARY KEY,
-    project_id TEXT REFERENCES projects(id),
-    created_at INTEGER DEFAULT (unixepoch()),
-    ended_at INTEGER
-);
-
-CREATE INDEX IF NOT EXISTS idx_sessions_project ON sessions(project_id);
-
--- Messages (clean UI layer)
-CREATE TABLE IF NOT EXISTS messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT NOT NULL REFERENCES sessions(id),
-    role TEXT NOT NULL,
-    content TEXT NOT NULL,
-    metadata TEXT,
-    created_at INTEGER DEFAULT (unixepoch())
-);
-
-CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id);
+-- Chat persistence lives in the engine user-scoped schema (`turns` / `sessions`).
+-- The kernel `CORE_SCHEMA` intentionally does not duplicate those tables.
 
 -- Platform config
 CREATE TABLE IF NOT EXISTS platform_config (

@@ -21,6 +21,7 @@ import { BackgroundScene } from "$lib/design/components/background-scene/index.j
 import { cn } from "$lib/design/utils/cn.js";
 import { SetupWizardOverlay } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
+import ActivityHud from "$lib/sys/activity-hud/ActivityHud.svelte";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
 import StatusBar from "./StatusBar.svelte";
@@ -130,4 +131,6 @@ const SLOTS = {
 
 	<!-- Model swap overlay — full-screen block during load/unload only -->
 	<SwapOverlay />
+
+	<ActivityHud />
 </div>
