@@ -3,6 +3,13 @@
 	"duration": {
 		"$type": "duration",
 		"$description": "Motion duration scale in milliseconds.",
+		"instant": {
+			"$value": {
+				"value": 0,
+				"unit": "ms"
+			},
+			"$description": "Zero — retro step transitions, no animation."
+		},
 		"snap": {
 			"$value": {
 				"value": 50,
@@ -10,12 +17,47 @@
 			},
 			"$description": "Instant feedback — micro-interactions."
 		},
+		"micro": {
+			"$value": {
+				"value": 80,
+				"unit": "ms"
+			},
+			"$description": "Micro — flat-muted, stark-muted quick fade."
+		},
+		"swift": {
+			"$value": {
+				"value": 100,
+				"unit": "ms"
+			},
+			"$description": "Swift — neuro-muted, stark-minimal transitions."
+		},
+		"quick": {
+			"$value": {
+				"value": 120,
+				"unit": "ms"
+			},
+			"$description": "Quick — neuro-minimal, flat-elevated, stark-glow."
+		},
 		"fast": {
 			"$value": {
 				"value": 150,
 				"unit": "ms"
 			},
-			"$description": "Quick — most UI transitions."
+			"$description": "Fast — most UI transitions."
+		},
+		"ease": {
+			"$value": {
+				"value": 180,
+				"unit": "ms"
+			},
+			"$description": "Ease — chrome-deep, glass-solid transitions."
+		},
+		"gentle": {
+			"$value": {
+				"value": 200,
+				"unit": "ms"
+			},
+			"$description": "Gentle — glass-elevated, neuro-glow, chrome-elevated."
 		},
 		"normal": {
 			"$value": {

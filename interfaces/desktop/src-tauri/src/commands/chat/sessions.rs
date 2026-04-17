@@ -3,7 +3,6 @@
 use crate::state::PlatformState;
 use devpulse_engine::platform::{SqlAdapter, SqlValue};
 use serde::Serialize;
-use specta::Type;
 use std::fs;
 use std::path::PathBuf;
 use tauri::Emitter;

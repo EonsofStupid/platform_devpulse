@@ -68,8 +68,7 @@ loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
 runtime = "Candle"
-default_model = "model.safetensors"
-source_tier = { Bundled = { bundled_path = "Qwen3-0.6B/model.safetensors" } }
+source_tier = "UserManaged"
 
 # ── 1b. chat.fast — Routing / simple-turn brain ──────────────
 #
@@ -110,8 +109,7 @@ loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
 runtime = "Candle"
-default_model = "model.safetensors"
-source_tier = { Bundled = { bundled_path = "Qwen3-0.6B/model.safetensors" } }
+source_tier = "UserManaged"
 
 # ── 3. minion.escalation — Deep reasoning escalation ──────────
 
@@ -142,8 +140,7 @@ loading = { Signal = "screenshot.captured" }
 persistence_class = "on_demand"
 lane = "cpu"
 runtime = "Candle"
-default_model = "model.safetensors"
-source_tier = { Bundled = { bundled_path = "SigLIP2/model.safetensors" } }
+source_tier = "UserManaged"
 
 # ── 4b. chat.vision — Vision-language chat model ──────────────
 #
@@ -187,8 +184,7 @@ loading = { Signal = "speech.requested" }
 persistence_class = "on_demand"
 lane = "cpu"
 runtime = "Candle"
-default_model = "model.safetensors"
-source_tier = { Bundled = { bundled_path = "Qwen3-TTS-0.6B/model.safetensors" } }
+source_tier = "UserManaged"
 
 [slots.extensions]
 voice_profile = "af_heart"
@@ -204,7 +200,7 @@ loading = { Signal = "voice.activated" }
 persistence_class = "on_demand"
 lane = "cpu"
 runtime = "Ort"
-source_tier = { Bundled = { bundled_path = "Whisper-small/" } }
+source_tier = "UserManaged"
 
 # ── 7. voice.brain — Full-duplex speech-to-speech brain ───────
 #
@@ -295,8 +291,7 @@ loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
 runtime = "Candle"
-default_model = "model.safetensors"
-source_tier = { Bundled = { bundled_path = "Qwen3-Embedding-0.6B/model.safetensors" } }
+source_tier = "UserManaged"
 builtin = true
 
 # ── 9b. rag.encoder — Vector store query encoder ─────────────
@@ -324,8 +319,7 @@ loading = "Hot"
 persistence_class = "warm_standby"
 lane = "cpu"
 runtime = "Candle"
-default_model = "model.safetensors"
-source_tier = { Bundled = { bundled_path = "Qwen3-Embedding-0.6B/model.safetensors" } }
+source_tier = "UserManaged"
 builtin = true
 
 # ── 10. rag.reranker — Search result filter ──────────────────

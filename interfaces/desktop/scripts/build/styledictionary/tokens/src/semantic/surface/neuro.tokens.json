@@ -1,0 +1,311 @@
+{
+	"surface": {
+		"neuro-elevated": {
+			"$type": "color",
+			"bg": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.18, 0.015, 240],
+					"hex": "#0c1118"
+				},
+				"$description": "neuro-elevated background — raised neumorphic."
+			},
+			"bg-active": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.16, 0.015, 240],
+					"hex": "#090e15"
+				},
+				"$description": "neuro-elevated active background."
+			},
+			"text": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.93, 0.015, 224],
+					"hex": "#e3eaee"
+				},
+				"$description": "neuro-elevated text."
+			},
+			"text-disabled": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.6, 0.005, 224],
+					"hex": "#82898d"
+				},
+				"$description": "neuro-elevated disabled text."
+			},
+			"border": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.55, 0.1, 180],
+					"alpha": 0.2,
+					"hex": "#278070"
+				},
+				"$description": "neuro-elevated border — teal accent."
+			},
+			"border-hover": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.6, 0.12, 180],
+					"alpha": 0.3,
+					"hex": "#2d9480"
+				},
+				"$description": "neuro-elevated hover border."
+			}
+		},
+		"neuro-deep": {
+			"$type": "color",
+			"bg": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.12, 0.012, 240],
+					"hex": "#04080f"
+				},
+				"$description": "neuro-deep background — recessed."
+			},
+			"bg-hover": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.14, 0.014, 240],
+					"hex": "#060b12"
+				},
+				"$description": "neuro-deep hover background."
+			},
+			"bg-active": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.1, 0.01, 240],
+					"hex": "#02050b"
+				},
+				"$description": "neuro-deep active background."
+			},
+			"text": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.85, 0.01, 224],
+					"hex": "#c3cacd"
+				},
+				"$description": "neuro-deep text."
+			},
+			"text-disabled": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.55, 0.005, 224],
+					"hex": "#6c7376"
+				},
+				"$description": "neuro-deep disabled text."
+			},
+			"border": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.3, 0.02, 240],
+					"alpha": 0.3,
+					"hex": "#1e2631"
+				},
+				"$description": "neuro-deep border — subtle dark."
+			}
+		},
+		"neuro-minimal": {
+			"$type": "color",
+			"bg": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.16, 0.01, 240],
+					"hex": "#080d14"
+				},
+				"$description": "neuro-minimal background — barely raised."
+			},
+			"bg-hover": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.18, 0.012, 240],
+					"hex": "#0b1018"
+				},
+				"$description": "neuro-minimal hover background."
+			},
+			"bg-active": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.14, 0.008, 240],
+					"hex": "#050a10"
+				},
+				"$description": "neuro-minimal active background."
+			},
+			"text": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.8, 0.008, 224],
+					"hex": "#b3b9bd"
+				},
+				"$description": "neuro-minimal text."
+			},
+			"text-disabled": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.55, 0.005, 224],
+					"hex": "#6c7376"
+				},
+				"$description": "neuro-minimal disabled text."
+			},
+			"border": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.4, 0.01, 240],
+					"alpha": 0.15,
+					"hex": "#353c44"
+				},
+				"$description": "neuro-minimal border — whisper."
+			}
+		},
+		"neuro-solid": {
+			"$type": "color",
+			"bg": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.2, 0.018, 240],
+					"hex": "#0e141d"
+				},
+				"$description": "neuro-solid background — dense opaque."
+			},
+			"bg-active": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.18, 0.016, 240],
+					"hex": "#0b101a"
+				},
+				"$description": "neuro-solid active background."
+			},
+			"text": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.95, 0.015, 224],
+					"hex": "#ebf1f5"
+				},
+				"$description": "neuro-solid text — bright."
+			},
+			"text-disabled": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.6, 0.005, 224],
+					"hex": "#82898d"
+				},
+				"$description": "neuro-solid disabled text."
+			},
+			"border": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.5, 0.06, 180],
+					"alpha": 0.25,
+					"hex": "#246b5e"
+				},
+				"$description": "neuro-solid border — teal."
+			}
+		},
+		"neuro-glow": {
+			"$type": "color",
+			"bg": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.16, 0.02, 220],
+					"hex": "#060e15"
+				},
+				"$description": "neuro-glow background — teal-shifted."
+			},
+			"bg-active": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.14, 0.025, 220],
+					"hex": "#030a12"
+				},
+				"$description": "neuro-glow active background."
+			},
+			"text": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.9, 0.06, 180],
+					"hex": "#b8e4d7"
+				},
+				"$description": "neuro-glow text — teal tinted."
+			},
+			"text-disabled": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.5, 0.02, 180],
+					"hex": "#557169"
+				},
+				"$description": "neuro-glow disabled text."
+			},
+			"border": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.7, 0.15, 180],
+					"alpha": 0.35,
+					"hex": "#3bb89b"
+				},
+				"$description": "neuro-glow border — bright teal."
+			},
+			"border-hover": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.75, 0.18, 180],
+					"alpha": 0.5,
+					"hex": "#41d0ad"
+				},
+				"$description": "neuro-glow hover border."
+			},
+			"border-active": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.8, 0.2, 180],
+					"alpha": 0.6,
+					"hex": "#4ae8c0"
+				},
+				"$description": "neuro-glow active border."
+			}
+		},
+		"neuro-muted": {
+			"$type": "color",
+			"bg": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.14, 0.005, 240],
+					"hex": "#060a0f"
+				},
+				"$description": "neuro-muted background — desaturated."
+			},
+			"bg-hover": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.16, 0.008, 240],
+					"hex": "#080c13"
+				},
+				"$description": "neuro-muted hover background."
+			},
+			"text": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.65, 0.005, 224],
+					"hex": "#929a9d"
+				},
+				"$description": "neuro-muted text — dimmed."
+			},
+			"text-disabled": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.45, 0.003, 224],
+					"hex": "#505659"
+				},
+				"$description": "neuro-muted disabled text."
+			},
+			"border": {
+				"$value": {
+					"colorSpace": "oklch",
+					"components": [0.35, 0.005, 240],
+					"alpha": 0.2,
+					"hex": "#2c3239"
+				},
+				"$description": "neuro-muted border — faded."
+			}
+		}
+	}
+}

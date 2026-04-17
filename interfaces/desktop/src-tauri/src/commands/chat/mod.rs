@@ -15,13 +15,21 @@ use uuid::Uuid;
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+	/// Turn primary key (UUID v7, string-encoded).
 	pub id: String,
+	/// Parent session this turn belongs to.
 	pub session_id: String,
+	/// Speaker role: `"user"`, `"assistant"`, or `"system"`.
 	pub role: String,
+	/// Message body (Markdown for assistant, plain text for user).
 	pub content: String,
+	/// Unix timestamp in milliseconds when this turn was created.
 	pub created_at: i64,
+	/// Token count consumed by this turn (populated for assistant turns).
 	pub token_count: Option<i64>,
+	/// Model identifier used for this turn (e.g. `"Qwen3-0.6B"`).
 	pub model_used: Option<String>,
+	/// Inference latency in milliseconds (populated for assistant turns).
 	pub latency_ms: Option<i64>,
 }
 
@@ -29,13 +37,21 @@ pub struct ChatMessage {
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatSession {
+	/// Session primary key (UUID v7, string-encoded).
 	pub id: String,
+	/// Human-readable title (auto-generated from first turn or user-set).
 	pub title: Option<String>,
+	/// Project this session is scoped to.
 	pub project_id: String,
+	/// Whether this session is the active one in the UI.
 	pub is_active: bool,
+	/// Unix timestamp in milliseconds when this session was created.
 	pub created_at: i64,
+	/// Unix timestamp of the most recent turn in this session.
 	pub updated_at: i64,
+	/// Unix timestamp when the session was explicitly ended (archive).
 	pub ended_at: Option<i64>,
+	/// Total number of turns in this session.
 	pub message_count: i64,
 }
 
@@ -43,7 +59,9 @@ pub struct ChatSession {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Type)]
 #[serde(rename_all = "lowercase")]
 pub enum ExportFormat {
+	/// JSON array of turns with metadata.
 	Json,
+	/// Markdown document with headers per session.
 	Markdown,
 }
 
@@ -51,8 +69,11 @@ pub enum ExportFormat {
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ExportSummary {
+	/// Number of sessions included in the export.
 	pub sessions_exported: i64,
+	/// Total number of turn rows written.
 	pub rows_exported: i64,
+	/// Absolute filesystem path where the export was saved.
 	pub path: String,
 }
 

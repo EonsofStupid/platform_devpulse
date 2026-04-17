@@ -832,6 +832,7 @@ const config = {
 		`${paths.source}/*.json`,
 		`${paths.source}/primitives/**/*.tokens.json`,
 		`${paths.source}/semantic/**/*.tokens.json`,
+		`${paths.source}/presets/**/*.tokens.json`,
 	],
 	usesDtcg: true,
 	expand: (token) => {

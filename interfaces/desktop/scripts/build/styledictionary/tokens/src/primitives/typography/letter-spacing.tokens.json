@@ -1,0 +1,62 @@
+{
+	"letter-spacing": {
+		"$type": "dimension",
+		"$description": "Letter-spacing scale for ColdLight presets.",
+		"none": {
+			"$value": {
+				"value": 0,
+				"unit": "em"
+			},
+			"$description": "No extra tracking."
+		},
+		"tight": {
+			"$value": {
+				"value": 0.01,
+				"unit": "em"
+			},
+			"$description": "Subtle tracking — chrome, stark."
+		},
+		"normal": {
+			"$value": {
+				"value": 0.02,
+				"unit": "em"
+			},
+			"$description": "Standard tracking — chrome elevated."
+		},
+		"wide": {
+			"$value": {
+				"value": 0.03,
+				"unit": "em"
+			},
+			"$description": "Wide — retro minimal, stark solid."
+		},
+		"wider": {
+			"$value": {
+				"value": 0.04,
+				"unit": "em"
+			},
+			"$description": "Wider — retro solid, retro muted."
+		},
+		"widest": {
+			"$value": {
+				"value": 0.05,
+				"unit": "em"
+			},
+			"$description": "Widest — retro elevated."
+		},
+		"ultra": {
+			"$value": {
+				"value": 0.06,
+				"unit": "em"
+			},
+			"$description": "Ultra — retro glow."
+		},
+		"mega": {
+			"$value": {
+				"value": 0.08,
+				"unit": "em"
+			},
+			"$description": "Mega — retro deep terminal."
+		}
+	}
+}

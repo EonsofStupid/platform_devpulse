@@ -634,6 +634,30 @@ async isFirstRun() : Promise<Result<boolean, string>> {
 }
 },
 /**
+ * Mark the setup wizard as complete. Persists to LibSQL.
+ * Called by the frontend when the user finishes the wizard.
+ */
+async markSetupComplete() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mark_setup_complete") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if the setup wizard was previously completed.
+ * Used at boot to decide whether to show the wizard overlay.
+ */
+async isSetupComplete() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_setup_complete") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Assign a model to a slot.
  */
 async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, LoadError>> {
@@ -2250,11 +2274,75 @@ is_dir?: boolean }
 /**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
-export type ChatMessage = { id: string; sessionId: string; role: string; content: string; createdAt: number; tokenCount: number | null; modelUsed: string | null; latencyMs: number | null }
+export type ChatMessage = { 
+/**
+ * Turn primary key (UUID v7, string-encoded).
+ */
+id: string; 
+/**
+ * Parent session this turn belongs to.
+ */
+sessionId: string; 
+/**
+ * Speaker role: `"user"`, `"assistant"`, or `"system"`.
+ */
+role: string; 
+/**
+ * Message body (Markdown for assistant, plain text for user).
+ */
+content: string; 
+/**
+ * Unix timestamp in milliseconds when this turn was created.
+ */
+createdAt: number; 
+/**
+ * Token count consumed by this turn (populated for assistant turns).
+ */
+tokenCount: number | null; 
+/**
+ * Model identifier used for this turn (e.g. `"Qwen3-0.6B"`).
+ */
+modelUsed: string | null; 
+/**
+ * Inference latency in milliseconds (populated for assistant turns).
+ */
+latencyMs: number | null }
 /**
  * Session row for sidebar / grouping.
  */
-export type ChatSession = { id: string; title: string | null; projectId: string; isActive: boolean; createdAt: number; updatedAt: number; endedAt: number | null; messageCount: number }
+export type ChatSession = { 
+/**
+ * Session primary key (UUID v7, string-encoded).
+ */
+id: string; 
+/**
+ * Human-readable title (auto-generated from first turn or user-set).
+ */
+title: string | null; 
+/**
+ * Project this session is scoped to.
+ */
+projectId: string; 
+/**
+ * Whether this session is the active one in the UI.
+ */
+isActive: boolean; 
+/**
+ * Unix timestamp in milliseconds when this session was created.
+ */
+createdAt: number; 
+/**
+ * Unix timestamp of the most recent turn in this session.
+ */
+updatedAt: number; 
+/**
+ * Unix timestamp when the session was explicitly ended (archive).
+ */
+endedAt: number | null; 
+/**
+ * Total number of turns in this session.
+ */
+messageCount: number }
 /**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
@@ -2650,11 +2738,31 @@ export type ExecutionLane =
 /**
  * Export format for chat transcripts.
  */
-export type ExportFormat = "json" | "markdown"
+export type ExportFormat = 
+/**
+ * JSON array of turns with metadata.
+ */
+"json" | 
+/**
+ * Markdown document with headers per session.
+ */
+"markdown"
 /**
  * Result summary after an export command writes to disk.
  */
-export type ExportSummary = { sessionsExported: number; rowsExported: number; path: string }
+export type ExportSummary = { 
+/**
+ * Number of sessions included in the export.
+ */
+sessionsExported: number; 
+/**
+ * Total number of turn rows written.
+ */
+rowsExported: number; 
+/**
+ * Absolute filesystem path where the export was saved.
+ */
+path: string }
 /**
  * A single `(arch, format)` support declaration. The resolver
  * iterates backends looking for an entry that matches its query.

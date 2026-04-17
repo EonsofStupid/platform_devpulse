@@ -1,0 +1,657 @@
+{
+	"$extensions": {
+		"com.coldlight": {
+			"semanticFamilies": [
+				"surface",
+				"elevation",
+				"frame",
+				"motion"
+			],
+			"format": "coldlight-style-presets-v1",
+			"note": "Composite preset leaves — elevation uses DTCG shadow; surface uses color/dimension; keep render glue out of token values."
+		}
+	},
+	"preset": {
+		"neuro-elevated": {
+			"background-color": {
+				"$value": "oklch(0.18 0.015 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.5), 0 0.125rem 0.25rem 0 oklch(0 0 0 / 0.3), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.06), inset 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.4)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.93 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.55 0.1 180 / 0.2)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "neuro-elevated: Raised neumorphic surface — carved out of the void with teal accent glow"
+		},
+		"neuro-elevated-hover": {
+			"$description": "neuro-elevated hover overrides",
+			"box-shadow": {
+				"$value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0 0.5rem 0 oklch(0.7 0.15 180 / 0.1), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.08)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.6 0.12 180 / 0.3)",
+				"$type": "color"
+			}
+		},
+		"neuro-elevated-active": {
+			"$description": "neuro-elevated active overrides",
+			"background-color": {
+				"$value": "oklch(0.16 0.015 240)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.4), inset 0 0.1875rem 0.75rem 0 oklch(0 0 0 / 0.5)",
+				"$type": "shadow"
+			}
+		},
+		"neuro-elevated-disabled": {
+			"$description": "neuro-elevated disabled overrides",
+			"color": {
+				"$value": "oklch(0.6 0.005 224)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.45",
+				"$type": "number"
+			}
+		},
+		"neuro-deep": {
+			"background-color": {
+				"$value": "oklch(0.12 0.012 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "inset 0 0.25rem 1.5rem 0 oklch(0 0 0 / 0.6), inset 0 -0.125rem 0.5rem 0 oklch(0 0 0 / 0.4), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.04)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.85 0.01 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.3 0.02 240 / 0.3)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "neuro-deep: Deeply recessed surface — sunken into the void with heavy inset shadows"
+		},
+		"neuro-deep-hover": {
+			"$description": "neuro-deep hover overrides",
+			"background-color": {
+				"$value": "oklch(0.14 0.014 240)",
+				"$type": "color"
+			}
+		},
+		"neuro-deep-active": {
+			"$description": "neuro-deep active overrides",
+			"background-color": {
+				"$value": "oklch(0.1 0.01 240)",
+				"$type": "color"
+			}
+		},
+		"neuro-deep-disabled": {
+			"$description": "neuro-deep disabled overrides",
+			"color": {
+				"$value": "oklch(0.55 0.005 224)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			}
+		},
+		"neuro-minimal": {
+			"background-color": {
+				"$value": "oklch(0.16 0.01 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.3), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.04)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.8 0.008 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.4 0.01 240 / 0.15)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "120ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "neuro-minimal: Subtle neumorphic — barely raised, whisper shadows, restrained"
+		},
+		"neuro-minimal-hover": {
+			"$description": "neuro-minimal hover overrides",
+			"background-color": {
+				"$value": "oklch(0.18 0.012 240)",
+				"$type": "color"
+			}
+		},
+		"neuro-minimal-active": {
+			"$description": "neuro-minimal active overrides",
+			"background-color": {
+				"$value": "oklch(0.14 0.008 240)",
+				"$type": "color"
+			}
+		},
+		"neuro-minimal-disabled": {
+			"$description": "neuro-minimal disabled overrides",
+			"color": {
+				"$value": "oklch(0.55 0.005 224)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			}
+		},
+		"neuro-solid": {
+			"background-color": {
+				"$value": "oklch(0.2 0.018 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.35), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.08), inset 0 0.1875rem 0.625rem 0 oklch(0 0 0 / 0.3)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.95 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.5 0.06 180 / 0.25)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "neuro-solid: Dense neumorphic — opaque surface, heavy shadows, no translucency"
+		},
+		"neuro-solid-hover": {
+			"$description": "neuro-solid hover overrides",
+			"box-shadow": {
+				"$value": "0 0.5rem 1.5rem 0 oklch(0 0 0 / 0.6), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.1)",
+				"$type": "shadow"
+			}
+		},
+		"neuro-solid-active": {
+			"$description": "neuro-solid active overrides",
+			"background-color": {
+				"$value": "oklch(0.18 0.016 240)",
+				"$type": "color"
+			}
+		},
+		"neuro-solid-disabled": {
+			"$description": "neuro-solid disabled overrides",
+			"color": {
+				"$value": "oklch(0.6 0.005 224)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			}
+		},
+		"neuro-glow": {
+			"background-color": {
+				"$value": "oklch(0.16 0.02 220)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 0.75rem 0 oklch(0.7 0.15 180 / 0.2), 0 0 1.5rem 0 oklch(0.7 0.15 180 / 0.1), inset 0 -0.0625rem 0 0 oklch(0.7 0.12 180 / 0.15), inset 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.35)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9 0.06 180)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.7 0.15 180 / 0.35)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "cl-glow-pulse 3s ease-in-out infinite",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "200ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "neuro-glow: Neumorphic with teal emission — glowing borders and accent shadow layers"
+		},
+		"neuro-glow-hover": {
+			"$description": "neuro-glow hover overrides",
+			"box-shadow": {
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.4), 0 0 1rem 0.125rem oklch(0.7 0.15 180 / 0.3), 0 0 2rem 0 oklch(0.7 0.15 180 / 0.15)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.75 0.18 180 / 0.5)",
+				"$type": "color"
+			}
+		},
+		"neuro-glow-active": {
+			"$description": "neuro-glow active overrides",
+			"background-color": {
+				"$value": "oklch(0.14 0.025 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.8 0.2 180 / 0.6)",
+				"$type": "color"
+			}
+		},
+		"neuro-glow-disabled": {
+			"$description": "neuro-glow disabled overrides",
+			"color": {
+				"$value": "oklch(0.5 0.02 180)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.35",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			}
+		},
+		"neuro-muted": {
+			"background-color": {
+				"$value": "oklch(0.14 0.005 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.375rem 0 oklch(0 0 0 / 0.25), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.03)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.65 0.005 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.35 0.005 240 / 0.2)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "0.8",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "100ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "neuro-muted: Desaturated neumorphic — dimmed surface for secondary/disabled states"
+		},
+		"neuro-muted-hover": {
+			"$description": "neuro-muted hover overrides",
+			"background-color": {
+				"$value": "oklch(0.16 0.008 240)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.9",
+				"$type": "number"
+			}
+		},
+		"neuro-muted-disabled": {
+			"$description": "neuro-muted disabled overrides",
+			"color": {
+				"$value": "oklch(0.45 0.003 224)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.3",
+				"$type": "number"
+			}
+		}
+	}
+}

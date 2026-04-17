@@ -56,6 +56,22 @@
 				1.55
 			],
 			"$description": "Bounce — aggressive overshoot both ends."
+		},
+		"step-1": {
+			"$value": "steps(1, end)",
+			"$description": "Step 1 — retro-deep, retro-muted instant snap."
+		},
+		"step-2": {
+			"$value": "steps(2, end)",
+			"$description": "Step 2 — retro-solid pixelated transition."
+		},
+		"step-3": {
+			"$value": "steps(3, end)",
+			"$description": "Step 3 — retro-elevated CRT transition."
+		},
+		"step-4": {
+			"$value": "steps(4, end)",
+			"$description": "Step 4 — retro-glow neon transition."
 		}
 	}
 }
