@@ -6,6 +6,7 @@
  * Follows 10 Commandments: preset-first, layman names, background downloads.
  */
 
+import { logInfo, logWarn } from "$lib/sys/logger.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import type { AutoConfig, HardwareTier, SlotId } from "../../util/models.types.js";
 import {
@@ -250,38 +251,37 @@ class WizardState {
 	advance(): void {
 		const idx = this.currentPhaseIndex;
 		if (idx < WIZARD_PHASES.length - 1) {
-			this.currentPhase = WIZARD_PHASES[idx + 1];
+			const next = WIZARD_PHASES[idx + 1];
+			logInfo("wizard.state", `advance: ${this.currentPhase} → ${next}`);
+			this.currentPhase = next;
+		} else {
+			logWarn("wizard.state", `advance: already at last phase (${this.currentPhase})`);
 		}
 	}
 
 	goBack(): void {
 		const idx = this.currentPhaseIndex;
 		if (idx > 0) {
-			this.currentPhase = WIZARD_PHASES[idx - 1];
+			const prev = WIZARD_PHASES[idx - 1];
+			logInfo("wizard.state", `goBack: ${this.currentPhase} → ${prev}`);
+			this.currentPhase = prev;
 		}
 	}
 
-	/** Jump to a specific phase (for Customize/Browse escape hatches). */
 	goTo(phase: WizardPhase): void {
+		logInfo("wizard.state", `goTo: ${this.currentPhase} → ${phase}`);
 		this.currentPhase = phase;
 	}
 
-	// ── Overlay lifecycle ────────────────────────────────
+	// ── Overlay lifecycle ─────────────���──────────────────
 
-	/**
-	 * Open the Setup Wizard overlay. Idempotent — calling while already
-	 * open does nothing. Triggered on first run or manual invocation.
-	 */
 	open(): void {
+		logInfo("wizard.state", `open() — phase=${this.currentPhase}`);
 		this.isOpen = true;
 	}
 
-	/**
-	 * Close the Setup Wizard overlay. Idempotent. Called when the user
-	 * finishes the final phase, explicitly dismisses the overlay, or the
-	 * platform reports the setup is complete.
-	 */
 	close(): void {
+		logInfo("wizard.state", `close() — phase=${this.currentPhase}`);
 		this.isOpen = false;
 	}
 

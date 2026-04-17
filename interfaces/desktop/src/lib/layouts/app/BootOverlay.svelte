@@ -80,8 +80,15 @@ let wizardOpened = $state(false);
 $effect(() => {
 	if (bootComplete && !wizardOpened) {
 		wizardOpened = true;
-		wizardState.goTo("hardware");
+		console.info("[BootOverlay] Boot complete — opening wizard at phase 'welcome'");
+		wizardState.goTo("welcome");
 		wizardState.open();
+		console.info(
+			"[BootOverlay] wizardState.isOpen =",
+			wizardState.isOpen,
+			"phase =",
+			wizardState.currentPhase,
+		);
 		fading = true;
 		setTimeout(() => {
 			visible = false;

@@ -55,8 +55,11 @@ async function runChecks(): Promise<void> {
 	// Reset any errors
 	steps = steps.map((s) => ({ ...s, status: "pending", result: "" }));
 
+	console.info("[Step1SystemCheck] Starting sequential checks...");
+
 	// Step 1: Hardware (SEQUENTIAL — no parallel IPC)
 	updateStep("hardware", { status: "running" });
+	console.info("[Step1SystemCheck] → hardware scan");
 	try {
 		await startHardwareScan();
 		const gpu = hardwareState.gpuName ?? "No GPU detected";

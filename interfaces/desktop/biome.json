@@ -29,7 +29,7 @@
 				"noConsole": {
 					"level": "warn",
 					"options": {
-						"allow": ["warn", "error"]
+						"allow": ["info", "warn", "error"]
 					}
 				}
 			},

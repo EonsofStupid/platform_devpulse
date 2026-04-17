@@ -98,7 +98,7 @@ pub async fn fetch_dashboard(
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
     // ── LibSQL queries ───────────────────────────────────────────────────
-    let (projects, project_count, message_stats) = if let Some(svc) = platform.relational() {
+    let (projects, project_count, message_stats) = if let Some(svc) = platform.user_relational() {
         let adapter = svc.adapter();
 
         // Recent projects (up to 8)

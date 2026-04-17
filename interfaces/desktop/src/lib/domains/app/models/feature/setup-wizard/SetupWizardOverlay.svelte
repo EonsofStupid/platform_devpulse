@@ -14,6 +14,7 @@ import { KeyRound, Lock, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { logError, logInfo, logWarn } from "$lib/sys/logger.js";
 import HfTokenModal from "./components/HfTokenModal.svelte";
 import Step0Welcome from "./steps/Step0Welcome.svelte";
 import Step1SystemCheck from "./steps/Step1SystemCheck.svelte";
@@ -33,7 +34,12 @@ let hfHasToken = $state(false);
 let showHfModal = $state(false);
 
 $effect(() => {
+	logInfo(
+		"wizard.overlay",
+		`$effect — isOpen=${wizardState.isOpen} hasCopy=${!!copy} phase=${wizardState.currentPhase}`,
+	);
 	if (wizardState.isOpen && !copy) {
+		logInfo("wizard.overlay", "Loading wizard copy from Rust SSOT...");
 		void loadCopy();
 		void checkHfToken();
 	}
@@ -42,8 +48,10 @@ $effect(() => {
 async function loadCopy(): Promise<void> {
 	try {
 		copy = await invoke<WizardCopy>("get_wizard_copy");
+		logInfo("wizard.overlay", "Wizard copy loaded successfully");
 	} catch (e) {
 		copyError = e instanceof Error ? e.message : String(e);
+		logError("wizard.overlay", `Failed to load wizard copy: ${copyError}`);
 	}
 }
 
@@ -51,8 +59,9 @@ async function checkHfToken(): Promise<void> {
 	try {
 		const result = await invoke<boolean>("has_hf_token");
 		hfHasToken = result;
-	} catch {
-		// Silent — non-critical
+		logInfo("wizard.overlay", `HF token check: ${hfHasToken}`);
+	} catch (e) {
+		logWarn("wizard.overlay", `HF token check failed (non-critical): ${e}`);
 	}
 }
 
