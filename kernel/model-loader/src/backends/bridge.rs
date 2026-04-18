@@ -256,6 +256,42 @@ impl InferenceBridge {
         })
     }
 
+    /// Spawn a new llama.cpp inference bridge for GGUF models.
+    ///
+    /// # Errors
+    /// Returns error if llama.cpp init or OS thread spawn fails.
+    #[cfg(feature = "llama-cpp-ffi")]
+    pub fn spawn_llamacpp() -> anyhow::Result<Self> {
+        use crate::backends::llamacpp::LlamaCppBackend;
+
+        let (tx, rx) = unbounded::<InferenceRequest>();
+        let mut backend = LlamaCppBackend::new()?;
+
+        let thread = std::thread::Builder::new()
+            .name("inference-worker-llamacpp".into())
+            .spawn(move || {
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    inference_thread_loop(&mut backend, rx);
+                }));
+                if let Err(panic) = result {
+                    let msg = if let Some(s) = panic.downcast_ref::<&str>() {
+                        s.to_string()
+                    } else if let Some(s) = panic.downcast_ref::<String>() {
+                        s.clone()
+                    } else {
+                        "unknown panic".to_string()
+                    };
+                    tracing::error!(panic = %msg, "llama.cpp inference thread panicked");
+                }
+            })
+            .map_err(|e| anyhow::anyhow!("Failed to spawn llama.cpp thread: {e}"))?;
+
+        Ok(Self {
+            handle: InferenceHandle { sender: tx },
+            thread: Some(thread),
+        })
+    }
+
     /// Get a cloneable handle to this bridge.
     #[must_use]
     pub fn handle(&self) -> InferenceHandle {

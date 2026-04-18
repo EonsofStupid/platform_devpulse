@@ -626,7 +626,7 @@ impl ModelLoaderService {
             #[cfg(feature = "candle-backend")]
             BackendType::Candle | BackendType::LlamaCpp => {
                 // LLM models → BackendPool (Candle inference thread)
-                match self.pool.acquire(&model_id, &model_path, params).await {
+                match self.pool.acquire(&model_id, &model_path, params, backend).await {
                     Ok((handle, memory)) => {
                         self.slot_handles.insert(slot_id.to_string(), handle);
                         Ok(memory)
@@ -909,7 +909,7 @@ impl ModelLoaderService {
             }
             #[cfg(feature = "candle-backend")]
             BackendType::Candle | BackendType::LlamaCpp => {
-                match self.pool.acquire(&model_id, &model_path, params).await {
+                match self.pool.acquire(&model_id, &model_path, params, backend).await {
                     Ok((handle, memory)) => {
                         self.slot_handles.insert(slot_id.to_string(), handle);
                         Ok(memory)

@@ -5,6 +5,7 @@
 
 use crate::backends::bridge::{InferenceBridge, InferenceHandle};
 use crate::loading::states::{LoadParams, MemoryFootprint};
+use crate::models::registry::BackendType;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -39,12 +40,20 @@ impl BackendPool {
     }
 
     /// Load a model and return a handle. If already loaded, bump ref count.
+    ///
+    /// `backend_type` determines which inference engine is used:
+    /// - `Candle` → SafeTensors + supported GGUF architectures
+    /// - `LlamaCpp` → GGUF via llama.cpp FFI (broader architecture support)
+    ///
+    /// Both backends implement `InferenceBackend` and use the same
+    /// `InferenceBridge` thread pattern.
     #[cfg(feature = "candle-backend")]
     pub async fn acquire(
         &mut self,
         model_id: &str,
         model_path: &PathBuf,
         params: LoadParams,
+        backend_type: BackendType,
     ) -> anyhow::Result<(InferenceHandle, MemoryFootprint)> {
         // Check if already loaded (shared instance)
         if let Some(instance) = self.instances.get_mut(model_id) {
@@ -57,19 +66,30 @@ impl BackendPool {
             return Ok((instance.handle.clone(), instance.memory));
         }
 
-        // New instance needed — spawn bridge
-        let device = if params.device == "cpu" {
-            candle_core::Device::Cpu
-        } else {
-            #[cfg(feature = "cuda")]
-            {
-                candle_core::Device::new_cuda(0)?
+        // New instance needed — spawn the right bridge
+        let bridge = match backend_type {
+            #[cfg(feature = "llama-cpp-ffi")]
+            BackendType::LlamaCpp => {
+                tracing::info!(model = %model_id, "Spawning llama.cpp backend for GGUF");
+                InferenceBridge::spawn_llamacpp()?
             }
-            #[cfg(not(feature = "cuda"))]
-            candle_core::Device::Cpu
+            #[cfg(not(feature = "llama-cpp-ffi"))]
+            BackendType::LlamaCpp => {
+                // Fallback: try Candle for GGUF when llama.cpp isn't compiled
+                tracing::warn!(
+                    model = %model_id,
+                    "llama-cpp-ffi feature not enabled — falling back to Candle for GGUF"
+                );
+                let device = resolve_candle_device(&params);
+                InferenceBridge::spawn_candle(device)?
+            }
+            _ => {
+                // Candle for SafeTensors and everything else
+                let device = resolve_candle_device(&params);
+                InferenceBridge::spawn_candle(device)?
+            }
         };
 
-        let bridge = InferenceBridge::spawn_candle(device)?;
         let handle = bridge.handle();
 
         // Load the model via the bridge
@@ -84,7 +104,7 @@ impl BackendPool {
         };
 
         self.instances.insert(model_id.to_string(), pooled);
-        tracing::info!(model = %model_id, "New model instance loaded into pool");
+        tracing::info!(model = %model_id, backend = ?backend_type, "Model loaded into pool");
 
         Ok((handle, memory))
     }
@@ -180,5 +200,20 @@ impl BackendPool {
 impl Default for BackendPool {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Resolve the Candle device from `LoadParams`.
+#[cfg(feature = "candle-backend")]
+fn resolve_candle_device(params: &LoadParams) -> candle_core::Device {
+    if params.device == "cpu" {
+        candle_core::Device::Cpu
+    } else {
+        #[cfg(feature = "cuda")]
+        {
+            candle_core::Device::new_cuda(0).unwrap_or(candle_core::Device::Cpu)
+        }
+        #[cfg(not(feature = "cuda"))]
+        candle_core::Device::Cpu
     }
 }

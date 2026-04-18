@@ -2,6 +2,7 @@
 
 pub mod bridge;
 pub mod candle;
+pub mod llamacpp;
 pub mod orpheus;
 pub mod phoneme;
 pub mod piper;

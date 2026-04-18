@@ -22,8 +22,8 @@ espeak-phonemizer = ["dep:espeakng-sys"]
 piper-backend = ["dep:piper-rs"]
 # Sherpa-onnx runtime backends — registry surfaced now, implementation later.
 sherpa-backend = []
-# llama.cpp FFI runtime — reserved feature flag for the planned GGUF path.
-llama-cpp-ffi = []
+# llama.cpp FFI runtime — GGUF inference via llama-cpp-2 crate (CMake build).
+llama-cpp-ffi = ["dep:llama-cpp-2"]
 # Moshi STS — native Rust speech-to-speech via Candle (Kyutai Moshi 7B)
 moshi-sts = ["dep:moshi", "dep:sentencepiece", "candle-backend"]
 nvml = ["dep:nvml-wrapper"]
@@ -84,6 +84,9 @@ ndarray = { version = "0.17", optional = true }
 
 # FFT for Whisper mel spectrogram computation
 rustfft = { version = "6.2", optional = true }
+
+# llama.cpp FFI — GGUF inference (optional, requires CMake)
+llama-cpp-2 = { version = "0.1", optional = true }
 
 # Moshi STS — speech-to-speech via Candle (optional)
 moshi = { workspace = true, optional = true }
