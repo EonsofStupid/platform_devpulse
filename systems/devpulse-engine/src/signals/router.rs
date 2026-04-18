@@ -1,9 +1,8 @@
 //! `SignalRouter` - broadcast channel for signal fanout.
 //!
-//! Uses `devpulse_telemetry::BroadcastSender` for multi-subscriber support
-//! with OTel context propagation (link semantics, not parent-child).
+//! Uses `tokio::sync::broadcast` for multi-subscriber support.
 
-use devpulse_telemetry::prelude::*;
+use tokio::sync::broadcast;
 
 use super::signal::Signal;
 
@@ -12,19 +11,19 @@ const CHANNEL_CAPACITY: usize = 1024;
 
 /// Signal router for broadcasting signals to multiple subscribers.
 pub struct SignalRouter {
-    tx: BroadcastSender<Signal>,
+    tx: broadcast::Sender<Signal>,
 }
 
 impl SignalRouter {
     /// Create a new router with default capacity.
     pub fn new() -> Self {
-        let (tx, _) = broadcast_channel(CHANNEL_CAPACITY);
+        let (tx, _) = broadcast::channel(CHANNEL_CAPACITY);
         Self { tx }
     }
 
     /// Create a new router with custom capacity.
     pub fn with_capacity(capacity: usize) -> Self {
-        let (tx, _) = broadcast_channel(capacity);
+        let (tx, _) = broadcast::channel(capacity);
         Self { tx }
     }
 
@@ -32,16 +31,13 @@ impl SignalRouter {
     ///
     /// Returns the number of active subscribers that received the signal.
     pub fn emit(&self, signal: Signal) -> usize {
-        // send returns Err if no receivers, which is fine
         self.tx.send(signal).unwrap_or(0)
     }
 
     /// Subscribe to receive signals.
     ///
     /// Returns a receiver that will get all signals emitted after subscription.
-    /// Received signals are wrapped in `LinkedTraced<Signal>` — use `.value`
-    /// to access the signal, or `.link_context()` for OTel span linking.
-    pub fn subscribe(&self) -> BroadcastReceiver<Signal> {
+    pub fn subscribe(&self) -> broadcast::Receiver<Signal> {
         self.tx.subscribe()
     }
 

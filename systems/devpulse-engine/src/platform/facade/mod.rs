@@ -34,7 +34,8 @@ pub use translator::{EventTranslator, TranslationRegistry};
 pub use visibility::{Visibility, classify, narration_hint};
 
 use std::sync::Arc;
-use devpulse_telemetry::prelude::spawn;
+// devpulse-telemetry crate pending — use tokio::spawn directly
+use tokio::task::spawn;
 use tokio::sync::{broadcast, RwLock};
 
 /// Capacity for each output channel. Must be large enough to avoid

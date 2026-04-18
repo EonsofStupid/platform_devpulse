@@ -30,7 +30,7 @@ use std::time::Instant;
 use serde_json::json;
 use tokio::sync::{mpsc, RwLock};
 
-use devpulse_telemetry::prelude::spawn;
+use tokio::task::spawn;
 
 use crate::platform::config::{ExecutionLane, LaneTraceConfig};
 use crate::platform::services::analytics::AnalyticsService;
