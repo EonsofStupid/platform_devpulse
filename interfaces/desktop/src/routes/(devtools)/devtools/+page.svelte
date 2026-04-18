@@ -246,6 +246,17 @@ let laneGroups = $derived<LaneGroup[]>(
 					<span class="text-xs text-[var(--text-secondary)]">Telemetry graph. Opens separate window.</span>
 				</button>
 
+				<a
+					href="/devtools/claude"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Claude Integration</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">MCP server, subscription lane, API providers, council routing.</span>
+				</a>
+
 				<!-- STS / TTS / STT / Cortex subtabs -->
 				<a
 					href="/devtools/sts"

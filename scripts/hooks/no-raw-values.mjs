@@ -48,6 +48,7 @@ const ALLOW_LIST = [
 	"interfaces/desktop/src/lib/sys/debug/vpb/",
 	"interfaces/desktop/scripts/build/styledictionary/",
 	"interfaces/desktop/src/lib/domains/app/models/",
+	"interfaces/desktop/src/routes/(devtools)/",
 	"interfaces/desktop/src/lib/layouts/app/BootOverlay",
 ];
 
