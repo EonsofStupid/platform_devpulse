@@ -75,6 +75,9 @@ enum LoadedWeights {
     Phi3Safetensors(phi3::Model),
     /// Full-precision Qwen2 / Qwen2.5 safetensors. Legacy fallback.
     Qwen2Safetensors(qwen2::ModelForCausalLM),
+    /// Qwen3 base model (no lm_head) for embedding — Harrier, Qwen3-Embedding.
+    /// forward() returns hidden states [batch, seq, hidden_size].
+    Qwen3Embedding(qwen3::Model),
 }
 
 /// Loaded model state — weights + tokenizer + metadata.
@@ -680,6 +683,17 @@ fn forward_prefill(
             let out = model.forward(&input, 0)?;
             Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
         }
+        LoadedWeights::Qwen3Embedding(model) => {
+            // Embedding: forward returns hidden states [1, seq, hidden_size].
+            // Take last token, L2 normalize → embedding vector.
+            let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
+            let hidden = model.forward(&input, 0)?;
+            let seq_len = hidden.dim(1)?;
+            let last_hidden = hidden.narrow(1, seq_len - 1, 1)?.squeeze(0)?.squeeze(0)?;
+            let norm = last_hidden.sqr()?.sum_all()?.sqrt()?;
+            let normalized = last_hidden.broadcast_div(&norm)?;
+            Ok(normalized.to_vec1::<f32>()?)
+        }
     }
 }
 
@@ -726,6 +740,9 @@ fn forward_step(
             let input = Tensor::new(&[token], device)?.unsqueeze(0)?;
             let out = model.forward(&input, position)?;
             Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
+        }
+        LoadedWeights::Qwen3Embedding(_) => {
+            anyhow::bail!("Embedding models do not support autoregressive decode steps")
         }
     }
 }
@@ -1049,12 +1066,20 @@ fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel>
             .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors: {e}"))?
     };
 
+    // Embedding models: detect "Qwen3Model" (no ForCausalLM suffix) and
+    // route to the base model that returns hidden states, not logits.
+    // Harrier 0.6B and Qwen3-Embedding both use this architecture string.
+    let is_embedding_model = arch_raw == "Qwen3Model"
+        || arch_raw.contains("Embedding")
+        || arch_raw.contains("SentenceTransformer");
+
     // Dispatch on the canonical ArchId. Any arch the registry knows
     // but the Candle backend can't load safetensors for (Llama, Mistral,
     // Gemma, Qwen3-VL experimental, the planned Qwen 3.5 slot) lands in
     // the fallthrough with a typed `UnsupportedArchitecture` error so
     // the caller can surface alternatives.
     let (weights, context_length, vocab_size) = match arch_id {
+        ArchId::Qwen3 if is_embedding_model => build_qwen3_embedding(&config_json, vb)?,
         ArchId::Qwen3 => build_qwen3(&config_json, vb)?,
         ArchId::Qwen3Moe => build_qwen3_moe(&config_json, vb)?,
         ArchId::Phi3 | ArchId::Phi3Moe => build_phi3(&config_json, vb, device)?,
@@ -1117,6 +1142,22 @@ fn build_qwen3(
     let model = qwen3::ModelForCausalLM::new(&cfg, vb)
         .map_err(|e| anyhow::anyhow!("Failed to build Qwen3 model: {e}"))?;
     Ok((LoadedWeights::Qwen3Safetensors(model), ctx, vocab))
+}
+
+/// Build a Qwen3 base model for embedding (Harrier, Qwen3-Embedding).
+/// Uses `qwen3::Model` (hidden states output, no lm_head).
+fn build_qwen3_embedding(
+    config_json: &serde_json::Value,
+    vb: VarBuilder,
+) -> anyhow::Result<(LoadedWeights, usize, usize)> {
+    let cfg: qwen3::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Qwen3 embedding config.json: {e}"))?;
+    let ctx = cfg.max_position_embeddings;
+    let vocab = cfg.vocab_size;
+    let model = qwen3::Model::new(&cfg, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Qwen3 embedding model: {e}"))?;
+    tracing::info!(hidden_size = cfg.hidden_size, "Loaded Qwen3 embedding model (no lm_head)");
+    Ok((LoadedWeights::Qwen3Embedding(model), ctx, vocab))
 }
 
 /// Build a Qwen3 MoE model (e.g. 30B-A3B) from config + weights.

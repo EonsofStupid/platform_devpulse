@@ -25,7 +25,7 @@ sherpa-backend = []
 # llama.cpp FFI runtime — reserved feature flag for the planned GGUF path.
 llama-cpp-ffi = []
 nvml = ["dep:nvml-wrapper"]
-cuda = []
+cuda = ["candle-core/cuda"]
 specta = ["dep:specta"]
 
 # ── Build-mode selection (exactly one of the three must be active) ──

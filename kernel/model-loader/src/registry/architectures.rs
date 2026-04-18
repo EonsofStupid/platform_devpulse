@@ -324,7 +324,7 @@ pub fn classify_arch_from_hf_config(arch_raw: &str, model_type: Option<&str>) ->
     if arch_raw.starts_with("Qwen3") {
         return Some(ArchId::Qwen3);
     }
-    if arch_raw.starts_with("Phi3") {
+    if arch_raw.starts_with("Phi3") || arch_raw.starts_with("Phi4") {
         return Some(ArchId::Phi3);
     }
     if arch_raw.starts_with("Qwen2") {
@@ -351,7 +351,7 @@ pub fn classify_arch_from_hf_config(arch_raw: &str, model_type: Option<&str>) ->
         "qwen3_moe" => Some(ArchId::Qwen3Moe),
         "qwen3" => Some(ArchId::Qwen3),
         "qwen3_vl" => Some(ArchId::Qwen3Vl),
-        "phi3" => Some(ArchId::Phi3),
+        "phi3" | "phi4" => Some(ArchId::Phi3),
         "qwen2.5" => Some(ArchId::Qwen25),
         "qwen2" | "qwen2_moe" => Some(ArchId::Qwen2),
         "llama" => Some(ArchId::Llama),
@@ -384,7 +384,7 @@ pub fn classify_arch_from_gguf(arch_raw: &str) -> Option<ArchId> {
         "qwen3" => Some(ArchId::Qwen3),
         "qwen3_moe" | "qwen3moe" => Some(ArchId::Qwen3Moe),
         "qwen3_vl" | "qwen3vl" => Some(ArchId::Qwen3Vl),
-        "phi3" => Some(ArchId::Phi3),
+        "phi3" | "phi4" => Some(ArchId::Phi3),
         "phi3_moe" | "phi3moe" => Some(ArchId::Phi3Moe),
         "qwen2.5" => Some(ArchId::Qwen25),
         "qwen2" | "qwen2_moe" | "qwen2moe" => Some(ArchId::Qwen2),
