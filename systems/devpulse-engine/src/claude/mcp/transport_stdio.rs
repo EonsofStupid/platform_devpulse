@@ -4,6 +4,7 @@
 //! Reads newline-delimited JSON from stdin, writes responses to stdout.
 
 use std::sync::Arc;
+// devpulse_telemetry crate not yet built — use tokio::spawn directly
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::task::JoinHandle;
 
