@@ -97,6 +97,7 @@ pub async fn send_message(
 	content: String,
 	state: State<'_, PlatformState>,
 ) -> Result<ChatMessage, String> {
+	tracing::info!(project = %project_id, content_len = content.len(), "cmd send_message: entry");
 	let lock = state.platform.read().await;
 	let platform = lock.as_ref().ok_or("Platform is still booting")?;
 	let svc = platform
@@ -191,6 +192,12 @@ pub async fn send_message(
 
 	let row = created_rows.first().ok_or("Turn not found after insert")?;
 
+	tracing::info!(
+		project = %project_id,
+		session = %session_id,
+		turn = %turn_id,
+		"cmd send_message: exit ok"
+	);
 	Ok(ChatMessage {
 		id: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
 		session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),

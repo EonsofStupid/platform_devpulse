@@ -23,6 +23,7 @@
 <script lang="ts">
 import {
 	Brain,
+	Database,
 	Home,
 	Palette,
 	PanelLeftClose,
@@ -108,6 +109,29 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			</a>
 		{/each}
 	</div>
+
+	{#if import.meta.env.DEV}
+		<div class={`${stack({ gap: "1" })} border-t border-[var(--border-soft)] pt-1`}>
+			<a href="/devpulse/models" class="contents">
+				<Button
+					preset={isActive("/devpulse/models") ? "primary" : "ghost"}
+					size="sm"
+					class={cn(
+						isExpanded
+							? "w-full justify-start gap-3 px-3 py-2"
+							: "h-11 w-11 justify-self-center",
+					)}
+					aria-label="Models"
+					title="Model Control"
+				>
+					<Database size={20} />
+					{#if isExpanded}
+						<Text size="sm" color="secondary" class="truncate">Models</Text>
+					{/if}
+				</Button>
+			</a>
+		</div>
+	{/if}
 
 	<div class={`${stack({ gap: "1" })} pb-1`}>
 		<Button

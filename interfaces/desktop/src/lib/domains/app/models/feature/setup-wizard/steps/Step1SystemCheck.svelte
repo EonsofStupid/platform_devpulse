@@ -202,6 +202,15 @@ $effect(() => {
 			</Button>
 		</div>
 	{/if}
+
+	<div class="check-actions-secondary">
+		<Button preset="button-ghost" size="sm" onclick={onComplete}>
+			Configure Manually
+		</Button>
+		<Button preset="button-ghost" size="sm" onclick={() => wizardState.goTo("complete")}>
+			Skip Setup
+		</Button>
+	</div>
 </div>
 
 <style>
@@ -335,5 +344,11 @@ $effect(() => {
 	.check-actions {
 		display: flex;
 		gap: 0.5rem;
+	}
+
+	.check-actions-secondary {
+		display: flex;
+		gap: 0.5rem;
+		opacity: 0.7;
 	}
 </style>

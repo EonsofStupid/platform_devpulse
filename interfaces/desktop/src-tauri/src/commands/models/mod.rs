@@ -216,8 +216,18 @@ pub async fn get_hardware_metrics(
 pub async fn scan_models(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<ModelInfo>, String> {
+    tracing::info!("cmd scan_models: entry");
     let loader = get_loader(&state).await?;
-    let entries = loader.scan_models().await.map_err(|e| e.to_string())?;
+    let entries = match loader.scan_models().await {
+        Ok(e) => {
+            tracing::info!(count = e.len(), "cmd scan_models: exit ok");
+            e
+        }
+        Err(e) => {
+            tracing::error!(error = %e, "cmd scan_models: exit failure");
+            return Err(e.to_string());
+        }
+    };
 
     Ok(entries
         .into_iter()
@@ -246,9 +256,11 @@ pub async fn scan_models(
 pub async fn get_slots(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<SlotInfo>, String> {
+    tracing::info!("cmd get_slots: entry");
     let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
     let models = loader.get_registry().await;
+    tracing::info!(slots = slots.len(), models = models.len(), "cmd get_slots: exit ok");
 
     Ok(slots
         .into_iter()
@@ -427,9 +439,18 @@ pub async fn load_slot(
     state: State<'_, PlatformState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
-    tracing::info!("cmd load_slot");
+    tracing::info!(slot = %slot_id, "cmd load_slot: entry");
     let loader = get_loader_typed(&state).await?;
-    loader.load_slot(&slot_id).await
+    match loader.load_slot(&slot_id).await {
+        Ok(()) => {
+            tracing::info!(slot = %slot_id, "cmd load_slot: exit ok");
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(slot = %slot_id, error = %e, "cmd load_slot: exit failure");
+            Err(e)
+        }
+    }
 }
 
 /// Unload a slot's model from memory.
@@ -1349,22 +1370,31 @@ pub async fn inference_generate(
 
     // Stream tokens to frontend via Tauri events, collect full text
     let mut full_text = String::new();
+    let mut token_count: u32 = 0;
     while let Ok(response) = token_rx.recv_async().await {
         match response {
             devpulse_engine::platform::integrations::InferenceResponse::Token { text, .. } => {
                 let _ = app.emit("inference-token", &text);
                 full_text.push_str(&text);
+                token_count += 1;
             }
             devpulse_engine::platform::integrations::InferenceResponse::Done(text) => {
                 full_text = text;
                 break;
             }
             devpulse_engine::platform::integrations::InferenceResponse::Error(e) => {
+                tracing::error!(slot = %slot_id, error = %e, "inference_generate: exit failure");
                 return Err(format!("Generation error: {e}"));
             }
         }
     }
 
+    tracing::info!(
+        slot = %slot_id,
+        tokens = token_count,
+        output_len = full_text.len(),
+        "inference_generate: exit ok"
+    );
     Ok(full_text)
 }
 
