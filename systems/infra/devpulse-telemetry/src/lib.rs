@@ -56,7 +56,7 @@
 //! - **P2a** — `Envelope<T>`, `Traced<T>`, `TracedSender`/`TracedReceiver`, `spawn`/`spawn_blocking` ✅
 //! - **P2b** — `BroadcastSender`/`BroadcastReceiver` + workspace clippy.toml ✅
 //! - **P3** — OTel SDK wiring, `TelemetryGuard`, `BufferingProcessor`, OTLP file exporter ✅
-//! - **P4** — move DuckDB sinks from `devpulse-engine::platform::telemetry`
+//! - **P4** — wire `prepare()` into Tauri boot, compose 4-layer subscriber ✅
 //! - **P5** — migrate the 35 existing call sites
 //! - **P6** — signals-registry bridge
 //! - **P7** — `#[devpulse_command]` proc macro

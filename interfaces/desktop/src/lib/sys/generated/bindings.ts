@@ -168,11 +168,15 @@ async verify() : Promise<void> {
  * Maps frontend log levels to tracing macros. Non-action messages are tagged
  * with `target: "frontend"` and include the source module name.
  * 
+ * When `run_id` is provided (from `withAction`), it's attached as a
+ * structured field on every tracing call — correlating frontend actions
+ * with backend spans across session JSONL, DuckDB, and OTel.
+ * 
  * Action events (`target == "action"`) are written only to the action JSONL
  * file (plain JSON lines) to avoid double-encoding inside the session log.
  */
-async log(level: string, target: string, message: string) : Promise<void> {
-    await TAURI_INVOKE("log", { level, target, message });
+async log(level: string, target: string, message: string, runId: string | null) : Promise<void> {
+    await TAURI_INVOKE("log", { level, target, message, runId });
 },
 /**
  * Read new lines from the action log starting at `from_offset` (byte offset).
@@ -276,6 +280,69 @@ async querySpanTraces(traceId: string | null, limit: number | null) : Promise<Re
 async queryLaneBaselines() : Promise<Result<LaneBaselineRow[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("query_lane_baselines") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the current retrieval configuration.
+ * 
+ * # Errors
+ * Returns error if platform is still booting or vector store is disabled.
+ */
+async getVectorConfig() : Promise<Result<RetrievalConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_vector_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Update the retrieval configuration at runtime.
+ * 
+ * Changes take effect immediately — no restart required.
+ * 
+ * # Errors
+ * Returns error if platform is still booting or vector store is disabled.
+ */
+async setVectorConfig(config: RetrievalConfig) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_vector_config", { config }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get vector store health — collections, point counts, storage path.
+ * 
+ * # Errors
+ * Returns error if platform is still booting or vector store is disabled.
+ */
+async getVectorHealth() : Promise<Result<VectorHealthReport, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_vector_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run a test search against a collection with a raw vector.
+ * 
+ * For the full embed-then-search flow, call `embed_text` first to get the
+ * vector, then pass it here. This keeps the test bench decoupled from
+ * the encoder slot.
+ * 
+ * # Errors
+ * Returns error if platform is booting, vector store is disabled,
+ * or the search fails.
+ */
+async vectorTestSearch(collection: string, vector: number[], limit: number) : Promise<Result<VectorSearchResult[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("vector_test_search", { collection, vector, limit }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1312,9 +1379,9 @@ async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
  * Synthesizes via the TTS model loaded in the voice.tts slot,
  * then plays the PCM audio through rodio.
  */
-async speak(text: string, voice: string | null, slot: string | null) : Promise<Result<null, string>> {
+async speak(text: string, voice: string | null, slot: string | null, speed: number | null) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("speak", { text, voice, slot }) };
+    return { status: "ok", data: await TAURI_INVOKE("speak", { text, voice, slot, speed }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1460,7 +1527,7 @@ async listVoiceProfiles() : Promise<Result<VoiceProfile[], string>> {
 }
 },
 /**
- * Save a voice profile.
+ * Save a voice profile to preferences.json.
  */
 async saveVoiceProfile(profile: VoiceProfile) : Promise<Result<null, string>> {
     try {
@@ -2398,6 +2465,18 @@ preset_picker_info: string;
  * "What's a symlink?"
  */
 symlink_info: string }
+/**
+ * Collection info returned by health check.
+ */
+export type CollectionInfo = { 
+/**
+ * Collection name.
+ */
+name: string; 
+/**
+ * Number of points in the collection.
+ */
+point_count: number }
 /**
  * Completion screen — summary and launch.
  */
@@ -3883,6 +3962,29 @@ export type Resolution =
  */
 { kind: "unsupported"; arch: ArchId; format: ModelFormat; reason: UnsupportedReason; alternatives: Alternative[] }
 /**
+ * Runtime-mutable retrieval configuration (TS-exported).
+ * 
+ * Controls how the vector store returns and filters results.
+ * Switchable via devtools preset buttons or per-field editing.
+ */
+export type RetrievalConfig = { 
+/**
+ * Active preset name (for UI display).
+ */
+preset: string; 
+/**
+ * Maximum vectors to retrieve from ANN search.
+ */
+top_k: number; 
+/**
+ * Minimum similarity score to accept (0.0–1.0).
+ */
+score_threshold: number; 
+/**
+ * How many results to keep after reranking.
+ */
+rerank_top_n: number }
+/**
  * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
  * 
  * Role colours come from the DTCG `wizard.role.{brain, minion, encoder,
@@ -4398,6 +4500,34 @@ export type UnsupportedReason =
  * out of legacy fallbacks in settings.
  */
 { kind: "legacy-disabled" }
+/**
+ * Vector store health report.
+ */
+export type VectorHealthReport = { 
+/**
+ * Resolved storage path on disk.
+ */
+storage_path: string; 
+/**
+ * Collections with their point counts.
+ */
+collections: CollectionInfo[] }
+/**
+ * A single search result for the devtools test bench.
+ */
+export type VectorSearchResult = { 
+/**
+ * Point ID in the vector store.
+ */
+id: string; 
+/**
+ * Similarity score (higher = more similar).
+ */
+score: number; 
+/**
+ * JSON payload attached to this point (serialized string).
+ */
+payload_json: string }
 /**
  * 24/7 full-duplex voice brain (Moshi) configuration.
  * 

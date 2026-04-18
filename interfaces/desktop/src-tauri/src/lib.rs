@@ -22,6 +22,7 @@ pub mod paths;
 pub mod state;
 
 use devpulse_engine::platform::{InitStatus, Platform};
+use devpulse_telemetry::boot::TelemetryGuard;
 use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -61,6 +62,11 @@ pub fn run() {
         commands::sys::telemetry::set_lane_config,
         commands::sys::telemetry::query_span_traces,
         commands::sys::telemetry::query_lane_baselines,
+        // Vector store (RRO) devtools
+        commands::sys::vector::get_vector_config,
+        commands::sys::vector::set_vector_config,
+        commands::sys::vector::get_vector_health,
+        commands::sys::vector::vector_test_search,
         commands::devclyffy::get_status,
         commands::devforge::spawn_reh_server,
         commands::devforge::stop_reh_server,
@@ -196,26 +202,58 @@ pub fn run() {
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {
             builder.mount_events(app);
+            // ── Telemetry: create OTel provider + layer (no subscriber yet) ──
+            let telemetry_setup = devpulse_telemetry::boot::prepare(
+                env!("CARGO_PKG_VERSION"),
+                &format!("session-{}", chrono::Local::now().format("%Y%m%d-%H%M%S")),
+            );
+            let telemetry_handle = telemetry_setup.handle;
+            let otel_layer = telemetry_setup.layer;
+
             // ── Data directory resolution ─────────────────────────
             let data_dir = crate::paths::resolve_data_dir(app).map_err(|e| {
                 Box::new(std::io::Error::new(std::io::ErrorKind::Other, e))
                     as Box<dyn std::error::Error>
             })?;
 
-            // ── Logging: stderr + file ────────────────────────────
+            // ── Logging: stderr + file + DuckDB + OTel ────────────
             let _ = logging::rotate_logs(&data_dir);
-            let mut span_rx = match logging::init(&data_dir) {
+            let mut span_rx = match logging::init(&data_dir, otel_layer) {
                 Ok(handle) => {
                     // Leak the file guard so file logging lives for the entire process
                     std::mem::forget(handle.file_guard);
                     Some(handle.span_rx)
                 }
-                Err(_) => {
+                Err(e) => {
+                    eprintln!("[FATAL] logging::init failed: {e:?}");
                     logging::init_stderr_only();
                     None
                 }
             };
             tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
+
+            // ── Telemetry: install OTLP JSONL file exporter ──────
+            let telemetry_dir = data_dir.join("telemetry");
+            let telemetry_guard = match devpulse_telemetry::boot::install_exporter(
+                telemetry_handle,
+                &telemetry_dir,
+                3, // keep 3 session files
+            ) {
+                Ok(guard) => {
+                    tracing::info!(
+                        dir = %telemetry_dir.display(),
+                        "OTel JSONL file exporter active — boot-time buffer drained"
+                    );
+                    Some(guard)
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        error = %e,
+                        "OTel file exporter failed to initialize — spans will buffer and drop"
+                    );
+                    None
+                }
+            };
 
             // ── Platform state (empty until boot completes) ───────
             // Resolve the per-platform bundled REH seed tree inside the
@@ -245,6 +283,7 @@ pub fn run() {
                 devforge_paths,
             });
             app.manage(BootStateTracker::new());
+            app.manage(std::sync::Mutex::new(telemetry_guard));
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
@@ -327,6 +366,16 @@ pub fn run() {
                         platform.shutdown().await;
                     }
                 });
+
+                // Flush OTel spans AFTER platform shutdown (captures shutdown spans).
+                let telemetry = app.state::<std::sync::Mutex<Option<TelemetryGuard>>>();
+                if let Ok(mut lock) = telemetry.lock() {
+                    if let Some(guard) = lock.take() {
+                        guard.shutdown();
+                        tracing::info!("OTel telemetry flushed");
+                    }
+                }
+
                 tracing::info!("Platform shutdown complete — process exiting");
             }
         });

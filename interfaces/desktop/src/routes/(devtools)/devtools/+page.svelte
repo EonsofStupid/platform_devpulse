@@ -212,6 +212,18 @@ let laneGroups = $derived<LaneGroup[]>(
 					<span class="text-xs text-[var(--text-secondary)]">View platform config, services, data paths.</span>
 				</button>
 
+				<!-- Telemetry devtool (OTel + spans + baselines) -->
+				<a
+					href="/devtools/telemetry"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Telemetry</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">OTel spans, lane baselines, pipeline tracing, exporter config.</span>
+				</a>
+
 				<!-- External window tools -->
 				<button
 					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"

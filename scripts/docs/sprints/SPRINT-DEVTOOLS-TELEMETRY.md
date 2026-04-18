@@ -1,10 +1,18 @@
 # SPRINT-DEVTOOLS-TELEMETRY
 
-> **Status:** PLANNED — blocked on SPRINT-TELEMETRY-FOUNDATION P4 (DuckDB sinks writing real data)
+> **Status:** UNBLOCKED — SPRINT-TELEMETRY-FOUNDATION P4 done (OTel wired into Tauri boot)
 > **Authored:** 2026-04-17
-> **Depends on:** SPRINT-TELEMETRY-FOUNDATION P4+ (spans flowing to DuckDB + OTLP JSONL)
+> **Last updated:** 2026-04-18
+> **Depends on:** SPRINT-TELEMETRY-FOUNDATION P4 (init_early wired into Tauri boot so spans flow to OTLP JSONL + DuckDB)
 > **Related ADR:** `scripts/docs/adr/ADR-002-TELEMETRY-PRIMITIVES.md`
 > **Related memory:** `project_devtools_telemetry_spec.md`
+>
+> **Pre-existing infrastructure (already built, available now):**
+> - 4 Tauri IPC commands: `get_lane_config`, `set_lane_config`, `query_span_traces`, `query_lane_baselines`
+> - DuckDB tables: `span_traces`, `lane_traces`, `lane_baselines` (schema in `lanes.rs`)
+> - DevTools grid at `/devtools` with 16+ cards, tab-organized (Overview/Lanes/Config)
+> - Lane tracing UI with presets (Off/Standard/Debug), per-lane toggles, DuckDB persistence toggle
+> - Specta-generated TS bindings: `LaneTraceConfig`, `SpanTraceRow`, `LaneBaselineRow`
 
 ---
 
@@ -65,21 +73,24 @@ a matching frontend domain + devtools route + overview card.
 
 ---
 
-### P2 — Tauri IPC commands + DuckDB query layer
+### P2 — Tauri IPC commands + DuckDB query layer 🔶 PARTIALLY PRE-EXISTING
 
 **Goal:** Rust-side commands that query DuckDB `spans` table and return typed results via specta.
 
-1. Author `interfaces/desktop/src-tauri/src/commands/telemetry.rs`:
-   - `query_spans(filter: SpanFilter) -> Vec<SpanRow>` — parameterized DuckDB query against `spans` table
-   - `get_span_histogram(metric: &str, bucket_boundaries: Vec<f64>) -> Vec<HistogramBucket>` — TTFT/TPOT histogram
-   - `get_baseline(name: &str) -> Option<BaselineSnapshot>` — read named baseline
-   - `set_baseline(name: &str, sample_count: u32) -> BaselineSnapshot` — snapshot current p50/p95/p99
-   - `get_telemetry_config() -> TelemetryConfig`
-   - `set_telemetry_config(config: TelemetryConfig) -> ()`
-2. Register commands in Tauri app builder.
-3. Run `cargo check -p devpulse_desktop_backend`.
+**Already exists (`src-tauri/src/commands/sys/telemetry.rs`, registered in lib.rs lines 60-63):**
+- ✅ `get_lane_config()` → `LaneTraceConfig`
+- ✅ `set_lane_config(config)` → `()`
+- ✅ `query_span_traces(trace_id?, limit?)` → `Vec<SpanTraceRow>`
+- ✅ `query_lane_baselines()` → `Vec<LaneBaselineRow>`
 
-**Verification gate:** specta generates typed TS bindings. `pnpm check` green. Tauri commands callable from frontend.
+**Still needed (extend existing file):**
+1. `get_span_histogram(metric: &str, bucket_boundaries: Vec<f64>) -> Vec<HistogramBucket>` — TTFT/TPOT histogram
+2. `get_baseline(name: &str) -> Option<BaselineSnapshot>` — read named baseline
+3. `set_baseline(name: &str, sample_count: u32) -> BaselineSnapshot` — snapshot current p50/p95/p99
+4. `get_telemetry_config() -> TelemetryConfig` — OTel exporter config (not lane config)
+5. `set_telemetry_config(config: TelemetryConfig) -> ()` — toggle file exporter, set retention
+
+**Verification gate:** specta generates typed TS bindings. `pnpm check` green. New commands callable from frontend.
 
 ---
 
@@ -168,6 +179,18 @@ a matching frontend domain + devtools route + overview card.
 **Verification gate:** `pnpm check` green. `pnpm build` green. Visual: devtools overview shows live telemetry card with real data.
 
 ---
+
+## Critical Path
+
+```
+SPRINT-TELEMETRY-FOUNDATION P4 (wire init_early)
+  → OTel spans flow to OTLP JSONL + existing DuckDB layer
+    → P1 here (frontend domain scaffold)
+      → P2 (extend IPC commands for histogram/baseline/config)
+        → P3-P7 (visualization + config)
+```
+
+**Minimum viable devtool:** P1 + P2 + existing lane tracing UI. The pattern is established even before heatmaps/waterfalls land.
 
 ## Definition of Done
 

@@ -1,7 +1,9 @@
 # SPRINT-TELEMETRY-FOUNDATION
 
-> **Status:** PLANNED — awaiting execution green-light
+> **Status:** IN PROGRESS — P1-P4 DONE, P5 partial (bridge.rs migrated)
 > **Authored:** 2026-04-15
+> **Last updated:** 2026-04-18
+> **Commits:** `c4e886d8` (P1-P3 foundation, 1184 insertions), `ca7bc972` (P5 bridge.rs migration + platform changes, 695 insertions)
 > **Owner doctrine:** foundational first, zero shortcuts, hypermodular, pre-release mode (no shims, no back-compat)
 > **Supersedes / fulfills:** the "Full OTel SDK integration (later sprint)" note in `SPRINT-SIGNALS-GOLDEN-PATTERN.md` §P2
 > **Related ADR:** `scripts/docs/adr/ADR-002-TELEMETRY-PRIMITIVES.md`
@@ -57,97 +59,112 @@ Author the foundational observability crate `systems/infra/devpulse-telemetry` a
 
 ## Phase plan
 
-### P1 — Crate scaffold + workspace wiring
+### P1 — Crate scaffold + workspace wiring ✅ DONE
 
-**Goal:** two empty-but-valid crates exist under `systems/infra/`, workspace glob picks them up, `cargo check --workspace` passes.
+**Goal:** two empty-but-valid crates exist under `systems/infra/`, workspace picks them up, `cargo check --workspace` passes.
 
-1. Create `systems/infra/` directory (grouping only, not a crate).
-2. Create `systems/infra/devpulse-telemetry/`:
-   - `Cargo.toml` with package metadata tag `[package.metadata.devpulse] layer = "infra"`
-   - `src/lib.rs` stub with module tree
-   - `src/prelude.rs` empty
-3. Create `systems/infra/devpulse-telemetry-macros/`:
-   - `Cargo.toml` with `proc-macro = true`
-   - `src/lib.rs` stub
-4. Update workspace `Cargo.toml` `[workspace] members` to include `"systems/infra/*"`.
-5. Update `[workspace.dependencies]` with OTel 0.31 pin set (see doctrine).
-6. Add telemetry crates as deps of `systems/devpulse-engine` and `interfaces/desktop/src-tauri` at workspace level (no usage yet).
-7. Verify: `cargo check --workspace` green. `cargo tree -p devpulse-telemetry` shows correct deps.
+**Completed 2026-04-17 (commit c4e886d8):**
+- Created `systems/infra/devpulse-telemetry/` with full module tree (boot, channel, otel, spawn, prelude)
+- Created `systems/infra/devpulse-telemetry-macros/` proc-macro stub
+- Workspace `Cargo.toml` uses **explicit member paths** (not globs — globs failed to resolve `systems/infra/*`)
+- OTel 0.31 pin set in `[workspace.dependencies]`: `opentelemetry = "0.31"`, `opentelemetry_sdk = "0.31"`, `tracing-opentelemetry = "0.32"`
+- `devpulse-telemetry` wired as dep of `devpulse-engine`, `model-loader`, and `src-tauri`
 
-**Verification gate:** `cargo check --workspace` zero errors. Branch does not regress existing `cargo check -p devpulse_desktop_backend`.
+**Note:** Workspace glob `"systems/infra/*"` failed because `systems/infra/` has no Cargo.toml and the glob tried to match it as a crate. Switched to explicit paths.
 
 ---
 
-### P2 — Clippy lockdown + `Envelope<T>` + spawn wrappers + channel wrappers
+### P2 — Clippy lockdown + `Envelope<T>` + spawn wrappers + channel wrappers ✅ DONE
 
 **Goal:** foundational primitives authored, raw footguns banned workspace-wide. This is THE highest-leverage phase.
 
-1. Author `devpulse-telemetry/src/channel/envelope.rs` — `struct Envelope<T> { cx: opentelemetry::Context, payload: T }`. Constructor captures `Context::current()`. Accessor returns `Traced<T>` RAII guard.
-2. Author `devpulse-telemetry/src/channel/flume.rs` — `TracedSender<T>`, `TracedReceiver<T>`, `unbounded::<T>()`, `bounded::<T>(n)`. Wraps `flume::{Sender, Receiver}`. `send()` wraps payload in `Envelope`; `recv_async()` returns `Traced<T>`.
-3. Author `devpulse-telemetry/src/channel/broadcast.rs` — `BroadcastSender<T>`, `BroadcastReceiver<T>`, `channel::<T>(n)`. Wraps `tokio::sync::broadcast`. Receiver uses `SpanBuilder::with_links([envelope.cx])` — NEVER parent/child for fan-out.
-4. Author `devpulse-telemetry/src/spawn/tokio.rs` — `pub fn spawn<F>(fut)` wrapping `tokio::spawn(fut.instrument(Span::current()))`. Same for `spawn_blocking`.
-5. Author `devpulse-telemetry/src/prelude.rs` — re-export `spawn`, `spawn_blocking`, `TracedSender`, `TracedReceiver`, `BroadcastSender`, `BroadcastReceiver`, `Envelope`, `Traced`, and `tracing::Instrument`.
-6. Author workspace-root `clippy.toml` with:
-   - `disallowed-methods`: `tokio::spawn`, `tokio::task::spawn`, `tokio::task::spawn_blocking`, `opentelemetry::global::shutdown_tracer_provider`
-   - `disallowed-types`: `flume::Sender`, `flume::Receiver`, `tokio::sync::broadcast::Sender`, `tokio::sync::broadcast::Receiver`
-7. Add `#![allow(clippy::disallowed_methods, clippy::disallowed_types)]` at the file level of `channel/flume.rs`, `channel/broadcast.rs`, `spawn/tokio.rs` — the ONLY places in the workspace allowed to touch the raw primitives.
-8. Author unit tests: `tests/channel_context.rs` (verifies parent context survives flume hand-off), `tests/spawn_instrumentation.rs` (verifies `tokio::spawn` child inherits parent span).
+**Completed 2026-04-17 (commit c4e886d8):**
+- `Envelope<T>` with `capture()` constructor, `Clone` impl for broadcast
+- `Traced<T>` with `.attach() -> (T, ContextGuard)` pattern — ContextGuard is !Send, consumer calls `.attach()` in sync scope after await
+- `TracedSender<T>` / `TracedReceiver<T>` wrapping flume — error mapping strips Envelope so consumers never see it
+- `BroadcastSender<T>` / `BroadcastReceiver<T>` wrapping tokio broadcast — `LinkedTraced<T>` with link semantics (NOT parent-child for fan-out)
+- `spawn()` / `spawn_blocking()` with `.instrument(Span::current())`
+- `prelude.rs` with clean re-exports
+- `clippy.toml` banning 3 methods + 4 types, file-level `#![allow]` in flume.rs, broadcast.rs, tokio.rs
 
-**Verification gate:** `cargo check -p devpulse-telemetry` green. `cargo test -p devpulse-telemetry` green. `cargo clippy --workspace -- -D clippy::disallowed_methods -D clippy::disallowed_types` — **will report ~35 violations across existing code** (10 spawn + 22 flume + 3 broadcast). Those get fixed in P5.
+**Key design decisions during implementation:**
+- `Traced<T>` does NOT hold ContextGuard — consumer calls `.attach()` which returns `(T, ContextGuard)`. Guard scoped to sync block.
+- flume error types unwrap Envelope: `flume::SendError(envelope)` → `flume::SendError(envelope.payload)` so callers don't see Envelope in error types
+- `LinkedTraced<T>` for broadcast: exposes `.link_context()` for OTel link semantics. Children-of-broadcast lie about causality — links are honest.
+
+**Note:** clippy bans are enforced by `cargo clippy`, not `cargo check`. ~11 unmigrated `tokio::spawn` sites in devpulse-engine still pass `cargo check` but will fail `cargo clippy`.
 
 ---
 
-### P3 — OTel SDK wiring + TelemetryGuard + file exporter + BufferingProcessor
+### P3 — OTel SDK wiring + TelemetryGuard + file exporter + BufferingProcessor ✅ DONE
 
 **Goal:** `init_early()` + `install_exporter()` lifecycle, OTel provider wired, OTLP JSONL file exporter writing to `{data_dir}/telemetry/spans-*.otlp.jsonl` with rotation.
 
-1. Author `devpulse-telemetry/src/boot/buffering_processor.rs` — `BufferingProcessor` holds `VecDeque<SpanData>` in RAM (bounded, e.g. 4096). When inner processor not set, buffer with drop-oldest-on-overflow. When `install_real(processor)` called, drain buffer in order into real processor, then forward live spans.
-2. Author `devpulse-telemetry/src/boot/lifecycle.rs`:
-   - `init_early() -> TelemetryHandle` — installs `BufferingProcessor`, sets global tracer provider, registers `OpenTelemetryLayer` onto `tracing_subscriber::Registry`, returns handle. **Cannot fail.** Line 1 of `main()`.
-   - `install_exporter(handle, data_dir: &Path) -> TelemetryGuard` — builds real OTLP file exporter pointed at rotated JSONL path, wraps in `BatchSpanProcessor`, calls `buffering.install_real(batch)`, returns guard.
-   - `TelemetryGuard` holds `TracerProvider`, `MeterProvider`, `LogProvider`. Method `shutdown(self) -> impl Future<Output=()>`. Drop is a no-op + warning log (sync drop loses spans).
-3. Author `devpulse-telemetry/src/otel/provider.rs` — `SdkTracerProvider` builder with `service.name`, `service.namespace`, `service.instance.id`, `service.version` resource attributes.
-4. Author `devpulse-telemetry/src/otel/exporter_file.rs` — OTLP JSONL file exporter with rotation matching existing `session-*.jsonl` pattern.
-5. Author `devpulse-telemetry/src/otel/semconv.rs` — typed constants for `gen_ai.*` (against semconv v1.37) and `devpulse.*` (mirroring `signals.registry.yaml` family names).
-6. Unit test: `tests/boot_order.rs` — emit span BEFORE `install_exporter`, verify it lands in the real exporter after install.
-7. Unit test: `tests/telemetry_guard_shutdown.rs` — verify `guard.shutdown().await` flushes cleanly; verify drop emits warning.
+**Completed 2026-04-17 (commit c4e886d8):**
+- `BufferingProcessor` with `Arc<Mutex<BufferState>>` — Clone via Arc bump. `BufferState` enum: `Buffering(VecDeque<SpanData>)` | `Forwarding(Box<dyn SpanProcessor>)`. BUFFER_CAPACITY = 4096, drop-oldest on overflow. Panics if `install_inner()` called twice.
+- `TelemetryHandle { buffering, provider }` from `init_early(version, session_id)` — installs BufferingProcessor + OpenTelemetryLayer on Registry, cannot fail
+- `TelemetryGuard { provider }` from `install_exporter(handle, telemetry_dir, keep_sessions)` — rotates old JSONL files, builds FileSpanExporter + BatchSpanProcessor, drains buffer
+- `TelemetryGuard` has explicit `.shutdown()`, Drop emits warning if not called
+- `FileSpanExporter` with `Mutex<BufWriter<File>>` — serializes SpanData to JSON objects (trace_id, span_id, parent, name, timestamps, attributes HashMap)
+- `build_provider()` uses `Resource::builder().with_attributes([...]).build()` (0.31 API — `Resource::new()` is private)
+- `semconv.rs`: 12 `gen_ai.*` constants (pinned semconv v1.37) + 8 `devpulse.*` constants + `termination` module with 7 reason values
 
-**Verification gate:** `cargo test -p devpulse-telemetry` green. Manual: run a test harness that emits 10 spans before install + 10 after, verify 20 appear in JSONL file in correct order.
-
----
-
-### P4 — Move existing DuckDB sinks into `devpulse-telemetry/src/sinks/`
-
-**Goal:** consolidate the existing working substrate into the new crate.
-
-1. **Move** (not copy) the following files:
-   - `systems/devpulse-engine/src/platform/telemetry/duckdb_layer.rs` → `systems/infra/devpulse-telemetry/src/sinks/duckdb_layer.rs`
-   - `systems/devpulse-engine/src/platform/telemetry/span_writer.rs` → `systems/infra/devpulse-telemetry/src/sinks/span_writer.rs`
-   - `systems/devpulse-engine/src/platform/telemetry/lanes.rs` → `systems/infra/devpulse-telemetry/src/sinks/lanes.rs`
-2. Delete the now-empty `systems/devpulse-engine/src/platform/telemetry/` directory.
-3. Update all import paths in `systems/devpulse-engine` — wherever code referenced `crate::platform::telemetry::*`, change to `devpulse_telemetry::sinks::*` or (preferred) import via `devpulse_telemetry::prelude::*`.
-4. No re-exports from old paths. No shims. Pre-release mode.
-5. Re-verify: `cargo check -p devpulse-engine` green, `cargo check -p devpulse_desktop_backend` green.
-6. Rewrite `interfaces/desktop/src-tauri/src/logging.rs` — it currently wires the three-layer subscriber (stderr + JSON + DuckDB). Make it four-layer: stderr + JSON file + DuckDB (from new crate) + OTel file exporter. All four layered onto one `tracing_subscriber::Registry` installed inside `devpulse_telemetry::init_early()`.
-
-**Verification gate:** `cargo check -p devpulse_desktop_backend` green. `cargo xtask run-dev` boots clean. Existing DuckDB `spans` and `lane_traces` tables still populate (regression test: boot the app, emit a span, query DuckDB).
+**Key OTel 0.31 gotchas resolved during implementation:**
+- `TracerProvider` → `SdkTracerProvider` (renamed in 0.31 SDK)
+- `SpanProcessor` requires `Debug` derive
+- `SpanExporter::export` returns `impl Future` (not `BoxFuture`)
+- `shutdown()` → `shutdown_with_timeout(&mut self, Duration)` (mutability + timeout param)
+- `Resource::new()` is private → must use `Resource::builder()`
 
 ---
 
-### P5 — Migrate 35 call sites (spawn + flume + broadcast)
+### P4 — Wire telemetry into Tauri boot + compose subscriber layers ✅ DONE
+
+**Goal:** OTel spans actually flow at runtime. This is the bridge between "crate exists" and "crate is live."
+
+**REVISED from original plan:** Moving DuckDB sinks (span_writer.rs, lanes.rs, duckdb_layer.rs) requires dependency inversion because those files depend on `AnalyticsService` (engine) and `AnalyticsAdapter` (kernel). The telemetry crate is infra-layer and CANNOT depend on engine/kernel. Two options:
+- (a) Define a `TelemetrySink` trait in `devpulse-telemetry`, implement it in `devpulse-engine`
+- (b) Leave the DuckDB files in engine, only move the OTel primitives
+
+**Completed 2026-04-18:**
+
+Refactored `init_early()` → `prepare()` which returns `TelemetrySetup { handle, layer }` WITHOUT installing a global subscriber. The OTel layer is composed into the subscriber by `logging::init()`.
+
+Key changes:
+- `devpulse-telemetry/src/boot/lifecycle.rs`: `prepare()` returns `TelemetrySetup` with composable `TelemetryLayer` type alias. Does NOT call `.init()`.
+- `src-tauri/src/logging.rs`: `init()` accepts `TelemetryLayer` parameter, composes 4-layer subscriber: OTel (first — must be first to match `Registry` type) + EnvFilter + stderr + JSON file + DuckDB.
+- `src-tauri/src/lib.rs`: `prepare()` → resolve data_dir → `logging::init(data_dir, otel_layer)` → `install_exporter()` → store `TelemetryGuard` in managed state → `guard.shutdown()` on `RunEvent::Exit`.
+- `TelemetryGuard` uses `Option<SdkTracerProvider>` internally — `.shutdown()` takes the provider, so `Drop` only warns if shutdown was never called.
+
+**OTel layer ordering gotcha:** `OpenTelemetryLayer<Registry, Tracer>` implements `Layer<Registry>`, not `Layer<Layered<..., Registry>>`. Must be the FIRST `.with()` call so `S = Registry`.
+
+**Verification:** `cargo check -p devpulse_desktop_backend` green (19.7s). `cargo check -p devpulse-telemetry` green.
+
+---
+
+### P5 — Migrate call sites (spawn + flume + broadcast) 🔶 PARTIAL
 
 **Goal:** zero clippy-disallowed violations in the workspace. Every call site uses `devpulse_telemetry::*`.
 
-Order matters — migrate highest-risk first so any latent bug surfaces early.
+**Completed (commit ca7bc972):**
+- ✅ `kernel/model-loader/src/backends/bridge.rs` — 17 flume sites fully migrated to `TracedSender<T>` / `TracedReceiver<T>`. Reply receives use `.value` accessor. Inference thread loop: `while let Ok(traced) = rx.recv() { let (request, _cx_guard) = traced.attach(); ... }`
+- ✅ `interfaces/desktop/src-tauri/src/commands/models/mod.rs` — line 1374 migrated (`traced.value` pattern)
+- ✅ `interfaces/desktop/src-tauri/src/commands/voice/mod.rs` — line 912 migrated
 
-1. **`kernel/model-loader/src/backends/bridge.rs`** (17 flume call sites, highest-risk hot spot). Replace `flume::unbounded` / `flume::bounded` with `devpulse_telemetry::channel::{unbounded, bounded}`. Replace `Sender<T>` / `Receiver<T>` type annotations with `TracedSender<T>` / `TracedReceiver<T>`. `.send(payload)` signature unchanged — `Envelope` is built internally. `.recv_async().await` returns `Traced<T>`, so consumers do `let t = rx.recv_async().await?; let payload = t.value;` (the context attaches for the scope of `t`).
-2. **`systems/devpulse-media/src/pipeline.rs`** (2 flume call sites).
-3. **`systems/devpulse-engine/src/platform/services/audio.rs`** (3 flume call sites).
-4. **`systems/devpulse-engine/src/signals/router.rs`** (3 tokio broadcast call sites). Replace `tokio::sync::broadcast::channel(1024)` with `devpulse_telemetry::channel::broadcast::channel(1024)`. Subscribers automatically get `with_links()` fan-out.
-5. **All 10 `tokio::spawn` call sites** across the 9 files the audit identified. Replace with `devpulse_telemetry::spawn`. Import via `use devpulse_telemetry::prelude::*;`.
-6. After each file: `cargo check -p <owning-crate>` before moving on.
+**Remaining (~11 raw `tokio::spawn` sites in devpulse-engine):**
+- `platform/telemetry/lanes.rs` — `tokio::task::spawn` (hook-reverted, comment: "devpulse-telemetry crate pending")
+- `platform/server.rs` — `tokio::task::spawn`
+- `platform/facade/mod.rs` — `tokio::task::spawn`
+- `claude/mcp/transport_sse.rs` — `tokio::spawn`
+- `claude/mcp/transport_stdio.rs` — `tokio::spawn`
+- `platform/boot/model_loader.rs` — `tokio::task::spawn_blocking`
+- `platform/boot/analytics.rs` — `tokio::task::spawn_blocking`
 
-**Verification gate:** `cargo clippy --workspace --all-targets -- -D clippy::disallowed_methods -D clippy::disallowed_types` — zero violations. `cargo check -p devpulse_desktop_backend` green. Integration test: boot the app, exercise a Clyffy inference request, verify span tree crosses kernel→engine→interface boundaries without orphaning.
+**⚠️ Hook reversion issue:** User's lefthook hooks actively reverted several migration attempts back to raw `tokio::spawn`. The reverted files have comments like "devpulse-telemetry crate pending." These pass `cargo check` but will fail `cargo clippy`.
+
+**Facade broadcast migration (deferred):** `FacadeHandle.surface_tx` and `.dev_tx` are public `broadcast::Sender<T>` fields. Changing to `BroadcastSender<T>` cascades through ~8 type references across `FacadeBridge`, `Platform`, and Tauri event subscribers. Needs coordinated migration.
+
+**Verification gate:** `cargo clippy --workspace --all-targets -- -D clippy::disallowed_methods -D clippy::disallowed_types` — zero violations. Currently will show ~11 violations from unmigrated spawn sites.
 
 ---
 

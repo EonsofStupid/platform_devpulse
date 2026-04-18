@@ -1,13 +1,18 @@
-//! Structured logging with file persistence + DuckDB span tracing.
+//! Structured logging with file persistence + DuckDB span tracing + OTel.
 //!
-//! Three-layer subscriber:
+//! Four-layer subscriber:
 //! 1. stderr (pretty, INFO) — developer console
 //! 2. file (JSON, DEBUG) — session log persistence
 //! 3. DuckDB span layer — completed spans → batched DuckDB writes
+//! 4. OTel layer — spans → BufferingProcessor → OTLP JSONL file exporter
 //!
 //! The DuckDB layer's channel is created here (before boot).
 //! The writer is spawned separately after analytics boots.
 //! Spans buffer in the channel during boot startup.
+//!
+//! The OTel layer is provided by `devpulse_telemetry::boot::prepare()`.
+//! Its `BufferingProcessor` holds spans in RAM until `install_exporter()`
+//! wires the real file exporter after data_dir resolves.
 //!
 //! Log rotation: keeps last 3 session logs, deletes older ones.
 
@@ -31,15 +36,21 @@ pub struct LoggingHandle {
     pub span_rx: mpsc::Receiver<SpanRecord>,
 }
 
-/// Initialize all logging — stderr + file + DuckDB span layer.
+/// Initialize all logging — stderr + file + DuckDB span layer + OTel layer.
 /// Must be called once `data_dir` is known (in setup).
+///
+/// The `otel_layer` parameter comes from `devpulse_telemetry::boot::prepare()`.
+/// Pass it here so all layers are composed into a single global subscriber.
 ///
 /// Returns a `LoggingHandle` containing the file guard (must be held)
 /// and the span receiver (must be connected to `SpanTraceWriter` after boot).
 ///
 /// # Errors
 /// Returns error if log directory or file creation fails.
-pub fn init(data_dir: &Path) -> anyhow::Result<LoggingHandle> {
+pub fn init(
+    data_dir: &Path,
+    otel_layer: devpulse_telemetry::boot::TelemetryLayer,
+) -> anyhow::Result<LoggingHandle> {
     let logs_dir = data_dir.join("logs");
     std::fs::create_dir_all(&logs_dir)?;
 
@@ -54,7 +65,11 @@ pub fn init(data_dir: &Path) -> anyhow::Result<LoggingHandle> {
     let filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
 
+    // OTel layer MUST be first — OpenTelemetryLayer<Registry, Tracer>
+    // implements Layer<Registry>, not Layer<Layered<..., Registry>>.
+    // Placing it first ensures S = Registry at composition time.
     tracing_subscriber::registry()
+        .with(otel_layer)
         .with(filter)
         .with(
             fmt::layer()

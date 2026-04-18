@@ -23,12 +23,31 @@ interface BufferedLog {
 	target: string;
 	message: string;
 	timestamp: string;
+	runId: string | null;
 }
 
 /** Pre-IPC buffer — flushed once Tauri IPC is available. */
 const buffer: BufferedLog[] = [];
 let ipcReady = false;
 let globalHandlersInstalled = false;
+
+/**
+ * Active run ID from withAction() — correlates frontend logs with backend spans.
+ * Set by action-bus.svelte.ts, read by log() to inject into every IPC log call.
+ */
+let activeRunId: string | null = null;
+
+/** Set the active run ID (called by withAction start). Returns previous value for nesting. */
+export function setActiveRunId(runId: string | null): string | null {
+	const prev = activeRunId;
+	activeRunId = runId;
+	return prev;
+}
+
+/** Get the active run ID (for IPC commands that want to forward it). */
+export function getActiveRunId(): string | null {
+	return activeRunId;
+}
 
 /**
  * Mark IPC as ready and flush all buffered logs to Rust.
@@ -44,6 +63,7 @@ export function markIpcReady(): void {
 			level: entry.level,
 			target: entry.target,
 			message: `[buffered ${entry.timestamp}] ${entry.message}`,
+			runId: entry.runId,
 		}).catch((e) => console.warn("[logger] IPC log failed:", e));
 	}
 	buffer.length = 0;
@@ -110,9 +130,9 @@ export function log(level: LogLevel, target: string, message: string): void {
 	// Action channel: structured JSON only — no console spam (HUD + action.jsonl).
 	if (target === "action") {
 		if (ipcReady) {
-			invoke("log", { level, target, message }).catch(() => {});
+			invoke("log", { level, target, message, runId: null }).catch(() => {});
 		} else {
-			buffer.push({ level, target, message, timestamp });
+			buffer.push({ level, target, message, timestamp, runId: null });
 		}
 		return;
 	}
@@ -134,12 +154,13 @@ export function log(level: LogLevel, target: string, message: string): void {
 		]);
 	}
 
+	const rid = activeRunId;
 	if (ipcReady) {
-		invoke("log", { level, target, message }).catch(() => {
+		invoke("log", { level, target, message, runId: rid }).catch(() => {
 			// Silent — if IPC fails, console already has it
 		});
 	} else {
-		buffer.push({ level, target, message, timestamp });
+		buffer.push({ level, target, message, timestamp, runId: rid });
 	}
 }
 

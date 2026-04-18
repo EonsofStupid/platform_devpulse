@@ -4,7 +4,7 @@
  */
 
 import type { ActionId } from "./action-ids.js";
-import { log } from "./logger.js";
+import { log, setActiveRunId } from "./logger.js";
 
 const RING_MAX = 200;
 
@@ -93,12 +93,17 @@ export async function withAction<T>(
 	emitAction({ phase: "start", id, runId, intent, t: Date.now() });
 	actionBus.current = { id, intent, runId, startedAt };
 
+	// Set active runId so ALL log calls within this action include it
+	// for correlation across session JSONL, DuckDB spans, and OTel traces.
+	const previousRunId = setActiveRunId(runId);
+
 	try {
 		const result = await fn();
 		const elapsedMs = Math.round(performance.now() - startedAt);
 		emitAction({ phase: "end", id, runId, elapsedMs, t: Date.now() });
 		actionBus.pushRecent({ id, intent, runId, elapsedMs, ok: true });
 		actionBus.current = null;
+		setActiveRunId(previousRunId);
 		return result;
 	} catch (e) {
 		const elapsedMs = Math.round(performance.now() - startedAt);
@@ -107,6 +112,7 @@ export async function withAction<T>(
 		actionBus.pushRecent({ id, intent, runId, elapsedMs, ok: false });
 		actionBus.setLastError(error);
 		actionBus.current = null;
+		setActiveRunId(previousRunId);
 		throw e;
 	}
 }

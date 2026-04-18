@@ -1,16 +1,30 @@
 //! Model Loader service — AI model management, slot assignment, inference.
 //!
 //! Wraps the self-enclosed `model-loader` crate as a platform service.
-//! Uses `tokio::sync::Mutex` because `ModelLoaderService` methods take `&mut self`
-//! and Tauri commands are concurrent.
+//!
+//! # Concurrency Model
+//!
+//! The kernel `ModelLoaderService` (aliased as `Inner`) is fundamentally
+//! synchronous — it does blocking filesystem I/O (GGUF header parsing),
+//! model inference, and sysinfo probes. A handful of methods (`load_slot`,
+//! `unload_slot`, `warm_slot`, `delete_model`, `swap_model`) are `async fn`
+//! because they spawn backend threads internally.
+//!
+//! We use `tokio::sync::Mutex` because those async methods need `.await`
+//! while holding the lock. For ALL sync methods, we use
+//! `tokio::task::spawn_blocking` + `Mutex::blocking_lock()` to move the
+//! work off the async runtime. This prevents the Tauri event loop from
+//! freezing during heavy operations (scan, synthesize, transcribe, etc.).
+//!
+//! **Rule**: If the kernel method is `fn` (sync), wrap in `spawn_blocking`.
+//! If the kernel method is `async fn`, use `lock().await`.
 
+use super::model_loader_log::FileEventSink;
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use super::model_loader_log::FileEventSink;
 use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
 use devpulse_clyffy::model_loader::{
-    HardwareMetrics, ModelLoaderService as Inner,
-    ModelRegistryEntry, Slot, SlotStatus, VramBudget,
+    HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot, SlotStatus, VramBudget,
 };
 // Typed load-error surface — the single wire type for load-path failures.
 // Every slot mutation method converts kernel-internal `LoaderError` or
@@ -18,8 +32,8 @@ use devpulse_clyffy::model_loader::{
 // layer returns a discriminated union to the frontend instead of a string.
 pub use devpulse_clyffy::model_loader::registry::LoadError;
 // Re-export for downstream crates (desktop backend) that cannot depend on kernel directly.
-pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 pub use devpulse_clyffy::model_loader::AudioSamples;
+pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 // Auto-config + preset types — used in both signatures and Tauri return values.
 pub use devpulse_clyffy::model_loader::{
     AutoConfig, BrainSwapPolicy, HardwareTier, SlotRecommendation,
@@ -43,9 +57,8 @@ use tokio::sync::Mutex;
 
 /// Model Loader service — managed by the platform boot pipeline.
 ///
-/// Uses `Arc<Mutex<Inner>>` so that `scan_models()` can move a clone into
-/// `spawn_blocking` — GGUF header parsing is synchronous filesystem I/O and
-/// must not run on the async runtime thread (causes "Not Responding" freeze).
+/// Uses `Arc<Mutex<Inner>>` so clones can be moved into `spawn_blocking`.
+/// See module-level doc for concurrency model.
 pub struct ModelLoaderService {
     inner: Arc<Mutex<Inner>>,
 }
@@ -54,8 +67,8 @@ impl ModelLoaderService {
     /// Boot the model loader.
     ///
     /// Slots and presets are loaded from kernel SSOT:
-    /// - `kernel/model-loader/config/slots.default.toml` → 8 baseline slots
-    /// - `kernel/model-loader/config/presets.default.toml` → 6 tier presets
+    /// - `kernel/model-loader/config/slots.default.toml` — 8 baseline slots
+    /// - `kernel/model-loader/config/presets.default.toml` — 6 tier presets
     ///
     /// Both files honour optional user overrides at
     /// `{data_dir}/config/slots.toml` and `{data_dir}/config/presets.toml`.
@@ -71,7 +84,9 @@ impl ModelLoaderService {
         let log_path = data_dir.join("logs").join("model-loader.log");
         let config: Box<dyn devpulse_clyffy::model_loader::ConfigBackend> =
             if let Some(adapter) = libsql_adapter {
-                tracing::info!("Model Loader using LibSQL persistence (assignments survive restarts)");
+                tracing::info!(
+                    "Model Loader using LibSQL persistence (assignments survive restarts)"
+                );
                 Box::new(LibSqlConfig::new(adapter))
             } else {
                 tracing::warn!("Model Loader using MemoryConfig (assignments lost on restart)");
@@ -100,15 +115,7 @@ impl ModelLoaderService {
             anyhow::anyhow!("Failed to register default slots: {e}")
         })?;
 
-        // Initial model scan — populates the registry with every file
-        // discoverable under models_dir. This MUST run before
-        // restore_assignments so the restore path validates persisted
-        // model ids against the fresh registry, not the stale snapshot
-        // loaded from registry.json at Inner construction. scan_models
-        // generates new UUIDs each run (discover_models creates them);
-        // persisted assignments from a prior session are dead ids after
-        // a rescan, so restore must see the new registry to clear them
-        // and hand the slot back to auto_assign_bundled_slots below.
+        // Initial model scan — populates the registry before restore_assignments.
         match service.scan_models() {
             Ok(count) => {
                 tracing::info!(models = count.len(), "Initial model scan complete");
@@ -118,19 +125,12 @@ impl ModelLoaderService {
             }
         }
 
-        // Restore saved slot assignments. Any persisted id that no
-        // longer resolves in the freshly-scanned registry is dropped
-        // (restore_assignments deletes the dead config entry) so the
-        // slot falls through to auto_assign_bundled_slots.
+        // Restore saved slot assignments.
         if let Err(e) = service.restore_assignments() {
             tracing::warn!(error = %e, "Failed to restore model assignments (non-fatal)");
         }
 
-        // Hydrate bundled slots against the scanned registry. This
-        // wires slots whose source_tier = Bundled to their shipped
-        // model files so downstream load_slot / synthesize / transcribe
-        // calls can actually find them. User assignments persisted via
-        // restore_assignments above win — this only fills gaps.
+        // Hydrate bundled slots against the scanned registry.
         match service.auto_assign_bundled_slots() {
             Ok(hydrated) => {
                 tracing::info!(
@@ -148,48 +148,39 @@ impl ModelLoaderService {
             }
         }
 
-        // NOTE on Hot-slot auto-load: `load_slot` is async but `boot()`
-        // runs inside spawn_blocking. Async work does not belong here.
-        // The caller (`boot/model_loader.rs`) performs the Hot-slot
-        // auto-load AFTER spawn_blocking returns, using the async
-        // `ModelLoaderService` wrapper that does its own locking.
+        // NOTE: `load_slot` is async — Hot-slot auto-load happens AFTER
+        // boot returns, via `auto_load_hot_slots()`.
 
         Ok(Self {
             inner: Arc::new(Mutex::new(service)),
         })
     }
 
-    /// Proactively load every slot marked `LoadingStrategy::Hot` that
-    /// has a model assigned (either via persistence or via the bundled
-    /// auto-assign pass in `boot`). Called by the boot caller AFTER
-    /// [`ModelLoaderService::boot`] returns, because the inner
-    /// `load_slot` is async and `boot` runs inside `spawn_blocking`.
-    ///
-    /// Iterates all registered slots, filters to the Hot set, and
-    /// calls `load_slot` on each. Failures are logged and the loop
-    /// continues — boot must not fail just because one bundled file
-    /// is corrupt.
-    ///
-    /// Returns the number of slots that successfully transitioned to
-    /// loaded state.
+    // ── Async kernel methods (use lock().await) ───────────────
+
+    /// Proactively load every slot marked `LoadingStrategy::Hot`.
     pub async fn auto_load_hot_slots(&self) -> usize {
         use devpulse_clyffy::model_loader::LoadingStrategy;
 
-        // Snapshot the set of Hot + assigned slots first so we don't
-        // hold the lock across an await on load_slot.
+        // Snapshot Hot+assigned slots on blocking pool (sync read).
         let targets: Vec<String> = {
-            let inner = self.inner.lock().await;
-            inner
-                .list_slots()
-                .iter()
-                .filter(|s| {
-                    matches!(s.loading, LoadingStrategy::Hot)
-                        && s.assigned_model.is_some()
-                })
-                .map(|s| s.id.clone())
-                .collect()
+            let inner = self.inner.clone();
+            tokio::task::spawn_blocking(move || {
+                let guard = inner.blocking_lock();
+                guard
+                    .list_slots()
+                    .iter()
+                    .filter(|s| {
+                        matches!(s.loading, LoadingStrategy::Hot) && s.assigned_model.is_some()
+                    })
+                    .map(|s| s.id.clone())
+                    .collect()
+            })
+            .await
+            .expect("auto_load_hot_slots snapshot join")
         };
 
+        // Load each — async because kernel load_slot is async.
         let mut loaded = 0usize;
         for slot_id in targets {
             let result = {
@@ -213,63 +204,7 @@ impl ModelLoaderService {
         loaded
     }
 
-    /// Get hardware metrics.
-    pub async fn hardware_metrics(&self) -> HardwareMetrics {
-        let mut inner = self.inner.lock().await;
-        inner.hardware_metrics()
-    }
-
-    /// Scan models directory.
-    ///
-    /// Acquires the async lock first, then runs the blocking filesystem I/O
-    /// (GGUF header parsing) while holding it. Using `lock().await` instead
-    /// of `spawn_blocking` + `blocking_lock()` prevents deadlocks when other
-    /// async methods (list_slots, get_registry) contend on the same Mutex.
-    /// The scan takes 1-3 seconds — acceptable on the Tauri async runtime.
-    pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>> {
-        let mut guard = self.inner.lock().await;
-        guard.scan_models().map_err(Into::into)
-    }
-
-    /// List all registered slots.
-    pub async fn list_slots(&self) -> Vec<Slot> {
-        let inner = self.inner.lock().await;
-        inner.list_slots().into_iter().cloned().collect()
-    }
-
-    /// Get status for a specific slot.
-    pub async fn slot_status(&self, slot_id: &str) -> SlotStatus {
-        let inner = self.inner.lock().await;
-        inner.slot_status(slot_id)
-    }
-
-    /// Assign a model to a slot.
-    ///
-    /// Returns a typed [`LoadError`] on failure. Possible variants:
-    /// `SlotNotFound`, `IncompatibleModel`, `ConfigCorrupt`.
-    #[tracing::instrument(skip(self), fields(slot_id, model_id))]
-    pub async fn assign_model(
-        &self,
-        slot_id: &str,
-        model_id: &str,
-    ) -> std::result::Result<(), LoadError> {
-        tracing::info!("assign_model");
-        let mut inner = self.inner.lock().await;
-        inner
-            .assign_model(slot_id, model_id)
-            .map_err(LoadError::from)
-    }
-
-    /// Load a slot's assigned model into memory.
-    ///
-    /// Returns a typed [`LoadError`] on failure. This is the main
-    /// load-path surface: errors here cover every failure mode in
-    /// the pipeline — compatibility (`UnknownArchitecture`,
-    /// `UnsupportedArchitecture`), filesystem (`ModelFileMissing`,
-    /// `ModelCorrupt`, `MissingFile`), resources (`VramInsufficient`,
-    /// `RamExhausted`), backend initialisation (`BackendInit`,
-    /// `TokenizerLoad`), and slot state (`SlotNotFound`,
-    /// `NoModelAssigned`, `AlreadyLoading`).
+    /// Load a slot's assigned model into memory (async kernel method).
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn load_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("load_slot");
@@ -277,7 +212,7 @@ impl ModelLoaderService {
         inner.load_slot(slot_id).await.map_err(LoadError::from)
     }
 
-    /// Unload a slot's model. Typed errors cover slot state issues.
+    /// Unload a slot's model (async kernel method).
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn unload_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("unload_slot");
@@ -285,9 +220,7 @@ impl ModelLoaderService {
         inner.unload_slot(slot_id).await.map_err(LoadError::from)
     }
 
-    /// Warm a slot — load weights to CPU RAM only, no GPU copy yet.
-    /// Used for progressive hydration during boot. Typed errors
-    /// match [`load_slot`](Self::load_slot).
+    /// Warm a slot — load weights to CPU RAM only, no GPU copy yet (async kernel method).
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn warm_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("warm_slot");
@@ -295,7 +228,7 @@ impl ModelLoaderService {
         inner.warm_slot(slot_id).await.map_err(LoadError::from)
     }
 
-    /// Delete a model from disk and registry. Clears slot assignments.
+    /// Delete a model from disk and registry (async kernel method).
     #[tracing::instrument(skip(self), fields(model_id))]
     pub async fn delete_model(&self, model_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("delete_model");
@@ -303,190 +236,7 @@ impl ModelLoaderService {
         inner.delete_model(model_id).await.map_err(LoadError::from)
     }
 
-    /// Check if this is the first run.
-    pub async fn is_first_run(&self) -> bool {
-        let inner = self.inner.lock().await;
-        inner.is_first_run()
-    }
-
-    /// Mark the setup wizard as complete. Persists to LibSQL.
-    pub async fn mark_setup_complete(&self) -> Result<(), LoadError> {
-        let inner = self.inner.lock().await;
-        inner
-            .mark_setup_complete()
-            .map_err(|e| LoadError::Other { message: format!("Failed to mark setup complete: {e}") })
-    }
-
-    /// Check if the setup wizard was previously completed.
-    pub async fn is_setup_complete(&self) -> bool {
-        let inner = self.inner.lock().await;
-        inner.is_setup_complete()
-    }
-
-    /// Auto-configure based on hardware.
-    pub async fn auto_configure(&self) -> AutoConfig {
-        let mut inner = self.inner.lock().await;
-        inner.auto_configure()
-    }
-
-    /// List every known hardware preset — used by the wizard preset picker.
-    pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
-        let inner = self.inner.lock().await;
-        inner.list_all_presets()
-    }
-
-    /// Build the `AutoConfig` for a specific tier when the owner manually
-    /// selects a non-default preset in the picker.
-    pub async fn config_for_tier(&self, tier: HardwareTier) -> AutoConfig {
-        let inner = self.inner.lock().await;
-        inner.config_for_tier(tier)
-    }
-
-    /// Start downloading a model from HuggingFace.
-    pub async fn download_model(&self, repo_id: &str, filename: &str) -> Result<String> {
-        let mut inner = self.inner.lock().await;
-        inner.download_model(repo_id, filename).map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
-    }
-
-    /// Cancel an active download.
-    pub async fn cancel_download(&self, download_id: &str) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.cancel_download(download_id).map_err(|e| {
-            anyhow::anyhow!("{e}")
-        })
-    }
-
-    /// Persist or replace the stored HuggingFace token. `None` clears it.
-    pub async fn set_hf_token(&self, token: Option<String>) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_hf_token(token).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Whether an HF token is currently stored.
-    pub async fn has_hf_token(&self) -> bool {
-        let inner = self.inner.lock().await;
-        inner.has_hf_token()
-    }
-
-    /// Clear the stored HF token.
-    pub async fn clear_hf_token(&self) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.clear_hf_token().map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Return the last `n` characters of the stored HF token, for
-    /// the devtool "masked pill" display. `None` if no token stored.
-    pub async fn hf_token_suffix(&self, n: usize) -> Option<String> {
-        let inner = self.inner.lock().await;
-        inner.hf_token_suffix(n)
-    }
-
-    // ── Assistant Config facade ────────────────────────────────
-
-    /// Snapshot the current assistant configuration.
-    pub async fn get_assistant_config(&self) -> AssistantConfig {
-        let inner = self.inner.lock().await;
-        inner.get_assistant_config()
-    }
-
-    /// Rename the assistant.
-    pub async fn set_assistant_name(&self, name: String) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_assistant_name(name).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Replace the wake phrase.
-    pub async fn set_wake_phrase(&self, phrase: String) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_wake_phrase(phrase).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Toggle 24/7 wake detection.
-    pub async fn set_wake_enabled(&self, enabled: bool) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_wake_enabled(enabled).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Toggle the 24/7 Moshi voice brain.
-    pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_voice_brain_24_7(enabled).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Replace the TTS voice profile.
-    pub async fn set_voice_profile(&self, profile: String) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_voice_profile(profile).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Register a new custom voice clone.
-    pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.register_voice_clone(entry).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Remove a registered voice clone by name.
-    pub async fn remove_voice_clone(&self, name: String) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.remove_voice_clone(&name).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Add or replace a keyword action.
-    pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.add_keyword_action(entry).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Remove a keyword action by phrase.
-    pub async fn remove_keyword_action(&self, phrase: String) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.remove_keyword_action(&phrase).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Replace an existing keyword action in place.
-    pub async fn update_keyword_action(
-        &self,
-        phrase: String,
-        new_entry: KeywordActionEntry,
-    ) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner
-            .update_keyword_action(&phrase, new_entry)
-            .map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Replace the window idle timeout in seconds.
-    pub async fn set_idle_timeout(&self, secs: u32) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_idle_timeout(secs).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Replace the partial GPU offload layer count for `chat.brain`.
-    pub async fn set_brain_ngl(&self, ngl: i32) -> Result<()> {
-        let mut inner = self.inner.lock().await;
-        inner.set_brain_ngl(ngl).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Absolute path to the custom voice clones directory. Used by
-    /// `upload_voice_sample` to place incoming MP3 files on disk.
-    pub async fn voice_custom_dir(&self) -> std::path::PathBuf {
-        let inner = self.inner.lock().await;
-        inner.voice_custom_dir()
-    }
-
-    /// Get model registry (without scanning).
-    pub async fn get_registry(&self) -> Vec<ModelRegistryEntry> {
-        let inner = self.inner.lock().await;
-        inner.get_registry().to_vec()
-    }
-
-    /// Atomically swap the model on a slot (unload → reassign → load).
-    ///
-    /// Blocks inference to the slot for the entire duration via SwapGuard.
-    /// Returns a typed [`LoadError`] — swaps can fail at any step
-    /// (assign, unload, load) and the variant reflects where.
+    /// Atomically swap the model on a slot (async kernel method).
     #[tracing::instrument(skip(self), fields(slot_id, new_model_id))]
     pub async fn swap_model(
         &self,
@@ -501,31 +251,7 @@ impl ModelLoaderService {
             .map_err(LoadError::from)
     }
 
-    /// Get an inference handle for a slot (resolves fallback chain).
-    ///
-    /// Returns a cloned handle — caller can use it without holding the Mutex.
-    /// This is critical: generation is long-running, we must NOT hold the lock.
-    /// Returns `Err` if the slot is mid-swap.
-    #[tracing::instrument(skip(self), fields(slot_id))]
-    pub async fn inference_handle(
-        &self,
-        slot_id: &str,
-    ) -> Result<Option<devpulse_clyffy::model_loader::InferenceHandle>> {
-        let inner = self.inner.lock().await;
-        inner.inference_handle(slot_id).map_err(|e| anyhow::anyhow!("{e}"))
-    }
-
-    /// Compute VRAM budget plan across all slots.
-    pub async fn vram_budget_plan(&self) -> VramBudget {
-        let mut inner = self.inner.lock().await;
-        inner.vram_budget_plan()
-    }
-
-    /// Search HuggingFace for GGUF models.
-    ///
-    /// Does NOT hold the Mutex — search is a stateless HTTP call.
-    /// Holding the lock across a 15s network timeout would freeze
-    /// every other model loader command.
+    /// Search HuggingFace for GGUF models (stateless HTTP — no Mutex).
     pub async fn search_huggingface(
         &self,
         query: &str,
@@ -533,6 +259,445 @@ impl ModelLoaderService {
     ) -> Result<Vec<devpulse_clyffy::model_loader::HfSearchResult>> {
         devpulse_clyffy::model_loader::search_huggingface(query, limit).await
     }
+
+    // ── Sync kernel methods (use spawn_blocking + blocking_lock) ──
+
+    /// Get hardware metrics.
+    pub async fn hardware_metrics(&self) -> HardwareMetrics {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard.hardware_metrics()
+        })
+        .await
+        .expect("hardware_metrics join")
+    }
+
+    /// Scan models directory — recursive walk + GGUF header parsing.
+    pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard.scan_models().map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("scan_models join: {e}"))?
+    }
+
+    /// List all registered slots.
+    pub async fn list_slots(&self) -> Vec<Slot> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.list_slots().into_iter().cloned().collect()
+        })
+        .await
+        .expect("list_slots join")
+    }
+
+    /// Get status for a specific slot.
+    pub async fn slot_status(&self, slot_id: &str) -> SlotStatus {
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.slot_status(&slot_id)
+        })
+        .await
+        .expect("slot_status join")
+    }
+
+    /// Assign a model to a slot.
+    #[tracing::instrument(skip(self), fields(slot_id, model_id))]
+    pub async fn assign_model(
+        &self,
+        slot_id: &str,
+        model_id: &str,
+    ) -> std::result::Result<(), LoadError> {
+        tracing::info!("assign_model");
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let model_id = model_id.to_string();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .assign_model(&slot_id, &model_id)
+                .map_err(LoadError::from)
+        })
+        .await
+        .expect("assign_model join")
+    }
+
+    /// Check if this is the first run.
+    pub async fn is_first_run(&self) -> bool {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.is_first_run()
+        })
+        .await
+        .expect("is_first_run join")
+    }
+
+    /// Mark the setup wizard as complete. Persists to LibSQL.
+    pub async fn mark_setup_complete(&self) -> Result<(), LoadError> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.mark_setup_complete().map_err(|e| LoadError::Other {
+                message: format!("Failed to mark setup complete: {e}"),
+            })
+        })
+        .await
+        .expect("mark_setup_complete join")
+    }
+
+    /// Check if the setup wizard was previously completed.
+    pub async fn is_setup_complete(&self) -> bool {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.is_setup_complete()
+        })
+        .await
+        .expect("is_setup_complete join")
+    }
+
+    /// Auto-configure based on hardware.
+    pub async fn auto_configure(&self) -> AutoConfig {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard.auto_configure()
+        })
+        .await
+        .expect("auto_configure join")
+    }
+
+    /// List every known hardware preset.
+    pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.list_all_presets()
+        })
+        .await
+        .expect("list_all_presets join")
+    }
+
+    /// Build the `AutoConfig` for a specific tier.
+    pub async fn config_for_tier(&self, tier: HardwareTier) -> AutoConfig {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.config_for_tier(tier)
+        })
+        .await
+        .expect("config_for_tier join")
+    }
+
+    /// Start downloading a model from HuggingFace.
+    pub async fn download_model(&self, repo_id: &str, filename: &str) -> Result<String> {
+        let inner = self.inner.clone();
+        let repo_id = repo_id.to_string();
+        let filename = filename.to_string();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .download_model(&repo_id, &filename)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("download_model join: {e}"))?
+    }
+
+    /// Cancel an active download.
+    pub async fn cancel_download(&self, download_id: &str) -> Result<()> {
+        let inner = self.inner.clone();
+        let download_id = download_id.to_string();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .cancel_download(&download_id)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("cancel_download join: {e}"))?
+    }
+
+    /// Persist or replace the stored HuggingFace token. `None` clears it.
+    pub async fn set_hf_token(&self, token: Option<String>) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard.set_hf_token(token).map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_hf_token join: {e}"))?
+    }
+
+    /// Whether an HF token is currently stored.
+    pub async fn has_hf_token(&self) -> bool {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.has_hf_token()
+        })
+        .await
+        .expect("has_hf_token join")
+    }
+
+    /// Clear the stored HF token.
+    pub async fn clear_hf_token(&self) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .clear_hf_token()
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("clear_hf_token join: {e}"))?
+    }
+
+    /// Return the last `n` characters of the stored HF token.
+    pub async fn hf_token_suffix(&self, n: usize) -> Option<String> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.hf_token_suffix(n)
+        })
+        .await
+        .expect("hf_token_suffix join")
+    }
+
+    // ── Assistant Config facade ────────────────────────────────
+
+    /// Snapshot the current assistant configuration.
+    pub async fn get_assistant_config(&self) -> AssistantConfig {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.get_assistant_config()
+        })
+        .await
+        .expect("get_assistant_config join")
+    }
+
+    /// Rename the assistant.
+    pub async fn set_assistant_name(&self, name: String) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_assistant_name(name)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_assistant_name join: {e}"))?
+    }
+
+    /// Replace the wake phrase.
+    pub async fn set_wake_phrase(&self, phrase: String) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_wake_phrase(phrase)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_wake_phrase join: {e}"))?
+    }
+
+    /// Toggle 24/7 wake detection.
+    pub async fn set_wake_enabled(&self, enabled: bool) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_wake_enabled(enabled)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_wake_enabled join: {e}"))?
+    }
+
+    /// Toggle the 24/7 Moshi voice brain.
+    pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_voice_brain_24_7(enabled)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_voice_brain_24_7 join: {e}"))?
+    }
+
+    /// Replace the TTS voice profile.
+    pub async fn set_voice_profile(&self, profile: String) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_voice_profile(profile)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_voice_profile join: {e}"))?
+    }
+
+    /// Register a new custom voice clone.
+    pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .register_voice_clone(entry)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("register_voice_clone join: {e}"))?
+    }
+
+    /// Remove a registered voice clone by name.
+    pub async fn remove_voice_clone(&self, name: String) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .remove_voice_clone(&name)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("remove_voice_clone join: {e}"))?
+    }
+
+    /// Add or replace a keyword action.
+    pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .add_keyword_action(entry)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("add_keyword_action join: {e}"))?
+    }
+
+    /// Remove a keyword action by phrase.
+    pub async fn remove_keyword_action(&self, phrase: String) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .remove_keyword_action(&phrase)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("remove_keyword_action join: {e}"))?
+    }
+
+    /// Replace an existing keyword action in place.
+    pub async fn update_keyword_action(
+        &self,
+        phrase: String,
+        new_entry: KeywordActionEntry,
+    ) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .update_keyword_action(&phrase, new_entry)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("update_keyword_action join: {e}"))?
+    }
+
+    /// Replace the window idle timeout in seconds.
+    pub async fn set_idle_timeout(&self, secs: u32) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_idle_timeout(secs)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_idle_timeout join: {e}"))?
+    }
+
+    /// Replace the partial GPU offload layer count for `chat.brain`.
+    pub async fn set_brain_ngl(&self, ngl: i32) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard
+                .set_brain_ngl(ngl)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_brain_ngl join: {e}"))?
+    }
+
+    /// Absolute path to the custom voice clones directory.
+    pub async fn voice_custom_dir(&self) -> std::path::PathBuf {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.voice_custom_dir()
+        })
+        .await
+        .expect("voice_custom_dir join")
+    }
+
+    /// Get model registry (without scanning).
+    pub async fn get_registry(&self) -> Vec<ModelRegistryEntry> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.get_registry().to_vec()
+        })
+        .await
+        .expect("get_registry join")
+    }
+
+    /// Get an inference handle for a slot (resolves fallback chain).
+    ///
+    /// Returns a cloned handle — caller can use it without holding the Mutex.
+    #[tracing::instrument(skip(self), fields(slot_id))]
+    pub async fn inference_handle(
+        &self,
+        slot_id: &str,
+    ) -> Result<Option<devpulse_clyffy::model_loader::InferenceHandle>> {
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard
+                .inference_handle(&slot_id)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("inference_handle join: {e}"))?
+    }
+
+    /// Compute VRAM budget plan across all slots.
+    pub async fn vram_budget_plan(&self) -> VramBudget {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_lock();
+            guard.vram_budget_plan()
+        })
+        .await
+        .expect("vram_budget_plan join")
+    }
+
+    // ── Inference (sync but HEAVY — must be on blocking pool) ──
 
     /// Synthesize speech via the TTS model loaded in a slot.
     #[tracing::instrument(skip(self, text), fields(slot_id, voice, text_len = text.len()))]
@@ -542,8 +707,18 @@ impl ModelLoaderService {
         text: &str,
         voice: &str,
     ) -> Result<devpulse_clyffy::model_loader::AudioSamples> {
-        let inner = self.inner.lock().await;
-        inner.synthesize(slot_id, text, voice).map_err(Into::into)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let text = text.to_string();
+        let voice = voice.to_string();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard
+                .synthesize(&slot_id, &text, &voice)
+                .map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("synthesize join: {e}"))?
     }
 
     /// Transcribe audio via the STT model loaded in a slot.
@@ -553,21 +728,42 @@ impl ModelLoaderService {
         slot_id: &str,
         samples: &devpulse_clyffy::model_loader::AudioSamples,
     ) -> Result<String> {
-        let inner = self.inner.lock().await;
-        inner.transcribe(slot_id, samples).map_err(Into::into)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let samples = samples.clone();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.transcribe(&slot_id, &samples).map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("transcribe join: {e}"))?
     }
 
     /// Check if a voice model is loaded in a slot.
     pub async fn voice_loaded(&self, slot_id: &str) -> bool {
-        let inner = self.inner.lock().await;
-        inner.voice_loaded(slot_id)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.voice_loaded(&slot_id)
+        })
+        .await
+        .expect("voice_loaded join")
     }
 
     /// Embed a batch of texts via the embedder model loaded in a slot.
     #[tracing::instrument(skip(self, texts), fields(slot_id, count = texts.len()))]
     pub async fn embed(&self, slot_id: &str, texts: &[&str]) -> Result<Vec<Vec<f32>>> {
-        let inner = self.inner.lock().await;
-        inner.embed(slot_id, texts).map_err(Into::into)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let texts: Vec<String> = texts.iter().map(|t| t.to_string()).collect();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
+            guard.embed(&slot_id, &refs).map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("embed join: {e}"))?
     }
 
     /// Rerank documents against a query via the reranker model loaded in a slot.
@@ -578,8 +774,19 @@ impl ModelLoaderService {
         query: &str,
         documents: &[&str],
     ) -> Result<Vec<f32>> {
-        let inner = self.inner.lock().await;
-        inner.rerank(slot_id, query, documents).map_err(Into::into)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let query = query.to_string();
+        let documents: Vec<String> = documents.iter().map(|d| d.to_string()).collect();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            let refs: Vec<&str> = documents.iter().map(String::as_str).collect();
+            guard
+                .rerank(&slot_id, &query, &refs)
+                .map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("rerank join: {e}"))?
     }
 
     /// Encode an image file via the vision encoder loaded in a slot.
@@ -589,8 +796,15 @@ impl ModelLoaderService {
         slot_id: &str,
         path: &std::path::Path,
     ) -> Result<Vec<f32>> {
-        let inner = self.inner.lock().await;
-        inner.encode_image(slot_id, path).map_err(Into::into)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let path = path.to_path_buf();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard.encode_image(&slot_id, &path).map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("encode_image join: {e}"))?
     }
 
     /// Encode raw RGB pixel data via the vision encoder loaded in a slot.
@@ -602,10 +816,17 @@ impl ModelLoaderService {
         width: u32,
         height: u32,
     ) -> Result<Vec<f32>> {
-        let inner = self.inner.lock().await;
-        inner
-            .encode_rgb(slot_id, rgb_bytes, width, height)
-            .map_err(Into::into)
+        let inner = self.inner.clone();
+        let slot_id = slot_id.to_string();
+        let rgb_bytes = rgb_bytes.to_vec();
+        tokio::task::spawn_blocking(move || {
+            let guard = inner.blocking_lock();
+            guard
+                .encode_rgb(&slot_id, &rgb_bytes, width, height)
+                .map_err(Into::into)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("encode_rgb join: {e}"))?
     }
 }
 
@@ -619,9 +840,13 @@ impl Service for ModelLoaderService {
     }
 
     async fn ping(&self) -> Result<()> {
-        // Verify we can access the inner service
-        let _inner = self.inner.lock().await;
-        Ok(())
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let _guard = inner.blocking_lock();
+            Ok(())
+        })
+        .await
+        .expect("ping join")
     }
 
     fn state(&self) -> ServiceState {
@@ -630,7 +855,6 @@ impl Service for ModelLoaderService {
 
     async fn shutdown(&self) -> Result<()> {
         tracing::info!("Model Loader shutting down");
-        // Future: unload all models, flush pool
         Ok(())
     }
 }
