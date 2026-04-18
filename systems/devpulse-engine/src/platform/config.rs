@@ -701,6 +701,9 @@ pub struct VectorServiceEntry {
     /// Relative path from data directory for RRO storage.
     #[serde(default = "default_rro_path")]
     pub path: String,
+    /// Retrieval tuning parameters.
+    #[serde(default)]
+    pub retrieval: RetrievalBootConfig,
 }
 
 impl Default for VectorServiceEntry {
@@ -710,6 +713,7 @@ impl Default for VectorServiceEntry {
             critical: true,
             kind: default_rro_kind(),
             path: default_rro_path(),
+            retrieval: RetrievalBootConfig::default(),
         }
     }
 }
@@ -719,6 +723,145 @@ impl VectorServiceEntry {
     pub fn resolve_path(&self, data_dir: &Path) -> PathBuf {
         data_dir.join(&self.path)
     }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Retrieval config (public TS-exported + internal boot)
+// ═══════════════════════════════════════════════════════════════
+
+/// Named retrieval baseline presets.
+///
+/// Each preset defines a complete set of retrieval tuning parameters.
+/// Switchable at runtime via devtools.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub enum RetrievalPreset {
+    /// Low recall, high precision. top_k=20, threshold=0.75, rerank=5.
+    Conservative,
+    /// Default. Balanced recall/precision. top_k=50, threshold=0.60, rerank=10.
+    Balanced,
+    /// High recall, lower precision. top_k=100, threshold=0.40, rerank=20.
+    Aggressive,
+    /// Tight threshold, small result set. top_k=30, threshold=0.80, rerank=3.
+    Precision,
+}
+
+impl RetrievalPreset {
+    /// Resolve this preset into a full `RetrievalConfig`.
+    #[must_use]
+    pub fn to_config(&self) -> RetrievalConfig {
+        match self {
+            Self::Conservative => RetrievalConfig {
+                preset: "conservative".to_string(),
+                top_k: 20,
+                score_threshold: 0.75,
+                rerank_top_n: 5,
+            },
+            Self::Balanced => RetrievalConfig {
+                preset: "balanced".to_string(),
+                top_k: 50,
+                score_threshold: 0.60,
+                rerank_top_n: 10,
+            },
+            Self::Aggressive => RetrievalConfig {
+                preset: "aggressive".to_string(),
+                top_k: 100,
+                score_threshold: 0.40,
+                rerank_top_n: 20,
+            },
+            Self::Precision => RetrievalConfig {
+                preset: "precision".to_string(),
+                top_k: 30,
+                score_threshold: 0.80,
+                rerank_top_n: 3,
+            },
+        }
+    }
+
+    /// Parse a preset name string into a variant.
+    #[must_use]
+    pub fn from_name(name: &str) -> Option<Self> {
+        match name {
+            "conservative" => Some(Self::Conservative),
+            "balanced" => Some(Self::Balanced),
+            "aggressive" => Some(Self::Aggressive),
+            "precision" => Some(Self::Precision),
+            _ => None,
+        }
+    }
+}
+
+/// Runtime-mutable retrieval configuration (TS-exported).
+///
+/// Controls how the vector store returns and filters results.
+/// Switchable via devtools preset buttons or per-field editing.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct RetrievalConfig {
+    /// Active preset name (for UI display).
+    pub preset: String,
+    /// Maximum vectors to retrieve from ANN search.
+    pub top_k: u32,
+    /// Minimum similarity score to accept (0.0–1.0).
+    pub score_threshold: f32,
+    /// How many results to keep after reranking.
+    pub rerank_top_n: u32,
+}
+
+impl Default for RetrievalConfig {
+    fn default() -> Self {
+        RetrievalPreset::Balanced.to_config()
+    }
+}
+
+/// Internal boot config for retrieval — TOML-driven, NOT TS-exported.
+///
+/// Mirrors the `LaneTraceBootConfig` pattern: a `preset` field selects
+/// the baseline, optional per-field overrides take precedence.
+#[derive(Debug, Clone, Deserialize)]
+pub struct RetrievalBootConfig {
+    /// Preset name: "conservative", "balanced", "aggressive", "precision".
+    #[serde(default = "default_retrieval_preset")]
+    pub preset: String,
+    /// Override: max vectors from ANN search.
+    #[serde(default)]
+    pub top_k: Option<u32>,
+    /// Override: minimum similarity score.
+    #[serde(default)]
+    pub score_threshold: Option<f32>,
+    /// Override: results to keep after reranking.
+    #[serde(default)]
+    pub rerank_top_n: Option<u32>,
+}
+
+impl Default for RetrievalBootConfig {
+    fn default() -> Self {
+        Self {
+            preset: default_retrieval_preset(),
+            top_k: None,
+            score_threshold: None,
+            rerank_top_n: None,
+        }
+    }
+}
+
+impl RetrievalBootConfig {
+    /// Resolve preset + per-field overrides into the public `RetrievalConfig`.
+    #[must_use]
+    pub fn to_retrieval_config(&self) -> RetrievalConfig {
+        let base = RetrievalPreset::from_name(&self.preset)
+            .unwrap_or(RetrievalPreset::Balanced)
+            .to_config();
+
+        RetrievalConfig {
+            preset: self.preset.clone(),
+            top_k: self.top_k.unwrap_or(base.top_k),
+            score_threshold: self.score_threshold.unwrap_or(base.score_threshold),
+            rerank_top_n: self.rerank_top_n.unwrap_or(base.rerank_top_n),
+        }
+    }
+}
+
+fn default_retrieval_preset() -> String {
+    "balanced".to_string()
 }
 
 /// Configuration for the Model Loader service (AI model management, inference).

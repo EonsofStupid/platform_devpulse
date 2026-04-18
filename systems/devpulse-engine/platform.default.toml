@@ -77,6 +77,15 @@ critical = true
 kind = "rro"
 path = "system/rro/storage"
 
+[services.system.vector.retrieval]
+# Preset selects default retrieval parameters. Per-field overrides below
+# take precedence over the preset when uncommented.
+# Presets: "conservative", "balanced", "aggressive", "precision"
+preset = "balanced"
+# top_k = 50            # max vectors from ANN search
+# score_threshold = 0.60 # minimum similarity score (0.0–1.0)
+# rerank_top_n = 10     # results to keep after reranking
+
 # [services.system.voice] — DELETED
 # Voice is now slot-managed through the Model Loader (SPRINT-VOICE-SLOTS).
 # Voice models live under the model root's voice/ directory and are

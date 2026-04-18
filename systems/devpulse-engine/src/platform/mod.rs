@@ -39,7 +39,7 @@ pub mod telemetry;
 
 pub use config::{
     DataScope, DatabaseConfig, ExecutionLane, LaneTraceConfig, LaneToggle,
-    PlatformBootConfig, PlatformConfig, sanitize_path,
+    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalPreset, sanitize_path,
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};

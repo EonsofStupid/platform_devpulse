@@ -34,6 +34,7 @@ pub use translator::{EventTranslator, TranslationRegistry};
 pub use visibility::{Visibility, classify, narration_hint};
 
 use std::sync::Arc;
+use devpulse_telemetry::prelude::spawn;
 use tokio::sync::{broadcast, RwLock};
 
 /// Capacity for each output channel. Must be large enough to avoid
@@ -77,7 +78,7 @@ impl FacadeHandle {
             Arc::new(registry),
         );
 
-        tokio::spawn(bridge.run());
+        spawn(bridge.run());
 
         Self {
             surface_tx,

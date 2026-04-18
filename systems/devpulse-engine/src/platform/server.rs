@@ -17,6 +17,7 @@
 //! from config, which match the `DEFINE USER` statements created during boot.
 
 use anyhow::Result;
+use devpulse_telemetry::prelude::spawn;
 use axum::extract::State;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::IntoResponse;
@@ -103,7 +104,7 @@ pub async fn start(
         "SurrealDB HTTP server listening (Basic Auth enforced)"
     );
 
-    tokio::spawn(async move {
+    spawn(async move {
         if let Err(e) = axum::serve(listener, app).await {
             tracing::error!(error = %e, "SurrealDB HTTP server error");
         }

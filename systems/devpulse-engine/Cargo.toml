@@ -43,6 +43,9 @@ sysinfo = "0.33"
 # Sync→async channel bridge (audio command queue)
 flume = "0.11"
 
+# Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
+devpulse-telemetry = { workspace = true }
+
 # DevForge REH service — port allocation + token generation
 portpicker = "0.1"
 rand = "0.8"

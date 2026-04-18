@@ -20,8 +20,7 @@ use axum::{
 };
 use std::convert::Infallible;
 use std::sync::Arc;
-// devpulse_telemetry crate not yet built — use tokio + tracing directly
-use tokio::sync::RwLock;
+use tokio::sync::{broadcast, RwLock};
 use tokio::task::JoinHandle;
 use uuid::Uuid;
 

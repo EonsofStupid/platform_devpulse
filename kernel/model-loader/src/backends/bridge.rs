@@ -196,11 +196,11 @@ impl InferenceHandle {
             .send_async(InferenceRequest::MemoryUsage { reply: reply_tx })
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread disconnected (send failed)"))?;
-        reply_rx
+        Ok(reply_rx
             .recv_async()
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread disconnected (recv failed)"))?
-            .value
+            .value)
     }
 
     /// Shutdown the inference thread.

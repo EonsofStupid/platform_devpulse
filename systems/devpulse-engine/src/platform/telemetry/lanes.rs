@@ -30,6 +30,8 @@ use std::time::Instant;
 use serde_json::json;
 use tokio::sync::{mpsc, RwLock};
 
+use devpulse_telemetry::prelude::spawn;
+
 use crate::platform::config::{ExecutionLane, LaneTraceConfig};
 use crate::platform::services::analytics::AnalyticsService;
 use devpulse_clyffy::cortex::persistence::AnalyticsAdapter;
@@ -77,10 +79,10 @@ impl TelemetryHandle {
                 analytics,
                 batch: Vec::with_capacity(BATCH_SIZE),
             };
-            tokio::spawn(writer.run());
+            spawn(writer.run());
         } else {
             // Still spawn a drain task so the channel doesn't fill up.
-            tokio::spawn(async move {
+            spawn(async move {
                 let mut rx = trace_rx;
                 while rx.recv().await.is_some() {
                     // Discard — persistence disabled.

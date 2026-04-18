@@ -50,7 +50,16 @@ pub async fn boot(
     #[allow(deprecated)]
     std::env::set_var("QDRANT__STORAGE__STORAGE_PATH", &storage_path);
 
-    let store = match VectorService::boot(&storage_path, None) {
+    let retrieval = entry.retrieval.to_retrieval_config();
+    tracing::info!(
+        preset = %retrieval.preset,
+        top_k = retrieval.top_k,
+        score_threshold = retrieval.score_threshold,
+        rerank_top_n = retrieval.rerank_top_n,
+        "Vector retrieval config resolved"
+    );
+
+    let store = match VectorService::boot(&storage_path, None, retrieval) {
         Ok(s) => Arc::new(s),
         Err(e) => {
             let elapsed_ms = start.elapsed().as_millis() as u64;

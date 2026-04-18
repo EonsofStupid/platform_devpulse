@@ -24,6 +24,8 @@ piper-backend = ["dep:piper-rs"]
 sherpa-backend = []
 # llama.cpp FFI runtime — reserved feature flag for the planned GGUF path.
 llama-cpp-ffi = []
+# Moshi STS — native Rust speech-to-speech via Candle (Kyutai Moshi 7B)
+moshi-sts = ["dep:moshi", "dep:sentencepiece", "candle-backend"]
 nvml = ["dep:nvml-wrapper"]
 cuda = ["candle-core/cuda"]
 specta = ["dep:specta"]
@@ -82,6 +84,10 @@ ndarray = { version = "0.17", optional = true }
 
 # FFT for Whisper mel spectrogram computation
 rustfft = { version = "6.2", optional = true }
+
+# Moshi STS — speech-to-speech via Candle (optional)
+moshi = { workspace = true, optional = true }
+sentencepiece = { workspace = true, optional = true }
 
 # GPU metrics (optional)
 nvml-wrapper = { version = "0.10", optional = true }
