@@ -529,12 +529,14 @@ async fn boot_task(
                         let assigned = slots.iter()
                             .filter(|s| s.assigned_model.is_some())
                             .count();
-                        let ready = !registry.is_empty() && assigned > 0;
+                        let setup_done = loader.is_setup_complete().await;
+                        let ready = setup_done && !registry.is_empty() && assigned > 0;
                         tracing::info!(
                             models = registry.len(),
                             slots = slots.len(),
                             assigned,
                             first_run,
+                            setup_done,
                             ready,
                             "Model readiness check"
                         );
@@ -586,16 +588,13 @@ async fn boot_task(
                 tracing::info!("Main window now visible — all services confirmed");
             }
 
-            // Chat window GATED on model readiness.
-            // If models aren't ready, the BootSetupWizard handles setup
-            // and calls complete_model_setup when done — which opens chat.
+            // Chat window is USER-INITIATED only — never auto-opened from boot.
+            // The inline ModelSetupBanner guides first-run setup within the
+            // main window. User opens chat via sidebar nav or "Complete Setup".
             if models_ready {
-                tracing::info!("Models ready — opening Clyffy Chat window");
-                if let Err(e) = commands::window::open_chat_window(app.clone()).await {
-                    tracing::warn!(error = %e, "Chat window failed to open (non-fatal)");
-                }
+                tracing::info!("Models ready and setup complete — app fully operational");
             } else {
-                tracing::info!("Models not ready — wizard will handle setup, chat deferred");
+                tracing::info!("Setup not complete — inline model banner will guide user");
             }
         }
         Err(e) => {

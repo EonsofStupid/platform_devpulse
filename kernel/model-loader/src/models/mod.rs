@@ -2,6 +2,7 @@
 
 pub mod discovery;
 pub mod download;
+pub mod manifest;
 pub mod registry;
 pub mod search;
 pub mod secrets;

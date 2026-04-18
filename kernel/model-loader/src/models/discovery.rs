@@ -32,7 +32,12 @@ pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEnt
     // Deduplicate by canonical path — same model discovered via symlink or copy
     deduplicate_by_path(&mut entries);
 
-    // Post-process: folder-aware capability hints
+    // Post-process: manifest-first capability resolution.
+    // Waterfall: devpulse.json → sentence-transformers → config.json arch → folder hints.
+    apply_manifest_capabilities(&mut entries);
+
+    // Folder hints only ADD capabilities — they run last as a safety net
+    // for models with no manifest and no sentence-transformers files.
     apply_folder_hints(models_dir, &mut entries);
 
     tracing::info!(
@@ -745,6 +750,71 @@ fn normalize_path(path: &std::path::Path) -> String {
     }
 
     s
+}
+
+/// Apply manifest-first capability resolution to all discovered models.
+///
+/// For each entry, checks the model's parent directory for `devpulse.json`.
+/// If found, capabilities are REPLACED (not supplemented). If absent, tries
+/// sentence-transformers detection, then config.json architecture suffix.
+///
+/// This runs BEFORE folder hints so manifests always win.
+fn apply_manifest_capabilities(entries: &mut [ModelRegistryEntry]) {
+    use crate::models::manifest;
+
+    for entry in entries.iter_mut() {
+        let model_dir = match entry.path.parent() {
+            Some(dir) => dir,
+            None => continue,
+        };
+
+        // 1. devpulse.json manifest — authoritative, replaces everything
+        match manifest::load_manifest(model_dir) {
+            Ok(Some(m)) => {
+                tracing::info!(
+                    file = %entry.filename,
+                    role = %m.role,
+                    caps = ?m.capabilities,
+                    "Manifest override — capabilities replaced"
+                );
+                entry.compatible_capabilities = m.capabilities;
+                continue; // Manifest is authoritative — skip fallbacks
+            }
+            Ok(None) => {} // No manifest — fall through to heuristics
+            Err(e) => {
+                tracing::warn!(
+                    file = %entry.filename,
+                    error = %e,
+                    "Malformed devpulse.json — falling back to heuristic"
+                );
+            }
+        }
+
+        // 2. sentence-transformers detection (CrossEncoder = reranker, Pooling = embedder)
+        if let Some(caps) = manifest::infer_from_sentence_transformers(model_dir) {
+            tracing::info!(
+                file = %entry.filename,
+                caps = ?caps,
+                "sentence-transformers detection — capabilities replaced"
+            );
+            entry.compatible_capabilities = caps;
+            continue;
+        }
+
+        // 3. config.json architecture suffix (ForSequenceClassification = reranker)
+        if let Some(caps) = manifest::infer_from_config_json_architectures(model_dir) {
+            tracing::info!(
+                file = %entry.filename,
+                caps = ?caps,
+                "config.json architecture suffix — capabilities replaced"
+            );
+            entry.compatible_capabilities = caps;
+            continue;
+        }
+
+        // 4. Existing heuristic from infer_capabilities() already applied at parse time.
+        //    Folder hints run after this function.
+    }
 }
 
 #[cfg(test)]

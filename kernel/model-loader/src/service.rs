@@ -351,18 +351,39 @@ impl ModelLoaderService {
                 .unwrap_or_default();
 
             if let Some(slot) = self.slots.get_slot_mut(slot_id) {
-                // Verify model file still exists
-                let exists = self.registry.get(&model_id).is_some();
-                if exists {
-                    slot.assigned_model = Some(model_id);
-                    tracing::info!(slot = %slot_id, "Restored model assignment");
-                } else {
-                    tracing::warn!(
-                        slot = %slot_id,
-                        model = %model_id,
-                        "Assigned model no longer in registry — clearing"
-                    );
-                    let _ = self.config.delete(&key);
+                match self.registry.get(&model_id) {
+                    None => {
+                        // Model no longer on disk — clear the stale assignment
+                        tracing::warn!(
+                            slot = %slot_id,
+                            model = %model_id,
+                            "Stale assignment — model no longer in registry, clearing"
+                        );
+                        let _ = self.config.delete(&key);
+                    }
+                    Some(entry) => {
+                        // Validate capability compatibility — a reranker should
+                        // not be assigned to chat.brain, an embedder should not
+                        // be assigned to voice.tts, etc.
+                        if entry.compatible_capabilities.contains(&slot.capability) {
+                            slot.assigned_model = Some(model_id);
+                            tracing::info!(
+                                slot = %slot_id,
+                                model = %entry.filename,
+                                cap = ?slot.capability,
+                                "Restored model assignment"
+                            );
+                        } else {
+                            tracing::warn!(
+                                slot = %slot_id,
+                                model = %entry.filename,
+                                slot_cap = ?slot.capability,
+                                model_caps = ?entry.compatible_capabilities,
+                                "Incompatible assignment — model capabilities don't match slot, clearing"
+                            );
+                            let _ = self.config.delete(&key);
+                        }
+                    }
                 }
             }
         }

@@ -90,7 +90,7 @@ preferred_device = "GpuWithCpuFallback"
 loading = "Hot"
 persistence_class = "warm_standby"
 lane = "vram"
-runtime = "LlamaCpp"
+runtime = "Candle"
 fallback = "chat.brain"
 source_tier = "UserManaged"
 
@@ -169,7 +169,7 @@ preferred_device = "Gpu"
 loading = { Signal = "image.pasted" }
 persistence_class = "on_demand"
 lane = "vram"
-runtime = "LlamaCpp"
+runtime = "Candle"
 fallback = "chat.brain"
 source_tier = "UserManaged"
 
