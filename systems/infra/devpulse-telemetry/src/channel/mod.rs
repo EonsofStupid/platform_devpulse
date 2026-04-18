@@ -22,8 +22,12 @@
 //! `clippy.toml` `disallowed-types`. This module's submodules are the only
 //! places in the workspace allowed to `#![allow(clippy::disallowed_types)]`.
 
+pub mod broadcast;
 pub mod envelope;
 pub mod flume;
 
-pub use envelope::{Envelope, Traced};
+pub use self::broadcast::{
+    channel as broadcast_channel, BroadcastReceiver, BroadcastSender, LinkedTraced,
+};
 pub use self::flume::{bounded, unbounded, TracedReceiver, TracedSender};
+pub use envelope::{Envelope, Traced};

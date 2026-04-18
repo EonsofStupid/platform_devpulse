@@ -16,6 +16,17 @@ pub struct Envelope<T> {
     pub(crate) payload: T,
 }
 
+// Manual Clone: required by `tokio::sync::broadcast` which clones the value
+// for each subscriber. `Context` is Arc-based and cheap to clone.
+impl<T: Clone> Clone for Envelope<T> {
+    fn clone(&self) -> Self {
+        Self {
+            cx: self.cx.clone(),
+            payload: self.payload.clone(),
+        }
+    }
+}
+
 impl<T> Envelope<T> {
     /// Capture the current OpenTelemetry context and wrap the payload.
     #[must_use]

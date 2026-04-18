@@ -54,8 +54,8 @@
 //!
 //! - **P1** — crate scaffold ✅
 //! - **P2a** — `Envelope<T>`, `Traced<T>`, `TracedSender`/`TracedReceiver`, `spawn`/`spawn_blocking` ✅
-//! - **P2b** — `BroadcastSender`/`BroadcastReceiver` + tests + workspace clippy.toml (next)
-//! - **P3** — OTel SDK wiring, `TelemetryGuard`, `BufferingProcessor`, OTLP file exporter
+//! - **P2b** — `BroadcastSender`/`BroadcastReceiver` + workspace clippy.toml ✅
+//! - **P3** — OTel SDK wiring, `TelemetryGuard`, `BufferingProcessor`, OTLP file exporter ✅
 //! - **P4** — move DuckDB sinks from `devpulse-engine::platform::telemetry`
 //! - **P5** — migrate the 35 existing call sites
 //! - **P6** — signals-registry bridge
@@ -65,6 +65,8 @@
 
 #![forbid(unsafe_code)]
 
+pub mod boot;
 pub mod channel;
+pub mod otel;
 pub mod prelude;
 pub mod spawn;

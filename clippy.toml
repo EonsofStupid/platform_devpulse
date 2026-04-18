@@ -1,0 +1,32 @@
+# DevPulse workspace-wide clippy configuration
+# See ADR-002-TELEMETRY-PRIMITIVES.md
+#
+# These bans are the compiler-enforced half of the telemetry doctrine.
+# The ONLY crates allowed to #![allow(...)] these are:
+#   - systems/infra/devpulse-telemetry (channel/flume.rs, channel/broadcast.rs, spawn/tokio.rs)
+#   - systems/infra/devpulse-telemetry-macros
+#
+# If clippy reports a violation, the fix is to use the wrapper from
+# devpulse_telemetry::prelude, NOT to add an allow attribute.
+
+# ── Disallowed methods ────────────────────────────────────────────────────
+# Raw tokio::spawn orphans spans — use devpulse_telemetry::spawn which
+# wraps with .instrument(Span::current()).
+
+disallowed-methods = [
+    { path = "tokio::spawn", reason = "use devpulse_telemetry::spawn — preserves Span::current()" },
+    { path = "tokio::task::spawn", reason = "use devpulse_telemetry::spawn — preserves Span::current()" },
+    { path = "tokio::task::spawn_blocking", reason = "use devpulse_telemetry::spawn_blocking — preserves Span::current()" },
+]
+
+# ── Disallowed types ──────────────────────────────────────────────────────
+# Raw channel types do not propagate opentelemetry::Context across task
+# boundaries. Use the wrappers from devpulse_telemetry::channel which
+# carry Envelope<T> { cx: Context, payload: T } automatically.
+
+disallowed-types = [
+    { path = "flume::Sender", reason = "use devpulse_telemetry::TracedSender — carries OTel context" },
+    { path = "flume::Receiver", reason = "use devpulse_telemetry::TracedReceiver — carries OTel context" },
+    { path = "tokio::sync::broadcast::Sender", reason = "use devpulse_telemetry::BroadcastSender — carries OTel context as link" },
+    { path = "tokio::sync::broadcast::Receiver", reason = "use devpulse_telemetry::BroadcastReceiver — carries OTel context as link" },
+]

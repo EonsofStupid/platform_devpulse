@@ -4,17 +4,12 @@ members = [
     "kernel/devpulse-clyffy",
     "kernel/model-loader",
     "systems/devpulse-engine",
-    "systems/*",
-    "systems/infra/*", # Hypermodular foundational infra crates — see ADR-002
+    "systems/devpulse-media",
+    "systems/infra/devpulse-telemetry",
+    "systems/infra/devpulse-telemetry-macros",
     "interfaces/desktop/src-tauri",
-    "xtask" # The Build Orchestrator
+    "xtask", # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
-]
-exclude = [
-    # `systems/infra/` is a grouping directory, not a crate — `systems/*`
-    # would otherwise match it and expect a Cargo.toml at its root.
-    # Its children are picked up via the explicit `systems/infra/*` glob above.
-    "systems/infra",
 ]
 
 [workspace.dependencies]

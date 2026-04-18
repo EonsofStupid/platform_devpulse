@@ -13,7 +13,10 @@
 //! let (payload, _cx) = traced.attach();
 //! ```
 
-pub use crate::channel::{bounded, unbounded, Envelope, Traced, TracedReceiver, TracedSender};
+pub use crate::channel::{
+    bounded, broadcast_channel, unbounded, BroadcastReceiver, BroadcastSender, Envelope,
+    LinkedTraced, Traced, TracedReceiver, TracedSender,
+};
 pub use crate::spawn::{spawn, spawn_blocking};
 
 /// Re-export of [`tracing::Instrument`] so consumers can `.instrument(...)`

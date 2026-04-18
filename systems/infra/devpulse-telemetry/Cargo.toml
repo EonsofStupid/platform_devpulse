@@ -20,8 +20,15 @@ tracing = { workspace = true }
 tokio = { workspace = true }
 flume = { workspace = true }
 
+# P3 — OTel SDK wiring, TelemetryGuard, BufferingProcessor, file exporter
+opentelemetry_sdk = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+
 # Remaining phases add:
-#   P3: opentelemetry_sdk, opentelemetry-otlp, tracing-opentelemetry, arc-swap
-#   P4: duckdb, chrono, serde_json (inherited when sinks move in)
+#   P4: duckdb (inherited when sinks move in)
 #   P6: build-script reads systems/devpulse-engine/ip/signals.registry.yaml
 #   P7: handled in devpulse-telemetry-macros companion crate
