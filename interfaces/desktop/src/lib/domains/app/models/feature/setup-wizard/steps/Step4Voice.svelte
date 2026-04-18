@@ -52,6 +52,21 @@ function slotData(slotId: SlotId) {
 		</div>
 	</div>
 
+	<div class="rec-banners">
+		<div class="rec-item">
+			<Text size="xs" weight="bold">voice.stt</Text>
+			<Text size="xs" class="rec-text">Recommended: Whisper Small (466 MB, CPU)</Text>
+		</div>
+		<div class="rec-item">
+			<Text size="xs" weight="bold">voice.tts</Text>
+			<Text size="xs" class="rec-text">Recommended: Kokoro v1.0 int8 (310 MB, CPU)</Text>
+		</div>
+		<div class="rec-item">
+			<Text size="xs" weight="bold">voice.brain</Text>
+			<Text size="xs" class="rec-text">Optional: Moshi 7B q8 (8 GB, GPU) — full-duplex STS for 16GB+ systems</Text>
+		</div>
+	</div>
+
 	<VramBar />
 
 	<div class="slot-grid">
@@ -137,6 +152,26 @@ function slotData(slotId: SlotId) {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
 		gap: 0.75rem;
+	}
+
+	.rec-banners {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	.rec-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.5rem;
+		background: color-mix(in oklch, var(--accent-coral-fill, var(--surface-raised)) 60%, transparent);
+		border: 0.0625rem solid var(--border-soft);
+	}
+
+	:global(.rec-text) {
+		color: var(--text-secondary);
 	}
 
 	.step-nav {

@@ -1,15 +1,17 @@
 //! Flume sync-to-async bridge for inference.
 //!
 //! Spawns a dedicated OS thread that owns the `InferenceBackend`. All
-//! requests are sent via `flume` channels, making the sync inference
-//! engine available to async callers (Tauri, tokio tasks).
+//! requests are sent via context-propagating `devpulse_telemetry` channels,
+//! making the sync inference engine available to async callers (Tauri, tokio
+//! tasks) with full OTel span correlation across the thread boundary.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::traits::backend::InferenceBackend;
+use devpulse_telemetry::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-/// Request sent to the inference thread via flume channel.
+/// Request sent to the inference thread via traced flume channel.
 pub enum InferenceRequest {
     /// Load a model from disk into the backend.
     Load {
@@ -18,12 +20,12 @@ pub enum InferenceRequest {
         /// Loading parameters (device, context length, GPU layers).
         params: LoadParams,
         /// Reply channel for the memory footprint result.
-        reply: flume::Sender<anyhow::Result<MemoryFootprint>>,
+        reply: TracedSender<anyhow::Result<MemoryFootprint>>,
     },
     /// Unload the current model and free memory.
     Unload {
         /// Reply channel for the unload result.
-        reply: flume::Sender<anyhow::Result<()>>,
+        reply: TracedSender<anyhow::Result<()>>,
     },
     /// Run a forward pass on the loaded model.
     Forward {
@@ -32,21 +34,21 @@ pub enum InferenceRequest {
         /// Position offset in the context window.
         position: usize,
         /// Reply channel for the logits vector.
-        reply: flume::Sender<anyhow::Result<Vec<f32>>>,
+        reply: TracedSender<anyhow::Result<Vec<f32>>>,
     },
     /// Tokenize a text string into token IDs.
     Tokenize {
         /// Input text to tokenize.
         text: String,
         /// Reply channel for the token ID vector.
-        reply: flume::Sender<anyhow::Result<Vec<u32>>>,
+        reply: TracedSender<anyhow::Result<Vec<u32>>>,
     },
     /// Detokenize token IDs back into text.
     Detokenize {
         /// Token IDs to decode.
         tokens: Vec<u32>,
         /// Reply channel for the decoded text.
-        reply: flume::Sender<anyhow::Result<String>>,
+        reply: TracedSender<anyhow::Result<String>>,
     },
     /// Generate text with streaming token output.
     Generate {
@@ -57,14 +59,14 @@ pub enum InferenceRequest {
         /// Sampling temperature (0.0 = greedy, 1.0 = creative).
         temperature: f32,
         /// Channel for streaming token responses.
-        token_sink: flume::Sender<InferenceResponse>,
+        token_sink: TracedSender<InferenceResponse>,
         /// Trace ID for cross-thread span correlation. Empty string if untraced.
         trace_id: String,
     },
     /// Query current memory usage of the loaded model.
     MemoryUsage {
         /// Reply channel for the memory footprint.
-        reply: flume::Sender<MemoryFootprint>,
+        reply: TracedSender<MemoryFootprint>,
     },
     /// Shutdown the inference thread gracefully.
     Shutdown,
@@ -89,13 +91,13 @@ pub enum InferenceResponse {
 /// Handle to an inference bridge. Clone + Send — hand out to multiple callers.
 #[derive(Clone)]
 pub struct InferenceHandle {
-    sender: flume::Sender<InferenceRequest>,
+    sender: TracedSender<InferenceRequest>,
 }
 
 impl InferenceHandle {
     /// Load a model. Blocks the calling async task until the inference thread responds.
     pub async fn load(&self, path: PathBuf, params: LoadParams) -> anyhow::Result<MemoryFootprint> {
-        let (reply_tx, reply_rx) = flume::bounded(1);
+        let (reply_tx, reply_rx) = bounded(1);
         self.sender
             .send_async(InferenceRequest::Load {
                 path,
@@ -108,11 +110,12 @@ impl InferenceHandle {
             .recv_async()
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread did not respond"))?
+            .value
     }
 
     /// Unload the current model.
     pub async fn unload(&self) -> anyhow::Result<()> {
-        let (reply_tx, reply_rx) = flume::bounded(1);
+        let (reply_tx, reply_rx) = bounded(1);
         self.sender
             .send_async(InferenceRequest::Unload { reply: reply_tx })
             .await
@@ -121,11 +124,12 @@ impl InferenceHandle {
             .recv_async()
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread did not respond"))?
+            .value
     }
 
     /// Run a forward pass.
     pub async fn forward(&self, tokens: Vec<u32>, position: usize) -> anyhow::Result<Vec<f32>> {
-        let (reply_tx, reply_rx) = flume::bounded(1);
+        let (reply_tx, reply_rx) = bounded(1);
         self.sender
             .send_async(InferenceRequest::Forward {
                 tokens,
@@ -138,11 +142,12 @@ impl InferenceHandle {
             .recv_async()
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread did not respond"))?
+            .value
     }
 
     /// Tokenize text.
     pub async fn tokenize(&self, text: String) -> anyhow::Result<Vec<u32>> {
-        let (reply_tx, reply_rx) = flume::bounded(1);
+        let (reply_tx, reply_rx) = bounded(1);
         self.sender
             .send_async(InferenceRequest::Tokenize {
                 text,
@@ -154,6 +159,7 @@ impl InferenceHandle {
             .recv_async()
             .await
             .map_err(|_| anyhow::anyhow!("Inference thread did not respond"))?
+            .value
     }
 
     /// Generate text with streaming token callback.
@@ -166,8 +172,8 @@ impl InferenceHandle {
         max_tokens: u32,
         temperature: f32,
         trace_id: String,
-    ) -> anyhow::Result<flume::Receiver<InferenceResponse>> {
-        let (token_tx, token_rx) = flume::unbounded();
+    ) -> anyhow::Result<TracedReceiver<InferenceResponse>> {
+        let (token_tx, token_rx) = unbounded();
         self.sender
             .send_async(InferenceRequest::Generate {
                 prompt,
@@ -185,7 +191,7 @@ impl InferenceHandle {
     ///
     /// Returns error if the inference thread is dead or disconnected.
     pub async fn memory_usage(&self) -> anyhow::Result<MemoryFootprint> {
-        let (reply_tx, reply_rx) = flume::bounded(1);
+        let (reply_tx, reply_rx) = bounded(1);
         self.sender
             .send_async(InferenceRequest::MemoryUsage { reply: reply_tx })
             .await
@@ -193,7 +199,8 @@ impl InferenceHandle {
         reply_rx
             .recv_async()
             .await
-            .map_err(|_| anyhow::anyhow!("Inference thread disconnected (recv failed)"))
+            .map_err(|_| anyhow::anyhow!("Inference thread disconnected (recv failed)"))?
+            .value
     }
 
     /// Shutdown the inference thread.
@@ -221,7 +228,7 @@ impl InferenceBridge {
     pub fn spawn_candle(device: candle_core::Device) -> anyhow::Result<Self> {
         use crate::backends::candle::CandleBackend;
 
-        let (tx, rx) = flume::unbounded::<InferenceRequest>();
+        let (tx, rx) = unbounded::<InferenceRequest>();
         let mut backend = CandleBackend::new(device);
 
         let thread = std::thread::Builder::new()
@@ -266,14 +273,22 @@ impl Drop for InferenceBridge {
 }
 
 /// The main loop running on the inference thread.
+///
+/// Each received request is unwrapped from a `Traced<InferenceRequest>` via
+/// `.attach()`, which sets the caller's OTel context as current for the
+/// duration of the request. This means all `tracing::info!` / `debug!` calls
+/// inside the inference thread are parented under the async caller's span.
 #[cfg(feature = "candle-backend")]
 fn inference_thread_loop(
     backend: &mut crate::backends::candle::CandleBackend,
-    rx: flume::Receiver<InferenceRequest>,
+    rx: TracedReceiver<InferenceRequest>,
 ) {
     tracing::info!("Inference worker thread started");
 
-    while let Ok(request) = rx.recv() {
+    while let Ok(traced) = rx.recv() {
+        // Attach caller's OTel context for this request's duration.
+        let (request, _cx_guard) = traced.attach();
+
         match request {
             InferenceRequest::Load {
                 path,

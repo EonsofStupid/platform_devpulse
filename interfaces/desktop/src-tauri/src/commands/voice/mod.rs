@@ -127,6 +127,7 @@ pub async fn speak(
     text: String,
     voice: Option<String>,
     slot: Option<String>,
+    speed: Option<f32>,
 ) -> Result<(), String> {
     let guard = state.platform.read().await;
     let platform = guard.as_ref().ok_or("Platform not ready")?;
@@ -136,6 +137,14 @@ pub async fn speak(
 
     let slot_id = slot.as_deref().unwrap_or("voice.tts");
     let voice_name = voice.as_deref().unwrap_or("af_heart");
+    let tts_speed = speed.unwrap_or(1.0);
+    tracing::info!(
+        slot = %slot_id,
+        voice = %voice_name,
+        speed = %tts_speed,
+        text_len = text.len(),
+        "speak() starting"
+    );
 
     let samples = loader
         .synthesize(slot_id, &text, voice_name)
@@ -247,7 +256,7 @@ pub async fn preview_voice(
             .sample_text
             .clone()
     };
-    speak(state, sample_text, Some(voice), Some(slot_id)).await
+    speak(state, sample_text, Some(voice), Some(slot_id), None).await
 }
 
 // ── STT Commands ──────────────────────────────────────────────
@@ -423,54 +432,146 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
     }
 }
 
-// ── Profile Commands ──────────────────────────────────────────
+// ── Profile Commands (persisted to preferences.json) ─────────
 
 /// List saved voice profiles.
 #[tauri::command]
 #[specta::specta]
+#[allow(clippy::missing_errors_doc)]
 pub async fn list_voice_profiles(
-    _state: State<'_, PlatformState>,
+    state: State<'_, PlatformState>,
 ) -> Result<Vec<VoiceProfile>, String> {
-    // Return default profiles until persistence is wired
-    Ok(vec![
-        VoiceProfile {
+    tracing::info!("list_voice_profiles() called");
+    let lock = state.platform.read().await;
+    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    let prefs_path = platform.config().data_dir.clone();
+    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+
+    let prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
+        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).unwrap_or_default()
+    } else {
+        std::collections::HashMap::new()
+    };
+
+    let active_id = prefs.get("voice:active_profile").cloned().unwrap_or_else(|| "default".to_string());
+
+    let mut profiles: Vec<VoiceProfile> = prefs
+        .iter()
+        .filter(|(k, _)| k.starts_with("voice:profile:"))
+        .filter_map(|(_, v)| serde_json::from_str::<VoiceProfile>(v).ok())
+        .collect();
+
+    // Always include a default profile
+    if !profiles.iter().any(|p| p.id == "default") {
+        profiles.push(VoiceProfile {
             id: "default".to_string(),
             name: "Default".to_string(),
             tts_voice_id: "af_heart".to_string(),
             stt_quality: "standard".to_string(),
-            active: true,
-        },
-    ])
+            active: false,
+        });
+    }
+
+    // Mark active
+    profiles.iter_mut().for_each(|p| p.active = p.id == active_id);
+
+    tracing::info!(count = profiles.len(), active = %active_id, "list_voice_profiles() returning");
+    Ok(profiles)
 }
 
-/// Save a voice profile.
+/// Save a voice profile to preferences.json.
 #[tauri::command]
 #[specta::specta]
+#[allow(clippy::missing_errors_doc)]
 pub async fn save_voice_profile(
-    _state: State<'_, PlatformState>,
-    _profile: VoiceProfile,
+    state: State<'_, PlatformState>,
+    profile: VoiceProfile,
 ) -> Result<(), String> {
-    Err("Voice profile persistence not yet available — GlobalDb sprint required".to_string())
+    tracing::info!(profile_id = %profile.id, name = %profile.name, voice = %profile.tts_voice_id, "save_voice_profile()");
+    let lock = state.platform.read().await;
+    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    let prefs_path = platform.config().data_dir.clone();
+    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+
+    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
+        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).unwrap_or_default()
+    } else {
+        std::collections::HashMap::new()
+    };
+
+    let key = format!("voice:profile:{}", profile.id);
+    let json = serde_json::to_string(&profile).map_err(|e| e.to_string())?;
+    prefs.insert(key, json);
+
+    let out = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
+    std::fs::write(&prefs_file, out).map_err(|e| e.to_string())?;
+    tracing::info!(profile_id = %profile.id, "Voice profile saved");
+    Ok(())
 }
 
 /// Delete a voice profile.
 #[tauri::command]
 #[specta::specta]
+#[allow(clippy::missing_errors_doc)]
 pub async fn delete_voice_profile(
-    _state: State<'_, PlatformState>,
-    _profile_id: String,
+    state: State<'_, PlatformState>,
+    profile_id: String,
 ) -> Result<(), String> {
-    Err("Voice profile persistence not yet available — GlobalDb sprint required".to_string())
+    tracing::info!(profile_id = %profile_id, "delete_voice_profile()");
+    let lock = state.platform.read().await;
+    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    let prefs_path = platform.config().data_dir.clone();
+    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+
+    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
+        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).unwrap_or_default()
+    } else {
+        return Ok(());
+    };
+
+    let key = format!("voice:profile:{}", profile_id);
+    prefs.remove(&key);
+
+    // If deleted profile was active, reset to default
+    if prefs.get("voice:active_profile").map(|s| s.as_str()) == Some(&profile_id) {
+        prefs.insert("voice:active_profile".to_string(), "default".to_string());
+    }
+
+    let out = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
+    std::fs::write(&prefs_file, out).map_err(|e| e.to_string())?;
+    tracing::info!(profile_id = %profile_id, "Voice profile deleted");
+    Ok(())
 }
 
 /// Activate a voice profile.
 #[tauri::command]
 #[specta::specta]
+#[allow(clippy::missing_errors_doc)]
 pub async fn activate_voice_profile(
-    _state: State<'_, PlatformState>,
-    _profile_id: String,
+    state: State<'_, PlatformState>,
+    profile_id: String,
 ) -> Result<(), String> {
-    Err("Voice profile persistence not yet available — GlobalDb sprint required".to_string())
+    tracing::info!(profile_id = %profile_id, "activate_voice_profile()");
+    let lock = state.platform.read().await;
+    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    let prefs_path = platform.config().data_dir.clone();
+    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+
+    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
+        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).unwrap_or_default()
+    } else {
+        std::collections::HashMap::new()
+    };
+
+    prefs.insert("voice:active_profile".to_string(), profile_id.clone());
+    let out = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
+    std::fs::write(&prefs_file, out).map_err(|e| e.to_string())?;
+    tracing::info!(profile_id = %profile_id, "Voice profile activated");
+    Ok(())
 }
 
 // ── Audio file upload + STS pipeline ──────────────────────────
@@ -808,8 +909,8 @@ pub async fn run_sts_pipeline(
         .map_err(|e| format!("STS stage 2 (generate) failed: {e:#}"))?;
 
     let mut reply = String::new();
-    while let Ok(response) = token_rx.recv_async().await {
-        match response {
+    while let Ok(traced) = token_rx.recv_async().await {
+        match traced.value {
             InferenceResponse::Token { text, .. } => reply.push_str(&text),
             InferenceResponse::Done(text) => {
                 reply = text;

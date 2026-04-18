@@ -35,6 +35,7 @@ chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
 devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference"] }
+devpulse-telemetry = { workspace = true }
 flume = "0.11"
 rfd = "0.15"
 sysinfo = "0.38.4"

@@ -54,6 +54,9 @@ opentelemetry-semantic-conventions = "0.31"
 # Sync→async channel bridge (MPMC) — wrapped by devpulse-telemetry::channel::flume
 flume = "0.11"
 
+# Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
+devpulse-telemetry = { path = "systems/infra/devpulse-telemetry" }
+
 # Error Handling
 anyhow = "1.0"
 thiserror = "2.0"

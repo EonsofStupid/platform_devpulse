@@ -11,11 +11,14 @@ use std::sync::Arc;
 use tokio::task::JoinHandle;
 use tracing::{debug, error, info, warn};
 
-/// Pipeline state
+/// Current lifecycle state of the media pipeline
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PipelineState {
+    /// Pipeline is idle — no capture task running
     Stopped,
+    /// Capture task is actively producing frames
     Running,
+    /// Capture task exists but frame production is suspended
     Paused,
 }
 
@@ -113,8 +116,11 @@ impl MediaPipeline {
 
                 match camera_mgr.capture_frame() {
                     Ok(frame) => {
+                        debug!("Captured frame seq={} ({}x{})", frame.sequence, frame.width, frame.height);
                         // Try to send, drop if channel full (keeps us real-time)
-                        let _ = frame_tx.try_send(frame);
+                        if frame_tx.try_send(frame).is_err() {
+                            debug!("Frame channel full, dropping frame to stay real-time");
+                        }
                     }
                     Err(e) => {
                         warn!("Frame capture failed: {}", e);
@@ -148,7 +154,11 @@ impl MediaPipeline {
         self.running.store(false, Ordering::SeqCst);
 
         if let Some(handle) = self.capture_handle.take() {
-            let _ = handle.await;
+            if let Err(e) = handle.await {
+                error!("Capture task panicked during shutdown: {}", e);
+                self.state = PipelineState::Stopped;
+                return Err(MediaError::CaptureFailed(format!("Capture task panicked: {e}")));
+            }
         }
 
         self.state = PipelineState::Stopped;

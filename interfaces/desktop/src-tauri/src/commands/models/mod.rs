@@ -1371,8 +1371,8 @@ pub async fn inference_generate(
     // Stream tokens to frontend via Tauri events, collect full text
     let mut full_text = String::new();
     let mut token_count: u32 = 0;
-    while let Ok(response) = token_rx.recv_async().await {
-        match response {
+    while let Ok(traced) = token_rx.recv_async().await {
+        match traced.value {
             devpulse_engine::platform::integrations::InferenceResponse::Token { text, .. } => {
                 let _ = app.emit("inference-token", &text);
                 full_text.push_str(&text);

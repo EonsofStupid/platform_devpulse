@@ -15,7 +15,7 @@ use tracing::{debug, error, info, warn};
 #[cfg(feature = "capture")]
 use nokhwa::{
     pixel_format::RgbAFormat,
-    utils::{CameraIndex, RequestedFormat, RequestedFormatType, Resolution},
+    utils::{CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution},
     Camera, NokhwaError,
 };
 
@@ -54,6 +54,11 @@ impl CameraManager {
         }
     }
 
+    /// Create a thread-safe shared camera manager for pipeline use
+    pub fn shared() -> Arc<RwLock<Self>> {
+        Arc::new(RwLock::new(Self::new()))
+    }
+
     /// Enumerate all available cameras
     #[cfg(feature = "capture")]
     pub fn enumerate_cameras(&mut self) -> MediaResult<Vec<CameraInfo>> {
@@ -75,9 +80,13 @@ impl CameraManager {
             })
             .collect();
 
-        info!("Found {} cameras", self.cameras.len());
-        for cam in &self.cameras {
-            debug!("  - {} ({})", cam.name, cam.id);
+        if self.cameras.is_empty() {
+            warn!("No cameras detected on this system");
+        } else {
+            info!("Found {} cameras", self.cameras.len());
+            for cam in &self.cameras {
+                debug!("  - {} ({})", cam.name, cam.id);
+            }
         }
 
         Ok(self.cameras.clone())
@@ -107,12 +116,29 @@ impl CameraManager {
         info!("Opening camera: {} ({}x{})", cam_info.name, width, height);
 
         let index = CameraIndex::Index(cam_info.index);
-        let requested = RequestedFormat::new::<RgbAFormat>(RequestedFormatType::Closest(
+        let format = CameraFormat::new(
             Resolution::new(width, height),
-        ));
+            FrameFormat::MJPEG,
+            30,
+        );
+        let requested = RequestedFormat::new::<RgbAFormat>(
+            RequestedFormatType::Closest(format),
+        );
 
-        let camera = Camera::new(index, requested)
-            .map_err(|e| MediaError::CameraOpenFailed(e.to_string()))?;
+        let camera = Camera::new(index, requested).map_err(|e| match &e {
+            NokhwaError::OpenDeviceError(dev, reason) => {
+                error!("Device open failed for {}: {}", dev, reason);
+                MediaError::CameraOpenFailed(e.to_string())
+            }
+            NokhwaError::StructureError { structure, error: err } => {
+                error!("Format negotiation failed ({}): {}", structure, err);
+                MediaError::UnsupportedFormat(e.to_string())
+            }
+            _ => {
+                error!("Camera initialization failed: {}", e);
+                MediaError::CameraOpenFailed(e.to_string())
+            }
+        })?;
 
         self.active_camera = Some(camera);
         info!("Camera opened successfully");
@@ -122,6 +148,7 @@ impl CameraManager {
     /// Open camera stub
     #[cfg(not(feature = "capture"))]
     pub fn open_camera(&mut self, _camera_id: &str, _width: u32, _height: u32) -> MediaResult<()> {
+        error!("Cannot open camera: capture feature disabled at compile time");
         Err(MediaError::CaptureFailed("Capture feature disabled".into()))
     }
 

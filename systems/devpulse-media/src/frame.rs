@@ -77,10 +77,15 @@ impl Frame {
 /// Metadata about a frame (for serialization without pixel data)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FrameMetadata {
+    /// Frame width in pixels
     pub width: u32,
+    /// Frame height in pixels
     pub height: u32,
+    /// Timestamp when the source frame was captured
     pub timestamp: DateTime<Utc>,
+    /// Frame number in the capture sequence
     pub sequence: u64,
+    /// Identifier of the device that produced the frame
     pub source_id: String,
 }
 
