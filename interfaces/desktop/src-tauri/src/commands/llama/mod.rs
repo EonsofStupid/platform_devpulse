@@ -84,8 +84,8 @@ pub async fn start_llama_server(
             &ctx_size.to_string(),
             "--host",
             "127.0.0.1",
-            "--flash-attn",
-            "--cont-batching",
+            "-fa",
+            "on",
         ])
         .spawn()
         .map_err(|e| format!("Failed to spawn llama-server: {e}"))?;

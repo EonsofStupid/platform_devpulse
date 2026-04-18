@@ -1,0 +1,5 @@
+# llama.cpp sidecar binaries — downloaded at dev setup, not committed.
+# Download: gh release download b8839 -R ggml-org/llama.cpp -p '*win-cuda-12.4*' -p '*cudart*win-cuda-12.4*'
+# Or: cargo xtask download-llama (TODO)
+*.exe
+*.dll
