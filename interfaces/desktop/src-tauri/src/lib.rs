@@ -40,6 +40,7 @@ pub fn run() {
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         commands::chat::pick_save_file,
         commands::chat::send_message,
+        commands::chat::store_assistant_turn,
         commands::chat::history::load_recent,
         commands::chat::sessions::list_sessions,
         commands::chat::sessions::delete_session,

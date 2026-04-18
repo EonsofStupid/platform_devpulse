@@ -14,7 +14,7 @@
 
 export { downloadModel, importLocalModel } from "./data-access/download.service.js";
 export { hardwareState } from "./data-access/hardware.state.svelte.js";
-export { generateText } from "./data-access/inference.service.js";
+export { generateText, onInferenceToken } from "./data-access/inference.service.js";
 export { modelsState } from "./data-access/models.state.svelte.js";
 export { narrationState } from "./data-access/narration.state.svelte.js";
 export { searchState } from "./data-access/search.state.svelte.js";

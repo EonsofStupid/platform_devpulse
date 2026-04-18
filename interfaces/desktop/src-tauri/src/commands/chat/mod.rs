@@ -209,3 +209,104 @@ pub async fn send_message(
 		latency_ms: row.get(7).and_then(devpulse_engine::platform::SqlValue::as_integer),
 	})
 }
+
+/// Store an assistant turn (inference response) into the active session.
+///
+/// Called by the frontend after streaming inference completes.
+/// Accepts metadata that only the inference pipeline knows: token count,
+/// model identity, and latency.
+#[tauri::command]
+#[specta::specta]
+pub async fn store_assistant_turn(
+	session_id: String,
+	project_id: String,
+	content: String,
+	token_count: i64,
+	model_used: String,
+	latency_ms: i64,
+	state: State<'_, PlatformState>,
+) -> Result<ChatMessage, String> {
+	tracing::info!(
+		session = %session_id,
+		project = %project_id,
+		tokens = token_count,
+		model = %model_used,
+		latency_ms,
+		"cmd store_assistant_turn: entry"
+	);
+
+	let lock = state.platform.read().await;
+	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	let svc = platform
+		.relational()
+		.ok_or("Relational service not available")?;
+	let adapter = svc.adapter();
+
+	let seq_rows = adapter
+		.query(
+			"SELECT COALESCE(MAX(sequence_num), 0) + 1 AS next_seq FROM turns WHERE session_id = ?",
+			&[session_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to read sequence: {e}"))?;
+	let sequence_num = seq_rows
+		.first()
+		.and_then(|r| r.first())
+		.and_then(devpulse_engine::platform::SqlValue::as_integer)
+		.unwrap_or(1);
+
+	let turn_id = format!("turn-{}", Uuid::new_v4());
+	let seq_str = sequence_num.to_string();
+	let tc_str = token_count.to_string();
+	let lat_str = latency_ms.to_string();
+
+	adapter
+		.execute(
+			"INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, \
+			 token_count, model_used, latency_ms) VALUES (?, ?, ?, 'assistant', ?, ?, ?, ?, ?)",
+			&[
+				turn_id.as_str(),
+				session_id.as_str(),
+				project_id.as_str(),
+				content.as_str(),
+				seq_str.as_str(),
+				tc_str.as_str(),
+				model_used.as_str(),
+				lat_str.as_str(),
+			],
+		)
+		.await
+		.map_err(|e| format!("Failed to insert assistant turn: {e}"))?;
+
+	adapter
+		.execute(
+			"UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
+			 WHERE id = ?",
+			&[session_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to touch session: {e}"))?;
+
+	let created_rows = adapter
+		.query(
+			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
+			 FROM turns WHERE id = ? LIMIT 1",
+			&[turn_id.as_str()],
+		)
+		.await
+		.map_err(|e| format!("Failed to read turn: {e}"))?;
+
+	let row = created_rows.first().ok_or("Turn not found after insert")?;
+
+	tracing::info!(turn = %turn_id, "cmd store_assistant_turn: exit ok");
+	Ok(ChatMessage {
+		id: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
+		session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+		role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+		content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+		created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+		token_count: row.get(5).and_then(devpulse_engine::platform::SqlValue::as_integer),
+		model_used: row.get(6).and_then(|v| v.as_text()).map(std::string::ToString::to_string),
+		latency_ms: row.get(7).and_then(devpulse_engine::platform::SqlValue::as_integer),
+	})
+}

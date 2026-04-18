@@ -28,6 +28,21 @@ async sendMessage(projectId: string, content: string) : Promise<Result<ChatMessa
 }
 },
 /**
+ * Store an assistant turn (inference response) into the active session.
+ * 
+ * Called by the frontend after streaming inference completes.
+ * Accepts metadata that only the inference pipeline knows: token count,
+ * model identity, and latency.
+ */
+async storeAssistantTurn(sessionId: string, projectId: string, content: string, tokenCount: number, modelUsed: string, latencyMs: number) : Promise<Result<ChatMessage, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("store_assistant_turn", { sessionId, projectId, content, tokenCount, modelUsed, latencyMs }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Load recent turns for a project. When `session_id` is `None`, uses the latest session for the project.
  */
 async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<ChatMessage[], string>> {

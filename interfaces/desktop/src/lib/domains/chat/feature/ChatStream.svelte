@@ -14,10 +14,12 @@ let { class: className }: Props = $props();
 
 let root: HTMLDivElement | undefined = $state();
 
+// Scroll on new messages or streaming content
 $effect(() => {
 	if (!root) return;
-	const n = chatState.messages.length;
-	if (n === 0) return;
+	// Track both message count and streaming content to trigger scroll
+	void chatState.messages.length;
+	void chatState.streamingContent;
 	root.scrollTo({ top: root.scrollHeight, behavior: "smooth" });
 });
 </script>
@@ -30,14 +32,24 @@ $effect(() => {
 		<p class="text-sm text-[var(--text-muted)]">Loading…</p>
 	{:else if chatState.error}
 		<p class="text-sm text-[var(--signal-error)]">{chatState.error}</p>
-	{:else if chatState.blockMessages.length === 0}
+	{:else if chatState.blockMessages.length === 0 && !chatState.isGenerating}
 		<EmptyChatState />
 	{:else}
 		{#each chatState.blockMessages as msg (msg.id)}
 			<MessageBubble message={msg} mode={chatState.mode} />
 		{/each}
 	{/if}
-	{#if chatState.sending}
+	{#if chatState.isGenerating && chatState.streamingContent}
+		<MessageBubble
+			message={{
+				id: "streaming",
+				variant: "ai",
+				author: "Clyffy",
+				content: chatState.streamingContent,
+			}}
+			mode={chatState.mode}
+		/>
+	{:else if chatState.isGenerating || chatState.sending}
 		<TypingIndicator />
 	{/if}
 </div>

@@ -106,3 +106,23 @@ export async function pickSaveFile(defaultName: string): Promise<string | null> 
 		return ok(r);
 	});
 }
+
+export async function storeAssistantTurn(
+	sessionId: string,
+	projectId: string,
+	content: string,
+	tokenCount: number,
+	modelUsed: string,
+	latencyMs: number,
+): Promise<ChatMessage> {
+	logInfo("chat", `store_assistant_turn: session=${sessionId} tokens=${tokenCount}`);
+	const r = await commands.storeAssistantTurn(
+		sessionId,
+		projectId,
+		content,
+		tokenCount,
+		modelUsed,
+		latencyMs,
+	);
+	return ok(r);
+}
