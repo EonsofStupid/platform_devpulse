@@ -166,6 +166,12 @@ pub fn run() {
         commands::credentials::get_api_key,
         commands::credentials::delete_api_key,
         commands::credentials::get_api_key_status,
+        // llama.cpp sidecar (GGUF inference)
+        commands::llama::start_llama_server,
+        commands::llama::stop_llama_server,
+        commands::llama::llama_server_health,
+        commands::llama::llama_chat,
+        commands::llama::llama_embed,
     ]);
 
     // Dev: export typed TS bindings on every build
@@ -284,6 +290,7 @@ pub fn run() {
             });
             app.manage(BootStateTracker::new());
             app.manage(std::sync::Mutex::new(telemetry_guard));
+            app.manage(commands::llama::LlamaServerState::new());
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed

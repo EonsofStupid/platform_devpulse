@@ -3,5 +3,14 @@
 	"identifier": "default",
 	"description": "Default capability — all windows",
 	"windows": ["main", "chat", "devtools", "cortex-viewer", "model-loader", "voice-lab"],
-	"permissions": ["core:default", "core:window:allow-minimize", "shell:allow-open", "global-shortcut:allow-register"]
+	"permissions": [
+		"core:default",
+		"core:window:allow-minimize",
+		"shell:allow-open",
+		"shell:allow-execute",
+		"shell:allow-spawn",
+		"shell:allow-kill",
+		"shell:allow-stdin-write",
+		"global-shortcut:allow-register"
+	]
 }
