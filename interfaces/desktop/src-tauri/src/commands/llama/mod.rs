@@ -390,22 +390,33 @@ pub async fn llama_embed(
 
 // ── Types ────────────────────────────────────────────────────
 
+/// Info returned when llama-server starts successfully.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
 pub struct LlamaServerInfo {
+    /// Port the server is listening on.
     pub port: u16,
+    /// OS process ID of the sidecar.
     pub pid: u64,
+    /// Path to the loaded GGUF model.
     pub model_path: String,
 }
 
+/// Health status of the llama-server sidecar.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
 pub struct LlamaHealthStatus {
+    /// Whether the process is alive.
     pub running: bool,
+    /// Server status: "ok", "loading", "unreachable", "not_started".
     pub status: String,
+    /// Port the server is bound to (0 if not started).
     pub port: u16,
 }
 
+/// A single chat message (OpenAI format).
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
 pub struct ChatMessage {
+    /// Role: "system", "user", or "assistant".
     pub role: String,
+    /// Message content.
     pub content: String,
 }
