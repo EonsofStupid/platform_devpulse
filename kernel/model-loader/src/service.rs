@@ -1143,23 +1143,31 @@ impl ModelLoaderService {
     // ── Hardware ───────────────────────────────────────────────
 
     /// Get current hardware metrics. Uses cached value if within poll interval.
-    pub fn hardware_metrics(&mut self) -> HardwareMetrics {
-        self.hardware.metrics().clone()
+    /// Read cached hardware metrics — no mutation, no polling, no blocking.
+    /// Safe to call from a read lock.
+    pub fn hardware_metrics(&self) -> HardwareMetrics {
+        self.hardware.cached().clone()
     }
 
-    /// Force a fresh hardware metrics collection regardless of cache age.
-    pub fn hardware_metrics_fresh(&mut self) -> HardwareMetrics {
+    /// Force a fresh hardware metrics collection. Requires write access.
+    /// Call this on boot, on hardware push events, or on explicit user refresh.
+    pub fn hardware_refresh(&mut self) -> HardwareMetrics {
         self.hardware.refresh().clone()
     }
 
-    /// Get the hardware monitor for direct access (polling mode changes, etc.).
-    pub fn hardware_monitor(&mut self) -> &mut HardwareMonitor {
-        &mut self.hardware
+    /// Enter/exit fast polling during model load operations.
+    pub fn enter_loading_mode(&mut self) {
+        self.hardware.enter_loading_mode();
+    }
+
+    /// Return to normal polling interval after model load completes.
+    pub fn enter_normal_mode(&mut self) {
+        self.hardware.enter_normal_mode();
     }
 
     /// Compute VRAM budget plan for all slots.
-    pub fn vram_budget_plan(&mut self) -> vram::VramBudget {
-        let hw = self.hardware.metrics().clone();
+    pub fn vram_budget_plan(&self) -> vram::VramBudget {
+        let hw = self.hardware.cached().clone();
         let slot_data: Vec<(String, Option<String>, u64, ModelStatus)> = self
             .slots
             .list_slots()
@@ -1193,8 +1201,8 @@ impl ModelLoaderService {
     ///
     /// Consults the cached preset catalog loaded at boot from
     /// `kernel/model-loader/config/presets.default.toml`. No re-parsing.
-    pub fn auto_configure(&mut self) -> AutoConfig {
-        let hw = self.hardware.metrics().clone();
+    pub fn auto_configure(&self) -> AutoConfig {
+        let hw = self.hardware.cached().clone();
         let downloaded = self.registry.filenames();
         auto_config::auto_configure(&hw, &downloaded, &self.presets)
     }

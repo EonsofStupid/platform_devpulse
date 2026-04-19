@@ -124,6 +124,13 @@ pub async fn set_inference_provider(
 #[tauri::command]
 #[specta::specta]
 pub async fn cloud_ready() -> Result<bool, String> {
+    // Env var first — piggybacks off Claude Code session
+    if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
+        if !key.is_empty() {
+            return Ok(true);
+        }
+    }
+    // Fall back to keyring
     match get_api_key(ApiProvider::Anthropic).await {
         Ok(Some(key)) => Ok(!key.is_empty()),
         Ok(None) => Ok(false),
@@ -182,10 +189,22 @@ pub async fn cloud_chat(
     max_tokens: Option<u32>,
     temperature: Option<f32>,
 ) -> Result<CloudChatResult, String> {
-    // 1. Get API key from keychain
-    let api_key = get_api_key(ApiProvider::Anthropic)
-        .await?
-        .ok_or("No Anthropic API key configured. Add it in Settings → API Keys.")?;
+    // 1. Get API key — env var first (piggybacks off Claude Code session),
+    //    then keyring, then fail with clear message.
+    let api_key = if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
+        if !key.is_empty() {
+            tracing::debug!("cloud_chat: using ANTHROPIC_API_KEY from environment");
+            key
+        } else {
+            get_api_key(ApiProvider::Anthropic)
+                .await?
+                .ok_or("No Anthropic API key configured. Add it in Settings → API Keys.")?
+        }
+    } else {
+        get_api_key(ApiProvider::Anthropic)
+            .await?
+            .ok_or("No Anthropic API key found. Set ANTHROPIC_API_KEY or add key in Settings.")?
+    };
 
     let model = model.unwrap_or_else(|| "claude-sonnet-4-20250514".to_string());
     let max_tokens = max_tokens.unwrap_or(4096);

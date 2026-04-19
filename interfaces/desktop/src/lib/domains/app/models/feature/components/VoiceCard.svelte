@@ -9,6 +9,7 @@ import { Download, ExternalLink, Mic, Play, Volume2, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { getCatalogForSlot } from "../../data-access/catalog.service.js";
@@ -85,6 +86,8 @@ let ttsEtaSecs = $state(-1);
 let pushToTalk = $state(false);
 let voiceStyle = $state<"default" | "casual" | "focused">("default");
 let error = $state<string | null>(null);
+
+const cardM = $derived(renderForge({ kind: "voice-card", preset: "glass-elevated" }));
 
 // ── Derived ───────────────────────────────────────────────────
 
@@ -210,8 +213,9 @@ async function handleCancelTts(): Promise<void> {
 </script>
 
 <div
-	class="rounded-xl border p-5 transition-all"
-	style="border-color: var(--border-subtle); background: var(--surface-base);"
+	{...cardM.dataAttrs}
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-coral-main);"
+	class="rounded-xl p-5 transition-all"
 	data-component="voice-card"
 	title="Voice lets you talk to Clyffy using your microphone and hear her respond in her own voice"
 >

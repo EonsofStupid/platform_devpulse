@@ -85,6 +85,26 @@ impl VectorService {
             })
             .collect())
     }
+
+    /// Create a named collection with the given vector dimensionality.
+    ///
+    /// # Errors
+    /// Returns error if creation fails (e.g. collection already exists).
+    pub async fn create_collection(&self, name: &str, dimension: u32) -> anyhow::Result<()> {
+        use devpulse_clyffy::cortex::persistence::VectorAdapter;
+
+        VectorAdapter::create_collection(self.adapter.as_ref(), name, dimension).await
+    }
+
+    /// Delete a collection and all its points.
+    ///
+    /// # Errors
+    /// Returns error if deletion fails (e.g. collection does not exist).
+    pub async fn delete_collection(&self, name: &str) -> anyhow::Result<()> {
+        use devpulse_clyffy::cortex::persistence::VectorAdapter;
+
+        VectorAdapter::delete_collection(self.adapter.as_ref(), name).await
+    }
 }
 
 /// Public search result — engine-level projection of `VectorMatch`.

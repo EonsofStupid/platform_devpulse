@@ -8,6 +8,7 @@ pub mod graph;
 pub mod guard;
 pub mod logger;
 pub mod metrics;
+pub mod project_db;
 pub mod relational;
 pub mod telemetry;
 pub mod vector;

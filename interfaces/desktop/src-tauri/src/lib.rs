@@ -67,6 +67,9 @@ pub fn run() {
         commands::sys::vector::set_vector_config,
         commands::sys::vector::get_vector_health,
         commands::sys::vector::vector_test_search,
+        commands::sys::vector::create_vector_collection,
+        commands::sys::vector::delete_vector_collection,
+        commands::sys::vector::get_retrieval_param_meta,
         // Graph store (SurrealDB) devtools
         commands::sys::graph::ping_graph,
         commands::sys::graph::graph_health_all,
@@ -78,6 +81,11 @@ pub fn run() {
         commands::sys::relational::libsql_health_all,
         commands::sys::relational::libsql_list_tables,
         commands::sys::relational::libsql_query,
+        // Project store (per-project LibSQL) devtools
+        commands::sys::project_db::init_project_db,
+        commands::sys::project_db::project_db_health,
+        commands::sys::project_db::project_db_list_tables,
+        commands::sys::project_db::project_db_query,
         // Analytics store (DuckDB) devtools
         commands::sys::analytics::duckdb_health,
         commands::sys::analytics::duckdb_list_tables,
@@ -311,6 +319,7 @@ pub fn run() {
             app.manage(BootStateTracker::new());
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
+            app.manage(commands::voice::PlaybackState::new());
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
@@ -329,32 +338,15 @@ pub fn run() {
             let tracker = app.state::<BootStateTracker>();
             let tracker_clone = tracker.clone_tracker();
 
-            if cfg!(debug_assertions) {
-                // ── DEV MODE: BLOCKING BOOT ───────────────────────
-                // Window is invisible (tauri.conf.json visible=false).
-                // Boot blocks here. Every service must confirm or fail.
-                // ONLY after boot succeeds does the window become visible.
-                tracing::info!("Dev mode — BLOCKING boot (window hidden until all services confirm)");
-                tauri::async_runtime::block_on(
-                    boot_task(handle, data_dir, tracker_clone, span_rx.take())
-                );
-
-                // Boot complete — NOW show the window
-                if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                    tracing::info!("Boot complete — window now visible");
-                } else {
-                    tracing::error!("Boot complete but main window not found");
-                }
-            } else {
-                // ── RELEASE MODE: ASYNC BOOT ──────────────────────
-                // Window starts hidden. boot_task shows it when ready.
-                tracing::info!("Release mode — async boot (window hidden until ready)");
-                tauri::async_runtime::spawn(
-                    boot_task(handle, data_dir, tracker_clone, span_rx.take())
-                );
-            }
+            // ── ASYNC BOOT (both dev and release) ─────────────
+            // Window shows immediately. Services boot in the background.
+            // boot_task shows the main window when ready.
+            // The UI is usable during boot — cloud brain powers chat,
+            // model loading is non-blocking.
+            tracing::info!("Async boot — window shows immediately, services boot in background");
+            tauri::async_runtime::spawn(
+                boot_task(handle, data_dir, tracker_clone, span_rx.take())
+            );
 
             // ── Global shortcuts ──────────────────────────────────
             // Ctrl+Shift+Z toggles the dev tools panel
@@ -575,15 +567,24 @@ async fn boot_task(
                             assigned_count: assigned,
                             error: None,
                         };
-                        let _ = app.emit(
-                            "platform:models-status",
-                            serde_json::json!({
-                                "ready": ready,
-                                "firstRun": first_run,
-                                "modelCount": registry.len(),
-                                "slotCount": slots.len(),
-                                "assignedCount": assigned,
-                            }),
+                        // Push full model state — frontend sets $state directly
+                        let slot_infos: Vec<commands::models::SlotInfo> = slots
+                            .iter()
+                            .map(|s| commands::models::slot_to_slot_info(s, &registry))
+                            .collect();
+                        let model_infos: Vec<commands::models::ModelInfo> = registry
+                            .iter()
+                            .map(|e| commands::models::entry_to_model_info(e))
+                            .collect();
+                        commands::emit_status(
+                            &app,
+                            "models",
+                            commands::StatusKind::Data,
+                            &commands::models::ModelsStatusData {
+                                slots: slot_infos,
+                                models: model_infos,
+                                first_run,
+                            },
                         );
                         // Store in tracker so get_boot_state catches up
                         // late-mounting frontends that missed the live event.
@@ -591,15 +592,15 @@ async fn boot_task(
                         ready
                     } else {
                         tracing::warn!("Model Loader not available — models not ready");
-                        let _ = app.emit(
-                            "platform:models-status",
-                            serde_json::json!({
-                                "ready": false,
-                                "firstRun": true,
-                                "modelCount": 0,
-                                "slotCount": 0,
-                                "assignedCount": 0,
-                            }),
+                        commands::emit_status(
+                            &app,
+                            "models",
+                            commands::StatusKind::Data,
+                            &commands::models::ModelsStatusData {
+                                slots: vec![],
+                                models: vec![],
+                                first_run: true,
+                            },
                         );
                         false
                     }

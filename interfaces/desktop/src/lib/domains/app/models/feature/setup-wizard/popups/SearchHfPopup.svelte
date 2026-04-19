@@ -10,16 +10,26 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
-import { downloadModel } from "../../../data-access/download.service.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { searchState } from "../../../data-access/search.state.svelte.js";
 import type { SlotId } from "../../../util/models.types.js";
 import { formatMb } from "../../../util/models.types.js";
+import { downloadAndAssignFile } from "../wizard.service.js";
 import { getSlotLabel } from "../wizard.types.js";
 
 type FormatFilter = "all" | "gguf" | "safetensors";
 
-const POPULAR_SEARCHES = ["Qwen3", "Llama", "Mistral", "Phi", "Whisper", "Kokoro"];
+/** Suggested searches filtered by slot capability. */
+const CAPABILITY_SEARCHES: Record<string, string[]> = {
+	TextGeneration: ["Qwen3", "Llama", "Mistral", "Phi"],
+	Embedding: ["nomic-embed", "bge", "gte", "e5"],
+	Reranking: ["bge-reranker", "jina-reranker"],
+	VisionEmbedding: ["siglip", "clip", "nomic-embed-vision"],
+	SpeechToText: ["Whisper", "whisper"],
+	TextToSpeech: ["Kokoro", "piper"],
+	VisionLanguage: ["Qwen3-VL", "LLaVA", "moondream"],
+};
+const FALLBACK_SEARCHES = ["Qwen3", "Llama", "Mistral", "Phi", "Whisper", "Kokoro"];
 
 interface Props {
 	slotId: SlotId;
@@ -34,8 +44,10 @@ let { slotId, capability, open, onDownloadStarted, onClose }: Props = $props();
 let searchInput = $state("");
 let formatFilter = $state<FormatFilter>("all");
 let downloadingFile = $state<string | null>(null);
+let assignedFile = $state<string | null>(null);
 
 const slotLabel = $derived(getSlotLabel(slotId)?.name ?? slotId);
+const suggestedSearches = $derived(CAPABILITY_SEARCHES[capability] ?? FALLBACK_SEARCHES);
 
 function formatDownloads(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -65,10 +77,11 @@ function runSuggested(term: string): void {
 async function handleDownload(repoId: string, filename: string): Promise<void> {
 	const fileKey = `${repoId}/${filename}`;
 	downloadingFile = fileKey;
+	assignedFile = null;
 	try {
-		await downloadModel(repoId, filename);
-		const { toast } = await import("svelte-sonner");
-		toast.success(`Download started: ${filename}`);
+		// Download → scan → assign to this slot. All in one call.
+		await downloadAndAssignFile(repoId, filename, slotId);
+		assignedFile = filename;
 		onDownloadStarted();
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -130,7 +143,7 @@ const filteredResults = $derived.by(() => {
 			<div class="suggestions">
 				<Text size="xs" class="suggest-label">Popular searches:</Text>
 				<div class="suggest-chips">
-					{#each POPULAR_SEARCHES as term}
+					{#each suggestedSearches as term}
 						<button class="suggest-chip" onclick={() => runSuggested(term)}>{term}</button>
 					{/each}
 				</div>
@@ -261,6 +274,17 @@ const filteredResults = $derived.by(() => {
 						</Button>
 					</div>
 				{/if}
+			{/if}
+
+			{#if assignedFile}
+				<div class="assigned-banner">
+					<Text size="sm" weight="bold" class="assigned-text">
+						✓ {assignedFile} assigned to {slotLabel}
+					</Text>
+					<Button preset="button-primary" size="sm" onclick={onClose}>
+						Done
+					</Button>
+				</div>
 			{/if}
 
 			{#if hardwareState.diskFreeMb < 5000}
@@ -521,5 +545,18 @@ const filteredResults = $derived.by(() => {
 	}
 	:global(.warning-text) {
 		color: var(--signal-warning);
+	}
+
+	.assigned-banner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1rem;
+		border-radius: 0.5rem;
+		background: oklch(0.45 0.12 155 / 0.15);
+		border: 1px solid oklch(0.55 0.12 155 / 0.4);
+	}
+	:global(.assigned-text) {
+		color: var(--signal-success);
 	}
 </style>

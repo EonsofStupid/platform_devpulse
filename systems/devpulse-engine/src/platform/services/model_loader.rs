@@ -2,22 +2,25 @@
 //!
 //! Wraps the self-enclosed `model-loader` crate as a platform service.
 //!
-//! # Concurrency Model
+//! # Concurrency Model — `RwLock`, reads never block reads
 //!
-//! The kernel `ModelLoaderService` (aliased as `Inner`) is fundamentally
-//! synchronous — it does blocking filesystem I/O (GGUF header parsing),
-//! model inference, and sysinfo probes. A handful of methods (`load_slot`,
-//! `unload_slot`, `warm_slot`, `delete_model`, `swap_model`) are `async fn`
-//! because they spawn backend threads internally.
+//! The kernel `Inner` type has a proper `&self` / `&mut self` split:
 //!
-//! We use `tokio::sync::Mutex` because those async methods need `.await`
-//! while holding the lock. For ALL sync methods, we use
-//! `tokio::task::spawn_blocking` + `Mutex::blocking_lock()` to move the
-//! work off the async runtime. This prevents the Tauri event loop from
-//! freezing during heavy operations (scan, synthesize, transcribe, etc.).
+//! - **Reads** (`hardware_metrics`, `list_slots`, `get_registry`,
+//!   `auto_configure`, `slot_status`, `inference_handle`, `synthesize`,
+//!   `transcribe`, `embed`, `rerank`, etc.) take `&self`.
+//!   Wrapped in `spawn_blocking` + `RwLock::blocking_read()`.
+//!   Multiple reads proceed concurrently — wizard, devtools, inference
+//!   handles all work in parallel.
 //!
-//! **Rule**: If the kernel method is `fn` (sync), wrap in `spawn_blocking`.
-//! If the kernel method is `async fn`, use `lock().await`.
+//! - **Writes** (`load_slot`, `unload_slot`, `scan_models`, `assign_model`,
+//!   `swap_model`, `delete_model`, config mutations) take `&mut self`.
+//!   Wrapped in `spawn_blocking` + `RwLock::blocking_write()` (sync) or
+//!   `RwLock::write().await` (async).
+//!
+//! This means the "Let's Go" wizard system check (reads hardware, reads
+//! presets, reads registry) NEVER blocks on a concurrent model scan or
+//! load operation. Only write operations serialize against each other.
 
 use super::model_loader_log::FileEventSink;
 use super::{Service, ServiceRole, ServiceState};
@@ -53,14 +56,27 @@ pub use devpulse_clyffy::model_loader::{
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 
 /// Model Loader service — managed by the platform boot pipeline.
 ///
-/// Uses `Arc<Mutex<Inner>>` so clones can be moved into `spawn_blocking`.
-/// See module-level doc for concurrency model.
+/// # Concurrency: `RwLock` — reads never block reads
+///
+/// The kernel `Inner` type now has proper `&self` / `&mut self` split:
+/// - Read methods (`hardware_metrics`, `list_slots`, `get_registry`,
+///   `auto_configure`, `list_all_presets`, `config_for_tier`,
+///   `is_first_run`, `is_setup_complete`, `slot_status`, `inference_handle`,
+///   `vram_budget_plan`, `synthesize`, `transcribe`, `embed`, `rerank`,
+///   `encode_image`) take `&self` — use `read()`.
+/// - Write methods (`load_slot`, `unload_slot`, `assign_model`,
+///   `scan_models`, `swap_model`, `delete_model`, `download_model`,
+///   `set_*` config mutations) take `&mut self` — use `write()`.
+///
+/// This means the wizard system check, hardware polling, devtools reads,
+/// and inference handles all proceed concurrently. Only model load/unload
+/// and config writes take exclusive access.
 pub struct ModelLoaderService {
-    inner: Arc<Mutex<Inner>>,
+    inner: Arc<RwLock<Inner>>,
 }
 
 impl ModelLoaderService {
@@ -152,7 +168,7 @@ impl ModelLoaderService {
         // boot returns, via `auto_load_hot_slots()`.
 
         Ok(Self {
-            inner: Arc::new(Mutex::new(service)),
+            inner: Arc::new(RwLock::new(service)),
         })
     }
 
@@ -166,7 +182,7 @@ impl ModelLoaderService {
         let targets: Vec<String> = {
             let inner = self.inner.clone();
             tokio::task::spawn_blocking(move || {
-                let guard = inner.blocking_lock();
+                let guard = inner.blocking_read();
                 guard
                     .list_slots()
                     .iter()
@@ -184,7 +200,7 @@ impl ModelLoaderService {
         let mut loaded = 0usize;
         for slot_id in targets {
             let result = {
-                let mut inner = self.inner.lock().await;
+                let mut inner = self.inner.write().await;
                 inner.load_slot(&slot_id).await
             };
             match result {
@@ -208,7 +224,7 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn load_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("load_slot");
-        let mut inner = self.inner.lock().await;
+        let mut inner = self.inner.write().await;
         inner.load_slot(slot_id).await.map_err(LoadError::from)
     }
 
@@ -216,7 +232,7 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn unload_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("unload_slot");
-        let mut inner = self.inner.lock().await;
+        let mut inner = self.inner.write().await;
         inner.unload_slot(slot_id).await.map_err(LoadError::from)
     }
 
@@ -224,7 +240,7 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn warm_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("warm_slot");
-        let mut inner = self.inner.lock().await;
+        let mut inner = self.inner.write().await;
         inner.warm_slot(slot_id).await.map_err(LoadError::from)
     }
 
@@ -232,7 +248,7 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(model_id))]
     pub async fn delete_model(&self, model_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("delete_model");
-        let mut inner = self.inner.lock().await;
+        let mut inner = self.inner.write().await;
         inner.delete_model(model_id).await.map_err(LoadError::from)
     }
 
@@ -244,14 +260,14 @@ impl ModelLoaderService {
         new_model_id: &str,
     ) -> std::result::Result<(), LoadError> {
         tracing::info!("swap_model");
-        let mut inner = self.inner.lock().await;
+        let mut inner = self.inner.write().await;
         inner
             .swap_model(slot_id, new_model_id)
             .await
             .map_err(LoadError::from)
     }
 
-    /// Search HuggingFace for GGUF models (stateless HTTP — no Mutex).
+    /// Search HuggingFace for GGUF models (stateless HTTP — no lock).
     pub async fn search_huggingface(
         &self,
         query: &str,
@@ -260,24 +276,35 @@ impl ModelLoaderService {
         devpulse_clyffy::model_loader::search_huggingface(query, limit).await
     }
 
-    // ── Sync kernel methods (use spawn_blocking + blocking_lock) ──
+    // ── Sync kernel methods (spawn_blocking + blocking_read/write) ──
 
-    /// Get hardware metrics.
+    /// Get hardware metrics — read lock, never blocks on writes.
     pub async fn hardware_metrics(&self) -> HardwareMetrics {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.hardware_metrics()
         })
         .await
         .expect("hardware_metrics join")
     }
 
+    /// Force a fresh hardware metrics collection — write lock.
+    pub async fn hardware_refresh(&self) -> HardwareMetrics {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_write();
+            guard.hardware_refresh()
+        })
+        .await
+        .expect("hardware_refresh join")
+    }
+
     /// Scan models directory — recursive walk + GGUF header parsing.
     pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard.scan_models().map_err(Into::into)
         })
         .await
@@ -288,7 +315,7 @@ impl ModelLoaderService {
     pub async fn list_slots(&self) -> Vec<Slot> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.list_slots().into_iter().cloned().collect()
         })
         .await
@@ -300,7 +327,7 @@ impl ModelLoaderService {
         let inner = self.inner.clone();
         let slot_id = slot_id.to_string();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.slot_status(&slot_id)
         })
         .await
@@ -319,7 +346,7 @@ impl ModelLoaderService {
         let slot_id = slot_id.to_string();
         let model_id = model_id.to_string();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .assign_model(&slot_id, &model_id)
                 .map_err(LoadError::from)
@@ -332,7 +359,7 @@ impl ModelLoaderService {
     pub async fn is_first_run(&self) -> bool {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.is_first_run()
         })
         .await
@@ -343,7 +370,7 @@ impl ModelLoaderService {
     pub async fn mark_setup_complete(&self) -> Result<(), LoadError> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.mark_setup_complete().map_err(|e| LoadError::Other {
                 message: format!("Failed to mark setup complete: {e}"),
             })
@@ -356,18 +383,18 @@ impl ModelLoaderService {
     pub async fn is_setup_complete(&self) -> bool {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.is_setup_complete()
         })
         .await
         .expect("is_setup_complete join")
     }
 
-    /// Auto-configure based on hardware.
+    /// Auto-configure based on hardware — read lock, never blocks wizard.
     pub async fn auto_configure(&self) -> AutoConfig {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.auto_configure()
         })
         .await
@@ -378,7 +405,7 @@ impl ModelLoaderService {
     pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.list_all_presets()
         })
         .await
@@ -389,7 +416,7 @@ impl ModelLoaderService {
     pub async fn config_for_tier(&self, tier: HardwareTier) -> AutoConfig {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.config_for_tier(tier)
         })
         .await
@@ -402,7 +429,7 @@ impl ModelLoaderService {
         let repo_id = repo_id.to_string();
         let filename = filename.to_string();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .download_model(&repo_id, &filename)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -416,7 +443,7 @@ impl ModelLoaderService {
         let inner = self.inner.clone();
         let download_id = download_id.to_string();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .cancel_download(&download_id)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -429,7 +456,7 @@ impl ModelLoaderService {
     pub async fn set_hf_token(&self, token: Option<String>) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard.set_hf_token(token).map_err(|e| anyhow::anyhow!("{e}"))
         })
         .await
@@ -440,7 +467,7 @@ impl ModelLoaderService {
     pub async fn has_hf_token(&self) -> bool {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.has_hf_token()
         })
         .await
@@ -451,7 +478,7 @@ impl ModelLoaderService {
     pub async fn clear_hf_token(&self) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .clear_hf_token()
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -464,7 +491,7 @@ impl ModelLoaderService {
     pub async fn hf_token_suffix(&self, n: usize) -> Option<String> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.hf_token_suffix(n)
         })
         .await
@@ -477,7 +504,7 @@ impl ModelLoaderService {
     pub async fn get_assistant_config(&self) -> AssistantConfig {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.get_assistant_config()
         })
         .await
@@ -488,7 +515,7 @@ impl ModelLoaderService {
     pub async fn set_assistant_name(&self, name: String) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_assistant_name(name)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -501,7 +528,7 @@ impl ModelLoaderService {
     pub async fn set_wake_phrase(&self, phrase: String) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_wake_phrase(phrase)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -514,7 +541,7 @@ impl ModelLoaderService {
     pub async fn set_wake_enabled(&self, enabled: bool) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_wake_enabled(enabled)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -527,7 +554,7 @@ impl ModelLoaderService {
     pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_voice_brain_24_7(enabled)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -540,7 +567,7 @@ impl ModelLoaderService {
     pub async fn set_voice_profile(&self, profile: String) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_voice_profile(profile)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -553,7 +580,7 @@ impl ModelLoaderService {
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .register_voice_clone(entry)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -566,7 +593,7 @@ impl ModelLoaderService {
     pub async fn remove_voice_clone(&self, name: String) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .remove_voice_clone(&name)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -579,7 +606,7 @@ impl ModelLoaderService {
     pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .add_keyword_action(entry)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -592,7 +619,7 @@ impl ModelLoaderService {
     pub async fn remove_keyword_action(&self, phrase: String) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .remove_keyword_action(&phrase)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -609,7 +636,7 @@ impl ModelLoaderService {
     ) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .update_keyword_action(&phrase, new_entry)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -622,7 +649,7 @@ impl ModelLoaderService {
     pub async fn set_idle_timeout(&self, secs: u32) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_idle_timeout(secs)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -635,7 +662,7 @@ impl ModelLoaderService {
     pub async fn set_brain_ngl(&self, ngl: i32) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let mut guard = inner.blocking_write();
             guard
                 .set_brain_ngl(ngl)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -648,7 +675,7 @@ impl ModelLoaderService {
     pub async fn voice_custom_dir(&self) -> std::path::PathBuf {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.voice_custom_dir()
         })
         .await
@@ -659,7 +686,7 @@ impl ModelLoaderService {
     pub async fn get_registry(&self) -> Vec<ModelRegistryEntry> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.get_registry().to_vec()
         })
         .await
@@ -668,7 +695,7 @@ impl ModelLoaderService {
 
     /// Get an inference handle for a slot (resolves fallback chain).
     ///
-    /// Returns a cloned handle — caller can use it without holding the Mutex.
+    /// Returns a cloned handle — caller can use it without holding the lock.
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn inference_handle(
         &self,
@@ -677,7 +704,7 @@ impl ModelLoaderService {
         let inner = self.inner.clone();
         let slot_id = slot_id.to_string();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard
                 .inference_handle(&slot_id)
                 .map_err(|e| anyhow::anyhow!("{e}"))
@@ -690,7 +717,7 @@ impl ModelLoaderService {
     pub async fn vram_budget_plan(&self) -> VramBudget {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let mut guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.vram_budget_plan()
         })
         .await
@@ -712,7 +739,7 @@ impl ModelLoaderService {
         let text = text.to_string();
         let voice = voice.to_string();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard
                 .synthesize(&slot_id, &text, &voice)
                 .map_err(Into::into)
@@ -732,7 +759,7 @@ impl ModelLoaderService {
         let slot_id = slot_id.to_string();
         let samples = samples.clone();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.transcribe(&slot_id, &samples).map_err(Into::into)
         })
         .await
@@ -744,7 +771,7 @@ impl ModelLoaderService {
         let inner = self.inner.clone();
         let slot_id = slot_id.to_string();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.voice_loaded(&slot_id)
         })
         .await
@@ -758,7 +785,7 @@ impl ModelLoaderService {
         let slot_id = slot_id.to_string();
         let texts: Vec<String> = texts.iter().map(|t| t.to_string()).collect();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
             guard.embed(&slot_id, &refs).map_err(Into::into)
         })
@@ -779,7 +806,7 @@ impl ModelLoaderService {
         let query = query.to_string();
         let documents: Vec<String> = documents.iter().map(|d| d.to_string()).collect();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             let refs: Vec<&str> = documents.iter().map(String::as_str).collect();
             guard
                 .rerank(&slot_id, &query, &refs)
@@ -800,7 +827,7 @@ impl ModelLoaderService {
         let slot_id = slot_id.to_string();
         let path = path.to_path_buf();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard.encode_image(&slot_id, &path).map_err(Into::into)
         })
         .await
@@ -820,7 +847,7 @@ impl ModelLoaderService {
         let slot_id = slot_id.to_string();
         let rgb_bytes = rgb_bytes.to_vec();
         tokio::task::spawn_blocking(move || {
-            let guard = inner.blocking_lock();
+            let guard = inner.blocking_read();
             guard
                 .encode_rgb(&slot_id, &rgb_bytes, width, height)
                 .map_err(Into::into)
@@ -842,7 +869,7 @@ impl Service for ModelLoaderService {
     async fn ping(&self) -> Result<()> {
         let inner = self.inner.clone();
         tokio::task::spawn_blocking(move || {
-            let _guard = inner.blocking_lock();
+            let _guard = inner.blocking_read();
             Ok(())
         })
         .await

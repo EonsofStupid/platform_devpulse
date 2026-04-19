@@ -278,30 +278,48 @@ class PlatformState {
 		});
 		this.unlisteners.push(unlistenPhase);
 
-		// Listen for model readiness signal from boot_task
-		const unlistenModels = await listen<{
-			ready: boolean;
-			firstRun: boolean;
-			modelCount: number;
-			slotCount: number;
-			assignedCount: number;
-			error?: string;
-		}>("platform:models-status", (e) => {
+		// Listen for model readiness signal from boot_task.
+		// Handles BOTH formats:
+		//   - New: StatusUpdate envelope { kind: "data", data: { slots, models, firstRun } }
+		//   - Old: raw { ready, firstRun, modelCount, slotCount, assignedCount } (from snapshot catch-up)
+		const unlistenModels = await listen<Record<string, unknown>>("platform:models-status", (e) => {
 			const p = e.payload;
-			this.modelsReady = p.ready;
-			this.modelsFirstRun = p.firstRun;
-			this.modelCount = p.modelCount;
-			this.assignedCount = p.assignedCount;
-			if (typeof p.error === "string" && p.error.length > 0) {
-				this.error = p.error;
-				logError("boot", `Models status error: ${p.error}`);
-			} else if (p.ready) {
-				this.error = null;
+			if (p.kind === "data" && p.data && typeof p.data === "object") {
+				// New emit_status format — unwrap StatusUpdate envelope
+				const d = p.data as {
+					slots?: { assigned_model_id?: string | null }[];
+					models?: unknown[];
+					firstRun?: boolean;
+				};
+				const slots = d.slots ?? [];
+				const modelCount = Array.isArray(d.models) ? d.models.length : 0;
+				const assignedCount = slots.filter((s) => s.assigned_model_id).length;
+				this.modelsFirstRun = d.firstRun ?? true;
+				this.modelCount = modelCount;
+				this.assignedCount = assignedCount;
+				this.modelsReady = !this.modelsFirstRun && modelCount > 0 && assignedCount > 0;
+				if (this.modelsReady) this.error = null;
+				logInfo(
+					"boot",
+					`Models status [emit_status]: ready=${this.modelsReady} models=${modelCount} assigned=${assignedCount} firstRun=${this.modelsFirstRun}`,
+				);
+			} else if (typeof p.ready === "boolean") {
+				// Old format (from get_boot_state snapshot or legacy)
+				this.modelsReady = p.ready as boolean;
+				this.modelsFirstRun = (p.firstRun as boolean) ?? true;
+				this.modelCount = (p.modelCount as number) ?? 0;
+				this.assignedCount = (p.assignedCount as number) ?? 0;
+				if (typeof p.error === "string" && (p.error as string).length > 0) {
+					this.error = p.error as string;
+					logError("boot", `Models status error: ${p.error}`);
+				} else if (p.ready) {
+					this.error = null;
+				}
+				logInfo(
+					"boot",
+					`Models status [legacy]: ready=${p.ready} models=${p.modelCount} assigned=${p.assignedCount}`,
+				);
 			}
-			logInfo(
-				"boot",
-				`Models status: ready=${p.ready} models=${p.modelCount} assigned=${p.assignedCount}`,
-			);
 
 			// First-run now opens the shell-mounted setup overlay.
 			// BootOverlay drops away once platform boot is complete so

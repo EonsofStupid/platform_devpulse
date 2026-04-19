@@ -12,8 +12,18 @@ import type {
 } from "../util/voice.contract.js";
 
 /** Speak text through the active TTS slot. */
-export async function speak(text: string, voice?: string, slot?: string): Promise<void> {
-	await invoke("speak", { text, voice: voice ?? null, slot: slot ?? null });
+export async function speak(
+	text: string,
+	voice?: string,
+	slot?: string,
+	speed?: number,
+): Promise<void> {
+	await invoke("speak", {
+		text,
+		voice: voice ?? null,
+		slot: slot ?? null,
+		speed: speed ?? null,
+	});
 }
 
 /** Stop current speech playback. */

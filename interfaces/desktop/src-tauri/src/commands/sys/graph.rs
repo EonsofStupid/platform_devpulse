@@ -309,6 +309,8 @@ pub async fn graph_stats(
 
 /// Execute a raw SurrealQL query against a namespace — devtools console.
 ///
+/// Returns JSON-encoded string of the result.
+///
 /// # Errors
 /// Returns error string if platform is still booting, namespace unavailable,
 /// or the query fails.
@@ -318,7 +320,7 @@ pub async fn graph_query(
     state: State<'_, PlatformState>,
     namespace: GraphNamespace,
     query: String,
-) -> Result<serde_json::Value, String> {
+) -> Result<String, String> {
     let platform = get_platform!(state)?;
     let svc = resolve_graph!(&platform, &namespace)?;
     let handle = svc.handle();
@@ -328,10 +330,13 @@ pub async fn graph_query(
         return Err("Empty query".to_string());
     }
 
-    handle
+    let result = handle
         .query(trimmed)
         .await
-        .map_err(|e| format!("SurrealQL query failed: {e:#}"))
+        .map_err(|e| format!("SurrealQL query failed: {e:#}"))?;
+
+    serde_json::to_string_pretty(&result)
+        .map_err(|e| format!("Failed to serialize result: {e}"))
 }
 
 /// List all keys in the scoped kv table for a namespace.

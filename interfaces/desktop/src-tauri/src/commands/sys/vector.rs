@@ -7,7 +7,7 @@
 //! on `VectorService`, get/set via Tauri commands.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::RetrievalConfig;
+use devpulse_engine::platform::{RetrievalConfig, RetrievalParamMeta, retrieval_param_meta};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
@@ -181,4 +181,75 @@ pub async fn vector_test_search(
             payload_json: serde_json::to_string(&m.payload).unwrap_or_default(),
         })
         .collect())
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Collection management
+// ═══════════════════════════════════════════════════════════════
+
+/// Create a new vector collection with the given dimensionality.
+///
+/// Default dimension for nomic-embed-text-v1.5 is 768 (cosine distance).
+///
+/// # Errors
+/// Returns error if platform is booting, vector store is disabled,
+/// or collection creation fails.
+#[tauri::command]
+#[specta::specta]
+pub async fn create_vector_collection(
+    state: State<'_, PlatformState>,
+    name: String,
+    dimension: u32,
+) -> Result<(), String> {
+    let lock = state.platform.read().await;
+    let platform = lock
+        .as_ref()
+        .ok_or_else(|| "Platform is still booting".to_string())?;
+    let vector_svc = platform
+        .vector()
+        .ok_or_else(|| "Vector store not available".to_string())?;
+
+    vector_svc
+        .create_collection(&name, dimension)
+        .await
+        .map_err(|e| format!("Create collection failed: {e:#}"))
+}
+
+/// Delete a vector collection and all its points.
+///
+/// # Errors
+/// Returns error if platform is booting, vector store is disabled,
+/// or collection deletion fails.
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_vector_collection(
+    state: State<'_, PlatformState>,
+    name: String,
+) -> Result<(), String> {
+    let lock = state.platform.read().await;
+    let platform = lock
+        .as_ref()
+        .ok_or_else(|| "Platform is still booting".to_string())?;
+    let vector_svc = platform
+        .vector()
+        .ok_or_else(|| "Vector store not available".to_string())?;
+
+    vector_svc
+        .delete_collection(&name)
+        .await
+        .map_err(|e| format!("Delete collection failed: {e:#}"))
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Param metadata — drives the devtools slider UI
+// ═══════════════════════════════════════════════════════════════
+
+/// Get the layman-labeled parameter registry for retrieval config.
+///
+/// Returns field metadata (label, family, description, slider bounds)
+/// so the frontend renders sliders generically without hardcoded labels.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_retrieval_param_meta() -> Result<Vec<RetrievalParamMeta>, String> {
+    Ok(retrieval_param_meta())
 }

@@ -349,6 +349,255 @@ async vectorTestSearch(collection: string, vector: number[], limit: number) : Pr
 }
 },
 /**
+ * Create a new vector collection with the given dimensionality.
+ * 
+ * Default dimension for nomic-embed-text-v1.5 is 768 (cosine distance).
+ * 
+ * # Errors
+ * Returns error if platform is booting, vector store is disabled,
+ * or collection creation fails.
+ */
+async createVectorCollection(name: string, dimension: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("create_vector_collection", { name, dimension }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a vector collection and all its points.
+ * 
+ * # Errors
+ * Returns error if platform is booting, vector store is disabled,
+ * or collection deletion fails.
+ */
+async deleteVectorCollection(name: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_vector_collection", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the layman-labeled parameter registry for retrieval config.
+ * 
+ * Returns field metadata (label, family, description, slider bounds)
+ * so the frontend renders sliders generically without hardcoded labels.
+ */
+async getRetrievalParamMeta() : Promise<Result<RetrievalParamMeta[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_retrieval_param_meta") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Ping a single graph namespace — returns reachable + latency.
+ * 
+ * # Errors
+ * Returns error string if platform is still booting.
+ */
+async pingGraph(namespace: GraphNamespace) : Promise<Result<GraphPingResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ping_graph", { namespace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Ping all three graph namespaces + check HTTP server.
+ * 
+ * # Errors
+ * Returns error string if platform is still booting.
+ */
+async graphHealthAll() : Promise<Result<GraphHealthAll, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("graph_health_all") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List tables and record counts for a namespace.
+ * 
+ * Runs `INFO FOR DB` then `SELECT count() FROM {table} GROUP ALL`
+ * for each table discovered.
+ * 
+ * # Errors
+ * Returns error string if platform is still booting or namespace unavailable.
+ */
+async graphListTables(namespace: GraphNamespace) : Promise<Result<GraphTableInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("graph_list_tables", { namespace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get aggregate stats for a namespace.
+ * 
+ * # Errors
+ * Returns error string if platform is still booting or namespace unavailable.
+ */
+async graphStats(namespace: GraphNamespace) : Promise<Result<GraphNamespaceStats, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("graph_stats", { namespace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Execute a raw SurrealQL query against a namespace — devtools console.
+ * 
+ * Returns JSON-encoded string of the result.
+ * 
+ * # Errors
+ * Returns error string if platform is still booting, namespace unavailable,
+ * or the query fails.
+ */
+async graphQuery(namespace: GraphNamespace, query: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("graph_query", { namespace, query }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List all keys in the scoped kv table for a namespace.
+ * 
+ * # Errors
+ * Returns error string if platform is still booting or namespace unavailable.
+ */
+async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("graph_kv_list", { namespace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Ping both LibSQL databases — returns health for each.
+ */
+async libsqlHealthAll() : Promise<Result<LibSqlHealthAll, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("libsql_health_all") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List tables and row counts for a LibSQL database.
+ */
+async libsqlListTables(database: LibSqlDatabase) : Promise<Result<LibSqlTableInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("libsql_list_tables", { database }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Execute a raw SQL query against a LibSQL database — devtools console.
+ */
+async libsqlQuery(database: LibSqlDatabase, sql: string) : Promise<Result<LibSqlQueryResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("libsql_query", { database, sql }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Initialize a project database at `{project_root}/.devpulse/project.db`.
+ * 
+ * Creates the database, applies the project schema, and seeds project_meta.
+ * Safe to call multiple times — uses `CREATE TABLE IF NOT EXISTS`.
+ */
+async initProjectDb(projectId: string, projectRoot: string, projectName: string) : Promise<Result<ProjectDbInitResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("init_project_db", { projectId, projectRoot, projectName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Health check for a project database.
+ */
+async projectDbHealth(projectId: string) : Promise<Result<ProjectDbHealth, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("project_db_health", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List tables and row counts for a project database.
+ */
+async projectDbListTables(projectId: string) : Promise<Result<ProjectDbTableInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("project_db_list_tables", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Execute a raw SQL query against a project database — devtools console.
+ */
+async projectDbQuery(projectId: string, sql: string) : Promise<Result<ProjectDbQueryResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("project_db_query", { projectId, sql }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Health check for the DuckDB analytics database.
+ */
+async duckdbHealth() : Promise<Result<DuckDbHealth, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("duckdb_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List tables in DuckDB with row counts.
+ */
+async duckdbListTables() : Promise<Result<DuckDbTableInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("duckdb_list_tables") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Execute a raw SQL query against DuckDB — devtools console.
+ */
+async duckdbQuery(sql: string) : Promise<Result<DuckDbQueryResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("duckdb_query", { sql }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.
@@ -752,6 +1001,13 @@ async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, 
 },
 /**
  * Load a slot's assigned model into memory.
+ * 
+ * Load a model into a slot.
+ * 
+ * Routing logic:
+ * - GGUF files with LlamaCpp runtime → llama-server sidecar (HTTP)
+ * - SafeTensors with Candle runtime → kernel BackendPool (in-process)
+ * - ONNX/Sherpa → kernel VoicePool (in-process)
  * 
  * Returns a typed [`LoadError`] covering the full load-path failure
  * surface — compatibility, filesystem, resources, backend init,
@@ -1222,8 +1478,13 @@ async completeModelSetup() : Promise<Result<null, string>> {
 /**
  * Generate text using a loaded model slot.
  * 
- * Gets an InferenceHandle from the model loader (resolves fallback chain),
- * streams tokens via Tauri events, returns the full generated text.
+ * Routing:
+ * - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
+ * - SafeTensors models loaded via Candle → kernel BackendPool
+ * - Cloud provider → `cloud_chat` (if configured)
+ * 
+ * Streams tokens via Tauri events (`inference-token` for Candle,
+ * `llama:token` for sidecar — frontend listens to both).
  * Hard fails if no model is loaded — no silent fallback.
  */
 async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
@@ -1663,6 +1924,67 @@ async llamaChat(messages: ChatMessage[], maxTokens: number | null, temperature: 
 async llamaEmbed(input: string) : Promise<Result<number[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("llama_embed", { input }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the current inference provider setting.
+ * 
+ * Reads from `preferences.json`. Defaults to `Cloud` if unset
+ * (dogfooding mode — platform works without local models).
+ */
+async getInferenceProvider() : Promise<Result<InferenceProvider, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_inference_provider") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Set the inference provider. Persisted to preferences table.
+ * 
+ * Emitted as `provider:changed` event so all cross-linked UI
+ * components (StatusBar, Chat header, Settings) update instantly.
+ */
+async setInferenceProvider(provider: InferenceProvider) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_inference_provider", { provider }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if Anthropic API key is configured and ready for cloud inference.
+ */
+async cloudReady() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cloud_ready") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Send a chat completion to Anthropic Claude API.
+ * 
+ * Streams tokens back via `cloud:token` Tauri events (same pattern
+ * as `llama:token`). Returns the full response + usage metadata
+ * for `store_assistant_turn`.
+ * 
+ * Used for:
+ * 1. Primary chat brain when `InferenceProvider::Cloud` is active
+ * 2. Clyffy turbo escalation regardless of provider setting
+ * 
+ * The `turbo` parameter bypasses the provider check — Clyffy can
+ * always call this for escalation even when provider is Local.
+ */
+async cloudChat(messages: CloudMessage[], systemPrompt: string | null, model: string | null, maxTokens: number | null, temperature: number | null) : Promise<Result<CloudChatResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cloud_chat", { messages, systemPrompt, model, maxTokens, temperature }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2498,6 +2820,38 @@ endedAt: number | null;
  */
 messageCount: number }
 /**
+ * Cloud inference result metadata.
+ */
+export type CloudChatResult = { 
+/**
+ * Full assembled response text.
+ */
+content: string; 
+/**
+ * Model used (e.g. "claude-sonnet-4-20250514").
+ */
+model: string; 
+/**
+ * Input tokens consumed.
+ */
+input_tokens: number; 
+/**
+ * Output tokens generated.
+ */
+output_tokens: number }
+/**
+ * A chat message in Anthropic Messages API format.
+ */
+export type CloudMessage = { 
+/**
+ * Role: "user" or "assistant".
+ */
+role: string; 
+/**
+ * Message content.
+ */
+content: string }
+/**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
  * Every "?" icon in the overlay pulls its body text from this struct.
@@ -2839,6 +3193,50 @@ dismiss_label: string;
  */
 dismiss_aria: string }
 /**
+ * Health of the DuckDB analytics database.
+ */
+export type DuckDbHealth = { 
+/**
+ * Whether SELECT 1 succeeded.
+ */
+reachable: boolean; 
+/**
+ * Latency in microseconds.
+ */
+latency_us: number; 
+/**
+ * Error message if unreachable.
+ */
+error: string | null; 
+/**
+ * Database file path.
+ */
+path: string }
+/**
+ * Result of a raw SQL query against DuckDB.
+ */
+export type DuckDbQueryResult = { 
+/**
+ * Rows as JSON string (serialized array of arrays).
+ */
+rows_json: string; 
+/**
+ * Number of rows returned.
+ */
+row_count: number }
+/**
+ * A table in DuckDB with row count.
+ */
+export type DuckDbTableInfo = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of rows.
+ */
+row_count: number }
+/**
  * Hardware execution lane in the inference pipeline.
  * 
  * Each variant maps to a model slot + device combination.
@@ -2949,6 +3347,110 @@ format: ModelFormat;
  * Maturity of this `(arch, format)` path.
  */
 status: SupportStatus }
+/**
+ * Health of all three graph namespaces.
+ */
+export type GraphHealthAll = { 
+/**
+ * Per-namespace health results.
+ */
+namespaces: GraphPingResult[]; 
+/**
+ * Whether the HTTP server on :8822 is reachable.
+ */
+http_server_up: boolean; 
+/**
+ * Resolved storage path on disk.
+ */
+storage_path: string }
+/**
+ * A key-value entry from the scoped kv table.
+ */
+export type GraphKvEntry = { 
+/**
+ * Key name.
+ */
+key: string; 
+/**
+ * Value size in bytes.
+ */
+value_size: number }
+/**
+ * Which graph namespace to target.
+ */
+export type GraphNamespace = 
+/**
+ * system/engine — FSM, quality checks, thinking state.
+ */
+"System" | 
+/**
+ * user/profile — memory, corrections, concepts.
+ */
+"User" | 
+/**
+ * global/knowledge — cross-project patterns, dev profile.
+ */
+"Global"
+/**
+ * Stats for a single namespace.
+ */
+export type GraphNamespaceStats = { 
+/**
+ * Namespace name.
+ */
+namespace: string; 
+/**
+ * Database name.
+ */
+database: string; 
+/**
+ * Number of tables.
+ */
+table_count: number; 
+/**
+ * Total records across all tables.
+ */
+total_records: number; 
+/**
+ * Table breakdown.
+ */
+tables: GraphTableInfo[] }
+/**
+ * Result of pinging a single graph namespace.
+ */
+export type GraphPingResult = { 
+/**
+ * Which namespace was pinged.
+ */
+namespace: string; 
+/**
+ * Database within the namespace.
+ */
+database: string; 
+/**
+ * Whether the ping succeeded.
+ */
+reachable: boolean; 
+/**
+ * Latency in microseconds (0 if unreachable).
+ */
+latency_us: number; 
+/**
+ * Error message if unreachable.
+ */
+error: string | null }
+/**
+ * Info about a single table in a namespace.
+ */
+export type GraphTableInfo = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of records in this table.
+ */
+record_count: number }
 /**
  * Welcome screen — Clyffy greeting and CTA.
  */
@@ -3295,6 +3797,21 @@ name: string;
  */
 tagline: string }
 /**
+ * Which backend handles the primary chat brain.
+ * 
+ * Cross-linked: StatusBar, Settings, Chat header, Devtools all
+ * read and write this same persisted value.
+ */
+export type InferenceProvider = 
+/**
+ * Local LLM via llama-server sidecar or Candle in-process.
+ */
+"local" | 
+/**
+ * Anthropic Claude API (subscription or API key).
+ */
+"cloud"
+/**
  * Event emitted during platform initialization.
  */
 export type InitEvent = { 
@@ -3452,6 +3969,82 @@ verbose: boolean;
  * Write every trace to DuckDB for baseline analysis.
  */
 persist_to_duckdb: boolean }
+/**
+ * Which LibSQL database to target.
+ */
+export type LibSqlDatabase = 
+/**
+ * System database — platform.db (sessions, projects, config).
+ */
+"System" | 
+/**
+ * User database — user.db (turns, preferences, api_keys).
+ */
+"User"
+/**
+ * Health of a single LibSQL database.
+ */
+export type LibSqlHealth = { 
+/**
+ * Which database.
+ */
+database: string; 
+/**
+ * Whether SELECT 1 succeeded.
+ */
+reachable: boolean; 
+/**
+ * Latency in microseconds.
+ */
+latency_us: number; 
+/**
+ * Error message if unreachable.
+ */
+error: string | null; 
+/**
+ * Database file path.
+ */
+path: string }
+/**
+ * Combined health of both databases.
+ */
+export type LibSqlHealthAll = { 
+/**
+ * Per-database health.
+ */
+databases: LibSqlHealth[] }
+/**
+ * Result of a raw SQL query (JSON-serialized rows).
+ */
+export type LibSqlQueryResult = { 
+/**
+ * Column names.
+ */
+columns: string[]; 
+/**
+ * Rows as JSON string (serialized array of arrays).
+ */
+rows_json: string; 
+/**
+ * Number of rows returned.
+ */
+row_count: number; 
+/**
+ * Number of rows affected (for INSERT/UPDATE/DELETE).
+ */
+rows_affected: number }
+/**
+ * A table in the database with its row count.
+ */
+export type LibSqlTableInfo = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of rows.
+ */
+row_count: number }
 /**
  * Health status of the llama-server sidecar.
  */
@@ -3964,6 +4557,70 @@ continue_template: string;
  */
 back_label: string }
 /**
+ * Health of a project database.
+ */
+export type ProjectDbHealth = { 
+/**
+ * Project ID.
+ */
+project_id: string; 
+/**
+ * Whether SELECT 1 succeeded.
+ */
+reachable: boolean; 
+/**
+ * Latency in microseconds.
+ */
+latency_us: number; 
+/**
+ * Error message if unreachable.
+ */
+error: string | null }
+/**
+ * Result of initializing a project database.
+ */
+export type ProjectDbInitResult = { 
+/**
+ * Project ID.
+ */
+project_id: string; 
+/**
+ * Absolute path to the database file.
+ */
+db_path: string; 
+/**
+ * Number of tables created.
+ */
+table_count: number }
+/**
+ * Result of a raw SQL query against a project database.
+ */
+export type ProjectDbQueryResult = { 
+/**
+ * Rows as JSON string (serialized array of arrays).
+ */
+rows_json: string; 
+/**
+ * Number of rows returned.
+ */
+row_count: number; 
+/**
+ * Number of rows affected (for mutations).
+ */
+rows_affected: number }
+/**
+ * A table in the project database with its row count.
+ */
+export type ProjectDbTableInfo = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of rows.
+ */
+row_count: number }
+/**
  * A project row from `LibSQL` — maps 1:1 to the `projects` table.
  */
 export type ProjectRow = { 
@@ -4069,11 +4726,11 @@ export type Resolution =
  * Runtime-mutable retrieval configuration (TS-exported).
  * 
  * Controls how the vector store returns and filters results.
- * Switchable via devtools preset buttons or per-field editing.
+ * Switchable via devtools preset buttons or per-field slider editing.
  */
 export type RetrievalConfig = { 
 /**
- * Active preset name (for UI display).
+ * Active preset name (for UI display). "custom" when manually tuned.
  */
 preset: string; 
 /**
@@ -4087,7 +4744,47 @@ score_threshold: number;
 /**
  * How many results to keep after reranking.
  */
-rerank_top_n: number }
+rerank_top_n: number; 
+/**
+ * Fusion blend constant. Lower = stronger top-rank preference.
+ * 30 = local store default. 60 = web-scale.
+ */
+fusion_k: number }
+/**
+ * Metadata for a single retrieval parameter — drives devtools UI.
+ * 
+ * The frontend renders sliders from this registry. Layman labels only.
+ * Internal field names never appear in the UI.
+ */
+export type RetrievalParamMeta = { 
+/**
+ * Internal field name on `RetrievalConfig` (e.g. "top_k").
+ */
+field: string; 
+/**
+ * Human-readable label (e.g. "Search Depth").
+ */
+label: string; 
+/**
+ * Capability family (e.g. "retrieval").
+ */
+family: string; 
+/**
+ * One-line description for the UI.
+ */
+description: string; 
+/**
+ * Slider minimum value.
+ */
+min: number; 
+/**
+ * Slider maximum value.
+ */
+max: number; 
+/**
+ * Slider step increment.
+ */
+step: number }
 /**
  * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
  * 

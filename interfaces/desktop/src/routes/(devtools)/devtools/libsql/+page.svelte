@@ -271,7 +271,7 @@ function handleKeydown(e: KeyboardEvent): void {
 								{#if libsqlState.queryResult.rows_affected > 0}
 									({libsqlState.queryResult.rows_affected} rows affected)
 								{:else}
-									({libsqlState.queryResult.rows.length} rows)
+									({libsqlState.queryResult.row_count} rows)
 								{/if}
 							</Text>
 							<button
@@ -281,7 +281,7 @@ function handleKeydown(e: KeyboardEvent): void {
 								Clear
 							</button>
 						</div>
-						<pre class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(libsqlState.queryResult.rows, null, 2)}</pre>
+						<pre class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(JSON.parse(libsqlState.queryResult.rows_json), null, 2)}</pre>
 					</div>
 				{/if}
 			</div>

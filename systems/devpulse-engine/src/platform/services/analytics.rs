@@ -248,4 +248,160 @@ CREATE INDEX IF NOT EXISTS idx_span_traces_trace
 
 CREATE INDEX IF NOT EXISTS idx_span_traces_name
     ON span_traces(name, created_at);
+
+-- ── Token Economics ───────────────────────────────────────────
+
+-- Track token spend vs value delivered
+CREATE TABLE IF NOT EXISTS token_economics (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    input_tokens        INTEGER,
+    output_tokens       INTEGER,
+    thinking_tokens     INTEGER,
+    embedding_tokens    INTEGER,
+    total_tokens        INTEGER,
+    estimated_cost_usd  DOUBLE,
+    inference_time_ms   INTEGER,
+    model_slot          VARCHAR,
+    loading_state       VARCHAR,                 -- what state was the model in when called?
+    tokens_per_useful_line DOUBLE,               -- total_tokens / lines_user_kept
+    cache_hit_rate      DOUBLE                   -- Moka hit rate for this session
+);
+
+-- ── Council Performance ───────────────────────────────────────
+
+-- Per-session performance metrics for council members
+CREATE TABLE IF NOT EXISTS council_performance (
+    id                  VARCHAR NOT NULL,
+    council_member      VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    activations         INTEGER,
+    avg_latency_ms      DOUBLE,
+    tasks_completed     INTEGER,
+    tasks_failed        INTEGER,
+    user_overrides      INTEGER,                 -- how often user rejected council output
+    translation_accuracy DOUBLE,
+    mood_detection_accuracy DOUBLE,
+    context_recall_rate DOUBLE,
+    pattern_match_rate  DOUBLE
+);
+
+-- ── Retrieval Metrics ─────────────────────────────────────────
+
+-- RAG pipeline performance per query
+CREATE TABLE IF NOT EXISTS retrieval_metrics (
+    id                  VARCHAR NOT NULL,
+    query_id            VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    embed_time_ms       INTEGER,
+    search_time_ms      INTEGER,
+    rerank_time_ms      INTEGER,
+    total_retrieval_ms  INTEGER,
+    candidates_found    INTEGER,
+    candidates_reranked INTEGER,
+    final_context_chunks INTEGER,
+    cache_hit           BOOLEAN,
+    complexity_score    DOUBLE,
+    routing_path        VARCHAR,                 -- fast | fused | deep
+    relevance_rating    INTEGER                  -- 1-5, NULL if not rated
+);
+
+-- ── Agent Workflow Tracking ───────────────────────────────────
+
+-- SDLC lifecycle phase tracking
+CREATE TABLE IF NOT EXISTS agent_workflow_tracking (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    project_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    phase               VARCHAR NOT NULL,        -- intake | specification | architecture | decomposition | implementation | verification
+    phase_status        VARCHAR NOT NULL,        -- entered | gate_passed | gate_failed | skipped | rolled_back
+    artifact_type       VARCHAR,
+    artifact_id         VARCHAR,
+    gate_checks_run     INTEGER,
+    gate_checks_passed  INTEGER,
+    critic_verdict      VARCHAR,                 -- pass | fail | skip
+    critic_explanation  VARCHAR,
+    iteration_count     INTEGER DEFAULT 1,
+    phase_duration_ms   INTEGER,
+    time_in_elicitation_ms INTEGER,
+    time_in_generation_ms INTEGER,
+    time_in_validation_ms INTEGER
+);
+
+-- ── COSTAR Satisfaction ───────────────────────────────────────
+
+-- Track COSTAR+ completeness across interactions
+CREATE TABLE IF NOT EXISTS costar_satisfaction (
+    id                  VARCHAR NOT NULL,
+    turn_id             VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    context_score       DOUBLE,
+    objective_score     DOUBLE,
+    style_score         DOUBLE,
+    tone_score          DOUBLE,
+    audience_score      DOUBLE,
+    response_score      DOUBLE,
+    instance_context_score DOUBLE,
+    overall_score       DOUBLE,
+    satisfied           BOOLEAN,
+    gaps_from_input     INTEGER,
+    gaps_from_diary     INTEGER,
+    gaps_from_repo      INTEGER,
+    gaps_from_elicitation INTEGER,
+    gaps_unfilled       INTEGER
+);
+
+-- ── Mood Timeline ─────────────────────────────────────────────
+
+-- Mood tracking over time for trend analysis
+CREATE TABLE IF NOT EXISTS mood_timeline (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    mood_score          DOUBLE NOT NULL,         -- -1.0 (heavy negative) to +1.0 (heavy positive)
+    mood_signals        JSON,                    -- detected signals ['caps', 'profanity', 'short_responses']
+    mood_category       VARCHAR,                 -- frustrated | neutral | engaged | flow
+    trigger_turn_id     VARCHAR,
+    psych_action        VARCHAR,                 -- acknowledged | adjusted_tone | offered_break | none
+    action_effective    BOOLEAN
+);
+
+-- ── Teaching Moments ──────────────────────────────────────────
+
+-- Education tracking for progressive skill building
+CREATE TABLE IF NOT EXISTS teaching_moments (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    concept             VARCHAR NOT NULL,
+    explanation_given   VARCHAR,
+    context_trigger     VARCHAR,
+    user_engaged        BOOLEAN,
+    terminology_adopted BOOLEAN,
+    user_level_before   VARCHAR,                 -- novice | aware | practicing | fluent
+    user_level_after    VARCHAR
+);
+
+-- ── Platform Telemetry ────────────────────────────────────────
+
+-- System health and resource utilization snapshots
+CREATE TABLE IF NOT EXISTS platform_telemetry (
+    id                  VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    gpu_util_pct        DOUBLE,
+    vram_used_mb        INTEGER,
+    ram_used_mb         INTEGER,
+    cpu_util_pct        DOUBLE,
+    model_states        JSON,                    -- { 'chat.brain': 'hot', 'minion.shared': 'standby', ... }
+    p50_response_ms     INTEGER,
+    p95_response_ms     INTEGER,
+    p99_response_ms     INTEGER,
+    error_count         INTEGER DEFAULT 0,
+    error_types         JSON                     -- { 'inference_timeout': 2, 'oom': 0, ... }
+);
 ";

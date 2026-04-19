@@ -7,6 +7,7 @@ pub mod analytics;
 pub mod cache;
 pub mod graph;
 pub mod manifest;
+pub mod project_db;
 pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;

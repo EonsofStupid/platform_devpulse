@@ -104,8 +104,8 @@ pub async fn fetch_dashboard(
         // Recent projects (up to 8)
         let project_rows = adapter
             .query(
-                "SELECT id, name, root_path, project_type, created_at, last_accessed \
-                 FROM projects ORDER BY last_accessed DESC LIMIT 8",
+                "SELECT id, name, root_path, project_type, created_at, last_active_at \
+                 FROM projects ORDER BY last_active_at DESC LIMIT 8",
                 &[],
             )
             .await

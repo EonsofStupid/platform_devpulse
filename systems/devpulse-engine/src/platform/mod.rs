@@ -39,7 +39,8 @@ pub mod telemetry;
 
 pub use config::{
     DataScope, DatabaseConfig, ExecutionLane, LaneTraceConfig, LaneToggle,
-    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalPreset, sanitize_path,
+    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta,
+    RetrievalPreset, retrieval_param_meta, sanitize_path,
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
@@ -53,7 +54,7 @@ pub use devpulse_clyffy::cortex::persistence::{
 
 // Re-export model loader types needed by Tauri command layer
 #[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::ModelSourceTier;
+pub use devpulse_clyffy::model_loader::{ModelRegistryEntry, ModelSourceTier, Slot};
 
 // Re-export architecture + backend registry for the Tauri command
 // layer. These are the public faces of the compatibility matrix —
@@ -87,6 +88,7 @@ use services::vector::VectorService;
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
 use services::devforge::DevForgeService;
+use services::project_db::ProjectDbManager;
 use telemetry::TelemetryHandle;
 
 // ═══════════════════════════════════════════════════════════════
@@ -173,6 +175,9 @@ pub struct Platform {
     devforge: Option<Arc<DevForgeService>>,
     // ── Telemetry (lane tracing) ─────────────────────────────
     telemetry: Option<TelemetryHandle>,
+    // ── Project scope ──────────────────────────────────────────
+    /// Per-project databases, created on demand (not at boot).
+    project_db: Arc<ProjectDbManager>,
     // ── Meta ────────────────────────────────────────────────────
     boot_config: PlatformBootConfig,
     boot_time: Instant,
@@ -235,6 +240,7 @@ impl Platform {
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
             devforge: booted.devforge,
+            project_db: Arc::new(ProjectDbManager::new()),
             telemetry,
             boot_config,
             boot_time,
@@ -360,6 +366,16 @@ impl Platform {
         self.devforge.as_ref()
     }
 
+    // ── Project scope accessor ──────────────────────────────────
+
+    /// Get the per-project database manager.
+    ///
+    /// Not a boot-time service — project databases are created on demand
+    /// when a project is registered and opened lazily on access.
+    pub fn project_db(&self) -> &Arc<ProjectDbManager> {
+        &self.project_db
+    }
+
     // ── Telemetry accessor ──────────────────────────────────────
 
     /// Get the telemetry handle (if enabled and analytics booted).
@@ -408,6 +424,9 @@ impl Platform {
             };
         }
         for_each_service_rev!(self, shutdown_one);
+
+        // Project databases are not in the macro — they're on-demand, not boot-time.
+        self.project_db.shutdown().await;
 
         let elapsed = start.elapsed();
         tracing::info!(

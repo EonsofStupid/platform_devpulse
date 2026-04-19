@@ -20,7 +20,8 @@ use tokio::sync::Mutex;
 /// State managed by Tauri — holds the active llama-server child process.
 pub struct LlamaServerState {
     child: Mutex<Option<CommandChild>>,
-    port: Mutex<u16>,
+    /// Port the llama-server is listening on (0 = not started).
+    pub port: Mutex<u16>,
 }
 
 impl LlamaServerState {

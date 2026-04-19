@@ -1,11 +1,13 @@
 //! Relational service wrapper (`LibSQL`).
 //!
-//! Two scoped schemas:
+//! Three scoped schemas:
 //! - **System**: platform config, guardian state (git/file drift),
 //!   constrained-decoding service status, protected defaults, dev baselines
 //! - **User**: profiles, preferences, projects, sessions, turns,
 //!   anchors, open loops, corrections, learnings, concepts, psych,
 //!   grammar preferences, per-project schemas/bindings
+//! - **Project**: per-project RAG data, file index, chunks, signals,
+//!   codebase patterns, conventions, anti-drift log
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
@@ -495,4 +497,251 @@ CREATE TABLE IF NOT EXISTS ambient_observations (
 );
 CREATE INDEX IF NOT EXISTS idx_ambient_session ON ambient_observations(session_id);
 CREATE INDEX IF NOT EXISTS idx_ambient_observed ON ambient_observations(observed_at);
+
+-- ── Decisions & Continuity ──────────────────────────────────
+
+-- Architectural/design decisions made during sessions
+CREATE TABLE IF NOT EXISTS decisions (
+    id              TEXT PRIMARY KEY,
+    session_id      TEXT REFERENCES sessions(id),
+    project_id      TEXT REFERENCES projects(id),
+    decision_text   TEXT NOT NULL,
+    rationale       TEXT,
+    decided_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    status          TEXT DEFAULT 'active',       -- active | superseded | reverted
+    superseded_by   TEXT REFERENCES decisions(id),
+    tags            TEXT                          -- JSON array: ['architecture', 'model', 'stack']
+);
+CREATE INDEX IF NOT EXISTS idx_decisions_project ON decisions(project_id);
+CREATE INDEX IF NOT EXISTS idx_decisions_status ON decisions(status);
+
+-- What influenced each decision
+CREATE TABLE IF NOT EXISTS decision_factors (
+    id              TEXT PRIMARY KEY,
+    decision_id     TEXT NOT NULL REFERENCES decisions(id) ON DELETE CASCADE,
+    factor_type     TEXT NOT NULL,               -- constraint | preference | research | experience
+    factor_text     TEXT NOT NULL,
+    weight          REAL DEFAULT 1.0
+);
+CREATE INDEX IF NOT EXISTS idx_decision_factors_decision ON decision_factors(decision_id);
+
+-- Vibe-speak to engineer-speak mappings (translation cache)
+CREATE TABLE IF NOT EXISTS translation_memory (
+    id              TEXT PRIMARY KEY,
+    vibe_input      TEXT NOT NULL,
+    translated      TEXT NOT NULL,
+    project_id      TEXT REFERENCES projects(id),
+    confidence      REAL DEFAULT 1.0,
+    times_used      INTEGER DEFAULT 1,
+    last_used       INTEGER NOT NULL DEFAULT (unixepoch()),
+    created_at      INTEGER DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_translation_vibe ON translation_memory(vibe_input);
+
+-- ── Attunement ──────────────────────────────────────────────
+
+-- Understanding of user behavior preferences
+CREATE TABLE IF NOT EXISTS attunement_preferences (
+    id              TEXT PRIMARY KEY,
+    preference_key  TEXT NOT NULL UNIQUE,        -- verbosity | explanation_depth | humor_tolerance
+    preference_val  TEXT NOT NULL,
+    learned_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    source          TEXT DEFAULT 'observed'       -- observed | explicit | inferred
+);
+
+-- Specific behavioral patterns detected
+CREATE TABLE IF NOT EXISTS attunement_learned (
+    id              TEXT PRIMARY KEY,
+    pattern_type    TEXT NOT NULL,               -- frustration_trigger | flow_indicator | preference
+    pattern_data    TEXT NOT NULL,               -- JSON: the learned pattern
+    confidence      REAL DEFAULT 0.5,
+    observations    INTEGER DEFAULT 1,
+    first_seen      INTEGER NOT NULL DEFAULT (unixepoch()),
+    last_seen       INTEGER NOT NULL DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_attunement_pattern ON attunement_learned(pattern_type);
+
+-- ── Model & Hardware ────────────────────────────────────────
+
+-- Installed/available models and their slot assignments
+CREATE TABLE IF NOT EXISTS model_registry (
+    id              TEXT PRIMARY KEY,
+    slot_name       TEXT NOT NULL,               -- chat.brain | minion.shared | rag.embedder etc.
+    model_name      TEXT NOT NULL,
+    model_path      TEXT NOT NULL,
+    format          TEXT NOT NULL,               -- safetensors | gguf
+    backend         TEXT NOT NULL,               -- candle | llama_cpp
+    size_bytes      INTEGER,
+    vram_required   INTEGER,                     -- estimated VRAM in MB
+    is_active       INTEGER DEFAULT 0,
+    loading_state   TEXT DEFAULT 'cold',         -- hot | standby | warm | cold
+    registered_at   INTEGER NOT NULL DEFAULT (unixepoch()),
+    last_loaded     INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_models_slot ON model_registry(slot_name, is_active);
+
+-- Detected hardware (populated during onboarding)
+CREATE TABLE IF NOT EXISTS hardware_profile (
+    id              TEXT PRIMARY KEY,
+    detected_at     INTEGER NOT NULL DEFAULT (unixepoch()),
+    cpu_model       TEXT,
+    cpu_cores       INTEGER,
+    ram_total_mb    INTEGER,
+    gpu_count       INTEGER,
+    gpu_details     TEXT,                        -- JSON array of GPU info
+    vram_total_mb   INTEGER,
+    os_info         TEXT,
+    preset_tier     TEXT                         -- baseline_8gb | midrange_12gb | highend_24gb | custom
+);
+
+-- ── Internal / Dogfooding ───────────────────────────────────
+
+-- Raw observations during dogfooding (dev builds only)
+CREATE TABLE IF NOT EXISTS _internal_captures (
+    id              TEXT PRIMARY KEY,
+    session_id      TEXT REFERENCES sessions(id),
+    captured_at     INTEGER NOT NULL DEFAULT (unixepoch()),
+    capture_type    TEXT NOT NULL,               -- bug | friction | delight | idea | regression
+    description     TEXT NOT NULL,
+    severity        INTEGER DEFAULT 5,           -- 1-10
+    component       TEXT,                        -- ui | model | retrieval | etc.
+    resolved        INTEGER DEFAULT 0,
+    resolution_note TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_captures_type ON _internal_captures(capture_type);
+
+-- A/B test and experiment tracking
+CREATE TABLE IF NOT EXISTS _internal_experiments (
+    id              TEXT PRIMARY KEY,
+    name            TEXT NOT NULL UNIQUE,
+    description     TEXT,
+    started_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    ended_at        INTEGER,
+    status          TEXT DEFAULT 'active',       -- active | concluded | abandoned
+    hypothesis      TEXT,
+    conclusion      TEXT,
+    variant_a       TEXT NOT NULL,               -- JSON: config for variant A
+    variant_b       TEXT NOT NULL                -- JSON: config for variant B
+);
+CREATE INDEX IF NOT EXISTS idx_experiments_status ON _internal_experiments(status);
+";
+
+// ═══════════════════════════════════════════════════════════════
+// Project scope schema
+// ═══════════════════════════════════════════════════════════════
+
+/// Schema for per-project relational stores.
+///
+/// Each managed project gets its own `project.db` at
+/// `{project_root}/.devpulse/project.db`. Contains RAG data,
+/// file index, chunks, signals, codebase patterns, conventions,
+/// and anti-drift enforcement log.
+pub const PROJECT_SCHEMA: &str = r"
+-- Key-value store for project-scoped signal access
+CREATE TABLE IF NOT EXISTS kv_store (
+    key TEXT PRIMARY KEY,
+    value BLOB NOT NULL,
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_kv_updated ON kv_store(updated_at);
+
+-- ── Project Meta ────────────────────────────────────────────
+
+-- Project-level configuration and state (seeded during project add)
+CREATE TABLE IF NOT EXISTS project_meta (
+    key             TEXT PRIMARY KEY,
+    value           TEXT NOT NULL,
+    updated_at      INTEGER NOT NULL DEFAULT (unixepoch())
+);
+
+-- ── File Index & RAG ────────────────────────────────────────
+
+-- File tracking for delta re-indexing
+CREATE TABLE IF NOT EXISTS indexed_files (
+    id              TEXT PRIMARY KEY,
+    file_path       TEXT NOT NULL UNIQUE,        -- relative to project root
+    file_hash       TEXT NOT NULL,               -- blake3 hash for change detection
+    file_size       INTEGER NOT NULL,
+    language        TEXT,                        -- rust | svelte | typescript | toml | etc.
+    chunk_count     INTEGER DEFAULT 0,
+    indexed_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    last_modified   INTEGER NOT NULL,
+    is_excluded     INTEGER DEFAULT 0            -- manually excluded from indexing
+);
+CREATE INDEX IF NOT EXISTS idx_files_path ON indexed_files(file_path);
+CREATE INDEX IF NOT EXISTS idx_files_hash ON indexed_files(file_hash);
+
+-- RAG chunks for retrieval
+CREATE TABLE IF NOT EXISTS chunks (
+    id              TEXT PRIMARY KEY,
+    file_id         TEXT NOT NULL REFERENCES indexed_files(id) ON DELETE CASCADE,
+    chunk_index     INTEGER NOT NULL,            -- order within file
+    content         TEXT NOT NULL,
+    start_line      INTEGER,
+    end_line        INTEGER,
+    chunk_type      TEXT DEFAULT 'code',         -- code | comment | doc | config | mixed
+    symbol_name     TEXT,                        -- function/struct/enum name if applicable
+    symbol_type     TEXT,                        -- function | struct | enum | impl | module
+    embedding_id    TEXT,                        -- reference to RRO/vector point ID
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_chunks_file ON chunks(file_id, chunk_index);
+CREATE INDEX IF NOT EXISTS idx_chunks_symbol ON chunks(symbol_name);
+
+-- ── Signals ─────────────────────────────────────────────────
+
+-- Project-level signal log
+CREATE TABLE IF NOT EXISTS signals (
+    id              TEXT PRIMARY KEY,
+    signal_kind     TEXT NOT NULL,               -- matches SignalKind enum
+    payload         TEXT,                        -- JSON: signal-specific data
+    source          TEXT NOT NULL,               -- file_watcher | process_monitor | user | council
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    processed       INTEGER DEFAULT 0,
+    processed_by    TEXT,                        -- council member that handled it
+    visibility      TEXT DEFAULT 'internal'      -- internal | narrated | public | debug
+);
+CREATE INDEX IF NOT EXISTS idx_signals_kind ON signals(signal_kind, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_signals_unprocessed ON signals(processed) WHERE processed = 0;
+
+-- ── Codebase Patterns & Conventions ─────────────────────────
+
+-- Detected patterns in this project
+CREATE TABLE IF NOT EXISTS codebase_patterns (
+    id              TEXT PRIMARY KEY,
+    pattern_type    TEXT NOT NULL,               -- file_structure | naming | import | error_handling
+    pattern_desc    TEXT NOT NULL,
+    example_file    TEXT,
+    example_snippet TEXT,
+    confidence      REAL DEFAULT 0.5,
+    detected_at     INTEGER NOT NULL DEFAULT (unixepoch()),
+    is_enforced     INTEGER DEFAULT 0            -- 1 = violations get blocked
+);
+CREATE INDEX IF NOT EXISTS idx_patterns_type ON codebase_patterns(pattern_type);
+
+-- Explicit conventions (user-declared or AI-detected)
+CREATE TABLE IF NOT EXISTS project_conventions (
+    id              TEXT PRIMARY KEY,
+    convention_type TEXT NOT NULL,               -- folder_structure | naming | testing | architecture
+    rule            TEXT NOT NULL,
+    source          TEXT DEFAULT 'detected',     -- detected | user_declared | tool_default
+    tool_target     TEXT,                        -- which AI tool this convention feeds
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    is_active       INTEGER DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_conventions_type ON project_conventions(convention_type);
+
+-- ── Anti-Drift Enforcement ──────────────────────────────────
+
+-- Guardian's enforcement log
+CREATE TABLE IF NOT EXISTS anti_drift_log (
+    id              TEXT PRIMARY KEY,
+    session_id      TEXT,                        -- cross-ref UUID from user DB
+    violation_type  TEXT NOT NULL,               -- duplicate_gen | out_of_bounds | delete_existing | todo_abandoned
+    description     TEXT NOT NULL,
+    file_affected   TEXT,
+    blocked         INTEGER DEFAULT 1,           -- 1 = blocked, 0 = warning only
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_drift_type ON anti_drift_log(violation_type);
 ";

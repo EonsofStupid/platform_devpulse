@@ -2,7 +2,15 @@
  * @file Models State Rune
  * @module @devpulse/domains/app/models/data-access/models
  *
- * Combined state for registry, slots, assignments, statuses.
+ * Rust is the source of truth. This rune is a dumb bucket.
+ *
+ * Rust pushes `platform:models-status` events via `emit_status()`.
+ * `startStatusListener()` receives the payload and sets `$state` directly.
+ * Zero IPC polling. Zero `getSlots()`. Zero `scanModels()` for reads.
+ *
+ * The only IPC calls this module makes are COMMANDS:
+ * assign, load, unload, swap, warm, scan, delete.
+ * After each command succeeds, Rust pushes fresh state automatically.
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
@@ -12,14 +20,25 @@ import { logError, logInfo } from "$lib/sys/logger.js";
 import type { ModelStatus } from "../util/models.types.js";
 import {
 	assignModelToSlot,
-	getSlots,
-	isFirstRun,
 	loadSlot,
 	scanModels,
 	swapSlotModel,
 	unloadSlot,
 	warmSlot,
 } from "./index.js";
+
+// ── StatusUpdate envelope — matches Rust `commands::StatusUpdate<T>` ──
+
+interface StatusUpdate<T> {
+	kind: "data" | "info" | "error" | "crash";
+	data: T;
+}
+
+interface ModelsStatusData {
+	slots: SlotInfo[];
+	models: ModelInfo[];
+	firstRun: boolean;
+}
 
 class ModelsState {
 	// ── Registry ────────────────────────────────────────
@@ -36,49 +55,89 @@ class ModelsState {
 	error = $state<string | null>(null);
 	private statusUnlisten: UnlistenFn | null = null;
 
-	// ── Actions ─────────────────────────────────────────
+	// ── Push Listener ───────────────────────────────────
 
-	/** Full refresh — slots + registry + first-run check. Hard fails visible. */
-	async refresh(): Promise<void> {
-		return withAction("models.refresh", "Refreshing models and slots…", async () => {
-			this.loading = true;
-			logInfo(
-				"models",
-				"refresh() start — getSlots + isFirstRun (parallel), then scanModels (sequential)",
-			);
-			try {
-				// getSlots internally calls scan_models on the same Mutex — calling
-				// scanModels in parallel causes lock contention and UI freeze.
-				// Sequence: slots + firstRun in parallel, then models after lock is free.
-				const [slots, first] = await Promise.all([getSlots(), isFirstRun()]);
-				const models = await scanModels();
-				this.slots = slots;
-				this.models = models;
-				this.firstRun = first;
-				this.error = null;
+	/**
+	 * Listen for `platform:models-status` events pushed from Rust.
+	 *
+	 * Rust emits this at boot and after every mutation (assign, load,
+	 * unload, swap, scan, delete, import, setup complete).
+	 *
+	 * The payload is `StatusUpdate<ModelsStatusData>`:
+	 * - kind "data"  → full state snapshot, set $state directly
+	 * - kind "error" → set error banner
+	 * - kind "crash" → unrecoverable, surface hard
+	 *
+	 * This is the ONLY way model state enters the frontend.
+	 */
+	async startStatusListener(): Promise<void> {
+		this.stopStatusListener();
+		logInfo("models", "startStatusListener() — subscribing to platform:models-status");
+		this.statusUnlisten = await listen<StatusUpdate<ModelsStatusData>>(
+			"platform:models-status",
+			(event) => {
+				const { kind, data } = event.payload;
 
-				// Initialize statuses for all slots
-				slots.forEach((s) => {
-					if (!this.statuses[s.id]) {
-						this.statuses[s.id] = { type: "cold" };
-					}
-				});
-				logInfo(
-					"models",
-					`refresh() ok — slots=${slots.length} models=${models.length} firstRun=${first}`,
-				);
-			} catch (e) {
-				const msg = e instanceof Error ? e.message : String(e);
-				this.error = msg;
-				logError("models", `refresh() FAILED: ${msg}`);
-				throw e;
-			} finally {
-				this.loading = false;
-			}
-		});
+				if (kind === "data") {
+					this.slots = data.slots;
+					this.models = data.models;
+					this.firstRun = data.firstRun;
+					this.loading = false;
+					this.error = null;
+
+					// Initialize statuses for new slots
+					data.slots.forEach((s) => {
+						if (!this.statuses[s.id]) {
+							this.statuses[s.id] = { type: "cold" };
+						}
+					});
+
+					logInfo(
+						"models",
+						`platform:models-status [data] — slots=${data.slots.length} models=${data.models.length} firstRun=${data.firstRun}`,
+					);
+				} else if (kind === "error") {
+					this.error = typeof data === "string" ? data : JSON.stringify(data);
+					logError("models", `platform:models-status [error] — ${this.error}`);
+				} else if (kind === "crash") {
+					this.error = typeof data === "string" ? data : JSON.stringify(data);
+					logError("models", `platform:models-status [crash] — ${this.error}`);
+				}
+			},
+		);
 	}
 
-	/** Scan the models directory. 15s timeout — if IPC hangs, fail loud. */
+	/** Stop listening for platform:models-status. */
+	stopStatusListener(): void {
+		if (this.statusUnlisten) {
+			this.statusUnlisten();
+			this.statusUnlisten = null;
+		}
+	}
+
+	// ── Commands (write operations — Rust pushes state after each) ──
+
+	/**
+	 * Request fresh state from Rust.
+	 *
+	 * Triggers a scan command — Rust re-scans the models directory
+	 * and pushes fresh state via `platform:models-status`.
+	 *
+	 * For post-mutation calls (after assign/load/unload), this is
+	 * redundant — Rust already pushed. But it's safe and harmless.
+	 * For post-download or post-import, it picks up new files.
+	 */
+	async refresh(): Promise<void> {
+		logInfo("models", "refresh() — triggering scan (state arrives via push)");
+		await this.scan();
+	}
+
+	/**
+	 * Trigger a model directory scan.
+	 *
+	 * This is a COMMAND — tells Rust to re-scan the models directory.
+	 * Fresh state arrives via the status listener, not from the return value.
+	 */
 	async scan(): Promise<void> {
 		return withAction("models.scan", "Scanning local models…", async () => {
 			this.scanning = true;
@@ -91,8 +150,8 @@ class ModelsState {
 						60_000,
 					),
 				);
-				this.models = await Promise.race([scanModels(), timeout]);
-				logInfo("models", `scan() ok — ${this.models.length} models found`);
+				await Promise.race([scanModels(), timeout]);
+				logInfo("models", "scan() IPC complete — state arrives via push");
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : String(e);
 				this.error = msg;
@@ -104,15 +163,13 @@ class ModelsState {
 		});
 	}
 
-	/** Assign a model to a slot. Hard fail — no silent catch. */
+	/** Assign a model to a slot. Rust pushes fresh state after. */
 	async assign(slotId: string, modelId: string): Promise<void> {
 		return withAction("models.assign", "Assigning the model to your slot…", async () => {
 			this.error = null;
 			logInfo("models", `assign() start — slot=${slotId} modelId=${modelId}`);
 			try {
 				await assignModelToSlot(slotId, modelId);
-				logInfo("models", `assign() IPC assignModelToSlot ok — slot=${slotId}`);
-				await this.refresh();
 				logInfo("models", `assign() complete — slot=${slotId} modelId=${modelId}`);
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : String(e);
@@ -135,9 +192,7 @@ class ModelsState {
 				this.statuses[slotId] = { type: "loading", stage: "loading_weights", progressPct: 0 };
 				try {
 					await warmSlot(slotId);
-					this.statuses[slotId] = {
-						type: "warm",
-					};
+					this.statuses[slotId] = { type: "warm" };
 					swapState.complete();
 					logInfo("models", `warm() complete — slot=${slotId}`);
 				} catch (e) {
@@ -201,8 +256,7 @@ class ModelsState {
 
 	/**
 	 * Atomically swap the model on a loaded slot.
-	 * Triggers SwapOverlay via swap events from Rust.
-	 * If slot is not loaded, falls back to assign().
+	 * Rust pushes fresh state after. SwapOverlay driven by Tauri events.
 	 */
 	async swap(slotId: string, newModelId: string): Promise<void> {
 		return withAction("models.swap", "Swapping to a different model on this slot…", async () => {
@@ -212,41 +266,14 @@ class ModelsState {
 			this.error = null;
 			try {
 				await swapSlotModel(slotId, newModelId);
-				logInfo("models", `swap() IPC swapSlotModel ok — slot=${slotId}`);
-				// SwapOverlay is driven by Tauri events (swap-complete/swap-failed),
-				// not by this Promise. The overlay auto-dismisses on completion.
-				await this.refresh();
 				logInfo("models", `swap() complete — slot=${slotId}`);
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : String(e);
 				this.error = msg;
-				// swapState.fail() is called by the swap-failed event listener
 				logError("models", `swap() FAILED — slot=${slotId} newModelId=${newModelId}: ${msg}`);
 				throw e;
 			}
 		});
-	}
-
-	/**
-	 * Listen for platform:models-status events from Rust.
-	 * Emitted after boot and after complete_model_setup.
-	 * Triggers a refresh so the UI reflects the latest state.
-	 */
-	async startStatusListener(): Promise<void> {
-		this.stopStatusListener();
-		logInfo("models", "startStatusListener() — subscribing to platform:models-status");
-		this.statusUnlisten = await listen("platform:models-status", () => {
-			logInfo("models", "platform:models-status event — refresh()");
-			this.refresh();
-		});
-	}
-
-	/** Stop listening for platform:models-status. */
-	stopStatusListener(): void {
-		if (this.statusUnlisten) {
-			this.statusUnlisten();
-			this.statusUnlisten = null;
-		}
 	}
 
 	// ── Derived ─────────────────────────────────────────

@@ -252,7 +252,7 @@ function handleKeydown(e: KeyboardEvent): void {
 								Clear
 							</button>
 						</div>
-						<pre class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(duckdbState.queryResult.rows, null, 2)}</pre>
+						<pre class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(JSON.parse(duckdbState.queryResult.rows_json), null, 2)}</pre>
 					</div>
 				{/if}
 			</div>

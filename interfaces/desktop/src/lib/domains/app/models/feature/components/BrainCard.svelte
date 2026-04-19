@@ -9,6 +9,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { getCatalogForSlot } from "../../data-access/catalog.service.js";
@@ -92,6 +93,9 @@ const isTransitioning = $derived(
 	modelStatus?.type === "loading" || modelStatus?.type === "unloading",
 );
 const isWarm = $derived(modelStatus?.type === "warm");
+
+// ── ColdLight renderForge — glass-elevated preset ────────
+const cardM = $derived(renderForge({ kind: "brain-card", preset: "glass-elevated" }));
 
 // ── Actions ───────────────────────────────────────────────────
 
@@ -190,8 +194,9 @@ async function handleSwap(): Promise<void> {
 </script>
 
 <div
-	class="rounded-xl border p-5 transition-all"
-	style="border-color: var(--border-subtle); background: var(--surface-base);"
+	{...cardM.dataAttrs}
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-teal-main);"
+	class="rounded-xl p-5 transition-all"
 	data-component="brain-card"
 	title="This is Clyffy's main thinking engine — the AI model that powers chat, reasoning, and code help"
 >
@@ -243,7 +248,7 @@ async function handleSwap(): Promise<void> {
 			</div>
 		{/if}
 
-		<!-- Local model picker -->
+		<!-- Local model picker — shows models discovered on disk filtered by capability -->
 		<ModelPicker
 			slotId={SLOT_ID}
 			capability={slotCapability}

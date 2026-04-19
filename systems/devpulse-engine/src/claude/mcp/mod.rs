@@ -10,13 +10,14 @@ pub mod tools;
 
 use std::sync::Arc;
 
-use rmcp::handler::server::tool::ToolCallContext;
+use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{
-    CallToolResult, Implementation, ProtocolVersion, ServerCapabilities, ServerInfo,
+    CallToolResult, Implementation, ServerCapabilities, ServerInfo,
 };
 use rmcp::schemars;
 use rmcp::tool;
-use rmcp::{ServerHandler, tool_router};
+use rmcp::ServerHandler;
+use serde::Deserialize;
 
 use crate::platform::Platform;
 
@@ -37,33 +38,76 @@ impl DevPulseMcpServer {
     }
 }
 
-#[tool(tool_box)]
+#[rmcp::tool_handler]
 impl ServerHandler for DevPulseMcpServer {
     fn get_info(&self) -> ServerInfo {
-        ServerInfo {
-            protocol_version: ProtocolVersion::V_2025_03_26,
-            capabilities: ServerCapabilities::builder()
-                .enable_tools()
-                .build(),
-            server_info: Implementation {
-                name: "devpulse-mcp".into(),
-                version: env!("CARGO_PKG_VERSION").into(),
-            },
-            instructions: Some(
-                "DevPulse platform tools. Query databases, read project files, \
-                 check system health. All database queries are read-only."
-                    .into(),
-            ),
-        }
+        let mut info = ServerInfo::default();
+        info.capabilities = ServerCapabilities::builder()
+            .enable_tools()
+            .build();
+        info.server_info = Implementation::new(
+            "devpulse-mcp",
+            env!("CARGO_PKG_VERSION"),
+        );
+        info.instructions = Some(
+            "DevPulse platform tools. Query databases, read project files, \
+             check system health. All database queries are read-only."
+                .into(),
+        );
+        info
     }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// Tool parameter structs (schemars-derived for MCP schema gen)
+// ═══════════════════════════════════════════════════════════════
+
+/// Parameters for `query_libsql` tool.
+#[derive(Deserialize, schemars::JsonSchema, Default)]
+struct QueryLibsqlParams {
+    /// SQL query (SELECT or WITH only).
+    sql: String,
+    /// Database scope: "system" or "user".
+    scope: Option<String>,
+}
+
+/// Parameters for `repo_get_file` tool.
+#[derive(Deserialize, schemars::JsonSchema, Default)]
+struct RepoGetFileParams {
+    /// File path relative to project root.
+    path: String,
+}
+
+/// Parameters for `repo_list_files` tool.
+#[derive(Deserialize, schemars::JsonSchema, Default)]
+struct RepoListFilesParams {
+    /// Directory path relative to project root.
+    path: String,
+    /// Recurse into subdirectories.
+    recursive: Option<bool>,
+}
+
+/// Parameters for `shell_execute` tool.
+#[derive(Deserialize, schemars::JsonSchema, Default)]
+struct ShellExecuteParams {
+    /// Shell command to execute.
+    command: String,
+    /// Working directory (optional).
+    cwd: Option<String>,
+    /// Timeout in milliseconds (default 30000).
+    timeout_ms: Option<u64>,
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Tool implementations
+// ═══════════════════════════════════════════════════════════════
+
 /// Tool implementations — each delegates to the `tools/` module for business logic.
-#[tool(tool_box)]
+#[rmcp::tool_router]
 impl DevPulseMcpServer {
     /// Get platform health status — all services, boot time, uptime.
     #[tool(description = "Get platform health status — all subsystems with uptime")]
-    async fn get_health(&self) -> Result<CallToolResult, rmcp::Error> {
+    async fn get_health(&self) -> Result<CallToolResult, rmcp::ErrorData> {
         let result = tools::get_health::execute(&self.platform).await;
         Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
     }
@@ -72,11 +116,10 @@ impl DevPulseMcpServer {
     #[tool(description = "Execute a read-only SQL query against libSQL (SELECT/WITH only)")]
     async fn query_libsql(
         &self,
-        #[tool(param, description = "SQL query (SELECT or WITH only)")] sql: String,
-        #[tool(param, description = "Database scope: 'system' or 'user'")] scope: Option<String>,
-    ) -> Result<CallToolResult, rmcp::Error> {
-        let scope = scope.as_deref().unwrap_or("user");
-        let result = tools::query_libsql::execute(&self.platform, &sql, scope).await;
+        Parameters(params): Parameters<QueryLibsqlParams>,
+    ) -> Result<CallToolResult, rmcp::ErrorData> {
+        let scope = params.scope.as_deref().unwrap_or("user");
+        let result = tools::query_libsql::execute(&self.platform, &params.sql, scope).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
@@ -89,9 +132,9 @@ impl DevPulseMcpServer {
     #[tool(description = "Read a file from the project workspace (500KB max)")]
     async fn repo_get_file(
         &self,
-        #[tool(param, description = "File path relative to project root")] path: String,
-    ) -> Result<CallToolResult, rmcp::Error> {
-        let result = tools::repo_get_file::execute(&self.platform, &path).await;
+        Parameters(params): Parameters<RepoGetFileParams>,
+    ) -> Result<CallToolResult, rmcp::ErrorData> {
+        let result = tools::repo_get_file::execute(&self.platform, &params.path).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
@@ -104,11 +147,10 @@ impl DevPulseMcpServer {
     #[tool(description = "List files in a directory with sizes (recursive to depth 3)")]
     async fn repo_list_files(
         &self,
-        #[tool(param, description = "Directory path relative to project root")] path: String,
-        #[tool(param, description = "Recurse into subdirectories")] recursive: Option<bool>,
-    ) -> Result<CallToolResult, rmcp::Error> {
-        let recursive = recursive.unwrap_or(false);
-        let result = tools::repo_list_files::execute(&self.platform, &path, recursive).await;
+        Parameters(params): Parameters<RepoListFilesParams>,
+    ) -> Result<CallToolResult, rmcp::ErrorData> {
+        let recursive = params.recursive.unwrap_or(false);
+        let result = tools::repo_list_files::execute(&self.platform, &params.path, recursive).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
@@ -122,15 +164,13 @@ impl DevPulseMcpServer {
     #[tool(description = "Execute a shell command in the project workspace (dev builds only)")]
     async fn shell_execute(
         &self,
-        #[tool(param, description = "Shell command to execute")] command: String,
-        #[tool(param, description = "Working directory (optional)")] cwd: Option<String>,
-        #[tool(param, description = "Timeout in milliseconds (default 30000)")] timeout_ms: Option<u64>,
-    ) -> Result<CallToolResult, rmcp::Error> {
+        Parameters(params): Parameters<ShellExecuteParams>,
+    ) -> Result<CallToolResult, rmcp::ErrorData> {
         let result = tools::shell_execute::execute(
             &self.platform,
-            &command,
-            cwd.as_deref(),
-            timeout_ms,
+            &params.command,
+            params.cwd.as_deref(),
+            params.timeout_ms,
         )
         .await;
         let is_error = result.starts_with("ERROR:");
@@ -148,6 +188,7 @@ impl DevPulseMcpServer {
 /// Blocks until the connection closes (stdin EOF).
 pub async fn start_stdio(platform: Arc<Platform>) -> anyhow::Result<()> {
     use rmcp::transport::io::stdio;
+    use rmcp::ServiceExt;
 
     tracing::info!("MCP stdio server starting — tools registered");
     let server = DevPulseMcpServer::new(platform);

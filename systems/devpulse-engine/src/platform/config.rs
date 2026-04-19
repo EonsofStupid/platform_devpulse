@@ -732,16 +732,17 @@ impl VectorServiceEntry {
 /// Named retrieval baseline presets.
 ///
 /// Each preset defines a complete set of retrieval tuning parameters.
-/// Switchable at runtime via devtools.
+/// Research-validated for nomic-embed-text-v1.5 (768-dim, cosine) +
+/// Qwen3-Reranker-0.6B (cross-encoder, top-100 eval baseline).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub enum RetrievalPreset {
-    /// Low recall, high precision. top_k=20, threshold=0.75, rerank=5.
+    /// High precision, few results. top_k=50, threshold=0.70.
     Conservative,
-    /// Default. Balanced recall/precision. top_k=50, threshold=0.60, rerank=10.
+    /// Default. Matches Qwen3 eval baseline. top_k=100, threshold=0.50.
     Balanced,
-    /// High recall, lower precision. top_k=100, threshold=0.40, rerank=20.
+    /// Max recall, broad search. top_k=200, threshold=0.30.
     Aggressive,
-    /// Tight threshold, small result set. top_k=30, threshold=0.80, rerank=3.
+    /// Tight filter, consensus-heavy. top_k=50, threshold=0.80.
     Precision,
 }
 
@@ -752,27 +753,31 @@ impl RetrievalPreset {
         match self {
             Self::Conservative => RetrievalConfig {
                 preset: "conservative".to_string(),
-                top_k: 20,
-                score_threshold: 0.75,
+                top_k: 50,
+                score_threshold: 0.70,
                 rerank_top_n: 5,
+                fusion_k: 40,
             },
             Self::Balanced => RetrievalConfig {
                 preset: "balanced".to_string(),
-                top_k: 50,
-                score_threshold: 0.60,
+                top_k: 100,
+                score_threshold: 0.50,
                 rerank_top_n: 10,
+                fusion_k: 30,
             },
             Self::Aggressive => RetrievalConfig {
                 preset: "aggressive".to_string(),
-                top_k: 100,
-                score_threshold: 0.40,
+                top_k: 200,
+                score_threshold: 0.30,
                 rerank_top_n: 20,
+                fusion_k: 20,
             },
             Self::Precision => RetrievalConfig {
                 preset: "precision".to_string(),
-                top_k: 30,
+                top_k: 50,
                 score_threshold: 0.80,
                 rerank_top_n: 3,
+                fusion_k: 50,
             },
         }
     }
@@ -793,10 +798,10 @@ impl RetrievalPreset {
 /// Runtime-mutable retrieval configuration (TS-exported).
 ///
 /// Controls how the vector store returns and filters results.
-/// Switchable via devtools preset buttons or per-field editing.
+/// Switchable via devtools preset buttons or per-field slider editing.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct RetrievalConfig {
-    /// Active preset name (for UI display).
+    /// Active preset name (for UI display). "custom" when manually tuned.
     pub preset: String,
     /// Maximum vectors to retrieve from ANN search.
     pub top_k: u32,
@@ -804,12 +809,83 @@ pub struct RetrievalConfig {
     pub score_threshold: f32,
     /// How many results to keep after reranking.
     pub rerank_top_n: u32,
+    /// Fusion blend constant. Lower = stronger top-rank preference.
+    /// 30 = local store default. 60 = web-scale.
+    pub fusion_k: u32,
 }
 
 impl Default for RetrievalConfig {
     fn default() -> Self {
         RetrievalPreset::Balanced.to_config()
     }
+}
+
+/// Metadata for a single retrieval parameter — drives devtools UI.
+///
+/// The frontend renders sliders from this registry. Layman labels only.
+/// Internal field names never appear in the UI.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct RetrievalParamMeta {
+    /// Internal field name on `RetrievalConfig` (e.g. "top_k").
+    pub field: String,
+    /// Human-readable label (e.g. "Search Depth").
+    pub label: String,
+    /// Capability family (e.g. "retrieval").
+    pub family: String,
+    /// One-line description for the UI.
+    pub description: String,
+    /// Slider minimum value.
+    pub min: f32,
+    /// Slider maximum value.
+    pub max: f32,
+    /// Slider step increment.
+    pub step: f32,
+}
+
+/// Return the layman-labeled parameter registry for retrieval config.
+///
+/// The frontend calls this once on mount and renders sliders generically.
+/// This is the SSOT for how params are presented — no labels hardcoded in Svelte.
+#[must_use]
+pub fn retrieval_param_meta() -> Vec<RetrievalParamMeta> {
+    vec![
+        RetrievalParamMeta {
+            field: "top_k".to_string(),
+            label: "Search Depth".to_string(),
+            family: "retrieval".to_string(),
+            description: "How many candidates to consider".to_string(),
+            min: 10.0,
+            max: 200.0,
+            step: 10.0,
+        },
+        RetrievalParamMeta {
+            field: "score_threshold".to_string(),
+            label: "Relevance Floor".to_string(),
+            family: "retrieval".to_string(),
+            description: "Minimum match quality to accept".to_string(),
+            min: 0.0,
+            max: 1.0,
+            step: 0.05,
+        },
+        RetrievalParamMeta {
+            field: "rerank_top_n".to_string(),
+            label: "Final Results".to_string(),
+            family: "retrieval".to_string(),
+            description: "How many results to keep after filtering".to_string(),
+            min: 1.0,
+            max: 50.0,
+            step: 1.0,
+        },
+        RetrievalParamMeta {
+            field: "fusion_k".to_string(),
+            label: "Blend Strength".to_string(),
+            family: "retrieval".to_string(),
+            description: "How aggressively top matches are favored".to_string(),
+            min: 10.0,
+            max: 100.0,
+            step: 5.0,
+        },
+    ]
 }
 
 /// Internal boot config for retrieval — TOML-driven, NOT TS-exported.
@@ -830,6 +906,9 @@ pub struct RetrievalBootConfig {
     /// Override: results to keep after reranking.
     #[serde(default)]
     pub rerank_top_n: Option<u32>,
+    /// Override: fusion blend constant.
+    #[serde(default)]
+    pub fusion_k: Option<u32>,
 }
 
 impl Default for RetrievalBootConfig {
@@ -839,6 +918,7 @@ impl Default for RetrievalBootConfig {
             top_k: None,
             score_threshold: None,
             rerank_top_n: None,
+            fusion_k: None,
         }
     }
 }
@@ -856,6 +936,7 @@ impl RetrievalBootConfig {
             top_k: self.top_k.unwrap_or(base.top_k),
             score_threshold: self.score_threshold.unwrap_or(base.score_threshold),
             rerank_top_n: self.rerank_top_n.unwrap_or(base.rerank_top_n),
+            fusion_k: self.fusion_k.unwrap_or(base.fusion_k),
         }
     }
 }

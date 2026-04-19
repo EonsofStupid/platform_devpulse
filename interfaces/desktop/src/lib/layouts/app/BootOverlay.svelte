@@ -73,22 +73,21 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 	}
 }
 
-// When boot completes, ALWAYS hand off to the setup wizard.
-// The overlay NEVER auto-dismisses. The wizard stays until the user
-// explicitly completes the setup flow or closes it via Ctrl+Shift+Z.
+// When boot completes, open wizard ONLY if first run or models not ready.
+// If setup is already done → dismiss overlay, user lands on dashboard.
 let wizardOpened = $state(false);
 $effect(() => {
 	if (bootComplete && !wizardOpened) {
 		wizardOpened = true;
-		console.info("[BootOverlay] Boot complete — opening wizard at phase 'welcome'");
-		wizardState.goTo("welcome");
-		wizardState.open();
-		console.info(
-			"[BootOverlay] wizardState.isOpen =",
-			wizardState.isOpen,
-			"phase =",
-			wizardState.currentPhase,
-		);
+
+		if (platformState.modelsFirstRun || !platformState.modelsReady) {
+			console.info("[BootOverlay] Boot complete — first run or models not ready, opening wizard");
+			wizardState.goTo("welcome");
+			wizardState.open();
+		} else {
+			console.info("[BootOverlay] Boot complete — setup done, skipping wizard → dashboard");
+		}
+
 		fading = true;
 		setTimeout(() => {
 			visible = false;

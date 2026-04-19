@@ -82,6 +82,110 @@ pub struct ModelInfo {
     pub compatible_capabilities: Vec<String>,
 }
 
+// ── Conversion helpers (reused by IPC commands AND boot push) ────
+
+/// Convert kernel `ModelRegistryEntry` → frontend `ModelInfo`.
+pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) -> ModelInfo {
+    ModelInfo {
+        id: e.id.clone(),
+        filename: e.filename.clone(),
+        architecture: e.architecture.clone(),
+        parameter_count: e.parameter_count,
+        quant_level: e.quant_level.clone(),
+        context_length: e.context_length,
+        size_mb: e.size_bytes / (1024 * 1024),
+        vram_estimate_mb: e.vram_estimate_mb,
+        supported_backends: e.supported_backends.iter().map(|b| b.to_string()).collect(),
+        compatible_capabilities: e
+            .compatible_capabilities
+            .iter()
+            .map(|c| c.to_string())
+            .collect(),
+    }
+}
+
+/// Convert kernel `Slot` → frontend `SlotInfo`, with registry for cross-ref.
+pub fn slot_to_slot_info(
+    s: &devpulse_engine::platform::Slot,
+    models: &[devpulse_engine::platform::ModelRegistryEntry],
+) -> SlotInfo {
+    let (embedded, bundled_path) = match &s.source_tier {
+        devpulse_engine::platform::ModelSourceTier::Bundled { bundled_path } => {
+            (true, Some(bundled_path.clone()))
+        }
+        devpulse_engine::platform::ModelSourceTier::UserManaged => (false, None),
+    };
+    let assigned_model = s
+        .assigned_model
+        .as_ref()
+        .and_then(|mid| models.iter().find(|m| &m.id == mid));
+
+    SlotInfo {
+        id: s.id.clone(),
+        label: s.label.clone(),
+        capability: s.capability.to_string(),
+        preferred_device: s.preferred_device.to_string(),
+        loading_strategy: s.loading.to_string(),
+        assigned_model_id: s.assigned_model.clone(),
+        fallback: s.fallback.clone(),
+        runtime: s.runtime.map(|r| r.to_string()),
+        default_model: s.default_model.clone(),
+        requires: s.requires.clone(),
+        overrides: s.overrides.clone(),
+        embedded,
+        bundled_path,
+        builtin: s.builtin,
+        architecture: assigned_model.map(|m| m.architecture.clone()),
+        context_length: assigned_model.map(|m| m.context_length as u32),
+        backend: None,
+    }
+}
+
+/// Domain payload for `platform:models-status` events.
+///
+/// Emitted by [`emit_status`] after every mutation and at boot.
+/// The frontend `startStatusListener()` receives this and sets
+/// `$state` directly — zero IPC polling.
+#[derive(Debug, Clone, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelsStatusData {
+    /// All registered slots with their assignments.
+    pub slots: Vec<SlotInfo>,
+    /// All discovered models in the registry.
+    pub models: Vec<ModelInfo>,
+    /// Whether this is a fresh install with no prior configuration.
+    pub first_run: bool,
+}
+
+/// Read fresh state from the model loader and push via [`emit_status`].
+///
+/// Called after every write operation that mutates slots or registry.
+/// Uses read locks only — the write lock was just released by the
+/// completed operation, so these proceed instantly.
+pub async fn emit_models_status(app: &tauri::AppHandle, loader: &ModelLoaderService) {
+    let slots = loader.list_slots().await;
+    let registry = loader.get_registry().await;
+    let first_run = loader.is_first_run().await;
+    let slot_infos: Vec<SlotInfo> = slots
+        .iter()
+        .map(|s| slot_to_slot_info(s, &registry))
+        .collect();
+    let model_infos: Vec<ModelInfo> = registry
+        .iter()
+        .map(|e| entry_to_model_info(e))
+        .collect();
+    crate::commands::emit_status(
+        app,
+        "models",
+        crate::commands::StatusKind::Data,
+        &ModelsStatusData {
+            slots: slot_infos,
+            models: model_infos,
+            first_run,
+        },
+    );
+}
+
 /// Hardware metrics for the frontend.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HardwareInfo {
@@ -214,6 +318,7 @@ pub async fn get_hardware_metrics(
 #[tauri::command]
 #[specta::specta]
 pub async fn scan_models(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
 ) -> Result<Vec<ModelInfo>, String> {
     tracing::info!("cmd scan_models: entry");
@@ -228,6 +333,9 @@ pub async fn scan_models(
             return Err(e.to_string());
         }
     };
+
+    // Push fresh state after scan
+    emit_models_status(&app, &loader).await;
 
     Ok(entries
         .into_iter()
@@ -393,10 +501,13 @@ pub async fn is_first_run(
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn mark_setup_complete(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
-    loader.mark_setup_complete().await.map_err(|e| e.to_string())
+    loader.mark_setup_complete().await.map_err(|e| e.to_string())?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
 }
 
 /// Check if the setup wizard was previously completed.
@@ -416,13 +527,16 @@ pub async fn is_setup_complete(
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(slot_id, model_id))]
 pub async fn assign_model_to_slot(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     slot_id: String,
     model_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd assign_model_to_slot");
     let loader = get_loader_typed(&state).await?;
-    loader.assign_model(&slot_id, &model_id).await
+    loader.assign_model(&slot_id, &model_id).await?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
 }
 
 /// Load a slot's assigned model into memory.
@@ -457,13 +571,18 @@ pub async fn load_slot(
 
     if use_sidecar {
         tracing::info!(slot = %slot_id, "cmd load_slot: routing to llama-server sidecar");
-        return load_via_sidecar(app, &loader, llama_state, &slot_id).await;
+        let result = load_via_sidecar(app.clone(), &loader, llama_state, &slot_id).await;
+        if result.is_ok() {
+            emit_models_status(&app, &loader).await;
+        }
+        return result;
     }
 
     // Default: kernel pool (Candle for SafeTensors, ORT for ONNX, Sherpa for ASR)
     match loader.load_slot(&slot_id).await {
         Ok(()) => {
             tracing::info!(slot = %slot_id, "cmd load_slot: exit ok (kernel pool)");
+            emit_models_status(&app, &loader).await;
             Ok(())
         }
         Err(e) => {
@@ -602,12 +721,15 @@ async fn load_via_sidecar(
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(slot_id))]
 pub async fn unload_slot(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd unload_slot");
     let loader = get_loader_typed(&state).await?;
-    loader.unload_slot(&slot_id).await
+    loader.unload_slot(&slot_id).await?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
 }
 
 /// Atomically swap the model on a slot (unload → reassign → load).
@@ -619,13 +741,16 @@ pub async fn unload_slot(
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(slot_id, new_model_id))]
 pub async fn swap_slot_model(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     slot_id: String,
     new_model_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd swap_slot_model");
     let loader = get_loader_typed(&state).await?;
-    loader.swap_model(&slot_id, &new_model_id).await
+    loader.swap_model(&slot_id, &new_model_id).await?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
 }
 
 /// Start downloading a model from HuggingFace.
@@ -1056,12 +1181,15 @@ pub struct HfFileInfoItem {
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(slot_id))]
 pub async fn warm_slot(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd warm_slot");
     let loader = get_loader_typed(&state).await?;
-    loader.warm_slot(&slot_id).await
+    loader.warm_slot(&slot_id).await?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
 }
 
 /// Delete a model from disk and remove from registry.
@@ -1071,12 +1199,15 @@ pub async fn warm_slot(
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(model_id))]
 pub async fn delete_model(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     model_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd delete_model");
     let loader = get_loader_typed(&state).await?;
-    loader.delete_model(&model_id).await
+    loader.delete_model(&model_id).await?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
 }
 
 /// Search HuggingFace for GGUF models.
@@ -1251,17 +1382,11 @@ pub async fn complete_model_setup(
             assigned = assigned_count,
             "Model setup incomplete — no chat brain model available"
         );
-        // Still emit status but with ready=false so UI knows
-        let _ = app.emit(
-            "platform:models-status",
-            serde_json::json!({
-                "ready": false,
-                "firstRun": false,
-                "modelCount": registry_count,
-                "slotCount": slots_after.len(),
-                "assignedCount": assigned_count,
-                "error": "No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
-            }),
+        crate::commands::emit_status(
+            &app,
+            "models",
+            crate::commands::StatusKind::Error,
+            &"No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
         );
         return Err("No AI brain model available. Import or download a GGUF model first.".into());
     }
@@ -1272,17 +1397,8 @@ pub async fn complete_model_setup(
         "Model setup verified — chat brain assigned, signaling ready"
     );
 
-    // Emit ready signal to frontend
-    let _ = app.emit(
-        "platform:models-status",
-        serde_json::json!({
-            "ready": true,
-            "firstRun": false,
-            "modelCount": registry_count,
-            "slotCount": slots_after.len(),
-            "assignedCount": assigned_count,
-        }),
-    );
+    // Push full state snapshot — frontend sets $state directly
+    emit_models_status(&app, &loader).await;
 
     // Now safe to open chat window
     if let Err(e) = crate::commands::window::open_chat_window(app).await {
@@ -1300,6 +1416,7 @@ pub async fn complete_model_setup(
 #[tauri::command]
 #[specta::specta]
 pub async fn import_local_model(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     target_slot: Option<String>,
     import_mode: Option<String>,
@@ -1400,6 +1517,9 @@ pub async fn import_local_model(
     // Re-scan registry to discover the new model
     loader.scan_models().await.map_err(|e| format!("Scan failed: {e}"))?;
 
+    // Push fresh state — frontend sees the new model immediately
+    emit_models_status(&app, &loader).await;
+
     tracing::info!(filename = %filename, "Local model imported successfully");
     Ok(filename)
 }
@@ -1470,14 +1590,20 @@ pub async fn create_dev_profile(
 
 /// Generate text using a loaded model slot.
 ///
-/// Gets an InferenceHandle from the model loader (resolves fallback chain),
-/// streams tokens via Tauri events, returns the full generated text.
+/// Routing:
+///   - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
+///   - SafeTensors models loaded via Candle → kernel BackendPool
+///   - Cloud provider → `cloud_chat` (if configured)
+///
+/// Streams tokens via Tauri events (`inference-token` for Candle,
+/// `llama:token` for sidecar — frontend listens to both).
 /// Hard fails if no model is loaded — no silent fallback.
 #[tauri::command]
 #[specta::specta]
 pub async fn inference_generate(
     app: tauri::AppHandle,
     state: State<'_, PlatformState>,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: String,
     prompt: String,
     max_tokens: u32,
@@ -1485,6 +1611,54 @@ pub async fn inference_generate(
 ) -> Result<String, String> {
     let loader = get_loader(&state).await?;
 
+    // ── Route 1: GGUF sidecar ────────────────────────────────
+    // If this slot uses the llama-server sidecar, route through HTTP.
+    // The sidecar was started by `load_slot` → `load_via_sidecar`.
+    if should_use_sidecar(&loader, &slot_id).await {
+        let port = *llama_state.port.lock().await;
+        if port == 0 {
+            return Err(format!(
+                "Slot '{slot_id}' is GGUF but llama-server is not running. \
+                 Load the slot first via Model Control."
+            ));
+        }
+
+        tracing::info!(
+            slot = %slot_id,
+            port,
+            prompt_len = prompt.len(),
+            max_tokens,
+            temperature,
+            "inference_generate: routing to llama-server sidecar"
+        );
+
+        // Build chat messages — single user turn with the prompt
+        let messages = vec![crate::commands::llama::ChatMessage {
+            role: "user".to_string(),
+            content: prompt,
+        }];
+
+        // Call the sidecar — this streams tokens via `llama:token` events
+        // AND returns the full text. The frontend also gets `inference-token`
+        // events re-emitted below for compatibility.
+        let result = crate::commands::llama::llama_chat(
+            app.clone(),
+            llama_state,
+            messages,
+            Some(max_tokens),
+            Some(temperature),
+        )
+        .await?;
+
+        tracing::info!(
+            slot = %slot_id,
+            output_len = result.len(),
+            "inference_generate: sidecar complete"
+        );
+        return Ok(result);
+    }
+
+    // ── Route 2: Candle in-process (SafeTensors) ─────────────
     let handle = loader
         .inference_handle(&slot_id)
         .await
@@ -1495,7 +1669,6 @@ pub async fn inference_generate(
             )
         })?;
 
-    // Stamp request with trace ID for cross-thread span correlation
     let trace_ctx = devpulse_engine::platform::telemetry::TraceContext::new();
     tracing::info!(
         trace_id = %trace_ctx.trace_id,
@@ -1503,16 +1676,14 @@ pub async fn inference_generate(
         prompt_len = prompt.len(),
         max_tokens,
         temperature,
-        "inference_generate: starting"
+        "inference_generate: routing to Candle in-process"
     );
 
-    // Start generation — returns a receiver for streaming tokens
     let token_rx = handle
         .generate(prompt, max_tokens, temperature, trace_ctx.trace_id.clone())
         .await
         .map_err(|e| format!("Inference failed: {e:#}"))?;
 
-    // Stream tokens to frontend via Tauri events, collect full text
     let mut full_text = String::new();
     let mut token_count: u32 = 0;
     while let Ok(traced) = token_rx.recv_async().await {
@@ -1537,7 +1708,7 @@ pub async fn inference_generate(
         slot = %slot_id,
         tokens = token_count,
         output_len = full_text.len(),
-        "inference_generate: exit ok"
+        "inference_generate: Candle complete"
     );
     Ok(full_text)
 }
@@ -1551,10 +1722,11 @@ pub async fn inference_generate(
 pub async fn test_inference(
     app: tauri::AppHandle,
     state: State<'_, PlatformState>,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: String,
     prompt: String,
 ) -> Result<String, String> {
-    inference_generate(app, state, slot_id, prompt, 256, 0.7).await
+    inference_generate(app, state, llama_state, slot_id, prompt, 256, 0.7).await
 }
 
 // ── Capability commands: embedder / reranker / vision ───────────────

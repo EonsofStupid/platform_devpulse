@@ -8,6 +8,7 @@ import { Download, Eye, Power, PowerOff, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { getCatalogForSlot } from "../../data-access/catalog.service.js";
@@ -87,6 +88,8 @@ const isTransitioning = $derived(
 	modelStatus?.type === "loading" || modelStatus?.type === "unloading",
 );
 
+const cardM = $derived(renderForge({ kind: "vision-card", preset: "glass-elevated" }));
+
 // Check if the brain model has built-in vision (Phi-4, Qwen3-VL, Qwen3.5)
 const brainHasVision = $derived.by(() => {
 	const brainSlot = modelsState.slots.find((s) => s.id === "chat.brain");
@@ -164,8 +167,9 @@ async function handleUnload(): Promise<void> {
 </script>
 
 <div
-	class="rounded-xl border p-5 transition-all"
-	style="border-color: var(--border-subtle); background: var(--surface-base);"
+	{...cardM.dataAttrs}
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-blue-main);"
+	class="rounded-xl p-5 transition-all"
 	data-component="vision-card"
 	title="Lets Clyffy see what's on your screen — helps with error dialogs, layout issues, and visual problems"
 >

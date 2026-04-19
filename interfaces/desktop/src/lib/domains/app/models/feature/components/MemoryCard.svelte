@@ -8,6 +8,7 @@ import { Brain, Download, Power, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { getCatalogForSlot } from "../../data-access/catalog.service.js";
@@ -82,6 +83,8 @@ let embedEtaSecs = $state(-1);
 let rerankEtaSecs = $state(-1);
 let memoryDepth = $state(5); // Maps to retrieval top-k
 let error = $state<string | null>(null);
+
+const cardM = $derived(renderForge({ kind: "memory-card", preset: "glass-elevated" }));
 
 // ── Derived ───────────────────────────────────────────────────
 
@@ -226,8 +229,9 @@ async function handleDownloadAll(): Promise<void> {
 </script>
 
 <div
-	class="rounded-xl border p-5 transition-all"
-	style="border-color: var(--border-subtle); background: var(--surface-base);"
+	{...cardM.dataAttrs}
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-purple-main);"
+	class="rounded-xl p-5 transition-all"
 	data-component="memory-card"
 	title="Memory lets Clyffy remember your code, docs, and project context — the more memory, the better Clyffy understands your project"
 >

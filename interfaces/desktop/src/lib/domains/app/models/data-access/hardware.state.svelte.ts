@@ -211,7 +211,7 @@ class HardwareState {
 		if (!this.hasGpu) return "CpuOnly";
 		if (vram >= 24000) return "High";
 		if (vram >= 16000) return "JessePrimary";
-		if (vram >= 12000) return "Mid";
+		if (vram >= 10000) return "Mid";
 		if (vram >= 8000) return "Floor";
 		return "Minimal";
 	}

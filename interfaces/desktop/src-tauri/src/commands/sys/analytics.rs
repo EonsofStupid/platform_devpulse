@@ -39,8 +39,8 @@ pub struct DuckDbTableInfo {
 /// Result of a raw SQL query against DuckDB.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct DuckDbQueryResult {
-    /// Rows as JSON arrays.
-    pub rows: Vec<serde_json::Value>,
+    /// Rows as JSON string (serialized array of arrays).
+    pub rows_json: String,
     /// Number of rows returned.
     pub row_count: u64,
 }
@@ -55,6 +55,7 @@ pub struct DuckDbQueryResult {
 pub async fn duckdb_health(
     state: State<'_, PlatformState>,
 ) -> Result<DuckDbHealth, String> {
+    tracing::info!("cmd duckdb_health: entry");
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
@@ -94,6 +95,7 @@ pub async fn duckdb_health(
 pub async fn duckdb_list_tables(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<DuckDbTableInfo>, String> {
+    tracing::info!("cmd duckdb_list_tables: entry");
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
@@ -144,6 +146,7 @@ pub async fn duckdb_query(
     state: State<'_, PlatformState>,
     sql: String,
 ) -> Result<DuckDbQueryResult, String> {
+    tracing::info!(sql_len = sql.len(), "cmd duckdb_query: entry");
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
@@ -186,7 +189,7 @@ pub async fn duckdb_query(
     let row_count = json_rows.len() as u64;
 
     Ok(DuckDbQueryResult {
-        rows: json_rows,
+        rows_json: serde_json::to_string(&json_rows).unwrap_or_default(),
         row_count,
     })
 }

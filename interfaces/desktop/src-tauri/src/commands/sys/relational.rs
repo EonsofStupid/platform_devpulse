@@ -59,8 +59,10 @@ pub struct LibSqlTableInfo {
 pub struct LibSqlQueryResult {
     /// Column names.
     pub columns: Vec<String>,
-    /// Rows as JSON arrays of values.
-    pub rows: Vec<Vec<serde_json::Value>>,
+    /// Rows as JSON string (serialized array of arrays).
+    pub rows_json: String,
+    /// Number of rows returned.
+    pub row_count: u64,
     /// Number of rows affected (for INSERT/UPDATE/DELETE).
     pub rows_affected: u64,
 }
@@ -75,6 +77,7 @@ pub struct LibSqlQueryResult {
 pub async fn libsql_health_all(
     state: State<'_, PlatformState>,
 ) -> Result<LibSqlHealthAll, String> {
+    tracing::info!("cmd libsql_health_all: entry");
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
@@ -158,6 +161,7 @@ pub async fn libsql_list_tables(
     state: State<'_, PlatformState>,
     database: LibSqlDatabase,
 ) -> Result<Vec<LibSqlTableInfo>, String> {
+    tracing::info!(?database, "cmd libsql_list_tables: entry");
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
@@ -209,6 +213,7 @@ pub async fn libsql_query(
     database: LibSqlDatabase,
     sql: String,
 ) -> Result<LibSqlQueryResult, String> {
+    tracing::info!(?database, sql_len = sql.len(), "cmd libsql_query: entry");
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
@@ -258,9 +263,11 @@ pub async fn libsql_query(
             })
             .collect();
 
+        let row_count = json_rows.len() as u64;
         Ok(LibSqlQueryResult {
-            columns: Vec::new(), // SQLite doesn't return column names via our adapter
-            rows: json_rows,
+            columns: Vec::new(),
+            rows_json: serde_json::to_string(&json_rows).unwrap_or_default(),
+            row_count,
             rows_affected: 0,
         })
     } else {
@@ -271,7 +278,8 @@ pub async fn libsql_query(
 
         Ok(LibSqlQueryResult {
             columns: Vec::new(),
-            rows: Vec::new(),
+            rows_json: "[]".to_string(),
+            row_count: 0,
             rows_affected: affected,
         })
     }

@@ -16,6 +16,7 @@ import { downloadModel, importLocalModel } from "../../data-access/download.serv
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
+import { swapState } from "../../data-access/swap.state.svelte.js";
 import ClyffyNarration from "../../ui/ClyffyNarration.svelte";
 import VramGauge from "../../ui/VramGauge.svelte";
 import { friendlySlotLabel, slotDescription } from "../../util/models.types.js";
@@ -46,14 +47,18 @@ let health = $state<{ name: string; status: string; latency_us: number | null }[
 
 $effect(() => {
 	hardwareState.startListening();
-	modelsState.refresh();
-	modelsState.startStatusListener();
+	void (async () => {
+		await modelsState.startStatusListener();
+		await modelsState.refresh();
+	})();
+	swapState.startListening();
 	narrationState.startListening();
 	competencyTracker.load();
 	loadHealth();
 	return () => {
 		hardwareState.stopListening();
 		modelsState.stopStatusListener();
+		swapState.stopListening();
 		narrationState.stopListening();
 	};
 });

@@ -6,8 +6,30 @@
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use tauri::State;
 use crate::state::PlatformState;
+
+/// Shared playback state — tracks whether TTS audio is currently playing.
+/// Managed state in Tauri, shared between `speak`, `stop_speaking`, `is_speaking`.
+#[derive(Debug)]
+pub struct PlaybackState {
+    /// Whether audio is currently playing.
+    playing: Arc<AtomicBool>,
+    /// Signal to stop playback early.
+    stop_requested: Arc<AtomicBool>,
+}
+
+impl PlaybackState {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            playing: Arc::new(AtomicBool::new(false)),
+            stop_requested: Arc::new(AtomicBool::new(false)),
+        }
+    }
+}
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -124,6 +146,7 @@ pub async fn get_voice_status(
 #[tracing::instrument(skip(state), fields(text_len = text.len()))]
 pub async fn speak(
     state: State<'_, PlatformState>,
+    playback: State<'_, PlaybackState>,
     text: String,
     voice: Option<String>,
     slot: Option<String>,
@@ -151,8 +174,14 @@ pub async fn speak(
         .await
         .map_err(|e| format!("TTS synthesis failed: {e}"))?;
 
-    // Play audio via rodio on a blocking thread (rodio is sync)
-    tokio::task::spawn_blocking(move || {
+    // Set playback state + clear stop flag
+    playback.playing.store(true, Ordering::SeqCst);
+    playback.stop_requested.store(false, Ordering::SeqCst);
+    let stop_flag = Arc::clone(&playback.stop_requested);
+    let playing_flag = Arc::clone(&playback.playing);
+
+    // Play audio via rodio on a blocking thread
+    let result = tokio::task::spawn_blocking(move || {
         use rodio::{OutputStream, Sink, Source};
         let (_stream, stream_handle) = OutputStream::try_default()
             .map_err(|e| format!("Audio output failed: {e}"))?;
@@ -164,38 +193,54 @@ pub async fn speak(
             samples.sample_rate,
             samples.data,
         );
-        // Source trait methods — channels() and sample_rate() require trait in scope
         tracing::debug!(
             channels = source.channels(),
             sample_rate = source.sample_rate(),
             "Playing TTS audio via rodio"
         );
+        sink.set_speed(tts_speed);
         sink.append(source);
-        sink.sleep_until_end();
+
+        // Poll for stop request instead of blocking forever
+        while !sink.empty() {
+            if stop_flag.load(Ordering::SeqCst) {
+                tracing::info!("speak() — stop requested, halting playback");
+                sink.stop();
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+
+        playing_flag.store(false, Ordering::SeqCst);
         Ok::<(), String>(())
     })
     .await
     .map_err(|e| format!("Audio playback thread failed: {e}"))??;
 
-    Ok(())
+    playback.playing.store(false, Ordering::SeqCst);
+    Ok(result)
 }
 
 /// Stop current speech.
 #[tauri::command]
 #[specta::specta]
 pub async fn stop_speaking(
-    _state: State<'_, PlatformState>,
+    playback: State<'_, PlaybackState>,
 ) -> Result<(), String> {
-    Ok(()) // No-op when nothing is speaking
+    if playback.playing.load(Ordering::SeqCst) {
+        tracing::info!("stop_speaking() — signalling playback to halt");
+        playback.stop_requested.store(true, Ordering::SeqCst);
+    }
+    Ok(())
 }
 
 /// Check if TTS is currently active.
 #[tauri::command]
 #[specta::specta]
 pub async fn is_speaking(
-    _state: State<'_, PlatformState>,
+    playback: State<'_, PlaybackState>,
 ) -> Result<bool, String> {
-    Ok(false)
+    Ok(playback.playing.load(Ordering::SeqCst))
 }
 
 /// List available TTS voices.
@@ -241,6 +286,7 @@ pub async fn list_voices(
 #[specta::specta]
 pub async fn preview_voice(
     state: State<'_, PlatformState>,
+    playback: State<'_, PlaybackState>,
     voice: String,
     slot_id: String,
 ) -> Result<(), String> {
@@ -256,7 +302,7 @@ pub async fn preview_voice(
             .sample_text
             .clone()
     };
-    speak(state, sample_text, Some(voice), Some(slot_id), None).await
+    speak(state, playback, sample_text, Some(voice), Some(slot_id), None).await
 }
 
 // ── STT Commands ──────────────────────────────────────────────
