@@ -1607,6 +1607,66 @@ async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Start the llama-server sidecar with a GGUF model.
+ * 
+ * Spawns the process, polls `/health` until ready, then returns.
+ * If a server is already running, kills it first.
+ */
+async startLlamaServer(modelPath: string, port: number | null, gpuLayers: number | null, ctxSize: number | null) : Promise<Result<LlamaServerInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("start_llama_server", { modelPath, port, gpuLayers, ctxSize }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop the llama-server sidecar.
+ */
+async stopLlamaServer() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("stop_llama_server") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if the llama-server is running and healthy.
+ */
+async llamaServerHealth() : Promise<Result<LlamaHealthStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_server_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Send a chat completion request to the running llama-server.
+ * 
+ * Streams tokens back via Tauri events (`llama:token`).
+ */
+async llamaChat(messages: ChatMessage[], maxTokens: number | null, temperature: number | null) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_chat", { messages, maxTokens, temperature }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Send an embedding request to the running llama-server.
+ */
+async llamaEmbed(input: string) : Promise<Result<number[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_embed", { input }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -2389,6 +2449,18 @@ modelUsed: string | null;
  * Inference latency in milliseconds (populated for assistant turns).
  */
 latencyMs: number | null }
+/**
+ * A single chat message (OpenAI format).
+ */
+export type ChatMessage = { 
+/**
+ * Role: "system", "user", or "assistant".
+ */
+role: string; 
+/**
+ * Message content.
+ */
+content: string }
 /**
  * Session row for sidebar / grouping.
  */
@@ -3380,6 +3452,38 @@ verbose: boolean;
  * Write every trace to DuckDB for baseline analysis.
  */
 persist_to_duckdb: boolean }
+/**
+ * Health status of the llama-server sidecar.
+ */
+export type LlamaHealthStatus = { 
+/**
+ * Whether the process is alive.
+ */
+running: boolean; 
+/**
+ * Server status: "ok", "loading", "unreachable", "not_started".
+ */
+status: string; 
+/**
+ * Port the server is bound to (0 if not started).
+ */
+port: number }
+/**
+ * Info returned when llama-server starts successfully.
+ */
+export type LlamaServerInfo = { 
+/**
+ * Port the server is listening on.
+ */
+port: number; 
+/**
+ * OS process ID of the sidecar.
+ */
+pid: number; 
+/**
+ * Path to the loaded GGUF model.
+ */
+model_path: string }
 /**
  * The single public wire type for every load-path failure. Returned
  * across the Tauri command boundary, serialized by specta, matched

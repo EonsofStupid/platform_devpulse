@@ -14,6 +14,7 @@
 //! @since 1.0.0
 
 pub mod chat;
+pub mod cloud;
 pub mod credentials;
 pub mod devclyffy;
 pub mod devforge;

@@ -67,6 +67,21 @@ pub fn run() {
         commands::sys::vector::set_vector_config,
         commands::sys::vector::get_vector_health,
         commands::sys::vector::vector_test_search,
+        // Graph store (SurrealDB) devtools
+        commands::sys::graph::ping_graph,
+        commands::sys::graph::graph_health_all,
+        commands::sys::graph::graph_list_tables,
+        commands::sys::graph::graph_stats,
+        commands::sys::graph::graph_query,
+        commands::sys::graph::graph_kv_list,
+        // Relational store (LibSQL) devtools
+        commands::sys::relational::libsql_health_all,
+        commands::sys::relational::libsql_list_tables,
+        commands::sys::relational::libsql_query,
+        // Analytics store (DuckDB) devtools
+        commands::sys::analytics::duckdb_health,
+        commands::sys::analytics::duckdb_list_tables,
+        commands::sys::analytics::duckdb_query,
         commands::devclyffy::get_status,
         commands::devforge::spawn_reh_server,
         commands::devforge::stop_reh_server,
@@ -172,6 +187,11 @@ pub fn run() {
         commands::llama::llama_server_health,
         commands::llama::llama_chat,
         commands::llama::llama_embed,
+        // Cloud inference (Anthropic API — dogfooding + turbo escalation)
+        commands::cloud::get_inference_provider,
+        commands::cloud::set_inference_provider,
+        commands::cloud::cloud_ready,
+        commands::cloud::cloud_chat,
     ]);
 
     // Dev: export typed TS bindings on every build

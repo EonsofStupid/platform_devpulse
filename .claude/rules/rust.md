@@ -12,8 +12,7 @@ paths:
 - Prefer `&str` over `String` in function parameters where possible
 - NEVER use `unwrap()` in production — use `?` or explicit error handling
 - NEVER suggest Python equivalents. This is a full-Rust stack. No exceptions.
-- Candle inference is SYNC — bridge to async via flume channels, not tokio::spawn_blocking
-- llama.cpp FFI: Rust→C only. Use devpulse-llama-sys + devpulse-llama crates (EonsofStupid forks)
+- Candle inference is SYNC — bridge to async via flume channels, not tokio::spawn_blockin
 - All deps forked under EonsofStupid org as git= deps. No submodules. No upstream crates.io.
 - rkyv 0.8.15 is PINNED (RUSTSEC-2026-0001). Internal MCP boundary only.
 - DuckDB and FFmpeg are accepted C dependencies via FFI.

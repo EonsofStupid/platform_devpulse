@@ -1,84 +1,55 @@
-//! MCP tool: repo.list_files — directory listing with sizes.
+//! MCP tool: repo_list_files — directory listing with sizes.
 //!
-//! Always available. Recursive to max depth 3. 1000 entry limit.
+//! Recursive to max depth 3. 1000 entry limit.
+//! Workspace containment enforced.
 
-use serde_json::json;
+use crate::platform::Platform;
 use std::path::PathBuf;
 
-use super::{error_result, text_result, ToolRegistry};
-use crate::claude::mcp::protocol::ToolDefinition;
-
-/// Max entries returned to prevent flooding.
 const MAX_ENTRIES: usize = 1000;
 
-pub fn register(registry: &mut ToolRegistry) {
-    registry.register(
-        "repo.list_files",
-        ToolDefinition {
-            name: "repo.list_files".to_string(),
-            description: "List files in a directory with sizes. Recursive to depth 3.".to_string(),
-            input_schema: json!({
-                "type": "object",
-                "properties": {
-                    "path": { "type": "string", "description": "Directory path" },
-                    "recursive": { "type": "boolean", "description": "Recurse subdirectories (max depth 3)" }
-                },
-                "required": ["path"]
-            }),
-        },
-        Box::new(|platform, args| {
-            Box::pin(async move {
-                let path_str = match args.get("path").and_then(|v| v.as_str()) {
-                    Some(s) => s,
-                    None => return error_result("Missing required parameter: path".to_string()),
-                };
+/// List files in a directory with sizes.
+pub async fn execute(platform: &Platform, path: &str, recursive: bool) -> String {
+    let workspace_root = platform
+        .data_dir()
+        .parent()
+        .unwrap_or(platform.data_dir())
+        .to_path_buf();
 
-                let recursive = args.get("recursive").and_then(|v| v.as_bool()).unwrap_or(false);
+    let dir_path = PathBuf::from(path);
+    let resolved = match dir_path.canonicalize() {
+        Ok(p) => p,
+        Err(e) => return format!("ERROR: Cannot resolve path: {e}"),
+    };
 
-                let workspace_root = platform
-                    .data_dir()
-                    .parent()
-                    .unwrap_or(platform.data_dir())
-                    .to_path_buf();
+    if !resolved.starts_with(&workspace_root) {
+        tracing::warn!(
+            path = %resolved.display(),
+            workspace = %workspace_root.display(),
+            "MCP repo_list_files: path outside workspace"
+        );
+        return format!(
+            "ERROR: Path must be within project workspace ({}). Got: {}",
+            workspace_root.display(),
+            resolved.display()
+        );
+    }
 
-                let dir_path = PathBuf::from(path_str);
-                let resolved = match dir_path.canonicalize() {
-                    Ok(p) => p,
-                    Err(e) => return error_result(format!("Cannot resolve path: {e}")),
-                };
+    if !resolved.is_dir() {
+        return format!("ERROR: Not a directory: {}", resolved.display());
+    }
 
-                // Workspace containment — prevent arbitrary filesystem listing
-                if !resolved.starts_with(&workspace_root) {
-                    tracing::warn!(
-                        path = %resolved.display(),
-                        workspace = %workspace_root.display(),
-                        "MCP repo.list_files: path outside workspace"
-                    );
-                    return error_result(format!(
-                        "Path must be within project workspace ({}). Got: {}",
-                        workspace_root.display(),
-                        resolved.display()
-                    ));
-                }
+    let mut entries = Vec::new();
+    if let Err(e) = collect_entries(&resolved, &resolved, recursive, 0, 3, &mut entries).await {
+        return format!("ERROR: Failed to list directory: {e}");
+    }
 
-                if !resolved.is_dir() {
-                    return error_result(format!("Not a directory: {}", resolved.display()));
-                }
+    if entries.len() > MAX_ENTRIES {
+        entries.truncate(MAX_ENTRIES);
+        entries.push(format!("[... truncated at {MAX_ENTRIES} entries]"));
+    }
 
-                let mut entries = Vec::new();
-                if let Err(e) = collect_entries(&resolved, &resolved, recursive, 0, 3, &mut entries).await {
-                    return error_result(format!("Failed to list directory: {e}"));
-                }
-
-                if entries.len() > MAX_ENTRIES {
-                    entries.truncate(MAX_ENTRIES);
-                    entries.push(format!("[... truncated at {MAX_ENTRIES} entries]"));
-                }
-
-                text_result(entries.join("\n"))
-            })
-        }),
-    );
+    entries.join("\n")
 }
 
 /// Recursively collect directory entries as formatted strings.
@@ -95,12 +66,24 @@ async fn collect_entries(
     while let Some(entry) = read_dir.next_entry().await? {
         let path = entry.path();
         let metadata = entry.metadata().await?;
-        let relative = path.strip_prefix(base).unwrap_or(&path).display().to_string();
+        let relative = path
+            .strip_prefix(base)
+            .unwrap_or(&path)
+            .display()
+            .to_string();
 
         if metadata.is_dir() {
             entries.push(format!("{relative}/"));
             if recursive && depth < max_depth {
-                Box::pin(collect_entries(base, &path, recursive, depth + 1, max_depth, entries)).await?;
+                Box::pin(collect_entries(
+                    base,
+                    &path,
+                    recursive,
+                    depth + 1,
+                    max_depth,
+                    entries,
+                ))
+                .await?;
             }
         } else {
             let size = metadata.len();

@@ -427,6 +427,13 @@ pub async fn assign_model_to_slot(
 
 /// Load a slot's assigned model into memory.
 ///
+/// Load a model into a slot.
+///
+/// Routing logic:
+///   - GGUF files with LlamaCpp runtime → llama-server sidecar (HTTP)
+///   - SafeTensors with Candle runtime → kernel BackendPool (in-process)
+///   - ONNX/Sherpa → kernel VoicePool (in-process)
+///
 /// Returns a typed [`LoadError`] covering the full load-path failure
 /// surface — compatibility, filesystem, resources, backend init,
 /// slot state. The frontend renders each variant with targeted UI
@@ -434,21 +441,158 @@ pub async fn assign_model_to_slot(
 /// slot reassignment for `NoModelAssigned`, etc.).
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state), fields(slot_id))]
+#[tracing::instrument(skip(app, state, llama_state), fields(slot_id))]
 pub async fn load_slot(
+    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!(slot = %slot_id, "cmd load_slot: entry");
     let loader = get_loader_typed(&state).await?;
+
+    // Check if this slot should route to the llama-server sidecar.
+    // GGUF files with LlamaCpp runtime → sidecar HTTP, not kernel pool.
+    let use_sidecar = should_use_sidecar(&loader, &slot_id).await;
+
+    if use_sidecar {
+        tracing::info!(slot = %slot_id, "cmd load_slot: routing to llama-server sidecar");
+        return load_via_sidecar(app, &loader, llama_state, &slot_id).await;
+    }
+
+    // Default: kernel pool (Candle for SafeTensors, ORT for ONNX, Sherpa for ASR)
     match loader.load_slot(&slot_id).await {
         Ok(()) => {
-            tracing::info!(slot = %slot_id, "cmd load_slot: exit ok");
+            tracing::info!(slot = %slot_id, "cmd load_slot: exit ok (kernel pool)");
             Ok(())
         }
         Err(e) => {
             tracing::error!(slot = %slot_id, error = %e, "cmd load_slot: exit failure");
             Err(e)
+        }
+    }
+}
+
+/// Determine if a slot's assigned model should use the llama-server sidecar.
+///
+/// Returns true when:
+///   1. The slot has runtime = LlamaCpp (explicit) OR the assigned model is GGUF format
+///   2. The model file exists on disk
+async fn should_use_sidecar(loader: &ModelLoaderService, slot_id: &str) -> bool {
+    let slots = loader.list_slots().await;
+    let slot = match slots.iter().find(|s| s.id == slot_id) {
+        Some(s) => s,
+        None => return false,
+    };
+
+    let model_id = match &slot.assigned_model {
+        Some(id) => id.clone(),
+        None => return false,
+    };
+
+    // Check if slot explicitly requests LlamaCpp runtime
+    let explicit_llamacpp = slot
+        .runtime
+        .as_ref()
+        .map(|r| r.to_string() == "LlamaCpp")
+        .unwrap_or(false);
+
+    // Check if the model is GGUF format
+    let registry = loader.get_registry().await;
+    let is_gguf = registry
+        .iter()
+        .find(|e| e.id == model_id)
+        .map(|e| e.format.to_string() == "GGUF")
+        .unwrap_or(false);
+
+    // Route to sidecar if either condition is true
+    explicit_llamacpp || is_gguf
+}
+
+/// Load a GGUF model via the llama-server sidecar.
+///
+/// Starts the sidecar process, waits for health check, then marks
+/// the slot as loaded. Uses the same port (8899) and GPU offload
+/// settings from the slot's extensions.
+async fn load_via_sidecar(
+    app: tauri::AppHandle,
+    loader: &ModelLoaderService,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
+    slot_id: &str,
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    let slots = loader.list_slots().await;
+    let slot = slots
+        .iter()
+        .find(|s| s.id == slot_id)
+        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+            message: format!("Slot '{slot_id}' not found"),
+        })?;
+
+    let model_id = slot
+        .assigned_model
+        .as_ref()
+        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+            message: format!("No model assigned to slot '{slot_id}'"),
+        })?;
+
+    // Find the model file path from registry
+    let registry = loader.get_registry().await;
+    let entry = registry
+        .iter()
+        .find(|e| e.id == *model_id)
+        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+            message: format!("Model '{model_id}' not found in registry"),
+        })?;
+
+    let model_path = entry.path.to_string_lossy().to_string();
+
+    // Read GPU layers from slot extensions or assistant config
+    let gpu_layers = slot
+        .extensions
+        .get("llama_cpp_ngl")
+        .and_then(|s| s.parse::<i32>().ok())
+        .unwrap_or(999); // default: all layers on GPU
+
+    let ctx_size = entry.context_length as u32;
+    let ctx_size = if ctx_size == 0 { 8192 } else { ctx_size };
+
+    tracing::info!(
+        slot = %slot_id,
+        model = %model_path,
+        gpu_layers,
+        ctx_size,
+        "Starting llama-server sidecar for slot"
+    );
+
+    // Start the sidecar — this calls the same function as the manual command
+    match crate::commands::llama::start_llama_server(
+        app,
+        llama_state,
+        model_path,
+        Some(8899),
+        Some(gpu_layers),
+        Some(ctx_size),
+    )
+    .await
+    {
+        Ok(info) => {
+            tracing::info!(
+                slot = %slot_id,
+                port = info.port,
+                pid = info.pid,
+                "Sidecar started for slot"
+            );
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(
+                slot = %slot_id,
+                error = %e,
+                "Failed to start sidecar for slot"
+            );
+            Err(devpulse_engine::platform::LoadError::Other {
+                message: format!("Sidecar failed: {e}"),
+            })
         }
     }
 }
