@@ -38,9 +38,7 @@
 			"icons/icon.icns",
 			"icons/icon.ico"
 		],
-		"externalBin": [
-			"binaries/llama-server"
-		],
+		"externalBin": ["binaries/llama-server"],
 		"resources": [
 			"binaries/llama.dll",
 			"binaries/llama-common.dll",

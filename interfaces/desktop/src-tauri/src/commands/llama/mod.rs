@@ -12,7 +12,7 @@
 //!
 //! Logging at every step — every spawn, health check, request, error.
 
-use tauri::{Emitter, Manager};
+use tauri::Emitter;
 use tauri_plugin_shell::process::CommandChild;
 use tauri_plugin_shell::ShellExt;
 use tokio::sync::Mutex;

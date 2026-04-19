@@ -87,8 +87,8 @@ class ModelsState {
 			try {
 				const timeout = new Promise<never>((_, reject) =>
 					setTimeout(
-						() => reject(new Error("Model scan timed out after 15s — IPC response lost")),
-						15_000,
+						() => reject(new Error("Model scan timed out after 60s — IPC response lost")),
+						60_000,
 					),
 				);
 				this.models = await Promise.race([scanModels(), timeout]);
