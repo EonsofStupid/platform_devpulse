@@ -104,25 +104,36 @@ pub async fn boot(
             // with a clone while returning the service to the boot pipeline.
             let service_arc = Arc::new(service);
 
-            // Background: scan + restore + auto-assign + hot-slot hydration.
-            // These take 20-45s on first run and MUST NOT block boot.
-            // Progress is observable via platform:models-status events and
-            // RegistryScanStarted / ModelDiscovered / RegistryScanComplete
-            // events on the event sink.
+            // Background: scan registry only. DOES NOT auto-load models.
+            //
+            // Owner decision (2026-04-20): model loading is a deliberate user
+            // action, never automatic. The user sees detected models as text
+            // suggestions in the wizard / devtools and picks which to load.
+            // Hot-slot auto-hydration was ripped out — it was causing models
+            // to start without consent.
+            //
+            // What STILL happens here:
+            //   - `finalize_registry()` scans the models directory and emits
+            //     per-file `ModelDiscovered` events so the wizard can show
+            //     what's on disk. Pure filesystem read — no GPU, no RAM load.
+            //   - `restore_assignments()` re-reads persisted slot→model-id
+            //     choices from libSQL. The slots are marked "assigned" but
+            //     NOT "loaded" — inference stays cold until the user clicks
+            //     Apply/Load in the UI.
+            //
+            // What NO LONGER happens here:
+            //   - `auto_load_hot_slots()` → REMOVED. User triggers loads
+            //     explicitly via the model card UI.
             let bg_service = service_arc.clone();
             tokio::spawn(
                 async move {
-                    tracing::info!("Model Loader: background finalize starting");
+                    tracing::info!("Model Loader: background registry scan starting (no auto-load)");
                     if let Err(e) = bg_service.finalize_registry().await {
-                        tracing::warn!(error = %e, "Model Loader background finalize failed (non-fatal)");
+                        tracing::warn!(error = %e, "Model Loader background registry scan failed (non-fatal)");
                     }
-                    let hot_loaded = bg_service.auto_load_hot_slots().await;
-                    tracing::info!(
-                        hot_loaded,
-                        "Model Loader: background finalize complete"
-                    );
+                    tracing::info!("Model Loader: registry scan complete — slots stay cold until user Apply");
                 }
-                .instrument(tracing::info_span!("model_loader.bg_finalize")),
+                .instrument(tracing::info_span!("model_loader.bg_scan")),
             );
 
             tracing::info!(

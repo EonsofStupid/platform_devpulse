@@ -62,21 +62,51 @@ pub fn init(
     // Create the span channel — sender goes to Layer, receiver waits for analytics
     let (span_tx, span_rx) = mpsc::channel(SPAN_CHANNEL_CAPACITY);
 
-    let filter = EnvFilter::try_from_default_env()
+    // Two independent filters so stderr stays readable while the JSONL
+    // captures EVERYTHING faithfully for post-mortem. RUST_LOG controls
+    // stderr. DEVPULSE_LOG_FAITHFUL=1 promotes the JSONL to full trace.
+    let stderr_filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
 
+    let faithful = std::env::var("DEVPULSE_LOG_FAITHFUL").is_ok();
+    let jsonl_filter = if faithful {
+        EnvFilter::new("trace")
+    } else {
+        // Default JSONL is verbose-but-readable: all debug globally, trace
+        // for devpulse crates. Users don't need DEVPULSE_LOG_FAITHFUL unless
+        // they want third-party crates at trace level too.
+        EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| EnvFilter::new("debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace"))
+    };
+
+    if faithful {
+        eprintln!("[logging] DEVPULSE_LOG_FAITHFUL=1 — JSONL captures at TRACE level (every crate, every span)");
+    }
+
+    // Per-layer filters so each sink gets what it needs:
+    //   - stderr: RUST_LOG or info,devpulse=debug  (human-readable terminal)
+    //   - JSONL:  verbose (or TRACE in faithful mode)  (post-mortem capture)
+    //   - OTel:   DEBUG ceiling  (prevents TRACE flood to OTLP exporter)
+    //   - DuckDb: DEBUG ceiling  (spans only; TRACE events would inflate the channel)
+    //
     // OTel layer MUST be first — OpenTelemetryLayer<Registry, Tracer>
     // implements Layer<Registry>, not Layer<Layered<..., Registry>>.
     // Placing it first ensures S = Registry at composition time.
+    use tracing_subscriber::filter::LevelFilter;
+    use tracing_subscriber::Layer as _;
+
+    let otel_ceiling = LevelFilter::DEBUG;
+    let duckdb_ceiling = LevelFilter::DEBUG;
+
     tracing_subscriber::registry()
-        .with(otel_layer)
-        .with(filter)
+        .with(otel_layer.with_filter(otel_ceiling))
         .with(
             fmt::layer()
                 .with_target(true)
                 .with_thread_ids(false)
                 .with_file(false)
-                .compact(),
+                .compact()
+                .with_filter(stderr_filter),
         )
         .with(
             fmt::layer()
@@ -85,9 +115,10 @@ pub fn init(
                 .with_target(true)
                 .with_thread_ids(true)
                 .with_file(true)
-                .with_line_number(true),
+                .with_line_number(true)
+                .with_filter(jsonl_filter),
         )
-        .with(DuckDbLayer::new(span_tx))
+        .with(DuckDbLayer::new(span_tx).with_filter(duckdb_ceiling))
         .init();
 
     Ok(LoggingHandle {

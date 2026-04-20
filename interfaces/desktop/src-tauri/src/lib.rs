@@ -348,10 +348,27 @@ pub fn run() {
 
             // Show window NOW — do not wait for boot. This is the core
             // P0 invariant: cold boot window visible in <2s.
+            //
+            // In dev builds we ALSO open devtools automatically — without it,
+            // webview crashes that happen before the Svelte logger bridge is
+            // ready never land in the Rust JSONL (the IPC invoke silently fails
+            // when __TAURI_INTERNALS__ hasn't connected yet). Opening devtools
+            // gives an always-visible console for those early crashes.
+            //
+            // Opt out with `DEVPULSE_NO_DEVTOOLS=1`.
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
                 tracing::info!("Main window shown immediately (pre-boot) — frontend renders skeleton while services initialize");
+
+                #[cfg(debug_assertions)]
+                {
+                    let want_devtools = std::env::var("DEVPULSE_NO_DEVTOOLS").is_err();
+                    if want_devtools {
+                        window.open_devtools();
+                        tracing::info!("Dev build: devtools opened automatically (set DEVPULSE_NO_DEVTOOLS=1 to disable)");
+                    }
+                }
             } else {
                 tracing::warn!("Could not get 'main' webview window to show pre-boot — tauri.conf.json label mismatch?");
             }
