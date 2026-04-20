@@ -1,0 +1,10 @@
+[services.network.dev_server]
+port = 1420
+bind = "127.0.0.1"
+strict_port = true
+
+[services.network.graph_api]
+enabled = true
+critical = true
+port = 8822
+bind = "127.0.0.1"

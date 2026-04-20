@@ -1,0 +1,11 @@
+[[services.system.model_loader.catalog]]
+slot_id = "voice.tts"
+capability = "TextToSpeech"
+label = "Voice — Text to Speech"
+description = "Kokoro voice synthesis"
+
+[[services.system.model_loader.catalog.options]]
+label = "Kokoro v1.0 (quantized)"
+repo = "onnx-community/Kokoro-82M-v1.0-ONNX"
+file = "onnx/model_quantized.onnx"
+size_mb = 92

@@ -1,0 +1,35 @@
+[[services.system.model_loader.catalog]]
+slot_id = "vision.embedder"
+capability = "VisionEmbedding"
+label = "Vision — Screen Analysis"
+description = "SigLIP2 screenshot understanding"
+
+[[services.system.model_loader.catalog.options]]
+label = "SigLIP2 Base (q4)"
+repo = "onnx-community/siglip2-base-patch16-224-ONNX"
+file = "onnx/vision_model_q4.onnx"
+size_mb = 63
+
+[[services.system.model_loader.catalog]]
+slot_id = "rag.embedder"
+capability = "Embedding"
+label = "Search — Embedder"
+description = "Vector search for code and docs"
+
+[[services.system.model_loader.catalog.options]]
+label = "nomic-embed-v1.5 (Q8)"
+repo = "nomic-ai/nomic-embed-text-v1.5-GGUF"
+file = "nomic-embed-text-v1.5.Q8_0.gguf"
+size_mb = 146
+
+[[services.system.model_loader.catalog]]
+slot_id = "rag.reranker"
+capability = "Reranking"
+label = "Search — Reranker"
+description = "Relevance scoring for search results"
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3-Reranker-0.6B (Q8)"
+repo = "Mungert/Qwen3-Reranker-0.6B-GGUF"
+file = "Qwen3-Reranker-0.6B-q8_0.gguf"
+size_mb = 639

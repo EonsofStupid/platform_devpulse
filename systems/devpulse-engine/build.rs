@@ -11,8 +11,12 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
+#[path = "../../tools/platform_config.rs"]
+mod platform_config;
+
 fn main() {
     println!("cargo:rerun-if-changed=ip/kernel_terms.toml");
+	println!("cargo:rerun-if-changed=../../config/platform");
 
     let toml_path = Path::new("ip/kernel_terms.toml");
     if !toml_path.exists() {
@@ -25,9 +29,18 @@ fn main() {
         toml::from_str(&toml_content).expect("kernel_terms.toml must be valid TOML");
 
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR must be set");
+    let workspace_root = Path::new(&env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR must be set"))
+        .join("../..");
+    let composed = platform_config::compose_platform_config(&workspace_root)
+        .expect("platform config fragments must compose");
+    for source in &composed.source_files {
+        println!("cargo:rerun-if-changed={}", source.display());
+    }
 
     generate_engine_vocabulary(&dict, &out_dir);
     generate_scanner_terms(&dict, &out_dir);
+    fs::write(Path::new(&out_dir).join("platform.default.toml"), composed.content)
+        .expect("Failed to write composed platform.default.toml");
 }
 
 /// Generate the `HashMap` constructor for engine builds.

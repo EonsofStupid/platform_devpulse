@@ -1,0 +1,29 @@
+[build.repos.rro]
+url = "https://github.com/EonsofStupid/rro"
+path = "deps/rro"
+ref = "alpha"
+
+[build.repos.wal]
+url = "https://github.com/EonsofStupid/wal"
+path = "deps/wal"
+ref = "rro-alpha"
+
+[build.repos.tar_rs]
+url = "https://github.com/eonsofstupid/tar-rs"
+path = "deps/tar-rs"
+ref = "rro-alpha"
+
+[build.repos.rust_stemmers]
+url = "https://github.com/EonsofStupid/rust-stemmers"
+path = "deps/rust-stemmers"
+ref = "main"
+
+[build.repos.surrealdb_src]
+url = "https://github.com/surrealdb/surrealdb"
+path = "deps/surrealdb-src"
+ref = "main"
+
+[build.repos.code_oss]
+url = "https://github.com/eonsofstupid/vscode"
+path = "deps/code-oss"
+ref = "main"

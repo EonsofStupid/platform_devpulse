@@ -1,0 +1,17 @@
+[boot]
+require_all_critical = true
+timeout_secs = 60
+
+[windows]
+file_lock_retries = 5
+file_lock_retry_delay_ms = 200
+skip_canonicalize = true
+max_path_depth = 200
+
+[telemetry]
+enabled = true
+
+[telemetry.lanes]
+preset = "standard"
+verbose = false
+persist_to_duckdb = true

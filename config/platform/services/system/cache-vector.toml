@@ -1,0 +1,21 @@
+[services.system.cache]
+enabled = true
+critical = true
+kind = "moka"
+max_capacity = 10_000
+time_to_live_secs = 300
+time_to_idle_secs = 60
+
+[services.system.vector]
+enabled = true
+critical = true
+kind = "rro"
+path = "system/rro/storage"
+
+[services.system.vector.retrieval]
+# Preset selects default retrieval parameters. Per-field overrides below
+# take precedence over the preset when uncommented.
+preset = "balanced"
+# top_k = 50
+# score_threshold = 0.60
+# rerank_top_n = 10

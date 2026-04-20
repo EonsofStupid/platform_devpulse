@@ -1,0 +1,39 @@
+[services.system.graph]
+enabled = true
+critical = true
+kind = "surreal"
+path = "system/surreal/reasoning"
+namespace = "system"
+database = "engine"
+system_user = "devpulse_engine"
+system_password = "dp_sys_2026!"
+retry = { max_retries = 5, base_delay_ms = 750 }
+
+[services.user.graph]
+enabled = true
+critical = true
+kind = "surreal"
+path = "user/surreal/profile"
+namespace = "user"
+database = "profile"
+system_user = "devpulse_engine"
+system_password = "dp_usr_2026!"
+retry = { max_retries = 5, base_delay_ms = 750 }
+
+[services.global.graph]
+enabled = true
+critical = true
+kind = "surreal"
+path = "global/surreal/knowledge"
+namespace = "global"
+database = "knowledge"
+system_user = "devpulse_engine"
+system_password = "dp_glb_2026!"
+retry = { max_retries = 5, base_delay_ms = 750 }
+
+[services.project.graph]
+enabled = true
+critical = false
+kind = "surreal"
+path_template = "projects/{project_id}/surreal/context"
+namespace = "project"

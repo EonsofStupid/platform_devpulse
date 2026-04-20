@@ -1,0 +1,26 @@
+[[services.system.model_loader.catalog]]
+slot_id = "minion.shared"
+capability = "TextGeneration"
+label = "Minion Brain"
+description = "Persona-driven helper for background tasks, summarization, and formatting"
+
+# 7B is the recommended baseline for persona STS quality.
+# Smaller models can serve but lose persona coherence.
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 7B Persona STS (Recommended)"
+repo = "bartowski/Qwen_Qwen3-7B-GGUF"
+file = "Qwen_Qwen3-7B-Q4_K_M.gguf"
+size_mb = 4370
+
+[[services.system.model_loader.catalog.options]]
+label = "Mistral 7B v0.3 (Alternative)"
+repo = "bartowski/Mistral-7B-Instruct-v0.3-GGUF"
+file = "Mistral-7B-Instruct-v0.3-Q4_K_M.gguf"
+size_mb = 4370
+
+[[services.system.model_loader.catalog.options]]
+label = "Phi-4 Mini 3.8B (Lightweight)"
+repo = "bartowski/phi-4-mini-instruct-GGUF"
+file = "phi-4-mini-instruct-Q4_K_M.gguf"
+size_mb = 2400

@@ -1,0 +1,10 @@
+[services.system.model_loader]
+enabled = true
+critical = false
+models_dir = "models"
+
+[services.system.model_loader.subdirs]
+chat = "chat"
+voice = "voice"
+rag = "rag"
+vision = "vision"

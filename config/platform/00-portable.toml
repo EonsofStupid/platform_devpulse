@@ -1,0 +1,4 @@
+[portable]
+# When true, all data stays within .userdata/ relative to the binary/project root.
+# When false, uses OS-standard app data directories (AppData/Local on Windows).
+enabled = true

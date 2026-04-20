@@ -10,6 +10,9 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus};
 
+#[path = "../../tools/platform_config.rs"]
+mod platform_config;
+
 /// Immutable workspace context. Created once in `main`, passed to every [`Task`].
 pub struct Workspace {
     /// Monorepo root (contains root `Cargo.toml` + `interfaces/`).
@@ -52,16 +55,18 @@ impl Workspace {
         self.root.join("interfaces").join("desktop")
     }
 
-    /// Load platform config from `platform.default.toml` — SSOT for ports.
+    /// Load platform config from repo-root fragments — SSOT for ports and build env.
     pub fn platform_config(&self) -> Result<PlatformConfig> {
-        let toml_path = self.root
-            .join("systems")
-            .join("devpulse-engine")
-            .join("platform.default.toml");
-        let content = std::fs::read_to_string(&toml_path)
-            .with_context(|| format!("failed to read {}", toml_path.display()))?;
-        let config: PlatformConfig = toml::from_str(&content)
-            .with_context(|| format!("failed to parse {}", toml_path.display()))?;
+        let composed = platform_config::compose_platform_config(&self.root)
+            .map_err(anyhow::Error::msg)
+            .context("failed to compose repo-root platform config fragments")?;
+        let source_file_count = composed.source_files.len();
+        let config: PlatformConfig = toml::from_str(&composed.content)
+            .with_context(|| {
+                format!(
+                    "failed to parse composed repo-root platform config from {source_file_count} fragments"
+                )
+            })?;
         Ok(config)
     }
 

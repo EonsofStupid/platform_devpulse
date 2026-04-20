@@ -1,0 +1,12 @@
+[[services.system.model_loader.catalog]]
+slot_id = "voice.stt"
+capability = "SpeechToText"
+label = "Voice — Speech Recognition"
+description = "Whisper speech-to-text"
+
+[[services.system.model_loader.catalog.options]]
+label = "Whisper Turbo (int8)"
+repo = "csukuangfj/sherpa-onnx-whisper-turbo"
+file = "turbo-encoder.int8.onnx"
+size_mb = 1040
+is_dir = true

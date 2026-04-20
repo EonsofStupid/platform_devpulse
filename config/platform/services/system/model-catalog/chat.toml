@@ -1,0 +1,44 @@
+[[services.system.model_loader.catalog]]
+slot_id = "chat.brain"
+capability = "TextGeneration"
+label = "Clyffy's Brain"
+description = "Main reasoning model for chat, coding, and general assistance"
+
+# Suggestions ordered by VRAM usage ascending. These are recommendations —
+# the ModelPicker shows ALL compatible models discovered on disk regardless.
+
+[[services.system.model_loader.catalog.options]]
+label = "Phi-4 Mini 3.8B (Fast, Microsoft)"
+repo = "bartowski/phi-4-mini-instruct-GGUF"
+file = "phi-4-mini-instruct-Q4_K_M.gguf"
+size_mb = 2400
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 4B (Fast)"
+repo = "bartowski/Qwen_Qwen3-4B-GGUF"
+file = "Qwen_Qwen3-4B-Q4_K_M.gguf"
+size_mb = 2500
+
+[[services.system.model_loader.catalog.options]]
+label = "Gemma 2 9B (Balanced, Google)"
+repo = "bartowski/gemma-2-9b-it-GGUF"
+file = "gemma-2-9b-it-Q4_K_M.gguf"
+size_mb = 5440
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 8B (Balanced)"
+repo = "bartowski/Qwen_Qwen3-8B-GGUF"
+file = "Qwen_Qwen3-8B-Q4_K_M.gguf"
+size_mb = 5030
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 14B (Smart)"
+repo = "bartowski/Qwen_Qwen3-14B-GGUF"
+file = "Qwen_Qwen3-14B-Q4_K_M.gguf"
+size_mb = 9000
+
+[[services.system.model_loader.catalog.options]]
+label = "Mistral Small 24B (Power)"
+repo = "bartowski/Mistral-Small-24B-Instruct-2501-GGUF"
+file = "Mistral-Small-24B-Instruct-2501-Q4_K_M.gguf"
+size_mb = 14200

@@ -2,7 +2,7 @@
  * @file Catalog service — fetches model download catalog from Rust config.
  * @module @devpulse/domains/app/models/data-access/catalog
  *
- * Single source of truth: platform.default.toml → Rust → Tauri → here.
+ * Single source of truth: repo-root platform TOML fragments -> composed engine config -> Tauri -> here.
  * No hardcoded model repos in frontend code.
  */
 

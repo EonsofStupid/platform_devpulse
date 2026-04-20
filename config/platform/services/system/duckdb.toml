@@ -1,0 +1,7 @@
+[services.system.analytics]
+enabled = true
+critical = true
+kind = "duckdb"
+path = "system/duckdb/analytics.duckdb"
+# DuckDB uses exclusive file locks — generous retry for hot-reload.
+retry = { max_retries = 5, base_delay_ms = 500 }

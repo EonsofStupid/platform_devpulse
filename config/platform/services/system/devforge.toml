@@ -1,0 +1,9 @@
+[services.system.devforge]
+enabled = true
+critical = false
+mode = "reh"
+port = 0
+user_data_dir = "devforge/user-data"
+extensions_dir = "devforge/extensions"
+workspace_path = "."
+update_channel_url = "https://releases.devpulse.dev/devforge/channel.toml"

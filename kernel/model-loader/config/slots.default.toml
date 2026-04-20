@@ -9,8 +9,8 @@
 #
 # This file absorbs the previously-inline
 # `[[services.system.model_loader.slots]]` array from
-# `systems/devpulse-engine/platform.default.toml`. The platform config
-# now points here instead of carrying its own shadow copy.
+# `config/platform/services/system/model-loader.toml`. The repo-root
+# platform fragments now point here instead of carrying a shadow copy.
 #
 # ── Schema ─────────────────────────────────────────────────────
 #

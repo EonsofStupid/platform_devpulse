@@ -237,8 +237,8 @@ pub struct LaneTraceConfig {
 // Internal boot config (TOML-driven, NOT TS-exported)
 // ═══════════════════════════════════════════════════════════════
 
-/// Embedded default config — SSOT for service settings.
-const DEFAULT_CONFIG: &str = include_str!("../../platform.default.toml");
+/// Embedded default config generated from repo-root platform fragments.
+const DEFAULT_CONFIG: &str = include_str!(concat!(env!("OUT_DIR"), "/platform.default.toml"));
 
 /// Root boot configuration deserialized from TOML.
 #[derive(Debug, Clone, Deserialize)]
@@ -1049,6 +1049,10 @@ impl Default for ModelSubdirsConfig {
 pub struct CatalogEntry {
     /// Slot ID this catalog entry is for.
     pub slot_id: String,
+    /// ModelCapability this entry targets (e.g., "TextGeneration", "Embedding").
+    /// Used by the frontend to filter catalog entries by what the slot needs.
+    #[serde(default)]
+    pub capability: Option<String>,
     /// Human-readable label (e.g., "Clyffy's Brain").
     pub label: String,
     /// Description for the UI.
@@ -1423,9 +1427,9 @@ impl DataScope {
 // ═══════════════════════════════════════════════════════════════
 
 impl PlatformBootConfig {
-    /// Load boot config: embedded default, optionally overridden by user file.
+    /// Load boot config: composed embedded default, optionally overridden by user file.
     ///
-    /// 1. Parse embedded `platform.default.toml` (compile-time SSOT).
+    /// 1. Parse the compile-time config generated from `config/platform/**/*.toml`.
     /// 2. If `{data_dir}/platform.toml` exists, use it as full replacement.
     ///
     /// # Errors
