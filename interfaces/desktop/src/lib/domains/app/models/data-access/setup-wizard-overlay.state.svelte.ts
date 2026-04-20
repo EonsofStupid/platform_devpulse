@@ -1,6 +1,14 @@
 /**
- * @file Setup wizard overlay controller state.
+ * @file Setup wizard overlay controller state — 5-view flow with methodical logging.
  * @module @devpulse/domains/app/models/data-access/setup-wizard-overlay-state
+ *
+ * View flow:
+ *   welcome → system-check → config → validate → done
+ *
+ * Every public method logs its entry + exit (or error). Every Tauri IPC
+ * call is wrapped in try/catch with `logError` so failures are visible
+ * in the session JSONL. Browser `console.error` is also captured via
+ * `installGlobalHandlers` in `sys/logger.ts` so nothing escapes.
  */
 
 import { invoke } from "@tauri-apps/api/core";
@@ -39,113 +47,195 @@ interface WizardUserProfile {
 	expertiseLevel: number;
 }
 
-export type SetupWizardView = "welcome" | "config";
+interface TestChatMessage {
+	role: "user" | "assistant" | "error";
+	content: string;
+	timestamp: number;
+}
+
+export type SetupWizardView = "welcome" | "system-check" | "config" | "validate" | "done";
+
+const REQUIRED_EXCHANGES = 3;
+const LOG_TARGET = "wizard.overlay";
 
 class SetupWizardOverlayState {
+	// ── View ─────────────────────────────────────────────────
 	view = $state<SetupWizardView>("welcome");
+
+	// ── Copy + HF token ──────────────────────────────────────
 	copy = $state<SetupWizardCopy | null>(null);
 	copyError = $state<string | null>(null);
 	hfHasToken = $state(false);
 	showHfModal = $state(false);
+
+	// ── Jesse Config preset ──────────────────────────────────
 	loadingPreset = $state(false);
+
+	// ── Profile ──────────────────────────────────────────────
 	profileName = $state("");
 	profileEmail = $state("");
 	profileLevel = $state<1 | 2 | 3>(1);
+
+	// ── Apply/Save transaction ───────────────────────────────
 	applying = $state(false);
+
+	// ── Validate view — 3-exchange test chat ─────────────────
+	testChatMessages = $state<TestChatMessage[]>([]);
+	testChatInput = $state("");
+	testChatSending = $state(false);
+	testChatSkipped = $state(false);
+
+	// ── Shared error state ───────────────────────────────────
 	error = $state<string | null>(null);
+
 	private started = false;
+
+	// ── Lifecycle ────────────────────────────────────────────
 
 	async start(): Promise<void> {
 		if (this.started) {
+			logInfo(LOG_TARGET, "start() skipped — already started");
 			return;
 		}
 
 		this.started = true;
-		await modelsState.startStatusListener();
-		logInfo("wizard.overlay", "Model status listener ready - triggering refresh");
-		await modelsState.refresh();
+		logInfo(LOG_TARGET, "start() BEGIN");
 
-		await Promise.all([this.ensureCopyLoaded(), this.checkHfToken(), this.loadProfileDraft()]);
+		try {
+			logInfo(LOG_TARGET, "start() → startStatusListener");
+			await modelsState.startStatusListener();
+			logInfo(LOG_TARGET, "start() → startStatusListener DONE");
+
+			logInfo(LOG_TARGET, "start() → Promise.all(copy, token, profile)");
+			await Promise.all([this.ensureCopyLoaded(), this.checkHfToken(), this.loadProfileDraft()]);
+			logInfo(LOG_TARGET, "start() → Promise.all DONE");
+		} catch (e) {
+			const msg = e instanceof Error ? `${e.message}\n${e.stack ?? ""}` : String(e);
+			logError(LOG_TARGET, `start() FAILED: ${msg}`);
+			this.error = msg;
+		}
+
+		logInfo(LOG_TARGET, `start() COMPLETE — view=${this.view}`);
 	}
 
 	stop(): void {
 		if (!this.started) {
+			logInfo(LOG_TARGET, "stop() skipped — not started");
 			return;
 		}
 
+		logInfo(LOG_TARGET, "stop() BEGIN");
 		this.started = false;
 		modelsState.stopStatusListener();
+		logInfo(LOG_TARGET, "stop() COMPLETE");
 	}
+
+	// ── Copy / token / profile loaders ───────────────────────
 
 	async ensureCopyLoaded(): Promise<void> {
 		if (this.copy) {
+			logInfo(LOG_TARGET, "ensureCopyLoaded() skipped — already cached");
 			return;
 		}
 
 		this.copyError = null;
 		try {
+			logInfo(LOG_TARGET, "ensureCopyLoaded() → invoke get_wizard_copy");
 			this.copy = await invoke<SetupWizardCopy>("get_wizard_copy");
-			logInfo("wizard.overlay", "Wizard copy loaded");
+			logInfo(LOG_TARGET, "ensureCopyLoaded() DONE");
 		} catch (error) {
-			this.copyError = error instanceof Error ? error.message : String(error);
-			logError("wizard.overlay", `Failed to load wizard copy: ${this.copyError}`);
+			const msg = error instanceof Error ? error.message : String(error);
+			this.copyError = msg;
+			logError(LOG_TARGET, `ensureCopyLoaded() FAILED: ${msg}`);
 		}
 	}
 
 	async retryCopy(): Promise<void> {
+		logInfo(LOG_TARGET, "retryCopy()");
 		this.copy = null;
 		await this.ensureCopyLoaded();
 	}
 
 	async checkHfToken(): Promise<void> {
 		try {
+			logInfo(LOG_TARGET, "checkHfToken() → invoke has_hf_token");
 			this.hfHasToken = await invoke<boolean>("has_hf_token");
+			logInfo(LOG_TARGET, `checkHfToken() DONE — hasToken=${this.hfHasToken}`);
 		} catch (error) {
-			logWarn(
-				"wizard.overlay",
-				`HF token check failed: ${error instanceof Error ? error.message : String(error)}`,
-			);
+			const msg = error instanceof Error ? error.message : String(error);
+			logWarn(LOG_TARGET, `checkHfToken() FAILED: ${msg}`);
 		}
 	}
 
 	async loadProfileDraft(): Promise<void> {
 		try {
+			logInfo(LOG_TARGET, "loadProfileDraft() → invoke fetch_user_profile");
 			const profile = await invoke<WizardUserProfile>("fetch_user_profile");
 			this.profileName = profile.displayName ?? "";
 			this.profileEmail = profile.email ?? "";
 			this.profileLevel = (
 				profile.expertiseLevel === 2 || profile.expertiseLevel === 3 ? profile.expertiseLevel : 1
 			) as 1 | 2 | 3;
-		} catch (error) {
-			logWarn(
-				"wizard.overlay",
-				`Profile preload failed: ${error instanceof Error ? error.message : String(error)}`,
+			logInfo(
+				LOG_TARGET,
+				`loadProfileDraft() DONE — name=${profile.displayName ?? "(null)"} level=${this.profileLevel}`,
 			);
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logWarn(LOG_TARGET, `loadProfileDraft() FAILED: ${msg}`);
 		}
 	}
 
+	// ── View transitions ─────────────────────────────────────
+
+	private transitionView(next: SetupWizardView): void {
+		const prev = this.view;
+		this.view = next;
+		logInfo(LOG_TARGET, `view transition: ${prev} → ${next}`);
+	}
+
 	showWelcome(): void {
-		this.view = "welcome";
+		this.transitionView("welcome");
+	}
+
+	showSystemCheck(): void {
+		this.transitionView("system-check");
 	}
 
 	showConfig(): void {
-		this.view = "config";
+		this.transitionView("config");
 	}
 
+	showValidate(): void {
+		this.transitionView("validate");
+	}
+
+	showDone(): void {
+		this.transitionView("done");
+	}
+
+	// ── HF modal ─────────────────────────────────────────────
+
 	openHfModal(): void {
+		logInfo(LOG_TARGET, "openHfModal()");
 		this.showHfModal = true;
 	}
 
 	closeHfModal(): void {
+		logInfo(LOG_TARGET, "closeHfModal()");
 		this.showHfModal = false;
 	}
 
 	handleHfSaved(hasToken: boolean): void {
+		logInfo(LOG_TARGET, `handleHfSaved() hasToken=${hasToken}`);
 		this.hfHasToken = hasToken;
 		this.showHfModal = false;
 	}
 
+	// ── Profile input ────────────────────────────────────────
+
 	setProfileLevel(level: 1 | 2 | 3): void {
+		logInfo(LOG_TARGET, `setProfileLevel(${level})`);
 		this.profileLevel = level;
 	}
 
@@ -153,80 +243,217 @@ class SetupWizardOverlayState {
 		return this.profileName.trim().length > 0;
 	}
 
+	// ── Jesse Config preset ──────────────────────────────────
+
 	async applyJesseConfig(): Promise<AutoConfig | null> {
+		logInfo(LOG_TARGET, "applyJesseConfig() BEGIN");
 		this.loadingPreset = true;
 		this.error = null;
-		logInfo("wizard.overlay", "Applying Jesse Config preset...");
 
 		try {
+			logInfo(LOG_TARGET, "applyJesseConfig() → commands.autoConfigure");
 			const result = await commands.autoConfigure();
 			if (result.status === "error") {
 				throw new Error(result.error);
 			}
-
 			const config = JSON.parse(result.data) as AutoConfig;
 			logInfo(
-				"wizard.overlay",
-				`Jesse Config applied - ${config.recommendations?.length ?? 0} recommendations`,
+				LOG_TARGET,
+				`applyJesseConfig() DONE — ${config.recommendations?.length ?? 0} recommendations`,
 			);
-			this.view = "config";
+			this.transitionView("config");
 			return config;
 		} catch (error) {
-			this.error = error instanceof Error ? error.message : String(error);
-			logError("wizard.overlay", `Jesse Config failed: ${this.error}`);
+			const msg = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
+			this.error = msg;
+			logError(LOG_TARGET, `applyJesseConfig() FAILED: ${msg}`);
 			return null;
 		} finally {
 			this.loadingPreset = false;
 		}
 	}
 
-	async applyAndLaunch(onSuccess?: () => void): Promise<boolean> {
+	// ── Apply / save transaction ─────────────────────────────
+
+	/**
+	 * Config view → Apply button: commits profile + slot assignments + routing
+	 * + marks setup complete, then transitions to `validate` for test chat.
+	 *
+	 * Called ONLY by the Config view Apply button. Never by startup logic.
+	 */
+	async applyAndAdvance(): Promise<boolean> {
 		if (this.applying) {
+			logInfo(LOG_TARGET, "applyAndAdvance() skipped — already applying");
 			return false;
 		}
 
 		this.error = null;
 		this.applying = true;
-		logInfo("wizard.overlay", "Apply - committing setup...");
+		logInfo(LOG_TARGET, "applyAndAdvance() BEGIN");
 
 		try {
+			logInfo(LOG_TARGET, "applyAndAdvance() → saveProfileDraft");
 			await this.saveProfileDraft();
-			await setupSessionState.applyPendingSelections();
+			logInfo(LOG_TARGET, "applyAndAdvance() → saveProfileDraft DONE");
 
+			logInfo(LOG_TARGET, "applyAndAdvance() → setupSession.applyPendingSelections");
+			await setupSessionState.applyPendingSelections();
+			logInfo(LOG_TARGET, "applyAndAdvance() → applyPendingSelections DONE");
+
+			logInfo(LOG_TARGET, "applyAndAdvance() → commands.completeModelSetup");
 			const completeResult = await commands.completeModelSetup();
 			if (completeResult.status === "error") {
 				throw new Error(completeResult.error);
 			}
+			logInfo(LOG_TARGET, "applyAndAdvance() → completeModelSetup DONE");
 
-			const markResult = await commands.markSetupComplete();
-			if (markResult.status === "error") {
-				throw new Error(markResult.error);
-			}
-
-			this.view = "welcome";
-			onSuccess?.();
+			logInfo(LOG_TARGET, "applyAndAdvance() COMPLETE — advancing to validate");
+			this.transitionView("validate");
 			return true;
 		} catch (error) {
-			this.error = error instanceof Error ? error.message : String(error);
-			logWarn("wizard.overlay", `Setup apply failed: ${this.error}`);
+			const msg = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
+			this.error = msg;
+			logError(LOG_TARGET, `applyAndAdvance() FAILED: ${msg}`);
 			return false;
 		} finally {
 			this.applying = false;
 		}
 	}
 
+	/**
+	 * Done view → Start chatting: marks setup complete and closes the wizard.
+	 */
+	async finalizeAndClose(onClose: () => void): Promise<boolean> {
+		logInfo(LOG_TARGET, "finalizeAndClose() BEGIN");
+		this.error = null;
+
+		try {
+			logInfo(LOG_TARGET, "finalizeAndClose() → commands.markSetupComplete");
+			const markResult = await commands.markSetupComplete();
+			if (markResult.status === "error") {
+				throw new Error(markResult.error);
+			}
+			logInfo(LOG_TARGET, "finalizeAndClose() → markSetupComplete DONE");
+		} catch (error) {
+			const msg = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
+			logError(LOG_TARGET, `finalizeAndClose() mark-complete FAILED (non-fatal): ${msg}`);
+		}
+
+		this.transitionView("welcome");
+		this.started = false;
+		try {
+			onClose();
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logError(LOG_TARGET, `finalizeAndClose() onClose callback threw: ${msg}`);
+		}
+		logInfo(LOG_TARGET, "finalizeAndClose() COMPLETE");
+		return true;
+	}
+
 	private async saveProfileDraft(): Promise<void> {
 		if (!this.profileName.trim()) {
+			logInfo(LOG_TARGET, "saveProfileDraft() skipped — empty name");
 			return;
 		}
 
-		await invoke("fetch_user_profile");
-		await invoke("update_user_profile", {
-			displayName: this.profileName.trim(),
-			email: this.profileEmail.trim() || null,
-			expertiseLevel: this.profileLevel,
-		});
-		logInfo("wizard.overlay", `Profile saved: ${this.profileName.trim()}`);
+		try {
+			logInfo(LOG_TARGET, "saveProfileDraft() → invoke fetch_user_profile (ensure row)");
+			await invoke("fetch_user_profile");
+
+			logInfo(LOG_TARGET, "saveProfileDraft() → invoke update_user_profile");
+			await invoke("update_user_profile", {
+				displayName: this.profileName.trim(),
+				email: this.profileEmail.trim() || null,
+				expertiseLevel: this.profileLevel,
+			});
+			logInfo(LOG_TARGET, `saveProfileDraft() DONE — name=${this.profileName.trim()}`);
+		} catch (error) {
+			const msg = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
+			logError(LOG_TARGET, `saveProfileDraft() FAILED: ${msg}`);
+			throw error;
+		}
+	}
+
+	// ── Validate view — test chat with brain ─────────────────
+
+	get testChatExchanges(): number {
+		return this.testChatMessages.filter((m) => m.role === "assistant").length;
+	}
+
+	get testChatComplete(): boolean {
+		return this.testChatSkipped || this.testChatExchanges >= REQUIRED_EXCHANGES;
+	}
+
+	get requiredExchanges(): number {
+		return REQUIRED_EXCHANGES;
+	}
+
+	async sendTestMessage(): Promise<void> {
+		const text = this.testChatInput.trim();
+		if (!text || this.testChatSending) {
+			logInfo(
+				LOG_TARGET,
+				`sendTestMessage() skipped — text=${text.length > 0} sending=${this.testChatSending}`,
+			);
+			return;
+		}
+
+		logInfo(LOG_TARGET, `sendTestMessage() BEGIN — len=${text.length}`);
+		this.testChatMessages = [
+			...this.testChatMessages,
+			{ role: "user", content: text, timestamp: Date.now() },
+		];
+		this.testChatInput = "";
+		this.testChatSending = true;
+
+		try {
+			logInfo(LOG_TARGET, "sendTestMessage() → commands.testInference(chat.brain)");
+			const result = await commands.testInference("chat.brain", text);
+			if (result.status === "error") {
+				throw new Error(result.error);
+			}
+			this.testChatMessages = [
+				...this.testChatMessages,
+				{ role: "assistant", content: result.data, timestamp: Date.now() },
+			];
+			logInfo(
+				LOG_TARGET,
+				`sendTestMessage() DONE — exchanges=${this.testChatExchanges}/${REQUIRED_EXCHANGES}`,
+			);
+		} catch (error) {
+			const msg = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
+			this.testChatMessages = [
+				...this.testChatMessages,
+				{ role: "error", content: `Something went wrong: ${msg}`, timestamp: Date.now() },
+			];
+			logError(LOG_TARGET, `sendTestMessage() FAILED: ${msg}`);
+		} finally {
+			this.testChatSending = false;
+		}
+	}
+
+	skipTestChat(): void {
+		logInfo(LOG_TARGET, "skipTestChat()");
+		this.testChatSkipped = true;
+		this.transitionView("done");
+	}
+
+	advanceFromValidate(): void {
+		if (!this.testChatComplete) {
+			logInfo(LOG_TARGET, "advanceFromValidate() skipped — not complete");
+			return;
+		}
+		logInfo(LOG_TARGET, "advanceFromValidate()");
+		this.transitionView("done");
+	}
+
+	resetTestChat(): void {
+		logInfo(LOG_TARGET, "resetTestChat()");
+		this.testChatMessages = [];
+		this.testChatInput = "";
+		this.testChatSending = false;
+		this.testChatSkipped = false;
 	}
 }
 
