@@ -795,6 +795,74 @@ async fetchDashboard() : Promise<Result<DashboardPayload, string>> {
 }
 },
 /**
+ * Fetch the current user profile. Creates a default if none exists.
+ */
+async fetchUserProfile() : Promise<Result<UserProfile, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_user_profile") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Update the user profile. Only non-None fields are written.
+ */
+async updateUserProfile(displayName: string | null, email: string | null, expertiseLevel: number | null) : Promise<Result<UserProfile, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_user_profile", { displayName, email, expertiseLevel }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetch user preferences. Creates defaults if none exist.
+ */
+async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_user_preferences") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Update user preferences. Only non-None fields are written.
+ */
+async updateUserPreferences(theme: string | null, contextMode: string | null, showThinking: boolean | null, verbosity: string | null, defaultTemperature: number | null, allowTelemetry: boolean | null, screenCaptureEnabled: boolean | null) : Promise<Result<UserPreferences, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_user_preferences", { theme, contextMode, showThinking, verbosity, defaultTemperature, allowTelemetry, screenCaptureEnabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get a knowledge entry matching the given type and optional tool context.
+ * 
+ * Delegates to kernel selector — affinity-weighted, cooldown-gated.
+ */
+async getKnowledgeEntry(entryType: string, tool: string | null) : Promise<Result<KnowledgeEntryDto | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_knowledge_entry", { entryType, tool }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Record a user reaction to a knowledge entry.
+ */
+async recordKnowledgeReaction(entryId: string, reaction: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("record_knowledge_reaction", { entryId, reaction }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Create a new thinking canvas session.
  */
 async createCanvas() : Promise<void> {
@@ -1930,10 +1998,7 @@ async llamaEmbed(input: string) : Promise<Result<number[], string>> {
 }
 },
 /**
- * Get the current inference provider setting.
- * 
- * Reads from `preferences.json`. Defaults to `Cloud` if unset
- * (dogfooding mode — platform works without local models).
+ * Get the current routing mode from assistant config.
  */
 async getInferenceProvider() : Promise<Result<InferenceProvider, string>> {
     try {
@@ -1944,7 +2009,7 @@ async getInferenceProvider() : Promise<Result<InferenceProvider, string>> {
 }
 },
 /**
- * Set the inference provider. Persisted to preferences table.
+ * Set the routing mode in assistant config.
  * 
  * Emitted as `provider:changed` event so all cross-linked UI
  * components (StatusBar, Chat header, Settings) update instantly.
@@ -2345,6 +2410,10 @@ keyword_actions?: KeywordActionEntry[];
  */
 window: WindowConfig; 
 /**
+ * Chat routing mode and escalation lane selection.
+ */
+routing: RoutingConfig; 
+/**
  * Partial GPU offload hints.
  */
 offload: OffloadConfig }
@@ -2699,6 +2768,11 @@ export type CatalogEntry = {
  * Slot ID this catalog entry is for.
  */
 slot_id: string; 
+/**
+ * ModelCapability this entry targets (e.g., "TextGeneration", "Embedding").
+ * Used by the frontend to filter catalog entries by what the slot needs.
+ */
+capability?: string | null; 
 /**
  * Human-readable label (e.g., "Clyffy's Brain").
  */
@@ -3797,20 +3871,21 @@ name: string;
  */
 tagline: string }
 /**
- * Which backend handles the primary chat brain.
- * 
- * Cross-linked: StatusBar, Settings, Chat header, Devtools all
- * read and write this same persisted value.
+ * Which Claude escalation lane is allowed after local-first routing.
  */
 export type InferenceProvider = 
 /**
- * Local LLM via llama-server sidecar or Candle in-process.
+ * Prefer local models first.
  */
-"local" | 
+"local_first" | 
 /**
- * Anthropic Claude API (subscription or API key).
+ * Prefer local, then escalate through the Claude subscription lane.
  */
-"cloud"
+"local_claude_subscription" | 
+/**
+ * Prefer local, then escalate through Claude subscription and API council lanes.
+ */
+"local_claude_api_council"
 /**
  * Event emitted during platform initialization.
  */
@@ -3879,6 +3954,43 @@ payload?: string;
  * Whether this entry is currently active.
  */
 enabled: boolean }
+/**
+ * A knowledge entry as the frontend sees it — no kernel vocabulary.
+ */
+export type KnowledgeEntryDto = { 
+/**
+ * Stable identifier for the selected knowledge entry.
+ */
+id: string; 
+/**
+ * Entry type: "dyk" | "kdrop" | "frust" | "insight" | "gloss"
+ */
+entryType: string; 
+/**
+ * Optional tool context used during selection.
+ */
+tool: string | null; 
+/**
+ * Human-facing category label for grouping related entries.
+ */
+category: string; 
+/**
+ * "beginner" | "intermediate" | "advanced"
+ */
+tier: string; 
+/**
+ * Type-specific JSON payload string (title, body, term, definition, etc.)
+ * Frontend parses this into the appropriate typed payload.
+ */
+payloadJson: string; 
+/**
+ * Ordered tag list used for filtering and display.
+ */
+tags: string[]; 
+/**
+ * ISO-8601 timestamp recording when the entry was authored.
+ */
+added: string }
 /**
  * A single Kokoro voice available via the bundled ONNX runtime.
  * Returned by [`list_kokoro_voices`] so the Voice Lab picker can
@@ -4905,6 +5017,35 @@ status_error: string;
  */
 vram_estimate_template: string }
 /**
+ * Routing configuration persisted in assistant.toml.
+ */
+export type RoutingConfig = { 
+/**
+ * Active routing mode — determines which escalation lanes are available.
+ */
+mode: RoutingMode }
+/**
+ * Primary routing mode for chat and escalation decisions.
+ * 
+ * These are the three explicit product modes exposed in setup:
+ * - `local_first` - prefer local inference first
+ * - `local_claude_subscription` - prefer local and escalate through the Claude subscription lane
+ * - `local_claude_api_council` - prefer local and allow both Claude subscription and API council escalation
+ */
+export type RoutingMode = 
+/**
+ * Prefer local inference — no cloud escalation.
+ */
+"local_first" | 
+/**
+ * Prefer local, escalate through the Claude subscription lane.
+ */
+"local_claude_subscription" | 
+/**
+ * Prefer local, escalate through both Claude subscription and API council lanes.
+ */
+"local_claude_api_council"
+/**
  * Scanning state — shown during hardware detection.
  */
 export type ScanningCopy = { 
@@ -5301,6 +5442,98 @@ export type UnsupportedReason =
  * out of legacy fallbacks in settings.
  */
 { kind: "legacy-disabled" }
+/**
+ * User preferences row from the `preferences` table.
+ */
+export type UserPreferences = { 
+/**
+ * Primary key for the preferences row.
+ */
+id: string; 
+/**
+ * Foreign key pointing at the owning profile row.
+ */
+userId: string; 
+/**
+ * Active theme selection.
+ */
+theme: string; 
+/**
+ * Preferred context density mode for the UI.
+ */
+contextMode: string; 
+/**
+ * Whether model reasoning should be shown in supported surfaces.
+ */
+showThinking: boolean; 
+/**
+ * Optional serialized list of preferred programming languages.
+ */
+preferredLanguages: string | null; 
+/**
+ * Preferred editor tab width.
+ */
+tabSize: number; 
+/**
+ * Whether generated code should default to semicolons.
+ */
+useSemicolons: boolean; 
+/**
+ * Default model temperature for freeform generation.
+ */
+defaultTemperature: number; 
+/**
+ * Preferred explanation verbosity preset.
+ */
+verbosity: string; 
+/**
+ * Whether product telemetry is allowed.
+ */
+allowTelemetry: boolean; 
+/**
+ * Whether screen capture features are enabled.
+ */
+screenCaptureEnabled: boolean }
+/**
+ * User profile row from the `profiles` table.
+ */
+export type UserProfile = { 
+/**
+ * Primary key for the profile row.
+ */
+id: string; 
+/**
+ * Optional display name shown across the desktop app.
+ */
+displayName: string | null; 
+/**
+ * Optional email associated with the local profile.
+ */
+email: string | null; 
+/**
+ * Hardware profile identifier chosen for onboarding defaults.
+ */
+hardwareProfile: string; 
+/**
+ * Whether onboarding has been completed for this profile.
+ */
+onboardingComplete: boolean; 
+/**
+ * Numeric expertise level used for adaptive UX.
+ */
+expertiseLevel: number; 
+/**
+ * Unix timestamp when the profile row was created.
+ */
+createdAt: number; 
+/**
+ * Unix timestamp when the profile row was last updated.
+ */
+updatedAt: number; 
+/**
+ * Unix timestamp for the last active session, if recorded.
+ */
+lastActiveAt: number | null }
 /**
  * Vector store health report.
  */

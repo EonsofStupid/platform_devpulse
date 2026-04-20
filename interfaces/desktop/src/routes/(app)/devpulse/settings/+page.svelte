@@ -13,7 +13,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import { container } from "$lib/design/utils/container/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { profileSettingsState } from "$lib/domains/app/devpulse/data-access/profile-settings.state.svelte.js";
+import { profileSettingsState } from "$lib/domains/app/devpulse/index.js";
 
 const settingsState = profileSettingsState;
 
@@ -140,7 +140,7 @@ $effect(() => {
 	.settings-input {
 		padding: 0.5rem 0.75rem;
 		border-radius: 0.5rem;
-		border: 1px solid var(--border-soft);
+		border: 0.0625rem solid var(--border-soft);
 		background: var(--glass-deep);
 		color: var(--text-primary);
 		font-size: 0.875rem;
@@ -158,7 +158,7 @@ $effect(() => {
 	.level-btn {
 		padding: 0.375rem 0.75rem;
 		border-radius: 0.375rem;
-		border: 1px solid var(--border-soft);
+		border: 0.0625rem solid var(--border-soft);
 		background: transparent;
 		color: var(--text-muted);
 		font-size: 0.75rem;

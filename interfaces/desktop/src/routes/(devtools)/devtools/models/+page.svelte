@@ -91,12 +91,10 @@ function slotData(slotId: string) {
 	return { slot, model, status, ready, label };
 }
 
-// Load on mount
-$effect(() => {
-	if (modelsState.slots.length === 0) {
-		void rescan();
-	}
-});
+// NO mount scan. Rust pushes platform:models-status via emit_status()
+// after every mutation and on boot. The frontend is a dumb bucket.
+// If the user wants a fresh scan, the Rescan button calls `rescan()`
+// explicitly — that's a user action, not automatic.
 </script>
 
 <div class="devtools-models">
