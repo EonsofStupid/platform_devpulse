@@ -1420,6 +1420,15 @@ impl ModelLoaderService {
             })
     }
 
+    /// Replace the chat routing mode.
+    pub fn set_routing_mode(&mut self, mode: String) -> Result<(), LoaderError> {
+        self.assistant
+            .set_routing_mode(&self.userdata_dir, mode)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist routing mode: {e}"),
+            })
+    }
+
     /// Register a new custom voice clone. The UI calls this after a
     /// successful MP3 upload. Duplicate names replace the existing
     /// entry in place.

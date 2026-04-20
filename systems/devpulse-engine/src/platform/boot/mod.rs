@@ -255,6 +255,28 @@ async fn execute_inner(
         &boot_log,
     ).await;
 
+    // ── Stage 6b: Knowledge library sync ──────────────────────
+    // Syncs embedded JSON artifacts into user libSQL. Fast path
+    // skips if manifest version matches stored version.
+    if let Some(ref user_svc) = user_relational {
+        let _kspin = boot_log.running("Knowledge sync", "syncing knowledge library...");
+        match devpulse_clyffy::cortex::knowledge::sync_to_libsql(user_svc.adapter().as_ref()).await {
+            Ok(count) => {
+                if count > 0 {
+                    tracing::info!(upserted = count, "Knowledge library synced");
+                    boot_log.ok("Knowledge sync", &format!("synced {count} entries"));
+                } else {
+                    boot_log.ok("Knowledge sync", "up to date");
+                }
+            }
+            Err(e) => {
+                // Non-critical — knowledge tips are nice-to-have, not blocking
+                tracing::warn!(error = %e, "Knowledge sync failed — tips unavailable this session");
+                boot_log.skip("Knowledge sync", &format!("non-critical: {e}"));
+            }
+        }
+    }
+
     // ── Stage 7: Vector store (RRO) — feature-gated ──────────
     drop(_spin);
     let _spin = boot_log.running("Vector store", "verifying RRO...");

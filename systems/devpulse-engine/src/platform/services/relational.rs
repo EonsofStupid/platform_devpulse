@@ -624,6 +624,43 @@ CREATE TABLE IF NOT EXISTS _internal_experiments (
     variant_b       TEXT NOT NULL                -- JSON: config for variant B
 );
 CREATE INDEX IF NOT EXISTS idx_experiments_status ON _internal_experiments(status);
+
+-- ── Knowledge library ─────────────────────────────────────────
+-- Entries synced from JSON artifacts on boot. knowledge_seen persists
+-- across content updates so cooldowns survive version bumps.
+
+CREATE TABLE IF NOT EXISTS knowledge_entries (
+    id              TEXT PRIMARY KEY NOT NULL,
+    type            TEXT NOT NULL,
+    tool            TEXT,
+    category        TEXT NOT NULL,
+    tier            TEXT NOT NULL,
+    payload_json    TEXT NOT NULL,
+    tags_csv        TEXT NOT NULL,
+    added           TEXT NOT NULL,
+    content_hash    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_knowledge_type ON knowledge_entries(type);
+CREATE INDEX IF NOT EXISTS idx_knowledge_tool ON knowledge_entries(tool);
+CREATE INDEX IF NOT EXISTS idx_knowledge_tier ON knowledge_entries(tier);
+
+CREATE TABLE IF NOT EXISTS knowledge_seen (
+    entry_id        TEXT NOT NULL,
+    user_id         TEXT NOT NULL,
+    first_shown_at  INTEGER NOT NULL,
+    last_shown_at   INTEGER NOT NULL,
+    shown_count     INTEGER NOT NULL DEFAULT 1,
+    reaction        TEXT,
+    PRIMARY KEY (entry_id, user_id),
+    FOREIGN KEY (entry_id) REFERENCES knowledge_entries(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_seen_user_time ON knowledge_seen(user_id, last_shown_at);
+
+CREATE TABLE IF NOT EXISTS knowledge_config (
+    user_id         TEXT PRIMARY KEY NOT NULL,
+    config_json     TEXT NOT NULL,
+    updated_at      INTEGER NOT NULL
+);
 ";
 
 // ═══════════════════════════════════════════════════════════════

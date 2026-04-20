@@ -73,9 +73,11 @@ use std::sync::Arc;
 
 // ── Shared ────────────────────────────────────────────────────
 
-/// Resolve `<workspace>/.userdata/models` by walking up from the
-/// crate's manifest dir. Works for any checkout layout that keeps
-/// `.userdata/` at the workspace root (which DevPulse does).
+/// Resolve the models directory by walking up from the crate's manifest dir.
+///
+/// Checks two locations (dev mode first, then portable):
+/// 1. `<workspace>/models/` — dev mode, models at repo root
+/// 2. `<workspace>/.userdata/models/` — portable release layout
 fn resolve_models_dir() -> PathBuf {
     let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
     // kernel/model-loader/ → workspace root is two parents up.
@@ -83,6 +85,14 @@ fn resolve_models_dir() -> PathBuf {
         .parent()
         .and_then(|p| p.parent())
         .unwrap_or(manifest);
+
+    // Dev mode: models/ at repo root (where the actual files live during development)
+    let dev_path = workspace.join("models");
+    if dev_path.exists() {
+        return dev_path;
+    }
+
+    // Portable: .userdata/models/ (release layout)
     workspace.join(".userdata").join("models")
 }
 
@@ -324,60 +334,104 @@ async fn steps_2_through_6_real_disk() {
     // regression doesn't hide whatever step 6 would have told us.
     let mut failures: Vec<String> = Vec::new();
 
-    // ── Step 5: real Candle GGUF load ─────────────────────────
+    // ── Step 5: Candle GGUF load (direct assign, no auto) ────
     //
-    // Target the canonical GGUF-through-Candle path: `chat.brain`,
-    // because that's the slot the boot log and the end-user flow
-    // exercise first. Preferring a specific slot id makes the test
-    // deterministic — slot iteration order from `list_slots()` is
-    // insertion-sensitive, and picking "the first GGUF" was sampling
-    // whichever backend happened to register earliest, producing
-    // different failures across runs and hiding the real signal.
-    //
-    // The `voice.stt` slot is also GGUF-tagged via a classification
-    // heuristic (`ggml-small.bin` → GGUF), but the actual Whisper path
-    // goes through Sherpa/ORT, not Candle. Testing that here would
-    // mix two different backend failure modes. Keep step 5 to a
-    // pure Candle GGUF smoke so the failure message is unambiguous.
-    let gguf_target: Option<(String, String)> = service
-        .get_slot("chat.brain")
-        .and_then(|slot| {
-            let model_id = slot.assigned_model.as_ref()?;
-            let entry = service
-                .get_registry()
-                .iter()
-                .find(|e| &e.id == model_id)?;
-            if entry.format == ModelFormat::Gguf {
-                Some((slot.id.clone(), entry.filename.clone()))
-            } else {
-                None
-            }
-        });
+    // Find the smallest Candle-routable GGUF on disk, force-assign it
+    // to chat.brain, and load it. No dependency on auto_assign.
+    // Candle supports: llama, mistral, qwen2, qwen3, phi2, phi3, gemma, etc.
+    let candle_gguf = service
+        .get_registry()
+        .iter()
+        .filter(|e| {
+            e.format == ModelFormat::Gguf
+                && model_loader::candle_supports_architecture(&e.architecture)
+        })
+        .min_by_key(|e| e.size_bytes)
+        .map(|e| (e.id.clone(), e.filename.clone()));
 
-    match gguf_target {
+    match candle_gguf {
         None => log_step(
             "Candle GGUF load",
-            StepStatus::Skip("no hydrated GGUF slot found".into()),
+            StepStatus::Skip("no Candle-compatible GGUF on disk".into()),
         ),
-        Some((slot_id, filename)) => match service.load_slot(&slot_id).await {
-            Ok(()) => {
+        Some((model_id, filename)) => {
+            // Force assign to chat.brain
+            if let Err(err) = service.assign_model("chat.brain", &model_id) {
                 log_step(
-                    &format!("Candle GGUF load — {slot_id} ({filename})"),
-                    StepStatus::Pass,
-                );
-                if let Err(err) = service.unload_slot(&slot_id).await {
-                    eprintln!("[real_loader_smoke]   unload {slot_id} failed: {err}");
-                }
-            }
-            Err(err) => {
-                let msg = format!("Candle GGUF load — {slot_id} ({filename}): {err}");
-                log_step(
-                    &format!("Candle GGUF load — {slot_id} ({filename})"),
+                    &format!("Candle GGUF assign — {filename}"),
                     StepStatus::Fail(format!("{err}")),
                 );
-                failures.push(msg);
+            } else {
+                match service.load_slot("chat.brain").await {
+                    Ok(()) => {
+                        log_step(
+                            &format!("Candle GGUF load — chat.brain ({filename})"),
+                            StepStatus::Pass,
+                        );
+                        if let Err(err) = service.unload_slot("chat.brain").await {
+                            eprintln!("[real_loader_smoke]   unload chat.brain failed: {err}");
+                        }
+                    }
+                    Err(err) => {
+                        let msg = format!("Candle GGUF load — chat.brain ({filename}): {err}");
+                        log_step(
+                            &format!("Candle GGUF load — chat.brain ({filename})"),
+                            StepStatus::Fail(format!("{err}")),
+                        );
+                        failures.push(msg);
+                    }
+                }
             }
-        },
+        }
+    }
+
+    // ── Step 5b: llama.cpp GGUF load ─────────────────────────
+    //
+    // Find a GGUF that routes to LlamaCpp (architecture NOT in Candle
+    // support list), assign to minion.shared, load it.
+    let llamacpp_gguf = service
+        .get_registry()
+        .iter()
+        .filter(|e| {
+            e.format == ModelFormat::Gguf
+                && !model_loader::candle_supports_architecture(&e.architecture)
+        })
+        .min_by_key(|e| e.size_bytes)
+        .map(|e| (e.id.clone(), e.filename.clone(), e.architecture.clone()));
+
+    match llamacpp_gguf {
+        None => log_step(
+            "llama.cpp GGUF load",
+            StepStatus::Skip("no llama.cpp-only GGUF on disk (all covered by Candle)".into()),
+        ),
+        Some((model_id, filename, arch)) => {
+            if let Err(err) = service.assign_model("minion.shared", &model_id) {
+                log_step(
+                    &format!("llama.cpp GGUF assign — {filename} ({arch})"),
+                    StepStatus::Fail(format!("{err}")),
+                );
+            } else {
+                match service.load_slot("minion.shared").await {
+                    Ok(()) => {
+                        log_step(
+                            &format!("llama.cpp GGUF load — minion.shared ({filename}, {arch})"),
+                            StepStatus::Pass,
+                        );
+                        if let Err(err) = service.unload_slot("minion.shared").await {
+                            eprintln!("[real_loader_smoke]   unload minion.shared failed: {err}");
+                        }
+                    }
+                    Err(err) => {
+                        let msg = format!("llama.cpp GGUF load — minion.shared ({filename}, {arch}): {err}");
+                        log_step(
+                            &format!("llama.cpp GGUF load — minion.shared ({filename}, {arch})"),
+                            StepStatus::Fail(format!("{err}")),
+                        );
+                        failures.push(msg);
+                    }
+                }
+            }
+        }
     }
 
     // ── Step 6: real SafeTensors load via Candle ──────────────

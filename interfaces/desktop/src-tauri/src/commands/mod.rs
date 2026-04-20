@@ -91,6 +91,7 @@ pub mod credentials;
 pub mod devclyffy;
 pub mod devforge;
 pub mod devpulse;
+pub mod knowledge;
 pub mod llama;
 pub mod models;
 pub mod sys;

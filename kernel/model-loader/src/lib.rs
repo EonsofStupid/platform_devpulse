@@ -32,6 +32,9 @@ pub use service::ModelLoaderService;
 // Inference bridge types
 pub use backends::bridge::{InferenceHandle, InferenceResponse};
 
+// Backend routing
+pub use backends::router::candle_supports_architecture;
+
 // Voice backend types
 pub use backends::voice::{AudioDecoderBackend, AudioSamples, SttBackend, TtsBackend};
 

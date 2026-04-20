@@ -4,6 +4,8 @@ pub mod adapters;
 pub mod cag;
 /// Grammar and constrained decoding runtime ownership.
 pub mod grammar;
+/// Knowledge library — JSON-backed tips, did-you-know, glossary with libSQL runtime.
+pub mod knowledge;
 /// KV cache tier for attention optimization.
 pub mod kv_cache;
 /// Minion task workers.

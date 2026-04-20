@@ -242,6 +242,56 @@ impl Default for WindowConfig {
     }
 }
 
+/// Primary routing mode for chat and escalation decisions.
+///
+/// These are the three explicit product modes exposed in setup:
+/// - `local_first` - prefer local inference first
+/// - `local_claude_subscription` - prefer local and escalate through the Claude subscription lane
+/// - `local_claude_api_council` - prefer local and allow both Claude subscription and API council escalation
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "snake_case")]
+pub enum RoutingMode {
+    LocalFirst,
+    LocalClaudeSubscription,
+    LocalClaudeApiCouncil,
+}
+
+impl RoutingMode {
+    pub fn parse(mode: &str) -> Result<Self> {
+        match mode {
+            "local_first" => Ok(Self::LocalFirst),
+            "local_claude_subscription" => Ok(Self::LocalClaudeSubscription),
+            "local_claude_api_council" => Ok(Self::LocalClaudeApiCouncil),
+            other => Err(anyhow::anyhow!(
+                "Unknown routing mode '{other}'. Expected local_first, local_claude_subscription, or local_claude_api_council"
+            )),
+        }
+    }
+
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::LocalFirst => "local_first",
+            Self::LocalClaudeSubscription => "local_claude_subscription",
+            Self::LocalClaudeApiCouncil => "local_claude_api_council",
+        }
+    }
+}
+
+impl Default for RoutingMode {
+    fn default() -> Self {
+        Self::LocalFirst
+    }
+}
+
+/// Routing configuration persisted in assistant.toml.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct RoutingConfig {
+    pub mode: RoutingMode,
+}
+
 /// Partial GPU offload hints for llama.cpp-backed slots that exceed
 /// the GPU VRAM budget.
 ///
@@ -296,6 +346,8 @@ pub struct AssistantConfig {
     pub keyword_actions: Vec<KeywordActionEntry>,
     /// Window idle + tray behaviour.
     pub window: WindowConfig,
+    /// Chat routing mode and escalation lane selection.
+    pub routing: RoutingConfig,
     /// Partial GPU offload hints.
     pub offload: OffloadConfig,
 }
@@ -427,6 +479,12 @@ impl AssistantConfig {
     /// Convenience: replace the TTS voice profile and persist.
     pub fn set_voice_profile(&mut self, userdata_dir: &Path, profile: String) -> Result<()> {
         self.tts.profile = profile;
+        self.save(userdata_dir)
+    }
+
+    /// Convenience: replace the routing mode and persist.
+    pub fn set_routing_mode(&mut self, userdata_dir: &Path, mode: String) -> Result<()> {
+        self.routing.mode = RoutingMode::parse(&mode)?;
         self.save(userdata_dir)
     }
 

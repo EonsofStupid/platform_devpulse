@@ -3,6 +3,8 @@
 //! Queries `LibSQL` (projects, sessions, messages) and `DuckDB` (`daily_stats`)
 //! to populate the `DevPulse` dashboard with live data.
 
+pub mod profile;
+
 use crate::state::PlatformState;
 use devpulse_engine::platform::{
     AnalyticsAdapter, CacheAdapter, SqlAdapter,

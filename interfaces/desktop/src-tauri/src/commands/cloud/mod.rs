@@ -1,17 +1,7 @@
 //! Cloud inference provider — Anthropic API for dogfooding + turbo escalation.
 //!
-//! Architecture:
-//!   - `InferenceProvider::Local`  → chat routes to llama-server / Candle
-//!   - `InferenceProvider::Cloud`  → chat routes to Anthropic Messages API
-//!
-//! Regardless of provider selection, Claude API is ALWAYS available to
-//! Clyffy as a turbo escalation path. The toggle only controls the
-//! PRIMARY chat brain. Local models always own non-chat slots
-//! (rag.embedder, voice.stt, voice.tts, vision.embedder).
-//!
-//! Provider preference is persisted to `{userdata}/preferences.json`
-//! under the key `inference_provider`. Defaults to `"cloud"` during
-//! dogfooding so the platform works without any local model setup.
+//! Routing mode lives in assistant config and controls which Claude lane
+//! is allowed after local-first routing.
 
 use crate::commands::credentials::{get_api_key, ApiProvider};
 use serde::{Deserialize, Serialize};
@@ -19,71 +9,58 @@ use specta::Type;
 use tauri::{Emitter, State};
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::SqlAdapter;
 
-// ── Provider Enum ───────────────────────────────────────────────
+// ── Routing Enum ────────────────────────────────────────────────
 
-/// Which backend handles the primary chat brain.
-///
-/// Cross-linked: StatusBar, Settings, Chat header, Devtools all
-/// read and write this same persisted value.
+/// Which Claude escalation lane is allowed after local-first routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum InferenceProvider {
-    /// Local LLM via llama-server sidecar or Candle in-process.
-    Local,
-    /// Anthropic Claude API (subscription or API key).
-    Cloud,
+    /// Prefer local models first.
+    LocalFirst,
+    /// Prefer local, then escalate through the Claude subscription lane.
+    LocalClaudeSubscription,
+    /// Prefer local, then escalate through Claude subscription and API council lanes.
+    LocalClaudeApiCouncil,
 }
 
 impl InferenceProvider {
     fn as_str(self) -> &'static str {
         match self {
-            Self::Local => "local",
-            Self::Cloud => "cloud",
+            Self::LocalFirst => "local_first",
+            Self::LocalClaudeSubscription => "local_claude_subscription",
+            Self::LocalClaudeApiCouncil => "local_claude_api_council",
         }
     }
 
     fn from_str(s: &str) -> Self {
-        match s.to_lowercase().as_str() {
-            "local" => Self::Local,
-            _ => Self::Cloud, // default to cloud during dogfooding
+        match s {
+            "local_claude_subscription" => Self::LocalClaudeSubscription,
+            "local_claude_api_council" => Self::LocalClaudeApiCouncil,
+            _ => Self::LocalFirst,
         }
     }
 }
 
-// ── Provider Config Commands ────────────────────────────────────
+// ── Routing Config Commands ─────────────────────────────────────
 
-/// Get the current inference provider setting.
-///
-/// Reads from `preferences.json`. Defaults to `Cloud` if unset
-/// (dogfooding mode — platform works without local models).
+/// Get the current routing mode from assistant config.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_inference_provider(
     state: State<'_, PlatformState>,
 ) -> Result<InferenceProvider, String> {
-    let guard = state.platform.read().await;
-    if let Some(platform) = guard.as_ref() {
-        if let Some(svc) = platform.user_relational() {
-            let adapter = svc.adapter();
-            let rows = adapter
-                .query(
-                    "SELECT value FROM preferences WHERE key = 'inference_provider' LIMIT 1",
-                    &[],
-                )
-                .await
-                .unwrap_or_default();
-            if let Some(val) = rows.first().and_then(|r| r.first()).and_then(|v| v.as_text()) {
-                return Ok(InferenceProvider::from_str(val));
-            }
-        }
-    }
-    // Default: cloud during dogfooding
-    Ok(InferenceProvider::Cloud)
+    let loader = crate::commands::models::get_loader(&state).await?;
+    let config = loader.get_assistant_config().await;
+    let raw_mode = serde_json::to_value(&config.routing.mode)
+        .map_err(|e| format!("Failed to serialize routing mode: {e}"))?
+        .as_str()
+        .map(str::to_string)
+        .unwrap_or_else(|| "local_first".to_string());
+    Ok(InferenceProvider::from_str(&raw_mode))
 }
 
-/// Set the inference provider. Persisted to preferences table.
+/// Set the routing mode in assistant config.
 ///
 /// Emitted as `provider:changed` event so all cross-linked UI
 /// components (StatusBar, Chat header, Settings) update instantly.
@@ -96,20 +73,11 @@ pub async fn set_inference_provider(
 ) -> Result<(), String> {
     tracing::info!(provider = provider.as_str(), "Setting inference provider");
 
-    let guard = state.platform.read().await;
-    if let Some(platform) = guard.as_ref() {
-        if let Some(svc) = platform.user_relational() {
-            let adapter = svc.adapter();
-            let val = provider.as_str();
-            adapter
-                .execute(
-                    "INSERT OR REPLACE INTO preferences (key, value) VALUES ('inference_provider', ?)",
-                    &[val],
-                )
-                .await
-                .map_err(|e| format!("Failed to persist inference provider: {e}"))?;
-        }
-    }
+    let loader = crate::commands::models::get_loader(&state).await?;
+    loader
+        .set_routing_mode(provider.as_str().to_string())
+        .await
+        .map_err(|e| format!("Failed to persist routing mode: {e}"))?;
 
     let _ = app.emit(
         "provider:changed",

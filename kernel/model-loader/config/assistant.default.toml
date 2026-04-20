@@ -131,6 +131,17 @@ enabled = true
 idle_timeout_secs = 300
 minimize_to_tray = true
 
+# ── Chat routing mode ─────────────────────────────────────────
+#
+# Primary lane selection for Clyffy's text chat decisions:
+#
+#   "local_first"                  - prefer local models only unless an internal escalation path decides otherwise
+#   "local_claude_subscription"   - keep local first, but allow Claude subscription escalation
+#   "local_claude_api_council"    - keep local first, allow Claude subscription, and allow API council routing
+
+[routing]
+mode = "local_first"
+
 # ── Partial model offload hints ────────────────────────────────
 #
 # Applied to any slot whose backend is llama.cpp and whose model

@@ -576,6 +576,19 @@ impl ModelLoaderService {
         .map_err(|e| anyhow::anyhow!("set_voice_profile join: {e}"))?
     }
 
+    /// Replace the assistant routing mode.
+    pub async fn set_routing_mode(&self, mode: String) -> Result<()> {
+        let inner = self.inner.clone();
+        tokio::task::spawn_blocking(move || {
+            let mut guard = inner.blocking_write();
+            guard
+                .set_routing_mode(mode)
+                .map_err(|e| anyhow::anyhow!("{e}"))
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("set_routing_mode join: {e}"))?
+    }
+
     /// Register a new custom voice clone.
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<()> {
         let inner = self.inner.clone();

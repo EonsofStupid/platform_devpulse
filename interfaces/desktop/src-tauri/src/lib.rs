@@ -103,6 +103,12 @@ pub fn run() {
         commands::devforge::window::open_devforge_window,
         commands::devforge::window::close_devforge_window,
         commands::devpulse::fetch_dashboard,
+        commands::devpulse::profile::fetch_user_profile,
+        commands::devpulse::profile::update_user_profile,
+        commands::devpulse::profile::fetch_user_preferences,
+        commands::devpulse::profile::update_user_preferences,
+        commands::knowledge::get_knowledge_entry,
+        commands::knowledge::record_knowledge_reaction,
         commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
         commands::window::open_window,
@@ -732,7 +738,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
                 .execute_batch(
                     r"
                     INSERT INTO profiles (id, display_name, hardware_profile, onboarding_complete, expertise_level) VALUES
-                        ('user-1', 'Developer', '32g_engineer', 1, 3);
+                        ('user-1', NULL, '32g_engineer', 0, 1);
 
                     INSERT INTO preferences (id, user_id, theme, context_mode, verbosity) VALUES
                         ('pref-1', 'user-1', 'dark', 'normal', 'balanced');

@@ -52,6 +52,19 @@ pub use devpulse_clyffy::cortex::persistence::{
     AnalyticsAdapter, CacheAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
+// Re-export knowledge library types for Tauri command layer.
+// Boundary: these are kernel-internal types used by the engine facade.
+// The Tauri command layer converts them to DTOs before sending to frontend.
+pub use devpulse_clyffy::cortex::knowledge::{
+    select_entry as knowledge_select_entry,
+    record_reaction as knowledge_record_reaction,
+    EntryType as KnowledgeEntryType,
+    Reaction as KnowledgeReaction,
+    SelectedEntry as KnowledgeSelectedEntry,
+    SelectionParams as KnowledgeSelectionParams,
+    Tier as KnowledgeTier,
+};
+
 // Re-export model loader types needed by Tauri command layer
 #[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::{ModelRegistryEntry, ModelSourceTier, Slot};
