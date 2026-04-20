@@ -9,14 +9,14 @@
 
 use super::loader;
 use super::types::KnowledgeEntry;
-use crate::cortex::persistence::{LibSqlAdapter, SqlAdapter};
+use crate::cortex::persistence::SqlAdapter;
 
 /// Sync embedded knowledge entries into libSQL.
 ///
 /// Called during boot after user relational is ready.
 /// Returns the number of entries upserted (0 if versions matched).
 pub async fn sync_to_libsql(
-    adapter: &LibSqlAdapter,
+    adapter: &dyn SqlAdapter,
 ) -> Result<usize, String> {
     // 1. Load embedded manifest for version check
     let manifest = loader::load_manifest()
@@ -79,7 +79,7 @@ pub async fn sync_to_libsql(
 }
 
 /// Upsert a single entry into `knowledge_entries`.
-async fn upsert_entry(adapter: &LibSqlAdapter, entry: &KnowledgeEntry) -> Result<(), String> {
+async fn upsert_entry(adapter: &dyn SqlAdapter, entry: &KnowledgeEntry) -> Result<(), String> {
     let entry_type = entry.entry_type.as_str();
     let tier = entry.tier.as_str();
     let payload_json = serde_json::to_string(&entry.payload)

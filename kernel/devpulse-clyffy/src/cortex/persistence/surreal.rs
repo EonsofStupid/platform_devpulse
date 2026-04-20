@@ -8,6 +8,16 @@
 //! Boot opens ONE `SurrealKV` at `surreal/devpulse`. The adapter creates
 //! `ScopedGraphHandle` instances for each namespace (system, user, global).
 //! Each handle scopes every operation — no shared implicit context.
+//!
+//! # P0: Boot Never Freezes
+//!
+//! `surrealdb::Surreal<Db>` is `Clone + Send + Sync` — internally an
+//! `Arc<Inner>` that handles its own locking. Wrapping it in
+//! `tokio::sync::RwLock` serialized every query behind a yield-on-acquire
+//! mutex AND deadlocked whenever `init_namespace` took the write lock while
+//! another task tried to read. The RwLock is removed. All runtime queries
+//! use explicit `USE NS {ns} DB {db};` prefixes so no session-state mutation
+//! is ever needed after open.
 
 use crate::cortex::persistence::config::SurrealNamespace;
 use anyhow::{Context, Result};
@@ -18,7 +28,6 @@ use std::sync::Arc;
 use surrealdb::engine::local::{Db, SurrealKv};
 use surrealdb::types::SurrealValue;
 use surrealdb::Surreal;
-use tokio::sync::RwLock;
 
 // ═══════════════════════════════════════════════════════════════
 // SurrealAdapter — connection owner
@@ -26,11 +35,12 @@ use tokio::sync::RwLock;
 
 /// `SurrealDB` adapter — owns a single `Surreal<Db>` connection.
 ///
-/// This is the connection holder only. All scoped operations go through
-/// `ScopedGraphHandle`. Direct methods here are for boot-time setup
-/// (schema init, namespace creation) that require root-level access.
+/// Lock-free: `Surreal<Db>` handles its own internal synchronization.
+/// Cloning the handle is cheap (atomic refcount bump). All runtime queries
+/// go through `ScopedGraphHandle` with explicit `USE NS ... DB ...;`
+/// prefixes, so no session-state mutation is required.
 pub struct SurrealAdapter {
-    db: Arc<RwLock<Surreal<Db>>>,
+    db: Surreal<Db>,
 }
 
 impl SurrealAdapter {
@@ -53,14 +63,14 @@ impl SurrealAdapter {
 
     /// Open database at path with explicit namespace, database, and schema.
     ///
-    /// This is the primary constructor. The schema runs as implicit root
-    /// (embedded `SurrealKV` has root access). After schema init, the
-    /// connection is left at the given namespace/database context — but
-    /// all runtime operations MUST go through `ScopedGraphHandle` which
-    /// prefixes every query with explicit `USE NS ... DB ...;`.
+    /// This is the primary constructor. The schema runs via an explicit
+    /// `USE NS ... DB ...; {schema}` so no session state is mutated on the
+    /// shared `Surreal<Db>` handle. All runtime operations MUST go through
+    /// `ScopedGraphHandle` which keeps the same pattern.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
+    #[tracing::instrument(skip(schema), fields(path = %path.display(), namespace, database, schema_len = schema.len()), err)]
     pub async fn open_with_ns(
         path: &Path,
         namespace: &str,
@@ -90,24 +100,13 @@ impl SurrealAdapter {
             path = %path.display(),
             namespace,
             database,
-            "SurrealKV opened — selecting namespace"
+            "SurrealKV opened — applying schema via scoped query"
         );
 
-        // Select initial namespace for schema init. Write lock because
-        // use_ns/use_db mutate the session's active context.
-        db.use_ns(namespace)
-            .use_db(database)
-            .await
-            .with_context(|| {
-                format!("Failed to select namespace '{namespace}' / database '{database}'")
-            })?;
+        let adapter = Self { db };
 
-        let adapter = Self {
-            db: Arc::new(RwLock::new(db)),
-        };
-
-        // Initialize schema as root — this creates tables/indexes.
-        adapter.init_schema(schema).await?;
+        // Initialize schema via scoped query — no session mutation, no lock.
+        adapter.init_namespace(namespace, database, schema).await?;
 
         tracing::info!(namespace, database, "SurrealDB schema initialized");
 
@@ -125,52 +124,41 @@ impl SurrealAdapter {
             .await
             .context("Failed to open in-memory SurrealDB")?;
 
-        db.use_ns(SurrealNamespace::REASONING.namespace)
-            .use_db(SurrealNamespace::REASONING.database)
-            .await
-            .context("Failed to select namespace/database")?;
-
-        let adapter = Self {
-            db: Arc::new(RwLock::new(db)),
-        };
-
-        adapter.init_schema(REASONING_SCHEMA).await?;
+        let adapter = Self { db };
+        adapter
+            .init_namespace(
+                SurrealNamespace::REASONING.namespace,
+                SurrealNamespace::REASONING.database,
+                REASONING_SCHEMA,
+            )
+            .await?;
         Ok(adapter)
-    }
-
-    /// Initialize the database schema with provided DDL.
-    async fn init_schema(&self, schema: &str) -> Result<()> {
-        let db = self.db.read().await;
-        db.query(schema)
-            .await
-            .context("Failed to initialize SurrealDB schema")?;
-        Ok(())
     }
 
     /// Initialize an additional namespace/database with its own schema.
     ///
-    /// Acquires the WRITE lock because `use_ns`/`use_db` mutate session
-    /// state. This prevents concurrent namespace switches from racing.
+    /// Runs the schema via an explicit scoped query batch — no session
+    /// mutation, no lock. Safe to call concurrently for different namespaces.
     ///
     /// # Errors
-    /// Returns error if namespace selection or schema init fails.
-    pub async fn init_namespace(&self, namespace: &str, database: &str, schema: &str) -> Result<()> {
-        // Write lock — use_ns/use_db are session-level mutations.
-        let db = self.db.write().await;
+    /// Returns error if the schema fails to apply.
+    #[tracing::instrument(skip(self, schema), fields(namespace, database, schema_len = schema.len()), err)]
+    pub async fn init_namespace(
+        &self,
+        namespace: &str,
+        database: &str,
+        schema: &str,
+    ) -> Result<()> {
+        tracing::debug!(namespace, database, "Initializing namespace (scoped)");
 
-        tracing::debug!(namespace, database, "Initializing namespace");
-
-        db.use_ns(namespace)
-            .use_db(database)
+        let scoped = format!("USE NS {namespace} DB {database}; {schema}");
+        self.db
+            .query(scoped)
             .await
             .with_context(|| {
-                format!("Failed to select namespace '{namespace}' / database '{database}'")
-            })?;
-
-        db.query(schema)
-            .await
-            .with_context(|| {
-                format!("Failed to initialize schema for '{namespace}/{database}'")
+                format!(
+                    "Failed to initialize schema for '{namespace}/{database}'"
+                )
             })?;
 
         tracing::info!(namespace, database, "Namespace schema initialized");
@@ -198,19 +186,19 @@ impl SurrealAdapter {
     ///
     /// # Errors
     /// Returns error if the query fails.
+    #[tracing::instrument(skip(self, query), fields(namespace, database, query_preview = %query.chars().take(80).collect::<String>()), err)]
     pub async fn query_in_ns(
         &self,
         namespace: &str,
         database: &str,
         query: &str,
     ) -> Result<serde_json::Value> {
-        let db = self.db.read().await;
-
         let scoped_query = format!("USE NS {namespace} DB {database}; {query}");
-        let mut response = db
+        let mut response = self
+            .db
             .query(scoped_query)
             .await
-            .context("SurrealDB query failed")?;
+            .with_context(|| format!("SurrealDB query failed in {namespace}/{database}"))?;
 
         // The USE NS/DB statement is index 0, user query starts at index 1.
         let rows: Vec<serde_json::Value> = response
@@ -227,16 +215,16 @@ impl SurrealAdapter {
     ///
     /// # Errors
     /// Returns error if the DDL fails.
+    #[tracing::instrument(skip(self, ddl), fields(namespace, database, ddl_preview = %ddl.chars().take(80).collect::<String>()), err)]
     pub async fn execute_in_ns(
         &self,
         namespace: &str,
         database: &str,
         ddl: &str,
     ) -> Result<()> {
-        let db = self.db.read().await;
-
         let scoped_ddl = format!("USE NS {namespace} DB {database}; {ddl}");
-        db.query(scoped_ddl)
+        self.db
+            .query(scoped_ddl)
             .await
             .with_context(|| {
                 format!(
@@ -248,19 +236,13 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Get a clone of the inner database handle for sharing.
-    ///
-    /// Used by the HTTP server to share the embedded connection.
-    pub fn db_handle(&self) -> Arc<RwLock<Surreal<Db>>> {
-        Arc::clone(&self.db)
-    }
-
-    /// Lightweight health check — executes `SELECT 1` in the default namespace.
+    /// Lightweight health check — executes `SELECT 1`.
     ///
     /// Called by the persistence manager's `ping_surreal` via `Arc<SurrealAdapter>`.
+    #[tracing::instrument(skip(self), err)]
     pub async fn ping(&self) -> Result<()> {
-        let db = self.db.read().await;
-        let mut response = db
+        let mut response = self
+            .db
             .query("SELECT 1")
             .await
             .context("SurrealDB ping failed")?;
@@ -270,17 +252,12 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Quiesce — block all pending queries and prepare for shutdown.
+    /// Quiesce — in-flight queries drain naturally when the Arc drops.
     ///
-    /// Acquires the write lock to ensure no queries are in flight.
-    /// The actual `Surreal<Db>` drops (and flushes WAL) when the last
-    /// `Arc<SurrealAdapter>` drops. This method ensures orderly drain.
+    /// Lock-free: no explicit drain needed. The `Surreal<Db>` handle
+    /// refcount drop on the last `Arc<SurrealAdapter>` flushes the WAL.
     pub async fn quiesce(&self) {
-        tracing::info!("SurrealDB: quiescing — draining pending queries");
-        let _db = self.db.write().await;
-        // Write lock held. All pending reads blocked, ensuring drain.
-        // WAL flush happens when the Surreal<Db> is dropped (Arc refcount → 0).
-        tracing::info!("SurrealDB: quiesced — all queries drained");
+        tracing::info!("SurrealDB: quiesced — WAL flushes on Arc drop");
     }
 }
 

@@ -40,12 +40,16 @@ impl EntryType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Tier {
+    /// New users — safe, encouraging content.
     Beginner,
+    /// Comfortable users — deeper workflow tips.
     Intermediate,
+    /// Power users — advanced techniques and edge cases.
     Advanced,
 }
 
 impl Tier {
+    /// Return the lowercase string representation used in SQL and serde.
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -63,6 +67,16 @@ impl Tier {
             Self::Intermediate => &["beginner", "intermediate"],
             Self::Advanced => &["beginner", "intermediate", "advanced"],
         }
+    }
+
+    /// All tier strings — convenience for "show everything" queries.
+    #[must_use]
+    pub fn all_strings() -> Vec<String> {
+        vec![
+            Self::Beginner.as_str().to_string(),
+            Self::Intermediate.as_str().to_string(),
+            Self::Advanced.as_str().to_string(),
+        ]
     }
 }
 
@@ -127,6 +141,8 @@ pub struct SelectionParams {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Reaction {
+    /// User found the entry useful.
     Helpful,
+    /// User dismissed the entry — excluded from future selection.
     NotHelpful,
 }

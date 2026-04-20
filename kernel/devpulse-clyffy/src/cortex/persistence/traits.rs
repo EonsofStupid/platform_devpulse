@@ -114,8 +114,11 @@ pub trait TypedPersistence: PersistenceAdapter {
 // Blanket impl for all PersistenceAdapters
 impl<T: PersistenceAdapter> TypedPersistence for T {}
 
-/// SQL query interface for relational stores (`LibSQL`, `DuckDB`)
-#[allow(async_fn_in_trait)]
+/// SQL query interface for relational stores (`LibSQL`, `DuckDB`).
+///
+/// Uses `#[async_trait]` so the trait is dyn-compatible — callers accept
+/// `&dyn SqlAdapter` rather than hard-coding the concrete adapter type.
+#[async_trait::async_trait]
 pub trait SqlAdapter: Send + Sync {
     /// Execute a query that returns typed rows.
     async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>>;

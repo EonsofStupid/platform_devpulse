@@ -2,18 +2,30 @@
 //!
 //! Handles: users, settings, projects, KV/config (chat lives in engine user schema)
 //! This is the "clean" queryable layer for UI and cross-project data.
+//!
+//! # P0: Boot Never Freezes
+//!
+//! `libsql::Connection` is `Clone + Send + Sync` — internally `Arc<dyn Conn>`
+//! with its own synchronization. Wrapping it in `tokio::sync::RwLock` serialized
+//! every query behind a yield-on-acquire mutex and was a prime deadlock risk
+//! whenever a slow query held the read guard while another task wanted to call
+//! into the adapter. The RwLock is removed. Callers share the `Connection`
+//! directly — libsql owns the per-statement locking inside.
 
 use crate::cortex::persistence::traits::{PersistenceAdapter, SqlAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 /// `LibSQL` database adapter.
+///
+/// Lock-free: `libsql::Connection` is internally `Arc<dyn Conn>` and handles
+/// its own synchronization. Cloning the adapter or the inner connection is
+/// cheap (atomic refcount bump).
 pub struct LibSqlAdapter {
     #[allow(dead_code)] // Kept for potential reconnection
     db: Arc<libsql::Database>,
-    conn: Arc<RwLock<libsql::Connection>>,
+    conn: libsql::Connection,
 }
 
 impl LibSqlAdapter {
@@ -32,6 +44,7 @@ impl LibSqlAdapter {
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
+    #[tracing::instrument(skip(schema), fields(path = %path.display(), schema_len = schema.len()), err)]
     pub async fn open_with_schema(path: &Path, schema: &str) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
@@ -49,7 +62,7 @@ impl LibSqlAdapter {
 
         let adapter = Self {
             db: Arc::new(db),
-            conn: Arc::new(RwLock::new(conn)),
+            conn,
         };
 
         // Initialize with provided schema
@@ -60,16 +73,19 @@ impl LibSqlAdapter {
 
     /// Initialize the database schema.
     async fn init_schema(&self, schema: &str) -> Result<()> {
-        let conn = self.conn.read().await;
-        conn.execute_batch(schema)
+        self.conn
+            .execute_batch(schema)
             .await
             .context("Failed to initialize LibSQL schema")?;
         Ok(())
     }
 
-    /// Get a connection for queries
-    pub async fn connection(&self) -> tokio::sync::RwLockReadGuard<'_, libsql::Connection> {
-        self.conn.read().await
+    /// Get a reference to the underlying connection for queries.
+    ///
+    /// Lock-free: returns a borrow of the shared `libsql::Connection`.
+    /// Callers can `.query(...).await` / `.execute(...).await` directly.
+    pub fn connection(&self) -> &libsql::Connection {
+        &self.conn
     }
 
     /// Graceful shutdown — checkpoint WAL and release the connection.
@@ -79,13 +95,15 @@ impl LibSqlAdapter {
     /// released cleanly for the next process.
     pub async fn close(&self) {
         tracing::debug!("LibSQL: checkpointing WAL");
-        let conn = self.conn.read().await;
         // TRUNCATE mode: checkpoint and then truncate the WAL file to zero bytes.
         // This is the cleanest state for the next process to open the database.
-        if let Err(e) = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)", ()).await {
+        if let Err(e) = self
+            .conn
+            .execute("PRAGMA wal_checkpoint(TRUNCATE)", ())
+            .await
+        {
             tracing::warn!(error = %e, "LibSQL WAL checkpoint failed (non-fatal)");
         }
-        drop(conn);
         tracing::debug!("LibSQL: connection closed");
     }
 
@@ -93,9 +111,10 @@ impl LibSqlAdapter {
     ///
     /// # Errors
     /// Returns error if the database is unreachable.
+    #[tracing::instrument(skip(self), err)]
     pub async fn ping(&self) -> Result<()> {
-        let conn = self.conn.read().await;
-        let mut rows = conn
+        let mut rows = self
+            .conn
             .query("SELECT 1", ())
             .await
             .context("LibSQL ping failed")?;
@@ -113,8 +132,8 @@ impl LibSqlAdapter {
         sql: &str,
         params: impl libsql::params::IntoParams + Send,
     ) -> Result<u64> {
-        let conn = self.conn.read().await;
-        let affected = conn
+        let affected = self
+            .conn
             .execute(sql, params)
             .await
             .with_context(|| format!("LibSQL execute failed: {sql}"))?;
@@ -124,19 +143,19 @@ impl LibSqlAdapter {
 
 impl PersistenceAdapter for LibSqlAdapter {
     async fn set(&self, key: &str, value: &[u8]) -> Result<()> {
-        let conn = self.conn.read().await;
-        conn.execute(
-            "INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?, ?, unixepoch())",
-            libsql::params![key, value],
-        )
-        .await
-        .context("Failed to set value in LibSQL")?;
+        self.conn
+            .execute(
+                "INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?, ?, unixepoch())",
+                libsql::params![key, value],
+            )
+            .await
+            .context("Failed to set value in LibSQL")?;
         Ok(())
     }
 
     async fn get(&self, key: &str) -> Result<Option<Vec<u8>>> {
-        let conn = self.conn.read().await;
-        let mut rows = conn
+        let mut rows = self
+            .conn
             .query(
                 "SELECT value FROM kv_store WHERE key = ?",
                 libsql::params![key],
@@ -153,8 +172,8 @@ impl PersistenceAdapter for LibSqlAdapter {
     }
 
     async fn delete(&self, key: &str) -> Result<bool> {
-        let conn = self.conn.read().await;
-        let affected = conn
+        let affected = self
+            .conn
             .execute("DELETE FROM kv_store WHERE key = ?", libsql::params![key])
             .await
             .context("Failed to delete from LibSQL")?;
@@ -162,8 +181,8 @@ impl PersistenceAdapter for LibSqlAdapter {
     }
 
     async fn exists(&self, key: &str) -> Result<bool> {
-        let conn = self.conn.read().await;
-        let mut rows = conn
+        let mut rows = self
+            .conn
             .query(
                 "SELECT 1 FROM kv_store WHERE key = ? LIMIT 1",
                 libsql::params![key],
@@ -174,17 +193,18 @@ impl PersistenceAdapter for LibSqlAdapter {
     }
 }
 
+#[async_trait::async_trait]
 impl SqlAdapter for LibSqlAdapter {
+    #[tracing::instrument(skip(self, params), fields(sql_preview = %sql.chars().take(80).collect::<String>(), param_count = params.len()), err)]
     async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>> {
-        let conn = self.conn.read().await;
-
         // Convert params to libsql format
         let params: Vec<libsql::Value> = params
             .iter()
             .map(|s| libsql::Value::from((*s).to_string()))
             .collect();
 
-        let mut rows = conn
+        let mut rows = self
+            .conn
             .query(sql, params)
             .await
             .context("Failed to execute query")?;
@@ -208,24 +228,25 @@ impl SqlAdapter for LibSqlAdapter {
         Ok(results)
     }
 
+    #[tracing::instrument(skip(self, params), fields(sql_preview = %sql.chars().take(80).collect::<String>(), param_count = params.len()), err)]
     async fn execute(&self, sql: &str, params: &[&str]) -> Result<u64> {
-        let conn = self.conn.read().await;
-
         let params: Vec<libsql::Value> = params
             .iter()
             .map(|s| libsql::Value::from((*s).to_string()))
             .collect();
 
-        let affected = conn
+        let affected = self
+            .conn
             .execute(sql, params)
             .await
             .context("Failed to execute statement")?;
         Ok(affected)
     }
 
+    #[tracing::instrument(skip(self, sql), fields(sql_len = sql.len()), err)]
     async fn execute_batch(&self, sql: &str) -> Result<()> {
-        let conn = self.conn.read().await;
-        conn.execute_batch(sql)
+        self.conn
+            .execute_batch(sql)
             .await
             .context("Failed to execute batch")?;
         Ok(())

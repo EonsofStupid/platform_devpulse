@@ -8,18 +8,26 @@
 //! - Reaction filter (entries marked `not_helpful` are excluded)
 
 use super::types::{Reaction, SelectionParams};
-use crate::cortex::persistence::{LibSqlAdapter, SqlAdapter};
+use crate::cortex::persistence::SqlAdapter;
 
 /// Selected entry from the runtime query.
 #[derive(Debug, Clone)]
 pub struct SelectedEntry {
+    /// Unique entry identifier (e.g. `dyk-001`).
     pub id: String,
+    /// Discriminant: `dyk`, `kdrop`, `frust`, `insight`, `gloss`.
     pub entry_type: String,
+    /// Optional tool context for affinity weighting.
     pub tool: Option<String>,
+    /// Thematic category (e.g. `shortcuts`, `git`, `debugging`).
     pub category: String,
+    /// Expertise tier: `beginner`, `intermediate`, `advanced`.
     pub tier: String,
+    /// Type-specific JSON payload (title/body, term/definition, etc.).
     pub payload_json: String,
+    /// Comma-separated tag list.
     pub tags_csv: String,
+    /// ISO-8601 date the entry was authored.
     pub added: String,
 }
 
@@ -28,7 +36,7 @@ pub struct SelectedEntry {
 /// Uses the affinity-weighted random selection query from the spec.
 /// Returns `None` if no eligible entries exist.
 pub async fn select_entry(
-    adapter: &LibSqlAdapter,
+    adapter: &dyn SqlAdapter,
     params: &SelectionParams,
 ) -> Result<Option<SelectedEntry>, String> {
     let entry_type = params.entry_type.as_str();
@@ -97,7 +105,7 @@ pub async fn select_entry(
 
 /// Record that an entry was shown to a user (upsert into knowledge_seen).
 async fn record_shown(
-    adapter: &LibSqlAdapter,
+    adapter: &dyn SqlAdapter,
     entry_id: &str,
     user_id: &str,
 ) -> Result<(), String> {
@@ -124,7 +132,7 @@ async fn record_shown(
 
 /// Record a user reaction (helpful / not_helpful).
 pub async fn record_reaction(
-    adapter: &LibSqlAdapter,
+    adapter: &dyn SqlAdapter,
     entry_id: &str,
     user_id: &str,
     reaction: Reaction,
