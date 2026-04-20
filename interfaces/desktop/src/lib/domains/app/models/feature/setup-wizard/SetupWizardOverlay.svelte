@@ -12,17 +12,15 @@
   ColdLight teal glass. Rust SSOT for all data.
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { KeyRound, Lock, Settings, Sparkles, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo, logWarn } from "$lib/sys/logger.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
+import { setupWizardOverlayState } from "../../data-access/setup-wizard-overlay.state.svelte.js";
 import { formatMb } from "../../util/models.types.js";
 import BrainCard from "../components/BrainCard.svelte";
 import MemoryCard from "../components/MemoryCard.svelte";
@@ -31,16 +29,19 @@ import VoiceCard from "../components/VoiceCard.svelte";
 import HfTokenModal from "./components/HfTokenModal.svelte";
 import VramBar from "./components/VramBar.svelte";
 import { wizardState } from "./wizard.state.svelte.js";
-import type { WizardCopy } from "./wizard.types.js";
 
-// ── State ───────────────────────────────────────────────
-type View = "welcome" | "config";
-let view = $state<View>("welcome");
-let copy = $state<WizardCopy | null>(null);
-let copyError = $state<string | null>(null);
-let hfHasToken = $state(false);
-let showHfModal = $state(false);
-let loadingPreset = $state(false);
+const overlayState = setupWizardOverlayState;
+
+async function handleApplyJesseConfig(): Promise<void> {
+	const config = await overlayState.applyJesseConfig();
+	if (config) {
+		wizardState.setRecommendations(config);
+	}
+}
+
+async function handleApplyAndLaunch(): Promise<void> {
+	await overlayState.applyAndLaunch(() => wizardState.close());
+}
 
 // ── Hardware summary (read-only runes) ──────────────────
 const gpuName = $derived(hardwareState.gpuName ?? "No GPU");
@@ -54,86 +55,12 @@ const assignedCount = $derived(modelsState.slots.filter((s) => s.assigned_model_
 // ── Init ────────────────────────────────────────────────
 $effect(() => {
 	if (wizardState.isOpen) {
-		// Chain: subscribe to push events FIRST, then trigger refresh.
-		// refresh() calls scanModels() which makes Rust emit_status.
-		// The listener must be ready before that event fires.
-		void (async () => {
-			await modelsState.startStatusListener();
-			logInfo("wizard.overlay", "Model status listener ready — triggering refresh");
-			await modelsState.refresh();
-			logInfo(
-				"wizard.overlay",
-				`Models populated: ${modelsState.models.length} models, ${modelsState.slots.length} slots`,
-			);
-		})();
-		if (!copy) {
-			logInfo("wizard.overlay", "Loading wizard copy from Rust SSOT...");
-			void loadCopy();
-			void checkHfToken();
-		}
+		void overlayState.start();
 		return () => {
-			modelsState.stopStatusListener();
+			overlayState.stop();
 		};
 	}
 });
-
-async function loadCopy(): Promise<void> {
-	try {
-		copy = await invoke<WizardCopy>("get_wizard_copy");
-		logInfo("wizard.overlay", "Wizard copy loaded");
-	} catch (e) {
-		copyError = e instanceof Error ? e.message : String(e);
-		logError("wizard.overlay", `Failed to load wizard copy: ${copyError}`);
-	}
-}
-
-async function checkHfToken(): Promise<void> {
-	try {
-		hfHasToken = await invoke<boolean>("has_hf_token");
-	} catch (e) {
-		logWarn("wizard.overlay", `HF token check failed: ${e}`);
-	}
-}
-
-// ── Jesse Config shortcut ───────────────────────────────
-async function applyJesseConfig(): Promise<void> {
-	loadingPreset = true;
-	logInfo("wizard.overlay", "Applying Jesse Config preset...");
-	try {
-		const result = await commands.autoConfigure();
-		if (result.status === "error") throw new Error(result.error);
-		const configJson = result.data;
-		const config = JSON.parse(configJson);
-		wizardState.setRecommendations(config);
-		logInfo(
-			"wizard.overlay",
-			`Jesse Config applied — ${config.recommendations?.length ?? 0} recommendations`,
-		);
-		view = "config";
-	} catch (e) {
-		logError("wizard.overlay", `Jesse Config failed: ${e}`);
-	} finally {
-		loadingPreset = false;
-	}
-}
-
-// ── Actions ─────────────────────────────────────────────
-function handleLetsGo(): void {
-	view = "config";
-}
-
-async function handleDone(): Promise<void> {
-	logInfo("wizard.overlay", "Config complete — closing wizard");
-	try {
-		const r1 = await commands.markSetupComplete();
-		if (r1.status === "error") logWarn("wizard.overlay", `markSetupComplete: ${r1.error}`);
-		const r2 = await commands.completeModelSetup();
-		if (r2.status === "error") logWarn("wizard.overlay", `completeModelSetup: ${r2.error}`);
-	} catch (e) {
-		logWarn("wizard.overlay", `Post-setup finalization: ${e}`);
-	}
-	wizardState.close();
-}
 </script>
 
 {#if wizardState.isOpen}
@@ -144,19 +71,19 @@ async function handleDone(): Promise<void> {
 		<!-- Top bar -->
 		<div class="wizard-topbar">
 			<div class="topbar-left">
-				{#if view === "config"}
-					<Button preset="button-ghost" size="sm" onclick={() => (view = "welcome")}>
+				{#if overlayState.view === "config"}
+					<Button preset="button-ghost" size="sm" onclick={() => overlayState.showWelcome()}>
 						← Back
 					</Button>
 				{/if}
 				<Text size="sm" weight="bold" class="topbar-title">
-					{view === "welcome" ? "DevPulse Setup" : "Model Configuration"}
+					{overlayState.view === "welcome" ? "DevPulse Setup" : "Model Configuration"}
 				</Text>
 			</div>
 
 			<div class="topbar-right">
-				<button class="hf-pill" onclick={() => (showHfModal = true)}>
-					{#if hfHasToken}
+				<button class="hf-pill" onclick={() => overlayState.openHfModal()}>
+					{#if overlayState.hfHasToken}
 						<Lock size={12} />
 						<Text size="xs">HF Token</Text>
 						<Badge tone="positive" size="sm">Set</Badge>
@@ -173,13 +100,13 @@ async function handleDone(): Promise<void> {
 
 		<!-- Content -->
 		<div class="wizard-content">
-			{#if copyError}
+			{#if overlayState.copyError}
 				<div class="state-msg">
-					<Text size="sm">Failed to load: {copyError}</Text>
-					<Button preset="button-secondary" size="sm" onclick={loadCopy}>Retry</Button>
+					<Text size="sm">Failed to load: {overlayState.copyError}</Text>
+					<Button preset="button-secondary" size="sm" onclick={() => overlayState.retryCopy()}>Retry</Button>
 				</div>
 
-			{:else if view === "welcome"}
+			{:else if overlayState.view === "welcome"}
 				<!-- ═══ WELCOME VIEW ═══ -->
 				<div class="welcome">
 					<img src="/imgs/mascot/clyffy-df-icon-interaction1.png" alt="Clyffy" class="mascot" />
@@ -187,6 +114,54 @@ async function handleDone(): Promise<void> {
 					<Text size="sm" color="secondary">
 						Let's get your AI models configured. Pick a preset or customize each slot.
 					</Text>
+
+					<!-- Profile -->
+					<div class="profile-form">
+						<div class="profile-field">
+							<label for="profile-name">
+								<Text size="xs" color="secondary">Your Name</Text>
+							</label>
+							<input
+								id="profile-name"
+								type="text"
+								placeholder="What should Clyffy call you?"
+								bind:value={overlayState.profileName}
+								class="profile-input"
+							/>
+						</div>
+						<div class="profile-field">
+							<label for="profile-email">
+								<Text size="xs" color="secondary">Email (optional)</Text>
+							</label>
+							<input
+								id="profile-email"
+								type="email"
+								placeholder="you@example.com"
+								bind:value={overlayState.profileEmail}
+								class="profile-input"
+							/>
+						</div>
+						<div class="profile-field">
+							<Text size="xs" color="secondary">Experience</Text>
+							<div class="level-row">
+								<button
+									class="level-btn"
+									class:level-active={overlayState.profileLevel === 1}
+									onclick={() => overlayState.setProfileLevel(1)}
+								>Beginner</button>
+								<button
+									class="level-btn"
+									class:level-active={overlayState.profileLevel === 2}
+									onclick={() => overlayState.setProfileLevel(2)}
+								>Intermediate</button>
+								<button
+									class="level-btn"
+									class:level-active={overlayState.profileLevel === 3}
+									onclick={() => overlayState.setProfileLevel(3)}
+								>Advanced</button>
+							</div>
+						</div>
+					</div>
 
 					<!-- Hardware snapshot -->
 					{#if hardwareState.hasSnapshot}
@@ -198,12 +173,12 @@ async function handleDone(): Promise<void> {
 					{/if}
 
 					<div class="welcome-actions">
-						<Button preset="button-primary" size="lg" onclick={handleLetsGo}>
+						<Button preset="button-primary" size="lg" onclick={() => overlayState.showConfig()} disabled={!overlayState.canContinue}>
 							<Sparkles size={16} />
 							Let's Go
 						</Button>
-						<Button preset="button-secondary" size="lg" onclick={applyJesseConfig} disabled={loadingPreset}>
-							{#if loadingPreset}
+						<Button preset="button-secondary" size="lg" onclick={handleApplyJesseConfig} disabled={overlayState.loadingPreset}>
+							{#if overlayState.loadingPreset}
 								<Spinner size="xs" />
 							{:else}
 								<Settings size={16} />
@@ -240,23 +215,34 @@ async function handleDone(): Promise<void> {
 
 					<!-- Footer -->
 					<div class="config-footer">
-						<Button preset="button-primary" size="lg" onclick={handleDone}>
-							Done — Start Using DevPulse
+						<Button preset="button-primary" size="lg" onclick={handleApplyAndLaunch} disabled={overlayState.applying}>
+							{#if overlayState.applying}
+								<Spinner size="xs" />
+								Applying...
+							{:else}
+								Apply and Launch Clyffy
+							{/if}
 						</Button>
 					</div>
+
+					{#if overlayState.error}
+						<div class="state-msg">
+							<Text size="sm">{overlayState.error}</Text>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
 	</div>
 </div>
 
-{#if copy}
+{#if overlayState.copy}
 	<HfTokenModal
-		open={showHfModal}
-		copy={copy.hf_token}
-		initiallyHasToken={hfHasToken}
-		onClose={() => (showHfModal = false)}
-		onSaved={(has) => { hfHasToken = has; showHfModal = false; }}
+		open={overlayState.showHfModal}
+		copy={overlayState.copy.hf_token}
+		initiallyHasToken={overlayState.hfHasToken}
+		onClose={() => overlayState.closeHfModal()}
+		onSaved={(has) => overlayState.handleHfSaved(has)}
 	/>
 {/if}
 {/if}
@@ -390,6 +376,65 @@ async function handleDone(): Promise<void> {
 		display: flex;
 		gap: clamp(0.5rem, 1.5vw, 1rem);
 		margin-top: clamp(0.5rem, 1.5vh, 1rem);
+	}
+
+	/* ── Profile form ────────────────────────── */
+
+	.profile-form {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		width: 100%;
+		max-width: 24rem;
+	}
+
+	.profile-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.profile-input {
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.5rem;
+		border: 1px solid var(--border-soft);
+		background: var(--glass-deep);
+		color: var(--text-primary);
+		font-size: 0.875rem;
+		outline: none;
+		transition: border-color 150ms ease-out;
+	}
+	.profile-input:focus {
+		border-color: var(--accent-teal-main);
+	}
+	.profile-input::placeholder {
+		color: var(--text-muted);
+	}
+
+	.level-row {
+		display: flex;
+		gap: 0.375rem;
+	}
+
+	.level-btn {
+		flex: 1;
+		padding: 0.375rem 0.5rem;
+		border-radius: 0.375rem;
+		border: 1px solid var(--border-soft);
+		background: transparent;
+		color: var(--text-muted);
+		font-size: 0.75rem;
+		cursor: pointer;
+		transition: all 150ms ease-out;
+	}
+	.level-btn:hover {
+		border-color: var(--accent-teal-main);
+		color: var(--text-secondary);
+	}
+	.level-active {
+		border-color: var(--accent-teal-main);
+		background: color-mix(in oklch, var(--accent-teal-main) 15%, transparent);
+		color: var(--accent-teal-main);
 	}
 
 	.skip-link {

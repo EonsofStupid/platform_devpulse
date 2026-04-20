@@ -10,13 +10,9 @@ import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { competencyTracker } from "../../data-access/competency.service.js";
-import { downloadModel, importLocalModel } from "../../data-access/download.service.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
+import { modelLoaderPanelState } from "../../data-access/model-loader-panel.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
-import { narrationState } from "../../data-access/narration.state.svelte.js";
-import { swapState } from "../../data-access/swap.state.svelte.js";
 import ClyffyNarration from "../../ui/ClyffyNarration.svelte";
 import VramGauge from "../../ui/VramGauge.svelte";
 import { friendlySlotLabel, slotDescription } from "../../util/models.types.js";
@@ -34,77 +30,16 @@ interface Props {
 }
 
 let { onComplete }: Props = $props();
-
-// ── Local State ───────────────────────────────────────────────
-
-let showSearch = $state(false);
-let showImportSlotPicker = $state(false);
-let advancedMode = $state(false);
-let error = $state<string | null>(null);
-let health = $state<{ name: string; status: string; latency_us: number | null }[]>([]);
+const panelState = modelLoaderPanelState;
 
 // ── Init ──────────────────────────────────────────────────────
 
 $effect(() => {
-	hardwareState.startListening();
-	void (async () => {
-		await modelsState.startStatusListener();
-		await modelsState.refresh();
-	})();
-	swapState.startListening();
-	narrationState.startListening();
-	competencyTracker.load();
-	loadHealth();
+	void panelState.start();
 	return () => {
-		hardwareState.stopListening();
-		modelsState.stopStatusListener();
-		swapState.stopListening();
-		narrationState.stopListening();
+		panelState.stop();
 	};
 });
-
-async function loadHealth(): Promise<void> {
-	try {
-		const result = await commands.getStatus();
-		if (result.status === "ok" && result.data.subsystems) {
-			health = result.data.subsystems.map((s) => ({
-				name: s.name,
-				status: s.status,
-				latency_us: s.latency_us,
-			}));
-		}
-	} catch (e) {
-		console.warn("[ModelLoaderPanel] Health check failed:", e);
-	}
-}
-
-// ── Actions ───────────────────────────────────────────────────
-
-function handleImportClick(): void {
-	showImportSlotPicker = !showImportSlotPicker;
-}
-
-async function handleImportForSlot(slotId: string): Promise<void> {
-	error = null;
-	showImportSlotPicker = false;
-	try {
-		await importLocalModel(slotId);
-		await modelsState.scan();
-		await modelsState.refresh();
-	} catch (e) {
-		error = `Import failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleSearchDownload(repoId: string, filename: string): Promise<string> {
-	error = null;
-	try {
-		return await downloadModel(repoId, filename);
-	} catch (e) {
-		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
-		throw e;
-	}
-}
 
 const subsystemLabels: Record<string, string> = {
 	chat: "Chat & Reasoning",
@@ -113,20 +48,6 @@ const subsystemLabels: Record<string, string> = {
 	voice: "Voice",
 	rag: "Memory & Search",
 };
-
-async function handleApplyAndLaunch(): Promise<void> {
-	error = null;
-	try {
-		const result = await commands.completeModelSetup();
-		if (result.status === "error") {
-			error = result.error;
-		} else {
-			onComplete?.();
-		}
-	} catch (e) {
-		error = e instanceof Error ? e.message : String(e);
-	}
-}
 </script>
 
 <div
@@ -157,22 +78,22 @@ async function handleApplyAndLaunch(): Promise<void> {
 				<TooltipTrigger>
 					<button
 						class="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors hover:brightness-110"
-						style={advancedMode
+						style={panelState.advancedMode
 							? "background: var(--accent-teal-main); color: var(--surface-base);"
 							: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-muted);"}
-						onclick={() => { advancedMode = !advancedMode; competencyTracker.setLevel(advancedMode ? 2 : 0); }}
+						onclick={() => panelState.toggleAdvancedMode()}
 					>
 						<Settings size={12} />
-						{advancedMode ? "Simple" : "Advanced"}
+						{panelState.advancedMode ? "Simple" : "Advanced"}
 					</button>
 				</TooltipTrigger>
-				<TooltipContent>{advancedMode ? "Switch back to the simple view" : "Show slot IDs, file paths, and technical details"}</TooltipContent>
+				<TooltipContent>{panelState.advancedMode ? "Switch back to the simple view" : "Show slot IDs, file paths, and technical details"}</TooltipContent>
 			</Tooltip>
 		</div>
 	</div>
 
 	<!-- Model UI — Consumer cards or Advanced subsystem groups -->
-	{#if advancedMode}
+	{#if panelState.advancedMode}
 		{@const subsystems = (() => {
 			const groups = new Map<string, typeof modelsState.slots>();
 			modelsState.slots.forEach((slot) => {
@@ -195,19 +116,19 @@ async function handleApplyAndLaunch(): Promise<void> {
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			<BrainCard advanced={advancedMode} />
-			<VisionCard advanced={advancedMode} />
-			<VoiceCard advanced={advancedMode} />
-			<MemoryCard advanced={advancedMode} />
+			<BrainCard advanced={panelState.advancedMode} />
+			<VisionCard advanced={panelState.advancedMode} />
+			<VoiceCard advanced={panelState.advancedMode} />
+			<MemoryCard advanced={panelState.advancedMode} />
 		</div>
 	{/if}
 
 	<!-- Platform Status Bar -->
-	{#if health.length > 0}
+	{#if panelState.health.length > 0}
 		<div class="rounded-lg border px-4 py-3" style="border-color: var(--border-subtle); background: var(--surface-base);">
 			<Text size="xs" weight="bold" color="secondary" class="mb-2">Platform Status</Text>
 			<div class="flex flex-wrap gap-3">
-				{#each health as svc (svc.name)}
+				{#each panelState.health as svc (svc.name)}
 					<div class={hstack({ gap: "1", align: "center" })}>
 						<div
 							class="h-2 w-2 rounded-full"
@@ -226,8 +147,8 @@ async function handleApplyAndLaunch(): Promise<void> {
 	{/if}
 
 	<!-- Error display -->
-	{#if error}
-		<ClyffyNarration message={error} type="error" />
+	{#if panelState.error}
+		<ClyffyNarration message={panelState.error} type="error" />
 	{/if}
 
 	<!-- Bottom Actions -->
@@ -237,7 +158,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 				<button
 					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:brightness-110"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
-					onclick={handleImportClick}
+					onclick={() => panelState.toggleImportPicker()}
 				>
 					<FolderOpen size={14} />
 					Import from Disk
@@ -251,10 +172,10 @@ async function handleApplyAndLaunch(): Promise<void> {
 				<button
 					class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:brightness-110"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
-					onclick={() => (showSearch = !showSearch)}
+					onclick={() => panelState.toggleSearch()}
 				>
 					<Search size={14} />
-					{showSearch ? "Hide Search" : "Search HuggingFace"}
+					{panelState.showSearch ? "Hide Search" : "Search HuggingFace"}
 				</button>
 			</TooltipTrigger>
 			<TooltipContent>Browse thousands of community AI models and download them</TooltipContent>
@@ -265,10 +186,11 @@ async function handleApplyAndLaunch(): Promise<void> {
 				<button
 					class="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all hover:brightness-125"
 					style="background: var(--accent-teal-main); color: var(--surface-base); box-shadow: 0 0 0.75rem var(--accent-teal-glow);"
-					onclick={handleApplyAndLaunch}
+					onclick={() => panelState.applyAndLaunch(onComplete)}
+					disabled={panelState.applying}
 				>
 					<Zap size={16} />
-					Apply and Launch Clyffy
+					{panelState.applying ? "Applying..." : "Apply and Launch Clyffy"}
 				</button>
 			</TooltipTrigger>
 			<TooltipContent>Save your choices and start chatting — Clyffy loads the models automatically</TooltipContent>
@@ -276,7 +198,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 	</div>
 
 	<!-- Import Slot Picker — choose which slot to import into -->
-	{#if showImportSlotPicker}
+	{#if panelState.showImportSlotPicker}
 		<div
 			class="rounded-xl border p-4"
 			style="border-color: var(--accent-teal-main); background: var(--surface-base);"
@@ -286,7 +208,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 				<button
 					class="rounded p-1 transition-colors hover:brightness-110"
 					style="color: var(--text-muted);"
-					onclick={() => { showImportSlotPicker = false; }}
+					onclick={() => panelState.closeImportPicker()}
 					aria-label="Close slot picker"
 				>
 					<X size={14} />
@@ -297,7 +219,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 					<button
 						class="flex flex-col gap-0.5 rounded-lg px-4 py-3 text-left transition-colors hover:brightness-110"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
-						onclick={() => handleImportForSlot(slot.id)}
+						onclick={() => panelState.importForSlot(slot.id)}
 						title="{friendlySlotLabel(slot.id)} — {slotDescription(slot.id)}"
 					>
 						<span class="text-sm font-medium" style="color: var(--text-primary);">
@@ -313,7 +235,7 @@ async function handleApplyAndLaunch(): Promise<void> {
 	{/if}
 
 	<!-- Inline HF Search -->
-	{#if showSearch}
-		<ModelSearch onDownload={handleSearchDownload} onClose={() => (showSearch = false)} />
+	{#if panelState.showSearch}
+		<ModelSearch onDownload={(repoId, filename) => panelState.searchDownload(repoId, filename)} onClose={() => panelState.closeSearch()} />
 	{/if}
 </div>

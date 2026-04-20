@@ -12,21 +12,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { getCatalogForSlot } from "../../data-access/catalog.service.js";
-import {
-	cancelDownload,
-	downloadModel,
-	onDownloadProgress,
-} from "../../data-access/download.service.js";
+import { brainCardState } from "../../data-access/brain-card.state.svelte.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
-import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
 import {
 	formatEta,
 	formatMb,
 	formatSpeed,
-	slotDisplayStatus,
-	statusColor,
 	statusLabel,
 	statusToTone,
 } from "../../util/models.types.js";
@@ -40,157 +32,14 @@ interface Props {
 }
 
 let { advanced = false }: Props = $props();
-
-// ── Catalog from Rust TOML (no hardcoded constants) ──────────
-
-const SLOT_ID = "chat.brain";
-
-import type { CatalogOption } from "$lib/sys/generated/bindings.js";
-
-let catalogOptions = $state<CatalogOption[]>([]);
-let catalogLabel = $state("Clyffy's Brain");
-let catalogDescription = $state("Main reasoning model for chat");
+const brainState = brainCardState;
 
 $effect(() => {
-	getCatalogForSlot(SLOT_ID).then((entry) => {
-		if (entry) {
-			catalogLabel = entry.label;
-			catalogDescription = entry.description;
-			catalogOptions = entry.options;
-		}
-	});
+	void brainState.ensureCatalogLoaded();
 });
-
-// ── State ─────────────────────────────────────────────────────
-
-let selectedIdx = $state(0);
-let downloading = $state(false);
-let downloadId = $state<string | null>(null);
-let downloadPct = $state(0);
-let downloadSpeedBps = $state(0);
-let downloadEtaSecs = $state(-1);
-let error = $state<string | null>(null);
-
-// ── Derived ───────────────────────────────────────────────────
-
-const opt = $derived(
-	catalogOptions[selectedIdx] ?? { label: "", repo: "", file: "", size_mb: 0, is_dir: false },
-);
-
-const brainStatus = $derived(
-	slotDisplayStatus(
-		modelsState.statuses[SLOT_ID],
-		!!modelsState.slots.find((s) => s.id === SLOT_ID)?.assigned_model_id,
-	),
-);
-const isLoaded = $derived(brainStatus === "active");
-const hasModel = $derived(brainStatus !== "not_downloaded");
-const slotCapability = $derived(
-	modelsState.slots.find((s) => s.id === SLOT_ID)?.capability ?? "text_generation",
-);
-const modelStatus = $derived(modelsState.statuses[SLOT_ID]);
-const isTransitioning = $derived(
-	modelStatus?.type === "loading" || modelStatus?.type === "unloading",
-);
-const isWarm = $derived(modelStatus?.type === "warm");
 
 // ── ColdLight renderForge — glass-elevated preset ────────
 const cardM = $derived(renderForge({ kind: "brain-card", preset: "glass-elevated" }));
-
-// ── Actions ───────────────────────────────────────────────────
-
-async function handleDownload(): Promise<void> {
-	if (!opt.repo) return;
-	error = null;
-	downloading = true;
-	downloadPct = 0;
-	downloadSpeedBps = 0;
-	downloadEtaSecs = -1;
-
-	const unsubProgress = onDownloadProgress((p) => {
-		if (p.totalBytes > 0) {
-			downloadPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
-		}
-		downloadSpeedBps = p.speedBps;
-		downloadEtaSecs = p.etaSecs;
-		if (!downloadId && p.downloadId) {
-			downloadId = p.downloadId;
-		}
-	});
-
-	try {
-		const id = await downloadModel(opt.repo, opt.file);
-		downloadId = id;
-		// Wait for download-complete event (downloadModel returns after start, not completion)
-		// The progress listener updates until 100%
-		downloadPct = 100;
-		await modelsState.scan();
-		await modelsState.refresh();
-		const model = modelsState.models.find((m) => m.filename === opt.file);
-		if (model) {
-			await modelsState.assign(SLOT_ID, model.id);
-		}
-	} catch (e) {
-		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
-	} finally {
-		downloading = false;
-		downloadId = null;
-		unsubProgress();
-	}
-}
-
-async function handleCancelDownload(): Promise<void> {
-	if (!downloadId) return;
-	try {
-		await cancelDownload(downloadId);
-		downloading = false;
-		downloadId = null;
-		downloadPct = 0;
-	} catch (e) {
-		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleLoad(): Promise<void> {
-	error = null;
-	try {
-		await modelsState.load(SLOT_ID);
-	} catch (e) {
-		error = `Load failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleUnload(): Promise<void> {
-	error = null;
-	try {
-		await modelsState.unload(SLOT_ID);
-	} catch (e) {
-		error = `Unload failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleWarm(): Promise<void> {
-	error = null;
-	try {
-		await modelsState.warm(SLOT_ID);
-	} catch (e) {
-		error = `Warm failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleSwap(): Promise<void> {
-	const model = modelsState.models.find((m) => m.filename === opt.file);
-	if (!model) {
-		error = `Download "${opt.label}" first before switching.`;
-		return;
-	}
-	error = null;
-	try {
-		await modelsState.swap(SLOT_ID, model.id);
-	} catch (e) {
-		error = `Switch failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
 </script>
 
 <div
@@ -204,36 +53,36 @@ async function handleSwap(): Promise<void> {
 		<!-- Header -->
 		<div class={hstack({ justify: "between", align: "center" })}>
 			<div class={stack({ gap: "1" })}>
-				<Text size="base" weight="bold" color="primary">{catalogLabel}</Text>
-				<Text size="xs" color="muted">{catalogDescription}</Text>
+				<Text size="base" weight="bold" color="primary">{brainState.catalogLabel}</Text>
+				<Text size="xs" color="muted">{brainState.catalogDescription}</Text>
 			</div>
 			<Badge
-				variant={isLoaded ? "positive" : isWarm ? "positive" : hasModel ? "neutral" : "neutral"}
+				variant={brainState.isLoaded ? "positive" : brainState.isWarm ? "positive" : brainState.hasModel ? "neutral" : "neutral"}
 				size="sm"
-				title={isLoaded
+				title={brainState.isLoaded
 					? "This model is running and ready to use"
-					: isWarm
+					: brainState.isWarm
 						? "Model is pre-loaded in RAM — click Activate for full speed"
-						: hasModel
+						: brainState.hasModel
 							? "Model is downloaded but not running yet — click Activate to start it"
 							: "You need to download this model before Clyffy can think"}
 			>
-				{isLoaded ? "Active" : isWarm ? "Warmed" : hasModel ? "Ready" : "Not installed"}
+				{brainState.isLoaded ? "Active" : brainState.isWarm ? "Warmed" : brainState.hasModel ? "Ready" : "Not installed"}
 			</Badge>
 		</div>
 
 		<!-- Size selector — pick how smart vs how fast -->
-		{#if catalogOptions.length > 0}
+		{#if brainState.catalogOptions.length > 0}
 			<div>
 				<Text size="xs" color="muted" title="Smaller models respond faster but give simpler answers. Larger models think deeper but need more graphics card memory.">Pick a size for your PC:</Text>
 				<div class="mt-1 flex gap-2">
-					{#each catalogOptions as brainOpt, i (brainOpt.label)}
+					{#each brainState.catalogOptions as brainOpt, i (brainOpt.label)}
 						<button
 							class="flex-1 rounded-lg px-3 py-2 text-center transition-all"
-							style={selectedIdx === i
+							style={brainState.selectedIdx === i
 								? "background: var(--accent-teal-main); color: var(--surface-base);"
 								: "background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"}
-							onclick={() => { selectedIdx = i; }}
+							onclick={() => brainState.selectCatalogIndex(i)}
 							title={brainOpt.label.includes("Fast") || brainOpt.label.includes("4B")
 								? "Optimized for speed — quick responses, works on most PCs (needs ~3 GB graphics card memory)"
 								: brainOpt.label.includes("Smart") || brainOpt.label.includes("14B")
@@ -250,26 +99,34 @@ async function handleSwap(): Promise<void> {
 
 		<!-- Local model picker — shows models discovered on disk filtered by capability -->
 		<ModelPicker
-			slotId={SLOT_ID}
-			capability={slotCapability}
-			onAssign={() => { error = null; }}
+			models={brainState.compatibleModels}
+			selectedModelId={brainState.selectedModelId}
+			committedModelId={brainState.committedModelId}
+			pendingModelId={brainState.pendingModelId}
+			onSelect={(modelId) => brainState.selectModel(modelId)}
 		/>
 
+		{#if brainState.pendingModel}
+			<Text size="xs" color="muted">
+				Pending change: {brainState.pendingModel.filename}. This selection applies when you save.
+			</Text>
+		{/if}
+
 		<!-- Loading progress -->
-		{#if isTransitioning && modelStatus}
+		{#if brainState.isTransitioning && brainState.modelStatus}
 			<div class={stack({ gap: "1" })}>
 				<div class={hstack({ gap: "2", align: "center" })}>
-					<Spinner size="sm" tone={statusToTone(modelStatus)} />
-					<Text size="xs" color="muted">{statusLabel(modelStatus)}</Text>
+					<Spinner size="sm" tone={statusToTone(brainState.modelStatus)} />
+					<Text size="xs" color="muted">{statusLabel(brainState.modelStatus)}</Text>
 				</div>
-				{#if modelStatus.type === "loading"}
+				{#if brainState.modelStatus.type === "loading"}
 					<div
 						class="h-1.5 w-full overflow-hidden rounded-full"
 						style="background: var(--border-subtle);"
 					>
 						<div
 							class="h-full rounded-full transition-all duration-300"
-							style="width: {modelStatus.progressPct}%; background: var(--accent-teal-main);"
+							style="width: {brainState.modelStatus.progressPct}%; background: var(--accent-teal-main);"
 						></div>
 					</div>
 				{/if}
@@ -278,24 +135,24 @@ async function handleSwap(): Promise<void> {
 
 		<!-- Action bar -->
 		<div class={hstack({ gap: "2", align: "center" })}>
-			{#if downloading}
+			{#if brainState.downloading}
 				<div class={stack({ gap: "1" })} style="flex: 1;">
 					<div class={hstack({ justify: "between", align: "center" })}>
 						<div class={hstack({ gap: "1", align: "center" })}>
 							<Spinner size="sm" tone="accent" />
-							<Text size="xs" color="muted">Downloading {downloadPct}%</Text>
+							<Text size="xs" color="muted">Downloading {brainState.downloadPct}%</Text>
 						</div>
 						<div class={hstack({ gap: "2", align: "center" })}>
-							{#if downloadSpeedBps > 0}
-								<Text size="xs" color="muted">{formatSpeed(downloadSpeedBps)}</Text>
+							{#if brainState.downloadSpeedBps > 0}
+								<Text size="xs" color="muted">{formatSpeed(brainState.downloadSpeedBps)}</Text>
 							{/if}
-							{#if downloadEtaSecs >= 0}
-								<Text size="xs" color="muted">{formatEta(downloadEtaSecs)}</Text>
+							{#if brainState.downloadEtaSecs >= 0}
+								<Text size="xs" color="muted">{formatEta(brainState.downloadEtaSecs)}</Text>
 							{/if}
 							<button
 								class="rounded p-1 transition-colors hover:brightness-125"
 								style="color: var(--signal-error);"
-								onclick={handleCancelDownload}
+								onclick={() => brainState.handleCancelDownload()}
 								title="Cancel download"
 								aria-label="Cancel download"
 							>
@@ -309,15 +166,15 @@ async function handleSwap(): Promise<void> {
 					>
 						<div
 							class="h-full rounded-full transition-all duration-300"
-							style="width: {downloadPct}%; background: var(--accent-teal-main);"
+							style="width: {brainState.downloadPct}%; background: var(--accent-teal-main);"
 						></div>
 					</div>
 				</div>
-			{:else if !hasModel}
+			{:else if !brainState.hasModel}
 				<div class={stack({ gap: "1" })}>
-					{#if hardwareState.diskFreeMb !== null && opt.size_mb > 0}
+					{#if hardwareState.diskFreeMb !== null && brainState.opt.size_mb > 0}
 						<Text size="xs" color="muted">
-							{formatMb(opt.size_mb)} download · {formatMb(hardwareState.diskFreeMb)} free on disk
+							{formatMb(brainState.opt.size_mb)} download · {formatMb(hardwareState.diskFreeMb)} free on disk
 						</Text>
 					{/if}
 					<Tooltip openDelay={400}>
@@ -325,24 +182,24 @@ async function handleSwap(): Promise<void> {
 							<button
 								class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 								style="background: var(--accent-teal-main); color: var(--surface-base);"
-								onclick={handleDownload}
-								disabled={isTransitioning}
+								onclick={() => brainState.handleDownload()}
+								disabled={brainState.isTransitioning}
 							>
 								<Download size={14} />
-								Install ({formatMb(opt.size_mb)})
+								Install ({formatMb(brainState.opt.size_mb)})
 							</button>
 						</TooltipTrigger>
 						<TooltipContent>One-time download — runs entirely on your PC, no cloud needed</TooltipContent>
 					</Tooltip>
 				</div>
-			{:else if isLoaded}
+			{:else if brainState.isLoaded}
 				<Tooltip openDelay={400}>
 					<TooltipTrigger>
 						<button
 							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
-							onclick={handleUnload}
-							disabled={isTransitioning}
+							onclick={() => brainState.handleUnload()}
+							disabled={brainState.isTransitioning}
 						>
 							<PowerOff size={12} />
 							Deactivate
@@ -355,8 +212,8 @@ async function handleSwap(): Promise<void> {
 						<button
 							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
-							onclick={handleSwap}
-							disabled={isTransitioning}
+							onclick={() => brainState.handleSwap()}
+							disabled={brainState.isTransitioning}
 						>
 							<RefreshCw size={12} />
 							Switch Size
@@ -364,14 +221,14 @@ async function handleSwap(): Promise<void> {
 					</TooltipTrigger>
 					<TooltipContent>Switch to the selected size — Clyffy pauses briefly</TooltipContent>
 				</Tooltip>
-			{:else if isWarm}
+			{:else if brainState.isWarm}
 				<Tooltip openDelay={400}>
 					<TooltipTrigger>
 						<button
 							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 							style="background: var(--accent-teal-main); color: var(--surface-base);"
-							onclick={handleLoad}
-							disabled={isTransitioning}
+							onclick={() => brainState.handleLoad()}
+							disabled={brainState.isTransitioning}
 						>
 							<Power size={14} />
 							Activate (fast — already in RAM)
@@ -384,8 +241,8 @@ async function handleSwap(): Promise<void> {
 						<button
 							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
-							onclick={handleUnload}
-							disabled={isTransitioning}
+							onclick={() => brainState.handleUnload()}
+							disabled={brainState.isTransitioning}
 						>
 							<PowerOff size={12} />
 							Release RAM
@@ -399,8 +256,8 @@ async function handleSwap(): Promise<void> {
 						<button
 							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 							style="background: var(--accent-teal-main); color: var(--surface-base);"
-							onclick={handleLoad}
-							disabled={isTransitioning}
+							onclick={() => brainState.handleLoad()}
+							disabled={brainState.isTransitioning}
 						>
 							<Power size={14} />
 							Activate
@@ -413,8 +270,8 @@ async function handleSwap(): Promise<void> {
 						<button
 							class="flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
-							onclick={handleWarm}
-							disabled={isTransitioning}
+							onclick={() => brainState.handleWarm()}
+							disabled={brainState.isTransitioning}
 						>
 							<Flame size={12} />
 							Warm Up
@@ -429,14 +286,14 @@ async function handleSwap(): Promise<void> {
 		{#if advanced}
 			<div class="rounded border px-3 py-2" style="border-color: var(--border-subtle); background: oklch(0.15 0 0 / 0.5);">
 				<Text size="xs" color="muted">
-					Slot: {SLOT_ID} | File: {opt.file} | Format: GGUF | Size: {opt.size_mb}MB
+					Slot: {brainState.slotId} | File: {brainState.opt.file} | Format: GGUF | Size: {brainState.opt.size_mb}MB
 				</Text>
 			</div>
 		{/if}
 
 		<!-- Clyffy narration -->
-		{#if narrationState.forSlot(SLOT_ID)}
-			{@const msg = narrationState.forSlot(SLOT_ID)}
+		{#if narrationState.forSlot(brainState.slotId)}
+			{@const msg = narrationState.forSlot(brainState.slotId)}
 			{#if msg}
 				<div
 					class="rounded-lg border-l-2 px-3 py-2 text-xs"
@@ -448,8 +305,8 @@ async function handleSwap(): Promise<void> {
 		{/if}
 
 		<!-- Error -->
-		{#if error}
-			<Text size="xs" color="negative">{error}</Text>
+		{#if brainState.error}
+			<Text size="xs" color="negative">{brainState.error}</Text>
 		{/if}
 	</div>
 </div>

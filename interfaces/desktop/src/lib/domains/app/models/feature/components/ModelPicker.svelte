@@ -5,13 +5,12 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Check, ChevronDown, HardDrive, Info, X } from "lucide-svelte";
+import { Check, ChevronDown, HardDrive, Info } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import type { ModelInfo } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
-import { modelsState } from "../../data-access/models.state.svelte.js";
 import {
 	calculateFit,
 	fitColor,
@@ -24,44 +23,29 @@ import ModelDetailPanel from "./ModelDetailPanel.svelte";
 // ── Props ─────────────────────────────────────────────────────
 
 interface Props {
-	/** Slot ID this picker assigns to. */
-	slotId: string;
-	/** Required capability for filtering. */
-	capability: string;
-	/** Called after a model is assigned. */
-	onAssign?: (model: ModelInfo) => void;
+	models: ModelInfo[];
+	selectedModelId: string | null;
+	committedModelId: string | null;
+	pendingModelId: string | null;
+	onSelect: (modelId: string) => void;
 }
 
-let { slotId, capability, onAssign }: Props = $props();
+let { models, selectedModelId, committedModelId, pendingModelId, onSelect }: Props = $props();
 
 // ── State ─────────────────────────────────────────────────────
 
 let open = $state(false);
-let assigning = $state(false);
 let detailModel = $state<ModelInfo | null>(null);
-let error = $state<string | null>(null);
 
 // ── Derived ───────────────────────────────────────────────────
 
-const compatibleModels = $derived(modelsState.modelsForCapability(capability));
-const currentSlot = $derived(modelsState.slots.find((s) => s.id === slotId));
-const assignedModel = $derived(modelsState.assignedModel(slotId));
+const selectedModel = $derived(models.find((model) => model.id === selectedModelId) ?? null);
 
 // ── Actions ───────────────────────────────────────────────────
 
-async function handleSelect(model: ModelInfo): Promise<void> {
-	if (assigning) return;
-	assigning = true;
-	error = null;
-	try {
-		await modelsState.assign(slotId, model.id);
-		open = false;
-		onAssign?.(model);
-	} catch (e) {
-		error = e instanceof Error ? e.message : String(e);
-	} finally {
-		assigning = false;
-	}
+function handleSelect(modelId: string): void {
+	onSelect(modelId);
+	open = false;
 }
 
 function fitIndicator(model: ModelInfo): { color: string; label: string } {
@@ -90,15 +74,15 @@ function quantLabel(quant: string | null): string {
 		class="flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors hover:brightness-110"
 		style="background: var(--surface-base); border-color: var(--border-subtle); color: var(--text-primary);"
 		onclick={() => { open = !open; }}
-		title={compatibleModels.length === 0
-			? "No compatible models found on disk — download or import one first"
-			: `${compatibleModels.length} compatible model${compatibleModels.length === 1 ? "" : "s"} found on your PC`}
+		title={models.length === 0
+			? "No compatible models found on disk - download or import one first"
+			: `${models.length} compatible model${models.length === 1 ? "" : "s"} found on your PC`}
 	>
 		<div class={hstack({ gap: "2", align: "center" })}>
 			<HardDrive size={14} style="color: var(--text-muted);" />
-			{#if assignedModel}
-				<span>{assignedModel.filename}</span>
-				<span class="text-xs opacity-50">({formatMb(assignedModel.size_mb)})</span>
+			{#if selectedModel}
+				<span>{selectedModel.filename}</span>
+				<span class="text-xs opacity-50">({formatMb(selectedModel.size_mb)})</span>
 			{:else}
 				<span style="color: var(--text-muted);">Choose a model from your PC</span>
 			{/if}
@@ -123,23 +107,25 @@ function quantLabel(quant: string | null): string {
 			class="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border shadow-lg"
 			style="background: var(--surface-base); border-color: var(--border-subtle);"
 		>
-			{#if compatibleModels.length === 0}
+			{#if models.length === 0}
 				<div class="px-4 py-6 text-center">
 					<Text size="sm" color="muted">No compatible models on disk</Text>
 					<Text size="xs" color="muted">Download or import a model first</Text>
 				</div>
 			{:else}
-				{#each compatibleModels as model (model.id)}
+				{#each models as model (model.id)}
 					{@const fit = fitIndicator(model)}
-					{@const isAssigned = assignedModel?.id === model.id}
+					{@const isSelected = selectedModelId === model.id}
+					{@const isCommitted = committedModelId === model.id}
+					{@const isPending = pendingModelId === model.id}
 					<div
 						class="flex w-full items-center gap-3 border-b px-3 py-2.5 transition-colors hover:brightness-110 cursor-pointer"
-						style="border-color: var(--border-subtle); {isAssigned ? 'background: oklch(0.2 0.03 185 / 0.3);' : ''}"
+						style="border-color: var(--border-subtle); {isSelected ? 'background: oklch(0.2 0.03 185 / 0.3);' : ''}"
 						role="option"
-						aria-selected={isAssigned}
+						aria-selected={isSelected}
 						tabindex="0"
-						onclick={() => handleSelect(model)}
-						onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(model); } }}
+						onclick={() => handleSelect(model.id)}
+						onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(model.id); } }}
 					>
 						<!-- Fit indicator dot -->
 						<div
@@ -154,11 +140,16 @@ function quantLabel(quant: string | null): string {
 								<span class="truncate text-sm font-medium" style="color: var(--text-primary);">
 									{model.filename}
 								</span>
-								{#if isAssigned}
+								{#if isSelected}
 									<Check size={12} style="color: var(--signal-success);" />
 								{/if}
 							</div>
 							<div class="flex gap-2 text-xs" style="color: var(--text-muted);">
+								{#if isPending}
+									<span>Pending</span>
+								{:else if isCommitted}
+									<span>Committed</span>
+								{/if}
 								<span>{model.architecture}</span>
 								{#if model.quant_level}
 									<span>· {quantLabel(model.quant_level)}</span>
@@ -203,11 +194,4 @@ function quantLabel(quant: string | null): string {
 		</div>
 	{/if}
 
-	<!-- Error -->
-	{#if error}
-		<div class={`${hstack({ gap: "1", align: "center" })} mt-1`}>
-			<X size={12} style="color: var(--signal-error);" />
-			<Text size="xs" color="negative">{error}</Text>
-		</div>
-	{/if}
 </div>

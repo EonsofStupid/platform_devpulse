@@ -4,28 +4,19 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Brain, Download, Power, X } from "lucide-svelte";
+import { Brain, Download, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { getCatalogForSlot } from "../../data-access/catalog.service.js";
-import {
-	cancelDownload,
-	downloadModel,
-	onDownloadProgress,
-} from "../../data-access/download.service.js";
-import { hardwareState } from "../../data-access/hardware.state.svelte.js";
-import { modelsState } from "../../data-access/models.state.svelte.js";
+import { memoryCardState } from "../../data-access/memory-card.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
 import {
 	formatEta,
 	formatMb,
 	formatSpeed,
-	slotDisplayStatus,
-	statusColor,
 	statusLabel,
 	statusToTone,
 } from "../../util/models.types.js";
@@ -39,193 +30,12 @@ interface Props {
 }
 
 let { advanced = false }: Props = $props();
-
-// ── Catalog from Rust TOML ───────────────────────────────────
-
-const EMBEDDER_SLOT = "rag.embedder";
-const RERANKER_SLOT = "rag.reranker";
-
-let embedRepo = $state("");
-let embedFile = $state("");
-let embedSizeMb = $state(0);
-let rerankRepo = $state("");
-let rerankFile = $state("");
-let rerankSizeMb = $state(0);
-
-$effect(() => {
-	getCatalogForSlot(EMBEDDER_SLOT).then((entry) => {
-		if (entry && entry.options.length > 0) {
-			embedRepo = entry.options[0].repo;
-			embedFile = entry.options[0].file;
-			embedSizeMb = entry.options[0].size_mb;
-		}
-	});
-	getCatalogForSlot(RERANKER_SLOT).then((entry) => {
-		if (entry && entry.options.length > 0) {
-			rerankRepo = entry.options[0].repo;
-			rerankFile = entry.options[0].file;
-			rerankSizeMb = entry.options[0].size_mb;
-		}
-	});
-});
-
-// ── State ─────────────────────────────────────────────────────
-
-let downloadingEmbed = $state(false);
-let downloadingRerank = $state(false);
-let embedDownloadId = $state<string | null>(null);
-let rerankDownloadId = $state<string | null>(null);
-let embedPct = $state(0);
-let rerankPct = $state(0);
-let embedSpeedBps = $state(0);
-let rerankSpeedBps = $state(0);
-let embedEtaSecs = $state(-1);
-let rerankEtaSecs = $state(-1);
-let memoryDepth = $state(5); // Maps to retrieval top-k
-let error = $state<string | null>(null);
-
+const memoryState = memoryCardState;
 const cardM = $derived(renderForge({ kind: "memory-card", preset: "glass-elevated" }));
 
-// ── Derived ───────────────────────────────────────────────────
-
-const embedStatus = $derived(
-	slotDisplayStatus(
-		modelsState.statuses[EMBEDDER_SLOT],
-		!!modelsState.slots.find((s) => s.id === EMBEDDER_SLOT)?.assigned_model_id,
-	),
-);
-const rerankStatus = $derived(
-	slotDisplayStatus(
-		modelsState.statuses[RERANKER_SLOT],
-		!!modelsState.slots.find((s) => s.id === RERANKER_SLOT)?.assigned_model_id,
-	),
-);
-const memoryReady = $derived(
-	(embedStatus === "active" || embedStatus === "downloaded") &&
-		(rerankStatus === "active" || rerankStatus === "downloaded"),
-);
-const bothInstalled = $derived(
-	embedStatus !== "not_downloaded" && rerankStatus !== "not_downloaded",
-);
-const embedCapability = $derived(
-	modelsState.slots.find((s) => s.id === EMBEDDER_SLOT)?.capability ?? "embedding",
-);
-const rerankCapability = $derived(
-	modelsState.slots.find((s) => s.id === RERANKER_SLOT)?.capability ?? "reranking",
-);
-const embedModelStatus = $derived(modelsState.statuses[EMBEDDER_SLOT]);
-const rerankModelStatus = $derived(modelsState.statuses[RERANKER_SLOT]);
-const embedTransitioning = $derived(
-	embedModelStatus?.type === "loading" || embedModelStatus?.type === "unloading",
-);
-const rerankTransitioning = $derived(
-	rerankModelStatus?.type === "loading" || rerankModelStatus?.type === "unloading",
-);
-
-const depthLabels: Record<number, string> = {
-	1: "Minimal — remembers very little",
-	3: "Light — recent conversations",
-	5: "Balanced — good memory (default)",
-	7: "Deep — extensive recall",
-	10: "Maximum — remembers everything",
-};
-
-const depthLabel = $derived(depthLabels[memoryDepth] ?? `Custom depth: ${memoryDepth}`);
-
-// ── Actions ───────────────────────────────────────────────────
-
-async function handleDownloadEmbed(): Promise<void> {
-	error = null;
-	downloadingEmbed = true;
-	embedPct = 0;
-	embedSpeedBps = 0;
-	embedEtaSecs = -1;
-	const unsub = onDownloadProgress((p) => {
-		if (p.totalBytes > 0)
-			embedPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
-		embedSpeedBps = p.speedBps;
-		embedEtaSecs = p.etaSecs;
-		if (!embedDownloadId && p.downloadId) embedDownloadId = p.downloadId;
-	});
-	try {
-		const id = await downloadModel(embedRepo, embedFile);
-		embedDownloadId = id;
-		embedPct = 100;
-		await modelsState.scan();
-		await modelsState.refresh();
-		const embedModel = modelsState.models.find((m) => m.filename === embedFile);
-		if (embedModel) {
-			await modelsState.assign(EMBEDDER_SLOT, embedModel.id);
-		}
-	} catch (e) {
-		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
-	} finally {
-		downloadingEmbed = false;
-		embedDownloadId = null;
-		unsub();
-	}
-}
-
-async function handleCancelEmbed(): Promise<void> {
-	if (!embedDownloadId) return;
-	try {
-		await cancelDownload(embedDownloadId);
-		downloadingEmbed = false;
-		embedDownloadId = null;
-		embedPct = 0;
-	} catch (e) {
-		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleDownloadRerank(): Promise<void> {
-	error = null;
-	downloadingRerank = true;
-	rerankPct = 0;
-	rerankSpeedBps = 0;
-	rerankEtaSecs = -1;
-	const unsub = onDownloadProgress((p) => {
-		if (p.totalBytes > 0)
-			rerankPct = Math.min(99, Math.round((p.bytesDownloaded / p.totalBytes) * 100));
-		rerankSpeedBps = p.speedBps;
-		rerankEtaSecs = p.etaSecs;
-		if (!rerankDownloadId && p.downloadId) rerankDownloadId = p.downloadId;
-	});
-	try {
-		const id = await downloadModel(rerankRepo, rerankFile);
-		rerankDownloadId = id;
-		rerankPct = 100;
-		await modelsState.scan();
-		await modelsState.refresh();
-		const rerankModel = modelsState.models.find((m) => m.filename === rerankFile);
-		if (rerankModel) {
-			await modelsState.assign(RERANKER_SLOT, rerankModel.id);
-		}
-	} catch (e) {
-		error = `Download failed: ${e instanceof Error ? e.message : String(e)}`;
-	} finally {
-		downloadingRerank = false;
-		rerankDownloadId = null;
-		unsub();
-	}
-}
-
-async function handleCancelRerank(): Promise<void> {
-	if (!rerankDownloadId) return;
-	try {
-		await cancelDownload(rerankDownloadId);
-		downloadingRerank = false;
-		rerankDownloadId = null;
-		rerankPct = 0;
-	} catch (e) {
-		error = `Cancel failed: ${e instanceof Error ? e.message : String(e)}`;
-	}
-}
-
-async function handleDownloadAll(): Promise<void> {
-	if (embedStatus === "not_downloaded") await handleDownloadEmbed();
-	if (rerankStatus === "not_downloaded") await handleDownloadRerank();
-}
+$effect(() => {
+	void memoryState.ensureCatalogLoaded();
+});
 </script>
 
 <div
@@ -246,15 +56,15 @@ async function handleDownloadAll(): Promise<void> {
 				<Text size="xs" color="muted">How much Clyffy remembers about your project</Text>
 			</div>
 			<Badge
-				variant={memoryReady ? "positive" : "neutral"}
+				variant={memoryState.memoryReady ? "positive" : "neutral"}
 				size="sm"
-				title={memoryReady
+				title={memoryState.memoryReady
 					? "Memory is active — Clyffy can search and remember your project files"
-					: bothInstalled
+					: memoryState.bothInstalled
 						? "Memory models are downloaded — ready to activate"
 						: "Two small models need to be installed for Clyffy to remember your project"}
 			>
-				{memoryReady ? "Active" : bothInstalled ? "Ready" : "Setup needed"}
+				{memoryState.memoryReady ? "Active" : memoryState.bothInstalled ? "Ready" : "Setup needed"}
 			</Badge>
 		</div>
 
@@ -262,13 +72,13 @@ async function handleDownloadAll(): Promise<void> {
 		<div class={stack({ gap: "1" })} title="Controls how many pieces of your project Clyffy searches through when answering questions — higher means more thorough but slower">
 			<div class={hstack({ justify: "between", align: "center" })}>
 				<Text size="sm" color="secondary">Memory depth</Text>
-				<Text size="xs" color="muted">{depthLabel}</Text>
+				<Text size="xs" color="muted">{memoryState.depthLabel}</Text>
 			</div>
 			<input
 				type="range"
 				min="1"
 				max="10"
-				bind:value={memoryDepth}
+				bind:value={memoryState.memoryDepth}
 				class="w-full accent-teal-500"
 			/>
 		</div>
@@ -278,63 +88,67 @@ async function handleDownloadAll(): Promise<void> {
 			<div>
 				<Text size="xs" color="muted">Search engine model:</Text>
 				<ModelPicker
-					slotId={EMBEDDER_SLOT}
-					capability={embedCapability}
-					onAssign={() => { error = null; }}
+					models={memoryState.embedModels}
+					selectedModelId={memoryState.selectedModelId(memoryState.embedderSlotId)}
+					committedModelId={memoryState.committedModelId(memoryState.embedderSlotId)}
+					pendingModelId={memoryState.pendingModelId(memoryState.embedderSlotId)}
+					onSelect={(modelId) => memoryState.selectModel(memoryState.embedderSlotId, modelId)}
 				/>
-				{#if embedTransitioning && embedModelStatus}
+				{#if memoryState.embedTransitioning && memoryState.embedModelStatus}
 					<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
-						<Spinner size="xs" tone={statusToTone(embedModelStatus)} />
-						<Text size="xs" color="muted">{statusLabel(embedModelStatus)}</Text>
+						<Spinner size="xs" tone={statusToTone(memoryState.embedModelStatus)} />
+						<Text size="xs" color="muted">{statusLabel(memoryState.embedModelStatus)}</Text>
 					</div>
 				{/if}
 			</div>
 			<div>
 				<Text size="xs" color="muted">Relevance scorer model:</Text>
 				<ModelPicker
-					slotId={RERANKER_SLOT}
-					capability={rerankCapability}
-					onAssign={() => { error = null; }}
+					models={memoryState.rerankModels}
+					selectedModelId={memoryState.selectedModelId(memoryState.rerankerSlotId)}
+					committedModelId={memoryState.committedModelId(memoryState.rerankerSlotId)}
+					pendingModelId={memoryState.pendingModelId(memoryState.rerankerSlotId)}
+					onSelect={(modelId) => memoryState.selectModel(memoryState.rerankerSlotId, modelId)}
 				/>
-				{#if rerankTransitioning && rerankModelStatus}
+				{#if memoryState.rerankTransitioning && memoryState.rerankModelStatus}
 					<div class={`${hstack({ gap: "2", align: "center" })} mt-1`}>
-						<Spinner size="xs" tone={statusToTone(rerankModelStatus)} />
-						<Text size="xs" color="muted">{statusLabel(rerankModelStatus)}</Text>
+						<Spinner size="xs" tone={statusToTone(memoryState.rerankModelStatus)} />
+						<Text size="xs" color="muted">{statusLabel(memoryState.rerankModelStatus)}</Text>
 					</div>
 				{/if}
 			</div>
 		</div>
 
 		<!-- Install status -->
-		{#if !bothInstalled}
+		{#if !memoryState.bothInstalled}
 			<div class="rounded-lg px-3 py-2" style="background: oklch(0.15 0 0 / 0.3);">
 				<Text size="sm" color="secondary">
 					Clyffy needs two small models to remember your code and docs.
 				</Text>
 				<div class="mt-2 flex gap-2">
-					{#if embedStatus === "not_downloaded" && rerankStatus === "not_downloaded"}
+					{#if memoryState.embedStatus === "not_downloaded" && memoryState.rerankStatus === "not_downloaded"}
 						<button
 							class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:brightness-125"
 							style="background: var(--accent-teal-main); color: var(--surface-base);"
-							onclick={handleDownloadAll}
+							onclick={() => memoryState.handleDownloadAll()}
 							title="Download both memory models — a search engine and a relevance scorer. They work together to help Clyffy find the right code and docs."
 						>
 							<Download size={14} />
-							Install both ({formatMb(embedSizeMb + rerankSizeMb)})
+							Install both ({formatMb(memoryState.embedSizeMb + memoryState.rerankSizeMb)})
 						</button>
 					{:else}
-						{#if embedStatus === "not_downloaded"}
-							{#if downloadingEmbed}
+						{#if memoryState.embedStatus === "not_downloaded"}
+							{#if memoryState.downloadingEmbed}
 								<div class={hstack({ gap: "1", align: "center" })}>
 									<Spinner size="xs" tone="accent" />
-									<Text size="xs" color="muted">Search {embedPct}%</Text>
-									{#if embedSpeedBps > 0}
-										<Text size="xs" color="muted">{formatSpeed(embedSpeedBps)}</Text>
+									<Text size="xs" color="muted">Search {memoryState.embedPct}%</Text>
+									{#if memoryState.embedSpeedBps > 0}
+										<Text size="xs" color="muted">{formatSpeed(memoryState.embedSpeedBps)}</Text>
 									{/if}
-									{#if embedEtaSecs >= 0}
-										<Text size="xs" color="muted">{formatEta(embedEtaSecs)}</Text>
+									{#if memoryState.embedEtaSecs >= 0}
+										<Text size="xs" color="muted">{formatEta(memoryState.embedEtaSecs)}</Text>
 									{/if}
-									<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={handleCancelEmbed} title="Cancel" aria-label="Cancel embedder download">
+									<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={() => memoryState.handleCancelEmbed()} title="Cancel" aria-label="Cancel embedder download">
 										<X size={10} />
 									</button>
 								</div>
@@ -342,25 +156,25 @@ async function handleDownloadAll(): Promise<void> {
 								<button
 									class="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold transition-all hover:brightness-125"
 									style="background: var(--accent-teal-main); color: var(--surface-base);"
-									onclick={handleDownloadEmbed}
+									onclick={() => memoryState.handleDownloadEmbed()}
 								>
 									<Download size={10} />
-									Search ({formatMb(embedSizeMb)})
+									Search ({formatMb(memoryState.embedSizeMb)})
 								</button>
 							{/if}
 						{/if}
-						{#if rerankStatus === "not_downloaded"}
-							{#if downloadingRerank}
+						{#if memoryState.rerankStatus === "not_downloaded"}
+							{#if memoryState.downloadingRerank}
 								<div class={hstack({ gap: "1", align: "center" })}>
 									<Spinner size="xs" tone="accent" />
-									<Text size="xs" color="muted">Ranking {rerankPct}%</Text>
-									{#if rerankSpeedBps > 0}
-										<Text size="xs" color="muted">{formatSpeed(rerankSpeedBps)}</Text>
+									<Text size="xs" color="muted">Ranking {memoryState.rerankPct}%</Text>
+									{#if memoryState.rerankSpeedBps > 0}
+										<Text size="xs" color="muted">{formatSpeed(memoryState.rerankSpeedBps)}</Text>
 									{/if}
-									{#if rerankEtaSecs >= 0}
-										<Text size="xs" color="muted">{formatEta(rerankEtaSecs)}</Text>
+									{#if memoryState.rerankEtaSecs >= 0}
+										<Text size="xs" color="muted">{formatEta(memoryState.rerankEtaSecs)}</Text>
 									{/if}
-									<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={handleCancelRerank} title="Cancel" aria-label="Cancel reranker download">
+									<button class="rounded p-0.5" style="color: var(--signal-error);" onclick={() => memoryState.handleCancelRerank()} title="Cancel" aria-label="Cancel reranker download">
 										<X size={10} />
 									</button>
 								</div>
@@ -368,10 +182,10 @@ async function handleDownloadAll(): Promise<void> {
 								<button
 									class="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold transition-all hover:brightness-125"
 									style="background: var(--accent-teal-main); color: var(--surface-base);"
-									onclick={handleDownloadRerank}
+									onclick={() => memoryState.handleDownloadRerank()}
 								>
 									<Download size={10} />
-									Ranking ({formatMb(rerankSizeMb)})
+									Ranking ({formatMb(memoryState.rerankSizeMb)})
 								</button>
 							{/if}
 						{/if}
@@ -384,15 +198,15 @@ async function handleDownloadAll(): Promise<void> {
 		{#if advanced}
 			<div class="rounded border px-3 py-2" style="border-color: var(--border-subtle); background: oklch(0.15 0 0 / 0.5);">
 				<Text size="xs" color="muted">
-					Embedder: {EMBEDDER_SLOT} ({embedStatus}) |
-					Reranker: {RERANKER_SLOT} ({rerankStatus}) |
-					top-k: {memoryDepth}
+					Embedder: {memoryState.embedderSlotId} ({memoryState.embedStatus}) |
+					Reranker: {memoryState.rerankerSlotId} ({memoryState.rerankStatus}) |
+					top-k: {memoryState.memoryDepth}
 				</Text>
 			</div>
 		{/if}
 
 		<!-- Clyffy narration -->
-		{#each [narrationState.forSlot(EMBEDDER_SLOT), narrationState.forSlot(RERANKER_SLOT)] as msg}
+		{#each [narrationState.forSlot(memoryState.embedderSlotId), narrationState.forSlot(memoryState.rerankerSlotId)] as msg}
 			{#if msg}
 				<div
 					class="rounded-lg border-l-2 px-3 py-2 text-xs"
@@ -404,8 +218,8 @@ async function handleDownloadAll(): Promise<void> {
 		{/each}
 
 		<!-- Error -->
-		{#if error}
-			<Text size="xs" color="negative">{error}</Text>
+		{#if memoryState.error}
+			<Text size="xs" color="negative">{memoryState.error}</Text>
 		{/if}
 	</div>
 </div>
