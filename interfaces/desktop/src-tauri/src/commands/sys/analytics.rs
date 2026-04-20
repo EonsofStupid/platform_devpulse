@@ -56,8 +56,8 @@ pub async fn duckdb_health(
     state: State<'_, PlatformState>,
 ) -> Result<DuckDbHealth, String> {
     tracing::info!("cmd duckdb_health: entry");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     match platform.analytics() {
         Some(svc) => {
@@ -96,8 +96,8 @@ pub async fn duckdb_list_tables(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<DuckDbTableInfo>, String> {
     tracing::info!("cmd duckdb_list_tables: entry");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let svc = platform
         .analytics()
@@ -147,8 +147,8 @@ pub async fn duckdb_query(
     sql: String,
 ) -> Result<DuckDbQueryResult, String> {
     tracing::info!(sql_len = sql.len(), "cmd duckdb_query: entry");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let svc = platform
         .analytics()

@@ -80,8 +80,8 @@ pub async fn init_project_db(
         "cmd init_project_db: entry"
     );
 
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let root = std::path::Path::new(&project_root);
     if !root.exists() {
@@ -125,8 +125,8 @@ pub async fn project_db_health(
     state: State<'_, PlatformState>,
     project_id: String,
 ) -> Result<ProjectDbHealth, String> {
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let adapter = platform
         .project_db()
@@ -158,8 +158,8 @@ pub async fn project_db_list_tables(
     state: State<'_, PlatformState>,
     project_id: String,
 ) -> Result<Vec<ProjectDbTableInfo>, String> {
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let adapter = platform
         .project_db()
@@ -212,8 +212,8 @@ pub async fn project_db_query(
         "cmd project_db_query: entry"
     );
 
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let adapter = platform
         .project_db()

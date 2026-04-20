@@ -25,8 +25,8 @@ use tauri::State;
 pub async fn get_vector_config(
     state: State<'_, PlatformState>,
 ) -> Result<RetrievalConfig, String> {
-    let lock = state.platform.read().await;
-    match lock.as_ref() {
+    // P0: lock-free atomic load.
+    match state.platform.load_full() {
         Some(platform) => match platform.vector() {
             Some(v) => Ok(v.retrieval_config_snapshot().await),
             None => Err("Vector store not available".to_string()),
@@ -47,8 +47,8 @@ pub async fn set_vector_config(
     state: State<'_, PlatformState>,
     config: RetrievalConfig,
 ) -> Result<(), String> {
-    let lock = state.platform.read().await;
-    match lock.as_ref() {
+    // P0: lock-free atomic load.
+    match state.platform.load_full() {
         Some(platform) => match platform.vector() {
             Some(v) => {
                 v.update_retrieval_config(config).await;
@@ -91,9 +91,10 @@ pub struct VectorHealthReport {
 pub async fn get_vector_health(
     state: State<'_, PlatformState>,
 ) -> Result<VectorHealthReport, String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let vector_svc = platform
         .vector()
@@ -160,9 +161,10 @@ pub async fn vector_test_search(
     vector: Vec<f32>,
     limit: u32,
 ) -> Result<Vec<VectorSearchResult>, String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let vector_svc = platform
         .vector()
@@ -201,9 +203,10 @@ pub async fn create_vector_collection(
     name: String,
     dimension: u32,
 ) -> Result<(), String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let vector_svc = platform
         .vector()
@@ -226,9 +229,10 @@ pub async fn delete_vector_collection(
     state: State<'_, PlatformState>,
     name: String,
 ) -> Result<(), String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let vector_svc = platform
         .vector()

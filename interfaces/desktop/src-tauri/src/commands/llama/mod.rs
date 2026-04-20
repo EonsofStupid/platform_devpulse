@@ -25,6 +25,7 @@ pub struct LlamaServerState {
 }
 
 impl LlamaServerState {
+    /// Create an empty sidecar state with no running server.
     #[must_use]
     pub fn new() -> Self {
         Self {

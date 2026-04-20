@@ -37,6 +37,7 @@ uuid = { workspace = true, features = ["v4"] }
 devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference"] }
 devpulse-telemetry = { workspace = true }
 flume = "0.11"
+arc-swap = { workspace = true }
 rfd = "0.15"
 sysinfo = "0.38.4"
 keyring = "3"

@@ -96,8 +96,8 @@ pub async fn store_api_key(
         "****".to_string()
     };
 
-    let guard = state.platform.read().await;
-    if let Some(platform) = guard.as_ref() {
+    // P0: lock-free atomic load.
+    if let Some(platform) = state.platform.load_full() {
         if let Some(svc) = platform.user_relational() {
             let adapter = svc.adapter();
             let adapter_name = provider.adapter_name().to_string();
@@ -168,8 +168,8 @@ pub async fn delete_api_key(
     }
 
     // 2. Delete from libSQL
-    let guard = state.platform.read().await;
-    if let Some(platform) = guard.as_ref() {
+    // P0: lock-free atomic load.
+    if let Some(platform) = state.platform.load_full() {
         if let Some(svc) = platform.user_relational() {
             let adapter = svc.adapter();
             let adapter_name = provider.adapter_name().to_string();

@@ -3171,6 +3171,7 @@ name = "devpulse_desktop_backend"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "chrono",
  "devpulse-engine",
  "devpulse-telemetry",
@@ -7192,6 +7193,7 @@ dependencies = [
  "ndarray 0.17.2",
  "nvml-wrapper",
  "ort",
+ "parking_lot",
  "piper-rs",
  "reqwest 0.12.28",
  "rustfft",

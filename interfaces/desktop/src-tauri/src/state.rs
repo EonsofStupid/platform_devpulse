@@ -4,20 +4,29 @@
 //! - `PlatformState`: holds the platform engine after boot completes.
 //! - `BootStateTracker`: accumulates boot events so the frontend can
 //!   catch up even if it mounts after boot finishes.
+//!
+//! # P0: Boot Never Freezes
+//!
+//! `platform` uses `ArcSwapOption<Platform>` — atomic load/store of
+//! `Option<Arc<Platform>>`. NO `tokio::sync::RwLock`. Lock-free reads
+//! across all 68+ command call sites. Boot task stores exactly once
+//! after service initialization completes.
 
 use crate::commands::devforge::paths::DevforgePaths;
+use arc_swap::ArcSwapOption;
 use devpulse_engine::platform::{InitEvent, SystemHealth};
 use serde::Serialize;
 use specta::Type;
 use std::sync::{Arc, Mutex};
 
 use devpulse_engine::platform::Platform;
-use tokio::sync::RwLock;
 
 /// Application state shared across all Tauri commands.
 ///
 /// `platform` is `None` during boot and `Some(Arc<Platform>)` after.
-/// Commands must handle the `None` case gracefully.
+/// Commands call `state.platform.load_full()` — lock-free atomic load
+/// returning `Option<Arc<Platform>>`. Commands must handle the `None`
+/// case gracefully (boot still in progress).
 ///
 /// DevForge REH lifecycle is now owned by `Platform::devforge()` (the
 /// engine-level service). No more separate `reh` field — one pipeline.
@@ -27,10 +36,23 @@ use tokio::sync::RwLock;
 /// workspace / user-data / install paths.
 pub struct PlatformState {
     /// Platform engine (owns all services, bridges to clyffy kernel).
-    /// None while boot task is running, Some after completion.
-    pub platform: RwLock<Option<Arc<Platform>>>,
+    /// `None` while boot task is running, `Some` after completion.
+    /// Readers: `state.platform.load_full()` — lock-free.
+    /// Writer: boot_task stores exactly once via `state.platform.store(Some(Arc::new(p)))`.
+    pub platform: ArcSwapOption<Platform>,
     /// DevForge directory layout — immutable, safe to read from anywhere.
     pub devforge_paths: DevforgePaths,
+}
+
+impl PlatformState {
+    /// Construct a fresh `PlatformState` with no platform loaded yet.
+    #[must_use]
+    pub fn new(devforge_paths: DevforgePaths) -> Self {
+        Self {
+            platform: ArcSwapOption::new(None),
+            devforge_paths,
+        }
+    }
 }
 
 /// Boot phase — serialized to frontend as `PascalCase`.
@@ -87,8 +109,8 @@ pub struct BootSnapshot {
 
 /// Accumulates boot events so the frontend can catch up at any time.
 ///
-/// Uses `Arc<Mutex<>>` internally so it can be cloned into the
-/// boot callback closure (which requires `'static`).
+/// Uses `Arc<Mutex<>>` internally (std::sync — short sync-only scopes,
+/// never held across await).
 pub struct BootStateTracker {
     inner: Arc<Mutex<BootSnapshot>>,
 }

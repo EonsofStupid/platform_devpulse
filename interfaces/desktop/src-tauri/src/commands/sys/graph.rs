@@ -110,14 +110,14 @@ macro_rules! resolve_graph {
 }
 
 /// Get the platform reference or return a boot error.
+/// P0: lock-free atomic load via `ArcSwapOption::load_full`.
 macro_rules! get_platform {
-    ($state:expr) => {{
-        let lock = $state.platform.read().await;
-        match lock.as_ref() {
-            Some(p) => Ok(std::sync::Arc::clone(p)),
-            None => Err("Platform is still booting".to_string()),
-        }
-    }};
+    ($state:expr) => {
+        $state
+            .platform
+            .load_full()
+            .ok_or_else(|| "Platform is still booting".to_string())
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════

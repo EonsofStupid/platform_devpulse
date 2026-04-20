@@ -22,6 +22,7 @@ pub struct PlaybackState {
 }
 
 impl PlaybackState {
+    /// Create a fresh playback state with no active audio.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -109,8 +110,8 @@ pub struct VoiceStatusInfo {
 pub async fn get_voice_status(
     state: State<'_, PlatformState>,
 ) -> Result<VoiceStatusInfo, String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
 
     let (stt_loaded, tts_loaded) = if let Some(loader) = platform.model_loader() {
         use devpulse_engine::platform::services::model_loader::SlotModelStatus;
@@ -152,8 +153,8 @@ pub async fn speak(
     slot: Option<String>,
     speed: Option<f32>,
 ) -> Result<(), String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let loader = platform
         .model_loader()
         .ok_or("Model Loader not available")?;
@@ -255,8 +256,8 @@ pub async fn list_voices(
     state: State<'_, PlatformState>,
     _slot_id: String,
 ) -> Result<Vec<VoiceInfo>, String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
 
     let userdata = platform.data_dir().to_path_buf();
     let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
@@ -291,8 +292,8 @@ pub async fn preview_voice(
     slot_id: String,
 ) -> Result<(), String> {
     let sample_text = {
-        let guard = state.platform.read().await;
-        let platform = guard.as_ref().ok_or("Platform not ready")?;
+        // P0: lock-free atomic load.
+        let platform = state.platform.load_full().ok_or("Platform not ready")?;
         let userdata = platform.data_dir().to_path_buf();
         let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
             .map_err(|e| format!("Failed to load voice registry: {e}"))?;
@@ -361,8 +362,8 @@ pub async fn transcribe_audio(
     .await
     .map_err(|e| format!("Mic capture thread failed: {e}"))??;
 
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let loader = platform
         .model_loader()
         .ok_or("Model Loader not available")?;
@@ -488,8 +489,8 @@ pub async fn list_voice_profiles(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<VoiceProfile>, String> {
     tracing::info!("list_voice_profiles() called");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -535,8 +536,8 @@ pub async fn save_voice_profile(
     profile: VoiceProfile,
 ) -> Result<(), String> {
     tracing::info!(profile_id = %profile.id, name = %profile.name, voice = %profile.tts_voice_id, "save_voice_profile()");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -566,8 +567,8 @@ pub async fn delete_voice_profile(
     profile_id: String,
 ) -> Result<(), String> {
     tracing::info!(profile_id = %profile_id, "delete_voice_profile()");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -601,8 +602,8 @@ pub async fn activate_voice_profile(
     profile_id: String,
 ) -> Result<(), String> {
     tracing::info!(profile_id = %profile_id, "activate_voice_profile()");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -709,8 +710,8 @@ pub async fn transcribe_audio_file(
             .map_err(|e| format!("Audio decode thread failed: {e}"))??
     };
 
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let loader = platform
         .model_loader()
         .ok_or("Model Loader not available")?;
@@ -767,8 +768,8 @@ pub async fn voice_smoke_test(
     let spoken = "Smoke test one two three.".to_string();
     let start = std::time::Instant::now();
 
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let loader = platform
         .model_loader()
         .ok_or("Model Loader not available")?;
@@ -923,8 +924,8 @@ pub async fn run_sts_pipeline(
             .map_err(|e| format!("STS stage 1 (decode) thread failed: {e}"))??
     };
 
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let loader = platform
         .model_loader()
         .ok_or("Model Loader not available")?;

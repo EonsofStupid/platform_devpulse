@@ -14,8 +14,8 @@ pub async fn load_recent(
 	project_id: String,
 	session_id: Option<String>,
 ) -> Result<Vec<ChatMessage>, String> {
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;

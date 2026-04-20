@@ -15,8 +15,8 @@ use super::{ChatMessage, ChatSession, ExportFormat, ExportSummary};
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn list_sessions(state: State<'_, PlatformState>) -> Result<Vec<ChatSession>, String> {
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;
@@ -56,8 +56,8 @@ pub async fn delete_session(
 	app: tauri::AppHandle,
 	state: State<'_, PlatformState>,
 ) -> Result<(), String> {
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;
@@ -81,8 +81,8 @@ pub async fn delete_session(
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn clear_all_chat_history(state: State<'_, PlatformState>) -> Result<(), String> {
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;
@@ -155,8 +155,8 @@ pub async fn export_session(
 	dest_path: PathBuf,
 	state: State<'_, PlatformState>,
 ) -> Result<ExportSummary, String> {
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;
@@ -208,8 +208,8 @@ pub async fn export_all_sessions(
 	dest_path: PathBuf,
 	state: State<'_, PlatformState>,
 ) -> Result<ExportSummary, String> {
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;

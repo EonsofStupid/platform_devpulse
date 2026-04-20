@@ -96,8 +96,8 @@ pub struct DashboardPayload {
 pub async fn fetch_dashboard(
     state: State<'_, PlatformState>,
 ) -> Result<DashboardPayload, String> {
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     // ── LibSQL queries ───────────────────────────────────────────────────
     let (projects, project_count, message_stats) = if let Some(svc) = platform.user_relational() {

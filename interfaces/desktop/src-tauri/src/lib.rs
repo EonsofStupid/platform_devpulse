@@ -3,18 +3,22 @@
 //! The Tauri layer depends on `devpulse-engine` only — never on clyffy.
 //! All kernel access goes through the Platform engine.
 //!
-//! # Boot Architecture
+//! # Boot Architecture (P0: Boot Never Freezes)
 //!
-//! ## Dev mode (debug_assertions)
-//! **Blocking boot.** `setup()` does NOT return until every service is
-//! confirmed or failed. The window does not render until the platform is
-//! ready. Terminal shows real-time progress via boot.log sink (stderr).
-//! If a critical service fails, setup returns an error and the app exits.
+//! **Window-first, detached boot — identical in dev and release.**
 //!
-//! ## Release mode
-//! **Progressive hydration.** `setup()` returns instantly. Services boot
-//! in background. Frontend shows StatusBar with per-service progress.
-//! Window is visible immediately.
+//! `setup()` shows the main window BEFORE spawning the boot task.
+//! The frontend renders a skeleton + StatusBar immediately. Services
+//! boot on a detached task and emit `platform:service-ready` events
+//! as they come online. Each surface (chat, dashboard, etc.) lights
+//! up reactively when its backing service is ready.
+//!
+//! There is no blocking path. There is no "wait for everything before
+//! showing the window." If DevForge takes 23s, you see the window at
+//! t=0 with "DevForge: initializing…" — not a blank screen for 23s.
+//!
+//! Terminal still shows real-time progress via boot.log sink (stderr)
+//! in both modes. Frontend DevTools (F12) show platform events live.
 
 pub mod commands;
 pub mod logging;
@@ -28,7 +32,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
 use tauri_specta::{collect_commands, Builder};
-use tokio::sync::RwLock;
 
 /// Bootstrap and run the Tauri application.
 ///
@@ -318,10 +321,7 @@ pub fn run() {
                 tracing::warn!(%err, "DevForge: seed_install_from_bundle failed");
             }
 
-            app.manage(PlatformState {
-                platform: RwLock::new(None),
-                devforge_paths,
-            });
+            app.manage(PlatformState::new(devforge_paths));
             app.manage(BootStateTracker::new());
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
@@ -332,24 +332,31 @@ pub fn run() {
             // the async_runtime::spawn(bootstrap::run(...)) call. The
             // devforge://ready event is emitted from the boot callback.
 
-            // ── Boot strategy: blocking (dev) vs async (release) ──
+            // ── P0: Boot Never Freezes — UI-first, lock-free async ──
             //
-            // Dev mode: block here. Every service must confirm before
-            // the window renders. You see each stage in the terminal.
-            // If boot fails, the app exits with a clear error.
+            // Window shows IMMEDIATELY (before services boot). The frontend
+            // renders a skeleton + StatusBar with per-service progress.
+            // Boot runs detached — any individual service can take as long
+            // as it needs, the UI stays responsive and visible throughout.
             //
-            // Release mode: spawn background task. Window shows
-            // immediately with a loading indicator. Progressive hydration.
+            // Services announce themselves via `platform:service-ready` /
+            // `platform:service-failed` events. The frontend subscribes
+            // and lights up each surface as its backing service comes online.
             let handle = app.handle().clone();
             let tracker = app.state::<BootStateTracker>();
             let tracker_clone = tracker.clone_tracker();
 
-            // ── ASYNC BOOT (both dev and release) ─────────────
-            // Window shows immediately. Services boot in the background.
-            // boot_task shows the main window when ready.
-            // The UI is usable during boot — cloud brain powers chat,
-            // model loading is non-blocking.
-            tracing::info!("Async boot — window shows immediately, services boot in background");
+            // Show window NOW — do not wait for boot. This is the core
+            // P0 invariant: cold boot window visible in <2s.
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+                tracing::info!("Main window shown immediately (pre-boot) — frontend renders skeleton while services initialize");
+            } else {
+                tracing::warn!("Could not get 'main' webview window to show pre-boot — tauri.conf.json label mismatch?");
+            }
+
+            tracing::info!("Detached boot — window already visible, services booting in background");
             tauri::async_runtime::spawn(
                 boot_task(handle, data_dir, tracker_clone, span_rx.take())
             );
@@ -386,8 +393,8 @@ pub fn run() {
                     // via the DevForgeService::shutdown() impl — same pipeline
                     // as every other Layer 1 service.
 
-                    let lock = state.platform.read().await;
-                    if let Some(platform) = lock.as_ref() {
+                    // P0: lock-free atomic load.
+                    if let Some(platform) = state.platform.load_full() {
                         platform.shutdown().await;
                     }
                 });
@@ -414,6 +421,7 @@ pub fn run() {
 /// The engine's `BootLog` handles real-time file + stderr logging.
 /// This function handles Tauri-specific concerns: events, state, seeding.
 #[allow(clippy::too_many_lines)]
+#[tracing::instrument(skip_all, fields(data_dir = %data_dir.display()))]
 async fn boot_task(
     app: tauri::AppHandle,
     data_dir: PathBuf,
@@ -522,10 +530,8 @@ async fn boot_task(
 
             // Set platform in managed state
             let state = app.state::<PlatformState>();
-            {
-                let mut lock = state.platform.write().await;
-                *lock = Some(Arc::new(platform));
-            }
+            // P0: lock-free atomic store. Boot task writes exactly once.
+            state.platform.store(Some(Arc::new(platform)));
 
             let _ = app.emit(
                 "platform:boot-phase",
@@ -545,16 +551,24 @@ async fn boot_task(
             // and assigned. Frontend uses this to decide: show app or
             // show the setup wizard.
             let models_ready = {
-                let guard = state.platform.read().await;
-                if let Some(ref platform) = *guard {
+                tracing::info!("boot: atomic-loading platform for model readiness check...");
+                // P0: lock-free atomic load.
+                let platform_opt = state.platform.load_full();
+                tracing::info!("boot: platform loaded (lock-free)");
+                if let Some(ref platform) = platform_opt {
                     if let Some(loader) = platform.model_loader() {
+                        tracing::info!("boot: get_registry...");
                         let registry = loader.get_registry().await;
+                        tracing::info!("boot: list_slots...");
                         let slots = loader.list_slots().await;
+                        tracing::info!("boot: is_first_run...");
                         let first_run = loader.is_first_run().await;
                         let assigned = slots.iter()
                             .filter(|s| s.assigned_model.is_some())
                             .count();
+                        tracing::info!("boot: is_setup_complete...");
                         let setup_done = loader.is_setup_complete().await;
+                        tracing::info!("boot: all loader queries done — building snapshot");
                         let ready = setup_done && !registry.is_empty() && assigned > 0;
                         tracing::info!(
                             models = registry.len(),
@@ -595,6 +609,7 @@ async fn boot_task(
                         // Store in tracker so get_boot_state catches up
                         // late-mounting frontends that missed the live event.
                         tracker.set_models_status(models_snapshot);
+                        tracing::info!("boot: model readiness block done — dropping platform read lock");
                         ready
                     } else {
                         tracing::warn!("Model Loader not available — models not ready");
@@ -614,13 +629,12 @@ async fn boot_task(
                     false
                 }
             };
+            tracing::info!("boot: platform read lock RELEASED — IPC commands unblocked");
 
-            // Show main window NOW — all services confirmed
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
-                let _ = window.set_focus();
-                tracing::info!("Main window now visible — all services confirmed");
-            }
+            // Window was already shown pre-boot (P0). Frontend received
+            // `platform:boot-phase = ready` above and has swapped its
+            // skeleton for the full UI already — no additional event needed.
+            tracing::info!("All services confirmed — main window already visible since pre-boot");
 
             // Chat window is USER-INITIATED only — never auto-opened from boot.
             // The inline ModelSetupBanner guides first-run setup within the
@@ -657,10 +671,8 @@ fn spawn_hardware_push(app: tauri::AppHandle) {
 
             // Access managed state each tick via AppHandle
             let state = app.state::<PlatformState>();
-            let platform_arc = {
-                let guard = state.platform.read().await;
-                guard.clone()
-            };
+            // P0: lock-free atomic load.
+            let platform_arc = state.platform.load_full();
 
             let Some(platform) = platform_arc else {
                 continue;

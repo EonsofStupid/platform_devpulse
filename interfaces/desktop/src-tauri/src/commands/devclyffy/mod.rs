@@ -14,8 +14,8 @@ use tauri::State;
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_status(state: State<'_, PlatformState>) -> Result<SystemHealth, String> {
-    let lock = state.platform.read().await;
-    match lock.as_ref() {
+    // P0: lock-free atomic load.
+    match state.platform.load_full() {
         Some(platform) => Ok(platform.health().await),
         None => Err("Platform is still booting".to_string()),
     }

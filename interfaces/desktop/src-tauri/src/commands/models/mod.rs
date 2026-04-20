@@ -236,9 +236,9 @@ pub struct HardwareInfo {
 /// String-error variant — retained for the many legacy commands that
 /// return `Result<T, String>`. New load-path commands should prefer
 /// [`get_loader_typed`] which returns a typed `LoadError`.
-async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderService>, String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+pub(crate) async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderService>, String> {
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     platform
         .model_loader()
         .cloned()
@@ -254,9 +254,10 @@ async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderS
 async fn get_loader_typed(
     state: &State<'_, PlatformState>,
 ) -> Result<Arc<ModelLoaderService>, devpulse_engine::platform::LoadError> {
-    let guard = state.platform.read().await;
-    let platform = guard
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
             message: "Platform not ready".to_string(),
         })?;
@@ -277,14 +278,12 @@ pub async fn get_hardware_metrics(
     let loader = get_loader(&state).await?;
     let m = loader.hardware_metrics().await;
 
-    // Derive model_dir from platform data_dir
-    let model_dir = {
-        let guard = state.platform.read().await;
-        guard
-            .as_ref()
-            .map(|p| p.data_dir().join("models").display().to_string())
-            .unwrap_or_default()
-    };
+    // Derive model_dir from platform data_dir — P0: lock-free atomic load.
+    let model_dir = state
+        .platform
+        .load_full()
+        .map(|p| p.data_dir().join("models").display().to_string())
+        .unwrap_or_default();
 
     // Compute before struct literal — fields move into the struct
     let has_gpu = m.gpu_name.is_some();
@@ -321,8 +320,9 @@ pub async fn scan_models(
     app: tauri::AppHandle,
     state: State<'_, PlatformState>,
 ) -> Result<Vec<ModelInfo>, String> {
-    tracing::info!("cmd scan_models: entry");
+    tracing::info!("cmd scan_models: entry — acquiring platform read lock...");
     let loader = get_loader(&state).await?;
+    tracing::info!("cmd scan_models: loader acquired — starting scan (blocking_write)...");
     let entries = match loader.scan_models().await {
         Ok(e) => {
             tracing::info!(count = e.len(), "cmd scan_models: exit ok");
@@ -478,9 +478,10 @@ pub async fn get_vram_budget(
 pub async fn get_model_catalog(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<devpulse_engine::platform::config::CatalogEntry>, String> {
-    let platform = state.platform.read().await;
-    let platform = platform
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform not booted".to_string())?;
     Ok(platform.model_loader_catalog().to_vec())
 }
@@ -1321,9 +1322,10 @@ pub async fn config_for_tier(
 pub async fn get_wizard_copy(
     state: State<'_, PlatformState>,
 ) -> Result<devpulse_engine::platform::services::model_loader::WizardCopy, String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let userdata = platform.data_dir();
     devpulse_engine::platform::services::model_loader::WizardCopy::load(userdata)
@@ -1464,11 +1466,11 @@ pub async fn import_local_model(
         None => "chat",
     };
 
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let data_dir = platform.data_dir();
     let dest_dir = data_dir.join("models").join(subdir);
-    drop(guard);
+    drop(platform);
 
     std::fs::create_dir_all(&dest_dir)
         .map_err(|e| format!("Failed to create models/{subdir}/: {e}"))?;
@@ -1561,11 +1563,11 @@ pub async fn create_dev_profile(
         "created": chrono::Utc::now().to_rfc3339(),
     });
 
-    // Write to preferences.json — same storage as set_preference command
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not ready")?;
+    // Write to preferences.json — same storage as set_preference command.
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
     let prefs_path = platform.config().data_dir.clone();
-    drop(guard);
+    drop(platform);
 
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 

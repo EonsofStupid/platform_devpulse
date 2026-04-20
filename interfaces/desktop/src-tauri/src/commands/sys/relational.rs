@@ -78,8 +78,8 @@ pub async fn libsql_health_all(
     state: State<'_, PlatformState>,
 ) -> Result<LibSqlHealthAll, String> {
     tracing::info!("cmd libsql_health_all: entry");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let mut databases = Vec::with_capacity(2);
 
@@ -162,8 +162,8 @@ pub async fn libsql_list_tables(
     database: LibSqlDatabase,
 ) -> Result<Vec<LibSqlTableInfo>, String> {
     tracing::info!(?database, "cmd libsql_list_tables: entry");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let svc = match &database {
         LibSqlDatabase::System => platform.relational(),
@@ -214,8 +214,8 @@ pub async fn libsql_query(
     sql: String,
 ) -> Result<LibSqlQueryResult, String> {
     tracing::info!(?database, sql_len = sql.len(), "cmd libsql_query: entry");
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 
     let svc = match &database {
         LibSqlDatabase::System => platform.relational(),

@@ -2,7 +2,16 @@
 //!
 //! Routing mode lives in assistant config and controls which Claude lane
 //! is allowed after local-first routing.
+//!
+//! # Type alias note
+//!
+//! `InferenceProvider` below is the specta-derived Tauri-boundary enum. It
+//! mirrors the kernel routing mode (private to `kernel/model-loader`) value
+//! for value. The kernel type is not re-exported here — engine facades call
+//! `set_routing_mode(String)` with the `as_str()` form of this enum to keep
+//! the kernel boundary one-way. Do NOT add a third alias anywhere.
 
+use anyhow::{Context as _, Result as AnyhowResult};
 use crate::commands::credentials::{get_api_key, ApiProvider};
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -50,10 +59,22 @@ impl InferenceProvider {
 pub async fn get_inference_provider(
     state: State<'_, PlatformState>,
 ) -> Result<InferenceProvider, String> {
-    let loader = crate::commands::models::get_loader(&state).await?;
+    inner_get_inference_provider(state)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
+#[tracing::instrument(skip_all, err)]
+async fn inner_get_inference_provider(
+    state: State<'_, PlatformState>,
+) -> AnyhowResult<InferenceProvider> {
+    let loader = crate::commands::models::get_loader(&state)
+        .await
+        .map_err(|e| anyhow::anyhow!("{e}"))
+        .context("get_inference_provider: resolve model loader")?;
     let config = loader.get_assistant_config().await;
     let raw_mode = serde_json::to_value(&config.routing.mode)
-        .map_err(|e| format!("Failed to serialize routing mode: {e}"))?
+        .context("serialize routing mode")?
         .as_str()
         .map(str::to_string)
         .unwrap_or_else(|| "local_first".to_string());
@@ -71,20 +92,34 @@ pub async fn set_inference_provider(
     state: State<'_, PlatformState>,
     provider: InferenceProvider,
 ) -> Result<(), String> {
-    tracing::info!(provider = provider.as_str(), "Setting inference provider");
+    inner_set_inference_provider(app, state, provider)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
 
-    let loader = crate::commands::models::get_loader(&state).await?;
+#[tracing::instrument(skip(app, state), fields(provider = provider.as_str()), err)]
+async fn inner_set_inference_provider(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+    provider: InferenceProvider,
+) -> AnyhowResult<()> {
+    tracing::info!("Setting inference provider");
+
+    let loader = crate::commands::models::get_loader(&state)
+        .await
+        .map_err(|e| anyhow::anyhow!("{e}"))
+        .context("set_inference_provider: resolve model loader")?;
     loader
         .set_routing_mode(provider.as_str().to_string())
         .await
-        .map_err(|e| format!("Failed to persist routing mode: {e}"))?;
+        .context("persist routing mode to assistant config")?;
 
     let _ = app.emit(
         "provider:changed",
         serde_json::json!({ "provider": provider.as_str() }),
     );
 
-    tracing::info!(provider = provider.as_str(), "Inference provider set");
+    tracing::info!("Inference provider set");
     Ok(())
 }
 

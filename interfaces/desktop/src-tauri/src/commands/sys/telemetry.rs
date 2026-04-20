@@ -19,8 +19,8 @@ use tauri::State;
 pub async fn get_lane_config(
     state: State<'_, PlatformState>,
 ) -> Result<LaneTraceConfig, String> {
-    let lock = state.platform.read().await;
-    match lock.as_ref() {
+    // P0: lock-free atomic load.
+    match state.platform.load_full() {
         Some(platform) => match platform.telemetry() {
             Some(t) => Ok(t.config_snapshot().await),
             None => Err("Telemetry not enabled".to_string()),
@@ -42,8 +42,8 @@ pub async fn set_lane_config(
     state: State<'_, PlatformState>,
     config: LaneTraceConfig,
 ) -> Result<(), String> {
-    let lock = state.platform.read().await;
-    match lock.as_ref() {
+    // P0: lock-free atomic load.
+    match state.platform.load_full() {
         Some(platform) => match platform.telemetry() {
             Some(t) => {
                 t.update_config(config).await;
@@ -93,9 +93,10 @@ pub async fn query_span_traces(
     trace_id: Option<String>,
     limit: Option<u32>,
 ) -> Result<Vec<SpanTraceRow>, String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let analytics = platform
         .analytics()
@@ -190,9 +191,10 @@ pub struct LaneBaselineRow {
 pub async fn query_lane_baselines(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<LaneBaselineRow>, String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    // P0: lock-free atomic load.
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let analytics = platform
         .analytics()

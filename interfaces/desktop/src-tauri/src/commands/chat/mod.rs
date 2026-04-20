@@ -98,8 +98,8 @@ pub async fn send_message(
 	state: State<'_, PlatformState>,
 ) -> Result<ChatMessage, String> {
 	tracing::info!(project = %project_id, content_len = content.len(), "cmd send_message: entry");
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;
@@ -235,8 +235,8 @@ pub async fn store_assistant_turn(
 		"cmd store_assistant_turn: entry"
 	);
 
-	let lock = state.platform.read().await;
-	let platform = lock.as_ref().ok_or("Platform is still booting")?;
+	// P0: lock-free atomic load.
+	let platform = state.platform.load_full().ok_or("Platform is still booting")?;
 	let svc = platform
 		.relational()
 		.ok_or("Relational service not available")?;

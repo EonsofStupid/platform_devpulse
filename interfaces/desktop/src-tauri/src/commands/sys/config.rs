@@ -12,8 +12,8 @@ use tauri::State;
 #[tauri::command]
 #[specta::specta]
 pub async fn get_settings(state: State<'_, PlatformState>) -> Result<PlatformConfig, String> {
-    let lock = state.platform.read().await;
-    match lock.as_ref() {
+    // P0: lock-free atomic load.
+    match state.platform.load_full() {
         Some(platform) => Ok(platform.config()),
         None => Err("Platform is still booting".to_string()),
     }
@@ -28,8 +28,8 @@ pub async fn get_preference(
     state: State<'_, PlatformState>,
     key: String,
 ) -> Result<Option<String>, String> {
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -55,8 +55,8 @@ pub async fn set_preference(
     key: String,
     value: String,
 ) -> Result<(), String> {
-    let lock = state.platform.read().await;
-    let platform = lock.as_ref().ok_or("Platform is still booting")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 

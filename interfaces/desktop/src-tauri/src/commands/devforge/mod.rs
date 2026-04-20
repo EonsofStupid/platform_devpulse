@@ -34,8 +34,8 @@ pub async fn spawn_reh_server(
     state: State<'_, PlatformState>,
     _config: RehConfig,
 ) -> Result<RehStatus, String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not booted")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
     match platform.devforge() {
         Some(service) => Ok(RehStatus {
             running: true,
@@ -63,8 +63,8 @@ pub async fn stop_reh_server(_state: State<'_, PlatformState>) -> Result<(), Str
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_reh_status(state: State<'_, PlatformState>) -> Result<RehStatus, String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not booted")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
     match platform.devforge() {
         Some(service) => Ok(RehStatus {
             running: true,
@@ -81,8 +81,8 @@ pub async fn get_reh_status(state: State<'_, PlatformState>) -> Result<RehStatus
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_connection_url(state: State<'_, PlatformState>) -> Result<String, String> {
-    let guard = state.platform.read().await;
-    let platform = guard.as_ref().ok_or("Platform not booted")?;
+    // P0: lock-free atomic load.
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
         .devforge()
         .ok_or("DevForge REH not running")?;
@@ -100,8 +100,8 @@ pub async fn devforge_get_status(
     let installed = paths.resolve_reh_server_dir().is_some();
     let persisted = DevforgeState::load(&paths.state_file());
 
-    let guard = state.platform.read().await;
-    let (running, url, port) = if let Some(ref platform) = *guard {
+    // P0: lock-free atomic load.
+    let (running, url, port) = if let Some(platform) = state.platform.load_full() {
         match platform.devforge() {
             Some(service) => (true, Some(service.connection_url()), Some(service.port())),
             None => (false, None, None),

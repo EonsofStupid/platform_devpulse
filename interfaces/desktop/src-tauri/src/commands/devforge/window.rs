@@ -67,8 +67,8 @@ pub async fn open_devforge_window(
 ) -> Result<DevforgeBootstrapStatus, String> {
     // ── 1. Pull the connection URL from the platform DevForge service.
     let (connection_url, port) = {
-        let guard = state.platform.read().await;
-        let platform = guard.as_ref().ok_or_else(|| {
+        // P0: lock-free atomic load.
+        let platform = state.platform.load_full().ok_or_else(|| {
             "Platform not booted yet — wait for boot to complete.".to_string()
         })?;
         let service = platform.devforge().ok_or_else(|| {
