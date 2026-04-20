@@ -18,12 +18,15 @@ use std::path::Path;
 use std::sync::Arc;
 #[cfg(feature = "inference")]
 use std::time::Instant;
+#[cfg(feature = "inference")]
+use tracing::Instrument as _;
 
 /// Boot the Model Loader service.
 ///
 /// Returns `Some(service)` on success, `None` on failure or if disabled.
 #[cfg(feature = "inference")]
 #[allow(clippy::cast_possible_truncation)]
+#[tracing::instrument(skip_all, fields(enabled = entry.enabled))]
 pub async fn boot(
     data_dir: &Path,
     entry: &ModelLoaderServiceEntry,
@@ -82,31 +85,58 @@ pub async fn boot(
     };
 
     match result {
-        Ok(service) => {
-            let elapsed_ms = start.elapsed().as_millis() as u64;
-            // Slot count comes from the booted service so the log line stays
-            // honest about what was actually registered (could differ from the
-            // baseline default if a user override in slots.toml adds/removes
-            // rows).
-            let slot_count = service.list_slots().await.len();
+        Ok((service, default_slots)) => {
+            // Fast path: register slots synchronously. This is instant
+            // (in-memory) and MUST complete before boot returns so other
+            // services can query slot metadata.
+            if let Err(e) = service.register_slots_only(default_slots).await {
+                let elapsed_ms = start.elapsed().as_millis() as u64;
+                tracing::error!(step = "Model Loader", error = ?e, "Model Loader slot registration failed");
+                on_event(InitEvent::error("Model Loader", &format!("{e:#}")));
+                boot_log.fail("Model Loader", &format!("{e:#} ({elapsed_ms}ms)"));
+                return None;
+            }
 
-            // Proactively load every Hot-strategy slot that has a model
-            // assigned. Runs AFTER the sync boot path returns so we can
-            // await the async load_slot calls on the inner service.
-            let hot_loaded = service.auto_load_hot_slots().await;
+            let slot_count = service.list_slots().await.len();
+            let elapsed_ms = start.elapsed().as_millis() as u64;
+
+            // Wrap the service in Arc NOW so we can spawn background work
+            // with a clone while returning the service to the boot pipeline.
+            let service_arc = Arc::new(service);
+
+            // Background: scan + restore + auto-assign + hot-slot hydration.
+            // These take 20-45s on first run and MUST NOT block boot.
+            // Progress is observable via platform:models-status events and
+            // RegistryScanStarted / ModelDiscovered / RegistryScanComplete
+            // events on the event sink.
+            let bg_service = service_arc.clone();
+            tokio::spawn(
+                async move {
+                    tracing::info!("Model Loader: background finalize starting");
+                    if let Err(e) = bg_service.finalize_registry().await {
+                        tracing::warn!(error = %e, "Model Loader background finalize failed (non-fatal)");
+                    }
+                    let hot_loaded = bg_service.auto_load_hot_slots().await;
+                    tracing::info!(
+                        hot_loaded,
+                        "Model Loader: background finalize complete"
+                    );
+                }
+                .instrument(tracing::info_span!("model_loader.bg_finalize")),
+            );
+
             tracing::info!(
                 step = "Model Loader",
                 slots = slot_count,
-                hot_loaded,
                 latency_ms = elapsed_ms,
-                "Model Loader booted and Hot slots hydrated"
+                "Model Loader booted (scan running in background)"
             );
             on_event(InitEvent::ok_with_latency("Model Loader", start.elapsed()));
             boot_log.ok(
                 "Model Loader",
-                &format!("{slot_count} slots ({hot_loaded} hot, {elapsed_ms}ms)"),
+                &format!("{slot_count} slots ({elapsed_ms}ms, scan bg)"),
             );
-            Some(Arc::new(service))
+            Some(service_arc)
         }
         Err(e) => {
             let elapsed_ms = start.elapsed().as_millis() as u64;

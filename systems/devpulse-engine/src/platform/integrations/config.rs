@@ -54,7 +54,8 @@ impl ConfigBackend for LibSqlConfig {
         let pk = Self::prefixed_key(key);
 
         tokio::task::block_in_place(|| self.handle.block_on(async {
-            let conn = adapter.connection().await;
+            // P0: lock-free — connection() is now sync, returns &Connection.
+            let conn = adapter.connection();
             let mut rows = conn
                 .query("SELECT value FROM kv_store WHERE key = ?1", [pk.as_str()])
                 .await
@@ -81,7 +82,8 @@ impl ConfigBackend for LibSqlConfig {
         let val = value.to_string();
 
         tokio::task::block_in_place(|| self.handle.block_on(async {
-            let conn = adapter.connection().await;
+            // P0: lock-free — connection() is now sync, returns &Connection.
+            let conn = adapter.connection();
             conn.execute(
                 "INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?1, CAST(?2 AS BLOB), unixepoch())",
                 (pk.as_str(), val.as_str()),
@@ -97,7 +99,8 @@ impl ConfigBackend for LibSqlConfig {
         let pk = Self::prefixed_key(key);
 
         tokio::task::block_in_place(|| self.handle.block_on(async {
-            let conn = adapter.connection().await;
+            // P0: lock-free — connection() is now sync, returns &Connection.
+            let conn = adapter.connection();
             conn.execute("DELETE FROM kv_store WHERE key = ?1", [pk.as_str()])
                 .await
                 .map_err(|e| anyhow::anyhow!("LibSqlConfig delete failed: {e}"))?;
@@ -110,7 +113,8 @@ impl ConfigBackend for LibSqlConfig {
         let full_prefix = Self::prefixed_key(prefix);
 
         tokio::task::block_in_place(|| self.handle.block_on(async {
-            let conn = adapter.connection().await;
+            // P0: lock-free — connection() is now sync, returns &Connection.
+            let conn = adapter.connection();
             let like_pattern = format!("{full_prefix}%");
             let mut rows = conn
                 .query(

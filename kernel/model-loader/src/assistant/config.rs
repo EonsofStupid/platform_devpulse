@@ -252,12 +252,16 @@ impl Default for WindowConfig {
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
 pub enum RoutingMode {
+    /// Prefer local inference — no cloud escalation.
     LocalFirst,
+    /// Prefer local, escalate through the Claude subscription lane.
     LocalClaudeSubscription,
+    /// Prefer local, escalate through both Claude subscription and API council lanes.
     LocalClaudeApiCouncil,
 }
 
 impl RoutingMode {
+    /// Parse a routing mode from its wire-format string.
     pub fn parse(mode: &str) -> Result<Self> {
         match mode {
             "local_first" => Ok(Self::LocalFirst),
@@ -269,6 +273,7 @@ impl RoutingMode {
         }
     }
 
+    /// Return the snake_case string representation for persistence and IPC.
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -289,6 +294,7 @@ impl Default for RoutingMode {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct RoutingConfig {
+    /// Active routing mode — determines which escalation lanes are available.
     pub mode: RoutingMode,
 }
 

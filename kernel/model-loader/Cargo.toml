@@ -49,7 +49,8 @@ thiserror = "2.0"
 tracing = "0.1"
 flume = "0.11"
 devpulse-telemetry = { workspace = true }
-tokio = { version = "1", features = ["time"] }
+tokio = { version = "1", features = ["time", "sync"] }
+parking_lot = "0.12"
 sysinfo = "0.33"
 
 # Specta (optional — Tauri TypeScript bindings)
