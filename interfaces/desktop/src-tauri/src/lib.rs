@@ -40,27 +40,30 @@ use tauri_specta::{collect_commands, Builder};
 #[allow(clippy::expect_used, clippy::too_many_lines)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // ── WebView2 / Chromium stderr logging (dev only) ───────────
-    // Route every uncaught JS exception, console.error, unhandled promise
-    // rejection, navigation failure, and renderer-process crash into the
-    // Tauri process's stderr — where our tracing subscriber already
-    // captures it into the session JSONL. This is the senior-dev fallback
-    // for when F12 devtools locks up or the webview never actually runs
-    // any script (blank black window) — the data still lands on disk.
-    //
-    // `--enable-logging=stderr` redirects Chromium's log sinks to stderr.
-    // `--v=1` unlocks verbose renderer lifecycle + navigation error codes.
-    //
-    // Release builds stay silent (this env var is dev-only diagnostics).
+    // ── Dev-build diagnostic env vars ────────────────────────────
+    // Set before Tauri constructs any thread so WebView2 + the Rust
+    // runtime pick these up at startup.
     #[cfg(debug_assertions)]
     {
+        // Chromium / WebView2 stderr logging: every JS exception,
+        // console.error, unhandled promise rejection, navigation
+        // failure, and renderer crash prints to the Tauri process's
+        // stderr. Visible in the terminal even when F12 is frozen.
         if std::env::var_os("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").is_none() {
-            // SAFETY: Set before Tauri constructs any thread. Single-threaded
-            // at this point in `run()`; no concurrent env access can race.
+            // SAFETY: single-threaded at this point in `run()`.
             std::env::set_var(
                 "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
                 "--enable-logging=stderr --v=1",
             );
+        }
+        // Rust backtrace on panic. Our panic hook (see logging.rs) uses
+        // `Backtrace::force_capture()` anyway, but this also covers the
+        // case where a panic escapes to the default handler.
+        if std::env::var_os("RUST_BACKTRACE").is_none() {
+            std::env::set_var("RUST_BACKTRACE", "1");
+        }
+        if std::env::var_os("RUST_LIB_BACKTRACE").is_none() {
+            std::env::set_var("RUST_LIB_BACKTRACE", "1");
         }
     }
 
@@ -256,6 +259,22 @@ pub fn run() {
         return;
     }
 
+    // ── IPC tracing wrapper ─────────────────────────────────────
+    // Every invoke() from the frontend passes through this middleware
+    // BEFORE specta/Tauri dispatch. Logs the command name at TRACE so
+    // we can prove commands reach the Rust side (vs frontend-side hang).
+    // If we see `invoke received` but no corresponding handler output,
+    // the hang is inside the handler (not in IPC dispatch).
+    let specta_handler = builder.invoke_handler();
+    let traced_invoke_handler = move |invoke: tauri::ipc::Invoke<tauri::Wry>| -> bool {
+        tracing::trace!(
+            target: "ipc",
+            command = invoke.message.command(),
+            "invoke received"
+        );
+        specta_handler(invoke)
+    };
+
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tracing::info!("Second instance detected — focusing existing window");
@@ -266,7 +285,7 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
-        .invoke_handler(builder.invoke_handler())
+        .invoke_handler(traced_invoke_handler)
         .setup(move |app| {
             builder.mount_events(app);
             // ── Telemetry: create OTel provider + layer (no subscriber yet) ──

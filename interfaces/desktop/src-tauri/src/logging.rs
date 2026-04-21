@@ -15,6 +15,19 @@
 //! wires the real file exporter after data_dir resolves.
 //!
 //! Log rotation: keeps last 3 session logs, deletes older ones.
+//!
+//! # Panic hook
+//!
+//! `init()` installs a global `std::panic::set_hook` that:
+//! 1. emits `tracing::error!(target = "panic", ...)` with location, message,
+//!    thread name, and a forced backtrace — so every panic lands in the
+//!    session JSONL alongside regular logs.
+//! 2. writes a dedicated `{data_dir}/logs/crash-{ts}.json` file via direct
+//!    `std::fs::write` (bypassing the tracing-appender background worker,
+//!    which may not flush before the process dies). The JSON is structured
+//!    so a post-mortem tool can index it.
+//! 3. delegates to the previous hook so the default stderr printout is
+//!    preserved (panic message still appears in the terminal).
 
 use std::path::{Path, PathBuf};
 use tokio::sync::mpsc;
@@ -121,10 +134,79 @@ pub fn init(
         .with(DuckDbLayer::new(span_tx).with_filter(duckdb_ceiling))
         .init();
 
+    install_panic_hook(&logs_dir);
+
     Ok(LoggingHandle {
         file_guard: guard,
         span_rx,
     })
+}
+
+/// Install a global panic hook that routes panics into tracing AND a
+/// dedicated `crash-{ts}.json` file.
+///
+/// The file write uses synchronous `std::fs::write` (not tracing-appender)
+/// because the process may exit before the async appender flushes its
+/// buffer — a crash dump that arrives after the process dies is useless.
+fn install_panic_hook(logs_dir: &Path) {
+    let logs_dir = logs_dir.to_path_buf();
+    let prev = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        let timestamp_raw = chrono::Local::now();
+        let ts_file = timestamp_raw.format("%Y-%m-%d-%H%M%S").to_string();
+        let ts_iso = timestamp_raw.to_rfc3339();
+
+        let location = info
+            .location()
+            .map(|l| format!("{}:{}:{}", l.file(), l.line(), l.column()))
+            .unwrap_or_else(|| "<unknown>".to_string());
+
+        let payload = info.payload();
+        let message = if let Some(s) = payload.downcast_ref::<&str>() {
+            (*s).to_string()
+        } else if let Some(s) = payload.downcast_ref::<String>() {
+            s.clone()
+        } else {
+            "<non-string panic payload>".to_string()
+        };
+
+        let thread = std::thread::current()
+            .name()
+            .unwrap_or("<unnamed>")
+            .to_string();
+
+        let backtrace = std::backtrace::Backtrace::force_capture();
+        let backtrace_str = backtrace.to_string();
+
+        // 1. Emit through tracing so the panic lands in the session JSONL
+        //    alongside regular logs.
+        tracing::error!(
+            target: "panic",
+            location = %location,
+            thread = %thread,
+            panic = %message,
+            backtrace = %backtrace_str,
+            "Rust panic"
+        );
+
+        // 2. Write a dedicated crash JSON synchronously. Bypasses the
+        //    tracing-appender non-blocking worker — if the process is
+        //    about to die, the async write may never complete.
+        let crash_path = logs_dir.join(format!("crash-{ts_file}.json"));
+        let crash_json = serde_json::json!({
+            "timestamp": ts_iso,
+            "location": location,
+            "thread": thread,
+            "message": message,
+            "backtrace": backtrace_str,
+        });
+        let serialized = serde_json::to_string_pretty(&crash_json)
+            .unwrap_or_else(|_| crash_json.to_string());
+        let _ = std::fs::write(&crash_path, serialized);
+
+        // 3. Delegate to the previous hook (default: prints to stderr).
+        prev(info);
+    }));
 }
 
 /// Initialize stderr-only logging (fallback if `data_dir` isn't available yet).
