@@ -139,14 +139,11 @@ impl ModelLoaderService {
         Ok(())
     }
 
-    // ── Hot-slot auto-load (called post-boot) ─────────────────
-
-    /// Load every slot whose strategy is marked hot after boot completes.
-    pub async fn auto_load_hot_slots(&self) -> usize {
-        self.inner.auto_load_hot_slots().await
-    }
-
     // ── Load/unload/warm/swap/delete — inference lock ─────────
+    //
+    // Note: `auto_load_hot_slots` facade was REMOVED on 2026-04-20. Boot no
+    // longer triggers background loads. Every `load_slot` call below is
+    // driven by a user action (Tauri command invoked from a button click).
 
     /// Load the assigned model for a slot into memory.
     #[tracing::instrument(skip(self), fields(slot_id))]

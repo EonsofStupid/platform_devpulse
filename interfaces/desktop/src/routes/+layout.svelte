@@ -6,7 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
-import { bootstrapDownloadBridge, hardwareState } from "$lib/domains/app/models/index.js";
+import { bootstrapDownloadBridge } from "$lib/domains/app/models/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
@@ -37,15 +37,9 @@ onMount(() => {
 			logError("layout", `download-bridge FAILED to attach: ${e}`);
 		});
 
-	hardwareState
-		.ensureListening("root-layout")
-		.then(() => {
-			logInfo("layout", "hardware telemetry attached");
-		})
-		.catch((e) => {
-			logError("layout", `hardware telemetry FAILED to attach: ${e}`);
-		});
-
+	// Hardware telemetry is NOT attached on mount (owner directive 2026-04-20 —
+	// no auto-load). Routes that need live hardware metrics must call
+	// `hardwareState.ensureListening(reason)` from their own onMount.
 	platformState
 		.init()
 		.then(() => {
@@ -98,7 +92,6 @@ onMount(() => {
 
 	return () => {
 		detachDownloadBridge?.();
-		hardwareState.stopListening();
 		stopClyffyStatus();
 		document.removeEventListener("pointermove", markActive);
 		document.removeEventListener("keydown", markActive);

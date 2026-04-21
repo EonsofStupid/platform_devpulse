@@ -93,7 +93,7 @@ struct SlotEntry {
     capability: crate::slots::ModelCapability,
     #[serde(default = "default_device_any")]
     preferred_device: crate::slots::DevicePreference,
-    #[serde(default = "default_loading_hot")]
+    #[serde(default = "default_loading_on_demand")]
     loading: crate::slots::LoadingStrategy,
     #[serde(default)]
     persistence_class: PersistenceClass,
@@ -123,8 +123,11 @@ fn default_device_any() -> crate::slots::DevicePreference {
     crate::slots::DevicePreference::Any
 }
 
-fn default_loading_hot() -> crate::slots::LoadingStrategy {
-    crate::slots::LoadingStrategy::Hot
+fn default_loading_on_demand() -> crate::slots::LoadingStrategy {
+    // Owner directive 2026-04-20: no auto-load. A TOML slot that omits
+    // `loading = "..."` defaults to OnDemand — nothing allocates until the
+    // user explicitly hits Apply in the UI.
+    crate::slots::LoadingStrategy::OnDemand
 }
 
 fn default_lane_vram() -> LaneKind {

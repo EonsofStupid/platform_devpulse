@@ -1160,29 +1160,12 @@ impl ModelLoaderService {
         Ok(())
     }
 
-    /// Proactively load every slot marked Hot.
-    pub async fn auto_load_hot_slots(&self) -> usize {
-        use crate::slots::types::LoadingStrategy;
-
-        let targets: Vec<String> = {
-            let cfg = self.config.read().await;
-            cfg.slots.list_slots().iter()
-                .filter(|s| matches!(s.loading, LoadingStrategy::Hot) && s.assigned_model.is_some())
-                .map(|s| s.id.clone())
-                .collect()
-        };
-
-        let mut loaded = 0usize;
-        for slot_id in targets {
-            match self.load_slot(&slot_id).await {
-                Ok(()) => { loaded += 1; tracing::info!(slot = %slot_id, "Auto-loaded Hot slot"); }
-                Err(e) => { tracing::warn!(slot = %slot_id, error = %e, "Auto-load failed (non-fatal)"); }
-            }
-        }
-        loaded
-    }
-
     // ── Voice/Inference read-through — inference read lock ─────
+    //
+    // Note: `auto_load_hot_slots` was REMOVED on 2026-04-20. Owner directive:
+    // models only load via explicit user Apply. The `LoadingStrategy::Hot`
+    // variant is retained in the type system as an inert hint — nothing in
+    // kernel or engine auto-loads based on it any more.
 
     /// Synthesize speech.
     pub async fn synthesize(&self, slot_id: &str, text: &str, voice: &str) -> anyhow::Result<crate::backends::voice::AudioSamples> {

@@ -12,12 +12,17 @@
 //! - [`PersistenceClass`] answers *"once loaded, how permanent is the residency?"*
 //!   (`OnDemand` / `WarmStandby` / `AlwaysOn`)
 //!
-//! The two combine in the slot definition. Example: the wake-word
-//! detector has `LoadingStrategy::Hot` (load at boot) **and**
-//! `PersistenceClass::AlwaysOn` (never evict, even if the whole
-//! brain needs to swap out). A text embedder might be
-//! `LoadingStrategy::OnDemand` **and** `PersistenceClass::WarmStandby`
-//! — lazy first load, but stay resident after the first call.
+//! The two combine in the slot definition. Example: a text embedder
+//! might be `LoadingStrategy::OnDemand` **and**
+//! `PersistenceClass::WarmStandby` — lazy first load, but stay resident
+//! after the first call.
+//!
+//! **2026-04-20 note (owner directive — no auto-load):** the
+//! `LoadingStrategy::Hot` variant is retained in the type system as an
+//! inert hint. Nothing in kernel or engine auto-loads based on it. Every
+//! model load is a deliberate user action triggered from the UI. The
+//! `auto_load_hot_slots` function was removed from both the kernel
+//! service and the engine facade.
 //!
 //! # Why this lives in a dedicated module
 //!
