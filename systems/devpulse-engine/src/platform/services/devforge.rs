@@ -1,22 +1,24 @@
 //! DevForge service — managed REH (Remote Extension Host) web server.
 //!
-//! Spawns a Node process running the VS Code REH server under the
-//! platform's Job Object. The process is killed when the platform
-//! shuts down. Full extension support via client/server architecture.
+//! Spawns a Node process running the VS Code REH server. The process is
+//! killed when the platform shuts down. Full extension support via
+//! client/server architecture.
 //!
-//! # Lifecycle
+//! # Lifecycle (lazy, user-initiated)
 //!
-//! 1. Platform boot calls `DevForgeService::boot_reh()`.
-//! 2. A free port is allocated, a random auth token generated.
-//! 3. `node.exe out/server-main.js` is spawned with `--host`, `--port`,
+//! 1. `Platform::ensure_devforge_started()` is called the first time the
+//!    user opens the code-editor window (Tauri command
+//!    `open_devforge_window`). Boot does NOT start this service.
+//! 2. That method resolves the REH tree via [`resolve_reh_server_dir`] and
+//!    calls [`DevForgeService::boot_reh`].
+//! 3. `boot_reh` allocates a free port, generates a random auth token,
+//!    and spawns `node.exe out/server-main.js` with `--host`, `--port`,
 //!    `--connection-token`, `--user-data-dir`, `--extensions-dir`.
-//! 4. Health polling waits for the REH server to respond on the port.
-//! 5. On success, the connection URL is available via `connection_url()`.
-//! 6. The Tauri `open_devforge_window` command reads the URL and opens
-//!    a dedicated `WebviewWindow`.
-//!
-//! This is a Layer 1 infrastructure service — same pattern as LibSQL,
-//! DuckDB, SurrealDB. ONE boot pipeline. No parallel Tauri bootstrap.
+//! 4. Health polling waits for the REH server to respond on the port
+//!    (up to [`STARTUP_TIMEOUT`]).
+//! 5. On success the service is stored in `Platform::devforge` and its
+//!    connection URL is returned.
+//! 6. Subsequent `open_devforge_window` calls reuse the running service.
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::{anyhow, Context, Result};
@@ -255,4 +257,65 @@ fn folder_uri(path: &Path) -> String {
     } else {
         format!("file:///{s}")
     }
+}
+
+/// Resolve the DevForge server directory — the tree containing
+/// `out/server-main.js` that the Node runtime executes.
+///
+/// Lookup order:
+/// 1. **Dev** (`debug_assertions`): `<repo>/interfaces/desktop/src-tauri/
+///    resources/devforge/<platform>/` — fetched release tree (preferred
+///    because it ships native modules).
+/// 2. **Dev fallback**: `<repo>/deps/code-oss-reh-web/` — local dev checkout.
+/// 3. **Release**: `<data_dir>/devforge/install/current/` — seed-copied
+///    from Tauri bundled resources on first launch.
+///
+/// Repo root is derived from `CARGO_MANIFEST_DIR` at compile time (the
+/// devpulse-engine crate lives at `systems/devpulse-engine/`, so `.parent()`
+/// twice yields the repo root). NEVER derive from `data_dir.parent()` — that
+/// silently breaks in release builds.
+///
+/// Returns `None` if no valid DevForge tree is found.
+#[must_use]
+pub fn resolve_devforge_server_dir(data_dir: &Path) -> Option<PathBuf> {
+    #[cfg(debug_assertions)]
+    {
+        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        if let Some(repo_root) = manifest
+            .parent() // systems/
+            .and_then(Path::parent) // repo root
+        {
+            #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
+            let platform = "win32-x64";
+            #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+            let platform = "darwin-arm64";
+            #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+            let platform = "darwin-x64";
+            #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+            let platform = "linux-x64";
+
+            let fetched = repo_root
+                .join("interfaces")
+                .join("desktop")
+                .join("src-tauri")
+                .join("resources")
+                .join("devforge")
+                .join(platform);
+            if fetched.join("out").join("server-main.js").is_file() {
+                return Some(fetched);
+            }
+
+            let dev_reh = repo_root.join("deps").join("code-oss-reh-web");
+            if dev_reh.join("out").join("server-main.js").is_file() {
+                return Some(dev_reh);
+            }
+        }
+    }
+
+    let installed = data_dir.join("devforge").join("install").join("current");
+    if installed.join("out").join("server-main.js").is_file() {
+        return Some(installed);
+    }
+
+    None
 }

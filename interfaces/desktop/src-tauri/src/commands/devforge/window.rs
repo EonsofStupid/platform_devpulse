@@ -9,14 +9,15 @@
 //! window they can move, resize, snap, and Alt-Tab to like any other app,
 //! while keeping DevForge's lifetime bound to the DevPulse parent process.
 //!
-//! # Lifecycle
+//! # Lifecycle (lazy, user-initiated)
 //!
-//! 1. Platform boot spawns DevForge REH as a Layer 1 service via
-//!    `DevForgeService::boot_reh()` — same pipeline as libSQL/DuckDB.
+//! 1. Platform boot does **not** start DevForge. The Node REH server only
+//!    spawns on the first user open, keeping cold boot fast.
 //! 2. The frontend invokes [`open_devforge_window`] (from any surface —
 //!    the `/devforge` route button, a toolbar action, a keyboard shortcut).
-//! 3. This command reads the `DevForgeService` from `Platform::devforge()`,
-//!    resolves the connection URL (`http://127.0.0.1:<port>/?tkn=<token>`), and
+//! 3. This command calls `Platform::ensure_devforge_started()` which
+//!    either returns the cached service or spawns it now, then resolves
+//!    the connection URL (`http://127.0.0.1:<port>/?tkn=<token>`) and
 //!    opens or focuses a `WebviewWindow` labeled `"devforge"` pointed at
 //!    that external URL.
 //! 4. The window is parented to the main DevPulse window so closing the
@@ -47,14 +48,19 @@ const MIN_HEIGHT: f64 = 600.0;
 
 /// Open (or focus) the dedicated DevForge window.
 ///
-/// If the REH server is not yet running, returns an error string telling
-/// the frontend to wait for the `devforge://ready` event before retrying.
+/// First call spawns the Node REH child process via
+/// `Platform::ensure_devforge_started()` — this is the **only** path that
+/// spawns the server. Subsequent calls reuse the cached service.
 ///
 /// Returns a [`DevforgeBootstrapStatus`] snapshot so the caller can update
 /// its own UI state without a second round-trip to `devforge_get_status`.
 ///
 /// # Errors
-/// - REH server is not running (bootstrap still in flight, or install missing)
+/// - Platform hasn't finished booting yet (user should retry)
+/// - DevForge server tree is missing — user needs to run
+///   `cargo xtask fetch-devforge` or install the bundled release
+/// - Node binary missing from the server tree
+/// - Health poll fails within the service's startup timeout
 /// - Connection URL fails to parse as a valid `Url`
 /// - Tauri fails to create the `WebviewWindow`
 /// - Focusing an already-open DevForge window fails
@@ -65,17 +71,16 @@ pub async fn open_devforge_window(
     app: AppHandle,
     state: State<'_, PlatformState>,
 ) -> Result<DevforgeBootstrapStatus, String> {
-    // ── 1. Pull the connection URL from the platform DevForge service.
+    // ── 1. Lazy-start DevForge on first open (idempotent on later calls).
     let (connection_url, port) = {
         // P0: lock-free atomic load.
         let platform = state.platform.load_full().ok_or_else(|| {
             "Platform not booted yet — wait for boot to complete.".to_string()
         })?;
-        let service = platform.devforge().ok_or_else(|| {
-            "DevForge REH service is not running. Check boot log for errors, \
-             or ensure [services.system.devforge] enabled = true in platform.default.toml."
-                .to_string()
-        })?;
+        let service = platform
+            .ensure_devforge_started()
+            .await
+            .map_err(|e| format!("DevForge failed to start: {e:#}"))?;
         let url = service.connection_url();
         let p = service.port();
         (url, Some(p))

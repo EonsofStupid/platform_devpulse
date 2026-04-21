@@ -11,10 +11,9 @@
 //! - [`embedder`] — Candle dense embedding
 //! - [`whisper`] — Candle speech-to-text
 //! - [`model_loader`] — AI model management + inference
-//! - [`devforge`] — Managed VSCode (code-oss)
 //! - grammar — kernel-owned constrained decoding service (facade stage pending)
 //!
-//! # Boot Sequence (14 stages)
+//! # Boot Sequence
 //!  1. **Preflight** — validate config, create directory hierarchy
 //!  2. **System relational** (LibSQL) — CRITICAL
 //!  3. **System analytics** (DuckDB) — CRITICAL
@@ -24,10 +23,12 @@
 //!  6. **User relational** (LibSQL) — CRITICAL
 //!  7. **Vector store** (RRO) — feature-gated
 //!  9. **Grammar** — kernel persists `grammar_service` row to system LibSQL
-//! 10. **Embedder** (Candle) — feature-gated
-//! 11. **Whisper** (Candle) — feature-gated
-//! 13. **DevForge** (VSCode) — non-critical
-//! 14. **Validation** — verify all critical services (config-driven)
+//! 10. **Validation** — verify all critical services (config-driven)
+//!
+//! DevForge (VS Code REH) is **not** a boot-time service. It's lazy-started
+//! on first `Platform::ensure_devforge_started()` call (user opens the code
+//! editor window). Keeping it out of the boot pipeline means cold boot never
+//! pays for Node REH health-polling.
 //!
 //! Most stages complete sequentially. Model Loader runs in parallel with the
 //! Graph store via `tokio::join!` because they have zero shared dependency —
@@ -56,7 +57,6 @@ mod relational;
 pub mod retry;
 mod vector;
 mod model_loader;
-mod devforge;
 
 use crate::platform::config::PlatformBootConfig;
 use crate::platform::init::InitEvent;
@@ -73,7 +73,6 @@ use crate::platform::services::vector::VectorService;
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
-use crate::platform::services::devforge::DevForgeService;
 use devpulse_clyffy::cortex::grammar::sync_grammar_service_from_config;
 
 use anyhow::Result;
@@ -95,7 +94,7 @@ pub struct BootedServices {
     // Embedder + Whisper removed — slot-managed by model loader.
     #[cfg(feature = "inference")]
     pub model_loader: Option<Arc<ModelLoaderService>>,
-    pub devforge: Option<Arc<DevForgeService>>,
+    // DevForge removed from boot pipeline — lazy-started on first open.
 }
 
 /// Execute the full boot pipeline — sequential, gated, logged.
@@ -351,24 +350,22 @@ async fn execute_inner(
     // Stages 10-11 (Embedder, Whisper) REMOVED — slot-managed by model loader.
     // rag.embedder and voice.stt slots handle these capabilities through Layer 2.
 
-    // ── Stage 13: DevForge (REH web server) ────────────────────
-    // Layer 1 infrastructure service — same pattern as libSQL/DuckDB.
-    // Boots through the platform pipeline, NOT a parallel Tauri bootstrap.
-    let devforge = devforge::boot(
-        data_dir,
-        &boot_config.services.system.devforge,
-        on_event,
-        &boot_log,
-    )
-    .await;
+    // DevForge REMOVED from boot pipeline — lazy-started by
+    // `Platform::ensure_devforge_started()` when the user first opens the
+    // code-editor window. Spawning a Node REH server and TCP-polling for
+    // up to 30s never belonged in the hot path for platform boot.
 
-    // ── Stage 14: Validate critical services ─────────────────
+    // ── Validate critical services ─────────────────
     // Config-driven: is_enabled_and_critical() reads from parsed TOML.
     // No hardcoded list — if TOML says critical=true, it's validated.
     {
         use crate::platform::config::DataScope;
         use crate::platform::services::ServiceRole;
 
+        // `mut` is required when `rro` / `inference` features compile in
+        // the `checks.push(...)` lines below. Default build has neither,
+        // so we allow the unused-mut warning instead of reshuffling.
+        #[allow(unused_mut)]
         let mut checks: Vec<(&str, bool, bool)> = vec![
             ("System Database",  system_relational.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::System)),
             ("Analytics Engine", system_analytics.is_some(),  boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::System)),
@@ -383,7 +380,7 @@ async fn execute_inner(
         // Embedder + Whisper removed — slot-managed by model loader (Layer 2).
         #[cfg(feature = "inference")]
         checks.push(("Model Manager", model_loader_svc.is_some(), boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System)));
-        checks.push(("Code Editor", devforge.is_some(), boot_config.is_enabled_and_critical(ServiceRole::DevForge, DataScope::System)));
+        // DevForge (Code Editor) is lazy-started on user open — not validated at boot.
 
         validate_critical(&checks, boot_config, &boot_log)?;
     }
@@ -423,7 +420,6 @@ async fn execute_inner(
         vector,
         #[cfg(feature = "inference")]
         model_loader: model_loader_svc,
-        devforge,
     })
 }
 

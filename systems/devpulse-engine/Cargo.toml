@@ -50,9 +50,12 @@ devpulse-telemetry = { workspace = true }
 rmcp = { version = "1.5", features = ["server", "macros", "transport-io"] }
 schemars = "0.8"
 
-# DevForge REH service — port allocation + token generation
+# DevForge (VS Code REH) — port allocation + token generation
 portpicker = "0.1"
 rand = "0.8"
+
+# Lock-free Option<Arc<T>> for lazy-started services (DevForge)
+arc-swap = { workspace = true }
 
 # Audio playback (TTS output → speakers)
 rodio = "0.19"

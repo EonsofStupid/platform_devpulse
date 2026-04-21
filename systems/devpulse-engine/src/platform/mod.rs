@@ -84,6 +84,7 @@ pub use devpulse_clyffy::model_loader::registry::{
 pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
 
 use anyhow::Result;
+use arc_swap::ArcSwapOption;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Instant;
@@ -100,7 +101,7 @@ use services::vector::VectorService;
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
-use services::devforge::DevForgeService;
+use services::devforge::{resolve_devforge_server_dir, DevForgeService};
 use services::project_db::ProjectDbManager;
 use telemetry::TelemetryHandle;
 
@@ -133,15 +134,14 @@ macro_rules! for_each_service {
         $action!($self.vector);
         #[cfg(feature = "inference")]
         $action!($self.model_loader);
-        // Non-critical
-        $action!($self.devforge);
+        // DevForge is NOT in this macro — it's lazy-started on user demand
+        // and lives in `ArcSwapOption`. Health + shutdown touch it manually.
     };
 }
 
 /// Reverse enumeration for shutdown (last booted = first shutdown).
 macro_rules! for_each_service_rev {
     ($self:ident, $action:ident) => {
-        $action!($self.devforge);
         #[cfg(feature = "inference")]
         $action!($self.model_loader);
         #[cfg(feature = "rro")]
@@ -184,8 +184,11 @@ pub struct Platform {
     // ── Model Loader (Inference) ──────────────────────────────
     #[cfg(feature = "inference")]
     model_loader: Option<Arc<ModelLoaderService>>,
-    // ── DevForge (VSCode) ─────────────────────────────────────
-    devforge: Option<Arc<DevForgeService>>,
+    // ── DevForge (VSCode) — lazy, user-initiated ─────────────
+    // NOT a boot-time service. First open of the code-editor window
+    // calls `ensure_devforge_started()` which spawns the REH child
+    // process and stores the Arc here. Lock-free reads via load_full.
+    devforge: ArcSwapOption<DevForgeService>,
     // ── Telemetry (lane tracing) ─────────────────────────────
     telemetry: Option<TelemetryHandle>,
     // ── Project scope ──────────────────────────────────────────
@@ -252,7 +255,7 @@ impl Platform {
             vector: booted.vector,
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
-            devforge: booted.devforge,
+            devforge: ArcSwapOption::empty(),
             project_db: Arc::new(ProjectDbManager::new()),
             telemetry,
             boot_config,
@@ -278,6 +281,12 @@ impl Platform {
             };
         }
         for_each_service!(self, ping);
+
+        // DevForge is lazy-started, not in the macro. Only ping it if
+        // the user has opened the code-editor window at least once.
+        if let Some(s) = self.devforge.load_full() {
+            subsystems.push(ping_service(s.as_ref()).await);
+        }
 
         let status = if subsystems.iter().all(|s| s.status == HealthStatus::Healthy) {
             HealthStatus::Healthy
@@ -372,11 +381,77 @@ impl Platform {
         &self.boot_config.services.system.model_loader.catalog
     }
 
-    // ── DevForge accessor ────────────────────────────────────────
+    // ── DevForge accessor + lazy starter ───────────────────────
 
-    /// Get the DevForge service (if enabled and booted).
-    pub fn devforge(&self) -> Option<&Arc<DevForgeService>> {
-        self.devforge.as_ref()
+    /// Read the current DevForge service without spawning it.
+    ///
+    /// Returns `None` until the user first opens the code-editor window.
+    /// Lock-free atomic load via `ArcSwapOption::load_full()`.
+    #[must_use]
+    pub fn devforge(&self) -> Option<Arc<DevForgeService>> {
+        self.devforge.load_full()
+    }
+
+    /// Lazy-start DevForge (VS Code REH) and return the running service.
+    ///
+    /// This is the **only** path that spawns the Node child process.
+    /// First call resolves the server tree via
+    /// [`resolve_devforge_server_dir`], spawns `node out/server-main.js`,
+    /// waits for the TCP health check, stores the result, and returns it.
+    /// Subsequent calls return the cached service — `load_full` is atomic.
+    ///
+    /// # Errors
+    /// - DevForge is not in REH mode (standalone is deprecated)
+    /// - No REH tree on disk — user hasn't fetched or bundled it
+    /// - `node` binary missing from the server tree
+    /// - Health poll fails within [`crate::platform::services::devforge`]'s
+    ///   startup timeout
+    pub async fn ensure_devforge_started(&self) -> Result<Arc<DevForgeService>> {
+        if let Some(existing) = self.devforge.load_full() {
+            return Ok(existing);
+        }
+
+        let entry = &self.boot_config.services.system.devforge;
+        if !entry.enabled {
+            anyhow::bail!(
+                "DevForge is disabled in config. Set `enabled = true` under \
+                 [services.system.devforge] to use the code editor."
+            );
+        }
+        if !entry.is_reh() {
+            anyhow::bail!(
+                "DevForge standalone mode is no longer supported — set `mode = \"reh\"` \
+                 under [services.system.devforge] in your platform config."
+            );
+        }
+
+        let server_dir = resolve_devforge_server_dir(&self.data_dir).ok_or_else(|| {
+            anyhow::anyhow!(
+                "No DevForge server tree found. Run `cargo xtask fetch-devforge \
+                 --target win32-x64` or clone into deps/code-oss-reh-web/."
+            )
+        })?;
+
+        let user_data_dir = entry.resolve_user_data_dir(&self.data_dir);
+        let extensions_dir = entry.resolve_extensions_dir(&self.data_dir);
+
+        tracing::info!(
+            server_dir = %server_dir.display(),
+            "DevForge lazy-start — spawning REH child process"
+        );
+
+        let service = DevForgeService::boot_reh(
+            &server_dir,
+            &user_data_dir,
+            Some(&extensions_dir),
+            None, // workspace_path — restored by the Tauri command layer
+            entry.port,
+        )
+        .await?;
+
+        let arc = Arc::new(service);
+        self.devforge.store(Some(Arc::clone(&arc)));
+        Ok(arc)
     }
 
     // ── Project scope accessor ──────────────────────────────────
@@ -436,6 +511,14 @@ impl Platform {
                 }
             };
         }
+
+        // DevForge first (it's the user-facing tool, shut it down before
+        // infrastructure so the REH child doesn't see sockets vanish).
+        // Wrapped as Some(_) so the macro's `if let Some(s) = &$field`
+        // pattern matches the loaded Arc.
+        let devforge_guard = self.devforge.swap(None);
+        shutdown_one!(devforge_guard);
+
         for_each_service_rev!(self, shutdown_one);
 
         // Project databases are not in the macro — they're on-demand, not boot-time.
