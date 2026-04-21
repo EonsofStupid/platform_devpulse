@@ -32,19 +32,28 @@ let ipcReady = false;
 let globalHandlersInstalled = false;
 
 /**
- * Shape of entries buffered by the inline pre-module script in `app.html`.
- * Kept loose because the inline script is plain JS and can't import types.
+ * Shape of entries pushed by the minimal inline script in `app.html`.
+ * Field names are single letters to keep the inline script tiny; this is
+ * the same shape Sentry/Bugsnag-style pre-SDK shims emit.
  */
 interface EarlyErrorEntry {
-	kind: "error" | "unhandledrejection" | "console.error";
-	timestamp: string;
-	payload: Record<string, unknown>;
+	/** "error" = window error event, "rejection" = unhandled promise rejection. */
+	t: "error" | "rejection";
+	/** message (error events) */
+	m?: string;
+	/** filename (error events) */
+	f?: string;
+	/** lineno (error events) */
+	l?: number;
+	/** colno (error events) */
+	c?: number;
+	/** stack (both) */
+	s?: string;
 }
 
 declare global {
 	interface Window {
 		__DEVPULSE_EARLY_ERRORS__?: EarlyErrorEntry[];
-		__DEVPULSE_LOGGER_READY__?: boolean;
 	}
 }
 
@@ -59,35 +68,23 @@ function drainEarlyErrors(): void {
 	const early = window.__DEVPULSE_EARLY_ERRORS__;
 	if (!early || early.length === 0) return;
 
+	const timestamp = new Date().toISOString();
 	for (const entry of early) {
-		const target =
-			entry.kind === "error"
-				? "frontend:early:error"
-				: entry.kind === "unhandledrejection"
-					? "frontend:early:rejection"
-					: "frontend:early:console";
-		const payload = entry.payload ?? {};
+		const target = entry.t === "error" ? "frontend:early:error" : "frontend:early:rejection";
 		const parts: string[] = [];
-		if (typeof payload.message === "string" && payload.message.length > 0) {
-			parts.push(payload.message);
-		}
-		if (typeof payload.filename === "string" && payload.filename.length > 0) {
-			parts.push(`at ${payload.filename}:${payload.lineno ?? 0}:${payload.colno ?? 0}`);
-		}
-		if (typeof payload.stack === "string" && payload.stack.length > 0) {
-			parts.push(payload.stack);
-		}
-		const message = parts.length > 0 ? parts.join("\n") : JSON.stringify(payload);
+		if (entry.m) parts.push(entry.m);
+		if (entry.f) parts.push(`at ${entry.f}:${entry.l ?? 0}:${entry.c ?? 0}`);
+		if (entry.s) parts.push(entry.s);
+		const message = parts.length > 0 ? parts.join("\n") : JSON.stringify(entry);
 		buffer.push({
 			level: "error",
 			target,
-			message: `[early ${entry.timestamp}] ${message}`,
-			timestamp: entry.timestamp,
+			message: `[early] ${message}`,
+			timestamp,
 			runId: null,
 		});
 	}
 
-	// Clear the early buffer so re-imports don't double-drain.
 	early.length = 0;
 }
 
@@ -147,10 +144,6 @@ export function markIpcReady(): void {
 export function installGlobalHandlers(): void {
 	if (globalHandlersInstalled) return;
 	globalHandlersInstalled = true;
-
-	// Tell the inline pre-module script in app.html to stop buffering —
-	// from here on, the real handlers capture everything.
-	window.__DEVPULSE_LOGGER_READY__ = true;
 
 	// Capture uncaught exceptions
 	window.addEventListener("error", (event) => {
