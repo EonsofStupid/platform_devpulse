@@ -267,7 +267,11 @@ pub fn run() {
     // the hang is inside the handler (not in IPC dispatch).
     let specta_handler = builder.invoke_handler();
     let traced_invoke_handler = move |invoke: tauri::ipc::Invoke<tauri::Wry>| -> bool {
-        tracing::trace!(
+        // DEBUG level, not TRACE — the default JSONL filter treats unknown
+        // targets (like "ipc") at DEBUG level, so a `trace!` here would be
+        // silently dropped. This is exactly the diagnostic we can't afford
+        // to lose.
+        tracing::debug!(
             target: "ipc",
             command = invoke.message.command(),
             "invoke received"
