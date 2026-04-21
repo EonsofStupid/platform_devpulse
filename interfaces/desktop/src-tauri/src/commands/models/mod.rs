@@ -838,6 +838,7 @@ pub async fn hf_token_suffix(
 /// this once on mount and re-reads after every mutation.
 #[tauri::command]
 #[specta::specta]
+#[tracing::instrument(level = "debug", skip(state), err)]
 pub async fn get_assistant_config(
     state: State<'_, PlatformState>,
 ) -> Result<devpulse_engine::platform::services::model_loader::AssistantConfig, String> {

@@ -43,6 +43,7 @@ fn append_action_jsonl(data_dir: &Path, line: &str) -> std::io::Result<()> {
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::needless_pass_by_value)]
+#[tracing::instrument(level = "debug", skip(app, message), fields(msg_len = message.len()))]
 pub fn log(
     app: tauri::AppHandle,
     level: String,

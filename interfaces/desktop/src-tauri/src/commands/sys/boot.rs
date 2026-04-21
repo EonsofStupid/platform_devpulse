@@ -12,6 +12,7 @@ use crate::state::BootStateTracker;
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
+#[tracing::instrument(level = "debug", skip(tracker), err)]
 pub async fn get_boot_state(
     tracker: tauri::State<'_, BootStateTracker>,
 ) -> Result<crate::state::BootSnapshot, String> {

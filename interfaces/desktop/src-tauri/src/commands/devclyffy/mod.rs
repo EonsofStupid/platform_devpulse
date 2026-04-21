@@ -13,6 +13,7 @@ use tauri::State;
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
+#[tracing::instrument(level = "debug", skip(state), err)]
 pub async fn get_status(state: State<'_, PlatformState>) -> Result<SystemHealth, String> {
     // P0: lock-free atomic load.
     match state.platform.load_full() {

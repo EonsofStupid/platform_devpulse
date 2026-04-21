@@ -267,16 +267,26 @@ pub fn run() {
     // the hang is inside the handler (not in IPC dispatch).
     let specta_handler = builder.invoke_handler();
     let traced_invoke_handler = move |invoke: tauri::ipc::Invoke<tauri::Wry>| -> bool {
-        // DEBUG level, not TRACE — the default JSONL filter treats unknown
-        // targets (like "ipc") at DEBUG level, so a `trace!` here would be
-        // silently dropped. This is exactly the diagnostic we can't afford
-        // to lose.
+        // Log BOTH entry and post-dispatch. specta's handler returns
+        // immediately after spawning the async task; `elapsed_us` here
+        // is dispatcher overhead, not handler duration. Handler duration
+        // comes from the `#[tracing::instrument]` spans on each command.
+        //
+        // DEBUG level (not TRACE) because target "ipc" falls to the
+        // default level in our EnvFilter — TRACE would be dropped.
+        let command = invoke.message.command().to_string();
+        tracing::debug!(target: "ipc", command = %command, "invoke received");
+        let start = std::time::Instant::now();
+        let handled = specta_handler(invoke);
+        let elapsed_us = start.elapsed().as_micros() as u64;
         tracing::debug!(
             target: "ipc",
-            command = invoke.message.command(),
-            "invoke received"
+            command = %command,
+            handled,
+            elapsed_us,
+            "invoke dispatched"
         );
-        specta_handler(invoke)
+        handled
     };
 
     tauri::Builder::default()
