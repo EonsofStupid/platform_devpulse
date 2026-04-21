@@ -1,5 +1,11 @@
 [services.system.devforge]
-enabled = true
+# Default OFF (owner directive 2026-04-20 — no auto-load):
+# DevForge spawns a Node REH server and blocks Platform::boot on
+# `wait_for_health()` (up to 30s). Keeping boot deterministic and
+# sub-10s means the code editor starts on demand, not at boot.
+# Flip to `enabled = true` only when REH is bundled AND the owner
+# explicitly wants it to come up with the platform.
+enabled = false
 critical = false
 mode = "reh"
 port = 0
