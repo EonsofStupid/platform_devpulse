@@ -40,6 +40,30 @@ use tauri_specta::{collect_commands, Builder};
 #[allow(clippy::expect_used, clippy::too_many_lines)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // ── WebView2 / Chromium stderr logging (dev only) ───────────
+    // Route every uncaught JS exception, console.error, unhandled promise
+    // rejection, navigation failure, and renderer-process crash into the
+    // Tauri process's stderr — where our tracing subscriber already
+    // captures it into the session JSONL. This is the senior-dev fallback
+    // for when F12 devtools locks up or the webview never actually runs
+    // any script (blank black window) — the data still lands on disk.
+    //
+    // `--enable-logging=stderr` redirects Chromium's log sinks to stderr.
+    // `--v=1` unlocks verbose renderer lifecycle + navigation error codes.
+    //
+    // Release builds stay silent (this env var is dev-only diagnostics).
+    #[cfg(debug_assertions)]
+    {
+        if std::env::var_os("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").is_none() {
+            // SAFETY: Set before Tauri constructs any thread. Single-threaded
+            // at this point in `run()`; no concurrent env access can race.
+            std::env::set_var(
+                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+                "--enable-logging=stderr --v=1",
+            );
+        }
+    }
+
     // ── specta: typed IPC bindings ──────────────────────────────
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         commands::chat::pick_save_file,

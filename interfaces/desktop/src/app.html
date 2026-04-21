@@ -6,6 +6,63 @@
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
     <link rel="stylesheet" href="/fonts/fonts.css" />
+    <!--
+      Pre-module error capture — this script runs BEFORE any `import()`.
+      It catches syntax errors, module-resolution failures, and unhandled
+      promise rejections that happen during initial bundle load — i.e. the
+      errors that otherwise leave the webview blank because the SvelteKit
+      logger never got a chance to mount.
+
+      Captured events are pushed into `window.__DEVPULSE_EARLY_ERRORS__`.
+      `logger.ts::installGlobalHandlers()` drains that buffer on first run
+      and forwards every entry to the Rust tracing pipeline, so they land
+      in `{data_dir}/logs/session-*.jsonl` even when F12 is frozen.
+
+      Once the real logger signals ready via `window.__DEVPULSE_LOGGER_READY__`,
+      these handlers go quiet so we don't double-capture.
+    -->
+    <script>
+      (() => {
+        window.__DEVPULSE_EARLY_ERRORS__ = window.__DEVPULSE_EARLY_ERRORS__ || [];
+        const buf = window.__DEVPULSE_EARLY_ERRORS__;
+        const push = (kind, payload) => {
+          if (window.__DEVPULSE_LOGGER_READY__) return;
+          try {
+            buf.push({ kind, timestamp: new Date().toISOString(), payload });
+          } catch (_) {
+            /* buffer push should never throw, but be safe */
+          }
+        };
+        window.addEventListener('error', (e) => {
+          push('error', {
+            message: e.message || '',
+            filename: e.filename || '',
+            lineno: e.lineno || 0,
+            colno: e.colno || 0,
+            stack: e.error?.stack ? String(e.error.stack) : null,
+          });
+        }, true);
+        window.addEventListener('unhandledrejection', (e) => {
+          const reason = e.reason;
+          push('unhandledrejection', {
+            message: reason instanceof Error ? reason.message : String(reason),
+            stack: reason instanceof Error ? String(reason.stack || '') : null,
+          });
+        });
+        const origErr = console.error;
+        console.error = (...args) => {
+          try {
+            const msg = args
+              .map((a) => (a instanceof Error ? `${a.message}\n${a.stack || ''}` : String(a)))
+              .join(' ');
+            push('console.error', { message: msg });
+          } catch (_) {
+            /* swallow */
+          }
+          return origErr.apply(console, args);
+        };
+      })();
+    </script>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

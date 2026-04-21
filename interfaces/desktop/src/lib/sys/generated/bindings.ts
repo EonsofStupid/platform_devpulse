@@ -740,14 +740,19 @@ async devforgeSetFreshInstance(enabled: boolean) : Promise<Result<null, string>>
 /**
  * Open (or focus) the dedicated DevForge window.
  * 
- * If the REH server is not yet running, returns an error string telling
- * the frontend to wait for the `devforge://ready` event before retrying.
+ * First call spawns the Node REH child process via
+ * `Platform::ensure_devforge_started()` — this is the **only** path that
+ * spawns the server. Subsequent calls reuse the cached service.
  * 
  * Returns a [`DevforgeBootstrapStatus`] snapshot so the caller can update
  * its own UI state without a second round-trip to `devforge_get_status`.
  * 
  * # Errors
- * - REH server is not running (bootstrap still in flight, or install missing)
+ * - Platform hasn't finished booting yet (user should retry)
+ * - DevForge server tree is missing — user needs to run
+ * `cargo xtask fetch-devforge` or install the bundled release
+ * - Node binary missing from the server tree
+ * - Health poll fails within the service's startup timeout
  * - Connection URL fails to parse as a valid `Url`
  * - Tauri fails to create the `WebviewWindow`
  * - Focusing an already-open DevForge window fails

@@ -32,6 +32,66 @@ let ipcReady = false;
 let globalHandlersInstalled = false;
 
 /**
+ * Shape of entries buffered by the inline pre-module script in `app.html`.
+ * Kept loose because the inline script is plain JS and can't import types.
+ */
+interface EarlyErrorEntry {
+	kind: "error" | "unhandledrejection" | "console.error";
+	timestamp: string;
+	payload: Record<string, unknown>;
+}
+
+declare global {
+	interface Window {
+		__DEVPULSE_EARLY_ERRORS__?: EarlyErrorEntry[];
+		__DEVPULSE_LOGGER_READY__?: boolean;
+	}
+}
+
+/**
+ * Drain `window.__DEVPULSE_EARLY_ERRORS__` — errors captured by the inline
+ * script in `app.html` BEFORE any module loaded — into the IPC buffer so
+ * they flush to Rust the moment `markIpcReady()` fires.
+ *
+ * Must run before `markIpcReady()` to guarantee ordering.
+ */
+function drainEarlyErrors(): void {
+	const early = window.__DEVPULSE_EARLY_ERRORS__;
+	if (!early || early.length === 0) return;
+
+	for (const entry of early) {
+		const target =
+			entry.kind === "error"
+				? "frontend:early:error"
+				: entry.kind === "unhandledrejection"
+					? "frontend:early:rejection"
+					: "frontend:early:console";
+		const payload = entry.payload ?? {};
+		const parts: string[] = [];
+		if (typeof payload.message === "string" && payload.message.length > 0) {
+			parts.push(payload.message);
+		}
+		if (typeof payload.filename === "string" && payload.filename.length > 0) {
+			parts.push(`at ${payload.filename}:${payload.lineno ?? 0}:${payload.colno ?? 0}`);
+		}
+		if (typeof payload.stack === "string" && payload.stack.length > 0) {
+			parts.push(payload.stack);
+		}
+		const message = parts.length > 0 ? parts.join("\n") : JSON.stringify(payload);
+		buffer.push({
+			level: "error",
+			target,
+			message: `[early ${entry.timestamp}] ${message}`,
+			timestamp: entry.timestamp,
+			runId: null,
+		});
+	}
+
+	// Clear the early buffer so re-imports don't double-drain.
+	early.length = 0;
+}
+
+/**
  * Active run ID from withAction() — correlates frontend logs with backend spans.
  * Set by action-bus.svelte.ts, read by log() to inject into every IPC log call.
  */
@@ -55,6 +115,11 @@ export function getActiveRunId(): string | null {
  */
 export function markIpcReady(): void {
 	if (ipcReady) return;
+
+	// Drain any pre-module errors captured by the inline script in app.html
+	// BEFORE flushing, so they appear ahead of module-origin logs.
+	drainEarlyErrors();
+
 	ipcReady = true;
 
 	// Flush buffer
@@ -82,6 +147,10 @@ export function markIpcReady(): void {
 export function installGlobalHandlers(): void {
 	if (globalHandlersInstalled) return;
 	globalHandlersInstalled = true;
+
+	// Tell the inline pre-module script in app.html to stop buffering —
+	// from here on, the real handlers capture everything.
+	window.__DEVPULSE_LOGGER_READY__ = true;
 
 	// Capture uncaught exceptions
 	window.addEventListener("error", (event) => {
