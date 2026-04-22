@@ -45,7 +45,7 @@ pub async fn boot_consolidated(
         || boot_config.services.global.graph.enabled;
 
     if !any_graph_enabled {
-        on_event(InitEvent::skipped("Graph store (SurrealDB)"));
+        on_event(InitEvent::skipped("Graph store"));
         boot_log.skip("Graph store", "all graph namespaces disabled");
         return (None, None, None);
     }

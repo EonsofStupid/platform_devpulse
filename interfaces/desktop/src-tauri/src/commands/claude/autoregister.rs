@@ -38,7 +38,9 @@ pub fn apply_on_boot(data_dir: &Path) {
     if prefs.desktop {
         match register::register(ClaudeTarget::Desktop) {
             Ok(_) => tracing::info!("claude.autoregister: registered with Claude Desktop"),
-            Err(e) => tracing::warn!(error = %e, "claude.autoregister: Desktop registration failed"),
+            Err(e) => {
+                tracing::warn!(error = %e, "claude.autoregister: Desktop registration failed")
+            }
         }
     }
     if !prefs.code && !prefs.desktop {
@@ -131,18 +133,16 @@ mod tests {
 
     #[test]
     fn anything_other_than_true_is_false() {
-        let prefs = parse_prefs(
-            r#"{"claude.autoregister.code":"yes","claude.autoregister.desktop":"1"}"#,
-        );
+        let prefs =
+            parse_prefs(r#"{"claude.autoregister.code":"yes","claude.autoregister.desktop":"1"}"#);
         assert!(!prefs.code);
         assert!(!prefs.desktop);
     }
 
     #[test]
     fn extra_keys_are_ignored() {
-        let prefs = parse_prefs(
-            r#"{"unrelated.thing":"value","claude.autoregister.desktop":"true"}"#,
-        );
+        let prefs =
+            parse_prefs(r#"{"unrelated.thing":"value","claude.autoregister.desktop":"true"}"#);
         assert!(!prefs.code);
         assert!(prefs.desktop);
     }

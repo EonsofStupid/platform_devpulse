@@ -218,6 +218,10 @@ pub fn run() {
         commands::claude::detect_claude_installs,
         commands::claude::register_devpulse_mcp,
         commands::claude::unregister_devpulse_mcp,
+        // AI Providers — multi-vendor SSOT-driven validation surface
+        commands::providers::list_provider_status,
+        commands::providers::validate_provider,
+        commands::providers::list_provider_models,
         commands::devpulse::fetch_dashboard,
         commands::devpulse::profile::fetch_user_profile,
         commands::devpulse::profile::update_user_profile,

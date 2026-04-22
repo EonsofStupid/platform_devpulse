@@ -365,7 +365,11 @@ async fn execute_inner(
 
     // ── Validate critical services ─────────────────
     // Config-driven: is_enabled_and_critical() reads from parsed TOML.
-    // No hardcoded list — if TOML says critical=true, it's validated.
+    // Identity-driven: the names used below are the InitEvent step_id
+    // strings that the boot pipeline emits and the frontend resolves
+    // through `resolveLabel`. One SSOT across Rust validation and TS UI.
+    // The cross-check between these literals and BOOT_STEP_MANIFEST is
+    // enforced by unit tests in platform::services::manifest.
     {
         use crate::platform::config::DataScope;
         use crate::platform::services::ServiceRole;
@@ -376,51 +380,51 @@ async fn execute_inner(
         #[allow(unused_mut)]
         let mut checks: Vec<(&str, bool, bool)> = vec![
             (
-                "System Database",
+                "System relational",
                 system_relational.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::System),
             ),
             (
-                "Analytics Engine",
+                "System analytics",
                 system_analytics.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::System),
             ),
             (
-                "Knowledge Graph",
+                "Graph store",
                 system_graph.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::System),
             ),
             (
-                "System Cache",
+                "System cache",
                 system_cache.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Cache, DataScope::System),
             ),
             (
-                "User Database",
+                "User relational",
                 user_relational.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::User),
             ),
             (
-                "User Knowledge",
+                "User graph namespace",
                 user_graph.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::User),
             ),
             (
-                "Shared Knowledge",
+                "Global graph namespace",
                 global_graph.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::Global),
             ),
         ];
         #[cfg(feature = "rro")]
         checks.push((
-            "Vector Store",
+            "Vector store",
             vector.is_some(),
             boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System),
         ));
         // Embedder + Whisper removed — slot-managed by model loader (Layer 2).
         #[cfg(feature = "inference")]
         checks.push((
-            "Model Manager",
+            "Model Loader",
             model_loader_svc.is_some(),
             boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System),
         ));

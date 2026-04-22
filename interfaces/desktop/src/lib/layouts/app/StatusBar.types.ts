@@ -2,41 +2,17 @@
  * @file StatusBar.types.ts
  * @module @devpulse/layouts/app/StatusBar
  *
- * Subsystem grouping constants for StatusBar and Dashboard health displays.
- * Shared by StatusBar.svelte and routes/(app)/devpulse/+page.svelte.
+ * Subsystem grouping helpers for StatusBar and Dashboard health displays.
+ * Classification logic lives in `$lib/sys/generated/service-manifest.ts`,
+ * which mirrors `BOOT_STEP_MANIFEST` in the Rust engine — a `cargo test`
+ * enforces the two stay in sync.
  */
 
 import type { SubsystemHealth } from "$lib/sys/generated/health.types.js";
+import { classifyStep, type SubsystemGroupKind } from "$lib/sys/generated/service-manifest.js";
 import type { SubsystemInfo } from "$lib/sys/runes/platformState.svelte.js";
 
-/**
- * Subsystem names that belong to each health group.
- *
- * Keys MUST match the literal strings emitted by
- * `systems/devpulse-engine/src/platform/boot/*` via
- * `InitEvent::running/ok/error/skipped` — i.e. the same values the
- * Rust backend puts on the `platform:subsystem-status` Tauri event.
- * These are the authoritative `engine` names also registered in
- * `systems/devpulse-engine/ip/kernel_terms.toml`.
- */
-export const STORE_NAMES = new Set([
-	"System relational",
-	"User relational",
-	"System analytics",
-	"System cache",
-]);
-
-export const GRAPH_NAMES = new Set([
-	"Graph store",
-	"SurrealDB HTTP",
-	"User graph namespace",
-	"Global graph namespace",
-]);
-
-export const AI_NAMES = new Set(["Model Loader", "Vector store"]);
-
-/** Discriminator used by consumers to pick icons, colors, and narration heuristics. */
-export type SubsystemGroupKind = "stores" | "graph" | "ai" | "system";
+export type { SubsystemGroupKind };
 
 /** A labeled group of subsystems for display. */
 export interface HealthGroup {
@@ -52,12 +28,14 @@ export interface SubsystemGroup {
 	subs: SubsystemInfo[];
 }
 
-/** Classify a subsystem name into a group key. */
+/**
+ * Classify a subsystem by its emitted `InitEvent::step` name.
+ *
+ * Delegates to the generated `classifyStep` — do not re-implement inline,
+ * that just forks the SSOT.
+ */
 export function classifySubsystem(name: string): SubsystemGroupKind {
-	if (STORE_NAMES.has(name)) return "stores";
-	if (GRAPH_NAMES.has(name)) return "graph";
-	if (AI_NAMES.has(name)) return "ai";
-	return "system";
+	return classifyStep(name);
 }
 
 /** Group SubsystemInfo[] (boot-time) into labeled groups. */

@@ -147,8 +147,8 @@ Engine code uses `ip_term!("PUBLIC_ID")` for any emission bridging kernel state 
 | Public narration catalog | `systems/devpulse-engine/ip/signals.narrations.yaml` |
 | This doctrine | `.claude/rules/ip-protection.md` |
 | Kernel implementation names | `kernel/**/*.rs`, `kernel/**/*.toml` — nowhere else |
-| Engine-side registry bridge | `systems/devpulse-engine/src/signals/` (to be authored — see sprint P1) |
-| Frontend signal domain | `interfaces/desktop/src/lib/domains/app/signals/` (to be authored — see sprint P4) |
+| Engine-side signal system | `systems/devpulse-engine/src/signals/` — **authored** (disk-verified 2026-04-22). 7 files, 527 LOC: `mod.rs`, `header.rs`, `kinds.rs`, `payloads.rs`, `router.rs`, `signal.rs`, `variants.rs`. Public API: `Signal`, `SignalHeader`, `SignalSource`, `SignalVariant`, `SinkKind`, `SignalRouter` (tokio broadcast). |
+| Frontend signal domain | `interfaces/desktop/src/lib/domains/app/signals/` — **not yet authored** (disk-verified absent 2026-04-22). Signals currently reach the frontend through the Tauri event bridge (`platform:subsystem-status`, `platform:boot-phase`, `platform:models-status`); a typed rune consumer domain is still pending. |
 | CI lint | `lefthook.yml` → `ip-boundary-check` |
 | **Legacy (deprecated, pending P0 migration)** | `systems/devpulse-engine/ip/kernel_terms.toml` |
 

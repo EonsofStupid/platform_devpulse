@@ -173,12 +173,16 @@ fn clear_line() {
 /// When `estimated_total > 0`, shows "X of ~Y" progress.
 /// Errors print immediately. Warnings are counted. Summary at the end.
 ///
-/// Returns the child's exit status plus transport-level diagnostics.
+/// Returns the child's exit status. Previously also returned a
+/// `saw_sccache_transport_error` flag used to drive a retry-without-cache
+/// path in `dev.rs`. That scaffolding existed only because the sccache
+/// server was being killed by xtask's Job Object mid-compile. The
+/// foundation fix (see [`crate::commands::sccache`]) starts the server
+/// outside the job so transport failures no longer happen from that
+/// cause; the retry path has been removed.
 pub struct CargoMonitorResult {
     /// Exit status returned by cargo.
     pub status: std::process::ExitStatus,
-    /// Whether stderr contained the characteristic sccache transport crash.
-    pub saw_sccache_transport_error: bool,
 }
 
 pub fn monitor_cargo_child(
@@ -204,7 +208,6 @@ pub fn monitor_cargo_child(
     let mut errors = Vec::<String>::new();
     let mut current_layer = "";
     let mut in_error_block = false;
-    let mut saw_sccache_transport_error = false;
 
     // Shared state for the heartbeat thread to display live elapsed time
     // even when cargo is silent (e.g. during long native C++ compilations).
@@ -224,7 +227,14 @@ pub fn monitor_cargo_child(
         let mut tick = 0usize;
         loop {
             thread::sleep(Duration::from_millis(500));
-            let state = hb.lock().unwrap();
+            // If the mutex poisons (producer panicked), recover the inner
+            // value and keep ticking — the only durable state we need is
+            // `alive`, which the producer sets false on shutdown. Panicking
+            // the heartbeat would just hide the real panic behind a second.
+            let state = match hb.lock() {
+                Ok(g) => g,
+                Err(poisoned) => poisoned.into_inner(),
+            };
             if !state.alive {
                 break;
             }
@@ -260,10 +270,6 @@ pub fn monitor_cargo_child(
         };
 
         let trimmed = line.trim();
-
-        if is_sccache_transport_failure(trimmed) {
-            saw_sccache_transport_error = true;
-        }
 
         if trimmed.starts_with("Compiling ") || trimmed.starts_with("Checking ") {
             in_error_block = false;
@@ -370,17 +376,7 @@ pub fn monitor_cargo_child(
         }
     }
 
-    Ok(CargoMonitorResult {
-        status,
-        saw_sccache_transport_error,
-    })
-}
-
-fn is_sccache_transport_failure(line: &str) -> bool {
-    line.contains("sccache:")
-        && (line.contains("error reading compile response from server")
-            || line.contains("Failed to read response header")
-            || line.contains("forcibly closed by the remote host"))
+    Ok(CargoMonitorResult { status })
 }
 
 /// Shared state between the main reader loop and the heartbeat thread.

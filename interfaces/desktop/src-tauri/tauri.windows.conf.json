@@ -1,7 +1,17 @@
 {
 	"bundle": {
-		"resources": {
-			"resources/devforge/win32-x64/**/*": "devforge/"
-		}
+		"resources": [
+			"binaries/llama.dll",
+			"binaries/llama-common.dll",
+			"binaries/ggml.dll",
+			"binaries/ggml-base.dll",
+			"binaries/ggml-cuda.dll",
+			"binaries/ggml-cpu-haswell.dll",
+			"binaries/cublas64_12.dll",
+			"binaries/cublasLt64_12.dll",
+			"binaries/cudart64_12.dll",
+			"binaries/libomp140.x86_64.dll",
+			"resources/devforge/win32-x64/"
+		]
 	}
 }

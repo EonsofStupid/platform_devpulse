@@ -62,9 +62,7 @@ pub async fn enable_grammar(
 /// Disable the grammar engine entirely.
 #[tauri::command]
 #[specta::specta]
-pub async fn disable_grammar(
-    state: State<'_, PlatformState>,
-) -> Result<GrammarSnapshot, String> {
+pub async fn disable_grammar(state: State<'_, PlatformState>) -> Result<GrammarSnapshot, String> {
     let platform = resolve_platform(&state)?;
     Ok(platform.grammar().disable().await)
 }

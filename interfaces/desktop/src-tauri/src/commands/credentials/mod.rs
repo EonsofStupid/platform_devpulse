@@ -306,9 +306,15 @@ mod tests {
 
     #[test]
     fn keyring_key_uses_kebab_id() {
-        assert_eq!(keyring_key_for(ProviderId::AnthropicApi), "api_key_anthropic-api");
+        assert_eq!(
+            keyring_key_for(ProviderId::AnthropicApi),
+            "api_key_anthropic-api"
+        );
         assert_eq!(keyring_key_for(ProviderId::OpenAi), "api_key_open-ai");
-        assert_eq!(keyring_key_for(ProviderId::HuggingFace), "api_key_hugging-face");
+        assert_eq!(
+            keyring_key_for(ProviderId::HuggingFace),
+            "api_key_hugging-face"
+        );
     }
 
     #[test]

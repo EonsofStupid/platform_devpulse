@@ -8,7 +8,11 @@
 //! - [`zombie`] — stale process cleanup
 
 mod commands;
+mod events;
+mod manifest;
 mod net;
+mod out;
+mod sbom;
 mod stage;
 mod workspace;
 mod zombie;
@@ -20,6 +24,14 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(name = "xtask", about = "DevPulse Orchestrator")]
 struct Cli {
+    /// Suppress informational progress lines. Warnings and errors still
+    /// print to stderr. Useful for CI where only failures matter.
+    #[arg(long, global = true)]
+    quiet: bool,
+    /// Enable verbose diagnostic output (`out::debug` lines). Takes
+    /// effect only when `--quiet` is not set.
+    #[arg(long, global = true)]
+    verbose: bool,
     #[command(subcommand)]
     command: Commands,
 }
@@ -34,11 +46,24 @@ enum Commands {
     RunDev,
     /// Build the portable release bundle — standalone .exe + Windows installers.
     /// Runs `pnpm tauri build` with the hardened [build.deps.*] env.
-    BuildRelease,
+    BuildRelease {
+        /// Skip installer bundling (NSIS/MSI). Builds the standalone .exe
+        /// and frontend only, then invokes `package-portable` to produce
+        /// the runnable folder + zip. Use this when installer generation
+        /// is failing (e.g. Defender locking MSI, NSIS script errors)
+        /// or when you only need a portable distribution.
+        #[arg(long)]
+        portable_only: bool,
+    },
     /// Package a portable folder + zip from the already-compiled release build.
     /// Reads `tauri.conf.json` for SSOT: productName/version/externalBin/resources.
     /// Does NOT compile — requires a prior successful `build-release`.
-    PackagePortable,
+    PackagePortable {
+        /// Walk every stage, report what would be copied, write nothing.
+        /// Surfaces missing externalBin/resource files before a real run.
+        #[arg(long)]
+        dry_run: bool,
+    },
     /// Verify the setup: svelte-check + cargo check.
     Verify,
     /// Verify IP boundary: desktop must not depend on clyffy.
@@ -65,14 +90,19 @@ enum Commands {
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+    out::set_level_from_flags(cli.quiet, cli.verbose);
     let ws = workspace::Workspace::discover()?;
 
     let task: Box<dyn Task> = match cli.command {
         Commands::Preflight => Box::new(commands::preflight::Preflight),
         Commands::Deps => Box::new(commands::deps::Deps),
         Commands::RunDev => Box::new(commands::dev::Dev),
-        Commands::BuildRelease => Box::new(commands::build_release::BuildRelease),
-        Commands::PackagePortable => Box::new(commands::package_portable::PackagePortable),
+        Commands::BuildRelease { portable_only } => {
+            Box::new(commands::build_release::BuildRelease { portable_only })
+        }
+        Commands::PackagePortable { dry_run } => {
+            Box::new(commands::package_portable::PackagePortable { dry_run })
+        }
         Commands::Verify => Box::new(commands::verify::Verify),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
         Commands::FetchDevforge {
@@ -86,6 +116,8 @@ fn main() -> anyhow::Result<()> {
         }),
     };
 
-    eprintln!("xtask: {}", task.name());
+    // Task banner on stdout — it's progress, not a warning. Suppressed
+    // under --quiet alongside the other info lines.
+    xinfo!("xtask: {}", task.name());
     task.run(&ws)
 }

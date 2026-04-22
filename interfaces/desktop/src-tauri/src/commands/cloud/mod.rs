@@ -12,8 +12,8 @@
 //! the kernel boundary one-way. Do NOT add a third alias anywhere.
 
 use crate::commands::credentials::get_api_key;
-use devpulse_engine::ai_providers::ProviderId;
 use anyhow::{Context as _, Result as AnyhowResult};
+use devpulse_engine::ai_providers::ProviderId;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::{Emitter, State};

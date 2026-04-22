@@ -42,7 +42,7 @@ mod job {
     use windows_sys::Win32::System::JobObjects::{
         AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation,
         SetInformationJobObject, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
-        JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        JOB_OBJECT_LIMIT_BREAKAWAY_OK, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
     };
 
     /// A Windows Job Object that kills all assigned processes on drop.
@@ -67,9 +67,27 @@ mod job {
                 io::Error::last_os_error()
             );
 
-            // Configure: kill all processes when the job handle is closed
+            // Configure:
+            //   * KILL_ON_JOB_CLOSE — when xtask exits (and the job handle
+            //     closes), every assigned process dies. This is the zombie
+            //     prevention this whole module exists for.
+            //   * BREAKAWAY_OK — children that spawn themselves with
+            //     `CREATE_BREAKAWAY_FROM_JOB` are allowed to escape. This
+            //     is load-bearing for infrastructure daemons (sccache,
+            //     future standalone dev services) that must SURVIVE xtask
+            //     exiting. Without this flag, CREATE_BREAKAWAY_FROM_JOB
+            //     would fail silently and the daemon would be silently
+            //     assigned to the job and killed with it — the exact bug
+            //     that plagued the sccache server before this fix.
+            //
+            //     BREAKAWAY_OK is explicitly opt-in (child requests it),
+            //     NOT silent-breakaway. Build children (cargo, rustc,
+            //     pnpm, vite, tauri dev, the app binary) do NOT pass
+            //     CREATE_BREAKAWAY_FROM_JOB, so they stay in the job and
+            //     get killed on xtask exit exactly as before.
             let mut info: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = unsafe { std::mem::zeroed() };
-            info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+            info.BasicLimitInformation.LimitFlags =
+                JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
 
             // SAFETY: We're setting a well-defined limit flag on a valid job handle.
             let ok = unsafe {

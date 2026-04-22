@@ -20,6 +20,11 @@ native-tls = "0.2"
 zip = { version = "2.2", default-features = false, features = ["deflate"] }
 sha2 = "0.10"
 hex = "0.4"
+# ISO8601 timestamps for build.manifest.json. Already workspace-pinned.
+chrono = { workspace = true }
+# CycloneDX 1.4 requires `serialNumber: "urn:uuid:<uuid>"` — v4 is deterministic
+# enough for build identification. Small, widely-trusted crate.
+uuid = { version = "1", features = ["v4"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [

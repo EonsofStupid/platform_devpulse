@@ -1099,6 +1099,57 @@ async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstall
 }
 },
 /**
+ * Snapshot every visible provider's current status.
+ * 
+ * Cheap — no network calls. The Status tab calls this on mount + on
+ * post-save refresh. Local-runtime cards rely on `validate_provider`
+ * for reachability, which the UI fires per-card on demand.
+ */
+async listProviderStatus() : Promise<Result<ProviderStatus[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_provider_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Validate a provider by listing its models — the canonical "is this
+ * connection working" call that doubles as the model-picker refresh.
+ * 
+ * On success: caches the model list + clears any prior error.
+ * On failure: caches the classified error so the Status tab can
+ * surface it without a re-call.
+ * 
+ * Always returns `Ok(ValidationResult)` — the result's `ok` field
+ * distinguishes success from classified failure. Returning `Err` would
+ * force the frontend to do double-dispatch on transport failure.
+ */
+async validateProvider(provider: ProviderId) : Promise<Result<ValidationResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("validate_provider", { provider }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Refresh the model list for one provider.
+ * 
+ * Convenience wrapper over `validate_provider` for the Config tab's
+ * "Refresh model list" button — same call, error path collapsed back
+ * into the Tauri Result channel since the UI here only renders the
+ * model dropdown and a toast on failure.
+ */
+async listProviderModels(request: ListModelsRequest) : Promise<Result<ModelInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_provider_models", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetch dashboard data from all services.
  * 
  * Queries:
@@ -4727,6 +4778,20 @@ name: string;
  */
 row_count: number }
 /**
+ * Convenience for the Config tab's model picker — same call as
+ * `validate_provider`, returns just the model list (or an empty list
+ * on failure, with the failure message in the Tauri error channel).
+ * 
+ * `validate_provider` is what the rest of the devtool calls; this one
+ * exists so the UI can wire a "Refresh model list" button without
+ * pretending it's doing something different.
+ */
+export type ListModelsRequest = { 
+/**
+ * Provider whose models to list.
+ */
+provider: ProviderId }
+/**
  * Health status of the llama-server sidecar.
  */
 export type LlamaHealthStatus = { 
@@ -5054,6 +5119,25 @@ supported_backends: string[];
  */
 compatible_capabilities: string[] }
 /**
+ * One row from a `/v1/models` response — projected to what the UI shows.
+ * 
+ * Vendor responses include more (created_at, owned_by, capabilities,
+ * pricing) but those vary. We surface only the model id; per-vendor
+ * detail panels can re-fetch when they need richer metadata.
+ */
+export type ModelInfo = { 
+/**
+ * Vendor model identifier — what callers pass as `model:` in chat
+ * requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
+ */
+id: string; 
+/**
+ * Optional owner label — OpenAI returns "openai"/"system", Hugging
+ * Face returns the namespace, Ollama returns the digest. UI shows
+ * it as a subtitle when present.
+ */
+ownedBy: string | null }
+/**
  * Models setup screen — preset card, recommendations.
  */
 export type ModelsCopy = { 
@@ -5356,6 +5440,54 @@ created_at: number;
  */
 last_accessed: number }
 /**
+ * Wire-stable classification of provider call failures.
+ * 
+ * Sprint 7's lane router reads this to decide retry policy:
+ * `RateLimit` → back off and retry, `QuotaExhausted` → fail fast,
+ * `AuthFailed` → fail and surface to operator, `Network`/`Server` →
+ * retry with jitter.
+ */
+export type ProviderErrorKind = 
+/**
+ * 401 / 403 — the stored API key is wrong or revoked.
+ */
+"auth-failed" | 
+/**
+ * 429 with `rate_limit_exceeded` semantics — temporary, retry with
+ * jitter / back off.
+ */
+"rate-limit" | 
+/**
+ * 429 with `insufficient_quota` (OpenAI) or `billing_error`
+ * (Anthropic) — the account is out of credit. Don't retry.
+ */
+"quota-exhausted" | 
+/**
+ * Connection refused / DNS / TLS / read timeout — the request
+ * never reached the vendor's app layer.
+ */
+"network" | 
+/**
+ * 5xx from the vendor — they ack'd but failed. Retry with jitter.
+ */
+"server" | 
+/**
+ * Body parse / shape mismatch — vendor returned 200 but we couldn't
+ * project it. Logs the raw body for diagnosis.
+ */
+"parse" | 
+/**
+ * Pre-flight failure: no key in the vault, missing account_id, etc.
+ * Never reached the network.
+ */
+"not-configured" | 
+/**
+ * Implementation gap (currently Fireworks `/v1/accounts/...`). The
+ * devtool surfaces this as an explicit "coming soon" state rather
+ * than pretending the provider doesn't exist.
+ */
+"not-implemented"
+/**
  * Stable wire identifier for a provider.
  * 
  * Used in config files, telemetry, devtool URLs, lane router selection.
@@ -5429,6 +5561,52 @@ export type ProviderId =
  * vLLM running locally or on the LAN.
  */
 "vllm"
+/**
+ * Aggregated row for the Status tab grid — one per visible provider.
+ */
+export type ProviderStatus = { 
+/**
+ * Stable wire identifier from the SSOT registry.
+ */
+id: ProviderId; 
+/**
+ * Layman-friendly vendor + product name (copied from the SSOT so
+ * the frontend doesn't need a second registry lookup).
+ */
+displayName: string; 
+/**
+ * `true` when the operator has stored a key (cloud) or the local
+ * server is reachable (local). Drives the "configured" pill.
+ */
+configured: boolean; 
+/**
+ * `true` when this entry needs an account-scoped flow that we
+ * haven't built yet (currently only Fireworks). UI shows the
+ * "needs account ID" notice instead of a key form.
+ */
+requiresAccountSetup: boolean; 
+/**
+ * `true` for `Transport::LocalHttp` providers (Ollama, LM Studio,
+ * vLLM). The UI hides the API-key form for these.
+ */
+isLocal: boolean; 
+/**
+ * Last successful validation as epoch milliseconds (`None` if never
+ * validated this process). Cleared on restart — the cache is in
+ * memory only.
+ */
+lastValidatedAtMs: number | null; 
+/**
+ * Last validation error (`None` if last attempt succeeded or no
+ * attempts have run). Surfaces verbatim so the UI can show "401
+ * authentication_error: Invalid API key" rather than just "fail".
+ */
+lastError: string | null; 
+/**
+ * Number of models returned by the most recent successful validation
+ * (`None` if never validated).
+ */
+modelCount: number | null }
 /**
  * Runtime status of the REH web server.
  * 
@@ -6391,6 +6569,35 @@ updatedAt: number;
  * Unix timestamp for the last active session, if recorded.
  */
 lastActiveAt: number | null }
+/**
+ * Result of `validate_provider` — either parsed model list or failure.
+ */
+export type ValidationResult = { 
+/**
+ * Provider that was validated.
+ */
+provider: ProviderId; 
+/**
+ * `true` when the call succeeded and `models` is populated.
+ */
+ok: boolean; 
+/**
+ * Wall-clock latency in milliseconds. Useful in the devtool to spot
+ * slow regions / cold starts.
+ */
+latencyMs: number; 
+/**
+ * Parsed model list (empty when `ok = false`).
+ */
+models: ModelInfo[]; 
+/**
+ * Classified failure (`None` when `ok = true`).
+ */
+errorKind: ProviderErrorKind | null; 
+/**
+ * Human-readable failure message (`None` when `ok = true`).
+ */
+errorMessage: string | null }
 /**
  * Vector store health report.
  */

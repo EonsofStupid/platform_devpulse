@@ -38,160 +38,286 @@
 use crate::commands::preflight::Preflight;
 use crate::commands::sccache;
 use crate::commands::Task;
+use crate::events::{EventBuilder, EventSink, StageEvent, StageStatus, SummaryCounts};
+use crate::manifest::BuildManifest;
 use crate::stage;
 #[allow(unused_imports)]
 use crate::workspace::Workspace;
 use crate::zombie;
 
 use std::fmt;
-use std::path::Path;
-use std::time::Instant;
+use std::path::{Path, PathBuf};
+use std::time::{Instant, SystemTime};
 
 const VERSION: &str = "0.1.0";
 
 /// Portable release bundle build.
-pub struct BuildRelease;
+///
+/// `portable_only = false` (default) runs the full installer bundler.
+/// `portable_only = true` skips bundling (`tauri build --no-bundle`) and
+/// invokes `package-portable` at the end to produce a runnable zip.
+pub struct BuildRelease {
+    pub portable_only: bool,
+}
 
 impl Task for BuildRelease {
     fn name(&self) -> &'static str {
-        "build-release"
+        if self.portable_only {
+            "build-release --portable-only"
+        } else {
+            "build-release"
+        }
     }
 
-    #[allow(clippy::too_many_lines)]
     fn run(&self, ws: &Workspace) -> anyhow::Result<()> {
-        let run_start = Instant::now();
-        let platform_config = ws.platform_config()?;
-
-        // ── Stage 1: Banner ──
-        print_banner(self.name());
-
-        // ── Stage 2: Job Object (Windows) ──
-        // Same pattern as dev — children die with xtask.
-        #[cfg(windows)]
-        let _job_guard = {
-            let s = stage::Stage::start("job object");
-            match zombie::JobGuard::new() {
-                Ok(guard) => {
-                    s.ok_with("children will die with xtask (kernel-enforced)");
-                    Some(guard)
-                }
-                Err(e) => {
-                    s.warn(&format!("failed: {e} — zombies possible"));
-                    None
-                }
-            }
-        };
-
-        // ── Stage 3: Zombie cleanup ──
-        // Clear stale cargo/rustc/node from crashed sessions. A previous
-        // dev run can leave build-lock holders that silently block release.
-        stage::section("Cleanup");
-        let cleanup_start = Instant::now();
-        let lock_killed = zombie::clear_build_lock_holders()?;
-        if lock_killed > 0 {
-            eprintln!("  [OK] killed {lock_killed} stale build-lock holder(s)");
-        } else {
-            eprintln!("  [OK] no stale build-lock holders");
+        // Event sink wraps the whole task — SUMMARY runs on both success
+        // and failure paths. The inner function is free to `bail!()`; the
+        // sink's writer thread drains whatever events landed first.
+        let events_path = ws.root().join("target").join("xtask-events.jsonl");
+        let sink = EventSink::open(&events_path)?;
+        let result = run_inner(ws, &sink, self.portable_only);
+        match sink.finish() {
+            Ok(events) => print_summary(&events, &events_path),
+            Err(e) => crate::xwarn!("event log finalize failed: {e}"),
         }
-        let _ = cleanup_start;
+        result
+    }
+}
 
-        // ── Stage 4: Pre-flight ──
-        stage::section("Pre-flight");
-        Preflight.run(ws)?;
+#[allow(clippy::too_many_lines)]
+fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::Result<()> {
+    let run_start = Instant::now();
+    let run_wall_start = SystemTime::now();
+    let platform_config = ws.platform_config()?;
 
-        // ── Stage 5: Compile cache (sccache) ──
-        stage::section("Compile Cache");
-        let sccache_guard = sccache::Guard::new(ws)?;
-
-        // ── Stage 6: Hardened build env ──
-        stage::section("Build Environment");
-        println!("  > Build env from [build.deps.*] SSOT:");
-        platform_config.build.apply_env(ws.root());
-
-        // ── Stage 7: Launch `pnpm tauri build` with teed transcript ──
-        stage::section("Tauri Bundle");
-        let log_path = ws.root().join("target").join("xtask-build-release.log");
-        println!("  > pnpm tauri build");
-        println!("  > Scope: release profile compile + static frontend + Windows installers");
-        println!(
-            "  > Output: {}",
-            ws.root().join("target/release/bundle").display()
-        );
-        println!("  > Transcript: {}", log_path.display());
-        println!(
-            "  > This runs the full Rust release compile — expect 10–40 min cold, 2–8 min warm."
-        );
-        println!();
-
-        let build_start = Instant::now();
-        let status = ws.exec_tee_log(&ws.desktop_dir(), "pnpm", &["tauri", "build"], &log_path)?;
-        let build_secs = build_start.elapsed().as_secs_f64();
-
-        if !status.success() {
-            sccache_guard.report();
-            let code = status.code().unwrap_or(-1);
-            let stage = classify_tauri_failure(&log_path);
-            anyhow::bail!(
-                "`pnpm tauri build` exited with code {code} after {build_secs:.1}s\n  \
-                 Stage:        {stage}\n  \
-                 Transcript:   {log}\n  \
-                 Hint:         {hint}",
-                log = log_path.display(),
-                hint = stage.hint(),
+    // Build manifest — provenance + checksums for every artifact this
+    // run produces. Populated as the pipeline progresses; written at
+    // the end of Stage 8. Missing git/rustc/node downgrade to `None`
+    // fields rather than blocking the build.
+    let manifest_gather_guard = sink.start("manifest-gather");
+    let mut manifest = match BuildManifest::gather(
+        ws.root(),
+        platform_config.build.toolchain.target.clone(),
+        platform_config.build.toolchain.msvc_crt.clone(),
+        run_wall_start,
+    ) {
+        Ok(m) => {
+            manifest_gather_guard.ok();
+            Some(m)
+        }
+        Err(e) => {
+            // Manifest gathering is non-fatal — emit warn and continue.
+            // A missing manifest doesn't stop the build from producing
+            // a runnable .exe; it just disables provenance output.
+            crate::xwarn!("build manifest gathering failed: {e:#}");
+            manifest_gather_guard.warn(
+                EventBuilder::new()
+                    .classification("manifest_gather_failed")
+                    .detail(format!("{e:#}")),
             );
+            None
         }
+    };
 
-        sccache_guard.report();
+    // ── Stage 1: Banner ──
+    print_banner("build-release");
 
-        // ── Stage 8: Locate the artifact ──
-        // Paths come from the workspace root's `target/` — cargo workspaces
-        // write there, not under `interfaces/desktop/src-tauri/target/`.
-        // The standalone filename is `<productName>-app.exe` on Windows,
-        // read from tauri.conf.json so we don't drift from the SSOT.
-        stage::section("Artifact");
-        let target_release = ws.root().join("target").join("release");
-        let bundle_dir = target_release.join("bundle");
-        let standalone = match ws.tauri_product_name() {
-            Ok(name) => target_release.join(format!("{name}-app.exe")),
+    // ── Stage 2: Job Object (Windows) ──
+    // Same pattern as dev — children die with xtask.
+    #[cfg(windows)]
+    let _job_guard = {
+        let guard = sink.start("job-object");
+        let s = stage::Stage::start("job object");
+        match zombie::JobGuard::new() {
+            Ok(jg) => {
+                s.ok_with("children will die with xtask (kernel-enforced)");
+                guard.ok();
+                Some(jg)
+            }
             Err(e) => {
-                eprintln!("  [!!] could not read productName from tauri.conf.json: {e}");
-                target_release.join("devpulse-desktop-app.exe")
+                s.warn(format!("failed: {e} — zombies possible"));
+                guard.warn(EventBuilder::new().detail(format!("{e}")));
+                None
             }
-        };
-
-        println!("  Build completed in {build_secs:.1}s.");
-        println!();
-        println!("  Standalone .exe:");
-        if standalone.exists() {
-            println!("    {}", standalone.display());
-        } else {
-            println!(
-                "    (expected at {} — not found; check tauri.conf.json and the transcript at {})",
-                standalone.display(),
-                log_path.display()
-            );
         }
-        println!();
+    };
+
+    // ── Stage 3: Zombie cleanup ──
+    // Clear stale cargo/rustc/node from crashed sessions. A previous
+    // dev run can leave build-lock holders that silently block release.
+    stage::section("Cleanup");
+    let cleanup_guard = sink.start("cleanup-build-locks");
+    let lock_killed = zombie::clear_build_lock_holders()?;
+    if lock_killed > 0 {
+        crate::xinfo!("  [OK] killed {lock_killed} stale build-lock holder(s)");
+        cleanup_guard.ok_with(EventBuilder::new().detail(format!("killed {lock_killed}")));
+    } else {
+        crate::xinfo!("  [OK] no stale build-lock holders");
+        cleanup_guard.ok_with(EventBuilder::new().detail("no stale holders"));
+    }
+
+    // ── Stage 4: Pre-flight ──
+    stage::section("Pre-flight");
+    let preflight_guard = sink.start("preflight");
+    match Preflight.run(ws) {
+        Ok(()) => preflight_guard.ok(),
+        Err(e) => {
+            preflight_guard.fail(EventBuilder::new().detail(format!("{e:#}")));
+            return Err(e);
+        }
+    }
+
+    // ── Stage 5: Compile cache (sccache) ──
+    stage::section("Compile Cache");
+    let sccache_guard_event = sink.start("sccache-init");
+    let sccache_guard = match sccache::Guard::new(ws) {
+        Ok(g) => {
+            sccache_guard_event.ok();
+            g
+        }
+        Err(e) => {
+            sccache_guard_event.fail(EventBuilder::new().detail(format!("{e:#}")));
+            return Err(e);
+        }
+    };
+
+    // ── Stage 6: Hardened build env ──
+    stage::section("Build Environment");
+    println!("  > Build env from [build.deps.*] SSOT:");
+    let env_guard = sink.start("build-env");
+    platform_config.build.apply_env(ws.root());
+    env_guard.ok();
+
+    // ── Stage 7: Launch `pnpm tauri build` with teed transcript ──
+    // In portable-only mode, pass `--no-bundle` so tauri-cli skips the
+    // installer step entirely. The exe + frontend still compile; we just
+    // don't generate NSIS/MSI output. PackagePortable later produces the
+    // runnable zip from the compiled exe.
+    stage::section(if portable_only {
+        "Tauri Build (no-bundle)"
+    } else {
+        "Tauri Bundle"
+    });
+    let log_path = ws.root().join("target").join("xtask-build-release.log");
+    let pnpm_args: &[&str] = if portable_only {
+        &["tauri", "build", "--no-bundle"]
+    } else {
+        &["tauri", "build"]
+    };
+    println!("  > pnpm {}", pnpm_args.join(" "));
+    if portable_only {
+        println!("  > Scope: release profile compile + static frontend (NO installers)");
+    } else {
+        println!("  > Scope: release profile compile + static frontend + Windows installers");
+    }
+    println!("  > Output: {}", ws.root().join("target/release").display());
+    println!("  > Transcript: {}", log_path.display());
+    println!("  > This runs the full Rust release compile — expect 10–40 min cold, 2–8 min warm.");
+    println!();
+
+    let bundle_stage_id = if portable_only {
+        "tauri-build-nobundle"
+    } else {
+        "tauri-bundle"
+    };
+    let bundle_guard = sink.start(bundle_stage_id);
+    let build_start = Instant::now();
+    let status = ws.exec_tee_log(&ws.desktop_dir(), "pnpm", pnpm_args, &log_path)?;
+    let build_secs = build_start.elapsed().as_secs_f64();
+
+    if !status.success() {
+        sccache_guard.report();
+        let code = status.code().unwrap_or(-1);
+        let stage = classify_tauri_failure(&log_path);
+        bundle_guard.fail(
+            EventBuilder::new()
+                .classification(stage.classification_tag())
+                .detail(format!(
+                    "exit code {code} after {build_secs:.1}s at stage `{stage}`"
+                ))
+                .hint(stage.hint()),
+        );
+        anyhow::bail!(
+            "`pnpm tauri build` exited with code {code} after {build_secs:.1}s\n  \
+             Stage:        {stage}\n  \
+             Transcript:   {log}\n  \
+             Hint:         {hint}",
+            log = log_path.display(),
+            hint = stage.hint(),
+        );
+    }
+
+    bundle_guard.ok_with(EventBuilder::new().detail(format!("{build_secs:.1}s")));
+    sccache_guard.report();
+
+    // ── Stage 8: Locate the artifact ──
+    // Paths come from the workspace root's `target/` — cargo workspaces
+    // write there, not under `interfaces/desktop/src-tauri/target/`.
+    // The standalone filename is `<productName>-app.exe` on Windows,
+    // read from tauri.conf.json so we don't drift from the SSOT.
+    stage::section("Artifact");
+    let artifact_guard = sink.start("artifact-locate");
+    let target_release = ws.root().join("target").join("release");
+    let bundle_dir = target_release.join("bundle");
+    let standalone = match ws.tauri_product_name() {
+        Ok(name) => target_release.join(format!("{name}-app.exe")),
+        Err(e) => {
+            // Genuine warning — tauri.conf.json unreadable, fallback
+            // filename is a guess. Stays on stderr.
+            crate::xwarn!("  [!!] could not read productName from tauri.conf.json: {e}");
+            target_release.join("devpulse-desktop-app.exe")
+        }
+    };
+
+    println!("  Build completed in {build_secs:.1}s.");
+    println!();
+    println!("  Standalone .exe:");
+    let mut installer_count = 0usize;
+    if standalone.exists() {
+        println!("    {}", standalone.display());
+        if let Some(mf) = manifest.as_mut() {
+            add_artifact_or_warn(mf, ws.root(), "standalone-exe", &standalone);
+        }
+    } else {
+        println!(
+            "    (expected at {} — not found; check tauri.conf.json and the transcript at {})",
+            standalone.display(),
+            log_path.display()
+        );
+    }
+    println!();
+    if portable_only {
+        println!("  Installers: skipped (--portable-only)");
+    } else {
         println!("  Installers:");
         if bundle_dir.exists() {
-            let mut any = false;
             if let Ok(entries) = std::fs::read_dir(&bundle_dir) {
                 for entry in entries.flatten() {
                     let p = entry.path();
                     if p.is_dir() {
+                        // Subdir name (`nsis`, `msi`, ...) maps to artifact kind tag.
+                        let subdir = p
+                            .file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("unknown")
+                            .to_string();
                         if let Ok(inner) = std::fs::read_dir(&p) {
                             for sub in inner.flatten() {
                                 let sp = sub.path();
                                 if sp.is_file() {
                                     println!("    {}", sp.display());
-                                    any = true;
+                                    installer_count += 1;
+                                    if let Some(mf) = manifest.as_mut() {
+                                        let kind = format!("installer-{subdir}");
+                                        add_artifact_or_warn(mf, ws.root(), &kind, &sp);
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            if !any {
+            if installer_count == 0 {
                 println!(
                     "    (bundle dir exists but is empty at {} — tauri-bundler produced no installers; see transcript)",
                     bundle_dir.display()
@@ -200,22 +326,238 @@ impl Task for BuildRelease {
         } else {
             println!("    (expected under {} — not found)", bundle_dir.display());
         }
-        println!();
-        println!("  Smoke test:");
-        println!("    1. Close ALL dev processes (no vite, no `tauri dev`).");
-        println!("    2. Double-click the standalone .exe or run an installer.");
-        println!("    3. Expect: wizard visible, `http://127.0.0.1:8822/health` healthy,");
-        println!(
-            "       `.userdata/libsql/platform.db` + `.userdata/duckdb/analytics.duckdb` written."
-        );
-
-        let total = run_start.elapsed();
-        println!();
-        println!("xtask build-release: total {:.1}s", total.as_secs_f64());
-
-        // _job_guard drops here → any lingering children killed by kernel.
-        Ok(())
     }
+
+    // Artifact stage resolution:
+    // - Standalone missing is a hard fail (compile succeeded but tauri
+    //   didn't produce the exe — that never happens benignly).
+    // - In normal mode: zero installers is a warn (portable path still works).
+    // - In portable-only mode: zero installers is EXPECTED — ok.
+    if !standalone.exists() {
+        artifact_guard.fail(
+            EventBuilder::new()
+                .classification("standalone_missing")
+                .detail(format!("not found at {}", standalone.display()))
+                .hint("inspect the tauri build transcript for the real failure"),
+        );
+    } else if portable_only {
+        artifact_guard.ok_with(
+            EventBuilder::new()
+                .classification("portable_only")
+                .detail("standalone exe present, installers skipped by flag"),
+        );
+    } else if installer_count == 0 {
+        artifact_guard.warn(
+            EventBuilder::new()
+                .classification("no_installers")
+                .detail("standalone exe present, no installer produced")
+                .hint("run `cargo xtask build-release --portable-only` to ship a runnable zip without bundling"),
+        );
+    } else {
+        artifact_guard.ok_with(
+            EventBuilder::new().detail(format!("{installer_count} installer(s) produced")),
+        );
+    }
+
+    // ── Stage 8.5: Package portable (only when --portable-only) ──
+    // Reuses the PackagePortable task. It reads tauri.conf.json,
+    // copies exe + sidecar + runtime DLLs + icon + README into
+    // target/release/portable/<productName>-v<version>/, emits
+    // manifest.json with per-file SHA256, then zips.
+    let mut portable_zip_path: Option<PathBuf> = None;
+    if portable_only && standalone.exists() {
+        stage::section("Package Portable");
+        let pkg_guard = sink.start("package-portable");
+        let pkg = crate::commands::package_portable::PackagePortable { dry_run: false };
+        match pkg.run(ws) {
+            Ok(()) => {
+                pkg_guard.ok();
+                // The zip lives at target/release/<productName>-v<version>-portable.zip;
+                // locate it so we can add it to the build manifest.
+                if let (Ok(product_name), Some(mf)) = (ws.tauri_product_name(), manifest.as_ref()) {
+                    let zip_path = target_release.join(format!(
+                        "{}-v{}-portable.zip",
+                        product_name, mf.product.version
+                    ));
+                    if zip_path.exists() {
+                        portable_zip_path = Some(zip_path);
+                    }
+                }
+            }
+            Err(e) => {
+                pkg_guard.fail(
+                    EventBuilder::new()
+                        .classification("package_portable_failed")
+                        .detail(format!("{e:#}")),
+                );
+                return Err(e);
+            }
+        }
+    }
+
+    if let (Some(zip), Some(mf)) = (portable_zip_path.as_ref(), manifest.as_mut()) {
+        add_artifact_or_warn(mf, ws.root(), "portable-zip", zip);
+    }
+
+    // ── Stage 9: SBOM — CycloneDX 1.4 (Rust + npm) ──
+    // Written BEFORE the build manifest so the manifest can include
+    // the SBOM file as one of its checksummed artifacts. The SBOM is
+    // the "what's inside" subject; the manifest is the "how it was
+    // built" attestation. A future SLSA workflow references both.
+    stage::section("SBOM");
+    let sbom_guard = sink.start("sbom-cyclonedx");
+    let sbom_path = target_release.join("sbom.cdx.json");
+    let sbom_written = match ws.tauri_product_name() {
+        Ok(product_name) => {
+            // Version comes from tauri.conf.json. If we can't read it,
+            // the manifest gather above already warned; fall through with
+            // a placeholder so the SBOM still generates.
+            let product_version = manifest
+                .as_ref()
+                .map_or_else(|| "0.0.0".to_string(), |m| m.product.version.clone());
+            let sbom_build = crate::sbom::SbomBuild {
+                workspace_root: ws.root().to_path_buf(),
+                desktop_dir: ws.desktop_dir(),
+                product_name,
+                product_version,
+            };
+            match sbom_build
+                .generate()
+                .and_then(|bom| crate::sbom::write_bom(&bom, &sbom_path).map(|()| bom))
+            {
+                Ok(bom) => {
+                    println!(
+                        "  sbom.cdx.json: {} ({} components)",
+                        sbom_path.display(),
+                        bom.components.len()
+                    );
+                    sbom_guard.ok_with(
+                        EventBuilder::new().detail(format!("{} components", bom.components.len())),
+                    );
+                    true
+                }
+                Err(e) => {
+                    crate::xwarn!("SBOM generation failed: {e:#}");
+                    sbom_guard.fail(
+                        EventBuilder::new()
+                            .classification("sbom_failed")
+                            .detail(format!("{e:#}")),
+                    );
+                    false
+                }
+            }
+        }
+        Err(e) => {
+            crate::xwarn!("cannot generate SBOM — productName unreadable: {e:#}");
+            sbom_guard.fail(
+                EventBuilder::new()
+                    .classification("sbom_no_product_name")
+                    .detail(format!("{e:#}")),
+            );
+            false
+        }
+    };
+
+    // Record the SBOM in the manifest so consumers have a single
+    // attested entry point.
+    if sbom_written {
+        if let Some(mf) = manifest.as_mut() {
+            add_artifact_or_warn(mf, ws.root(), "sbom-cyclonedx", &sbom_path);
+        }
+    }
+
+    // ── Stage 10: Provenance — write build.manifest.json ──
+    // Stamps finish time + duration_s and writes the populated manifest
+    // to target/release/build.manifest.json. This is the SLSA-ready
+    // artifact subject map — per-file SHA256, toolchain, vcs, build host.
+    if let Some(mf) = manifest.take() {
+        stage::section("Provenance");
+        let write_guard = sink.start("manifest-write");
+        let manifest_path = target_release.join("build.manifest.json");
+        match mf.finalize_and_write(&manifest_path, SystemTime::now()) {
+            Ok(p) => {
+                println!("  build.manifest.json: {}", p.display());
+                write_guard.ok();
+            }
+            Err(e) => {
+                crate::xwarn!("build manifest write failed: {e:#}");
+                write_guard.fail(
+                    EventBuilder::new()
+                        .classification("manifest_write_failed")
+                        .detail(format!("{e:#}")),
+                );
+            }
+        }
+    }
+
+    println!();
+    println!("  Smoke test:");
+    println!("    1. Close ALL dev processes (no vite, no `tauri dev`).");
+    println!("    2. Double-click the standalone .exe or run an installer.");
+    println!("    3. Expect: wizard visible, `http://127.0.0.1:8822/health` healthy,");
+    println!(
+        "       `.userdata/libsql/platform.db` + `.userdata/duckdb/analytics.duckdb` written."
+    );
+
+    let total = run_start.elapsed();
+    println!();
+    println!("xtask build-release: total {:.1}s", total.as_secs_f64());
+
+    // _job_guard drops here → any lingering children killed by kernel.
+    Ok(())
+}
+
+/// Add an artifact to the manifest. Failures downgrade to a `xwarn!` —
+/// a hash collision or permission issue on a single file should not
+/// fail the whole build. The artifact simply won't appear in the manifest,
+/// and the warning surfaces the reason.
+fn add_artifact_or_warn(
+    manifest: &mut BuildManifest,
+    workspace_root: &Path,
+    kind: &str,
+    absolute_path: &Path,
+) {
+    if let Err(e) = manifest.add_artifact(workspace_root, kind, absolute_path) {
+        crate::xwarn!(
+            "skipping artifact `{kind}` at {}: {e:#}",
+            absolute_path.display()
+        );
+    }
+}
+
+/// End-of-run SUMMARY — counts terminal stage statuses + replays
+/// every failure's classification and hint. Prints even on the success
+/// path so `Warn`/`Skip` stages are visible in a `[OK] everywhere else`
+/// run.
+fn print_summary(events: &[StageEvent], log_path: &Path) {
+    let counts = SummaryCounts::from_events(events);
+    println!();
+    println!("── Summary ──────────────────────────────");
+    println!(
+        "  stages: {} ok, {} warn, {} skip, {} fail",
+        counts.ok, counts.warn, counts.skip, counts.fail
+    );
+    if counts.warn > 0 || counts.fail > 0 {
+        for e in events {
+            match e.status {
+                StageStatus::Warn | StageStatus::Fail => {
+                    let tag = if matches!(e.status, StageStatus::Fail) {
+                        "FAIL"
+                    } else {
+                        "WARN"
+                    };
+                    let class = e.classification.as_deref().unwrap_or("-");
+                    let detail = e.detail.as_deref().unwrap_or("");
+                    println!("  [{tag}] {} ({class}) {detail}", e.stage_id);
+                    if let Some(hint) = &e.hint {
+                        println!("         hint: {hint}");
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    println!("  event log: {}", log_path.display());
 }
 
 fn print_banner(task_name: &str) {
@@ -232,6 +574,26 @@ fn print_banner(task_name: &str) {
 // Scans the build-release transcript for tauri-bundler / cargo markers
 // and returns the most advanced stage we observed. The error printed to
 // the user then reflects what actually failed — not a hard-coded guess.
+//
+// Substring matching against English tauri-bundler output is inherently
+// brittle — a CLI version bump can reword a marker and turn a correct
+// classification into `Unknown` overnight. Two mitigations live here:
+//
+//   1. Markers are gathered in [`TranscriptObservations::observe_line`]
+//      so updating them is a single data edit, not scattered logic.
+//   2. The version this was verified against is pinned in
+//      [`TAURI_CLI_VERSION_VERIFIED`] — mismatched output is a known
+//      maintenance trigger, not a mystery.
+//
+// Input is scanned one line at a time via [`BufRead::lines`] so a 500 MB
+// transcript doesn't pin 500 MB of heap. Input lines may be raw child
+// output OR the `exec_tee_log` prefix format (`[<ms>] [OUT|ERR] ...`);
+// [`strip_log_prefix`] peels the latter before matching.
+
+/// tauri-bundler version the marker strings were last verified against.
+/// When the CLI upgrades and a real failure classifies as `Unknown`, refresh
+/// the markers in `observe_line` and bump this string.
+const TAURI_CLI_VERSION_VERIFIED: &str = "@tauri-apps/cli 2.10.x";
 
 /// Stage of `pnpm tauri build` that produced the non-zero exit.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -253,19 +615,35 @@ enum TauriStage {
 }
 
 impl TauriStage {
-    fn hint(self) -> &'static str {
+    /// Stable classification tag for the event log. Used as the
+    /// `classification` field on `StageEvent` when the tauri-bundle stage
+    /// fails — downstream tooling can filter/alert on these tags without
+    /// parsing human-readable hints.
+    fn classification_tag(self) -> &'static str {
+        match self {
+            Self::Compile => "compile",
+            Self::CompileSucceededBundleFailed => "bundle_unknown",
+            Self::CandleFailed => "wix_candle",
+            Self::LightReportedFailed => "wix_light",
+            Self::NsisFailed => "nsis",
+            Self::Unknown => "unknown",
+        }
+    }
+
+    fn hint(self) -> String {
         match self {
             Self::Compile => {
                 "Rust compile failed. Look for `error[E` or `error:` lines in the transcript."
+                    .to_string()
             }
             Self::CompileSucceededBundleFailed => {
                 "Rust compile succeeded; tauri-bundler failed before producing installers. \
                  Inspect `target/release/wix/x64/` for intermediate artifacts, and re-run \
-                 `pnpm tauri build --verbose` from interfaces/desktop to surface the exact bundler stderr."
+                 `pnpm tauri build --verbose` from interfaces/desktop to surface the exact bundler stderr.".to_string()
             }
             Self::CandleFailed => {
                 "WiX `candle.exe` failed to compile main.wxs. Check the generated \
-                 `target/release/wix/x64/main.wxs` for schema or reference errors."
+                 `target/release/wix/x64/main.wxs` for schema or reference errors.".to_string()
             }
             Self::LightReportedFailed => {
                 "tauri-bundler reported `failed to run light.exe`. \
@@ -273,15 +651,20 @@ impl TauriStage {
                  the real failure is a post-link step (rename to `bundle/msi/...`, NSIS, \
                  or signing). Re-run with `pnpm tauri build --verbose` to see the exact step. \
                  On Windows this is frequently Defender locking the produced MSI during \
-                 real-time scan — exclude `target/release/` to diagnose."
+                 real-time scan — exclude `target/release/` to diagnose.".to_string()
             }
             Self::NsisFailed => {
                 "NSIS `makensis.exe` failed. Check the transcript for the NSIS script error; \
-                 `targets: \"all\"` in tauri.conf.json builds both MSI and NSIS."
+                 `targets: \"all\"` in tauri.conf.json builds both MSI and NSIS.".to_string()
             }
             Self::Unknown => {
-                "Failure stage could not be classified from the transcript. \
-                 Read the transcript end-to-end to see which step produced the error."
+                format!(
+                    "Failure stage could not be classified from the transcript. \
+                     Markers were last verified against {TAURI_CLI_VERSION_VERIFIED} — if \
+                     tauri-bundler has been upgraded, the phrasing may have changed and \
+                     the markers in `TranscriptObservations::observe_line` need a refresh. \
+                     Read the transcript end-to-end to see which step produced the error."
+                )
             }
         }
     }
@@ -302,70 +685,137 @@ impl fmt::Display for TauriStage {
 }
 
 /// Classify the stage of a tauri build failure from the transcript file.
-/// Read-once, line-scan. Missing file or I/O failure returns `Unknown`.
+/// Streaming line scan via `BufReader` — a 500 MB log costs one line of
+/// heap, not the whole file. Missing file or I/O failure returns
+/// `Unknown` (the caller already reports the transcript path, so a user
+/// can cross-check without needing this function to name the failure).
 fn classify_tauri_failure(log_path: &Path) -> TauriStage {
-    let Ok(content) = std::fs::read_to_string(log_path) else {
+    let Ok(file) = std::fs::File::open(log_path) else {
         return TauriStage::Unknown;
     };
-    classify_from_transcript(&content)
+    let reader = std::io::BufReader::new(file);
+    classify_from_reader(reader)
 }
 
-fn classify_from_transcript(transcript: &str) -> TauriStage {
-    let mut seen_built_app = false;
-    let mut seen_candle = false;
-    let mut seen_light = false;
-    let mut seen_failed_to_run_light = false;
-    let mut seen_failed_nsis = false;
-    let mut seen_compile_error = false;
+/// Streaming classifier — the form used by production code paths.
+fn classify_from_reader<R: std::io::BufRead>(reader: R) -> TauriStage {
+    let mut obs = TranscriptObservations::default();
+    // drain_stream writes only valid UTF-8 (lossy decode already ran on
+    // the producer side) so silent `Result::ok` on decode is safe here —
+    // any IO error on the log file itself is an unrelated pathology.
+    for line in reader.lines().map_while(Result::ok) {
+        obs.observe_line(&line);
+    }
+    obs.classify()
+}
 
-    for line in transcript.lines() {
+/// String-input classifier — kept as the test and external caller entry
+/// point. Delegates to the streaming path by wrapping the input bytes.
+fn classify_from_transcript(transcript: &str) -> TauriStage {
+    classify_from_reader(std::io::Cursor::new(transcript.as_bytes()))
+}
+
+/// Accumulates transcript observations across lines, then emits the
+/// furthest-reached stage. Keeping the line-level matching in one place
+/// — instead of scattering `line.contains(...)` across the for-loop —
+/// makes a tauri-bundler version bump a single edit site.
+#[derive(Default)]
+struct TranscriptObservations {
+    built_app: bool,
+    candle: bool,
+    light: bool,
+    failed_to_run_light: bool,
+    failed_nsis: bool,
+    compile_error: bool,
+}
+
+impl TranscriptObservations {
+    /// Record whatever markers are present on a single transcript line.
+    /// The input may still wear the `exec_tee_log` prefix; we peel it
+    /// first so marker strings match the raw child output regardless of
+    /// whether the caller is streaming our log file or piping a raw
+    /// child transcript directly.
+    fn observe_line(&mut self, raw: &str) {
+        let line = strip_log_prefix(raw);
+
+        // Markers last verified against `TAURI_CLI_VERSION_VERIFIED`.
+        // Update both sides together when the CLI changes phrasing.
         if line.contains("Built application at:") || line.contains("Built application at ") {
-            seen_built_app = true;
+            self.built_app = true;
         }
         if line.contains("Running candle") {
-            seen_candle = true;
+            self.candle = true;
         }
         if line.contains("Running light") {
-            seen_light = true;
-        }
-        if line.contains("failed to run") && line.contains("light.exe") {
-            seen_failed_to_run_light = true;
+            self.light = true;
         }
         let lower = line.to_lowercase();
-        if lower.contains("makensis") && lower.contains("fail") {
-            seen_failed_nsis = true;
+        if line.contains("failed to run") && lower.contains("light.exe") {
+            self.failed_to_run_light = true;
         }
-        // rustc diagnostic prefixes. We only treat these as compile errors when
-        // they happened BEFORE a successful `Built application at:` marker.
+        if lower.contains("makensis") && lower.contains("fail") {
+            self.failed_nsis = true;
+        }
+        // rustc diagnostic prefixes. We only treat these as compile errors
+        // when they happened BEFORE a successful `Built application at:`
+        // marker — post-build `error:` text typically belongs to bundler
+        // output, not the compiler.
         let trimmed = line.trim_start();
-        if !seen_built_app && (trimmed.starts_with("error[E") || trimmed.starts_with("error: ")) {
-            seen_compile_error = true;
+        if !self.built_app && (trimmed.starts_with("error[E") || trimmed.starts_with("error: ")) {
+            self.compile_error = true;
         }
     }
 
-    // Order matters: the later an exit marker is in this chain, the further
-    // the build progressed. We return the furthest-reached failure class.
-    if seen_failed_nsis {
-        return TauriStage::NsisFailed;
+    /// Order matters: the later an exit marker is in this chain, the
+    /// further the build progressed. We return the furthest-reached
+    /// failure class so a candle-then-nsis transcript (e.g. a
+    /// re-invocation of the build in a single log) still classifies as
+    /// the stage that actually died.
+    fn classify(&self) -> TauriStage {
+        if self.failed_nsis {
+            return TauriStage::NsisFailed;
+        }
+        if self.failed_to_run_light && self.built_app {
+            return TauriStage::LightReportedFailed;
+        }
+        if self.candle && !self.light {
+            return TauriStage::CandleFailed;
+        }
+        if self.built_app {
+            return TauriStage::CompileSucceededBundleFailed;
+        }
+        if self.compile_error {
+            return TauriStage::Compile;
+        }
+        TauriStage::Unknown
     }
-    if seen_failed_to_run_light && seen_built_app {
-        return TauriStage::LightReportedFailed;
-    }
-    if seen_candle && !seen_light {
-        return TauriStage::CandleFailed;
-    }
-    if seen_built_app {
-        return TauriStage::CompileSucceededBundleFailed;
-    }
-    if seen_compile_error {
-        return TauriStage::Compile;
-    }
-    TauriStage::Unknown
+}
+
+/// Peel the `exec_tee_log` log-line prefix `[<ms>] [<LABEL>] ` from a
+/// line so substring matches hit the raw child output. No-op on lines
+/// that don't wear the prefix — raw child transcripts (and old logs)
+/// stay untouched.
+///
+/// Accepts any text inside the two bracket pairs; we don't validate the
+/// millis column or the label alphabet because the classifier should
+/// cope with minor drift in our own log format without rewriting.
+fn strip_log_prefix(line: &str) -> &str {
+    let Some(rest) = line.strip_prefix('[') else {
+        return line;
+    };
+    let Some(idx_ms_close) = rest.find("] [") else {
+        return line;
+    };
+    let after_label_open = &rest[idx_ms_close + 3..];
+    let Some(idx_label_close) = after_label_open.find("] ") else {
+        return line;
+    };
+    &after_label_open[idx_label_close + 2..]
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{classify_from_transcript, TauriStage};
+    use super::{classify_from_transcript, strip_log_prefix, TauriStage};
 
     #[test]
     fn compile_error_before_built_app_is_compile() {
@@ -418,6 +868,181 @@ mod tests {
         assert_eq!(
             classify_from_transcript(t),
             TauriStage::CompileSucceededBundleFailed
+        );
+    }
+
+    // ── exec_tee_log prefixed lines ────────────────────────────────────
+
+    #[test]
+    fn prefixed_compile_error_classifies_as_compile() {
+        // New exec_tee_log format: `[<ms>] [OUT|ERR] <raw>`. Without prefix
+        // stripping, the leading `[` prevents `starts_with("error[E")` and
+        // the classifier would return Unknown.
+        let t = "\
+            [       0] [OUT] Compiling devpulse-engine v0.1.0\n\
+            [     415] [ERR] error[E0432]: unresolved import `foo::bar`\n\
+            [     420] [ERR] error: could not compile `devpulse-engine` (lib)\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::Compile);
+    }
+
+    #[test]
+    fn prefixed_built_app_then_light_is_light_reported() {
+        let t = "\
+            [  120000] [OUT] Built application at: D:\\target\\release\\app.exe\n\
+            [  120010] [OUT] Running candle for main.wxs\n\
+            [  120500] [OUT] Running light to produce the MSI\n\
+            [  120900] [ERR] failed to bundle project `failed to run C:\\tauri\\light.exe`\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::LightReportedFailed);
+    }
+
+    // ── pathological transcripts ───────────────────────────────────────
+
+    #[test]
+    fn bom_prefixed_transcript_still_classifies() {
+        // Windows tooling occasionally writes a UTF-8 BOM; our log never
+        // does, but a hand-copied transcript might. The BOM sits on the
+        // first line and must not defeat classification.
+        let t = "\u{FEFF}\
+            Compiling devpulse-engine v0.1.0\n\
+            error[E0599]: method not found\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::Compile);
+    }
+
+    #[test]
+    fn multi_iteration_transcript_reports_last_failure() {
+        // Two failures concatenated — a classic retry-in-one-log pattern.
+        // NSIS fail dominates light fail regardless of input order, so
+        // the classifier must not be position-sensitive on its checks.
+        let t = "\
+            Built application at: D:\\target\\release\\app.exe\n\
+            Running candle for main.wxs\n\
+            Running light to produce the MSI\n\
+            failed to run C:\\tauri\\light.exe\n\
+            Built application at: D:\\target\\release\\app.exe\n\
+            makensis.exe failed with exit code 1\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::NsisFailed);
+    }
+
+    #[test]
+    fn out_of_order_markers_still_classify_nsis_dominant() {
+        // Simulated interleaving: makensis-fail on stderr shows up before
+        // candle on stdout. Classification is accumulator-based so order
+        // within the log should not change the verdict.
+        let t = "\
+            [      10] [ERR] makensis failed with exit code 2\n\
+            [      11] [OUT] Built application at: D:\\target\\release\\app.exe\n\
+            [      12] [OUT] Running candle for main.wxs\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::NsisFailed);
+    }
+
+    #[test]
+    fn lossy_replacement_char_in_line_does_not_break_match() {
+        // drain_stream lossy-decodes non-UTF8 bytes into U+FFFD. A garbled
+        // byte adjacent to a marker must not defeat substring matching.
+        let t = "\
+            Running candle\u{FFFD}for main.wxs\n\
+            candle.exe : error CNDL0001\n\
+            Built application at: D:\\target\\release\\app.exe\n";
+        // Built application precedes "Running candle" only if BOTH fire;
+        // here we still reach candle. Since Running light never fires,
+        // candle-without-light wins.
+        assert_eq!(classify_from_transcript(t), TauriStage::CandleFailed);
+    }
+
+    // ── strip_log_prefix unit coverage ─────────────────────────────────
+
+    #[test]
+    fn strip_prefix_removes_ms_and_label() {
+        assert_eq!(
+            strip_log_prefix("[     123] [OUT] Running candle"),
+            "Running candle"
+        );
+    }
+
+    #[test]
+    fn strip_prefix_handles_err_label() {
+        assert_eq!(
+            strip_log_prefix("[  120900] [ERR] error[E0432]: boom"),
+            "error[E0432]: boom"
+        );
+    }
+
+    #[test]
+    fn strip_prefix_noop_on_raw_line() {
+        assert_eq!(
+            strip_log_prefix("Built application at: D:\\x.exe"),
+            "Built application at: D:\\x.exe"
+        );
+    }
+
+    #[test]
+    fn strip_prefix_noop_on_partial_prefix() {
+        // Opening bracket present but no matching `] [` — must not corrupt the line.
+        assert_eq!(strip_log_prefix("[truncated"), "[truncated");
+    }
+
+    #[test]
+    fn strip_prefix_noop_on_missing_second_close() {
+        // First bracket pair present, second label bracket missing.
+        assert_eq!(
+            strip_log_prefix("[123] [OUT continuing"),
+            "[123] [OUT continuing"
+        );
+    }
+
+    // ── Integration: classify_tauri_failure reads a real file ──────────
+    //
+    // The rest of the tests feed the classifier pre-baked strings via
+    // `classify_from_transcript`. This one writes a transcript to a
+    // temp file, calls the streaming file-reading path, and verifies
+    // that a large multi-line transcript classifies correctly — the
+    // path that build_release.rs actually uses in production.
+
+    #[test]
+    fn classify_tauri_failure_streams_real_file() {
+        use super::classify_tauri_failure;
+        use std::io::Write;
+        use std::sync::atomic::{AtomicU64, Ordering};
+
+        static SEQ: AtomicU64 = AtomicU64::new(0);
+        let seq = SEQ.fetch_add(1, Ordering::Relaxed);
+        let log_path = std::env::temp_dir().join(format!(
+            "xtask-classify-test-{}-{}.log",
+            std::process::id(),
+            seq,
+        ));
+
+        // Build a realistic-shaped exec_tee_log transcript covering the
+        // Rust compile → Built application → candle → light → failed-to-run
+        // chain, then classify it off disk.
+        let mut f = std::fs::File::create(&log_path).expect("creating log");
+        writeln!(f, "[       0] [OUT] Compiling devpulse-engine v0.1.0").unwrap();
+        writeln!(
+            f,
+            "[  120000] [OUT] Finished release [optimized] target(s) in 120s"
+        )
+        .unwrap();
+        writeln!(
+            f,
+            "[  125000] [OUT] Built application at: D:\\target\\release\\devpulse-desktop-app.exe"
+        )
+        .unwrap();
+        writeln!(f, "[  130000] [OUT] Running candle for main.wxs").unwrap();
+        writeln!(f, "[  135000] [OUT] Running light to produce the MSI").unwrap();
+        writeln!(
+            f,
+            "[  140000] [ERR] failed to bundle project `failed to run C:\\tauri\\light.exe`"
+        )
+        .unwrap();
+        drop(f);
+
+        let stage = classify_tauri_failure(&log_path);
+        let _ = std::fs::remove_file(&log_path);
+
+        assert_eq!(
+            stage,
+            TauriStage::LightReportedFailed,
+            "expected LightReportedFailed from file-backed streaming read"
         );
     }
 }

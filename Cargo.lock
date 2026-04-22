@@ -15603,6 +15603,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.18.1",
+ "chrono",
  "clap",
  "hex",
  "native-tls",
@@ -15611,6 +15612,7 @@ dependencies = [
  "sha2",
  "toml 0.8.2",
  "ureq 2.12.1",
+ "uuid",
  "which 7.0.3",
  "windows-sys 0.59.0",
  "zip 2.4.2",
