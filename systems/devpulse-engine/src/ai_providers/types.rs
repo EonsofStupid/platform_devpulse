@@ -63,20 +63,35 @@ pub enum ProviderId {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum Vendor {
+    /// Anthropic (Claude).
     Anthropic,
+    /// OpenAI.
     OpenAi,
+    /// Google (Gemini).
     Google,
+    /// Mistral AI.
     Mistral,
+    /// Cohere.
     Cohere,
+    /// xAI (Grok).
     Xai,
+    /// DeepSeek.
     DeepSeek,
+    /// Groq.
     Groq,
+    /// Together AI.
     Together,
+    /// Fireworks AI.
     Fireworks,
+    /// Replicate.
     Replicate,
+    /// Hugging Face.
     HuggingFace,
+    /// Ollama (local).
     Ollama,
+    /// LM Studio (local).
     LmStudio,
+    /// vLLM (self-hosted).
     Vllm,
 }
 
@@ -100,19 +115,31 @@ pub enum BillingModel {
 pub enum Transport {
     /// REST with bearer-style API key. `base_url` includes the API version
     /// path component (e.g. `https://api.anthropic.com/v1`).
-    ApiKey { base_url: &'static str },
+    ApiKey {
+        /// Full base URL including API version path component.
+        base_url: &'static str,
+    },
     /// REST that conforms to OpenAI's `/v1/chat/completions` contract.
     /// One client (`async-openai`) handles every entry tagged this way —
     /// the lane router just swaps `base_url` and key per provider.
-    OpenAiCompatible { base_url: &'static str },
+    OpenAiCompatible {
+        /// Full base URL of the OpenAI-compatible endpoint.
+        base_url: &'static str,
+    },
     /// Subprocess MCP — provider's CLI (Claude Code) or app (Claude
     /// Desktop) spawns a local subprocess that speaks JSON-RPC over
     /// stdio. We never call this directly; we register ourselves as a
     /// subprocess in the provider's config and let them spawn us.
-    SubprocessMcp { client: McpClient },
+    SubprocessMcp {
+        /// Which subprocess-MCP host owns the spawn lifecycle.
+        client: McpClient,
+    },
     /// HTTP server bound to `localhost:port` (Ollama, LM Studio, vLLM).
     /// Detection scans the port; reachability is a runtime concern.
-    LocalHttp { default_port: u16 },
+    LocalHttp {
+        /// Conventional default port for the local server.
+        default_port: u16,
+    },
 }
 
 /// Which subprocess-MCP host owns the spawn lifecycle.
@@ -132,11 +159,17 @@ pub enum McpClient {
 /// trivially readable on the frontend without a decoder layer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub struct Capabilities {
+    /// Conversational completions (`/v1/chat/completions` or vendor equivalent).
     pub chat: bool,
+    /// Vector embeddings endpoint.
     pub embedding: bool,
+    /// Function / tool calling in chat responses.
     pub tool_use: bool,
+    /// Image input (multimodal vision).
     pub vision: bool,
+    /// Speech-to-text or text-to-speech endpoint.
     pub voice: bool,
+    /// JSON-schema-constrained structured outputs.
     pub structured_outputs: bool,
 }
 
@@ -186,14 +219,23 @@ pub enum Classification {
 /// One row in the SSOT registry.
 #[derive(Debug, Clone, Copy, Serialize, Type)]
 pub struct AiProvider {
+    /// Stable wire identifier — used in config files, telemetry, devtool URLs.
     pub id: ProviderId,
+    /// Layman-friendly name for the devtool header.
     pub display_name: &'static str,
+    /// Brand grouping for filters and badges.
     pub vendor: Vendor,
+    /// Billing model the operator faces when calling this provider.
     pub billing: BillingModel,
+    /// Every wire transport the vendor exposes (most have one, Ollama has two).
     pub transports: &'static [Transport],
+    /// Published capability surface — drives router task-type matching.
     pub capabilities: Capabilities,
+    /// Which Rust crate / module backs the wire calls.
     pub sdk: SdkBackend,
+    /// Canonical vendor docs URL — devtool surfaces this as a link.
     pub docs_url: &'static str,
+    /// Devtool tab grouping (a provider can carry several).
     pub classifications: &'static [Classification],
     /// `true` when the entry is hidden from release builds. Set on
     /// providers whose only path is subscription-as-compute.
