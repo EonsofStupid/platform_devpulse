@@ -8,11 +8,12 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::env;
 use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus};
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Instant;
 
 #[path = "../../tools/platform_config.rs"]
 mod platform_config;
@@ -178,9 +179,20 @@ impl Workspace {
     /// to the terminal (stdout → stdout, stderr → stderr) and appended to
     /// the log file as a single merged transcript.
     ///
+    /// Log format per line: `[<ms-since-start>] [OUT|ERR] <line>` — the
+    /// elapsed-millis prefix gives forensic line ordering even though two
+    /// threads drain concurrently, and the stream label makes stdout vs
+    /// stderr identifiable post-mortem. Terminal output is unchanged
+    /// (plain line on its natural stream).
+    ///
+    /// Non-UTF8 bytes in child output are replaced with U+FFFD rather than
+    /// dropped — Windows tooling occasionally emits CP1252 or mixed
+    /// encoding, and silently discarding lines would mask real failures.
+    ///
     /// On non-zero exit the caller gets the [`ExitStatus`] back without
     /// being told "compile errors" — inspecting the log tail is how you
-    /// classify the failure stage.
+    /// classify the failure stage. Drain-thread panics and log-write IO
+    /// errors are surfaced as `Err`, not swallowed.
     ///
     /// Creates the log file's parent directory if needed. Truncates the
     /// log on each run so you always read the most recent transcript.
@@ -203,7 +215,10 @@ impl Workspace {
             .write(true)
             .open(log_path)
             .with_context(|| format!("opening log file {}", log_path.display()))?;
-        let log = Arc::new(Mutex::new(log_file));
+        // BufWriter amortizes the per-line syscall down to one flush per 8 KB.
+        // The Mutex still serializes interleaving between the two drain threads.
+        let log = Arc::new(Mutex::new(BufWriter::new(log_file)));
+        let start = Instant::now();
 
         let mut child = self
             .cmd(program)?
@@ -224,38 +239,36 @@ impl Workspace {
             .context("child stderr pipe missing — Stdio::piped() should have created one")?;
 
         let log_out = Arc::clone(&log);
-        let stdout_handle = thread::spawn(move || {
-            let reader = BufReader::new(stdout);
-            for line in reader.lines().map_while(Result::ok) {
-                println!("{line}");
-                if let Ok(mut f) = log_out.lock() {
-                    let _ = writeln!(f, "{line}");
-                }
-            }
-        });
+        let stdout_handle =
+            thread::spawn(move || drain_stream(stdout, log_out, "OUT", start, true));
 
         let log_err = Arc::clone(&log);
-        let stderr_handle = thread::spawn(move || {
-            let reader = BufReader::new(stderr);
-            for line in reader.lines().map_while(Result::ok) {
-                eprintln!("{line}");
-                if let Ok(mut f) = log_err.lock() {
-                    let _ = writeln!(f, "{line}");
-                }
-            }
-        });
+        let stderr_handle =
+            thread::spawn(move || drain_stream(stderr, log_err, "ERR", start, false));
 
         let status = child
             .wait()
             .with_context(|| format!("failed to wait on `{program}`"))?;
 
-        // Drain reader threads so their final buffered lines land in the log.
-        let _ = stdout_handle.join();
-        let _ = stderr_handle.join();
+        // Drain reader threads. Surface IO failures and thread panics
+        // instead of swallowing them — a silent drain is worse than no drain.
+        stdout_handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("stdout drain thread panicked"))?
+            .with_context(|| format!("stdout drain failed for `{program}`"))?;
+        stderr_handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("stderr drain thread panicked"))?
+            .with_context(|| format!("stderr drain failed for `{program}`"))?;
 
-        if let Ok(mut f) = log.lock() {
-            let _ = f.flush();
-        }
+        // Final flush so the BufWriter's last partial buffer hits disk
+        // before we hand the exit status back to the caller.
+        let mut guard = log
+            .lock()
+            .map_err(|_| anyhow::anyhow!("log mutex poisoned on final flush"))?;
+        guard
+            .flush()
+            .with_context(|| format!("flushing log {}", log_path.display()))?;
 
         Ok(status)
     }
@@ -283,6 +296,56 @@ impl Workspace {
             .and_then(serde_json::Value::as_str)
             .with_context(|| format!("`productName` missing from {}", conf_path.display()))?;
         Ok(name.to_string())
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// exec_tee_log support
+// ═══════════════════════════════════════════════════════════════
+
+/// Drain a child pipe line-by-line, teeing to the terminal and appending
+/// to the shared log with a `[<elapsed_ms>] [<label>] ` prefix.
+///
+/// Byte-oriented on purpose: `BufRead::lines()` silently drops lines that
+/// aren't valid UTF-8, and Windows toolchain output is not always UTF-8.
+/// We read until the newline, strip trailing `\r?\n`, then lossy-decode —
+/// a malformed byte becomes U+FFFD rather than vanishing.
+///
+/// Returned `io::Result<()>` lets the caller surface drain failures
+/// instead of swallowing them with `let _ = handle.join()`.
+fn drain_stream<R: std::io::Read>(
+    source: R,
+    log: Arc<Mutex<BufWriter<std::fs::File>>>,
+    label: &'static str,
+    start: Instant,
+    route_to_stdout: bool,
+) -> std::io::Result<()> {
+    let mut reader = BufReader::new(source);
+    let mut buf: Vec<u8> = Vec::with_capacity(1024);
+    loop {
+        buf.clear();
+        let n = reader.read_until(b'\n', &mut buf)?;
+        if n == 0 {
+            return Ok(());
+        }
+        // Trim trailing \r?\n from the captured bytes so the log isn't
+        // littered with carriage returns and the terminal line isn't
+        // doubled.
+        let end = buf
+            .iter()
+            .rposition(|&b| b != b'\n' && b != b'\r')
+            .map_or(0, |i| i + 1);
+        let line = String::from_utf8_lossy(&buf[..end]);
+        if route_to_stdout {
+            println!("{line}");
+        } else {
+            eprintln!("{line}");
+        }
+        let ms = start.elapsed().as_millis();
+        let mut guard = log
+            .lock()
+            .map_err(|_| std::io::Error::other("log mutex poisoned"))?;
+        writeln!(guard, "[{ms:>8}] [{label}] {line}")?;
     }
 }
 

@@ -30,8 +30,12 @@ pub const PROVIDERS: &[AiProvider] = &[
         vendor: Vendor::Anthropic,
         billing: BillingModel::Subscription,
         transports: &[
-            Transport::SubprocessMcp { client: McpClient::ClaudeCode },
-            Transport::SubprocessMcp { client: McpClient::ClaudeDesktop },
+            Transport::SubprocessMcp {
+                client: McpClient::ClaudeCode,
+            },
+            Transport::SubprocessMcp {
+                client: McpClient::ClaudeDesktop,
+            },
         ],
         capabilities: Capabilities {
             chat: true,
@@ -307,7 +311,9 @@ pub const PROVIDERS: &[AiProvider] = &[
         vendor: Vendor::Ollama,
         billing: BillingModel::Local,
         transports: &[
-            Transport::LocalHttp { default_port: 11434 },
+            Transport::LocalHttp {
+                default_port: 11434,
+            },
             Transport::OpenAiCompatible {
                 base_url: "http://localhost:11434/v1",
             },
@@ -376,11 +382,15 @@ pub fn find(id: ProviderId) -> Option<&'static AiProvider> {
 
 /// Filter providers by classification.
 pub fn by_classification(c: Classification) -> impl Iterator<Item = &'static AiProvider> {
-    PROVIDERS.iter().filter(move |p| p.classifications.contains(&c))
+    PROVIDERS
+        .iter()
+        .filter(move |p| p.classifications.contains(&c))
 }
 
 /// Filter providers by capability — used by the lane router.
-pub fn by_capability(filter: impl Fn(&Capabilities) -> bool) -> impl Iterator<Item = &'static AiProvider> {
+pub fn by_capability(
+    filter: impl Fn(&Capabilities) -> bool,
+) -> impl Iterator<Item = &'static AiProvider> {
     PROVIDERS.iter().filter(move |p| filter(&p.capabilities))
 }
 

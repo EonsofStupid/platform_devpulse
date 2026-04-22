@@ -37,6 +37,10 @@ pub mod platform;
 /// Claude integration — MCP server, tool registry, council, provider client.
 pub mod claude;
 
+/// AI provider SSOT — every model / inference vendor DevPulse knows about.
+/// Pure data, no runtime state. Read by the lane router, devtools, council.
+pub mod ai_providers;
+
 // ═══════════════════════════════════════════════════════════════
 // Re-exports
 // ═══════════════════════════════════════════════════════════════

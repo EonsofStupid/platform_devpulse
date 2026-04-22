@@ -38,11 +38,11 @@ ignore = [
     "RUSTSEC-2024-0436", # paste (unmaintained, transitive)
     "RUSTSEC-2024-0437", # number_prefix (unmaintained, transitive)
     "RUSTSEC-2025-0119", # protobuf recursion (transitive via ort/surrealdb)
-    "RUSTSEC-2026-0044", # aws-lc x509 bypass (transitive via surrealdb)
-    "RUSTSEC-2026-0048", # aws-lc CRL scope (transitive via surrealdb)
     "RUSTSEC-2026-0049", # aws-lc CRL matching (transitive via surrealdb)
     "RUSTSEC-2026-0098", # rustls-webpki URI name constraints (transitive via libsql/rustls 0.22)
     "RUSTSEC-2026-0099", # rustls-webpki wildcard DNS constraints (transitive via libsql/rustls 0.22)
+    "RUSTSEC-2026-0104", # aws-lc CRL parse panic (transitive via surrealdb — supersedes 0044/0048)
+    "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs → rro)
 ]
 
 [licenses]
