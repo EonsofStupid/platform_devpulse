@@ -26,6 +26,9 @@ const EMBEDDED_ARTIFACTS: &[(&str, &str)] = &[
 // ── Public API ──────────────────────────────────────────────────
 
 /// Load the embedded manifest.
+///
+/// # Errors
+/// Returns an error if the embedded `_manifest.json` payload cannot be parsed.
 pub fn load_manifest() -> Result<KnowledgeManifest, String> {
     serde_json::from_str(MANIFEST_JSON)
         .map_err(|e| format!("Failed to parse embedded _manifest.json: {e}"))
@@ -41,6 +44,10 @@ fn parse_entries(name: &str, json: &str) -> Result<Vec<KnowledgeEntry>, String> 
 }
 
 /// Load ALL knowledge entries from the embedded artifacts.
+///
+/// # Errors
+/// This loader does not fail the overall operation when an individual artifact
+/// fails to parse; it logs the failure and skips that file instead.
 pub fn load_all() -> Result<Vec<KnowledgeEntry>, String> {
     let mut all_entries = Vec::new();
 

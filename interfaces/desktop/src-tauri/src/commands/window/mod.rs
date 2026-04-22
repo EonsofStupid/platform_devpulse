@@ -5,7 +5,7 @@
 //! - `close_child_window`: Close a window by role
 //! - `list_windows`: Get all currently open windows
 //! - `focus_window`: Focus a window by label
-//! - `open_chat_window`: Legacy compat — delegates to open_window(Chat)
+//! - `open_chat_window`: Legacy compat — delegates to `open_window(Chat)`
 //! - `close_window`: Legacy compat — close by label
 
 pub mod types;

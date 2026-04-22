@@ -3,6 +3,25 @@
 //! All 11 commands required by the frontend voice domain.
 //! Actual audio inference (Kokoro TTS, Whisper STT) requires the
 //! voice inference sprint. Until then, commands return clear errors.
+//!
+//! # Cast lints
+//!
+//! This file does PCM audio-sample math: `i16` ↔ `f32` sample
+//! conversions, `u32` sample-rate arithmetic, and `usize` frame-index
+//! math. All casts are in the audio domain where the value range is
+//! bounded by the format (e.g. `i16` samples in `[-32768, 32767]`).
+//! Clippy's cast-truncation / sign-loss lints flag every one; they are
+//! the intended representation changes for audio signal processing,
+//! not accidental truncation. The file-level allow keeps the lint
+//! active elsewhere in the workspace.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
+)]
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -19,6 +38,12 @@ pub struct PlaybackState {
     playing: Arc<AtomicBool>,
     /// Signal to stop playback early.
     stop_requested: Arc<AtomicBool>,
+}
+
+impl Default for PlaybackState {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PlaybackState {
@@ -67,7 +92,7 @@ pub struct VoiceProfile {
     pub name: String,
     /// TTS voice ID.
     pub tts_voice_id: String,
-    /// STT model preference: "standard" | "high_quality" | "best".
+    /// STT model preference: "standard" | "`high_quality`" | "best".
     pub stt_quality: String,
     /// Whether this profile is currently active.
     pub active: bool,
@@ -182,7 +207,7 @@ pub async fn speak(
     let playing_flag = Arc::clone(&playback.playing);
 
     // Play audio via rodio on a blocking thread
-    let result = tokio::task::spawn_blocking(move || {
+    devpulse_telemetry::spawn_blocking(move || {
         use rodio::{OutputStream, Sink, Source};
         let (_stream, stream_handle) = OutputStream::try_default()
             .map_err(|e| format!("Audio output failed: {e}"))?;
@@ -219,7 +244,7 @@ pub async fn speak(
     .map_err(|e| format!("Audio playback thread failed: {e}"))??;
 
     playback.playing.store(false, Ordering::SeqCst);
-    Ok(result)
+    Ok(())
 }
 
 /// Stop current speech.
@@ -259,7 +284,7 @@ pub async fn list_voices(
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
 
-    let userdata = platform.data_dir().to_path_buf();
+    let userdata = platform.data_dir().clone();
     let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
         .map_err(|e| format!("Failed to load voice registry: {e}"))?;
 
@@ -294,7 +319,7 @@ pub async fn preview_voice(
     let sample_text = {
         // P0: lock-free atomic load.
         let platform = state.platform.load_full().ok_or("Platform not ready")?;
-        let userdata = platform.data_dir().to_path_buf();
+        let userdata = platform.data_dir().clone();
         let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
             .map_err(|e| format!("Failed to load voice registry: {e}"))?;
         registry
@@ -314,7 +339,7 @@ pub async fn preview_voice(
 pub async fn test_microphone(
     _state: State<'_, PlatformState>,
 ) -> Result<MicTestResult, String> {
-    tokio::task::spawn_blocking(|| {
+    devpulse_telemetry::spawn_blocking(|| {
         let samples = capture_mic_samples(0.5, 16000)?;
         if samples.is_empty() {
             return Ok(MicTestResult {
@@ -356,7 +381,7 @@ pub async fn transcribe_audio(
     use devpulse_engine::platform::services::model_loader::AudioSamples;
 
     // Capture audio on a blocking thread (cpal/rodio is sync)
-    let pcm_data = tokio::task::spawn_blocking(|| {
+    let pcm_data = devpulse_telemetry::spawn_blocking(|| {
         capture_mic_samples(3.0, 16000)
     })
     .await
@@ -456,8 +481,10 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
     };
 
     // Resample to target rate if needed (simple linear interpolation)
-    if sample_rate != target_sample_rate {
-        let ratio = target_sample_rate as f64 / sample_rate as f64;
+    if sample_rate == target_sample_rate {
+        Ok(mono)
+    } else {
+        let ratio = f64::from(target_sample_rate) / f64::from(sample_rate);
         let new_len = (mono.len() as f64 * ratio) as usize;
         let mut resampled = Vec::with_capacity(new_len);
         for i in 0..new_len {
@@ -474,8 +501,6 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
             resampled.push(sample);
         }
         Ok(resampled)
-    } else {
-        Ok(mono)
     }
 }
 
@@ -521,7 +546,7 @@ pub async fn list_voice_profiles(
     }
 
     // Mark active
-    profiles.iter_mut().for_each(|p| p.active = p.id == active_id);
+    for p in &mut profiles { p.active = p.id == active_id; }
 
     tracing::info!(count = profiles.len(), active = %active_id, "list_voice_profiles() returning");
     Ok(profiles)
@@ -579,11 +604,11 @@ pub async fn delete_voice_profile(
         return Ok(());
     };
 
-    let key = format!("voice:profile:{}", profile_id);
+    let key = format!("voice:profile:{profile_id}");
     prefs.remove(&key);
 
     // If deleted profile was active, reset to default
-    if prefs.get("voice:active_profile").map(|s| s.as_str()) == Some(&profile_id) {
+    if prefs.get("voice:active_profile").map(std::string::String::as_str) == Some(&profile_id) {
         prefs.insert("voice:active_profile".to_string(), "default".to_string());
     }
 
@@ -705,7 +730,7 @@ pub async fn transcribe_audio_file(
 
     let pcm = {
         let path = std::path::PathBuf::from(&path);
-        tokio::task::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
+        devpulse_telemetry::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
             .await
             .map_err(|e| format!("Audio decode thread failed: {e}"))??
     };
@@ -743,7 +768,7 @@ pub struct VoiceSmokeReport {
     pub stt_ok: bool,
     /// The phrase synthesized at the TTS stage (fixed, for reference).
     pub spoken: String,
-    /// Transcript returned by the STT stage (empty if stt_ok is false).
+    /// Transcript returned by the STT stage (empty if `stt_ok` is false).
     pub transcript: String,
     /// Total wall time for the round-trip in milliseconds.
     pub duration_ms: u64,
@@ -919,7 +944,7 @@ pub async fn run_sts_pipeline(
     // Stage 1: STT — decode + transcribe
     let pcm = {
         let path = std::path::PathBuf::from(&audio_path);
-        tokio::task::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
+        devpulse_telemetry::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
             .await
             .map_err(|e| format!("STS stage 1 (decode) thread failed: {e}"))??
     };
@@ -981,7 +1006,7 @@ pub async fn run_sts_pipeline(
     );
 
     // Stage 4: Playback — reuse the same rodio path as speak()
-    tokio::task::spawn_blocking(move || {
+    devpulse_telemetry::spawn_blocking(move || {
         use rodio::{OutputStream, Sink};
         let (_stream, stream_handle) = OutputStream::try_default()
             .map_err(|e| format!("Audio output failed: {e}"))?;

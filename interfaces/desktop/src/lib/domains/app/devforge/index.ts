@@ -18,5 +18,8 @@ export {
 	removeProject,
 } from "./data-access/devforge.svc.js";
 
+// ── Feature ─────────────────────────────────────────────────
+export { default as DevForgeDashboard } from "./feature/dashboard/DevForgeDashboard.svelte";
+
 // ── Types ───────────────────────────────────────────────────
 export type { DevforgeBootstrapStatus, RehConfig, RehStatus } from "./util/devforge.types.js";

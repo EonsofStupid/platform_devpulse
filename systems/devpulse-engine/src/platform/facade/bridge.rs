@@ -75,14 +75,13 @@ impl FacadeBridge {
                     let elapsed_ms = start.elapsed().as_millis() as u64;
 
                     // ── Dev channel: local builder stream only ───────
-                    if self.dev_tx.receiver_count() > 0 {
-                        if self.dev_tx.send(event.clone()).is_err() {
+                    if self.dev_tx.receiver_count() > 0
+                        && self.dev_tx.send(event.clone()).is_err() {
                             dev_dropped += 1;
                             if dev_dropped % 100 == 0 {
                                 warn!(dropped = dev_dropped, "Dev channel: receivers lagging");
                             }
                         }
-                    }
 
                     // ── Surface channel: translate → filter → emit ───
                     if self.surface_tx.receiver_count() > 0 {

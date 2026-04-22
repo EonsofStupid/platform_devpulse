@@ -54,6 +54,7 @@ use serde::{Deserialize, Serialize};
 /// Complete Claude integration config.
 /// Covers all three connection modes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct ClaudeConfig {
     /// Sidecar: Claude Desktop bundled as child process
     pub sidecar: SidecarConfig,
@@ -75,7 +76,7 @@ pub struct ClaudeConfig {
 // MODE 1: Sidecar (subscription Claude Desktop)
 // ─────────────────────────────────────────────────────────────
 
-/// Claude Desktop runs as a managed child process of DevPulse.
+/// Claude Desktop runs as a managed child process of `DevPulse`.
 /// Jesse's subscription, full thinking/artifacts/MCP.
 /// Feature-gated: only exists in internal builds.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,10 +91,10 @@ pub struct SidecarConfig {
     /// Args passed to Claude Desktop on launch
     pub launch_args: Vec<String>,
 
-    /// Auto-launch when DevPulse starts
+    /// Auto-launch when `DevPulse` starts
     pub auto_launch: bool,
 
-    /// Kill when DevPulse exits
+    /// Kill when `DevPulse` exits
     pub kill_on_exit: bool,
 
     /// Auto-restart on crash
@@ -105,14 +106,14 @@ pub struct SidecarConfig {
 // ─────────────────────────────────────────────────────────────
 
 /// Claude Code connects via stdio MCP transport.
-/// Jesse runs `claude` in terminal, it auto-discovers DevPulse.
+/// Jesse runs `claude` in terminal, it auto-discovers `DevPulse`.
 /// Feature-gated: config only meaningful in internal builds.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClaudeCodeConfig {
     /// Enable Claude Code integration
     pub enabled: bool,
 
-    /// Auto-configure Claude Code's settings.json with DevPulse MCP
+    /// Auto-configure Claude Code's settings.json with `DevPulse` MCP
     /// On first run, writes to ~/.claude/settings.json:
     /// `{ "mcpServers": { "devpulse": { "command": "devpulse", "args": ["--mcp", "stdio"] } } }`
     pub auto_configure: bool,
@@ -150,7 +151,7 @@ pub struct ProviderFrame {
     /// Provider ID: "claude", "gpt", "gemini"
     pub id: String,
 
-    /// Display name: "Claude (Anthropic)", "GPT (OpenAI)"
+    /// Display name: "Claude (Anthropic)", "GPT (`OpenAI`)"
     pub display_name: String,
 
     /// API base URL
@@ -172,13 +173,13 @@ pub struct ProviderFrame {
 // MCP SERVER (shared infrastructure)
 // ─────────────────────────────────────────────────────────────
 
-/// DevPulse's MCP server. Serves ALL Claude connection modes.
+/// `DevPulse`'s MCP server. Serves ALL Claude connection modes.
 /// Sidecar connects via SSE. Claude Code connects via stdio.
 /// Browser claude.ai connects via SSE.
 /// All see the same 32 tools (internal builds).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct McpServerConfig {
-    /// Start MCP server on DevPulse launch
+    /// Start MCP server on `DevPulse` launch
     pub auto_start: bool,
 
     /// SSE transport config (sidecar + browser)
@@ -204,6 +205,7 @@ pub struct SseConfig {
 
 /// Stdio transport config for MCP server (used by Claude Code).
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct StdioConfig {
     /// Whether stdio transport is enabled.
     pub enabled: bool,
@@ -213,7 +215,7 @@ pub struct StdioConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ToolSurface {
-    /// All 32 tools (15 DevPulse + 17 workstation)
+    /// All 32 tools (15 `DevPulse` + 17 workstation)
     Full,
     /// 15 DevPulse-internal tools only
     DevpulseOnly,
@@ -232,13 +234,13 @@ pub enum ToolSurface {
 ///
 /// Two mechanisms:
 /// 1. Claude in Chrome MCP — browser agent for web-based tools
-/// 2. scap + Windows UIAutomation — for desktop apps (Cursor, VS Code)
+/// 2. scap + Windows `UIAutomation` — for desktop apps (Cursor, VS Code)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BrowserAutomationConfig {
     /// Enable browser automation (Claude in Chrome)
     pub chrome_agent_enabled: bool,
 
-    /// Enable desktop UI automation (scap + UIAutomation)
+    /// Enable desktop UI automation (scap + `UIAutomation`)
     pub desktop_agent_enabled: bool,
 
     /// Tools Claude can launch and interact with
@@ -274,9 +276,9 @@ pub struct ExternalToolConfig {
 pub enum LaunchType {
     /// Open in Chrome, interact via Claude in Chrome MCP
     Browser,
-    /// Launch desktop app, interact via UIAutomation
+    /// Launch desktop app, interact via `UIAutomation`
     Desktop,
-    /// CLI tool, interact via shell_execute
+    /// CLI tool, interact via `shell_execute`
     Cli,
 }
 
@@ -352,13 +354,6 @@ impl Default for SseConfig {
     }
 }
 
-impl Default for StdioConfig {
-    fn default() -> Self {
-        Self {
-            enabled: cfg!(feature = "internal"),
-        }
-    }
-}
 
 impl Default for McpServerConfig {
     fn default() -> Self {
@@ -426,14 +421,3 @@ impl Default for BrowserAutomationConfig {
     }
 }
 
-impl Default for ClaudeConfig {
-    fn default() -> Self {
-        Self {
-            sidecar: SidecarConfig::default(),
-            claude_code: ClaudeCodeConfig::default(),
-            api: ApiProviderConfig::default(),
-            mcp: McpServerConfig::default(),
-            browser: BrowserAutomationConfig::default(),
-        }
-    }
-}

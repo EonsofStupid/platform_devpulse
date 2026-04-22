@@ -3,6 +3,20 @@
 //! Produces image embeddings using Google's SigLIP2 architecture.
 //! Default model: `google/siglip2-so400m-patch14-384` (embedding dim 1152, 384x384).
 //!
+//! # Cast lints
+//!
+//! Image-tensor math: `u8` pixel values, `f32` normalized tensors,
+//! `usize` spatial indices, `i64` ONNX / Candle dim specs. Domain-safe
+//! representation changes throughout.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
+)]
+//!
 //! Pipeline: image file/bytes → resize → normalize → tensor → VisionModel.forward → pooled embedding
 //!
 //! Model file expectations (SafeTensors layout from HuggingFace):

@@ -75,7 +75,7 @@ pub struct UserPreferences {
 
 fn row_to_profile(row: &[SqlValue]) -> UserProfile {
     UserProfile {
-        id: row.get(0).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        id: row.first().and_then(|v| v.as_text()).unwrap_or("").to_string(),
         display_name: row.get(1).and_then(|v| v.as_text()).map(String::from),
         email: row.get(2).and_then(|v| v.as_text()).map(String::from),
         hardware_profile: row.get(3).and_then(|v| v.as_text()).unwrap_or("32g_engineer").to_string(),
@@ -89,7 +89,7 @@ fn row_to_profile(row: &[SqlValue]) -> UserProfile {
 
 fn row_to_prefs(row: &[SqlValue]) -> UserPreferences {
     UserPreferences {
-        id: row.get(0).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        id: row.first().and_then(|v| v.as_text()).unwrap_or("").to_string(),
         user_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
         theme: row.get(2).and_then(|v| v.as_text()).unwrap_or("dark").to_string(),
         context_mode: row.get(3).and_then(|v| v.as_text()).unwrap_or("normal").to_string(),
@@ -189,6 +189,11 @@ async fn ensure_prefs(adapter: &LibSqlAdapter, profile_id: &str) -> Result<UserP
 }
 
 /// Get the adapter from platform state.
+///
+/// Stays `async` to match the `.await?` idiom used by every other service
+/// access in this crate. The body is lock-free today, but consistent
+/// calling convention keeps the command-layer surface uniform.
+#[allow(clippy::unused_async)]
 async fn get_adapter(state: &State<'_, PlatformState>) -> Result<Arc<LibSqlAdapter>> {
     // P0: lock-free atomic load. No await, no RwLock.
     let platform = state

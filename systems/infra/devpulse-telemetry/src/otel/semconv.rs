@@ -3,22 +3,22 @@
 //! ## Doctrine
 //!
 //! Inline `"gen_ai.request.model"` strings are **banned** across the workspace
-//! (enforced by preflight grep in SPRINT-TELEMETRY-FOUNDATION P8). All OTel
+//! (enforced by preflight grep in SPRINT-TELEMETRY-FOUNDATION P8). All `OTel`
 //! attribute keys are referenced through this module's constants so that:
 //!
 //! 1. Attribute names cannot drift (`gen_ai.request.model` vs `gen_ai.request_model`)
 //! 2. Semconv version migration is a one-file change when `gen_ai` stabilizes
 //!
-//! Pinned against **OpenTelemetry Semantic Conventions v1.37** (gen_ai experimental).
+//! Pinned against **OpenTelemetry Semantic Conventions v1.37** (`gen_ai` experimental).
 
 use opentelemetry::KeyValue;
 
 // ── gen_ai.* (OpenTelemetry GenAI semconv v1.37, experimental) ────────────
 
-/// `gen_ai.system` — identifies the GenAI system (e.g. "devpulse", "openai").
+/// `gen_ai.system` — identifies the `GenAI` system (e.g. "devpulse", "openai").
 pub const GEN_AI_SYSTEM: &str = "gen_ai.system";
 
-/// `gen_ai.operation.name` — operation kind: "chat", "text_completion", "embeddings".
+/// `gen_ai.operation.name` — operation kind: "chat", "`text_completion`", "embeddings".
 pub const GEN_AI_OPERATION_NAME: &str = "gen_ai.operation.name";
 
 /// `gen_ai.request.model` — model ID requested by the caller.
@@ -51,8 +51,8 @@ pub const GEN_AI_AGENT_NAME: &str = "gen_ai.agent.name";
 // ── devpulse.* (DevPulse-specific, mirrors signals.registry.yaml families) ──
 
 /// `devpulse.termination_reason` — why an agent/minion/inference span ended.
-/// Values: completed, tool_error, timeout, budget_exhausted, user_cancel,
-///         parent_cancel, model_refusal
+/// Values: completed, `tool_error`, timeout, `budget_exhausted`, `user_cancel`,
+///         `parent_cancel`, `model_refusal`
 pub const DEVPULSE_TERMINATION_REASON: &str = "devpulse.termination_reason";
 
 /// `devpulse.vram_start_mb` — VRAM usage at span start (megabytes).
@@ -73,7 +73,7 @@ pub const DEVPULSE_CACHE_HIT: &str = "devpulse.cache_hit";
 /// `devpulse.slot_id` — model slot identifier (brain, helper, vision, etc.).
 pub const DEVPULSE_SLOT_ID: &str = "devpulse.slot_id";
 
-/// `devpulse.backend` — inference backend used (candle, ort, llama_cpp).
+/// `devpulse.backend` — inference backend used (candle, ort, `llama_cpp`).
 pub const DEVPULSE_BACKEND: &str = "devpulse.backend";
 
 // ── Termination reason enum values ───────────────────────────────────────
@@ -98,7 +98,7 @@ pub mod termination {
 
 // ── Resource attributes ──────────────────────────────────────────────────
 
-/// Build the standard DevPulse resource attributes for the tracer provider.
+/// Build the standard `DevPulse` resource attributes for the tracer provider.
 #[must_use]
 pub fn devpulse_resource(version: &str, session_id: &str) -> Vec<KeyValue> {
     vec![

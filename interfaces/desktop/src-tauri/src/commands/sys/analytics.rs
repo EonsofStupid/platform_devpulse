@@ -1,4 +1,4 @@
-//! DuckDB devtool commands — health, table listing, raw SQL console.
+//! `DuckDB` devtool commands — health, table listing, raw SQL console.
 //!
 //! Analytics engine for telemetry spans, lane baselines, OLAP queries.
 //! Mirrors the graph.rs + relational.rs pattern.
@@ -14,7 +14,7 @@ use devpulse_engine::platform::AnalyticsAdapter;
 // Types
 // ═══════════════════════════════════════════════════════════════
 
-/// Health of the DuckDB analytics database.
+/// Health of the `DuckDB` analytics database.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct DuckDbHealth {
     /// Whether SELECT 1 succeeded.
@@ -27,7 +27,7 @@ pub struct DuckDbHealth {
     pub path: String,
 }
 
-/// A table in DuckDB with row count.
+/// A table in `DuckDB` with row count.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct DuckDbTableInfo {
     /// Table name.
@@ -36,7 +36,7 @@ pub struct DuckDbTableInfo {
     pub row_count: u64,
 }
 
-/// Result of a raw SQL query against DuckDB.
+/// Result of a raw SQL query against `DuckDB`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct DuckDbQueryResult {
     /// Rows as JSON string (serialized array of arrays).
@@ -49,7 +49,7 @@ pub struct DuckDbQueryResult {
 // Commands
 // ═══════════════════════════════════════════════════════════════
 
-/// Health check for the DuckDB analytics database.
+/// Health check for the `DuckDB` analytics database.
 #[tauri::command]
 #[specta::specta]
 pub async fn duckdb_health(
@@ -89,7 +89,7 @@ pub async fn duckdb_health(
     }
 }
 
-/// List tables in DuckDB with row counts.
+/// List tables in `DuckDB` with row counts.
 #[tauri::command]
 #[specta::specta]
 pub async fn duckdb_list_tables(
@@ -127,7 +127,7 @@ pub async fn duckdb_list_tables(
         let count = count_result
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0) as u64;
 
         tables.push(DuckDbTableInfo {
@@ -139,7 +139,7 @@ pub async fn duckdb_list_tables(
     Ok(tables)
 }
 
-/// Execute a raw SQL query against DuckDB — devtools console.
+/// Execute a raw SQL query against `DuckDB` — devtools console.
 #[tauri::command]
 #[specta::specta]
 pub async fn duckdb_query(

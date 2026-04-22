@@ -9,7 +9,7 @@
 //! provides two receiver unwrap shapes:
 //!
 //! - [`Traced<T>`] — flume/1:1 semantics. Consumer attaches the producer's
-//!   context as the current OTel context via [`Traced::attach`], so spans
+//!   context as the current `OTel` context via [`Traced::attach`], so spans
 //!   created in the consumer scope become descendants of the producer's span.
 //! - `LinkedTraced<T>` — broadcast/1:N fan-out semantics (P2b). Consumer
 //!   retrieves the producer's context as a **link** to add to their own span,

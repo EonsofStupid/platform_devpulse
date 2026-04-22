@@ -360,14 +360,70 @@ let laneGroups = $derived<LaneGroup[]>(
 				</a>
 
 				<a
-					href="/devtools/devforge"
+					href="/devtools/cache"
 					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
 				>
 					<div class="flex items-center gap-2">
 						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Cache</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">In-memory KV (Moka). Capacity, TTL, hit-rate.</span>
+				</a>
+
+				<a
+					href="/devtools/project_db"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Project DB</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Per-project LibSQL. Lazy-loaded, on-demand.</span>
+				</a>
+
+				<!-- Runtimes axis -->
+				<a
+					href="/devtools/devforge"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-purple-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-purple-400)]" />
 						<span class="text-sm font-medium">DevForge</span>
 					</div>
 					<span class="text-xs text-[var(--text-secondary)]">REH server health, extensions, update channel.</span>
+				</a>
+
+				<a
+					href="/devtools/candle"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-purple-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-purple-400)]" />
+						<span class="text-sm font-medium">Candle</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">In-process model runtime. GGUF + SafeTensors.</span>
+				</a>
+
+				<a
+					href="/devtools/ollama_sidecar"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-purple-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-purple-400)]" />
+						<span class="text-sm font-medium">Ollama (sidecar)</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">External Ollama process. HTTP API.</span>
+				</a>
+
+				<a
+					href="/devtools/llama_cpp_embedded"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-purple-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-purple-400)]" />
+						<span class="text-sm font-medium">llama.cpp (embedded)</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">In-process GGUF via llama-cpp-2. Not built yet.</span>
 				</a>
 
 				<a

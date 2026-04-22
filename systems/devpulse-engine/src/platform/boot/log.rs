@@ -82,7 +82,7 @@ impl BootLog {
 
     /// Log a successful stage.
     ///
-    /// Callers include timing in `detail` (e.g. "LibSQL platform.db (33ms)").
+    /// Callers include timing in `detail` (e.g. "`LibSQL` platform.db (33ms)").
     pub fn ok(&self, stage: &str, detail: &str) {
         let line = format!("[  OK ] {stage}: {detail}");
         self.emit(&line);
@@ -101,12 +101,12 @@ impl BootLog {
         self.emit(&line);
     }
 
-    /// Returns true if any stage has FAILed during this boot.
+    /// Returns true if any stage has `FAILed` during this boot.
     pub fn has_failures(&self) -> bool {
         self.fail_count.load(std::sync::atomic::Ordering::Relaxed) > 0
     }
 
-    /// Number of stages that FAILed.
+    /// Number of stages that `FAILed`.
     pub fn failure_count(&self) -> u32 {
         self.fail_count.load(std::sync::atomic::Ordering::Relaxed)
     }
@@ -120,7 +120,7 @@ impl BootLog {
         let tag = self.elapsed_tag();
         eprint!("\r[{tag}] [  >> ] {stage}: {detail}");
         let _ = std::io::stderr().flush();
-        SpinnerGuard::start(self.start.clone(), stage.to_string(), detail.to_string())
+        SpinnerGuard::start(self.start, stage.to_string(), detail.to_string())
     }
 
     /// Log the final ready line — all critical services confirmed.
@@ -136,7 +136,7 @@ impl BootLog {
     }
 
     /// Log a health check result after boot.
-    /// Called when BootLog is persisted past boot for runtime health reporting.
+    /// Called when `BootLog` is persisted past boot for runtime health reporting.
     #[allow(dead_code)]
     pub fn health(&self, service: &str, status: &str, latency_us: Option<u64>) {
         let latency_str = latency_us

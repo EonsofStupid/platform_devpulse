@@ -8,17 +8,17 @@
 //! **Window-first, detached boot — identical in dev and release.**
 //!
 //! `setup()` shows the main window BEFORE spawning the boot task.
-//! The frontend renders a skeleton + StatusBar immediately. Services
+//! The frontend renders a skeleton + `StatusBar` immediately. Services
 //! boot on a detached task and emit `platform:service-ready` events
 //! as they come online. Each surface (chat, dashboard, etc.) lights
 //! up reactively when its backing service is ready.
 //!
 //! There is no blocking path. There is no "wait for everything before
-//! showing the window." If DevForge takes 23s, you see the window at
-//! t=0 with "DevForge: initializing…" — not a blank screen for 23s.
+//! showing the window." If `DevForge` takes 23s, you see the window at
+//! t=0 with "`DevForge`: initializing…" — not a blank screen for 23s.
 //!
 //! Terminal still shows real-time progress via boot.log sink (stderr)
-//! in both modes. Frontend DevTools (F12) show platform events live.
+//! in both modes. Frontend `DevTools` (F12) show platform events live.
 
 pub mod commands;
 pub mod logging;
@@ -92,6 +92,10 @@ pub fn run() {
         commands::sys::telemetry::set_lane_config,
         commands::sys::telemetry::query_span_traces,
         commands::sys::telemetry::query_lane_baselines,
+        commands::sys::telemetry::get_telemetry_info,
+        commands::sys::telemetry::list_telemetry_sessions,
+        commands::sys::telemetry::open_telemetry_folder,
+        commands::sys::telemetry::get_telemetry_row_counts,
         // Vector store (RRO) devtools
         commands::sys::vector::get_vector_config,
         commands::sys::vector::set_vector_config,
@@ -120,9 +124,13 @@ pub fn run() {
         commands::sys::analytics::duckdb_health,
         commands::sys::analytics::duckdb_list_tables,
         commands::sys::analytics::duckdb_query,
+        // Cache service (Moka) devtool
+        commands::sys::cache::cache_health,
         commands::devclyffy::get_status,
-        commands::devforge::spawn_reh_server,
-        commands::devforge::stop_reh_server,
+        commands::devforge::devforge_start,
+        commands::devforge::devforge_stop,
+        commands::devforge::devforge_restart,
+        commands::devforge::devforge_health,
         commands::devforge::get_reh_status,
         commands::devforge::get_connection_url,
         commands::devforge::devforge_get_status,
@@ -132,6 +140,8 @@ pub fn run() {
         commands::devforge::devforge_set_fresh_instance,
         commands::devforge::window::open_devforge_window,
         commands::devforge::window::close_devforge_window,
+        commands::claude::get_mcp_status,
+        commands::claude::restart_mcp_server,
         commands::devpulse::fetch_dashboard,
         commands::devpulse::profile::fetch_user_profile,
         commands::devpulse::profile::update_user_profile,
@@ -312,7 +322,7 @@ pub fn run() {
 
             // ── Data directory resolution ─────────────────────────
             let data_dir = crate::paths::resolve_data_dir(app).map_err(|e| {
-                Box::new(std::io::Error::new(std::io::ErrorKind::Other, e))
+                Box::new(std::io::Error::other(e))
                     as Box<dyn std::error::Error>
             })?;
 
@@ -595,7 +605,7 @@ async fn boot_task(
                         rx,
                         analytics.clone(),
                     );
-                    tokio::spawn(writer.run());
+                    devpulse_telemetry::spawn(writer.run());
                     tracing::info!("Span trace writer spawned — DuckDB span persistence active");
                 } else {
                     tracing::warn!("Analytics service not available — span traces will buffer and drop");
@@ -668,7 +678,7 @@ async fn boot_task(
                             .collect();
                         let model_infos: Vec<commands::models::ModelInfo> = registry
                             .iter()
-                            .map(|e| commands::models::entry_to_model_info(e))
+                            .map(commands::models::entry_to_model_info)
                             .collect();
                         commands::emit_status(
                             &app,

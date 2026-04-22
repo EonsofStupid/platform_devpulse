@@ -1,7 +1,7 @@
-//! Span trace writer — batched DuckDB persistence for tracing spans.
+//! Span trace writer — batched `DuckDB` persistence for tracing spans.
 //!
 //! Mirrors `LaneTraceWriter` exactly: receives completed span records
-//! via mpsc channel, batches them, and bulk-inserts into DuckDB.
+//! via mpsc channel, batches them, and bulk-inserts into `DuckDB`.
 //!
 //! Spans come from the `DuckDbLayer` (a `tracing::Layer` impl) which
 //! captures every completed span from the tracing subscriber.
@@ -19,13 +19,13 @@ use devpulse_clyffy::cortex::persistence::AnalyticsAdapter;
 /// Same as lane traces — backpressure drops silently.
 pub const SPAN_CHANNEL_CAPACITY: usize = 256;
 
-/// Maximum spans to batch before flushing to DuckDB.
+/// Maximum spans to batch before flushing to `DuckDB`.
 const BATCH_SIZE: usize = 64;
 
 /// Maximum time to hold a batch before flushing (milliseconds).
 const BATCH_FLUSH_INTERVAL_MS: u64 = 500;
 
-/// A completed span record ready for DuckDB persistence.
+/// A completed span record ready for `DuckDB` persistence.
 #[derive(Debug, Clone, Serialize)]
 pub struct SpanRecord {
     /// Request-level correlation ID (UUID v7).
@@ -42,12 +42,12 @@ pub struct SpanRecord {
     pub level: String,
     /// Wall-clock duration in microseconds.
     pub duration_us: u64,
-    /// Span fields serialized as JSON (trace_id, slot_id, etc.).
+    /// Span fields serialized as JSON (`trace_id`, `slot_id`, etc.).
     pub fields_json: Option<String>,
 }
 
 /// Background task that drains the span channel and bulk-inserts
-/// into DuckDB at regular intervals.
+/// into `DuckDB` at regular intervals.
 ///
 /// Follows the `LaneTraceWriter` pattern exactly:
 /// - Batches up to `BATCH_SIZE` spans
@@ -60,7 +60,7 @@ pub struct SpanTraceWriter {
 }
 
 impl SpanTraceWriter {
-    /// Create a new writer. Call `.run()` in a tokio::spawn.
+    /// Create a new writer. Call `.run()` in a `tokio::spawn`.
     pub fn new(rx: mpsc::Receiver<SpanRecord>, analytics: Arc<AnalyticsService>) -> Self {
         Self {
             rx,

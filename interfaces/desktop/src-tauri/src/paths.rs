@@ -5,7 +5,7 @@ use tauri::Manager;
 
 /// Resolve the data directory — portable-first (matches `lib.rs` setup).
 ///
-/// Dev: `.userdata/` at project root (CARGO_MANIFEST_DIR → up 3 levels).
+/// Dev: `.userdata/` at project root (`CARGO_MANIFEST_DIR` → up 3 levels).
 /// Release: `.userdata/` next to binary, or OS app data dir.
 ///
 /// # Errors

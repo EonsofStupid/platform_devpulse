@@ -3,6 +3,20 @@
 //! Produces dense sentence embeddings using the Qwen3-Embedding-0.6B model
 //! (or any HF embedder exported to ONNX with the same IO shape).
 //!
+//! # Cast lints
+//!
+//! Tensor shape math (`i64` ONNX dims, `usize` token indices) and
+//! pooling math (`f32` accumulation) produce domain-bounded casts.
+//! Every cast here is an intended tensor representation change.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
+)]
+//!
 //! Pipeline: text → tokenize → encoder forward → mean-pool → L2 normalize → vector
 //!
 //! Model file expectations:

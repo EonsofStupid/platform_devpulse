@@ -1,9 +1,9 @@
 //! Boot-order safety: `BufferingProcessor` + `prepare()` / `install_exporter()` lifecycle.
 //!
 //! The telemetry provider is created early via [`prepare`], which returns a
-//! composable OTel layer and a [`TelemetryHandle`]. The caller installs the
+//! composable `OTel` layer and a [`TelemetryHandle`]. The caller installs the
 //! layer as part of the global `tracing_subscriber::Registry` alongside other
-//! layers (stderr, JSON file, DuckDB).
+//! layers (stderr, JSON file, `DuckDB`).
 //!
 //! At that point the data directory may not yet be resolved, so no file
 //! exporter is wired. Spans emitted during boot are held in a bounded
@@ -20,5 +20,6 @@ pub mod buffering_processor;
 pub mod lifecycle;
 
 pub use lifecycle::{
-    install_exporter, prepare, TelemetryGuard, TelemetryHandle, TelemetryLayer, TelemetrySetup,
+    install_exporter, prepare, TelemetryGuard, TelemetryHandle, TelemetryInfo, TelemetryLayer,
+    TelemetrySetup,
 };

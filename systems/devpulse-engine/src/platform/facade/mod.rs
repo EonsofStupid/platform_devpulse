@@ -1,11 +1,11 @@
-//! # EventFacade — Dual-View Translation Layer
+//! # `EventFacade` — Dual-View Translation Layer
 //!
 //! The facade sits between the kernel's internal event bus and all UI consumers.
 //! Every internal event flows through three stages:
 //!
-//! 1. **TranslationRegistry** — maps `InternalEvent` → `SurfaceEvent`
-//! 2. **WhitelistConfig** — filters by category + detail level
-//! 3. **RedactionFilter** — strips IP-sensitive internals
+//! 1. **`TranslationRegistry`** — maps `InternalEvent` → `SurfaceEvent`
+//! 2. **`WhitelistConfig`** — filters by category + detail level
+//! 3. **`RedactionFilter`** — strips IP-sensitive internals
 //!
 //! Two output channels:
 //! - `dev_rx`: raw `InternalEvent` for Connectome / Lab (no translation)
@@ -34,8 +34,7 @@ pub use translator::{EventTranslator, TranslationRegistry};
 pub use visibility::{Visibility, classify, narration_hint};
 
 use std::sync::Arc;
-// devpulse-telemetry crate pending — use tokio::spawn directly
-use tokio::task::spawn;
+use devpulse_telemetry::spawn;
 use tokio::sync::{broadcast, RwLock};
 
 /// Capacity for each output channel. Must be large enough to avoid

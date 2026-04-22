@@ -3,6 +3,22 @@
 //! Runs Whisper encoder + decoder ONNX models directly through ort.
 //! Pattern matches SNAC decoder (`snac.rs`) — gold standard for ort usage.
 //!
+//! # Cast lints
+//!
+//! Audio-sample math and tensor-index arithmetic dominate this file:
+//! `f32` ↔ `i16` PCM samples, `usize` frame/token indices, `i64`
+//! ONNX tensor shapes. Every cast is an intended domain representation
+//! change (audio sample conversion, tensor dimension cast). The
+//! file-level allow keeps the lint active elsewhere.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
+)]
+//!
 //! Model directory structure:
 //!   - `encoder.onnx` (or `*-encoder.onnx`)
 //!   - `decoder.onnx` (or `*-decoder.onnx`)

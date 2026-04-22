@@ -132,7 +132,7 @@ pub enum InteractionTrigger {
 /// from TOML and hands them to the engine facade, which in turn hands
 /// them to the frontend overlay via a Tauri command. Every phase
 /// transition fires a `SignalVariant::System` event through the
-/// (future) SignalBridge so the Monitor tab in Slot Config can see
+/// (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
 /// the whole interaction play out.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct InteractionTemplate {
@@ -191,6 +191,10 @@ impl InteractionTemplate {
     /// Called automatically by [`load_template`] after parsing; also
     /// exposed publicly so test suites can validate handcrafted
     /// templates before handing them to the loader.
+    ///
+    /// # Errors
+    /// Returns an error if `entry_phase` is missing, a `next` reference points
+    /// to an unknown phase, or a terminal phase still declares transitions.
     pub fn validate(&self) -> Result<(), InteractionError> {
         let ids: std::collections::HashSet<&str> =
             self.phases.iter().map(|p| p.id.as_str()).collect();

@@ -1,10 +1,10 @@
-//! OpenTelemetry `TracerProvider` builder with DevPulse resource attributes.
+//! OpenTelemetry `TracerProvider` builder with `DevPulse` resource attributes.
 
 use opentelemetry::KeyValue;
 use opentelemetry_sdk::trace::{SdkTracerProvider, SpanProcessor};
 use opentelemetry_sdk::Resource;
 
-/// Build a [`SdkTracerProvider`] with the standard DevPulse resource attributes
+/// Build a [`SdkTracerProvider`] with the standard `DevPulse` resource attributes
 /// and the given span processor.
 ///
 /// The provider is NOT set as the global provider here — that happens in

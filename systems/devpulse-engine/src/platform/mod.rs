@@ -33,6 +33,7 @@ pub mod init;
 #[cfg(feature = "inference")]
 pub mod integrations;
 pub mod metrics;
+pub mod module;
 pub mod server;
 pub mod services;
 pub mod telemetry;
@@ -383,7 +384,7 @@ impl Platform {
 
     // ── DevForge accessor + lazy starter ───────────────────────
 
-    /// Read the current DevForge service without spawning it.
+    /// Read the current `DevForge` service without spawning it.
     ///
     /// Returns `None` until the user first opens the code-editor window.
     /// Lock-free atomic load via `ArcSwapOption::load_full()`.
@@ -392,7 +393,7 @@ impl Platform {
         self.devforge.load_full()
     }
 
-    /// Lazy-start DevForge (VS Code REH) and return the running service.
+    /// Lazy-start `DevForge` (VS Code REH) and return the running service.
     ///
     /// This is the **only** path that spawns the Node child process.
     /// First call resolves the server tree via
@@ -401,7 +402,7 @@ impl Platform {
     /// Subsequent calls return the cached service — `load_full` is atomic.
     ///
     /// # Errors
-    /// - DevForge is not in REH mode (standalone is deprecated)
+    /// - `DevForge` is not in REH mode (standalone is deprecated)
     /// - No REH tree on disk — user hasn't fetched or bundled it
     /// - `node` binary missing from the server tree
     /// - Health poll fails within [`crate::platform::services::devforge`]'s
@@ -452,6 +453,44 @@ impl Platform {
         let arc = Arc::new(service);
         self.devforge.store(Some(Arc::clone(&arc)));
         Ok(arc)
+    }
+
+    /// Stop a running `DevForge` REH child process.
+    ///
+    /// Atomically swaps the `ArcSwapOption` to `None` and awaits
+    /// `Service::shutdown` on the taken Arc. Idempotent — calling when
+    /// no child is running is a no-op returning `Ok(())`.
+    ///
+    /// # Errors
+    /// Returns the underlying shutdown error if the REH child could not
+    /// be killed cleanly (e.g. `start_kill` returned an OS error) —
+    /// note that `wait` failures are already swallowed inside
+    /// `DevForgeService::shutdown`.
+    pub async fn devforge_stop(&self) -> Result<()> {
+        use crate::platform::services::Service as _;
+        let taken = self.devforge.swap(None);
+        if let Some(service) = taken {
+            tracing::info!("DevForge stop requested — shutting REH child");
+            service.shutdown().await?;
+        } else {
+            tracing::debug!("devforge_stop called but no child running");
+        }
+        Ok(())
+    }
+
+    /// Restart the `DevForge` REH child process.
+    ///
+    /// Equivalent to [`devforge_stop`](Self::devforge_stop) followed by
+    /// [`ensure_devforge_started`](Self::ensure_devforge_started). Useful
+    /// when the child's workspace changes or a config edit needs to take
+    /// effect.
+    ///
+    /// # Errors
+    /// Returns whichever of `stop` or `start` fails first. Start errors
+    /// preserve the typed causes from `ensure_devforge_started`.
+    pub async fn devforge_restart(&self) -> Result<Arc<DevForgeService>> {
+        self.devforge_stop().await?;
+        self.ensure_devforge_started().await
     }
 
     // ── Project scope accessor ──────────────────────────────────

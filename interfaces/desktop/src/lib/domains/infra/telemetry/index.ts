@@ -46,4 +46,7 @@ export {
 	formatDurationUs,
 	formatRate,
 	groupLanes,
+	laneBlurb,
+	laneCategory,
+	laneLabel,
 } from "./util/telemetry.types.js";

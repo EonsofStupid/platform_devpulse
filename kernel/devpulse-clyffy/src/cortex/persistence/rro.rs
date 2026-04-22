@@ -134,6 +134,12 @@ impl RroAdapter {
     ///
     /// # Errors
     /// Returns error if the engine fails to initialize.
+    ///
+    /// Stays `async` to match the shared open-style surface used by the
+    /// other persistence adapters; when the engine gains real async
+    /// initialization (remote fetch, schema migration) this contract
+    /// won't change.
+    #[allow(clippy::unused_async)]
     pub async fn open(path: &Path) -> Result<Self> {
         let config_path = path.to_string_lossy().to_string();
         Self::boot(path, Some(config_path))

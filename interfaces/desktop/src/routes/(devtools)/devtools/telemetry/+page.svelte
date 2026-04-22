@@ -1,40 +1,29 @@
 <!--
-	@file /devtools/telemetry — OTel Telemetry Devtool
+	@file /devtools/telemetry - Telemetry Devtool
 	@route /devtools/telemetry
 	@window DevTools (Ctrl+Shift+Z)
 
-	Four-tab telemetry inspector:
-	- Overview: lane status summary + quick stats
-	- Spans: query + browse span traces from DuckDB
-	- Baselines: per-lane percentile stats + regression flags
-	- Config: lane toggles, presets, persistence settings
+	Developer-facing telemetry control surface.
+	Layman names for lanes, ColdLight presets for visuals.
 -->
 <script lang="ts">
-import {
-	type Activity,
-	ArrowLeft,
-	BarChart3,
-	Gauge,
-	RefreshCw,
-	Settings,
-	Zap,
-} from "lucide-svelte";
+import { Activity, ArrowLeft, BarChart3, Gauge, RefreshCw, Settings, Zap } from "lucide-svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Callout } from "$lib/design/components/callout/index.js";
+import { Card } from "$lib/design/components/card/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
+import { Stat } from "$lib/design/components/stat/index.js";
+import { StatusDot } from "$lib/design/components/status-dot/index.js";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "$lib/design/components/tabs/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import type { TelemetryTab } from "$lib/domains/infra/telemetry/index.js";
 import {
 	formatDurationUs,
 	formatRate,
+	laneBlurb,
+	laneLabel,
 	telemetryState,
 } from "$lib/domains/infra/telemetry/index.js";
-
-// ── Tab definitions ─────────────────────────────────────────
-const tabs: { id: TelemetryTab; label: string; Icon: typeof Activity }[] = [
-	{ id: "overview", label: "Overview", Icon: Gauge },
-	{ id: "spans", label: "Spans", Icon: Zap },
-	{ id: "baselines", label: "Baselines", Icon: BarChart3 },
-	{ id: "config", label: "Config", Icon: Settings },
-];
 
 // ── Data loading on tab change ──────────────────────────────
 $effect(() => {
@@ -44,15 +33,15 @@ $effect(() => {
 			telemetryState.loadLaneConfig();
 		}
 	}
-	if (tab === "spans") {
-		if (telemetryState.spans.length === 0 && !telemetryState.spansLoading) {
-			telemetryState.loadSpans(undefined, 50);
-		}
+	if (tab === "spans" && telemetryState.spans.length === 0 && !telemetryState.spansLoading) {
+		telemetryState.loadSpans(undefined, 50);
 	}
-	if (tab === "baselines") {
-		if (telemetryState.baselines.length === 0 && !telemetryState.baselinesLoading) {
-			telemetryState.loadBaselines();
-		}
+	if (
+		tab === "baselines" &&
+		telemetryState.baselines.length === 0 &&
+		!telemetryState.baselinesLoading
+	) {
+		telemetryState.loadBaselines();
 	}
 });
 
@@ -63,285 +52,274 @@ function handleSpanQuery(): void {
 	const id = traceIdInput.trim() || undefined;
 	telemetryState.loadSpans(id, id ? undefined : 50);
 }
+
+function levelVariant(level: string): "negative" | "notice" | "accent" | "neutral" {
+	if (level === "ERROR") return "negative";
+	if (level === "WARN") return "notice";
+	if (level === "INFO") return "accent";
+	return "neutral";
+}
 </script>
 
-<div class="flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)]">
-	<!-- ── Header ─────────────────────────────────────────────── -->
+<div class="flex flex-col h-full">
+	<!-- Header -->
 	<header class="flex items-center gap-3 h-10 px-4 border-b border-[var(--border-subtle)]">
-		<a href="/devtools" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+		<a href="/devtools" class="hover:text-[var(--color-teal-400)]">
 			<ArrowLeft size={14} />
 		</a>
 		<Activity size={16} class="text-[var(--color-teal-400)]" />
 		<Text size="sm" weight="semibold">Telemetry</Text>
-		<span class="text-xs text-[var(--text-secondary)]">OTel 0.31 + DuckDB</span>
+		<Text size="xs">What the platform is doing, right now.</Text>
 	</header>
 
-	<!-- ── Tab bar ────────────────────────────────────────────── -->
-	<nav class="flex border-b border-[var(--border-subtle)]">
-		{#each tabs as tab}
-			<button
-				class="flex items-center gap-1.5 px-3 py-2 text-xs transition-colors
-					{telemetryState.activeTab === tab.id
-						? 'text-[var(--color-teal-400)] border-b-2 border-[var(--color-teal-400)]'
-						: 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
-				onclick={() => telemetryState.setTab(tab.id)}
-			>
-				<tab.Icon size={14} />
-				{tab.label}
-			</button>
-		{/each}
-	</nav>
+	<!-- Tabs -->
+	<Tabs value={telemetryState.activeTab} onValueChange={(v) => telemetryState.setTab(v as typeof telemetryState.activeTab)} preset="default">
+		<TabsList class="flex border-b border-[var(--border-subtle)]">
+			<TabsTrigger value="overview" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Gauge size={14} /> Overview
+			</TabsTrigger>
+			<TabsTrigger value="spans" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Zap size={14} /> Recent Activity
+			</TabsTrigger>
+			<TabsTrigger value="baselines" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<BarChart3 size={14} /> Performance
+			</TabsTrigger>
+			<TabsTrigger value="config" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Settings size={14} /> Settings
+			</TabsTrigger>
+		</TabsList>
 
-	<!-- ── Tab content ────────────────────────────────────────── -->
-	<main class="flex-1 overflow-y-auto p-4">
-
-		<!-- ══════════════ OVERVIEW TAB ══════════════ -->
-		{#if telemetryState.activeTab === "overview"}
+		<!-- ═══════ OVERVIEW ═══════ -->
+		<TabsContent value="overview" class="flex-1 overflow-y-auto p-4 space-y-4">
 			{#if telemetryState.laneLoading}
-				<Text size="sm" color="muted">Loading lane config...</Text>
+				<Spinner size="md" tone="accent" label="Loading..." />
 			{:else if telemetryState.laneError}
-				<div class="p-3 rounded-lg border border-[var(--signal-error)] bg-[var(--surface-raised)]">
-					<Text size="sm" color="muted">{telemetryState.laneError}</Text>
-				</div>
+				<Callout variant="error">{telemetryState.laneError}</Callout>
 			{:else if telemetryState.laneConfig}
-				<!-- Summary cards -->
-				<div class="grid grid-cols-3 gap-3 mb-4">
-					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-						<Text size="xs" color="secondary">Active Lanes</Text>
-						<div class="text-lg font-semibold mt-1">
-							{telemetryState.enabledLaneCount}
-							<span class="text-xs text-[var(--text-secondary)] font-normal">
-								/ {telemetryState.totalLaneCount}
-							</span>
-						</div>
-					</div>
-					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-						<Text size="xs" color="secondary">Verbose</Text>
-						<div class="text-lg font-semibold mt-1">
-							{telemetryState.laneConfig.verbose ? "ON" : "OFF"}
-						</div>
-					</div>
-					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-						<Text size="xs" color="secondary">DuckDB Persist</Text>
-						<div class="text-lg font-semibold mt-1">
-							{telemetryState.laneConfig.persist_to_duckdb ? "ON" : "OFF"}
-						</div>
-					</div>
+				<!-- Summary stats -->
+				<div class="grid grid-cols-3 gap-3">
+					<Card preset="glass">
+						<Stat
+							label="Watched"
+							value={telemetryState.enabledLaneCount}
+							unit={`/ ${telemetryState.totalLaneCount}`}
+							accent="teal"
+							size="md"
+						/>
+					</Card>
+					<Card preset="glass">
+						<Stat
+							label="Verbose logging"
+							value={telemetryState.laneConfig.verbose ? "On" : "Off"}
+							accent={telemetryState.laneConfig.verbose ? "ember" : "frost"}
+							size="md"
+						/>
+					</Card>
+					<Card preset="glass">
+						<Stat
+							label="Recording history"
+							value={telemetryState.laneConfig.persist_to_duckdb ? "On" : "Off"}
+							accent={telemetryState.laneConfig.persist_to_duckdb ? "teal" : "frost"}
+							size="md"
+						/>
+					</Card>
 				</div>
 
 				<!-- Lane groups -->
 				{#each telemetryState.laneGroups as group}
-					<div class="mb-3">
-						<Text size="xs" weight="semibold" color="secondary">{group.label}</Text>
-						<div class="mt-1 flex flex-wrap gap-2">
+					<div>
+						<Text size="sm" weight="semibold">{group.label}</Text>
+						<div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
 							{#each group.lanes as lane}
-								<span
-									class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full
-										{lane.enabled
-											? 'bg-[var(--color-teal-900)] text-[var(--color-teal-300)] border border-[var(--color-teal-700)]'
-											: 'bg-[var(--surface-raised)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'}"
-								>
-									<span class="w-1.5 h-1.5 rounded-full {lane.enabled ? 'bg-[var(--color-teal-400)]' : 'bg-[var(--text-secondary)]'}"></span>
-									{lane.lane}
-								</span>
+								<Card preset={lane.enabled ? "glass" : "flat"}>
+									<div class="flex items-start gap-2 p-2">
+										<StatusDot status={lane.enabled ? "online" : "offline"} size="sm" glow={lane.enabled} />
+										<div class="flex-1 min-w-0">
+											<Text size="sm" weight="medium">{laneLabel(lane.lane)}</Text>
+											<Text size="xs">{laneBlurb(lane.lane)}</Text>
+										</div>
+									</div>
+								</Card>
 							{/each}
 						</div>
 					</div>
 				{/each}
 
 				<!-- Quick actions -->
-				<div class="flex gap-2 mt-4">
-					<Button preset="ghost" size="sm" onclick={() => telemetryState.setTab("spans")}>
-						Browse Spans
+				<div class="flex gap-2 pt-2">
+					<Button preset="primary" size="sm" onclick={() => telemetryState.setTab("spans")}>
+						See what's happening
 					</Button>
 					<Button preset="ghost" size="sm" onclick={() => telemetryState.setTab("baselines")}>
-						View Baselines
+						Performance
 					</Button>
 					<Button preset="ghost" size="sm" onclick={() => telemetryState.setTab("config")}>
-						Configure
+						Settings
 					</Button>
 				</div>
-			{:else}
-				<Text size="sm" color="muted">No telemetry data available.</Text>
 			{/if}
+		</TabsContent>
 
-		<!-- ══════════════ SPANS TAB ══════════════ -->
-		{:else if telemetryState.activeTab === "spans"}
-			<!-- Query bar -->
-			<div class="flex items-center gap-2 mb-4">
+		<!-- ═══════ RECENT ACTIVITY (SPANS) ═══════ -->
+		<TabsContent value="spans" class="flex-1 overflow-y-auto p-4 space-y-4">
+			<div class="flex items-center gap-2">
 				<input
 					type="text"
 					bind:value={traceIdInput}
-					placeholder="Trace ID (leave empty for recent)"
+					placeholder="Trace ID (leave empty for most recent)"
 					class="flex-1 px-3 py-1.5 text-xs bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded
-						text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]
 						focus:outline-none focus:border-[var(--color-teal-600)]"
 					onkeydown={(e) => { if (e.key === "Enter") handleSpanQuery(); }}
 				/>
-				<Button preset="ghost" size="sm" onclick={handleSpanQuery}>
-					<RefreshCw size={12} />
-					Query
+				<Button preset="primary" size="sm" onclick={handleSpanQuery}>
+					{#if telemetryState.spansLoading}<Spinner size="xs" tone="accent" />{:else}<RefreshCw size={12} />{/if}
+					Load
 				</Button>
 				{#if telemetryState.spans.length > 0}
-					<Button preset="ghost" size="sm" onclick={() => telemetryState.clearSpans()}>
-						Clear
-					</Button>
+					<Button preset="ghost" size="sm" onclick={() => telemetryState.clearSpans()}>Clear</Button>
 				{/if}
 			</div>
 
 			{#if telemetryState.spansLoading}
-				<Text size="sm" color="muted">Querying DuckDB...</Text>
+				<Spinner size="md" tone="accent" label="Reading history..." />
 			{:else if telemetryState.spansError}
-				<div class="p-3 rounded-lg border border-[var(--signal-error)] bg-[var(--surface-raised)]">
-					<Text size="sm" color="muted">{telemetryState.spansError}</Text>
-				</div>
+				<Callout variant="error">{telemetryState.spansError}</Callout>
 			{:else if telemetryState.spans.length === 0}
-				<Text size="sm" color="muted">No spans found. Run the app to generate trace data.</Text>
+				<Callout variant="info">
+					Nothing recorded yet. Use the app for a moment, then come back.
+				</Callout>
 			{:else}
-				<!-- Span count -->
-				<Text size="xs" color="secondary">{telemetryState.spans.length} spans</Text>
-
-				<!-- Span table -->
-				<div class="mt-2 overflow-x-auto">
+				<Text size="xs">{telemetryState.spans.length} events</Text>
+				<Card preset="flat">
 					<table class="w-full text-xs">
 						<thead>
-							<tr class="border-b border-[var(--border-subtle)] text-[var(--text-secondary)]">
-								<th class="py-1.5 px-2 text-left font-medium">Name</th>
-								<th class="py-1.5 px-2 text-left font-medium">Target</th>
-								<th class="py-1.5 px-2 text-right font-medium">Duration</th>
-								<th class="py-1.5 px-2 text-left font-medium">Level</th>
-								<th class="py-1.5 px-2 text-left font-medium">Trace ID</th>
+							<tr class="border-b border-[var(--border-subtle)]">
+								<th class="py-2 px-3 text-left font-medium">What</th>
+								<th class="py-2 px-3 text-right font-medium">How long</th>
+								<th class="py-2 px-3 text-left font-medium">Level</th>
+								<th class="py-2 px-3 text-left font-medium">Trace</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each telemetryState.spans as span}
 								<tr class="border-b border-[var(--border-subtle)] hover:bg-[var(--surface-raised)]">
-									<td class="py-1.5 px-2 font-mono">{span.name}</td>
-									<td class="py-1.5 px-2 text-[var(--text-secondary)] truncate max-w-[200px]">{span.target}</td>
-									<td class="py-1.5 px-2 text-right font-mono
-										{span.duration_us > 100_000 ? 'text-[var(--signal-warning)]' : 'text-[var(--text-primary)]'}">
+									<td class="py-2 px-3">
+										<div class="font-medium">{span.name}</div>
+										<div class="text-[10px] opacity-60">{span.target}</div>
+									</td>
+									<td class="py-2 px-3 text-right font-mono">
 										{formatDurationUs(span.duration_us)}
 									</td>
-									<td class="py-1.5 px-2">
-										<span class="px-1.5 py-0.5 rounded text-[10px] font-medium
-											{span.level === 'ERROR' ? 'bg-red-900 text-red-300' :
-											 span.level === 'WARN' ? 'bg-amber-900 text-amber-300' :
-											 span.level === 'INFO' ? 'bg-teal-900 text-teal-300' :
-											 'bg-[var(--surface-raised)] text-[var(--text-secondary)]'}">
+									<td class="py-2 px-3">
+										<Badge variant={levelVariant(span.level)} size="sm" fillStyle="subtle">
 											{span.level}
-										</span>
+										</Badge>
 									</td>
-									<td class="py-1.5 px-2 font-mono text-[var(--text-secondary)] truncate max-w-[120px]">
+									<td class="py-2 px-3">
 										<button
-											class="hover:text-[var(--color-teal-400)] hover:underline"
+											class="font-mono text-[10px] hover:text-[var(--color-teal-400)] hover:underline"
 											onclick={() => { traceIdInput = span.trace_id; handleSpanQuery(); }}
 										>
-											{span.trace_id.slice(0, 12)}...
+											{span.trace_id.slice(0, 10)}...
 										</button>
 									</td>
 								</tr>
 							{/each}
 						</tbody>
 					</table>
-				</div>
+				</Card>
 			{/if}
+		</TabsContent>
 
-		<!-- ══════════════ BASELINES TAB ══════════════ -->
-		{:else if telemetryState.activeTab === "baselines"}
-			<div class="flex items-center justify-between mb-4">
-				<Text size="sm" weight="semibold">Lane Baselines</Text>
+		<!-- ═══════ PERFORMANCE (BASELINES) ═══════ -->
+		<TabsContent value="baselines" class="flex-1 overflow-y-auto p-4 space-y-4">
+			<div class="flex items-center justify-between">
+				<Text size="sm" weight="semibold">How each part performs</Text>
 				<Button preset="ghost" size="sm" onclick={() => telemetryState.loadBaselines()}>
-					<RefreshCw size={12} />
+					{#if telemetryState.baselinesLoading}<Spinner size="xs" tone="accent" />{:else}<RefreshCw size={12} />{/if}
 					Refresh
 				</Button>
 			</div>
 
 			{#if telemetryState.baselinesLoading}
-				<Text size="sm" color="muted">Querying DuckDB...</Text>
+				<Spinner size="md" tone="accent" label="Crunching numbers..." />
 			{:else if telemetryState.baselinesError}
-				<div class="p-3 rounded-lg border border-[var(--signal-error)] bg-[var(--surface-raised)]">
-					<Text size="sm" color="muted">{telemetryState.baselinesError}</Text>
-				</div>
+				<Callout variant="error">{telemetryState.baselinesError}</Callout>
 			{:else if telemetryState.baselines.length === 0}
-				<Text size="sm" color="muted">No baselines computed. Run inference to generate lane traces.</Text>
+				<Callout variant="info">
+					Not enough usage yet to calculate performance baselines. Keep using the app.
+				</Callout>
 			{:else}
-				<div class="space-y-3">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 					{#each telemetryState.baselines as baseline}
-						<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-							<div class="flex items-center justify-between mb-2">
-								<Text size="sm" weight="semibold">{baseline.lane}</Text>
-								<Text size="xs" color="secondary">{baseline.sample_count} samples</Text>
-							</div>
-							<div class="grid grid-cols-3 gap-4 text-xs">
-								<div>
-									<span class="text-[var(--text-secondary)]">p50</span>
-									<span class="ml-1 font-mono">{formatDurationUs(baseline.p50_us)}</span>
+						<Card preset="glass">
+							<div class="p-3 space-y-2">
+								<div class="flex items-center justify-between">
+									<Text size="sm" weight="semibold">{laneLabel(baseline.lane)}</Text>
+									<Badge variant="neutral" size="sm" fillStyle="subtle">
+										{baseline.sample_count} samples
+									</Badge>
 								</div>
-								<div>
-									<span class="text-[var(--text-secondary)]">p95</span>
-									<span class="ml-1 font-mono text-[var(--signal-warning)]">{formatDurationUs(baseline.p95_us)}</span>
+								<Text size="xs">{laneBlurb(baseline.lane)}</Text>
+
+								<div class="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border-subtle)]">
+									<Stat label="Typical" value={formatDurationUs(baseline.p50_us)} size="sm" accent="teal" />
+									<Stat label="Slow 5%" value={formatDurationUs(baseline.p95_us)} size="sm" accent="ember" />
+									<Stat label="Slowest 1%" value={formatDurationUs(baseline.p99_us)} size="sm" accent="magenta" />
 								</div>
-								<div>
-									<span class="text-[var(--text-secondary)]">p99</span>
-									<span class="ml-1 font-mono text-[var(--signal-error)]">{formatDurationUs(baseline.p99_us)}</span>
-								</div>
-							</div>
-							<div class="grid grid-cols-3 gap-4 text-xs mt-2 pt-2 border-t border-[var(--border-subtle)]">
-								<div>
-									<span class="text-[var(--text-secondary)]">Queue wait</span>
-									<span class="ml-1 font-mono">{formatDurationUs(baseline.avg_queue_wait_us)}</span>
-								</div>
-								<div>
-									<span class="text-[var(--text-secondary)]">Cache hit</span>
-									<span class="ml-1 font-mono">{formatRate(baseline.cache_hit_rate)}</span>
-								</div>
-								<div>
-									<span class="text-[var(--text-secondary)]">Cold start</span>
-									<span class="ml-1 font-mono">{formatRate(baseline.cold_start_rate)}</span>
+
+								<div class="grid grid-cols-2 gap-2 text-xs pt-1">
+									<div>
+										<Text size="xs">Cache hit rate</Text>
+										<div class="font-mono">{formatRate(baseline.cache_hit_rate)}</div>
+									</div>
+									<div>
+										<Text size="xs">Cold-start rate</Text>
+										<div class="font-mono">{formatRate(baseline.cold_start_rate)}</div>
+									</div>
 								</div>
 							</div>
-							<div class="text-[10px] text-[var(--text-secondary)] mt-2">
-								Computed: {baseline.computed_at}
-							</div>
-						</div>
+						</Card>
 					{/each}
 				</div>
 			{/if}
+		</TabsContent>
 
-		<!-- ══════════════ CONFIG TAB ══════════════ -->
-		{:else if telemetryState.activeTab === "config"}
+		<!-- ═══════ SETTINGS (CONFIG) ═══════ -->
+		<TabsContent value="config" class="flex-1 overflow-y-auto p-4 space-y-4">
 			{#if telemetryState.laneLoading}
-				<Text size="sm" color="muted">Loading config...</Text>
+				<Spinner size="md" tone="accent" label="Loading settings..." />
 			{:else if telemetryState.laneError}
-				<div class="p-3 rounded-lg border border-[var(--signal-error)] bg-[var(--surface-raised)]">
-					<Text size="sm" color="muted">{telemetryState.laneError}</Text>
-				</div>
+				<Callout variant="error">{telemetryState.laneError}</Callout>
 			{:else if telemetryState.laneConfig}
-				<!-- Presets -->
-				<div class="mb-4">
-					<Text size="xs" weight="semibold" color="secondary">Presets</Text>
-					<div class="flex items-center gap-2 mt-2">
-						<button
-							class="px-3 py-1.5 text-xs rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors"
-							onclick={() => telemetryState.applyPreset("off")}
-						>Off</button>
-						<button
-							class="px-3 py-1.5 text-xs rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors"
-							onclick={() => telemetryState.applyPreset("standard")}
-						>Standard</button>
-						<button
-							class="px-3 py-1.5 text-xs rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors"
-							onclick={() => telemetryState.applyPreset("debug")}
-						>Debug</button>
+				<!-- Quick presets -->
+				<Card preset="glass">
+					<div class="p-3 space-y-2">
+						<Text size="sm" weight="semibold">Quick presets</Text>
+						<Text size="xs">Pick how much detail to record.</Text>
+						<div class="flex items-center gap-2 pt-1">
+							<Button preset="ghost" size="sm" onclick={() => telemetryState.applyPreset("off")}>
+								Off
+							</Button>
+							<Button preset="primary" size="sm" onclick={() => telemetryState.applyPreset("standard")}>
+								Standard
+							</Button>
+							<Button preset="ghost" size="sm" onclick={() => telemetryState.applyPreset("debug")}>
+								Debug (everything)
+							</Button>
+						</div>
 					</div>
-				</div>
+				</Card>
 
 				<!-- Global toggles -->
-				<div class="mb-4 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-					<Text size="xs" weight="semibold" color="secondary">Global Settings</Text>
-					<div class="mt-2 space-y-2">
-						<label class="flex items-center justify-between">
-							<span class="text-xs">Verbose logging (input/output capture)</span>
+				<Card preset="glass">
+					<div class="p-3 space-y-2">
+						<Text size="sm" weight="semibold">Recording options</Text>
+						<label class="flex items-center justify-between py-1">
+							<div>
+								<Text size="sm">Verbose logging</Text>
+								<Text size="xs">Also record inputs + outputs (costs disk space).</Text>
+							</div>
 							<input
 								type="checkbox"
 								checked={telemetryState.laneConfig.verbose}
@@ -349,8 +327,11 @@ function handleSpanQuery(): void {
 								class="accent-[var(--color-teal-400)]"
 							/>
 						</label>
-						<label class="flex items-center justify-between">
-							<span class="text-xs">Persist to DuckDB</span>
+						<label class="flex items-center justify-between py-1">
+							<div>
+								<Text size="sm">Keep history</Text>
+								<Text size="xs">Save traces so you can review them later.</Text>
+							</div>
 							<input
 								type="checkbox"
 								checked={telemetryState.laneConfig.persist_to_duckdb}
@@ -359,16 +340,22 @@ function handleSpanQuery(): void {
 							/>
 						</label>
 					</div>
-				</div>
+				</Card>
 
-				<!-- Per-lane toggles -->
+				<!-- Per-lane toggles, grouped -->
 				{#each telemetryState.laneGroups as group}
-					<div class="mb-4">
-						<Text size="xs" weight="semibold" color="secondary">{group.label}</Text>
-						<div class="mt-1 space-y-1">
+					<Card preset="glass">
+						<div class="p-3 space-y-1">
+							<Text size="sm" weight="semibold">{group.label}</Text>
 							{#each group.lanes as lane}
-								<label class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-[var(--surface-raised)] cursor-pointer">
-									<span class="text-xs font-mono">{lane.lane}</span>
+								<label class="flex items-center justify-between py-1.5 cursor-pointer hover:bg-[var(--surface-raised)] rounded px-2">
+									<div class="flex items-center gap-2 min-w-0">
+										<StatusDot status={lane.enabled ? "online" : "offline"} size="sm" />
+										<div class="min-w-0">
+											<Text size="sm">{laneLabel(lane.lane)}</Text>
+											<Text size="xs">{laneBlurb(lane.lane)}</Text>
+										</div>
+									</div>
 									<input
 										type="checkbox"
 										checked={lane.enabled}
@@ -378,11 +365,9 @@ function handleSpanQuery(): void {
 								</label>
 							{/each}
 						</div>
-					</div>
+					</Card>
 				{/each}
-			{:else}
-				<Text size="sm" color="muted">Telemetry not available.</Text>
 			{/if}
-		{/if}
-	</main>
+		</TabsContent>
+	</Tabs>
 </div>

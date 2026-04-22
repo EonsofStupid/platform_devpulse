@@ -1,4 +1,4 @@
-//! DevForge service — managed REH (Remote Extension Host) web server.
+//! `DevForge` service — managed REH (Remote Extension Host) web server.
 //!
 //! Spawns a Node process running the VS Code REH server. The process is
 //! killed when the platform shuts down. Full extension support via
@@ -33,7 +33,7 @@ const STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
 /// Interval between TCP connect attempts during startup.
 const HEALTH_POLL_INTERVAL: Duration = Duration::from_millis(250);
 
-/// DevForge service — managed REH web server process.
+/// `DevForge` service — managed REH web server process.
 pub struct DevForgeService {
     child: Mutex<Option<Child>>,
     port: u16,
@@ -47,7 +47,7 @@ impl DevForgeService {
     ///
     /// # Errors
     /// - `server_dir` missing `out/server-main.js`
-    /// - No bundled `node.exe` in server_dir
+    /// - No bundled `node.exe` in `server_dir`
     /// - No free port available
     /// - Server doesn't respond within [`STARTUP_TIMEOUT`]
     pub async fn boot_reh(
@@ -139,7 +139,7 @@ impl DevForgeService {
         Ok(service)
     }
 
-    /// The full URL (including token) for the WebviewWindow to load.
+    /// The full URL (including token) for the `WebviewWindow` to load.
     pub fn connection_url(&self) -> String {
         format!("http://127.0.0.1:{}/?tkn={}", self.port, self.token)
     }
@@ -157,8 +157,7 @@ impl DevForgeService {
         loop {
             if tokio::time::Instant::now() >= deadline {
                 return Err(anyhow!(
-                    "DevForge REH did not respond within {:?}",
-                    STARTUP_TIMEOUT
+                    "DevForge REH did not respond within {STARTUP_TIMEOUT:?}"
                 ));
             }
 
@@ -210,8 +209,22 @@ impl Service for DevForgeService {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        let mut guard = self.child.lock().map_err(|e| anyhow!("Lock poisoned: {e}"))?;
-        if let Some(mut child) = guard.take() {
+        // Take the child out of the Mutex before awaiting. Holding a
+        // `std::sync::MutexGuard` across `.await` is UB-adjacent on
+        // async runtimes: the task may be re-scheduled to a different
+        // worker thread mid-await and the guard released in the wrong
+        // thread. Extract, drop the guard, then await safely.
+        //
+        // This also resolves the `clippy::await_holding_lock` finding
+        // from the S0 structural audit (AUDIT-2026-04-21.md, finding #3).
+        let taken_child = {
+            let mut guard = self
+                .child
+                .lock()
+                .map_err(|e| anyhow!("Lock poisoned: {e}"))?;
+            guard.take()
+        };
+        if let Some(mut child) = taken_child {
             tracing::info!(port = self.port, "Shutting down DevForge REH");
             let _ = child.start_kill();
             let _ = child.wait().await;
@@ -259,7 +272,7 @@ fn folder_uri(path: &Path) -> String {
     }
 }
 
-/// Resolve the DevForge server directory — the tree containing
+/// Resolve the `DevForge` server directory — the tree containing
 /// `out/server-main.js` that the Node runtime executes.
 ///
 /// Lookup order:
@@ -275,7 +288,7 @@ fn folder_uri(path: &Path) -> String {
 /// twice yields the repo root). NEVER derive from `data_dir.parent()` — that
 /// silently breaks in release builds.
 ///
-/// Returns `None` if no valid DevForge tree is found.
+/// Returns `None` if no valid `DevForge` tree is found.
 #[must_use]
 pub fn resolve_devforge_server_dir(data_dir: &Path) -> Option<PathBuf> {
     #[cfg(debug_assertions)]

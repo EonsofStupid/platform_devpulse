@@ -1,3 +1,17 @@
+> # ☠️ SUPERSEDED — DO NOT EXECUTE
+>
+> **This sprint doc is DEAD.** The model-loader / setup-wizard work has been
+> re-chartered under `POAM-MODEL-LOADER-WIZARD.md`, which embeds the 10
+> Commandments verbatim as the workflow SSOT.
+>
+> - Do not plan against this file.
+> - Do not cite "DONE" items below as evidence of working behavior.
+> - If you need historical context, read this as archaeology, not authority.
+>
+> **Go to:** `scripts/docs/sprints/POAM-MODEL-LOADER-WIZARD.md`
+
+---
+
 # MODEL LOADER — Wave Execution Plan
 
 | Field | Value |

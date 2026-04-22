@@ -1,6 +1,6 @@
 //! # devpulse-telemetry
 //!
-//! Kitchen-sink observability primitives for the DevPulse workspace.
+//! Kitchen-sink observability primitives for the `DevPulse` workspace.
 //!
 //! This crate is the sole home for:
 //!
@@ -10,7 +10,7 @@
 //!   fan-out (children-of-broadcast would lie about causality) — P2b
 //! - `BufferingProcessor` + `init_early()` / `install_exporter()` boot-order lifecycle — P3
 //! - `TelemetryGuard` explicit shutdown (sync `Drop` loses spans on 0.28+) — P3
-//! - OTel 0.31 SDK wiring, OTLP JSONL file exporter, DuckDB span sinks — P3/P4
+//! - `OTel` 0.31 SDK wiring, OTLP JSONL file exporter, `DuckDB` span sinks — P3/P4
 //! - Typed `gen_ai.*` + `devpulse.*` semconv constants — P3
 //! - Signals-registry bridge — P6
 //!
@@ -55,7 +55,7 @@
 //! - **P1** — crate scaffold ✅
 //! - **P2a** — `Envelope<T>`, `Traced<T>`, `TracedSender`/`TracedReceiver`, `spawn`/`spawn_blocking` ✅
 //! - **P2b** — `BroadcastSender`/`BroadcastReceiver` + workspace clippy.toml ✅
-//! - **P3** — OTel SDK wiring, `TelemetryGuard`, `BufferingProcessor`, OTLP file exporter ✅
+//! - **P3** — `OTel` SDK wiring, `TelemetryGuard`, `BufferingProcessor`, OTLP file exporter ✅
 //! - **P4** — wire `prepare()` into Tauri boot, compose 4-layer subscriber ✅
 //! - **P5** — migrate the 35 existing call sites
 //! - **P6** — signals-registry bridge
@@ -70,3 +70,11 @@ pub mod channel;
 pub mod otel;
 pub mod prelude;
 pub mod spawn;
+
+// Top-level function re-exports so callers can write
+// `devpulse_telemetry::spawn(future)` and
+// `devpulse_telemetry::spawn_blocking(closure)` directly, mirroring the
+// `tokio::spawn` / `tokio::task::spawn_blocking` surface they replace.
+// Rust's value vs. type-namespace separation makes this legal alongside
+// the `pub mod spawn` above — the module path still resolves.
+pub use crate::spawn::{spawn, spawn_blocking};

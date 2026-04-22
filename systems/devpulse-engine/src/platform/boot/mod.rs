@@ -2,9 +2,9 @@
 //!
 //! # Architecture
 //! This file is the **orchestrator only**. Each service has its own boot file:
-//! - [`relational`] — LibSQL (system + user)
-//! - [`analytics`] — DuckDB
-//! - [`graph`] — SurrealDB (consolidated: system + user + global namespaces)
+//! - [`relational`] — `LibSQL` (system + user)
+//! - [`analytics`] — `DuckDB`
+//! - [`graph`] — `SurrealDB` (consolidated: system + user + global namespaces)
 //! - [`cache`] — Moka
 //! - [`vector`] — RRO (embedded Qdrant)
 //! - [`voice`] — Kokoros TTS
@@ -15,17 +15,17 @@
 //!
 //! # Boot Sequence
 //!  1. **Preflight** — validate config, create directory hierarchy
-//!  2. **System relational** (LibSQL) — CRITICAL
-//!  3. **System analytics** (DuckDB) — CRITICAL
-//!  4. **Graph store** (SurrealDB) — CRITICAL ─┐
+//!  2. **System relational** (`LibSQL`) — CRITICAL
+//!  3. **System analytics** (`DuckDB`) — CRITICAL
+//!  4. **Graph store** (`SurrealDB`) — CRITICAL ─┐
 //!     **Model Loader** — feature-gated ────────┘ PARALLEL (zero shared dependency)
 //!  5. **System cache** (Moka) — CRITICAL
-//!  6. **User relational** (LibSQL) — CRITICAL
+//!  6. **User relational** (`LibSQL`) — CRITICAL
 //!  7. **Vector store** (RRO) — feature-gated
-//!  9. **Grammar** — kernel persists `grammar_service` row to system LibSQL
+//!  9. **Grammar** — kernel persists `grammar_service` row to system `LibSQL`
 //! 10. **Validation** — verify all critical services (config-driven)
 //!
-//! DevForge (VS Code REH) is **not** a boot-time service. It's lazy-started
+//! `DevForge` (VS Code REH) is **not** a boot-time service. It's lazy-started
 //! on first `Platform::ensure_devforge_started()` call (user opens the code
 //! editor window). Keeping it out of the boot pipeline means cold boot never
 //! pays for Node REH health-polling.
@@ -33,11 +33,11 @@
 //! Most stages complete sequentially. Model Loader runs in parallel with the
 //! Graph store via `tokio::join!` because they have zero shared dependency —
 //! this saves 3-7s of boot time that was previously wasted blocking on
-//! SurrealDB WAL recovery.
+//! `SurrealDB` WAL recovery.
 //! The boot log writes to file AND stderr in real time.
 //!
 //! # Validation Contract
-//! `validate_critical()` receives a data-driven list of (name, booted, is_critical)
+//! `validate_critical()` receives a data-driven list of (name, booted, `is_critical`)
 //! tuples. `is_critical` is read from `PlatformBootConfig::is_enabled_and_critical()`,
 //! which reads the parsed TOML. No hardcoded list — if TOML says critical=true,
 //! the service is validated. See `services/manifest.rs` for the compile-time
@@ -165,7 +165,7 @@ async fn execute_inner(
         SYSTEM_SCHEMA,
         "System relational",
         on_event,
-        &boot_log,
+        boot_log,
     ).await;
 
     // ── Stage 3: System analytics (DuckDB) ────────────────────
@@ -178,7 +178,7 @@ async fn execute_inner(
         SYSTEM_ANALYTICS_SCHEMA,
         "System analytics",
         on_event,
-        &boot_log,
+        boot_log,
     ).await;
 
     drop(_spin);
@@ -219,7 +219,7 @@ async fn execute_inner(
         data_dir,
         boot_config,
         on_event,
-        &boot_log,
+        boot_log,
     ).await;
 
     #[cfg(not(feature = "inference"))]
@@ -239,7 +239,7 @@ async fn execute_inner(
     let system_cache = cache::boot(
         &boot_config.services.system.cache,
         on_event,
-        &boot_log,
+        boot_log,
     );
 
     // ── Stage 6: User relational (LibSQL) ─────────────────────
@@ -251,7 +251,7 @@ async fn execute_inner(
         USER_SCHEMA,
         "User relational",
         on_event,
-        &boot_log,
+        boot_log,
     ).await;
 
     // ── Stage 6b: Knowledge library sync ──────────────────────
@@ -300,51 +300,48 @@ async fn execute_inner(
     drop(_spin);
 
     // ── Stage 9: Grammar — system LibSQL row (kernel-owned contract) ───
-    match &system_relational {
-        Some(svc) => {
-            on_event(InitEvent::running(
-                "Grammar service",
-                "Synchronizing system grammar row",
-            ));
-            match sync_grammar_service_from_config(svc.adapter().as_ref(), &boot_config.services.system.grammar)
-                .await
-            {
-                Ok(()) => {
-                    on_event(InitEvent::ok(
-                        "Grammar service",
-                        "system grammar_service row synchronized",
-                    ));
-                    boot_log.ok(
-                        "Grammar service",
-                        "system grammar_service row synchronized",
-                    );
+    if let Some(svc) = &system_relational {
+        on_event(InitEvent::running(
+            "Grammar service",
+            "Synchronizing system grammar row",
+        ));
+        match sync_grammar_service_from_config(svc.adapter().as_ref(), &boot_config.services.system.grammar)
+            .await
+        {
+            Ok(()) => {
+                on_event(InitEvent::ok(
+                    "Grammar service",
+                    "system grammar_service row synchronized",
+                ));
+                boot_log.ok(
+                    "Grammar service",
+                    "system grammar_service row synchronized",
+                );
+            }
+            Err(e) => {
+                let msg = format!("{e:#}");
+                if boot_config.services.system.grammar.critical {
+                    on_event(InitEvent::error("Grammar service", &msg));
+                    boot_log.fail("Grammar service", &msg);
+                    return Err(e);
                 }
-                Err(e) => {
-                    let msg = format!("{e:#}");
-                    if boot_config.services.system.grammar.critical {
-                        on_event(InitEvent::error("Grammar service", &msg));
-                        boot_log.fail("Grammar service", &msg);
-                        return Err(e);
-                    }
-                    tracing::warn!(error = %e, "Grammar service row sync failed (non-critical)");
-                    on_event(InitEvent::skipped_with_message(
-                        "Grammar service",
-                        "row sync failed — continuing (grammar not critical)",
-                    ));
-                    boot_log.skip("Grammar service", "row sync failed — continuing");
-                }
+                tracing::warn!(error = %e, "Grammar service row sync failed (non-critical)");
+                on_event(InitEvent::skipped_with_message(
+                    "Grammar service",
+                    "row sync failed — continuing (grammar not critical)",
+                ));
+                boot_log.skip("Grammar service", "row sync failed — continuing");
             }
         }
-        None => {
-            on_event(InitEvent::skipped_with_message(
-                "Grammar service",
-                "system relational store unavailable",
-            ));
-            boot_log.skip(
-                "Grammar service",
-                "system relational unavailable — grammar row not written",
-            );
-        }
+    } else {
+        on_event(InitEvent::skipped_with_message(
+            "Grammar service",
+            "system relational store unavailable",
+        ));
+        boot_log.skip(
+            "Grammar service",
+            "system relational unavailable — grammar row not written",
+        );
     }
 
     // Stages 10-11 (Embedder, Whisper) REMOVED — slot-managed by model loader.
@@ -382,7 +379,7 @@ async fn execute_inner(
         checks.push(("Model Manager", model_loader_svc.is_some(), boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System)));
         // DevForge (Code Editor) is lazy-started on user open — not validated at boot.
 
-        validate_critical(&checks, boot_config, &boot_log)?;
+        validate_critical(&checks, boot_config, boot_log)?;
     }
 
     // Check for ANY failures — not just critical ones.
@@ -459,12 +456,11 @@ fn validate_critical(
                 failures.len(),
                 failures.join(", ")
             );
-        } else {
-            tracing::warn!(
-                failures = failures.join(", "),
-                "Critical services failed but require_all_critical=false — degraded mode"
-            );
         }
+        tracing::warn!(
+            failures = failures.join(", "),
+            "Critical services failed but require_all_critical=false — degraded mode"
+        );
     }
 
     Ok(())

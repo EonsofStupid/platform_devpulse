@@ -1,6 +1,21 @@
 //! Candle backend — first-class GGUF **and** SafeTensors loading for the
 //! Qwen3 family, Phi-3, and the legacy Qwen2 fallback.
 //!
+//! # Cast lints
+//!
+//! Tensor-shape math (`usize` dims, `i64` token counts, `f32` /
+//! `f16` weights) and GGUF header parsing (`u32` magic, `u64` offsets)
+//! produce domain-bounded casts that clippy flags as risky. Every
+//! cast here is an intended tensor / format representation change.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
+)]
+//!
 //! # Loading paths
 //!
 //! ## GGUF (quantized)

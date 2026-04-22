@@ -18,8 +18,7 @@ pub async fn get_process_metrics(
     let uptime = state
         .platform
         .load_full()
-        .map(|p| p.uptime_secs())
-        .unwrap_or(0);
+        .map_or(0, |p| p.uptime_secs());
 
     Ok(devpulse_engine::platform::metrics::collect(uptime))
 }

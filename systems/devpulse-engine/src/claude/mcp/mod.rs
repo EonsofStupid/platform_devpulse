@@ -1,4 +1,4 @@
-//! MCP Server — DevPulse tools via official rmcp SDK.
+//! MCP Server — `DevPulse` tools via official rmcp SDK.
 //!
 //! Exposes platform tools to Claude Code (stdio) and Claude Desktop (future HTTP).
 //! Tools access Platform services via `Arc<Platform>`.
@@ -21,7 +21,7 @@ use serde::Deserialize;
 
 use crate::platform::Platform;
 
-/// DevPulse MCP Server — tool-bearing server struct.
+/// `DevPulse` MCP Server — tool-bearing server struct.
 ///
 /// Holds `Arc<Platform>` for tool handlers to access all services.
 /// Each `#[tool]` method receives `&self` and can query databases,
@@ -112,7 +112,7 @@ impl DevPulseMcpServer {
         Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
     }
 
-    /// Query LibSQL database (read-only). Returns JSON rows.
+    /// Query `LibSQL` database (read-only). Returns JSON rows.
     #[tool(description = "Execute a read-only SQL query against libSQL (SELECT/WITH only)")]
     async fn query_libsql(
         &self,

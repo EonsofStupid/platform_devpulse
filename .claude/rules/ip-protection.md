@@ -88,11 +88,9 @@ Concrete list. CI regex blocks these anywhere outside `kernel/` and explicitly a
 **Infrastructure names:**
 `qdrant`, `kv_cache`, `kv-cache`, `vram_budget`, `embedding_model`, `fusion_weight`, `temperature_schedule`
 
-**Architecture names:**
-`Cortex`, `Trinity`
 
 **Sub-agent identities (the literal words — note `Minion` is NOT banned; it is the public layman worker vocabulary):**
-`DIARY`, `GUARDIAN`, `PSYCH`, `TEACHER`, `ENFORCER`, `sub-agent`, `sub_agent`
+`DIARY`, `GUARDIAN`, `PSYCH`, `TEACHER`, `ENFORCER`, `sub_agent`, `scout`, `scribe`, `runner`, `sentinel`, `archivist`, `analyst`, `herald`, `warden`
 
 **Template contents and orchestration recipes:**
 The literal body of any prompt recipe template, and any description of how kernel components compose to produce hosted-assistant-style behavior. The *name* `COSTAR+` is accepted as a legacy alias for the `prompt` group; the template body and the recipe are not.

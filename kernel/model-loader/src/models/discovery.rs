@@ -1,4 +1,18 @@
 //! Model discovery — directory walking and GGUF header parsing.
+//!
+//! # Cast lints
+//!
+//! GGUF header fields (`u64` offsets, `u32` counts, `u8` quantization
+//! codes) cross byte boundaries during parsing. Every cast here matches
+//! a documented GGUF field width, never arbitrary numeric conversion.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
+)]
 
 use crate::models::registry::{
     BackendType, ModelFormat, ModelMetadata, ModelRegistryEntry, ModelSource,

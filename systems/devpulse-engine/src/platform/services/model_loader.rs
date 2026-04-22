@@ -117,7 +117,7 @@ impl ModelLoaderService {
     pub async fn finalize_registry(&self) -> Result<()> {
         tracing::info!("finalize_registry: scan (spawn_blocking)");
         let scan_inner = self.inner.clone();
-        let scan_result = tokio::task::spawn_blocking(move || scan_inner.scan_models())
+        let scan_result = devpulse_telemetry::spawn_blocking(move || scan_inner.scan_models())
             .await
             .map_err(|e| anyhow::anyhow!("scan_models spawn_blocking join: {e}"))?;
         match scan_result {
@@ -198,11 +198,21 @@ impl ModelLoaderService {
     // ── Hardware (parking_lot, sub-microsecond) ───────────────
 
     /// Return the cached hardware metrics snapshot.
+    ///
+    /// Stays `async` because live-probe work (polling GPU counters, temperature
+    /// sensors, nvml queries) will be wired into the inner implementation
+    /// without changing this contract. Callers stay at `.await?` so the
+    /// command-layer surface doesn't churn when that lands.
+    #[allow(clippy::unused_async)]
     pub async fn hardware_metrics(&self) -> HardwareMetrics {
         self.inner.hardware_metrics()
     }
 
     /// Force a fresh hardware metrics refresh.
+    ///
+    /// See [`hardware_metrics`](Self::hardware_metrics) — the `async`
+    /// signature is a forward-compat contract for real hardware probing.
+    #[allow(clippy::unused_async)]
     pub async fn hardware_refresh(&self) -> HardwareMetrics {
         self.inner.hardware_refresh()
     }
@@ -215,7 +225,7 @@ impl ModelLoaderService {
         // Runs on the blocking thread pool so the async runtime keeps
         // servicing IPC commands, hardware polls, and the frontend spinner.
         let inner = self.inner.clone();
-        tokio::task::spawn_blocking(move || inner.scan_models())
+        devpulse_telemetry::spawn_blocking(move || inner.scan_models())
             .await
             .map_err(|e| anyhow::anyhow!("scan_models spawn_blocking join: {e}"))?
     }
@@ -267,7 +277,7 @@ impl ModelLoaderService {
     pub async fn auto_configure(&self) -> AutoConfig {
         // Kernel uses blocking_read internally — run on blocking pool.
         let inner = self.inner.clone();
-        tokio::task::spawn_blocking(move || inner.auto_configure())
+        devpulse_telemetry::spawn_blocking(move || inner.auto_configure())
             .await
             .expect("auto_configure spawn_blocking join")
     }
@@ -275,7 +285,7 @@ impl ModelLoaderService {
     /// List every known hardware preset with download metadata.
     pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
         let inner = self.inner.clone();
-        tokio::task::spawn_blocking(move || inner.list_all_presets())
+        devpulse_telemetry::spawn_blocking(move || inner.list_all_presets())
             .await
             .expect("list_all_presets spawn_blocking join")
     }
@@ -283,7 +293,7 @@ impl ModelLoaderService {
     /// Build the preset-backed configuration for a specific hardware tier.
     pub async fn config_for_tier(&self, tier: HardwareTier) -> AutoConfig {
         let inner = self.inner.clone();
-        tokio::task::spawn_blocking(move || inner.config_for_tier(tier))
+        devpulse_telemetry::spawn_blocking(move || inner.config_for_tier(tier))
             .await
             .expect("config_for_tier spawn_blocking join")
     }
@@ -416,7 +426,7 @@ impl ModelLoaderService {
     }
 
     /// Return the directory used for custom voice assets.
-    pub async fn voice_custom_dir(&self) -> std::path::PathBuf {
+    pub fn voice_custom_dir(&self) -> std::path::PathBuf {
         self.inner.voice_custom_dir()
     }
 

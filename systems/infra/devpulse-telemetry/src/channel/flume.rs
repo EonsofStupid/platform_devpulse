@@ -1,6 +1,6 @@
 //! OpenTelemetry context-propagating wrapper around `flume` MPMC channels.
 //!
-//! This module is one of exactly two places in the DevPulse workspace allowed
+//! This module is one of exactly two places in the `DevPulse` workspace allowed
 //! to reference raw `flume::Sender` / `flume::Receiver`. The `clippy.toml`
 //! `disallowed-types` list blocks the raw types everywhere else; consumers
 //! must use [`TracedSender`] / [`TracedReceiver`] via

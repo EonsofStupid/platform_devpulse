@@ -1,4 +1,4 @@
-//! MCP tool: repo_list_files — directory listing with sizes.
+//! MCP tool: `repo_list_files` — directory listing with sizes.
 //!
 //! Recursive to max depth 3. 1000 entry limit.
 //! Workspace containment enforced.

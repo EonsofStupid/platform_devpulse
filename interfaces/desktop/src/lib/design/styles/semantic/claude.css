@@ -1,0 +1,20 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --claude-role-subscription-main: oklch(0.6519 0.2080 294.44); /** Purple — subscription / internal lane (dev only). */
+  --claude-role-subscription-glow: oklch(0.63 0.12 280 / 0.4); /** Subscription glow emission. */
+  --claude-role-subscription-fill: oklch(0.63 0.12 280 / 0.08); /** Subscription subtle background fill. */
+  --claude-role-api-main: oklch(0.6910 0.1386 242.82); /** Cyan — API key lane (always available). */
+  --claude-role-api-glow: oklch(0.7 0.14 230 / 0.4); /** API glow emission. */
+  --claude-role-api-fill: oklch(0.7 0.14 230 / 0.08); /** API subtle background fill. */
+  --claude-role-council-main: oklch(0.7512 0.1407 83.20); /** Gold — council routing / arbitration. */
+  --claude-role-council-glow: oklch(0.78 0.16 80 / 0.4); /** Council glow emission. */
+  --claude-role-council-fill: oklch(0.78 0.16 80 / 0.08); /** Council subtle background fill. */
+  --claude-role-mcp-main: oklch(0.7518 0.1212 194.88); /** Teal — MCP server itself. */
+  --claude-role-mcp-glow: oklch(0.78 0.13 195 / 0.4); /** MCP glow emission. */
+  --claude-role-mcp-fill: oklch(0.78 0.13 195 / 0.08); /** MCP subtle background fill. */
+  }
+}

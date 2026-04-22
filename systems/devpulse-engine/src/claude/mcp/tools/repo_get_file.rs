@@ -1,4 +1,4 @@
-//! MCP tool: repo_get_file — read a file from the workspace.
+//! MCP tool: `repo_get_file` — read a file from the workspace.
 //!
 //! Path resolved + canonicalized. 500KB truncation limit.
 //! Workspace containment enforced.

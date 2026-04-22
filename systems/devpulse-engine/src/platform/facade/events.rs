@@ -90,7 +90,7 @@ pub enum PressureAction {
     NoAction,
 }
 
-/// VRAM allocation mode from ResourceArbiter.
+/// VRAM allocation mode from `ResourceArbiter`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum AllocationMode {
     /// No GPU: everything on CPU.

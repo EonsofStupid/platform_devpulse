@@ -5,7 +5,7 @@
 //! Children-of-broadcast would falsely imply serial dependency among N parallel
 //! subscribers.
 //!
-//! This module is one of exactly two places in the DevPulse workspace allowed
+//! This module is one of exactly two places in the `DevPulse` workspace allowed
 //! to reference raw `tokio::sync::broadcast`. The `clippy.toml`
 //! `disallowed-types` list blocks the raw types everywhere else.
 
@@ -20,7 +20,7 @@ use super::envelope::Envelope;
 /// Unwrapped broadcast payload with the producer's context as a **link target**.
 ///
 /// Unlike [`super::Traced<T>`] (which attaches the producer's context as the
-/// current OTel context for parent-child semantics), `LinkedTraced<T>` exposes
+/// current `OTel` context for parent-child semantics), `LinkedTraced<T>` exposes
 /// the context without attaching it. This is the correct shape for 1:N fan-out
 /// where each subscriber is a peer, not a child.
 ///
@@ -83,7 +83,7 @@ impl<T: Clone> Clone for BroadcastSender<T> {
 }
 
 impl<T: Clone> BroadcastSender<T> {
-    /// Send a payload to all subscribers, capturing the current OTel context.
+    /// Send a payload to all subscribers, capturing the current `OTel` context.
     ///
     /// # Errors
     /// Returns the original payload inside a [`tokio::sync::broadcast::error::SendError`]
@@ -150,7 +150,7 @@ impl<T: Clone> BroadcastReceiver<T> {
     }
 }
 
-/// Create a broadcast channel with OTel context propagation.
+/// Create a broadcast channel with `OTel` context propagation.
 ///
 /// Returns a sender/receiver pair. Additional receivers are created via
 /// [`BroadcastSender::subscribe`].

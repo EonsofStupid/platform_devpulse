@@ -1,4 +1,4 @@
-//! Session listing, deletion, history wipe, and export for chat (user LibSQL / `turns` SSOT).
+//! Session listing, deletion, history wipe, and export for chat (user `LibSQL` / `turns` SSOT).
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{SqlAdapter, SqlValue};
@@ -247,8 +247,7 @@ pub async fn export_all_sessions(
 				let msgs = load_session_turns(adapter.as_ref(), sid.as_str()).await?;
 				rows_total += i64::try_from(msgs.len()).unwrap_or(0);
 				body.push_str(&format!(
-					"---\n\n# Session {} (project {})\n\n",
-					sid, project_id
+					"---\n\n# Session {sid} (project {project_id})\n\n"
 				));
 				body.push_str(&turns_to_markdown(title.as_deref(), &msgs));
 				body.push('\n');

@@ -15,7 +15,7 @@
 //! `Arc<Inner>` that handles its own locking. Wrapping it in
 //! `tokio::sync::RwLock` serialized every query behind a yield-on-acquire
 //! mutex AND deadlocked whenever `init_namespace` took the write lock while
-//! another task tried to read. The RwLock is removed. All runtime queries
+//! another task tried to read. The `RwLock` is removed. All runtime queries
 //! use explicit `USE NS {ns} DB {db};` prefixes so no session-state mutation
 //! is ever needed after open.
 
@@ -239,6 +239,10 @@ impl SurrealAdapter {
     /// Lightweight health check — executes `SELECT 1`.
     ///
     /// Called by the persistence manager's `ping_surreal` via `Arc<SurrealAdapter>`.
+    ///
+    /// # Errors
+    /// Returns an error if the backing `SurrealDB` connection cannot execute the
+    /// probe query or if the response payload is malformed.
     #[tracing::instrument(skip(self), err)]
     pub async fn ping(&self) -> Result<()> {
         let mut response = self
@@ -256,6 +260,11 @@ impl SurrealAdapter {
     ///
     /// Lock-free: no explicit drain needed. The `Surreal<Db>` handle
     /// refcount drop on the last `Arc<SurrealAdapter>` flushes the WAL.
+    ///
+    /// Stays `async` because a proper quiesce (wait for in-flight
+    /// queries, await a checkpoint) is future work; keeping the signature
+    /// stable lets that land without churning every call site.
+    #[allow(clippy::unused_async)]
     pub async fn quiesce(&self) {
         tracing::info!("SurrealDB: quiesced — WAL flushes on Arc drop");
     }

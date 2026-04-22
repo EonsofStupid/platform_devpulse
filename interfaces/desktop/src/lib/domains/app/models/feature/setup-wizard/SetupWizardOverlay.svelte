@@ -26,6 +26,7 @@
 import { KeyRound, Lock, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import DynamicBackground from "$lib/design/components/dynamic-background/DynamicBackground.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
 import { logInfo } from "$lib/sys/logger.js";
 import { setupWizardOverlayState } from "../../data-access/setup-wizard-overlay.state.svelte.js";
@@ -78,6 +79,7 @@ $effect(() => {
 
 {#if wizardState.isOpen}
 	<div class="wizard-overlay">
+		<DynamicBackground variant="boot" animated={true} class="wizard-bg" />
 		<div class="wizard-backdrop"></div>
 
 		<div class="wizard-chrome">
@@ -164,11 +166,16 @@ $effect(() => {
 		flex-direction: column;
 	}
 
+	:global(.wizard-bg) {
+		z-index: 0;
+	}
+
 	.wizard-backdrop {
 		position: absolute;
 		inset: 0;
-		background: oklch(0.06 0.01 220 / 0.92);
-		backdrop-filter: blur(1rem);
+		z-index: 0;
+		background: oklch(0.06 0.01 220 / 0.55);
+		backdrop-filter: blur(0.5rem);
 	}
 
 	.wizard-chrome {

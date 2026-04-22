@@ -170,10 +170,20 @@ async verify() : Promise<void> {
  * 
  * When `run_id` is provided (from `withAction`), it's attached as a
  * structured field on every tracing call — correlating frontend actions
- * with backend spans across session JSONL, DuckDB, and OTel.
+ * with backend spans across session JSONL, `DuckDB`, and `OTel`.
  * 
  * Action events (`target == "action"`) are written only to the action JSONL
  * file (plain JSON lines) to avoid double-encoding inside the session log.
+ * 
+ * # Async-by-contract
+ * 
+ * Every `#[tauri::command]` handler in this crate is `async fn`. Sync
+ * handlers run on Tauri's IPC dispatch thread; any blocking syscall
+ * (file write, stderr backpressure under Chromium verbose logging)
+ * stalls every subsequent IPC call. This exact bug cost the project
+ * multiple days — see the logging audit in
+ * `scripts/docs/sprints/SPRINT-FOUNDATIONAL-REBUILD-S0.research-logging.md`.
+ * Per the module charter's sync-vs-async doctrine, commands are async.
  */
 async log(level: string, target: string, message: string, runId: string | null) : Promise<void> {
     await TAURI_INVOKE("log", { level, target, message, runId });
@@ -261,7 +271,7 @@ async setLaneConfig(config: LaneTraceConfig) : Promise<Result<null, string>> {
 }
 },
 /**
- * Query span traces from DuckDB.
+ * Query span traces from `DuckDB`.
  * 
  * If `trace_id` is provided, returns all spans for that trace (tree view).
  * Otherwise returns the most recent spans up to `limit`.
@@ -454,7 +464,7 @@ async graphStats(namespace: GraphNamespace) : Promise<Result<GraphNamespaceStats
 }
 },
 /**
- * Execute a raw SurrealQL query against a namespace — devtools console.
+ * Execute a raw `SurrealQL` query against a namespace — devtools console.
  * 
  * Returns JSON-encoded string of the result.
  * 
@@ -485,7 +495,7 @@ async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], st
 }
 },
 /**
- * Ping both LibSQL databases — returns health for each.
+ * Ping both `LibSQL` databases — returns health for each.
  */
 async libsqlHealthAll() : Promise<Result<LibSqlHealthAll, string>> {
     try {
@@ -496,7 +506,7 @@ async libsqlHealthAll() : Promise<Result<LibSqlHealthAll, string>> {
 }
 },
 /**
- * List tables and row counts for a LibSQL database.
+ * List tables and row counts for a `LibSQL` database.
  */
 async libsqlListTables(database: LibSqlDatabase) : Promise<Result<LibSqlTableInfo[], string>> {
     try {
@@ -507,7 +517,7 @@ async libsqlListTables(database: LibSqlDatabase) : Promise<Result<LibSqlTableInf
 }
 },
 /**
- * Execute a raw SQL query against a LibSQL database — devtools console.
+ * Execute a raw SQL query against a `LibSQL` database — devtools console.
  */
 async libsqlQuery(database: LibSqlDatabase, sql: string) : Promise<Result<LibSqlQueryResult, string>> {
     try {
@@ -520,7 +530,7 @@ async libsqlQuery(database: LibSqlDatabase, sql: string) : Promise<Result<LibSql
 /**
  * Initialize a project database at `{project_root}/.devpulse/project.db`.
  * 
- * Creates the database, applies the project schema, and seeds project_meta.
+ * Creates the database, applies the project schema, and seeds `project_meta`.
  * Safe to call multiple times — uses `CREATE TABLE IF NOT EXISTS`.
  */
 async initProjectDb(projectId: string, projectRoot: string, projectName: string) : Promise<Result<ProjectDbInitResult, string>> {
@@ -565,7 +575,7 @@ async projectDbQuery(projectId: string, sql: string) : Promise<Result<ProjectDbQ
 }
 },
 /**
- * Health check for the DuckDB analytics database.
+ * Health check for the `DuckDB` analytics database.
  */
 async duckdbHealth() : Promise<Result<DuckDbHealth, string>> {
     try {
@@ -576,7 +586,7 @@ async duckdbHealth() : Promise<Result<DuckDbHealth, string>> {
 }
 },
 /**
- * List tables in DuckDB with row counts.
+ * List tables in `DuckDB` with row counts.
  */
 async duckdbListTables() : Promise<Result<DuckDbTableInfo[], string>> {
     try {
@@ -587,7 +597,7 @@ async duckdbListTables() : Promise<Result<DuckDbTableInfo[], string>> {
 }
 },
 /**
- * Execute a raw SQL query against DuckDB — devtools console.
+ * Execute a raw SQL query against `DuckDB` — devtools console.
  */
 async duckdbQuery(sql: string) : Promise<Result<DuckDbQueryResult, string>> {
     try {
@@ -611,29 +621,73 @@ async getStatus() : Promise<Result<SystemHealth, string>> {
 }
 },
 /**
- * Spawn the REH web server — now boot-managed.
+ * Start the `DevForge` REH child process (Module Charter verb).
  * 
- * DevForge REH boots through the platform service pipeline. This command
- * is kept for frontend compat but returns the current service state
- * instead of spawning a second process.
+ * Lazy-start path — idempotent: returns the current status if the child
+ * is already running. First call spawns `node out/server-main.js`,
+ * waits for the TCP health check, and stores the service handle in
+ * `Platform::devforge`. Subsequent calls are lock-free reads.
+ * 
+ * # Errors
+ * - Platform not booted yet
+ * - `DevForge` disabled in config
+ * - No REH tree on disk (fetch-devforge not run)
+ * - Health poll timed out during spawn
  */
-async spawnRehServer(config: RehConfig) : Promise<Result<RehStatus, string>> {
+async devforgeStart() : Promise<Result<RehStatus, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("spawn_reh_server", { config }) };
+    return { status: "ok", data: await TAURI_INVOKE("devforge_start") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Stop the REH server — now boot-managed.
+ * Stop the running `DevForge` REH child process (Module Charter verb).
  * 
- * Platform shutdown handles this. This command is a no-op kept for
- * frontend compat.
+ * Atomically swaps `Platform::devforge` to `None` and shuts down the
+ * taken service. Idempotent — returns `Ok(())` when nothing is
+ * running.
+ * 
+ * # Errors
+ * - Platform not booted yet
+ * - REH child could not be killed cleanly
  */
-async stopRehServer() : Promise<Result<null, string>> {
+async devforgeStop() : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("stop_reh_server") };
+    return { status: "ok", data: await TAURI_INVOKE("devforge_stop") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Restart the `DevForge` REH child process (Module Charter verb).
+ * 
+ * Equivalent to `devforge_stop` followed by `devforge_start`. Returns
+ * the status of the freshly started child.
+ * 
+ * # Errors
+ * Returns whichever of stop or start fails first.
+ */
+async devforgeRestart() : Promise<Result<RehStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_restart") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Health snapshot of the `DevForge` runtime (Module Charter verb).
+ * 
+ * Returns a minimal status shape matching the shell's `HealthBadge`:
+ * `{ state, label }`. The shell uses this to colour the header dot
+ * and short-text status on the Status tab.
+ */
+async devforgeHealth() : Promise<Result<DevforgeHealth, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_health") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -662,7 +716,7 @@ async getConnectionUrl() : Promise<Result<string, string>> {
 }
 },
 /**
- * Unified DevForge status for the frontend.
+ * Unified `DevForge` status for the frontend.
  */
 async devforgeGetStatus() : Promise<Result<DevforgeBootstrapStatus, string>> {
     try {
@@ -675,7 +729,7 @@ async devforgeGetStatus() : Promise<Result<DevforgeBootstrapStatus, string>> {
 /**
  * List recently opened project paths (newest first).
  * 
- * These are real directories the user has opened in DevForge, persisted
+ * These are real directories the user has opened in `DevForge`, persisted
  * in `state.json`. The frontend uses this for a "recent projects" picker.
  */
 async devforgeListRecentProjects() : Promise<Result<string[], string>> {
@@ -723,7 +777,7 @@ async devforgeRemoveProject(path: string) : Promise<Result<null, string>> {
 /**
  * Toggle the `fresh_instance_on_open` preference in `state.json`.
  * 
- * When enabled, DevForge ignores the last-used workspace on startup and
+ * When enabled, `DevForge` ignores the last-used workspace on startup and
  * always opens the default (empty) one.
  * 
  * # Errors
@@ -738,7 +792,7 @@ async devforgeSetFreshInstance(enabled: boolean) : Promise<Result<null, string>>
 }
 },
 /**
- * Open (or focus) the dedicated DevForge window.
+ * Open (or focus) the dedicated `DevForge` window.
  * 
  * First call spawns the Node REH child process via
  * `Platform::ensure_devforge_started()` — this is the **only** path that
@@ -749,13 +803,13 @@ async devforgeSetFreshInstance(enabled: boolean) : Promise<Result<null, string>>
  * 
  * # Errors
  * - Platform hasn't finished booting yet (user should retry)
- * - DevForge server tree is missing — user needs to run
+ * - `DevForge` server tree is missing — user needs to run
  * `cargo xtask fetch-devforge` or install the bundled release
  * - Node binary missing from the server tree
  * - Health poll fails within the service's startup timeout
  * - Connection URL fails to parse as a valid `Url`
  * - Tauri fails to create the `WebviewWindow`
- * - Focusing an already-open DevForge window fails
+ * - Focusing an already-open `DevForge` window fails
  */
 async openDevforgeWindow() : Promise<Result<DevforgeBootstrapStatus, string>> {
     try {
@@ -766,7 +820,7 @@ async openDevforgeWindow() : Promise<Result<DevforgeBootstrapStatus, string>> {
 }
 },
 /**
- * Close the DevForge window, if one is open. Idempotent.
+ * Close the `DevForge` window, if one is open. Idempotent.
  * 
  * Does **not** stop the REH server — that stays alive under
  * `PlatformState.reh` so a subsequent [`open_devforge_window`] call
@@ -1038,7 +1092,7 @@ async isFirstRun() : Promise<Result<boolean, string>> {
 }
 },
 /**
- * Mark the setup wizard as complete. Persists to LibSQL.
+ * Mark the setup wizard as complete. Persists to `LibSQL`.
  * Called by the frontend when the user finishes the wizard.
  */
 async markSetupComplete() : Promise<Result<null, string>> {
@@ -1078,9 +1132,9 @@ async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, 
  * Load a model into a slot.
  * 
  * Routing logic:
- * - GGUF files with LlamaCpp runtime → llama-server sidecar (HTTP)
- * - SafeTensors with Candle runtime → kernel BackendPool (in-process)
- * - ONNX/Sherpa → kernel VoicePool (in-process)
+ * - GGUF files with `LlamaCpp` runtime → llama-server sidecar (HTTP)
+ * - `SafeTensors` with Candle runtime → kernel `BackendPool` (in-process)
+ * - ONNX/Sherpa → kernel `VoicePool` (in-process)
  * 
  * Returns a typed [`LoadError`] covering the full load-path failure
  * surface — compatibility, filesystem, resources, backend init,
@@ -1111,7 +1165,7 @@ async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
  * Atomically swap the model on a slot (unload → reassign → load).
  * 
  * Blocks inference to the slot for the entire duration. The frontend
- * should show SwapOverlay while this runs — events are emitted via
+ * should show `SwapOverlay` while this runs — events are emitted via
  * `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
  */
 async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, LoadError>> {
@@ -1123,7 +1177,7 @@ async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, L
 }
 },
 /**
- * Start downloading a model from HuggingFace.
+ * Start downloading a model from `HuggingFace`.
  * Returns the download ID for progress tracking.
  */
 async downloadModel(repoId: string, filename: string) : Promise<Result<string, string>> {
@@ -1146,7 +1200,7 @@ async cancelDownload(downloadId: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Store or replace the HuggingFace access token. Empty string clears it.
+ * Store or replace the `HuggingFace` access token. Empty string clears it.
  */
 async setHfToken(token: string) : Promise<Result<null, string>> {
     try {
@@ -1180,7 +1234,7 @@ async clearHfToken() : Promise<Result<null, string>> {
 },
 /**
  * Return the last `n` characters of the stored HF token, or `null`
- * if no token is stored. Used by the HfTokenModal masked-pill display
+ * if no token is stored. Used by the `HfTokenModal` masked-pill display
  * so the UI can render `"••••••••hf_xxxxx"` without the plaintext
  * ever landing in frontend state.
  */
@@ -1406,7 +1460,7 @@ async deleteModel(modelId: string) : Promise<Result<null, LoadError>> {
 }
 },
 /**
- * Search HuggingFace for GGUF models.
+ * Search `HuggingFace` for GGUF models.
  */
 async searchHuggingface(query: string, limit: number | null) : Promise<Result<HfSearchResultInfo[], string>> {
     try {
@@ -1553,7 +1607,7 @@ async completeModelSetup() : Promise<Result<null, string>> {
  * 
  * Routing:
  * - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
- * - SafeTensors models loaded via Candle → kernel BackendPool
+ * - `SafeTensors` models loaded via Candle → kernel `BackendPool`
  * - Cloud provider → `cloud_chat` (if configured)
  * 
  * Streams tokens via Tauri events (`inference-token` for Candle,
@@ -2017,7 +2071,7 @@ async getInferenceProvider() : Promise<Result<InferenceProvider, string>> {
  * Set the routing mode in assistant config.
  * 
  * Emitted as `provider:changed` event so all cross-linked UI
- * components (StatusBar, Chat header, Settings) update instantly.
+ * components (`StatusBar`, Chat header, Settings) update instantly.
  */
 async setInferenceProvider(provider: InferenceProvider) : Promise<Result<null, string>> {
     try {
@@ -2207,7 +2261,7 @@ export type ApiProvider =
  */
 "Anthropic" | 
 /**
- * OpenAI (GPT) API.
+ * `OpenAI` (GPT) API.
  */
 "OpenAI" | 
 /**
@@ -2774,7 +2828,7 @@ export type CatalogEntry = {
  */
 slot_id: string; 
 /**
- * ModelCapability this entry targets (e.g., "TextGeneration", "Embedding").
+ * `ModelCapability` this entry targets (e.g., "`TextGeneration`", "Embedding").
  * Used by the frontend to filter catalog entries by what the slot needs.
  */
 capability?: string | null; 
@@ -2799,7 +2853,7 @@ export type CatalogOption = {
  */
 label: string; 
 /**
- * HuggingFace repository ID.
+ * `HuggingFace` repository ID.
  */
 repo: string; 
 /**
@@ -2851,7 +2905,7 @@ modelUsed: string | null;
  */
 latencyMs: number | null }
 /**
- * A single chat message (OpenAI format).
+ * A single chat message (`OpenAI` format).
  */
 export type ChatMessage = { 
 /**
@@ -3147,7 +3201,7 @@ vector_enabled: boolean;
  */
 grammar_enabled: boolean; 
 /**
- * DevForge service enabled (REH).
+ * `DevForge` service enabled (REH).
  */
 devforge_enabled: boolean }
 /**
@@ -3160,7 +3214,7 @@ devforge_enabled: boolean }
  */
 export type DevforgeBootstrapStatus = { 
 /**
- * `true` if a valid REH build exists at the resolved server_dir.
+ * `true` if a valid REH build exists at the resolved `server_dir`.
  */
 installed: boolean; 
 /**
@@ -3184,6 +3238,51 @@ workspace: string | null;
  * Installed REH bundle version, if known.
  */
 rehVersion: string | null }
+/**
+ * Layman-phrased health of the `DevForge` runtime, consumed by the
+ * devtool shell's `HealthBadge`.
+ * 
+ * Mirrors [`crate::platform::module::ModuleHealth`] on the Rust side but
+ * flattened into `{ state, label }` so the frontend shell can render it
+ * directly without pattern-matching the nested enum.
+ */
+export type DevforgeHealth = { 
+/**
+ * Layman-phrased health state.
+ */
+state: DevforgeHealthState; 
+/**
+ * One-line user-facing label (e.g. "Running", "Not installed").
+ */
+label: string }
+/**
+ * Health-state variants. Matches the shell's `HealthState` union type.
+ */
+export type DevforgeHealthState = 
+/**
+ * Transitioning from stopped toward running.
+ */
+"starting" | 
+/**
+ * Running, serving connections.
+ */
+"up" | 
+/**
+ * Running but reporting a problem.
+ */
+"degraded" | 
+/**
+ * Not operational (e.g. REH tree missing, REH child crashed).
+ */
+"down" | 
+/**
+ * Stopped by explicit request. Not a failure.
+ */
+"stopped" | 
+/**
+ * Status could not be determined.
+ */
+"unknown"
 /**
  * Copy for the download progress rows rendered inside the overlay while
  * downloads are active.
@@ -3272,7 +3371,7 @@ dismiss_label: string;
  */
 dismiss_aria: string }
 /**
- * Health of the DuckDB analytics database.
+ * Health of the `DuckDB` analytics database.
  */
 export type DuckDbHealth = { 
 /**
@@ -3292,7 +3391,7 @@ error: string | null;
  */
 path: string }
 /**
- * Result of a raw SQL query against DuckDB.
+ * Result of a raw SQL query against `DuckDB`.
  */
 export type DuckDbQueryResult = { 
 /**
@@ -3304,7 +3403,7 @@ rows_json: string;
  */
 row_count: number }
 /**
- * A table in DuckDB with row count.
+ * A table in `DuckDB` with row count.
  */
 export type DuckDbTableInfo = { 
 /**
@@ -3351,7 +3450,7 @@ export type ExecutionLane =
  */
 "TextToSpeech" | 
 /**
- * Vision embedding (SigLIP2). CPU.
+ * Vision embedding (`SigLIP2`). CPU.
  */
 "VisionEmbedding" | 
 /**
@@ -3363,7 +3462,7 @@ export type ExecutionLane =
  */
 "RelationalQuery" | 
 /**
- * Analytical query (DuckDB). File-backed.
+ * Analytical query (`DuckDB`). File-backed.
  */
 "AnalyticalQuery" | 
 /**
@@ -3683,11 +3782,11 @@ gpu_utilization_percent: number | null;
  */
 gpu_temperature_c: number | null; 
 /**
- * DevPulse process RAM usage (MB).
+ * `DevPulse` process RAM usage (MB).
  */
 process_ram_mb: number; 
 /**
- * DevPulse process VRAM usage (MB).
+ * `DevPulse` process VRAM usage (MB).
  */
 process_vram_mb: number; 
 /**
@@ -3731,7 +3830,7 @@ export type HealthStatus =
  */
 "Unknown"
 /**
- * A GGUF file in a HuggingFace repo.
+ * A GGUF file in a `HuggingFace` repo.
  */
 export type HfFileInfoItem = { 
 /**
@@ -3747,7 +3846,7 @@ size_bytes: number;
  */
 quant_level: string | null }
 /**
- * Search result from HuggingFace.
+ * Search result from `HuggingFace`.
  */
 export type HfSearchResultInfo = { 
 /**
@@ -3763,11 +3862,11 @@ author: string;
  */
 model_name: string; 
 /**
- * Total download count on HuggingFace.
+ * Total download count on `HuggingFace`.
  */
 downloads: number; 
 /**
- * Like count on HuggingFace.
+ * Like count on `HuggingFace`.
  */
 likes: number; 
 /**
@@ -4019,7 +4118,7 @@ gender: string;
  */
 region: string }
 /**
- * A lane baseline row from DuckDB — percentile stats per execution lane.
+ * A lane baseline row from `DuckDB` — percentile stats per execution lane.
  */
 export type LaneBaselineRow = { 
 /**
@@ -4083,11 +4182,11 @@ lanes: LaneToggle[];
  */
 verbose: boolean; 
 /**
- * Write every trace to DuckDB for baseline analysis.
+ * Write every trace to `DuckDB` for baseline analysis.
  */
 persist_to_duckdb: boolean }
 /**
- * Which LibSQL database to target.
+ * Which `LibSQL` database to target.
  */
 export type LibSqlDatabase = 
 /**
@@ -4095,11 +4194,11 @@ export type LibSqlDatabase =
  */
 "System" | 
 /**
- * User database — user.db (turns, preferences, api_keys).
+ * User database — user.db (turns, preferences, `api_keys`).
  */
 "User"
 /**
- * Health of a single LibSQL database.
+ * Health of a single `LibSQL` database.
  */
 export type LibSqlHealth = { 
 /**
@@ -4171,7 +4270,7 @@ export type LlamaHealthStatus = {
  */
 running: boolean; 
 /**
- * Server status: "ok", "loading", "unreachable", "not_started".
+ * Server status: "ok", "loading", "unreachable", "`not_started`".
  */
 status: string; 
 /**
@@ -4766,42 +4865,6 @@ created_at: number;
  */
 last_accessed: number }
 /**
- * Configuration supplied when spawning the REH server.
- * 
- * Most callers will not construct this by hand — [`bootstrap`](super::bootstrap)
- * builds it from [`DevforgePaths`](super::paths::DevforgePaths) and the
- * persisted [`DevforgeState`](super::state_file::DevforgeState). It is
- * still exposed to the frontend so a "custom workspace" power-user path
- * can call `spawn_reh_server` directly with an arbitrary folder.
- * 
- * - `server_dir` must contain `out/server-main.js` and a bundled
- * `node.exe` (Windows) or `node` (Unix).
- * - `workspace_path` is the folder REH will open on start — must exist.
- * - `user_data_dir` is passed to REH via `--user-data-dir`. This is what
- * enables VS Code profiles, settings, keybindings, and state to
- * persist across DevForge sessions.
- * - `extensions_dir` is optional — when set, REH loads/stores extensions
- * from this directory instead of the user-data-dir default.
- */
-export type RehConfig = { 
-/**
- * Path to the REH web server build directory.
- */
-serverDir: string; 
-/**
- * Project folder the server will open on start. `None` means REH
- * starts with no folder — the user picks one inside VS Code.
- */
-workspacePath: string | null; 
-/**
- * VS Code user-data directory (profiles, settings, state).
- */
-userDataDir: string; 
-/**
- * Optional extensions directory override.
- */
-extensionsDir: string | null }
-/**
  * Runtime status of the REH web server.
  * 
  * Returned from `spawn_reh_server` and `get_reh_status`. All optional
@@ -4875,7 +4938,7 @@ fusion_k: number }
  */
 export type RetrievalParamMeta = { 
 /**
- * Internal field name on `RetrievalConfig` (e.g. "top_k").
+ * Internal field name on `RetrievalConfig` (e.g. "`top_k`").
  */
 field: string; 
 /**
@@ -5110,7 +5173,7 @@ model_name: string;
  */
 vram_estimate_mb: number; 
 /**
- * Status: "loaded", "planned", "wont_fit", "unassigned", "shared".
+ * Status: "loaded", "planned", "`wont_fit`", "unassigned", "shared".
  */
 status: string; 
 /**
@@ -5198,7 +5261,7 @@ context_length: number | null;
  */
 backend: string | null }
 /**
- * A span trace row from DuckDB, serialized for the frontend.
+ * A span trace row from `DuckDB`, serialized for the frontend.
  */
 export type SpanTraceRow = { 
 /**
@@ -5214,11 +5277,11 @@ span_id: number;
  */
 parent_span_id: number | null; 
 /**
- * Human-readable span name (e.g. "boot_task", "surreal_init").
+ * Human-readable span name (e.g. "`boot_task`", "`surreal_init`").
  */
 name: string; 
 /**
- * Rust module target that emitted this span (e.g. "devpulse_engine::platform").
+ * Rust module target that emitted this span (e.g. "`devpulse_engine::platform`").
  */
 target: string; 
 /**
@@ -5674,7 +5737,7 @@ name: string;
  */
 tts_voice_id: string; 
 /**
- * STT model preference: "standard" | "high_quality" | "best".
+ * STT model preference: "standard" | "`high_quality`" | "best".
  */
 stt_quality: string; 
 /**
@@ -5704,7 +5767,7 @@ stt_ok: boolean;
  */
 spoken: string; 
 /**
- * Transcript returned by the STT stage (empty if stt_ok is false).
+ * Transcript returned by the STT stage (empty if `stt_ok` is false).
  */
 transcript: string; 
 /**

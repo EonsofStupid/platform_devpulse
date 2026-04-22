@@ -4,7 +4,7 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Flame, Power, PowerOff, RefreshCw, X } from "lucide-svelte";
+import { Download, Flame, Power, PowerOff, RefreshCw, Search, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -13,7 +13,9 @@ import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { brainCardState } from "../../data-access/brain-card.state.svelte.js";
+import { downloadModel } from "../../data-access/download.service.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
+import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
 import {
 	formatEta,
@@ -22,6 +24,7 @@ import {
 	statusLabel,
 	statusToTone,
 } from "../../util/models.types.js";
+import HuggingFaceSearch from "../setup-wizard/components/HuggingFaceSearch.svelte";
 import ModelPicker from "./ModelPicker.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
@@ -33,6 +36,31 @@ interface Props {
 
 let { advanced = false }: Props = $props();
 const brainState = brainCardState;
+
+// HF search panel visibility. Defaults closed so the existing preset
+// + ModelPicker flow stays the primary experience; users who want to
+// bring a model in from HuggingFace have a clearly marked entry.
+let hfSearchOpen = $state(false);
+
+async function handleHfDownload(
+	repoId: string,
+	filename: string,
+	_targetSlot: string,
+): Promise<void> {
+	// The HuggingFaceSearch component passes a targetSlot hint, but for
+	// BrainCard we always want the download to land on chat.brain. The
+	// download_model Tauri command is slot-agnostic — it just writes to
+	// disk under the models/ tree and the next scan registers it.
+	await downloadModel(repoId, filename);
+	await modelsState.scan();
+	await modelsState.refresh();
+	// After the model lands on disk + is registered, pre-select it so
+	// Save & Continue has a real assigned model (POAM §6.2 truth rule).
+	const downloaded = modelsState.models.find((m) => m.filename === filename);
+	if (downloaded) {
+		brainState.selectModel(downloaded.id);
+	}
+}
 
 $effect(() => {
 	void brainState.ensureCatalogLoaded();
@@ -105,6 +133,28 @@ const cardM = $derived(renderForge({ kind: "brain-card", preset: "glass-elevated
 			pendingModelId={brainState.pendingModelId}
 			onSelect={(modelId) => brainState.selectModel(modelId)}
 		/>
+
+		<!-- Browse HuggingFace — inline search surfaced per POAM §9.1 / UX-REQ §1 -->
+		<div class={stack({ gap: "2" })}>
+			<button
+				class="flex items-center gap-1.5 self-start rounded px-3 py-1.5 text-xs font-medium transition-colors hover:brightness-110"
+				style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-secondary);"
+				onclick={() => (hfSearchOpen = !hfSearchOpen)}
+				title="Search HuggingFace for any compatible brain model"
+			>
+				<Search size={12} />
+				{hfSearchOpen ? "Hide HuggingFace Search" : "Browse HuggingFace"}
+			</button>
+
+			{#if hfSearchOpen}
+				<div
+					class="rounded-lg p-3"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					<HuggingFaceSearch onDownload={handleHfDownload} />
+				</div>
+			{/if}
+		</div>
 
 		{#if brainState.pendingModel}
 			<Text size="xs" color="muted">

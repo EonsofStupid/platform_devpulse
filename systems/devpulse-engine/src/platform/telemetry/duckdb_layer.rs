@@ -1,19 +1,19 @@
-//! DuckDB tracing Layer — captures completed spans for analytics.
+//! `DuckDB` tracing Layer — captures completed spans for analytics.
 //!
 //! This `tracing::Layer` implementation records every closed span
-//! and sends it to the `SpanTraceWriter` for batched DuckDB persistence.
+//! and sends it to the `SpanTraceWriter` for batched `DuckDB` persistence.
 //!
 //! ## Design
 //!
 //! - On `on_new_span`: stamps the span with its start time via extensions.
-//! - On `on_record`: captures field values (trace_id, slot_id, etc.).
+//! - On `on_record`: captures field values (`trace_id`, `slot_id`, etc.).
 //! - On `on_close`: computes duration, extracts fields, sends `SpanRecord`.
 //! - Non-blocking: uses `try_send` — drops spans on backpressure.
 //!
 //! ## Integration
 //!
 //! The layer is created with a channel sender. The corresponding
-//! `SpanTraceWriter` receiver is spawned separately after DuckDB boots.
+//! `SpanTraceWriter` receiver is spawned separately after `DuckDB` boots.
 //! Between subscriber init and writer spawn, the channel buffers spans
 //! (up to `SPAN_CHANNEL_CAPACITY`).
 
@@ -40,17 +40,17 @@ struct SpanFields {
     fields: Mutex<HashMap<String, String>>,
 }
 
-/// A `tracing::Layer` that sends completed spans to DuckDB via the
+/// A `tracing::Layer` that sends completed spans to `DuckDB` via the
 /// `SpanTraceWriter` background task.
 pub struct DuckDbLayer {
     tx: mpsc::Sender<SpanRecord>,
 }
 
 impl DuckDbLayer {
-    /// Create a new DuckDB layer with the given channel sender.
+    /// Create a new `DuckDB` layer with the given channel sender.
     ///
     /// The sender connects to a `SpanTraceWriter` that batches
-    /// and flushes to DuckDB. The writer must be spawned separately.
+    /// and flushes to `DuckDB`. The writer must be spawned separately.
     #[must_use]
     pub fn new(tx: mpsc::Sender<SpanRecord>) -> Self {
         Self { tx }
@@ -95,8 +95,7 @@ where
         let duration_us = span
             .extensions()
             .get::<SpanTiming>()
-            .map(|t| t.start.elapsed().as_micros() as u64)
-            .unwrap_or(0);
+            .map_or(0, |t| t.start.elapsed().as_micros() as u64);
 
         // Extract fields — look for trace_id specifically.
         let (trace_id, fields_json) = if let Some(sf) = span.extensions().get::<SpanFields>() {
@@ -142,7 +141,7 @@ where
     }
 }
 
-/// Walk up the span tree looking for a trace_id field.
+/// Walk up the span tree looking for a `trace_id` field.
 fn find_parent_trace_id<S>(span: &tracing_subscriber::registry::SpanRef<'_, S>) -> String
 where
     S: Subscriber + for<'a> LookupSpan<'a>,
@@ -163,7 +162,7 @@ where
     String::new()
 }
 
-/// Simple field visitor that collects values into a HashMap.
+/// Simple field visitor that collects values into a `HashMap`.
 struct FieldVisitor<'a>(&'a mut HashMap<String, String>);
 
 impl tracing::field::Visit for FieldVisitor<'_> {

@@ -1,4 +1,4 @@
-//! Persistent DevForge state — small JSON file at `devforge/state.json`.
+//! Persistent `DevForge` state — small JSON file at `devforge/state.json`.
 //!
 //! Intentionally tiny and human-editable. Stores the user-facing bits that
 //! need to survive restarts: last workspace, fresh-instance preference, and
@@ -10,9 +10,10 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};
 
-/// Persistent state for the DevForge component.
+/// Persistent state for the `DevForge` component.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
+#[derive(Default)]
 pub struct DevforgeState {
     /// Last project folder the user had open. Bootstrap restores this
     /// unless `fresh_instance_on_open` is set.
@@ -34,16 +35,6 @@ pub struct DevforgeState {
 /// Maximum number of recent projects to persist.
 pub const MAX_RECENT: usize = 20;
 
-impl Default for DevforgeState {
-    fn default() -> Self {
-        Self {
-            last_workspace: None,
-            fresh_instance_on_open: false,
-            recent_projects: Vec::new(),
-            reh_version: None,
-        }
-    }
-}
 
 impl DevforgeState {
     /// Record a project path as recently opened. Moves it to the front

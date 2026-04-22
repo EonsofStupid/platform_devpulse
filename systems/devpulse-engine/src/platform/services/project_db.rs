@@ -26,6 +26,12 @@ pub struct ProjectDbManager {
     dbs: RwLock<HashMap<String, Arc<LibSqlAdapter>>>,
 }
 
+impl Default for ProjectDbManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProjectDbManager {
     /// Create a new empty manager.
     pub fn new() -> Self {

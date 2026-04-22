@@ -3,7 +3,7 @@
 //! Every user request (inference, TTS, STT) gets a `TraceContext` at entry.
 //! The `trace_id` propagates across channel boundaries (flume, mpsc) by
 //! embedding it in request structs. Spans on both sides of the boundary
-//! reference the same `trace_id` for end-to-end correlation in DuckDB.
+//! reference the same `trace_id` for end-to-end correlation in `DuckDB`.
 
 /// Lightweight trace context for cross-boundary correlation.
 ///

@@ -1,6 +1,6 @@
-//! Graph store commands — SurrealDB devtool operations.
+//! Graph store commands — `SurrealDB` devtool operations.
 //!
-//! Health, namespace browsing, SurrealQL console, KV listing.
+//! Health, namespace browsing, `SurrealQL` console, KV listing.
 //! Mirrors the telemetry.rs / vector.rs pattern: read platform state,
 //! access the graph service, execute scoped operations.
 //!
@@ -206,8 +206,8 @@ pub async fn graph_health_all(
             }
             Err(_) => {
                 namespaces.push(GraphPingResult {
-                    namespace: fallback_ns.to_string(),
-                    database: fallback_db.to_string(),
+                    namespace: (*fallback_ns).to_string(),
+                    database: (*fallback_db).to_string(),
                     reachable: false,
                     latency_us: 0,
                     error: Some("Service not booted".to_string()),
@@ -307,7 +307,7 @@ pub async fn graph_stats(
     })
 }
 
-/// Execute a raw SurrealQL query against a namespace — devtools console.
+/// Execute a raw `SurrealQL` query against a namespace — devtools console.
 ///
 /// Returns JSON-encoded string of the result.
 ///
@@ -365,7 +365,7 @@ pub async fn graph_kv_list(
                 let key = row.get("key")?.as_str()?.to_string();
                 let value_size = row
                     .get("value_size")
-                    .and_then(|v| v.as_u64())
+                    .and_then(serde_json::Value::as_u64)
                     .unwrap_or(0);
                 Some(GraphKvEntry { key, value_size })
             })
@@ -382,7 +382,7 @@ pub async fn graph_kv_list(
 
 /// Extract table names from `INFO FOR DB` JSON result.
 ///
-/// SurrealDB returns `{ "tables": { "tableName": "DEFINE TABLE ..." } }`.
+/// `SurrealDB` returns `{ "tables": { "tableName": "DEFINE TABLE ..." } }`.
 fn extract_table_names(info: &serde_json::Value) -> Vec<String> {
     let mut names = Vec::new();
 

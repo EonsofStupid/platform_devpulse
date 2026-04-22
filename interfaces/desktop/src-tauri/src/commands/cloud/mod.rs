@@ -75,16 +75,14 @@ async fn inner_get_inference_provider(
     let config = loader.get_assistant_config().await;
     let raw_mode = serde_json::to_value(&config.routing.mode)
         .context("serialize routing mode")?
-        .as_str()
-        .map(str::to_string)
-        .unwrap_or_else(|| "local_first".to_string());
+        .as_str().map_or_else(|| "local_first".to_string(), str::to_string);
     Ok(InferenceProvider::from_str(&raw_mode))
 }
 
 /// Set the routing mode in assistant config.
 ///
 /// Emitted as `provider:changed` event so all cross-linked UI
-/// components (StatusBar, Chat header, Settings) update instantly.
+/// components (`StatusBar`, Chat header, Settings) update instantly.
 #[tauri::command]
 #[specta::specta]
 pub async fn set_inference_provider(
@@ -195,13 +193,13 @@ pub async fn cloud_chat(
     // 1. Get API key — env var first (piggybacks off Claude Code session),
     //    then keyring, then fail with clear message.
     let api_key = if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
-        if !key.is_empty() {
-            tracing::debug!("cloud_chat: using ANTHROPIC_API_KEY from environment");
-            key
-        } else {
+        if key.is_empty() {
             get_api_key(ApiProvider::Anthropic)
                 .await?
                 .ok_or("No Anthropic API key configured. Add it in Settings → API Keys.")?
+        } else {
+            tracing::debug!("cloud_chat: using ANTHROPIC_API_KEY from environment");
+            key
         }
     } else {
         get_api_key(ApiProvider::Anthropic)
@@ -314,7 +312,7 @@ pub async fn cloud_chat(
                                 if let Some(usage) = msg.get("usage") {
                                     input_tokens = usage
                                         .get("input_tokens")
-                                        .and_then(|t| t.as_u64())
+                                        .and_then(serde_json::Value::as_u64)
                                         .unwrap_or(0);
                                 }
                             }
@@ -323,7 +321,7 @@ pub async fn cloud_chat(
                             if let Some(usage) = parsed.get("usage") {
                                 output_tokens = usage
                                     .get("output_tokens")
-                                    .and_then(|t| t.as_u64())
+                                    .and_then(serde_json::Value::as_u64)
                                     .unwrap_or(0);
                             }
                         }

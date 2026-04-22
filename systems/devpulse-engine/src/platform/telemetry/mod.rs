@@ -1,7 +1,7 @@
 //! Telemetry subsystem — lane tracing for inference pipeline instrumentation.
 //!
 //! Every hardware execution path (lane) in the inference pipeline can be
-//! individually toggled for tracing. Traces are written to DuckDB for
+//! individually toggled for tracing. Traces are written to `DuckDB` for
 //! baseline analysis and regression detection.
 //!
 //! The `TelemetryHandle` is a clone-friendly runtime handle (not a Service).

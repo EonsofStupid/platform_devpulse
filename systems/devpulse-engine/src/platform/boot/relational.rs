@@ -1,6 +1,6 @@
-//! LibSQL boot stage — system and user relational stores.
+//! `LibSQL` boot stage — system and user relational stores.
 //!
-//! Each LibSQL instance gets:
+//! Each `LibSQL` instance gets:
 //! 1. Path resolution from config
 //! 2. Windows path sanitization
 //! 3. File-lock retry with exponential backoff
@@ -20,7 +20,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot a LibSQL relational store.
+/// Boot a `LibSQL` relational store.
 ///
 /// Returns `Some(service)` on success, `None` on failure or if disabled.
 /// Emits `InitEvent`s for the frontend status bar and writes to the boot log.

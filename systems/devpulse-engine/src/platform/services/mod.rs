@@ -38,7 +38,7 @@ pub enum ServiceRole {
     Vector,
     /// Grammar service (kernel-owned constrained decoding).
     Grammar,
-    /// DevForge service (managed REH web server).
+    /// `DevForge` service (managed REH web server).
     DevForge,
     /// Model Loader service (AI model management, inference).
     ModelLoader,

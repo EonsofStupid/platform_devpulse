@@ -4,8 +4,17 @@ capability = "TextGeneration"
 label = "Clyffy's Brain"
 description = "Main reasoning model for chat, coding, and general assistance"
 
-# Suggestions ordered by VRAM usage ascending. These are recommendations —
-# the ModelPicker shows ALL compatible models discovered on disk regardless.
+# Suggestions ordered by VRAM usage ascending. These are download
+# recommendations — the ModelPicker shows ALL compatible models discovered
+# on disk regardless. The curated set below is designed to pair with
+# what ships in the `models/chat/` folder so "already on disk" wins
+# instead of users being pushed into unnecessary downloads.
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 0.6B (Minion, Fast)"
+repo = "Qwen/Qwen3-0.6B-GGUF"
+file = "Qwen3-0.6B-Q4_K_M.gguf"
+size_mb = 400
 
 [[services.system.model_loader.catalog.options]]
 label = "Phi-4 Mini 3.8B (Fast, Microsoft)"
@@ -20,16 +29,16 @@ file = "Qwen_Qwen3-4B-Q4_K_M.gguf"
 size_mb = 2500
 
 [[services.system.model_loader.catalog.options]]
-label = "Gemma 2 9B (Balanced, Google)"
-repo = "bartowski/gemma-2-9b-it-GGUF"
-file = "gemma-2-9b-it-Q4_K_M.gguf"
-size_mb = 5440
-
-[[services.system.model_loader.catalog.options]]
 label = "Qwen3 8B (Balanced)"
 repo = "bartowski/Qwen_Qwen3-8B-GGUF"
 file = "Qwen_Qwen3-8B-Q4_K_M.gguf"
 size_mb = 5030
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3.5 9B (Owner's current — already on disk)"
+repo = "Qwen/Qwen3.5-9B-Instruct-GGUF"
+file = "Qwen3.5-9B-Q4_K_M.gguf"
+size_mb = 5630
 
 [[services.system.model_loader.catalog.options]]
 label = "Qwen3 14B (Smart)"
@@ -42,3 +51,15 @@ label = "Mistral Small 24B (Power)"
 repo = "bartowski/Mistral-Small-24B-Instruct-2501-GGUF"
 file = "Mistral-Small-24B-Instruct-2501-Q4_K_M.gguf"
 size_mb = 14200
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3-35B-A3B MoE (Smartest, already on disk)"
+repo = "Qwen/Qwen3-35B-A3B-Instruct"
+file = "model.safetensors"
+size_mb = 24000
+
+[[services.system.model_loader.catalog.options]]
+label = "NVIDIA PersonaPlex 7B STS (full-duplex voice brain)"
+repo = "nvidia/personaplex-7b-v1"
+file = "model.safetensors"
+size_mb = 16743

@@ -17,7 +17,7 @@
 //! from config, which match the `DEFINE USER` statements created during boot.
 
 use anyhow::Result;
-use tokio::task::spawn;
+use devpulse_telemetry::spawn;
 use axum::extract::State;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::IntoResponse;

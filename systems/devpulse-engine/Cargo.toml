@@ -21,6 +21,7 @@ specta = { workspace = true }
 uuid = { workspace = true }
 tokio = { workspace = true }
 anyhow = { workspace = true }
+thiserror = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 chrono = { workspace = true }
@@ -34,7 +35,10 @@ base64 = "0.22"
 async-stream = "0.3"
 futures-core = "0.3"
 
-# Config
+# Config — layered defaults / overlay / env.
+# Figment owns the new per-module config loader (platform/config/loader.rs).
+# Bare `toml` stays until the legacy monolith (platform/config.rs) retires.
+figment = { version = "0.10", features = ["toml", "env"] }
 toml = "0.8"
 
 # Process metrics (real RSS, CPU — no faking)

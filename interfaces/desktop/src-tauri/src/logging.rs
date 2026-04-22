@@ -1,18 +1,18 @@
-//! Structured logging with file persistence + DuckDB span tracing + OTel.
+//! Structured logging with file persistence + `DuckDB` span tracing + `OTel`.
 //!
 //! Four-layer subscriber:
 //! 1. stderr (pretty, INFO) — developer console
 //! 2. file (JSON, DEBUG) — session log persistence
-//! 3. DuckDB span layer — completed spans → batched DuckDB writes
-//! 4. OTel layer — spans → BufferingProcessor → OTLP JSONL file exporter
+//! 3. `DuckDB` span layer — completed spans → batched `DuckDB` writes
+//! 4. `OTel` layer — spans → `BufferingProcessor` → OTLP JSONL file exporter
 //!
-//! The DuckDB layer's channel is created here (before boot).
+//! The `DuckDB` layer's channel is created here (before boot).
 //! The writer is spawned separately after analytics boots.
 //! Spans buffer in the channel during boot startup.
 //!
-//! The OTel layer is provided by `devpulse_telemetry::boot::prepare()`.
+//! The `OTel` layer is provided by `devpulse_telemetry::boot::prepare()`.
 //! Its `BufferingProcessor` holds spans in RAM until `install_exporter()`
-//! wires the real file exporter after data_dir resolves.
+//! wires the real file exporter after `data_dir` resolves.
 //!
 //! Log rotation: keeps last 3 session logs, deletes older ones.
 //!
@@ -39,17 +39,31 @@ use tracing_subscriber::EnvFilter;
 
 use devpulse_engine::platform::telemetry::{DuckDbLayer, SpanRecord, SPAN_CHANNEL_CAPACITY};
 
-/// Result of logging initialization — holds guards and the span receiver
-/// that must be connected to `SpanTraceWriter` after analytics boots.
+/// Result of logging initialization — holds non-blocking writer guards and
+/// the span receiver that must be connected to `SpanTraceWriter` after
+/// analytics boots.
+///
+/// Both guards MUST be held for the app's lifetime. Dropping either one
+/// stops its background writer thread, causing the corresponding appender
+/// to either drop writes silently (lossy default) or panic.
 pub struct LoggingHandle {
-    /// File logging guard — must be held for app lifetime.
+    /// Session JSONL file writer guard — must be held for app lifetime.
     pub file_guard: WorkerGuard,
+    /// Stderr writer guard — must be held for app lifetime.
+    ///
+    /// Wrapping stderr in `tracing_appender::non_blocking` prevents the
+    /// writing thread (the Tauri IPC dispatch thread for sync commands,
+    /// the tokio executor for async commands) from blocking when the
+    /// stderr pipe is saturated. Chromium's `--enable-logging=stderr`
+    /// flag (debug builds only) floods stderr and was the root cause
+    /// of the multi-day IPC hang resolved in S0.
+    pub stderr_guard: WorkerGuard,
     /// Receiver for completed spans — spawn `SpanTraceWriter` with this
-    /// after DuckDB analytics service is available.
+    /// after `DuckDB` analytics service is available.
     pub span_rx: mpsc::Receiver<SpanRecord>,
 }
 
-/// Initialize all logging — stderr + file + DuckDB span layer + OTel layer.
+/// Initialize all logging — stderr + file + `DuckDB` span layer + `OTel` layer.
 /// Must be called once `data_dir` is known (in setup).
 ///
 /// The `otel_layer` parameter comes from `devpulse_telemetry::boot::prepare()`.
@@ -70,7 +84,16 @@ pub fn init(
     let timestamp = chrono::Local::now().format("%Y-%m-%d-%H%M%S");
     let filename = format!("session-{timestamp}.jsonl");
     let file = std::fs::File::create(logs_dir.join(filename))?;
-    let (non_blocking, guard) = tracing_appender::non_blocking(file);
+    let (file_writer, file_guard) = tracing_appender::non_blocking(file);
+
+    // Wrap stderr in the same non-blocking appender as the session file.
+    // Without this, any thread writing to `tracing` blocks on a saturated
+    // stderr pipe — on Windows with Chromium's `--enable-logging=stderr`,
+    // that thread is usually the Tauri IPC dispatch thread, and the whole
+    // frontend freezes. The background worker drains into stderr
+    // asynchronously; lossy drop on channel overflow is acceptable for
+    // the developer terminal (the JSONL layer is the authoritative sink).
+    let (stderr_writer, stderr_guard) = tracing_appender::non_blocking(std::io::stderr());
 
     // Create the span channel — sender goes to Layer, receiver waits for analytics
     let (span_tx, span_rx) = mpsc::channel(SPAN_CHANNEL_CAPACITY);
@@ -115,6 +138,7 @@ pub fn init(
         .with(otel_layer.with_filter(otel_ceiling))
         .with(
             fmt::layer()
+                .with_writer(stderr_writer)
                 .with_target(true)
                 .with_thread_ids(false)
                 .with_file(false)
@@ -124,7 +148,7 @@ pub fn init(
         .with(
             fmt::layer()
                 .json()
-                .with_writer(non_blocking)
+                .with_writer(file_writer)
                 .with_target(true)
                 .with_thread_ids(true)
                 .with_file(true)
@@ -137,7 +161,8 @@ pub fn init(
     install_panic_hook(&logs_dir);
 
     Ok(LoggingHandle {
-        file_guard: guard,
+        file_guard,
+        stderr_guard,
         span_rx,
     })
 }
@@ -157,9 +182,7 @@ fn install_panic_hook(logs_dir: &Path) {
         let ts_iso = timestamp_raw.to_rfc3339();
 
         let location = info
-            .location()
-            .map(|l| format!("{}:{}:{}", l.file(), l.line(), l.column()))
-            .unwrap_or_else(|| "<unknown>".to_string());
+            .location().map_or_else(|| "<unknown>".to_string(), |l| format!("{}:{}:{}", l.file(), l.line(), l.column()));
 
         let payload = info.payload();
         let message = if let Some(s) = payload.downcast_ref::<&str>() {

@@ -24,6 +24,12 @@ pub struct LlamaServerState {
     pub port: Mutex<u16>,
 }
 
+impl Default for LlamaServerState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LlamaServerState {
     /// Create an empty sidecar state with no running server.
     #[must_use]
@@ -105,7 +111,7 @@ pub async fn start_llama_server(
 
     // Stream stdout/stderr to tracing
     let app_clone = app.clone();
-    tokio::spawn(async move {
+    devpulse_telemetry::spawn(async move {
         use tauri_plugin_shell::process::CommandEvent;
         while let Some(event) = rx.recv().await {
             match event {
@@ -178,7 +184,7 @@ pub async fn start_llama_server(
 
     Ok(LlamaServerInfo {
         port,
-        pid: pid as u64,
+        pid: u64::from(pid),
         model_path,
     })
 }
@@ -408,13 +414,13 @@ pub struct LlamaServerInfo {
 pub struct LlamaHealthStatus {
     /// Whether the process is alive.
     pub running: bool,
-    /// Server status: "ok", "loading", "unreachable", "not_started".
+    /// Server status: "ok", "loading", "unreachable", "`not_started`".
     pub status: String,
     /// Port the server is bound to (0 if not started).
     pub port: u16,
 }
 
-/// A single chat message (OpenAI format).
+/// A single chat message (`OpenAI` format).
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
 pub struct ChatMessage {
     /// Role: "system", "user", or "assistant".

@@ -39,8 +39,7 @@ pub fn collect(uptime_secs: u64) -> ProcessMetrics {
 
     let (rss, virt) = sys
         .process(pid)
-        .map(|p| (p.memory(), p.virtual_memory()))
-        .unwrap_or((0, 0));
+        .map_or((0, 0), |p| (p.memory(), p.virtual_memory()));
 
     // Brief pause then second refresh — CPU usage needs a delta between two samples.
     std::thread::sleep(std::time::Duration::from_millis(200));
@@ -48,8 +47,7 @@ pub fn collect(uptime_secs: u64) -> ProcessMetrics {
 
     let cpu = sys
         .process(pid)
-        .map(|p| p.cpu_usage())
-        .unwrap_or(0.0);
+        .map_or(0.0, sysinfo::Process::cpu_usage);
 
     ProcessMetrics {
         memory_rss_bytes: rss,

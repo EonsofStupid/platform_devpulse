@@ -3,7 +3,7 @@
 //! ## Overview
 //!
 //! Every hardware execution path (lane) in the pipeline can be individually
-//! toggled for tracing. Traces are written to DuckDB for baseline analysis,
+//! toggled for tracing. Traces are written to `DuckDB` for baseline analysis,
 //! regression detection, and A/B comparison (with/without thinking).
 //!
 //! ## Architecture
@@ -21,7 +21,7 @@
 //!
 //! Lane traces feed three consumers:
 //! 1. `tracing` crate spans → structured log output
-//! 2. DuckDB `lane_traces` table → persistent baseline data
+//! 2. `DuckDB` `lane_traces` table → persistent baseline data
 //! 3. Frontend via IPC → real-time telemetry dashboard
 
 use std::sync::Arc;
@@ -30,7 +30,7 @@ use std::time::Instant;
 use serde_json::json;
 use tokio::sync::{mpsc, RwLock};
 
-use tokio::task::spawn;
+use devpulse_telemetry::spawn;
 
 use crate::platform::config::{ExecutionLane, LaneTraceConfig};
 use crate::platform::services::analytics::AnalyticsService;
@@ -40,7 +40,7 @@ use devpulse_clyffy::cortex::persistence::AnalyticsAdapter;
 /// Backpressure: if buffer is full, traces are silently dropped.
 const TRACE_CHANNEL_CAPACITY: usize = 256;
 
-/// Maximum traces to batch before flushing to DuckDB.
+/// Maximum traces to batch before flushing to `DuckDB`.
 const BATCH_SIZE: usize = 64;
 
 /// Maximum time to hold a batch before flushing (milliseconds).
@@ -67,7 +67,7 @@ impl TelemetryHandle {
     /// Create the handle and spawn the background writer task.
     ///
     /// The writer drains completed traces from the channel and
-    /// bulk-inserts them into DuckDB at regular intervals.
+    /// bulk-inserts them into `DuckDB` at regular intervals.
     pub fn spawn(config: LaneTraceConfig, analytics: Arc<AnalyticsService>) -> Self {
         let (trace_tx, trace_rx) = mpsc::channel(TRACE_CHANNEL_CAPACITY);
         let persist = config.persist_to_duckdb;
@@ -141,7 +141,7 @@ impl TelemetryHandle {
 // Completed Trace Record
 // ═══════════════════════════════════════════════════════════════
 
-/// A completed lane trace, ready for DuckDB persistence.
+/// A completed lane trace, ready for `DuckDB` persistence.
 #[derive(Debug)]
 pub struct CompletedTrace {
     /// Which lane executed.
@@ -301,7 +301,7 @@ impl Drop for LaneTraceGuard {
 // ═══════════════════════════════════════════════════════════════
 
 /// Background task that drains the trace channel and bulk-inserts
-/// into DuckDB at regular intervals.
+/// into `DuckDB` at regular intervals.
 ///
 /// Batches up to `BATCH_SIZE` traces or flushes every
 /// `BATCH_FLUSH_INTERVAL_MS`, whichever comes first.

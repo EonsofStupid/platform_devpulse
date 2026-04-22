@@ -1,3 +1,18 @@
+> # ⚠️ UNVERIFIED — OUTPUT NOT TRUSTED
+>
+> This sprint was marked COMPLETE in a prior session log. That status is
+> **not binding.** The setup wizard does not currently pass a live audit
+> against the 10 Commandments in `POAM-MODEL-LOADER-WIZARD.md`.
+>
+> - Prior commits shipped. Prior code lives on disk. Neither proves the UX works.
+> - Every file this sprint touched must be re-checked against the 10
+>   Commandments (POAM §top) before being cited as "done."
+> - Acceptance criteria below are aspirational, not retired.
+>
+> **Authority** → `scripts/docs/sprints/POAM-MODEL-LOADER-WIZARD.md`
+
+---
+
 # Sprint 1: Foundation — Types + State + Seed Families + Import Router
 
 | Field | Value |

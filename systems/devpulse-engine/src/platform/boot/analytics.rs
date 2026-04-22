@@ -1,10 +1,10 @@
-//! DuckDB boot stage — system analytics store.
+//! `DuckDB` boot stage — system analytics store.
 //!
-//! DuckDB uses an exclusive file lock. On Windows hot-reload, the previous
+//! `DuckDB` uses an exclusive file lock. On Windows hot-reload, the previous
 //! process may not have released its lock yet. Uses the standard retry
 //! utility with exponential backoff.
 //!
-//! DuckDB's `boot()` is synchronous — wrapped in `spawn_blocking` so the
+//! `DuckDB`'s `boot()` is synchronous — wrapped in `spawn_blocking` so the
 //! async retry loop can await it.
 
 use crate::platform::boot::log::BootLog;
@@ -17,7 +17,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot the DuckDB analytics store.
+/// Boot the `DuckDB` analytics store.
 ///
 /// Returns `Some(service)` on success, `None` on failure or if disabled.
 #[allow(clippy::cast_possible_truncation)]
@@ -47,7 +47,7 @@ pub async fn boot(
     let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
         async move {
-            tokio::task::spawn_blocking(move || AnalyticsService::boot(&p, schema, label))
+            devpulse_telemetry::spawn_blocking(move || AnalyticsService::boot(&p, schema, label))
                 .await
                 .map_err(|e| anyhow::anyhow!("DuckDB spawn_blocking failed: {e}"))?
         }

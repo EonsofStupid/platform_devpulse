@@ -1,6 +1,6 @@
-//! DevForge commands — query and control the REH web server.
+//! `DevForge` commands — query and control the REH web server.
 //!
-//! DevForge REH is a Layer 1 infrastructure service that boots through
+//! `DevForge` REH is a Layer 1 infrastructure service that boots through
 //! the platform service pipeline (`boot/devforge.rs`). The Tauri commands
 //! here are the frontend's interface to the running service — they read
 //! from `Platform::devforge()`, not from a separate `PlatformState::reh`.
@@ -20,42 +20,112 @@ use crate::state::PlatformState;
 use state_file::DevforgeState;
 use std::path::PathBuf;
 use tauri::State;
-use types::{DevforgeBootstrapStatus, RehConfig, RehStatus};
+use types::{DevforgeBootstrapStatus, DevforgeHealth, DevforgeHealthState, RehStatus};
 
-/// Spawn the REH web server — now boot-managed.
+/// Start the `DevForge` REH child process (Module Charter verb).
 ///
-/// DevForge REH boots through the platform service pipeline. This command
-/// is kept for frontend compat but returns the current service state
-/// instead of spawning a second process.
+/// Lazy-start path — idempotent: returns the current status if the child
+/// is already running. First call spawns `node out/server-main.js`,
+/// waits for the TCP health check, and stores the service handle in
+/// `Platform::devforge`. Subsequent calls are lock-free reads.
+///
+/// # Errors
+/// - Platform not booted yet
+/// - `DevForge` disabled in config
+/// - No REH tree on disk (fetch-devforge not run)
+/// - Health poll timed out during spawn
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn spawn_reh_server(
-    state: State<'_, PlatformState>,
-    _config: RehConfig,
-) -> Result<RehStatus, String> {
-    // P0: lock-free atomic load.
+pub async fn devforge_start(state: State<'_, PlatformState>) -> Result<RehStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    match platform.devforge() {
-        Some(service) => Ok(RehStatus {
-            running: true,
-            port: Some(service.port()),
-            url: Some(service.connection_url()),
-            pid: None,
-        }),
-        None => Ok(RehStatus::default()),
-    }
+    let service = platform
+        .ensure_devforge_started()
+        .await
+        .map_err(|e| format!("{e:#}"))?;
+    Ok(RehStatus {
+        running: true,
+        port: Some(service.port()),
+        url: Some(service.connection_url()),
+        pid: None,
+    })
 }
 
-/// Stop the REH server — now boot-managed.
+/// Stop the running `DevForge` REH child process (Module Charter verb).
 ///
-/// Platform shutdown handles this. This command is a no-op kept for
-/// frontend compat.
+/// Atomically swaps `Platform::devforge` to `None` and shuts down the
+/// taken service. Idempotent — returns `Ok(())` when nothing is
+/// running.
+///
+/// # Errors
+/// - Platform not booted yet
+/// - REH child could not be killed cleanly
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn stop_reh_server(_state: State<'_, PlatformState>) -> Result<(), String> {
-    Ok(())
+pub async fn devforge_stop(state: State<'_, PlatformState>) -> Result<(), String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    platform.devforge_stop().await.map_err(|e| format!("{e:#}"))
+}
+
+/// Restart the `DevForge` REH child process (Module Charter verb).
+///
+/// Equivalent to `devforge_stop` followed by `devforge_start`. Returns
+/// the status of the freshly started child.
+///
+/// # Errors
+/// Returns whichever of stop or start fails first.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_restart(
+    state: State<'_, PlatformState>,
+) -> Result<RehStatus, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    let service = platform
+        .devforge_restart()
+        .await
+        .map_err(|e| format!("{e:#}"))?;
+    Ok(RehStatus {
+        running: true,
+        port: Some(service.port()),
+        url: Some(service.connection_url()),
+        pid: None,
+    })
+}
+
+/// Health snapshot of the `DevForge` runtime (Module Charter verb).
+///
+/// Returns a minimal status shape matching the shell's `HealthBadge`:
+/// `{ state, label }`. The shell uses this to colour the header dot
+/// and short-text status on the Status tab.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_health(
+    state: State<'_, PlatformState>,
+) -> Result<DevforgeHealth, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    let paths = &state.devforge_paths;
+    let installed = paths.resolve_reh_server_dir().is_some();
+
+    if !installed {
+        return Ok(DevforgeHealth {
+            state: DevforgeHealthState::Down,
+            label: "REH tree not installed — run `cargo xtask fetch-devforge`".into(),
+        });
+    }
+
+    match platform.devforge() {
+        Some(_service) => Ok(DevforgeHealth {
+            state: DevforgeHealthState::Up,
+            label: "Running".into(),
+        }),
+        None => Ok(DevforgeHealth {
+            state: DevforgeHealthState::Stopped,
+            label: "Stopped (installed — click Start to spawn REH)".into(),
+        }),
+    }
 }
 
 /// Return the current status of the REH web server.
@@ -89,7 +159,7 @@ pub async fn get_connection_url(state: State<'_, PlatformState>) -> Result<Strin
     Ok(service.connection_url())
 }
 
-/// Unified DevForge status for the frontend.
+/// Unified `DevForge` status for the frontend.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -122,7 +192,7 @@ pub async fn devforge_get_status(
 
 /// List recently opened project paths (newest first).
 ///
-/// These are real directories the user has opened in DevForge, persisted
+/// These are real directories the user has opened in `DevForge`, persisted
 /// in `state.json`. The frontend uses this for a "recent projects" picker.
 #[tauri::command]
 #[specta::specta]
@@ -183,7 +253,7 @@ pub async fn devforge_remove_project(
 
 /// Toggle the `fresh_instance_on_open` preference in `state.json`.
 ///
-/// When enabled, DevForge ignores the last-used workspace on startup and
+/// When enabled, `DevForge` ignores the last-used workspace on startup and
 /// always opens the default (empty) one.
 ///
 /// # Errors

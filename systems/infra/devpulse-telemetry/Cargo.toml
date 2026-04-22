@@ -19,6 +19,9 @@ opentelemetry = { workspace = true }
 tracing = { workspace = true }
 tokio = { workspace = true }
 flume = { workspace = true }
+# Needed for `FutureExt::catch_unwind` in the span-preserving,
+# panic-observing spawn wrapper.
+futures = { workspace = true }
 
 # P3 — OTel SDK wiring, TelemetryGuard, BufferingProcessor, file exporter
 opentelemetry_sdk = { workspace = true }

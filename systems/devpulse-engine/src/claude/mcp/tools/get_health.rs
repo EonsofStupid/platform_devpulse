@@ -1,4 +1,4 @@
-//! MCP tool: get_health — platform health status, all subsystems + uptime.
+//! MCP tool: `get_health` — platform health status, all subsystems + uptime.
 
 use crate::platform::Platform;
 

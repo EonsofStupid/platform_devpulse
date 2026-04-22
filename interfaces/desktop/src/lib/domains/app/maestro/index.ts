@@ -1,7 +1,7 @@
 /**
- * @file domains/app/clyffy/index.ts
- * @module @devpulse/domains/app/clyffy
- * @description AI orchestrator frontend
+ * @file domains/app/maestro/index.ts
+ * @module @devpulse/domains/app/maestro
+ * @description Maestro — orchestration dashboard (Nx library-types)
  */
 
-// Public API — add exports as features are built
+export { default as MaestroDashboard } from "./feature/dashboard/MaestroDashboard.svelte";

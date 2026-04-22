@@ -1,4 +1,4 @@
-//! MCP tool: shell_execute — run a shell command.
+//! MCP tool: `shell_execute` — run a shell command.
 //!
 //! `#[cfg(feature = "kernel")]` ONLY — compiled out of release.
 //! Returns stdout + stderr + exit code. Timeout configurable.
@@ -45,12 +45,7 @@ fn is_blocked_command(command: &str) -> Option<&'static str> {
             return Some(blocked);
         }
     }
-    for pattern in BLOCKED_PATTERNS {
-        if lower.contains(pattern) {
-            return Some(pattern);
-        }
-    }
-    None
+    BLOCKED_PATTERNS.iter().find(|&pattern| lower.contains(pattern)).map(|v| v as _)
 }
 
 /// Execute a shell command within the project workspace.
@@ -75,9 +70,7 @@ pub async fn execute(
         .unwrap_or(platform.data_dir())
         .to_path_buf();
 
-    let requested_cwd = cwd
-        .map(PathBuf::from)
-        .unwrap_or_else(|| workspace_root.clone());
+    let requested_cwd = cwd.map_or_else(|| workspace_root.clone(), PathBuf::from);
 
     let resolved_cwd = match requested_cwd.canonicalize() {
         Ok(p) => p,

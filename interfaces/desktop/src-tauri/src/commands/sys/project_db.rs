@@ -1,4 +1,4 @@
-//! Per-project LibSQL commands — init, health, query, table listing.
+//! Per-project `LibSQL` commands — init, health, query, table listing.
 //!
 //! Project databases live at `{project_root}/.devpulse/project.db`.
 //! Created on demand via `init_project_db`, not during boot.
@@ -64,7 +64,7 @@ pub struct ProjectDbQueryResult {
 
 /// Initialize a project database at `{project_root}/.devpulse/project.db`.
 ///
-/// Creates the database, applies the project schema, and seeds project_meta.
+/// Creates the database, applies the project schema, and seeds `project_meta`.
 /// Safe to call multiple times — uses `CREATE TABLE IF NOT EXISTS`.
 #[tauri::command]
 #[specta::specta]
@@ -106,7 +106,7 @@ pub async fn init_project_db(
     let table_count = rows
         .first()
         .and_then(|r| r.first())
-        .and_then(|v| v.as_integer())
+        .and_then(devpulse_engine::platform::SqlValue::as_integer)
         .unwrap_or(0) as u64;
 
     let db_path = root.join(".devpulse").join("project.db");
@@ -185,7 +185,7 @@ pub async fn project_db_list_tables(
             let count = count_rows
                 .first()
                 .and_then(|r| r.first())
-                .and_then(|v| v.as_integer())
+                .and_then(devpulse_engine::platform::SqlValue::as_integer)
                 .unwrap_or(0) as u64;
 
             tables.push(ProjectDbTableInfo {

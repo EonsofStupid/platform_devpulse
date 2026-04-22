@@ -61,6 +61,12 @@ impl MokaAdapter {
     ///
     /// # Errors
     /// Returns error if the cache cannot complete a write/read/delete cycle.
+    ///
+    /// Stays `async` to match the shared `CacheAdapter`-style health-check
+    /// surface used by every other persistence adapter in this module.
+    /// A uniform surface lets platform orchestration call every adapter
+    /// with `.ping().await?` regardless of in-memory vs on-disk backing.
+    #[allow(clippy::unused_async)]
     pub async fn ping(&self) -> Result<()> {
         // Moka is an in-memory cache — if the struct exists, it works.
         // The previous sentinel write/read/verify approach failed because

@@ -1,17 +1,16 @@
 <!--
-	@file /devtools/rro — RRO vector store devtool
+	@file /devtools/rro — Search configuration devtool
 	@route /devtools/rro
 	@window DevTools (Ctrl+Shift+Z)
 
-	Full configuration panel: retrieval tuning (sliders driven by param meta),
-	collection management, search test bench with quality feedback.
-	Config persists to preferences.json.
+	Layman-friendly UI for managing the vector store, encoder, and
+	retrieval tuning. All components are ColdLight.
 -->
 <script lang="ts">
 import {
-	type Compass,
+	ArrowLeft,
+	Compass,
 	Database,
-	HeartPulse,
 	Plus,
 	RefreshCw,
 	Search,
@@ -19,11 +18,24 @@ import {
 	Shapes,
 	Trash2,
 } from "lucide-svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Callout } from "$lib/design/components/callout/index.js";
+import { Card } from "$lib/design/components/card/index.js";
+import { NumberField } from "$lib/design/components/number-field/index.js";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+} from "$lib/design/components/select/index.js";
 import { Slider } from "$lib/design/components/slider/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import { StatusDot } from "$lib/design/components/status-dot/index.js";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "$lib/design/components/tabs/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { TextField } from "$lib/design/components/text-field/index.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
 import type {
 	CollectionInfo,
 	RetrievalConfig,
@@ -33,17 +45,18 @@ import type {
 	VectorSearchResult,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
+import { logError, logInfo } from "$lib/sys/logger.js";
+import { withRetry } from "$lib/sys/retry.js";
+
+// ── Error surfaces (per-panel, bubble real messages to UI) ──
+function describeError(e: unknown): string {
+	if (e instanceof Error) return e.message;
+	return typeof e === "string" ? e : JSON.stringify(e);
+}
 
 // ── Tab state ───────────────────────────────────────────────
-type TabId = "config" | "collections" | "search" | "status";
-let activeTab = $state<TabId>("config");
-
-const tabs: { id: TabId; label: string; Icon: typeof Compass }[] = [
-	{ id: "config", label: "Config", Icon: Settings2 },
-	{ id: "collections", label: "Collections", Icon: Database },
-	{ id: "search", label: "Search", Icon: Search },
-	{ id: "status", label: "Status", Icon: Shapes },
-];
+type TabId = "search" | "tuning" | "collections" | "encoder";
+let activeTab = $state<TabId>("search");
 
 // ── Health state ────────────────────────────────────────────
 let healthReport = $state<VectorHealthReport | null>(null);
@@ -53,22 +66,42 @@ let healthLoading = $state(false);
 async function loadHealth(): Promise<void> {
 	healthLoading = true;
 	healthError = null;
-	const result = await commands.getVectorHealth();
-	if (result.status === "ok") {
-		healthReport = result.data;
-	} else {
-		healthError = result.error;
+	try {
+		healthReport = await withAction("rro.loadHealth", "Loading store health…", () =>
+			withRetry(
+				async () => {
+					const r = await commands.getVectorHealth();
+					if (r.status !== "ok") throw new Error(r.error);
+					return r.data;
+				},
+				{ label: "rro.loadHealth" },
+			),
+		);
+	} catch (e) {
+		healthError = describeError(e);
+		logError("rro", `loadHealth failed after retries: ${healthError}`);
+	} finally {
+		healthLoading = false;
 	}
-	healthLoading = false;
 }
 
 // ── Param meta (layman labels from Rust) ────────────────────
 let paramMeta = $state<RetrievalParamMeta[]>([]);
 
 async function loadParamMeta(): Promise<void> {
-	const result = await commands.getRetrievalParamMeta();
-	if (result.status === "ok") {
-		paramMeta = result.data;
+	try {
+		paramMeta = await withAction("rro.loadParamMeta", "Loading tuning parameters…", () =>
+			withRetry(
+				async () => {
+					const r = await commands.getRetrievalParamMeta();
+					if (r.status !== "ok") throw new Error(r.error);
+					return r.data;
+				},
+				{ label: "rro.loadParamMeta" },
+			),
+		);
+	} catch (e) {
+		logError("rro", `loadParamMeta failed: ${describeError(e)}`);
 	}
 }
 
@@ -77,38 +110,63 @@ let retrievalConfig = $state<RetrievalConfig | null>(null);
 let configError = $state<string | null>(null);
 
 async function loadConfig(): Promise<void> {
-	// Try persisted preference first
-	const persisted = await commands.getPreference("rro:retrieval_config");
-	if (persisted.status === "ok" && persisted.data) {
-		try {
-			const saved: RetrievalConfig = JSON.parse(persisted.data);
-			const setResult = await commands.setVectorConfig(saved);
-			if (setResult.status === "ok") {
-				retrievalConfig = saved;
-				return;
+	try {
+		await withAction("rro.loadConfig", "Loading search tuning…", async () => {
+			// Try persisted preference first (idempotent read with retry).
+			const persisted = await withRetry(
+				async () => {
+					const r = await commands.getPreference("rro:retrieval_config");
+					if (r.status !== "ok") throw new Error(r.error);
+					return r.data;
+				},
+				{ label: "rro.loadConfig.getPreference" },
+			);
+
+			if (persisted) {
+				try {
+					const saved = JSON.parse(persisted) as RetrievalConfig;
+					const setResult = await commands.setVectorConfig(saved);
+					if (setResult.status === "ok") {
+						retrievalConfig = saved;
+						logInfo("rro", `restored persisted config: preset=${saved.preset}`);
+						return;
+					}
+					logError("rro", `setVectorConfig from persisted failed: ${setResult.error}`);
+				} catch (parseErr) {
+					logError("rro", `persisted config parse failed: ${describeError(parseErr)}`);
+				}
 			}
-		} catch {
-			// fall through to runtime default
-		}
-	}
-	// Fallback: read current runtime config
-	const result = await commands.getVectorConfig();
-	if (result.status === "ok") {
-		retrievalConfig = result.data;
-	} else {
-		configError = result.error;
+
+			// Fallback: runtime default (idempotent read with retry).
+			retrievalConfig = await withRetry(
+				async () => {
+					const r = await commands.getVectorConfig();
+					if (r.status !== "ok") throw new Error(r.error);
+					return r.data;
+				},
+				{ label: "rro.loadConfig.getVectorConfig" },
+			);
+		});
+	} catch (e) {
+		configError = describeError(e);
+		logError("rro", `loadConfig failed: ${configError}`);
 	}
 }
 
 async function persistConfig(config: RetrievalConfig): Promise<void> {
-	await commands.setPreference("rro:retrieval_config", JSON.stringify(config));
+	try {
+		const r = await commands.setPreference("rro:retrieval_config", JSON.stringify(config));
+		if (r.status !== "ok") throw new Error(r.error);
+	} catch (e) {
+		logError("rro", `persistConfig failed: ${describeError(e)}`);
+	}
 }
 
 const presets = [
-	{ name: "conservative", label: "Conservative" },
-	{ name: "balanced", label: "Balanced" },
-	{ name: "aggressive", label: "Aggressive" },
-	{ name: "precision", label: "Precision" },
+	{ name: "conservative", label: "Focused", desc: "Fewer, higher-quality results" },
+	{ name: "balanced", label: "Balanced", desc: "Default — good for most queries" },
+	{ name: "aggressive", label: "Wide", desc: "More results, broader matches" },
+	{ name: "precision", label: "Precise", desc: "Tightest filter, few results" },
 ] as const;
 
 const presetMap: Record<string, RetrievalConfig> = {
@@ -145,10 +203,16 @@ const presetMap: Record<string, RetrievalConfig> = {
 async function applyPreset(name: string): Promise<void> {
 	const config = presetMap[name];
 	if (!config) return;
-	const result = await commands.setVectorConfig(config);
-	if (result.status === "ok") {
+	try {
+		await withAction("rro.applyPreset", `Switching to "${name}" preset…`, async () => {
+			const r = await commands.setVectorConfig(config);
+			if (r.status !== "ok") throw new Error(r.error);
+		});
 		retrievalConfig = config;
 		await persistConfig(config);
+	} catch (e) {
+		configError = describeError(e);
+		logError("rro", `applyPreset(${name}) failed: ${configError}`);
 	}
 }
 
@@ -159,10 +223,16 @@ async function updateField(field: string, value: number): Promise<void> {
 		[field]: value,
 		preset: "custom",
 	};
-	const result = await commands.setVectorConfig(updated);
-	if (result.status === "ok") {
+	try {
+		await withAction("rro.updateField", `Adjusting ${field}…`, async () => {
+			const r = await commands.setVectorConfig(updated);
+			if (r.status !== "ok") throw new Error(r.error);
+		});
 		retrievalConfig = updated;
 		await persistConfig(updated);
+	} catch (e) {
+		configError = describeError(e);
+		logError("rro", `updateField(${field}=${value}) failed: ${configError}`);
 	}
 }
 
@@ -182,18 +252,27 @@ let newCollectionDimension = $state(768);
 let createLoading = $state(false);
 let deleteConfirm = $state<string | null>(null);
 
+let createError = $state<string | null>(null);
+let deleteError = $state<string | null>(null);
+
 async function createCollection(): Promise<void> {
-	if (!newCollectionName.trim()) return;
+	const name = newCollectionName.trim();
+	if (!name) return;
+	createError = null;
 	createLoading = true;
-	const result = await commands.createVectorCollection(
-		newCollectionName.trim(),
-		newCollectionDimension,
-	);
-	if (result.status === "ok") {
+	try {
+		await withAction("rro.createCollection", `Creating store "${name}"…`, async () => {
+			const r = await commands.createVectorCollection(name, newCollectionDimension);
+			if (r.status !== "ok") throw new Error(r.error);
+		});
 		newCollectionName = "";
 		await loadHealth();
+	} catch (e) {
+		createError = describeError(e);
+		logError("rro", `createCollection(${name}) failed: ${createError}`);
+	} finally {
+		createLoading = false;
 	}
-	createLoading = false;
 }
 
 async function deleteCollection(name: string): Promise<void> {
@@ -202,11 +281,19 @@ async function deleteCollection(name: string): Promise<void> {
 		return;
 	}
 	deleteConfirm = null;
-	await commands.deleteVectorCollection(name);
-	await loadHealth();
+	deleteError = null;
+	try {
+		await withAction("rro.deleteCollection", `Deleting store "${name}"…`, async () => {
+			const r = await commands.deleteVectorCollection(name);
+			if (r.status !== "ok") throw new Error(r.error);
+		});
+		await loadHealth();
+	} catch (e) {
+		deleteError = describeError(e);
+		logError("rro", `deleteCollection(${name}) failed: ${deleteError}`);
+	}
 }
 
-// Auto-reset delete confirm after 3s
 $effect(() => {
 	if (deleteConfirm) {
 		const timer = setTimeout(() => (deleteConfirm = null), 3000);
@@ -219,11 +306,21 @@ let encoderSlot = $state<SlotInfo | null>(null);
 let encoderError = $state<string | null>(null);
 
 async function loadEncoderStatus(): Promise<void> {
-	const result = await commands.getSlots();
-	if (result.status === "ok") {
-		encoderSlot = result.data.find((s: SlotInfo) => s.id === "rag.embedder") ?? null;
-	} else {
-		encoderError = result.error;
+	try {
+		const slots = await withAction("rro.loadEncoderStatus", "Checking encoder status…", () =>
+			withRetry(
+				async () => {
+					const r = await commands.getSlots();
+					if (r.status !== "ok") throw new Error(r.error);
+					return r.data;
+				},
+				{ label: "rro.loadEncoderStatus" },
+			),
+		);
+		encoderSlot = slots.find((s: SlotInfo) => s.id === "rag.embedder") ?? null;
+	} catch (e) {
+		encoderError = describeError(e);
+		logError("rro", `loadEncoderStatus failed: ${encoderError}`);
 	}
 }
 
@@ -249,63 +346,89 @@ let scoreBuckets = $derived(() => {
 	return buckets;
 });
 
-const bucketColors = [
-	"var(--signal-error)",
-	"var(--color-amber-500)",
-	"var(--signal-warning)",
-	"var(--color-teal-600)",
-	"var(--signal-success)",
-];
-
 async function runSearch(): Promise<void> {
-	if (!searchQuery.trim() || !searchCollection) return;
+	const q = searchQuery.trim();
+	if (!q || !searchCollection) return;
 	searchLoading = true;
 	searchError = null;
 	searchResults = [];
 	embedLatencyMs = null;
 	searchLatencyMs = null;
 
-	const t0 = performance.now();
-	const embedResult = await commands.embedText("rag.embedder", searchQuery);
-	const t1 = performance.now();
-	embedLatencyMs = Math.round(t1 - t0);
+	try {
+		// Step 1: encode query (no retry — cheap but not strictly idempotent under load)
+		const t0 = performance.now();
+		const vector = await withAction("rro.embedQuery", "Encoding your query…", async () => {
+			const r = await commands.embedText("rag.embedder", q);
+			if (r.status !== "ok") throw new Error(r.error);
+			return r.data;
+		});
+		const embedMs = Math.round(performance.now() - t0);
+		embedLatencyMs = embedMs;
 
-	if (embedResult.status !== "ok") {
-		searchError = `Embed failed: ${embedResult.error}`;
+		// Step 2: search (no retry — results would be deterministic on retry but we log once)
+		const limit = retrievalConfig?.top_k ?? 10;
+		const t2 = performance.now();
+		const results = await withAction(
+			"rro.testSearch",
+			`Searching "${searchCollection}"…`,
+			async () => {
+				const r = await commands.vectorTestSearch(searchCollection, vector, Math.min(limit, 50));
+				if (r.status !== "ok") throw new Error(r.error);
+				return r.data;
+			},
+		);
+		const searchMs = Math.round(performance.now() - t2);
+		searchLatencyMs = searchMs;
+		searchResults = results;
+		logInfo("rro", `search returned ${results.length} matches in ${embedMs + searchMs}ms`);
+	} catch (e) {
+		searchError = describeError(e);
+		logError("rro", `runSearch failed: ${searchError}`);
+	} finally {
 		searchLoading = false;
-		return;
 	}
-
-	const limit = retrievalConfig?.top_k ?? 10;
-	const t2 = performance.now();
-	const searchResult = await commands.vectorTestSearch(
-		searchCollection,
-		embedResult.data,
-		Math.min(limit, 50),
-	);
-	const t3 = performance.now();
-	searchLatencyMs = Math.round(t3 - t2);
-
-	if (searchResult.status === "ok") {
-		searchResults = searchResult.data;
-	} else {
-		searchError = searchResult.error;
-	}
-	searchLoading = false;
 }
 
-function scoreColor(score: number): string {
-	if (score >= 0.8) return "var(--signal-success)";
-	if (score >= 0.5) return "var(--signal-warning)";
-	return "var(--signal-error)";
+// Score → semantic variant for Badge color
+function scoreVariant(score: number): "positive" | "notice" | "negative" {
+	if (score >= 0.8) return "positive";
+	if (score >= 0.5) return "notice";
+	return "negative";
+}
+
+// Score → StatusDot tone for distribution bar
+function bucketTone(idx: number): "error" | "warning" | "neutral" | "accent" | "success" {
+	const tones: ("error" | "warning" | "neutral" | "accent" | "success")[] = [
+		"error",
+		"warning",
+		"neutral",
+		"accent",
+		"success",
+	];
+	return tones[idx];
+}
+
+// Score bucket → Tailwind background class (uses ColdLight tokens via arbitrary values)
+function bucketBgClass(idx: number): string {
+	const classes = [
+		"bg-[var(--signal-error)]",
+		"bg-[var(--color-amber-500)]",
+		"bg-[var(--signal-warning)]",
+		"bg-[var(--color-teal-600)]",
+		"bg-[var(--signal-success)]",
+	];
+	return classes[idx] ?? classes[2];
 }
 
 // ── Load on mount ───────────────────────────────────────────
 $effect(() => {
-	loadHealth();
-	loadConfig();
-	loadParamMeta();
-	loadEncoderStatus();
+	logInfo("rro", "devtool mounted");
+	// Fire-and-forget — each loader catches its own errors.
+	void loadHealth();
+	void loadConfig();
+	void loadParamMeta();
+	void loadEncoderStatus();
 });
 
 $effect(() => {
@@ -315,340 +438,415 @@ $effect(() => {
 });
 </script>
 
-<div class="flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)]">
+<div class="flex flex-col h-full">
 	<!-- Header -->
-	<header class="px-4 pt-3 pb-2">
-		<div class="flex items-center gap-2">
-			<Compass size={18} class="text-[var(--color-teal-400)]" />
-			<Text size="lg" weight="semibold">RRO / Vector Store</Text>
-		</div>
-		<Text size="xs" color="muted">
-			Embedded vector search. Dense encoder (nomic-embed). Two-tier retrieval pipeline.
-		</Text>
+	<header class="flex items-center gap-3 h-10 px-4 border-b border-[var(--border-subtle)]">
+		<a href="/devtools" class="hover:text-[var(--color-teal-400)]">
+			<ArrowLeft size={14} />
+		</a>
+		<Compass size={16} class="text-[var(--color-teal-400)]" />
+		<Text size="sm" weight="semibold">Search Tuning</Text>
+		<Text size="xs">How Clyffy finds things in your stored knowledge.</Text>
 	</header>
 
-	<!-- Tab bar -->
-	<nav class="flex border-b border-[var(--border-subtle)] px-4">
-		{#each tabs as tab}
-			<button
-				class="flex items-center gap-1.5 px-3 py-2 text-xs transition-colors
-					{activeTab === tab.id
-						? 'text-[var(--color-teal-400)] border-b-2 border-[var(--color-teal-400)]'
-						: 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
-				onclick={() => (activeTab = tab.id)}
-			>
-				<tab.Icon size={14} />
-				{tab.label}
-			</button>
-		{/each}
-	</nav>
+	<!-- Tabs -->
+	<Tabs value={activeTab} onValueChange={(v) => (activeTab = v as TabId)} preset="default">
+		<TabsList class="flex border-b border-[var(--border-subtle)]">
+			<TabsTrigger value="search" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Search size={14} /> Try It
+			</TabsTrigger>
+			<TabsTrigger value="tuning" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Settings2 size={14} /> Tuning
+			</TabsTrigger>
+			<TabsTrigger value="collections" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Database size={14} /> Knowledge Stores
+			</TabsTrigger>
+			<TabsTrigger value="encoder" class="flex items-center gap-1.5 px-3 py-2 text-xs">
+				<Shapes size={14} /> Encoder
+			</TabsTrigger>
+		</TabsList>
 
-	<!-- Tab content -->
-	<main class="flex-1 overflow-y-auto p-4">
-
-		<!-- CONFIG TAB -->
-		{#if activeTab === "config"}
-			<div class={stack({ gap: "4" })}>
-				<!-- Preset buttons -->
-				<div>
-					<Text size="xs" weight="semibold" color="secondary">Presets</Text>
-					<div class="grid grid-cols-4 gap-1.5 mt-2">
-						{#each presets as p}
-							<button
-								class="px-2 py-1.5 text-xs rounded border transition-colors text-center
-									{retrievalConfig?.preset === p.name
-										? 'border-[var(--color-teal-400)] bg-[var(--color-teal-400)]/10 text-[var(--color-teal-400)]'
-										: 'border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] text-[var(--text-secondary)]'}"
-								onclick={() => applyPreset(p.name)}
-							>
-								{p.label}
-							</button>
-						{/each}
+		<!-- ═══════ SEARCH (TRY IT) ═══════ -->
+		<TabsContent value="search" class="flex-1 overflow-y-auto p-4 space-y-3">
+			<Card preset="glass">
+				<div class="p-3 space-y-3">
+					<div class="flex items-center gap-2">
+						<Search size={14} class="text-[var(--color-teal-400)]" />
+						<Text size="sm" weight="semibold">Ask a question</Text>
 					</div>
-					{#if retrievalConfig?.preset === "custom"}
-						<div class="mt-1">
-							<span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-amber-500)]/10 text-[var(--color-amber-500)]">
-								Custom
-							</span>
-						</div>
-					{/if}
-				</div>
+					<Text size="xs" preset="flat">
+						Type a question and see what matches. Results come from the selected knowledge store.
+					</Text>
 
-				<!-- Properties panel — sliders driven by param meta -->
-				{#if paramMeta.length > 0 && retrievalConfig}
-					<div>
-						<Text size="xs" weight="semibold" color="secondary">Parameters</Text>
-						<div class="mt-2 space-y-4">
-							{#each paramMeta as param}
-								<div class="space-y-1">
-									<div class="flex items-center justify-between">
-										<div>
-											<Text size="xs" weight="semibold">{param.label}</Text>
-											<Text size="xs" color="muted">{param.description}</Text>
-										</div>
-										<span class="font-mono text-xs text-[var(--color-teal-400)] min-w-[3rem] text-right">
-											{formatValue(param.field, getFieldValue(param.field))}
-										</span>
-									</div>
-									<Slider
-										min={param.min}
-										max={param.max}
-										step={param.step}
-										value={getFieldValue(param.field)}
-										onValueChange={(v) => updateField(param.field, v)}
+					{#if !encoderSlot?.backend}
+						<Text size="xs" preset="stark">Load the encoder first (Encoder tab).</Text>
+					{:else if collections.length === 0}
+						<Text size="xs" preset="stark">No knowledge stores yet. Create one in the Knowledge Stores tab.</Text>
+					{:else}
+						<div class="space-y-2">
+							<Select value={searchCollection} onValueChange={(v) => (searchCollection = v)}>
+								<SelectTrigger class="w-full px-3 py-1.5 text-xs rounded border border-[var(--border-subtle)] bg-[var(--surface-base)] text-left">
+									{searchCollection || "Select a store..."}
+								</SelectTrigger>
+								<SelectContent>
+									{#each collections as col}
+										<SelectItem value={col}>{col}</SelectItem>
+									{/each}
+								</SelectContent>
+							</Select>
+
+							<div class="flex gap-2">
+								<div class="flex-1">
+									<TextField
+										value={searchQuery}
+										onValueChange={(v) => (searchQuery = v)}
+										placeholder="What do you want to find?"
+										size="sm"
+										aria-label="Search query"
 									/>
 								</div>
-							{/each}
+								<Button preset="primary" size="sm" onclick={runSearch} disabled={searchLoading}>
+									{searchLoading ? "Searching..." : "Search"}
+								</Button>
+							</div>
 						</div>
-					</div>
-				{/if}
-			</div>
 
-		<!-- COLLECTIONS TAB -->
-		{:else if activeTab === "collections"}
-			<div class={stack({ gap: "4" })}>
-				<!-- Health display -->
-				<div class="flex items-center justify-between">
-					<Text size="xs" weight="semibold" color="secondary">Collections</Text>
-					<button
-						class="p-1 rounded hover:bg-[var(--surface-raised)] transition-colors"
-						onclick={loadHealth}
-						title="Refresh"
-					>
-						{#if healthLoading}<Spinner size="xs" />{:else}<RefreshCw size={12} />{/if}
-					</button>
-				</div>
+						{#if searchError}
+							<Callout variant="error" preset="flat">
+								<Text size="xs">Search failed: {searchError}</Text>
+							</Callout>
+						{/if}
 
-				{#if healthError}
-					<Text size="xs" color="muted">{healthError}</Text>
-				{:else if healthReport}
-					<div class="text-xs mb-1">
-						<span class="text-[var(--text-secondary)]">Storage:</span>
-						<span class="font-mono ml-1">{healthReport.storage_path}</span>
-					</div>
+						{#if searchResults.length > 0}
+							<!-- Quality feedback -->
+							<div class="space-y-1.5 pt-2 border-t border-[var(--border-subtle)]">
+								<div class="flex items-center gap-2 flex-wrap">
+									<Badge variant="accent" size="sm" fillStyle="subtle">
+										{searchResults.length} matches
+									</Badge>
+									{#if retrievalConfig}
+										<Badge variant="neutral" size="sm" fillStyle="outline">
+											Depth {retrievalConfig.top_k}
+										</Badge>
+										<Badge variant="neutral" size="sm" fillStyle="outline">
+											Floor {retrievalConfig.score_threshold.toFixed(2)}
+										</Badge>
+									{/if}
+									{#if embedLatencyMs !== null && searchLatencyMs !== null}
+										<Badge variant="informative" size="sm" fillStyle="subtle">
+											{embedLatencyMs + searchLatencyMs}ms total
+										</Badge>
+									{/if}
+								</div>
 
-					{#if healthReport.collections.length === 0}
-						<Text size="xs" color="muted">No collections yet. Create one below.</Text>
-					{:else}
-						<div class="space-y-1">
-							{#each healthReport.collections as col}
-								<div class="flex items-center justify-between px-2 py-1.5 rounded bg-[var(--surface-raised)] text-xs">
-									<div class="flex items-center gap-2">
-										<Database size={12} class="text-[var(--color-teal-400)]" />
-										<span class="font-mono">{col.name}</span>
-									</div>
-									<div class="flex items-center gap-3">
-										<span class="text-[var(--text-secondary)]">{col.point_count.toLocaleString()} pts</span>
-										<button
-											class="px-1.5 py-0.5 rounded text-[10px] transition-colors
-												{deleteConfirm === col.name
-													? 'bg-[var(--signal-error)]/20 text-[var(--signal-error)]'
-													: 'hover:bg-[var(--signal-error)]/10 text-[var(--text-secondary)] hover:text-[var(--signal-error)]'}"
-											onclick={() => deleteCollection(col.name)}
-											title={deleteConfirm === col.name ? "Click again to confirm" : "Delete collection"}
-										>
-											{#if deleteConfirm === col.name}
-												Confirm?
-											{:else}
-												<Trash2 size={10} />
+								<!-- Score distribution -->
+								<div class="space-y-0.5">
+									<div class="flex h-1.5 rounded overflow-hidden gap-px">
+										{#each scoreBuckets() as count, i}
+											{#if count > 0}
+												<div
+													class="rounded-sm opacity-80 {bucketBgClass(i)}"
+													style:flex-grow={count}
+												></div>
 											{/if}
-										</button>
+										{/each}
+									</div>
+									<div class="flex justify-between">
+										<Text size="xs" preset="flat">Weak</Text>
+										<Text size="xs" preset="flat">Strong</Text>
 									</div>
 								</div>
-							{/each}
-						</div>
-					{/if}
+							</div>
 
-					<!-- Create collection form -->
-					<div class="mt-3 p-3 rounded-lg border border-dashed border-[var(--border-subtle)]">
-						<Text size="xs" weight="semibold" color="secondary">Create Collection</Text>
-						<div class="flex gap-2 mt-2">
-							<input
-								type="text"
-								class="flex-1 px-2 py-1 text-xs rounded bg-[var(--surface-base)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
-								placeholder="Collection name..."
-								bind:value={newCollectionName}
-								onkeydown={(e: KeyboardEvent) => e.key === "Enter" && createCollection()}
-							/>
-							<input
-								type="number"
-								class="w-20 px-2 py-1 text-xs rounded bg-[var(--surface-base)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-mono"
-								bind:value={newCollectionDimension}
-								min={64}
-								max={4096}
-								title="Vector dimensions (768 for nomic-embed)"
-							/>
-							<Button preset="ghost" size="sm" onclick={createCollection} disabled={createLoading}>
-								<Plus size={12} />
+							<!-- Results list -->
+							<div class="space-y-1 max-h-80 overflow-y-auto">
+								{#each searchResults as result}
+									<Card preset="flat">
+										<div class="flex items-center gap-2 p-2">
+											<Badge
+												variant={scoreVariant(result.score)}
+												size="sm"
+												fillStyle="bold"
+											>
+												{result.score.toFixed(2)}
+											</Badge>
+											<div class="flex-1 truncate">
+												<Text size="xs" preset="flat">
+													{result.payload_json.slice(0, 120) || "(no content)"}
+												</Text>
+											</div>
+											<Text size="xs" preset="flat">{result.id}</Text>
+										</div>
+									</Card>
+								{/each}
+							</div>
+						{/if}
+					{/if}
+				</div>
+			</Card>
+		</TabsContent>
+
+		<!-- ═══════ TUNING ═══════ -->
+		<TabsContent value="tuning" class="flex-1 overflow-y-auto p-4 space-y-3">
+			{#if configError}
+				<Callout variant="error" preset="flat">
+					<Text size="xs">Tuning error: {configError}</Text>
+				</Callout>
+			{/if}
+			<!-- Presets -->
+			<Card preset="glass">
+				<div class="p-3 space-y-3">
+					<div class="flex items-center gap-2">
+						<Settings2 size={14} class="text-[var(--color-teal-400)]" />
+						<Text size="sm" weight="semibold">Quick presets</Text>
+						{#if retrievalConfig?.preset === "custom"}
+							<Badge variant="notice" size="sm" fillStyle="subtle">Custom</Badge>
+						{/if}
+					</div>
+					<Text size="xs" preset="flat">
+						Start with a preset, or adjust the sliders below for fine control.
+					</Text>
+
+					<div class="grid grid-cols-2 gap-2">
+						{#each presets as p}
+							<Button
+								preset={retrievalConfig?.preset === p.name ? "primary" : "secondary"}
+								size="sm"
+								onclick={() => applyPreset(p.name)}
+							>
+								<div class="text-left w-full">
+									<div class="font-medium">{p.label}</div>
+									<div class="text-xs opacity-80">{p.desc}</div>
+								</div>
 							</Button>
+						{/each}
+					</div>
+				</div>
+			</Card>
+
+			<!-- Fine-grained sliders -->
+			{#if paramMeta.length > 0 && retrievalConfig}
+				<Card preset="glass">
+					<div class="p-3 space-y-4">
+						<div class="flex items-center gap-2">
+							<Text size="sm" weight="semibold">Fine-tune</Text>
 						</div>
-						<Text size="xs" color="muted" class="mt-1">
-							Default: 768 dims (nomic-embed-text-v1.5, cosine)
+						{#each paramMeta as param}
+							<div class="space-y-2">
+								<div class="flex items-start justify-between gap-3">
+									<div class="flex-1">
+										<Text size="sm" weight="medium">{param.label}</Text>
+										<Text size="xs" preset="flat">{param.description}</Text>
+									</div>
+									<Badge variant="accent" size="sm" fillStyle="outline">
+										{formatValue(param.field, getFieldValue(param.field))}
+									</Badge>
+								</div>
+								<Slider
+									min={param.min}
+									max={param.max}
+									step={param.step}
+									value={getFieldValue(param.field)}
+									onValueChange={(v) => updateField(param.field, v)}
+								/>
+							</div>
+						{/each}
+					</div>
+				</Card>
+			{/if}
+		</TabsContent>
+
+		<!-- ═══════ COLLECTIONS (KNOWLEDGE STORES) ═══════ -->
+		<TabsContent value="collections" class="flex-1 overflow-y-auto p-4 space-y-3">
+			<Card preset="glass">
+				<div class="p-3 space-y-3">
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<Database size={14} class="text-[var(--color-teal-400)]" />
+							<Text size="sm" weight="semibold">Your stores</Text>
+						</div>
+						<Button preset="ghost" size="sm" onclick={loadHealth} disabled={healthLoading}>
+							{#if healthLoading}
+								<Spinner size="xs" />
+							{:else}
+								<RefreshCw size={12} />
+							{/if}
+						</Button>
+					</div>
+
+					{#if healthError}
+						<Callout variant="error" preset="flat">
+							<Text size="xs">Couldn't load stores: {healthError}</Text>
+						</Callout>
+					{:else if healthReport}
+						<div class="text-xs">
+							<Text size="xs" preset="flat">Saved at:</Text>
+							<Text size="xs" weight="medium">{healthReport.storage_path}</Text>
+						</div>
+
+						{#if healthReport.collections.length === 0}
+							<Text size="xs" preset="flat">No stores yet. Create one below.</Text>
+						{:else}
+							<div class="space-y-1.5">
+								{#each healthReport.collections as col}
+									<Card preset="flat">
+										<div class="flex items-center justify-between p-2 gap-2">
+											<div class="flex items-center gap-2 min-w-0">
+												<Database size={12} class="text-[var(--color-teal-400)] shrink-0" />
+												<Text size="sm" weight="medium">{col.name}</Text>
+											</div>
+											<div class="flex items-center gap-2">
+												<Badge variant="informative" size="sm" fillStyle="subtle">
+													{col.point_count.toLocaleString()} items
+												</Badge>
+												<Button
+													preset={deleteConfirm === col.name ? "danger" : "ghost"}
+													size="sm"
+													onclick={() => deleteCollection(col.name)}
+												>
+													{#if deleteConfirm === col.name}
+														Confirm delete
+													{:else}
+														<Trash2 size={12} />
+													{/if}
+												</Button>
+											</div>
+										</div>
+									</Card>
+								{/each}
+							</div>
+						{/if}
+					{:else}
+						<Text size="xs" preset="flat">Loading...</Text>
+					{/if}
+				</div>
+			</Card>
+
+			<!-- Create collection -->
+			<Card preset="glass">
+				<div class="p-3 space-y-3">
+					<div class="flex items-center gap-2">
+						<Plus size={14} class="text-[var(--color-teal-400)]" />
+						<Text size="sm" weight="semibold">Add a new store</Text>
+					</div>
+					<Text size="xs" preset="flat">
+						A store holds a set of searchable items (documents, code snippets, notes).
+					</Text>
+
+					<div class="space-y-2">
+						<TextField
+							value={newCollectionName}
+							onValueChange={(v) => (newCollectionName = v)}
+							label="Store name"
+							placeholder="e.g. docs, code, notes"
+							size="sm"
+						/>
+						<NumberField
+							value={newCollectionDimension}
+							onValueChange={(v) => (newCollectionDimension = v)}
+							min={64}
+							max={4096}
+							step={1}
+							size="sm"
+							aria-label="Vector dimensions"
+						/>
+						<Text size="xs" preset="flat">
+							Dimension should match your encoder. 768 works for nomic-embed.
 						</Text>
-					</div>
-				{:else}
-					<Text size="xs" color="muted">Loading...</Text>
-				{/if}
-			</div>
-
-		<!-- SEARCH TAB -->
-		{:else if activeTab === "search"}
-			<div class={stack({ gap: "3" })}>
-				{#if !encoderSlot?.backend}
-					<Text size="xs" color="muted">Load rag.embedder to enable search.</Text>
-				{:else if collections.length === 0}
-					<Text size="xs" color="muted">No collections available. Create one in the Collections tab.</Text>
-				{:else}
-					<div class={stack({ gap: "2" })}>
-						<select
-							class="w-full px-2 py-1 text-xs rounded bg-[var(--surface-base)] border border-[var(--border-subtle)] text-[var(--text-primary)]"
-							bind:value={searchCollection}
+						{#if createError}
+							<Callout variant="error" preset="flat">
+								<Text size="xs">Couldn't create store: {createError}</Text>
+							</Callout>
+						{/if}
+						{#if deleteError}
+							<Callout variant="error" preset="flat">
+								<Text size="xs">Couldn't delete store: {deleteError}</Text>
+							</Callout>
+						{/if}
+						<Button
+							preset="primary"
+							size="sm"
+							onclick={createCollection}
+							disabled={createLoading || !newCollectionName.trim()}
 						>
-							{#each collections as col}
-								<option value={col}>{col}</option>
-							{/each}
-						</select>
-
-						<div class="flex gap-2">
-							<input
-								type="text"
-								class="flex-1 px-2 py-1 text-xs rounded bg-[var(--surface-base)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
-								placeholder="Search query..."
-								bind:value={searchQuery}
-								onkeydown={(e: KeyboardEvent) => e.key === "Enter" && runSearch()}
-							/>
-							<Button preset="ghost" size="sm" onclick={runSearch} disabled={searchLoading}>
-								{searchLoading ? "..." : "Search"}
-							</Button>
-						</div>
+							<Plus size={12} />
+							Create store
+						</Button>
 					</div>
+				</div>
+			</Card>
+		</TabsContent>
 
-					{#if searchError}
-						<Text size="xs" color="muted">{searchError}</Text>
-					{/if}
+		<!-- ═══════ ENCODER ═══════ -->
+		<TabsContent value="encoder" class="flex-1 overflow-y-auto p-4 space-y-3">
+			<Card preset="glass">
+				<div class="p-3 space-y-3">
+					<div class="flex items-center gap-2">
+						<Shapes size={14} class="text-[var(--color-teal-400)]" />
+						<Text size="sm" weight="semibold">Encoder status</Text>
+					</div>
+					<Text size="xs" preset="flat">
+						The encoder turns your text into searchable vectors.
+					</Text>
 
-					<!-- Results header with quality feedback -->
-					{#if searchResults.length > 0}
-						<div class="text-xs text-[var(--text-secondary)] space-y-1">
-							<div>
-								{searchResults.length} results
-								{#if retrievalConfig}
-									<span class="text-[var(--text-secondary)]">
-										(depth={retrievalConfig.top_k}, floor={retrievalConfig.score_threshold.toFixed(2)})
-									</span>
+					{#if encoderError}
+						<Callout variant="error" preset="flat">
+							<Text size="xs">Encoder check failed: {encoderError}</Text>
+						</Callout>
+					{:else if encoderSlot}
+						<div class="space-y-2">
+							<div class="flex items-center justify-between">
+								<Text size="xs" preset="flat">Slot</Text>
+								<Text size="xs" weight="medium">rag.embedder</Text>
+							</div>
+							<div class="flex items-center justify-between">
+								<Text size="xs" preset="flat">Status</Text>
+								{#if encoderSlot.backend}
+									<Badge variant="positive" size="sm" fillStyle="subtle">
+										<StatusDot tone="success" /> Ready
+									</Badge>
+								{:else}
+									<Badge variant="negative" size="sm" fillStyle="subtle">
+										<StatusDot tone="error" /> Not loaded
+									</Badge>
 								{/if}
 							</div>
-							{#if embedLatencyMs !== null && searchLatencyMs !== null}
-								<div class="font-mono">
-									embed: {embedLatencyMs}ms &middot; search: {searchLatencyMs}ms &middot; total: {embedLatencyMs + searchLatencyMs}ms
-								</div>
-							{/if}
-
-							<!-- Score distribution bar -->
-							{#if searchResults.length > 0}
-								<div class="flex h-2 rounded overflow-hidden gap-px mt-1">
-									{#each scoreBuckets() as count, i}
-										{#if count > 0}
-											<div
-												class="rounded-sm"
-												style="flex-grow: {count}; background: {bucketColors[i]}; opacity: 0.7"
-												title="{(i * 0.2).toFixed(1)}–{((i + 1) * 0.2).toFixed(1)}: {count} results"
-											></div>
-										{/if}
-									{/each}
-								</div>
-								<div class="flex justify-between text-[10px] text-[var(--text-secondary)]">
-									<span>0.0</span>
-									<span>1.0</span>
-								</div>
-							{/if}
-						</div>
-
-						<!-- Results list -->
-						<div class="space-y-1 max-h-64 overflow-y-auto">
-							{#each searchResults as result}
-								<div class="flex items-center gap-2 px-2 py-1 rounded bg-[var(--surface-raised)] text-xs">
-									<div
-										class="w-10 text-right font-mono font-medium shrink-0"
-										style="color: {scoreColor(result.score)}"
-									>
-										{result.score.toFixed(3)}
-									</div>
-									<div class="flex-1 truncate font-mono text-[var(--text-secondary)]" title={result.payload_json}>
-										{result.payload_json.slice(0, 100)}
-									</div>
-									<div class="text-[var(--text-secondary)] text-[10px] font-mono shrink-0">
-										{result.id}
-									</div>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				{/if}
-			</div>
-
-		<!-- STATUS TAB -->
-		{:else if activeTab === "status"}
-			<div class={stack({ gap: "3" })}>
-				<Text size="xs" weight="semibold" color="secondary">Encoder</Text>
-
-				{#if encoderError}
-					<Text size="xs" color="muted">{encoderError}</Text>
-				{:else if encoderSlot}
-					<div class="p-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)]">
-						<div class="text-xs space-y-1.5">
-							<div class="flex justify-between">
-								<span class="text-[var(--text-secondary)]">Slot</span>
-								<span class="font-mono">rag.embedder</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-[var(--text-secondary)]">Status</span>
-								<span
-									class="px-1.5 py-0.5 rounded text-[10px] font-medium"
-									style="background: {encoderSlot.backend ? 'var(--signal-success)' : 'var(--signal-error)'}20; color: {encoderSlot.backend ? 'var(--signal-success)' : 'var(--signal-error)'}"
-								>
-									{encoderSlot.backend ? "Loaded" : "Unloaded"}
-								</span>
-							</div>
 							{#if encoderSlot.assigned_model_id}
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">Model</span>
-									<span class="font-mono truncate max-w-[200px]" title={encoderSlot.assigned_model_id}>
-										{encoderSlot.assigned_model_id}
-									</span>
+								<div class="flex items-center justify-between gap-2">
+									<Text size="xs" preset="flat">Model</Text>
+									<Text size="xs" weight="medium">{encoderSlot.assigned_model_id}</Text>
 								</div>
 							{/if}
 							{#if encoderSlot.backend}
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">Backend</span>
-									<span class="font-mono">{encoderSlot.backend}</span>
+								<div class="flex items-center justify-between">
+									<Text size="xs" preset="flat">Engine</Text>
+									<Text size="xs" weight="medium">{encoderSlot.backend}</Text>
 								</div>
 							{/if}
 						</div>
-					</div>
-				{:else}
-					<Text size="xs" color="muted">rag.embedder slot not found.</Text>
-				{/if}
+					{:else}
+						<Text size="xs" preset="flat">Encoder slot not found.</Text>
+					{/if}
+				</div>
+			</Card>
 
-				<Text size="xs" weight="semibold" color="secondary">Health</Text>
-
-				{#if healthReport}
-					<div class="p-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-xs space-y-1">
-						<div class="flex justify-between">
-							<span class="text-[var(--text-secondary)]">Storage</span>
-							<span class="font-mono truncate max-w-[200px]">{healthReport.storage_path}</span>
+			{#if healthReport}
+				<Card preset="glass">
+					<div class="p-3 space-y-2">
+						<Text size="sm" weight="semibold">Overview</Text>
+						<div class="flex items-center justify-between">
+							<Text size="xs" preset="flat">Stores</Text>
+							<Text size="xs" weight="medium">{healthReport.collections.length}</Text>
 						</div>
-						<div class="flex justify-between">
-							<span class="text-[var(--text-secondary)]">Collections</span>
-							<span>{healthReport.collections.length}</span>
-						</div>
-						<div class="flex justify-between">
-							<span class="text-[var(--text-secondary)]">Total points</span>
-							<span>{healthReport.collections.reduce((sum: number, c: CollectionInfo) => sum + Number(c.point_count), 0).toLocaleString()}</span>
+						<div class="flex items-center justify-between">
+							<Text size="xs" preset="flat">Total items</Text>
+							<Text size="xs" weight="medium">
+								{healthReport.collections.reduce((sum: number, c: CollectionInfo) => sum + Number(c.point_count), 0).toLocaleString()}
+							</Text>
 						</div>
 					</div>
-				{/if}
-			</div>
-		{/if}
-	</main>
+				</Card>
+			{/if}
+		</TabsContent>
+	</Tabs>
 </div>

@@ -46,4 +46,15 @@ export type ActionId =
 	| "wizard.testInference"
 	| "wizard.uploadVoiceSample"
 	| "wizard.trainVoiceBaseline"
-	| "wizard.hfTokenSuffix";
+	| "wizard.hfTokenSuffix"
+	| "rro.loadHealth"
+	| "rro.loadConfig"
+	| "rro.loadParamMeta"
+	| "rro.loadEncoderStatus"
+	| "rro.setConfig"
+	| "rro.applyPreset"
+	| "rro.updateField"
+	| "rro.createCollection"
+	| "rro.deleteCollection"
+	| "rro.embedQuery"
+	| "rro.testSearch";

@@ -39,6 +39,9 @@ pub struct AudioHandle {
 
 impl AudioHandle {
     /// Queue audio for playback. Non-blocking — returns immediately.
+    ///
+    /// # Errors
+    /// Returns an error if the playback thread has already disconnected.
     pub fn play(&self, request: PlaybackRequest) -> Result<()> {
         self.sender
             .send(AudioCommand::Play(request))
@@ -47,6 +50,9 @@ impl AudioHandle {
     }
 
     /// Stop current playback.
+    ///
+    /// # Errors
+    /// Returns an error if the playback thread has already disconnected.
     pub fn stop(&self) -> Result<()> {
         self.sender
             .send(AudioCommand::Stop)
@@ -76,6 +82,9 @@ impl AudioService {
     ///
     /// Creates a dedicated OS thread that owns the rodio `OutputStream`.
     /// Returns immediately — all interaction is via `AudioHandle`.
+    ///
+    /// # Errors
+    /// Returns an error if the dedicated audio playback thread cannot be spawned.
     pub fn spawn() -> Result<Self> {
         let (tx, rx) = flume::unbounded::<AudioCommand>();
         let playing = Arc::new(AtomicBool::new(false));

@@ -1,7 +1,7 @@
 /**
  * @file domains/app/wiredfront/index.ts
  * @module @devpulse/domains/app/wiredfront
- * @description Network overlay system
+ * @description Wiredfront — media hub (Nx library-types)
  */
 
-// Public API — add exports as features are built
+export { default as WiredfrontDashboard } from "./feature/dashboard/WiredfrontDashboard.svelte";

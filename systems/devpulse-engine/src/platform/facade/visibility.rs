@@ -4,13 +4,13 @@
 //!
 //! ## Design Decision (LOCKED)
 //!
-//! Visibility is a property of the *consumer* (EventBridge),
+//! Visibility is a property of the *consumer* (`EventBridge`),
 //! not the *producer* (Signal/InternalEvent). The event struct
 //! stays a pure data atom with no audience awareness.
 //!
 //! ## Tiers
 //!
-//! - `Internal`  — Never crosses EventBridge. Minion deliberation,
+//! - `Internal`  — Never crosses `EventBridge`. Minion deliberation,
 //!                 raw scores, routing decisions.
 //! - `Narrated`  — Crosses to webview after narration composer
 //!                 transforms it into user-safe text.
@@ -26,9 +26,9 @@ use super::events::InternalEvent;
 pub enum Visibility {
     /// Never leaves the Rust process.
     Internal,
-    /// Crosses EventBridge after narration rewrite.
+    /// Crosses `EventBridge` after narration rewrite.
     Narrated,
-    /// Crosses EventBridge directly. Rendered as-is.
+    /// Crosses `EventBridge` directly. Rendered as-is.
     Public,
     /// Lab-only. Full raw event to Cortex viewer.
     Debug,

@@ -1,9 +1,9 @@
 //! Cockpit window management types.
 //!
-//! WindowRole: every spawnable window has a typed role.
-//! WindowState: tracks an open window's state.
-//! ConnectomeMode: toolbar (compact strip) or full (resizable window).
-//! AnchorState: whether the Connectome tracks the chat window position.
+//! `WindowRole`: every spawnable window has a typed role.
+//! `WindowState`: tracks an open window's state.
+//! `ConnectomeMode`: toolbar (compact strip) or full (resizable window).
+//! `AnchorState`: whether the Connectome tracks the chat window position.
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -66,7 +66,7 @@ impl WindowRole {
         }
     }
 
-    /// SvelteKit route path for this window.
+    /// `SvelteKit` route path for this window.
     #[must_use]
     pub fn route(&self) -> &'static str {
         match self {

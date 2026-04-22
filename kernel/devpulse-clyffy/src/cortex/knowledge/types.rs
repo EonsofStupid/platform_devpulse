@@ -114,7 +114,7 @@ pub struct KnowledgeManifest {
 /// A file entry in the manifest.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ManifestFile {
-    /// Filename relative to data/ (e.g., "did_you_know.json").
+    /// Filename relative to `data/` (e.g., `did_you_know.json`).
     pub name: String,
     /// SHA256 hex digest of the file contents.
     pub hash: String,

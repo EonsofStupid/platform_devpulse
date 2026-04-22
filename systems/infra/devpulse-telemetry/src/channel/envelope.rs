@@ -47,7 +47,7 @@ impl<T> Envelope<T> {
 ///    propagation is needed in the consumer's current scope, or
 /// 2. Calls [`Traced::attach`] to consume the `Traced` and receive both the
 ///    payload and an [`opentelemetry::ContextGuard`]. While the guard is live,
-///    the producer's context is the current OTel context, so any span created
+///    the producer's context is the current `OTel` context, so any span created
 ///    in the consumer's scope becomes a descendant of the producer's span.
 ///
 /// ## Send-ness note

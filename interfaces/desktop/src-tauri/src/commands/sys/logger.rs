@@ -9,7 +9,7 @@
 //!
 //! The optional `run_id` parameter correlates frontend actions with backend
 //! spans. When present, every tracing call includes `run_id` as a structured
-//! field — queryable in session JSONL, DuckDB spans, and OTel traces.
+//! field — queryable in session JSONL, `DuckDB` spans, and `OTel` traces.
 
 use std::io::Write;
 use std::path::Path;
@@ -36,15 +36,24 @@ fn append_action_jsonl(data_dir: &Path, line: &str) -> std::io::Result<()> {
 ///
 /// When `run_id` is provided (from `withAction`), it's attached as a
 /// structured field on every tracing call — correlating frontend actions
-/// with backend spans across session JSONL, DuckDB, and OTel.
+/// with backend spans across session JSONL, `DuckDB`, and `OTel`.
 ///
 /// Action events (`target == "action"`) are written only to the action JSONL
 /// file (plain JSON lines) to avoid double-encoding inside the session log.
+///
+/// # Async-by-contract
+///
+/// Every `#[tauri::command]` handler in this crate is `async fn`. Sync
+/// handlers run on Tauri's IPC dispatch thread; any blocking syscall
+/// (file write, stderr backpressure under Chromium verbose logging)
+/// stalls every subsequent IPC call. This exact bug cost the project
+/// multiple days — see the logging audit in
+/// `scripts/docs/sprints/SPRINT-FOUNDATIONAL-REBUILD-S0.research-logging.md`.
+/// Per the module charter's sync-vs-async doctrine, commands are async.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::needless_pass_by_value)]
 #[tracing::instrument(level = "debug", skip(app, message), fields(msg_len = message.len()))]
-pub fn log(
+pub async fn log(
     app: tauri::AppHandle,
     level: String,
     target: String,
@@ -53,7 +62,15 @@ pub fn log(
 ) {
     if target == "action" {
         if let Ok(data_dir) = paths::resolve_data_dir(&app) {
-            let _ = append_action_jsonl(&data_dir, &message);
+            // Move the sync file I/O to the blocking pool — action JSONL
+            // writes are fire-and-forget, so we don't await the handle.
+            // The task detaches; a panic inside is currently silent and
+            // will be covered by the `devpulse_telemetry::spawn_blocking`
+            // wrapper migration in the next phase.
+            let line = message;
+            devpulse_telemetry::spawn_blocking(move || {
+                let _ = append_action_jsonl(&data_dir, &line);
+            });
         }
         return;
     }

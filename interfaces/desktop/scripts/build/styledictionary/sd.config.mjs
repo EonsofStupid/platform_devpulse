@@ -110,7 +110,7 @@ const tiers = {
 		// New DTCG semantic roots
 		'glass-blur', 'backdrop-glow', 'backdrop-grid',
 		'backdrop-grid-line', 'backdrop-grid-size',
-		'gradient-duration', 'scrollbar-size', 'chat', 'wizard',
+		'gradient-duration', 'scrollbar-size', 'chat', 'wizard', 'claude',
 	],
 };
 
@@ -897,6 +897,7 @@ const config = {
 			cssFile('text.css', pathFilter('text'), layers.semantic),
 			cssFile('signal.css', pathFilter('signal'), layers.semantic),
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
+			cssFile('claude.css', pathFilter('claude'), layers.semantic),
 			],
 		},
 

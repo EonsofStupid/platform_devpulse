@@ -1,4 +1,4 @@
-//! Tool implementation modules for DevPulse MCP server.
+//! Tool implementation modules for `DevPulse` MCP server.
 //!
 //! Each module exposes an `execute()` async function called by the
 //! `#[tool]` methods on `DevPulseMcpServer`. Business logic, security

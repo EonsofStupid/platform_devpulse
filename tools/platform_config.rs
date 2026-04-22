@@ -49,7 +49,7 @@ fn collect_fragments(dir: &Path, files: &mut Vec<PathBuf>) -> Result<(), String>
 		.collect::<Result<Vec<_>, _>>()
 		.map_err(|error| format!("Failed to enumerate {}: {error}", dir.display()))?;
 
-	entries.sort_by_key(|entry| entry.path());
+	entries.sort_by_key(std::fs::DirEntry::path);
 
 	for entry in entries {
 		let path = entry.path();

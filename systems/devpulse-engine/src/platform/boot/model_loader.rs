@@ -1,6 +1,6 @@
 //! Model Loader boot stage — AI model management service.
 //!
-//! Creates the model loader service, registers default DevPulse slots,
+//! Creates the model loader service, registers default `DevPulse` slots,
 //! restores saved assignments, and scans the models directory.
 
 #[cfg(feature = "inference")]
@@ -73,7 +73,7 @@ pub async fn boot(
     // Slots + presets come from kernel SSOT loaded inside ModelLoaderService::boot,
     // not from the engine-side TOML shadow (which has been removed).
     let data_dir_owned = data_dir.to_path_buf();
-    let result = tokio::task::spawn_blocking(move || {
+    let result = devpulse_telemetry::spawn_blocking(move || {
         ModelLoaderService::boot(&data_dir_owned, event_sink, models_dir, subdirs, libsql_adapter)
     })
     .await
@@ -125,7 +125,7 @@ pub async fn boot(
             //   - `auto_load_hot_slots()` → REMOVED. User triggers loads
             //     explicitly via the model card UI.
             let bg_service = service_arc.clone();
-            tokio::spawn(
+            devpulse_telemetry::spawn(
                 async move {
                     tracing::info!("Model Loader: background registry scan starting (no auto-load)");
                     if let Err(e) = bg_service.finalize_registry().await {

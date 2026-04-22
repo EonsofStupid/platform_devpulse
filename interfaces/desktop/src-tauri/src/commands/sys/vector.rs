@@ -192,6 +192,7 @@ pub async fn vector_test_search(
 /// Create a new vector collection with the given dimensionality.
 ///
 /// Default dimension for nomic-embed-text-v1.5 is 768 (cosine distance).
+/// Collection-level settings are fixed at creation.
 ///
 /// # Errors
 /// Returns error if platform is booting, vector store is disabled,

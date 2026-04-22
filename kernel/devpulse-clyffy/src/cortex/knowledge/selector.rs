@@ -35,6 +35,10 @@ pub struct SelectedEntry {
 ///
 /// Uses the affinity-weighted random selection query from the spec.
 /// Returns `None` if no eligible entries exist.
+///
+/// # Errors
+/// Returns an error if the selection query fails or if persisting the
+/// `knowledge_seen` tracking row fails.
 pub async fn select_entry(
     adapter: &dyn SqlAdapter,
     params: &SelectionParams,
@@ -103,7 +107,10 @@ pub async fn select_entry(
     Ok(Some(entry))
 }
 
-/// Record that an entry was shown to a user (upsert into knowledge_seen).
+/// Record that an entry was shown to a user (upsert into `knowledge_seen`).
+///
+/// # Errors
+/// Returns an error if the `knowledge_seen` upsert fails.
 async fn record_shown(
     adapter: &dyn SqlAdapter,
     entry_id: &str,
@@ -130,7 +137,10 @@ async fn record_shown(
     Ok(())
 }
 
-/// Record a user reaction (helpful / not_helpful).
+/// Record a user reaction (`helpful` or `not_helpful`).
+///
+/// # Errors
+/// Returns an error if the `knowledge_seen` reaction update fails.
 pub async fn record_reaction(
     adapter: &dyn SqlAdapter,
     entry_id: &str,

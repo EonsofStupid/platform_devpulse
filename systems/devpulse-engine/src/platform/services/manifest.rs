@@ -21,7 +21,7 @@ pub struct ServiceMeta {
     pub scope: DataScope,
     /// Boot stage number (1-indexed, sequential).
     pub stage: u8,
-    /// Human-readable name for logs, health checks, UI (ip_term applied).
+    /// Human-readable name for logs, health checks, UI (`ip_term` applied).
     pub public_name: &'static str,
     /// Cargo feature gate — `None` means always compiled in.
     pub feature_gate: Option<&'static str>,

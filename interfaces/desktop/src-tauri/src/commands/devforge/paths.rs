@@ -1,6 +1,6 @@
-//! DevForge filesystem layout.
+//! `DevForge` filesystem layout.
 //!
-//! All DevForge runtime data lives under `<data_dir>/devforge/`. In dev,
+//! All `DevForge` runtime data lives under `<data_dir>/devforge/`. In dev,
 //! `data_dir` resolves to `<repo>/.userdata/` via `resolve_data_dir` in
 //! `lib.rs`, so the concrete layout is:
 //!
@@ -16,7 +16,7 @@
 //!
 //! **Workspaces are real project directories** (e.g. `D:/localdev/platform_devpulse`).
 //! They are NOT generated or managed under this layout — the user's actual
-//! project folders are passed to REH via `--folder-uri`. DevforgeState
+//! project folders are passed to REH via `--folder-uri`. `DevforgeState`
 //! remembers the last-opened project path so bootstrap can restore it.
 //!
 //! [`DevforgePaths`] is cheap to clone and held in [`PlatformState`]
@@ -62,7 +62,7 @@ pub const PLATFORM_SUBDIR: &str = {
     }
 };
 
-/// Immutable snapshot of the DevForge directory layout.
+/// Immutable snapshot of the `DevForge` directory layout.
 #[derive(Debug, Clone)]
 pub struct DevforgePaths {
     /// `<data_dir>/devforge/` — the root of everything.

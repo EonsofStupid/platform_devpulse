@@ -1,4 +1,4 @@
-//! LibSQL devtool commands — health, table listing, raw SQL console.
+//! `LibSQL` devtool commands — health, table listing, raw SQL console.
 //!
 //! Two databases: system (platform.db) and user (user.db).
 //! Mirrors the graph.rs pattern: read platform state, access service, execute.
@@ -14,16 +14,16 @@ use devpulse_engine::platform::SqlAdapter;
 // Types
 // ═══════════════════════════════════════════════════════════════
 
-/// Which LibSQL database to target.
+/// Which `LibSQL` database to target.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub enum LibSqlDatabase {
     /// System database — platform.db (sessions, projects, config).
     System,
-    /// User database — user.db (turns, preferences, api_keys).
+    /// User database — user.db (turns, preferences, `api_keys`).
     User,
 }
 
-/// Health of a single LibSQL database.
+/// Health of a single `LibSQL` database.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct LibSqlHealth {
     /// Which database.
@@ -71,7 +71,7 @@ pub struct LibSqlQueryResult {
 // Commands
 // ═══════════════════════════════════════════════════════════════
 
-/// Ping both LibSQL databases — returns health for each.
+/// Ping both `LibSQL` databases — returns health for each.
 #[tauri::command]
 #[specta::specta]
 pub async fn libsql_health_all(
@@ -154,7 +154,7 @@ pub async fn libsql_health_all(
     Ok(LibSqlHealthAll { databases })
 }
 
-/// List tables and row counts for a LibSQL database.
+/// List tables and row counts for a `LibSQL` database.
 #[tauri::command]
 #[specta::specta]
 pub async fn libsql_list_tables(
@@ -192,7 +192,7 @@ pub async fn libsql_list_tables(
             let count = count_rows
                 .first()
                 .and_then(|r| r.first())
-                .and_then(|v| v.as_integer())
+                .and_then(devpulse_engine::platform::SqlValue::as_integer)
                 .unwrap_or(0) as u64;
 
             tables.push(LibSqlTableInfo {
@@ -205,7 +205,7 @@ pub async fn libsql_list_tables(
     Ok(tables)
 }
 
-/// Execute a raw SQL query against a LibSQL database — devtools console.
+/// Execute a raw SQL query against a `LibSQL` database — devtools console.
 #[tauri::command]
 #[specta::specta]
 pub async fn libsql_query(

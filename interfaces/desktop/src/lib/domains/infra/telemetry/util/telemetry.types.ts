@@ -13,6 +13,9 @@ export type {
 	LaneToggle,
 	LaneTraceConfig,
 	SpanTraceRow,
+	TelemetryPipelineInfo,
+	TelemetryRowCounts,
+	TelemetrySessionFile,
 } from "$lib/sys/generated/bindings.js";
 
 // ── Domain-only types ───────────────────────────────────────
@@ -56,6 +59,35 @@ export function formatRate(rate: number): string {
 	return `${(rate * 100).toFixed(1)}%`;
 }
 
+/** Format a byte count as KB/MB/GB. Layman-readable, 1 decimal. */
+export function formatBytes(bytes: number): string {
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+	if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+/** Format a Unix ms timestamp as a short local time string. */
+export function formatTimestamp(ms: number): string {
+	if (ms <= 0) return "—";
+	try {
+		return new Date(ms).toLocaleString();
+	} catch {
+		return "—";
+	}
+}
+
+/** Format a duration in ms as "Xs", "Xm Ys", or "Xh Ym". */
+export function formatUptime(ms: number): string {
+	if (ms < 1000) return "just now";
+	const s = Math.floor(ms / 1000);
+	if (s < 60) return `${s}s`;
+	const m = Math.floor(s / 60);
+	if (m < 60) return `${m}m ${s % 60}s`;
+	const h = Math.floor(m / 60);
+	return `${h}h ${m % 60}m`;
+}
+
 /** Build a span tree from a flat list of spans. */
 export function buildSpanTree(
 	spans: import("$lib/sys/generated/bindings.js").SpanTraceRow[],
@@ -89,34 +121,130 @@ export function buildSpanTree(
 	return roots;
 }
 
-// ── Lane grouping ───────────────────────────────────────────
+// ── Layman labels ───────────────────────────────────────────
+// Maps the Rust enum name (ExecutionLane) to a human-friendly label.
+// The UI NEVER shows the enum name directly — always use laneLabel().
 
-const GPU_LANES = new Set(["BrainInference", "HelperInference", "EscalationInference"]);
+export type LaneCategory = "thinking" | "perception" | "data";
 
-const CPU_LANES = new Set([
-	"Embedding",
-	"Reranking",
-	"SpeechToText",
-	"TextToSpeech",
-	"VisionEmbedding",
-	"PromptAssembly",
-	"ThinkingPipeline",
-]);
+interface LaneMeta {
+	label: string;
+	blurb: string;
+	category: LaneCategory;
+}
 
-const STORAGE_LANES = new Set([
-	"VectorRetrieval",
-	"RelationalQuery",
-	"AnalyticalQuery",
-	"CacheLookup",
-]);
+const LANE_META: Record<string, LaneMeta> = {
+	// Thinking (GPU-heavy inference lanes)
+	BrainInference: {
+		label: "Main brain",
+		blurb: "Primary chat + reasoning model",
+		category: "thinking",
+	},
+	HelperInference: {
+		label: "Helper brain",
+		blurb: "Small fast model for simple tasks",
+		category: "thinking",
+	},
+	EscalationInference: {
+		label: "Deep brain",
+		blurb: "Large model used for hard problems",
+		category: "thinking",
+	},
+	ThinkingPipeline: {
+		label: "Thinking pipeline",
+		blurb: "Multi-step reasoning orchestration",
+		category: "thinking",
+	},
+	PromptAssembly: {
+		label: "Prompt builder",
+		blurb: "Stitching context into the model input",
+		category: "thinking",
+	},
 
-/** Group lanes by device category for the UI. */
+	// Perception (speech, vision, memory encoding)
+	SpeechToText: {
+		label: "Listening",
+		blurb: "Converts microphone audio to text",
+		category: "perception",
+	},
+	TextToSpeech: {
+		label: "Speaking",
+		blurb: "Generates voice audio from text",
+		category: "perception",
+	},
+	VisionEmbedding: {
+		label: "Image understanding",
+		blurb: "Encodes screenshots + images for search",
+		category: "perception",
+	},
+	Embedding: {
+		label: "Memory encoding",
+		blurb: "Turns text into searchable vectors",
+		category: "perception",
+	},
+	Reranking: {
+		label: "Result ranking",
+		blurb: "Scores and sorts retrieved candidates",
+		category: "perception",
+	},
+
+	// Data (storage + retrieval)
+	VectorRetrieval: {
+		label: "Memory search",
+		blurb: "Finds relevant past context",
+		category: "data",
+	},
+	RelationalQuery: {
+		label: "Record lookup",
+		blurb: "Reads from the local database",
+		category: "data",
+	},
+	AnalyticalQuery: {
+		label: "Analytics query",
+		blurb: "Computes metrics + baselines",
+		category: "data",
+	},
+	CacheLookup: {
+		label: "Cache check",
+		blurb: "Checks for instant hits before computing",
+		category: "data",
+	},
+};
+
+const CATEGORY_LABELS: Record<LaneCategory, string> = {
+	thinking: "Thinking",
+	perception: "Perception",
+	data: "Data Access",
+};
+
+/** Human-readable label for a lane. Falls back to the raw name for unknown lanes. */
+export function laneLabel(lane: string): string {
+	return LANE_META[lane]?.label ?? lane;
+}
+
+/** One-sentence description of what a lane does. */
+export function laneBlurb(lane: string): string {
+	return LANE_META[lane]?.blurb ?? "";
+}
+
+/** Which top-level category a lane belongs to. */
+export function laneCategory(lane: string): LaneCategory {
+	return LANE_META[lane]?.category ?? "data";
+}
+
+/** Group lanes by category for the UI. */
 export function groupLanes(
 	lanes: import("$lib/sys/generated/bindings.js").LaneToggle[],
 ): LaneGroup[] {
-	return [
-		{ label: "GPU", lanes: lanes.filter((l) => GPU_LANES.has(l.lane)) },
-		{ label: "CPU", lanes: lanes.filter((l) => CPU_LANES.has(l.lane)) },
-		{ label: "Storage", lanes: lanes.filter((l) => STORAGE_LANES.has(l.lane)) },
-	];
+	const byCategory: Record<LaneCategory, typeof lanes> = {
+		thinking: [],
+		perception: [],
+		data: [],
+	};
+	lanes.forEach((l) => {
+		byCategory[laneCategory(l.lane)].push(l);
+	});
+	return (Object.keys(byCategory) as LaneCategory[])
+		.filter((cat) => byCategory[cat].length > 0)
+		.map((cat) => ({ label: CATEGORY_LABELS[cat], lanes: byCategory[cat] }));
 }

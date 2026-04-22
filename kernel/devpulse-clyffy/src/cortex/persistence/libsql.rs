@@ -9,7 +9,7 @@
 //! with its own synchronization. Wrapping it in `tokio::sync::RwLock` serialized
 //! every query behind a yield-on-acquire mutex and was a prime deadlock risk
 //! whenever a slow query held the read guard while another task wanted to call
-//! into the adapter. The RwLock is removed. Callers share the `Connection`
+//! into the adapter. The `RwLock` is removed. Callers share the `Connection`
 //! directly — libsql owns the per-statement locking inside.
 
 use crate::cortex::persistence::traits::{PersistenceAdapter, SqlAdapter, SqlRow, SqlValue};
@@ -126,7 +126,7 @@ impl LibSqlAdapter {
     /// Execute one SQL statement with bound parameters (for example `libsql::params![..]`).
     ///
     /// # Errors
-    /// Returns an error if LibSQL rejects the statement.
+    /// Returns an error if `LibSQL` rejects the statement.
     pub async fn execute_bound(
         &self,
         sql: &str,

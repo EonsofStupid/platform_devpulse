@@ -1,4 +1,4 @@
-//! MCP tool: query_libsql — read-only SQL against libSQL.
+//! MCP tool: `query_libsql` — read-only SQL against libSQL.
 //!
 //! SELECT only — write operations rejected at the tool level.
 //! Scans full query for write keywords (CTE-safe, string-literal-safe).

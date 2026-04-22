@@ -1,10 +1,10 @@
 //! OTLP JSONL file exporter — writes span data as newline-delimited JSON.
 //!
-//! This is the local-first sink for OTel traces. No gRPC port, no embedded
+//! This is the local-first sink for `OTel` traces. No gRPC port, no embedded
 //! collector, no reqwest. Spans are serialized to JSON and appended to a
 //! rotating session file at `{data_dir}/telemetry/spans-{session}.otlp.jsonl`.
 //!
-//! The DuckDB `otlp` community extension can read these files on-demand via
+//! The `DuckDB` `otlp` community extension can read these files on-demand via
 //! `read_otlp_traces()`.
 
 use std::fs::{self, File, OpenOptions};
@@ -20,7 +20,7 @@ use serde_json::json;
 ///
 /// Each line is a self-contained JSON object with the span's key fields.
 /// This is NOT full OTLP protobuf — it's a simplified JSON representation
-/// optimized for DuckDB ingestion and human readability.
+/// optimized for `DuckDB` ingestion and human readability.
 pub struct FileSpanExporter {
     writer: Mutex<BufWriter<File>>,
     path: PathBuf,
@@ -61,13 +61,22 @@ impl FileSpanExporter {
         })
     }
 
+    /// Absolute path of the JSONL file this exporter is currently writing to.
+    ///
+    /// Exposed so the devtool can show users where their trace data lives
+    /// without parsing the directory listing.
+    #[must_use]
+    pub fn current_path(&self) -> &Path {
+        &self.path
+    }
+
     /// Rotate old session files, keeping only the most recent `keep` files.
     ///
     /// # Errors
     /// Returns an error if the directory cannot be read.
     pub fn rotate(telemetry_dir: &Path, keep: usize) -> std::io::Result<()> {
         let mut files: Vec<_> = fs::read_dir(telemetry_dir)?
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| {
                 e.file_name()
                     .to_string_lossy()
@@ -80,7 +89,7 @@ impl FileSpanExporter {
         }
 
         // Sort by name (timestamp-based, so lexicographic = chronological)
-        files.sort_by_key(|e| e.file_name());
+        files.sort_by_key(std::fs::DirEntry::file_name);
 
         // Remove oldest, keep the last `keep`
         let to_remove = files.len() - keep;

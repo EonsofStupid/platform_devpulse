@@ -95,11 +95,11 @@ pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) ->
         context_length: e.context_length,
         size_mb: e.size_bytes / (1024 * 1024),
         vram_estimate_mb: e.vram_estimate_mb,
-        supported_backends: e.supported_backends.iter().map(|b| b.to_string()).collect(),
+        supported_backends: e.supported_backends.iter().map(std::string::ToString::to_string).collect(),
         compatible_capabilities: e
             .compatible_capabilities
             .iter()
-            .map(|c| c.to_string())
+            .map(std::string::ToString::to_string)
             .collect(),
     }
 }
@@ -172,7 +172,7 @@ pub async fn emit_models_status(app: &tauri::AppHandle, loader: &ModelLoaderServ
         .collect();
     let model_infos: Vec<ModelInfo> = registry
         .iter()
-        .map(|e| entry_to_model_info(e))
+        .map(entry_to_model_info)
         .collect();
     crate::commands::emit_status(
         app,
@@ -215,9 +215,9 @@ pub struct HardwareInfo {
     pub gpu_utilization_percent: Option<f32>,
     /// GPU temperature (Celsius).
     pub gpu_temperature_c: Option<f32>,
-    /// DevPulse process RAM usage (MB).
+    /// `DevPulse` process RAM usage (MB).
     pub process_ram_mb: u64,
-    /// DevPulse process VRAM usage (MB).
+    /// `DevPulse` process VRAM usage (MB).
     pub process_vram_mb: u64,
     /// Number of logical CPU threads (hyperthreaded count).
     pub cpu_threads: Option<u32>,
@@ -236,6 +236,12 @@ pub struct HardwareInfo {
 /// String-error variant — retained for the many legacy commands that
 /// return `Result<T, String>`. New load-path commands should prefer
 /// [`get_loader_typed`] which returns a typed `LoadError`.
+///
+/// Stays `async` so all model-layer helpers use the same `.await?`
+/// surface as the awaited service methods (`scan_models`, `load_slot`,
+/// etc.). Forcing a mixed sync/async boundary here would force 25+
+/// call sites to special-case the helper.
+#[allow(clippy::unused_async)]
 pub(crate) async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderService>, String> {
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
@@ -251,6 +257,9 @@ pub(crate) async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<M
 /// or the model loader service is disabled — this keeps the load-path
 /// commands on a single typed error surface end-to-end so the
 /// frontend can pattern-match without special-casing boot state.
+///
+/// See [`get_loader`] for the `async`-kept rationale.
+#[allow(clippy::unused_async)]
 async fn get_loader_typed(
     state: &State<'_, PlatformState>,
 ) -> Result<Arc<ModelLoaderService>, devpulse_engine::platform::LoadError> {
@@ -348,11 +357,11 @@ pub async fn scan_models(
             context_length: e.context_length,
             size_mb: e.size_bytes / (1024 * 1024),
             vram_estimate_mb: e.vram_estimate_mb,
-            supported_backends: e.supported_backends.iter().map(|b| b.to_string()).collect(),
+            supported_backends: e.supported_backends.iter().map(std::string::ToString::to_string).collect(),
             compatible_capabilities: e
                 .compatible_capabilities
                 .iter()
-                .map(|c| c.to_string())
+                .map(std::string::ToString::to_string)
                 .collect(),
         })
         .collect())
@@ -435,7 +444,7 @@ pub struct SlotBudgetEntryInfo {
     pub model_name: String,
     /// Estimated VRAM for this model in MB.
     pub vram_estimate_mb: u64,
-    /// Status: "loaded", "planned", "wont_fit", "unassigned", "shared".
+    /// Status: "loaded", "planned", "`wont_fit`", "unassigned", "shared".
     pub status: String,
     /// Other slot IDs sharing this model instance.
     pub shared_with: Vec<String>,
@@ -496,7 +505,7 @@ pub async fn is_first_run(
     Ok(loader.is_first_run().await)
 }
 
-/// Mark the setup wizard as complete. Persists to LibSQL.
+/// Mark the setup wizard as complete. Persists to `LibSQL`.
 /// Called by the frontend when the user finishes the wizard.
 #[tauri::command]
 #[specta::specta]
@@ -545,9 +554,9 @@ pub async fn assign_model_to_slot(
 /// Load a model into a slot.
 ///
 /// Routing logic:
-///   - GGUF files with LlamaCpp runtime → llama-server sidecar (HTTP)
-///   - SafeTensors with Candle runtime → kernel BackendPool (in-process)
-///   - ONNX/Sherpa → kernel VoicePool (in-process)
+///   - GGUF files with `LlamaCpp` runtime → llama-server sidecar (HTTP)
+///   - `SafeTensors` with Candle runtime → kernel `BackendPool` (in-process)
+///   - ONNX/Sherpa → kernel `VoicePool` (in-process)
 ///
 /// Returns a typed [`LoadError`] covering the full load-path failure
 /// surface — compatibility, filesystem, resources, backend init,
@@ -596,7 +605,7 @@ pub async fn load_slot(
 /// Determine if a slot's assigned model should use the llama-server sidecar.
 ///
 /// Returns true when:
-///   1. The slot has runtime = LlamaCpp (explicit) OR the assigned model is GGUF format
+///   1. The slot has runtime = `LlamaCpp` (explicit) OR the assigned model is GGUF format
 ///   2. The model file exists on disk
 async fn should_use_sidecar(loader: &ModelLoaderService, slot_id: &str) -> bool {
     let slots = loader.list_slots().await;
@@ -614,16 +623,14 @@ async fn should_use_sidecar(loader: &ModelLoaderService, slot_id: &str) -> bool 
     let explicit_llamacpp = slot
         .runtime
         .as_ref()
-        .map(|r| r.to_string() == "LlamaCpp")
-        .unwrap_or(false);
+        .is_some_and(|r| r.to_string() == "LlamaCpp");
 
     // Check if the model is GGUF format
     let registry = loader.get_registry().await;
     let is_gguf = registry
         .iter()
         .find(|e| e.id == model_id)
-        .map(|e| e.format.to_string() == "GGUF")
-        .unwrap_or(false);
+        .is_some_and(|e| e.format.to_string() == "GGUF");
 
     // Route to sidecar if either condition is true
     explicit_llamacpp || is_gguf
@@ -736,7 +743,7 @@ pub async fn unload_slot(
 /// Atomically swap the model on a slot (unload → reassign → load).
 ///
 /// Blocks inference to the slot for the entire duration. The frontend
-/// should show SwapOverlay while this runs — events are emitted via
+/// should show `SwapOverlay` while this runs — events are emitted via
 /// `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
 #[tauri::command]
 #[specta::specta]
@@ -754,7 +761,7 @@ pub async fn swap_slot_model(
     Ok(())
 }
 
-/// Start downloading a model from HuggingFace.
+/// Start downloading a model from `HuggingFace`.
 /// Returns the download ID for progress tracking.
 #[tauri::command]
 #[specta::specta]
@@ -784,7 +791,7 @@ pub async fn cancel_download(
         .map_err(|e| e.to_string())
 }
 
-/// Store or replace the HuggingFace access token. Empty string clears it.
+/// Store or replace the `HuggingFace` access token. Empty string clears it.
 #[tauri::command]
 #[specta::specta]
 pub async fn set_hf_token(
@@ -817,7 +824,7 @@ pub async fn clear_hf_token(state: State<'_, PlatformState>) -> Result<(), Strin
 }
 
 /// Return the last `n` characters of the stored HF token, or `null`
-/// if no token is stored. Used by the HfTokenModal masked-pill display
+/// if no token is stored. Used by the `HfTokenModal` masked-pill display
 /// so the UI can render `"••••••••hf_xxxxx"` without the plaintext
 /// ever landing in frontend state.
 #[tauri::command]
@@ -1047,13 +1054,13 @@ pub async fn upload_voice_sample(
     let ext = src
         .extension()
         .and_then(|e| e.to_str())
-        .map(|e| e.to_lowercase())
+        .map(str::to_lowercase)
         .unwrap_or_default();
     if !["mp3", "wav", "flac"].contains(&ext.as_str()) {
         return Err(format!("Unsupported audio format: .{ext} (accepted: mp3, wav, flac)"));
     }
 
-    let dest_dir = loader.voice_custom_dir().await;
+    let dest_dir = loader.voice_custom_dir();
     std::fs::create_dir_all(&dest_dir).map_err(|e| format!("Failed to create voice dir: {e}"))?;
 
     // Sanitize `name` for filesystem safety — keep alnum, dash, underscore.
@@ -1141,7 +1148,7 @@ pub async fn list_kokoro_voices(
         .collect())
 }
 
-/// Search result from HuggingFace.
+/// Search result from `HuggingFace`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HfSearchResultInfo {
     /// Repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
@@ -1150,9 +1157,9 @@ pub struct HfSearchResultInfo {
     pub author: String,
     /// Model display name.
     pub model_name: String,
-    /// Total download count on HuggingFace.
+    /// Total download count on `HuggingFace`.
     pub downloads: u64,
-    /// Like count on HuggingFace.
+    /// Like count on `HuggingFace`.
     pub likes: u64,
     /// Pipeline tag (e.g. `"text-generation"`).
     pub pipeline_tag: Option<String>,
@@ -1164,7 +1171,7 @@ pub struct HfSearchResultInfo {
     pub last_modified: String,
 }
 
-/// A GGUF file in a HuggingFace repo.
+/// A GGUF file in a `HuggingFace` repo.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HfFileInfoItem {
     /// Filename (e.g. `"Qwen3-14B-Q4_K_M.gguf"`).
@@ -1212,7 +1219,7 @@ pub async fn delete_model(
     Ok(())
 }
 
-/// Search HuggingFace for GGUF models.
+/// Search `HuggingFace` for GGUF models.
 #[tauri::command]
 #[specta::specta]
 pub async fn search_huggingface(
@@ -1374,7 +1381,7 @@ pub async fn complete_model_setup(
     // Verify: chat.brain MUST have a model assigned
     let slots_after = loader.list_slots().await;
     let brain = slots_after.iter().find(|s| s.id == "chat.brain");
-    let brain_assigned = brain.map(|s| s.assigned_model.is_some()).unwrap_or(false);
+    let brain_assigned = brain.is_some_and(|s| s.assigned_model.is_some());
 
     let assigned_count = slots_after.iter().filter(|s| s.assigned_model.is_some()).count();
     let registry_count = loader.get_registry().await.len();
@@ -1482,39 +1489,36 @@ pub async fn import_local_model(
     }
 
     let mode = import_mode.as_deref().unwrap_or("copy");
-    match mode {
-        "symlink" => {
-            #[cfg(target_os = "windows")]
-            {
-                std::os::windows::fs::symlink_file(&source_path, &dest_path)
-                    .map_err(|e| format!(
-                        "Failed to create symlink (Windows may require administrator privileges): {e}"
-                    ))?;
-            }
-            #[cfg(not(target_os = "windows"))]
-            {
-                std::os::unix::fs::symlink(&source_path, &dest_path)
-                    .map_err(|e| format!("Failed to create symlink: {e}"))?;
-            }
-            tracing::info!(
-                source = %source_path.display(),
-                dest = %dest_path.display(),
-                mode = "symlink",
-                subdir = subdir,
-                "Created symlink for model"
-            );
+    if mode == "symlink" {
+        #[cfg(target_os = "windows")]
+        {
+            std::os::windows::fs::symlink_file(&source_path, &dest_path)
+                .map_err(|e| format!(
+                    "Failed to create symlink (Windows may require administrator privileges): {e}"
+                ))?;
         }
-        _ => {
-            std::fs::copy(&source_path, &dest_path)
-                .map_err(|e| format!("Failed to copy model: {e}"))?;
-            tracing::info!(
-                source = %source_path.display(),
-                dest = %dest_path.display(),
-                mode = "copy",
-                subdir = subdir,
-                "Copied model file"
-            );
+        #[cfg(not(target_os = "windows"))]
+        {
+            std::os::unix::fs::symlink(&source_path, &dest_path)
+                .map_err(|e| format!("Failed to create symlink: {e}"))?;
         }
+        tracing::info!(
+            source = %source_path.display(),
+            dest = %dest_path.display(),
+            mode = "symlink",
+            subdir = subdir,
+            "Created symlink for model"
+        );
+    } else {
+        std::fs::copy(&source_path, &dest_path)
+            .map_err(|e| format!("Failed to copy model: {e}"))?;
+        tracing::info!(
+            source = %source_path.display(),
+            dest = %dest_path.display(),
+            mode = "copy",
+            subdir = subdir,
+            "Copied model file"
+        );
     }
 
     // Re-scan registry to discover the new model
@@ -1595,7 +1599,7 @@ pub async fn create_dev_profile(
 ///
 /// Routing:
 ///   - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
-///   - SafeTensors models loaded via Candle → kernel BackendPool
+///   - `SafeTensors` models loaded via Candle → kernel `BackendPool`
 ///   - Cloud provider → `cloud_chat` (if configured)
 ///
 /// Streams tokens via Tauri events (`inference-token` for Candle,

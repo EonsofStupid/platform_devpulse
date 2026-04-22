@@ -28,7 +28,7 @@ use devpulse_engine::platform::Platform;
 /// returning `Option<Arc<Platform>>`. Commands must handle the `None`
 /// case gracefully (boot still in progress).
 ///
-/// DevForge REH lifecycle is now owned by `Platform::devforge()` (the
+/// `DevForge` REH lifecycle is now owned by `Platform::devforge()` (the
 /// engine-level service). No more separate `reh` field — one pipeline.
 ///
 /// `devforge_paths` is computed once at startup from the resolved data
@@ -38,9 +38,9 @@ pub struct PlatformState {
     /// Platform engine (owns all services, bridges to clyffy kernel).
     /// `None` while boot task is running, `Some` after completion.
     /// Readers: `state.platform.load_full()` — lock-free.
-    /// Writer: boot_task stores exactly once via `state.platform.store(Some(Arc::new(p)))`.
+    /// Writer: `boot_task` stores exactly once via `state.platform.store(Some(Arc::new(p)))`.
     pub platform: ArcSwapOption<Platform>,
-    /// DevForge directory layout — immutable, safe to read from anywhere.
+    /// `DevForge` directory layout — immutable, safe to read from anywhere.
     pub devforge_paths: DevforgePaths,
 }
 
@@ -109,7 +109,7 @@ pub struct BootSnapshot {
 
 /// Accumulates boot events so the frontend can catch up at any time.
 ///
-/// Uses `Arc<Mutex<>>` internally (std::sync — short sync-only scopes,
+/// Uses `Arc<Mutex<>>` internally (`std::sync` — short sync-only scopes,
 /// never held across await).
 pub struct BootStateTracker {
     inner: Arc<Mutex<BootSnapshot>>,
@@ -177,7 +177,7 @@ impl BootStateTracker {
 
     /// Store model readiness so late-mounting frontends can catch up via
     /// `get_boot_state` instead of relying on the live `platform:models-status`
-    /// event which fires before the SvelteKit listener mounts in dev mode.
+    /// event which fires before the `SvelteKit` listener mounts in dev mode.
     ///
     /// # Panics
     /// Panics if the internal mutex is poisoned.

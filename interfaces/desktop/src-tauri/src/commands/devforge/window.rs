@@ -1,4 +1,4 @@
-//! Dedicated DevForge `WebviewWindow` — a full second Tauri window that
+//! Dedicated `DevForge` `WebviewWindow` — a full second Tauri window that
 //! loads the REH web server's connection URL directly.
 //!
 //! # Why a dedicated window, not an embedded iframe
@@ -7,11 +7,11 @@
 //! fighting Svelte routing, window chrome, and focus propagation for no
 //! real benefit. A standalone `WebviewWindow` gives the user a real OS
 //! window they can move, resize, snap, and Alt-Tab to like any other app,
-//! while keeping DevForge's lifetime bound to the DevPulse parent process.
+//! while keeping `DevForge`'s lifetime bound to the `DevPulse` parent process.
 //!
 //! # Lifecycle (lazy, user-initiated)
 //!
-//! 1. Platform boot does **not** start DevForge. The Node REH server only
+//! 1. Platform boot does **not** start `DevForge`. The Node REH server only
 //!    spawns on the first user open, keeping cold boot fast.
 //! 2. The frontend invokes [`open_devforge_window`] (from any surface —
 //!    the `/devforge` route button, a toolbar action, a keyboard shortcut).
@@ -20,8 +20,8 @@
 //!    the connection URL (`http://127.0.0.1:<port>/?tkn=<token>`) and
 //!    opens or focuses a `WebviewWindow` labeled `"devforge"` pointed at
 //!    that external URL.
-//! 4. The window is parented to the main DevPulse window so closing the
-//!    app tears DevForge down with it.
+//! 4. The window is parented to the main `DevPulse` window so closing the
+//!    app tears `DevForge` down with it.
 //!
 //! # Why external URL is fine
 //!
@@ -35,18 +35,18 @@ use crate::commands::devforge::types::DevforgeBootstrapStatus;
 use crate::state::PlatformState;
 use tauri::{AppHandle, Manager, State, Url, WebviewUrl, WebviewWindowBuilder};
 
-/// Tauri window label for the DevForge window. Must be stable — callers
+/// Tauri window label for the `DevForge` window. Must be stable — callers
 /// use this to focus or close an already-open window.
 pub const DEVFORGE_WINDOW_LABEL: &str = "devforge";
 
-/// Default window size. DevForge runs a full IDE, so we want a generous
-/// default instead of the cramped cockpit sizes used for Chat / ModelLoader.
+/// Default window size. `DevForge` runs a full IDE, so we want a generous
+/// default instead of the cramped cockpit sizes used for Chat / `ModelLoader`.
 const DEFAULT_WIDTH: f64 = 1400.0;
 const DEFAULT_HEIGHT: f64 = 900.0;
 const MIN_WIDTH: f64 = 960.0;
 const MIN_HEIGHT: f64 = 600.0;
 
-/// Open (or focus) the dedicated DevForge window.
+/// Open (or focus) the dedicated `DevForge` window.
 ///
 /// First call spawns the Node REH child process via
 /// `Platform::ensure_devforge_started()` — this is the **only** path that
@@ -57,13 +57,13 @@ const MIN_HEIGHT: f64 = 600.0;
 ///
 /// # Errors
 /// - Platform hasn't finished booting yet (user should retry)
-/// - DevForge server tree is missing — user needs to run
+/// - `DevForge` server tree is missing — user needs to run
 ///   `cargo xtask fetch-devforge` or install the bundled release
 /// - Node binary missing from the server tree
 /// - Health poll fails within the service's startup timeout
 /// - Connection URL fails to parse as a valid `Url`
 /// - Tauri fails to create the `WebviewWindow`
-/// - Focusing an already-open DevForge window fails
+/// - Focusing an already-open `DevForge` window fails
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -151,7 +151,7 @@ pub async fn open_devforge_window(
     })
 }
 
-/// Close the DevForge window, if one is open. Idempotent.
+/// Close the `DevForge` window, if one is open. Idempotent.
 ///
 /// Does **not** stop the REH server — that stays alive under
 /// `PlatformState.reh` so a subsequent [`open_devforge_window`] call

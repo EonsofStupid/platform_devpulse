@@ -86,6 +86,7 @@ pub fn emit_status<T: Serialize>(
 // ── Domain Modules ──────────────────────────────────────────────
 
 pub mod chat;
+pub mod claude;
 pub mod cloud;
 pub mod credentials;
 pub mod devclyffy;

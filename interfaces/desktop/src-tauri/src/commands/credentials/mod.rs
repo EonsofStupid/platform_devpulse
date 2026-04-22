@@ -24,7 +24,7 @@ const SERVICE_NAME: &str = "devpulse";
 pub enum ApiProvider {
     /// Anthropic (Claude) API.
     Anthropic,
-    /// OpenAI (GPT) API.
+    /// `OpenAI` (GPT) API.
     OpenAI,
     /// Google (Gemini) API.
     Google,
@@ -49,7 +49,7 @@ impl ApiProvider {
         }
     }
 
-    /// Adapter name for libSQL api_keys table.
+    /// Adapter name for libSQL `api_keys` table.
     fn adapter_name(&self) -> &str {
         match self {
             ApiProvider::Anthropic => "anthropic",
@@ -225,7 +225,7 @@ pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, String> {
             Err(e) => return Err(format!("Keyring error for {name}: {e}")),
         };
         statuses.push(ApiKeyStatus {
-            provider: name.to_string(),
+            provider: (*name).to_string(),
             stored,
             masked_preview: masked,
         });
