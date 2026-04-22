@@ -147,6 +147,7 @@ pub fn run() {
         commands::sys::logger::log,
         commands::sys::action_log::tail_action_log,
         commands::sys::action_log::open_action_logs_folder,
+        commands::sys::scoped_log::query_scoped_log,
         commands::sys::boot::get_boot_state,
         commands::sys::metrics::get_process_metrics,
         commands::sys::telemetry::get_lane_config,

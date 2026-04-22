@@ -20,6 +20,7 @@ import {
 	Key,
 	Plug,
 	PlugZap,
+	RefreshCw,
 	Terminal,
 	Wrench,
 	XCircle,
@@ -35,6 +36,7 @@ import {
 	type ClaudeTarget,
 	commands,
 	type McpStatus,
+	type ScopedLogEntry,
 } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 
@@ -44,6 +46,18 @@ let lastError = $state<string | null>(null);
 let refreshing = $state(false);
 let pendingTarget = $state<ClaudeTarget | null>(null);
 let lastPolledAt = $state<number>(0);
+
+// Scoped log tail state — Logs tab
+let logEntries = $state<ScopedLogEntry[]>([]);
+let logQueryError = $state<string | null>(null);
+let logLoading = $state(false);
+const LOG_TARGETS = [
+	{ value: "devtools.claude", label: "Devtool UI" },
+	{ value: "claude", label: "Engine — Claude" },
+	{ value: "mcp_stdio_server", label: "MCP subprocess" },
+	{ value: "", label: "All targets" },
+] as const;
+let selectedLogTarget = $state<string>("devtools.claude");
 
 // ── Derived ────────────────────────────────────────────
 const available = $derived(mcpStatus?.available === true);
@@ -141,6 +155,41 @@ async function handleUnregister(target: ClaudeTarget): Promise<void> {
 	}
 }
 
+function levelColor(level: string): string {
+	switch (level) {
+		case "ERROR":
+			return "var(--signal-error)";
+		case "WARN":
+			return "var(--signal-warning)";
+		case "INFO":
+			return "var(--signal-success)";
+		case "DEBUG":
+			return "var(--accent-purple-main)";
+		default:
+			return "var(--text-muted)";
+	}
+}
+
+async function fetchScopedLog(): Promise<void> {
+	logLoading = true;
+	logQueryError = null;
+	try {
+		const result = await commands.queryScopedLog(selectedLogTarget, 200);
+		if (result.status === "ok") {
+			logEntries = result.data;
+		} else {
+			logQueryError = result.error;
+			logError("devtools.claude", `queryScopedLog failed: ${result.error}`);
+		}
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logQueryError = msg;
+		logError("devtools.claude", `queryScopedLog threw: ${msg}`);
+	} finally {
+		logLoading = false;
+	}
+}
+
 $effect(() => {
 	void fetchStatus();
 	const interval = setInterval(() => {
@@ -149,6 +198,12 @@ $effect(() => {
 	return () => {
 		clearInterval(interval);
 	};
+});
+
+// Re-fetch logs whenever the target changes; first run fires on mount.
+$effect(() => {
+	const _ = selectedLogTarget;
+	void fetchScopedLog();
 });
 </script>
 
@@ -367,12 +422,74 @@ $effect(() => {
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-22): Claude-scoped log filter not yet wired.
-			Session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
-			filter by <code>component=devtools.claude</code> for UI events or
-			<code>target=mcp_stdio_server</code> for the rmcp subprocess.
-		</Text>
+		<div class="flex flex-col gap-3 h-full">
+			<div class="flex items-center gap-2 flex-wrap">
+				<Text size="xs" color="muted">Target:</Text>
+				{#each LOG_TARGETS as opt (opt.value)}
+					<button
+						type="button"
+						class="rounded-md px-2 py-1 text-xs transition-colors"
+						style={selectedLogTarget === opt.value
+							? "background: var(--accent-teal-fill); color: var(--accent-teal-main); border: 1px solid var(--accent-teal-main);"
+							: "background: var(--surface-base); color: var(--text-muted); border: 1px solid var(--border-subtle);"}
+						onclick={() => {
+							selectedLogTarget = opt.value;
+						}}
+					>
+						{opt.label}
+					</button>
+				{/each}
+				<div class="ml-auto flex items-center gap-2">
+					<Text size="xs" color="muted">{logEntries.length} entries</Text>
+					<Button
+						preset="button-ghost"
+						size="sm"
+						onclick={fetchScopedLog}
+						disabled={logLoading}
+					>
+						{#if logLoading}
+							<Spinner size="xs" />
+							Loading…
+						{:else}
+							<RefreshCw size={12} />
+							Refresh
+						{/if}
+					</Button>
+				</div>
+			</div>
+
+			{#if logQueryError}
+				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
+					<Text size="xs">{logQueryError}</Text>
+				</div>
+			{/if}
+
+			{#if logEntries.length === 0 && !logLoading}
+				<Text size="sm" color="muted">
+					No log entries match the current filter. Activity in the
+					Status / Actions tabs will appear here.
+				</Text>
+			{:else}
+				<div
+					class="flex-1 overflow-y-auto rounded-lg p-2 font-mono text-[11px] leading-relaxed"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					{#each logEntries as entry, i (i)}
+						<div class="flex gap-2 py-0.5 border-b border-[var(--border-subtle)] last:border-b-0">
+							<span style="color: var(--text-muted);">{entry.timestamp.slice(11, 19)}</span>
+							<span style="color: {levelColor(entry.level)}; min-width: 3.5rem;">{entry.level}</span>
+							<span style="color: var(--accent-teal-main); min-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{entry.target}</span>
+							<span style="color: var(--text-primary); flex: 1; word-break: break-word;">{entry.message}</span>
+						</div>
+					{/each}
+				</div>
+			{/if}
+
+			<Text size="xs" color="muted">
+				Reads the most recent <span class="font-mono">.userdata/logs/session-*.jsonl</span>
+				— last 200 lines matching the selected target prefix.
+			</Text>
+		</div>
 	{/snippet}
 
 	{#snippet actions()}

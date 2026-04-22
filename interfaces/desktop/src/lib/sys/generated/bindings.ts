@@ -211,6 +211,27 @@ async openActionLogsFolder() : Promise<Result<null, string>> {
 }
 },
 /**
+ * Read the current session JSONL file and return the last `limit` lines
+ * whose `target` starts with `target_prefix`.
+ * 
+ * Returns newest-first. If `target_prefix` is empty, returns every line.
+ * Missing log directory or no session file = empty result, not an error
+ * (the dev may have just booted).
+ * 
+ * # Errors
+ * - Data dir resolution failed.
+ * - Log directory listing failed (IO error).
+ * - Most-recent session file could not be read.
+ */
+async queryScopedLog(targetPrefix: string, limit: number) : Promise<Result<ScopedLogEntry[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("query_scoped_log", { targetPrefix, limit }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Return the current boot state snapshot.
  * 
  * Called by the frontend on mount before registering live event listeners.
@@ -2157,12 +2178,17 @@ async activateVoiceProfile(profileId: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Store an API key in the platform keychain AND sync to libSQL.
+ * Store an API key in the OS keychain and mirror a masked hint to libSQL.
  * 
- * Keychain is the primary secure store. libSQL gets a masked hint
- * so the engine can check key availability without accessing the keychain.
+ * Idempotent — re-storing for the same provider overwrites both halves.
+ * The libSQL mirror is best-effort; failure there logs a warning but
+ * does not roll back the keychain write (keychain is the source of truth).
+ * 
+ * # Errors
+ * - Provider has no API-key transport (e.g. local Ollama, subscription path).
+ * - Keychain write failed.
  */
-async storeApiKey(provider: ApiProvider, key: string) : Promise<Result<null, string>> {
+async storeApiKey(provider: ProviderId, key: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("store_api_key", { provider, key }) };
 } catch (e) {
@@ -2171,10 +2197,18 @@ async storeApiKey(provider: ApiProvider, key: string) : Promise<Result<null, str
 }
 },
 /**
- * Retrieve an API key from the platform keychain.
- * Returns the actual key — used by backend services for escalation, NOT sent to frontend display.
+ * Retrieve an API key from the OS keychain.
+ * 
+ * Backend-only consumer — never call this and pass the result to the
+ * frontend. Provider clients (Anthropic / OpenAI / etc) call this to
+ * load a key right before issuing a request.
+ * 
+ * Returns `Ok(None)` when the key has never been stored.
+ * 
+ * # Errors
+ * Keychain access failure.
  */
-async getApiKey(provider: ApiProvider) : Promise<Result<string | null, string>> {
+async getApiKey(provider: ProviderId) : Promise<Result<string | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_api_key", { provider }) };
 } catch (e) {
@@ -2183,9 +2217,14 @@ async getApiKey(provider: ApiProvider) : Promise<Result<string | null, string>> 
 }
 },
 /**
- * Delete an API key from the platform keychain AND libSQL.
+ * Delete an API key from the OS keychain and the libSQL mirror.
+ * 
+ * Idempotent — deleting a non-existent key is success.
+ * 
+ * # Errors
+ * Keychain delete failure (other than `NoEntry`).
  */
-async deleteApiKey(provider: ApiProvider) : Promise<Result<null, string>> {
+async deleteApiKey(provider: ProviderId) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("delete_api_key", { provider }) };
 } catch (e) {
@@ -2194,8 +2233,11 @@ async deleteApiKey(provider: ApiProvider) : Promise<Result<null, string>> {
 }
 },
 /**
- * Check which API keys are stored (without returning the keys themselves).
- * Safe for frontend display — only shows masked previews.
+ * Status snapshot for every provider in the registry that takes an API key.
+ * 
+ * Skips local-only providers (Ollama, LM Studio, vLLM) and the subscription
+ * path — they don't have API keys, so showing them with `stored: false`
+ * would just confuse the operator.
  */
 async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], string>> {
     try {
@@ -2446,37 +2488,31 @@ export type AlternativeKind =
  */
 "upgrade-build"
 /**
- * Status of a stored API key (NEVER returns the actual key to frontend).
+ * Stored-key status for a single provider — what the devtool renders.
+ * 
+ * Never includes the actual key. The masked preview is built from the
+ * first 8 characters so common prefixes (`sk-`, `sk-ant-`, `gsk_`) are
+ * recognizable without revealing entropy.
  */
 export type ApiKeyStatus = { 
 /**
- * Provider display name.
+ * Stable wire id from the SSOT registry.
  */
-provider: string; 
+provider: ProviderId; 
 /**
- * Whether a key is stored for this provider.
+ * Vendor display name from the SSOT registry — copied here so the
+ * frontend can render a row without a second registry lookup.
+ */
+displayName: string; 
+/**
+ * `true` when a key is in the OS keychain.
  */
 stored: boolean; 
 /**
- * Masked preview for display (e.g. "sk-ant-a3...****"). None if not stored.
+ * First-8-char-and-mask preview, e.g. `sk-ant-a...****`. `None`
+ * when no key is stored.
  */
-masked_preview: string | null }
-/**
- * Supported API providers for voice escalation and Council routing.
- */
-export type ApiProvider = 
-/**
- * Anthropic (Claude) API.
- */
-"Anthropic" | 
-/**
- * `OpenAI` (GPT) API.
- */
-"OpenAI" | 
-/**
- * Google (Gemini) API.
- */
-"Google"
+maskedPreview: string | null }
 /**
  * Architecture family. Drives grouping in the frontend matrix view
  * and lets the resolver suggest same-family alternatives.
@@ -5170,6 +5206,80 @@ created_at: number;
  */
 last_accessed: number }
 /**
+ * Stable wire identifier for a provider.
+ * 
+ * Used in config files, telemetry, devtool URLs, lane router selection.
+ * Renaming a variant is a breaking change — bump the engine major version.
+ */
+export type ProviderId = 
+/**
+ * Anthropic Claude via the official REST API (API key billing).
+ */
+"anthropic-api" | 
+/**
+ * Anthropic Claude via Claude Code / Claude Desktop subprocess MCP.
+ * Dev-only — release builds hide this and the lane router refuses it
+ * unless the operator has prior approval from Anthropic per the Agent
+ * SDK Terms of Service.
+ */
+"anthropic-subscription" | 
+/**
+ * OpenAI (api.openai.com).
+ */
+"open-ai" | 
+/**
+ * Google Gemini (generativelanguage.googleapis.com).
+ */
+"google-gemini" | 
+/**
+ * Mistral la Plateforme (api.mistral.ai).
+ */
+"mistral" | 
+/**
+ * Cohere (api.cohere.com).
+ */
+"cohere" | 
+/**
+ * xAI Grok (api.x.ai).
+ */
+"xai" | 
+/**
+ * DeepSeek (api.deepseek.com).
+ */
+"deep-seek" | 
+/**
+ * Groq (api.groq.com).
+ */
+"groq" | 
+/**
+ * Together AI (api.together.xyz).
+ */
+"together" | 
+/**
+ * Fireworks AI (api.fireworks.ai).
+ */
+"fireworks" | 
+/**
+ * Replicate (api.replicate.com).
+ */
+"replicate" | 
+/**
+ * Hugging Face Inference Endpoints.
+ */
+"hugging-face" | 
+/**
+ * Ollama running locally (localhost:11434).
+ */
+"ollama" | 
+/**
+ * LM Studio running locally (localhost:1234).
+ */
+"lm-studio" | 
+/**
+ * vLLM running locally or on the LAN.
+ */
+"vllm"
+/**
  * Runtime status of the REH web server.
  * 
  * Returned from `spawn_reh_server` and `get_reh_status`. All optional
@@ -5552,6 +5662,32 @@ subtitle: string;
  * Alt text for the animated Clyffy mascot shown during the scanning state.
  */
 mascot_alt: string }
+/**
+ * One parsed JSONL log line, projected to the fields the devtool renders.
+ * 
+ * Skips spans/fields/file/line — the JSONL has them but the devtool's
+ * scoped-log panel only needs timestamp + level + target + message. A
+ * future "log details" drawer can re-parse the raw JSON if needed.
+ */
+export type ScopedLogEntry = { 
+/**
+ * ISO-8601 timestamp from the JSONL `timestamp` field.
+ */
+timestamp: string; 
+/**
+ * Log level: `TRACE` / `DEBUG` / `INFO` / `WARN` / `ERROR`.
+ */
+level: string; 
+/**
+ * Tracing target — e.g. `devtools.claude`, `mcp_stdio_server`,
+ * `claude::mcp::tools::query_libsql`.
+ */
+target: string; 
+/**
+ * Human-readable message from the JSONL `fields.message` field.
+ * Empty string if the entry was a span event without a message.
+ */
+message: string }
 /**
  * Lifecycle state of a platform service.
  * 
