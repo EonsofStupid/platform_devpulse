@@ -37,9 +37,11 @@ onMount(() => {
 			logError("layout", `download-bridge FAILED to attach: ${e}`);
 		});
 
-	// Hardware telemetry is NOT attached on mount (owner directive 2026-04-20 —
-	// no auto-load). Routes that need live hardware metrics must call
-	// `hardwareState.ensureListening(reason)` from their own onMount.
+	// Hardware telemetry is ref-counted via `createTauriEvent("model:hardware")`.
+	// Components that need live metrics call `hardwareState.subscribe(reason)`
+	// inside an `$effect` block — the listener attaches on the first subscriber
+	// and detaches when the last one drops. Honors the 2026-04-20 no-auto-load
+	// directive: no listener exists unless a mounted component explicitly asks.
 	platformState
 		.init()
 		.then(() => {

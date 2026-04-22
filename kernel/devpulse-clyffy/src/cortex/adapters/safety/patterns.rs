@@ -84,7 +84,6 @@ pub const PATTERNS: &[VulnPattern] = &[
             (unsafe_block) @match
         "#,
     },
-
     // ── TypeScript / JavaScript ─────────────────────────────────
     VulnPattern {
         id: "G018-TS-001",
@@ -132,7 +131,6 @@ pub const PATTERNS: &[VulnPattern] = &[
               (#eq? @prop "innerHTML")) @match
         "#,
     },
-
     // ── Python ──────────────────────────────────────────────────
     VulnPattern {
         id: "G018-PY-001",
@@ -177,7 +175,6 @@ pub const PATTERNS: &[VulnPattern] = &[
               (#eq? @fn "loads")) @match
         "#,
     },
-
     // ── Go ──────────────────────────────────────────────────────
     VulnPattern {
         id: "G018-GO-001",
@@ -210,7 +207,6 @@ pub const PATTERNS: &[VulnPattern] = &[
                 (#match? @sql "(SELECT|INSERT|UPDATE|DELETE)"))) @match
         "#,
     },
-
     // ── Java ────────────────────────────────────────────────────
     VulnPattern {
         id: "G018-JAVA-001",
@@ -242,7 +238,6 @@ pub const PATTERNS: &[VulnPattern] = &[
                   operator: "+"))) @match
         "#,
     },
-
     // ── C ───────────────────────────────────────────────────────
     VulnPattern {
         id: "G018-C-001",

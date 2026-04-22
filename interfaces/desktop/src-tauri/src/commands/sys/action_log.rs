@@ -1,10 +1,10 @@
 //! Action log tail + open folder — reads `.userdata/logs/action-YYYY-MM-DD.jsonl`.
 
+use crate::paths;
 use serde::Serialize;
 use specta::Type;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
-use crate::paths;
 
 /// Incremental tail of today's action JSONL file.
 #[derive(Serialize, Type)]
@@ -43,8 +43,7 @@ pub fn tail_action_log(app: tauri::AppHandle, from_offset: u64) -> Result<Action
     }
 
     let mut file = std::fs::File::open(&path).map_err(|e| e.to_string())?;
-    file
-        .seek(SeekFrom::Start(from_offset))
+    file.seek(SeekFrom::Start(from_offset))
         .map_err(|e| e.to_string())?;
     let mut buf = Vec::new();
     file.read_to_end(&mut buf).map_err(|e| e.to_string())?;

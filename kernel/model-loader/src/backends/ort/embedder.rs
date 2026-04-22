@@ -94,10 +94,7 @@ impl EmbeddingBackend for Qwen3Embedder {
                 let model = find_onnx_file(path)?;
                 let tok = path.join("tokenizer.json");
                 if !tok.exists() {
-                    anyhow::bail!(
-                        "tokenizer.json not found in {}",
-                        path.display()
-                    );
+                    anyhow::bail!("tokenizer.json not found in {}", path.display());
                 }
                 (model, tok)
             } else {
@@ -107,10 +104,7 @@ impl EmbeddingBackend for Qwen3Embedder {
                 })?;
                 let tok = parent.join("tokenizer.json");
                 if !tok.exists() {
-                    anyhow::bail!(
-                        "tokenizer.json not found next to {}",
-                        path.display()
-                    );
+                    anyhow::bail!("tokenizer.json not found next to {}", path.display());
                 }
                 (path.to_path_buf(), tok)
             };
@@ -128,7 +122,8 @@ impl EmbeddingBackend for Qwen3Embedder {
             *self
                 .session
                 .lock()
-                .map_err(|e| anyhow::anyhow!("Embedder session mutex poisoned: {e}"))? = Some(session);
+                .map_err(|e| anyhow::anyhow!("Embedder session mutex poisoned: {e}"))? =
+                Some(session);
             self.tokenizer = Some(tokenizer);
             self.model_path = Some(model_file.clone());
             self.loaded = true;
@@ -227,8 +222,9 @@ impl EmbeddingBackend for Qwen3Embedder {
 
             let v_ids = ort::value::Value::from_array(input_ids)
                 .map_err(|e| anyhow::anyhow!("Failed to create ort Value for input_ids: {e}"))?;
-            let v_mask = ort::value::Value::from_array(attention_mask)
-                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for attention_mask: {e}"))?;
+            let v_mask = ort::value::Value::from_array(attention_mask).map_err(|e| {
+                anyhow::anyhow!("Failed to create ort Value for attention_mask: {e}")
+            })?;
 
             // Most embedder ONNX exports use input_ids + attention_mask. Some also
             // take token_type_ids — we pass zeros if present by using named inputs.

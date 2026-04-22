@@ -125,9 +125,7 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
                 "bin" => {
                     // Whisper GGML `.bin` format — only register if filename
                     // matches a known Whisper pattern (e.g. `ggml-small.bin`).
-                    let filename = path.file_name()
-                        .and_then(|f| f.to_str())
-                        .unwrap_or("");
+                    let filename = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
                     if filename.starts_with("ggml-") && filename.contains("whisper")
                         || filename.starts_with("ggml-tiny")
                         || filename.starts_with("ggml-base")
@@ -157,10 +155,7 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
 /// Discover a single model file and set its source to HuggingFace.
 /// Used after downloading a model from HF. Handles GGUF, SafeTensors, and ONNX.
 pub fn discover_single(path: &Path, repo_id: &str) -> anyhow::Result<ModelRegistryEntry> {
-    let ext = path
-        .extension()
-        .and_then(|e| e.to_str())
-        .unwrap_or("");
+    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
     let mut entry = match ext {
         "gguf" => parse_gguf_entry(path)?,
@@ -254,7 +249,9 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
 
 /// Extract metadata from parsed GGUF content.
 #[cfg(feature = "candle-backend")]
-fn extract_metadata(content: &candle_core::quantized::gguf_file::Content) -> anyhow::Result<ModelMetadata> {
+fn extract_metadata(
+    content: &candle_core::quantized::gguf_file::Content,
+) -> anyhow::Result<ModelMetadata> {
     use candle_core::quantized::gguf_file::Value;
 
     let get_str = |key: &str| -> Option<String> {
@@ -274,16 +271,14 @@ fn extract_metadata(content: &candle_core::quantized::gguf_file::Content) -> any
         })
     };
 
-    let architecture = get_str("general.architecture")
-        .unwrap_or_else(|| "unknown".to_string());
+    let architecture = get_str("general.architecture").unwrap_or_else(|| "unknown".to_string());
 
     let context_key = format!("{architecture}.context_length");
     let context_length = get_u64(&context_key)
         .or_else(|| get_u64("general.context_length"))
         .unwrap_or(2048) as usize;
 
-    let vocab_size = get_u64(&format!("{architecture}.vocab_size"))
-        .unwrap_or(0) as usize;
+    let vocab_size = get_u64(&format!("{architecture}.vocab_size")).unwrap_or(0) as usize;
 
     let parameter_count = get_u64("general.parameter_count");
 
@@ -313,7 +308,11 @@ pub fn estimate_vram_mb(metadata: &ModelMetadata, file_size_bytes: u64) -> u64 {
         _ => 1.25,
     };
 
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss, clippy::cast_precision_loss)]
+    #[allow(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        clippy::cast_precision_loss
+    )]
     let estimate = (file_mb as f64 * overhead) as u64;
 
     // Minimum 100MB — even tiny models need some overhead
@@ -326,8 +325,7 @@ pub fn infer_capabilities(architecture: &str) -> Vec<ModelCapability> {
     match architecture {
         // Text generation architectures
         "llama" | "mistral" | "mixtral" | "qwen2" | "qwen3" | "phi2" | "phi3" | "gemma"
-        | "gemma2" | "stablelm" | "starcoder" | "gpt2" | "gptneox" | "falcon" | "mpt"
-        | "bloom" => {
+        | "gemma2" | "stablelm" | "starcoder" | "gpt2" | "gptneox" | "falcon" | "mpt" | "bloom" => {
             vec![ModelCapability::TextGeneration]
         }
         // Embedding architectures
@@ -376,10 +374,9 @@ fn infer_quant_from_filename(filename: &str) -> Option<String> {
 
     // Common GGUF quant patterns
     let patterns = [
-        "q2_k", "q3_k_s", "q3_k_m", "q3_k_l", "q4_0", "q4_1", "q4_k_s", "q4_k_m",
-        "q5_0", "q5_1", "q5_k_s", "q5_k_m", "q6_k", "q8_0", "f16", "f32",
-        "iq1_s", "iq1_m", "iq2_xxs", "iq2_xs", "iq2_s", "iq2_m", "iq3_xxs", "iq3_xs",
-        "iq3_s", "iq3_m", "iq4_xs", "iq4_nl",
+        "q2_k", "q3_k_s", "q3_k_m", "q3_k_l", "q4_0", "q4_1", "q4_k_s", "q4_k_m", "q5_0", "q5_1",
+        "q5_k_s", "q5_k_m", "q6_k", "q8_0", "f16", "f32", "iq1_s", "iq1_m", "iq2_xxs", "iq2_xs",
+        "iq2_s", "iq2_m", "iq3_xxs", "iq3_xs", "iq3_s", "iq3_m", "iq4_xs", "iq4_nl",
     ];
 
     for pat in &patterns {
@@ -502,9 +499,7 @@ fn read_config_json(dir: &Path) -> (String, usize, Option<u64>) {
         .and_then(|v| v.as_u64())
         .unwrap_or(0) as usize;
 
-    let parameter_count = json
-        .get("num_parameters")
-        .and_then(|v| v.as_u64());
+    let parameter_count = json.get("num_parameters").and_then(|v| v.as_u64());
 
     (architecture, context_length, parameter_count)
 }
@@ -522,9 +517,11 @@ fn parse_onnx_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
         vec![ModelCapability::AudioDecoding]
     } else if filename.contains("whisper") {
         vec![ModelCapability::SpeechToText]
-    } else if filename.contains("kokoro") || filename.contains("tts") || filename.contains("piper") {
+    } else if filename.contains("kokoro") || filename.contains("tts") || filename.contains("piper")
+    {
         vec![ModelCapability::TextToSpeech]
-    } else if filename.contains("siglip") || filename.contains("vision") || filename.contains("vit") {
+    } else if filename.contains("siglip") || filename.contains("vision") || filename.contains("vit")
+    {
         vec![ModelCapability::VisionEmbedding]
     } else if filename.contains("embed") {
         vec![ModelCapability::Embedding]

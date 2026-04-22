@@ -79,11 +79,7 @@ impl VerificationBuffer {
         let mut results = Vec::new();
 
         for edit in self.pending.values() {
-            let ext = edit
-                .path
-                .extension()
-                .and_then(|e| e.to_str())
-                .unwrap_or("");
+            let ext = edit.path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
             let lang = match super::language::lang_from_extension(ext) {
                 Some(l) => l,

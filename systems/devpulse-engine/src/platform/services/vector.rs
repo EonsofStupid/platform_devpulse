@@ -68,14 +68,8 @@ impl VectorService {
     ) -> anyhow::Result<Vec<VectorSearchMatch>> {
         use devpulse_clyffy::cortex::persistence::VectorAdapter;
 
-        let matches = VectorAdapter::search(
-            self.adapter.as_ref(),
-            collection,
-            vector,
-            limit,
-            filter,
-        )
-        .await?;
+        let matches =
+            VectorAdapter::search(self.adapter.as_ref(), collection, vector, limit, filter).await?;
         Ok(matches
             .into_iter()
             .map(|m| VectorSearchMatch {

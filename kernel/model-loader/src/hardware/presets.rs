@@ -168,8 +168,7 @@ pub fn load_default_presets(userdata_dir: &Path) -> Result<Vec<PresetBlueprint>,
         }
     }
 
-    let parsed: PresetsFile =
-        toml::from_str(DEFAULT_TOML).map_err(PresetsError::EmbeddedParse)?;
+    let parsed: PresetsFile = toml::from_str(DEFAULT_TOML).map_err(PresetsError::EmbeddedParse)?;
     tracing::debug!(
         count = parsed.presets.len(),
         "Loaded embedded default preset catalog"
@@ -401,8 +400,8 @@ mod tests {
     #[test]
     fn floor_preset_has_eight_recommendations() {
         let downloaded = std::collections::HashSet::new();
-        let cfg = config_for_tier(HardwareTier::Floor, &downloaded, Path::new("/nonexistent"))
-            .unwrap();
+        let cfg =
+            config_for_tier(HardwareTier::Floor, &downloaded, Path::new("/nonexistent")).unwrap();
         assert_eq!(cfg.recommendations.len(), 8);
         assert_eq!(cfg.preset_name, "Floor (8GB)");
     }
@@ -411,9 +410,12 @@ mod tests {
     #[test]
     fn mid_tier_is_active_idle() {
         let downloaded = std::collections::HashSet::new();
-        let cfg = config_for_tier(HardwareTier::Mid, &downloaded, Path::new("/nonexistent"))
-            .unwrap();
-        assert!(matches!(cfg.brain_policy, BrainSwapPolicy::ActiveIdle { .. }));
+        let cfg =
+            config_for_tier(HardwareTier::Mid, &downloaded, Path::new("/nonexistent")).unwrap();
+        assert!(matches!(
+            cfg.brain_policy,
+            BrainSwapPolicy::ActiveIdle { .. }
+        ));
     }
 
     /// `already_downloaded` flag reduces `total_download_size_mb`.
@@ -422,8 +424,8 @@ mod tests {
         let mut downloaded = std::collections::HashSet::new();
         downloaded.insert("Qwen3.5-9B-Q4_K_M.gguf".to_string());
 
-        let cfg = config_for_tier(HardwareTier::Mid, &downloaded, Path::new("/nonexistent"))
-            .unwrap();
+        let cfg =
+            config_for_tier(HardwareTier::Mid, &downloaded, Path::new("/nonexistent")).unwrap();
         let brain = cfg
             .recommendations
             .iter()
@@ -484,7 +486,12 @@ mod tests {
                     continue; // slot has no runtime override — auto-detected by loader
                 };
 
-                let ext = rec.model_filename.rsplit('.').next().unwrap_or("").to_lowercase();
+                let ext = rec
+                    .model_filename
+                    .rsplit('.')
+                    .next()
+                    .unwrap_or("")
+                    .to_lowercase();
                 let compatible = match runtime {
                     BackendType::Ort => matches!(ext.as_str(), "onnx" | "bin" | "safetensors"),
                     BackendType::Candle => matches!(ext.as_str(), "safetensors" | "gguf"),

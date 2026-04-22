@@ -74,12 +74,13 @@ pub struct LibSqlQueryResult {
 /// Ping both `LibSQL` databases — returns health for each.
 #[tauri::command]
 #[specta::specta]
-pub async fn libsql_health_all(
-    state: State<'_, PlatformState>,
-) -> Result<LibSqlHealthAll, String> {
+pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSqlHealthAll, String> {
     tracing::info!("cmd libsql_health_all: entry");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let mut databases = Vec::with_capacity(2);
 
@@ -95,8 +96,7 @@ pub async fn libsql_health_all(
                         reachable: true,
                         latency_us: start.elapsed().as_micros() as u64,
                         error: None,
-                        path: platform.config().data_dir.clone()
-                            + "/system/libsql/platform.db",
+                        path: platform.config().data_dir.clone() + "/system/libsql/platform.db",
                     }),
                     Err(e) => databases.push(LibSqlHealth {
                         database: "system".into(),
@@ -129,8 +129,7 @@ pub async fn libsql_health_all(
                         reachable: true,
                         latency_us: start.elapsed().as_micros() as u64,
                         error: None,
-                        path: platform.config().data_dir.clone()
-                            + "/user/libsql/user.db",
+                        path: platform.config().data_dir.clone() + "/user/libsql/user.db",
                     }),
                     Err(e) => databases.push(LibSqlHealth {
                         database: "user".into(),
@@ -163,7 +162,10 @@ pub async fn libsql_list_tables(
 ) -> Result<Vec<LibSqlTableInfo>, String> {
     tracing::info!(?database, "cmd libsql_list_tables: entry");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let svc = match &database {
         LibSqlDatabase::System => platform.relational(),
@@ -215,7 +217,10 @@ pub async fn libsql_query(
 ) -> Result<LibSqlQueryResult, String> {
     tracing::info!(?database, sql_len = sql.len(), "cmd libsql_query: entry");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let svc = match &database {
         LibSqlDatabase::System => platform.relational(),
@@ -231,9 +236,7 @@ pub async fn libsql_query(
     }
 
     // Detect if this is a SELECT or a mutation
-    let is_select = trimmed
-        .to_uppercase()
-        .starts_with("SELECT")
+    let is_select = trimmed.to_uppercase().starts_with("SELECT")
         || trimmed.to_uppercase().starts_with("PRAGMA")
         || trimmed.to_uppercase().starts_with("EXPLAIN");
 

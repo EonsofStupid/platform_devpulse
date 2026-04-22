@@ -44,6 +44,11 @@ const healthGroups = $derived(
 	platformState.health ? groupHealthSubsystems(platformState.health.subsystems) : [],
 );
 
+// Subscribe to live hardware telemetry (VRAM / GPU util / temp).
+// Ref-counted: attaches on mount, detaches on unmount, shared with
+// other active subscribers (StatusBar, ModelLoaderPanel, wizard).
+$effect(() => hardwareState.subscribe("devpulse-dashboard"));
+
 // Fetch dashboard data only after platform boot completes
 $effect(() => {
 	if (platformState.isReady && devpulseState.loading) {

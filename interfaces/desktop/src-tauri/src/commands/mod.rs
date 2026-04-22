@@ -63,12 +63,7 @@ pub struct StatusUpdate<T: Serialize> {
 /// emit_status(&app, "models", StatusKind::Data, &models_payload);
 /// emit_status(&app, "voice",  StatusKind::Error, &"TTS engine crashed");
 /// ```
-pub fn emit_status<T: Serialize>(
-    app: &tauri::AppHandle,
-    domain: &str,
-    kind: StatusKind,
-    data: &T,
-) {
+pub fn emit_status<T: Serialize>(app: &tauri::AppHandle, domain: &str, kind: StatusKind, data: &T) {
     let event_name = format!("platform:{domain}-status");
     let update = StatusUpdate {
         kind: kind.clone(),

@@ -85,9 +85,13 @@ impl VoicePool {
             ModelCapability::TextToSpeech => {
                 let mut backend = crate::backends::ort::kokoro::KokoroTts::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self.sessions.lock()
+                let mut sessions = self
+                    .sessions
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self.footprints.lock()
+                let mut footprints = self
+                    .footprints
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
                 sessions.insert(slot_id.to_string(), VoiceSession::Tts(Box::new(backend)));
                 footprints.insert(slot_id.to_string(), footprint);
@@ -97,9 +101,13 @@ impl VoicePool {
             ModelCapability::SpeechToText => {
                 let mut backend = crate::backends::ort::whisper::WhisperStt::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self.sessions.lock()
+                let mut sessions = self
+                    .sessions
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self.footprints.lock()
+                let mut footprints = self
+                    .footprints
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
                 sessions.insert(slot_id.to_string(), VoiceSession::Stt(Box::new(backend)));
                 footprints.insert(slot_id.to_string(), footprint);
@@ -109,11 +117,18 @@ impl VoicePool {
             ModelCapability::Embedding => {
                 let mut backend = crate::backends::ort::embedder::Qwen3Embedder::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self.sessions.lock()
+                let mut sessions = self
+                    .sessions
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self.footprints.lock()
+                let mut footprints = self
+                    .footprints
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                sessions.insert(slot_id.to_string(), VoiceSession::Embedding(Box::new(backend)));
+                sessions.insert(
+                    slot_id.to_string(),
+                    VoiceSession::Embedding(Box::new(backend)),
+                );
                 footprints.insert(slot_id.to_string(), footprint);
                 tracing::info!(slot = %slot_id, "VoicePool: embedder model loaded");
                 Ok(footprint)
@@ -121,11 +136,18 @@ impl VoicePool {
             ModelCapability::Reranking => {
                 let mut backend = crate::backends::ort::reranker::Qwen3Reranker::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self.sessions.lock()
+                let mut sessions = self
+                    .sessions
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self.footprints.lock()
+                let mut footprints = self
+                    .footprints
+                    .lock()
                     .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                sessions.insert(slot_id.to_string(), VoiceSession::Reranking(Box::new(backend)));
+                sessions.insert(
+                    slot_id.to_string(),
+                    VoiceSession::Reranking(Box::new(backend)),
+                );
                 footprints.insert(slot_id.to_string(), footprint);
                 tracing::info!(slot = %slot_id, "VoicePool: reranker model loaded");
                 Ok(footprint)
@@ -135,14 +157,15 @@ impl VoicePool {
                 {
                     let mut backend = crate::backends::candle::SigLipVision::new();
                     let footprint = backend.load(model_path, params)?;
-                    let mut sessions = self.sessions.lock()
+                    let mut sessions = self
+                        .sessions
+                        .lock()
                         .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                    let mut footprints = self.footprints.lock()
+                    let mut footprints = self
+                        .footprints
+                        .lock()
                         .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                    sessions.insert(
-                        slot_id.to_string(),
-                        VoiceSession::Vision(Box::new(backend)),
-                    );
+                    sessions.insert(slot_id.to_string(), VoiceSession::Vision(Box::new(backend)));
                     footprints.insert(slot_id.to_string(), footprint);
                     tracing::info!(slot = %slot_id, "VoicePool: vision encoder loaded");
                     Ok(footprint)
@@ -170,54 +193,56 @@ impl VoicePool {
         _capability: ModelCapability,
         _params: LoadParams,
     ) -> anyhow::Result<MemoryFootprint> {
-        anyhow::bail!("ort-backend feature not compiled — cannot load voice model for slot '{slot_id}'")
+        anyhow::bail!(
+            "ort-backend feature not compiled — cannot load voice model for slot '{slot_id}'"
+        )
     }
 
     /// Unload a voice model from a slot.
     pub fn unload(&self, slot_id: &str) -> Option<MemoryFootprint> {
-        let removed = self.sessions.lock()
-            .map(|mut s| s.remove(slot_id))
-            .ok()?;
+        let removed = self.sessions.lock().map(|mut s| s.remove(slot_id)).ok()?;
         if removed.is_some() {
             tracing::info!(slot = %slot_id, "VoicePool: session unloaded");
         }
-        self.footprints.lock()
-            .map(|mut f| f.remove(slot_id))
-            .ok()?
+        self.footprints.lock().map(|mut f| f.remove(slot_id)).ok()?
     }
 
     /// Check if a slot has a loaded voice session.
     #[must_use]
     pub fn is_loaded(&self, slot_id: &str) -> bool {
-        self.sessions.lock()
+        self.sessions
+            .lock()
             .map(|s| s.contains_key(slot_id))
             .unwrap_or(false)
     }
 
     /// Synthesize speech for a TTS slot.
-    pub fn synthesize(&self, slot_id: &str, text: &str, voice: &str) -> anyhow::Result<AudioSamples> {
-        let sessions = self.sessions.lock()
+    pub fn synthesize(
+        &self,
+        slot_id: &str,
+        text: &str,
+        voice: &str,
+    ) -> anyhow::Result<AudioSamples> {
+        let sessions = self
+            .sessions
+            .lock()
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Tts(backend)) => backend.synthesize(text, voice),
-            Some(other) => anyhow::bail!(
-                "Slot '{slot_id}' is {}, not TTS",
-                session_kind(other)
-            ),
+            Some(other) => anyhow::bail!("Slot '{slot_id}' is {}, not TTS", session_kind(other)),
             None => anyhow::bail!("No voice model loaded in slot '{slot_id}'"),
         }
     }
 
     /// Transcribe audio for an STT slot.
     pub fn transcribe(&self, slot_id: &str, samples: &AudioSamples) -> anyhow::Result<String> {
-        let sessions = self.sessions.lock()
+        let sessions = self
+            .sessions
+            .lock()
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Stt(backend)) => backend.transcribe(samples),
-            Some(other) => anyhow::bail!(
-                "Slot '{slot_id}' is {}, not STT",
-                session_kind(other)
-            ),
+            Some(other) => anyhow::bail!("Slot '{slot_id}' is {}, not STT", session_kind(other)),
             None => anyhow::bail!("No voice model loaded in slot '{slot_id}'"),
         }
     }
@@ -227,7 +252,9 @@ impl VoicePool {
     /// Returns one dense vector per input. Fails if the slot holds a
     /// non-embedder backend — no silent fallback.
     pub fn embed(&self, slot_id: &str, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
-        let sessions = self.sessions.lock()
+        let sessions = self
+            .sessions
+            .lock()
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Embedding(backend)) => backend.embed(texts),
@@ -248,7 +275,9 @@ impl VoicePool {
         query: &str,
         documents: &[&str],
     ) -> anyhow::Result<Vec<f32>> {
-        let sessions = self.sessions.lock()
+        let sessions = self
+            .sessions
+            .lock()
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Reranking(backend)) => backend.rerank(query, documents),
@@ -262,7 +291,9 @@ impl VoicePool {
 
     /// Encode an image file on disk via a vision encoder slot.
     pub fn encode_image(&self, slot_id: &str, path: &Path) -> anyhow::Result<Vec<f32>> {
-        let sessions = self.sessions.lock()
+        let sessions = self
+            .sessions
+            .lock()
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
             Some(VoiceSession::Vision(backend)) => backend.encode_image(path),
@@ -282,12 +313,12 @@ impl VoicePool {
         width: u32,
         height: u32,
     ) -> anyhow::Result<Vec<f32>> {
-        let sessions = self.sessions.lock()
+        let sessions = self
+            .sessions
+            .lock()
             .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
         match sessions.get(slot_id) {
-            Some(VoiceSession::Vision(backend)) => {
-                backend.encode_rgb(rgb_bytes, width, height)
-            }
+            Some(VoiceSession::Vision(backend)) => backend.encode_rgb(rgb_bytes, width, height),
             Some(other) => anyhow::bail!(
                 "Slot '{slot_id}' is {}, not a vision encoder",
                 session_kind(other)
@@ -299,7 +330,8 @@ impl VoicePool {
     /// Memory footprint for a loaded slot.
     #[must_use]
     pub fn memory(&self, slot_id: &str) -> Option<MemoryFootprint> {
-        self.footprints.lock()
+        self.footprints
+            .lock()
             .map(|f| f.get(slot_id).copied())
             .ok()?
     }

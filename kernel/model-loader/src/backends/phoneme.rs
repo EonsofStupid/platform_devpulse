@@ -43,9 +43,8 @@ impl KokoroVocab {
     pub fn from_file(path: &Path) -> anyhow::Result<Self> {
         let bytes = std::fs::read(path)
             .map_err(|e| anyhow::anyhow!("Failed to read Kokoro vocab {}: {e}", path.display()))?;
-        let raw: HashMap<String, i64> = serde_json::from_slice(&bytes).map_err(|e| {
-            anyhow::anyhow!("Failed to parse Kokoro vocab as JSON map: {e}")
-        })?;
+        let raw: HashMap<String, i64> = serde_json::from_slice(&bytes)
+            .map_err(|e| anyhow::anyhow!("Failed to parse Kokoro vocab as JSON map: {e}"))?;
 
         let pad_id = raw.get("_").copied().unwrap_or(0);
 
@@ -145,15 +144,22 @@ pub fn text_to_phonemes(text: &str, voice: &str) -> anyhow::Result<String> {
         // either null (for default data path) or uninitialized; this matches
         // the upstream README example and the library's documented contract.
         #[allow(unsafe_code)]
-        let rate = unsafe { es::espeak_Initialize(es::espeak_AUDIO_OUTPUT_AUDIO_OUTPUT_SYNCHRONOUS, 500, std::ptr::null(), 0) };
+        let rate = unsafe {
+            es::espeak_Initialize(
+                es::espeak_AUDIO_OUTPUT_AUDIO_OUTPUT_SYNCHRONOUS,
+                500,
+                std::ptr::null(),
+                0,
+            )
+        };
         if rate < 0 {
             anyhow::bail!("espeak_Initialize failed: code {rate}");
         }
         *init_guard = true;
     }
 
-    let voice_c = CString::new(voice)
-        .map_err(|e| anyhow::anyhow!("Voice name has interior nul: {e}"))?;
+    let voice_c =
+        CString::new(voice).map_err(|e| anyhow::anyhow!("Voice name has interior nul: {e}"))?;
     // SAFETY: see note on espeak_Initialize above. `voice_c` lives for the
     // duration of the call.
     #[allow(unsafe_code)]
@@ -162,8 +168,8 @@ pub fn text_to_phonemes(text: &str, voice: &str) -> anyhow::Result<String> {
         anyhow::bail!("espeak_SetVoiceByName({voice}) failed: code {voice_rc}");
     }
 
-    let text_c = CString::new(text)
-        .map_err(|e| anyhow::anyhow!("Input text has interior nul: {e}"))?;
+    let text_c =
+        CString::new(text).map_err(|e| anyhow::anyhow!("Input text has interior nul: {e}"))?;
     let mut text_ptr = text_c.as_ptr() as *const c_void;
 
     // phoneme_mode = 0x02 → IPA output as UTF-8. No separator, no tie.
@@ -179,9 +185,8 @@ pub fn text_to_phonemes(text: &str, voice: &str) -> anyhow::Result<String> {
         // UTF-8 buffer on the first iteration and is updated in-place by the
         // call afterwards.
         #[allow(unsafe_code)]
-        let result_ptr = unsafe {
-            es::espeak_TextToPhonemes(&mut text_ptr, text_mode, phoneme_mode)
-        };
+        let result_ptr =
+            unsafe { es::espeak_TextToPhonemes(&mut text_ptr, text_mode, phoneme_mode) };
         if result_ptr.is_null() {
             break;
         }
@@ -219,7 +224,11 @@ pub fn text_to_phonemes(_text: &str, _voice: &str) -> anyhow::Result<String> {
 ///
 /// # Errors
 /// Propagates any error from phonemization or vocab encoding.
-pub fn text_to_kokoro_ids(text: &str, voice: &str, vocab: &KokoroVocab) -> anyhow::Result<Vec<i64>> {
+pub fn text_to_kokoro_ids(
+    text: &str,
+    voice: &str,
+    vocab: &KokoroVocab,
+) -> anyhow::Result<Vec<i64>> {
     let phonemes = text_to_phonemes(text, voice)?;
     tracing::debug!(
         component = "Kokoro phonemizer",

@@ -88,15 +88,12 @@ impl<T: Clone> BroadcastSender<T> {
     /// # Errors
     /// Returns the original payload inside a [`tokio::sync::broadcast::error::SendError`]
     /// if there are no active receivers.
-    pub fn send(
-        &self,
-        payload: T,
-    ) -> Result<usize, tokio::sync::broadcast::error::SendError<T>> {
-        self.inner
-            .send(Envelope::capture(payload))
-            .map_err(|tokio::sync::broadcast::error::SendError(envelope)| {
+    pub fn send(&self, payload: T) -> Result<usize, tokio::sync::broadcast::error::SendError<T>> {
+        self.inner.send(Envelope::capture(payload)).map_err(
+            |tokio::sync::broadcast::error::SendError(envelope)| {
                 tokio::sync::broadcast::error::SendError(envelope.payload)
-            })
+            },
+        )
     }
 
     /// Create a new receiver subscribed to this sender.

@@ -65,7 +65,10 @@ pub async fn boot(
                 "LibSQL store booted"
             );
             on_event(InitEvent::ok_with_latency(label, start.elapsed()));
-            boot_log.ok(label, &format!("LibSQL {} ({elapsed_ms}ms)", path.display()));
+            boot_log.ok(
+                label,
+                &format!("LibSQL {} ({elapsed_ms}ms)", path.display()),
+            );
             Some(Arc::new(store))
         }
         Err(e) => {

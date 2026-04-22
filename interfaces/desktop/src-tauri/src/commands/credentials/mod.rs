@@ -84,10 +84,16 @@ pub async fn store_api_key(
     // 1. Store in OS keychain (primary, secure)
     let entry = keyring::Entry::new(SERVICE_NAME, &provider.keyring_key())
         .map_err(|e| format!("Failed to create keyring entry: {e}"))?;
-    entry
-        .set_password(&key)
-        .map_err(|e| format!("Failed to store API key for {}: {e}", provider.display_name()))?;
-    tracing::info!(provider = provider.display_name(), "API key stored in keychain");
+    entry.set_password(&key).map_err(|e| {
+        format!(
+            "Failed to store API key for {}: {e}",
+            provider.display_name()
+        )
+    })?;
+    tracing::info!(
+        provider = provider.display_name(),
+        "API key stored in keychain"
+    );
 
     // 2. Sync hint to libSQL (secondary, for engine-level key availability checks)
     let hint = if key.len() > 8 {
@@ -156,7 +162,10 @@ pub async fn delete_api_key(
         .map_err(|e| format!("Failed to access keyring: {e}"))?;
     match entry.delete_credential() {
         Ok(()) => {
-            tracing::info!(provider = provider.display_name(), "API key deleted from keychain");
+            tracing::info!(
+                provider = provider.display_name(),
+                "API key deleted from keychain"
+            );
         }
         Err(keyring::Error::NoEntry) => {} // already gone, not an error
         Err(e) => {

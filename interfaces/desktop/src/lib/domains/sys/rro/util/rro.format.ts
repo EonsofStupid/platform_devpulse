@@ -84,3 +84,42 @@ export function formatBytes(bytes: number | bigint): string {
 	if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
 	return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
+
+/** Proximity zone — mapped from 0..1 to human-friendly bucket. */
+export type ProximityZone = "calm" | "alert" | "alarm";
+
+/** Map a proximity value (0..1) to a layman zone. */
+export function proximityZone(value: number): ProximityZone {
+	if (value < 0.35) return "calm";
+	if (value < 0.7) return "alert";
+	return "alarm";
+}
+
+/** Layman label for a proximity zone. */
+export function proximityLabel(zone: ProximityZone): string {
+	switch (zone) {
+		case "calm":
+			return "Calm";
+		case "alert":
+			return "Paying attention";
+		case "alarm":
+			return "Near friction";
+	}
+}
+
+/** Badge variant for a proximity zone. */
+export function proximityVariant(zone: ProximityZone): "positive" | "notice" | "negative" {
+	switch (zone) {
+		case "calm":
+			return "positive";
+		case "alert":
+			return "notice";
+		case "alarm":
+			return "negative";
+	}
+}
+
+/** Tailwind gradient classes for the proximity bar background. */
+export function proximityGradientClass(): string {
+	return "bg-gradient-to-r from-[var(--signal-success)] via-[var(--color-amber-500)] to-[var(--signal-error)]";
+}

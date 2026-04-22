@@ -12,12 +12,12 @@ pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;
 // embedder + whisper modules DELETED — slot-managed by model loader (Layer 2).
+pub mod audio;
+pub mod devforge;
 #[cfg(feature = "inference")]
 pub mod model_loader;
 #[cfg(feature = "inference")]
 pub mod model_loader_log;
-pub mod devforge;
-pub mod audio;
 
 use anyhow::Result;
 use serde::Serialize;

@@ -112,7 +112,8 @@ mod tests {
 
     #[test]
     fn secrets_round_trip() {
-        let tmp = std::env::temp_dir().join(format!("devpulse-secrets-test-{}", std::process::id()));
+        let tmp =
+            std::env::temp_dir().join(format!("devpulse-secrets-test-{}", std::process::id()));
         let models_dir = tmp.join("models");
         std::fs::create_dir_all(&models_dir).unwrap();
 

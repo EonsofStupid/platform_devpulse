@@ -58,8 +58,7 @@ where
                 let is_retryable = is_retryable_error(operation, &err_str);
 
                 if is_retryable && attempt + 1 < config.max_retries {
-                    let delay = u64::from(1u32 << attempt.min(3))
-                        * config.base_delay_ms;
+                    let delay = u64::from(1u32 << attempt.min(3)) * config.base_delay_ms;
                     tracing::warn!(
                         operation,
                         attempt = attempt + 1,

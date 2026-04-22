@@ -26,8 +26,8 @@ impl Workspace {
     /// `Cargo.toml` + `interfaces/` side by side.
     pub fn discover() -> Result<Self> {
         let cwd = env::current_dir().context("failed to read cwd")?;
-        let root = find_root(&cwd)
-            .context("workspace root not found (need Cargo.toml + interfaces/)")?;
+        let root =
+            find_root(&cwd).context("workspace root not found (need Cargo.toml + interfaces/)")?;
 
         let node_bin = root
             .join("interfaces")
@@ -112,17 +112,11 @@ impl Workspace {
         Ok(status)
     }
 
-
     /// Spawn a tool in a directory WITHOUT blocking. Returns the `Child`.
     ///
     /// Stdout and stderr are piped (captured) — this is a background task.
     /// Use [`exec_in`](Self::exec_in) for foreground tasks with inherited stdio.
-    pub fn spawn_in(
-        &self,
-        dir: &Path,
-        program: &str,
-        args: &[&str],
-    ) -> Result<Child> {
+    pub fn spawn_in(&self, dir: &Path, program: &str, args: &[&str]) -> Result<Child> {
         use std::process::Stdio;
         self.cmd(program)?
             .args(args)
@@ -130,9 +124,7 @@ impl Workspace {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
-            .with_context(|| {
-                format!("failed to spawn `{program}` in {}", dir.display())
-            })
+            .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))
     }
 
     /// Spawn a tool with stderr inherited (visible to user) but non-blocking.
@@ -140,12 +132,7 @@ impl Workspace {
     /// Use this when you want the user to see real-time progress (e.g. cargo
     /// compilation output) while still being able to check the exit code later.
     /// Stdout is piped (captured), stderr streams directly to the terminal.
-    pub fn spawn_in_verbose(
-        &self,
-        dir: &Path,
-        program: &str,
-        args: &[&str],
-    ) -> Result<Child> {
+    pub fn spawn_in_verbose(&self, dir: &Path, program: &str, args: &[&str]) -> Result<Child> {
         use std::process::Stdio;
         self.cmd(program)?
             .args(args)
@@ -153,21 +140,14 @@ impl Workspace {
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit())
             .spawn()
-            .with_context(|| {
-                format!("failed to spawn `{program}` in {}", dir.display())
-            })
+            .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))
     }
 
     /// Spawn a tool with stderr PIPED for monitoring.
     ///
     /// Use with [`stage::monitor_cargo_child`] — parses cargo output
     /// to show live progress (crate count, elapsed time, current crate).
-    pub fn spawn_in_stderr_piped(
-        &self,
-        dir: &Path,
-        program: &str,
-        args: &[&str],
-    ) -> Result<Child> {
+    pub fn spawn_in_stderr_piped(&self, dir: &Path, program: &str, args: &[&str]) -> Result<Child> {
         use std::process::Stdio;
         self.cmd(program)?
             .args(args)
@@ -175,9 +155,7 @@ impl Workspace {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
-            .with_context(|| {
-                format!("failed to spawn `{program}` in {}", dir.display())
-            })
+            .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))
     }
 }
 
@@ -300,8 +278,14 @@ impl BuildConfig {
     /// Logs every env var set so the user sees exactly what's happening.
     pub fn apply_env(&self, workspace_root: &std::path::Path) {
         // Log toolchain SSOT so the developer sees exactly what target is configured
-        println!("  [toolchain] target = {} (from [build.toolchain])", self.toolchain.target);
-        println!("  [toolchain] msvc_crt = {} (from [build.toolchain])", self.toolchain.msvc_crt);
+        println!(
+            "  [toolchain] target = {} (from [build.toolchain])",
+            self.toolchain.target
+        );
+        println!(
+            "  [toolchain] msvc_crt = {} (from [build.toolchain])",
+            self.toolchain.msvc_crt
+        );
 
         let deps = [
             ("nasm", &self.deps.nasm),

@@ -231,7 +231,10 @@ impl SlotStatus {
     /// Is this slot ready for instant inference?
     #[must_use]
     pub fn is_instant_ready(&self) -> bool {
-        matches!(self.model_status, ModelStatus::Primed { .. } | ModelStatus::Active { .. })
+        matches!(
+            self.model_status,
+            ModelStatus::Primed { .. } | ModelStatus::Active { .. }
+        )
     }
 
     /// Is this slot loaded but not primed (first inference will be slow)?
@@ -280,7 +283,9 @@ impl std::fmt::Display for ModelStatus {
             Self::Warm { .. } => write!(f, "warm"),
             Self::Loaded { .. } => write!(f, "loaded"),
             Self::Primed { .. } => write!(f, "primed"),
-            Self::Active { active_requests, .. } => write!(f, "active:{active_requests}"),
+            Self::Active {
+                active_requests, ..
+            } => write!(f, "active:{active_requests}"),
             Self::Failed { .. } => write!(f, "failed"),
             Self::Unloading => write!(f, "unloading"),
         }
@@ -327,13 +332,19 @@ impl ModelStatus {
     /// Can this state accept inference requests?
     #[must_use]
     pub fn can_infer(&self) -> bool {
-        matches!(self, Self::Loaded { .. } | Self::Primed { .. } | Self::Active { .. })
+        matches!(
+            self,
+            Self::Loaded { .. } | Self::Primed { .. } | Self::Active { .. }
+        )
     }
 
     /// Is this state using GPU VRAM?
     #[must_use]
     pub fn uses_vram(&self) -> bool {
-        matches!(self, Self::Loaded { .. } | Self::Primed { .. } | Self::Active { .. })
+        matches!(
+            self,
+            Self::Loaded { .. } | Self::Primed { .. } | Self::Active { .. }
+        )
     }
 
     /// Get memory footprint if available.

@@ -424,8 +424,7 @@ impl AssistantConfig {
     /// builds — the embedded TOML is validated by
     /// [`tests::embedded_default_parses`].
     pub fn load_default() -> Result<Self> {
-        toml::from_str(DEFAULT_TOML)
-            .context("Failed to parse embedded assistant.default.toml")
+        toml::from_str(DEFAULT_TOML).context("Failed to parse embedded assistant.default.toml")
     }
 
     /// Persist the current config to the userdata override path.
@@ -440,15 +439,20 @@ impl AssistantConfig {
                 .with_context(|| format!("Failed to create {}", parent.display()))?;
         }
 
-        let toml_str = toml::to_string_pretty(self)
-            .context("Failed to serialize AssistantConfig")?;
+        let toml_str =
+            toml::to_string_pretty(self).context("Failed to serialize AssistantConfig")?;
 
         // Atomic replacement: write to a sibling temp file then rename.
         let tmp_path = path.with_extension("toml.tmp");
         std::fs::write(&tmp_path, &toml_str)
             .with_context(|| format!("Failed to write temp file {}", tmp_path.display()))?;
-        std::fs::rename(&tmp_path, &path)
-            .with_context(|| format!("Failed to rename {} -> {}", tmp_path.display(), path.display()))?;
+        std::fs::rename(&tmp_path, &path).with_context(|| {
+            format!(
+                "Failed to rename {} -> {}",
+                tmp_path.display(),
+                path.display()
+            )
+        })?;
 
         tracing::info!(
             target: "assistant",
@@ -501,11 +505,7 @@ impl AssistantConfig {
         userdata_dir: &Path,
         entry: VoiceCloneEntry,
     ) -> Result<()> {
-        if let Some(existing) = self
-            .voice_clones
-            .iter_mut()
-            .find(|e| e.name == entry.name)
-        {
+        if let Some(existing) = self.voice_clones.iter_mut().find(|e| e.name == entry.name) {
             *existing = entry;
         } else {
             self.voice_clones.push(entry);
@@ -554,11 +554,7 @@ impl AssistantConfig {
         phrase: &str,
         new_entry: KeywordActionEntry,
     ) -> Result<()> {
-        if let Some(existing) = self
-            .keyword_actions
-            .iter_mut()
-            .find(|e| e.phrase == phrase)
-        {
+        if let Some(existing) = self.keyword_actions.iter_mut().find(|e| e.phrase == phrase) {
             *existing = new_entry;
             self.save(userdata_dir)?;
         }

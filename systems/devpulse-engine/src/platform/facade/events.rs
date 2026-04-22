@@ -84,8 +84,14 @@ pub enum UnloadReason {
 /// What the arbiter decided to do under pressure.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PressureAction {
-    EvictToRam { slot: SlotId },
-    DowngradeQuant { slot: SlotId, from: String, to: String },
+    EvictToRam {
+        slot: SlotId,
+    },
+    DowngradeQuant {
+        slot: SlotId,
+        from: String,
+        to: String,
+    },
     RequestRestart,
     NoAction,
 }
@@ -383,8 +389,7 @@ impl InternalEvent {
             | Self::DriftDetected { .. }
             | Self::AntiPatternBlocked { .. } => EventCategory::GovernanceDecision,
 
-            Self::SignalReceived { .. }
-            | Self::SignalRouted { .. } => EventCategory::SignalRouting,
+            Self::SignalReceived { .. } | Self::SignalRouted { .. } => EventCategory::SignalRouting,
 
             Self::AllocationChanged { .. } => EventCategory::ResourceArbiter,
 

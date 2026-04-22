@@ -68,10 +68,7 @@ struct HfApiSibling {
 /// Queries the public HuggingFace API and filters results to only include
 /// repos that have `.gguf` files. Each result includes the GGUF files
 /// with their sizes and inferred quantization levels.
-pub async fn search_huggingface(
-    query: &str,
-    limit: u32,
-) -> anyhow::Result<Vec<HfSearchResult>> {
+pub async fn search_huggingface(query: &str, limit: u32) -> anyhow::Result<Vec<HfSearchResult>> {
     let url = format!(
         "https://huggingface.co/api/models?search={}&filter=gguf&sort=downloads&direction=-1&limit={}&full=true&config=false",
         urlencoded(query),
@@ -105,7 +102,8 @@ pub async fn search_huggingface(
                 .into_iter()
                 .filter(|s| s.filename.ends_with(".gguf"))
                 .map(|s| {
-                    let quant_level = crate::models::discovery::infer_quant_from_filename_pub(&s.filename);
+                    let quant_level =
+                        crate::models::discovery::infer_quant_from_filename_pub(&s.filename);
                     HfFileInfo {
                         filename: s.filename,
                         size_bytes: s.size.unwrap_or(0),
@@ -120,9 +118,9 @@ pub async fn search_huggingface(
             }
 
             let repo_id = m.id.clone();
-            let author = m.author.unwrap_or_else(|| {
-                repo_id.split('/').next().unwrap_or("unknown").to_string()
-            });
+            let author = m
+                .author
+                .unwrap_or_else(|| repo_id.split('/').next().unwrap_or("unknown").to_string());
             let model_name = m.model_id.unwrap_or_else(|| repo_id.clone());
 
             Some(HfSearchResult {

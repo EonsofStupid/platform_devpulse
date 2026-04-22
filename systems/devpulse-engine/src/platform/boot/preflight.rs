@@ -30,12 +30,24 @@ use std::path::Path;
 pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Result<()> {
     // System scope
     if config.services.system.relational.enabled {
-        if let Some(parent) = config.services.system.relational.resolve_path(data_dir).parent() {
+        if let Some(parent) = config
+            .services
+            .system
+            .relational
+            .resolve_path(data_dir)
+            .parent()
+        {
             std::fs::create_dir_all(parent)?;
         }
     }
     if config.services.system.analytics.enabled {
-        if let Some(parent) = config.services.system.analytics.resolve_path(data_dir).parent() {
+        if let Some(parent) = config
+            .services
+            .system
+            .analytics
+            .resolve_path(data_dir)
+            .parent()
+        {
             std::fs::create_dir_all(parent)?;
         }
     }
@@ -47,7 +59,13 @@ pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Resul
 
     // User scope
     if config.services.user.relational.enabled {
-        if let Some(parent) = config.services.user.relational.resolve_path(data_dir).parent() {
+        if let Some(parent) = config
+            .services
+            .user
+            .relational
+            .resolve_path(data_dir)
+            .parent()
+        {
             std::fs::create_dir_all(parent)?;
         }
     }

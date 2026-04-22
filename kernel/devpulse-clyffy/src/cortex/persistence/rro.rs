@@ -103,10 +103,7 @@ impl RroAdapter {
     ///
     /// # Errors
     /// Returns error if the count query fails.
-    pub async fn count_points(
-        &self,
-        collection: impl Into<String>,
-    ) -> Result<usize> {
+    pub async fn count_points(&self, collection: impl Into<String>) -> Result<usize> {
         self.client
             .count_points(collection, None, false)
             .await
@@ -153,8 +150,7 @@ impl RroAdapter {
 impl VectorAdapter for RroAdapter {
     async fn create_collection(&self, name: &str, dimension: u32) -> Result<()> {
         let params = rro::VectorParams {
-            size: NonZeroU64::new(u64::from(dimension))
-                .expect("dimension must be > 0"),
+            size: NonZeroU64::new(u64::from(dimension)).expect("dimension must be > 0"),
             distance: rro::Distance::Cosine,
             hnsw_config: None,
             quantization_config: None,
@@ -189,7 +185,8 @@ impl VectorAdapter for RroAdapter {
         vector: &[f32],
         payload: serde_json::Value,
     ) -> Result<()> {
-        let point_id: ExtendedPointId = id.parse()
+        let point_id: ExtendedPointId = id
+            .parse()
             .map_err(|_| anyhow::anyhow!("Invalid point ID: {id}"))?;
         let point = rro::PointStruct {
             id: point_id,
@@ -259,7 +256,8 @@ impl VectorAdapter for RroAdapter {
     }
 
     async fn delete_point(&self, collection: &str, id: &str) -> Result<bool> {
-        let point_id: ExtendedPointId = id.parse()
+        let point_id: ExtendedPointId = id
+            .parse()
             .map_err(|_| anyhow::anyhow!("Invalid point ID: {id}"))?;
         let selector = PointsSelector::PointIdsSelector(PointIdsList {
             points: vec![point_id],
@@ -273,8 +271,6 @@ impl VectorAdapter for RroAdapter {
     }
 
     async fn point_count(&self, collection: &str) -> Result<u64> {
-        self.count_points(collection)
-            .await
-            .map(|c| c as u64)
+        self.count_points(collection).await.map(|c| c as u64)
     }
 }

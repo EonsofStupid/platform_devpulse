@@ -226,63 +226,57 @@ Owner confirms the release build works before any other phase starts.
 
 ### 4a. Swap-primary-brain overlay component
 
-- [ ] **4a.1 Research `swap_slot_model` event payload**
-  - [ ] Grep `model:swap-started|model:swap-complete|model:swap-failed` in `interfaces/desktop/src-tauri/src/commands/models/mod.rs` to confirm event names + payload shape
-  - [ ] Grep the same events in `interfaces/desktop/src/` to confirm no listener exists yet
-  - [ ] Document findings in this file (inline below task list) before authoring
-- [ ] **4a.2 Create `SwapPrimaryBrainButton.svelte`**
-  - [ ] Path: `interfaces/desktop/src/lib/domains/platform/_shared/SwapPrimaryBrainButton.svelte`
-  - [ ] Props: `{ newModelId: string, label?: string, slotId?: string }` (slotId defaults to `"chat.brain"`)
-  - [ ] Click handler:
-    - [ ] `logInfo("swap.primary", "begin", { newModelId, slotId })`
-    - [ ] Open full-viewport overlay `<LoadingBlock title="Swapping brain…" subtitle="Safely loading into VRAM" showContent contentKind="dyk" />`
-    - [ ] Subscribe to `listen("model:swap-complete", …)` and `listen("model:swap-failed", …)` BEFORE invoking
-    - [ ] Wrap `commands.swapSlotModel(slotId, newModelId)` in try/catch
-    - [ ] On `swap-complete`: close overlay, toast success, `logInfo("swap.primary", "complete", { time_ms })`
-    - [ ] On `swap-failed` OR thrown error: close overlay, toast error, surface in a red error bar, `logInfo("swap.primary", "failed", { error })`
-    - [ ] Always unsubscribe on cleanup
-- [ ] **4a.3 Export from platform `_shared` barrel**
-  - [ ] Edit [platform/_shared/index.ts](d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/platform/_shared/index.ts) — add `export { default as SwapPrimaryBrainButton }`
-- [ ] **4a.4 Smoke test harness**
-  - [ ] Add a temporary button to `/devtools/candle/+page.svelte` next to each slot: "Make this the primary" → opens the swap overlay → watches real events
-  - [ ] Remove the temporary button at end of Phase 4 (this was just a harness for STOP-B review)
+- [x] **4a.1 Research `swap_slot_model` event payload**
+  - [x] Confirmed event names + payload shapes in [integrations/events.rs](d:/localdev/platform_devpulse/systems/devpulse-engine/src/platform/integrations/events.rs):
+    - `model:swap-started` → `{ slot_id, from_model: Option<String>, to_model }`
+    - `model:swap-complete` → `{ slot_id, model_id }`
+    - `model:swap-failed` → `{ slot_id, error }`
+  - [x] Kernel [service.rs:1081](d:/localdev/platform_devpulse/kernel/model-loader/src/service.rs#L1081) emits `SwapStarted` + `SwapComplete`; `SwapFailed` is DECLARED in `traits/events.rs` but NOT actually emitted by `swap_model` — errors bubble via `Result<(), LoaderError>`. Pattern: Promise await + try/catch for the happy/sad path; listen to events if you need telemetry
+  - [x] No existing frontend listener for these events — confirmed by grep in `interfaces/desktop/src/`
+  - [x] `commands.swapSlotModel` returns `Promise<Result<null, LoadError>>` — Promise resolves AFTER the full unload → reassign → load, so Promise-await is sufficient; event listeners are optional telemetry
+- [x] **4a.2 Create `SwapPrimaryBrainButton.svelte`**
+  - [x] Authored at [platform/_shared/SwapPrimaryBrainButton.svelte](d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/platform/_shared/SwapPrimaryBrainButton.svelte) — 161 LOC
+  - [x] Props: `{ newModelId, slotId = "chat.brain", label, size, preset, disabled, onComplete }`
+  - [x] Click handler: logs begin/complete/failed/threw, opens full-viewport fixed overlay with `<LoadingBlock title subtitle showContent contentKind="dyk">`, refreshes `modelsState` on success, toasts via dynamic `svelte-sonner` import
+  - [x] Simplified from plan — no event subscription (Promise-await carries full outcome per research finding); events are telemetry for OTHER listeners
+- [x] **4a.3 Export from platform `_shared` barrel**
+  - [x] [platform/_shared/index.ts](d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/platform/_shared/index.ts) — added `export { default as SwapPrimaryBrainButton }`
+- [x] **4a.4 Smoke test harness**
+  - [x] Added to [candle/+page.svelte](d:/localdev/platform_devpulse/interfaces/desktop/src/routes/(devtools)/devtools/candle/+page.svelte) Actions tab — a text input for model id + `<SwapPrimaryBrainButton>` — owner types a real model id and clicks to test the full swap
+  - [ ] Phase 8: delete the harness (marked `Phase 4a harness` in the file)
 
 ### 4b. One-click repo download (HF / JanAI bundle)
 
-- [ ] **4b.1 Add `list_repo_files` Tauri cmd**
-  - [ ] Edit `interfaces/desktop/src-tauri/src/commands/models/mod.rs` — append cmd `list_repo_files(repo_id: String) -> Result<Vec<RepoFile>, String>` where `RepoFile { name: String, size: Option<u64> }`
-  - [ ] Implementation: `hf_hub::api::sync::ApiBuilder::new().with_token(loader.hf_token()).build()?.model(repo_id).info()?.siblings.iter().map(|s| RepoFile { name: s.rfilename.clone(), size: s.size })`. If `info()` fails: return an error with the reason
-  - [ ] Register in `lib.rs` invoke handler
-- [ ] **4b.2 Author `resolve-primary-file.ts`**
-  - [ ] Path: `interfaces/desktop/src/lib/domains/platform/_shared/resolve-primary-file.ts`
-  - [ ] `function resolvePrimaryFile(siblings: RepoFile[]): { primary: string | null, rationale: string }`
-  - [ ] Rules:
-    1. Any `.gguf` → largest by size → rationale `"GGUF: largest quant (…)"`.
-    2. No GGUF, has `model.safetensors` → it → rationale `"SafeTensors: single-file"`.
-    3. No GGUF, has `model.safetensors.index.json` → first shard matching that index → rationale `"SafeTensors: sharded (shard 1/N)"`.
-    4. Else → `null` + rationale explaining user must pick.
-  - [ ] Pure function, no IPC, unit-testable
-- [ ] **4b.3 Create `RepoDownloadButton.svelte`**
-  - [ ] Path: `interfaces/desktop/src/lib/domains/platform/_shared/RepoDownloadButton.svelte`
-  - [ ] Props: `{ repoId: string, suggestedSlot?: string, label?: string }`
-  - [ ] Click flow:
-    1. Invoke `list_repo_files(repoId)` — show spinner while pending
-    2. Resolve primary via `resolvePrimaryFile`
-    3. Open confirmation modal with: resolved primary filename, rationale, total bundle size (sum of sibling sizes), sibling file list (scrollable)
-    4. Primary file is editable — dropdown lets user override
-    5. On confirm: call `download_model(repoId, primary)` → close modal → toast with download_id → `DownloadProgressRow` takes over
-    6. If `list_repo_files` fails with auth error: open `HfTokenModal`, let user paste token, retry
-  - [ ] try/catch + logInfo on every step
-- [ ] **4b.4 Smoke test harness (temporary)**
-  - [ ] Add button to `/devtools/+page.svelte` landing: `<RepoDownloadButton repoId="microsoft/phi-4-mini-instruct">` as a one-shot test tile
-  - [ ] Remove at end of Phase 4
+- [x] **4b.1 Add `list_repo_files` Tauri cmd**
+  - [x] Kernel method — [download.rs:188](d:/localdev/platform_devpulse/kernel/model-loader/src/models/download.rs#L188) — `DownloadManager::list_repo_files(&self, repo_id) -> anyhow::Result<Vec<RepoFileEntry>>` using `hf_hub::api::sync::ApiBuilder` threaded through stored HF token; `RepoFileEntry { name, size: Option<u64> }` serializable
+  - [x] Engine wrapper — [model_loader.rs](d:/localdev/platform_devpulse/systems/devpulse-engine/src/platform/services/model_loader.rs) — `ModelLoaderService::list_repo_files` passthrough
+  - [x] Tauri cmd — [commands/models/mod.rs](d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/models/mod.rs) — `list_repo_files(state, repo_id) -> Result<Vec<RepoFile>, String>`; `RepoFile { name, size: Option<u64> }` with specta derive
+  - [x] Registered in [lib.rs invoke handler](d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/lib.rs) between `cancel_download` and `set_hf_token`
+  - [x] `cargo check -p devpulse_desktop_backend` → 0 errors after resolving the `models::download` module path
+  - [ ] Next `cargo xtask run-dev` regenerates specta bindings with `list_repo_files` typed
+- [x] **4b.2 Author `resolve-primary-file.ts`**
+  - [x] [platform/_shared/resolve-primary-file.ts](d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/platform/_shared/resolve-primary-file.ts) — pure, no IPC, unit-testable
+  - [x] `resolvePrimaryFile(siblings): { primary, rationale }` with 5 ordered rules: GGUF-largest, single-safetensors, sharded-first-shard, other-safetensors-largest, null-with-explanation
+  - [x] Plus `totalBundleSizeBytes()` + `formatBytes()` helpers
+  - [x] Uses a local `RepoFile` type shape with a TODO to swap to the generated binding after next `xtask run-dev`
+- [x] **4b.3 Create `RepoDownloadButton.svelte`**
+  - [x] [platform/_shared/RepoDownloadButton.svelte](d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/platform/_shared/RepoDownloadButton.svelte) — 252 LOC
+  - [x] Props: `{ repoId, suggestedSlot?, label?, size?, preset?, disabled?, onComplete? }`
+  - [x] 6-stage state machine (`idle → listing → confirming → starting → done/error`)
+  - [x] Fixed-position confirmation modal showing: primary (editable dropdown of all siblings), resolution rationale, file count, total bundle bytes (when Hub exposes sizes), collapsible file list
+  - [x] On confirm: calls existing `download_model(repoId, primary)` Tauri cmd — the kernel's existing bundle downloader pulls every companion file automatically
+  - [x] logInfo + try/catch on every stage, toast success/error via dynamic `svelte-sonner` import
+  - [x] Exported from `_shared/index.ts` barrel alongside `resolvePrimaryFile` / `formatBytes` / `totalBundleSizeBytes`
+- [x] **4b.4 Smoke test harness (temporary)**
+  - [x] Added `<RepoDownloadButton repoId="microsoft/phi-4-mini-instruct">` to `/devtools` landing page overview tab — marked `Phase 4b harness` with explicit delete-in-Phase-8 comment
+  - [ ] Phase 8: delete the harness row
 
 ### Verify
 
-- [ ] `cargo check -p devpulse_desktop_backend` → 0 errors
-- [ ] `pnpm svelte-check` → 0 errors
-- [ ] Next `cargo xtask run-dev` regenerates specta bindings with `list_repo_files`
-- [ ] No agents used
+- [x] `cargo check -p devpulse_desktop_backend` → 0 errors
+- [x] `cargo check -p model-loader` → 0 errors
+- [x] `pnpm svelte-check` → 220 files, 0 errors, 0 warnings
+- [x] No agents used — all grep/read/write direct
 
 ### Smoke test
 

@@ -82,7 +82,9 @@ impl Guard {
             Ok(path) => path,
             Err(_) => {
                 s.skip("not installed — `cargo install sccache` to enable compile caching");
-                return Ok(Self { mode: Mode::Disabled });
+                return Ok(Self {
+                    mode: Mode::Disabled,
+                });
             }
         };
 

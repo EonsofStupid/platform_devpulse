@@ -17,13 +17,13 @@
 //! from config, which match the `DEFINE USER` statements created during boot.
 
 use anyhow::Result;
-use devpulse_telemetry::spawn;
 use axum::extract::State;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::Router;
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
+use devpulse_telemetry::spawn;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
@@ -77,7 +77,10 @@ pub async fn start(
     let encoded = base64::engine::general_purpose::STANDARD.encode(credentials);
     let auth_token = format!("Basic {encoded}");
 
-    let state = ServerState { adapter, auth_token };
+    let state = ServerState {
+        adapter,
+        auth_token,
+    };
 
     let app = Router::new()
         .route("/sql", post(handle_sql))
@@ -148,10 +151,9 @@ async fn handle_sql(
     }
 
     // ── Execute query ─────────────────────────────────────────
-    let ns = extract_header(&headers, "NS", "surreal-ns")
-        .unwrap_or_else(|| "global".to_string());
-    let db = extract_header(&headers, "DB", "surreal-db")
-        .unwrap_or_else(|| "knowledge".to_string());
+    let ns = extract_header(&headers, "NS", "surreal-ns").unwrap_or_else(|| "global".to_string());
+    let db =
+        extract_header(&headers, "DB", "surreal-db").unwrap_or_else(|| "knowledge".to_string());
 
     let query = body.trim();
     if query.is_empty() {
@@ -181,7 +183,11 @@ async fn handle_sql(
 /// Runs `SELECT * FROM kv LIMIT 1` in `global/knowledge` to verify
 /// the WAL can serve reads, not just that the connection exists.
 async fn handle_health(State(state): State<ServerState>) -> impl IntoResponse {
-    match state.adapter.query_in_ns("global", "knowledge", "SELECT * FROM kv LIMIT 1").await {
+    match state
+        .adapter
+        .query_in_ns("global", "knowledge", "SELECT * FROM kv LIMIT 1")
+        .await
+    {
         Ok(_) => (
             StatusCode::OK,
             axum::Json(serde_json::json!({

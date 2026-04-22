@@ -2,15 +2,24 @@
  * @file Hardware State Rune
  * @module @devpulse/domains/app/models/data-access/hardware
  *
- * Purely reactive hardware metrics — Rust pushes data via Tauri events.
- * No setInterval, no browser throttling issues. Frontend just listens.
+ * Reactive hardware metrics pushed from Rust every ~2s. Consumers opt in
+ * via `hardwareState.subscribe(reason)` — the underlying Tauri listener
+ * is ref-counted through `createTauriEvent("model:hardware")`, so the
+ * first subscriber attaches and the last unsubscriber detaches. Safe
+ * across HMR, multiple routes, and concurrent consumers.
+ *
+ * Honors the 2026-04-20 no-auto-load directive: nothing attaches at
+ * module import or root-layout mount. A listener only exists while at
+ * least one component/page is explicitly subscribed.
  */
 
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { logError, logInfo } from "$lib/sys/logger.js";
+import { createTauriEvent } from "$lib/sys/streams/tauri-event.svelte.js";
 import type { FitIndicator, HardwareTier } from "../util/models.types.js";
 import { calculateFit } from "../util/models.types.js";
 import { fetchHardwareMetrics, type HardwareInfo } from "./hardware.service.js";
+
+const hardwareStream = createTauriEvent<HardwareInfo>("model:hardware");
 
 function normalizeMetricText(value: string | null | undefined): string | null {
 	const trimmed = value?.trim();
@@ -32,9 +41,8 @@ class HardwareState {
 	metrics = $state<HardwareInfo | null>(null);
 	loading = $state(false);
 	error = $state<string | null>(null);
-	private unlisten: UnlistenFn | null = null;
+	subscriberCount = $state(0);
 	private refreshPromise: Promise<void> | null = null;
-	private listenPromise: Promise<void> | null = null;
 	private lastSignature: string | null = null;
 
 	private applyMetrics(metrics: HardwareInfo, source: "refresh" | "push"): void {
@@ -76,51 +84,41 @@ class HardwareState {
 	}
 
 	/**
-	 * Start listening to Rust-pushed hardware events.
-	 * Replaces setInterval polling — Rust runs a 2s loop that is never
-	 * throttled by browser visibility/focus state.
+	 * Subscribe to Rust-pushed hardware telemetry. Ref-counted: the
+	 * underlying `model:hardware` listener attaches on the first
+	 * subscriber and detaches when the last one drops.
+	 *
+	 * Returns the teardown function. Typical usage:
+	 *
+	 * ```svelte
+	 * $effect(() => hardwareState.subscribe("devpulse-dashboard"));
+	 * ```
+	 *
+	 * If no snapshot has arrived yet, kicks off a one-shot refresh so
+	 * the first paint has data. All concurrent refresh calls share the
+	 * same promise.
 	 */
-	async startListening(): Promise<void> {
-		return this.ensureListening("legacy-startListening");
-	}
-
-	/**
-	 * Idempotent app-wide listener bootstrap.
-	 * Any caller can request telemetry without racing or resetting listeners.
-	 */
-	async ensureListening(reason = "manual"): Promise<void> {
-		if (this.unlisten) {
-			if (!this.metrics && !this.loading) {
-				await this.refresh(`ensureListening:${reason}`);
-			}
-			return;
-		}
-
-		if (this.listenPromise) return this.listenPromise;
-
-		this.listenPromise = (async () => {
-			logInfo("models.hardware", `ensureListening() start — reason=${reason}`);
-			await this.refresh(`listen:${reason}`);
-
-			this.unlisten = await listen<HardwareInfo>("model:hardware", (event) => {
-				this.applyMetrics(event.payload, "push");
-			});
-
-			logInfo("models.hardware", `ensureListening() attached — reason=${reason}`);
-		})().finally(() => {
-			this.listenPromise = null;
+	subscribe(reason = "manual"): () => void {
+		const firstSubscriber = this.subscriberCount === 0;
+		const unsubscribeStream = hardwareStream.handle((payload) => {
+			this.applyMetrics(payload, "push");
 		});
+		this.subscriberCount += 1;
 
-		return this.listenPromise;
-	}
-
-	/** Stop listening to hardware events. */
-	stopListening(): void {
-		if (this.unlisten) {
-			logInfo("models.hardware", "stopListening() — detached hardware listener");
-			this.unlisten();
-			this.unlisten = null;
+		if (firstSubscriber) {
+			logInfo("models.hardware", `subscribe() attached — reason=${reason}`);
+			if (!this.metrics && !this.loading) {
+				void this.refresh(`subscribe:${reason}`);
+			}
 		}
+
+		return () => {
+			unsubscribeStream();
+			this.subscriberCount -= 1;
+			if (this.subscriberCount === 0) {
+				logInfo("models.hardware", `subscribe() last subscriber dropped — reason=${reason}`);
+			}
+		};
 	}
 
 	// ── Derived Values ──────────────────────────────────

@@ -75,10 +75,18 @@ pub struct UserPreferences {
 
 fn row_to_profile(row: &[SqlValue]) -> UserProfile {
     UserProfile {
-        id: row.first().and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        id: row
+            .first()
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
         display_name: row.get(1).and_then(|v| v.as_text()).map(String::from),
         email: row.get(2).and_then(|v| v.as_text()).map(String::from),
-        hardware_profile: row.get(3).and_then(|v| v.as_text()).unwrap_or("32g_engineer").to_string(),
+        hardware_profile: row
+            .get(3)
+            .and_then(|v| v.as_text())
+            .unwrap_or("32g_engineer")
+            .to_string(),
         onboarding_complete: row.get(4).and_then(SqlValue::as_integer).unwrap_or(0) != 0,
         expertise_level: row.get(5).and_then(SqlValue::as_integer).unwrap_or(1),
         created_at: row.get(6).and_then(SqlValue::as_integer).unwrap_or(0),
@@ -89,16 +97,36 @@ fn row_to_profile(row: &[SqlValue]) -> UserProfile {
 
 fn row_to_prefs(row: &[SqlValue]) -> UserPreferences {
     UserPreferences {
-        id: row.first().and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        user_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        theme: row.get(2).and_then(|v| v.as_text()).unwrap_or("dark").to_string(),
-        context_mode: row.get(3).and_then(|v| v.as_text()).unwrap_or("normal").to_string(),
+        id: row
+            .first()
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
+        user_id: row
+            .get(1)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
+        theme: row
+            .get(2)
+            .and_then(|v| v.as_text())
+            .unwrap_or("dark")
+            .to_string(),
+        context_mode: row
+            .get(3)
+            .and_then(|v| v.as_text())
+            .unwrap_or("normal")
+            .to_string(),
         show_thinking: row.get(4).and_then(SqlValue::as_integer).unwrap_or(0) != 0,
         preferred_languages: row.get(5).and_then(|v| v.as_text()).map(String::from),
         tab_size: row.get(6).and_then(SqlValue::as_integer).unwrap_or(4),
         use_semicolons: row.get(7).and_then(SqlValue::as_integer).unwrap_or(1) != 0,
         default_temperature: row.get(8).and_then(SqlValue::as_real).unwrap_or(0.7),
-        verbosity: row.get(9).and_then(|v| v.as_text()).unwrap_or("balanced").to_string(),
+        verbosity: row
+            .get(9)
+            .and_then(|v| v.as_text())
+            .unwrap_or("balanced")
+            .to_string(),
         allow_telemetry: row.get(10).and_then(SqlValue::as_integer).unwrap_or(1) != 0,
         screen_capture_enabled: row.get(11).and_then(SqlValue::as_integer).unwrap_or(0) != 0,
     }
@@ -222,7 +250,9 @@ pub async fn fetch_user_profile(
 
 #[tracing::instrument(skip_all, err)]
 async fn inner_fetch_user_profile(state: State<'_, PlatformState>) -> Result<UserProfile> {
-    let adapter = get_adapter(&state).await.context("fetch_user_profile: get adapter")?;
+    let adapter = get_adapter(&state)
+        .await
+        .context("fetch_user_profile: get adapter")?;
     ensure_profile(adapter.as_ref())
         .await
         .context("fetch_user_profile: ensure profile")
@@ -250,7 +280,9 @@ async fn inner_update_user_profile(
     expertise_level: Option<i64>,
     state: State<'_, PlatformState>,
 ) -> Result<UserProfile> {
-    let adapter = get_adapter(&state).await.context("update_user_profile: get adapter")?;
+    let adapter = get_adapter(&state)
+        .await
+        .context("update_user_profile: get adapter")?;
     let profile = ensure_profile(adapter.as_ref())
         .await
         .context("update_user_profile: ensure profile")?;
@@ -289,9 +321,7 @@ pub async fn fetch_user_preferences(
 }
 
 #[tracing::instrument(skip_all, err)]
-async fn inner_fetch_user_preferences(
-    state: State<'_, PlatformState>,
-) -> Result<UserPreferences> {
+async fn inner_fetch_user_preferences(state: State<'_, PlatformState>) -> Result<UserPreferences> {
     let adapter = get_adapter(&state)
         .await
         .context("fetch_user_preferences: get adapter")?;
@@ -355,11 +385,25 @@ async fn inner_update_user_preferences(
 
     let new_theme = theme.unwrap_or(prefs.theme);
     let new_ctx = context_mode.unwrap_or(prefs.context_mode);
-    let new_thinking = if show_thinking.unwrap_or(prefs.show_thinking) { "1" } else { "0" };
+    let new_thinking = if show_thinking.unwrap_or(prefs.show_thinking) {
+        "1"
+    } else {
+        "0"
+    };
     let new_verbosity = verbosity.unwrap_or(prefs.verbosity);
-    let new_temp = default_temperature.unwrap_or(prefs.default_temperature).to_string();
-    let new_telemetry = if allow_telemetry.unwrap_or(prefs.allow_telemetry) { "1" } else { "0" };
-    let new_capture = if screen_capture_enabled.unwrap_or(prefs.screen_capture_enabled) { "1" } else { "0" };
+    let new_temp = default_temperature
+        .unwrap_or(prefs.default_temperature)
+        .to_string();
+    let new_telemetry = if allow_telemetry.unwrap_or(prefs.allow_telemetry) {
+        "1"
+    } else {
+        "0"
+    };
+    let new_capture = if screen_capture_enabled.unwrap_or(prefs.screen_capture_enabled) {
+        "1"
+    } else {
+        "0"
+    };
 
     adapter
         .execute(

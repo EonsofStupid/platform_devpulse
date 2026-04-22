@@ -91,14 +91,42 @@ pub async fn select_entry(
     };
 
     let entry = SelectedEntry {
-        id: row.get(0).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        entry_type: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        id: row
+            .get(0)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
+        entry_type: row
+            .get(1)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
         tool: row.get(2).and_then(|v| v.as_text()).map(String::from),
-        category: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        tier: row.get(4).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        payload_json: row.get(5).and_then(|v| v.as_text()).unwrap_or("{}").to_string(),
-        tags_csv: row.get(6).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        added: row.get(7).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        category: row
+            .get(3)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
+        tier: row
+            .get(4)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
+        payload_json: row
+            .get(5)
+            .and_then(|v| v.as_text())
+            .unwrap_or("{}")
+            .to_string(),
+        tags_csv: row
+            .get(6)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
+        added: row
+            .get(7)
+            .and_then(|v| v.as_text())
+            .unwrap_or("")
+            .to_string(),
     };
 
     // Record that we showed this entry

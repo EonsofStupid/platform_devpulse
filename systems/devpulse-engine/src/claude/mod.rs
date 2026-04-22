@@ -53,8 +53,7 @@ use serde::{Deserialize, Serialize};
 
 /// Complete Claude integration config.
 /// Covers all three connection modes.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ClaudeConfig {
     /// Sidecar: Claude Desktop bundled as child process
     pub sidecar: SidecarConfig,
@@ -204,8 +203,7 @@ pub struct SseConfig {
 }
 
 /// Stdio transport config for MCP server (used by Claude Code).
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct StdioConfig {
     /// Whether stdio transport is enabled.
     pub enabled: bool,
@@ -354,7 +352,6 @@ impl Default for SseConfig {
     }
 }
 
-
 impl Default for McpServerConfig {
     fn default() -> Self {
         Self {
@@ -420,4 +417,3 @@ impl Default for BrowserAutomationConfig {
         }
     }
 }
-

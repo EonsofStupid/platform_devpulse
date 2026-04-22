@@ -35,7 +35,7 @@ use crate::otel::provider::build_provider;
 /// to the devtool UI without duplicate config.
 #[derive(Debug, Clone)]
 pub struct TelemetryInfo {
-    /// Semver of the running binary. Surfaces as OTel `service.version`.
+    /// Semver of the running binary. Surfaces as `OTel` `service.version`.
     pub service_version: String,
     /// Per-launch session id, e.g. `"session-20260419-124509"`.
     pub session_id: String,

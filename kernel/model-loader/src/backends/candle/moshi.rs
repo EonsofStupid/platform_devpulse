@@ -68,8 +68,8 @@ impl MoshiStsBackend {
         };
 
         // Load Mimi codec (8 codebooks for single-stream, 16 for duplex)
-        let _mimi = mimi::load(&mimi_path, Some(8), device)
-            .context("Failed to load Mimi audio codec")?;
+        let _mimi =
+            mimi::load(&mimi_path, Some(8), device).context("Failed to load Mimi audio codec")?;
 
         // Load LM — auto-detects gguf vs safetensors by extension
         let _lm_model = lm::load_streaming_both_ways(&lm_path, dtype, device)
@@ -103,7 +103,12 @@ impl MoshiStsBackend {
 
     fn find_lm_file(&self) -> Result<std::path::PathBuf> {
         // Prefer GGUF (quantized, smaller)
-        for name in &["model.q8.gguf", "model.q4.gguf", "model.gguf", "model.safetensors"] {
+        for name in &[
+            "model.q8.gguf",
+            "model.q4.gguf",
+            "model.gguf",
+            "model.safetensors",
+        ] {
             let path = self.model_dir.join(name);
             if path.exists() {
                 return Ok(path);

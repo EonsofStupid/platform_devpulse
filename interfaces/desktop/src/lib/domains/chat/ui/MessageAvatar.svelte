@@ -11,12 +11,13 @@ interface Props {
 
 let { variant, class: className }: Props = $props();
 
-const ring =
+const ring = $derived(
 	variant === "user"
 		? "ring-[var(--accent-teal-main)]"
 		: variant === "system"
 			? "ring-[var(--accent-ember-main)]"
-			: "ring-[var(--accent-purple-main)]";
+			: "ring-[var(--accent-purple-main)]",
+);
 </script>
 
 <div

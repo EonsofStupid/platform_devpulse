@@ -7,8 +7,8 @@
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{
-    knowledge_record_reaction, knowledge_select_entry, KnowledgeEntryType,
-    KnowledgeReaction, KnowledgeSelectionParams, KnowledgeTier, SqlAdapter,
+    knowledge_record_reaction, knowledge_select_entry, KnowledgeEntryType, KnowledgeReaction,
+    KnowledgeSelectionParams, KnowledgeTier, SqlAdapter,
 };
 
 use serde::{Deserialize, Serialize};
@@ -50,17 +50,19 @@ pub async fn get_knowledge_entry(
     state: State<'_, PlatformState>,
 ) -> Result<Option<KnowledgeEntryDto>, String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
         .ok_or("User relational service not available")?;
     let adapter: &dyn SqlAdapter = svc.adapter().as_ref();
 
     // Parse entry type from frontend string
-    let parsed_type: KnowledgeEntryType = serde_json::from_value(
-        serde_json::Value::String(entry_type.clone()),
-    )
-    .map_err(|_| format!("Unknown knowledge entry type: {entry_type}"))?;
+    let parsed_type: KnowledgeEntryType =
+        serde_json::from_value(serde_json::Value::String(entry_type.clone()))
+            .map_err(|_| format!("Unknown knowledge entry type: {entry_type}"))?;
 
     // Default user for single-user mode, show all tiers
     let params = KnowledgeSelectionParams {
@@ -108,16 +110,18 @@ pub async fn record_knowledge_reaction(
     state: State<'_, PlatformState>,
 ) -> Result<(), String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
         .ok_or("User relational service not available")?;
     let adapter: &dyn SqlAdapter = svc.adapter().as_ref();
 
-    let parsed_reaction: KnowledgeReaction = serde_json::from_value(
-        serde_json::Value::String(reaction.clone()),
-    )
-    .map_err(|_| format!("Unknown reaction: {reaction}"))?;
+    let parsed_reaction: KnowledgeReaction =
+        serde_json::from_value(serde_json::Value::String(reaction.clone()))
+            .map_err(|_| format!("Unknown reaction: {reaction}"))?;
 
     knowledge_record_reaction(adapter, &entry_id, "default", parsed_reaction)
         .await

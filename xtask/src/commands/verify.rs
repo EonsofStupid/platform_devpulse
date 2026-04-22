@@ -19,21 +19,14 @@ impl Task for Verify {
         stage::section("Verify");
 
         // Spawn both checks concurrently — don't wait for one to finish first
-        let svelte_child = ws.spawn_in_verbose(
-            &ws.desktop_dir(),
-            "pnpm",
-            &["svelte-check"],
-        )?;
+        let svelte_child = ws.spawn_in_verbose(&ws.desktop_dir(), "pnpm", &["svelte-check"])?;
 
-        let cargo_child = ws.spawn_in(
-            ws.root(),
-            "cargo",
-            &["check", "--workspace"],
-        )?;
+        let cargo_child = ws.spawn_in(ws.root(), "cargo", &["check", "--workspace"])?;
 
         // Wait for both — order doesn't matter, both are already running
         let svelte_stage = Stage::start("svelte-check");
-        let svelte_status = svelte_child.wait_with_output()
+        let svelte_status = svelte_child
+            .wait_with_output()
             .map_err(|e| anyhow::anyhow!("svelte-check wait failed: {e}"))?;
 
         if svelte_status.status.success() {
@@ -43,7 +36,8 @@ impl Task for Verify {
         }
 
         let cargo_stage = Stage::start("cargo check");
-        let cargo_status = cargo_child.wait_with_output()
+        let cargo_status = cargo_child
+            .wait_with_output()
             .map_err(|e| anyhow::anyhow!("cargo check wait failed: {e}"))?;
 
         if cargo_status.status.success() {

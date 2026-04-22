@@ -126,9 +126,9 @@ pub const SERVICE_COUNT: usize = SERVICE_MANIFEST.len();
 /// This function uses exhaustive match — compiler error if a role is missing.
 pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
     let idx = match role {
-        ServiceRole::Relational => 0,  // System relational (first entry)
+        ServiceRole::Relational => 0, // System relational (first entry)
         ServiceRole::Analytics => 1,
-        ServiceRole::Graph => 2,       // System graph (first entry)
+        ServiceRole::Graph => 2, // System graph (first entry)
         ServiceRole::Cache => 3,
         ServiceRole::Vector => 7,
         ServiceRole::Grammar => 8,

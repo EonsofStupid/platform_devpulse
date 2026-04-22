@@ -15,7 +15,9 @@ use tracing::{debug, error, info, warn};
 #[cfg(feature = "capture")]
 use nokhwa::{
     pixel_format::RgbAFormat,
-    utils::{CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution},
+    utils::{
+        CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution,
+    },
     Camera, NokhwaError,
 };
 
@@ -63,9 +65,9 @@ impl CameraManager {
     #[cfg(feature = "capture")]
     pub fn enumerate_cameras(&mut self) -> MediaResult<Vec<CameraInfo>> {
         use nokhwa::query;
-        
+
         info!("Enumerating cameras...");
-        
+
         let devices = query(nokhwa::utils::ApiBackend::Auto)
             .map_err(|e| MediaError::CaptureFailed(e.to_string()))?;
 
@@ -116,21 +118,18 @@ impl CameraManager {
         info!("Opening camera: {} ({}x{})", cam_info.name, width, height);
 
         let index = CameraIndex::Index(cam_info.index);
-        let format = CameraFormat::new(
-            Resolution::new(width, height),
-            FrameFormat::MJPEG,
-            30,
-        );
-        let requested = RequestedFormat::new::<RgbAFormat>(
-            RequestedFormatType::Closest(format),
-        );
+        let format = CameraFormat::new(Resolution::new(width, height), FrameFormat::MJPEG, 30);
+        let requested = RequestedFormat::new::<RgbAFormat>(RequestedFormatType::Closest(format));
 
         let camera = Camera::new(index, requested).map_err(|e| match &e {
             NokhwaError::OpenDeviceError(dev, reason) => {
                 error!("Device open failed for {}: {}", dev, reason);
                 MediaError::CameraOpenFailed(e.to_string())
             }
-            NokhwaError::StructureError { structure, error: err } => {
+            NokhwaError::StructureError {
+                structure,
+                error: err,
+            } => {
                 error!("Format negotiation failed ({}): {}", structure, err);
                 MediaError::UnsupportedFormat(e.to_string())
             }

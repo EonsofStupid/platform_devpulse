@@ -284,8 +284,7 @@ mod tests {
     #[test]
     fn every_baseline_id_is_present() {
         let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
-        let ids: std::collections::HashSet<&str> =
-            slots.iter().map(|s| s.id.as_str()).collect();
+        let ids: std::collections::HashSet<&str> = slots.iter().map(|s| s.id.as_str()).collect();
         for baseline in BASELINE_SLOT_IDS {
             assert!(
                 ids.contains(*baseline),
@@ -381,10 +380,7 @@ mod tests {
                 .iter()
                 .find(|s| s.id == slot_id)
                 .unwrap_or_else(|| panic!("{slot_id} must exist"));
-            assert!(
-                !slot.builtin,
-                "{slot_id} must not be flagged builtin"
-            );
+            assert!(!slot.builtin, "{slot_id} must not be flagged builtin");
         }
     }
 
@@ -401,10 +397,7 @@ mod tests {
                 .iter()
                 .find(|s| s.id == slot_id)
                 .unwrap_or_else(|| panic!("{slot_id} must exist"));
-            assert!(
-                slot.builtin,
-                "{slot_id} must be flagged builtin"
-            );
+            assert!(slot.builtin, "{slot_id} must be flagged builtin");
         }
     }
 
@@ -429,10 +422,21 @@ mod tests {
     #[test]
     fn builtin_filter_produces_disjoint_views() {
         let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
-        let user_facing: Vec<&str> = slots.iter().filter(|s| !s.builtin).map(|s| s.id.as_str()).collect();
-        let builtins: Vec<&str> = slots.iter().filter(|s| s.builtin).map(|s| s.id.as_str()).collect();
+        let user_facing: Vec<&str> = slots
+            .iter()
+            .filter(|s| !s.builtin)
+            .map(|s| s.id.as_str())
+            .collect();
+        let builtins: Vec<&str> = slots
+            .iter()
+            .filter(|s| s.builtin)
+            .map(|s| s.id.as_str())
+            .collect();
 
-        assert!(!user_facing.is_empty(), "user-facing view must not be empty");
+        assert!(
+            !user_facing.is_empty(),
+            "user-facing view must not be empty"
+        );
         assert!(!builtins.is_empty(), "built-in view must not be empty");
         assert_eq!(
             user_facing.len() + builtins.len(),

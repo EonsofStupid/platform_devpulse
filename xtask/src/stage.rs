@@ -245,13 +245,9 @@ pub fn monitor_cargo_child(
             clear_line();
             if est > 0 {
                 let counter = format!("[{total:>3}/~{est}]");
-                eprint!(
-                    "\r  \u{2502}  {spin} {verb} {crate_name:<32} {elapsed:>8}  {counter}"
-                );
+                eprint!("\r  \u{2502}  {spin} {verb} {crate_name:<32} {elapsed:>8}  {counter}");
             } else {
-                eprint!(
-                    "\r  \u{2502}  {spin} {verb} {crate_name:<32} {elapsed:>8}"
-                );
+                eprint!("\r  \u{2502}  {spin} {verb} {crate_name:<32} {elapsed:>8}");
             }
             io::stderr().flush().ok();
         }
@@ -278,7 +274,11 @@ pub fn monitor_cargo_child(
                 checked += 1;
             }
 
-            let prefix = if is_compile { "Compiling " } else { "Checking " };
+            let prefix = if is_compile {
+                "Compiling "
+            } else {
+                "Checking "
+            };
             let verb = if is_compile { "compiling" } else { "checking " };
             let crate_name = trimmed
                 .strip_prefix(prefix)
@@ -309,16 +309,11 @@ pub fn monitor_cargo_child(
             clear_line();
             if estimated_total > 0 {
                 let counter = format!("[{total:>3}/~{estimated_total}]");
-                eprint!(
-                    "\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}  {counter}"
-                );
+                eprint!("\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}  {counter}");
             } else {
-                eprint!(
-                    "\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}"
-                );
+                eprint!("\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}");
             }
             io::stderr().flush().ok();
-
         } else if trimmed.starts_with("warning:") {
             if trimmed.contains("generated") {
                 continue;
@@ -327,16 +322,13 @@ pub fn monitor_cargo_child(
             clear_line();
             let detail = trimmed.strip_prefix("warning: ").unwrap_or(trimmed);
             eprintln!("  \u{2502}  [warn] {detail}");
-
         } else if trimmed.starts_with("error") {
             in_error_block = true;
             clear_line();
             errors.push(trimmed.to_string());
             eprintln!("  \u{2502}  [ERROR] {trimmed}");
-
         } else if in_error_block && !trimmed.is_empty() {
             eprintln!("  \u{2502}          {trimmed}");
-
         } else if trimmed.starts_with("Finished") {
             in_error_block = false;
             clear_line();

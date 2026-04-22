@@ -52,7 +52,6 @@ use std::fmt;
 #[serde(tag = "kind", rename_all = "kebab-case")]
 pub enum LoadError {
     // ── Compatibility failures (pre-download / pre-load gate) ──────
-
     /// The architecture is not in the registry at all. The frontend
     /// should show "unknown architecture, consider filing an issue".
     UnknownArchitecture {
@@ -75,7 +74,6 @@ pub enum LoadError {
     },
 
     // ── Filesystem + model-asset failures ─────────────────────────
-
     /// A required file is missing from the model directory
     /// (`config.json`, `tokenizer.json`, shards, etc.).
     MissingFile {
@@ -104,7 +102,6 @@ pub enum LoadError {
     },
 
     // ── Resource failures (VRAM / RAM / disk) ─────────────────────
-
     /// Not enough GPU memory to load the requested model.
     VramInsufficient {
         /// VRAM required by the model (MB).
@@ -130,7 +127,6 @@ pub enum LoadError {
     NoGpuDriver,
 
     // ── Network / download failures ───────────────────────────────
-
     /// HuggingFace download failed (network, auth, or server error).
     DownloadFailed {
         /// Human-readable failure reason.
@@ -142,7 +138,6 @@ pub enum LoadError {
     },
 
     // ── Slot / service state failures ─────────────────────────────
-
     /// Requested slot ID does not exist in the registry.
     SlotNotFound {
         /// Slot identifier requested by the caller.
@@ -177,7 +172,6 @@ pub enum LoadError {
     },
 
     // ── Backend failures ──────────────────────────────────────────
-
     /// The backend is installed but failed to instantiate the model.
     /// Covers corrupt weights, mismatched config, candle init errors,
     /// ORT session creation failures, etc.
@@ -196,7 +190,6 @@ pub enum LoadError {
     },
 
     // ── Catch-all ─────────────────────────────────────────────────
-
     /// Plumbing errors that don't fit the above (IO, generic backend
     /// crashes, unexpected failures from deeper in the stack). Keep
     /// this rare — prefer adding a specific variant when a new class
@@ -458,10 +451,7 @@ impl fmt::Display for LoadError {
                 f,
                 "Disk space insufficient: need {needed_mb} MB, only {available_mb} MB free"
             ),
-            Self::NoGpuDriver => write!(
-                f,
-                "GPU driver not found — falling back to CPU"
-            ),
+            Self::NoGpuDriver => write!(f, "GPU driver not found — falling back to CPU"),
 
             // Network
             Self::DownloadFailed {

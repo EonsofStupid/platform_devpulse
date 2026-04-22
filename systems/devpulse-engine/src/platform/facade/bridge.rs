@@ -75,13 +75,13 @@ impl FacadeBridge {
                     let elapsed_ms = start.elapsed().as_millis() as u64;
 
                     // ── Dev channel: local builder stream only ───────
-                    if self.dev_tx.receiver_count() > 0
-                        && self.dev_tx.send(event.clone()).is_err() {
-                            dev_dropped += 1;
-                            if dev_dropped % 100 == 0 {
-                                warn!(dropped = dev_dropped, "Dev channel: receivers lagging");
-                            }
+                    if self.dev_tx.receiver_count() > 0 && self.dev_tx.send(event.clone()).is_err()
+                    {
+                        dev_dropped += 1;
+                        if dev_dropped % 100 == 0 {
+                            warn!(dropped = dev_dropped, "Dev channel: receivers lagging");
                         }
+                    }
 
                     // ── Surface channel: translate → filter → emit ───
                     if self.surface_tx.receiver_count() > 0 {
@@ -93,7 +93,8 @@ impl FacadeBridge {
                             continue;
                         }
 
-                        let Some(mut surface_event) = self.registry.translate(&event, &config) else {
+                        let Some(mut surface_event) = self.registry.translate(&event, &config)
+                        else {
                             trace!(?category, "Translator returned None");
                             continue;
                         };
@@ -108,7 +109,10 @@ impl FacadeBridge {
                         if self.surface_tx.send(final_event).is_err() {
                             surface_dropped += 1;
                             if surface_dropped % 100 == 0 {
-                                warn!(dropped = surface_dropped, "Surface channel: receivers lagging");
+                                warn!(
+                                    dropped = surface_dropped,
+                                    "Surface channel: receivers lagging"
+                                );
                             }
                         }
                     }
@@ -126,7 +130,10 @@ impl FacadeBridge {
         }
 
         if dev_dropped > 0 || surface_dropped > 0 {
-            warn!(dev_dropped, surface_dropped, "Facade bridge shutdown. Total dropped.");
+            warn!(
+                dev_dropped,
+                surface_dropped, "Facade bridge shutdown. Total dropped."
+            );
         }
     }
 }

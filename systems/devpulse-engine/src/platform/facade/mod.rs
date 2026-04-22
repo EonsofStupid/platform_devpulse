@@ -31,10 +31,10 @@ pub use events::{EventCategory, InternalEvent};
 pub use filter::FilterPipeline;
 pub use surface::{Severity, SurfaceCategory, SurfaceEvent};
 pub use translator::{EventTranslator, TranslationRegistry};
-pub use visibility::{Visibility, classify, narration_hint};
+pub use visibility::{classify, narration_hint, Visibility};
 
-use std::sync::Arc;
 use devpulse_telemetry::spawn;
+use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
 /// Capacity for each output channel. Must be large enough to avoid

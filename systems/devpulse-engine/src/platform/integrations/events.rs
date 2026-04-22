@@ -80,10 +80,7 @@ impl LoaderEventSink for EventBridge {
                 "model:download-complete",
                 json!({ "download_id": download_id, "model_id": registry_entry.id, "filename": registry_entry.filename }),
             ),
-            LoaderEvent::DownloadFailed {
-                download_id,
-                error,
-            } => (
+            LoaderEvent::DownloadFailed { download_id, error } => (
                 "model:download-failed",
                 json!({ "download_id": download_id, "error": error }),
             ),

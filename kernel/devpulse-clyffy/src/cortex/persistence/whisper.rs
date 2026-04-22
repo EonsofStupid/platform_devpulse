@@ -41,8 +41,8 @@ impl WhisperAdapter {
         let config_path = model_dir.join("config.json");
         let config_data = std::fs::read_to_string(&config_path)
             .with_context(|| format!("Missing config.json at {}", config_path.display()))?;
-        let config: Config = serde_json::from_str(&config_data)
-            .context("Failed to parse Whisper config.json")?;
+        let config: Config =
+            serde_json::from_str(&config_data).context("Failed to parse Whisper config.json")?;
 
         // Load tokenizer
         let tokenizer_path = model_dir.join("tokenizer.json");
@@ -52,12 +52,13 @@ impl WhisperAdapter {
         // Load mel filters from model directory
         // Whisper models ship with melfilters.bytes (f32 little-endian)
         let mel_path = model_dir.join("melfilters.bytes");
-        let mel_bytes = std::fs::read(&mel_path)
-            .with_context(|| format!(
+        let mel_bytes = std::fs::read(&mel_path).with_context(|| {
+            format!(
                 "Missing melfilters.bytes at {}. \
                  Download from the Whisper model repo (80-band or 128-band).",
                 mel_path.display()
-            ))?;
+            )
+        })?;
         let mel_filters: Vec<f32> = mel_bytes
             .chunks_exact(4)
             .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
@@ -66,7 +67,9 @@ impl WhisperAdapter {
         if mel_filters.len() != expected_len {
             anyhow::bail!(
                 "melfilters.bytes has {} floats, expected {} ({}×201)",
-                mel_filters.len(), expected_len, config.num_mel_bins
+                mel_filters.len(),
+                expected_len,
+                config.num_mel_bins
             );
         }
 
@@ -105,11 +108,7 @@ impl WhisperAdapter {
         // Compute log-mel spectrogram
         let mel = m::audio::pcm_to_mel(&self.config, pcm_16khz, &self.mel_filters);
         let mel_len = mel.len() / self.config.num_mel_bins;
-        let mel = Tensor::from_vec(
-            mel,
-            (1, self.config.num_mel_bins, mel_len),
-            &self.device,
-        )?;
+        let mel = Tensor::from_vec(mel, (1, self.config.num_mel_bins, mel_len), &self.device)?;
 
         // Encode audio
         let audio_features = self.model.encoder.forward(&mel, true)?;
@@ -125,13 +124,14 @@ impl WhisperAdapter {
 
         for _ in 0..max_tokens {
             let token_tensor = Tensor::new(tokens.as_slice(), &self.device)?.unsqueeze(0)?;
-            let logits = self.model.decoder.forward(&token_tensor, &audio_features, true)?;
+            let logits = self
+                .model
+                .decoder
+                .forward(&token_tensor, &audio_features, true)?;
 
             // Greedy: take argmax of last token position
             let last_logits = logits.get(0)?.get(logits.dim(1)? - 1)?;
-            let next_token = last_logits
-                .argmax(0)?
-                .to_scalar::<u32>()?;
+            let next_token = last_logits.argmax(0)?.to_scalar::<u32>()?;
 
             if next_token == eot_token {
                 break;
@@ -145,7 +145,8 @@ impl WhisperAdapter {
             .filter(|&t| t != sot_token && t != transcribe_token && t != no_timestamps_token)
             .collect();
 
-        let text = self.tokenizer
+        let text = self
+            .tokenizer
             .decode(&text_tokens, true)
             .map_err(|e| anyhow::anyhow!("Token decode failed: {e}"))?;
 
@@ -158,11 +159,7 @@ impl WhisperAdapter {
         let silence = vec![0.0f32; 16000]; // 1 second of silence
         let mel = m::audio::pcm_to_mel(&self.config, &silence, &self.mel_filters);
         let mel_len = mel.len() / self.config.num_mel_bins;
-        let mel = Tensor::from_vec(
-            mel,
-            (1, self.config.num_mel_bins, mel_len),
-            &self.device,
-        )?;
+        let mel = Tensor::from_vec(mel, (1, self.config.num_mel_bins, mel_len), &self.device)?;
         let _ = self.model.encoder.forward(&mel, true)?;
         Ok(())
     }

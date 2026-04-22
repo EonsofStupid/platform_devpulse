@@ -24,9 +24,7 @@ use tauri::{Manager, State};
 /// Returns error if platform is still booting or telemetry is disabled.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_lane_config(
-    state: State<'_, PlatformState>,
-) -> Result<LaneTraceConfig, String> {
+pub async fn get_lane_config(state: State<'_, PlatformState>) -> Result<LaneTraceConfig, String> {
     // P0: lock-free atomic load.
     match state.platform.load_full() {
         Some(platform) => match platform.telemetry() {
@@ -294,9 +292,7 @@ fn system_time_to_ms(t: std::time::SystemTime) -> i64 {
 /// (i.e. the app is very early in boot, before logging::init completed).
 #[tauri::command]
 #[specta::specta]
-pub async fn get_telemetry_info(
-    app: tauri::AppHandle,
-) -> Result<TelemetryPipelineInfo, String> {
+pub async fn get_telemetry_info(app: tauri::AppHandle) -> Result<TelemetryPipelineInfo, String> {
     let guard_state = app.state::<Mutex<Option<TelemetryGuard>>>();
     let lock = guard_state
         .lock()
@@ -311,11 +307,10 @@ pub async fn get_telemetry_info(
     Ok(TelemetryPipelineInfo {
         service_version: info.service_version,
         session_id: info.session_id,
-        telemetry_dir: info
-            .telemetry_dir
-            .as_ref()
-            .map(|p| p.display().to_string()),
-        keep_sessions: info.keep_sessions.map(|n| u32::try_from(n).unwrap_or(u32::MAX)),
+        telemetry_dir: info.telemetry_dir.as_ref().map(|p| p.display().to_string()),
+        keep_sessions: info
+            .keep_sessions
+            .map(|n| u32::try_from(n).unwrap_or(u32::MAX)),
         current_session_file: info
             .current_session_file
             .as_ref()
@@ -379,12 +374,8 @@ pub async fn list_telemetry_sessions(
     let mut files: Vec<TelemetrySessionFile> = entries
         .filter_map(std::result::Result::ok)
         .filter(|e| {
-            e.file_name()
-                .to_string_lossy()
-                .starts_with("spans-")
-                && e.file_name()
-                    .to_string_lossy()
-                    .ends_with(".otlp.jsonl")
+            e.file_name().to_string_lossy().starts_with("spans-")
+                && e.file_name().to_string_lossy().ends_with(".otlp.jsonl")
         })
         .map(|entry| {
             let path = entry.path();

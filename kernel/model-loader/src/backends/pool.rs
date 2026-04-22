@@ -149,7 +149,10 @@ impl BackendPool {
     /// Get reference count for a model.
     #[must_use]
     pub fn ref_count(&self, model_id: &str) -> usize {
-        self.instances.get(model_id).map(|i| i.ref_count).unwrap_or(0)
+        self.instances
+            .get(model_id)
+            .map(|i| i.ref_count)
+            .unwrap_or(0)
     }
 
     /// Memory footprint of a loaded model.

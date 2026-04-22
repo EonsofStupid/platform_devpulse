@@ -6,9 +6,9 @@
 //! that match the symbol.
 
 #[cfg(feature = "guardian")]
-use tree_sitter::{Parser, Query, QueryCursor};
-#[cfg(feature = "guardian")]
 use streaming_iterator::StreamingIterator;
+#[cfg(feature = "guardian")]
+use tree_sitter::{Parser, Query, QueryCursor};
 
 #[cfg(feature = "guardian")]
 use super::language::LangId;
@@ -54,11 +54,7 @@ pub enum RefKind {
 ///
 /// Returns an error if tree-sitter cannot parse the source.
 #[cfg(feature = "guardian")]
-pub fn find_references(
-    lang: LangId,
-    source: &str,
-    symbol: &str,
-) -> anyhow::Result<Vec<SymbolRef>> {
+pub fn find_references(lang: LangId, source: &str, symbol: &str) -> anyhow::Result<Vec<SymbolRef>> {
     let mut parser = Parser::new();
     let grammar = lang.grammar();
     parser
@@ -138,14 +134,14 @@ pub fn find_references(
 /// Classify a node's reference kind based on its parent in the AST.
 #[cfg(feature = "guardian")]
 fn classify_ref(node: tree_sitter::Node<'_>) -> RefKind {
-    let parent_kind = node
-        .parent()
-        .map(|p| p.kind())
-        .unwrap_or("");
+    let parent_kind = node.parent().map(|p| p.kind()).unwrap_or("");
 
     match parent_kind {
         "call_expression" | "macro_invocation" | "method_invocation" => RefKind::Call,
-        "type_identifier" | "type_annotation" | "generic_type" | "type_arguments"
+        "type_identifier"
+        | "type_annotation"
+        | "generic_type"
+        | "type_arguments"
         | "scoped_type_identifier" => RefKind::TypeRef,
         "field_expression" | "field_access" | "member_expression" | "selector_expression" => {
             RefKind::FieldAccess
@@ -153,7 +149,10 @@ fn classify_ref(node: tree_sitter::Node<'_>) -> RefKind {
         "use_declaration" | "import_statement" | "import_specifier" | "import_declaration" => {
             RefKind::Import
         }
-        "let_declaration" | "parameter" | "short_var_declaration" | "variable_declarator"
+        "let_declaration"
+        | "parameter"
+        | "short_var_declaration"
+        | "variable_declarator"
         | "formal_parameter" => RefKind::Binding,
         _ => RefKind::Identifier,
     }

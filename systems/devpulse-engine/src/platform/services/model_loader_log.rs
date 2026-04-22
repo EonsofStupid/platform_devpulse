@@ -81,7 +81,10 @@ impl LoaderEventSink for FileEventSink {
                 tracing::info!("[model-loader] Registry scan started");
             }
             LoaderEvent::RegistryScanComplete { models_found } => {
-                self.write_line("INFO", &format!("Registry scan complete: {models_found} models found"));
+                self.write_line(
+                    "INFO",
+                    &format!("Registry scan complete: {models_found} models found"),
+                );
                 tracing::info!(models_found, "[model-loader] Registry scan complete");
             }
             LoaderEvent::ModelDiscovered(entry) => {
@@ -89,7 +92,8 @@ impl LoaderEventSink for FileEventSink {
                     "INFO",
                     &format!(
                         "Model discovered: {} ({}, {}MB, VRAM ~{}MB)",
-                        entry.filename, entry.architecture,
+                        entry.filename,
+                        entry.architecture,
                         entry.size_bytes / (1024 * 1024),
                         entry.vram_estimate_mb,
                     ),
@@ -102,7 +106,12 @@ impl LoaderEventSink for FileEventSink {
             }
 
             // ── Downloads ──────────────────────────────────────────
-            LoaderEvent::DownloadStarted { download_id, repo_id, filename, total_bytes } => {
+            LoaderEvent::DownloadStarted {
+                download_id,
+                repo_id,
+                filename,
+                total_bytes,
+            } => {
                 self.write_line(
                     "INFO",
                     &format!("Download STARTED: {repo_id}/{filename} (id={download_id}, {total_bytes} bytes)"),
@@ -114,13 +123,21 @@ impl LoaderEventSink for FileEventSink {
                     "[model-loader] Download started"
                 );
             }
-            LoaderEvent::DownloadProgress { download_id, bytes_downloaded, total_bytes, speed_bps } => {
+            LoaderEvent::DownloadProgress {
+                download_id,
+                bytes_downloaded,
+                total_bytes,
+                speed_bps,
+            } => {
                 self.write_line(
                     "DEBUG",
                     &format!("Download progress: id={download_id} bytes={bytes_downloaded}/{total_bytes} speed={speed_bps}B/s"),
                 );
             }
-            LoaderEvent::DownloadComplete { download_id, registry_entry } => {
+            LoaderEvent::DownloadComplete {
+                download_id,
+                registry_entry,
+            } => {
                 self.write_line(
                     "INFO",
                     &format!(
@@ -136,7 +153,10 @@ impl LoaderEventSink for FileEventSink {
                 );
             }
             LoaderEvent::DownloadFailed { download_id, error } => {
-                self.write_line("ERROR", &format!("Download FAILED: id={download_id} error={error}"));
+                self.write_line(
+                    "ERROR",
+                    &format!("Download FAILED: id={download_id} error={error}"),
+                );
                 tracing::error!(
                     download_id = %download_id,
                     error = %error,
@@ -150,13 +170,22 @@ impl LoaderEventSink for FileEventSink {
 
             // ── Loading ────────────────────────────────────────────
             LoaderEvent::LoadingStarted { slot_id, model_id } => {
-                self.write_line("INFO", &format!("Loading STARTED: slot={slot_id} model={model_id}"));
+                self.write_line(
+                    "INFO",
+                    &format!("Loading STARTED: slot={slot_id} model={model_id}"),
+                );
                 tracing::info!(slot = %slot_id, model = %model_id, "[model-loader] Loading started");
             }
-            LoaderEvent::LoadingStage { slot_id, stage, progress_pct } => {
+            LoaderEvent::LoadingStage {
+                slot_id,
+                stage,
+                progress_pct,
+            } => {
                 self.write_line(
                     "DEBUG",
-                    &format!("Loading stage: slot={slot_id} stage={stage} progress={progress_pct:.0}%"),
+                    &format!(
+                        "Loading stage: slot={slot_id} stage={stage} progress={progress_pct:.0}%"
+                    ),
                 );
             }
             LoaderEvent::LoadingComplete { slot_id, memory } => {
@@ -164,7 +193,8 @@ impl LoaderEventSink for FileEventSink {
                     "INFO",
                     &format!(
                         "Loading COMPLETE: slot={slot_id} RAM={}MB VRAM={}MB",
-                        memory.ram_mb(), memory.vram_mb(),
+                        memory.ram_mb(),
+                        memory.vram_mb(),
                     ),
                 );
                 tracing::info!(
@@ -175,7 +205,10 @@ impl LoaderEventSink for FileEventSink {
                 );
             }
             LoaderEvent::LoadingFailed { slot_id, error } => {
-                self.write_line("ERROR", &format!("Loading FAILED: slot={slot_id} error={error}"));
+                self.write_line(
+                    "ERROR",
+                    &format!("Loading FAILED: slot={slot_id} error={error}"),
+                );
                 tracing::error!(slot = %slot_id, error = %error, "[model-loader] Loading FAILED");
             }
             LoaderEvent::UnloadComplete { slot_id, freed } => {
@@ -183,14 +216,19 @@ impl LoaderEventSink for FileEventSink {
                     "INFO",
                     &format!(
                         "Unload complete: slot={slot_id} freed RAM={}MB VRAM={}MB",
-                        freed.ram_mb(), freed.vram_mb(),
+                        freed.ram_mb(),
+                        freed.vram_mb(),
                     ),
                 );
                 tracing::info!(slot = %slot_id, "[model-loader] Unload complete");
             }
 
             // ── VRAM ───────────────────────────────────────────────
-            LoaderEvent::VramInsufficient { needed_mb, available_mb, suggestions } => {
+            LoaderEvent::VramInsufficient {
+                needed_mb,
+                available_mb,
+                suggestions,
+            } => {
                 self.write_line(
                     "WARN",
                     &format!(
@@ -198,10 +236,7 @@ impl LoaderEventSink for FileEventSink {
                         suggestions.join(", "),
                     ),
                 );
-                tracing::warn!(
-                    needed_mb, available_mb,
-                    "[model-loader] VRAM insufficient"
-                );
+                tracing::warn!(needed_mb, available_mb, "[model-loader] VRAM insufficient");
             }
 
             // ── Hardware ───────────────────────────────────────────
@@ -220,7 +255,11 @@ impl LoaderEventSink for FileEventSink {
             }
 
             // ── Swap ──────────────────────────────────────────────
-            LoaderEvent::SwapStarted { slot_id, from_model, to_model } => {
+            LoaderEvent::SwapStarted {
+                slot_id,
+                from_model,
+                to_model,
+            } => {
                 self.write_line(
                     "INFO",
                     &format!("Swap STARTED: slot={slot_id} from={from_model:?} to={to_model}"),
@@ -228,11 +267,17 @@ impl LoaderEventSink for FileEventSink {
                 tracing::info!(slot = %slot_id, from = ?from_model, to = %to_model, "[model-loader] Swap started");
             }
             LoaderEvent::SwapComplete { slot_id, model_id } => {
-                self.write_line("INFO", &format!("Swap COMPLETE: slot={slot_id} model={model_id}"));
+                self.write_line(
+                    "INFO",
+                    &format!("Swap COMPLETE: slot={slot_id} model={model_id}"),
+                );
                 tracing::info!(slot = %slot_id, model = %model_id, "[model-loader] Swap complete");
             }
             LoaderEvent::SwapFailed { slot_id, error } => {
-                self.write_line("ERROR", &format!("Swap FAILED: slot={slot_id} error={error}"));
+                self.write_line(
+                    "ERROR",
+                    &format!("Swap FAILED: slot={slot_id} error={error}"),
+                );
                 tracing::error!(slot = %slot_id, error = %error, "[model-loader] Swap FAILED");
             }
         }

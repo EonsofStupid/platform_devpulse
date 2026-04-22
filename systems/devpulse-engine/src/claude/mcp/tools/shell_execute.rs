@@ -45,7 +45,10 @@ fn is_blocked_command(command: &str) -> Option<&'static str> {
             return Some(blocked);
         }
     }
-    BLOCKED_PATTERNS.iter().find(|&pattern| lower.contains(pattern)).map(|v| v as _)
+    BLOCKED_PATTERNS
+        .iter()
+        .find(|&pattern| lower.contains(pattern))
+        .map(|v| v as _)
 }
 
 /// Execute a shell command within the project workspace.

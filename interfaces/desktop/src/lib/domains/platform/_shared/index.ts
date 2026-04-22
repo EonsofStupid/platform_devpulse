@@ -8,6 +8,14 @@
  * the four standard ones.
  */
 
+export { default as RepoDownloadButton } from "./RepoDownloadButton.svelte";
+export {
+	formatBytes,
+	type PrimaryResolution,
+	type RepoFile,
+	resolvePrimaryFile,
+	totalBundleSizeBytes,
+} from "./resolve-primary-file.js";
 export { default as ServiceDevtoolShell } from "./ServiceDevtoolShell.svelte";
 export { default as SwapPrimaryBrainButton } from "./SwapPrimaryBrainButton.svelte";
 export type { ExtraTab, HealthBadge, HealthState, ServiceAxis } from "./types.js";

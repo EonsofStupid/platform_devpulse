@@ -53,27 +53,29 @@ impl ConfigBackend for LibSqlConfig {
         let adapter = self.adapter.clone();
         let pk = Self::prefixed_key(key);
 
-        tokio::task::block_in_place(|| self.handle.block_on(async {
-            // P0: lock-free — connection() is now sync, returns &Connection.
-            let conn = adapter.connection();
-            let mut rows = conn
-                .query("SELECT value FROM kv_store WHERE key = ?1", [pk.as_str()])
-                .await
-                .map_err(|e| anyhow::anyhow!("LibSqlConfig get failed: {e}"))?;
+        tokio::task::block_in_place(|| {
+            self.handle.block_on(async {
+                // P0: lock-free — connection() is now sync, returns &Connection.
+                let conn = adapter.connection();
+                let mut rows = conn
+                    .query("SELECT value FROM kv_store WHERE key = ?1", [pk.as_str()])
+                    .await
+                    .map_err(|e| anyhow::anyhow!("LibSqlConfig get failed: {e}"))?;
 
-            if let Some(row) = rows
-                .next()
-                .await
-                .map_err(|e| anyhow::anyhow!("LibSqlConfig row fetch failed: {e}"))?
-            {
-                let blob: Vec<u8> = row
-                    .get(0)
-                    .map_err(|e| anyhow::anyhow!("LibSqlConfig column read failed: {e}"))?;
-                Ok(Some(String::from_utf8(blob)?))
-            } else {
-                Ok(None)
-            }
-        }))
+                if let Some(row) = rows
+                    .next()
+                    .await
+                    .map_err(|e| anyhow::anyhow!("LibSqlConfig row fetch failed: {e}"))?
+                {
+                    let blob: Vec<u8> = row
+                        .get(0)
+                        .map_err(|e| anyhow::anyhow!("LibSqlConfig column read failed: {e}"))?;
+                    Ok(Some(String::from_utf8(blob)?))
+                } else {
+                    Ok(None)
+                }
+            })
+        })
     }
 
     fn set(&self, key: &str, value: &str) -> anyhow::Result<()> {
@@ -81,7 +83,8 @@ impl ConfigBackend for LibSqlConfig {
         let pk = Self::prefixed_key(key);
         let val = value.to_string();
 
-        tokio::task::block_in_place(|| self.handle.block_on(async {
+        tokio::task::block_in_place(|| {
+            self.handle.block_on(async {
             // P0: lock-free — connection() is now sync, returns &Connection.
             let conn = adapter.connection();
             conn.execute(
@@ -91,59 +94,64 @@ impl ConfigBackend for LibSqlConfig {
             .await
             .map_err(|e| anyhow::anyhow!("LibSqlConfig set failed: {e}"))?;
             Ok(())
-        }))
+        })
+        })
     }
 
     fn delete(&self, key: &str) -> anyhow::Result<()> {
         let adapter = self.adapter.clone();
         let pk = Self::prefixed_key(key);
 
-        tokio::task::block_in_place(|| self.handle.block_on(async {
-            // P0: lock-free — connection() is now sync, returns &Connection.
-            let conn = adapter.connection();
-            conn.execute("DELETE FROM kv_store WHERE key = ?1", [pk.as_str()])
-                .await
-                .map_err(|e| anyhow::anyhow!("LibSqlConfig delete failed: {e}"))?;
-            Ok(())
-        }))
+        tokio::task::block_in_place(|| {
+            self.handle.block_on(async {
+                // P0: lock-free — connection() is now sync, returns &Connection.
+                let conn = adapter.connection();
+                conn.execute("DELETE FROM kv_store WHERE key = ?1", [pk.as_str()])
+                    .await
+                    .map_err(|e| anyhow::anyhow!("LibSqlConfig delete failed: {e}"))?;
+                Ok(())
+            })
+        })
     }
 
     fn list_by_prefix(&self, prefix: &str) -> anyhow::Result<Vec<(String, String)>> {
         let adapter = self.adapter.clone();
         let full_prefix = Self::prefixed_key(prefix);
 
-        tokio::task::block_in_place(|| self.handle.block_on(async {
-            // P0: lock-free — connection() is now sync, returns &Connection.
-            let conn = adapter.connection();
-            let like_pattern = format!("{full_prefix}%");
-            let mut rows = conn
-                .query(
-                    "SELECT key, value FROM kv_store WHERE key LIKE ?1 ORDER BY key",
-                    [like_pattern.as_str()],
-                )
-                .await
-                .map_err(|e| anyhow::anyhow!("LibSqlConfig list_by_prefix failed: {e}"))?;
+        tokio::task::block_in_place(|| {
+            self.handle.block_on(async {
+                // P0: lock-free — connection() is now sync, returns &Connection.
+                let conn = adapter.connection();
+                let like_pattern = format!("{full_prefix}%");
+                let mut rows = conn
+                    .query(
+                        "SELECT key, value FROM kv_store WHERE key LIKE ?1 ORDER BY key",
+                        [like_pattern.as_str()],
+                    )
+                    .await
+                    .map_err(|e| anyhow::anyhow!("LibSqlConfig list_by_prefix failed: {e}"))?;
 
-            let mut results = Vec::new();
-            while let Some(row) = rows
-                .next()
-                .await
-                .map_err(|e| anyhow::anyhow!("LibSqlConfig row iteration failed: {e}"))?
-            {
-                let full_key: String = row
-                    .get(0)
-                    .map_err(|e| anyhow::anyhow!("LibSqlConfig key read failed: {e}"))?;
-                let blob: Vec<u8> = row
-                    .get(1)
-                    .map_err(|e| anyhow::anyhow!("LibSqlConfig value read failed: {e}"))?;
-                // Strip the `model_loader.` prefix from keys before returning
-                let key = full_key
-                    .strip_prefix("model_loader.")
-                    .unwrap_or(&full_key)
-                    .to_string();
-                results.push((key, String::from_utf8(blob)?));
-            }
-            Ok(results)
-        }))
+                let mut results = Vec::new();
+                while let Some(row) = rows
+                    .next()
+                    .await
+                    .map_err(|e| anyhow::anyhow!("LibSqlConfig row iteration failed: {e}"))?
+                {
+                    let full_key: String = row
+                        .get(0)
+                        .map_err(|e| anyhow::anyhow!("LibSqlConfig key read failed: {e}"))?;
+                    let blob: Vec<u8> = row
+                        .get(1)
+                        .map_err(|e| anyhow::anyhow!("LibSqlConfig value read failed: {e}"))?;
+                    // Strip the `model_loader.` prefix from keys before returning
+                    let key = full_key
+                        .strip_prefix("model_loader.")
+                        .unwrap_or(&full_key)
+                        .to_string();
+                    results.push((key, String::from_utf8(blob)?));
+                }
+                Ok(results)
+            })
+        })
     }
 }

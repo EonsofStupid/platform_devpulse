@@ -27,7 +27,10 @@ pub fn boot(
         return None;
     }
 
-    on_event(InitEvent::running("System cache", "Initializing in-memory cache"));
+    on_event(InitEvent::running(
+        "System cache",
+        "Initializing in-memory cache",
+    ));
     boot_log.running("System cache", "initializing...");
     let start = Instant::now();
 

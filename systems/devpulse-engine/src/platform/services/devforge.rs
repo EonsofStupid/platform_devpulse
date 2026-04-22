@@ -296,7 +296,8 @@ pub fn resolve_devforge_server_dir(data_dir: &Path) -> Option<PathBuf> {
         let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         if let Some(repo_root) = manifest
             .parent() // systems/
-            .and_then(Path::parent) // repo root
+            .and_then(Path::parent)
+        // repo root
         {
             #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
             let platform = "win32-x64";

@@ -127,44 +127,108 @@ pub struct BackendMatrix {
 
 /// Candle GGUF fallback — covers llama-family architectures.
 const CANDLE_LLAMA_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Llama,   format: ModelFormat::Gguf, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Mistral, format: ModelFormat::Gguf, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Qwen2,   format: ModelFormat::Gguf, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Qwen25,  format: ModelFormat::Gguf, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Gemma,   format: ModelFormat::Gguf, status: SupportStatus::Stable },
+    FormatSupport {
+        arch: ArchId::Llama,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Mistral,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Qwen2,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Qwen25,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Gemma,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
 ];
 
 const CANDLE_QUANTIZED_QWEN3_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Qwen3,    format: ModelFormat::Gguf, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Qwen3Moe, format: ModelFormat::Gguf, status: SupportStatus::Stable },
+    FormatSupport {
+        arch: ArchId::Qwen3,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Qwen3Moe,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
 ];
 
 const CANDLE_QUANTIZED_PHI3_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Phi3,    format: ModelFormat::Gguf, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Phi3Moe, format: ModelFormat::Gguf, status: SupportStatus::Stable },
+    FormatSupport {
+        arch: ArchId::Phi3,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Phi3Moe,
+        format: ModelFormat::Gguf,
+        status: SupportStatus::Stable,
+    },
 ];
 
 const CANDLE_SAFETENSORS_QWEN3_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Qwen3,  format: ModelFormat::Safetensors, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Qwen35, format: ModelFormat::Safetensors, status: SupportStatus::Planned },
+    FormatSupport {
+        arch: ArchId::Qwen3,
+        format: ModelFormat::Safetensors,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Qwen35,
+        format: ModelFormat::Safetensors,
+        status: SupportStatus::Planned,
+    },
 ];
 
-const CANDLE_SAFETENSORS_QWEN3_MOE_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Qwen3Moe, format: ModelFormat::Safetensors, status: SupportStatus::Stable },
-];
+const CANDLE_SAFETENSORS_QWEN3_MOE_SUPPORT: &[FormatSupport] = &[FormatSupport {
+    arch: ArchId::Qwen3Moe,
+    format: ModelFormat::Safetensors,
+    status: SupportStatus::Stable,
+}];
 
-const CANDLE_SAFETENSORS_QWEN3_VL_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Qwen3Vl, format: ModelFormat::Safetensors, status: SupportStatus::Experimental },
-];
+const CANDLE_SAFETENSORS_QWEN3_VL_SUPPORT: &[FormatSupport] = &[FormatSupport {
+    arch: ArchId::Qwen3Vl,
+    format: ModelFormat::Safetensors,
+    status: SupportStatus::Experimental,
+}];
 
 const CANDLE_SAFETENSORS_PHI3_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Phi3,    format: ModelFormat::Safetensors, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Phi3Moe, format: ModelFormat::Safetensors, status: SupportStatus::Stable },
+    FormatSupport {
+        arch: ArchId::Phi3,
+        format: ModelFormat::Safetensors,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Phi3Moe,
+        format: ModelFormat::Safetensors,
+        status: SupportStatus::Stable,
+    },
 ];
 
 const CANDLE_SAFETENSORS_QWEN2_SUPPORT: &[FormatSupport] = &[
-    FormatSupport { arch: ArchId::Qwen2,  format: ModelFormat::Safetensors, status: SupportStatus::Stable },
-    FormatSupport { arch: ArchId::Qwen25, format: ModelFormat::Safetensors, status: SupportStatus::Stable },
+    FormatSupport {
+        arch: ArchId::Qwen2,
+        format: ModelFormat::Safetensors,
+        status: SupportStatus::Stable,
+    },
+    FormatSupport {
+        arch: ArchId::Qwen25,
+        format: ModelFormat::Safetensors,
+        status: SupportStatus::Stable,
+    },
 ];
 
 const CANDLE_SIGLIP_SUPPORT: &[FormatSupport] = &[];

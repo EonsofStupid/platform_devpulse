@@ -65,7 +65,10 @@ pub async fn boot(
                 "DuckDB store booted"
             );
             on_event(InitEvent::ok_with_latency(label, start.elapsed()));
-            boot_log.ok(label, &format!("DuckDB {} ({elapsed_ms}ms)", path.display()));
+            boot_log.ok(
+                label,
+                &format!("DuckDB {} ({elapsed_ms}ms)", path.display()),
+            );
             Some(Arc::new(store))
         }
         Err(e) => {

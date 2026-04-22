@@ -26,7 +26,10 @@ pub struct CacheHealth {
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn cache_health(state: State<'_, PlatformState>) -> Result<CacheHealth, String> {
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     match platform.cache() {
         Some(svc) => {

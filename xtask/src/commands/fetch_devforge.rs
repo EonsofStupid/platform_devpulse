@@ -151,7 +151,11 @@ impl Task for FetchDevForge {
             if existing.trim() == manifest.version {
                 let cache = Stage::start("cache check");
                 cache.ok_with("target already pinned — skipping fetch");
-                println!("  DevForge {} ready at {}", manifest.version, dst_root.display());
+                println!(
+                    "  DevForge {} ready at {}",
+                    manifest.version,
+                    dst_root.display()
+                );
                 return Ok(());
             }
         }
@@ -161,14 +165,13 @@ impl Task for FetchDevForge {
         fs::create_dir_all(&tmp_dir)?;
         let tmp_file = tmp_dir.join(&artifact.file_name);
 
-        let pinned_sha = artifact
-            .sha256
-            .as_deref()
-            .ok_or_else(|| anyhow::anyhow!(
+        let pinned_sha = artifact.sha256.as_deref().ok_or_else(|| {
+            anyhow::anyhow!(
                 "manifest artifact for target {} missing `sha256` field — \
                  refusing unverified download",
                 self.target
-            ))?;
+            )
+        })?;
 
         if !is_cached(&tmp_file, pinned_sha)? {
             let agent = build_http_agent()?;
@@ -300,9 +303,7 @@ fn build_http_agent() -> Result<ureq::Agent> {
 /// var is set and non-empty. No-op otherwise (public repos work unauth).
 fn with_github_auth(req: ureq::Request) -> ureq::Request {
     match std::env::var("GITHUB_TOKEN") {
-        Ok(token) if !token.is_empty() => {
-            req.set("Authorization", &format!("Bearer {token}"))
-        }
+        Ok(token) if !token.is_empty() => req.set("Authorization", &format!("Bearer {token}")),
         _ => req,
     }
 }
@@ -338,12 +339,10 @@ fn resolve_asset_api_url(
     file_name: &str,
 ) -> Result<String> {
     let release_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}");
-    let req = with_github_auth(agent.get(&release_url))
-        .set("Accept", "application/vnd.github+json");
+    let req =
+        with_github_auth(agent.get(&release_url)).set("Accept", "application/vnd.github+json");
 
-    let resp = req
-        .call()
-        .with_context(|| format!("GET {release_url}"))?;
+    let resp = req.call().with_context(|| format!("GET {release_url}"))?;
     if resp.status() != 200 {
         bail!(
             "release lookup failed: HTTP {} {} for {}",
@@ -354,8 +353,7 @@ fn resolve_asset_api_url(
     }
 
     let body = resp.into_string().context("read release JSON body")?;
-    let json: serde_json::Value =
-        serde_json::from_str(&body).context("parse release JSON")?;
+    let json: serde_json::Value = serde_json::from_str(&body).context("parse release JSON")?;
     let assets = json
         .get("assets")
         .and_then(|a| a.as_array())
@@ -387,13 +385,8 @@ fn resolve_asset_api_url(
 /// `Accept: application/octet-stream`. The API responds with 302 → signed
 /// S3; `ureq`'s default redirect policy strips the Authorization header
 /// on cross-host redirects, which is exactly what S3 wants.
-fn download_artifact(
-    agent: &ureq::Agent,
-    asset_api_url: &str,
-    dst: &Path,
-) -> Result<()> {
-    let req = with_github_auth(agent.get(asset_api_url))
-        .set("Accept", "application/octet-stream");
+fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Result<()> {
+    let req = with_github_auth(agent.get(asset_api_url)).set("Accept", "application/octet-stream");
 
     let resp = req.call().context("HTTP request failed")?;
 
@@ -407,8 +400,7 @@ fn download_artifact(
     }
 
     let mut reader = resp.into_reader();
-    let mut file = fs::File::create(dst)
-        .with_context(|| format!("create {}", dst.display()))?;
+    let mut file = fs::File::create(dst).with_context(|| format!("create {}", dst.display()))?;
     let mut buf = vec![0u8; IO_BUF_SIZE];
     loop {
         let n = reader.read(&mut buf).context("read response body")?;
@@ -425,8 +417,7 @@ fn download_artifact(
 /// Compute the SHA256 of a file as lowercase hex.
 fn sha256_file(path: &Path) -> Result<String> {
     use sha2::{Digest, Sha256};
-    let mut file = fs::File::open(path)
-        .with_context(|| format!("open {}", path.display()))?;
+    let mut file = fs::File::open(path).with_context(|| format!("open {}", path.display()))?;
     let mut hasher = Sha256::new();
     let mut buf = vec![0u8; IO_BUF_SIZE];
     loop {
@@ -444,11 +435,9 @@ fn sha256_file(path: &Path) -> Result<String> {
 /// Remove the target dir if it exists and recreate it empty.
 fn clear_tree(root: &Path) -> Result<()> {
     if root.exists() {
-        fs::remove_dir_all(root)
-            .with_context(|| format!("remove {}", root.display()))?;
+        fs::remove_dir_all(root).with_context(|| format!("remove {}", root.display()))?;
     }
-    fs::create_dir_all(root)
-        .with_context(|| format!("create {}", root.display()))?;
+    fs::create_dir_all(root).with_context(|| format!("create {}", root.display()))?;
     Ok(())
 }
 
@@ -457,8 +446,7 @@ fn clear_tree(root: &Path) -> Result<()> {
 /// Uses `enclosed_name()` which rejects path traversal (`..` entries) —
 /// important when extracting untrusted archives.
 fn unzip(zip_path: &Path, dst: &Path) -> Result<(u64, u64)> {
-    let file = fs::File::open(zip_path)
-        .with_context(|| format!("open {}", zip_path.display()))?;
+    let file = fs::File::open(zip_path).with_context(|| format!("open {}", zip_path.display()))?;
     let mut archive = zip::ZipArchive::new(file).context("parse zip archive")?;
 
     let mut files = 0u64;

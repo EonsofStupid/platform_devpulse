@@ -60,10 +60,15 @@ impl CandleEmbedder {
 
         // Load model weights
         let weights_path = model_dir.join("model.safetensors");
-        let vb = candle_nn::VarBuilder::from_pth(&weights_path, DTYPE, &device)
-            .with_context(|| format!("Failed to load model.safetensors at {}", weights_path.display()))?;
-        let model = BertModel::load(vb, &config)
-            .context("Failed to construct BertModel from weights")?;
+        let vb =
+            candle_nn::VarBuilder::from_pth(&weights_path, DTYPE, &device).with_context(|| {
+                format!(
+                    "Failed to load model.safetensors at {}",
+                    weights_path.display()
+                )
+            })?;
+        let model =
+            BertModel::load(vb, &config).context("Failed to construct BertModel from weights")?;
 
         tracing::info!(
             model_dir = %model_dir.display(),
@@ -92,7 +97,8 @@ impl CandleEmbedder {
     /// # Errors
     /// Returns error if tokenization or inference fails.
     pub fn embed(&self, text: &str) -> Result<Vec<f32>> {
-        let encoding = self.tokenizer
+        let encoding = self
+            .tokenizer
             .encode(text, true)
             .map_err(|e| anyhow::anyhow!("Tokenization failed: {e}"))?;
 
@@ -104,7 +110,9 @@ impl CandleEmbedder {
         let token_type_ids = token_ids.zeros_like()?;
 
         // Forward pass
-        let embeddings = self.model.forward(&token_ids, &token_type_ids, Some(&attention_mask_tensor))?;
+        let embeddings =
+            self.model
+                .forward(&token_ids, &token_type_ids, Some(&attention_mask_tensor))?;
 
         // Mean pooling: mask padding tokens, average over sequence length
         let mask = attention_mask_tensor

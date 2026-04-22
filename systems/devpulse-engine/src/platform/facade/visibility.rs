@@ -116,24 +116,19 @@ pub fn classify(event: &InternalEvent) -> Visibility {
 /// tone based on mood assessment and competency level.
 pub fn narration_hint(event: &InternalEvent) -> Option<&'static str> {
     match event {
-        InternalEvent::ModelUnloadStarted { .. } =>
-            Some("Clyffy is resting this model for now..."),
-        InternalEvent::VramPressureDetected { .. } =>
-            Some("Adjusting for your other apps..."),
-        InternalEvent::ProcessingLayerFired { .. } =>
-            Some("Thinking about this..."),
-        InternalEvent::PromptAssembled { .. } =>
-            Some("Preparing your request..."),
-        InternalEvent::PromptGateResult { .. } =>
-            Some("Checking if I have enough context..."),
-        InternalEvent::GovernanceRuleTriggered { .. } =>
-            Some("Heads up — spotted something worth mentioning..."),
-        InternalEvent::DriftDetected { .. } =>
-            Some("Noticed a potential issue in your code..."),
-        InternalEvent::AntiPatternBlocked { .. } =>
-            Some("Caught something that could cause trouble..."),
-        InternalEvent::AllocationChanged { .. } =>
-            Some("Adjusting resources..."),
+        InternalEvent::ModelUnloadStarted { .. } => Some("Clyffy is resting this model for now..."),
+        InternalEvent::VramPressureDetected { .. } => Some("Adjusting for your other apps..."),
+        InternalEvent::ProcessingLayerFired { .. } => Some("Thinking about this..."),
+        InternalEvent::PromptAssembled { .. } => Some("Preparing your request..."),
+        InternalEvent::PromptGateResult { .. } => Some("Checking if I have enough context..."),
+        InternalEvent::GovernanceRuleTriggered { .. } => {
+            Some("Heads up — spotted something worth mentioning...")
+        }
+        InternalEvent::DriftDetected { .. } => Some("Noticed a potential issue in your code..."),
+        InternalEvent::AntiPatternBlocked { .. } => {
+            Some("Caught something that could cause trouble...")
+        }
+        InternalEvent::AllocationChanged { .. } => Some("Adjusting resources..."),
         _ => None,
     }
 }

@@ -109,8 +109,7 @@ pub fn build_all(ws: &Workspace) -> Result<()> {
             Ok(()) => {
                 dep.install(ws)?;
                 // Save hash only after successful build + install
-                fs::write(&hash_file, &current_hash)
-                    .context("failed to write build hash")?;
+                fs::write(&hash_file, &current_hash).context("failed to write build hash")?;
                 s.ok_with("built and installed");
             }
             Err(e) => {
@@ -167,11 +166,7 @@ fn hash_directory(dir: &Path) -> Result<String> {
 }
 
 /// Recursively visit files in a directory, skipping named subdirs.
-fn visit_dir(
-    dir: &Path,
-    skip: &[&str],
-    cb: &mut dyn FnMut(&fs::DirEntry),
-) -> Result<()> {
+fn visit_dir(dir: &Path, skip: &[&str], cb: &mut dyn FnMut(&fs::DirEntry)) -> Result<()> {
     if !dir.is_dir() {
         return Ok(());
     }

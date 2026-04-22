@@ -78,9 +78,7 @@ pub async fn devforge_stop(state: State<'_, PlatformState>) -> Result<(), String
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn devforge_restart(
-    state: State<'_, PlatformState>,
-) -> Result<RehStatus, String> {
+pub async fn devforge_restart(state: State<'_, PlatformState>) -> Result<RehStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
         .devforge_restart()
@@ -102,9 +100,7 @@ pub async fn devforge_restart(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn devforge_health(
-    state: State<'_, PlatformState>,
-) -> Result<DevforgeHealth, String> {
+pub async fn devforge_health(state: State<'_, PlatformState>) -> Result<DevforgeHealth, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let paths = &state.devforge_paths;
     let installed = paths.resolve_reh_server_dir().is_some();
@@ -153,9 +149,7 @@ pub async fn get_reh_status(state: State<'_, PlatformState>) -> Result<RehStatus
 pub async fn get_connection_url(state: State<'_, PlatformState>) -> Result<String, String> {
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    let service = platform
-        .devforge()
-        .ok_or("DevForge REH not running")?;
+    let service = platform.devforge().ok_or("DevForge REH not running")?;
     Ok(service.connection_url())
 }
 

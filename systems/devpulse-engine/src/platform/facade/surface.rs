@@ -87,12 +87,26 @@ pub enum Severity {
 /// Optional action the UI should take when receiving this event.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SurfaceAction {
-    ShowProgress { label: String },
-    UpdateProgress { progress: f32 },
-    Dismiss { event_id: Uuid },
-    OfferLearning { topic: String, content: String },
-    RequestDecision { question: String, options: Vec<String> },
-    Navigate { target: String },
+    ShowProgress {
+        label: String,
+    },
+    UpdateProgress {
+        progress: f32,
+    },
+    Dismiss {
+        event_id: Uuid,
+    },
+    OfferLearning {
+        topic: String,
+        content: String,
+    },
+    RequestDecision {
+        question: String,
+        options: Vec<String>,
+    },
+    Navigate {
+        target: String,
+    },
 }
 
 impl SurfaceEvent {

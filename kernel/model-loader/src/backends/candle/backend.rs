@@ -188,10 +188,7 @@ impl CandleBackend {
         }
 
         // Decode all generated tokens
-        let result = model
-            .tokenizer
-            .decode(&generated, true)
-            .unwrap_or_default();
+        let result = model.tokenizer.decode(&generated, true).unwrap_or_default();
 
         Ok(result)
     }
@@ -286,25 +283,20 @@ impl InferenceBackend for CandleBackend {
     }
 
     fn memory_usage(&self) -> MemoryFootprint {
-        self.model
-            .as_ref()
-            .map(|m| m.footprint)
-            .unwrap_or_default()
+        self.model.as_ref().map(|m| m.footprint).unwrap_or_default()
     }
 
     fn metadata(&self) -> &ModelMetadata {
-        static EMPTY: std::sync::LazyLock<ModelMetadata> = std::sync::LazyLock::new(|| ModelMetadata {
-            architecture: String::new(),
-            parameter_count: None,
-            quant_level: None,
-            context_length: 0,
-            vocab_size: 0,
-        });
+        static EMPTY: std::sync::LazyLock<ModelMetadata> =
+            std::sync::LazyLock::new(|| ModelMetadata {
+                architecture: String::new(),
+                parameter_count: None,
+                quant_level: None,
+                context_length: 0,
+                vocab_size: 0,
+            });
 
-        self.model
-            .as_ref()
-            .map(|m| &m.metadata)
-            .unwrap_or(&EMPTY)
+        self.model.as_ref().map(|m| &m.metadata).unwrap_or(&EMPTY)
     }
 }
 
@@ -388,10 +380,14 @@ fn load_tokenizer_from_gguf(
     }
 
     // ── Path 3: HF Hub via `general.source.huggingface.repository` ──
-    if let Some(Value::String(repo)) = content.metadata.get("general.source.huggingface.repository")
+    if let Some(Value::String(repo)) = content
+        .metadata
+        .get("general.source.huggingface.repository")
     {
         tracing::info!(repo = %repo, "Fetching tokenizer from HuggingFace");
-        let api = hf_hub::api::sync::ApiBuilder::new().build().map_err(|e| anyhow::anyhow!("{e}"))?;
+        let api = hf_hub::api::sync::ApiBuilder::new()
+            .build()
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
         let repo_api = api.model(repo.clone());
         let tokenizer_file = repo_api.get("tokenizer.json")?;
         return tokenizers::Tokenizer::from_file(tokenizer_file)
@@ -401,7 +397,9 @@ fn load_tokenizer_from_gguf(
     // ── Path 4: `general.name` as repo fallback ──────────────
     if let Some(Value::String(name)) = content.metadata.get("general.name") {
         tracing::info!(name = %name, "Trying model name as HF repo for tokenizer");
-        let api = hf_hub::api::sync::ApiBuilder::new().build().map_err(|e| anyhow::anyhow!("{e}"))?;
+        let api = hf_hub::api::sync::ApiBuilder::new()
+            .build()
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
         let repo_api = api.model(name.clone());
         if let Ok(tokenizer_file) = repo_api.get("tokenizer.json") {
             return tokenizers::Tokenizer::from_file(tokenizer_file)
@@ -470,9 +468,7 @@ fn try_build_tokenizer_from_gguf_metadata(
     let mut vocab: Vocab = Vocab::with_capacity(tokens_value.len());
     for (idx, tok) in tokens_value.iter().enumerate() {
         let Value::String(s) = tok else {
-            anyhow::bail!(
-                "tokenizer.ggml.tokens[{idx}] is not a string — expected Value::String"
-            );
+            anyhow::bail!("tokenizer.ggml.tokens[{idx}] is not a string — expected Value::String");
         };
         vocab.insert(s.clone(), idx as u32);
     }
@@ -602,10 +598,7 @@ fn sample_token(logits: &[f32], temperature: f32) -> anyhow::Result<u32> {
     }
 
     // Temperature sampling with softmax
-    let max_logit = logits
-        .iter()
-        .copied()
-        .fold(f32::NEG_INFINITY, f32::max);
+    let max_logit = logits.iter().copied().fold(f32::NEG_INFINITY, f32::max);
 
     let scaled: Vec<f32> = logits
         .iter()
@@ -866,10 +859,7 @@ fn synthesize_missing_llama_fields(
         ) {
             if heads > 0 {
                 let dim = embed / heads;
-                metadata.insert(
-                    "llama.rope.dimension_count".to_string(),
-                    Value::U32(dim),
-                );
+                metadata.insert("llama.rope.dimension_count".to_string(), Value::U32(dim));
                 tracing::info!(
                     embedding_length = embed,
                     head_count = heads,
@@ -895,10 +885,7 @@ fn synthesize_missing_llama_fields(
     // long context) we should honour it. If it's missing entirely,
     // 10_000 is the Llama default.
     if !metadata.contains_key("llama.rope.freq_base") {
-        metadata.insert(
-            "llama.rope.freq_base".to_string(),
-            Value::F32(10_000.0),
-        );
+        metadata.insert("llama.rope.freq_base".to_string(), Value::F32(10_000.0));
         tracing::info!("Synthesised llama.rope.freq_base = 10000");
     }
 }
@@ -962,13 +949,9 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
             // `use_flash_attn` is CUDA-only and optional — pass false
             // for portability. The load picks the standard attention
             // kernel which works on CPU + CUDA + Metal.
-            let model = quantized_phi3::ModelWeights::from_gguf(
-                false,
-                content,
-                &mut reader,
-                device,
-            )
-            .map_err(|e| anyhow::anyhow!("quantized_phi3 load failed: {e}"))?;
+            let model =
+                quantized_phi3::ModelWeights::from_gguf(false, content, &mut reader, device)
+                    .map_err(|e| anyhow::anyhow!("quantized_phi3 load failed: {e}"))?;
             LoadedWeights::QuantizedPhi3(model)
         }
         _ => {
@@ -1041,9 +1024,7 @@ fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel>
         .and_then(|a| a.first())
         .and_then(|v| v.as_str())
         .unwrap_or("");
-    let model_type = config_json
-        .get("model_type")
-        .and_then(|v| v.as_str());
+    let model_type = config_json.get("model_type").and_then(|v| v.as_str());
 
     // Single source of truth for arch classification — the same
     // function the resolver + pre-download gate use, so the frontend
@@ -1171,7 +1152,10 @@ fn build_qwen3_embedding(
     let vocab = cfg.vocab_size;
     let model = qwen3::Model::new(&cfg, vb)
         .map_err(|e| anyhow::anyhow!("Failed to build Qwen3 embedding model: {e}"))?;
-    tracing::info!(hidden_size = cfg.hidden_size, "Loaded Qwen3 embedding model (no lm_head)");
+    tracing::info!(
+        hidden_size = cfg.hidden_size,
+        "Loaded Qwen3 embedding model (no lm_head)"
+    );
     Ok((LoadedWeights::Qwen3Embedding(model), ctx, vocab))
 }
 

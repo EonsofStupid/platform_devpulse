@@ -103,15 +103,14 @@ impl Task for BuildRelease {
         println!("  > pnpm tauri build");
         println!("  > Scope: release profile compile + static frontend + Windows installers");
         println!("  > Output: interfaces/desktop/src-tauri/target/release/bundle/");
-        println!("  > This runs the full Rust release compile — expect 10–40 min cold, 2–8 min warm.");
+        println!(
+            "  > This runs the full Rust release compile — expect 10–40 min cold, 2–8 min warm."
+        );
         println!();
 
         let build_start = Instant::now();
-        let mut tauri_child = ws.spawn_in_verbose(
-            &ws.desktop_dir(),
-            "pnpm",
-            &["tauri", "build"],
-        )?;
+        let mut tauri_child =
+            ws.spawn_in_verbose(&ws.desktop_dir(), "pnpm", &["tauri", "build"])?;
 
         // Assign pnpm (and its child tree) to the Job Object.
         #[cfg(windows)]
@@ -121,7 +120,9 @@ impl Task for BuildRelease {
             }
         }
 
-        let status = tauri_child.wait().context("failed to wait on pnpm tauri build")?;
+        let status = tauri_child
+            .wait()
+            .context("failed to wait on pnpm tauri build")?;
         let build_secs = build_start.elapsed().as_secs_f64();
 
         if !status.success() {
@@ -141,9 +142,11 @@ impl Task for BuildRelease {
 
         // ── Stage 8: Locate the artifact ──
         stage::section("Artifact");
-        let bundle_dir = ws.root()
+        let bundle_dir = ws
+            .root()
             .join("interfaces/desktop/src-tauri/target/release/bundle");
-        let standalone = ws.root()
+        let standalone = ws
+            .root()
             .join("interfaces/desktop/src-tauri/target/release/devpulse-desktop.exe");
 
         println!("  Build completed in {build_secs:.1}s.");
@@ -152,7 +155,10 @@ impl Task for BuildRelease {
         if standalone.exists() {
             println!("    {}", standalone.display());
         } else {
-            println!("    (expected at {} — not found; check tauri.conf.json)", standalone.display());
+            println!(
+                "    (expected at {} — not found; check tauri.conf.json)",
+                standalone.display()
+            );
         }
         println!();
         println!("  Installers:");
@@ -180,7 +186,9 @@ impl Task for BuildRelease {
         println!("    1. Close ALL dev processes (no vite, no `tauri dev`).");
         println!("    2. Double-click the standalone .exe or run an installer.");
         println!("    3. Expect: wizard visible, `http://127.0.0.1:8822/health` healthy,");
-        println!("       `.userdata/libsql/platform.db` + `.userdata/duckdb/analytics.duckdb` written.");
+        println!(
+            "       `.userdata/libsql/platform.db` + `.userdata/duckdb/analytics.duckdb` written."
+        );
 
         let total = run_start.elapsed();
         println!();

@@ -191,42 +191,72 @@ mod tests {
 
     #[test]
     fn tier_ultra() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(48_000))), HardwareTier::Ultra);
-        assert_eq!(detect_tier(&metrics_with_vram(Some(40_000))), HardwareTier::Ultra);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(48_000))),
+            HardwareTier::Ultra
+        );
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(40_000))),
+            HardwareTier::Ultra
+        );
     }
 
     #[test]
     fn tier_high() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(24_000))), HardwareTier::High);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(24_000))),
+            HardwareTier::High
+        );
         // 32 GB still falls into High (under the 40 GB Ultra floor).
-        assert_eq!(detect_tier(&metrics_with_vram(Some(32_000))), HardwareTier::High);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(32_000))),
+            HardwareTier::High
+        );
     }
 
     #[test]
     fn tier_jesse_primary() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(16_000))), HardwareTier::JessePrimary);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(16_000))),
+            HardwareTier::JessePrimary
+        );
     }
 
     #[test]
     fn tier_mid() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(12_000))), HardwareTier::Mid);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(12_000))),
+            HardwareTier::Mid
+        );
     }
 
     #[test]
     fn tier_mid_10gb() {
         // RTX 3080 (10 GB) should get Mid, not Floor
-        assert_eq!(detect_tier(&metrics_with_vram(Some(10_000))), HardwareTier::Mid);
-        assert_eq!(detect_tier(&metrics_with_vram(Some(10_240))), HardwareTier::Mid);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(10_000))),
+            HardwareTier::Mid
+        );
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(10_240))),
+            HardwareTier::Mid
+        );
     }
 
     #[test]
     fn tier_floor_8gb() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(8_000))), HardwareTier::Floor);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(8_000))),
+            HardwareTier::Floor
+        );
     }
 
     #[test]
     fn tier_minimal() {
-        assert_eq!(detect_tier(&metrics_with_vram(Some(4_000))), HardwareTier::Minimal);
+        assert_eq!(
+            detect_tier(&metrics_with_vram(Some(4_000))),
+            HardwareTier::Minimal
+        );
     }
 
     #[test]
@@ -257,7 +287,11 @@ mod tests {
         // voice.tts, voice.wake) = 8 total.
         assert_eq!(config.recommendations.len(), 8);
 
-        let slots: Vec<&str> = config.recommendations.iter().map(|r| r.slot_id.as_str()).collect();
+        let slots: Vec<&str> = config
+            .recommendations
+            .iter()
+            .map(|r| r.slot_id.as_str())
+            .collect();
         assert!(slots.contains(&"chat.brain"));
         assert!(slots.contains(&"minion.shared"));
         assert!(slots.contains(&"rag.embedder"));
@@ -276,7 +310,10 @@ mod tests {
         let config = auto_configure(&hw, &dl, &presets);
 
         assert_eq!(config.tier, HardwareTier::Mid);
-        assert!(matches!(config.brain_policy, BrainSwapPolicy::ActiveIdle { .. }));
+        assert!(matches!(
+            config.brain_policy,
+            BrainSwapPolicy::ActiveIdle { .. }
+        ));
     }
 
     #[test]
@@ -286,8 +323,16 @@ mod tests {
         let presets = load_presets();
         let config = auto_configure(&hw, &dl, &presets);
 
-        let brain = config.recommendations.iter().find(|r| r.slot_id == "chat.brain").unwrap();
-        assert!(brain.model_filename.contains("4B"), "Brain must be 4B minimum, got {}", brain.model_filename);
+        let brain = config
+            .recommendations
+            .iter()
+            .find(|r| r.slot_id == "chat.brain")
+            .unwrap();
+        assert!(
+            brain.model_filename.contains("4B"),
+            "Brain must be 4B minimum, got {}",
+            brain.model_filename
+        );
     }
 
     #[test]
@@ -299,7 +344,11 @@ mod tests {
 
         let config = auto_configure(&hw, &dl, &presets);
 
-        let brain = config.recommendations.iter().find(|r| r.slot_id == "chat.brain").unwrap();
+        let brain = config
+            .recommendations
+            .iter()
+            .find(|r| r.slot_id == "chat.brain")
+            .unwrap();
         assert!(brain.already_downloaded);
     }
 }

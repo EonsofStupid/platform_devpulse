@@ -8,7 +8,16 @@
 	is an implementation detail of the sys/rro domain.
 -->
 <script lang="ts">
-import { ArrowLeft, Brain, Compass, Database, Search, Settings2, Shapes } from "lucide-svelte";
+import {
+	Activity,
+	ArrowLeft,
+	Brain,
+	Compass,
+	Database,
+	Search,
+	Settings2,
+	Shapes,
+} from "lucide-svelte";
 import type { Component } from "svelte";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "$lib/design/components/tabs/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -20,6 +29,7 @@ import BrainPanel from "./panels/BrainPanel.svelte";
 import CollectionsPanel from "./panels/CollectionsPanel.svelte";
 import EncoderPanel from "./panels/EncoderPanel.svelte";
 import SearchPanel from "./panels/SearchPanel.svelte";
+import StatePanel from "./panels/StatePanel.svelte";
 import TuningPanel from "./panels/TuningPanel.svelte";
 
 // Static icon lookup — keeps the capability manifest string-only.
@@ -29,9 +39,11 @@ const ICON_MAP: Record<Capability["icon"], Component<{ size?: number; class?: st
 	database: Database,
 	brain: Brain,
 	shapes: Shapes,
+	activity: Activity,
 };
 
 const PANEL_MAP: Record<RroTabId, Component> = {
+	state: StatePanel,
 	search: SearchPanel,
 	tuning: TuningPanel,
 	collections: CollectionsPanel,
@@ -39,9 +51,11 @@ const PANEL_MAP: Record<RroTabId, Component> = {
 	encoder: EncoderPanel,
 };
 
-// Initial load fires once on mount.
+// Initial load fires once on mount — subscribes to event bridge.
 $effect(() => {
 	void rroState.initialLoad();
+	// Tear down the listener when the component unmounts.
+	return () => rroState.teardownRroState();
 });
 
 // Brain loads lazily on first tab visit — saves a boot-time round-trip.

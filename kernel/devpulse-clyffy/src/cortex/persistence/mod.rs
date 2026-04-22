@@ -15,32 +15,32 @@ pub mod traits;
 
 // Database adapters
 pub mod duckdb;
+#[cfg(feature = "candle")]
+pub mod embedder;
 pub mod libsql;
 pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
 #[cfg(feature = "candle")]
-pub mod embedder;
-#[cfg(feature = "candle")]
 pub mod whisper;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
 pub use duckdb::DuckDbAdapter;
+#[cfg(feature = "candle")]
+pub use embedder::CandleEmbedder;
 pub use libsql::LibSqlAdapter;
 pub use moka::{MokaAdapter, MokaCacheConfig};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
 pub use surreal::{ScopedGraphHandle, SurrealAdapter};
-#[cfg(feature = "candle")]
-pub use embedder::CandleEmbedder;
-#[cfg(feature = "candle")]
-pub use whisper::WhisperAdapter;
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,
 };
+#[cfg(feature = "candle")]
+pub use whisper::WhisperAdapter;
 
 use anyhow::Result;
 use std::sync::Arc;

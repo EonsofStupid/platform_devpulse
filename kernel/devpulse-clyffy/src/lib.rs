@@ -9,7 +9,9 @@ pub mod cortex;
 /// reconfigure, welcome-back, and broken-slot recovery flows.
 pub mod interactions;
 
-pub use interactions::{InteractionError, InteractionPhase, InteractionTemplate, InteractionTrigger};
+pub use interactions::{
+    InteractionError, InteractionPhase, InteractionTemplate, InteractionTrigger,
+};
 
 /// Re-export model-loader for engine consumption.
 /// The model-loader crate is self-enclosed — clyffy does NOT depend on it

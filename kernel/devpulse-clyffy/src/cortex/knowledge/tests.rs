@@ -33,8 +33,14 @@ mod knowledge_smoke {
 
         for entry in &entries {
             assert!(!entry.id.is_empty(), "entry id must not be empty");
-            assert!(!entry.category.is_empty(), "entry category must not be empty");
-            assert!(!entry.added.is_empty(), "entry added date must not be empty");
+            assert!(
+                !entry.category.is_empty(),
+                "entry category must not be empty"
+            );
+            assert!(
+                !entry.added.is_empty(),
+                "entry added date must not be empty"
+            );
             assert!(!entry.tags.is_empty(), "entry must have at least one tag");
         }
     }
@@ -70,11 +76,7 @@ mod knowledge_smoke {
         let mut seen = HashSet::new();
 
         for entry in &entries {
-            assert!(
-                seen.insert(&entry.id),
-                "duplicate id found: {}",
-                entry.id,
-            );
+            assert!(seen.insert(&entry.id), "duplicate id found: {}", entry.id,);
         }
     }
 
@@ -98,11 +100,26 @@ mod knowledge_smoke {
     fn type_counts_match_expected() {
         let entries = loader::load_all().expect("load_all should succeed");
 
-        let dyk = entries.iter().filter(|e| matches!(e.entry_type, EntryType::Dyk)).count();
-        let kdrop = entries.iter().filter(|e| matches!(e.entry_type, EntryType::Kdrop)).count();
-        let frust = entries.iter().filter(|e| matches!(e.entry_type, EntryType::Frust)).count();
-        let insight = entries.iter().filter(|e| matches!(e.entry_type, EntryType::Insight)).count();
-        let gloss = entries.iter().filter(|e| matches!(e.entry_type, EntryType::Gloss)).count();
+        let dyk = entries
+            .iter()
+            .filter(|e| matches!(e.entry_type, EntryType::Dyk))
+            .count();
+        let kdrop = entries
+            .iter()
+            .filter(|e| matches!(e.entry_type, EntryType::Kdrop))
+            .count();
+        let frust = entries
+            .iter()
+            .filter(|e| matches!(e.entry_type, EntryType::Frust))
+            .count();
+        let insight = entries
+            .iter()
+            .filter(|e| matches!(e.entry_type, EntryType::Insight))
+            .count();
+        let gloss = entries
+            .iter()
+            .filter(|e| matches!(e.entry_type, EntryType::Gloss))
+            .count();
 
         assert_eq!(dyk, 8, "expected 8 dyk entries");
         assert_eq!(kdrop, 6, "expected 6 kdrop entries");
@@ -117,14 +134,21 @@ mod knowledge_smoke {
     fn glossary_entries_have_term_and_definition() {
         let entries = loader::load_all().expect("load_all should succeed");
 
-        for entry in entries.iter().filter(|e| matches!(e.entry_type, EntryType::Gloss)) {
+        for entry in entries
+            .iter()
+            .filter(|e| matches!(e.entry_type, EntryType::Gloss))
+        {
             assert!(
                 entry.payload.get("term").and_then(|v| v.as_str()).is_some(),
                 "glossary entry {} missing 'term' field",
                 entry.id,
             );
             assert!(
-                entry.payload.get("definition").and_then(|v| v.as_str()).is_some(),
+                entry
+                    .payload
+                    .get("definition")
+                    .and_then(|v| v.as_str())
+                    .is_some(),
                 "glossary entry {} missing 'definition' field",
                 entry.id,
             );
@@ -137,9 +161,16 @@ mod knowledge_smoke {
     fn non_glossary_entries_have_title_and_body() {
         let entries = loader::load_all().expect("load_all should succeed");
 
-        for entry in entries.iter().filter(|e| !matches!(e.entry_type, EntryType::Gloss)) {
+        for entry in entries
+            .iter()
+            .filter(|e| !matches!(e.entry_type, EntryType::Gloss))
+        {
             assert!(
-                entry.payload.get("title").and_then(|v| v.as_str()).is_some(),
+                entry
+                    .payload
+                    .get("title")
+                    .and_then(|v| v.as_str())
+                    .is_some(),
                 "entry {} missing 'title' field",
                 entry.id,
             );

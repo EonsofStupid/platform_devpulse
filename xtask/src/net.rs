@@ -18,8 +18,7 @@ use crate::stage::Stage;
 ///
 /// Returns `true` only if BOTH binds succeed — Vite/Node may bind either.
 pub fn port_is_free(port: u16) -> bool {
-    TcpListener::bind(("127.0.0.1", port)).is_ok()
-        && TcpListener::bind(("::1", port)).is_ok()
+    TcpListener::bind(("127.0.0.1", port)).is_ok() && TcpListener::bind(("::1", port)).is_ok()
 }
 
 /// Ensure a port is free before launching the dev server.

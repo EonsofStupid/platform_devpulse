@@ -5,9 +5,9 @@
 //! and returns structured findings. No regex. Real AST.
 
 #[cfg(feature = "guardian")]
-use tree_sitter::{Parser, Query, QueryCursor};
-#[cfg(feature = "guardian")]
 use streaming_iterator::StreamingIterator;
+#[cfg(feature = "guardian")]
+use tree_sitter::{Parser, Query, QueryCursor};
 
 use super::language::LangId;
 
@@ -51,9 +51,12 @@ pub struct ScanResult {
 #[cfg(feature = "guardian")]
 pub fn scan_source(lang: LangId, source: &str) -> anyhow::Result<ScanResult> {
     let mut parser = Parser::new();
-    parser
-        .set_language(&lang.grammar())
-        .map_err(|e| anyhow::anyhow!("failed to set tree-sitter language for {}: {e}", lang.name()))?;
+    parser.set_language(&lang.grammar()).map_err(|e| {
+        anyhow::anyhow!(
+            "failed to set tree-sitter language for {}: {e}",
+            lang.name()
+        )
+    })?;
 
     let tree = parser
         .parse(source, None)
@@ -123,10 +126,7 @@ pub fn scan_source(lang: LangId, source: &str) -> anyhow::Result<ScanResult> {
 /// Returns an error if the file cannot be read or parsed.
 #[cfg(feature = "guardian")]
 pub fn scan_file(path: &std::path::Path) -> anyhow::Result<Option<ScanResult>> {
-    let ext = path
-        .extension()
-        .and_then(|e| e.to_str())
-        .unwrap_or("");
+    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
     let lang = match super::language::lang_from_extension(ext) {
         Some(l) => l,
@@ -143,7 +143,9 @@ pub fn scan_file(path: &std::path::Path) -> anyhow::Result<Option<ScanResult>> {
 ///
 /// Returns errors for individual files that fail to read/parse.
 #[cfg(feature = "guardian")]
-pub fn scan_files(paths: &[std::path::PathBuf]) -> Vec<(std::path::PathBuf, anyhow::Result<ScanResult>)> {
+pub fn scan_files(
+    paths: &[std::path::PathBuf],
+) -> Vec<(std::path::PathBuf, anyhow::Result<ScanResult>)> {
     let mut results = Vec::with_capacity(paths.len());
     for path in paths {
         match scan_file(path) {

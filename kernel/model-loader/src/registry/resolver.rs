@@ -115,8 +115,7 @@ pub fn resolve_compatibility(arch: ArchId, format: ModelFormat) -> Resolution {
                 // and keep scanning in case another backend offers a
                 // working path.
                 if declared_but_uninstalled.is_none() {
-                    declared_but_uninstalled =
-                        Some((backend.id, backend.feature_flag.to_string()));
+                    declared_but_uninstalled = Some((backend.id, backend.feature_flag.to_string()));
                 }
             }
         }
@@ -129,9 +128,7 @@ pub fn resolve_compatibility(arch: ArchId, format: ModelFormat) -> Resolution {
         }
     } else {
         UnsupportedReason::FormatNotWired {
-            detail: format!(
-                "No backend declares support for {arch:?} in {format:?} format",
-            ),
+            detail: format!("No backend declares support for {arch:?} in {format:?} format",),
         }
     };
 

@@ -35,7 +35,6 @@ pub struct DevforgeState {
 /// Maximum number of recent projects to persist.
 pub const MAX_RECENT: usize = 20;
 
-
 impl DevforgeState {
     /// Record a project path as recently opened. Moves it to the front
     /// if already present, caps the list at [`MAX_RECENT`].
@@ -70,8 +69,8 @@ impl DevforgeState {
     /// # Errors
     /// Returns an error if serialization or the file write fails.
     pub fn save(&self, path: &Path) -> Result<()> {
-        let json = serde_json::to_string_pretty(self)
-            .context("Failed to serialize DevforgeState")?;
+        let json =
+            serde_json::to_string_pretty(self).context("Failed to serialize DevforgeState")?;
         std::fs::write(path, json)
             .with_context(|| format!("Failed to write {}", path.display()))?;
         Ok(())

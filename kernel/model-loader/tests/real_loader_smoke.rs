@@ -131,8 +131,7 @@ enum StepStatus {
 fn step1_kernel_ssot_configs_load() {
     let nonexistent = Path::new("/nonexistent/path/that/does/not/exist");
 
-    let slots = load_default_slots(nonexistent)
-        .expect("slots.default.toml must parse");
+    let slots = load_default_slots(nonexistent).expect("slots.default.toml must parse");
     assert!(
         slots.len() >= BASELINE_SLOT_IDS.len(),
         "baseline slot count regression: got {}, expected >= {}",
@@ -144,8 +143,7 @@ fn step1_kernel_ssot_configs_load() {
         StepStatus::Pass,
     );
 
-    let presets = load_default_presets(nonexistent)
-        .expect("presets.default.toml must parse");
+    let presets = load_default_presets(nonexistent).expect("presets.default.toml must parse");
 
     // Every tier we care about must be represented. Ultra is the new
     // flagship, CpuOnly is the no-GPU floor — both regression-sensitive.
@@ -185,10 +183,7 @@ async fn steps_2_through_6_real_disk() {
         );
         return;
     }
-    println!(
-        "[real_loader_smoke] models_dir = {}",
-        models_dir.display()
-    );
+    println!("[real_loader_smoke] models_dir = {}", models_dir.display());
 
     // Build a real service pointing at the real directory. MemoryConfig
     // means assignments are held in RAM for the duration of the test —
@@ -209,8 +204,7 @@ async fn steps_2_through_6_real_disk() {
     .expect("service construction must not fail with a real models dir");
 
     // Register the baseline slot set so auto_assign has targets.
-    let slots = load_default_slots(&models_dir)
-        .expect("slots.default.toml must parse");
+    let slots = load_default_slots(&models_dir).expect("slots.default.toml must parse");
     service
         .register_slots(slots)
         .expect("baseline slots must register");
@@ -307,11 +301,7 @@ async fn steps_2_through_6_real_disk() {
         .expect("auto_assign_bundled_slots must not return Err");
     for slot in service.list_slots() {
         if let Some(model_id) = &slot.assigned_model {
-            if let Some(entry) = service
-                .get_registry()
-                .iter()
-                .find(|e| &e.id == model_id)
-            {
+            if let Some(entry) = service.get_registry().iter().find(|e| &e.id == model_id) {
                 println!(
                     "[real_loader_smoke]   • hydrated {} → {}",
                     slot.id, entry.filename
@@ -422,7 +412,9 @@ async fn steps_2_through_6_real_disk() {
                         }
                     }
                     Err(err) => {
-                        let msg = format!("llama.cpp GGUF load — minion.shared ({filename}, {arch}): {err}");
+                        let msg = format!(
+                            "llama.cpp GGUF load — minion.shared ({filename}, {arch}): {err}"
+                        );
                         log_step(
                             &format!("llama.cpp GGUF load — minion.shared ({filename}, {arch})"),
                             StepStatus::Fail(format!("{err}")),
@@ -444,10 +436,7 @@ async fn steps_2_through_6_real_disk() {
     let safetensors_target: Option<String> = service
         .get_registry()
         .iter()
-        .find(|e| {
-            e.format == ModelFormat::SafeTensors
-                && !e.filename.contains("-of-")
-        })
+        .find(|e| e.format == ModelFormat::SafeTensors && !e.filename.contains("-of-"))
         .map(|e| e.filename.clone())
         .or_else(|| {
             // Fallback: any safetensors at all, and we skip with a
@@ -511,9 +500,7 @@ async fn steps_2_through_6_real_disk() {
             if let Err(err) = service.register_slot(ad_hoc) {
                 log_step(
                     "Candle safetensors load",
-                    StepStatus::Fail(format!(
-                        "couldn't register ad-hoc slot: {err}"
-                    )),
+                    StepStatus::Fail(format!("couldn't register ad-hoc slot: {err}")),
                 );
                 return;
             }

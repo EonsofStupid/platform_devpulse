@@ -15,7 +15,7 @@
 import type { RroTabId } from "./rro.types.js";
 
 /** Which backend service a capability depends on. */
-export type CapabilityBackend = "vector" | "graph" | "model_loader";
+export type CapabilityBackend = "vector" | "graph" | "model_loader" | "reasoning";
 
 export interface Capability {
 	/** Stable ID — matches RroTabId. */
@@ -29,10 +29,18 @@ export interface Capability {
 	/** Whether this capability exposes verbose traces when debug flag is on. */
 	debug: boolean;
 	/** Icon key — resolved in the component to a lucide icon. */
-	icon: "search" | "settings" | "database" | "brain" | "shapes";
+	icon: "search" | "settings" | "database" | "brain" | "shapes" | "activity";
 }
 
 export const RRO_CAPABILITIES: readonly Capability[] = [
+	{
+		id: "state",
+		label: "State",
+		tagline: "Live rumination lifecycle — gather, purge, fork.",
+		backend: "reasoning",
+		debug: true,
+		icon: "activity",
+	},
 	{
 		id: "search",
 		label: "Try It",

@@ -52,27 +52,27 @@ mod analytics;
 mod cache;
 pub mod graph;
 pub mod log;
+mod model_loader;
 pub mod preflight;
 mod relational;
 pub mod retry;
 mod vector;
-mod model_loader;
 
 use crate::platform::config::PlatformBootConfig;
 use crate::platform::init::InitEvent;
 use crate::platform::services::analytics::AnalyticsService;
+use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
 use crate::platform::services::cache::CacheService;
 use crate::platform::services::graph::GraphService;
-use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
-use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
-#[cfg(feature = "rro")]
-use crate::platform::services::vector::VectorService;
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
+use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
+#[cfg(feature = "rro")]
+use crate::platform::services::vector::VectorService;
 use devpulse_clyffy::cortex::grammar::sync_grammar_service_from_config;
 
 use anyhow::Result;
@@ -120,7 +120,11 @@ pub async fn execute(
 
     // ── Boot timeout from config ──────────────────────────────
     let timeout_dur = std::time::Duration::from_secs(boot_config.boot.timeout_secs);
-    let result = tokio::time::timeout(timeout_dur, execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink)).await;
+    let result = tokio::time::timeout(
+        timeout_dur,
+        execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink),
+    )
+    .await;
 
     match result {
         Ok(inner_result) => inner_result,
@@ -144,8 +148,9 @@ async fn execute_inner(
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
-    #[allow(unused_variables)]
-    model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
+    #[allow(unused_variables)] model_event_sink: Option<
+        std::sync::Arc<dyn std::any::Any + Send + Sync>,
+    >,
 ) -> Result<BootedServices> {
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
@@ -166,7 +171,8 @@ async fn execute_inner(
         "System relational",
         on_event,
         boot_log,
-    ).await;
+    )
+    .await;
 
     // ── Stage 3: System analytics (DuckDB) ────────────────────
     drop(_spin);
@@ -179,18 +185,22 @@ async fn execute_inner(
         "System analytics",
         on_event,
         boot_log,
-    ).await;
+    )
+    .await;
 
     drop(_spin);
 
     // ── Prepare Model Loader event sink early (needed for parallel boot) ──
     #[cfg(feature = "inference")]
-    let loader_event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>> =
-        model_event_sink.and_then(|any| {
-            any.downcast::<crate::platform::integrations::events::EventBridge>()
-                .ok()
-                .map(|bridge| bridge as std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>)
-        });
+    let loader_event_sink: Option<
+        std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>,
+    > = model_event_sink.and_then(|any| {
+        any.downcast::<crate::platform::integrations::events::EventBridge>()
+            .ok()
+            .map(|bridge| {
+                bridge as std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>
+            })
+    });
 
     // ── Stage 4 + 12: Graph store AND Model Loader in PARALLEL ───
     // Model Loader has ZERO dependency on SurrealDB (or any other service).
@@ -215,17 +225,16 @@ async fn execute_inner(
     );
 
     #[cfg(not(feature = "inference"))]
-    let (system_graph, user_graph, global_graph) = graph::boot_consolidated(
-        data_dir,
-        boot_config,
-        on_event,
-        boot_log,
-    ).await;
+    let (system_graph, user_graph, global_graph) =
+        graph::boot_consolidated(data_dir, boot_config, on_event, boot_log).await;
 
     #[cfg(not(feature = "inference"))]
     {
         if boot_config.services.system.model_loader.enabled {
-            boot_log.fail("Model Loader", "enabled in config but 'inference' feature not compiled");
+            boot_log.fail(
+                "Model Loader",
+                "enabled in config but 'inference' feature not compiled",
+            );
             anyhow::bail!(
                 "FATAL: Model Loader is enabled in config but the 'inference' feature is not compiled in. \
                  Add features = [\"inference\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
@@ -236,11 +245,7 @@ async fn execute_inner(
     drop(_spin);
 
     // ── Stage 5: System cache (Moka) ──────────────────────────
-    let system_cache = cache::boot(
-        &boot_config.services.system.cache,
-        on_event,
-        boot_log,
-    );
+    let system_cache = cache::boot(&boot_config.services.system.cache, on_event, boot_log);
 
     // ── Stage 6: User relational (LibSQL) ─────────────────────
     let _spin = boot_log.running("User relational", "connecting LibSQL...");
@@ -252,14 +257,16 @@ async fn execute_inner(
         "User relational",
         on_event,
         boot_log,
-    ).await;
+    )
+    .await;
 
     // ── Stage 6b: Knowledge library sync ──────────────────────
     // Syncs embedded JSON artifacts into user libSQL. Fast path
     // skips if manifest version matches stored version.
     if let Some(ref user_svc) = user_relational {
         let _kspin = boot_log.running("Knowledge sync", "syncing knowledge library...");
-        match devpulse_clyffy::cortex::knowledge::sync_to_libsql(user_svc.adapter().as_ref()).await {
+        match devpulse_clyffy::cortex::knowledge::sync_to_libsql(user_svc.adapter().as_ref()).await
+        {
             Ok(count) => {
                 if count > 0 {
                     tracing::info!(upserted = count, "Knowledge library synced");
@@ -285,11 +292,15 @@ async fn execute_inner(
         &boot_config.services.system.vector,
         on_event,
         &boot_log,
-    ).await;
+    )
+    .await;
     #[cfg(not(feature = "rro"))]
     {
         if boot_config.services.system.vector.enabled {
-            boot_log.fail("Vector store", "enabled in config but 'rro' feature not compiled");
+            boot_log.fail(
+                "Vector store",
+                "enabled in config but 'rro' feature not compiled",
+            );
             anyhow::bail!(
                 "FATAL: Vector store (RRO) is enabled in config but the 'rro' feature is not compiled in. \
                  Add features = [\"rro\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
@@ -305,18 +316,18 @@ async fn execute_inner(
             "Grammar service",
             "Synchronizing system grammar row",
         ));
-        match sync_grammar_service_from_config(svc.adapter().as_ref(), &boot_config.services.system.grammar)
-            .await
+        match sync_grammar_service_from_config(
+            svc.adapter().as_ref(),
+            &boot_config.services.system.grammar,
+        )
+        .await
         {
             Ok(()) => {
                 on_event(InitEvent::ok(
                     "Grammar service",
                     "system grammar_service row synchronized",
                 ));
-                boot_log.ok(
-                    "Grammar service",
-                    "system grammar_service row synchronized",
-                );
+                boot_log.ok("Grammar service", "system grammar_service row synchronized");
             }
             Err(e) => {
                 let msg = format!("{e:#}");
@@ -364,19 +375,55 @@ async fn execute_inner(
         // so we allow the unused-mut warning instead of reshuffling.
         #[allow(unused_mut)]
         let mut checks: Vec<(&str, bool, bool)> = vec![
-            ("System Database",  system_relational.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::System)),
-            ("Analytics Engine", system_analytics.is_some(),  boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::System)),
-            ("Knowledge Graph",  system_graph.is_some(),      boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::System)),
-            ("System Cache",     system_cache.is_some(),      boot_config.is_enabled_and_critical(ServiceRole::Cache, DataScope::System)),
-            ("User Database",    user_relational.is_some(),   boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::User)),
-            ("User Knowledge",   user_graph.is_some(),        boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::User)),
-            ("Shared Knowledge", global_graph.is_some(),      boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::Global)),
+            (
+                "System Database",
+                system_relational.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::System),
+            ),
+            (
+                "Analytics Engine",
+                system_analytics.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::System),
+            ),
+            (
+                "Knowledge Graph",
+                system_graph.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::System),
+            ),
+            (
+                "System Cache",
+                system_cache.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Cache, DataScope::System),
+            ),
+            (
+                "User Database",
+                user_relational.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::User),
+            ),
+            (
+                "User Knowledge",
+                user_graph.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::User),
+            ),
+            (
+                "Shared Knowledge",
+                global_graph.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::Global),
+            ),
         ];
         #[cfg(feature = "rro")]
-        checks.push(("Vector Store", vector.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System)));
+        checks.push((
+            "Vector Store",
+            vector.is_some(),
+            boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System),
+        ));
         // Embedder + Whisper removed — slot-managed by model loader (Layer 2).
         #[cfg(feature = "inference")]
-        checks.push(("Model Manager", model_loader_svc.is_some(), boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System)));
+        checks.push((
+            "Model Manager",
+            model_loader_svc.is_some(),
+            boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System),
+        ));
         // DevForge (Code Editor) is lazy-started on user open — not validated at boot.
 
         validate_critical(&checks, boot_config, boot_log)?;
@@ -438,7 +485,10 @@ fn validate_critical(
 
     for &(name, booted, is_critical) in checks {
         if !booted && is_critical {
-            boot_log.fail("VALIDATION", &format!("{name} is critical but failed to boot"));
+            boot_log.fail(
+                "VALIDATION",
+                &format!("{name} is critical but failed to boot"),
+            );
             failures.push(name);
         }
     }
@@ -447,7 +497,11 @@ fn validate_critical(
         let total_ms = boot_log.elapsed_ms();
         if strict {
             boot_log.boot_failed(
-                &format!("{} critical service(s) failed: {}", failures.len(), failures.join(", ")),
+                &format!(
+                    "{} critical service(s) failed: {}",
+                    failures.len(),
+                    failures.join(", ")
+                ),
                 total_ms,
             );
             anyhow::bail!(

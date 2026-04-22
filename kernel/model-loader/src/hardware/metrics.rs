@@ -329,7 +329,8 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
         }
     }
 
-    if let Ok(temp) = device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
+    if let Ok(temp) =
+        device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
     {
         #[allow(clippy::cast_precision_loss)]
         {
@@ -343,8 +344,7 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
         let mb = 1024 * 1024;
         for proc in procs {
             if proc.pid == our_pid {
-                if let nvml_wrapper::enums::device::UsedGpuMemory::Used(mem) =
-                    proc.used_gpu_memory
+                if let nvml_wrapper::enums::device::UsedGpuMemory::Used(mem) = proc.used_gpu_memory
                 {
                     metrics.process_vram_mb = mem / mb;
                 }

@@ -82,7 +82,10 @@ pub async fn boot(
                 "RRO vector engine booted and verified"
             );
             on_event(InitEvent::ok_with_latency("Vector store", start.elapsed()));
-            boot_log.ok("Vector store", &format!("RRO verified {} ({elapsed_ms}ms)", storage_path.display()));
+            boot_log.ok(
+                "Vector store",
+                &format!("RRO verified {} ({elapsed_ms}ms)", storage_path.display()),
+            );
             Some(store)
         }
         Err(e) => {
@@ -92,8 +95,14 @@ pub async fn boot(
                 error = ?e,
                 "RRO started but engine is not queryable"
             );
-            on_event(InitEvent::error("Vector store", &format!("Engine not ready: {e:#}")));
-            boot_log.fail("Vector store", &format!("started but not queryable: {e:#} ({elapsed_ms}ms)"));
+            on_event(InitEvent::error(
+                "Vector store",
+                &format!("Engine not ready: {e:#}"),
+            ));
+            boot_log.fail(
+                "Vector store",
+                &format!("started but not queryable: {e:#} ({elapsed_ms}ms)"),
+            );
             None
         }
     }

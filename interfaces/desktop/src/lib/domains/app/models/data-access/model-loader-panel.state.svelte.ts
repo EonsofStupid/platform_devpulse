@@ -27,6 +27,7 @@ class ModelLoaderPanelState {
 	error = $state<string | null>(null);
 	health = $state<ModelLoaderHealthItem[]>([]);
 	private started = false;
+	private hardwareUnsubscribe: (() => void) | null = null;
 
 	async start(): Promise<void> {
 		if (this.started) {
@@ -34,7 +35,7 @@ class ModelLoaderPanelState {
 		}
 
 		this.started = true;
-		hardwareState.startListening();
+		this.hardwareUnsubscribe = hardwareState.subscribe("model-loader-panel");
 		void (async () => {
 			await modelsState.startStatusListener();
 			await modelsState.refresh();
@@ -51,7 +52,8 @@ class ModelLoaderPanelState {
 		}
 
 		this.started = false;
-		hardwareState.stopListening();
+		this.hardwareUnsubscribe?.();
+		this.hardwareUnsubscribe = null;
 		modelsState.stopStatusListener();
 		swapState.stopListening();
 		narrationState.stopListening();

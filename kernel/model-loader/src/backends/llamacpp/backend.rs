@@ -37,8 +37,7 @@ unsafe impl Send for LlamaCppBackend {}
 impl LlamaCppBackend {
     /// Create a new unloaded backend.
     pub fn new() -> Result<Self> {
-        let backend = LlamaBackend::init()
-            .context("Failed to initialize llama.cpp backend")?;
+        let backend = LlamaBackend::init().context("Failed to initialize llama.cpp backend")?;
         tracing::info!("llama.cpp backend initialized");
 
         Ok(Self {
@@ -88,14 +87,18 @@ impl InferenceBackend for LlamaCppBackend {
         // Unload previous if any
         self.unload()?;
 
-        let n_gpu_layers = params.gpu_layers.unwrap_or(
-            if params.device.starts_with("cuda") { 99 } else { 0 }
-        );
+        let n_gpu_layers = params
+            .gpu_layers
+            .unwrap_or(if params.device.starts_with("cuda") {
+                99
+            } else {
+                0
+            });
 
-        let model_params = LlamaModelParams::default()
-            .with_n_gpu_layers(n_gpu_layers);
+        let model_params = LlamaModelParams::default().with_n_gpu_layers(n_gpu_layers);
 
-        let path_str = path.to_str()
+        let path_str = path
+            .to_str()
             .context("Model path contains non-UTF8 characters")?;
 
         let model = LlamaModel::load_from_file(&self.backend, path_str, &model_params)
@@ -131,10 +134,10 @@ impl InferenceBackend for LlamaCppBackend {
         let n_ctx = NonZeroU32::new(params.context_length as u32)
             .unwrap_or(NonZeroU32::new(4096).expect("non-zero"));
 
-        let ctx_params = LlamaContextParams::default()
-            .with_n_ctx(Some(n_ctx));
+        let ctx_params = LlamaContextParams::default().with_n_ctx(Some(n_ctx));
 
-        let ctx = model.new_context(&self.backend, ctx_params)
+        let ctx = model
+            .new_context(&self.backend, ctx_params)
             .map_err(|e| anyhow::anyhow!("llama.cpp context creation failed: {e}"))?;
 
         let file_size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
@@ -167,11 +170,15 @@ impl InferenceBackend for LlamaCppBackend {
         // Drop context FIRST (borrows model), then model.
         if let Some(ctx_ptr) = self.ctx.take() {
             tracing::info!(arch = %self.metadata.architecture, "llama.cpp: dropping context");
-            unsafe { drop(Box::from_raw(ctx_ptr)); }
+            unsafe {
+                drop(Box::from_raw(ctx_ptr));
+            }
         }
         if let Some(model_ptr) = self.model.take() {
             tracing::info!("llama.cpp: dropping model");
-            unsafe { drop(Box::from_raw(model_ptr)); }
+            unsafe {
+                drop(Box::from_raw(model_ptr));
+            }
         }
         Ok(())
     }
@@ -187,7 +194,8 @@ impl InferenceBackend for LlamaCppBackend {
         let mut batch = LlamaBatch::new(tokens.len(), 1);
         let last_idx = llama_tokens.len().saturating_sub(1);
         for (i, &token) in llama_tokens.iter().enumerate() {
-            batch.add(token, i as i32, &[0], i == last_idx)
+            batch
+                .add(token, i as i32, &[0], i == last_idx)
                 .context("Failed to add token to batch")?;
         }
 
@@ -242,10 +250,14 @@ impl Drop for LlamaCppBackend {
     fn drop(&mut self) {
         // Context MUST be dropped before model (lifetime dependency).
         if let Some(ctx_ptr) = self.ctx.take() {
-            unsafe { drop(Box::from_raw(ctx_ptr)); }
+            unsafe {
+                drop(Box::from_raw(ctx_ptr));
+            }
         }
         if let Some(model_ptr) = self.model.take() {
-            unsafe { drop(Box::from_raw(model_ptr)); }
+            unsafe {
+                drop(Box::from_raw(model_ptr));
+            }
         }
     }
 }

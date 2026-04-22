@@ -50,9 +50,9 @@ impl BufferingProcessor {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            state: Arc::new(Mutex::new(BufferState::Buffering(
-                VecDeque::with_capacity(BUFFER_CAPACITY),
-            ))),
+            state: Arc::new(Mutex::new(BufferState::Buffering(VecDeque::with_capacity(
+                BUFFER_CAPACITY,
+            )))),
         }
     }
 
@@ -62,7 +62,10 @@ impl BufferingProcessor {
     /// # Panics
     /// Panics if called more than once (the real processor is already installed).
     pub fn install_inner(&self, real: Box<dyn SpanProcessor>) {
-        let mut state = self.state.lock().expect("BufferingProcessor lock poisoned");
+        let mut state = self
+            .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let old = std::mem::replace(&mut *state, BufferState::Forwarding(real));
         match old {
             BufferState::Buffering(buffer) => {
@@ -87,16 +90,15 @@ impl Default for BufferingProcessor {
 }
 
 impl SpanProcessor for BufferingProcessor {
-    fn on_start(
-        &self,
-        _span: &mut opentelemetry_sdk::trace::Span,
-        _cx: &opentelemetry::Context,
-    ) {
+    fn on_start(&self, _span: &mut opentelemetry_sdk::trace::Span, _cx: &opentelemetry::Context) {
         // No-op for both modes. Start events are not buffered.
     }
 
     fn on_end(&self, span: SpanData) {
-        let mut state = self.state.lock().expect("BufferingProcessor lock poisoned");
+        let mut state = self
+            .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         match &mut *state {
             BufferState::Buffering(buffer) => {
                 if buffer.len() == BUFFER_CAPACITY {
@@ -111,7 +113,10 @@ impl SpanProcessor for BufferingProcessor {
     }
 
     fn force_flush(&self) -> opentelemetry_sdk::error::OTelSdkResult {
-        let state = self.state.lock().expect("BufferingProcessor lock poisoned");
+        let state = self
+            .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         match &*state {
             BufferState::Buffering(_) => Ok(()), // nothing to flush yet
             BufferState::Forwarding(real) => real.force_flush(),
@@ -122,7 +127,10 @@ impl SpanProcessor for BufferingProcessor {
         &self,
         timeout: std::time::Duration,
     ) -> opentelemetry_sdk::error::OTelSdkResult {
-        let state = self.state.lock().expect("BufferingProcessor lock poisoned");
+        let state = self
+            .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         match &*state {
             BufferState::Buffering(_) => Ok(()), // nothing to shut down
             BufferState::Forwarding(real) => real.shutdown_with_timeout(timeout),

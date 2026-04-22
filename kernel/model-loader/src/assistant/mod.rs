@@ -16,6 +16,6 @@
 pub mod config;
 
 pub use config::{
-    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig,
-    TtsConfig, VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
+    VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
 };

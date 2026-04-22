@@ -11,9 +11,7 @@ pub mod tools;
 use std::sync::Arc;
 
 use rmcp::handler::server::wrapper::Parameters;
-use rmcp::model::{
-    CallToolResult, Implementation, ServerCapabilities, ServerInfo,
-};
+use rmcp::model::{CallToolResult, Implementation, ServerCapabilities, ServerInfo};
 use rmcp::schemars;
 use rmcp::tool;
 use rmcp::ServerHandler;
@@ -42,13 +40,8 @@ impl DevPulseMcpServer {
 impl ServerHandler for DevPulseMcpServer {
     fn get_info(&self) -> ServerInfo {
         let mut info = ServerInfo::default();
-        info.capabilities = ServerCapabilities::builder()
-            .enable_tools()
-            .build();
-        info.server_info = Implementation::new(
-            "devpulse-mcp",
-            env!("CARGO_PKG_VERSION"),
-        );
+        info.capabilities = ServerCapabilities::builder().enable_tools().build();
+        info.server_info = Implementation::new("devpulse-mcp", env!("CARGO_PKG_VERSION"));
         info.instructions = Some(
             "DevPulse platform tools. Query databases, read project files, \
              check system health. All database queries are read-only."
@@ -109,7 +102,9 @@ impl DevPulseMcpServer {
     #[tool(description = "Get platform health status — all subsystems with uptime")]
     async fn get_health(&self) -> Result<CallToolResult, rmcp::ErrorData> {
         let result = tools::get_health::execute(&self.platform).await;
-        Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
+        Ok(CallToolResult::success(vec![rmcp::model::Content::text(
+            result,
+        )]))
     }
 
     /// Query `LibSQL` database (read-only). Returns JSON rows.
@@ -122,9 +117,13 @@ impl DevPulseMcpServer {
         let result = tools::query_libsql::execute(&self.platform, &params.sql, scope).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
+                result,
+            )]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
+                result,
+            )]))
         }
     }
 
@@ -137,9 +136,13 @@ impl DevPulseMcpServer {
         let result = tools::repo_get_file::execute(&self.platform, &params.path).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
+                result,
+            )]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
+                result,
+            )]))
         }
     }
 
@@ -153,9 +156,13 @@ impl DevPulseMcpServer {
         let result = tools::repo_list_files::execute(&self.platform, &params.path, recursive).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
+                result,
+            )]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
+                result,
+            )]))
         }
     }
 
@@ -175,9 +182,13 @@ impl DevPulseMcpServer {
         .await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
+                result,
+            )]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(result)]))
+            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
+                result,
+            )]))
         }
     }
 }
@@ -186,16 +197,24 @@ impl DevPulseMcpServer {
 ///
 /// Called during platform boot when `config.mcp.auto_start` is true.
 /// Blocks until the connection closes (stdin EOF).
+///
+/// # Errors
+/// Returns an error if the stdio transport cannot be attached, the MCP server
+/// fails to start, or the active MCP session terminates with an error.
 pub async fn start_stdio(platform: Arc<Platform>) -> anyhow::Result<()> {
     use rmcp::transport::io::stdio;
     use rmcp::ServiceExt;
 
     tracing::info!("MCP stdio server starting — tools registered");
     let server = DevPulseMcpServer::new(platform);
-    let service = server.serve(stdio()).await
+    let service = server
+        .serve(stdio())
+        .await
         .map_err(|e| anyhow::anyhow!("MCP server failed to start: {e}"))?;
     tracing::info!("MCP stdio server connected — waiting for requests");
-    service.waiting().await
+    service
+        .waiting()
+        .await
         .map_err(|e| anyhow::anyhow!("MCP server error: {e}"))?;
     tracing::info!("MCP stdio server disconnected");
     Ok(())

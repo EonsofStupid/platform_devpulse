@@ -9,6 +9,9 @@
   DEV_MODE: raw tech labels (LibSQL, SurrealDB, DuckDB, Moka).
   PROD: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
 
+  Per-subsystem details — tech name, category, Clyffy narration — live
+  inside <SubsystemBadge /> (tooltip on hover).
+
   @consumers
   - Frame.svelte: Main app layout
 
@@ -28,47 +31,38 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { formatMb, hardwareState, modelsState } from "$lib/domains/app/models/index.js";
-import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
-import { getIcon } from "$lib/sys/generated/terminology-icons.js";
+import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
+import SubsystemBadge from "./SubsystemBadge.svelte";
 
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
 const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot");
 const subsystemGroups = $derived(groupSubsystems(subsystems));
+
+// Subscribe to live hardware telemetry so the VRAM badge has real data.
+// Ref-counted via createTauriEvent — shared with dashboard and any other
+// active subscriber; detaches automatically when StatusBar unmounts.
+$effect(() => hardwareState.subscribe("statusbar"));
 </script>
 
 <div class="statusbar-surface flex w-full items-center justify-between" aria-label="System status">
 	{#if platformState.isBooting}
-		<!-- Boot progress mode -->
+		<!-- Boot progress mode — grouped subsystems with per-badge tooltips -->
 		<div class={hstack({ gap: "2", align: "center" })}>
 			{#if DEV_MODE}
-				{#each subsystems as sub}
-					{@const Icon = getIcon(sub.name)}
-					<Badge
-						variant="neutral"
-						size="sm"
-						class="gap-1"
-						data-subsystem-state={sub.state}
-					>
-						<span
-							class="status-dot h-1.5 w-1.5 rounded-full"
-							data-subsystem-state={sub.state}
-							aria-hidden="true"
-						></span>
-						{#if Icon}
-							{@const IconComponent = Icon}
-							<IconComponent size={12} class="shrink-0" />
-						{/if}
-						<Text size="xs" color="secondary">
-							{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}
-						</Text>
-					</Badge>
-				{/each}
 				{#if subsystems.length === 0}
 					<Text size="xs" color="muted">Initializing...</Text>
+				{:else}
+					{#each subsystemGroups as group (group.label)}
+						<span class="group-separator" aria-hidden="true"></span>
+						<Text size="xs" color="muted" class="group-label">{group.label}</Text>
+						{#each group.subs as sub (sub.name)}
+							<SubsystemBadge subsystem={sub} groupKind={group.kind} />
+						{/each}
+					{/each}
 				{/if}
 			{:else}
 				<Text size="xs" color="secondary">
@@ -134,17 +128,7 @@ const subsystemGroups = $derived(groupSubsystems(subsystems));
 					<span class="group-separator" aria-hidden="true"></span>
 					<Text size="xs" color="muted" class="group-label">{group.label}</Text>
 					{#each group.subs as sub (sub.name)}
-						{@const Icon = getIcon(sub.name)}
-						<Badge
-							variant={sub.state === "ready" ? "positive" : sub.state === "failed" ? "negative" : "neutral"}
-							size="sm"
-							class="gap-1"
-						>
-							<span class="status-dot h-1.5 w-1.5 rounded-full" data-subsystem-state={sub.state} aria-hidden="true"></span>
-							{#if Icon}<Icon size={12} class="shrink-0" />{/if}
-							<Text size="xs" preset="default">{devLabel(sub.name)}</Text>
-							{#if sub.latencyMs !== null}<Text size="xs" preset="default">{sub.latencyMs}ms</Text>{/if}
-						</Badge>
+						<SubsystemBadge subsystem={sub} groupKind={group.kind} />
 					{/each}
 				{/each}
 			{/if}
@@ -182,15 +166,8 @@ const subsystemGroups = $derived(groupSubsystems(subsystems));
 	.status-dot[data-status="hybrid"] {
 		background-color: var(--color-purple-400);
 	}
-	.status-dot[data-subsystem-state="loading"] {
-		background-color: var(--color-purple-400);
-		animation: pulse 1s ease-in-out infinite;
-	}
 	.status-dot[data-subsystem-state="ready"] {
 		background-color: var(--color-teal-400);
-	}
-	.status-dot[data-subsystem-state="failed"] {
-		background-color: var(--signal-error);
 	}
 	.status-dot[data-subsystem-state="pending"] {
 		background-color: var(--text-muted);
@@ -208,10 +185,5 @@ const subsystemGroups = $derived(groupSubsystems(subsystems));
 		font-size: 0.5625rem;
 		opacity: 0.6;
 		flex-shrink: 0;
-	}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.4; }
 	}
 </style>

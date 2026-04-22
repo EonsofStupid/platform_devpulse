@@ -14,7 +14,7 @@
 
 use crate::platform::boot::log::BootLog;
 use crate::platform::boot::retry;
-use crate::platform::config::{PlatformBootConfig, sanitize_path};
+use crate::platform::config::{sanitize_path, PlatformBootConfig};
 use crate::platform::init::InitEvent;
 use crate::platform::server;
 use crate::platform::services::graph::{
@@ -50,7 +50,10 @@ pub async fn boot_consolidated(
         return (None, None, None);
     }
 
-    on_event(InitEvent::running("Graph store", "Opening consolidated SurrealDB"));
+    on_event(InitEvent::running(
+        "Graph store",
+        "Opening consolidated SurrealDB",
+    ));
     boot_log.running("Graph store", "opening consolidated SurrealDB...");
     let start = Instant::now();
 
@@ -123,7 +126,10 @@ pub async fn boot_consolidated(
         "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
         sys_cfg.system_user, sys_cfg.system_password,
     );
-    if let Err(e) = adapter.execute_in_ns(&sys_cfg.namespace, &sys_cfg.database, &sys_user_ddl).await {
+    if let Err(e) = adapter
+        .execute_in_ns(&sys_cfg.namespace, &sys_cfg.database, &sys_user_ddl)
+        .await
+    {
         tracing::warn!(
             error = ?e,
             namespace = %sys_cfg.namespace,
@@ -140,11 +146,10 @@ pub async fn boot_consolidated(
     // ── Initialize user namespace on the same instance ──
     let usr_cfg = &boot_config.services.user.graph;
     if usr_cfg.enabled {
-        if let Err(e) = adapter.init_namespace(
-            &usr_cfg.namespace,
-            &usr_cfg.database,
-            USER_GRAPH_SCHEMA,
-        ).await {
+        if let Err(e) = adapter
+            .init_namespace(&usr_cfg.namespace, &usr_cfg.database, USER_GRAPH_SCHEMA)
+            .await
+        {
             tracing::error!(error = ?e, namespace = %usr_cfg.namespace, "Failed to init user graph namespace");
             on_event(InitEvent::error("User graph namespace", &format!("{e:#}")));
         }
@@ -153,7 +158,10 @@ pub async fn boot_consolidated(
             "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
             usr_cfg.system_user, usr_cfg.system_password,
         );
-        if let Err(e) = adapter.execute_in_ns(&usr_cfg.namespace, &usr_cfg.database, &usr_user_ddl).await {
+        if let Err(e) = adapter
+            .execute_in_ns(&usr_cfg.namespace, &usr_cfg.database, &usr_user_ddl)
+            .await
+        {
             tracing::warn!(
                 error = ?e,
                 namespace = %usr_cfg.namespace,
@@ -171,20 +179,25 @@ pub async fn boot_consolidated(
     // ── Initialize global namespace on the same instance ──
     let glb_cfg = &boot_config.services.global.graph;
     if glb_cfg.enabled {
-        if let Err(e) = adapter.init_namespace(
-            &glb_cfg.namespace,
-            &glb_cfg.database,
-            GLOBAL_GRAPH_SCHEMA,
-        ).await {
+        if let Err(e) = adapter
+            .init_namespace(&glb_cfg.namespace, &glb_cfg.database, GLOBAL_GRAPH_SCHEMA)
+            .await
+        {
             tracing::error!(error = ?e, namespace = %glb_cfg.namespace, "Failed to init global graph namespace");
-            on_event(InitEvent::error("Global graph namespace", &format!("{e:#}")));
+            on_event(InitEvent::error(
+                "Global graph namespace",
+                &format!("{e:#}"),
+            ));
         }
         // System account for global namespace — explicitly scoped
         let glb_user_ddl = format!(
             "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
             glb_cfg.system_user, glb_cfg.system_password,
         );
-        if let Err(e) = adapter.execute_in_ns(&glb_cfg.namespace, &glb_cfg.database, &glb_user_ddl).await {
+        if let Err(e) = adapter
+            .execute_in_ns(&glb_cfg.namespace, &glb_cfg.database, &glb_user_ddl)
+            .await
+        {
             tracing::warn!(
                 error = ?e,
                 namespace = %glb_cfg.namespace,
@@ -208,20 +221,33 @@ pub async fn boot_consolidated(
         "Consolidated SurrealDB booted"
     );
     on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
-    boot_log.ok("Graph store", &format!("SurrealDB consolidated 3 namespaces ({elapsed_ms}ms)"));
+    boot_log.ok(
+        "Graph store",
+        &format!("SurrealDB consolidated 3 namespaces ({elapsed_ms}ms)"),
+    );
 
     // ── Start HTTP server on configured port ──
     let graph_api = &boot_config.services.network.graph_api;
     if graph_api.enabled {
         let api_port = graph_api.port;
-        on_event(InitEvent::running("SurrealDB HTTP", &format!("Starting server on :{api_port}")));
+        on_event(InitEvent::running(
+            "SurrealDB HTTP",
+            &format!("Starting server on :{api_port}"),
+        ));
         boot_log.running("SurrealDB HTTP", &format!("starting on :{api_port}..."));
         let sys_user = &boot_config.services.system.graph.system_user;
         let sys_pass = &boot_config.services.system.graph.system_password;
         match server::start(Arc::clone(&adapter), api_port, sys_user, sys_pass).await {
             Ok(actual_port) => {
-                tracing::info!(configured_port = api_port, actual_port = actual_port, "SurrealDB HTTP server ready");
-                on_event(InitEvent::ok("SurrealDB HTTP", &format!("Listening on :{actual_port}")));
+                tracing::info!(
+                    configured_port = api_port,
+                    actual_port = actual_port,
+                    "SurrealDB HTTP server ready"
+                );
+                on_event(InitEvent::ok(
+                    "SurrealDB HTTP",
+                    &format!("Listening on :{actual_port}"),
+                ));
                 boot_log.ok("SurrealDB HTTP", &format!("listening on :{actual_port}"));
             }
             Err(e) => {

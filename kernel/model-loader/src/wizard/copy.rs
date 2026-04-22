@@ -12,7 +12,8 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 /// Embedded default copy. Always available, even if no user override exists.
-const DEFAULT_TOML: &str = include_str!("../../../../systems/devpulse-engine/config/wizard_copy.default.toml");
+const DEFAULT_TOML: &str =
+    include_str!("../../../../systems/devpulse-engine/config/wizard_copy.default.toml");
 
 /// All wizard copy. One root struct, one Tauri call to fetch everything.
 #[derive(Debug, Clone, Serialize, Deserialize)]

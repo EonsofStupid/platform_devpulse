@@ -77,15 +77,25 @@ pub async fn log(
 
     // When run_id is present, include it as a structured field for correlation.
     match (level.as_str(), run_id.as_deref()) {
-        ("error", Some(rid)) => tracing::error!(target: "frontend", source = %target, run_id = %rid, "{message}"),
+        ("error", Some(rid)) => {
+            tracing::error!(target: "frontend", source = %target, run_id = %rid, "{message}")
+        }
         ("error", None) => tracing::error!(target: "frontend", source = %target, "{message}"),
-        ("warn", Some(rid)) => tracing::warn!(target: "frontend", source = %target, run_id = %rid, "{message}"),
+        ("warn", Some(rid)) => {
+            tracing::warn!(target: "frontend", source = %target, run_id = %rid, "{message}")
+        }
         ("warn", None) => tracing::warn!(target: "frontend", source = %target, "{message}"),
-        ("info", Some(rid)) => tracing::info!(target: "frontend", source = %target, run_id = %rid, "{message}"),
+        ("info", Some(rid)) => {
+            tracing::info!(target: "frontend", source = %target, run_id = %rid, "{message}")
+        }
         ("info", None) => tracing::info!(target: "frontend", source = %target, "{message}"),
-        ("debug", Some(rid)) => tracing::debug!(target: "frontend", source = %target, run_id = %rid, "{message}"),
+        ("debug", Some(rid)) => {
+            tracing::debug!(target: "frontend", source = %target, run_id = %rid, "{message}")
+        }
         ("debug", None) => tracing::debug!(target: "frontend", source = %target, "{message}"),
-        (_, Some(rid)) => tracing::trace!(target: "frontend", source = %target, run_id = %rid, "{message}"),
+        (_, Some(rid)) => {
+            tracing::trace!(target: "frontend", source = %target, run_id = %rid, "{message}")
+        }
         (_, None) => tracing::trace!(target: "frontend", source = %target, "{message}"),
     }
 }

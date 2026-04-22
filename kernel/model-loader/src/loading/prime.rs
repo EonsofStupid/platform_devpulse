@@ -11,8 +11,8 @@
 //! Priming runs dummy forward passes to warm everything up.
 //! After priming, first real inference is as fast as subsequent ones.
 
-use crate::traits::{InferenceBackend, LoaderError};
 use crate::loading::states::PrimingConfig;
+use crate::traits::{InferenceBackend, LoaderError};
 use std::time::Instant;
 use tracing::{debug, info, instrument, warn};
 
@@ -64,42 +64,53 @@ impl<B: InferenceBackend + PrimingBackend> ModelPrimer<B> {
 
         // Step 1: Allocate KV cache
         debug!("Allocating KV cache for context length {context_length}");
-        let kv_info = self.backend.allocate_kv_cache(slot_id, context_length).await?;
-        
+        let kv_info = self
+            .backend
+            .allocate_kv_cache(slot_id, context_length)
+            .await?;
+
         // Step 2: Run warmup forward passes
         debug!(
             "Running {} warmup iterations with seq_len={}",
             self.config.warmup_iterations, self.config.warmup_seq_len
         );
-        
+
         let warmup_start = Instant::now();
         let mut total_tokens = 0u64;
-        
+
         for i in 0..self.config.warmup_iterations {
             // Create dummy input (BOS token + padding)
             let dummy_tokens: Vec<u32> = vec![1; self.config.warmup_seq_len];
-            
+
             // Run forward pass via PrimingBackend (discard output)
-            let _output = PrimingBackend::forward(&mut self.backend, slot_id, &dummy_tokens).await?;
+            let _output =
+                PrimingBackend::forward(&mut self.backend, slot_id, &dummy_tokens).await?;
             total_tokens += dummy_tokens.len() as u64;
-            
+
             // Reset KV cache between iterations to avoid state accumulation
             if i < self.config.warmup_iterations - 1 {
                 self.backend.reset_kv_cache(slot_id).await?;
             }
         }
-        
+
         let warmup_duration = warmup_start.elapsed();
         let warmup_tps = total_tokens as f32 / warmup_duration.as_secs_f32();
-        debug!("Warmup complete: {total_tokens} tokens in {:?} ({warmup_tps:.1} t/s)", warmup_duration);
+        debug!(
+            "Warmup complete: {total_tokens} tokens in {:?} ({warmup_tps:.1} t/s)",
+            warmup_duration
+        );
 
         // Step 3: (Optional) Capture CUDA graphs
         let cuda_graphs_captured = if self.config.capture_cuda_graphs {
-            debug!("Capturing CUDA graphs for batch sizes: {:?}", self.config.cuda_graph_batch_sizes);
-            match self.backend.capture_cuda_graphs(
-                slot_id,
-                &self.config.cuda_graph_batch_sizes,
-            ).await {
+            debug!(
+                "Capturing CUDA graphs for batch sizes: {:?}",
+                self.config.cuda_graph_batch_sizes
+            );
+            match self
+                .backend
+                .capture_cuda_graphs(slot_id, &self.config.cuda_graph_batch_sizes)
+                .await
+            {
                 Ok(()) => {
                     info!("CUDA graphs captured successfully");
                     true
@@ -117,7 +128,10 @@ impl<B: InferenceBackend + PrimingBackend> ModelPrimer<B> {
         self.backend.reset_kv_cache(slot_id).await?;
 
         let duration_ms = start.elapsed().as_millis() as u64;
-        info!("Model primed in {duration_ms}ms (KV cache: {} MB)", kv_info.size_bytes / (1024 * 1024));
+        info!(
+            "Model primed in {duration_ms}ms (KV cache: {} MB)",
+            kv_info.size_bytes / (1024 * 1024)
+        );
 
         Ok(PrimingResult {
             duration_ms,
@@ -133,15 +147,15 @@ impl<B: InferenceBackend + PrimingBackend> ModelPrimer<B> {
     #[instrument(skip(self), fields(slot_id = %slot_id))]
     pub async fn demote_to_loaded(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         info!("Demoting model in slot {slot_id} from Primed to Loaded");
-        
+
         // Free KV cache
         self.backend.free_kv_cache(slot_id).await?;
-        
+
         // Release CUDA graphs if captured
         if let Err(e) = self.backend.release_cuda_graphs(slot_id).await {
             warn!("Failed to release CUDA graphs: {e}");
         }
-        
+
         Ok(())
     }
 }

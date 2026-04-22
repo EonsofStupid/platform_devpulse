@@ -80,7 +80,12 @@ impl Task for Dev {
         stage::section("Cleanup");
         let cleanup_start = Instant::now();
         zombie::cleanup(dev_port)?;
-        log.stage_timed("zombie_cleanup", "OK", "stale processes cleaned", cleanup_start)?;
+        log.stage_timed(
+            "zombie_cleanup",
+            "OK",
+            "stale processes cleaned",
+            cleanup_start,
+        )?;
 
         // ── Stage 4: Port management ──
         // Ensure ALL platform ports are free before launching anything.
@@ -91,7 +96,12 @@ impl Task for Dev {
 
         let graph_port_start = Instant::now();
         net::ensure_port_free(graph_api_port)?;
-        log.stage_timed("port_check", "OK", &format!(":{graph_api_port} free (SurrealDB HTTP)"), graph_port_start)?;
+        log.stage_timed(
+            "port_check",
+            "OK",
+            &format!(":{graph_api_port} free (SurrealDB HTTP)"),
+            graph_port_start,
+        )?;
 
         // ── Stage 5: Pre-flight ──
         let preflight_start = Instant::now();
@@ -119,7 +129,12 @@ impl Task for Dev {
         let lock_start = Instant::now();
         let lock_killed = zombie::clear_build_lock_holders()?;
         if lock_killed > 0 {
-            log.stage_timed("build_lock", "OK", &format!("killed {lock_killed} lock holder(s)"), lock_start)?;
+            log.stage_timed(
+                "build_lock",
+                "OK",
+                &format!("killed {lock_killed} lock holder(s)"),
+                lock_start,
+            )?;
         } else {
             log.stage_timed("build_lock", "OK", "lock is free", lock_start)?;
         }
@@ -139,13 +154,17 @@ impl Task for Dev {
         // ── Stage 6: Backend compile with live progress ──
         let estimated = stage::estimate_crate_count(ws.root(), "devpulse_desktop_backend");
         if estimated > 0 {
-            stage::section(&format!("Backend (~{estimated} crates in dependency graph)"));
+            stage::section(&format!(
+                "Backend (~{estimated} crates in dependency graph)"
+            ));
         } else {
             stage::section("Backend");
         }
         println!("  > cargo check -p devpulse_desktop_backend");
         println!("  > Scope: Tauri backend + Platform facade + 7 services");
-        log.entry(&format!("backend_compile: ~{estimated} crates in dep graph"))?;
+        log.entry(&format!(
+            "backend_compile: ~{estimated} crates in dep graph"
+        ))?;
 
         // Build environment — all env vars from platform.default.toml [build.deps.*] SSOT.
         // No hardcoded env vars here. Everything derives from the config.
@@ -202,7 +221,12 @@ impl Task for Dev {
         }
 
         if !compile.status.success() {
-            log.stage_timed("backend_compile", "FAIL", "compilation errors", compile_start)?;
+            log.stage_timed(
+                "backend_compile",
+                "FAIL",
+                "compilation errors",
+                compile_start,
+            )?;
             log.footer(run_start)?;
             if retried_without_sccache {
                 anyhow::bail!(
@@ -247,7 +271,10 @@ impl Task for Dev {
         println!("  > Vite        → http://{}:{}", dev_bind, dev_port);
         println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka + RRO + Kokoros + Outlines");
         let graph_api = &platform_config.services.network.graph_api;
-        println!("  > SurrealDB   → http://{}:{} (HTTP server)", graph_api.bind, graph_api.port);
+        println!(
+            "  > SurrealDB   → http://{}:{} (HTTP server)",
+            graph_api.bind, graph_api.port
+        );
         println!("  > Ctrl+C      → kills all children (job object enforced)");
         println!();
         log.stage("launch", "START", "pnpm tauri dev")?;
@@ -256,11 +283,7 @@ impl Task for Dev {
         // Set env var so Vite reads port from config SSOT
         std::env::set_var("DEVPULSE_DEV_PORT", dev_port.to_string());
 
-        let mut tauri_child = ws.spawn_in_verbose(
-            &ws.desktop_dir(),
-            "pnpm",
-            &["tauri", "dev"],
-        )?;
+        let mut tauri_child = ws.spawn_in_verbose(&ws.desktop_dir(), "pnpm", &["tauri", "dev"])?;
 
         // Assign pnpm (and its child tree) to the Job Object so Ctrl+C
         // kills everything — vite, node, cargo, the Tauri backend, all of it.
@@ -272,7 +295,9 @@ impl Task for Dev {
             }
         }
 
-        let status = tauri_child.wait().context("failed to wait on pnpm tauri dev")?;
+        let status = tauri_child
+            .wait()
+            .context("failed to wait on pnpm tauri dev")?;
         if !status.success() {
             let code = status.code().unwrap_or(-1);
             anyhow::bail!("`pnpm tauri dev` exited with code {code}");
@@ -318,7 +343,12 @@ impl LogFile {
         let now = timestamp();
         writeln!(self.file, "# {name} v{version} [{task}]")?;
         writeln!(self.file, "# Started: {now}")?;
-        writeln!(self.file, "# OS: {} {}", std::env::consts::OS, std::env::consts::ARCH)?;
+        writeln!(
+            self.file,
+            "# OS: {} {}",
+            std::env::consts::OS,
+            std::env::consts::ARCH
+        )?;
         writeln!(self.file, "#")?;
         writeln!(self.file)?;
         Ok(())
@@ -342,7 +372,10 @@ impl LogFile {
     ) -> anyhow::Result<()> {
         let elapsed_ms = started.elapsed().as_millis();
         let ts = elapsed_tag(&self.run_start);
-        writeln!(self.file, "[{ts}] [{status:>5}] {name}: {detail} ({elapsed_ms}ms)")?;
+        writeln!(
+            self.file,
+            "[{ts}] [{status:>5}] {name}: {detail} ({elapsed_ms}ms)"
+        )?;
         self.file.flush()?;
         Ok(())
     }

@@ -464,6 +464,72 @@ async getRetrievalParamMeta() : Promise<Result<RetrievalParamMeta[], string>> {
 }
 },
 /**
+ * Get the current RRO state snapshot.
+ */
+async getRroState() : Promise<Result<RroStateSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_rro_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Set the deliberation depth. Does not transition state.
+ */
+async setRroDepth(depth: RroDepth) : Promise<Result<RroStateSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_rro_depth", { depth }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Trigger a gather. Transitions state → gathering.
+ */
+async triggerRroGather(source: string) : Promise<Result<RroStateSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("trigger_rro_gather", { source }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Trigger a purge. Transitions state → purged.
+ */
+async triggerRroPurge(reason: string) : Promise<Result<RroStateSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("trigger_rro_purge", { reason }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Trigger a fork. Transitions state → forked.
+ */
+async triggerRroFork(label: string) : Promise<Result<RroStateSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("trigger_rro_fork", { label }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Set the proximity diagnostic indicator. Clamped to [0.0, 1.0].
+ */
+async setRroProximity(value: number) : Promise<Result<RroStateSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_rro_proximity", { value }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Ping a single graph namespace — returns reachable + latency.
  * 
  * # Errors
@@ -1293,6 +1359,22 @@ async downloadModel(repoId: string, filename: string) : Promise<Result<string, s
 async cancelDownload(downloadId: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("cancel_download", { downloadId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List every file in a HuggingFace repo.
+ * 
+ * Used by `RepoDownloadButton` to render a bundle confirmation modal
+ * before the user clicks Download. Threaded through the stored HF
+ * token, so private / gated repos resolve when the user has stored
+ * one via [`set_hf_token`].
+ */
+async listRepoFiles(repoId: string) : Promise<Result<RepoFile[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_repo_files", { repoId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -5031,6 +5113,21 @@ url: string | null;
  */
 pid: number | null }
 /**
+ * Single repo file entry — serializable snapshot of one sibling
+ * returned by the HF Hub's repo info endpoint. Consumed by the
+ * frontend's `RepoDownloadButton` to render the bundle confirmation.
+ */
+export type RepoFile = { 
+/**
+ * File name relative to the repo root (e.g. `"model.safetensors"`).
+ */
+name: string; 
+/**
+ * File size in bytes when the Hub response exposes it; `None`
+ * otherwise. UI treats `None` as "unknown".
+ */
+size: number | null }
+/**
  * Resolver output. Either a concrete plan or a typed failure with
  * alternatives.
  */
@@ -5256,6 +5353,109 @@ export type RoutingMode =
  * Prefer local, escalate through both Claude subscription and API council lanes.
  */
 "local_claude_api_council"
+/**
+ * Deliberation depth — how deeply Clyffy ruminates before acting.
+ * 
+ * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.depth`.
+ */
+export type RroDepth = 
+/**
+ * Fast-path, minimal deliberation.
+ */
+"shallow" | 
+/**
+ * Standard deliberation.
+ */
+"normal" | 
+/**
+ * Extended deliberation.
+ */
+"deep"
+/**
+ * RRO lifecycle state.
+ * 
+ * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.state`.
+ */
+export type RroState = 
+/**
+ * No active RRO.
+ */
+"idle" | 
+/**
+ * Collecting relevant context.
+ */
+"gathering" | 
+/**
+ * Structuring collected context.
+ */
+"processing" | 
+/**
+ * Weighing alternatives before committing.
+ */
+"ruminating" | 
+/**
+ * Context prepared, ready to act.
+ */
+"ready" | 
+/**
+ * Context discarded as stale or contaminated.
+ */
+"purged" | 
+/**
+ * Context branched into alternative paths.
+ */
+"forked"
+/**
+ * A snapshot of the RRO machine at a point in time.
+ * 
+ * Returned by `get_rro_state` Tauri command. Emitted as the payload of
+ * `platform:rro-state-changed` Tauri events.
+ */
+export type RroStateSnapshot = { 
+/**
+ * Current state.
+ */
+state: RroState; 
+/**
+ * Current rumination depth.
+ */
+depth: RroDepth; 
+/**
+ * Opaque origin identifier (per registry `rro.source`).
+ */
+source: string; 
+/**
+ * Unix epoch milliseconds of the last transition.
+ */
+last_transition_at_ms: number; 
+/**
+ * Diagnostic proximity (0.0..1.0) — closer to 1.0 = closer to friction.
+ */
+proximity: number; 
+/**
+ * Recent transitions (newest first, capped at `TRANSITION_HISTORY_CAP`).
+ */
+history: RroStateTransition[] }
+/**
+ * A single transition record. Held in the ring buffer for replay.
+ */
+export type RroStateTransition = { 
+/**
+ * Previous state (None for the initial transition into `idle`).
+ */
+from: RroState | null; 
+/**
+ * New state after this transition.
+ */
+to: RroState; 
+/**
+ * Unix epoch milliseconds when the transition occurred.
+ */
+at_ms: number; 
+/**
+ * Opaque source/reason — per registry, never an algorithm name.
+ */
+reason: string }
 /**
  * Scanning state — shown during hardware detection.
  */

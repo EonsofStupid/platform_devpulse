@@ -101,8 +101,8 @@ pub fn init(
     // Two independent filters so stderr stays readable while the JSONL
     // captures EVERYTHING faithfully for post-mortem. RUST_LOG controls
     // stderr. DEVPULSE_LOG_FAITHFUL=1 promotes the JSONL to full trace.
-    let stderr_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
+    let stderr_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
 
     let faithful = std::env::var("DEVPULSE_LOG_FAITHFUL").is_ok();
     let jsonl_filter = if faithful {
@@ -111,8 +111,11 @@ pub fn init(
         // Default JSONL is verbose-but-readable: all debug globally, trace
         // for devpulse crates. Users don't need DEVPULSE_LOG_FAITHFUL unless
         // they want third-party crates at trace level too.
-        EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| EnvFilter::new("debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace"))
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+            EnvFilter::new(
+                "debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace",
+            )
+        })
     };
 
     if faithful {
@@ -181,8 +184,10 @@ fn install_panic_hook(logs_dir: &Path) {
         let ts_file = timestamp_raw.format("%Y-%m-%d-%H%M%S").to_string();
         let ts_iso = timestamp_raw.to_rfc3339();
 
-        let location = info
-            .location().map_or_else(|| "<unknown>".to_string(), |l| format!("{}:{}:{}", l.file(), l.line(), l.column()));
+        let location = info.location().map_or_else(
+            || "<unknown>".to_string(),
+            |l| format!("{}:{}:{}", l.file(), l.line(), l.column()),
+        );
 
         let payload = info.payload();
         let message = if let Some(s) = payload.downcast_ref::<&str>() {
@@ -223,8 +228,8 @@ fn install_panic_hook(logs_dir: &Path) {
             "message": message,
             "backtrace": backtrace_str,
         });
-        let serialized = serde_json::to_string_pretty(&crash_json)
-            .unwrap_or_else(|_| crash_json.to_string());
+        let serialized =
+            serde_json::to_string_pretty(&crash_json).unwrap_or_else(|_| crash_json.to_string());
         let _ = std::fs::write(&crash_path, serialized);
 
         // 3. Delegate to the previous hook (default: prints to stderr).
@@ -234,8 +239,8 @@ fn install_panic_hook(logs_dir: &Path) {
 
 /// Initialize stderr-only logging (fallback if `data_dir` isn't available yet).
 pub fn init_stderr_only() {
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
+    let filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
 
     tracing_subscriber::registry()
         .with(filter)
@@ -263,7 +268,11 @@ pub fn rotate_logs(data_dir: &Path) -> anyhow::Result<()> {
         .filter_map(|entry| {
             let entry = entry.ok()?;
             let name = entry.file_name().to_string_lossy().to_string();
-            if name.starts_with("session-") && std::path::Path::new(&name).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl")) {
+            if name.starts_with("session-")
+                && std::path::Path::new(&name)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl"))
+            {
                 Some(entry.path())
             } else {
                 None

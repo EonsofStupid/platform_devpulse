@@ -38,17 +38,23 @@ function unwrap<T>(r: { status: "ok"; data: T } | { status: "error"; error: stri
 
 // ── Phase 1: Hardware ──────────────────────────────────
 
+/** Wizard-scoped hardware subscription. Held for the lifetime of the wizard session. */
+let wizardHardwareUnsubscribe: (() => void) | null = null;
+
 /**
  * Start hardware detection. Called when user clicks "Let's Go" on WelcomeStep.
+ * Subscribes to the ref-counted hardware stream for the wizard session.
  *
  * @throws {Error} If hardware polling fails (NVML unavailable, permission denied)
  * @sideeffects Sets wizardState.hardwareScanned on success, wizardState.error on failure
  */
 export async function startHardwareScan(): Promise<void> {
 	wizardState.error = null;
-	logInfo("wizard.hardware", "startHardwareScan() — ensure app hardware telemetry");
+	logInfo("wizard.hardware", "startHardwareScan() — subscribe to hardware telemetry");
 	try {
-		await hardwareState.ensureListening("wizard-start");
+		if (!wizardHardwareUnsubscribe) {
+			wizardHardwareUnsubscribe = hardwareState.subscribe("wizard-start");
+		}
 		if (!hardwareState.hasSnapshot) {
 			await hardwareState.refresh("wizard-start:no-snapshot");
 		}
@@ -62,6 +68,12 @@ export async function startHardwareScan(): Promise<void> {
 		logError("wizard.hardware", `Hardware scan failed: ${msg}`);
 		wizardState.error = msg;
 	}
+}
+
+/** Release the wizard's hardware subscription. Call on wizard teardown/cancel. */
+export function stopHardwareScan(): void {
+	wizardHardwareUnsubscribe?.();
+	wizardHardwareUnsubscribe = null;
 }
 
 /**

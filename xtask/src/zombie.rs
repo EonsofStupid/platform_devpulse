@@ -215,7 +215,9 @@ pub fn clear_build_lock_holders() -> Result<u32> {
     if killed == 0 {
         stage.ok_with("no stale cargo/rustc — build lock is free");
     } else {
-        stage.ok_with(format!("killed {killed} stale process(es) holding build lock"));
+        stage.ok_with(format!(
+            "killed {killed} stale process(es) holding build lock"
+        ));
     }
 
     Ok(killed)
@@ -236,7 +238,13 @@ fn clear_build_lock_windows() -> Result<u32> {
 
         let output = match run_with_timeout(
             "tasklist",
-            &["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"],
+            &[
+                "/FI",
+                &format!("IMAGENAME eq {name}.exe"),
+                "/NH",
+                "/FO",
+                "CSV",
+            ],
             SUBPROCESS_TIMEOUT_SECS,
         ) {
             Ok(o) => o,
@@ -383,7 +391,13 @@ fn cleanup_windows(dev_port: u16) -> Result<u32> {
 
         let output = match run_with_timeout(
             "tasklist",
-            &["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"],
+            &[
+                "/FI",
+                &format!("IMAGENAME eq {name}.exe"),
+                "/NH",
+                "/FO",
+                "CSV",
+            ],
             SUBPROCESS_TIMEOUT_SECS,
         ) {
             Ok(o) => o,

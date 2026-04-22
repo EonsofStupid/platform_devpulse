@@ -129,20 +129,12 @@ impl ProjectDbManager {
         let db_path = Self::db_path(project_root);
 
         if !db_path.exists() {
-            anyhow::bail!(
-                "Project database does not exist at {}",
-                db_path.display()
-            );
+            anyhow::bail!("Project database does not exist at {}", db_path.display());
         }
 
         let adapter = LibSqlAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
             .await
-            .with_context(|| {
-                format!(
-                    "Failed to open project database at {}",
-                    db_path.display()
-                )
-            })?;
+            .with_context(|| format!("Failed to open project database at {}", db_path.display()))?;
 
         let adapter = Arc::new(adapter);
         self.dbs

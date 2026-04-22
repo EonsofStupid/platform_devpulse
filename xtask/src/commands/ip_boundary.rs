@@ -69,8 +69,14 @@ impl Task for IpBoundary {
         let s3 = Stage::start("feature gates");
         let features: Vec<&str> = engine.features.keys().map(String::as_str).collect();
 
-        anyhow::ensure!(features.contains(&"kernel"), "engine missing 'kernel' feature");
-        anyhow::ensure!(features.contains(&"engine"), "engine missing 'engine' feature");
+        anyhow::ensure!(
+            features.contains(&"kernel"),
+            "engine missing 'kernel' feature"
+        );
+        anyhow::ensure!(
+            features.contains(&"engine"),
+            "engine missing 'engine' feature"
+        );
         s3.ok();
 
         println!();

@@ -168,8 +168,11 @@ mod tests {
         let mut reg = SlotRegistry::new();
         reg.register_slot(test_slot("minion.shared", ModelCapability::TextGeneration))
             .unwrap();
-        reg.register_slot(test_slot("minion.escalation", ModelCapability::TextGeneration))
-            .unwrap();
+        reg.register_slot(test_slot(
+            "minion.escalation",
+            ModelCapability::TextGeneration,
+        ))
+        .unwrap();
         reg.register_slot(test_slot("rag.embedder", ModelCapability::Embedding))
             .unwrap();
 

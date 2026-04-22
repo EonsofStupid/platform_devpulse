@@ -16,9 +16,9 @@
 //! Output tensor:
 //! - `audio`: float32 [1, T] — PCM samples at 24kHz mono
 
-use crate::backends::phoneme::KokoroVocab;
 #[cfg(feature = "ort-backend")]
 use crate::backends::phoneme::text_to_kokoro_ids;
+use crate::backends::phoneme::KokoroVocab;
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
@@ -101,8 +101,11 @@ impl TtsBackend for KokoroTts {
                 "Session created — inspecting tensor names"
             );
 
-            *self.session.lock()
-                .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? = Some(session);
+            *self
+                .session
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? =
+                Some(session);
 
             // Vocab lives next to the model as `vocab.json`. Required for real
             // phoneme → id conversion; without it we cannot synthesize.
@@ -156,7 +159,9 @@ impl TtsBackend for KokoroTts {
         tracing::info!(component = "Kokoro TTS", "Unloading Kokoro TTS");
         #[cfg(feature = "ort-backend")]
         {
-            *self.session.lock()
+            *self
+                .session
+                .lock()
                 .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))? = None;
         }
         self.model_path = None;
@@ -187,7 +192,11 @@ impl TtsBackend for KokoroTts {
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Kokoro vocab not loaded"))?;
 
-        let voice_id = if voice.is_empty() { &self.default_voice } else { voice };
+        let voice_id = if voice.is_empty() {
+            &self.default_voice
+        } else {
+            voice
+        };
         let phoneme_ids = text_to_kokoro_ids(text, voice_id, vocab)?;
 
         if phoneme_ids.len() <= 2 {
@@ -197,7 +206,9 @@ impl TtsBackend for KokoroTts {
 
         let seq_len = phoneme_ids.len();
 
-        let mut guard = self.session.lock()
+        let mut guard = self
+            .session
+            .lock()
             .map_err(|e| anyhow::anyhow!("Kokoro session mutex poisoned: {e}"))?;
         let session = guard
             .as_mut()

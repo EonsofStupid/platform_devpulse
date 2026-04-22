@@ -21,20 +21,25 @@ export const GRAPH_NAMES = new Set([
 
 export const AI_NAMES = new Set(["Model Loader", "Vector store"]);
 
+/** Discriminator used by consumers to pick icons, colors, and narration heuristics. */
+export type SubsystemGroupKind = "stores" | "graph" | "ai" | "system";
+
 /** A labeled group of subsystems for display. */
 export interface HealthGroup {
 	label: string;
+	kind: SubsystemGroupKind;
 	subs: SubsystemHealth[];
 }
 
 /** A labeled group of boot-time subsystem info for StatusBar. */
 export interface SubsystemGroup {
 	label: string;
+	kind: SubsystemGroupKind;
 	subs: SubsystemInfo[];
 }
 
 /** Classify a subsystem name into a group key. */
-function classify(name: string): "stores" | "graph" | "ai" | "system" {
+export function classifySubsystem(name: string): SubsystemGroupKind {
 	if (STORE_NAMES.has(name)) return "stores";
 	if (GRAPH_NAMES.has(name)) return "graph";
 	if (AI_NAMES.has(name)) return "ai";
@@ -49,7 +54,7 @@ export function groupSubsystems(subs: SubsystemInfo[]): SubsystemGroup[] {
 	const system: SubsystemInfo[] = [];
 
 	subs.forEach((s) => {
-		const key = classify(s.name);
+		const key = classifySubsystem(s.name);
 		if (key === "stores") stores.push(s);
 		else if (key === "graph") graph.push(s);
 		else if (key === "ai") ai.push(s);
@@ -57,10 +62,10 @@ export function groupSubsystems(subs: SubsystemInfo[]): SubsystemGroup[] {
 	});
 
 	const groups: SubsystemGroup[] = [];
-	if (stores.length > 0) groups.push({ label: "Stores", subs: stores });
-	if (graph.length > 0) groups.push({ label: "Graph", subs: graph });
-	if (ai.length > 0) groups.push({ label: "AI", subs: ai });
-	if (system.length > 0) groups.push({ label: "Sys", subs: system });
+	if (stores.length > 0) groups.push({ label: "Stores", kind: "stores", subs: stores });
+	if (graph.length > 0) groups.push({ label: "Graph", kind: "graph", subs: graph });
+	if (ai.length > 0) groups.push({ label: "AI", kind: "ai", subs: ai });
+	if (system.length > 0) groups.push({ label: "Sys", kind: "system", subs: system });
 	return groups;
 }
 
@@ -72,7 +77,7 @@ export function groupHealthSubsystems(subs: SubsystemHealth[]): HealthGroup[] {
 	const system: SubsystemHealth[] = [];
 
 	subs.forEach((s) => {
-		const key = classify(s.name);
+		const key = classifySubsystem(s.name);
 		if (key === "stores") stores.push(s);
 		else if (key === "graph") graph.push(s);
 		else if (key === "ai") ai.push(s);
@@ -80,9 +85,9 @@ export function groupHealthSubsystems(subs: SubsystemHealth[]): HealthGroup[] {
 	});
 
 	const groups: HealthGroup[] = [];
-	if (stores.length > 0) groups.push({ label: "Data Stores", subs: stores });
-	if (graph.length > 0) groups.push({ label: "Graph", subs: graph });
-	if (ai.length > 0) groups.push({ label: "AI", subs: ai });
-	if (system.length > 0) groups.push({ label: "System", subs: system });
+	if (stores.length > 0) groups.push({ label: "Data Stores", kind: "stores", subs: stores });
+	if (graph.length > 0) groups.push({ label: "Graph", kind: "graph", subs: graph });
+	if (ai.length > 0) groups.push({ label: "AI", kind: "ai", subs: ai });
+	if (system.length > 0) groups.push({ label: "System", kind: "system", subs: system });
 	return groups;
 }

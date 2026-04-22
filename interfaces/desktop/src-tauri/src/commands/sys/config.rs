@@ -29,7 +29,10 @@ pub async fn get_preference(
     key: String,
 ) -> Result<Option<String>, String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -56,7 +59,10 @@ pub async fn set_preference(
     value: String,
 ) -> Result<(), String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 

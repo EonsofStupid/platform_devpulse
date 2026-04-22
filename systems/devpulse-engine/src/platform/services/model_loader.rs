@@ -17,28 +17,28 @@
 
 use super::model_loader_log::FileEventSink;
 use super::{Service, ServiceRole, ServiceState};
-use anyhow::Result;
 use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
-use devpulse_clyffy::model_loader::{
-    HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot, SlotStatus, VramBudget,
-};
+use anyhow::Result;
+use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 pub use devpulse_clyffy::model_loader::registry::LoadError;
 pub use devpulse_clyffy::model_loader::AudioSamples;
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
-pub use devpulse_clyffy::model_loader::{
-    AutoConfig, BrainSwapPolicy, HardwareTier, SlotRecommendation,
-};
 pub use devpulse_clyffy::model_loader::{
     ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
     ModelsCopy, ProfileCopy, ScanningCopy, StepTooltips, TierDisplay, TierRole, TooltipEntry,
     WizardCopy,
 };
 pub use devpulse_clyffy::model_loader::{
-    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig,
-    TtsConfig, VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
+    VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+};
+pub use devpulse_clyffy::model_loader::{
+    AutoConfig, BrainSwapPolicy, HardwareTier, SlotRecommendation,
+};
+use devpulse_clyffy::model_loader::{
+    HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot, SlotStatus, VramBudget,
 };
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::sync::Arc;
 
 /// Model Loader service — managed by the platform boot pipeline.
@@ -59,21 +59,20 @@ impl ModelLoaderService {
         libsql_adapter: Option<Arc<LibSqlAdapter>>,
     ) -> Result<(Self, Vec<Slot>)> {
         let log_path = data_dir.join("logs").join("model-loader.log");
-        let config: Box<dyn devpulse_clyffy::model_loader::ConfigBackend> =
-            if let Some(adapter) = libsql_adapter {
-                tracing::info!("Model Loader using LibSQL persistence (assignments survive restarts)");
-                Box::new(LibSqlConfig::new(adapter))
-            } else {
-                tracing::warn!("Model Loader using MemoryConfig (assignments lost on restart)");
-                Box::new(MemoryConfig::new())
-            };
+        let config: Box<dyn devpulse_clyffy::model_loader::ConfigBackend> = if let Some(adapter) =
+            libsql_adapter
+        {
+            tracing::info!("Model Loader using LibSQL persistence (assignments survive restarts)");
+            Box::new(LibSqlConfig::new(adapter))
+        } else {
+            tracing::warn!("Model Loader using MemoryConfig (assignments lost on restart)");
+            Box::new(MemoryConfig::new())
+        };
         let events: Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink> =
             events.unwrap_or_else(|| Arc::new(FileEventSink::new(log_path)));
 
-        let default_slots =
-            devpulse_clyffy::model_loader::load_default_slots(data_dir).map_err(|e| {
-                anyhow::anyhow!("Failed to load kernel slot SSOT: {e}")
-            })?;
+        let default_slots = devpulse_clyffy::model_loader::load_default_slots(data_dir)
+            .map_err(|e| anyhow::anyhow!("Failed to load kernel slot SSOT: {e}"))?;
         let presets = devpulse_clyffy::model_loader::load_default_presets(data_dir)
             .map_err(|e| anyhow::anyhow!("Failed to load kernel preset SSOT: {e:?}"))?;
         tracing::info!(
@@ -87,7 +86,12 @@ impl ModelLoaderService {
         // manages per-sub-struct locking internally.
         let service = Inner::new(config, events, models_dir, subdirs, presets)?;
 
-        Ok((Self { inner: Arc::new(service) }, default_slots))
+        Ok((
+            Self {
+                inner: Arc::new(service),
+            },
+            default_slots,
+        ))
     }
 
     /// Fast path: register slots only. Instant in-memory operation.
@@ -97,9 +101,10 @@ impl ModelLoaderService {
     #[tracing::instrument(skip_all, fields(count = default_slots.len()), err)]
     pub async fn register_slots_only(&self, default_slots: Vec<Slot>) -> Result<()> {
         tracing::info!("register_slots_only");
-        self.inner.register_slots(default_slots).await.map_err(|e| {
-            anyhow::anyhow!("Failed to register default slots: {e}")
-        })
+        self.inner
+            .register_slots(default_slots)
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to register default slots: {e}"))
     }
 
     /// Slow path: scan models directory, restore assignments, auto-assign
@@ -121,7 +126,9 @@ impl ModelLoaderService {
             .await
             .map_err(|e| anyhow::anyhow!("scan_models spawn_blocking join: {e}"))?;
         match scan_result {
-            Ok(entries) => tracing::info!(models = entries.len(), "finalize_registry: scan complete"),
+            Ok(entries) => {
+                tracing::info!(models = entries.len(), "finalize_registry: scan complete")
+            }
             Err(e) => tracing::warn!(error = %e, "finalize_registry: scan failed (non-fatal)"),
         }
 
@@ -133,7 +140,9 @@ impl ModelLoaderService {
         tracing::info!("finalize_registry: auto-assigning bundled slots");
         match self.inner.auto_assign_bundled_slots().await {
             Ok(hydrated) => tracing::info!(hydrated, "finalize_registry: bundled slots assigned"),
-            Err(e) => tracing::warn!(error = %e, "finalize_registry: bundled auto-assign failed (non-fatal)"),
+            Err(e) => {
+                tracing::warn!(error = %e, "finalize_registry: bundled auto-assign failed (non-fatal)")
+            }
         }
 
         Ok(())
@@ -156,7 +165,10 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn unload_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("unload_slot");
-        self.inner.unload_slot(slot_id).await.map_err(LoadError::from)
+        self.inner
+            .unload_slot(slot_id)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Warm a slot by loading weights without fully activating inference.
@@ -170,7 +182,10 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(model_id))]
     pub async fn delete_model(&self, model_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("delete_model");
-        self.inner.delete_model(model_id).await.map_err(LoadError::from)
+        self.inner
+            .delete_model(model_id)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Atomically replace the assigned model on a slot.
@@ -181,7 +196,10 @@ impl ModelLoaderService {
         new_model_id: &str,
     ) -> std::result::Result<(), LoadError> {
         tracing::info!("swap_model");
-        self.inner.swap_model(slot_id, new_model_id).await.map_err(LoadError::from)
+        self.inner
+            .swap_model(slot_id, new_model_id)
+            .await
+            .map_err(LoadError::from)
     }
 
     // ── HF search (stateless HTTP) ────────────────────────────
@@ -250,7 +268,10 @@ impl ModelLoaderService {
         model_id: &str,
     ) -> std::result::Result<(), LoadError> {
         tracing::info!("assign_model");
-        self.inner.assign_model(slot_id, model_id).await.map_err(LoadError::from)
+        self.inner
+            .assign_model(slot_id, model_id)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Return whether the loader has any persisted slot assignments yet.
@@ -316,6 +337,20 @@ impl ModelLoaderService {
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
+    /// List every file in a HuggingFace repo, threaded through any
+    /// stored HF token. Used by the frontend `RepoDownloadButton` to
+    /// render a bundle confirmation modal before a user commits to a
+    /// download.
+    pub async fn list_repo_files(
+        &self,
+        repo_id: &str,
+    ) -> Result<Vec<devpulse_clyffy::model_loader::models::download::RepoFileEntry>> {
+        self.inner
+            .list_repo_files(repo_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
     // ── HF token (config lock) ───────────────────────────────
 
     /// Persist or clear the stored Hugging Face token.
@@ -353,54 +388,84 @@ impl ModelLoaderService {
 
     /// Persist a new assistant display name.
     pub async fn set_assistant_name(&self, name: String) -> Result<()> {
-        self.inner.set_assistant_name(name).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_assistant_name(name)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Persist a new wake phrase.
     pub async fn set_wake_phrase(&self, phrase: String) -> Result<()> {
-        self.inner.set_wake_phrase(phrase).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_wake_phrase(phrase)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Enable or disable wake phrase detection.
     pub async fn set_wake_enabled(&self, enabled: bool) -> Result<()> {
-        self.inner.set_wake_enabled(enabled).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_wake_enabled(enabled)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Enable or disable the always-on voice brain mode.
     pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<()> {
-        self.inner.set_voice_brain_24_7(enabled).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_voice_brain_24_7(enabled)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Persist the selected TTS voice profile.
     pub async fn set_voice_profile(&self, profile: String) -> Result<()> {
-        self.inner.set_voice_profile(profile).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_voice_profile(profile)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Persist the active routing mode.
     #[tracing::instrument(skip(self), fields(mode = %mode), err)]
     pub async fn set_routing_mode(&self, mode: String) -> Result<()> {
         tracing::info!("set_routing_mode");
-        self.inner.set_routing_mode(mode).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_routing_mode(mode)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Register a custom voice clone entry.
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<()> {
-        self.inner.register_voice_clone(entry).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .register_voice_clone(entry)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Remove a custom voice clone by name.
     pub async fn remove_voice_clone(&self, name: String) -> Result<()> {
-        self.inner.remove_voice_clone(&name).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .remove_voice_clone(&name)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Add a keyword-triggered assistant action.
     pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<()> {
-        self.inner.add_keyword_action(entry).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .add_keyword_action(entry)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Remove a keyword-triggered action by phrase.
     pub async fn remove_keyword_action(&self, phrase: String) -> Result<()> {
-        self.inner.remove_keyword_action(&phrase).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .remove_keyword_action(&phrase)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Update an existing keyword-triggered action in place.
@@ -417,12 +482,18 @@ impl ModelLoaderService {
 
     /// Persist the idle timeout used by the assistant window behavior.
     pub async fn set_idle_timeout(&self, secs: u32) -> Result<()> {
-        self.inner.set_idle_timeout(secs).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_idle_timeout(secs)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Persist the partial GPU offload hint for the chat brain.
     pub async fn set_brain_ngl(&self, ngl: i32) -> Result<()> {
-        self.inner.set_brain_ngl(ngl).await.map_err(|e| anyhow::anyhow!("{e}"))
+        self.inner
+            .set_brain_ngl(ngl)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
     /// Return the directory used for custom voice assets.
@@ -490,22 +561,13 @@ impl ModelLoaderService {
 
     /// Score documents against a query through the reranker slot.
     #[tracing::instrument(skip(self, documents), fields(slot_id, count = documents.len()))]
-    pub async fn rerank(
-        &self,
-        slot_id: &str,
-        query: &str,
-        documents: &[&str],
-    ) -> Result<Vec<f32>> {
+    pub async fn rerank(&self, slot_id: &str, query: &str, documents: &[&str]) -> Result<Vec<f32>> {
         self.inner.rerank(slot_id, query, documents).await
     }
 
     /// Encode an image file into an embedding through the vision slot.
     #[tracing::instrument(skip(self), fields(slot_id, path))]
-    pub async fn encode_image(
-        &self,
-        slot_id: &str,
-        path: &std::path::Path,
-    ) -> Result<Vec<f32>> {
+    pub async fn encode_image(&self, slot_id: &str, path: &std::path::Path) -> Result<Vec<f32>> {
         self.inner.encode_image(slot_id, path).await
     }
 
@@ -518,7 +580,9 @@ impl ModelLoaderService {
         width: u32,
         height: u32,
     ) -> Result<Vec<f32>> {
-        self.inner.encode_rgb(slot_id, rgb_bytes, width, height).await
+        self.inner
+            .encode_rgb(slot_id, rgb_bytes, width, height)
+            .await
     }
 }
 

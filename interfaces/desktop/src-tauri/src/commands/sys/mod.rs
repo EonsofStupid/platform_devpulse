@@ -11,5 +11,6 @@ pub mod logger;
 pub mod metrics;
 pub mod project_db;
 pub mod relational;
+pub mod rro_state;
 pub mod telemetry;
 pub mod vector;

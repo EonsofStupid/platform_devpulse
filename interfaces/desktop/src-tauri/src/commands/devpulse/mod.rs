@@ -6,9 +6,7 @@
 pub mod profile;
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::{
-    AnalyticsAdapter, CacheAdapter, SqlAdapter,
-};
+use devpulse_engine::platform::{AnalyticsAdapter, CacheAdapter, SqlAdapter};
 use serde::Serialize;
 use specta::Type;
 use tauri::State;
@@ -93,11 +91,12 @@ pub struct DashboardPayload {
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc, clippy::too_many_lines)]
-pub async fn fetch_dashboard(
-    state: State<'_, PlatformState>,
-) -> Result<DashboardPayload, String> {
+pub async fn fetch_dashboard(state: State<'_, PlatformState>) -> Result<DashboardPayload, String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     // ── LibSQL queries ───────────────────────────────────────────────────
     let (projects, project_count, message_stats) = if let Some(svc) = platform.user_relational() {
@@ -116,12 +115,33 @@ pub async fn fetch_dashboard(
         let projects: Vec<ProjectRow> = project_rows
             .into_iter()
             .map(|row| ProjectRow {
-                id: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
-                name: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-                root_path: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-                project_type: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-                created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
-                last_accessed: row.get(5).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+                id: row
+                    .first()
+                    .map(std::string::ToString::to_string)
+                    .unwrap_or_default(),
+                name: row
+                    .get(1)
+                    .and_then(|v| v.as_text())
+                    .unwrap_or("")
+                    .to_string(),
+                root_path: row
+                    .get(2)
+                    .and_then(|v| v.as_text())
+                    .unwrap_or("")
+                    .to_string(),
+                project_type: row
+                    .get(3)
+                    .and_then(|v| v.as_text())
+                    .unwrap_or("")
+                    .to_string(),
+                created_at: row
+                    .get(4)
+                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                    .unwrap_or(0),
+                last_accessed: row
+                    .get(5)
+                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                    .unwrap_or(0),
             })
             .collect();
 
@@ -191,11 +211,26 @@ pub async fn fetch_dashboard(
         stats_rows
             .into_iter()
             .map(|row| DailyStatsRow {
-                date: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
-                total_signals: row.get(1).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
-                total_messages: row.get(2).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
-                total_tokens: row.get(3).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
-                avg_latency_ms: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_real).unwrap_or(0.0),
+                date: row
+                    .first()
+                    .map(std::string::ToString::to_string)
+                    .unwrap_or_default(),
+                total_signals: row
+                    .get(1)
+                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                    .unwrap_or(0),
+                total_messages: row
+                    .get(2)
+                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                    .unwrap_or(0),
+                total_tokens: row
+                    .get(3)
+                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                    .unwrap_or(0),
+                avg_latency_ms: row
+                    .get(4)
+                    .and_then(devpulse_engine::platform::SqlValue::as_real)
+                    .unwrap_or(0.0),
             })
             .collect()
     } else {

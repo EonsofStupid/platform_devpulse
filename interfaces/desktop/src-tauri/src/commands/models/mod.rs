@@ -95,7 +95,11 @@ pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) ->
         context_length: e.context_length,
         size_mb: e.size_bytes / (1024 * 1024),
         vram_estimate_mb: e.vram_estimate_mb,
-        supported_backends: e.supported_backends.iter().map(std::string::ToString::to_string).collect(),
+        supported_backends: e
+            .supported_backends
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect(),
         compatible_capabilities: e
             .compatible_capabilities
             .iter()
@@ -170,10 +174,7 @@ pub async fn emit_models_status(app: &tauri::AppHandle, loader: &ModelLoaderServ
         .iter()
         .map(|s| slot_to_slot_info(s, &registry))
         .collect();
-    let model_infos: Vec<ModelInfo> = registry
-        .iter()
-        .map(entry_to_model_info)
-        .collect();
+    let model_infos: Vec<ModelInfo> = registry.iter().map(entry_to_model_info).collect();
     crate::commands::emit_status(
         app,
         "models",
@@ -242,7 +243,9 @@ pub struct HardwareInfo {
 /// etc.). Forcing a mixed sync/async boundary here would force 25+
 /// call sites to special-case the helper.
 #[allow(clippy::unused_async)]
-pub(crate) async fn get_loader(state: &State<'_, PlatformState>) -> Result<Arc<ModelLoaderService>, String> {
+pub(crate) async fn get_loader(
+    state: &State<'_, PlatformState>,
+) -> Result<Arc<ModelLoaderService>, String> {
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
     platform
@@ -264,12 +267,13 @@ async fn get_loader_typed(
     state: &State<'_, PlatformState>,
 ) -> Result<Arc<ModelLoaderService>, devpulse_engine::platform::LoadError> {
     // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
-            message: "Platform not ready".to_string(),
-        })?;
+    let platform =
+        state
+            .platform
+            .load_full()
+            .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+                message: "Platform not ready".to_string(),
+            })?;
     platform
         .model_loader()
         .cloned()
@@ -281,9 +285,7 @@ async fn get_loader_typed(
 /// Get hardware metrics from the model loader's hardware monitor.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_hardware_metrics(
-    state: State<'_, PlatformState>,
-) -> Result<HardwareInfo, String> {
+pub async fn get_hardware_metrics(state: State<'_, PlatformState>) -> Result<HardwareInfo, String> {
     let loader = get_loader(&state).await?;
     let m = loader.hardware_metrics().await;
 
@@ -357,7 +359,11 @@ pub async fn scan_models(
             context_length: e.context_length,
             size_mb: e.size_bytes / (1024 * 1024),
             vram_estimate_mb: e.vram_estimate_mb,
-            supported_backends: e.supported_backends.iter().map(std::string::ToString::to_string).collect(),
+            supported_backends: e
+                .supported_backends
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect(),
             compatible_capabilities: e
                 .compatible_capabilities
                 .iter()
@@ -370,14 +376,16 @@ pub async fn scan_models(
 /// Get all registered slots.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_slots(
-    state: State<'_, PlatformState>,
-) -> Result<Vec<SlotInfo>, String> {
+pub async fn get_slots(state: State<'_, PlatformState>) -> Result<Vec<SlotInfo>, String> {
     tracing::info!("cmd get_slots: entry");
     let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
     let models = loader.get_registry().await;
-    tracing::info!(slots = slots.len(), models = models.len(), "cmd get_slots: exit ok");
+    tracing::info!(
+        slots = slots.len(),
+        models = models.len(),
+        "cmd get_slots: exit ok"
+    );
 
     Ok(slots
         .into_iter()
@@ -453,9 +461,7 @@ pub struct SlotBudgetEntryInfo {
 /// Get the VRAM budget plan — per-slot VRAM allocation breakdown.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_vram_budget(
-    state: State<'_, PlatformState>,
-) -> Result<VramBudgetInfo, String> {
+pub async fn get_vram_budget(state: State<'_, PlatformState>) -> Result<VramBudgetInfo, String> {
     let loader = get_loader(&state).await?;
     let budget = loader.vram_budget_plan().await;
     Ok(VramBudgetInfo {
@@ -498,9 +504,7 @@ pub async fn get_model_catalog(
 /// Check if this is the first run (no models configured).
 #[tauri::command]
 #[specta::specta]
-pub async fn is_first_run(
-    state: State<'_, PlatformState>,
-) -> Result<bool, String> {
+pub async fn is_first_run(state: State<'_, PlatformState>) -> Result<bool, String> {
     let loader = get_loader(&state).await?;
     Ok(loader.is_first_run().await)
 }
@@ -515,7 +519,10 @@ pub async fn mark_setup_complete(
     state: State<'_, PlatformState>,
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
-    loader.mark_setup_complete().await.map_err(|e| e.to_string())?;
+    loader
+        .mark_setup_complete()
+        .await
+        .map_err(|e| e.to_string())?;
     emit_models_status(&app, &loader).await;
     Ok(())
 }
@@ -525,9 +532,7 @@ pub async fn mark_setup_complete(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn is_setup_complete(
-    state: State<'_, PlatformState>,
-) -> Result<bool, String> {
+pub async fn is_setup_complete(state: State<'_, PlatformState>) -> Result<bool, String> {
     let loader = get_loader(&state).await?;
     Ok(loader.is_setup_complete().await)
 }
@@ -648,28 +653,25 @@ async fn load_via_sidecar(
     slot_id: &str,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     let slots = loader.list_slots().await;
-    let slot = slots
-        .iter()
-        .find(|s| s.id == slot_id)
-        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+    let slot = slots.iter().find(|s| s.id == slot_id).ok_or_else(|| {
+        devpulse_engine::platform::LoadError::Other {
             message: format!("Slot '{slot_id}' not found"),
-        })?;
+        }
+    })?;
 
-    let model_id = slot
-        .assigned_model
-        .as_ref()
-        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+    let model_id = slot.assigned_model.as_ref().ok_or_else(|| {
+        devpulse_engine::platform::LoadError::Other {
             message: format!("No model assigned to slot '{slot_id}'"),
-        })?;
+        }
+    })?;
 
     // Find the model file path from registry
     let registry = loader.get_registry().await;
-    let entry = registry
-        .iter()
-        .find(|e| e.id == *model_id)
-        .ok_or_else(|| devpulse_engine::platform::LoadError::Other {
+    let entry = registry.iter().find(|e| e.id == *model_id).ok_or_else(|| {
+        devpulse_engine::platform::LoadError::Other {
             message: format!("Model '{model_id}' not found in registry"),
-        })?;
+        }
+    })?;
 
     let model_path = entry.path.to_string_lossy().to_string();
 
@@ -832,10 +834,7 @@ pub async fn list_repo_files(
 /// Store or replace the `HuggingFace` access token. Empty string clears it.
 #[tauri::command]
 #[specta::specta]
-pub async fn set_hf_token(
-    state: State<'_, PlatformState>,
-    token: String,
-) -> Result<(), String> {
+pub async fn set_hf_token(state: State<'_, PlatformState>, token: String) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     let value = if token.trim().is_empty() {
         None
@@ -1043,10 +1042,7 @@ pub async fn update_keyword_action(
 /// auto-minimise entirely.
 #[tauri::command]
 #[specta::specta]
-pub async fn set_idle_timeout(
-    state: State<'_, PlatformState>,
-    secs: u32,
-) -> Result<(), String> {
+pub async fn set_idle_timeout(state: State<'_, PlatformState>, secs: u32) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
         .set_idle_timeout(secs)
@@ -1057,15 +1053,9 @@ pub async fn set_idle_timeout(
 /// Replace the partial GPU offload layer count for `chat.brain`.
 #[tauri::command]
 #[specta::specta]
-pub async fn set_brain_ngl(
-    state: State<'_, PlatformState>,
-    ngl: i32,
-) -> Result<(), String> {
+pub async fn set_brain_ngl(state: State<'_, PlatformState>, ngl: i32) -> Result<(), String> {
     let loader = get_loader(&state).await?;
-    loader
-        .set_brain_ngl(ngl)
-        .await
-        .map_err(|e| e.to_string())
+    loader.set_brain_ngl(ngl).await.map_err(|e| e.to_string())
 }
 
 /// Copy an MP3 file from an arbitrary source path into the custom
@@ -1095,7 +1085,9 @@ pub async fn upload_voice_sample(
         .map(str::to_lowercase)
         .unwrap_or_default();
     if !["mp3", "wav", "flac"].contains(&ext.as_str()) {
-        return Err(format!("Unsupported audio format: .{ext} (accepted: mp3, wav, flac)"));
+        return Err(format!(
+            "Unsupported audio format: .{ext} (accepted: mp3, wav, flac)"
+        ));
     }
 
     let dest_dir = loader.voice_custom_dir();
@@ -1111,8 +1103,7 @@ pub async fn upload_voice_sample(
     }
     let dest = dest_dir.join(format!("{safe_name}.{ext}"));
 
-    std::fs::copy(&src, &dest)
-        .map_err(|e| format!("Failed to copy voice sample: {e}"))?;
+    std::fs::copy(&src, &dest).map_err(|e| format!("Failed to copy voice sample: {e}"))?;
 
     Ok(dest.to_string_lossy().into_owned())
 }
@@ -1150,9 +1141,19 @@ pub async fn list_kokoro_voices(
         ("af_aoede", "American Female — Aoede", "female", "American"),
         ("af_bella", "American Female — Bella", "female", "American"),
         ("af_heart", "American Female — Heart", "female", "American"),
-        ("af_jessica", "American Female — Jessica", "female", "American"),
+        (
+            "af_jessica",
+            "American Female — Jessica",
+            "female",
+            "American",
+        ),
         ("af_kore", "American Female — Kore", "female", "American"),
-        ("af_nicole", "American Female — Nicole", "female", "American"),
+        (
+            "af_nicole",
+            "American Female — Nicole",
+            "female",
+            "American",
+        ),
         ("af_nova", "American Female — Nova", "female", "American"),
         ("af_river", "American Female — River", "female", "American"),
         ("af_sarah", "American Female — Sarah", "female", "American"),
@@ -1168,7 +1169,12 @@ pub async fn list_kokoro_voices(
         ("am_santa", "American Male — Santa", "male", "American"),
         ("bf_alice", "British Female — Alice", "female", "British"),
         ("bf_emma", "British Female — Emma", "female", "British"),
-        ("bf_isabella", "British Female — Isabella", "female", "British"),
+        (
+            "bf_isabella",
+            "British Female — Isabella",
+            "female",
+            "British",
+        ),
         ("bf_lily", "British Female — Lily", "female", "British"),
         ("bm_daniel", "British Male — Daniel", "male", "British"),
         ("bm_fable", "British Male — Fable", "male", "British"),
@@ -1304,9 +1310,7 @@ pub async fn search_huggingface(
 /// Auto-configure model recommendations based on detected hardware.
 #[tauri::command]
 #[specta::specta]
-pub async fn auto_configure(
-    state: State<'_, PlatformState>,
-) -> Result<String, String> {
+pub async fn auto_configure(state: State<'_, PlatformState>) -> Result<String, String> {
     let loader = get_loader(&state).await?;
     let config = loader.auto_configure().await;
     serde_json::to_string(&config).map_err(|e| e.to_string())
@@ -1322,9 +1326,7 @@ pub async fn auto_configure(
 /// client-side is simpler than generating a discriminated union.
 #[tauri::command]
 #[specta::specta]
-pub async fn list_presets(
-    state: State<'_, PlatformState>,
-) -> Result<String, String> {
+pub async fn list_presets(state: State<'_, PlatformState>) -> Result<String, String> {
     let loader = get_loader(&state).await?;
     let presets = loader.list_all_presets().await;
     serde_json::to_string(&presets).map_err(|e| e.to_string())
@@ -1421,7 +1423,10 @@ pub async fn complete_model_setup(
     let brain = slots_after.iter().find(|s| s.id == "chat.brain");
     let brain_assigned = brain.is_some_and(|s| s.assigned_model.is_some());
 
-    let assigned_count = slots_after.iter().filter(|s| s.assigned_model.is_some()).count();
+    let assigned_count = slots_after
+        .iter()
+        .filter(|s| s.assigned_model.is_some())
+        .count();
     let registry_count = loader.get_registry().await.len();
 
     if !brain_assigned {
@@ -1523,17 +1528,20 @@ pub async fn import_local_model(
     let dest_path = dest_dir.join(&filename);
 
     if dest_path.exists() {
-        return Err(format!("Model '{filename}' already exists in models/{subdir}/"));
+        return Err(format!(
+            "Model '{filename}' already exists in models/{subdir}/"
+        ));
     }
 
     let mode = import_mode.as_deref().unwrap_or("copy");
     if mode == "symlink" {
         #[cfg(target_os = "windows")]
         {
-            std::os::windows::fs::symlink_file(&source_path, &dest_path)
-                .map_err(|e| format!(
+            std::os::windows::fs::symlink_file(&source_path, &dest_path).map_err(|e| {
+                format!(
                     "Failed to create symlink (Windows may require administrator privileges): {e}"
-                ))?;
+                )
+            })?;
         }
         #[cfg(not(target_os = "windows"))]
         {
@@ -1560,7 +1568,10 @@ pub async fn import_local_model(
     }
 
     // Re-scan registry to discover the new model
-    loader.scan_models().await.map_err(|e| format!("Scan failed: {e}"))?;
+    loader
+        .scan_models()
+        .await
+        .map_err(|e| format!("Scan failed: {e}"))?;
 
     // Push fresh state — frontend sees the new model immediately
     emit_models_status(&app, &loader).await;
@@ -1574,9 +1585,7 @@ pub async fn import_local_model(
 /// Returns the selected directory path, or error if cancelled.
 #[tauri::command]
 #[specta::specta]
-pub async fn pick_directory(
-    title: String,
-) -> Result<String, String> {
+pub async fn pick_directory(title: String) -> Result<String, String> {
     let picked = rfd::AsyncFileDialog::new()
         .set_title(&title)
         .pick_folder()
@@ -1709,9 +1718,7 @@ pub async fn inference_generate(
         .await
         .map_err(|e| e.to_string())?
         .ok_or_else(|| {
-            format!(
-                "No model loaded in slot '{slot_id}'. Open Model Control to set up your AI."
-            )
+            format!("No model loaded in slot '{slot_id}'. Open Model Control to set up your AI.")
         })?;
 
     let trace_ctx = devpulse_engine::platform::telemetry::TraceContext::new();
@@ -1904,10 +1911,8 @@ pub async fn resolve_architecture_compatibility(
     let classified =
         devpulse_engine::platform::classify_arch_from_hf_config(&arch_raw, model_type.as_deref())
             .ok_or_else(|| {
-                format!(
-                    "Architecture `{arch_raw}` (model_type={model_type:?}) is not in the registry"
-                )
-            })?;
+            format!("Architecture `{arch_raw}` (model_type={model_type:?}) is not in the registry")
+        })?;
     Ok(devpulse_engine::platform::resolve_compatibility(
         classified, format,
     ))

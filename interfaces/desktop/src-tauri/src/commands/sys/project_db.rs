@@ -81,7 +81,10 @@ pub async fn init_project_db(
     );
 
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let root = std::path::Path::new(&project_root);
     if !root.exists() {
@@ -126,7 +129,10 @@ pub async fn project_db_health(
     project_id: String,
 ) -> Result<ProjectDbHealth, String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let adapter = platform
         .project_db()
@@ -159,7 +165,10 @@ pub async fn project_db_list_tables(
     project_id: String,
 ) -> Result<Vec<ProjectDbTableInfo>, String> {
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let adapter = platform
         .project_db()
@@ -213,7 +222,10 @@ pub async fn project_db_query(
     );
 
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let adapter = platform
         .project_db()
@@ -228,9 +240,7 @@ pub async fn project_db_query(
 
     let is_select = {
         let upper = trimmed.to_uppercase();
-        upper.starts_with("SELECT")
-            || upper.starts_with("PRAGMA")
-            || upper.starts_with("EXPLAIN")
+        upper.starts_with("SELECT") || upper.starts_with("PRAGMA") || upper.starts_with("EXPLAIN")
     };
 
     if is_select {

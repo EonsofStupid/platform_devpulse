@@ -96,7 +96,8 @@ impl BootLog {
 
     /// Log a failed stage. Increments the failure counter.
     pub fn fail(&self, stage: &str, error: &str) {
-        self.fail_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.fail_count
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let line = format!("[FAIL!] {stage}: {error}");
         self.emit(&line);
     }
@@ -125,7 +126,8 @@ impl BootLog {
 
     /// Log the final ready line — all critical services confirmed.
     pub fn ready(&self, total_ms: u64) {
-        let line = format!("[READY] All critical services confirmed — UI may render ({total_ms}ms total)");
+        let line =
+            format!("[READY] All critical services confirmed — UI may render ({total_ms}ms total)");
         self.emit(&line);
     }
 
@@ -187,7 +189,6 @@ impl BootLog {
         let ms = e.subsec_millis();
         format!("+{secs:03}.{ms:03}s")
     }
-
 }
 
 // ── Spinner ───────────────────────────────────────────────────

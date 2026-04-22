@@ -176,12 +176,14 @@ impl InteractionTemplate {
     /// failures are logged as warnings and the loader falls back to
     /// the embedded default.
     pub fn setup(userdata_dir: &std::path::Path) -> Result<Self, InteractionError> {
-        const DEFAULT_TOML: &str =
-            include_str!("../../config/interactions/setup.default.toml");
+        const DEFAULT_TOML: &str = include_str!("../../config/interactions/setup.default.toml");
         load_template(
             "setup",
             DEFAULT_TOML,
-            &userdata_dir.join("config").join("interactions").join("setup.toml"),
+            &userdata_dir
+                .join("config")
+                .join("interactions")
+                .join("setup.toml"),
         )
     }
 
@@ -330,8 +332,8 @@ mod tests {
 
     #[test]
     fn embedded_setup_template_parses() {
-        let tmpl =
-            InteractionTemplate::setup(Path::new("/nonexistent")).expect("setup template must load");
+        let tmpl = InteractionTemplate::setup(Path::new("/nonexistent"))
+            .expect("setup template must load");
         assert_eq!(tmpl.id, "setup");
         assert!(!tmpl.phases.is_empty());
     }

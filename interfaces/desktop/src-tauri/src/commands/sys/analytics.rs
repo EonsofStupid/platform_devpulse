@@ -52,12 +52,13 @@ pub struct DuckDbQueryResult {
 /// Health check for the `DuckDB` analytics database.
 #[tauri::command]
 #[specta::specta]
-pub async fn duckdb_health(
-    state: State<'_, PlatformState>,
-) -> Result<DuckDbHealth, String> {
+pub async fn duckdb_health(state: State<'_, PlatformState>) -> Result<DuckDbHealth, String> {
     tracing::info!("cmd duckdb_health: entry");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     match platform.analytics() {
         Some(svc) => {
@@ -69,8 +70,7 @@ pub async fn duckdb_health(
                     reachable: true,
                     latency_us: start.elapsed().as_micros() as u64,
                     error: None,
-                    path: platform.config().data_dir.clone()
-                        + "/telemetry/analytics.duckdb",
+                    path: platform.config().data_dir.clone() + "/telemetry/analytics.duckdb",
                 }),
                 Err(e) => Ok(DuckDbHealth {
                     reachable: false,
@@ -97,7 +97,10 @@ pub async fn duckdb_list_tables(
 ) -> Result<Vec<DuckDbTableInfo>, String> {
     tracing::info!("cmd duckdb_list_tables: entry");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let svc = platform
         .analytics()
@@ -148,7 +151,10 @@ pub async fn duckdb_query(
 ) -> Result<DuckDbQueryResult, String> {
     tracing::info!(sql_len = sql.len(), "cmd duckdb_query: entry");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
 
     let svc = platform
         .analytics()

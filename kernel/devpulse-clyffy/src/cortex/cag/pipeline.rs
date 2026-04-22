@@ -32,14 +32,18 @@ pub fn rrf_fuse(
     dense.iter().enumerate().for_each(|(rank, chunk)| {
         let rrf_score = 1.0 / (k + rank as f32 + 1.0);
         *scores.entry(chunk.id.clone()).or_insert(0.0) += rrf_score;
-        chunks.entry(chunk.id.clone()).or_insert_with(|| chunk.clone());
+        chunks
+            .entry(chunk.id.clone())
+            .or_insert_with(|| chunk.clone());
     });
 
     // Score from sparse results
     sparse.iter().enumerate().for_each(|(rank, chunk)| {
         let rrf_score = 1.0 / (k + rank as f32 + 1.0);
         *scores.entry(chunk.id.clone()).or_insert(0.0) += rrf_score;
-        chunks.entry(chunk.id.clone()).or_insert_with(|| chunk.clone());
+        chunks
+            .entry(chunk.id.clone())
+            .or_insert_with(|| chunk.clone());
     });
 
     // Sort by fused score descending
@@ -184,12 +188,24 @@ where
             "must": [{ "key": "project_id", "match": { "value": project_id } }]
         });
 
-        let dense_results = self.vector_store
-            .search(collection, &dense_vector, config.search_limit, Some(project_filter.clone()))
+        let dense_results = self
+            .vector_store
+            .search(
+                collection,
+                &dense_vector,
+                config.search_limit,
+                Some(project_filter.clone()),
+            )
             .await?;
 
-        let sparse_results = self.vector_store
-            .search_sparse(collection, &persistence_sparse, config.search_limit, Some(project_filter))
+        let sparse_results = self
+            .vector_store
+            .search_sparse(
+                collection,
+                &persistence_sparse,
+                config.search_limit,
+                Some(project_filter),
+            )
             .await?;
 
         // Convert VectorMatch → ScoredChunk
@@ -221,14 +237,20 @@ where
         let search_latency = search_start.elapsed();
 
         // 4. RRF fusion
-        let fused = rrf_fuse(&dense_chunks, &sparse_chunks, config.rrf_k, config.search_limit);
+        let fused = rrf_fuse(
+            &dense_chunks,
+            &sparse_chunks,
+            config.rrf_k,
+            config.search_limit,
+        );
 
         // 5. Deduplicate
         let deduped = deduplicate(fused, config.dedup_threshold);
 
         // 6. Rerank
         let rerank_start = Instant::now();
-        let rerank_input: Vec<ScoredChunk> = deduped.into_iter().take(config.rerank_top_k * 2).collect();
+        let rerank_input: Vec<ScoredChunk> =
+            deduped.into_iter().take(config.rerank_top_k * 2).collect();
         let rerank_scores = self.reranker.rerank(query, &rerank_input).await?;
 
         let mut reranked: Vec<ScoredChunk> = rerank_input
@@ -239,7 +261,11 @@ where
                 chunk
             })
             .collect();
-        reranked.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        reranked.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         reranked.truncate(config.rerank_top_k);
         let reranked_count = reranked.len();
         let rerank_latency = rerank_start.elapsed();

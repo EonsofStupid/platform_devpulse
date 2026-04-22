@@ -74,9 +74,10 @@ pub async fn open_devforge_window(
     // ── 1. Lazy-start DevForge on first open (idempotent on later calls).
     let (connection_url, port) = {
         // P0: lock-free atomic load.
-        let platform = state.platform.load_full().ok_or_else(|| {
-            "Platform not booted yet — wait for boot to complete.".to_string()
-        })?;
+        let platform = state
+            .platform
+            .load_full()
+            .ok_or_else(|| "Platform not booted yet — wait for boot to complete.".to_string())?;
         let service = platform
             .ensure_devforge_started()
             .await
@@ -109,17 +110,14 @@ pub async fn open_devforge_window(
         format!("REH connection URL is not a valid Url: {e} (url={connection_url})")
     })?;
 
-    let mut builder = WebviewWindowBuilder::new(
-        &app,
-        DEVFORGE_WINDOW_LABEL,
-        WebviewUrl::External(parsed),
-    )
-    .title("DevForge")
-    .inner_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-    .min_inner_size(MIN_WIDTH, MIN_HEIGHT)
-    .resizable(true)
-    .decorations(true)
-    .visible(true);
+    let mut builder =
+        WebviewWindowBuilder::new(&app, DEVFORGE_WINDOW_LABEL, WebviewUrl::External(parsed))
+            .title("DevForge")
+            .inner_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+            .min_inner_size(MIN_WIDTH, MIN_HEIGHT)
+            .resizable(true)
+            .decorations(true)
+            .visible(true);
 
     // Parent to the main DevPulse window so closing the parent tears
     // DevForge down with it. This matches the cockpit pattern used by

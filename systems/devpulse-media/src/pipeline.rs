@@ -66,7 +66,7 @@ impl MediaPipeline {
     /// Create a new media pipeline
     pub fn new(config: PipelineConfig) -> Self {
         let (frame_tx, frame_rx) = flume::bounded(4); // Small buffer, drop old frames
-        
+
         Self {
             config,
             state: PipelineState::Stopped,
@@ -97,7 +97,7 @@ impl MediaPipeline {
 
         let handle = tokio::task::spawn_blocking(move || {
             let mut camera_mgr = CameraManager::new();
-            
+
             // Enumerate and open camera
             if let Err(e) = camera_mgr.enumerate_cameras() {
                 error!("Failed to enumerate cameras: {}", e);
@@ -110,13 +110,16 @@ impl MediaPipeline {
             }
 
             let frame_duration = std::time::Duration::from_millis(1000 / target_fps as u64);
-            
+
             while running.load(Ordering::SeqCst) {
                 let start = std::time::Instant::now();
 
                 match camera_mgr.capture_frame() {
                     Ok(frame) => {
-                        debug!("Captured frame seq={} ({}x{})", frame.sequence, frame.width, frame.height);
+                        debug!(
+                            "Captured frame seq={} ({}x{})",
+                            frame.sequence, frame.width, frame.height
+                        );
                         // Try to send, drop if channel full (keeps us real-time)
                         if frame_tx.try_send(frame).is_err() {
                             debug!("Frame channel full, dropping frame to stay real-time");
@@ -157,7 +160,9 @@ impl MediaPipeline {
             if let Err(e) = handle.await {
                 error!("Capture task panicked during shutdown: {}", e);
                 self.state = PipelineState::Stopped;
-                return Err(MediaError::CaptureFailed(format!("Capture task panicked: {e}")));
+                return Err(MediaError::CaptureFailed(format!(
+                    "Capture task panicked: {e}"
+                )));
             }
         }
 

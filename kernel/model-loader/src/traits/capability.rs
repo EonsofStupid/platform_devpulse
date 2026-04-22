@@ -34,7 +34,9 @@ pub trait EmbeddingBackend: Send {
     /// Embed a single text. Convenience wrapper over `embed`.
     fn embed_one(&self, text: &str) -> anyhow::Result<Vec<f32>> {
         let mut results = self.embed(&[text])?;
-        results.pop().ok_or_else(|| anyhow::anyhow!("Embedding returned empty result"))
+        results
+            .pop()
+            .ok_or_else(|| anyhow::anyhow!("Embedding returned empty result"))
     }
 
     /// Output vector dimension (e.g. 1024 for Qwen3-Embedding-0.6B).

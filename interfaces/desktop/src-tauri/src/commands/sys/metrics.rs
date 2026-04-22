@@ -15,10 +15,7 @@ pub async fn get_process_metrics(
     state: tauri::State<'_, PlatformState>,
 ) -> Result<ProcessMetrics, String> {
     // P0: lock-free atomic load.
-    let uptime = state
-        .platform
-        .load_full()
-        .map_or(0, |p| p.uptime_secs());
+    let uptime = state.platform.load_full().map_or(0, |p| p.uptime_secs());
 
     Ok(devpulse_engine::platform::metrics::collect(uptime))
 }

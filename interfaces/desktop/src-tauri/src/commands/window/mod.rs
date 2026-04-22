@@ -23,10 +23,7 @@ use tauri::Manager;
 /// Returns an error string if the window cannot be created or focused.
 #[tauri::command]
 #[specta::specta]
-pub async fn open_window(
-    app: tauri::AppHandle,
-    role: WindowRole,
-) -> Result<WindowInfo, String> {
+pub async fn open_window(app: tauri::AppHandle, role: WindowRole) -> Result<WindowInfo, String> {
     let label = role.label();
 
     // Already open? Focus it.
@@ -43,15 +40,12 @@ pub async fn open_window(
     let (width, height) = role.default_size();
     let route = role.route();
 
-    let mut builder = tauri::WebviewWindowBuilder::new(
-        &app,
-        label,
-        tauri::WebviewUrl::App(route.into()),
-    )
-    .title(role.title())
-    .inner_size(width, height)
-    .decorations(role.decorations())
-    .transparent(role.transparent());
+    let mut builder =
+        tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App(route.into()))
+            .title(role.title())
+            .inner_size(width, height)
+            .decorations(role.decorations())
+            .transparent(role.transparent());
 
     if role.always_on_top() {
         builder = builder.always_on_top(true);
@@ -79,10 +73,7 @@ pub async fn open_window(
 /// Returns an error string if the window cannot be closed.
 #[tauri::command]
 #[specta::specta]
-pub async fn close_child_window(
-    app: tauri::AppHandle,
-    role: WindowRole,
-) -> Result<(), String> {
+pub async fn close_child_window(app: tauri::AppHandle, role: WindowRole) -> Result<(), String> {
     if role == WindowRole::Main {
         return Err("Cannot close main window via this command".to_string());
     }

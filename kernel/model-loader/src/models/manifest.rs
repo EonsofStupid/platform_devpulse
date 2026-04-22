@@ -71,19 +71,11 @@ pub fn load_manifest(model_dir: &Path) -> Result<Option<ModelManifest>, String> 
         return Ok(None);
     }
 
-    let content = std::fs::read_to_string(&manifest_path).map_err(|e| {
-        format!(
-            "Failed to read {}: {e}",
-            manifest_path.display()
-        )
-    })?;
+    let content = std::fs::read_to_string(&manifest_path)
+        .map_err(|e| format!("Failed to read {}: {e}", manifest_path.display()))?;
 
-    let manifest: ModelManifest = serde_json::from_str(&content).map_err(|e| {
-        format!(
-            "Failed to parse {}: {e}",
-            manifest_path.display()
-        )
-    })?;
+    let manifest: ModelManifest = serde_json::from_str(&content)
+        .map_err(|e| format!("Failed to parse {}: {e}", manifest_path.display()))?;
 
     tracing::info!(
         dir = %model_dir.display(),

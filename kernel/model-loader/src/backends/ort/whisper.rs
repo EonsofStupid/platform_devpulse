@@ -146,8 +146,11 @@ impl SttBackend for WhisperStt {
                     "Encoder session created"
                 );
 
-                *self.encoder.lock()
-                    .map_err(|e| anyhow::anyhow!("Encoder mutex poisoned: {e}"))? = Some(enc_session);
+                *self
+                    .encoder
+                    .lock()
+                    .map_err(|e| anyhow::anyhow!("Encoder mutex poisoned: {e}"))? =
+                    Some(enc_session);
 
                 // Create decoder session
                 let dec_session = ort::session::Session::builder()
@@ -162,8 +165,11 @@ impl SttBackend for WhisperStt {
                     "Decoder session created"
                 );
 
-                *self.decoder.lock()
-                    .map_err(|e| anyhow::anyhow!("Decoder mutex poisoned: {e}"))? = Some(dec_session);
+                *self
+                    .decoder
+                    .lock()
+                    .map_err(|e| anyhow::anyhow!("Decoder mutex poisoned: {e}"))? =
+                    Some(dec_session);
             } else {
                 anyhow::bail!(
                     "Whisper STT requires a model directory (with encoder.onnx + decoder.onnx + tokens.txt), got file: {}",
@@ -202,9 +208,13 @@ impl SttBackend for WhisperStt {
         tracing::info!(component = "Whisper STT", "Unloading Whisper STT");
         #[cfg(feature = "ort-backend")]
         {
-            *self.encoder.lock()
+            *self
+                .encoder
+                .lock()
                 .map_err(|e| anyhow::anyhow!("Encoder mutex poisoned: {e}"))? = None;
-            *self.decoder.lock()
+            *self
+                .decoder
+                .lock()
                 .map_err(|e| anyhow::anyhow!("Decoder mutex poisoned: {e}"))? = None;
         }
         self.model_path = None;
@@ -238,15 +248,17 @@ impl SttBackend for WhisperStt {
         let mel = compute_mel_spectrogram(&audio_16k)?;
 
         // Run encoder
-        let mut enc_guard = self.encoder.lock()
+        let mut enc_guard = self
+            .encoder
+            .lock()
             .map_err(|e| anyhow::anyhow!("Encoder mutex poisoned: {e}"))?;
-        let encoder = enc_guard.as_mut()
+        let encoder = enc_guard
+            .as_mut()
             .ok_or_else(|| anyhow::anyhow!("Whisper encoder session not initialized"))?;
 
-        let mel_tensor = ndarray::Array3::<f32>::from_shape_vec(
-            (1, N_MELS, mel.len() / N_MELS),
-            mel,
-        ).map_err(|e| anyhow::anyhow!("Failed to create mel tensor: {e}"))?;
+        let mel_tensor =
+            ndarray::Array3::<f32>::from_shape_vec((1, N_MELS, mel.len() / N_MELS), mel)
+                .map_err(|e| anyhow::anyhow!("Failed to create mel tensor: {e}"))?;
 
         let mel_value = ort::value::Value::from_array(mel_tensor)
             .map_err(|e| anyhow::anyhow!("Failed to create ort Value for mel: {e}"))?;
@@ -259,22 +271,25 @@ impl SttBackend for WhisperStt {
         let hidden_states = &enc_outputs[0];
 
         // Run decoder autoregressively
-        let mut dec_guard = self.decoder.lock()
+        let mut dec_guard = self
+            .decoder
+            .lock()
             .map_err(|e| anyhow::anyhow!("Decoder mutex poisoned: {e}"))?;
-        let decoder = dec_guard.as_mut()
+        let decoder = dec_guard
+            .as_mut()
             .ok_or_else(|| anyhow::anyhow!("Whisper decoder session not initialized"))?;
 
         let mut token_ids: Vec<i64> = vec![SOT_TOKEN];
         let mut decoded_text = String::new();
 
         for step in 0..MAX_DECODE_STEPS {
-            let input_ids = ndarray::Array2::<i64>::from_shape_vec(
-                (1, token_ids.len()),
-                token_ids.clone(),
-            ).map_err(|e| anyhow::anyhow!("Failed to create decoder input tensor: {e}"))?;
+            let input_ids =
+                ndarray::Array2::<i64>::from_shape_vec((1, token_ids.len()), token_ids.clone())
+                    .map_err(|e| anyhow::anyhow!("Failed to create decoder input tensor: {e}"))?;
 
-            let v_ids = ort::value::Value::from_array(input_ids)
-                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for decoder input: {e}"))?;
+            let v_ids = ort::value::Value::from_array(input_ids).map_err(|e| {
+                anyhow::anyhow!("Failed to create ort Value for decoder input: {e}")
+            })?;
 
             // Clone encoder hidden states for each decoder step
             let v_hidden = hidden_states.clone();
@@ -364,10 +379,7 @@ fn find_onnx_file(dir: &Path, pattern: &str) -> anyhow::Result<PathBuf> {
         }
     }
 
-    anyhow::bail!(
-        "No *{pattern}*.onnx file found in {}",
-        dir.display()
-    )
+    anyhow::bail!("No *{pattern}*.onnx file found in {}", dir.display())
 }
 
 /// Compute log-mel spectrogram from PCM audio.
@@ -386,9 +398,7 @@ fn compute_mel_spectrogram(audio: &[f32]) -> anyhow::Result<Vec<f32>> {
 
     // Hann window
     let window: Vec<f32> = (0..N_FFT)
-        .map(|i| {
-            0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / N_FFT as f32).cos())
-        })
+        .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / N_FFT as f32).cos()))
         .collect();
 
     // Mel filterbank (simplified: linearly spaced in mel scale)

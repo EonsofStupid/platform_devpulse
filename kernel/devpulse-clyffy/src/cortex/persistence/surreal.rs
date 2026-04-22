@@ -89,12 +89,7 @@ impl SurrealAdapter {
         // misinterprets as root "\", causing "Access is denied" errors.
         let db = Surreal::new::<SurrealKv>(path.to_path_buf())
             .await
-            .with_context(|| {
-                format!(
-                    "Failed to open SurrealDB at path: {}",
-                    path.display()
-                )
-            })?;
+            .with_context(|| format!("Failed to open SurrealDB at path: {}", path.display()))?;
 
         tracing::info!(
             path = %path.display(),
@@ -155,11 +150,7 @@ impl SurrealAdapter {
         self.db
             .query(scoped)
             .await
-            .with_context(|| {
-                format!(
-                    "Failed to initialize schema for '{namespace}/{database}'"
-                )
-            })?;
+            .with_context(|| format!("Failed to initialize schema for '{namespace}/{database}'"))?;
 
         tracing::info!(namespace, database, "Namespace schema initialized");
 
@@ -216,22 +207,14 @@ impl SurrealAdapter {
     /// # Errors
     /// Returns error if the DDL fails.
     #[tracing::instrument(skip(self, ddl), fields(namespace, database, ddl_preview = %ddl.chars().take(80).collect::<String>()), err)]
-    pub async fn execute_in_ns(
-        &self,
-        namespace: &str,
-        database: &str,
-        ddl: &str,
-    ) -> Result<()> {
+    pub async fn execute_in_ns(&self, namespace: &str, database: &str, ddl: &str) -> Result<()> {
         let scoped_ddl = format!("USE NS {namespace} DB {database}; {ddl}");
-        self.db
-            .query(scoped_ddl)
-            .await
-            .with_context(|| {
-                format!(
-                    "DDL failed in {namespace}/{database}: {}",
-                    ddl.chars().take(80).collect::<String>()
-                )
-            })?;
+        self.db.query(scoped_ddl).await.with_context(|| {
+            format!(
+                "DDL failed in {namespace}/{database}: {}",
+                ddl.chars().take(80).collect::<String>()
+            )
+        })?;
 
         Ok(())
     }
@@ -350,10 +333,13 @@ impl ScopedGraphHandle {
     ///
     /// # Errors
     /// Returns error if the node cannot be created.
-    pub async fn create_node(&self, table: &str, id: &str, props: &serde_json::Value) -> Result<()> {
-        let surql = format!(
-            "CREATE type::thing('{table}', '{id}') CONTENT {props};"
-        );
+    pub async fn create_node(
+        &self,
+        table: &str,
+        id: &str,
+        props: &serde_json::Value,
+    ) -> Result<()> {
+        let surql = format!("CREATE type::thing('{table}', '{id}') CONTENT {props};");
         self.execute(&surql).await
     }
 
@@ -402,9 +388,7 @@ impl ScopedGraphHandle {
         edge_type: &str,
         depth: u32,
     ) -> Result<Vec<serde_json::Value>> {
-        let surql = format!(
-            "SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};"
-        );
+        let surql = format!("SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};");
         let result = self.query(&surql).await?;
         match result {
             serde_json::Value::Array(rows) => Ok(rows),
@@ -429,7 +413,9 @@ impl ScopedGraphHandle {
     /// # Errors
     /// Returns error if the query fails.
     pub async fn kv_get(&self, key: &str) -> Result<Option<Vec<u8>>> {
-        let result = self.query(&format!("SELECT value FROM kv:`{key}`;")).await?;
+        let result = self
+            .query(&format!("SELECT value FROM kv:`{key}`;"))
+            .await?;
         // Result is an array. If empty or value is null, return None.
         if let serde_json::Value::Array(rows) = &result {
             if let Some(row) = rows.first() {
@@ -454,7 +440,9 @@ impl ScopedGraphHandle {
     /// # Errors
     /// Returns error if the deletion fails.
     pub async fn kv_delete(&self, key: &str) -> Result<bool> {
-        let result = self.query(&format!("DELETE kv:`{key}` RETURN BEFORE;")).await?;
+        let result = self
+            .query(&format!("DELETE kv:`{key}` RETURN BEFORE;"))
+            .await?;
         // If RETURN BEFORE has rows, the key existed
         if let serde_json::Value::Array(rows) = &result {
             return Ok(!rows.is_empty());

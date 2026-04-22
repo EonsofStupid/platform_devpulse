@@ -92,9 +92,7 @@ impl DuckDbAdapter {
         let mut stmt = conn
             .prepare("SELECT 1")
             .context("DuckDB ping prepare failed")?;
-        let mut rows = stmt
-            .query([])
-            .context("DuckDB ping query failed")?;
+        let mut rows = stmt.query([]).context("DuckDB ping query failed")?;
         let _row = rows.next().context("DuckDB ping returned no rows")?;
         Ok(())
     }

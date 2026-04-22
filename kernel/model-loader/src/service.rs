@@ -20,20 +20,20 @@
 //! Consumers implement [`traits::ConfigBackend`] and [`traits::LoaderEventSink`]
 //! to wire into their own persistence and event systems.
 
+use crate::assistant::{AssistantConfig, KeywordActionEntry, VoiceCloneEntry};
 use crate::backends::bridge::InferenceHandle;
 use crate::backends::router::select_backend;
 use crate::backends::voice_pool::VoicePool;
 use crate::backends::BackendPool;
-use crate::assistant::{AssistantConfig, KeywordActionEntry, VoiceCloneEntry};
-use crate::models::download::DownloadManager;
-use crate::models::registry::BackendType;
-use crate::models::secrets::Secrets;
 use crate::hardware::auto_config::{self, AutoConfig};
 use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
 use crate::hardware::vram;
 use crate::loading::states::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotStatus};
 use crate::loading::swap::SwapGuard;
+use crate::models::download::DownloadManager;
+use crate::models::registry::BackendType;
 use crate::models::registry::{ModelRegistry, ModelRegistryEntry};
+use crate::models::secrets::Secrets;
 use crate::slots::fallback;
 use crate::slots::registry::SlotRegistry;
 use crate::slots::types::{ModelCapability, Slot};
@@ -227,7 +227,11 @@ impl ModelLoaderService {
     /// List slots by subsystem.
     pub async fn list_slots_by_subsystem(&self, subsystem: &str) -> Vec<Slot> {
         let cfg = self.config.read().await;
-        cfg.slots.list_slots_by_subsystem(subsystem).into_iter().cloned().collect()
+        cfg.slots
+            .list_slots_by_subsystem(subsystem)
+            .into_iter()
+            .cloned()
+            .collect()
     }
 
     /// Get the current model registry.
@@ -239,7 +243,11 @@ impl ModelLoaderService {
     /// Filter registry to models compatible with a specific capability.
     pub async fn models_for_capability(&self, cap: ModelCapability) -> Vec<ModelRegistryEntry> {
         let reg = self.registry.read().await;
-        reg.registry.compatible_with_capability(cap).into_iter().cloned().collect()
+        reg.registry
+            .compatible_with_capability(cap)
+            .into_iter()
+            .cloned()
+            .collect()
     }
 
     /// Get the assigned model for a slot.
@@ -336,8 +344,7 @@ impl ModelLoaderService {
             .collect();
 
         let active_fallback = if !matches!(model_status, ModelStatus::Loaded { .. }) {
-            fallback::resolve_fallback(&cfg.slots, slot_id, &loaded_set)
-                .filter(|fb| fb != slot_id)
+            fallback::resolve_fallback(&cfg.slots, slot_id, &loaded_set).filter(|fb| fb != slot_id)
         } else {
             None
         };
@@ -353,7 +360,10 @@ impl ModelLoaderService {
     }
 
     /// Get an inference handle for a slot (resolves fallback chain).
-    pub async fn inference_handle(&self, slot_id: &str) -> Result<Option<InferenceHandle>, LoaderError> {
+    pub async fn inference_handle(
+        &self,
+        slot_id: &str,
+    ) -> Result<Option<InferenceHandle>, LoaderError> {
         let inf = self.inference.read().await;
         let cfg = self.config.read().await;
 
@@ -430,7 +440,8 @@ impl ModelLoaderService {
     pub fn voice_custom_dir(&self) -> PathBuf {
         // userdata_dir is behind config lock but models_dir is boot state
         // voice custom is always {userdata}/voice/custom/ — derive from models_dir parent
-        self.boot.models_dir
+        self.boot
+            .models_dir
             .parent()
             .map(|p| p.to_path_buf())
             .unwrap_or_else(|| self.boot.models_dir.clone())
@@ -448,10 +459,14 @@ impl ModelLoaderService {
         let count = reg.registry.scan()?;
 
         for entry in reg.registry.all() {
-            self.boot.events.emit(LoaderEvent::ModelDiscovered(entry.clone()));
+            self.boot
+                .events
+                .emit(LoaderEvent::ModelDiscovered(entry.clone()));
         }
 
-        self.boot.events.emit(LoaderEvent::RegistryScanComplete { models_found: count });
+        self.boot.events.emit(LoaderEvent::RegistryScanComplete {
+            models_found: count,
+        });
 
         tracing::info!(count, path = %self.boot.models_dir.display(), "Model scan complete");
         Ok(reg.registry.all().to_vec())
@@ -461,11 +476,7 @@ impl ModelLoaderService {
 
     /// Assign a model to a slot.
     #[tracing::instrument(skip(self), fields(slot_id, model_id))]
-    pub async fn assign_model(
-        &self,
-        slot_id: &str,
-        model_id: &str,
-    ) -> Result<(), LoaderError> {
+    pub async fn assign_model(&self, slot_id: &str, model_id: &str) -> Result<(), LoaderError> {
         // Phase 1: validate under read locks
         let reg = self.registry.read().await;
         let entry = reg.registry.get(model_id).ok_or(LoaderError::Internal {
@@ -475,9 +486,12 @@ impl ModelLoaderService {
         // Read slot capability for validation
         {
             let cfg = self.config.read().await;
-            let slot = cfg.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound {
-                slot_id: slot_id.to_string(),
-            })?;
+            let slot = cfg
+                .slots
+                .get_slot(slot_id)
+                .ok_or(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                })?;
             if !entry.compatible_capabilities.contains(&slot.capability) {
                 return Err(LoaderError::IncompatibleModel {
                     model_id: model_id.to_string(),
@@ -667,117 +681,147 @@ impl ModelLoaderService {
     pub async fn set_assistant_name(&self, name: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_name(&dir, name).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist assistant name: {e}"),
-        })
+        cfg.assistant
+            .set_name(&dir, name)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist assistant name: {e}"),
+            })
     }
 
     /// Replace the wake phrase.
     pub async fn set_wake_phrase(&self, phrase: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_wake_phrase(&dir, phrase).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist wake phrase: {e}"),
-        })
+        cfg.assistant
+            .set_wake_phrase(&dir, phrase)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist wake phrase: {e}"),
+            })
     }
 
     /// Toggle 24/7 wake detection.
     pub async fn set_wake_enabled(&self, enabled: bool) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_wake_enabled(&dir, enabled).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist wake enabled: {e}"),
-        })
+        cfg.assistant
+            .set_wake_enabled(&dir, enabled)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist wake enabled: {e}"),
+            })
     }
 
     /// Toggle the 24/7 Moshi voice brain.
     pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_voice_brain_24_7(&dir, enabled).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist voice brain: {e}"),
-        })
+        cfg.assistant
+            .set_voice_brain_24_7(&dir, enabled)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist voice brain: {e}"),
+            })
     }
 
     /// Replace the TTS voice profile.
     pub async fn set_voice_profile(&self, profile: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_voice_profile(&dir, profile).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist voice profile: {e}"),
-        })
+        cfg.assistant
+            .set_voice_profile(&dir, profile)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist voice profile: {e}"),
+            })
     }
 
     /// Replace the chat routing mode.
     pub async fn set_routing_mode(&self, mode: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_routing_mode(&dir, mode).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist routing mode: {e}"),
-        })
+        cfg.assistant
+            .set_routing_mode(&dir, mode)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist routing mode: {e}"),
+            })
     }
 
     /// Register a new custom voice clone.
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.register_voice_clone(&dir, entry).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to register voice clone: {e}"),
-        })
+        cfg.assistant
+            .register_voice_clone(&dir, entry)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to register voice clone: {e}"),
+            })
     }
 
     /// Remove a registered voice clone by name.
     pub async fn remove_voice_clone(&self, name: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.remove_voice_clone(&dir, name).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to remove voice clone: {e}"),
-        })
+        cfg.assistant
+            .remove_voice_clone(&dir, name)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to remove voice clone: {e}"),
+            })
     }
 
     /// Add or replace a keyword action.
     pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.add_keyword_action(&dir, entry).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist keyword action: {e}"),
-        })
+        cfg.assistant
+            .add_keyword_action(&dir, entry)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist keyword action: {e}"),
+            })
     }
 
     /// Remove a keyword action by phrase.
     pub async fn remove_keyword_action(&self, phrase: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.remove_keyword_action(&dir, phrase).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to remove keyword action: {e}"),
-        })
+        cfg.assistant
+            .remove_keyword_action(&dir, phrase)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to remove keyword action: {e}"),
+            })
     }
 
     /// Replace an existing keyword action in place.
-    pub async fn update_keyword_action(&self, phrase: &str, new_entry: KeywordActionEntry) -> Result<(), LoaderError> {
+    pub async fn update_keyword_action(
+        &self,
+        phrase: &str,
+        new_entry: KeywordActionEntry,
+    ) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.update_keyword_action(&dir, phrase, new_entry).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to update keyword action: {e}"),
-        })
+        cfg.assistant
+            .update_keyword_action(&dir, phrase, new_entry)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to update keyword action: {e}"),
+            })
     }
 
     /// Replace the window idle timeout.
     pub async fn set_idle_timeout(&self, secs: u32) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_idle_timeout(&dir, secs).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist idle timeout: {e}"),
-        })
+        cfg.assistant
+            .set_idle_timeout(&dir, secs)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist idle timeout: {e}"),
+            })
     }
 
     /// Replace the partial GPU offload layer count for chat.brain.
     pub async fn set_brain_ngl(&self, ngl: i32) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
-        cfg.assistant.set_brain_ngl(&dir, ngl).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist brain ngl: {e}"),
-        })
+        cfg.assistant
+            .set_brain_ngl(&dir, ngl)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist brain ngl: {e}"),
+            })
     }
 
     // ── Secrets mutations — config lock only ──────────────────
@@ -786,9 +830,11 @@ impl ModelLoaderService {
     pub async fn set_hf_token(&self, token: Option<String>) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         cfg.secrets.set_hf_token(token);
-        cfg.secrets.save(&self.boot.models_dir).map_err(|e| LoaderError::Internal {
-            message: format!("Failed to persist HF token: {e}"),
-        })?;
+        cfg.secrets
+            .save(&self.boot.models_dir)
+            .map_err(|e| LoaderError::Internal {
+                message: format!("Failed to persist HF token: {e}"),
+            })?;
         let token_str = cfg.secrets.hf_token().map(String::from);
         let has_token = cfg.secrets.has_hf_token();
         cfg.downloads.set_hf_token(token_str);
@@ -805,9 +851,14 @@ impl ModelLoaderService {
 
     /// Download a model from HuggingFace.
     #[cfg(feature = "candle-backend")]
-    pub async fn download_model(&self, repo_id: &str, filename: &str) -> Result<String, LoaderError> {
+    pub async fn download_model(
+        &self,
+        repo_id: &str,
+        filename: &str,
+    ) -> Result<String, LoaderError> {
         let mut cfg = self.config.write().await;
-        let handle = cfg.downloads
+        let handle = cfg
+            .downloads
             .start_download(repo_id, filename, &self.boot.events)
             .map_err(|e| LoaderError::DownloadFailed {
                 reason: e.to_string(),
@@ -821,7 +872,11 @@ impl ModelLoaderService {
 
     /// Download not available without candle feature.
     #[cfg(not(feature = "candle-backend"))]
-    pub async fn download_model(&self, _repo_id: &str, _filename: &str) -> Result<String, LoaderError> {
+    pub async fn download_model(
+        &self,
+        _repo_id: &str,
+        _filename: &str,
+    ) -> Result<String, LoaderError> {
         Err(LoaderError::Internal {
             message: "Download requires candle-backend feature".to_string(),
         })
@@ -830,9 +885,11 @@ impl ModelLoaderService {
     /// Cancel an active download.
     pub async fn cancel_download(&self, download_id: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        cfg.downloads.cancel(download_id).map_err(|e| LoaderError::Internal {
-            message: e.to_string(),
-        })
+        cfg.downloads
+            .cancel(download_id)
+            .map_err(|e| LoaderError::Internal {
+                message: e.to_string(),
+            })
     }
 
     /// List every file in a HuggingFace repo. Used by the
@@ -865,29 +922,46 @@ impl ModelLoaderService {
             let reg = self.registry.read().await;
             let inf = self.inference.read().await;
 
-            let slot = cfg.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound {
-                slot_id: slot_id.to_string(),
-            })?;
+            let slot = cfg
+                .slots
+                .get_slot(slot_id)
+                .ok_or(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                })?;
 
-            let model_id = slot.assigned_model.clone().ok_or(LoaderError::NoModelAssigned {
-                slot_id: slot_id.to_string(),
-            })?;
+            let model_id = slot
+                .assigned_model
+                .clone()
+                .ok_or(LoaderError::NoModelAssigned {
+                    slot_id: slot_id.to_string(),
+                })?;
 
-            if matches!(inf.slot_statuses.get(slot_id), Some(ModelStatus::Loading { .. })) {
-                return Err(LoaderError::AlreadyLoading { slot_id: slot_id.to_string() });
+            if matches!(
+                inf.slot_statuses.get(slot_id),
+                Some(ModelStatus::Loading { .. })
+            ) {
+                return Err(LoaderError::AlreadyLoading {
+                    slot_id: slot_id.to_string(),
+                });
             }
 
-            let entry = reg.registry.get(&model_id).ok_or(LoaderError::ModelFileMissing {
-                path: PathBuf::new(),
-                slot_id: Some(slot_id.to_string()),
-                can_redownload: false,
-            })?;
+            let entry = reg
+                .registry
+                .get(&model_id)
+                .ok_or(LoaderError::ModelFileMissing {
+                    path: PathBuf::new(),
+                    slot_id: Some(slot_id.to_string()),
+                    can_redownload: false,
+                })?;
 
             if !entry.path.exists() {
                 return Err(LoaderError::ModelFileMissing {
                     path: entry.path.clone(),
                     slot_id: Some(slot_id.to_string()),
-                    can_redownload: matches!(entry.source, crate::models::registry::ModelSource::HuggingFace { .. }),
+                    can_redownload: matches!(
+                        entry.source,
+                        crate::models::registry::ModelSource::HuggingFace { .. }
+                    ),
                 });
             }
 
@@ -900,13 +974,24 @@ impl ModelLoaderService {
                 crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
                 crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
                 _ => {
-                    if hw.cached().has_gpu() { "cuda:0".to_string() } else { "cpu".to_string() }
+                    if hw.cached().has_gpu() {
+                        "cuda:0".to_string()
+                    } else {
+                        "cpu".to_string()
+                    }
                 }
             };
 
             let gpu_layers: Option<u32> = {
-                let slot_hint = slot.extensions.get("llama_cpp_ngl").and_then(|s| s.parse::<i32>().ok());
-                let assistant_hint = if slot_id == "chat.brain" { Some(cfg.assistant.offload.brain_ngl) } else { None };
+                let slot_hint = slot
+                    .extensions
+                    .get("llama_cpp_ngl")
+                    .and_then(|s| s.parse::<i32>().ok());
+                let assistant_hint = if slot_id == "chat.brain" {
+                    Some(cfg.assistant.offload.brain_ngl)
+                } else {
+                    None
+                };
                 match slot_hint.or(assistant_hint) {
                     Some(n) if n >= 0 => Some(n as u32),
                     _ => None,
@@ -942,11 +1027,16 @@ impl ModelLoaderService {
 
         let load_result = match backend {
             BackendType::Ort | BackendType::Sherpa => {
-                inf.voice_pool.load(slot_id, &model_path, capability, params)
+                inf.voice_pool
+                    .load(slot_id, &model_path, capability, params)
             }
             #[cfg(feature = "candle-backend")]
             BackendType::Candle | BackendType::LlamaCpp => {
-                match inf.pool.acquire(&model_id, &model_path, params, backend).await {
+                match inf
+                    .pool
+                    .acquire(&model_id, &model_path, params, backend)
+                    .await
+                {
                     Ok((handle, memory)) => {
                         inf.slot_handles.insert(slot_id.to_string(), handle);
                         Ok(memory)
@@ -962,16 +1052,31 @@ impl ModelLoaderService {
 
         match load_result {
             Ok(memory) => {
-                inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Loaded { footprint: memory });
-                self.boot.events.emit(LoaderEvent::LoadingComplete { slot_id: slot_id.to_string(), memory });
+                inf.slot_statuses.insert(
+                    slot_id.to_string(),
+                    ModelStatus::Loaded { footprint: memory },
+                );
+                self.boot.events.emit(LoaderEvent::LoadingComplete {
+                    slot_id: slot_id.to_string(),
+                    memory,
+                });
                 self.hardware.write().enter_normal_mode();
                 tracing::info!(slot = %slot_id, model = %model_id, backend = ?backend, ram_mb = memory.ram_mb(), vram_mb = memory.vram_mb(), "Slot loaded");
                 Ok(())
             }
             Err(e) => {
                 let error_msg = e.to_string();
-                inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Failed { error: error_msg.clone(), failed_at: LoadingStage::LoadingWeights });
-                self.boot.events.emit(LoaderEvent::LoadingFailed { slot_id: slot_id.to_string(), error: error_msg.clone() });
+                inf.slot_statuses.insert(
+                    slot_id.to_string(),
+                    ModelStatus::Failed {
+                        error: error_msg.clone(),
+                        failed_at: LoadingStage::LoadingWeights,
+                    },
+                );
+                self.boot.events.emit(LoaderEvent::LoadingFailed {
+                    slot_id: slot_id.to_string(),
+                    error: error_msg.clone(),
+                });
                 self.hardware.write().enter_normal_mode();
                 tracing::error!(slot = %slot_id, error = %error_msg, "Slot loading failed");
                 Err(LoaderError::Internal { message: error_msg })
@@ -985,28 +1090,38 @@ impl ModelLoaderService {
         let model_id = {
             let cfg = self.config.read().await;
             if !cfg.slots.contains(slot_id) {
-                return Err(LoaderError::SlotNotFound { slot_id: slot_id.to_string() });
+                return Err(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                });
             }
-            cfg.slots.get_slot(slot_id).and_then(|s| s.assigned_model.clone())
+            cfg.slots
+                .get_slot(slot_id)
+                .and_then(|s| s.assigned_model.clone())
         };
 
         let mut inf = self.inference.write().await;
-        inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Unloading);
+        inf.slot_statuses
+            .insert(slot_id.to_string(), ModelStatus::Unloading);
         inf.slot_handles.remove(slot_id);
 
         if let Some(mid) = model_id {
             for attempt in 1..=2 {
                 match inf.pool.release(&mid).await {
                     Some(freed) => {
-                        self.boot.events.emit(LoaderEvent::UnloadComplete { slot_id: slot_id.to_string(), freed });
+                        self.boot.events.emit(LoaderEvent::UnloadComplete {
+                            slot_id: slot_id.to_string(),
+                            freed,
+                        });
                         tracing::info!(slot = %slot_id, model = %mid, "Model unloaded");
-                        inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::NotLoaded);
+                        inf.slot_statuses
+                            .insert(slot_id.to_string(), ModelStatus::NotLoaded);
                         return Ok(());
                     }
                     None => {
                         if inf.pool.is_loaded(&mid) {
                             tracing::info!(slot = %slot_id, model = %mid, "Slot handle released (shared)");
-                            inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::NotLoaded);
+                            inf.slot_statuses
+                                .insert(slot_id.to_string(), ModelStatus::NotLoaded);
                             return Ok(());
                         }
                         tracing::warn!(slot = %slot_id, model = %mid, attempt, "Unload retry");
@@ -1018,11 +1133,18 @@ impl ModelLoaderService {
             }
             let error_msg = format!("Unload failed for slot '{slot_id}' after 2 retries");
             tracing::error!(slot = %slot_id, "{error_msg}");
-            inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Failed { error: error_msg.clone(), failed_at: LoadingStage::Verifying });
+            inf.slot_statuses.insert(
+                slot_id.to_string(),
+                ModelStatus::Failed {
+                    error: error_msg.clone(),
+                    failed_at: LoadingStage::Verifying,
+                },
+            );
             return Err(LoaderError::Internal { message: error_msg });
         }
 
-        inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::NotLoaded);
+        inf.slot_statuses
+            .insert(slot_id.to_string(), ModelStatus::NotLoaded);
         Ok(())
     }
 
@@ -1035,60 +1157,126 @@ impl ModelLoaderService {
             let reg = self.registry.read().await;
             let inf = self.inference.read().await;
 
-            let slot = cfg.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound { slot_id: slot_id.to_string() })?;
-            let model_id = slot.assigned_model.clone().ok_or(LoaderError::NoModelAssigned { slot_id: slot_id.to_string() })?;
+            let slot = cfg
+                .slots
+                .get_slot(slot_id)
+                .ok_or(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                })?;
+            let model_id = slot
+                .assigned_model
+                .clone()
+                .ok_or(LoaderError::NoModelAssigned {
+                    slot_id: slot_id.to_string(),
+                })?;
 
             match inf.slot_statuses.get(slot_id) {
                 Some(ModelStatus::Loaded { .. }) | Some(ModelStatus::Warm { .. }) => return Ok(()),
-                Some(ModelStatus::Loading { .. }) => return Err(LoaderError::AlreadyLoading { slot_id: slot_id.to_string() }),
+                Some(ModelStatus::Loading { .. }) => {
+                    return Err(LoaderError::AlreadyLoading {
+                        slot_id: slot_id.to_string(),
+                    })
+                }
                 _ => {}
             }
 
-            let entry = reg.registry.get(&model_id).ok_or(LoaderError::ModelFileMissing { path: PathBuf::new(), slot_id: Some(slot_id.to_string()), can_redownload: false })?;
+            let entry = reg
+                .registry
+                .get(&model_id)
+                .ok_or(LoaderError::ModelFileMissing {
+                    path: PathBuf::new(),
+                    slot_id: Some(slot_id.to_string()),
+                    can_redownload: false,
+                })?;
             if !entry.path.exists() {
-                return Err(LoaderError::ModelFileMissing { path: entry.path.clone(), slot_id: Some(slot_id.to_string()), can_redownload: false });
+                return Err(LoaderError::ModelFileMissing {
+                    path: entry.path.clone(),
+                    slot_id: Some(slot_id.to_string()),
+                    can_redownload: false,
+                });
             }
 
             let model_path = entry.path.clone();
             let capability = slot.capability;
             let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
-            let params = LoadParams { device: "cpu".to_string(), context_length: entry.context_length, gpu_layers: Some(0), auto_prime: false };
+            let params = LoadParams {
+                device: "cpu".to_string(),
+                context_length: entry.context_length,
+                gpu_layers: Some(0),
+                auto_prime: false,
+            };
 
             (model_id, model_path, capability, backend, params)
         };
 
         // Phase 2: inference write lock
         let mut inf = self.inference.write().await;
-        inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Loading { stage: LoadingStage::Allocating, progress_pct: 5.0 });
-        self.boot.events.emit(LoaderEvent::LoadingStarted { slot_id: slot_id.to_string(), model_id: model_id.clone() });
+        inf.slot_statuses.insert(
+            slot_id.to_string(),
+            ModelStatus::Loading {
+                stage: LoadingStage::Allocating,
+                progress_pct: 5.0,
+            },
+        );
+        self.boot.events.emit(LoaderEvent::LoadingStarted {
+            slot_id: slot_id.to_string(),
+            model_id: model_id.clone(),
+        });
 
         let load_result = match backend {
             BackendType::Ort | BackendType::Sherpa => {
-                inf.voice_pool.load(slot_id, &model_path, capability, params)
+                inf.voice_pool
+                    .load(slot_id, &model_path, capability, params)
             }
             #[cfg(feature = "candle-backend")]
             BackendType::Candle | BackendType::LlamaCpp => {
-                match inf.pool.acquire(&model_id, &model_path, params, backend).await {
-                    Ok((handle, memory)) => { inf.slot_handles.insert(slot_id.to_string(), handle); Ok(memory) }
+                match inf
+                    .pool
+                    .acquire(&model_id, &model_path, params, backend)
+                    .await
+                {
+                    Ok((handle, memory)) => {
+                        inf.slot_handles.insert(slot_id.to_string(), handle);
+                        Ok(memory)
+                    }
                     Err(e) => Err(e),
                 }
             }
             #[cfg(not(feature = "candle-backend"))]
-            BackendType::Candle | BackendType::LlamaCpp => Err(anyhow::anyhow!("Candle backend not compiled")),
+            BackendType::Candle | BackendType::LlamaCpp => {
+                Err(anyhow::anyhow!("Candle backend not compiled"))
+            }
         };
 
         match load_result {
             Ok(memory) => {
-                let footprint = MemoryFootprint { ram_bytes: memory.ram_bytes, vram_bytes: 0, kv_cache_bytes: 0 };
-                inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Warm { footprint });
-                self.boot.events.emit(LoaderEvent::LoadingComplete { slot_id: slot_id.to_string(), memory: footprint });
+                let footprint = MemoryFootprint {
+                    ram_bytes: memory.ram_bytes,
+                    vram_bytes: 0,
+                    kv_cache_bytes: 0,
+                };
+                inf.slot_statuses
+                    .insert(slot_id.to_string(), ModelStatus::Warm { footprint });
+                self.boot.events.emit(LoaderEvent::LoadingComplete {
+                    slot_id: slot_id.to_string(),
+                    memory: footprint,
+                });
                 tracing::info!(slot = %slot_id, model = %model_id, ram_mb = footprint.ram_mb(), "Slot warmed");
                 Ok(())
             }
             Err(e) => {
                 let error_msg = e.to_string();
-                inf.slot_statuses.insert(slot_id.to_string(), ModelStatus::Failed { error: error_msg.clone(), failed_at: LoadingStage::LoadingWeights });
-                self.boot.events.emit(LoaderEvent::LoadingFailed { slot_id: slot_id.to_string(), error: error_msg.clone() });
+                inf.slot_statuses.insert(
+                    slot_id.to_string(),
+                    ModelStatus::Failed {
+                        error: error_msg.clone(),
+                        failed_at: LoadingStage::LoadingWeights,
+                    },
+                );
+                self.boot.events.emit(LoaderEvent::LoadingFailed {
+                    slot_id: slot_id.to_string(),
+                    error: error_msg.clone(),
+                });
                 tracing::error!(slot = %slot_id, error = %error_msg, "Warm failed");
                 Err(LoaderError::Internal { message: error_msg })
             }
@@ -1102,43 +1290,77 @@ impl ModelLoaderService {
         {
             let cfg = self.config.read().await;
             let reg = self.registry.read().await;
-            let slot = cfg.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound { slot_id: slot_id.to_string() })?;
-            if slot.assigned_model.as_deref() == Some(new_model_id) { return Ok(()); }
-            let entry = reg.registry.get(new_model_id).ok_or(LoaderError::Internal { message: format!("Model '{new_model_id}' not found") })?;
+            let slot = cfg
+                .slots
+                .get_slot(slot_id)
+                .ok_or(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                })?;
+            if slot.assigned_model.as_deref() == Some(new_model_id) {
+                return Ok(());
+            }
+            let entry = reg
+                .registry
+                .get(new_model_id)
+                .ok_or(LoaderError::Internal {
+                    message: format!("Model '{new_model_id}' not found"),
+                })?;
             if !entry.compatible_capabilities.contains(&slot.capability) {
-                return Err(LoaderError::IncompatibleModel { model_id: new_model_id.to_string(), capability: slot.capability.to_string() });
+                return Err(LoaderError::IncompatibleModel {
+                    model_id: new_model_id.to_string(),
+                    capability: slot.capability.to_string(),
+                });
             }
         }
 
         // Begin swap guard
-        { let mut inf = self.inference.write().await; inf.swap_guard.begin(slot_id); }
+        {
+            let mut inf = self.inference.write().await;
+            inf.swap_guard.begin(slot_id);
+        }
 
-        self.boot.events.emit(LoaderEvent::SwapStarted { slot_id: slot_id.to_string(), from_model: None, to_model: new_model_id.to_string() });
+        self.boot.events.emit(LoaderEvent::SwapStarted {
+            slot_id: slot_id.to_string(),
+            from_model: None,
+            to_model: new_model_id.to_string(),
+        });
         tracing::info!(slot = %slot_id, to = %new_model_id, "Swap started");
 
         if self.is_slot_loaded(slot_id).await {
             if let Err(e) = self.unload_slot(slot_id).await {
                 let mut inf = self.inference.write().await;
                 inf.swap_guard.end(slot_id);
-                return Err(LoaderError::Internal { message: format!("Swap unload failed: {e}") });
+                return Err(LoaderError::Internal {
+                    message: format!("Swap unload failed: {e}"),
+                });
             }
         }
 
         if let Err(e) = self.assign_model(slot_id, new_model_id).await {
             let mut inf = self.inference.write().await;
             inf.swap_guard.end(slot_id);
-            return Err(LoaderError::Internal { message: format!("Swap assign failed: {e}") });
+            return Err(LoaderError::Internal {
+                message: format!("Swap assign failed: {e}"),
+            });
         }
 
         if let Err(e) = self.load_slot(slot_id).await {
             let mut inf = self.inference.write().await;
             inf.swap_guard.end(slot_id);
-            return Err(LoaderError::Internal { message: format!("Swap load failed: {e}") });
+            return Err(LoaderError::Internal {
+                message: format!("Swap load failed: {e}"),
+            });
         }
 
-        { let mut inf = self.inference.write().await; inf.swap_guard.end(slot_id); }
+        {
+            let mut inf = self.inference.write().await;
+            inf.swap_guard.end(slot_id);
+        }
 
-        self.boot.events.emit(LoaderEvent::SwapComplete { slot_id: slot_id.to_string(), model_id: new_model_id.to_string() });
+        self.boot.events.emit(LoaderEvent::SwapComplete {
+            slot_id: slot_id.to_string(),
+            model_id: new_model_id.to_string(),
+        });
         tracing::info!(slot = %slot_id, model = %new_model_id, "Swap complete");
         Ok(())
     }
@@ -1147,16 +1369,31 @@ impl ModelLoaderService {
     #[tracing::instrument(skip(self), fields(model_id))]
     pub async fn delete_model(&self, model_id: &str) -> Result<(), LoaderError> {
         // Check not loaded
-        { let inf = self.inference.read().await; if inf.pool.is_loaded(model_id) { return Err(LoaderError::Internal { message: format!("Model '{model_id}' is loaded — unload first") }); } }
+        {
+            let inf = self.inference.read().await;
+            if inf.pool.is_loaded(model_id) {
+                return Err(LoaderError::Internal {
+                    message: format!("Model '{model_id}' is loaded — unload first"),
+                });
+            }
+        }
 
         // Get info
         let (file_path, filename, slots_to_clear) = {
             let reg = self.registry.read().await;
             let cfg = self.config.read().await;
-            let entry = reg.registry.get(model_id).ok_or(LoaderError::Internal { message: format!("Model '{model_id}' not found") })?;
+            let entry = reg.registry.get(model_id).ok_or(LoaderError::Internal {
+                message: format!("Model '{model_id}' not found"),
+            })?;
             let file_path = entry.path.clone();
             let filename = entry.filename.clone();
-            let slots_to_clear: Vec<String> = cfg.slots.list_slots().iter().filter(|s| s.assigned_model.as_deref() == Some(model_id)).map(|s| s.id.clone()).collect();
+            let slots_to_clear: Vec<String> = cfg
+                .slots
+                .list_slots()
+                .iter()
+                .filter(|s| s.assigned_model.as_deref() == Some(model_id))
+                .map(|s| s.id.clone())
+                .collect();
             (file_path, filename, slots_to_clear)
         };
 
@@ -1169,11 +1406,16 @@ impl ModelLoaderService {
 
         // Delete file
         if file_path.exists() {
-            std::fs::remove_file(&file_path).map_err(|e| LoaderError::Internal { message: format!("Failed to delete: {e}") })?;
+            std::fs::remove_file(&file_path).map_err(|e| LoaderError::Internal {
+                message: format!("Failed to delete: {e}"),
+            })?;
         }
 
         // Remove from registry
-        { let mut reg = self.registry.write().await; reg.registry.remove(model_id); }
+        {
+            let mut reg = self.registry.write().await;
+            reg.registry.remove(model_id);
+        }
 
         tracing::info!(model_id = %model_id, filename = %filename, "Model deleted");
         Ok(())
@@ -1187,13 +1429,22 @@ impl ModelLoaderService {
     // kernel or engine auto-loads based on it any more.
 
     /// Synthesize speech.
-    pub async fn synthesize(&self, slot_id: &str, text: &str, voice: &str) -> anyhow::Result<crate::backends::voice::AudioSamples> {
+    pub async fn synthesize(
+        &self,
+        slot_id: &str,
+        text: &str,
+        voice: &str,
+    ) -> anyhow::Result<crate::backends::voice::AudioSamples> {
         let inf = self.inference.read().await;
         inf.voice_pool.synthesize(slot_id, text, voice)
     }
 
     /// Transcribe audio.
-    pub async fn transcribe(&self, slot_id: &str, samples: &crate::backends::voice::AudioSamples) -> anyhow::Result<String> {
+    pub async fn transcribe(
+        &self,
+        slot_id: &str,
+        samples: &crate::backends::voice::AudioSamples,
+    ) -> anyhow::Result<String> {
         let inf = self.inference.read().await;
         inf.voice_pool.transcribe(slot_id, samples)
     }
@@ -1211,25 +1462,44 @@ impl ModelLoaderService {
     }
 
     /// Rerank documents.
-    pub async fn rerank(&self, slot_id: &str, query: &str, documents: &[&str]) -> anyhow::Result<Vec<f32>> {
+    pub async fn rerank(
+        &self,
+        slot_id: &str,
+        query: &str,
+        documents: &[&str],
+    ) -> anyhow::Result<Vec<f32>> {
         let inf = self.inference.read().await;
         inf.voice_pool.rerank(slot_id, query, documents)
     }
 
     /// Encode image file.
-    pub async fn encode_image(&self, slot_id: &str, path: &std::path::Path) -> anyhow::Result<Vec<f32>> {
+    pub async fn encode_image(
+        &self,
+        slot_id: &str,
+        path: &std::path::Path,
+    ) -> anyhow::Result<Vec<f32>> {
         let inf = self.inference.read().await;
         inf.voice_pool.encode_image(slot_id, path)
     }
 
     /// Encode raw RGB.
-    pub async fn encode_rgb(&self, slot_id: &str, rgb_bytes: &[u8], width: u32, height: u32) -> anyhow::Result<Vec<f32>> {
+    pub async fn encode_rgb(
+        &self,
+        slot_id: &str,
+        rgb_bytes: &[u8],
+        width: u32,
+        height: u32,
+    ) -> anyhow::Result<Vec<f32>> {
         let inf = self.inference.read().await;
         inf.voice_pool.encode_rgb(slot_id, rgb_bytes, width, height)
     }
 
     /// Search HuggingFace (stateless HTTP — no lock).
-    pub async fn search_huggingface(&self, query: &str, limit: u32) -> anyhow::Result<Vec<crate::models::search::HfSearchResult>> {
+    pub async fn search_huggingface(
+        &self,
+        query: &str,
+        limit: u32,
+    ) -> anyhow::Result<Vec<crate::models::search::HfSearchResult>> {
         crate::models::search::search_huggingface(query, limit).await
     }
 }
@@ -1290,10 +1560,7 @@ mod tests {
     }
 
     fn fresh_service() -> ModelLoaderService {
-        let tmp = std::env::temp_dir().join(format!(
-            "devpulse-ml-test-{}",
-            uuid::Uuid::now_v7()
-        ));
+        let tmp = std::env::temp_dir().join(format!("devpulse-ml-test-{}", uuid::Uuid::now_v7()));
         ModelLoaderService::new(
             Box::new(MemoryConfig::new()),
             Arc::new(NullEventSink),
@@ -1312,7 +1579,10 @@ mod tests {
 
         let entry = fake_entry("kokoro-v1.0.int8.onnx", &service.boot.models_dir);
         let expected_id = entry.id.clone();
-        { let mut reg = service.registry.write().await; reg.registry.add(entry); }
+        {
+            let mut reg = service.registry.write().await;
+            reg.registry.add(entry);
+        }
 
         let hydrated = service.auto_assign_bundled_slots().await.unwrap();
         assert_eq!(hydrated, 1);
@@ -1330,7 +1600,10 @@ mod tests {
         service.register_slot(slot).await.unwrap();
 
         let entry = fake_entry("kokoro-v1.0.int8.onnx", &service.boot.models_dir);
-        { let mut reg = service.registry.write().await; reg.registry.add(entry); }
+        {
+            let mut reg = service.registry.write().await;
+            reg.registry.add(entry);
+        }
 
         let hydrated = service.auto_assign_bundled_slots().await.unwrap();
         assert_eq!(hydrated, 0);
@@ -1362,7 +1635,10 @@ mod tests {
         service.register_slot(slot).await.unwrap();
 
         let entry = fake_entry("qwen3-4b.gguf", &service.boot.models_dir);
-        { let mut reg = service.registry.write().await; reg.registry.add(entry); }
+        {
+            let mut reg = service.registry.write().await;
+            reg.registry.add(entry);
+        }
 
         let hydrated = service.auto_assign_bundled_slots().await.unwrap();
         assert_eq!(hydrated, 0);

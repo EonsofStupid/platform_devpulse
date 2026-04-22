@@ -70,9 +70,7 @@ impl<T> TracedSender<T> {
         self.inner
             .try_send(Envelope::capture(payload))
             .map_err(|err| match err {
-                flume::TrySendError::Full(envelope) => {
-                    flume::TrySendError::Full(envelope.payload)
-                }
+                flume::TrySendError::Full(envelope) => flume::TrySendError::Full(envelope.payload),
                 flume::TrySendError::Disconnected(envelope) => {
                     flume::TrySendError::Disconnected(envelope.payload)
                 }

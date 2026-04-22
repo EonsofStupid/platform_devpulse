@@ -166,9 +166,7 @@ pub async fn ping_graph(
 /// Returns error string if platform is still booting.
 #[tauri::command]
 #[specta::specta]
-pub async fn graph_health_all(
-    state: State<'_, PlatformState>,
-) -> Result<GraphHealthAll, String> {
+pub async fn graph_health_all(state: State<'_, PlatformState>) -> Result<GraphHealthAll, String> {
     let platform = get_platform!(state)?;
 
     let scopes: &[(GraphNamespace, &str, &str)] = &[
@@ -335,8 +333,7 @@ pub async fn graph_query(
         .await
         .map_err(|e| format!("SurrealQL query failed: {e:#}"))?;
 
-    serde_json::to_string_pretty(&result)
-        .map_err(|e| format!("Failed to serialize result: {e}"))
+    serde_json::to_string_pretty(&result).map_err(|e| format!("Failed to serialize result: {e}"))
 }
 
 /// List all keys in the scoped kv table for a namespace.

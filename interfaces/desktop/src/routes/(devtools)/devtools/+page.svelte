@@ -11,6 +11,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Activity, ExternalLink, Grid3x3, Palette, Settings, X } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { RepoDownloadButton } from "$lib/domains/platform/index.js";
 import type { LaneToggle, LaneTraceConfig, PlatformConfig } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
@@ -188,6 +189,18 @@ let laneGroups = $derived<LaneGroup[]>(
 
 		<!-- OVERVIEW TAB -->
 		{#if activeTab === "overview"}
+			<!--
+				Phase 4b harness (SPRINT-DEVTOOLS-FOUNDATIONAL). Delete in Phase 8.
+				Tests RepoDownloadButton end-to-end against a known-good HF repo.
+				Real per-devtool usage lives on the Phi / Persona devtools
+				in Phases 5 + 7.
+			-->
+			<div class="mb-3 flex items-center gap-2 p-3 rounded-lg" style="background: var(--surface-raised); border: 1px dashed var(--border-subtle);">
+				<span class="text-xs font-medium">Phase 4b harness:</span>
+				<RepoDownloadButton repoId="microsoft/phi-4-mini-instruct" label="Install Phi-4 Mini (test)" />
+				<span class="text-xs text-[var(--text-secondary)]">One-click bundle download · delete this row in Phase 8.</span>
+			</div>
+
 			<div class="grid grid-cols-2 gap-3">
 				<!-- Inline tools -->
 				<button

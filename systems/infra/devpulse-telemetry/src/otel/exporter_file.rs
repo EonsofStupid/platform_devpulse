@@ -28,9 +28,11 @@ pub struct FileSpanExporter {
 
 impl std::fmt::Debug for FileSpanExporter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // `writer` is a `Mutex<BufWriter<File>>` — holds the OS handle and
+        // any buffered bytes, not user-facing state worth dumping.
         f.debug_struct("FileSpanExporter")
             .field("path", &self.path)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -50,10 +52,7 @@ impl FileSpanExporter {
         let filename = format!("spans-{timestamp}.otlp.jsonl");
         let path = telemetry_dir.join(filename);
 
-        let file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&path)?;
+        let file = OpenOptions::new().create(true).append(true).open(&path)?;
 
         Ok(Self {
             writer: Mutex::new(BufWriter::new(file)),
@@ -77,11 +76,7 @@ impl FileSpanExporter {
     pub fn rotate(telemetry_dir: &Path, keep: usize) -> std::io::Result<()> {
         let mut files: Vec<_> = fs::read_dir(telemetry_dir)?
             .filter_map(std::result::Result::ok)
-            .filter(|e| {
-                e.file_name()
-                    .to_string_lossy()
-                    .starts_with("spans-")
-            })
+            .filter(|e| e.file_name().to_string_lossy().starts_with("spans-"))
             .collect();
 
         if files.len() <= keep {
@@ -102,7 +97,10 @@ impl FileSpanExporter {
 }
 
 impl SpanExporter for FileSpanExporter {
-    fn export(&self, batch: Vec<SpanData>) -> impl std::future::Future<Output = opentelemetry_sdk::error::OTelSdkResult> + Send {
+    fn export(
+        &self,
+        batch: Vec<SpanData>,
+    ) -> impl std::future::Future<Output = opentelemetry_sdk::error::OTelSdkResult> + Send {
         // Serialize synchronously — file I/O is fast for local JSONL.
         // The BatchSpanProcessor calls this from a background task anyway.
         let mut lines = Vec::with_capacity(batch.len());
@@ -133,20 +131,18 @@ impl SpanExporter for FileSpanExporter {
             })?;
             for line in &lines {
                 serde_json::to_writer(&mut *writer, line).map_err(|e| {
-                    opentelemetry_sdk::error::OTelSdkError::InternalFailure(
-                        format!("JSON write error: {e}"),
-                    )
+                    opentelemetry_sdk::error::OTelSdkError::InternalFailure(format!(
+                        "JSON write error: {e}"
+                    ))
                 })?;
                 writeln!(&mut *writer).map_err(|e| {
-                    opentelemetry_sdk::error::OTelSdkError::InternalFailure(
-                        format!("newline write error: {e}"),
-                    )
+                    opentelemetry_sdk::error::OTelSdkError::InternalFailure(format!(
+                        "newline write error: {e}"
+                    ))
                 })?;
             }
             writer.flush().map_err(|e| {
-                opentelemetry_sdk::error::OTelSdkError::InternalFailure(
-                    format!("flush error: {e}"),
-                )
+                opentelemetry_sdk::error::OTelSdkError::InternalFailure(format!("flush error: {e}"))
             })?;
             Ok(())
         })();

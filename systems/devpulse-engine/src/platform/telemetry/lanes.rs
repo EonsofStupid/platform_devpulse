@@ -314,8 +314,7 @@ struct LaneTraceWriter {
 
 impl LaneTraceWriter {
     async fn run(mut self) {
-        let flush_interval =
-            tokio::time::Duration::from_millis(BATCH_FLUSH_INTERVAL_MS);
+        let flush_interval = tokio::time::Duration::from_millis(BATCH_FLUSH_INTERVAL_MS);
 
         loop {
             // Wait for a trace or timeout (flush interval).
@@ -377,11 +376,7 @@ impl LaneTraceWriter {
             .await
         {
             Ok(inserted) => {
-                tracing::debug!(
-                    count,
-                    inserted,
-                    "Flushed lane traces to DuckDB"
-                );
+                tracing::debug!(count, inserted, "Flushed lane traces to DuckDB");
             }
             Err(e) => {
                 tracing::warn!(

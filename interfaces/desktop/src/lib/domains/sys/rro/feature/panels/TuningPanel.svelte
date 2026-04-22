@@ -15,7 +15,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { rroState } from "../../data-access/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import { formatField } from "../../util/rro.format.js";
-import { RRO_DEPTH_NARRATIONS, RRO_STATE_NARRATIONS } from "../../util/rro.narrations.js";
+import { RRO_STATE_NARRATIONS } from "../../util/rro.narrations.js";
 import { RRO_PRESETS } from "../../util/rro.presets.js";
 
 function fieldValue(field: string): number {
@@ -98,33 +98,17 @@ function fieldValue(field: string): number {
 			</Callout>
 		{/each}
 		{#each RRO_STATE_NARRATIONS.gathering.learning ?? [] as line}
-			<Callout variant="tip" preset="flat">
+			<Callout variant="info" preset="flat">
 				<Text size="xs">{line}</Text>
 			</Callout>
 		{/each}
 	</div>
 </Card>
 
-<!-- Depth presets — narrated, live control lands with kernel rumination loop -->
-<Card preset="flat">
-	<div class="p-3 space-y-2">
-		<div class="flex items-center gap-2">
-			<Text size="sm" weight="semibold">Deliberation depth</Text>
-			<Badge variant="neutral" size="sm" fillStyle="outline">Lands with kernel</Badge>
-		</div>
-		<div class="space-y-1.5">
-			{#each ["shallow", "normal", "deep"] as depth}
-				{@const n = RRO_DEPTH_NARRATIONS[depth]}
-				<div class="flex items-center justify-between gap-2">
-					<div class="flex-1">
-						<Text size="sm" weight="medium">{depth}</Text>
-						<Text size="xs" preset="flat">{n.layman[0]}</Text>
-					</div>
-					{#if n.learning}
-						<Text size="xs" preset="flat">{n.learning[0]}</Text>
-					{/if}
-				</div>
-			{/each}
-		</div>
-	</div>
-</Card>
+<!-- Depth is now in the State tab (real, live control) -->
+<Callout variant="tip" preset="flat">
+	<Text size="xs">
+		Looking for deliberation depth (shallow / normal / deep)? It's on the State tab now — it's
+		a live control, not a preset.
+	</Text>
+</Callout>

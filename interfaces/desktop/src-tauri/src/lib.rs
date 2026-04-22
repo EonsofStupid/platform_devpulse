@@ -104,6 +104,13 @@ pub fn run() {
         commands::sys::vector::create_vector_collection,
         commands::sys::vector::delete_vector_collection,
         commands::sys::vector::get_retrieval_param_meta,
+        // RRO state machine (reasoning lifecycle)
+        commands::sys::rro_state::get_rro_state,
+        commands::sys::rro_state::set_rro_depth,
+        commands::sys::rro_state::trigger_rro_gather,
+        commands::sys::rro_state::trigger_rro_purge,
+        commands::sys::rro_state::trigger_rro_fork,
+        commands::sys::rro_state::set_rro_proximity,
         // Graph store (SurrealDB) devtools
         commands::sys::graph::ping_graph,
         commands::sys::graph::graph_health_all,
@@ -530,50 +537,54 @@ async fn boot_task(
     let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = {
         let app_for_events = app.clone();
         Some(std::sync::Arc::new(
-            devpulse_engine::platform::integrations::EventBridge::new(
-                std::sync::Arc::new(move |event_name: &str, payload: serde_json::Value| {
+            devpulse_engine::platform::integrations::EventBridge::new(std::sync::Arc::new(
+                move |event_name: &str, payload: serde_json::Value| {
                     let _ = app_for_events.emit(event_name, payload);
-                }),
-            ),
+                },
+            )),
         ))
     };
 
     // Platform::boot() now writes boot.log in real-time via BootLog.
     // The callback here is ONLY for Tauri event bridging + tracker.
-    let result = Platform::boot(data_dir.clone(), move |event: InitEvent| {
-        // Record in tracker (so get_boot_state IPC works)
-        tracker_for_callback.record_event(event.clone());
+    let result = Platform::boot(
+        data_dir.clone(),
+        move |event: InitEvent| {
+            // Record in tracker (so get_boot_state IPC works)
+            tracker_for_callback.record_event(event.clone());
 
-        // Log completion events via tracing (for session log file)
-        if event.status != InitStatus::Running {
-            let latency_str = event
-                .latency_us
-                .map(|us| {
-                    if us >= 1000 {
-                        format!(" {}ms", us / 1000)
-                    } else {
-                        format!(" {us}µs")
-                    }
-                })
-                .unwrap_or_default();
-            let msg_str = event
-                .message
-                .as_deref()
-                .map(|m| format!(" ({m})"))
-                .unwrap_or_default();
-            let line = format!("{}{msg_str}{latency_str}", event.step);
+            // Log completion events via tracing (for session log file)
+            if event.status != InitStatus::Running {
+                let latency_str = event
+                    .latency_us
+                    .map(|us| {
+                        if us >= 1000 {
+                            format!(" {}ms", us / 1000)
+                        } else {
+                            format!(" {us}µs")
+                        }
+                    })
+                    .unwrap_or_default();
+                let msg_str = event
+                    .message
+                    .as_deref()
+                    .map(|m| format!(" ({m})"))
+                    .unwrap_or_default();
+                let line = format!("{}{msg_str}{latency_str}", event.step);
 
-            match event.status {
-                InitStatus::Ok => tracing::info!(step = %event.step, "[+] {}", line),
-                InitStatus::Error => tracing::error!(step = %event.step, "[!] {}", line),
-                InitStatus::Skipped => tracing::info!(step = %event.step, "[-] {}", line),
-                InitStatus::Running => {}
+                match event.status {
+                    InitStatus::Ok => tracing::info!(step = %event.step, "[+] {}", line),
+                    InitStatus::Error => tracing::error!(step = %event.step, "[!] {}", line),
+                    InitStatus::Skipped => tracing::info!(step = %event.step, "[-] {}", line),
+                    InitStatus::Running => {}
+                }
             }
-        }
 
-        // Bridge to frontend StatusBar
-        let _ = app_for_callback.emit("platform:subsystem-status", &event);
-    }, model_event_sink)
+            // Bridge to frontend StatusBar
+            let _ = app_for_callback.emit("platform:subsystem-status", &event);
+        },
+        model_event_sink,
+    )
     .await;
 
     let total_ms = boot_start.elapsed().as_millis() as u64;
@@ -609,7 +620,9 @@ async fn boot_task(
                     devpulse_telemetry::spawn(writer.run());
                     tracing::info!("Span trace writer spawned — DuckDB span persistence active");
                 } else {
-                    tracing::warn!("Analytics service not available — span traces will buffer and drop");
+                    tracing::warn!(
+                        "Analytics service not available — span traces will buffer and drop"
+                    );
                 }
             }
 
@@ -625,6 +638,28 @@ async fn boot_task(
                     "health": health
                 }),
             );
+
+            // ── RRO state event bridge ───────────────────────────
+            // Subscribe to the reasoning handle's broadcast channel and
+            // forward snapshots onto the Tauri event bus. Frontend listens
+            // on `platform:rro-state-changed` — no polling needed.
+            //
+            // `rx.recv()` yields a `LinkedTraced<RroStateSnapshot>` — the
+            // producer's OTel context rides as a link target, not a parent.
+            // We forward just the payload; causality is preserved in the
+            // trace tree via the link.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let mut rx = platform_arc.reasoning().subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (snapshot, _producer_cx) = envelope.into_parts();
+                        let _ = app_handle.emit("platform:rro-state-changed", &snapshot);
+                    }
+                    tracing::info!("rro state event bridge: broadcast channel closed");
+                });
+                tracing::info!("rro state event bridge: spawned");
+            }
 
             // ── Hardware metrics push loop ───────────────────────
             // Rust-driven: no frontend polling. Browser throttling can't
@@ -648,9 +683,7 @@ async fn boot_task(
                         let slots = loader.list_slots().await;
                         tracing::info!("boot: is_first_run...");
                         let first_run = loader.is_first_run().await;
-                        let assigned = slots.iter()
-                            .filter(|s| s.assigned_model.is_some())
-                            .count();
+                        let assigned = slots.iter().filter(|s| s.assigned_model.is_some()).count();
                         tracing::info!("boot: is_setup_complete...");
                         let setup_done = loader.is_setup_complete().await;
                         tracing::info!("boot: all loader queries done — building snapshot");
@@ -694,7 +727,9 @@ async fn boot_task(
                         // Store in tracker so get_boot_state catches up
                         // late-mounting frontends that missed the live event.
                         tracker.set_models_status(models_snapshot);
-                        tracing::info!("boot: model readiness block done — dropping platform read lock");
+                        tracing::info!(
+                            "boot: model readiness block done — dropping platform read lock"
+                        );
                         ready
                     } else {
                         tracing::warn!("Model Loader not available — models not ready");
@@ -819,9 +854,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     if let Some(svc) = platform.user_relational() {
         let adapter = svc.adapter();
 
-        let rows = adapter
-            .query("SELECT COUNT(*) FROM projects", &[])
-            .await?;
+        let rows = adapter.query("SELECT COUNT(*) FROM projects", &[]).await?;
         let count = rows
             .first()
             .and_then(|r| r.first())

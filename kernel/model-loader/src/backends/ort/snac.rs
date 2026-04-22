@@ -71,7 +71,10 @@ impl AudioDecoderBackend for SnacDecoder {
                 .map_err(|e| anyhow::anyhow!("Failed to create ort SessionBuilder: {e}"))?
                 .commit_from_file(path)
                 .map_err(|e| anyhow::anyhow!("Failed to load SNAC ONNX model: {e}"))?;
-            *self.session.lock().map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))? = Some(session);
+            *self
+                .session
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))? = Some(session);
         }
 
         let file_size = std::fs::metadata(path)?.len();
@@ -95,7 +98,10 @@ impl AudioDecoderBackend for SnacDecoder {
         tracing::info!(component = "SNAC", "Unloading SNAC decoder");
         #[cfg(feature = "ort-backend")]
         {
-            *self.session.lock().map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))? = None;
+            *self
+                .session
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))? = None;
         }
         self.model_path = None;
         self.loaded = false;
@@ -127,7 +133,9 @@ impl AudioDecoderBackend for SnacDecoder {
         {
             use ort::value::Value;
 
-            let mut guard = self.session.lock()
+            let mut guard = self
+                .session
+                .lock()
                 .map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))?;
             let session = guard
                 .as_mut()
@@ -167,7 +175,10 @@ impl AudioDecoderBackend for SnacDecoder {
 
         #[cfg(not(feature = "ort-backend"))]
         {
-            tracing::warn!(component = "SNAC", "ort-backend feature not enabled — returning silence");
+            tracing::warn!(
+                component = "SNAC",
+                "ort-backend feature not enabled — returning silence"
+            );
             Ok(AudioSamples {
                 data: vec![0.0f32; SAMPLES_PER_WINDOW],
                 sample_rate: SAMPLE_RATE,

@@ -41,7 +41,10 @@ pub async fn boot(
         return None;
     }
 
-    on_event(InitEvent::running("Model Loader", "Initializing model management"));
+    on_event(InitEvent::running(
+        "Model Loader",
+        "Initializing model management",
+    ));
     boot_log.running("Model Loader", "booting...");
     let start = Instant::now();
 
@@ -74,7 +77,13 @@ pub async fn boot(
     // not from the engine-side TOML shadow (which has been removed).
     let data_dir_owned = data_dir.to_path_buf();
     let result = devpulse_telemetry::spawn_blocking(move || {
-        ModelLoaderService::boot(&data_dir_owned, event_sink, models_dir, subdirs, libsql_adapter)
+        ModelLoaderService::boot(
+            &data_dir_owned,
+            event_sink,
+            models_dir,
+            subdirs,
+            libsql_adapter,
+        )
     })
     .await
     .map_err(|e| anyhow::anyhow!("Model Loader spawn_blocking failed: {e}"));

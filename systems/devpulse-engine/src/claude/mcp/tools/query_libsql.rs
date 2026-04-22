@@ -17,9 +17,8 @@ pub async fn execute(platform: &Platform, sql: &str, scope: &str) -> String {
     let sanitized = strip_sql_strings(&upper);
 
     const WRITE_KEYWORDS: &[&str] = &[
-        "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE",
-        "REPLACE", "TRUNCATE", "MERGE", "UPSERT", "ATTACH",
-        "DETACH", "REINDEX", "VACUUM", "PRAGMA",
+        "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE", "REPLACE", "TRUNCATE", "MERGE",
+        "UPSERT", "ATTACH", "DETACH", "REINDEX", "VACUUM", "PRAGMA",
     ];
 
     for keyword in WRITE_KEYWORDS {

@@ -235,9 +235,8 @@ impl DevforgePaths {
                 dst = %seed_version.display(),
                 "DevForge: seeding install tree from bundled resource",
             );
-            std::fs::create_dir_all(&seed_version).with_context(|| {
-                format!("Failed to create {}", seed_version.display())
-            })?;
+            std::fs::create_dir_all(&seed_version)
+                .with_context(|| format!("Failed to create {}", seed_version.display()))?;
             copy_dir_recursive(bundled, &seed_version)?;
         }
 
@@ -270,13 +269,23 @@ fn point_current_at(current: &Path, target: &Path) -> Result<()> {
 
     #[cfg(windows)]
     {
-        std::os::windows::fs::symlink_dir(target, current)
-            .with_context(|| format!("Failed to link {} -> {}", current.display(), target.display()))?;
+        std::os::windows::fs::symlink_dir(target, current).with_context(|| {
+            format!(
+                "Failed to link {} -> {}",
+                current.display(),
+                target.display()
+            )
+        })?;
     }
     #[cfg(unix)]
     {
-        std::os::unix::fs::symlink(target, current)
-            .with_context(|| format!("Failed to link {} -> {}", current.display(), target.display()))?;
+        std::os::unix::fs::symlink(target, current).with_context(|| {
+            format!(
+                "Failed to link {} -> {}",
+                current.display(),
+                target.display()
+            )
+        })?;
     }
     Ok(())
 }
@@ -285,11 +294,10 @@ fn point_current_at(current: &Path, target: &Path) -> Result<()> {
 /// junctions — the bundled resource tree is expected to be a plain
 /// directory of files.
 fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {
-    std::fs::create_dir_all(dst)
-        .with_context(|| format!("Failed to create {}", dst.display()))?;
+    std::fs::create_dir_all(dst).with_context(|| format!("Failed to create {}", dst.display()))?;
 
-    for entry in std::fs::read_dir(src)
-        .with_context(|| format!("Failed to read {}", src.display()))?
+    for entry in
+        std::fs::read_dir(src).with_context(|| format!("Failed to read {}", src.display()))?
     {
         let entry = entry?;
         let sp = entry.path();
@@ -298,8 +306,7 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {
         if ft.is_dir() {
             copy_dir_recursive(&sp, &dp)?;
         } else if ft.is_file() {
-            std::fs::copy(&sp, &dp)
-                .with_context(|| format!("Failed to copy {}", sp.display()))?;
+            std::fs::copy(&sp, &dp).with_context(|| format!("Failed to copy {}", sp.display()))?;
         }
     }
     Ok(())

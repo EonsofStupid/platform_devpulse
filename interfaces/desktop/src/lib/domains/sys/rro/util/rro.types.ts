@@ -16,6 +16,10 @@ export type {
 	GraphTableInfo,
 	RetrievalConfig,
 	RetrievalParamMeta,
+	RroDepth,
+	RroState,
+	RroStateSnapshot,
+	RroStateTransition,
 	SlotInfo,
 	VectorHealthReport,
 	VectorSearchResult,
@@ -24,7 +28,7 @@ export type {
 // ── Domain-only types ───────────────────────────────────────
 
 /** Tab identity. Must match capability IDs. */
-export type RroTabId = "search" | "tuning" | "collections" | "brain" | "encoder";
+export type RroTabId = "state" | "search" | "tuning" | "collections" | "brain" | "encoder";
 
 /** Preset name (string union — custom means user-tuned away from named presets). */
 export type PresetName = "conservative" | "balanced" | "aggressive" | "precision" | "custom";

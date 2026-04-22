@@ -36,8 +36,8 @@ pub fn load_manifest() -> Result<KnowledgeManifest, String> {
 
 /// Parse entries from a single embedded JSON string.
 fn parse_entries(name: &str, json: &str) -> Result<Vec<KnowledgeEntry>, String> {
-    let entries: Vec<KnowledgeEntry> = serde_json::from_str(json)
-        .map_err(|e| format!("Failed to parse embedded {name}: {e}"))?;
+    let entries: Vec<KnowledgeEntry> =
+        serde_json::from_str(json).map_err(|e| format!("Failed to parse embedded {name}: {e}"))?;
 
     tracing::info!(file = %name, count = entries.len(), "Knowledge entries parsed");
     Ok(entries)
@@ -64,7 +64,10 @@ pub fn load_all() -> Result<Vec<KnowledgeEntry>, String> {
     tracing::info!(
         total = all_entries.len(),
         files = EMBEDDED_ARTIFACTS.len(),
-        manifest_version = manifest.as_ref().map(|m| m.version.as_str()).unwrap_or("none"),
+        manifest_version = manifest
+            .as_ref()
+            .map(|m| m.version.as_str())
+            .unwrap_or("none"),
         "Knowledge library loaded from embedded data"
     );
 

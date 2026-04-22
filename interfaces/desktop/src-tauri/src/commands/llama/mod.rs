@@ -130,9 +130,12 @@ pub async fn start_llama_server(
                         signal = ?status.signal,
                         "llama-server terminated"
                     );
-                    let _ = app_clone.emit("llama:server-stopped", serde_json::json!({
-                        "code": status.code,
-                    }));
+                    let _ = app_clone.emit(
+                        "llama:server-stopped",
+                        serde_json::json!({
+                            "code": status.code,
+                        }),
+                    );
                     break;
                 }
                 _ => {}
@@ -177,10 +180,13 @@ pub async fn start_llama_server(
         return Err("llama-server failed to start within 30 seconds".into());
     }
 
-    let _ = app.emit("llama:server-ready", serde_json::json!({
-        "port": port,
-        "model": model_path,
-    }));
+    let _ = app.emit(
+        "llama:server-ready",
+        serde_json::json!({
+            "port": port,
+            "model": model_path,
+        }),
+    );
 
     Ok(LlamaServerInfo {
         port,
@@ -192,13 +198,13 @@ pub async fn start_llama_server(
 /// Stop the llama-server sidecar.
 #[tauri::command]
 #[specta::specta]
-pub async fn stop_llama_server(
-    state: tauri::State<'_, LlamaServerState>,
-) -> Result<(), String> {
+pub async fn stop_llama_server(state: tauri::State<'_, LlamaServerState>) -> Result<(), String> {
     let mut child_lock = state.child.lock().await;
     if let Some(child) = child_lock.take() {
         tracing::info!("Stopping llama-server");
-        child.kill().map_err(|e| format!("Failed to kill llama-server: {e}"))?;
+        child
+            .kill()
+            .map_err(|e| format!("Failed to kill llama-server: {e}"))?;
     } else {
         tracing::debug!("stop_llama_server called but no server running");
     }
@@ -329,19 +335,19 @@ pub async fn llama_chat(
                         .and_then(|c| c.as_str())
                     {
                         full_response.push_str(content);
-                        let _ = app.emit("llama:token", serde_json::json!({
-                            "content": content,
-                        }));
+                        let _ = app.emit(
+                            "llama:token",
+                            serde_json::json!({
+                                "content": content,
+                            }),
+                        );
                     }
                 }
             }
         }
     }
 
-    tracing::info!(
-        response_len = full_response.len(),
-        "llama_chat: complete"
-    );
+    tracing::info!(response_len = full_response.len(), "llama_chat: complete");
 
     Ok(full_response)
 }

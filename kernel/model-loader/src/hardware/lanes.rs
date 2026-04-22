@@ -418,7 +418,12 @@ mod tests {
                 used_bytes: 0,
                 reserved_bytes: 0,
             },
-            allocations: vec![alloc("chat.brain", 6_000, false, PersistenceClass::WarmStandby)],
+            allocations: vec![alloc(
+                "chat.brain",
+                6_000,
+                false,
+                PersistenceClass::WarmStandby,
+            )],
         };
         assert!(!budget.planned_fits());
     }

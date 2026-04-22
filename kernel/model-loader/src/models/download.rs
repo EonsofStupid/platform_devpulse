@@ -152,9 +152,8 @@ impl DownloadManager {
                     }
                     Err(e) => {
                         if cancel.load(Ordering::Relaxed) {
-                            events_clone.emit(LoaderEvent::DownloadCancelled {
-                                download_id: dl_id,
-                            });
+                            events_clone
+                                .emit(LoaderEvent::DownloadCancelled { download_id: dl_id });
                         } else {
                             events_clone.emit(LoaderEvent::DownloadFailed {
                                 download_id: dl_id,
@@ -322,8 +321,7 @@ fn execute_download(
     // per file — the non-zero-length check catches the common cases
     // (fully-downloaded previous runs, hf-hub cache hits) without
     // adding latency.
-    let mut already_present: std::collections::HashSet<String> =
-        std::collections::HashSet::new();
+    let mut already_present: std::collections::HashSet<String> = std::collections::HashSet::new();
     for file_name in &bundle {
         let dest = dest_dir.join(file_name);
         if let Ok(meta) = std::fs::metadata(&dest) {
@@ -680,23 +678,33 @@ fn infer_download_folder(filename: &str) -> &'static str {
     let lower = filename.to_lowercase();
 
     // Voice models
-    if lower.contains("whisper") || lower.contains("kokoro") || lower.contains("tts")
-        || lower.contains("stt") || lower.contains("piper") || lower.contains("snac")
+    if lower.contains("whisper")
+        || lower.contains("kokoro")
+        || lower.contains("tts")
+        || lower.contains("stt")
+        || lower.contains("piper")
+        || lower.contains("snac")
         || lower.contains("orpheus")
     {
         return "voice";
     }
 
     // Embedding / RAG models
-    if lower.contains("embed") || lower.contains("nomic") || lower.contains("bge")
-        || lower.contains("rerank") || lower.contains("minilm") || lower.contains("e5-")
+    if lower.contains("embed")
+        || lower.contains("nomic")
+        || lower.contains("bge")
+        || lower.contains("rerank")
+        || lower.contains("minilm")
+        || lower.contains("e5-")
         || lower.contains("gte-")
     {
         return "rag";
     }
 
     // Vision models
-    if lower.contains("siglip") || lower.contains("clip") || lower.contains("vision")
+    if lower.contains("siglip")
+        || lower.contains("clip")
+        || lower.contains("vision")
         || lower.contains("vit-")
     {
         return "vision";
@@ -705,4 +713,3 @@ fn infer_download_folder(filename: &str) -> &'static str {
     // Default: chat/reasoning models
     "chat"
 }
-

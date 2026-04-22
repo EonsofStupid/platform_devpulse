@@ -48,23 +48,8 @@ pub mod stores;
 // ════════════════════════════════════════════════════════════════════
 
 pub use legacy::{
-    retrieval_param_meta,
-    sanitize_path,
-    CacheServiceEntry,
-    CatalogEntry,
-    CatalogOption,
-    DataScope,
-    DatabaseConfig,
-    ExecutionLane,
-    LaneToggle,
-    LaneTraceConfig,
-    ModelLoaderServiceEntry,
-    PlatformBootConfig,
-    PlatformConfig,
-    RetrievalConfig,
-    RetrievalParamMeta,
-    RetrievalPreset,
-    ServiceEntry,
-    VectorServiceEntry,
-    WindowsConfig,
+    retrieval_param_meta, sanitize_path, CacheServiceEntry, CatalogEntry, CatalogOption, DataScope,
+    DatabaseConfig, ExecutionLane, LaneToggle, LaneTraceConfig, ModelLoaderServiceEntry,
+    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
+    ServiceEntry, VectorServiceEntry, WindowsConfig,
 };

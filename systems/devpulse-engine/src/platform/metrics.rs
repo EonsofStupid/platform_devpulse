@@ -45,9 +45,7 @@ pub fn collect(uptime_secs: u64) -> ProcessMetrics {
     std::thread::sleep(std::time::Duration::from_millis(200));
     sys.refresh_processes(filter, true);
 
-    let cpu = sys
-        .process(pid)
-        .map_or(0.0, sysinfo::Process::cpu_usage);
+    let cpu = sys.process(pid).map_or(0.0, sysinfo::Process::cpu_usage);
 
     ProcessMetrics {
         memory_rss_bytes: rss,

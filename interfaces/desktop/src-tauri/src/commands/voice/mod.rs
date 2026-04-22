@@ -23,12 +23,12 @@
     clippy::cast_lossless
 )]
 
+use crate::state::PlatformState;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tauri::State;
-use crate::state::PlatformState;
 
 /// Shared playback state — tracks whether TTS audio is currently playing.
 /// Managed state in Tauri, shared between `speak`, `stop_speaking`, `is_speaking`.
@@ -132,9 +132,7 @@ pub struct VoiceStatusInfo {
 /// Mic detection is best-effort until the audio sprint wires real device enumeration.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_voice_status(
-    state: State<'_, PlatformState>,
-) -> Result<VoiceStatusInfo, String> {
+pub async fn get_voice_status(state: State<'_, PlatformState>) -> Result<VoiceStatusInfo, String> {
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
 
@@ -209,16 +207,12 @@ pub async fn speak(
     // Play audio via rodio on a blocking thread
     devpulse_telemetry::spawn_blocking(move || {
         use rodio::{OutputStream, Sink, Source};
-        let (_stream, stream_handle) = OutputStream::try_default()
-            .map_err(|e| format!("Audio output failed: {e}"))?;
-        let sink = Sink::try_new(&stream_handle)
-            .map_err(|e| format!("Audio sink failed: {e}"))?;
+        let (_stream, stream_handle) =
+            OutputStream::try_default().map_err(|e| format!("Audio output failed: {e}"))?;
+        let sink = Sink::try_new(&stream_handle).map_err(|e| format!("Audio sink failed: {e}"))?;
 
-        let source = rodio::buffer::SamplesBuffer::new(
-            samples.channels,
-            samples.sample_rate,
-            samples.data,
-        );
+        let source =
+            rodio::buffer::SamplesBuffer::new(samples.channels, samples.sample_rate, samples.data);
         tracing::debug!(
             channels = source.channels(),
             sample_rate = source.sample_rate(),
@@ -250,9 +244,7 @@ pub async fn speak(
 /// Stop current speech.
 #[tauri::command]
 #[specta::specta]
-pub async fn stop_speaking(
-    playback: State<'_, PlaybackState>,
-) -> Result<(), String> {
+pub async fn stop_speaking(playback: State<'_, PlaybackState>) -> Result<(), String> {
     if playback.playing.load(Ordering::SeqCst) {
         tracing::info!("stop_speaking() — signalling playback to halt");
         playback.stop_requested.store(true, Ordering::SeqCst);
@@ -263,9 +255,7 @@ pub async fn stop_speaking(
 /// Check if TTS is currently active.
 #[tauri::command]
 #[specta::specta]
-pub async fn is_speaking(
-    playback: State<'_, PlaybackState>,
-) -> Result<bool, String> {
+pub async fn is_speaking(playback: State<'_, PlaybackState>) -> Result<bool, String> {
     Ok(playback.playing.load(Ordering::SeqCst))
 }
 
@@ -285,8 +275,9 @@ pub async fn list_voices(
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
 
     let userdata = platform.data_dir().clone();
-    let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
-        .map_err(|e| format!("Failed to load voice registry: {e}"))?;
+    let registry =
+        devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
+            .map_err(|e| format!("Failed to load voice registry: {e}"))?;
 
     Ok(registry
         .all()
@@ -320,15 +311,24 @@ pub async fn preview_voice(
         // P0: lock-free atomic load.
         let platform = state.platform.load_full().ok_or("Platform not ready")?;
         let userdata = platform.data_dir().clone();
-        let registry = devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
-            .map_err(|e| format!("Failed to load voice registry: {e}"))?;
+        let registry =
+            devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
+                .map_err(|e| format!("Failed to load voice registry: {e}"))?;
         registry
             .find(&voice)
             .ok_or_else(|| format!("Voice '{voice}' not found in registry"))?
             .sample_text
             .clone()
     };
-    speak(state, playback, sample_text, Some(voice), Some(slot_id), None).await
+    speak(
+        state,
+        playback,
+        sample_text,
+        Some(voice),
+        Some(slot_id),
+        None,
+    )
+    .await
 }
 
 // ── STT Commands ──────────────────────────────────────────────
@@ -336,9 +336,7 @@ pub async fn preview_voice(
 /// Test the microphone — capture 500ms and return amplitude stats.
 #[tauri::command]
 #[specta::specta]
-pub async fn test_microphone(
-    _state: State<'_, PlatformState>,
-) -> Result<MicTestResult, String> {
+pub async fn test_microphone(_state: State<'_, PlatformState>) -> Result<MicTestResult, String> {
     devpulse_telemetry::spawn_blocking(|| {
         let samples = capture_mic_samples(0.5, 16000)?;
         if samples.is_empty() {
@@ -375,17 +373,13 @@ pub async fn test_microphone(
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state))]
-pub async fn transcribe_audio(
-    state: State<'_, PlatformState>,
-) -> Result<String, String> {
+pub async fn transcribe_audio(state: State<'_, PlatformState>) -> Result<String, String> {
     use devpulse_engine::platform::services::model_loader::AudioSamples;
 
     // Capture audio on a blocking thread (cpal/rodio is sync)
-    let pcm_data = devpulse_telemetry::spawn_blocking(|| {
-        capture_mic_samples(3.0, 16000)
-    })
-    .await
-    .map_err(|e| format!("Mic capture thread failed: {e}"))??;
+    let pcm_data = devpulse_telemetry::spawn_blocking(|| capture_mic_samples(3.0, 16000))
+        .await
+        .map_err(|e| format!("Mic capture thread failed: {e}"))??;
 
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
@@ -453,7 +447,9 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
         )
         .map_err(|e| format!("Failed to build input stream: {e}"))?;
 
-    stream.play().map_err(|e| format!("Failed to start mic capture: {e}"))?;
+    stream
+        .play()
+        .map_err(|e| format!("Failed to start mic capture: {e}"))?;
 
     // Wait for capture to complete
     let start = std::time::Instant::now();
@@ -467,7 +463,8 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
 
     drop(stream);
 
-    let raw = buffer.lock()
+    let raw = buffer
+        .lock()
         .map_err(|e| format!("Mic buffer mutex poisoned after capture: {e}"))?
         .clone();
 
@@ -515,7 +512,10 @@ pub async fn list_voice_profiles(
 ) -> Result<Vec<VoiceProfile>, String> {
     tracing::info!("list_voice_profiles() called");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -526,7 +526,10 @@ pub async fn list_voice_profiles(
         std::collections::HashMap::new()
     };
 
-    let active_id = prefs.get("voice:active_profile").cloned().unwrap_or_else(|| "default".to_string());
+    let active_id = prefs
+        .get("voice:active_profile")
+        .cloned()
+        .unwrap_or_else(|| "default".to_string());
 
     let mut profiles: Vec<VoiceProfile> = prefs
         .iter()
@@ -546,7 +549,9 @@ pub async fn list_voice_profiles(
     }
 
     // Mark active
-    for p in &mut profiles { p.active = p.id == active_id; }
+    for p in &mut profiles {
+        p.active = p.id == active_id;
+    }
 
     tracing::info!(count = profiles.len(), active = %active_id, "list_voice_profiles() returning");
     Ok(profiles)
@@ -562,7 +567,10 @@ pub async fn save_voice_profile(
 ) -> Result<(), String> {
     tracing::info!(profile_id = %profile.id, name = %profile.name, voice = %profile.tts_voice_id, "save_voice_profile()");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -593,7 +601,10 @@ pub async fn delete_voice_profile(
 ) -> Result<(), String> {
     tracing::info!(profile_id = %profile_id, "delete_voice_profile()");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -608,7 +619,11 @@ pub async fn delete_voice_profile(
     prefs.remove(&key);
 
     // If deleted profile was active, reset to default
-    if prefs.get("voice:active_profile").map(std::string::String::as_str) == Some(&profile_id) {
+    if prefs
+        .get("voice:active_profile")
+        .map(std::string::String::as_str)
+        == Some(&profile_id)
+    {
         prefs.insert("voice:active_profile".to_string(), "default".to_string());
     }
 
@@ -628,7 +643,10 @@ pub async fn activate_voice_profile(
 ) -> Result<(), String> {
     tracing::info!(profile_id = %profile_id, "activate_voice_profile()");
     // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform is still booting")?;
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
     let prefs_path = platform.config().data_dir.clone();
     let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
 
@@ -679,7 +697,10 @@ fn decode_audio_file_to_pcm(path: &std::path::Path, target_rate: u32) -> Result<
     // rodio's Decoder yields i16 samples; convert to f32 in [-1.0, 1.0]
     let raw: Vec<f32> = decoder.map(|s| f32::from(s) / 32_768.0).collect();
     if raw.is_empty() {
-        return Err(format!("Audio file {} decoded to zero samples", path.display()));
+        return Err(format!(
+            "Audio file {} decoded to zero samples",
+            path.display()
+        ));
     }
 
     // Downmix to mono by averaging channels
@@ -785,9 +806,7 @@ pub struct VoiceSmokeReport {
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state))]
-pub async fn voice_smoke_test(
-    state: State<'_, PlatformState>,
-) -> Result<VoiceSmokeReport, String> {
+pub async fn voice_smoke_test(state: State<'_, PlatformState>) -> Result<VoiceSmokeReport, String> {
     use devpulse_engine::platform::services::model_loader::AudioSamples;
 
     let spoken = "Smoke test one two three.".to_string();
@@ -976,7 +995,12 @@ pub async fn run_sts_pipeline(
 
     let trace_ctx = TraceContext::new();
     let token_rx = handle
-        .generate(transcript.clone(), max_tokens, 0.7, trace_ctx.trace_id.clone())
+        .generate(
+            transcript.clone(),
+            max_tokens,
+            0.7,
+            trace_ctx.trace_id.clone(),
+        )
         .await
         .map_err(|e| format!("STS stage 2 (generate) failed: {e:#}"))?;
 
@@ -1008,10 +1032,9 @@ pub async fn run_sts_pipeline(
     // Stage 4: Playback — reuse the same rodio path as speak()
     devpulse_telemetry::spawn_blocking(move || {
         use rodio::{OutputStream, Sink};
-        let (_stream, stream_handle) = OutputStream::try_default()
-            .map_err(|e| format!("Audio output failed: {e}"))?;
-        let sink = Sink::try_new(&stream_handle)
-            .map_err(|e| format!("Audio sink failed: {e}"))?;
+        let (_stream, stream_handle) =
+            OutputStream::try_default().map_err(|e| format!("Audio output failed: {e}"))?;
+        let sink = Sink::try_new(&stream_handle).map_err(|e| format!("Audio sink failed: {e}"))?;
         let source = rodio::buffer::SamplesBuffer::new(
             tts_samples.channels,
             tts_samples.sample_rate,

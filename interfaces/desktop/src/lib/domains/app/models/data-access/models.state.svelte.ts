@@ -26,6 +26,7 @@ import {
 	unloadSlot,
 	warmSlot,
 } from "./index.js";
+import { swapState } from "./swap.state.svelte.js";
 
 // ── StatusUpdate envelope — matches Rust `commands::StatusUpdate<T>` ──
 
@@ -187,7 +188,6 @@ class ModelsState {
 			"Warming weights into memory for faster activation…",
 			async () => {
 				logInfo("models", `warm() start — slot=${slotId}`);
-				const { swapState } = await import("./swap.state.svelte.js");
 				swapState.startLoad(slotId);
 				this.statuses[slotId] = { type: "loading", stage: "loading_weights", progressPct: 0 };
 				try {
@@ -210,7 +210,6 @@ class ModelsState {
 	async load(slotId: string): Promise<void> {
 		return withAction("models.load", "Loading the model into your GPU or CPU…", async () => {
 			logInfo("models", `load() start — slot=${slotId}`);
-			const { swapState } = await import("./swap.state.svelte.js");
 			swapState.startLoad(slotId);
 			this.statuses[slotId] = { type: "loading", stage: "verifying", progressPct: 0 };
 			try {
@@ -235,7 +234,6 @@ class ModelsState {
 	async unload(slotId: string): Promise<void> {
 		return withAction("models.unload", "Unloading the model to free memory…", async () => {
 			logInfo("models", `unload() start — slot=${slotId}`);
-			const { swapState } = await import("./swap.state.svelte.js");
 			swapState.startUnload(slotId);
 			this.statuses[slotId] = { type: "unloading" };
 			try {
@@ -261,7 +259,6 @@ class ModelsState {
 	async swap(slotId: string, newModelId: string): Promise<void> {
 		return withAction("models.swap", "Swapping to a different model on this slot…", async () => {
 			logInfo("models", `swap() start — slot=${slotId} newModelId=${newModelId}`);
-			const { swapState } = await import("./swap.state.svelte.js");
 			swapState.startLoad(slotId);
 			this.error = null;
 			try {

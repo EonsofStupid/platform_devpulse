@@ -10,11 +10,11 @@
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
 
+use devpulse_clyffy::cortex::grammar::GrammarConfig;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
-use devpulse_clyffy::cortex::grammar::GrammarConfig;
 
 // ═══════════════════════════════════════════════════════════════
 // Public types (TS-exported)
@@ -129,9 +129,7 @@ impl ExecutionLane {
     /// Device category for this lane.
     pub fn device_category(&self) -> &'static str {
         match self {
-            Self::BrainInference
-            | Self::HelperInference
-            | Self::EscalationInference => "gpu",
+            Self::BrainInference | Self::HelperInference | Self::EscalationInference => "gpu",
 
             Self::Embedding
             | Self::Reranking
@@ -141,9 +139,7 @@ impl ExecutionLane {
             | Self::PromptAssembly
             | Self::ThinkingPipeline => "cpu",
 
-            Self::VectorRetrieval
-            | Self::RelationalQuery
-            | Self::AnalyticalQuery => "disk",
+            Self::VectorRetrieval | Self::RelationalQuery | Self::AnalyticalQuery => "disk",
 
             Self::CacheLookup => "memory",
         }
@@ -241,8 +237,7 @@ pub struct LaneTraceConfig {
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("OUT_DIR"), "/platform.default.toml"));
 
 /// Root boot configuration deserialized from TOML.
-#[derive(Debug, Clone, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct PlatformBootConfig {
     /// Portable mode configuration.
     #[serde(default)]
@@ -303,8 +298,7 @@ impl Default for WindowsConfig {
 }
 
 /// All service configurations, organized by scope.
-#[derive(Debug, Clone, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct ScopedServicesConfig {
     /// System-scope services (kernel internals).
     #[serde(default)]
@@ -322,7 +316,6 @@ pub struct ScopedServicesConfig {
     #[serde(default)]
     pub network: NetworkServicesConfig,
 }
-
 
 /// System-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
@@ -409,14 +402,12 @@ impl Default for GlobalServicesConfig {
 }
 
 /// Project-scope service template configuration.
-#[derive(Debug, Clone, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct ProjectServicesConfig {
     /// Graph service template — instantiated per project.
     #[serde(default)]
     pub graph: ProjectGraphServiceEntry,
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 // Store entry types
@@ -1077,11 +1068,21 @@ pub struct CatalogOption {
     pub is_dir: bool,
 }
 
-fn default_models_dir() -> String { "models".to_string() }
-fn default_subdir_chat() -> String { "chat".to_string() }
-fn default_subdir_voice() -> String { "voice".to_string() }
-fn default_subdir_rag() -> String { "rag".to_string() }
-fn default_subdir_vision() -> String { "vision".to_string() }
+fn default_models_dir() -> String {
+    "models".to_string()
+}
+fn default_subdir_chat() -> String {
+    "chat".to_string()
+}
+fn default_subdir_voice() -> String {
+    "voice".to_string()
+}
+fn default_subdir_rag() -> String {
+    "rag".to_string()
+}
+fn default_subdir_vision() -> String {
+    "vision".to_string()
+}
 
 /// Configuration for the `DevForge` service (managed REH web server).
 ///
@@ -1126,9 +1127,15 @@ pub struct DevForgeServiceEntry {
     pub binary_path: String,
 }
 
-fn default_devforge_mode() -> String { "reh".to_string() }
-fn default_devforge_user_data_dir() -> String { "devforge/user-data".to_string() }
-fn default_devforge_extensions_dir() -> String { "devforge/extensions".to_string() }
+fn default_devforge_mode() -> String {
+    "reh".to_string()
+}
+fn default_devforge_user_data_dir() -> String {
+    "devforge/user-data".to_string()
+}
+fn default_devforge_extensions_dir() -> String {
+    "devforge/extensions".to_string()
+}
 
 impl Default for DevForgeServiceEntry {
     fn default() -> Self {
@@ -1296,22 +1303,35 @@ impl Default for ClaudeServiceEntry {
     }
 }
 
-fn default_lane_rpm() -> u32 { 20 }
-fn default_lane_tpd() -> u64 { 500_000 }
-fn default_lane_cooldown() -> u64 { 10_000 }
-fn default_council_mode() -> String { "rule_based".to_string() }
+fn default_lane_rpm() -> u32 {
+    20
+}
+fn default_lane_tpd() -> u64 {
+    500_000
+}
+fn default_lane_cooldown() -> u64 {
+    10_000
+}
+fn default_council_mode() -> String {
+    "rule_based".to_string()
+}
 
-fn default_system_user() -> String { "devpulse_engine".to_string() }
-fn default_system_password() -> String { "dp_sys_2026!".to_string() }
-fn default_devforge_workspace_path() -> String { ".".to_string() }
+fn default_system_user() -> String {
+    "devpulse_engine".to_string()
+}
+fn default_system_password() -> String {
+    "dp_sys_2026!".to_string()
+}
+fn default_devforge_workspace_path() -> String {
+    ".".to_string()
+}
 
 // ═══════════════════════════════════════════════════════════════
 // Network services + boot gate
 // ═══════════════════════════════════════════════════════════════
 
 /// Network services configuration — ports and bind addresses.
-#[derive(Debug, Clone, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct NetworkServicesConfig {
     /// Vite dev server configuration.
     #[serde(default)]
@@ -1477,7 +1497,8 @@ impl PlatformBootConfig {
                 self.services.system.grammar.enabled && self.services.system.grammar.critical
             }
             (ServiceRole::ModelLoader, DataScope::System) => {
-                self.services.system.model_loader.enabled && self.services.system.model_loader.critical
+                self.services.system.model_loader.enabled
+                    && self.services.system.model_loader.critical
             }
             (ServiceRole::DevForge, DataScope::System) => {
                 self.services.system.devforge.enabled && self.services.system.devforge.critical
@@ -1665,20 +1686,65 @@ impl LaneTraceBootConfig {
         };
 
         let lanes = vec![
-            LaneToggle { lane: ExecutionLane::BrainInference, enabled: resolve(self.brain_inference, preset_defaults.brain_inference) },
-            LaneToggle { lane: ExecutionLane::HelperInference, enabled: resolve(self.helper_inference, preset_defaults.helper_inference) },
-            LaneToggle { lane: ExecutionLane::EscalationInference, enabled: resolve(self.escalation_inference, preset_defaults.escalation_inference) },
-            LaneToggle { lane: ExecutionLane::Embedding, enabled: resolve(self.embedding, preset_defaults.embedding) },
-            LaneToggle { lane: ExecutionLane::Reranking, enabled: resolve(self.reranking, preset_defaults.reranking) },
-            LaneToggle { lane: ExecutionLane::SpeechToText, enabled: resolve(self.speech_to_text, preset_defaults.speech_to_text) },
-            LaneToggle { lane: ExecutionLane::TextToSpeech, enabled: resolve(self.text_to_speech, preset_defaults.text_to_speech) },
-            LaneToggle { lane: ExecutionLane::VisionEmbedding, enabled: resolve(self.vision_embedding, preset_defaults.vision_embedding) },
-            LaneToggle { lane: ExecutionLane::VectorRetrieval, enabled: resolve(self.vector_retrieval, preset_defaults.vector_retrieval) },
-            LaneToggle { lane: ExecutionLane::RelationalQuery, enabled: resolve(self.relational_query, preset_defaults.relational_query) },
-            LaneToggle { lane: ExecutionLane::AnalyticalQuery, enabled: resolve(self.analytical_query, preset_defaults.analytical_query) },
-            LaneToggle { lane: ExecutionLane::CacheLookup, enabled: resolve(self.cache_lookup, preset_defaults.cache_lookup) },
-            LaneToggle { lane: ExecutionLane::PromptAssembly, enabled: resolve(self.prompt_assembly, preset_defaults.prompt_assembly) },
-            LaneToggle { lane: ExecutionLane::ThinkingPipeline, enabled: resolve(self.thinking_pipeline, preset_defaults.thinking_pipeline) },
+            LaneToggle {
+                lane: ExecutionLane::BrainInference,
+                enabled: resolve(self.brain_inference, preset_defaults.brain_inference),
+            },
+            LaneToggle {
+                lane: ExecutionLane::HelperInference,
+                enabled: resolve(self.helper_inference, preset_defaults.helper_inference),
+            },
+            LaneToggle {
+                lane: ExecutionLane::EscalationInference,
+                enabled: resolve(
+                    self.escalation_inference,
+                    preset_defaults.escalation_inference,
+                ),
+            },
+            LaneToggle {
+                lane: ExecutionLane::Embedding,
+                enabled: resolve(self.embedding, preset_defaults.embedding),
+            },
+            LaneToggle {
+                lane: ExecutionLane::Reranking,
+                enabled: resolve(self.reranking, preset_defaults.reranking),
+            },
+            LaneToggle {
+                lane: ExecutionLane::SpeechToText,
+                enabled: resolve(self.speech_to_text, preset_defaults.speech_to_text),
+            },
+            LaneToggle {
+                lane: ExecutionLane::TextToSpeech,
+                enabled: resolve(self.text_to_speech, preset_defaults.text_to_speech),
+            },
+            LaneToggle {
+                lane: ExecutionLane::VisionEmbedding,
+                enabled: resolve(self.vision_embedding, preset_defaults.vision_embedding),
+            },
+            LaneToggle {
+                lane: ExecutionLane::VectorRetrieval,
+                enabled: resolve(self.vector_retrieval, preset_defaults.vector_retrieval),
+            },
+            LaneToggle {
+                lane: ExecutionLane::RelationalQuery,
+                enabled: resolve(self.relational_query, preset_defaults.relational_query),
+            },
+            LaneToggle {
+                lane: ExecutionLane::AnalyticalQuery,
+                enabled: resolve(self.analytical_query, preset_defaults.analytical_query),
+            },
+            LaneToggle {
+                lane: ExecutionLane::CacheLookup,
+                enabled: resolve(self.cache_lookup, preset_defaults.cache_lookup),
+            },
+            LaneToggle {
+                lane: ExecutionLane::PromptAssembly,
+                enabled: resolve(self.prompt_assembly, preset_defaults.prompt_assembly),
+            },
+            LaneToggle {
+                lane: ExecutionLane::ThinkingPipeline,
+                enabled: resolve(self.thinking_pipeline, preset_defaults.thinking_pipeline),
+            },
         ];
 
         LaneTraceConfig {

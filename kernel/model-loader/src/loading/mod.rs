@@ -6,4 +6,6 @@ pub mod states;
 pub mod swap;
 
 pub use prime::{KvCacheInfo, ModelPrimer, PrimingBackend, PrimingResult};
-pub use states::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, PrimingConfig, SlotStatus};
+pub use states::{
+    LoadParams, LoadingStage, MemoryFootprint, ModelStatus, PrimingConfig, SlotStatus,
+};

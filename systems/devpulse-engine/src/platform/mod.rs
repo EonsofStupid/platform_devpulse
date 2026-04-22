@@ -34,18 +34,23 @@ pub mod init;
 pub mod integrations;
 pub mod metrics;
 pub mod module;
+pub mod reasoning;
 pub mod server;
 pub mod services;
 pub mod telemetry;
 
 pub use config::{
-    DataScope, DatabaseConfig, ExecutionLane, LaneTraceConfig, LaneToggle,
-    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta,
-    RetrievalPreset, retrieval_param_meta, sanitize_path,
+    retrieval_param_meta, sanitize_path, DataScope, DatabaseConfig, ExecutionLane, LaneToggle,
+    LaneTraceConfig, PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta,
+    RetrievalPreset,
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
 pub use metrics::ProcessMetrics;
+pub use reasoning::{
+    GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus, RroDepth, RroState,
+    RroStateHandle, RroStateSnapshot, RroStateTransition,
+};
 pub use services::{Service, ServiceRole, ServiceState};
 
 // Re-export clyffy persistence traits and types for Tauri command layer
@@ -57,12 +62,9 @@ pub use devpulse_clyffy::cortex::persistence::{
 // Boundary: these are kernel-internal types used by the engine facade.
 // The Tauri command layer converts them to DTOs before sending to frontend.
 pub use devpulse_clyffy::cortex::knowledge::{
-    select_entry as knowledge_select_entry,
-    record_reaction as knowledge_record_reaction,
-    EntryType as KnowledgeEntryType,
-    Reaction as KnowledgeReaction,
-    SelectedEntry as KnowledgeSelectedEntry,
-    SelectionParams as KnowledgeSelectionParams,
+    record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
+    EntryType as KnowledgeEntryType, Reaction as KnowledgeReaction,
+    SelectedEntry as KnowledgeSelectedEntry, SelectionParams as KnowledgeSelectionParams,
     Tier as KnowledgeTier,
 };
 
@@ -75,14 +77,14 @@ pub use devpulse_clyffy::model_loader::{ModelRegistryEntry, ModelSourceTier, Slo
 // the resolver gets called before every download and the matrix is
 // served to the frontend on boot for the ModelCompatibilityCard.
 #[cfg(feature = "inference")]
+pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
+#[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::registry::{
     classify_arch_from_gguf, classify_arch_from_hf_config, installed_backends,
     resolve_compatibility, Alternative, AlternativeKind, ArchFamily, ArchId, ArchitectureSpec,
     BackendId, BackendInfo, BackendMatrix, FormatSupport, LoadError, Resolution, SupportStatus,
     SupportTier, UnsupportedReason,
 };
-#[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
 
 use anyhow::Result;
 use arc_swap::ArcSwapOption;
@@ -92,18 +94,18 @@ use std::time::Instant;
 
 use services::analytics::AnalyticsService;
 use services::cache::CacheService;
+use services::devforge::{resolve_devforge_server_dir, DevForgeService};
 use services::graph::GraphService;
-use services::relational::RelationalService;
-#[cfg(feature = "rro")]
-use services::vector::VectorService;
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
-use services::devforge::{resolve_devforge_server_dir, DevForgeService};
 use services::project_db::ProjectDbManager;
+use services::relational::RelationalService;
+#[cfg(feature = "rro")]
+use services::vector::VectorService;
 use telemetry::TelemetryHandle;
 
 // ═══════════════════════════════════════════════════════════════
@@ -192,6 +194,14 @@ pub struct Platform {
     devforge: ArcSwapOption<DevForgeService>,
     // ── Telemetry (lane tracing) ─────────────────────────────
     telemetry: Option<TelemetryHandle>,
+    // ── Reasoning (RRO state machine) ────────────────────────
+    // Always present — the handle is in-memory only. Kernel rumination
+    // loop will drive transitions; the facade exposes snapshot + verbs.
+    reasoning: RroStateHandle,
+    // ── Grammar (structured-output constraint engine) ────────
+    // Always present — in-memory facade for the kernel grammar engine.
+    // Records enforcement / failure stats and exposes public toggle verbs.
+    grammar: GrammarHandle,
     // ── Project scope ──────────────────────────────────────────
     /// Per-project databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
@@ -259,6 +269,8 @@ impl Platform {
             devforge: ArcSwapOption::empty(),
             project_db: Arc::new(ProjectDbManager::new()),
             telemetry,
+            reasoning: RroStateHandle::new(),
+            grammar: GrammarHandle::new(),
             boot_config,
             boot_time,
             data_dir,
@@ -511,6 +523,17 @@ impl Platform {
     /// writer shuts down naturally when the `Platform` drops.
     pub fn telemetry(&self) -> Option<&TelemetryHandle> {
         self.telemetry.as_ref()
+    }
+
+    // ── Reasoning accessor (RRO state machine) ──────────────────
+
+    /// Get the RRO state handle.
+    ///
+    /// Always present — the handle is in-memory, independent of persistence
+    /// services. The kernel rumination loop drives transitions; the façade
+    /// exposes snapshot + public verbs (gather/purge/fork).
+    pub fn reasoning(&self) -> &RroStateHandle {
+        &self.reasoning
     }
 
     /// Graceful shutdown — close all services in reverse boot order.

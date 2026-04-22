@@ -99,7 +99,8 @@ impl RerankerBackend for Qwen3Reranker {
             *self
                 .session
                 .lock()
-                .map_err(|e| anyhow::anyhow!("Reranker session mutex poisoned: {e}"))? = Some(session);
+                .map_err(|e| anyhow::anyhow!("Reranker session mutex poisoned: {e}"))? =
+                Some(session);
             self.tokenizer = Some(tokenizer);
             self.model_path = Some(model_file.clone());
             self.loaded = true;
@@ -197,8 +198,9 @@ impl RerankerBackend for Qwen3Reranker {
 
             let v_ids = ort::value::Value::from_array(input_ids)
                 .map_err(|e| anyhow::anyhow!("Failed to create ort Value for input_ids: {e}"))?;
-            let v_mask = ort::value::Value::from_array(attention_mask)
-                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for attention_mask: {e}"))?;
+            let v_mask = ort::value::Value::from_array(attention_mask).map_err(|e| {
+                anyhow::anyhow!("Failed to create ort Value for attention_mask: {e}")
+            })?;
 
             let outputs = session
                 .run(ort::inputs![

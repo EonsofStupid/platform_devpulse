@@ -70,13 +70,15 @@ fn main() -> anyhow::Result<()> {
         Commands::BuildRelease => Box::new(commands::build_release::BuildRelease),
         Commands::Verify => Box::new(commands::verify::Verify),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
-        Commands::FetchDevforge { target, manifest, kind } => {
-            Box::new(commands::fetch_devforge::FetchDevForge {
-                target,
-                manifest,
-                kind,
-            })
-        }
+        Commands::FetchDevforge {
+            target,
+            manifest,
+            kind,
+        } => Box::new(commands::fetch_devforge::FetchDevForge {
+            target,
+            manifest,
+            kind,
+        }),
     };
 
     eprintln!("xtask: {}", task.name());

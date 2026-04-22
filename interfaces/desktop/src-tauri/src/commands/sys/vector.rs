@@ -7,7 +7,7 @@
 //! on `VectorService`, get/set via Tauri commands.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::{RetrievalConfig, RetrievalParamMeta, retrieval_param_meta};
+use devpulse_engine::platform::{retrieval_param_meta, RetrievalConfig, RetrievalParamMeta};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
@@ -22,9 +22,7 @@ use tauri::State;
 /// Returns error if platform is still booting or vector store is disabled.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_vector_config(
-    state: State<'_, PlatformState>,
-) -> Result<RetrievalConfig, String> {
+pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<RetrievalConfig, String> {
     // P0: lock-free atomic load.
     match state.platform.load_full() {
         Some(platform) => match platform.vector() {

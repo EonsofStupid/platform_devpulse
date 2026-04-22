@@ -222,7 +222,11 @@ impl LoaderEventSink for TracingEventSink {
                     "VRAM insufficient for requested load"
                 );
             }
-            LoaderEvent::SwapStarted { slot_id, from_model, to_model } => {
+            LoaderEvent::SwapStarted {
+                slot_id,
+                from_model,
+                to_model,
+            } => {
                 tracing::info!(
                     slot = %slot_id,
                     from = ?from_model,

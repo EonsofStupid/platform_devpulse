@@ -23,8 +23,8 @@ pub mod wizard;
 
 // Top-level re-exports for convenience
 pub use assistant::{
-    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig,
-    TtsConfig, VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
+    VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
 };
 pub use build_mode::BuildMode;
 pub use service::ModelLoaderService;
@@ -52,7 +52,7 @@ pub use backends::ort::reranker::Qwen3Reranker;
 pub use backends::piper::PiperTts;
 
 // Phoneme helpers
-pub use backends::phoneme::{KokoroVocab, text_to_phonemes, text_to_kokoro_ids};
+pub use backends::phoneme::{text_to_kokoro_ids, text_to_phonemes, KokoroVocab};
 
 // Slot types
 pub use slots::{
@@ -83,7 +83,7 @@ pub use wizard::{
 };
 
 // Search types + function
-pub use models::search::{HfFileInfo, HfSearchResult, search_huggingface};
+pub use models::search::{search_huggingface, HfFileInfo, HfSearchResult};
 
 // Trait re-exports
 pub use traits::{

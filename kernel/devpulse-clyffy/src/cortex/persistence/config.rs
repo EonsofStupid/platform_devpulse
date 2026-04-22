@@ -81,7 +81,12 @@ impl PersistenceConfig {
     /// # Errors
     /// Returns error if directory creation fails.
     pub fn ensure_dirs(&self) -> std::io::Result<()> {
-        for kind in [StoreKind::LibSql, StoreKind::DuckDb, StoreKind::Surreal, StoreKind::Rro] {
+        for kind in [
+            StoreKind::LibSql,
+            StoreKind::DuckDb,
+            StoreKind::Surreal,
+            StoreKind::Rro,
+        ] {
             if kind.is_persistent() {
                 std::fs::create_dir_all(self.store_dir(kind))?;
             }

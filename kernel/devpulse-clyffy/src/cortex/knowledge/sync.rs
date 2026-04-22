@@ -20,12 +20,10 @@ use crate::cortex::persistence::SqlAdapter;
 /// Returns an error if the embedded manifest cannot be parsed, the version
 /// lookup fails, any entry upsert fails, or the stored version cannot be
 /// updated in `knowledge_config`.
-pub async fn sync_to_libsql(
-    adapter: &dyn SqlAdapter,
-) -> Result<usize, String> {
+pub async fn sync_to_libsql(adapter: &dyn SqlAdapter) -> Result<usize, String> {
     // 1. Load embedded manifest for version check
-    let manifest = loader::load_manifest()
-        .map_err(|e| format!("Knowledge manifest parse failed: {e}"))?;
+    let manifest =
+        loader::load_manifest().map_err(|e| format!("Knowledge manifest parse failed: {e}"))?;
     let content_version = manifest.version.as_str();
 
     // 2. Check stored version in libSQL

@@ -174,12 +174,10 @@ impl VisionEmbeddingBackend for SigLipVision {
                     // Some exports have no prefix (bare vision checkpoint)
                     #[allow(unsafe_code)]
                     let vb2 = unsafe {
-                        VarBuilder::from_mmaped_safetensors(
-                            &safetensor_files,
-                            DType::F32,
-                            &device,
-                        )
-                        .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors (retry): {e}"))?
+                        VarBuilder::from_mmaped_safetensors(&safetensor_files, DType::F32, &device)
+                            .map_err(|e| {
+                                anyhow::anyhow!("Failed to mmap safetensors (retry): {e}")
+                            })?
                     };
                     VisionModel::new(&vision_config, true, vb2)
                         .map_err(|e| anyhow::anyhow!("Failed to load SigLIP weights: {e}"))?

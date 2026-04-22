@@ -509,10 +509,7 @@ mod tests {
     #[test]
     fn gguf_classifies_qwen3_variants() {
         assert_eq!(classify_arch_from_gguf("qwen3"), Some(ArchId::Qwen3));
-        assert_eq!(
-            classify_arch_from_gguf("qwen3_moe"),
-            Some(ArchId::Qwen3Moe)
-        );
+        assert_eq!(classify_arch_from_gguf("qwen3_moe"), Some(ArchId::Qwen3Moe));
         assert_eq!(classify_arch_from_gguf("qwen3moe"), Some(ArchId::Qwen3Moe));
     }
 

@@ -11,8 +11,8 @@
 //! `set_routing_mode(String)` with the `as_str()` form of this enum to keep
 //! the kernel boundary one-way. Do NOT add a third alias anywhere.
 
-use anyhow::{Context as _, Result as AnyhowResult};
 use crate::commands::credentials::{get_api_key, ApiProvider};
+use anyhow::{Context as _, Result as AnyhowResult};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::{Emitter, State};
@@ -75,7 +75,8 @@ async fn inner_get_inference_provider(
     let config = loader.get_assistant_config().await;
     let raw_mode = serde_json::to_value(&config.routing.mode)
         .context("serialize routing mode")?
-        .as_str().map_or_else(|| "local_first".to_string(), str::to_string);
+        .as_str()
+        .map_or_else(|| "local_first".to_string(), str::to_string);
     Ok(InferenceProvider::from_str(&raw_mode))
 }
 
@@ -285,10 +286,7 @@ pub async fn cloud_chat(
                 }
 
                 if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str) {
-                    let event_type = parsed
-                        .get("type")
-                        .and_then(|t| t.as_str())
-                        .unwrap_or("");
+                    let event_type = parsed.get("type").and_then(|t| t.as_str()).unwrap_or("");
 
                     match event_type {
                         "content_block_delta" => {
@@ -298,10 +296,8 @@ pub async fn cloud_chat(
                                 .and_then(|t| t.as_str())
                             {
                                 full_response.push_str(text);
-                                let _ = app.emit(
-                                    "cloud:token",
-                                    serde_json::json!({ "content": text }),
-                                );
+                                let _ =
+                                    app.emit("cloud:token", serde_json::json!({ "content": text }));
                             }
                         }
                         "message_start" => {
