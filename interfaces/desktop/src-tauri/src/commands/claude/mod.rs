@@ -18,6 +18,7 @@
 //! home — that's deliberately out of scope; the client owns subprocess
 //! lifetime, not us.
 
+pub mod autoregister;
 pub mod detect;
 pub mod paths;
 pub mod register;

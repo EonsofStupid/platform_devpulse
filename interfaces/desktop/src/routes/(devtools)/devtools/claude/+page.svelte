@@ -47,6 +47,14 @@ let refreshing = $state(false);
 let pendingTarget = $state<ClaudeTarget | null>(null);
 let lastPolledAt = $state<number>(0);
 
+// Auto-register-on-boot toggles — Actions tab
+let autoRegisterCode = $state(false);
+let autoRegisterDesktop = $state(false);
+let autoRegisterSaving = $state(false);
+let autoRegisterError = $state<string | null>(null);
+const PREF_KEY_CODE = "claude.autoregister.code";
+const PREF_KEY_DESKTOP = "claude.autoregister.desktop";
+
 // Scoped log tail state — Logs tab
 let logEntries = $state<ScopedLogEntry[]>([]);
 let logQueryError = $state<string | null>(null);
@@ -155,6 +163,42 @@ async function handleUnregister(target: ClaudeTarget): Promise<void> {
 	}
 }
 
+async function loadAutoRegisterPrefs(): Promise<void> {
+	try {
+		const code = await commands.getPreference(PREF_KEY_CODE);
+		if (code.status === "ok") autoRegisterCode = code.data === "true";
+		const desktop = await commands.getPreference(PREF_KEY_DESKTOP);
+		if (desktop.status === "ok") autoRegisterDesktop = desktop.data === "true";
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("devtools.claude", `loadAutoRegisterPrefs threw: ${msg}`);
+	}
+}
+
+async function toggleAutoRegister(target: ClaudeTarget): Promise<void> {
+	autoRegisterSaving = true;
+	autoRegisterError = null;
+	const key = target === "code" ? PREF_KEY_CODE : PREF_KEY_DESKTOP;
+	const next = target === "code" ? !autoRegisterCode : !autoRegisterDesktop;
+	logInfo("devtools.claude", `toggleAutoRegister ${target} = ${next}`);
+	try {
+		const result = await commands.setPreference(key, next ? "true" : "false");
+		if (result.status === "ok") {
+			if (target === "code") autoRegisterCode = next;
+			else autoRegisterDesktop = next;
+		} else {
+			autoRegisterError = result.error;
+			logError("devtools.claude", `setPreference failed: ${result.error}`);
+		}
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		autoRegisterError = msg;
+		logError("devtools.claude", `setPreference threw: ${msg}`);
+	} finally {
+		autoRegisterSaving = false;
+	}
+}
+
 function levelColor(level: string): string {
 	switch (level) {
 		case "ERROR":
@@ -192,6 +236,7 @@ async function fetchScopedLog(): Promise<void> {
 
 $effect(() => {
 	void fetchStatus();
+	void loadAutoRegisterPrefs();
 	const interval = setInterval(() => {
 		void fetchStatus();
 	}, 5000);
@@ -580,13 +625,49 @@ $effect(() => {
 					</div>
 				</Card>
 
-				<div class="rounded-lg p-3 mt-2 opacity-60" style="border: 1px dashed var(--border-subtle);">
-					<Text size="sm" weight="bold">Auto-register on first boot</Text>
-					<Text size="xs" color="muted">
-						Coming next: an opt-in toggle in the setup wizard so DevPulse
-						registers itself with detected Claude clients automatically.
-					</Text>
-				</div>
+				<Card variant="outlined">
+					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-ember-main);">
+						<Text size="sm" weight="bold">Auto-register on every boot</Text>
+						<Text size="xs" color="muted">
+							When enabled, DevPulse re-registers the MCP entry with the
+							selected client(s) every time the app starts. Existing user
+							MCP entries are preserved (atomic JSON merge). Toggles
+							persist to <span class="font-mono">.userdata/preferences.json</span>
+							and apply on the next boot.
+						</Text>
+						{#if autoRegisterError}
+							<Text size="xs" style="color: var(--signal-error);">{autoRegisterError}</Text>
+						{/if}
+						<div class="flex flex-wrap gap-3">
+							<button
+								type="button"
+								class="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
+								style={autoRegisterCode
+									? "background: var(--accent-purple-fill); color: var(--accent-purple-main); border: 1px solid var(--accent-purple-main);"
+									: "background: var(--surface-base); color: var(--text-muted); border: 1px solid var(--border-subtle);"}
+								onclick={() => toggleAutoRegister("code")}
+								disabled={autoRegisterSaving}
+							>
+								<Terminal size={14} />
+								Claude Code
+								<span class="ml-1 font-bold">{autoRegisterCode ? "ON" : "off"}</span>
+							</button>
+							<button
+								type="button"
+								class="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
+								style={autoRegisterDesktop
+									? "background: var(--accent-cyan-fill); color: var(--accent-cyan-main); border: 1px solid var(--accent-cyan-main);"
+									: "background: var(--surface-base); color: var(--text-muted); border: 1px solid var(--border-subtle);"}
+								onclick={() => toggleAutoRegister("desktop")}
+								disabled={autoRegisterSaving}
+							>
+								<Cpu size={14} />
+								Claude Desktop
+								<span class="ml-1 font-bold">{autoRegisterDesktop ? "ON" : "off"}</span>
+							</button>
+						</div>
+					</div>
+				</Card>
 			</div>
 		{/if}
 	{/snippet}

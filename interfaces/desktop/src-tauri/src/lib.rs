@@ -703,6 +703,18 @@ async fn boot_task(
                 }),
             );
 
+            // ── Claude MCP autoregister (operator opt-in) ────────
+            // Reads `claude.autoregister.code` / `claude.autoregister.desktop`
+            // from `.userdata/preferences.json` and registers the DevPulse MCP
+            // entry with each enabled target. Existing user MCP entries are
+            // preserved by the atomic-merge writer in commands/claude/register.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let data_dir = platform_arc.data_dir().clone();
+                tokio::task::spawn_blocking(move || {
+                    commands::claude::autoregister::apply_on_boot(&data_dir);
+                });
+            }
+
             // ── RRO state event bridge ───────────────────────────
             // Subscribe to the reasoning handle's broadcast channel and
             // forward snapshots onto the Tauri event bus. Frontend listens
