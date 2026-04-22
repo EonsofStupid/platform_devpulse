@@ -38,9 +38,10 @@ $effect(() => {
 
 <div
 	{...cardM.dataAttrs}
-	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-blue-main);"
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-cyan-main); box-shadow: 0 0 0 1px var(--accent-cyan-fill);"
 	class="rounded-xl p-5 transition-all"
 	data-component="vision-card"
+	data-role="vision"
 	title="Lets Clyffy see what's on your screen — helps with error dialogs, layout issues, and visual problems"
 >
 	<div class={stack({ gap: "3" })}>

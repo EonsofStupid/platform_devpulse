@@ -285,6 +285,22 @@ StyleDictionary.registerTransform({
 // regular dimension transform).
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * Normalize a DTCG dimension leaf to a pixel number.
+ * Accepts either `{ value, unit }` (rem|px) or a raw number (assumed px).
+ * Rem is converted against a 16 px root. Returns `NaN` for unresolvable
+ * inputs, which the caller must handle rather than emit as CSS.
+ */
+function dtcgDimensionToPx(leaf) {
+	if (leaf == null) return NaN;
+	if (typeof leaf === 'number') return leaf;
+	const { value, unit } = leaf;
+	if (typeof value !== 'number') return NaN;
+	if (unit === 'rem') return value * 16;
+	if (unit === 'px' || unit == null) return value;
+	return NaN;
+}
+
 StyleDictionary.registerTransform({
 	name: clTransforms.fluidDimensionToClamp,
 	type: transformTypes.value,
@@ -296,12 +312,38 @@ StyleDictionary.registerTransform({
 	},
 	transform: (token) => {
 		const f = token.$extensions[DP_EXT].fluid;
-		const minRem = f.minPx / 16;
-		const maxRem = f.maxPx / 16;
-		const minVw = f.minViewportPx ?? 360;
-		const maxVw = f.maxViewportPx ?? 1440;
-		const slope = (f.maxPx - f.minPx) / (maxVw - minVw);
-		const intercept = (f.minPx - slope * minVw) / 16;
+		// Source JSON uses DTCG leaf shape: { min: { value, unit }, max: { value, unit },
+		// minViewport: { value, unit }, maxViewport: { value, unit } }.
+		// Legacy { minPx, maxPx, minViewportPx, maxViewportPx } flat shape is also
+		// tolerated so older tokens don't break during the source migration.
+		const minPx = dtcgDimensionToPx(f.min) || f.minPx;
+		const maxPx = dtcgDimensionToPx(f.max) || f.maxPx;
+		const minVwPx =
+			dtcgDimensionToPx(f.minViewport) || f.minViewportPx || 360;
+		const maxVwPx =
+			dtcgDimensionToPx(f.maxViewport) || f.maxViewportPx || 1440;
+
+		if (
+			!Number.isFinite(minPx) ||
+			!Number.isFinite(maxPx) ||
+			!Number.isFinite(minVwPx) ||
+			!Number.isFinite(maxVwPx) ||
+			maxVwPx === minVwPx
+		) {
+			// Missing or unresolvable extension data — fall back to the
+			// token's own $value so we never emit NaN.
+			const v = token.$value ?? token.value;
+			if (v && typeof v === 'object' && typeof v.value === 'number') {
+				const u = v.unit === 'px' ? 'px' : 'rem';
+				return `${v.value}${u}`;
+			}
+			return typeof v === 'string' ? v : '';
+		}
+
+		const minRem = minPx / 16;
+		const maxRem = maxPx / 16;
+		const slope = (maxPx - minPx) / (maxVwPx - minVwPx);
+		const intercept = (minPx - slope * minVwPx) / 16;
 		const vw = (slope * 100).toFixed(4);
 		const base = intercept.toFixed(4);
 		return `clamp(${minRem}rem, ${base}rem + ${vw}vw, ${maxRem}rem)`;

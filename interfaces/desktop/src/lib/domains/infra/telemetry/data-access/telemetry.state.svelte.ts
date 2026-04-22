@@ -2,8 +2,11 @@
  * @file Telemetry State Rune
  * @module @devpulse/domains/infra/telemetry/data-access/telemetry
  *
- * Reactive state for the telemetry devtool. Manages lane config,
- * span traces, and baselines. All data fetched via IPC on demand.
+ * Reactive state for the telemetry devtool. Covers the full OTel pipeline:
+ * lane tracing config, pipeline info (exporter / storage / session id),
+ * rotating session files, DuckDB row counts, span traces, baselines.
+ *
+ * All data loaded via IPC on demand — nothing mocked.
  */
 
 import { logError, logInfo } from "$lib/sys/logger.js";
@@ -12,11 +15,17 @@ import type {
 	LanePreset,
 	LaneTraceConfig,
 	SpanTraceRow,
-	TelemetryTab,
+	TelemetryPipelineInfo,
+	TelemetryRowCounts,
+	TelemetrySessionFile,
 } from "../util/telemetry.types.js";
 import { groupLanes } from "../util/telemetry.types.js";
 import {
 	getLaneConfig,
+	getTelemetryInfo,
+	getTelemetryRowCounts,
+	listTelemetrySessions,
+	openTelemetryFolder,
 	queryLaneBaselines,
 	querySpanTraces,
 	setLaneConfig,
@@ -38,13 +47,24 @@ const STANDARD_LANES = new Set([
 // ── State class ─────────────────────────────────────────────
 
 class TelemetryState {
-	// ── Tab navigation ──────────────────────────────────────
-	activeTab = $state<TelemetryTab>("overview");
+	// ── Pipeline info (OTel service identity, exporter, storage) ──
+	pipeline = $state<TelemetryPipelineInfo | null>(null);
+	pipelineLoading = $state(false);
+	pipelineError = $state<string | null>(null);
 
 	// ── Lane config ─────────────────────────────────────────
 	laneConfig = $state<LaneTraceConfig | null>(null);
 	laneLoading = $state(false);
 	laneError = $state<string | null>(null);
+
+	// ── Session files (rotating JSONL) ──────────────────────
+	sessions = $state<TelemetrySessionFile[]>([]);
+	sessionsLoading = $state(false);
+	sessionsError = $state<string | null>(null);
+
+	// ── Row counts (DuckDB) ─────────────────────────────────
+	rowCounts = $state<TelemetryRowCounts | null>(null);
+	rowCountsLoading = $state(false);
 
 	// ── Span traces ─────────────────────────────────────────
 	spans = $state<SpanTraceRow[]>([]);
@@ -69,6 +89,30 @@ class TelemetryState {
 
 	get totalLaneCount(): number {
 		return this.laneConfig?.lanes.length ?? 0;
+	}
+
+	get totalSessionBytes(): number {
+		return this.sessions.reduce((sum, s) => sum + Number(s.size_bytes), 0);
+	}
+
+	get currentSession(): TelemetrySessionFile | null {
+		return this.sessions.find((s) => s.is_current) ?? null;
+	}
+
+	// ── Pipeline info ───────────────────────────────────────
+
+	async loadPipeline(): Promise<void> {
+		if (this.pipelineLoading) return;
+		this.pipelineLoading = true;
+		this.pipelineError = null;
+		try {
+			this.pipeline = await getTelemetryInfo();
+		} catch (e) {
+			this.pipelineError = e instanceof Error ? e.message : String(e);
+			logError("telemetry", `loadPipeline() FAILED: ${this.pipelineError}`);
+		} finally {
+			this.pipelineLoading = false;
+		}
 	}
 
 	// ── Lane config actions ─────────────────────────────────
@@ -144,6 +188,44 @@ class TelemetryState {
 		}
 	}
 
+	// ── Session file actions ────────────────────────────────
+
+	async loadSessions(): Promise<void> {
+		if (this.sessionsLoading) return;
+		this.sessionsLoading = true;
+		this.sessionsError = null;
+		try {
+			this.sessions = await listTelemetrySessions();
+		} catch (e) {
+			this.sessionsError = e instanceof Error ? e.message : String(e);
+			logError("telemetry", `loadSessions() FAILED: ${this.sessionsError}`);
+		} finally {
+			this.sessionsLoading = false;
+		}
+	}
+
+	async revealFolder(): Promise<void> {
+		try {
+			await openTelemetryFolder();
+		} catch (e) {
+			logError("telemetry", `revealFolder() FAILED: ${e}`);
+		}
+	}
+
+	// ── Row counts ──────────────────────────────────────────
+
+	async loadRowCounts(): Promise<void> {
+		if (this.rowCountsLoading) return;
+		this.rowCountsLoading = true;
+		try {
+			this.rowCounts = await getTelemetryRowCounts();
+		} catch (e) {
+			logError("telemetry", `loadRowCounts() FAILED: ${e}`);
+		} finally {
+			this.rowCountsLoading = false;
+		}
+	}
+
 	// ── Span trace actions ──────────────────────────────────
 
 	async loadSpans(traceId?: string, limit?: number): Promise<void> {
@@ -183,10 +265,10 @@ class TelemetryState {
 		}
 	}
 
-	// ── Tab navigation ──────────────────────────────────────
+	// ── Full refresh (status panel) ─────────────────────────
 
-	setTab(tab: TelemetryTab): void {
-		this.activeTab = tab;
+	async refreshStatus(): Promise<void> {
+		await Promise.all([this.loadPipeline(), this.loadRowCounts(), this.loadSessions()]);
 	}
 }
 

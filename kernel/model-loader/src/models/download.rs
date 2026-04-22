@@ -183,6 +183,59 @@ impl DownloadManager {
     pub fn cleanup_finished(&mut self) {
         self.active.retain(|_, h| !h.is_cancelled());
     }
+
+    /// List every file in a HuggingFace repo — the full sibling set —
+    /// so the UI can show a bundle confirmation before a user clicks
+    /// "Download". Threaded through the stored HF token so private /
+    /// gated repos resolve when the user has authenticated.
+    ///
+    /// Sizes come back `None` when the Hub response omits them (which
+    /// is common for LFS-tracked `*.safetensors` listings). The caller
+    /// treats `None` as "unknown" in the confirmation modal.
+    #[cfg(feature = "candle-backend")]
+    pub fn list_repo_files(&self, repo_id: &str) -> anyhow::Result<Vec<RepoFileEntry>> {
+        let api = hf_hub::api::sync::ApiBuilder::new()
+            .with_token(self.hf_token.clone())
+            .with_progress(false)
+            .with_retries(3)
+            .build()
+            .map_err(|e| anyhow::anyhow!("HF API init failed: {e}"))?;
+
+        let repo = api.model(repo_id.to_string());
+        let info = repo
+            .info()
+            .map_err(|e| anyhow::anyhow!("HF repo.info() failed for '{repo_id}': {e}"))?;
+
+        Ok(info
+            .siblings
+            .into_iter()
+            .map(|s| RepoFileEntry {
+                name: s.rfilename,
+                // hf_hub::Siblings doesn't expose size today (it's None in
+                // the struct), but the Hub API returns it when queried
+                // directly. Leaving as None until hf_hub exposes it.
+                size: None,
+            })
+            .collect())
+    }
+
+    /// Stub for builds without the candle-backend feature — the HF
+    /// hub dep is gated there, so listing is unavailable.
+    #[cfg(not(feature = "candle-backend"))]
+    pub fn list_repo_files(&self, _repo_id: &str) -> anyhow::Result<Vec<RepoFileEntry>> {
+        anyhow::bail!("list_repo_files requires candle-backend feature")
+    }
+}
+
+/// One entry in a HuggingFace repo's sibling list. Serializable so it
+/// can cross the Tauri IPC boundary into the frontend's RepoDownloadButton
+/// confirmation modal.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RepoFileEntry {
+    /// File name relative to the repo root (e.g. `"model.safetensors"`).
+    pub name: String,
+    /// File size in bytes, when the Hub exposes it. `None` = unknown.
+    pub size: Option<u64>,
 }
 
 /// Execute the actual bundle download (runs on a dedicated thread).

@@ -72,9 +72,10 @@ const cardM = $derived(renderForge({ kind: "brain-card", preset: "glass-elevated
 
 <div
 	{...cardM.dataAttrs}
-	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-teal-main);"
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-violet-main); box-shadow: 0 0 0 1px var(--accent-violet-fill);"
 	class="rounded-xl p-5 transition-all"
 	data-component="brain-card"
+	data-role="brain"
 	title="This is Clyffy's main thinking engine — the AI model that powers chat, reasoning, and code help"
 >
 	<div class={stack({ gap: "3" })}>

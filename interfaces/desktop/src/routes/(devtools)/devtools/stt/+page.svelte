@@ -1,40 +1,63 @@
 <!--
 	@file /devtools/stt — Speech-to-Text devtool
 	@route /devtools/stt
-	Transcription: model load/unload, mic test, record+transcribe, file upload.
+
+	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions). Every
+	VRAM-touching action (Load slot) presents the Clyffy LoadingBlock —
+	rotating DYK/KDROPS/T&T card — while pending. Short-duration work
+	(mic test, 3-s record) uses inline spinner.
+
+	All IPC goes through `modelsState.load/unload` + the voice domain
+	helpers (`testMicrophone`, `transcribeAudio`, `transcribeAudioFile`).
+	Preserved features: slot load/unload, mic test, record+transcribe,
+	drag-drop file transcription, streaming-ASR future note.
 -->
 <script lang="ts">
-import { Check, Ear, FileAudio, Mic, Play } from "lucide-svelte";
+import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
+import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
 import {
 	testMicrophone,
 	transcribeAudio,
 	transcribeAudioFile,
 } from "$lib/domains/app/voice/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 
+// ── State ──────────────────────────────────────────────
 let loadingSlot = $state(false);
 let micTesting = $state(false);
-let micResult = $state<{ detected: boolean; peak_amplitude: number; avg_amplitude: number } | null>(
-	null,
-);
+let micResult = $state<{
+	detected: boolean;
+	peak_amplitude: number;
+	avg_amplitude: number;
+} | null>(null);
 let recording = $state(false);
 let transcript = $state("");
 let transcribing = $state(false);
 let fileTranscript = $state("");
 let error = $state<string | null>(null);
 
+// ── Derived ────────────────────────────────────────────
 const sttStatus = $derived(modelsState.statuses["voice.stt"]);
 const sttReady = $derived(sttStatus ? isInferenceReady(sttStatus) : false);
 const sttSlot = $derived(modelsState.slots.find((s) => s.id === "voice.stt"));
 
+const badge = $derived<HealthBadge>(
+	sttReady
+		? { state: "up", label: "Whisper loaded" }
+		: sttSlot?.assigned_model_id
+			? { state: "stopped", label: "Model assigned — not loaded" }
+			: { state: "unknown", label: "No model assigned" },
+);
+
+// ── Slot actions ───────────────────────────────────────
 async function loadStt(): Promise<void> {
 	loadingSlot = true;
+	error = null;
 	logInfo("devtools.stt", "Loading voice.stt slot");
 	try {
 		await modelsState.load("voice.stt");
@@ -49,14 +72,20 @@ async function loadStt(): Promise<void> {
 
 async function unloadStt(): Promise<void> {
 	loadingSlot = true;
+	error = null;
+	logInfo("devtools.stt", "Unloading voice.stt slot");
 	try {
 		await modelsState.unload("voice.stt");
 		logInfo("devtools.stt", "voice.stt unloaded");
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.stt", `voice.stt unload failed: ${error}`);
 	} finally {
 		loadingSlot = false;
 	}
 }
 
+// ── Short-duration actions ─────────────────────────────
 async function handleMicTest(): Promise<void> {
 	micTesting = true;
 	error = null;
@@ -100,8 +129,6 @@ async function handleFileDrop(e: DragEvent): Promise<void> {
 	error = null;
 	logInfo("devtools.stt", `transcribeAudioFile() — file=${file.name}`);
 	try {
-		// Tauri expects a file path, not a blob. Use webkitRelativePath or name.
-		// For drag-drop in Tauri, the file path comes from the dataTransfer.
 		const path = (file as unknown as { path?: string }).path ?? file.name;
 		fileTranscript = await transcribeAudioFile(path);
 		logInfo("devtools.stt", `File transcript: "${fileTranscript.slice(0, 80)}"`);
@@ -118,204 +145,200 @@ function handleDragOver(e: DragEvent): void {
 }
 </script>
 
-<div class="stt-page">
-	<Heading level={2} size="xl">Speech-to-Text</Heading>
+<ServiceDevtoolShell
+	title="Speech-to-Text"
+	description="Whisper — batch transcription"
+	icon={Ear}
+	axis="capabilities"
+	health={badge}
+>
+	{#snippet status()}
+		<div class="flex flex-col gap-3">
+			<div class="flex items-center gap-3">
+				<Text size="sm" weight="bold">voice.stt</Text>
+				{#if sttReady}
+					<Badge tone="positive" size="sm">
+						<Check size={8} />
+						Ready
+					</Badge>
+				{:else if sttSlot?.assigned_model_id}
+					<Badge tone="neutral" size="sm">Assigned</Badge>
+				{:else}
+					<Badge tone="neutral" size="sm">Empty</Badge>
+				{/if}
+			</div>
 
-	<section class="slot-controls">
-		<div class="slot-row">
-			<Text size="sm" weight="bold">voice.stt</Text>
-			{#if sttReady}
-				<Badge tone="positive" size="sm"><Check size={8} /> Ready</Badge>
-			{:else if sttSlot?.assigned_model_id}
-				<Badge tone="neutral" size="sm">Assigned</Badge>
+			{#if sttSlot?.assigned_model_id}
+				<Text size="xs" color="muted">
+					Assigned model id: <span class="font-mono">{sttSlot.assigned_model_id}</span>
+				</Text>
 			{:else}
-				<Badge tone="neutral" size="sm">Empty</Badge>
+				<Text size="xs" color="muted">
+					No model assigned. Use the setup wizard's Voice card to pick a
+					Whisper build for this slot.
+				</Text>
 			{/if}
-			{#if !sttReady && sttSlot?.assigned_model_id}
-				<Button preset="button-primary" size="sm" onclick={loadStt} disabled={loadingSlot}>
-					{#if loadingSlot}<Spinner size="xs" />{:else}<Play size={12} />{/if}
-					Load
-				</Button>
+
+			{#if micResult}
+				<div class="mt-2 rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
+					<Text size="xs" weight="bold">Last microphone test</Text>
+					<Text size="xs" color="muted">
+						Detected: {micResult.detected ? "Yes" : "No"} ·
+						Peak: {(micResult.peak_amplitude * 100).toFixed(1)}% ·
+						Average: {(micResult.avg_amplitude * 100).toFixed(1)}%
+					</Text>
+				</div>
 			{/if}
-			{#if sttReady}
-				<Button preset="button-ghost" size="sm" onclick={unloadStt} disabled={loadingSlot}>Unload</Button>
+
+			{#if error}
+				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
+					<Text size="xs">{error}</Text>
+				</div>
 			{/if}
 		</div>
-	</section>
+	{/snippet}
 
-	{#if error}
-		<div class="error-bar">
-			<Text size="sm" class="error-text">{error}</Text>
-			<Button preset="button-ghost" size="sm" onclick={() => (error = null)}>Dismiss</Button>
-		</div>
-	{/if}
+	{#snippet config()}
+		<Text size="sm" color="muted">
+			TODO(reality-gap 2026-04-21): Whisper runtime config (beam size,
+			language, VAD threshold) not yet exposed as a dedicated Tauri
+			command. Model selection lives in the setup wizard; this tab will
+			surface per-slot overrides once `voice_stt_save_config` lands.
+		</Text>
+	{/snippet}
 
-	<section class="mic-test">
-		<Text size="sm" weight="bold">Microphone Test</Text>
-		<Button preset="button-secondary" size="sm" onclick={handleMicTest} disabled={micTesting}>
-			{#if micTesting}
-				<Spinner size="xs" />
-				Testing...
-			{:else}
-				<Mic size={14} />
-				Test Microphone
-			{/if}
-		</Button>
-		{#if micResult}
-			<div class="mic-stats">
-				<Text size="xs">Detected: {micResult.detected ? "Yes" : "No"}</Text>
-				<Text size="xs">Peak: {(micResult.peak_amplitude * 100).toFixed(1)}%</Text>
-				<Text size="xs">Average: {(micResult.avg_amplitude * 100).toFixed(1)}%</Text>
+	{#snippet logs()}
+		<Text size="sm" color="muted">
+			TODO(reality-gap 2026-04-21): Whisper-scoped log filter not yet
+			wired. For now, session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
+			filter by <code>component=devtools.stt</code>. A filtered view
+			inside this panel arrives when the telemetry devtool gains a
+			shared "scoped log tail" widget.
+		</Text>
+	{/snippet}
+
+	{#snippet actions()}
+		{#if loadingSlot}
+			<LoadingBlock
+				title="Loading Whisper into memory"
+				subtitle="Safely loading into RAM / VRAM — sit tight."
+				showContent
+				contentKind="dyk"
+			/>
+		{:else}
+			<div class="flex flex-col gap-4">
+				<!-- Slot load / unload -->
+				<div class="flex flex-wrap items-center gap-2">
+					{#if !sttReady && sttSlot?.assigned_model_id}
+						<Button preset="button-primary" size="sm" onclick={loadStt}>
+							<Play size={12} />
+							Load Whisper
+						</Button>
+					{/if}
+					{#if sttReady}
+						<Button preset="button-ghost" size="sm" onclick={unloadStt}>
+							<PowerOff size={12} />
+							Unload Whisper
+						</Button>
+					{/if}
+					{#if !sttSlot?.assigned_model_id}
+						<Text size="xs" color="muted">
+							Assign a Whisper model in the setup wizard first.
+						</Text>
+					{/if}
+				</div>
+
+				<!-- Mic test -->
+				<div class="flex items-center gap-2">
+					<Button
+						preset="button-secondary"
+						size="sm"
+						onclick={handleMicTest}
+						disabled={micTesting}
+					>
+						{#if micTesting}
+							<Spinner size="xs" />
+							Testing…
+						{:else}
+							<Mic size={14} />
+							Test microphone
+						{/if}
+					</Button>
+					<Text size="xs" color="muted">
+						Quick 1-second capture to confirm your mic is reachable.
+					</Text>
+				</div>
+
+				{#if sttReady}
+					<!-- Record + transcribe -->
+					<div class="flex flex-col gap-2">
+						<Text size="sm" weight="bold">Record + transcribe (3 s)</Text>
+						<div class="flex items-center gap-2">
+							<Button
+								preset="button-primary"
+								size="md"
+								onclick={handleRecord}
+								disabled={recording}
+							>
+								{#if recording}
+									<Spinner size="xs" />
+									Recording…
+								{:else}
+									<Ear size={16} />
+									Record
+								{/if}
+							</Button>
+						</div>
+						{#if transcript}
+							<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
+								<Text size="xs" weight="bold" color="muted">Transcript</Text>
+								<Text size="sm">{transcript}</Text>
+							</div>
+						{/if}
+					</div>
+
+					<!-- File transcription -->
+					<div
+						class="flex flex-col items-center gap-2 rounded-lg p-6 border-2 border-dashed"
+						style="border-color: var(--border-soft); background: var(--surface-base);"
+						ondrop={handleFileDrop}
+						ondragover={handleDragOver}
+						role="region"
+						aria-label="Drop audio file to transcribe"
+					>
+						<FileAudio size={24} />
+						<Text size="sm" weight="bold">File transcription</Text>
+						<Text size="xs" color="muted">
+							Drop an audio file here (WAV, MP3, FLAC).
+						</Text>
+						{#if transcribing}
+							<Spinner size="sm" tone="accent" />
+							<Text size="xs" color="muted">Transcribing…</Text>
+						{/if}
+						{#if fileTranscript}
+							<div class="w-full rounded-lg p-3 mt-2" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+								<Text size="xs" weight="bold" color="muted">File transcript</Text>
+								<Text size="sm">{fileTranscript}</Text>
+							</div>
+						{/if}
+					</div>
+				{:else}
+					<Text size="sm" color="muted">
+						Load Whisper to unlock the record + file-transcription
+						controls above.
+					</Text>
+				{/if}
+
+				<!-- Future -->
+				<div class="rounded-lg p-3 mt-2 opacity-60" style="border: 1px dashed var(--border-subtle);">
+					<Text size="sm" weight="bold">Streaming ASR</Text>
+					<Text size="xs" color="muted">
+						Current mode: batch (Whisper). Streaming requires
+						sherpa-onnx OnlineRecognizer + zipformer streaming model
+						(~40 MB). Planned for Voice Sprint B.
+					</Text>
+				</div>
 			</div>
 		{/if}
-	</section>
-
-	{#if sttReady}
-		<section class="record-section">
-			<Text size="sm" weight="bold">Record + Transcribe (3 seconds)</Text>
-			<Button preset="button-primary" size="md" onclick={handleRecord} disabled={recording}>
-				{#if recording}
-					<Spinner size="xs" />
-					Recording...
-				{:else}
-					<Ear size={16} />
-					Record
-				{/if}
-			</Button>
-			{#if transcript}
-				<div class="transcript-box">
-					<Text size="xs" weight="bold" class="transcript-label">Transcript:</Text>
-					<Text size="sm">{transcript}</Text>
-				</div>
-			{/if}
-		</section>
-
-		<section
-			class="file-section"
-			ondrop={handleFileDrop}
-			ondragover={handleDragOver}
-			aria-label="Drop audio file to transcribe"
-		>
-			<FileAudio size={24} />
-			<Text size="sm" weight="bold">File Transcription</Text>
-			<Text size="xs" class="drop-hint">Drop an audio file here (WAV, MP3, FLAC)</Text>
-			{#if transcribing}
-				<Spinner size="sm" tone="accent" />
-				<Text size="xs">Transcribing...</Text>
-			{/if}
-			{#if fileTranscript}
-				<div class="transcript-box">
-					<Text size="xs" weight="bold" class="transcript-label">File Transcript:</Text>
-					<Text size="sm">{fileTranscript}</Text>
-				</div>
-			{/if}
-		</section>
-	{:else}
-		<div class="empty-state">
-			<Text size="sm" class="empty-text">Load the voice.stt model to access transcription controls.</Text>
-		</div>
-	{/if}
-
-	<section class="future-section">
-		<Text size="sm" weight="bold">Streaming ASR</Text>
-		<Text size="xs" class="future-text">
-			Current mode: Batch (Whisper). Streaming requires sherpa-onnx OnlineRecognizer
-			+ zipformer streaming model (~40MB). Planned for Voice Sprint B.
-		</Text>
-	</section>
-</div>
-
-<style>
-	.stt-page {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-		padding: 1.5rem;
-		max-width: 52rem;
-	}
-
-	.slot-controls {
-		padding: 0.75rem 1rem;
-		border-radius: 0.75rem;
-		background: var(--surface-raised);
-		border: 0.0625rem solid var(--border-soft);
-	}
-
-	.slot-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-
-	.error-bar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.5rem 1rem;
-		border-radius: 0.5rem;
-		background: oklch(0.35 0.12 25 / 0.15);
-		border: 0.0625rem solid oklch(0.5 0.15 25 / 0.3);
-	}
-	:global(.error-text) { color: var(--signal-error); }
-
-	.mic-test {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.mic-stats {
-		display: flex;
-		gap: 1rem;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		background: var(--surface-raised);
-	}
-
-	.record-section {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.transcript-box {
-		padding: 0.75rem;
-		border-radius: 0.5rem;
-		background: var(--surface-raised);
-		border: 0.0625rem solid var(--border-soft);
-	}
-	:global(.transcript-label) { color: var(--text-muted); }
-
-	.file-section {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 2rem;
-		border-radius: 0.75rem;
-		border: 0.125rem dashed var(--border-soft);
-		color: var(--text-muted);
-		transition: border-color 150ms ease-out;
-	}
-	.file-section:hover {
-		border-color: var(--accent-teal-main);
-	}
-	:global(.drop-hint) { color: var(--text-muted); }
-
-	.empty-state {
-		padding: 2rem;
-		text-align: center;
-	}
-	:global(.empty-text) { color: var(--text-muted); }
-
-	.future-section {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		padding: 1rem;
-		border-radius: 0.75rem;
-		border: 0.0625rem dashed var(--border-subtle);
-		opacity: 0.6;
-	}
-	:global(.future-text) { color: var(--text-muted); }
-</style>
+	{/snippet}
+</ServiceDevtoolShell>

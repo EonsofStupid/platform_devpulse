@@ -57,4 +57,6 @@ export type ActionId =
 	| "rro.createCollection"
 	| "rro.deleteCollection"
 	| "rro.embedQuery"
-	| "rro.testSearch";
+	| "rro.testSearch"
+	| "rro.loadBrainHealth"
+	| "rro.loadBrainStats";

@@ -39,9 +39,10 @@ $effect(() => {
 
 <div
 	{...cardM.dataAttrs}
-	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-coral-main);"
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-coral-main); box-shadow: 0 0 0 1px var(--accent-coral-fill);"
 	class="rounded-xl p-5 transition-all"
 	data-component="voice-card"
+	data-role="voice"
 	title="Voice lets you talk to Clyffy using your microphone and hear her respond in her own voice"
 >
 	<div class={stack({ gap: "3" })}>

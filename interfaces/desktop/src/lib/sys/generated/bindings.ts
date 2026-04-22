@@ -296,6 +296,64 @@ async queryLaneBaselines() : Promise<Result<LaneBaselineRow[], string>> {
 }
 },
 /**
+ * Read the live telemetry pipeline snapshot.
+ * 
+ * # Errors
+ * Returns error if the platform's telemetry guard has not been installed
+ * (i.e. the app is very early in boot, before logging::init completed).
+ */
+async getTelemetryInfo() : Promise<Result<TelemetryPipelineInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_telemetry_info") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List the telemetry session files currently on disk.
+ * 
+ * Returns an empty list if the exporter has not installed yet or the
+ * directory does not exist (pre-install runs buffer in memory only).
+ */
+async listTelemetrySessions() : Promise<Result<TelemetrySessionFile[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_telemetry_sessions") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Open the telemetry directory in the OS file manager.
+ * 
+ * Used by the "Open folder" action on the devtool so users can inspect
+ * OTLP JSONL files directly without copying a path string.
+ * 
+ * # Errors
+ * Returns error if the directory is unknown (exporter not yet installed)
+ * or the OS reveal command fails.
+ */
+async openTelemetryFolder() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_telemetry_folder") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Report how much telemetry has accumulated in DuckDB.
+ */
+async getTelemetryRowCounts() : Promise<Result<TelemetryRowCounts, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_telemetry_row_counts") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current retrieval configuration.
  * 
  * # Errors
@@ -362,6 +420,7 @@ async vectorTestSearch(collection: string, vector: number[], limit: number) : Pr
  * Create a new vector collection with the given dimensionality.
  * 
  * Default dimension for nomic-embed-text-v1.5 is 768 (cosine distance).
+ * Collection-level settings are fixed at creation.
  * 
  * # Errors
  * Returns error if platform is booting, vector store is disabled,
@@ -608,6 +667,17 @@ async duckdbQuery(sql: string) : Promise<Result<DuckDbQueryResult, string>> {
 }
 },
 /**
+ * Health check for the Moka cache service.
+ */
+async cacheHealth() : Promise<Result<CacheHealth, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cache_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.
@@ -832,6 +902,35 @@ async openDevforgeWindow() : Promise<Result<DevforgeBootstrapStatus, string>> {
 async closeDevforgeWindow() : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("close_devforge_window") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get current MCP server status.
+ * 
+ * Frontend devtool calls this on mount and on user-triggered refresh.
+ * The boot sequence also pushes `platform:claude-status` events when
+ * the server starts/stops, so the rune state stays live.
+ */
+async getMcpStatus() : Promise<Result<McpStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_mcp_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Restart the MCP server.
+ * 
+ * Aborts the current stdio task and spawns a fresh one.
+ * Returns the new status after restart.
+ */
+async restartMcpServer() : Promise<Result<McpStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("restart_mcp_server") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2808,6 +2907,22 @@ load_more_label: string;
  */
 loading_more_label: string }
 /**
+ * Health of the Moka cache service.
+ */
+export type CacheHealth = { 
+/**
+ * Whether the service is booted + responding.
+ */
+reachable: boolean; 
+/**
+ * Latency of the ping in microseconds.
+ */
+latency_us: number; 
+/**
+ * Error message if unreachable.
+ */
+error: string | null }
+/**
  * Snapshot of the Moka in-memory cache. Changes between calls.
  */
 export type CacheStats = { 
@@ -4462,6 +4577,34 @@ mascot_alt: string;
  */
 progress_aria_template: string }
 /**
+ * MCP server runtime status — emitted to the devtool.
+ */
+export type McpStatus = { 
+/**
+ * Whether the MCP server task is running.
+ */
+running: boolean; 
+/**
+ * Transport type: "stdio" or "http". None when not running.
+ */
+transport: string | null; 
+/**
+ * Number of registered tools (5 in release, 6 in dev).
+ */
+toolCount: number; 
+/**
+ * Names of all registered tools for display.
+ */
+toolNames: string[]; 
+/**
+ * Boot timestamp (epoch seconds) when the server started.
+ */
+startedAt: number | null; 
+/**
+ * Protocol version advertised to clients.
+ */
+protocolVersion: string }
+/**
  * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
  */
 export type MessageStats = { 
@@ -5404,6 +5547,86 @@ uptime_secs: number;
  * Per-subsystem health details.
  */
 subsystems: SubsystemHealth[] }
+/**
+ * Live snapshot of the telemetry pipeline for the devtool Status panel.
+ * 
+ * `exporter_installed` distinguishes between "still buffering boot spans"
+ * and "writing to disk". `telemetry_dir` is absolute so users can copy
+ * it directly into their file explorer.
+ */
+export type TelemetryPipelineInfo = { 
+/**
+ * Platform version string (matches `service.version` OTel attribute).
+ */
+service_version: string; 
+/**
+ * Per-launch session identifier (matches `service.instance.id`).
+ */
+session_id: string; 
+/**
+ * Absolute path to the telemetry directory. `None` before exporter installs.
+ */
+telemetry_dir: string | null; 
+/**
+ * Retained session file count. `None` before exporter installs.
+ */
+keep_sessions: number | null; 
+/**
+ * Absolute path of the current JSONL file. `None` before exporter installs.
+ */
+current_session_file: string | null; 
+/**
+ * Unix ms timestamp when the subscriber was installed.
+ */
+started_at_ms: number; 
+/**
+ * Unix ms timestamp when the file exporter took over. `None` before install.
+ */
+exporter_installed_at_ms: number | null; 
+/**
+ * Whether the `BufferingProcessor` has been replaced with the real exporter.
+ */
+exporter_installed: boolean }
+/**
+ * Count of persisted rows per telemetry table — drives the health panel.
+ */
+export type TelemetryRowCounts = { 
+/**
+ * Rows in DuckDB `span_traces` table.
+ */
+span_traces: number; 
+/**
+ * Rows in DuckDB `lane_traces` table.
+ */
+lane_traces: number; 
+/**
+ * Rows in DuckDB `lane_baselines` table.
+ */
+lane_baselines: number }
+/**
+ * One rotated `spans-*.otlp.jsonl` file on disk.
+ */
+export type TelemetrySessionFile = { 
+/**
+ * File name, e.g. `spans-20260419-124509.otlp.jsonl`.
+ */
+name: string; 
+/**
+ * Absolute path.
+ */
+path: string; 
+/**
+ * Size in bytes at scan time.
+ */
+size_bytes: number; 
+/**
+ * Unix ms of last modification. `0` if unreadable.
+ */
+modified_ms: number; 
+/**
+ * True for the file the exporter is currently appending to.
+ */
+is_current: boolean }
 /**
  * Display metadata for a hardware tier.
  * 

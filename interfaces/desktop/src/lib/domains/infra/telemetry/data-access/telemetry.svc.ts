@@ -8,7 +8,14 @@
 
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
-import type { LaneBaselineRow, LaneTraceConfig, SpanTraceRow } from "../util/telemetry.types.js";
+import type {
+	LaneBaselineRow,
+	LaneTraceConfig,
+	SpanTraceRow,
+	TelemetryPipelineInfo,
+	TelemetryRowCounts,
+	TelemetrySessionFile,
+} from "../util/telemetry.types.js";
 
 // ── Lane configuration ─────────────────────────────────────
 
@@ -58,5 +65,50 @@ export async function queryLaneBaselines(): Promise<LaneBaselineRow[]> {
 		throw new Error(result.error);
 	}
 	logInfo("telemetry.svc", `queryLaneBaselines() ok — ${result.data.length} lanes`);
+	return result.data;
+}
+
+// ── Pipeline info + management ──────────────────────────────
+
+/** Read the live telemetry pipeline snapshot (identity, exporter state, paths). */
+export async function getTelemetryInfo(): Promise<TelemetryPipelineInfo> {
+	logInfo("telemetry.svc", "getTelemetryInfo()");
+	const result = await commands.getTelemetryInfo();
+	if (result.status === "error") {
+		logError("telemetry.svc", `getTelemetryInfo() FAILED: ${result.error}`);
+		throw new Error(result.error);
+	}
+	return result.data;
+}
+
+/** List all rotating session JSONL files on disk. Empty list before exporter installs. */
+export async function listTelemetrySessions(): Promise<TelemetrySessionFile[]> {
+	logInfo("telemetry.svc", "listTelemetrySessions()");
+	const result = await commands.listTelemetrySessions();
+	if (result.status === "error") {
+		logError("telemetry.svc", `listTelemetrySessions() FAILED: ${result.error}`);
+		throw new Error(result.error);
+	}
+	return result.data;
+}
+
+/** Open the telemetry directory in the OS file manager. */
+export async function openTelemetryFolder(): Promise<void> {
+	logInfo("telemetry.svc", "openTelemetryFolder()");
+	const result = await commands.openTelemetryFolder();
+	if (result.status === "error") {
+		logError("telemetry.svc", `openTelemetryFolder() FAILED: ${result.error}`);
+		throw new Error(result.error);
+	}
+}
+
+/** Row counts for each DuckDB telemetry table. Drives the overview health panel. */
+export async function getTelemetryRowCounts(): Promise<TelemetryRowCounts> {
+	logInfo("telemetry.svc", "getTelemetryRowCounts()");
+	const result = await commands.getTelemetryRowCounts();
+	if (result.status === "error") {
+		logError("telemetry.svc", `getTelemetryRowCounts() FAILED: ${result.error}`);
+		throw new Error(result.error);
+	}
 	return result.data;
 }

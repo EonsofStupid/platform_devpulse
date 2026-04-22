@@ -492,34 +492,32 @@ pub struct TelemetryRowCounts {
 pub async fn get_telemetry_row_counts(
     state: State<'_, PlatformState>,
 ) -> Result<TelemetryRowCounts, String> {
-    let lock = state.platform.read().await;
-    let platform = lock
-        .as_ref()
+    let platform = state
+        .platform
+        .load_full()
         .ok_or_else(|| "Platform is still booting".to_string())?;
     let analytics = platform
         .analytics()
         .ok_or_else(|| "Analytics service not available".to_string())?;
 
-    let count_of = async |table: &str| -> Result<i64, String> {
-        let sql = format!("SELECT COUNT(*) FROM {table}");
-        let rows = analytics
-            .adapter()
-            .analytics_query(&sql)
-            .await
-            .map_err(|e| format!("count({table}) failed: {e}"))?;
-        Ok(rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(|v| match v {
-                SqlValue::Integer(n) => Some(*n),
-                _ => None,
-            })
-            .unwrap_or(0))
+    // Inline-count each table. Failures → 0 so the UI still renders counts
+    // for the tables that DO exist. The devtool surfaces errors elsewhere.
+    let adapter = analytics.adapter();
+
+    let count_one = |sql: String| async move {
+        match adapter.analytics_query(&sql).await {
+            Ok(rows) => rows
+                .first()
+                .and_then(|r| r.first())
+                .and_then(SqlValue::as_integer)
+                .unwrap_or(0),
+            Err(_) => 0,
+        }
     };
 
     Ok(TelemetryRowCounts {
-        span_traces: count_of("span_traces").await.unwrap_or(0),
-        lane_traces: count_of("lane_traces").await.unwrap_or(0),
-        lane_baselines: count_of("lane_baselines").await.unwrap_or(0),
+        span_traces: count_one("SELECT COUNT(*) FROM span_traces".to_string()).await,
+        lane_traces: count_one("SELECT COUNT(*) FROM lane_traces".to_string()).await,
+        lane_baselines: count_one("SELECT COUNT(*) FROM lane_baselines".to_string()).await,
     })
 }

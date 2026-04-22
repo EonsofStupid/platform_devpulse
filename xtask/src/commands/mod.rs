@@ -4,6 +4,7 @@
 //! context, reports progress via [`Stage`], returns `Result<()>`.
 
 pub mod build_deps;
+pub mod build_release;
 pub mod deps;
 pub mod dev;
 pub mod fetch_devforge;

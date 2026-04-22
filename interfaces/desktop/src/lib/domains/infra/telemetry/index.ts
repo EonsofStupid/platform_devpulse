@@ -21,6 +21,10 @@ export { telemetryState } from "./data-access/telemetry.state.svelte.js";
 // ── Services ────────────────────────────────────────────────
 export {
 	getLaneConfig,
+	getTelemetryInfo,
+	getTelemetryRowCounts,
+	listTelemetrySessions,
+	openTelemetryFolder,
 	queryLaneBaselines,
 	querySpanTraces,
 	setLaneConfig,
@@ -37,14 +41,20 @@ export type {
 	SpanFilter,
 	SpanTraceRow,
 	SpanTreeNode,
+	TelemetryPipelineInfo,
+	TelemetryRowCounts,
+	TelemetrySessionFile,
 	TelemetryTab,
 } from "./util/telemetry.types.js";
 
 // ── Formatters + helpers ────────────────────────────────────
 export {
 	buildSpanTree,
+	formatBytes,
 	formatDurationUs,
 	formatRate,
+	formatTimestamp,
+	formatUptime,
 	groupLanes,
 	laneBlurb,
 	laneCategory,

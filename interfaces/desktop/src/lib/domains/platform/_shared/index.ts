@@ -9,4 +9,5 @@
  */
 
 export { default as ServiceDevtoolShell } from "./ServiceDevtoolShell.svelte";
+export { default as SwapPrimaryBrainButton } from "./SwapPrimaryBrainButton.svelte";
 export type { ExtraTab, HealthBadge, HealthState, ServiceAxis } from "./types.js";

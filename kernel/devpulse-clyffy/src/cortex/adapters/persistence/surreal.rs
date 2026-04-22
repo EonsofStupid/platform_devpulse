@@ -1,6 +1,6 @@
 use crate::cortex::traits::memory::MemoryBank;
 
-/// Adapter that implements [`MemoryBank`] backed by SurrealDB.
+/// Adapter that implements [`MemoryBank`] backed by `SurrealDB`.
 pub struct SurrealAdapter;
 
 impl MemoryBank for SurrealAdapter {

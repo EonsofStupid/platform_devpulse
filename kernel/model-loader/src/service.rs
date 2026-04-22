@@ -835,6 +835,25 @@ impl ModelLoaderService {
         })
     }
 
+    /// List every file in a HuggingFace repo. Used by the
+    /// `RepoDownloadButton` on the frontend to render a bundle
+    /// confirmation before a user commits to a download.
+    ///
+    /// Private / gated repos resolve only when an HF token is stored
+    /// via `set_hf_token`. Without the candle-backend feature the
+    /// underlying `hf_hub` dep is gated and this returns an error.
+    pub async fn list_repo_files(
+        &self,
+        repo_id: &str,
+    ) -> Result<Vec<crate::models::download::RepoFileEntry>, LoaderError> {
+        let cfg = self.config.read().await;
+        cfg.downloads
+            .list_repo_files(repo_id)
+            .map_err(|e| LoaderError::Internal {
+                message: e.to_string(),
+            })
+    }
+
     // ── Inference state (the ONLY heavy write lock) ───────────
 
     /// Load the model assigned to a slot.

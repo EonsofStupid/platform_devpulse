@@ -304,6 +304,17 @@ let laneGroups = $derived<LaneGroup[]>(
 				</a>
 
 				<a
+					href="/devtools/vision"
+					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
+				>
+					<div class="flex items-center gap-2">
+						<Activity size={16} class="text-[var(--color-teal-400)]" />
+						<span class="text-sm font-medium">Vision (SigLIP2)</span>
+					</div>
+					<span class="text-xs text-[var(--text-secondary)]">Image embeddings — preconfigured CPU · 1152-dim L2.</span>
+				</a>
+
+				<a
 					href="/devtools/cortex"
 					class="flex flex-col gap-1 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] transition-colors text-left"
 				>

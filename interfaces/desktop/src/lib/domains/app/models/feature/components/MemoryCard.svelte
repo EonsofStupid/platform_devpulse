@@ -40,9 +40,10 @@ $effect(() => {
 
 <div
 	{...cardM.dataAttrs}
-	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-purple-main);"
+	style="{cssVarString(cardM.cssVars)} border-left: 3px solid var(--accent-blue-main); box-shadow: 0 0 0 1px var(--accent-blue-fill);"
 	class="rounded-xl p-5 transition-all"
 	data-component="memory-card"
+	data-role="memory"
 	title="Memory lets Clyffy remember your code, docs, and project context — the more memory, the better Clyffy understands your project"
 >
 	<div class={stack({ gap: "3" })}>

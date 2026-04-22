@@ -791,6 +791,44 @@ pub async fn cancel_download(
         .map_err(|e| e.to_string())
 }
 
+/// Single repo file entry — serializable snapshot of one sibling
+/// returned by the HF Hub's repo info endpoint. Consumed by the
+/// frontend's `RepoDownloadButton` to render the bundle confirmation.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct RepoFile {
+    /// File name relative to the repo root (e.g. `"model.safetensors"`).
+    pub name: String,
+    /// File size in bytes when the Hub response exposes it; `None`
+    /// otherwise. UI treats `None` as "unknown".
+    pub size: Option<u64>,
+}
+
+/// List every file in a HuggingFace repo.
+///
+/// Used by `RepoDownloadButton` to render a bundle confirmation modal
+/// before the user clicks Download. Threaded through the stored HF
+/// token, so private / gated repos resolve when the user has stored
+/// one via [`set_hf_token`].
+#[tauri::command]
+#[specta::specta]
+pub async fn list_repo_files(
+    state: State<'_, PlatformState>,
+    repo_id: String,
+) -> Result<Vec<RepoFile>, String> {
+    let loader = get_loader(&state).await?;
+    let entries = loader
+        .list_repo_files(&repo_id)
+        .await
+        .map_err(|e| format!("list_repo_files('{repo_id}') failed: {e}"))?;
+    Ok(entries
+        .into_iter()
+        .map(|e| RepoFile {
+            name: e.name,
+            size: e.size,
+        })
+        .collect())
+}
+
 /// Store or replace the `HuggingFace` access token. Empty string clears it.
 #[tauri::command]
 #[specta::specta]

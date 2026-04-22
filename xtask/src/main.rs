@@ -32,6 +32,9 @@ enum Commands {
     Deps,
     /// Start the full Tauri dev environment (desktop + engine).
     RunDev,
+    /// Build the portable release bundle — standalone .exe + Windows installers.
+    /// Runs `pnpm tauri build` with the hardened [build.deps.*] env.
+    BuildRelease,
     /// Verify the setup: svelte-check + cargo check.
     Verify,
     /// Verify IP boundary: desktop must not depend on clyffy.
@@ -64,6 +67,7 @@ fn main() -> anyhow::Result<()> {
         Commands::Preflight => Box::new(commands::preflight::Preflight),
         Commands::Deps => Box::new(commands::deps::Deps),
         Commands::RunDev => Box::new(commands::dev::Dev),
+        Commands::BuildRelease => Box::new(commands::build_release::BuildRelease),
         Commands::Verify => Box::new(commands::verify::Verify),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
         Commands::FetchDevforge { target, manifest, kind } => {

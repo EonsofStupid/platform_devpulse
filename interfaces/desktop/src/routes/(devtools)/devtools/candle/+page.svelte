@@ -12,7 +12,11 @@ import { Cpu, RefreshCw } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
+import {
+	type HealthBadge,
+	ServiceDevtoolShell,
+	SwapPrimaryBrainButton,
+} from "$lib/domains/platform/index.js";
 import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
@@ -21,6 +25,8 @@ let slots = $state<SlotInfo[]>([]);
 let models = $state<ModelInfo[]>([]);
 let refreshing = $state(false);
 let error = $state<string | null>(null);
+// Phase 4a harness — delete in Phase 8.
+let harnessModelId = $state("");
 
 // ── Derived ──────────────────────────────────────────────
 const assignedCount = $derived(slots.filter((s) => !!s.assigned_model_id).length);
@@ -134,16 +140,49 @@ $effect(() => {
 	{/snippet}
 
 	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" color="muted">
-				Candle is a library backend inside the engine, not a standalone
-				service — lifecycle (start/stop/restart) is the platform's
-				responsibility. Per-slot warm / unload happens through the Model
-				Loader window. A dedicated "restart Candle backend pool" action
-				wires up with <code>candle_restart</code> in a follow-up sprint.
-			</Text>
-			<div class="flex gap-2 opacity-50">
-				<Button preset="default" size="sm" disabled>Restart pool (not wired)</Button>
+		<div class="space-y-4">
+			<div class="space-y-2">
+				<Text size="sm" color="muted">
+					Candle is a library backend inside the engine, not a standalone
+					service — lifecycle (start/stop/restart) is the platform's
+					responsibility. Per-slot warm / unload happens through the Model
+					Loader window. A dedicated "restart Candle backend pool" action
+					wires up with <code>candle_restart</code> in a follow-up sprint.
+				</Text>
+				<div class="flex gap-2 opacity-50">
+					<Button preset="default" size="sm" disabled>Restart pool (not wired)</Button>
+				</div>
+			</div>
+
+			<!--
+				Phase 4a harness (SPRINT-DEVTOOLS-FOUNDATIONAL). Delete in
+				Phase 8. Tests SwapPrimaryBrainButton end-to-end against a
+				real model id typed by the owner. Not production UX — the
+				real "Make primary" surface lives on the Phi / Persona
+				devtools in Phases 5 + 7.
+			-->
+			<div class="rounded-lg p-3 flex flex-col gap-2" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
+				<Text size="sm" weight="bold">Phase 4a harness — swap primary brain</Text>
+				<Text size="xs" color="muted">
+					Type a model id from this build's registry and click.
+					Runs the full unload → reassign → load through
+					<code>swap_slot_model</code>, with the Clyffy LoadingBlock
+					overlay + logging. Delete this row in Phase 8.
+				</Text>
+				<div class="flex items-center gap-2 flex-wrap">
+					<input
+						type="text"
+						bind:value={harnessModelId}
+						placeholder="e.g. qwen-qwen3-4b-instruct-q4-k-m"
+						class="flex-1 min-w-60 rounded px-2 py-1 text-xs outline-none"
+						style="background: var(--surface-raised); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+					/>
+					<SwapPrimaryBrainButton
+						newModelId={harnessModelId}
+						label="Make chat.brain this"
+						disabled={!harnessModelId.trim()}
+					/>
+				</div>
 			</div>
 		</div>
 	{/snippet}

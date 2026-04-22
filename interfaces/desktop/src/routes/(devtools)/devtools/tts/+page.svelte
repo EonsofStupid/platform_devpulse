@@ -1,19 +1,26 @@
 <!--
 	@file /devtools/tts — Text-to-Speech devtool
 	@route /devtools/tts
-	Voice synthesis: model load/unload, voice picker, preview, speed control.
+
+	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions). Slot
+	load/unload presents the Clyffy LoadingBlock (rotating DYK card).
+	Short actions (Speak, Preview) use inline spinner.
+
+	Preserved features: voice picker grid, speed control, speak test,
+	per-voice preview, voice-cloning future note.
 -->
 <script lang="ts">
-import { Check, Play, Volume2 } from "lucide-svelte";
+import { Check, Play, PowerOff, Volume2 } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
+import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
 import { listVoices, previewVoice, speak } from "$lib/domains/app/voice/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 
+// ── State ──────────────────────────────────────────────
 let voices = $state<
 	Array<{ id: string; label: string; gender: string; style: string; description: string }>
 >([]);
@@ -23,19 +30,32 @@ let testText = $state("Hello, I'm Clyffy. Welcome to DevPulse.");
 let speaking = $state(false);
 let loadingSlot = $state(false);
 let voicesLoaded = $state(false);
+let error = $state<string | null>(null);
 
+// ── Derived ────────────────────────────────────────────
 const ttsStatus = $derived(modelsState.statuses["voice.tts"]);
 const ttsReady = $derived(ttsStatus ? isInferenceReady(ttsStatus) : false);
 const ttsSlot = $derived(modelsState.slots.find((s) => s.id === "voice.tts"));
 
+const badge = $derived<HealthBadge>(
+	ttsReady
+		? { state: "up", label: `Kokoro loaded · ${voices.length} voices` }
+		: ttsSlot?.assigned_model_id
+			? { state: "stopped", label: "Model assigned — not loaded" }
+			: { state: "unknown", label: "No model assigned" },
+);
+
+// ── Slot actions ───────────────────────────────────────
 async function loadTts(): Promise<void> {
 	loadingSlot = true;
+	error = null;
 	logInfo("devtools.tts", "Loading voice.tts slot");
 	try {
 		await modelsState.load("voice.tts");
 		logInfo("devtools.tts", "voice.tts loaded");
 	} catch (e) {
-		logInfo("devtools.tts", `voice.tts load failed: ${e}`);
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `voice.tts load failed: ${error}`);
 	} finally {
 		loadingSlot = false;
 	}
@@ -43,14 +63,22 @@ async function loadTts(): Promise<void> {
 
 async function unloadTts(): Promise<void> {
 	loadingSlot = true;
+	error = null;
+	logInfo("devtools.tts", "Unloading voice.tts slot");
 	try {
 		await modelsState.unload("voice.tts");
+		voices = [];
+		voicesLoaded = false;
 		logInfo("devtools.tts", "voice.tts unloaded");
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `voice.tts unload failed: ${error}`);
 	} finally {
 		loadingSlot = false;
 	}
 }
 
+// ── Voice catalog + synthesis ──────────────────────────
 async function fetchVoices(): Promise<void> {
 	try {
 		const result = await listVoices("voice.tts");
@@ -58,22 +86,26 @@ async function fetchVoices(): Promise<void> {
 		voicesLoaded = true;
 		logInfo("devtools.tts", `Loaded ${result.length} voices`);
 	} catch (e) {
-		logInfo("devtools.tts", `listVoices failed: ${e}`);
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `listVoices failed: ${error}`);
 	}
 }
 
 async function handlePreview(voiceId: string): Promise<void> {
 	logInfo("devtools.tts", `Preview voice: ${voiceId}`);
+	error = null;
 	try {
 		await previewVoice(voiceId, "voice.tts");
 	} catch (e) {
-		logInfo("devtools.tts", `Preview failed: ${e}`);
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `Preview failed: ${error}`);
 	}
 }
 
 async function handleSpeak(): Promise<void> {
 	if (!testText.trim()) return;
 	speaking = true;
+	error = null;
 	logInfo(
 		"devtools.tts",
 		`speak() — voice=${selectedVoice} speed=${speed} text="${testText.slice(0, 50)}"`,
@@ -82,7 +114,8 @@ async function handleSpeak(): Promise<void> {
 		await speak(testText, selectedVoice, "voice.tts", speed);
 		logInfo("devtools.tts", "speak() complete");
 	} catch (e) {
-		logInfo("devtools.tts", `speak() failed: ${e}`);
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `speak() failed: ${error}`);
 	} finally {
 		speaking = false;
 	}
@@ -95,189 +128,192 @@ $effect(() => {
 });
 </script>
 
-<div class="tts-page">
-	<Heading level={2} size="xl">Text-to-Speech</Heading>
-
-	<section class="slot-controls">
-		<div class="slot-row">
-			<Text size="sm" weight="bold">voice.tts</Text>
-			{#if ttsReady}
-				<Badge tone="positive" size="sm"><Check size={8} /> Ready</Badge>
-			{:else if ttsSlot?.assigned_model_id}
-				<Badge tone="neutral" size="sm">Assigned</Badge>
-			{:else}
-				<Badge tone="neutral" size="sm">Empty</Badge>
-			{/if}
-			{#if !ttsReady && ttsSlot?.assigned_model_id}
-				<Button preset="button-primary" size="sm" onclick={loadTts} disabled={loadingSlot}>
-					{#if loadingSlot}<Spinner size="xs" />{:else}<Play size={12} />{/if}
-					Load
-				</Button>
-			{/if}
-			{#if ttsReady}
-				<Button preset="button-ghost" size="sm" onclick={unloadTts} disabled={loadingSlot}>Unload</Button>
-			{/if}
-		</div>
-	</section>
-
-	{#if ttsReady}
-		<section class="voice-picker">
-			<Text size="sm" weight="bold">Voices ({voices.length})</Text>
-			<div class="voice-grid">
-				{#each voices as v (v.id)}
-					<button
-						class="voice-card"
-						class:selected={selectedVoice === v.id}
-						onclick={() => { selectedVoice = v.id; }}
-						ondblclick={() => handlePreview(v.id)}
-					>
-						<Text size="sm" weight="bold">{v.label}</Text>
-						<Text size="xs" class="voice-meta">{v.gender} · {v.style}</Text>
-						<Text size="xs" class="voice-desc">{v.description}</Text>
-					</button>
-				{/each}
-			</div>
-			<Text size="xs" class="voice-hint">Double-click a voice to preview. Click to select.</Text>
-		</section>
-
-		<section class="speed-control">
-			<Text size="sm" weight="bold">Speed: {speed.toFixed(1)}x</Text>
-			<input type="range" min="0.5" max="2.0" step="0.1" bind:value={speed} class="speed-slider" />
-		</section>
-
-		<section class="speak-test">
-			<Text size="sm" weight="bold">Test Synthesis</Text>
-			<textarea class="test-input" bind:value={testText} rows={3} placeholder="Type text to speak..."></textarea>
-			<Button preset="button-primary" size="md" onclick={handleSpeak} disabled={speaking || !testText.trim()}>
-				{#if speaking}
-					<Spinner size="xs" />
-					Speaking...
+<ServiceDevtoolShell
+	title="Text-to-Speech"
+	description="Kokoro — voice synthesis"
+	icon={Volume2}
+	axis="capabilities"
+	health={badge}
+>
+	{#snippet status()}
+		<div class="flex flex-col gap-3">
+			<div class="flex items-center gap-3">
+				<Text size="sm" weight="bold">voice.tts</Text>
+				{#if ttsReady}
+					<Badge tone="positive" size="sm">
+						<Check size={8} />
+						Ready
+					</Badge>
+				{:else if ttsSlot?.assigned_model_id}
+					<Badge tone="neutral" size="sm">Assigned</Badge>
 				{:else}
-					<Volume2 size={16} />
-					Speak
+					<Badge tone="neutral" size="sm">Empty</Badge>
 				{/if}
-			</Button>
-		</section>
-	{:else}
-		<div class="empty-state">
-			<Text size="sm" class="empty-text">Load the voice.tts model to access voice controls.</Text>
+			</div>
+
+			{#if ttsSlot?.assigned_model_id}
+				<Text size="xs" color="muted">
+					Assigned model id: <span class="font-mono">{ttsSlot.assigned_model_id}</span>
+				</Text>
+			{:else}
+				<Text size="xs" color="muted">
+					No model assigned. Use the setup wizard's Voice card to pick a
+					Kokoro build for this slot.
+				</Text>
+			{/if}
+
+			{#if ttsReady}
+				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
+					<Text size="xs" weight="bold">Catalog</Text>
+					<Text size="xs" color="muted">
+						{voices.length} voices available · current selection:
+						<span class="font-mono">{selectedVoice}</span> · speed {speed.toFixed(1)}×
+					</Text>
+				</div>
+			{/if}
+
+			{#if error}
+				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
+					<Text size="xs">{error}</Text>
+				</div>
+			{/if}
 		</div>
-	{/if}
+	{/snippet}
 
-	<section class="future-section">
-		<Text size="sm" weight="bold">Voice Cloning</Text>
-		<Text size="xs" class="future-text">
-			Coming soon — Kokoro ONNX does not currently support reference-based voice cloning.
-			Custom voices can be created by blending existing voice embeddings (Sprint B).
+	{#snippet config()}
+		<Text size="sm" color="muted">
+			TODO(reality-gap 2026-04-21): Kokoro runtime config (pitch shift,
+			speaker bias, sample-rate output) not yet exposed as a Tauri
+			command. Model selection lives in the setup wizard; live per-slot
+			overrides arrive when <code>voice_tts_save_config</code> lands.
 		</Text>
-	</section>
-</div>
+	{/snippet}
 
-<style>
-	.tts-page {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-		padding: 1.5rem;
-		max-width: 52rem;
-	}
+	{#snippet logs()}
+		<Text size="sm" color="muted">
+			TODO(reality-gap 2026-04-21): Kokoro-scoped log filter not yet
+			wired. Session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
+			filter by <code>component=devtools.tts</code>.
+		</Text>
+	{/snippet}
 
-	.slot-controls {
-		padding: 0.75rem 1rem;
-		border-radius: 0.75rem;
-		background: var(--surface-raised);
-		border: 0.0625rem solid var(--border-soft);
-	}
+	{#snippet actions()}
+		{#if loadingSlot}
+			<LoadingBlock
+				title="Loading Kokoro voices"
+				subtitle="Safely loading into RAM / VRAM — sit tight."
+				showContent
+				contentKind="dyk"
+			/>
+		{:else}
+			<div class="flex flex-col gap-4">
+				<!-- Slot load / unload -->
+				<div class="flex flex-wrap items-center gap-2">
+					{#if !ttsReady && ttsSlot?.assigned_model_id}
+						<Button preset="button-primary" size="sm" onclick={loadTts}>
+							<Play size={12} />
+							Load Kokoro
+						</Button>
+					{/if}
+					{#if ttsReady}
+						<Button preset="button-ghost" size="sm" onclick={unloadTts}>
+							<PowerOff size={12} />
+							Unload Kokoro
+						</Button>
+					{/if}
+					{#if !ttsSlot?.assigned_model_id}
+						<Text size="xs" color="muted">
+							Assign a Kokoro model in the setup wizard first.
+						</Text>
+					{/if}
+				</div>
 
-	.slot-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
+				{#if ttsReady}
+					<!-- Voice picker -->
+					<div class="flex flex-col gap-2">
+						<Text size="sm" weight="bold">Voices ({voices.length})</Text>
+						<div class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));">
+							{#each voices as v (v.id)}
+								<button
+									type="button"
+									class="flex flex-col items-start gap-0.5 rounded-lg p-3 text-left transition-colors"
+									style={selectedVoice === v.id
+										? "background: var(--accent-teal-fill); border: 1px solid var(--accent-teal-main);"
+										: "background: var(--surface-base); border: 1px solid var(--border-subtle);"}
+									onclick={() => {
+										selectedVoice = v.id;
+									}}
+									ondblclick={() => handlePreview(v.id)}
+									title="Double-click to preview"
+								>
+									<Text size="sm" weight="bold">{v.label}</Text>
+									<Text size="xs" color="muted">{v.gender} · {v.style}</Text>
+									<Text size="xs" color="muted">{v.description}</Text>
+								</button>
+							{/each}
+						</div>
+						<Text size="xs" color="muted">
+							Double-click a voice to preview. Click to select.
+						</Text>
+					</div>
 
-	.voice-picker {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
+					<!-- Speed control -->
+					<div class="flex flex-col gap-2">
+						<Text size="sm" weight="bold">Speed · {speed.toFixed(1)}×</Text>
+						<input
+							type="range"
+							min="0.5"
+							max="2.0"
+							step="0.1"
+							bind:value={speed}
+							class="w-full max-w-80"
+							style="accent-color: var(--accent-teal-main);"
+						/>
+					</div>
 
-	.voice-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-		gap: 0.5rem;
-	}
+					<!-- Speak test -->
+					<div class="flex flex-col gap-2">
+						<Text size="sm" weight="bold">Test synthesis</Text>
+						<textarea
+							bind:value={testText}
+							rows={3}
+							placeholder="Type text for Clyffy to speak…"
+							class="w-full rounded-lg p-3 text-sm resize-none outline-none"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						></textarea>
+						<Button
+							preset="button-primary"
+							size="md"
+							onclick={handleSpeak}
+							disabled={speaking || !testText.trim()}
+						>
+							{#if speaking}
+								<Spinner size="xs" />
+								Speaking…
+							{:else}
+								<Volume2 size={16} />
+								Speak
+							{/if}
+						</Button>
+					</div>
+				{:else}
+					<Text size="sm" color="muted">
+						Load Kokoro to unlock the voice picker, speed, and
+						synthesis controls.
+					</Text>
+				{/if}
 
-	.voice-card {
-		display: flex;
-		flex-direction: column;
-		gap: 0.125rem;
-		padding: 0.75rem;
-		border-radius: 0.5rem;
-		border: 0.0625rem solid var(--border-soft);
-		background: var(--surface-raised);
-		cursor: pointer;
-		text-align: left;
-		transition: all 150ms ease-out;
-	}
-	.voice-card:hover {
-		border-color: var(--border-default);
-	}
-	.voice-card.selected {
-		border-color: var(--accent-teal-main);
-		background: color-mix(in oklch, var(--accent-teal-fill) 60%, transparent);
-	}
-
-	:global(.voice-meta) { color: var(--text-muted); }
-	:global(.voice-desc) { color: var(--text-muted); }
-	:global(.voice-hint) { color: var(--text-muted); }
-
-	.speed-control {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.speed-slider {
-		width: 100%;
-		max-width: 20rem;
-		accent-color: var(--accent-teal-main);
-	}
-
-	.speak-test {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.test-input {
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		border: 0.0625rem solid var(--border-soft);
-		background: var(--surface-raised);
-		color: var(--text-primary);
-		font-size: 0.875rem;
-		font-family: inherit;
-		resize: vertical;
-	}
-	.test-input:focus {
-		border-color: var(--accent-teal-main);
-		outline: none;
-	}
-
-	.empty-state {
-		padding: 2rem;
-		text-align: center;
-	}
-	:global(.empty-text) { color: var(--text-muted); }
-
-	.future-section {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		padding: 1rem;
-		border-radius: 0.75rem;
-		border: 0.0625rem dashed var(--border-subtle);
-		opacity: 0.6;
-	}
-	:global(.future-text) { color: var(--text-muted); }
-</style>
+				<!-- Future -->
+				<div class="rounded-lg p-3 mt-2 opacity-60" style="border: 1px dashed var(--border-subtle);">
+					<Text size="sm" weight="bold">Voice cloning</Text>
+					<Text size="xs" color="muted">
+						Coming later. Kokoro ONNX does not currently support
+						reference-based voice cloning. Custom voices can be
+						created by blending existing voice embeddings (Voice
+						Sprint B).
+					</Text>
+				</div>
+			</div>
+		{/if}
+	{/snippet}
+</ServiceDevtoolShell>

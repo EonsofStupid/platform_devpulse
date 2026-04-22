@@ -15,6 +15,11 @@ use crate::cortex::persistence::SqlAdapter;
 ///
 /// Called during boot after user relational is ready.
 /// Returns the number of entries upserted (0 if versions matched).
+///
+/// # Errors
+/// Returns an error if the embedded manifest cannot be parsed, the version
+/// lookup fails, any entry upsert fails, or the stored version cannot be
+/// updated in `knowledge_config`.
 pub async fn sync_to_libsql(
     adapter: &dyn SqlAdapter,
 ) -> Result<usize, String> {
