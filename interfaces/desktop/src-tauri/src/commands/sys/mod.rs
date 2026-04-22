@@ -6,6 +6,7 @@ pub mod boot;
 pub mod cache;
 pub mod config;
 pub mod graph;
+pub mod grammar;
 pub mod guard;
 pub mod logger;
 pub mod metrics;

@@ -173,6 +173,11 @@ pub fn run() {
         commands::sys::rro_state::trigger_rro_purge,
         commands::sys::rro_state::trigger_rro_fork,
         commands::sys::rro_state::set_rro_proximity,
+        // Grammar (structured-output constraint engine) — same tier as RRO
+        commands::sys::grammar::get_grammar_state,
+        commands::sys::grammar::set_grammar_kind,
+        commands::sys::grammar::enable_grammar,
+        commands::sys::grammar::disable_grammar,
         // Graph store (SurrealDB) devtools
         commands::sys::graph::ping_graph,
         commands::sys::graph::graph_health_all,
@@ -735,6 +740,23 @@ async fn boot_task(
                     tracing::info!("rro state event bridge: broadcast channel closed");
                 });
                 tracing::info!("rro state event bridge: spawned");
+            }
+
+            // ── Grammar state event bridge ───────────────────────
+            // Same shape as the RRO bridge. Subscribes to the grammar
+            // handle's broadcast channel and forwards snapshots onto
+            // `platform:grammar-changed`. Frontend listens without polling.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let mut rx = platform_arc.grammar().subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (snapshot, _producer_cx) = envelope.into_parts();
+                        let _ = app_handle.emit("platform:grammar-changed", &snapshot);
+                    }
+                    tracing::info!("grammar event bridge: broadcast channel closed");
+                });
+                tracing::info!("grammar event bridge: spawned");
             }
 
             // ── Hardware metrics push loop ───────────────────────

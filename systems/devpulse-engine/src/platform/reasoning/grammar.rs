@@ -57,6 +57,9 @@ pub enum GrammarKind {
 }
 
 impl GrammarKind {
+    /// Snake-case wire-format label for this kind. Matches `serde(rename_all
+    /// = "snake_case")` so the value is stable across logging, telemetry,
+    /// and the Tauri command surface.
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -178,6 +181,12 @@ pub struct GrammarHandle {
 }
 
 impl GrammarHandle {
+    /// Construct a fresh grammar handle.
+    ///
+    /// Initial state: `Idle` / `Off` / disabled / zero counters. The
+    /// broadcast channel is allocated with [`EVENT_BROADCAST_CAPACITY`]
+    /// slots; slow subscribers will see lag signals rather than block
+    /// producers.
     #[must_use]
     pub fn new() -> Self {
         let (tx, _rx) = broadcast_channel(EVENT_BROADCAST_CAPACITY);

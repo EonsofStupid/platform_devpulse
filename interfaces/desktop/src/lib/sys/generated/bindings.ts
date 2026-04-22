@@ -551,6 +551,53 @@ async setRroProximity(value: number) : Promise<Result<RroStateSnapshot, string>>
 }
 },
 /**
+ * Get the current grammar snapshot.
+ */
+async getGrammarState() : Promise<Result<GrammarSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_grammar_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Set the active grammar kind (does not imply enforcement).
+ */
+async setGrammarKind(kind: GrammarKind) : Promise<Result<GrammarSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_grammar_kind", { kind }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Enable the grammar engine with an opaque grammar id.
+ * 
+ * The caller supplies the id; it's treated as an opaque handle for
+ * display (`active_grammar_id` in snapshots) and never parsed.
+ */
+async enableGrammar(grammarId: string) : Promise<Result<GrammarSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enable_grammar", { grammarId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Disable the grammar engine entirely.
+ */
+async disableGrammar() : Promise<Result<GrammarSnapshot, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("disable_grammar") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Ping a single graph namespace — returns reachable + latency.
  * 
  * # Errors
@@ -3840,6 +3887,109 @@ format: ModelFormat;
  * Maturity of this `(arch, format)` path.
  */
 status: SupportStatus }
+/**
+ * A single enforcement failure. Held in a bounded ring for replay.
+ */
+export type GrammarFailure = { 
+/**
+ * Unix epoch milliseconds.
+ */
+at_ms: number; 
+/**
+ * The grammar kind that was enforcing.
+ */
+kind: GrammarKind; 
+/**
+ * Grammar ID that failed (opaque).
+ */
+grammar_id: string; 
+/**
+ * Short human-readable reason (no stack, no PII).
+ */
+reason: string }
+/**
+ * What shape the grammar engine is currently enforcing.
+ */
+export type GrammarKind = 
+/**
+ * No constraint — model emits free text.
+ */
+"off" | 
+/**
+ * Output must match a JSON Schema.
+ */
+"json_schema" | 
+/**
+ * Output must match a regex.
+ */
+"regex" | 
+/**
+ * Output must be one of a fixed set of values.
+ */
+"enum" | 
+/**
+ * Custom kernel-defined grammar (public label only).
+ */
+"custom"
+/**
+ * A snapshot of the grammar machine.
+ * 
+ * Returned by `get_grammar_state` Tauri command. Emitted as the payload
+ * of `platform:grammar-changed` Tauri events on every change.
+ */
+export type GrammarSnapshot = { 
+/**
+ * Current status.
+ */
+status: GrammarStatus; 
+/**
+ * Currently-active grammar kind.
+ */
+kind: GrammarKind; 
+/**
+ * Opaque identifier of the active grammar. Empty if none.
+ */
+active_grammar_id: string; 
+/**
+ * Total number of enforcements since boot (successful).
+ */
+enforcement_count: number; 
+/**
+ * Total number of failures since boot.
+ */
+failure_count: number; 
+/**
+ * Whether the engine is enabled at the platform level.
+ */
+enabled: boolean; 
+/**
+ * Last change unix epoch ms.
+ */
+last_change_at_ms: number; 
+/**
+ * Recent failures (newest first, capped at `FAILURE_HISTORY_CAP`).
+ */
+recent_failures: GrammarFailure[] }
+/**
+ * Overall health of the grammar engine.
+ */
+export type GrammarStatus = 
+/**
+ * No active grammar, no enforcement in progress.
+ */
+"idle" | 
+/**
+ * Actively constraining model output.
+ */
+"enforcing" | 
+/**
+ * Last enforcement failed — output didn't match.
+ */
+"failed" | 
+/**
+ * Grammar is disabled at the system level.
+ */
+"disabled"
 /**
  * Health of all three graph namespaces.
  */

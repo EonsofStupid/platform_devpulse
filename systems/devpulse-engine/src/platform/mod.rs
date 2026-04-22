@@ -182,7 +182,6 @@ pub struct Platform {
     // ── Vector (RRO) ──────────────────────────────────────────
     #[cfg(feature = "rro")]
     vector: Option<Arc<VectorService>>,
-    // ── Grammar is kernel-owned; facade wiring lands separately ─────────
     // Embedder + Whisper removed — slot-managed by model loader.
     // ── Model Loader (Inference) ──────────────────────────────
     #[cfg(feature = "inference")]
@@ -534,6 +533,19 @@ impl Platform {
     /// exposes snapshot + public verbs (gather/purge/fork).
     pub fn reasoning(&self) -> &RroStateHandle {
         &self.reasoning
+    }
+
+    // ── Grammar accessor (structured-output constraint engine) ──
+
+    /// Get the grammar handle.
+    ///
+    /// Always present — in-memory facade, independent of persistence services.
+    /// The kernel grammar engine drives enforcement / failure counters through
+    /// `record_enforcement` / `record_failure`; the façade exposes snapshot +
+    /// public verbs (`set_kind` / `enable` / `disable`) and a broadcast
+    /// subscription for live UI updates.
+    pub fn grammar(&self) -> &GrammarHandle {
+        &self.grammar
     }
 
     /// Graceful shutdown — close all services in reverse boot order.
