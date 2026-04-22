@@ -50,11 +50,7 @@ fn desktop_config_root() -> Option<PathBuf> {
     }
     #[cfg(target_os = "macos")]
     {
-        home_dir().map(|h| {
-            h.join("Library")
-                .join("Application Support")
-                .join("Claude")
-        })
+        home_dir().map(|h| h.join("Library").join("Application Support").join("Claude"))
     }
     #[cfg(target_os = "linux")]
     {

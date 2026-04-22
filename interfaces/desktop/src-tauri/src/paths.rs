@@ -32,7 +32,11 @@ pub fn resolve_data_dir_standalone() -> Result<PathBuf, String> {
 
     if cfg!(debug_assertions) {
         let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        if let Some(root) = manifest.parent().and_then(|p| p.parent()).and_then(|p| p.parent()) {
+        if let Some(root) = manifest
+            .parent()
+            .and_then(|p| p.parent())
+            .and_then(|p| p.parent())
+        {
             let candidate = root.join(".userdata");
             if candidate.is_dir() {
                 return Ok(candidate);

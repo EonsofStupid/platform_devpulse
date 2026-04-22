@@ -7,8 +7,12 @@
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::env;
+use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus};
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 #[path = "../../tools/platform_config.rs"]
 mod platform_config;
@@ -127,17 +131,25 @@ impl Workspace {
             .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))
     }
 
-    /// Spawn a tool with stderr inherited (visible to user) but non-blocking.
+    /// Spawn a tool with BOTH stdio streams inherited, non-blocking.
     ///
     /// Use this when you want the user to see real-time progress (e.g. cargo
-    /// compilation output) while still being able to check the exit code later.
-    /// Stdout is piped (captured), stderr streams directly to the terminal.
+    /// compilation output) without any intermediation. The caller must still
+    /// `.wait()` on the returned [`Child`] — nothing is captured on either
+    /// pipe, so no drain thread is required.
+    ///
+    /// Historical note: an earlier version of this helper piped stdout with
+    /// no reader, which silently enqueued every stdout line into a 4 KB
+    /// Windows buffer and eventually deadlocked long-running children. If
+    /// you also need a captured transcript, use [`exec_tee_log`](Self::exec_tee_log)
+    /// instead — it merges both streams, tees to the terminal, and writes
+    /// a log file.
     pub fn spawn_in_verbose(&self, dir: &Path, program: &str, args: &[&str]) -> Result<Child> {
         use std::process::Stdio;
         self.cmd(program)?
             .args(args)
             .current_dir(dir)
-            .stdout(Stdio::piped())
+            .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
             .spawn()
             .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))
@@ -156,6 +168,121 @@ impl Workspace {
             .stderr(Stdio::piped())
             .spawn()
             .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))
+    }
+
+    /// Run a tool, tee both streams to the terminal AND a transcript file, block until done.
+    ///
+    /// Both stdout and stderr are piped and drained by dedicated threads —
+    /// this avoids the 4 KB Windows pipe-buffer deadlock that plagues
+    /// naive `Stdio::piped()` usage without a reader. Each line is echoed
+    /// to the terminal (stdout → stdout, stderr → stderr) and appended to
+    /// the log file as a single merged transcript.
+    ///
+    /// On non-zero exit the caller gets the [`ExitStatus`] back without
+    /// being told "compile errors" — inspecting the log tail is how you
+    /// classify the failure stage.
+    ///
+    /// Creates the log file's parent directory if needed. Truncates the
+    /// log on each run so you always read the most recent transcript.
+    pub fn exec_tee_log(
+        &self,
+        dir: &Path,
+        program: &str,
+        args: &[&str],
+        log_path: &Path,
+    ) -> Result<ExitStatus> {
+        use std::process::Stdio;
+
+        if let Some(parent) = log_path.parent() {
+            std::fs::create_dir_all(parent)
+                .with_context(|| format!("creating log dir {}", parent.display()))?;
+        }
+        let log_file = OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(log_path)
+            .with_context(|| format!("opening log file {}", log_path.display()))?;
+        let log = Arc::new(Mutex::new(log_file));
+
+        let mut child = self
+            .cmd(program)?
+            .args(args)
+            .current_dir(dir)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))?;
+
+        let stdout = child
+            .stdout
+            .take()
+            .context("child stdout pipe missing — Stdio::piped() should have created one")?;
+        let stderr = child
+            .stderr
+            .take()
+            .context("child stderr pipe missing — Stdio::piped() should have created one")?;
+
+        let log_out = Arc::clone(&log);
+        let stdout_handle = thread::spawn(move || {
+            let reader = BufReader::new(stdout);
+            for line in reader.lines().map_while(Result::ok) {
+                println!("{line}");
+                if let Ok(mut f) = log_out.lock() {
+                    let _ = writeln!(f, "{line}");
+                }
+            }
+        });
+
+        let log_err = Arc::clone(&log);
+        let stderr_handle = thread::spawn(move || {
+            let reader = BufReader::new(stderr);
+            for line in reader.lines().map_while(Result::ok) {
+                eprintln!("{line}");
+                if let Ok(mut f) = log_err.lock() {
+                    let _ = writeln!(f, "{line}");
+                }
+            }
+        });
+
+        let status = child
+            .wait()
+            .with_context(|| format!("failed to wait on `{program}`"))?;
+
+        // Drain reader threads so their final buffered lines land in the log.
+        let _ = stdout_handle.join();
+        let _ = stderr_handle.join();
+
+        if let Ok(mut f) = log.lock() {
+            let _ = f.flush();
+        }
+
+        Ok(status)
+    }
+
+    /// Read `tauri.conf.json` and return the `productName` — the SSOT for
+    /// the final binary filename that tauri-bundler writes to
+    /// `target/release/<productName>-app.exe` (with `-app` suffix on Windows).
+    ///
+    /// Why: build_release must locate the artifact without duplicating the
+    /// product name as a string literal — drift between tauri.conf.json and
+    /// xtask would silently produce "not found" lies in the artifact report.
+    pub fn tauri_product_name(&self) -> Result<String> {
+        let conf_path = self
+            .root
+            .join("interfaces")
+            .join("desktop")
+            .join("src-tauri")
+            .join("tauri.conf.json");
+        let raw = std::fs::read_to_string(&conf_path)
+            .with_context(|| format!("reading {}", conf_path.display()))?;
+        let value: serde_json::Value = serde_json::from_str(&raw)
+            .with_context(|| format!("parsing {}", conf_path.display()))?;
+        let name = value
+            .get("productName")
+            .and_then(serde_json::Value::as_str)
+            .with_context(|| format!("`productName` missing from {}", conf_path.display()))?;
+        Ok(name.to_string())
     }
 }
 

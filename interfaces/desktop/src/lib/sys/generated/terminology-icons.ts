@@ -5,27 +5,54 @@
  * Everything else is generated from kernel_terms.toml.
  *
  * Maps engine step names (what Platform::boot() emits) to Lucide icons.
+ * Keys MUST match the literal `engine` strings registered in
+ * kernel_terms.toml AND the `InitEvent` names emitted by
+ * systems/devpulse-engine/src/platform/boot/*.
  */
 
 import {
-	Settings,
-	Database,
 	BarChart3,
+	BookOpen,
 	Brain,
-	Zap,
+	Cpu,
+	Database,
+	FileCheck,
+	Globe,
+	PlayCircle,
 	Radar,
+	Server,
+	Settings,
+	Users,
+	Zap,
 } from "lucide-svelte";
 
 type LucideIcon = typeof Settings;
 
 /** Engine term → Lucide icon component */
 const ICONS: Record<string, LucideIcon> = {
+	// Architecture
 	"data layer": Settings,
-	"Relational store": Database,
-	"Analytics store": BarChart3,
+
+	// Stores
+	"System relational": Database,
+	"User relational": Database,
+	"System analytics": BarChart3,
 	"Graph store": Brain,
-	"Cache store": Zap,
+	"System cache": Zap,
 	"Vector store": Radar,
+
+	// Graph namespaces & HTTP surface
+	"SurrealDB HTTP": Server,
+	"User graph namespace": Users,
+	"Global graph namespace": Globe,
+
+	// AI
+	"Model Loader": Cpu,
+
+	// System stages
+	preflight: PlayCircle,
+	"Knowledge sync": BookOpen,
+	"Grammar service": FileCheck,
 };
 
 /** Get Lucide icon for an engine term. Returns undefined if no icon mapped. */

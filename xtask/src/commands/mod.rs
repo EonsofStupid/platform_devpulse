@@ -9,6 +9,7 @@ pub mod deps;
 pub mod dev;
 pub mod fetch_devforge;
 pub mod ip_boundary;
+pub mod package_portable;
 pub mod preflight;
 pub mod sccache;
 pub mod verify;

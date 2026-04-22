@@ -1,0 +1,469 @@
+//! Static SSOT registry of every AI provider DevPulse knows about.
+//!
+//! Adding a provider:
+//! 1. Add a variant to `ProviderId` and `Vendor` in `types.rs`.
+//! 2. Append an `AiProvider` entry below.
+//! 3. Verify capabilities + transports against the vendor's docs.
+//! 4. Run `cargo check -p devpulse-engine`.
+//!
+//! Removing a provider is a breaking change — the wire identifier is in
+//! user config files, telemetry, devtool URLs. Deprecate first.
+//!
+//! # Capability data accuracy
+//! Capabilities reflect the published surface as of April 2026. They
+//! describe what the *vendor* offers, not what DevPulse currently uses.
+//! The lane router consults this to decide which providers can serve a
+//! given task type (chat, embedding, vision, voice).
+
+use super::types::*;
+
+/// Every provider DevPulse knows about, in display order.
+///
+/// Ordering convention: subscription path first, hosted vendors next,
+/// local runtimes last. Keep entries grouped by classification so the
+/// devtool's tabbed view renders coherently when filtered.
+pub const PROVIDERS: &[AiProvider] = &[
+    // ── Subscription path (dev-only) ─────────────────────────────────
+    AiProvider {
+        id: ProviderId::AnthropicSubscription,
+        display_name: "Claude (Subscription via MCP)",
+        vendor: Vendor::Anthropic,
+        billing: BillingModel::Subscription,
+        transports: &[
+            Transport::SubprocessMcp { client: McpClient::ClaudeCode },
+            Transport::SubprocessMcp { client: McpClient::ClaudeDesktop },
+        ],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: false,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::SubprocessMcp,
+        docs_url: "https://code.claude.com/docs/en/mcp",
+        classifications: &[Classification::SubscriptionPath],
+        dev_only: true,
+    },
+    // ── Native API clients (hand-rolled, vendor-specific protocols) ──
+    AiProvider {
+        id: ProviderId::AnthropicApi,
+        display_name: "Anthropic API",
+        vendor: Vendor::Anthropic,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::ApiKey {
+            base_url: "https://api.anthropic.com/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: false,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AnthropicNative,
+        docs_url: "https://docs.claude.com/en/api/overview",
+        classifications: &[Classification::Native],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::GoogleGemini,
+        display_name: "Google Gemini",
+        vendor: Vendor::Google,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::ApiKey {
+            base_url: "https://generativelanguage.googleapis.com/v1beta",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: true,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::GeminiNative,
+        docs_url: "https://ai.google.dev/gemini-api/docs",
+        classifications: &[Classification::Native],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Cohere,
+        display_name: "Cohere",
+        vendor: Vendor::Cohere,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::ApiKey {
+            base_url: "https://api.cohere.com/v2",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: false,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::CohereNative,
+        docs_url: "https://docs.cohere.com/reference",
+        classifications: &[Classification::Native],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Replicate,
+        display_name: "Replicate",
+        vendor: Vendor::Replicate,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::ApiKey {
+            base_url: "https://api.replicate.com/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: false,
+            vision: true,
+            voice: true,
+            structured_outputs: false,
+        },
+        sdk: SdkBackend::ReplicateNative,
+        docs_url: "https://replicate.com/docs/reference/http",
+        classifications: &[Classification::Native],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::HuggingFace,
+        display_name: "Hugging Face Inference",
+        vendor: Vendor::HuggingFace,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::ApiKey {
+            base_url: "https://api-inference.huggingface.co",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: false,
+            vision: true,
+            voice: true,
+            structured_outputs: false,
+        },
+        sdk: SdkBackend::HuggingFaceNative,
+        docs_url: "https://huggingface.co/docs/api-inference",
+        classifications: &[Classification::Native],
+        dev_only: false,
+    },
+    // ── OpenAI-compatible (single client, multiple base URLs) ────────
+    AiProvider {
+        id: ProviderId::OpenAi,
+        display_name: "OpenAI",
+        vendor: Vendor::OpenAi,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.openai.com/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: true,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://platform.openai.com/docs",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Mistral,
+        display_name: "Mistral",
+        vendor: Vendor::Mistral,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.mistral.ai/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://docs.mistral.ai",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Xai,
+        display_name: "xAI Grok",
+        vendor: Vendor::Xai,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.x.ai/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: false,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://docs.x.ai",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::DeepSeek,
+        display_name: "DeepSeek",
+        vendor: Vendor::DeepSeek,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.deepseek.com/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: false,
+            tool_use: true,
+            vision: false,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://api-docs.deepseek.com",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Groq,
+        display_name: "Groq",
+        vendor: Vendor::Groq,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.groq.com/openai/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: false,
+            tool_use: true,
+            vision: true,
+            voice: true,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://console.groq.com/docs",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Together,
+        display_name: "Together AI",
+        vendor: Vendor::Together,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.together.xyz/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://docs.together.ai",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Fireworks,
+        display_name: "Fireworks AI",
+        vendor: Vendor::Fireworks,
+        billing: BillingModel::PerToken,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "https://api.fireworks.ai/inference/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://docs.fireworks.ai",
+        classifications: &[Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    // ── Local runtimes (operator's own compute) ──────────────────────
+    AiProvider {
+        id: ProviderId::Ollama,
+        display_name: "Ollama (local)",
+        vendor: Vendor::Ollama,
+        billing: BillingModel::Local,
+        transports: &[
+            Transport::LocalHttp { default_port: 11434 },
+            Transport::OpenAiCompatible {
+                base_url: "http://localhost:11434/v1",
+            },
+        ],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::OllamaNative,
+        docs_url: "https://github.com/ollama/ollama/blob/main/docs/api.md",
+        classifications: &[Classification::Local, Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::LmStudio,
+        display_name: "LM Studio (local)",
+        vendor: Vendor::LmStudio,
+        billing: BillingModel::Local,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "http://localhost:1234/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://lmstudio.ai/docs/local-server",
+        classifications: &[Classification::Local, Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Vllm,
+        display_name: "vLLM (self-hosted)",
+        vendor: Vendor::Vllm,
+        billing: BillingModel::Local,
+        transports: &[Transport::OpenAiCompatible {
+            base_url: "http://localhost:8000/v1",
+        }],
+        capabilities: Capabilities {
+            chat: true,
+            embedding: true,
+            tool_use: true,
+            vision: true,
+            voice: false,
+            structured_outputs: true,
+        },
+        sdk: SdkBackend::AsyncOpenAi,
+        docs_url: "https://docs.vllm.ai",
+        classifications: &[Classification::Local, Classification::OpenAiCompatible],
+        dev_only: false,
+    },
+];
+
+/// Look up a provider by stable id. `None` if not registered.
+pub fn find(id: ProviderId) -> Option<&'static AiProvider> {
+    PROVIDERS.iter().find(|p| p.id == id)
+}
+
+/// Filter providers by classification.
+pub fn by_classification(c: Classification) -> impl Iterator<Item = &'static AiProvider> {
+    PROVIDERS.iter().filter(move |p| p.classifications.contains(&c))
+}
+
+/// Filter providers by capability — used by the lane router.
+pub fn by_capability(filter: impl Fn(&Capabilities) -> bool) -> impl Iterator<Item = &'static AiProvider> {
+    PROVIDERS.iter().filter(move |p| filter(&p.capabilities))
+}
+
+/// All entries visible in the current build.
+///
+/// Release builds (no `kernel` feature) hide every `dev_only = true`
+/// provider — primarily the subscription-as-MCP path which requires
+/// vendor prior approval per the Agent SDK terms of service.
+pub fn visible() -> impl Iterator<Item = &'static AiProvider> {
+    PROVIDERS.iter().filter(|p| {
+        if p.dev_only {
+            cfg!(feature = "kernel")
+        } else {
+            true
+        }
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_provider_has_at_least_one_transport() {
+        for p in PROVIDERS {
+            assert!(
+                !p.transports.is_empty(),
+                "{:?} has no transports — at least one required",
+                p.id
+            );
+        }
+    }
+
+    #[test]
+    fn every_provider_has_at_least_one_classification() {
+        for p in PROVIDERS {
+            assert!(
+                !p.classifications.is_empty(),
+                "{:?} has no classifications — at least one required",
+                p.id
+            );
+        }
+    }
+
+    #[test]
+    fn provider_ids_are_unique() {
+        let mut seen = std::collections::HashSet::new();
+        for p in PROVIDERS {
+            assert!(seen.insert(p.id), "duplicate ProviderId: {:?}", p.id);
+        }
+    }
+
+    #[test]
+    fn find_returns_what_we_put_in() {
+        assert_eq!(find(ProviderId::OpenAi).unwrap().vendor, Vendor::OpenAi);
+        assert_eq!(
+            find(ProviderId::AnthropicApi).unwrap().sdk,
+            SdkBackend::AnthropicNative
+        );
+    }
+
+    #[test]
+    fn openai_compatible_classification_groups_ten_or_more() {
+        let count = by_classification(Classification::OpenAiCompatible).count();
+        assert!(
+            count >= 10,
+            "expected at least 10 OpenAI-compatible providers, found {count}"
+        );
+    }
+
+    #[test]
+    fn subscription_path_is_dev_only() {
+        let p = find(ProviderId::AnthropicSubscription).unwrap();
+        assert!(p.dev_only, "subscription path must be dev_only");
+    }
+
+    #[test]
+    fn capability_filter_finds_chat_providers() {
+        let chat_count = by_capability(|c| c.chat).count();
+        assert_eq!(
+            chat_count,
+            PROVIDERS.len(),
+            "every registered provider should advertise chat"
+        );
+    }
+}

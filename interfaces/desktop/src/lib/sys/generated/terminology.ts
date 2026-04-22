@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-04-22T02:49:35.370Z
+ * Generated: 2026-04-22T12:07:57.947Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -352,15 +352,22 @@ export const TERMS: Record<string, Term> = {
 		category: "architecture",
 		context: ["logs","traces"],
 	},
-	"Relational store": {
-		engine: "Relational store",
-		prod: "Data Store",
-		dev: "LibSQL",
+	"System relational": {
+		engine: "System relational",
+		prod: "System Data Store",
+		dev: "LibSQL (system)",
 		category: "stores",
 		context: ["logs","traces","ui-text"],
 	},
-	"Analytics store": {
-		engine: "Analytics store",
+	"User relational": {
+		engine: "User relational",
+		prod: "User Data Store",
+		dev: "LibSQL (user)",
+		category: "stores",
+		context: ["logs","traces","ui-text"],
+	},
+	"System analytics": {
+		engine: "System analytics",
 		prod: "Analytics Engine",
 		dev: "DuckDB",
 		category: "stores",
@@ -373,8 +380,8 @@ export const TERMS: Record<string, Term> = {
 		category: "stores",
 		context: ["logs","traces","ui-text"],
 	},
-	"Cache store": {
-		engine: "Cache store",
+	"System cache": {
+		engine: "System cache",
 		prod: "Memory Cache",
 		dev: "Moka",
 		category: "stores",
@@ -395,10 +402,11 @@ export type TermCategory = (typeof CATEGORIES)[number];
 
 /** Store terms for boot/status display — indexed by engine step name */
 export const STORE_TERMS: Record<string, Term> = {
-	"Relational store": TERMS["Relational store"],
-	"Analytics store": TERMS["Analytics store"],
+	"System relational": TERMS["System relational"],
+	"User relational": TERMS["User relational"],
+	"System analytics": TERMS["System analytics"],
 	"Graph store": TERMS["Graph store"],
-	"Cache store": TERMS["Cache store"],
+	"System cache": TERMS["System cache"],
 	"Vector store": TERMS["Vector store"],
 };
 

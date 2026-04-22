@@ -114,8 +114,8 @@ fn upsert_devpulse_entry(path: &Path, entry: Option<Value>) -> Result<(), String
 
     // Load current contents (or start from an empty object).
     let mut root: Map<String, Value> = if path.exists() {
-        let bytes = std::fs::read(path)
-            .map_err(|e| format!("Read failed for {}: {e}", path.display()))?;
+        let bytes =
+            std::fs::read(path).map_err(|e| format!("Read failed for {}: {e}", path.display()))?;
         if bytes.is_empty() {
             Map::new()
         } else {
@@ -169,8 +169,7 @@ fn upsert_devpulse_entry(path: &Path, entry: Option<Value>) -> Result<(), String
 
     std::fs::write(&tmp_path, &serialized)
         .map_err(|e| format!("Write to temp file failed: {e}"))?;
-    std::fs::rename(&tmp_path, path)
-        .map_err(|e| format!("Rename into place failed: {e}"))?;
+    std::fs::rename(&tmp_path, path).map_err(|e| format!("Rename into place failed: {e}"))?;
     Ok(())
 }
 

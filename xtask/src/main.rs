@@ -35,6 +35,10 @@ enum Commands {
     /// Build the portable release bundle — standalone .exe + Windows installers.
     /// Runs `pnpm tauri build` with the hardened [build.deps.*] env.
     BuildRelease,
+    /// Package a portable folder + zip from the already-compiled release build.
+    /// Reads `tauri.conf.json` for SSOT: productName/version/externalBin/resources.
+    /// Does NOT compile — requires a prior successful `build-release`.
+    PackagePortable,
     /// Verify the setup: svelte-check + cargo check.
     Verify,
     /// Verify IP boundary: desktop must not depend on clyffy.
@@ -68,6 +72,7 @@ fn main() -> anyhow::Result<()> {
         Commands::Deps => Box::new(commands::deps::Deps),
         Commands::RunDev => Box::new(commands::dev::Dev),
         Commands::BuildRelease => Box::new(commands::build_release::BuildRelease),
+        Commands::PackagePortable => Box::new(commands::package_portable::PackagePortable),
         Commands::Verify => Box::new(commands::verify::Verify),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
         Commands::FetchDevforge {

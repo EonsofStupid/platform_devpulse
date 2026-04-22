@@ -483,19 +483,34 @@ severity = "hard"
 # ─────────────────────────────────────────────────────────────
 # These map the engine-safe step names (what Platform::boot()
 # emits via InitEvent) to frontend display labels.
+#
+# `engine` MUST match the literal string passed to
+# InitEvent::running/ok/error/skipped in systems/devpulse-engine/src/platform/boot/*.
+# Each Rust-emitted subsystem name needs its own entry so TERMS[name]
+# resolves at the frontend. `kernel` is unique per entry (build.rs
+# keys a HashMap on it) — splits reuse distinct adapter-role names.
 
 [[terms]]
-kernel = "LibSqlAdapter"
-engine = "Relational store"
-prod = "Data Store"
-dev = "LibSQL"
+kernel = "LibSqlSystemAdapter"
+engine = "System relational"
+prod = "System Data Store"
+dev = "LibSQL (system)"
+category = "stores"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "LibSqlUserAdapter"
+engine = "User relational"
+prod = "User Data Store"
+dev = "LibSQL (user)"
 category = "stores"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
 
 [[terms]]
 kernel = "DuckDbAdapter"
-engine = "Analytics store"
+engine = "System analytics"
 prod = "Analytics Engine"
 dev = "DuckDB"
 category = "stores"
@@ -513,7 +528,7 @@ severity = "hard"
 
 [[terms]]
 kernel = "MokaAdapter"
-engine = "Cache store"
+engine = "System cache"
 prod = "Memory Cache"
 dev = "Moka"
 category = "stores"

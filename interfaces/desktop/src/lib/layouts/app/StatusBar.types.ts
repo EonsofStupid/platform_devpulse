@@ -9,8 +9,22 @@
 import type { SubsystemHealth } from "$lib/sys/generated/health.types.js";
 import type { SubsystemInfo } from "$lib/sys/runes/platformState.svelte.js";
 
-/** Subsystem names that belong to each health group. */
-export const STORE_NAMES = new Set(["System relational", "User relational", "Analytics"]);
+/**
+ * Subsystem names that belong to each health group.
+ *
+ * Keys MUST match the literal strings emitted by
+ * `systems/devpulse-engine/src/platform/boot/*` via
+ * `InitEvent::running/ok/error/skipped` — i.e. the same values the
+ * Rust backend puts on the `platform:subsystem-status` Tauri event.
+ * These are the authoritative `engine` names also registered in
+ * `systems/devpulse-engine/ip/kernel_terms.toml`.
+ */
+export const STORE_NAMES = new Set([
+	"System relational",
+	"User relational",
+	"System analytics",
+	"System cache",
+]);
 
 export const GRAPH_NAMES = new Set([
 	"Graph store",

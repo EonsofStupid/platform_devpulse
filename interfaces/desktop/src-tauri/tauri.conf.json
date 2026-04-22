@@ -30,7 +30,7 @@
 	},
 	"bundle": {
 		"active": true,
-		"targets": "all",
+		"targets": ["nsis"],
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -50,6 +50,12 @@
 			"binaries/cublasLt64_12.dll",
 			"binaries/cudart64_12.dll",
 			"binaries/libomp140.x86_64.dll"
-		]
+		],
+		"windows": {
+			"nsis": {
+				"installMode": "currentUser",
+				"installerIcon": "icons/icon.ico"
+			}
+		}
 	}
 }

@@ -63,8 +63,8 @@ pub fn run_mcp_stdio() {
         )
         .try_init();
 
-    let runtime = tokio::runtime::Runtime::new()
-        .expect("tokio runtime construction failed in --mcp-stdio");
+    let runtime =
+        tokio::runtime::Runtime::new().expect("tokio runtime construction failed in --mcp-stdio");
 
     let exit_code = runtime.block_on(async {
         let data_dir = match paths::resolve_data_dir_standalone() {
