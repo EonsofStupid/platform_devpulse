@@ -33,6 +33,67 @@ use std::sync::Arc;
 use tauri::{Emitter, Manager};
 use tauri_specta::{collect_commands, Builder};
 
+/// Boot a Platform without Tauri and serve MCP over stdio.
+///
+/// Entry point for the `--mcp-stdio` CLI mode. Claude Code spawns this
+/// subprocess on demand: it pipes JSON-RPC over stdin/stdout while the
+/// parent process talks to the user. We MUST keep stdin/stdout pristine
+/// (only the rmcp protocol writes there); diagnostics go to stderr.
+///
+/// Lifecycle:
+/// 1. Resolve the data dir from `<exe>/.userdata` or the dev fallback.
+/// 2. Boot a full `Platform` (we share the same persistence the GUI uses
+///    so MCP tools see live state).
+/// 3. Hand the platform to `claude::mcp::start_stdio` and block until EOF.
+/// 4. Exit non-zero on any error so Claude Code surfaces the failure.
+///
+/// # Panics
+/// Panics only if the tokio runtime can't be constructed — at which point
+/// there is nothing useful to recover to.
+#[allow(clippy::expect_used)]
+pub fn run_mcp_stdio() {
+    // Logging: stderr-only, INFO level. The file sink would also work but
+    // the subprocess is short-lived per invocation; one tracing subscriber
+    // attached for the duration of the rmcp connection is enough.
+    let _ = tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        )
+        .try_init();
+
+    let runtime = tokio::runtime::Runtime::new()
+        .expect("tokio runtime construction failed in --mcp-stdio");
+
+    let exit_code = runtime.block_on(async {
+        let data_dir = match paths::resolve_data_dir_standalone() {
+            Ok(d) => d,
+            Err(e) => {
+                eprintln!("devpulse-mcp: {e}");
+                return 1;
+            }
+        };
+        tracing::info!(data_dir = %data_dir.display(), "MCP stdio: booting platform");
+
+        let platform = match Platform::boot(data_dir, |_| {}, None).await {
+            Ok(p) => Arc::new(p),
+            Err(e) => {
+                eprintln!("devpulse-mcp: platform boot failed: {e:#}");
+                return 1;
+            }
+        };
+
+        if let Err(e) = devpulse_engine::claude::mcp::start_stdio(platform).await {
+            eprintln!("devpulse-mcp: stdio session failed: {e:#}");
+            return 1;
+        }
+        0
+    });
+
+    std::process::exit(exit_code);
+}
+
 /// Bootstrap and run the Tauri application.
 ///
 /// # Panics
@@ -148,7 +209,9 @@ pub fn run() {
         commands::devforge::window::open_devforge_window,
         commands::devforge::window::close_devforge_window,
         commands::claude::get_mcp_status,
-        commands::claude::restart_mcp_server,
+        commands::claude::detect_claude_installs,
+        commands::claude::register_devpulse_mcp,
+        commands::claude::unregister_devpulse_mcp,
         commands::devpulse::fetch_dashboard,
         commands::devpulse::profile::fetch_user_profile,
         commands::devpulse::profile::update_user_profile,

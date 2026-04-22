@@ -974,29 +974,57 @@ async closeDevforgeWindow() : Promise<Result<null, string>> {
 }
 },
 /**
- * Get current MCP server status.
+ * Get current MCP integration status.
  * 
- * Frontend devtool calls this on mount and on user-triggered refresh.
- * The boot sequence also pushes `platform:claude-status` events when
- * the server starts/stops, so the rune state stays live.
+ * Always succeeds — installs that fail to detect surface their error
+ * in `installs.<target>.read_error` rather than failing the call. The
+ * devtool polls this every couple seconds; a failing read here would
+ * blank the whole panel, so we keep returning a snapshot.
  */
-async getMcpStatus() : Promise<Result<McpStatus, string>> {
+async getMcpStatus() : Promise<McpStatus> {
+    return await TAURI_INVOKE("get_mcp_status");
+},
+/**
+ * Detect Claude Code + Claude Desktop installs.
+ * 
+ * A subset of `get_mcp_status` for callers that only need the install
+ * snapshot (e.g. the Settings page's "Detect Claude" button).
+ */
+async detectClaudeInstalls() : Promise<ClaudeInstalls> {
+    return await TAURI_INVOKE("detect_claude_installs");
+},
+/**
+ * Register the DevPulse MCP entry with a Claude client.
+ * 
+ * Writes `mcpServers.devpulse = { command, args: ["--mcp-stdio"] }` into
+ * the target client's config file (preserving every other entry) and
+ * returns the refreshed install snapshot. The user must restart their
+ * Claude client for the entry to take effect.
+ * 
+ * # Errors
+ * Surfaces IO and JSON parse errors verbatim so the devtool can show
+ * them in the error panel.
+ */
+async registerDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("get_mcp_status") };
+    return { status: "ok", data: await TAURI_INVOKE("register_devpulse_mcp", { target }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Restart the MCP server.
+ * Remove the DevPulse MCP entry from a Claude client.
  * 
- * Aborts the current stdio task and spawns a fresh one.
- * Returns the new status after restart.
+ * Idempotent — removing a missing entry is success. The user must
+ * restart their Claude client for the removal to take effect.
+ * 
+ * # Errors
+ * Surfaces IO and JSON parse errors verbatim.
  */
-async restartMcpServer() : Promise<Result<McpStatus, string>> {
+async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("restart_mcp_server") };
+    return { status: "ok", data: await TAURI_INVOKE("unregister_devpulse_mcp", { target }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3150,6 +3178,60 @@ endedAt: number | null;
  */
 messageCount: number }
 /**
+ * Layman-phrased install snapshot for a single Claude target.
+ */
+export type ClaudeInstall = { 
+/**
+ * Resolved config file path (always populated, even when missing — the
+ * devtool needs it to tell the user "we'd write here if you click
+ * Register"). Empty string only if the OS can't resolve the home dir.
+ */
+configPath: string; 
+/**
+ * `true` when the config file exists on disk. A missing file is the
+ * expected first-run state — registration creates it.
+ */
+configExists: boolean; 
+/**
+ * `true` when `mcpServers.devpulse` is present in the config.
+ */
+devpulseRegistered: boolean; 
+/**
+ * `true` when a long-lived process for this target is detected on the
+ * system right now. Claude Code is a CLI, so this is always `false`
+ * for the `code` target — the devtool should hide it accordingly.
+ */
+processRunning: boolean; 
+/**
+ * Read error surfaced verbatim (corrupt JSON, IO failure). `None` on
+ * success or when the file simply doesn't exist yet.
+ */
+readError: string | null }
+/**
+ * Both Claude install slots — what the devtool renders side-by-side.
+ */
+export type ClaudeInstalls = { 
+/**
+ * Claude Code CLI — `~/.claude/settings.json`.
+ */
+code: ClaudeInstall; 
+/**
+ * Claude Desktop native app — platform-specific config dir.
+ */
+desktop: ClaudeInstall }
+/**
+ * Which Claude install to write to.
+ */
+export type ClaudeTarget = 
+/**
+ * `~/.claude/settings.json`.
+ */
+"code" | 
+/**
+ * Platform-specific Claude Desktop config dir.
+ */
+"desktop"
+/**
  * Cloud inference result metadata.
  */
 export type CloudChatResult = { 
@@ -4659,33 +4741,31 @@ mascot_alt: string;
  */
 progress_aria_template: string }
 /**
- * MCP server runtime status — emitted to the devtool.
+ * Snapshot of the MCP integration — what the devtool renders.
  */
 export type McpStatus = { 
 /**
- * Whether the MCP server task is running.
+ * Whether the binary supports MCP stdio mode. Always `true` in this
+ * build — present so the devtool can stay generic for future modes
+ * (HTTP, SSE) where availability is conditional.
  */
-running: boolean; 
+available: boolean; 
 /**
- * Transport type: "stdio" or "http". None when not running.
- */
-transport: string | null; 
-/**
- * Number of registered tools (5 in release, 6 in dev).
+ * Number of compile-time-registered tools.
  */
 toolCount: number; 
 /**
- * Names of all registered tools for display.
+ * Names of all registered tools — shown verbatim in the devtool.
  */
 toolNames: string[]; 
 /**
- * Boot timestamp (epoch seconds) when the server started.
+ * MCP protocol version this build advertises (matches `claude/mcp/mod.rs`).
  */
-startedAt: number | null; 
+protocolVersion: string; 
 /**
- * Protocol version advertised to clients.
+ * Per-client install + registration snapshot.
  */
-protocolVersion: string }
+installs: ClaudeInstalls }
 /**
  * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
  */

@@ -2,67 +2,84 @@
 	@file /devtools/claude — Claude Integration devtool
 	@route /devtools/claude
 
-	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions) — same chrome
-	as every other per-service devtool. The MCP server is the long-running
-	piece; restart presents the Clyffy LoadingBlock. Short queries (refresh)
-	use inline spinner.
+	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions). The MCP
+	model is subprocess-based: Claude Code / Claude Desktop spawn DevPulse
+	as a child via `--mcp-stdio`. This devtool controls REGISTRATION (the
+	JSON entry in each client's config) — not a long-running server inside
+	our process.
 
 	Visual variety comes from the generic ColdLight accent tokens
 	(--accent-{purple|cyan|ember|teal}-{main|fill|glow}). No custom
-	claude-scoped vars — Card variants + Badge variants do the work.
+	claude-scoped vars.
 -->
 <script lang="ts">
-import { Activity, Bot, Key, Plug, RefreshCw, Shield, Wrench } from "lucide-svelte";
+import {
+	Bot,
+	CheckCircle2,
+	Cpu,
+	Key,
+	Plug,
+	PlugZap,
+	Terminal,
+	Wrench,
+	XCircle,
+} from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
-import { commands, type McpStatus } from "$lib/sys/generated/bindings.js";
+import {
+	type ClaudeInstall,
+	type ClaudeTarget,
+	commands,
+	type McpStatus,
+} from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 
 // ── State ──────────────────────────────────────────────
 let mcpStatus = $state<McpStatus | null>(null);
 let lastError = $state<string | null>(null);
-let restarting = $state(false);
 let refreshing = $state(false);
+let pendingTarget = $state<ClaudeTarget | null>(null);
 let lastPolledAt = $state<number>(0);
 
 // ── Derived ────────────────────────────────────────────
-const running = $derived(mcpStatus?.running === true);
+const available = $derived(mcpStatus?.available === true);
 const toolCount = $derived(mcpStatus?.toolCount ?? 0);
-const transport = $derived(mcpStatus?.transport ?? "—");
+const toolNames = $derived<string[]>(mcpStatus?.toolNames ?? []);
 const protocolVersion = $derived(mcpStatus?.protocolVersion ?? "—");
-
-const uptimeLabel = $derived.by(() => {
-	if (!mcpStatus?.startedAt) return "—";
-	const s = Math.max(0, Math.floor(Date.now() / 1000 - mcpStatus.startedAt));
-	if (s < 60) return `${s}s`;
-	if (s < 3600) return `${Math.floor(s / 60)}m ${s % 60}s`;
-	return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
-});
+const code = $derived<ClaudeInstall | null>(mcpStatus?.installs?.code ?? null);
+const desktop = $derived<ClaudeInstall | null>(mcpStatus?.installs?.desktop ?? null);
+const registeredCount = $derived(
+	(code?.devpulseRegistered ? 1 : 0) + (desktop?.devpulseRegistered ? 1 : 0),
+);
+const detectedCount = $derived(
+	(code?.configExists || code?.processRunning ? 1 : 0) +
+		(desktop?.configExists || desktop?.processRunning ? 1 : 0),
+);
 
 const badge = $derived<HealthBadge>(
-	running
-		? { state: "up", label: `MCP serving · ${toolCount} tools` }
-		: lastError
-			? { state: "down", label: "Unreachable — see logs" }
-			: { state: "starting", label: "Connecting…" },
+	!available
+		? { state: "stopped", label: "MCP mode unavailable" }
+		: registeredCount > 0
+			? {
+					state: "up",
+					label: `Registered with ${registeredCount} client · ${toolCount} tools`,
+				}
+			: detectedCount > 0
+				? { state: "degraded", label: "Detected — not registered" }
+				: { state: "unknown", label: "No Claude client detected" },
 );
 
 // ── Polling ────────────────────────────────────────────
 async function fetchStatus(): Promise<void> {
 	try {
 		const result = await commands.getMcpStatus();
-		if (result.status === "ok") {
-			mcpStatus = result.data;
-			lastError = null;
-			lastPolledAt = Date.now();
-		} else {
-			lastError = result.error;
-			logError("devtools.claude", `getMcpStatus failed: ${result.error}`);
-		}
+		mcpStatus = result;
+		lastError = null;
+		lastPolledAt = Date.now();
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("devtools.claude", `getMcpStatus threw: ${msg}`);
@@ -80,25 +97,47 @@ async function handleRefresh(): Promise<void> {
 	}
 }
 
-async function handleRestart(): Promise<void> {
-	restarting = true;
+async function handleRegister(target: ClaudeTarget): Promise<void> {
+	pendingTarget = target;
 	lastError = null;
-	logInfo("devtools.claude", "Restart requested");
+	logInfo("devtools.claude", `Register ${target}`);
 	try {
-		const result = await commands.restartMcpServer();
+		const result = await commands.registerDevpulseMcp(target);
 		if (result.status === "ok") {
-			mcpStatus = result.data;
-			logInfo("devtools.claude", "MCP restart complete");
+			if (mcpStatus) mcpStatus = { ...mcpStatus, installs: result.data };
+			logInfo("devtools.claude", `Register ${target} OK`);
 		} else {
 			lastError = result.error;
-			logError("devtools.claude", `Restart failed: ${result.error}`);
+			logError("devtools.claude", `Register ${target} failed: ${result.error}`);
 		}
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
-		logError("devtools.claude", `Restart threw: ${msg}`);
+		logError("devtools.claude", `Register ${target} threw: ${msg}`);
 		lastError = msg;
 	} finally {
-		restarting = false;
+		pendingTarget = null;
+	}
+}
+
+async function handleUnregister(target: ClaudeTarget): Promise<void> {
+	pendingTarget = target;
+	lastError = null;
+	logInfo("devtools.claude", `Unregister ${target}`);
+	try {
+		const result = await commands.unregisterDevpulseMcp(target);
+		if (result.status === "ok") {
+			if (mcpStatus) mcpStatus = { ...mcpStatus, installs: result.data };
+			logInfo("devtools.claude", `Unregister ${target} OK`);
+		} else {
+			lastError = result.error;
+			logError("devtools.claude", `Unregister ${target} failed: ${result.error}`);
+		}
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("devtools.claude", `Unregister ${target} threw: ${msg}`);
+		lastError = msg;
+	} finally {
+		pendingTarget = null;
 	}
 }
 
@@ -106,7 +145,7 @@ $effect(() => {
 	void fetchStatus();
 	const interval = setInterval(() => {
 		void fetchStatus();
-	}, 2000);
+	}, 5000);
 	return () => {
 		clearInterval(interval);
 	};
@@ -115,54 +154,103 @@ $effect(() => {
 
 <ServiceDevtoolShell
 	title="Claude Integration"
-	description="MCP server · subscription + API lanes"
+	description="Subprocess MCP · subscription + API lanes"
 	icon={Plug}
 	axis="integrations"
 	health={badge}
 >
 	{#snippet status()}
 		<div class="flex flex-col gap-3">
-			<div class="flex items-center gap-3">
+			<!-- ── Top row: tool surface ─────────────────────── -->
+			<div class="flex items-center gap-3 flex-wrap">
 				<Text size="sm" weight="bold">claude.mcp</Text>
-				{#if running}
-					<Badge variant="positive" size="sm">Serving</Badge>
-				{:else if lastError}
-					<Badge variant="negative" size="sm">Down</Badge>
+				{#if available}
+					<Badge variant="positive" size="sm">Available</Badge>
 				{:else}
-					<Badge variant="neutral" size="sm">Connecting</Badge>
+					<Badge variant="neutral" size="sm">Unavailable</Badge>
 				{/if}
 				<Badge variant="informative" size="sm">{toolCount} tools</Badge>
+				<Badge variant="neutral" size="sm">Protocol {protocolVersion}</Badge>
 			</div>
 
+			<!-- ── Install grid: Code + Desktop ───────────────── -->
 			<div class="grid grid-cols-2 gap-3">
-				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-					<Text size="xs" color="muted">Transport</Text>
-					<Text size="sm" weight="bold">{transport}</Text>
-				</div>
-				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-					<Text size="xs" color="muted">Uptime</Text>
-					<Text size="sm" weight="bold">{uptimeLabel}</Text>
-				</div>
-				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-					<Text size="xs" color="muted">Protocol</Text>
-					<Text size="sm" weight="bold" class="font-mono">{protocolVersion}</Text>
-				</div>
-				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-					<Text size="xs" color="muted">Last polled</Text>
-					<Text size="sm" weight="bold">
-						{lastPolledAt > 0 ? `${Math.floor((Date.now() - lastPolledAt) / 1000)}s ago` : "—"}
+				<!-- Claude Code (purple accent) -->
+				<div
+					class="rounded-lg p-3 flex flex-col gap-2"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-purple-main);"
+				>
+					<div class="flex items-center gap-2">
+						<Terminal size={14} style="color: var(--accent-purple-main);" />
+						<Text size="sm" weight="bold">Claude Code</Text>
+						{#if code?.devpulseRegistered}
+							<Badge variant="positive" size="sm">Registered</Badge>
+						{:else if code?.configExists}
+							<Badge variant="notice" size="sm">Not registered</Badge>
+						{:else}
+							<Badge variant="neutral" size="sm">Not installed</Badge>
+						{/if}
+					</div>
+					<Text size="xs" color="muted" class="font-mono break-all">
+						{code?.configPath || "—"}
 					</Text>
+					<div class="flex items-center gap-2">
+						{#if code?.processRunning}
+							<CheckCircle2 size={12} style="color: var(--signal-success);" />
+							<Text size="xs">CLI process running</Text>
+						{:else}
+							<XCircle size={12} style="color: var(--text-muted);" />
+							<Text size="xs" color="muted">CLI not running</Text>
+						{/if}
+					</div>
+					{#if code?.readError}
+						<Text size="xs" style="color: var(--signal-error);">{code.readError}</Text>
+					{/if}
+				</div>
+
+				<!-- Claude Desktop (cyan accent) -->
+				<div
+					class="rounded-lg p-3 flex flex-col gap-2"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-cyan-main);"
+				>
+					<div class="flex items-center gap-2">
+						<Cpu size={14} style="color: var(--accent-cyan-main);" />
+						<Text size="sm" weight="bold">Claude Desktop</Text>
+						{#if desktop?.devpulseRegistered}
+							<Badge variant="positive" size="sm">Registered</Badge>
+						{:else if desktop?.configExists}
+							<Badge variant="notice" size="sm">Not registered</Badge>
+						{:else}
+							<Badge variant="neutral" size="sm">Not installed</Badge>
+						{/if}
+					</div>
+					<Text size="xs" color="muted" class="font-mono break-all">
+						{desktop?.configPath || "—"}
+					</Text>
+					<div class="flex items-center gap-2">
+						{#if desktop?.processRunning}
+							<CheckCircle2 size={12} style="color: var(--signal-success);" />
+							<Text size="xs">Desktop app running</Text>
+						{:else}
+							<XCircle size={12} style="color: var(--text-muted);" />
+							<Text size="xs" color="muted">Desktop app not running</Text>
+						{/if}
+					</div>
+					{#if desktop?.readError}
+						<Text size="xs" style="color: var(--signal-error);">{desktop.readError}</Text>
+					{/if}
 				</div>
 			</div>
 
-			{#if mcpStatus?.toolNames && mcpStatus.toolNames.length > 0}
+			<!-- ── Tool list (teal accent — what we serve) ────── -->
+			{#if toolNames.length > 0}
 				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 					<div class="flex items-center gap-2 mb-2">
 						<Wrench size={12} style="color: var(--accent-teal-main);" />
-						<Text size="xs" weight="bold">Registered tools</Text>
+						<Text size="xs" weight="bold">Tools served on registration</Text>
 					</div>
 					<div class="flex flex-wrap gap-1.5">
-						{#each mcpStatus.toolNames as toolName (toolName)}
+						{#each toolNames as toolName (toolName)}
 							<span
 								class="rounded-md px-2 py-0.5 text-xs font-mono"
 								style="background: var(--accent-teal-fill); color: var(--accent-teal-main); border: 1px solid var(--accent-teal-main);"
@@ -179,17 +267,39 @@ $effect(() => {
 					<Text size="xs">{lastError}</Text>
 				</div>
 			{/if}
+
+			<div class="flex items-center justify-between">
+				<Text size="xs" color="muted">
+					{lastPolledAt > 0
+						? `Last refresh ${Math.floor((Date.now() - lastPolledAt) / 1000)}s ago`
+						: "Polling…"}
+				</Text>
+				<Button
+					preset="button-ghost"
+					size="sm"
+					onclick={handleRefresh}
+					disabled={refreshing}
+				>
+					{#if refreshing}
+						<Spinner size="xs" />
+						Refreshing…
+					{:else}
+						<PlugZap size={12} />
+						Refresh now
+					{/if}
+				</Button>
+			</div>
 		</div>
 	{/snippet}
 
 	{#snippet config()}
 		<div class="flex flex-col gap-4">
 			<Text size="sm" color="muted">
-				Two delivery lanes — pick automatically based on what's available.
+				Two delivery lanes — picked automatically based on what's available.
 				Subscription lane is dev-only; API lane ships with releases.
 			</Text>
 
-			<!-- Subscription lane (purple accent — dev only) -->
+			<!-- Subscription lane (purple accent) -->
 			<Card variant="outlined">
 				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-purple-main);">
 					<div class="flex items-center gap-2">
@@ -198,9 +308,9 @@ $effect(() => {
 						<Badge variant="informative" size="sm">Dev only</Badge>
 					</div>
 					<Text size="xs" color="muted">
-						Piggybacks on a running Claude Code or Claude Desktop install. No API key,
-						no per-token cost. Detected automatically from <span class="font-mono">~/.claude/</span>
-						and the Claude Desktop config dir.
+						Piggybacks on a registered DevPulse MCP entry in Claude Code or
+						Claude Desktop. No API key, no per-token cost. The Status tab
+						shows whether each client is detected and registered.
 					</Text>
 					<div class="grid grid-cols-3 gap-2 text-xs">
 						<div>
@@ -219,7 +329,7 @@ $effect(() => {
 				</div>
 			</Card>
 
-			<!-- API lane (cyan accent — always available) -->
+			<!-- API lane (cyan accent) -->
 			<Card variant="outlined">
 				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-cyan-main);">
 					<div class="flex items-center gap-2">
@@ -248,39 +358,10 @@ $effect(() => {
 				</div>
 			</Card>
 
-			<!-- Council routing (ember accent — orchestration) -->
-			<Card variant="outlined">
-				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-ember-main);">
-					<div class="flex items-center gap-2">
-						<Shield size={14} style="color: var(--accent-ember-main);" />
-						<Text size="sm" weight="bold">Lane order</Text>
-					</div>
-					<Text size="xs" color="muted">
-						When Clyffy needs Claude help, lanes are tried in this order:
-					</Text>
-					<ol class="flex flex-col gap-2 text-xs">
-						<li class="flex items-center gap-2">
-							<span class="font-mono opacity-60">1.</span>
-							<Text size="xs">Subscription</Text>
-							<Badge variant="positive" size="sm">Preferred</Badge>
-						</li>
-						<li class="flex items-center gap-2">
-							<span class="font-mono opacity-60">2.</span>
-							<Text size="xs">API key</Text>
-							<Badge variant="neutral" size="sm">Fallback</Badge>
-						</li>
-						<li class="flex items-center gap-2">
-							<span class="font-mono opacity-60">3.</span>
-							<Text size="xs">Local brain only</Text>
-							<Badge variant="neutral" size="sm">Last resort</Badge>
-						</li>
-					</ol>
-				</div>
-			</Card>
-
 			<Text size="xs" color="muted">
-				TODO(reality-gap 2026-04-22): subscription auto-detection + API key vault
-				not yet wired. Lane selection currently falls through to local brain.
+				TODO(reality-gap 2026-04-22): API key vault + lane router land
+				with the council sprint. Until then, registration is the visible
+				surface and Clyffy still falls through to the local brain.
 			</Text>
 		</div>
 	{/snippet}
@@ -289,53 +370,104 @@ $effect(() => {
 		<Text size="sm" color="muted">
 			TODO(reality-gap 2026-04-22): Claude-scoped log filter not yet wired.
 			Session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
-			filter by <code>component=devtools.claude</code> or <code>target=claude.mcp</code>.
+			filter by <code>component=devtools.claude</code> for UI events or
+			<code>target=mcp_stdio_server</code> for the rmcp subprocess.
 		</Text>
 	{/snippet}
 
 	{#snippet actions()}
-		{#if restarting}
+		{#if pendingTarget}
 			<LoadingBlock
-				title="Restarting MCP server"
-				subtitle="Aborting current task and respawning — sit tight."
+				title={pendingTarget === "code" ? "Updating Claude Code config" : "Updating Claude Desktop config"}
+				subtitle="Atomic rewrite — your other MCP entries are preserved."
 				showContent
 				contentKind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">
-				<div class="flex flex-wrap items-center gap-2">
-					<Button preset="button-primary" size="sm" onclick={handleRestart}>
-						<RefreshCw size={12} />
-						Restart MCP server
-					</Button>
-					<Button
-						preset="button-ghost"
-						size="sm"
-						onclick={handleRefresh}
-						disabled={refreshing}
-					>
-						{#if refreshing}
-							<Spinner size="xs" />
-							Refreshing…
-						{:else}
-							<Activity size={12} />
-							Refresh status
-						{/if}
-					</Button>
-				</div>
-
-				<Text size="xs" color="muted">
-					Restart aborts the current stdio task and spawns a fresh one.
-					Refresh just re-queries status without touching the server.
+				<Text size="sm" color="muted">
+					Registration writes <code>mcpServers.devpulse</code> into the
+					target client's config (preserving every other entry). Restart
+					the client after registering for it to discover DevPulse tools.
 				</Text>
 
-				<!-- Future actions -->
+				<!-- Claude Code actions -->
+				<Card variant="outlined">
+					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-purple-main);">
+						<div class="flex items-center gap-2">
+							<Terminal size={14} style="color: var(--accent-purple-main);" />
+							<Text size="sm" weight="bold">Claude Code</Text>
+							{#if code?.devpulseRegistered}
+								<Badge variant="positive" size="sm">Registered</Badge>
+							{/if}
+						</div>
+						<Text size="xs" color="muted">
+							Writes the MCP entry to <span class="font-mono">~/.claude/settings.json</span>.
+							Claude Code re-reads on next CLI launch.
+						</Text>
+						<div class="flex flex-wrap gap-2">
+							<Button
+								preset="button-primary"
+								size="sm"
+								onclick={() => handleRegister("code")}
+							>
+								<PlugZap size={12} />
+								{code?.devpulseRegistered ? "Re-register" : "Register with Claude Code"}
+							</Button>
+							{#if code?.devpulseRegistered}
+								<Button
+									preset="button-ghost"
+									size="sm"
+									onclick={() => handleUnregister("code")}
+								>
+									Unregister
+								</Button>
+							{/if}
+						</div>
+					</div>
+				</Card>
+
+				<!-- Claude Desktop actions -->
+				<Card variant="outlined">
+					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-cyan-main);">
+						<div class="flex items-center gap-2">
+							<Cpu size={14} style="color: var(--accent-cyan-main);" />
+							<Text size="sm" weight="bold">Claude Desktop</Text>
+							{#if desktop?.devpulseRegistered}
+								<Badge variant="positive" size="sm">Registered</Badge>
+							{/if}
+						</div>
+						<Text size="xs" color="muted">
+							Writes the MCP entry to the Claude Desktop config dir.
+							Quit and relaunch the desktop app for the entry to apply.
+						</Text>
+						<div class="flex flex-wrap gap-2">
+							<Button
+								preset="button-primary"
+								size="sm"
+								onclick={() => handleRegister("desktop")}
+							>
+								<PlugZap size={12} />
+								{desktop?.devpulseRegistered ? "Re-register" : "Register with Claude Desktop"}
+							</Button>
+							{#if desktop?.devpulseRegistered}
+								<Button
+									preset="button-ghost"
+									size="sm"
+									onclick={() => handleUnregister("desktop")}
+								>
+									Unregister
+								</Button>
+							{/if}
+						</div>
+					</div>
+				</Card>
+
 				<div class="rounded-lg p-3 mt-2 opacity-60" style="border: 1px dashed var(--border-subtle);">
-					<Text size="sm" weight="bold">Auto-detect Claude installs</Text>
+					<Text size="sm" weight="bold">Auto-register on first boot</Text>
 					<Text size="xs" color="muted">
-						Coming next: scan <span class="font-mono">~/.claude/settings.json</span>
-						and the Claude Desktop config dir, register DevPulse MCP entry on
-						first run, and surface a "Piggyback on subscription" toggle here.
+						Coming next: an opt-in toggle in the setup wizard so DevPulse
+						registers itself with detected Claude clients automatically.
 					</Text>
 				</div>
 			</div>

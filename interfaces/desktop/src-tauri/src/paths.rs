@@ -3,6 +3,50 @@
 use std::path::PathBuf;
 use tauri::Manager;
 
+/// Resolve the data directory **without** a Tauri Manager.
+///
+/// Used by the MCP stdio subprocess (`--mcp-stdio`) which boots a Platform
+/// without ever constructing a Tauri app. Falls back to portable layout
+/// only — never invents an OS-specific path, because if the user has never
+/// launched the GUI we'd be writing to a fresh dir without their data.
+///
+/// Resolution order:
+/// 1. `<exe_dir>/.userdata` — portable bundle layout.
+/// 2. `<CARGO_MANIFEST_DIR>/../../../.userdata` — debug builds run from
+///    `target/debug` so this resolves to `platform_devpulse/.userdata`.
+/// 3. Error — caller must surface it; no guessing.
+///
+/// # Errors
+/// Returns a human-readable message when no candidate exists. Callers
+/// (the MCP subprocess) print it to stderr and exit non-zero so Claude
+/// Code shows the failure to the user.
+pub fn resolve_data_dir_standalone() -> Result<PathBuf, String> {
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            let candidate = parent.join(".userdata");
+            if candidate.is_dir() {
+                return Ok(candidate);
+            }
+        }
+    }
+
+    if cfg!(debug_assertions) {
+        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        if let Some(root) = manifest.parent().and_then(|p| p.parent()).and_then(|p| p.parent()) {
+            let candidate = root.join(".userdata");
+            if candidate.is_dir() {
+                return Ok(candidate);
+            }
+        }
+    }
+
+    Err(
+        "No .userdata directory found. Launch DevPulse Desktop at least once \
+         to initialize platform state before running --mcp-stdio."
+            .into(),
+    )
+}
+
 /// Resolve the data directory — portable-first (matches `lib.rs` setup).
 ///
 /// Dev: `.userdata/` at project root (`CARGO_MANIFEST_DIR` → up 3 levels).
