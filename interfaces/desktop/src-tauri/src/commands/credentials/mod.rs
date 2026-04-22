@@ -1,244 +1,348 @@
-//! Credential management using platform-native keychain + libSQL sync.
+//! Credential management — OS keychain primary, LibSQL hint mirror.
 //!
-//! - Windows: Credential Manager
-//! - macOS: Keychain
-//! - Linux: Secret Service
+//! Storage strategy:
+//! - Keychain holds the actual API key. Per OS:
+//!   - Windows: Credential Manager
+//!   - macOS:   Keychain
+//!   - Linux:   Secret Service
+//! - LibSQL `api_keys` table holds a masked hint + last-used timestamp
+//!   so the engine + devtool can show "key configured" without paying
+//!   the keychain round-trip.
 //!
-//! API keys NEVER touch the filesystem. NEVER appear in config files.
-//! The `keyring` crate uses `libloading` to access the platform credential
-//! store at runtime. If the store is unavailable, errors surface directly.
+//! API keys NEVER touch the filesystem in plaintext. They NEVER appear
+//! in config files. They never cross the IPC boundary back to the
+//! frontend — only `ApiKeyStatus` (presence + masked preview) does.
 //!
-//! Dual persistence: keyring (primary, secure) + libSQL `api_keys` table
-//! (secondary, for platform-level access by engine consumers like Council).
+//! Provider list is driven by the SSOT registry
+//! (`devpulse_engine::ai_providers`). Adding a new provider that bills
+//! per-token or has an OAI-compatible API key automatically appears here
+//! — no edits required in this file.
 
 use crate::state::PlatformState;
+use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use devpulse_engine::platform::SqlAdapter;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
 
+/// Service name used for every keyring entry — namespaces our keys
+/// inside the OS credential store so they don't collide with other
+/// apps that might use a generic key name like `api_key_openai`.
 const SERVICE_NAME: &str = "devpulse";
 
-/// Supported API providers for voice escalation and Council routing.
+/// Stored-key status for a single provider — what the devtool renders.
+///
+/// Never includes the actual key. The masked preview is built from the
+/// first 8 characters so common prefixes (`sk-`, `sk-ant-`, `gsk_`) are
+/// recognizable without revealing entropy.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub enum ApiProvider {
-    /// Anthropic (Claude) API.
-    Anthropic,
-    /// `OpenAI` (GPT) API.
-    OpenAI,
-    /// Google (Gemini) API.
-    Google,
-}
-
-impl ApiProvider {
-    /// Keyring key name for this provider.
-    fn keyring_key(&self) -> String {
-        match self {
-            ApiProvider::Anthropic => "api_key_anthropic".to_string(),
-            ApiProvider::OpenAI => "api_key_openai".to_string(),
-            ApiProvider::Google => "api_key_google".to_string(),
-        }
-    }
-
-    /// Human-readable display name.
-    fn display_name(&self) -> &str {
-        match self {
-            ApiProvider::Anthropic => "Anthropic",
-            ApiProvider::OpenAI => "OpenAI",
-            ApiProvider::Google => "Google",
-        }
-    }
-
-    /// Adapter name for libSQL `api_keys` table.
-    fn adapter_name(&self) -> &str {
-        match self {
-            ApiProvider::Anthropic => "anthropic",
-            ApiProvider::OpenAI => "openai",
-            ApiProvider::Google => "google",
-        }
-    }
-}
-
-/// Status of a stored API key (NEVER returns the actual key to frontend).
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
 pub struct ApiKeyStatus {
-    /// Provider display name.
-    pub provider: String,
-    /// Whether a key is stored for this provider.
+    /// Stable wire id from the SSOT registry.
+    pub provider: ProviderId,
+    /// Vendor display name from the SSOT registry — copied here so the
+    /// frontend can render a row without a second registry lookup.
+    pub display_name: String,
+    /// `true` when a key is in the OS keychain.
     pub stored: bool,
-    /// Masked preview for display (e.g. "sk-ant-a3...****"). None if not stored.
+    /// First-8-char-and-mask preview, e.g. `sk-ant-a...****`. `None`
+    /// when no key is stored.
     pub masked_preview: Option<String>,
 }
 
-/// Store an API key in the platform keychain AND sync to libSQL.
+/// Store an API key in the OS keychain and mirror a masked hint to libSQL.
 ///
-/// Keychain is the primary secure store. libSQL gets a masked hint
-/// so the engine can check key availability without accessing the keychain.
+/// Idempotent — re-storing for the same provider overwrites both halves.
+/// The libSQL mirror is best-effort; failure there logs a warning but
+/// does not roll back the keychain write (keychain is the source of truth).
+///
+/// # Errors
+/// - Provider has no API-key transport (e.g. local Ollama, subscription path).
+/// - Keychain write failed.
 #[tauri::command]
 #[specta::specta]
 pub async fn store_api_key(
     state: State<'_, PlatformState>,
-    provider: ApiProvider,
+    provider: ProviderId,
     key: String,
 ) -> Result<(), String> {
-    // 1. Store in OS keychain (primary, secure)
-    let entry = keyring::Entry::new(SERVICE_NAME, &provider.keyring_key())
-        .map_err(|e| format!("Failed to create keyring entry: {e}"))?;
-    entry.set_password(&key).map_err(|e| {
-        format!(
-            "Failed to store API key for {}: {e}",
-            provider.display_name()
-        )
-    })?;
+    let entry = registry_entry(provider)?;
+    require_api_key_billing(entry)?;
+
+    let keyring_key = keyring_key_for(provider);
+    let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
+        .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+    keyring_entry
+        .set_password(&key)
+        .map_err(|e| format!("Failed to store key for {}: {e}", entry.display_name))?;
     tracing::info!(
-        provider = provider.display_name(),
-        "API key stored in keychain"
+        provider = ?provider,
+        display = %entry.display_name,
+        "API key stored in OS keychain"
     );
 
-    // 2. Sync hint to libSQL (secondary, for engine-level key availability checks)
-    let hint = if key.len() > 8 {
-        format!("{}...****", &key[..8])
-    } else {
-        "****".to_string()
-    };
-
-    // P0: lock-free atomic load.
-    if let Some(platform) = state.platform.load_full() {
-        if let Some(svc) = platform.user_relational() {
-            let adapter = svc.adapter();
-            let adapter_name = provider.adapter_name().to_string();
-            let key_id = format!("key-{adapter_name}");
-            let hint_clone = hint.clone();
-            if let Err(e) = adapter
-                .execute(
-                    "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, 'user-1', ?, ?, datetime('now'))",
-                    &[key_id.as_str(), adapter_name.as_str(), hint_clone.as_str()],
-                )
-                .await
-            {
-                tracing::warn!(
-                    provider = provider.display_name(),
-                    error = %e,
-                    "Failed to sync API key hint to libSQL (non-fatal)"
-                );
-            } else {
-                tracing::info!(
-                    provider = provider.display_name(),
-                    "API key hint synced to libSQL"
-                );
-            }
-        }
-    }
-
+    mirror_hint_to_libsql(state, provider, &key).await;
     Ok(())
 }
 
-/// Retrieve an API key from the platform keychain.
-/// Returns the actual key — used by backend services for escalation, NOT sent to frontend display.
+/// Retrieve an API key from the OS keychain.
+///
+/// Backend-only consumer — never call this and pass the result to the
+/// frontend. Provider clients (Anthropic / OpenAI / etc) call this to
+/// load a key right before issuing a request.
+///
+/// Returns `Ok(None)` when the key has never been stored.
+///
+/// # Errors
+/// Keychain access failure.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_api_key(provider: ApiProvider) -> Result<Option<String>, String> {
-    let entry = keyring::Entry::new(SERVICE_NAME, &provider.keyring_key())
-        .map_err(|e| format!("Failed to access keyring: {e}"))?;
-    match entry.get_password() {
+pub async fn get_api_key(provider: ProviderId) -> Result<Option<String>, String> {
+    let _entry = registry_entry(provider)?;
+    let keyring_key = keyring_key_for(provider);
+    let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
+        .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+    match keyring_entry.get_password() {
         Ok(key) => Ok(Some(key)),
         Err(keyring::Error::NoEntry) => Ok(None),
-        Err(e) => Err(format!(
-            "Failed to retrieve API key for {}: {e}",
-            provider.display_name()
-        )),
+        Err(e) => Err(format!("Keyring read failed: {e}")),
     }
 }
 
-/// Delete an API key from the platform keychain AND libSQL.
+/// Delete an API key from the OS keychain and the libSQL mirror.
+///
+/// Idempotent — deleting a non-existent key is success.
+///
+/// # Errors
+/// Keychain delete failure (other than `NoEntry`).
 #[tauri::command]
 #[specta::specta]
 pub async fn delete_api_key(
     state: State<'_, PlatformState>,
-    provider: ApiProvider,
+    provider: ProviderId,
 ) -> Result<(), String> {
-    // 1. Delete from OS keychain
-    let entry = keyring::Entry::new(SERVICE_NAME, &provider.keyring_key())
-        .map_err(|e| format!("Failed to access keyring: {e}"))?;
-    match entry.delete_credential() {
-        Ok(()) => {
-            tracing::info!(
-                provider = provider.display_name(),
-                "API key deleted from keychain"
-            );
-        }
-        Err(keyring::Error::NoEntry) => {} // already gone, not an error
+    let entry = registry_entry(provider)?;
+    let keyring_key = keyring_key_for(provider);
+    let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
+        .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+    match keyring_entry.delete_credential() {
+        Ok(()) => tracing::info!(
+            provider = ?provider,
+            display = %entry.display_name,
+            "API key deleted from OS keychain"
+        ),
+        Err(keyring::Error::NoEntry) => {}
         Err(e) => {
             return Err(format!(
-                "Failed to delete API key for {}: {e}",
-                provider.display_name()
-            ));
+                "Failed to delete key for {}: {e}",
+                entry.display_name
+            ))
         }
     }
 
-    // 2. Delete from libSQL
-    // P0: lock-free atomic load.
-    if let Some(platform) = state.platform.load_full() {
-        if let Some(svc) = platform.user_relational() {
-            let adapter = svc.adapter();
-            let adapter_name = provider.adapter_name().to_string();
-            if let Err(e) = adapter
-                .execute(
-                    "DELETE FROM api_keys WHERE adapter = ?",
-                    &[adapter_name.as_str()],
-                )
-                .await
-            {
-                tracing::warn!(
-                    provider = provider.display_name(),
-                    error = %e,
-                    "Failed to delete API key from libSQL (non-fatal)"
-                );
-            } else {
-                tracing::info!(
-                    provider = provider.display_name(),
-                    "API key deleted from libSQL"
-                );
-            }
-        }
-    }
-
+    delete_hint_from_libsql(state, provider).await;
     Ok(())
 }
 
-/// Check which API keys are stored (without returning the keys themselves).
-/// Safe for frontend display — only shows masked previews.
+/// Status snapshot for every provider in the registry that takes an API key.
+///
+/// Skips local-only providers (Ollama, LM Studio, vLLM) and the subscription
+/// path — they don't have API keys, so showing them with `stored: false`
+/// would just confuse the operator.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, String> {
-    let providers = [
-        ("Anthropic", ApiProvider::Anthropic),
-        ("OpenAI", ApiProvider::OpenAI),
-        ("Google", ApiProvider::Google),
-    ];
-
-    let mut statuses = Vec::new();
-    for (name, provider) in &providers {
-        let entry = keyring::Entry::new(SERVICE_NAME, &provider.keyring_key())
-            .map_err(|e| format!("Keyring error for {name}: {e}"))?;
-        let (stored, masked) = match entry.get_password() {
-            Ok(key) => {
-                let preview = if key.len() > 8 {
-                    format!("{}...****", &key[..8])
-                } else {
-                    "****".to_string()
-                };
-                (true, Some(preview))
-            }
+    let mut out = Vec::new();
+    for provider in ai_providers::visible() {
+        if !provider_takes_api_key(provider) {
+            continue;
+        }
+        let keyring_key = keyring_key_for(provider.id);
+        let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
+            .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+        let (stored, masked_preview) = match keyring_entry.get_password() {
+            Ok(key) => (true, Some(mask_preview(&key))),
             Err(keyring::Error::NoEntry) => (false, None),
-            Err(e) => return Err(format!("Keyring error for {name}: {e}")),
+            Err(e) => return Err(format!("Keyring read failed for {:?}: {e}", provider.id)),
         };
-        statuses.push(ApiKeyStatus {
-            provider: (*name).to_string(),
+        out.push(ApiKeyStatus {
+            provider: provider.id,
+            display_name: provider.display_name.to_string(),
             stored,
-            masked_preview: masked,
+            masked_preview,
         });
     }
+    Ok(out)
+}
 
-    Ok(statuses)
+// ═══════════════════════════════════════════════════════════════════════
+// Helpers
+// ═══════════════════════════════════════════════════════════════════════
+
+/// Look up the SSOT entry for a provider id.
+fn registry_entry(id: ProviderId) -> Result<&'static ai_providers::AiProvider, String> {
+    ai_providers::find(id).ok_or_else(|| format!("Unknown provider: {id:?}"))
+}
+
+/// Reject providers that don't take an API key (local servers, subscription path).
+fn require_api_key_billing(entry: &ai_providers::AiProvider) -> Result<(), String> {
+    if matches!(entry.billing, BillingModel::PerToken)
+        && entry.transports.iter().any(|t| {
+            matches!(
+                t,
+                Transport::ApiKey { .. } | Transport::OpenAiCompatible { .. }
+            )
+        })
+    {
+        Ok(())
+    } else {
+        Err(format!(
+            "Provider {} does not use an API key (billing: {:?})",
+            entry.display_name, entry.billing
+        ))
+    }
+}
+
+/// Provider-aware predicate for `get_api_key_status` — returns `true` for
+/// vendors that need a key. Local runtimes and the subscription path
+/// return `false` so they don't show up as "API key missing".
+fn provider_takes_api_key(p: &ai_providers::AiProvider) -> bool {
+    matches!(p.billing, BillingModel::PerToken)
+        && p.transports.iter().any(|t| {
+            matches!(
+                t,
+                Transport::ApiKey { .. } | Transport::OpenAiCompatible { .. }
+            )
+        })
+}
+
+/// Build the keyring key name for a provider — `api_key_<id>` where
+/// `<id>` is the provider's `serde(rename_all = "kebab-case")` form.
+/// Stable across releases since `ProviderId` is the wire identifier.
+fn keyring_key_for(id: ProviderId) -> String {
+    let id_kebab = serde_json::to_string(&id)
+        .ok()
+        .and_then(|s| s.trim_matches('"').to_string().into())
+        .unwrap_or_else(|| format!("{id:?}").to_lowercase());
+    format!("api_key_{id_kebab}")
+}
+
+/// First-8-chars-then-mask preview, never revealing entropy.
+fn mask_preview(key: &str) -> String {
+    if key.len() > 8 {
+        format!("{}...****", &key[..8])
+    } else {
+        "****".to_string()
+    }
+}
+
+/// Mirror a masked hint into the libSQL `api_keys` table. Best-effort —
+/// failure logs a warning but does not propagate (keychain is the SSOT).
+async fn mirror_hint_to_libsql(state: State<'_, PlatformState>, provider: ProviderId, key: &str) {
+    let Some(platform) = state.platform.load_full() else {
+        return;
+    };
+    let Some(svc) = platform.user_relational() else {
+        return;
+    };
+    let adapter = svc.adapter();
+    let adapter_name = adapter_name_for(provider);
+    let key_id = format!("key-{adapter_name}");
+    let hint = mask_preview(key);
+    if let Err(e) = adapter
+        .execute(
+            "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, 'user-1', ?, ?, datetime('now'))",
+            &[key_id.as_str(), adapter_name.as_str(), hint.as_str()],
+        )
+        .await
+    {
+        tracing::warn!(
+            provider = ?provider,
+            error = %e,
+            "Failed to mirror API key hint to libSQL (non-fatal — keychain is SSOT)"
+        );
+    } else {
+        tracing::info!(provider = ?provider, "API key hint mirrored to libSQL");
+    }
+}
+
+/// Delete the libSQL mirror row. Best-effort, parallels `mirror_hint_to_libsql`.
+async fn delete_hint_from_libsql(state: State<'_, PlatformState>, provider: ProviderId) {
+    let Some(platform) = state.platform.load_full() else {
+        return;
+    };
+    let Some(svc) = platform.user_relational() else {
+        return;
+    };
+    let adapter = svc.adapter();
+    let adapter_name = adapter_name_for(provider);
+    if let Err(e) = adapter
+        .execute(
+            "DELETE FROM api_keys WHERE adapter = ?",
+            &[adapter_name.as_str()],
+        )
+        .await
+    {
+        tracing::warn!(
+            provider = ?provider,
+            error = %e,
+            "Failed to delete libSQL hint (non-fatal)"
+        );
+    }
+}
+
+/// Adapter column value for the libSQL `api_keys` table — same kebab
+/// form as the keyring key, minus the `api_key_` prefix.
+fn adapter_name_for(id: ProviderId) -> String {
+    serde_json::to_string(&id)
+        .ok()
+        .map(|s| s.trim_matches('"').to_string())
+        .unwrap_or_else(|| format!("{id:?}").to_lowercase())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn keyring_key_uses_kebab_id() {
+        assert_eq!(keyring_key_for(ProviderId::AnthropicApi), "api_key_anthropic-api");
+        assert_eq!(keyring_key_for(ProviderId::OpenAi), "api_key_open-ai");
+        assert_eq!(keyring_key_for(ProviderId::HuggingFace), "api_key_hugging-face");
+    }
+
+    #[test]
+    fn mask_preview_keeps_eight_chars() {
+        assert_eq!(mask_preview("sk-ant-api03-abcdef"), "sk-ant-a...****");
+        assert_eq!(mask_preview("short"), "****");
+    }
+
+    #[test]
+    fn local_runtimes_excluded_from_status_query() {
+        let ollama = ai_providers::find(ProviderId::Ollama).unwrap();
+        assert!(!provider_takes_api_key(ollama));
+        let lm_studio = ai_providers::find(ProviderId::LmStudio).unwrap();
+        assert!(!provider_takes_api_key(lm_studio));
+    }
+
+    #[test]
+    fn subscription_path_excluded_from_status_query() {
+        let sub = ai_providers::find(ProviderId::AnthropicSubscription).unwrap();
+        assert!(!provider_takes_api_key(sub));
+    }
+
+    #[test]
+    fn api_billed_providers_included() {
+        for id in [
+            ProviderId::AnthropicApi,
+            ProviderId::OpenAi,
+            ProviderId::GoogleGemini,
+            ProviderId::Mistral,
+            ProviderId::Cohere,
+            ProviderId::Groq,
+        ] {
+            let p = ai_providers::find(id).unwrap();
+            assert!(provider_takes_api_key(p), "{id:?} should take an API key");
+        }
+    }
 }

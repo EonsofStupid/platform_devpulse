@@ -11,7 +11,8 @@
 //! `set_routing_mode(String)` with the `as_str()` form of this enum to keep
 //! the kernel boundary one-way. Do NOT add a third alias anywhere.
 
-use crate::commands::credentials::{get_api_key, ApiProvider};
+use crate::commands::credentials::get_api_key;
+use devpulse_engine::ai_providers::ProviderId;
 use anyhow::{Context as _, Result as AnyhowResult};
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -133,7 +134,7 @@ pub async fn cloud_ready() -> Result<bool, String> {
         }
     }
     // Fall back to keyring
-    match get_api_key(ApiProvider::Anthropic).await {
+    match get_api_key(ProviderId::AnthropicApi).await {
         Ok(Some(key)) => Ok(!key.is_empty()),
         Ok(None) => Ok(false),
         Err(e) => {
@@ -195,7 +196,7 @@ pub async fn cloud_chat(
     //    then keyring, then fail with clear message.
     let api_key = if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
         if key.is_empty() {
-            get_api_key(ApiProvider::Anthropic)
+            get_api_key(ProviderId::AnthropicApi)
                 .await?
                 .ok_or("No Anthropic API key configured. Add it in Settings → API Keys.")?
         } else {
@@ -203,7 +204,7 @@ pub async fn cloud_chat(
             key
         }
     } else {
-        get_api_key(ApiProvider::Anthropic)
+        get_api_key(ProviderId::AnthropicApi)
             .await?
             .ok_or("No Anthropic API key found. Set ANTHROPIC_API_KEY or add key in Settings.")?
     };
