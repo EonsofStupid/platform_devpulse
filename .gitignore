@@ -19,6 +19,11 @@ node_modules
 .env.*
 !.env.example
 
+# HuggingFace / API secrets — kernel/model-loader/src/models/secrets.rs
+# writes this next to the models_dir. Never commit.
+secrets.toml
+**/secrets.toml
+
 # OS
 .DS_Store
 Thumbs.db
