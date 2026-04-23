@@ -171,8 +171,15 @@ struct CopyEntry {
     category: &'static str,
     /// Absolute source path.
     source: PathBuf,
-    /// Basename as it should land in the portable folder (flat layout).
-    dest_name: String,
+    /// Destination path RELATIVE TO the portable folder root, using forward
+    /// slashes. Preserves subpaths so the organized layout matches the
+    /// `<exe_dir>/binaries/` contract enforced by the runtime PATH hook at
+    /// `interfaces/desktop/src-tauri/src/lib.rs:142`. Examples:
+    ///   "devpulse-desktop-app.exe"           → sibling to exe
+    ///   "llama-server.exe"                   → externalBin flat sibling
+    ///   "binaries/llama.dll"                 → subdir, runtime-discoverable
+    ///   "resources/devforge/win32-x64/code"  → devforge REH tree preserved
+    dest_rel_path: String,
 }
 
 /// A copied file's on-disk result — hashed for the integrity manifest.
@@ -187,15 +194,15 @@ struct CopiedFile {
 fn plan_copies(plan: &PackagePlan) -> Result<Vec<CopyEntry>> {
     let mut entries = Vec::new();
 
-    // Main exe
+    // Main exe — flat sibling.
     entries.push(CopyEntry {
         category: "exe",
         source: plan.exe_path.clone(),
-        dest_name: plan.exe_name.clone(),
+        dest_rel_path: plan.exe_name.clone(),
     });
 
     // External bins — tauri-bundler copies them next to the main exe.
-    // We lift them straight from `target/release/`, not from src-tauri/.
+    // Flat sibling by convention. We lift from `target/release/`.
     let mut missing_external = Vec::new();
     for prefix in &plan.conf.external_bins {
         let basename = utf8_filename(Path::new(prefix))
@@ -209,7 +216,7 @@ fn plan_copies(plan: &PackagePlan) -> Result<Vec<CopyEntry>> {
         entries.push(CopyEntry {
             category: "external_bin",
             source: src,
-            dest_name: sidecar_name,
+            dest_rel_path: sidecar_name,
         });
     }
     if !missing_external.is_empty() {
@@ -221,7 +228,12 @@ fn plan_copies(plan: &PackagePlan) -> Result<Vec<CopyEntry>> {
         );
     }
 
-    // Resources (runtime DLLs, declared with paths relative to src-tauri/).
+    // Resources — organized layout. File entries keep their declared relative
+    // path (e.g. "binaries/llama.dll" lands at portable/binaries/llama.dll
+    // which matches the <exe_dir>/binaries/ contract of the runtime PATH
+    // hook). Directory entries (trailing slash in config, or an actual dir
+    // on disk) are walked recursively and each file queued with its full
+    // relative path preserved.
     let mut missing_resources = Vec::new();
     for rel in &plan.conf.resources {
         let src = plan.src_tauri.join(rel);
@@ -229,14 +241,20 @@ fn plan_copies(plan: &PackagePlan) -> Result<Vec<CopyEntry>> {
             missing_resources.push(src.display().to_string());
             continue;
         }
-        let basename = utf8_filename(Path::new(rel))
-            .with_context(|| format!("resource path has non-UTF8 basename: {rel}"))?
-            .to_string();
-        entries.push(CopyEntry {
-            category: "resource",
-            source: src,
-            dest_name: basename,
-        });
+        let rel_fwd = rel.replace('\\', "/");
+        if src.is_dir() {
+            // Trim trailing slash for the prefix root.
+            let prefix = rel_fwd.trim_end_matches('/').to_string();
+            walk_files_into_entries(&src, &prefix, &mut entries).with_context(|| {
+                format!("walking resource directory {}", src.display())
+            })?;
+        } else {
+            entries.push(CopyEntry {
+                category: "resource",
+                source: src,
+                dest_rel_path: rel_fwd,
+            });
+        }
     }
     if !missing_resources.is_empty() {
         anyhow::bail!(
@@ -255,6 +273,43 @@ fn plan_copies(plan: &PackagePlan) -> Result<Vec<CopyEntry>> {
     Ok(entries)
 }
 
+/// Depth-first walk of a resource directory. Each file found gets a
+/// `CopyEntry` with `dest_rel_path` built as `<prefix>/<subpath>` using
+/// forward slashes. The prefix is whatever the tauri.conf.json entry
+/// declared (e.g. `"resources/devforge/win32-x64"`), so the portable
+/// folder mirrors the source tree: `resources/devforge/win32-x64/code`
+/// → `portable/resources/devforge/win32-x64/code`.
+fn walk_files_into_entries(
+    dir: &Path,
+    prefix: &str,
+    out: &mut Vec<CopyEntry>,
+) -> Result<()> {
+    for entry in fs::read_dir(dir)
+        .with_context(|| format!("reading {}", dir.display()))?
+    {
+        let entry = entry?;
+        let path = entry.path();
+        let name = utf8_filename(&path)
+            .with_context(|| format!("non-UTF8 entry name in {}", dir.display()))?
+            .to_string();
+        let child_prefix = if prefix.is_empty() {
+            name.clone()
+        } else {
+            format!("{prefix}/{name}")
+        };
+        if path.is_dir() {
+            walk_files_into_entries(&path, &child_prefix, out)?;
+        } else if path.is_file() {
+            out.push(CopyEntry {
+                category: "resource",
+                source: path,
+                dest_rel_path: child_prefix,
+            });
+        }
+    }
+    Ok(())
+}
+
 /// Locate the first `.ico` from `bundle.icon` that exists on disk.
 /// Returns `None` with a warning printed if none do — not a hard error,
 /// because tauri-bundler itself tolerates a missing icon in bundles.
@@ -268,7 +323,7 @@ fn locate_primary_icon(plan: &PackagePlan) -> Result<Option<CopyEntry>> {
             return Ok(Some(CopyEntry {
                 category: "icon",
                 source: src,
-                dest_name: "icon.ico".to_string(),
+                dest_rel_path: "icon.ico".to_string(),
             }));
         }
     }
@@ -295,17 +350,25 @@ fn execute_copies(ws: &Workspace, plan: &PackagePlan) -> Result<Vec<CopiedFile>>
     let _ = ws; // reserved for future progress reporting
     let mut copied = Vec::with_capacity(entries.len());
     for entry in entries {
-        let dst = plan.portable_dir.join(&entry.dest_name);
+        let dst = plan.portable_dir.join(&entry.dest_rel_path);
+        // Create parent dirs as needed — the organized layout puts files
+        // under `binaries/` and `resources/...` subfolders that don't
+        // exist yet when `prepare_output_dir` ran.
+        if let Some(parent) = dst.parent() {
+            fs::create_dir_all(parent).with_context(|| {
+                format!("creating parent dir {}", parent.display())
+            })?;
+        }
         let (size_bytes, sha256_hex) = copy_and_hash(&entry.source, &dst)?;
         let size_mb = (size_bytes as f64) / (1024.0 * 1024.0);
         crate::xinfo!(
-            "  > copied [{cat:<12}] {name:<40} ({size_mb:>8.2} MB)",
+            "  > copied [{cat:<12}] {name:<48} ({size_mb:>8.2} MB)",
             cat = entry.category,
-            name = entry.dest_name,
+            name = entry.dest_rel_path,
         );
         copied.push(CopiedFile {
             category: entry.category,
-            name: entry.dest_name,
+            name: entry.dest_rel_path,
             size_bytes,
             sha256_hex,
         });
@@ -331,9 +394,9 @@ fn execute_dry_run(plan: &PackagePlan) {
         let size_bytes = fs::metadata(&entry.source).map(|m| m.len()).unwrap_or(0);
         let size_mb = (size_bytes as f64) / (1024.0 * 1024.0);
         crate::xinfo!(
-            "    [{cat:<12}] {name:<40} ({size_mb:>8.2} MB)  ← {src}",
+            "    [{cat:<12}] {name:<48} ({size_mb:>8.2} MB)  ← {src}",
             cat = entry.category,
-            name = entry.dest_name,
+            name = entry.dest_rel_path,
             src = entry.source.display()
         );
     }
@@ -479,29 +542,30 @@ fn write_readme(plan: &PackagePlan) -> Result<()> {
         plan.conf.product_name, plan.conf.version
     ));
     body.push_str("Unzip this folder anywhere. No installer required.\n");
-    body.push_str("All files MUST remain in the same folder — Windows DLL search\n");
-    body.push_str("order resolves the runtime libraries as siblings of the exe.\n\n");
+    body.push_str("Keep the directory structure intact when you move it —\n");
+    body.push_str("the app launches children that look in `./binaries/` for\n");
+    body.push_str("their runtime libraries.\n\n");
     body.push_str("Launch:\n");
     body.push_str(&format!("  {}\n\n", plan.exe_name));
-    body.push_str("Contents:\n");
+    body.push_str("Layout:\n");
     body.push_str(&format!(
-        "  {} — main application (Tauri + SvelteKit frontend)\n",
+        "  {}           — main application (Tauri + SvelteKit frontend)\n",
         plan.exe_name
     ));
     for bin in &plan.conf.external_bins {
         if let Some(name) = Path::new(bin).file_name().and_then(|n| n.to_str()) {
-            body.push_str(&format!("  {name}.exe — sidecar process\n"));
+            body.push_str(&format!(
+                "  {name}.exe                 — sidecar process\n"
+            ));
         }
     }
-    if !plan.conf.resources.is_empty() {
-        body.push_str(&format!(
-            "  {} runtime DLLs (llama.cpp, CUDA, cuBLAS, libomp)\n",
-            plan.conf.resources.len()
-        ));
-    }
-    body.push_str("  icon.ico — application icon\n");
-    body.push_str("  manifest.json — build metadata + per-file SHA256 (integrity check)\n\n");
-    body.push_str("First run writes data to %LOCALAPPDATA%\\DevPulse\\ (libSQL, DuckDB, logs).\n");
+    body.push_str("  binaries/                      — llama.cpp, CUDA, cuBLAS, libomp runtime DLLs\n");
+    body.push_str("  resources/                     — bundled REH / devforge / etc.\n");
+    body.push_str("  icon.ico                       — application icon\n");
+    body.push_str("  manifest.json                  — build metadata + per-file SHA256 (integrity check)\n");
+    body.push_str("  README.txt                     — this file\n\n");
+    body.push_str("First run writes data to %APPDATA%\\DevPulse\\ (libSQL, DuckDB, logs).\n");
+    body.push_str("The pointer to the active log file lives at <app-dir>/bootstrap-pointer.txt.\n");
 
     let path = plan.portable_dir.join("README.txt");
     let mut f = File::create(&path).with_context(|| format!("creating {}", path.display()))?;
@@ -516,14 +580,15 @@ fn build_zip(plan: &PackagePlan) -> Result<u64> {
         fs::remove_file(&plan.zip_path)
             .with_context(|| format!("removing old zip {}", plan.zip_path.display()))?;
     }
-    zip_dir_flat(&plan.portable_dir, &plan.zip_path)?;
+    zip_dir_preserving_layout(&plan.portable_dir, &plan.zip_path)?;
     Ok(fs::metadata(&plan.zip_path).map(|m| m.len()).unwrap_or(0))
 }
 
-/// Zip all FILES directly inside `src_dir` into `zip_path`. Flat layout —
-/// extracts to the same shape as the portable folder. Does not recurse
-/// into subfolders (a portable build has none).
-fn zip_dir_flat(src_dir: &Path, zip_path: &Path) -> Result<()> {
+/// Zip every file under `src_dir` into `zip_path`, preserving relative
+/// subpath layout. Extracts to the same shape as the portable folder so
+/// `binaries/*.dll` and `resources/devforge/**` land at the expected
+/// paths on the user's disk.
+fn zip_dir_preserving_layout(src_dir: &Path, zip_path: &Path) -> Result<()> {
     let file =
         File::create(zip_path).with_context(|| format!("creating {}", zip_path.display()))?;
     let mut zip = ZipWriter::new(BufWriter::new(file));
@@ -532,23 +597,51 @@ fn zip_dir_flat(src_dir: &Path, zip_path: &Path) -> Result<()> {
         .compression_level(Some(6));
 
     let mut count = 0u32;
-    for entry in fs::read_dir(src_dir).with_context(|| format!("reading {}", src_dir.display()))? {
+    zip_walk(src_dir, src_dir, &mut zip, options, &mut count)?;
+
+    zip.finish().context("finalizing zip archive")?;
+    crate::xinfo!("  > zip archived {count} files (layout preserved)");
+    Ok(())
+}
+
+/// Depth-first recursive walker that streams every file into the zip
+/// with its relative path from `root` as the entry name. Forward-slash
+/// separators — required by the zip format spec for cross-platform
+/// extraction.
+fn zip_walk(
+    root: &Path,
+    dir: &Path,
+    zip: &mut ZipWriter<BufWriter<File>>,
+    options: FileOptions<()>,
+    count: &mut u32,
+) -> Result<()> {
+    for entry in
+        fs::read_dir(dir).with_context(|| format!("reading {}", dir.display()))?
+    {
         let entry = entry?;
         let path = entry.path();
+        if path.is_dir() {
+            zip_walk(root, &path, zip, options, count)?;
+            continue;
+        }
         if !path.is_file() {
             continue;
         }
-        let name = utf8_filename(&path)
-            .with_context(|| format!("non-UTF8 filename inside {}", src_dir.display()))?;
-        zip.start_file(name, options)
-            .with_context(|| format!("zip entry {name}"))?;
-        let mut f = File::open(&path).with_context(|| format!("opening {}", path.display()))?;
-        std::io::copy(&mut f, &mut zip).with_context(|| format!("streaming {name} into zip"))?;
-        count += 1;
+        let rel = path
+            .strip_prefix(root)
+            .with_context(|| format!("{} not under {}", path.display(), root.display()))?;
+        let rel_str = rel
+            .to_str()
+            .with_context(|| format!("non-UTF8 path inside zip root: {}", rel.display()))?
+            .replace('\\', "/");
+        zip.start_file(&rel_str, options)
+            .with_context(|| format!("zip entry {rel_str}"))?;
+        let mut f =
+            File::open(&path).with_context(|| format!("opening {}", path.display()))?;
+        std::io::copy(&mut f, zip)
+            .with_context(|| format!("streaming {rel_str} into zip"))?;
+        *count += 1;
     }
-
-    zip.finish().context("finalizing zip archive")?;
-    crate::xinfo!("  > zip archived {count} files");
     Ok(())
 }
 
