@@ -69,12 +69,8 @@ onMount(() => {
 
 async function openLogsFolder() {
 	try {
-		const { invoke } = await import("@tauri-apps/api/core");
-		// Best-effort: the backend has a logs-dir-open command. If not
-		// wired yet this logs an error but doesn't crash.
-		await invoke("open_logs_folder").catch((e) => {
-			logError("layouts.app.BootOverlay", `open_logs_folder failed: ${e}`);
-		});
+		const { commands, unwrap } = await import("$lib/sys/generated/bindings.js");
+		unwrap(await commands.openActionLogsFolder());
 	} catch (e) {
 		logError("layouts.app.BootOverlay", `could not open logs folder: ${e}`);
 	}

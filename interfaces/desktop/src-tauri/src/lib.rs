@@ -687,6 +687,46 @@ pub fn run() {
                 tracing::info!("Registered Ctrl+Shift+Z → dev tools panel");
             }
 
+            // ── Ctrl+Shift+I → Chromium webview devtools (main window) ──
+            // Different from Ctrl+Shift+Z which opens the DevPulse-authored
+            // `/devtools` Svelte route. This one opens the raw Chromium
+            // inspector on the MAIN window — essential when the main window
+            // is black-screened and you need to see the JS console.
+            // Requires `devtools` feature on the `tauri` crate (added to
+            // Cargo.toml so open_devtools() is compiled into release too,
+            // not just debug). Without that feature, this shortcut is a
+            // no-op in release.
+            {
+                use tauri_plugin_global_shortcut::{
+                    Code, GlobalShortcutExt, Modifiers, Shortcut,
+                };
+                let shortcut = Shortcut::new(
+                    Some(Modifiers::CONTROL | Modifiers::SHIFT),
+                    Code::KeyI,
+                );
+                let app_handle = app.handle().clone();
+                app.global_shortcut().on_shortcut(shortcut, move |_a, _s, event| {
+                    if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                        if let Some(window) = app_handle.get_webview_window("main") {
+                            if window.is_devtools_open() {
+                                window.close_devtools();
+                                tracing::info!("Chromium devtools closed on main window");
+                            } else {
+                                window.open_devtools();
+                                tracing::info!("Chromium devtools opened on main window");
+                            }
+                        } else {
+                            tracing::warn!(
+                                "Ctrl+Shift+I pressed but 'main' window missing"
+                            );
+                        }
+                    }
+                }).map_err(|e| anyhow::anyhow!("Failed to register Ctrl+Shift+I: {e}"))?;
+                tracing::info!(
+                    "Registered Ctrl+Shift+I → Chromium webview devtools (main)"
+                );
+            }
+
             Ok(())
         })
         .build(tauri::generate_context!())

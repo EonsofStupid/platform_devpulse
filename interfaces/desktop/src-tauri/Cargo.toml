@@ -17,7 +17,7 @@ path = "src/main.rs"
 tauri-build = { version = "2.5.5", features = [] }
 
 [dependencies]
-tauri = { version = "2.10.2", features = ["specta"] }
+tauri = { version = "2.10.2", features = ["specta", "devtools"] }
 specta = { workspace = true }
 specta-typescript = { workspace = true }
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
