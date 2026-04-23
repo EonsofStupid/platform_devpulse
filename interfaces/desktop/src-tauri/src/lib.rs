@@ -498,6 +498,19 @@ pub fn run() {
                     as Box<dyn std::error::Error>
             })?;
 
+            // ── Ultra-early bootstrap log ─────────────────────────
+            // Writes <data_dir>/bootstrap.log with "Rust is alive"
+            // evidence + the resolved data/logs paths BEFORE the
+            // tracing subscriber is initialized. If anything after
+            // this point panics (incl. the tracing init itself, boot
+            // pipeline, DLL load failures on first LoadLibrary call),
+            // this file is the one guaranteed artifact the user has.
+            // Also drops <exe_dir>/bootstrap-pointer.txt containing
+            // just the path so the user can jump to the right log
+            // location regardless of whether data_dir resolved to
+            // %APPDATA%/DevPulse or the exe-sibling .userdata/.
+            write_bootstrap_log(&data_dir);
+
             // ── Logging: stderr + file + DuckDB + OTel ────────────
             let _ = logging::rotate_logs(&data_dir);
             let mut span_rx = match logging::init(&data_dir, otel_layer) {
@@ -1124,4 +1137,93 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+/// Write `<data_dir>/bootstrap.log` with "Rust is alive" evidence and
+/// the resolved log paths, AND drop `<exe_dir>/bootstrap-pointer.txt`
+/// so the user can jump to the active log dir from next to the exe.
+///
+/// # Why this exists
+///
+/// Windows GUI apps (`windows_subsystem = "windows"` at `main.rs`) have
+/// no attached stdout/stderr. If the `tracing` subscriber or any code
+/// AFTER this point panics — or if a LoadLibrary call after `main()`
+/// returns `STATUS_DLL_NOT_FOUND` on a dynamic DLL — there is no trace
+/// at all of "did Rust even start". `bootstrap.log` is the one place
+/// the user can look: "file exists with fresh timestamp → process
+/// started, at least through data-dir resolution". Failures AFTER this
+/// land in `boot.log` (authored at `platform/boot/log.rs:43`) or
+/// `crash-{ts}.json` (authored by the panic hook at `logging.rs:179`).
+///
+/// All writes use synchronous `std::fs::write` — tracing-appender's
+/// background worker hasn't been spawned yet, and synchronous is what
+/// we want here anyway (we want the file on disk before we proceed).
+///
+/// Best-effort: errors are swallowed because this log is an aide, not
+/// a precondition. If we can't write it, boot still proceeds.
+fn write_bootstrap_log(data_dir: &std::path::Path) {
+    use std::fs;
+
+    let timestamp = chrono::Utc::now().to_rfc3339();
+    let exe_path = std::env::current_exe()
+        .map_or_else(|_| "<unknown>".to_string(), |p| p.display().to_string());
+    let exe_dir = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(std::path::Path::to_path_buf));
+    let logs_dir = data_dir.join("logs");
+    let boot_log = logs_dir.join("boot.log");
+    let bootstrap_log = data_dir.join("bootstrap.log");
+
+    let header = format!(
+        "devpulse-desktop v{version}\n\
+         process_started_at_utc: {timestamp}\n\
+         exe_path:    {exe_path}\n\
+         data_dir:    {data_dir}\n\
+         logs_dir:    {logs_dir}\n\
+         boot_log:    {boot_log}\n\
+         session_log: {logs_dir}/session-<timestamp>.jsonl\n\
+         crash_dumps: {logs_dir}/crash-<timestamp>.json\n\
+         ---\n\
+         If you are reading this, Rust reached the data-dir resolution step.\n\
+         If session-*.jsonl or boot.log have fresher timestamps than this\n\
+         file, boot progressed further. If not, a panic or DLL load error\n\
+         happened between data-dir resolution and the logging subscriber\n\
+         init — check Windows Event Viewer for the exe name or look for\n\
+         a crash-*.json in logs_dir.\n",
+        version = env!("CARGO_PKG_VERSION"),
+        data_dir = data_dir.display(),
+        logs_dir = logs_dir.display(),
+        boot_log = boot_log.display(),
+    );
+
+    // Ensure data_dir + logs_dir exist so the bootstrap write succeeds
+    // even on a truly fresh install where neither directory has been
+    // created yet by any prior step.
+    let _ = fs::create_dir_all(&logs_dir);
+    let _ = fs::write(&bootstrap_log, &header);
+
+    // Drop a pointer file next to the exe so the user can find the
+    // right log dir without guessing between %APPDATA%\DevPulse and
+    // <exe_dir>/.userdata. Overwrites every launch — the path in
+    // this file is always the path this process chose.
+    if let Some(parent) = exe_dir {
+        let pointer_path = parent.join("bootstrap-pointer.txt");
+        let pointer_body = format!(
+            "bootstrap.log: {}\nlogs_dir:      {}\n",
+            bootstrap_log.display(),
+            logs_dir.display()
+        );
+        let _ = fs::write(&pointer_path, &pointer_body);
+    }
+
+    // In debug builds (cargo xtask run-dev), also mirror to stderr
+    // for immediate terminal visibility. Release has no attached
+    // console so eprintln is a no-op — hence the bootstrap.log file.
+    #[cfg(debug_assertions)]
+    {
+        eprintln!("devpulse: data_dir    = {}", data_dir.display());
+        eprintln!("devpulse: logs_dir    = {}", logs_dir.display());
+        eprintln!("devpulse: boot.log    = {}", boot_log.display());
+        eprintln!("devpulse: bootstrap   = {}", bootstrap_log.display());
+    }
 }
