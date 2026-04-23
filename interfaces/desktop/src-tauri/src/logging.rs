@@ -104,7 +104,13 @@ pub fn init(
     let stderr_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));
 
-    let faithful = std::env::var("DEVPULSE_LOG_FAITHFUL").is_ok();
+    // Faithful mode captures every span from every crate at TRACE level.
+    // Default-on in debug builds so `cargo xtask run-dev` produces a JSONL
+    // with every tauri internal span, every surrealdb query span, every
+    // specta dispatch — not just our crates. Release still requires an
+    // explicit `DEVPULSE_LOG_FAITHFUL=1` opt-in to keep release log
+    // volume bounded.
+    let faithful = std::env::var("DEVPULSE_LOG_FAITHFUL").is_ok() || cfg!(debug_assertions);
     let jsonl_filter = if faithful {
         EnvFilter::new("trace")
     } else {

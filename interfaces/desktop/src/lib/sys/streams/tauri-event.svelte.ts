@@ -23,7 +23,7 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import { logError } from "$lib/sys/logger.js";
+import { log, logError } from "$lib/sys/logger.js";
 
 export interface TauriEventStream<T> {
 	/** Register a handler. Returns a cleanup fn — wire into `$effect` return. */
@@ -57,6 +57,21 @@ export function createTauriEvent<T>(eventName: string): TauriEventStream<T> {
 		attaching = (async () => {
 			try {
 				unlisten = await listen<T>(eventName, (event) => {
+					// Verbatim dev logging — every Tauri event receipt
+					// lands in the session JSONL with its payload. Safe
+					// in release; the Rust pipeline filters DEBUG there.
+					let payloadPreview: string;
+					try {
+						const s = JSON.stringify(event.payload ?? null);
+						payloadPreview = s.length > 500 ? `${s.slice(0, 500)}…` : s;
+					} catch {
+						payloadPreview = "<unserializable>";
+					}
+					log(
+						"debug",
+						"frontend:event",
+						`${eventName} → ${handlers.size} handler(s) payload=${payloadPreview}`,
+					);
 					handlers.forEach((fn) => {
 						fn(event.payload);
 					});

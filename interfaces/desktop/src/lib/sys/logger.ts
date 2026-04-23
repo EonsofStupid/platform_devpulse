@@ -192,6 +192,85 @@ export function installGlobalHandlers(): void {
 		const msg = args.map((a) => String(a)).join(" ");
 		log("warn", "frontend:console", msg);
 	};
+
+	// Intercept console.log / info / debug so EVERY third-party library
+	// emission lands in the session JSONL. Without this, libraries like
+	// Svelte runtime, tauri-apps/plugin-*, @tanstack/svelte-query, etc. log
+	// to the browser console only — invisible to post-mortem debugging.
+	// Dev is the audience; release still captures these via the Rust
+	// tracing pipeline at info/debug level.
+	// biome-ignore lint/suspicious/noConsole: intentional logging facade — this IS the console wrapper
+	const originalLog = console.log;
+	// biome-ignore lint/suspicious/noConsole: intentional logging facade
+	console.log = (...args: unknown[]) => {
+		originalLog.apply(console, args);
+		const msg = args.map((a) => String(a)).join(" ");
+		log("info", "frontend:console", msg);
+	};
+
+	// biome-ignore lint/suspicious/noConsole: intentional logging facade
+	const originalInfo = console.info;
+	console.info = (...args: unknown[]) => {
+		originalInfo.apply(console, args);
+		const msg = args.map((a) => String(a)).join(" ");
+		log("info", "frontend:console", msg);
+	};
+
+	// biome-ignore lint/suspicious/noConsole: intentional logging facade
+	const originalDebug = console.debug;
+	console.debug = (...args: unknown[]) => {
+		originalDebug.apply(console, args);
+		const msg = args.map((a) => String(a)).join(" ");
+		log("debug", "frontend:console", msg);
+	};
+
+	// Wrap EVERY Tauri IPC call at the internals layer — bindings.ts is
+	// specta-generated and imports `invoke` from @tauri-apps/api/core,
+	// which delegates to `window.__TAURI_INTERNALS__.invoke`. Patching
+	// that function captures every IPC roundtrip (cmd, args, duration,
+	// result or error) regardless of which binding made the call.
+	//
+	// No-op if Tauri internals aren't available yet (e.g. SSR context or
+	// before webview bridge established). Safe to call repeatedly.
+	// biome-ignore lint/suspicious/noExplicitAny: Tauri internals typed loosely
+	const internals = (window as any).__TAURI_INTERNALS__;
+	if (internals && typeof internals.invoke === "function" && !internals.__devpulse_wrapped__) {
+		const originalInvoke = internals.invoke.bind(internals);
+		// biome-ignore lint/suspicious/noExplicitAny: generic IPC signature
+		internals.invoke = (cmd: string, args?: unknown, options?: unknown): Promise<any> => {
+			const start = performance.now();
+			let argsSerialized = "<unserializable>";
+			try {
+				argsSerialized = JSON.stringify(args ?? null);
+				if (argsSerialized.length > 2000) {
+					argsSerialized = `${argsSerialized.slice(0, 2000)}…[truncated ${argsSerialized.length} chars]`;
+				}
+			} catch {
+				/* keep fallback */
+			}
+			log("debug", "frontend:ipc", `→ ${cmd} args=${argsSerialized}`);
+			return originalInvoke(cmd, args, options)
+				.then((result: unknown) => {
+					const ms = Math.round(performance.now() - start);
+					let resultPreview = "<unserializable>";
+					try {
+						const s = JSON.stringify(result ?? null);
+						resultPreview = s.length > 500 ? `${s.slice(0, 500)}…` : s;
+					} catch {
+						/* keep fallback */
+					}
+					log("debug", "frontend:ipc", `← ${cmd} (${ms}ms) result=${resultPreview}`);
+					return result;
+				})
+				.catch((err: unknown) => {
+					const ms = Math.round(performance.now() - start);
+					const msg = err instanceof Error ? err.message : String(err);
+					log("error", "frontend:ipc", `✗ ${cmd} (${ms}ms) error=${msg}`);
+					throw err;
+				});
+		};
+		internals.__devpulse_wrapped__ = true;
+	}
 }
 
 /**

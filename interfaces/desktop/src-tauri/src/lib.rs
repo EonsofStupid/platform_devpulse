@@ -438,8 +438,26 @@ pub fn run() {
         //
         // DEBUG level (not TRACE) because target "ipc" falls to the
         // default level in our EnvFilter — TRACE would be dropped.
+        //
+        // In debug builds we ALSO log the full payload JSON at DEBUG so
+        // every IPC call's args land in the session JSONL verbatim. In
+        // release builds we keep to command name only — avoids writing
+        // user-supplied payload content to disk in shipped binaries.
         let command = invoke.message.command().to_string();
-        tracing::debug!(target: "ipc", command = %command, "invoke received");
+        #[cfg(debug_assertions)]
+        {
+            let payload = format!("{:?}", invoke.message.payload());
+            tracing::debug!(
+                target: "ipc",
+                command = %command,
+                args = %payload,
+                "invoke received"
+            );
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            tracing::debug!(target: "ipc", command = %command, "invoke received");
+        }
         let start = std::time::Instant::now();
         let handled = specta_handler(invoke);
         let elapsed_us = start.elapsed().as_micros() as u64;
