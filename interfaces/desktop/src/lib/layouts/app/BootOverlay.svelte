@@ -21,6 +21,8 @@
 }
 -->
 <script lang="ts">
+import { listen } from "@tauri-apps/api/event";
+import { onMount } from "svelte";
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
@@ -33,11 +35,50 @@ import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
+import { logError, logInfo } from "$lib/sys/logger.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let visible = $state(true);
 let fading = $state(false);
+let bootFailureMessage = $state<string | null>(null);
+
+onMount(() => {
+	// Listen for platform:boot-failed emitted by the boot_task supervisor
+	// in src-tauri/src/lib.rs. A non-empty payload means the Rust
+	// boot_task panicked or failed in a way that the per-subsystem event
+	// stream cannot recover from; surface the message verbatim so the
+	// user sees a root cause instead of a frozen spinner.
+	const unlistenPromise = listen<string>("platform:boot-failed", (event) => {
+		const msg = typeof event.payload === "string" ? event.payload : String(event.payload);
+		bootFailureMessage = msg;
+		logError("layouts.app.BootOverlay", `platform:boot-failed → ${msg}`);
+	})
+		.then((fn) => {
+			logInfo("layouts.app.BootOverlay", "listening for platform:boot-failed");
+			return fn;
+		})
+		.catch((e) => {
+			logError("layouts.app.BootOverlay", `failed to attach platform:boot-failed listener: ${e}`);
+			return null;
+		});
+	return () => {
+		void unlistenPromise.then((unlisten) => unlisten?.());
+	};
+});
+
+async function openLogsFolder() {
+	try {
+		const { invoke } = await import("@tauri-apps/api/core");
+		// Best-effort: the backend has a logs-dir-open command. If not
+		// wired yet this logs an error but doesn't crash.
+		await invoke("open_logs_folder").catch((e) => {
+			logError("layouts.app.BootOverlay", `open_logs_folder failed: ${e}`);
+		});
+	} catch (e) {
+		logError("layouts.app.BootOverlay", `could not open logs folder: ${e}`);
+	}
+}
 
 const subsystems = $derived(platformState.subsystemList());
 const bootComplete = $derived(platformState.isReady);
@@ -123,16 +164,42 @@ $effect(() => {
 		"min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
 		"transition-all duration-300 ease-out",
 	)}>
-		<!-- Wordmark -->
-		<div class={stack({ gap: "4", align: "center" })}>
-			<Text size="lg" weight="bold">DevPulse</Text>
-			<div class={hstack({ gap: "8", align: "center", justify: "center" })}>
-				<span
-					class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-teal-main)] shrink-0 animate-pulse"
-				></span>
-				<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
+		{#if bootFailureMessage}
+			<div
+				class={cn(
+					stack({ gap: "4", align: "start" }),
+					"w-full rounded-md border border-[var(--accent-red-main,oklch(0.62_0.22_25))] bg-[color-mix(in_oklch,var(--accent-red-main,oklch(0.62_0.22_25))_18%,var(--color-void-base,oklch(0.08_0.01_220)))] p-4",
+				)}
+				role="alert"
+			>
+				<Text size="lg" weight="bold">Boot failed</Text>
+				<Text size="sm" color="secondary">
+					DevPulse background services could not start. Details below;
+					the full log is in the logs folder.
+				</Text>
+				<pre
+					class="w-full overflow-auto whitespace-pre-wrap break-words rounded bg-[var(--color-void-base,oklch(0.08_0.01_220))] p-2 text-xs opacity-80"
+				>{bootFailureMessage}</pre>
+				<button
+					type="button"
+					class="pointer-events-auto rounded border border-[var(--accent-teal-main)] bg-[color-mix(in_oklch,var(--accent-teal-main)_18%,transparent)] px-3 py-1.5 text-xs hover:bg-[color-mix(in_oklch,var(--accent-teal-main)_28%,transparent)]"
+					onclick={openLogsFolder}
+				>
+					Open logs folder
+				</button>
 			</div>
-		</div>
+		{:else}
+			<!-- Wordmark -->
+			<div class={stack({ gap: "4", align: "center" })}>
+				<Text size="lg" weight="bold">DevPulse</Text>
+				<div class={hstack({ gap: "8", align: "center", justify: "center" })}>
+					<span
+						class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-teal-main)] shrink-0 animate-pulse"
+					></span>
+					<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
+				</div>
+			</div>
+		{/if}
 
 		<!-- Subsystem list — always visible during boot, collapses during wizard -->
 		<!-- Subsystem progress always visible during boot -->

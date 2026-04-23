@@ -626,9 +626,47 @@ pub fn run() {
             }
 
             tracing::info!("Detached boot — window already visible, services booting in background");
-            tauri::async_runtime::spawn(
+            // Spawn boot_task and chain a second task that awaits its
+            // JoinHandle. Tokio wraps every spawned task in a catch_unwind
+            // internally; the panic payload is preserved in the JoinError
+            // and accessible via `.is_panic()` + `.try_into_panic()`. Without
+            // this supervisor task a panic inside boot_task is swallowed
+            // silently and the splash hangs forever. Now: panic → tracing
+            // error + `platform:boot-failed` Tauri event → BootOverlay
+            // frontend listener renders a red failure panel with the
+            // message so the user sees the root cause instead of a frozen
+            // spinner.
+            let boot_handle = tauri::async_runtime::spawn(
                 boot_task(handle, data_dir, tracker_clone, span_rx.take())
             );
+            let emit_on_fail = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                match boot_handle.await {
+                    Ok(()) => {
+                        // boot_task ran to completion. Its own code path
+                        // handles success / subsystem-error emission.
+                    }
+                    Err(tauri::Error::JoinError(join_err)) => {
+                        let msg = if join_err.is_panic() {
+                            let payload = join_err.into_panic();
+                            panic_message(&payload)
+                        } else {
+                            format!("boot_task cancelled / JoinError: {join_err}")
+                        };
+                        tracing::error!(
+                            target: "boot",
+                            panic = %msg,
+                            "boot_task did not complete normally — emitting platform:boot-failed"
+                        );
+                        let _ = emit_on_fail.emit("platform:boot-failed", &msg);
+                    }
+                    Err(other) => {
+                        let msg = format!("boot_task tauri::Error: {other}");
+                        tracing::error!(target: "boot", err = %msg, "boot_task wrapper error");
+                        let _ = emit_on_fail.emit("platform:boot-failed", &msg);
+                    }
+                }
+            });
 
             // ── Global shortcuts ──────────────────────────────────
             // Ctrl+Shift+Z toggles the dev tools panel
@@ -1137,6 +1175,20 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+/// Extract a string message from a panic payload (the `Box<dyn Any>`
+/// returned by `JoinError::into_panic`). Handles the two common shapes
+/// emitted by `panic!("...")` (`&'static str`) and `panic!("{x}")`
+/// (`String`); falls back to a generic label for non-string payloads.
+fn panic_message(payload: &Box<dyn std::any::Any + Send>) -> String {
+    if let Some(s) = payload.downcast_ref::<&'static str>() {
+        (*s).to_string()
+    } else if let Some(s) = payload.downcast_ref::<String>() {
+        s.clone()
+    } else {
+        "<non-string panic payload>".to_string()
+    }
 }
 
 /// Write `<data_dir>/bootstrap.log` with "Rust is alive" evidence and
