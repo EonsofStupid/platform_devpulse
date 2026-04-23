@@ -295,8 +295,43 @@ impl Workspace {
         let conf_path = self.tauri_conf_path();
         let raw = std::fs::read_to_string(&conf_path)
             .with_context(|| format!("reading {}", conf_path.display()))?;
-        let value: serde_json::Value = serde_json::from_str(&raw)
+        let mut value: serde_json::Value = serde_json::from_str(&raw)
             .with_context(|| format!("parsing {}", conf_path.display()))?;
+
+        // Apply platform override (tauri.<platform>.conf.json) the same
+        // way the Tauri CLI merges them during `tauri build`. Without
+        // this, `bundle.resources` declared in the Windows override (the
+        // 10 runtime DLLs) would be invisible to package-portable and
+        // the resulting portable folder would ship with NO DLLs — which
+        // is exactly the regression we shipped once already. RFC 7396:
+        // arrays REPLACE, objects merge recursively.
+        #[cfg(target_os = "windows")]
+        let platform_override = Some("tauri.windows.conf.json");
+        #[cfg(target_os = "macos")]
+        let platform_override = Some("tauri.macos.conf.json");
+        #[cfg(target_os = "linux")]
+        let platform_override = Some("tauri.linux.conf.json");
+        #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+        let platform_override: Option<&str> = None;
+
+        if let Some(filename) = platform_override {
+            let override_path = self
+                .root
+                .join("interfaces")
+                .join("desktop")
+                .join("src-tauri")
+                .join(filename);
+            if override_path.exists() {
+                let override_raw = std::fs::read_to_string(&override_path).with_context(|| {
+                    format!("reading platform override {}", override_path.display())
+                })?;
+                let override_value: serde_json::Value =
+                    serde_json::from_str(&override_raw).with_context(|| {
+                        format!("parsing platform override {}", override_path.display())
+                    })?;
+                merge_rfc7396(&mut value, &override_value);
+            }
+        }
 
         let product_name = value
             .get("productName")
@@ -360,6 +395,79 @@ fn json_string_array(v: Option<&serde_json::Value>) -> Vec<String> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// RFC 7396 JSON Merge Patch — matches the semantics Tauri's CLI uses
+/// when merging `tauri.<platform>.conf.json` into `tauri.conf.json`:
+/// objects merge recursively, arrays REPLACE wholesale, primitives
+/// REPLACE, and `null` on the patch side deletes the key.
+///
+/// Example (the one that burned us):
+///
+///   base    : { "bundle": { "resources": [] } }
+///   patch   : { "bundle": { "resources": ["binaries/llama.dll"] } }
+///   merged  : { "bundle": { "resources": ["binaries/llama.dll"] } }
+///
+/// Shipped as a small local helper instead of a dependency — the single
+/// call site is `tauri_config`, and we already have serde_json.
+fn merge_rfc7396(target: &mut serde_json::Value, patch: &serde_json::Value) {
+    match (target, patch) {
+        (serde_json::Value::Object(target_map), serde_json::Value::Object(patch_map)) => {
+            for (k, v) in patch_map {
+                if v.is_null() {
+                    target_map.remove(k);
+                } else if let Some(existing) = target_map.get_mut(k) {
+                    merge_rfc7396(existing, v);
+                } else {
+                    target_map.insert(k.clone(), v.clone());
+                }
+            }
+        }
+        (target_slot, patch_v) => {
+            *target_slot = patch_v.clone();
+        }
+    }
+}
+
+#[cfg(test)]
+mod merge_tests {
+    use super::merge_rfc7396;
+    use serde_json::json;
+
+    #[test]
+    fn array_replaces_wholesale() {
+        let mut base = json!({ "bundle": { "resources": [] } });
+        let patch = json!({ "bundle": { "resources": ["a.dll", "b.dll"] } });
+        merge_rfc7396(&mut base, &patch);
+        assert_eq!(base, json!({ "bundle": { "resources": ["a.dll", "b.dll"] } }));
+    }
+
+    #[test]
+    fn nested_object_merges_recursively() {
+        let mut base = json!({ "bundle": { "active": true, "targets": ["nsis"] } });
+        let patch = json!({ "bundle": { "icon": "x.ico" } });
+        merge_rfc7396(&mut base, &patch);
+        assert_eq!(
+            base,
+            json!({ "bundle": { "active": true, "targets": ["nsis"], "icon": "x.ico" } })
+        );
+    }
+
+    #[test]
+    fn null_on_patch_deletes_key() {
+        let mut base = json!({ "a": 1, "b": 2 });
+        let patch = json!({ "b": null });
+        merge_rfc7396(&mut base, &patch);
+        assert_eq!(base, json!({ "a": 1 }));
+    }
+
+    #[test]
+    fn primitive_replaces() {
+        let mut base = json!({ "version": "0.1.0" });
+        let patch = json!({ "version": "0.2.0" });
+        merge_rfc7396(&mut base, &patch);
+        assert_eq!(base, json!({ "version": "0.2.0" }));
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
