@@ -58,6 +58,22 @@ export type SetupWizardView = "welcome" | "system-check" | "config" | "validate"
 const REQUIRED_EXCHANGES = 3;
 const LOG_TARGET = "wizard.overlay";
 
+/// Minimal RFC-5321 shape check — one `@`, something on both sides,
+/// at least one dot in the domain. Not a full validator (that path is
+/// a rabbit hole); enough to reject typos and blank submissions. The
+/// backend's `create_dev_profile` command performs the authoritative
+/// check on save.
+function isValidEmail(raw: string): boolean {
+	const s = raw.trim();
+	if (s.length < 3 || s.length > 254) return false;
+	const at = s.indexOf("@");
+	if (at <= 0 || at === s.length - 1) return false;
+	const domain = s.slice(at + 1);
+	if (!domain.includes(".")) return false;
+	if (domain.startsWith(".") || domain.endsWith(".")) return false;
+	return !s.includes(" ");
+}
+
 class SetupWizardOverlayState {
 	// ── View ─────────────────────────────────────────────────
 	view = $state<SetupWizardView>("welcome");
@@ -240,7 +256,16 @@ class SetupWizardOverlayState {
 	}
 
 	get canContinue(): boolean {
-		return this.profileName.trim().length > 0;
+		// Owner directive 2026-04-22: name AND email are both required
+		// to enter the wizard. Email is the identity anchor for profile
+		// grouping and future cloud sync — making it optional meant the
+		// wizard accepted an incomplete profile and no downstream code
+		// could assume it existed.
+		return this.profileName.trim().length > 0 && isValidEmail(this.profileEmail);
+	}
+
+	get emailIsValid(): boolean {
+		return isValidEmail(this.profileEmail);
 	}
 
 	// ── Jesse Config preset ──────────────────────────────────

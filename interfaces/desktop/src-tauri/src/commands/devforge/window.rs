@@ -64,12 +64,18 @@ const MIN_HEIGHT: f64 = 600.0;
 /// - Connection URL fails to parse as a valid `Url`
 /// - Tauri fails to create the `WebviewWindow`
 /// - Focusing an already-open `DevForge` window fails
+/// Optional `workspace_path`: absolute path of a project directory to
+/// open inside the REH workspace. When set, appended to the connection
+/// URL as a `folder=` query parameter — the code-oss REH standard for
+/// "open this workspace folder on load". `None` means open the default
+/// workspace (configured via `workspace_path` in devforge.toml).
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn open_devforge_window(
     app: AppHandle,
     state: State<'_, PlatformState>,
+    workspace_path: Option<String>,
 ) -> Result<DevforgeBootstrapStatus, String> {
     // ── 1. Lazy-start DevForge on first open (idempotent on later calls).
     let (connection_url, port) = {
@@ -87,6 +93,17 @@ pub async fn open_devforge_window(
         (url, Some(p))
     };
 
+    // Append `?folder=<workspace_path>` so REH opens that project on load.
+    // URL-encode so backslashes and spaces survive. Preserves any existing
+    // query string the service's `connection_url()` already emitted (e.g.
+    // `?tkn=<auth>`).
+    let target_url = match workspace_path.as_deref() {
+        Some(path) if !path.is_empty() => append_folder_query(&connection_url, path),
+        _ => connection_url.clone(),
+    };
+    let workspace_pathbuf: Option<std::path::PathBuf> =
+        workspace_path.as_deref().map(std::path::PathBuf::from);
+
     // ── 2. If a DevForge window is already open, just focus it. ────
     if let Some(window) = app.get_webview_window(DEVFORGE_WINDOW_LABEL) {
         window
@@ -98,16 +115,16 @@ pub async fn open_devforge_window(
         return Ok(DevforgeBootstrapStatus {
             installed: true,
             running: true,
-            url: Some(connection_url),
+            url: Some(target_url),
             port,
-            workspace: None,
+            workspace: workspace_pathbuf,
             reh_version: None,
         });
     }
 
     // ── 3. Parse the REH URL and build a new dedicated window. ─────
-    let parsed: Url = connection_url.parse().map_err(|e| {
-        format!("REH connection URL is not a valid Url: {e} (url={connection_url})")
+    let parsed: Url = target_url.parse().map_err(|e| {
+        format!("REH connection URL is not a valid Url: {e} (url={target_url})")
     })?;
 
     let mut builder =
@@ -142,11 +159,37 @@ pub async fn open_devforge_window(
     Ok(DevforgeBootstrapStatus {
         installed: true,
         running: true,
-        url: Some(connection_url),
+        url: Some(target_url),
         port,
-        workspace: None,
+        workspace: workspace_pathbuf,
         reh_version: None,
     })
+}
+
+/// Append `folder=<workspace_path>` to an existing REH connection URL
+/// so the code-oss server opens that workspace on load. Preserves the
+/// existing query string (typically `?tkn=<auth>`) — uses `&` when
+/// present, `?` otherwise. Workspace path is URL-encoded so backslashes
+/// and spaces survive the round-trip through the browser URL parser.
+fn append_folder_query(connection_url: &str, workspace_path: &str) -> String {
+    let separator = if connection_url.contains('?') { '&' } else { '?' };
+    let encoded = url_encode_component(workspace_path);
+    format!("{connection_url}{separator}folder={encoded}")
+}
+
+/// Minimal RFC-3986 component encoder — percent-encodes everything that
+/// isn't an unreserved character. Inlined so we don't pull in a
+/// dependency for one small call site.
+fn url_encode_component(input: &str) -> String {
+    let mut out = String::with_capacity(input.len() + 16);
+    for &b in input.as_bytes() {
+        if b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'~' | b'/') {
+            out.push(b as char);
+        } else {
+            out.push_str(&format!("%{b:02X}"));
+        }
+    }
+    out
 }
 
 /// Close the `DevForge` window, if one is open. Idempotent.

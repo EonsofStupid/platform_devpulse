@@ -90,6 +90,7 @@ pub mod devpulse;
 pub mod knowledge;
 pub mod llama;
 pub mod models;
+pub mod projects;
 pub mod providers;
 pub mod sys;
 pub mod thinkclyffy;

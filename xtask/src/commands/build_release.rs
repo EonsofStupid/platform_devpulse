@@ -490,21 +490,153 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         }
     }
 
+    // ── Stage 11: Automated smoke test ──
+    // Launch the standalone exe, poll :8822/health for up to 90s, kill
+    // the child. If the app never reported healthy we quarantine every
+    // artifact (standalone + installers) by prepending `REJECTED-` so
+    // a broken installer is not mistaken for a shippable one. This is
+    // the gate that catches the black-screen class — a release that
+    // compiled green but cannot boot.
+    //
+    // Skipped when the standalone is missing — the earlier artifact
+    // stage already marked that as a hard failure and the smoke run
+    // has no target to exercise.
+    let smoke_result = if standalone.exists() {
+        stage::section("Smoke test");
+        let smoke_guard = sink.start("smoke-test");
+        println!(
+            "  Launching {} and polling http://{}:{}{}  (timeout 90s)…",
+            standalone.display(),
+            "127.0.0.1",
+            8822,
+            "/health"
+        );
+        let result = crate::smoke::run_smoke(&standalone);
+        match &result {
+            Ok(r) if r.is_healthy() => {
+                println!("  OK — {}", r.summary());
+                smoke_guard.ok_with(EventBuilder::new().detail(r.summary()));
+            }
+            Ok(r) => {
+                crate::xwarn!("  smoke FAILED — {}", r.summary());
+                smoke_guard.fail(
+                    EventBuilder::new()
+                        .classification("smoke_unhealthy_or_timeout")
+                        .detail(r.summary())
+                        .hint(
+                            "app launched but never reported healthy on :8822 — \
+                             check .userdata/logs/boot.log for the stalled stage",
+                        ),
+                );
+            }
+            Err(e) => {
+                crate::xwarn!("  smoke ERRORED — {e:#}");
+                smoke_guard.fail(
+                    EventBuilder::new()
+                        .classification("smoke_error")
+                        .detail(format!("{e:#}"))
+                        .hint("smoke harness could not run — see trace above"),
+                );
+            }
+        }
+        Some(result)
+    } else {
+        crate::xwarn!("  skipping smoke test — standalone exe not present");
+        None
+    };
+
+    // Quarantine artifacts if smoke failed. A broken installer on disk
+    // is worse than no installer — we have literally mailed "broken" to
+    // ourselves before. Prefixing with `REJECTED-` keeps the file for
+    // diagnosis but makes accidental launch impossible.
+    let smoke_passed = matches!(&smoke_result, Some(Ok(r)) if r.is_healthy());
+    if !smoke_passed && smoke_result.is_some() {
+        stage::section("Quarantine");
+        let quarantine_guard = sink.start("quarantine");
+        let mut renamed = 0usize;
+        renamed += quarantine_file(&standalone);
+        if !portable_only && bundle_dir.exists() {
+            if let Ok(entries) = std::fs::read_dir(&bundle_dir) {
+                for entry in entries.flatten() {
+                    let p = entry.path();
+                    if p.is_dir() {
+                        if let Ok(inner) = std::fs::read_dir(&p) {
+                            for sub in inner.flatten() {
+                                let sp = sub.path();
+                                if sp.is_file() {
+                                    renamed += quarantine_file(&sp);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        println!(
+            "  Quarantined {} artifact{} with `REJECTED-` prefix.",
+            renamed,
+            if renamed == 1 { "" } else { "s" }
+        );
+        quarantine_guard.ok_with(
+            EventBuilder::new().detail(format!("{renamed} artifacts renamed")),
+        );
+    }
+
     println!();
-    println!("  Smoke test:");
-    println!("    1. Close ALL dev processes (no vite, no `tauri dev`).");
-    println!("    2. Double-click the standalone .exe or run an installer.");
-    println!("    3. Expect: wizard visible, `http://127.0.0.1:8822/health` healthy,");
-    println!(
-        "       `.userdata/libsql/platform.db` + `.userdata/duckdb/analytics.duckdb` written."
-    );
+    if smoke_passed {
+        println!("  Smoke test: PASSED");
+        println!(
+            "    :8822/health answered healthy after launching the standalone exe."
+        );
+    } else if smoke_result.is_none() {
+        println!("  Smoke test: SKIPPED (no standalone exe to exercise)");
+    } else {
+        println!("  Smoke test: FAILED — artifacts quarantined with REJECTED- prefix");
+        println!("    Rerun after fixing boot path; see event log + .userdata/logs/boot.log");
+    }
 
     let total = run_start.elapsed();
     println!();
     println!("xtask build-release: total {:.1}s", total.as_secs_f64());
 
+    // If smoke failed, fail the whole build so CI / lefthook / humans
+    // treat the run as broken. The quarantine above ensures the artifacts
+    // on disk match that verdict.
+    if smoke_result.is_some() && !smoke_passed {
+        anyhow::bail!(
+            "smoke test failed — installer rejected. See event log for classification."
+        );
+    }
+
     // _job_guard drops here → any lingering children killed by kernel.
     Ok(())
+}
+
+/// Prepend `REJECTED-` to a file's name in place. Returns 1 on success,
+/// 0 on miss or error. Failures warn but don't abort — we're already on
+/// the error path and want to finish quarantining whatever we can.
+fn quarantine_file(path: &Path) -> usize {
+    let Some(file_name) = path.file_name().and_then(|s| s.to_str()) else {
+        return 0;
+    };
+    if file_name.starts_with("REJECTED-") {
+        return 0;
+    }
+    let new_name = format!("REJECTED-{file_name}");
+    let Some(parent) = path.parent() else {
+        return 0;
+    };
+    let dest = parent.join(&new_name);
+    match std::fs::rename(path, &dest) {
+        Ok(()) => {
+            println!("    {} -> {}", path.display(), dest.display());
+            1
+        }
+        Err(e) => {
+            crate::xwarn!("  rename failed for {}: {e}", path.display());
+            0
+        }
+    }
 }
 
 /// Add an artifact to the manifest. Failures downgrade to a `xwarn!` —

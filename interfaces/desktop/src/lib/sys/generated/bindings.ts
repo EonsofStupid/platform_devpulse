@@ -1014,10 +1014,15 @@ async devforgeSetFreshInstance(enabled: boolean) : Promise<Result<null, string>>
  * - Connection URL fails to parse as a valid `Url`
  * - Tauri fails to create the `WebviewWindow`
  * - Focusing an already-open `DevForge` window fails
+ * Optional `workspace_path`: absolute path of a project directory to
+ * open inside the REH workspace. When set, appended to the connection
+ * URL as a `folder=` query parameter — the code-oss REH standard for
+ * "open this workspace folder on load". `None` means open the default
+ * workspace (configured via `workspace_path` in devforge.toml).
  */
-async openDevforgeWindow() : Promise<Result<DevforgeBootstrapStatus, string>> {
+async openDevforgeWindow(workspacePath: string | null) : Promise<Result<DevforgeBootstrapStatus, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("open_devforge_window") };
+    return { status: "ok", data: await TAURI_INVOKE("open_devforge_window", { workspacePath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1204,6 +1209,149 @@ async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
 async updateUserPreferences(theme: string | null, contextMode: string | null, showThinking: boolean | null, verbosity: string | null, defaultTemperature: number | null, allowTelemetry: boolean | null, screenCaptureEnabled: boolean | null) : Promise<Result<UserPreferences, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("update_user_preferences", { theme, contextMode, showThinking, verbosity, defaultTemperature, allowTelemetry, screenCaptureEnabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Create a new project row in user LibSQL.
+ * 
+ * Duplicate `root_path` values are rejected at the SQL level — the
+ * `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
+ * so a second attempt returns an IPC-level error containing the
+ * adapter's message. The frontend should catch this and re-render
+ * with "a project at this path already exists".
+ */
+async createProject(input: CreateProjectInput) : Promise<Result<Project, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("create_project", { input }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List every project ordered newest-first.
+ * 
+ * Use `include_archived = false` (default) to match the dashboard's
+ * "active projects" shape. Archived rows have `active = 0` and are
+ * typically hidden from the main UI surface.
+ */
+async listProjects(includeArchived: boolean | null) : Promise<Result<Project[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_projects", { includeArchived }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetch a single project by id. Returns `None` for missing ids so the
+ * frontend can render a "project not found" state without the IPC
+ * boundary treating it as an error.
+ */
+async getProject(id: string) : Promise<Result<Project | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_project", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Soft-delete: flip `active` to 0. Project row stays on disk and the
+ * per-project `.devpulse/project.db` is untouched. Reversible via
+ * `restore_project`.
+ */
+async deleteProject(id: string) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_project", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Reverse of [`delete_project`] — flip `active` back to 1.
+ */
+async restoreProject(id: string) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("restore_project", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Return the currently-active project, or `None` if nothing is set.
+ */
+async getActiveProject() : Promise<Result<Project | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_active_project") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Set the active project by id. Validates that the project exists
+ * before writing the singleton so we never end up pointing at a
+ * deleted row.
+ */
+async setActiveProject(id: string) : Promise<Result<Project, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_active_project", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Clear the active-project singleton. `get_active_project` returns
+ * `None` after this. Does NOT delete the project row itself.
+ */
+async clearActiveProject() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clear_active_project") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Link a reference directory to a project. The same `(project_id,
+ * path)` pair cannot be added twice — schema UNIQUE constraint
+ * enforces this and the caller gets the SQL error surfaced.
+ */
+async addProjectReference(input: AddReferenceInput) : Promise<Result<ProjectReference, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("add_project_reference", { input }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List every reference directory linked to a project, oldest first
+ * (insertion order). Empty list is normal.
+ */
+async listProjectReferences(projectId: string) : Promise<Result<ProjectReference[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_project_references", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Remove a reference link. Hard delete — references are cheap to
+ * recreate and the RAG index for this reference can be rebuilt on
+ * re-add. Returns `true` if a row was actually removed.
+ */
+async removeProjectReference(id: string) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("remove_project_reference", { id }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2540,6 +2688,14 @@ voice_enable_aria: string;
  */
 voice_disable_aria: string }
 /**
+ * Input for [`add_project_reference`].
+ */
+export type AddReferenceInput = { project_id: string; path: string; label?: string | null; 
+/**
+ * Defaults to `"other"`. Allowed values enforced at the command.
+ */
+kind?: string | null }
+/**
  * A suggested alternative path the user could take. The frontend
  * renders each as a one-click action.
  */
@@ -3477,6 +3633,24 @@ launch_label: string;
  * Small hint below the launch button (e.g. reassurance that settings can be changed later).
  */
 hint: string }
+/**
+ * Input for [`create_project`]. Only `name` and `root_path` are
+ * required; every other field has a sensible default or is nullable.
+ */
+export type CreateProjectInput = { name: string; root_path: string; 
+/**
+ * Defaults to `"personal"`.
+ */
+project_type?: string | null; description?: string | null; tool?: string | null; 
+/**
+ * Optional JSON string. Caller is responsible for the shape.
+ */
+tech_stack?: string | null; 
+/**
+ * If `true`, the new project is immediately set as the active
+ * project. Convenient for the wizard "Create + Start" flow.
+ */
+set_active?: boolean }
 /**
  * Customize screen — slot cards grouped by role.
  */
@@ -5348,6 +5522,30 @@ continue_template: string;
  */
 back_label: string }
 /**
+ * A full project row returned to the frontend.
+ */
+export type Project = { id: string; name: string; root_path: string; 
+/**
+ * One of: `"general" | "personal" | "team" | "archived"`.
+ */
+project_type: string; slug: string | null; description: string | null; 
+/**
+ * Source tool hint: `"lovable" | "cursor" | "vscode" | …`. Free-form.
+ */
+tool: string | null; 
+/**
+ * JSON array serialized as a string, per the schema.
+ */
+tech_stack: string | null; 
+/**
+ * Whether the project is active (soft-delete flag flipped to 0).
+ */
+active: boolean; 
+/**
+ * Unix seconds.
+ */
+created_at: number }
+/**
  * Health of a project database.
  */
 export type ProjectDbHealth = { 
@@ -5411,6 +5609,16 @@ name: string;
  * Number of rows.
  */
 row_count: number }
+/**
+ * A read-only reference directory linked to a project.
+ */
+export type ProjectReference = { id: string; project_id: string; path: string; label: string | null; 
+/**
+ * `"docs" | "source" | "examples" | "other"`. Free-form; the UI
+ * maps this to a color / icon and the indexer uses it to bias
+ * scan depth (e.g. `source` gets AST indexing, `docs` gets text).
+ */
+kind: string; created_at: number }
 /**
  * A project row from `LibSQL` — maps 1:1 to the `projects` table.
  */

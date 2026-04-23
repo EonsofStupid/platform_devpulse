@@ -27,6 +27,13 @@ pre-commit:
       glob: "*.{rs,ts,svelte,json}"
       run: bash scripts/hooks/ip-boundary-check.sh
 
+    # Bindings drift guard — if Tauri command .rs files changed but
+    # bindings.ts was not regenerated, block commit with an actionable
+    # fix. Prevents "installer boots to black screen" class.
+    bindings-drift:
+      glob: "interfaces/desktop/src-tauri/src/commands/**/*.rs"
+      run: bash scripts/hooks/check-bindings-drift.sh
+
     # Block legacy vendor prefixes (--dp-, --tw-, etc.) — --cl-* is ColdLight's own namespace
     no-legacy-prefixes:
       glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"

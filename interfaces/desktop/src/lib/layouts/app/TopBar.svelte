@@ -23,6 +23,7 @@ import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
+import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
 import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
@@ -59,6 +60,9 @@ function onKey(e: KeyboardEvent): void {
 		<div class="flex items-center gap-2" style:font-family="var(--font-display)">
 			<Parasite size="sm" />
 		</div>
+		<!-- Active-project pill — next to brand so "what am I working on"
+		     is the first thing the user sees after the app identity. -->
+		<ProjectSwitcher />
 	</div>
 
 	<!-- Center: PULSE FEED pill -->

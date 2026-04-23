@@ -15,6 +15,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
+import { setFatal } from "./fatal-error.svelte.js";
 
 type LogLevel = "trace" | "debug" | "info" | "warn" | "error";
 
@@ -151,6 +152,12 @@ export function installGlobalHandlers(): void {
 			? `${event.message} at ${event.filename}:${event.lineno}:${event.colno}\n${event.error.stack || ""}`
 			: event.message;
 		log("error", "frontend:uncaught", msg);
+		setFatal({
+			message: event.message || "uncaught error",
+			stack: event.error?.stack ?? null,
+			origin: "uncaught",
+			capturedAt: Date.now(),
+		});
 	});
 
 	// Capture unhandled promise rejections
@@ -160,6 +167,12 @@ export function installGlobalHandlers(): void {
 				? `${event.reason.message}\n${event.reason.stack || ""}`
 				: String(event.reason);
 		log("error", "frontend:unhandled_rejection", reason);
+		setFatal({
+			message: event.reason instanceof Error ? event.reason.message : String(event.reason),
+			stack: event.reason instanceof Error ? (event.reason.stack ?? null) : null,
+			origin: "unhandled_rejection",
+			capturedAt: Date.now(),
+		});
 	});
 
 	// Intercept console.error — captures Svelte render errors, library errors, etc.

@@ -101,6 +101,54 @@ pub fn run_mcp_stdio() {
 #[allow(clippy::expect_used, clippy::too_many_lines)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // ── Windows: make bundled runtime DLLs discoverable to children ──
+    //
+    // The NSIS installer lays out its resources under
+    // `$INSTDIR/binaries/` (Tauri array-form `bundle.resources` preserves
+    // the source subdirectory). `llama-server.exe` is spawned as a child
+    // process via tauri-plugin-shell; when Windows resolves ITS imports
+    // (llama.dll, ggml-cuda.dll, cublas64_12.dll, cublasLt64_12.dll,
+    // cudart64_12.dll, libomp, etc.) it searches its own directory
+    // first, then `PATH`. If `binaries/` isn't on `PATH`, the imports
+    // fail and the sidecar dies on startup with a cryptic `0xC0000135`.
+    //
+    // Modifying the parent process's `PATH` here ensures every child
+    // spawned from this point on inherits an environment where
+    // `<exe_dir>/binaries/` is first on the search list. No-op in dev
+    // (target/debug doesn't have a `binaries/` subdir), no-op in the
+    // portable zip (flat layout — DLLs already sibling the exe).
+    //
+    // There is a known Tauri bundler bug ([#9525]) where object-form
+    // resources mapped to `./` don't land next to the exe; this hook
+    // is the workaround that keeps the array-form (subdir) layout
+    // actually loadable at runtime.
+    //
+    // [#9525]: https://github.com/tauri-apps/tauri/issues/9525
+    #[cfg(windows)]
+    {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(exe_dir) = exe.parent() {
+                let bin_dir = exe_dir.join("binaries");
+                if bin_dir.is_dir() {
+                    let existing = std::env::var_os("PATH").unwrap_or_default();
+                    let joined = std::env::join_paths(
+                        std::iter::once(bin_dir.clone())
+                            .chain(std::env::split_paths(&existing)),
+                    )
+                    .unwrap_or(existing);
+                    // SAFETY: `run()` executes single-threaded before
+                    // Tauri spins up any worker. Env mutation is safe
+                    // here and only here.
+                    std::env::set_var("PATH", joined);
+                    eprintln!(
+                        "devpulse: prepended {} to PATH for child DLL search",
+                        bin_dir.display()
+                    );
+                }
+            }
+        }
+    }
+
     // ── Dev-build diagnostic env vars ────────────────────────────
     // Set before Tauri constructs any thread so WebView2 + the Rust
     // runtime pick these up at startup.
@@ -227,6 +275,17 @@ pub fn run() {
         commands::devpulse::profile::update_user_profile,
         commands::devpulse::profile::fetch_user_preferences,
         commands::devpulse::profile::update_user_preferences,
+        commands::projects::create_project,
+        commands::projects::list_projects,
+        commands::projects::get_project,
+        commands::projects::delete_project,
+        commands::projects::restore_project,
+        commands::projects::get_active_project,
+        commands::projects::set_active_project,
+        commands::projects::clear_active_project,
+        commands::projects::add_project_reference,
+        commands::projects::list_project_references,
+        commands::projects::remove_project_reference,
         commands::knowledge::get_knowledge_entry,
         commands::knowledge::record_knowledge_reaction,
         commands::thinkclyffy::create_canvas,
@@ -329,8 +388,20 @@ pub fn run() {
         commands::cloud::cloud_chat,
     ]);
 
-    // Dev: export typed TS bindings on every build
-    #[cfg(debug_assertions)]
+    // Export typed TS bindings on EVERY build — dev AND release.
+    //
+    // Previously this was gated on `#[cfg(debug_assertions)]`, which
+    // meant `cargo xtask build-release` compiled the frontend against
+    // whatever stale `bindings.ts` happened to be on disk. When Rust
+    // commands evolved faster than the bindings file, the release
+    // frontend would `commands.xxx(...)` a function that didn't exist,
+    // throw at mount, and paint a black window. Ungated now so
+    // installer builds always ship current types.
+    //
+    // The file write happens only when `run()` actually executes, so
+    // the installed binary regenerates bindings on first launch. For
+    // the build itself, the pre-build hook (`DEVPULSE_BINDINGS_EXPORT_
+    // ONLY=1 cargo run`) is the upstream path — see lefthook / CI.
     builder
         .export(
             specta_typescript::Typescript::default()
@@ -344,7 +415,9 @@ pub fn run() {
     // before the Tauri builder touches the window system. Used by
     // the pre-push hook + CI regen pipeline so svelte-check always
     // sees current types without needing to launch the whole app.
-    #[cfg(debug_assertions)]
+    // Released from the debug-only gate for the same reason as the
+    // export call above — release builds sometimes need to bootstrap
+    // bindings on a fresh checkout before their frontend compiles.
     if std::env::var("DEVPULSE_BINDINGS_EXPORT_ONLY").is_ok() {
         eprintln!("[bindings-export] specta bindings written; exiting early");
         return;
@@ -952,11 +1025,22 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         }
     }
 
-    // Seed user relational: profile + projects + sessions + turns
+    // Seed user relational: default profile + preferences ONLY.
+    //
+    // Owner directive 2026-04-22: fresh installs start with an EMPTY
+    // projects table. The user creates their first project through the
+    // wizard's "Let's Go" (which calls `commands::projects::create_project`)
+    // or the dashboard's "Add Project" flow. Sessions/turns depend on
+    // a real project id, so they're also user-created downstream.
+    //
+    // The legacy 4 hardcoded projects (`proj-1` … `proj-4`) with
+    // canned chat turns were developer convenience fixtures — they
+    // made the "4 projects" dashboard look populated on fresh installs
+    // but pointed at paths that only exist on one machine. Out.
     if let Some(svc) = platform.user_relational() {
         let adapter = svc.adapter();
 
-        let rows = adapter.query("SELECT COUNT(*) FROM projects", &[]).await?;
+        let rows = adapter.query("SELECT COUNT(*) FROM profiles", &[]).await?;
         let count = rows
             .first()
             .and_then(|r| r.first())
@@ -964,7 +1048,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
             .unwrap_or(0);
 
         if count == 0 {
-            tracing::info!("Seeding user data into LibSQL...");
+            tracing::info!("Seeding default user profile into LibSQL...");
 
             adapter
                 .execute_batch(
@@ -974,29 +1058,11 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
 
                     INSERT INTO preferences (id, user_id, theme, context_mode, verbosity) VALUES
                         ('pref-1', 'user-1', 'dark', 'normal', 'balanced');
-
-                    INSERT INTO projects (id, name, root_path, project_type) VALUES
-                        ('proj-1', 'platform_devpulse', 'D:/localdev/platform_devpulse', 'personal'),
-                        ('proj-2', 'clyffy-kernel', 'D:/localdev/platform_devpulse/kernel', 'personal'),
-                        ('proj-3', 'coldlight-tokens', 'D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design', 'personal'),
-                        ('proj-4', 'signal-router', 'D:/localdev/platform_devpulse/systems/devpulse-engine', 'personal');
-
-                    INSERT INTO sessions (id, project_id, title, context_mode) VALUES
-                        ('sess-1', 'proj-1', 'Build pipeline analysis', 'normal'),
-                        ('sess-2', 'proj-2', 'Service health review', 'normal');
-
-                    INSERT INTO turns (id, session_id, project_id, role, content, sequence_num) VALUES
-                        ('turn-1', 'sess-1', 'proj-1', 'user', 'Analyze the build pipeline for bottlenecks.', 1),
-                        ('turn-2', 'sess-1', 'proj-1', 'assistant', 'Token generation runs in 2.1s avg. Vite HMR at 340ms. svelte-check at 8.2s could use incremental mode.', 2),
-                        ('turn-3', 'sess-1', 'proj-1', 'user', 'What about the recipe system performance?', 3),
-                        ('turn-4', 'sess-1', 'proj-1', 'assistant', 'The centralized recipe registry with registerRecipe() adds minimal overhead. 28 recipes resolve in under 1ms via Map lookup.', 4),
-                        ('turn-5', 'sess-2', 'proj-2', 'user', 'Show me the service health status.', 1),
-                        ('turn-6', 'sess-2', 'proj-2', 'assistant', 'All services healthy. LibSQL: 3ms, DuckDB: 1ms, SurrealDB: 12ms, Moka: under 1ms.', 2);
                     ",
                 )
                 .await?;
 
-            tracing::info!("User LibSQL seeded: 1 profile, 4 projects, 2 sessions, 6 turns");
+            tracing::info!("User LibSQL seeded: default profile + preferences (no projects — user-created)");
         }
     }
 

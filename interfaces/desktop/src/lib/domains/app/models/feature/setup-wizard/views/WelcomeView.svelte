@@ -34,6 +34,7 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
@@ -77,9 +78,12 @@ const LEVELS: LevelOption[] = [
 	},
 ];
 
-// ── Project folder (optional) ────────────────────────────
+// ── Project folder + name + save state ──────────────────
 let projectPath = $state("");
+let projectName = $state("");
 let pickingFolder = $state(false);
+let savingProject = $state(false);
+let projectSaved = $state(false);
 let showInfoPopup = $state(false);
 
 async function handleBrowseFolder(): Promise<void> {
@@ -90,6 +94,16 @@ async function handleBrowseFolder(): Promise<void> {
 		const path = await invoke<string>("pick_directory", { title: "Select your project folder" });
 		if (path) {
 			projectPath = path;
+			// Seed the name field with the folder basename so the user has
+			// a sane default they can override. Only seed when empty —
+			// never clobber what the user already typed.
+			if (!projectName.trim()) {
+				const basename = path.split(/[/\\]/).filter(Boolean).pop() ?? "";
+				projectName = basename;
+			}
+			// Picking a new folder invalidates the "saved" badge — the
+			// user is expected to re-save if they change their mind.
+			projectSaved = false;
 			logInfo("wizard.welcome", `Folder picked: ${path}`);
 		}
 	} catch (e) {
@@ -99,6 +113,42 @@ async function handleBrowseFolder(): Promise<void> {
 		}
 	} finally {
 		pickingFolder = false;
+	}
+}
+
+async function handleSaveProject(): Promise<void> {
+	if (savingProject) return;
+	const name = projectName.trim();
+	if (!name || !projectPath) {
+		logError("wizard.welcome", "handleSaveProject refused — name or path empty");
+		return;
+	}
+	savingProject = true;
+	projectSaved = false;
+	logInfo("wizard.welcome", `handleSaveProject — name="${name}" path="${projectPath}"`);
+	try {
+		const created = await projectsState.createProject({
+			name,
+			rootPath: projectPath,
+			setActive: true,
+		});
+		if (created) {
+			projectSaved = true;
+			logInfo(
+				"wizard.welcome",
+				`project saved + activated — ${created.name} (${created.id}) — indexing pending`,
+			);
+		} else {
+			logError(
+				"wizard.welcome",
+				`createProject returned null — ${projectsState.error ?? "(no error)"}`,
+			);
+		}
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.welcome", `createProject threw — ${msg}`);
+	} finally {
+		savingProject = false;
 	}
 }
 
@@ -112,10 +162,12 @@ async function handleJesseConfig(): Promise<void> {
 }
 
 function handleLetsGo(): void {
+	// Project creation lives on its own explicit "Save Project" button
+	// above (see `handleSaveProject`). Let's Go just advances the wizard;
+	// the user may or may not have saved a project. If they did, the
+	// pending-indexing notice is already showing and the active-project
+	// state is set — system-check picks up naturally.
 	logInfo("wizard.welcome", "Let's Go clicked (welcome → system-check)");
-	// Persist project path as part of pending profile if provided. Saved
-	// at apply time via saveProfileDraft (name/email/level) — project path
-	// is stored via the separate create_dev_profile command on finalize.
 	overlayState.showSystemCheck();
 }
 
@@ -177,9 +229,9 @@ const modelCount = $derived(modelsState.models.length);
 
 		<div class="wv-field">
 			<label class="wv-label" for="wv-email">
-				<Text size="xs" weight="bold">Email (optional)</Text>
+				<Text size="xs" weight="bold">Email</Text>
 				<WizardHelpTip
-					tip="Optional. Used only for local-only profile grouping. Never transmitted unless you explicitly enable cloud sync."
+					tip="Required. Anchors your profile for slot assignments, Claude-subscription pairing, and future cloud sync. Stays local unless you explicitly enable sync."
 					label="Why email?"
 				/>
 			</label>
@@ -189,6 +241,7 @@ const modelCount = $derived(modelsState.models.length);
 				placeholder="you@example.com"
 				bind:value={overlayState.profileEmail}
 				class="wv-input"
+				class:wv-input-invalid={overlayState.profileEmail.length > 0 && !overlayState.emailIsValid}
 			/>
 		</div>
 
@@ -218,20 +271,21 @@ const modelCount = $derived(modelsState.models.length);
 			</div>
 		</div>
 
+		<!-- ── Project create (folder + name + explicit save) ────────────── -->
 		<div class="wv-field">
 			<label class="wv-label" for="wv-folder">
 				<FolderOpen size={14} />
-				<Text size="xs" weight="bold">Project Folder (optional)</Text>
+				<Text size="xs" weight="bold">Project Folder</Text>
 				<WizardHelpTip
-					tip="Pointing Clyffy at a project folder enables code-aware answers. Indexing happens in the background, stays local, and can be added later in Settings."
-					label="What does indexing my project do?"
+					tip="Pick the directory this project lives in. Name it whatever makes sense to you — it doesn't have to match the folder. Indexing runs later, after an embedding model is available."
+					label="What is a project in DevPulse?"
 				/>
 			</label>
 			<div class="wv-folder-row">
 				<input
 					id="wv-folder"
 					type="text"
-					placeholder="Optional — set later in Settings"
+					placeholder="Click Browse to pick a folder"
 					value={projectPath}
 					readonly
 					class="wv-input wv-input-readonly"
@@ -245,6 +299,66 @@ const modelCount = $derived(modelsState.models.length);
 				</Button>
 			</div>
 		</div>
+
+		{#if projectPath}
+			<div class="wv-field">
+				<label class="wv-label" for="wv-project-name">
+					<Sparkles size={14} />
+					<Text size="xs" weight="bold">Project Name</Text>
+					<WizardHelpTip
+						tip="This is what the active-project pill will show. Doesn't have to match the folder — pick the name you think about this project by."
+						label="Can I rename it later?"
+					/>
+				</label>
+				<div class="wv-folder-row">
+					<input
+						id="wv-project-name"
+						type="text"
+						placeholder="e.g. My SaaS MVP"
+						bind:value={projectName}
+						class="wv-input"
+					/>
+					<Button
+						preset="button-primary"
+						size="sm"
+						onclick={handleSaveProject}
+						disabled={savingProject || projectName.trim().length === 0 || projectSaved}
+					>
+						{#if savingProject}
+							<Spinner size="xs" />
+						{:else if projectSaved}
+							Saved ✓
+						{:else}
+							Save Project
+						{/if}
+					</Button>
+				</div>
+			</div>
+		{/if}
+
+		{#if projectSaved}
+			<div class="wv-saved-notice" role="status">
+				<div class="wv-saved-head">
+					<Text size="xs" weight="bold" class="wv-saved-kicker">Project saved</Text>
+					<button
+						type="button"
+						class="wv-saved-dismiss"
+						onclick={() => {
+							projectSaved = false;
+						}}
+						aria-label="Dismiss notice"
+					>
+						×
+					</button>
+				</div>
+				<Text size="sm" class="wv-saved-body">
+					<strong>{projectsState.activeProject?.name ?? projectName}</strong> is the
+					active project. Indexing is pending — it will run automatically once an
+					embedding model is loaded. You can continue with setup; the project will
+					keep its state across restarts.
+				</Text>
+			</div>
+		{/if}
 	</div>
 
 	<!-- Live hardware snapshot grid -->
@@ -600,5 +714,58 @@ const modelCount = $derived(modelsState.models.length);
 	}
 	.wv-skip:hover {
 		color: var(--accent-teal-main);
+	}
+
+	/* ── Invalid input (email required) ──────────────────────────── */
+	.wv-input-invalid {
+		border-color: var(--signal-error, #e74c3c);
+		box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--signal-error, #e74c3c) 25%, transparent);
+	}
+
+	/* ── Pending-indexing notice after "Save Project" ────────────── */
+	.wv-saved-notice {
+		margin-top: 0.25rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid color-mix(in oklch, var(--accent-purple-main, #8b5cf6) 35%, var(--border-soft));
+		border-radius: 0.5rem;
+		background: var(
+			--gradient-glow-purple,
+			linear-gradient(135deg, color-mix(in oklch, var(--accent-purple-main, #8b5cf6) 18%, transparent), transparent 70%)
+		);
+		box-shadow: 0 0.5rem 1.5rem color-mix(in oklch, var(--accent-purple-main, #8b5cf6) 15%, transparent);
+	}
+	.wv-saved-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.375rem;
+	}
+	:global(.wv-saved-kicker) {
+		color: var(--accent-purple-main, var(--accent-teal-main));
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.wv-saved-dismiss {
+		width: 1.25rem;
+		height: 1.25rem;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		font-size: 1.125rem;
+		line-height: 1;
+		border-radius: 0.25rem;
+	}
+	.wv-saved-dismiss:hover {
+		color: var(--text-primary);
+		background: color-mix(in oklch, var(--text-primary) 12%, transparent);
+	}
+	:global(.wv-saved-body) {
+		color: var(--text-secondary);
+		line-height: 1.4;
+	}
+	:global(.wv-saved-body) strong {
+		color: var(--accent-purple-main, var(--accent-teal-main));
 	}
 </style>

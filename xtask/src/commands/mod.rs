@@ -9,8 +9,10 @@ pub mod deps;
 pub mod dev;
 pub mod fetch_devforge;
 pub mod ip_boundary;
+pub mod model_manifest_backfill;
 pub mod package_portable;
 pub mod preflight;
+pub mod regen_bindings;
 pub mod sccache;
 pub mod verify;
 

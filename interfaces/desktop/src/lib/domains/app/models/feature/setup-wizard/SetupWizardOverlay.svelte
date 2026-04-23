@@ -80,7 +80,16 @@ $effect(() => {
 {#if wizardState.isOpen}
 	<div class="wizard-overlay">
 		<DynamicBackground variant="boot" animated={true} class="wizard-bg" />
-		<div class="wizard-backdrop"></div>
+		<!--
+		  The old `.wizard-backdrop` (0.5rem backdrop-filter blur over a
+		  0.55-alpha void layer) sat on top of DynamicBackground and
+		  flattened the animation into a static dark pane. DynamicBackground
+		  already ships its own overlay layer (`.dynamic-background__overlay`)
+		  for tinting, so a second full-viewport backdrop here was pure
+		  visual tax. Content readability is preserved by per-surface
+		  tinting on `.wizard-topbar` and the content cards inside each
+		  view, not by nuking the base animation.
+		-->
 
 		<div class="wizard-chrome">
 			<!-- Top bar -->
@@ -167,15 +176,9 @@ $effect(() => {
 	}
 
 	:global(.wizard-bg) {
-		z-index: 0;
-	}
-
-	.wizard-backdrop {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
-		background: oklch(0.06 0.01 220 / 0.55);
-		backdrop-filter: blur(0.5rem);
 	}
 
 	.wizard-chrome {

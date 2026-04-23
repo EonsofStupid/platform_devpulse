@@ -41,7 +41,15 @@ class HardwareState {
 	metrics = $state<HardwareInfo | null>(null);
 	loading = $state(false);
 	error = $state<string | null>(null);
-	subscriberCount = $state(0);
+	// Intentionally NOT $state. This is internal ref-count bookkeeping
+	// for the "refresh-on-first-subscribe" branch in subscribe(). Making
+	// it reactive while subscribe() both reads (`=== 0` check) and writes
+	// (`+= 1`) inside the same `$effect` produces effect_update_depth_
+	// exceeded — the effect tracker sees a read, a write of the same
+	// signal, schedules a re-run, the cleanup decrements (another write),
+	// re-run reads + writes again → infinite loop. Nothing outside this
+	// class observes the count reactively, so a plain field is correct.
+	private subscriberCount = 0;
 	private refreshPromise: Promise<void> | null = null;
 	private lastSignature: string | null = null;
 

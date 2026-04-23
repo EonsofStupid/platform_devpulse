@@ -279,6 +279,26 @@ CREATE TABLE IF NOT EXISTS golden_path (
 );
 CREATE INDEX IF NOT EXISTS idx_golden_path_project ON golden_path(project_id);
 
+-- Per-project reference directories.
+--
+-- The user has exactly ONE active project at a time; references are
+-- read-only directories linked to that project for context, search,
+-- and RAG indexing. `path` is the absolute filesystem path; `kind`
+-- distinguishes the intent ('docs' | 'source' | 'examples' | 'other')
+-- so the indexer can bias its scan strategy per kind. `label` is a
+-- human-readable tag for the devtool UI. `path` is NOT globally
+-- unique — two projects may reference the same directory.
+CREATE TABLE IF NOT EXISTS project_references (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    path TEXT NOT NULL,
+    label TEXT,
+    kind TEXT NOT NULL DEFAULT 'other',
+    created_at INTEGER DEFAULT (unixepoch()),
+    UNIQUE(project_id, path)
+);
+CREATE INDEX IF NOT EXISTS idx_project_references_project ON project_references(project_id);
+
 -- Per-project context summary
 CREATE TABLE IF NOT EXISTS project_context (
     id TEXT PRIMARY KEY,

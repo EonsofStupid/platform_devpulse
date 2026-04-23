@@ -9,12 +9,28 @@ import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge } from "$lib/domains/app/models/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
+import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
+import { fatalErrorState, setFatal } from "$lib/sys/fatal-error.svelte.js";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let { children } = $props();
 
 onMount(() => {
+	// Splash handoff: BootOverlay is already in the DOM by the time onMount
+	// fires. Two rAFs let the browser commit the BootOverlay paint before
+	// the app.html splash starts its fade, so users see a crossfade, not
+	// a hard cut to a half-rendered overlay.
+	requestAnimationFrame(() => {
+		requestAnimationFrame(() => {
+			const splash = document.getElementById("boot-splash");
+			if (splash) {
+				splash.classList.add("boot-splash-done");
+				setTimeout(() => splash.remove(), 400);
+			}
+		});
+	});
+
 	// Capture ALL frontend errors, warnings, promise rejections from the very start.
 	// Everything goes to the Rust tracing pipeline → session JSONL.
 	installGlobalHandlers();
@@ -104,6 +120,28 @@ onMount(() => {
 </script>
 
 <SvgFilters />
-<BootOverlay />
-<TokenDebugOverlay />
-{@render children()}
+
+<svelte:boundary
+	onerror={(err) => {
+		const e = err instanceof Error ? err : new Error(String(err));
+		logError("layout:boundary", `${e.message}\n${e.stack ?? ""}`);
+		setFatal({
+			message: e.message,
+			stack: e.stack ?? null,
+			origin: "boundary",
+			capturedAt: Date.now(),
+		});
+	}}
+>
+	<BootOverlay />
+	<TokenDebugOverlay />
+	{@render children()}
+
+	{#snippet failed(error, reset)}
+		<ErrorOverlay {error} {reset} />
+	{/snippet}
+</svelte:boundary>
+
+{#if fatalErrorState.current}
+	<ErrorOverlay />
+{/if}
