@@ -142,3 +142,84 @@
 ### DYK-gen-030 | concept | advanced
 **Did you know** "speculative decoding" uses a small model to draft multiple tokens, then verifies them with the big model in parallel? You can get 2-3× faster generation with identical output. It's the main trick behind many "fast" inference engines.
 **Tags:** speculative-decoding, inference, optimization
+
+### DYK-gen-031 | concept | beginner
+**Did you know** "agentic" AI means the model takes actions (calling tools, writing files, running commands) rather than just generating text? The tradeoff: more power, more risk. An agent with bad instructions can do real damage before you notice.
+**Tags:** agents, agentic, tool-use
+
+### DYK-gen-032 | concept | intermediate
+**Did you know** "tool calling" is when an LLM decides to pause generation and call an external function (like a calculator, search, or API)? The model doesn't actually call it — it outputs a request, your code executes, and the result feeds back in.
+**Tags:** tool-calling, function-calling, agents
+
+---
+
+## FIGURES (10 entries)
+
+### DYK-gen-033 | figure | beginner
+**Did you know** Geoffrey Hinton, Yann LeCun, and Yoshua Bengio shared the 2018 Turing Award for their work on deep learning? They're often called "the godfathers of AI" — though each has his own very different view on where the field should go next.
+**Tags:** hinton, lecun, bengio, turing-award
+
+### DYK-gen-034 | figure | beginner
+**Did you know** Ilya Sutskever co-founded OpenAI in 2015 and was chief scientist through the launch of GPT-4? He left in 2024 to start Safe Superintelligence Inc. with the goal of building one product: safe ASI.
+**Tags:** sutskever, openai, ssi
+
+### DYK-gen-035 | figure | intermediate
+**Did you know** Jürgen Schmidhuber claims (with some justification) to have anticipated most modern deep learning ideas in the 1990s? He's the inventor of LSTM and has a famously combative relationship with the "godfathers" over credit attribution.
+**Tags:** schmidhuber, lstm, credit-wars
+
+### DYK-gen-036 | figure | beginner
+**Did you know** Andrej Karpathy wrote the first version of his "char-rnn" blog post in 2015, which taught a generation of engineers how neural networks work? He later led Tesla Autopilot and returned to building educational AI content.
+**Tags:** karpathy, education, rnn
+
+### DYK-gen-037 | figure | beginner
+**Did you know** Demis Hassabis co-founded DeepMind in 2010 after careers as a chess prodigy, video game designer, and neuroscientist? DeepMind was acquired by Google in 2014 and went on to produce AlphaGo, AlphaFold, and Gemini.
+**Tags:** hassabis, deepmind, google
+
+### DYK-gen-038 | figure | intermediate
+**Did you know** Dario and Daniela Amodei co-founded Anthropic in 2021 after leaving OpenAI with several colleagues over strategic differences? Anthropic has since focused heavily on AI safety research and built the Claude family of models.
+**Tags:** amodei, anthropic, claude, safety
+
+### DYK-gen-039 | figure | intermediate
+**Did you know** François Chollet created Keras, one of the most popular deep learning libraries, during lunch breaks at his day job? He also designed the ARC-AGI benchmark, which remains one of the hardest tests for AI reasoning.
+**Tags:** chollet, keras, arc-agi
+
+### DYK-gen-040 | figure | advanced
+**Did you know** Yann LeCun invented convolutional neural networks (CNNs) in the 1980s while at Bell Labs? They were used commercially for reading handwritten checks by the late 1990s — long before the 2012 ImageNet moment put deep learning on the map.
+**Tags:** lecun, cnn, bell-labs
+
+### DYK-gen-041 | figure | intermediate
+**Did you know** Timnit Gebru was fired from Google in 2020 after raising concerns about the risks of large language models in a paper Google tried to suppress? She went on to found the Distributed AI Research Institute (DAIR).
+**Tags:** gebru, ethics, dair
+
+### DYK-gen-042 | figure | advanced
+**Did you know** Judea Pearl won the Turing Award in 2011 for his work on causal reasoning and Bayesian networks? He argues modern deep learning still can't do true causal inference — only correlation at enormous scale.
+**Tags:** pearl, causality, bayesian
+
+---
+
+## BREAKTHROUGHS (15 entries)
+
+### DYK-gen-043 | breakthrough | beginner
+**Did you know** AlphaGo beat world champion Lee Sedol in 2016? Move 37 in game 2 was so unusual that commentators initially thought it was a mistake. It's now considered one of the most creative moves in Go history — and it came from a machine.
+**Source:** DeepMind, 2016
+**Tags:** alphago, go, deepmind, move-37
+
+### DYK-gen-044 | breakthrough | intermediate
+**Did you know** AlphaFold 2 solved protein structure prediction in 2020 — a problem biologists had worked on for 50 years? DeepMind released predictions for 200 million proteins for free, accelerating drug discovery worldwide.
+**Source:** DeepMind, Nature 2021
+**Tags:** alphafold, biology, protein
+
+### DYK-gen-045 | breakthrough | beginner
+**Did you know** GPT-3's launch in 2020 surprised even OpenAI? It was the first model where scaling alone (more parameters, more data) produced qualitatively new capabilities like few-shot learning. The "scaling laws" paper that predicted this came out the same year.
+**Source:** OpenAI, Kaplan et al. 2020
+**Tags:** gpt-3, scaling-laws, emergence
+
+### DYK-gen-046 | breakthrough | intermediate
+**Did you know** the original ChatGPT (Nov 2022) was just GPT-3.5 plus a chat interface? OpenAI expected maybe 100k users in the first week. It hit a million in five days — the fastest adoption of any consumer product at the time.
+**Source:** OpenAI
+**Tags:** chatgpt, adoption, launch
+
+### DYK-gen-047 | breakthrough | advanced
+**Did you know** Stable Diffusion's 2022 release was a watershed moment — the first high-quality image model you could run on your own GPU? It launched an entire ecosystem of open-source image tools almost overnight.
+**Source:** Stability AI, 2022
+**Tags:** stable-diffusion, open-source, image-generation
