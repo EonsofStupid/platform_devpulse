@@ -14,27 +14,39 @@
 //!   scratch as long as that feature set has been compiled before.
 //! - Toolchain bumps naturally miss once, then hit.
 //!
-//! ## Architectural rule: sccache server is INFRASTRUCTURE, not a build child
+//! ## Server lifetime: health-check-first, no job breakaway
 //!
-//! The sccache daemon is a long-running service whose value proposition
-//! is surviving across xtask invocations. If xtask's Job Object owned
-//! its lifetime, the server would die every time xtask exits, the cache
-//! would be cold on every build, and the server would be vulnerable to
-//! being killed mid-compile when another process in the job crashed.
+//! Earlier revisions of this file spawned the server with
+//! `CREATE_BREAKAWAY_FROM_JOB` to escape xtask's Job Object, reasoning
+//! that a daemon's value is surviving xtask invocations. In practice
+//! that flag failed on Windows with `ERROR_ACCESS_DENIED` (os error 5)
+//! because Windows Terminal / ConHost places the shell — and therefore
+//! xtask — inside its own outer Job Object, and
+//! `CREATE_BREAKAWAY_FROM_JOB` requires every enclosing nested job to
+//! allow breakaway (per the Win8+ nested-jobs model). The outer
+//! terminal job does not, so `CreateProcess` returned access-denied
+//! before sccache ever ran. Symptom: 14 ms fast-fail + "building
+//! without cache" every run, defeating the whole point of installing
+//! sccache.
 //!
-//! Therefore: **the sccache server is started OUTSIDE xtask's Job Object.**
+//! The current approach:
 //!
-//! On Windows this is done by spawning `sccache --start-server` with
-//! `CREATE_BREAKAWAY_FROM_JOB`, which escapes the job set up in
-//! [`crate::zombie::JobGuard`] (whose `JOB_OBJECT_LIMIT_BREAKAWAY_OK`
-//! flag authorises this escape). On Unix, `sccache --start-server`
-//! daemonizes itself by default — no explicit breakaway needed.
-//!
-//! After start, we health-check via `sccache --show-stats`. If the
-//! server is reachable, we wire `RUSTC_WRAPPER`. If it is not — for any
-//! reason: not installed, crashed, permissions, network — we emit a
-//! LOUD warning and proceed in [`Mode::Disabled`]. The build continues
-//! with no cache rather than with a broken cache.
+//! 1. **Health-check first.** `sccache --show-stats` returns 0 when a
+//!    server is already alive. If a developer started one from their
+//!    PowerShell `$PROFILE` (the recommended setup for maximum value),
+//!    we detect it and reuse it without spawning anything.
+//! 2. **Start without breakaway if health-check fails.** The spawned
+//!    server inherits xtask's Job Object and dies when xtask exits
+//!    (`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`). That would matter if
+//!    sccache re-populated its cache from memory, but it doesn't: the
+//!    cache **disk** at `.userdata/sccache/` is the source of truth,
+//!    and persists across runs regardless of server lifetime. A fresh
+//!    server reads the same cache dir on the next xtask run and serves
+//!    hits immediately.
+//! 3. **Wire `RUSTC_WRAPPER` only after health-check succeeds.** A
+//!    half-broken cache wrapper is worse than no wrapper; any failure
+//!    in 1+2 leaves `RUSTC_WRAPPER` unset and the build proceeds
+//!    without cache.
 //!
 //! ## What this deliberately does NOT do
 //!
@@ -143,43 +155,60 @@ impl Guard {
             std::env::set_var("SCCACHE_DIR", &cache_dir);
         }
 
-        // ── 3. Start the server OUTSIDE the Job Object ──
+        // ── 3. Ensure a server is reachable: health-check first, start only if down ──
         //
-        // `sccache --start-server` is idempotent: if a server is already
-        // running it returns success without starting a new one. We still
-        // issue the call every time so we don't depend on implicit "server
-        // is probably up" state — explicit ensure-running is the whole
-        // reason this refactor happened.
-        if let Err(e) = start_server_detached(&binary) {
-            s.warn(format!(
-                "could not start sccache server: {e} — building without cache"
-            ));
-            crate::xwarn!(
-                "  [!!] sccache server start failed ({e}) — proceeding without compile cache"
-            );
-            return Ok(Self {
-                mode: Mode::Disabled,
-            });
-        }
-
-        // ── 4. Health-check: can we actually reach the server? ──
+        // Health-check-first sidesteps the Windows nested-job breakaway
+        // problem. When a server is already running (either from a prior
+        // xtask run whose child inherited the kill-on-close job, or from
+        // a developer who ran `sccache --start-server` in their PowerShell
+        // $PROFILE), we reuse it without ever spawning. Only when the
+        // check fails do we try to start one — and the start path no
+        // longer uses `CREATE_BREAKAWAY_FROM_JOB` because Windows returns
+        // ERROR_ACCESS_DENIED on nested jobs (Windows Terminal's outer job
+        // did not opt into breakaway even when our own JobGuard does).
         //
-        // `--show-stats` returns non-zero when the server isn't reachable.
-        // This is the authoritative "is it alive" check; if it fails we
-        // refuse to wire RUSTC_WRAPPER, because a half-broken cache layer
-        // is worse than no cache layer.
+        // Trade-off we accept: an xtask-spawned server dies when xtask
+        // exits (our JobGuard has `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`),
+        // so subsequent xtask runs respawn. The CACHE DISK at
+        // `.userdata/sccache/` persists across runs, so respawned servers
+        // still serve hits immediately — the only lost value is ~1 second
+        // of server startup per xtask invocation. The "server survives
+        // across xtask runs" property is fully recovered for developers
+        // who start the server from their shell profile, because the
+        // health-check-first path detects and reuses it.
         let pre_stats = match health_check(&binary) {
-            Ok(stats) => stats,
-            Err(e) => {
-                s.warn(format!(
-                    "server unreachable after start: {e} — building without cache"
-                ));
-                crate::xwarn!(
-                    "  [!!] sccache health-check failed ({e}) — proceeding without compile cache"
-                );
-                return Ok(Self {
-                    mode: Mode::Disabled,
-                });
+            Ok(stats) => {
+                // Server already running — skip the spawn entirely.
+                stats
+            }
+            Err(_) => {
+                // No server; start one. Inherits the job; dies with xtask.
+                if let Err(e) = start_server(&binary) {
+                    s.warn(format!(
+                        "could not start sccache server: {e} — building without cache"
+                    ));
+                    crate::xwarn!(
+                        "  [!!] sccache server start failed ({e}) — proceeding without compile cache"
+                    );
+                    return Ok(Self {
+                        mode: Mode::Disabled,
+                    });
+                }
+                // Re-verify after start.
+                match health_check(&binary) {
+                    Ok(stats) => stats,
+                    Err(e) => {
+                        s.warn(format!(
+                            "server unreachable after start: {e} — building without cache"
+                        ));
+                        crate::xwarn!(
+                            "  [!!] sccache health-check failed ({e}) — proceeding without compile cache"
+                        );
+                        return Ok(Self {
+                            mode: Mode::Disabled,
+                        });
+                    }
+                }
             }
         };
 
@@ -243,32 +272,39 @@ impl Guard {
 // Server lifecycle — the load-bearing pieces
 // ═══════════════════════════════════════════════════════════════════════
 
-/// Start the sccache server with explicit breakaway-from-job semantics.
+/// Start the sccache server.
 ///
-/// On Windows: uses `CREATE_BREAKAWAY_FROM_JOB` so the spawned process
-/// does NOT inherit xtask's Job Object. This is paired with
-/// `JOB_OBJECT_LIMIT_BREAKAWAY_OK` on the job itself (see
-/// [`crate::zombie::JobGuard`]). Together they let the server survive
-/// xtask exiting — the whole point of this refactor.
+/// On Windows: **does NOT** use `CREATE_BREAKAWAY_FROM_JOB`. Windows
+/// Terminal / ConHost places the shell (and xtask) inside its own outer
+/// Job Object. `CREATE_BREAKAWAY_FROM_JOB` requires every enclosing job
+/// in the nested hierarchy to allow breakaway; the outer terminal job
+/// often does not, which makes Windows return `ERROR_ACCESS_DENIED`
+/// from `CreateProcess` before the child even runs. That surfaced as
+/// the "Access is denied. (os error 5)" failure in 14ms.
 ///
-/// On Unix: sccache --start-server daemonizes itself; no explicit
-/// breakaway needed, and Unix has no analogous cascade problem.
+/// The consequence of not breaking away is that the sccache server
+/// inherits xtask's job and dies when xtask exits (our JobGuard has
+/// `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`). We trade that against having
+/// a working cache: subsequent xtask runs respawn the server, and since
+/// the cache **disk** at `.userdata/sccache/` persists across runs,
+/// respawned servers still serve hits immediately. The ~1 second of
+/// cold-start overhead per xtask invocation is negligible next to a
+/// 30-minute cold backend compile.
+///
+/// Developers who want a truly persistent server should start it from
+/// their shell profile (`sccache --start-server` in `$PROFILE` on
+/// PowerShell). The `Guard::new` health-check-first path detects the
+/// externally-started server and reuses it without spawning anything,
+/// so the server survives across xtask runs in that configuration.
+///
+/// On Unix: `sccache --start-server` daemonizes itself; Unix has no
+/// analogous nested-job problem.
 ///
 /// The call is short (sub-second when server already running, ~1–2s on
 /// cold start). We time-bound it defensively regardless.
-fn start_server_detached(binary: &std::path::Path) -> Result<()> {
+fn start_server(binary: &std::path::Path) -> Result<()> {
     let mut cmd = Command::new(binary);
     cmd.arg("--start-server");
-
-    #[cfg(windows)]
-    {
-        // CREATE_BREAKAWAY_FROM_JOB = 0x01000000. Use the windows-sys
-        // constant rather than a magic number so a tree-wide audit can
-        // find this site.
-        use std::os::windows::process::CommandExt;
-        use windows_sys::Win32::System::Threading::CREATE_BREAKAWAY_FROM_JOB;
-        cmd.creation_flags(CREATE_BREAKAWAY_FROM_JOB);
-    }
 
     let output = run_with_timeout(cmd, Duration::from_secs(10))?;
     if !output.status.success() {
