@@ -6,6 +6,75 @@
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.png" />
     <link rel="stylesheet" href="/fonts/fonts.css" />
+    <style>
+      /*
+        First-paint splash. Renders before the SvelteKit bundle loads so
+        double-click → window → brand-accurate loading state is visible
+        in <200 ms. Uses the real maincontentbackground.png so first paint
+        matches what BootOverlay renders next (no placeholder flash).
+        Inline literal oklch values because the generated tokens CSS
+        loads via the Vite bundle — not available until hydration.
+        Removed by +layout.svelte onMount after BootOverlay paints.
+      */
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483646;
+        display: grid;
+        place-items: center;
+        background-color: oklch(0.08 0.01 220);
+        background-image:
+          radial-gradient(
+            ellipse 72% 58% at 50% 22%,
+            oklch(0.308 0.0382 190.54 / 0.6) 0%,
+            transparent 72%
+          ),
+          url("/imgs/backgrounds/maincontentbackground.png");
+        background-size: 100% 100%, cover;
+        background-position: center, center;
+        background-repeat: no-repeat, no-repeat;
+        color: oklch(0.9319 0.015 224);
+        font-family: "Orbitron", system-ui, sans-serif;
+        transition: opacity 300ms ease-out;
+      }
+      #boot-splash.boot-splash-done {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .boot-splash-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 2rem 3rem;
+      }
+      .boot-splash-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-shadow: 0 0 1.5rem oklch(0.65 0.08 173 / 0.6);
+      }
+      .boot-splash-ring {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        border: 0.1875rem solid oklch(0.28 0.08 173 / 0.6);
+        border-top-color: oklch(0.65 0.08 173);
+        animation: boot-splash-spin 900ms linear infinite;
+      }
+      .boot-splash-sub {
+        font-size: 0.75rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        opacity: 0.6;
+      }
+      @keyframes boot-splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
     <!--
       Pre-module error capture. Minimal, non-invasive — matches the pattern
       used by Sentry / Bugsnag / Rollbar pre-SDK shims:
@@ -38,38 +107,45 @@
         });
       })();
     </script>
-    <link href="/_app/immutable/entry/start.nF53wkKp.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/AWCB9lEB.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/Bnc8DGlG.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/DZmMu5jJ.js" rel="modulepreload">
+    <link href="/_app/immutable/entry/start.Dzh4o_R2.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BusWgMll.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BIP9Czn5.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CE4-083h.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/D0iwhpLH.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/0IhZwIvd.js" rel="modulepreload">
-		<link href="/_app/immutable/entry/app.BlOHKWxk.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CscQrxaa.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/app.Bj9rtc0T.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/PPVm8Dsz.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/C6c723Nq.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/37RWBnL_.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/BmWhRwKj.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/Bk8hQO3-.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/CmTX8b_X.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/8b5Y2Tfu.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/DwpDhhBB.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/BpBCCdCR.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/Cmd0EG7n.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/TdZF0AI0.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BMpLJlVF.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DMIUbNBF.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DxkNG0nT.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/mch806pd.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/7S7QXr0P.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/8dxfzoPq.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DpBRbrxf.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CuyE0lIe.js" rel="modulepreload">
 		
   </head>
   <body data-sveltekit-preload-data="hover">
+    <div id="boot-splash" aria-hidden="true">
+      <div class="boot-splash-stack">
+        <div class="boot-splash-title">DevPulse</div>
+        <div class="boot-splash-ring"></div>
+        <div class="boot-splash-sub">Starting engine…</div>
+      </div>
+    </div>
     <div style="display: contents">
 			<script>
 				{
-					__sveltekit_1dn3ksf = {
+					__sveltekit_1fih84w = {
 						base: ""
 					};
 
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("/_app/immutable/entry/start.nF53wkKp.js"),
-						import("/_app/immutable/entry/app.BlOHKWxk.js")
+						import("/_app/immutable/entry/start.Dzh4o_R2.js"),
+						import("/_app/immutable/entry/app.Bj9rtc0T.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});
