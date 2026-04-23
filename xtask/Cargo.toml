@@ -25,6 +25,11 @@ chrono = { workspace = true }
 # CycloneDX 1.4 requires `serialNumber: "urn:uuid:<uuid>"` — v4 is deterministic
 # enough for build identification. Small, widely-trusted crate.
 uuid = { version = "1", features = ["v4"] }
+# Recursive directory walker for portable build resource staging. Tauri's
+# `bundle.resources` map form lets a single entry (e.g. DevForge REH tree,
+# 3000+ files) declare a whole subtree; we walk it to enumerate files. Tiny
+# crate, zero transitive bloat, already the de-facto Rust standard.
+walkdir = "2.5"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [

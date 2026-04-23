@@ -70,6 +70,28 @@ impl Task for BuildRelease {
     }
 
     fn run(&self, ws: &Workspace) -> anyhow::Result<()> {
+        // File sink — every xinfo!/xwarn! line is also persisted to
+        // target/xtask-run.log from this point on. Without this, xtask's
+        // own narration (package-portable per-category copy totals,
+        // portable folder assertions, etc.) exists only in the terminal
+        // scrollback and is lost when the user closes the window. The
+        // subprocess transcript (target/xtask-build-release.log) captures
+        // only cargo/pnpm/tauri output — it doesn't see anything xtask
+        // itself prints. A durable transcript of both streams is the
+        // minimum bar for diagnosing regressions after the fact.
+        //
+        // Failure to attach is warned, not fatal: a read-only FS or disk
+        // full shouldn't block the build.
+        let xtask_log_path = ws.root().join("target").join("xtask-run.log");
+        if let Err(e) = crate::out::set_file_sink(&xtask_log_path) {
+            crate::xwarn!(
+                "file sink attach failed ({}): {e:#} — terminal-only output this run",
+                xtask_log_path.display()
+            );
+        } else {
+            crate::xinfo!("  > xtask transcript: {}", xtask_log_path.display());
+        }
+
         // Event sink wraps the whole task — SUMMARY runs on both success
         // and failure paths. The inner function is free to `bail!()`; the
         // sink's writer thread drains whatever events landed first.
@@ -80,6 +102,9 @@ impl Task for BuildRelease {
             Ok(events) => print_summary(&events, &events_path),
             Err(e) => crate::xwarn!("event log finalize failed: {e}"),
         }
+        // Close the file sink so the final flush lands before the process
+        // exits. `info!`/`warn!` after this point return to terminal only.
+        crate::out::close_file_sink();
         result
     }
 }
@@ -360,18 +385,33 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     }
 
     // ── Stage 8.5: Package portable (only when --portable-only) ──
-    // Reuses the PackagePortable task. It reads tauri.conf.json,
-    // copies exe + sidecar + runtime DLLs + icon + README into
+    // Reuses the PackagePortable task. It reads tauri.conf.json (merged
+    // with the per-platform override), copies exe + sidecar + runtime
+    // DLLs + icon + tree resources (DevForge) into
     // target/release/portable/<productName>-v<version>/, emits
     // manifest.json with per-file SHA256, then zips.
+    //
+    // The `run_and_report` entry point (vs. plain `run`) returns a
+    // [`PortableSummary`] we attach to the event log so regressions like
+    // "zero resources landed" show up as structured truth — not a bare
+    // `ok` with no payload. Package-portable's own internal coverage
+    // assertion will have already bailed if nothing landed; the summary
+    // is the post-hoc receipt.
     let mut portable_zip_path: Option<PathBuf> = None;
+    let mut portable_summary: Option<crate::commands::package_portable::PortableSummary> = None;
     if portable_only && standalone.exists() {
         stage::section("Package Portable");
         let pkg_guard = sink.start("package-portable");
         let pkg = crate::commands::package_portable::PackagePortable { dry_run: false };
-        match pkg.run(ws) {
-            Ok(()) => {
-                pkg_guard.ok();
+        match pkg.run_and_report(ws) {
+            Ok(summary) => {
+                let detail = summary
+                    .as_ref()
+                    .map(|s| s.event_detail())
+                    .unwrap_or_else(|| "dry-run (no files on disk)".to_string());
+                pkg_guard.ok_with(EventBuilder::new().detail(detail));
+                portable_summary = summary;
+
                 // The zip lives at target/release/<productName>-v<version>-portable.zip;
                 // locate it so we can add it to the build manifest.
                 if let (Ok(product_name), Some(mf)) = (ws.tauri_product_name(), manifest.as_ref()) {
@@ -397,6 +437,34 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
 
     if let (Some(zip), Some(mf)) = (portable_zip_path.as_ref(), manifest.as_mut()) {
         add_artifact_or_warn(mf, ws.root(), "portable-zip", zip);
+    }
+
+    // Durable per-category receipts in `target/xtask-run.log`. Terminal
+    // users already see these during the Package Portable stage; the
+    // reprint here ensures a post-build `grep resource_tree_file
+    // target/xtask-run.log` yields a single authoritative line even when
+    // the in-stage output was scrolled past. Also lays the groundwork
+    // for Phase 4's smoke-stage resource-presence assertions.
+    if let Some(summary) = portable_summary.as_ref() {
+        crate::xinfo!("");
+        crate::xinfo!("  Portable summary:");
+        crate::xinfo!(
+            "    {} total files, {:.1} MB",
+            summary.total_files,
+            (summary.total_bytes as f64) / (1024.0 * 1024.0),
+        );
+        crate::xinfo!(
+            "    declared: {} resources, {} external bins",
+            summary.declared_resources,
+            summary.declared_external_bins,
+        );
+        for (cat, totals) in &summary.per_category {
+            crate::xinfo!(
+                "    {cat:<20} {:>5} files, {:>8.2} MB",
+                totals.files,
+                (totals.bytes as f64) / (1024.0 * 1024.0),
+            );
+        }
     }
 
     // ── Stage 9: SBOM — CycloneDX 1.4 (Rust + npm) ──

@@ -350,7 +350,7 @@ impl Workspace {
         Ok(TauriConfig {
             product_name,
             version,
-            resources: json_string_array(bundle.get("resources")),
+            resources: parse_resources(bundle.get("resources")),
             external_bins: json_string_array(bundle.get("externalBin")),
             icons: json_string_array(bundle.get("icon")),
         })
@@ -364,10 +364,10 @@ impl Workspace {
     }
 }
 
-/// Typed view of the subset of `tauri.conf.json` xtask reads from.
-/// All fields are `String`/`Vec<String>` — copies of the JSON values,
-/// so the struct is independent of the raw `serde_json::Value`'s
-/// lifetime and can be passed between stages freely.
+/// Typed view of the subset of `tauri.conf.json` xtask reads from. All
+/// string-typed fields are owned copies of the JSON values so the struct
+/// is independent of the raw `serde_json::Value`'s lifetime and can be
+/// passed between stages freely.
 #[derive(Debug, Clone)]
 pub struct TauriConfig {
     /// `productName` — drives the final binary filename on Windows
@@ -375,15 +375,34 @@ pub struct TauriConfig {
     pub product_name: String,
     /// Package semver string — drives portable folder + zip versioning.
     pub version: String,
-    /// `bundle.resources` — paths relative to `interfaces/desktop/src-tauri/`.
-    /// Runtime DLLs the installer would unpack; the portable build copies
-    /// them sibling to the exe so Windows DLL search resolves them at launch.
-    pub resources: Vec<String>,
+    /// `bundle.resources` — parsed from either the list form
+    /// (`["path/a.dll", "dir/"]`) or the map form
+    /// (`{"path/a.dll": "", "dir/**/*": "out/"}`). Both Tauri v2 shapes are
+    /// supported; every entry carries an explicit target so downstream
+    /// packagers never have to guess where a resource should land.
+    pub resources: Vec<ResourceEntry>,
     /// `bundle.externalBin` — sidecar binaries. Paths are prefix form
     /// (no `.exe` suffix in JSON) matching the tauri-bundler convention.
     pub external_bins: Vec<String>,
     /// `bundle.icon` — icon variants shipped with the app.
     pub icons: Vec<String>,
+}
+
+/// A single entry from `bundle.resources`, normalized so both Tauri list
+/// and map forms flow through the same packaging pipeline.
+///
+/// * `source` — path relative to `interfaces/desktop/src-tauri/`. May be
+///   a file, a directory (with or without trailing slash), or a glob
+///   ending in `/**/*` or `/*`. Globs are resolved by walking the base
+///   directory at package time.
+/// * `target` — destination subpath inside the portable/resource root.
+///   Empty string means "at the root" (sibling of the exe). A trailing
+///   slash means "into this subfolder, preserve contents". A target with
+///   no trailing slash is treated as a rename when the source is a file.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResourceEntry {
+    pub source: String,
+    pub target: String,
 }
 
 fn json_string_array(v: Option<&serde_json::Value>) -> Vec<String> {
@@ -395,6 +414,46 @@ fn json_string_array(v: Option<&serde_json::Value>) -> Vec<String> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// Parse `bundle.resources` in either of the two Tauri v2 shapes.
+///
+/// * Array: `["path/a.dll", "dir/"]` — each string becomes a
+///   `ResourceEntry { source, target: "" }`, meaning "place at root".
+///   Tauri's native list form preserves source path inside the bundle;
+///   we deliberately flatten to root for portable layouts because the
+///   Windows DLL search resolves siblings of the exe, not a nested
+///   `binaries/` subfolder.
+/// * Object: `{"src/path": "target/"}` — one entry per key, target taken
+///   verbatim. This is the form the Windows/Linux/macOS platform
+///   overrides use today; it lets DevForge remap from
+///   `resources/devforge/<platform>/**/*` to `devforge/` at bundle time.
+///
+/// Unknown JSON shapes (null, bool, number, nested arrays) are dropped
+/// silently rather than failing the parse — the same tolerance tauri-bundler
+/// applies when it reconciles platform overrides.
+fn parse_resources(v: Option<&serde_json::Value>) -> Vec<ResourceEntry> {
+    let Some(v) = v else { return Vec::new() };
+    match v {
+        serde_json::Value::Array(arr) => arr
+            .iter()
+            .filter_map(serde_json::Value::as_str)
+            .map(|s| ResourceEntry {
+                source: s.to_string(),
+                target: String::new(),
+            })
+            .collect(),
+        serde_json::Value::Object(map) => map
+            .iter()
+            .filter_map(|(k, v)| {
+                v.as_str().map(|target| ResourceEntry {
+                    source: k.clone(),
+                    target: target.to_string(),
+                })
+            })
+            .collect(),
+        _ => Vec::new(),
+    }
 }
 
 /// RFC 7396 JSON Merge Patch — matches the semantics Tauri's CLI uses
@@ -467,6 +526,68 @@ mod merge_tests {
         let patch = json!({ "version": "0.2.0" });
         merge_rfc7396(&mut base, &patch);
         assert_eq!(base, json!({ "version": "0.2.0" }));
+    }
+}
+
+#[cfg(test)]
+mod resource_parse_tests {
+    use super::{parse_resources, ResourceEntry};
+    use serde_json::json;
+
+    #[test]
+    fn list_form_flattens_target_to_root() {
+        let v = json!(["binaries/llama.dll", "resources/devforge/win32-x64/"]);
+        let got = parse_resources(Some(&v));
+        assert_eq!(
+            got,
+            vec![
+                ResourceEntry {
+                    source: "binaries/llama.dll".to_string(),
+                    target: String::new(),
+                },
+                ResourceEntry {
+                    source: "resources/devforge/win32-x64/".to_string(),
+                    target: String::new(),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn map_form_preserves_per_entry_target() {
+        let v = json!({
+            "binaries/llama.dll": "",
+            "resources/devforge/win32-x64/**/*": "devforge/"
+        });
+        let mut got = parse_resources(Some(&v));
+        got.sort_by(|a, b| a.source.cmp(&b.source));
+        assert_eq!(
+            got,
+            vec![
+                ResourceEntry {
+                    source: "binaries/llama.dll".to_string(),
+                    target: String::new(),
+                },
+                ResourceEntry {
+                    source: "resources/devforge/win32-x64/**/*".to_string(),
+                    target: "devforge/".to_string(),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn missing_resources_key_is_empty() {
+        assert!(parse_resources(None).is_empty());
+    }
+
+    #[test]
+    fn non_string_map_values_are_dropped() {
+        let v = json!({ "a": "x/", "b": 42, "c": null });
+        let got = parse_resources(Some(&v));
+        assert_eq!(got.len(), 1);
+        assert_eq!(got[0].source, "a");
+        assert_eq!(got[0].target, "x/");
     }
 }
 
