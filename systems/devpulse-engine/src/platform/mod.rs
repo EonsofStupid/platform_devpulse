@@ -51,6 +51,14 @@ pub use reasoning::{
     GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus, RroDepth, RroState,
     RroStateHandle, RroStateSnapshot, RroStateTransition,
 };
+pub use services::candle_config::CandleConfig;
+pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
+pub use services::ollama_sidecar::OllamaModel;
+pub use services::sherpa_streaming::{
+    SherpaCompileInfo, SherpaInstalledModel, SherpaSessionInfo, SherpaStreamingService,
+};
+pub use services::voice_stt_config::VoiceSttConfig;
+pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::{Service, ServiceRole, ServiceState};
 
 // Re-export clyffy persistence traits and types for Tauri command layer
@@ -96,6 +104,7 @@ use services::analytics::AnalyticsService;
 use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgeService};
 use services::graph::GraphService;
+use services::ollama_sidecar::OllamaSidecarService;
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
@@ -191,6 +200,16 @@ pub struct Platform {
     // calls `ensure_devforge_started()` which spawns the REH child
     // process and stores the Arc here. Lock-free reads via load_full.
     devforge: ArcSwapOption<DevForgeService>,
+    // ── Ollama sidecar — lazy, user-initiated ────────────────
+    // Devtool "Start" spawns `ollama serve` (or attaches if already
+    // running) and stores the Arc here. Lock-free reads via load_full.
+    ollama_sidecar: ArcSwapOption<OllamaSidecarService>,
+    // ── Sherpa streaming ASR — always constructed, state held here.
+    // No child process — the service owns recognizers + session map
+    // in-memory. Feature-gated behind `sherpa`; when that feature is
+    // off, the handle is still present but every verb returns a
+    // clear "feature not enabled" error.
+    sherpa_streaming: Arc<SherpaStreamingService>,
     // ── Telemetry (lane tracing) ─────────────────────────────
     telemetry: Option<TelemetryHandle>,
     // ── Reasoning (RRO state machine) ────────────────────────
@@ -266,6 +285,8 @@ impl Platform {
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
             devforge: ArcSwapOption::empty(),
+            ollama_sidecar: ArcSwapOption::empty(),
+            sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
             project_db: Arc::new(ProjectDbManager::new()),
             telemetry,
             reasoning: RroStateHandle::new(),
@@ -297,6 +318,11 @@ impl Platform {
         // DevForge is lazy-started, not in the macro. Only ping it if
         // the user has opened the code-editor window at least once.
         if let Some(s) = self.devforge.load_full() {
+            subsystems.push(ping_service(s.as_ref()).await);
+        }
+        // Ollama sidecar is lazy-started via the devtool. Only ping it
+        // if the user has clicked Start at least once.
+        if let Some(s) = self.ollama_sidecar.load_full() {
             subsystems.push(ping_service(s.as_ref()).await);
         }
 
@@ -502,6 +528,195 @@ impl Platform {
     pub async fn devforge_restart(&self) -> Result<Arc<DevForgeService>> {
         self.devforge_stop().await?;
         self.ensure_devforge_started().await
+    }
+
+    // ── Ollama sidecar accessor + lifecycle ────────────────────
+
+    /// Read the current Ollama sidecar service without spawning it.
+    ///
+    /// Returns `None` until the user clicks Start in the devtool (or
+    /// boot ran with `auto_start = true`). Lock-free atomic load.
+    #[must_use]
+    pub fn ollama_sidecar(&self) -> Option<Arc<OllamaSidecarService>> {
+        self.ollama_sidecar.load_full()
+    }
+
+    /// Read-only view into the Ollama sidecar boot config entry.
+    ///
+    /// Used by the devtool to render the Config tab. Writes go through
+    /// a future `save_config` verb that persists to user TOML; this
+    /// accessor does not allocate.
+    #[must_use]
+    pub fn boot_config_ollama_sidecar(&self) -> &config::OllamaSidecarServiceEntry {
+        &self.boot_config.services.system.ollama_sidecar
+    }
+
+    // ── Voice TTS config (user scope) ──────────────────────────
+
+    /// Load user-scope TTS preferences from
+    /// `{data_dir}/user/voice_tts.toml`.
+    ///
+    /// Never returns an error — on parse / IO failure, returns the
+    /// defaults so the devtool can still render.
+    #[must_use]
+    pub fn voice_tts_config_load(&self) -> VoiceTtsConfig {
+        services::voice_tts_config::load(&self.data_dir)
+    }
+
+    /// Persist user-scope TTS preferences atomically. Returns the
+    /// clamped config that was actually written (speed clamped to
+    /// `[0.5, 2.0]`, empty voice replaced by the default).
+    ///
+    /// # Errors
+    /// - Creating the `user/` directory fails.
+    /// - Temp-file write or rename fails.
+    pub fn voice_tts_config_save(&self, cfg: &VoiceTtsConfig) -> Result<VoiceTtsConfig> {
+        services::voice_tts_config::save(&self.data_dir, cfg)
+    }
+
+    // ── Voice STT config (user scope) ──────────────────────────
+
+    /// Load user-scope STT preferences.
+    #[must_use]
+    pub fn voice_stt_config_load(&self) -> VoiceSttConfig {
+        services::voice_stt_config::load(&self.data_dir)
+    }
+
+    /// Persist user-scope STT preferences atomically. Returns the
+    /// clamped config.
+    ///
+    /// # Errors
+    /// - Creating the `user/` directory fails.
+    /// - Temp-file write or rename fails.
+    pub fn voice_stt_config_save(&self, cfg: &VoiceSttConfig) -> Result<VoiceSttConfig> {
+        services::voice_stt_config::save(&self.data_dir, cfg)
+    }
+
+    /// Directory where rotated session logs live
+    /// (`{data_dir}/logs/session-*.jsonl`). Used by the shared
+    /// `commands::sys::session_logs` tail helper.
+    #[must_use]
+    pub fn logs_dir(&self) -> PathBuf {
+        self.data_dir.join("logs")
+    }
+
+    // ── Sherpa streaming ASR accessor ──────────────────────────
+
+    /// Get the Sherpa streaming ASR service. Always present — feature
+    /// gate is per-method, not per-service.
+    #[must_use]
+    pub fn sherpa_streaming(&self) -> &Arc<SherpaStreamingService> {
+        &self.sherpa_streaming
+    }
+
+    // ── Candle runtime config (user scope) ────────────────────
+
+    /// Load persisted Candle runtime preferences.
+    #[must_use]
+    pub fn candle_config_load(&self) -> CandleConfig {
+        services::candle_config::load(&self.data_dir)
+    }
+
+    /// Persist Candle runtime preferences atomically. Returns the
+    /// clamped value.
+    ///
+    /// # Errors
+    /// - Creating the `user/` directory fails.
+    /// - Temp-file write or rename fails.
+    pub fn candle_config_save(&self, cfg: &CandleConfig) -> Result<CandleConfig> {
+        services::candle_config::save(&self.data_dir, cfg)
+    }
+
+    // ── llama.cpp (embedded) config (user scope) ──────────────
+
+    /// Load persisted llama.cpp-embedded runtime preferences.
+    #[must_use]
+    pub fn llama_cpp_embedded_config_load(&self) -> LlamaCppEmbeddedConfig {
+        services::llama_cpp_embedded_config::load(&self.data_dir)
+    }
+
+    /// Persist llama.cpp-embedded runtime preferences atomically.
+    /// Returns the clamped value.
+    ///
+    /// # Errors
+    /// - Creating the `user/` directory fails.
+    /// - Temp-file write or rename fails.
+    pub fn llama_cpp_embedded_config_save(
+        &self,
+        cfg: &LlamaCppEmbeddedConfig,
+    ) -> Result<LlamaCppEmbeddedConfig> {
+        services::llama_cpp_embedded_config::save(&self.data_dir, cfg)
+    }
+
+    /// Lazy-start Ollama and return the running service.
+    ///
+    /// First call reads the config entry, probes the port, and either
+    /// attaches (if Ollama is already running) or spawns
+    /// `<binary_path> serve` and waits for health. Subsequent calls
+    /// return the cached service.
+    ///
+    /// # Errors
+    /// - Ollama is disabled in config.
+    /// - Binary is not on PATH and no valid `binary_path` is configured,
+    ///   and nothing is already listening on the configured port.
+    /// - Spawned child fails health poll within the service timeout.
+    pub async fn ensure_ollama_sidecar_started(&self) -> Result<Arc<OllamaSidecarService>> {
+        if let Some(existing) = self.ollama_sidecar.load_full() {
+            return Ok(existing);
+        }
+
+        let entry = &self.boot_config.services.system.ollama_sidecar;
+        if !entry.enabled {
+            anyhow::bail!(
+                "Ollama sidecar is disabled in config. Set `enabled = true` under \
+                 [services.system.ollama_sidecar] to use this service."
+            );
+        }
+
+        let service = OllamaSidecarService::boot(
+            &entry.host,
+            entry.port,
+            entry.resolved_binary(),
+        )
+        .await?;
+
+        let arc = Arc::new(service);
+        self.ollama_sidecar.store(Some(Arc::clone(&arc)));
+        Ok(arc)
+    }
+
+    /// Stop a running Ollama sidecar.
+    ///
+    /// Atomically swaps the slot to `None` and awaits `Service::shutdown`
+    /// on the taken Arc. Attached-mode services return `Ok(())` without
+    /// touching the external Ollama. Idempotent.
+    ///
+    /// # Errors
+    /// Returns the underlying shutdown error if the managed child could
+    /// not be killed cleanly.
+    pub async fn ollama_sidecar_stop(&self) -> Result<()> {
+        use crate::platform::services::Service as _;
+        let taken = self.ollama_sidecar.swap(None);
+        if let Some(service) = taken {
+            tracing::info!("Ollama sidecar stop requested");
+            service.shutdown().await?;
+        } else {
+            tracing::debug!("ollama_sidecar_stop called but nothing running");
+        }
+        Ok(())
+    }
+
+    /// Restart the Ollama sidecar.
+    ///
+    /// Equivalent to [`ollama_sidecar_stop`](Self::ollama_sidecar_stop)
+    /// followed by
+    /// [`ensure_ollama_sidecar_started`](Self::ensure_ollama_sidecar_started).
+    ///
+    /// # Errors
+    /// Returns whichever of `stop` or `start` fails first.
+    pub async fn ollama_sidecar_restart(&self) -> Result<Arc<OllamaSidecarService>> {
+        self.ollama_sidecar_stop().await?;
+        self.ensure_ollama_sidecar_started().await
     }
 
     // ── Project scope accessor ──────────────────────────────────

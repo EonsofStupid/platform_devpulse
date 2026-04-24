@@ -23,9 +23,37 @@ import {
 	testMicrophone,
 	transcribeAudio,
 	transcribeAudioFile,
+	voiceSttConfigState,
 } from "$lib/domains/app/voice/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
+import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
+
+// ── Config + logs state (scoped to this page) ─────────────
+let logs = $state<ScopedLogEntry[]>([]);
+let logsLoading = $state(false);
+let logsError = $state<string | null>(null);
+
+async function loadLogs(): Promise<void> {
+	logsLoading = true;
+	logsError = null;
+	try {
+		const r = await commands.queryScopedLog("devtools.stt", 100);
+		if (r.status === "error") throw new Error(r.error);
+		logs = r.data;
+	} catch (e) {
+		logsError = e instanceof Error ? e.message : String(e);
+	} finally {
+		logsLoading = false;
+	}
+}
+
+$effect(() => {
+	if (!voiceSttConfigState.config && !voiceSttConfigState.loading) {
+		void voiceSttConfigState.load();
+	}
+});
 
 // ── State ──────────────────────────────────────────────
 let loadingSlot = $state(false);
@@ -199,22 +227,170 @@ function handleDragOver(e: DragEvent): void {
 	{/snippet}
 
 	{#snippet config()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Whisper runtime config (beam size,
-			language, VAD threshold) not yet exposed as a dedicated Tauri
-			command. Model selection lives in the setup wizard; this tab will
-			surface per-slot overrides once `voice_stt_save_config` lands.
-		</Text>
+		<div class="space-y-4">
+			{#if voiceSttConfigState.loading && !voiceSttConfigState.config}
+				<Text size="sm" color="muted">Loading STT config…</Text>
+			{/if}
+
+			{#if voiceSttConfigState.error}
+				<div
+					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+				>
+					{voiceSttConfigState.error}
+				</div>
+			{/if}
+
+			{#if voiceSttConfigState.config}
+				<div class="space-y-3">
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">
+							Language hint (ISO-639-1, empty = auto-detect)
+						</Text>
+						<input
+							type="text"
+							bind:value={voiceSttConfigState.draft.language}
+							placeholder="auto"
+							maxlength="2"
+							class="w-32 rounded px-2 py-1 text-xs font-mono outline-none"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						/>
+					</div>
+
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">
+							Beam size · {voiceSttConfigState.draft.beam_size}
+						</Text>
+						<input
+							type="range"
+							min="1"
+							max="10"
+							step="1"
+							bind:value={voiceSttConfigState.draft.beam_size}
+							class="w-full max-w-80"
+							style="accent-color: var(--accent-teal-main);"
+						/>
+						<Text size="xs" color="muted">
+							1 = greedy (fastest). 5 = quality default. 10 = max.
+						</Text>
+					</div>
+
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">
+							VAD threshold · {voiceSttConfigState.draft.vad_threshold.toFixed(2)}
+						</Text>
+						<input
+							type="range"
+							min="0.0"
+							max="1.0"
+							step="0.05"
+							bind:value={voiceSttConfigState.draft.vad_threshold}
+							class="w-full max-w-80"
+							style="accent-color: var(--accent-teal-main);"
+						/>
+					</div>
+
+					<div class="flex items-center gap-2 pt-2">
+						<Button
+							preset="button-primary"
+							size="sm"
+							onclick={() => void voiceSttConfigState.save()}
+							disabled={voiceSttConfigState.saving || !voiceSttConfigState.dirty}
+						>
+							{#if voiceSttConfigState.saving}
+								<Spinner size="xs" />
+								Saving…
+							{:else}
+								Save
+							{/if}
+						</Button>
+						<Button
+							preset="button-ghost"
+							size="sm"
+							onclick={() => voiceSttConfigState.reset()}
+							disabled={!voiceSttConfigState.dirty || voiceSttConfigState.saving}
+						>
+							Discard
+						</Button>
+						{#if voiceSttConfigState.dirty}
+							<Text size="xs" color="muted">Unsaved changes</Text>
+						{/if}
+					</div>
+
+					<Text size="xs" color="muted">
+						Beam clamped to <span class="font-mono">[1, 10]</span>, VAD to
+						<span class="font-mono">[0.0, 1.0]</span>. Persisted in
+						<span class="font-mono text-[10px]">user/voice_stt.toml</span>.
+					</Text>
+				</div>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Whisper-scoped log filter not yet
-			wired. For now, session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
-			filter by <code>component=devtools.stt</code>. A filtered view
-			inside this panel arrives when the telemetry devtool gains a
-			shared "scoped log tail" widget.
-		</Text>
+		<div class="space-y-3">
+			<div class="flex items-center justify-between">
+				<Text size="sm" weight="semibold">
+					Scoped log — <span class="font-mono text-xs">devtools.stt</span>
+				</Text>
+				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+					{#if logsLoading}
+						<Spinner size="xs" tone="accent" />
+					{:else}
+						Refresh
+					{/if}
+				</Button>
+			</div>
+
+			{#if logsError}
+				<div
+					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+				>
+					{logsError}
+				</div>
+			{/if}
+
+			{#if logs.length > 0}
+				<div
+					class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto"
+				>
+					<table class="w-full text-xs">
+						<thead class="sticky top-0 bg-[var(--surface-raised)]">
+							<tr class="border-b border-[var(--border-subtle)]">
+								<th
+									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
+									>Time</th
+								>
+								<th
+									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
+									>Level</th
+								>
+								<th
+									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
+									>Message</th
+								>
+							</tr>
+						</thead>
+						<tbody>
+							{#each logs as line (line.timestamp + line.message)}
+								<tr class="border-b border-[var(--border-subtle)]">
+									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]"
+										>{line.timestamp.slice(11, 19)}</td
+									>
+									<td class="px-2 py-1 font-mono text-[10px]">{line.level}</td>
+									<td class="px-2 py-1 break-all">{line.message}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{:else if logsLoading}
+				<Text size="sm" color="muted">Loading…</Text>
+			{:else}
+				<Text size="sm" color="muted">
+					No log entries yet — click Refresh to tail the current session log.
+				</Text>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet actions()}

@@ -80,6 +80,7 @@ pub fn emit_status<T: Serialize>(app: &tauri::AppHandle, domain: &str, kind: Sta
 
 // ── Domain Modules ──────────────────────────────────────────────
 
+pub mod candle;
 pub mod chat;
 pub mod claude;
 pub mod cloud;
@@ -89,8 +90,11 @@ pub mod devforge;
 pub mod devpulse;
 pub mod knowledge;
 pub mod llama;
+pub mod llama_cpp_embedded;
 pub mod models;
+pub mod ollama_sidecar;
 pub mod projects;
+pub mod sherpa;
 pub mod providers;
 pub mod sys;
 pub mod thinkclyffy;

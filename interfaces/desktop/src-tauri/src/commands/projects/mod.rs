@@ -67,12 +67,20 @@ const GRAPH_ACTIVE_PROJECT_ID: &str = "singleton";
 /// A full project row returned to the frontend.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct Project {
+    /// UUIDv4 identifier assigned at `create_project` time. Stable for
+    /// the life of the row.
     pub id: String,
+    /// Human-readable display name shown in the UI.
     pub name: String,
+    /// Absolute path to the project root on disk. `UNIQUE` at the SQL
+    /// level — the same directory cannot be tracked twice.
     pub root_path: String,
     /// One of: `"general" | "personal" | "team" | "archived"`.
     pub project_type: String,
+    /// Optional URL-safe slug derived from `name`. Populated by the UI
+    /// when the user customises the link path.
     pub slug: Option<String>,
+    /// Free-form one-line description shown in project cards.
     pub description: Option<String>,
     /// Source tool hint: `"lovable" | "cursor" | "vscode" | …`. Free-form.
     pub tool: Option<String>,
@@ -88,13 +96,19 @@ pub struct Project {
 /// required; every other field has a sensible default or is nullable.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct CreateProjectInput {
+    /// Human-readable project name. Trimmed; must be non-empty.
     pub name: String,
+    /// Absolute path to the project root on disk. Trimmed; must be
+    /// non-empty. Uniqueness is enforced at the SQL layer.
     pub root_path: String,
     /// Defaults to `"personal"`.
     #[serde(default)]
     pub project_type: Option<String>,
+    /// Optional one-line description. Stored as empty string when
+    /// omitted to keep the column NOT NULL.
     #[serde(default)]
     pub description: Option<String>,
+    /// Optional source-tool hint (e.g. `"vscode"`, `"cursor"`). Free-form.
     #[serde(default)]
     pub tool: Option<String>,
     /// Optional JSON string. Caller is responsible for the shape.
@@ -109,22 +123,31 @@ pub struct CreateProjectInput {
 /// A read-only reference directory linked to a project.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ProjectReference {
+    /// UUIDv4 identifier for this reference link.
     pub id: String,
+    /// FK to [`Project::id`] — the project this reference is attached to.
     pub project_id: String,
+    /// Absolute path to the referenced directory on disk.
     pub path: String,
+    /// Optional display label; UI falls back to the path's basename
+    /// when `None`.
     pub label: Option<String>,
     /// `"docs" | "source" | "examples" | "other"`. Free-form; the UI
     /// maps this to a color / icon and the indexer uses it to bias
     /// scan depth (e.g. `source` gets AST indexing, `docs` gets text).
     pub kind: String,
+    /// Unix seconds at which the reference was linked.
     pub created_at: i64,
 }
 
 /// Input for [`add_project_reference`].
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct AddReferenceInput {
+    /// Target project id (FK to [`Project::id`]).
     pub project_id: String,
+    /// Absolute path to the referenced directory. Trimmed; non-empty.
     pub path: String,
+    /// Optional display label. UI falls back to the path basename.
     #[serde(default)]
     pub label: Option<String>,
     /// Defaults to `"other"`. Allowed values enforced at the command.

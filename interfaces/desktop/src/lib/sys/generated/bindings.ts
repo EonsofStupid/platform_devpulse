@@ -1047,6 +1047,289 @@ async closeDevforgeWindow() : Promise<Result<null, string>> {
 }
 },
 /**
+ * Load the persisted Candle runtime config. Missing / malformed file
+ * → defaults (never errors on parse failure).
+ */
+async candleLoadConfig() : Promise<Result<CandleConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("candle_load_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Persist Candle config atomically. Returns the clamped value.
+ */
+async candleSaveConfig(cfg: CandleConfig) : Promise<Result<CandleConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("candle_save_config", { cfg }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Unload every loaded slot — forces the backend pool to start fresh.
+ * 
+ * Applies to all backends (Candle, llama.cpp-embedded, ORT voice).
+ * Returns the number of slots actually unloaded so the devtool can
+ * show "Restarted N slots."
+ */
+async candleRestartPool() : Promise<Result<number, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("candle_restart_pool") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load the persisted llama.cpp-embedded runtime config.
+ */
+async llamaCppEmbeddedLoadConfig() : Promise<Result<LlamaCppEmbeddedConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_embedded_load_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Persist llama.cpp-embedded config atomically. Returns the clamped value.
+ */
+async llamaCppEmbeddedSaveConfig(cfg: LlamaCppEmbeddedConfig) : Promise<Result<LlamaCppEmbeddedConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_embedded_save_config", { cfg }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Start the Ollama sidecar (idempotent).
+ * 
+ * First call probes the configured port; if Ollama is already running
+ * we attach, otherwise we spawn `<binary_path> serve`. Subsequent calls
+ * return the cached service handle.
+ */
+async ollamaSidecarStart() : Promise<Result<OllamaStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_start") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop the Ollama sidecar (idempotent).
+ * 
+ * Attached-mode services return Ok without touching the external
+ * Ollama — we never kill a process we didn't spawn.
+ */
+async ollamaSidecarStop() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_stop") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Restart the Ollama sidecar — stop then start.
+ */
+async ollamaSidecarRestart() : Promise<Result<OllamaStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_restart") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Current running status of the Ollama sidecar.
+ * 
+ * Lock-free read — never spawns. Use `ollama_sidecar_start` for the
+ * lazy-start path.
+ */
+async ollamaSidecarStatus() : Promise<Result<OllamaStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Health snapshot for the `ServiceDevtoolShell` Status tab.
+ * 
+ * Pings the HTTP API if the service is running. Returns `Unknown` when
+ * the platform hasn't booted or the service slot is empty AND disabled
+ * in config. Returns `Stopped` when slot empty but enabled.
+ */
+async ollamaSidecarHealth() : Promise<Result<OllamaHealth, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Read the current Ollama config from the platform boot config.
+ */
+async ollamaSidecarConfig() : Promise<Result<OllamaConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List models installed in the running Ollama.
+ * 
+ * Requires the sidecar to be running (started or attached).
+ */
+async ollamaSidecarListModels() : Promise<Result<OllamaModel[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_list_models") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Pull a model via `POST /api/pull`. Blocks until the pull completes.
+ * 
+ * Progress streaming is a follow-up; this call is non-streaming.
+ */
+async ollamaSidecarPullModel(name: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_pull_model", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a model via `DELETE /api/delete`.
+ */
+async ollamaSidecarDeleteModel(name: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_delete_model", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Report whether the `sherpa` cargo feature is baked into this build.
+ * Used by the devtool to render a "not available in this build" banner
+ * instead of silently failing when the user opens the page.
+ */
+async sherpaCompileInfo() : Promise<Result<SherpaCompileInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_compile_info") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List installed streaming-ASR models under `{data_dir}/models/sherpa/`.
+ */
+async sherpaListModels() : Promise<Result<SherpaInstalledModel[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_list_models") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete an installed model directory by id.
+ */
+async sherpaDeleteModel(id: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_delete_model", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Start a streaming recognition session against an installed model.
+ * Returns the fresh session id.
+ */
+async sherpaStartSession(modelId: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_start_session", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Feed 16 kHz mono f32 PCM samples to a live session. Returns the
+ * updated partial transcript after decoding.
+ */
+async sherpaFeedAudio(sessionId: string, samples: number[]) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_feed_audio", { sessionId, samples }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Signal end-of-input and return the final transcript for a session.
+ */
+async sherpaFinishSession(sessionId: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_finish_session", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Drop a session — releases its OnlineStream handle.
+ */
+async sherpaStopSession(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_stop_session", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Snapshot of every live session — id, model, partial transcript,
+ * samples fed.
+ */
+async sherpaListSessions() : Promise<Result<SherpaSessionInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_list_sessions") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Return the absolute path of the models root
+ * (`{data_dir}/models/sherpa/`). The devtool shows this so users
+ * know where to manually drop model dirs.
+ */
+async sherpaModelsDir() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sherpa_models_dir") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get current MCP integration status.
  * 
  * Always succeeds — installs that fail to detect surface their error
@@ -2424,6 +2707,55 @@ async activateVoiceProfile(profileId: string) : Promise<Result<null, string>> {
 }
 },
 /**
+ * Load the persisted TTS config (default voice + default speed).
+ * 
+ * Reads `{data_dir}/user/voice_tts.toml`. Returns defaults when the
+ * file is missing or malformed — never errors for parse failures.
+ */
+async voiceTtsLoadConfig() : Promise<Result<VoiceTtsConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("voice_tts_load_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Persist TTS config atomically. Returns the clamped config that was
+ * actually written (speed clamped to `[0.5, 2.0]`, empty voice
+ * replaced by the default `af_heart`).
+ */
+async voiceTtsSaveConfig(cfg: VoiceTtsConfig) : Promise<Result<VoiceTtsConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("voice_tts_save_config", { cfg }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load the persisted STT config (language + beam + VAD).
+ */
+async voiceSttLoadConfig() : Promise<Result<VoiceSttConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("voice_stt_load_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Persist STT config atomically. Returns the clamped config.
+ */
+async voiceSttSaveConfig(cfg: VoiceSttConfig) : Promise<Result<VoiceSttConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("voice_stt_save_config", { cfg }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Store an API key in the OS keychain and mirror a masked hint to libSQL.
  * 
  * Idempotent — re-storing for the same provider overwrites both halves.
@@ -2690,7 +3022,19 @@ voice_disable_aria: string }
 /**
  * Input for [`add_project_reference`].
  */
-export type AddReferenceInput = { project_id: string; path: string; label?: string | null; 
+export type AddReferenceInput = { 
+/**
+ * Target project id (FK to [`Project::id`]).
+ */
+project_id: string; 
+/**
+ * Absolute path to the referenced directory. Trimmed; non-empty.
+ */
+path: string; 
+/**
+ * Optional display label. UI falls back to the path basename.
+ */
+label?: string | null; 
 /**
  * Defaults to `"other"`. Allowed values enforced at the command.
  */
@@ -3335,6 +3679,22 @@ entry_count: number;
  */
 max_capacity: number }
 /**
+ * Persisted Candle runtime preferences.
+ */
+export type CandleConfig = { 
+/**
+ * Context window in tokens. Clamped to `[512, 131_072]`.
+ */
+context_size: number; 
+/**
+ * GPU layers to offload. `0` = CPU, `u32::MAX` = all. No upper clamp.
+ */
+gpu_layers: number; 
+/**
+ * Dtype hint: `"auto" | "f32" | "f16" | "bf16" | "q4" | "q5" | "q8"`.
+ */
+dtype: string }
+/**
  * A download catalog entry — one per slot. Each has one or more download options.
  */
 export type CatalogEntry = { 
@@ -3637,11 +3997,29 @@ hint: string }
  * Input for [`create_project`]. Only `name` and `root_path` are
  * required; every other field has a sensible default or is nullable.
  */
-export type CreateProjectInput = { name: string; root_path: string; 
+export type CreateProjectInput = { 
+/**
+ * Human-readable project name. Trimmed; must be non-empty.
+ */
+name: string; 
+/**
+ * Absolute path to the project root on disk. Trimmed; must be
+ * non-empty. Uniqueness is enforced at the SQL layer.
+ */
+root_path: string; 
 /**
  * Defaults to `"personal"`.
  */
-project_type?: string | null; description?: string | null; tool?: string | null; 
+project_type?: string | null; 
+/**
+ * Optional one-line description. Stored as empty string when
+ * omitted to keep the column NOT NULL.
+ */
+description?: string | null; 
+/**
+ * Optional source-tool hint (e.g. `"vscode"`, `"cursor"`). Free-form.
+ */
+tool?: string | null; 
 /**
  * Optional JSON string. Caller is responsible for the shape.
  */
@@ -4966,6 +5344,26 @@ export type ListModelsRequest = {
  */
 provider: ProviderId }
 /**
+ * Persisted llama.cpp embedded runtime preferences.
+ */
+export type LlamaCppEmbeddedConfig = { 
+/**
+ * Context window in tokens. Clamped to `[512, 131_072]`.
+ */
+context_size: number; 
+/**
+ * GPU layers to offload. `0` = CPU only, `u32::MAX` = all.
+ */
+gpu_layers: number; 
+/**
+ * KV-cache element type. `"f16" | "q8_0" | "q4_0"`.
+ */
+kv_dtype: string; 
+/**
+ * Tokens per forward pass. Clamped to `[1, 4096]`.
+ */
+n_batch: number }
+/**
  * Health status of the llama-server sidecar.
  */
 export type LlamaHealthStatus = { 
@@ -5426,6 +5824,111 @@ fast_ngl: number;
  */
 vision_ngl: number }
 /**
+ * Config surface for the devtool Config tab.
+ */
+export type OllamaConfig = { 
+/**
+ * Whether the service is enabled at all.
+ */
+enabled: boolean; 
+/**
+ * Host Ollama binds to.
+ */
+host: string; 
+/**
+ * Port Ollama listens on.
+ */
+port: number; 
+/**
+ * Explicit binary path (empty = resolve against PATH).
+ */
+binary_path: string; 
+/**
+ * Whether to auto-start at boot (vs. lazy-start via devtool).
+ */
+auto_start: boolean }
+/**
+ * Minimal `{ state, label }` badge shape for the Status tab.
+ */
+export type OllamaHealth = { 
+/**
+ * Coarse tri-state for the header dot colour.
+ */
+state: OllamaHealthState; 
+/**
+ * Short human-readable text alongside the dot.
+ */
+label: string }
+/**
+ * Health tri-state shaped for the `ServiceDevtoolShell` `HealthBadge`.
+ */
+export type OllamaHealthState = 
+/**
+ * Responding on the configured port.
+ */
+"up" | 
+/**
+ * Not running (slot empty).
+ */
+"stopped" | 
+/**
+ * In slot but the most recent ping failed.
+ */
+"down" | 
+/**
+ * Service disabled in config, or state cannot be determined.
+ */
+"unknown"
+/**
+ * A model reported by `GET /api/tags`.
+ */
+export type OllamaModel = { 
+/**
+ * Tag-qualified model name, e.g. `llama3:8b-instruct-q4_K_M`.
+ */
+name: string; 
+/**
+ * ISO-8601 timestamp reported by Ollama (may be empty).
+ */
+modified_at?: string; 
+/**
+ * On-disk size in bytes (may be 0 if Ollama omits it).
+ */
+size?: number; 
+/**
+ * Blob digest (may be empty).
+ */
+digest?: string }
+/**
+ * Running-state of the managed Ollama sidecar.
+ */
+export type OllamaStatus = { 
+/**
+ * Whether the service slot currently holds a live Ollama handle.
+ */
+running: boolean; 
+/**
+ * Host the service is bound to (`127.0.0.1` by default).
+ */
+host: string | null; 
+/**
+ * Port Ollama is listening on.
+ */
+port: number | null; 
+/**
+ * Base HTTP URL (`http://host:port`).
+ */
+base_url: string | null; 
+/**
+ * `true` = this platform spawned the child. `false` = attached to
+ * an externally-running Ollama. `None` when not running.
+ */
+managed: boolean | null; 
+/**
+ * Ollama server version (if we have successfully queried it).
+ */
+version: string | null }
+/**
  * Public platform configuration.
  * 
  * This is what Tauri and the frontend see for settings display.
@@ -5524,11 +6027,34 @@ back_label: string }
 /**
  * A full project row returned to the frontend.
  */
-export type Project = { id: string; name: string; root_path: string; 
+export type Project = { 
+/**
+ * UUIDv4 identifier assigned at `create_project` time. Stable for
+ * the life of the row.
+ */
+id: string; 
+/**
+ * Human-readable display name shown in the UI.
+ */
+name: string; 
+/**
+ * Absolute path to the project root on disk. `UNIQUE` at the SQL
+ * level — the same directory cannot be tracked twice.
+ */
+root_path: string; 
 /**
  * One of: `"general" | "personal" | "team" | "archived"`.
  */
-project_type: string; slug: string | null; description: string | null; 
+project_type: string; 
+/**
+ * Optional URL-safe slug derived from `name`. Populated by the UI
+ * when the user customises the link path.
+ */
+slug: string | null; 
+/**
+ * Free-form one-line description shown in project cards.
+ */
+description: string | null; 
 /**
  * Source tool hint: `"lovable" | "cursor" | "vscode" | …`. Free-form.
  */
@@ -5612,13 +6138,34 @@ row_count: number }
 /**
  * A read-only reference directory linked to a project.
  */
-export type ProjectReference = { id: string; project_id: string; path: string; label: string | null; 
+export type ProjectReference = { 
+/**
+ * UUIDv4 identifier for this reference link.
+ */
+id: string; 
+/**
+ * FK to [`Project::id`] — the project this reference is attached to.
+ */
+project_id: string; 
+/**
+ * Absolute path to the referenced directory on disk.
+ */
+path: string; 
+/**
+ * Optional display label; UI falls back to the path's basename
+ * when `None`.
+ */
+label: string | null; 
 /**
  * `"docs" | "source" | "examples" | "other"`. Free-form; the UI
  * maps this to a color / icon and the indexer uses it to bias
  * scan depth (e.g. `source` gets AST indexing, `docs` gets text).
  */
-kind: string; created_at: number }
+kind: string; 
+/**
+ * Unix seconds at which the reference was linked.
+ */
+created_at: number }
 /**
  * A project row from `LibSQL` — maps 1:1 to the `projects` table.
  */
@@ -6251,6 +6798,70 @@ export type ServiceState =
  * Boot failed or unrecoverable error. Not serving.
  */
 "Failed"
+/**
+ * Whether the `sherpa` cargo feature was enabled at compile time.
+ * The devtool uses this to render a "not available in this build"
+ * banner when the user opens the page on a default build.
+ */
+export type SherpaCompileInfo = { 
+/**
+ * `true` when built with `--features sherpa`.
+ */
+enabled: boolean }
+/**
+ * A streaming-ASR model installed on disk. Paths are the fully-
+ * resolved file locations so the frontend can render the model card.
+ */
+export type SherpaInstalledModel = { 
+/**
+ * Directory name (unique id within `{data_dir}/models/sherpa/`).
+ */
+id: string; 
+/**
+ * Display label — same as `id` for now; a future `model.json`
+ * manifest can enrich this.
+ */
+label: string; 
+/**
+ * Encoder ONNX path.
+ */
+encoder: string; 
+/**
+ * Decoder ONNX path.
+ */
+decoder: string; 
+/**
+ * Joiner ONNX path.
+ */
+joiner: string; 
+/**
+ * Tokens (BPE / char) text file path.
+ */
+tokens: string; 
+/**
+ * Total on-disk size in bytes — all four files summed.
+ */
+size_bytes: number }
+/**
+ * Snapshot of a live streaming session for the devtool UI.
+ */
+export type SherpaSessionInfo = { 
+/**
+ * UUID session id.
+ */
+id: string; 
+/**
+ * Model directory id the session was started against.
+ */
+model_id: string; 
+/**
+ * Current accumulated transcript.
+ */
+transcript: string; 
+/**
+ * Total audio samples fed (16 kHz f32 mono).
+ */
+samples_fed: number }
 /**
  * A single slot's VRAM contribution.
  */
@@ -7006,6 +7617,34 @@ active_profile: string;
  * Currently active TTS voice ID.
  */
 active_voice: string }
+/**
+ * Persisted user STT preferences.
+ */
+export type VoiceSttConfig = { 
+/**
+ * ISO-639-1 language hint (e.g. `"en"`). Empty string = auto-detect.
+ */
+language: string; 
+/**
+ * Beam-search width. Clamped to `[1, 10]` on write.
+ */
+beam_size: number; 
+/**
+ * VAD energy threshold in `[0.0, 1.0]`. Clamped on write.
+ */
+vad_threshold: number }
+/**
+ * Persisted user TTS preferences.
+ */
+export type VoiceTtsConfig = { 
+/**
+ * Persisted default voice id. Read back when the devtool mounts.
+ */
+default_voice: string; 
+/**
+ * Persisted default speech speed. Clamped at write-time to [0.5, 2.0].
+ */
+default_speed: number }
 /**
  * VRAM budget plan — per-slot VRAM allocation breakdown.
  */

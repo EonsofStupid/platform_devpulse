@@ -2,31 +2,57 @@
 	@file /devtools/candle — Candle runtime devtool
 	@route /devtools/candle
 
-	Candle (in-process) model execution backend. Covers GGUF + SafeTensors
-	loading for Qwen3 / Phi-3 and friends. Status + Actions wired against
-	the existing model-loader commands (no dedicated `candle_*` commands
-	exist; this surface derives from `get_slots` + `scan_models`).
+	Candle (in-process) inference backend. Wired through the existing
+	model-loader commands plus the new Candle-specific config + pool
+	restart verbs. Previous Phase 4a harness has been removed.
 -->
 <script lang="ts">
-import { Cpu, RefreshCw } from "lucide-svelte";
+import { Cpu, PowerOff, RefreshCw } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import {
-	type HealthBadge,
-	ServiceDevtoolShell,
-	SwapPrimaryBrainButton,
-} from "$lib/domains/platform/index.js";
-import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
+import type {
+	CandleConfig,
+	ModelInfo,
+	ScopedLogEntry,
+	SlotInfo,
+} from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
-// ── State ────────────────────────────────────────────────
+// ── Slots + models ───────────────────────────────────────
 let slots = $state<SlotInfo[]>([]);
 let models = $state<ModelInfo[]>([]);
 let refreshing = $state(false);
 let error = $state<string | null>(null);
-// Phase 4a harness — delete in Phase 8.
-let harnessModelId = $state("");
+
+// ── Config ───────────────────────────────────────────────
+let cfg = $state<CandleConfig | null>(null);
+let cfgDraft = $state<CandleConfig>({
+	context_size: 4096,
+	gpu_layers: 4294967295,
+	dtype: "auto",
+});
+let cfgLoading = $state(false);
+let cfgSaving = $state(false);
+let cfgError = $state<string | null>(null);
+const cfgDirty = $derived(
+	cfg === null
+		? false
+		: cfg.context_size !== cfgDraft.context_size ||
+				cfg.gpu_layers !== cfgDraft.gpu_layers ||
+				cfg.dtype !== cfgDraft.dtype,
+);
+
+// ── Pool restart ─────────────────────────────────────────
+let restarting = $state(false);
+let lastUnloaded = $state<number | null>(null);
+
+// ── Logs ─────────────────────────────────────────────────
+let logs = $state<ScopedLogEntry[]>([]);
+let logsLoading = $state(false);
+let logsError = $state<string | null>(null);
 
 // ── Derived ──────────────────────────────────────────────
 const assignedCount = $derived(slots.filter((s) => !!s.assigned_model_id).length);
@@ -35,9 +61,6 @@ const candleSlots = $derived(
 	slots.filter((s) => {
 		const m = models.find((mm) => mm.id === s.assigned_model_id);
 		if (!m) return false;
-		// Heuristic: Candle handles GGUF + safetensors for Qwen3 / Phi-3
-		// families. This filter mirrors the backend dispatch in
-		// kernel/model-loader/src/backends/candle/backend.rs.
 		const ext = m.filename.toLowerCase();
 		return (
 			ext.endsWith(".gguf") || ext.endsWith(".safetensors") || m.filename.includes("safetensors")
@@ -71,9 +94,78 @@ async function refresh(): Promise<void> {
 	}
 }
 
+async function loadCfg(): Promise<void> {
+	cfgLoading = true;
+	cfgError = null;
+	try {
+		const r = await commands.candleLoadConfig();
+		if (r.status === "error") throw new Error(r.error);
+		cfg = r.data;
+		cfgDraft = { ...r.data };
+	} catch (e) {
+		cfgError = e instanceof Error ? e.message : String(e);
+	} finally {
+		cfgLoading = false;
+	}
+}
+
+async function saveCfg(): Promise<void> {
+	cfgSaving = true;
+	cfgError = null;
+	try {
+		const r = await commands.candleSaveConfig(cfgDraft);
+		if (r.status === "error") throw new Error(r.error);
+		cfg = r.data;
+		cfgDraft = { ...r.data };
+	} catch (e) {
+		cfgError = e instanceof Error ? e.message : String(e);
+	} finally {
+		cfgSaving = false;
+	}
+}
+
+function resetCfg(): void {
+	if (cfg) cfgDraft = { ...cfg };
+}
+
+async function restartPool(): Promise<void> {
+	restarting = true;
+	error = null;
+	try {
+		const r = await commands.candleRestartPool();
+		if (r.status === "error") throw new Error(r.error);
+		lastUnloaded = r.data;
+		await refresh();
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+	} finally {
+		restarting = false;
+	}
+}
+
+async function loadLogs(): Promise<void> {
+	logsLoading = true;
+	logsError = null;
+	try {
+		const r = await commands.queryScopedLog("devtools.candle", 100);
+		if (r.status === "error") throw new Error(r.error);
+		logs = r.data;
+	} catch (e) {
+		logsError = e instanceof Error ? e.message : String(e);
+	} finally {
+		logsLoading = false;
+	}
+}
+
 $effect(() => {
 	void refresh();
+	void loadCfg();
 });
+
+// Infinity display for "all layers" sentinel.
+function gpuLayersText(v: number): string {
+	return v === 4294967295 ? "all" : String(v);
+}
 </script>
 
 <ServiceDevtoolShell
@@ -99,100 +191,226 @@ $effect(() => {
 				<div class="space-y-1">
 					{#each candleSlots as s (s.id)}
 						{@const m = models.find((mm) => mm.id === s.assigned_model_id)}
-						<div class="flex items-center justify-between rounded px-2 py-1" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
+						<div
+							class="flex items-center justify-between rounded px-2 py-1"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+						>
 							<div class="flex items-center gap-2">
 								<Text size="sm">{s.label}</Text>
 								<Badge variant="neutral" size="sm">{s.preferred_device}</Badge>
 							</div>
-							<Text size="xs" color="muted">
-								{m?.filename ?? "\u2014"}
-							</Text>
+							<Text size="xs" color="muted">{m?.filename ?? "—"}</Text>
 						</div>
 					{/each}
 				</div>
 			{:else}
 				<Text size="sm" color="muted">
-					No Candle-backed slots assigned. Use the Model Loader window to
-					assign a GGUF / SafeTensors model to a slot.
+					No Candle-backed slots assigned. Use the Model Loader window to assign a
+					GGUF / SafeTensors model to a slot.
 				</Text>
 			{/if}
 		</div>
 	{/snippet}
 
 	{#snippet config()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Candle runtime config (GPU offload layers,
-			context size, KV sizing, dtype) not yet exposed as a dedicated Tauri
-			command. Today the configuration lives in slot TOMLs under
-			<span class="font-mono text-[10px]">kernel/model-loader/config/slots.default.toml</span>.
-			Wires up with <code>candle_save_config</code>.
-		</Text>
+		<div class="space-y-4">
+			{#if cfgLoading && !cfg}
+				<Text size="sm" color="muted">Loading Candle config…</Text>
+			{/if}
+
+			{#if cfgError}
+				<div
+					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+				>
+					{cfgError}
+				</div>
+			{/if}
+
+			{#if cfg}
+				<div class="space-y-3">
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">
+							Context size · {cfgDraft.context_size} tokens
+						</Text>
+						<input
+							type="range"
+							min="512"
+							max="131072"
+							step="512"
+							bind:value={cfgDraft.context_size}
+							class="w-full max-w-80"
+							style="accent-color: var(--accent-teal-main);"
+						/>
+						<Text size="xs" color="muted">Clamped to [512, 131,072].</Text>
+					</div>
+
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">
+							GPU offload layers · {gpuLayersText(cfgDraft.gpu_layers)}
+						</Text>
+						<input
+							type="number"
+							min="0"
+							bind:value={cfgDraft.gpu_layers}
+							class="w-40 rounded px-2 py-1 text-xs font-mono outline-none"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						/>
+						<Text size="xs" color="muted">
+							0 = CPU only. 4294967295 (u32::MAX) = all layers.
+						</Text>
+					</div>
+
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">Dtype hint</Text>
+						<select
+							bind:value={cfgDraft.dtype}
+							class="rounded px-2 py-1 text-xs outline-none"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						>
+							<option value="auto">auto</option>
+							<option value="f32">f32</option>
+							<option value="f16">f16</option>
+							<option value="bf16">bf16</option>
+							<option value="q4">q4</option>
+							<option value="q5">q5</option>
+							<option value="q8">q8</option>
+						</select>
+					</div>
+
+					<div class="flex items-center gap-2 pt-2">
+						<Button
+							preset="button-primary"
+							size="sm"
+							onclick={saveCfg}
+							disabled={cfgSaving || !cfgDirty}
+						>
+							{#if cfgSaving}
+								<Spinner size="xs" />
+								Saving…
+							{:else}
+								Save
+							{/if}
+						</Button>
+						<Button
+							preset="button-ghost"
+							size="sm"
+							onclick={resetCfg}
+							disabled={!cfgDirty || cfgSaving}
+						>
+							Discard
+						</Button>
+						{#if cfgDirty}
+							<Text size="xs" color="muted">Unsaved changes</Text>
+						{/if}
+					</div>
+
+					<Text size="xs" color="muted">
+						Persisted in <span class="font-mono text-[10px]">user/candle.toml</span>.
+						Applied at next slot-load — restart the pool to force-reload currently
+						loaded slots.
+					</Text>
+				</div>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Candle-scoped log export not yet wired.
-			For now, session logs live at
-			<span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span>
-			— filter by <code>backend=candle</code>. Wires up with
-			<code>candle_export_logs</code>.
-		</Text>
+		<div class="space-y-3">
+			<div class="flex items-center justify-between">
+				<Text size="sm" weight="semibold">
+					Scoped log — <span class="font-mono text-xs">devtools.candle</span>
+				</Text>
+				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+					{#if logsLoading}
+						<Spinner size="xs" tone="accent" />
+					{:else}
+						Refresh
+					{/if}
+				</Button>
+			</div>
+
+			{#if logsError}
+				<div
+					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+				>
+					{logsError}
+				</div>
+			{/if}
+
+			{#if logs.length > 0}
+				<div
+					class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto"
+				>
+					<table class="w-full text-xs">
+						<thead class="sticky top-0 bg-[var(--surface-raised)]">
+							<tr class="border-b border-[var(--border-subtle)]">
+								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Time</th>
+								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Level</th>
+								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Message</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each logs as line (line.timestamp + line.message)}
+								<tr class="border-b border-[var(--border-subtle)]">
+									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]"
+										>{line.timestamp.slice(11, 19)}</td
+									>
+									<td class="px-2 py-1 font-mono text-[10px]">{line.level}</td>
+									<td class="px-2 py-1 break-all">{line.message}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{:else if logsLoading}
+				<Text size="sm" color="muted">Loading…</Text>
+			{:else}
+				<Text size="sm" color="muted">
+					No entries — click Refresh to tail the current session log.
+				</Text>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet actions()}
 		<div class="space-y-4">
 			<div class="space-y-2">
-				<Text size="sm" color="muted">
-					Candle is a library backend inside the engine, not a standalone
-					service — lifecycle (start/stop/restart) is the platform's
-					responsibility. Per-slot warm / unload happens through the Model
-					Loader window. A dedicated "restart Candle backend pool" action
-					wires up with <code>candle_restart</code> in a follow-up sprint.
+				<Text size="sm" weight="bold">Restart backend pool</Text>
+				<Text size="xs" color="muted">
+					Unloads every loaded slot (Candle, llama.cpp-embedded, ORT voice).
+					Useful after changing config or pulling a fresh model.
 				</Text>
-				<div class="flex gap-2 opacity-50">
-					<Button preset="default" size="sm" disabled>Restart pool (not wired)</Button>
+				<div class="flex items-center gap-2">
+					<Button
+						preset="button-primary"
+						size="sm"
+						onclick={restartPool}
+						disabled={restarting}
+					>
+						{#if restarting}
+							<Spinner size="xs" />
+							Restarting…
+						{:else}
+							<PowerOff size={12} />
+							Unload all slots
+						{/if}
+					</Button>
+					{#if lastUnloaded !== null}
+						<Text size="xs" color="muted">
+							Last run unloaded {lastUnloaded} slot{lastUnloaded === 1 ? "" : "s"}.
+						</Text>
+					{/if}
 				</div>
 			</div>
 
-			<!--
-				Phase 4a harness (SPRINT-DEVTOOLS-FOUNDATIONAL). Delete in
-				Phase 8. Tests SwapPrimaryBrainButton end-to-end against a
-				real model id typed by the owner. Not production UX — the
-				real "Make primary" surface lives on the Phi / Persona
-				devtools in Phases 5 + 7.
-			-->
-			<div class="rounded-lg p-3 flex flex-col gap-2" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-				<Text size="sm" weight="bold">Phase 4a harness — swap primary brain</Text>
-				<Text size="xs" color="muted">
-					Type a model id from this build's registry and click.
-					Runs the full unload → reassign → load through
-					<code>swap_slot_model</code>, with the Clyffy LoadingBlock
-					overlay + logging. Delete this row in Phase 8.
-				</Text>
-				<div class="flex items-center gap-2 flex-wrap">
-					<input
-						type="text"
-						bind:value={harnessModelId}
-						placeholder="e.g. qwen-qwen3-4b-instruct-q4-k-m"
-						class="flex-1 min-w-60 rounded px-2 py-1 text-xs outline-none"
-						style="background: var(--surface-raised); border: 1px solid var(--border-subtle); color: var(--text-primary);"
-					/>
-					<SwapPrimaryBrainButton
-						newModelId={harnessModelId}
-						label="Make chat.brain this"
-						disabled={!harnessModelId.trim()}
-					/>
+			{#if error}
+				<div
+					class="p-3 rounded-lg text-sm"
+					style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error); color: var(--text-primary); max-width: 30rem;"
+				>
+					{error}
 				</div>
-			</div>
+			{/if}
 		</div>
 	{/snippet}
 </ServiceDevtoolShell>
-
-{#if error}
-	<div
-		class="fixed bottom-4 right-4 rounded p-3 text-sm"
-		style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error); color: var(--text-primary); max-width: 30rem;"
-	>
-		{error}
-	</div>
-{/if}

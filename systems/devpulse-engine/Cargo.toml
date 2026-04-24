@@ -12,6 +12,10 @@ rro = ["devpulse-clyffy/rro"]
 candle = ["devpulse-clyffy/candle"]
 inference = ["devpulse-clyffy/model-loader"]
 llguidance = ["devpulse-clyffy/llguidance"]
+# Streaming ASR via sherpa-onnx (next-gen Kaldi). Off by default —
+# enabling pulls ~100 MB of prebuilt native binaries at build time.
+# `cargo xtask run-dev --features sherpa` to opt in.
+sherpa = ["dep:sherpa-onnx"]
 
 [dependencies]
 # Core
@@ -58,6 +62,16 @@ schemars = "0.8"
 portpicker = "0.1"
 rand = "0.8"
 
+# Ollama sidecar HTTP client — matches kernel/model-loader's reqwest config
+# (rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds).
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Sherpa streaming ASR (next-gen Kaldi / onnxruntime). Optional — the
+# crate's build script downloads ~100 MB of prebuilt native binaries,
+# so it is gated behind the `sherpa` cargo feature. v1.12.x matches the
+# public sherpa-onnx C library version at time of integration.
+sherpa-onnx = { version = "1.12", optional = true }
+
 # Lock-free Option<Arc<T>> for lazy-started services (DevForge)
 arc-swap = { workspace = true }
 
@@ -68,6 +82,9 @@ rodio = "0.19"
 toml = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+[dev-dependencies]
+tempfile = "3"
 
 [lints]
 workspace = true

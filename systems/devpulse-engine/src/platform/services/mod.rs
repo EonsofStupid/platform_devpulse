@@ -18,6 +18,12 @@ pub mod devforge;
 pub mod model_loader;
 #[cfg(feature = "inference")]
 pub mod model_loader_log;
+pub mod candle_config;
+pub mod llama_cpp_embedded_config;
+pub mod ollama_sidecar;
+pub mod sherpa_streaming;
+pub mod voice_stt_config;
+pub mod voice_tts_config;
 
 use anyhow::Result;
 use serde::Serialize;
@@ -42,6 +48,8 @@ pub enum ServiceRole {
     DevForge,
     /// Model Loader service (AI model management, inference).
     ModelLoader,
+    /// Ollama sidecar service (managed `ollama serve` child process).
+    OllamaSidecar,
 }
 
 /// Lifecycle state of a platform service.

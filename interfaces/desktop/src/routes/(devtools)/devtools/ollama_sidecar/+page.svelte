@@ -2,22 +2,55 @@
 	@file /devtools/ollama_sidecar — Ollama sidecar runtime devtool
 	@route /devtools/ollama_sidecar
 
-	TODO(reality-gap 2026-04-21): Backend service not yet authored.
-	See SPRINT-REALITY-GAP-CLOSE.md Phase 1 for the 8-artifact charter
-	authoring plan (ollama_sidecar_start/stop/restart/health +
-	OllamaSidecarService + config TOML + platform holder + specta
-	bindings + svelte rune + preflight check).
+	Live controls for the managed `ollama serve` child process. Wires
+	through `ollamaSidecarState` + the specta bindings to a real
+	`OllamaSidecarService` on the engine side.
 -->
 <script lang="ts">
-import { Boxes } from "lucide-svelte";
+import { Boxes, Download, Play, PowerOff, RefreshCw, Trash2 } from "lucide-svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { ollamaSidecarState } from "$lib/domains/infra/ollama_sidecar/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
 
-const badge: HealthBadge = {
-	state: "unknown",
-	label: "Not built yet \u2014 pending Phase 1 authoring",
-};
+// ── Mount: prime status + config on first render ──────────
+$effect(() => {
+	void ollamaSidecarState.loadStatus();
+	void ollamaSidecarState.loadConfig();
+	void ollamaSidecarState.loadHealth();
+});
+
+// Poll models once the service is running.
+$effect(() => {
+	if (ollamaSidecarState.running && ollamaSidecarState.models.length === 0) {
+		void ollamaSidecarState.loadModels();
+	}
+});
+
+// ── Derived badge for the shell header ────────────────────
+const badge = $derived<HealthBadge>(
+	ollamaSidecarState.healthLoading
+		? { state: "starting", label: "Checking…" }
+		: ollamaSidecarState.health
+			? ollamaSidecarState.health.state === "up"
+				? { state: "up", label: ollamaSidecarState.health.label }
+				: ollamaSidecarState.health.state === "stopped"
+					? { state: "stopped", label: ollamaSidecarState.health.label }
+					: ollamaSidecarState.health.state === "down"
+						? { state: "down", label: ollamaSidecarState.health.label }
+						: { state: "unknown", label: ollamaSidecarState.health.label }
+			: { state: "unknown", label: "Not checked yet" },
+);
+
+// ── Helpers ───────────────────────────────────────────────
+function prettySize(bytes: number): string {
+	if (!bytes) return "—";
+	if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(2)} GB`;
+	if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(0)} MB`;
+	return `${bytes} B`;
+}
 </script>
 
 <ServiceDevtoolShell
@@ -27,43 +60,359 @@ const badge: HealthBadge = {
 	axis="runtimes"
 	health={badge}
 >
+	<!-- ── STATUS ─────────────────────────────────────────── -->
 	{#snippet status()}
-		<Text size="sm" color="muted">
-			Ollama sidecar health: process PID, HTTP endpoint reachability, loaded
-			model count. Wires up with <code>ollama_sidecar_health</code>.
-		</Text>
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<Text size="sm" weight="semibold">Runtime Status</Text>
+				<Button
+					preset="ghost"
+					size="sm"
+					onclick={() => {
+						void ollamaSidecarState.loadStatus();
+						void ollamaSidecarState.loadHealth();
+					}}
+					disabled={ollamaSidecarState.healthLoading}
+				>
+					{#if ollamaSidecarState.healthLoading}
+						<Spinner size="xs" tone="accent" />
+					{:else}
+						<RefreshCw size={14} />
+					{/if}
+					Refresh
+				</Button>
+			</div>
+
+			{#if ollamaSidecarState.statusError}
+				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+					{ollamaSidecarState.statusError}
+				</div>
+			{/if}
+
+			{#if ollamaSidecarState.status}
+				<div
+					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
+				>
+					<div class="flex items-center justify-between mb-2">
+						<div class="flex items-center gap-2">
+							<Boxes size={14} class="text-[var(--color-teal-400)]" />
+							<Text size="sm" weight="semibold">ollama</Text>
+							{#if ollamaSidecarState.running}
+								{#if ollamaSidecarState.managed === true}
+									<Badge tone="positive" size="sm">Managed</Badge>
+								{:else if ollamaSidecarState.managed === false}
+									<Badge tone="neutral" size="sm">Attached</Badge>
+								{/if}
+							{:else}
+								<Badge tone="neutral" size="sm">Stopped</Badge>
+							{/if}
+						</div>
+						<span
+							class="inline-block w-2 h-2 rounded-full"
+							style="background: {ollamaSidecarState.running
+								? 'var(--signal-success)'
+								: 'var(--signal-error)'}"
+						></span>
+					</div>
+
+					<div class="space-y-1 text-xs">
+						{#if ollamaSidecarState.running}
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">Base URL</span>
+								<span class="font-mono">{ollamaSidecarState.baseUrl ?? "—"}</span>
+							</div>
+							{#if ollamaSidecarState.status.version}
+								<div class="flex justify-between">
+									<span class="text-[var(--text-secondary)]">Version</span>
+									<span class="font-mono">{ollamaSidecarState.status.version}</span>
+								</div>
+							{/if}
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">Models</span>
+								<span class="font-mono">{ollamaSidecarState.models.length}</span>
+							</div>
+						{:else}
+							<Text size="xs" color="muted">
+								Ollama is not running. Click Start to spawn <code>ollama serve</code>
+								— or if Ollama is already running on port 11434, Start will attach
+								without spawning a second process.
+							</Text>
+						{/if}
+					</div>
+				</div>
+			{/if}
+		</div>
 	{/snippet}
 
+	<!-- ── CONFIG ─────────────────────────────────────────── -->
 	{#snippet config()}
-		<Text size="sm" color="muted">
-			Binary path, bind host / port, auto-start policy — wires up with
-			<code>ollama_sidecar_save_config</code>. TOML:
-			<span class="font-mono text-[10px]">
-				config/platform/runtimes/ollama_sidecar.toml
-			</span>
-			.
-		</Text>
+		<div class="space-y-3">
+			{#if ollamaSidecarState.configError}
+				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+					{ollamaSidecarState.configError}
+				</div>
+			{/if}
+
+			{#if ollamaSidecarState.config}
+				<div class="grid grid-cols-2 gap-2 text-xs">
+					<div
+						class="p-2 rounded bg-[var(--surface-base)] border border-[var(--border-subtle)]"
+					>
+						<Text size="xs" color="muted" weight="bold">Enabled</Text>
+						<Text size="sm">{ollamaSidecarState.config.enabled ? "Yes" : "No"}</Text>
+					</div>
+					<div
+						class="p-2 rounded bg-[var(--surface-base)] border border-[var(--border-subtle)]"
+					>
+						<Text size="xs" color="muted" weight="bold">Auto-start</Text>
+						<Text size="sm">{ollamaSidecarState.config.auto_start ? "Yes" : "No"}</Text>
+					</div>
+					<div
+						class="p-2 rounded bg-[var(--surface-base)] border border-[var(--border-subtle)]"
+					>
+						<Text size="xs" color="muted" weight="bold">Host</Text>
+						<Text size="sm"><span class="font-mono">{ollamaSidecarState.config.host}</span></Text>
+					</div>
+					<div
+						class="p-2 rounded bg-[var(--surface-base)] border border-[var(--border-subtle)]"
+					>
+						<Text size="xs" color="muted" weight="bold">Port</Text>
+						<Text size="sm"
+							><span class="font-mono">{ollamaSidecarState.config.port}</span></Text
+						>
+					</div>
+					<div
+						class="p-2 rounded bg-[var(--surface-base)] border border-[var(--border-subtle)] col-span-2"
+					>
+						<Text size="xs" color="muted" weight="bold">Binary path</Text>
+						<Text size="sm">
+							<span class="font-mono text-[10px]">
+								{ollamaSidecarState.config.binary_path ||
+									"(resolve from PATH)"}
+							</span>
+						</Text>
+					</div>
+				</div>
+
+				<Text size="xs" color="muted">
+					Editable config — host, port, binary path, auto-start — is a
+					follow-up. Today these are boot-only from the platform TOML.
+				</Text>
+			{:else}
+				<Text size="sm" color="muted">Loading config…</Text>
+			{/if}
+		</div>
 	{/snippet}
 
+	<!-- ── LOGS ───────────────────────────────────────────── -->
 	{#snippet logs()}
 		<Text size="sm" color="muted">
-			Sidecar stdout / stderr stream wires up with
-			<code>ollama_sidecar_export_logs</code>.
+			Ollama writes to its own stderr when spawned; those lines flow
+			into the platform tracing layer. Session logs live at
+			<span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span>
+			— filter by <code>target=devpulse_engine::platform::services::ollama_sidecar</code>.
+			A scoped tail inside this panel is a follow-up.
 		</Text>
 	{/snippet}
 
+	<!-- ── ACTIONS ────────────────────────────────────────── -->
 	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" color="muted">
-				Start / stop / restart the sidecar process. Pull a model, remove a
-				model — the Model Loader window covers the downloading workflow;
-				this tab manages the runtime.
-			</Text>
-			<div class="flex gap-2 opacity-50">
-				<Button preset="default" size="sm" disabled>Start</Button>
-				<Button preset="default" size="sm" disabled>Stop</Button>
-				<Button preset="default" size="sm" disabled>Restart</Button>
+		<div class="space-y-4">
+			<!-- Lifecycle -->
+			<div class="flex flex-wrap items-center gap-2">
+				{#if !ollamaSidecarState.running}
+					<Button
+						preset="button-primary"
+						size="sm"
+						onclick={() => void ollamaSidecarState.start()}
+						disabled={ollamaSidecarState.starting}
+					>
+						{#if ollamaSidecarState.starting}
+							<Spinner size="xs" />
+							Starting…
+						{:else}
+							<Play size={12} />
+							Start
+						{/if}
+					</Button>
+				{:else}
+					<Button
+						preset="button-ghost"
+						size="sm"
+						onclick={() => void ollamaSidecarState.stop()}
+						disabled={ollamaSidecarState.stopping}
+					>
+						{#if ollamaSidecarState.stopping}
+							<Spinner size="xs" />
+							Stopping…
+						{:else}
+							<PowerOff size={12} />
+							Stop
+						{/if}
+					</Button>
+					<Button
+						preset="button-secondary"
+						size="sm"
+						onclick={() => void ollamaSidecarState.restart()}
+						disabled={ollamaSidecarState.restarting}
+					>
+						{#if ollamaSidecarState.restarting}
+							<Spinner size="xs" />
+							Restarting…
+						{:else}
+							<RefreshCw size={12} />
+							Restart
+						{/if}
+					</Button>
+				{/if}
+
+				{#if ollamaSidecarState.managed === false}
+					<Text size="xs" color="muted">
+						Attached mode — Stop will not kill the external Ollama.
+					</Text>
+				{/if}
 			</div>
+
+			{#if ollamaSidecarState.actionError}
+				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+					{ollamaSidecarState.actionError}
+				</div>
+			{/if}
+
+			{#if ollamaSidecarState.running}
+				<!-- Pull -->
+				<div
+					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2"
+				>
+					<Text size="sm" weight="bold">Pull a model</Text>
+					<Text size="xs" color="muted">
+						Any tag from <code>ollama.com</code> — for example
+						<span class="font-mono">llama3:8b-instruct-q4_K_M</span>.
+					</Text>
+					<div class="flex gap-2">
+						<input
+							type="text"
+							bind:value={ollamaSidecarState.pullInput}
+							placeholder="e.g. llama3:8b-instruct-q4_K_M"
+							class="flex-1 rounded px-2 py-1 text-xs outline-none"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+							disabled={ollamaSidecarState.pullingName !== null}
+						/>
+						<Button
+							preset="button-primary"
+							size="sm"
+							onclick={() => void ollamaSidecarState.pullModel()}
+							disabled={ollamaSidecarState.pullingName !== null ||
+								!ollamaSidecarState.pullInput.trim()}
+						>
+							{#if ollamaSidecarState.pullingName}
+								<Spinner size="xs" />
+								Pulling {ollamaSidecarState.pullingName}…
+							{:else}
+								<Download size={12} />
+								Pull
+							{/if}
+						</Button>
+					</div>
+				</div>
+
+				<!-- Models list -->
+				<div class="space-y-2">
+					<div class="flex items-center justify-between">
+						<Text size="sm" weight="semibold">
+							Models ({ollamaSidecarState.models.length})
+						</Text>
+						<Button
+							preset="ghost"
+							size="sm"
+							onclick={() => void ollamaSidecarState.loadModels()}
+							disabled={ollamaSidecarState.modelsLoading}
+						>
+							{#if ollamaSidecarState.modelsLoading}
+								<Spinner size="xs" tone="accent" />
+							{:else}
+								<RefreshCw size={14} />
+							{/if}
+							Refresh
+						</Button>
+					</div>
+
+					{#if ollamaSidecarState.modelsError}
+						<div
+							class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+						>
+							{ollamaSidecarState.modelsError}
+						</div>
+					{/if}
+
+					{#if ollamaSidecarState.models.length > 0}
+						<div
+							class="rounded-lg border border-[var(--border-subtle)] overflow-hidden"
+						>
+							<table class="w-full text-xs">
+								<thead>
+									<tr
+										class="bg-[var(--surface-raised)] border-b border-[var(--border-subtle)]"
+									>
+										<th
+											class="text-left px-3 py-2 font-medium text-[var(--text-secondary)]"
+											>Name</th
+										>
+										<th
+											class="text-right px-3 py-2 font-medium text-[var(--text-secondary)]"
+											>Size</th
+										>
+										<th
+											class="text-right px-3 py-2 font-medium text-[var(--text-secondary)]"
+											>Modified</th
+										>
+										<th
+											class="px-3 py-2 font-medium text-[var(--text-secondary)]"
+										></th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each ollamaSidecarState.models as m (m.name)}
+										<tr
+											class="border-b border-[var(--border-subtle)] hover:bg-[var(--surface-raised)]"
+										>
+											<td class="px-3 py-2 font-mono">{m.name}</td>
+											<td class="px-3 py-2 text-right font-mono"
+												>{prettySize(m.size)}</td
+											>
+											<td
+												class="px-3 py-2 text-right font-mono text-[10px] text-[var(--text-secondary)]"
+												>{m.modified_at.slice(0, 10) || "—"}</td
+											>
+											<td class="px-3 py-2 text-right">
+												<Button
+													preset="ghost"
+													size="sm"
+													onclick={() =>
+														void ollamaSidecarState.deleteModel(m.name)}
+													disabled={ollamaSidecarState.deletingName === m.name}
+												>
+													{#if ollamaSidecarState.deletingName === m.name}
+														<Spinner size="xs" />
+													{:else}
+														<Trash2 size={12} />
+													{/if}
+												</Button>
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					{:else if ollamaSidecarState.modelsLoading}
+						<Text size="sm" color="muted">Loading models…</Text>
+					{:else}
+						<Text size="sm" color="muted">
+							No models yet. Pull a tag above to get started.
+						</Text>
+					{/if}
+				</div>
+			{/if}
 		</div>
 	{/snippet}
 </ServiceDevtoolShell>

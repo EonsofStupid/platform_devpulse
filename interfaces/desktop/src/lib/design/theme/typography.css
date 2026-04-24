@@ -3,6 +3,17 @@
  */
 
 @theme {
+  --font-size-3xs: clamp(0.3563rem, 0.3203rem + 0.1800vw, 0.4823rem);
+  --font-size-2xs: 0.5787rem;
+  --font-size-xs: 0.6944rem;
+  --font-size-sm: 0.844rem;
+  --font-size-base: clamp(1rem, 0.9643rem + 0.1786vw, 1.125rem);
+  --font-size-lg: clamp(1.2rem, 1.1144rem + 0.4280vw, 1.4996rem);
+  --font-size-xl: clamp(1.44rem, 1.2803rem + 0.7986vw, 1.999rem);
+  --font-size-2xl: clamp(1.728rem, 1.4604rem + 1.3381vw, 2.6647rem);
+  --font-size-3xl: clamp(2.0736rem, 1.6512rem + 2.1120vw, 3.552rem);
+  --font-size-4xl: clamp(2.4883rem, 1.8464rem + 3.2093vw, 4.7348rem);
+  --font-size-5xl: clamp(2.986rem, 2.0359rem + 4.7507vw, 6.3115rem);
   --font-display: Orbitron, system-ui, sans-serif;
   --font-sans: Inter, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;

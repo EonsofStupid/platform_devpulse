@@ -1053,3 +1053,64 @@ pub async fn run_sts_pipeline(
         voice: voice_name,
     })
 }
+
+// ═══════════════════════════════════════════════════════════════
+// Kokoros (TTS) — user-scope config persistence
+// ═══════════════════════════════════════════════════════════════
+
+use devpulse_engine::platform::{VoiceSttConfig, VoiceTtsConfig};
+
+/// Load the persisted TTS config (default voice + default speed).
+///
+/// Reads `{data_dir}/user/voice_tts.toml`. Returns defaults when the
+/// file is missing or malformed — never errors for parse failures.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn voice_tts_load_config(
+    state: State<'_, PlatformState>,
+) -> Result<VoiceTtsConfig, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    Ok(platform.voice_tts_config_load())
+}
+
+/// Persist TTS config atomically. Returns the clamped config that was
+/// actually written (speed clamped to `[0.5, 2.0]`, empty voice
+/// replaced by the default `af_heart`).
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn voice_tts_save_config(
+    state: State<'_, PlatformState>,
+    cfg: VoiceTtsConfig,
+) -> Result<VoiceTtsConfig, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    platform
+        .voice_tts_config_save(&cfg)
+        .map_err(|e| format!("{e:#}"))
+}
+
+/// Load the persisted STT config (language + beam + VAD).
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn voice_stt_load_config(
+    state: State<'_, PlatformState>,
+) -> Result<VoiceSttConfig, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    Ok(platform.voice_stt_config_load())
+}
+
+/// Persist STT config atomically. Returns the clamped config.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn voice_stt_save_config(
+    state: State<'_, PlatformState>,
+    cfg: VoiceSttConfig,
+) -> Result<VoiceSttConfig, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    platform
+        .voice_stt_config_save(&cfg)
+        .map_err(|e| format!("{e:#}"))
+}

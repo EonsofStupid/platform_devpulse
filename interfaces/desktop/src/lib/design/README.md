@@ -1,74 +1,60 @@
-# ColdLight Design System
+# ColdLight
 
-> **The visual compiler for DevPulse.** Token-driven neumorphism engine with SVG lighting filters.
+Liquid-surface design system — particle effects, metal, glass, molten
+aesthetics. Named for Tesla's cold-light gas tubes (1870s).
 
----
+- **Package:** `@devpulse/coldlight` (private to the DevPulse monorepo)
+- **Version:** see [`package.json`](./package.json)
+- **Entry points:** see the `exports` map in `package.json`
 
-## Documentation
+## Layout
 
-| Document | Purpose |
-|----------|---------|
-| [COLDLIGHT.md](./COLDLIGHT.md) | **START HERE** — Canonical specification |
-| [MASTER-PLAN.md](./MASTER-PLAN.md) | Full architecture, reference images, sprint state |
-| [TOKEN_PIPELINE.md](./TOKEN_PIPELINE.md) | SD5 token pipeline |
-| [DesignArchitecture.md](./DesignArchitecture.md) | Recipe system, VPB, enforcement |
+```text
+src/lib/design/
+├── behaviors/      Primitive hooks — WAI-ARIA APG, no styling
+├── components/     Renderable components — hook + StyleMacro
+├── config/         Token / preset / surface config
+├── generated/      Style Dictionary 5 output — DO NOT hand-edit
+├── presets/        Declarative visual presets (flat, glass, neuro, …)
+├── renderforge/    Render-time token resolution
+├── styles/         Token CSS (primitives + semantic) — generated
+├── svg/            SVG surface effects
+├── theme/          Per-module @theme CSS — generated
+├── types/          TypeScript declarations — generated
+└── index.css       Single entry composing the full stylesheet graph
+```
 
----
+## Token pipeline
+
+Source tokens live under
+`scripts/build/styledictionary/tokens/src/**/*.tokens.json` (DTCG 2025
+shape). `pnpm ds:tokens:build` runs the custom SD5 config in
+`scripts/build/styledictionary/sd.config.mjs` and writes the
+`styles/`, `theme/`, and `types/` trees here.
+
+Fluid tokens (viewport-responsive sizes) carry
+`$extensions.com.devpulse.coldlight.fluid` with `min` / `max` /
+`minViewport` / `maxViewport`. The `coldlight/fluid-dimension-to-clamp`
+transform emits a `clamp(...)` expression; tokens without the extension
+pass through as static `rem`. See `styles/primitives/typography.css` and
+`styles/primitives/spacing.css` for the generated output.
 
 ## Architecture
 
+Two layers:
+
+1. **Primitive hooks** — behaviour only (WAI-ARIA APG compliant).
+2. **Components** — the product surface; a hook plus a `StyleMacro`.
+
+No third-party headless libraries in product source — ColdLight is the
+sole UI authority. Wider contribution rules live in the workspace-root
+`CLAUDE.md`.
+
+## Development
+
+```sh
+pnpm ds:tokens:build   # Rebuild generated CSS / types
+pnpm ds:generate       # Rebuild component + preset emitters
+pnpm ds:build          # Both of the above
+pnpm coldlight:docs    # TypeDoc — consumed by CI; this file is its README
 ```
-SD5 DTCG JSON (17 token files)
-  → Style Dictionary 5 transforms (oklch, rem, shorthand)
-  → CSS custom properties (@layer tokens.*)
-  → Tailwind v4 @theme blocks
-  → TypeScript types (.d.ts)
-  → Token manifest (VPB metadata)
-  → variants.css (8-axis encoding utilities)
-
-Primitives (config)  → Recipes (styling)  → Components (product)  → UI (styled wrappers, planned)
-```
-
----
-
-## Key Principles
-
-1. **SD5 is the UI compiler** — drives ALL CSS generation from DTCG JSON
-2. **8-axis encoding** — `v-s3z1d2b1g1f1m0t2` composable visual system
-3. **SVG neumorphism** — feSpecularLighting, feGaussianBlur, feTurbulence (not CSS hacks)
-4. **Token-driven** — no hand-written CSS values, no raw `var()` strings
-5. **3x heavy visuals** — liquid metal, glass depth, glow emission, bevel relief
-
----
-
-## Folders
-
-| Folder | Purpose |
-|--------|---------|
-| `css/` | SD5-generated CSS custom properties (3-tier: primitives, semantic, components) |
-| `theme/` | SD5-generated Tailwind @theme blocks |
-| `types/` | SD5-generated TypeScript types |
-| `generated/` | variants.css, token-manifest.json, typography, keyframes |
-| `registry/` | Token categories SSOT, presets (60+), resolve-visual, kind definitions |
-| `recipes/` | Recipe registry + engine (104 .ts files, 32 registered) |
-| `primitives/` | Configuration shells (92 kinds, 59 .svelte) |
-| `components/` | THE PRODUCT (89 kinds, 167 .svelte) |
-| `blocks/` | VPB block system (8 categories) |
-| `svg/filters/` | SVG neumorphism filter definitions + registry |
-| `config/` | coldlight.config.ts fragments |
-
----
-
-## Commands
-
-```bash
-cd interfaces/desktop
-pnpm ds:tokens:build    # SD5 build (3s)
-pnpm svelte-check       # TypeScript (0 errors)
-pnpm build              # Vite build
-pnpm dev                # Dev server :1420
-```
-
----
-
-**ColdLight is the public API. Users never see adapters.**

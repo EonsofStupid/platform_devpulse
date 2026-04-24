@@ -196,6 +196,17 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         step_id: None,
         group: ServiceGroup::System,
     },
+    ServiceMeta {
+        role: ServiceRole::OllamaSidecar,
+        scope: DataScope::System,
+        stage: 14,
+        public_name: "Ollama Sidecar",
+        feature_gate: None,
+        // Ollama is lazy-started by `ensure_ollama_sidecar_started` from
+        // the devtool. No InitEvent emitted during boot.
+        step_id: None,
+        group: ServiceGroup::System,
+    },
 ];
 
 /// Total number of boot stages (including preflight + validation).
@@ -219,6 +230,7 @@ pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
         ServiceRole::Grammar => 8,
         ServiceRole::ModelLoader => 9,
         ServiceRole::DevForge => 10,
+        ServiceRole::OllamaSidecar => 11,
     };
     &SERVICE_MANIFEST[idx]
 }

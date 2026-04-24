@@ -14,6 +14,7 @@
  */
 
 import { logError, logInfo } from "$lib/sys/logger.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { createTauriEvent } from "$lib/sys/streams/tauri-event.svelte.js";
 import type { FitIndicator, HardwareTier } from "../util/models.types.js";
 import { calculateFit } from "../util/models.types.js";
@@ -52,6 +53,24 @@ class HardwareState {
 	private subscriberCount = 0;
 	private refreshPromise: Promise<void> | null = null;
 	private lastSignature: string | null = null;
+
+	constructor() {
+		// When the platform transitions to ready AFTER someone has already
+		// subscribed, fire the refresh that was deferred in subscribe().
+		// `$effect.root()` creates a reactive scope outside a component —
+		// safe for a module-level singleton whose lifetime is the app.
+		// Tracked deps: platformState.isReady (via `phase` $state), this.metrics,
+		// this.loading. subscriberCount is intentionally non-reactive (see
+		// field comment), so its read acts as a plain guard, not a trigger.
+		$effect.root(() => {
+			$effect(() => {
+				if (platformState.isReady && this.subscriberCount > 0 && !this.metrics && !this.loading) {
+					logInfo("models.hardware", "platform ready — firing deferred refresh");
+					void this.refresh("platform-ready");
+				}
+			});
+		});
+	}
 
 	private applyMetrics(metrics: HardwareInfo, source: "refresh" | "push"): void {
 		this.metrics = metrics;
@@ -116,7 +135,21 @@ class HardwareState {
 		if (firstSubscriber) {
 			logInfo("models.hardware", `subscribe() attached — reason=${reason}`);
 			if (!this.metrics && !this.loading) {
-				void this.refresh(`subscribe:${reason}`);
+				// Gate the initial refresh on platform readiness. The hardware
+				// IPC command rejects with "Platform not ready" during boot, so
+				// firing refresh() eagerly just produces noise. The stream at
+				// `hardwareStream` above is already attached, so live Rust
+				// pushes will deliver snapshots as soon as emission starts; and
+				// the $effect.root in the constructor will fire a deferred
+				// refresh the moment platformState flips to ready.
+				if (platformState.isReady) {
+					void this.refresh(`subscribe:${reason}`);
+				} else {
+					logInfo(
+						"models.hardware",
+						`subscribe() deferring first refresh — platform not ready (will retry on platform:ready)`,
+					);
+				}
 			}
 		}
 

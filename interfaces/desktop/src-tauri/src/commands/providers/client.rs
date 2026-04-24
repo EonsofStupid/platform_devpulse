@@ -42,6 +42,10 @@ fn shared_client() -> &'static Client {
 
 /// Classified failure paired with a human-readable message — what
 /// every caller surfaces back to `validate_provider`.
+///
+/// `Debug` is derived so the test suite can use `.unwrap()` / `.expect()`
+/// on `Result<_, ClientError>` without hand-rolling a panic-formatter.
+#[derive(Debug)]
 pub struct ClientError {
     /// Wire-stable failure category. Sprint 7's lane router branches on this.
     pub kind: ProviderErrorKind,

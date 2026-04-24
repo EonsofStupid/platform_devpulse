@@ -201,14 +201,12 @@ export function installGlobalHandlers(): void {
 	// tracing pipeline at info/debug level.
 	// biome-ignore lint/suspicious/noConsole: intentional logging facade — this IS the console wrapper
 	const originalLog = console.log;
-	// biome-ignore lint/suspicious/noConsole: intentional logging facade
 	console.log = (...args: unknown[]) => {
 		originalLog.apply(console, args);
 		const msg = args.map((a) => String(a)).join(" ");
 		log("info", "frontend:console", msg);
 	};
 
-	// biome-ignore lint/suspicious/noConsole: intentional logging facade
 	const originalInfo = console.info;
 	console.info = (...args: unknown[]) => {
 		originalInfo.apply(console, args);
@@ -230,14 +228,36 @@ export function installGlobalHandlers(): void {
 	// that function captures every IPC roundtrip (cmd, args, duration,
 	// result or error) regardless of which binding made the call.
 	//
-	// No-op if Tauri internals aren't available yet (e.g. SSR context or
-	// before webview bridge established). Safe to call repeatedly.
+	// `__TAURI_INTERNALS__.invoke` is exposed non-writable in current
+	// Tauri versions, so plain `internals.invoke = …` throws `TypeError:
+	// Cannot assign to read only property`. We redefine via
+	// `Object.defineProperty` with `configurable: true`, which Tauri
+	// permits today. If a future Tauri version also locks
+	// `configurable: false`, the try/catch below keeps boot alive with
+	// IPC logging disabled instead of crashing the whole app.
+	//
+	// The `cmd === "log"` early-return is mandatory: `log()` itself
+	// calls `invoke("log", …)` once IPC is ready. Without this guard
+	// the wrap would log the log call, which would call log, which
+	// would call invoke("log"), which would hit the wrap again —
+	// infinite recursion blowing the stack on the first `markIpcReady()`
+	// buffer flush.
+	//
+	// No-op if Tauri internals aren't available yet (e.g. SSR context
+	// or before webview bridge established). `globalHandlersInstalled`
+	// at the top of this function already gates re-entry, so the
+	// `__devpulse_wrapped__` check is defense-in-depth for the singular
+	// case where a stale flag outlives a module reload.
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri internals typed loosely
 	const internals = (window as any).__TAURI_INTERNALS__;
 	if (internals && typeof internals.invoke === "function" && !internals.__devpulse_wrapped__) {
 		const originalInvoke = internals.invoke.bind(internals);
 		// biome-ignore lint/suspicious/noExplicitAny: generic IPC signature
-		internals.invoke = (cmd: string, args?: unknown, options?: unknown): Promise<any> => {
+		const wrappedInvoke = (cmd: string, args?: unknown, options?: unknown): Promise<any> => {
+			// Skip the log command to break the log → invoke("log") → wrap → log recursion.
+			if (cmd === "log") {
+				return originalInvoke(cmd, args, options);
+			}
 			const start = performance.now();
 			let argsSerialized = "<unserializable>";
 			try {
@@ -269,7 +289,23 @@ export function installGlobalHandlers(): void {
 					throw err;
 				});
 		};
-		internals.__devpulse_wrapped__ = true;
+		try {
+			Object.defineProperty(internals, "invoke", {
+				value: wrappedInvoke,
+				writable: true,
+				configurable: true,
+			});
+			Object.defineProperty(internals, "__devpulse_wrapped__", {
+				value: true,
+				writable: false,
+				configurable: true,
+			});
+		} catch (err) {
+			// Tauri future-version hardening: if the descriptor locks
+			// configurable too, boot continues without IPC logging rather
+			// than dying on the first user action.
+			log("warn", "frontend:ipc", `IPC logging disabled — cannot wrap invoke: ${String(err)}`);
+		}
 	}
 }
 

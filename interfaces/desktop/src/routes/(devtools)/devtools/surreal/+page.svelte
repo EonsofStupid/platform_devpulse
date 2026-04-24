@@ -18,6 +18,26 @@ import {
 	type HealthBadge,
 	ServiceDevtoolShell,
 } from "$lib/domains/platform/index.js";
+import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import { commands } from "$lib/sys/generated/bindings.js";
+
+let logEntries = $state<ScopedLogEntry[]>([]);
+let logLoading = $state(false);
+let logError = $state<string | null>(null);
+
+async function loadLogs(): Promise<void> {
+	logLoading = true;
+	logError = null;
+	try {
+		const r = await commands.queryScopedLog("devtools.surreal", 100);
+		if (r.status === "error") throw new Error(r.error);
+		logEntries = r.data;
+	} catch (e) {
+		logError = e instanceof Error ? e.message : String(e);
+	} finally {
+		logLoading = false;
+	}
+}
 
 const extraTabs: ExtraTab[] = [
 	{ id: "browser", label: "Browser", Icon: Database },
@@ -191,14 +211,55 @@ function handleKeydown(e: KeyboardEvent): void {
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			SurrealDB runs embedded (SurrealKV). It emits into the platform's
-			tracing layer — session logs live at
-			<span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span>
-			(filter <code>service=surreal</code>). TODO(reality-gap 2026-04-21):
-			a dedicated per-service tail wires up with
-			<code>surrealdb_export_logs</code>.
-		</Text>
+		<div class="space-y-3">
+			<div class="flex items-center justify-between">
+				<Text size="sm" weight="semibold">
+					Scoped log — <span class="font-mono text-xs">devtools.surreal</span>
+				</Text>
+				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logLoading}>
+					{#if logLoading}
+						<Spinner size="xs" tone="accent" />
+					{:else}
+						Refresh
+					{/if}
+				</Button>
+			</div>
+
+			{#if logError}
+				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+					{logError}
+				</div>
+			{/if}
+
+			{#if logEntries.length > 0}
+				<div class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto">
+					<table class="w-full text-xs">
+						<thead class="sticky top-0 bg-[var(--surface-raised)]">
+							<tr class="border-b border-[var(--border-subtle)]">
+								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Time</th>
+								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Level</th>
+								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Message</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each logEntries as line (line.timestamp + line.message)}
+								<tr class="border-b border-[var(--border-subtle)]">
+									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]">{line.timestamp.slice(11, 19)}</td>
+									<td class="px-2 py-1 font-mono text-[10px]">{line.level}</td>
+									<td class="px-2 py-1 break-all">{line.message}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{:else if logLoading}
+				<Text size="sm" color="muted">Loading…</Text>
+			{:else}
+				<Text size="sm" color="muted">
+					No entries — click Refresh to tail the current session log.
+				</Text>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet actions()}

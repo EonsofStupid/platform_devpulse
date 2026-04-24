@@ -35,7 +35,7 @@ import type {
 import * as BrainSvc from "./brain.svc.js";
 import * as EncoderSvc from "./encoder.svc.js";
 import * as RroSvc from "./rro.svc.js";
-import * as RroStateSvc from "./rro_state.svc.js";
+import * as RroStateSvc from "./rroState.svc.js";
 
 const PERSIST_KEY = "rro:retrieval_config";
 const BRAIN_NAMESPACES: GraphNamespace[] = ["System", "User", "Global"];

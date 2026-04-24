@@ -16,9 +16,42 @@ import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
-import { listVoices, previewVoice, speak } from "$lib/domains/app/voice/index.js";
+import {
+	listVoices,
+	previewVoice,
+	speak,
+	voiceTtsConfigState,
+} from "$lib/domains/app/voice/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
+import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
+
+// ── Config + logs state (scoped to this page) ─────────────
+let logs = $state<ScopedLogEntry[]>([]);
+let logsLoading = $state(false);
+let logsError = $state<string | null>(null);
+
+async function loadLogs(): Promise<void> {
+	logsLoading = true;
+	logsError = null;
+	try {
+		const r = await commands.queryScopedLog("devtools.tts", 100);
+		if (r.status === "error") throw new Error(r.error);
+		logs = r.data;
+	} catch (e) {
+		logsError = e instanceof Error ? e.message : String(e);
+	} finally {
+		logsLoading = false;
+	}
+}
+
+// Prime config on mount.
+$effect(() => {
+	if (!voiceTtsConfigState.config && !voiceTtsConfigState.loading) {
+		void voiceTtsConfigState.load();
+	}
+});
 
 // ── State ──────────────────────────────────────────────
 let voices = $state<
@@ -181,20 +214,149 @@ $effect(() => {
 	{/snippet}
 
 	{#snippet config()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Kokoro runtime config (pitch shift,
-			speaker bias, sample-rate output) not yet exposed as a Tauri
-			command. Model selection lives in the setup wizard; live per-slot
-			overrides arrive when <code>voice_tts_save_config</code> lands.
-		</Text>
+		<div class="space-y-4">
+			{#if voiceTtsConfigState.loading && !voiceTtsConfigState.config}
+				<Text size="sm" color="muted">Loading TTS config…</Text>
+			{/if}
+
+			{#if voiceTtsConfigState.error}
+				<div
+					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+				>
+					{voiceTtsConfigState.error}
+				</div>
+			{/if}
+
+			{#if voiceTtsConfigState.config}
+				<div class="space-y-3">
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">Default voice</Text>
+						<input
+							type="text"
+							bind:value={voiceTtsConfigState.draft.default_voice}
+							placeholder="af_heart"
+							class="w-full rounded px-2 py-1 text-xs font-mono outline-none"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						/>
+					</div>
+
+					<div class="space-y-2">
+						<Text size="xs" weight="bold" color="muted">
+							Default speed · {voiceTtsConfigState.draft.default_speed.toFixed(2)}×
+						</Text>
+						<input
+							type="range"
+							min="0.5"
+							max="2.0"
+							step="0.05"
+							bind:value={voiceTtsConfigState.draft.default_speed}
+							class="w-full"
+							style="accent-color: var(--accent-teal-main);"
+						/>
+					</div>
+
+					<div class="flex items-center gap-2 pt-2">
+						<Button
+							preset="button-primary"
+							size="sm"
+							onclick={() => void voiceTtsConfigState.save()}
+							disabled={voiceTtsConfigState.saving || !voiceTtsConfigState.dirty}
+						>
+							{#if voiceTtsConfigState.saving}
+								<Spinner size="xs" />
+								Saving…
+							{:else}
+								Save
+							{/if}
+						</Button>
+						<Button
+							preset="button-ghost"
+							size="sm"
+							onclick={() => voiceTtsConfigState.reset()}
+							disabled={!voiceTtsConfigState.dirty || voiceTtsConfigState.saving}
+						>
+							Discard
+						</Button>
+						{#if voiceTtsConfigState.dirty}
+							<Text size="xs" color="muted">Unsaved changes</Text>
+						{/if}
+					</div>
+
+					<Text size="xs" color="muted">
+						Speed is clamped to <span class="font-mono">[0.5, 2.0]</span>.
+						Empty voice reverts to <span class="font-mono">af_heart</span>.
+						Persisted in <span class="font-mono text-[10px]">user/voice_tts.toml</span>.
+					</Text>
+				</div>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Kokoro-scoped log filter not yet
-			wired. Session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
-			filter by <code>component=devtools.tts</code>.
-		</Text>
+		<div class="space-y-3">
+			<div class="flex items-center justify-between">
+				<Text size="sm" weight="semibold">
+					Scoped log — <span class="font-mono text-xs">devtools.tts</span>
+				</Text>
+				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+					{#if logsLoading}
+						<Spinner size="xs" tone="accent" />
+					{:else}
+						Refresh
+					{/if}
+				</Button>
+			</div>
+
+			{#if logsError}
+				<div
+					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+				>
+					{logsError}
+				</div>
+			{/if}
+
+			{#if logs.length > 0}
+				<div
+					class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto"
+				>
+					<table class="w-full text-xs">
+						<thead class="sticky top-0 bg-[var(--surface-raised)]">
+							<tr class="border-b border-[var(--border-subtle)]">
+								<th
+									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
+									>Time</th
+								>
+								<th
+									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
+									>Level</th
+								>
+								<th
+									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
+									>Message</th
+								>
+							</tr>
+						</thead>
+						<tbody>
+							{#each logs as line (line.timestamp + line.message)}
+								<tr class="border-b border-[var(--border-subtle)]">
+									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]"
+										>{line.timestamp.slice(11, 19)}</td
+									>
+									<td class="px-2 py-1 font-mono text-[10px]">{line.level}</td>
+									<td class="px-2 py-1 break-all">{line.message}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{:else if logsLoading}
+				<Text size="sm" color="muted">Loading…</Text>
+			{:else}
+				<Text size="sm" color="muted">
+					No log entries yet — click Refresh to tail the current session log.
+				</Text>
+			{/if}
+		</div>
 	{/snippet}
 
 	{#snippet actions()}
