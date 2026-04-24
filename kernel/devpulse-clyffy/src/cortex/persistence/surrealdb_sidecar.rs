@@ -43,9 +43,14 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 /// show `configured` vs `actual` port and render a bump badge.
 #[derive(Debug, Clone)]
 pub struct SidecarEndpoint {
+    /// Bind host (e.g. `127.0.0.1`).
     pub host: String,
+    /// Port allocation metadata — configured vs. actual, bump count,
+    /// spawn-vs-attach disposition.
     pub allocation: PortAllocation,
+    /// Root user that the sidecar was launched with (`SURREAL_USER`).
     pub root_user: String,
+    /// Root password that the sidecar was launched with (`SURREAL_PASS`).
     pub root_password: String,
 }
 
