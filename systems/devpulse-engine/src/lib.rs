@@ -41,6 +41,10 @@ pub mod claude;
 /// Pure data, no runtime state. Read by the lane router, devtools, council.
 pub mod ai_providers;
 
+/// Vision pipeline foundation — governor, metrics, shared DTOs.
+/// Backs the capture → SigLip → sink chain exposed via `/devtools/vision`.
+pub mod vision;
+
 // ═══════════════════════════════════════════════════════════════
 // Re-exports
 // ═══════════════════════════════════════════════════════════════

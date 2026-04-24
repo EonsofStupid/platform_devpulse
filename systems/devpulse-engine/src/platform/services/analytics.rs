@@ -404,4 +404,46 @@ CREATE TABLE IF NOT EXISTS platform_telemetry (
     error_count         INTEGER DEFAULT 0,
     error_types         JSON                     -- { 'inference_timeout': 2, 'oom': 0, ... }
 );
+
+-- ── Vision Pipeline ───────────────────────────────────────────
+
+-- Per-frame end-to-end telemetry from the capture → encode → sink chain.
+-- Written by the vision pipeline (V-4) in batches; drives the Metrics
+-- tab in /devtools/vision. One row per completed frame, regardless of
+-- whether the governor throttled the tick or let it through.
+CREATE TABLE IF NOT EXISTS vision_frame_metrics (
+    session_id         VARCHAR NOT NULL,
+    frame_id           BIGINT  NOT NULL,
+    ts_ms              BIGINT  NOT NULL,
+    source_kind        VARCHAR NOT NULL,        -- 'monitor' | 'window' | 'webcam'
+    source_idx         INTEGER NOT NULL,
+    capture_ms         FLOAT   NOT NULL,
+    encode_ms          FLOAT   NOT NULL,
+    sink_ms            FLOAT   NOT NULL,
+    total_ms           FLOAT   NOT NULL,
+    frame_bytes        INTEGER NOT NULL,
+    embedding_dim      INTEGER NOT NULL,
+    embedding_norm     FLOAT   NOT NULL,
+    similarity_to_prev FLOAT,                   -- NULL on session's first frame
+    cpu_pct            FLOAT   NOT NULL,
+    rss_mb             INTEGER NOT NULL,
+    governor_throttled BOOLEAN NOT NULL,
+    hd_path            VARCHAR NOT NULL,        -- 'siglip1-candle' | 'siglip2-ort' | 'siglip1-tiled'
+    sink_list          VARCHAR NOT NULL,        -- comma-sep; e.g. 'disk,libsql,duckdb'
+    created_at         TIMESTAMP DEFAULT now(),
+    PRIMARY KEY (session_id, frame_id)
+);
+
+-- Per-tick governor decisions for throttle-rate charts + post-mortem.
+-- One row per transition (throttle/recover), not per sample — the rest
+-- of the samples are implicit between transitions.
+CREATE TABLE IF NOT EXISTS vision_governor_ticks (
+    ts_ms              BIGINT  NOT NULL,
+    throttled          BOOLEAN NOT NULL,
+    reason             VARCHAR,                 -- 'cpu' | 'ram' | 'event-bridge-qps' | 'manual-pause' | NULL
+    cpu_pct            FLOAT   NOT NULL,
+    rss_mb             INTEGER NOT NULL,
+    event_qps          FLOAT   NOT NULL,
+    created_at         TIMESTAMP DEFAULT now()
+);
 ";
