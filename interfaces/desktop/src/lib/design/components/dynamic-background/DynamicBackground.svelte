@@ -26,6 +26,7 @@ import type { DynamicBackgroundProps } from "./types.js";
 let {
 	variant = "boot",
 	src,
+	videoSrc,
 	animated = true,
 	style,
 	children,
@@ -48,6 +49,7 @@ const mergedStyle = $derived(
 	data-slot="root"
 	data-variant={variant}
 	data-animated={String(animated)}
+	data-has-video={videoSrc ? "true" : "false"}
 	class={cn(
 		"dynamic-background absolute inset-0 overflow-hidden pointer-events-none",
 		className,
@@ -55,6 +57,20 @@ const mergedStyle = $derived(
 	{...rest}
 >
 	<div class="dynamic-background__image"></div>
+	{#if videoSrc}
+		<video
+			class="dynamic-background__video"
+			autoplay
+			muted
+			loop
+			playsinline
+			preload="auto"
+			aria-hidden="true"
+			tabindex="-1"
+		>
+			<source src={videoSrc} />
+		</video>
+	{/if}
 	<div class="dynamic-background__overlay"></div>
 	<div class="dynamic-background__content">{@render children?.()}</div>
 </div>
@@ -83,6 +99,19 @@ const mergedStyle = $derived(
 		transform-origin: center;
 	}
 
+	.dynamic-background__video {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		pointer-events: none;
+		opacity: var(--dynamic-background-video-opacity, 0.6);
+		mix-blend-mode: var(--dynamic-background-video-blend, normal);
+		filter: var(--dynamic-background-video-filter, saturate(1.1) brightness(0.9) contrast(1.02));
+	}
+
 	.dynamic-background__overlay {
 		background-image: var(--dynamic-background-overlay-image, none);
 		background-size: var(--dynamic-background-overlay-size, 100% 100%);
@@ -90,6 +119,13 @@ const mergedStyle = $derived(
 		background-position: var(--dynamic-background-overlay-position, center center);
 		opacity: var(--dynamic-background-overlay-opacity, 1);
 		mix-blend-mode: var(--dynamic-background-overlay-blend, normal);
+	}
+
+	/* When a video layer is present, dim the tint overlay so the video
+	   remains visible. Per-variant CSS can further tune via
+	   --dynamic-background-overlay-opacity-with-video. */
+	.dynamic-background[data-has-video="true"] .dynamic-background__overlay {
+		opacity: var(--dynamic-background-overlay-opacity-with-video, 0.7);
 	}
 
 	.dynamic-background__content {
@@ -136,6 +172,59 @@ const mergedStyle = $derived(
 		--dynamic-background-overlay-position: center center, center center, center center, center center;
 		--dynamic-background-image-opacity: 0.24;
 		--dynamic-background-image-filter: saturate(0.92) brightness(0.48) contrast(1.06);
+	}
+
+	/* Semantic PRIMARY variant — consumes --accent-primary-* + --backdrop-*-primary.
+	   Default binding resolves to blue via app.css semantic layer. Rebind that
+	   layer in the visual editor to restyle everywhere at once. */
+	.dynamic-background[data-variant="primary"] {
+		--dynamic-background-base: var(--color-void-base);
+		--dynamic-background-overlay-image:
+			radial-gradient(
+				ellipse 82% 68% at 50% 16%,
+				color-mix(in oklch, var(--accent-primary-glow) 82%, transparent) 0%,
+				transparent 62%
+			),
+			radial-gradient(
+				circle at 82% 18%,
+				color-mix(in oklch, var(--accent-primary-fill) 82%, transparent) 0%,
+				transparent 34%
+			),
+			linear-gradient(
+				var(--backdrop-grid-primary) var(--backdrop-grid-line-width),
+				transparent var(--backdrop-grid-line-width)
+			),
+			linear-gradient(
+				90deg,
+				var(--backdrop-grid-primary) var(--backdrop-grid-line-width),
+				transparent var(--backdrop-grid-line-width)
+			),
+			linear-gradient(
+				180deg,
+				color-mix(in oklch, var(--accent-primary-fill) 12%, transparent) 0%,
+				transparent 42%,
+				color-mix(in oklch, var(--color-void-base) 32%, transparent) 100%
+			);
+		--dynamic-background-overlay-size:
+			100% 100%,
+			100% 100%,
+			var(--backdrop-grid-size-primary) var(--backdrop-grid-size-primary),
+			var(--backdrop-grid-size-primary) var(--backdrop-grid-size-primary),
+			100% 100%;
+		--dynamic-background-overlay-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
+		--dynamic-background-overlay-position:
+			center center,
+			right top,
+			center center,
+			center center,
+			center center;
+		--dynamic-background-image-opacity: 0.58;
+		--dynamic-background-image-filter: saturate(1.18) brightness(0.82) contrast(1.08);
+		--dynamic-background-image-scale: 1.04;
+		/* Blue-biased video tint when videoSrc is supplied */
+		--dynamic-background-video-opacity: 0.62;
+		--dynamic-background-video-filter: saturate(1.18) brightness(0.92) contrast(1.04) hue-rotate(-6deg);
+		--dynamic-background-overlay-opacity-with-video: 0.55;
 	}
 
 	.dynamic-background[data-variant="devpulse"] {

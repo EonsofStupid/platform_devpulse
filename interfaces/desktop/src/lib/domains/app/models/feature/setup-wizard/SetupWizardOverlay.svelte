@@ -79,7 +79,12 @@ $effect(() => {
 
 {#if wizardState.isOpen}
 	<div class="wizard-overlay">
-		<DynamicBackground variant="boot" animated={true} class="wizard-bg" />
+		<DynamicBackground
+			variant="primary"
+			videoSrc="/imgs/backgrounds/bganimation_loop.mp4"
+			animated={true}
+			class="wizard-bg"
+		/>
 		<!--
 		  The old `.wizard-backdrop` (0.5rem backdrop-filter blur over a
 		  0.55-alpha void layer) sat on top of DynamicBackground and
@@ -196,7 +201,7 @@ $effect(() => {
 		align-items: center;
 		justify-content: space-between;
 		padding: clamp(0.5rem, 1.5vw, 0.875rem) clamp(0.75rem, 2vw, 1.5rem);
-		border-bottom: 1px solid color-mix(in oklch, var(--accent-teal-main) 10%, var(--border-soft));
+		border-bottom: 1px solid color-mix(in oklch, var(--accent-primary-main) 10%, var(--border-soft));
 		flex-shrink: 0;
 		background: color-mix(in oklch, var(--surface-base) 60%, transparent);
 		backdrop-filter: blur(0.75rem);
@@ -209,7 +214,7 @@ $effect(() => {
 	}
 
 	:global(.topbar-title) {
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
 	}
 
 	.topbar-right {
@@ -231,7 +236,7 @@ $effect(() => {
 		transition: all 150ms ease-out;
 	}
 	.hf-pill:hover {
-		border-color: var(--accent-teal-main);
+		border-color: var(--accent-primary-main);
 		color: var(--text-secondary);
 	}
 
