@@ -255,14 +255,17 @@ pub struct ScopedGraphHandle {
 }
 
 impl ScopedGraphHandle {
+    /// The namespace this handle is scoped to.
     pub fn namespace(&self) -> &str {
         &self.namespace
     }
 
+    /// The database this handle is scoped to.
     pub fn database(&self) -> &str {
         &self.database
     }
 
+    /// The shared WS-client adapter backing this handle.
     pub fn adapter(&self) -> &Arc<SurrealAdapter> {
         &self.adapter
     }
