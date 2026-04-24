@@ -1,59 +1,63 @@
-//! `SurrealDB` adapter for the reasoning system.
+//! `SurrealDB` client adapter — WebSocket connection to the managed sidecar.
+//!
+//! The embedded `Surreal<Db>` path has been retired. DevPulse now ships
+//! and manages the real SurrealDB server binary as a sidecar (see
+//! [`super::surrealdb_sidecar::SurrealdbSidecarAdapter`]). This adapter
+//! is a pure client: it opens a WebSocket to the already-running sidecar,
+//! signs in with root credentials, and exposes namespace-scoped
+//! operations via [`ScopedGraphHandle`].
 //!
 //! Two public types:
-//! - `SurrealAdapter` — owns the `Surreal<Db>` connection (one per `SurrealKV` instance).
-//! - `ScopedGraphHandle` — namespace-scoped operations. Every query is prefixed
-//!   with `USE NS {ns} DB {db};` so namespace isolation is real, not implicit.
+//! - `SurrealAdapter` — owns the `Surreal<Any>` WS client, shared across
+//!   namespaces via `Arc`.
+//! - `ScopedGraphHandle` — namespace-scoped operations. Every query is
+//!   prefixed with `USE NS {ns} DB {db};` so namespace isolation is
+//!   enforced at the query level, never implicit session state.
 //!
-//! Boot opens ONE `SurrealKV` at `surreal/devpulse`. The adapter creates
-//! `ScopedGraphHandle` instances for each namespace (system, user, global).
-//! Each handle scopes every operation — no shared implicit context.
-//!
-//! # P0: Boot Never Freezes
-//!
-//! `surrealdb::Surreal<Db>` is `Clone + Send + Sync` — internally an
-//! `Arc<Inner>` that handles its own locking. Wrapping it in
-//! `tokio::sync::RwLock` serialized every query behind a yield-on-acquire
-//! mutex AND deadlocked whenever `init_namespace` took the write lock while
-//! another task tried to read. The `RwLock` is removed. All runtime queries
-//! use explicit `USE NS {ns} DB {db};` prefixes so no session-state mutation
-//! is ever needed after open.
+//! In-memory mode for tests is still supported via `open_in_memory()`
+//! (feature `kv-mem`).
 
 use crate::cortex::persistence::config::SurrealNamespace;
+use crate::cortex::persistence::surrealdb_sidecar::SidecarEndpoint;
 use anyhow::{Context, Result};
 use base64::Engine as _;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 use std::sync::Arc;
-use surrealdb::engine::local::{Db, SurrealKv};
+use surrealdb::engine::any::Any;
+use surrealdb::opt::auth::Root;
 use surrealdb::types::SurrealValue;
 use surrealdb::Surreal;
 
 // ═══════════════════════════════════════════════════════════════
-// SurrealAdapter — connection owner
+// SurrealAdapter — WS client connection owner
 // ═══════════════════════════════════════════════════════════════
 
-/// `SurrealDB` adapter — owns a single `Surreal<Db>` connection.
+/// `SurrealDB` client adapter — owns a single `Surreal<Any>` WS connection.
 ///
-/// Lock-free: `Surreal<Db>` handles its own internal synchronization.
-/// Cloning the handle is cheap (atomic refcount bump). All runtime queries
-/// go through `ScopedGraphHandle` with explicit `USE NS ... DB ...;`
-/// prefixes, so no session-state mutation is required.
+/// The connection is shared across all scoped graph handles. Cloning
+/// the underlying `Surreal<Any>` is cheap (internal `Arc`). Every
+/// runtime operation goes through `ScopedGraphHandle` which prefixes
+/// queries with `USE NS ... DB ...;` — no session-state mutation after
+/// sign-in.
 pub struct SurrealAdapter {
-    db: Surreal<Db>,
+    db: Surreal<Any>,
 }
 
 impl SurrealAdapter {
-    /// Open database at path with `SurrealKV` backend (pure Rust).
+    /// Connect to the sidecar, sign in as root, and apply the default
+    /// kernel reasoning schema.
     ///
-    /// Uses the default kernel reasoning namespace/database/schema.
-    /// This is the kernel's own entry point — engine boot uses `open_with_ns`.
+    /// Equivalent to [`Self::connect_with_ns`] with the kernel's own
+    /// `REASONING` namespace. Engine boot uses `connect_with_ns` so
+    /// system/user/global all land on the same connection.
     ///
     /// # Errors
-    /// Returns error if the database cannot be opened or schema initialization fails.
-    pub async fn open(path: &Path) -> Result<Self> {
-        Self::open_with_ns(
-            path,
+    /// - WebSocket connect fails (sidecar not running, wrong URL).
+    /// - `signin` rejects the credentials.
+    /// - Schema application fails.
+    pub async fn connect(endpoint: &SidecarEndpoint) -> Result<Self> {
+        Self::connect_with_ns(
+            endpoint,
             SurrealNamespace::REASONING.namespace,
             SurrealNamespace::REASONING.database,
             REASONING_SCHEMA,
@@ -61,83 +65,70 @@ impl SurrealAdapter {
         .await
     }
 
-    /// Open database at path with explicit namespace, database, and schema.
+    /// Connect, sign in, and apply a schema scoped to `namespace/database`.
     ///
-    /// This is the primary constructor. The schema runs via an explicit
-    /// `USE NS ... DB ...; {schema}` so no session state is mutated on the
-    /// shared `Surreal<Db>` handle. All runtime operations MUST go through
-    /// `ScopedGraphHandle` which keeps the same pattern.
+    /// This is the primary constructor. Opens ONE WS connection to the
+    /// sidecar — additional namespaces on the same connection are
+    /// initialized via [`Self::init_namespace`] on the returned adapter.
     ///
     /// # Errors
-    /// Returns error if the database cannot be opened or schema initialization fails.
-    #[tracing::instrument(skip(schema), fields(path = %path.display(), namespace, database, schema_len = schema.len()), err)]
-    pub async fn open_with_ns(
-        path: &Path,
+    /// - Connection fails.
+    /// - Root signin fails.
+    /// - Schema DDL fails.
+    #[tracing::instrument(
+        skip(schema),
+        fields(
+            url = %endpoint.ws_url(),
+            namespace,
+            database,
+            schema_len = schema.len()
+        ),
+        err
+    )]
+    pub async fn connect_with_ns(
+        endpoint: &SidecarEndpoint,
         namespace: &str,
         database: &str,
         schema: &str,
     ) -> Result<Self> {
-        // Ensure the PARENT directory exists — SurrealKV creates its own
-        // data directory and needs write access to the parent.
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .context("Failed to create SurrealDB parent directory")?;
-        }
+        let ws = endpoint.ws_url();
 
-        // Pass the path as-is — do NOT canonicalize on Windows because
-        // canonicalize() adds \\?\ extended-length prefix which SurrealKV
-        // misinterprets as root "\", causing "Access is denied" errors.
-        let db = Surreal::new::<SurrealKv>(path.to_path_buf())
+        let db = surrealdb::engine::any::connect(&ws)
             .await
-            .with_context(|| format!("Failed to open SurrealDB at path: {}", path.display()))?;
+            .with_context(|| format!("failed to connect SurrealDB client to {ws}"))?;
+
+        db.signin(Root {
+            username: endpoint.root_user.clone(),
+            password: endpoint.root_password.clone(),
+        })
+        .await
+        .context("SurrealDB root signin failed — check sidecar SURREAL_USER/SURREAL_PASS")?;
 
         tracing::info!(
-            path = %path.display(),
+            url = %ws,
             namespace,
             database,
-            "SurrealKV opened — applying schema via scoped query"
+            "SurrealDB client connected — applying schema"
         );
 
         let adapter = Self { db };
-
-        // Initialize schema via scoped query — no session mutation, no lock.
         adapter.init_namespace(namespace, database, schema).await?;
-
         tracing::info!(namespace, database, "SurrealDB schema initialized");
 
         Ok(adapter)
     }
 
-    /// Open in-memory database for testing.
+    /// Initialize an additional namespace/database on the same connection.
+    ///
+    /// Runs schema DDL via a scoped query batch — no session mutation.
     ///
     /// # Errors
-    /// Returns error if the in-memory database cannot be created or schema initialization fails.
-    pub async fn open_in_memory() -> Result<Self> {
-        use surrealdb::engine::local::Mem;
-
-        let db = Surreal::new::<Mem>(())
-            .await
-            .context("Failed to open in-memory SurrealDB")?;
-
-        let adapter = Self { db };
-        adapter
-            .init_namespace(
-                SurrealNamespace::REASONING.namespace,
-                SurrealNamespace::REASONING.database,
-                REASONING_SCHEMA,
-            )
-            .await?;
-        Ok(adapter)
-    }
-
-    /// Initialize an additional namespace/database with its own schema.
-    ///
-    /// Runs the schema via an explicit scoped query batch — no session
-    /// mutation, no lock. Safe to call concurrently for different namespaces.
-    ///
-    /// # Errors
-    /// Returns error if the schema fails to apply.
-    #[tracing::instrument(skip(self, schema), fields(namespace, database, schema_len = schema.len()), err)]
+    /// Returns error if the schema DDL fails.
+    #[tracing::instrument(
+        skip(self, schema),
+        fields(namespace, database, schema_len = schema.len()),
+        err
+    )]
     pub async fn init_namespace(
         &self,
         namespace: &str,
@@ -147,21 +138,15 @@ impl SurrealAdapter {
         tracing::debug!(namespace, database, "Initializing namespace (scoped)");
 
         let scoped = format!("USE NS {namespace} DB {database}; {schema}");
-        self.db
-            .query(scoped)
-            .await
-            .with_context(|| format!("Failed to initialize schema for '{namespace}/{database}'"))?;
+        self.db.query(scoped).await.with_context(|| {
+            format!("Failed to initialize schema for '{namespace}/{database}'")
+        })?;
 
         tracing::info!(namespace, database, "Namespace schema initialized");
-
         Ok(())
     }
 
-    /// Create a `ScopedGraphHandle` for a specific namespace/database.
-    ///
-    /// The handle carries the namespace and database, prefixing every
-    /// query with `USE NS {ns} DB {db};`. This is the ONLY way runtime
-    /// code should interact with the database — never use implicit context.
+    /// Create a `ScopedGraphHandle` for a namespace/database pair.
     pub fn scoped_handle(self: &Arc<Self>, namespace: &str, database: &str) -> ScopedGraphHandle {
         ScopedGraphHandle {
             adapter: Arc::clone(self),
@@ -170,14 +155,19 @@ impl SurrealAdapter {
         }
     }
 
-    /// Execute a scoped query — prefixes with `USE NS {ns} DB {db};`.
-    ///
-    /// Returns the result of the first user statement (index 1 after USE).
-    /// Used by `ScopedGraphHandle` and boot pipeline for namespace-scoped ops.
+    /// Execute a scoped SELECT-style query.
     ///
     /// # Errors
     /// Returns error if the query fails.
-    #[tracing::instrument(skip(self, query), fields(namespace, database, query_preview = %query.chars().take(80).collect::<String>()), err)]
+    #[tracing::instrument(
+        skip(self, query),
+        fields(
+            namespace,
+            database,
+            query_preview = %query.chars().take(80).collect::<String>()
+        ),
+        err
+    )]
     pub async fn query_in_ns(
         &self,
         namespace: &str,
@@ -191,7 +181,7 @@ impl SurrealAdapter {
             .await
             .with_context(|| format!("SurrealDB query failed in {namespace}/{database}"))?;
 
-        // The USE NS/DB statement is index 0, user query starts at index 1.
+        // The USE NS/DB statement is index 0; first user statement is index 1.
         let rows: Vec<serde_json::Value> = response
             .take(1)
             .context("Failed to extract query results")?;
@@ -199,14 +189,19 @@ impl SurrealAdapter {
         Ok(serde_json::Value::Array(rows))
     }
 
-    /// Execute scoped DDL — runs a statement in a specific namespace.
-    ///
-    /// Like `query_in_ns` but ignores the result. Used for DEFINE USER,
-    /// DEFINE TABLE, and other DDL that returns nothing useful.
+    /// Execute scoped DDL / write statements — discards result.
     ///
     /// # Errors
     /// Returns error if the DDL fails.
-    #[tracing::instrument(skip(self, ddl), fields(namespace, database, ddl_preview = %ddl.chars().take(80).collect::<String>()), err)]
+    #[tracing::instrument(
+        skip(self, ddl),
+        fields(
+            namespace,
+            database,
+            ddl_preview = %ddl.chars().take(80).collect::<String>()
+        ),
+        err
+    )]
     pub async fn execute_in_ns(&self, namespace: &str, database: &str, ddl: &str) -> Result<()> {
         let scoped_ddl = format!("USE NS {namespace} DB {database}; {ddl}");
         self.db.query(scoped_ddl).await.with_context(|| {
@@ -215,17 +210,13 @@ impl SurrealAdapter {
                 ddl.chars().take(80).collect::<String>()
             )
         })?;
-
         Ok(())
     }
 
-    /// Lightweight health check — executes `SELECT 1`.
-    ///
-    /// Called by the persistence manager's `ping_surreal` via `Arc<SurrealAdapter>`.
+    /// Lightweight connection check — executes `SELECT 1`.
     ///
     /// # Errors
-    /// Returns an error if the backing `SurrealDB` connection cannot execute the
-    /// probe query or if the response payload is malformed.
+    /// Returns error if the backing connection cannot serve the query.
     #[tracing::instrument(skip(self), err)]
     pub async fn ping(&self) -> Result<()> {
         let mut response = self
@@ -239,17 +230,11 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Quiesce — in-flight queries drain naturally when the Arc drops.
-    ///
-    /// Lock-free: no explicit drain needed. The `Surreal<Db>` handle
-    /// refcount drop on the last `Arc<SurrealAdapter>` flushes the WAL.
-    ///
-    /// Stays `async` because a proper quiesce (wait for in-flight
-    /// queries, await a checkpoint) is future work; keeping the signature
-    /// stable lets that land without churning every call site.
+    /// Quiesce — WS close is a no-op; the sidecar's fsync happens on
+    /// its shutdown, not ours. Stays async for signature stability.
     #[allow(clippy::unused_async)]
     pub async fn quiesce(&self) {
-        tracing::info!("SurrealDB: quiesced — WAL flushes on Arc drop");
+        tracing::info!("SurrealDB: client quiesced (connection will close on drop)");
     }
 }
 
@@ -257,13 +242,12 @@ impl SurrealAdapter {
 // ScopedGraphHandle — namespace-scoped operations
 // ═══════════════════════════════════════════════════════════════
 
-/// Namespace-scoped handle to a shared `SurrealDB` connection.
+/// Namespace-scoped handle to a shared `SurrealDB` WS connection.
 ///
-/// Every query is prefixed with `USE NS {namespace} DB {database};`
-/// so namespace isolation is enforced at the query level, not by
-/// relying on implicit session context.
-///
-/// This is the ONLY way runtime code should access the graph store.
+/// Every query is prefixed with `USE NS {namespace} DB {database};` so
+/// namespace isolation is enforced at the query level — no implicit
+/// session context. This is the ONLY way runtime code should access
+/// the graph store.
 pub struct ScopedGraphHandle {
     adapter: Arc<SurrealAdapter>,
     namespace: String,
@@ -271,22 +255,19 @@ pub struct ScopedGraphHandle {
 }
 
 impl ScopedGraphHandle {
-    /// The namespace this handle is scoped to.
     pub fn namespace(&self) -> &str {
         &self.namespace
     }
 
-    /// The database this handle is scoped to.
     pub fn database(&self) -> &str {
         &self.database
     }
 
-    /// Get the underlying adapter (for HTTP server sharing).
     pub fn adapter(&self) -> &Arc<SurrealAdapter> {
         &self.adapter
     }
 
-    /// Execute a query and return results.
+    /// Execute a query in this scope.
     ///
     /// # Errors
     /// Returns error if the query fails.
@@ -296,7 +277,7 @@ impl ScopedGraphHandle {
             .await
     }
 
-    /// Execute DDL (DEFINE, CREATE, UPDATE, DELETE) — ignores result.
+    /// Execute DDL / write in this scope.
     ///
     /// # Errors
     /// Returns error if the statement fails.
@@ -306,19 +287,18 @@ impl ScopedGraphHandle {
             .await
     }
 
-    /// Health check — verifies the WAL can serve reads in THIS namespace.
-    ///
-    /// Runs `SELECT * FROM kv LIMIT 1` which proves:
-    /// 1. The connection is alive
-    /// 2. The namespace/database exists
-    /// 3. The schema was applied (kv table exists)
-    /// 4. The WAL can serve reads (not just metadata)
+    /// Health check — verifies the namespace is reachable and `kv`
+    /// table is queryable.
     ///
     /// # Errors
-    /// Returns error if the database is unreachable or the namespace is broken.
+    /// Returns error if the namespace or kv table is broken.
     pub async fn ping(&self) -> Result<()> {
         self.adapter
-            .query_in_ns(&self.namespace, &self.database, "SELECT * FROM kv LIMIT 1")
+            .query_in_ns(
+                &self.namespace,
+                &self.database,
+                "SELECT * FROM kv LIMIT 1",
+            )
             .await
             .with_context(|| {
                 format!(
@@ -388,7 +368,8 @@ impl ScopedGraphHandle {
         edge_type: &str,
         depth: u32,
     ) -> Result<Vec<serde_json::Value>> {
-        let surql = format!("SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};");
+        let surql =
+            format!("SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};");
         let result = self.query(&surql).await?;
         match result {
             serde_json::Value::Array(rows) => Ok(rows),
@@ -416,12 +397,10 @@ impl ScopedGraphHandle {
         let result = self
             .query(&format!("SELECT value FROM kv:`{key}`;"))
             .await?;
-        // Result is an array. If empty or value is null, return None.
         if let serde_json::Value::Array(rows) = &result {
             if let Some(row) = rows.first() {
                 if let Some(val) = row.get("value") {
                     if !val.is_null() {
-                        // SurrealDB returns bytes as a base64 string in JSON
                         if let Some(s) = val.as_str() {
                             let bytes = base64::engine::general_purpose::STANDARD
                                 .decode(s)
@@ -443,7 +422,6 @@ impl ScopedGraphHandle {
         let result = self
             .query(&format!("DELETE kv:`{key}` RETURN BEFORE;"))
             .await?;
-        // If RETURN BEFORE has rows, the key existed
         if let serde_json::Value::Array(rows) = &result {
             return Ok(!rows.is_empty());
         }
@@ -452,7 +430,7 @@ impl ScopedGraphHandle {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Data types
+// Data types — preserved from the pre-sidecar adapter
 // ═══════════════════════════════════════════════════════════════
 
 /// Key-value record for signal-based storage.
@@ -508,14 +486,10 @@ pub struct StateTransition {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Kernel reasoning schema (used by SurrealAdapter::open)
+// Kernel reasoning schema (used by SurrealAdapter::connect)
 // ═══════════════════════════════════════════════════════════════
 
 /// Schema for the kernel reasoning system.
-///
-/// This is the kernel's own schema — used when the kernel opens its
-/// own `SurrealAdapter` via `open()`. The engine-level schemas in
-/// `services/graph.rs` cover the platform scopes (system/user/global).
 pub const REASONING_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;

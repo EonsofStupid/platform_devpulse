@@ -41,6 +41,10 @@ moka = { workspace = true }
 rro = { workspace = true, optional = true }
 llguidance = { workspace = true, optional = true }
 
+# HTTP client for managed sidecars (Ollama, SurrealDB) —
+# rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
 # Candle inference (CPU-first, burst mode)
 candle-core = { workspace = true, optional = true }
 candle-nn = { workspace = true, optional = true }

@@ -1,17 +1,27 @@
-//! Persistence layer for Clyffy
+//! Persistence + resource adapters for Clyffy.
 //!
-//! Five embedded stores for different workloads:
-//! - `LibSQL`: Relational data (users, settings, projects, messages)
-//! - `DuckDB`: Analytics (user + AI metrics, telemetry)
-//! - `SurrealDB`: Reasoning graph (knowledge, states, transitions)
-//! - `Moka`: In-memory cache (hot data, TTL-based eviction)
-//! - `RRO`: Vector similarity search (embedded Qdrant — two-tier retrieval)
+//! Every external resource that the platform touches lives here as a
+//! cortex adapter, regardless of whether it is a "database" in the
+//! strict sense. The naming is historical (persistence = the SSOT for
+//! where-we-talk-to-something-external) and covers:
 //!
-//! All adapters implement `PersistenceAdapter` for signal-based access
-//! plus specialized traits for their specific use cases.
+//! - `LibSQL`: Relational data (users, settings, projects, messages).
+//! - `DuckDB`: Analytics (user + AI metrics, telemetry).
+//! - `SurrealDB`: Graph store — WS client to the managed sidecar.
+//! - `Moka`: In-memory cache (hot data, TTL-based eviction).
+//! - `RRO`: Vector similarity search (embedded Qdrant — two-tier retrieval).
+//! - `Ollama`: Managed sidecar — local inference runtime.
+//! - `Whisper`, `Kokoros`, `Embedder`: local audio + embedding runtimes.
+//!
+//! Sidecar adapters use the shared `port_alloc` helper for probe /
+//! attach / bump. Engine facades wrap each adapter with lifecycle
+//! plumbing (boot, health, shutdown) per the project IP-boundary rule.
 
 pub mod config;
 pub mod traits;
+
+// Port allocation (shared by every sidecar).
+pub mod port_alloc;
 
 // Database adapters
 pub mod duckdb;
@@ -22,8 +32,12 @@ pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
+pub mod surrealdb_sidecar;
 #[cfg(feature = "candle")]
 pub mod whisper;
+
+// Managed sidecar runtimes
+pub mod ollama;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
@@ -32,9 +46,12 @@ pub use duckdb::DuckDbAdapter;
 pub use embedder::CandleEmbedder;
 pub use libsql::LibSqlAdapter;
 pub use moka::{MokaAdapter, MokaCacheConfig};
+pub use ollama::{OllamaAdapter, OllamaConfig, OllamaModel};
+pub use port_alloc::{Disposition, PortAllocation};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
 pub use surreal::{ScopedGraphHandle, SurrealAdapter};
+pub use surrealdb_sidecar::{SidecarConfig, SidecarEndpoint, SurrealdbSidecarAdapter};
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,
@@ -45,7 +62,12 @@ pub use whisper::WhisperAdapter;
 use anyhow::Result;
 use std::sync::Arc;
 
-/// Unified persistence layer combining all databases
+/// Unified persistence layer combining all databases.
+///
+/// This struct predates the engine-driven boot pipeline and is no
+/// longer the primary wiring path — engine boot constructs adapters
+/// directly via their `connect` / `open` / `boot` constructors. Left
+/// here for low-level tests that want a single lazy-init container.
 pub struct PersistenceLayer {
     config: PersistenceConfig,
     libsql: Option<Arc<LibSqlAdapter>>,
@@ -57,7 +79,7 @@ pub struct PersistenceLayer {
 }
 
 impl PersistenceLayer {
-    /// Create a new persistence layer with the given config
+    /// Create a new persistence layer with the given config.
     pub fn new(config: PersistenceConfig) -> Self {
         Self {
             config,
@@ -70,28 +92,24 @@ impl PersistenceLayer {
         }
     }
 
-    /// Initialize all databases.
+    /// Initialize the file-backed stores (LibSQL + DuckDB).
+    ///
+    /// SurrealDB is intentionally not part of `init()` — it is a client
+    /// to a managed sidecar, so callers must pass a ready `SidecarEndpoint`
+    /// via [`Self::connect_surreal`].
     ///
     /// # Errors
-    /// Returns error if any database adapter fails to initialize its schema.
+    /// Returns error if any file-backed adapter fails to initialize.
     pub async fn init(&mut self) -> Result<()> {
-        // Ensure directories exist
         self.config.ensure_dirs()?;
 
-        // Initialize LibSQL
         let libsql_path = self.config.store_path(StoreKind::LibSql);
         let libsql = LibSqlAdapter::open(&libsql_path).await?;
         self.libsql = Some(Arc::new(libsql));
 
-        // Initialize DuckDB
         let duckdb_path = self.config.store_path(StoreKind::DuckDb);
         let duckdb = DuckDbAdapter::open(&duckdb_path)?;
         self.duckdb = Some(Arc::new(duckdb));
-
-        // Initialize SurrealDB
-        let surreal_path = self.config.store_path(StoreKind::Surreal);
-        let surreal = SurrealAdapter::open(&surreal_path).await?;
-        self.surreal = Some(Arc::new(surreal));
 
         Ok(())
     }
@@ -122,7 +140,7 @@ impl PersistenceLayer {
         self.rro.as_ref()
     }
 
-    /// Check if a store is initialized
+    /// Check if a store is initialized.
     pub fn is_initialized(&self, kind: StoreKind) -> bool {
         match kind {
             StoreKind::LibSql => self.libsql.is_some(),
@@ -136,13 +154,13 @@ impl PersistenceLayer {
         }
     }
 
-    /// Get the persistence config
+    /// Get the persistence config.
     pub fn config(&self) -> &PersistenceConfig {
         &self.config
     }
 
     // ─────────────────────────────────────────────────────────
-    // Granular initialization (for startup progress reporting)
+    // Granular initialization
     // ─────────────────────────────────────────────────────────
 
     /// Ensure all database directories exist.
@@ -176,13 +194,12 @@ impl PersistenceLayer {
         Ok(())
     }
 
-    /// Initialize `SurrealDB` only.
+    /// Connect `SurrealDB` as a client to a managed sidecar.
     ///
     /// # Errors
-    /// Returns error if the database cannot be opened or schema fails.
-    pub async fn init_surreal(&mut self) -> Result<()> {
-        let path = self.config.store_path(StoreKind::Surreal);
-        let adapter = SurrealAdapter::open(&path).await?;
+    /// Returns error if the WS connection or schema init fails.
+    pub async fn connect_surreal(&mut self, endpoint: &SidecarEndpoint) -> Result<()> {
+        let adapter = SurrealAdapter::connect(endpoint).await?;
         self.surreal = Some(Arc::new(adapter));
         Ok(())
     }
