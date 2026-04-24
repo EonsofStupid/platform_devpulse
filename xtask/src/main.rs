@@ -109,6 +109,19 @@ enum Commands {
         #[arg(long)]
         kind: Option<String>,
     },
+    /// Download the SurrealDB sidecar binary into
+    /// `interfaces/desktop/src-tauri/binaries/`. The release tag is
+    /// pinned in `fetch_surreal.rs` to match the `surrealdb` crate
+    /// version in the workspace.
+    FetchSurreal {
+        /// Target platform: `win32-x64`, `darwin-arm64`, `darwin-x64`,
+        /// `linux-x64`, or `linux-arm64`.
+        #[arg(long)]
+        target: String,
+        /// Re-download even if the destination file already exists.
+        #[arg(long)]
+        force: bool,
+    },
 }
 
 fn main() -> anyhow::Result<()> {
@@ -141,6 +154,9 @@ fn main() -> anyhow::Result<()> {
             manifest,
             kind,
         }),
+        Commands::FetchSurreal { target, force } => {
+            Box::new(commands::fetch_surreal::FetchSurreal { target, force })
+        }
     };
 
     // Task banner on stdout — it's progress, not a warning. Suppressed

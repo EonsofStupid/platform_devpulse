@@ -193,12 +193,20 @@ fn run_with_timeout(
 /// - The Tauri app binary and backend
 /// - Previous xtask instances that froze
 /// - cargo-tauri (the Tauri CLI invoked by pnpm)
+/// - Managed sidecars whose `kill_on_drop` did not fire because the
+///   parent crashed (`surreal`, `llama-server`). Ollama is user-installed
+///   and deliberately excluded — we never sweep a process we don't own.
 const ZOMBIE_NAMES: &[&str] = &[
     "devpulse-desktop-app",
     "devpulse_desktop_backend",
     "devpulse-desktop-backend",
     "cargo-tauri",
     "xtask",
+    // Managed sidecar binaries (Tauri `externalBin` targets).
+    "surreal",
+    "surreal-x86_64-pc-windows-msvc",
+    "llama-server",
+    "llama-server-x86_64-pc-windows-msvc",
 ];
 
 /// Build command-line patterns that identify DevPulse dev processes.
