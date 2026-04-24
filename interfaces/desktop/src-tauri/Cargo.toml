@@ -48,6 +48,13 @@ rand = "0.8"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 futures = { workspace = true }
 
+# Vision / PixVix capture stack
+# xcap: cross-platform screen + window capture (multi-monitor, PNG-friendly).
+# nokhwa: cross-platform webcam capture (MediaFoundation on Windows, AVFoundation
+#   on macOS, V4L2 on Linux). `input-native` is the canonical feature.
+xcap = "0.9"
+nokhwa = { version = "0.10", features = ["input-native"] }
+
 [features]
 default = ["inference"]
 # Model loader + hardware push — always on for now.
