@@ -60,13 +60,23 @@ Every UI screen in this sprint follows one shape:
 
 ### V-1 Baseline verify (no new code, trust but verify)
 
-- [ ] Rename `models/vision/google--siglip2/` → `models/vision/google--siglip-so400m-patch14-384/` (config.json proves this is SigLip 1, not 2)
-- [ ] Update `devpulse.json` `label` from "SigLIP2" → "SigLIP (SO400M, patch14, 384)"
-- [ ] Inspect `kernel/model-loader/config/slots.default.toml` for `vision.embedder` slot + fix assignment if broken
-- [ ] Run `cargo xtask run-dev`, navigate to `/devtools/vision`, assign the renamed model, click Load
-- [ ] Click "Pick image → encode" with a test PNG; confirm 1152-dim output + norm ≈ 1.0
-- [ ] Record load time, encode time, RAM growth, CPU cost for the metrics baseline
-- [ ] Commit `chore(model-loader): correct SigLip model labels + baseline verified`
+**Revised after safetensors header inspection — the model is SigLIP 2, not SigLIP 1. The preset id `google/siglip2-so400m-patch14-384` is the real HuggingFace repo. HF's `/` → `--` dir convention explains the folder name. No rename needed.**
+
+Also confirmed from inspection:
+- Safetensors tensor keys are identical to SigLip 1 layout (`vision_model.embeddings.*`, `vision_model.encoder.layers.*`). 888 tensors total.
+- Our existing `backends/candle/siglip.rs` loads via `vb.pp("vision_model")` which matches the on-disk prefix.
+- Conclusion: **candle-transformers 0.9.2 should load this SigLIP 2 checkpoint as-is**. No candle bump needed for V-1.
+- Bonus: `ort = "=2.0.0-rc.12"` is **already** in the workspace `Cargo.toml` — V-5 doesn't need a new dep, just a feature gate in model-loader.
+
+- [x] Confirm model identity via safetensors header inspection — is SigLIP 2 SO400M patch14 384
+- [x] Confirm tensor prefix matches candle load path (`vision_model.*`)
+- [x] Confirm `ort` already workspace-pinned at 2.0.0-rc.12 (V-5 unblocked)
+- [x] Confirm slots.default.toml defines `vision.embedder` with capability `VisionEmbedding` + signal-loaded on `screenshot.captured` + Candle runtime
+- [x] Confirm presets.default.toml references `google/siglip2-so400m-patch14-384` as the bundled default
+- [x] Update `models/vision/google--siglip2/devpulse.json` with explicit HF repo id + tensor layout + size + architecture (so downstream tooling doesn't guess)
+- [x] Leave empty `google--siglip2-base/` stub — intentional placeholder for a smaller base variant
+- [ ] **Owner-run runtime smoke** (I can't run the GUI): `cargo xtask run-dev` → `/devtools/vision` → Load slot → Pick image → confirm 1152-dim output and `norm ≈ 1.0` — numbers land in the V-1 commit body as the baseline
+- [ ] Commit `chore(model-loader): sharpen vision.embedder metadata for SigLIP 2 baseline`
 
 ### V-2 Engine vision module (governor + metrics + DTOs)
 
@@ -112,7 +122,9 @@ Every UI screen in this sprint follows one shape:
 
 ### V-5 HD via ONNX SigLip 2 (ort backend)
 
-- [ ] Add `ort = { version = "2", default-features = false, features = ["load-dynamic", "ndarray"] }` to `kernel/model-loader/Cargo.toml` behind new `ort-backend` feature
+*(V-0 inspection found `ort = "=2.0.0-rc.12"` already workspace-pinned — skip the dep-add step and go straight to enabling the feature in model-loader.)*
+
+- [ ] Add `ort = { workspace = true, optional = true }` to `kernel/model-loader/Cargo.toml` behind new `ort-backend` feature (no version bump needed — reuses workspace pin)
 - [ ] New backend `kernel/model-loader/src/backends/ort/siglip_naflex.rs` implementing `VisionEmbeddingBackend`
   - [ ] Loads `onnx-community/siglip2-so400m-patch14-384-ONNX` (FixRes, not NaFlex — NaFlex deferred)
   - [ ] Same preprocessing as candle path (mean 0.5, std 0.5, 384² RGB CHW)
