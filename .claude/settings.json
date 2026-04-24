@@ -11,13 +11,7 @@
       "WebSearch",
       "Skill",
       "TodoWrite",
-      "NotebookEdit",
-      "Edit(/.claude/skills/align-components/**)",
-      "Edit(/.claude/skills/preflight/**)",
-      "Edit(/.claude/skills/parkinglot/**)",
-      "Edit(/.claude/skills/gate/**)",
-      "Edit(/.claude/skills/corrections/**)",
-      "Edit(/.claude/skills/planning/**)"
+      "NotebookEdit"
     ],
     "deny": [
       "Bash(rm -rf /*)",
