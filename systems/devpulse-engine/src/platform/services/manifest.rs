@@ -95,6 +95,15 @@ pub struct ServiceMeta {
 pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
     // ── Stage 1: Preflight is not a service — it's a boot step ──
     ServiceMeta {
+        role: ServiceRole::SurrealdbSidecar,
+        scope: DataScope::System,
+        stage: 2,
+        public_name: "SurrealDB Sidecar",
+        feature_gate: None,
+        step_id: Some("SurrealDB sidecar"),
+        group: ServiceGroup::Graph,
+    },
+    ServiceMeta {
         role: ServiceRole::Relational,
         scope: DataScope::System,
         stage: 2,
@@ -222,15 +231,16 @@ pub const SERVICE_COUNT: usize = SERVICE_MANIFEST.len();
 /// This function uses exhaustive match — compiler error if a role is missing.
 pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
     let idx = match role {
-        ServiceRole::Relational => 0, // System relational (first entry)
-        ServiceRole::Analytics => 1,
-        ServiceRole::Graph => 2, // System graph (first entry)
-        ServiceRole::Cache => 3,
-        ServiceRole::Vector => 7,
-        ServiceRole::Grammar => 8,
-        ServiceRole::ModelLoader => 9,
-        ServiceRole::DevForge => 10,
-        ServiceRole::OllamaSidecar => 11,
+        ServiceRole::SurrealdbSidecar => 0,
+        ServiceRole::Relational => 1, // System relational (first entry)
+        ServiceRole::Analytics => 2,
+        ServiceRole::Graph => 3, // System graph (first entry)
+        ServiceRole::Cache => 4,
+        ServiceRole::Vector => 8,
+        ServiceRole::Grammar => 9,
+        ServiceRole::ModelLoader => 10,
+        ServiceRole::DevForge => 11,
+        ServiceRole::OllamaSidecar => 12,
     };
     &SERVICE_MANIFEST[idx]
 }
@@ -335,7 +345,13 @@ pub const BOOT_STEP_MANIFEST: &[BootStepMeta] = &[
         service_ref: Some((ServiceRole::Graph, DataScope::Global)),
     },
     BootStepMeta {
-        // HTTP sidecar for SurrealDB — not a validated service on its own.
+        step_id: "SurrealDB sidecar",
+        group: ServiceGroup::Graph,
+        feature_gate: None,
+        service_ref: Some((ServiceRole::SurrealdbSidecar, DataScope::System)),
+    },
+    BootStepMeta {
+        // HTTP endpoint exposed by the sidecar — not a validated service on its own.
         step_id: "SurrealDB HTTP",
         group: ServiceGroup::Graph,
         feature_gate: None,
@@ -398,6 +414,27 @@ mod tests {
                 step.service_ref,
                 Some((svc.role, svc.scope)),
                 "service_ref mismatch for step_id `{step_id}`"
+            );
+        }
+    }
+
+    #[test]
+    fn every_manifest_entry_has_config_flags() {
+        // Every `(role, scope)` in SERVICE_MANIFEST must round-trip through
+        // `PlatformBootConfig::service_flags`. Drift here is the mistake
+        // this test catches: a new `ServiceMeta` was added without a
+        // matching arm in `service_flags`, and the devtool would silently
+        // report `config_enabled=false` forever.
+        use crate::platform::config::PlatformBootConfig;
+        let cfg = PlatformBootConfig::default();
+        for svc in SERVICE_MANIFEST {
+            assert!(
+                cfg.service_flags(svc.role, svc.scope).is_some(),
+                "SERVICE_MANIFEST entry (role={:?}, scope={:?}) has no \
+                 arm in PlatformBootConfig::service_flags — \
+                 services_status() would report it as ConfigDisabled forever",
+                svc.role,
+                svc.scope,
             );
         }
     }

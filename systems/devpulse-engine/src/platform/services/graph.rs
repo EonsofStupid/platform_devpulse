@@ -1,17 +1,19 @@
 //! Graph service wrapper (`SurrealDB`).
 //!
-//! Each `GraphService` holds a `ScopedGraphHandle` — every query is
-//! explicitly scoped to its namespace/database. No shared implicit context.
+//! The graph layer is a pure WS client to the managed SurrealDB sidecar
+//! — see [`crate::platform::services::surrealdb_sidecar`] for the process
+//! lifecycle. Each `GraphService` holds a `ScopedGraphHandle` that
+//! prefixes every query with `USE NS {ns} DB {db};`, so namespace
+//! isolation is enforced at the query level.
 //!
 //! Three scoped schemas:
-//! - **System**: FSM state machine, thinking state, quality check outputs
-//! - **User**: knowledge graph, memory with staging, corrections
-//! - **Global**: cross-project concepts, shared learnings, dev profile
+//! - **System**: FSM state machine, thinking state, quality check outputs.
+//! - **User**: knowledge graph, memory with staging, corrections.
+//! - **Global**: cross-project concepts, shared learnings, dev profile.
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_clyffy::cortex::persistence::{ScopedGraphHandle, SurrealAdapter};
-use std::path::Path;
 use std::sync::Arc;
 
 /// Graph store backed by `SurrealDB` with explicit namespace scoping.
@@ -25,32 +27,11 @@ pub struct GraphService {
 }
 
 impl GraphService {
-    /// Boot a standalone graph store with its own `SurrealKV` instance.
+    /// Create a graph service from a shared `SurrealAdapter` client.
     ///
-    /// Opens a new `SurrealAdapter` at the given path and creates a
-    /// scoped handle for the given namespace/database. Used for
-    /// project-scoped graph stores that live outside the consolidated instance.
-    ///
-    /// # Errors
-    /// Returns error if the database cannot be opened or schema initialization fails.
-    pub async fn boot(
-        path: &Path,
-        namespace: &str,
-        database: &str,
-        schema: &str,
-        label: &'static str,
-    ) -> Result<Self> {
-        let adapter = SurrealAdapter::open_with_ns(path, namespace, database, schema).await?;
-        let adapter = Arc::new(adapter);
-        let handle = adapter.scoped_handle(namespace, database);
-        Ok(Self { handle, label })
-    }
-
-    /// Create a graph service from a shared adapter with explicit scope.
-    ///
-    /// Used when all graph stores share a single `SurrealKV` instance
-    /// with multiple namespaces. The adapter must already have the
-    /// target namespace initialized via `init_namespace()`.
+    /// All graph scopes (system, user, global) share a single WS client
+    /// to the sidecar — the adapter must already have the target
+    /// namespace initialized via `init_namespace()` before this call.
     pub fn from_shared(
         adapter: &Arc<SurrealAdapter>,
         namespace: &str,
@@ -66,7 +47,7 @@ impl GraphService {
         &self.handle
     }
 
-    /// Get the underlying adapter (for HTTP server sharing).
+    /// Get the underlying adapter (shared WS client).
     pub fn adapter(&self) -> &Arc<SurrealAdapter> {
         self.handle.adapter()
     }

@@ -1,8 +1,13 @@
 //! Platform configuration types.
 //!
 //! Two layers:
-//! - **Public** (`PlatformConfig`, `DatabaseConfig`): TS-exported, what Tauri/frontend sees.
+//! - **Public** (`PlatformConfig`): TS-exported, what Tauri/frontend sees.
 //! - **Internal** (`PlatformBootConfig`): TOML-driven boot config, never exposed to TS.
+//!
+//! Per-service enable/critical flags are exposed to the UI through
+//! `Platform::services_status()` which derives its entries from
+//! [`SERVICE_MANIFEST`](super::services::manifest::SERVICE_MANIFEST) —
+//! there is no hand-maintained `DatabaseConfig` mirror.
 //!
 //! Store layout uses four scopes:
 //! - **system**: Kernel/engine internals (FSM, telemetry, boot state)
@@ -23,44 +28,16 @@ use std::time::Duration;
 /// Public platform configuration.
 ///
 /// This is what Tauri and the frontend see for settings display.
-/// Wraps clyffy's `PersistenceConfig` without exposing it.
+/// Per-service enable/critical flags are NOT embedded here — they are
+/// served through `Platform::services_status()` which is derived from
+/// the SSOT [`SERVICE_MANIFEST`](super::services::manifest::SERVICE_MANIFEST).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PlatformConfig {
     /// Root data directory path.
     pub data_dir: String,
     /// Whether portable mode is active.
     pub portable: bool,
-    /// Database subsystem configuration.
-    pub databases: DatabaseConfig,
 }
-
-/// Database subsystem configuration (public-safe names).
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-#[allow(clippy::struct_excessive_bools)] // TS-exported config — bools are the natural shape
-pub struct DatabaseConfig {
-    /// System relational store enabled (`LibSQL`).
-    pub system_relational_enabled: bool,
-    /// System analytics store enabled (`DuckDB`).
-    pub system_analytics_enabled: bool,
-    /// System graph store enabled (`SurrealDB`).
-    pub system_graph_enabled: bool,
-    /// System cache store enabled (`Moka`).
-    pub system_cache_enabled: bool,
-    /// User relational store enabled (`LibSQL`).
-    pub user_relational_enabled: bool,
-    /// User graph store enabled (`SurrealDB`).
-    pub user_graph_enabled: bool,
-    /// Global graph store enabled (`SurrealDB`).
-    pub global_graph_enabled: bool,
-    /// Vector store enabled (`RRO`).
-    pub vector_enabled: bool,
-    /// Grammar service enabled.
-    pub grammar_enabled: bool,
-    /// `DevForge` service enabled (REH).
-    pub devforge_enabled: bool,
-}
-
-// DatabaseConfig has NO Default impl by design.
 
 // ═══════════════════════════════════════════════════════════════
 // Public telemetry types (TS-exported)
@@ -226,8 +203,6 @@ pub struct LaneTraceConfig {
     /// Write every trace to `DuckDB` for baseline analysis.
     pub persist_to_duckdb: bool,
 }
-// The ONLY way to construct it is via PlatformBootConfig::to_database_config(),
-// which reads real values from the parsed TOML. This prevents config drift.
 
 // ═══════════════════════════════════════════════════════════════
 // Internal boot config (TOML-driven, NOT TS-exported)
@@ -350,6 +325,9 @@ pub struct SystemServicesConfig {
     /// Ollama sidecar service (managed `ollama serve` child process).
     #[serde(default)]
     pub ollama_sidecar: OllamaSidecarServiceEntry,
+    /// SurrealDB sidecar service (managed `surreal start` child process).
+    #[serde(default)]
+    pub surrealdb_sidecar: SurrealdbSidecarServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -365,6 +343,7 @@ impl Default for SystemServicesConfig {
             devforge: DevForgeServiceEntry::default(),
             claude: ClaudeServiceEntry::default(),
             ollama_sidecar: OllamaSidecarServiceEntry::default(),
+            surrealdb_sidecar: SurrealdbSidecarServiceEntry::default(),
         }
     }
 }
@@ -1265,6 +1244,90 @@ impl DevForgeServiceEntry {
     }
 }
 
+/// SurrealDB sidecar service entry — managed `surreal start` child process.
+///
+/// Spawns a child running the real SurrealDB server binary against a
+/// RocksDB store at `{data_dir}/surreal/devpulse`. Attaches if a
+/// compatible SurrealDB is already listening on the configured port
+/// (identity probe via `/version`). Auto-bumps `+1` up to `max_bumps`
+/// if the configured port is held by a foreign listener.
+///
+/// The server's bind host/port come from `[services.network.graph_api]`
+/// (shared with the embedded path so `.claude/hooks/*.js` keep working
+/// on the same URL after the cutover).
+#[derive(Debug, Clone, Deserialize)]
+pub struct SurrealdbSidecarServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails. SurrealDB is critical —
+    /// the graph store depends on it — defaults to `true`.
+    #[serde(default = "default_true")]
+    pub critical: bool,
+    /// Explicit path to the `surreal` binary. Empty = resolve against
+    /// sidecar bundle / standard install paths / PATH.
+    #[serde(default)]
+    pub binary_path: String,
+    /// Whether to start at platform boot. Defaults to `true` — the
+    /// graph store assumes the sidecar is running.
+    #[serde(default = "default_true")]
+    pub auto_start: bool,
+    /// Root user passed to `surreal start --user`. Must match one of
+    /// the NAMESPACE-scoped users created during boot so `/sql` auth
+    /// works. Defaults to `root`.
+    #[serde(default = "default_surreal_root_user")]
+    pub root_user: String,
+    /// Root password passed to `surreal start --pass`. Defaults to
+    /// `root` — override in `platform.default.toml`.
+    #[serde(default = "default_surreal_root_password")]
+    pub root_password: String,
+    /// `--log <level>` flag. Default `warn` to keep session logs clean.
+    #[serde(default = "default_surreal_log_level")]
+    pub log_level: String,
+    /// Maximum `+1` port bumps when the configured port is foreign.
+    /// `None` = use the allocator default (20).
+    #[serde(default)]
+    pub max_bumps: Option<u16>,
+}
+
+fn default_surreal_root_user() -> String {
+    "root".to_string()
+}
+fn default_surreal_root_password() -> String {
+    "root".to_string()
+}
+fn default_surreal_log_level() -> String {
+    "warn".to_string()
+}
+
+impl Default for SurrealdbSidecarServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            critical: true,
+            binary_path: String::new(),
+            auto_start: true,
+            root_user: default_surreal_root_user(),
+            root_password: default_surreal_root_password(),
+            log_level: default_surreal_log_level(),
+            max_bumps: None,
+        }
+    }
+}
+
+impl SurrealdbSidecarServiceEntry {
+    /// Explicit binary path if configured, else `None`.
+    #[must_use]
+    pub fn resolved_binary(&self) -> Option<PathBuf> {
+        let trimmed = self.binary_path.trim();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(PathBuf::from(trimmed))
+        }
+    }
+}
+
 /// Ollama sidecar service entry — managed `ollama serve` child process.
 ///
 /// Spawns a child running the Ollama HTTP server on `<host>:<port>`.
@@ -1577,7 +1640,7 @@ impl Default for BootGateConfig {
 // ═══════════════════════════════════════════════════════════════
 
 /// Identifies which scope a store belongs to.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum DataScope {
     /// Kernel/engine internals — never user-facing.
     System,
@@ -1629,66 +1692,85 @@ impl PlatformBootConfig {
     /// Check if a service is both enabled AND critical in config.
     ///
     /// Used by boot validation to determine which failures are fatal.
-    /// Reads directly from parsed TOML — no hardcoded list.
+    /// Reads directly from parsed TOML via [`service_flags`](Self::service_flags).
     pub fn is_enabled_and_critical(
         &self,
         role: crate::platform::services::ServiceRole,
         scope: DataScope,
     ) -> bool {
-        use crate::platform::services::ServiceRole;
-        match (role, scope) {
-            (ServiceRole::Relational, DataScope::System) => {
-                self.services.system.relational.enabled && self.services.system.relational.critical
-            }
-            (ServiceRole::Analytics, DataScope::System) => {
-                self.services.system.analytics.enabled && self.services.system.analytics.critical
-            }
-            (ServiceRole::Graph, DataScope::System) => {
-                self.services.system.graph.enabled && self.services.system.graph.critical
-            }
-            (ServiceRole::Cache, DataScope::System) => {
-                self.services.system.cache.enabled && self.services.system.cache.critical
-            }
-            (ServiceRole::Vector, DataScope::System) => {
-                self.services.system.vector.enabled && self.services.system.vector.critical
-            }
-            (ServiceRole::Grammar, DataScope::System) => {
-                self.services.system.grammar.enabled && self.services.system.grammar.critical
-            }
-            (ServiceRole::ModelLoader, DataScope::System) => {
-                self.services.system.model_loader.enabled
-                    && self.services.system.model_loader.critical
-            }
-            (ServiceRole::DevForge, DataScope::System) => {
-                self.services.system.devforge.enabled && self.services.system.devforge.critical
-            }
-            (ServiceRole::Relational, DataScope::User) => {
-                self.services.user.relational.enabled && self.services.user.relational.critical
-            }
-            (ServiceRole::Graph, DataScope::User) => {
-                self.services.user.graph.enabled && self.services.user.graph.critical
-            }
-            (ServiceRole::Graph, DataScope::Global) => {
-                self.services.global.graph.enabled && self.services.global.graph.critical
-            }
-            // Project scope doesn't participate in boot validation
-            _ => false,
-        }
+        self.service_flags(role, scope)
+            .is_some_and(|(enabled, critical)| enabled && critical)
     }
 
-    /// Convert to the public `DatabaseConfig` for TS export.
-    pub fn to_database_config(&self) -> DatabaseConfig {
-        DatabaseConfig {
-            system_relational_enabled: self.services.system.relational.enabled,
-            system_analytics_enabled: self.services.system.analytics.enabled,
-            system_graph_enabled: self.services.system.graph.enabled,
-            system_cache_enabled: self.services.system.cache.enabled,
-            user_relational_enabled: self.services.user.relational.enabled,
-            user_graph_enabled: self.services.user.graph.enabled,
-            global_graph_enabled: self.services.global.graph.enabled,
-            vector_enabled: self.services.system.vector.enabled,
-            grammar_enabled: self.services.system.grammar.enabled,
-            devforge_enabled: self.services.system.devforge.enabled,
+    /// Look up the `(enabled, critical)` flags for a manifest entry.
+    ///
+    /// Returns `None` if the `(role, scope)` pair has no corresponding
+    /// config entry (e.g. `(Graph, Project)`). Every `(role, scope)` pair
+    /// present in [`SERVICE_MANIFEST`](super::super::services::manifest::SERVICE_MANIFEST)
+    /// MUST return `Some` — drift is caught by the
+    /// `every_manifest_entry_has_config_flags` unit test in
+    /// `services::manifest`.
+    #[must_use]
+    pub fn service_flags(
+        &self,
+        role: crate::platform::services::ServiceRole,
+        scope: DataScope,
+    ) -> Option<(bool, bool)> {
+        use crate::platform::services::ServiceRole;
+        match (role, scope) {
+            (ServiceRole::Relational, DataScope::System) => Some((
+                self.services.system.relational.enabled,
+                self.services.system.relational.critical,
+            )),
+            (ServiceRole::Analytics, DataScope::System) => Some((
+                self.services.system.analytics.enabled,
+                self.services.system.analytics.critical,
+            )),
+            (ServiceRole::Graph, DataScope::System) => Some((
+                self.services.system.graph.enabled,
+                self.services.system.graph.critical,
+            )),
+            (ServiceRole::Cache, DataScope::System) => Some((
+                self.services.system.cache.enabled,
+                self.services.system.cache.critical,
+            )),
+            (ServiceRole::Vector, DataScope::System) => Some((
+                self.services.system.vector.enabled,
+                self.services.system.vector.critical,
+            )),
+            (ServiceRole::Grammar, DataScope::System) => Some((
+                self.services.system.grammar.enabled,
+                self.services.system.grammar.critical,
+            )),
+            (ServiceRole::ModelLoader, DataScope::System) => Some((
+                self.services.system.model_loader.enabled,
+                self.services.system.model_loader.critical,
+            )),
+            (ServiceRole::DevForge, DataScope::System) => Some((
+                self.services.system.devforge.enabled,
+                self.services.system.devforge.critical,
+            )),
+            (ServiceRole::OllamaSidecar, DataScope::System) => Some((
+                self.services.system.ollama_sidecar.enabled,
+                self.services.system.ollama_sidecar.critical,
+            )),
+            (ServiceRole::SurrealdbSidecar, DataScope::System) => Some((
+                self.services.system.surrealdb_sidecar.enabled,
+                self.services.system.surrealdb_sidecar.critical,
+            )),
+            (ServiceRole::Relational, DataScope::User) => Some((
+                self.services.user.relational.enabled,
+                self.services.user.relational.critical,
+            )),
+            (ServiceRole::Graph, DataScope::User) => Some((
+                self.services.user.graph.enabled,
+                self.services.user.graph.critical,
+            )),
+            (ServiceRole::Graph, DataScope::Global) => Some((
+                self.services.global.graph.enabled,
+                self.services.global.graph.critical,
+            )),
+            _ => None,
         }
     }
 }

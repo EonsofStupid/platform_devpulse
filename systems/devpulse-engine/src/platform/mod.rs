@@ -35,14 +35,12 @@ pub mod integrations;
 pub mod metrics;
 pub mod module;
 pub mod reasoning;
-pub mod server;
 pub mod services;
 pub mod telemetry;
 
 pub use config::{
-    retrieval_param_meta, sanitize_path, DataScope, DatabaseConfig, ExecutionLane, LaneToggle,
-    LaneTraceConfig, PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta,
-    RetrievalPreset,
+    retrieval_param_meta, sanitize_path, DataScope, ExecutionLane, LaneToggle, LaneTraceConfig,
+    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
@@ -57,8 +55,14 @@ pub use services::ollama_sidecar::OllamaModel;
 pub use services::sherpa_streaming::{
     SherpaCompileInfo, SherpaInstalledModel, SherpaSessionInfo, SherpaStreamingService,
 };
+pub use services::surrealdb_sidecar::{
+    SurrealdbSidecarConfigView, SurrealdbSidecarHealth as SurrealdbSidecarHealthDto,
+    SurrealdbSidecarStatus as SurrealdbSidecarStatusDto,
+};
+pub use services::surrealdb_sidecar_config::SurrealdbSidecarUserConfig;
 pub use services::voice_stt_config::VoiceSttConfig;
 pub use services::voice_tts_config::VoiceTtsConfig;
+pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
 pub use services::{Service, ServiceRole, ServiceState};
 
 // Re-export clyffy persistence traits and types for Tauri command layer
@@ -105,6 +109,9 @@ use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgeService};
 use services::graph::GraphService;
 use services::ollama_sidecar::OllamaSidecarService;
+use services::surrealdb_sidecar::{
+    SurrealdbSidecarHealth, SurrealdbSidecarService, SurrealdbSidecarStatus,
+};
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
@@ -131,6 +138,10 @@ use telemetry::TelemetryHandle;
 /// Feature gates are handled inline — non-compiled services are skipped.
 macro_rules! for_each_service {
     ($self:ident, $action:ident) => {
+        // SurrealDB sidecar — runs FIRST in health checks (the graph
+        // scopes below hold WS clients; sidecar health is the upstream
+        // signal).
+        $action!($self.surrealdb_sidecar);
         // System scope (boot order)
         $action!($self.system_relational);
         $action!($self.system_analytics);
@@ -165,6 +176,9 @@ macro_rules! for_each_service_rev {
         $action!($self.system_graph);
         $action!($self.system_analytics);
         $action!($self.system_relational);
+        // Surreal sidecar shuts down LAST — after every client has had a
+        // chance to close its WS connection.
+        $action!($self.surrealdb_sidecar);
     };
 }
 
@@ -178,6 +192,11 @@ macro_rules! for_each_service_rev {
 /// - `user_*`: User sessions, preferences, knowledge
 /// - `global_*`: Cross-project shared knowledge graph
 pub struct Platform {
+    // ── SurrealDB sidecar ─────────────────────────────────────
+    // Boot-time, not lazy: the graph scopes below hold WS clients
+    // that depend on this process. Keep it first in the struct so
+    // drop order shuts the clients down before killing the child.
+    surrealdb_sidecar: Option<Arc<SurrealdbSidecarService>>,
     // ── System scope ────────────────────────────────────────────
     system_relational: Option<Arc<RelationalService>>,
     system_analytics: Option<Arc<AnalyticsService>>,
@@ -273,6 +292,7 @@ impl Platform {
         };
 
         Ok(Self {
+            surrealdb_sidecar: booted.surrealdb_sidecar,
             system_relational: booted.system_relational,
             system_analytics: booted.system_analytics,
             system_graph: booted.system_graph,
@@ -346,7 +366,89 @@ impl Platform {
         PlatformConfig {
             data_dir: self.data_dir.display().to_string(),
             portable: self.boot_config.portable.enabled,
-            databases: self.boot_config.to_database_config(),
+        }
+    }
+
+    /// Snapshot every service in [`SERVICE_MANIFEST`] with its static
+    /// metadata + the three dynamic signals (compiled / config / runtime).
+    ///
+    /// This is the SOLE authoritative surface for "what services does
+    /// the platform know about, and what state are they in right now".
+    /// The devtools config tab consumes it verbatim — there is no
+    /// hand-maintained `DatabaseConfig` mirror.
+    pub async fn services_status(&self) -> Vec<ServiceStatusSnapshot> {
+        use services::status::{feature_gate_compiled_in, manifest_entries, snapshot_from};
+
+        let grammar_runtime_enabled = self.grammar.snapshot().await.enabled;
+
+        let mut out = Vec::with_capacity(manifest_entries().count());
+        for meta in manifest_entries() {
+            let compiled = feature_gate_compiled_in(meta);
+            let (config_enabled, config_critical) = self
+                .boot_config
+                .service_flags(meta.role, meta.scope)
+                .unwrap_or((false, false));
+
+            let runtime_state = if !compiled {
+                ServiceRuntimeState::NotCompiled
+            } else if !config_enabled {
+                ServiceRuntimeState::ConfigDisabled
+            } else {
+                self.runtime_state_for(meta.role, meta.scope, grammar_runtime_enabled)
+            };
+
+            out.push(snapshot_from(
+                meta,
+                config_enabled,
+                config_critical,
+                runtime_state,
+            ));
+        }
+        out
+    }
+
+    /// Dispatch from (role, scope) → live `ServiceRuntimeState` by reading
+    /// the matching accessor on `self`. Caller must have already ruled
+    /// out `NotCompiled` / `ConfigDisabled` before invoking.
+    fn runtime_state_for(
+        &self,
+        role: ServiceRole,
+        scope: config::DataScope,
+        grammar_runtime_enabled: bool,
+    ) -> ServiceRuntimeState {
+        use config::DataScope;
+        let present = match (role, scope) {
+            (ServiceRole::Relational, DataScope::System) => self.system_relational.is_some(),
+            (ServiceRole::Analytics, DataScope::System) => self.system_analytics.is_some(),
+            (ServiceRole::Graph, DataScope::System) => self.system_graph.is_some(),
+            (ServiceRole::Cache, DataScope::System) => self.system_cache.is_some(),
+            (ServiceRole::Relational, DataScope::User) => self.user_relational.is_some(),
+            (ServiceRole::Graph, DataScope::User) => self.user_graph.is_some(),
+            (ServiceRole::Graph, DataScope::Global) => self.global_graph.is_some(),
+            #[cfg(feature = "rro")]
+            (ServiceRole::Vector, DataScope::System) => self.vector.is_some(),
+            #[cfg(not(feature = "rro"))]
+            (ServiceRole::Vector, DataScope::System) => return ServiceRuntimeState::NotCompiled,
+            #[cfg(feature = "inference")]
+            (ServiceRole::ModelLoader, DataScope::System) => self.model_loader.is_some(),
+            #[cfg(not(feature = "inference"))]
+            (ServiceRole::ModelLoader, DataScope::System) => {
+                return ServiceRuntimeState::NotCompiled
+            }
+            (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
+            (ServiceRole::OllamaSidecar, DataScope::System) => {
+                self.ollama_sidecar.load_full().is_some()
+            }
+            (ServiceRole::SurrealdbSidecar, DataScope::System) => self.surrealdb_sidecar.is_some(),
+            (ServiceRole::Grammar, DataScope::System) => grammar_runtime_enabled,
+            // Any (role, scope) pair not in SERVICE_MANIFEST shouldn't
+            // reach here — manifest→runtime dispatch covers every entry.
+            _ => return ServiceRuntimeState::Unknown,
+        };
+        if present {
+            ServiceRuntimeState::Running
+        } else {
+            ServiceRuntimeState::Stopped
         }
     }
 
@@ -539,6 +641,71 @@ impl Platform {
     #[must_use]
     pub fn ollama_sidecar(&self) -> Option<Arc<OllamaSidecarService>> {
         self.ollama_sidecar.load_full()
+    }
+
+    /// Get the managed SurrealDB sidecar, if boot succeeded.
+    #[must_use]
+    pub fn surrealdb_sidecar(&self) -> Option<&Arc<SurrealdbSidecarService>> {
+        self.surrealdb_sidecar.as_ref()
+    }
+
+    /// Read-only access to the SurrealDB sidecar config entry.
+    #[must_use]
+    pub fn boot_config_surrealdb_sidecar(&self) -> &config::SurrealdbSidecarServiceEntry {
+        &self.boot_config.services.system.surrealdb_sidecar
+    }
+
+    /// Serialize-friendly sidecar status for the Tauri command layer.
+    ///
+    /// Returns [`SurrealdbSidecarStatus::stopped`] if the sidecar is
+    /// absent (either disabled in config or its boot failed).
+    #[must_use]
+    pub fn surrealdb_sidecar_status(&self) -> SurrealdbSidecarStatus {
+        match &self.surrealdb_sidecar {
+            Some(svc) => svc.snapshot(),
+            None => SurrealdbSidecarStatus::stopped(
+                self.boot_config
+                    .services
+                    .network
+                    .graph_api
+                    .port,
+            ),
+        }
+    }
+
+    /// Live-probe the sidecar and convert to a serialize-friendly result.
+    pub async fn surrealdb_sidecar_health(&self) -> SurrealdbSidecarHealth {
+        match &self.surrealdb_sidecar {
+            None => SurrealdbSidecarHealth::stopped(),
+            Some(svc) => match svc.adapter().ping().await {
+                Ok(()) => SurrealdbSidecarHealth::up(),
+                Err(e) => SurrealdbSidecarHealth::down(&format!("{e:#}")),
+            },
+        }
+    }
+
+    /// Load the user-scope editable overlay for the SurrealDB sidecar.
+    ///
+    /// Never errors — returns defaults if the file is missing or
+    /// malformed. The devtool mounts this as the starting point for
+    /// its Config tab draft.
+    #[must_use]
+    pub fn surrealdb_sidecar_user_config_load(&self) -> SurrealdbSidecarUserConfig {
+        services::surrealdb_sidecar_config::load(&self.data_dir)
+    }
+
+    /// Persist a user-scope overlay atomically.
+    ///
+    /// Returns the clamped, normalized version that was written so the
+    /// devtool can reflect the post-save state.
+    ///
+    /// # Errors
+    /// Returns an error if the file could not be written.
+    pub fn surrealdb_sidecar_user_config_save(
+        &self,
+        cfg: &SurrealdbSidecarUserConfig,
+    ) -> Result<SurrealdbSidecarUserConfig> {
+        services::surrealdb_sidecar_config::save(&self.data_dir, cfg)
     }
 
     /// Read-only view into the Ollama sidecar boot config entry.

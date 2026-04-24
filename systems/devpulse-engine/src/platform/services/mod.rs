@@ -9,6 +9,7 @@ pub mod graph;
 pub mod manifest;
 pub mod project_db;
 pub mod relational;
+pub mod status;
 #[cfg(feature = "rro")]
 pub mod vector;
 // embedder + whisper modules DELETED — slot-managed by model loader (Layer 2).
@@ -22,6 +23,8 @@ pub mod candle_config;
 pub mod llama_cpp_embedded_config;
 pub mod ollama_sidecar;
 pub mod sherpa_streaming;
+pub mod surrealdb_sidecar;
+pub mod surrealdb_sidecar_config;
 pub mod voice_stt_config;
 pub mod voice_tts_config;
 
@@ -50,6 +53,8 @@ pub enum ServiceRole {
     ModelLoader,
     /// Ollama sidecar service (managed `ollama serve` child process).
     OllamaSidecar,
+    /// SurrealDB sidecar service (managed `surreal start` child process).
+    SurrealdbSidecar,
 }
 
 /// Lifecycle state of a platform service.
