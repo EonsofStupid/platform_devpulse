@@ -1,0 +1,304 @@
+{
+  "approach_notes": "Sampled 2,304 prompts; filtered out 78 auto-injected SSOT/preflight blocks to focus on user-authored content (2,226 prompts). Ran node scripts to count exact-substring document-frequency for every trigger phrase listed below, and read 25+ representative samples in full to validate that each cluster is structural (authoring shape) rather than topical.",
+  "recognition_modes": [
+    {
+      "slug": "ascii-architecture-diagram",
+      "name": "ASCII architecture diagram as the spec",
+      "description": "User has already drawn the system in box-art and arrows; the diagram itself is the design — code should mirror it node-for-node.",
+      "structural_markers": [
+        "Unicode box-drawing characters (┌ ┐ └ ┘ ─ │ ├ ┤)",
+        "Tree-style file hierarchies using ├── and └──",
+        "Vertical arrow flow ▼ between named subsystems",
+        "Code-fence enclosing the diagram (```...```)",
+        "Heading like '## Architecture' or '## Module Structure' immediately above"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "│", "doc_freq": 49},
+        {"phrase": "└─", "doc_freq": 41},
+        {"phrase": "┌", "doc_freq": 17}
+      ],
+      "what_it_means": "The user has already done the design work. They want the code laid out exactly like the diagram — same module names, same edges, same direction of flow. They are not asking for opinions on the architecture.",
+      "automatic_actions": [
+        "Treat each labeled box as a required module/struct/file with the exact name shown",
+        "Treat arrows as the only allowed dependency edges; do not introduce shortcuts or back-edges",
+        "Mirror file-tree diagrams 1:1 — create exactly those files in exactly those directories",
+        "Quote the diagram back at the top of the implementation as a comment or doc-block so drift is visible",
+        "If something in the diagram is impossible, surface that single fact and stop, do not silently substitute"
+      ],
+      "anti_patterns": [
+        "Proposing an alternate layering 'for cleanliness'",
+        "Renaming boxes (e.g. 'I called it FooHandler instead of FooSlot')",
+        "Adding intermediate adapters or facades the diagram does not show",
+        "Asking which box should be implemented first when the arrows imply a topological order",
+        "Skipping a box because 'we can stub it later'"
+      ],
+      "example_paraphrases": [
+        "## Module Structure with a fenced file-tree showing engine/src/lexicon/ subdirs and impl files; the tree is the layout to create.",
+        "User flow box → trait box → impl box → output box, with vertical arrows; the diagram is the entire prompt."
+      ],
+      "promote_to": "skill — 'mirror-the-diagram' enforces 1:1 layout; the trigger (box-drawing chars in fenced code) is unambiguous."
+    },
+    {
+      "slug": "ssot-comparison-table",
+      "name": "Source-of-truth comparison table",
+      "description": "User authors a markdown table that is itself the canonical mapping (subsystem → backend → device → strategy, or feature → file → status); rows are commitments, not suggestions.",
+      "structural_markers": [
+        "Pipe-delimited markdown table with `|---|---|` header separator",
+        "First column is a stable identifier (Profile, Subsystem, Concern, Field, Crate)",
+        "Second/third columns assign ownership, file path, or status",
+        "Often introduced by a heading like '## Slot Table', '## What Is NOT In X', or 'SSOT'"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "|---", "doc_freq": 53},
+        {"phrase": "SSOT", "doc_freq": 55},
+        {"phrase": "source of truth", "doc_freq": 54}
+      ],
+      "what_it_means": "The user has settled the contract. Each row is a decision already made. They want code that exactly populates that table — same identifiers, same assignments, no extra rows, no merged/dropped rows.",
+      "automatic_actions": [
+        "Treat each row as a test case: every identifier in column 1 must resolve in code with the values in subsequent columns",
+        "When generating code, use the column-1 identifiers verbatim as struct/enum/const names",
+        "If a row says 'lives in X', put it in X — don't reorganize",
+        "When verifying, walk the table top-to-bottom and report row-by-row pass/fail",
+        "Echo the table back at the end of the change with a status column appended"
+      ],
+      "anti_patterns": [
+        "Adding rows the user didn't author ('I also added a default row for…')",
+        "Collapsing rows that look similar",
+        "Renaming the column-1 identifier to something 'more idiomatic'",
+        "Re-deriving the mapping from first principles instead of obeying the table",
+        "Asking 'are you sure about row N?' when the table is already specific"
+      ],
+      "example_paraphrases": [
+        "Three-column table mapping each profile to a fixed backend and a fixed voice line.",
+        "Table mapping every cross-cutting concern to a single owning module path."
+      ],
+      "promote_to": "skill — 'obey-the-table' applies on any prompt with a markdown table whose header has a separator row."
+    },
+    {
+      "slug": "rust-shape-as-spec",
+      "name": "Rust struct/enum/trait pasted as the spec",
+      "description": "User pastes the exact public types they want — field names, variant names, and signatures are the contract. The implementation just has to satisfy that shape.",
+      "structural_markers": [
+        "Code fence with `rust` language tag",
+        "Contains `pub struct`, `pub enum`, `pub trait`, or `pub fn` definitions",
+        "Field/variant doc-comments using `///` describing intended semantics",
+        "Often paired with an enclosing heading naming the subsystem"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "```rust", "doc_freq": 44},
+        {"phrase": "pub struct", "doc_freq": 39},
+        {"phrase": "pub fn", "doc_freq": 25},
+        {"phrase": "pub enum", "doc_freq": 14}
+      ],
+      "what_it_means": "The user has chosen the public surface. They want that surface kept verbatim — same names, same casing, same generics — and the body filled in to honor the doc-comments.",
+      "automatic_actions": [
+        "Use the exact identifiers from the paste — including casing and ordering of fields/variants",
+        "Preserve every `///` doc-comment as written into the final file",
+        "If a field's type is ambiguous, pick the minimal-dependency stdlib choice and call out the choice in the report",
+        "Place the type in the module the surrounding heading implies (no relocation)",
+        "Add only what the doc-comments demand; do not invent extra public methods"
+      ],
+      "anti_patterns": [
+        "Renaming a variant for 'consistency'",
+        "Reordering fields to match an alphabetic or 'natural' order",
+        "Switching `String` to `&str`, `Vec<T>` to `SmallVec<T>`, etc., without being asked",
+        "Wrapping the struct in `Arc<RwLock<…>>` 'for thread safety' when the spec didn't",
+        "Adding `#[derive(...)]` lines the user didn't include unless required to compile"
+      ],
+      "example_paraphrases": [
+        "User pastes a `pub struct` with documented fields; implementation has to honor those names exactly.",
+        "User pastes a `pub struct BackendPool` with a documented `get_or_load` method showing the ref-count semantics — body must match the doc-comments."
+      ],
+      "promote_to": "skill — fires on any code-fence containing `pub struct|enum|trait|fn`; tells Claude to honor the surface verbatim."
+    },
+    {
+      "slug": "phased-execution-plan",
+      "name": "Pre-authored phased execution plan",
+      "description": "User has already broken the work into Phase 0..N with files-touched, diff-shape, and verify commands per phase; the prompt is asking for execution, not redesign.",
+      "structural_markers": [
+        "Headings of the form `## Phase N — <name>` or `### Phase A`",
+        "Per-phase 'Files:' line with bulleted file paths",
+        "Per-phase fenced bash block with `cargo check`, `cargo test`, `pnpm check`, or `git diff`",
+        "Numbered execution-order section at the end",
+        "Sometimes a final '## Verification gate' tying phases together"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "Phase 0", "doc_freq": 26},
+        {"phrase": "Phase 1", "doc_freq": 35},
+        {"phrase": "Phase 2", "doc_freq": 35},
+        {"phrase": "Phase A", "doc_freq": 17},
+        {"phrase": "### Files", "doc_freq": 10}
+      ],
+      "what_it_means": "The user has already done the planning skill's job. They want literal execution of phase 0, then a stop, then phase 1, etc. — not a re-plan, not a merged super-phase, not a parallelized variant.",
+      "automatic_actions": [
+        "Execute exactly one phase per turn unless the user says otherwise",
+        "Touch only the files listed under that phase's 'Files:' bullet",
+        "Run the verify block as written, paste the output, and stop at the gate",
+        "Report results per-phase using the user's phase numbering and headings",
+        "If a verify command fails, fix the cause inside that phase's file list — do not pull from later phases"
+      ],
+      "anti_patterns": [
+        "Combining phases ('I did 0, 1, and 2 in one commit')",
+        "Substituting a different verify command",
+        "Adding a 'Phase 0.5' the user didn't author",
+        "Re-running the planning skill on top of a prompt that is already a plan",
+        "Touching files outside the phase's listed set 'while I'm in there'"
+      ],
+      "example_paraphrases": [
+        "Phase 0 — commit the merge (one file, run cargo check); Phase 1 — wire the new flag (three files, cargo test then pnpm check); Phase 2 — UI surface (two svelte files, svelte-check).",
+        "Phase A depends on STOP 1-3; Phase B depends on Phase A; Phase C is the verification aggregator added last."
+      ],
+      "promote_to": "skill — 'execute-the-phases' fires on any prompt with two or more `Phase N` headings each owning a file list."
+    },
+    {
+      "slug": "verification-checklist-close",
+      "name": "Sprint-close verification checklist",
+      "description": "User has authored the exact `[ ]` checklist that defines done; sprint is closed only when each box is provably checked.",
+      "structural_markers": [
+        "Heading `## Verification Checklist`, `## Verification Gate`, or `Verification gates`",
+        "Markdown checkboxes `- [ ]` or `- [x]`",
+        "Items reference concrete commands (cargo, pnpm, lefthook) or concrete behavior (set X → reload → see Y)",
+        "Sometimes paired with a 'Zero errors means zero' statement"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "Verification Checklist", "doc_freq": 4},
+        {"phrase": "Verification Gate", "doc_freq": 7},
+        {"phrase": "verification gate", "doc_freq": 4},
+        {"phrase": "## Verification", "doc_freq": 14}
+      ],
+      "what_it_means": "The user has fully specified the success criteria. They are not asking what 'done' means — they are asking Claude to walk that list and prove each item.",
+      "automatic_actions": [
+        "Run each item in order; capture the literal command output",
+        "Report back as the same list with [x] or [ ] flipped, not a prose summary",
+        "Treat warnings as failures unless the item explicitly carves out 'errors only'",
+        "If an item fails, fix it before marking the next item",
+        "Do not invent additional checklist items"
+      ],
+      "anti_patterns": [
+        "Marking [x] without running the underlying command",
+        "Skipping items the user wrote because 'they look redundant'",
+        "Summarizing 'mostly green' instead of listing each box",
+        "Adding 'I also checked Z' items the user didn't author",
+        "Treating a pre-existing baseline error as 'not in scope'"
+      ],
+      "example_paraphrases": [
+        "## Verification Checklist (sprint close) — boxes for STOPs answered, dead code gone, project_path round-trips, cargo check passes, pnpm check passes, lefthook pre-commit passes, ip-boundary lint passes.",
+        "## Verification gates — fenced bash with cargo check / cargo test / svelte-check / biome / xtask run-dev, plus 'zero errors means zero'."
+      ],
+      "promote_to": "skill — 'walk-the-checklist' fires whenever a prompt contains three or more `- [ ]` items under a verification heading."
+    },
+    {
+      "slug": "do-not-touch-protected-list",
+      "name": "Frozen-surface declaration",
+      "description": "User explicitly enumerates files/modules that are correct and must not be edited; the change is constrained to everything else.",
+      "structural_markers": [
+        "Heading like `## DO NOT TOUCH THESE FILES (they're correct):` or `### Do not touch`",
+        "Bulleted list of file paths underneath",
+        "Often immediately follows a 'situation report' that explains why those files are good",
+        "Sometimes accompanied by 'Out of scope' / 'Deferred' sibling sections"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "do not touch", "doc_freq": 12},
+        {"phrase": "DO NOT TOUCH", "doc_freq": 2},
+        {"phrase": "out of scope", "doc_freq": 8},
+        {"phrase": "deferred", "doc_freq": 20}
+      ],
+      "what_it_means": "The user has localized the bug to a known surface and is protecting the parts that are working. They want surgical edits with a hard fence around the protected list.",
+      "automatic_actions": [
+        "Treat each path in the protected list as read-only — read it, but do not write to it",
+        "Before any write, confirm the target path is NOT under the protected list",
+        "When listing files in the response, group changes as 'Touched (allowed)' vs 'Read-only (protected, cited only)'",
+        "If the fix appears to require touching a protected file, stop and surface that conflict instead of doing it",
+        "Mirror the user's framing in the report: confirm which protected files were re-read but not modified"
+      ],
+      "anti_patterns": [
+        "Editing a protected file 'just to fix a small import'",
+        "Refactoring a protected file 'while I'm there'",
+        "Asking 'should I touch X?' when X is on the list — the answer is already no",
+        "Rewriting a protected file in a different style and claiming it's equivalent",
+        "Expanding scope into 'deferred' items in the same change"
+      ],
+      "example_paraphrases": [
+        "Frontend wizard is well-built — DO NOT TOUCH SetupWizard.svelte, ModelsStep.svelte, the bindings; problem is entirely in the Rust commands behind the bindings.",
+        "Out of scope: model swap UX, telemetry spans, OAuth flow, code indexer — those are separate sprints."
+      ],
+      "promote_to": "skill — 'frozen-surface' fires on 'do not touch' / 'out of scope' / 'deferred' headings; enforces a write-allowlist for the turn."
+    },
+    {
+      "slug": "diagnostic-paste-triage",
+      "name": "Pasted compiler/check output as the task",
+      "description": "User pastes the verbatim error output from cargo / svelte-check / biome / tsc; the implicit ask is 'fix this exact diagnostic, nothing else'.",
+      "structural_markers": [
+        "Verbatim `error[E####]` Rust diagnostic with file:line:col",
+        "`svelte-check` report with `Cannot find module '$lib/...'` style messages",
+        "JSON diagnostic blob with `resource`, `severity`, `message`, `startLineNumber`",
+        "PowerShell prompt suffix `PS {repo}/...>` indicating raw terminal paste",
+        "Rarely any prose around it; the paste IS the prompt"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "error[E", "doc_freq": 12},
+        {"phrase": "svelte-check", "doc_freq": 43},
+        {"phrase": "cargo check", "doc_freq": 66},
+        {"phrase": "cargo test", "doc_freq": 20}
+      ],
+      "what_it_means": "The user has the output in front of them. They want triage on this exact diagnostic with the exact code reference cited — not a refactor proposal, not a 'while I was looking' tour.",
+      "automatic_actions": [
+        "Open the file:line cited in the diagnostic first; read enough to identify the root cause",
+        "State the cause in one or two sentences before proposing the fix",
+        "Limit the fix to the file(s) the diagnostic cites unless a structural cause forces a sibling edit (and call that out)",
+        "Re-run the same command the user pasted from and paste the new output back",
+        "If multiple diagnostics are pasted, fix them in the order they appear and report each as resolved"
+      ],
+      "anti_patterns": [
+        "Dragging in unrelated cleanups",
+        "Suggesting a tooling/version change instead of fixing the code",
+        "'Refactoring the module while I'm here'",
+        "Glossing over the diagnostic with a higher-level redesign",
+        "Skipping the re-run — leaving the user to verify"
+      ],
+      "example_paraphrases": [
+        "User pastes a single `error[E0432]: unresolved import` from cargo with no surrounding text.",
+        "User pastes a JSON svelte-check resource saying `Cannot find module '$lib/sys/generated/bindings.js'` — fix is to regen bindings or correct the import path."
+      ],
+      "promote_to": "skill — 'fix-this-diagnostic' fires on `error[E####]` or svelte-check JSON; constrains scope to cited files."
+    },
+    {
+      "slug": "fork-with-stated-hypothesis",
+      "name": "Fork with stated hypothesis",
+      "description": "User describes a decision they're about to make and explicitly invites correction with their reasoning attached — 'my thought was X, am I wrong?'",
+      "structural_markers": [
+        "Phrases of the form 'my thought was…', 'I thought… right?', 'am I wrong?'",
+        "Often a comparison frame: 'X or should it be Y'",
+        "Mentions a domain rule or best-practice belief the user already holds",
+        "Usually short (under 500 chars) — pure decision-mode, not an implementation request"
+      ],
+      "verified_trigger_phrases": [
+        {"phrase": "am I wrong", "doc_freq": 5},
+        {"phrase": "i thought", "doc_freq": 3},
+        {"phrase": "my thought", "doc_freq": 2},
+        {"phrase": "right?", "doc_freq": 7},
+        {"phrase": "best practice", "doc_freq": 49}
+      ],
+      "what_it_means": "The user has a working hypothesis and wants confirmation OR a stern correction with reasoning. They are not asking for options; they are asking for a yes/no on their position with a one-paragraph rationale.",
+      "automatic_actions": [
+        "Answer the yes/no first, in one sentence — confirm or correct the hypothesis",
+        "Cite the actual rule/code/standard that decides it (file:line if internal, doc URL if external)",
+        "If wrong, correct sternly with the right answer; do not soften or hedge",
+        "If right, say 'yes — and here's why' in one or two sentences, then proceed to execute on it",
+        "Do not produce a multi-option menu when one position is already named"
+      ],
+      "anti_patterns": [
+        "Listing three or four 'approaches' with pros/cons",
+        "Bouncing the question back ('it depends on your goals…')",
+        "Confirming the hypothesis without checking — sycophancy",
+        "Refusing to commit because 'both are valid' when they are not equivalent in this codebase",
+        "Burying the answer at the end of a long preamble"
+      ],
+      "example_paraphrases": [
+        "I wanted Rust to own the route since I thought best practice said it should — am I wrong?",
+        "Runtime and build are essentially the same for Svelte 5, just a dev gate, so we shouldn't hack it in — that's right, isn't it?"
+      ],
+      "promote_to": "none — handle inline; promoting risks over-formalizing what is already a one-question decision."
+    }
+  ]
+}

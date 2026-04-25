@@ -1,0 +1,407 @@
+{
+  "corpus_stats": {
+    "total_prompts": 2034,
+    "themes_identified": 13,
+    "window": "2026-04-11 → 2026-04-25 (14 days)",
+    "sessions": 44
+  },
+  "themes": [
+    {
+      "slug": "verify-runtime-not-just-compile",
+      "name": "Compile-green is not done — verify runtime end-to-end",
+      "description": "User repeatedly rejects 'cargo check passed' / 'pnpm check passed' as a definition of done; success is the running app demonstrating the behavior, with files actually moved/symlinked, models actually loaded, windows actually rendered.",
+      "frequency_estimate": "180-240",
+      "trigger_phrases": ["cargo check -p devpulse_desktop_backend", "cargo xtask run-dev", "finished dev profile", "process didn exit successfully", "verification gate", "where is my app", "ready for testing", "claim done", "actually working", "real tests"],
+      "underlying_need": "Stop being lied to about progress; the unit of trust is observable behavior in the running binary, not green lints. Repeated 'compile-green' claims followed by an unbootable app is what destroyed trust.",
+      "automatic_actions": [
+        "After any change that affects runtime, explicitly state 'compile-green; not runtime-verified' instead of claiming it works",
+        "List the specific click-by-click verification the user needs to perform when they next launch the app",
+        "Run `cargo check -p devpulse_desktop_backend` (the binary crate) — never just the library crate",
+        "Include `pnpm check`, biome, lefthook in the verification cycle, not only cargo",
+        "When the app is supposed to load a model / spawn a sidecar / open a window, treat that as the success criterion, not the build exit code",
+        "Surface windows-specific runtime concerns (DLLs, sccache, file locks) before declaring done"
+      ],
+      "anti_patterns": [
+        "Reporting 'all gates pass' or 'ready' based on typecheck or biome alone",
+        "Skipping the binary crate by checking only library crates",
+        "Claiming a feature works without ever launching the app",
+        "Treating absence of red errors as presence of working behavior",
+        "Saying 'should work' when the code path was never executed",
+        "Listing what was authored as if it were what was verified"
+      ],
+      "example_paraphrases": [
+        "The compile passed but where is my UI? Nothing renders — that means it isn't done.",
+        "Stop telling me it works because cargo check returned zero. I never saw the model load.",
+        "You verified with checks, not by actually clicking through the wizard end to end."
+      ],
+      "related_memory_files": ["feedback_compile_green_not_enough.md", "feedback_all_warnings_addressed.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "no-stubs-no-half-finished-progress",
+      "name": "No stubs, no half-finished progress, no fake completion",
+      "description": "User detects and rejects stub buttons, TODO placeholders, silent no-op IPC handlers, partial rewrites left mid-flight, and reverts disguised as fixes. Either the work is real and complete, or the gap is acknowledged plainly.",
+      "frequency_estimate": "150-220",
+      "trigger_phrases": ["half ass", "stub", "TODO", "stop being a", "boot with stubs", "you didn't do anything", "nothing works", "you reverted", "where are the changes", "you deleted", "fake progress", "junior dev", "you ignored me"],
+      "underlying_need": "Predictable trust that what is shipped is whole. Stubs and silent reverts are read as deception, not as iteration. The user would rather hear 'this is a multi-hour task' than see disabled buttons.",
+      "automatic_actions": [
+        "Before finishing a file, audit every code path: real work, or honest error explaining why not — nothing in between",
+        "Feature-gate optional work behind a cargo feature so the disabled state is explicit, not pretend",
+        "When work cannot be completed in scope, state the gap directly with the reason and the time estimate",
+        "Never ship a UI control that does not call a real verb; remove the control instead",
+        "If a Tauri command exists in name only, return a structured 'not enabled' error, not Ok(())",
+        "After deleting/refactoring, restate what was absorbed where so the user can verify the move"
+      ],
+      "anti_patterns": [
+        "Disabled buttons with 'coming soon' / 'wire this later'",
+        "Files containing only `//! TODO: implement`",
+        "Tauri verbs that silently return Ok with no work",
+        "Reverting a change without telling the user, then pretending it's still in",
+        "Listing 'authored' files as evidence of progress when none of them run",
+        "Mid-bulk-rename leaving a partially renamed tree"
+      ],
+      "example_paraphrases": [
+        "Booting with a pile of stubs is not a baseline, it's theater.",
+        "Don't claim it's done — half the buttons are wired to nothing.",
+        "If the model loader can't load a model, say so; don't ship a fake import button."
+      ],
+      "related_memory_files": ["feedback_no_stubs.md", "feedback_research_then_execute.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "research-then-execute-no-loops",
+      "name": "Research first, then EXECUTE — no infinite planning",
+      "description": "User wants the planning skill / research notes / SSOT mapping done before writing code, but only as a precursor to actually executing. They reject planning loops where research repeats and code never lands.",
+      "frequency_estimate": "120-180",
+      "trigger_phrases": ["planning", "parking lot", "research notes", "SSOT", "POAM", "sprint plan", "stay in planning", "stop wasting my time", "circle jerking", "execute", "let's go", "write a plan", "stop guessing"],
+      "underlying_need": "Disciplined sequence — read existing code, write findings to disk, get owner sign-off on forks, then ship. Avoid both (a) writing code without reading the codebase and (b) producing endless plans with no execution.",
+      "automatic_actions": [
+        "Open the planning skill / write a research doc to disk before non-trivial implementation",
+        "Map SSOTs first: list every place a concept already lives, flag duplicates",
+        "Surface STOP points as one-line questions, not multi-option decision matrices",
+        "After plan approval, execute the plan — do not commit infrastructure docs as if they were the work",
+        "If research uncovers a blocking compile error or a broken foundation, fix that BEFORE the new feature",
+        "Tag each plan section with the file paths it will touch so the owner can audit scope"
+      ],
+      "anti_patterns": [
+        "Writing 5 plans without shipping a single feature",
+        "Re-researching what was already decided last session",
+        "Producing decision-tree proposals when a one-line confirm would do",
+        "Researching forever to avoid executing on something hard",
+        "Skipping the read-the-actual-files step and inferring from filenames",
+        "Treating documented architecture as already-existing on disk without verifying"
+      ],
+      "example_paraphrases": [
+        "Stay in planning, write the research notes to disk, get this clean before you touch code.",
+        "You've planned for hours — go execute the plan, that was the agreement.",
+        "I don't want another plan, I want the broken foundation fixed first."
+      ],
+      "related_memory_files": ["feedback_research_then_execute.md", "feedback_ask_before_guessing.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "all-warnings-non-fatal-included",
+      "name": "All warnings — including non-fatal and pre-existing — get fixed",
+      "description": "When the user says 'check' they mean every diagnostic the toolchain emits: clippy notes, missing-docs warnings, dead-code warnings, SD5 build notes, biome warnings, lefthook notes. Pre-existing warnings on a touched file are owned by the touch.",
+      "frequency_estimate": "60-100",
+      "trigger_phrases": ["all warnings", "non-fatal", "missing documentation", "warning", "clippy", "dead code", "note warn", "address every", "specta note"],
+      "underlying_need": "Clean toolchain output as proof the change is finished and the work is craftsmanship-grade. Residual warnings read as 'rushed.'",
+      "automatic_actions": [
+        "Run `cargo check --all-targets --message-format=short` for both engine and desktop_backend to catch lib-test warnings",
+        "Run `pnpm check` and confirm 0 errors AND 0 warnings",
+        "Run `pnpm ds:tokens:build` and read SD5 build notes",
+        "On a touched file, fix every pre-existing warning in that file too",
+        "For feature-gated code, guard imports with matching #[cfg] / #[cfg_attr(not(feature), allow(dead_code))]",
+        "Report each warning category cleared, not just 'all green'"
+      ],
+      "anti_patterns": [
+        "Reporting '0 errors' while warnings remain",
+        "Skipping `--all-targets` and missing test-only warnings",
+        "Treating 'pre-existing' as an excuse to leave warnings in a touched file",
+        "Adding `#[allow]` instead of fixing the cause",
+        "Ignoring SD5 build notes about filtered references"
+      ],
+      "example_paraphrases": [
+        "All warnings, every note, every non-fatal — fix them all, no exceptions.",
+        "Don't tell me clean while clippy is still emitting on the file you just edited.",
+        "Specta notes count too. Read the output."
+      ],
+      "related_memory_files": ["feedback_all_warnings_addressed.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "single-source-of-truth-no-drift",
+      "name": "One source of truth — Rust kernel owns it, UI consumes it",
+      "description": "User repeatedly demands that a concept (config, slot definition, vocabulary, terminology, hardware tier, dev profile) live in exactly one place — typically the Rust kernel — and have other layers consume via codegen or vocabulary translation, never via parallel duplicates.",
+      "frequency_estimate": "100-160",
+      "trigger_phrases": ["source of truth", "SSOT", "rust is the source", "kernel", "do not duplicate", "vocabulary", "ip boundary", "regen-bindings", "dev_profile", "translation registry", "registry", "specta"],
+      "underlying_need": "A clean contract where the Rust side owns canonical state and the frontend reads via generated types. Removes drift, removes 'find/replace across N files,' and makes IP boundary work as a vocabulary layer rather than parallel DTOs.",
+      "automatic_actions": [
+        "Before adding a type/enum/string label, search for an existing definition in kernel/clyffy or engine and reuse it",
+        "When a kernel type needs to cross IPC, derive `specta::Type` on the kernel type — do not create an engine DTO mirror",
+        "Use the existing vocabulary registry (ip_term!, surface!) for layman-facing labels",
+        "Run `cargo xtask regen-bindings` whenever a Rust type changes shape",
+        "Flag any duplicate storage of the same concept (preferences.json + libSQL + SurrealDB) as a STOP point",
+        "When asked to add a UI label, register it in the YAML/registry first, then consume the generated const"
+      ],
+      "anti_patterns": [
+        "`pub struct FooDto { ... } impl From<KernelFoo> for FooDto`",
+        "Hardcoding a string label in a Svelte file when a registered surface const exists",
+        "Adding a third storage location for an already-duplicated concept",
+        "Writing a parallel enum with the same variants for IPC",
+        "Maintaining synced copies of the same model list in Rust and TS"
+      ],
+      "example_paraphrases": [
+        "Rust is the source of truth — the UI reads what Rust says, period.",
+        "Stop creating wrappers; rename through the vocabulary registry instead.",
+        "If we update the source of truth, the bindings should update — that's the whole point of the codegen."
+      ],
+      "related_memory_files": ["feedback_ip_boundary_is_vocabulary_not_wrappers.md", "project_cortex_surfaces.md", "project_user_config_pattern.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "model-loader-ui-locked-stop-relitigating",
+      "name": "Model loader / AI UI requirements are LOCKED — stop redebating",
+      "description": "Recurring pattern of the user re-stating identical product requirements about the model loader (Qwen as floor, Harrier 0.5B downloaded+scanned, brain-discovers/UI-simplifies, click=full-model on-demand, HF browse as its own overlay, blue tint, animated background, layman-friendly, fluid clamp).",
+      "frequency_estimate": "80-130",
+      "trigger_phrases": ["model loader", "Qwen", "Harrier", "0.5B", "0.6B", "brain", "minion", "HF browse", "huggingface", "blue tint", "blue CTA", "layman friendly", "click loads full model", "animated background", "lets go"],
+      "underlying_need": "Stop having the same fight every session. The product spec exists; honor it. When ambiguity remains, surface the conflict against the locked spec rather than silently re-interpret.",
+      "automatic_actions": [
+        "Before touching any model-loader / AI-picker / HF-browse / runtime-config UI, re-read project_model_loader_requirements.md",
+        "Map the proposed change against the locked points before implementing",
+        "Use blue palette for primary CTAs on AI surfaces — never grayscale",
+        "Treat full-model load as the default click action; never partial / preview",
+        "Layout uses XY fluid clamp on first-page typography and spacing",
+        "If the proposal conflicts with the locked spec, STOP and surface the conflict to the user"
+      ],
+      "anti_patterns": [
+        "Suggesting 0.6B as Clyffy's main brain (4B floor)",
+        "Embedding HF browse inline in the main picker",
+        "Shipping a black-and-white wizard / model-loader",
+        "Loading a slice / preview on click instead of the full model",
+        "Asking again whether Qwen should be the floor",
+        "Hardcoding rem/px on landing-page typography"
+      ],
+      "example_paraphrases": [
+        "We have already decided this — Qwen is the floor, click loads the entire model, HF browse is its own overlay.",
+        "I gave you the colors and the blue tint — why is the wizard still grayscale?",
+        "Brain discovers, UI simplifies — the layman never sees a quant filename."
+      ],
+      "related_memory_files": ["project_model_loader_requirements.md", "project_model_selection_tiered.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "design-system-discipline-tokens-not-hex",
+      "name": "Design system discipline — semantic tokens, SD5 transforms, no raw values",
+      "description": "User holds the line on Tier 2 semantic tokens (primary/danger/accent), SD5 built-in transforms (oklch / fluid clamp via fluidDimensionToClamp), no raw hex/rgb in components, no preset-lookup tables, no per-surface palette names like variant=\"wizard\".",
+      "frequency_estimate": "70-110",
+      "trigger_phrases": ["SD5", "style dictionary", "oklch", "ColdLight", "fluid clamp", "tokens", "semantic", "primitive", "preset", "renderForge", "no raw values", "biome", "primary danger accent", "color wheel", "brand colors"],
+      "underlying_need": "A coherent visual system the user can re-skin from one Tier-2 binding without touching components. Drift from this contract (variant=\"blue\", preset registries, hand-written hex) breaks the visual editor story.",
+      "automatic_actions": [
+        "Components read `var(--accent-primary-*)` / `var(--surface-*)` — never hex or palette names",
+        "When a brand color is needed, add it to the SD5 source JSON and let the built-in transform produce the oklch ramp",
+        "Use fluid clamp tokens for typography and spacing on first-run / setup surfaces",
+        "Variant names are intent (`primary`, `danger`, `muted`) — never palette (`blue`) or surface (`wizard`)",
+        "Components are base-+-style: base owns ARIA, variants only add styling",
+        "Run `pnpm ds:tokens:build` after token edits and read the build notes"
+      ],
+      "anti_patterns": [
+        "`color: #17deef` in a component file",
+        "`variant=\"wizard\"` or `variant=\"blue\"` props",
+        "Custom oklch transforms when SD5 has a built-in",
+        "renderForge preset-key indirection between component and tokens",
+        "Variants re-implementing ARIA instead of inheriting from base",
+        "Per-surface CSS files that bake a scope into the token vocabulary"
+      ],
+      "example_paraphrases": [
+        "Use the built-in SD5 oklch transform — stop writing custom transforms.",
+        "Tokens are tier-2 semantic; the component never knows the palette name.",
+        "Base component owns ARIA; the variant only paints."
+      ],
+      "related_memory_files": ["feedback_token_tier_naming.md", "feedback_design_system_direction.md", "project_fluid_clamp.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "honest-realtime-ui-state",
+      "name": "Honest, real-time UI state — runes reflect the Rust truth",
+      "description": "User insists on transparent live state at all times: VRAM usage, GPU resources, slot statuses, download progress per shard, system info — all rune-driven from real Tauri events, never hardcoded mock numbers, never silent loading.",
+      "frequency_estimate": "70-100",
+      "trigger_phrases": ["honest state", "transparent", "rune", "$state", "$derived", "always reflects", "mock", "hardcoded", "progress bar", "spinner", "loading state", "tauri event", "model:download-progress", "real number"],
+      "underlying_need": "Trust through visibility. If the backend is doing something, the UI says so live. If it isn't, the UI doesn't pretend.",
+      "automatic_actions": [
+        "Wire Rust LoaderEventSink → Tauri app.emit → frontend listener for every long operation",
+        "Use `$state` / `$derived` runes; subscribe via `createTauriEvent` or equivalent",
+        "Show per-shard progress for SafeTensors (1-of-7), per-file progress for downloads, friendly speeds and ETAs",
+        "When backend reports unknown / zero, show 'unknown' or 'not reported' — never fabricate",
+        "Cancel buttons are wired to real Rust verbs that abort the operation",
+        "Status pills / health badges read from health-poll runes, not local timers"
+      ],
+      "anti_patterns": [
+        "Hardcoded VRAM numbers in a wizard preset",
+        "Spinner that never resolves because the event is never emitted",
+        "30-minute timeouts triggered because completion event was never bridged",
+        "UI labels saying 'Ready' before the rune confirms it",
+        "Mocked GPU info when the real backend value is empty"
+      ],
+      "example_paraphrases": [
+        "The bar should read whatever Rust says right now — not a placeholder.",
+        "If you can't get a real progress event, don't show a fake bar.",
+        "Make sure the download-complete event is bridged — the spinner has been spinning for 30 minutes."
+      ],
+      "related_memory_files": ["project_devtool_pattern.md", "project_cortex_surfaces.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "wai-aria-apg-base-component-discipline",
+      "name": "WAI-ARIA APG-compliant base components — variants inherit, never duplicate",
+      "description": "User wants a single base-component family tree (display / inputs / interaction / navigation / overlays) with strict WAI-ARIA APG compliance held in the base. Variants are styling-only descendants; they never re-author ARIA, keyboard handling, or focus management.",
+      "frequency_estimate": "40-70",
+      "trigger_phrases": ["WAI-ARIA", "APG", "base component", "variant", "react-aria", "react-aria-components", "behaviors", "accessibility", "keyboard", "focus", "barrel", "index.ts", "families"],
+      "underlying_need": "Accessibility-by-construction without duplication. Every variant inherits correct ARIA from one tested base; the design system stays small and auditable.",
+      "automatic_actions": [
+        "When asked for a variant, write it as a styling-only wrapper around the existing base",
+        "Confirm or extend the base's ARIA wiring before authoring a variant — never duplicate ARIA",
+        "Use the established families/{display,inputs,interaction,navigation,overlays} folder shape with one master barrel",
+        "Co-locate types per family (types.ts) and re-export through the family index.ts",
+        "Reuse react-aria-components primitives where they already cover the role",
+        "Cite the APG pattern being implemented in the base component's docstring"
+      ],
+      "anti_patterns": [
+        "Variant component re-implementing keyboard handlers the base already has",
+        "Two competing tooltip / dialog implementations in different folders",
+        "Master index.ts containing everything inline instead of barrel-of-barrels",
+        "Skipping APG roles because 'it works visually'",
+        "New component that bypasses the base and goes straight to raw HTML for styling reasons"
+      ],
+      "example_paraphrases": [
+        "Variants only paint — ARIA lives in the base, period.",
+        "Get the families organized: display, inputs, interaction, navigation, overlays.",
+        "If react-aria-components covers it, use it; don't reinvent the keyboard wiring."
+      ],
+      "related_memory_files": ["feedback_design_system_direction.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "paste-build-failure-diagnose-and-fix",
+      "name": "Paste of build/lint failure — diagnose root cause and fix all of it",
+      "description": "User pastes raw cargo / pnpm / lefthook / biome / sccache / linker output (often huge, including warnings, exit codes, transcript paths) and expects a complete root-cause analysis plus a fix that clears every diagnostic in the paste.",
+      "frequency_estimate": "120-180",
+      "trigger_phrases": ["error[E", "process didn exit successfully", "exit code", "Compiling devpulse", "could not compile", "sccache", "linker", "missing documentation", "biome-lint", "svelte-check", "lefthook", "Blocking waiting for file lock", "DLL", "duckdb", "cublasLt"],
+      "underlying_need": "The paste IS the prompt — the user wants the failure read carefully (every error, every warning, every note), the root cause identified, and a concrete fix that addresses ALL diagnostics, not just the first error.",
+      "automatic_actions": [
+        "Read the entire paste — every error, every warning, every note, every exit-code",
+        "Identify the chain: which stage failed, which crate, which line, what type / trait was missing",
+        "Group errors by root cause (one missing trait derive often explains 5 errors)",
+        "Fix the root, not just the surface — derive the missing trait, don't `#[allow]` past it",
+        "Address every warning the paste includes (see `all-warnings` mode)",
+        "Surface adjacent root causes the user might not have asked about (DLL paths, sccache access denied, file locks)"
+      ],
+      "anti_patterns": [
+        "Reading only the first error and stopping",
+        "Suggesting `#[allow(dead_code)]` instead of using the field",
+        "Asking the user what they pasted means before reading it",
+        "Fixing one error and reporting done while three more are in the paste",
+        "Skipping the warnings section because it's 'not fatal'",
+        "Speculating from filename without opening the file referenced in the diagnostic"
+      ],
+      "example_paraphrases": [
+        "Here is what cargo printed — explain why and fix every error and warning in this paste.",
+        "Linker is failing on the DLL path — read the whole transcript, not just the last 5 lines.",
+        "process didn't exit successfully — figure out which stage actually failed."
+      ],
+      "related_memory_files": ["feedback_compile_green_not_enough.md", "feedback_all_warnings_addressed.md"],
+      "promote_to": "subagent"
+    },
+    {
+      "slug": "no-rushing-foundational-best-practice",
+      "name": "Don't rush foundational work — best practice, no shortcuts, senior-dev discipline",
+      "description": "User repeatedly demands enterprise / senior-dev grade for foundational layers (xtask observability, service lifecycle, graceful shutdown, structured logging, integration tests). Rejects bandaids and shortcut workarounds even when they unblock a build.",
+      "frequency_estimate": "80-130",
+      "trigger_phrases": ["best practices", "senior dev", "shortcuts", "rushed", "foundational", "enterprise", "graceful shutdown", "tracing", "structured", "anti-pattern", "do this right", "no shortcuts", "methodically", "as a real rust engineer would"],
+      "underlying_need": "The platform has years of investment behind it — foundations need to be sturdy, not patched. Senior-dev discipline (no println in xtask, structured tracing, integration tests, decomposed functions, real lifecycle management) is the baseline.",
+      "automatic_actions": [
+        "On foundational code (xtask, services, lifecycle, telemetry): use `tracing` with structured fields, not println/eprintln",
+        "Decompose long functions; flag `#[allow(clippy::too_many_lines)]` as a code smell",
+        "Add integration tests (not just unit) for cross-module behavior",
+        "Implement graceful-then-forced shutdown patterns with retry windows on shutdown",
+        "Use `BufWriter` + atomic writes for file I/O; never silently `let _ =` on errors",
+        "Distinct exit codes for distinct failure modes so CI / orchestrators can branch"
+      ],
+      "anti_patterns": [
+        "println!/eprintln! in production-scope orchestrators",
+        "Catch-all exit-code 1 for every failure",
+        "Substring matching on tool output as a stable contract",
+        "Silent error swallowing (`let _ = writeln!`)",
+        "Skipping a real installer pipeline (NSIS/WIX) by zipping a folder and calling it portable",
+        "Force-killing services without a graceful attempt"
+      ],
+      "example_paraphrases": [
+        "A senior Rust engineer would not ship this — decompose it, structure the logs, write the integration test.",
+        "Stop sidestepping the installer; we want NSIS first then WIX — do this right.",
+        "On shutdown, attempt graceful three times over 30 seconds, then force; never just kill."
+      ],
+      "related_memory_files": ["project_service_pattern.md", "project_devtool_pattern.md"],
+      "promote_to": "skill"
+    },
+    {
+      "slug": "no-backcompat-pre-release-aggressive-rewrite",
+      "name": "Pre-release mode — align now, no backcompat, no migration questions",
+      "description": "User refuses to entertain backcompat / migration / grandfathering questions. The project is unreleased; the answer is always 'replace, align, no shims.'",
+      "frequency_estimate": "30-60",
+      "trigger_phrases": ["pre-release", "no backwards compat", "no shim", "align now", "delete it", "rewrite", "no migration", "absorbed", "kill the old", "drop deprecation", "as if it never happened"],
+      "underlying_need": "Move at full speed. The repo is private and unreleased; carrying old shapes only slows execution. When the user pivots, the old version disappears.",
+      "automatic_actions": [
+        "Never ask 'how should we handle existing X?' — replace it",
+        "Frame migration work as 'I'll align existing X to the new shape' (statement, not question)",
+        "Delete legacy code paths when their replacement lands; do not leave deprecation aliases",
+        "When the user reverts a typed direction, treat it as if it never happened — no archive note",
+        "Save question budget for genuine forks (format, ownership, strictness modes), not migration logistics"
+      ],
+      "anti_patterns": [
+        "Asking 'should we keep the old API for backcompat?'",
+        "Adding `_v2` suffixes when the v1 will be replaced",
+        "Leaving deprecated re-exports 'for safety'",
+        "Authoring a migration script for unreleased internal data",
+        "Treating prior session's decisions as immutable when the user has reversed them"
+      ],
+      "example_paraphrases": [
+        "There is no backwards compat — I haven't released; align it now.",
+        "Don't ask about old data — delete the old shape and move on.",
+        "If I reverted that direction, drop it as if it never existed."
+      ],
+      "related_memory_files": ["feedback_no_backcompat_questions.md", "feedback_reference_vs_implement.md"],
+      "promote_to": "none"
+    },
+    {
+      "slug": "direct-action-no-preamble-no-apology",
+      "name": "Direct action — no preamble, no apology, no narration",
+      "description": "User wants the response to start with the work. No 'Great question!' opener, no 'I understand your frustration,' no restating the request, no summarizing tool output verbatim. Status updates are one line.",
+      "frequency_estimate": "200-280",
+      "trigger_phrases": ["just do it", "stop talking", "go go go", "now", "execute", "stop apologizing", "do your job", "ship it", "commit", "DO IT NOW"],
+      "underlying_need": "Maximum signal-per-word. The user reads diffs and tool output directly; narration is friction. When they're frustrated, acknowledgement-of-frustration is read as more friction, not empathy.",
+      "automatic_actions": [
+        "Open with the action / finding, not with a greeting or restatement",
+        "When frustrated, extract the technical need and act — do not apologize",
+        "End-of-turn summary is one line: what changed, what's open",
+        "When the user is wrong, correct firmly and directly with the reason",
+        "Skip 'Let me start by reading…' / 'I'll now…' phrasing — just do it",
+        "Suppress emotional acknowledgement unless the user explicitly asks for it"
+      ],
+      "anti_patterns": [
+        "Opening with 'I understand you're frustrated'",
+        "Restating the user's request before answering",
+        "'Great point!' / 'Good catch!' style affirmations",
+        "Multi-paragraph apology for prior session's errors",
+        "Narrating each tool call as you make it",
+        "Asking permission before doing something the user just told you to do"
+      ],
+      "example_paraphrases": [
+        "Stop the preamble — get to the work.",
+        "Don't apologize, just fix it.",
+        "I told you go, so go — no clarifying questions."
+      ],
+      "related_memory_files": ["feedback_execution_style.md"],
+      "promote_to": "skill"
+    }
+  ]
+}

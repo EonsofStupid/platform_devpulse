@@ -1,0 +1,896 @@
+{
+  "total_docs": 2304,
+  "length_histogram": {
+    "<50": 454,
+    "50-200": 809,
+    "200-500": 471,
+    "500-1k": 218,
+    "1k+": 352
+  },
+  "top_unigrams": [
+    {
+      "w": "get",
+      "c": 547
+    },
+    {
+      "w": "code",
+      "c": 349
+    },
+    {
+      "w": "need",
+      "c": 273
+    },
+    {
+      "w": "model",
+      "c": 247
+    },
+    {
+      "w": "work",
+      "c": 236
+    },
+    {
+      "w": "build",
+      "c": 234
+    },
+    {
+      "w": "real",
+      "c": 223
+    },
+    {
+      "w": "properly",
+      "c": 218
+    },
+    {
+      "w": "system",
+      "c": 217
+    },
+    {
+      "w": "stop",
+      "c": 217
+    },
+    {
+      "w": "actually",
+      "c": 213
+    },
+    {
+      "w": "check",
+      "c": 208
+    },
+    {
+      "w": "dev",
+      "c": 207
+    },
+    {
+      "w": "file",
+      "c": 206
+    },
+    {
+      "w": "rust",
+      "c": 201
+    },
+    {
+      "w": "files",
+      "c": 198
+    },
+    {
+      "w": "new",
+      "c": 194
+    },
+    {
+      "w": "one",
+      "c": 193
+    },
+    {
+      "w": "first",
+      "c": 189
+    },
+    {
+      "w": "want",
+      "c": 187
+    },
+    {
+      "w": "claude",
+      "c": 183
+    },
+    {
+      "w": "run",
+      "c": 179
+    },
+    {
+      "w": "never",
+      "c": 178
+    },
+    {
+      "w": "user",
+      "c": 176
+    },
+    {
+      "w": "via",
+      "c": 171
+    },
+    {
+      "w": "cargo",
+      "c": 170
+    },
+    {
+      "w": "loading",
+      "c": 165
+    },
+    {
+      "w": "research",
+      "c": 163
+    },
+    {
+      "w": "error",
+      "c": 161
+    },
+    {
+      "w": "phase",
+      "c": 160
+    },
+    {
+      "w": "load",
+      "c": 158
+    },
+    {
+      "w": "make",
+      "c": 156
+    },
+    {
+      "w": "clyffy",
+      "c": 156
+    },
+    {
+      "w": "even",
+      "c": 155
+    },
+    {
+      "w": "app",
+      "c": 154
+    },
+    {
+      "w": "use",
+      "c": 152
+    },
+    {
+      "w": "devpulse",
+      "c": 151
+    },
+    {
+      "w": "state",
+      "c": 150
+    },
+    {
+      "w": "test",
+      "c": 150
+    },
+    {
+      "w": "plan",
+      "c": 149
+    },
+    {
+      "w": "full",
+      "c": 148
+    },
+    {
+      "w": "already",
+      "c": 148
+    },
+    {
+      "w": "like",
+      "c": 146
+    },
+    {
+      "w": "models",
+      "c": 145
+    },
+    {
+      "w": "before",
+      "c": 143
+    },
+    {
+      "w": "time",
+      "c": 143
+    },
+    {
+      "w": "tauri",
+      "c": 142
+    },
+    {
+      "w": "clear",
+      "c": 139
+    },
+    {
+      "w": "right",
+      "c": 137
+    },
+    {
+      "w": "after",
+      "c": 137
+    },
+    {
+      "w": "read",
+      "c": 132
+    },
+    {
+      "w": "start",
+      "c": 132
+    },
+    {
+      "w": "ready",
+      "c": 130
+    },
+    {
+      "w": "nothing",
+      "c": 129
+    },
+    {
+      "w": "needs",
+      "c": 127
+    },
+    {
+      "w": "fix",
+      "c": 127
+    },
+    {
+      "w": "about",
+      "c": 127
+    },
+    {
+      "w": "platform",
+      "c": 126
+    },
+    {
+      "w": "surrealdb",
+      "c": 126
+    },
+    {
+      "w": "running",
+      "c": 125
+    }
+  ],
+  "top_bigrams": [
+    {
+      "w": "cargo check",
+      "c": 77
+    },
+    {
+      "w": "cargo xtask",
+      "c": 69
+    },
+    {
+      "w": "{repo}/interfaces desktop",
+      "c": 67
+    },
+    {
+      "w": "source truth",
+      "c": 61
+    },
+    {
+      "w": "make sure",
+      "c": 60
+    },
+    {
+      "w": "best practice",
+      "c": 59
+    },
+    {
+      "w": "check -p",
+      "c": 56
+    },
+    {
+      "w": "model loader",
+      "c": 50
+    },
+    {
+      "w": "desktop src-tauri",
+      "c": 50
+    },
+    {
+      "w": "-p devpulse_desktop_backend",
+      "c": 47
+    },
+    {
+      "w": "swear god",
+      "c": 44
+    },
+    {
+      "w": "{repo}/target debug",
+      "c": 41
+    },
+    {
+      "w": "dev profile",
+      "c": 40
+    },
+    {
+      "w": "pub struct",
+      "c": 40
+    },
+    {
+      "w": "{repo}/kernel model-loader",
+      "c": 38
+    },
+    {
+      "w": "claude subscription",
+      "c": 38
+    },
+    {
+      "w": "{repo}/systems devpulse-engine",
+      "c": 37
+    },
+    {
+      "w": "best practices",
+      "c": 36
+    },
+    {
+      "w": "libsql duckdb",
+      "c": 35
+    },
+    {
+      "w": "exit code",
+      "c": 35
+    },
+    {
+      "w": "xtask run-dev",
+      "c": 34
+    },
+    {
+      "w": "during dev",
+      "c": 34
+    },
+    {
+      "w": "jesus christ",
+      "c": 34
+    },
+    {
+      "w": "cargo test",
+      "c": 34
+    },
+    {
+      "w": "finished dev",
+      "c": 34
+    },
+    {
+      "w": "profile unoptimized",
+      "c": 34
+    },
+    {
+      "w": "unoptimized debuginfo",
+      "c": 34
+    },
+    {
+      "w": "debuginfo target",
+      "c": 34
+    },
+    {
+      "w": "http //127.0.0.1",
+      "c": 34
+    },
+    {
+      "w": "half ass",
+      "c": 33
+    },
+    {
+      "w": "devpulse_desktop_backend v0.0.0",
+      "c": 33
+    },
+    {
+      "w": "layman friendly",
+      "c": 32
+    },
+    {
+      "w": "{repo}/kernel devpulse-clyffy",
+      "c": 32
+    },
+    {
+      "w": "v0.0.0 {repo}/interfaces",
+      "c": 32
+    },
+    {
+      "w": "lets go",
+      "c": 31
+    },
+    {
+      "w": "compiling devpulse_desktop_backend",
+      "c": 31
+    },
+    {
+      "w": "process didn",
+      "c": 31
+    },
+    {
+      "w": "didn exit",
+      "c": 31
+    },
+    {
+      "w": "exit successfully",
+      "c": 31
+    },
+    {
+      "w": "pnpm check",
+      "c": 31
+    },
+    {
+      "w": "project folder",
+      "c": 30
+    },
+    {
+      "w": "verification gate",
+      "c": 29
+    },
+    {
+      "w": "need research",
+      "c": 29
+    },
+    {
+      "w": "v0.1.0 {repo}/systems",
+      "c": 29
+    },
+    {
+      "w": "debug xtask.exe",
+      "c": 29
+    },
+    {
+      "w": "ps {localdev}/platform_devpulse",
+      "c": 28
+    },
+    {
+      "w": "system relational",
+      "c": 28
+    },
+    {
+      "w": "system analytics",
+      "c": 28
+    },
+    {
+      "w": "vector store",
+      "c": 28
+    },
+    {
+      "w": "devpulse-engine v0.1.0",
+      "c": 28
+    },
+    {
+      "w": "error process",
+      "c": 28
+    },
+    {
+      "w": "--- ---",
+      "c": 27
+    },
+    {
+      "w": "ok system",
+      "c": 27
+    },
+    {
+      "w": "relational libsql",
+      "c": 27
+    },
+    {
+      "w": "libsql {repo}/.userdata",
+      "c": 27
+    },
+    {
+      "w": "surrealdb http",
+      "c": 27
+    },
+    {
+      "w": "user relational",
+      "c": 27
+    },
+    {
+      "w": "pnpm tauri",
+      "c": 27
+    },
+    {
+      "w": "duckdb surrealdb",
+      "c": 27
+    },
+    {
+      "w": "run cargo",
+      "c": 27
+    },
+    {
+      "w": "dead code",
+      "c": 27
+    },
+    {
+      "w": "pub fn",
+      "c": 26
+    },
+    {
+      "w": "system cache",
+      "c": 26
+    },
+    {
+      "w": "v0.1.0 {repo}/kernel",
+      "c": 26
+    },
+    {
+      "w": "note warn",
+      "c": 26
+    },
+    {
+      "w": "routing mode",
+      "c": 26
+    },
+    {
+      "w": "senior dev",
+      "c": 25
+    },
+    {
+      "w": "lib generated",
+      "c": 25
+    },
+    {
+      "w": "missing documentation",
+      "c": 25
+    },
+    {
+      "w": "src-tauri src",
+      "c": 25
+    },
+    {
+      "w": "pre-sprint consolidation",
+      "c": 25
+    },
+    {
+      "w": "compiling devpulse-engine",
+      "c": 25
+    },
+    {
+      "w": "error compile",
+      "c": 25
+    },
+    {
+      "w": "target debug",
+      "c": 25
+    },
+    {
+      "w": "command line",
+      "c": 24
+    },
+    {
+      "w": "really smart",
+      "c": 24
+    },
+    {
+      "w": "running {repo}/target",
+      "c": 24
+    },
+    {
+      "w": "000.000s start",
+      "c": 24
+    },
+    {
+      "w": "start devpulse",
+      "c": 24
+    },
+    {
+      "w": "devpulse boot",
+      "c": 24
+    }
+  ],
+  "top_trigrams": [
+    {
+      "w": "cargo check -p",
+      "c": 56
+    },
+    {
+      "w": "{repo}/interfaces desktop src-tauri",
+      "c": 43
+    },
+    {
+      "w": "check -p devpulse_desktop_backend",
+      "c": 41
+    },
+    {
+      "w": "finished dev profile",
+      "c": 34
+    },
+    {
+      "w": "dev profile unoptimized",
+      "c": 34
+    },
+    {
+      "w": "profile unoptimized debuginfo",
+      "c": 34
+    },
+    {
+      "w": "unoptimized debuginfo target",
+      "c": 34
+    },
+    {
+      "w": "cargo xtask run-dev",
+      "c": 33
+    },
+    {
+      "w": "devpulse_desktop_backend v0.0.0 {repo}/interfaces",
+      "c": 32
+    },
+    {
+      "w": "v0.0.0 {repo}/interfaces desktop",
+      "c": 32
+    },
+    {
+      "w": "compiling devpulse_desktop_backend v0.0.0",
+      "c": 31
+    },
+    {
+      "w": "process didn exit",
+      "c": 31
+    },
+    {
+      "w": "didn exit successfully",
+      "c": 31
+    },
+    {
+      "w": "relational libsql {repo}/.userdata",
+      "c": 27
+    },
+    {
+      "w": "libsql duckdb surrealdb",
+      "c": 27
+    },
+    {
+      "w": "devpulse-engine v0.1.0 {repo}/systems",
+      "c": 27
+    },
+    {
+      "w": "v0.1.0 {repo}/systems devpulse-engine",
+      "c": 27
+    },
+    {
+      "w": "error process didn",
+      "c": 27
+    },
+    {
+      "w": "desktop src-tauri src",
+      "c": 25
+    },
+    {
+      "w": "compiling devpulse-engine v0.1.0",
+      "c": 25
+    },
+    {
+      "w": "running {repo}/target debug",
+      "c": 24
+    },
+    {
+      "w": "000.000s start devpulse",
+      "c": 24
+    },
+    {
+      "w": "start devpulse boot",
+      "c": 24
+    },
+    {
+      "w": "ok preflight directories",
+      "c": 24
+    },
+    {
+      "w": "preflight directories ready",
+      "c": 24
+    },
+    {
+      "w": "ok system relational",
+      "c": 24
+    },
+    {
+      "w": "system relational libsql",
+      "c": 24
+    },
+    {
+      "w": "libsql {repo}/.userdata system/libsql/platform.db",
+      "c": 24
+    },
+    {
+      "w": "ok system cache",
+      "c": 24
+    },
+    {
+      "w": "system cache moka",
+      "c": 24
+    },
+    {
+      "w": "cache moka cap",
+      "c": 24
+    },
+    {
+      "w": "moka cap 10000",
+      "c": 24
+    },
+    {
+      "w": "cap 10000 ttl",
+      "c": 24
+    },
+    {
+      "w": "10000 ttl 300s",
+      "c": 24
+    },
+    {
+      "w": "ttl 300s 0ms",
+      "c": 24
+    },
+    {
+      "w": "ok user relational",
+      "c": 24
+    },
+    {
+      "w": "user relational libsql",
+      "c": 24
+    },
+    {
+      "w": "libsql {repo}/.userdata user/libsql/user.db",
+      "c": 24
+    },
+    {
+      "w": "{repo}/target debug devpulse-desktop-app.exe",
+      "c": 23
+    },
+    {
+      "w": "ok vector store",
+      "c": 23
+    },
+    {
+      "w": "vector store rro",
+      "c": 23
+    },
+    {
+      "w": "store rro verified",
+      "c": 23
+    },
+    {
+      "w": "rro verified {repo}/.userdata",
+      "c": 23
+    },
+    {
+      "w": "verified {repo}/.userdata system/rro/storage",
+      "c": 23
+    },
+    {
+      "w": "dep python expected",
+      "c": 23
+    },
+    {
+      "w": "python expected version",
+      "c": 23
+    },
+    {
+      "w": "expected version 3.14",
+      "c": 23
+    },
+    {
+      "w": "version 3.14 env",
+      "c": 23
+    },
+    {
+      "w": "3.14 env cmake_policy_version_minimum",
+      "c": 23
+    },
+    {
+      "w": "env cmake_policy_version_minimum 3.5",
+      "c": 23
+    },
+    {
+      "w": "cmake_policy_version_minimum 3.5 build.deps.cmake",
+      "c": 23
+    },
+    {
+      "w": "3.5 build.deps.cmake .extras",
+      "c": 23
+    },
+    {
+      "w": "script lang ts",
+      "c": 23
+    },
+    {
+      "w": "ok system analytics",
+      "c": 22
+    },
+    {
+      "w": "system analytics duckdb",
+      "c": 22
+    },
+    {
+      "w": "analytics duckdb {repo}/.userdata",
+      "c": 22
+    },
+    {
+      "w": "duckdb {repo}/.userdata system/duckdb/analytics.duckdb",
+      "c": 22
+    },
+    {
+      "w": "ok model loader",
+      "c": 22
+    },
+    {
+      "w": "ok graph store",
+      "c": 22
+    },
+    {
+      "w": "graph store surrealdb",
+      "c": 22
+    },
+    {
+      "w": "store surrealdb consolidated",
+      "c": 22
+    },
+    {
+      "w": "surrealdb consolidated namespaces",
+      "c": 22
+    },
+    {
+      "w": "ok surrealdb http",
+      "c": 22
+    },
+    {
+      "w": "surrealdb http listening",
+      "c": 22
+    },
+    {
+      "w": "http listening 8822",
+      "c": 22
+    },
+    {
+      "w": "warning missing documentation",
+      "c": 22
+    },
+    {
+      "w": "interfaces desktop src-tauri",
+      "c": 22
+    },
+    {
+      "w": "note requested command",
+      "c": 22
+    },
+    {
+      "w": "requested command line",
+      "c": 22
+    },
+    {
+      "w": "command line -w",
+      "c": 22
+    },
+    {
+      "w": "line -w missing-docs",
+      "c": 22
+    },
+    {
+      "w": "-w missing-docs warning",
+      "c": 22
+    },
+    {
+      "w": "msvc_crt static build.toolchain",
+      "c": 22
+    },
+    {
+      "w": "env pyo3_python {repo}/deps/python/python.exe",
+      "c": 22
+    },
+    {
+      "w": "pyo3_python {repo}/deps/python/python.exe build.deps.python",
+      "c": 22
+    },
+    {
+      "w": "{repo}/deps/python/python.exe build.deps.python env",
+      "c": 22
+    },
+    {
+      "w": "build.deps.python env pyo3_use_abi3_forward_compatibility",
+      "c": 22
+    },
+    {
+      "w": "env pyo3_use_abi3_forward_compatibility build.deps.python",
+      "c": 22
+    },
+    {
+      "w": "pyo3_use_abi3_forward_compatibility build.deps.python .extras",
+      "c": 22
+    },
+    {
+      "w": "build.deps.python .extras dep",
+      "c": 22
+    }
+  ]
+}
