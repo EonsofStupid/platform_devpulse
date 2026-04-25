@@ -89,21 +89,25 @@ Also confirmed from inspection:
 - [ ] `cargo test -p devpulse-engine --lib vision` all green
 - [ ] Commit `feat(engine): vision governor + metrics foundation`
 
-### V-3 Capture primitives (Rust-side)
+### V-3 Capture primitives — one-shots only (Rust-side)
+
+*(Session lifecycle moved to V-4 where it composes with governor + sinks. V-3 stays focused on the OS-level primitives so each command is independently testable from the Tauri devtools console.)*
 
 - [ ] New module `interfaces/desktop/src-tauri/src/commands/pixvix/`
   - [ ] `paths.rs`: resolve `.userdata/vision-frames/` per OS
-  - [ ] `monitor.rs`: xcap-backed `list_monitors() -> Vec<MonitorInfo>`, `capture_monitor_once(idx) -> CapturedFrame`
-  - [ ] `window.rs`: xcap-backed `list_windows() -> Vec<WindowInfo>`, `capture_window_once(id) -> CapturedFrame`
-  - [ ] `webcam.rs`: nokhwa-backed `list_webcams() -> Vec<WebcamInfo>`, `capture_webcam_once(idx) -> CapturedFrame`
-  - [ ] `session.rs`: `start_capture_session(config)` / `stop_capture_session()` — long-running task that honors `Governor` + emits `platform:pixvix-status`
+  - [ ] `dto.rs`: `MonitorInfo`, `WindowInfo`, `WebcamInfo`, `CapturedFrame`, `CaptureErrorKind`
+  - [ ] `monitor.rs`: xcap-backed `list_monitors() -> Vec<MonitorInfo>`, `capture_monitor_once(idx) -> CapturedFrame` — both wrap calls in `tokio::task::spawn_blocking` (xcap `capture_image` is sync + 10-80ms)
+  - [ ] `window.rs`: xcap-backed `list_windows() -> Vec<WindowInfo>`, `capture_window_once(id) -> CapturedFrame` — filter `!title.is_empty() && !is_minimized()`
+  - [ ] `webcam.rs`: nokhwa-backed `list_webcams() -> Vec<WebcamInfo>`, `capture_webcam_once(idx) -> CapturedFrame`. **`std::panic::catch_unwind` around `nokhwa::query()`** (issue #192 panics when no camera). Camera ownership via `Arc<Mutex<Option<Camera>>>` — cannot open same device twice on MSMF/AVF. macOS gate: `nokhwa_initialize` once before any `query`/`Camera::new`.
   - [ ] `mod.rs`: Tauri command surface + barrel
-- [ ] DTOs: `CapturedFrame { id, ts_ms, source, dims, png_bytes_b64 }`, `MonitorInfo`, `WindowInfo`, `WebcamInfo`, `CaptureSessionConfig`, `CaptureSessionStatus`
+- [ ] CapturedFrame returns `data_url: String` (`data:image/png;base64,...`) for one-shot ergonomics — fine for ≤ a few snapshots/sec. Live streaming (V-4) uses Channel<Raw> with JPEG to avoid the JSON-stringify cost.
 - [ ] All DTOs `#[derive(Serialize, Deserialize, Type)]`
 - [ ] All commands `#[tauri::command] #[specta::specta]`
-- [ ] Unit tests: enumeration returns non-empty on CI, PNG round-trip preserves dims
+- [ ] **Threading discipline**: every capture-touching call goes through `tokio::task::spawn_blocking` — never the main thread, never `app_handle.run_on_main_thread`. nokhwa needs per-thread COM init that conflicts with Tauri's STA main thread (Tauri issues #4580, #6485).
+- [ ] Wayland degraded path documented in `window.rs` — per-window capture is broken on most compositors (xcap issues #112, #136); list_windows on Wayland surfaces a `Capability::MonitorOnly` flag in the response so the UI can hide window-pick options gracefully.
+- [ ] Unit tests: enumeration call returns Ok (cardinality may be 0 in CI), data_url has valid PNG header, captured dims match monitor dims for round-trip.
 - [ ] Register commands in `lib.rs::collect_commands![]`
-- [ ] Commit `feat(pixvix): monitor/window/webcam capture primitives`
+- [ ] Commit `feat(pixvix): monitor/window/webcam one-shot capture primitives`
 
 ### V-4 Pipeline + user-directed sinks
 

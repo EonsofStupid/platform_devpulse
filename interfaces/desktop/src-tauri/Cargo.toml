@@ -13,6 +13,15 @@ crate-type = ["lib"]
 name = "devpulse-desktop-app"
 path = "src/main.rs"
 
+# Bindings-export tool. Imports `build_specta_builder()` from the lib,
+# calls `.export()` on it, exits. No Tauri runtime, no window, no
+# filesystem state beyond writing `../src/lib/sys/generated/bindings.ts`.
+# Replaces the prior `DEVPULSE_BINDINGS_EXPORT_ONLY=1 cargo run` hack.
+# Invoked by `cargo xtask regen-bindings` and the bindings-drift hook.
+[[bin]]
+name = "export-bindings"
+path = "bin/export-bindings.rs"
+
 [build-dependencies]
 tauri-build = { version = "2.5.5", features = [] }
 
@@ -54,6 +63,12 @@ futures = { workspace = true }
 #   on macOS, V4L2 on Linux). `input-native` is the canonical feature.
 xcap = "0.9"
 nokhwa = { version = "0.10", features = ["input-native"] }
+# base64: encoding captured frames as data: URLs for one-shot ergonomics.
+# 0.22 chosen to match the most-recent transitive in our lock file.
+base64 = "0.22"
+# image: already pulled transitively via xcap; declared explicitly for the
+# PNG encoder we call directly.
+image = "0.25"
 
 [features]
 default = ["inference"]

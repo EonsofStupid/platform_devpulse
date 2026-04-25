@@ -94,90 +94,15 @@ pub fn run_mcp_stdio() {
     std::process::exit(exit_code);
 }
 
-/// Bootstrap and run the Tauri application.
+/// Construct the tauri-specta `Builder` with the full command surface.
 ///
-/// # Panics
-/// Panics if the Tauri runtime fails to start.
-#[allow(clippy::expect_used, clippy::too_many_lines)]
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-    // ── Windows: make bundled runtime DLLs discoverable to children ──
-    //
-    // The NSIS installer lays out its resources under
-    // `$INSTDIR/binaries/` (Tauri array-form `bundle.resources` preserves
-    // the source subdirectory). `llama-server.exe` is spawned as a child
-    // process via tauri-plugin-shell; when Windows resolves ITS imports
-    // (llama.dll, ggml-cuda.dll, cublas64_12.dll, cublasLt64_12.dll,
-    // cudart64_12.dll, libomp, etc.) it searches its own directory
-    // first, then `PATH`. If `binaries/` isn't on `PATH`, the imports
-    // fail and the sidecar dies on startup with a cryptic `0xC0000135`.
-    //
-    // Modifying the parent process's `PATH` here ensures every child
-    // spawned from this point on inherits an environment where
-    // `<exe_dir>/binaries/` is first on the search list. No-op in dev
-    // (target/debug doesn't have a `binaries/` subdir), no-op in the
-    // portable zip (flat layout — DLLs already sibling the exe).
-    //
-    // There is a known Tauri bundler bug ([#9525]) where object-form
-    // resources mapped to `./` don't land next to the exe; this hook
-    // is the workaround that keeps the array-form (subdir) layout
-    // actually loadable at runtime.
-    //
-    // [#9525]: https://github.com/tauri-apps/tauri/issues/9525
-    #[cfg(windows)]
-    {
-        if let Ok(exe) = std::env::current_exe() {
-            if let Some(exe_dir) = exe.parent() {
-                let bin_dir = exe_dir.join("binaries");
-                if bin_dir.is_dir() {
-                    let existing = std::env::var_os("PATH").unwrap_or_default();
-                    let joined = std::env::join_paths(
-                        std::iter::once(bin_dir.clone())
-                            .chain(std::env::split_paths(&existing)),
-                    )
-                    .unwrap_or(existing);
-                    // SAFETY: `run()` executes single-threaded before
-                    // Tauri spins up any worker. Env mutation is safe
-                    // here and only here.
-                    std::env::set_var("PATH", joined);
-                    eprintln!(
-                        "devpulse: prepended {} to PATH for child DLL search",
-                        bin_dir.display()
-                    );
-                }
-            }
-        }
-    }
-
-    // ── Dev-build diagnostic env vars ────────────────────────────
-    // Set before Tauri constructs any thread so WebView2 + the Rust
-    // runtime pick these up at startup.
-    #[cfg(debug_assertions)]
-    {
-        // Chromium / WebView2 stderr logging: every JS exception,
-        // console.error, unhandled promise rejection, navigation
-        // failure, and renderer crash prints to the Tauri process's
-        // stderr. Visible in the terminal even when F12 is frozen.
-        if std::env::var_os("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").is_none() {
-            // SAFETY: single-threaded at this point in `run()`.
-            std::env::set_var(
-                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
-                "--enable-logging=stderr --v=1",
-            );
-        }
-        // Rust backtrace on panic. Our panic hook (see logging.rs) uses
-        // `Backtrace::force_capture()` anyway, but this also covers the
-        // case where a panic escapes to the default handler.
-        if std::env::var_os("RUST_BACKTRACE").is_none() {
-            std::env::set_var("RUST_BACKTRACE", "1");
-        }
-        if std::env::var_os("RUST_LIB_BACKTRACE").is_none() {
-            std::env::set_var("RUST_LIB_BACKTRACE", "1");
-        }
-    }
-
-    // ── specta: typed IPC bindings ──────────────────────────────
-    let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+/// Shared by [`run`] (runtime app) and `bin/export-bindings.rs` (the
+/// bindings-export tool). The command list is the single source of
+/// truth for both — there is no way for them to drift.
+#[must_use]
+#[allow(clippy::too_many_lines)]
+pub fn build_specta_builder() -> Builder<tauri::Wry> {
+    Builder::<tauri::Wry>::new().commands(collect_commands![
         commands::chat::pick_save_file,
         commands::chat::send_message,
         commands::chat::store_assistant_turn,
@@ -298,6 +223,17 @@ pub fn run() {
         commands::providers::list_provider_status,
         commands::providers::validate_provider,
         commands::providers::list_provider_models,
+        // PixVix — capture primitives (V-3): monitor/window/webcam one-shots.
+        // `pixvix_*` prefix avoids collision with the existing
+        // `commands::window` module that owns `list_windows` for window
+        // manipulation (Tauri/specta uses module-flat `__cmd__{name}`
+        // codegen so name uniqueness across modules matters).
+        commands::pixvix::pixvix_list_monitors,
+        commands::pixvix::pixvix_capture_monitor_once,
+        commands::pixvix::pixvix_list_windows,
+        commands::pixvix::pixvix_capture_window_once,
+        commands::pixvix::pixvix_list_webcams,
+        commands::pixvix::pixvix_capture_webcam_once,
         commands::devpulse::fetch_dashboard,
         commands::devpulse::profile::fetch_user_profile,
         commands::devpulse::profile::update_user_profile,
@@ -418,42 +354,100 @@ pub fn run() {
         commands::cloud::set_inference_provider,
         commands::cloud::cloud_ready,
         commands::cloud::cloud_chat,
-    ]);
+    ])
+}
 
-    // Export typed TS bindings on EVERY build — dev AND release.
+/// Bootstrap and run the Tauri application.
+///
+/// # Panics
+/// Panics if the Tauri runtime fails to start.
+#[allow(clippy::expect_used, clippy::too_many_lines)]
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    // ── Windows: make bundled runtime DLLs discoverable to children ──
     //
-    // Previously this was gated on `#[cfg(debug_assertions)]`, which
-    // meant `cargo xtask build-release` compiled the frontend against
-    // whatever stale `bindings.ts` happened to be on disk. When Rust
-    // commands evolved faster than the bindings file, the release
-    // frontend would `commands.xxx(...)` a function that didn't exist,
-    // throw at mount, and paint a black window. Ungated now so
-    // installer builds always ship current types.
+    // The NSIS installer lays out its resources under
+    // `$INSTDIR/binaries/` (Tauri array-form `bundle.resources` preserves
+    // the source subdirectory). `llama-server.exe` is spawned as a child
+    // process via tauri-plugin-shell; when Windows resolves ITS imports
+    // (llama.dll, ggml-cuda.dll, cublas64_12.dll, cublasLt64_12.dll,
+    // cudart64_12.dll, libomp, etc.) it searches its own directory
+    // first, then `PATH`. If `binaries/` isn't on `PATH`, the imports
+    // fail and the sidecar dies on startup with a cryptic `0xC0000135`.
     //
-    // The file write happens only when `run()` actually executes, so
-    // the installed binary regenerates bindings on first launch. For
-    // the build itself, the pre-build hook (`DEVPULSE_BINDINGS_EXPORT_
-    // ONLY=1 cargo run`) is the upstream path — see lefthook / CI.
-    builder
-        .export(
-            specta_typescript::Typescript::default()
-                .bigint(specta_typescript::BigIntExportBehavior::Number),
-            "../src/lib/sys/generated/bindings.ts",
-        )
-        .expect("Failed to export specta TypeScript bindings");
-
-    // Export-only mode: `DEVPULSE_BINDINGS_EXPORT_ONLY=1 cargo run
-    // -p devpulse_desktop_backend` writes bindings.ts and exits
-    // before the Tauri builder touches the window system. Used by
-    // the pre-push hook + CI regen pipeline so svelte-check always
-    // sees current types without needing to launch the whole app.
-    // Released from the debug-only gate for the same reason as the
-    // export call above — release builds sometimes need to bootstrap
-    // bindings on a fresh checkout before their frontend compiles.
-    if std::env::var("DEVPULSE_BINDINGS_EXPORT_ONLY").is_ok() {
-        eprintln!("[bindings-export] specta bindings written; exiting early");
-        return;
+    // Modifying the parent process's `PATH` here ensures every child
+    // spawned from this point on inherits an environment where
+    // `<exe_dir>/binaries/` is first on the search list. No-op in dev
+    // (target/debug doesn't have a `binaries/` subdir), no-op in the
+    // portable zip (flat layout — DLLs already sibling the exe).
+    //
+    // There is a known Tauri bundler bug ([#9525]) where object-form
+    // resources mapped to `./` don't land next to the exe; this hook
+    // is the workaround that keeps the array-form (subdir) layout
+    // actually loadable at runtime.
+    //
+    // [#9525]: https://github.com/tauri-apps/tauri/issues/9525
+    #[cfg(windows)]
+    {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(exe_dir) = exe.parent() {
+                let bin_dir = exe_dir.join("binaries");
+                if bin_dir.is_dir() {
+                    let existing = std::env::var_os("PATH").unwrap_or_default();
+                    let joined = std::env::join_paths(
+                        std::iter::once(bin_dir.clone())
+                            .chain(std::env::split_paths(&existing)),
+                    )
+                    .unwrap_or(existing);
+                    // SAFETY: `run()` executes single-threaded before
+                    // Tauri spins up any worker. Env mutation is safe
+                    // here and only here.
+                    std::env::set_var("PATH", joined);
+                    eprintln!(
+                        "devpulse: prepended {} to PATH for child DLL search",
+                        bin_dir.display()
+                    );
+                }
+            }
+        }
     }
+
+    // ── Dev-build diagnostic env vars ────────────────────────────
+    // Set before Tauri constructs any thread so WebView2 + the Rust
+    // runtime pick these up at startup.
+    #[cfg(debug_assertions)]
+    {
+        // Chromium / WebView2 stderr logging: every JS exception,
+        // console.error, unhandled promise rejection, navigation
+        // failure, and renderer crash prints to the Tauri process's
+        // stderr. Visible in the terminal even when F12 is frozen.
+        if std::env::var_os("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").is_none() {
+            // SAFETY: single-threaded at this point in `run()`.
+            std::env::set_var(
+                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+                "--enable-logging=stderr --v=1",
+            );
+        }
+        // Rust backtrace on panic. Our panic hook (see logging.rs) uses
+        // `Backtrace::force_capture()` anyway, but this also covers the
+        // case where a panic escapes to the default handler.
+        if std::env::var_os("RUST_BACKTRACE").is_none() {
+            std::env::set_var("RUST_BACKTRACE", "1");
+        }
+        if std::env::var_os("RUST_LIB_BACKTRACE").is_none() {
+            std::env::set_var("RUST_LIB_BACKTRACE", "1");
+        }
+    }
+
+    // ── specta: typed IPC bindings ──────────────────────────────
+    // Construction is shared with `bin/export-bindings.rs`, the
+    // dedicated tool used by `cargo xtask regen-bindings` and the
+    // bindings-drift pre-commit hook. `run()` no longer writes
+    // bindings.ts — that responsibility lives entirely in the
+    // export-bindings binary, removing the prior env-var hack and
+    // the spurious "write to a path relative to the installed exe's
+    // cwd" behavior on every release launch.
+    let builder = build_specta_builder();
 
     // ── IPC tracing wrapper ─────────────────────────────────────
     // Every invoke() from the frontend passes through this middleware

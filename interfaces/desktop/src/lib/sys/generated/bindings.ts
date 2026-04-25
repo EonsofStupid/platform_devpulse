@@ -1513,6 +1513,92 @@ async listProviderModels(request: ListModelsRequest) : Promise<Result<ModelInfo[
 }
 },
 /**
+ * List every monitor currently attached.
+ * 
+ * Returns an empty vector on systems with no displays (headless CI)
+ * rather than an error — the UI renders the empty state cleanly.
+ */
+async pixvixListMonitors() : Promise<Result<MonitorInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pixvix_list_monitors") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Capture monitor `id` once and return the encoded frame.
+ * 
+ * `id` is the OS-level handle from `MonitorInfo::id`. If the monitor
+ * disappeared between enumeration and this call, returns
+ * `CaptureErrorKind::NotFound`.
+ */
+async pixvixCaptureMonitorOnce(id: number) : Promise<Result<CapturedFrame, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pixvix_capture_monitor_once", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Enumerate capturable windows.
+ * 
+ * Filtered to "real" windows: title non-empty AND not minimized.
+ * Tooltips, hidden helper windows, OS overlays, and most window-
+ * manager artifacts get dropped — they are technically windows but
+ * useless capture targets.
+ */
+async pixvixListWindows() : Promise<Result<WindowListing, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pixvix_list_windows") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Capture window `id` once and return the encoded frame.
+ */
+async pixvixCaptureWindowOnce(id: number) : Promise<Result<CapturedFrame, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pixvix_capture_window_once", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Enumerate webcam-class capture devices.
+ * 
+ * Wraps `nokhwa::query` in `catch_unwind` to neutralize the
+ * no-camera-plugged-in panic on Windows MSMF (issue #192).
+ */
+async pixvixListWebcams() : Promise<Result<WebcamInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pixvix_list_webcams") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Capture one frame from webcam `index`.
+ * 
+ * Opens the camera if not already in the pool; reuses the existing
+ * handle if a previous one-shot left it open. The pool currently
+ * never closes a camera mid-process — V-4's session lifecycle is
+ * where explicit release lives.
+ */
+async pixvixCaptureWebcamOnce(index: number) : Promise<Result<CapturedFrame, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pixvix_capture_webcam_once", { index }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetch dashboard data from all services.
  * 
  * Queries:
@@ -3770,6 +3856,55 @@ gpu_layers: number;
  */
 dtype: string }
 /**
+ * One captured frame ready for one-shot consumption.
+ * 
+ * `data_url` is the canonical browser-friendly form: drop into
+ * `<img src=>`, fetch as Blob, decode in a worker, etc. Format is
+ * PNG (lossless) for one-shots; the V-4 streaming pipeline uses
+ * JPEG over a binary channel since PNG encode is the dominant cost
+ * at higher cadences.
+ */
+export type CapturedFrame = { 
+/**
+ * Wall-clock timestamp (Unix epoch milliseconds) when capture
+ * started.
+ */
+capturedAtMs: number; 
+/**
+ * `"monitor"` | `"window"` | `"webcam"`.
+ */
+sourceKind: string; 
+/**
+ * Identifier within the source kind (monitor id, window id,
+ * webcam index).
+ */
+sourceId: number; 
+/**
+ * Pixel width (post-resize for webcams that negotiated a different format).
+ */
+width: number; 
+/**
+ * Pixel height.
+ */
+height: number; 
+/**
+ * `data:image/png;base64,...` — drop straight into `<img src=>`.
+ */
+dataUrl: string; 
+/**
+ * Encoded byte length (post-base64 decode). Useful for the metrics
+ * panel without re-decoding.
+ */
+byteLen: number; 
+/**
+ * Capture latency (ms) — OS call only, excludes PNG encode.
+ */
+captureMs: number; 
+/**
+ * PNG encode latency (ms).
+ */
+encodeMs: number }
+/**
  * A download catalog entry — one per slot. Each has one or more download options.
  */
 export type CatalogEntry = { 
@@ -5849,6 +5984,58 @@ assignedCount: number;
  */
 error: string | null }
 /**
+ * One physical/virtual monitor reported by xcap.
+ * 
+ * Field accuracy varies by OS — `is_builtin` is reliable on macOS,
+ * best-effort elsewhere. `scale_factor` reflects HiDPI; multiply
+ * `width`/`height` by it to get device pixels (xcap returns logical
+ * pixels by default).
+ */
+export type MonitorInfo = { 
+/**
+ * Stable OS identifier — survives the same boot session, may
+ * change across reboot/replug.
+ */
+id: number; 
+/**
+ * Operator-friendly name (xcap `friendly_name`, falls back to `name`).
+ */
+name: string; 
+/**
+ * Logical pixel position of the monitor's top-left corner in the
+ * virtual desktop coordinate space.
+ */
+x: number; 
+/**
+ * Logical pixel position of the monitor's top-left corner.
+ */
+y: number; 
+/**
+ * Logical pixel width.
+ */
+width: number; 
+/**
+ * Logical pixel height.
+ */
+height: number; 
+/**
+ * HiDPI scale (1.0 on standard displays, 2.0 on Retina, etc.).
+ */
+scaleFactor: number; 
+/**
+ * Refresh rate in Hz.
+ */
+frequency: number; 
+/**
+ * `true` for the OS-designated primary monitor.
+ */
+isPrimary: boolean; 
+/**
+ * `true` for the laptop's built-in panel (macOS reliable; other
+ * platforms best-effort).
+ */
+isBuiltin: boolean }
+/**
  * Partial GPU offload hints for llama.cpp-backed slots that exceed
  * the GPU VRAM budget.
  * 
@@ -5931,11 +6118,11 @@ export type OllamaHealthState =
  */
 "unknown"
 /**
- * Public, TS-exported view of a model reported by `GET /api/tags`.
+ * A model reported by `GET /api/tags`.
  * 
- * The kernel's `OllamaModel` is `serde`-only (the kernel never pulls in
- * `specta`). This DTO is the engine-facade mirror — same shape, plus
- * `specta::Type` so it can cross the Tauri IPC boundary.
+ * Crosses the Tauri IPC boundary verbatim — no engine-side wrapper.
+ * `specta::Type` is gated on the optional `specta` feature so kernel-only
+ * builds don't pull specta into their dep tree.
  */
 export type OllamaModel = { 
 /**
@@ -5945,15 +6132,15 @@ name: string;
 /**
  * ISO-8601 timestamp reported by Ollama (may be empty).
  */
-modified_at: string; 
+modified_at?: string; 
 /**
  * On-disk size in bytes (may be 0 if Ollama omits it).
  */
-size: number; 
+size?: number; 
 /**
  * Blob digest (may be empty).
  */
-digest: string }
+digest?: string }
 /**
  * Running-state of the managed Ollama sidecar.
  */
@@ -7963,6 +8150,47 @@ sensitivity: number;
  */
 cooldown_ms: number }
 /**
+ * One webcam-style capture device reported by nokhwa.
+ */
+export type WebcamInfo = { 
+/**
+ * Zero-based index used by `Camera::new`. May skip values when
+ * devices disappear mid-session.
+ */
+index: number; 
+/**
+ * Vendor-friendly name (e.g. "Logitech BRIO 4K").
+ */
+humanName: string; 
+/**
+ * Verbose description from the OS (driver string).
+ */
+description: string; 
+/**
+ * Backend-specific handle string (MSMF symbolic link, AVF unique
+ * id, V4L2 device path). Reserved for diagnostics — operators
+ * rarely need it.
+ */
+backendHandle: string }
+/**
+ * Wayland degraded-capability flag returned with `list_windows`.
+ * 
+ * xcap on Wayland (issues #112, #136) cannot reliably enumerate or
+ * capture individual native-Wayland windows — only XWayland windows
+ * and full monitors work. The lister sets this flag so the UI can
+ * hide the window-pick option instead of showing a broken control.
+ */
+export type WindowCapability = 
+/**
+ * Per-window capture works normally.
+ */
+"full" | 
+/**
+ * Window enumeration may be incomplete or capture may fail —
+ * recommend the operator pick a monitor instead.
+ */
+"monitor-only"
+/**
  * Window auto-minimise behaviour.
  * 
  * The Tauri main window registers focus / pointer / keydown listeners
@@ -7995,6 +8223,71 @@ label: string;
  * Whether the window is currently open.
  */
 is_open: boolean }
+/**
+ * One capturable window reported by xcap.
+ * 
+ * Filtered to "real" windows by the lister: title non-empty AND not
+ * minimized. Tooltips, hidden helper windows, and OS overlays are
+ * dropped — they are technically windows but useless capture targets.
+ */
+export type WindowInfo = { 
+/**
+ * Stable OS window handle.
+ */
+id: number; 
+/**
+ * Process id that owns the window.
+ */
+pid: number; 
+/**
+ * Best-effort app name (e.g. "Google Chrome", "code").
+ */
+appName: string; 
+/**
+ * Window title at enumeration time. Stale by the time the operator
+ * clicks Capture; ids are the durable handle.
+ */
+title: string; 
+/**
+ * Logical pixel bounds — top-left x.
+ */
+x: number; 
+/**
+ * Logical pixel bounds — top-left y.
+ */
+y: number; 
+/**
+ * Logical pixel width.
+ */
+width: number; 
+/**
+ * Logical pixel height.
+ */
+height: number; 
+/**
+ * Z-order index (lower = closer to front; xcap returns the list
+ * sorted by z, so a smaller index here is on top).
+ */
+z: number; 
+/**
+ * `true` when the window is currently focused. UI uses this to
+ * pre-select the active window.
+ */
+isFocused: boolean }
+/**
+ * Response shape for `list_windows` so we can carry the capability
+ * flag alongside the window vector.
+ */
+export type WindowListing = { 
+/**
+ * Captured-window candidates after the title/minimized filter.
+ */
+windows: WindowInfo[]; 
+/**
+ * Per-host capability flag — driven by the Wayland-detection probe
+ * in `window.rs`. UI hides the per-window pick when set to `MonitorOnly`.
+ */
+capability: WindowCapability }
 /**
  * Every spawnable window has a typed role.
  * Single Svelte build reads this from the URL query param.

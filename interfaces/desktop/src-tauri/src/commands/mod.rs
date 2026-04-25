@@ -93,6 +93,7 @@ pub mod llama;
 pub mod llama_cpp_embedded;
 pub mod models;
 pub mod ollama_sidecar;
+pub mod pixvix;
 pub mod projects;
 pub mod sherpa;
 pub mod surrealdb_sidecar;
