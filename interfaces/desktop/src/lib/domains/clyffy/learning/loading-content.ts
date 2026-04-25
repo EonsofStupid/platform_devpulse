@@ -177,7 +177,7 @@ const ENTRIES: readonly LoadingContentEntry[] = [
 		kind: "tnt",
 		label: "Tip",
 		content:
-			"Ctrl+Shift+Z opens the DevTools panel — config inspector, lane tracing, and the model control window.",
+			"Ctrl+Shift+Q opens the DevTools dashboard — config inspector, lane tracing, model control, and links to every per-service devtool. Ctrl+Shift+Space jumps to chat from anywhere.",
 		tags: ["ui", "shortcuts", "devtools"],
 	},
 	{

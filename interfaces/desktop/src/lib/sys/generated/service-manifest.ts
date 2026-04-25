@@ -46,6 +46,7 @@ export const BOOT_STEP_MANIFEST: readonly BootStepMeta[] = Object.freeze([
 	{ step_id: "Graph store",            group: "graph",  feature_gate: null,        service_role: "Graph",        data_scope: "System"  },
 	{ step_id: "User graph namespace",   group: "graph",  feature_gate: null,        service_role: "Graph",        data_scope: "User"    },
 	{ step_id: "Global graph namespace", group: "graph",  feature_gate: null,        service_role: "Graph",        data_scope: "Global"  },
+	{ step_id: "SurrealDB sidecar",      group: "graph",  feature_gate: null,        service_role: "SurrealdbSidecar", data_scope: "System" },
 	{ step_id: "SurrealDB HTTP",         group: "graph",  feature_gate: null,        service_role: null,           data_scope: null      },
 	{ step_id: "Model Loader",           group: "ai",     feature_gate: "inference", service_role: "ModelLoader",  data_scope: "System"  },
 	{ step_id: "Vector store",           group: "ai",     feature_gate: "rro",       service_role: "Vector",       data_scope: "System"  },

@@ -1,7 +1,7 @@
 //! System configuration commands.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::PlatformConfig;
+use devpulse_engine::platform::{PlatformConfig, ServiceStatusSnapshot};
 use std::collections::HashMap;
 use tauri::State;
 
@@ -15,6 +15,26 @@ pub async fn get_settings(state: State<'_, PlatformState>) -> Result<PlatformCon
     // P0: lock-free atomic load.
     match state.platform.load_full() {
         Some(platform) => Ok(platform.config()),
+        None => Err("Platform is still booting".to_string()),
+    }
+}
+
+/// List every service in `SERVICE_MANIFEST` with its static metadata
+/// plus the three dynamic signals (compiled / config-enabled / runtime).
+///
+/// Consumed by the devtools Config tab. Replaces the legacy flat
+/// `DatabaseConfig` bool mirror — adding a service now requires zero
+/// churn on this command or the frontend.
+///
+/// # Errors
+/// Returns error if platform is still booting.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_services(
+    state: State<'_, PlatformState>,
+) -> Result<Vec<ServiceStatusSnapshot>, String> {
+    match state.platform.load_full() {
+        Some(platform) => Ok(platform.services_status().await),
         None => Err("Platform is still booting".to_string()),
     }
 }

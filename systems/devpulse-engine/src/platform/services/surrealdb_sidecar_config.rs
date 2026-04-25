@@ -176,11 +176,17 @@ pub fn save(
 /// `SurrealdbSidecarAdapter::boot` via the kernel `SidecarConfig`.
 #[derive(Debug, Clone)]
 pub struct ResolvedSidecarParams {
+    /// Port the sidecar will bind at startup.
     pub port: u16,
+    /// Explicit binary path, or `None` to fall back to PATH resolution.
     pub binary_path: Option<PathBuf>,
+    /// Root user passed to `surreal start --user`.
     pub root_user: String,
+    /// Root password passed to `surreal start --pass`.
     pub root_password: String,
+    /// `--log <level>` flag (`error` / `warn` / `info` / `debug`).
     pub log_level: String,
+    /// Maximum `+1` bumps. `None` = allocator default.
     pub max_bumps: Option<u16>,
 }
 

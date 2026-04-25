@@ -129,6 +129,25 @@ async getSettings() : Promise<Result<PlatformConfig, string>> {
 }
 },
 /**
+ * List every service in `SERVICE_MANIFEST` with its static metadata
+ * plus the three dynamic signals (compiled / config-enabled / runtime).
+ * 
+ * Consumed by the devtools Config tab. Replaces the legacy flat
+ * `DatabaseConfig` bool mirror — adding a service now requires zero
+ * churn on this command or the frontend.
+ * 
+ * # Errors
+ * Returns error if platform is still booting.
+ */
+async listServices() : Promise<Result<ServiceStatusSnapshot[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_services") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get a user preference by key.
  * 
  * Reads from `{data_dir}/preferences.json`. Returns `None` if key not found.
@@ -1218,6 +1237,62 @@ async ollamaSidecarPullModel(name: string) : Promise<Result<null, string>> {
 async ollamaSidecarDeleteModel(name: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_delete_model", { name }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Runtime status of the SurrealDB sidecar (configured vs. actual port,
+ * managed/attached, bind URL, etc.).
+ * 
+ * Lock-free read — never spawns, never blocks.
+ */
+async surrealdbSidecarStatus() : Promise<Result<SurrealdbSidecarStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Live-probe the sidecar via `GET /health` and return a badge-shaped
+ * tri-state (`up` / `down` / `stopped`).
+ */
+async surrealdbSidecarHealth() : Promise<Result<SurrealdbSidecarHealth, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load the user-scope editable overlay from
+ * `{data_dir}/user/surrealdb_sidecar.toml`.
+ * 
+ * Returns defaults if the file is missing or malformed — never errors
+ * on parse failure. The devtool mounts this as its Config draft.
+ */
+async surrealdbSidecarConfigLoad() : Promise<Result<SurrealdbSidecarUserConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_config_load") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Atomically persist the user-scope overlay.
+ * 
+ * The returned config is the clamped/normalized shape that was
+ * written to disk — the devtool should update its state from this
+ * rather than echoing the request back.
+ */
+async surrealdbSidecarConfigSave(cfg: SurrealdbSidecarUserConfig) : Promise<Result<SurrealdbSidecarUserConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_config_save", { cfg }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -4126,49 +4201,25 @@ message_stats: MessageStats;
  */
 uptime_secs: number }
 /**
- * Database subsystem configuration (public-safe names).
+ * Identifies which scope a store belongs to.
  */
-export type DatabaseConfig = { 
+export type DataScope = 
 /**
- * System relational store enabled (`LibSQL`).
+ * Kernel/engine internals — never user-facing.
  */
-system_relational_enabled: boolean; 
+"System" | 
 /**
- * System analytics store enabled (`DuckDB`).
+ * User-owned data — sessions, preferences, memories.
  */
-system_analytics_enabled: boolean; 
+"User" | 
 /**
- * System graph store enabled (`SurrealDB`).
+ * Cross-project shared knowledge.
  */
-system_graph_enabled: boolean; 
+"Global" | 
 /**
- * System cache store enabled (`Moka`).
+ * Per-project namespaced data.
  */
-system_cache_enabled: boolean; 
-/**
- * User relational store enabled (`LibSQL`).
- */
-user_relational_enabled: boolean; 
-/**
- * User graph store enabled (`SurrealDB`).
- */
-user_graph_enabled: boolean; 
-/**
- * Global graph store enabled (`SurrealDB`).
- */
-global_graph_enabled: boolean; 
-/**
- * Vector store enabled (`RRO`).
- */
-vector_enabled: boolean; 
-/**
- * Grammar service enabled.
- */
-grammar_enabled: boolean; 
-/**
- * `DevForge` service enabled (REH).
- */
-devforge_enabled: boolean }
+"Project"
 /**
  * Unified status returned by [`devforge_get_status`](super::devforge_get_status)
  * and emitted on the `devforge://ready` event after bootstrap.
@@ -5880,7 +5931,11 @@ export type OllamaHealthState =
  */
 "unknown"
 /**
- * A model reported by `GET /api/tags`.
+ * Public, TS-exported view of a model reported by `GET /api/tags`.
+ * 
+ * The kernel's `OllamaModel` is `serde`-only (the kernel never pulls in
+ * `specta`). This DTO is the engine-facade mirror — same shape, plus
+ * `specta::Type` so it can cross the Tauri IPC boundary.
  */
 export type OllamaModel = { 
 /**
@@ -5890,15 +5945,15 @@ name: string;
 /**
  * ISO-8601 timestamp reported by Ollama (may be empty).
  */
-modified_at?: string; 
+modified_at: string; 
 /**
  * On-disk size in bytes (may be 0 if Ollama omits it).
  */
-size?: number; 
+size: number; 
 /**
  * Blob digest (may be empty).
  */
-digest?: string }
+digest: string }
 /**
  * Running-state of the managed Ollama sidecar.
  */
@@ -5932,7 +5987,9 @@ version: string | null }
  * Public platform configuration.
  * 
  * This is what Tauri and the frontend see for settings display.
- * Wraps clyffy's `PersistenceConfig` without exposing it.
+ * Per-service enable/critical flags are NOT embedded here — they are
+ * served through `Platform::services_status()` which is derived from
+ * the SSOT [`SERVICE_MANIFEST`](super::services::manifest::SERVICE_MANIFEST).
  */
 export type PlatformConfig = { 
 /**
@@ -5942,11 +5999,7 @@ data_dir: string;
 /**
  * Whether portable mode is active.
  */
-portable: boolean; 
-/**
- * Database subsystem configuration.
- */
-databases: DatabaseConfig }
+portable: boolean }
 /**
  * Real process metrics from the OS. Every field is a measurement, not a guess.
  */
@@ -6772,6 +6825,80 @@ target: string;
  */
 message: string }
 /**
+ * Identifies a service's role in the platform.
+ */
+export type ServiceRole = 
+/**
+ * Relational service (`LibSQL`).
+ */
+"Relational" | 
+/**
+ * Analytics service (`DuckDB`).
+ */
+"Analytics" | 
+/**
+ * Graph service (`SurrealDB`).
+ */
+"Graph" | 
+/**
+ * In-memory cache (`Moka`).
+ */
+"Cache" | 
+/**
+ * Vector service (`RRO`).
+ */
+"Vector" | 
+/**
+ * Grammar service (kernel-owned constrained decoding).
+ */
+"Grammar" | 
+/**
+ * `DevForge` service (managed REH web server).
+ */
+"DevForge" | 
+/**
+ * Model Loader service (AI model management, inference).
+ */
+"ModelLoader" | 
+/**
+ * Ollama sidecar service (managed `ollama serve` child process).
+ */
+"OllamaSidecar" | 
+/**
+ * SurrealDB sidecar service (managed `surreal start` child process).
+ */
+"SurrealdbSidecar"
+/**
+ * Whether a service is actually alive right now.
+ * 
+ * Complements the static `compiled_in` / `config_enabled` fields —
+ * this is the dynamic signal that can change after boot (DevForge
+ * lazy-start, Ollama sidecar start/stop, grammar toggle).
+ */
+export type ServiceRuntimeState = 
+/**
+ * Cargo feature not compiled in. Not available in this build.
+ */
+"not-compiled" | 
+/**
+ * Compiled in, but `enabled = false` in config.
+ */
+"config-disabled" | 
+/**
+ * Compiled + config-enabled, but the service Arc is currently absent
+ * (lazy service not yet started, or boot skipped it).
+ */
+"stopped" | 
+/**
+ * Service Arc is present — it booted and hasn't been torn down.
+ */
+"running" | 
+/**
+ * Runtime state cannot be reported (e.g. no accessor on Platform).
+ * Caller should rely on `compiled_in` / `config_enabled` instead.
+ */
+"unknown"
+/**
  * Lifecycle state of a platform service.
  * 
  * Enterprise boot state machine. Services transition through these states
@@ -6798,6 +6925,55 @@ export type ServiceState =
  * Boot failed or unrecoverable error. Not serving.
  */
 "Failed"
+/**
+ * Public, TS-exported snapshot of one entry in [`SERVICE_MANIFEST`]
+ * at a single point in time.
+ */
+export type ServiceStatusSnapshot = { 
+/**
+ * Role identifier — maps to [`ServiceRole`].
+ */
+role: ServiceRole; 
+/**
+ * Scope bucket — maps to [`DataScope`].
+ */
+scope: DataScope; 
+/**
+ * Boot stage number from the manifest.
+ */
+stage: number; 
+/**
+ * Public name ("Vector Store", "Grammar Engine", …).
+ */
+public_name: string; 
+/**
+ * UI grouping literal — matches `ServiceGroup::as_ts_literal`.
+ */
+group: string; 
+/**
+ * Cargo feature that gates this service. `None` = always compiled.
+ */
+feature_gate: string | null; 
+/**
+ * `InitEvent` step_id (absent for lazy services).
+ */
+step_id: string | null; 
+/**
+ * Was the feature compiled into this build?
+ */
+compiled_in: boolean; 
+/**
+ * `enabled = true` in the TOML config?
+ */
+config_enabled: boolean; 
+/**
+ * `critical = true` in the TOML config?
+ */
+config_critical: boolean; 
+/**
+ * Dynamic runtime liveness — see [`ServiceRuntimeState`].
+ */
+runtime_state: ServiceRuntimeState }
 /**
  * Whether the `sherpa` cargo feature was enabled at compile time.
  * The devtool uses this to render a "not available in this build"
@@ -7094,6 +7270,91 @@ export type SupportTier =
  * Reserved entry that should render as coming soon, not loadable.
  */
 "planned"
+/**
+ * Serde-friendly health probe result.
+ */
+export type SurrealdbSidecarHealth = { 
+/**
+ * `"up"` / `"down"` / `"stopped"`.
+ */
+state: string; 
+/**
+ * Human-readable label (short).
+ */
+label: string }
+/**
+ * Runtime status of the SurrealDB sidecar — what the devtool renders.
+ */
+export type SurrealdbSidecarStatus = { 
+/**
+ * True iff the service is present in the platform slot.
+ */
+running: boolean; 
+/**
+ * True iff we spawned the child; false if we attached to an
+ * externally-running SurrealDB.
+ */
+managed: boolean; 
+/**
+ * Bind host (e.g. `127.0.0.1`).
+ */
+host: string; 
+/**
+ * Port as configured in `platform.default.toml`.
+ */
+configuredPort: number; 
+/**
+ * Port we actually bound — may differ from `configured_port`
+ * if the allocator bumped past a foreign listener.
+ */
+actualPort: number; 
+/**
+ * `actual_port - configured_port`. `0` = no bump.
+ */
+portBumps: number; 
+/**
+ * HTTP base URL (for `.claude/hooks` + curl debugging).
+ */
+httpUrl: string; 
+/**
+ * WebSocket RPC URL (what the `SurrealAdapter` client uses).
+ */
+wsUrl: string; 
+/**
+ * Explicit binary path, if configured.
+ */
+binaryPath: string | null }
+/**
+ * Persisted user overrides for the SurrealDB sidecar.
+ * 
+ * All fields `Option<T>`: `None` means "inherit from platform TOML".
+ */
+export type SurrealdbSidecarUserConfig = { 
+/**
+ * Overrides `[services.network.graph_api].port`.
+ */
+port: number | null; 
+/**
+ * Overrides `[services.system.surrealdb_sidecar].binary_path`.
+ * Empty string is treated as `None`.
+ */
+binary_path: string | null; 
+/**
+ * Overrides `[services.system.surrealdb_sidecar].root_user`.
+ */
+root_user: string | null; 
+/**
+ * Overrides `[services.system.surrealdb_sidecar].root_password`.
+ */
+root_password: string | null; 
+/**
+ * Overrides `[services.system.surrealdb_sidecar].log_level`.
+ */
+log_level: string | null; 
+/**
+ * Overrides the allocator's `max_bumps` ceiling.
+ */
+max_bumps: number | null }
 /**
  * Overall system health status.
  */

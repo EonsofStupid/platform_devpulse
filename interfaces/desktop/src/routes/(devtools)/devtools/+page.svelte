@@ -1,18 +1,52 @@
 <!--
   @file DevPulse Tools
   @route /devtools
-  @window DevTools (Ctrl+Shift+Z)
+  @window DevTools (Ctrl+Shift+Q)
 
   Unified dev toolbox panel. Floating always-on-top child window.
-  Tab-organized sub-tools for developers and juniors.
+  Tab-organized sub-tools for developers and juniors. Cross-links
+  out to per-service devtools (/devtools/<service>) — availability
+  is the priority over strict isolation.
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { Activity, ExternalLink, Grid3x3, Palette, Settings, X } from "lucide-svelte";
+import {
+	Activity,
+	Boxes,
+	BrainCircuit,
+	Cpu,
+	Database,
+	ExternalLink,
+	Eye,
+	FileText,
+	Gauge,
+	GitBranch,
+	Grid3x3,
+	HardDrive,
+	Headphones,
+	LineChart,
+	Mic,
+	Network,
+	Package,
+	Palette,
+	PlugZap,
+	Radio,
+	Settings,
+	Sparkles,
+	Speaker,
+	Volume2,
+	Workflow,
+	X,
+} from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import { RepoDownloadButton } from "$lib/domains/platform/index.js";
-import type { LaneToggle, LaneTraceConfig, PlatformConfig } from "$lib/sys/generated/bindings.js";
+import type {
+	LaneToggle,
+	LaneTraceConfig,
+	PlatformConfig,
+	ServiceStatusSnapshot,
+} from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
 // ── Tab state ────────────────────────────────────────────────
@@ -85,16 +119,73 @@ async function setPreset(preset: "off" | "standard" | "debug"): Promise<void> {
 
 // ── Platform config state ────────────────────────────────────
 let platformConfig = $state<PlatformConfig | null>(null);
+let services = $state<ServiceStatusSnapshot[] | null>(null);
 let configError = $state<string | null>(null);
 
 async function loadPlatformConfig(): Promise<void> {
-	const result = await commands.getSettings();
-	if (result.status === "ok") {
-		platformConfig = result.data;
+	const [settings, svc] = await Promise.all([commands.getSettings(), commands.listServices()]);
+	if (settings.status === "ok") {
+		platformConfig = settings.data;
 	} else {
-		configError = result.error;
+		configError = settings.error;
+	}
+	if (svc.status === "ok") {
+		services = svc.data;
+	} else if (!configError) {
+		configError = svc.error;
 	}
 }
+
+function runtimeStateLabel(state: ServiceStatusSnapshot["runtime_state"]): string {
+	switch (state) {
+		case "not-compiled":
+			return "Not compiled";
+		case "config-disabled":
+			return "Disabled in config";
+		case "stopped":
+			return "Stopped";
+		case "running":
+			return "Running";
+		case "unknown":
+			return "Unknown";
+	}
+}
+
+function runtimeStateColor(state: ServiceStatusSnapshot["runtime_state"]): string {
+	switch (state) {
+		case "running":
+			return "var(--signal-success)";
+		case "stopped":
+			return "var(--signal-warning)";
+		case "config-disabled":
+			return "var(--text-secondary)";
+		case "not-compiled":
+			return "var(--text-muted)";
+		case "unknown":
+			return "var(--signal-warning)";
+	}
+}
+
+type ServiceGroupEntry = { label: string; items: ServiceStatusSnapshot[] };
+let serviceGroups: ServiceGroupEntry[] = $derived.by(() => {
+	if (!services) return [];
+	const byGroup = new Map<string, ServiceStatusSnapshot[]>();
+	for (const svc of services) {
+		const bucket = byGroup.get(svc.group) ?? [];
+		bucket.push(svc);
+		byGroup.set(svc.group, bucket);
+	}
+	const order = ["stores", "graph", "ai", "system"] as const;
+	const labels: Record<string, string> = {
+		stores: "Stores",
+		graph: "Graph",
+		ai: "AI",
+		system: "System",
+	};
+	return order
+		.filter((k) => byGroup.has(k))
+		.map((k) => ({ label: labels[k] ?? k, items: byGroup.get(k) ?? [] }));
+});
 
 // ── Tab change triggers data load ────────────────────────────
 $effect(() => {
@@ -525,7 +616,7 @@ let laneGroups = $derived<LaneGroup[]>(
 		{:else if activeTab === "config"}
 			{#if configError}
 				<Text size="sm" color="muted">{configError}</Text>
-			{:else if platformConfig}
+			{:else if platformConfig && services}
 				<div class="space-y-3">
 					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
 						<Text size="xs" weight="semibold" color="secondary">Platform</Text>
@@ -541,19 +632,38 @@ let laneGroups = $derived<LaneGroup[]>(
 						</div>
 					</div>
 
-					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-						<Text size="xs" weight="semibold" color="secondary">Services</Text>
-						<div class="mt-2 space-y-1 text-xs">
-							{#each Object.entries(platformConfig.databases) as [key, enabled]}
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">{key.replace(/_/g, " ")}</span>
-									<span style={`color: ${enabled ? "var(--signal-success)" : "var(--text-secondary)"}`}>
-										{enabled ? "Enabled" : "Disabled"}
-									</span>
-								</div>
-							{/each}
+					{#each serviceGroups as group}
+						<div
+							class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
+						>
+							<Text size="xs" weight="semibold" color="secondary">{group.label}</Text>
+							<div class="mt-2 space-y-2 text-xs">
+								{#each group.items as svc}
+									<div class="flex items-start justify-between gap-3">
+										<div class="flex flex-col">
+											<span class="font-medium">{svc.public_name}</span>
+											<span class="text-[var(--text-muted)] text-[10px]">
+												stage {svc.stage}
+												· {svc.role}
+												· {svc.scope}
+												{#if svc.feature_gate}· feature "{svc.feature_gate}"{/if}
+											</span>
+										</div>
+										<div class="flex flex-col items-end gap-0.5">
+											<span style={`color: ${runtimeStateColor(svc.runtime_state)}`}>
+												{runtimeStateLabel(svc.runtime_state)}
+											</span>
+											<span class="text-[10px] text-[var(--text-muted)]">
+												compiled: {svc.compiled_in ? "yes" : "no"}
+												· config: {svc.config_enabled ? "on" : "off"}
+												{#if svc.config_critical}· critical{/if}
+											</span>
+										</div>
+									</div>
+								{/each}
+							</div>
 						</div>
-					</div>
+					{/each}
 				</div>
 			{:else}
 				<Text size="sm" color="muted">Loading config...</Text>

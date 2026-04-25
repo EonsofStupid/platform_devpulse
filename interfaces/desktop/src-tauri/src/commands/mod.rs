@@ -95,6 +95,7 @@ pub mod models;
 pub mod ollama_sidecar;
 pub mod projects;
 pub mod sherpa;
+pub mod surrealdb_sidecar;
 pub mod providers;
 pub mod sys;
 pub mod thinkclyffy;

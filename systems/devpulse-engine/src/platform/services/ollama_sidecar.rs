@@ -8,11 +8,40 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::ollama::{OllamaAdapter, OllamaConfig};
-// Re-export the public model DTO so existing `platform::OllamaModel` imports
-// keep working without changing consumers.
-pub use devpulse_clyffy::cortex::persistence::OllamaModel;
+use devpulse_clyffy::cortex::persistence::ollama::{
+    OllamaAdapter, OllamaConfig, OllamaModel as KernelOllamaModel,
+};
+use serde::{Deserialize, Serialize};
+use specta::Type;
 use std::path::{Path, PathBuf};
+
+/// Public, TS-exported view of a model reported by `GET /api/tags`.
+///
+/// The kernel's `OllamaModel` is `serde`-only (the kernel never pulls in
+/// `specta`). This DTO is the engine-facade mirror — same shape, plus
+/// `specta::Type` so it can cross the Tauri IPC boundary.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct OllamaModel {
+    /// Tag-qualified model name, e.g. `llama3:8b-instruct-q4_K_M`.
+    pub name: String,
+    /// ISO-8601 timestamp reported by Ollama (may be empty).
+    pub modified_at: String,
+    /// On-disk size in bytes (may be 0 if Ollama omits it).
+    pub size: u64,
+    /// Blob digest (may be empty).
+    pub digest: String,
+}
+
+impl From<KernelOllamaModel> for OllamaModel {
+    fn from(m: KernelOllamaModel) -> Self {
+        Self {
+            name: m.name,
+            modified_at: m.modified_at,
+            size: m.size,
+            digest: m.digest,
+        }
+    }
+}
 
 /// Ollama sidecar service — thin engine wrapper around [`OllamaAdapter`].
 pub struct OllamaSidecarService {
@@ -92,7 +121,13 @@ impl OllamaSidecarService {
     /// # Errors
     /// HTTP failure / non-2xx / decode failure.
     pub async fn list_models(&self) -> Result<Vec<OllamaModel>> {
-        self.adapter.list_models().await
+        Ok(self
+            .adapter
+            .list_models()
+            .await?
+            .into_iter()
+            .map(OllamaModel::from)
+            .collect())
     }
 
     /// Pull a model (non-streaming, blocks until done).

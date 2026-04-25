@@ -154,6 +154,7 @@ pub struct SurrealdbSidecarHealth {
 }
 
 impl SurrealdbSidecarHealth {
+    /// Healthy — the sidecar responded to `/health` with 2xx.
     #[must_use]
     pub fn up() -> Self {
         Self {
@@ -161,6 +162,9 @@ impl SurrealdbSidecarHealth {
             label: "healthy".into(),
         }
     }
+
+    /// Down — the sidecar is in the Platform slot but the most recent
+    /// probe failed. `reason` is the stringified error.
     #[must_use]
     pub fn down(reason: &str) -> Self {
         Self {
@@ -168,6 +172,8 @@ impl SurrealdbSidecarHealth {
             label: reason.into(),
         }
     }
+
+    /// Stopped — the Platform slot is empty (boot skipped or failed).
     #[must_use]
     pub fn stopped() -> Self {
         Self {
@@ -182,12 +188,20 @@ impl SurrealdbSidecarHealth {
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct SurrealdbSidecarConfigView {
+    /// Whether the sidecar is enabled at all in `platform.default.toml`.
     pub enabled: bool,
+    /// Whether boot fails if this service fails.
     pub critical: bool,
+    /// Explicit binary path, if configured.
     pub binary_path: Option<PathBuf>,
+    /// Whether to start at platform boot.
     pub auto_start: bool,
+    /// Port from `[services.network.graph_api].port`.
     pub configured_port: u16,
+    /// Root user passed to `surreal start --user`.
     pub root_user: String,
+    /// `--log <level>` flag.
     pub log_level: String,
+    /// Max `+1` bumps (None = allocator default).
     pub max_bumps: Option<u16>,
 }

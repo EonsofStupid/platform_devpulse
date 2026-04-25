@@ -189,6 +189,7 @@ pub fn run() {
         commands::chat::sessions::export_all_sessions,
         commands::chat::interactions::post_reaction,
         commands::sys::config::get_settings,
+        commands::sys::config::list_services,
         commands::sys::config::get_preference,
         commands::sys::config::set_preference,
         commands::sys::guard::verify,
@@ -276,6 +277,10 @@ pub fn run() {
         commands::ollama_sidecar::ollama_sidecar_list_models,
         commands::ollama_sidecar::ollama_sidecar_pull_model,
         commands::ollama_sidecar::ollama_sidecar_delete_model,
+        commands::surrealdb_sidecar::surrealdb_sidecar_status,
+        commands::surrealdb_sidecar::surrealdb_sidecar_health,
+        commands::surrealdb_sidecar::surrealdb_sidecar_config_load,
+        commands::surrealdb_sidecar::surrealdb_sidecar_config_save,
         commands::sherpa::sherpa_compile_info,
         commands::sherpa::sherpa_list_models,
         commands::sherpa::sherpa_delete_model,
@@ -696,10 +701,11 @@ pub fn run() {
             });
 
             // ── Global shortcuts ──────────────────────────────────
-            // Ctrl+Shift+Z toggles the dev tools panel
+            // Ctrl+Shift+Q toggles the unified DevPulse Tools dashboard.
+            // (Rebound from Ctrl+Shift+Z so Z is free for in-app editor use.)
             {
                 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, Modifiers, Code};
-                let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyZ);
+                let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyQ);
                 let app_handle = app.handle().clone();
                 app.global_shortcut().on_shortcut(shortcut, move |_app, _shortcut, event| {
                     if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
@@ -710,12 +716,31 @@ pub fn run() {
                             }
                         });
                     }
-                }).map_err(|e| anyhow::anyhow!("Failed to register Ctrl+Shift+Z: {e}"))?;
-                tracing::info!("Registered Ctrl+Shift+Z → dev tools panel");
+                }).map_err(|e| anyhow::anyhow!("Failed to register Ctrl+Shift+Q: {e}"))?;
+                tracing::info!("Registered Ctrl+Shift+Q → DevPulse Tools dashboard");
+            }
+
+            // ── Ctrl+Shift+Space → open / focus the Chat window ──
+            // Summons the chat surface from anywhere in the app.
+            {
+                use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, Modifiers, Code};
+                let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
+                let app_handle = app.handle().clone();
+                app.global_shortcut().on_shortcut(shortcut, move |_app, _shortcut, event| {
+                    if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                        let h = app_handle.clone();
+                        tauri::async_runtime::spawn(async move {
+                            if let Err(e) = commands::window::open_chat_window(h).await {
+                                tracing::warn!(error = %e, "Failed to open chat window");
+                            }
+                        });
+                    }
+                }).map_err(|e| anyhow::anyhow!("Failed to register Ctrl+Shift+Space: {e}"))?;
+                tracing::info!("Registered Ctrl+Shift+Space → Chat window");
             }
 
             // ── Ctrl+Shift+I → Chromium webview devtools (main window) ──
-            // Different from Ctrl+Shift+Z which opens the DevPulse-authored
+            // Different from Ctrl+Shift+Q which opens the DevPulse-authored
             // `/devtools` Svelte route. This one opens the raw Chromium
             // inspector on the MAIN window — essential when the main window
             // is black-screened and you need to see the JS console.

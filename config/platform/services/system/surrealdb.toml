@@ -1,7 +1,43 @@
+# SurrealDB — managed sidecar (RocksDB) + three scoped namespaces.
+#
+# The platform spawns one `surreal start` child process using the
+# settings under `[services.system.surrealdb_sidecar]`. All three
+# graph namespaces (system / user / global) live on that single
+# server, isolated by NS/DB in every query.
+#
+# Port comes from `[services.network.graph_api]`. If that port is
+# taken by a foreign listener at boot, the allocator bumps +1 up to
+# `max_bumps` times — the devtool Status tab shows the actual port
+# vs. configured so you always know where it landed.
+
+# ─────────────────────────────────────────────────────────────
+# Sidecar process — lifecycle + binary resolution
+# ─────────────────────────────────────────────────────────────
+[services.system.surrealdb_sidecar]
+enabled = true
+critical = true
+auto_start = true
+# Explicit surreal binary path. Empty = resolve from the bundled
+# sidecar, then standard install paths, then PATH.
+binary_path = ""
+# Root credentials passed to `surreal start`. The namespace-scoped
+# users below (`system_user` / `system_password`) are created after
+# the server is up so `.claude/hooks/*.js` can auth with them.
+root_user = "root"
+root_password = "root"
+log_level = "warn"
+# Optional port-bump ceiling. Omit to use the default (20).
+# max_bumps = 20
+
+# ─────────────────────────────────────────────────────────────
+# Namespace scopes — one WS connection, three NS/DB pairs
+# ─────────────────────────────────────────────────────────────
 [services.system.graph]
 enabled = true
 critical = true
 kind = "surreal"
+# `path` is legacy — the sidecar's RocksDB store lives at
+# `{data_dir}/surreal/devpulse/` and is shared across all scopes.
 path = "system/surreal/reasoning"
 namespace = "system"
 database = "engine"
