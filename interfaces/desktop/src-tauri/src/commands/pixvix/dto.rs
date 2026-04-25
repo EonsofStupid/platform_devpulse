@@ -138,43 +138,12 @@ pub struct CapturedFrame {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Errors
+// Capability flags
 // ═══════════════════════════════════════════════════════════════════════
-
-/// Wire-stable classification of capture failures.
-///
-/// Tauri commands return `Result<T, String>` for serde simplicity —
-/// the backend tags errors with `[<kind>]` prefix so the UI can
-/// switch on `kind` without a custom Result type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "kebab-case")]
-pub enum CaptureErrorKind {
-    /// The OS denied capture access (macOS TCC, Windows Privacy).
-    PermissionDenied,
-    /// The requested device id / monitor id / window id no longer
-    /// exists on the system.
-    NotFound,
-    /// Another process has exclusive access (common with webcams).
-    DeviceBusy,
-    /// The requested operation is not supported on this OS / display
-    /// server (e.g. per-window capture on Wayland).
-    NotSupported,
-    /// Internal failure inside xcap / nokhwa / the encoder.
-    Internal,
-}
-
-impl CaptureErrorKind {
-    /// Render as the `[kind]` prefix the Tauri error path uses.
-    pub fn tag(self) -> &'static str {
-        match self {
-            Self::PermissionDenied => "[permission-denied]",
-            Self::NotFound => "[not-found]",
-            Self::DeviceBusy => "[device-busy]",
-            Self::NotSupported => "[not-supported]",
-            Self::Internal => "[internal]",
-        }
-    }
-}
+//
+// Capture failures are classified via the unified `CommandError` /
+// `ErrorKind` in `commands::_util::error`. The earlier `CaptureErrorKind`
+// shim was deleted in the F-1 foundation pass.
 
 /// Wayland degraded-capability flag returned with `list_windows`.
 ///

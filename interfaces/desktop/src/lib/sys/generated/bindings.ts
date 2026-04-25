@@ -1436,7 +1436,7 @@ async detectClaudeInstalls() : Promise<ClaudeInstalls> {
  * Surfaces IO and JSON parse errors verbatim so the devtool can show
  * them in the error panel.
  */
-async registerDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, string>> {
+async registerDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("register_devpulse_mcp", { target }) };
 } catch (e) {
@@ -1453,7 +1453,7 @@ async registerDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls,
  * # Errors
  * Surfaces IO and JSON parse errors verbatim.
  */
-async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, string>> {
+async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("unregister_devpulse_mcp", { target }) };
 } catch (e) {
@@ -1468,7 +1468,7 @@ async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstall
  * post-save refresh. Local-runtime cards rely on `validate_provider`
  * for reachability, which the UI fires per-card on demand.
  */
-async listProviderStatus() : Promise<Result<ProviderStatus[], string>> {
+async listProviderStatus() : Promise<Result<ProviderStatus[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("list_provider_status") };
 } catch (e) {
@@ -1488,7 +1488,7 @@ async listProviderStatus() : Promise<Result<ProviderStatus[], string>> {
  * distinguishes success from classified failure. Returning `Err` would
  * force the frontend to do double-dispatch on transport failure.
  */
-async validateProvider(provider: ProviderId) : Promise<Result<ValidationResult, string>> {
+async validateProvider(provider: ProviderId) : Promise<Result<ValidationResult, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("validate_provider", { provider }) };
 } catch (e) {
@@ -1504,7 +1504,7 @@ async validateProvider(provider: ProviderId) : Promise<Result<ValidationResult, 
  * into the Tauri Result channel since the UI here only renders the
  * model dropdown and a toast on failure.
  */
-async listProviderModels(request: ListModelsRequest) : Promise<Result<ModelInfo[], string>> {
+async listProviderModels(request: ListModelsRequest) : Promise<Result<ModelInfo[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("list_provider_models", { request }) };
 } catch (e) {
@@ -1518,7 +1518,7 @@ async listProviderModels(request: ListModelsRequest) : Promise<Result<ModelInfo[
  * Returns an empty vector on systems with no displays (headless CI)
  * rather than an error — the UI renders the empty state cleanly.
  */
-async pixvixListMonitors() : Promise<Result<MonitorInfo[], string>> {
+async pixvixListMonitors() : Promise<Result<MonitorInfo[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pixvix_list_monitors") };
 } catch (e) {
@@ -1531,9 +1531,9 @@ async pixvixListMonitors() : Promise<Result<MonitorInfo[], string>> {
  * 
  * `id` is the OS-level handle from `MonitorInfo::id`. If the monitor
  * disappeared between enumeration and this call, returns
- * `CaptureErrorKind::NotFound`.
+ * `ErrorKind::NotFound`.
  */
-async pixvixCaptureMonitorOnce(id: number) : Promise<Result<CapturedFrame, string>> {
+async pixvixCaptureMonitorOnce(id: number) : Promise<Result<CapturedFrame, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pixvix_capture_monitor_once", { id }) };
 } catch (e) {
@@ -1549,7 +1549,7 @@ async pixvixCaptureMonitorOnce(id: number) : Promise<Result<CapturedFrame, strin
  * manager artifacts get dropped — they are technically windows but
  * useless capture targets.
  */
-async pixvixListWindows() : Promise<Result<WindowListing, string>> {
+async pixvixListWindows() : Promise<Result<WindowListing, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pixvix_list_windows") };
 } catch (e) {
@@ -1560,7 +1560,7 @@ async pixvixListWindows() : Promise<Result<WindowListing, string>> {
 /**
  * Capture window `id` once and return the encoded frame.
  */
-async pixvixCaptureWindowOnce(id: number) : Promise<Result<CapturedFrame, string>> {
+async pixvixCaptureWindowOnce(id: number) : Promise<Result<CapturedFrame, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pixvix_capture_window_once", { id }) };
 } catch (e) {
@@ -1574,7 +1574,7 @@ async pixvixCaptureWindowOnce(id: number) : Promise<Result<CapturedFrame, string
  * Wraps `nokhwa::query` in `catch_unwind` to neutralize the
  * no-camera-plugged-in panic on Windows MSMF (issue #192).
  */
-async pixvixListWebcams() : Promise<Result<WebcamInfo[], string>> {
+async pixvixListWebcams() : Promise<Result<WebcamInfo[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pixvix_list_webcams") };
 } catch (e) {
@@ -1585,12 +1585,11 @@ async pixvixListWebcams() : Promise<Result<WebcamInfo[], string>> {
 /**
  * Capture one frame from webcam `index`.
  * 
- * Opens the camera if not already in the pool; reuses the existing
- * handle if a previous one-shot left it open. The pool currently
- * never closes a camera mid-process — V-4's session lifecycle is
- * where explicit release lives.
+ * Opens + captures + drops per call. The pool-across-calls pattern
+ * belongs in V-4's session lifecycle (`nokhwa::Camera` is `!Send`,
+ * so a tokio-worker pool would not type-check).
  */
-async pixvixCaptureWebcamOnce(index: number) : Promise<Result<CapturedFrame, string>> {
+async pixvixCaptureWebcamOnce(index: number) : Promise<Result<CapturedFrame, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pixvix_capture_webcam_once", { index }) };
 } catch (e) {
@@ -2927,7 +2926,7 @@ async voiceSttSaveConfig(cfg: VoiceSttConfig) : Promise<Result<VoiceSttConfig, s
  * - Provider has no API-key transport (e.g. local Ollama, subscription path).
  * - Keychain write failed.
  */
-async storeApiKey(provider: ProviderId, key: string) : Promise<Result<null, string>> {
+async storeApiKey(provider: ProviderId, key: string) : Promise<Result<null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("store_api_key", { provider, key }) };
 } catch (e) {
@@ -2947,7 +2946,7 @@ async storeApiKey(provider: ProviderId, key: string) : Promise<Result<null, stri
  * # Errors
  * Keychain access failure.
  */
-async getApiKey(provider: ProviderId) : Promise<Result<string | null, string>> {
+async getApiKey(provider: ProviderId) : Promise<Result<string | null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_api_key", { provider }) };
 } catch (e) {
@@ -2963,7 +2962,7 @@ async getApiKey(provider: ProviderId) : Promise<Result<string | null, string>> {
  * # Errors
  * Keychain delete failure (other than `NoEntry`).
  */
-async deleteApiKey(provider: ProviderId) : Promise<Result<null, string>> {
+async deleteApiKey(provider: ProviderId) : Promise<Result<null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("delete_api_key", { provider }) };
 } catch (e) {
@@ -2978,7 +2977,7 @@ async deleteApiKey(provider: ProviderId) : Promise<Result<null, string>> {
  * path — they don't have API keys, so showing them with `stored: false`
  * would just confuse the operator.
  */
-async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], string>> {
+async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_api_key_status") };
 } catch (e) {
@@ -4176,6 +4175,27 @@ name: string;
  */
 point_count: number }
 /**
+ * Classified failure with a human-readable message + optional context.
+ * 
+ * `message` is the operator-facing summary. `context` is optional
+ * additional detail (file path, request id, partial response body)
+ * the devtool's error panel surfaces below the main message.
+ */
+export type CommandError = { 
+/**
+ * Wire-stable classification.
+ */
+kind: ErrorKind; 
+/**
+ * One-line operator-facing summary.
+ */
+message: string; 
+/**
+ * Optional additional detail (truncated upstream body, file path,
+ * request id, etc.). UI renders below `message` in a smaller font.
+ */
+context: string | null }
+/**
  * Completion screen — summary and launch.
  */
 export type CompletionCopy = { 
@@ -4565,6 +4585,74 @@ name: string;
  * Number of rows.
  */
 row_count: number }
+/**
+ * Wire-stable failure classification.
+ * 
+ * Kebab-case on the wire (`auth-failed`, `not-found`, etc.). Stable
+ * identifiers — renaming a variant is a breaking change for frontend
+ * consumers that switch on `kind`.
+ */
+export type ErrorKind = 
+/**
+ * 401 / 403 from a vendor or OS — credentials wrong or revoked.
+ */
+"auth-failed" | 
+/**
+ * 429 with retryable semantics — back off and try again.
+ */
+"rate-limit" | 
+/**
+ * 429 with `insufficient_quota` / `billing_error` — don't retry.
+ */
+"quota-exhausted" | 
+/**
+ * Network call failed before the wire (DNS, TLS, connect refused,
+ * read timeout). Caller decides whether to retry.
+ */
+"network" | 
+/**
+ * 5xx from the vendor — upstream ack'd but failed. Retry with jitter.
+ */
+"server" | 
+/**
+ * Body parse / shape mismatch — successful HTTP but the response
+ * didn't match expectations.
+ */
+"parse" | 
+/**
+ * Pre-flight failure: missing API key, missing required config,
+ * etc. Never reached the network / OS.
+ */
+"not-configured" | 
+/**
+ * Implementation gap — feature is documented but not yet wired
+ * (e.g. Fireworks account-scoped endpoint).
+ */
+"not-implemented" | 
+/**
+ * OS denied access (macOS TCC, Windows Privacy Settings, etc.).
+ */
+"permission-denied" | 
+/**
+ * Requested resource (monitor, window, file, model, slot) is not
+ * present on the system.
+ */
+"not-found" | 
+/**
+ * Resource exists but is held exclusively by another process
+ * (common with webcams + certain audio devices).
+ */
+"device-busy" | 
+/**
+ * The OS / display server / runtime cannot perform this operation
+ * (e.g. per-window capture on Wayland).
+ */
+"not-supported" | 
+/**
+ * Catch-all for genuinely unexpected internal failures. Use only
+ * when no other kind applies.
+ */
+"internal"
 /**
  * Hardware execution lane in the inference pipeline.
  * 
@@ -6435,54 +6523,6 @@ created_at: number;
  */
 last_accessed: number }
 /**
- * Wire-stable classification of provider call failures.
- * 
- * Sprint 7's lane router reads this to decide retry policy:
- * `RateLimit` → back off and retry, `QuotaExhausted` → fail fast,
- * `AuthFailed` → fail and surface to operator, `Network`/`Server` →
- * retry with jitter.
- */
-export type ProviderErrorKind = 
-/**
- * 401 / 403 — the stored API key is wrong or revoked.
- */
-"auth-failed" | 
-/**
- * 429 with `rate_limit_exceeded` semantics — temporary, retry with
- * jitter / back off.
- */
-"rate-limit" | 
-/**
- * 429 with `insufficient_quota` (OpenAI) or `billing_error`
- * (Anthropic) — the account is out of credit. Don't retry.
- */
-"quota-exhausted" | 
-/**
- * Connection refused / DNS / TLS / read timeout — the request
- * never reached the vendor's app layer.
- */
-"network" | 
-/**
- * 5xx from the vendor — they ack'd but failed. Retry with jitter.
- */
-"server" | 
-/**
- * Body parse / shape mismatch — vendor returned 200 but we couldn't
- * project it. Logs the raw body for diagnosis.
- */
-"parse" | 
-/**
- * Pre-flight failure: no key in the vault, missing account_id, etc.
- * Never reached the network.
- */
-"not-configured" | 
-/**
- * Implementation gap (currently Fireworks `/v1/accounts/...`). The
- * devtool surfaces this as an explicit "coming soon" state rather
- * than pretending the provider doesn't exist.
- */
-"not-implemented"
-/**
  * Stable wire identifier for a provider.
  * 
  * Used in config files, telemetry, devtool URLs, lane router selection.
@@ -7860,7 +7900,7 @@ models: ModelInfo[];
 /**
  * Classified failure (`None` when `ok = true`).
  */
-errorKind: ProviderErrorKind | null; 
+errorKind: ErrorKind | null; 
 /**
  * Human-readable failure message (`None` when `ok = true`).
  */

@@ -18,15 +18,15 @@ pub mod dto;
 
 use std::collections::HashMap;
 use std::sync::Mutex;
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 
 use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use serde::Deserialize;
 use specta::Type;
 
-use client::ClientError;
 use dto::{ModelInfo, ProviderStatus, ValidationResult};
 
+use super::_util::{now_ms, CommandError};
 use super::credentials;
 
 /// Per-provider validation cache.
@@ -53,7 +53,7 @@ fn cache() -> &'static Mutex<HashMap<ProviderId, CacheEntry>> {
 /// for reachability, which the UI fires per-card on demand.
 #[tauri::command]
 #[specta::specta]
-pub async fn list_provider_status() -> Result<Vec<ProviderStatus>, String> {
+pub async fn list_provider_status() -> Result<Vec<ProviderStatus>, CommandError> {
     let cache_snapshot = snapshot_cache();
     let mut out = Vec::new();
     for entry in ai_providers::visible() {
@@ -85,9 +85,9 @@ pub async fn list_provider_status() -> Result<Vec<ProviderStatus>, String> {
 /// force the frontend to do double-dispatch on transport failure.
 #[tauri::command]
 #[specta::specta]
-pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult, String> {
-    let entry =
-        ai_providers::find(provider).ok_or_else(|| format!("Unknown provider: {provider:?}"))?;
+pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult, CommandError> {
+    let entry = ai_providers::find(provider)
+        .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {provider:?}")))?;
 
     let api_key = if matches!(entry.billing, BillingModel::PerToken) {
         credentials::get_api_key(provider).await?
@@ -125,20 +125,20 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
                 error_message: None,
             })
         }
-        Err(ClientError { kind, message }) => {
+        Err(err) => {
             store_cache_entry(
                 provider,
                 CacheEntry {
                     last_validated_at_ms: now_ms(),
                     last_models: Vec::new(),
-                    last_error: Some(message.clone()),
+                    last_error: Some(err.message.clone()),
                 },
             );
             tracing::warn!(
                 provider = ?provider,
-                ?kind,
+                kind = ?err.kind,
                 latency_ms,
-                error = %message,
+                error = %err.message,
                 "providers.validate failed"
             );
             Ok(ValidationResult {
@@ -146,8 +146,8 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
                 ok: false,
                 latency_ms,
                 models: Vec::new(),
-                error_kind: Some(kind),
-                error_message: Some(message),
+                error_kind: Some(err.kind),
+                error_message: Some(err.message),
             })
         }
     }
@@ -175,14 +175,22 @@ pub struct ListModelsRequest {
 /// model dropdown and a toast on failure.
 #[tauri::command]
 #[specta::specta]
-pub async fn list_provider_models(request: ListModelsRequest) -> Result<Vec<ModelInfo>, String> {
+pub async fn list_provider_models(
+    request: ListModelsRequest,
+) -> Result<Vec<ModelInfo>, CommandError> {
     let result = validate_provider(request.provider).await?;
     if result.ok {
         Ok(result.models)
     } else {
-        Err(result
-            .error_message
-            .unwrap_or_else(|| "Provider validation failed".into()))
+        // Reconstruct CommandError from the validation result so the
+        // refresh-button caller gets the same typed kind the Status
+        // tab does for free.
+        Err(CommandError::new(
+            result.error_kind.unwrap_or(crate::commands::_util::ErrorKind::Internal),
+            result
+                .error_message
+                .unwrap_or_else(|| "Provider validation failed".into()),
+        ))
     }
 }
 
@@ -249,11 +257,4 @@ async fn is_configured(entry: &ai_providers::AiProvider) -> bool {
         }
         BillingModel::Subscription => false,
     }
-}
-
-fn now_ms() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
-        .unwrap_or(0)
 }

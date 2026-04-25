@@ -27,31 +27,27 @@
 //! Cannot open the same device twice on MSMF or AVF — second
 //! `Camera::new` returns `OpenDeviceError`. V-3 sidesteps this by
 //! opening + capturing + dropping per one-shot call (the camera
-//! exists for ~50–200ms, then releases the handle). This makes
-//! one-shots correct + simple at the cost of slow back-to-back
-//! capture latency. V-4's session lifecycle owns a long-lived
-//! `nokhwa::Camera` on its own dedicated worker thread (Camera is
-//! `!Send`, so a `tokio::task::spawn_blocking` pool of cameras would
-//! not compile — the dedicated-thread + channel pattern is the
-//! correct shape).
+//! exists for ~50–200ms, then releases the handle). V-4's session
+//! lifecycle (when it lands) owns a long-lived `nokhwa::Camera` on
+//! its own dedicated worker thread.
+//!
+//! All shared helpers (`now_ms`, `encode_png`, `data_url`) come from
+//! `commands::_util`.
 
 use std::panic::AssertUnwindSafe;
 #[cfg(target_os = "macos")]
 use std::sync::OnceLock;
 use std::time::Instant;
 
-use base64::engine::general_purpose::STANDARD as B64;
-use base64::Engine as _;
-use image::ImageFormat;
-
-use super::dto::{CaptureErrorKind, CapturedFrame, WebcamInfo};
+use super::dto::{CapturedFrame, WebcamInfo};
+use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
 
 // ── State ───────────────────────────────────────────────────────────
 
 /// One-shot macOS init guard. Triggers the TCC prompt the first time.
 /// On non-macOS this is a no-op so callers don't need cfg-spaghetti.
 #[cfg(target_os = "macos")]
-fn ensure_macos_init() -> Result<(), String> {
+fn ensure_macos_init() -> Result<(), CommandError> {
     static INIT: OnceLock<()> = OnceLock::new();
     INIT.get_or_init(|| {
         nokhwa::nokhwa_initialize(|granted| {
@@ -59,16 +55,15 @@ fn ensure_macos_init() -> Result<(), String> {
         });
     });
     if !nokhwa::nokhwa_check() {
-        return Err(format!(
-            "{} macOS denied camera permission — open System Settings \u{2192} Privacy & Security \u{2192} Camera",
-            CaptureErrorKind::PermissionDenied.tag()
+        return Err(CommandError::permission_denied(
+            "macOS denied camera permission — open System Settings \u{2192} Privacy & Security \u{2192} Camera",
         ));
     }
     Ok(())
 }
 
 #[cfg(not(target_os = "macos"))]
-fn ensure_macos_init() -> Result<(), String> {
+fn ensure_macos_init() -> Result<(), CommandError> {
     Ok(())
 }
 
@@ -80,18 +75,13 @@ fn ensure_macos_init() -> Result<(), String> {
 /// no-camera-plugged-in panic on Windows MSMF (issue #192).
 #[tauri::command]
 #[specta::specta]
-pub async fn pixvix_list_webcams() -> Result<Vec<WebcamInfo>, String> {
+pub async fn pixvix_list_webcams() -> Result<Vec<WebcamInfo>, CommandError> {
     tokio::task::spawn_blocking(list_webcams_blocking)
         .await
-        .map_err(|e| {
-            format!(
-                "{} webcam enumeration task failed: {e}",
-                CaptureErrorKind::Internal.tag()
-            )
-        })?
+        .map_err(|e| CommandError::internal(format!("webcam enumeration task failed: {e}")))?
 }
 
-fn list_webcams_blocking() -> Result<Vec<WebcamInfo>, String> {
+fn list_webcams_blocking() -> Result<Vec<WebcamInfo>, CommandError> {
     ensure_macos_init()?;
 
     let result = std::panic::catch_unwind(AssertUnwindSafe(|| {
@@ -101,9 +91,10 @@ fn list_webcams_blocking() -> Result<Vec<WebcamInfo>, String> {
     let cameras = match result {
         Ok(Ok(c)) => c,
         Ok(Err(e)) => {
-            return Err(format!(
-                "{} nokhwa::query failed: {e}",
-                classify_nokhwa_error(&e.to_string()).tag()
+            let s = e.to_string();
+            return Err(CommandError::new(
+                classify_nokhwa_error(&s),
+                format!("nokhwa::query failed: {s}"),
             ));
         }
         Err(_) => {
@@ -125,24 +116,18 @@ fn list_webcams_blocking() -> Result<Vec<WebcamInfo>, String> {
 
 /// Capture one frame from webcam `index`.
 ///
-/// Opens the camera if not already in the pool; reuses the existing
-/// handle if a previous one-shot left it open. The pool currently
-/// never closes a camera mid-process — V-4's session lifecycle is
-/// where explicit release lives.
+/// Opens + captures + drops per call. The pool-across-calls pattern
+/// belongs in V-4's session lifecycle (`nokhwa::Camera` is `!Send`,
+/// so a tokio-worker pool would not type-check).
 #[tauri::command]
 #[specta::specta]
-pub async fn pixvix_capture_webcam_once(index: u32) -> Result<CapturedFrame, String> {
+pub async fn pixvix_capture_webcam_once(index: u32) -> Result<CapturedFrame, CommandError> {
     tokio::task::spawn_blocking(move || capture_webcam_blocking(index))
         .await
-        .map_err(|e| {
-            format!(
-                "{} webcam capture task panicked: {e}",
-                CaptureErrorKind::Internal.tag()
-            )
-        })?
+        .map_err(|e| CommandError::internal(format!("webcam capture task panicked: {e}")))?
 }
 
-fn capture_webcam_blocking(index: u32) -> Result<CapturedFrame, String> {
+fn capture_webcam_blocking(index: u32) -> Result<CapturedFrame, CommandError> {
     ensure_macos_init()?;
 
     let captured_at_ms = now_ms();
@@ -150,24 +135,16 @@ fn capture_webcam_blocking(index: u32) -> Result<CapturedFrame, String> {
 
     // Open + capture + drop per call. nokhwa::Camera is !Send, so
     // pooling it across tokio worker threads would not type-check.
-    // V-4's session lifecycle owns a long-lived Camera on its own
-    // dedicated thread; this one-shot path is intentionally
-    // short-lived per call (camera lives ~50–200ms total).
     let mut camera = open_camera(index)?;
 
     let buffer = camera.frame().map_err(|e| {
         let s = e.to_string();
-        format!("{} {s}", classify_nokhwa_error(&s).tag())
+        CommandError::new(classify_nokhwa_error(&s), s)
     })?;
 
     let img = buffer
         .decode_image::<nokhwa::pixel_format::RgbAFormat>()
-        .map_err(|e| {
-            format!(
-                "{} frame decode failed: {e}",
-                CaptureErrorKind::Internal.tag()
-            )
-        })?;
+        .map_err(|e| CommandError::internal(format!("frame decode failed: {e}")))?;
     let capture_ms = capture_start.elapsed().as_secs_f32() * 1000.0;
 
     let (width, height) = (img.width(), img.height());
@@ -175,7 +152,7 @@ fn capture_webcam_blocking(index: u32) -> Result<CapturedFrame, String> {
     let png_bytes = encode_png(&img)?;
     let encode_ms = encode_start.elapsed().as_secs_f32() * 1000.0;
     let byte_len = png_bytes.len() as u32;
-    let data_url = format!("data:image/png;base64,{}", B64.encode(&png_bytes));
+    let data_url = data_url("image/png", &png_bytes);
 
     Ok(CapturedFrame {
         captured_at_ms,
@@ -192,32 +169,32 @@ fn capture_webcam_blocking(index: u32) -> Result<CapturedFrame, String> {
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-fn open_camera(index: u32) -> Result<nokhwa::Camera, String> {
+fn open_camera(index: u32) -> Result<nokhwa::Camera, CommandError> {
     use nokhwa::pixel_format::RgbAFormat;
     use nokhwa::utils::{CameraIndex, RequestedFormat, RequestedFormatType};
 
     let requested = RequestedFormat::new::<RgbAFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
     nokhwa::Camera::new(CameraIndex::Index(index), requested).map_err(|e| {
         let s = e.to_string();
-        format!("{} {s}", classify_nokhwa_error(&s).tag())
+        CommandError::new(classify_nokhwa_error(&s), s)
     })
 }
 
-/// Best-effort string-match the nokhwa error message to our typed kinds.
+/// Best-effort string-match the nokhwa error message to typed kinds.
 /// nokhwa's `OpenDeviceError(String, String)` swallows the OS error in
 /// a free-form string, so this is the only way to distinguish
 /// permission-denied from device-busy from internal-failure without
 /// re-implementing the OS error decoders.
-fn classify_nokhwa_error(msg: &str) -> CaptureErrorKind {
+fn classify_nokhwa_error(msg: &str) -> ErrorKind {
     let lower = msg.to_ascii_lowercase();
     if lower.contains("permission") || lower.contains("denied") || lower.contains("access") {
-        CaptureErrorKind::PermissionDenied
+        ErrorKind::PermissionDenied
     } else if lower.contains("not found") || lower.contains("not present") || lower.contains("no device") {
-        CaptureErrorKind::NotFound
+        ErrorKind::NotFound
     } else if lower.contains("in use") || lower.contains("busy") || lower.contains("already") {
-        CaptureErrorKind::DeviceBusy
+        ErrorKind::DeviceBusy
     } else {
-        CaptureErrorKind::Internal
+        ErrorKind::Internal
     }
 }
 
@@ -230,21 +207,6 @@ fn numeric_index(idx: &nokhwa::utils::CameraIndex) -> u32 {
     }
 }
 
-fn encode_png(img: &image::RgbaImage) -> Result<Vec<u8>, String> {
-    let mut bytes = Vec::with_capacity((img.width() * img.height() * 4) as usize);
-    img.write_to(&mut std::io::Cursor::new(&mut bytes), ImageFormat::Png)
-        .map_err(|e| format!("{} PNG encode failed: {e}", CaptureErrorKind::Internal.tag()))?;
-    Ok(bytes)
-}
-
-fn now_ms() -> i64 {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
-        .unwrap_or(0)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -253,11 +215,11 @@ mod tests {
     fn classify_permission_messages() {
         assert_eq!(
             classify_nokhwa_error("Access denied by camera privacy settings"),
-            CaptureErrorKind::PermissionDenied
+            ErrorKind::PermissionDenied
         );
         assert_eq!(
             classify_nokhwa_error("Permission has been revoked"),
-            CaptureErrorKind::PermissionDenied
+            ErrorKind::PermissionDenied
         );
     }
 
@@ -265,11 +227,11 @@ mod tests {
     fn classify_busy_messages() {
         assert_eq!(
             classify_nokhwa_error("Device is in use by another process"),
-            CaptureErrorKind::DeviceBusy
+            ErrorKind::DeviceBusy
         );
         assert_eq!(
             classify_nokhwa_error("Camera is busy"),
-            CaptureErrorKind::DeviceBusy
+            ErrorKind::DeviceBusy
         );
     }
 
@@ -277,7 +239,7 @@ mod tests {
     fn classify_not_found_messages() {
         assert_eq!(
             classify_nokhwa_error("No device matching index 5"),
-            CaptureErrorKind::NotFound
+            ErrorKind::NotFound
         );
     }
 
@@ -285,7 +247,7 @@ mod tests {
     fn classify_unknown_message_falls_back_to_internal() {
         assert_eq!(
             classify_nokhwa_error("HRESULT 0x80004005"),
-            CaptureErrorKind::Internal
+            ErrorKind::Internal
         );
     }
 }

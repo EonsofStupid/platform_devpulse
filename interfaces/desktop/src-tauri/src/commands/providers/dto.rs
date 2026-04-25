@@ -17,6 +17,8 @@ use devpulse_engine::ai_providers::ProviderId;
 use serde::Serialize;
 use specta::Type;
 
+use crate::commands::_util::ErrorKind;
+
 /// Aggregated row for the Status tab grid — one per visible provider.
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -63,7 +65,7 @@ pub struct ValidationResult {
     /// Parsed model list (empty when `ok = false`).
     pub models: Vec<ModelInfo>,
     /// Classified failure (`None` when `ok = true`).
-    pub error_kind: Option<ProviderErrorKind>,
+    pub error_kind: Option<ErrorKind>,
     /// Human-readable failure message (`None` when `ok = true`).
     pub error_message: Option<String>,
 }
@@ -85,36 +87,8 @@ pub struct ModelInfo {
     pub owned_by: Option<String>,
 }
 
-/// Wire-stable classification of provider call failures.
-///
-/// Sprint 7's lane router reads this to decide retry policy:
-/// `RateLimit` → back off and retry, `QuotaExhausted` → fail fast,
-/// `AuthFailed` → fail and surface to operator, `Network`/`Server` →
-/// retry with jitter.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
-#[serde(rename_all = "kebab-case")]
-pub enum ProviderErrorKind {
-    /// 401 / 403 — the stored API key is wrong or revoked.
-    AuthFailed,
-    /// 429 with `rate_limit_exceeded` semantics — temporary, retry with
-    /// jitter / back off.
-    RateLimit,
-    /// 429 with `insufficient_quota` (OpenAI) or `billing_error`
-    /// (Anthropic) — the account is out of credit. Don't retry.
-    QuotaExhausted,
-    /// Connection refused / DNS / TLS / read timeout — the request
-    /// never reached the vendor's app layer.
-    Network,
-    /// 5xx from the vendor — they ack'd but failed. Retry with jitter.
-    Server,
-    /// Body parse / shape mismatch — vendor returned 200 but we couldn't
-    /// project it. Logs the raw body for diagnosis.
-    Parse,
-    /// Pre-flight failure: no key in the vault, missing account_id, etc.
-    /// Never reached the network.
-    NotConfigured,
-    /// Implementation gap (currently Fireworks `/v1/accounts/...`). The
-    /// devtool surfaces this as an explicit "coming soon" state rather
-    /// than pretending the provider doesn't exist.
-    NotImplemented,
-}
+// Provider call failures use the unified `commands::_util::ErrorKind`
+// classification. The earlier `ProviderErrorKind` enum was deleted in
+// the F-1 foundation pass — every variant maps to the same-named
+// variant on `ErrorKind` (AuthFailed / RateLimit / QuotaExhausted /
+// Network / Server / Parse / NotConfigured / NotImplemented).

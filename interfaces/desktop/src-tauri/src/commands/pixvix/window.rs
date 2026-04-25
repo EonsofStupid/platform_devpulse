@@ -7,16 +7,14 @@
 //! Detection is strictly compile-time (Linux + WAYLAND_DISPLAY env)
 //! since runtime capability probing would mean *trying* a capture and
 //! catching the failure, which is exactly the bad UX we're avoiding.
+//!
+//! All shared helpers (`now_ms`, `encode_png`, `data_url`) come from
+//! `commands::_util`.
 
 use std::time::Instant;
 
-use base64::engine::general_purpose::STANDARD as B64;
-use base64::Engine as _;
-use image::ImageFormat;
-
-use super::dto::{
-    CaptureErrorKind, CapturedFrame, WindowCapability, WindowInfo, WindowListing,
-};
+use super::dto::{CapturedFrame, WindowCapability, WindowInfo, WindowListing};
+use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
 
 /// Enumerate capturable windows.
 ///
@@ -26,15 +24,15 @@ use super::dto::{
 /// useless capture targets.
 #[tauri::command]
 #[specta::specta]
-pub async fn pixvix_list_windows() -> Result<WindowListing, String> {
+pub async fn pixvix_list_windows() -> Result<WindowListing, CommandError> {
     tokio::task::spawn_blocking(list_windows_blocking)
         .await
-        .map_err(|e| format!("{} window enumeration task failed: {e}", CaptureErrorKind::Internal.tag()))?
+        .map_err(|e| CommandError::internal(format!("window enumeration task failed: {e}")))?
 }
 
-fn list_windows_blocking() -> Result<WindowListing, String> {
+fn list_windows_blocking() -> Result<WindowListing, CommandError> {
     let windows = xcap::Window::all()
-        .map_err(|e| format!("{} xcap::Window::all failed: {e}", CaptureErrorKind::Internal.tag()))?;
+        .map_err(|e| CommandError::internal(format!("xcap::Window::all failed: {e}")))?;
 
     let mut out = Vec::with_capacity(windows.len());
     for w in &windows {
@@ -57,33 +55,34 @@ fn list_windows_blocking() -> Result<WindowListing, String> {
 /// Capture window `id` once and return the encoded frame.
 #[tauri::command]
 #[specta::specta]
-pub async fn pixvix_capture_window_once(id: u32) -> Result<CapturedFrame, String> {
+pub async fn pixvix_capture_window_once(id: u32) -> Result<CapturedFrame, CommandError> {
     tokio::task::spawn_blocking(move || capture_window_blocking(id))
         .await
-        .map_err(|e| format!("{} capture task panicked: {e}", CaptureErrorKind::Internal.tag()))?
+        .map_err(|e| CommandError::internal(format!("capture task panicked: {e}")))?
 }
 
-fn capture_window_blocking(id: u32) -> Result<CapturedFrame, String> {
+fn capture_window_blocking(id: u32) -> Result<CapturedFrame, CommandError> {
     let windows = xcap::Window::all()
-        .map_err(|e| format!("{} xcap::Window::all failed: {e}", CaptureErrorKind::Internal.tag()))?;
+        .map_err(|e| CommandError::internal(format!("xcap::Window::all failed: {e}")))?;
 
     let target = windows
         .into_iter()
         .find(|w| w.id().is_ok_and(|window_id| window_id == id))
-        .ok_or_else(|| format!("{} window id {id} not present", CaptureErrorKind::NotFound.tag()))?;
+        .ok_or_else(|| CommandError::not_found(format!("window id {id} not present")))?;
 
     let captured_at_ms = now_ms();
     let capture_start = Instant::now();
     let img = target.capture_image().map_err(|e| {
         let s = e.to_string();
-        let kind = if s.to_lowercase().contains("permission") || s.to_lowercase().contains("denied") {
-            CaptureErrorKind::PermissionDenied
-        } else if s.to_lowercase().contains("not supported") || s.to_lowercase().contains("wayland") {
-            CaptureErrorKind::NotSupported
+        let lower = s.to_ascii_lowercase();
+        let kind = if lower.contains("permission") || lower.contains("denied") {
+            ErrorKind::PermissionDenied
+        } else if lower.contains("not supported") || lower.contains("wayland") {
+            ErrorKind::NotSupported
         } else {
-            CaptureErrorKind::Internal
+            ErrorKind::Internal
         };
-        format!("{} {s}", kind.tag())
+        CommandError::new(kind, s)
     })?;
     let capture_ms = capture_start.elapsed().as_secs_f32() * 1000.0;
 
@@ -92,7 +91,7 @@ fn capture_window_blocking(id: u32) -> Result<CapturedFrame, String> {
     let png_bytes = encode_png(&img)?;
     let encode_ms = encode_start.elapsed().as_secs_f32() * 1000.0;
     let byte_len = png_bytes.len() as u32;
-    let data_url = format!("data:image/png;base64,{}", B64.encode(&png_bytes));
+    let data_url = data_url("image/png", &png_bytes);
 
     Ok(CapturedFrame {
         captured_at_ms,
@@ -139,21 +138,6 @@ fn detect_capability() -> WindowCapability {
         }
     }
     WindowCapability::Full
-}
-
-fn encode_png(img: &image::RgbaImage) -> Result<Vec<u8>, String> {
-    let mut bytes = Vec::with_capacity((img.width() * img.height() * 4) as usize);
-    img.write_to(&mut std::io::Cursor::new(&mut bytes), ImageFormat::Png)
-        .map_err(|e| format!("{} PNG encode failed: {e}", CaptureErrorKind::Internal.tag()))?;
-    Ok(bytes)
-}
-
-fn now_ms() -> i64 {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
-        .unwrap_or(0)
 }
 
 #[cfg(test)]

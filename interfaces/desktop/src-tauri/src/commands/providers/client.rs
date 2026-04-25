@@ -4,7 +4,7 @@
 //! request-builder that knows its non-standard auth header, base URL,
 //! and (for Gemini) querystring placement. Response handling is
 //! uniform — the caller gets either a parsed model list or a
-//! classified `ProviderErrorKind`.
+//! classified `CommandError`.
 //!
 //! This module is the boundary the lane router (Sprint 7) will reuse:
 //! when chat requests start flowing, the router builds them with the
@@ -18,7 +18,8 @@ use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use reqwest::{Client, RequestBuilder, Response, StatusCode};
 use serde::Deserialize;
 
-use super::dto::{ModelInfo, ProviderErrorKind};
+use super::dto::ModelInfo;
+use crate::commands::_util::{CommandError, ErrorKind};
 
 /// Conservative timeouts — model listing is metadata-only and cheap.
 /// Connect generous enough for cold remote endpoints, total tighter so
@@ -40,35 +41,20 @@ fn shared_client() -> &'static Client {
     })
 }
 
-/// Classified failure paired with a human-readable message — what
-/// every caller surfaces back to `validate_provider`.
-///
-/// `Debug` is derived so the test suite can use `.unwrap()` / `.expect()`
-/// on `Result<_, ClientError>` without hand-rolling a panic-formatter.
-#[derive(Debug)]
-pub struct ClientError {
-    /// Wire-stable failure category. Sprint 7's lane router branches on this.
-    pub kind: ProviderErrorKind,
-    /// Verbatim message for operator display + tracing.
-    pub message: String,
-}
-
 /// Hit the provider's models endpoint and project the response.
 ///
 /// `api_key` may be `None` for local providers (Ollama / LM Studio /
 /// vLLM) — they don't require auth on default deployments.
 ///
 /// # Errors
-/// Every failure path produces a `ClientError` with the right kind so
+/// Every failure path produces a `CommandError` with the right kind so
 /// the UI shows a precise reason and the lane router can act on it.
 pub async fn fetch_models(
     provider: ProviderId,
     api_key: Option<&str>,
-) -> Result<Vec<ModelInfo>, ClientError> {
-    let entry = ai_providers::find(provider).ok_or_else(|| ClientError {
-        kind: ProviderErrorKind::NotConfigured,
-        message: format!("Unknown provider: {provider:?}"),
-    })?;
+) -> Result<Vec<ModelInfo>, CommandError> {
+    let entry = ai_providers::find(provider)
+        .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {provider:?}")))?;
 
     let request = build_request(provider, entry, api_key)?;
     let response = request.send().await.map_err(network_error)?;
@@ -80,18 +66,16 @@ fn build_request(
     provider: ProviderId,
     entry: &ai_providers::AiProvider,
     api_key: Option<&str>,
-) -> Result<RequestBuilder, ClientError> {
+) -> Result<RequestBuilder, CommandError> {
     // Fireworks is account-scoped — the endpoint requires an account_id
     // that we don't yet collect. Surface explicitly rather than calling
     // a 404-bound URL.
     if matches!(provider, ProviderId::Fireworks) {
-        return Err(ClientError {
-            kind: ProviderErrorKind::NotImplemented,
-            message: "Fireworks needs the account-scoped endpoint \
-                      `/v1/accounts/{account_id}/models` — account_id \
-                      flow lands in a later sprint."
-                .into(),
-        });
+        return Err(CommandError::not_implemented(
+            "Fireworks needs the account-scoped endpoint \
+             `/v1/accounts/{account_id}/models` — account_id flow lands \
+             in a later sprint.",
+        ));
     }
 
     let client = shared_client();
@@ -127,26 +111,23 @@ fn build_request(
         }
     } else if matches!(entry.billing, BillingModel::PerToken) {
         // Cloud + API-key billed but no key supplied → pre-flight failure.
-        return Err(ClientError {
-            kind: ProviderErrorKind::NotConfigured,
-            message: format!("No API key configured for {}", entry.display_name),
-        });
+        return Err(CommandError::not_configured(format!(
+            "No API key configured for {}",
+            entry.display_name
+        )));
     }
     Ok(req)
 }
 
 /// Require an API key or return a `NotConfigured` error.
-fn require_key(api_key: Option<&str>) -> Result<&str, ClientError> {
+fn require_key(api_key: Option<&str>) -> Result<&str, CommandError> {
     api_key
         .filter(|k| !k.is_empty())
-        .ok_or_else(|| ClientError {
-            kind: ProviderErrorKind::NotConfigured,
-            message: "API key required for this provider".into(),
-        })
+        .ok_or_else(|| CommandError::not_configured("API key required for this provider"))
 }
 
 /// Resolve the models-endpoint base URL from the SSOT transport list.
-fn base_url(entry: &ai_providers::AiProvider) -> Result<&'static str, ClientError> {
+fn base_url(entry: &ai_providers::AiProvider) -> Result<&'static str, CommandError> {
     for transport in entry.transports {
         match transport {
             Transport::ApiKey { base_url } | Transport::OpenAiCompatible { base_url } => {
@@ -169,59 +150,46 @@ fn base_url(entry: &ai_providers::AiProvider) -> Result<&'static str, ClientErro
                 return Ok(synthesized);
             }
             Transport::SubprocessMcp { .. } => {
-                return Err(ClientError {
-                    kind: ProviderErrorKind::NotImplemented,
-                    message: format!(
-                        "{} is a subprocess MCP path — model listing not applicable",
-                        entry.display_name
-                    ),
-                });
+                return Err(CommandError::not_implemented(format!(
+                    "{} is a subprocess MCP path — model listing not applicable",
+                    entry.display_name
+                )));
             }
         }
     }
-    Err(ClientError {
-        kind: ProviderErrorKind::NotConfigured,
-        message: format!(
-            "{} has no transport with a discoverable models endpoint",
-            entry.display_name
-        ),
-    })
+    Err(CommandError::not_configured(format!(
+        "{} has no transport with a discoverable models endpoint",
+        entry.display_name
+    )))
 }
 
 /// Map a reqwest send-time failure to our classified shape.
-fn network_error(e: reqwest::Error) -> ClientError {
-    let kind = if e.is_timeout() {
-        ProviderErrorKind::Network
-    } else if e.is_connect() {
-        ProviderErrorKind::Network
-    } else {
-        ProviderErrorKind::Network
-    };
-    ClientError {
-        kind,
-        message: format!("Network call failed: {e}"),
-    }
+fn network_error(e: reqwest::Error) -> CommandError {
+    // is_timeout / is_connect / other all bucket to Network — the
+    // distinction between them is rarely actionable for the UI.
+    CommandError::network(format!("Network call failed: {e}"))
 }
 
 /// Inspect the response status, parse the body on success, classify on failure.
 async fn parse_response(
     provider: ProviderId,
     response: Response,
-) -> Result<Vec<ModelInfo>, ClientError> {
+) -> Result<Vec<ModelInfo>, CommandError> {
     let status = response.status();
     if status.is_success() {
-        let body = response.text().await.map_err(|e| ClientError {
-            kind: ProviderErrorKind::Parse,
-            message: format!("Could not read response body: {e}"),
-        })?;
+        let body = response
+            .text()
+            .await
+            .map_err(|e| CommandError::parse(format!("Could not read response body: {e}")))?;
         return parse_models(provider, &body);
     }
 
     let body = response.text().await.unwrap_or_default();
-    Err(ClientError {
-        kind: classify_status(status, &body),
-        message: format!("HTTP {status}: {}", truncate(&body, 280)),
-    })
+    Err(CommandError::with_context(
+        classify_status(status, &body),
+        format!("HTTP {status}"),
+        truncate(&body, 280),
+    ))
 }
 
 /// Classify a non-2xx response by status code + body shape.
@@ -229,37 +197,35 @@ async fn parse_response(
 /// Distinguishing `RateLimit` from `QuotaExhausted` matters for the
 /// router: rate-limited calls retry with backoff, quota-exhausted
 /// calls fail fast and surface to the operator.
-pub fn classify_status(status: StatusCode, body: &str) -> ProviderErrorKind {
+pub fn classify_status(status: StatusCode, body: &str) -> ErrorKind {
     let body_lower = body.to_ascii_lowercase();
     match status.as_u16() {
-        401 | 403 => ProviderErrorKind::AuthFailed,
+        401 | 403 => ErrorKind::AuthFailed,
         429 => {
             if body_lower.contains("insufficient_quota")
                 || body_lower.contains("billing_error")
                 || body_lower.contains("quota")
             {
-                ProviderErrorKind::QuotaExhausted
+                ErrorKind::QuotaExhausted
             } else {
-                ProviderErrorKind::RateLimit
+                ErrorKind::RateLimit
             }
         }
-        500..=599 => ProviderErrorKind::Server,
-        _ => ProviderErrorKind::Server,
+        500..=599 => ErrorKind::Server,
+        _ => ErrorKind::Server,
     }
 }
 
-/// Project the vendor-specific JSON shape into our normalized model list.
+/// Project the vendor-specific JSON shape into the normalized model list.
 ///
 /// Three shapes covered:
-/// 1. OpenAI-compatible: `{"data": [{"id": ..., "owned_by": ...}]}`.
-/// 2. Anthropic: `{"data": [{"id": ..., "display_name": ..., "type": "model"}]}`.
-/// 3. Gemini: `{"models": [{"name": "models/..."}]}`.
-fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, ClientError> {
+/// 1. OpenAI-compatible: `{"data": [{"id": ..., "owned_by": ...}]}`
+/// 2. Anthropic: `{"data": [{"id": ..., "display_name": ..., "type": "model"}]}`
+/// 3. Gemini: `{"models": [{"name": "models/..."}]}`
+fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, CommandError> {
     if matches!(provider, ProviderId::GoogleGemini) {
-        let parsed: GeminiModels = serde_json::from_str(body).map_err(|e| ClientError {
-            kind: ProviderErrorKind::Parse,
-            message: format!("Gemini /models parse failed: {e}"),
-        })?;
+        let parsed: GeminiModels = serde_json::from_str(body)
+            .map_err(|e| CommandError::parse(format!("Gemini /models parse failed: {e}")))?;
         return Ok(parsed
             .models
             .into_iter()
@@ -274,10 +240,8 @@ fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, Clie
             .collect());
     }
 
-    let parsed: OaiCompatModels = serde_json::from_str(body).map_err(|e| ClientError {
-        kind: ProviderErrorKind::Parse,
-        message: format!("/models parse failed: {e}"),
-    })?;
+    let parsed: OaiCompatModels = serde_json::from_str(body)
+        .map_err(|e| CommandError::parse(format!("/models parse failed: {e}")))?;
     Ok(parsed
         .data
         .into_iter()
@@ -328,11 +292,11 @@ mod tests {
     fn classify_401_is_auth_failed() {
         assert_eq!(
             classify_status(StatusCode::UNAUTHORIZED, ""),
-            ProviderErrorKind::AuthFailed
+            ErrorKind::AuthFailed
         );
         assert_eq!(
             classify_status(StatusCode::FORBIDDEN, ""),
-            ProviderErrorKind::AuthFailed
+            ErrorKind::AuthFailed
         );
     }
 
@@ -343,15 +307,15 @@ mod tests {
         let body_billing = r#"{"error":{"type":"billing_error","message":"out of credit"}}"#;
         assert_eq!(
             classify_status(StatusCode::TOO_MANY_REQUESTS, body_rate),
-            ProviderErrorKind::RateLimit
+            ErrorKind::RateLimit
         );
         assert_eq!(
             classify_status(StatusCode::TOO_MANY_REQUESTS, body_quota),
-            ProviderErrorKind::QuotaExhausted
+            ErrorKind::QuotaExhausted
         );
         assert_eq!(
             classify_status(StatusCode::TOO_MANY_REQUESTS, body_billing),
-            ProviderErrorKind::QuotaExhausted
+            ErrorKind::QuotaExhausted
         );
     }
 
@@ -359,11 +323,11 @@ mod tests {
     fn classify_5xx_is_server() {
         assert_eq!(
             classify_status(StatusCode::INTERNAL_SERVER_ERROR, ""),
-            ProviderErrorKind::Server
+            ErrorKind::Server
         );
         assert_eq!(
             classify_status(StatusCode::BAD_GATEWAY, ""),
-            ProviderErrorKind::Server
+            ErrorKind::Server
         );
     }
 
@@ -393,35 +357,35 @@ mod tests {
     #[test]
     fn parse_failure_classified_as_parse() {
         let err = parse_models(ProviderId::OpenAi, "this is not json").unwrap_err();
-        assert_eq!(err.kind, ProviderErrorKind::Parse);
+        assert_eq!(err.kind, ErrorKind::Parse);
     }
 
     #[test]
     fn fireworks_returns_not_implemented() {
         let entry = ai_providers::find(ProviderId::Fireworks).unwrap();
         let err = build_request(ProviderId::Fireworks, entry, Some("dummy")).unwrap_err();
-        assert_eq!(err.kind, ProviderErrorKind::NotImplemented);
+        assert_eq!(err.kind, ErrorKind::NotImplemented);
     }
 
     #[test]
     fn missing_key_for_cloud_returns_not_configured() {
         let entry = ai_providers::find(ProviderId::OpenAi).unwrap();
         let err = build_request(ProviderId::OpenAi, entry, None).unwrap_err();
-        assert_eq!(err.kind, ProviderErrorKind::NotConfigured);
+        assert_eq!(err.kind, ErrorKind::NotConfigured);
     }
 
     #[test]
     fn missing_key_for_anthropic_returns_not_configured() {
         let entry = ai_providers::find(ProviderId::AnthropicApi).unwrap();
         let err = build_request(ProviderId::AnthropicApi, entry, None).unwrap_err();
-        assert_eq!(err.kind, ProviderErrorKind::NotConfigured);
+        assert_eq!(err.kind, ErrorKind::NotConfigured);
     }
 
     #[test]
     fn missing_key_for_gemini_returns_not_configured() {
         let entry = ai_providers::find(ProviderId::GoogleGemini).unwrap();
         let err = build_request(ProviderId::GoogleGemini, entry, None).unwrap_err();
-        assert_eq!(err.kind, ProviderErrorKind::NotConfigured);
+        assert_eq!(err.kind, ErrorKind::NotConfigured);
     }
 
     #[test]

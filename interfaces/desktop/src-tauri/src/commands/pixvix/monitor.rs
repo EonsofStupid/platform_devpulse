@@ -6,14 +6,15 @@
 //! starve other futures. The accessors (`name()`, `width()`, etc.) are
 //! also fallible OS calls; we tolerate per-field failures and fall
 //! back to safe defaults rather than dropping the whole monitor.
+//!
+//! All shared helpers (`now_ms`, `encode_png`, `data_url`) come from
+//! `commands::_util`. Errors classified via `CommandError` so the UI
+//! can `switch (err.kind)` instead of substring matching.
 
 use std::time::Instant;
 
-use base64::engine::general_purpose::STANDARD as B64;
-use base64::Engine as _;
-use image::ImageFormat;
-
-use super::dto::{CaptureErrorKind, CapturedFrame, MonitorInfo};
+use super::dto::{CapturedFrame, MonitorInfo};
+use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
 
 /// List every monitor currently attached.
 ///
@@ -21,15 +22,15 @@ use super::dto::{CaptureErrorKind, CapturedFrame, MonitorInfo};
 /// rather than an error — the UI renders the empty state cleanly.
 #[tauri::command]
 #[specta::specta]
-pub async fn pixvix_list_monitors() -> Result<Vec<MonitorInfo>, String> {
+pub async fn pixvix_list_monitors() -> Result<Vec<MonitorInfo>, CommandError> {
     tokio::task::spawn_blocking(list_monitors_blocking)
         .await
-        .map_err(|e| format!("{} monitor enumeration task failed: {e}", CaptureErrorKind::Internal.tag()))?
+        .map_err(|e| CommandError::internal(format!("monitor enumeration task failed: {e}")))?
 }
 
-fn list_monitors_blocking() -> Result<Vec<MonitorInfo>, String> {
+fn list_monitors_blocking() -> Result<Vec<MonitorInfo>, CommandError> {
     let monitors = xcap::Monitor::all()
-        .map_err(|e| format!("{} xcap::Monitor::all failed: {e}", CaptureErrorKind::Internal.tag()))?;
+        .map_err(|e| CommandError::internal(format!("xcap::Monitor::all failed: {e}")))?;
 
     let mut out = Vec::with_capacity(monitors.len());
     for m in &monitors {
@@ -42,37 +43,38 @@ fn list_monitors_blocking() -> Result<Vec<MonitorInfo>, String> {
 ///
 /// `id` is the OS-level handle from `MonitorInfo::id`. If the monitor
 /// disappeared between enumeration and this call, returns
-/// `CaptureErrorKind::NotFound`.
+/// `ErrorKind::NotFound`.
 #[tauri::command]
 #[specta::specta]
-pub async fn pixvix_capture_monitor_once(id: u32) -> Result<CapturedFrame, String> {
+pub async fn pixvix_capture_monitor_once(id: u32) -> Result<CapturedFrame, CommandError> {
     tokio::task::spawn_blocking(move || capture_monitor_blocking(id))
         .await
-        .map_err(|e| format!("{} capture task panicked: {e}", CaptureErrorKind::Internal.tag()))?
+        .map_err(|e| CommandError::internal(format!("capture task panicked: {e}")))?
 }
 
-fn capture_monitor_blocking(id: u32) -> Result<CapturedFrame, String> {
+fn capture_monitor_blocking(id: u32) -> Result<CapturedFrame, CommandError> {
     let monitors = xcap::Monitor::all()
-        .map_err(|e| format!("{} xcap::Monitor::all failed: {e}", CaptureErrorKind::Internal.tag()))?;
+        .map_err(|e| CommandError::internal(format!("xcap::Monitor::all failed: {e}")))?;
 
     let target = monitors
         .into_iter()
         .find(|m| m.id().is_ok_and(|monitor_id| monitor_id == id))
-        .ok_or_else(|| format!("{} monitor id {id} not present", CaptureErrorKind::NotFound.tag()))?;
+        .ok_or_else(|| CommandError::not_found(format!("monitor id {id} not present")))?;
 
     let captured_at_ms = now_ms();
     let capture_start = Instant::now();
     let img = target.capture_image().map_err(|e| {
         let s = e.to_string();
+        let lower = s.to_ascii_lowercase();
         // xcap surfaces permission failures inside an opaque message
         // string per `XCapError::Error(String)`. Best-effort string
         // match keeps the typed surface clean for the UI.
-        let kind = if s.to_lowercase().contains("permission") || s.to_lowercase().contains("denied") {
-            CaptureErrorKind::PermissionDenied
+        let kind = if lower.contains("permission") || lower.contains("denied") {
+            ErrorKind::PermissionDenied
         } else {
-            CaptureErrorKind::Internal
+            ErrorKind::Internal
         };
-        format!("{} {s}", kind.tag())
+        CommandError::new(kind, s)
     })?;
     let capture_ms = capture_start.elapsed().as_secs_f32() * 1000.0;
 
@@ -81,7 +83,7 @@ fn capture_monitor_blocking(id: u32) -> Result<CapturedFrame, String> {
     let png_bytes = encode_png(&img)?;
     let encode_ms = encode_start.elapsed().as_secs_f32() * 1000.0;
     let byte_len = png_bytes.len() as u32;
-    let data_url = format!("data:image/png;base64,{}", B64.encode(&png_bytes));
+    let data_url = data_url("image/png", &png_bytes);
 
     Ok(CapturedFrame {
         captured_at_ms,
@@ -116,40 +118,5 @@ fn monitor_to_info(m: &xcap::Monitor) -> MonitorInfo {
         frequency: m.frequency().unwrap_or(0.0),
         is_primary: m.is_primary().unwrap_or(false),
         is_builtin: m.is_builtin().unwrap_or(false),
-    }
-}
-
-fn encode_png(img: &image::RgbaImage) -> Result<Vec<u8>, String> {
-    let mut bytes = Vec::with_capacity((img.width() * img.height() * 4) as usize);
-    img.write_to(&mut std::io::Cursor::new(&mut bytes), ImageFormat::Png)
-        .map_err(|e| format!("{} PNG encode failed: {e}", CaptureErrorKind::Internal.tag()))?;
-    Ok(bytes)
-}
-
-fn now_ms() -> i64 {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
-        .unwrap_or(0)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn encode_png_emits_valid_png_signature() {
-        let img = image::RgbaImage::from_pixel(2, 2, image::Rgba([255, 0, 0, 255]));
-        let bytes = encode_png(&img).unwrap();
-        // PNG magic: 89 50 4E 47 0D 0A 1A 0A
-        assert_eq!(&bytes[..8], &[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    }
-
-    #[test]
-    fn now_ms_returns_positive_recent_value() {
-        let t = now_ms();
-        // Roughly any time after 2020-01-01 (1577836800000).
-        assert!(t > 1_577_836_800_000);
     }
 }

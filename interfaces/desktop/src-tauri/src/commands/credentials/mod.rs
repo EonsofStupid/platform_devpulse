@@ -18,6 +18,7 @@
 //! per-token or has an OAI-compatible API key automatically appears here
 //! — no edits required in this file.
 
+use crate::commands::_util::CommandError;
 use crate::state::PlatformState;
 use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use devpulse_engine::platform::SqlAdapter;
@@ -65,16 +66,19 @@ pub async fn store_api_key(
     state: State<'_, PlatformState>,
     provider: ProviderId,
     key: String,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let entry = registry_entry(provider)?;
     require_api_key_billing(entry)?;
 
     let keyring_key = keyring_key_for(provider);
     let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-        .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
-    keyring_entry
-        .set_password(&key)
-        .map_err(|e| format!("Failed to store key for {}: {e}", entry.display_name))?;
+        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
+    keyring_entry.set_password(&key).map_err(|e| {
+        CommandError::permission_denied(format!(
+            "Failed to store key for {}: {e}",
+            entry.display_name
+        ))
+    })?;
     tracing::info!(
         provider = ?provider,
         display = %entry.display_name,
@@ -97,15 +101,17 @@ pub async fn store_api_key(
 /// Keychain access failure.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_api_key(provider: ProviderId) -> Result<Option<String>, String> {
+pub async fn get_api_key(provider: ProviderId) -> Result<Option<String>, CommandError> {
     let _entry = registry_entry(provider)?;
     let keyring_key = keyring_key_for(provider);
     let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-        .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
     match keyring_entry.get_password() {
         Ok(key) => Ok(Some(key)),
         Err(keyring::Error::NoEntry) => Ok(None),
-        Err(e) => Err(format!("Keyring read failed: {e}")),
+        Err(e) => Err(CommandError::permission_denied(format!(
+            "Keyring read failed: {e}"
+        ))),
     }
 }
 
@@ -120,11 +126,11 @@ pub async fn get_api_key(provider: ProviderId) -> Result<Option<String>, String>
 pub async fn delete_api_key(
     state: State<'_, PlatformState>,
     provider: ProviderId,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let entry = registry_entry(provider)?;
     let keyring_key = keyring_key_for(provider);
     let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-        .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
     match keyring_entry.delete_credential() {
         Ok(()) => tracing::info!(
             provider = ?provider,
@@ -133,10 +139,10 @@ pub async fn delete_api_key(
         ),
         Err(keyring::Error::NoEntry) => {}
         Err(e) => {
-            return Err(format!(
+            return Err(CommandError::permission_denied(format!(
                 "Failed to delete key for {}: {e}",
                 entry.display_name
-            ))
+            )));
         }
     }
 
@@ -151,7 +157,7 @@ pub async fn delete_api_key(
 /// would just confuse the operator.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, String> {
+pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, CommandError> {
     let mut out = Vec::new();
     for provider in ai_providers::visible() {
         if !provider_takes_api_key(provider) {
@@ -159,11 +165,16 @@ pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, String> {
         }
         let keyring_key = keyring_key_for(provider.id);
         let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-            .map_err(|e| format!("Keyring entry construction failed: {e}"))?;
+            .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
         let (stored, masked_preview) = match keyring_entry.get_password() {
             Ok(key) => (true, Some(mask_preview(&key))),
             Err(keyring::Error::NoEntry) => (false, None),
-            Err(e) => return Err(format!("Keyring read failed for {:?}: {e}", provider.id)),
+            Err(e) => {
+                return Err(CommandError::permission_denied(format!(
+                    "Keyring read failed for {:?}: {e}",
+                    provider.id
+                )));
+            }
         };
         out.push(ApiKeyStatus {
             provider: provider.id,
@@ -180,12 +191,12 @@ pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, String> {
 // ═══════════════════════════════════════════════════════════════════════
 
 /// Look up the SSOT entry for a provider id.
-fn registry_entry(id: ProviderId) -> Result<&'static ai_providers::AiProvider, String> {
-    ai_providers::find(id).ok_or_else(|| format!("Unknown provider: {id:?}"))
+fn registry_entry(id: ProviderId) -> Result<&'static ai_providers::AiProvider, CommandError> {
+    ai_providers::find(id).ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {id:?}")))
 }
 
 /// Reject providers that don't take an API key (local servers, subscription path).
-fn require_api_key_billing(entry: &ai_providers::AiProvider) -> Result<(), String> {
+fn require_api_key_billing(entry: &ai_providers::AiProvider) -> Result<(), CommandError> {
     if matches!(entry.billing, BillingModel::PerToken)
         && entry.transports.iter().any(|t| {
             matches!(
@@ -196,10 +207,10 @@ fn require_api_key_billing(entry: &ai_providers::AiProvider) -> Result<(), Strin
     {
         Ok(())
     } else {
-        Err(format!(
+        Err(CommandError::not_configured(format!(
             "Provider {} does not use an API key (billing: {:?})",
             entry.display_name, entry.billing
-        ))
+        )))
     }
 }
 

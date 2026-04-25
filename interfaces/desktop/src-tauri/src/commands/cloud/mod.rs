@@ -197,7 +197,8 @@ pub async fn cloud_chat(
     let api_key = if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
         if key.is_empty() {
             get_api_key(ProviderId::AnthropicApi)
-                .await?
+                .await
+                .map_err(|e| e.to_string())?
                 .ok_or("No Anthropic API key configured. Add it in Settings → API Keys.")?
         } else {
             tracing::debug!("cloud_chat: using ANTHROPIC_API_KEY from environment");
@@ -205,7 +206,8 @@ pub async fn cloud_chat(
         }
     } else {
         get_api_key(ProviderId::AnthropicApi)
-            .await?
+            .await
+            .map_err(|e| e.to_string())?
             .ok_or("No Anthropic API key found. Set ANTHROPIC_API_KEY or add key in Settings.")?
     };
 

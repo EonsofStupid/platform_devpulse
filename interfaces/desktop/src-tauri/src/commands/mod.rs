@@ -92,6 +92,7 @@ pub mod knowledge;
 pub mod llama;
 pub mod llama_cpp_embedded;
 pub mod models;
+pub mod _util;
 pub mod ollama_sidecar;
 pub mod pixvix;
 pub mod projects;

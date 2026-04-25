@@ -84,6 +84,12 @@ let projectName = $state("");
 let pickingFolder = $state(false);
 let savingProject = $state(false);
 let projectSaved = $state(false);
+// Layman-visible save failure surface. `projectError` is the headline
+// (plain English); `projectErrorDetail` is the underlying message
+// for power users via a `<details>` disclosure. Cleared on retry,
+// folder change, or successful save.
+let projectError = $state<string | null>(null);
+let projectErrorDetail = $state<string | null>(null);
 let showInfoPopup = $state(false);
 
 async function handleBrowseFolder(): Promise<void> {
@@ -103,7 +109,11 @@ async function handleBrowseFolder(): Promise<void> {
 			}
 			// Picking a new folder invalidates the "saved" badge — the
 			// user is expected to re-save if they change their mind.
+			// Also clear any previous error: a fresh folder is a fresh
+			// attempt.
 			projectSaved = false;
+			projectError = null;
+			projectErrorDetail = null;
 			logInfo("wizard.welcome", `Folder picked: ${path}`);
 		}
 	} catch (e) {
@@ -125,6 +135,8 @@ async function handleSaveProject(): Promise<void> {
 	}
 	savingProject = true;
 	projectSaved = false;
+	projectError = null;
+	projectErrorDetail = null;
 	logInfo("wizard.welcome", `handleSaveProject — name="${name}" path="${projectPath}"`);
 	try {
 		const created = await projectsState.createProject({
@@ -139,13 +151,16 @@ async function handleSaveProject(): Promise<void> {
 				`project saved + activated — ${created.name} (${created.id}) — indexing pending`,
 			);
 		} else {
-			logError(
-				"wizard.welcome",
-				`createProject returned null — ${projectsState.error ?? "(no error)"}`,
-			);
+			const detail = projectsState.error ?? null;
+			projectError =
+				"Couldn't save the project. The folder may not be accessible, or a project with that path already exists.";
+			projectErrorDetail = detail;
+			logError("wizard.welcome", `createProject returned null — ${detail ?? "(no error)"}`);
 		}
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
+		projectError = "Couldn't save the project.";
+		projectErrorDetail = msg;
 		logError("wizard.welcome", `createProject threw — ${msg}`);
 	} finally {
 		savingProject = false;
@@ -333,6 +348,32 @@ const modelCount = $derived(modelsState.models.length);
 						{/if}
 					</Button>
 				</div>
+			</div>
+		{/if}
+
+		{#if projectError}
+			<div class="wv-error-notice" role="alert">
+				<div class="wv-error-head">
+					<Text size="xs" weight="bold" class="wv-error-kicker">Save failed</Text>
+					<button
+						type="button"
+						class="wv-error-dismiss"
+						onclick={() => {
+							projectError = null;
+							projectErrorDetail = null;
+						}}
+						aria-label="Dismiss notice"
+					>
+						×
+					</button>
+				</div>
+				<Text size="sm" class="wv-error-body">{projectError}</Text>
+				{#if projectErrorDetail}
+					<details class="wv-error-detail">
+						<summary>What happened</summary>
+						<code>{projectErrorDetail}</code>
+					</details>
+				{/if}
 			</div>
 		{/if}
 
@@ -767,5 +808,76 @@ const modelCount = $derived(modelsState.models.length);
 	}
 	:global(.wv-saved-body) strong {
 		color: var(--accent-purple-main, var(--accent-teal-main));
+	}
+
+	/* ── Save-failed notice (mirrors saved-notice shape, error tone) ── */
+	.wv-error-notice {
+		margin-top: 0.25rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid color-mix(in oklch, var(--signal-error, #e74c3c) 45%, var(--border-soft));
+		border-radius: 0.5rem;
+		background: linear-gradient(
+			135deg,
+			color-mix(in oklch, var(--signal-error, #e74c3c) 16%, transparent),
+			transparent 70%
+		);
+		box-shadow: 0 0.5rem 1.5rem color-mix(in oklch, var(--signal-error, #e74c3c) 15%, transparent);
+	}
+	.wv-error-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.375rem;
+	}
+	:global(.wv-error-kicker) {
+		color: var(--signal-error, #e74c3c);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.wv-error-dismiss {
+		width: 1.25rem;
+		height: 1.25rem;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		font-size: 1.125rem;
+		line-height: 1;
+		border-radius: 0.25rem;
+	}
+	.wv-error-dismiss:hover {
+		color: var(--text-primary);
+		background: color-mix(in oklch, var(--text-primary) 12%, transparent);
+	}
+	:global(.wv-error-body) {
+		color: var(--text-secondary);
+		line-height: 1.4;
+	}
+	.wv-error-detail {
+		margin-top: 0.5rem;
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+	.wv-error-detail summary {
+		cursor: pointer;
+		user-select: none;
+		color: var(--text-muted);
+	}
+	.wv-error-detail summary:hover {
+		color: var(--text-secondary);
+	}
+	.wv-error-detail code {
+		display: block;
+		margin-top: 0.375rem;
+		padding: 0.5rem 0.625rem;
+		border-radius: 0.375rem;
+		background: color-mix(in oklch, var(--surface-raised) 92%, transparent);
+		border: 1px solid var(--border-soft);
+		color: var(--text-primary);
+		font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+		font-size: 0.7rem;
+		white-space: pre-wrap;
+		word-break: break-word;
 	}
 </style>
