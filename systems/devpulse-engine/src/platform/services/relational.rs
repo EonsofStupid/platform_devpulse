@@ -681,6 +681,30 @@ CREATE TABLE IF NOT EXISTS knowledge_config (
     config_json     TEXT NOT NULL,
     updated_at      INTEGER NOT NULL
 );
+
+-- ── Vision Pipeline Frames ─────────────────────────────────────
+
+-- One row per captured frame the pipeline lands. Composite sink
+-- writes to disk + libSQL + DuckDB; this table is the libSQL half.
+-- `sink_path` mirrors the disk-sink path for that frame so a query
+-- here can locate the on-disk PNG; empty when disk sink is configured
+-- out. `embedding_csv` is a comma-separated f32 list (libSQL has BLOB
+-- support but the SqlAdapter trait carries `&[&str]` params, and CSV
+-- round-trips cleanly).
+CREATE TABLE IF NOT EXISTS vision_frames (
+    session_id        TEXT NOT NULL,
+    frame_id          INTEGER NOT NULL,
+    captured_at_ms    INTEGER NOT NULL,
+    source_kind       TEXT NOT NULL,         -- 'monitor' | 'window' | 'webcam'
+    source_id         INTEGER NOT NULL,
+    width             INTEGER NOT NULL,
+    height            INTEGER NOT NULL,
+    sink_path         TEXT NOT NULL,         -- empty when disk sink not paired
+    embedding_csv     TEXT NOT NULL,         -- empty when capture-only
+    PRIMARY KEY (session_id, frame_id)
+);
+CREATE INDEX IF NOT EXISTS idx_vision_frames_time
+    ON vision_frames(session_id, captured_at_ms);
 ";
 
 // ═══════════════════════════════════════════════════════════════

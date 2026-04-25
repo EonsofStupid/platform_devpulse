@@ -85,7 +85,7 @@ pub use services::{Service, ServiceRole, ServiceState};
 // are generic (Analytics / Cache / LibSql / Sql{Adapter,Row,Value}) —
 // no kernel vocabulary, no rename needed.
 pub use devpulse_clyffy::cortex::persistence::{
-    AnalyticsAdapter, CacheAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
+    AnalyticsAdapter, CacheAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
 // IP-NOTE: knowledge-library types. Kernel uses short names

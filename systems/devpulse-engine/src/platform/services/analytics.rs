@@ -446,4 +446,20 @@ CREATE TABLE IF NOT EXISTS vision_governor_ticks (
     event_qps          FLOAT   NOT NULL,
     created_at         TIMESTAMP DEFAULT now()
 );
+
+-- Embedding-only sink target. The DuckDbEmbeddingSink (V-4) appends
+-- one row per frame whose embedding is present (capture-only sessions
+-- do not pollute this table). Designed for the Metrics tab's ad-hoc
+-- rollups: 'how many frames did session X produce?', 'what's the
+-- distribution of embedding norms over the last hour?'.
+CREATE TABLE IF NOT EXISTS vision_embeddings (
+    session_id         VARCHAR NOT NULL,
+    frame_id           BIGINT  NOT NULL,
+    captured_at_ms     BIGINT  NOT NULL,
+    embedding_dim      INTEGER NOT NULL,
+    embedding          DOUBLE[] NOT NULL,        -- DuckDB native list type
+    created_at         TIMESTAMP DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_vision_embeddings_session
+    ON vision_embeddings(session_id, captured_at_ms);
 ";
