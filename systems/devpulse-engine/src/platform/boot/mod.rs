@@ -71,7 +71,7 @@ use crate::platform::services::graph::GraphService;
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
 use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
-use crate::platform::services::surrealdb_sidecar::SurrealdbSidecarService;
+use crate::platform::services::surreal::SurrealService;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
 use devpulse_clyffy::cortex::grammar::sync_grammar_service_from_config;
@@ -83,7 +83,7 @@ use std::sync::Arc;
 
 /// Collected service handles from a successful boot pipeline.
 pub struct BootedServices {
-    pub surrealdb_sidecar: Option<Arc<SurrealdbSidecarService>>,
+    pub surreal: Option<Arc<SurrealService>>,
     pub system_relational: Option<Arc<RelationalService>>,
     pub system_analytics: Option<Arc<AnalyticsService>>,
     pub system_graph: Option<Arc<GraphService>>,
@@ -214,7 +214,7 @@ async fn execute_inner(
     // ── Stage 4 + 12: Graph + Model Loader in parallel ─────────
     let _spin = boot_log.running("Graph + Model Loader", "initializing in parallel...");
     #[cfg(feature = "inference")]
-    let ((surrealdb_sidecar, system_graph, user_graph, global_graph), model_loader_svc) = tokio::join!(
+    let ((surreal, system_graph, user_graph, global_graph), model_loader_svc) = tokio::join!(
         graph::boot_consolidated(data_dir, boot_config, on_event, &boot_log),
         model_loader::boot(
             data_dir,
@@ -227,7 +227,7 @@ async fn execute_inner(
     );
 
     #[cfg(not(feature = "inference"))]
-    let (surrealdb_sidecar, system_graph, user_graph, global_graph) =
+    let (surreal, system_graph, user_graph, global_graph) =
         graph::boot_consolidated(data_dir, boot_config, on_event, boot_log).await;
 
     #[cfg(not(feature = "inference"))]
@@ -459,7 +459,7 @@ async fn execute_inner(
     );
 
     Ok(BootedServices {
-        surrealdb_sidecar,
+        surreal,
         system_relational,
         system_analytics,
         system_graph,

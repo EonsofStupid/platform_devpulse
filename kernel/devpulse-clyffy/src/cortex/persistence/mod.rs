@@ -7,13 +7,13 @@
 //!
 //! - `LibSQL`: Relational data (users, settings, projects, messages).
 //! - `DuckDB`: Analytics (user + AI metrics, telemetry).
-//! - `SurrealDB`: Graph store — WS client to the managed sidecar.
+//! - `SurrealDB`: Graph store — WS client to the managed child process.
 //! - `Moka`: In-memory cache (hot data, TTL-based eviction).
 //! - `RRO`: Vector similarity search (embedded Qdrant — two-tier retrieval).
-//! - `Ollama`: Managed sidecar — local inference runtime.
+//! - `Ollama`: Managed child process — local inference runtime.
 //! - `Whisper`, `Kokoros`, `Embedder`: local audio + embedding runtimes.
 //!
-//! Sidecar adapters use the shared `port_alloc` helper for probe /
+//! Managed adapters use the shared `port_alloc` helper for probe /
 //! attach / bump. Engine facades wrap each adapter with lifecycle
 //! plumbing (boot, health, shutdown) per the project IP-boundary rule.
 
@@ -32,11 +32,10 @@ pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
-pub mod surrealdb_sidecar;
 #[cfg(feature = "candle")]
 pub mod whisper;
 
-// Managed sidecar runtimes
+// Managed child-process runtimes
 pub mod ollama;
 
 // Re-exports for convenience
@@ -50,8 +49,9 @@ pub use ollama::{OllamaAdapter, OllamaConfig, OllamaModel};
 pub use port_alloc::{Disposition, PortAllocation};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
-pub use surreal::{ScopedGraphHandle, SurrealAdapter};
-pub use surrealdb_sidecar::{SidecarConfig, SidecarEndpoint, SurrealdbSidecarAdapter};
+pub use surreal::{
+    ScopedGraphHandle, SurrealAdapter, SurrealConfig, SurrealEndpoint, SurrealLifecycle,
+};
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,
@@ -95,7 +95,7 @@ impl PersistenceLayer {
     /// Initialize the file-backed stores (LibSQL + DuckDB).
     ///
     /// SurrealDB is intentionally not part of `init()` — it is a client
-    /// to a managed sidecar, so callers must pass a ready `SidecarEndpoint`
+    /// to a managed child process, so callers must pass a ready `SurrealEndpoint`
     /// via [`Self::connect_surreal`].
     ///
     /// # Errors
@@ -198,7 +198,7 @@ impl PersistenceLayer {
     ///
     /// # Errors
     /// Returns error if the WS connection or schema init fails.
-    pub async fn connect_surreal(&mut self, endpoint: &SidecarEndpoint) -> Result<()> {
+    pub async fn connect_surreal(&mut self, endpoint: &SurrealEndpoint) -> Result<()> {
         let adapter = SurrealAdapter::connect(endpoint).await?;
         self.surreal = Some(Arc::new(adapter));
         Ok(())

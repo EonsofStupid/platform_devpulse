@@ -1,9 +1,10 @@
-# SurrealDB — managed sidecar (RocksDB) + three scoped namespaces.
+# Surreal — managed `surreal start` child process (RocksDB) + three
+# scoped namespaces.
 #
 # The platform spawns one `surreal start` child process using the
-# settings under `[services.system.surrealdb_sidecar]`. All three
-# graph namespaces (system / user / global) live on that single
-# server, isolated by NS/DB in every query.
+# settings under `[services.system.surreal]`. All three graph
+# namespaces (system / user / global) live on that single server,
+# isolated by NS/DB in every query.
 #
 # Port comes from `[services.network.graph_api]`. If that port is
 # taken by a foreign listener at boot, the allocator bumps +1 up to
@@ -11,9 +12,9 @@
 # vs. configured so you always know where it landed.
 
 # ─────────────────────────────────────────────────────────────
-# Sidecar process — lifecycle + binary resolution
+# Child process — lifecycle + binary resolution
 # ─────────────────────────────────────────────────────────────
-[services.system.surrealdb_sidecar]
+[services.system.surreal]
 enabled = true
 critical = true
 auto_start = true

@@ -74,9 +74,11 @@ export const surrealKvList = commands.graphKvList;
 
 // ── Types ────────────────────────────────────────────────────────
 //
-// Renamed at the boundary to drop the `Sidecar` infix where the Rust
-// symbol still has it. After consolidation, the alias collapses to
-// a direct re-export.
+// `Graph*` types still come from the data-plane Rust naming (kernel
+// keeps them as `Graph*` under sys::graph), so they're aliased to
+// `Surreal*` at the facade boundary. The lifecycle types
+// (`SurrealStatus`, `SurrealHealth`, `SurrealUserConfig`) are now
+// canonical post-consolidation — no alias needed.
 
 export type {
 	GraphHealthAll as SurrealHealthAll,
@@ -85,7 +87,7 @@ export type {
 	GraphNamespaceStats as SurrealNamespaceStats,
 	GraphPingResult as SurrealPingResult,
 	GraphTableInfo as SurrealTableInfo,
-	SurrealdbSidecarHealth as SurrealHealth,
-	SurrealdbSidecarStatus as SurrealStatus,
-	SurrealdbSidecarUserConfig as SurrealUserConfig,
+	SurrealHealth,
+	SurrealStatus,
+	SurrealUserConfig,
 } from "$lib/sys/generated/bindings.js";

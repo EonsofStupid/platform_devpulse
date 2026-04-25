@@ -95,7 +95,7 @@ pub struct ServiceMeta {
 pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
     // ── Stage 1: Preflight is not a service — it's a boot step ──
     ServiceMeta {
-        role: ServiceRole::SurrealdbSidecar,
+        role: ServiceRole::Surreal,
         scope: DataScope::System,
         stage: 2,
         public_name: "SurrealDB Sidecar",
@@ -206,13 +206,13 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         group: ServiceGroup::System,
     },
     ServiceMeta {
-        role: ServiceRole::OllamaSidecar,
+        role: ServiceRole::Ollama,
         scope: DataScope::System,
         stage: 14,
         public_name: "Ollama Sidecar",
         feature_gate: None,
-        // Ollama is lazy-started by `ensure_ollama_sidecar_started` from
-        // the devtool. No InitEvent emitted during boot.
+        // Ollama is lazy-started by `ensure_ollama_started` from the
+        // devtool. No InitEvent emitted during boot.
         step_id: None,
         group: ServiceGroup::System,
     },
@@ -231,7 +231,7 @@ pub const SERVICE_COUNT: usize = SERVICE_MANIFEST.len();
 /// This function uses exhaustive match — compiler error if a role is missing.
 pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
     let idx = match role {
-        ServiceRole::SurrealdbSidecar => 0,
+        ServiceRole::Surreal => 0,
         ServiceRole::Relational => 1, // System relational (first entry)
         ServiceRole::Analytics => 2,
         ServiceRole::Graph => 3, // System graph (first entry)
@@ -240,7 +240,7 @@ pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
         ServiceRole::Grammar => 9,
         ServiceRole::ModelLoader => 10,
         ServiceRole::DevForge => 11,
-        ServiceRole::OllamaSidecar => 12,
+        ServiceRole::Ollama => 12,
     };
     &SERVICE_MANIFEST[idx]
 }
@@ -348,7 +348,7 @@ pub const BOOT_STEP_MANIFEST: &[BootStepMeta] = &[
         step_id: "SurrealDB sidecar",
         group: ServiceGroup::Graph,
         feature_gate: None,
-        service_ref: Some((ServiceRole::SurrealdbSidecar, DataScope::System)),
+        service_ref: Some((ServiceRole::Surreal, DataScope::System)),
     },
     BootStepMeta {
         // HTTP endpoint exposed by the sidecar — not a validated service on its own.

@@ -1,10 +1,10 @@
-//! Ollama sidecar service — engine facade over the kernel adapter.
+//! Ollama service — engine facade over the kernel adapter.
 //!
 //! The kernel owns the lifecycle (spawn / attach / health / shutdown,
 //! HTTP client, model commands). This facade wraps
 //! [`devpulse_clyffy::cortex::persistence::OllamaAdapter`] with the
 //! platform `Service` trait and preserves the public surface the Tauri
-//! commands and `Platform::ensure_ollama_sidecar_started` depend on.
+//! commands and `Platform::ensure_ollama_started` depend on.
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
@@ -17,15 +17,15 @@ use std::path::{Path, PathBuf};
 // feature on `devpulse-clyffy`. No engine-side wrapper.
 pub use devpulse_clyffy::cortex::persistence::OllamaModel;
 
-/// Ollama sidecar service — thin engine wrapper around [`OllamaAdapter`].
-pub struct OllamaSidecarService {
+/// Ollama service — thin engine wrapper around [`OllamaAdapter`].
+pub struct OllamaService {
     adapter: OllamaAdapter,
 }
 
-impl OllamaSidecarService {
-    /// Boot the sidecar — preserves the legacy `(host, port, binary)`
-    /// signature that `Platform::ensure_ollama_sidecar_started` calls
-    /// so upstream wiring needs no change.
+impl OllamaService {
+    /// Boot the service — preserves the legacy `(host, port, binary)`
+    /// signature that `Platform::ensure_ollama_started` calls so
+    /// upstream wiring needs no change.
     ///
     /// # Errors
     /// Propagates any failure from [`OllamaAdapter::boot`].
@@ -115,13 +115,13 @@ impl OllamaSidecarService {
     }
 }
 
-impl Service for OllamaSidecarService {
+impl Service for OllamaService {
     fn name(&self) -> &'static str {
-        "Ollama sidecar"
+        "Ollama"
     }
 
     fn role(&self) -> ServiceRole {
-        ServiceRole::OllamaSidecar
+        ServiceRole::Ollama
     }
 
     async fn ping(&self) -> Result<()> {

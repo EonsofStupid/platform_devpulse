@@ -1248,7 +1248,7 @@ async ollamaSidecarDeleteModel(name: string) : Promise<Result<null, string>> {
  * 
  * Lock-free read — never spawns, never blocks.
  */
-async surrealdbSidecarStatus() : Promise<Result<SurrealdbSidecarStatus, string>> {
+async surrealdbSidecarStatus() : Promise<Result<SurrealStatus, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_status") };
 } catch (e) {
@@ -1260,7 +1260,7 @@ async surrealdbSidecarStatus() : Promise<Result<SurrealdbSidecarStatus, string>>
  * Live-probe the sidecar via `GET /health` and return a badge-shaped
  * tri-state (`up` / `down` / `stopped`).
  */
-async surrealdbSidecarHealth() : Promise<Result<SurrealdbSidecarHealth, string>> {
+async surrealdbSidecarHealth() : Promise<Result<SurrealHealth, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_health") };
 } catch (e) {
@@ -1275,7 +1275,7 @@ async surrealdbSidecarHealth() : Promise<Result<SurrealdbSidecarHealth, string>>
  * Returns defaults if the file is missing or malformed — never errors
  * on parse failure. The devtool mounts this as its Config draft.
  */
-async surrealdbSidecarConfigLoad() : Promise<Result<SurrealdbSidecarUserConfig, string>> {
+async surrealdbSidecarConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_config_load") };
 } catch (e) {
@@ -1290,7 +1290,7 @@ async surrealdbSidecarConfigLoad() : Promise<Result<SurrealdbSidecarUserConfig, 
  * written to disk — the devtool should update its state from this
  * rather than echoing the request back.
  */
-async surrealdbSidecarConfigSave(cfg: SurrealdbSidecarUserConfig) : Promise<Result<SurrealdbSidecarUserConfig, string>> {
+async surrealdbSidecarConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConfig, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_config_save", { cfg }) };
 } catch (e) {
@@ -7088,13 +7088,13 @@ export type ServiceRole =
  */
 "ModelLoader" | 
 /**
- * Ollama sidecar service (managed `ollama serve` child process).
+ * Ollama service (managed `ollama serve` child process).
  */
-"OllamaSidecar" | 
+"Ollama" | 
 /**
- * SurrealDB sidecar service (managed `surreal start` child process).
+ * Surreal service (managed `surreal start` child process).
  */
-"SurrealdbSidecar"
+"Surreal"
 /**
  * Whether a service is actually alive right now.
  * 
@@ -7500,7 +7500,7 @@ export type SupportTier =
 /**
  * Serde-friendly health probe result.
  */
-export type SurrealdbSidecarHealth = { 
+export type SurrealHealth = { 
 /**
  * `"up"` / `"down"` / `"stopped"`.
  */
@@ -7510,9 +7510,9 @@ state: string;
  */
 label: string }
 /**
- * Runtime status of the SurrealDB sidecar — what the devtool renders.
+ * Runtime status of the Surreal service — what the devtool renders.
  */
-export type SurrealdbSidecarStatus = { 
+export type SurrealStatus = { 
 /**
  * True iff the service is present in the platform slot.
  */
@@ -7544,7 +7544,7 @@ portBumps: number;
  */
 httpUrl: string; 
 /**
- * WebSocket RPC URL (what the `SurrealAdapter` client uses).
+ * WebSocket RPC URL (what the `SurrealLifecycle` client uses).
  */
 wsUrl: string; 
 /**
@@ -7552,30 +7552,30 @@ wsUrl: string;
  */
 binaryPath: string | null }
 /**
- * Persisted user overrides for the SurrealDB sidecar.
+ * Persisted user overrides for the Surreal service.
  * 
  * All fields `Option<T>`: `None` means "inherit from platform TOML".
  */
-export type SurrealdbSidecarUserConfig = { 
+export type SurrealUserConfig = { 
 /**
  * Overrides `[services.network.graph_api].port`.
  */
 port: number | null; 
 /**
- * Overrides `[services.system.surrealdb_sidecar].binary_path`.
+ * Overrides `[services.system.surreal].binary_path`.
  * Empty string is treated as `None`.
  */
 binary_path: string | null; 
 /**
- * Overrides `[services.system.surrealdb_sidecar].root_user`.
+ * Overrides `[services.system.surreal].root_user`.
  */
 root_user: string | null; 
 /**
- * Overrides `[services.system.surrealdb_sidecar].root_password`.
+ * Overrides `[services.system.surreal].root_password`.
  */
 root_password: string | null; 
 /**
- * Overrides `[services.system.surrealdb_sidecar].log_level`.
+ * Overrides `[services.system.surreal].log_level`.
  */
 log_level: string | null; 
 /**

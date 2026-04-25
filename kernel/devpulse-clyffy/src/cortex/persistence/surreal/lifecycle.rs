@@ -1,9 +1,9 @@
-//! `SurrealDB` sidecar — managed `surreal start` child process (RocksDB backend).
+//! Surreal lifecycle — managed `surreal start` child process (RocksDB backend).
 //!
 //! This adapter owns the lifecycle of the real SurrealDB server binary.
 //! It resolves a port (attach / bump), spawns `surreal start`, waits for
 //! HTTP health, and exposes the resolved URL + credentials to the
-//! `SurrealAdapter` WS client layer.
+//! [`super::client::SurrealAdapter`] WS layer.
 //!
 //! # Lifecycle
 //!
@@ -17,8 +17,8 @@
 //!    [`STARTUP_TIMEOUT`]. On timeout, kill the child and error.
 //! 4. `shutdown()` kills the child when managed; no-op when attached.
 //!
-//! The WS client lives in [`super::surreal::SurrealAdapter`] and is
-//! built from the resolved [`SidecarEndpoint`].
+//! The WS client lives in [`super::client::SurrealAdapter`] and is built
+//! from the resolved [`SurrealEndpoint`].
 
 use crate::cortex::persistence::port_alloc::{
     self, Disposition, PortAllocation, DEFAULT_MAX_BUMPS,
@@ -42,7 +42,7 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 /// WS client. Also reported to the frontend devtool so the UI can
 /// show `configured` vs `actual` port and render a bump badge.
 #[derive(Debug, Clone)]
-pub struct SidecarEndpoint {
+pub struct SurrealEndpoint {
     /// Bind host (e.g. `127.0.0.1`).
     pub host: String,
     /// Port allocation metadata — configured vs. actual, bump count,
@@ -54,7 +54,7 @@ pub struct SidecarEndpoint {
     pub root_password: String,
 }
 
-impl SidecarEndpoint {
+impl SurrealEndpoint {
     /// Actual port, after any `+1` bumps.
     #[must_use]
     pub fn port(&self) -> u16 {
@@ -76,7 +76,7 @@ impl SidecarEndpoint {
 
 /// Boot parameters for the sidecar.
 #[derive(Debug, Clone)]
-pub struct SidecarConfig {
+pub struct SurrealConfig {
     /// Bind host (always `127.0.0.1` in dev; `0.0.0.0` is rejected).
     pub host: String,
     /// Configured port. May be bumped if taken by a foreign listener.
@@ -98,17 +98,17 @@ pub struct SidecarConfig {
 }
 
 /// Sidecar adapter — owns the child process and resolved endpoint.
-pub struct SurrealdbSidecarAdapter {
+pub struct SurrealLifecycle {
     /// `Some` only when this adapter spawned the child. `None` means
     /// we attached to an externally-running SurrealDB and `shutdown`
     /// is a no-op.
     child: Mutex<Option<Child>>,
-    endpoint: SidecarEndpoint,
+    endpoint: SurrealEndpoint,
     binary_path: Option<PathBuf>,
     http: reqwest::Client,
 }
 
-impl SurrealdbSidecarAdapter {
+impl SurrealLifecycle {
     /// Boot the sidecar.
     ///
     /// # Errors
@@ -118,7 +118,7 @@ impl SurrealdbSidecarAdapter {
     ///   nothing in standard install locations).
     /// - `tokio::process::Command::spawn` fails.
     /// - Health poll times out within [`STARTUP_TIMEOUT`].
-    pub async fn boot(cfg: SidecarConfig) -> Result<Self> {
+    pub async fn boot(cfg: SurrealConfig) -> Result<Self> {
         let http = reqwest::Client::builder()
             .timeout(REQUEST_TIMEOUT)
             .build()
@@ -140,7 +140,7 @@ impl SurrealdbSidecarAdapter {
         )
         .await?;
 
-        let endpoint = SidecarEndpoint {
+        let endpoint = SurrealEndpoint {
             host: cfg.host.clone(),
             allocation,
             root_user: cfg.root_user.clone(),
@@ -204,7 +204,7 @@ impl SurrealdbSidecarAdapter {
                     bumps = allocation.bumps,
                     exe = %exe.display(),
                     data = %cfg.data_path.display(),
-                    "Spawning SurrealDB sidecar"
+                    "Spawning Surreal"
                 );
 
                 let child = cmd
@@ -230,7 +230,7 @@ impl SurrealdbSidecarAdapter {
 
     /// Resolved endpoint (URL, port, credentials, allocation metadata).
     #[must_use]
-    pub fn endpoint(&self) -> &SidecarEndpoint {
+    pub fn endpoint(&self) -> &SurrealEndpoint {
         &self.endpoint
     }
 
@@ -282,11 +282,11 @@ impl SurrealdbSidecarAdapter {
             guard.take()
         };
         if let Some(mut child) = taken {
-            tracing::info!("SurrealDB sidecar shutdown — killing child");
+            tracing::info!("Surreal shutdown — killing child");
             let _ = child.start_kill();
             let _ = child.wait().await;
         } else {
-            tracing::debug!("SurrealDB sidecar shutdown: attached-mode, no child to kill");
+            tracing::debug!("Surreal shutdown: attached-mode, no child to kill");
         }
         Ok(())
     }
@@ -305,7 +305,7 @@ impl SurrealdbSidecarAdapter {
             if self.ping().await.is_ok() {
                 tracing::info!(
                     port = self.endpoint.port(),
-                    "SurrealDB sidecar is healthy"
+                    "Surreal is healthy"
                 );
                 return Ok(());
             }

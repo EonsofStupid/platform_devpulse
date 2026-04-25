@@ -3,7 +3,7 @@
 //!
 //! The embedded `SurrealKV` path retired. We now manage a real
 //! `surreal start` child process (RocksDB backend) via
-//! [`SurrealdbSidecarService`] and open a single WS client to it via
+//! [`SurrealService`] and open a single WS client to it via
 //! [`SurrealAdapter::connect_with_ns`]. All three namespace scopes
 //! (system, user, global) live on that one connection.
 //!
@@ -17,9 +17,9 @@ use crate::platform::init::InitEvent;
 use crate::platform::services::graph::{
     GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
-use crate::platform::services::surrealdb_sidecar::SurrealdbSidecarService;
-use crate::platform::services::surrealdb_sidecar_config;
-use devpulse_clyffy::cortex::persistence::surrealdb_sidecar::SidecarConfig;
+use crate::platform::services::surreal::SurrealService;
+use crate::platform::services::surreal_config;
+use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use std::path::Path;
 use std::sync::Arc;
@@ -41,7 +41,7 @@ pub async fn boot_consolidated(
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
 ) -> (
-    Option<Arc<SurrealdbSidecarService>>,
+    Option<Arc<SurrealService>>,
     Option<Arc<GraphService>>,
     Option<Arc<GraphService>>,
     Option<Arc<GraphService>>,
@@ -56,7 +56,7 @@ pub async fn boot_consolidated(
         return (None, None, None, None);
     }
 
-    let sidecar_cfg = &boot_config.services.system.surrealdb_sidecar;
+    let sidecar_cfg = &boot_config.services.system.surreal;
     if !sidecar_cfg.enabled {
         on_event(InitEvent::skipped("Graph store"));
         boot_log.skip("Graph store", "SurrealDB sidecar disabled");
@@ -74,11 +74,11 @@ pub async fn boot_consolidated(
     let graph_api = &boot_config.services.network.graph_api;
     let data_path = data_dir.join("surreal").join("devpulse");
 
-    // Overlay: platform.toml defaults + user/surrealdb_sidecar.toml.
+    // Overlay: platform.toml defaults + user/surreal.toml.
     // The user file persists devtool edits (port, binary, creds, etc.)
     // and is atomic-written, so load failures just fall back to defaults.
-    let overlay = surrealdb_sidecar_config::load(data_dir);
-    let resolved = surrealdb_sidecar_config::apply_overlay(
+    let overlay = surreal_config::load(data_dir);
+    let resolved = surreal_config::apply_overlay(
         graph_api.port,
         sidecar_cfg.resolved_binary(),
         &sidecar_cfg.root_user,
@@ -88,7 +88,7 @@ pub async fn boot_consolidated(
         &overlay,
     );
 
-    let cfg = SidecarConfig {
+    let cfg = SurrealConfig {
         host: graph_api.bind.clone(),
         port: resolved.port,
         max_bumps: resolved.max_bumps,
@@ -99,7 +99,7 @@ pub async fn boot_consolidated(
         log_level: resolved.log_level,
     };
 
-    let sidecar = match SurrealdbSidecarService::boot(cfg).await {
+    let sidecar = match SurrealService::boot(cfg).await {
         Ok(svc) => Arc::new(svc),
         Err(e) => {
             tracing::error!(error = ?e, "SurrealDB sidecar boot failed");

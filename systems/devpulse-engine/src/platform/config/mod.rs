@@ -18,8 +18,7 @@ pub mod stores;
 
 pub use loader::{
     retrieval_param_meta, sanitize_path, CacheServiceEntry, CatalogEntry, CatalogOption, DataScope,
-    ExecutionLane, LaneToggle, LaneTraceConfig, ModelLoaderServiceEntry,
-    OllamaSidecarServiceEntry, PlatformBootConfig, PlatformConfig, RetrievalConfig,
-    RetrievalParamMeta, RetrievalPreset, ServiceEntry, SurrealdbSidecarServiceEntry,
-    VectorServiceEntry, WindowsConfig,
+    ExecutionLane, LaneToggle, LaneTraceConfig, ModelLoaderServiceEntry, OllamaServiceEntry,
+    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
+    ServiceEntry, SurrealServiceEntry, VectorServiceEntry, WindowsConfig,
 };

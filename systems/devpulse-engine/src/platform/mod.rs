@@ -51,15 +51,12 @@ pub use reasoning::{
 };
 pub use services::candle_config::CandleConfig;
 pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
-pub use services::ollama_sidecar::OllamaModel;
+pub use services::ollama::OllamaModel;
 pub use services::sherpa_streaming::{
     SherpaCompileInfo, SherpaInstalledModel, SherpaSessionInfo, SherpaStreamingService,
 };
-pub use services::surrealdb_sidecar::{
-    SurrealdbSidecarConfigView, SurrealdbSidecarHealth as SurrealdbSidecarHealthDto,
-    SurrealdbSidecarStatus as SurrealdbSidecarStatusDto,
-};
-pub use services::surrealdb_sidecar_config::SurrealdbSidecarUserConfig;
+pub use services::surreal::{SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus};
+pub use services::surreal_config::SurrealUserConfig;
 pub use services::voice_stt_config::VoiceSttConfig;
 pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
@@ -131,10 +128,7 @@ use services::analytics::AnalyticsService;
 use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgeService};
 use services::graph::GraphService;
-use services::ollama_sidecar::OllamaSidecarService;
-use services::surrealdb_sidecar::{
-    SurrealdbSidecarHealth, SurrealdbSidecarService, SurrealdbSidecarStatus,
-};
+use services::ollama::OllamaService;
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
@@ -164,7 +158,7 @@ macro_rules! for_each_service {
         // SurrealDB sidecar — runs FIRST in health checks (the graph
         // scopes below hold WS clients; sidecar health is the upstream
         // signal).
-        $action!($self.surrealdb_sidecar);
+        $action!($self.surreal);
         // System scope (boot order)
         $action!($self.system_relational);
         $action!($self.system_analytics);
@@ -201,7 +195,7 @@ macro_rules! for_each_service_rev {
         $action!($self.system_relational);
         // Surreal sidecar shuts down LAST — after every client has had a
         // chance to close its WS connection.
-        $action!($self.surrealdb_sidecar);
+        $action!($self.surreal);
     };
 }
 
@@ -219,7 +213,7 @@ pub struct Platform {
     // Boot-time, not lazy: the graph scopes below hold WS clients
     // that depend on this process. Keep it first in the struct so
     // drop order shuts the clients down before killing the child.
-    surrealdb_sidecar: Option<Arc<SurrealdbSidecarService>>,
+    surreal: Option<Arc<SurrealService>>,
     // ── System scope ────────────────────────────────────────────
     system_relational: Option<Arc<RelationalService>>,
     system_analytics: Option<Arc<AnalyticsService>>,
@@ -245,7 +239,7 @@ pub struct Platform {
     // ── Ollama sidecar — lazy, user-initiated ────────────────
     // Devtool "Start" spawns `ollama serve` (or attaches if already
     // running) and stores the Arc here. Lock-free reads via load_full.
-    ollama_sidecar: ArcSwapOption<OllamaSidecarService>,
+    ollama: ArcSwapOption<OllamaService>,
     // ── Sherpa streaming ASR — always constructed, state held here.
     // No child process — the service owns recognizers + session map
     // in-memory. Feature-gated behind `sherpa`; when that feature is
@@ -315,7 +309,7 @@ impl Platform {
         };
 
         Ok(Self {
-            surrealdb_sidecar: booted.surrealdb_sidecar,
+            surreal: booted.surreal,
             system_relational: booted.system_relational,
             system_analytics: booted.system_analytics,
             system_graph: booted.system_graph,
@@ -328,7 +322,7 @@ impl Platform {
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
             devforge: ArcSwapOption::empty(),
-            ollama_sidecar: ArcSwapOption::empty(),
+            ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
             project_db: Arc::new(ProjectDbManager::new()),
             telemetry,
@@ -365,7 +359,7 @@ impl Platform {
         }
         // Ollama sidecar is lazy-started via the devtool. Only ping it
         // if the user has clicked Start at least once.
-        if let Some(s) = self.ollama_sidecar.load_full() {
+        if let Some(s) = self.ollama.load_full() {
             subsystems.push(ping_service(s.as_ref()).await);
         }
 
@@ -459,10 +453,10 @@ impl Platform {
                 return ServiceRuntimeState::NotCompiled
             }
             (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
-            (ServiceRole::OllamaSidecar, DataScope::System) => {
-                self.ollama_sidecar.load_full().is_some()
+            (ServiceRole::Ollama, DataScope::System) => {
+                self.ollama.load_full().is_some()
             }
-            (ServiceRole::SurrealdbSidecar, DataScope::System) => self.surrealdb_sidecar.is_some(),
+            (ServiceRole::Surreal, DataScope::System) => self.surreal.is_some(),
             (ServiceRole::Grammar, DataScope::System) => grammar_runtime_enabled,
             // Any (role, scope) pair not in SERVICE_MANIFEST shouldn't
             // reach here — manifest→runtime dispatch covers every entry.
@@ -662,31 +656,31 @@ impl Platform {
     /// Returns `None` until the user clicks Start in the devtool (or
     /// boot ran with `auto_start = true`). Lock-free atomic load.
     #[must_use]
-    pub fn ollama_sidecar(&self) -> Option<Arc<OllamaSidecarService>> {
-        self.ollama_sidecar.load_full()
+    pub fn ollama(&self) -> Option<Arc<OllamaService>> {
+        self.ollama.load_full()
     }
 
     /// Get the managed SurrealDB sidecar, if boot succeeded.
     #[must_use]
-    pub fn surrealdb_sidecar(&self) -> Option<&Arc<SurrealdbSidecarService>> {
-        self.surrealdb_sidecar.as_ref()
+    pub fn surreal(&self) -> Option<&Arc<SurrealService>> {
+        self.surreal.as_ref()
     }
 
     /// Read-only access to the SurrealDB sidecar config entry.
     #[must_use]
-    pub fn boot_config_surrealdb_sidecar(&self) -> &config::SurrealdbSidecarServiceEntry {
-        &self.boot_config.services.system.surrealdb_sidecar
+    pub fn boot_config_surreal(&self) -> &config::SurrealServiceEntry {
+        &self.boot_config.services.system.surreal
     }
 
     /// Serialize-friendly sidecar status for the Tauri command layer.
     ///
-    /// Returns [`SurrealdbSidecarStatus::stopped`] if the sidecar is
+    /// Returns [`SurrealStatus::stopped`] if the sidecar is
     /// absent (either disabled in config or its boot failed).
     #[must_use]
-    pub fn surrealdb_sidecar_status(&self) -> SurrealdbSidecarStatus {
-        match &self.surrealdb_sidecar {
+    pub fn surreal_status(&self) -> SurrealStatus {
+        match &self.surreal {
             Some(svc) => svc.snapshot(),
-            None => SurrealdbSidecarStatus::stopped(
+            None => SurrealStatus::stopped(
                 self.boot_config
                     .services
                     .network
@@ -697,12 +691,12 @@ impl Platform {
     }
 
     /// Live-probe the sidecar and convert to a serialize-friendly result.
-    pub async fn surrealdb_sidecar_health(&self) -> SurrealdbSidecarHealth {
-        match &self.surrealdb_sidecar {
-            None => SurrealdbSidecarHealth::stopped(),
+    pub async fn surreal_health(&self) -> SurrealHealth {
+        match &self.surreal {
+            None => SurrealHealth::stopped(),
             Some(svc) => match svc.adapter().ping().await {
-                Ok(()) => SurrealdbSidecarHealth::up(),
-                Err(e) => SurrealdbSidecarHealth::down(&format!("{e:#}")),
+                Ok(()) => SurrealHealth::up(),
+                Err(e) => SurrealHealth::down(&format!("{e:#}")),
             },
         }
     }
@@ -713,8 +707,8 @@ impl Platform {
     /// malformed. The devtool mounts this as the starting point for
     /// its Config tab draft.
     #[must_use]
-    pub fn surrealdb_sidecar_user_config_load(&self) -> SurrealdbSidecarUserConfig {
-        services::surrealdb_sidecar_config::load(&self.data_dir)
+    pub fn surreal_user_config_load(&self) -> SurrealUserConfig {
+        services::surreal_config::load(&self.data_dir)
     }
 
     /// Persist a user-scope overlay atomically.
@@ -724,11 +718,11 @@ impl Platform {
     ///
     /// # Errors
     /// Returns an error if the file could not be written.
-    pub fn surrealdb_sidecar_user_config_save(
+    pub fn surreal_user_config_save(
         &self,
-        cfg: &SurrealdbSidecarUserConfig,
-    ) -> Result<SurrealdbSidecarUserConfig> {
-        services::surrealdb_sidecar_config::save(&self.data_dir, cfg)
+        cfg: &SurrealUserConfig,
+    ) -> Result<SurrealUserConfig> {
+        services::surreal_config::save(&self.data_dir, cfg)
     }
 
     /// Read-only view into the Ollama sidecar boot config entry.
@@ -737,8 +731,8 @@ impl Platform {
     /// a future `save_config` verb that persists to user TOML; this
     /// accessor does not allocate.
     #[must_use]
-    pub fn boot_config_ollama_sidecar(&self) -> &config::OllamaSidecarServiceEntry {
-        &self.boot_config.services.system.ollama_sidecar
+    pub fn boot_config_ollama(&self) -> &config::OllamaServiceEntry {
+        &self.boot_config.services.system.ollama
     }
 
     // ── Voice TTS config (user scope) ──────────────────────────
@@ -850,20 +844,20 @@ impl Platform {
     /// - Binary is not on PATH and no valid `binary_path` is configured,
     ///   and nothing is already listening on the configured port.
     /// - Spawned child fails health poll within the service timeout.
-    pub async fn ensure_ollama_sidecar_started(&self) -> Result<Arc<OllamaSidecarService>> {
-        if let Some(existing) = self.ollama_sidecar.load_full() {
+    pub async fn ensure_ollama_started(&self) -> Result<Arc<OllamaService>> {
+        if let Some(existing) = self.ollama.load_full() {
             return Ok(existing);
         }
 
-        let entry = &self.boot_config.services.system.ollama_sidecar;
+        let entry = &self.boot_config.services.system.ollama;
         if !entry.enabled {
             anyhow::bail!(
                 "Ollama sidecar is disabled in config. Set `enabled = true` under \
-                 [services.system.ollama_sidecar] to use this service."
+                 [services.system.ollama] to use this service."
             );
         }
 
-        let service = OllamaSidecarService::boot(
+        let service = OllamaService::boot(
             &entry.host,
             entry.port,
             entry.resolved_binary(),
@@ -871,7 +865,7 @@ impl Platform {
         .await?;
 
         let arc = Arc::new(service);
-        self.ollama_sidecar.store(Some(Arc::clone(&arc)));
+        self.ollama.store(Some(Arc::clone(&arc)));
         Ok(arc)
     }
 
@@ -884,29 +878,29 @@ impl Platform {
     /// # Errors
     /// Returns the underlying shutdown error if the managed child could
     /// not be killed cleanly.
-    pub async fn ollama_sidecar_stop(&self) -> Result<()> {
+    pub async fn ollama_stop(&self) -> Result<()> {
         use crate::platform::services::Service as _;
-        let taken = self.ollama_sidecar.swap(None);
+        let taken = self.ollama.swap(None);
         if let Some(service) = taken {
             tracing::info!("Ollama sidecar stop requested");
             service.shutdown().await?;
         } else {
-            tracing::debug!("ollama_sidecar_stop called but nothing running");
+            tracing::debug!("ollama_stop called but nothing running");
         }
         Ok(())
     }
 
     /// Restart the Ollama sidecar.
     ///
-    /// Equivalent to [`ollama_sidecar_stop`](Self::ollama_sidecar_stop)
+    /// Equivalent to [`ollama_stop`](Self::ollama_stop)
     /// followed by
-    /// [`ensure_ollama_sidecar_started`](Self::ensure_ollama_sidecar_started).
+    /// [`ensure_ollama_started`](Self::ensure_ollama_started).
     ///
     /// # Errors
     /// Returns whichever of `stop` or `start` fails first.
-    pub async fn ollama_sidecar_restart(&self) -> Result<Arc<OllamaSidecarService>> {
-        self.ollama_sidecar_stop().await?;
-        self.ensure_ollama_sidecar_started().await
+    pub async fn ollama_restart(&self) -> Result<Arc<OllamaService>> {
+        self.ollama_stop().await?;
+        self.ensure_ollama_started().await
     }
 
     // ── Project scope accessor ──────────────────────────────────

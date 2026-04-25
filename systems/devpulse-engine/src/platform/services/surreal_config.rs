@@ -1,14 +1,14 @@
-//! SurrealDB sidecar — user-scope editable overlay.
+//! Surreal — user-scope editable overlay.
 //!
-//! Persists to `{data_dir}/user/surrealdb_sidecar.toml`. Atomic write
-//! via temp-file + rename so a crash mid-save never corrupts the file.
+//! Persists to `{data_dir}/user/surreal.toml`. Atomic write via
+//! temp-file + rename so a crash mid-save never corrupts the file.
 //! Load tolerates a missing or malformed file by returning defaults.
 //!
 //! # Semantics
 //!
 //! Every field is an [`Option`] — unset = "inherit from
 //! `platform.default.toml`". Setting a field overlays it onto the
-//! baseline [`SidecarConfig`] at boot time. This is a proper override
+//! baseline [`SurrealConfig`] at boot time. This is a proper override
 //! layer, not a duplicate of the platform config.
 //!
 //! # What can be overridden
@@ -26,7 +26,7 @@
 //! # Apply point
 //!
 //! `Platform::boot()` calls [`apply_overlay`] BEFORE building the
-//! `SidecarConfig` that [`SurrealdbSidecarService::boot`] consumes.
+//! `SurrealConfig` that [`SurrealService::boot`] consumes.
 //! "Restart app to apply" = no hot reload.
 
 use anyhow::{Context, Result};
@@ -37,29 +37,29 @@ use std::io::Write as _;
 use std::path::{Path, PathBuf};
 
 /// Filename under `{data_dir}/user/`.
-const FILE_NAME: &str = "surrealdb_sidecar.toml";
+const FILE_NAME: &str = "surreal.toml";
 
-/// Persisted user overrides for the SurrealDB sidecar.
+/// Persisted user overrides for the Surreal service.
 ///
 /// All fields `Option<T>`: `None` means "inherit from platform TOML".
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Type)]
-pub struct SurrealdbSidecarUserConfig {
+pub struct SurrealUserConfig {
     /// Overrides `[services.network.graph_api].port`.
     pub port: Option<u16>,
-    /// Overrides `[services.system.surrealdb_sidecar].binary_path`.
+    /// Overrides `[services.system.surreal].binary_path`.
     /// Empty string is treated as `None`.
     pub binary_path: Option<String>,
-    /// Overrides `[services.system.surrealdb_sidecar].root_user`.
+    /// Overrides `[services.system.surreal].root_user`.
     pub root_user: Option<String>,
-    /// Overrides `[services.system.surrealdb_sidecar].root_password`.
+    /// Overrides `[services.system.surreal].root_password`.
     pub root_password: Option<String>,
-    /// Overrides `[services.system.surrealdb_sidecar].log_level`.
+    /// Overrides `[services.system.surreal].log_level`.
     pub log_level: Option<String>,
     /// Overrides the allocator's `max_bumps` ceiling.
     pub max_bumps: Option<u16>,
 }
 
-impl SurrealdbSidecarUserConfig {
+impl SurrealUserConfig {
     /// Normalize edge cases before serializing:
     /// - Empty `binary_path` / `log_level` / `root_user` → `None`.
     /// - Out-of-range `port` (`< 1024`) → `None`, so the base default wins.
@@ -94,7 +94,7 @@ impl SurrealdbSidecarUserConfig {
     }
 }
 
-/// Resolved file path: `{data_dir}/user/surrealdb_sidecar.toml`.
+/// Resolved file path: `{data_dir}/user/surreal.toml`.
 fn resolve_path(data_dir: &Path) -> PathBuf {
     data_dir.join("user").join(FILE_NAME)
 }
@@ -104,28 +104,28 @@ fn resolve_path(data_dir: &Path) -> PathBuf {
 /// Never propagates parse/IO errors — the devtool must always render,
 /// even when the overlay file is missing or corrupt.
 #[must_use]
-pub fn load(data_dir: &Path) -> SurrealdbSidecarUserConfig {
+pub fn load(data_dir: &Path) -> SurrealUserConfig {
     let path = resolve_path(data_dir);
     let Ok(raw) = fs::read_to_string(&path) else {
-        return SurrealdbSidecarUserConfig::default();
+        return SurrealUserConfig::default();
     };
-    match toml::from_str::<SurrealdbSidecarUserConfig>(&raw) {
+    match toml::from_str::<SurrealUserConfig>(&raw) {
         Ok(cfg) => cfg.clamp(),
         Err(err) => {
             tracing::warn!(
                 path = %path.display(),
                 error = %err,
-                "surrealdb_sidecar user config parse failed — using defaults"
+                "surreal user config parse failed — using defaults"
             );
-            SurrealdbSidecarUserConfig::default()
+            SurrealUserConfig::default()
         }
     }
 }
 
 /// Save the overrides atomically.
 ///
-/// Writes to `surrealdb_sidecar.toml.tmp` next to the target, fsyncs,
-/// then renames. Parent dir is created as needed.
+/// Writes to `surreal.toml.tmp` next to the target, fsyncs, then
+/// renames. Parent dir is created as needed.
 ///
 /// # Errors
 /// - Creating the parent directory fails.
@@ -133,18 +133,18 @@ pub fn load(data_dir: &Path) -> SurrealdbSidecarUserConfig {
 /// - Serialization fails (should be impossible for this shape).
 pub fn save(
     data_dir: &Path,
-    cfg: &SurrealdbSidecarUserConfig,
-) -> Result<SurrealdbSidecarUserConfig> {
+    cfg: &SurrealUserConfig,
+) -> Result<SurrealUserConfig> {
     let clamped = cfg.clone().clamp();
     let path = resolve_path(data_dir);
     let parent = path.parent().with_context(|| {
-        format!("surrealdb_sidecar path has no parent: {}", path.display())
+        format!("surreal path has no parent: {}", path.display())
     })?;
     fs::create_dir_all(parent)
         .with_context(|| format!("create parent {}", parent.display()))?;
 
     let serialized =
-        toml::to_string_pretty(&clamped).context("serialize surrealdb_sidecar config")?;
+        toml::to_string_pretty(&clamped).context("serialize surreal config")?;
     let mut tmp = path.clone();
     let mut ext = tmp
         .extension()
@@ -165,18 +165,18 @@ pub fn save(
     fs::rename(&tmp, &path)
         .with_context(|| format!("rename {} -> {}", tmp.display(), path.display()))?;
 
-    tracing::info!(path = %path.display(), "SurrealDB sidecar user-config saved");
+    tracing::info!(path = %path.display(), "Surreal user-config saved");
     Ok(clamped)
 }
 
-/// Resolved sidecar parameters after overlaying the user config onto
+/// Resolved Surreal parameters after overlaying the user config onto
 /// the platform defaults.
 ///
 /// Returned fields are the final values that flow into
-/// `SurrealdbSidecarAdapter::boot` via the kernel `SidecarConfig`.
+/// `SurrealLifecycle::boot` via the kernel `SurrealConfig`.
 #[derive(Debug, Clone)]
-pub struct ResolvedSidecarParams {
-    /// Port the sidecar will bind at startup.
+pub struct ResolvedSurrealParams {
+    /// Port the child will bind at startup.
     pub port: u16,
     /// Explicit binary path, or `None` to fall back to PATH resolution.
     pub binary_path: Option<PathBuf>,
@@ -193,7 +193,7 @@ pub struct ResolvedSidecarParams {
 /// Overlay the user config onto a baseline resolved from
 /// `platform.default.toml`.
 ///
-/// Called by the graph boot stage before spawning the sidecar.
+/// Called by the graph boot stage before spawning the child.
 #[must_use]
 pub fn apply_overlay(
     base_port: u16,
@@ -202,9 +202,9 @@ pub fn apply_overlay(
     base_root_password: &str,
     base_log_level: &str,
     base_max_bumps: Option<u16>,
-    user: &SurrealdbSidecarUserConfig,
-) -> ResolvedSidecarParams {
-    ResolvedSidecarParams {
+    user: &SurrealUserConfig,
+) -> ResolvedSurrealParams {
+    ResolvedSurrealParams {
         port: user.port.unwrap_or(base_port),
         binary_path: user
             .binary_path
@@ -244,7 +244,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let saved = save(
             tmp.path(),
-            &SurrealdbSidecarUserConfig {
+            &SurrealUserConfig {
                 port: Some(8830),
                 ..Default::default()
             },
@@ -260,7 +260,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let saved = save(
             tmp.path(),
-            &SurrealdbSidecarUserConfig {
+            &SurrealUserConfig {
                 binary_path: Some(String::new()),
                 log_level: Some("   ".into()),
                 ..Default::default()
@@ -276,7 +276,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let saved = save(
             tmp.path(),
-            &SurrealdbSidecarUserConfig {
+            &SurrealUserConfig {
                 port: Some(80),
                 ..Default::default()
             },
@@ -287,7 +287,7 @@ mod tests {
 
     #[test]
     fn overlay_prefers_user_value() {
-        let overlay = SurrealdbSidecarUserConfig {
+        let overlay = SurrealUserConfig {
             port: Some(9000),
             ..Default::default()
         };
@@ -298,7 +298,7 @@ mod tests {
 
     #[test]
     fn overlay_falls_back_to_base() {
-        let overlay = SurrealdbSidecarUserConfig::default();
+        let overlay = SurrealUserConfig::default();
         let resolved = apply_overlay(
             8822,
             Some(PathBuf::from("/opt/surreal")),

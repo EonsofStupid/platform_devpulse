@@ -1,11 +1,11 @@
-//! `SurrealDB` client adapter — WebSocket connection to the managed sidecar.
+//! Surreal client adapter — WebSocket connection to the managed child.
 //!
 //! The embedded `Surreal<Db>` path has been retired. DevPulse now ships
-//! and manages the real SurrealDB server binary as a sidecar (see
-//! [`super::surrealdb_sidecar::SurrealdbSidecarAdapter`]). This adapter
-//! is a pure client: it opens a WebSocket to the already-running sidecar,
-//! signs in with root credentials, and exposes namespace-scoped
-//! operations via [`ScopedGraphHandle`].
+//! and manages the real SurrealDB server binary as a child process (see
+//! [`super::lifecycle::SurrealLifecycle`]). This adapter is a pure
+//! client: it opens a WebSocket to the already-running server, signs in
+//! with root credentials, and exposes namespace-scoped operations via
+//! [`ScopedGraphHandle`].
 //!
 //! Two public types:
 //! - `SurrealAdapter` — owns the `Surreal<Any>` WS client, shared across
@@ -18,7 +18,7 @@
 //! (feature `kv-mem`).
 
 use crate::cortex::persistence::config::SurrealNamespace;
-use crate::cortex::persistence::surrealdb_sidecar::SidecarEndpoint;
+use crate::cortex::persistence::surreal::lifecycle::SurrealEndpoint;
 use anyhow::{Context, Result};
 use base64::Engine as _;
 use serde::{Deserialize, Serialize};
@@ -55,7 +55,7 @@ impl SurrealAdapter {
     /// - WebSocket connect fails (sidecar not running, wrong URL).
     /// - `signin` rejects the credentials.
     /// - Schema application fails.
-    pub async fn connect(endpoint: &SidecarEndpoint) -> Result<Self> {
+    pub async fn connect(endpoint: &SurrealEndpoint) -> Result<Self> {
         Self::connect_with_ns(
             endpoint,
             SurrealNamespace::REASONING.namespace,
@@ -86,7 +86,7 @@ impl SurrealAdapter {
         err
     )]
     pub async fn connect_with_ns(
-        endpoint: &SidecarEndpoint,
+        endpoint: &SurrealEndpoint,
         namespace: &str,
         database: &str,
         schema: &str,

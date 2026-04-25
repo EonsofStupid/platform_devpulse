@@ -10,9 +10,7 @@
 //! take effect on the next app restart.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::{
-    SurrealdbSidecarHealthDto, SurrealdbSidecarStatusDto, SurrealdbSidecarUserConfig,
-};
+use devpulse_engine::platform::{SurrealHealth, SurrealStatus, SurrealUserConfig};
 use tauri::State;
 
 // ═══════════════════════════════════════════════════════════════
@@ -28,9 +26,9 @@ use tauri::State;
 #[allow(clippy::missing_errors_doc)]
 pub async fn surrealdb_sidecar_status(
     state: State<'_, PlatformState>,
-) -> Result<SurrealdbSidecarStatusDto, String> {
+) -> Result<SurrealStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    Ok(platform.surrealdb_sidecar_status())
+    Ok(platform.surreal_status())
 }
 
 /// Live-probe the sidecar via `GET /health` and return a badge-shaped
@@ -40,9 +38,9 @@ pub async fn surrealdb_sidecar_status(
 #[allow(clippy::missing_errors_doc)]
 pub async fn surrealdb_sidecar_health(
     state: State<'_, PlatformState>,
-) -> Result<SurrealdbSidecarHealthDto, String> {
+) -> Result<SurrealHealth, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    Ok(platform.surrealdb_sidecar_health().await)
+    Ok(platform.surreal_health().await)
 }
 
 /// Load the user-scope editable overlay from
@@ -55,9 +53,9 @@ pub async fn surrealdb_sidecar_health(
 #[allow(clippy::missing_errors_doc)]
 pub async fn surrealdb_sidecar_config_load(
     state: State<'_, PlatformState>,
-) -> Result<SurrealdbSidecarUserConfig, String> {
+) -> Result<SurrealUserConfig, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    Ok(platform.surrealdb_sidecar_user_config_load())
+    Ok(platform.surreal_user_config_load())
 }
 
 /// Atomically persist the user-scope overlay.
@@ -70,10 +68,10 @@ pub async fn surrealdb_sidecar_config_load(
 #[allow(clippy::missing_errors_doc)]
 pub async fn surrealdb_sidecar_config_save(
     state: State<'_, PlatformState>,
-    cfg: SurrealdbSidecarUserConfig,
-) -> Result<SurrealdbSidecarUserConfig, String> {
+    cfg: SurrealUserConfig,
+) -> Result<SurrealUserConfig, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     platform
-        .surrealdb_sidecar_user_config_save(&cfg)
+        .surreal_user_config_save(&cfg)
         .map_err(|e| format!("{e:#}"))
 }

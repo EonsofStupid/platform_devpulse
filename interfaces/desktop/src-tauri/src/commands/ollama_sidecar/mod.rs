@@ -107,7 +107,7 @@ pub async fn ollama_sidecar_start(
 ) -> Result<OllamaStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
-        .ensure_ollama_sidecar_started()
+        .ensure_ollama_started()
         .await
         .map_err(|e| format!("{e:#}"))?;
     let version = service.version().await.ok();
@@ -131,7 +131,7 @@ pub async fn ollama_sidecar_start(
 pub async fn ollama_sidecar_stop(state: State<'_, PlatformState>) -> Result<(), String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     platform
-        .ollama_sidecar_stop()
+        .ollama_stop()
         .await
         .map_err(|e| format!("{e:#}"))
 }
@@ -145,7 +145,7 @@ pub async fn ollama_sidecar_restart(
 ) -> Result<OllamaStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
-        .ollama_sidecar_restart()
+        .ollama_restart()
         .await
         .map_err(|e| format!("{e:#}"))?;
     let version = service.version().await.ok();
@@ -170,7 +170,7 @@ pub async fn ollama_sidecar_status(
     state: State<'_, PlatformState>,
 ) -> Result<OllamaStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    match platform.ollama_sidecar() {
+    match platform.ollama() {
         Some(service) => {
             let version = service.version().await.ok();
             Ok(OllamaStatus {
@@ -199,7 +199,7 @@ pub async fn ollama_sidecar_health(
 ) -> Result<OllamaHealth, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     use devpulse_engine::platform::Service as _;
-    match platform.ollama_sidecar() {
+    match platform.ollama() {
         Some(service) => match service.ping().await {
             Ok(()) => Ok(OllamaHealth {
                 state: OllamaHealthState::Up,
@@ -227,7 +227,7 @@ pub async fn ollama_sidecar_config(
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     // The config is inside the boot config; we expose it read-only here.
     // Writing is a follow-up that persists to user TOML.
-    let cfg = platform.boot_config_ollama_sidecar();
+    let cfg = platform.boot_config_ollama();
     Ok(OllamaConfig {
         enabled: cfg.enabled,
         host: cfg.host.clone(),
@@ -248,8 +248,8 @@ pub async fn ollama_sidecar_list_models(
 ) -> Result<Vec<OllamaModel>, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
-        .ollama_sidecar()
-        .ok_or("Ollama sidecar not running")?;
+        .ollama()
+        .ok_or("Ollama not running")?;
     service
         .list_models()
         .await
@@ -268,8 +268,8 @@ pub async fn ollama_sidecar_pull_model(
 ) -> Result<(), String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
-        .ollama_sidecar()
-        .ok_or("Ollama sidecar not running")?;
+        .ollama()
+        .ok_or("Ollama not running")?;
     service
         .pull_model(&name)
         .await
@@ -286,8 +286,8 @@ pub async fn ollama_sidecar_delete_model(
 ) -> Result<(), String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
-        .ollama_sidecar()
-        .ok_or("Ollama sidecar not running")?;
+        .ollama()
+        .ok_or("Ollama not running")?;
     service
         .delete_model(&name)
         .await

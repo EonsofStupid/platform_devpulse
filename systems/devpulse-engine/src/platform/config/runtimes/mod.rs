@@ -10,7 +10,7 @@
 //! # Modules (authored as S0 phases land)
 //!
 //! - `candle` — in-process Candle inference
-//! - `ollama_sidecar` — Ollama as a sidecar process
+//! - `ollama` — Ollama as a managed child process
 //! - `llama_cpp_embedded` — in-process GGUF via `llama-cpp-2` crate.
 //!   TODO(reality-gap 2026-04-21): renamed from `ollama_embedded`.
 //!   Candle does not subsume this gap — Candle is architecture-by-

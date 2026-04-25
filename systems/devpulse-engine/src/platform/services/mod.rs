@@ -21,10 +21,10 @@ pub mod model_loader;
 pub mod model_loader_log;
 pub mod candle_config;
 pub mod llama_cpp_embedded_config;
-pub mod ollama_sidecar;
+pub mod ollama;
 pub mod sherpa_streaming;
-pub mod surrealdb_sidecar;
-pub mod surrealdb_sidecar_config;
+pub mod surreal;
+pub mod surreal_config;
 pub mod voice_stt_config;
 pub mod voice_tts_config;
 
@@ -51,10 +51,10 @@ pub enum ServiceRole {
     DevForge,
     /// Model Loader service (AI model management, inference).
     ModelLoader,
-    /// Ollama sidecar service (managed `ollama serve` child process).
-    OllamaSidecar,
-    /// SurrealDB sidecar service (managed `surreal start` child process).
-    SurrealdbSidecar,
+    /// Ollama service (managed `ollama serve` child process).
+    Ollama,
+    /// Surreal service (managed `surreal start` child process).
+    Surreal,
 }
 
 /// Lifecycle state of a platform service.

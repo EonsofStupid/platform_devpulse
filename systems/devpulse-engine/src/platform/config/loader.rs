@@ -324,10 +324,10 @@ pub struct SystemServicesConfig {
     pub claude: ClaudeServiceEntry,
     /// Ollama sidecar service (managed `ollama serve` child process).
     #[serde(default)]
-    pub ollama_sidecar: OllamaSidecarServiceEntry,
+    pub ollama: OllamaServiceEntry,
     /// SurrealDB sidecar service (managed `surreal start` child process).
     #[serde(default)]
-    pub surrealdb_sidecar: SurrealdbSidecarServiceEntry,
+    pub surreal: SurrealServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -342,8 +342,8 @@ impl Default for SystemServicesConfig {
             model_loader: ModelLoaderServiceEntry::default(),
             devforge: DevForgeServiceEntry::default(),
             claude: ClaudeServiceEntry::default(),
-            ollama_sidecar: OllamaSidecarServiceEntry::default(),
-            surrealdb_sidecar: SurrealdbSidecarServiceEntry::default(),
+            ollama: OllamaServiceEntry::default(),
+            surreal: SurrealServiceEntry::default(),
         }
     }
 }
@@ -1256,7 +1256,7 @@ impl DevForgeServiceEntry {
 /// (shared with the embedded path so `.claude/hooks/*.js` keep working
 /// on the same URL after the cutover).
 #[derive(Debug, Clone, Deserialize)]
-pub struct SurrealdbSidecarServiceEntry {
+pub struct SurrealServiceEntry {
     /// Whether this service is enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
@@ -1300,7 +1300,7 @@ fn default_surreal_log_level() -> String {
     "warn".to_string()
 }
 
-impl Default for SurrealdbSidecarServiceEntry {
+impl Default for SurrealServiceEntry {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -1315,7 +1315,7 @@ impl Default for SurrealdbSidecarServiceEntry {
     }
 }
 
-impl SurrealdbSidecarServiceEntry {
+impl SurrealServiceEntry {
     /// Explicit binary path if configured, else `None`.
     #[must_use]
     pub fn resolved_binary(&self) -> Option<PathBuf> {
@@ -1335,7 +1335,7 @@ impl SurrealdbSidecarServiceEntry {
 /// attaches in observe-only mode instead of spawning a competing child.
 /// Lazy-started by the devtool (or by boot when `auto_start = true`).
 #[derive(Debug, Clone, Deserialize)]
-pub struct OllamaSidecarServiceEntry {
+pub struct OllamaServiceEntry {
     /// Whether this service is enabled. When `false`, lifecycle verbs
     /// return an explicit `disabled` error instead of spawning.
     #[serde(default = "default_true")]
@@ -1365,7 +1365,7 @@ fn default_ollama_port() -> u16 {
     11434
 }
 
-impl Default for OllamaSidecarServiceEntry {
+impl Default for OllamaServiceEntry {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -1378,7 +1378,7 @@ impl Default for OllamaSidecarServiceEntry {
     }
 }
 
-impl OllamaSidecarServiceEntry {
+impl OllamaServiceEntry {
     /// Resolve an explicit binary path if configured, else `None`
     /// (caller should fall back to PATH resolution).
     #[must_use]
@@ -1750,13 +1750,13 @@ impl PlatformBootConfig {
                 self.services.system.devforge.enabled,
                 self.services.system.devforge.critical,
             )),
-            (ServiceRole::OllamaSidecar, DataScope::System) => Some((
-                self.services.system.ollama_sidecar.enabled,
-                self.services.system.ollama_sidecar.critical,
+            (ServiceRole::Ollama, DataScope::System) => Some((
+                self.services.system.ollama.enabled,
+                self.services.system.ollama.critical,
             )),
-            (ServiceRole::SurrealdbSidecar, DataScope::System) => Some((
-                self.services.system.surrealdb_sidecar.enabled,
-                self.services.system.surrealdb_sidecar.critical,
+            (ServiceRole::Surreal, DataScope::System) => Some((
+                self.services.system.surreal.enabled,
+                self.services.system.surreal.critical,
             )),
             (ServiceRole::Relational, DataScope::User) => Some((
                 self.services.user.relational.enabled,
