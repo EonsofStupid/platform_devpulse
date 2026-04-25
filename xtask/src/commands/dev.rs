@@ -242,24 +242,43 @@ impl Task for Dev {
         // Set env var so Vite reads port from config SSOT
         std::env::set_var("DEVPULSE_DEV_PORT", dev_port.to_string());
 
-        let mut tauri_child = ws.spawn_in_verbose(&ws.desktop_dir(), "pnpm", &["tauri", "dev"])?;
+        // ── Tauri dev with full stdio captured to disk ──────────────
+        // Replaces the previous `spawn_in_verbose` (inherit stdio,
+        // nothing captured) with the tee variant. When the WebView2
+        // dies, vite blows up, or the tauri backend panics mid-session,
+        // every line is in `.userdata/logs/run-dev-stdio.log` — no
+        // more "lost it because the terminal scrolled past" debugging.
+        let stdio_log = log_dir.join("run-dev-stdio.log");
+        println!("  > stdio    → {}", stdio_log.display());
+        log.stage(
+            "launch",
+            "INFO",
+            &format!("stdio teed to {}", stdio_log.display()),
+        )?;
+        let tee = ws.spawn_tee_log_non_blocking(
+            &ws.desktop_dir(),
+            "pnpm",
+            &["tauri", "dev"],
+            &stdio_log,
+        )?;
 
         // Assign pnpm (and its child tree) to the Job Object so Ctrl+C
         // kills everything — vite, node, cargo, the Tauri backend, all of it.
         #[cfg(windows)]
         if let Some(ref guard) = _job_guard {
-            if let Err(e) = guard.assign(&tauri_child) {
+            if let Err(e) = guard.assign(tee.child()) {
                 eprintln!("  [!!] failed to assign tauri dev to job: {e}");
                 log.stage("launch", "WARN", &format!("job assign failed: {e}"))?;
             }
         }
 
-        let status = tauri_child
-            .wait()
-            .context("failed to wait on pnpm tauri dev")?;
+        let status = tee.wait().context("failed to wait on pnpm tauri dev")?;
         if !status.success() {
             let code = status.code().unwrap_or(-1);
-            anyhow::bail!("`pnpm tauri dev` exited with code {code}");
+            anyhow::bail!(
+                "`pnpm tauri dev` exited with code {code}\n  Transcript: {}",
+                stdio_log.display()
+            );
         }
 
         // _job_guard drops here → all remaining children killed by kernel

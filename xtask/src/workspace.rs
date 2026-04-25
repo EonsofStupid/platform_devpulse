@@ -273,6 +273,83 @@ impl Workspace {
         Ok(status)
     }
 
+    /// Spawn a tool with both streams teed to a transcript, returning
+    /// the `Child` + drain handles instead of blocking.
+    ///
+    /// Use this for long-running children where `exec_tee_log` would
+    /// not return until the child exits — typically `pnpm tauri dev`,
+    /// where the operator wants the dev server running for hours but
+    /// also wants every line captured to disk so a mid-session crash
+    /// doesn't lose the run-up output.
+    ///
+    /// The returned [`TeeChild`] owns the spawned process plus the two
+    /// drain threads and the shared log handle. Call [`TeeChild::wait`]
+    /// to block until the child exits + flush the log; the same
+    /// drain-failure surfacing that `exec_tee_log` provides applies.
+    ///
+    /// Drop semantics: dropping the `TeeChild` without calling `wait`
+    /// detaches the drain threads. They will continue to run until the
+    /// child closes its pipes (usually because someone else killed it).
+    /// For Job-Object-managed dev sessions this is fine — the kernel
+    /// kills the child when xtask exits.
+    pub fn spawn_tee_log_non_blocking(
+        &self,
+        dir: &Path,
+        program: &str,
+        args: &[&str],
+        log_path: &Path,
+    ) -> Result<TeeChild> {
+        use std::process::Stdio;
+
+        if let Some(parent) = log_path.parent() {
+            std::fs::create_dir_all(parent)
+                .with_context(|| format!("creating log dir {}", parent.display()))?;
+        }
+        let log_file = OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(log_path)
+            .with_context(|| format!("opening log file {}", log_path.display()))?;
+        let log = Arc::new(Mutex::new(BufWriter::new(log_file)));
+        let start = Instant::now();
+
+        let mut child = self
+            .cmd(program)?
+            .args(args)
+            .current_dir(dir)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .with_context(|| format!("failed to spawn `{program}` in {}", dir.display()))?;
+
+        let stdout = child
+            .stdout
+            .take()
+            .context("child stdout pipe missing — Stdio::piped() should have created one")?;
+        let stderr = child
+            .stderr
+            .take()
+            .context("child stderr pipe missing — Stdio::piped() should have created one")?;
+
+        let log_out = Arc::clone(&log);
+        let stdout_handle =
+            thread::spawn(move || drain_stream(stdout, log_out, "OUT", start, true));
+
+        let log_err = Arc::clone(&log);
+        let stderr_handle =
+            thread::spawn(move || drain_stream(stderr, log_err, "ERR", start, false));
+
+        Ok(TeeChild {
+            child,
+            stdout_handle: Some(stdout_handle),
+            stderr_handle: Some(stderr_handle),
+            log,
+            log_path: log_path.to_path_buf(),
+            program: program.to_string(),
+        })
+    }
+
     /// Absolute path to `interfaces/desktop/src-tauri/tauri.conf.json`.
     /// Centralized so callers don't drift from the canonical location.
     pub fn tauri_conf_path(&self) -> PathBuf {
@@ -613,6 +690,85 @@ mod resource_parse_tests {
 ///
 /// Non-UTF8 bytes in the line buffer become U+FFFD via `from_utf8_lossy`
 /// at commit time — dropped lines on Windows CP1252 output would hide
+// ═══════════════════════════════════════════════════════════════════════
+// Non-blocking tee child handle
+// ═══════════════════════════════════════════════════════════════════════
+
+/// Long-running child process whose stdio is being teed to a transcript.
+///
+/// Returned by [`Workspace::spawn_tee_log_non_blocking`]. Owns the
+/// spawned `Child` plus the two drain threads and the shared log file
+/// handle. Call [`TeeChild::wait`] to block until the child exits and
+/// the log is flushed.
+///
+/// Why a struct instead of a tuple: `dev.rs` needs to assign the
+/// child to a Job Object on Windows (so Ctrl+C kills the entire
+/// process tree) which means it needs to grab the inner `&Child`
+/// before waiting. Exposing it as a method on a typed handle is
+/// clearer than tuple destructuring.
+pub struct TeeChild {
+    child: Child,
+    /// Stdout drain thread. Taken (set to `None`) by `wait` so we
+    /// don't double-join. Surfaces drain IO errors on join.
+    stdout_handle: Option<thread::JoinHandle<std::io::Result<()>>>,
+    /// Stderr drain thread, same shape as stdout.
+    stderr_handle: Option<thread::JoinHandle<std::io::Result<()>>>,
+    /// Shared log file handle — held until `wait` so the final flush
+    /// commits the BufWriter's last partial buffer to disk.
+    log: Arc<Mutex<BufWriter<std::fs::File>>>,
+    /// Path the log writes to — held so error context can name it.
+    log_path: PathBuf,
+    /// Program name for error context.
+    program: String,
+}
+
+impl TeeChild {
+    /// Read access to the underlying `Child` for OS-level operations
+    /// like Job Object assignment. Do NOT call `wait` on this directly
+    /// — use [`TeeChild::wait`] instead so the drain threads are
+    /// joined and the log is flushed.
+    #[must_use]
+    pub fn child(&self) -> &Child {
+        &self.child
+    }
+
+    /// Block until the child exits, then join both drain threads and
+    /// flush the log. Mirrors [`Workspace::exec_tee_log`]'s shutdown
+    /// path so the failure modes are identical:
+    ///   - drain-thread panic → `Err`
+    ///   - drain IO failure (broken log file, full disk) → `Err`
+    ///   - log final-flush failure → `Err`
+    ///   - non-zero exit code → `Ok(ExitStatus)`; classification is
+    ///     the caller's job (read the transcript).
+    pub fn wait(mut self) -> Result<ExitStatus> {
+        let status = self
+            .child
+            .wait()
+            .with_context(|| format!("failed to wait on `{}`", self.program))?;
+
+        if let Some(h) = self.stdout_handle.take() {
+            h.join()
+                .map_err(|_| anyhow::anyhow!("stdout drain thread panicked"))?
+                .with_context(|| format!("stdout drain failed for `{}`", self.program))?;
+        }
+        if let Some(h) = self.stderr_handle.take() {
+            h.join()
+                .map_err(|_| anyhow::anyhow!("stderr drain thread panicked"))?
+                .with_context(|| format!("stderr drain failed for `{}`", self.program))?;
+        }
+
+        let mut guard = self
+            .log
+            .lock()
+            .map_err(|_| anyhow::anyhow!("log mutex poisoned on final flush"))?;
+        guard
+            .flush()
+            .with_context(|| format!("flushing log {}", self.log_path.display()))?;
+
+        Ok(status)
+    }
+}
+
 /// real failures.
 ///
 /// Returned `io::Result<()>` lets the caller surface drain failures

@@ -92,9 +92,9 @@
 - [ ] `pnpm svelte-check` 0/0, `biome check` clean
 - [ ] Commit `feat(coldlight): devtool primitive components + library convention`
 
-### F-4 — xtask tee + frontend global error handlers (~120 LOC)
+### F-4 — xtask tee + frontend global error handlers (~120 LOC) ✅
 
-- [ ] `xtask/src/workspace.rs`:
+- [x] `xtask/src/workspace.rs`:
   - [ ] New `spawn_tee_log_non_blocking(dir, program, args, log_path) -> Result<TeeChild>` — like `exec_tee_log` but returns the `Child` + the drain thread handles instead of blocking. Caller `wait()`s the child themselves.
   - [ ] `TeeChild` struct holds `Child` + `JoinHandle<()>` for stdout drain + same for stderr.
   - [ ] `TeeChild::wait()` joins both drain threads then returns the `ExitStatus`.
