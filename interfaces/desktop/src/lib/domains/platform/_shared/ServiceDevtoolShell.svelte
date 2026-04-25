@@ -147,21 +147,34 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 	type StandardTabId = "status" | "config" | "logs" | "actions" | "debug";
 	type TabId = StandardTabId | string;
 
-	const standardTabs: { id: StandardTabId; label: string }[] = [
-		{ id: "status", label: "Status" },
-		{ id: "config", label: "Config" },
-		{ id: "logs", label: "Logs" },
-		{ id: "actions", label: "Actions" },
-		{ id: "debug", label: "Debug" },
-	];
+	// Only render tabs whose snippet the consumer actually passed. A
+	// service that has no Actions verb (library backends, embedded
+	// stores) just omits the `actions` prop and the tab disappears —
+	// way better than a tab that shows "Not yet implemented" or a
+	// disabled button.
+	const standardTabs = $derived(
+		(
+			[
+				{ id: "status" as const, label: "Status", snippet: status },
+				{ id: "config" as const, label: "Config", snippet: config },
+				{ id: "logs" as const, label: "Logs", snippet: logs },
+				{ id: "actions" as const, label: "Actions", snippet: actions },
+				{ id: "debug" as const, label: "Debug", snippet: debug },
+			] as const
+		).filter((t) => t.snippet !== undefined),
+	);
 
-	let activeTab = $state<TabId>("status");
+	// Active tab defaults to the first visible standard tab (or the
+	// first extra tab if the service has no standard tabs at all).
+	let activeTab = $state<TabId>(
+		status ? "status" : config ? "config" : logs ? "logs" : actions ? "actions" : "debug",
+	);
 
 	function handleKeydown(event: KeyboardEvent): void {
 		if (!event.ctrlKey && !event.metaKey) return;
-		// Ctrl/Cmd + 1..5 → jump to a standard tab.
+		// Ctrl/Cmd + 1..N → jump to the N-th visible standard tab.
 		const index = Number.parseInt(event.key, 10);
-		if (Number.isNaN(index) || index < 1 || index > 5) return;
+		if (Number.isNaN(index) || index < 1 || index > standardTabs.length) return;
 		event.preventDefault();
 		activeTab = standardTabs[index - 1].id;
 	}
@@ -368,50 +381,18 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 
 	<!-- ── Active tab body ──────────────────────────────────────── -->
 	<main class="flex-1 overflow-y-auto p-4">
-		{#if activeTab === "status"}
-			{#if status}
-				{@render status()}
-			{:else}
-				<Text size="sm" color="muted">
-					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
-				</Text>
-			{/if}
-		{:else if activeTab === "config"}
-			{#if config}
-				{@render config()}
-			{:else}
-				<Text size="sm" color="muted">
-					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
-				</Text>
-			{/if}
-		{:else if activeTab === "logs"}
-			{#if logs}
-				{@render logs()}
-			{:else}
-				<Text size="sm" color="muted">
-					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
-				</Text>
-			{/if}
-		{:else if activeTab === "actions"}
-			{#if actions}
-				{@render actions()}
-			{:else}
-				<Text size="sm" color="muted">
-					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
-				</Text>
-			{/if}
-		{:else if activeTab === "debug"}
-			{#if debug}
-				{@render debug()}
-			{:else}
-				<Text size="sm" color="muted">
-					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
-				</Text>
-			{/if}
+		{#if activeTab === "status" && status}
+			{@render status()}
+		{:else if activeTab === "config" && config}
+			{@render config()}
+		{:else if activeTab === "logs" && logs}
+			{@render logs()}
+		{:else if activeTab === "actions" && actions}
+			{@render actions()}
+		{:else if activeTab === "debug" && debug}
+			{@render debug()}
 		{:else if extra}
 			{@render extra(activeTab)}
-		{:else}
-			<Text size="sm" color="muted">This tab has no content.</Text>
 		{/if}
 	</main>
 </div>

@@ -16,6 +16,7 @@ export {
 	resolvePrimaryFile,
 	totalBundleSizeBytes,
 } from "./resolve-primary-file.js";
+export { default as ScopedLogPanel } from "./ScopedLogPanel.svelte";
 export { default as ServiceDevtoolShell } from "./ServiceDevtoolShell.svelte";
 export { default as SwapPrimaryBrainButton } from "./SwapPrimaryBrainButton.svelte";
 export {

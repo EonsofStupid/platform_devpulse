@@ -1,81 +1,77 @@
 <!--
-	@file /devtools/cortex — Reasoning system devtool
+	@file /devtools/cortex — Knowledge Engine devtool
 	@route /devtools/cortex
-	@window DevTools (Ctrl+Shift+Z)
+	@window DevTools (Ctrl+Shift+Q)
 
-	Layman terminology: "knowledge engine". Kernel-internal name is
-	intentionally NOT rendered in user copy — this page's route slug
-	is the sole exception (for developer muscle memory) and is gated
-	behind the devtools window.
-
-	Authoring surface for the reasoning pipeline — prompt builder
-	(COSTAR+), memory lookup thresholds, cached retrieval behavior,
-	rumination budgets, council deliberation config.
-
-	SCAFFOLD — filled in progressively.
+	Layman terminology: "Knowledge Engine". The reasoning pipeline is
+	not yet shipped — this page is intentionally honest about that
+	rather than showing disabled buttons or "TODO" stubs. Status lists
+	the planned surfaces; everything else stays hidden until the
+	services land.
 -->
 <script lang="ts">
 import { Brain, GitBranch, Search, Zap } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
+
+const badge: HealthBadge = {
+	state: "stopped",
+	label: "Planned — not yet shipped",
+};
+
+const plannedSurfaces = [
+	{
+		title: "Memory lookup",
+		blurb: "How many past interactions to surface per query, plus smart ranking thresholds.",
+		icon: Search,
+	},
+	{
+		title: "Cached retrieval",
+		blurb: "Context pre-warmed in the model's working memory before a question arrives.",
+		icon: Zap,
+	},
+	{
+		title: "Rumination budget",
+		blurb: "Background thinking budget per query — time + token cap for deeper reasoning.",
+		icon: Brain,
+	},
+	{
+		title: "Councils",
+		blurb: "Multi-model deliberation config. Validation, perspective, and debate councils.",
+		icon: GitBranch,
+	},
+] as const;
 </script>
 
-<div class="flex flex-col h-full overflow-y-auto p-4">
-	<div class={stack({ gap: "4" })}>
-		<header class={stack({ gap: "1" })}>
-			<div class="flex items-center gap-2">
-				<Brain size={18} class="text-[var(--color-teal-400)]" />
-				<Text size="lg" weight="semibold">Knowledge Engine</Text>
-			</div>
-			<Text size="xs" color="muted">
-				Reasoning pipeline configuration. Prompt builder, memory lookup, cached retrieval, rumination budgets, councils.
+<ServiceDevtoolShell
+	title="Knowledge Engine"
+	description="Reasoning pipeline — prompt builder, memory, councils"
+	icon={Brain}
+	axis="capabilities"
+	accent="purple"
+	health={badge}
+>
+	{#snippet status()}
+		<div class="space-y-3">
+			<Text size="sm" color="muted">
+				The reasoning pipeline is planned but not yet shipped. When it lands,
+				the following surfaces will each become their own tab — today the
+				page exists so the route slug is stable.
 			</Text>
-		</header>
 
-		<section class="grid grid-cols-1 md:grid-cols-2 gap-3">
-			<div class="flex items-start gap-3 p-3 rounded-lg border border-dashed border-[var(--border-subtle)]">
-				<Search size={16} class="text-[var(--color-teal-400)]" />
-				<div class={stack({ gap: "1" })}>
-					<Text size="sm" weight="semibold">Memory lookup</Text>
-					<Text size="xs" color="muted">
-						How many past interactions to surface per query. Smart ranking thresholds.
-					</Text>
-					<Text size="xs" color="muted">Not wired yet.</Text>
-				</div>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				{#each plannedSurfaces as surface}
+					<div
+						class="flex items-start gap-3 p-3 rounded-lg border border-dashed border-[var(--border-subtle)]"
+					>
+						<surface.icon size={16} style="color: var(--accent-service-main)" />
+						<div class="space-y-1">
+							<Text size="sm" weight="semibold">{surface.title}</Text>
+							<Text size="xs" color="muted">{surface.blurb}</Text>
+						</div>
+					</div>
+				{/each}
 			</div>
-
-			<div class="flex items-start gap-3 p-3 rounded-lg border border-dashed border-[var(--border-subtle)]">
-				<Zap size={16} class="text-[var(--color-teal-400)]" />
-				<div class={stack({ gap: "1" })}>
-					<Text size="sm" weight="semibold">Cached retrieval</Text>
-					<Text size="xs" color="muted">
-						Context that's pre-warmed in the model's working memory before a question arrives.
-					</Text>
-					<Text size="xs" color="muted">Not wired yet.</Text>
-				</div>
-			</div>
-
-			<div class="flex items-start gap-3 p-3 rounded-lg border border-dashed border-[var(--border-subtle)]">
-				<Brain size={16} class="text-[var(--color-teal-400)]" />
-				<div class={stack({ gap: "1" })}>
-					<Text size="sm" weight="semibold">Rumination budget</Text>
-					<Text size="xs" color="muted">
-						Background thinking budget per query. Time + token cap for deeper reasoning.
-					</Text>
-					<Text size="xs" color="muted">Not wired yet.</Text>
-				</div>
-			</div>
-
-			<div class="flex items-start gap-3 p-3 rounded-lg border border-dashed border-[var(--border-subtle)]">
-				<GitBranch size={16} class="text-[var(--color-teal-400)]" />
-				<div class={stack({ gap: "1" })}>
-					<Text size="sm" weight="semibold">Councils</Text>
-					<Text size="xs" color="muted">
-						Multi-model deliberation configuration. Validation, perspective, and debate councils.
-					</Text>
-					<Text size="xs" color="muted">Not wired yet.</Text>
-				</div>
-			</div>
-		</section>
-	</div>
-</div>
+		</div>
+	{/snippet}
+</ServiceDevtoolShell>

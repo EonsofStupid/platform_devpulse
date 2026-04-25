@@ -263,23 +263,6 @@ function handleKeydown(e: KeyboardEvent): void {
 		</div>
 	{/snippet}
 
-	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" color="muted">
-				SurrealDB is an embedded store that boots with the platform — there
-				is no separate child process to restart. Platform-level restart
-				(which cycles SurrealDB) happens by quitting and relaunching
-				DevPulse. TODO(reality-gap 2026-04-21): namespace-scoped drop
-				wires up with <code>surrealdb_drop_namespace</code>.
-			</Text>
-			<div class="flex gap-2 opacity-50">
-				<Button preset="default" size="sm" disabled>Start (embedded — N/A)</Button>
-				<Button preset="default" size="sm" disabled>Stop (embedded — N/A)</Button>
-				<Button preset="default" size="sm" disabled>Drop namespace (not wired)</Button>
-			</div>
-		</div>
-	{/snippet}
-
 	{#snippet extra(tabId: string)}
 		{#if tabId === "browser"}
 			{@render browserBody()}

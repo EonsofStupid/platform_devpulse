@@ -219,20 +219,6 @@ function handleKeydown(e: KeyboardEvent): void {
 		</div>
 	{/snippet}
 
-	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" color="muted">
-				Start / stop / restart wire up with <code>duckdb_start</code> /
-				<code>duckdb_stop</code> / <code>duckdb_restart</code>.
-			</Text>
-			<div class="flex gap-2 opacity-50">
-				<Button preset="default" size="sm" disabled>Start</Button>
-				<Button preset="default" size="sm" disabled>Stop</Button>
-				<Button preset="default" size="sm" disabled>Restart</Button>
-			</div>
-		</div>
-	{/snippet}
-
 	{#snippet extra(tabId: string)}
 		{#if tabId === "tables"}
 			{@render tablesBody()}

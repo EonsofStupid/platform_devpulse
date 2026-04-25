@@ -24,7 +24,11 @@ import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
+import {
+	type HealthBadge,
+	ScopedLogPanel,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/_shared/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
 
@@ -245,13 +249,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): SigLIP-scoped log filter not yet
-			wired. Session logs live at
-			<span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
-			filter by <code>component="SigLIP Vision"</code> (backend traces)
-			or <code>component=devtools.vision</code> (this devtool).
-		</Text>
+		<ScopedLogPanel target="devtools.vision" />
 	{/snippet}
 
 	{#snippet actions()}

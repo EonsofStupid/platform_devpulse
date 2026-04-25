@@ -18,7 +18,11 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { surrealdbSidecar } from "$lib/domains/infra/surrealdb_sidecar/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
+import {
+	type HealthBadge,
+	ScopedLogPanel,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/index.js";
 
 // ── Mount ─────────────────────────────────────────────────
 $effect(() => {
@@ -313,27 +317,6 @@ function updateRootPassword(raw: string) {
 
 	<!-- ── LOGS ────────────────────────────────────────── -->
 	{#snippet logs()}
-		<div class="space-y-2">
-			<Text size="sm" weight="semibold">Scoped log tail</Text>
-			<Text size="xs" color="muted">
-				Follow sidecar lifecycle events (spawn / attach / health / shutdown) in
-				<code>.userdata/logs/session-*.jsonl</code>. Filter by
-				<code>target=devpulse_clyffy::cortex::persistence::surrealdb_sidecar</code> or
-				<code>target=devpulse_engine::platform::services::surrealdb_sidecar</code>.
-			</Text>
-		</div>
-	{/snippet}
-
-	<!-- ── ACTIONS ─────────────────────────────────────── -->
-	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" weight="semibold">Lifecycle</Text>
-			<Text size="xs" color="muted">
-				The sidecar boots with the platform — there's no start / stop / restart
-				from the devtool. Reason: every graph scope holds a WS client tied to
-				this exact process, and hot-swap has not shipped. To apply config
-				changes, Save above and restart the app.
-			</Text>
-		</div>
+		<ScopedLogPanel target="devtools.surrealdb_sidecar" />
 	{/snippet}
 </ServiceDevtoolShell>

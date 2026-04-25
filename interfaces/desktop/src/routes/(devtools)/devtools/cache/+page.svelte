@@ -12,7 +12,11 @@ import { Database, RefreshCw } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
+import {
+	type HealthBadge,
+	ScopedLogPanel,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/index.js";
 
 // Local type — replaced by the generated binding on the next
 // `cargo xtask run-dev` (tauri-specta regenerates bindings.ts).
@@ -111,24 +115,7 @@ $effect(() => {
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			Cache doesn't emit per-entry logs by design (TTL-driven, too noisy).
-			Aggregate hit/miss counters live in the platform telemetry lane —
-			see the telemetry devtool for that surface.
-		</Text>
-	{/snippet}
-
-	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" color="muted">
-				Moka is a library cache, not a standalone service — there's no
-				start/stop/restart verb. A "clear all entries" verb wires up with
-				<code>cache_clear</code> in a follow-up sprint.
-			</Text>
-			<div class="flex gap-2 opacity-50">
-				<Button preset="default" size="sm" disabled>Clear all (not wired)</Button>
-			</div>
-		</div>
+		<ScopedLogPanel target="devtools.cache" />
 	{/snippet}
 </ServiceDevtoolShell>
 

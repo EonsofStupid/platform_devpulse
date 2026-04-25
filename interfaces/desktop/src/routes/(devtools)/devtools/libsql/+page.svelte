@@ -256,22 +256,6 @@ function handleKeydown(event: KeyboardEvent): void {
 		</div>
 	{/snippet}
 
-	<!-- ── ACTIONS ───────────────────────────────────────────── -->
-	{#snippet actions()}
-		<div class="space-y-2">
-			<Text size="sm" color="muted">
-				Start / stop / restart controls land with the charter's
-				<code>libsql_start</code>, <code>libsql_stop</code>, and
-				<code>libsql_restart</code> commands. Not yet wired.
-			</Text>
-			<div class="flex gap-2 opacity-50">
-				<Button preset="default" size="sm" disabled>Start</Button>
-				<Button preset="default" size="sm" disabled>Stop</Button>
-				<Button preset="default" size="sm" disabled>Restart</Button>
-			</div>
-		</div>
-	{/snippet}
-
 	<!-- ── EXTRA TABS: dispatched by id ────────────────────────── -->
 	{#snippet extra(tabId: string)}
 		{#if tabId === "tables"}

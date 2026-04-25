@@ -280,11 +280,4 @@ const badge: HealthBadge = {
 		</div>
 	{/snippet}
 
-	{#snippet actions()}
-		<Text size="sm" color="muted">
-			No lifecycle verbs — llama.cpp-embedded is library-backed, with per-slot
-			load/unload owned by the backend pool. Use the Candle devtool's "Unload
-			all slots" to force a pool-wide restart after changing config.
-		</Text>
-	{/snippet}
 </ServiceDevtoolShell>

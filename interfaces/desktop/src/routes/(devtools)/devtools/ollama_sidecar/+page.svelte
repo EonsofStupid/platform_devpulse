@@ -13,7 +13,11 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { ollamaSidecarState } from "$lib/domains/infra/ollama_sidecar/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
+import {
+	type HealthBadge,
+	ScopedLogPanel,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/index.js";
 
 // ── Mount: prime status + config on first render ──────────
 $effect(() => {
@@ -207,13 +211,7 @@ function prettySize(bytes: number): string {
 
 	<!-- ── LOGS ───────────────────────────────────────────── -->
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			Ollama writes to its own stderr when spawned; those lines flow
-			into the platform tracing layer. Session logs live at
-			<span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span>
-			— filter by <code>target=devpulse_engine::platform::services::ollama_sidecar</code>.
-			A scoped tail inside this panel is a follow-up.
-		</Text>
+		<ScopedLogPanel target="devtools.ollama_sidecar" />
 	{/snippet}
 
 	<!-- ── ACTIONS ────────────────────────────────────────── -->

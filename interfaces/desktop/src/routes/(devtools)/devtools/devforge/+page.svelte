@@ -15,6 +15,7 @@ import { devforgeState } from "$lib/domains/app/devforge/index.js";
 import {
 	type ExtraTab,
 	type HealthBadge,
+	ScopedLogPanel,
 	ServiceDevtoolShell,
 } from "$lib/domains/platform/index.js";
 
@@ -134,10 +135,7 @@ const badge = $derived<HealthBadge>(
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			DevForge REH stdout / stderr stream wires up with
-			<code>devforge_export_logs</code>.
-		</Text>
+		<ScopedLogPanel target="devtools.devforge" />
 	{/snippet}
 
 	{#snippet actions()}
