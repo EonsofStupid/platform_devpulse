@@ -114,6 +114,7 @@ async function stopMic(): Promise<void> {
 	description="Real-time speech-to-text · zipformer streaming · sherpa-onnx"
 	icon={Ear}
 	axis="capabilities"
+	accent="coral"
 	health={badge}
 >
 	{#snippet status()}

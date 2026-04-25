@@ -2,14 +2,15 @@
 	@file ServiceDevtoolShell
 	@domain platform/_shared
 
-	Uniform 4-tab shell that wraps every per-service devtool page. Every
+	Uniform 5-tab shell that wraps every per-service devtool page. Every
 	service's devtool uses this component so users see identical chrome
-	(header, tabs, active-tab area) and only the per-service body changes.
+	(header, tabs, active-tab area, copy/export) and only the per-service
+	body changes.
 
 	# Charter § 7 — devtool artifact
 
-	The Module Charter mandates a 4-tab shell: Status / Config / Logs /
-	Actions. This component is the single implementation; services
+	The Module Charter mandates a tabbed shell: Status / Config / Logs /
+	Actions / Debug. This component is the single implementation; services
 	compose it with Svelte `{#snippet}` blocks for each tab body.
 
 	# Usage
@@ -26,19 +27,15 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		icon={Database}
 		axis="stores"
 		health={{ state: "up", label: "Running" }}
+		capture={(tabId) => tabId === "logs"
+			? { filename: "libsql-logs.txt", mime: "text/plain", content: logTail }
+			: undefined}
 	>
-		{#snippet status()}
-			<p>Latency: 2ms. Last check: just now.</p>
-		{/snippet}
-		{#snippet config()}
-			<label>Max connections: <input type="number" value="10" /></label>
-		{/snippet}
-		{#snippet logs()}
-			<pre>... log lines ...</pre>
-		{/snippet}
-		{#snippet actions()}
-			<button>Start</button> <button>Stop</button> <button>Restart</button>
-		{/snippet}
+		{#snippet status()}<p>Latency: 2ms. Last check: just now.</p>{/snippet}
+		{#snippet config()}<label>Max connections: <input value="10" /></label>{/snippet}
+		{#snippet logs()}<pre>... log lines ...</pre>{/snippet}
+		{#snippet actions()}<button>Start</button> <button>Stop</button>{/snippet}
+		{#snippet debug()}<button>Run probe</button>{/snippet}
 	</ServiceDevtoolShell>
 	```
 
@@ -46,18 +43,26 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 
 	A service with domain-specific tooling (e.g. LibSQL's SQL console,
 	SurrealDB's query browser) can pass `extraTabs` plus matching
-	snippet slots. The shell renders them after the four standard tabs.
+	snippet slots. The shell renders them after the five standard tabs.
+
+	# Capture (copy / export)
+
+	`capture(tabId)` returns the active tab's text content for the
+	header Copy / Export buttons. Returning `undefined` for a tab id
+	hides both buttons for that tab. Above 256 KiB Copy is disabled
+	(clipboard pain) but Export remains.
 
 	# Keyboard
 
-	- `Ctrl+1..4` — jump to Status / Config / Logs / Actions
+	- `Ctrl+1..5` — jump to Status / Config / Logs / Actions / Debug
 	- `Esc` in the back-link returns to `/devtools`
 -->
 <script lang="ts">
 	import type { Component, Snippet } from "svelte";
-	import { ArrowLeft } from "lucide-svelte";
+	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
 	import { Text } from "$lib/design/components/text/index.js";
-	import type { ExtraTab, HealthBadge, ServiceAxis } from "./types.js";
+	import { type BrandAccent, DEFAULT_SERVICE_ACCENT, serviceAccentStyle } from "./serviceAccents.js";
+	import type { CapturePayload, ExtraTab, HealthBadge, ServiceAxis } from "./types.js";
 
 	interface Props {
 		/** Display name in the header (e.g. "LibSQL"). */
@@ -67,14 +72,20 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		/** Optional lucide icon component rendered next to the title. */
 		// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape.
 		icon?: Component<any>;
-		/** Axis placement — used for breadcrumb + colored accent. */
+		/** Axis placement — used as the breadcrumb badge label. */
 		axis: ServiceAxis;
+		/**
+		 * ColdLight brand-accent that paints this devtool's icon, badge,
+		 * and active-tab underline. See [`SERVICE_ACCENTS`] for the
+		 * project-wide registry; fallback is [`DEFAULT_SERVICE_ACCENT`].
+		 */
+		accent?: BrandAccent;
 		/** Current health — renders as a colored dot + label in the header. */
 		health?: HealthBadge;
 		/** Where the back-link returns to. Defaults to `/devtools`. */
 		backHref?: string;
 
-		/** Extra per-service tabs rendered after the four standard tabs. */
+		/** Extra per-service tabs rendered after the five standard tabs. */
 		extraTabs?: ExtraTab[];
 
 		// ── Standard tab snippets ────────────────────────────────
@@ -82,6 +93,17 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		config?: Snippet;
 		logs?: Snippet;
 		actions?: Snippet;
+		/** Power-user probes: sample requests, raw endpoint calls, test invocations. */
+		debug?: Snippet;
+
+		/**
+		 * Per-tab capture provider for the shell's Copy / Export buttons.
+		 * The shell calls `capture(activeTab)` and renders the buttons
+		 * when a payload comes back. Returning `undefined` for a tab
+		 * hides both buttons for that tab. Above 256 KiB Copy is disabled
+		 * (clipboard pain) but Export remains.
+		 */
+		capture?: (tabId: string) => CapturePayload | undefined;
 
 		/**
 		 * Single snippet that dispatches extra-tab content by id. The
@@ -109,6 +131,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		description,
 		icon: Icon,
 		axis,
+		accent = DEFAULT_SERVICE_ACCENT,
 		health,
 		backHref = "/devtools",
 		extraTabs = [],
@@ -116,10 +139,12 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		config,
 		logs,
 		actions,
+		debug,
+		capture,
 		extra,
 	}: Props = $props();
 
-	type StandardTabId = "status" | "config" | "logs" | "actions";
+	type StandardTabId = "status" | "config" | "logs" | "actions" | "debug";
 	type TabId = StandardTabId | string;
 
 	const standardTabs: { id: StandardTabId; label: string }[] = [
@@ -127,31 +152,67 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		{ id: "config", label: "Config" },
 		{ id: "logs", label: "Logs" },
 		{ id: "actions", label: "Actions" },
+		{ id: "debug", label: "Debug" },
 	];
 
 	let activeTab = $state<TabId>("status");
 
 	function handleKeydown(event: KeyboardEvent): void {
 		if (!event.ctrlKey && !event.metaKey) return;
-		// Ctrl/Cmd + 1..4 → jump to a standard tab.
+		// Ctrl/Cmd + 1..5 → jump to a standard tab.
 		const index = Number.parseInt(event.key, 10);
-		if (Number.isNaN(index) || index < 1 || index > 4) return;
+		if (Number.isNaN(index) || index < 1 || index > 5) return;
 		event.preventDefault();
 		activeTab = standardTabs[index - 1].id;
 	}
 
-	// Colored accent by axis — stores lean teal, runtimes purple, etc.
-	// All colors come from ColdLight tokens — no raw oklch/hex.
-	const axisAccent: Record<ServiceAxis, string> = {
-		runtime: "var(--color-teal-400)",
-		stores: "var(--color-teal-400)",
-		runtimes: "var(--color-purple-400)",
-		capabilities: "var(--color-teal-400)",
-		integrations: "var(--color-purple-400)",
-	};
-	// `$derived` so the accent tracks prop changes when the parent route
-	// passes a different `axis` (e.g. tab-switching inside a generic host).
-	const accent = $derived(axisAccent[axis]);
+	// ── Capture / Copy / Export ──────────────────────────────
+	/** 256 KiB ceiling — above this Copy is disabled, Export remains. */
+	const SIZE_GUARD_BYTES = 256 * 1024;
+	const currentCapture = $derived(capture?.(activeTab));
+	const captureBytes = $derived(currentCapture ? currentCapture.content.length : 0);
+	const captureTooLarge = $derived(captureBytes > SIZE_GUARD_BYTES);
+	let copiedAt = $state<number | null>(null);
+	const copiedRecently = $derived(copiedAt !== null && Date.now() - copiedAt < 1500);
+
+	function formatBytes(n: number): string {
+		if (n < 1024) return `${n} B`;
+		if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KiB`;
+		return `${(n / (1024 * 1024)).toFixed(1)} MiB`;
+	}
+
+	async function handleCopy(): Promise<void> {
+		if (!currentCapture || captureTooLarge) return;
+		try {
+			await navigator.clipboard.writeText(currentCapture.content);
+			copiedAt = Date.now();
+			setTimeout(() => {
+				if (copiedAt !== null && Date.now() - copiedAt >= 1500) copiedAt = null;
+			}, 1600);
+		} catch (err) {
+			// Clipboard write can fail in non-secure contexts or under permission policy —
+			// surface to the console; UI just won't flash "Copied".
+			console.error("ServiceDevtoolShell: clipboard write failed", err);
+		}
+	}
+
+	function handleExport(): void {
+		if (!currentCapture) return;
+		const blob = new Blob([currentCapture.content], { type: currentCapture.mime });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = currentCapture.filename;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	}
+
+	// Scope `--accent-service-{main,glow,fill}` to the chosen brand
+	// accent. Descendants consume `var(--accent-service-main)` so they
+	// don't need to know the brand name.
+	const accentStyle = $derived(serviceAccentStyle(accent));
 
 	const healthDotColor = {
 		starting: "var(--signal-warning)",
@@ -165,7 +226,10 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)]">
+<div
+	class="flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)]"
+	style={accentStyle}
+>
 	<!-- ── Header ───────────────────────────────────────────────── -->
 	<header class="flex items-center gap-3 h-10 px-4 border-b border-[var(--border-subtle)]">
 		<a
@@ -177,7 +241,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		</a>
 
 		{#if Icon}
-			<Icon size={16} style={`color: ${accent}`} />
+			<Icon size={16} style="color: var(--accent-service-main)" />
 		{/if}
 
 		<Text size="sm" weight="semibold">{title}</Text>
@@ -188,26 +252,67 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 
 		<span
 			class="ml-1 px-1.5 py-0.5 text-xs uppercase tracking-wider rounded border"
-			style={`color: ${accent}; border-color: ${accent}; opacity: 0.7;`}
+			style="color: var(--accent-service-main); border-color: var(--accent-service-main); opacity: 0.7;"
 		>
 			{axis}
 		</span>
 
-		{#if health}
-			<div class="ml-auto flex items-center gap-2">
-				<span
-					class="inline-block w-2 h-2 rounded-full"
-					style={`background: ${healthDotColor[health.state]}`}
-					aria-hidden="true"
-				></span>
-				<span
-					class="text-xs"
-					style={`color: ${healthDotColor[health.state]}`}
-				>
-					{health.label}
-				</span>
-			</div>
-		{/if}
+		<div class="ml-auto flex items-center gap-3">
+			{#if health}
+				<div class="flex items-center gap-2">
+					<span
+						class="inline-block w-2 h-2 rounded-full"
+						style={`background: ${healthDotColor[health.state]}`}
+						aria-hidden="true"
+					></span>
+					<span
+						class="text-xs"
+						style={`color: ${healthDotColor[health.state]}`}
+					>
+						{health.label}
+					</span>
+				</div>
+			{/if}
+
+			{#if currentCapture}
+				<div class="flex items-center gap-1">
+					<button
+						type="button"
+						class="shell-cap-btn"
+						aria-label={captureTooLarge
+							? `Copy disabled — payload is ${formatBytes(captureBytes)}, above the 256 KiB clipboard guard. Use Export.`
+							: copiedRecently
+								? "Copied"
+								: `Copy ${formatBytes(captureBytes)} to clipboard`}
+						title={captureTooLarge
+							? `Payload is ${formatBytes(captureBytes)} — above 256 KiB. Use Export instead.`
+							: copiedRecently
+								? "Copied!"
+								: `Copy (${formatBytes(captureBytes)})`}
+						disabled={captureTooLarge}
+						onclick={handleCopy}
+					>
+						{#if copiedRecently}
+							<Check size={12} />
+							<span>Copied</span>
+						{:else}
+							<Copy size={12} />
+							<span>Copy</span>
+						{/if}
+					</button>
+					<button
+						type="button"
+						class="shell-cap-btn"
+						aria-label={`Export ${currentCapture.filename} (${formatBytes(captureBytes)})`}
+						title={`Export ${currentCapture.filename}`}
+						onclick={handleExport}
+					>
+						<Download size={12} />
+						<span>Export</span>
+					</button>
+				</div>
+			{/if}
+		</div>
 	</header>
 
 	<!-- ── Tab bar ──────────────────────────────────────────────── -->
@@ -223,7 +328,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 						? 'border-b-2'
 						: 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
 				style={activeTab === tab.id
-					? `color: ${accent}; border-color: ${accent};`
+					? "color: var(--accent-service-main); border-color: var(--accent-service-main);"
 					: ""}
 				onclick={() => (activeTab = tab.id)}
 				aria-selected={activeTab === tab.id}
@@ -246,7 +351,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 							? 'border-b-2'
 							: 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
 					style={activeTab === tab.id
-						? `color: ${accent}; border-color: ${accent};`
+						? "color: var(--accent-service-main); border-color: var(--accent-service-main);"
 						: ""}
 					onclick={() => (activeTab = tab.id)}
 					aria-selected={activeTab === tab.id}
@@ -267,25 +372,41 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 			{#if status}
 				{@render status()}
 			{:else}
-				<Text size="sm" color="muted">Status panel not wired for this service yet.</Text>
+				<Text size="sm" color="muted">
+					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
+				</Text>
 			{/if}
 		{:else if activeTab === "config"}
 			{#if config}
 				{@render config()}
 			{:else}
-				<Text size="sm" color="muted">Config panel not wired for this service yet.</Text>
+				<Text size="sm" color="muted">
+					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
+				</Text>
 			{/if}
 		{:else if activeTab === "logs"}
 			{#if logs}
 				{@render logs()}
 			{:else}
-				<Text size="sm" color="muted">Log viewer not wired for this service yet.</Text>
+				<Text size="sm" color="muted">
+					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
+				</Text>
 			{/if}
 		{:else if activeTab === "actions"}
 			{#if actions}
 				{@render actions()}
 			{:else}
-				<Text size="sm" color="muted">Action controls not wired for this service yet.</Text>
+				<Text size="sm" color="muted">
+					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
+				</Text>
+			{/if}
+		{:else if activeTab === "debug"}
+			{#if debug}
+				{@render debug()}
+			{:else}
+				<Text size="sm" color="muted">
+					Not yet implemented for this service. Try the Logs or Actions tab while this is being built.
+				</Text>
 			{/if}
 		{:else if extra}
 			{@render extra(activeTab)}
@@ -294,3 +415,38 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		{/if}
 	</main>
 </div>
+
+<style>
+	.shell-cap-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.1875rem 0.5rem;
+		font-size: var(--font-size-xs);
+		border-radius: 0.25rem;
+		background: transparent;
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		color: var(--text-secondary);
+		cursor: pointer;
+		transition:
+			color 150ms ease-out,
+			border-color 150ms ease-out,
+			background 150ms ease-out;
+	}
+
+	.shell-cap-btn:hover:not(:disabled) {
+		color: var(--accent-service-main);
+		border-color: var(--accent-service-main);
+		background: var(--accent-service-fill);
+	}
+
+	.shell-cap-btn:focus-visible {
+		outline: var(--border-width-thin) solid var(--accent-service-main);
+		outline-offset: var(--outline-offset-md);
+	}
+
+	.shell-cap-btn:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+</style>

@@ -267,6 +267,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 	description="Bidirectional voice pipeline — Whisper + Kokoro"
 	icon={Radio}
 	axis="capabilities"
+	accent="purple"
 	health={badge}
 >
 	{#snippet status()}

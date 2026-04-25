@@ -166,6 +166,7 @@ $effect(() => {
 	description="Kokoro — voice synthesis"
 	icon={Volume2}
 	axis="capabilities"
+	accent="magenta"
 	health={badge}
 >
 	{#snippet status()}

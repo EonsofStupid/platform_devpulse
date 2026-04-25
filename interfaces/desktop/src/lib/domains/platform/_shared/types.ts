@@ -37,7 +37,23 @@ export interface HealthBadge {
 }
 
 /**
- * A per-service domain-specific tab appended after the four standard
+ * Snapshot of a tab's text content for the shell-level Copy / Export
+ * buttons. Returned from `ServiceDevtoolShell`'s `capture` prop on a
+ * per-tab basis. Returning `undefined` for a given tab id hides both
+ * buttons for that tab. Above 256 KiB Copy is auto-disabled
+ * (clipboard pain) but Export remains available.
+ */
+export interface CapturePayload {
+	/** Suggested filename (include extension). */
+	filename: string;
+	/** MIME — controls the export Blob and OS file association. */
+	mime: "text/plain" | "application/json" | "text/csv";
+	/** UTF-8 text payload. */
+	content: string;
+}
+
+/**
+ * A per-service domain-specific tab appended after the five standard
  * tabs. Use for tooling that only makes sense for one service
  * (e.g. LibSQL's SQL Console, SurrealDB's namespace selector).
  */

@@ -173,6 +173,7 @@ function gpuLayersText(v: number): string {
 	description="In-process model runtime · GGUF + SafeTensors"
 	icon={Cpu}
 	axis="runtimes"
+	accent="ember"
 	health={badge}
 >
 	{#snippet status()}

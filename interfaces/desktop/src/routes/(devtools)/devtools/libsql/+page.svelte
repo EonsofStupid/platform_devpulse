@@ -97,6 +97,7 @@ function handleKeydown(event: KeyboardEvent): void {
 	description="System + User relational store · SQLite"
 	icon={Database}
 	axis="stores"
+	accent="blue"
 	health={badge}
 	{extraTabs}
 >

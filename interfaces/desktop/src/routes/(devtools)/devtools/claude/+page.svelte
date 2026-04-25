@@ -257,6 +257,7 @@ $effect(() => {
 	description="Subprocess MCP · subscription + API lanes"
 	icon={Plug}
 	axis="integrations"
+	accent="coral"
 	health={badge}
 >
 	{#snippet status()}

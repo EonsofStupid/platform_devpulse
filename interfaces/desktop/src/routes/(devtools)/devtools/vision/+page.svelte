@@ -145,6 +145,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	description="Image embeddings — preconfigured CPU"
 	icon={Eye}
 	axis="capabilities"
+	accent="salmon"
 	health={badge}
 >
 	{#snippet status()}

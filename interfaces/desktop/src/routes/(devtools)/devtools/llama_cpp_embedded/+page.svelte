@@ -108,6 +108,7 @@ const badge: HealthBadge = {
 	description="In-process GGUF runtime via llama-cpp-2"
 	icon={PackageOpen}
 	axis="runtimes"
+	accent="hotpink"
 	health={badge}
 >
 	{#snippet status()}

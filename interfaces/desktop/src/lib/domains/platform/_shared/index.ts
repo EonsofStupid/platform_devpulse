@@ -18,4 +18,11 @@ export {
 } from "./resolve-primary-file.js";
 export { default as ServiceDevtoolShell } from "./ServiceDevtoolShell.svelte";
 export { default as SwapPrimaryBrainButton } from "./SwapPrimaryBrainButton.svelte";
-export type { ExtraTab, HealthBadge, HealthState, ServiceAxis } from "./types.js";
+export {
+	type BrandAccent,
+	DEFAULT_SERVICE_ACCENT,
+	SERVICE_ACCENTS,
+	serviceAccent,
+	serviceAccentStyle,
+} from "./serviceAccents.js";
+export type { CapturePayload, ExtraTab, HealthBadge, HealthState, ServiceAxis } from "./types.js";

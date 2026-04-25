@@ -69,7 +69,8 @@ function updateRootPassword(raw: string) {
 	title="SurrealDB (sidecar)"
 	description="Managed surreal start · RocksDB · WS client"
 	icon={Database}
-	axis="data"
+	axis="stores"
+	accent="violet"
 	health={badge}
 >
 	<!-- ── STATUS ──────────────────────────────────────── -->

@@ -83,6 +83,7 @@ function handleKeydown(e: KeyboardEvent): void {
 	description="3 namespaces · SurrealKV"
 	icon={Network}
 	axis="stores"
+	accent="violet"
 	health={badge}
 	{extraTabs}
 >

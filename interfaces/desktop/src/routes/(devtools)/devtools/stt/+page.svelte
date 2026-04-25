@@ -178,6 +178,7 @@ function handleDragOver(e: DragEvent): void {
 	description="Whisper — batch transcription"
 	icon={Ear}
 	axis="capabilities"
+	accent="blue"
 	health={badge}
 >
 	{#snippet status()}

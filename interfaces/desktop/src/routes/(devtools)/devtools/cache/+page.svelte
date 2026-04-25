@@ -62,6 +62,7 @@ $effect(() => {
 	description="In-memory Moka store · non-persistent · TTL-driven"
 	icon={Database}
 	axis="stores"
+	accent="frost"
 	health={badge}
 >
 	{#snippet status()}

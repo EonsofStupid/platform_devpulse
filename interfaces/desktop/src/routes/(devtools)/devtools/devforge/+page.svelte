@@ -45,6 +45,7 @@ const badge = $derived<HealthBadge>(
 	description="Code Editor · REH Server"
 	icon={Code}
 	axis="runtimes"
+	accent="magenta"
 	health={badge}
 	{extraTabs}
 >

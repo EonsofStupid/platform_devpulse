@@ -58,6 +58,7 @@ function prettySize(bytes: number): string {
 	description="External Ollama process · HTTP API"
 	icon={Boxes}
 	axis="runtimes"
+	accent="salmon"
 	health={badge}
 >
 	<!-- ── STATUS ─────────────────────────────────────────── -->

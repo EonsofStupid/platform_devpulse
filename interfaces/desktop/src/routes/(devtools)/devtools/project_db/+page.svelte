@@ -122,6 +122,7 @@ async function runQuery(): Promise<void> {
 	description="Per-project LibSQL instances · lazy-loaded"
 	icon={FolderTree}
 	axis="stores"
+	accent="cyan"
 	health={badge}
 >
 	{#snippet status()}

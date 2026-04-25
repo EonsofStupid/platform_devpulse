@@ -117,6 +117,7 @@ $effect(() => {
 	description="OTel pipeline — traces, spans, baselines"
 	icon={Activity}
 	axis="runtime"
+	accent="green"
 	health={badge}
 	{extraTabs}
 >

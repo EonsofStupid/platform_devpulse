@@ -77,6 +77,7 @@ function handleKeydown(e: KeyboardEvent): void {
 	description="Analytics engine · OLAP"
 	icon={BarChart3}
 	axis="stores"
+	accent="gold"
 	health={badge}
 	{extraTabs}
 >
