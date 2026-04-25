@@ -1,18 +1,18 @@
 //! `regen-bindings` — regenerate `interfaces/desktop/src/lib/sys/generated/bindings.ts`.
 //!
-//! Wraps the `DEVPULSE_BINDINGS_EXPORT_ONLY=1` early-return path in
-//! `interfaces/desktop/src-tauri/src/lib.rs` so that the `specta`-driven
-//! TypeScript bindings export is a first-class, reproducible command
-//! instead of tribal knowledge.
+//! Drives the dedicated `export-bindings` binary in
+//! `interfaces/desktop/src-tauri/bin/export-bindings.rs`, which
+//! constructs the same tauri-specta `Builder` the runtime app uses
+//! (via the shared `build_specta_builder()` lib fn) and calls
+//! `.export()` on it without launching the Tauri runtime.
 //!
 //! # Why a dedicated subcommand
 //!
 //! The export path writes to `../src/lib/sys/generated/bindings.ts`
-//! relative to `src-tauri/`. Running `cargo run -p
-//! devpulse_desktop_backend` from the workspace root resolves that
-//! path to `<workspace>/../src/...` — outside the repo. Every hand
-//! invocation is a chance to write bindings.ts to the wrong location
-//! (we have shipped exactly that bug).
+//! relative to `src-tauri/`. Running `cargo run --bin export-bindings`
+//! from the workspace root resolves that path to `<workspace>/../src/...`
+//! — outside the repo. Every hand invocation is a chance to write
+//! bindings.ts to the wrong location (we have shipped exactly that bug).
 //!
 //! This subcommand pins the `current_dir` to `interfaces/desktop/src-tauri/`
 //! and verifies after the run that `bindings.ts` mtime actually advanced
@@ -22,7 +22,7 @@
 //! # Contract
 //!
 //! - Cwd is forced to `<workspace>/interfaces/desktop/src-tauri`.
-//! - Env has `DEVPULSE_BINDINGS_EXPORT_ONLY=1`.
+//! - Drives `cargo run --bin export-bindings` (no env-var sentinels).
 //! - Stdio is inherited so cargo's live progress prints to the terminal.
 //! - On success, `bindings.ts` mtime is guaranteed to have advanced since
 //!   task start. If it did not, `bail!` with the expected path.
@@ -69,16 +69,22 @@ impl Task for RegenBindings {
         let cargo = ws.resolve("cargo").context("cargo not found on PATH")?;
 
         crate::xinfo!(
-            "regen-bindings: cargo run -p devpulse_desktop_backend (cwd={})",
+            "regen-bindings: cargo run --bin export-bindings (cwd={})",
             src_tauri.display()
         );
 
         let status = Command::new(cargo)
             .current_dir(&src_tauri)
-            .env("DEVPULSE_BINDINGS_EXPORT_ONLY", "1")
-            .args(["run", "-p", "devpulse_desktop_backend", "--quiet"])
+            .args([
+                "run",
+                "-p",
+                "devpulse_desktop_backend",
+                "--bin",
+                "export-bindings",
+                "--quiet",
+            ])
             .status()
-            .with_context(|| "failed to spawn `cargo run -p devpulse_desktop_backend`")?;
+            .with_context(|| "failed to spawn `cargo run --bin export-bindings`")?;
 
         if !status.success() {
             bail!(

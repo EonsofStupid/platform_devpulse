@@ -73,10 +73,10 @@ enum Commands {
         dry_run: bool,
     },
     /// Regenerate `interfaces/desktop/src/lib/sys/generated/bindings.ts` by
-    /// running `cargo run -p devpulse_desktop_backend` with
-    /// `DEVPULSE_BINDINGS_EXPORT_ONLY=1` from the correct cwd. Exists so
-    /// the specta export is reproducible, gated, and logged instead of a
-    /// manual incantation that keeps regressing to black-screen installers.
+    /// running the dedicated `export-bindings` binary from the correct
+    /// cwd. Exists so the specta export is reproducible, gated, and
+    /// logged instead of a manual incantation that keeps regressing to
+    /// black-screen installers.
     RegenBindings,
     /// Package a portable folder + zip from the already-compiled release build.
     /// Reads `tauri.conf.json` for SSOT: productName/version/externalBin/resources.
