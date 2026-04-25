@@ -35,17 +35,20 @@ import {
 	type ClaudeInstall,
 	type ClaudeTarget,
 	commands,
-	type McpStatus,
 	type ScopedLogEntry,
 } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
+import { okQuery, PolledQuery, TauriQuery } from "$lib/sys/runes/index.js";
 
-// ── State ──────────────────────────────────────────────
-let mcpStatus = $state<McpStatus | null>(null);
+// ── Polling — MCP status (5s interval, visibility-aware) ─
+const mcpPoll = new PolledQuery(
+	okQuery(() => commands.getMcpStatus()),
+	5000,
+);
+
+// ── One-shot mutations — register / unregister ──────────
 let lastError = $state<string | null>(null);
-let refreshing = $state(false);
 let pendingTarget = $state<ClaudeTarget | null>(null);
-let lastPolledAt = $state<number>(0);
 
 // Auto-register-on-boot toggles — Actions tab
 let autoRegisterCode = $state(false);
@@ -55,10 +58,7 @@ let autoRegisterError = $state<string | null>(null);
 const PREF_KEY_CODE = "claude.autoregister.code";
 const PREF_KEY_DESKTOP = "claude.autoregister.desktop";
 
-// Scoped log tail state — Logs tab
-let logEntries = $state<ScopedLogEntry[]>([]);
-let logQueryError = $state<string | null>(null);
-let logLoading = $state(false);
+// Scoped log tail — Logs tab (Result<T, string> from queryScopedLog)
 const LOG_TARGETS = [
 	{ value: "devtools.claude", label: "Devtool UI" },
 	{ value: "claude", label: "Engine — Claude" },
@@ -66,14 +66,17 @@ const LOG_TARGETS = [
 	{ value: "", label: "All targets" },
 ] as const;
 let selectedLogTarget = $state<string>("devtools.claude");
+const logsQuery = new TauriQuery<ScopedLogEntry[], string>(() =>
+	commands.queryScopedLog(selectedLogTarget, 200),
+);
 
 // ── Derived ────────────────────────────────────────────
-const available = $derived(mcpStatus?.available === true);
-const toolCount = $derived(mcpStatus?.toolCount ?? 0);
-const toolNames = $derived<string[]>(mcpStatus?.toolNames ?? []);
-const protocolVersion = $derived(mcpStatus?.protocolVersion ?? "—");
-const code = $derived<ClaudeInstall | null>(mcpStatus?.installs?.code ?? null);
-const desktop = $derived<ClaudeInstall | null>(mcpStatus?.installs?.desktop ?? null);
+const available = $derived(mcpPoll.data?.available === true);
+const toolCount = $derived(mcpPoll.data?.toolCount ?? 0);
+const toolNames = $derived<string[]>(mcpPoll.data?.toolNames ?? []);
+const protocolVersion = $derived(mcpPoll.data?.protocolVersion ?? "—");
+const code = $derived<ClaudeInstall | null>(mcpPoll.data?.installs?.code ?? null);
+const desktop = $derived<ClaudeInstall | null>(mcpPoll.data?.installs?.desktop ?? null);
 const registeredCount = $derived(
 	(code?.devpulseRegistered ? 1 : 0) + (desktop?.devpulseRegistered ? 1 : 0),
 );
@@ -95,27 +98,12 @@ const badge = $derived<HealthBadge>(
 				: { state: "unknown", label: "No Claude client detected" },
 );
 
-// ── Polling ────────────────────────────────────────────
-async function fetchStatus(): Promise<void> {
-	try {
-		const result = await commands.getMcpStatus();
-		mcpStatus = result;
-		lastError = null;
-		lastPolledAt = Date.now();
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("devtools.claude", `getMcpStatus threw: ${msg}`);
-		lastError = msg;
-	}
-}
-
+// ── Mutations — register / unregister ──────────────────
 async function handleRefresh(): Promise<void> {
-	refreshing = true;
 	logInfo("devtools.claude", "Manual refresh");
-	try {
-		await fetchStatus();
-	} finally {
-		refreshing = false;
+	await mcpPoll.refresh();
+	if (mcpPoll.error) {
+		logError("devtools.claude", `getMcpStatus failed: ${mcpPoll.error.message}`);
 	}
 }
 
@@ -126,11 +114,11 @@ async function handleRegister(target: ClaudeTarget): Promise<void> {
 	try {
 		const result = await commands.registerDevpulseMcp(target);
 		if (result.status === "ok") {
-			if (mcpStatus) mcpStatus = { ...mcpStatus, installs: result.data };
 			logInfo("devtools.claude", `Register ${target} OK`);
+			void mcpPoll.refresh();
 		} else {
-			lastError = result.error;
-			logError("devtools.claude", `Register ${target} failed: ${result.error}`);
+			lastError = result.error.message;
+			logError("devtools.claude", `Register ${target} failed: ${result.error.message}`);
 		}
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -148,11 +136,11 @@ async function handleUnregister(target: ClaudeTarget): Promise<void> {
 	try {
 		const result = await commands.unregisterDevpulseMcp(target);
 		if (result.status === "ok") {
-			if (mcpStatus) mcpStatus = { ...mcpStatus, installs: result.data };
 			logInfo("devtools.claude", `Unregister ${target} OK`);
+			void mcpPoll.refresh();
 		} else {
-			lastError = result.error;
-			logError("devtools.claude", `Unregister ${target} failed: ${result.error}`);
+			lastError = result.error.message;
+			logError("devtools.claude", `Unregister ${target} failed: ${result.error.message}`);
 		}
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -214,41 +202,20 @@ function levelColor(level: string): string {
 	}
 }
 
-async function fetchScopedLog(): Promise<void> {
-	logLoading = true;
-	logQueryError = null;
-	try {
-		const result = await commands.queryScopedLog(selectedLogTarget, 200);
-		if (result.status === "ok") {
-			logEntries = result.data;
-		} else {
-			logQueryError = result.error;
-			logError("devtools.claude", `queryScopedLog failed: ${result.error}`);
-		}
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logQueryError = msg;
-		logError("devtools.claude", `queryScopedLog threw: ${msg}`);
-	} finally {
-		logLoading = false;
-	}
-}
-
 $effect(() => {
-	void fetchStatus();
 	void loadAutoRegisterPrefs();
-	const interval = setInterval(() => {
-		void fetchStatus();
-	}, 5000);
-	return () => {
-		clearInterval(interval);
-	};
 });
 
-// Re-fetch logs whenever the target changes; first run fires on mount.
+// Re-fetch logs whenever the selected target changes (TauriQuery already
+// fired once on construction with the initial target).
+let firstLogFetch = true;
 $effect(() => {
 	const _ = selectedLogTarget;
-	void fetchScopedLog();
+	if (firstLogFetch) {
+		firstLogFetch = false;
+		return;
+	}
+	void logsQuery.refresh();
 });
 </script>
 
@@ -371,17 +338,17 @@ $effect(() => {
 
 			<div class="flex items-center justify-between">
 				<Text size="xs" color="muted">
-					{lastPolledAt > 0
-						? `Last refresh ${Math.floor((Date.now() - lastPolledAt) / 1000)}s ago`
+					{mcpPoll.lastFetchedAt
+						? `Last refresh ${Math.floor((Date.now() - mcpPoll.lastFetchedAt) / 1000)}s ago`
 						: "Polling…"}
 				</Text>
 				<Button
 					preset="button-ghost"
 					size="sm"
 					onclick={handleRefresh}
-					disabled={refreshing}
+					disabled={mcpPoll.loading}
 				>
-					{#if refreshing}
+					{#if mcpPoll.loading}
 						<Spinner size="xs" />
 						Refreshing…
 					{:else}
@@ -486,14 +453,14 @@ $effect(() => {
 					</button>
 				{/each}
 				<div class="ml-auto flex items-center gap-2">
-					<Text size="xs" color="muted">{logEntries.length} entries</Text>
+					<Text size="xs" color="muted">{logsQuery.data?.length ?? 0} entries</Text>
 					<Button
 						preset="button-ghost"
 						size="sm"
-						onclick={fetchScopedLog}
-						disabled={logLoading}
+						onclick={() => logsQuery.refresh()}
+						disabled={logsQuery.loading}
 					>
-						{#if logLoading}
+						{#if logsQuery.loading}
 							<Spinner size="xs" />
 							Loading…
 						{:else}
@@ -504,13 +471,13 @@ $effect(() => {
 				</div>
 			</div>
 
-			{#if logQueryError}
+			{#if logsQuery.error}
 				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
-					<Text size="xs">{logQueryError}</Text>
+					<Text size="xs">{logsQuery.error}</Text>
 				</div>
 			{/if}
 
-			{#if logEntries.length === 0 && !logLoading}
+			{#if (logsQuery.data?.length ?? 0) === 0 && !logsQuery.loading}
 				<Text size="sm" color="muted">
 					No log entries match the current filter. Activity in the
 					Status / Actions tabs will appear here.
@@ -520,7 +487,7 @@ $effect(() => {
 					class="flex-1 overflow-y-auto rounded-lg p-2 font-mono text-[11px] leading-relaxed"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
 				>
-					{#each logEntries as entry, i (i)}
+					{#each logsQuery.data ?? [] as entry, i (i)}
 						<div class="flex gap-2 py-0.5 border-b border-[var(--border-subtle)] last:border-b-0">
 							<span style="color: var(--text-muted);">{entry.timestamp.slice(11, 19)}</span>
 							<span style="color: {levelColor(entry.level)}; min-width: 3.5rem;">{entry.level}</span>

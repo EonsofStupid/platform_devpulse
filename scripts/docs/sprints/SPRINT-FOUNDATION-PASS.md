@@ -55,26 +55,34 @@
 - [ ] `pnpm svelte-check` 0/0
 - [ ] Commit `refactor(desktop): unified CommandError + _util backend helpers`
 
-### F-2 — Frontend `$lib/sys/runes/` query / event / poll helpers (~250 LOC)
+### F-2 — Frontend `$lib/sys/runes/` query / event / poll helpers (~250 LOC) ✅
 
-- [ ] New directory `interfaces/desktop/src/lib/sys/runes/`
-- [ ] `useTauriQuery.svelte.ts`:
-  - [ ] Class with `$state`-backed `data`, `error`, `loading`, `lastFetchedAt`
-  - [ ] Methods: `refresh()`, `reset()`
-  - [ ] Constructor takes `() => Promise<Result<T, CommandError>>` (Tauri's specta wrapper) and an optional `initialFetch: boolean` flag (default true)
-  - [ ] Auto-fires on construction
-- [ ] `useTauriEvent.svelte.ts`:
-  - [ ] Class with `$state`-backed `value` (latest), `history` (last N), `subscribed`
-  - [ ] Constructor takes event name + optional history capacity (default 32)
-  - [ ] `$effect`-style auto-cleanup via Svelte's effect-root pattern
-- [ ] `usePoll.svelte.ts`:
-  - [ ] Wraps `useTauriQuery` + `setInterval` with cleanup
-  - [ ] Pause/resume controls (pauses when document.visibilityState === 'hidden')
-- [ ] `index.ts` barrel
-- [ ] Migrate Claude devtool — proof of concept, replaces ~80 LOC of state + effect plumbing with three rune-helper instantiations
-- [ ] Vitest tests where the rune lifecycle can be exercised in jsdom (data updates, cleanup runs)
-- [ ] `pnpm svelte-check` 0/0, `biome check` clean
-- [ ] Commit `feat(frontend): runes helpers — useTauriQuery / useTauriEvent / usePoll`
+- [x] New directory `interfaces/desktop/src/lib/sys/runes/`
+- [x] `useTauriQuery.svelte.ts`:
+  - [x] Class with `$state`-backed `data`, `error`, `loading`, `lastFetchedAt`
+  - [x] Methods: `refresh()`, `reset()`
+  - [x] Constructor takes `() => Promise<Result<T, CommandError>>` (Tauri's specta wrapper) and an optional `initialFetch: boolean` flag (default true)
+  - [x] Auto-fires on construction
+  - [x] Cancellation token: late-arriving completions from a stale fetch are dropped
+  - [x] Generic over E (defaults to CommandError) so legacy `Result<T, string>` commands like `queryScopedLog` work without wrapping
+- [x] `useTauriEvent.svelte.ts`:
+  - [x] Class with `$state`-backed `value` (latest), `history` (last N), `subscribed`
+  - [x] Constructor takes event name + optional history capacity (default 32)
+  - [x] `$effect`-based auto-cleanup (registered during construction; teardown when parent component unmounts)
+  - [x] `destroy()` exposed for non-component usage
+- [x] `usePoll.svelte.ts`:
+  - [x] Wraps `useTauriQuery` + `setInterval` with cleanup
+  - [x] Pause/resume controls (pauses when `document.visibilityState === 'hidden'`)
+  - [x] Forwards `data` / `error` / `loading` / `lastFetchedAt` / `refresh()` from the inner query
+- [x] `_shared.ts`:
+  - [x] `okQuery()` adapter — wraps bare-promise commands (e.g. `getMcpStatus`) into the unified Result-returning shape
+  - [x] `toCommandError()` — coerces caught throws into a typed CommandError (kind: "internal")
+- [x] `index.ts` barrel
+- [x] Migrate Claude devtool — proof of concept, replaces ~80 LOC of state + effect plumbing with two rune-helper instantiations (`PolledQuery` for MCP status, `TauriQuery` for log tail)
+- [ ] Vitest tests **deferred** — the desktop vitest config runs in browser mode (Chromium via Playwright), not jsdom. Tauri shim/mocking infra needed before runes can be unit-tested in isolation. Runtime coverage comes from the Claude devtool migration (sanity test step 5) until that infra lands.
+- [x] `pnpm svelte-check` 220/0/0/0
+- [x] `biome check src/lib/sys/runes "src/routes/(devtools)/devtools/claude/+page.svelte"` clean
+- [x] Commit `feat(desktop): runes helpers — useTauriQuery / useTauriEvent / usePoll (F-2)`
 
 ### F-3 — Devtool component library (~300 LOC)
 
