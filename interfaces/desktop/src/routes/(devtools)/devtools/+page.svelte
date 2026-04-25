@@ -374,22 +374,27 @@ let laneGroups = $derived<LaneGroup[]>(
 						<p class="ds-section-blurb">Inference engines and the dev IDE host.</p>
 					</header>
 					<div class="ds-tile-grid">
+						<a href="/devtools/llama_cpp_embedded" class="ds-tile">
+							<Package size={20} class="ds-tile-icon" />
+							<span class="ds-tile-title">llama.cpp</span>
+							<span class="ds-tile-blurb">
+								In-process GGUF runtime. Light path — CPU-friendly.
+							</span>
+						</a>
 						<a href="/devtools/candle" class="ds-tile">
 							<Cpu size={20} class="ds-tile-icon" />
 							<span class="ds-tile-title">Candle</span>
 							<span class="ds-tile-blurb">
-								In-process model runtime. GGUF + SafeTensors.
+								Native-tensor runtime. GGUF + SafeTensors.
 							</span>
 						</a>
 						<a href="/devtools/ollama_sidecar" class="ds-tile">
 							<Boxes size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Ollama (sidecar)</span>
-							<span class="ds-tile-blurb">External Ollama process. HTTP API.</span>
-						</a>
-						<a href="/devtools/llama_cpp_embedded" class="ds-tile">
-							<Package size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">llama.cpp (embedded)</span>
-							<span class="ds-tile-blurb">In-process GGUF via llama-cpp-2.</span>
+							<span class="ds-tile-title">Ollama</span>
+							<span class="ds-tile-blurb">
+								Backup runtime. Kept available — focus work goes to llama.cpp /
+								Burn / vLLM.
+							</span>
 						</a>
 						<a href="/devtools/devforge" class="ds-tile">
 							<GitBranch size={20} class="ds-tile-icon" />

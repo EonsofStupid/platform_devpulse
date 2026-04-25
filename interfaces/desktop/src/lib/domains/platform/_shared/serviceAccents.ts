@@ -95,8 +95,8 @@ export const SERVICE_ACCENTS = {
 
 	// ── Runtimes ─────────────────────────────────────────────
 	candle: "ember",
-	ollama_sidecar: "salmon",
 	llama_cpp_embedded: "hotpink",
+	ollama_sidecar: "salmon",
 	devforge: "magenta",
 
 	// ── AI capabilities ──────────────────────────────────────
