@@ -8,40 +8,14 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::ollama::{
-    OllamaAdapter, OllamaConfig, OllamaModel as KernelOllamaModel,
-};
-use serde::{Deserialize, Serialize};
-use specta::Type;
+use devpulse_clyffy::cortex::persistence::ollama::{OllamaAdapter, OllamaConfig};
 use std::path::{Path, PathBuf};
 
-/// Public, TS-exported view of a model reported by `GET /api/tags`.
-///
-/// The kernel's `OllamaModel` is `serde`-only (the kernel never pulls in
-/// `specta`). This DTO is the engine-facade mirror — same shape, plus
-/// `specta::Type` so it can cross the Tauri IPC boundary.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct OllamaModel {
-    /// Tag-qualified model name, e.g. `llama3:8b-instruct-q4_K_M`.
-    pub name: String,
-    /// ISO-8601 timestamp reported by Ollama (may be empty).
-    pub modified_at: String,
-    /// On-disk size in bytes (may be 0 if Ollama omits it).
-    pub size: u64,
-    /// Blob digest (may be empty).
-    pub digest: String,
-}
-
-impl From<KernelOllamaModel> for OllamaModel {
-    fn from(m: KernelOllamaModel) -> Self {
-        Self {
-            name: m.name,
-            modified_at: m.modified_at,
-            size: m.size,
-            digest: m.digest,
-        }
-    }
-}
+// IP-NOTE: `OllamaModel` is a public-vocabulary-safe kernel type — it
+// only contains generic Ollama API fields (name, size, digest, …). It
+// crosses the Tauri IPC boundary directly via the optional `specta`
+// feature on `devpulse-clyffy`. No engine-side wrapper.
+pub use devpulse_clyffy::cortex::persistence::OllamaModel;
 
 /// Ollama sidecar service — thin engine wrapper around [`OllamaAdapter`].
 pub struct OllamaSidecarService {
@@ -121,13 +95,7 @@ impl OllamaSidecarService {
     /// # Errors
     /// HTTP failure / non-2xx / decode failure.
     pub async fn list_models(&self) -> Result<Vec<OllamaModel>> {
-        Ok(self
-            .adapter
-            .list_models()
-            .await?
-            .into_iter()
-            .map(OllamaModel::from)
-            .collect())
+        self.adapter.list_models().await
     }
 
     /// Pull a model (non-streaming, blocks until done).

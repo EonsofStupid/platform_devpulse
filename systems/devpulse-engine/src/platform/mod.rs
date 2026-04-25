@@ -65,14 +65,34 @@ pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
 pub use services::{Service, ServiceRole, ServiceState};
 
-// Re-export clyffy persistence traits and types for Tauri command layer
+// ════════════════════════════════════════════════════════════════
+// Kernel re-exports — the engine's *declared public kernel API*
+// ════════════════════════════════════════════════════════════════
+//
+// Every type below is a deliberate public-surface contract. Types
+// renamed at the boundary use `as` to translate kernel-internal short
+// names into engine-public prefixed names (the canonical example is
+// `EntryType` → `KnowledgeEntryType`).
+//
+// Adding a new re-export here is an API decision — annotate with an
+// `IP-NOTE:` comment explaining either *why this is vocabulary-safe*
+// or *what rename was applied*. Glob re-exports (`pub use foo::*;`)
+// are NOT permitted; every kernel type that crosses must be named.
+//
+// See `feedback_ip_boundary_is_vocabulary_not_wrappers.md` for the rule.
+
+// IP-NOTE: persistence adapter traits + raw SQL value types. All names
+// are generic (Analytics / Cache / LibSql / Sql{Adapter,Row,Value}) —
+// no kernel vocabulary, no rename needed.
 pub use devpulse_clyffy::cortex::persistence::{
     AnalyticsAdapter, CacheAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
-// Re-export knowledge library types for Tauri command layer.
-// Boundary: these are kernel-internal types used by the engine facade.
-// The Tauri command layer converts them to DTOs before sending to frontend.
+// IP-NOTE: knowledge-library types. Kernel uses short names
+// (`EntryType`, `Reaction`, …); engine prefixes them with `Knowledge`
+// so consumers see `KnowledgeEntryType`. The verbs `record_reaction`
+// / `select_entry` are also re-prefixed. This IS the translation
+// pattern — vocabulary rename at the seam, not a struct wrapper.
 pub use devpulse_clyffy::cortex::knowledge::{
     record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
     EntryType as KnowledgeEntryType, Reaction as KnowledgeReaction,
@@ -80,14 +100,17 @@ pub use devpulse_clyffy::cortex::knowledge::{
     Tier as KnowledgeTier,
 };
 
-// Re-export model loader types needed by Tauri command layer
+// IP-NOTE: model-loader concepts the desktop UI surfaces directly
+// (registry entries, source-tier classification, slot identity).
+// All names describe industry-standard concepts, no rename needed.
 #[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::{ModelRegistryEntry, ModelSourceTier, Slot};
 
-// Re-export architecture + backend registry for the Tauri command
-// layer. These are the public faces of the compatibility matrix —
-// the resolver gets called before every download and the matrix is
-// served to the frontend on boot for the ModelCompatibilityCard.
+// IP-NOTE: architecture + backend compatibility registry. Public face
+// of the matrix the UI consumes for `ModelCompatibilityCard`. Names
+// describe model formats (gguf, safetensors), GPU backends (cuda,
+// metal), and arch families (LLaMA, Mistral) — all industry terms,
+// no kernel vocabulary, no rename needed.
 #[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
 #[cfg(feature = "inference")]

@@ -10,6 +10,10 @@ rro = ["dep:rro"]
 llguidance = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
 model-loader = ["dep:model-loader", "model-loader/specta"]
+# Tauri IPC type derivation. Enable when this crate is consumed by the
+# Tauri facade (engine + desktop). Off by default so kernel-only builds
+# don't drag specta into their dep tree.
+specta = ["dep:specta"]
 guardian = [
     "dep:streaming-iterator",
     "dep:tree-sitter",
@@ -63,6 +67,9 @@ model-loader = { path = "../model-loader", optional = true, features = ["candle-
 
 # Async traits
 async-trait = "0.1"
+
+# Optional: Tauri IPC type derivation (enabled via the `specta` feature).
+specta = { workspace = true, optional = true }
 
 # AST Analysis — GUARDIAN security scanner + refactoring safety (tree-sitter)
 streaming-iterator = { version = "0.1", optional = true }

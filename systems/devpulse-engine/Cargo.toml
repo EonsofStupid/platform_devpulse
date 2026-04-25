@@ -31,7 +31,7 @@ tracing-subscriber = { workspace = true }
 chrono = { workspace = true }
 
 # Kernel (the brain — always linked, facade controls exposure)
-devpulse-clyffy = { path = "../../kernel/devpulse-clyffy" }
+devpulse-clyffy = { path = "../../kernel/devpulse-clyffy", features = ["specta"] }
 
 # HTTP server (SurrealDB endpoint on :8822, MCP SSE on :9315)
 axum = "0.8"

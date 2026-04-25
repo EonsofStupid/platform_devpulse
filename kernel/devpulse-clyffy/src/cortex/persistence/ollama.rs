@@ -27,7 +27,12 @@ const HEALTH_POLL_INTERVAL: Duration = Duration::from_millis(500);
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// A model reported by `GET /api/tags`.
+///
+/// Crosses the Tauri IPC boundary verbatim — no engine-side wrapper.
+/// `specta::Type` is gated on the optional `specta` feature so kernel-only
+/// builds don't pull specta into their dep tree.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct OllamaModel {
     /// Tag-qualified model name, e.g. `llama3:8b-instruct-q4_K_M`.
     pub name: String,
