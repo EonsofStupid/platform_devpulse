@@ -19,8 +19,8 @@ import {
 	Cpu,
 	Key,
 	Plug,
+	PlugOff,
 	PlugZap,
-	RefreshCw,
 	Terminal,
 	Wrench,
 	XCircle,
@@ -28,17 +28,22 @@ import {
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { LoadingBlock } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 import {
-	type ClaudeInstall,
-	type ClaudeTarget,
-	commands,
-	type ScopedLogEntry,
-} from "$lib/sys/generated/bindings.js";
+	DevtoolDescription,
+	DevtoolEmptyState,
+	DevtoolErrorPanel,
+	DevtoolLogsTab,
+	DevtoolRefreshButton,
+	DevtoolStatBox,
+	type HealthBadge,
+	type LogTargetPreset,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/_shared/index.js";
+import { type ClaudeInstall, type ClaudeTarget, commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
-import { okQuery, PolledQuery, TauriQuery } from "$lib/sys/runes/index.js";
+import { okQuery, PolledQuery } from "$lib/sys/runes/index.js";
 
 // ── Polling — MCP status (5s interval, visibility-aware) ─
 const mcpPoll = new PolledQuery(
@@ -58,17 +63,13 @@ let autoRegisterError = $state<string | null>(null);
 const PREF_KEY_CODE = "claude.autoregister.code";
 const PREF_KEY_DESKTOP = "claude.autoregister.desktop";
 
-// Scoped log tail — Logs tab (Result<T, string> from queryScopedLog)
-const LOG_TARGETS = [
+// Scoped log tail — Logs tab; selector + fetch live inside DevtoolLogsTab
+const LOG_TARGETS: LogTargetPreset[] = [
 	{ value: "devtools.claude", label: "Devtool UI" },
 	{ value: "claude", label: "Engine — Claude" },
 	{ value: "mcp_stdio_server", label: "MCP subprocess" },
 	{ value: "", label: "All targets" },
-] as const;
-let selectedLogTarget = $state<string>("devtools.claude");
-const logsQuery = new TauriQuery<ScopedLogEntry[], string>(() =>
-	commands.queryScopedLog(selectedLogTarget, 200),
-);
+];
 
 // ── Derived ────────────────────────────────────────────
 const available = $derived(mcpPoll.data?.available === true);
@@ -99,14 +100,6 @@ const badge = $derived<HealthBadge>(
 );
 
 // ── Mutations — register / unregister ──────────────────
-async function handleRefresh(): Promise<void> {
-	logInfo("devtools.claude", "Manual refresh");
-	await mcpPoll.refresh();
-	if (mcpPoll.error) {
-		logError("devtools.claude", `getMcpStatus failed: ${mcpPoll.error.message}`);
-	}
-}
-
 async function handleRegister(target: ClaudeTarget): Promise<void> {
 	pendingTarget = target;
 	lastError = null;
@@ -187,35 +180,8 @@ async function toggleAutoRegister(target: ClaudeTarget): Promise<void> {
 	}
 }
 
-function levelColor(level: string): string {
-	switch (level) {
-		case "ERROR":
-			return "var(--signal-error)";
-		case "WARN":
-			return "var(--signal-warning)";
-		case "INFO":
-			return "var(--signal-success)";
-		case "DEBUG":
-			return "var(--accent-purple-main)";
-		default:
-			return "var(--text-muted)";
-	}
-}
-
 $effect(() => {
 	void loadAutoRegisterPrefs();
-});
-
-// Re-fetch logs whenever the selected target changes (TauriQuery already
-// fired once on construction with the initial target).
-let firstLogFetch = true;
-$effect(() => {
-	const _ = selectedLogTarget;
-	if (firstLogFetch) {
-		firstLogFetch = false;
-		return;
-	}
-	void logsQuery.refresh();
 });
 </script>
 
@@ -229,19 +195,34 @@ $effect(() => {
 >
 	{#snippet status()}
 		<div class="flex flex-col gap-3">
-			<!-- ── Top row: tool surface ─────────────────────── -->
-			<div class="flex items-center gap-3 flex-wrap">
-				<Text size="sm" weight="bold">claude.mcp</Text>
-				{#if available}
-					<Badge variant="positive" size="sm">Available</Badge>
-				{:else}
-					<Badge variant="neutral" size="sm">Unavailable</Badge>
-				{/if}
-				<Badge variant="informative" size="sm">{toolCount} tools</Badge>
-				<Badge variant="neutral" size="sm">Protocol {protocolVersion}</Badge>
+			<DevtoolDescription
+				text="Subprocess MCP — DevPulse registers itself as an MCP server in Claude Code and Claude Desktop config files. Nothing long-running here; the clients spawn DevPulse on demand."
+			/>
+
+			<!-- ── Stat tiles: tool surface + protocol + counts ── -->
+			<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+				<DevtoolStatBox
+					label="MCP availability"
+					value={available ? "Available" : "Unavailable"}
+					tone={available ? "success" : "muted"}
+				/>
+				<DevtoolStatBox label="Tools served" value={toolCount} tone="accent" />
+				<DevtoolStatBox label="Protocol" value={protocolVersion} />
+				<DevtoolStatBox
+					label="Registered clients"
+					value={`${registeredCount} of ${detectedCount || "0"}`}
+					tone={registeredCount > 0 ? "success" : detectedCount > 0 ? "warning" : "muted"}
+				/>
 			</div>
 
 			<!-- ── Install grid: Code + Desktop ───────────────── -->
+			{#if !code?.configExists && !desktop?.configExists && !code?.processRunning && !desktop?.processRunning}
+				<DevtoolEmptyState
+					icon={PlugOff}
+					title="No Claude client detected"
+					description="Install Claude Code (CLI) or Claude Desktop, then return here to register DevPulse as an MCP server."
+				/>
+			{/if}
 			<div class="grid grid-cols-2 gap-3">
 				<!-- Claude Code (purple accent) -->
 				<div
@@ -330,11 +311,8 @@ $effect(() => {
 				</div>
 			{/if}
 
-			{#if lastError}
-				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
-					<Text size="xs">{lastError}</Text>
-				</div>
-			{/if}
+			<DevtoolErrorPanel error={lastError} onDismiss={() => (lastError = null)} />
+			<DevtoolErrorPanel error={mcpPoll.error} />
 
 			<div class="flex items-center justify-between">
 				<Text size="xs" color="muted">
@@ -342,20 +320,7 @@ $effect(() => {
 						? `Last refresh ${Math.floor((Date.now() - mcpPoll.lastFetchedAt) / 1000)}s ago`
 						: "Polling…"}
 				</Text>
-				<Button
-					preset="button-ghost"
-					size="sm"
-					onclick={handleRefresh}
-					disabled={mcpPoll.loading}
-				>
-					{#if mcpPoll.loading}
-						<Spinner size="xs" />
-						Refreshing…
-					{:else}
-						<PlugZap size={12} />
-						Refresh now
-					{/if}
-				</Button>
+				<DevtoolRefreshButton query={mcpPoll} label="Refresh now" />
 			</div>
 		</div>
 	{/snippet}
@@ -436,68 +401,7 @@ $effect(() => {
 
 	{#snippet logs()}
 		<div class="flex flex-col gap-3 h-full">
-			<div class="flex items-center gap-2 flex-wrap">
-				<Text size="xs" color="muted">Target:</Text>
-				{#each LOG_TARGETS as opt (opt.value)}
-					<button
-						type="button"
-						class="rounded-md px-2 py-1 text-xs transition-colors"
-						style={selectedLogTarget === opt.value
-							? "background: var(--accent-teal-fill); color: var(--accent-teal-main); border: 1px solid var(--accent-teal-main);"
-							: "background: var(--surface-base); color: var(--text-muted); border: 1px solid var(--border-subtle);"}
-						onclick={() => {
-							selectedLogTarget = opt.value;
-						}}
-					>
-						{opt.label}
-					</button>
-				{/each}
-				<div class="ml-auto flex items-center gap-2">
-					<Text size="xs" color="muted">{logsQuery.data?.length ?? 0} entries</Text>
-					<Button
-						preset="button-ghost"
-						size="sm"
-						onclick={() => logsQuery.refresh()}
-						disabled={logsQuery.loading}
-					>
-						{#if logsQuery.loading}
-							<Spinner size="xs" />
-							Loading…
-						{:else}
-							<RefreshCw size={12} />
-							Refresh
-						{/if}
-					</Button>
-				</div>
-			</div>
-
-			{#if logsQuery.error}
-				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
-					<Text size="xs">{logsQuery.error}</Text>
-				</div>
-			{/if}
-
-			{#if (logsQuery.data?.length ?? 0) === 0 && !logsQuery.loading}
-				<Text size="sm" color="muted">
-					No log entries match the current filter. Activity in the
-					Status / Actions tabs will appear here.
-				</Text>
-			{:else}
-				<div
-					class="flex-1 overflow-y-auto rounded-lg p-2 font-mono text-[11px] leading-relaxed"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
-				>
-					{#each logsQuery.data ?? [] as entry, i (i)}
-						<div class="flex gap-2 py-0.5 border-b border-[var(--border-subtle)] last:border-b-0">
-							<span style="color: var(--text-muted);">{entry.timestamp.slice(11, 19)}</span>
-							<span style="color: {levelColor(entry.level)}; min-width: 3.5rem;">{entry.level}</span>
-							<span style="color: var(--accent-teal-main); min-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{entry.target}</span>
-							<span style="color: var(--text-primary); flex: 1; word-break: break-word;">{entry.message}</span>
-						</div>
-					{/each}
-				</div>
-			{/if}
-
+			<DevtoolLogsTab targetPresets={LOG_TARGETS} />
 			<Text size="xs" color="muted">
 				Reads the most recent <span class="font-mono">.userdata/logs/session-*.jsonl</span>
 				— last 200 lines matching the selected target prefix.

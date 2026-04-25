@@ -8,6 +8,13 @@
  * the four standard ones.
  */
 
+export { default as DevtoolDescription } from "./DevtoolDescription.svelte";
+export { default as DevtoolEmptyState } from "./DevtoolEmptyState.svelte";
+export { default as DevtoolErrorPanel } from "./DevtoolErrorPanel.svelte";
+export type { LogTargetPreset } from "./DevtoolLogsTab.svelte";
+export { default as DevtoolLogsTab } from "./DevtoolLogsTab.svelte";
+export { default as DevtoolRefreshButton } from "./DevtoolRefreshButton.svelte";
+export { default as DevtoolStatBox } from "./DevtoolStatBox.svelte";
 export { default as RepoDownloadButton } from "./RepoDownloadButton.svelte";
 export {
 	formatBytes,

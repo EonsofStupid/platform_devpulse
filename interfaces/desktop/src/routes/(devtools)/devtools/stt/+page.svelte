@@ -25,29 +25,15 @@ import {
 	transcribeAudioFile,
 	voiceSttConfigState,
 } from "$lib/domains/app/voice/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
-import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import {
+	DevtoolLogsTab,
+	type HealthBadge,
+	type LogTargetPreset,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/_shared/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 
-// ── Config + logs state (scoped to this page) ─────────────
-let logs = $state<ScopedLogEntry[]>([]);
-let logsLoading = $state(false);
-let logsError = $state<string | null>(null);
-
-async function loadLogs(): Promise<void> {
-	logsLoading = true;
-	logsError = null;
-	try {
-		const r = await commands.queryScopedLog("devtools.stt", 100);
-		if (r.status === "error") throw new Error(r.error);
-		logs = r.data;
-	} catch (e) {
-		logsError = e instanceof Error ? e.message : String(e);
-	} finally {
-		logsLoading = false;
-	}
-}
+const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.stt", label: "STT devtool" }];
 
 $effect(() => {
 	if (!voiceSttConfigState.config && !voiceSttConfigState.loading) {
@@ -328,70 +314,7 @@ function handleDragOver(e: DragEvent): void {
 	{/snippet}
 
 	{#snippet logs()}
-		<div class="space-y-3">
-			<div class="flex items-center justify-between">
-				<Text size="sm" weight="semibold">
-					Scoped log — <span class="font-mono text-xs">devtools.stt</span>
-				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
-					{#if logsLoading}
-						<Spinner size="xs" tone="accent" />
-					{:else}
-						Refresh
-					{/if}
-				</Button>
-			</div>
-
-			{#if logsError}
-				<div
-					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
-				>
-					{logsError}
-				</div>
-			{/if}
-
-			{#if logs.length > 0}
-				<div
-					class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto"
-				>
-					<table class="w-full text-xs">
-						<thead class="sticky top-0 bg-[var(--surface-raised)]">
-							<tr class="border-b border-[var(--border-subtle)]">
-								<th
-									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
-									>Time</th
-								>
-								<th
-									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
-									>Level</th
-								>
-								<th
-									class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]"
-									>Message</th
-								>
-							</tr>
-						</thead>
-						<tbody>
-							{#each logs as line (line.timestamp + line.message)}
-								<tr class="border-b border-[var(--border-subtle)]">
-									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]"
-										>{line.timestamp.slice(11, 19)}</td
-									>
-									<td class="px-2 py-1 font-mono text-[10px]">{line.level}</td>
-									<td class="px-2 py-1 break-all">{line.message}</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
-			{:else if logsLoading}
-				<Text size="sm" color="muted">Loading…</Text>
-			{:else}
-				<Text size="sm" color="muted">
-					No log entries yet — click Refresh to tail the current session log.
-				</Text>
-			{/if}
-		</div>
+		<DevtoolLogsTab targetPresets={LOG_TARGETS} />
 	{/snippet}
 
 	{#snippet actions()}

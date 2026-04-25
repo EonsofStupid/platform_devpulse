@@ -84,21 +84,23 @@
 - [x] `biome check src/lib/sys/runes "src/routes/(devtools)/devtools/claude/+page.svelte"` clean
 - [x] Commit `feat(desktop): runes helpers — useTauriQuery / useTauriEvent / usePoll (F-2)`
 
-### F-3 — Devtool component library (~300 LOC)
+### F-3 — Devtool component library (~300 LOC) ✅
 
-- [ ] Add to `interfaces/desktop/src/lib/domains/platform/_shared/`:
-  - [ ] `DevtoolStatBox.svelte` — props: `label`, `value`, optional `tone` for value color, optional `children` snippet for trailing badge. Uses `--surface-base` + `--border-subtle` via Card composition.
-  - [ ] `DevtoolErrorPanel.svelte` — props: `error: CommandError | string | null`, optional `onDismiss`. Surfaces `error.kind` as a tone-colored badge + `error.message` + `error.context` (if present).
-  - [ ] `DevtoolEmptyState.svelte` — props: `icon` (lucide component), `title`, `description`, optional `cta` snippet.
-  - [ ] `DevtoolDescription.svelte` — props: `text`. The "what does this service do" intro chip.
-  - [ ] `DevtoolRefreshButton.svelte` — props: `query: useTauriQuery`. Spinner-while-`query.loading`, label hidden during loading, accent matches `query.error` state if present.
-  - [ ] `DevtoolLogsTab.svelte` — props: `targetPresets: { value: string, label: string }[]`, optional `defaultTarget`. Composes Sprint 3's `query_scoped_log` command + the rune helpers + level color mapping. Replaces the per-devtool re-rolled Logs panel.
-- [ ] Update `_shared/index.ts` to re-export everything
-- [ ] Add `_shared/README.md` describing the convention so the next devtool author doesn't re-roll
-- [ ] Migrate Claude devtool fully (uses all six components)
-- [ ] Migrate STT devtool's Logs tab as a second proof
-- [ ] `pnpm svelte-check` 0/0, `biome check` clean
-- [ ] Commit `feat(coldlight): devtool primitive components + library convention`
+- [x] Add to `interfaces/desktop/src/lib/domains/platform/_shared/`:
+  - [x] `DevtoolStatBox.svelte` — props: `label`, `value`, optional `tone` for value color, optional `children` snippet for trailing badge. Uses `--surface-base` + `--border-subtle` directly (Card has heavier defaults; this is intentionally a simpler tile).
+  - [x] `DevtoolErrorPanel.svelte` — props: `error: CommandError | string | null`, optional `onDismiss`. Maps every `ErrorKind` to a Badge variant + display label; surfaces `error.message` and optional `error.context`.
+  - [x] `DevtoolEmptyState.svelte` — props: `icon` (lucide component), `title`, `description`, optional `cta` snippet.
+  - [x] `DevtoolDescription.svelte` — props: `text` OR children snippet (for inline `<code>`/`<a>`). The "what does this service do" intro chip.
+  - [x] `DevtoolRefreshButton.svelte` — props: `query: TauriQuery | PolledQuery`. Spinner-while-`query.loading`, label hidden during loading, icon flips to AlertTriangle when `query.error !== null`.
+  - [x] `DevtoolLogsTab.svelte` — props: `targetPresets: LogTargetPreset[]`, optional `defaultTarget`, optional `limit` (default 200). Owns its own `TauriQuery<ScopedLogEntry[], string>`, the target chip selector, level color mapping, refresh button, error panel, and empty state.
+- [x] Update `_shared/index.ts` to re-export everything (alphabetical, biome organize-imports clean)
+- [x] Add `_shared/README.md` describing the convention so the next devtool author doesn't re-roll
+- [x] Migrate Claude devtool fully (uses all six components — proof of concept)
+- [x] Migrate STT devtool's Logs tab as a second proof (single-preset usage)
+- [x] `ScopedLogPanel.svelte` left in place + tagged DEPRECATED in README; 5 untouched consumers (cache / devforge / ollama_sidecar / surrealdb_sidecar / vision) lazily migrate on next touch (out of scope for this pass)
+- [x] `pnpm svelte-check` 220/0/0/0
+- [x] `biome check src/lib/domains/platform/_shared "src/routes/(devtools)/devtools/claude/+page.svelte" "src/routes/(devtools)/devtools/stt/+page.svelte"` clean
+- [x] Commit `feat(coldlight): devtool primitive components + library convention (F-3)`
 
 ### F-4 — xtask tee + frontend global error handlers (~120 LOC) ✅
 
