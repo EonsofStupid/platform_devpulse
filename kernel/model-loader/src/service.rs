@@ -1003,6 +1003,7 @@ impl ModelLoaderService {
                 context_length: entry.context_length,
                 gpu_layers,
                 auto_prime: false,
+                backend_variant: None,
             };
 
             (model_id, model_path, capability, backend, params)
@@ -1204,6 +1205,7 @@ impl ModelLoaderService {
                 context_length: entry.context_length,
                 gpu_layers: Some(0),
                 auto_prime: false,
+                backend_variant: None,
             };
 
             (model_id, model_path, capability, backend, params)

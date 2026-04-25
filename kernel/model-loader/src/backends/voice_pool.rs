@@ -153,6 +153,34 @@ impl VoicePool {
                 Ok(footprint)
             }
             ModelCapability::VisionEmbedding => {
+                let variant = params.backend_variant.as_deref();
+
+                // HD path — SigLIP 2 ONNX via ort. Requires `ort-backend` feature.
+                #[cfg(feature = "ort-backend")]
+                if variant == Some(crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::backend_name()) {
+                    let mut backend =
+                        crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::new();
+                    let footprint = backend.load(model_path, params.clone())?;
+                    let mut sessions = self
+                        .sessions
+                        .lock()
+                        .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+                    let mut footprints = self
+                        .footprints
+                        .lock()
+                        .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
+                    sessions
+                        .insert(slot_id.to_string(), VoiceSession::Vision(Box::new(backend)));
+                    footprints.insert(slot_id.to_string(), footprint);
+                    tracing::info!(
+                        slot = %slot_id,
+                        backend = "siglip2-onnx-fixres",
+                        "VoicePool: vision encoder loaded (HD path)"
+                    );
+                    return Ok(footprint);
+                }
+
+                // Default path — SigLIP via candle (SD path).
                 #[cfg(feature = "candle-backend")]
                 {
                     let mut backend = crate::backends::candle::SigLipVision::new();
@@ -167,14 +195,18 @@ impl VoicePool {
                         .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
                     sessions.insert(slot_id.to_string(), VoiceSession::Vision(Box::new(backend)));
                     footprints.insert(slot_id.to_string(), footprint);
-                    tracing::info!(slot = %slot_id, "VoicePool: vision encoder loaded");
+                    tracing::info!(
+                        slot = %slot_id,
+                        backend = "siglip-candle",
+                        "VoicePool: vision encoder loaded (SD path)"
+                    );
                     Ok(footprint)
                 }
                 #[cfg(not(feature = "candle-backend"))]
                 {
-                    let _ = (slot_id, model_path, params);
+                    let _ = (slot_id, model_path, params, variant);
                     anyhow::bail!(
-                        "VisionEmbedding requires `candle-backend` feature — not compiled"
+                        "VisionEmbedding requires `candle-backend` feature (or `ort-backend` with backend_variant=\"siglip2-onnx-fixres\") — neither compiled"
                     );
                 }
             }

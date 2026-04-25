@@ -14,7 +14,7 @@ candle-backend = [
     "dep:hf-hub",
     "dep:image",
 ]
-ort-backend = ["dep:ort", "dep:ndarray", "dep:rustfft"]
+ort-backend = ["dep:ort", "dep:ndarray", "dep:rustfft", "dep:image"]
 # Embedder + reranker — TBD, will use direct ort crate (avoids fastembed version conflict)
 # Kokoro phonemization via espeak-ng C library — PRIMARY TTS path
 espeak-phonemizer = ["dep:espeakng-sys"]

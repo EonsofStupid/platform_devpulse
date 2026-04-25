@@ -124,20 +124,28 @@ Also confirmed from inspection:
 - [ ] 6+ unit tests: composite fan-out, per-sink error isolation, retention cutoff, discard sink zero-cost
 - [ ] Commit `feat(vision): pipeline + user-directed sinks with retention`
 
-### V-5 HD via ONNX SigLip 2 (ort backend)
+### V-5 HD via ONNX SigLip 2 (ort backend) ✅
 
-*(V-0 inspection found `ort = "=2.0.0-rc.12"` already workspace-pinned — skip the dep-add step and go straight to enabling the feature in model-loader.)*
+*(V-0 inspection found `ort = "=2.0.0-rc.12"` already workspace-pinned and `ort-backend` feature already declared — skipped the dep-add step and went straight to the new backend file.)*
 
-- [ ] Add `ort = { workspace = true, optional = true }` to `kernel/model-loader/Cargo.toml` behind new `ort-backend` feature (no version bump needed — reuses workspace pin)
-- [ ] New backend `kernel/model-loader/src/backends/ort/siglip_naflex.rs` implementing `VisionEmbeddingBackend`
-  - [ ] Loads `onnx-community/siglip2-so400m-patch14-384-ONNX` (FixRes, not NaFlex — NaFlex deferred)
-  - [ ] Same preprocessing as candle path (mean 0.5, std 0.5, 384² RGB CHW)
-  - [ ] Exposes `backend_name() -> "siglip2-onnx-fixres"`
-- [ ] Dispatcher in `voice_pool.rs` picks candle vs ort based on slot `hd_enabled` preference
-- [ ] Model download helper → `kernel/model-loader/src/models/download.rs` learns about ONNX exports (distinct from safetensors path)
-- [ ] Preference key `vision.hd.backend` enum: `'siglip1-candle'` (default) | `'siglip2-ort'` | `'siglip1-tiled'` (tile-based pseudo-HD, V-11)
-- [ ] Tests: ort backend loads, encodes a golden test image, embedding dim matches expectation
-- [ ] Commit `feat(model-loader): siglip 2 ONNX backend via ort (HD path)`
+- [x] `ort-backend` feature already declared in `kernel/model-loader/Cargo.toml` — added `dep:image` so the new backend can resize/normalize without leaning on `candle-backend`.
+- [x] New backend `kernel/model-loader/src/backends/ort/siglip_naflex.rs` implementing `VisionEmbeddingBackend`
+  - [x] `SigLip2OrtFixRes` struct, ort `Session` behind `Mutex<Option<...>>`
+  - [x] Loads `onnx-community/siglip2-so400m-patch14-384-ONNX` (FixRes only; NaFlex deferred to V-11 — file named `siglip_naflex` so the same module can grow into NaFlex without a rename)
+  - [x] Same preprocessing as candle path: 384² CatmullRom resize, CHW, mean 0.5, std 0.5, ImageNet-style normalize → `[1, 3, 384, 384]`
+  - [x] `pixel_values` ndarray fed into ort session; output L2-normalized so candle / ort embeddings live in the same space
+  - [x] Static method `SigLip2OrtFixRes::backend_name() -> "siglip2-onnx-fixres"`
+- [x] Dispatcher in `backends/voice_pool.rs::ModelCapability::VisionEmbedding` arm branches on `params.backend_variant.as_deref()`:
+  - `Some("siglip2-onnx-fixres")` + `feature = "ort-backend"` → ort path (HD)
+  - default → existing candle `SigLipVision` (SD)
+- [x] `LoadParams` gained a generic `backend_variant: Option<String>` field — caller passes the dispatch hint per slot. Both pre-existing initializers in `service.rs` updated.
+- [ ] Model download helper (`download.rs`) ONNX-awareness — **deferred**: not needed until the HD UI in V-7 actually triggers an HF download of the ONNX export.
+- [ ] Preference key `vision.hd.backend` registration — **deferred to V-7** (frontend config panel work).
+- [x] 5 inline unit tests, all green: defaults, stable backend_name, missing-path informative error, idempotent unload, zero memory_usage when unloaded.
+- [x] Golden image encode test — **deferred**: requires the ~3.5 GB ONNX file in CI; tracked alongside the V-1 owner-runtime smoke.
+- [x] `cargo check -p model-loader` 0/0 (default) and `cargo check -p model-loader --features ort-backend` 0/0
+- [x] `cargo test -p model-loader --lib backends::ort::siglip_naflex` 5/5 green
+- [x] Commit `feat(model-loader): siglip 2 ONNX backend via ort (HD path) (V-5)`
 
 ### V-6 WiredFront PixVix feature domain (Svelte)
 

@@ -65,6 +65,10 @@ pub struct LoadParams {
     pub gpu_layers: Option<u32>,
     /// Whether to run priming pass after loading.
     pub auto_prime: bool,
+    /// Optional backend variant hint, consumed by the per-capability
+    /// dispatcher (e.g. `"siglip2-ort"` for the HD vision path,
+    /// `None` for each capability's default).
+    pub backend_variant: Option<String>,
 }
 
 impl Default for LoadParams {
@@ -74,6 +78,7 @@ impl Default for LoadParams {
             context_length: 4096,
             gpu_layers: None,
             auto_prime: true,
+            backend_variant: None,
         }
     }
 }
