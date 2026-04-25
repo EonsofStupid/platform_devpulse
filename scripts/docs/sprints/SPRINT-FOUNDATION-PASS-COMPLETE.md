@@ -105,20 +105,26 @@ Removed in F-3 (Claude + STT migrations):
 | `biome check src/routes/(devtools)/devtools/stt/+page.svelte`   | clean ✓ |
 | Pre-commit hooks (no-raw-values, no-legacy-prefixes, biome-lint, docs-preflight) | passed ✓ |
 
-**Test suites**: F-1 introduced 14 unit tests under
-`commands::_util` that passed at F-1 landing; the `_util` module hasn't
-been touched since, so the assertions hold by construction. Re-running
-`cargo test` for the broader suites is queued as a follow-up because
-neither F-2 nor F-3 changed any compiled Rust path — they are pure
-frontend additions + one xtask helper that shipped with two unit
-tests at F-4 landing.
+**Test suites** (run 2026-04-25 post-close-out):
+
+| Suite                                                      | Result                          |
+|------------------------------------------------------------|---------------------------------|
+| `cargo test -p devpulse_desktop_backend --lib commands::_util` | 12 passed / 0 failed ✓        |
+| `cargo test -p devpulse-engine --lib vision`               | 29 passed / 0 failed ✓ (no regression) |
+| `cargo test -p xtask`                                      | 90 passed / 1 **pre-existing failure** |
+
+The single xtask failure is `commands::model_manifest_backfill::tests::parameter_count_standard_b_suffix`
+— a parser test in a module **none of F-1/F-2/F-3/F-4 touched** (F-4
+modified only `xtask/src/workspace.rs` and `xtask/src/commands/dev.rs`).
+It is pre-existing drift in the model-manifest parser, unrelated to the
+foundation pass; tracked for the model-loader sprint.
 
 **Specta bindings**: `bindings.ts` already carries `CommandError` +
 `ErrorKind` from F-1's regen. F-2 and F-3 are pure-frontend changes
 that consume those existing types — no IPC surface modified, no
-bindings regen needed. (Verified: `git diff
-interfaces/desktop/src/lib/sys/generated/bindings.ts HEAD~4..HEAD`
-shows zero post-F-1 diff.)
+bindings regen needed. **Verified empirically 2026-04-25**: ran
+`cd interfaces/desktop/src-tauri && ../../../target/debug/export-bindings.exe`
+post-close-out; `git diff` on `bindings.ts` showed zero changes.
 
 **Runtime smoke**: deferred to owner. The four manual probes the
 sprint spec calls for (boot / Promise.reject / throw / log file
