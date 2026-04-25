@@ -1,0 +1,237 @@
+# Planning Skill — Single Source of Truth
+#
+# This file is the SSOT for the /planning skill. The lint at
+# scripts/docs/pipeline/lint-plan.ts parses this YAML and validates
+# every plan in `~/.claude/plans/*.md` against it. The skill's
+# template.md, checklist.md, examples/good.md, examples/lazy.md, and
+# SKILL.md all reference this file rather than restating the schema
+# inline.
+#
+# Adding a new section, changing a citation rule, or introducing a new
+# severity tier = edit this file, run `pnpm --filter
+# @devpulse/docs-enforcement lint:plans --self` to confirm the skill
+# files still align, bump `schema_version` if breaking.
+
+schema_version: 1
+
+# ─────────────────────────────────────────────────────────────────────
+# Path glob the schema governs. Lint refuses files outside this scope
+# (with a clear "not in your governance window" message, not a hard
+# fail). `~` expands to user home; relative paths resolve against CWD.
+# ─────────────────────────────────────────────────────────────────────
+
+governs:
+  - "~/.claude/plans/*.md"
+
+# ─────────────────────────────────────────────────────────────────────
+# Plan frontmatter contract — the YAML fenced block at the top of each
+# plan file. Frontmatter checks always run (regardless of `status`)
+# because they describe the plan's identity, not its content quality.
+# ─────────────────────────────────────────────────────────────────────
+
+frontmatter:
+  required_keys: [schema_version, status, target, slug, opened]
+  status_values: [research, synthesizing, ready, abandoned]
+  schema_version_value: 1
+  # 3+ kebab words, lowercase, no digits. Matches existing plan slugs
+  # like `gentle-swaddling-ritchie`, `crisp-binding-hopper`.
+  slug_pattern: '^[a-z]+(?:-[a-z]+){2,}$'
+  # ISO date YYYY-MM-DD.
+  opened_pattern: '^\d{4}-\d{2}-\d{2}$'
+
+# ─────────────────────────────────────────────────────────────────────
+# Status-gated strictness. The set of rules a plan must satisfy depends
+# on its `status:` frontmatter value. A plan in mid-research should not
+# fail for missing citations — that's the whole point of writing
+# between research steps. A plan marked `ready` is being handed off and
+# every check fires.
+# ─────────────────────────────────────────────────────────────────────
+
+strictness:
+  research:     presence_only   # sections exist, frontmatter valid
+  synthesizing: presence_only   # same — still in flux
+  ready:        full            # every section rule enforced
+  abandoned:   skip              # don't validate at all
+
+# ─────────────────────────────────────────────────────────────────────
+# Universal severity taxonomy. Plans that use severity tags must use
+# these. The lint warns when a plan uses an unrecognized emoji-tag in a
+# severity-suggestive context (e.g. inside a `### N. <tier>` heading).
+# ─────────────────────────────────────────────────────────────────────
+
+severities:
+  - id: critical
+    emoji: "🔴"
+    meaning: "End-user / zero-code consumer hits this leak."
+  - id: major
+    emoji: "🟠"
+    meaning: "Out-of-box developer hits this leak."
+  - id: minor
+    emoji: "🟡"
+    meaning: "Only project contributors hit this leak."
+  - id: deferred
+    emoji: "⚪"
+    meaning: "Aspirational / not-yet-leaking; flagged but not failing."
+
+# ─────────────────────────────────────────────────────────────────────
+# Citation patterns referenced by section rules below. Defining them
+# once here prevents drift between the regex used in §3 (code reads)
+# and the regex used in §6 (open questions).
+# ─────────────────────────────────────────────────────────────────────
+
+citation_patterns:
+  # `path:line` or `path:line-line` inside backticks.
+  code_path_line: '`[^`]+:\d+(?:-\d+)?`'
+  # Q-ID reference: Q1, Q2, Q3 …
+  q_id: 'Q\d+'
+  # URL inside angle brackets: <https://…>
+  url: '<https?://'
+  # Source tag for §4: [official] | [blog ...] | [inferred]
+  source_tag: '\[official\]|\[blog|\[inferred\]'
+  # Bare [inferred] — used to flag steps that rely only on inference.
+  inferred: '\[inferred\]'
+
+# ─────────────────────────────────────────────────────────────────────
+# Body sections. The 1–9 spine is required; sections numbered ≥10 are
+# user-defined extensions (audit-style "Out-of-scope grievances", etc.)
+# and lint-tolerated. Title strings must match the plan H2 verbatim.
+# ─────────────────────────────────────────────────────────────────────
+
+sections:
+  - id: intake
+    number: 1
+    title: "1. Intake"
+    rules:
+      - id: verbatim_ask
+        check: must_contain
+        pattern: 'Verbatim user ask'
+        when: ready
+        message: "§1 must include a 'Verbatim user ask' subheading with the user's request quoted word-for-word."
+      - id: min_questions
+        check: count_pattern
+        pattern: '^- \*\*Q\d+:'
+        min: 3
+        when: ready
+        message: "§1 must have ≥3 numbered clarifying questions (Q1, Q2, Q3, ...)."
+
+  - id: code_map
+    number: 2
+    title: "2. Surrounding code map"
+    rules:
+      - id: max_paths
+        check: count_pattern
+        pattern: '^- `[^`]+`'
+        max: 15
+        when: ready
+        message: "§2 should list ≤15 paths (over-mapping dilutes the audit). Trim or split into a follow-up plan."
+
+  - id: detailed_reads
+    number: 3
+    title: "3. Detailed reads"
+    rules:
+      - id: citations_present
+        check: must_contain_pattern
+        pattern_ref: code_path_line
+        when: ready
+        message: "§3 must include at least one `path:line` citation. Findings without citations are note-collapse."
+
+  - id: external_research
+    number: 4
+    title: "4. External research"
+    rules:
+      - id: tagged_or_skipped
+        check: must_contain_any
+        patterns:
+          - '\[official\]'
+          - '\[blog'
+          - '\[inferred\]'
+          - 'Skipped'
+          - '\(none'
+        when: ready
+        message: "§4 must contain at least one tagged source (`[official]/[blog]/[inferred]`) or an explicit 'Skipped' / '(none ...)' justification."
+
+  - id: constraints
+    number: 5
+    title: "5. Constraints discovered"
+    rules:
+      - id: contradictions_subsection
+        check: must_contain
+        pattern: '### Contradictions to the ask'
+        when: ready
+        message: "§5 must include a '### Contradictions to the ask' subsection. Empty-with-no-justification is the sycophancy failure mode."
+
+  - id: open_questions
+    number: 6
+    title: "6. Open questions"
+    rules:
+      - id: terminal_states
+        check: every_q_id_terminal
+        when: ready
+        message: "Every Q-ID in §6 must reach a terminal state: 'resolved:' or 'deferred:'."
+
+  - id: risks
+    number: 7
+    title: "7. Risks / pre-mortem"
+    rules:
+      - id: min_risks
+        check: count_pattern
+        pattern: '\*\*Risk \d+'
+        min: 3
+        when: ready
+        message: "§7 must list ≥3 distinct numbered risks. Fewer = adversarial pass incomplete."
+      - id: steel_man_present
+        check: must_contain
+        pattern: 'Steel-man'
+        when: ready
+        message: "§7 must include a 'Steel-man' subsection naming the not-chosen alternative."
+
+  - id: plan
+    number: 8
+    title: "8. Plan"
+    rules:
+      - id: steps_have_citations
+        check: every_step_cites
+        when: ready
+        message: "Every numbered step in §8 must end with a `— cites: …` clause referencing a Q-ID, finding, source, or constraint."
+
+  - id: verification
+    number: 9
+    title: "9. Verification"
+    rules:
+      - id: runtime_signal
+        check: must_contain_any
+        patterns:
+          - 'xtask run-dev'
+          - 'pnpm check'
+          - 'pnpm test'
+          - 'cargo run'
+          - 'Runtime:'
+          - 'tsc --noEmit'
+        when: ready
+        message: "§9 must include at least one runtime/compile signal. Compile-green ≠ product-works — the verification step needs a real check."
+
+# ─────────────────────────────────────────────────────────────────────
+# Extension policy. Sections numbered ≥10 (e.g. "10. Out-of-scope
+# grievances") are tolerated. They must still have a numeric prefix and
+# a title, but no rules apply to their body. Useful for audit-style
+# appendices that don't fit the 9-section spine.
+# ─────────────────────────────────────────────────────────────────────
+
+extension_policy:
+  min_extension_number: 10
+  lint_mode: skip   # presence-only; no body rules
+
+# ─────────────────────────────────────────────────────────────────────
+# Slug-naming convention (documented for human authors; not enforced
+# beyond `frontmatter.slug_pattern`). Pattern: <adjective>-<verb-ing>-
+# <evocative-noun>. Existing examples: `gentle-swaddling-ritchie`
+# (Ritchie = Unix simplicity), `crisp-binding-hopper` (Hopper =
+# compiler pioneer fits schema/lint theme), `nested-dazzling-conway`
+# (Conway = layered systems). Pioneers + animals are both fair game;
+# avoid project terms (no `surreal-fixing-knuth`).
+# ─────────────────────────────────────────────────────────────────────
+
+slug_naming:
+  shape: "<adjective>-<verb-ing>-<noun>"
+  example: "gentle-swaddling-ritchie"
+  forbidden: ["containing project-domain words like 'surreal' or 'devpulse'"]
