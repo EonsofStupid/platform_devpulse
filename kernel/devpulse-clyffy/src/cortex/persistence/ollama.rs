@@ -1,16 +1,16 @@
-//! Ollama managed sidecar — `ollama serve` child process.
+//! Ollama — `ollama serve` managed child process.
 //!
-//! Mirrors [`super::surrealdb_sidecar::SurrealdbSidecarAdapter`]: port
-//! allocation (attach / bump), spawn / attach disposition, health poll,
-//! HTTP client for the Ollama REST API. Lifted out of
-//! `systems/devpulse-engine/src/platform/services/ollama_sidecar.rs`
-//! so Ollama sits alongside the other cortex resource adapters (surreal,
-//! libsql, duckdb, rro, moka, whisper, kokoros, embedder).
+//! Mirrors [`super::surreal::SurrealLifecycle`]: port allocation
+//! (attach / bump), spawn / attach disposition, health poll, HTTP
+//! client for the Ollama REST API. Lifted out of
+//! `systems/devpulse-engine/src/platform/services/ollama.rs` so Ollama
+//! sits alongside the other cortex resource adapters (surreal, libsql,
+//! duckdb, rro, moka, whisper, kokoros, embedder).
 //!
 //! Kernel/engine split:
 //! - `OllamaAdapter` (this file) — lifecycle, port resolution, raw API.
-//! - `platform::services::ollama_sidecar` — engine facade: `Service`
-//!   trait impl, plumbing into boot + devtool, Tauri command glue.
+//! - `platform::services::ollama` — engine facade: `Service` trait
+//!   impl, plumbing into boot + devtool, Tauri command glue.
 
 use crate::cortex::persistence::port_alloc::{
     self, Disposition, PortAllocation, DEFAULT_MAX_BUMPS,
@@ -353,8 +353,9 @@ async fn probe_version(http: &reqwest::Client, host: &str, port: u16) -> Result<
     Ok(())
 }
 
-/// Resolve the `ollama` binary. See [`super::surrealdb_sidecar`] for the
-/// parallel SurrealDB version — same pattern, different install paths.
+/// Resolve the `ollama` binary. See [`super::surreal::lifecycle`] for
+/// the parallel SurrealDB version — same pattern, different install
+/// paths.
 fn resolve_binary(configured: Option<&Path>) -> Result<PathBuf> {
     if let Some(p) = configured {
         if !p.as_os_str().is_empty() {

@@ -97,7 +97,7 @@ pub struct SurrealConfig {
     pub log_level: String,
 }
 
-/// Sidecar adapter — owns the child process and resolved endpoint.
+/// Surreal lifecycle — owns the child process and resolved endpoint.
 pub struct SurrealLifecycle {
     /// `Some` only when this adapter spawned the child. `None` means
     /// we attached to an externally-running SurrealDB and `shutdown`

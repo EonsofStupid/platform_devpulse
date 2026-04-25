@@ -1,31 +1,30 @@
 /**
  * @file sys/bindings/ollama/index.ts
  * @module @devpulse/sys/bindings/ollama
- * @description Ollama IPC facade — managed sidecar (backup inference path).
+ * @description Ollama IPC facade — managed `ollama serve` child process.
  *
- * Ollama is a managed sidecar child process owned by devpulse. It is
- * the **backup** inference runtime per the project's inference
- * direction (focus is llama.cpp + Burn + vLLM); Ollama is kept but
- * never the path new code reaches for. The devtool exists so the
- * operator can drive it when needed.
+ * Ollama is a managed child process owned by devpulse. It is the
+ * **backup** inference runtime per the project's inference direction
+ * (focus is llama.cpp + Burn + vLLM); Ollama is kept but never the
+ * path new code reaches for. The devtool exists so the operator can
+ * drive it when needed.
  *
- * # The names exposed here are the **target canonical names**
+ * # Why a facade, not direct generated imports
  *
- * Today the underlying generated symbols are still
- * `ollamaSidecarStart`, `ollamaSidecarStatus`, etc. — that's the
- * pre-consolidation Rust naming. This facade renames them at the
- * boundary so consumers always see `ollamaStart`, `ollamaStatus`,
- * etc. After the consolidation rename + `cargo xtask regen-bindings`,
- * only the right-hand sides in this file change. Consumers never move.
+ * Domain code stays insulated from the generated monolith — when a
+ * specta type or command name changes, only this file moves.
+ *
+ * The Tauri command function names still carry the legacy
+ * `ollama_sidecar_*` prefix (Phase 3 of the consolidation will rename
+ * those). The TYPES are already canonical (`OllamaStatus`,
+ * `OllamaHealth`, `OllamaConfig`, `OllamaModel`) and re-exported as-is.
  *
  * # Where the underlying Rust lives
  *
  * - Tauri commands: `interfaces/desktop/src-tauri/src/commands/ollama_sidecar/`
- *   (will become `commands/ollama/`)
- * - Engine service: `systems/devpulse-engine/src/platform/services/ollama_sidecar.rs`
- *   (will become `services/ollama.rs`)
- * - Kernel adapter: `kernel/devpulse-clyffy/cortex/persistence/ollama/`
- *   (already correctly named — kernel owns the lifecycle)
+ *   (will move to `commands/ollama/` in Phase 3)
+ * - Engine service: `systems/devpulse-engine/src/platform/services/ollama.rs`
+ * - Kernel adapter: `kernel/devpulse-clyffy/src/cortex/persistence/ollama.rs`
  */
 
 import { commands } from "$lib/sys/generated/bindings.js";

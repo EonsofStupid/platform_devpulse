@@ -63,7 +63,7 @@ pub async fn boot_consolidated(
         return (None, None, None, None);
     }
 
-    // ── Stage A: Sidecar process (`surreal start`) ────────────────
+    // ── Stage A: Surreal child process (`surreal start`) ──────────
     on_event(InitEvent::running(
         "SurrealDB sidecar",
         "Spawning surreal start...",

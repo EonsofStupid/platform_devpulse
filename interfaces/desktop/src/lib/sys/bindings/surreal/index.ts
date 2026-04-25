@@ -10,24 +10,27 @@
  * lifecycle and graph data-plane are verb groups within a single
  * managed service, not separate concerns.
  *
- * # The names exposed here are the **target canonical names**
+ * # Why a facade, not direct generated imports
  *
- * Today the underlying generated symbols are still
- * `surrealdbSidecarStatus`, `SurrealdbSidecarStatus`, etc. — that's
- * the pre-consolidation Rust naming. This facade renames them at the
- * boundary so consumers always see `surrealStatus`, `SurrealStatus`,
- * etc. After the consolidation rename + `cargo xtask regen-bindings`,
- * only the right-hand sides in this file change. Consumers never move.
+ * Domain code stays insulated from the generated monolith — when a
+ * specta type or command name changes, only this file moves.
+ *
+ * The Tauri command function names still carry the legacy
+ * `surrealdb_sidecar_*` prefix (Phase 3 of the consolidation will
+ * rename those). The lifecycle TYPES are now canonical post-Phase 1
+ * (`SurrealStatus`, `SurrealHealth`, `SurrealUserConfig`) — re-exported
+ * directly. The graph data-plane types still live as `Graph*` in
+ * `commands/sys/graph.rs` (intentionally — they're the data-plane
+ * vocabulary, not Surreal-specific) and are aliased to `Surreal*` here
+ * so the domain sees a single coherent type namespace.
  *
  * # Where the underlying Rust lives
  *
- * - Sidecar lifecycle: `interfaces/desktop/src-tauri/src/commands/surrealdb_sidecar/`
- *   (will become `commands/surreal/`)
+ * - Sidecar lifecycle (Tauri): `interfaces/desktop/src-tauri/src/commands/surrealdb_sidecar/`
+ *   (will move to `commands/surreal/` in Phase 3)
  * - Graph data plane: `interfaces/desktop/src-tauri/src/commands/sys/graph.rs`
- *   (already correctly named — these don't get renamed)
- * - Engine service: `systems/devpulse-engine/src/platform/services/surrealdb_sidecar.rs`
- *   (will become `services/surreal.rs`)
- * - Kernel consumer: `kernel/devpulse-clyffy/cortex/persistence/surreal.rs`
+ * - Engine service: `systems/devpulse-engine/src/platform/services/surreal.rs`
+ * - Kernel consumer: `kernel/devpulse-clyffy/src/cortex/persistence/surreal/`
  */
 
 import { commands } from "$lib/sys/generated/bindings.js";

@@ -19,7 +19,7 @@ enabled = true
 critical = true
 auto_start = true
 # Explicit surreal binary path. Empty = resolve from the bundled
-# sidecar, then standard install paths, then PATH.
+# binary next to the app exe, then standard install paths, then PATH.
 binary_path = ""
 # Root credentials passed to `surreal start`. The namespace-scoped
 # users below (`system_user` / `system_password`) are created after
@@ -37,7 +37,7 @@ log_level = "warn"
 enabled = true
 critical = true
 kind = "surreal"
-# `path` is legacy — the sidecar's RocksDB store lives at
+# `path` is legacy — the RocksDB store lives at
 # `{data_dir}/surreal/devpulse/` and is shared across all scopes.
 path = "system/surreal/reasoning"
 namespace = "system"
