@@ -72,10 +72,10 @@ const slotStateLabel = $derived(
 
 const badge = $derived<HealthBadge>(
 	visionReady
-		? { state: "up", label: "SigLIP2 loaded" }
+		? { state: "up", label: "Ready to encode" }
 		: visionSlot?.assigned_model_id
-			? { state: "stopped", label: "Model assigned — not loaded" }
-			: { state: "unknown", label: "No model assigned" },
+			? { state: "stopped", label: "Model picked — not loaded yet" }
+			: { state: "unknown", label: "No model picked yet" },
 );
 
 // ── Slot actions ───────────────────────────────────────
@@ -117,7 +117,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	if (!file) return;
 	const path = (file as unknown as { path?: string }).path;
 	if (!path) {
-		lastError = "Could not resolve file path — Tauri drag-drop exposes `path` on the File object.";
+		lastError =
+			"Couldn't read that file's path. Try drag-and-drop instead, or pick the file again.";
 		input.value = "";
 		return;
 	}
@@ -159,8 +160,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Vision (SigLIP2)"
-	description="Image embeddings — preconfigured CPU"
+	title="Vision"
+	description="Turns images into fingerprints Clyffy can search and compare"
 	icon={Eye}
 	axis="capabilities"
 	accent="salmon"
@@ -170,11 +171,13 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	{#snippet status()}
 		<div class="flex flex-col gap-[var(--space-4)]">
 			<Callout variant="tip">
-				<div class="p-[var(--space-3)]">
+				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-1)]">
+					<Text size="xs" weight="bold">What this does</Text>
 					<Text size="xs" color="muted">
-						SigLIP2-SO400M produces 1152-dim image embeddings at 384×384.
-						Pipeline: image → resize → normalize (mean 0.5, std 0.5) → CHW
-						tensor → VisionModel.forward → pooled embedding → L2 normalize.
+						Turns any picture into a 1152-number "fingerprint" Clyffy
+						can use to find or compare similar images. You give it a
+						PNG or JPEG; it gives back a vector. Same image in → same
+						vector out, every time.
 					</Text>
 				</div>
 			</Callout>
@@ -192,10 +195,10 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					<TooltipContent>
 						<Text size="xs">
 							{visionReady
-								? "Weights are in RAM/VRAM and the encoder is ready to forward."
+								? "Loaded into memory and ready to encode images. Try it on the Actions tab."
 								: visionSlot?.assigned_model_id
-									? "Model is assigned to this slot but weights are not yet loaded. Use the Actions tab."
-									: "No model assigned to vision.embedder. Use the setup wizard first."}
+									? "A model is picked but not loaded yet. Open the Actions tab and click Load."
+									: "Nothing picked yet. Open the setup wizard and choose a vision model."}
 						</Text>
 					</TooltipContent>
 				</Tooltip>
@@ -206,8 +209,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					</TooltipTrigger>
 					<TooltipContent>
 						<Text size="xs">
-							SigLIP2-SO400M output dimension. Read from the model's
-							config.json at load time.
+							Each image becomes a list of 1152 numbers. That list is the
+							fingerprint Clyffy compares against other images.
 						</Text>
 					</TooltipContent>
 				</Tooltip>
@@ -217,7 +220,10 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						<Stat label="Image size" value="384" unit="²" accent="teal" />
 					</TooltipTrigger>
 					<TooltipContent>
-						<Text size="xs">Square input resolution. Inputs are resized via CatmullRom.</Text>
+						<Text size="xs">
+							Every image is scaled to a 384 × 384 square before encoding —
+							pick any size you like, the model normalizes the rest.
+						</Text>
 					</TooltipContent>
 				</Tooltip>
 
@@ -267,13 +273,12 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				</Card>
 			{:else}
 				<EmptyState>
-					<div class="flex flex-col items-center gap-[var(--space-2)]">
+					<div class="flex flex-col items-center gap-[var(--space-2)] text-center">
 						<ImageOff size={28} style="color: var(--text-muted);" />
-						<Text size="sm" weight="semibold">No SigLIP2 model assigned</Text>
+						<Text size="sm" weight="semibold">No vision model picked yet</Text>
 						<Text size="xs" color="muted">
-							Use the setup wizard's Vision card to pick a SigLIP2 build.
-							Recommended default:
-							<span class="font-mono">google/siglip2-so400m-patch14-384</span>.
+							Open the setup wizard and pick a vision encoder. The
+							recommended default works well on most machines.
 						</Text>
 					</div>
 				</EmptyState>
@@ -285,13 +290,13 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"
 					>
-						<Text size="xs" weight="bold">Last encoded image</Text>
+						<Text size="xs" weight="bold">Last image you encoded</Text>
 						<Text size="xs" color="muted">
-							{lastResult.filename} · dim {lastResult.dim} · L2 norm
-							{lastResult.norm.toFixed(4)} · {lastResult.time_ms} ms
+							<span class="font-mono">{lastResult.filename}</span>
+							· {lastResult.time_ms} ms · returned {lastResult.dim} numbers
 						</Text>
 						<Text size="xs" color="muted">
-							First 8 dims:
+							Preview (first 8 of {lastResult.dim}):
 							<span class="font-mono break-all">
 								[{lastResult.first8.map((v) => v.toFixed(4)).join(", ")}]
 							</span>
@@ -307,35 +312,35 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	{#snippet config()}
 		<div class="flex flex-col gap-[var(--space-4)]">
 			<Callout variant="info">
-				<div class="p-[var(--space-3)]">
+				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-1)]">
+					<Text size="xs" weight="bold">Where it runs</Text>
 					<Text size="xs" color="muted">
-						SigLIP2 runs CPU by default. When compiled with the
-						<span class="font-mono">cuda</span> feature, the backend
-						auto-selects the first GPU and falls back to CPU if CUDA init
-						fails. Image size and embedding dim are read from the model's own
-						<span class="font-mono">config.json</span> at load time — they
-						reflect the weights on disk, not a config knob.
+						Runs on your CPU by default. If your build includes GPU
+						support and a card is available, it uses the GPU automatically
+						and falls back to CPU when the GPU isn't reachable.
 					</Text>
 				</div>
 			</Callout>
 
 			<Card preset="glass">
 				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
-					<Text size="xs" weight="bold">Default expectations (SigLIP2-SO400M-384)</Text>
-					<Text size="xs" color="muted">Input resolution: 384 × 384 RGB</Text>
-					<Text size="xs" color="muted">Embedding dim: 1152</Text>
-					<Text size="xs" color="muted">Normalization: mean 0.5 / std 0.5 (ImageNet-SigLIP)</Text>
-					<Text size="xs" color="muted">Output: L2-normalized dense vector</Text>
+					<Text size="xs" weight="bold">What this model expects</Text>
+					<Text size="xs" color="muted">Image size: 384 × 384 (it resizes for you)</Text>
+					<Text size="xs" color="muted">Output: 1152 numbers per image</Text>
+					<Text size="xs" color="muted">Color: RGB, normalized internally</Text>
+					<Text size="xs" color="muted">
+						Comparable across images — cosine similarity tells you how alike two pictures are.
+					</Text>
 				</div>
 			</Card>
 
 			<Callout variant="warning">
-				<div class="p-[var(--space-3)]">
+				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-1)]">
+					<Text size="xs" weight="bold">Coming soon</Text>
 					<Text size="xs" color="muted">
-						TODO(reality-gap 2026-04-21): live device override (force CPU even
-						when CUDA is available) arrives when
-						<span class="font-mono">vision_save_config</span> lands. For now,
-						change the compile feature set or rely on the automatic fallback.
+						Forcing CPU even when a GPU is available isn't a setting yet —
+						today the model auto-picks the best device. If you need to
+						lock it to CPU, swap to a CPU-only build for now.
 					</Text>
 				</div>
 			</Callout>
@@ -349,8 +354,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	{#snippet actions()}
 		{#if loadingSlot}
 			<LoadingBlock
-				title="Loading SigLIP2 vision encoder"
-				subtitle="Safely loading into RAM / VRAM — sit tight."
+				title="Loading the vision model"
+				subtitle="Pulling weights into memory — usually a few seconds."
 				showContent
 				contentKind="dyk"
 			/>
@@ -361,16 +366,17 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-salmon-main);"
 					>
-						<Text size="sm" weight="bold">Slot lifecycle</Text>
+						<Text size="sm" weight="bold">Load · Unload</Text>
 						<Text size="xs" color="muted">
-							Load brings weights into memory. Unload frees them and clears
-							the last result.
+							Load pulls the vision model into memory so it can encode
+							images. Unload frees that memory and clears your last test
+							result.
 						</Text>
 						<div class="flex flex-wrap items-center gap-[var(--space-2)]">
 							{#if !visionReady && visionSlot?.assigned_model_id}
 								<Button preset="button-primary" size="sm" onclick={loadVision}>
 									<Play size={12} />
-									Load SigLIP2
+									Load model
 								</Button>
 							{/if}
 							{#if visionReady}
@@ -381,7 +387,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 							{/if}
 							{#if !visionSlot?.assigned_model_id}
 								<Text size="xs" color="muted">
-									Assign a SigLIP2 model in the setup wizard first.
+									Pick a vision model in the setup wizard first.
 								</Text>
 							{/if}
 						</div>
@@ -394,10 +400,11 @@ async function handleEncodeFile(event: Event): Promise<void> {
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"
 						>
-							<Text size="sm" weight="bold">Encode test image</Text>
+							<Text size="sm" weight="bold">Try it on a real image</Text>
 							<Text size="xs" color="muted">
-								Pick any PNG / JPEG — the backend resizes, normalizes, runs
-								the forward pass, and returns a 1152-dim L2-normalized vector.
+								Pick any PNG or JPEG. Clyffy turns it into the 1152-number
+								fingerprint and shows you how long it took plus a peek at the
+								result.
 							</Text>
 							<Tooltip>
 								<TooltipTrigger>
@@ -427,8 +434,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 								</TooltipTrigger>
 								<TooltipContent>
 									<Text size="xs">
-										Calls commands.encodeImage(slot_id, path). Returns the full
-										1152-dim vector; preview shows first 8 dims + L2 norm + timing.
+										Sends your image through the model, returns the 1152-number
+										fingerprint, and shows the first 8 numbers plus the time it took.
 									</Text>
 								</TooltipContent>
 							</Tooltip>
@@ -436,11 +443,12 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					</Card>
 				{:else}
 					<EmptyState>
-						<div class="flex flex-col items-center gap-[var(--space-2)]">
+						<div class="flex flex-col items-center gap-[var(--space-2)] text-center">
 							<FileImage size={28} style="color: var(--text-muted);" />
-							<Text size="sm" weight="semibold">Encode test unavailable</Text>
+							<Text size="sm" weight="semibold">Load the model first</Text>
 							<Text size="xs" color="muted">
-								Load SigLIP2 to unlock the encode-test affordance.
+								Click "Load model" above. Once it's in memory you can pick
+								any image to test the encoder.
 							</Text>
 						</div>
 					</EmptyState>
