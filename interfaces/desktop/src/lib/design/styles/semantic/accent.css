@@ -46,5 +46,11 @@
   --accent-violet-main: var(--color-brand-violet-500); /** Violet indicator — brand-violet ramp stop 500. */
   --accent-violet-glow: oklch(0.63 0.2 285 / 0.4); /** Violet glow emission. */
   --accent-violet-fill: oklch(0.63 0.2 285 / 0.08); /** Violet area fill. */
+  --accent-electric-main: var(--color-brand-electric-500); /** Electric indicator — brand-electric ramp stop 500. */
+  --accent-electric-glow: oklch(0.63 0.22 215 / 0.4); /** Electric glow emission — high-energy lightning blue. */
+  --accent-electric-fill: oklch(0.63 0.22 215 / 0.08); /** Electric area fill. */
+  --accent-azure-main: var(--color-brand-azure-500); /** Azure indicator — brand-azure ramp stop 500. */
+  --accent-azure-glow: oklch(0.63 0.18 250 / 0.35); /** Azure glow emission. */
+  --accent-azure-fill: oklch(0.63 0.18 250 / 0.08); /** Azure area fill. */
   }
 }

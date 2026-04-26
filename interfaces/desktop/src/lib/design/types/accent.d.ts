@@ -47,6 +47,12 @@ export const AccentTokens = [
 	"violet-main",
 	"violet-glow",
 	"violet-fill",
+	"electric-main",
+	"electric-glow",
+	"electric-fill",
+	"azure-main",
+	"azure-glow",
+	"azure-fill",
 ] as const;
 export type AccentToken = (typeof AccentTokens)[number];
 
@@ -92,7 +98,13 @@ export type AccentCSSVar =
 	| "--accent-gold-fill"
 	| "--accent-violet-main"
 	| "--accent-violet-glow"
-	| "--accent-violet-fill";
+	| "--accent-violet-fill"
+	| "--accent-electric-main"
+	| "--accent-electric-glow"
+	| "--accent-electric-fill"
+	| "--accent-azure-main"
+	| "--accent-azure-glow"
+	| "--accent-azure-fill";
 
 export type AccentRecord = {
 	teal: {
@@ -161,6 +173,16 @@ export type AccentRecord = {
 		fill: string;
 	};
 	violet: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	electric: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	azure: {
 		main: string;
 		glow: string;
 		fill: string;

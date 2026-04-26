@@ -30,6 +30,17 @@ export const ColorTokens = [
 	"void-950",
 	"void-base",
 	"white",
+	"brand-azure-50",
+	"brand-azure-100",
+	"brand-azure-200",
+	"brand-azure-300",
+	"brand-azure-400",
+	"brand-azure-500",
+	"brand-azure-600",
+	"brand-azure-700",
+	"brand-azure-800",
+	"brand-azure-900",
+	"brand-azure-950",
 	"brand-blue-50",
 	"brand-blue-100",
 	"brand-blue-200",
@@ -63,6 +74,17 @@ export const ColorTokens = [
 	"brand-cyan-800",
 	"brand-cyan-900",
 	"brand-cyan-950",
+	"brand-electric-50",
+	"brand-electric-100",
+	"brand-electric-200",
+	"brand-electric-300",
+	"brand-electric-400",
+	"brand-electric-500",
+	"brand-electric-600",
+	"brand-electric-700",
+	"brand-electric-800",
+	"brand-electric-900",
+	"brand-electric-950",
 	"brand-gold-50",
 	"brand-gold-100",
 	"brand-gold-200",
@@ -455,6 +477,17 @@ export type ColorCSSVar =
 	| "--color-void-950"
 	| "--color-void-base"
 	| "--color-white"
+	| "--color-brand-azure-50"
+	| "--color-brand-azure-100"
+	| "--color-brand-azure-200"
+	| "--color-brand-azure-300"
+	| "--color-brand-azure-400"
+	| "--color-brand-azure-500"
+	| "--color-brand-azure-600"
+	| "--color-brand-azure-700"
+	| "--color-brand-azure-800"
+	| "--color-brand-azure-900"
+	| "--color-brand-azure-950"
 	| "--color-brand-blue-50"
 	| "--color-brand-blue-100"
 	| "--color-brand-blue-200"
@@ -488,6 +521,17 @@ export type ColorCSSVar =
 	| "--color-brand-cyan-800"
 	| "--color-brand-cyan-900"
 	| "--color-brand-cyan-950"
+	| "--color-brand-electric-50"
+	| "--color-brand-electric-100"
+	| "--color-brand-electric-200"
+	| "--color-brand-electric-300"
+	| "--color-brand-electric-400"
+	| "--color-brand-electric-500"
+	| "--color-brand-electric-600"
+	| "--color-brand-electric-700"
+	| "--color-brand-electric-800"
+	| "--color-brand-electric-900"
+	| "--color-brand-electric-950"
 	| "--color-brand-gold-50"
 	| "--color-brand-gold-100"
 	| "--color-brand-gold-200"
@@ -882,6 +926,19 @@ export type ColorRecord = {
 		base: string;
 	};
 	white: string;
+	"brand-azure": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
 	"brand-blue": {
 		"50": string;
 		"100": string;
@@ -909,6 +966,19 @@ export type ColorRecord = {
 		"950": string;
 	};
 	"brand-cyan": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-electric": {
 		"50": string;
 		"100": string;
 		"200": string;

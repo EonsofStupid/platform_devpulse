@@ -3,14 +3,8 @@
  */
 
 @theme {
-  --duration-instant: 0ms;
   --duration-snap: 50ms;
-  --duration-micro: 80ms;
-  --duration-swift: 100ms;
-  --duration-quick: 120ms;
   --duration-fast: 150ms;
-  --duration-ease: 180ms;
-  --duration-gentle: 200ms;
   --duration-normal: 250ms;
   --duration-smooth: 400ms;
   --duration-glacial: 700ms;
@@ -21,8 +15,4 @@
   --easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --easing-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55);
-  --easing-step-1: steps(1, end);
-  --easing-step-2: steps(2, end);
-  --easing-step-3: steps(3, end);
-  --easing-step-4: steps(4, end);
 }

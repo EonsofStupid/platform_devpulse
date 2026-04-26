@@ -7,17 +7,23 @@
 	restart verbs. Previous Phase 4a harness has been removed.
 -->
 <script lang="ts">
-import { Cpu, PowerOff, RefreshCw } from "lucide-svelte";
+import { Cpu, PowerOff, RefreshCw, Send } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
+import {
+	type CapturePayload,
+	type HealthBadge,
+	ServiceDevtoolShell,
+} from "$lib/domains/platform/index.js";
 import type {
+	BackendMatrix,
 	CandleConfig,
 	ModelInfo,
 	ScopedLogEntry,
 	SlotInfo,
+	VramBudgetInfo,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
@@ -166,6 +172,94 @@ $effect(() => {
 function gpuLayersText(v: number): string {
 	return v === 4294967295 ? "all" : String(v);
 }
+
+// ── Debug: probes + test inference ───────────────────────
+let backendMatrix = $state<BackendMatrix | null>(null);
+let vramBudget = $state<VramBudgetInfo | null>(null);
+let probing = $state(false);
+let probeError = $state<string | null>(null);
+
+let testSlotId = $state<string>("");
+let testPrompt = $state<string>("Hello, who are you?");
+let testOutput = $state<string | null>(null);
+let testLatencyMs = $state<number | null>(null);
+let testRunning = $state(false);
+let testError = $state<string | null>(null);
+
+async function runProbes(): Promise<void> {
+	probing = true;
+	probeError = null;
+	try {
+		const [bm, vb] = await Promise.all([commands.listBackendMatrix(), commands.getVramBudget()]);
+		if (bm.status === "ok") backendMatrix = bm.data;
+		else probeError = `listBackendMatrix: ${bm.error}`;
+		if (vb.status === "ok") vramBudget = vb.data;
+		else
+			probeError = probeError
+				? `${probeError}; getVramBudget: ${vb.error}`
+				: `getVramBudget: ${vb.error}`;
+	} finally {
+		probing = false;
+	}
+}
+
+async function runTest(): Promise<void> {
+	if (!testSlotId || !testPrompt.trim()) return;
+	testRunning = true;
+	testError = null;
+	testOutput = null;
+	testLatencyMs = null;
+	const t0 = performance.now();
+	try {
+		const r = await commands.testInference(testSlotId, testPrompt);
+		if (r.status === "error") throw new Error(r.error);
+		testOutput = r.data;
+		testLatencyMs = Math.round(performance.now() - t0);
+	} catch (e) {
+		testError = e instanceof Error ? e.message : String(e);
+	} finally {
+		testRunning = false;
+	}
+}
+
+// ── Capture (Copy / Export) for the shell header ─────────
+function captureFor(tabId: string): CapturePayload | undefined {
+	if (tabId === "config" && cfg) {
+		return {
+			filename: "candle-config.json",
+			mime: "application/json",
+			content: JSON.stringify(cfg, null, 2),
+		};
+	}
+	if (tabId === "logs" && logs.length > 0) {
+		const lines = logs.map((l) => `${l.timestamp}\t${l.level}\t${l.message}`);
+		return {
+			filename: "candle-logs.log",
+			mime: "text/plain",
+			content: lines.join("\n"),
+		};
+	}
+	if (tabId === "debug") {
+		const snapshot = {
+			cfg,
+			slots,
+			models,
+			candleSlotIds: candleSlots.map((s) => s.id),
+			backendMatrix,
+			vramBudget,
+			lastTest:
+				testOutput !== null
+					? { slotId: testSlotId, prompt: testPrompt, output: testOutput, latencyMs: testLatencyMs }
+					: null,
+		};
+		return {
+			filename: "candle-debug-snapshot.json",
+			mime: "application/json",
+			content: JSON.stringify(snapshot, null, 2),
+		};
+	}
+	return undefined;
+}
 </script>
 
 <ServiceDevtoolShell
@@ -175,6 +269,7 @@ function gpuLayersText(v: number): string {
 	axis="runtimes"
 	accent="ember"
 	health={badge}
+	capture={captureFor}
 >
 	{#snippet status()}
 		<div class="space-y-3">
@@ -412,6 +507,141 @@ function gpuLayersText(v: number): string {
 					{error}
 				</div>
 			{/if}
+		</div>
+	{/snippet}
+
+	{#snippet debug()}
+		<div class="space-y-5">
+			<!-- Snapshot probes -->
+			<div class="space-y-3">
+				<div class="flex items-center justify-between">
+					<div>
+						<Text size="sm" weight="semibold">Snapshot probes</Text>
+						<Text size="xs" color="muted">
+							Backend matrix + VRAM budget straight from the engine. Useful when
+							diagnosing why a slot won't load or why a model picked a different
+							backend than you expected.
+						</Text>
+					</div>
+					<Button preset="ghost" size="sm" onclick={runProbes} disabled={probing}>
+						{#if probing}
+							<Spinner size="xs" tone="accent" />
+						{:else}
+							<RefreshCw size={14} />
+						{/if}
+						Run probes
+					</Button>
+				</div>
+
+				{#if probeError}
+					<div
+						class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+					>
+						{probeError}
+					</div>
+				{/if}
+
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">VRAM budget</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-32"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{vramBudget
+							? JSON.stringify(vramBudget, null, 2)
+							: "(click Run probes)"}</pre>
+				</div>
+
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">Backend matrix</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-64"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{backendMatrix
+							? JSON.stringify(backendMatrix, null, 2)
+							: "(click Run probes)"}</pre>
+				</div>
+
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">
+						Candle-eligible slots ({candleSlots.length})
+					</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-32"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{candleSlots.length > 0
+							? JSON.stringify(
+									candleSlots.map((s) => ({ id: s.id, label: s.label, model: s.assigned_model_id })),
+									null,
+									2,
+								)
+							: "(no Candle-backed slots assigned)"}</pre>
+				</div>
+			</div>
+
+			<!-- Test inference -->
+			<div class="space-y-2">
+				<Text size="sm" weight="semibold">Test inference</Text>
+				<Text size="xs" color="muted">
+					Sends a one-shot prompt through <code>test_inference</code>
+					on a loaded slot. Use this to confirm the model is actually
+					responding before chasing higher-level chat bugs.
+				</Text>
+
+				<div class="flex flex-wrap items-center gap-2">
+					<select
+						bind:value={testSlotId}
+						class="rounded px-2 py-1 text-xs outline-none"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						disabled={testRunning || candleSlots.length === 0}
+					>
+						<option value="">Select a slot…</option>
+						{#each candleSlots as s (s.id)}
+							<option value={s.id}>{s.label}</option>
+						{/each}
+					</select>
+					<input
+						type="text"
+						bind:value={testPrompt}
+						placeholder="Prompt"
+						class="flex-1 min-w-60 rounded px-2 py-1 text-xs outline-none"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+						disabled={testRunning}
+					/>
+					<Button
+						preset="button-primary"
+						size="sm"
+						onclick={runTest}
+						disabled={testRunning || !testSlotId || !testPrompt.trim()}
+					>
+						{#if testRunning}
+							<Spinner size="xs" />
+							Running…
+						{:else}
+							<Send size={12} />
+							Send
+						{/if}
+					</Button>
+				</div>
+
+				{#if testError}
+					<div
+						class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+					>
+						{testError}
+					</div>
+				{/if}
+
+				{#if testOutput !== null}
+					<div class="space-y-1">
+						<div class="flex items-center gap-2">
+							<Badge variant="neutral" size="sm">
+								{testLatencyMs ?? "?"} ms
+							</Badge>
+							<Text size="xs" color="muted">Output</Text>
+						</div>
+						<pre
+							class="text-[11px] font-mono p-2 rounded overflow-x-auto max-h-64 whitespace-pre-wrap break-words"
+							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{testOutput}</pre>
+					</div>
+				{/if}
+			</div>
 		</div>
 	{/snippet}
 </ServiceDevtoolShell>
