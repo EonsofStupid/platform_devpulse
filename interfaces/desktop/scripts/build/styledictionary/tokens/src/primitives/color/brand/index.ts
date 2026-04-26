@@ -19,10 +19,10 @@ import purpleLeaf from './purple.tokens.json' with { type: 'json' };
 import tealLeaf from './teal.tokens.json' with { type: 'json' };
 
 export const brand = {
-	cyber: cyberLeaf.color.cyber,
-	ember: emberLeaf.color.ember,
-	frost: frostLeaf.color.frost,
-	magenta: magentaLeaf.color.magenta,
-	purple: purpleLeaf.color.purple,
-	teal: tealLeaf.color.teal,
+	'cyber': cyberLeaf['cyber'],
+	'ember': emberLeaf['ember'],
+	'frost': frostLeaf['frost'],
+	'magenta': magentaLeaf['magenta'],
+	'purple': purpleLeaf['purple'],
+	'teal': tealLeaf['teal'],
 } as const;

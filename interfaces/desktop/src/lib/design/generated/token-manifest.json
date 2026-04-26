@@ -18691,6 +18691,226 @@
 				"extensions": null
 			},
 			{
+				"name": "color-brand-azure-50",
+				"path": [
+					"color",
+					"brand-azure",
+					"50"
+				],
+				"cssVar": "--color-brand-azure-50",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0.18,
+						250
+					],
+					"hex": "#f5f5f5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-100",
+				"path": [
+					"color",
+					"brand-azure",
+					"100"
+				],
+				"cssVar": "--color-brand-azure-100",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.18,
+						250
+					],
+					"hex": "#c2defc"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-200",
+				"path": [
+					"color",
+					"brand-azure",
+					"200"
+				],
+				"cssVar": "--color-brand-azure-200",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.18,
+						250
+					],
+					"hex": "#91c6fd"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-300",
+				"path": [
+					"color",
+					"brand-azure",
+					"300"
+				],
+				"cssVar": "--color-brand-azure-300",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.73,
+						0.18,
+						250
+					],
+					"hex": "#63adf7"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-400",
+				"path": [
+					"color",
+					"brand-azure",
+					"400"
+				],
+				"cssVar": "--color-brand-azure-400",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						250
+					],
+					"hex": "#0f92f7"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-500",
+				"path": [
+					"color",
+					"brand-azure",
+					"500"
+				],
+				"cssVar": "--color-brand-azure-500",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.18,
+						250
+					],
+					"hex": "#1774c2"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-600",
+				"path": [
+					"color",
+					"brand-azure",
+					"600"
+				],
+				"cssVar": "--color-brand-azure-600",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.46,
+						0.18,
+						250
+					],
+					"hex": "#155a97"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-700",
+				"path": [
+					"color",
+					"brand-azure",
+					"700"
+				],
+				"cssVar": "--color-brand-azure-700",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.18,
+						250
+					],
+					"hex": "#0c4170"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-800",
+				"path": [
+					"color",
+					"brand-azure",
+					"800"
+				],
+				"cssVar": "--color-brand-azure-800",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.18,
+						250
+					],
+					"hex": "#012a4d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-900",
+				"path": [
+					"color",
+					"brand-azure",
+					"900"
+				],
+				"cssVar": "--color-brand-azure-900",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0.18,
+						250
+					],
+					"hex": "#011429"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-azure-950",
+				"path": [
+					"color",
+					"brand-azure",
+					"950"
+				],
+				"cssVar": "--color-brand-azure-950",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.18,
+						250
+					],
+					"hex": "#000612"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "color-brand-blue-50",
 				"path": [
 					"color",
@@ -19346,6 +19566,226 @@
 						195
 					],
 					"hex": "#000808"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-50",
+				"path": [
+					"color",
+					"brand-electric",
+					"50"
+				],
+				"cssVar": "--color-brand-electric-50",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0.22,
+						215
+					],
+					"hex": "#f5f5f5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-100",
+				"path": [
+					"color",
+					"brand-electric",
+					"100"
+				],
+				"cssVar": "--color-brand-electric-100",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.22,
+						215
+					],
+					"hex": "#97eafe"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-200",
+				"path": [
+					"color",
+					"brand-electric",
+					"200"
+				],
+				"cssVar": "--color-brand-electric-200",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.22,
+						215
+					],
+					"hex": "#3cd6f5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-300",
+				"path": [
+					"color",
+					"brand-electric",
+					"300"
+				],
+				"cssVar": "--color-brand-electric-300",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.73,
+						0.22,
+						215
+					],
+					"hex": "#33bad5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-400",
+				"path": [
+					"color",
+					"brand-electric",
+					"400"
+				],
+				"cssVar": "--color-brand-electric-400",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.22,
+						215
+					],
+					"hex": "#289fb7"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-500",
+				"path": [
+					"color",
+					"brand-electric",
+					"500"
+				],
+				"cssVar": "--color-brand-electric-500",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.22,
+						215
+					],
+					"hex": "#0d7f94"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-600",
+				"path": [
+					"color",
+					"brand-electric",
+					"600"
+				],
+				"cssVar": "--color-brand-electric-600",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.46,
+						0.22,
+						215
+					],
+					"hex": "#106373"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-700",
+				"path": [
+					"color",
+					"brand-electric",
+					"700"
+				],
+				"cssVar": "--color-brand-electric-700",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.22,
+						215
+					],
+					"hex": "#084854"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-800",
+				"path": [
+					"color",
+					"brand-electric",
+					"800"
+				],
+				"cssVar": "--color-brand-electric-800",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.22,
+						215
+					],
+					"hex": "#062e37"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-900",
+				"path": [
+					"color",
+					"brand-electric",
+					"900"
+				],
+				"cssVar": "--color-brand-electric-900",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0.22,
+						215
+					],
+					"hex": "#00171d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-brand-electric-950",
+				"path": [
+					"color",
+					"brand-electric",
+					"950"
+				],
+				"cssVar": "--color-brand-electric-950",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.22,
+						215
+					],
+					"hex": "#060606"
 				},
 				"type": "color",
 				"extensions": null
@@ -29862,20 +30302,6 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "duration-instant",
-				"path": [
-					"duration",
-					"instant"
-				],
-				"cssVar": "--duration-instant",
-				"value": {
-					"value": 0,
-					"unit": "ms"
-				},
-				"type": "duration",
-				"extensions": null
-			},
-			{
 				"name": "duration-snap",
 				"path": [
 					"duration",
@@ -29890,48 +30316,6 @@
 				"extensions": null
 			},
 			{
-				"name": "duration-micro",
-				"path": [
-					"duration",
-					"micro"
-				],
-				"cssVar": "--duration-micro",
-				"value": {
-					"value": 80,
-					"unit": "ms"
-				},
-				"type": "duration",
-				"extensions": null
-			},
-			{
-				"name": "duration-swift",
-				"path": [
-					"duration",
-					"swift"
-				],
-				"cssVar": "--duration-swift",
-				"value": {
-					"value": 100,
-					"unit": "ms"
-				},
-				"type": "duration",
-				"extensions": null
-			},
-			{
-				"name": "duration-quick",
-				"path": [
-					"duration",
-					"quick"
-				],
-				"cssVar": "--duration-quick",
-				"value": {
-					"value": 120,
-					"unit": "ms"
-				},
-				"type": "duration",
-				"extensions": null
-			},
-			{
 				"name": "duration-fast",
 				"path": [
 					"duration",
@@ -29940,34 +30324,6 @@
 				"cssVar": "--duration-fast",
 				"value": {
 					"value": 150,
-					"unit": "ms"
-				},
-				"type": "duration",
-				"extensions": null
-			},
-			{
-				"name": "duration-ease",
-				"path": [
-					"duration",
-					"ease"
-				],
-				"cssVar": "--duration-ease",
-				"value": {
-					"value": 180,
-					"unit": "ms"
-				},
-				"type": "duration",
-				"extensions": null
-			},
-			{
-				"name": "duration-gentle",
-				"path": [
-					"duration",
-					"gentle"
-				],
-				"cssVar": "--duration-gentle",
-				"value": {
-					"value": 200,
 					"unit": "ms"
 				},
 				"type": "duration",
@@ -30127,50 +30483,6 @@
 					0.27,
 					1.55
 				],
-				"type": "cubicBezier",
-				"extensions": null
-			},
-			{
-				"name": "easing-step-1",
-				"path": [
-					"easing",
-					"step-1"
-				],
-				"cssVar": "--easing-step-1",
-				"value": "steps(1, end)",
-				"type": "cubicBezier",
-				"extensions": null
-			},
-			{
-				"name": "easing-step-2",
-				"path": [
-					"easing",
-					"step-2"
-				],
-				"cssVar": "--easing-step-2",
-				"value": "steps(2, end)",
-				"type": "cubicBezier",
-				"extensions": null
-			},
-			{
-				"name": "easing-step-3",
-				"path": [
-					"easing",
-					"step-3"
-				],
-				"cssVar": "--easing-step-3",
-				"value": "steps(3, end)",
-				"type": "cubicBezier",
-				"extensions": null
-			},
-			{
-				"name": "easing-step-4",
-				"path": [
-					"easing",
-					"step-4"
-				],
-				"cssVar": "--easing-step-4",
-				"value": "steps(4, end)",
 				"type": "cubicBezier",
 				"extensions": null
 			}
@@ -31844,6 +32156,130 @@
 					],
 					"alpha": 0.08,
 					"hex": "#9b6dff"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-electric-main",
+				"path": [
+					"accent",
+					"electric",
+					"main"
+				],
+				"cssVar": "--accent-electric-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.22,
+						215
+					],
+					"hex": "#0d7f94"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-electric-glow",
+				"path": [
+					"accent",
+					"electric",
+					"glow"
+				],
+				"cssVar": "--accent-electric-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.22,
+						215
+					],
+					"alpha": 0.4,
+					"hex": "#1e8fff"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-electric-fill",
+				"path": [
+					"accent",
+					"electric",
+					"fill"
+				],
+				"cssVar": "--accent-electric-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.22,
+						215
+					],
+					"alpha": 0.08,
+					"hex": "#1e8fff"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-azure-main",
+				"path": [
+					"accent",
+					"azure",
+					"main"
+				],
+				"cssVar": "--accent-azure-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.18,
+						250
+					],
+					"hex": "#1774c2"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-azure-glow",
+				"path": [
+					"accent",
+					"azure",
+					"glow"
+				],
+				"cssVar": "--accent-azure-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.18,
+						250
+					],
+					"alpha": 0.35,
+					"hex": "#3a7ec9"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-azure-fill",
+				"path": [
+					"accent",
+					"azure",
+					"fill"
+				],
+				"cssVar": "--accent-azure-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.18,
+						250
+					],
+					"alpha": 0.08,
+					"hex": "#3a7ec9"
 				},
 				"type": "color",
 				"extensions": null

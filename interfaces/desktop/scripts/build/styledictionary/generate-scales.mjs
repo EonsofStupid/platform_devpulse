@@ -95,7 +95,7 @@ const BRAND_HUES = [
 	{ id: 'cyber', hue: 160, chroma: 0.1, description: 'WiredFront brand — cyber green-teal.' },
 ];
 
-/** Named brand accents — 7 saturated brand colours for advertising / landing surfaces. */
+/** Named brand accents — 9 saturated brand colours for advertising / landing surfaces. */
 const BRAND_ACCENT_HUES = [
 	{ id: 'brand-cyan', hue: 195, chroma: 0.14, description: 'Brand cyan — #17deef family.' },
 	{ id: 'brand-green', hue: 155, chroma: 0.17, description: 'Brand green — #29b468 family.' },
@@ -105,6 +105,8 @@ const BRAND_ACCENT_HUES = [
 	{ id: 'brand-salmon', hue: 15, chroma: 0.18, description: 'Brand salmon — #f16971 family.' },
 	{ id: 'brand-gold', hue: 100, chroma: 0.16, description: 'Brand gold — #d6d232 family.' },
 	{ id: 'brand-violet', hue: 285, chroma: 0.20, description: 'Brand violet — #9b6dff family.' },
+	{ id: 'brand-electric', hue: 215, chroma: 0.22, description: 'Brand electric — vivid electric-blue family, high chroma.' },
+	{ id: 'brand-azure', hue: 250, chroma: 0.18, description: 'Brand azure — saturated azure-blue family (semantic-promoted from wheel).' },
 ];
 
 /**

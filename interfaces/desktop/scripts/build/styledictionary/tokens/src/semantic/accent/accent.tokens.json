@@ -171,6 +171,30 @@
 				"$value": { "colorSpace": "oklch", "components": [0.63, 0.20, 285], "alpha": 0.08, "hex": "#9b6dff" },
 				"$description": "Violet area fill."
 			}
+		},
+		"electric": {
+			"$description": "Brand electric — vivid electric-blue hue 215, chroma 0.22. Distinct from frost (220° low chroma) and brand-blue (240°/0.14) by saturation.",
+			"main": { "$value": "{color.brand-electric.500}", "$description": "Electric indicator — brand-electric ramp stop 500." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.22, 215], "alpha": 0.4, "hex": "#1e8fff" },
+				"$description": "Electric glow emission — high-energy lightning blue."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.22, 215], "alpha": 0.08, "hex": "#1e8fff" },
+				"$description": "Electric area fill."
+			}
+		},
+		"azure": {
+			"$description": "Brand azure — saturated azure-blue hue 250, chroma 0.18. Promoted from wheel primitive to semantic accent.",
+			"main": { "$value": "{color.brand-azure.500}", "$description": "Azure indicator — brand-azure ramp stop 500." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.18, 250], "alpha": 0.35, "hex": "#3a7ec9" },
+				"$description": "Azure glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.18, 250], "alpha": 0.08, "hex": "#3a7ec9" },
+				"$description": "Azure area fill."
+			}
 		}
 	}
 }

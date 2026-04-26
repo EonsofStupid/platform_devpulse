@@ -29,6 +29,17 @@
   --color-void-950: oklch(0.12 0.01 220); /** void 950 — lightness 0.12. */
   --color-void-base: oklch(0.08 0.01 220); /** Void base — deepest app background anchor. */
   --color-white: oklch(1 0 0); /** Absolute white. */
+  --color-brand-azure-50: oklch(0.97 0.18 250); /** brand-azure 50 — lightness 0.97. */
+  --color-brand-azure-100: oklch(0.89 0.18 250); /** brand-azure 100 — lightness 0.89. */
+  --color-brand-azure-200: oklch(0.81 0.18 250); /** brand-azure 200 — lightness 0.81. */
+  --color-brand-azure-300: oklch(0.73 0.18 250); /** brand-azure 300 — lightness 0.73. */
+  --color-brand-azure-400: oklch(0.65 0.18 250); /** brand-azure 400 — lightness 0.65. */
+  --color-brand-azure-500: oklch(0.55 0.18 250); /** brand-azure 500 — lightness 0.55. */
+  --color-brand-azure-600: oklch(0.46 0.18 250); /** brand-azure 600 — lightness 0.46. */
+  --color-brand-azure-700: oklch(0.37 0.18 250); /** brand-azure 700 — lightness 0.37. */
+  --color-brand-azure-800: oklch(0.28 0.18 250); /** brand-azure 800 — lightness 0.28. */
+  --color-brand-azure-900: oklch(0.19 0.18 250); /** brand-azure 900 — lightness 0.19. */
+  --color-brand-azure-950: oklch(0.12 0.18 250); /** brand-azure 950 — lightness 0.12. */
   --color-brand-blue-50: oklch(0.97 0.14 240); /** brand-blue 50 — lightness 0.97. */
   --color-brand-blue-100: oklch(0.89 0.14 240); /** brand-blue 100 — lightness 0.89. */
   --color-brand-blue-200: oklch(0.81 0.14 240); /** brand-blue 200 — lightness 0.81. */
@@ -62,6 +73,17 @@
   --color-brand-cyan-800: oklch(0.28 0.14 195); /** brand-cyan 800 — lightness 0.28. */
   --color-brand-cyan-900: oklch(0.19 0.14 195); /** brand-cyan 900 — lightness 0.19. */
   --color-brand-cyan-950: oklch(0.12 0.14 195); /** brand-cyan 950 — lightness 0.12. */
+  --color-brand-electric-50: oklch(0.97 0.22 215); /** brand-electric 50 — lightness 0.97. */
+  --color-brand-electric-100: oklch(0.89 0.22 215); /** brand-electric 100 — lightness 0.89. */
+  --color-brand-electric-200: oklch(0.81 0.22 215); /** brand-electric 200 — lightness 0.81. */
+  --color-brand-electric-300: oklch(0.73 0.22 215); /** brand-electric 300 — lightness 0.73. */
+  --color-brand-electric-400: oklch(0.65 0.22 215); /** brand-electric 400 — lightness 0.65. */
+  --color-brand-electric-500: oklch(0.55 0.22 215); /** brand-electric 500 — lightness 0.55. */
+  --color-brand-electric-600: oklch(0.46 0.22 215); /** brand-electric 600 — lightness 0.46. */
+  --color-brand-electric-700: oklch(0.37 0.22 215); /** brand-electric 700 — lightness 0.37. */
+  --color-brand-electric-800: oklch(0.28 0.22 215); /** brand-electric 800 — lightness 0.28. */
+  --color-brand-electric-900: oklch(0.19 0.22 215); /** brand-electric 900 — lightness 0.19. */
+  --color-brand-electric-950: oklch(0.12 0.22 215); /** brand-electric 950 — lightness 0.12. */
   --color-brand-gold-50: oklch(0.97 0.16 100); /** brand-gold 50 — lightness 0.97. */
   --color-brand-gold-100: oklch(0.89 0.16 100); /** brand-gold 100 — lightness 0.89. */
   --color-brand-gold-200: oklch(0.81 0.16 100); /** brand-gold 200 — lightness 0.81. */

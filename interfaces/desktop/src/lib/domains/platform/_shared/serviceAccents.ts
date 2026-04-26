@@ -57,7 +57,9 @@ export type BrandAccent =
 	| "blue"
 	| "salmon"
 	| "gold"
-	| "violet";
+	| "violet"
+	| "electric"
+	| "azure";
 
 /**
  * Default accent for any devtool that doesn't appear in

@@ -45,4 +45,10 @@
   --accent-violet-main: oklch(0.55 0.2 285);
   --accent-violet-glow: oklch(0.63 0.2 285 / 0.4);
   --accent-violet-fill: oklch(0.63 0.2 285 / 0.08);
+  --accent-electric-main: oklch(0.55 0.22 215);
+  --accent-electric-glow: oklch(0.63 0.22 215 / 0.4);
+  --accent-electric-fill: oklch(0.63 0.22 215 / 0.08);
+  --accent-azure-main: oklch(0.55 0.18 250);
+  --accent-azure-glow: oklch(0.63 0.18 250 / 0.35);
+  --accent-azure-fill: oklch(0.63 0.18 250 / 0.08);
 }
