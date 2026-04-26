@@ -66,8 +66,7 @@ pub fn load_all() -> Result<Vec<KnowledgeEntry>, String> {
         files = EMBEDDED_ARTIFACTS.len(),
         manifest_version = manifest
             .as_ref()
-            .map(|m| m.version.as_str())
-            .unwrap_or("none"),
+            .map_or("none", |m| m.version.as_str()),
         "Knowledge library loaded from embedded data"
     );
 

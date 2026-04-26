@@ -263,16 +263,30 @@ fn timestamp() -> String {
 }
 
 /// Convert days since Unix epoch to (year, month, day).
+///
+/// Hinnant's calendar algorithm (`http://howardhinnant.github.io/date_algorithms.html`).
+/// Using descriptive names instead of the textbook one-letter forms so
+/// `clippy::similar_names` doesn't flag the close pairs (`doe`/`doy`,
+/// `y`/`yoe`).
 fn days_to_ymd(days: u64) -> (u64, u64, u64) {
     let era_days = days + 719_468;
     let era = era_days / 146_097;
-    let doe = era_days - era * 146_097;
-    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146_096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = doy - (153 * mp + 2) / 5 + 1;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 };
-    let y = if m <= 2 { y + 1 } else { y };
-    (y, m, d)
+    let day_of_era = era_days - era * 146_097;
+    let year_of_era =
+        (day_of_era - day_of_era / 1460 + day_of_era / 36524 - day_of_era / 146_096) / 365;
+    let year_anchor = year_of_era + era * 400;
+    let day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
+    let month_phase = (5 * day_of_year + 2) / 153;
+    let day = day_of_year - (153 * month_phase + 2) / 5 + 1;
+    let month = if month_phase < 10 {
+        month_phase + 3
+    } else {
+        month_phase - 9
+    };
+    let year = if month <= 2 {
+        year_anchor + 1
+    } else {
+        year_anchor
+    };
+    (year, month, day)
 }

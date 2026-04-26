@@ -288,4 +288,21 @@ CREATE TABLE IF NOT EXISTS daily_stats (
     governance_violations INTEGER DEFAULT 0,
     PRIMARY KEY (date)
 );
+
+-- Span traces — sink for the engine telemetry span_writer batch flush.
+-- Schema mirrors the JSON record built in
+-- `systems/devpulse-engine/src/platform/telemetry/span_writer.rs::flush`.
+-- Every column is nullable except trace_id/span_id so partial OTel
+-- exports (no parent, no fields) still land cleanly.
+CREATE TABLE IF NOT EXISTS span_traces (
+    trace_id VARCHAR NOT NULL,
+    span_id VARCHAR NOT NULL,
+    parent_span_id VARCHAR,
+    name VARCHAR NOT NULL,
+    target VARCHAR NOT NULL,
+    level VARCHAR NOT NULL,
+    duration_us BIGINT,
+    fields_json JSON,
+    created_at TIMESTAMP DEFAULT now()
+);
 ";

@@ -21,7 +21,7 @@ pub async fn sync_grammar_service_from_config(
     adapter: &LibSqlAdapter,
     grammar: &GrammarConfig,
 ) -> Result<()> {
-    let enabled: i64 = if grammar.enabled { 1 } else { 0 };
+    let enabled: i64 = i64::from(grammar.enabled);
     let last_boot_ok: i64 = 1;
     let runtime = json!({
         "clyffy_crate": env!("CARGO_PKG_VERSION"),

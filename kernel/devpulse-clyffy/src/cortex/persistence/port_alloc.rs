@@ -1,6 +1,6 @@
 //! Port allocation for managed sidecars — probe / attach / bump.
 //!
-//! Every managed sidecar (Ollama, SurrealDB, ...) asks for a configured
+//! Every managed sidecar (`Ollama`, `SurrealDB`, ...) asks for a configured
 //! port. If that port is free, we spawn on it. If it is already bound by
 //! an instance of the same service we ATTACH. If it is bound by something
 //! else we BUMP `+1` and try again, up to [`DEFAULT_MAX_BUMPS`] attempts.
@@ -17,8 +17,8 @@
 //! Each caller supplies an `identity_probe` closure that talks to the
 //! port and answers "is this OUR service already?". If yes → attach.
 //! If no → bump. This is how we avoid stomping on another app that
-//! happened to bind our default port (e.g. a user's own SurrealDB
-//! binary running outside DevPulse).
+//! happened to bind our default port (e.g. a user's own `SurrealDB`
+//! binary running outside `DevPulse`).
 
 use anyhow::{anyhow, Result};
 use std::future::Future;
@@ -72,8 +72,8 @@ impl PortAllocation {
 ///
 /// The `identity_probe` closure is called against every port that has
 /// a listener on it. It should return `Ok(())` iff the listener is an
-/// instance of our service (e.g. `GET /api/version` for Ollama,
-/// `RPC INFO FOR KV` for SurrealDB). Any error means "not ours" and
+/// instance of our service (e.g. `GET /api/version` for `Ollama`,
+/// `RPC INFO FOR KV` for `SurrealDB`). Any error means "not ours" and
 /// the allocator bumps past it.
 ///
 /// # Errors
@@ -138,6 +138,12 @@ where
 }
 
 /// Shorthand over [`allocate`] with [`DEFAULT_MAX_BUMPS`].
+///
+/// # Errors
+/// Propagates every failure from [`allocate`] — namely:
+/// - All [`DEFAULT_MAX_BUMPS`] ports are bound by foreign listeners.
+/// - Binding a TCP listener fails for a non-address-in-use reason
+///   (e.g. permission denied on a privileged port).
 pub async fn allocate_default<F, Fut>(
     host: &str,
     configured: u16,
@@ -176,6 +182,7 @@ async fn probe_state(host: &str, port: u16) -> Result<ProbeState> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

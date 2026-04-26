@@ -660,13 +660,13 @@ impl Platform {
         self.ollama.load_full()
     }
 
-    /// Get the managed SurrealDB sidecar, if boot succeeded.
+    /// Get the managed `SurrealDB` sidecar, if boot succeeded.
     #[must_use]
     pub fn surreal(&self) -> Option<&Arc<SurrealService>> {
         self.surreal.as_ref()
     }
 
-    /// Read-only access to the SurrealDB sidecar config entry.
+    /// Read-only access to the `SurrealDB` sidecar config entry.
     #[must_use]
     pub fn boot_config_surreal(&self) -> &config::SurrealServiceEntry {
         &self.boot_config.services.system.surreal

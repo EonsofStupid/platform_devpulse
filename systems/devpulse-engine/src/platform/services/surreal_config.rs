@@ -16,7 +16,7 @@
 //! - `port` — the configured port the allocator probes first. When the
 //!   user bumps this up because 8822 is permanently taken on their
 //!   machine, save here so the next boot starts at the new value.
-//! - `binary_path` — when they install SurrealDB to a non-standard
+//! - `binary_path` — when they install `SurrealDB` to a non-standard
 //!   location.
 //! - `root_user` / `root_password` — if they want to lock down the
 //!   root login to custom creds.

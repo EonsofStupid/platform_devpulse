@@ -41,7 +41,14 @@ pub enum RedactionLevel {
 ///
 /// Categories are **denied by default**. To surface an event category
 /// at a given detail level, it must be in `allowed_categories`.
+///
+/// `struct_excessive_bools` is allowed because `show_*` is the public
+/// surface of independent visibility toggles — each maps to a UI
+/// preference checkbox. Bitflags would force callers and serde
+/// consumers (the user's `whitelist.toml`) to learn an opaque mask
+/// instead of named TOML keys.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct WhitelistConfig {
     pub level: DetailLevel,
     pub allowed_categories: HashSet<EventCategory>,

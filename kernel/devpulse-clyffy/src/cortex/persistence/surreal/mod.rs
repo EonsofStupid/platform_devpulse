@@ -1,7 +1,7 @@
 //! Surreal — managed `surreal start` child process + WS protocol client.
 //!
 //! Two adjacent files cover the two genuinely-different mental models
-//! of talking to SurrealDB:
+//! of talking to `SurrealDB`:
 //!
 //! - [`lifecycle`] owns the OS-level child: port allocator, spawn, health
 //!   poll, kill-on-shutdown. Returns a [`SurrealEndpoint`] that's good

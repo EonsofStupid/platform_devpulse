@@ -3,9 +3,10 @@
 //! Run with: `cargo test -p devpulse-clyffy knowledge_smoke`
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod knowledge_smoke {
     use crate::cortex::knowledge::loader;
-    use crate::cortex::knowledge::types::{EntryType, KnowledgeEntry};
+    use crate::cortex::knowledge::types::EntryType;
     use std::collections::HashSet;
 
     // ── Test 1: Manifest parses ─────────────────────────────

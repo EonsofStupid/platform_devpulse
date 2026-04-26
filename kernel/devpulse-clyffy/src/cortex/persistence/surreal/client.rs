@@ -1,7 +1,7 @@
 //! Surreal client adapter — WebSocket connection to the managed child.
 //!
-//! The embedded `Surreal<Db>` path has been retired. DevPulse now ships
-//! and manages the real SurrealDB server binary as a child process (see
+//! The embedded `Surreal<Db>` path has been retired. `DevPulse` now ships
+//! and manages the real `SurrealDB` server binary as a child process (see
 //! [`super::lifecycle::SurrealLifecycle`]). This adapter is a pure
 //! client: it opens a WebSocket to the already-running server, signs in
 //! with root credentials, and exposes namespace-scoped operations via

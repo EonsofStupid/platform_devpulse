@@ -29,8 +29,8 @@ use crate::platform::config::DataScope;
 /// Whether a service is actually alive right now.
 ///
 /// Complements the static `compiled_in` / `config_enabled` fields —
-/// this is the dynamic signal that can change after boot (DevForge
-/// lazy-start, Ollama sidecar start/stop, grammar toggle).
+/// this is the dynamic signal that can change after boot (`DevForge`
+/// lazy-start, `Ollama` sidecar start/stop, grammar toggle).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum ServiceRuntimeState {
@@ -64,7 +64,7 @@ pub struct ServiceStatusSnapshot {
     pub group: String,
     /// Cargo feature that gates this service. `None` = always compiled.
     pub feature_gate: Option<String>,
-    /// `InitEvent` step_id (absent for lazy services).
+    /// `InitEvent` `step_id` (absent for lazy services).
     pub step_id: Option<String>,
     /// Was the feature compiled into this build?
     pub compiled_in: bool,

@@ -106,7 +106,7 @@ pub struct SurrealStatus {
     /// True iff the service is present in the platform slot.
     pub running: bool,
     /// True iff we spawned the child; false if we attached to an
-    /// externally-running SurrealDB.
+    /// externally-running `SurrealDB`.
     pub managed: bool,
     /// Bind host (e.g. `127.0.0.1`).
     pub host: String,

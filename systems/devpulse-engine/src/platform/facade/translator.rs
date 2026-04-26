@@ -158,29 +158,7 @@ impl EventTranslator for ModelLifecycleTranslator {
             }
             InternalEvent::VramPressureDetected {
                 free_gb, action, ..
-            } => {
-                let headline = match action {
-                    PressureAction::EvictToRam { .. } => {
-                        "Adjusting for your other apps...".to_string()
-                    }
-                    PressureAction::RequestRestart => {
-                        "Restart recommended for best performance".to_string()
-                    }
-                    _ => return None,
-                };
-                Some(SurfaceEvent {
-                    id: Uuid::now_v7(),
-                    timestamp_ms: 0,
-                    category: SurfaceCategory::SystemHealth,
-                    headline,
-                    detail: config.show_scores.then(|| format!("{free_gb:.1}GB free")),
-                    progress: None,
-                    severity: Severity::Notice,
-                    minion: Some(MinionId::Clyffy),
-                    dismissible: true,
-                    action: None,
-                })
-            }
+            } => translate_vram_pressure(*free_gb, action, config),
             InternalEvent::ModelUnloadStarted { .. }
             | InternalEvent::ModelUnloadComplete { .. } => (config.level
                 >= DetailLevel::Intermediate)
@@ -188,6 +166,36 @@ impl EventTranslator for ModelLifecycleTranslator {
             _ => None,
         }
     }
+}
+
+/// Surface translation for [`InternalEvent::VramPressureDetected`].
+///
+/// Extracted from `ModelLifecycleTranslator::translate` to keep the
+/// dispatch arm count well under `clippy::too_many_lines`.
+fn translate_vram_pressure(
+    free_gb: f64,
+    action: &PressureAction,
+    config: &WhitelistConfig,
+) -> Option<SurfaceEvent> {
+    let headline = match action {
+        PressureAction::EvictToRam { .. } => "Adjusting for your other apps...".to_string(),
+        PressureAction::RequestRestart => {
+            "Restart recommended for best performance".to_string()
+        }
+        _ => return None,
+    };
+    Some(SurfaceEvent {
+        id: Uuid::now_v7(),
+        timestamp_ms: 0,
+        category: SurfaceCategory::SystemHealth,
+        headline,
+        detail: config.show_scores.then(|| format!("{free_gb:.1}GB free")),
+        progress: None,
+        severity: Severity::Notice,
+        minion: Some(MinionId::Clyffy),
+        dismissible: true,
+        action: None,
+    })
 }
 
 // ── Minion Signals ──────────────────────────────────────────────

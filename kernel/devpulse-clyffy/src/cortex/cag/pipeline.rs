@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
 use super::traits::{ContextAssembler, Embedder, Hydrator, Reranker, SparseEncoder};
-use super::types::{ContextBlob, PipelineConfig, PipelineMetrics, ScoredChunk};
+use super::types::{ContextBlob, PipelineConfig, PipelineMetrics, ScoredChunk, SparseVector};
 use crate::cortex::persistence::traits::{SparseVector as PersistenceSparseVector, VectorAdapter};
 
 /// Reciprocal Rank Fusion — merges dense and sparse search results.
@@ -176,65 +176,22 @@ where
 
         // 2. Sparse encode query
         let sparse_vector = self.sparse_encoder.encode(query);
-        let persistence_sparse = PersistenceSparseVector {
-            indices: sparse_vector.indices,
-            values: sparse_vector.values,
-        };
 
-        // 3. Hybrid search (dense + sparse in parallel concept, sequential for now)
-        let search_start = Instant::now();
-
-        let project_filter = serde_json::json!({
-            "must": [{ "key": "project_id", "match": { "value": project_id } }]
-        });
-
-        let dense_results = self
-            .vector_store
-            .search(
+        // 3. Hybrid search (extracted — dense + sparse + payload coercion)
+        let HybridSearchOutcome {
+            dense_chunks,
+            sparse_chunks,
+            search_candidates,
+            search_latency,
+        } = self
+            .hybrid_search(
                 collection,
+                project_id,
                 &dense_vector,
+                sparse_vector,
                 config.search_limit,
-                Some(project_filter.clone()),
             )
             .await?;
-
-        let sparse_results = self
-            .vector_store
-            .search_sparse(
-                collection,
-                &persistence_sparse,
-                config.search_limit,
-                Some(project_filter),
-            )
-            .await?;
-
-        // Convert VectorMatch → ScoredChunk
-        let dense_chunks: Vec<ScoredChunk> = dense_results
-            .into_iter()
-            .filter_map(|m| {
-                let payload = serde_json::from_value(m.payload).ok()?;
-                Some(ScoredChunk {
-                    id: m.id,
-                    score: m.score,
-                    payload,
-                })
-            })
-            .collect();
-
-        let sparse_chunks: Vec<ScoredChunk> = sparse_results
-            .into_iter()
-            .filter_map(|m| {
-                let payload = serde_json::from_value(m.payload).ok()?;
-                Some(ScoredChunk {
-                    id: m.id,
-                    score: m.score,
-                    payload,
-                })
-            })
-            .collect();
-
-        let search_candidates = dense_chunks.len() + sparse_chunks.len();
-        let search_latency = search_start.elapsed();
 
         // 4. RRF fusion
         let fused = rrf_fuse(
@@ -296,4 +253,98 @@ where
 
         Ok((blob, metrics))
     }
+
+    /// Run the dense + sparse vector searches and coerce both result
+    /// streams into the pipeline's [`ScoredChunk`] shape.
+    ///
+    /// Extracted from [`Self::retrieve`] to keep the orchestrator under
+    /// 100 lines and to give the search step a clear seam — adding a
+    /// third retrieval modality (e.g. graph hop) is a sibling helper,
+    /// not another inline block.
+    ///
+    /// # Errors
+    /// - Either underlying [`VectorAdapter::search`] /
+    ///   [`VectorAdapter::search_sparse`] call fails.
+    async fn hybrid_search(
+        &self,
+        collection: &str,
+        project_id: &str,
+        dense_vector: &[f32],
+        sparse_vector: SparseVector,
+        search_limit: usize,
+    ) -> Result<HybridSearchOutcome> {
+        let search_start = Instant::now();
+
+        let project_filter = serde_json::json!({
+            "must": [{ "key": "project_id", "match": { "value": project_id } }]
+        });
+
+        let persistence_sparse = PersistenceSparseVector {
+            indices: sparse_vector.indices,
+            values: sparse_vector.values,
+        };
+
+        let dense_results = self
+            .vector_store
+            .search(
+                collection,
+                dense_vector,
+                search_limit,
+                Some(project_filter.clone()),
+            )
+            .await?;
+
+        let sparse_results = self
+            .vector_store
+            .search_sparse(
+                collection,
+                &persistence_sparse,
+                search_limit,
+                Some(project_filter),
+            )
+            .await?;
+
+        let dense_chunks: Vec<ScoredChunk> = dense_results
+            .into_iter()
+            .filter_map(|m| {
+                let payload = serde_json::from_value(m.payload).ok()?;
+                Some(ScoredChunk {
+                    id: m.id,
+                    score: m.score,
+                    payload,
+                })
+            })
+            .collect();
+
+        let sparse_chunks: Vec<ScoredChunk> = sparse_results
+            .into_iter()
+            .filter_map(|m| {
+                let payload = serde_json::from_value(m.payload).ok()?;
+                Some(ScoredChunk {
+                    id: m.id,
+                    score: m.score,
+                    payload,
+                })
+            })
+            .collect();
+
+        let search_candidates = dense_chunks.len() + sparse_chunks.len();
+        let search_latency = search_start.elapsed();
+
+        Ok(HybridSearchOutcome {
+            dense_chunks,
+            sparse_chunks,
+            search_candidates,
+            search_latency,
+        })
+    }
+}
+
+/// Aggregate output of [`RetrievalPipeline::hybrid_search`] — the four
+/// values the caller needs to feed into RRF fusion + metrics.
+struct HybridSearchOutcome {
+    dense_chunks: Vec<ScoredChunk>,
+    sparse_chunks: Vec<ScoredChunk>,
+    search_candidates: usize,
+    search_latency: std::time::Duration,
 }

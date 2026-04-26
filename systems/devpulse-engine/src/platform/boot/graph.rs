@@ -1,15 +1,15 @@
-//! Graph store boot — spawn the SurrealDB sidecar, connect the WS
+//! Graph store boot — spawn the `SurrealDB` sidecar, connect the WS
 //! client, and initialize the three namespace scopes on one connection.
 //!
 //! The embedded `SurrealKV` path retired. We now manage a real
-//! `surreal start` child process (RocksDB backend) via
+//! `surreal start` child process (`RocksDB` backend) via
 //! [`SurrealService`] and open a single WS client to it via
 //! [`SurrealAdapter::connect_with_ns`]. All three namespace scopes
 //! (system, user, global) live on that one connection.
 //!
 //! The HTTP `/sql` / `/health` / `/rpc` endpoints come from the real
 //! sidecar — the hand-rolled axum facade (`platform/server.rs`) is
-//! gone, so `.claude/hooks/*.js` talk directly to SurrealDB.
+//! gone, so `.claude/hooks/*.js` talk directly to `SurrealDB`.
 
 use crate::platform::boot::log::BootLog;
 use crate::platform::config::PlatformBootConfig;
@@ -25,7 +25,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot the SurrealDB sidecar and build three scoped graph services.
+/// Boot the `SurrealDB` sidecar and build three scoped graph services.
 ///
 /// Returns `(sidecar, system, user, global)`. Any element may be `None`:
 /// - `sidecar = None` → graph disabled in config OR sidecar spawn failed.

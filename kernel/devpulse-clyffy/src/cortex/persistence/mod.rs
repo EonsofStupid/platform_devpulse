@@ -92,9 +92,9 @@ impl PersistenceLayer {
         }
     }
 
-    /// Initialize the file-backed stores (LibSQL + DuckDB).
+    /// Initialize the file-backed stores (`LibSQL` + `DuckDB`).
     ///
-    /// SurrealDB is intentionally not part of `init()` — it is a client
+    /// `SurrealDB` is intentionally not part of `init()` — it is a client
     /// to a managed child process, so callers must pass a ready `SurrealEndpoint`
     /// via [`Self::connect_surreal`].
     ///

@@ -105,7 +105,7 @@ impl OllamaAdapter {
             move |port| {
                 let http = probe_http.clone();
                 let host = probe_host.clone();
-                async move { probe_version(&http, &host, port).await.map(|_| ()) }
+                async move { probe_version(&http, &host, port).await }
             },
         )
         .await?;
@@ -354,7 +354,7 @@ async fn probe_version(http: &reqwest::Client, host: &str, port: u16) -> Result<
 }
 
 /// Resolve the `ollama` binary. See [`super::surreal::lifecycle`] for
-/// the parallel SurrealDB version — same pattern, different install
+/// the parallel `SurrealDB` version — same pattern, different install
 /// paths.
 fn resolve_binary(configured: Option<&Path>) -> Result<PathBuf> {
     if let Some(p) = configured {

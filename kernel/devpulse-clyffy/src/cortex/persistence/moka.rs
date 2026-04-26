@@ -123,6 +123,7 @@ impl CacheAdapter for MokaAdapter {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::cortex::persistence::traits::PersistenceAdapter;

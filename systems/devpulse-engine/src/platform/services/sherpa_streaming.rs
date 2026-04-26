@@ -432,17 +432,26 @@ fn scan_model_dir(dir: &Path) -> Option<SherpaInstalledModel> {
         let Some(name) = p.file_name().and_then(|n| n.to_str()) else {
             continue;
         };
+        let ext = p
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        let stem = p
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase();
         let lower = name.to_ascii_lowercase();
-        if lower.ends_with(".onnx") {
-            if lower.contains("encoder") && encoder.is_none() {
+        if ext == "onnx" {
+            if stem.contains("encoder") && encoder.is_none() {
                 encoder = Some(p);
-            } else if lower.contains("decoder") && decoder.is_none() {
+            } else if stem.contains("decoder") && decoder.is_none() {
                 decoder = Some(p);
-            } else if lower.contains("joiner") && joiner.is_none() {
+            } else if stem.contains("joiner") && joiner.is_none() {
                 joiner = Some(p);
             }
-        } else if lower == "tokens.txt" || (lower.starts_with("tokens") && lower.ends_with(".txt"))
-        {
+        } else if lower == "tokens.txt" || (stem.starts_with("tokens") && ext == "txt") {
             tokens = Some(p);
         }
     }

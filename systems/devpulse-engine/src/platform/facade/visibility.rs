@@ -10,12 +10,12 @@
 //!
 //! ## Tiers
 //!
-//! - `Internal`  — Never crosses `EventBridge`. Minion deliberation,
-//!                 raw scores, routing decisions.
-//! - `Narrated`  — Crosses to webview after narration composer
-//!                 transforms it into user-safe text.
-//! - `Public`    — Crosses directly. Rendered as-is by the UI.
-//! - `Debug`     — Lab only. Raw signal dump to Cortex viewer.
+//! - `Internal` — Never crosses `EventBridge`. Minion deliberation,
+//!   raw scores, routing decisions.
+//! - `Narrated` — Crosses to webview after narration composer
+//!   transforms it into user-safe text.
+//! - `Public` — Crosses directly. Rendered as-is by the UI.
+//! - `Debug` — Lab only. Raw signal dump to Cortex viewer.
 
 use serde::{Deserialize, Serialize};
 
@@ -39,6 +39,13 @@ pub enum Visibility {
 /// When adding a new variant to `InternalEvent`, the compiler
 /// forces an arm here. Choose based on: "If a user saw this raw,
 /// would it help them or confuse them?"
+///
+/// `match_same_arms` is allowed because each arm carries a comment
+/// documenting *why* a specific event maps to its tier. Combining
+/// arms by tier (e.g. `A | B | C => Internal`) would erase the
+/// per-event design rationale that future contributors need to
+/// classify new variants correctly.
+#[allow(clippy::match_same_arms)]
 pub fn classify(event: &InternalEvent) -> Visibility {
     match event {
         // ── Model Lifecycle ─────────────────────────────────

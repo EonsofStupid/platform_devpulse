@@ -199,7 +199,7 @@ impl GrammarHandle {
     /// Subscribe to grammar snapshot changes.
     ///
     /// Returns a [`BroadcastReceiver`] — each `recv().await` yields a
-    /// `LinkedTraced<GrammarSnapshot>` carrying the producer's OTel context
+    /// `LinkedTraced<GrammarSnapshot>` carrying the producer's `OTel` context
     /// as a link target.
     #[must_use]
     pub fn subscribe(&self) -> BroadcastReceiver<GrammarSnapshot> {
@@ -236,7 +236,7 @@ impl GrammarHandle {
         let snapshot = {
             let mut g = self.inner.write().await;
             g.enabled = true;
-            g.active_grammar_id = grammar_id.clone();
+            g.active_grammar_id.clone_from(&grammar_id);
             g.status = if g.kind == GrammarKind::Off {
                 GrammarStatus::Idle
             } else {

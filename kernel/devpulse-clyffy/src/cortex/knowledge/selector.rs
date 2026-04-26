@@ -46,7 +46,8 @@ pub async fn select_entry(
     let entry_type = params.entry_type.as_str();
     let cooldown_cutoff = (std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
+        .ok()
+        .and_then(|d| i64::try_from(d.as_secs()).ok())
         .unwrap_or(0))
         - params.cooldown_secs;
     let cutoff_str = cooldown_cutoff.to_string();
@@ -92,7 +93,7 @@ pub async fn select_entry(
 
     let entry = SelectedEntry {
         id: row
-            .get(0)
+            .first()
             .and_then(|v| v.as_text())
             .unwrap_or("")
             .to_string(),
@@ -146,7 +147,8 @@ async fn record_shown(
 ) -> Result<(), String> {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
+        .ok()
+        .and_then(|d| i64::try_from(d.as_secs()).ok())
         .unwrap_or(0);
     let now_str = now.to_string();
 

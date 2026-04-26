@@ -80,9 +80,9 @@ pub const PATTERNS: &[VulnPattern] = &[
         description: "Unsafe block detected — requires manual audit",
         severity: "high",
         lang: LangId::Rust,
-        query: r#"
+        query: r"
             (unsafe_block) @match
-        "#,
+        ",
     },
     // ── TypeScript / JavaScript ─────────────────────────────────
     VulnPattern {

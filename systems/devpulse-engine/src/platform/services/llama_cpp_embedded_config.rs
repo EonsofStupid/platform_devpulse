@@ -19,7 +19,7 @@ pub const DEFAULT_GPU_LAYERS: u32 = u32::MAX;
 /// Default KV-cache dtype: `"f16"` is the llama.cpp canonical balance
 /// between memory and accuracy. `"q8_0"` halves it for long contexts.
 pub const DEFAULT_KV_DTYPE: &str = "f16";
-/// Default n_batch — how many tokens the backend processes per forward
+/// Default `n_batch` — how many tokens the backend processes per forward
 /// pass. 512 is llama.cpp's default; drop for weaker GPUs.
 pub const DEFAULT_N_BATCH: u32 = 512;
 

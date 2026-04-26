@@ -40,9 +40,9 @@ use crate::platform::config::DataScope;
 /// `cargo xtask generate-ts-manifest` emits the TS source from this enum.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ServiceGroup {
-    /// Data stores: LibSQL, DuckDB, Moka.
+    /// Data stores: `LibSQL`, `DuckDB`, `Moka`.
     Stores,
-    /// Graph services: SurrealDB namespaces + HTTP sidecar.
+    /// Graph services: `SurrealDB` namespaces + HTTP sidecar.
     Graph,
     /// AI capability surface: Model Loader, Vector store.
     Ai,
@@ -79,7 +79,7 @@ pub struct ServiceMeta {
     pub public_name: &'static str,
     /// Cargo feature gate — `None` means always compiled in.
     pub feature_gate: Option<&'static str>,
-    /// `InitEvent` step_id this service emits during boot.
+    /// `InitEvent` `step_id` this service emits during boot.
     /// `None` for services lazy-started outside the boot pipeline
     /// (e.g. `DevForge`). Services with a `step_id` MUST have a matching
     /// entry in [`BOOT_STEP_MANIFEST`] — enforced by unit test.
@@ -377,7 +377,7 @@ pub const BOOT_STEP_MANIFEST: &[BootStepMeta] = &[
     },
 ];
 
-/// Look up a boot step by its `InitEvent` step_id string.
+/// Look up a boot step by its `InitEvent` `step_id` string.
 pub fn boot_step_for(step_id: &str) -> Option<&'static BootStepMeta> {
     BOOT_STEP_MANIFEST.iter().find(|s| s.step_id == step_id)
 }

@@ -1,6 +1,6 @@
-//! Surreal lifecycle — managed `surreal start` child process (RocksDB backend).
+//! Surreal lifecycle — managed `surreal start` child process (`RocksDB` backend).
 //!
-//! This adapter owns the lifecycle of the real SurrealDB server binary.
+//! This adapter owns the lifecycle of the real `SurrealDB` server binary.
 //! It resolves a port (attach / bump), spawns `surreal start`, waits for
 //! HTTP health, and exposes the resolved URL + credentials to the
 //! [`super::client::SurrealAdapter`] WS layer.
@@ -8,7 +8,7 @@
 //! # Lifecycle
 //!
 //! 1. Resolve the port via [`port_alloc::allocate_default`]. If the
-//!    configured port is bound by an existing SurrealDB that responds
+//!    configured port is bound by an existing `SurrealDB` that responds
 //!    to `/health`, ATTACH. If bound by a foreign listener, BUMP `+1`.
 //! 2. If SPAWN: launch
 //!    `surreal start --bind <host>:<port> rocksdb:<data_path>` with
@@ -36,7 +36,7 @@ const HEALTH_POLL_INTERVAL: Duration = Duration::from_millis(500);
 /// Per-request HTTP timeout (probe + identity).
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
-/// Resolved endpoint of a booted SurrealDB sidecar.
+/// Resolved endpoint of a booted `SurrealDB` sidecar.
 ///
 /// Consumed by [`super::surreal::SurrealAdapter::connect`] to build the
 /// WS client. Also reported to the frontend devtool so the UI can
@@ -87,7 +87,7 @@ pub struct SurrealConfig {
     /// Path to the `surreal` binary. Empty → resolve from PATH / standard
     /// install locations.
     pub binary_path: Option<PathBuf>,
-    /// Absolute path for RocksDB storage.
+    /// Absolute path for `RocksDB` storage.
     pub data_path: PathBuf,
     /// Root user passed via `SURREAL_USER`.
     pub root_user: String,
@@ -100,7 +100,7 @@ pub struct SurrealConfig {
 /// Surreal lifecycle — owns the child process and resolved endpoint.
 pub struct SurrealLifecycle {
     /// `Some` only when this adapter spawned the child. `None` means
-    /// we attached to an externally-running SurrealDB and `shutdown`
+    /// we attached to an externally-running `SurrealDB` and `shutdown`
     /// is a no-op.
     child: Mutex<Option<Child>>,
     endpoint: SurrealEndpoint,
@@ -241,7 +241,7 @@ impl SurrealLifecycle {
     }
 
     /// `true` when this adapter owns a child process. `false` when we
-    /// attached to an externally-running SurrealDB.
+    /// attached to an externally-running `SurrealDB`.
     #[must_use]
     pub fn is_managed(&self) -> bool {
         self.child
@@ -325,11 +325,11 @@ impl SurrealLifecycle {
 /// Identity probe for the port allocator.
 ///
 /// Returns `Ok(())` iff `GET /health` on `host:port` responds with 2xx
-/// AND the `/version` endpoint identifies as SurrealDB. Anything else
+/// AND the `/version` endpoint identifies as `SurrealDB`. Anything else
 /// → port is foreign, bump.
 async fn identity_probe(http: &reqwest::Client, host: &str, port: u16) -> Result<()> {
     // `/health` alone isn't enough — lots of services return 200 on /health.
-    // `/version` on the real SurrealDB returns a string like "surrealdb-2.x.x".
+    // `/version` on the real `SurrealDB` returns a string like "surrealdb-2.x.x".
     let health_url = format!("http://{host}:{port}/health");
     http.get(&health_url)
         .send()

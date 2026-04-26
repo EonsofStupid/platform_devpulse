@@ -164,6 +164,15 @@ impl ExecutionLane {
 
     /// Expected latency bucket in milliseconds (initial estimates).
     /// Replaced by measured p50 after baseline collection.
+    ///
+    /// `match_same_arms` is allowed here because the lane → latency
+    /// mapping is a per-lane design table: pairs that happen to share
+    /// a default (Embedding/PromptAssembly = 50 ms,
+    /// VisionEmbedding/HelperInference = 200 ms,
+    /// SpeechToText/EscalationInference = 500 ms) are expected to
+    /// diverge as we collect real p50s. Combining them with `|` would
+    /// make the next tuning pass an unrelated diff.
+    #[allow(clippy::match_same_arms)]
     pub fn expected_latency_ms(&self) -> u64 {
         match self {
             Self::CacheLookup => 1,
@@ -313,19 +322,19 @@ pub struct SystemServicesConfig {
     /// Grammar service — structured generation engine.
     #[serde(default)]
     pub grammar: GrammarConfig,
-    /// Model Loader service (AI model management, inference).
+    /// Model Loader service (`AI` model management, inference).
     #[serde(default)]
     pub model_loader: ModelLoaderServiceEntry,
     /// `DevForge` service (managed `VSCode` process).
     #[serde(default)]
     pub devforge: DevForgeServiceEntry,
-    /// Claude integration (MCP server, lanes, sidecar, API provider).
+    /// `Claude` integration (`MCP` server, lanes, sidecar, `API` provider).
     #[serde(default)]
     pub claude: ClaudeServiceEntry,
-    /// Ollama sidecar service (managed `ollama serve` child process).
+    /// `Ollama` sidecar service (managed `ollama serve` child process).
     #[serde(default)]
     pub ollama: OllamaServiceEntry,
-    /// SurrealDB sidecar service (managed `surreal start` child process).
+    /// `SurrealDB` sidecar service (managed `surreal start` child process).
     #[serde(default)]
     pub surreal: SurrealServiceEntry,
 }
@@ -1238,17 +1247,17 @@ impl DevForgeServiceEntry {
         data_dir.join(&self.extensions_dir)
     }
 
-    /// Whether this entry is configured for REH mode.
+    /// Whether this entry is configured for `REH` mode.
     pub fn is_reh(&self) -> bool {
         self.mode == "reh"
     }
 }
 
-/// SurrealDB sidecar service entry — managed `surreal start` child process.
+/// `SurrealDB` sidecar service entry — managed `surreal start` child process.
 ///
-/// Spawns a child running the real SurrealDB server binary against a
-/// RocksDB store at `{data_dir}/surreal/devpulse`. Attaches if a
-/// compatible SurrealDB is already listening on the configured port
+/// Spawns a child running the real `SurrealDB` server binary against a
+/// `RocksDB` store at `{data_dir}/surreal/devpulse`. Attaches if a
+/// compatible `SurrealDB` is already listening on the configured port
 /// (identity probe via `/version`). Auto-bumps `+1` up to `max_bumps`
 /// if the configured port is held by a foreign listener.
 ///
@@ -1260,7 +1269,7 @@ pub struct SurrealServiceEntry {
     /// Whether this service is enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// Whether boot fails if this service fails. SurrealDB is critical —
+    /// Whether boot fails if this service fails. `SurrealDB` is critical —
     /// the graph store depends on it — defaults to `true`.
     #[serde(default = "default_true")]
     pub critical: bool,
@@ -1997,6 +2006,12 @@ impl LaneTraceBootConfig {
 }
 
 /// Internal preset definitions — per-lane defaults for each named preset.
+///
+/// `struct_excessive_bools` is allowed because the field names map 1:1
+/// onto the [`ExecutionLane`] variants (compile-checked at the
+/// `LanePresetConfig::resolve` call site). A `HashMap<ExecutionLane, bool>`
+/// would lose that compile-time guarantee for "every lane has a default."
+#[allow(clippy::struct_excessive_bools)]
 struct LanePreset {
     brain_inference: bool,
     helper_inference: bool,
@@ -2142,6 +2157,7 @@ fn default_lane_preset() -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod models_dir_resolver_tests {
     use super::resolve_models_dir_chain;
     use std::fs;

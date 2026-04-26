@@ -232,7 +232,7 @@ impl RroStateHandle {
     /// snapshot. Receivers that fall behind lose the oldest events.
     ///
     /// Returns a [`BroadcastReceiver`] — each `recv().await` yields a
-    /// `LinkedTraced<RroStateSnapshot>` carrying the producer's OTel context
+    /// `LinkedTraced<RroStateSnapshot>` carrying the producer's `OTel` context
     /// as a link target (fan-out peers, not children).
     #[must_use]
     pub fn subscribe(&self) -> BroadcastReceiver<RroStateSnapshot> {
