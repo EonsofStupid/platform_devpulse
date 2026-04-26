@@ -24,8 +24,17 @@ piper-backend = ["dep:piper-rs"]
 sherpa-backend = []
 # llama.cpp FFI runtime — GGUF inference via llama-cpp-2 crate (CMake build).
 llama-cpp-ffi = ["dep:llama-cpp-2"]
-# Moshi STS — native Rust speech-to-speech via Candle (Kyutai Moshi 7B)
-moshi-sts = ["dep:moshi", "dep:sentencepiece", "candle-backend"]
+# Moshi STS — native Rust speech-to-speech via Candle (Kyutai Moshi 7B).
+# Vendored fork at deps/moshi/ runs against candle 0.10 (see deps/moshi/PATCHES.md).
+# Tokenization via the existing HF `tokenizers` crate (in `candle-backend`),
+# not sentencepiece-sys — moshi-core takes an `encode: impl Fn` callback and
+# never imports a tokenizer crate itself.
+moshi-sts = ["dep:moshi", "candle-backend"]
+# mistral.rs runtime — native Rust multimodal inference engine (Candle-based).
+# The only Rust path for Phi-4-multimodal-instruct as of 2026-04 — onnxruntime-genai
+# has no Rust bindings yet. Pulls mistralrs-core + mistralrs-vision + mistralrs-audio
+# transitively via the umbrella `mistralrs` crate. Wired in Phase 6 of slice 1.
+mistralrs-backend = ["dep:mistralrs"]
 nvml = ["dep:nvml-wrapper"]
 cuda = ["candle-core/cuda"]
 specta = ["dep:specta"]
@@ -76,8 +85,14 @@ espeakng-sys = { version = "0.3", optional = true }
 # Piper TTS — pure Rust alternate TTS backend (brings its own espeak-rs for phonemization)
 piper-rs = { version = "0.1.9", optional = true }
 
-# HTTP client for HuggingFace API search
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# HTTP client for HuggingFace API search + tree-listing for LFS oid fetch.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+
+# SHA-256 for HuggingFace LFS oid integrity verification on downloads.
+# `lfs.oid` from the `/api/models/{repo}/tree/main` endpoint is the SHA-256
+# of the file contents — we recompute it locally after each download and
+# compare. Mismatch deletes + retries once before failing hard.
+sha2 = "0.10"
 
 # ONNX Runtime (optional — SNAC, Whisper, Kokoro)
 ort = { workspace = true, optional = true }
@@ -89,9 +104,14 @@ rustfft = { version = "6.2", optional = true }
 # llama.cpp FFI — GGUF inference (optional, requires CMake)
 llama-cpp-2 = { version = "0.1", optional = true }
 
-# Moshi STS — speech-to-speech via Candle (optional)
+# Moshi STS — speech-to-speech via Candle (optional, vendored at deps/moshi/).
 moshi = { workspace = true, optional = true }
-sentencepiece = { workspace = true, optional = true }
+
+# mistral.rs — native Rust multimodal inference engine (Candle-based).
+# Version pin set in Phase 6 when the backend module lands; declaring as
+# `optional = true` here gates the dep behind the `mistralrs-backend` feature
+# so default builds stay lean. April 2026 latest: 0.8.x.
+mistralrs = { version = "0.8", optional = true }
 
 # GPU metrics (optional)
 nvml-wrapper = { version = "0.10", optional = true }

@@ -15,10 +15,10 @@ const MAX_FALLBACK_DEPTH: usize = 5;
 ///
 /// The starting slot itself is checked first — if it's loaded, return it.
 #[must_use]
-pub fn resolve_fallback(
+pub fn resolve_fallback<S: std::hash::BuildHasher>(
     registry: &SlotRegistry,
     slot_id: &str,
-    loaded_slots: &HashSet<String>,
+    loaded_slots: &HashSet<String, S>,
 ) -> Option<String> {
     // If the requested slot itself is loaded, use it directly.
     if loaded_slots.contains(slot_id) {
@@ -61,6 +61,7 @@ pub fn resolve_fallback(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on registration / setup failure by design
 mod tests {
     use super::*;
     use crate::slots::registry::SlotRegistry;
@@ -83,6 +84,7 @@ mod tests {
             overrides: None,
             source_tier: crate::slots::ModelSourceTier::UserManaged,
             extensions: std::collections::HashMap::new(),
+            kv_cache: crate::slots::KvCacheConfig::default(),
             builtin: false,
         }
     }

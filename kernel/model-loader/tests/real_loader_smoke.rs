@@ -189,7 +189,7 @@ async fn steps_2_through_6_real_disk() {
     // means assignments are held in RAM for the duration of the test —
     // we don't persist anything to libSQL from here.
     let presets = load_default_presets(&models_dir).unwrap_or_default();
-    let mut service = ModelLoaderService::new(
+    let service = ModelLoaderService::new(
         Box::new(MemoryConfig::new()),
         Arc::new(NullSink),
         models_dir.clone(),
@@ -207,10 +207,11 @@ async fn steps_2_through_6_real_disk() {
     let slots = load_default_slots(&models_dir).expect("slots.default.toml must parse");
     service
         .register_slots(slots)
+        .await
         .expect("baseline slots must register");
 
     // ── Step 2: real registry scan ────────────────────────────
-    let scan_result = service.scan_models();
+    let scan_result = service.scan_models().await;
     let entries = match scan_result {
         Ok(e) => e,
         Err(err) => {
@@ -260,6 +261,7 @@ async fn steps_2_through_6_real_disk() {
 
     let second_entries = service
         .scan_models()
+        .await
         .expect("second scan_models must succeed");
     let second_pass: std::collections::HashMap<PathBuf, String> = second_entries
         .iter()
@@ -298,10 +300,13 @@ async fn steps_2_through_6_real_disk() {
     // ── Step 4: auto_assign_bundled_slots ─────────────────────
     let hydrated = service
         .auto_assign_bundled_slots()
+        .await
         .expect("auto_assign_bundled_slots must not return Err");
-    for slot in service.list_slots() {
+    let post_hydrate_slots = service.list_slots().await;
+    let post_hydrate_registry = service.get_registry().await;
+    for slot in post_hydrate_slots {
         if let Some(model_id) = &slot.assigned_model {
-            if let Some(entry) = service.get_registry().iter().find(|e| &e.id == model_id) {
+            if let Some(entry) = post_hydrate_registry.iter().find(|e| &e.id == model_id) {
                 println!(
                     "[real_loader_smoke]   • hydrated {} → {}",
                     slot.id, entry.filename
@@ -329,8 +334,8 @@ async fn steps_2_through_6_real_disk() {
     // Find the smallest Candle-routable GGUF on disk, force-assign it
     // to chat.brain, and load it. No dependency on auto_assign.
     // Candle supports: llama, mistral, qwen2, qwen3, phi2, phi3, gemma, etc.
-    let candle_gguf = service
-        .get_registry()
+    let registry_for_candle = service.get_registry().await;
+    let candle_gguf = registry_for_candle
         .iter()
         .filter(|e| {
             e.format == ModelFormat::Gguf
@@ -346,7 +351,7 @@ async fn steps_2_through_6_real_disk() {
         ),
         Some((model_id, filename)) => {
             // Force assign to chat.brain
-            if let Err(err) = service.assign_model("chat.brain", &model_id) {
+            if let Err(err) = service.assign_model("chat.brain", &model_id).await {
                 log_step(
                     &format!("Candle GGUF assign — {filename}"),
                     StepStatus::Fail(format!("{err}")),
@@ -379,8 +384,8 @@ async fn steps_2_through_6_real_disk() {
     //
     // Find a GGUF that routes to LlamaCpp (architecture NOT in Candle
     // support list), assign to minion.shared, load it.
-    let llamacpp_gguf = service
-        .get_registry()
+    let registry_for_llamacpp = service.get_registry().await;
+    let llamacpp_gguf = registry_for_llamacpp
         .iter()
         .filter(|e| {
             e.format == ModelFormat::Gguf
@@ -395,7 +400,7 @@ async fn steps_2_through_6_real_disk() {
             StepStatus::Skip("no llama.cpp-only GGUF on disk (all covered by Candle)".into()),
         ),
         Some((model_id, filename, arch)) => {
-            if let Err(err) = service.assign_model("minion.shared", &model_id) {
+            if let Err(err) = service.assign_model("minion.shared", &model_id).await {
                 log_step(
                     &format!("llama.cpp GGUF assign — {filename} ({arch})"),
                     StepStatus::Fail(format!("{err}")),
@@ -433,16 +438,15 @@ async fn steps_2_through_6_real_disk() {
     // so for now this is a documented skip rather than a hang.
     // When a single-file safetensors lands under models/, this step
     // picks it up automatically.
-    let safetensors_target: Option<String> = service
-        .get_registry()
+    let registry_for_safetensors = service.get_registry().await;
+    let safetensors_target: Option<String> = registry_for_safetensors
         .iter()
         .find(|e| e.format == ModelFormat::SafeTensors && !e.filename.contains("-of-"))
         .map(|e| e.filename.clone())
         .or_else(|| {
             // Fallback: any safetensors at all, and we skip with a
             // clear reason if it's a shard.
-            service
-                .get_registry()
+            registry_for_safetensors
                 .iter()
                 .find(|e| e.format == ModelFormat::SafeTensors)
                 .map(|e| e.filename.clone())
@@ -494,10 +498,11 @@ async fn steps_2_through_6_real_disk() {
                     bundled_path: filename.clone(),
                 },
                 extensions: std::collections::HashMap::new(),
+                kv_cache: model_loader::KvCacheConfig::default(),
                 builtin: false,
             };
 
-            if let Err(err) = service.register_slot(ad_hoc) {
+            if let Err(err) = service.register_slot(ad_hoc).await {
                 log_step(
                     "Candle safetensors load",
                     StepStatus::Fail(format!("couldn't register ad-hoc slot: {err}")),
@@ -505,7 +510,7 @@ async fn steps_2_through_6_real_disk() {
                 return;
             }
 
-            let _ = service.auto_assign_bundled_slots();
+            let _ = service.auto_assign_bundled_slots().await;
 
             match service.load_slot("smoke.safetensors").await {
                 Ok(()) => {

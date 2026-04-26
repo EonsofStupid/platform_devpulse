@@ -188,6 +188,54 @@ pub enum LoadError {
         /// Human-readable tokenizer failure detail.
         message: String,
     },
+    /// Inference call failed for a specific slot — user can retry, or
+    /// surface to a "report this" affordance after repeated failures.
+    InferenceFailed {
+        /// Slot whose inference call failed.
+        slot_id: String,
+        /// Human-readable failure reason from the backend.
+        reason: String,
+    },
+
+    // ── Infrastructure failures (IO / config / boot / HF API) ─────
+    /// Filesystem IO failed at a specific path (mkdir, file read, scan
+    /// walk). Usually permission-denied or path-no-longer-exists.
+    IoFailed {
+        /// Path the IO operation targeted (lossy UTF-8).
+        path: String,
+        /// Human-readable failure reason.
+        reason: String,
+    },
+    /// Boot-time initialisation failed before the service can serve
+    /// requests. Distinct from runtime failures — usually requires the
+    /// app to restart with a fixed environment.
+    BootFailed {
+        /// Boot phase that failed.
+        step: String,
+        /// Human-readable failure reason.
+        reason: String,
+    },
+    /// `ConfigBackend` trait operation failed (libsql write, memory-
+    /// config invariant violation, etc.). Usually transient unless
+    /// the backing store is itself corrupt.
+    ConfigBackendFailed {
+        /// Operation that failed (`get`, `set`, `list_by_prefix`, ...).
+        operation: String,
+        /// Config key targeted by the operation.
+        key: String,
+        /// Human-readable failure reason.
+        reason: String,
+    },
+    /// HuggingFace HTTP API call failed. Distinct from `DownloadFailed`
+    /// — this covers metadata APIs (search, repo info, file listing),
+    /// not bulk file downloads. UI surface usually shows "try again".
+    HuggingFaceApi {
+        /// Human-readable failure reason.
+        reason: String,
+        /// Whether the failure was transient (network, rate-limit, 5xx)
+        /// vs. hard (auth, 404).
+        can_retry: bool,
+    },
 
     // ── Catch-all ─────────────────────────────────────────────────
     /// Plumbing errors that don't fit the above (IO, generic backend
@@ -305,6 +353,22 @@ impl From<crate::traits::errors::LoaderError> for LoadError {
             L::NoModelAssigned { slot_id } => Self::NoModelAssigned { slot_id },
             L::AlreadyLoading { slot_id } => Self::AlreadyLoading { slot_id },
             L::SlotSwapping { slot_id } => Self::SlotSwapping { slot_id },
+            L::Io { path, reason } => Self::IoFailed {
+                path: path.to_string_lossy().into_owned(),
+                reason,
+            },
+            L::Boot { step, reason } => Self::BootFailed { step, reason },
+            L::ConfigBackend {
+                operation,
+                key,
+                reason,
+            } => Self::ConfigBackendFailed {
+                operation,
+                key,
+                reason,
+            },
+            L::HuggingFace { reason, can_retry } => Self::HuggingFaceApi { reason, can_retry },
+            L::Inference { slot_id, reason } => Self::InferenceFailed { slot_id, reason },
             L::Internal { message } => Self::Other { message },
         }
     }
@@ -498,6 +562,30 @@ impl fmt::Display for LoadError {
                 write!(f, "Backend {backend:?} failed to init: {message}")
             }
             Self::TokenizerLoad { message } => write!(f, "Tokenizer load failed: {message}"),
+            Self::InferenceFailed { slot_id, reason } => {
+                write!(f, "Inference failed for slot '{slot_id}': {reason}")
+            }
+
+            // Infrastructure
+            Self::IoFailed { path, reason } => {
+                write!(f, "Filesystem IO failed at {path}: {reason}")
+            }
+            Self::BootFailed { step, reason } => {
+                write!(f, "Model loader boot failed during {step}: {reason}")
+            }
+            Self::ConfigBackendFailed {
+                operation,
+                key,
+                reason,
+            } => write!(
+                f,
+                "Config backend {operation} failed for key '{key}': {reason}"
+            ),
+            Self::HuggingFaceApi { reason, can_retry } => write!(
+                f,
+                "HuggingFace API call failed: {reason}{}",
+                if *can_retry { " (retry available)" } else { "" }
+            ),
 
             // Catch-all
             Self::Other { message } => write!(f, "{message}"),

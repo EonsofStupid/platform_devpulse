@@ -11,6 +11,14 @@ members = [
     "xtask", # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
 ]
+# Vendored sub-workspaces — patched in via [patch.crates-io] but isolated so
+# their own [workspace.package.*] inheritance resolves against THEIR root,
+# not ours. Without this, Cargo claims the path-dep crate as a member of the
+# outer workspace and `edition.workspace = true` fails to find an `edition`
+# in the outer manifest.
+exclude = [
+    "deps/moshi",
+]
 
 [workspace.dependencies]
 # Core
@@ -68,14 +76,24 @@ anyhow = "1.0"
 thiserror = "2.0"
 
 # AI & Voice (The "Senses")
-# Pinned to alpha because 0.9 adds Qwen3 (chat/MoE/vision), Phi-3, and
-# arch-specific quantized loaders. Pinned exact version — alpha channel
-# must not drift under us mid-sprint.
-candle-core = "=0.9.2"
-candle-nn = "=0.9.2"
-candle-transformers = "=0.9.2"
+# Pre-release stance: minor-version pins so `cargo update` picks up
+# latest patches automatically. Candle 0.10 (was 0.9.2 exact) because
+# mistralrs 0.8.x requires candle 0.10.x for Phi-4-multimodal-instruct.
+# moshi 0.6 still pins `candle ^0.9.1` internally — Cargo resolves it
+# as a separate transitive copy (+~30 MB binary, +~2 min build), no
+# API conflict because the two candle packages don't share types
+# across moshi <-> our other adapters.
+candle-core = "0.10"
+candle-nn = "0.10"
+candle-transformers = "0.10"
 moshi = { version = "0.6", default-features = false }
-sentencepiece = "0.12"
+# sentencepiece dep removed 2026-04-26: moshi-core uses an `encode: impl Fn`
+# callback for tokenization (see moshi-core/src/tts_streaming.rs::tokenize_prompt),
+# never depends on a specific tokenizer crate. Personaplex's SentencePiece-format
+# tokenizer.json loads via the HF `tokenizers` crate already in model-loader's
+# deps. Adding sentencepiece back forces sentencepiece-sys to compile a C++
+# tree via CMake — environment-fragile (VS 2019/2022 generator mismatch on
+# this dev box) and provides nothing we use.
 ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "ndarray", "load-dynamic"] }
 
 # AST Analysis (GUARDIAN — tree-sitter powered security + refactoring safety)
@@ -131,6 +149,11 @@ tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 # ort: fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)
 ort = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
+# moshi: in-tree fork of kyutai-labs/moshi v0.6.4 with candle pins lifted to 0.10.
+# Upstream still pins candle ^0.9.1 (HEAD 6d14a619, 2026-04-24); no PR/issue
+# tracking the bump. See deps/moshi/PATCHES.md for the change set + rationale.
+# Re-sync to upstream once Kyutai bumps (~mid-May 2026 if cadence pattern holds).
+moshi = { path = "deps/moshi/rust/moshi-core" }
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)

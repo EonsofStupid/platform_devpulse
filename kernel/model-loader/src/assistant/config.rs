@@ -8,7 +8,7 @@
 //! embedded compile-time default. Mutations from the Voice Lab UI go
 //! through [`AssistantConfig::save`] to persist the userdata override.
 //!
-//! No field here is a secret. The HuggingFace token lives in the
+//! No field here is a secret. The `HuggingFace` token lives in the
 //! separate `Secrets` store and never touches this module.
 
 use anyhow::{Context, Result};
@@ -262,6 +262,10 @@ pub enum RoutingMode {
 
 impl RoutingMode {
     /// Parse a routing mode from its wire-format string.
+    ///
+    /// # Errors
+    /// Returns an error for any value not in
+    /// `local_first` / `local_claude_subscription` / `local_claude_api_council`.
     pub fn parse(mode: &str) -> Result<Self> {
         match mode {
             "local_first" => Ok(Self::LocalFirst),
@@ -273,7 +277,7 @@ impl RoutingMode {
         }
     }
 
-    /// Return the snake_case string representation for persistence and IPC.
+    /// Return the `snake_case` string representation for persistence and IPC.
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -378,6 +382,11 @@ impl AssistantConfig {
     /// Any parse failure on the override path logs a warning and
     /// falls through to the embedded default. Missing override is
     /// silent — first boot is valid state.
+    ///
+    /// # Errors
+    /// Returns an error only if the embedded default fails to parse —
+    /// effectively a build-time invariant violation. Userdata-override
+    /// IO and parse failures are caught and downgraded to warnings.
     pub fn load(userdata_dir: &Path) -> Result<Self> {
         let path = Self::override_path(userdata_dir);
 
@@ -423,6 +432,11 @@ impl AssistantConfig {
     /// Load the embedded default config. Always succeeds in release
     /// builds — the embedded TOML is validated by
     /// [`tests::embedded_default_parses`].
+    ///
+    /// # Errors
+    /// Returns an error if the embedded `assistant.default.toml` fails
+    /// to parse — this is a build-time invariant and should never fire
+    /// in a shipped binary.
     pub fn load_default() -> Result<Self> {
         toml::from_str(DEFAULT_TOML).context("Failed to parse embedded assistant.default.toml")
     }
@@ -432,6 +446,13 @@ impl AssistantConfig {
     /// Creates `{userdata_dir}/config/` if missing. Writes an atomic
     /// replacement via `tempfile + rename` so a crash mid-write does
     /// not corrupt the file the next boot reads.
+    ///
+    /// # Errors
+    /// Returns an error if the parent directory cannot be created
+    /// (permission denied), if TOML serialization fails (effectively
+    /// impossible — every field has a serde impl), or if the temp
+    /// write / atomic rename step fails (disk full, permission denied,
+    /// or filesystem doesn't support `rename` across the same dir).
     pub fn save(&self, userdata_dir: &Path) -> Result<()> {
         let path = Self::override_path(userdata_dir);
         if let Some(parent) = path.parent() {
@@ -463,43 +484,67 @@ impl AssistantConfig {
     }
 
     /// Convenience: rename the assistant and persist.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures (parent dir, TOML serialize,
+    /// atomic write, rename).
     pub fn set_name(&mut self, userdata_dir: &Path, name: String) -> Result<()> {
         self.identity.name = name;
         self.save(userdata_dir)
     }
 
     /// Convenience: replace the wake phrase and persist.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn set_wake_phrase(&mut self, userdata_dir: &Path, phrase: String) -> Result<()> {
         self.wake.phrase = phrase;
         self.save(userdata_dir)
     }
 
     /// Convenience: toggle 24/7 wake listening and persist.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn set_wake_enabled(&mut self, userdata_dir: &Path, enabled: bool) -> Result<()> {
         self.wake.enabled = enabled;
         self.save(userdata_dir)
     }
 
     /// Convenience: toggle the 24/7 Moshi voice brain and persist.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn set_voice_brain_24_7(&mut self, userdata_dir: &Path, enabled: bool) -> Result<()> {
         self.voice_brain.enabled_24_7 = enabled;
         self.save(userdata_dir)
     }
 
     /// Convenience: replace the TTS voice profile and persist.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn set_voice_profile(&mut self, userdata_dir: &Path, profile: String) -> Result<()> {
         self.tts.profile = profile;
         self.save(userdata_dir)
     }
 
     /// Convenience: replace the routing mode and persist.
-    pub fn set_routing_mode(&mut self, userdata_dir: &Path, mode: String) -> Result<()> {
-        self.routing.mode = RoutingMode::parse(&mode)?;
+    ///
+    /// # Errors
+    /// Returns an error from [`RoutingMode::parse`] if `mode` isn't one
+    /// of the known wire-format strings, or from [`Self::save`] if the
+    /// persist step fails.
+    pub fn set_routing_mode(&mut self, userdata_dir: &Path, mode: &str) -> Result<()> {
+        self.routing.mode = RoutingMode::parse(mode)?;
         self.save(userdata_dir)
     }
 
     /// Register a new custom voice clone and persist. Duplicate names
     /// replace the existing entry in-place.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn register_voice_clone(
         &mut self,
         userdata_dir: &Path,
@@ -515,6 +560,9 @@ impl AssistantConfig {
 
     /// Remove a registered voice clone by name and persist. Silent if
     /// the name does not match any entry.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn remove_voice_clone(&mut self, userdata_dir: &Path, name: &str) -> Result<()> {
         self.voice_clones.retain(|e| e.name != name);
         self.save(userdata_dir)
@@ -522,6 +570,9 @@ impl AssistantConfig {
 
     /// Add a new keyword action entry and persist. Duplicate phrases
     /// replace the existing entry in-place.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn add_keyword_action(
         &mut self,
         userdata_dir: &Path,
@@ -541,6 +592,9 @@ impl AssistantConfig {
 
     /// Remove a keyword action by phrase and persist. Silent if the
     /// phrase does not match any entry.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn remove_keyword_action(&mut self, userdata_dir: &Path, phrase: &str) -> Result<()> {
         self.keyword_actions.retain(|e| e.phrase != phrase);
         self.save(userdata_dir)
@@ -548,6 +602,10 @@ impl AssistantConfig {
 
     /// Update an existing keyword action in place by its phrase, and
     /// persist. If the phrase does not exist, this is a no-op.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures (only invoked if a matching
+    /// phrase is found and updated).
     pub fn update_keyword_action(
         &mut self,
         userdata_dir: &Path,
@@ -562,6 +620,9 @@ impl AssistantConfig {
     }
 
     /// Replace the idle timeout and persist.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn set_idle_timeout(&mut self, userdata_dir: &Path, secs: u32) -> Result<()> {
         self.window.idle_timeout_secs = secs;
         self.save(userdata_dir)
@@ -569,6 +630,9 @@ impl AssistantConfig {
 
     /// Replace the partial-offload layer count for `chat.brain` and
     /// persist. The backend router reads this on the next swap.
+    ///
+    /// # Errors
+    /// Forwards [`Self::save`]'s failures.
     pub fn set_brain_ngl(&mut self, userdata_dir: &Path, ngl: i32) -> Result<()> {
         self.offload.brain_ngl = ngl;
         self.save(userdata_dir)
@@ -576,6 +640,7 @@ impl AssistantConfig {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // tests panic on assistant config IO failures by design
 mod tests {
     use super::*;
 
@@ -659,7 +724,7 @@ mod tests {
                 KeywordActionEntry {
                     phrase: "do thing".into(),
                     action: AssistantAction::Screenshot,
-                    payload: "".into(),
+                    payload: String::new(),
                     enabled: false,
                 },
             )
@@ -726,7 +791,7 @@ mod tests {
             VoiceCloneEntry {
                 name: "me".into(),
                 reference_path: "/tmp/v1.mp3".into(),
-                transcript: "".into(),
+                transcript: String::new(),
             },
         )
         .unwrap();

@@ -1,4 +1,4 @@
-//! HuggingFace download manager — progress, cancel, checksum, auto-registry.
+//! `HuggingFace` download manager — progress, cancel, checksum, auto-registry.
 
 use crate::models::registry::ModelRegistryEntry;
 use crate::traits::events::{LoaderEvent, LoaderEventSink};
@@ -13,7 +13,7 @@ use std::sync::Arc;
 pub struct DownloadHandle {
     /// Unique download identifier.
     pub id: String,
-    /// HuggingFace repo ID.
+    /// `HuggingFace` repo ID.
     pub repo_id: String,
     /// Target filename.
     pub filename: String,
@@ -49,7 +49,7 @@ pub struct DownloadProgress {
     pub eta_secs: u64,
 }
 
-/// Manages model downloads from HuggingFace Hub.
+/// Manages model downloads from `HuggingFace` Hub.
 pub struct DownloadManager {
     models_dir: PathBuf,
     active: HashMap<String, DownloadHandle>,
@@ -84,11 +84,16 @@ impl DownloadManager {
         self.hf_token.clone()
     }
 
-    /// Start downloading a GGUF from HuggingFace.
+    /// Start downloading a GGUF from `HuggingFace`.
     ///
     /// Downloads to `{models_dir}/gguf/{filename}`.
     /// Emits progress events via the event sink.
     /// Returns a handle for cancellation.
+    ///
+    /// # Errors
+    /// Returns an error if the spawned blocking download task fails to
+    /// be created — the actual download work runs in a background thread
+    /// and reports failures via the event sink, not this Result.
     #[cfg(feature = "candle-backend")]
     pub fn start_download(
         &mut self,
@@ -140,7 +145,7 @@ impl DownloadManager {
                     &dl_id,
                     &cancel,
                     &events_clone,
-                    token,
+                    token.as_deref(),
                 );
 
                 match result {
@@ -168,6 +173,11 @@ impl DownloadManager {
     }
 
     /// Cancel an active download.
+    ///
+    /// # Errors
+    /// Returns an error if the `download_id` is not in the active set —
+    /// either the download has already completed, was cancelled previously,
+    /// or never existed.
     pub fn cancel(&mut self, download_id: &str) -> anyhow::Result<()> {
         if let Some(handle) = self.active.get(download_id) {
             handle.cancel();
@@ -183,7 +193,7 @@ impl DownloadManager {
         self.active.retain(|_, h| !h.is_cancelled());
     }
 
-    /// List every file in a HuggingFace repo — the full sibling set —
+    /// List every file in a `HuggingFace` repo — the full sibling set —
     /// so the UI can show a bundle confirmation before a user clicks
     /// "Download". Threaded through the stored HF token so private /
     /// gated repos resolve when the user has authenticated.
@@ -191,6 +201,12 @@ impl DownloadManager {
     /// Sizes come back `None` when the Hub response omits them (which
     /// is common for LFS-tracked `*.safetensors` listings). The caller
     /// treats `None` as "unknown" in the confirmation modal.
+    ///
+    /// # Errors
+    /// Returns an error if `ApiBuilder::build` fails (typically a malformed
+    /// HF token), if `Api::model(repo).info()` returns an HTTP error
+    /// (network, 401/403/404, rate-limit, 5xx), or if the response cannot
+    /// be parsed.
     #[cfg(feature = "candle-backend")]
     pub fn list_repo_files(&self, repo_id: &str) -> anyhow::Result<Vec<RepoFileEntry>> {
         let api = hf_hub::api::sync::ApiBuilder::new()
@@ -226,8 +242,8 @@ impl DownloadManager {
     }
 }
 
-/// One entry in a HuggingFace repo's sibling list. Serializable so it
-/// can cross the Tauri IPC boundary into the frontend's RepoDownloadButton
+/// One entry in a `HuggingFace` repo's sibling list. Serializable so it
+/// can cross the Tauri IPC boundary into the frontend's `RepoDownloadButton`
 /// confirmation modal.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RepoFileEntry {
@@ -240,7 +256,7 @@ pub struct RepoFileEntry {
 /// Execute the actual bundle download (runs on a dedicated thread).
 ///
 /// This fetches EVERY file required to run the primary file, not just the
-/// primary file itself. For a SafeTensors model that means the index
+/// primary file itself. For a `SafeTensors` model that means the index
 /// (`model.safetensors.index.json`), every shard the index references,
 /// plus config + tokenizer files. For a GGUF model it's usually just the
 /// single file unless there's a multi-part GGUF.
@@ -249,6 +265,192 @@ pub struct RepoFileEntry {
 /// points at the primary file. Download progress is aggregated: a single
 /// `LoaderEvent::DownloadProgress` stream reports total bytes across the
 /// entire bundle so the UI shows one bar, not one per companion file.
+/// Resolve the sibling list for a HF repo and reduce it to the exact
+/// bundle of files needed to run the primary filename. Falls back to
+/// "primary only" if the repo-info call fails (private repo without
+/// auth, network flake, etc.).
+#[cfg(feature = "candle-backend")]
+fn resolve_bundle_files(
+    repo: &hf_hub::api::sync::ApiRepo,
+    repo_id: &str,
+    primary_filename: &str,
+) -> Vec<String> {
+    let bundle = match repo.info() {
+        Ok(info) => {
+            let all: Vec<String> = info.siblings.into_iter().map(|s| s.rfilename).collect();
+            plan_bundle(primary_filename, &all)
+        }
+        Err(e) => {
+            tracing::warn!(
+                repo = %repo_id,
+                error = %e,
+                "repo.info() failed, downloading primary file only"
+            );
+            vec![primary_filename.to_string()]
+        }
+    };
+    tracing::info!(
+        repo = %repo_id,
+        primary = %primary_filename,
+        bundle_size = bundle.len(),
+        "Resolved bundle",
+    );
+    for entry in &bundle {
+        tracing::info!(repo = %repo_id, file = %entry, "Bundle entry");
+    }
+    bundle
+}
+
+/// Download a single bundle file from the HF repo, link or copy it to
+/// the destination, and verify its sha256 against the LFS oid (when
+/// known). Returns the final destination path on success. The caller
+/// decides whether failure is fatal (primary file) or non-fatal
+/// (optional companion).
+#[cfg(feature = "candle-backend")]
+fn download_one_bundle_file(
+    repo: &hf_hub::api::sync::ApiRepo,
+    file_name: &str,
+    dest_dir: &Path,
+    bridge: &Arc<std::sync::Mutex<AggregateProgress>>,
+    lfs_oid_map: &std::collections::HashMap<String, String>,
+    repo_id: &str,
+) -> anyhow::Result<PathBuf> {
+    let file_bridge = BundleFileProgress {
+        inner: Arc::clone(bridge),
+    };
+    let cached_path = repo
+        .download_with_progress(file_name, file_bridge)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let dest = dest_dir.join(file_name);
+    if let Some(parent) = dest.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    if cached_path != dest {
+        link_or_copy(&cached_path, &dest)?;
+    }
+    if let Some(expected_oid) = lfs_oid_map.get(file_name) {
+        verify_or_retry(repo, file_name, &dest, expected_oid, bridge, repo_id)?;
+    }
+    Ok(dest)
+}
+
+/// Verify a freshly-downloaded file against its expected LFS sha256 oid.
+/// On mismatch (or read failure), delete the file and re-download once.
+/// A second mismatch returns an error — never let a corrupted file
+/// pretend to be a valid model weight.
+#[cfg(feature = "candle-backend")]
+fn verify_or_retry(
+    repo: &hf_hub::api::sync::ApiRepo,
+    file_name: &str,
+    dest: &Path,
+    expected_oid: &str,
+    bridge: &Arc<std::sync::Mutex<AggregateProgress>>,
+    repo_id: &str,
+) -> anyhow::Result<()> {
+    // Treat both Ok(false) (hash mismatch) and Err(_) (read failed) as
+    // "fail-deleted, must retry" — never trust an unverified artefact.
+    if matches!(verify_sha256(dest, expected_oid), Ok(true)) {
+        tracing::info!(repo = %repo_id, file = %file_name, "sha256 verified");
+        return Ok(());
+    }
+    tracing::warn!(
+        repo = %repo_id,
+        file = %file_name,
+        expected = %expected_oid,
+        "Post-download sha256 MISMATCH — deleting and retrying once"
+    );
+    let _ = std::fs::remove_file(dest);
+    let retry_bridge = BundleFileProgress {
+        inner: Arc::clone(bridge),
+    };
+    let retry_path = repo
+        .download_with_progress(file_name, retry_bridge)
+        .map_err(|e| {
+            anyhow::anyhow!("HF re-download failed after sha256 mismatch on {file_name}: {e}")
+        })?;
+    if retry_path != dest {
+        link_or_copy(&retry_path, dest)?;
+    }
+    if matches!(verify_sha256(dest, expected_oid), Err(_) | Ok(false)) {
+        anyhow::bail!(
+            "sha256 mismatch on '{file_name}' from '{repo_id}' \
+             after retry — file is corrupted (expected oid {expected_oid})"
+        );
+    }
+    tracing::info!(repo = %repo_id, file = %file_name, "sha256 verified after retry");
+    Ok(())
+}
+
+/// Pre-flight scan: for every bundle file already on disk, decide whether
+/// it counts as resumable.
+///
+/// - Files with a known LFS sha256 are verified; mismatches and read
+///   errors are deleted so the caller re-downloads from scratch.
+/// - Files without an LFS oid (small companions / configs) skip on
+///   existence + non-zero length — they're tiny enough that corruption
+///   would be caught by downstream JSON / config parsers.
+///
+/// Returns the set of bundle filenames already present + verified.
+#[cfg(feature = "candle-backend")]
+fn pre_flight_disk_scan(
+    bundle: &[String],
+    dest_dir: &Path,
+    lfs_oid_map: &std::collections::HashMap<String, String>,
+    repo_id: &str,
+) -> std::collections::HashSet<String> {
+    let mut already_present: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for file_name in bundle {
+        let dest = dest_dir.join(file_name);
+        let Ok(meta) = std::fs::metadata(&dest) else { continue };
+        if !meta.is_file() || meta.len() == 0 {
+            continue;
+        }
+        let Some(expected_oid) = lfs_oid_map.get(file_name) else {
+            // Non-LFS file (small JSON / config / tokenizer). No sha256
+            // available — accept any non-zero file as already-present.
+            already_present.insert(file_name.clone());
+            tracing::info!(
+                repo = %repo_id,
+                file = %file_name,
+                size = meta.len(),
+                "Bundle entry already on disk (non-LFS, no sha256 to verify) — skipping"
+            );
+            continue;
+        };
+        match verify_sha256(&dest, expected_oid) {
+            Ok(true) => {
+                already_present.insert(file_name.clone());
+                tracing::info!(
+                    repo = %repo_id,
+                    file = %file_name,
+                    size = meta.len(),
+                    "Bundle entry already on disk + sha256 verified — skipping"
+                );
+            }
+            Ok(false) => {
+                tracing::warn!(
+                    repo = %repo_id,
+                    file = %file_name,
+                    size = meta.len(),
+                    expected = %expected_oid,
+                    "On-disk file FAILED sha256 — deleting and re-downloading"
+                );
+                let _ = std::fs::remove_file(&dest);
+            }
+            Err(e) => {
+                tracing::warn!(
+                    repo = %repo_id,
+                    file = %file_name,
+                    error = %e,
+                    "sha256 read failed for on-disk file — deleting and re-downloading"
+                );
+                let _ = std::fs::remove_file(&dest);
+            }
+        }
+    }
+    already_present
+}
+
 #[cfg(feature = "candle-backend")]
 fn execute_download(
     repo_id: &str,
@@ -257,7 +459,7 @@ fn execute_download(
     download_id: &str,
     cancel: &AtomicBool,
     events: &Arc<dyn LoaderEventSink>,
-    token: Option<String>,
+    token: Option<&str>,
 ) -> anyhow::Result<ModelRegistryEntry> {
     tracing::info!(
         repo = %repo_id,
@@ -267,7 +469,7 @@ fn execute_download(
     );
 
     let api = hf_hub::api::sync::ApiBuilder::new()
-        .with_token(token)
+        .with_token(token.map(String::from))
         .with_progress(false)
         .with_retries(3)
         .build()
@@ -279,63 +481,44 @@ fn execute_download(
         anyhow::bail!("Download cancelled before start");
     }
 
-    // Step 1: determine which files make up this model bundle. We list
-    // the repo's siblings once and derive the exact file set from the
-    // primary filename's format. If the repo info call fails (private
-    // repo without auth, network flake), fall back to primary-only.
+    // Step 1: determine which files make up this model bundle. Resolve
+    // the sibling list once, derive the exact file set from the primary
+    // filename's format, and log the bundle for diagnostics.
     let dest_dir = target_path
         .parent()
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."));
-    let bundle = match repo.info() {
-        Ok(info) => {
-            let all: Vec<String> = info.siblings.into_iter().map(|s| s.rfilename).collect();
-            plan_bundle(filename, &all)
-        }
-        Err(e) => {
-            tracing::warn!(repo = %repo_id, error = %e, "repo.info() failed, downloading primary file only");
-            vec![filename.to_string()]
-        }
-    };
+        .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
+    let bundle = resolve_bundle_files(&repo, repo_id, filename);
 
+    // Step 2: fetch the LFS oid map for this repo. The HF tree-listing
+    // endpoint returns per-file `lfs.oid` (SHA-256 of the file contents)
+    // for every LFS-tracked file. We use this to verify integrity of
+    // every downloaded file — corrupted downloads get re-fetched once
+    // and then fail hard. Map missing entries means the file is too
+    // small for LFS (configs, tokenizers under 10 MB) so verification
+    // falls back to "downloaded successfully" — those files are tiny
+    // enough that corruption is exceptionally rare and would be caught
+    // by the JSON parsers downstream.
+    let lfs_oid_map = fetch_lfs_oid_map(repo_id, token).unwrap_or_else(|e| {
+        tracing::warn!(
+            repo = %repo_id,
+            error = %e,
+            "LFS oid map fetch failed — sha256 verification will be skipped for this download"
+        );
+        std::collections::HashMap::new()
+    });
     tracing::info!(
         repo = %repo_id,
-        primary = %filename,
-        bundle_size = bundle.len(),
-        "Resolved bundle",
+        lfs_files = lfs_oid_map.len(),
+        "Fetched LFS oid map for sha256 verification"
     );
-    for entry in &bundle {
-        tracing::info!(repo = %repo_id, file = %entry, "Bundle entry");
-    }
 
-    // Step 2: pre-flight disk scan. For each bundle entry, check if
-    // the destination file already exists with a non-zero size. This
-    // lets partial-bundle downloads resume automatically — if the
-    // user already has shards 1-3 of 7 on disk from a previous run
-    // (or an aborted download), the loop below skips those files
-    // entirely and only fetches shards 4-7.
-    //
-    // We're intentionally conservative: a file is skipped only if it
-    // exists AND has non-zero length. Size-matching against the HF
-    // sibling metadata would be stricter but requires an extra HEAD
-    // per file — the non-zero-length check catches the common cases
-    // (fully-downloaded previous runs, hf-hub cache hits) without
-    // adding latency.
-    let mut already_present: std::collections::HashSet<String> = std::collections::HashSet::new();
-    for file_name in &bundle {
-        let dest = dest_dir.join(file_name);
-        if let Ok(meta) = std::fs::metadata(&dest) {
-            if meta.is_file() && meta.len() > 0 {
-                already_present.insert(file_name.clone());
-                tracing::info!(
-                    repo = %repo_id,
-                    file = %file_name,
-                    size = meta.len(),
-                    "Bundle entry already on disk — skipping"
-                );
-            }
-        }
-    }
+    // Step 3: pre-flight disk scan. For each bundle entry, check if
+    // the destination file already exists. If yes AND we have an
+    // expected LFS sha256, verify it before skipping — corrupted
+    // resume artefacts get re-downloaded instead of silently used.
+    // Files without an LFS oid skip on existence + non-zero length
+    // (small companions, JSON configs).
+    let already_present = pre_flight_disk_scan(&bundle, &dest_dir, &lfs_oid_map, repo_id);
     let skip_count = already_present.len();
     if skip_count > 0 {
         tracing::info!(
@@ -375,19 +558,15 @@ fn execute_download(
             continue;
         }
 
-        let file_bridge = BundleFileProgress {
-            inner: Arc::clone(&bridge),
-        };
-
-        match repo.download_with_progress(file_name, file_bridge) {
-            Ok(cached_path) => {
-                let dest = dest_dir.join(file_name);
-                if let Some(parent) = dest.parent() {
-                    std::fs::create_dir_all(parent)?;
-                }
-                if cached_path != dest {
-                    link_or_copy(&cached_path, &dest)?;
-                }
+        match download_one_bundle_file(
+            &repo,
+            file_name,
+            &dest_dir,
+            &bridge,
+            &lfs_oid_map,
+            repo_id,
+        ) {
+            Ok(dest) => {
                 if file_name == filename {
                     primary_target = Some(dest);
                 }
@@ -410,35 +589,53 @@ fn execute_download(
         }
     }
 
+    finalise_bundle_download(&bridge, primary_target, repo_id, filename)
+}
+
+/// Final flush + registry-entry construction at the end of a bundle
+/// download. Drains any remaining progress ticks, validates the primary
+/// file actually arrived, and builds the `ModelRegistryEntry` that the
+/// caller persists.
+#[cfg(feature = "candle-backend")]
+fn finalise_bundle_download(
+    bridge: &Arc<std::sync::Mutex<AggregateProgress>>,
+    primary_target: Option<PathBuf>,
+    repo_id: &str,
+    primary_filename: &str,
+) -> anyhow::Result<ModelRegistryEntry> {
     let primary = primary_target.ok_or_else(|| {
-        anyhow::anyhow!("Primary file '{filename}' was not downloaded from '{repo_id}'")
+        anyhow::anyhow!("Primary file '{primary_filename}' was not downloaded from '{repo_id}'")
     })?;
 
     // Final 100% emit — some platforms swallow the last `update` tick.
+    // Mutex poison-recovery: if the spawned download thread panicked while
+    // holding the bridge lock, the inner progress state is still valid
+    // (we just want the final flush). Recover via `into_inner()` rather
+    // than abort.
     {
-        let mut b = bridge.lock().expect("progress bridge mutex poisoned");
+        let mut b = bridge
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         b.finalise();
     }
 
     tracing::info!(
         repo = %repo_id,
-        file = %filename,
+        file = %primary_filename,
         path = %primary.display(),
         "Bundle download complete"
     );
 
-    // Build a registry entry pointing at the primary file.
-    let entry = crate::models::discovery::discover_single(&primary, repo_id)?;
-    Ok(entry)
+    crate::models::discovery::discover_single(&primary, repo_id)
 }
 
 /// Decide which files from a repo make up a complete model bundle for the
 /// given primary filename.
 ///
 /// Rules:
-/// - SafeTensors single file (`model.safetensors`): primary + tokenizer
+/// - `SafeTensors` single file (`model.safetensors`): primary + tokenizer
 ///   + config companions.
-/// - SafeTensors sharded (`model-00001-of-00006.safetensors`): the index,
+/// - `SafeTensors` sharded (`model-00001-of-00006.safetensors`): the index,
 ///   every shard the index references (we use the whole sibling list
 ///   filtered by the shard pattern), + companions.
 /// - GGUF: the primary file only — GGUF is self-contained. If the repo
@@ -450,9 +647,6 @@ fn execute_download(
 #[cfg(feature = "candle-backend")]
 fn plan_bundle(primary: &str, all: &[String]) -> Vec<String> {
     use std::collections::BTreeSet;
-
-    let mut out: BTreeSet<String> = BTreeSet::new();
-    out.insert(primary.to_string());
 
     // Common companion files every text-generation model needs. We add
     // them unconditionally — the download loop treats 404s as non-fatal
@@ -469,53 +663,69 @@ fn plan_bundle(primary: &str, all: &[String]) -> Vec<String> {
         "chat_template.json",
     ];
 
-    let primary_lower = primary.to_lowercase();
+    let mut out: BTreeSet<String> = BTreeSet::new();
+    out.insert(primary.to_string());
 
-    if primary_lower.ends_with(".safetensors") {
-        // Multi-shard detection: filename contains `-of-` (e.g.
-        // `model-00001-of-00006.safetensors`).
-        let is_sharded = primary_lower.contains("-of-");
-        if is_sharded {
-            // Prefer the index file if it exists so Candle can read the
-            // weight_map directly.
-            if all.iter().any(|f| f == "model.safetensors.index.json") {
-                out.insert("model.safetensors.index.json".into());
+    let primary_lower = primary.to_lowercase();
+    // Normalise extension for the format-specific match below.
+    // `Path::extension()` returns the part after the last `.`, lower-cased
+    // here so we don't have to worry about `.SafeTensors` / `.GGUF`.
+    let ext = std::path::Path::new(primary)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(str::to_ascii_lowercase);
+
+    match ext.as_deref() {
+        Some("safetensors") => {
+            // Multi-shard detection: filename contains `-of-` (e.g.
+            // `model-00001-of-00006.safetensors`).
+            let is_sharded = primary_lower.contains("-of-");
+            if is_sharded {
+                // Prefer the index file if it exists so Candle can read the
+                // weight_map directly.
+                if all.iter().any(|f| f == "model.safetensors.index.json") {
+                    out.insert("model.safetensors.index.json".into());
+                }
+                // Add every shard sibling that matches the shard pattern —
+                // base = filename up to the first `-of-` suffix region.
+                for sibling in all {
+                    let s = sibling.to_lowercase();
+                    if s.ends_with(".safetensors") && s.contains("-of-") {
+                        out.insert(sibling.clone());
+                    }
+                }
             }
-            // Add every shard sibling that matches the shard pattern —
-            // base = filename up to the first `-of-` suffix region.
-            for sibling in all {
-                let s = sibling.to_lowercase();
-                if s.ends_with(".safetensors") && s.contains("-of-") {
-                    out.insert(sibling.clone());
+
+            // Companions
+            for c in COMPANIONS {
+                if all.iter().any(|f| f == c) {
+                    out.insert((*c).to_string());
                 }
             }
         }
-
-        // Companions
-        for c in COMPANIONS {
-            if all.iter().any(|f| f == c) {
-                out.insert((*c).to_string());
+        Some("gguf") => {
+            // GGUF is self-contained. Still grab tokenizer.json / config.json
+            // if they exist — Candle consumers benefit, llama.cpp ignores them.
+            for c in &["tokenizer.json", "config.json"] {
+                if all.iter().any(|f| f == *c) {
+                    out.insert((*c).to_string());
+                }
             }
         }
-    } else if primary_lower.ends_with(".gguf") {
-        // GGUF is self-contained. Still grab tokenizer.json / config.json
-        // if they exist — Candle consumers benefit, llama.cpp ignores them.
-        for c in &["tokenizer.json", "config.json"] {
-            if all.iter().any(|f| f == *c) {
-                out.insert((*c).to_string());
+        Some("onnx") => {
+            // ONNX may have a .onnx_data sidecar holding the weights.
+            let sidecar = format!("{primary}_data");
+            if all.iter().any(|f| f == &sidecar) {
+                out.insert(sidecar);
+            }
+            for c in COMPANIONS {
+                if all.iter().any(|f| f == c) {
+                    out.insert((*c).to_string());
+                }
             }
         }
-    } else if primary_lower.ends_with(".onnx") {
-        // ONNX may have a .onnx_data sidecar holding the weights.
-        let sidecar = format!("{primary}_data");
-        if all.iter().any(|f| f == &sidecar) {
-            out.insert(sidecar);
-        }
-        for c in COMPANIONS {
-            if all.iter().any(|f| f == c) {
-                out.insert((*c).to_string());
-            }
-        }
+        // Unknown / no extension — primary file only.
+        _ => {}
     }
 
     // Move primary to the front so the progress bar's first file is the
@@ -576,6 +786,10 @@ impl AggregateProgress {
         self.window_bytes = self.window_bytes.saturating_add(size);
         if self.last_emit.elapsed().as_millis() >= 50 {
             let window_secs = self.window_start.elapsed().as_secs_f64().max(0.001);
+            // Bytes/second is always non-negative, and `window_bytes` for a
+            // 50ms-or-greater window stays well below `f64`'s 2^52 mantissa
+            // limit (would require petabyte/sec download rates to exceed).
+            #[allow(clippy::cast_precision_loss, clippy::cast_sign_loss)]
             let speed = (self.window_bytes as f64 / window_secs) as u64;
             self.events.emit(LoaderEvent::DownloadProgress {
                 download_id: self.download_id.clone(),
@@ -712,4 +926,114 @@ fn infer_download_folder(filename: &str) -> &'static str {
 
     // Default: chat/reasoning models
     "chat"
+}
+
+// ── HF LFS oid integrity verification ────────────────────────────────
+
+/// One entry in the `HuggingFace` `/api/models/{repo}/tree/main` response.
+///
+/// Only the fields we actually consume are decoded; HF returns more
+/// (`type`, `oid` git sha1, `xetHash`, `size`) but we ignore them.
+#[cfg(feature = "candle-backend")]
+#[derive(Debug, serde::Deserialize)]
+struct HfTreeEntry {
+    /// File path within the repo (e.g. `model-00001-of-00003.safetensors`).
+    path: String,
+    /// LFS metadata block — present for files tracked by Git LFS, absent
+    /// for tiny inline files (configs, tokenizer.json under ~10 MB).
+    lfs: Option<HfLfsInfo>,
+}
+
+/// LFS metadata inside an [`HfTreeEntry`]. The `oid` field is the
+/// SHA-256 of the file contents, which is the integrity anchor we use.
+#[cfg(feature = "candle-backend")]
+#[derive(Debug, serde::Deserialize)]
+struct HfLfsInfo {
+    /// SHA-256 hex digest of the file contents.
+    oid: String,
+}
+
+/// Fetch the per-file LFS oid map for a `HuggingFace` repo.
+///
+/// Returns a `filename -> sha256` map for every LFS-tracked file in the
+/// repo's main branch. Non-LFS files (small inline configs, tokenizer
+/// JSON under ~10 MB) don't appear in the map — verification falls back
+/// to "downloaded successfully" for those because the JSON parsers
+/// downstream will reject malformed bytes anyway.
+#[cfg(feature = "candle-backend")]
+fn fetch_lfs_oid_map(
+    repo_id: &str,
+    token: Option<&str>,
+) -> anyhow::Result<HashMap<String, String>> {
+    let url = format!("https://huggingface.co/api/models/{repo_id}/tree/main");
+    let client = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()?;
+    let mut request = client.get(&url);
+    if let Some(t) = token {
+        request = request.header("Authorization", format!("Bearer {t}"));
+    }
+    let response = request.send()?.error_for_status()?;
+    let entries: Vec<HfTreeEntry> = response.json()?;
+    let mut map = HashMap::new();
+    for entry in entries {
+        if let Some(lfs) = entry.lfs {
+            map.insert(entry.path, lfs.oid);
+        }
+    }
+    Ok(map)
+}
+
+/// Compute the SHA-256 of a file on disk and compare against the
+/// expected hex digest. Returns `Ok(true)` on match, `Ok(false)` on
+/// mismatch, `Err` on IO failure.
+///
+/// Streamed in 8 KB chunks so a 30 GB safetensors file doesn't load
+/// the whole thing into RAM. Comparison is case-insensitive — HF
+/// returns lower-case hex, but defensive parsing is cheap.
+#[cfg(feature = "candle-backend")]
+fn verify_sha256(path: &Path, expected_hex: &str) -> anyhow::Result<bool> {
+    use sha2::{Digest, Sha256};
+    use std::io::Read;
+
+    let mut file = std::fs::File::open(path)?;
+    let mut hasher = Sha256::new();
+    let mut buf = [0u8; 8192];
+    loop {
+        let n = file.read(&mut buf)?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buf[..n]);
+    }
+    let actual = format!("{:x}", hasher.finalize());
+    Ok(actual.eq_ignore_ascii_case(expected_hex))
+}
+
+#[cfg(test)]
+#[cfg(feature = "candle-backend")]
+#[allow(clippy::unwrap_used)] // tests panic on file write / hash compute failure by design
+mod sha256_tests {
+    use super::verify_sha256;
+    use std::io::Write;
+
+    /// Round-trip: write known bytes, check sha256 matches the known
+    /// digest. Confirms the streaming hasher and hex format are correct.
+    #[test]
+    fn verify_sha256_matches_known_digest() {
+        // Known: sha256("hello world\n") =
+        //   a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+        let dir = std::env::temp_dir().join("model_loader_sha256_test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("hello.txt");
+        {
+            let mut f = std::fs::File::create(&path).unwrap();
+            f.write_all(b"hello world\n").unwrap();
+        }
+        let expected = "a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447";
+        assert!(verify_sha256(&path, expected).unwrap());
+        assert!(!verify_sha256(&path, "0000000000000000000000000000000000000000000000000000000000000000").unwrap());
+        assert!(verify_sha256(&path, &expected.to_uppercase()).unwrap());
+        let _ = std::fs::remove_file(&path);
+    }
 }

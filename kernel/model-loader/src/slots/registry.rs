@@ -43,6 +43,11 @@ impl SlotRegistry {
     }
 
     /// Register multiple slots.
+    ///
+    /// # Errors
+    /// Stops at the first invalid or duplicate slot and returns
+    /// [`LoaderError::Internal`] (id-format violation or already-registered);
+    /// slots registered before the failure stay registered.
     pub fn register_slots(&mut self, slots: Vec<Slot>) -> Result<(), LoaderError> {
         for slot in slots {
             self.register_slot(slot)?;
@@ -51,6 +56,10 @@ impl SlotRegistry {
     }
 
     /// Unregister a slot by ID.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::SlotNotFound`] if no slot with the given id
+    /// is registered.
     pub fn unregister_slot(&mut self, slot_id: &str) -> Result<Slot, LoaderError> {
         self.slots.remove(slot_id).ok_or(LoaderError::SlotNotFound {
             slot_id: slot_id.to_string(),
@@ -125,6 +134,7 @@ impl SlotRegistry {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on slot-registration failure by design
 mod tests {
     use super::*;
     use crate::slots::types::{DevicePreference, LoadingStrategy, ModelCapability};
@@ -146,6 +156,7 @@ mod tests {
             overrides: None,
             source_tier: crate::slots::ModelSourceTier::UserManaged,
             extensions: std::collections::HashMap::new(),
+            kv_cache: crate::slots::KvCacheConfig::default(),
             builtin: false,
         }
     }

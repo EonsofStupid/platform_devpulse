@@ -111,23 +111,20 @@ impl ModelLoaderService {
     /// bundled slots. Runs in a DETACHED background task — never awaited
     /// by the boot pipeline.
     ///
-    /// The filesystem scan is CPU/IO heavy (20-45s on a fresh install with
-    /// many models). It runs on the blocking thread pool via `spawn_blocking`
-    /// so the tokio async runtime keeps servicing IPC commands, window
-    /// events, hardware polls, and the frontend spinner animation.
+    /// The kernel `scan_models` is async and uses
+    /// [`tokio::task::block_in_place`] internally for the IO-heavy
+    /// filesystem walk + GGUF header parsing, so the runtime keeps
+    /// servicing IPC commands, window events, hardware polls, and the
+    /// frontend spinner animation while the scan progresses.
     ///
     /// Scan progress is observable via `RegistryScanStarted` /
     /// `ModelDiscovered` / `RegistryScanComplete` events on the event sink.
     #[tracing::instrument(skip_all, err)]
     pub async fn finalize_registry(&self) -> Result<()> {
-        tracing::info!("finalize_registry: scan (spawn_blocking)");
-        let scan_inner = self.inner.clone();
-        let scan_result = devpulse_telemetry::spawn_blocking(move || scan_inner.scan_models())
-            .await
-            .map_err(|e| anyhow::anyhow!("scan_models spawn_blocking join: {e}"))?;
-        match scan_result {
+        tracing::info!("finalize_registry: scan");
+        match self.inner.scan_models().await {
             Ok(entries) => {
-                tracing::info!(models = entries.len(), "finalize_registry: scan complete")
+                tracing::info!(models = entries.len(), "finalize_registry: scan complete");
             }
             Err(e) => tracing::warn!(error = %e, "finalize_registry: scan failed (non-fatal)"),
         }
@@ -209,8 +206,11 @@ impl ModelLoaderService {
         &self,
         query: &str,
         limit: u32,
-    ) -> Result<Vec<devpulse_clyffy::model_loader::HfSearchResult>> {
-        devpulse_clyffy::model_loader::search_huggingface(query, limit).await
+    ) -> Result<Vec<devpulse_clyffy::model_loader::HfSearchResult>, LoadError> {
+        self.inner
+            .search_huggingface(query, limit)
+            .await
+            .map_err(LoadError::from)
     }
 
     // ── Hardware (parking_lot, sub-microsecond) ───────────────
@@ -238,14 +238,14 @@ impl ModelLoaderService {
     // ── Registry write (scan) ────────────────────────────────
 
     /// Scan the models directory and return the updated registry entries.
-    pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>> {
-        // Scan is CPU/IO heavy — filesystem walk + GGUF header parsing.
-        // Runs on the blocking thread pool so the async runtime keeps
-        // servicing IPC commands, hardware polls, and the frontend spinner.
-        let inner = self.inner.clone();
-        devpulse_telemetry::spawn_blocking(move || inner.scan_models())
-            .await
-            .map_err(|e| anyhow::anyhow!("scan_models spawn_blocking join: {e}"))?
+    ///
+    /// The kernel `scan_models` is async — its CPU/IO heavy section
+    /// (filesystem walk + GGUF header parsing) runs inside
+    /// [`tokio::task::block_in_place`] so the multi-threaded runtime
+    /// keeps servicing IPC commands, hardware polls, and the frontend
+    /// spinner.
+    pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>, LoadError> {
+        self.inner.scan_models().await.map_err(LoadError::from)
     }
 
     // ── Reads (concurrent, never block) ──────────────────────
@@ -296,27 +296,17 @@ impl ModelLoaderService {
 
     /// Build the recommended configuration for the detected hardware.
     pub async fn auto_configure(&self) -> AutoConfig {
-        // Kernel uses blocking_read internally — run on blocking pool.
-        let inner = self.inner.clone();
-        devpulse_telemetry::spawn_blocking(move || inner.auto_configure())
-            .await
-            .expect("auto_configure spawn_blocking join")
+        self.inner.auto_configure().await
     }
 
     /// List every known hardware preset with download metadata.
     pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
-        let inner = self.inner.clone();
-        devpulse_telemetry::spawn_blocking(move || inner.list_all_presets())
-            .await
-            .expect("list_all_presets spawn_blocking join")
+        self.inner.list_all_presets().await
     }
 
     /// Build the preset-backed configuration for a specific hardware tier.
     pub async fn config_for_tier(&self, tier: HardwareTier) -> AutoConfig {
-        let inner = self.inner.clone();
-        devpulse_telemetry::spawn_blocking(move || inner.config_for_tier(tier))
-            .await
-            .expect("config_for_tier spawn_blocking join")
+        self.inner.config_for_tier(tier).await
     }
 
     // ── Downloads (config lock) ──────────────────────────────
@@ -534,8 +524,11 @@ impl ModelLoaderService {
         slot_id: &str,
         text: &str,
         voice: &str,
-    ) -> Result<devpulse_clyffy::model_loader::AudioSamples> {
-        self.inner.synthesize(slot_id, text, voice).await
+    ) -> Result<devpulse_clyffy::model_loader::AudioSamples, LoadError> {
+        self.inner
+            .synthesize(slot_id, text, voice)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Transcribe audio samples through the STT slot.
@@ -544,8 +537,11 @@ impl ModelLoaderService {
         &self,
         slot_id: &str,
         samples: &devpulse_clyffy::model_loader::AudioSamples,
-    ) -> Result<String> {
-        self.inner.transcribe(slot_id, samples).await
+    ) -> Result<String, LoadError> {
+        self.inner
+            .transcribe(slot_id, samples)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Return whether a voice-capable slot currently has a loaded model.
@@ -555,20 +551,42 @@ impl ModelLoaderService {
 
     /// Embed a batch of texts through the embedding slot.
     #[tracing::instrument(skip(self, texts), fields(slot_id, count = texts.len()))]
-    pub async fn embed(&self, slot_id: &str, texts: &[&str]) -> Result<Vec<Vec<f32>>> {
-        self.inner.embed(slot_id, texts).await
+    pub async fn embed(
+        &self,
+        slot_id: &str,
+        texts: &[&str],
+    ) -> Result<Vec<Vec<f32>>, LoadError> {
+        self.inner
+            .embed(slot_id, texts)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Score documents against a query through the reranker slot.
     #[tracing::instrument(skip(self, documents), fields(slot_id, count = documents.len()))]
-    pub async fn rerank(&self, slot_id: &str, query: &str, documents: &[&str]) -> Result<Vec<f32>> {
-        self.inner.rerank(slot_id, query, documents).await
+    pub async fn rerank(
+        &self,
+        slot_id: &str,
+        query: &str,
+        documents: &[&str],
+    ) -> Result<Vec<f32>, LoadError> {
+        self.inner
+            .rerank(slot_id, query, documents)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Encode an image file into an embedding through the vision slot.
     #[tracing::instrument(skip(self), fields(slot_id, path))]
-    pub async fn encode_image(&self, slot_id: &str, path: &std::path::Path) -> Result<Vec<f32>> {
-        self.inner.encode_image(slot_id, path).await
+    pub async fn encode_image(
+        &self,
+        slot_id: &str,
+        path: &std::path::Path,
+    ) -> Result<Vec<f32>, LoadError> {
+        self.inner
+            .encode_image(slot_id, path)
+            .await
+            .map_err(LoadError::from)
     }
 
     /// Encode raw RGB bytes into an embedding through the vision slot.
@@ -579,10 +597,11 @@ impl ModelLoaderService {
         rgb_bytes: &[u8],
         width: u32,
         height: u32,
-    ) -> Result<Vec<f32>> {
+    ) -> Result<Vec<f32>, LoadError> {
         self.inner
             .encode_rgb(slot_id, rgb_bytes, width, height)
             .await
+            .map_err(LoadError::from)
     }
 }
 

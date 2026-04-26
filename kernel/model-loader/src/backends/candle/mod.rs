@@ -3,6 +3,9 @@
 #[cfg(feature = "candle-backend")]
 pub mod backend;
 
+#[cfg(feature = "candle-backend")]
+pub mod gemma3_embedding;
+
 #[cfg(feature = "moshi-sts")]
 pub mod moshi;
 

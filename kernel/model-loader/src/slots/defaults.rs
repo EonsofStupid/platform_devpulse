@@ -113,6 +113,11 @@ struct SlotEntry {
     source_tier: crate::slots::ModelSourceTier,
     #[serde(default)]
     extensions: std::collections::HashMap<String, String>,
+    /// Optional KV-cache and context controls. Defaults to "use all
+    /// runtime defaults" so existing slot TOML without a `kv_cache`
+    /// block keeps loading unchanged.
+    #[serde(default)]
+    kv_cache: crate::slots::KvCacheConfig,
     /// Built-in flag — see [`Slot::builtin`]. Defaults to `false` so
     /// regular user-facing slots don't need to set it.
     #[serde(default)]
@@ -152,6 +157,7 @@ impl SlotEntry {
             overrides: self.overrides,
             source_tier: self.source_tier,
             extensions: self.extensions,
+            kv_cache: self.kv_cache,
             builtin: self.builtin,
         }
     }
@@ -263,6 +269,7 @@ fn finalize(entries: Vec<SlotEntry>) -> Result<Vec<Slot>, SlotDefaultsError> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // tests panic on default-slots parse / lookup failure by design
 mod tests {
     use super::*;
 
@@ -450,7 +457,7 @@ mod tests {
     ///
     /// This is narrowed from the full `.claude/rules/ip-protection.md`
     /// list to only the *tactic / dep / library* names that would tell
-    /// a reader "DevPulse uses X technique for Y". Internal codenames
+    /// a reader "`DevPulse` uses X technique for Y". Internal codenames
     /// (DIARY, GUARDIAN, PSYCH, Minion, Cortex, Trinity) are not on this
     /// list — they are labels for industry-standard things ("agent skill",
     /// "specialist agent", "data layer") and naming them internally

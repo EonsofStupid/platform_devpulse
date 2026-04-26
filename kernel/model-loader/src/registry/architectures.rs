@@ -1,6 +1,6 @@
 //! # Architecture catalog
 //!
-//! Enumerates every model architecture DevPulse's Candle backend
+//! Enumerates every model architecture `DevPulse`'s Candle backend
 //! knows how to load, plus the tier and format support for each.
 //!
 //! **SSOT rule:** adding a new architecture is a two-file change —
@@ -47,16 +47,28 @@ pub enum ArchId {
     Qwen25,
     /// Legacy Qwen 2 models kept for backward compatibility.
     Qwen2,
-    /// Phi-3 dense language models.
+    /// Phi-3 dense language models. Also covers Phi-4 base / Phi-4-reasoning
+    /// / Phi-4-reasoning-plus which ship as `phi3` under the hood.
     Phi3,
     /// Phi-3 mixture-of-experts variants such as 30B-A3B.
     Phi3Moe,
+    /// Phi-4 vision-language with bundled `SigLIP` encoder. The `phi4-siglip`
+    /// arch tag — distinct from Phi3 because the projection head and
+    /// vision tower require a separate loader (llama.cpp FFI + mmproj).
+    Phi4Vision,
+    /// Phi-4 multimodal instruct (`phi4mm`). Vision + audio + text via a
+    /// multi-graph ONNX bundle. Loaded through the ORT backend, not Candle.
+    Phi4Mm,
     /// Llama-family and Llama-derived checkpoints.
     Llama,
     /// Mistral-family checkpoints.
     Mistral,
-    /// Gemma-family checkpoints.
+    /// Gemma-family checkpoints (Gemma 1 / 2, GGUF via llama fallback).
     Gemma,
+    /// Gemma 3 text encoder. Used by sentence-transformer embedders such
+    /// as Microsoft Harrier 270m. Distinct from `Gemma` because the
+    /// embedding loader strips the LM head and pools last-hidden-state.
+    Gemma3Text,
 }
 
 /// Architecture family. Drives grouping in the frontend matrix view
@@ -67,13 +79,13 @@ pub enum ArchId {
 pub enum ArchFamily {
     /// Qwen-family architectures.
     Qwen,
-    /// Phi-family architectures.
+    /// Phi-family architectures (Phi-3, Phi-4, Phi-4 vision, Phi-4 multimodal).
     Phi,
     /// Llama-family architectures.
     Llama,
     /// Mistral-family architectures.
     Mistral,
-    /// Gemma-family architectures.
+    /// Gemma-family architectures (Gemma 1/2/3 text + embedders).
     Gemma,
 }
 
@@ -212,6 +224,30 @@ pub const ALL: &[ArchitectureSpec] = &[
                unified-brain vs split-config benchmark.",
     },
     ArchitectureSpec {
+        id: ArchId::Phi4Vision,
+        display: "Phi-4 Vision (phi4-siglip)",
+        family: ArchFamily::Phi,
+        tier: SupportTier::Primary,
+        context_range: (4_096, 32_768),
+        min_vram_mb_per_b_params: 2_400,
+        requires_benchmark: false,
+        note: "Phi-4 reasoning + bundled SigLIP vision tower. GGUF via \
+               llama.cpp FFI; safetensors load is unsupported. Requires \
+               an mmproj projection file alongside the main GGUF.",
+    },
+    ArchitectureSpec {
+        id: ArchId::Phi4Mm,
+        display: "Phi-4 Multimodal (phi4mm)",
+        family: ArchFamily::Phi,
+        tier: SupportTier::Primary,
+        context_range: (4_096, 32_768),
+        min_vram_mb_per_b_params: 1_800,
+        requires_benchmark: false,
+        note: "Phi-4 multimodal instruct — vision + audio (ASR) + text. \
+               Microsoft ships an official ONNX export; loaded via ORT \
+               with separate text/vision/audio session graphs.",
+    },
+    ArchitectureSpec {
         id: ArchId::Qwen25,
         display: "Qwen 2.5",
         family: ArchFamily::Qwen,
@@ -266,9 +302,21 @@ pub const ALL: &[ArchitectureSpec] = &[
         note: "GGUF only via llama fallback. Safetensors loader is \
                planned.",
     },
+    ArchitectureSpec {
+        id: ArchId::Gemma3Text,
+        display: "Gemma 3 Text Encoder",
+        family: ArchFamily::Gemma,
+        tier: SupportTier::Primary,
+        context_range: (2_048, 8_192),
+        min_vram_mb_per_b_params: 800,
+        requires_benchmark: false,
+        note: "Sentence-transformer embedder (LM head stripped). Used by \
+               Microsoft Harrier 270m. Loaded via Candle with mean-pooled \
+               last hidden state.",
+    },
 ];
 
-/// Classify a HuggingFace `config.json` into a canonical [`ArchId`].
+/// Classify a `HuggingFace` `config.json` into a canonical [`ArchId`].
 ///
 /// Primary signal is the `architectures[0]` class name (case-sensitive,
 /// matches the HF convention). Secondary signal is the lower-case
@@ -281,9 +329,9 @@ pub const ALL: &[ArchitectureSpec] = &[
 ///
 /// # Arguments
 ///
-/// - `arch_raw`    — `config.json["architectures"][0]` as a string.
-///                   Pass an empty string if the field is missing.
-/// - `model_type`  — optional `config.json["model_type"]` fallback.
+/// - `arch_raw`   — `config.json["architectures"][0]` as a string.
+///   Pass an empty string if the field is missing.
+/// - `model_type` — optional `config.json["model_type"]` fallback.
 ///
 /// # Examples
 ///
@@ -324,8 +372,27 @@ pub fn classify_arch_from_hf_config(arch_raw: &str, model_type: Option<&str>) ->
     if arch_raw.starts_with("Qwen3") {
         return Some(ArchId::Qwen3);
     }
+    // Phi-4 multimodal and Phi-4 vision must match before the generic
+    // Phi3/Phi4 fallback because both arch strings start with "Phi4".
+    if arch_raw.contains("Phi4MM")
+        || arch_raw.contains("Phi4Mm")
+        || arch_raw.contains("phi4mm")
+    {
+        return Some(ArchId::Phi4Mm);
+    }
+    if arch_raw.contains("Phi4Siglip")
+        || arch_raw.contains("phi4-siglip")
+        || arch_raw.contains("phi4_siglip")
+    {
+        return Some(ArchId::Phi4Vision);
+    }
     if arch_raw.starts_with("Phi3") || arch_raw.starts_with("Phi4") {
         return Some(ArchId::Phi3);
+    }
+    // Gemma 3 text encoder (Harrier-270m). Must match before the generic
+    // Gemma fallback because its arch string starts with "Gemma3".
+    if arch_raw.starts_with("Gemma3") {
+        return Some(ArchId::Gemma3Text);
     }
     if arch_raw.starts_with("Qwen2") {
         // Qwen2.5 shares `Qwen2ForCausalLM` with Qwen2 — disambiguate
@@ -351,11 +418,14 @@ pub fn classify_arch_from_hf_config(arch_raw: &str, model_type: Option<&str>) ->
         "qwen3_moe" => Some(ArchId::Qwen3Moe),
         "qwen3" => Some(ArchId::Qwen3),
         "qwen3_vl" => Some(ArchId::Qwen3Vl),
+        "phi4_mm" | "phi4mm" => Some(ArchId::Phi4Mm),
+        "phi4-siglip" | "phi4_siglip" => Some(ArchId::Phi4Vision),
         "phi3" | "phi4" => Some(ArchId::Phi3),
         "qwen2.5" => Some(ArchId::Qwen25),
         "qwen2" | "qwen2_moe" => Some(ArchId::Qwen2),
         "llama" => Some(ArchId::Llama),
         "mistral" => Some(ArchId::Mistral),
+        "gemma3_text" | "gemma3text" => Some(ArchId::Gemma3Text),
         "gemma" | "gemma2" => Some(ArchId::Gemma),
         _ => None,
     }
@@ -384,12 +454,15 @@ pub fn classify_arch_from_gguf(arch_raw: &str) -> Option<ArchId> {
         "qwen3" => Some(ArchId::Qwen3),
         "qwen3_moe" | "qwen3moe" => Some(ArchId::Qwen3Moe),
         "qwen3_vl" | "qwen3vl" => Some(ArchId::Qwen3Vl),
+        "phi4_mm" | "phi4mm" => Some(ArchId::Phi4Mm),
+        "phi4-siglip" | "phi4_siglip" => Some(ArchId::Phi4Vision),
         "phi3" | "phi4" => Some(ArchId::Phi3),
         "phi3_moe" | "phi3moe" => Some(ArchId::Phi3Moe),
         "qwen2.5" => Some(ArchId::Qwen25),
         "qwen2" | "qwen2_moe" | "qwen2moe" => Some(ArchId::Qwen2),
         "llama" => Some(ArchId::Llama),
         "mistral" => Some(ArchId::Mistral),
+        "gemma3_text" | "gemma3text" => Some(ArchId::Gemma3Text),
         "gemma" | "gemma2" => Some(ArchId::Gemma),
         _ => None,
     }
@@ -426,6 +499,7 @@ pub fn get(id: ArchId) -> Option<&'static ArchitectureSpec> {
 // ── Tests ─────────────────────────────────────────────────────────
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on registry-lookup misses by design
 mod tests {
     use super::*;
 
@@ -540,9 +614,12 @@ mod tests {
             ArchId::Qwen2,
             ArchId::Phi3,
             ArchId::Phi3Moe,
+            ArchId::Phi4Vision,
+            ArchId::Phi4Mm,
             ArchId::Llama,
             ArchId::Mistral,
             ArchId::Gemma,
+            ArchId::Gemma3Text,
         ];
         for id in ids {
             assert!(
@@ -550,6 +627,85 @@ mod tests {
                 "ArchId variant {id:?} has no row in architectures::ALL"
             );
         }
+    }
+
+    #[test]
+    fn hf_classifies_phi4_mm_before_phi4_fallback() {
+        // Phi4MM* must win — it also starts with "Phi4" so order matters.
+        assert_eq!(
+            classify_arch_from_hf_config("Phi4MMForCausalLM", None),
+            Some(ArchId::Phi4Mm)
+        );
+        assert_eq!(
+            classify_arch_from_hf_config("", Some("phi4mm")),
+            Some(ArchId::Phi4Mm)
+        );
+    }
+
+    #[test]
+    fn hf_classifies_phi4_siglip_before_phi4_fallback() {
+        assert_eq!(
+            classify_arch_from_hf_config("Phi4SiglipForCausalLM", None),
+            Some(ArchId::Phi4Vision)
+        );
+        assert_eq!(
+            classify_arch_from_hf_config("", Some("phi4-siglip")),
+            Some(ArchId::Phi4Vision)
+        );
+    }
+
+    #[test]
+    fn hf_phi4_base_still_routes_to_phi3_loader() {
+        // Phi-4 / Phi-4-reasoning / Phi-4-reasoning-plus all ship as
+        // `phi3` arch under the hood — the classifier collapses them
+        // into Phi3 because the loader path is identical.
+        assert_eq!(
+            classify_arch_from_hf_config("Phi4ForCausalLM", None),
+            Some(ArchId::Phi3)
+        );
+        assert_eq!(
+            classify_arch_from_hf_config("", Some("phi4")),
+            Some(ArchId::Phi3)
+        );
+    }
+
+    #[test]
+    fn hf_classifies_gemma3_text_before_gemma_fallback() {
+        assert_eq!(
+            classify_arch_from_hf_config("Gemma3TextModel", None),
+            Some(ArchId::Gemma3Text)
+        );
+        assert_eq!(
+            classify_arch_from_hf_config("", Some("gemma3_text")),
+            Some(ArchId::Gemma3Text)
+        );
+        // Plain Gemma must still route to ArchId::Gemma.
+        assert_eq!(
+            classify_arch_from_hf_config("GemmaForCausalLM", None),
+            Some(ArchId::Gemma)
+        );
+    }
+
+    #[test]
+    fn gguf_classifies_phi4_variants() {
+        assert_eq!(classify_arch_from_gguf("phi4mm"), Some(ArchId::Phi4Mm));
+        assert_eq!(classify_arch_from_gguf("phi4_mm"), Some(ArchId::Phi4Mm));
+        assert_eq!(
+            classify_arch_from_gguf("phi4-siglip"),
+            Some(ArchId::Phi4Vision)
+        );
+        assert_eq!(classify_arch_from_gguf("phi4"), Some(ArchId::Phi3));
+    }
+
+    #[test]
+    fn gguf_classifies_gemma3_text() {
+        assert_eq!(
+            classify_arch_from_gguf("gemma3_text"),
+            Some(ArchId::Gemma3Text)
+        );
+        // Plain gemma still goes to the generic Gemma row.
+        assert_eq!(classify_arch_from_gguf("gemma"), Some(ArchId::Gemma));
+        assert_eq!(classify_arch_from_gguf("gemma2"), Some(ArchId::Gemma));
     }
 
     #[test]

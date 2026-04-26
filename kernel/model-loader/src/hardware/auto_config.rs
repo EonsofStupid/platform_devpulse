@@ -1,10 +1,10 @@
 //! Auto-configuration engine — smart defaults based on detected hardware.
 //!
-//! SSOT: `scripts/docs/specs/MODEL-PRESETS-SSOT.md`
+//! `SSOT`: `scripts/docs/specs/MODEL-PRESETS-SSOT.md`
 //!
 //! 7 presets:
 //!   1. Floor (8GB) — Static, Qwen3-VL-4B brain
-//!   2. Mid ActiveIdle (12GB) — Qwen3.5-9B active / 4B idle
+//!   2. Mid `ActiveIdle` (12GB) — Qwen3.5-9B active / 4B idle
 //!   3. Jesse Primary (16GB) — Phi-4-reasoning-vision-15B active / 4B idle
 //!   4. High (24GB) — Static, Qwen3-14B or Phi-4 15B
 //!   5. Lab Ceiling (Multi-GPU) — Static, 27B+ brain
@@ -25,13 +25,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum HardwareTier {
-    /// 40 GB+ VRAM — Preset 5 (Ultra). Static Qwen3-30B-A3B MoE brain.
+    /// 40 GB+ VRAM — Preset 5 (Ultra). Static Qwen3-30B-A3B `MoE` brain.
     Ultra,
     /// 24 GB+ VRAM — Preset 4 (High). Static, 14B+ brain.
     High,
-    /// 16 GB VRAM — Preset 3 (Jesse Primary). ActiveIdle, 15B/4B swap.
+    /// 16 GB VRAM — Preset 3 (Jesse Primary). `ActiveIdle`, 15B/4B swap.
     JessePrimary,
-    /// 10 GB+ VRAM — Preset 2 (Mid). ActiveIdle, 9B/4B swap.
+    /// 10 GB+ VRAM — Preset 2 (Mid). `ActiveIdle`, 9B/4B swap.
     Mid,
     /// 8 GB VRAM — Preset 1 (Floor). Static, 4B brain.
     Floor,
@@ -47,7 +47,7 @@ pub enum HardwareTier {
 pub enum BrainSwapPolicy {
     /// Single model always loaded. Default for 8GB and 24GB+.
     Static,
-    /// Active conversation: LARGE_LLM. Idle 5min: swap to SMALL_LLM.
+    /// Active conversation: `LARGE_LLM`. Idle 5min: swap to `SMALL_LLM`.
     ActiveIdle {
         /// Model loaded when user is actively chatting.
         active_model: String,
@@ -84,7 +84,7 @@ pub struct AutoConfig {
 pub struct SlotRecommendation {
     /// Target slot ID.
     pub slot_id: String,
-    /// HuggingFace repository ID.
+    /// `HuggingFace` repository ID.
     pub model_repo_id: String,
     /// Which file to download from the repo.
     pub model_filename: String,
@@ -123,9 +123,9 @@ pub fn detect_tier(metrics: &HardwareMetrics) -> HardwareTier {
 /// function returns an empty `AutoConfig` for that tier rather than
 /// panicking — the caller can surface a warning in the UI.
 #[must_use]
-pub fn auto_configure(
+pub fn auto_configure<S: std::hash::BuildHasher>(
     metrics: &HardwareMetrics,
-    downloaded_filenames: &std::collections::HashSet<String>,
+    downloaded_filenames: &std::collections::HashSet<String, S>,
     presets: &[crate::hardware::presets::PresetBlueprint],
 ) -> AutoConfig {
     let tier = detect_tier(metrics);
@@ -139,9 +139,9 @@ pub fn auto_configure(
 /// This is a pure function of `tier`, the download set, and the cached
 /// preset catalog; it does not touch the live `HardwareMetrics`.
 #[must_use]
-pub fn config_for_tier(
+pub fn config_for_tier<S: std::hash::BuildHasher>(
     tier: HardwareTier,
-    downloaded_filenames: &std::collections::HashSet<String>,
+    downloaded_filenames: &std::collections::HashSet<String, S>,
     presets: &[crate::hardware::presets::PresetBlueprint],
 ) -> AutoConfig {
     match presets.iter().find(|bp| bp.tier == tier).cloned() {
@@ -161,8 +161,8 @@ pub fn config_for_tier(
 /// Used by the wizard preset picker so the owner can switch off the
 /// auto-detected default and pick any other tier manually.
 #[must_use]
-pub fn list_all_presets(
-    downloaded_filenames: &std::collections::HashSet<String>,
+pub fn list_all_presets<S: std::hash::BuildHasher>(
+    downloaded_filenames: &std::collections::HashSet<String, S>,
     presets: &[crate::hardware::presets::PresetBlueprint],
 ) -> Vec<AutoConfig> {
     presets
@@ -172,7 +172,22 @@ pub fn list_all_presets(
         .collect()
 }
 
+impl std::fmt::Display for HardwareTier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Ultra => write!(f, "Ultra (40GB+ VRAM)"),
+            Self::High => write!(f, "High (24GB+ VRAM)"),
+            Self::JessePrimary => write!(f, "Jesse Primary (16GB VRAM)"),
+            Self::Mid => write!(f, "Mid (10GB+ VRAM)"),
+            Self::Floor => write!(f, "Floor (8GB VRAM)"),
+            Self::Minimal => write!(f, "Minimal (<8GB VRAM)"),
+            Self::CpuOnly => write!(f, "CPU Only"),
+        }
+    }
+}
+
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // tests panic on auto-config / preset failures by design
 mod tests {
     use super::*;
 
@@ -282,10 +297,12 @@ mod tests {
 
         assert_eq!(config.tier, HardwareTier::Floor);
         assert_eq!(config.preset_name, "Floor (8GB)");
-        // 2 tier-specific (chat.brain, minion.shared) + 6 common
-        // (rag.embedder, rag.reranker, vision.embedder, voice.stt,
-        // voice.tts, voice.wake) = 8 total.
-        assert_eq!(config.recommendations.len(), 8);
+        // 5 tier-specific (chat.brain, minion.shared, voice.brain via
+        // mistral.rs phi4mm, plus rag.embedder + rag.encoder overriding
+        // the common.slots default with the smaller harrier-270m) + 5
+        // common (rag.reranker, vision.embedder, voice.stt, voice.tts,
+        // voice.wake — rag.embedder is overridden so excluded) = 10.
+        assert_eq!(config.recommendations.len(), 10);
 
         let slots: Vec<&str> = config
             .recommendations
@@ -294,7 +311,9 @@ mod tests {
             .collect();
         assert!(slots.contains(&"chat.brain"));
         assert!(slots.contains(&"minion.shared"));
+        assert!(slots.contains(&"voice.brain"));
         assert!(slots.contains(&"rag.embedder"));
+        assert!(slots.contains(&"rag.encoder"));
         assert!(slots.contains(&"rag.reranker"));
         assert!(slots.contains(&"vision.embedder"));
         assert!(slots.contains(&"voice.stt"));
@@ -353,16 +372,3 @@ mod tests {
     }
 }
 
-impl std::fmt::Display for HardwareTier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Ultra => write!(f, "Ultra (40GB+ VRAM)"),
-            Self::High => write!(f, "High (24GB+ VRAM)"),
-            Self::JessePrimary => write!(f, "Jesse Primary (16GB VRAM)"),
-            Self::Mid => write!(f, "Mid (10GB+ VRAM)"),
-            Self::Floor => write!(f, "Floor (8GB VRAM)"),
-            Self::Minimal => write!(f, "Minimal (<8GB VRAM)"),
-            Self::CpuOnly => write!(f, "CPU Only"),
-        }
-    }
-}

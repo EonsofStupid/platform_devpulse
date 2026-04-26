@@ -60,8 +60,8 @@ pub struct ModelManifest {
     pub label: String,
 
     // ── Capability ────────────────────────────────────────────────────
-    /// Role tag — what this model is for. Matches HuggingFace `pipeline_tag`
-    /// semantics but uses DevPulse vocabulary.
+    /// Role tag — what this model is for. Matches `HuggingFace` `pipeline_tag`
+    /// semantics but uses `DevPulse` vocabulary.
     ///
     /// Values: `"reasoning"`, `"embedder"`, `"reranker"`, `"vision"`,
     /// `"vision-language"`, `"tts"`, `"stt"`, `"audio-codec"`, `"general"`.
@@ -113,15 +113,15 @@ pub struct ModelManifest {
     pub files: Vec<ManifestFile>,
 
     // ── Provenance ────────────────────────────────────────────────────
-    /// HuggingFace `pipeline_tag` if known (e.g. `"feature-extraction"`, `"text-ranking"`).
+    /// `HuggingFace` `pipeline_tag` if known (e.g. `"feature-extraction"`, `"text-ranking"`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pipeline_tag: Option<String>,
 
-    /// HuggingFace repo ID if downloaded from HF (e.g. `"Qwen/Qwen3-4B-Instruct-GGUF"`).
+    /// `HuggingFace` repo ID if downloaded from HF (e.g. `"Qwen/Qwen3-4B-Instruct-GGUF"`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hf_repo: Option<String>,
 
-    /// HuggingFace revision (commit sha or tag) locked at download time.
+    /// `HuggingFace` revision (commit sha or tag) locked at download time.
     /// Lets us detect "this is an older snapshot than the slot preset
     /// expects" without re-hitting the hub.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -158,6 +158,11 @@ fn default_schema_version() -> u32 {
 ///
 /// Returns `None` if the file doesn't exist. Returns `Err` if the file
 /// exists but is malformed (parse error should be surfaced, not silenced).
+///
+/// # Errors
+/// Returns a `String` with a layman-readable description if the file
+/// can't be read (permission denied, etc.) or the JSON fails to parse
+/// against the [`ModelManifest`] schema.
 pub fn load_manifest(model_dir: &Path) -> Result<Option<ModelManifest>, String> {
     let manifest_path = model_dir.join(MANIFEST_FILENAME);
     if !manifest_path.exists() {
@@ -260,6 +265,11 @@ pub fn infer_from_config_json_architectures(model_dir: &Path) -> Option<Vec<Mode
 /// Write `devpulse.json` into `model_dir`. Pretty-prints the JSON and
 /// forces `schema_version` to the current [`MANIFEST_SCHEMA_VERSION`]
 /// so older writes can never produce stale version tags.
+///
+/// # Errors
+/// Returns a `String` if JSON serialization fails (effectively impossible
+/// — every field has a serde impl) or if the file write fails (permission
+/// denied, disk full, parent doesn't exist).
 pub fn save_manifest(model_dir: &Path, mut manifest: ModelManifest) -> Result<(), String> {
     manifest.schema_version = MANIFEST_SCHEMA_VERSION;
     let path = model_dir.join(MANIFEST_FILENAME);
@@ -278,9 +288,11 @@ pub fn save_manifest(model_dir: &Path, mut manifest: ModelManifest) -> Result<()
 /// should hand to llama.cpp / Candle / ORT.
 ///
 /// Preference order:
+///
 /// 1. First file with `role = "weights"`.
 /// 2. First file whose path ends in `.gguf`, `.safetensors`, or `.onnx`.
 /// 3. First file in the list.
+///
 /// Returns the relative path as declared in the manifest, or `None` if
 /// the manifest has no files.
 #[must_use]
@@ -291,8 +303,15 @@ pub fn primary_weights_path(manifest: &ModelManifest) -> Option<&str> {
         .find(|f| f.role.as_deref() == Some("weights"))
         .or_else(|| {
             manifest.files.iter().find(|f| {
-                let p = f.path.to_ascii_lowercase();
-                p.ends_with(".gguf") || p.ends_with(".safetensors") || p.ends_with(".onnx")
+                // `p` is already `to_ascii_lowercase()`'d above, so case is
+                // normalised — the lint's case-sensitive concern doesn't apply.
+                #[allow(clippy::case_sensitive_file_extension_comparisons)]
+                {
+                    let p = f.path.to_ascii_lowercase();
+                    p.ends_with(".gguf")
+                        || p.ends_with(".safetensors")
+                        || p.ends_with(".onnx")
+                }
             })
         })
         .or_else(|| manifest.files.first())
@@ -300,6 +319,7 @@ pub fn primary_weights_path(manifest: &ModelManifest) -> Option<&str> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on manifest parse / IO failures by design
 mod tests {
     use super::*;
 

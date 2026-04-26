@@ -87,7 +87,7 @@ struct SlotRecEntry {
 }
 
 /// Serialisation shadow for [`DevicePreference`] — TOML writes them
-/// as bare PascalCase strings (`"Gpu"`, `"Cpu"`, etc).
+/// as bare `PascalCase` strings (`"Gpu"`, `"Cpu"`, etc).
 #[derive(Debug, Clone, Copy, Deserialize)]
 enum DevicePreferenceConfig {
     Gpu,
@@ -190,9 +190,9 @@ pub fn load_default_presets(userdata_dir: &Path) -> Result<Vec<PresetBlueprint>,
 /// preset for the requested tier (which would indicate either a
 /// corrupt override file or a new tier variant that hasn't been added
 /// to the catalog yet).
-pub fn config_for_tier(
+pub fn config_for_tier<S: std::hash::BuildHasher>(
     tier: HardwareTier,
-    downloaded: &std::collections::HashSet<String>,
+    downloaded: &std::collections::HashSet<String, S>,
     userdata_dir: &Path,
 ) -> Result<AutoConfig, PresetsError> {
     let blueprints = load_default_presets(userdata_dir)?;
@@ -231,7 +231,7 @@ pub struct PresetBlueprint {
 pub struct ResolvedRec {
     /// Target slot id.
     pub slot_id: String,
-    /// HuggingFace repo id.
+    /// `HuggingFace` repo id.
     pub model_repo_id: String,
     /// Filename within the repo.
     pub model_filename: String,
@@ -247,7 +247,10 @@ impl PresetBlueprint {
     /// Convert the blueprint into a concrete [`AutoConfig`] against the
     /// given set of already-downloaded filenames.
     #[must_use]
-    pub fn into_auto_config(self, downloaded: &std::collections::HashSet<String>) -> AutoConfig {
+    pub fn into_auto_config<S: std::hash::BuildHasher>(
+        self,
+        downloaded: &std::collections::HashSet<String, S>,
+    ) -> AutoConfig {
         let recommendations: Vec<SlotRecommendation> = self
             .recommendations
             .into_iter()
@@ -331,6 +334,7 @@ fn resolve(entry: SlotRecEntry) -> ResolvedRec {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // tests panic on preset / file IO failures by design
 mod tests {
     use super::*;
 
@@ -392,17 +396,20 @@ mod tests {
         }
     }
 
-    /// Floor preset has exactly 8 recommendations: 2 tier-specific
-    /// (chat.brain, minion.shared) + 6 common slots (rag.embedder,
-    /// rag.reranker, vision.embedder, voice.stt, voice.tts,
-    /// voice.wake). Breaks if either the Floor preset's tier block
+    /// Floor preset has exactly 10 recommendations: 5 tier-specific
+    /// (chat.brain, minion.shared, voice.brain via mistral.rs phi4mm,
+    /// plus rag.embedder + rag.encoder overriding the common-slots
+    /// default with the smaller harrier-270m) + 5 common slots
+    /// (rag.reranker, vision.embedder, voice.stt, voice.tts,
+    /// voice.wake — rag.embedder is overridden so excluded from the
+    /// common merge). Breaks if either the Floor preset's tier block
     /// or the `[[common.slots]]` table changes count.
     #[test]
-    fn floor_preset_has_eight_recommendations() {
+    fn floor_preset_has_ten_recommendations() {
         let downloaded = std::collections::HashSet::new();
         let cfg =
             config_for_tier(HardwareTier::Floor, &downloaded, Path::new("/nonexistent")).unwrap();
-        assert_eq!(cfg.recommendations.len(), 8);
+        assert_eq!(cfg.recommendations.len(), 10);
         assert_eq!(cfg.preset_name, "Floor (8GB)");
     }
 
@@ -535,13 +542,14 @@ mod tests {
                 // that target CPU-only tiers override lane via the
                 // preset recommendation's `device` field, which is
                 // handled at the backend pool level, not here).
-                if slot.lane == LaneKind::Cpu && rec.vram_estimate_mb != 0 {
-                    panic!(
-                        "preset {:?} slot '{}' is on CPU lane but declares \
-                         {} MB VRAM",
-                        bp.tier, rec.slot_id, rec.vram_estimate_mb
-                    );
-                }
+                assert!(
+                    slot.lane != LaneKind::Cpu || rec.vram_estimate_mb == 0,
+                    "preset {:?} slot '{}' is on CPU lane but declares \
+                     {} MB VRAM",
+                    bp.tier,
+                    rec.slot_id,
+                    rec.vram_estimate_mb
+                );
             }
         }
     }

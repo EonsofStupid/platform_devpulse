@@ -128,6 +128,59 @@ pub enum LoaderError {
         slot_id: String,
     },
 
+    /// Filesystem IO failed at a specific path.
+    #[error("Filesystem IO failed at {path}: {reason}")]
+    Io {
+        /// Path the IO operation targeted.
+        path: PathBuf,
+        /// Human-readable failure reason (preserves the underlying error message).
+        reason: String,
+    },
+
+    /// Boot-time initialisation failed before the service can serve requests.
+    ///
+    /// Covers the model-loader constructor's mandatory work (subdir
+    /// creation). The non-mandatory loaders (registry / secrets / assistant)
+    /// fail-soft with `tracing::warn!` and never surface as `Boot`.
+    #[error("Model loader boot failed during {step}: {reason}")]
+    Boot {
+        /// Boot phase that failed (e.g. `"create models subdirs"`).
+        step: String,
+        /// Human-readable failure reason.
+        reason: String,
+    },
+
+    /// `ConfigBackend` trait operation failed (libsql write, memory-config
+    /// invariant violation, etc.).
+    #[error("Config backend {operation} failed for key '{key}': {reason}")]
+    ConfigBackend {
+        /// The trait method that failed (`"get"`, `"set"`, `"list_by_prefix"`, ...).
+        operation: String,
+        /// Config key that was being read or written.
+        key: String,
+        /// Human-readable failure reason.
+        reason: String,
+    },
+
+    /// HuggingFace HTTP API call failed (network, auth, rate-limit, server).
+    #[error("HuggingFace API call failed: {reason}")]
+    HuggingFace {
+        /// Human-readable failure reason.
+        reason: String,
+        /// Whether the failure was a transient network / rate-limit error
+        /// that retrying might resolve, vs. a hard auth / 404 / etc.
+        can_retry: bool,
+    },
+
+    /// Inference pipeline failed for a specific slot.
+    #[error("Inference failed for slot '{slot_id}': {reason}")]
+    Inference {
+        /// Slot whose inference call failed.
+        slot_id: String,
+        /// Human-readable failure reason.
+        reason: String,
+    },
+
     /// Internal error — catch-all for unexpected failures.
     #[error("{message}")]
     Internal {

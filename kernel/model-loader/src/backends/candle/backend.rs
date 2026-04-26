@@ -1,4 +1,4 @@
-//! Candle backend — first-class GGUF **and** SafeTensors loading for the
+//! Candle backend — first-class GGUF **and** `SafeTensors` loading for the
 //! Qwen3 family, Phi-3, and the legacy Qwen2 fallback.
 //!
 //! # Cast lints
@@ -32,7 +32,7 @@
 //! `llama.*` (the same trick llama.cpp uses) so older quantized exports
 //! without an arch-native loader keep working.
 //!
-//! ## SafeTensors (full precision)
+//! ## `SafeTensors` (full precision)
 //! HF-style model directory with `config.json`, `tokenizer.json`, and
 //! one or more `model*.safetensors` shards. Dispatched by
 //! `config.json.architectures[0]` to the matching loader in
@@ -49,7 +49,7 @@
 //! the frontend can surface an actionable "use GGUF instead" fallback.
 //!
 //! Path selection: `*.gguf` → GGUF path, directory or `*.safetensors`
-//! neighbour of `config.json` → SafeTensors path.
+//! neighbour of `config.json` → `SafeTensors` path.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::ModelMetadata;
@@ -84,15 +84,21 @@ enum LoadedWeights {
     QuantizedPhi3(quantized_phi3::ModelWeights),
     /// Full-precision Qwen3 (non-MoE, non-VL) safetensors.
     Qwen3Safetensors(qwen3::ModelForCausalLM),
-    /// Full-precision Qwen3 MoE (30B-A3B etc.) safetensors.
+    /// Full-precision Qwen3 `MoE` (30B-A3B etc.) safetensors.
     Qwen3MoeSafetensors(qwen3_moe::ModelForCausalLM),
     /// Full-precision Phi-3 safetensors (mini/medium, standard attn).
     Phi3Safetensors(phi3::Model),
     /// Full-precision Qwen2 / Qwen2.5 safetensors. Legacy fallback.
     Qwen2Safetensors(qwen2::ModelForCausalLM),
-    /// Qwen3 base model (no lm_head) for embedding — Harrier, Qwen3-Embedding.
-    /// forward() returns hidden states [batch, seq, hidden_size].
+    /// Qwen3 base model (no `lm_head`) for embedding — Harrier, Qwen3-Embedding.
+    /// `forward()` returns hidden states `[batch, seq, hidden_size]`.
     Qwen3Embedding(qwen3::Model),
+    /// Gemma3 text encoder for sentence-transformer embedders such as
+    /// `microsoft/harrier-oss-v1-270m`. Local port (no upstream gemma3
+    /// base-Model variant in candle 0.9.2). `forward()` returns full-sequence
+    /// hidden states; pair with `gemma3_embedding::mean_pool` for the
+    /// embedding vector.
+    Gemma3Embedding(super::gemma3_embedding::Model),
 }
 
 /// Loaded model state — weights + tokenizer + metadata.
@@ -136,6 +142,11 @@ impl CandleBackend {
     ///
     /// Returns the full generated text. Calls `on_token` for each token
     /// as it's generated (for streaming).
+    ///
+    /// # Errors
+    /// Returns an error if no model is loaded, if tokenization of the
+    /// prompt fails, if any forward pass returns a tensor error, or if
+    /// the sampler emits an invalid token id.
     #[tracing::instrument(skip(self, on_token), fields(prompt_len = prompt.len(), max_new_tokens, temperature))]
     pub fn generate(
         &mut self,
@@ -158,7 +169,7 @@ impl CandleBackend {
         let mut all_tokens = prompt_tokens.clone();
 
         // Feed the prompt through the model. GGUF wants one token at a time with a
-        // rank-1 input, SafeTensors Qwen3 wants a rank-2 [batch, seq] input and
+        // rank-1 input, `SafeTensors` Qwen3 wants a rank-2 [batch, seq] input and
         // returns logits only for the last position (narrowed inside forward()).
         let mut logits = forward_prefill(&mut model.weights, &prompt_tokens, &self.device)?;
 
@@ -213,13 +224,12 @@ impl InferenceBackend for CandleBackend {
         };
         self.device = device.clone();
 
-        // Dispatch by file layout. GGUF is a single file; SafeTensors is a
+        // Dispatch by file layout. GGUF is a single file; `SafeTensors` is a
         // directory (or a single .safetensors next to config.json + tokenizer.json).
         let is_gguf = path
             .extension()
             .and_then(|s| s.to_str())
-            .map(|s| s.eq_ignore_ascii_case("gguf"))
-            .unwrap_or(false);
+            .is_some_and(|s| s.eq_ignore_ascii_case("gguf"));
 
         let loaded = if is_gguf {
             load_gguf(path, &device)?
@@ -296,12 +306,13 @@ impl InferenceBackend for CandleBackend {
                 vocab_size: 0,
             });
 
-        self.model.as_ref().map(|m| &m.metadata).unwrap_or(&EMPTY)
+        self.model.as_ref().map_or(&EMPTY, |m| &m.metadata)
     }
 }
 
-/// Extract model metadata from GGUF content.
-fn extract_model_metadata(content: &Content) -> anyhow::Result<ModelMetadata> {
+/// Extract model metadata from GGUF content. Infallible — every lookup
+/// has a default, so the function returns `ModelMetadata` directly.
+fn extract_model_metadata(content: &Content) -> ModelMetadata {
     use candle_core::quantized::gguf_file::Value;
 
     let get_str = |key: &str| -> Option<String> {
@@ -329,13 +340,13 @@ fn extract_model_metadata(content: &Content) -> anyhow::Result<ModelMetadata> {
     let vocab_size = get_u64(&format!("{architecture}.vocab_size")).unwrap_or(0) as usize;
     let parameter_count = get_u64("general.parameter_count");
 
-    Ok(ModelMetadata {
+    ModelMetadata {
         architecture,
         parameter_count,
         quant_level: None,
         context_length,
         vocab_size,
-    })
+    }
 }
 
 /// Load tokenizer for a GGUF model.
@@ -347,14 +358,14 @@ fn extract_model_metadata(content: &Content) -> anyhow::Result<ModelMetadata> {
 ///    `tokenizer.ggml.tokens` / `tokenizer.ggml.merges`. We build a
 ///    real `tokenizers::Tokenizer` from that metadata directly, with
 ///    no disk or network dependency. This is the only path that works
-///    out of the box for quantized GGUFs from bartowski / TheBloke /
+///    out of the box for quantized GGUFs from `bartowski` / `TheBloke` /
 ///    etc., because those repackages almost never ship
 ///    `tokenizer.json` alongside the `.gguf` and usually strip the
 ///    `general.source.huggingface.repository` field.
 /// 2. **`tokenizer.json` on disk** — if the user manually placed one
 ///    next to the GGUF, honour it. Useful for odd architectures we
 ///    don't know how to build from metadata yet.
-/// 3. **HuggingFace Hub fetch** — if the GGUF has
+/// 3. **`HuggingFace` Hub fetch** — if the GGUF has
 ///    `general.source.huggingface.repository` metadata, pull the
 ///    tokenizer from there. Requires network.
 /// 4. **`general.name` as repo fallback** — last-ditch, assumes the
@@ -428,7 +439,7 @@ fn load_tokenizer_from_gguf(
 /// Gemma, and similar model. For the older SentencePiece-flavored
 /// `"llama"` variant the function returns `Ok(None)` so the caller
 /// can try the disk / HF fallback — we don't currently have a
-/// first-party path for building a SentencePiece tokenizer out of
+/// first-party path for building a `SentencePiece` tokenizer out of
 /// GGUF metadata.
 fn try_build_tokenizer_from_gguf_metadata(
     content: &Content,
@@ -445,9 +456,8 @@ fn try_build_tokenizer_from_gguf_metadata(
         _ => return Ok(None),
     };
 
-    let tokens_value = match content.metadata.get("tokenizer.ggml.tokens") {
-        Some(Value::Array(arr)) => arr,
-        _ => return Ok(None),
+    let Some(Value::Array(tokens_value)) = content.metadata.get("tokenizer.ggml.tokens") else {
+        return Ok(None);
     };
 
     // Non-GPT2 variants (classic llama SentencePiece, rwkv, bert,
@@ -702,6 +712,19 @@ fn forward_prefill(
             let normalized = last_hidden.broadcast_div(&norm)?;
             Ok(normalized.to_vec1::<f32>()?)
         }
+        LoadedWeights::Gemma3Embedding(model) => {
+            // Gemma3 embedder: forward returns hidden states
+            // [1, seq, hidden_size]. The Gemma3 port doesn't take a
+            // seqlen_offset argument (no kv-cache for embedders).
+            // Take last token, L2 normalize → embedding vector.
+            let input = Tensor::new(prompt_tokens, device)?.unsqueeze(0)?;
+            let hidden = model.forward(&input)?;
+            let seq_len = hidden.dim(1)?;
+            let last_hidden = hidden.narrow(1, seq_len - 1, 1)?.squeeze(0)?.squeeze(0)?;
+            let norm = last_hidden.sqr()?.sum_all()?.sqrt()?;
+            let normalized = last_hidden.broadcast_div(&norm)?;
+            Ok(normalized.to_vec1::<f32>()?)
+        }
     }
 }
 
@@ -749,7 +772,7 @@ fn forward_step(
             let out = model.forward(&input, position)?;
             Ok(out.squeeze(0)?.squeeze(0)?.to_vec1::<f32>()?)
         }
-        LoadedWeights::Qwen3Embedding(_) => {
+        LoadedWeights::Qwen3Embedding(_) | LoadedWeights::Gemma3Embedding(_) => {
             anyhow::bail!("Embedding models do not support autoregressive decode steps")
         }
     }
@@ -914,7 +937,7 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     let mut reader = BufReader::new(file);
     let mut content = Content::read(&mut reader)?;
 
-    let metadata = extract_model_metadata(&content)?;
+    let metadata = extract_model_metadata(&content);
     tracing::info!(
         arch = %metadata.architecture,
         ctx = metadata.context_length,
@@ -981,7 +1004,7 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     })
 }
 
-/// Top-level SafeTensors loader. Resolves the model directory, reads
+/// Top-level `SafeTensors` loader. Resolves the model directory, reads
 /// `config.json`, classifies the architecture, and dispatches to the
 /// matching arch-specific loader.
 ///
@@ -1000,7 +1023,7 @@ fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel>
         path.to_path_buf()
     } else {
         path.parent()
-            .ok_or_else(|| anyhow::anyhow!("SafeTensors path has no parent: {}", path.display()))?
+            .ok_or_else(|| anyhow::anyhow!("`SafeTensors` path has no parent: {}", path.display()))?
             .to_path_buf()
     };
 
@@ -1080,6 +1103,7 @@ fn load_safetensors(path: &Path, device: &Device) -> anyhow::Result<LoadedModel>
         ArchId::Qwen3Moe => build_qwen3_moe(&config_json, vb)?,
         ArchId::Phi3 | ArchId::Phi3Moe => build_phi3(&config_json, vb, device)?,
         ArchId::Qwen2 | ArchId::Qwen25 => build_qwen2(&config_json, vb)?,
+        ArchId::Gemma3Text => build_gemma3_embedding(&config_json, vb)?,
         unsupported => {
             return Err(anyhow::Error::new(LoadError::UnsupportedArchitecture {
                 arch: unsupported,
@@ -1141,7 +1165,7 @@ fn build_qwen3(
 }
 
 /// Build a Qwen3 base model for embedding (Harrier, Qwen3-Embedding).
-/// Uses `qwen3::Model` (hidden states output, no lm_head).
+/// Uses `qwen3::Model` (hidden states output, no `lm_head`).
 fn build_qwen3_embedding(
     config_json: &serde_json::Value,
     vb: VarBuilder,
@@ -1159,7 +1183,30 @@ fn build_qwen3_embedding(
     Ok((LoadedWeights::Qwen3Embedding(model), ctx, vocab))
 }
 
-/// Build a Qwen3 MoE model (e.g. 30B-A3B) from config + weights.
+/// Build a Gemma3 text encoder for sentence-transformer embedders
+/// (Microsoft Harrier 270m and friends). Uses the local
+/// [`crate::backends::candle::gemma3_embedding::Model`] port — candle
+/// 0.9.2's upstream `gemma3::Model` always applies `lm_head` and so
+/// can't load a checkpoint without an LM-head weight.
+fn build_gemma3_embedding(
+    config_json: &serde_json::Value,
+    vb: VarBuilder,
+) -> anyhow::Result<(LoadedWeights, usize, usize)> {
+    let cfg: super::gemma3_embedding::Config = serde_json::from_value(config_json.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to parse Gemma3 embedding config.json: {e}"))?;
+    let ctx = cfg.max_position_embeddings;
+    let vocab = cfg.vocab_size;
+    let model = super::gemma3_embedding::Model::new(&cfg, vb)
+        .map_err(|e| anyhow::anyhow!("Failed to build Gemma3 embedding model: {e}"))?;
+    tracing::info!(
+        hidden_size = cfg.hidden_size,
+        num_hidden_layers = cfg.num_hidden_layers,
+        "Loaded Gemma3 embedding model (no lm_head)"
+    );
+    Ok((LoadedWeights::Gemma3Embedding(model), ctx, vocab))
+}
+
+/// Build a Qwen3 `MoE` model (e.g. 30B-A3B) from config + weights.
 fn build_qwen3_moe(
     config_json: &serde_json::Value,
     vb: VarBuilder,

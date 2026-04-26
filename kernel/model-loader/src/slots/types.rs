@@ -68,9 +68,17 @@ pub struct Slot {
     #[serde(default)]
     pub source_tier: ModelSourceTier,
 
-    /// Backend-specific configuration (voice_profile, vad, sample_rate, etc.).
+    /// Backend-specific configuration (`voice_profile`, `vad`, `sample_rate`, etc.).
     #[serde(default)]
     pub extensions: std::collections::HashMap<String, String>,
+
+    /// KV-cache and context controls applied at backend load time.
+    /// Each backend adapter (llama.cpp FFI, mistral.rs, moshi) reads
+    /// the fields it can support and ignores the rest with a debug log.
+    /// Defaults to "use all runtime defaults" so existing slot configs
+    /// without a `kv_cache` block keep loading unchanged.
+    #[serde(default)]
+    pub kv_cache: super::kv_cache::KvCacheConfig,
 
     /// Whether this slot is a platform built-in.
     ///
@@ -110,7 +118,7 @@ pub enum ModelSourceTier {
     /// Ships with the app binary. Auto-loads on boot from bundled path.
     /// User never downloads or manages these.
     Bundled {
-        /// Path relative to models_dir (e.g. `"voice/kokoro/model_quantized.onnx"`).
+        /// Path relative to `models_dir` (e.g. `"voice/kokoro/model_quantized.onnx"`).
         bundled_path: String,
     },
     /// User downloads and manages via Model Loader UI.
@@ -135,7 +143,7 @@ pub enum ModelCapability {
     Reranking,
     /// Multimodal — image + text understanding.
     VisionLanguage,
-    /// Image to vector (SigLIP2 etc.).
+    /// Image to vector (`SigLIP2` etc.).
     VisionEmbedding,
     /// Speech-to-text.
     SpeechToText,

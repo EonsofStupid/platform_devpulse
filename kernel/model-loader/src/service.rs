@@ -94,6 +94,18 @@ pub struct ModelLoaderService {
     pub(crate) hardware: Arc<parking_lot::RwLock<HardwareMonitor>>,
 }
 
+/// Read-only context gathered at the start of a slot load. Computed
+/// from `cfg` / `registry` / `inference` / `hardware` read locks; the
+/// locks are released before the load proceeds so the heavy load itself
+/// can take the inference write lock without lock-order conflicts.
+struct LoadContext {
+    model_id: String,
+    model_path: PathBuf,
+    capability: ModelCapability,
+    backend: BackendType,
+    params: LoadParams,
+}
+
 impl ModelLoaderService {
     fn refresh_cached_assignment_state(cfg: &mut ConfigState) {
         cfg.has_assignments = cfg
@@ -108,18 +120,32 @@ impl ModelLoaderService {
     /// `models_dir` is where GGUF/SafeTensors files live.
     /// `subdirs` defines subdirectory names for model discovery.
     /// `presets` is the cached preset catalog loaded at boot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Io`] if `models_dir` does not exist and the
+    /// per-subdir `create_dir_all` calls fail (typically permission denied
+    /// or non-existent parent path). Failures inside the registry / secrets
+    /// / assistant-config loaders are caught with a `tracing::warn!` and
+    /// fall back to an empty default — the constructor itself succeeds in
+    /// those cases.
+    #[allow(clippy::case_sensitive_file_extension_comparisons)] // ".model" is a config-key suffix, not a file extension
+    #[allow(clippy::needless_pass_by_value)] // owned `subdirs` is consumed via `&subdirs` borrow + iteration
     pub fn new(
         config: Box<dyn ConfigBackend>,
         events: Arc<dyn LoaderEventSink>,
         models_dir: PathBuf,
         subdirs: Vec<String>,
         presets: Vec<crate::hardware::presets::PresetBlueprint>,
-    ) -> anyhow::Result<Self> {
+    ) -> Result<Self, LoaderError> {
         if !models_dir.exists() {
             for subdir in &subdirs {
-                std::fs::create_dir_all(models_dir.join(subdir))?;
+                let target = models_dir.join(subdir);
+                std::fs::create_dir_all(&target).map_err(|e| LoaderError::Io {
+                    path: target.clone(),
+                    reason: format!("create_dir_all failed: {e}"),
+                })?;
                 tracing::info!(
-                    path = %models_dir.join(subdir).display(),
+                    path = %target.display(),
                     "Created models/{subdir}/ directory"
                 );
             }
@@ -140,8 +166,7 @@ impl ModelLoaderService {
 
         let userdata_dir = models_dir
             .parent()
-            .map(std::path::Path::to_path_buf)
-            .unwrap_or_else(|| models_dir.clone());
+            .map_or_else(|| models_dir.clone(), std::path::Path::to_path_buf);
         let assistant = AssistantConfig::load(&userdata_dir).unwrap_or_else(|e| {
             tracing::warn!(
                 target: "assistant",
@@ -152,18 +177,22 @@ impl ModelLoaderService {
         });
         let has_assignments = config
             .list_by_prefix("slot.")
-            .map(|entries| entries.iter().any(|(key, _)| key.ends_with(".model")))
-            .unwrap_or_else(|e| {
-                tracing::warn!(error = %e, "Failed to preload slot assignment state");
-                false
-            });
+            .map_or_else(
+                |e| {
+                    tracing::warn!(error = %e, "Failed to preload slot assignment state");
+                    false
+                },
+                |entries| entries.iter().any(|(key, _)| key.ends_with(".model")),
+            );
         let setup_complete = config
             .get("setup_complete")
-            .map(|value| value.as_deref() == Some("true"))
-            .unwrap_or_else(|e| {
-                tracing::warn!(error = %e, "Failed to preload setup completion state");
-                false
-            });
+            .map_or_else(
+                |e| {
+                    tracing::warn!(error = %e, "Failed to preload setup completion state");
+                    false
+                },
+                |value| value.as_deref() == Some("true"),
+            );
 
         Ok(Self {
             inference: Arc::new(RwLock::new(InferenceState {
@@ -196,12 +225,22 @@ impl ModelLoaderService {
     // ── Slot registration (boot-time only) ────────────────────
 
     /// Register a single slot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Internal`] if the slot id format is invalid
+    /// (must be `subsystem.purpose`) or if a slot with that id is already
+    /// registered.
     pub async fn register_slot(&self, slot: Slot) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         cfg.slots.register_slot(slot)
     }
 
     /// Register multiple slots.
+    ///
+    /// # Errors
+    /// Stops at the first invalid or duplicate slot and returns
+    /// [`LoaderError::Internal`]; slots registered before the failure
+    /// remain registered.
     pub async fn register_slots(&self, slots: Vec<Slot>) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         for slot in slots {
@@ -285,8 +324,7 @@ impl ModelLoaderService {
                     .assigned_model
                     .as_ref()
                     .and_then(|mid| reg.registry.get(mid))
-                    .map(|e| e.vram_estimate_mb)
-                    .unwrap_or(0);
+                    .map_or(0, |e| e.vram_estimate_mb);
                 let status = inf
                     .slot_statuses
                     .get(&s.id)
@@ -304,23 +342,31 @@ impl ModelLoaderService {
     }
 
     /// Auto-configure based on detected hardware.
-    pub fn auto_configure(&self) -> AutoConfig {
+    ///
+    /// The tokio registry guard is scoped so it drops *before* the
+    /// `parking_lot::RwLockReadGuard` for `hardware` is acquired. The
+    /// parking-lot guard is `!Send`; if it lived across the registry
+    /// `.await` the resulting future would be `!Send` and Tauri command
+    /// futures (which require `Send`) would refuse to spawn it.
+    pub async fn auto_configure(&self) -> AutoConfig {
+        let downloaded = {
+            let reg = self.registry.read().await;
+            reg.registry.filenames()
+        };
         let hw = self.hardware.read();
-        let reg = self.registry.blocking_read();
-        let downloaded = reg.registry.filenames();
         auto_config::auto_configure(hw.cached(), &downloaded, &self.boot.presets)
     }
 
     /// Return every known hardware preset.
-    pub fn list_all_presets(&self) -> Vec<AutoConfig> {
-        let reg = self.registry.blocking_read();
+    pub async fn list_all_presets(&self) -> Vec<AutoConfig> {
+        let reg = self.registry.read().await;
         let downloaded = reg.registry.filenames();
         auto_config::list_all_presets(&downloaded, &self.boot.presets)
     }
 
-    /// Build the AutoConfig for a specific tier.
-    pub fn config_for_tier(&self, tier: crate::hardware::HardwareTier) -> AutoConfig {
-        let reg = self.registry.blocking_read();
+    /// Build the `AutoConfig` for a specific tier.
+    pub async fn config_for_tier(&self, tier: crate::hardware::HardwareTier) -> AutoConfig {
+        let reg = self.registry.read().await;
         let downloaded = reg.registry.filenames();
         auto_config::config_for_tier(tier, &downloaded, &self.boot.presets)
     }
@@ -343,10 +389,10 @@ impl ModelLoaderService {
             .map(|(id, _)| id.clone())
             .collect();
 
-        let active_fallback = if !matches!(model_status, ModelStatus::Loaded { .. }) {
-            fallback::resolve_fallback(&cfg.slots, slot_id, &loaded_set).filter(|fb| fb != slot_id)
-        } else {
+        let active_fallback = if matches!(model_status, ModelStatus::Loaded { .. }) {
             None
+        } else {
+            fallback::resolve_fallback(&cfg.slots, slot_id, &loaded_set).filter(|fb| fb != slot_id)
         };
 
         SlotStatus {
@@ -360,6 +406,12 @@ impl ModelLoaderService {
     }
 
     /// Get an inference handle for a slot (resolves fallback chain).
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::SlotSwapping`] if the slot is mid-swap and
+    /// inference must wait. The returned `Ok(None)` indicates no handle
+    /// is currently loaded for the slot or any of its fallbacks — that
+    /// is not an error.
     pub async fn inference_handle(
         &self,
         slot_id: &str,
@@ -401,9 +453,20 @@ impl ModelLoaderService {
     }
 
     /// Mark the setup wizard as complete.
-    pub async fn mark_setup_complete(&self) -> anyhow::Result<()> {
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::ConfigBackend`] if the underlying
+    /// `ConfigBackend::set` call fails (libsql write error or memory-config
+    /// invariant violation).
+    pub async fn mark_setup_complete(&self) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        cfg.config.set("setup_complete", "true")?;
+        cfg.config
+            .set("setup_complete", "true")
+            .map_err(|e| LoaderError::ConfigBackend {
+                operation: "set".to_string(),
+                key: "setup_complete".to_string(),
+                reason: e.to_string(),
+            })?;
         cfg.setup_complete = true;
         Ok(())
     }
@@ -443,8 +506,7 @@ impl ModelLoaderService {
         self.boot
             .models_dir
             .parent()
-            .map(|p| p.to_path_buf())
-            .unwrap_or_else(|| self.boot.models_dir.clone())
+            .map_or_else(|| self.boot.models_dir.clone(), std::path::Path::to_path_buf)
             .join("voice")
             .join("custom")
     }
@@ -452,11 +514,31 @@ impl ModelLoaderService {
     // ── Registry write (scan) — only registry lock ────────────
 
     /// Scan the models directory. Only locks the registry.
-    pub fn scan_models(&self) -> anyhow::Result<Vec<ModelRegistryEntry>> {
+    ///
+    /// The IO portion (filesystem walk + GGUF header parsing) runs inside
+    /// [`tokio::task::block_in_place`] so the worker thread that's blocked
+    /// on it doesn't starve other tasks on the runtime — `block_in_place`
+    /// asks the multi-threaded scheduler to migrate other tasks to free
+    /// workers. **Multi-threaded runtime required** at every caller (Tauri
+    /// uses the default multi-thread runtime; tests use
+    /// `#[tokio::test(flavor = "multi_thread")]`).
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Io`] if the filesystem walk fails (permission
+    /// denied, path no longer exists) or a GGUF/SafeTensors header fails to
+    /// parse. The underlying `Registry::scan` keeps an internal
+    /// `anyhow::Error` for ergonomics; this method wraps it at the
+    /// boundary so callers see a typed loader error.
+    pub async fn scan_models(&self) -> Result<Vec<ModelRegistryEntry>, LoaderError> {
         self.boot.events.emit(LoaderEvent::RegistryScanStarted);
 
-        let mut reg = self.registry.blocking_write();
-        let count = reg.registry.scan()?;
+        let mut reg = self.registry.write().await;
+        let count = tokio::task::block_in_place(|| reg.registry.scan()).map_err(|e| {
+            LoaderError::Io {
+                path: self.boot.models_dir.clone(),
+                reason: format!("registry scan failed: {e:#}"),
+            }
+        })?;
 
         for entry in reg.registry.all() {
             self.boot
@@ -475,6 +557,13 @@ impl ModelLoaderService {
     // ── Config write — only config lock ───────────────────────
 
     /// Assign a model to a slot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Internal`] if `model_id` is not in the
+    /// registry, [`LoaderError::SlotNotFound`] if `slot_id` is unknown,
+    /// or [`LoaderError::IncompatibleModel`] if the model's capabilities
+    /// don't match the slot's required capability. Persistence failures
+    /// surface as [`LoaderError::ConfigBackend`].
     #[tracing::instrument(skip(self), fields(slot_id, model_id))]
     pub async fn assign_model(&self, slot_id: &str, model_id: &str) -> Result<(), LoaderError> {
         // Phase 1: validate under read locks
@@ -557,6 +646,10 @@ impl ModelLoaderService {
     }
 
     /// Remove model assignment from a slot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::SlotNotFound`] if `slot_id` is unknown,
+    /// or [`LoaderError::Internal`] if the persisted config delete fails.
     pub async fn unassign_slot(&self, slot_id: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         if !cfg.slots.contains(slot_id) {
@@ -581,12 +674,27 @@ impl ModelLoaderService {
     }
 
     /// Restore slot assignments from persisted config.
-    pub async fn restore_assignments(&self) -> anyhow::Result<()> {
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::ConfigBackend`] if `list_by_prefix` fails on
+    /// the backing config store. Per-key cleanup of stale or incompatible
+    /// assignments fail-soft with `tracing::warn!` and never propagate.
+    pub async fn restore_assignments(&self) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let reg = self.registry.read().await;
 
-        let persisted = cfg.config.list_by_prefix("slot.")?;
+        let persisted =
+            cfg.config
+                .list_by_prefix("slot.")
+                .map_err(|e| LoaderError::ConfigBackend {
+                    operation: "list_by_prefix".to_string(),
+                    key: "slot.*".to_string(),
+                    reason: e.to_string(),
+                })?;
         for (key, model_id) in persisted {
+            // `.model` here is the config-key suffix `slot.<id>.model`,
+            // not a file extension — case-sensitive comparison is correct.
+            #[allow(clippy::case_sensitive_file_extension_comparisons)]
             if !key.ends_with(".model") {
                 continue;
             }
@@ -620,7 +728,15 @@ impl ModelLoaderService {
     }
 
     /// Auto-assign every slot whose `source_tier` is `Bundled`.
-    pub async fn auto_assign_bundled_slots(&self) -> anyhow::Result<usize> {
+    ///
+    /// # Errors
+    /// Currently the body fail-softs every per-slot operation
+    /// (`tracing::warn!` + skip), so this method does not propagate
+    /// errors. The fallible signature is preserved for forward-compat:
+    /// future hardening (e.g. promoting `cfg.config.set` failures from
+    /// "log and skip" to "abort and surface") will return a
+    /// [`LoaderError`] without a signature change.
+    pub async fn auto_assign_bundled_slots(&self) -> Result<usize, LoaderError> {
         use crate::slots::ModelSourceTier;
 
         let mut cfg = self.config.write().await;
@@ -645,15 +761,13 @@ impl ModelLoaderService {
             .collect();
 
         for (slot_id, bundled_path) in bundled {
-            let filename = match std::path::Path::new(&bundled_path)
+            let Some(filename) = std::path::Path::new(&bundled_path)
                 .file_name()
                 .and_then(|s| s.to_str())
-            {
-                Some(name) => name.to_string(),
-                None => {
-                    tracing::warn!(slot = %slot_id, path = %bundled_path, "No filename — skipping");
-                    continue;
-                }
+                .map(str::to_string)
+            else {
+                tracing::warn!(slot = %slot_id, path = %bundled_path, "No filename — skipping");
+                continue;
             };
 
             let Some(entry) = reg.registry.get_by_filename(&filename) else {
@@ -678,6 +792,11 @@ impl ModelLoaderService {
     // ── Assistant config mutations — config lock only ──────────
 
     /// Rename the assistant.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Internal`] if persisting the assistant
+    /// config to its TOML file fails (typically `{userdata}/assistant.toml`
+    /// IO error).
     pub async fn set_assistant_name(&self, name: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -689,6 +808,9 @@ impl ModelLoaderService {
     }
 
     /// Replace the wake phrase.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_wake_phrase(&self, phrase: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -700,6 +822,9 @@ impl ModelLoaderService {
     }
 
     /// Toggle 24/7 wake detection.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_wake_enabled(&self, enabled: bool) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -711,6 +836,9 @@ impl ModelLoaderService {
     }
 
     /// Toggle the 24/7 Moshi voice brain.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -722,6 +850,9 @@ impl ModelLoaderService {
     }
 
     /// Replace the TTS voice profile.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_voice_profile(&self, profile: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -733,17 +864,24 @@ impl ModelLoaderService {
     }
 
     /// Replace the chat routing mode.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_routing_mode(&self, mode: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_routing_mode(&dir, mode)
+            .set_routing_mode(&dir, &mode)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist routing mode: {e}"),
             })
     }
 
     /// Register a new custom voice clone.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure
+    /// (typically when the user-data dir isn't writable).
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -755,6 +893,10 @@ impl ModelLoaderService {
     }
 
     /// Remove a registered voice clone by name.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] if `name` isn't registered or the
+    /// assistant config persist fails.
     pub async fn remove_voice_clone(&self, name: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -766,6 +908,9 @@ impl ModelLoaderService {
     }
 
     /// Add or replace a keyword action.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -777,6 +922,10 @@ impl ModelLoaderService {
     }
 
     /// Remove a keyword action by phrase.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] if `phrase` isn't registered or the
+    /// assistant config persist fails.
     pub async fn remove_keyword_action(&self, phrase: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -788,6 +937,10 @@ impl ModelLoaderService {
     }
 
     /// Replace an existing keyword action in place.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] if `phrase` isn't registered or the
+    /// assistant config persist fails.
     pub async fn update_keyword_action(
         &self,
         phrase: &str,
@@ -803,6 +956,9 @@ impl ModelLoaderService {
     }
 
     /// Replace the window idle timeout.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_idle_timeout(&self, secs: u32) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -814,6 +970,9 @@ impl ModelLoaderService {
     }
 
     /// Replace the partial GPU offload layer count for chat.brain.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_brain_ngl(&self, ngl: i32) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         let dir = cfg.userdata_dir.clone();
@@ -826,7 +985,11 @@ impl ModelLoaderService {
 
     // ── Secrets mutations — config lock only ──────────────────
 
-    /// Store or replace the HuggingFace access token.
+    /// Store or replace the `HuggingFace` access token.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] if the secrets store can't be written
+    /// (typically when `{models_dir}/secrets.toml` isn't writable).
     pub async fn set_hf_token(&self, token: Option<String>) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         cfg.secrets.set_hf_token(token);
@@ -843,13 +1006,23 @@ impl ModelLoaderService {
     }
 
     /// Clear the stored HF token.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] on secrets-store persist failure.
     pub async fn clear_hf_token(&self) -> Result<(), LoaderError> {
         self.set_hf_token(None).await
     }
 
     // ── Download — config lock only ───────────────────────────
 
-    /// Download a model from HuggingFace.
+    /// Download a model from `HuggingFace`.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::DownloadFailed`] (with `can_retry = true`)
+    /// if the underlying download manager can't initialise the transfer
+    /// — typically a network failure or an invalid repo id. Per-byte
+    /// transfer failures surface later via the event sink, not this
+    /// `Result`.
     #[cfg(feature = "candle-backend")]
     pub async fn download_model(
         &self,
@@ -871,6 +1044,11 @@ impl ModelLoaderService {
     }
 
     /// Download not available without candle feature.
+    ///
+    /// # Errors
+    /// Always returns [`LoaderError::Internal`] — this stub exists only
+    /// so callers compile against a uniform `download_model` API. Build
+    /// with `--features candle-backend` to enable real downloads.
     #[cfg(not(feature = "candle-backend"))]
     pub async fn download_model(
         &self,
@@ -883,6 +1061,10 @@ impl ModelLoaderService {
     }
 
     /// Cancel an active download.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] if `download_id` is not in the active
+    /// set (already completed, never existed, or previously cancelled).
     pub async fn cancel_download(&self, download_id: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         cfg.downloads
@@ -892,13 +1074,18 @@ impl ModelLoaderService {
             })
     }
 
-    /// List every file in a HuggingFace repo. Used by the
+    /// List every file in a `HuggingFace` repo. Used by the
     /// `RepoDownloadButton` on the frontend to render a bundle
     /// confirmation before a user commits to a download.
     ///
     /// Private / gated repos resolve only when an HF token is stored
     /// via `set_hf_token`. Without the candle-backend feature the
     /// underlying `hf_hub` dep is gated and this returns an error.
+    ///
+    /// # Errors
+    /// [`LoaderError::Internal`] if the HF info call fails (network /
+    /// auth / 404), if the response can't be parsed, or if the feature
+    /// gate is off.
     pub async fn list_repo_files(
         &self,
         repo_id: &str,
@@ -913,102 +1100,204 @@ impl ModelLoaderService {
 
     // ── Inference state (the ONLY heavy write lock) ───────────
 
-    /// Load the model assigned to a slot.
-    #[tracing::instrument(skip(self), fields(slot_id))]
-    pub async fn load_slot(&self, slot_id: &str) -> Result<(), LoaderError> {
-        // Phase 1: gather info under read locks
-        let (model_id, model_path, capability, backend, params) = {
-            let cfg = self.config.read().await;
-            let reg = self.registry.read().await;
-            let inf = self.inference.read().await;
+    /// Gather all the read-only context needed to start a load: slot
+    /// metadata, registry entry, device selection, GPU-offload hint,
+    /// load params. Returns errors for slot/model lookup failures so the
+    /// load surface can short-circuit before taking any write lock.
+    async fn prepare_load_context(&self, slot_id: &str) -> Result<LoadContext, LoaderError> {
+        let cfg = self.config.read().await;
+        let reg = self.registry.read().await;
+        let inf = self.inference.read().await;
 
-            let slot = cfg
-                .slots
-                .get_slot(slot_id)
-                .ok_or(LoaderError::SlotNotFound {
-                    slot_id: slot_id.to_string(),
-                })?;
+        let slot = cfg
+            .slots
+            .get_slot(slot_id)
+            .ok_or(LoaderError::SlotNotFound {
+                slot_id: slot_id.to_string(),
+            })?;
 
-            let model_id = slot
-                .assigned_model
-                .clone()
-                .ok_or(LoaderError::NoModelAssigned {
-                    slot_id: slot_id.to_string(),
-                })?;
+        let model_id = slot
+            .assigned_model
+            .clone()
+            .ok_or(LoaderError::NoModelAssigned {
+                slot_id: slot_id.to_string(),
+            })?;
 
-            if matches!(
-                inf.slot_statuses.get(slot_id),
-                Some(ModelStatus::Loading { .. })
-            ) {
+        if matches!(
+            inf.slot_statuses.get(slot_id),
+            Some(ModelStatus::Loading { .. })
+        ) {
+            return Err(LoaderError::AlreadyLoading {
+                slot_id: slot_id.to_string(),
+            });
+        }
+
+        let entry = reg
+            .registry
+            .get(&model_id)
+            .ok_or(LoaderError::ModelFileMissing {
+                path: PathBuf::new(),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: false,
+            })?;
+
+        if !entry.path.exists() {
+            return Err(LoaderError::ModelFileMissing {
+                path: entry.path.clone(),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: matches!(
+                    entry.source,
+                    crate::models::registry::ModelSource::HuggingFace { .. }
+                ),
+            });
+        }
+
+        let model_path = entry.path.clone();
+        let capability = slot.capability;
+        let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
+        let hw = self.hardware.read();
+
+        let device_str = match slot.preferred_device {
+            crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
+            crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
+            _ => {
+                if hw.cached().has_gpu() {
+                    "cuda:0".to_string()
+                } else {
+                    "cpu".to_string()
+                }
+            }
+        };
+
+        let gpu_layers: Option<u32> = {
+            let slot_hint = slot
+                .extensions
+                .get("llama_cpp_ngl")
+                .and_then(|s| s.parse::<i32>().ok());
+            let assistant_hint = if slot_id == "chat.brain" {
+                Some(cfg.assistant.offload.brain_ngl)
+            } else {
+                None
+            };
+            match slot_hint.or(assistant_hint) {
+                // Negative ngl is the "auto" sentinel; clamp to None.
+                // Positive `i32` fits in `u32` losslessly — sign-loss
+                // cannot happen because `n >= 0` is the match guard.
+                #[allow(clippy::cast_sign_loss)]
+                Some(n) if n >= 0 => Some(n as u32),
+                _ => None,
+            }
+        };
+
+        let params = LoadParams {
+            device: device_str,
+            context_length: entry.context_length,
+            gpu_layers,
+            auto_prime: false,
+            backend_variant: None,
+        };
+
+        Ok(LoadContext {
+            model_id,
+            model_path,
+            capability,
+            backend,
+            params,
+        })
+    }
+
+    /// Gather the warm-load context. Returns `Ok(None)` if the slot is
+    /// already in a Loaded or Warm state (warming is idempotent), or
+    /// `Ok(Some(_))` to proceed. Errors are slot/model lookup failures.
+    /// Always pins to CPU with `gpu_layers = Some(0)` — warming is
+    /// explicitly the "weights in RAM, no GPU" path.
+    async fn prepare_warm_context(
+        &self,
+        slot_id: &str,
+    ) -> Result<Option<LoadContext>, LoaderError> {
+        let cfg = self.config.read().await;
+        let reg = self.registry.read().await;
+        let inf = self.inference.read().await;
+
+        let slot = cfg
+            .slots
+            .get_slot(slot_id)
+            .ok_or(LoaderError::SlotNotFound {
+                slot_id: slot_id.to_string(),
+            })?;
+        let model_id = slot
+            .assigned_model
+            .clone()
+            .ok_or(LoaderError::NoModelAssigned {
+                slot_id: slot_id.to_string(),
+            })?;
+
+        match inf.slot_statuses.get(slot_id) {
+            Some(ModelStatus::Loaded { .. } | ModelStatus::Warm { .. }) => return Ok(None),
+            Some(ModelStatus::Loading { .. }) => {
                 return Err(LoaderError::AlreadyLoading {
                     slot_id: slot_id.to_string(),
                 });
             }
+            _ => {}
+        }
 
-            let entry = reg
-                .registry
-                .get(&model_id)
-                .ok_or(LoaderError::ModelFileMissing {
-                    path: PathBuf::new(),
-                    slot_id: Some(slot_id.to_string()),
-                    can_redownload: false,
-                })?;
+        let entry = reg
+            .registry
+            .get(&model_id)
+            .ok_or(LoaderError::ModelFileMissing {
+                path: PathBuf::new(),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: false,
+            })?;
+        if !entry.path.exists() {
+            return Err(LoaderError::ModelFileMissing {
+                path: entry.path.clone(),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: false,
+            });
+        }
 
-            if !entry.path.exists() {
-                return Err(LoaderError::ModelFileMissing {
-                    path: entry.path.clone(),
-                    slot_id: Some(slot_id.to_string()),
-                    can_redownload: matches!(
-                        entry.source,
-                        crate::models::registry::ModelSource::HuggingFace { .. }
-                    ),
-                });
-            }
-
-            let model_path = entry.path.clone();
-            let capability = slot.capability;
-            let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
-            let hw = self.hardware.read();
-
-            let device_str = match slot.preferred_device {
-                crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
-                crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
-                _ => {
-                    if hw.cached().has_gpu() {
-                        "cuda:0".to_string()
-                    } else {
-                        "cpu".to_string()
-                    }
-                }
-            };
-
-            let gpu_layers: Option<u32> = {
-                let slot_hint = slot
-                    .extensions
-                    .get("llama_cpp_ngl")
-                    .and_then(|s| s.parse::<i32>().ok());
-                let assistant_hint = if slot_id == "chat.brain" {
-                    Some(cfg.assistant.offload.brain_ngl)
-                } else {
-                    None
-                };
-                match slot_hint.or(assistant_hint) {
-                    Some(n) if n >= 0 => Some(n as u32),
-                    _ => None,
-                }
-            };
-
-            let params = LoadParams {
-                device: device_str.clone(),
-                context_length: entry.context_length,
-                gpu_layers,
-                auto_prime: false,
-                backend_variant: None,
-            };
-
-            (model_id, model_path, capability, backend, params)
+        let model_path = entry.path.clone();
+        let capability = slot.capability;
+        let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
+        let params = LoadParams {
+            device: "cpu".to_string(),
+            context_length: entry.context_length,
+            gpu_layers: Some(0),
+            auto_prime: false,
+            backend_variant: None,
         };
-        // All read locks dropped.
+
+        Ok(Some(LoadContext {
+            model_id,
+            model_path,
+            capability,
+            backend,
+            params,
+        }))
+    }
+
+    /// Load the model assigned to a slot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::SlotNotFound`] if `slot_id` is unknown,
+    /// [`LoaderError::NoModelAssigned`] if the slot has no assigned
+    /// model, [`LoaderError::AlreadyLoading`] / [`LoaderError::SlotSwapping`]
+    /// if the slot is busy, [`LoaderError::ModelFileMissing`] if the
+    /// assigned model's file is gone from disk, or one of the resource
+    /// failures ([`LoaderError::VramInsufficient`] / [`LoaderError::RamExhausted`])
+    /// when the runtime can't fit the model.
+    #[tracing::instrument(skip(self), fields(slot_id))]
+    pub async fn load_slot(&self, slot_id: &str) -> Result<(), LoaderError> {
+        // Phase 1: gather info under read locks.
+        let LoadContext {
+            model_id,
+            model_path,
+            capability,
+            backend,
+            params,
+        } = self.prepare_load_context(slot_id).await?;
 
         // Phase 2: acquire inference write lock — the ONLY exclusive lock
         let mut inf = self.inference.write().await;
@@ -1086,6 +1375,10 @@ impl ModelLoaderService {
     }
 
     /// Unload the model from a slot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::SlotNotFound`] if `slot_id` is unknown.
+    /// Unloading a slot that has no loaded model is a no-op (Ok).
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn unload_slot(&self, slot_id: &str) -> Result<(), LoaderError> {
         let model_id = {
@@ -1107,29 +1400,30 @@ impl ModelLoaderService {
 
         if let Some(mid) = model_id {
             for attempt in 1..=2 {
-                match inf.pool.release(&mid).await {
-                    Some(freed) => {
-                        self.boot.events.emit(LoaderEvent::UnloadComplete {
-                            slot_id: slot_id.to_string(),
-                            freed,
-                        });
-                        tracing::info!(slot = %slot_id, model = %mid, "Model unloaded");
-                        inf.slot_statuses
-                            .insert(slot_id.to_string(), ModelStatus::NotLoaded);
-                        return Ok(());
-                    }
-                    None => {
-                        if inf.pool.is_loaded(&mid) {
-                            tracing::info!(slot = %slot_id, model = %mid, "Slot handle released (shared)");
-                            inf.slot_statuses
-                                .insert(slot_id.to_string(), ModelStatus::NotLoaded);
-                            return Ok(());
-                        }
-                        tracing::warn!(slot = %slot_id, model = %mid, attempt, "Unload retry");
-                        if attempt < 2 {
-                            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-                        }
-                    }
+                if let Some(freed) = inf.pool.release(&mid).await {
+                    self.boot.events.emit(LoaderEvent::UnloadComplete {
+                        slot_id: slot_id.to_string(),
+                        freed,
+                    });
+                    tracing::info!(slot = %slot_id, model = %mid, "Model unloaded");
+                    inf.slot_statuses
+                        .insert(slot_id.to_string(), ModelStatus::NotLoaded);
+                    return Ok(());
+                }
+                // pool.release returned None — either still shared (in
+                // which case slot handle was the only ref and is now gone)
+                // or the model genuinely isn't loaded any more. Both are
+                // success paths; only "still loaded but couldn't release"
+                // counts as failure and falls through to the retry sleep.
+                if inf.pool.is_loaded(&mid) {
+                    tracing::info!(slot = %slot_id, model = %mid, "Slot handle released (shared)");
+                    inf.slot_statuses
+                        .insert(slot_id.to_string(), ModelStatus::NotLoaded);
+                    return Ok(());
+                }
+                tracing::warn!(slot = %slot_id, model = %mid, attempt, "Unload retry");
+                if attempt < 2 {
+                    tokio::time::sleep(std::time::Duration::from_millis(500)).await;
                 }
             }
             let error_msg = format!("Unload failed for slot '{slot_id}' after 2 retries");
@@ -1150,65 +1444,24 @@ impl ModelLoaderService {
     }
 
     /// Warm a slot — load weights to CPU RAM only, no GPU.
+    ///
+    /// # Errors
+    /// Same failure modes as [`Self::load_slot`] except VRAM-related ones
+    /// (warming explicitly stays on CPU, so VRAM exhaustion isn't possible).
+    /// [`LoaderError::RamExhausted`] is the dominant resource failure.
     #[tracing::instrument(skip(self), fields(slot_id))]
     pub async fn warm_slot(&self, slot_id: &str) -> Result<(), LoaderError> {
-        // Phase 1: gather under read locks
-        let (model_id, model_path, capability, backend, params) = {
-            let cfg = self.config.read().await;
-            let reg = self.registry.read().await;
-            let inf = self.inference.read().await;
-
-            let slot = cfg
-                .slots
-                .get_slot(slot_id)
-                .ok_or(LoaderError::SlotNotFound {
-                    slot_id: slot_id.to_string(),
-                })?;
-            let model_id = slot
-                .assigned_model
-                .clone()
-                .ok_or(LoaderError::NoModelAssigned {
-                    slot_id: slot_id.to_string(),
-                })?;
-
-            match inf.slot_statuses.get(slot_id) {
-                Some(ModelStatus::Loaded { .. }) | Some(ModelStatus::Warm { .. }) => return Ok(()),
-                Some(ModelStatus::Loading { .. }) => {
-                    return Err(LoaderError::AlreadyLoading {
-                        slot_id: slot_id.to_string(),
-                    })
-                }
-                _ => {}
-            }
-
-            let entry = reg
-                .registry
-                .get(&model_id)
-                .ok_or(LoaderError::ModelFileMissing {
-                    path: PathBuf::new(),
-                    slot_id: Some(slot_id.to_string()),
-                    can_redownload: false,
-                })?;
-            if !entry.path.exists() {
-                return Err(LoaderError::ModelFileMissing {
-                    path: entry.path.clone(),
-                    slot_id: Some(slot_id.to_string()),
-                    can_redownload: false,
-                });
-            }
-
-            let model_path = entry.path.clone();
-            let capability = slot.capability;
-            let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
-            let params = LoadParams {
-                device: "cpu".to_string(),
-                context_length: entry.context_length,
-                gpu_layers: Some(0),
-                auto_prime: false,
-                backend_variant: None,
-            };
-
-            (model_id, model_path, capability, backend, params)
+        // Phase 1: gather under read locks. Returns `Ok(None)` if the slot
+        // is already Loaded/Warm (warming is idempotent — no work to do).
+        let Some(LoadContext {
+            model_id,
+            model_path,
+            capability,
+            backend,
+            params,
+        }) = self.prepare_warm_context(slot_id).await?
+        else {
+            return Ok(());
         };
 
         // Phase 2: inference write lock
@@ -1286,6 +1539,15 @@ impl ModelLoaderService {
     }
 
     /// Atomically swap the model on a slot.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::SlotNotFound`] if `slot_id` is unknown,
+    /// [`LoaderError::Internal`] if `new_model_id` is not in the registry
+    /// or is incompatible with the slot's capability, or any of the
+    /// load-path errors ([`LoaderError::AlreadyLoading`],
+    /// [`LoaderError::SlotSwapping`], [`LoaderError::VramInsufficient`],
+    /// [`LoaderError::RamExhausted`], [`LoaderError::ModelFileMissing`])
+    /// raised by the underlying load that completes the swap.
     #[tracing::instrument(skip(self), fields(slot_id, new_model_id))]
     pub async fn swap_model(&self, slot_id: &str, new_model_id: &str) -> Result<(), LoaderError> {
         // Validate
@@ -1368,6 +1630,12 @@ impl ModelLoaderService {
     }
 
     /// Delete a model from disk and registry.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Internal`] if `model_id` isn't in the
+    /// registry, or if the on-disk file delete fails (typically a
+    /// permissions or in-use error). Best-effort slot unassignment
+    /// failures fail-soft with `tracing::warn!` and never propagate.
     #[tracing::instrument(skip(self), fields(model_id))]
     pub async fn delete_model(&self, model_id: &str) -> Result<(), LoaderError> {
         // Check not loaded
@@ -1431,24 +1699,42 @@ impl ModelLoaderService {
     // kernel or engine auto-loads based on it any more.
 
     /// Synthesize speech.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Inference`] if the voice slot is not loaded
+    /// or the underlying TTS backend (Kokoro / Piper) fails to synthesize.
     pub async fn synthesize(
         &self,
         slot_id: &str,
         text: &str,
         voice: &str,
-    ) -> anyhow::Result<crate::backends::voice::AudioSamples> {
+    ) -> Result<crate::backends::voice::AudioSamples, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool.synthesize(slot_id, text, voice)
+        inf.voice_pool
+            .synthesize(slot_id, text, voice)
+            .map_err(|e| LoaderError::Inference {
+                slot_id: slot_id.to_string(),
+                reason: format!("synthesize failed: {e:#}"),
+            })
     }
 
     /// Transcribe audio.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Inference`] if the voice slot is not loaded
+    /// or the underlying ASR backend (Whisper) fails to transcribe.
     pub async fn transcribe(
         &self,
         slot_id: &str,
         samples: &crate::backends::voice::AudioSamples,
-    ) -> anyhow::Result<String> {
+    ) -> Result<String, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool.transcribe(slot_id, samples)
+        inf.voice_pool
+            .transcribe(slot_id, samples)
+            .map_err(|e| LoaderError::Inference {
+                slot_id: slot_id.to_string(),
+                reason: format!("transcribe failed: {e:#}"),
+            })
     }
 
     /// Check if a voice model is loaded.
@@ -1458,57 +1744,108 @@ impl ModelLoaderService {
     }
 
     /// Embed texts.
-    pub async fn embed(&self, slot_id: &str, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Inference`] if the embedding slot is not
+    /// loaded or the underlying embedder fails on any input text.
+    pub async fn embed(
+        &self,
+        slot_id: &str,
+        texts: &[&str],
+    ) -> Result<Vec<Vec<f32>>, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool.embed(slot_id, texts)
+        inf.voice_pool
+            .embed(slot_id, texts)
+            .map_err(|e| LoaderError::Inference {
+                slot_id: slot_id.to_string(),
+                reason: format!("embed failed: {e:#}"),
+            })
     }
 
     /// Rerank documents.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Inference`] if the reranker slot is not
+    /// loaded or scoring fails on any document.
     pub async fn rerank(
         &self,
         slot_id: &str,
         query: &str,
         documents: &[&str],
-    ) -> anyhow::Result<Vec<f32>> {
+    ) -> Result<Vec<f32>, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool.rerank(slot_id, query, documents)
+        inf.voice_pool
+            .rerank(slot_id, query, documents)
+            .map_err(|e| LoaderError::Inference {
+                slot_id: slot_id.to_string(),
+                reason: format!("rerank failed: {e:#}"),
+            })
     }
 
     /// Encode image file.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Inference`] if the image encoder slot is not
+    /// loaded, the file cannot be read or decoded, or encoding fails.
     pub async fn encode_image(
         &self,
         slot_id: &str,
         path: &std::path::Path,
-    ) -> anyhow::Result<Vec<f32>> {
+    ) -> Result<Vec<f32>, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool.encode_image(slot_id, path)
+        inf.voice_pool
+            .encode_image(slot_id, path)
+            .map_err(|e| LoaderError::Inference {
+                slot_id: slot_id.to_string(),
+                reason: format!("encode_image failed: {e:#}"),
+            })
     }
 
     /// Encode raw RGB.
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::Inference`] if the image encoder slot is not
+    /// loaded or encoding fails on the supplied RGB buffer.
     pub async fn encode_rgb(
         &self,
         slot_id: &str,
         rgb_bytes: &[u8],
         width: u32,
         height: u32,
-    ) -> anyhow::Result<Vec<f32>> {
+    ) -> Result<Vec<f32>, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool.encode_rgb(slot_id, rgb_bytes, width, height)
+        inf.voice_pool
+            .encode_rgb(slot_id, rgb_bytes, width, height)
+            .map_err(|e| LoaderError::Inference {
+                slot_id: slot_id.to_string(),
+                reason: format!("encode_rgb failed: {e:#}"),
+            })
     }
 
-    /// Search HuggingFace (stateless HTTP — no lock).
+    /// Search `HuggingFace` (stateless HTTP — no lock).
+    ///
+    /// # Errors
+    /// Returns [`LoaderError::HuggingFace`] if the HTTP request fails
+    /// (network, timeout, 401/403/404/5xx). `can_retry` is set on transient
+    /// failures (network, 5xx, rate-limit).
     pub async fn search_huggingface(
         &self,
         query: &str,
         limit: u32,
-    ) -> anyhow::Result<Vec<crate::models::search::HfSearchResult>> {
-        crate::models::search::search_huggingface(query, limit).await
+    ) -> Result<Vec<crate::models::search::HfSearchResult>, LoaderError> {
+        crate::models::search::search_huggingface(query, limit)
+            .await
+            .map_err(|e| LoaderError::HuggingFace {
+                reason: format!("{e:#}"),
+                can_retry: true,
+            })
     }
 }
 
 // ── Tests ────────────────────────────────────────────────────────
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // tests panic on service-construction / lookup failures by design
 mod tests {
     use super::*;
     use crate::hardware::lanes::LaneKind;
@@ -1557,6 +1894,7 @@ mod tests {
                 bundled_path: bundled_path.to_string(),
             },
             extensions: std::collections::HashMap::new(),
+            kv_cache: crate::slots::KvCacheConfig::default(),
             builtin: true,
         }
     }

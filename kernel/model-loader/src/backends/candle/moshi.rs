@@ -7,7 +7,7 @@
 //!
 //! - `model.q8.gguf` or `model.safetensors` — 7B LM weights
 //! - `tokenizer-e351c8d8-checkpoint125.safetensors` — Mimi audio codec
-//! - `tokenizer_spm_32k_3.model` — SentencePiece text tokenizer
+//! - `tokenizer_spm_32k_3.model` — `SentencePiece` text tokenizer
 //! - `config.toml` — LM config
 
 use anyhow::{Context, Result};
@@ -26,7 +26,7 @@ pub const FRAME_RATE: f64 = 12.5;
 /// Moshi STS backend state.
 ///
 /// Owns the Mimi codec, LM model, and generation state.
-/// NOT Send — must live on a dedicated inference thread (same as BackendPool pattern).
+/// NOT Send — must live on a dedicated inference thread (same as `BackendPool` pattern).
 pub struct MoshiStsBackend {
     loaded: bool,
     model_dir: std::path::PathBuf,
@@ -46,6 +46,12 @@ impl MoshiStsBackend {
     /// Load the Moshi model, Mimi codec, and text tokenizer.
     ///
     /// This is heavy (~8GB for q8, ~16GB for bf16). Call on a dedicated thread.
+    ///
+    /// # Errors
+    /// Returns an error if any of the model files (LM, Mimi codec,
+    /// `SentencePiece` tokenizer) cannot be located in the model dir, if
+    /// the LM path is not valid UTF-8, or if Candle fails to materialize
+    /// the model from the safetensors / GGUF on disk.
     #[cfg(feature = "moshi-sts")]
     pub fn load(&mut self, device: &candle_core::Device) -> Result<()> {
         use moshi::lm;
@@ -61,15 +67,20 @@ impl MoshiStsBackend {
             "Loading Moshi STS model"
         );
 
-        let dtype = if lm_path.extension().map_or(false, |e| e == "gguf") {
+        let dtype = if lm_path.extension().is_some_and(|e| e == "gguf") {
             candle_core::DType::F32 // GGUF handles its own quantization
         } else {
             candle_core::DType::BF16
         };
 
-        // Load Mimi codec (8 codebooks for single-stream, 16 for duplex)
-        let _mimi =
-            mimi::load(&mimi_path, Some(8), device).context("Failed to load Mimi audio codec")?;
+        // Load Mimi codec (8 codebooks for single-stream, 16 for duplex).
+        // moshi-core's `mimi::load` takes `&str`, not `&Path` — convert with
+        // a UTF-8 guard so non-UTF-8 paths fail loudly rather than silently.
+        let mimi_path_str = mimi_path
+            .to_str()
+            .context("Mimi codec path is not valid UTF-8")?;
+        let _mimi = mimi::load(mimi_path_str, Some(8), device)
+            .context("Failed to load Mimi audio codec")?;
 
         // Load LM — auto-detects gguf vs safetensors by extension
         let _lm_model = lm::load_streaming_both_ways(&lm_path, dtype, device)
@@ -80,7 +91,12 @@ impl MoshiStsBackend {
         Ok(())
     }
 
-    /// Stub load for when moshi-sts feature is not enabled.
+    /// Stub load for when `moshi-sts` feature is not enabled.
+    ///
+    /// # Errors
+    /// Always returns an error — this stub is the disabled-feature path
+    /// and exists only so callers compile against a uniform `load` API.
+    /// Build with `--features moshi-sts` to enable real loading.
     #[cfg(not(feature = "moshi-sts"))]
     pub fn load(&mut self, _device_name: &str) -> Result<()> {
         anyhow::bail!("Moshi STS feature not enabled. Rebuild with --features moshi-sts")

@@ -157,6 +157,10 @@ async fn execute_inner(
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
     {
+        // Guard binding: dropped at the end of the block, which stops
+        // the spinner. Underscore prefix tells the compiler the name
+        // is intentionally unread (vs. `let _ = ...` which would drop
+        // it immediately and skip the RAII window).
         let _spin = boot_log.running("preflight", "creating data directories...");
         preflight::ensure_scoped_dirs(data_dir, boot_config)?;
     }
@@ -164,7 +168,7 @@ async fn execute_inner(
     boot_log.ok("preflight", "directories ready");
 
     // ── Stage 2: System relational (LibSQL) — CRITICAL ────────
-    let _spin = boot_log.running("System relational", "connecting LibSQL...");
+    let spin = boot_log.running("System relational", "connecting LibSQL...");
     let system_relational = relational::boot(
         data_dir,
         &boot_config.services.system.relational,
@@ -177,8 +181,8 @@ async fn execute_inner(
     .await;
 
     // ── Stage 3: System analytics (DuckDB) ────────────────────
-    drop(_spin);
-    let _spin = boot_log.running("System analytics", "connecting DuckDB...");
+    drop(spin);
+    let spin = boot_log.running("System analytics", "connecting DuckDB...");
     let system_analytics = analytics::boot(
         data_dir,
         &boot_config.services.system.analytics,
@@ -190,7 +194,7 @@ async fn execute_inner(
     )
     .await;
 
-    drop(_spin);
+    drop(spin);
 
     // ── Prepare Model Loader event sink early (needed for parallel boot) ──
     #[cfg(feature = "inference")]
@@ -212,7 +216,7 @@ async fn execute_inner(
     // tokio::join! runs both futures on the same task — no Send/'static
     // requirement. Both share &on_event and &boot_log safely.
     // ── Stage 4 + 12: Graph + Model Loader in parallel ─────────
-    let _spin = boot_log.running("Graph + Model Loader", "initializing in parallel...");
+    let spin = boot_log.running("Graph + Model Loader", "initializing in parallel...");
     #[cfg(feature = "inference")]
     let ((surreal, system_graph, user_graph, global_graph), model_loader_svc) = tokio::join!(
         graph::boot_consolidated(data_dir, boot_config, on_event, &boot_log),
@@ -244,13 +248,13 @@ async fn execute_inner(
         }
     }
 
-    drop(_spin);
+    drop(spin);
 
     // ── Stage 5: System cache (Moka) ──────────────────────────
     let system_cache = cache::boot(&boot_config.services.system.cache, on_event, boot_log);
 
     // ── Stage 6: User relational (LibSQL) ─────────────────────
-    let _spin = boot_log.running("User relational", "connecting LibSQL...");
+    let spin = boot_log.running("User relational", "connecting LibSQL...");
     let user_relational = relational::boot(
         data_dir,
         &boot_config.services.user.relational,
@@ -286,8 +290,8 @@ async fn execute_inner(
     }
 
     // ── Stage 7: Vector store (RRO) — feature-gated ──────────
-    drop(_spin);
-    let _spin = boot_log.running("Vector store", "verifying RRO...");
+    drop(spin);
+    let spin = boot_log.running("Vector store", "verifying RRO...");
     #[cfg(feature = "rro")]
     let vector = vector::boot(
         data_dir,
@@ -310,7 +314,7 @@ async fn execute_inner(
         }
     }
 
-    drop(_spin);
+    drop(spin);
 
     // ── Stage 9: Grammar — system LibSQL row (kernel-owned contract) ───
     if let Some(svc) = &system_relational {

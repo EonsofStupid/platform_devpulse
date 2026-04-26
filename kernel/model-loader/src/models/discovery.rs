@@ -28,6 +28,11 @@ use std::path::Path;
 /// After discovery, applies folder-aware capability hints: if a model is in
 /// `voice/`, it gains Speech capabilities even if the architecture string is
 /// unfamiliar. This supplements (not overrides) architecture-based inference.
+///
+/// # Errors
+/// Returns an error if the directory walk fails (permission denied,
+/// path no longer exists during traversal). Per-file parse failures
+/// fail-soft with a `tracing::warn!` and skip the file.
 pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEntry>> {
     if !models_dir.exists() {
         tracing::debug!(path = %models_dir.display(), "Models directory does not exist");
@@ -64,6 +69,12 @@ pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEnt
 
 /// Recursively walk a directory, discovering GGUF files, ONNX files, and Sherpa model dirs.
 /// Folder-aware hints are applied after walk completes (in `discover_models`).
+///
+/// # Errors
+/// Returns an error if the recursive descent fails on a sub-directory
+/// it can't read. The top-level `read_dir` failure is downgraded to a
+/// `tracing::debug!` and `Ok(())` (missing dirs aren't fatal). Per-file
+/// parse failures fail-soft.
 fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result<()> {
     let read_dir = match std::fs::read_dir(dir) {
         Ok(rd) => rd,
@@ -80,15 +91,9 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
         if path.is_dir() {
             // Check if this directory is a Sherpa model dir (contains tokens.txt)
             if is_sherpa_model_dir(&path) {
-                match parse_sherpa_dir_entry(&path) {
-                    Ok(registry_entry) => {
-                        tracing::debug!(dir = %path.display(), "Discovered Sherpa model directory");
-                        entries.push(registry_entry);
-                    }
-                    Err(e) => {
-                        tracing::warn!(dir = %path.display(), error = %e, "Failed to parse Sherpa dir — skipping");
-                    }
-                }
+                let registry_entry = parse_sherpa_dir_entry(&path);
+                tracing::debug!(dir = %path.display(), "Discovered Sherpa model directory");
+                entries.push(registry_entry);
             } else {
                 // Recurse into subdirectories
                 walk_all(&path, entries)?;
@@ -152,8 +157,13 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
     Ok(())
 }
 
-/// Discover a single model file and set its source to HuggingFace.
-/// Used after downloading a model from HF. Handles GGUF, SafeTensors, and ONNX.
+/// Discover a single model file and set its source to `HuggingFace`.
+/// Used after downloading a model from HF. Handles GGUF, `SafeTensors`, and ONNX.
+///
+/// # Errors
+/// Returns an error if `path` has an unsupported extension, or if the
+/// underlying parse function (GGUF / safetensors / ONNX) fails on the
+/// file's header.
 pub fn discover_single(path: &Path, repo_id: &str) -> anyhow::Result<ModelRegistryEntry> {
     let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
@@ -182,7 +192,7 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     let mut reader = BufReader::new(file);
     let content = Content::read(&mut reader)?;
 
-    let metadata = extract_metadata(&content)?;
+    let metadata = extract_metadata(&content);
     let vram_estimate = estimate_vram_mb(&metadata, file_size);
     let capabilities = infer_capabilities(&metadata.architecture);
     let backends = infer_backends(&metadata.architecture);
@@ -247,11 +257,13 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     })
 }
 
-/// Extract metadata from parsed GGUF content.
+/// Extract metadata from parsed GGUF content. Infallible — every
+/// lookup falls back to a sensible default, so the function returns
+/// `ModelMetadata` directly.
 #[cfg(feature = "candle-backend")]
 fn extract_metadata(
     content: &candle_core::quantized::gguf_file::Content,
-) -> anyhow::Result<ModelMetadata> {
+) -> ModelMetadata {
     use candle_core::quantized::gguf_file::Value;
 
     let get_str = |key: &str| -> Option<String> {
@@ -282,13 +294,13 @@ fn extract_metadata(
 
     let parameter_count = get_u64("general.parameter_count");
 
-    Ok(ModelMetadata {
+    ModelMetadata {
         architecture,
         parameter_count,
         quant_level: None, // Inferred from filename instead
         context_length,
         vocab_size,
-    })
+    }
 }
 
 /// Estimate VRAM in MB from model metadata and file size.
@@ -393,8 +405,10 @@ fn is_sherpa_model_dir(dir: &Path) -> bool {
     dir.join("tokens.txt").exists()
 }
 
-/// Parse a Sherpa model directory into a registry entry.
-fn parse_sherpa_dir_entry(dir: &Path) -> anyhow::Result<ModelRegistryEntry> {
+/// Parse a Sherpa model directory into a registry entry. Infallible —
+/// every field has a sensible default and `dir_size_bytes` is itself
+/// fail-soft, so the function returns `ModelRegistryEntry` directly.
+fn parse_sherpa_dir_entry(dir: &Path) -> ModelRegistryEntry {
     let dir_name = dir
         .file_name()
         .map(|f| f.to_string_lossy().to_string())
@@ -412,7 +426,7 @@ fn parse_sherpa_dir_entry(dir: &Path) -> anyhow::Result<ModelRegistryEntry> {
     // Sum directory size
     let size = dir_size_bytes(dir);
 
-    Ok(ModelRegistryEntry {
+    ModelRegistryEntry {
         id: stable_id_for_path(dir),
         filename: dir_name,
         path: dir.to_path_buf(),
@@ -427,12 +441,12 @@ fn parse_sherpa_dir_entry(dir: &Path) -> anyhow::Result<ModelRegistryEntry> {
         compatible_capabilities: capabilities,
         source: ModelSource::Local,
         discovered_at: now_epoch_ms(),
-    })
+    }
 }
 
-/// Parse a SafeTensors file into a registry entry.
+/// Parse a `SafeTensors` file into a registry entry.
 ///
-/// SafeTensors files don't embed architecture metadata like GGUF headers do.
+/// `SafeTensors` files don't embed architecture metadata like GGUF headers do.
 /// We infer architecture from the filename and companion `config.json` if present.
 fn parse_safetensors_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     let file_size = std::fs::metadata(path)?.len();
@@ -469,23 +483,21 @@ fn parse_safetensors_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
     })
 }
 
-/// Read config.json from a model directory for architecture metadata.
-/// Returns (architecture, context_length, parameter_count).
+/// Read `config.json` from a model directory for architecture metadata.
+/// Returns `(architecture, context_length, parameter_count)`.
 fn read_config_json(dir: &Path) -> (String, usize, Option<u64>) {
     let config_path = dir.join("config.json");
     if !config_path.exists() {
         return ("unknown".to_string(), 0, None);
     }
 
-    let content = match std::fs::read_to_string(&config_path) {
-        Ok(c) => c,
-        Err(_) => return ("unknown".to_string(), 0, None),
+    let Ok(content) = std::fs::read_to_string(&config_path) else {
+        return ("unknown".to_string(), 0, None);
     };
 
     // Parse as generic JSON — we only need a few fields
-    let json: serde_json::Value = match serde_json::from_str(&content) {
-        Ok(v) => v,
-        Err(_) => return ("unknown".to_string(), 0, None),
+    let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) else {
+        return ("unknown".to_string(), 0, None);
     };
 
     let architecture = json
@@ -496,10 +508,12 @@ fn read_config_json(dir: &Path) -> (String, usize, Option<u64>) {
 
     let context_length = json
         .get("max_position_embeddings")
-        .and_then(|v| v.as_u64())
+        .and_then(serde_json::Value::as_u64)
         .unwrap_or(0) as usize;
 
-    let parameter_count = json.get("num_parameters").and_then(|v| v.as_u64());
+    let parameter_count = json
+        .get("num_parameters")
+        .and_then(serde_json::Value::as_u64);
 
     (architecture, context_length, parameter_count)
 }
@@ -554,7 +568,7 @@ fn dir_size_bytes(path: &Path) -> u64 {
     std::fs::read_dir(path)
         .map(|entries| {
             entries
-                .filter_map(|e| e.ok())
+                .filter_map(Result::ok)
                 .map(|e| {
                     let p = e.path();
                     if p.is_dir() {
@@ -587,9 +601,8 @@ fn now_epoch_ms() -> i64 {
 fn apply_folder_hints(models_dir: &Path, entries: &mut [ModelRegistryEntry]) {
     for entry in entries.iter_mut() {
         // Get the path relative to models_dir
-        let relative = match entry.path.strip_prefix(models_dir) {
-            Ok(rel) => rel,
-            Err(_) => continue,
+        let Ok(relative) = entry.path.strip_prefix(models_dir) else {
+            continue;
         };
 
         // First component of relative path is the purpose folder
@@ -718,7 +731,7 @@ fn deduplicate_by_path(entries: &mut Vec<ModelRegistryEntry>) {
     });
 }
 
-/// Build a stable UUIDv5 from a file path so the same file on disk
+/// Build a stable `UUIDv5` from a file path so the same file on disk
 /// always gets the same registry id across rescans, reboots, and
 /// rebuilds. Persisted slot assignments reference registry entries by
 /// id — if the id churned on every scan (which it did when discovery
@@ -774,9 +787,8 @@ fn apply_manifest_capabilities(entries: &mut [ModelRegistryEntry]) {
     use crate::models::manifest;
 
     for entry in entries.iter_mut() {
-        let model_dir = match entry.path.parent() {
-            Some(dir) => dir,
-            None => continue,
+        let Some(model_dir) = entry.path.parent() else {
+            continue;
         };
 
         // 1. devpulse.json manifest — authoritative, replaces everything
@@ -820,7 +832,6 @@ fn apply_manifest_capabilities(entries: &mut [ModelRegistryEntry]) {
                 "config.json architecture suffix — capabilities replaced"
             );
             entry.compatible_capabilities = caps;
-            continue;
         }
 
         // 4. Existing heuristic from infer_capabilities() already applied at parse time.
@@ -829,6 +840,7 @@ fn apply_manifest_capabilities(entries: &mut [ModelRegistryEntry]) {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on registry IO failures by design
 mod tests {
     use super::*;
 
