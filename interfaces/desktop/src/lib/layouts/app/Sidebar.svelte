@@ -84,7 +84,7 @@ const submenuRoutes = $derived(
 const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
-<nav class="relative grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
+<nav class="relative z-10 grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
 	<div class={`${stack({ gap: "1" })} pt-1`}>
 		{#each navHubs as hub (hub.id)}
 			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">

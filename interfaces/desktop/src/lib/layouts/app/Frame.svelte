@@ -52,16 +52,20 @@ const SLOTS = {
 		"border-b border-[var(--border-soft)]",
 	),
 	sidebar: cn(
-		"row-start-2 col-start-1 flex flex-col items-center",
+		"row-start-2 col-start-1 flex flex-col items-center relative",
 		"w-[var(--layout-sidebar-collapsed)] py-3 gap-2",
 		"border-r border-[var(--border-subtle)]",
-		"overflow-y-auto scrollbar-thin",
+		"overflow-x-hidden overflow-y-auto scrollbar-thin",
+		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
+		"motion-reduce:transition-none",
 	),
 	sidebarExpanded: cn(
-		"row-start-2 col-start-1 flex flex-col",
-		"w-60 py-3 px-2",
+		"row-start-2 col-start-1 flex flex-col relative",
+		"w-[var(--layout-sidebar-expanded)] py-3 px-2",
 		"border-r border-[var(--border-subtle)]",
-		"overflow-y-auto scrollbar-thin",
+		"overflow-x-hidden overflow-y-auto scrollbar-thin",
+		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
+		"motion-reduce:transition-none",
 	),
 	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
 	context: cn(
@@ -93,15 +97,21 @@ const SLOTS = {
 	data-context={globalState.context_mode}
 	data-route={globalState.current_domain}
 >
-	<!-- Animated background — absolutely positioned behind everything.
-	     Configurable via props. Default: void-breathe + teal palette. -->
-	<BackgroundScene variation="void-breathe" palette="teal" speed="normal" intensity="normal" motion="on" />
+	<!-- Shell-wide cosmic backdrop — subtle ambient layer behind everything.
+	     The sidebar mounts its own stronger instance below for accent depth.
+	     Optional starfield .webp can be dropped at static/imgs/backgrounds/cosmic-stars.webp
+	     and wired via the imageSrc prop when authored. -->
+	<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="subtle" motion="on" />
 
 	<header data-kind="shell" data-slot="topbar" class={SLOTS.topbar}>
 		<TopBar />
 	</header>
 
 	<aside data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
+		<!-- Sidebar-scoped cosmic backdrop at stronger intensity.
+		     Parent <aside> has position: relative + overflow-x-hidden so the
+		     animation stays clipped inside the rail/panel. -->
+		<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="strong" motion="on" />
 		<Sidebar />
 	</aside>
 
