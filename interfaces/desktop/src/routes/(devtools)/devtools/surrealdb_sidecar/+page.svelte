@@ -17,7 +17,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { surrealdbSidecar } from "$lib/domains/infra/surrealdb_sidecar/index.js";
+import { surrealSidecarState as surrealdbSidecar } from "$lib/domains/infra/surreal/index.js";
 import {
 	type HealthBadge,
 	ScopedLogPanel,

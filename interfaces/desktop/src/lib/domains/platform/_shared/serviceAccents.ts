@@ -27,7 +27,7 @@
  * <ServiceDevtoolShell
  *   title="SurrealDB Sidecar"
  *   axis="stores"
- *   accent={SERVICE_ACCENTS.surrealdb_sidecar}
+ *   accent={SERVICE_ACCENTS.surreal}
  *   ...
  * />
  * ```
@@ -92,13 +92,12 @@ export const SERVICE_ACCENTS = {
 	cache: "frost",
 	project_db: "cyan",
 	surreal: "violet",
-	surrealdb_sidecar: "violet",
 	mongodb: "green",
 
 	// ── Runtimes ─────────────────────────────────────────────
 	candle: "ember",
 	llama_cpp_embedded: "hotpink",
-	ollama_sidecar: "salmon",
+	ollama: "salmon",
 	devforge: "magenta",
 
 	// ── AI capabilities ──────────────────────────────────────
@@ -182,13 +181,12 @@ export const SERVICE_BACKDROPS = {
 	cache: { variation: "circuit-drift", intensity: "subtle", speed: "normal" },
 	project_db: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 	surreal: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
-	surrealdb_sidecar: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
 	mongodb: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 
 	// ── Runtimes (computation in motion — molten flow) ───────
 	candle: { variation: "chrome-flow", intensity: "normal", speed: "normal" },
 	llama_cpp_embedded: { variation: "chrome-flow", intensity: "strong", speed: "normal" },
-	ollama_sidecar: { variation: "chrome-flow", intensity: "subtle", speed: "normal" },
+	ollama: { variation: "chrome-flow", intensity: "subtle", speed: "normal" },
 	devforge: { variation: "chrome-flow", intensity: "strong", speed: "fast" },
 
 	// ── AI capabilities (the thinking feeling) ───────────────

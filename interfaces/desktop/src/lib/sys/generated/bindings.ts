@@ -1132,9 +1132,9 @@ async llamaCppEmbeddedSaveConfig(cfg: LlamaCppEmbeddedConfig) : Promise<Result<L
  * we attach, otherwise we spawn `<binary_path> serve`. Subsequent calls
  * return the cached service handle.
  */
-async ollamaSidecarStart() : Promise<Result<OllamaStatus, string>> {
+async ollamaStart() : Promise<Result<OllamaStatus, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_start") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_start") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1146,9 +1146,9 @@ async ollamaSidecarStart() : Promise<Result<OllamaStatus, string>> {
  * Attached-mode services return Ok without touching the external
  * Ollama — we never kill a process we didn't spawn.
  */
-async ollamaSidecarStop() : Promise<Result<null, string>> {
+async ollamaStop() : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_stop") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_stop") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1157,9 +1157,9 @@ async ollamaSidecarStop() : Promise<Result<null, string>> {
 /**
  * Restart the Ollama sidecar — stop then start.
  */
-async ollamaSidecarRestart() : Promise<Result<OllamaStatus, string>> {
+async ollamaRestart() : Promise<Result<OllamaStatus, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_restart") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_restart") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1168,12 +1168,12 @@ async ollamaSidecarRestart() : Promise<Result<OllamaStatus, string>> {
 /**
  * Current running status of the Ollama sidecar.
  * 
- * Lock-free read — never spawns. Use `ollama_sidecar_start` for the
+ * Lock-free read — never spawns. Use `ollama_start` for the
  * lazy-start path.
  */
-async ollamaSidecarStatus() : Promise<Result<OllamaStatus, string>> {
+async ollamaStatus() : Promise<Result<OllamaStatus, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_status") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_status") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1186,9 +1186,9 @@ async ollamaSidecarStatus() : Promise<Result<OllamaStatus, string>> {
  * the platform hasn't booted or the service slot is empty AND disabled
  * in config. Returns `Stopped` when slot empty but enabled.
  */
-async ollamaSidecarHealth() : Promise<Result<OllamaHealth, string>> {
+async ollamaHealth() : Promise<Result<OllamaHealth, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_health") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_health") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1197,9 +1197,9 @@ async ollamaSidecarHealth() : Promise<Result<OllamaHealth, string>> {
 /**
  * Read the current Ollama config from the platform boot config.
  */
-async ollamaSidecarConfig() : Promise<Result<OllamaConfig, string>> {
+async ollamaConfig() : Promise<Result<OllamaConfig, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_config") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_config") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1210,9 +1210,9 @@ async ollamaSidecarConfig() : Promise<Result<OllamaConfig, string>> {
  * 
  * Requires the sidecar to be running (started or attached).
  */
-async ollamaSidecarListModels() : Promise<Result<OllamaModel[], string>> {
+async ollamaListModels() : Promise<Result<OllamaModel[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_list_models") };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_list_models") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1223,9 +1223,9 @@ async ollamaSidecarListModels() : Promise<Result<OllamaModel[], string>> {
  * 
  * Progress streaming is a follow-up; this call is non-streaming.
  */
-async ollamaSidecarPullModel(name: string) : Promise<Result<null, string>> {
+async ollamaPullModel(name: string) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_pull_model", { name }) };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_pull_model", { name }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1234,9 +1234,9 @@ async ollamaSidecarPullModel(name: string) : Promise<Result<null, string>> {
 /**
  * Delete a model via `DELETE /api/delete`.
  */
-async ollamaSidecarDeleteModel(name: string) : Promise<Result<null, string>> {
+async ollamaDeleteModel(name: string) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("ollama_sidecar_delete_model", { name }) };
+    return { status: "ok", data: await TAURI_INVOKE("ollama_delete_model", { name }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1248,9 +1248,9 @@ async ollamaSidecarDeleteModel(name: string) : Promise<Result<null, string>> {
  * 
  * Lock-free read — never spawns, never blocks.
  */
-async surrealdbSidecarStatus() : Promise<Result<SurrealStatus, string>> {
+async surrealStatus() : Promise<Result<SurrealStatus, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_status") };
+    return { status: "ok", data: await TAURI_INVOKE("surreal_status") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1260,9 +1260,9 @@ async surrealdbSidecarStatus() : Promise<Result<SurrealStatus, string>> {
  * Live-probe the sidecar via `GET /health` and return a badge-shaped
  * tri-state (`up` / `down` / `stopped`).
  */
-async surrealdbSidecarHealth() : Promise<Result<SurrealHealth, string>> {
+async surrealHealth() : Promise<Result<SurrealHealth, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_health") };
+    return { status: "ok", data: await TAURI_INVOKE("surreal_health") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1270,14 +1270,14 @@ async surrealdbSidecarHealth() : Promise<Result<SurrealHealth, string>> {
 },
 /**
  * Load the user-scope editable overlay from
- * `{data_dir}/user/surrealdb_sidecar.toml`.
+ * `{data_dir}/user/surreal.toml`.
  * 
  * Returns defaults if the file is missing or malformed — never errors
  * on parse failure. The devtool mounts this as its Config draft.
  */
-async surrealdbSidecarConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
+async surrealConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_config_load") };
+    return { status: "ok", data: await TAURI_INVOKE("surreal_config_load") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1290,9 +1290,9 @@ async surrealdbSidecarConfigLoad() : Promise<Result<SurrealUserConfig, string>> 
  * written to disk — the devtool should update its state from this
  * rather than echoing the request back.
  */
-async surrealdbSidecarConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConfig, string>> {
+async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConfig, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("surrealdb_sidecar_config_save", { cfg }) };
+    return { status: "ok", data: await TAURI_INVOKE("surreal_config_save", { cfg }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3281,7 +3281,7 @@ export type ArchFamily =
  */
 "qwen" | 
 /**
- * Phi-family architectures.
+ * Phi-family architectures (Phi-3, Phi-4, Phi-4 vision, Phi-4 multimodal).
  */
 "phi" | 
 /**
@@ -3293,7 +3293,7 @@ export type ArchFamily =
  */
 "mistral" | 
 /**
- * Gemma-family architectures.
+ * Gemma-family architectures (Gemma 1/2/3 text + embedders).
  */
 "gemma"
 /**
@@ -3332,13 +3332,25 @@ export type ArchId =
  */
 "qwen-2" | 
 /**
- * Phi-3 dense language models.
+ * Phi-3 dense language models. Also covers Phi-4 base / Phi-4-reasoning
+ * / Phi-4-reasoning-plus which ship as `phi3` under the hood.
  */
 "phi-3" | 
 /**
  * Phi-3 mixture-of-experts variants such as 30B-A3B.
  */
 "phi-3-moe" | 
+/**
+ * Phi-4 vision-language with bundled SigLIP encoder. The `phi4-siglip`
+ * arch tag — distinct from Phi3 because the projection head and
+ * vision tower require a separate loader (llama.cpp FFI + mmproj).
+ */
+"phi-4-vision" | 
+/**
+ * Phi-4 multimodal instruct (`phi4mm`). Vision + audio + text via a
+ * multi-graph ONNX bundle. Loaded through the ORT backend, not Candle.
+ */
+"phi-4-mm" | 
 /**
  * Llama-family and Llama-derived checkpoints.
  */
@@ -3348,9 +3360,15 @@ export type ArchId =
  */
 "mistral" | 
 /**
- * Gemma-family checkpoints.
+ * Gemma-family checkpoints (Gemma 1 / 2, GGUF via llama fallback).
  */
-"gemma"
+"gemma" | 
+/**
+ * Gemma 3 text encoder. Used by sentence-transformer embedders such
+ * as Microsoft Harrier 270m. Distinct from `Gemma` because the
+ * embedding loader strips the LM head and pools last-hidden-state.
+ */
+"gemma-3-text"
 /**
  * A single architecture row. Every field is `'static` so the catalog
  * can live in a `const` array with zero runtime allocation.
@@ -3523,6 +3541,12 @@ export type BackendId =
  */
 "candle-siglip-vision" | 
 /**
+ * Candle Gemma 3 text encoder — sentence-transformer embedder.
+ * Loads safetensors with the LM head stripped and pools the last
+ * hidden state. Used by Microsoft Harrier 270m.
+ */
+"candle-safetensors-gemma-3-embedding" | 
+/**
  * ORT kokoro TTS.
  */
 "ort-kokoro-tts" | 
@@ -3539,6 +3563,14 @@ export type BackendId =
  */
 "ort-reranker" | 
 /**
+ * mistral.rs Phi-4 multimodal — text + vision + audio loaded via the
+ * `mistralrs` umbrella crate (Candle-based). The April 2026 release
+ * (v0.8.x) is the only Rust path with native phi4mm support; the
+ * official Microsoft ONNX export needs `onnxruntime-genai` which has
+ * no Rust bindings as of this writing.
+ */
+"mistral-rs-phi-4-mm" | 
+/**
  * Sherpa-onnx streaming ASR — used by the always-on STS pipeline.
  */
 "sherpa-onnx-stt" | 
@@ -3547,8 +3579,9 @@ export type BackendId =
  */
 "sherpa-onnx-kws" | 
 /**
- * llama.cpp FFI — planned. Secondary GGUF path with broader
- * arch coverage for fine-tunes candle-transformers hasn't ported.
+ * llama.cpp FFI — GGUF inference via the llama-cpp-2 crate. Carries
+ * archs Candle's arch-native loaders don't cover (Phi-4 vision /
+ * phi4-siglip with mmproj projection, future fine-tune families).
  */
 "llama-cpp-ffi"
 /**

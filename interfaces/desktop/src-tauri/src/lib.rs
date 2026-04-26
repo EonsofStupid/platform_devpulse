@@ -193,19 +193,19 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::candle::candle_restart_pool,
         commands::llama_cpp_embedded::llama_cpp_embedded_load_config,
         commands::llama_cpp_embedded::llama_cpp_embedded_save_config,
-        commands::ollama_sidecar::ollama_sidecar_start,
-        commands::ollama_sidecar::ollama_sidecar_stop,
-        commands::ollama_sidecar::ollama_sidecar_restart,
-        commands::ollama_sidecar::ollama_sidecar_status,
-        commands::ollama_sidecar::ollama_sidecar_health,
-        commands::ollama_sidecar::ollama_sidecar_config,
-        commands::ollama_sidecar::ollama_sidecar_list_models,
-        commands::ollama_sidecar::ollama_sidecar_pull_model,
-        commands::ollama_sidecar::ollama_sidecar_delete_model,
-        commands::surrealdb_sidecar::surrealdb_sidecar_status,
-        commands::surrealdb_sidecar::surrealdb_sidecar_health,
-        commands::surrealdb_sidecar::surrealdb_sidecar_config_load,
-        commands::surrealdb_sidecar::surrealdb_sidecar_config_save,
+        commands::ollama::sidecar::ollama_start,
+        commands::ollama::sidecar::ollama_stop,
+        commands::ollama::sidecar::ollama_restart,
+        commands::ollama::sidecar::ollama_status,
+        commands::ollama::sidecar::ollama_health,
+        commands::ollama::sidecar::ollama_config,
+        commands::ollama::sidecar::ollama_list_models,
+        commands::ollama::sidecar::ollama_pull_model,
+        commands::ollama::sidecar::ollama_delete_model,
+        commands::surreal::sidecar::surreal_status,
+        commands::surreal::sidecar::surreal_health,
+        commands::surreal::sidecar::surreal_config_load,
+        commands::surreal::sidecar::surreal_config_save,
         commands::sherpa::sherpa_compile_info,
         commands::sherpa::sherpa_list_models,
         commands::sherpa::sherpa_delete_model,
@@ -455,25 +455,30 @@ pub fn run() {
     // we can prove commands reach the Rust side (vs frontend-side hang).
     // If we see `invoke received` but no corresponding handler output,
     // the hang is inside the handler (not in IPC dispatch).
+    //
+    // **Level rationale (changed 2026-04-26).** Was DEBUG; production
+    // sessions accumulated ~1.8 GB of JSONL in 2 hours because every
+    // IPC poll (`get_status` runs every 5 s plus per-page polls)
+    // emitted two DEBUG records that fell through the JSONL filter's
+    // global `debug,...` directive and got persisted. Demoted to TRACE:
+    // - Default release (faithful=off): JSONL filter is
+    //   `debug,devpulse=trace,...` — `ipc` target matches `debug` so
+    //   TRACE is BELOW threshold and these records are dropped on the
+    //   floor. No disk-fill loop.
+    // - `DEVPULSE_LOG_FAITHFUL=1` or debug builds: JSONL filter is
+    //   `trace` globally — these still land verbatim. Operators
+    //   debugging an IPC hang opt in via env var; the default no
+    //   longer pays for it.
+    // Handler-side `#[tracing::instrument]` spans are unaffected — those
+    // are the canonical per-command trace and they stay at their
+    // declared level.
     let specta_handler = builder.invoke_handler();
     let traced_invoke_handler = move |invoke: tauri::ipc::Invoke<tauri::Wry>| -> bool {
-        // Log BOTH entry and post-dispatch. specta's handler returns
-        // immediately after spawning the async task; `elapsed_us` here
-        // is dispatcher overhead, not handler duration. Handler duration
-        // comes from the `#[tracing::instrument]` spans on each command.
-        //
-        // DEBUG level (not TRACE) because target "ipc" falls to the
-        // default level in our EnvFilter — TRACE would be dropped.
-        //
-        // In debug builds we ALSO log the full payload JSON at DEBUG so
-        // every IPC call's args land in the session JSONL verbatim. In
-        // release builds we keep to command name only — avoids writing
-        // user-supplied payload content to disk in shipped binaries.
         let command = invoke.message.command().to_string();
         #[cfg(debug_assertions)]
         {
             let payload = format!("{:?}", invoke.message.payload());
-            tracing::debug!(
+            tracing::trace!(
                 target: "ipc",
                 command = %command,
                 args = %payload,
@@ -482,12 +487,12 @@ pub fn run() {
         }
         #[cfg(not(debug_assertions))]
         {
-            tracing::debug!(target: "ipc", command = %command, "invoke received");
+            tracing::trace!(target: "ipc", command = %command, "invoke received");
         }
         let start = std::time::Instant::now();
         let handled = specta_handler(invoke);
         let elapsed_us = start.elapsed().as_micros() as u64;
-        tracing::debug!(
+        tracing::trace!(
             target: "ipc",
             command = %command,
             handled,

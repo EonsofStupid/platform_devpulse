@@ -15,19 +15,17 @@
  * Domain code stays insulated from the generated monolith — when a
  * specta type or command name changes, only this file moves.
  *
- * The Tauri command function names still carry the legacy
- * `surrealdb_sidecar_*` prefix (Phase 3 of the consolidation will
- * rename those). The lifecycle TYPES are now canonical post-Phase 1
- * (`SurrealStatus`, `SurrealHealth`, `SurrealUserConfig`) — re-exported
- * directly. The graph data-plane types still live as `Graph*` in
- * `commands/sys/graph.rs` (intentionally — they're the data-plane
- * vocabulary, not Surreal-specific) and are aliased to `Surreal*` here
- * so the domain sees a single coherent type namespace.
+ * Lifecycle types and Tauri command names are canonical — Tauri command
+ * surfaces match the engine method shape one-to-one (`surreal_status`,
+ * `surreal_health`, `surreal_config_load`, `surreal_config_save`). The
+ * graph data-plane types still live as `Graph*` in `commands/sys/graph.rs`
+ * (intentionally — they're the data-plane vocabulary, not Surreal-specific)
+ * and are aliased to `Surreal*` here so the domain sees a single coherent
+ * type namespace.
  *
  * # Where the underlying Rust lives
  *
- * - Sidecar lifecycle (Tauri): `interfaces/desktop/src-tauri/src/commands/surrealdb_sidecar/`
- *   (will move to `commands/surreal/` in Phase 3)
+ * - Sidecar lifecycle (Tauri): `interfaces/desktop/src-tauri/src/commands/surreal/sidecar/`
  * - Graph data plane: `interfaces/desktop/src-tauri/src/commands/sys/graph.rs`
  * - Engine service: `systems/devpulse-engine/src/platform/services/surreal.rs`
  * - Kernel consumer: `kernel/devpulse-clyffy/src/cortex/persistence/surreal/`
@@ -41,16 +39,16 @@ import { commands } from "$lib/sys/generated/bindings.js";
 // inspect / configure the managed SurrealDB child process.
 
 /** Read the running-state snapshot of the managed SurrealDB child. */
-export const surrealStatus = commands.surrealdbSidecarStatus;
+export const surrealStatus = commands.surrealStatus;
 
 /** Read the tri-state health badge for the Status tab. */
-export const surrealHealth = commands.surrealdbSidecarHealth;
+export const surrealHealth = commands.surrealHealth;
 
 /** Load the user-scope SurrealDB config from `{data_dir}/user/`. */
-export const surrealConfigLoad = commands.surrealdbSidecarConfigLoad;
+export const surrealConfigLoad = commands.surrealConfigLoad;
 
 /** Persist the user-scope SurrealDB config (atomic write). */
-export const surrealConfigSave = commands.surrealdbSidecarConfigSave;
+export const surrealConfigSave = commands.surrealConfigSave;
 
 // ── Graph data plane ─────────────────────────────────────────────
 //
