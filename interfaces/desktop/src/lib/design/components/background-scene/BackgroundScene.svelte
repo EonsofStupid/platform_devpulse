@@ -153,10 +153,15 @@ const m = $derived(renderForge({ kind: "background-scene", preset: "default" }))
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+		/* a11y override — must defeat the inline `--bg-play: running`
+		   custom property the script writes; only `!important` does that
+		   in the cascade. WCAG 2.3.3 (Animation from Interactions). */
 		.bg-scene {
+			/* stylelint-disable-next-line declaration-no-important */
 			animation-play-state: paused !important;
 		}
 		.bg-scene * {
+			/* stylelint-disable-next-line declaration-no-important */
 			animation-play-state: paused !important;
 		}
 	}

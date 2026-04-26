@@ -183,17 +183,16 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 	// service that has no Actions verb (library backends, embedded
 	// stores) just omits the `actions` prop and the tab disappears —
 	// way better than a tab that shows "Not yet implemented" or a
-	// disabled button.
-	const standardTabs = $derived(
-		(
-			[
-				{ id: "status" as const, label: "Status", snippet: status },
-				{ id: "config" as const, label: "Config", snippet: config },
-				{ id: "logs" as const, label: "Logs", snippet: logs },
-				{ id: "actions" as const, label: "Actions", snippet: actions },
-				{ id: "debug" as const, label: "Debug", snippet: debug },
-			] as const
-		).filter((t) => t.snippet !== undefined),
+	// disabled button. `$derived.by` so snippet prop reads retrack on
+	// each derivation (Svelte 5 `state_referenced_locally` correctness).
+	const standardTabs = $derived.by(() =>
+		[
+			{ id: "status" as const, label: "Status", snippet: status },
+			{ id: "config" as const, label: "Config", snippet: config },
+			{ id: "logs" as const, label: "Logs", snippet: logs },
+			{ id: "actions" as const, label: "Actions", snippet: actions },
+			{ id: "debug" as const, label: "Debug", snippet: debug },
+		].filter((t) => t.snippet !== undefined),
 	);
 
 	// Active tab defaults to the first visible standard tab (or the
