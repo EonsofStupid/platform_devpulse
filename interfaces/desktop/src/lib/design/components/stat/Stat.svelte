@@ -19,7 +19,16 @@ import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StatProps, StatSize } from "./stat.types.js";
 
-type AccentName = "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
+type AccentName =
+	| "teal"
+	| "purple"
+	| "magenta"
+	| "ember"
+	| "frost"
+	| "cyber"
+	| "electric"
+	| "azure"
+	| "gold";
 
 const SIZE: Record<StatSize, { value: string; label: string }> = {
 	sm: { value: "text-lg", label: "text-xs" },
@@ -34,6 +43,9 @@ const ACCENT_COLOR: Record<AccentName, { main: string; glow: string }> = {
 	ember: { main: "var(--accent-ember-main)", glow: "var(--accent-ember-glow)" },
 	frost: { main: "var(--accent-frost-main)", glow: "var(--accent-frost-glow)" },
 	cyber: { main: "var(--accent-cyber-main)", glow: "var(--accent-cyber-glow)" },
+	electric: { main: "var(--accent-electric-main)", glow: "var(--accent-electric-glow)" },
+	azure: { main: "var(--accent-azure-main)", glow: "var(--accent-azure-glow)" },
+	gold: { main: "var(--accent-gold-main)", glow: "var(--accent-gold-glow)" },
 };
 
 let {

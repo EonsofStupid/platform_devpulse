@@ -38,6 +38,27 @@ import { logInfo } from "$lib/sys/logger.js";
 
 const SLOT_ID = "vision.embedder";
 
+/**
+ * Layman-friendly name for a registered model. Strips the file extension
+ * and any quant suffix from the filename and title-cases the rest, so
+ * `siglip2-so400m-patch14-384.safetensors` becomes "Siglip2 So400M Patch14 384".
+ * Falls back to the architecture or the raw filename if nothing prettifies.
+ */
+function prettifyModelName(filename: string, architecture?: string): string {
+	const stem = filename.replace(/\.(safetensors|gguf|bin|onnx|pt|pth)$/i, "");
+	const cleaned = stem.replace(/[._]/g, "-").replace(/-q\d+(_[a-z0-9]+)?$/i, "");
+	const parts = cleaned
+		.split("-")
+		.filter(Boolean)
+		.map((segment) =>
+			/^\d/.test(segment)
+				? segment.toUpperCase()
+				: segment.charAt(0).toUpperCase() + segment.slice(1),
+		);
+	if (parts.length === 0) return architecture ?? filename;
+	return parts.join(" ");
+}
+
 const LOG_TARGETS: LogTargetPreset[] = [
 	{ value: "devtools.vision", label: "Devtool UI" },
 	{ value: "model_loader", label: "Model loader" },
@@ -249,7 +270,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 
 				<Tooltip>
 					<TooltipTrigger>
-						<Stat label="Embedding dim" value="1152" accent="purple" glow={visionReady} />
+						<Stat label="Embedding dim" value="1152" accent="electric" glow={visionReady} />
 					</TooltipTrigger>
 					<TooltipContent>
 						<Text size="xs">
@@ -261,7 +282,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 
 				<Tooltip>
 					<TooltipTrigger>
-						<Stat label="Image size" value="384" unit="²" accent="teal" />
+						<Stat label="Image size" value="384" unit="²" accent="azure" />
 					</TooltipTrigger>
 					<TooltipContent>
 						<Text size="xs">
@@ -278,7 +299,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 								label="Last encode"
 								value={lastResult.time_ms}
 								unit="ms"
-								accent="ember"
+								accent="gold"
 								glow
 							/>
 						</TooltipTrigger>
@@ -297,10 +318,12 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				<Card preset="glass">
 					<div
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
-						style="border-left: var(--border-width-thin) solid var(--accent-purple-main);"
+						style="border-left: var(--border-width-thin) solid var(--accent-electric-main);"
 					>
-						<div class="flex items-center gap-[var(--space-2)]">
-							<Text size="xs" weight="bold">Assigned model</Text>
+						<div class="flex items-center gap-[var(--space-2)] flex-wrap">
+							<Text size="sm" weight="bold">
+								{prettifyModelName(assignedModel.filename, assignedModel.architecture)}
+							</Text>
 							{#if visionReady}
 								<Badge variant="positive" size="sm">Loaded</Badge>
 							{:else}
@@ -308,10 +331,10 @@ async function handleEncodeFile(event: Event): Promise<void> {
 							{/if}
 						</div>
 						<Text size="xs" color="muted">
-							ID: <span class="font-mono">{assignedModel.id}</span>
+							File: <span class="font-mono break-all">{assignedModel.filename}</span>
 						</Text>
 						<Text size="xs" color="muted">
-							File: <span class="font-mono break-all">{assignedModel.filename}</span>
+							ID: <span class="font-mono break-all">{assignedModel.id}</span>
 						</Text>
 					</div>
 				</Card>

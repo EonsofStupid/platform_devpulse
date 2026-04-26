@@ -23,7 +23,16 @@ export interface StatProps
 	/** Size variant */
 	size?: StatSize;
 	/** Accent color for value text + glow */
-	accent?: "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
+	accent?:
+		| "teal"
+		| "purple"
+		| "magenta"
+		| "ember"
+		| "frost"
+		| "cyber"
+		| "electric"
+		| "azure"
+		| "gold";
 	/** Enable glow on the value text */
 	glow?: boolean;
 	/** Visual preset */
