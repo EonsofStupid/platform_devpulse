@@ -1,24 +1,26 @@
 <!--
-	@file DevtoolErrorPanel
+	@file CommandErrorAlert
 	@domain platform/_shared
 
 	Single canonical surface for command failures inside any devtool tab.
-	Accepts the unified `CommandError` discriminated union (specta-emitted)
-	OR a bare string for unmigrated callers. Renders:
-
-	- `kind` as a tone-colored Badge (always rendered for CommandError)
-	- `message` as the primary line
-	- `context` as a secondary muted line (if present)
+	Thin adapter — composes the shipped `Alert` primitive (variant=error,
+	WAI-ARIA APG `alert` role) with a `Badge` mapping the `CommandError.kind`
+	to a tone-coloured chip + display label so users tell rate-limited
+	from auth-failed at a glance without substring matching.
 
 	# Usage
 
 	```svelte
-	<DevtoolErrorPanel error={query.error} />
-	<DevtoolErrorPanel error={lastError} onDismiss={() => (lastError = null)} />
+	<CommandErrorAlert error={query.error} />
+	<CommandErrorAlert error={lastError} dismissible onDismiss={() => (lastError = null)} />
 	```
+
+	Accepts `CommandError | string | null`. String form is a migration
+	shim for unmigrated commands that still throw bare strings; new
+	commands should always return Result<T, CommandError>.
 -->
 <script lang="ts">
-import { X } from "lucide-svelte";
+import * as Alert from "$lib/design/components/alert/index.js";
 import type { BadgeVariant } from "$lib/design/components/badge/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -27,11 +29,13 @@ import type { CommandError, ErrorKind } from "$lib/sys/generated/bindings.js";
 interface Props {
 	/** Discriminated `CommandError`, a bare string, or null (renders nothing). */
 	error: CommandError | string | null;
-	/** When provided, renders a small dismiss button in the corner. */
+	/** When true, renders the Alert's built-in dismiss button. */
+	dismissible?: boolean;
+	/** Fired when user clicks dismiss. */
 	onDismiss?: () => void;
 }
 
-let { error, onDismiss }: Props = $props();
+let { error, dismissible = false, onDismiss }: Props = $props();
 
 const KIND_LABEL: Record<ErrorKind, string> = {
 	"auth-failed": "Auth failed",
@@ -73,7 +77,6 @@ const display = $derived.by(() => {
 	if (error === null) return null;
 	if (isCommandError(error)) {
 		return {
-			kind: error.kind,
 			label: KIND_LABEL[error.kind],
 			variant: KIND_VARIANT[error.kind],
 			message: error.message,
@@ -81,39 +84,30 @@ const display = $derived.by(() => {
 		};
 	}
 	return {
-		kind: null,
-		label: null,
-		variant: null,
+		label: null as string | null,
+		variant: null as BadgeVariant | null,
 		message: error,
-		context: null,
+		context: null as string | null,
 	};
 });
 </script>
 
 {#if display}
-	<div
-		class="rounded-lg p-3 flex flex-col gap-1.5"
-		style="background: var(--signal-error-subtle); border: var(--border-width-hairline) solid var(--signal-error);"
-		role="alert"
-	>
-		<div class="flex items-center gap-2">
-			{#if display.label && display.variant}
-				<Badge variant={display.variant} size="sm">{display.label}</Badge>
-			{/if}
-			<Text size="xs" weight="semibold" class="flex-1 break-words">{display.message}</Text>
-			{#if onDismiss}
-				<button
-					type="button"
-					class="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-					aria-label="Dismiss error"
-					onclick={onDismiss}
-				>
-					<X size={12} />
-				</button>
+	<Alert.Root variant="error" {dismissible} onOpenChange={(d) => !d.open && onDismiss?.()}>
+		<div class="flex flex-col gap-[var(--space-1)] p-[var(--space-3)]">
+			<div class="flex items-center gap-[var(--space-2)] flex-wrap">
+				{#if display.label && display.variant}
+					<Badge variant={display.variant} size="sm">{display.label}</Badge>
+				{/if}
+				<Alert.Title>
+					<Text size="xs" weight="semibold">{display.message}</Text>
+				</Alert.Title>
+			</div>
+			{#if display.context}
+				<Alert.Description>
+					<Text size="xs" color="muted" class="font-mono break-all">{display.context}</Text>
+				</Alert.Description>
 			{/if}
 		</div>
-		{#if display.context}
-			<Text size="xs" color="muted" class="font-mono break-all">{display.context}</Text>
-		{/if}
-	</div>
+	</Alert.Root>
 {/if}

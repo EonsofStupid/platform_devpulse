@@ -2,15 +2,20 @@
 	@file /devtools/claude — Claude Integration devtool
 	@route /devtools/claude
 
-	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions). The MCP
-	model is subprocess-based: Claude Code / Claude Desktop spawn DevPulse
-	as a child via `--mcp-stdio`. This devtool controls REGISTRATION (the
-	JSON entry in each client's config) — not a long-running server inside
-	our process.
+	Golden-pattern reference devtool. Composes only shipped ColdLight
+	primitives (Stat / EmptyState / Callout / Alert / Tabs / Tooltip /
+	Card preset="glass") via the _shared/ adapters (DevtoolBentoGrid,
+	DevtoolBentoTile, CommandErrorAlert, DevtoolLogsTab, DevtoolRefreshButton).
 
-	Visual variety comes from the generic ColdLight accent tokens
-	(--accent-{purple|cyan|ember|teal}-{main|fill|glow}). No custom
-	claude-scoped vars.
+	Wrapped in ServiceDevtoolShell which auto-mounts the per-devtool
+	BackgroundScene registered in SERVICE_BACKDROPS["claude"] —
+	cosmic-galaxy at strong intensity, palette derived from the coral
+	accent.
+
+	The MCP model is subprocess-based: Claude Code / Claude Desktop spawn
+	DevPulse as a child via `--mcp-stdio`. This devtool controls
+	REGISTRATION (the JSON entry in each client's config) — not a
+	long-running server inside our process.
 -->
 <script lang="ts">
 import {
@@ -27,16 +32,18 @@ import {
 } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Callout } from "$lib/design/components/callout/index.js";
 import { Card } from "$lib/design/components/card/index.js";
+import { EmptyState } from "$lib/design/components/empty-state/index.js";
 import { LoadingBlock } from "$lib/design/components/spinner/index.js";
+import { Stat } from "$lib/design/components/stat/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import {
-	DevtoolDescription,
-	DevtoolEmptyState,
-	DevtoolErrorPanel,
+	CommandErrorAlert,
+	DevtoolBentoGrid,
 	DevtoolLogsTab,
 	DevtoolRefreshButton,
-	DevtoolStatBox,
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
@@ -191,128 +198,174 @@ $effect(() => {
 	icon={Plug}
 	axis="integrations"
 	accent="coral"
+	backdrop="claude"
 	health={badge}
 >
 	{#snippet status()}
-		<div class="flex flex-col gap-3">
-			<DevtoolDescription
-				text="Subprocess MCP — DevPulse registers itself as an MCP server in Claude Code and Claude Desktop config files. Nothing long-running here; the clients spawn DevPulse on demand."
-			/>
+		<div class="flex flex-col gap-[var(--space-4)]">
+			<!-- Layman intro — `Callout variant="tip"` ships in ColdLight -->
+			<Callout variant="tip">
+				<div class="p-[var(--space-3)]">
+					<Text size="xs" color="muted">
+						Subprocess MCP — DevPulse registers itself as an MCP server in
+						Claude Code and Claude Desktop config files. Nothing long-running
+						here; the clients spawn DevPulse on demand.
+					</Text>
+				</div>
+			</Callout>
 
-			<!-- ── Stat tiles: tool surface + protocol + counts ── -->
-			<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-				<DevtoolStatBox
-					label="MCP availability"
-					value={available ? "Available" : "Unavailable"}
-					tone={available ? "success" : "muted"}
-				/>
-				<DevtoolStatBox label="Tools served" value={toolCount} tone="accent" />
-				<DevtoolStatBox label="Protocol" value={protocolVersion} />
-				<DevtoolStatBox
-					label="Registered clients"
-					value={`${registeredCount} of ${detectedCount || "0"}`}
-					tone={registeredCount > 0 ? "success" : detectedCount > 0 ? "warning" : "muted"}
-				/>
-			</div>
+			<!-- Bento grid of glow Stats — shipped `Stat` w/ accent + glow -->
+			<DevtoolBentoGrid columns={4}>
+				<Tooltip>
+					<TooltipTrigger>
+						<Stat
+							label="MCP availability"
+							value={available ? "Available" : "Unavailable"}
+							accent={available ? "cyber" : "frost"}
+							glow={available}
+						/>
+					</TooltipTrigger>
+					<TooltipContent>
+						<Text size="xs">
+							{available
+								? "Subprocess MCP mode compiled in — DevPulse can serve as a Claude tool."
+								: "MCP mode unavailable in this build."}
+						</Text>
+					</TooltipContent>
+				</Tooltip>
 
-			<!-- ── Install grid: Code + Desktop ───────────────── -->
+				<Tooltip>
+					<TooltipTrigger>
+						<Stat label="Tools served" value={toolCount} accent="purple" glow />
+					</TooltipTrigger>
+					<TooltipContent>
+						<Text size="xs">DevPulse exposes {toolCount} MCP tools to registered clients.</Text>
+					</TooltipContent>
+				</Tooltip>
+
+				<Stat label="Protocol" value={protocolVersion} accent="frost" />
+
+				<Tooltip>
+					<TooltipTrigger>
+						<Stat
+							label="Registered"
+							value={`${registeredCount}/${detectedCount || 0}`}
+							accent={registeredCount > 0 ? "cyber" : "ember"}
+							glow={registeredCount > 0}
+						/>
+					</TooltipTrigger>
+					<TooltipContent>
+						<Text size="xs">
+							{registeredCount} of {detectedCount} detected client(s) currently
+							have DevPulse listed in their MCP config.
+						</Text>
+					</TooltipContent>
+				</Tooltip>
+			</DevtoolBentoGrid>
+
+			<!-- Install grid: empty state when nothing detected, else two glass tiles -->
 			{#if !code?.configExists && !desktop?.configExists && !code?.processRunning && !desktop?.processRunning}
-				<DevtoolEmptyState
-					icon={PlugOff}
-					title="No Claude client detected"
-					description="Install Claude Code (CLI) or Claude Desktop, then return here to register DevPulse as an MCP server."
-				/>
+				<EmptyState>
+					<div class="flex flex-col items-center gap-[var(--space-2)]">
+						<PlugOff size={28} style="color: var(--text-muted);" />
+						<Text size="sm" weight="semibold">No Claude client detected</Text>
+						<Text size="xs" color="muted">
+							Install Claude Code (CLI) or Claude Desktop, then return here to
+							register DevPulse as an MCP server.
+						</Text>
+					</div>
+				</EmptyState>
+			{:else}
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-3)]">
+					<Card preset="glass">
+						<div
+							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
+							style="border-left: var(--border-width-thin) solid var(--accent-purple-main);"
+						>
+							<div class="flex items-center gap-[var(--space-2)] flex-wrap">
+								<Terminal size={14} style="color: var(--accent-purple-main);" />
+								<Text size="sm" weight="bold">Claude Code</Text>
+								{#if code?.devpulseRegistered}
+									<Badge variant="positive" size="sm">Registered</Badge>
+								{:else if code?.configExists}
+									<Badge variant="notice" size="sm">Not registered</Badge>
+								{:else}
+									<Badge variant="neutral" size="sm">Not installed</Badge>
+								{/if}
+							</div>
+							<Text size="xs" color="muted" class="font-mono break-all">
+								{code?.configPath || "—"}
+							</Text>
+							<div class="flex items-center gap-[var(--space-2)]">
+								{#if code?.processRunning}
+									<CheckCircle2 size={12} style="color: var(--signal-success);" />
+									<Text size="xs">CLI process running</Text>
+								{:else}
+									<XCircle size={12} style="color: var(--text-muted);" />
+									<Text size="xs" color="muted">CLI not running</Text>
+								{/if}
+							</div>
+							{#if code?.readError}
+								<Text size="xs" style="color: var(--signal-error);">{code.readError}</Text>
+							{/if}
+						</div>
+					</Card>
+
+					<Card preset="glass">
+						<div
+							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
+							style="border-left: var(--border-width-thin) solid var(--accent-cyan-main);"
+						>
+							<div class="flex items-center gap-[var(--space-2)] flex-wrap">
+								<Cpu size={14} style="color: var(--accent-cyan-main);" />
+								<Text size="sm" weight="bold">Claude Desktop</Text>
+								{#if desktop?.devpulseRegistered}
+									<Badge variant="positive" size="sm">Registered</Badge>
+								{:else if desktop?.configExists}
+									<Badge variant="notice" size="sm">Not registered</Badge>
+								{:else}
+									<Badge variant="neutral" size="sm">Not installed</Badge>
+								{/if}
+							</div>
+							<Text size="xs" color="muted" class="font-mono break-all">
+								{desktop?.configPath || "—"}
+							</Text>
+							<div class="flex items-center gap-[var(--space-2)]">
+								{#if desktop?.processRunning}
+									<CheckCircle2 size={12} style="color: var(--signal-success);" />
+									<Text size="xs">Desktop app running</Text>
+								{:else}
+									<XCircle size={12} style="color: var(--text-muted);" />
+									<Text size="xs" color="muted">Desktop app not running</Text>
+								{/if}
+							</div>
+							{#if desktop?.readError}
+								<Text size="xs" style="color: var(--signal-error);">{desktop.readError}</Text>
+							{/if}
+						</div>
+					</Card>
+				</div>
 			{/if}
-			<div class="grid grid-cols-2 gap-3">
-				<!-- Claude Code (purple accent) -->
-				<div
-					class="rounded-lg p-3 flex flex-col gap-2"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-purple-main);"
-				>
-					<div class="flex items-center gap-2">
-						<Terminal size={14} style="color: var(--accent-purple-main);" />
-						<Text size="sm" weight="bold">Claude Code</Text>
-						{#if code?.devpulseRegistered}
-							<Badge variant="positive" size="sm">Registered</Badge>
-						{:else if code?.configExists}
-							<Badge variant="notice" size="sm">Not registered</Badge>
-						{:else}
-							<Badge variant="neutral" size="sm">Not installed</Badge>
-						{/if}
-					</div>
-					<Text size="xs" color="muted" class="font-mono break-all">
-						{code?.configPath || "—"}
-					</Text>
-					<div class="flex items-center gap-2">
-						{#if code?.processRunning}
-							<CheckCircle2 size={12} style="color: var(--signal-success);" />
-							<Text size="xs">CLI process running</Text>
-						{:else}
-							<XCircle size={12} style="color: var(--text-muted);" />
-							<Text size="xs" color="muted">CLI not running</Text>
-						{/if}
-					</div>
-					{#if code?.readError}
-						<Text size="xs" style="color: var(--signal-error);">{code.readError}</Text>
-					{/if}
-				</div>
 
-				<!-- Claude Desktop (cyan accent) -->
-				<div
-					class="rounded-lg p-3 flex flex-col gap-2"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-cyan-main);"
-				>
-					<div class="flex items-center gap-2">
-						<Cpu size={14} style="color: var(--accent-cyan-main);" />
-						<Text size="sm" weight="bold">Claude Desktop</Text>
-						{#if desktop?.devpulseRegistered}
-							<Badge variant="positive" size="sm">Registered</Badge>
-						{:else if desktop?.configExists}
-							<Badge variant="notice" size="sm">Not registered</Badge>
-						{:else}
-							<Badge variant="neutral" size="sm">Not installed</Badge>
-						{/if}
-					</div>
-					<Text size="xs" color="muted" class="font-mono break-all">
-						{desktop?.configPath || "—"}
-					</Text>
-					<div class="flex items-center gap-2">
-						{#if desktop?.processRunning}
-							<CheckCircle2 size={12} style="color: var(--signal-success);" />
-							<Text size="xs">Desktop app running</Text>
-						{:else}
-							<XCircle size={12} style="color: var(--text-muted);" />
-							<Text size="xs" color="muted">Desktop app not running</Text>
-						{/if}
-					</div>
-					{#if desktop?.readError}
-						<Text size="xs" style="color: var(--signal-error);">{desktop.readError}</Text>
-					{/if}
-				</div>
-			</div>
-
-			<!-- ── Tool list (teal accent — what we serve) ────── -->
+			<!-- Tool list — glass card with badge cluster -->
 			{#if toolNames.length > 0}
-				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-					<div class="flex items-center gap-2 mb-2">
-						<Wrench size={12} style="color: var(--accent-teal-main);" />
-						<Text size="xs" weight="bold">Tools served on registration</Text>
+				<Card preset="glass">
+					<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
+						<div class="flex items-center gap-[var(--space-2)]">
+							<Wrench size={12} style="color: var(--accent-teal-main);" />
+							<Text size="xs" weight="bold">Tools served on registration</Text>
+						</div>
+						<div class="flex flex-wrap gap-[var(--space-1)]">
+							{#each toolNames as toolName (toolName)}
+								<Badge variant="informative" size="sm">{toolName}</Badge>
+							{/each}
+						</div>
 					</div>
-					<div class="flex flex-wrap gap-1.5">
-						{#each toolNames as toolName (toolName)}
-							<span
-								class="rounded-md px-2 py-0.5 text-xs font-mono"
-								style="background: var(--accent-teal-fill); color: var(--accent-teal-main); border: 1px solid var(--accent-teal-main);"
-							>
-								{toolName}
-							</span>
-						{/each}
-					</div>
-				</div>
+				</Card>
 			{/if}
 
-			<DevtoolErrorPanel error={lastError} onDismiss={() => (lastError = null)} />
-			<DevtoolErrorPanel error={mcpPoll.error} />
+			<CommandErrorAlert error={lastError} dismissible onDismiss={() => (lastError = null)} />
+			<CommandErrorAlert error={mcpPoll.error} />
 
 			<div class="flex items-center justify-between">
 				<Text size="xs" color="muted">

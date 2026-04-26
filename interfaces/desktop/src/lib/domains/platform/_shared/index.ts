@@ -2,19 +2,23 @@
  * Platform shared devtool primitives — the uniform chrome every
  * per-service devtool wraps around.
  *
- * See the Module Charter (`scripts/docs/sprints/SPRINT-FOUNDATIONAL-REBUILD-MODULE-CHARTER.md`)
- * § 7 — every devtool implements Status / Config / Logs / Actions
- * via `ServiceDevtoolShell`. Extra service-specific tabs sit after
- * the four standard ones.
+ * Convention: tab bodies compose **shipped ColdLight primitives**
+ * directly (`Stat`, `EmptyState`, `Callout`, `Alert`, `Tabs`,
+ * `Tooltip`, `Card preset="glass"`, `SparkLine`, `RadialGauge`,
+ * `Meter`, `StatusDot`, `Kbd`, `KeyValue`, `Code`). The few adapters
+ * exported below exist only to (a) compose ServiceDevtoolShell chrome,
+ * (b) bind shipped primitives to the rune helpers in `$lib/sys/runes`,
+ * (c) map `CommandError.kind` to Badge variants. **No bespoke divs.**
+ *
+ * See `_shared/README.md` for the full golden-pattern playbook.
  */
 
-export { default as DevtoolDescription } from "./DevtoolDescription.svelte";
-export { default as DevtoolEmptyState } from "./DevtoolEmptyState.svelte";
-export { default as DevtoolErrorPanel } from "./DevtoolErrorPanel.svelte";
+export { default as CommandErrorAlert } from "./CommandErrorAlert.svelte";
+export { default as DevtoolBentoGrid } from "./DevtoolBentoGrid.svelte";
+export { default as DevtoolBentoTile } from "./DevtoolBentoTile.svelte";
 export type { LogTargetPreset } from "./DevtoolLogsTab.svelte";
 export { default as DevtoolLogsTab } from "./DevtoolLogsTab.svelte";
 export { default as DevtoolRefreshButton } from "./DevtoolRefreshButton.svelte";
-export { default as DevtoolStatBox } from "./DevtoolStatBox.svelte";
 export { default as RepoDownloadButton } from "./RepoDownloadButton.svelte";
 export {
 	formatBytes,

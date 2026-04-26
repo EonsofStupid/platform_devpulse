@@ -3,16 +3,16 @@
 	@domain platform/_shared
 
 	Self-contained Logs-tab body. Owns:
-	- Target-preset selector (chips above the table)
+	- WAI-ARIA APG `Tabs` (manual activation) for the target preset selector
 	- `TauriQuery<ScopedLogEntry[], string>` instance (queryScopedLog)
 	- Level color mapping (ERROR/WARN/INFO/DEBUG/other)
-	- Refresh button via `DevtoolRefreshButton`
-	- Empty state via `DevtoolEmptyState`
-	- Error surface via `DevtoolErrorPanel`
+	- `DevtoolRefreshButton` bound to the query
+	- `EmptyState` for no-data
+	- `CommandErrorAlert` for failures (Result<T, string> wrapped)
 
 	Replaces the per-devtool re-rolled Logs panels (Claude, STT, etc.).
-	Supersedes `ScopedLogPanel.svelte` for any consumer that needs more
-	than one target preset.
+	Supersedes `ScopedLogPanel.svelte` for consumers that need more than
+	one target preset.
 
 	# Usage
 
@@ -36,11 +36,12 @@
 <script lang="ts">
 import { ScrollText } from "lucide-svelte";
 import { untrack } from "svelte";
+import { EmptyState } from "$lib/design/components/empty-state/index.js";
+import { Tabs, TabsList, TabsTrigger } from "$lib/design/components/tabs/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
 import { TauriQuery } from "$lib/sys/runes/index.js";
-import DevtoolEmptyState from "./DevtoolEmptyState.svelte";
-import DevtoolErrorPanel from "./DevtoolErrorPanel.svelte";
+import CommandErrorAlert from "./CommandErrorAlert.svelte";
 import DevtoolRefreshButton from "./DevtoolRefreshButton.svelte";
 
 export interface LogTargetPreset {
@@ -94,45 +95,48 @@ function levelColor(level: string): string {
 const entries = $derived(logsQuery.data ?? []);
 </script>
 
-<div class="flex flex-col gap-3 h-full">
-	<div class="flex items-center gap-2 flex-wrap">
-		<Text size="xs" color="muted">Target:</Text>
-		{#each targetPresets as opt (opt.value)}
-			<button
-				type="button"
-				class="rounded-md px-2 py-1 text-xs transition-colors"
-				style={selectedTarget === opt.value
-					? "background: var(--accent-teal-fill); color: var(--accent-teal-main); border: var(--border-width-hairline) solid var(--accent-teal-main);"
-					: "background: var(--surface-base); color: var(--text-muted); border: var(--border-width-hairline) solid var(--border-subtle);"}
-				onclick={() => {
-					selectedTarget = opt.value;
-				}}
-			>
-				{opt.label}
-			</button>
-		{/each}
-		<div class="ml-auto flex items-center gap-2">
+<div class="flex flex-col gap-[var(--space-3)] h-full">
+	<div class="flex items-center gap-[var(--space-2)] flex-wrap">
+		<Tabs
+			value={selectedTarget}
+			onValueChange={(v) => {
+				selectedTarget = v;
+			}}
+			activateOnFocus={false}
+			loop
+		>
+			<TabsList class="flex flex-wrap gap-[var(--space-1)]">
+				{#each targetPresets as opt (opt.value)}
+					<TabsTrigger value={opt.value}>{opt.label}</TabsTrigger>
+				{/each}
+			</TabsList>
+		</Tabs>
+		<div class="ml-auto flex items-center gap-[var(--space-2)]">
 			<Text size="xs" color="muted">{entries.length} entries</Text>
 			<DevtoolRefreshButton query={logsQuery} />
 		</div>
 	</div>
 
-	<DevtoolErrorPanel error={logsQuery.error} />
+	<CommandErrorAlert error={logsQuery.error} />
 
 	{#if entries.length === 0 && !logsQuery.loading}
-		<DevtoolEmptyState
-			icon={ScrollText}
-			title="No log entries match this filter"
-			description="Activity in the Status / Actions tabs will appear here as it happens."
-		/>
+		<EmptyState>
+			<div class="flex flex-col items-center gap-[var(--space-2)]">
+				<ScrollText size={28} style="color: var(--text-muted);" />
+				<Text size="sm" weight="semibold">No log entries match this filter</Text>
+				<Text size="xs" color="muted">
+					Activity in the Status / Actions tabs will appear here as it happens.
+				</Text>
+			</div>
+		</EmptyState>
 	{:else}
 		<div
-			class="flex-1 overflow-y-auto rounded-lg p-2 font-mono text-xs leading-relaxed"
+			class="flex-1 overflow-y-auto rounded-lg p-[var(--space-2)] font-mono text-xs leading-relaxed"
 			style="background: var(--surface-base); border: var(--border-width-hairline) solid var(--border-subtle);"
 		>
 			{#each entries as entry, i (i)}
 				<div
-					class="flex gap-2 py-0.5 border-b border-[var(--border-subtle)] last:border-b-0"
+					class="flex gap-[var(--space-2)] py-[var(--space-1)] border-b border-[var(--border-subtle)] last:border-b-0"
 				>
 					<span style="color: var(--text-muted);">{entry.timestamp.slice(11, 19)}</span>
 					<span style={`color: ${levelColor(entry.level)}; min-width: 3.5rem;`}>
