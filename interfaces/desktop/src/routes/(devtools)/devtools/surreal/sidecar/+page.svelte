@@ -1,15 +1,18 @@
 <!--
-	@file /devtools/surrealdb_sidecar — SurrealDB sidecar runtime devtool
-	@route /devtools/surrealdb_sidecar
+	@file /devtools/surreal/sidecar — Surreal child-process devtool
+	@route /devtools/surreal/sidecar
 
-	The SurrealDB sidecar is boot-time (the graph stores depend on it),
-	so this devtool does NOT have start/stop/restart buttons. Config
-	changes write to `{data_dir}/user/surrealdb_sidecar.toml` and take
-	effect on the next app restart — a banner makes this explicit.
+	Surreal is boot-time (the graph stores depend on it), so this
+	devtool does NOT have start/stop/restart buttons. Config changes
+	write to `{data_dir}/user/surreal.toml` and take effect on the next
+	app restart — a banner makes this explicit.
 
 	The auto port-bump behavior is visible in real time: when the
 	configured port is foreign-bound, the allocator bumps +1 up to 20
 	attempts; Status shows `configured → actual` with a bump count.
+
+	TODO(phase 7 follow-up): merge this content as a "Lifecycle" extra
+	tab on `/devtools/surreal`. Preserved as a sub-route for now.
 -->
 <script lang="ts">
 import { AlertCircle, Database, RefreshCw, RotateCcw, Save } from "lucide-svelte";
@@ -70,7 +73,7 @@ function updateRootPassword(raw: string) {
 </script>
 
 <ServiceDevtoolShell
-	title="SurrealDB (sidecar)"
+	title="SurrealDB · child process"
 	description="Managed surreal start · RocksDB · WS client"
 	icon={Database}
 	axis="stores"
@@ -199,7 +202,7 @@ function updateRootPassword(raw: string) {
 					<div>
 						<div class="font-semibold mb-1">Restart to apply</div>
 						<div>
-							Config saved to <code>user/surrealdb_sidecar.toml</code>. Restart the app for changes to take effect — the sidecar
+							Config saved to <code>user/surreal.toml</code>. Restart the app for changes to take effect — the sidecar
 							only reads this file at boot.
 						</div>
 					</div>
@@ -208,7 +211,7 @@ function updateRootPassword(raw: string) {
 
 			<Text size="xs" color="muted">
 				Every field is an override. Leave blank to inherit from
-				<code>platform.default.toml</code>. Persists to <code>user/surrealdb_sidecar.toml</code>.
+				<code>platform.default.toml</code>. Persists to <code>user/surreal.toml</code>.
 			</Text>
 
 			<div class="grid grid-cols-2 gap-3">
@@ -317,6 +320,6 @@ function updateRootPassword(raw: string) {
 
 	<!-- ── LOGS ────────────────────────────────────────── -->
 	{#snippet logs()}
-		<ScopedLogPanel target="devtools.surrealdb_sidecar" />
+		<ScopedLogPanel target="devtools.surreal" />
 	{/snippet}
 </ServiceDevtoolShell>

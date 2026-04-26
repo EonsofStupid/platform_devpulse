@@ -1,10 +1,10 @@
 <!--
-	@file /devtools/ollama_sidecar — Ollama sidecar runtime devtool
-	@route /devtools/ollama_sidecar
+	@file /devtools/ollama — Ollama runtime devtool
+	@route /devtools/ollama
 
 	Live controls for the managed `ollama serve` child process. Wires
-	through `ollamaSidecarState` + the specta bindings to a real
-	`OllamaSidecarService` on the engine side.
+	through `ollamaSidecarState` + the specta bindings to the engine's
+	`OllamaService` (kernel adapter `OllamaAdapter`).
 -->
 <script lang="ts">
 import { Boxes, Download, Play, PowerOff, RefreshCw, Trash2 } from "lucide-svelte";
@@ -14,6 +14,7 @@ import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { ollamaSidecarState } from "$lib/domains/infra/ollama/index.js";
 import {
+	type CapturePayload,
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
@@ -25,6 +26,50 @@ $effect(() => {
 	void ollamaSidecarState.loadConfig();
 	void ollamaSidecarState.loadHealth();
 });
+
+// ── Debug: refresh-all probe ──────────────────────────────
+let debugRefreshing = $state(false);
+async function refreshAllProbes(): Promise<void> {
+	debugRefreshing = true;
+	try {
+		await Promise.all([
+			ollamaSidecarState.loadStatus(),
+			ollamaSidecarState.loadHealth(),
+			ollamaSidecarState.loadConfig(),
+			ollamaSidecarState.running ? ollamaSidecarState.loadModels() : Promise.resolve(),
+		]);
+	} finally {
+		debugRefreshing = false;
+	}
+}
+
+// ── Capture (Copy / Export) for the shell header ──────────
+function captureFor(tabId: string): CapturePayload | undefined {
+	if (tabId === "config" && ollamaSidecarState.config) {
+		return {
+			filename: "ollama-config.json",
+			mime: "application/json",
+			content: JSON.stringify(ollamaSidecarState.config, null, 2),
+		};
+	}
+	if (tabId === "debug") {
+		const snapshot = {
+			status: ollamaSidecarState.status,
+			health: ollamaSidecarState.health,
+			config: ollamaSidecarState.config,
+			running: ollamaSidecarState.running,
+			managed: ollamaSidecarState.managed,
+			baseUrl: ollamaSidecarState.baseUrl,
+			models: ollamaSidecarState.models,
+		};
+		return {
+			filename: "ollama-debug-snapshot.json",
+			mime: "application/json",
+			content: JSON.stringify(snapshot, null, 2),
+		};
+	}
+	return undefined;
+}
 
 // Poll models once the service is running.
 $effect(() => {
@@ -58,12 +103,13 @@ function prettySize(bytes: number): string {
 </script>
 
 <ServiceDevtoolShell
-	title="Ollama (sidecar)"
+	title="Ollama"
 	description="External Ollama process · HTTP API"
 	icon={Boxes}
 	axis="runtimes"
 	accent="salmon"
 	health={badge}
+	capture={captureFor}
 >
 	<!-- ── STATUS ─────────────────────────────────────────── -->
 	{#snippet status()}
@@ -211,7 +257,7 @@ function prettySize(bytes: number): string {
 
 	<!-- ── LOGS ───────────────────────────────────────────── -->
 	{#snippet logs()}
-		<ScopedLogPanel target="devtools.ollama_sidecar" />
+		<ScopedLogPanel target="devtools.ollama" />
 	{/snippet}
 
 	<!-- ── ACTIONS ────────────────────────────────────────── -->
@@ -412,6 +458,82 @@ function prettySize(bytes: number): string {
 					{/if}
 				</div>
 			{/if}
+		</div>
+	{/snippet}
+
+	<!-- ── DEBUG ──────────────────────────────────────────── -->
+	{#snippet debug()}
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<div>
+					<Text size="sm" weight="semibold">Raw probe snapshot</Text>
+					<Text size="xs" color="muted">
+						Direct output of the Ollama daemon's HTTP probes — useful when reporting
+						a bug or sanity-checking what the platform sees.
+					</Text>
+				</div>
+				<Button preset="ghost" size="sm" onclick={refreshAllProbes} disabled={debugRefreshing}>
+					{#if debugRefreshing}
+						<Spinner size="xs" tone="accent" />
+					{:else}
+						<RefreshCw size={14} />
+					{/if}
+					Refresh all
+				</Button>
+			</div>
+
+			<div class="space-y-3">
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">
+						Status — <span class="font-mono">GET /api/version + state</span>
+					</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-48"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{ollamaSidecarState.status
+							? JSON.stringify(ollamaSidecarState.status, null, 2)
+							: "(no status loaded)"}</pre>
+				</div>
+
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">
+						Health — <span class="font-mono">probe + last error</span>
+					</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-32"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{ollamaSidecarState.health
+							? JSON.stringify(ollamaSidecarState.health, null, 2)
+							: "(no health probe yet)"}</pre>
+				</div>
+
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">
+						Config — <span class="font-mono">platform.toml [services.system.ollama]</span>
+					</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-32"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{ollamaSidecarState.config
+							? JSON.stringify(ollamaSidecarState.config, null, 2)
+							: "(no config loaded)"}</pre>
+				</div>
+
+				<div class="space-y-1">
+					<Text size="xs" color="muted" weight="bold">
+						Models — <span class="font-mono">GET /api/tags ({ollamaSidecarState.models.length})</span>
+					</Text>
+					<pre
+						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-64"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{ollamaSidecarState.models.length > 0
+							? JSON.stringify(ollamaSidecarState.models, null, 2)
+							: ollamaSidecarState.running
+								? "(no models pulled yet — use Actions ▸ Pull a model)"
+								: "(daemon not running)"}</pre>
+				</div>
+			</div>
+
+			<Text size="xs" color="muted">
+				Use the Copy / Export buttons in the header to dump the full snapshot as
+				<span class="font-mono">ollama-debug-snapshot.json</span> for bug reports.
+			</Text>
 		</div>
 	{/snippet}
 </ServiceDevtoolShell>

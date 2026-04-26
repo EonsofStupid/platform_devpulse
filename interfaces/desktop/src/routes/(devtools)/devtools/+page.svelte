@@ -388,7 +388,7 @@ let laneGroups = $derived<LaneGroup[]>(
 								Native-tensor runtime. GGUF + SafeTensors.
 							</span>
 						</a>
-						<a href="/devtools/ollama_sidecar" class="ds-tile">
+						<a href="/devtools/ollama" class="ds-tile">
 							<Boxes size={20} class="ds-tile-icon" />
 							<span class="ds-tile-title">Ollama</span>
 							<span class="ds-tile-blurb">
