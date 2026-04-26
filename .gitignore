@@ -47,6 +47,8 @@ pnpm-lock.yaml
 .claude/settings.local.json
 .claude/worktrees/
 deps/
+# Vendored fork tracked as submodule — see .gitmodules.
+!deps/moshi/
 
 # DevForge REH trees — fetched via `cargo xtask fetch-devforge` from
 # github.com/EonsofStupid/devforge releases. The committed manifest.json
