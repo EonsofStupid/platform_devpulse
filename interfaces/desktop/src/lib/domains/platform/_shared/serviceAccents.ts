@@ -132,6 +132,131 @@ export function serviceAccent(slug: string): BrandAccent {
 }
 
 /**
+ * Per-devtool BackgroundScene config — picks a subtly different
+ * variation/intensity/speed per slug so two devtools never feel
+ * visually identical, while staying family-coherent through the
+ * shared accent system.
+ *
+ * Variations are distributed by service group:
+ * - **Stores** lean `void-breathe` (deep, contemplative, data-at-rest)
+ * - **Runtimes** lean `chrome-flow` (molten flow, computation in motion)
+ * - **AI capabilities** lean `cosmic-galaxy` or `neural-pulse` (the
+ *   "thinking" feeling)
+ * - **Audio capabilities** lean `neural-pulse` (waveform breathing)
+ * - **Integrations** lean `circuit-drift` (signal infrastructure)
+ *
+ * Intensity matches "marquee-ness" — the user's daily-driver devtools
+ * (claude, vision, models) get strong; supporting ones get subtle.
+ */
+export interface ServiceBackdrop {
+	variation: "circuit-drift" | "neural-pulse" | "void-breathe" | "chrome-flow" | "cosmic-galaxy";
+	/** Subtle (0.06) / normal (0.12) / strong (0.18) — opacity scaling. */
+	intensity: "subtle" | "normal" | "strong";
+	/** Slow (25s) / normal (15s) / fast (8s) animation period. */
+	speed: "slow" | "normal" | "fast";
+}
+
+/**
+ * Default backdrop for devtools without a registry entry — `void-breathe`
+ * subtle slow, matches the historical neutral feel.
+ */
+export const DEFAULT_SERVICE_BACKDROP: ServiceBackdrop = {
+	variation: "void-breathe",
+	intensity: "subtle",
+	speed: "slow",
+};
+
+/**
+ * Devtool route-slug → backdrop config. Same slug surface as
+ * [`SERVICE_ACCENTS`] — each devtool's accent paints the dot, this
+ * config paints the ambient backdrop.
+ *
+ * The backdrop's palette is derived automatically from the devtool's
+ * accent (via [`accentToBackdropPalette`] below) so the colour family
+ * stays in sync without authors maintaining two registries.
+ */
+export const SERVICE_BACKDROPS = {
+	// ── Stores (data at rest — contemplative void) ───────────
+	libsql: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
+	duckdb: { variation: "void-breathe", intensity: "normal", speed: "slow" },
+	cache: { variation: "circuit-drift", intensity: "subtle", speed: "normal" },
+	project_db: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
+	surreal: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
+	surrealdb_sidecar: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
+	mongodb: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
+
+	// ── Runtimes (computation in motion — molten flow) ───────
+	candle: { variation: "chrome-flow", intensity: "normal", speed: "normal" },
+	llama_cpp_embedded: { variation: "chrome-flow", intensity: "strong", speed: "normal" },
+	ollama_sidecar: { variation: "chrome-flow", intensity: "subtle", speed: "normal" },
+	devforge: { variation: "chrome-flow", intensity: "strong", speed: "fast" },
+
+	// ── AI capabilities (the thinking feeling) ───────────────
+	cortex: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
+	models: { variation: "neural-pulse", intensity: "normal", speed: "normal" },
+	rro: { variation: "circuit-drift", intensity: "normal", speed: "normal" },
+	sherpa: { variation: "neural-pulse", intensity: "subtle", speed: "normal" },
+	vision: { variation: "neural-pulse", intensity: "strong", speed: "normal" },
+
+	// ── Audio capabilities (waveform breathing) ──────────────
+	stt: { variation: "neural-pulse", intensity: "subtle", speed: "fast" },
+	tts: { variation: "neural-pulse", intensity: "normal", speed: "normal" },
+	sts: { variation: "cosmic-galaxy", intensity: "normal", speed: "normal" },
+
+	// ── Integrations (signal infrastructure) ─────────────────
+	claude: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
+	telemetry: { variation: "circuit-drift", intensity: "subtle", speed: "fast" },
+
+	// ── System ───────────────────────────────────────────────
+	grammar: { variation: "chrome-flow", intensity: "subtle", speed: "slow" },
+} as const satisfies Record<string, ServiceBackdrop>;
+
+/**
+ * Type-safe backdrop lookup. Falls back to [`DEFAULT_SERVICE_BACKDROP`]
+ * for unknown slugs.
+ */
+export function serviceBackdrop(slug: string): ServiceBackdrop {
+	const known = (SERVICE_BACKDROPS as Record<string, ServiceBackdrop>)[slug];
+	return known ?? DEFAULT_SERVICE_BACKDROP;
+}
+
+/**
+ * Map a [`BrandAccent`] to a [`Palette`] the BackgroundScene understands.
+ * The accent palette is broader than the BG palette, so several accents
+ * share a backdrop palette family. Keeps the colour family coherent
+ * between the per-tab accent and the ambient backdrop.
+ */
+export function accentToBackdropPalette(
+	accent: BrandAccent,
+): "teal" | "purple" | "ember" | "cyber" | "frost" | "magenta" | "cosmic" {
+	switch (accent) {
+		case "teal":
+		case "frost":
+		case "cyan":
+		case "azure":
+		case "blue":
+			return "teal";
+		case "purple":
+		case "violet":
+		case "electric":
+			return "cosmic";
+		case "magenta":
+		case "hotpink":
+			return "magenta";
+		case "ember":
+		case "salmon":
+		case "coral":
+		case "gold":
+			return "ember";
+		case "cyber":
+		case "green":
+			return "cyber";
+		default:
+			return "cosmic";
+	}
+}
+
+/**
  * Build the inline-style CSS-variable triplet that scopes
  * `--accent-service-{main,glow,fill}` to a brand accent. The shell
  * applies this to its root element so descendants can consume

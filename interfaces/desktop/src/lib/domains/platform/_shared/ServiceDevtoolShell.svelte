@@ -60,8 +60,16 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 <script lang="ts">
 	import type { Component, Snippet } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
+	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 	import { Text } from "$lib/design/components/text/index.js";
-	import { type BrandAccent, DEFAULT_SERVICE_ACCENT, serviceAccentStyle } from "./serviceAccents.js";
+	import {
+		accentToBackdropPalette,
+		type BrandAccent,
+		DEFAULT_SERVICE_ACCENT,
+		serviceAccentStyle,
+		serviceBackdrop,
+		type ServiceBackdrop,
+	} from "./serviceAccents.js";
 	import type { CapturePayload, ExtraTab, HealthBadge, ServiceAxis } from "./types.js";
 
 	interface Props {
@@ -84,6 +92,17 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		health?: HealthBadge;
 		/** Where the back-link returns to. Defaults to `/devtools`. */
 		backHref?: string;
+
+		/**
+		 * Per-devtool ambient backdrop. Pass either a slug (looked up via
+		 * [`SERVICE_BACKDROPS`]) or an explicit [`ServiceBackdrop`] config.
+		 * Omit to render no scoped backdrop (the shell-wide cosmic mount
+		 * in Frame.svelte still paints behind everything).
+		 *
+		 * The backdrop's palette derives automatically from `accent` via
+		 * [`accentToBackdropPalette`] so colour stays family-coherent.
+		 */
+		backdrop?: ServiceBackdrop | string;
 
 		/** Extra per-service tabs rendered after the five standard tabs. */
 		extraTabs?: ExtraTab[];
@@ -134,6 +153,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		accent = DEFAULT_SERVICE_ACCENT,
 		health,
 		backHref = "/devtools",
+		backdrop,
 		extraTabs = [],
 		status,
 		config,
@@ -143,6 +163,18 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		capture,
 		extra,
 	}: Props = $props();
+
+	// Resolve backdrop config — slug → registry lookup, or use object directly.
+	const resolvedBackdrop = $derived<ServiceBackdrop | null>(
+		backdrop === undefined
+			? null
+			: typeof backdrop === "string"
+				? serviceBackdrop(backdrop)
+				: backdrop,
+	);
+
+	// Backdrop palette derives from the accent so the family stays coherent.
+	const backdropPalette = $derived(accentToBackdropPalette(accent));
 
 	type StandardTabId = "status" | "config" | "logs" | "actions" | "debug";
 	type TabId = StandardTabId | string;
@@ -240,11 +272,22 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 <svelte:window onkeydown={handleKeydown} />
 
 <div
-	class="flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)]"
+	class="relative flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)] overflow-hidden"
 	style={accentStyle}
 >
+	<!-- ── Per-devtool ambient backdrop (opt-in via `backdrop` prop) ── -->
+	{#if resolvedBackdrop}
+		<BackgroundScene
+			variation={resolvedBackdrop.variation}
+			palette={backdropPalette}
+			intensity={resolvedBackdrop.intensity}
+			speed={resolvedBackdrop.speed}
+			motion="on"
+		/>
+	{/if}
+
 	<!-- ── Header ───────────────────────────────────────────────── -->
-	<header class="flex items-center gap-3 h-10 px-4 border-b border-[var(--border-subtle)]">
+	<header class="relative z-10 flex items-center gap-3 h-10 px-4 border-b border-[var(--border-subtle)]">
 		<a
 			href={backHref}
 			class="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -330,7 +373,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 
 	<!-- ── Tab bar ──────────────────────────────────────────────── -->
 	<nav
-		class="flex items-center border-b border-[var(--border-subtle)] overflow-x-auto"
+		class="relative z-10 flex items-center border-b border-[var(--border-subtle)] overflow-x-auto"
 		aria-label="Service devtool tabs"
 	>
 		{#each standardTabs as tab}
@@ -380,7 +423,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 	</nav>
 
 	<!-- ── Active tab body ──────────────────────────────────────── -->
-	<main class="flex-1 overflow-y-auto p-4">
+	<main class="relative z-10 flex-1 overflow-y-auto p-4">
 		{#if activeTab === "status" && status}
 			{@render status()}
 		{:else if activeTab === "config" && config}
