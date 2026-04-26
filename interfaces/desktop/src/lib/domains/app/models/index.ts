@@ -30,6 +30,7 @@ export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte"
 export { default as VramBudgetPlanner } from "./feature/components/VramBudgetPlanner.svelte";
 export { default as VramBar } from "./feature/setup-wizard/components/VramBar.svelte";
 export { bootstrapDownloadBridge } from "./feature/setup-wizard/download-bootstrap.js";
+export { wizardState } from "./feature/setup-wizard/wizard.state.svelte.js";
 export {
 	getSlotLabel,
 	ROLE_COLORS,
