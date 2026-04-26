@@ -1,9 +1,9 @@
 /**
  * @file Ollama sidecar state rune — reactive devtool state.
- * @module @devpulse/domains/infra/ollama_sidecar/data-access/ollama_sidecar.state
+ * @module @devpulse/domains/infra/ollama/data-access/sidecar.state
  *
- * Singleton rune state shared by the Ollama sidecar devtool. Mirrors the
- * Rust `OllamaSidecarService` lifecycle one-to-one: `status`, `health`,
+ * Singleton rune state shared by the Ollama sidecar devtool. Mirrors
+ * the engine `OllamaService` lifecycle one-to-one: `status`, `health`,
  * `config`, `models`, plus per-action loading flags and error strings.
  */
 
@@ -12,18 +12,18 @@ import type {
 	OllamaHealth,
 	OllamaModel,
 	OllamaStatus,
-} from "$lib/sys/generated/bindings.js";
+} from "$lib/sys/bindings/ollama/index.js";
 import {
-	ollamaSidecarConfig,
-	ollamaSidecarDeleteModel,
-	ollamaSidecarHealth,
-	ollamaSidecarListModels,
-	ollamaSidecarPullModel,
-	ollamaSidecarRestart,
-	ollamaSidecarStart,
-	ollamaSidecarStatus,
-	ollamaSidecarStop,
-} from "./ollamaSidecar.svc.js";
+	ollamaConfig,
+	ollamaDeleteModel,
+	ollamaHealth,
+	ollamaListModels,
+	ollamaPullModel,
+	ollamaRestart,
+	ollamaStart,
+	ollamaStatus,
+	ollamaStop,
+} from "./sidecar.svc.js";
 
 class OllamaSidecarState {
 	// ── Status + health ─────────────────────────────────────
@@ -69,7 +69,7 @@ class OllamaSidecarState {
 	async loadStatus(): Promise<void> {
 		this.statusError = null;
 		try {
-			this.status = await ollamaSidecarStatus();
+			this.status = await ollamaStatus();
 		} catch (e) {
 			this.statusError = e instanceof Error ? e.message : String(e);
 		}
@@ -79,7 +79,7 @@ class OllamaSidecarState {
 		this.healthLoading = true;
 		this.healthError = null;
 		try {
-			this.health = await ollamaSidecarHealth();
+			this.health = await ollamaHealth();
 		} catch (e) {
 			this.healthError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -90,7 +90,7 @@ class OllamaSidecarState {
 	async loadConfig(): Promise<void> {
 		this.configError = null;
 		try {
-			this.config = await ollamaSidecarConfig();
+			this.config = await ollamaConfig();
 		} catch (e) {
 			this.configError = e instanceof Error ? e.message : String(e);
 		}
@@ -100,7 +100,7 @@ class OllamaSidecarState {
 		this.starting = true;
 		this.actionError = null;
 		try {
-			this.status = await ollamaSidecarStart();
+			this.status = await ollamaStart();
 			await Promise.all([this.loadHealth(), this.loadModels()]);
 		} catch (e) {
 			this.actionError = e instanceof Error ? e.message : String(e);
@@ -113,7 +113,7 @@ class OllamaSidecarState {
 		this.stopping = true;
 		this.actionError = null;
 		try {
-			await ollamaSidecarStop();
+			await ollamaStop();
 			await this.loadStatus();
 			await this.loadHealth();
 			this.models = [];
@@ -128,7 +128,7 @@ class OllamaSidecarState {
 		this.restarting = true;
 		this.actionError = null;
 		try {
-			this.status = await ollamaSidecarRestart();
+			this.status = await ollamaRestart();
 			await Promise.all([this.loadHealth(), this.loadModels()]);
 		} catch (e) {
 			this.actionError = e instanceof Error ? e.message : String(e);
@@ -146,7 +146,7 @@ class OllamaSidecarState {
 		this.modelsLoading = true;
 		this.modelsError = null;
 		try {
-			this.models = await ollamaSidecarListModels();
+			this.models = await ollamaListModels();
 		} catch (e) {
 			this.modelsError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -160,7 +160,7 @@ class OllamaSidecarState {
 		this.pullingName = name;
 		this.actionError = null;
 		try {
-			await ollamaSidecarPullModel(name);
+			await ollamaPullModel(name);
 			this.pullInput = "";
 			await this.loadModels();
 		} catch (e) {
@@ -174,7 +174,7 @@ class OllamaSidecarState {
 		this.deletingName = name;
 		this.actionError = null;
 		try {
-			await ollamaSidecarDeleteModel(name);
+			await ollamaDeleteModel(name);
 			await this.loadModels();
 		} catch (e) {
 			this.actionError = e instanceof Error ? e.message : String(e);

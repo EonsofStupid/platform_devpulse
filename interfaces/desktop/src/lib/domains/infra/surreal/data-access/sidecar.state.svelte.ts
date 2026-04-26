@@ -1,31 +1,31 @@
 /**
- * @file SurrealDB sidecar state rune — reactive devtool state.
- * @module @devpulse/domains/infra/surrealdb_sidecar/data-access/surrealdb_sidecar.state
+ * @file SurrealDB sidecar state rune — managed-process devtool state.
+ * @module @devpulse/domains/infra/surreal/data-access/sidecar.state
  *
- * Singleton rune state shared by the SurrealDB sidecar devtool. Mirrors
- * the Rust surface:
+ * Singleton rune state shared by the SurrealDB sidecar devtool tab.
+ * Mirrors the engine surface:
  *   - `status` — runtime snapshot (configured/actual port, bumps, URL)
  *   - `health` — live probe tri-state (`up` / `down` / `stopped`)
- *   - `config` — user-editable overlay at `{data_dir}/user/surrealdb_sidecar.toml`
+ *   - `config` — user-editable overlay at `{data_dir}/user/surreal.toml`
  *
- * Unlike Ollama, there are no start/stop/restart actions — the SurrealDB
- * sidecar is boot-time. Config changes persist to the user TOML and
- * require an app restart to apply (the frontend shows a banner).
+ * Unlike Ollama there are no start/stop/restart actions — SurrealDB is
+ * boot-time. Config changes persist to the user TOML and require an app
+ * restart to apply (the frontend shows a banner after `save()`).
  */
 
 import type {
-	SurrealdbSidecarHealth,
-	SurrealdbSidecarStatus,
-	SurrealdbSidecarUserConfig,
-} from "$lib/sys/generated/bindings.js";
+	SurrealHealth,
+	SurrealStatus,
+	SurrealUserConfig,
+} from "$lib/sys/bindings/surreal/index.js";
 import {
-	surrealdbSidecarConfigLoad,
-	surrealdbSidecarConfigSave,
-	surrealdbSidecarHealth,
-	surrealdbSidecarStatus,
-} from "./surrealdbSidecar.svc.js";
+	surrealConfigLoad,
+	surrealConfigSave,
+	surrealHealth,
+	surrealStatus,
+} from "./sidecar.svc.js";
 
-function emptyDraft(): SurrealdbSidecarUserConfig {
+function emptyDraft(): SurrealUserConfig {
 	return {
 		port: null,
 		binary_path: null,
@@ -36,20 +36,20 @@ function emptyDraft(): SurrealdbSidecarUserConfig {
 	};
 }
 
-class SurrealdbSidecarState {
+class SurrealSidecarState {
 	// ── Status + health ─────────────────────────────────────
-	status = $state<SurrealdbSidecarStatus | null>(null);
+	status = $state<SurrealStatus | null>(null);
 	statusError = $state<string | null>(null);
 
-	health = $state<SurrealdbSidecarHealth | null>(null);
+	health = $state<SurrealHealth | null>(null);
 	healthLoading = $state(false);
 	healthError = $state<string | null>(null);
 
 	// ── User-scope editable config ──────────────────────────
 	/** Last-saved persisted overlay (source of truth for "dirty" check). */
-	savedConfig = $state<SurrealdbSidecarUserConfig | null>(null);
+	savedConfig = $state<SurrealUserConfig | null>(null);
 	/** Working copy the form binds to. Reset to `savedConfig` on cancel. */
-	draft = $state<SurrealdbSidecarUserConfig>(emptyDraft());
+	draft = $state<SurrealUserConfig>(emptyDraft());
 	configLoading = $state(false);
 	configSaving = $state(false);
 	configError = $state<string | null>(null);
@@ -93,7 +93,7 @@ class SurrealdbSidecarState {
 	async loadStatus(): Promise<void> {
 		this.statusError = null;
 		try {
-			this.status = await surrealdbSidecarStatus();
+			this.status = await surrealStatus();
 		} catch (e) {
 			this.statusError = e instanceof Error ? e.message : String(e);
 		}
@@ -103,7 +103,7 @@ class SurrealdbSidecarState {
 		this.healthLoading = true;
 		this.healthError = null;
 		try {
-			this.health = await surrealdbSidecarHealth();
+			this.health = await surrealHealth();
 		} catch (e) {
 			this.healthError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -115,7 +115,7 @@ class SurrealdbSidecarState {
 		this.configLoading = true;
 		this.configError = null;
 		try {
-			const loaded = await surrealdbSidecarConfigLoad();
+			const loaded = await surrealConfigLoad();
 			this.savedConfig = loaded;
 			this.draft = { ...loaded };
 			this.needsRestart = false;
@@ -130,7 +130,7 @@ class SurrealdbSidecarState {
 		this.configSaving = true;
 		this.configError = null;
 		try {
-			const saved = await surrealdbSidecarConfigSave(this.draft);
+			const saved = await surrealConfigSave(this.draft);
 			this.savedConfig = saved;
 			this.draft = { ...saved };
 			this.needsRestart = true;
@@ -150,4 +150,4 @@ class SurrealdbSidecarState {
 	}
 }
 
-export const surrealdbSidecar = new SurrealdbSidecarState();
+export const surrealSidecarState = new SurrealSidecarState();
