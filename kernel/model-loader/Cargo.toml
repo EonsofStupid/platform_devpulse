@@ -106,8 +106,12 @@ ndarray = { version = "0.17", optional = true }
 # FFT for Whisper mel spectrogram computation
 rustfft = { version = "6.2", optional = true }
 
-# llama.cpp FFI — GGUF inference (optional, requires CMake)
-llama-cpp-2 = { version = "0.1", optional = true }
+# llama.cpp FFI — GGUF inference (optional, requires CMake).
+# `mtmd` enables the multimodal projection wrapper (vision-language
+# GGUFs like Phi-4-Vision-15B) — backends/llamacpp/mtmd.rs depends on
+# it, and the feature is needed even for text-only builds because it's
+# transitively wired through the workspace lock.
+llama-cpp-2 = { version = "0.1.145", optional = true, features = ["mtmd"] }
 
 # UTF-8 streaming decoder used by `LlamaModel::token_to_piece`. Pulled
 # transitively by llama-cpp-2; declared here so the backend can hold a

@@ -12,4 +12,10 @@
 pub mod backend;
 
 #[cfg(feature = "llama-cpp-ffi")]
+pub mod mtmd;
+
+#[cfg(feature = "llama-cpp-ffi")]
 pub use backend::LlamaCppBackend;
+
+#[cfg(feature = "llama-cpp-ffi")]
+pub use mtmd::LlamaCppMtmdBackend;
