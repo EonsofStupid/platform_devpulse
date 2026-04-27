@@ -23,7 +23,7 @@ piper-backend = ["dep:piper-rs"]
 # Sherpa-onnx runtime backends — registry surfaced now, implementation later.
 sherpa-backend = []
 # llama.cpp FFI runtime — GGUF inference via llama-cpp-2 crate (CMake build).
-llama-cpp-ffi = ["dep:llama-cpp-2"]
+llama-cpp-ffi = ["dep:llama-cpp-2", "dep:encoding_rs"]
 # Moshi STS — native Rust speech-to-speech via Candle (Kyutai Moshi 7B).
 # Vendored fork at deps/moshi/ runs against candle 0.10 (see deps/moshi/PATCHES.md).
 # Tokenization via the existing HF `tokenizers` crate (in `candle-backend`),
@@ -35,6 +35,11 @@ moshi-sts = ["dep:moshi", "candle-backend"]
 # has no Rust bindings yet. Pulls mistralrs-core + mistralrs-vision + mistralrs-audio
 # transitively via the umbrella `mistralrs` crate. Wired in Phase 6 of slice 1.
 mistralrs-backend = ["dep:mistralrs"]
+# Qwen3-TTS backend — pure-Rust voice synthesis with zero-shot cloning,
+# Candle-based via the qwen3-tts crate. Single engine for default Clyffy
+# voice + 9 preset speakers + clone-from-reference (3-10 sec mp3/wav).
+# Loaded by the voice_pool when a slot's `backend_variant = "qwen3-tts-candle"`.
+qwen3-tts-backend = ["dep:qwen3-tts", "candle-backend"]
 nvml = ["dep:nvml-wrapper"]
 cuda = ["candle-core/cuda"]
 specta = ["dep:specta"]
@@ -104,6 +109,12 @@ rustfft = { version = "6.2", optional = true }
 # llama.cpp FFI — GGUF inference (optional, requires CMake)
 llama-cpp-2 = { version = "0.1", optional = true }
 
+# UTF-8 streaming decoder used by `LlamaModel::token_to_piece`. Pulled
+# transitively by llama-cpp-2; declared here so the backend can hold a
+# stateful `encoding_rs::Decoder` across the generate-loop's per-token
+# detokenization (multi-byte chars span token boundaries).
+encoding_rs = { version = "0.8", optional = true }
+
 # Moshi STS — speech-to-speech via Candle (optional, vendored at deps/moshi/).
 moshi = { workspace = true, optional = true }
 
@@ -112,6 +123,11 @@ moshi = { workspace = true, optional = true }
 # `optional = true` here gates the dep behind the `mistralrs-backend` feature
 # so default builds stay lean. April 2026 latest: 0.8.x.
 mistralrs = { version = "0.8", optional = true }
+
+# Qwen3-TTS — pure-Rust TTS with zero-shot voice cloning. Workspace pin
+# in /Cargo.toml. Gated behind the `qwen3-tts-backend` feature so default
+# builds don't pull Candle-rs transitives unless the voice slot needs them.
+qwen3-tts = { workspace = true, optional = true }
 
 # GPU metrics (optional)
 nvml-wrapper = { version = "0.10", optional = true }

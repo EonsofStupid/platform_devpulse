@@ -298,7 +298,7 @@ impl InferenceBridge {
             .name("inference-worker-llamacpp".into())
             .spawn(move || {
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    inference_thread_loop(&mut backend, &rx);
+                    inference_thread_loop_llamacpp(&mut backend, &rx);
                 }));
                 if let Err(panic) = result {
                     let msg = if let Some(s) = panic.downcast_ref::<&str>() {
@@ -429,4 +429,88 @@ fn inference_thread_loop(
     }
 
     tracing::info!("Inference worker thread exited");
+}
+
+/// The main loop running on the llama.cpp inference thread.
+///
+/// Mirrors `inference_thread_loop` but is concrete on
+/// [`crate::backends::llamacpp::LlamaCppBackend`] because `Generate`
+/// uses backend-specific sampling state. The other request variants
+/// route through the shared `InferenceBackend` trait and behave
+/// identically to the candle path.
+#[cfg(feature = "llama-cpp-ffi")]
+fn inference_thread_loop_llamacpp(
+    backend: &mut crate::backends::llamacpp::LlamaCppBackend,
+    rx: &TracedReceiver<InferenceRequest>,
+) {
+    use crate::traits::backend::InferenceBackend;
+
+    tracing::info!("llama.cpp inference worker thread started");
+
+    while let Ok(traced) = rx.recv() {
+        let (request, _cx_guard) = traced.attach();
+
+        match request {
+            InferenceRequest::Load { path, params, reply } => {
+                let result = backend.load(&path, params);
+                if result.is_err() {
+                    let _ = backend.unload();
+                }
+                let _ = reply.send(result);
+            }
+            InferenceRequest::Unload { reply } => {
+                let _ = reply.send(backend.unload());
+            }
+            InferenceRequest::Forward { tokens, position, reply } => {
+                let _ = reply.send(backend.forward(&tokens, position));
+            }
+            InferenceRequest::Tokenize { text, reply } => {
+                let _ = reply.send(backend.tokenize(&text));
+            }
+            InferenceRequest::Detokenize { tokens, reply } => {
+                let _ = reply.send(backend.detokenize(&tokens));
+            }
+            InferenceRequest::Generate {
+                prompt,
+                max_tokens,
+                temperature,
+                token_sink,
+                trace_id,
+            } => {
+                if !trace_id.is_empty() {
+                    tracing::debug!(
+                        trace_id = %trace_id,
+                        prompt_len = prompt.len(),
+                        max_tokens,
+                        temperature,
+                        "llama.cpp thread: generate request received"
+                    );
+                }
+                let result = backend.generate(&prompt, max_tokens, temperature, |id, text| {
+                    let _ = token_sink.send(InferenceResponse::Token {
+                        id,
+                        text: text.to_string(),
+                    });
+                });
+                match result {
+                    Ok(full_text) => {
+                        let _ = token_sink.send(InferenceResponse::Done(full_text));
+                    }
+                    Err(e) => {
+                        let _ = token_sink.send(InferenceResponse::Error(e.to_string()));
+                    }
+                }
+            }
+            InferenceRequest::MemoryUsage { reply } => {
+                let _ = reply.send(backend.memory_usage());
+            }
+            InferenceRequest::Shutdown => {
+                tracing::info!("llama.cpp inference worker thread shutting down");
+                let _ = backend.unload();
+                break;
+            }
+        }
+    }
+
+    tracing::info!("llama.cpp inference worker thread exited");
 }

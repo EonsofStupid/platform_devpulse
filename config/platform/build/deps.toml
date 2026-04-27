@@ -12,7 +12,13 @@ extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 [build.deps.cmake]
 path = "cmake"
 env = []
-extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+# CMAKE_GENERATOR pins the Visual Studio version cmake-rs picks. The
+# llama-cpp-sys-2 build script defaults to "Visual Studio 17 2022";
+# this dev box has VS 2019 Professional. Without this override, the
+# llama-cpp-ffi feature fails at the build script with
+# "Could not create named generator Visual Studio 17 2022".
+# Update this string when bumping the dev box's Visual Studio install.
+extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5", CMAKE_GENERATOR = "Visual Studio 16 2019" }
 
 [build.deps.code_oss]
 enabled = false

@@ -87,6 +87,14 @@ candle-core = "0.10"
 candle-nn = "0.10"
 candle-transformers = "0.10"
 moshi = { version = "0.6", default-features = false }
+# Qwen3-TTS — pure-Rust TTS with zero-shot voice cloning, Candle-based.
+# Single engine: default voice + 9 preset speakers + clone-from-reference.
+# Not published on crates.io (the `qwen3_tts` package by second-state is
+# yanked and uses tch/libtorch — different path). Pinned to TrevorS's
+# Candle-based fork (MIT, "experiment, not production" per README).
+# Re-pin the SHA after upstream stabilises. Used by the qwen3-tts-backend
+# feature in kernel/model-loader.
+qwen3-tts = { git = "https://github.com/TrevorS/qwen3-tts-rs", rev = "711ceee07cad92673f86de8997bdf54c30caa49f", default-features = false, features = ["hub"] }
 # sentencepiece dep removed 2026-04-26: moshi-core uses an `encode: impl Fn`
 # callback for tokenization (see moshi-core/src/tts_streaming.rs::tokenize_prompt),
 # never depends on a specific tokenizer crate. Personaplex's SentencePiece-format

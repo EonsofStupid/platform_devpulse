@@ -2,10 +2,16 @@
 slot_id = "voice.tts"
 capability = "TextToSpeech"
 label = "Voice — Text to Speech"
-description = "Kokoro voice synthesis"
+description = "Voice synthesis. Qwen3-TTS supports zero-shot voice cloning from a 3–10 sec reference clip; Kokoro is a faster preset-voice fallback."
 
 [[services.system.model_loader.catalog.options]]
-label = "Kokoro v1.0 (quantized)"
+label = "Qwen3-TTS 0.6B Base (with voice cloning)"
+repo = "Qwen/Qwen3-TTS-12Hz-0.6B-Base"
+file = "model.safetensors"
+size_mb = 2520
+
+[[services.system.model_loader.catalog.options]]
+label = "Kokoro v1.0 (quantized, preset voices)"
 repo = "onnx-community/Kokoro-82M-v1.0-ONNX"
 file = "onnx/model_quantized.onnx"
 size_mb = 92

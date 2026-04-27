@@ -83,6 +83,41 @@ impl VoicePool {
 
         match capability {
             ModelCapability::TextToSpeech => {
+                let variant = params.backend_variant.as_deref();
+                let ext = model_path
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or("");
+
+                // Qwen3-TTS path (safetensors talker + bundled codec) —
+                // selected when the slot's preset declares
+                // `backend_variant = "qwen3-tts-candle"`, OR when the
+                // assigned file is a `.safetensors` (Kokoro is
+                // ONNX-only). Same `TtsBackend` trait — replaces what
+                // Kokoro otherwise covers, with voice-cloning support.
+                #[cfg(feature = "qwen3-tts-backend")]
+                if variant == Some("qwen3-tts-candle") || ext == "safetensors" {
+                    let mut backend = crate::backends::candle::Qwen3TtsBackend::new();
+                    let footprint = backend.load(model_path, params)?;
+                    let mut sessions = self
+                        .sessions
+                        .lock()
+                        .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+                    let mut footprints = self
+                        .footprints
+                        .lock()
+                        .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
+                    sessions.insert(slot_id.to_string(), VoiceSession::Tts(Box::new(backend)));
+                    footprints.insert(slot_id.to_string(), footprint);
+                    tracing::info!(
+                        slot = %slot_id,
+                        backend = "qwen3-tts-candle",
+                        "VoicePool: TTS model loaded (Qwen3-TTS path)"
+                    );
+                    return Ok(footprint);
+                }
+
+                // Default path — Kokoro ONNX via ort.
                 let mut backend = crate::backends::ort::kokoro::KokoroTts::new();
                 let footprint = backend.load(model_path, params)?;
                 let mut sessions = self
@@ -95,7 +130,11 @@ impl VoicePool {
                     .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
                 sessions.insert(slot_id.to_string(), VoiceSession::Tts(Box::new(backend)));
                 footprints.insert(slot_id.to_string(), footprint);
-                tracing::info!(slot = %slot_id, "VoicePool: TTS model loaded");
+                tracing::info!(
+                    slot = %slot_id,
+                    backend = "kokoro-ort",
+                    "VoicePool: TTS model loaded (Kokoro path)"
+                );
                 Ok(footprint)
             }
             ModelCapability::SpeechToText => {

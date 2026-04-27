@@ -1063,6 +1063,44 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-core"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f93ebbf82d06013f4c41fe71303feb980cddd78496d904d06be627972de51a24"
+
+[[package]]
+name = "audioadapter"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98e72b98fa467adcb7a88c5d1b8b686193185c81b9bf9c3fa3ac3524180cd55c"
+dependencies = [
+ "audio-core",
+ "libm",
+ "num-traits",
+]
+
+[[package]]
+name = "audioadapter-buffers"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6af89882334c4e501faa08992888593ada468f9e1ab211635c32f9ada7786e0"
+dependencies = [
+ "audioadapter",
+ "audioadapter-sample",
+ "num-traits",
+]
+
+[[package]]
+name = "audioadapter-sample"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e9a3d502fec0b21aa420febe0b110875cf8a7057c49e83a0cace1df6a73e03e"
+dependencies = [
+ "audio-core",
+ "num-traits",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1907,6 +1945,29 @@ dependencies = [
 
 [[package]]
 name = "candle-core"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c15b675b80d994b2eadb20a4bbe434eabeb454eac3ee5e2b4cf6f147ee9be091"
+dependencies = [
+ "byteorder 1.5.0",
+ "float8 0.6.1",
+ "gemm 0.19.0",
+ "half 2.7.1",
+ "libm",
+ "memmap2",
+ "num-traits",
+ "num_cpus",
+ "rand 0.9.2",
+ "rand_distr 0.5.1",
+ "rayon",
+ "safetensors 0.7.0",
+ "thiserror 2.0.18",
+ "yoke 0.8.2",
+ "zip 7.2.0",
+]
+
+[[package]]
+name = "candle-core"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bd9895436c1ba5dc1037a19935d084b838db066ff4e15ef7dded020b7c12a4a"
@@ -1915,7 +1976,7 @@ dependencies = [
  "candle-kernels",
  "candle-ug",
  "cudarc 0.19.4",
- "float8",
+ "float8 0.7.0",
  "gemm 0.19.0",
  "half 2.7.1",
  "libm",
@@ -1943,11 +2004,27 @@ dependencies = [
 
 [[package]]
 name = "candle-nn"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3045fa9e7aef8567d209a27d56b692f60b96f4d0569f4c3011f8ca6715c65e03"
+dependencies = [
+ "candle-core 0.9.2",
+ "half 2.7.1",
+ "libc",
+ "num-traits",
+ "rayon",
+ "safetensors 0.7.0",
+ "serde",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "candle-nn"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9317a09d6530b758990ed7f625ac69ff43653bc9ee28b0464644ad1169ada87"
 dependencies = [
- "candle-core",
+ "candle-core 0.10.2",
  "half 2.7.1",
  "libc",
  "num-traits",
@@ -1959,13 +2036,32 @@ dependencies = [
 
 [[package]]
 name = "candle-transformers"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b538ec4aa807c416a2ddd3621044888f188827862e2a6fcacba4738e89795d01"
+dependencies = [
+ "byteorder 1.5.0",
+ "candle-core 0.9.2",
+ "candle-nn 0.9.2",
+ "fancy-regex 0.17.0",
+ "num-traits",
+ "rand 0.9.2",
+ "rayon",
+ "serde",
+ "serde_json",
+ "serde_plain",
+ "tracing",
+]
+
+[[package]]
+name = "candle-transformers"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f59d08c89e9f4af9c464e2f3a8e16199e7cc601e6f34538c2cfbb42b623b1783"
 dependencies = [
  "byteorder 1.5.0",
- "candle-core",
- "candle-nn",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
  "fancy-regex 0.17.0",
  "num-traits",
  "rand 0.9.2",
@@ -3049,7 +3145,7 @@ version = "0.19.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f071cd6a7b5d51607df76aa2d426aaabc7a74bc6bdb885b8afa63a880572ad9b"
 dependencies = [
- "float8",
+ "float8 0.7.0",
  "half 2.7.1",
  "libloading 0.9.0",
 ]
@@ -3403,9 +3499,9 @@ dependencies = [
  "anyhow",
  "async-trait",
  "base64 0.22.1",
- "candle-core",
- "candle-nn",
- "candle-transformers",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
+ "candle-transformers 0.10.2",
  "duckdb",
  "futures",
  "hf-hub",
@@ -4083,6 +4179,9 @@ name = "esaxx-rs"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d817e038c30374a4bcb22f94d0a8a0e216958d4c3dcde369b1439fec4bdda6e6"
+dependencies = [
+ "cc",
+]
 
 [[package]]
 name = "espeak-rs"
@@ -4357,6 +4456,18 @@ dependencies = [
  "crc32fast",
  "miniz_oxide",
  "zlib-rs",
+]
+
+[[package]]
+name = "float8"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "719a903cc23e4a89e87962c2a80fdb45cdaad0983a89bd150bb57b4c8571a7d5"
+dependencies = [
+ "half 2.7.1",
+ "num-traits",
+ "rand 0.9.2",
+ "rand_distr 0.5.1",
 ]
 
 [[package]]
@@ -7812,8 +7923,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9bb0a83340b4492ebba9760ba6845364de369c7e10c1f91af8733d574c7405fa"
 dependencies = [
  "anyhow",
- "candle-core",
- "candle-nn",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
  "clap",
  "either",
  "futures",
@@ -7861,8 +7972,8 @@ dependencies = [
  "bm25",
  "bytemuck",
  "bytemuck_derive",
- "candle-core",
- "candle-nn",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
  "cfgrammar",
  "chrono",
  "clap",
@@ -7871,7 +7982,7 @@ dependencies = [
  "derive_more 2.1.1",
  "dirs",
  "either",
- "float8",
+ "float8 0.7.0",
  "futures",
  "galil-seiferas",
  "half 2.7.1",
@@ -7906,7 +8017,7 @@ dependencies = [
  "regex",
  "regex-automata",
  "reqwest 0.13.2",
- "rubato",
+ "rubato 0.16.2",
  "rust-mcp-schema",
  "rustc-hash 2.1.2",
  "rustfft",
@@ -7979,9 +8090,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "980715493d252e9aaf0779c4c101576d67ef4dd9812bfd77a54987f6f17526f4"
 dependencies = [
  "byteorder 1.5.0",
- "candle-core",
- "candle-nn",
- "float8",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
+ "float8 0.7.0",
  "half 2.7.1",
  "hf-hub",
  "lazy_static",
@@ -8004,7 +8115,7 @@ version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "10046a3da2de5b702d3e829b5ddef7aa829ad454819dcc4876dea481a6cb5456"
 dependencies = [
- "candle-core",
+ "candle-core 0.10.2",
  "image",
  "rayon",
 ]
@@ -8014,10 +8125,11 @@ name = "model-loader"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "candle-core",
- "candle-nn",
- "candle-transformers",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
+ "candle-transformers 0.10.2",
  "devpulse-telemetry",
+ "encoding_rs",
  "espeakng-sys",
  "flume",
  "hf-hub",
@@ -8030,6 +8142,7 @@ dependencies = [
  "ort",
  "parking_lot",
  "piper-rs",
+ "qwen3-tts",
  "reqwest 0.12.28",
  "rustfft",
  "serde",
@@ -8091,9 +8204,9 @@ dependencies = [
 name = "moshi"
 version = "0.6.5+devpulse"
 dependencies = [
- "candle-core",
- "candle-nn",
- "candle-transformers",
+ "candle-core 0.10.2",
+ "candle-nn 0.10.2",
+ "candle-transformers 0.10.2",
  "rayon",
  "serde",
  "tracing",
@@ -10660,6 +10773,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "qwen3-tts"
+version = "0.3.0"
+source = "git+https://github.com/TrevorS/qwen3-tts-rs?rev=711ceee07cad92673f86de8997bdf54c30caa49f#711ceee07cad92673f86de8997bdf54c30caa49f"
+dependencies = [
+ "anyhow",
+ "audioadapter-buffers",
+ "byteorder 1.5.0",
+ "candle-core 0.9.2",
+ "candle-nn 0.9.2",
+ "candle-transformers 0.9.2",
+ "half 2.7.1",
+ "hf-hub",
+ "hound",
+ "num-complex",
+ "num-traits",
+ "rayon",
+ "rubato 1.0.1",
+ "rustfft",
+ "safetensors 0.7.0",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokenizers 0.22.2",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "r-efi"
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11573,6 +11714,22 @@ dependencies = [
  "num-integer",
  "num-traits",
  "realfft",
+]
+
+[[package]]
+name = "rubato"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "90173154a8a14e6adb109ea641743bc95ec81c093d94e70c6763565f7108ebeb"
+dependencies = [
+ "audioadapter",
+ "audioadapter-buffers",
+ "num-complex",
+ "num-integer",
+ "num-traits",
+ "realfft",
+ "visibility",
+ "windowfunctions",
 ]
 
 [[package]]
@@ -14387,6 +14544,7 @@ dependencies = [
  "derive_builder",
  "esaxx-rs",
  "getrandom 0.3.4",
+ "indicatif 0.18.4",
  "itertools 0.14.0",
  "log",
  "macro_rules_attribute",
@@ -15681,6 +15839,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "051eb1abcf10076295e815102942cc58f9d5e3b4560e46e53c21e8ff6f3af7b1"
 
 [[package]]
+name = "visibility"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d674d135b4a8c1d7e813e2f8d1c9a58308aee4a680323066025e53132218bd91"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "vob"
 version = "3.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -16354,6 +16523,15 @@ dependencies = [
  "raw-window-handle",
  "windows-sys 0.59.0",
  "windows-version",
+]
+
+[[package]]
+name = "windowfunctions"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "90628d739333b7c5d2ee0b70210b97b8cddc38440c682c96fd9e2c24c2db5f3a"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]

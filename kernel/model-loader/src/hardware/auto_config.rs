@@ -5,16 +5,16 @@
 //! 7 presets:
 //!   1. Floor (8GB) — Static, Qwen3-VL-4B brain
 //!   2. Mid `ActiveIdle` (12GB) — Qwen3.5-9B active / 4B idle
-//!   3. Jesse Primary (16GB) — Phi-4-reasoning-vision-15B active / 4B idle
-//!   4. High (24GB) — Static, Qwen3-14B or Phi-4 15B
-//!   5. Lab Ceiling (Multi-GPU) — Static, 27B+ brain
-//!   6. Phi Slot Collapse (12GB+) — Test preset, Phi-4-multimodal collapses STT+vision
-//!   7. API-Enhanced (Any VRAM) — Cloud brain, local preprocessing
+//!   3. Jesse Primary (16GB) — Static Phi-4-reasoning-vision-15B GGUF + Qwen3-TTS-0.6B clone, Claude turbo escalation
+//!   4. High (24GB) — Static, Qwen3-30B-A3B + PersonaPlex-7B voice
+//!   5. Ultra (40GB+) — Static, Qwen3-VL-30B-A3B + PersonaPlex-7B voice
+//!   6. Floor (Minimal) — Static Qwen3-VL-4B, CPU-mostly
+//!   7. CpuOnly — Static Qwen3-VL-4B, CPU everywhere
 //!
 //! Backend routing by file format:
 //!   .gguf → llama.cpp FFI
-//!   .safetensors → Candle
-//!   .onnx → ORT (sherpa-rs for STT, kokoro for TTS)
+//!   .safetensors → Candle (Qwen3-TTS via `qwen3-tts` crate; mistral.rs for multimodal LMs)
+//!   .onnx → ORT (sherpa-rs for STT, kokoro for legacy TTS)
 //!   .bin (GGML) → sherpa-rs
 
 use crate::hardware::metrics::HardwareMetrics;
