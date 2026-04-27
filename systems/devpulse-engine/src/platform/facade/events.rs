@@ -13,6 +13,8 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+use crate::platform::services::ServiceRole;
+
 // ─────────────────────────────────────────────────────────────────
 // Event category (used by whitelist for allow/deny filtering)
 // ─────────────────────────────────────────────────────────────────
@@ -29,6 +31,12 @@ pub enum EventCategory {
     SignalRouting,
     ResourceArbiter,
     InferenceMetrics,
+    /// Sidecar lifecycle phase transitions — preflight, spawn, ready,
+    /// freeze (hot-update reserved), shutdown, fail. Mirror of the
+    /// `sidecar.lifecycle` tracing taxonomy in
+    /// [`crate::platform::services::lifecycle_phase`]. Both layers must
+    /// emit in lockstep — see `feedback_dual_observability.md`.
+    SidecarLifecycle,
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -359,6 +367,26 @@ pub enum InternalEvent {
         total_tokens: usize,
         latency_ms: u64,
     },
+
+    // ── Sidecar lifecycle ───────────────────────────────────────
+    /// A managed sidecar transitioned between lifecycle phases.
+    ///
+    /// Mirrors the structured `sidecar.lifecycle` tracing event so
+    /// minion subscribers, surface-events whitelist, and governance
+    /// reactors can observe sidecar state without parsing log lines.
+    /// Emitted in lockstep with the `emit_lifecycle!` macro — see
+    /// `emit_lifecycle_dual!` in `platform::services` for the helper
+    /// that enforces 1:1 emission.
+    SidecarPhaseTransition {
+        /// Which sidecar emitted the event.
+        service: ServiceRole,
+        /// Phase identifier — one of the constants in
+        /// [`crate::platform::services::lifecycle_phase`]
+        /// (e.g. `"preflight"`, `"ready"`, `"shutdown"`).
+        phase: String,
+        /// Human-readable summary — bind addr, error, elapsed time.
+        detail: String,
+    },
 }
 
 impl InternalEvent {
@@ -396,6 +424,8 @@ impl InternalEvent {
             Self::TokenGenerated { .. }
             | Self::KvCacheUsage { .. }
             | Self::InferenceComplete { .. } => EventCategory::InferenceMetrics,
+
+            Self::SidecarPhaseTransition { .. } => EventCategory::SidecarLifecycle,
         }
     }
 }

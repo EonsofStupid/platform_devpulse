@@ -13,3 +13,16 @@ user_data_dir = "devforge/user-data"
 extensions_dir = "devforge/extensions"
 workspace_path = "."
 update_channel_url = "https://releases.devpulse.dev/devforge/channel.toml"
+
+# REH bind host. Loopback only by default; setting non-loopback exposes
+# the editor to the LAN — DevPulse does not gate this, the operator owns
+# the security posture if they change it.
+host = "127.0.0.1"
+
+# Maximum seconds Platform::ensure_devforge_started will wait for the REH
+# child to respond on its TCP port before declaring boot failed.
+startup_timeout_secs = 30
+
+# Milliseconds between successive TCP-connect probes during the startup
+# health wait. Lower = faster ready signal, more wakeups.
+health_poll_interval_ms = 250

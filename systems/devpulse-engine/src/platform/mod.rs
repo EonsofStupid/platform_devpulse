@@ -127,7 +127,7 @@ use std::time::Instant;
 
 use services::analytics::AnalyticsService;
 use services::cache::CacheService;
-use services::devforge::{resolve_devforge_server_dir, DevForgeService};
+use services::devforge::{resolve_devforge_server_dir, DevForgePreflight, DevForgeService};
 use services::graph::GraphService;
 use services::ollama::OllamaService;
 #[cfg(feature = "candle")]
@@ -140,7 +140,11 @@ use services::project_db::ProjectDbManager;
 use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
+use services::{lifecycle_phase, PreflightRegistry};
 use telemetry::TelemetryHandle;
+
+use crate::platform::facade::events::InternalEvent;
+use devpulse_telemetry::prelude::{broadcast_channel, BroadcastSender};
 
 // ═══════════════════════════════════════════════════════════════
 // Service enumeration macro — THE single point of service listing
@@ -206,6 +210,14 @@ macro_rules! for_each_service_rev {
 /// All user-facing strings pass through `ip_term!()` at this boundary.
 ///
 /// Services are organized by scope:
+/// Capacity of the platform-internal `InternalEvent` broadcast channel.
+///
+/// Sized at `1024` to match `DEV_CHANNEL_CAPACITY` in
+/// [`crate::platform::facade`] — once `FacadeHandle` is wired into
+/// boot, the facade will subscribe to this channel and fan out to the
+/// dev-side stream at 1:1 capacity.
+const INTERNAL_EVENT_CAPACITY: usize = 1024;
+
 /// - `system_*`: Kernel internals, telemetry, FSM state
 /// - `user_*`: User sessions, preferences, knowledge
 /// - `global_*`: Cross-project shared knowledge graph
@@ -260,6 +272,16 @@ pub struct Platform {
     // ── Project scope ──────────────────────────────────────────
     /// Per-project databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
+    // ── Internal event broadcast bus ─────────────────────────
+    // `InternalEvent` stream every observability subscriber (facade
+    // bridge, minions, surface-events whitelist, governance) listens
+    // on. Services emit via `emit_lifecycle_dual!` which pushes here
+    // alongside the `sidecar.lifecycle` tracing event. Owning the
+    // sender on `Platform` (rather than passing it externally) keeps
+    // the channel alive for the platform's lifetime — drop order is
+    // safe because senders without listeners just get `SendError`s
+    // that callsites already ignore via `let _ = ...`.
+    internal_tx: BroadcastSender<InternalEvent>,
     // ── Meta ────────────────────────────────────────────────────
     boot_config: PlatformBootConfig,
     boot_time: Instant,
@@ -289,6 +311,13 @@ impl Platform {
     ) -> Result<Self> {
         let boot_time = Instant::now();
         let boot_config = PlatformBootConfig::load(&data_dir)?;
+
+        // Construct the platform-internal `InternalEvent` channel before
+        // services boot so service emissions (preflight, ready, failed,
+        // shutdown) all land on the same bus. The receiver count is
+        // zero until subscribers attach — early sends just return
+        // `SendError`, which callsites ignore.
+        let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
         let booted = boot::execute(&data_dir, &boot_config, &on_event, model_event_sink).await?;
 
@@ -329,10 +358,23 @@ impl Platform {
             telemetry,
             reasoning: RroStateHandle::new(),
             grammar: GrammarHandle::new(),
+            internal_tx,
             boot_config,
             boot_time,
             data_dir,
         })
+    }
+
+    /// Borrow the platform-internal `InternalEvent` broadcast sender.
+    ///
+    /// Subscribers (facade bridge, minions, surface-events whitelist,
+    /// governance reactors) call `internal_tx().subscribe()` to receive
+    /// the event stream. Services emit via [`emit_lifecycle_dual!`]
+    /// which pushes here in lockstep with the `sidecar.lifecycle`
+    /// tracing event — see `feedback_dual_observability.md`.
+    #[must_use]
+    pub fn internal_tx(&self) -> &BroadcastSender<InternalEvent> {
+        &self.internal_tx
     }
 
     /// Get system health by pinging all active services.
@@ -583,27 +625,76 @@ impl Platform {
             );
         }
 
+        // ── Preflight ─────────────────────────────────────────────
+        // Run the modular preflight registry before touching any process
+        // resources. Failures here abort the launch with a granular,
+        // human-readable explanation instead of a partially-spawned
+        // child + fail-late error path.
+        let preflight_input = DevForgePreflight {
+            entry,
+            data_dir: &self.data_dir,
+        };
+        let mut registry = PreflightRegistry::new();
+        registry.run(&preflight_input).await;
+
+        let n_checks = registry.checks().len();
+        let n_fails = registry.fails().count();
+        crate::emit_lifecycle_dual!(
+            self.internal_tx,
+            ServiceRole::DevForge,
+            lifecycle_phase::PREFLIGHT,
+            format!("preflight ran {n_checks} checks, {n_fails} failed"),
+            checks_run = n_checks,
+            fails = n_fails
+        );
+        for c in registry.checks() {
+            crate::emit_lifecycle_debug!(
+                ServiceRole::DevForge,
+                lifecycle_phase::PREFLIGHT,
+                check = %c.name,
+                status = ?c.status,
+                detail = %c.detail
+            );
+        }
+
+        if registry.has_fail() {
+            let msgs: Vec<String> = registry
+                .fails()
+                .map(|c| format!("{}: {}", c.name, c.detail))
+                .collect();
+            let detail = format!(
+                "DevForge preflight failed:\n  - {}",
+                msgs.join("\n  - ")
+            );
+            crate::emit_lifecycle_dual!(
+                self.internal_tx,
+                ServiceRole::DevForge,
+                lifecycle_phase::FAILED,
+                detail.clone()
+            );
+            anyhow::bail!("{detail}");
+        }
+
+        // ── Boot ──────────────────────────────────────────────────
+        // Preflight has already verified the REH tree resolves; an
+        // intervening removal between preflight and now is a TOCTOU
+        // race we surface explicitly rather than swallowing.
         let server_dir = resolve_devforge_server_dir(&self.data_dir).ok_or_else(|| {
             anyhow::anyhow!(
-                "No DevForge server tree found. Run `cargo xtask fetch-devforge \
-                 --target win32-x64` or clone into deps/code-oss-reh-web/."
+                "DevForge preflight passed but server tree resolution failed at \
+                 boot — likely a TOCTOU race; retry the launch."
             )
         })?;
-
         let user_data_dir = entry.resolve_user_data_dir(&self.data_dir);
         let extensions_dir = entry.resolve_extensions_dir(&self.data_dir);
 
-        tracing::info!(
-            server_dir = %server_dir.display(),
-            "DevForge lazy-start — spawning REH child process"
-        );
-
         let service = DevForgeService::boot_reh(
+            entry,
             &server_dir,
             &user_data_dir,
             Some(&extensions_dir),
             None, // workspace_path — restored by the Tauri command layer
-            entry.port,
+            self.internal_tx.clone(),
         )
         .await?;
 

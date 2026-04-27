@@ -135,7 +135,15 @@ const badge = $derived<HealthBadge>(
 	{/snippet}
 
 	{#snippet logs()}
-		<ScopedLogPanel target="devtools.devforge" />
+		<!--
+			Subscribes to the unified `sidecar.lifecycle` tracing target —
+			the same stream `emit_lifecycle!` / `emit_lifecycle_dual!` emit
+			on. Includes preflight, spawning, ready, frozen (hot-update
+			reserved), shutdown, failed phase events. Filtered to DevForge
+			rows only by the `service = ?ServiceRole::DevForge` field on
+			every event.
+		-->
+		<ScopedLogPanel target="sidecar.lifecycle" />
 	{/snippet}
 
 	{#snippet actions()}

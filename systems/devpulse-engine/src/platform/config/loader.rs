@@ -1208,6 +1208,20 @@ pub struct DevForgeServiceEntry {
     /// Legacy binary path — only used in "standalone" mode.
     #[serde(default)]
     pub binary_path: String,
+    /// REH bind host. Loopback by default; non-loopback exposes the
+    /// editor to the LAN — DevPulse does not gate this, the operator
+    /// owns the security posture.
+    #[serde(default = "default_devforge_host")]
+    pub host: String,
+    /// Maximum seconds `Platform::ensure_devforge_started` waits for
+    /// the REH child to respond on its TCP port before declaring boot
+    /// failed.
+    #[serde(default = "default_devforge_startup_timeout_secs")]
+    pub startup_timeout_secs: u64,
+    /// Milliseconds between successive TCP-connect probes during the
+    /// startup health wait.
+    #[serde(default = "default_devforge_health_poll_interval_ms")]
+    pub health_poll_interval_ms: u64,
 }
 
 fn default_devforge_mode() -> String {
@@ -1218,6 +1232,15 @@ fn default_devforge_user_data_dir() -> String {
 }
 fn default_devforge_extensions_dir() -> String {
     "devforge/extensions".to_string()
+}
+fn default_devforge_host() -> String {
+    "127.0.0.1".to_string()
+}
+fn default_devforge_startup_timeout_secs() -> u64 {
+    30
+}
+fn default_devforge_health_poll_interval_ms() -> u64 {
+    250
 }
 
 impl Default for DevForgeServiceEntry {
@@ -1232,6 +1255,9 @@ impl Default for DevForgeServiceEntry {
             workspace_path: default_devforge_workspace_path(),
             update_channel_url: String::new(),
             binary_path: String::new(),
+            host: default_devforge_host(),
+            startup_timeout_secs: default_devforge_startup_timeout_secs(),
+            health_poll_interval_ms: default_devforge_health_poll_interval_ms(),
         }
     }
 }
@@ -1250,6 +1276,18 @@ impl DevForgeServiceEntry {
     /// Whether this entry is configured for `REH` mode.
     pub fn is_reh(&self) -> bool {
         self.mode == "reh"
+    }
+
+    /// Startup-timeout knob materialised as a [`Duration`].
+    #[must_use]
+    pub fn startup_timeout(&self) -> Duration {
+        Duration::from_secs(self.startup_timeout_secs)
+    }
+
+    /// Health-poll-interval knob materialised as a [`Duration`].
+    #[must_use]
+    pub fn health_poll_interval(&self) -> Duration {
+        Duration::from_millis(self.health_poll_interval_ms)
     }
 }
 
