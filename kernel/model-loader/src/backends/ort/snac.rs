@@ -166,11 +166,11 @@ impl AudioDecoderBackend for SnacDecoder {
 
             let pcm: Vec<f32> = audio_tensor.1.to_vec();
 
-            return Ok(AudioSamples {
+            Ok(AudioSamples {
                 data: pcm,
                 sample_rate: SAMPLE_RATE,
                 channels: 1,
-            });
+            })
         }
 
         #[cfg(not(feature = "ort-backend"))]

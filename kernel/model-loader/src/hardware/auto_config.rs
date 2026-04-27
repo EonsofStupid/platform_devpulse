@@ -9,7 +9,7 @@
 //!   4. High (24GB) — Static, Qwen3-30B-A3B + PersonaPlex-7B voice
 //!   5. Ultra (40GB+) — Static, Qwen3-VL-30B-A3B + PersonaPlex-7B voice
 //!   6. Floor (Minimal) — Static Qwen3-VL-4B, CPU-mostly
-//!   7. CpuOnly — Static Qwen3-VL-4B, CPU everywhere
+//!   7. `CpuOnly` — Static Qwen3-VL-4B, CPU everywhere
 //!
 //! Backend routing by file format:
 //!   .gguf → llama.cpp FFI

@@ -31,10 +31,10 @@ use std::path::{Path, PathBuf};
 #[cfg(feature = "ort-backend")]
 use std::sync::Mutex;
 
-/// Image mean for SigLIP normalization (RGB).
+/// Image mean for `SigLIP` normalization (RGB).
 #[cfg(feature = "ort-backend")]
 const IMAGE_MEAN: [f32; 3] = [0.5, 0.5, 0.5];
-/// Image std for SigLIP normalization (RGB).
+/// Image std for `SigLIP` normalization (RGB).
 #[cfg(feature = "ort-backend")]
 const IMAGE_STD: [f32; 3] = [0.5, 0.5, 0.5];
 
@@ -242,8 +242,7 @@ impl VisionEmbeddingBackend for SigLip2OrtFixRes {
 
         if shape.len() < 2 {
             anyhow::bail!(
-                "Unexpected SigLIP2 output shape: {:?} (expected [1, dim])",
-                shape
+                "Unexpected SigLIP2 output shape: {shape:?} (expected [1, dim])"
             );
         }
         let embedding_dim = shape[shape.len() - 1] as usize;

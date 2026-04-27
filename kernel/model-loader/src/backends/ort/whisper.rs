@@ -126,7 +126,7 @@ impl SttBackend for WhisperStt {
                 // Load token vocabulary
                 let tokens_content = std::fs::read_to_string(&tokens_path)
                     .map_err(|e| anyhow::anyhow!("Failed to read tokens.txt: {e}"))?;
-                self.tokens = tokens_content.lines().map(|l| l.to_string()).collect();
+                self.tokens = tokens_content.lines().map(std::string::ToString::to_string).collect();
                 tracing::debug!(
                     component = "Whisper STT",
                     vocab_size = self.tokens.len(),
@@ -141,8 +141,8 @@ impl SttBackend for WhisperStt {
 
                 tracing::debug!(
                     component = "Whisper STT",
-                    encoder_inputs = ?enc_session.inputs().iter().map(|i| i.name()).collect::<Vec<_>>(),
-                    encoder_outputs = ?enc_session.outputs().iter().map(|o| o.name()).collect::<Vec<_>>(),
+                    encoder_inputs = ?enc_session.inputs().iter().map(ort::value::Outlet::name).collect::<Vec<_>>(),
+                    encoder_outputs = ?enc_session.outputs().iter().map(ort::value::Outlet::name).collect::<Vec<_>>(),
                     "Encoder session created"
                 );
 
@@ -160,8 +160,8 @@ impl SttBackend for WhisperStt {
 
                 tracing::debug!(
                     component = "Whisper STT",
-                    decoder_inputs = ?dec_session.inputs().iter().map(|i| i.name()).collect::<Vec<_>>(),
-                    decoder_outputs = ?dec_session.outputs().iter().map(|o| o.name()).collect::<Vec<_>>(),
+                    decoder_inputs = ?dec_session.inputs().iter().map(ort::value::Outlet::name).collect::<Vec<_>>(),
+                    decoder_outputs = ?dec_session.outputs().iter().map(ort::value::Outlet::name).collect::<Vec<_>>(),
                     "Decoder session created"
                 );
 
@@ -238,10 +238,10 @@ impl SttBackend for WhisperStt {
         );
 
         // Resample to 16kHz if needed
-        let audio_16k = if samples.sample_rate != WHISPER_SAMPLE_RATE {
-            resample(&samples.data, samples.sample_rate, WHISPER_SAMPLE_RATE)
-        } else {
+        let audio_16k = if samples.sample_rate == WHISPER_SAMPLE_RATE {
             samples.data.clone()
+        } else {
+            resample(&samples.data, samples.sample_rate, WHISPER_SAMPLE_RATE)
         };
 
         // Compute log-mel spectrogram
@@ -314,8 +314,7 @@ impl SttBackend for WhisperStt {
                 .iter()
                 .enumerate()
                 .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
-                .map(|(idx, _)| idx as i64)
-                .unwrap_or(EOT_TOKEN);
+                .map_or(EOT_TOKEN, |(idx, _)| idx as i64);
 
             if next_token == EOT_TOKEN {
                 break;
@@ -417,15 +416,15 @@ fn compute_mel_spectrogram(audio: &[f32]) -> anyhow::Result<Vec<f32>> {
         // DFT magnitude (real-valued FFT approximation)
         let n_freq = N_FFT / 2 + 1;
         let mut magnitudes = vec![0.0f32; n_freq];
-        for k in 0..n_freq {
+        for (k, mag) in magnitudes.iter_mut().enumerate() {
             let mut re = 0.0f32;
             let mut im = 0.0f32;
-            for n in 0..N_FFT {
+            for (n, &w) in windowed.iter().enumerate() {
                 let angle = -2.0 * std::f32::consts::PI * k as f32 * n as f32 / N_FFT as f32;
-                re += windowed[n] * angle.cos();
-                im += windowed[n] * angle.sin();
+                re += w * angle.cos();
+                im += w * angle.sin();
             }
-            magnitudes[k] = (re * re + im * im).sqrt();
+            *mag = (re * re + im * im).sqrt();
         }
 
         // Apply mel filterbank
@@ -444,7 +443,7 @@ fn compute_mel_spectrogram(audio: &[f32]) -> anyhow::Result<Vec<f32>> {
 
 /// Build a mel filterbank matrix.
 ///
-/// Returns [N_MELS * n_freq] flat array.
+/// Returns `[N_MELS * n_freq]` flat array.
 #[cfg(feature = "ort-backend")]
 fn build_mel_filterbank(n_mels: usize, n_freq: usize, sample_rate: f32) -> Vec<f32> {
     let f_min = 0.0f32;

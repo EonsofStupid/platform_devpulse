@@ -48,7 +48,7 @@ pub struct Qwen3Embedder {
     /// ONNX Runtime session for the embedder.
     #[cfg(feature = "ort-backend")]
     session: Mutex<Option<ort::session::Session>>,
-    /// HuggingFace tokenizer.
+    /// `HuggingFace` tokenizer.
     #[cfg(feature = "ort-backend")]
     tokenizer: Option<tokenizers::Tokenizer>,
 }
@@ -188,109 +188,11 @@ impl EmbeddingBackend for Qwen3Embedder {
             .ok_or_else(|| anyhow::anyhow!("Embedder session not initialized"))?;
 
         let mut results = Vec::with_capacity(texts.len());
-
-        // Process one at a time to keep memory bounded — batch optimization is a future sprint.
         for text in texts {
-            let encoding = tokenizer
-                .encode(*text, true)
-                .map_err(|e| anyhow::anyhow!("Tokenizer encode failed: {e}"))?;
-
-            // Truncate to MAX_SEQ_LEN
-            let ids: Vec<i64> = encoding
-                .get_ids()
-                .iter()
-                .take(MAX_SEQ_LEN)
-                .map(|&id| i64::from(id))
-                .collect();
-            let mask: Vec<i64> = encoding
-                .get_attention_mask()
-                .iter()
-                .take(MAX_SEQ_LEN)
-                .map(|&m| i64::from(m))
-                .collect();
-
-            let seq_len = ids.len();
-            if seq_len == 0 {
-                anyhow::bail!("Empty token sequence for text");
-            }
-
-            // Build input tensors: input_ids and attention_mask both [1, seq_len]
-            let input_ids = ndarray::Array2::<i64>::from_shape_vec((1, seq_len), ids)
-                .map_err(|e| anyhow::anyhow!("Failed to build input_ids tensor: {e}"))?;
-            let attention_mask = ndarray::Array2::<i64>::from_shape_vec((1, seq_len), mask.clone())
-                .map_err(|e| anyhow::anyhow!("Failed to build attention_mask tensor: {e}"))?;
-
-            let v_ids = ort::value::Value::from_array(input_ids)
-                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for input_ids: {e}"))?;
-            let v_mask = ort::value::Value::from_array(attention_mask).map_err(|e| {
-                anyhow::anyhow!("Failed to create ort Value for attention_mask: {e}")
-            })?;
-
-            // Most embedder ONNX exports use input_ids + attention_mask. Some also
-            // take token_type_ids — we pass zeros if present by using named inputs.
-            let outputs = session
-                .run(ort::inputs![
-                    "input_ids" => v_ids,
-                    "attention_mask" => v_mask,
-                ])
-                .map_err(|e| anyhow::anyhow!("Embedder inference failed: {e}"))?;
-
-            // Output shape is typically [1, seq_len, hidden_dim] — last_hidden_state
-            let output_value = &outputs[0];
-            let (shape, data) = output_value
-                .try_extract_tensor::<f32>()
-                .map_err(|e| anyhow::anyhow!("Failed to extract embedder output: {e}"))?;
-
-            // shape should be [1, seq_len, hidden_dim]
-            if shape.len() != 3 {
-                anyhow::bail!(
-                    "Unexpected embedder output shape: {:?} (expected [1, seq, dim])",
-                    shape
-                );
-            }
-            let hidden_dim = shape[2] as usize;
-            let out_seq_len = shape[1] as usize;
-
-            // Mean-pool the token embeddings, weighted by attention mask
-            let mut pooled = vec![0.0f32; hidden_dim];
-            let mut mask_sum = 0.0f32;
-            for token_idx in 0..out_seq_len {
-                let m = if token_idx < mask.len() {
-                    mask[token_idx] as f32
-                } else {
-                    0.0
-                };
-                if m == 0.0 {
-                    continue;
-                }
-                mask_sum += m;
-                let base = token_idx * hidden_dim;
-                for d in 0..hidden_dim {
-                    pooled[d] += data[base + d] * m;
-                }
-            }
-            if mask_sum > 0.0 {
-                for v in &mut pooled {
-                    *v /= mask_sum;
-                }
-            }
-
-            // L2 normalize — standard for sentence embeddings
-            let norm = pooled.iter().map(|v| v * v).sum::<f32>().sqrt();
-            if norm > 0.0 {
-                for v in &mut pooled {
-                    *v /= norm;
-                }
-            }
-
-            results.push(pooled);
+            results.push(encode_one(session, tokenizer, text)?);
         }
 
-        // Capture the actual embedding dim from the first result (should match self.embedding_dim)
         if let Some(first) = results.first() {
-            // SAFETY: we hold &self, can't mutate self.embedding_dim — but this is
-            // purely informational. The trait method `embedding_dim()` returns the
-            // constructor-time default. A future sprint can make this stateful.
             if first.len() != self.embedding_dim {
                 tracing::debug!(
                     component = "Qwen3 Embedder",
@@ -329,6 +231,95 @@ impl EmbeddingBackend for Qwen3Embedder {
             }
         }
     }
+}
+
+#[cfg(feature = "ort-backend")]
+fn encode_one(
+    session: &mut ort::session::Session,
+    tokenizer: &tokenizers::Tokenizer,
+    text: &str,
+) -> anyhow::Result<Vec<f32>> {
+    let encoding = tokenizer
+        .encode(text, true)
+        .map_err(|e| anyhow::anyhow!("Tokenizer encode failed: {e}"))?;
+
+    let ids: Vec<i64> = encoding
+        .get_ids()
+        .iter()
+        .take(MAX_SEQ_LEN)
+        .map(|&id| i64::from(id))
+        .collect();
+    let mask: Vec<i64> = encoding
+        .get_attention_mask()
+        .iter()
+        .take(MAX_SEQ_LEN)
+        .map(|&m| i64::from(m))
+        .collect();
+
+    let seq_len = ids.len();
+    if seq_len == 0 {
+        anyhow::bail!("Empty token sequence for text");
+    }
+
+    let input_ids = ndarray::Array2::<i64>::from_shape_vec((1, seq_len), ids)
+        .map_err(|e| anyhow::anyhow!("Failed to build input_ids tensor: {e}"))?;
+    let attention_mask = ndarray::Array2::<i64>::from_shape_vec((1, seq_len), mask.clone())
+        .map_err(|e| anyhow::anyhow!("Failed to build attention_mask tensor: {e}"))?;
+
+    let v_ids = ort::value::Value::from_array(input_ids)
+        .map_err(|e| anyhow::anyhow!("Failed to create ort Value for input_ids: {e}"))?;
+    let v_mask = ort::value::Value::from_array(attention_mask)
+        .map_err(|e| anyhow::anyhow!("Failed to create ort Value for attention_mask: {e}"))?;
+
+    let outputs = session
+        .run(ort::inputs![
+            "input_ids" => v_ids,
+            "attention_mask" => v_mask,
+        ])
+        .map_err(|e| anyhow::anyhow!("Embedder inference failed: {e}"))?;
+
+    let output_value = &outputs[0];
+    let (shape, data) = output_value
+        .try_extract_tensor::<f32>()
+        .map_err(|e| anyhow::anyhow!("Failed to extract embedder output: {e}"))?;
+
+    if shape.len() != 3 {
+        anyhow::bail!("Unexpected embedder output shape: {shape:?} (expected [1, seq, dim])");
+    }
+    let hidden_dim = shape[2] as usize;
+    let out_seq_len = shape[1] as usize;
+
+    let mut pooled = vec![0.0f32; hidden_dim];
+    let mut mask_sum = 0.0f32;
+    for token_idx in 0..out_seq_len {
+        let m = if token_idx < mask.len() {
+            mask[token_idx] as f32
+        } else {
+            0.0
+        };
+        if m == 0.0 {
+            continue;
+        }
+        mask_sum += m;
+        let base = token_idx * hidden_dim;
+        for d in 0..hidden_dim {
+            pooled[d] += data[base + d] * m;
+        }
+    }
+    if mask_sum > 0.0 {
+        for v in &mut pooled {
+            *v /= mask_sum;
+        }
+    }
+
+    let norm = pooled.iter().map(|v| v * v).sum::<f32>().sqrt();
+    if norm > 0.0 {
+        for v in &mut pooled {
+            *v /= norm;
+        }
+    }
+
+    Ok(pooled)
 }
 
 /// Find the first `*.onnx` file in a directory, excluding encoder/decoder suffixes

@@ -15,6 +15,14 @@
 //!
 //! Output tensor:
 //! - `audio`: float32 [1, T] — PCM samples at 24kHz mono
+//!
+//! # Cast lints
+//!
+//! Duration math (PCM sample count → seconds) crosses `usize`/`u32` →
+//! `f32`. Both inputs are bounded (samples per synthesis << 2^23) so the
+//! precision loss is intentional, not silent corruption.
+
+#![allow(clippy::cast_precision_loss)]
 
 #[cfg(feature = "ort-backend")]
 use crate::backends::phoneme::text_to_kokoro_ids;
@@ -96,8 +104,8 @@ impl TtsBackend for KokoroTts {
 
             tracing::debug!(
                 component = "Kokoro TTS",
-                inputs = ?session.inputs().iter().map(|i| i.name()).collect::<Vec<_>>(),
-                outputs = ?session.outputs().iter().map(|o| o.name()).collect::<Vec<_>>(),
+                inputs = ?session.inputs().iter().map(ort::value::Outlet::name).collect::<Vec<_>>(),
+                outputs = ?session.outputs().iter().map(ort::value::Outlet::name).collect::<Vec<_>>(),
                 "Session created — inspecting tensor names"
             );
 

@@ -29,7 +29,7 @@ pub struct Qwen3Reranker {
     /// ONNX Runtime session.
     #[cfg(feature = "ort-backend")]
     session: Mutex<Option<ort::session::Session>>,
-    /// HuggingFace tokenizer.
+    /// `HuggingFace` tokenizer.
     #[cfg(feature = "ort-backend")]
     tokenizer: Option<tokenizers::Tokenizer>,
 }
@@ -170,7 +170,7 @@ impl RerankerBackend for Qwen3Reranker {
             // Cross-encoder input: concatenate query + SEP + document
             // HuggingFace tokenizers handle pair encoding natively
             let encoding = tokenizer
-                .encode((query.to_string(), doc.to_string()), true)
+                .encode((query.to_string(), (*doc).to_string()), true)
                 .map_err(|e| anyhow::anyhow!("Tokenizer pair encode failed: {e}"))?;
 
             let ids: Vec<i64> = encoding
