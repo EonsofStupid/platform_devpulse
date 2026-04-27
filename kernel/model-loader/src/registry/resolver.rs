@@ -175,8 +175,18 @@ fn collect_alternatives(
     }
 
     // Same family, different arch (in tier order). The architectures
-    // array is already ordered Primary → Legacy, so we walk it and
-    // suggest the first compatible alternative we find.
+    // array is already ordered Primary → Secondary → Legacy → Planned,
+    // so we walk it and suggest the first non-Planned same-family
+    // candidate that has any installed backend coverage.
+    //
+    // The format is NOT required to match the original request: when
+    // the requested format is unsupported across the board (e.g. a
+    // legacy Pytorch checkpoint), the user needs both a `SwitchFormat`
+    // hint (already pushed above for the requested arch) AND a
+    // `SwitchModel` hint (pushed here) to find a working path. Forcing
+    // the candidate to support the requested format would silently
+    // drop the upgrade suggestion in exactly the case the user most
+    // needs it.
     let Some(arch_spec) = get_arch(arch) else {
         return alternatives;
     };
@@ -184,21 +194,25 @@ fn collect_alternatives(
         if candidate.id == arch || candidate.family != arch_spec.family {
             continue;
         }
-        // Is there an installed backend that covers this candidate
-        // in the originally-requested format?
+        if candidate.tier == SupportTier::Planned {
+            continue;
+        }
         let available = backends.iter().any(|b| {
-            b.installed
-                && b.supports
-                    .iter()
-                    .any(|s| s.arch == candidate.id && s.format == format)
+            b.installed && b.supports.iter().any(|s| s.arch == candidate.id)
         });
         if available {
+            let tier_descriptor = match candidate.tier {
+                SupportTier::Primary => "primary tier",
+                SupportTier::Secondary => "secondary fallback",
+                SupportTier::Legacy => "legacy fallback",
+                SupportTier::Planned => continue,
+            };
             alternatives.push(Alternative {
                 kind: AlternativeKind::SwitchModel,
                 repo_id: None,
                 filename: None,
                 reason: format!(
-                    "Consider {} — same family, primary tier.",
+                    "Consider {} — same family, {tier_descriptor}.",
                     candidate.display
                 ),
             });
