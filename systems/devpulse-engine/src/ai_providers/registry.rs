@@ -1,4 +1,4 @@
-//! Static SSOT registry of every AI provider DevPulse knows about.
+//! Static SSOT registry of every AI provider `DevPulse` knows about.
 //!
 //! Adding a provider:
 //! 1. Add a variant to `ProviderId` and `Vendor` in `types.rs`.
@@ -11,13 +11,16 @@
 //!
 //! # Capability data accuracy
 //! Capabilities reflect the published surface as of April 2026. They
-//! describe what the *vendor* offers, not what DevPulse currently uses.
+//! describe what the *vendor* offers, not what `DevPulse` currently uses.
 //! The lane router consults this to decide which providers can serve a
 //! given task type (chat, embedding, vision, voice).
 
-use super::types::*;
+use super::types::{
+    AiProvider, BillingModel, Capabilities, Classification, McpClient, ProviderId, SdkBackend,
+    Transport, Vendor,
+};
 
-/// Every provider DevPulse knows about, in display order.
+/// Every provider `DevPulse` knows about, in display order.
 ///
 /// Ordering convention: subscription path first, hosted vendors next,
 /// local runtimes last. Keep entries grouped by classification so the
@@ -400,13 +403,9 @@ pub fn by_capability(
 /// provider — primarily the subscription-as-MCP path which requires
 /// vendor prior approval per the Agent SDK terms of service.
 pub fn visible() -> impl Iterator<Item = &'static AiProvider> {
-    PROVIDERS.iter().filter(|p| {
-        if p.dev_only {
-            cfg!(feature = "kernel")
-        } else {
-            true
-        }
-    })
+    PROVIDERS
+        .iter()
+        .filter(|p| !p.dev_only || cfg!(feature = "kernel"))
 }
 
 #[cfg(test)]

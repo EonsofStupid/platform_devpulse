@@ -1,15 +1,15 @@
-//! User-directed frame sinks — disk, libSQL, DuckDB, discard, composite.
+//! User-directed frame sinks — disk, libSQL, `DuckDB`, discard, composite.
 //!
 //! The pipeline holds an `Arc<dyn FrameSink>` and calls `write` once
 //! per captured frame. The operator picks which sinks compose into
 //! that single arc via the Config tab; the default ships disk + libSQL
-//! + DuckDB as a `CompositeSink`.
+//! + `DuckDB` as a `CompositeSink`.
 //!
 //! # Per-sink error isolation
 //!
 //! `CompositeSink` walks every member regardless of individual failures
 //! and reports them through `SinkHealth`. One bad sink (corrupt disk,
-//! libSQL lock contention, DuckDB write timeout) never kills the whole
+//! libSQL lock contention, `DuckDB` write timeout) never kills the whole
 //! pipeline — the others keep writing while the failing one shows a
 //! degraded badge in the Status tab.
 
@@ -36,7 +36,7 @@ use specta::Type;
 /// Owned to keep `CompositeSink` fan-out cheap (each member borrows
 /// without coordinating lifetimes). `png_bytes` is `Vec<u8>` (not
 /// `Arc<[u8]>`) because the sinks each take a different action — disk
-/// writes the bytes verbatim, libSQL stores a path, DuckDB stores
+/// writes the bytes verbatim, libSQL stores a path, `DuckDB` stores
 /// only the embedding. The clone cost is dominated by encode time
 /// upstream anyway.
 #[derive(Debug, Clone)]
@@ -56,11 +56,11 @@ pub struct FrameSinkRecord {
     /// Pixel height.
     pub height: u32,
     /// Encoded frame bytes (PNG or JPEG depending on the encoder used
-    /// upstream). Sinks that don't need bytes (DuckDB embedding-only)
+    /// upstream). Sinks that don't need bytes (`DuckDB` embedding-only)
     /// ignore this field.
     pub png_bytes: Vec<u8>,
     /// Optional embedding vector. `None` when the pipeline is in
-    /// capture-only mode (no SigLip pass).
+    /// capture-only mode (no `SigLip` pass).
     pub embedding: Option<Vec<f32>>,
 }
 
@@ -168,7 +168,9 @@ impl FrameSink for DiskFrameSink {
 
     async fn write(&self, record: &FrameSinkRecord) -> Result<()> {
         let path = self.path_for(&record.session_id, record.frame_id);
-        let parent = path.parent().expect("path always has a parent");
+        let parent = path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("disk-sink path has no parent dir: {}", path.display()))?;
         let bytes = record.png_bytes.clone();
         let parent_buf = parent.to_path_buf();
         let path_buf = path.clone();
@@ -331,7 +333,7 @@ impl FrameSink for LibSqlFrameSink {
 // DuckDB embedding
 // ═══════════════════════════════════════════════════════════════════════
 
-/// Appends the embedding (only) into a DuckDB table for analytics queries.
+/// Appends the embedding (only) into a `DuckDB` table for analytics queries.
 ///
 /// Designed for the Metrics tab — operators can run `SELECT
 /// session_id, COUNT(*) FROM vision_embeddings ...` for ad-hoc

@@ -13,13 +13,13 @@ use super::rows_to_json;
 /// write keywords. Strips string literals before scanning to prevent
 /// false positives on quoted values.
 pub async fn execute(platform: &Platform, sql: &str, scope: &str) -> String {
-    let upper = sql.trim().to_uppercase();
-    let sanitized = strip_sql_strings(&upper);
-
     const WRITE_KEYWORDS: &[&str] = &[
         "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE", "REPLACE", "TRUNCATE", "MERGE",
         "UPSERT", "ATTACH", "DETACH", "REINDEX", "VACUUM", "PRAGMA",
     ];
+
+    let upper = sql.trim().to_uppercase();
+    let sanitized = strip_sql_strings(&upper);
 
     for keyword in WRITE_KEYWORDS {
         if contains_sql_keyword(&sanitized, keyword) {

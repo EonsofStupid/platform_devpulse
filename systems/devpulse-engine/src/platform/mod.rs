@@ -701,7 +701,7 @@ impl Platform {
         }
     }
 
-    /// Load the user-scope editable overlay for the SurrealDB sidecar.
+    /// Load the user-scope editable overlay for the `SurrealDB` sidecar.
     ///
     /// Never errors — returns defaults if the file is missing or
     /// malformed. The devtool mounts this as the starting point for

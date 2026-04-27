@@ -69,7 +69,7 @@ impl GovernorHandle {
     /// Subscribe to governor state changes.
     ///
     /// Each `recv().await` yields a `LinkedTraced<GovernorState>`
-    /// carrying the producer's OTel context — same pattern as every
+    /// carrying the producer's `OTel` context — same pattern as every
     /// other facade handle.
     #[must_use]
     pub fn subscribe(&self) -> BroadcastReceiver<GovernorState> {

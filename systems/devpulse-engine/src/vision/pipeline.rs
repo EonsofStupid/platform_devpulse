@@ -35,7 +35,7 @@ use super::sinks::{FrameSink, FrameSinkRecord};
 
 /// Static configuration the orchestration loop reads once per tick.
 ///
-/// Mutable knobs (cadence, hd_path) come from the operator's
+/// Mutable knobs (cadence, `hd_path`) come from the operator's
 /// preferences; the loop reloads them between ticks rather than
 /// passing them via this struct so devtool changes take effect on
 /// the next frame, not session restart.
@@ -50,7 +50,7 @@ pub struct PipelineConfig {
     /// Source identifier within the kind.
     pub source_id: u32,
     /// Active HD backend label: `"siglip1-candle"` | `"siglip2-ort"`
-    /// | `"siglip1-tiled"`. Surfaced into FrameMetric.hd_path.
+    /// | `"siglip1-tiled"`. Surfaced into `FrameMetric.hd_path`.
     pub hd_path: String,
     /// `true` when the pipeline pushes frames + embeddings to Clyffy
     /// for analysis (V-9). When `false`, sinks still write but the
@@ -64,7 +64,7 @@ pub struct PipelineConfig {
 
 /// One frame as it arrives from the capture layer.
 ///
-/// `embedding` is `None` when the operator has the SigLip pass turned
+/// `embedding` is `None` when the operator has the `SigLip` pass turned
 /// off — capture-only sessions produce metrics with `embedding_dim = 0`.
 #[derive(Debug, Clone)]
 pub struct CapturedTickFrame {
@@ -78,7 +78,7 @@ pub struct CapturedTickFrame {
     pub height: u32,
     /// Encoded frame bytes (PNG or JPEG).
     pub png_bytes: Vec<u8>,
-    /// Embedding from the SigLip pass, if any.
+    /// Embedding from the `SigLip` pass, if any.
     pub embedding: Option<Vec<f32>>,
     /// Capture latency (ms) — OS call only, excludes encode.
     pub capture_ms: f32,
@@ -104,6 +104,13 @@ pub struct CapturedTickFrame {
 ///
 /// Returns the persisted `FrameMetric` so callers can echo it onto
 /// the event bridge for live UI updates.
+///
+/// # Errors
+///
+/// Returns the underlying sink-write error. Sinks should already swallow
+/// per-row failures and surface only fatal conditions (disk full,
+/// libSQL connection lost) — those propagate to the caller, which
+/// typically logs and continues with the next tick.
 pub async fn process_frame(
     config: &PipelineConfig,
     sink: Arc<dyn FrameSink>,
@@ -111,7 +118,7 @@ pub async fn process_frame(
     frame: CapturedTickFrame,
 ) -> Result<FrameMetric> {
     let frame_bytes = frame.png_bytes.len() as u32;
-    let embedding_dim = frame.embedding.as_ref().map(Vec::len).unwrap_or(0) as u32;
+    let embedding_dim = frame.embedding.as_ref().map_or(0, Vec::len) as u32;
 
     // 1. Build sink record (clones happen here, not later).
     let record = FrameSinkRecord {

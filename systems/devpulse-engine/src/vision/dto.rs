@@ -4,7 +4,7 @@
 //! `#[derive(Serialize, Deserialize, Type)]` and camelCase JSON.
 //! Types live here — not split across governor/metrics/pipeline — so
 //! downstream crates can depend on `devpulse_engine::vision::dto::*`
-//! without pulling in the broadcast channel / DuckDB machinery.
+//! without pulling in the broadcast channel / `DuckDB` machinery.
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -30,7 +30,7 @@ pub enum GovernorThrottleReason {
 /// Runtime configuration the operator can mutate from the Config tab.
 ///
 /// Defaults target a desktop machine running Clyffy + llama.cpp +
-/// SurrealDB + the vision pipeline simultaneously. Adjust upward on
+/// `SurrealDB` + the vision pipeline simultaneously. Adjust upward on
 /// beefier hardware; downward on laptops.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -97,7 +97,7 @@ pub struct GovernorSample {
 // Frame metrics
 // ═══════════════════════════════════════════════════════════════════════
 
-/// One frame's worth of telemetry — written to DuckDB in batches.
+/// One frame's worth of telemetry — written to `DuckDB` in batches.
 ///
 /// Populated by the pipeline (V-4) with one row per
 /// capture→encode→sink round-trip. The Metrics tab reads rolling
@@ -118,15 +118,15 @@ pub struct FrameMetric {
     pub source_idx: u32,
     /// Capture latency (ms) — xcap/nokhwa call.
     pub capture_ms: f32,
-    /// Encode latency (ms) — SigLip forward pass.
+    /// Encode latency (ms) — `SigLip` forward pass.
     pub encode_ms: f32,
     /// Sink write latency (ms) — sum of all configured sinks.
     pub sink_ms: f32,
     /// End-to-end latency (ms) — capture → encode → sinks.
     pub total_ms: f32,
-    /// PNG size in bytes (post-encode, pre-sink).
+    /// `PNG` size in bytes (post-encode, pre-sink).
     pub frame_bytes: u32,
-    /// Embedding dimensionality (1152 for SigLIP SO400M).
+    /// Embedding dimensionality (1152 for `SigLIP` SO400M).
     pub embedding_dim: u32,
     /// L2 norm of the embedding (should be ≈ 1.0 post-normalize).
     pub embedding_norm: f32,
@@ -155,7 +155,7 @@ pub struct FrameMetric {
 /// DDL for the two vision tables.
 ///
 /// Concatenated into `SYSTEM_ANALYTICS_SCHEMA` (see
-/// `platform/services/analytics.rs`). Indexed on (session_id, ts_ms)
+/// `platform/services/analytics.rs`). Indexed on (`session_id`, `ts_ms`)
 /// because every devtool panel query filters by session then sorts
 /// by time.
 pub const VISION_SCHEMA: &str = r"

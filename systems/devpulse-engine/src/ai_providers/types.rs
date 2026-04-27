@@ -29,7 +29,7 @@ pub enum ProviderId {
     /// unless the operator has prior approval from Anthropic per the Agent
     /// SDK Terms of Service.
     AnthropicSubscription,
-    /// OpenAI (api.openai.com).
+    /// `OpenAI` (api.openai.com).
     OpenAi,
     /// Google Gemini (generativelanguage.googleapis.com).
     GoogleGemini,
@@ -39,7 +39,7 @@ pub enum ProviderId {
     Cohere,
     /// xAI Grok (api.x.ai).
     Xai,
-    /// DeepSeek (api.deepseek.com).
+    /// `DeepSeek` (api.deepseek.com).
     DeepSeek,
     /// Groq (api.groq.com).
     Groq,
@@ -65,7 +65,7 @@ pub enum ProviderId {
 pub enum Vendor {
     /// Anthropic (Claude).
     Anthropic,
-    /// OpenAI.
+    /// `OpenAI`.
     OpenAi,
     /// Google (Gemini).
     Google,
@@ -75,7 +75,7 @@ pub enum Vendor {
     Cohere,
     /// xAI (Grok).
     Xai,
-    /// DeepSeek.
+    /// `DeepSeek`.
     DeepSeek,
     /// Groq.
     Groq,
@@ -119,7 +119,7 @@ pub enum Transport {
         /// Full base URL including API version path component.
         base_url: &'static str,
     },
-    /// REST that conforms to OpenAI's `/v1/chat/completions` contract.
+    /// REST that conforms to `OpenAI`'s `/v1/chat/completions` contract.
     /// One client (`async-openai`) handles every entry tagged this way —
     /// the lane router just swaps `base_url` and key per provider.
     OpenAiCompatible {
@@ -156,8 +156,12 @@ pub enum McpClient {
 /// router task-type matching ("which providers serve embeddings?").
 ///
 /// Plain bools rather than a bitflag crate so the JSON shape stays
-/// trivially readable on the frontend without a decoder layer.
+/// trivially readable on the frontend without a decoder layer. The
+/// six-bool count is intentional — six independent capability axes
+/// match the published API surface, not a state machine in disguise,
+/// and the devtool filter UI binds one checkbox per field.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct Capabilities {
     /// Conversational completions (`/v1/chat/completions` or vendor equivalent).
     pub chat: bool,
@@ -205,7 +209,7 @@ pub enum SdkBackend {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum Classification {
-    /// Speaks the OpenAI Chat Completions wire format. Single client,
+    /// Speaks the `OpenAI` Chat Completions wire format. Single client,
     /// many backends.
     OpenAiCompatible,
     /// Has its own wire protocol — needs a dedicated client.

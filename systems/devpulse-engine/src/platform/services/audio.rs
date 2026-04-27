@@ -93,7 +93,7 @@ impl AudioService {
         let thread = std::thread::Builder::new()
             .name("audio-playback".into())
             .spawn(move || {
-                audio_thread(rx, playing_clone);
+                audio_thread(rx, &playing_clone);
             })
             .map_err(|e| anyhow::anyhow!("Failed to spawn audio thread: {e}"))?;
 
@@ -125,7 +125,7 @@ impl Drop for AudioService {
 }
 
 /// Main loop on the audio playback thread.
-fn audio_thread(rx: flume::Receiver<AudioCommand>, playing: Arc<AtomicBool>) {
+fn audio_thread(rx: flume::Receiver<AudioCommand>, playing: &Arc<AtomicBool>) {
     // Initialize rodio output — this must happen on this thread
     let output = match rodio::OutputStream::try_default() {
         Ok((stream, handle)) => Some((stream, handle)),

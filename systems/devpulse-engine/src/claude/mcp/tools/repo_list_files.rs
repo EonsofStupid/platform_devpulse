@@ -2,6 +2,15 @@
 //!
 //! Recursive to max depth 3. 1000 entry limit.
 //! Workspace containment enforced.
+//!
+//! # Cast lints
+//!
+//! File size formatting (`u64` → `f64` to print "M" / "K" suffix) is
+//! human-display math. The precision loss above 2^52 bytes (4 PB) is
+//! cosmetic, and a 4-petabyte file is physically impossible inside the
+//! workspace this tool walks.
+
+#![allow(clippy::cast_precision_loss)]
 
 use crate::platform::Platform;
 use std::path::PathBuf;

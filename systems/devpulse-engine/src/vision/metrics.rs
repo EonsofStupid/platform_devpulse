@@ -2,11 +2,11 @@
 //!
 //! Two responsibilities:
 //!   1. Buffer `FrameMetric` rows in memory so the Metrics tab can
-//!      show recent-N without a DuckDB round-trip.
+//!      show recent-N without a `DuckDB` round-trip.
 //!   2. Own the `cosine_similarity` helper the pipeline calls when
 //!      computing `similarity_to_prev` so the math lives in one place.
 //!
-//! Batch → DuckDB flushing is the *caller's* job (the pipeline has the
+//! Batch → `DuckDB` flushing is the *caller's* job (the pipeline has the
 //! analytics service handle; this module deliberately stays Platform-
 //! service-free so it can be unit-tested without booting the engine).
 
@@ -24,7 +24,7 @@ pub const DEFAULT_RECENT_CAPACITY: usize = 600;
 
 /// Ring buffer of recent metrics. Clone-friendly (`Arc<RwLock<...>>`
 /// internally) so the pipeline, the devtool command surface, and the
-/// DuckDB batch flusher can all share one state.
+/// `DuckDB` batch flusher can all share one state.
 #[derive(Clone)]
 pub struct MetricsBuffer {
     inner: Arc<RwLock<Inner>>,
@@ -106,7 +106,7 @@ impl MetricsBuffer {
     }
 
     /// Drain the buffer. Returns everything currently in the ring and
-    /// resets it to empty. Intended for the DuckDB batch flusher.
+    /// resets it to empty. Intended for the `DuckDB` batch flusher.
     pub async fn drain(&self) -> Vec<FrameMetric> {
         let mut g = self.inner.write().await;
         let out: Vec<FrameMetric> = g.rows.drain(..).collect();

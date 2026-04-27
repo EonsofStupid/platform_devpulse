@@ -6,6 +6,7 @@
 //! Security: workspace containment on cwd, command blocklist applied.
 
 use crate::platform::Platform;
+use std::fmt::Write as _;
 use std::path::PathBuf;
 use std::time::Duration;
 use tokio::process::Command;
@@ -129,10 +130,10 @@ pub async fn execute(
 
             let mut result = format!("Exit code: {code}\n");
             if !stdout.is_empty() {
-                result.push_str(&format!("\n--- stdout ---\n{stdout}"));
+                let _ = write!(result, "\n--- stdout ---\n{stdout}");
             }
             if !stderr.is_empty() {
-                result.push_str(&format!("\n--- stderr ---\n{stderr}"));
+                let _ = write!(result, "\n--- stderr ---\n{stderr}");
             }
             result
         }

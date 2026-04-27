@@ -145,6 +145,13 @@ pub async fn execute(
 }
 
 /// Inner boot pipeline — called by `execute()` under a timeout guard.
+///
+/// Length: orchestrates ~6 sequential boot stages (preflight,
+/// telemetry, libsql, surreal, ollama, model-loader). Splitting into
+/// per-stage helpers fragments the linear flow and obscures the
+/// timeout boundary `execute()` wraps it in. Each stage already owns
+/// its own logic in a sibling module; this function is the conductor.
+#[allow(clippy::too_many_lines)]
 async fn execute_inner(
     data_dir: &Path,
     boot_config: &PlatformBootConfig,
