@@ -15,7 +15,7 @@ import { CapabilityHeader, ErrorCallout, StatusRow } from "../../ui/index.js";
 <Card preset="glass">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
-			<Shapes size={14} class="text-[var(--color-teal-400)]" />
+			<Shapes size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		<CapabilityHeader
 			title="Encoder status"

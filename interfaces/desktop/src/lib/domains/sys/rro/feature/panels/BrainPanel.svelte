@@ -27,7 +27,7 @@ const totalRecords = $derived(
 <Card preset="glass">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
-			<Brain size={14} class="text-[var(--color-teal-400)]" />
+			<Brain size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		{#snippet actions()}
 			<Button

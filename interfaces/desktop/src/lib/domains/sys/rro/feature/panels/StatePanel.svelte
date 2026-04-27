@@ -115,7 +115,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 <Card preset="glass">
 	<div class="p-4 space-y-3">
 		{#snippet icon()}
-			<Activity size={14} class="text-[var(--color-teal-400)]" />
+			<Activity size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		<CapabilityHeader
 			title="What Clyffy is doing"
@@ -239,7 +239,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 <Card preset="glass">
 	<div class="p-4 space-y-4">
 		{#snippet icon()}
-			<Sparkles size={14} class="text-[var(--color-teal-400)]" />
+			<Sparkles size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		<CapabilityHeader
 			title="Ask Clyffy to do something"
@@ -361,7 +361,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					<div
 						class="flex items-center justify-between gap-2 px-3 py-2 rounded bg-[var(--surface-base)] {idx ===
 						0
-							? 'ring-1 ring-[var(--color-teal-400)]'
+							? 'ring-1 ring-[var(--accent-service-main)]'
 							: ''}"
 					>
 						<div class="flex items-center gap-2 min-w-0 flex-1">

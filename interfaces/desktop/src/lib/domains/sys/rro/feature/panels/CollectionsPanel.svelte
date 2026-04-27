@@ -27,7 +27,7 @@ $effect(() => {
 <Card preset="glass">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
-			<Database size={14} class="text-[var(--color-teal-400)]" />
+			<Database size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		{#snippet actions()}
 			<Button
@@ -61,7 +61,7 @@ $effect(() => {
 						<Card preset="flat">
 							<div class="flex items-center justify-between p-2 gap-2">
 								<div class="flex items-center gap-2 min-w-0">
-									<Database size={12} class="text-[var(--color-teal-400)] shrink-0" />
+									<Database size={12} class="text-[var(--accent-service-main)] shrink-0" />
 									<Text size="sm" weight="medium">{col.name}</Text>
 								</div>
 								<div class="flex items-center gap-2">
@@ -92,7 +92,7 @@ $effect(() => {
 <Card preset="glass">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
-			<Plus size={14} class="text-[var(--color-teal-400)]" />
+			<Plus size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		<CapabilityHeader
 			title="Add a new store"

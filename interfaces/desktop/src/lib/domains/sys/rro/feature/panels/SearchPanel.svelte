@@ -32,7 +32,7 @@ const totalLatency = $derived(
 <Card preset="glass">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
-			<Search size={14} class="text-[var(--color-teal-400)]" />
+			<Search size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		<CapabilityHeader
 			title="Ask a question"

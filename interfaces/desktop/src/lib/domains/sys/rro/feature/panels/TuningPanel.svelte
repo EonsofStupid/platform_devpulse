@@ -29,7 +29,7 @@ function fieldValue(field: string): number {
 <Card preset="glass">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
-			<Settings2 size={14} class="text-[var(--color-teal-400)]" />
+			<Settings2 size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		{#snippet actions()}
 			{#if rroState.config?.preset === "custom"}
