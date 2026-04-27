@@ -206,6 +206,9 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::surreal::sidecar::surreal_health,
         commands::surreal::sidecar::surreal_config_load,
         commands::surreal::sidecar::surreal_config_save,
+        // Cortex governance graph (CORTEX.md §4) — B-1 foundation slice.
+        commands::cortex::cortex_thought_create,
+        commands::cortex::cortex_thought_load_branch,
         commands::sherpa::sherpa_compile_info,
         commands::sherpa::sherpa_list_models,
         commands::sherpa::sherpa_delete_model,

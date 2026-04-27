@@ -295,6 +295,33 @@ DEFINE FIELD IF NOT EXISTS updated_at ON grammar_bindings TYPE datetime DEFAULT 
 DEFINE INDEX IF NOT EXISTS grammar_bindings_project ON grammar_bindings FIELDS project_id;
 DEFINE INDEX IF NOT EXISTS grammar_bindings_schema ON grammar_bindings FIELDS schema_id;
 DEFINE INDEX IF NOT EXISTS grammar_bindings_lane ON grammar_bindings FIELDS lane;
+
+-- Cortex governance graph (CORTEX.md §4): operator-authored reasoning
+-- trees. `thought` rows are scoped per project via the `project_id`
+-- field, mirroring the `memories` / `corrections` per-project pattern.
+-- Three built-in edge types (leads_to / refines / summarizes) ship now;
+-- custom edge types load via plugin registry in the last build phase.
+DEFINE TABLE IF NOT EXISTS thought SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS content ON thought TYPE string;
+DEFINE FIELD IF NOT EXISTS rro_state ON thought TYPE string;
+DEFINE FIELD IF NOT EXISTS depth ON thought TYPE int;
+DEFINE FIELD IF NOT EXISTS proximity ON thought TYPE float;
+DEFINE FIELD IF NOT EXISTS branch_id ON thought TYPE string;
+DEFINE FIELD IF NOT EXISTS project_id ON thought TYPE string;
+DEFINE FIELD IF NOT EXISTS checkpoint ON thought TYPE option<record<thought>>;
+DEFINE FIELD IF NOT EXISTS created_at ON thought TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS thought_project ON thought FIELDS project_id;
+DEFINE INDEX IF NOT EXISTS thought_branch ON thought FIELDS branch_id;
+DEFINE INDEX IF NOT EXISTS thought_state ON thought FIELDS rro_state;
+
+DEFINE TABLE IF NOT EXISTS leads_to TYPE RELATION FROM thought TO thought SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS created_at ON leads_to TYPE datetime DEFAULT time::now();
+
+DEFINE TABLE IF NOT EXISTS refines TYPE RELATION FROM thought TO thought SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS created_at ON refines TYPE datetime DEFAULT time::now();
+
+DEFINE TABLE IF NOT EXISTS summarizes TYPE RELATION FROM thought TO thought SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS created_at ON summarizes TYPE datetime DEFAULT time::now();
 ";
 
 // ═══════════════════════════════════════════════════════════════

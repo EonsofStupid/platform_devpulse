@@ -84,6 +84,7 @@ pub mod candle;
 pub mod chat;
 pub mod claude;
 pub mod cloud;
+pub mod cortex;
 pub mod credentials;
 pub mod devclyffy;
 pub mod devforge;

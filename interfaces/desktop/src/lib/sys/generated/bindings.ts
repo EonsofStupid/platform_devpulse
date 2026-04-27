@@ -1299,6 +1299,44 @@ async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConf
 }
 },
 /**
+ * Create a new thought in the operator's reasoning tree.
+ * 
+ * Writes to the user namespace under the given `project_id` per
+ * `CORTEX.md` §4.5. Returns the persisted `ThoughtRecord` whose `id`
+ * is the canonical Surreal record reference for subsequent edges.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - User graph service is not available.
+ * - Surreal write fails.
+ */
+async cortexThoughtCreate(projectId: string, branchId: string, content: string, rroState: RroState, depth: number, proximity: number) : Promise<Result<ThoughtRecord, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cortex_thought_create", { projectId, branchId, content, rroState, depth, proximity }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load every thought in a branch, ordered by depth ascending.
+ * 
+ * Returns an empty vector for unknown branches — never an error.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - User graph service is not available.
+ * - Surreal query fails.
+ */
+async cortexThoughtLoadBranch(projectId: string, branchId: string) : Promise<Result<ThoughtRecord[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cortex_thought_load_branch", { projectId, branchId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Report whether the `sherpa` cargo feature is baked into this build.
  * Used by the devtool to render a "not available in this build" banner
  * instead of silently failing when the user opens the page.
@@ -7140,7 +7178,7 @@ reason: string }
  * 
  * All four version fields are optional because they're discovered at
  * load time from heterogeneous sources (cargo metadata, vendored fork
- * SHA stamps, HuggingFace LFS oid). A missing field means "not known
+ * SHA stamps, `HuggingFace` LFS oid). A missing field means "not known
  * for this runtime"; the loader still produces a stable fingerprint
  * because `runtime_id` alone is sufficient for rebind detection.
  */
@@ -7895,6 +7933,52 @@ modified_ms: number;
  * True for the file the exporter is currently appending to.
  */
 is_current: boolean }
+/**
+ * One thought in a reasoning tree — mirrors the `thought` table in
+ * `USER_GRAPH_SCHEMA`. `id` is the Surreal record id (`thought:<uuid>`)
+ * so callers can use it directly as a relation endpoint.
+ */
+export type ThoughtRecord = { 
+/**
+ * Surreal record id (`thought:<uuid>`).
+ */
+id: string; 
+/**
+ * Free-form thought content.
+ */
+content: string; 
+/**
+ * RRO state at thought creation time.
+ */
+rro_state: RroState; 
+/**
+ * Branch depth, 1-based. Capped at 14 per `CORTEX.md` §4.3.
+ */
+depth: number; 
+/**
+ * Proximity diagnostic at thought creation time (0.0..1.0).
+ */
+proximity: number; 
+/**
+ * Branch grouping id (UUID) — every thought in the same branch
+ * shares this value, regardless of depth.
+ */
+branch_id: string; 
+/**
+ * Project this thought belongs to. `CORTEX.md` §4.5 — per-project
+ * scope is the default; cross-project happens via explicit
+ * `@<project>` mention in `content`, never an implicit edge.
+ */
+project_id: string; 
+/**
+ * If `Some`, this is a consolidation summary node pointing at the
+ * collapsed subtree's root. `CORTEX.md` §4.4.
+ */
+checkpoint: string | null; 
+/**
+ * Wall-clock creation time, milliseconds since UNIX epoch.
+ */
+created_at_ms: number }
 /**
  * Display metadata for a hardware tier.
  * 

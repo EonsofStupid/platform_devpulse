@@ -26,6 +26,7 @@
 
 mod boot;
 pub mod config;
+pub mod cortex;
 #[allow(missing_docs)]
 pub mod facade;
 pub mod health;
