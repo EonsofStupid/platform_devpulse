@@ -74,6 +74,7 @@
 		"@testing-library/user-event": "^14.6.1",
 		"@tsconfig/svelte": "^5.0.0",
 		"@types/node": "^25.0.9",
+		"@types/three": "^0.184.0",
 		"@typescript-eslint/types": "^8.53.1",
 		"@vitest/browser-playwright": "^4.0.17",
 		"@vitest/browser-preview": "^4.0.18",
@@ -110,6 +111,7 @@
 		"vitest-preview": "^0.0.3"
 	},
 	"dependencies": {
+		"3d-force-graph": "^1.80.0",
 		"@atlaskit/pragmatic-drag-and-drop": "^1.7.7",
 		"@fontsource/inter": "^5.2.8",
 		"@fontsource/jetbrains-mono": "^5.2.8",
@@ -122,6 +124,8 @@
 		"@tanstack/table-core": "^8.21.3",
 		"@tauri-apps/api": "~2.10.1",
 		"@tauri-apps/plugin-shell": "~2.3.5",
+		"@threlte/core": "^8.5.9",
+		"@threlte/extras": "^9.14.9",
 		"@xyflow/svelte": "^1.5.0",
 		"a2ui": "github:eonsofstupid/a2ui",
 		"arktype": "^2.2.0",
@@ -131,6 +135,7 @@
 		"shiki": "^4.0.2",
 		"style-dictionary-utils": "^6.0.1",
 		"svelte-sonner": "^1.0.7",
-		"tailwind-merge": "^3.4.1"
+		"tailwind-merge": "^3.4.1",
+		"three": "^0.184.0"
 	}
 }
