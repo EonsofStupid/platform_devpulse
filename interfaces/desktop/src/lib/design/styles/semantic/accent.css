@@ -4,6 +4,18 @@
 
 @layer tokens.semantic {
   :root {
+  --accent-primary-main: var(--accent-teal-main); /** Primary indicator — bound to teal. */
+  --accent-primary-glow: var(--accent-teal-glow); /** Primary glow — bound to teal. */
+  --accent-primary-fill: var(--accent-teal-fill); /** Primary fill — bound to teal. */
+  --accent-primary-fg: var(--text-primary); /** Foreground / on-primary text. Light text on dark brand surface. */
+  --accent-secondary-main: var(--accent-purple-main); /** Secondary indicator — bound to purple. */
+  --accent-secondary-glow: var(--accent-purple-glow); /** Secondary glow — bound to purple. */
+  --accent-secondary-fill: var(--accent-purple-fill); /** Secondary fill — bound to purple. */
+  --accent-secondary-fg: var(--text-primary); /** Foreground / on-secondary text. */
+  --accent-tertiary-main: var(--accent-azure-main); /** Tertiary indicator — bound to azure. */
+  --accent-tertiary-glow: var(--accent-azure-glow); /** Tertiary glow — bound to azure. */
+  --accent-tertiary-fill: var(--accent-azure-fill); /** Tertiary fill — bound to azure. */
+  --accent-tertiary-fg: var(--text-primary); /** Foreground / on-tertiary text. */
   --accent-teal-main: var(--color-teal-400); /** Primary indicator colour — teal ramp stop 400. */
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle background tint. */

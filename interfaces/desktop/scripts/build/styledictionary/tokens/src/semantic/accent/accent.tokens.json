@@ -9,7 +9,28 @@
 			}
 		},
 		"$type": "color",
-		"$description": "Semantic accent aliases — main (indicator), glow (shadow/emission), fill (area fill).",
+		"$description": "Semantic accent aliases — main (indicator), glow (shadow/emission), fill (area fill), fg (foreground/on-color text). Intent roles (primary/secondary/tertiary/accent) bind directly to palette seeds; palette entries remain available as Tier-1 primitives.",
+		"primary": {
+			"$description": "Primary brand role. Default binding: teal. Components consume this for their main brand surface; the visual editor rebinds primary→{palette} without touching components.",
+			"main": { "$value": "{accent.teal.main}", "$description": "Primary indicator — bound to teal." },
+			"glow": { "$value": "{accent.teal.glow}", "$description": "Primary glow — bound to teal." },
+			"fill": { "$value": "{accent.teal.fill}", "$description": "Primary fill — bound to teal." },
+			"fg":   { "$value": "{text.primary}",     "$description": "Foreground / on-primary text. Light text on dark brand surface." }
+		},
+		"secondary": {
+			"$description": "Secondary brand role. Default binding: purple. Used for the alternate brand surface paired with primary.",
+			"main": { "$value": "{accent.purple.main}", "$description": "Secondary indicator — bound to purple." },
+			"glow": { "$value": "{accent.purple.glow}", "$description": "Secondary glow — bound to purple." },
+			"fill": { "$value": "{accent.purple.fill}", "$description": "Secondary fill — bound to purple." },
+			"fg":   { "$value": "{text.primary}",       "$description": "Foreground / on-secondary text." }
+		},
+		"tertiary": {
+			"$description": "Tertiary brand role. Default binding: azure. Optional third brand surface for richer compositions.",
+			"main": { "$value": "{accent.azure.main}", "$description": "Tertiary indicator — bound to azure." },
+			"glow": { "$value": "{accent.azure.glow}", "$description": "Tertiary glow — bound to azure." },
+			"fill": { "$value": "{accent.azure.fill}", "$description": "Tertiary fill — bound to azure." },
+			"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-tertiary text." }
+		},
 		"teal": {
 			"main": { "$value": "{color.teal.400}", "$description": "Primary indicator colour — teal ramp stop 400." },
 			"glow": {

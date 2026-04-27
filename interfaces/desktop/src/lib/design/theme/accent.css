@@ -3,6 +3,18 @@
  */
 
 @theme {
+  --accent-primary-main: oklch(0.65 0.08 173);
+  --accent-primary-glow: oklch(0.63 0.08 173 / 0.35);
+  --accent-primary-fill: oklch(0.63 0.08 173 / 0.08);
+  --accent-primary-fg: oklch(0.95 0.01 220);
+  --accent-secondary-main: oklch(0.65 0.12 280);
+  --accent-secondary-glow: oklch(0.63 0.12 280 / 0.35);
+  --accent-secondary-fill: oklch(0.63 0.12 280 / 0.08);
+  --accent-secondary-fg: oklch(0.95 0.01 220);
+  --accent-tertiary-main: oklch(0.55 0.18 250);
+  --accent-tertiary-glow: oklch(0.63 0.18 250 / 0.35);
+  --accent-tertiary-fill: oklch(0.63 0.18 250 / 0.08);
+  --accent-tertiary-fg: oklch(0.95 0.01 220);
   --accent-teal-main: oklch(0.65 0.08 173);
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35);
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08);
