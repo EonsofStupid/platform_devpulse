@@ -18,7 +18,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
+import { modelsState } from "$lib/domains/app/models/index.js";
 import {
 	testMicrophone,
 	transcribeAudio,
@@ -31,6 +31,7 @@ import {
 	type LogTargetPreset,
 	ServiceDevtoolShell,
 } from "$lib/domains/platform/_shared/index.js";
+import { capabilityChannel } from "$lib/sys/events/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 
 const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.stt", label: "STT devtool" }];
@@ -56,8 +57,12 @@ let fileTranscript = $state("");
 let error = $state<string | null>(null);
 
 // ── Derived ────────────────────────────────────────────
-const sttStatus = $derived(modelsState.statuses["voice.stt"]);
-const sttReady = $derived(sttStatus ? isInferenceReady(sttStatus) : false);
+// Readiness comes from the capability event channel (live signal
+// from the engine on `model:capability-rebound`); slot metadata
+// (label, assigned_model_id) is the model loader's published
+// surface and continues to read from `modelsState.slots`.
+const sttChannel = capabilityChannel("voice.stt");
+const sttReady = $derived(sttChannel.current_runtime !== null);
 const sttSlot = $derived(modelsState.slots.find((s) => s.id === "voice.stt"));
 
 const badge = $derived<HealthBadge>(

@@ -26,13 +26,14 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
+import { modelsState } from "$lib/domains/app/models/index.js";
 import { speak, voiceTtsConfigState } from "$lib/domains/app/voice/index.js";
 import {
 	type CapturePayload,
 	type HealthBadge,
 	ServiceDevtoolShell,
 } from "$lib/domains/platform/_shared/index.js";
+import { capabilityChannel } from "$lib/sys/events/index.js";
 import type { ScopedLogEntry, VoiceCloneEntry } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
@@ -147,8 +148,16 @@ let registeringClone = $state(false);
 let removingCloneName = $state<string | null>(null);
 
 // ── Derived ────────────────────────────────────────────
-const ttsStatus = $derived(modelsState.statuses["voice.tts"]);
-const ttsReady = $derived(ttsStatus ? isInferenceReady(ttsStatus) : false);
+// `current_runtime` is the live signal from the engine's capability
+// event channel — set when the slot is loaded, null otherwise. We
+// read readiness from here instead of `modelsState.statuses` so the
+// voice domain doesn't depend on the model loader's internal state
+// machine for the most-asked question ("is voice.tts alive?").
+const ttsChannel = capabilityChannel("voice.tts");
+const ttsReady = $derived(ttsChannel.current_runtime !== null);
+// Slot metadata (label, assigned_model_id) is the model loader's
+// published surface — fine to read directly. The forbidden pattern
+// is only the inference-readiness lookup.
 const ttsSlot = $derived(modelsState.slots.find((s) => s.id === "voice.tts"));
 
 const activeVoice = $derived(buildVoiceString(mode, presetId, cloneName));

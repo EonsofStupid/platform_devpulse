@@ -24,7 +24,7 @@ import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Stat } from "$lib/design/components/stat/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
-import { isInferenceReady, modelsState, wizardState } from "$lib/domains/app/models/index.js";
+import { modelsState, wizardState } from "$lib/domains/app/models/index.js";
 import {
 	CommandErrorAlert,
 	DevtoolBentoGrid,
@@ -33,6 +33,7 @@ import {
 	type LogTargetPreset,
 	ServiceDevtoolShell,
 } from "$lib/domains/platform/_shared/index.js";
+import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
 
@@ -82,8 +83,12 @@ let unloadConfirm = $state(false);
 let copiedAt = $state<number | null>(null);
 
 // ── Derived slot state ─────────────────────────────────
-const visionStatus = $derived(modelsState.statuses[SLOT_ID]);
-const visionReady = $derived(visionStatus ? isInferenceReady(visionStatus) : false);
+// Readiness from the engine's capability event channel; slot
+// metadata + assigned-model lookup remain on `modelsState` because
+// those are the model loader's published surface (not the
+// forbidden `statuses` lookup the channel replaces).
+const visionChannel = capabilityChannel(SLOT_ID);
+const visionReady = $derived(visionChannel.current_runtime !== null);
 const visionSlot = $derived(modelsState.slots.find((s) => s.id === SLOT_ID));
 const assignedModel = $derived(
 	visionSlot?.assigned_model_id

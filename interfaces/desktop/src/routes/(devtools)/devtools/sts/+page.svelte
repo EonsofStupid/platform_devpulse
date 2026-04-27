@@ -36,7 +36,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
+import { modelsState } from "$lib/domains/app/models/index.js";
 import {
 	listVoices,
 	type MicTestResult,
@@ -50,6 +50,7 @@ import {
 	voiceState,
 } from "$lib/domains/app/voice/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
+import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
 
@@ -77,10 +78,13 @@ let error = $state<string | null>(null);
 const anySlotLoading = $derived(loadingStt || loadingTts);
 
 // ── Derived slot state ─────────────────────────────────────
-const sttStatus = $derived(modelsState.statuses["voice.stt"]);
-const ttsStatus = $derived(modelsState.statuses["voice.tts"]);
-const sttReady = $derived(sttStatus ? isInferenceReady(sttStatus) : false);
-const ttsReady = $derived(ttsStatus ? isInferenceReady(ttsStatus) : false);
+// Two capability channels — STS straddles ears + mouth; readiness
+// is the AND of both. Slot metadata still reads `modelsState.slots`
+// (published surface, not the forbidden `statuses` lookup).
+const sttChannel = capabilityChannel("voice.stt");
+const ttsChannel = capabilityChannel("voice.tts");
+const sttReady = $derived(sttChannel.current_runtime !== null);
+const ttsReady = $derived(ttsChannel.current_runtime !== null);
 const sttSlot = $derived(modelsState.slots.find((s) => s.id === "voice.stt"));
 const ttsSlot = $derived(modelsState.slots.find((s) => s.id === "voice.tts"));
 
