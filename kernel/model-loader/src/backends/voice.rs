@@ -7,6 +7,7 @@
 //! Orpheus TTS runs through `InferenceBackend` (llama.cpp) + SNAC decoder.
 //! Audio playback via `rodio`. Microphone capture via `cpal`.
 
+use crate::assistant::VoiceCloneEntry;
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::Path;
 
@@ -58,6 +59,15 @@ pub trait TtsBackend: Send {
 
     /// Whether a model is currently loaded.
     fn is_loaded(&self) -> bool;
+
+    /// Replace the voice-clone snapshot held by this backend.
+    ///
+    /// Called by the engine after `assistant.toml` mutates (clone
+    /// register/remove) and after a fresh TTS slot load. Default
+    /// no-op so backends that don't support cloning (Kokoro, Orpheus)
+    /// can ignore it; backends that do (Qwen3-TTS) override with
+    /// interior-mutability storage so the call works through `&self`.
+    fn set_voice_clones(&self, _clones: Vec<VoiceCloneEntry>) {}
 }
 
 /// Speech-to-Text backend trait.

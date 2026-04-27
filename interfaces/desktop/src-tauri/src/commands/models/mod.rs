@@ -1058,11 +1058,34 @@ pub async fn set_brain_ngl(state: State<'_, PlatformState>, ngl: i32) -> Result<
     loader.set_brain_ngl(ngl).await.map_err(|e| e.to_string())
 }
 
+/// Result of [`upload_voice_sample`] — the on-disk destination path
+/// plus a best-effort Whisper transcript of the reference audio.
+///
+/// `suggested_transcript` is the pre-filled value the UI shows in an
+/// editable field before the user finalises the clone via
+/// `register_voice_clone`. Empty string means the STT slot wasn't
+/// loaded yet (fresh-install / pre-setup) or the transcribe call
+/// failed — both are non-blocking and the user can fill it in by
+/// hand.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct VoiceSampleUpload {
+    /// Absolute path of the copied audio file inside the user's
+    /// custom voice samples directory.
+    pub path: String,
+    /// Best-effort Whisper STT transcript of the uploaded audio.
+    /// Empty when STT isn't ready or transcription fails.
+    pub suggested_transcript: String,
+}
+
 /// Copy an MP3 file from an arbitrary source path into the custom
-/// voice clones directory and return the destination absolute path.
-/// The UI then passes that path to `register_voice_clone` to finalise
-/// the registration. Keeping the copy + register operations split
-/// keeps each Tauri command single-purpose.
+/// voice clones directory and return the destination absolute path
+/// alongside a best-effort Whisper transcript of the reference audio.
+///
+/// The UI then passes the path + edited transcript to
+/// `register_voice_clone` to finalise the registration. Keeping the
+/// copy + transcribe + register operations split keeps each Tauri
+/// command focused: this one writes the file and pre-fills the
+/// transcript so the user can edit before saving.
 ///
 /// Only `.mp3`, `.wav`, and `.flac` files are accepted. The source
 /// path must exist. The destination filename is derived from `name`
@@ -1073,7 +1096,7 @@ pub async fn upload_voice_sample(
     state: State<'_, PlatformState>,
     name: String,
     source_path: String,
-) -> Result<String, String> {
+) -> Result<VoiceSampleUpload, String> {
     let loader = get_loader(&state).await?;
     let src = std::path::PathBuf::from(&source_path);
     if !src.exists() {
@@ -1105,7 +1128,69 @@ pub async fn upload_voice_sample(
 
     std::fs::copy(&src, &dest).map_err(|e| format!("Failed to copy voice sample: {e}"))?;
 
-    Ok(dest.to_string_lossy().into_owned())
+    let path_str = dest.to_string_lossy().into_owned();
+    let suggested_transcript = transcribe_for_clone_reference(&loader, &dest).await;
+
+    Ok(VoiceSampleUpload {
+        path: path_str,
+        suggested_transcript,
+    })
+}
+
+/// Best-effort Whisper transcription of an uploaded reference clip.
+///
+/// Returns `""` when the STT slot isn't loaded yet (fresh install,
+/// pre-setup), when the audio decoder can't open the file, or when
+/// the STT call itself errors. None of those cases are fatal — the
+/// user can edit the (empty) transcript by hand. All failures are
+/// logged at `warn` so the Voice Lab devtool can surface them.
+async fn transcribe_for_clone_reference(
+    loader: &Arc<ModelLoaderService>,
+    audio_path: &std::path::Path,
+) -> String {
+    use devpulse_engine::platform::services::model_loader::AudioSamples;
+
+    let path_owned = audio_path.to_path_buf();
+    let pcm: Vec<f32> = match devpulse_telemetry::spawn_blocking(move || {
+        devpulse_media::decode_to_whisper(&path_owned)
+    })
+    .await
+    {
+        Ok(Ok(pcm)) => pcm,
+        Ok(Err(e)) => {
+            tracing::warn!(
+                path = %audio_path.display(),
+                error = %e,
+                "upload_voice_sample: audio decode failed; transcript will be empty"
+            );
+            return String::new();
+        }
+        Err(e) => {
+            tracing::warn!(
+                path = %audio_path.display(),
+                error = %e,
+                "upload_voice_sample: decode thread join failed; transcript will be empty"
+            );
+            return String::new();
+        }
+    };
+
+    let audio = AudioSamples {
+        data: pcm,
+        sample_rate: 16_000,
+        channels: 1,
+    };
+    match loader.transcribe("voice.stt", &audio).await {
+        Ok(t) => t,
+        Err(e) => {
+            tracing::warn!(
+                path = %audio_path.display(),
+                error = %e,
+                "upload_voice_sample: STT not available; transcript will be empty"
+            );
+            String::new()
+        }
+    }
 }
 
 /// A single Kokoro voice available via the bundled ONNX runtime.
@@ -1593,6 +1678,23 @@ pub async fn pick_directory(title: String) -> Result<String, String> {
 
     let folder = picked.ok_or_else(|| "No folder selected".to_string())?;
     Ok(folder.path().to_string_lossy().to_string())
+}
+
+/// Open a native audio-file picker dialog (mp3 / wav / flac).
+///
+/// Returns the absolute path of the chosen file, or `None` if the user
+/// dismissed the dialog without selecting anything (kept as `Option`
+/// rather than `Err` because cancellation isn't a failure — the UI
+/// should treat it as a no-op, not surface a red banner).
+#[tauri::command]
+#[specta::specta]
+pub async fn pick_audio_file(title: String) -> Result<Option<String>, String> {
+    let picked = rfd::AsyncFileDialog::new()
+        .set_title(&title)
+        .add_filter("Audio", &["mp3", "wav", "flac"])
+        .pick_file()
+        .await;
+    Ok(picked.map(|f| f.path().to_string_lossy().to_string()))
 }
 
 /// Create a developer profile and persist it as a preference.

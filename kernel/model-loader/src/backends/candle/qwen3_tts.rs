@@ -26,6 +26,7 @@ use crate::assistant::config::VoiceCloneEntry;
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
+use std::sync::RwLock;
 #[cfg(feature = "qwen3-tts-backend")]
 use std::sync::Mutex;
 
@@ -58,10 +59,14 @@ pub struct Qwen3TtsBackend {
     /// Whether a model is currently loaded.
     loaded: bool,
     /// Snapshot of registered voice clones at the moment this backend
-    /// was constructed (or last refreshed via [`Self::set_voice_clones`]).
+    /// was constructed (or last refreshed via [`TtsBackend::set_voice_clones`]).
     /// Empty by default; populated by the voice pool / engine layer
-    /// after reading `assistant.toml`.
-    voice_clones: Vec<VoiceCloneEntry>,
+    /// after reading `assistant.toml`. Held behind an `RwLock` because
+    /// the trait method must work through `&self` (the dispatcher holds
+    /// the backend behind `&Box<dyn TtsBackend>` while synthesis runs
+    /// concurrently with `register_voice_clone` / `remove_voice_clone`
+    /// commands from the UI).
+    voice_clones: RwLock<Vec<VoiceCloneEntry>>,
     /// The underlying Qwen3-TTS engine. Behind a `Mutex` to match the
     /// SNAC/Kokoro pattern — Tauri commands fire concurrently and the
     /// engine is not `Sync` on its own.
@@ -76,22 +81,17 @@ impl Qwen3TtsBackend {
         Self {
             model_path: None,
             loaded: false,
-            voice_clones: Vec::new(),
+            voice_clones: RwLock::new(Vec::new()),
             #[cfg(feature = "qwen3-tts-backend")]
             model: Mutex::new(None),
         }
     }
 
-    /// Replace the voice-clones snapshot. Call this after `assistant.toml`
-    /// changes so subsequent `custom:<name>` lookups see the new list.
-    pub fn set_voice_clones(&mut self, clones: Vec<VoiceCloneEntry>) {
-        self.voice_clones = clones;
-    }
-
     /// Number of voice clones currently registered with this backend.
+    /// Returns 0 if the lock is poisoned — diagnostic accessor only.
     #[must_use]
     pub fn voice_clone_count(&self) -> usize {
-        self.voice_clones.len()
+        self.voice_clones.read().map(|g| g.len()).unwrap_or(0)
     }
 }
 
@@ -162,12 +162,13 @@ impl TtsBackend for Qwen3TtsBackend {
             self.model_path = Some(path.to_path_buf());
             self.loaded = true;
 
+            let clone_count = self.voice_clones.read().map(|g| g.len()).unwrap_or(0);
             tracing::info!(
                 component = "Qwen3-TTS",
                 talker_mb = talker_size / (1024 * 1024),
                 codec_mb = codec_size / (1024 * 1024),
                 total_mb = total / (1024 * 1024),
-                voice_clones = self.voice_clones.len(),
+                voice_clones = clone_count,
                 "Qwen3-TTS loaded"
             );
 
@@ -219,19 +220,25 @@ impl TtsBackend for Qwen3TtsBackend {
             .ok_or_else(|| anyhow::anyhow!("Qwen3-TTS engine not initialized"))?;
 
         let buffer: AudioBuffer = if let Some(name) = voice.strip_prefix(CUSTOM_VOICE_PREFIX) {
-            let entry = self
-                .voice_clones
-                .iter()
-                .find(|e| e.name == name)
-                .ok_or_else(|| {
+            // Resolve the registered clone *before* invoking the model — we
+            // hold the read lock only long enough to clone the small
+            // `(reference_path, transcript)` pair, then release so a
+            // concurrent `register_voice_clone` doesn't block on synthesis.
+            let (reference_path, transcript_owned) = {
+                let guard = self.voice_clones.read().map_err(|e| {
+                    anyhow::anyhow!("Qwen3-TTS voice_clones lock poisoned: {e}")
+                })?;
+                let entry = guard.iter().find(|e| e.name == name).ok_or_else(|| {
                     anyhow::anyhow!("Qwen3-TTS: no voice clone named '{name}' registered")
                 })?;
-            let ref_audio = AudioBuffer::load(&entry.reference_path)
+                (entry.reference_path.clone(), entry.transcript.clone())
+            };
+            let ref_audio = AudioBuffer::load(&reference_path)
                 .map_err(|e| anyhow::anyhow!("Failed to load reference audio: {e}"))?;
-            let transcript: Option<&str> = if entry.transcript.is_empty() {
+            let transcript: Option<&str> = if transcript_owned.is_empty() {
                 None
             } else {
-                Some(entry.transcript.as_str())
+                Some(transcript_owned.as_str())
             };
             let prompt = model
                 .create_voice_clone_prompt(&ref_audio, transcript)
@@ -292,6 +299,27 @@ impl TtsBackend for Qwen3TtsBackend {
 
     fn is_loaded(&self) -> bool {
         self.loaded
+    }
+
+    fn set_voice_clones(&self, clones: Vec<VoiceCloneEntry>) {
+        match self.voice_clones.write() {
+            Ok(mut guard) => {
+                let count = clones.len();
+                *guard = clones;
+                tracing::info!(
+                    component = "Qwen3-TTS",
+                    voice_clones = count,
+                    "Voice-clones snapshot refreshed"
+                );
+            }
+            Err(e) => {
+                tracing::error!(
+                    component = "Qwen3-TTS",
+                    error = %e,
+                    "Voice-clones lock poisoned — snapshot not applied"
+                );
+            }
+        }
     }
 }
 

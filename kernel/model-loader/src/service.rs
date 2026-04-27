@@ -104,6 +104,14 @@ struct LoadContext {
     capability: ModelCapability,
     backend: BackendType,
     params: LoadParams,
+    /// Snapshot of `assistant.voice_clones` at the moment the load was
+    /// scheduled. Always populated (cheap small `Vec` — typically empty
+    /// or a handful of entries); the post-load hook only consumes it
+    /// when `capability == ModelCapability::TextToSpeech`. Capturing the
+    /// snapshot under the existing `cfg.read()` in `prepare_*_context`
+    /// keeps the load atomic with the clone state — no separate lock
+    /// cycle needed after the load completes.
+    voice_clones: Vec<VoiceCloneEntry>,
 }
 
 impl ModelLoaderService {
@@ -877,34 +885,88 @@ impl ModelLoaderService {
             })
     }
 
-    /// Register a new custom voice clone.
+    /// Register a new custom voice clone, persist `assistant.toml`, and
+    /// push the fresh snapshot into the live `voice.tts` backend so the
+    /// next `synthesize("custom:<name>", ...)` call sees the new entry
+    /// without requiring a slot reload.
     ///
     /// # Errors
     /// [`LoaderError::Internal`] on assistant config persist failure
-    /// (typically when the user-data dir isn't writable).
+    /// (typically when the user-data dir isn't writable). The post-persist
+    /// pool refresh is best-effort — if the TTS slot isn't loaded yet,
+    /// the snapshot will be applied at the next load via the same hook
+    /// in [`Self::load_slot`] / [`Self::warm_slot`].
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<(), LoaderError> {
-        let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
-        cfg.assistant
-            .register_voice_clone(&dir, entry)
-            .map_err(|e| LoaderError::Internal {
-                message: format!("Failed to register voice clone: {e}"),
-            })
+        let snapshot = {
+            let mut cfg = self.config.write().await;
+            let dir = cfg.userdata_dir.clone();
+            cfg.assistant
+                .register_voice_clone(&dir, entry)
+                .map_err(|e| LoaderError::Internal {
+                    message: format!("Failed to register voice clone: {e}"),
+                })?;
+            cfg.assistant.voice_clones.clone()
+        };
+        self.refresh_voice_clones_with_snapshot(snapshot).await;
+        Ok(())
     }
 
-    /// Remove a registered voice clone by name.
+    /// Remove a registered voice clone by name, persist `assistant.toml`,
+    /// and refresh the live `voice.tts` backend snapshot.
     ///
     /// # Errors
     /// [`LoaderError::Internal`] if `name` isn't registered or the
     /// assistant config persist fails.
     pub async fn remove_voice_clone(&self, name: &str) -> Result<(), LoaderError> {
-        let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
-        cfg.assistant
-            .remove_voice_clone(&dir, name)
-            .map_err(|e| LoaderError::Internal {
-                message: format!("Failed to remove voice clone: {e}"),
-            })
+        let snapshot = {
+            let mut cfg = self.config.write().await;
+            let dir = cfg.userdata_dir.clone();
+            cfg.assistant
+                .remove_voice_clone(&dir, name)
+                .map_err(|e| LoaderError::Internal {
+                    message: format!("Failed to remove voice clone: {e}"),
+                })?;
+            cfg.assistant.voice_clones.clone()
+        };
+        self.refresh_voice_clones_with_snapshot(snapshot).await;
+        Ok(())
+    }
+
+    /// Re-push the current `assistant.voice_clones` snapshot into the
+    /// loaded `voice.tts` backend. Useful when the TTS slot is reloaded
+    /// out-of-band (e.g. swapped to a different model) and the engine
+    /// wants to ensure clone state is current without going through
+    /// `register_voice_clone` / `remove_voice_clone` again.
+    ///
+    /// No-op when no TTS session is loaded.
+    pub async fn refresh_voice_clones(&self) {
+        let snapshot = {
+            let cfg = self.config.read().await;
+            cfg.assistant.voice_clones.clone()
+        };
+        self.refresh_voice_clones_with_snapshot(snapshot).await;
+    }
+
+    /// Inner refresh hook — accepts a pre-fetched snapshot to avoid
+    /// re-acquiring the config lock when the caller already has one.
+    /// Lock order honoured: takes only `inference.read()`, never config.
+    async fn refresh_voice_clones_with_snapshot(&self, clones: Vec<VoiceCloneEntry>) {
+        let inf = self.inference.read().await;
+        let count = clones.len();
+        let refreshed = inf.voice_pool.refresh_voice_clones("voice.tts", clones);
+        if refreshed {
+            tracing::info!(
+                slot = "voice.tts",
+                voice_clones = count,
+                "voice-clone snapshot refreshed in TTS backend"
+            );
+        } else {
+            tracing::debug!(
+                slot = "voice.tts",
+                voice_clones = count,
+                "voice.tts not loaded; snapshot will apply on next load"
+            );
+        }
     }
 
     /// Add or replace a keyword action.
@@ -1197,12 +1259,15 @@ impl ModelLoaderService {
             backend_variant: None,
         };
 
+        let voice_clones = cfg.assistant.voice_clones.clone();
+
         Ok(LoadContext {
             model_id,
             model_path,
             capability,
             backend,
             params,
+            voice_clones,
         })
     }
 
@@ -1269,12 +1334,15 @@ impl ModelLoaderService {
             backend_variant: None,
         };
 
+        let voice_clones = cfg.assistant.voice_clones.clone();
+
         Ok(Some(LoadContext {
             model_id,
             model_path,
             capability,
             backend,
             params,
+            voice_clones,
         }))
     }
 
@@ -1297,6 +1365,7 @@ impl ModelLoaderService {
             capability,
             backend,
             params,
+            voice_clones,
         } = self.prepare_load_context(slot_id).await?;
 
         // Phase 2: acquire inference write lock — the ONLY exclusive lock
@@ -1351,6 +1420,9 @@ impl ModelLoaderService {
                     memory,
                 });
                 self.hardware.write().enter_normal_mode();
+                if capability == ModelCapability::TextToSpeech {
+                    inf.voice_pool.refresh_voice_clones(slot_id, voice_clones);
+                }
                 tracing::info!(slot = %slot_id, model = %model_id, backend = ?backend, ram_mb = memory.ram_mb(), vram_mb = memory.vram_mb(), "Slot loaded");
                 Ok(())
             }
@@ -1459,6 +1531,7 @@ impl ModelLoaderService {
             capability,
             backend,
             params,
+            voice_clones,
         }) = self.prepare_warm_context(slot_id).await?
         else {
             return Ok(());
@@ -1516,6 +1589,9 @@ impl ModelLoaderService {
                     slot_id: slot_id.to_string(),
                     memory: footprint,
                 });
+                if capability == ModelCapability::TextToSpeech {
+                    inf.voice_pool.refresh_voice_clones(slot_id, voice_clones);
+                }
                 tracing::info!(slot = %slot_id, model = %model_id, ram_mb = footprint.ram_mb(), "Slot warmed");
                 Ok(())
             }

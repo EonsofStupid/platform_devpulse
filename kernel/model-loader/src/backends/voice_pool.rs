@@ -18,6 +18,7 @@
 //! Tauri commands are concurrent — `speak()`, `transcribe_audio()`, and
 //! `embed_text()` can fire simultaneously. Pattern matches SNAC decoder.
 
+use crate::assistant::VoiceCloneEntry;
 use crate::backends::voice::{AudioSamples, SttBackend, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::slots::types::ModelCapability;
@@ -297,6 +298,37 @@ impl VoicePool {
             .lock()
             .map(|s| s.contains_key(slot_id))
             .unwrap_or(false)
+    }
+
+    /// Push a fresh voice-clone snapshot into the TTS backend at `slot_id`.
+    ///
+    /// Returns `true` when a TTS session was found and refreshed, `false`
+    /// when the slot is unloaded or holds a non-TTS session — both are
+    /// valid no-op states (no error path) because the engine layer fires
+    /// this hook unconditionally after every `register_voice_clone` /
+    /// `remove_voice_clone` and after every successful TTS slot load.
+    ///
+    /// Backends that don't support cloning (Kokoro, Orpheus) accept the
+    /// snapshot via the trait's default no-op `set_voice_clones`.
+    pub fn refresh_voice_clones(&self, slot_id: &str, clones: Vec<VoiceCloneEntry>) -> bool {
+        let sessions = match self.sessions.lock() {
+            Ok(guard) => guard,
+            Err(e) => {
+                tracing::error!(
+                    slot = %slot_id,
+                    error = %e,
+                    "VoicePool: sessions mutex poisoned during refresh_voice_clones"
+                );
+                return false;
+            }
+        };
+        match sessions.get(slot_id) {
+            Some(VoiceSession::Tts(backend)) => {
+                backend.set_voice_clones(clones);
+                true
+            }
+            _ => false,
+        }
     }
 
     /// Synthesize speech for a TTS slot.

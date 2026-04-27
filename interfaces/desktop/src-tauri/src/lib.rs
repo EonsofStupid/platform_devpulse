@@ -300,6 +300,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::models::search_huggingface,
         commands::models::import_local_model,
         commands::models::pick_directory,
+        commands::models::pick_audio_file,
         commands::models::create_dev_profile,
         commands::models::auto_configure,
         commands::models::list_presets,

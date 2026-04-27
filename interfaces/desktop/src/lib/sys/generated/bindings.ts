@@ -2319,16 +2319,20 @@ async setBrainNgl(ngl: number) : Promise<Result<null, string>> {
 },
 /**
  * Copy an MP3 file from an arbitrary source path into the custom
- * voice clones directory and return the destination absolute path.
- * The UI then passes that path to `register_voice_clone` to finalise
- * the registration. Keeping the copy + register operations split
- * keeps each Tauri command single-purpose.
+ * voice clones directory and return the destination absolute path
+ * alongside a best-effort Whisper transcript of the reference audio.
+ * 
+ * The UI then passes the path + edited transcript to
+ * `register_voice_clone` to finalise the registration. Keeping the
+ * copy + transcribe + register operations split keeps each Tauri
+ * command focused: this one writes the file and pre-fills the
+ * transcript so the user can edit before saving.
  * 
  * Only `.mp3`, `.wav`, and `.flac` files are accepted. The source
  * path must exist. The destination filename is derived from `name`
  * to keep the user's chosen label alongside the file on disk.
  */
-async uploadVoiceSample(name: string, sourcePath: string) : Promise<Result<string, string>> {
+async uploadVoiceSample(name: string, sourcePath: string) : Promise<Result<VoiceSampleUpload, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("upload_voice_sample", { name, sourcePath }) };
 } catch (e) {
@@ -2412,6 +2416,22 @@ async importLocalModel(targetSlot: string | null, importMode: string | null) : P
 async pickDirectory(title: string) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pick_directory", { title }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Open a native audio-file picker dialog (mp3 / wav / flac).
+ * 
+ * Returns the absolute path of the chosen file, or `None` if the user
+ * dismissed the dialog without selecting anything (kept as `Option`
+ * rather than `Err` because cancellation isn't a failure — the UI
+ * should treat it as a no-op, not surface a red banner).
+ */
+async pickAudioFile(title: string) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("pick_audio_file", { title }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -8108,6 +8128,28 @@ stt_quality: string;
  * Whether this profile is currently active.
  */
 active: boolean }
+/**
+ * Result of [`upload_voice_sample`] — the on-disk destination path
+ * plus a best-effort Whisper transcript of the reference audio.
+ * 
+ * `suggested_transcript` is the pre-filled value the UI shows in an
+ * editable field before the user finalises the clone via
+ * `register_voice_clone`. Empty string means the STT slot wasn't
+ * loaded yet (fresh-install / pre-setup) or the transcribe call
+ * failed — both are non-blocking and the user can fill it in by
+ * hand.
+ */
+export type VoiceSampleUpload = { 
+/**
+ * Absolute path of the copied audio file inside the user's
+ * custom voice samples directory.
+ */
+path: string; 
+/**
+ * Best-effort Whisper STT transcript of the uploaded audio.
+ * Empty when STT isn't ready or transcription fails.
+ */
+suggested_transcript: string }
 /**
  * Result of a voice smoke test — closed-loop TTS→STT round-trip.
  * 
