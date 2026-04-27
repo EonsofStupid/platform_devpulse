@@ -2772,6 +2772,8 @@ async transcribeAudio() : Promise<Result<string, string>> {
 }
 },
 /**
+ * Decode an audio file on disk to mono f32 PCM at the requested sample rate.
+ * 
  * Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
  * 
  * Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
@@ -3233,8 +3235,8 @@ export type AlternativeKind =
  */
 "switch-format" | 
 /**
- * Same repo, different quant level (suggest Q5_K_M when Q2 is
- * too low quality, or vice versa for VRAM fit).
+ * Same repo, different quant level (suggest `Q5_K_M` when `Q2` is
+ * too low quality, or vice versa for `VRAM` fit).
  */
 "switch-quant" | 
 /**
@@ -3341,7 +3343,7 @@ export type ArchId =
  */
 "phi-3-moe" | 
 /**
- * Phi-4 vision-language with bundled SigLIP encoder. The `phi4-siglip`
+ * Phi-4 vision-language with bundled `SigLIP` encoder. The `phi4-siglip`
  * arch tag — distinct from Phi3 because the projection head and
  * vision tower require a separate loader (llama.cpp FFI + mmproj).
  */
@@ -3503,41 +3505,41 @@ offload: OffloadConfig }
  */
 export type BackendId = 
 /**
- * Candle quantized_llama — generic GGUF path with arch metadata
+ * Candle `quantized_llama` — generic GGUF path with arch metadata
  * rewriting. Fallback for archs without a dedicated quantized
  * loader.
  */
 "candle-quantized-llama" | 
 /**
- * Candle quantized_qwen3 — arch-native Qwen3 GGUF loader.
+ * Candle `quantized_qwen3` — arch-native Qwen3 GGUF loader.
  */
 "candle-quantized-qwen-3" | 
 /**
- * Candle quantized_phi3 — arch-native Phi-3 GGUF loader.
+ * Candle `quantized_phi3` — arch-native Phi-3 GGUF loader.
  */
 "candle-quantized-phi-3" | 
 /**
- * Candle qwen3::ModelForCausalLM — safetensors FP32.
+ * Candle `qwen3::ModelForCausalLM` — safetensors FP32.
  */
 "candle-safetensors-qwen-3" | 
 /**
- * Candle qwen3_moe::ModelForCausalLM — safetensors FP32 MoE.
+ * Candle `qwen3_moe::ModelForCausalLM` — safetensors FP32 `MoE`.
  */
 "candle-safetensors-qwen-3-moe" | 
 /**
- * Candle qwen3_vl — vision-language safetensors. Planned.
+ * Candle `qwen3_vl` — vision-language safetensors. Planned.
  */
 "candle-safetensors-qwen-3-vl" | 
 /**
- * Candle phi3::Model — safetensors FP32.
+ * Candle `phi3::Model` — safetensors FP32.
  */
 "candle-safetensors-phi-3" | 
 /**
- * Candle qwen2::ModelForCausalLM — legacy fallback safetensors.
+ * Candle `qwen2::ModelForCausalLM` — legacy fallback safetensors.
  */
 "candle-safetensors-qwen-2" | 
 /**
- * Candle SigLIP / SigLIP2 vision encoder — safetensors.
+ * Candle `SigLIP` / `SigLIP2` vision encoder — safetensors.
  */
 "candle-siglip-vision" | 
 /**
@@ -3676,7 +3678,7 @@ export type BrowseCopy = {
  */
 title: string; 
 /**
- * Supporting line explaining how to search HuggingFace or scan local folders.
+ * Supporting line explaining how to search `HuggingFace` or scan local folders.
  */
 subtitle: string; 
 /**
@@ -3696,7 +3698,7 @@ online_tab_label: string;
  */
 local_browse_tab_label: string; 
 /**
- * Short description shown above the inline HuggingFace search panel.
+ * Short description shown above the inline `HuggingFace` search panel.
  */
 search_panel_description: string; 
 /**
@@ -4249,7 +4251,7 @@ api_section_label: string;
  */
 api_empty_message: string; 
 /**
- * Label on the primary "Launch DevPulse" button that closes the wizard.
+ * Label on the primary "Launch `DevPulse`" button that closes the wizard.
  */
 launch_label: string; 
 /**
@@ -5261,7 +5263,7 @@ gguf_files: HfFileInfoItem[];
  */
 last_modified: string }
 /**
- * Copy for the HuggingFace token entry modal.
+ * Copy for the `HuggingFace` token entry modal.
  * 
  * Surface: a dialog rendered inside `SetupWizardOverlay` with a password
  * field, save / clear / cancel buttons, and a help link back to HF's
@@ -5775,7 +5777,7 @@ export type LoadError =
  */
 { kind: "no-gpu-driver" } | 
 /**
- * HuggingFace download failed (network, auth, or server error).
+ * `HuggingFace` download failed (network, auth, or server error).
  */
 { kind: "download-failed"; reason: string; can_retry: boolean; bytes_completed: number } | 
 /**
@@ -5814,6 +5816,34 @@ export type LoadError =
  * metadata.
  */
 { kind: "tokenizer-load"; message: string } | 
+/**
+ * Inference call failed for a specific slot — user can retry, or
+ * surface to a "report this" affordance after repeated failures.
+ */
+{ kind: "inference-failed"; slot_id: string; reason: string } | 
+/**
+ * Filesystem IO failed at a specific path (mkdir, file read, scan
+ * walk). Usually permission-denied or path-no-longer-exists.
+ */
+{ kind: "io-failed"; path: string; reason: string } | 
+/**
+ * Boot-time initialisation failed before the service can serve
+ * requests. Distinct from runtime failures — usually requires the
+ * app to restart with a fixed environment.
+ */
+{ kind: "boot-failed"; step: string; reason: string } | 
+/**
+ * `ConfigBackend` trait operation failed (libsql write, memory-
+ * config invariant violation, etc.). Usually transient unless
+ * the backing store is itself corrupt.
+ */
+{ kind: "config-backend-failed"; operation: string; key: string; reason: string } | 
+/**
+ * `HuggingFace` HTTP API call failed. Distinct from `DownloadFailed`
+ * — this covers metadata APIs (search, repo info, file listing),
+ * not bulk file downloads. UI surface usually shows "try again".
+ */
+{ kind: "hugging-face-api"; reason: string; can_retry: boolean } | 
 /**
  * Plumbing errors that don't fit the above (IO, generic backend
  * crashes, unexpected failures from deeper in the stack). Keep
@@ -5950,7 +5980,7 @@ export type ModelFormat =
  */
 "onnx" | 
 /**
- * Raw PyTorch checkpoints.
+ * Raw `PyTorch` checkpoints.
  */
 "pytorch"
 /**
@@ -7132,8 +7162,8 @@ export type ServiceRole =
  * Whether a service is actually alive right now.
  * 
  * Complements the static `compiled_in` / `config_enabled` fields —
- * this is the dynamic signal that can change after boot (DevForge
- * lazy-start, Ollama sidecar start/stop, grammar toggle).
+ * this is the dynamic signal that can change after boot (`DevForge`
+ * lazy-start, `Ollama` sidecar start/stop, grammar toggle).
  */
 export type ServiceRuntimeState = 
 /**
@@ -7215,7 +7245,7 @@ group: string;
  */
 feature_gate: string | null; 
 /**
- * `InitEvent` step_id (absent for lazy services).
+ * `InitEvent` `step_id` (absent for lazy services).
  */
 step_id: string | null; 
 /**
@@ -7552,7 +7582,7 @@ export type SurrealStatus = {
 running: boolean; 
 /**
  * True iff we spawned the child; false if we attached to an
- * externally-running SurrealDB.
+ * externally-running `SurrealDB`.
  */
 managed: boolean; 
 /**
@@ -7714,7 +7744,7 @@ is_current: boolean }
 /**
  * Display metadata for a hardware tier.
  * 
- * All user-facing strings. Frontend renders these directly inside ColdLight
+ * All user-facing strings. Frontend renders these directly inside `ColdLight`
  * `<Heading>`, `<Text>`, `<Badge>` components.
  */
 export type TierDisplay = { 
@@ -8431,7 +8461,7 @@ profile: ProfileCopy;
  */
 completion: CompletionCopy; 
 /**
- * Copy for the HuggingFace token entry modal.
+ * Copy for the `HuggingFace` token entry modal.
  * 
  * `#[serde(default)]` lets older user overrides that pre-date this
  * section continue to parse — missing fields use struct `Default`.
