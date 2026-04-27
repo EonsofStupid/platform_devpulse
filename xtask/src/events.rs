@@ -51,6 +51,9 @@ pub enum StageStatus {
 }
 
 impl StageStatus {
+    /// Stable lowercase label used in human-readable summaries and
+    /// log prefixes. Matches the `serde(rename_all = "snake_case")`
+    /// wire form so logs and jsonl emit the same string.
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Start => "start",

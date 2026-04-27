@@ -97,9 +97,13 @@ impl Task for BuildRelease {
         // sink's writer thread drains whatever events landed first.
         let events_path = ws.root().join("target").join("xtask-events.jsonl");
         let sink = EventSink::open(&events_path)?;
+        // The sink is the SSOT for the event log location. Capture it via
+        // its accessor so the SUMMARY printer reads from a single source
+        // instead of recomputing the path.
+        let event_log_path = sink.log_path().to_path_buf();
         let result = run_inner(ws, &sink, self.portable_only);
         match sink.finish() {
-            Ok(events) => print_summary(&events, &events_path),
+            Ok(events) => print_summary(&events, &event_log_path),
             Err(e) => crate::xwarn!("event log finalize failed: {e}"),
         }
         // Close the file sink so the final flush lands before the process
@@ -146,6 +150,19 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
 
     // ── Stage 1: Banner ──
     print_banner("build-release");
+    // One-shot factual event — captures version + flags at run start so
+    // the jsonl log alone (without the terminal banner) can answer
+    // "which xtask invocation produced these stages?". Owner-thread
+    // emission, no timing, no failure mode — exactly what `EventSink::emit`
+    // is for.
+    sink.emit(
+        "build-banner",
+        StageStatus::Ok,
+        EventBuilder::new().detail(format!(
+            "v{VERSION} build-release{}",
+            if portable_only { " --portable-only" } else { "" }
+        )),
+    );
 
     // ── Stage 2: Job Object (Windows) ──
     // Same pattern as dev — children die with xtask.
@@ -313,8 +330,25 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     println!();
     if portable_only {
         println!("  Installers: skipped (--portable-only)");
+        // Real semantic skip — the bundle phase ran in `--no-bundle`
+        // mode, so installer artifacts are not produced this run.
+        // Surfacing this as an explicit `Skip` event keeps the jsonl
+        // log honest: the SUMMARY counts a skipped stage instead of
+        // pretending the installer phase silently succeeded.
+        sink.start("installer-bundle").skip(
+            EventBuilder::new()
+                .classification("portable_only")
+                .detail("--portable-only suppressed tauri-bundler installer phase"),
+        );
     } else {
         println!("  Installers:");
+        // Cloned sender for one-shot per-installer events emitted from
+        // inside the discovery loop. We don't want a timed `start` per
+        // file (no observable duration to measure), but we DO want a
+        // structured event so the jsonl log lists every installer the
+        // bundler produced — useful when `installer_count == 0` and we
+        // need to know what bundler attempted vs. what landed.
+        let installer_emitter = sink.sender();
         if bundle_dir.exists() {
             if let Ok(entries) = std::fs::read_dir(&bundle_dir) {
                 for entry in entries.flatten() {
@@ -332,6 +366,13 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
                                 if sp.is_file() {
                                     println!("    {}", sp.display());
                                     installer_count += 1;
+                                    installer_emitter.emit(
+                                        "installer-found",
+                                        StageStatus::Ok,
+                                        EventBuilder::new()
+                                            .classification(subdir.clone())
+                                            .detail(sp.display().to_string()),
+                                    );
                                     if let Some(mf) = manifest.as_mut() {
                                         let kind = format!("installer-{subdir}");
                                         add_artifact_or_warn(mf, ws.root(), &kind, &sp);
@@ -399,6 +440,17 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     // is the post-hoc receipt.
     let mut portable_zip_path: Option<PathBuf> = None;
     let mut portable_summary: Option<crate::commands::package_portable::PortableSummary> = None;
+    if !portable_only {
+        // Mirror of the installer-bundle skip above: when not in
+        // `--portable-only` mode the package-portable phase is bypassed
+        // by design, so the SUMMARY records a real skip instead of a
+        // missing stage entry.
+        sink.start("package-portable").skip(
+            EventBuilder::new()
+                .classification("installers_only")
+                .detail("--portable-only flag absent; portable zip not produced"),
+        );
+    }
     if portable_only && standalone.exists() {
         stage::section("Package Portable");
         let pkg_guard = sink.start("package-portable");
@@ -741,11 +793,11 @@ fn print_summary(events: &[StageEvent], log_path: &Path) {
         for e in events {
             match e.status {
                 StageStatus::Warn | StageStatus::Fail => {
-                    let tag = if matches!(e.status, StageStatus::Fail) {
-                        "FAIL"
-                    } else {
-                        "WARN"
-                    };
+                    // Status label comes from the canonical lifecycle
+                    // string — keeps the SUMMARY line in lockstep with
+                    // the jsonl wire format if the enum ever grows new
+                    // members.
+                    let tag = e.status.as_str().to_uppercase();
                     let class = e.classification.as_deref().unwrap_or("-");
                     let detail = e.detail.as_deref().unwrap_or("");
                     println!("  [{tag}] {} ({class}) {detail}", e.stage_id);
@@ -909,8 +961,14 @@ fn classify_from_reader<R: std::io::BufRead>(reader: R) -> TauriStage {
     obs.classify()
 }
 
-/// String-input classifier — kept as the test and external caller entry
-/// point. Delegates to the streaming path by wrapping the input bytes.
+/// String-input classifier — kept as the test entry point. Delegates
+/// to the streaming path by wrapping the input bytes. Production code
+/// reads the on-disk transcript directly through
+/// [`classify_from_reader`]; this string form exists so the unit-test
+/// fixtures below can pass canned transcripts in-memory without
+/// touching the filesystem. Gated to test builds so a live release
+/// build never compiles an unused symbol.
+#[cfg(test)]
 fn classify_from_transcript(transcript: &str) -> TauriStage {
     classify_from_reader(std::io::Cursor::new(transcript.as_bytes()))
 }
