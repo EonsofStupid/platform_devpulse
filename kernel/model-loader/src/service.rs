@@ -39,7 +39,7 @@ use crate::slots::registry::SlotRegistry;
 use crate::slots::types::{ModelCapability, Slot};
 use crate::traits::config::ConfigBackend;
 use crate::traits::errors::LoaderError;
-use crate::traits::events::{LoaderEvent, LoaderEventSink};
+use crate::traits::events::{LoaderEvent, LoaderEventSink, RebindReason, RuntimeFingerprint};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -54,6 +54,12 @@ pub(crate) struct InferenceState {
     pub(crate) slot_handles: HashMap<String, InferenceHandle>,
     pub(crate) swap_guard: SwapGuard,
     pub(crate) slot_statuses: HashMap<String, ModelStatus>,
+    /// Per-slot fingerprint of the runtime that fulfilled the last
+    /// successful load. Used by the capability-event detection logic
+    /// in `load_slot`/`warm_slot` to fire `CapabilityRebound` (when
+    /// the runtime_id changes) or `RuntimeVersionChanged` (when the
+    /// same runtime reports a different version) on the next load.
+    pub(crate) runtime_fingerprints: HashMap<String, RuntimeFingerprint>,
 }
 
 /// Model registry — exclusive lock only during scan.
@@ -112,6 +118,79 @@ struct LoadContext {
     /// keeps the load atomic with the clone state — no separate lock
     /// cycle needed after the load completes.
     voice_clones: Vec<VoiceCloneEntry>,
+}
+
+/// Resolve the canonical `runtime_id` string for a load — the one
+/// stamped on `LoaderEvent::CapabilityRebound` and used by the
+/// frontend `DevtoolMeta` registry to look up the runtime devtool.
+///
+/// The mapping is per-(backend, capability) because a single
+/// `BackendType` (notably `Ort`) hosts multiple distinct runtimes
+/// across capability slots. Drives the `runtime_id` field of the
+/// returned [`RuntimeFingerprint`].
+fn runtime_id_for(
+    backend: BackendType,
+    capability: ModelCapability,
+    params: &LoadParams,
+    model_path: &std::path::Path,
+) -> String {
+    use ModelCapability::{
+        Embedding, Reranking, SpeechToText, TextToSpeech, VisionEmbedding,
+    };
+
+    match (backend, capability) {
+        (BackendType::Candle, _) => "candle".to_string(),
+        (BackendType::LlamaCpp, _) => "llama-cpp-2".to_string(),
+        (BackendType::Sherpa, _) => "sherpa-onnx".to_string(),
+        (BackendType::Ort, TextToSpeech) => {
+            // Voice pool's TTS dispatch picks Qwen3-TTS for
+            // `.safetensors` files OR an explicit `qwen3-tts-candle`
+            // backend variant. Mirror that decision tree here so the
+            // fingerprint matches the actually-loaded engine.
+            let ext = model_path
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or("");
+            let variant = params.backend_variant.as_deref();
+            if variant == Some("qwen3-tts-candle") || ext == "safetensors" {
+                "qwen3-tts-candle".to_string()
+            } else {
+                "kokoro-onnx".to_string()
+            }
+        }
+        (BackendType::Ort, SpeechToText) => "whisper-onnx".to_string(),
+        (BackendType::Ort, Embedding) => "qwen3-embedder-onnx".to_string(),
+        (BackendType::Ort, Reranking) => "qwen3-reranker-onnx".to_string(),
+        (BackendType::Ort, VisionEmbedding) => {
+            // SigLIP HD path is the ort-backed `siglip2-onnx-fixres`;
+            // SD path falls through to candle.
+            if params.backend_variant.as_deref() == Some("siglip2-onnx-fixres") {
+                "siglip2-onnx-fixres".to_string()
+            } else {
+                "siglip-candle".to_string()
+            }
+        }
+        // Future capabilities (`AudioDecoding`, `VisionLanguage`) fall
+        // through to a stable fallback so unknown combos still produce
+        // a non-empty id rather than panic.
+        (b, c) => format!("{b:?}-{c:?}").to_lowercase(),
+    }
+}
+
+/// Compute a runtime fingerprint at load completion.
+///
+/// Pre-release scope: `crate_version` is the umbrella `model-loader`
+/// crate version (single Cargo workspace, all runtime crates move
+/// together). `upstream_revision` and `model_revision` are left
+/// `None` until Phase 5 wires per-runtime build-time SHA stamps
+/// + the LFS oid persisted on the registry entry.
+fn compute_runtime_fingerprint(runtime_id: String) -> RuntimeFingerprint {
+    RuntimeFingerprint {
+        runtime_id,
+        crate_version: Some(env!("CARGO_PKG_VERSION").to_string()),
+        upstream_revision: None,
+        model_revision: None,
+    }
 }
 
 impl ModelLoaderService {
@@ -209,6 +288,7 @@ impl ModelLoaderService {
                 slot_handles: HashMap::new(),
                 swap_guard: SwapGuard::new(),
                 slot_statuses: HashMap::new(),
+                runtime_fingerprints: HashMap::new(),
             })),
             registry: Arc::new(RwLock::new(RegistryState { registry })),
             config: Arc::new(RwLock::new(ConfigState {
@@ -947,6 +1027,60 @@ impl ModelLoaderService {
         self.refresh_voice_clones_with_snapshot(snapshot).await;
     }
 
+    /// Compare the new runtime fingerprint to the previously cached
+    /// one for this slot and emit the appropriate capability event.
+    ///
+    /// - First load of a slot in this session → `CapabilityRebound`
+    ///   with `from_runtime: None` and `reason: InitialLoad`.
+    /// - Same `runtime_id`, different version fields →
+    ///   `RuntimeVersionChanged`.
+    /// - Different `runtime_id` → `CapabilityRebound` with
+    ///   `from_runtime: Some(prev)` and `reason: UserSwap`.
+    /// - Identical fingerprint → no event (silent reload).
+    ///
+    /// Always inserts the new fingerprint into `runtime_fingerprints`
+    /// regardless of which arm fires, so the next load has a baseline
+    /// to compare against.
+    fn dispatch_runtime_events(
+        &self,
+        inf: &mut InferenceState,
+        slot_id: &str,
+        new_fingerprint: RuntimeFingerprint,
+    ) {
+        let prev = inf.runtime_fingerprints.get(slot_id).cloned();
+        match prev {
+            None => {
+                self.boot.events.emit(LoaderEvent::CapabilityRebound {
+                    capability: slot_id.to_string(),
+                    from_runtime: None,
+                    to_runtime: new_fingerprint.runtime_id.clone(),
+                    reason: RebindReason::InitialLoad,
+                });
+            }
+            Some(prev_fp) if prev_fp.runtime_id != new_fingerprint.runtime_id => {
+                self.boot.events.emit(LoaderEvent::CapabilityRebound {
+                    capability: slot_id.to_string(),
+                    from_runtime: Some(prev_fp.runtime_id),
+                    to_runtime: new_fingerprint.runtime_id.clone(),
+                    reason: RebindReason::UserSwap,
+                });
+            }
+            Some(prev_fp) if prev_fp != new_fingerprint => {
+                self.boot.events.emit(LoaderEvent::RuntimeVersionChanged {
+                    runtime_id: new_fingerprint.runtime_id.clone(),
+                    old_fingerprint: Some(prev_fp),
+                    new_fingerprint: new_fingerprint.clone(),
+                });
+            }
+            Some(_) => {
+                // Identical fingerprint — silent reload (e.g. same
+                // model, same runtime, same version). No event.
+            }
+        }
+        inf.runtime_fingerprints
+            .insert(slot_id.to_string(), new_fingerprint);
+    }
+
     /// Inner refresh hook — accepts a pre-fetched snapshot to avoid
     /// re-acquiring the config lock when the caller already has one.
     /// Lock order honoured: takes only `inference.read()`, never config.
@@ -1368,6 +1502,13 @@ impl ModelLoaderService {
             voice_clones,
         } = self.prepare_load_context(slot_id).await?;
 
+        // Compute the runtime fingerprint *before* moving `params`
+        // into the load call. Cheap (one match arm + env! macro);
+        // lets the post-load dispatch fire the right capability
+        // event without a second `LoadParams` allocation.
+        let new_fingerprint =
+            compute_runtime_fingerprint(runtime_id_for(backend, capability, &params, &model_path));
+
         // Phase 2: acquire inference write lock — the ONLY exclusive lock
         let mut inf = self.inference.write().await;
 
@@ -1423,6 +1564,7 @@ impl ModelLoaderService {
                 if capability == ModelCapability::TextToSpeech {
                     inf.voice_pool.refresh_voice_clones(slot_id, voice_clones);
                 }
+                self.dispatch_runtime_events(&mut inf, slot_id, new_fingerprint);
                 tracing::info!(slot = %slot_id, model = %model_id, backend = ?backend, ram_mb = memory.ram_mb(), vram_mb = memory.vram_mb(), "Slot loaded");
                 Ok(())
             }
@@ -1469,6 +1611,10 @@ impl ModelLoaderService {
         inf.slot_statuses
             .insert(slot_id.to_string(), ModelStatus::Unloading);
         inf.slot_handles.remove(slot_id);
+        // Drop the cached runtime fingerprint so the next load fires
+        // `CapabilityRebound { reason: InitialLoad }` instead of a
+        // spurious version-changed event.
+        inf.runtime_fingerprints.remove(slot_id);
 
         if let Some(mid) = model_id {
             for attempt in 1..=2 {
@@ -1537,6 +1683,11 @@ impl ModelLoaderService {
             return Ok(());
         };
 
+        // Same fingerprint pre-compute as `load_slot` — see that
+        // method for the rationale (avoids params clone).
+        let new_fingerprint =
+            compute_runtime_fingerprint(runtime_id_for(backend, capability, &params, &model_path));
+
         // Phase 2: inference write lock
         let mut inf = self.inference.write().await;
         inf.slot_statuses.insert(
@@ -1592,6 +1743,7 @@ impl ModelLoaderService {
                 if capability == ModelCapability::TextToSpeech {
                     inf.voice_pool.refresh_voice_clones(slot_id, voice_clones);
                 }
+                self.dispatch_runtime_events(&mut inf, slot_id, new_fingerprint);
                 tracing::info!(slot = %slot_id, model = %model_id, ram_mb = footprint.ram_mb(), "Slot warmed");
                 Ok(())
             }

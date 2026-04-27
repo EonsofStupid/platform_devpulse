@@ -10,4 +10,7 @@ pub use backend::InferenceBackend;
 pub use capability::{EmbeddingBackend, RerankerBackend, VisionEmbeddingBackend};
 pub use config::{ConfigBackend, MemoryConfig};
 pub use errors::{LoaderError, RecoverySuggestion};
-pub use events::{LoaderEvent, LoaderEventSink, NullEventSink, TracingEventSink};
+pub use events::{
+    LoaderEvent, LoaderEventSink, NullEventSink, RebindReason, RuntimeFingerprint,
+    TracingEventSink,
+};

@@ -89,6 +89,6 @@ pub use models::search::{search_huggingface, HfFileInfo, HfSearchResult};
 // Trait re-exports
 pub use traits::{
     ConfigBackend, EmbeddingBackend, InferenceBackend, LoaderError, LoaderEvent, LoaderEventSink,
-    MemoryConfig, NullEventSink, RecoverySuggestion, RerankerBackend, TracingEventSink,
-    VisionEmbeddingBackend,
+    MemoryConfig, NullEventSink, RebindReason, RecoverySuggestion, RerankerBackend,
+    RuntimeFingerprint, TracingEventSink, VisionEmbeddingBackend,
 };

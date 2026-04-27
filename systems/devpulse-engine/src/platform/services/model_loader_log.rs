@@ -280,6 +280,44 @@ impl LoaderEventSink for FileEventSink {
                 );
                 tracing::error!(slot = %slot_id, error = %error, "[model-loader] Swap FAILED");
             }
+
+            // ── Capability / runtime ───────────────────────────────
+            LoaderEvent::CapabilityRebound {
+                capability,
+                from_runtime,
+                to_runtime,
+                reason,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Capability REBOUND: cap={capability} from={from_runtime:?} to={to_runtime} reason={reason:?}",
+                    ),
+                );
+                tracing::info!(
+                    capability = %capability,
+                    from = ?from_runtime,
+                    to = %to_runtime,
+                    reason = ?reason,
+                    "[model-loader] Capability rebound"
+                );
+            }
+            LoaderEvent::RuntimeVersionChanged {
+                runtime_id,
+                old_fingerprint,
+                new_fingerprint,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Runtime VERSION CHANGED: runtime={runtime_id} old={old_fingerprint:?} new={new_fingerprint:?}",
+                    ),
+                );
+                tracing::info!(
+                    runtime = %runtime_id,
+                    "[model-loader] Runtime version changed"
+                );
+            }
         }
     }
 }

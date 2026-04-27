@@ -108,6 +108,32 @@ impl LoaderEventSink for EventBridge {
                 "model:swap-failed",
                 json!({ "slot_id": slot_id, "error": error }),
             ),
+            LoaderEvent::CapabilityRebound {
+                capability,
+                from_runtime,
+                to_runtime,
+                reason,
+            } => (
+                "model:capability-rebound",
+                json!({
+                    "capability": capability,
+                    "from_runtime": from_runtime,
+                    "to_runtime": to_runtime,
+                    "reason": reason,
+                }),
+            ),
+            LoaderEvent::RuntimeVersionChanged {
+                runtime_id,
+                old_fingerprint,
+                new_fingerprint,
+            } => (
+                "model:runtime-version-changed",
+                json!({
+                    "runtime_id": runtime_id,
+                    "old_fingerprint": old_fingerprint,
+                    "new_fingerprint": new_fingerprint,
+                }),
+            ),
             _ => {
                 // Other events: log via tracing, don't emit to frontend
                 tracing::debug!(event = ?event, "Model loader event (not bridged)");
