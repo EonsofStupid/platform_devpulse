@@ -10,6 +10,7 @@
 
 pub mod embedder;
 pub mod kokoro;
+pub mod personaplex;
 pub mod reranker;
 pub mod siglip_naflex;
 pub mod snac;
