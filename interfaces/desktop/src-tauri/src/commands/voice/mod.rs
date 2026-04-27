@@ -24,6 +24,7 @@
 )]
 
 use crate::state::PlatformState;
+use devpulse_media::decode_audio_file_to_pcm;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -665,75 +666,6 @@ pub async fn activate_voice_profile(
 }
 
 // ── Audio file upload + STS pipeline ──────────────────────────
-
-/// Decode an audio file on disk to mono f32 PCM at the requested sample rate.
-///
-/// Uses rodio's `Decoder` which delegates to symphonia/minimp3/etc. under
-/// the hood — WAV, MP3, FLAC, Vorbis are all supported out of the box.
-/// Stereo tracks are downmixed to mono by averaging channels. If the source
-/// sample rate differs from `target_rate`, simple linear interpolation
-/// resamples — good enough for Whisper's 16 kHz input.
-///
-/// Runs on the current thread (caller should wrap in `spawn_blocking`).
-fn decode_audio_file_to_pcm(path: &std::path::Path, target_rate: u32) -> Result<Vec<f32>, String> {
-    use rodio::{Decoder, Source};
-
-    let file = std::fs::File::open(path)
-        .map_err(|e| format!("Failed to open audio file {}: {e}", path.display()))?;
-    let reader = std::io::BufReader::new(file);
-
-    let decoder = Decoder::new(reader)
-        .map_err(|e| format!("Failed to decode audio file {}: {e}", path.display()))?;
-
-    let source_rate = decoder.sample_rate();
-    let source_channels = decoder.channels() as usize;
-    tracing::info!(
-        path = %path.display(),
-        sample_rate = source_rate,
-        channels = source_channels,
-        "Decoding uploaded audio file"
-    );
-
-    // rodio's Decoder yields i16 samples; convert to f32 in [-1.0, 1.0]
-    let raw: Vec<f32> = decoder.map(|s| f32::from(s) / 32_768.0).collect();
-    if raw.is_empty() {
-        return Err(format!(
-            "Audio file {} decoded to zero samples",
-            path.display()
-        ));
-    }
-
-    // Downmix to mono by averaging channels
-    let mono: Vec<f32> = if source_channels > 1 {
-        raw.chunks(source_channels)
-            .map(|chunk| chunk.iter().sum::<f32>() / source_channels as f32)
-            .collect()
-    } else {
-        raw
-    };
-
-    // Resample via linear interpolation if needed
-    if source_rate == target_rate {
-        return Ok(mono);
-    }
-    let ratio = f64::from(target_rate) / f64::from(source_rate);
-    let new_len = (mono.len() as f64 * ratio) as usize;
-    let mut resampled = Vec::with_capacity(new_len);
-    for i in 0..new_len {
-        let src_pos = i as f64 / ratio;
-        let idx = src_pos as usize;
-        let frac = (src_pos - idx as f64) as f32;
-        let sample = if idx + 1 < mono.len() {
-            mono[idx] * (1.0 - frac) + mono[idx + 1] * frac
-        } else if idx < mono.len() {
-            mono[idx]
-        } else {
-            0.0
-        };
-        resampled.push(sample);
-    }
-    Ok(resampled)
-}
 
 /// Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
 ///

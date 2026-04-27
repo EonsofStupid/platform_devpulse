@@ -36,6 +36,11 @@ flume = "0.11"
 # Frame timing
 chrono = { workspace = true }
 
+# Audio file decode for voice-loop ingest (Whisper STT + Qwen3-TTS
+# reference clips). rodio's Decoder delegates to symphonia/minimp3 for
+# format support — wrapping it here keeps the dep transitive elsewhere.
+rodio = "0.19"
+
 [dev-dependencies]
 tokio-test = "0.4"
 

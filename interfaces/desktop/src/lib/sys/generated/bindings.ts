@@ -2772,8 +2772,6 @@ async transcribeAudio() : Promise<Result<string, string>> {
 }
 },
 /**
- * Decode an audio file on disk to mono f32 PCM at the requested sample rate.
- * 
  * Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
  * 
  * Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user

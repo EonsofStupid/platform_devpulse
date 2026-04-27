@@ -44,6 +44,11 @@ chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
 devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference"] }
+# devpulse-media — audio_decode helpers for the voice loop (Whisper STT
+# + Qwen3-TTS reference ingest). default-features = false to skip the
+# camera-capture (nokhwa) feature, which is already declared directly
+# below with a different backend; we only need audio decode here.
+devpulse-media = { path = "../../../systems/devpulse-media", default-features = false }
 devpulse-telemetry = { workspace = true }
 flume = "0.11"
 arc-swap = { workspace = true }

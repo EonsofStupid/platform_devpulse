@@ -10,7 +10,13 @@ use crate::frame::Frame;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, error, info, warn};
+use tracing::{error, info, warn};
+// `debug` is only used inside the `enumerate_cameras` body that's
+// itself feature-gated by `capture` (line ~90 below). Mirror the gate
+// here so the import doesn't read as dead when the feature is off
+// (the case under Tauri's `default-features = false` import path).
+#[cfg(feature = "capture")]
+use tracing::debug;
 
 #[cfg(feature = "capture")]
 use nokhwa::{
@@ -41,7 +47,9 @@ pub struct CameraManager {
     active_camera: Option<Camera>,
     /// Cached list of available cameras
     cameras: Vec<CameraInfo>,
-    /// Frame sequence counter
+    /// Frame sequence counter — only meaningful when capture is on
+    /// (the read sites at `capture_frame` are gated by the feature).
+    #[cfg(feature = "capture")]
     frame_seq: u64,
 }
 
@@ -52,6 +60,7 @@ impl CameraManager {
             #[cfg(feature = "capture")]
             active_camera: None,
             cameras: Vec::new(),
+            #[cfg(feature = "capture")]
             frame_seq: 0,
         }
     }
