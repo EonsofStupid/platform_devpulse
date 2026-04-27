@@ -14,6 +14,7 @@ import {
 	Activity,
 	Brain,
 	BrainCircuit,
+	Cpu,
 	Ear,
 	ExternalLink,
 	Eye,
@@ -335,7 +336,8 @@ let laneGroups = $derived<LaneGroup[]>(
 					<header class="ds-section-header">
 						<h2 class="ds-section-title">Quick Actions</h2>
 						<p class="ds-section-blurb">
-							Most-used surfaces. Lane tracing presets and live config inspector.
+							Most-used surfaces. Lane tracing presets, config inspector,
+							runtime aggregation.
 						</p>
 					</header>
 					<div class="ds-tile-grid ds-tile-grid--lg">
@@ -351,6 +353,14 @@ let laneGroups = $derived<LaneGroup[]>(
 							<span class="ds-tile-title">Config Inspector</span>
 							<span class="ds-tile-blurb">Platform config, service stages, data paths.</span>
 						</button>
+						<a href="/devtools/runtimes" class="ds-tile ds-tile--lg">
+							<Cpu size={26} class="ds-tile-icon" />
+							<span class="ds-tile-title">Runtimes Aggregation</span>
+							<span class="ds-tile-blurb">
+								Inverse view — every loaded runtime, its fingerprint,
+								and per-runtime update checks.
+							</span>
+						</a>
 					</div>
 				</section>
 

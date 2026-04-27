@@ -1333,6 +1333,91 @@ pub async fn list_runtime_fingerprints(
     Ok(loader.list_runtime_fingerprints().await)
 }
 
+/// Result of `check_runtime_updates` — surfaces whether a newer
+/// version of a runtime is available without committing the user
+/// to anything. The UI shows the message verbatim; if `status` is
+/// `UpdateAvailable`, an "Update now" action becomes available
+/// (Phase 5 follow-up wires the actual swap).
+///
+/// `source_url` is set when the runtime has a known upstream
+/// (HuggingFace repo, GitHub releases, crates.io page) — the UI
+/// renders it as an external link so the user can manually
+/// inspect the upstream changelog before triggering an update.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct RuntimeUpdateInfo {
+    /// Runtime that was checked.
+    pub runtime_id: String,
+    /// Outcome of the check.
+    pub status: RuntimeUpdateStatus,
+    /// Fingerprint at the time of the check, if the runtime is
+    /// currently loaded. `None` when the runtime isn't in any slot.
+    pub current_fingerprint: Option<
+        devpulse_engine::platform::services::model_loader::RuntimeFingerprint,
+    >,
+    /// Layman-language summary of the result.
+    pub message: String,
+    /// Upstream source the user can inspect manually, if any.
+    pub source_url: Option<String>,
+}
+
+/// Outcome of a runtime update check.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "snake_case")]
+pub enum RuntimeUpdateStatus {
+    /// Runtime is at the latest known version.
+    UpToDate,
+    /// A newer version exists upstream.
+    UpdateAvailable,
+    /// No upstream check is implemented for this runtime yet —
+    /// the UI shows a tooltip explaining the status.
+    NoCheckConfigured,
+    /// Upstream check ran but failed (network, parse, rate-limit).
+    /// `message` carries the error detail.
+    CheckFailed,
+}
+
+/// Check whether a newer version of `runtime_id` is available
+/// upstream.
+///
+/// **Phase 5 stub** — every runtime currently returns
+/// `NoCheckConfigured` because the upstream-query implementations
+/// (HuggingFace revision API, GitHub releases API, crates.io API)
+/// are tracked separately and land per-runtime. The UI surface
+/// + Tauri command + return type are stable now so the per-runtime
+/// implementations can drop in without touching frontend code.
+///
+/// The current fingerprint is always included so the user can see
+/// what they're running today even when no upstream check exists.
+#[tauri::command]
+#[specta::specta]
+pub async fn check_runtime_updates(
+    state: State<'_, PlatformState>,
+    runtime_id: String,
+) -> Result<RuntimeUpdateInfo, String> {
+    let loader = get_loader(&state).await?;
+    let fingerprints = loader.list_runtime_fingerprints().await;
+
+    // Pick the first loaded fingerprint that matches this runtime
+    // (a runtime can fulfill multiple capability slots — they'll
+    // all carry the same crate_version / upstream_revision because
+    // the workspace is one Cargo target).
+    let current_fingerprint = fingerprints
+        .into_values()
+        .find(|fp| fp.runtime_id == runtime_id);
+
+    Ok(RuntimeUpdateInfo {
+        runtime_id: runtime_id.clone(),
+        status: RuntimeUpdateStatus::NoCheckConfigured,
+        current_fingerprint,
+        message: format!(
+            "No upstream update check is wired for `{runtime_id}` yet — \
+             the per-runtime check (HuggingFace / GitHub releases / crates.io) \
+             lands as a follow-up. Current fingerprint shown for reference."
+        ),
+        source_url: None,
+    })
+}
+
 /// Warm a slot — load weights to CPU RAM only, no GPU allocation.
 ///
 /// Model enters "Warm" state: weights in RAM, fast activation to GPU later.

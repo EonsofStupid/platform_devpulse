@@ -2373,6 +2373,28 @@ async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: Runt
 }
 },
 /**
+ * Check whether a newer version of `runtime_id` is available
+ * upstream.
+ * 
+ * **Phase 5 stub** — every runtime currently returns
+ * `NoCheckConfigured` because the upstream-query implementations
+ * (HuggingFace revision API, GitHub releases API, crates.io API)
+ * are tracked separately and land per-runtime. The UI surface
+ * + Tauri command + return type are stable now so the per-runtime
+ * implementations can drop in without touching frontend code.
+ * 
+ * The current fingerprint is always included so the user can see
+ * what they're running today even when no upstream check exists.
+ */
+async checkRuntimeUpdates(runtimeId: string) : Promise<Result<RuntimeUpdateInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("check_runtime_updates", { runtimeId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Warm a slot — load weights to CPU RAM only, no GPU allocation.
  * 
  * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
@@ -7148,6 +7170,62 @@ upstream_revision: string | null;
  * new runtime version".
  */
 model_revision: string | null }
+/**
+ * Result of `check_runtime_updates` — surfaces whether a newer
+ * version of a runtime is available without committing the user
+ * to anything. The UI shows the message verbatim; if `status` is
+ * `UpdateAvailable`, an "Update now" action becomes available
+ * (Phase 5 follow-up wires the actual swap).
+ * 
+ * `source_url` is set when the runtime has a known upstream
+ * (HuggingFace repo, GitHub releases, crates.io page) — the UI
+ * renders it as an external link so the user can manually
+ * inspect the upstream changelog before triggering an update.
+ */
+export type RuntimeUpdateInfo = { 
+/**
+ * Runtime that was checked.
+ */
+runtime_id: string; 
+/**
+ * Outcome of the check.
+ */
+status: RuntimeUpdateStatus; 
+/**
+ * Fingerprint at the time of the check, if the runtime is
+ * currently loaded. `None` when the runtime isn't in any slot.
+ */
+current_fingerprint: RuntimeFingerprint | null; 
+/**
+ * Layman-language summary of the result.
+ */
+message: string; 
+/**
+ * Upstream source the user can inspect manually, if any.
+ */
+source_url: string | null }
+/**
+ * Outcome of a runtime update check.
+ */
+export type RuntimeUpdateStatus = 
+/**
+ * Runtime is at the latest known version.
+ */
+"up_to_date" | 
+/**
+ * A newer version exists upstream.
+ */
+"update_available" | 
+/**
+ * No upstream check is implemented for this runtime yet —
+ * the UI shows a tooltip explaining the status.
+ */
+"no_check_configured" | 
+/**
+ * Upstream check ran but failed (network, parse, rate-limit).
+ * `message` carries the error detail.
+ */
+"check_failed"
 /**
  * Scanning state — shown during hardware detection.
  */
