@@ -1311,6 +1311,28 @@ pub struct HfFileInfoItem {
     pub quant_level: Option<String>,
 }
 
+/// Snapshot every slot's currently-cached runtime fingerprint.
+///
+/// Returns a `(slot_id → fingerprint)` map for slots that have a
+/// model loaded right now. The frontend `capabilityChannel` calls
+/// this on mount to hydrate state before `LoaderEvent::CapabilityRebound`
+/// events stream in — without it, already-loaded slots would
+/// briefly show "no runtime" in the UI.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_runtime_fingerprints(
+    state: State<'_, PlatformState>,
+) -> Result<
+    std::collections::HashMap<
+        String,
+        devpulse_engine::platform::services::model_loader::RuntimeFingerprint,
+    >,
+    String,
+> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.list_runtime_fingerprints().await)
+}
+
 /// Warm a slot — load weights to CPU RAM only, no GPU allocation.
 ///
 /// Model enters "Warm" state: weights in RAM, fast activation to GPU later.

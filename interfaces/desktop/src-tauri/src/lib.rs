@@ -295,6 +295,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::models::set_brain_ngl,
         commands::models::upload_voice_sample,
         commands::models::list_kokoro_voices,
+        commands::models::list_runtime_fingerprints,
         commands::models::warm_slot,
         commands::models::delete_model,
         commands::models::search_huggingface,

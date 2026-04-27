@@ -2356,6 +2356,23 @@ async listKokoroVoices() : Promise<Result<KokoroVoiceInfo[], string>> {
 }
 },
 /**
+ * Snapshot every slot's currently-cached runtime fingerprint.
+ * 
+ * Returns a `(slot_id → fingerprint)` map for slots that have a
+ * model loaded right now. The frontend `capabilityChannel` calls
+ * this on mount to hydrate state before `LoaderEvent::CapabilityRebound`
+ * events stream in — without it, already-loaded slots would
+ * briefly show "no runtime" in the UI.
+ */
+async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: RuntimeFingerprint }>, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_runtime_fingerprints") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Warm a slot — load weights to CPU RAM only, no GPU allocation.
  * 
  * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
@@ -6622,7 +6639,7 @@ export type ProviderId =
  */
 "anthropic-subscription" | 
 /**
- * OpenAI (api.openai.com).
+ * `OpenAI` (api.openai.com).
  */
 "open-ai" | 
 /**
@@ -6642,7 +6659,7 @@ export type ProviderId =
  */
 "xai" | 
 /**
- * DeepSeek (api.deepseek.com).
+ * `DeepSeek` (api.deepseek.com).
  */
 "deep-seek" | 
 /**
@@ -7090,6 +7107,47 @@ at_ms: number;
  * Opaque source/reason — per registry, never an algorithm name.
  */
 reason: string }
+/**
+ * Identifies the engine fulfilling a capability slot at a moment in time.
+ * 
+ * The loader stamps a fingerprint on every successful load and caches
+ * the previous one per slot. When the next load produces a different
+ * `runtime_id`, the engine fires [`LoaderEvent::CapabilityRebound`] —
+ * when only `crate_version` / `upstream_revision` / `model_revision`
+ * differ, it fires [`LoaderEvent::RuntimeVersionChanged`] instead.
+ * 
+ * All four version fields are optional because they're discovered at
+ * load time from heterogeneous sources (cargo metadata, vendored fork
+ * SHA stamps, HuggingFace LFS oid). A missing field means "not known
+ * for this runtime"; the loader still produces a stable fingerprint
+ * because `runtime_id` alone is sufficient for rebind detection.
+ */
+export type RuntimeFingerprint = { 
+/**
+ * Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
+ * `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
+ * `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
+ * `runtime_id` field on the frontend `DevtoolMeta` registry.
+ */
+runtime_id: string; 
+/**
+ * Cargo crate version of the runtime crate
+ * (`env!("CARGO_PKG_VERSION")` at runtime). `None` for runtimes
+ * that don't ship as a Rust crate (Ollama, system services).
+ */
+crate_version: string | null; 
+/**
+ * Git commit SHA for vendored forks (`deps/moshi/`, `deps/ort/`,
+ * kokoros, …). `None` when the runtime is consumed unmodified.
+ */
+upstream_revision: string | null; 
+/**
+ * SHA-256 of the model weights — already computed by the LFS
+ * download verifier for HuggingFace-sourced models. Lets the UI
+ * distinguish "same runtime, new model file" from "same model,
+ * new runtime version".
+ */
+model_revision: string | null }
 /**
  * Scanning state — shown during hardware detection.
  */

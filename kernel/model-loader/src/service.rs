@@ -1012,6 +1012,22 @@ impl ModelLoaderService {
         Ok(())
     }
 
+    /// Snapshot every slot's currently-cached runtime fingerprint.
+    ///
+    /// Returns a `(slot_id → fingerprint)` map for the slots that
+    /// have a model loaded right now. The frontend
+    /// `capabilityChannel` uses this on mount to hydrate state
+    /// before the first `LoaderEvent::CapabilityRebound` arrives —
+    /// without it, the UI would show "no runtime" for already-loaded
+    /// slots until the next reload.
+    ///
+    /// Acquires only `inference.read()`; safe to call from any Tauri
+    /// command without lock-order concerns.
+    pub async fn list_runtime_fingerprints(&self) -> HashMap<String, RuntimeFingerprint> {
+        let inf = self.inference.read().await;
+        inf.runtime_fingerprints.clone()
+    }
+
     /// Re-push the current `assistant.voice_clones` snapshot into the
     /// loaded `voice.tts` backend. Useful when the TTS slot is reloaded
     /// out-of-band (e.g. swapped to a different model) and the engine

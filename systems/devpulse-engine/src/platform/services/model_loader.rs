@@ -35,6 +35,7 @@ pub use devpulse_clyffy::model_loader::{
 pub use devpulse_clyffy::model_loader::{
     AutoConfig, BrainSwapPolicy, HardwareTier, SlotRecommendation,
 };
+pub use devpulse_clyffy::model_loader::{RebindReason, RuntimeFingerprint};
 use devpulse_clyffy::model_loader::{
     HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot, SlotStatus, VramBudget,
 };
@@ -424,6 +425,17 @@ impl ModelLoaderService {
             .set_routing_mode(mode)
             .await
             .map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
+    /// Snapshot every slot's currently-cached runtime fingerprint.
+    ///
+    /// Used by the frontend `capabilityChannel` store on mount to
+    /// hydrate "what's loaded right now" before the first
+    /// `LoaderEvent::CapabilityRebound` event streams in.
+    pub async fn list_runtime_fingerprints(
+        &self,
+    ) -> std::collections::HashMap<String, RuntimeFingerprint> {
+        self.inner.list_runtime_fingerprints().await
     }
 
     /// Register a custom voice clone entry.
