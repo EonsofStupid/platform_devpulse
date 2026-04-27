@@ -186,9 +186,16 @@ mod tests {
     use std::io::Write;
     use std::path::PathBuf;
 
+    /// Unique-per-test temp dir. Tests run in parallel so we can't
+    /// share `std::process::id()` across them — race on the same
+    /// archive_path causes intermittent failures.
+    static TEST_DIR_COUNTER: std::sync::atomic::AtomicU64 =
+        std::sync::atomic::AtomicU64::new(0);
+
     fn make_tgz(payload: &[(&str, &[u8])]) -> Result<PathBuf> {
+        let n = TEST_DIR_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let dir = std::env::temp_dir().join(format!(
-            "devpulse-voices-tgz-test-{}",
+            "devpulse-voices-tgz-test-{}-{n}",
             std::process::id()
         ));
         std::fs::create_dir_all(&dir)?;
@@ -229,10 +236,7 @@ mod tests {
         ])
         .unwrap();
 
-        let dst = archive
-            .parent()
-            .unwrap()
-            .join(format!("voices-out-{}", std::process::id()));
+        let dst = archive.parent().unwrap().join("voices-out");
         let count = extract_tgz(&archive, &dst).unwrap();
         assert_eq!(count, 2, "two file entries expected");
 
@@ -277,8 +281,9 @@ mod tests {
 
     #[test]
     fn extract_voices_in_returns_zero_when_archive_missing() {
+        let n = TEST_DIR_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let dir = std::env::temp_dir().join(format!(
-            "devpulse-voices-missing-{}",
+            "devpulse-voices-missing-{}-{n}",
             std::process::id()
         ));
         std::fs::create_dir_all(&dir).unwrap();
