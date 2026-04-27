@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// All four version fields are optional because they're discovered at
 /// load time from heterogeneous sources (cargo metadata, vendored fork
-/// SHA stamps, HuggingFace LFS oid). A missing field means "not known
+/// SHA stamps, `HuggingFace` LFS oid). A missing field means "not known
 /// for this runtime"; the loader still produces a stable fingerprint
 /// because `runtime_id` alone is sufficient for rebind detection.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

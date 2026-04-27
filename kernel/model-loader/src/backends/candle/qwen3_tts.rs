@@ -285,8 +285,7 @@ impl TtsBackend for Qwen3TtsBackend {
                 .parent()
                 .map(|d| d.join("speech_tokenizer").join("model.safetensors"))
                 .and_then(|p| std::fs::metadata(&p).ok())
-                .map(|m| m.len())
-                .unwrap_or(0);
+                .map_or(0, |m| m.len());
             MemoryFootprint {
                 ram_bytes: talker + codec,
                 vram_bytes: 0,

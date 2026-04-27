@@ -71,6 +71,16 @@ impl VoicePool {
 
     /// Load a voice model for a slot. Creates the appropriate backend
     /// based on capability.
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - the backend constructor or `.load()` fails (file missing,
+    ///   format mismatch, runtime init failed),
+    /// - the requested capability has no compiled backend in this build
+    ///   (`VisionEmbedding` without `candle-backend` and the ort-fixres
+    ///   variant, or any capability the pool doesn't handle),
+    /// - either the `sessions` or `footprints` mutex is poisoned (a
+    ///   prior panic while a guard was held).
     #[cfg(feature = "ort-backend")]
     pub fn load(
         &self,
@@ -83,148 +93,54 @@ impl VoicePool {
         self.unload(slot_id);
 
         match capability {
-            ModelCapability::TextToSpeech => {
-                // Qwen3-TTS path (safetensors talker + bundled codec) —
-                // selected when the slot's preset declares
-                // `backend_variant = "qwen3-tts-candle"`, OR when the
-                // assigned file is a `.safetensors` (Kokoro is
-                // ONNX-only). Same `TtsBackend` trait — replaces what
-                // Kokoro otherwise covers, with voice-cloning support.
-                // The dispatch hook (and the variant/ext bindings it
-                // reads) only exists when the feature is compiled in;
-                // otherwise the safetensors check is dead and we fall
-                // straight through to the Kokoro path which then errors
-                // cleanly on the wrong file extension.
-                #[cfg(feature = "qwen3-tts-backend")]
-                {
-                    let variant = params.backend_variant.as_deref();
-                    let ext = model_path
-                        .extension()
-                        .and_then(|e| e.to_str())
-                        .unwrap_or("");
-                    if variant == Some("qwen3-tts-candle") || ext == "safetensors" {
-                        let mut backend = crate::backends::candle::Qwen3TtsBackend::new();
-                        let footprint = backend.load(model_path, params)?;
-                        let mut sessions =
-                            self.sessions.lock().map_err(|e| {
-                                anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}")
-                            })?;
-                        let mut footprints =
-                            self.footprints.lock().map_err(|e| {
-                                anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}")
-                            })?;
-                        sessions
-                            .insert(slot_id.to_string(), VoiceSession::Tts(Box::new(backend)));
-                        footprints.insert(slot_id.to_string(), footprint);
-                        tracing::info!(
-                            slot = %slot_id,
-                            backend = "qwen3-tts-candle",
-                            "VoicePool: TTS model loaded (Qwen3-TTS path)"
-                        );
-                        return Ok(footprint);
-                    }
-                }
-
-                // Default path — Kokoro ONNX via ort.
-                let mut backend = crate::backends::ort::kokoro::KokoroTts::new();
-                let footprint = backend.load(model_path, params)?;
-                let mut sessions = self
-                    .sessions
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self
-                    .footprints
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                sessions.insert(slot_id.to_string(), VoiceSession::Tts(Box::new(backend)));
-                footprints.insert(slot_id.to_string(), footprint);
-                tracing::info!(
-                    slot = %slot_id,
-                    backend = "kokoro-ort",
-                    "VoicePool: TTS model loaded (Kokoro path)"
-                );
-                Ok(footprint)
-            }
+            ModelCapability::TextToSpeech => self.load_tts(slot_id, model_path, params),
             ModelCapability::SpeechToText => {
                 let mut backend = crate::backends::ort::whisper::WhisperStt::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self
-                    .sessions
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self
-                    .footprints
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                sessions.insert(slot_id.to_string(), VoiceSession::Stt(Box::new(backend)));
-                footprints.insert(slot_id.to_string(), footprint);
                 tracing::info!(slot = %slot_id, "VoicePool: STT model loaded");
-                Ok(footprint)
+                self.record_session(slot_id, VoiceSession::Stt(Box::new(backend)), footprint)
             }
             ModelCapability::Embedding => {
                 let mut backend = crate::backends::ort::embedder::Qwen3Embedder::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self
-                    .sessions
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self
-                    .footprints
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                sessions.insert(
-                    slot_id.to_string(),
-                    VoiceSession::Embedding(Box::new(backend)),
-                );
-                footprints.insert(slot_id.to_string(), footprint);
                 tracing::info!(slot = %slot_id, "VoicePool: embedder model loaded");
-                Ok(footprint)
+                self.record_session(
+                    slot_id,
+                    VoiceSession::Embedding(Box::new(backend)),
+                    footprint,
+                )
             }
             ModelCapability::Reranking => {
                 let mut backend = crate::backends::ort::reranker::Qwen3Reranker::new();
                 let footprint = backend.load(model_path, params)?;
-                let mut sessions = self
-                    .sessions
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                let mut footprints = self
-                    .footprints
-                    .lock()
-                    .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                sessions.insert(
-                    slot_id.to_string(),
-                    VoiceSession::Reranking(Box::new(backend)),
-                );
-                footprints.insert(slot_id.to_string(), footprint);
                 tracing::info!(slot = %slot_id, "VoicePool: reranker model loaded");
-                Ok(footprint)
+                self.record_session(
+                    slot_id,
+                    VoiceSession::Reranking(Box::new(backend)),
+                    footprint,
+                )
             }
             ModelCapability::VisionEmbedding => {
                 let variant = params.backend_variant.as_deref();
 
                 // HD path — SigLIP 2 ONNX via ort. Requires `ort-backend` feature.
                 #[cfg(feature = "ort-backend")]
-                if variant == Some(crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::backend_name()) {
+                if variant
+                    == Some(crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::backend_name())
+                {
                     let mut backend =
                         crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::new();
                     let footprint = backend.load(model_path, params.clone())?;
-                    let mut sessions = self
-                        .sessions
-                        .lock()
-                        .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                    let mut footprints = self
-                        .footprints
-                        .lock()
-                        .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                    sessions
-                        .insert(slot_id.to_string(), VoiceSession::Vision(Box::new(backend)));
-                    footprints.insert(slot_id.to_string(), footprint);
                     tracing::info!(
                         slot = %slot_id,
                         backend = "siglip2-onnx-fixres",
                         "VoicePool: vision encoder loaded (HD path)"
                     );
-                    return Ok(footprint);
+                    return self.record_session(
+                        slot_id,
+                        VoiceSession::Vision(Box::new(backend)),
+                        footprint,
+                    );
                 }
 
                 // Default path — SigLIP via candle (SD path).
@@ -232,22 +148,16 @@ impl VoicePool {
                 {
                     let mut backend = crate::backends::candle::SigLipVision::new();
                     let footprint = backend.load(model_path, params)?;
-                    let mut sessions = self
-                        .sessions
-                        .lock()
-                        .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
-                    let mut footprints = self
-                        .footprints
-                        .lock()
-                        .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
-                    sessions.insert(slot_id.to_string(), VoiceSession::Vision(Box::new(backend)));
-                    footprints.insert(slot_id.to_string(), footprint);
                     tracing::info!(
                         slot = %slot_id,
                         backend = "siglip-candle",
                         "VoicePool: vision encoder loaded (SD path)"
                     );
-                    Ok(footprint)
+                    self.record_session(
+                        slot_id,
+                        VoiceSession::Vision(Box::new(backend)),
+                        footprint,
+                    )
                 }
                 #[cfg(not(feature = "candle-backend"))]
                 {
@@ -261,6 +171,78 @@ impl VoicePool {
                 anyhow::bail!("VoicePool does not handle capability: {other}");
             }
         }
+    }
+
+    /// `TextToSpeech` arm of [`VoicePool::load`].
+    ///
+    /// Selects between Qwen3-TTS (safetensors, voice-cloning) and Kokoro
+    /// (ONNX) per the slot's preset variant or the assigned file
+    /// extension — Kokoro is the default fallback when the
+    /// `qwen3-tts-backend` feature isn't compiled or the file isn't a
+    /// safetensors. Extracted from `load` to keep that match dispatcher
+    /// under the `clippy::too_many_lines` threshold.
+    #[cfg(feature = "ort-backend")]
+    fn load_tts(
+        &self,
+        slot_id: &str,
+        model_path: &Path,
+        params: LoadParams,
+    ) -> anyhow::Result<MemoryFootprint> {
+        #[cfg(feature = "qwen3-tts-backend")]
+        {
+            let variant = params.backend_variant.as_deref();
+            let ext = model_path
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or("");
+            if variant == Some("qwen3-tts-candle") || ext == "safetensors" {
+                let mut backend = crate::backends::candle::Qwen3TtsBackend::new();
+                let footprint = backend.load(model_path, params)?;
+                tracing::info!(
+                    slot = %slot_id,
+                    backend = "qwen3-tts-candle",
+                    "VoicePool: TTS model loaded (Qwen3-TTS path)"
+                );
+                return self.record_session(
+                    slot_id,
+                    VoiceSession::Tts(Box::new(backend)),
+                    footprint,
+                );
+            }
+        }
+
+        // Default path — Kokoro ONNX via ort.
+        let mut backend = crate::backends::ort::kokoro::KokoroTts::new();
+        let footprint = backend.load(model_path, params)?;
+        tracing::info!(
+            slot = %slot_id,
+            backend = "kokoro-ort",
+            "VoicePool: TTS model loaded (Kokoro path)"
+        );
+        self.record_session(slot_id, VoiceSession::Tts(Box::new(backend)), footprint)
+    }
+
+    /// Common tail of every `load` arm: lock both maps and record the
+    /// new session + footprint atomically. Returns the footprint so
+    /// the caller can propagate it as the function result.
+    #[cfg(feature = "ort-backend")]
+    fn record_session(
+        &self,
+        slot_id: &str,
+        session: VoiceSession,
+        footprint: MemoryFootprint,
+    ) -> anyhow::Result<MemoryFootprint> {
+        let mut sessions = self
+            .sessions
+            .lock()
+            .map_err(|e| anyhow::anyhow!("VoicePool sessions mutex poisoned: {e}"))?;
+        let mut footprints = self
+            .footprints
+            .lock()
+            .map_err(|e| anyhow::anyhow!("VoicePool footprints mutex poisoned: {e}"))?;
+        sessions.insert(slot_id.to_string(), session);
+        footprints.insert(slot_id.to_string(), footprint);
+        Ok(footprint)
     }
 
     /// Load — not available without `ort-backend` feature.

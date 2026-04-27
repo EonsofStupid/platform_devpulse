@@ -57,7 +57,7 @@ pub(crate) struct InferenceState {
     /// Per-slot fingerprint of the runtime that fulfilled the last
     /// successful load. Used by the capability-event detection logic
     /// in `load_slot`/`warm_slot` to fire `CapabilityRebound` (when
-    /// the runtime_id changes) or `RuntimeVersionChanged` (when the
+    /// the `runtime_id` changes) or `RuntimeVersionChanged` (when the
     /// same runtime reports a different version) on the next load.
     pub(crate) runtime_fingerprints: HashMap<String, RuntimeFingerprint>,
 }
