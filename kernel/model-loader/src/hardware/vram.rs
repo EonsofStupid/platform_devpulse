@@ -1,4 +1,4 @@
-//! VRAM budget planner — answers "do all my auto_load slots fit?"
+//! VRAM budget planner — answers "do all my `auto_load` slots fit?"
 
 use crate::loading::states::ModelStatus;
 use serde::{Deserialize, Serialize};
@@ -127,7 +127,12 @@ pub fn compute_budget(
         });
     }
 
-    let remaining = total_vram_mb as i64 - current_vram_used_mb as i64 - planned_total as i64;
+    // VRAM byte counts in MB physically cannot exceed i64::MAX (would require
+    // ~8 EiB of VRAM), but we defend with try_from to keep the cast lossless.
+    let total_i64 = i64::try_from(total_vram_mb).unwrap_or(i64::MAX);
+    let used_i64 = i64::try_from(current_vram_used_mb).unwrap_or(i64::MAX);
+    let planned_i64 = i64::try_from(planned_total).unwrap_or(i64::MAX);
+    let remaining = total_i64 - used_i64 - planned_i64;
 
     VramBudget {
         total_vram_mb,

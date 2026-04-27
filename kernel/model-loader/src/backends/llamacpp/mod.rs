@@ -1,7 +1,7 @@
 //! llama.cpp GGUF inference backend via the `llama-cpp-2` crate.
 //!
 //! Implements `InferenceBackend` for GGUF models. The `llama-cpp-2` crate
-//! vendors llama.cpp and builds it via CMake — no external dependencies
+//! vendors llama.cpp and builds it via `CMake` — no external dependencies
 //! beyond a C++ toolchain (and optionally CUDA toolkit for GPU).
 //!
 //! Thread safety: `LlamaModel` is Send+Sync (shared across threads).

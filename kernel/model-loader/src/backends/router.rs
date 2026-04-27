@@ -4,10 +4,10 @@ use crate::models::registry::{BackendType, ModelFormat, ModelRegistryEntry};
 
 /// Select the appropriate backend for a model.
 ///
-/// GGUF → Candle (if supported) or llama.cpp.
-/// SafeTensors → Candle.
-/// ONNX → ort (SNAC, Kokoro).
-/// SherpaDir → ort (Whisper dirs contain ONNX encoder/decoder).
+/// `GGUF` → Candle (if supported) or llama.cpp.
+/// `SafeTensors` → Candle.
+/// `ONNX` → ort (`SNAC`, `Kokoro`).
+/// `SherpaDir` → ort (`Whisper` dirs contain ONNX encoder/decoder).
 pub fn select_backend(
     entry: &ModelRegistryEntry,
     override_backend: Option<BackendType>,
@@ -25,8 +25,7 @@ pub fn select_backend(
             }
         }
         ModelFormat::SafeTensors => BackendType::Candle,
-        ModelFormat::Onnx => BackendType::Ort,
-        ModelFormat::SherpaDir => BackendType::Ort,
+        ModelFormat::Onnx | ModelFormat::SherpaDir => BackendType::Ort,
     }
 }
 

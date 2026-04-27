@@ -37,7 +37,7 @@ pub struct WizardCopy {
     pub profile: ProfileCopy,
     /// Copy for the final completion / launch step.
     pub completion: CompletionCopy,
-    /// Copy for the HuggingFace token entry modal.
+    /// Copy for the `HuggingFace` token entry modal.
     ///
     /// `#[serde(default)]` lets older user overrides that pre-date this
     /// section continue to parse — missing fields use struct `Default`.
@@ -189,7 +189,7 @@ pub struct CustomizeCopy {
 pub struct BrowseCopy {
     /// Heading for the browse / search step (e.g. "Find a model").
     pub title: String,
-    /// Supporting line explaining how to search HuggingFace or scan local folders.
+    /// Supporting line explaining how to search `HuggingFace` or scan local folders.
     pub subtitle: String,
     /// Label for the in-popup tab that shows preset recommendations for the selected slot.
     pub recommended_tab_label: String,
@@ -199,7 +199,7 @@ pub struct BrowseCopy {
     pub online_tab_label: String,
     /// Label for the in-popup tab that opens a local file picker.
     pub local_browse_tab_label: String,
-    /// Short description shown above the inline HuggingFace search panel.
+    /// Short description shown above the inline `HuggingFace` search panel.
     pub search_panel_description: String,
     /// Placeholder text inside the model search input field.
     pub search_placeholder: String,
@@ -347,13 +347,13 @@ pub struct CompletionCopy {
     pub api_section_label: String,
     /// Message shown inside the API section when no provider keys have been configured.
     pub api_empty_message: String,
-    /// Label on the primary "Launch DevPulse" button that closes the wizard.
+    /// Label on the primary "Launch `DevPulse`" button that closes the wizard.
     pub launch_label: String,
     /// Small hint below the launch button (e.g. reassurance that settings can be changed later).
     pub hint: String,
 }
 
-/// Copy for the HuggingFace token entry modal.
+/// Copy for the `HuggingFace` token entry modal.
 ///
 /// Surface: a dialog rendered inside `SetupWizardOverlay` with a password
 /// field, save / clear / cancel buttons, and a help link back to HF's
@@ -574,6 +574,13 @@ impl WizardCopy {
     ///
     /// Tries `{userdata_dir}/config/wizard_copy.toml` first.
     /// Falls back to embedded default if user override doesn't exist or is invalid.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error only when the embedded default `wizard_copy.default.toml`
+    /// fails to parse via [`Self::load_default`]. User-override read or parse
+    /// failures are logged as warnings and trigger fallback, not an error
+    /// return.
     pub fn load(userdata_dir: &Path) -> Result<Self> {
         let override_path = userdata_dir.join("config").join("wizard_copy.toml");
 
@@ -610,12 +617,21 @@ impl WizardCopy {
 
     /// Load the embedded default copy. Always succeeds at compile time
     /// (the embedded TOML is validated by tests).
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if [`toml::from_str`] fails to deserialize the
+    /// embedded `wizard_copy.default.toml` into [`WizardCopy`]. In practice
+    /// this is unreachable because the embedded TOML is exercised by
+    /// [`tests::embedded_default_parses`] at compile-test time, but the
+    /// fallible signature is preserved for callers that want a `Result`.
     pub fn load_default() -> Result<Self> {
         toml::from_str(DEFAULT_TOML).context("Failed to parse embedded wizard_copy.default.toml")
     }
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 

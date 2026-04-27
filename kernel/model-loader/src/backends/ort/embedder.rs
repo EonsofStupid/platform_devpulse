@@ -21,7 +21,7 @@
 //!
 //! Model file expectations:
 //!   - `model.onnx` (or any `*.onnx` in the directory)
-//!   - `tokenizer.json` (HuggingFace tokenizers format)
+//!   - `tokenizer.json` (`HuggingFace` tokenizers format)
 //!
 //! Default output dim: 1024 for Qwen3-Embedding-0.6B.
 //! Used for RAG retrieval, semantic search, memory embedding.

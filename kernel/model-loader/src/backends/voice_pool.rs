@@ -4,14 +4,14 @@
 //! This pool owns every "capability" backend that runs through `ort` or
 //! Candle-vision and produces things other than next-token logits:
 //!
-//! - **TTS** (Kokoro) — text → PCM
-//! - **STT** (Whisper) — PCM → text
-//! - **Text embedding** (Qwen3 embedder) — text → dense vector
-//! - **Reranker** (Qwen3 cross-encoder) — (query, docs) → relevance scores
-//! - **Vision embedding** (SigLIP2) — image → dense vector
+//! - **TTS** (`Kokoro`) — text → PCM
+//! - **STT** (`Whisper`) — PCM → text
+//! - **Text embedding** (`Qwen3` embedder) — text → dense vector
+//! - **Reranker** (`Qwen3` cross-encoder) — (query, docs) → relevance scores
+//! - **Vision embedding** (`SigLIP2`) — image → dense vector
 //!
-//! Name is historical — it started as "VoicePool" when only TTS/STT lived
-//! here. The rest of the code still calls it voice_pool; renaming is a
+//! Name is historical — it started as `VoicePool` when only TTS/STT lived
+//! here. The rest of the code still calls it `voice_pool`; renaming is a
 //! separate cleanup.
 //!
 //! Thread safety: `sessions` and `footprints` are behind `Mutex` because
@@ -43,7 +43,7 @@ enum VoiceSession {
     Embedding(Box<dyn EmbeddingBackend>),
     /// Cross-encoder reranker (Qwen3-Reranker via ort).
     Reranking(Box<dyn RerankerBackend>),
-    /// Image encoder (SigLIP2 via Candle).
+    /// Image encoder (`SigLIP2` via Candle).
     Vision(Box<dyn VisionEmbeddingBackend>),
 }
 
@@ -52,9 +52,9 @@ enum VoiceSession {
 /// All access to `sessions` and `footprints` goes through `Mutex::lock()`.
 /// Poisoned mutex = hard error, not silent failure.
 pub struct VoicePool {
-    /// slot_id → voice session (TTS or STT).
+    /// `slot_id` → voice session (TTS or STT).
     sessions: Mutex<HashMap<String, VoiceSession>>,
-    /// slot_id → memory footprint of loaded model.
+    /// `slot_id` → memory footprint of loaded model.
     footprints: Mutex<HashMap<String, MemoryFootprint>>,
 }
 
@@ -216,7 +216,12 @@ impl VoicePool {
         }
     }
 
-    /// Load — not available without ort-backend feature.
+    /// Load — not available without `ort-backend` feature.
+    ///
+    /// # Errors
+    /// Always returns an error in this build configuration: the
+    /// `ort-backend` Cargo feature is not enabled, so no capability
+    /// backend can be constructed for the requested slot.
     #[cfg(not(feature = "ort-backend"))]
     pub fn load(
         &self,
@@ -249,6 +254,12 @@ impl VoicePool {
     }
 
     /// Synthesize speech for a TTS slot.
+    ///
+    /// # Errors
+    /// Returns an error if the `sessions` mutex is poisoned, no session
+    /// is loaded for `slot_id`, the loaded session is not a TTS backend,
+    /// or the underlying `synthesize()` call on the TTS backend fails
+    /// (unknown voice, phonemization failure, inference error).
     pub fn synthesize(
         &self,
         slot_id: &str,
@@ -267,6 +278,12 @@ impl VoicePool {
     }
 
     /// Transcribe audio for an STT slot.
+    ///
+    /// # Errors
+    /// Returns an error if the `sessions` mutex is poisoned, no session
+    /// is loaded for `slot_id`, the loaded session is not an STT backend,
+    /// or the underlying `transcribe()` call on the STT backend fails
+    /// (mel-spectrogram extraction or encoder/decoder inference error).
     pub fn transcribe(&self, slot_id: &str, samples: &AudioSamples) -> anyhow::Result<String> {
         let sessions = self
             .sessions
@@ -283,6 +300,12 @@ impl VoicePool {
     ///
     /// Returns one dense vector per input. Fails if the slot holds a
     /// non-embedder backend — no silent fallback.
+    ///
+    /// # Errors
+    /// Returns an error if the `sessions` mutex is poisoned, no session
+    /// is loaded for `slot_id`, the loaded session is not an embedder,
+    /// or the underlying `embed()` call on the embedder backend fails
+    /// (tokenization failure, ONNX session error, malformed output shape).
     pub fn embed(&self, slot_id: &str, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
         let sessions = self
             .sessions
@@ -301,6 +324,12 @@ impl VoicePool {
     /// Rerank documents against a query via a reranker slot.
     ///
     /// Returns one score per document in `[0.0, 1.0]` (higher = more relevant).
+    ///
+    /// # Errors
+    /// Returns an error if the `sessions` mutex is poisoned, no session is
+    /// loaded for `slot_id`, the loaded session is not a reranker, or the
+    /// underlying `rerank()` call on the reranker backend fails
+    /// (tokenization failure, ONNX session error, malformed output shape).
     pub fn rerank(
         &self,
         slot_id: &str,
@@ -322,6 +351,12 @@ impl VoicePool {
     }
 
     /// Encode an image file on disk via a vision encoder slot.
+    ///
+    /// # Errors
+    /// Returns an error if the `sessions` mutex is poisoned, no session is
+    /// loaded for `slot_id`, the loaded session is not a vision encoder,
+    /// or the underlying `encode_image()` call fails (image cannot be
+    /// opened/decoded, resize/normalize error, ONNX session failure).
     pub fn encode_image(&self, slot_id: &str, path: &Path) -> anyhow::Result<Vec<f32>> {
         let sessions = self
             .sessions
@@ -338,6 +373,13 @@ impl VoicePool {
     }
 
     /// Encode raw RGB pixel data via a vision encoder slot.
+    ///
+    /// # Errors
+    /// Returns an error if the `sessions` mutex is poisoned, no session is
+    /// loaded for `slot_id`, the loaded session is not a vision encoder,
+    /// or the underlying `encode_rgb()` call fails (length mismatch
+    /// between `rgb_bytes` and `width * height * 3`, tensor build failure,
+    /// or ONNX session inference error).
     pub fn encode_rgb(
         &self,
         slot_id: &str,

@@ -522,7 +522,7 @@ fn dir_size(path: &Path) -> u64 {
     std::fs::read_dir(path)
         .map(|entries| {
             entries
-                .filter_map(|e| e.ok())
+                .filter_map(std::result::Result::ok)
                 .map(|e| {
                     let p = e.path();
                     if p.is_dir() {

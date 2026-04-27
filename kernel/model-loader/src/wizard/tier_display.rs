@@ -7,7 +7,7 @@
 //! Why semantic, not presentational:
 //! - `reasoning` is a domain concept that survives a redesign
 //! - `--accent-purple-main` is a presentation detail that breaks if you rename a token
-//! - Rebrand purple → blue: only the frontend ROLE_TOKENS map changes, Rust never moves
+//! - Rebrand purple → blue: only the frontend `ROLE_TOKENS` map changes, Rust never moves
 //! - Same pattern as React Aria returning ARIA states, not CSS classes
 
 use crate::hardware::auto_config::HardwareTier;
@@ -36,7 +36,7 @@ pub enum TierRole {
 
 /// Display metadata for a hardware tier.
 ///
-/// All user-facing strings. Frontend renders these directly inside ColdLight
+/// All user-facing strings. Frontend renders these directly inside `ColdLight`
 /// `<Heading>`, `<Text>`, `<Badge>` components.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]

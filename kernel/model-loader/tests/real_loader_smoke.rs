@@ -4,6 +4,19 @@
 //! files must already exist on disk; if they don't, the test emits a
 //! clear `SKIP: <reason>` line and continues rather than failing.
 //!
+//! # Lint policy
+//!
+//! `expect()` is the right shape for a smoke test: a failed expectation
+//! IS the test failure, and the panic message becomes the diagnostic.
+//! Same for the long top-level `steps_2_through_6_real_disk` body —
+//! splitting it into helpers would force the runtime/service state to
+//! be threaded through tuples, hurting readability for no test win.
+#![allow(
+    clippy::expect_used,
+    clippy::too_many_lines,
+    clippy::needless_pass_by_value
+)]
+//!
 //! This is a Layer 2 test per `scripts/docs/policy/TESTING-POLICY.md`
 //! — it lives in `tests/` so it only sees the crate's public API, it
 //! can link real native libs (Candle), and it runs against real files.
@@ -13,7 +26,7 @@
 //! 1. **Config load** — `load_default_slots` + `load_default_presets`
 //!    parse the embedded `slots.default.toml` and `presets.default.toml`
 //!    from the kernel SSOT. Asserts baseline slot count and a few
-//!    specific tiers (Ultra, High, Floor, CpuOnly) are present. This
+//!    specific tiers (`Ultra`, `High`, `Floor`, `CpuOnly`) are present. This
 //!    is the "configs actually load" contract.
 //!
 //! 2. **Real registry scan** — points a fresh `ModelLoaderService` at
@@ -26,7 +39,7 @@
 //!    asserts every file keeps the same id. This is the regression
 //!    guard for the v5-UUID fix in `stable_id_for_path`.
 //!
-//! 4. **auto_assign_bundled_slots** — registers the baseline slot set
+//! 4. **`auto_assign_bundled_slots`** — registers the baseline slot set
 //!    from the kernel SSOT and calls `auto_assign_bundled_slots`.
 //!    Asserts at least one slot gets hydrated (provided any bundled
 //!    file matched anything in the scan). Logs each hydration so the
@@ -39,7 +52,7 @@
 //!    Candle" assertion. Only runs when `candle-backend` is on (which
 //!    is the default). On success, calls `unload_slot` to free.
 //!
-//! 6. **Real SafeTensors load via Candle** — same thing for a
+//! 6. **Real `SafeTensors` load via `Candle`** — same thing for a
 //!    safetensors file, picking whichever one the scan found first.
 //!    If the file is a multi-shard model, this step currently skips
 //!    with a note (Candle's single-file loader won't work on shards).

@@ -1,4 +1,4 @@
-//! User-scoped secrets store — currently carries the HuggingFace access
+//! User-scoped secrets store — currently carries the `HuggingFace` access
 //! token used by the download manager and HF search. Kept in a tiny
 //! TOML file alongside the model registry so downloads pick it up
 //! without touching the keychain.
@@ -26,7 +26,7 @@ const SECRETS_FILENAME: &str = "secrets.toml";
 /// In-memory secrets cache backed by a TOML file on disk.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Secrets {
-    /// Optional HuggingFace access token. `None` = anonymous requests.
+    /// Optional `HuggingFace` access token. `None` = anonymous requests.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hf_token: Option<String>,
 }
@@ -39,13 +39,18 @@ impl Secrets {
     pub fn path_for(models_dir: &Path) -> PathBuf {
         models_dir
             .parent()
-            .map(Path::to_path_buf)
-            .unwrap_or_else(|| models_dir.to_path_buf())
+            .map_or_else(|| models_dir.to_path_buf(), Path::to_path_buf)
             .join(SECRETS_FILENAME)
     }
 
     /// Load secrets from disk. Missing file returns an empty store
     /// instead of an error — first boot is valid state.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the secrets file exists but cannot be read
+    /// (permission denied, IO failure) or if the TOML body fails to
+    /// parse (malformed file, schema mismatch).
     pub fn load(models_dir: &Path) -> anyhow::Result<Self> {
         let path = Self::path_for(models_dir);
         if !path.exists() {
@@ -60,6 +65,13 @@ impl Secrets {
 
     /// Persist the current secrets to disk, tightening file permissions
     /// on Unix so other users on the host cannot read the token.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the parent directory cannot be created, if
+    /// TOML serialization fails, if writing the file fails (disk full,
+    /// permission denied), or — on Unix — if reading or applying the
+    /// `0o600` permission mode fails.
     pub fn save(&self, models_dir: &Path) -> anyhow::Result<()> {
         let path = Self::path_for(models_dir);
         if let Some(parent) = path.parent() {
@@ -107,6 +119,7 @@ impl Secrets {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on assertion failure by design
 mod tests {
     use super::*;
 

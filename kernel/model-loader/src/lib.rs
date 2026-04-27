@@ -1,6 +1,6 @@
 //! # model-loader
 //!
-//! Self-enclosed model management crate. Zero DevPulse dependencies.
+//! Self-enclosed model management crate. Zero `DevPulse` dependencies.
 //!
 //! Manages model discovery, registry, slot assignment, hardware detection,
 //! VRAM budget planning, and inference backend routing.

@@ -1,14 +1,14 @@
-//! SigLIP 2 vision encoder via ONNX Runtime — HD path.
+//! `SigLIP` 2 vision encoder via ONNX Runtime — HD path.
 //!
-//! Loads `onnx-community/siglip2-so400m-patch14-384-ONNX` (FixRes export)
+//! Loads `onnx-community/siglip2-so400m-patch14-384-ONNX` (`FixRes` export)
 //! and produces image embeddings. Same preprocessing as the candle path
 //! (`backends/candle/siglip.rs`) so embeddings are interchangeable
 //! within the same model family — the dispatcher in `voice_pool.rs`
 //! picks candle vs ort based on `LoadParams.backend_variant`.
 //!
-//! NaFlex (variable-resolution + dynamic position-embedding interpolation)
+//! `NaFlex` (variable-resolution + dynamic position-embedding interpolation)
 //! is intentionally deferred to V-11. The file is named `siglip_naflex`
-//! so the same module can grow into NaFlex without a follow-up rename
+//! so the same module can grow into `NaFlex` without a follow-up rename
 //! that breaks consumers.
 //!
 //! # Cast lints
@@ -38,12 +38,12 @@ const IMAGE_MEAN: [f32; 3] = [0.5, 0.5, 0.5];
 #[cfg(feature = "ort-backend")]
 const IMAGE_STD: [f32; 3] = [0.5, 0.5, 0.5];
 
-/// Default FixRes input resolution for `siglip2-so400m-patch14-384-ONNX`.
+/// Default `FixRes` input resolution for `siglip2-so400m-patch14-384-ONNX`.
 const DEFAULT_IMAGE_SIZE: usize = 384;
-/// Default embedding dimension for SO400M.
+/// Default embedding dimension for `SO400M`.
 const DEFAULT_EMBEDDING_DIM: usize = 1152;
 
-/// SigLIP 2 vision encoder backed by ONNX Runtime (FixRes).
+/// `SigLIP` 2 vision encoder backed by ONNX Runtime (`FixRes`).
 pub struct SigLip2OrtFixRes {
     /// Path to the loaded ONNX file (or directory containing it).
     model_path: Option<PathBuf>,
@@ -61,7 +61,7 @@ pub struct SigLip2OrtFixRes {
 }
 
 impl SigLip2OrtFixRes {
-    /// Create a new unloaded SigLIP 2 ONNX encoder.
+    /// Create a new unloaded `SigLIP` 2 ONNX encoder.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -304,6 +304,7 @@ fn find_onnx_file(dir: &Path) -> anyhow::Result<PathBuf> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // tests panic on assertion failure by design
 mod tests {
     use super::*;
 

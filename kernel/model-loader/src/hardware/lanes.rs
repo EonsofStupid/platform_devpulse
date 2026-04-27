@@ -192,7 +192,11 @@ impl LaneCapacity {
         if self.total_bytes == 0 {
             return 0.0;
         }
-        (self.used_bytes as f32) / (self.total_bytes as f32)
+        // Byte-scale UI display ratio; loss of precision below 1 byte is
+        // acceptable — the result feeds a percentage gauge.
+        #[allow(clippy::cast_precision_loss)]
+        let ratio = (self.used_bytes as f32) / (self.total_bytes as f32);
+        ratio
     }
 }
 
@@ -325,6 +329,7 @@ impl LaneBudget {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on assertion failure by design
 mod tests {
     use super::*;
 

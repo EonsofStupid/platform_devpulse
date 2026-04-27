@@ -1,8 +1,8 @@
-//! HuggingFace model search — public API, GGUF-filtered results.
+//! `HuggingFace` model search — public API, GGUF-filtered results.
 
 use serde::{Deserialize, Serialize};
 
-/// A model found on HuggingFace.
+/// A model found on `HuggingFace`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct HfSearchResult {
@@ -26,7 +26,7 @@ pub struct HfSearchResult {
     pub last_modified: String,
 }
 
-/// A single GGUF file in a HuggingFace repo.
+/// A single GGUF file in a `HuggingFace` repo.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct HfFileInfo {
@@ -38,7 +38,7 @@ pub struct HfFileInfo {
     pub quant_level: Option<String>,
 }
 
-/// Raw HuggingFace API response model.
+/// Raw `HuggingFace` API response model.
 #[derive(Debug, Deserialize)]
 struct HfApiModel {
     #[serde(rename = "modelId")]
@@ -55,7 +55,7 @@ struct HfApiModel {
     last_modified: Option<String>,
 }
 
-/// Raw HuggingFace API file sibling.
+/// Raw `HuggingFace` API file sibling.
 #[derive(Debug, Deserialize)]
 struct HfApiSibling {
     #[serde(rename = "rfilename")]
@@ -63,11 +63,19 @@ struct HfApiSibling {
     size: Option<u64>,
 }
 
-/// Search HuggingFace for GGUF models.
+/// Search `HuggingFace` for GGUF models.
 ///
-/// Queries the public HuggingFace API and filters results to only include
+/// Queries the public `HuggingFace` API and filters results to only include
 /// repos that have `.gguf` files. Each result includes the GGUF files
 /// with their sizes and inferred quantization levels.
+///
+/// # Errors
+///
+/// Returns an error if the `reqwest` client cannot be built (TLS init
+/// failure), if the HTTP request fails (DNS, network, timeout), if the
+/// API responds with a non-success status (auth, rate-limit, 5xx), or
+/// if the response body cannot be deserialized as the expected JSON
+/// schema.
 pub async fn search_huggingface(query: &str, limit: u32) -> anyhow::Result<Vec<HfSearchResult>> {
     let url = format!(
         "https://huggingface.co/api/models?search={}&filter=gguf&sort=downloads&direction=-1&limit={}&full=true&config=false",
@@ -100,7 +108,11 @@ pub async fn search_huggingface(query: &str, limit: u32) -> anyhow::Result<Vec<H
             let siblings = m.siblings.unwrap_or_default();
             let gguf_files: Vec<HfFileInfo> = siblings
                 .into_iter()
-                .filter(|s| s.filename.ends_with(".gguf"))
+                .filter(|s| {
+                    std::path::Path::new(&s.filename)
+                        .extension()
+                        .is_some_and(|ext| ext.eq_ignore_ascii_case("gguf"))
+                })
                 .map(|s| {
                     let quant_level =
                         crate::models::discovery::infer_quant_from_filename_pub(&s.filename);

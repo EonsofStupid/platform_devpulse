@@ -9,7 +9,7 @@
 //! actual load pass.
 
 use super::architectures::{get as get_arch, ArchId, SupportTier};
-use super::backends::{installed_backends, BackendId, FormatSupport, ModelFormat};
+use super::backends::{installed_backends, BackendId, ModelFormat};
 use super::load_error::{Alternative, AlternativeKind, UnsupportedReason};
 use serde::Serialize;
 
@@ -60,18 +60,15 @@ pub enum Resolution {
 pub fn resolve_compatibility(arch: ArchId, format: ModelFormat) -> Resolution {
     let matrix = installed_backends();
 
-    let arch_spec = match get_arch(arch) {
-        Some(spec) => spec,
-        None => {
-            return Resolution::Unsupported {
-                arch,
-                format,
-                reason: UnsupportedReason::FormatNotWired {
-                    detail: "Architecture not in the registry".to_string(),
-                },
-                alternatives: Vec::new(),
-            };
-        }
+    let Some(arch_spec) = get_arch(arch) else {
+        return Resolution::Unsupported {
+            arch,
+            format,
+            reason: UnsupportedReason::FormatNotWired {
+                detail: "Architecture not in the registry".to_string(),
+            },
+            alternatives: Vec::new(),
+        };
     };
 
     // Planned slots never resolve — the frontend renders them as
@@ -180,9 +177,8 @@ fn collect_alternatives(
     // Same family, different arch (in tier order). The architectures
     // array is already ordered Primary → Legacy, so we walk it and
     // suggest the first compatible alternative we find.
-    let arch_spec = match get_arch(arch) {
-        Some(spec) => spec,
-        None => return alternatives,
+    let Some(arch_spec) = get_arch(arch) else {
+        return alternatives;
     };
     for candidate in super::architectures::ALL {
         if candidate.id == arch || candidate.family != arch_spec.family {
@@ -230,14 +226,6 @@ fn collect_alternatives(
     }
 
     alternatives
-}
-
-/// Shorthand used inside `FormatSupport` iteration so the inner
-/// scanning loops read cleanly without double-`iter` calls. Kept in
-/// this module (not exported) because it's a pure internal helper.
-#[allow(dead_code)]
-fn supports_entry_matches(entry: &FormatSupport, arch: ArchId, format: ModelFormat) -> bool {
-    entry.arch == arch && entry.format == format
 }
 
 // ── Tests ─────────────────────────────────────────────────────────
@@ -296,7 +284,7 @@ mod tests {
         }
     }
 
-    /// Phi-3 MoE is the benchmark target — both formats must resolve.
+    /// Phi-3 `MoE` is the benchmark target — both formats must resolve.
     #[test]
     fn phi3_moe_both_formats_resolve() {
         let sft = resolve_compatibility(ArchId::Phi3Moe, ModelFormat::Safetensors);
@@ -359,7 +347,7 @@ mod tests {
     }
 
     /// Same-family alternative suggestion: asking for Qwen2 legacy
-    /// should include a SwitchModel alternative pointing at Qwen3.
+    /// should include a `SwitchModel` alternative pointing at Qwen3.
     #[test]
     fn alternatives_include_same_family_upgrade_for_legacy() {
         // Build a synthetic uninstalled scenario by requesting a

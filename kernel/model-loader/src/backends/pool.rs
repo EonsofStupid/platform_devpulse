@@ -7,7 +7,7 @@ use crate::backends::bridge::{InferenceBridge, InferenceHandle};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::BackendType;
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// A shared model instance in the pool.
 struct PooledInstance {
@@ -26,7 +26,7 @@ struct PooledInstance {
 
 /// Manages shared model instances across slots.
 pub struct BackendPool {
-    /// model_id → pooled instance.
+    /// `model_id` → pooled instance.
     instances: HashMap<String, PooledInstance>,
 }
 
@@ -42,16 +42,24 @@ impl BackendPool {
     /// Load a model and return a handle. If already loaded, bump ref count.
     ///
     /// `backend_type` determines which inference engine is used:
-    /// - `Candle` → SafeTensors + supported GGUF architectures
-    /// - `LlamaCpp` → GGUF via llama.cpp FFI (broader architecture support)
+    /// - `Candle` → `SafeTensors` + supported `GGUF` architectures
+    /// - `LlamaCpp` → `GGUF` via llama.cpp FFI (broader architecture support)
     ///
     /// Both backends implement `InferenceBackend` and use the same
     /// `InferenceBridge` thread pattern.
+    ///
+    /// # Errors
+    /// - Returns an error when spawning the inference bridge fails (thread
+    ///   spawn refusal, missing `llama-cpp-ffi` feature with no Candle
+    ///   fallback, or Candle device init failure).
+    /// - Propagates the bridge's `load()` error when the model file is
+    ///   missing, malformed, or its architecture is unsupported by the
+    ///   selected backend.
     #[cfg(feature = "candle-backend")]
     pub async fn acquire(
         &mut self,
         model_id: &str,
-        model_path: &PathBuf,
+        model_path: &Path,
         params: LoadParams,
         backend_type: BackendType,
     ) -> anyhow::Result<(InferenceHandle, MemoryFootprint)> {
@@ -93,14 +101,14 @@ impl BackendPool {
         let handle = bridge.handle();
 
         // Load the model via the bridge
-        let memory = handle.load(model_path.clone(), params).await?;
+        let memory = handle.load(model_path.to_path_buf(), params).await?;
 
         let pooled = PooledInstance {
             handle: handle.clone(),
             _bridge: bridge,
             ref_count: 1,
             memory,
-            model_path: model_path.clone(),
+            model_path: model_path.to_path_buf(),
         };
 
         self.instances.insert(model_id.to_string(), pooled);
@@ -109,7 +117,7 @@ impl BackendPool {
         Ok((handle, memory))
     }
 
-    /// Release a reference. Unloads only when ref_count reaches 0.
+    /// Release a reference. Unloads only when `ref_count` reaches 0.
     pub async fn release(&mut self, model_id: &str) -> Option<MemoryFootprint> {
         let should_remove = if let Some(instance) = self.instances.get_mut(model_id) {
             instance.ref_count = instance.ref_count.saturating_sub(1);
@@ -151,8 +159,7 @@ impl BackendPool {
     pub fn ref_count(&self, model_id: &str) -> usize {
         self.instances
             .get(model_id)
-            .map(|i| i.ref_count)
-            .unwrap_or(0)
+            .map_or(0, |i| i.ref_count)
     }
 
     /// Memory footprint of a loaded model.
@@ -179,7 +186,7 @@ impl BackendPool {
     }
 
     /// Find which slots share instances with a given model.
-    /// Returns the model_id → list of slot_ids mapping.
+    /// Returns the `model_id` → list of `slot_ids` mapping.
     #[must_use]
     pub fn shared_instances(&self) -> HashMap<String, usize> {
         self.instances

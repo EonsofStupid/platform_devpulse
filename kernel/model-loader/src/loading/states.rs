@@ -136,7 +136,7 @@ pub enum ModelStatus {
     /// Use `activate_slot()` to promote to Loaded.
     /// Latency to inference: 50-500ms (GPU transfer + prime).
     Warm {
-        /// Memory consumed (RAM only, vram_bytes = 0).
+        /// Memory consumed (RAM only, `vram_bytes` = 0).
         footprint: MemoryFootprint,
     },
 
@@ -145,9 +145,10 @@ pub enum ModelStatus {
     /// - KV cache allocation
     /// - CUDA kernel JIT compilation
     /// - GPU cache line population
+    ///
     /// Latency to inference: 20-50ms.
     Loaded {
-        /// Memory consumed (vram_bytes = model weights).
+        /// Memory consumed (`vram_bytes` = model weights).
         footprint: MemoryFootprint,
     },
 
@@ -157,6 +158,7 @@ pub enum ModelStatus {
     /// - Dummy forward pass completed ✓
     /// - GPU caches warm ✓
     /// - (Optional) CUDA graphs captured ✓
+    ///
     /// Latency to first token: 5-10ms.
     Primed {
         /// Memory consumed (includes KV cache).
@@ -258,8 +260,8 @@ impl SlotStatus {
             ModelStatus::Loaded { .. } => 50,    // Just prime
             ModelStatus::Primed { .. } => 10,    // Instant
             ModelStatus::Active { .. } => 5,     // Already running
-            ModelStatus::Failed { .. } => u32::MAX,
-            ModelStatus::Unloading => u32::MAX,
+            // Failed and Unloading are both terminal-from-inference's-POV.
+            ModelStatus::Failed { .. } | ModelStatus::Unloading => u32::MAX,
         }
     }
 }
@@ -323,14 +325,14 @@ impl ModelStatus {
     #[must_use]
     pub fn status_color(&self) -> &'static str {
         match self {
-            Self::NotLoaded => "gray",
+            // Idle / no model running — neutral grey for both lifecycle ends.
+            Self::NotLoaded | Self::Unloading => "gray",
             Self::Loading { .. } => "blue",
             Self::Warm { .. } => "yellow",
             Self::Loaded { .. } => "orange",
-            Self::Primed { .. } => "green",
-            Self::Active { .. } => "green",
+            // Ready or running — both signal "good to go" in green.
+            Self::Primed { .. } | Self::Active { .. } => "green",
             Self::Failed { .. } => "red",
-            Self::Unloading => "gray",
         }
     }
 

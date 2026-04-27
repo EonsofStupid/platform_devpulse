@@ -10,7 +10,7 @@ use std::path::PathBuf;
 pub enum ModelFormat {
     /// GGUF quantized format (Phase 1 — launch format).
     Gguf,
-    /// SafeTensors format (Phase 2).
+    /// `SafeTensors` format (Phase 2).
     SafeTensors,
     /// ONNX format (.onnx files — SNAC, small models).
     Onnx,
@@ -38,9 +38,9 @@ pub enum BackendType {
 pub enum ModelSource {
     /// Discovered on local disk.
     Local,
-    /// Downloaded from HuggingFace Hub.
+    /// Downloaded from `HuggingFace` Hub.
     HuggingFace {
-        /// HuggingFace repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
+        /// `HuggingFace` repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
         repo_id: String,
         /// Git revision or branch.
         revision: String,
@@ -137,6 +137,12 @@ impl ModelRegistry {
     }
 
     /// Scan the models directory and rebuild the registry.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if discovery fails to walk the models directory
+    /// (permission denied, path missing) or if persisting the rebuilt
+    /// registry to `registry.json` fails.
     pub fn scan(&mut self) -> anyhow::Result<usize> {
         let discovered = crate::models::discovery::discover_models(&self.models_dir)?;
         let count = discovered.len();
@@ -216,6 +222,12 @@ impl ModelRegistry {
     }
 
     /// Persist registry to `{models_dir}/registry.json`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the entries cannot be serialized to JSON or if
+    /// writing the file fails (disk full, permission denied, parent
+    /// directory missing).
     pub fn save(&self) -> anyhow::Result<()> {
         let path = self.models_dir.join("registry.json");
         let json = serde_json::to_string_pretty(&self.entries)?;
@@ -225,6 +237,13 @@ impl ModelRegistry {
     }
 
     /// Load registry from `{models_dir}/registry.json`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the registry file exists but cannot be read
+    /// (permission denied, IO failure). Corrupt JSON is recovered by
+    /// starting with an empty registry — only IO-level failures bubble
+    /// up.
     pub fn load(models_dir: PathBuf) -> anyhow::Result<Self> {
         let path = models_dir.join("registry.json");
         if !path.exists() {

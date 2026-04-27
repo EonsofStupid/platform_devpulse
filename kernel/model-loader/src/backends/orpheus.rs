@@ -3,7 +3,7 @@
 //! Pipeline:
 //!   1. Format prompt with voice name + emotion tags
 //!   2. Orpheus LLM (GGUF via llama.cpp) generates audio token IDs
-//!   3. Extract tokens after CODE_START_TOKEN_ID, offset by CODE_TOKEN_OFFSET
+//!   3. Extract tokens after `CODE_START_TOKEN_ID`, offset by `CODE_TOKEN_OFFSET`
 //!   4. Group into 7-per-frame chunks, redistribute to 3 SNAC codebooks
 //!   5. SNAC decode(codes0, codes1, codes2) via ort → PCM f32 24kHz
 //!   6. rodio plays the PCM
@@ -19,16 +19,16 @@ use std::path::{Path, PathBuf};
 // ── Token Constants (verified from orpheus-tts-local) ──────────────
 
 /// Marks the start of audio generation in the LLM output.
-const _START_TOKEN_ID: u32 = 128259;
+const _START_TOKEN_ID: u32 = 128_259;
 
 /// Marks the beginning of actual audio code tokens.
-const _CODE_START_TOKEN_ID: u32 = 128257;
+const _CODE_START_TOKEN_ID: u32 = 128_257;
 
 /// Offset subtracted from raw token IDs to get codebook indices (0-4095).
-const CODE_TOKEN_OFFSET: u32 = 128266;
+const CODE_TOKEN_OFFSET: u32 = 128_266;
 
 /// End-of-sequence token IDs — stop generation when any of these appear.
-const END_TOKEN_IDS: [u32; 4] = [128009, 128260, 128261, 128257];
+const END_TOKEN_IDS: [u32; 4] = [128_009, 128_260, 128_261, 128_257];
 
 /// Each SNAC codebook has 4096 entries.
 const CODEBOOK_SIZE: u32 = 4096;
@@ -80,7 +80,7 @@ impl OrpheusTts {
         END_TOKEN_IDS.contains(&token_id)
     }
 
-    /// Check if a token ID is an audio code (after CODE_START_TOKEN_ID).
+    /// Check if a token ID is an audio code (after `CODE_START_TOKEN_ID`).
     #[must_use]
     pub fn is_audio_token(token_id: u32) -> bool {
         token_id >= CODE_TOKEN_OFFSET
@@ -116,7 +116,7 @@ impl OrpheusTts {
         for frame in 0..num_frames {
             let base = frame * TOKENS_PER_FRAME;
             let t = |offset: usize, group_pos: usize| -> i64 {
-                Self::token_to_code(tokens[base + offset], group_pos) as i64
+                i64::from(Self::token_to_code(tokens[base + offset], group_pos))
             };
 
             // codes0: 1 per frame
@@ -135,6 +135,10 @@ impl OrpheusTts {
     }
 
     /// Load the SNAC decoder (Coupled lifecycle — loads with Orpheus).
+    ///
+    /// # Errors
+    /// Propagates the SNAC decoder's load failure (model file missing, ONNX
+    /// session creation failure, or invalid model graph).
     pub fn load_snac(
         &mut self,
         snac_path: &Path,
@@ -144,6 +148,9 @@ impl OrpheusTts {
     }
 
     /// Unload the SNAC decoder.
+    ///
+    /// # Errors
+    /// Propagates the SNAC decoder's unload failure (ONNX session teardown error).
     pub fn unload_snac(&mut self) -> anyhow::Result<()> {
         self.snac.unload()
     }
@@ -235,8 +242,7 @@ impl TtsBackend for OrpheusTts {
             .model_path
             .as_ref()
             .and_then(|p| std::fs::metadata(p).ok())
-            .map(|m| m.len())
-            .unwrap_or(0);
+            .map_or(0, |m| m.len());
         let snac_size = self.snac.memory_usage();
 
         MemoryFootprint {

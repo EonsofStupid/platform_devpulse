@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 /// How the Model Loader communicates state changes.
 ///
-/// DevPulse implements this with Tauri events + Clyffy narration.
+/// `DevPulse` implements this with Tauri events + Clyffy narration.
 /// Other apps use callbacks, channels, log sinks — whatever fits.
 pub trait LoaderEventSink: Send + Sync {
     /// Emit a loader event.
@@ -37,11 +37,11 @@ pub enum LoaderEvent {
     ModelDiscovered(ModelRegistryEntry),
 
     // ── Download ───────────────────────────────────────────
-    /// Download started from HuggingFace.
+    /// Download started from `HuggingFace`.
     DownloadStarted {
         /// Unique download identifier (UUID v7).
         download_id: String,
-        /// HuggingFace repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
+        /// `HuggingFace` repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
         repo_id: String,
         /// Target filename (e.g. `"Qwen3-14B-Q4_K_M.gguf"`).
         filename: String,

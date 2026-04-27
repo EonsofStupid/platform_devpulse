@@ -8,7 +8,7 @@
 //! Does NOT own:
 //! - Knowledge drops (the WHY — educational content) — separate `knowledge_drops` table
 //! - CSS tokens or hex colors — frontend maps semantic roles to design tokens
-//! - Layout structure — frontend route pages compose ColdLight components
+//! - Layout structure — frontend route pages compose `ColdLight` components
 //!
 //! Loading priority (first match wins):
 //!  1. `{userdata}/config/wizard_copy.toml` (user override)

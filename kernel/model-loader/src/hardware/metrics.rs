@@ -77,7 +77,11 @@ impl HardwareMetrics {
             return 0.0;
         }
         let used = self.gpu_vram_used_mb.unwrap_or(0);
-        (used as f32 / total as f32) * 100.0
+        // MB-scale UI display; loss of precision below 1MB is acceptable —
+        // result feeds a percentage gauge in the model loader devtool.
+        #[allow(clippy::cast_precision_loss)]
+        let pct = (used as f32 / total as f32) * 100.0;
+        pct
     }
 }
 
@@ -265,8 +269,7 @@ pub fn collect_hardware() -> HardwareMetrics {
 
     let process_ram_mb = sys
         .process(pid)
-        .map(|p| p.memory() / (1024 * 1024))
-        .unwrap_or(0);
+        .map_or(0, |p| p.memory() / (1024 * 1024));
 
     #[allow(unused_mut)]
     let mut metrics = HardwareMetrics {

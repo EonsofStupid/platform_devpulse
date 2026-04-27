@@ -209,6 +209,10 @@ pub fn text_to_phonemes(text: &str, voice: &str) -> anyhow::Result<String> {
 /// Returns a clear error rather than silently producing nonsense. Build with
 /// `--features espeak-phonemizer` and install eSpeak NG + LLVM (for bindgen)
 /// to enable real phonemization.
+///
+/// # Errors
+/// Always returns an error explaining that the `espeak-phonemizer` feature
+/// must be enabled at compile time. There is no success path in this build.
 #[cfg(not(feature = "espeak-phonemizer"))]
 pub fn text_to_phonemes(_text: &str, _voice: &str) -> anyhow::Result<String> {
     anyhow::bail!(

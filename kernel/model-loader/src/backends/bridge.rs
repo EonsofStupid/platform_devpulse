@@ -2,8 +2,8 @@
 //!
 //! Spawns a dedicated OS thread that owns the `InferenceBackend`. All
 //! requests are sent via context-propagating `devpulse_telemetry` channels,
-//! making the sync inference engine available to async callers (Tauri, tokio
-//! tasks) with full OTel span correlation across the thread boundary.
+//! making the sync inference engine available to async callers (`Tauri`, `tokio`
+//! tasks) with full `OTel` span correlation across the thread boundary.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::traits::backend::InferenceBackend;
@@ -15,7 +15,7 @@ use std::path::PathBuf;
 pub enum InferenceRequest {
     /// Load a model from disk into the backend.
     Load {
-        /// Path to the model file (GGUF or SafeTensors).
+        /// Path to the model file (`GGUF` or `SafeTensors`).
         path: PathBuf,
         /// Loading parameters (device, context length, GPU layers).
         params: LoadParams,
@@ -96,6 +96,11 @@ pub struct InferenceHandle {
 
 impl InferenceHandle {
     /// Load a model. Blocks the calling async task until the inference thread responds.
+    ///
+    /// # Errors
+    /// - `Inference thread disconnected` when the request channel is closed.
+    /// - `Inference thread did not respond` when the reply channel drops without sending.
+    /// - The backend's load error (file missing, weight parse failure, mmap failure, mutex poisoned).
     pub async fn load(&self, path: PathBuf, params: LoadParams) -> anyhow::Result<MemoryFootprint> {
         let (reply_tx, reply_rx) = bounded(1);
         self.sender
@@ -114,6 +119,11 @@ impl InferenceHandle {
     }
 
     /// Unload the current model.
+    ///
+    /// # Errors
+    /// - `Inference thread disconnected` when the request channel is closed.
+    /// - `Inference thread did not respond` when the reply channel drops without sending.
+    /// - The backend's unload error (mutex poisoned, FFI teardown failure).
     pub async fn unload(&self) -> anyhow::Result<()> {
         let (reply_tx, reply_rx) = bounded(1);
         self.sender
@@ -128,6 +138,11 @@ impl InferenceHandle {
     }
 
     /// Run a forward pass.
+    ///
+    /// # Errors
+    /// - `Inference thread disconnected` when the request channel is closed.
+    /// - `Inference thread did not respond` when the reply channel drops without sending.
+    /// - The backend's forward error (no model loaded, position out of context window, tensor compute failure).
     pub async fn forward(&self, tokens: Vec<u32>, position: usize) -> anyhow::Result<Vec<f32>> {
         let (reply_tx, reply_rx) = bounded(1);
         self.sender
@@ -146,6 +161,11 @@ impl InferenceHandle {
     }
 
     /// Tokenize text.
+    ///
+    /// # Errors
+    /// - `Inference thread disconnected` when the request channel is closed.
+    /// - `Inference thread did not respond` when the reply channel drops without sending.
+    /// - The backend's tokenize error (no tokenizer loaded, invalid UTF-8, vocabulary lookup failure).
     pub async fn tokenize(&self, text: String) -> anyhow::Result<Vec<u32>> {
         let (reply_tx, reply_rx) = bounded(1);
         self.sender
@@ -165,7 +185,12 @@ impl InferenceHandle {
     /// Generate text with streaming token callback.
     ///
     /// `trace_id` propagates the request trace across the flume channel
-    /// boundary to the inference OS thread for span correlation in DuckDB.
+    /// boundary to the inference OS thread for span correlation in `DuckDB`.
+    ///
+    /// # Errors
+    /// Returns `Inference thread disconnected` when the request channel is closed
+    /// before the `Generate` request is enqueued. Per-token errors are streamed
+    /// through the returned receiver as `InferenceResponse::Error`, not returned here.
     pub async fn generate(
         &self,
         prompt: String,
@@ -189,7 +214,9 @@ impl InferenceHandle {
 
     /// Get current memory usage.
     ///
-    /// Returns error if the inference thread is dead or disconnected.
+    /// # Errors
+    /// - `Inference thread disconnected (send failed)` when the request channel is closed.
+    /// - `Inference thread disconnected (recv failed)` when the reply channel drops before responding.
     pub async fn memory_usage(&self) -> anyhow::Result<MemoryFootprint> {
         let (reply_tx, reply_rx) = bounded(1);
         self.sender
@@ -235,11 +262,11 @@ impl InferenceBridge {
             .name("inference-worker".into())
             .spawn(move || {
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    inference_thread_loop(&mut backend, rx);
+                    inference_thread_loop(&mut backend, &rx);
                 }));
                 if let Err(panic) = result {
                     let msg = if let Some(s) = panic.downcast_ref::<&str>() {
-                        s.to_string()
+                        (*s).to_string()
                     } else if let Some(s) = panic.downcast_ref::<String>() {
                         s.clone()
                     } else {
@@ -271,11 +298,11 @@ impl InferenceBridge {
             .name("inference-worker-llamacpp".into())
             .spawn(move || {
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    inference_thread_loop(&mut backend, rx);
+                    inference_thread_loop(&mut backend, &rx);
                 }));
                 if let Err(panic) = result {
                     let msg = if let Some(s) = panic.downcast_ref::<&str>() {
-                        s.to_string()
+                        (*s).to_string()
                     } else if let Some(s) = panic.downcast_ref::<String>() {
                         s.clone()
                     } else {
@@ -311,13 +338,13 @@ impl Drop for InferenceBridge {
 /// The main loop running on the inference thread.
 ///
 /// Each received request is unwrapped from a `Traced<InferenceRequest>` via
-/// `.attach()`, which sets the caller's OTel context as current for the
+/// `.attach()`, which sets the caller's `OTel` context as current for the
 /// duration of the request. This means all `tracing::info!` / `debug!` calls
 /// inside the inference thread are parented under the async caller's span.
 #[cfg(feature = "candle-backend")]
 fn inference_thread_loop(
     backend: &mut crate::backends::candle::CandleBackend,
-    rx: TracedReceiver<InferenceRequest>,
+    rx: &TracedReceiver<InferenceRequest>,
 ) {
     tracing::info!("Inference worker thread started");
 

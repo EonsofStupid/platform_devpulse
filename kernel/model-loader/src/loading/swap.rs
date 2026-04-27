@@ -12,9 +12,9 @@ use std::collections::HashSet;
 /// Tracks which slots are currently mid-swap.
 ///
 /// Inference requests check this before attempting to acquire a handle.
-/// The guard is held for the entire swap_model() operation — the Mutex on
-/// ModelLoaderService ensures no concurrent access, but inference_handle()
-/// is &self (immutable) so it needs this separate flag.
+/// The guard is held for the entire `swap_model()` operation — the Mutex on
+/// `ModelLoaderService` ensures no concurrent access, but `inference_handle()`
+/// is `&self` (immutable) so it needs this separate flag.
 #[derive(Debug, Default)]
 pub struct SwapGuard {
     /// Slot IDs currently being swapped.

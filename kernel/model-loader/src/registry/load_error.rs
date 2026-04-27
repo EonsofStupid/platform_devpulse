@@ -79,7 +79,7 @@ pub enum LoadError {
     MissingFile {
         /// Which file is missing (key from the loader's expected set).
         which: String,
-        /// Directory that was searched (as string — PathBuf doesn't
+        /// Directory that was searched (as string — `PathBuf` doesn't
         /// cross specta cleanly).
         dir: String,
     },
@@ -88,7 +88,7 @@ pub enum LoadError {
     ModelCorrupt {
         /// Path to the corrupt file.
         path: String,
-        /// Whether the file can be re-downloaded from HuggingFace.
+        /// Whether the file can be re-downloaded from `HuggingFace`.
         can_redownload: bool,
     },
     /// The registry referenced a file but it no longer exists on disk.
@@ -127,7 +127,7 @@ pub enum LoadError {
     NoGpuDriver,
 
     // ── Network / download failures ───────────────────────────────
-    /// HuggingFace download failed (network, auth, or server error).
+    /// `HuggingFace` download failed (network, auth, or server error).
     DownloadFailed {
         /// Human-readable failure reason.
         reason: String,
@@ -226,7 +226,7 @@ pub enum LoadError {
         /// Human-readable failure reason.
         reason: String,
     },
-    /// HuggingFace HTTP API call failed. Distinct from `DownloadFailed`
+    /// `HuggingFace` HTTP API call failed. Distinct from `DownloadFailed`
     /// — this covers metadata APIs (search, repo info, file listing),
     /// not bulk file downloads. UI surface usually shows "try again".
     HuggingFaceApi {
@@ -427,8 +427,8 @@ pub enum AlternativeKind {
     /// Same repo, different file (most common — suggest GGUF when
     /// safetensors isn't supported).
     SwitchFormat,
-    /// Same repo, different quant level (suggest Q5_K_M when Q2 is
-    /// too low quality, or vice versa for VRAM fit).
+    /// Same repo, different quant level (suggest `Q5_K_M` when `Q2` is
+    /// too low quality, or vice versa for `VRAM` fit).
     SwitchQuant,
     /// Different repo entirely (Qwen3 as replacement for Qwen2).
     SwitchModel,
@@ -441,83 +441,16 @@ pub enum AlternativeKind {
 impl fmt::Display for LoadError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            // Compatibility
-            Self::UnknownArchitecture { raw } => write!(
-                f,
-                "Unknown architecture `{raw}`. The registry doesn't know how to \
-                 classify this model. Consider filing an issue to add it."
-            ),
-            Self::UnsupportedArchitecture {
-                arch,
-                format,
-                reason,
-                alternatives,
-            } => {
-                write!(
-                    f,
-                    "{arch:?} in {format:?} format is not loadable in this build: {reason}"
-                )?;
-                if !alternatives.is_empty() {
-                    write!(f, " ({} alternative(s) available)", alternatives.len())?;
-                }
-                Ok(())
+            Self::UnknownArchitecture { .. } | Self::UnsupportedArchitecture { .. } => {
+                fmt_compatibility(self, f)
             }
-
-            // Filesystem
-            Self::MissingFile { which, dir } => {
-                write!(f, "Required file `{which}` not found in {dir}")
+            Self::MissingFile { .. } | Self::ModelCorrupt { .. } | Self::ModelFileMissing { .. } => {
+                fmt_filesystem(self, f)
             }
-            Self::ModelCorrupt {
-                path,
-                can_redownload,
-            } => write!(
-                f,
-                "Model file is corrupt or unreadable: {path}{}",
-                if *can_redownload {
-                    " (re-download available)"
-                } else {
-                    ""
-                }
-            ),
-            Self::ModelFileMissing {
-                path,
-                slot_id,
-                can_redownload,
-            } => write!(
-                f,
-                "Model file missing: was at {path}{}{}",
-                slot_id
-                    .as_ref()
-                    .map(|s| format!(" (slot {s})"))
-                    .unwrap_or_default(),
-                if *can_redownload {
-                    " (re-download available)"
-                } else {
-                    ""
-                }
-            ),
-
-            // Resources
-            Self::VramInsufficient {
-                needed_mb,
-                available_mb,
-            } => write!(
-                f,
-                "Not enough GPU memory: need {needed_mb} MB, only {available_mb} MB free"
-            ),
-            Self::RamExhausted { used_mb, total_mb } => {
-                write!(f, "System out of RAM: {used_mb}/{total_mb} MB")
-            }
-            Self::DiskFull {
-                needed_mb,
-                available_mb,
-            } => write!(
-                f,
-                "Disk space insufficient: need {needed_mb} MB, only {available_mb} MB free"
-            ),
-            Self::NoGpuDriver => write!(f, "GPU driver not found — falling back to CPU"),
-
-            // Network
+            Self::VramInsufficient { .. }
+            | Self::RamExhausted { .. }
+            | Self::DiskFull { .. }
+            | Self::NoGpuDriver => fmt_resource(self, f),
             Self::DownloadFailed {
                 reason,
                 can_retry,
@@ -527,69 +460,193 @@ impl fmt::Display for LoadError {
                 "Download failed: {reason} ({bytes_completed} bytes received{})",
                 if *can_retry { ", retry available" } else { "" }
             ),
-
-            // Slot state
-            Self::SlotNotFound { slot_id } => write!(f, "Slot '{slot_id}' does not exist"),
-            Self::NoModelAssigned { slot_id } => {
-                write!(f, "No model assigned to slot '{slot_id}'")
+            Self::SlotNotFound { .. }
+            | Self::NoModelAssigned { .. }
+            | Self::AlreadyLoading { .. }
+            | Self::SlotSwapping { .. }
+            | Self::IncompatibleModel { .. }
+            | Self::ConfigCorrupt { .. } => fmt_slot_state(self, f),
+            Self::BackendInit { .. } | Self::TokenizerLoad { .. } | Self::InferenceFailed { .. } => {
+                fmt_backend(self, f)
             }
-            Self::AlreadyLoading { slot_id } => {
-                write!(f, "Slot '{slot_id}' is already loading")
-            }
-            Self::SlotSwapping { slot_id } => write!(
-                f,
-                "Slot '{slot_id}' is swapping models — try again in a moment"
-            ),
-            Self::IncompatibleModel {
-                model_id,
-                capability,
-            } => write!(
-                f,
-                "Model '{model_id}' is not compatible with slot capability '{capability}'"
-            ),
-            Self::ConfigCorrupt { recovered } => write!(
-                f,
-                "Config data corrupt{}",
-                if *recovered {
-                    " — recovered to defaults"
-                } else {
-                    " — recovery failed"
-                }
-            ),
-
-            // Backend
-            Self::BackendInit { backend, message } => {
-                write!(f, "Backend {backend:?} failed to init: {message}")
-            }
-            Self::TokenizerLoad { message } => write!(f, "Tokenizer load failed: {message}"),
-            Self::InferenceFailed { slot_id, reason } => {
-                write!(f, "Inference failed for slot '{slot_id}': {reason}")
-            }
-
-            // Infrastructure
-            Self::IoFailed { path, reason } => {
-                write!(f, "Filesystem IO failed at {path}: {reason}")
-            }
-            Self::BootFailed { step, reason } => {
-                write!(f, "Model loader boot failed during {step}: {reason}")
-            }
-            Self::ConfigBackendFailed {
-                operation,
-                key,
-                reason,
-            } => write!(
-                f,
-                "Config backend {operation} failed for key '{key}': {reason}"
-            ),
-            Self::HuggingFaceApi { reason, can_retry } => write!(
-                f,
-                "HuggingFace API call failed: {reason}{}",
-                if *can_retry { " (retry available)" } else { "" }
-            ),
-
-            // Catch-all
+            Self::IoFailed { .. }
+            | Self::BootFailed { .. }
+            | Self::ConfigBackendFailed { .. }
+            | Self::HuggingFaceApi { .. } => fmt_infrastructure(self, f),
             Self::Other { message } => write!(f, "{message}"),
         }
+    }
+}
+
+/// Render compatibility-class variants (`UnknownArchitecture`,
+/// `UnsupportedArchitecture`).
+fn fmt_compatibility(err: &LoadError, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match err {
+        LoadError::UnknownArchitecture { raw } => write!(
+            f,
+            "Unknown architecture `{raw}`. The registry doesn't know how to \
+             classify this model. Consider filing an issue to add it."
+        ),
+        LoadError::UnsupportedArchitecture {
+            arch,
+            format,
+            reason,
+            alternatives,
+        } => {
+            write!(
+                f,
+                "{arch:?} in {format:?} format is not loadable in this build: {reason}"
+            )?;
+            if !alternatives.is_empty() {
+                write!(f, " ({} alternative(s) available)", alternatives.len())?;
+            }
+            Ok(())
+        }
+        _ => Ok(()),
+    }
+}
+
+/// Render filesystem-class variants (`MissingFile`, `ModelCorrupt`,
+/// `ModelFileMissing`).
+fn fmt_filesystem(err: &LoadError, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match err {
+        LoadError::MissingFile { which, dir } => {
+            write!(f, "Required file `{which}` not found in {dir}")
+        }
+        LoadError::ModelCorrupt {
+            path,
+            can_redownload,
+        } => write!(
+            f,
+            "Model file is corrupt or unreadable: {path}{}",
+            if *can_redownload {
+                " (re-download available)"
+            } else {
+                ""
+            }
+        ),
+        LoadError::ModelFileMissing {
+            path,
+            slot_id,
+            can_redownload,
+        } => write!(
+            f,
+            "Model file missing: was at {path}{}{}",
+            slot_id
+                .as_ref()
+                .map(|s| format!(" (slot {s})"))
+                .unwrap_or_default(),
+            if *can_redownload {
+                " (re-download available)"
+            } else {
+                ""
+            }
+        ),
+        _ => Ok(()),
+    }
+}
+
+/// Render resource-class variants (`VramInsufficient`, `RamExhausted`,
+/// `DiskFull`, `NoGpuDriver`).
+fn fmt_resource(err: &LoadError, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match err {
+        LoadError::VramInsufficient {
+            needed_mb,
+            available_mb,
+        } => write!(
+            f,
+            "Not enough GPU memory: need {needed_mb} MB, only {available_mb} MB free"
+        ),
+        LoadError::RamExhausted { used_mb, total_mb } => {
+            write!(f, "System out of RAM: {used_mb}/{total_mb} MB")
+        }
+        LoadError::DiskFull {
+            needed_mb,
+            available_mb,
+        } => write!(
+            f,
+            "Disk space insufficient: need {needed_mb} MB, only {available_mb} MB free"
+        ),
+        LoadError::NoGpuDriver => write!(f, "GPU driver not found — falling back to CPU"),
+        _ => Ok(()),
+    }
+}
+
+/// Render slot-state-class variants (`SlotNotFound`, `NoModelAssigned`,
+/// `AlreadyLoading`, `SlotSwapping`, `IncompatibleModel`,
+/// `ConfigCorrupt`).
+fn fmt_slot_state(err: &LoadError, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match err {
+        LoadError::SlotNotFound { slot_id } => write!(f, "Slot '{slot_id}' does not exist"),
+        LoadError::NoModelAssigned { slot_id } => {
+            write!(f, "No model assigned to slot '{slot_id}'")
+        }
+        LoadError::AlreadyLoading { slot_id } => {
+            write!(f, "Slot '{slot_id}' is already loading")
+        }
+        LoadError::SlotSwapping { slot_id } => write!(
+            f,
+            "Slot '{slot_id}' is swapping models — try again in a moment"
+        ),
+        LoadError::IncompatibleModel {
+            model_id,
+            capability,
+        } => write!(
+            f,
+            "Model '{model_id}' is not compatible with slot capability '{capability}'"
+        ),
+        LoadError::ConfigCorrupt { recovered } => write!(
+            f,
+            "Config data corrupt{}",
+            if *recovered {
+                " — recovered to defaults"
+            } else {
+                " — recovery failed"
+            }
+        ),
+        _ => Ok(()),
+    }
+}
+
+/// Render backend-class variants (`BackendInit`, `TokenizerLoad`,
+/// `InferenceFailed`).
+fn fmt_backend(err: &LoadError, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match err {
+        LoadError::BackendInit { backend, message } => {
+            write!(f, "Backend {backend:?} failed to init: {message}")
+        }
+        LoadError::TokenizerLoad { message } => write!(f, "Tokenizer load failed: {message}"),
+        LoadError::InferenceFailed { slot_id, reason } => {
+            write!(f, "Inference failed for slot '{slot_id}': {reason}")
+        }
+        _ => Ok(()),
+    }
+}
+
+/// Render infrastructure-class variants (`IoFailed`, `BootFailed`,
+/// `ConfigBackendFailed`, `HuggingFaceApi`).
+fn fmt_infrastructure(err: &LoadError, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match err {
+        LoadError::IoFailed { path, reason } => {
+            write!(f, "Filesystem IO failed at {path}: {reason}")
+        }
+        LoadError::BootFailed { step, reason } => {
+            write!(f, "Model loader boot failed during {step}: {reason}")
+        }
+        LoadError::ConfigBackendFailed {
+            operation,
+            key,
+            reason,
+        } => write!(
+            f,
+            "Config backend {operation} failed for key '{key}': {reason}"
+        ),
+        LoadError::HuggingFaceApi { reason, can_retry } => write!(
+            f,
+            "HuggingFace API call failed: {reason}{}",
+            if *can_retry { " (retry available)" } else { "" }
+        ),
+        _ => Ok(()),
     }
 }
 

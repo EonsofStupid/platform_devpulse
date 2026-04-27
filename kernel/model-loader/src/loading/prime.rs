@@ -53,6 +53,16 @@ impl<B: InferenceBackend + PrimingBackend> ModelPrimer<B> {
     ///
     /// # Returns
     /// `PrimingResult` with timing and capacity info, or error.
+    ///
+    /// # Errors
+    /// - `LoaderError` from `allocate_kv_cache` if VRAM is exhausted or
+    ///   the slot is not in a primable state.
+    /// - `LoaderError` from `forward` during warmup if the backend rejects
+    ///   the dummy token batch (slot not loaded, kernel launch failure).
+    /// - `LoaderError` from `reset_kv_cache` between iterations or after
+    ///   priming if the cache cannot be cleared.
+    /// - CUDA-graph capture failures are non-fatal and logged at warn —
+    ///   they do not return an error.
     #[instrument(skip(self), fields(slot_id = %slot_id))]
     pub async fn prime_model(
         &mut self,
@@ -94,6 +104,9 @@ impl<B: InferenceBackend + PrimingBackend> ModelPrimer<B> {
         }
 
         let warmup_duration = warmup_start.elapsed();
+        // Token-counter to f32 for tokens-per-second display; precision loss
+        // beyond 2^24 tokens is irrelevant for warmup batches (~tens of tokens).
+        #[allow(clippy::cast_precision_loss)]
         let warmup_tps = total_tokens as f32 / warmup_duration.as_secs_f32();
         debug!(
             "Warmup complete: {total_tokens} tokens in {:?} ({warmup_tps:.1} t/s)",
@@ -144,6 +157,12 @@ impl<B: InferenceBackend + PrimingBackend> ModelPrimer<B> {
 
     /// Demote a primed model back to loaded state (free KV cache, keep weights).
     /// Useful when memory pressure requires freeing resources.
+    ///
+    /// # Errors
+    /// - `LoaderError` from `free_kv_cache` if the backend cannot release
+    ///   the cache (slot already unloaded, backing allocator failure).
+    /// - CUDA-graph release failures are non-fatal and logged at warn —
+    ///   they do not return an error.
     #[instrument(skip(self), fields(slot_id = %slot_id))]
     pub async fn demote_to_loaded(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         info!("Demoting model in slot {slot_id} from Primed to Loaded");

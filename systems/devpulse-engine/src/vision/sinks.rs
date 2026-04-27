@@ -173,7 +173,7 @@ impl FrameSink for DiskFrameSink {
         let parent_buf = parent.to_path_buf();
         let path_buf = path.clone();
 
-        let result = tokio::task::spawn_blocking(move || -> Result<()> {
+        let result = devpulse_telemetry::spawn_blocking(move || -> Result<()> {
             std::fs::create_dir_all(&parent_buf)?;
             std::fs::write(&path_buf, &bytes)?;
             Ok(())

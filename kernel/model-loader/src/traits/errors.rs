@@ -27,7 +27,7 @@ pub enum LoaderError {
     ModelCorrupt {
         /// Path to the corrupt model file.
         path: PathBuf,
-        /// Whether the model can be re-downloaded from HuggingFace.
+        /// Whether the model can be re-downloaded from `HuggingFace`.
         can_redownload: bool,
     },
 
@@ -44,7 +44,7 @@ pub enum LoaderError {
     #[error("GPU driver not found — falling back to CPU")]
     NoGpuDriver,
 
-    /// HuggingFace download failed (network, auth, or server error).
+    /// `HuggingFace` download failed (network, auth, or server error).
     #[error("Download failed: {reason}")]
     DownloadFailed {
         /// Human-readable failure reason.
@@ -71,7 +71,7 @@ pub enum LoaderError {
         path: PathBuf,
         /// Slot that referenced this model (if any).
         slot_id: Option<String>,
-        /// Whether the model can be re-downloaded from HuggingFace.
+        /// Whether the model can be re-downloaded from `HuggingFace`.
         can_redownload: bool,
     },
 
@@ -162,7 +162,7 @@ pub enum LoaderError {
         reason: String,
     },
 
-    /// HuggingFace HTTP API call failed (network, auth, rate-limit, server).
+    /// `HuggingFace` HTTP API call failed (network, auth, rate-limit, server).
     #[error("HuggingFace API call failed: {reason}")]
     HuggingFace {
         /// Human-readable failure reason.
@@ -208,9 +208,9 @@ pub enum RecoverySuggestion {
         /// VRAM the smaller model needs (MB).
         vram_mb: u64,
     },
-    /// Re-download the model file from HuggingFace.
+    /// Re-download the model file from `HuggingFace`.
     Redownload {
-        /// HuggingFace repository ID.
+        /// `HuggingFace` repository ID.
         repo_id: String,
         /// Filename to download.
         filename: String,
@@ -228,12 +228,12 @@ impl LoaderError {
             Self::ModelCorrupt {
                 can_redownload: true,
                 ..
-            } => vec![RecoverySuggestion::RescanModels],
-            Self::ModelFileMissing {
+            }
+            | Self::ModelFileMissing {
                 can_redownload: true,
                 ..
-            } => vec![RecoverySuggestion::RescanModels],
-            Self::DownloadFailed {
+            }
+            | Self::DownloadFailed {
                 can_retry: true, ..
             } => vec![RecoverySuggestion::RescanModels],
             Self::NoGpuDriver => vec![RecoverySuggestion::UseCpuFallback],

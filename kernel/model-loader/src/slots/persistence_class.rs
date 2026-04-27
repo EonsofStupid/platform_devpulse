@@ -132,6 +132,7 @@ impl std::fmt::Display for PersistenceClass {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests panic on assertion failure by design
 mod tests {
     use super::*;
 

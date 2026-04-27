@@ -1,6 +1,6 @@
-//! SigLIP2 vision encoder via Candle.
+//! `SigLIP2` vision encoder via `Candle`.
 //!
-//! Produces image embeddings using Google's SigLIP2 architecture.
+//! Produces image embeddings using Google's `SigLIP2` architecture.
 //! Default model: `google/siglip2-so400m-patch14-384` (embedding dim 1152, 384x384).
 //!
 //! # Cast lints
@@ -19,7 +19,7 @@
 //!
 //! Pipeline: image file/bytes → resize → normalize → tensor → VisionModel.forward → pooled embedding
 //!
-//! Model file expectations (SafeTensors layout from HuggingFace):
+//! Model file expectations (`SafeTensors` layout from `HuggingFace`):
 //!   - `config.json` (HF config with `vision_config` block)
 //!   - `model.safetensors` (single-file) OR `model.safetensors.index.json` + shards
 //!
@@ -38,14 +38,14 @@ use candle_nn::VarBuilder;
 #[cfg(feature = "candle-backend")]
 use candle_transformers::models::siglip::{VisionConfig, VisionModel};
 
-/// Image mean for ImageNet normalization (RGB).
+/// Image mean for `ImageNet` normalization (RGB).
 #[cfg(feature = "candle-backend")]
 const IMAGE_MEAN: [f32; 3] = [0.5, 0.5, 0.5];
-/// Image std for ImageNet normalization (RGB). SigLIP uses 0.5/0.5/0.5.
+/// Image std for `ImageNet` normalization (RGB). `SigLIP` uses 0.5/0.5/0.5.
 #[cfg(feature = "candle-backend")]
 const IMAGE_STD: [f32; 3] = [0.5, 0.5, 0.5];
 
-/// SigLIP2 vision encoder backed by Candle.
+/// `SigLIP2` vision encoder backed by `Candle`.
 pub struct SigLipVision {
     /// Path to the model directory or file.
     model_path: Option<PathBuf>,
@@ -61,13 +61,13 @@ pub struct SigLipVision {
     /// Loaded vision model + config.
     #[cfg(feature = "candle-backend")]
     model: Mutex<Option<VisionModel>>,
-    /// Vision config (patch size, hidden dim, etc.) — needed for pixel_values shape.
+    /// Vision config (patch size, hidden dim, etc.) — needed for `pixel_values` shape.
     #[cfg(feature = "candle-backend")]
     config: Option<VisionConfig>,
 }
 
 impl SigLipVision {
-    /// Create a new unloaded SigLIP2 vision encoder.
+    /// Create a new unloaded `SigLIP2` vision encoder.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -156,33 +156,7 @@ impl VisionEmbeddingBackend for SigLipVision {
             };
             self.device = device.clone();
 
-            // Load weights via VarBuilder with mmap.
-            // SAFETY: candle's mmap API is unsafe because the backing files must not
-            // be mutated while mapped. We hold them for the lifetime of the model and
-            // make no assumptions about concurrent writers — model dirs are read-only.
-            #[allow(unsafe_code)]
-            let vb = unsafe {
-                VarBuilder::from_mmaped_safetensors(&safetensor_files, DType::F32, &device)
-                    .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors: {e}"))?
-            };
-
-            // Most HF SigLIP checkpoints nest under `vision_model.` — but the candle
-            // module expects you to pass the prefix yourself. Try both common layouts.
-            let model = match VisionModel::new(&vision_config, true, vb.pp("vision_model")) {
-                Ok(m) => m,
-                Err(_) => {
-                    // Some exports have no prefix (bare vision checkpoint)
-                    #[allow(unsafe_code)]
-                    let vb2 = unsafe {
-                        VarBuilder::from_mmaped_safetensors(&safetensor_files, DType::F32, &device)
-                            .map_err(|e| {
-                                anyhow::anyhow!("Failed to mmap safetensors (retry): {e}")
-                            })?
-                    };
-                    VisionModel::new(&vision_config, true, vb2)
-                        .map_err(|e| anyhow::anyhow!("Failed to load SigLIP weights: {e}"))?
-                }
-            };
+            let model = build_vision_model(&safetensor_files, &vision_config, &device)?;
 
             // Compute total size from files on disk
             let total_size: u64 = safetensor_files
@@ -369,6 +343,40 @@ impl VisionEmbeddingBackend for SigLipVision {
             }
         }
     }
+}
+
+/// Build a `VisionModel` from `safetensors` weights, handling both prefixed
+/// (`vision_model.`) and bare checkpoint layouts.
+#[cfg(feature = "candle-backend")]
+fn build_vision_model(
+    safetensor_files: &[PathBuf],
+    vision_config: &VisionConfig,
+    device: &Device,
+) -> anyhow::Result<VisionModel> {
+    // Load weights via VarBuilder with mmap.
+    // SAFETY: candle's mmap API is unsafe because the backing files must not
+    // be mutated while mapped. We hold them for the lifetime of the model and
+    // make no assumptions about concurrent writers — model dirs are read-only.
+    #[allow(unsafe_code)]
+    let vb = unsafe {
+        VarBuilder::from_mmaped_safetensors(safetensor_files, DType::F32, device)
+            .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors: {e}"))?
+    };
+
+    // Most HF SigLIP checkpoints nest under `vision_model.` — but the candle
+    // module expects you to pass the prefix yourself. Try both common layouts.
+    if let Ok(m) = VisionModel::new(vision_config, true, vb.pp("vision_model")) {
+        return Ok(m);
+    }
+
+    // Some exports have no prefix (bare vision checkpoint)
+    #[allow(unsafe_code)]
+    let vb2 = unsafe {
+        VarBuilder::from_mmaped_safetensors(safetensor_files, DType::F32, device)
+            .map_err(|e| anyhow::anyhow!("Failed to mmap safetensors (retry): {e}"))?
+    };
+    VisionModel::new(vision_config, true, vb2)
+        .map_err(|e| anyhow::anyhow!("Failed to load SigLIP weights: {e}"))
 }
 
 /// Find all `*.safetensors` files in a model directory.

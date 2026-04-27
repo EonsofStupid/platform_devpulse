@@ -7,7 +7,7 @@
 //! Each trait is implemented by a single-purpose backend file:
 //! - [`EmbeddingBackend`] → `backends/ort/embedder.rs` (Qwen3-Embedding)
 //! - [`RerankerBackend`] → `backends/ort/reranker.rs` (Qwen3-Reranker)
-//! - [`VisionEmbeddingBackend`] → `backends/candle/siglip.rs` (SigLIP2)
+//! - [`VisionEmbeddingBackend`] → `backends/candle/siglip.rs` (`SigLIP2`)
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::Path;
@@ -20,9 +20,18 @@ use std::path::Path;
 /// Qwen3-Embedding-0.6B produces 1024-dim vectors by default.
 pub trait EmbeddingBackend: Send {
     /// Load model from disk. Returns memory footprint.
+    ///
+    /// # Errors
+    /// Returns error if the file at `path` is missing, the ONNX / Candle
+    /// session fails to initialize, the tokenizer cannot be attached, or
+    /// the device requested in `params` is unavailable.
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint>;
 
     /// Unload model and free memory.
+    ///
+    /// # Errors
+    /// Returns error if the underlying ORT session or Candle device handle
+    /// fails to release cleanly.
     fn unload(&mut self) -> anyhow::Result<()>;
 
     /// Embed a batch of texts. Returns one vector per input, all same dimension.
@@ -32,6 +41,10 @@ pub trait EmbeddingBackend: Send {
     fn embed(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>>;
 
     /// Embed a single text. Convenience wrapper over `embed`.
+    ///
+    /// # Errors
+    /// Returns the error produced by [`Self::embed`], or an internal error
+    /// if the underlying batch call returns an empty result vector.
     fn embed_one(&self, text: &str) -> anyhow::Result<Vec<f32>> {
         let mut results = self.embed(&[text])?;
         results
@@ -56,9 +69,18 @@ pub trait EmbeddingBackend: Send {
 /// refinement after initial vector search.
 pub trait RerankerBackend: Send {
     /// Load model from disk.
+    ///
+    /// # Errors
+    /// Returns error if the file at `path` is missing, the cross-encoder
+    /// session fails to initialize, the tokenizer cannot be attached, or
+    /// the device requested in `params` is unavailable.
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint>;
 
     /// Unload model.
+    ///
+    /// # Errors
+    /// Returns error if the underlying inference session fails to release
+    /// cleanly.
     fn unload(&mut self) -> anyhow::Result<()>;
 
     /// Score a list of documents against a query. Returns one score per doc.
@@ -80,21 +102,39 @@ pub trait RerankerBackend: Send {
 /// Used for screenshot understanding, visual search, cross-modal retrieval.
 pub trait VisionEmbeddingBackend: Send {
     /// Load model from disk.
+    ///
+    /// # Errors
+    /// Returns error if the file at `path` is missing, the vision session
+    /// fails to initialize, the image preprocessor cannot be built, or the
+    /// device requested in `params` is unavailable.
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint>;
 
     /// Unload model.
+    ///
+    /// # Errors
+    /// Returns error if the underlying inference session fails to release
+    /// cleanly.
     fn unload(&mut self) -> anyhow::Result<()>;
 
     /// Encode a single image file path. Returns the image embedding vector.
     ///
     /// Image is loaded, resized, normalized according to the model's
-    /// expected preprocessing (SigLIP uses 384x384, ImageNet normalization).
+    /// expected preprocessing (`SigLIP` uses 384x384, `ImageNet` normalization).
+    ///
+    /// # Errors
+    /// Returns error if the file at `path` cannot be opened, the image
+    /// decoder rejects the format, the preprocessor fails (resize / normalize),
+    /// or the forward pass fails.
     fn encode_image(&self, path: &Path) -> anyhow::Result<Vec<f32>>;
 
     /// Encode raw RGB pixel data. Expects `width * height * 3` bytes in `u8` range.
     ///
     /// Use this for in-memory screenshots or frames from capture pipelines,
     /// avoiding round-trip through disk.
+    ///
+    /// # Errors
+    /// Returns error if `rgb_bytes.len()` does not equal `width * height * 3`,
+    /// the preprocessor fails, or the forward pass fails.
     fn encode_rgb(&self, rgb_bytes: &[u8], width: u32, height: u32) -> anyhow::Result<Vec<f32>>;
 
     /// Output embedding dimension.
