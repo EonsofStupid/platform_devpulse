@@ -17809,7 +17809,7 @@ warning: `xtask` (bin "xtask") generated 2 warnings
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -17862,7 +17862,7 @@ warning: `xtask` (bin "xtask") generated 2 warnings
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -17911,7 +17911,7 @@ warning: `xtask` (bin "xtask") generated 2 warnings
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -22574,7 +22574,7 @@ warning: `xtask` (bin "xtask") generated 2 warnings
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -22627,7 +22627,7 @@ warning: `xtask` (bin "xtask") generated 2 warnings
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -22676,7 +22676,7 @@ warning: `xtask` (bin "xtask") generated 2 warnings
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -41605,7 +41605,7 @@ warning: `xtask` (bin "xtask") generated 5 warnings
 xtask: build-release --portable-only
 
 ========================================
- DevPulse Platform v0.1.0 [build-release]
+ DevPulse Platform v0.6.0 [build-release]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -41965,7 +41965,7 @@ warning: `xtask` (bin "xtask") generated 5 warnings
 xtask: build-release --portable-only
 
 ========================================
- DevPulse Platform v0.1.0 [build-release]
+ DevPulse Platform v0.6.0 [build-release]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
@@ -49232,7 +49232,7 @@ PS {repo}/interfaces> cargo xtask run-dev
 xtask: dev
 
 ========================================
- DevPulse Platform v0.1.0 [dev]
+ DevPulse Platform v0.6.0 [dev]
 ========================================
  [OK] job object — children will die with xtask (kernel-enforced) (0ms)
 
