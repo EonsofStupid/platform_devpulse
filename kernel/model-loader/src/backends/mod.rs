@@ -1,8 +1,9 @@
-//! Inference backends — Candle, llama.cpp, ONNX Runtime, and Orpheus TTS.
+//! Inference backends — Candle, llama.cpp, mistral.rs, ONNX Runtime, and Orpheus TTS.
 
 pub mod bridge;
 pub mod candle;
 pub mod llamacpp;
+pub mod mistralrs;
 pub mod orpheus;
 pub mod ort;
 pub mod phoneme;

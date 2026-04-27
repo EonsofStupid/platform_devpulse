@@ -34,7 +34,7 @@ moshi-sts = ["dep:moshi", "candle-backend"]
 # The only Rust path for Phi-4-multimodal-instruct as of 2026-04 — onnxruntime-genai
 # has no Rust bindings yet. Pulls mistralrs-core + mistralrs-vision + mistralrs-audio
 # transitively via the umbrella `mistralrs` crate. Wired in Phase 6 of slice 1.
-mistralrs-backend = ["dep:mistralrs"]
+mistralrs-backend = ["dep:mistralrs", "dep:image"]
 # Qwen3-TTS backend — pure-Rust voice synthesis with zero-shot cloning,
 # Candle-based via the qwen3-tts crate. Single engine for default Clyffy
 # voice + 9 preset speakers + clone-from-reference (3-10 sec mp3/wav).
@@ -126,7 +126,7 @@ moshi = { workspace = true, optional = true }
 # Version pin set in Phase 6 when the backend module lands; declaring as
 # `optional = true` here gates the dep behind the `mistralrs-backend` feature
 # so default builds stay lean. April 2026 latest: 0.8.x.
-mistralrs = { version = "0.8", optional = true }
+mistralrs = { version = "0.8.1", optional = true }
 
 # Qwen3-TTS — pure-Rust TTS with zero-shot voice cloning. Workspace pin
 # in /Cargo.toml. Gated behind the `qwen3-tts-backend` feature so default
