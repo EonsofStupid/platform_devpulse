@@ -1,11 +1,15 @@
 //! Audio playback service — rodio-backed speaker output.
 //!
 //! Wraps rodio's `OutputStream` + `Sink` for playing PCM audio from TTS.
-//! Thread-safe via flume channel — callers send audio, service thread plays it.
+//! Thread-safe via `devpulse_telemetry::TracedSender` — callers send audio,
+//! service thread plays it. The traced channel preserves the producer's
+//! `OTel` context so spans created during playback chain back to whoever
+//! requested it (ADR-002).
 //!
 //! Does NOT capture microphone — that's a separate cpal service (future).
 
 use anyhow::Result;
+use devpulse_telemetry::prelude::{unbounded, TracedReceiver, TracedSender};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -33,7 +37,7 @@ enum AudioCommand {
 /// Handle to the audio playback service. Clone + Send.
 #[derive(Clone)]
 pub struct AudioHandle {
-    sender: flume::Sender<AudioCommand>,
+    sender: TracedSender<AudioCommand>,
     playing: Arc<AtomicBool>,
 }
 
@@ -86,14 +90,14 @@ impl AudioService {
     /// # Errors
     /// Returns an error if the dedicated audio playback thread cannot be spawned.
     pub fn spawn() -> Result<Self> {
-        let (tx, rx) = flume::unbounded::<AudioCommand>();
+        let (tx, rx) = unbounded::<AudioCommand>();
         let playing = Arc::new(AtomicBool::new(false));
         let playing_clone = playing.clone();
 
         let thread = std::thread::Builder::new()
             .name("audio-playback".into())
             .spawn(move || {
-                audio_thread(rx, &playing_clone);
+                audio_thread(&rx, &playing_clone);
             })
             .map_err(|e| anyhow::anyhow!("Failed to spawn audio thread: {e}"))?;
 
@@ -125,7 +129,7 @@ impl Drop for AudioService {
 }
 
 /// Main loop on the audio playback thread.
-fn audio_thread(rx: flume::Receiver<AudioCommand>, playing: &Arc<AtomicBool>) {
+fn audio_thread(rx: &TracedReceiver<AudioCommand>, playing: &Arc<AtomicBool>) {
     // Initialize rodio output — this must happen on this thread
     let output = match rodio::OutputStream::try_default() {
         Ok((stream, handle)) => Some((stream, handle)),
@@ -151,7 +155,12 @@ fn audio_thread(rx: flume::Receiver<AudioCommand>, playing: &Arc<AtomicBool>) {
             .ok()
     });
 
-    while let Ok(cmd) = rx.recv() {
+    while let Ok(traced) = rx.recv() {
+        // Attach the producer's OTel context for the duration of this
+        // command. Spans created below (rodio sink ops, sleep_until_end)
+        // become descendants of whoever called `AudioHandle::play`. The
+        // guard is `!Send` and stays in this sync scope by design.
+        let (cmd, _cx_guard) = traced.attach();
         match cmd {
             AudioCommand::Play(request) => {
                 if let Some(ref sink) = sink {

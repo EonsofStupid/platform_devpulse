@@ -27,7 +27,9 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use tokio::sync::{broadcast, RwLock};
+use devpulse_telemetry::prelude::{BroadcastReceiver, BroadcastSender};
+use tokio::sync::broadcast::error::RecvError;
+use tokio::sync::RwLock;
 use tracing::{debug, trace, warn};
 
 use super::config::WhitelistConfig;
@@ -38,18 +40,18 @@ use super::translator::TranslationRegistry;
 
 /// The bridge task. Created by `FacadeHandle::spawn()`.
 pub struct FacadeBridge {
-    internal_rx: broadcast::Receiver<InternalEvent>,
-    surface_tx: broadcast::Sender<SurfaceEvent>,
-    dev_tx: broadcast::Sender<InternalEvent>,
+    internal_rx: BroadcastReceiver<InternalEvent>,
+    surface_tx: BroadcastSender<SurfaceEvent>,
+    dev_tx: BroadcastSender<InternalEvent>,
     config: Arc<RwLock<WhitelistConfig>>,
     registry: Arc<TranslationRegistry>,
 }
 
 impl FacadeBridge {
     pub fn new(
-        internal_rx: broadcast::Receiver<InternalEvent>,
-        surface_tx: broadcast::Sender<SurfaceEvent>,
-        dev_tx: broadcast::Sender<InternalEvent>,
+        internal_rx: BroadcastReceiver<InternalEvent>,
+        surface_tx: BroadcastSender<SurfaceEvent>,
+        dev_tx: BroadcastSender<InternalEvent>,
         config: Arc<RwLock<WhitelistConfig>>,
         registry: Arc<TranslationRegistry>,
     ) -> Self {
@@ -71,7 +73,12 @@ impl FacadeBridge {
 
         loop {
             match self.internal_rx.recv().await {
-                Ok(event) => {
+                Ok(traced) => {
+                    // Producer's OTel context comes through as a span-link
+                    // target on `traced.link_context()`. We don't attach it
+                    // because the bridge is its own span tree (ADR-002:
+                    // 1:N broadcast subscribers are peers, not children).
+                    let event = traced.value;
                     let elapsed_ms = start.elapsed().as_millis() as u64;
 
                     // ── Dev channel: local builder stream only ───────
@@ -118,11 +125,11 @@ impl FacadeBridge {
                     }
                 }
 
-                Err(broadcast::error::RecvError::Lagged(n)) => {
+                Err(RecvError::Lagged(n)) => {
                     warn!(lagged = n, "Facade bridge lagged — {n} events skipped");
                 }
 
-                Err(broadcast::error::RecvError::Closed) => {
+                Err(RecvError::Closed) => {
                     debug!("Internal event bus closed. Facade bridge shutting down.");
                     break;
                 }

@@ -13,9 +13,10 @@
 //!
 //! # Ownership
 //!
-//! The facade **observes** events via `tokio::broadcast`. It never owns
-//! model weights, GPU resources, or inference state. It is a read-only
-//! projection of the kernel's internal state.
+//! The facade **observes** events via `devpulse_telemetry::BroadcastSender`
+//! (which wraps `tokio::sync::broadcast` with `OTel` context propagation —
+//! see ADR-002). It never owns model weights, GPU resources, or inference
+//! state. It is a read-only projection of the kernel's internal state.
 
 mod bridge;
 pub mod config;
@@ -33,9 +34,10 @@ pub use surface::{Severity, SurfaceCategory, SurfaceEvent};
 pub use translator::{EventTranslator, TranslationRegistry};
 pub use visibility::{classify, narration_hint, Visibility};
 
+use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
 use devpulse_telemetry::spawn;
 use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::RwLock;
 
 /// Capacity for each output channel. Must be large enough to avoid
 /// lagging during inference bursts (50+ tok/s = 50+ events/s).
@@ -47,10 +49,10 @@ const DEV_CHANNEL_CAPACITY: usize = 1024;
 #[derive(Clone)]
 pub struct FacadeHandle {
     /// Subscribe to translated events (main UI consumption).
-    pub surface_tx: broadcast::Sender<SurfaceEvent>,
+    pub surface_tx: BroadcastSender<SurfaceEvent>,
 
     /// Subscribe to raw internal events (Connectome / Lab).
-    pub dev_tx: broadcast::Sender<InternalEvent>,
+    pub dev_tx: BroadcastSender<InternalEvent>,
 
     /// Runtime-mutable config. Updated via Connectome settings UI.
     pub config: Arc<RwLock<WhitelistConfig>>,
@@ -62,12 +64,12 @@ impl FacadeHandle {
     /// `internal_tx` is the sender from the kernel's main event bus.
     /// The bridge task runs until the sender is dropped (app shutdown).
     pub fn spawn(
-        internal_tx: broadcast::Sender<InternalEvent>,
+        internal_tx: &BroadcastSender<InternalEvent>,
         config: WhitelistConfig,
         registry: TranslationRegistry,
     ) -> Self {
-        let (surface_tx, _) = broadcast::channel(SURFACE_CHANNEL_CAPACITY);
-        let (dev_tx, _) = broadcast::channel(DEV_CHANNEL_CAPACITY);
+        let (surface_tx, _) = broadcast_channel(SURFACE_CHANNEL_CAPACITY);
+        let (dev_tx, _) = broadcast_channel(DEV_CHANNEL_CAPACITY);
         let config = Arc::new(RwLock::new(config));
 
         let bridge = FacadeBridge::new(
@@ -88,12 +90,12 @@ impl FacadeHandle {
     }
 
     /// Get a surface event receiver for the main UI.
-    pub fn subscribe_surface(&self) -> broadcast::Receiver<SurfaceEvent> {
+    pub fn subscribe_surface(&self) -> BroadcastReceiver<SurfaceEvent> {
         self.surface_tx.subscribe()
     }
 
     /// Get a raw event receiver for dev tools.
-    pub fn subscribe_dev(&self) -> broadcast::Receiver<InternalEvent> {
+    pub fn subscribe_dev(&self) -> BroadcastReceiver<InternalEvent> {
         self.dev_tx.subscribe()
     }
 
