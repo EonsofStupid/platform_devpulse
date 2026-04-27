@@ -19,6 +19,18 @@ export { default as DevtoolBentoTile } from "./DevtoolBentoTile.svelte";
 export type { LogTargetPreset } from "./DevtoolLogsTab.svelte";
 export { default as DevtoolLogsTab } from "./DevtoolLogsTab.svelte";
 export { default as DevtoolRefreshButton } from "./DevtoolRefreshButton.svelte";
+export {
+	type ClyffyBucket,
+	type ClyffyBucketGroup,
+	type DevtoolMeta,
+	type DevtoolStatus,
+	type DevtoolTier,
+	findDevtoolMeta,
+	groupByTier,
+	type LucideIcon,
+	type TierGroup,
+} from "./devtool-meta.js";
+export { DEVTOOL_REGISTRY } from "./devtool-registry.js";
 export { default as RepoDownloadButton } from "./RepoDownloadButton.svelte";
 export {
 	formatBytes,

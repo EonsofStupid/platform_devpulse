@@ -12,32 +12,30 @@
 import { invoke } from "@tauri-apps/api/core";
 import {
 	Activity,
-	Boxes,
+	Brain,
 	BrainCircuit,
-	Cpu,
-	Database,
+	Ear,
 	ExternalLink,
 	Eye,
-	FileText,
-	Gauge,
-	GitBranch,
 	Grid3x3,
-	HardDrive,
 	Headphones,
-	LineChart,
 	Mic,
-	Network,
-	Package,
 	PlugZap,
-	Radio,
 	Settings,
 	Sparkles,
 	Volume2,
-	Workflow,
 	X,
 } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import {
+	type ClyffyBucket,
+	DEVTOOL_REGISTRY,
+	type DevtoolMeta,
+	groupByTier,
+	type LucideIcon,
+	type TierGroup,
+} from "$lib/domains/platform/_shared/index.js";
 import type {
 	LaneToggle,
 	LaneTraceConfig,
@@ -56,6 +54,62 @@ const tabs = [
 ] as const;
 
 let activeTab = $state<TabId>("overview");
+
+// ── Registry-driven tier grouping ────────────────────────────
+// Bucket → header icon. Pinning the icons here (not in
+// devtool-registry.ts) keeps `_shared/devtool-meta.ts` free of
+// dependencies on the lucide barrel — the meta module is pure
+// types + grouping math, no presentation imports.
+const BUCKET_ICONS: Record<ClyffyBucket, LucideIcon> = {
+	ears: Ear,
+	mouth: Volume2,
+	eyes: Eye,
+	brain: Brain,
+	memory: Sparkles,
+	providers: PlugZap,
+};
+
+const tierGroups: TierGroup[] = $derived(groupByTier(DEVTOOL_REGISTRY, BUCKET_ICONS));
+
+// External windows — Tauri WebviewWindow targets that live outside
+// the routed devtools but still belong on this dashboard for
+// discoverability. Kept hardcoded (not in DEVTOOL_REGISTRY) because
+// they aren't routes — they're window opens.
+type ExternalWindow = {
+	role: Parameters<typeof commands.openWindow>[0];
+	label: string;
+	blurb: string;
+	icon: LucideIcon;
+};
+
+const EXTERNAL_WINDOWS: ExternalWindow[] = [
+	{
+		role: "ModelLoader",
+		label: "Model Control Window",
+		blurb: "Slot management, downloads. Detached window.",
+		icon: BrainCircuit,
+	},
+	{
+		role: "VoiceLab",
+		label: "Voice Lab Window",
+		blurb: "Mic + speaker calibration. Detached window.",
+		icon: Mic,
+	},
+	{
+		role: "CortexViewer",
+		label: "Cortex Viewer Window",
+		blurb: "Telemetry graph. Detached window.",
+		icon: Activity,
+	},
+];
+
+function tierAccentClass(tier: TierGroup): string {
+	return `ds-section--${tier.accent}`;
+}
+
+function isPlanned(tile: DevtoolMeta): boolean {
+	return tile.status === "planned";
+}
 
 // ── Lane config state ────────────────────────────────────────
 let laneConfig = $state<LaneTraceConfig | null>(null);
@@ -273,7 +327,7 @@ let laneGroups = $derived<LaneGroup[]>(
 	<!-- ── Tab content ─────────────────────────────────────────── -->
 	<main class="flex-1 overflow-y-auto p-4">
 
-		<!-- OVERVIEW TAB — sectioned by axis, semantic-accent driven -->
+		<!-- OVERVIEW TAB — registry-driven, 3 tiers (Clyffy / Model Loader / System) -->
 		{#if activeTab === "overview"}
 			<div class="ds-sections">
 				<!-- ── Quick Actions (primary) ─────────────────── -->
@@ -295,210 +349,106 @@ let laneGroups = $derived<LaneGroup[]>(
 						<button class="ds-tile ds-tile--lg" onclick={() => (activeTab = "config")}>
 							<Settings size={26} class="ds-tile-icon" />
 							<span class="ds-tile-title">Config Inspector</span>
-							<span class="ds-tile-blurb">
-								Platform config, service stages, data paths.
-							</span>
+							<span class="ds-tile-blurb">Platform config, service stages, data paths.</span>
 						</button>
 					</div>
 				</section>
 
-				<!-- ── Models & AI (primary) ───────────────────── -->
-				<section class="ds-section ds-section--primary">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Models &amp; AI</h2>
-						<p class="ds-section-blurb">Brain, vision, knowledge engine, integrations.</p>
-					</header>
-					<div class="ds-tile-grid">
-						<button class="ds-tile" onclick={() => openWindow("ModelLoader")}>
-							<BrainCircuit size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Model Control</span>
-							<span class="ds-tile-blurb">
-								Slot management, downloads. Opens its own window.
-							</span>
-							<ExternalLink size={12} class="ds-tile-corner" />
-						</button>
-						<a href="/devtools/vision" class="ds-tile">
-							<Eye size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Vision (SigLIP2)</span>
-							<span class="ds-tile-blurb">
-								Image embeddings — preconfigured CPU · 1152-dim L2.
-							</span>
-						</a>
-						<a href="/devtools/claude" class="ds-tile">
-							<PlugZap size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Claude Integration</span>
-							<span class="ds-tile-blurb">
-								MCP server, subscription lane, API providers, council routing.
-							</span>
-						</a>
-					</div>
-				</section>
-
-				<!-- ── Voice (secondary) ───────────────────────── -->
-				<section class="ds-section ds-section--secondary">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Voice</h2>
-						<p class="ds-section-blurb">Listening, speaking, the audio loop.</p>
-					</header>
-					<div class="ds-tile-grid">
-						<button class="ds-tile" onclick={() => openWindow("VoiceLab")}>
-							<Headphones size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Voice Lab</span>
-							<span class="ds-tile-blurb">
-								TTS / STT configuration. Opens its own window.
-							</span>
-							<ExternalLink size={12} class="ds-tile-corner" />
-						</button>
-						<a href="/devtools/sts" class="ds-tile">
-							<Radio size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Speech-to-Speech</span>
-							<span class="ds-tile-blurb">Wake word, routing, council config.</span>
-						</a>
-						<a href="/devtools/tts" class="ds-tile">
-							<Volume2 size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Text-to-Speech</span>
-							<span class="ds-tile-blurb">Kokoro / Piper voice config.</span>
-						</a>
-						<a href="/devtools/stt" class="ds-tile">
-							<Mic size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Speech-to-Text</span>
-							<span class="ds-tile-blurb">Whisper / Sherpa input + VAD.</span>
-						</a>
-					</div>
-				</section>
-
-				<!-- ── Runtimes (warning) ──────────────────────── -->
-				<section class="ds-section ds-section--warning">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Runtimes</h2>
-						<p class="ds-section-blurb">Inference engines and the dev IDE host.</p>
-					</header>
-					<div class="ds-tile-grid">
-						<a href="/devtools/llama_cpp_embedded" class="ds-tile">
-							<Package size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">llama.cpp</span>
-							<span class="ds-tile-blurb">
-								In-process GGUF runtime. Light path — CPU-friendly.
-							</span>
-						</a>
-						<a href="/devtools/candle" class="ds-tile">
-							<Cpu size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Candle</span>
-							<span class="ds-tile-blurb">
-								Native-tensor runtime. GGUF + SafeTensors.
-							</span>
-						</a>
-						<a href="/devtools/ollama" class="ds-tile">
-							<Boxes size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Ollama</span>
-							<span class="ds-tile-blurb">
-								Backup runtime. Kept available — focus work goes to llama.cpp /
-								Burn / vLLM.
-							</span>
-						</a>
-						<a href="/devtools/devforge" class="ds-tile">
-							<GitBranch size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">DevForge</span>
-							<span class="ds-tile-blurb">
-								REH server health, extensions, update channel.
-							</span>
-						</a>
-					</div>
-				</section>
-
-				<!-- ── Stores (success) ────────────────────────── -->
-				<section class="ds-section ds-section--success">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Stores</h2>
-						<p class="ds-section-blurb">Persistent and in-memory data layers.</p>
-					</header>
-					<div class="ds-tile-grid">
-						<a href="/devtools/libsql" class="ds-tile">
-							<Database size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">LibSQL</span>
-							<span class="ds-tile-blurb">
-								System + User relational stores. WAL, schema, queries.
-							</span>
-						</a>
-						<a href="/devtools/duckdb" class="ds-tile">
-							<LineChart size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">DuckDB</span>
-							<span class="ds-tile-blurb">Analytics engine. Telemetry spans, OLAP queries.</span>
-						</a>
-						<a href="/devtools/surreal" class="ds-tile">
-							<Network size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">SurrealDB</span>
-							<span class="ds-tile-blurb">Knowledge graph. 3 namespaces. HTTP :8822.</span>
-						</a>
-						<a href="/devtools/rro" class="ds-tile">
-							<Workflow size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">RRO / Vector</span>
-							<span class="ds-tile-blurb">Qdrant vector store + dense encoder.</span>
-						</a>
-						<a href="/devtools/cache" class="ds-tile">
-							<HardDrive size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Cache</span>
-							<span class="ds-tile-blurb">In-memory KV (Moka). Capacity, TTL, hit-rate.</span>
-						</a>
-						<a href="/devtools/project_db" class="ds-tile">
-							<FileText size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Project DB</span>
-							<span class="ds-tile-blurb">Per-project LibSQL. Lazy-loaded, on-demand.</span>
-						</a>
-					</div>
-				</section>
-
-				<!-- ── Telemetry (muted) ───────────────────────── -->
+				<!-- ── Detached windows (muted) — Tauri WebviewWindow targets, kept here for discoverability. -->
 				<section class="ds-section ds-section--muted">
 					<header class="ds-section-header">
-						<h2 class="ds-section-title">Telemetry</h2>
-						<p class="ds-section-blurb">OTel spans, lane baselines, telemetry graph.</p>
-					</header>
-					<div class="ds-tile-grid">
-						<a href="/devtools/telemetry" class="ds-tile">
-							<Gauge size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Telemetry</span>
-							<span class="ds-tile-blurb">
-								OTel spans, lane baselines, exporter config.
-							</span>
-						</a>
-						<button class="ds-tile" onclick={() => openWindow("CortexViewer")}>
-							<Activity size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Cortex Viewer</span>
-							<span class="ds-tile-blurb">Telemetry graph. Opens its own window.</span>
-							<ExternalLink size={12} class="ds-tile-corner" />
-						</button>
-					</div>
-				</section>
-
-				<!-- ── Planned (muted, dashed) ─────────────────── -->
-				<section class="ds-section ds-section--muted">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Planned</h2>
+						<h2 class="ds-section-title">Detached Windows</h2>
 						<p class="ds-section-blurb">
-							Routes exist so navigation is stable — surfaces unlock as
-							services land.
+							Surfaces that pop into their own always-on-top window.
 						</p>
 					</header>
 					<div class="ds-tile-grid">
-						<a href="/devtools/cortex" class="ds-tile ds-tile--planned">
-							<Sparkles size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">Knowledge Engine</span>
-							<span class="ds-tile-blurb">
-								Prompt builder, memory lookup, councils. Not yet shipped.
-							</span>
-							<span class="ds-tile-planned-pill">Planned</span>
-						</a>
-						<a href="/devtools/mongodb" class="ds-tile ds-tile--planned">
-							<FileText size={20} class="ds-tile-icon" />
-							<span class="ds-tile-title">MongoDB</span>
-							<span class="ds-tile-blurb">
-								Document store for docs + images via GridFS. Not yet integrated.
-							</span>
-							<span class="ds-tile-planned-pill">Planned</span>
-						</a>
+						{#each EXTERNAL_WINDOWS as win (win.role)}
+							{@const Icon = win.icon}
+							<button class="ds-tile" onclick={() => openWindow(win.role)}>
+								<Icon size={20} class="ds-tile-icon" />
+								<span class="ds-tile-title">{win.label}</span>
+								<span class="ds-tile-blurb">{win.blurb}</span>
+								<ExternalLink size={12} class="ds-tile-corner" />
+							</button>
+						{/each}
 					</div>
 				</section>
+
+				<!-- ── Three tiers from registry — Clyffy → Model Loader → System -->
+				{#each tierGroups as group (group.tier)}
+					<section class="ds-section {tierAccentClass(group)}">
+						<header class="ds-section-header">
+							<h2 class="ds-section-title">{group.label}</h2>
+							{#if group.tier === "clyffy"}
+								<p class="ds-section-blurb">
+									The assistant's senses + cognition.
+								</p>
+							{:else if group.tier === "model_loader"}
+								<p class="ds-section-blurb">
+									Slot manager + inference runtimes.
+								</p>
+							{:else}
+								<p class="ds-section-blurb">
+									Platform infrastructure: stores, telemetry, IDE host.
+								</p>
+							{/if}
+						</header>
+
+						{#if group.buckets.length > 0}
+							<!-- Clyffy tier: render each bucket as a sub-section. -->
+							<div class="ds-buckets">
+								{#each group.buckets as bucket (bucket.bucket)}
+									{@const BucketIcon = bucket.icon}
+									<div class="ds-bucket">
+										<header class="ds-bucket-header">
+											<BucketIcon size={14} class="ds-bucket-icon" />
+											<span class="ds-bucket-title">{bucket.label}</span>
+										</header>
+										<div class="ds-tile-grid">
+											{#each bucket.tiles as tile (tile.id)}
+												{@const Icon = tile.icon}
+												<a
+													href={tile.route}
+													class="ds-tile"
+													class:ds-tile--planned={isPlanned(tile)}
+												>
+													<Icon size={20} class="ds-tile-icon" />
+													<span class="ds-tile-title">{tile.label}</span>
+													<span class="ds-tile-blurb">{tile.blurb}</span>
+													{#if isPlanned(tile)}
+														<span class="ds-tile-planned-pill">Planned</span>
+													{/if}
+												</a>
+											{/each}
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+
+						{#if group.flat.length > 0}
+							<!-- Non-bucketed tier (System / Model Loader): flat grid. -->
+							<div class="ds-tile-grid">
+								{#each group.flat as tile (tile.id)}
+									{@const Icon = tile.icon}
+									<a
+										href={tile.route}
+										class="ds-tile"
+										class:ds-tile--planned={isPlanned(tile)}
+									>
+										<Icon size={20} class="ds-tile-icon" />
+										<span class="ds-tile-title">{tile.label}</span>
+										<span class="ds-tile-blurb">{tile.blurb}</span>
+										{#if isPlanned(tile)}
+											<span class="ds-tile-planned-pill">Planned</span>
+										{/if}
+									</a>
+								{/each}
+							</div>
+						{/if}
+					</section>
+				{/each}
 			</div>
 
 		<!-- LANES TAB -->
@@ -715,6 +665,37 @@ let laneGroups = $derived<LaneGroup[]>(
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
 		gap: 0.625rem;
+	}
+
+	.ds-buckets {
+		display: flex;
+		flex-direction: column;
+		gap: 0.875rem;
+	}
+
+	.ds-bucket {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.ds-bucket-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding-left: 0.625rem;
+	}
+
+	.ds-bucket-title {
+		font-size: var(--font-size-xs);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--accent-section-main);
+	}
+
+	:global(.ds-bucket-icon) {
+		color: var(--accent-section-main);
 	}
 
 	.ds-tile-grid--lg {
