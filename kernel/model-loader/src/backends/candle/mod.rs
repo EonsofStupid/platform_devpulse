@@ -9,6 +9,9 @@ pub mod gemma3_embedding;
 #[cfg(feature = "moshi-sts")]
 pub mod moshi;
 
+#[cfg(feature = "moshi-sts")]
+pub mod voices_archive;
+
 pub mod qwen3_tts;
 
 pub mod siglip;

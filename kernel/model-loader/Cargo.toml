@@ -5,7 +5,7 @@ edition = "2021"
 description = "Self-enclosed model management crate — zero DevPulse dependencies"
 
 [features]
-default = ["candle-backend", "mode-dev"]
+default = ["candle-backend", "moshi-sts", "mode-dev"]
 candle-backend = [
     "dep:candle-core",
     "dep:candle-nn",
@@ -29,7 +29,7 @@ llama-cpp-ffi = ["dep:llama-cpp-2", "dep:encoding_rs"]
 # Tokenization via the existing HF `tokenizers` crate (in `candle-backend`),
 # not sentencepiece-sys — moshi-core takes an `encode: impl Fn` callback and
 # never imports a tokenizer crate itself.
-moshi-sts = ["dep:moshi", "candle-backend"]
+moshi-sts = ["dep:moshi", "dep:tar", "dep:flate2", "candle-backend"]
 # mistral.rs runtime — native Rust multimodal inference engine (Candle-based).
 # The only Rust path for Phi-4-multimodal-instruct as of 2026-04 — onnxruntime-genai
 # has no Rust bindings yet. Pulls mistralrs-core + mistralrs-vision + mistralrs-audio
@@ -121,6 +121,14 @@ encoding_rs = { version = "0.8", optional = true }
 
 # Moshi STS — speech-to-speech via Candle (optional, vendored at deps/moshi/).
 moshi = { workspace = true, optional = true }
+
+# tar + flate2 — used by `voices_archive::extract_tgz` to unpack
+# Personaplex's `Voices.tgz` voice-profile bundle into the per-model
+# directory before the STS backend reads them. `tar` resolves to the
+# workspace fork (set_sync method for snapshot serialisation) via
+# /Cargo.toml `[patch.crates-io]`.
+tar = { version = "0.4", optional = true }
+flate2 = { version = "1.0", optional = true }
 
 # mistral.rs — native Rust multimodal inference engine (Candle-based).
 # Version pin set in Phase 6 when the backend module lands; declaring as
