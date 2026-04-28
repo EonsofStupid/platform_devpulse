@@ -14,7 +14,7 @@
 	SO400M default). Slot id is `vision.embedder`.
 -->
 <script lang="ts">
-import { Check, Clipboard, Eye, FileImage, ImageOff, Play, PowerOff, Wand2 } from "lucide-svelte";
+import { Check, Clipboard, Eye, FileImage, ImageOff, Play, PowerOff } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
@@ -24,7 +24,7 @@ import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Stat } from "$lib/design/components/stat/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
-import { modelsState, wizardState } from "$lib/domains/app/models/index.js";
+import { modelsState } from "$lib/domains/app/models/index.js";
 import {
 	CommandErrorAlert,
 	DevtoolBentoGrid,
@@ -102,10 +102,10 @@ const slotStateLabel = $derived(
 
 const badge = $derived<HealthBadge>(
 	visionReady
-		? { state: "up", label: "Ready to encode" }
+		? { state: "up", label: "Runtime up" }
 		: visionSlot?.assigned_model_id
-			? { state: "stopped", label: "Model picked — not loaded yet" }
-			: { state: "unknown", label: "No model picked yet" },
+			? { state: "stopped", label: "Model assigned · runtime down" }
+			: { state: "unknown", label: "Slot empty · auto-config did not run" },
 );
 
 // ── Slot actions ───────────────────────────────────────
@@ -153,11 +153,6 @@ function requestUnload(): void {
 	}, 4000);
 }
 
-function openWizard(): void {
-	logInfo("devtools.vision", "openWizard() — opening setup wizard overlay");
-	wizardState.open();
-}
-
 async function handleCopyEmbedding(): Promise<void> {
 	if (!lastResult) return;
 	try {
@@ -181,7 +176,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	const path = (file as unknown as { path?: string }).path;
 	if (!path) {
 		lastError =
-			"Couldn't read that file's path. Try drag-and-drop instead, or pick the file again.";
+			"File path missing — Tauri's webkitdirectory/drag-drop did not expose .path. Re-pick the file.";
 		input.value = "";
 		return;
 	}
@@ -231,7 +226,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 
 <ServiceDevtoolShell
 	title="Vision"
-	description="Turns images into fingerprints Clyffy can search and compare"
+	description="Auto-managed image encoder slot · diagnostics + manual probe"
 	icon={Eye}
 	axis="capabilities"
 	accent="salmon"
@@ -240,18 +235,6 @@ async function handleEncodeFile(event: Event): Promise<void> {
 >
 	{#snippet status()}
 		<div class="flex flex-col gap-[var(--space-4)]">
-			<Callout variant="tip">
-				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-1)]">
-					<Text size="xs" weight="bold">What this does</Text>
-					<Text size="xs" color="muted">
-						Turns any picture into a 1152-number "fingerprint" Clyffy
-						can use to find or compare similar images. You give it a
-						PNG or JPEG; it gives back a vector. Same image in → same
-						vector out, every time.
-					</Text>
-				</div>
-			</Callout>
-
 			<DevtoolBentoGrid columns={4}>
 				<Tooltip>
 					<TooltipTrigger>
@@ -265,10 +248,10 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					<TooltipContent>
 						<Text size="xs">
 							{visionReady
-								? "Loaded into memory and ready to encode images. Try it on the Actions tab."
+								? "Runtime up. Encode probe ready on the Actions tab."
 								: visionSlot?.assigned_model_id
-									? "A model is picked but not loaded yet. Open the Actions tab and click Load."
-									: "Nothing picked yet. Open the setup wizard and choose a vision model."}
+									? "Slot has a model but no live runtime. Hit Load on the Actions tab to bring it up."
+									: "Auto-config did not assign a vision model. Check the model_loader log target."}
 						</Text>
 					</TooltipContent>
 				</Tooltip>
@@ -279,8 +262,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					</TooltipTrigger>
 					<TooltipContent>
 						<Text size="xs">
-							Each image becomes a list of 1152 numbers. That list is the
-							fingerprint Clyffy compares against other images.
+							SigLIP2-SO400M output dim. L2-normalized, comparable
+							across encodes via cosine similarity.
 						</Text>
 					</TooltipContent>
 				</Tooltip>
@@ -291,8 +274,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					</TooltipTrigger>
 					<TooltipContent>
 						<Text size="xs">
-							Every image is scaled to a 384 × 384 square before encoding —
-							pick any size you like, the model normalizes the rest.
+							Square input resolution. Inputs are bilinearly resized;
+							normalized mean=0.5 std=0.5 (ImageNet-SigLIP).
 						</Text>
 					</TooltipContent>
 				</Tooltip>
@@ -347,15 +330,14 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				<EmptyState>
 					<div class="flex flex-col items-center gap-[var(--space-2)] text-center">
 						<ImageOff size={28} style="color: var(--text-muted);" />
-						<Text size="sm" weight="semibold">No vision model picked yet</Text>
+						<Text size="sm" weight="semibold">Auto-config did not assign a vision model</Text>
 						<Text size="xs" color="muted">
-							Open the setup wizard and pick a vision encoder. The
-							recommended default works well on most machines.
+							The model loader runs at boot and auto-picks a SigLIP2 build for
+							<span class="font-mono">vision.embedder</span>. If this slot is
+							empty, check the
+							<span class="font-mono">model_loader</span> log target on the Logs
+							tab — auto-config failed or no compatible model is registered.
 						</Text>
-						<Button preset="button-primary" size="sm" onclick={openWizard}>
-							<Wand2 size={12} />
-							Open setup wizard
-						</Button>
 					</div>
 				</EmptyState>
 			{/if}
@@ -376,7 +358,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						{/if}
 						<div class="flex flex-col gap-[var(--space-2)] min-w-0 flex-1">
 							<div class="flex items-center justify-between gap-[var(--space-2)]">
-								<Text size="xs" weight="bold">Last image you encoded</Text>
+								<Text size="xs" weight="bold">Last encode probe</Text>
 								<Tooltip>
 									<TooltipTrigger>
 										<button
@@ -398,8 +380,8 @@ async function handleEncodeFile(event: Event): Promise<void> {
 									</TooltipTrigger>
 									<TooltipContent>
 										<Text size="xs">
-											Copies the full {lastResult.dim}-number vector to your
-											clipboard as JSON. Paste into a notebook or another tool.
+											Copies the full {lastResult.dim}-dim vector as a JSON
+											array. Useful for diffing against a known-good encode.
 										</Text>
 									</TooltipContent>
 								</Tooltip>
@@ -427,37 +409,25 @@ async function handleEncodeFile(event: Event): Promise<void> {
 		<div class="flex flex-col gap-[var(--space-4)]">
 			<Callout variant="info">
 				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-1)]">
-					<Text size="xs" weight="bold">Where it runs</Text>
+					<Text size="xs" weight="bold">Auto-managed slot</Text>
 					<Text size="xs" color="muted">
-						Runs on your CPU by default. If your build includes GPU
-						support and a card is available, it uses the GPU automatically
-						and falls back to CPU when the GPU isn't reachable.
+						vision.embedder is picked, downloaded, and loaded by the model
+						loader at boot. There are no end-user knobs here. This page is
+						the diagnostic surface — read-only state plus a manual probe.
 					</Text>
 				</div>
 			</Callout>
 
 			<Card preset="glass">
 				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
-					<Text size="xs" weight="bold">What this model expects</Text>
-					<Text size="xs" color="muted">Image size: 384 × 384 (it resizes for you)</Text>
-					<Text size="xs" color="muted">Output: 1152 numbers per image</Text>
-					<Text size="xs" color="muted">Color: RGB, normalized internally</Text>
-					<Text size="xs" color="muted">
-						Comparable across images — cosine similarity tells you how alike two pictures are.
-					</Text>
+					<Text size="xs" weight="bold">Slot reference (SigLIP2-SO400M-384)</Text>
+					<Text size="xs" color="muted">Slot id: <span class="font-mono">vision.embedder</span></Text>
+					<Text size="xs" color="muted">Backend: candle / siglip.rs</Text>
+					<Text size="xs" color="muted">Input: 384 × 384 RGB, mean=0.5 std=0.5</Text>
+					<Text size="xs" color="muted">Output: 1152-dim, L2-normalized</Text>
+					<Text size="xs" color="muted">Device: CPU default · CUDA when feature-built and reachable</Text>
 				</div>
 			</Card>
-
-			<Callout variant="warning">
-				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-1)]">
-					<Text size="xs" weight="bold">Coming soon</Text>
-					<Text size="xs" color="muted">
-						Forcing CPU even when a GPU is available isn't a setting yet —
-						today the model auto-picks the best device. If you need to
-						lock it to CPU, swap to a CPU-only build for now.
-					</Text>
-				</div>
-			</Callout>
 		</div>
 	{/snippet}
 
@@ -468,7 +438,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 	{#snippet actions()}
 		{#if loadingSlot}
 			<LoadingBlock
-				title="Loading the vision model"
+				title="Loading vision.embedder"
 				subtitle="Pulling weights into memory — usually a few seconds."
 				showContent
 				contentKind="dyk"
@@ -480,17 +450,17 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-salmon-main);"
 					>
-						<Text size="sm" weight="bold">Load · Unload</Text>
+						<Text size="sm" weight="bold">Manual load · unload</Text>
 						<Text size="xs" color="muted">
-							Load pulls the vision model into memory so it can encode
-							images. Unload frees that memory and clears your last test
-							result.
+							The slot loads automatically at boot. These manual controls
+							are for re-loading after an unload probe or freeing the slot
+							to test cold-start latency.
 						</Text>
 						<div class="flex flex-wrap items-center gap-[var(--space-2)]">
 							{#if !visionReady && visionSlot?.assigned_model_id}
 								<Button preset="button-primary" size="sm" onclick={loadVision}>
 									<Play size={12} />
-									Load model
+									Load
 								</Button>
 							{/if}
 							{#if visionReady}
@@ -504,19 +474,17 @@ async function handleEncodeFile(event: Event): Promise<void> {
 									<TooltipContent>
 										<Text size="xs">
 											{unloadConfirm
-												? "Click again to free the model from memory and clear your last test result. Auto-cancels in 4 s."
-												: "Frees the model from memory and clears your last test result. Asks for confirmation first."}
+												? "Click again to free the runtime and clear the last probe. Auto-cancels in 4 s."
+												: "Frees the runtime and clears the last probe result. Confirms first."}
 										</Text>
 									</TooltipContent>
 								</Tooltip>
 							{/if}
 							{#if !visionSlot?.assigned_model_id}
-								<Button preset="button-primary" size="sm" onclick={openWizard}>
-									<Wand2 size={12} />
-									Open setup wizard
-								</Button>
 								<Text size="xs" color="muted">
-									Pick a vision model first.
+									Slot has no assigned model — auto-config never picked one.
+									Check the
+									<span class="font-mono">model_loader</span> log target.
 								</Text>
 							{/if}
 						</div>
@@ -529,11 +497,11 @@ async function handleEncodeFile(event: Event): Promise<void> {
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"
 						>
-							<Text size="sm" weight="bold">Try it on a real image</Text>
+							<Text size="sm" weight="bold">Encode probe</Text>
 							<Text size="xs" color="muted">
-								Pick any PNG or JPEG. Clyffy turns it into the 1152-number
-								fingerprint and shows you how long it took plus a peek at the
-								result.
+								Pick a PNG / JPEG to verify the runtime end-to-end. Returns
+								the 1152-dim vector with timing and L2 norm — diff against
+								a known-good encode to catch regressions.
 							</Text>
 							<Tooltip>
 								<TooltipTrigger>
@@ -563,8 +531,9 @@ async function handleEncodeFile(event: Event): Promise<void> {
 								</TooltipTrigger>
 								<TooltipContent>
 									<Text size="xs">
-										Sends your image through the model, returns the 1152-number
-										fingerprint, and shows the first 8 numbers plus the time it took.
+										Calls commands.encodeImage(slot, path). Returns the full
+										1152-dim vector; the preview shows the first 8 dims, L2
+										norm, and wall-clock time.
 									</Text>
 								</TooltipContent>
 							</Tooltip>
@@ -574,10 +543,10 @@ async function handleEncodeFile(event: Event): Promise<void> {
 					<EmptyState>
 						<div class="flex flex-col items-center gap-[var(--space-2)] text-center">
 							<FileImage size={28} style="color: var(--text-muted);" />
-							<Text size="sm" weight="semibold">Load the model first</Text>
+							<Text size="sm" weight="semibold">Runtime not up — probe disabled</Text>
 							<Text size="xs" color="muted">
-								Click "Load model" above. Once it's in memory you can pick
-								any image to test the encoder.
+								Slot is loaded only when the runtime is alive. Hit Load above
+								(or wait for auto-load to settle) before picking an image.
 							</Text>
 						</div>
 					</EmptyState>
