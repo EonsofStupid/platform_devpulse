@@ -158,10 +158,11 @@ tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 ort = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 # moshi: in-tree fork of kyutai-labs/moshi v0.6.4 with candle pins lifted to 0.10.
-# Upstream still pins candle ^0.9.1 (HEAD 6d14a619, 2026-04-24); no PR/issue
-# tracking the bump. See deps/moshi/PATCHES.md for the change set + rationale.
-# Re-sync to upstream once Kyutai bumps (~mid-May 2026 if cadence pattern holds).
-moshi = { path = "deps/moshi/rust/moshi-core" }
+# Patch DISABLED — vendor checkout at deps/moshi/ is not present and the
+# moshi-sts feature is gated off by default (kernel/model-loader/Cargo.toml:32),
+# so the upstream crates.io 0.6 version is fine for current builds. Re-enable
+# this line + re-vendor deps/moshi/ when moshi-sts is turned on.
+# moshi = { path = "deps/moshi/rust/moshi-core" }
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)
