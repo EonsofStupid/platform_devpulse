@@ -24,9 +24,9 @@ import {
 	Cpu,
 	Key,
 	Plug,
-	PlugOff,
 	PlugZap,
 	Terminal,
+	Unplug,
 	Wrench,
 	XCircle,
 } from "lucide-svelte";
@@ -267,7 +267,7 @@ $effect(() => {
 			{#if !code?.configExists && !desktop?.configExists && !code?.processRunning && !desktop?.processRunning}
 				<EmptyState>
 					<div class="flex flex-col items-center gap-[var(--space-2)]">
-						<PlugOff size={28} style="color: var(--text-muted);" />
+						<Unplug size={28} style="color: var(--text-muted);" />
 						<Text size="sm" weight="semibold">No Claude client detected</Text>
 						<Text size="xs" color="muted">
 							Install Claude Code (CLI) or Claude Desktop, then return here to

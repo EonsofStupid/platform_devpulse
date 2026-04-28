@@ -4,6 +4,12 @@ version = "0.0.0"
 description = "DevPulse Desktop"
 authors = ["you"]
 edition = "2021"
+# Two `[[bin]]` entries — `devpulse-desktop-app` is the real Tauri
+# application; `export-bindings` is a tooling-only helper invoked by
+# `cargo xtask regen-bindings`. `default-run` tells Tauri (and bare
+# `cargo run`) which one is "main" so `tauri build` can locate the
+# packaged binary.
+default-run = "devpulse-desktop-app"
 
 [lib]
 name = "devpulse_desktop_backend"

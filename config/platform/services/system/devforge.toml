@@ -1,11 +1,13 @@
 [services.system.devforge]
-# Default OFF (owner directive 2026-04-20 — no auto-load):
-# DevForge spawns a Node REH server and blocks Platform::boot on
-# `wait_for_health()` (up to 30s). Keeping boot deterministic and
-# sub-10s means the code editor starts on demand, not at boot.
-# Flip to `enabled = true` only when REH is bundled AND the owner
-# explicitly wants it to come up with the platform.
-enabled = false
+# Default ON. DevForge is lazy-started — `Platform::boot` does NOT
+# touch it; the REH child process spawns only when the user clicks
+# Launch DevForge (via `Platform::ensure_devforge_started`). The old
+# 2026-04-20 owner directive that kept this `false` for boot
+# determinism is obsolete now that boot is lazy. With `enabled = false`
+# the Launch button just bails with a "disabled in config" error,
+# which is never the right user experience for the shipped default.
+# Flip to `false` only if you specifically want to lock the editor off.
+enabled = true
 critical = false
 mode = "reh"
 port = 0

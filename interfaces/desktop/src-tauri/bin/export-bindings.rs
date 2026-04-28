@@ -31,5 +31,33 @@ fn main() {
     builder
         .export(Typescript::default().bigint(BigIntExportBehavior::Number), target)
         .expect("failed to export specta TypeScript bindings");
+
+    // Strip unused `Channel as TAURI_CHANNEL` import. tauri-specta emits
+    // it unconditionally regardless of whether any command actually uses
+    // a channel — Vite/Rollup then warns "Channel imported but never
+    // used" for every consumer. We only strip when `TAURI_CHANNEL`
+    // appears exactly once in the file (the import line itself); if a
+    // real channel command lands later, the symbol is referenced
+    // elsewhere and the strip is a no-op.
+    strip_unused_tauri_channel_import(target);
+
     eprintln!("[export-bindings] wrote {target}");
+}
+
+/// Remove `\tChannel as TAURI_CHANNEL,\n` from the generated import block
+/// when nothing in the file references `TAURI_CHANNEL` outside the import.
+fn strip_unused_tauri_channel_import(path: &str) {
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return;
+    };
+    if content.matches("TAURI_CHANNEL").count() != 1 {
+        return;
+    }
+    let needle = "\tChannel as TAURI_CHANNEL,\n";
+    if let Some(idx) = content.find(needle) {
+        let mut rebuilt = String::with_capacity(content.len() - needle.len());
+        rebuilt.push_str(&content[..idx]);
+        rebuilt.push_str(&content[idx + needle.len()..]);
+        let _ = std::fs::write(path, rebuilt);
+    }
 }

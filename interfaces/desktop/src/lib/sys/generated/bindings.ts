@@ -7308,6 +7308,10 @@ target: string;
 message: string }
 /**
  * Identifies a service's role in the platform.
+ * 
+ * `Deserialize` is required by `InternalEvent::SidecarPhaseTransition`
+ * — the broadcast bus carries `Serialize + Deserialize` payloads so
+ * subscribers can round-trip events through OTLP/JSONL exports.
  */
 export type ServiceRole = 
 /**
@@ -8750,7 +8754,6 @@ clyffy_tooltips?: ClyffyTooltipsCopy }
 
 import {
 	invoke as TAURI_INVOKE,
-	Channel as TAURI_CHANNEL,
 } from "@tauri-apps/api/core";
 import * as TAURI_API_EVENT from "@tauri-apps/api/event";
 import { type WebviewWindow as __WebviewWindow__ } from "@tauri-apps/api/webviewWindow";

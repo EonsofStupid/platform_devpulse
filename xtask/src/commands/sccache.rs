@@ -122,6 +122,20 @@ impl Guard {
     pub fn new(ws: &Workspace) -> Result<Self> {
         let s = Stage::start("sccache");
 
+        // ── 0. User opt-out via env var ──
+        //
+        // `SCCACHE_DISABLE=1` (or any non-empty non-zero value) skips the
+        // entire integration — no health-check, no `RUSTC_WRAPPER`, no
+        // logging changes. Use this when sccache itself is the cause of
+        // a compile failure (transport errors, server panics) so the
+        // build can complete uncached without uninstalling sccache.
+        if std::env::var_os("SCCACHE_DISABLE")
+            .is_some_and(|v| !v.is_empty() && v != "0")
+        {
+            s.skip("disabled via SCCACHE_DISABLE env var");
+            return Ok(Self { mode: Mode::Disabled });
+        }
+
         // ── 1. Is sccache installed? ──
         let binary = match ws.resolve("sccache") {
             Ok(path) => path,
@@ -153,6 +167,32 @@ impl Guard {
             // Only point at the local dir if the dev hasn't configured a
             // remote backend in their shell.
             std::env::set_var("SCCACHE_DIR", &cache_dir);
+        }
+
+        // ── 2.5. Server error log (always — invisible failures are worse than verbose ones) ──
+        //
+        // Without this, an sccache server panic vanishes to a detached
+        // process's stderr — clients see only `os error 10054` (broken
+        // pipe) and have no way to diagnose. The correct env var is
+        // `SCCACHE_ERROR_LOG` (NOT `SCCACHE_LOG_FILE`, which sccache
+        // does not honour). `SCCACHE_LOG` controls log filtering level
+        // for both server and client.
+        //
+        // Note: `SCCACHE_ERROR_LOG` only takes effect when the SERVER
+        // starts. A pre-existing server (shell-profile-spawned) keeps
+        // whatever logging config it was started with. The health-check
+        // path below will reuse it as-is — if its log isn't on disk and
+        // it crashes, the dev needs to `sccache --stop-server` and let
+        // xtask respawn it under these defaults.
+        let log_path = ws.root().join(".userdata").join("sccache.log");
+        if std::env::var_os("SCCACHE_ERROR_LOG").is_none() {
+            std::env::set_var("SCCACHE_ERROR_LOG", &log_path);
+        }
+        if std::env::var_os("SCCACHE_LOG").is_none() {
+            // `info` for the framework, `debug` for sccache itself —
+            // enough to see panics + cache-write errors without
+            // gigabytes of trace.
+            std::env::set_var("SCCACHE_LOG", "info,sccache=debug");
         }
 
         // ── 3. Ensure a server is reachable: health-check first, start only if down ──

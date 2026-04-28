@@ -114,6 +114,15 @@ pub fn classify(event: &InternalEvent) -> Visibility {
         InternalEvent::KvCacheUsage { .. } => Visibility::Internal,
         // ROTI calculation, not user display
         InternalEvent::InferenceComplete { .. } => Visibility::Internal,
+
+        // ── Sidecar Lifecycle ───────────────────────────────
+        // Engine plumbing for devtools / minions / hot-update
+        // orchestrator. Devtool Log surfaces consume via the
+        // `sidecar.lifecycle` tracing target through
+        // `query_scoped_log`, NOT via this bus — the bus carries
+        // typed events for in-process subscribers (governance
+        // reactors, hot-update freeze logic, capability registry).
+        InternalEvent::SidecarPhaseTransition { .. } => Visibility::Internal,
     }
 }
 

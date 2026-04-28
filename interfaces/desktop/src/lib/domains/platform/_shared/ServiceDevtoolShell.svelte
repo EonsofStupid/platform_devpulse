@@ -58,7 +58,7 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 	- `Esc` in the back-link returns to `/devtools`
 -->
 <script lang="ts">
-	import type { Component, Snippet } from "svelte";
+	import { type Component, type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
 	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 	import { Text } from "$lib/design/components/text/index.js";
@@ -195,10 +195,15 @@ import { ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 		].filter((t) => t.snippet !== undefined),
 	);
 
-	// Active tab defaults to the first visible standard tab (or the
-	// first extra tab if the service has no standard tabs at all).
+	// Active tab defaults to the first visible standard tab. Reading
+	// the snippet props here is intentional first-mount behaviour —
+	// `untrack` makes that explicit so Svelte 5 doesn't warn that we
+	// "only captured the initial value" (we want exactly that; the
+	// user clicks to change tabs after mount).
 	let activeTab = $state<TabId>(
-		status ? "status" : config ? "config" : logs ? "logs" : actions ? "actions" : "debug",
+		untrack(() =>
+			status ? "status" : config ? "config" : logs ? "logs" : actions ? "actions" : "debug",
+		),
 	);
 
 	function handleKeydown(event: KeyboardEvent): void {

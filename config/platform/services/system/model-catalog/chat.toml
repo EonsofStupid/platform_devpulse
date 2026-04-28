@@ -4,62 +4,84 @@ capability = "TextGeneration"
 label = "Clyffy's Brain"
 description = "Main reasoning model for chat, coding, and general assistance"
 
-# Suggestions ordered by VRAM usage ascending. These are download
-# recommendations — the ModelPicker shows ALL compatible models discovered
-# on disk regardless. The curated set below is designed to pair with
-# what ships in the `models/chat/` folder so "already on disk" wins
-# instead of users being pushed into unnecessary downloads.
+# Tier-ordered: T3 Council (primary brain) first, T2 Specialist next, T1
+# Minion floor at the bottom. The catalog drives the brain-card list and
+# defaults to index 0 — whichever lands first IS the primary first-test
+# per locked rule (project_test_shortcut_requirements: Phi/SigLIP/NVIDIA
+# 7B/Harrier 0.5B chain). The ModelPicker still surfaces every compatible
+# model discovered on disk regardless of this list.
+
+# ── T3 Council ──────────────────────────────────────────────────────
+# Heavy reasoning brains. Phi-4 14B is the primary first-test target —
+# loads on demand (user opts in; not auto-pulled by Jesse Config).
 
 [[services.system.model_loader.catalog.options]]
-label = "Qwen3 0.6B (Minion, Fast)"
-repo = "Qwen/Qwen3-0.6B-GGUF"
-file = "Qwen3-0.6B-Q4_K_M.gguf"
-size_mb = 400
+label = "Phi-4 14B (Council — primary brain, on demand)"
+repo = "bartowski/phi-4-GGUF"
+file = "phi-4-Q4_K_M.gguf"
+size_mb = 9100
 
 [[services.system.model_loader.catalog.options]]
-label = "Phi-4 Mini 3.8B (Fast, Microsoft)"
-repo = "bartowski/phi-4-mini-instruct-GGUF"
-file = "phi-4-mini-instruct-Q4_K_M.gguf"
-size_mb = 2400
-
-[[services.system.model_loader.catalog.options]]
-label = "Qwen3 4B (Fast)"
-repo = "bartowski/Qwen_Qwen3-4B-GGUF"
-file = "Qwen_Qwen3-4B-Q4_K_M.gguf"
-size_mb = 2500
-
-[[services.system.model_loader.catalog.options]]
-label = "Qwen3 8B (Balanced)"
-repo = "bartowski/Qwen_Qwen3-8B-GGUF"
-file = "Qwen_Qwen3-8B-Q4_K_M.gguf"
-size_mb = 5030
-
-[[services.system.model_loader.catalog.options]]
-label = "Qwen3.5 9B (Owner's current — already on disk)"
-repo = "Qwen/Qwen3.5-9B-Instruct-GGUF"
-file = "Qwen3.5-9B-Q4_K_M.gguf"
-size_mb = 5630
-
-[[services.system.model_loader.catalog.options]]
-label = "Qwen3 14B (Smart)"
-repo = "bartowski/Qwen_Qwen3-14B-GGUF"
-file = "Qwen_Qwen3-14B-Q4_K_M.gguf"
-size_mb = 9000
-
-[[services.system.model_loader.catalog.options]]
-label = "Mistral Small 24B (Power)"
+label = "Mistral Small 24B (Council — power)"
 repo = "bartowski/Mistral-Small-24B-Instruct-2501-GGUF"
 file = "Mistral-Small-24B-Instruct-2501-Q4_K_M.gguf"
 size_mb = 14200
 
 [[services.system.model_loader.catalog.options]]
-label = "Qwen3-35B-A3B MoE (Smartest, already on disk)"
+label = "Qwen3-35B-A3B MoE (Council — alt heavy, already on disk)"
 repo = "Qwen/Qwen3-35B-A3B-Instruct"
 file = "model.safetensors"
 size_mb = 24000
 
+# ── T2 Specialist ───────────────────────────────────────────────────
+# Mid-tier specialists. Pair with the 5.6 GB STS/TTS/STT/SigLIP band.
+
 [[services.system.model_loader.catalog.options]]
-label = "NVIDIA PersonaPlex 7B STS (full-duplex voice brain)"
+label = "Phi-4 Mini 3.8B (Specialist — fast, Microsoft)"
+repo = "bartowski/phi-4-mini-instruct-GGUF"
+file = "phi-4-mini-instruct-Q4_K_M.gguf"
+size_mb = 2400
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 8B (Specialist — balanced)"
+repo = "bartowski/Qwen_Qwen3-8B-GGUF"
+file = "Qwen_Qwen3-8B-Q4_K_M.gguf"
+size_mb = 5030
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3.5 9B (Specialist — owner's current, already on disk)"
+repo = "Qwen/Qwen3.5-9B-Instruct-GGUF"
+file = "Qwen3.5-9B-Q4_K_M.gguf"
+size_mb = 5630
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 14B (Specialist — smart)"
+repo = "bartowski/Qwen_Qwen3-14B-GGUF"
+file = "Qwen_Qwen3-14B-Q4_K_M.gguf"
+size_mb = 9000
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 4B (Specialist — fast)"
+repo = "bartowski/Qwen_Qwen3-4B-GGUF"
+file = "Qwen_Qwen3-4B-Q4_K_M.gguf"
+size_mb = 2500
+
+# ── T1 Minion floor ─────────────────────────────────────────────────
+# Always-on lightweight floor. Qwen 0.6B is the minion floor per locked
+# rule (project_model_loader_requirements: Qwen=floor).
+
+[[services.system.model_loader.catalog.options]]
+label = "Qwen3 0.6B (Minion floor — fast)"
+repo = "Qwen/Qwen3-0.6B-GGUF"
+file = "Qwen3-0.6B-Q4_K_M.gguf"
+size_mb = 400
+
+# ── Voice brain (registered here for cross-capability discovery) ────
+# Full-duplex STS brain. Belongs primarily to voice.brain; surfaced in
+# chat.brain catalog for users who want a single-model voice+chat path.
+
+[[services.system.model_loader.catalog.options]]
+label = "NVIDIA PersonaPlex 7B STS (Voice — full-duplex)"
 repo = "nvidia/personaplex-7b-v1"
 file = "model.safetensors"
 size_mb = 16743

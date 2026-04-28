@@ -206,18 +206,19 @@ const modelCount = $derived(modelsState.models.length);
 	<!-- Stage: mascot + kicker + heading + helper row -->
 	<div class="wv-stage">
 		<img src="/imgs/mascot/clyffy-anim-wobble.png" alt="Clyffy welcomes you" class="wv-mascot" />
-		<span class="wv-kicker">First Run Setup</span>
-		<Heading level={2} size="xl">Welcome to DevPulse</Heading>
-		<Text size="sm" color="secondary" class="wv-subtitle">
-			Let's get your AI models configured. Pick a preset or customize each slot.
+		<span class="wv-kicker">First-Run Setup</span>
+		<Heading level={1} size="display">Hey — let's get you set up</Heading>
+		<Text size="lg" color="secondary" class="wv-subtitle">
+			A few quick questions, then Clyffy picks the right AI brains for your computer.
+			You can change anything later.
 		</Text>
 		<div class="wv-help-row">
 			<WizardHelpTip
 				tip="DevPulse scans your hardware, recommends a local-first model plan, verifies chat, and only then hands you the full app."
 				label="What is first-run setup?"
 			/>
-			<Button preset="button-ghost" size="sm" onclick={() => (showInfoPopup = true)}>
-				What happens next
+			<Button preset="button-ghost" size="md" onclick={() => (showInfoPopup = true)}>
+				See what happens next
 			</Button>
 		</div>
 	</div>
@@ -226,8 +227,8 @@ const modelCount = $derived(modelsState.models.length);
 	<div class="wv-form">
 		<div class="wv-field">
 			<label class="wv-label" for="wv-name">
-				<User size={14} />
-				<Text size="xs" weight="bold">Your Name</Text>
+				<User size={16} />
+				<Text size="sm" weight="bold">What should we call you?</Text>
 				<WizardHelpTip
 					tip="Clyffy will address you by this name in responses. You can change it later in Settings."
 					label="Why does Clyffy need my name?"
@@ -236,7 +237,7 @@ const modelCount = $derived(modelsState.models.length);
 			<input
 				id="wv-name"
 				type="text"
-				placeholder="What should Clyffy call you?"
+				placeholder="Your name (or a nickname)"
 				bind:value={overlayState.profileName}
 				class="wv-input"
 			/>
@@ -244,7 +245,7 @@ const modelCount = $derived(modelsState.models.length);
 
 		<div class="wv-field">
 			<label class="wv-label" for="wv-email">
-				<Text size="xs" weight="bold">Email</Text>
+				<Text size="sm" weight="bold">Your email</Text>
 				<WizardHelpTip
 					tip="Required. Anchors your profile for slot assignments, Claude-subscription pairing, and future cloud sync. Stays local unless you explicitly enable sync."
 					label="Why email?"
@@ -262,11 +263,11 @@ const modelCount = $derived(modelsState.models.length);
 
 		<div class="wv-field">
 			<label class="wv-label">
-				<Code size={14} />
-				<Text size="xs" weight="bold">Experience Level</Text>
+				<Code size={16} />
+				<Text size="sm" weight="bold">How comfortable are you with code?</Text>
 				<WizardHelpTip
 					tip="Controls how deeply Clyffy explains concepts. Beginner gets more hand-holding; Advanced gets terse answers."
-					label="What does experience level change?"
+					label="What does this change?"
 				/>
 			</label>
 			<div class="wv-levels">
@@ -289,23 +290,23 @@ const modelCount = $derived(modelsState.models.length);
 		<!-- ── Project create (folder + name + explicit save) ────────────── -->
 		<div class="wv-field">
 			<label class="wv-label" for="wv-folder">
-				<FolderOpen size={14} />
-				<Text size="xs" weight="bold">Project Folder</Text>
+				<FolderOpen size={16} />
+				<Text size="sm" weight="bold">Where's your project?</Text>
 				<WizardHelpTip
-					tip="Pick the directory this project lives in. Name it whatever makes sense to you — it doesn't have to match the folder. Indexing runs later, after an embedding model is available."
-					label="What is a project in DevPulse?"
+					tip="Pick the folder Clyffy should know about. The name doesn't have to match the folder — call it whatever makes sense to you. We'll index it once an embedding model is loaded."
+					label="What's a project in DevPulse?"
 				/>
 			</label>
 			<div class="wv-folder-row">
 				<input
 					id="wv-folder"
 					type="text"
-					placeholder="Click Browse to pick a folder"
+					placeholder="Click Browse to pick a folder on your computer"
 					value={projectPath}
 					readonly
 					class="wv-input wv-input-readonly"
 				/>
-				<Button preset="button-secondary" size="sm" onclick={handleBrowseFolder} disabled={pickingFolder}>
+				<Button preset="button-secondary" size="md" onclick={handleBrowseFolder} disabled={pickingFolder}>
 					{#if pickingFolder}
 						<Spinner size="xs" />
 					{:else}
@@ -318,8 +319,8 @@ const modelCount = $derived(modelsState.models.length);
 		{#if projectPath}
 			<div class="wv-field">
 				<label class="wv-label" for="wv-project-name">
-					<Sparkles size={14} />
-					<Text size="xs" weight="bold">Project Name</Text>
+					<Sparkles size={16} />
+					<Text size="sm" weight="bold">Give your project a name</Text>
 					<WizardHelpTip
 						tip="This is what the active-project pill will show. Doesn't have to match the folder — pick the name you think about this project by."
 						label="Can I rename it later?"
@@ -335,7 +336,7 @@ const modelCount = $derived(modelsState.models.length);
 					/>
 					<Button
 						preset="button-primary"
-						size="sm"
+						size="md"
 						onclick={handleSaveProject}
 						disabled={savingProject || projectName.trim().length === 0 || projectSaved}
 					>
@@ -406,7 +407,7 @@ const modelCount = $derived(modelsState.models.length);
 	{#if hasHardware}
 		<section class="wv-snapshot" aria-label="Hardware snapshot">
 			<div class="wv-snapshot-head">
-				<Text size="xs" weight="bold" class="wv-snapshot-kicker">Hardware Snapshot</Text>
+				<Text size="sm" weight="bold" class="wv-snapshot-kicker">What we found on your computer</Text>
 				<WizardHelpTip
 					tip="Auto-detected at boot. Drives the first recommended model plan. Override anytime in Config."
 					label="Where does this come from?"
@@ -415,9 +416,9 @@ const modelCount = $derived(modelsState.models.length);
 
 			<div class="wv-snapshot-grid">
 				<div class="wv-snapshot-row">
-					<Monitor size={14} />
-					<Text size="xs" weight="bold" class="wv-snapshot-label">GPU</Text>
-					<Text size="xs" class="wv-snapshot-value">{gpuName ?? "No GPU detected"}</Text>
+					<Monitor size={18} />
+					<Text size="sm" weight="bold" class="wv-snapshot-label">Graphics</Text>
+					<Text size="sm" class="wv-snapshot-value">{gpuName ?? "No GPU detected"}</Text>
 					{#if vramTotalMb > 0}
 						<span class="wv-snapshot-tag">{formatMb(vramTotalMb)} VRAM</span>
 					{/if}
@@ -428,9 +429,9 @@ const modelCount = $derived(modelsState.models.length);
 				</div>
 
 				<div class="wv-snapshot-row">
-					<Cpu size={14} />
-					<Text size="xs" weight="bold" class="wv-snapshot-label">CPU</Text>
-					<Text size="xs" class="wv-snapshot-value">{cpuName ?? "Unknown CPU"}</Text>
+					<Cpu size={18} />
+					<Text size="sm" weight="bold" class="wv-snapshot-label">Processor</Text>
+					<Text size="sm" class="wv-snapshot-value">{cpuName ?? "Unknown CPU"}</Text>
 					<WizardHelpTip
 						tip="Fallback when no GPU is available. Smaller models still run well on modern CPUs."
 						label="What does the CPU do?"
@@ -439,9 +440,9 @@ const modelCount = $derived(modelsState.models.length);
 
 				{#if ramTotalMb > 0}
 					<div class="wv-snapshot-row">
-						<Zap size={14} />
-						<Text size="xs" weight="bold" class="wv-snapshot-label">RAM</Text>
-						<Text size="xs" class="wv-snapshot-value">{formatMb(ramTotalMb)}</Text>
+						<Zap size={18} />
+						<Text size="sm" weight="bold" class="wv-snapshot-label">Memory</Text>
+						<Text size="sm" class="wv-snapshot-value">{formatMb(ramTotalMb)}</Text>
 						<WizardHelpTip
 							tip="System memory. Used for model weights before GPU upload and for CPU-only models."
 							label="Why RAM matters"
@@ -451,43 +452,43 @@ const modelCount = $derived(modelsState.models.length);
 
 				{#if diskFreeMb > 0}
 					<div class="wv-snapshot-row">
-						<HardDrive size={14} />
-						<Text size="xs" weight="bold" class="wv-snapshot-label">Disk</Text>
-						<Text size="xs" class="wv-snapshot-value">{formatMb(diskFreeMb)} free</Text>
+						<HardDrive size={18} />
+						<Text size="sm" weight="bold" class="wv-snapshot-label">Disk free</Text>
+						<Text size="sm" class="wv-snapshot-value">{formatMb(diskFreeMb)}</Text>
 						<span class="wv-snapshot-tag">{modelCount} models</span>
 					</div>
 				{/if}
 			</div>
 
 			{#if gpuError && !gpuName}
-				<Text size="xs" color="muted" class="wv-snapshot-note">{gpuError}</Text>
+				<Text size="sm" color="muted" class="wv-snapshot-note">{gpuError}</Text>
 			{/if}
 		</section>
 	{:else}
 		<div class="wv-snapshot wv-snapshot-loading">
-			<Spinner size="sm" tone="accent" />
-			<Text size="xs" color="muted">Scanning your hardware…</Text>
+			<Spinner size="md" tone="accent" />
+			<Text size="sm" color="muted">Scanning your computer…</Text>
 		</div>
 	{/if}
 
 	<!-- Action bar -->
 	<div class="wv-actions">
 		<Button preset="button-primary" size="lg" onclick={handleLetsGo} disabled={!overlayState.canContinue}>
-			<Sparkles size={16} />
+			<Sparkles size={18} />
 			Let's Go
 		</Button>
 		<Button preset="button-secondary" size="lg" onclick={handleJesseConfig} disabled={overlayState.loadingPreset}>
 			{#if overlayState.loadingPreset}
 				<Spinner size="xs" />
 			{:else}
-				<Settings size={16} />
+				<Settings size={18} />
 			{/if}
 			Jesse Config
 		</Button>
 	</div>
 
 	<button class="wv-skip" onclick={handleSkip}>
-		Skip setup — I'll configure later
+		Skip for now — I'll set this up later
 	</button>
 </div>
 
@@ -511,10 +512,10 @@ const modelCount = $derived(modelsState.models.length);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: clamp(1rem, 0.75rem + 1vw, 1.75rem);
+		gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
 		width: 100%;
-		max-width: 42rem;
-		padding: clamp(1rem, 0.75rem + 1vw, 1.5rem) 0;
+		max-width: 56rem;
+		padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0;
 		text-align: center;
 	}
 
@@ -524,85 +525,96 @@ const modelCount = $derived(modelsState.models.length);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.625rem;
+		gap: 0.875rem;
 	}
 
 	.wv-mascot {
-		width: clamp(4.5rem, 4rem + 2vw, 6rem);
-		height: clamp(4.5rem, 4rem + 2vw, 6rem);
+		width: clamp(6rem, 5rem + 4vw, 9rem);
+		height: clamp(6rem, 5rem + 4vw, 9rem);
 		object-fit: contain;
-		filter: drop-shadow(0 0 1.5rem color-mix(in oklch, var(--wizard-role-brain-main) 45%, transparent));
+		filter: drop-shadow(0 0 1.75rem color-mix(in oklch, var(--accent-primary-glow) 55%, transparent));
 		animation: wv-float 4s ease-in-out infinite;
 	}
 
 	@keyframes wv-float {
 		0%, 100% { transform: translateY(0); }
-		50% { transform: translateY(-0.375rem); }
+		50% { transform: translateY(-0.5rem); }
 	}
 
 	.wv-kicker {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.25rem 0.625rem;
+		padding: 0.375rem 0.875rem;
 		border-radius: 999px;
-		background: color-mix(in oklch, var(--accent-teal-fill) 92%, transparent);
-		border: 1px solid color-mix(in oklch, var(--accent-teal-main) 35%, transparent);
-		color: var(--accent-teal-main);
-		font-size: 0.7rem;
+		background: color-mix(in oklch, var(--accent-primary-fill) 92%, transparent);
+		border: var(--border-width-hairline) solid color-mix(in oklch, var(--accent-primary-main) 40%, transparent);
+		color: var(--accent-primary-main);
+		font-size: 0.8125rem;
 		font-weight: 700;
-		letter-spacing: 0.06em;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
 	}
 
 	:global(.wv-subtitle) {
-		max-width: 28rem;
+		max-width: 36rem;
+		line-height: 1.55;
 	}
 
 	.wv-help-row {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.375rem;
+		gap: 0.5rem;
 		flex-wrap: wrap;
+		margin-top: 0.25rem;
 	}
 
-	/* ── Form ──────────────────────────────────── */
+	/* ── Form (surface-elevated card) ─────────── */
 
 	.wv-form {
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
+		gap: 1.25rem;
 		width: 100%;
-		max-width: 26rem;
+		max-width: 38rem;
+		padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+		border-radius: 1rem;
+		background: var(--surface-elevated);
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		box-shadow: 0 0.5rem 1.5rem color-mix(in oklch, var(--surface-base) 60%, transparent);
 		text-align: left;
 	}
 
 	.wv-field {
 		display: flex;
 		flex-direction: column;
-		gap: 0.375rem;
+		gap: 0.5rem;
 	}
 
 	.wv-label {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
+		gap: 0.5rem;
 		color: var(--text-secondary);
 	}
 
 	.wv-input {
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		border: 1px solid var(--border-subtle);
-		background: var(--glass-deep);
+		padding: 0.875rem 1rem;
+		border-radius: 0.625rem;
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		background: var(--surface-base);
 		color: var(--text-primary);
-		font-size: 0.875rem;
+		font-size: 1rem;
+		line-height: 1.4;
 		outline: none;
-		transition: border-color 150ms ease-out;
+		transition:
+			border-color 150ms ease-out,
+			box-shadow 150ms ease-out;
 	}
 	.wv-input:focus {
-		border-color: var(--accent-teal-main);
+		border-color: var(--accent-primary-main);
+		box-shadow: 0 0 0 0.1875rem color-mix(in oklch, var(--accent-primary-main) 25%, transparent);
 	}
 	.wv-input::placeholder {
 		color: var(--text-muted);
@@ -616,39 +628,40 @@ const modelCount = $derived(modelsState.models.length);
 	.wv-folder-row {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.625rem;
 	}
 
 	.wv-levels {
 		display: flex;
-		gap: 0.5rem;
+		gap: 0.75rem;
 		flex-wrap: wrap;
 	}
 
 	.wv-level {
 		flex: 1;
-		min-width: 6rem;
+		min-width: 8rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.125rem;
-		padding: 0.625rem 0.75rem;
-		border-radius: 0.625rem;
-		border: 1px solid var(--border-subtle);
-		background: transparent;
+		gap: 0.25rem;
+		padding: 1rem 1.125rem;
+		border-radius: 0.75rem;
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		background: var(--surface-base);
 		cursor: pointer;
 		text-align: left;
 		transition: border-color 180ms ease-out, background 180ms ease-out, box-shadow 180ms ease-out;
 	}
 	.wv-level:hover {
 		border-color: color-mix(in oklch, var(--level-accent) 45%, var(--border-subtle));
+		background: color-mix(in oklch, var(--level-accent) 6%, var(--surface-base));
 	}
 	.wv-level-active {
 		border-color: var(--level-accent);
-		background: color-mix(in oklch, var(--level-accent) 12%, transparent);
-		box-shadow: 0 0 0.75rem color-mix(in oklch, var(--level-glow) 55%, transparent);
+		background: color-mix(in oklch, var(--level-accent) 14%, var(--surface-base));
+		box-shadow: 0 0 1rem color-mix(in oklch, var(--level-glow) 55%, transparent);
 	}
 	.wv-level-name {
-		font-size: 0.875rem;
+		font-size: 1.0625rem;
 		font-weight: 700;
 		color: var(--text-primary);
 	}
@@ -656,8 +669,9 @@ const modelCount = $derived(modelsState.models.length);
 		color: var(--level-accent);
 	}
 	.wv-level-desc {
-		font-size: 0.75rem;
+		font-size: 0.875rem;
 		color: var(--text-muted);
+		line-height: 1.4;
 	}
 
 	/* ── Hardware snapshot ─────────────────────── */
@@ -665,14 +679,14 @@ const modelCount = $derived(modelsState.models.length);
 	.wv-snapshot {
 		display: flex;
 		flex-direction: column;
-		gap: 0.625rem;
+		gap: 0.875rem;
 		width: 100%;
-		padding: clamp(0.75rem, 0.5rem + 0.75vw, 1rem);
-		border-radius: 0.875rem;
-		background:
-			linear-gradient(135deg, color-mix(in oklch, var(--accent-purple-fill) 60%, transparent), transparent 60%),
-			var(--glass-deep);
-		border: 1px solid var(--border-subtle);
+		max-width: 38rem;
+		padding: clamp(1rem, 0.75rem + 1vw, 1.5rem);
+		border-radius: 1rem;
+		background: var(--surface-elevated);
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		box-shadow: 0 0.5rem 1.5rem color-mix(in oklch, var(--surface-base) 60%, transparent);
 		text-align: left;
 	}
 
@@ -680,40 +694,40 @@ const modelCount = $derived(modelsState.models.length);
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
-		gap: 0.5rem;
+		gap: 0.625rem;
 	}
 
 	.wv-snapshot-head {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
+		gap: 0.5rem;
 	}
 
 	:global(.wv-snapshot-kicker) {
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		color: var(--text-muted);
+		color: var(--text-secondary);
 	}
 
 	.wv-snapshot-grid {
 		display: flex;
 		flex-direction: column;
-		gap: 0.375rem;
+		gap: 0.5rem;
 	}
 
 	.wv-snapshot-row {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 0.625rem;
-		border-radius: 0.625rem;
-		background: color-mix(in oklch, var(--surface-raised) 88%, transparent);
-		border: 1px solid var(--border-soft);
+		gap: 0.75rem;
+		padding: 0.875rem 1rem;
+		border-radius: 0.75rem;
+		background: var(--surface-base);
+		border: var(--border-width-hairline) solid var(--border-soft);
 		color: var(--text-secondary);
 	}
 
 	:global(.wv-snapshot-label) {
-		min-width: 2rem;
+		min-width: 5rem;
 		color: var(--text-muted);
 	}
 
@@ -723,11 +737,11 @@ const modelCount = $derived(modelsState.models.length);
 	}
 
 	.wv-snapshot-tag {
-		padding: 0.125rem 0.5rem;
+		padding: 0.25rem 0.75rem;
 		border-radius: 999px;
-		background: color-mix(in oklch, var(--accent-teal-fill) 88%, transparent);
-		color: var(--accent-teal-main);
-		font-size: 0.7rem;
+		background: color-mix(in oklch, var(--accent-primary-fill) 88%, transparent);
+		color: var(--accent-primary-main);
+		font-size: 0.8125rem;
 		font-weight: 700;
 		white-space: nowrap;
 	}
@@ -740,27 +754,34 @@ const modelCount = $derived(modelsState.models.length);
 
 	.wv-actions {
 		display: flex;
-		gap: clamp(0.5rem, 1.5vw, 1rem);
+		gap: clamp(0.75rem, 2vw, 1.25rem);
 		flex-wrap: wrap;
 		justify-content: center;
+		margin-top: 0.25rem;
 	}
 
 	.wv-skip {
 		background: none;
 		border: none;
 		color: var(--text-muted);
-		font-size: 0.75rem;
+		font-size: 0.9375rem;
+		font-weight: 500;
 		cursor: pointer;
-		transition: color 200ms ease-out;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.375rem;
+		transition:
+			color 200ms ease-out,
+			background 200ms ease-out;
 	}
 	.wv-skip:hover {
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
+		background: color-mix(in oklch, var(--accent-primary-fill) 60%, transparent);
 	}
 
 	/* ── Invalid input (email required) ──────────────────────────── */
 	.wv-input-invalid {
 		border-color: var(--signal-error, #e74c3c);
-		box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--signal-error, #e74c3c) 25%, transparent);
+		box-shadow: 0 0 0 0.1875rem color-mix(in oklch, var(--signal-error, #e74c3c) 30%, transparent);
 	}
 
 	/* ── Pending-indexing notice after "Save Project" ────────────── */

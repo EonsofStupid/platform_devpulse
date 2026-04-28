@@ -29,11 +29,15 @@ pub mod voice_stt_config;
 pub mod voice_tts_config;
 
 use anyhow::Result;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
 
 /// Identifies a service's role in the platform.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+///
+/// `Deserialize` is required by `InternalEvent::SidecarPhaseTransition`
+/// — the broadcast bus carries `Serialize + Deserialize` payloads so
+/// subscribers can round-trip events through OTLP/JSONL exports.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum ServiceRole {
     /// Relational service (`LibSQL`).
     Relational,

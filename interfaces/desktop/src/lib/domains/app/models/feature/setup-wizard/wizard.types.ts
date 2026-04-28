@@ -350,7 +350,7 @@ export interface LoadingTracker {
 }
 
 // ── Voice Config / Escalation Config ──────────────────
-// DEFERRED to devtools. See _archive/ for old implementations.
+// DEFERRED to devtools.
 
 // ── Model Browser Filter ──────────────────────────────
 
