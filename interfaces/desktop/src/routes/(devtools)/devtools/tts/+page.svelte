@@ -154,7 +154,7 @@ let removingCloneName = $state<string | null>(null);
 // voice domain doesn't depend on the model loader's internal state
 // machine for the most-asked question ("is voice.tts alive?").
 const ttsChannel = capabilityChannel("voice.tts");
-const ttsReady = $derived(ttsChannel.current_runtime !== null);
+const ttsReady = $derived(ttsChannel.ready);
 // Slot metadata (label, assigned_model_id) is the model loader's
 // published surface — fine to read directly. The forbidden pattern
 // is only the inference-readiness lookup.

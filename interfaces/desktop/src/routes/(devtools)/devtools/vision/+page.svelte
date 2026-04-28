@@ -88,7 +88,7 @@ let copiedAt = $state<number | null>(null);
 // those are the model loader's published surface (not the
 // forbidden `statuses` lookup the channel replaces).
 const visionChannel = capabilityChannel(SLOT_ID);
-const visionReady = $derived(visionChannel.current_runtime !== null);
+const visionReady = $derived(visionChannel.ready);
 const visionSlot = $derived(modelsState.slots.find((s) => s.id === SLOT_ID));
 const assignedModel = $derived(
 	visionSlot?.assigned_model_id

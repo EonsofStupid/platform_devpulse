@@ -83,8 +83,8 @@ const anySlotLoading = $derived(loadingStt || loadingTts);
 // (published surface, not the forbidden `statuses` lookup).
 const sttChannel = capabilityChannel("voice.stt");
 const ttsChannel = capabilityChannel("voice.tts");
-const sttReady = $derived(sttChannel.current_runtime !== null);
-const ttsReady = $derived(ttsChannel.current_runtime !== null);
+const sttReady = $derived(sttChannel.ready);
+const ttsReady = $derived(ttsChannel.ready);
 const sttSlot = $derived(modelsState.slots.find((s) => s.id === "voice.stt"));
 const ttsSlot = $derived(modelsState.slots.find((s) => s.id === "voice.tts"));
 

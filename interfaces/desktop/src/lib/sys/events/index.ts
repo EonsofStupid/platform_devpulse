@@ -8,9 +8,11 @@
  */
 
 export {
+	type CapabilityStage,
 	type CapabilityState,
 	capabilityChannel,
 	disposeCapabilityChannel,
+	type RebindReason,
 	type RebindRecord,
 	type VersionChangeRecord,
 } from "./capability-channel.svelte.js";

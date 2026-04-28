@@ -62,7 +62,7 @@ let error = $state<string | null>(null);
 // (label, assigned_model_id) is the model loader's published
 // surface and continues to read from `modelsState.slots`.
 const sttChannel = capabilityChannel("voice.stt");
-const sttReady = $derived(sttChannel.current_runtime !== null);
+const sttReady = $derived(sttChannel.ready);
 const sttSlot = $derived(modelsState.slots.find((s) => s.id === "voice.stt"));
 
 const badge = $derived<HealthBadge>(
