@@ -63,7 +63,14 @@ tracing = { workspace = true }
 toml = "0.9"
 
 # Model Loader (self-enclosed, zero clyffy deps — re-exported for engine)
-model-loader = { path = "../model-loader", optional = true, features = ["candle-backend", "ort-backend", "nvml"] }
+model-loader = { path = "../model-loader", optional = true, features = ["candle-backend", "ort-backend", "nvml", "llama-cpp-ffi"] }
+# `llama-cpp-ffi` is ON. cmake + MSVC are wired through the SSOT at
+# `config/platform/build/deps.toml [build.deps.{cmake,ninja}]`; xtask's
+# `apply_env` sets `CMAKE` / `CMAKE_MAKE_PROGRAM` / `CMAKE_GENERATOR`
+# before invoking cargo. Build via `cargo xtask verify` / `run-dev` /
+# `build-release`. Direct `cargo check` from a shell without that env
+# will fail at the llama-cpp-sys-2 build script — that's expected; the
+# SSOT is the entry point.
 
 # Async traits
 async-trait = "0.1"

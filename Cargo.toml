@@ -79,10 +79,10 @@ thiserror = "2.0"
 # Pre-release stance: minor-version pins so `cargo update` picks up
 # latest patches automatically. Candle 0.10 (was 0.9.2 exact) because
 # mistralrs 0.8.x requires candle 0.10.x for Phi-4-multimodal-instruct.
-# moshi 0.6 still pins `candle ^0.9.1` internally — Cargo resolves it
-# as a separate transitive copy (+~30 MB binary, +~2 min build), no
-# API conflict because the two candle packages don't share types
-# across moshi <-> our other adapters.
+# moshi: vendored fork at `deps/moshi/` lifts candle from 0.9.1 → 0.10 so
+# the workspace ships a single candle version. See `deps/moshi/PATCHES.md`
+# for the fork rationale. The path override in `[patch.crates-io]` below
+# rewires every transitive `moshi` dep to the vendored copy.
 candle-core = "0.10"
 candle-nn = "0.10"
 candle-transformers = "0.10"
@@ -157,12 +157,11 @@ tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 # ort: fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)
 ort = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
-# moshi: in-tree fork of kyutai-labs/moshi v0.6.4 with candle pins lifted to 0.10.
-# Patch DISABLED — vendor checkout at deps/moshi/ is not present and the
-# moshi-sts feature is gated off by default (kernel/model-loader/Cargo.toml:32),
-# so the upstream crates.io 0.6 version is fine for current builds. Re-enable
-# this line + re-vendor deps/moshi/ when moshi-sts is turned on.
-# moshi = { path = "deps/moshi/rust/moshi-core" }
+# moshi: in-tree fork of kyutai-labs/moshi v0.6.4 with candle pins lifted to
+# 0.10 so the workspace ships a single candle version. See deps/moshi/PATCHES.md.
+# Without this patch, the upstream 0.6.4 release pins candle 0.9.1 and Cargo
+# pulls a duplicate candle copy → E0308 across the model-loader build.
+moshi = { path = "deps/moshi/rust/moshi-core" }
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)

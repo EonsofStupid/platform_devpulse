@@ -10,8 +10,14 @@ env = ["PYO3_PYTHON"]
 extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 
 [build.deps.cmake]
-path = "cmake"
-env = []
+# Absolute path to the cmake bundled with VS 2019 Professional on this dev box.
+# `cmake-rs` (used by llama-cpp-sys-2) honours the `CMAKE` env var and skips
+# PATH lookup when it is set, so direct invocation works without
+# `vcvars64.bat` warm-up. When the dev box is upgraded to VS 2022 / a system-
+# installed cmake, swap this path. To make this portable for other devs,
+# vendor cmake into `deps/cmake/` (mirror the nasm/python pattern).
+path = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
+env = ["CMAKE"]
 # CMAKE_GENERATOR pins the Visual Studio version cmake-rs picks. The
 # llama-cpp-sys-2 build script defaults to "Visual Studio 17 2022";
 # this dev box has VS 2019 Professional. Without this override, the
@@ -19,6 +25,20 @@ env = []
 # "Could not create named generator Visual Studio 17 2022".
 # Update this string when bumping the dev box's Visual Studio install.
 extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5", CMAKE_GENERATOR = "Visual Studio 16 2019" }
+
+[build.deps.ninja]
+# Path to the ninja bundled with VS 2019. NOT injected as
+# `CMAKE_MAKE_PROGRAM` while the active generator is "Visual Studio 16
+# 2019" — cmake-rs unconditionally forwards `CMAKE_MAKE_PROGRAM` via
+# `-D`, and cmake then tries to use ninja AS MSBuild's build tool,
+# which fails with "ninja: error: loading 'build.ninja'" because the
+# VS generator emits `.vcxproj`, not `build.ninja`.
+# When flipping `[build.deps.cmake].extras.CMAKE_GENERATOR` to "Ninja"
+# (faster, single-config), set `env = ["CMAKE_MAKE_PROGRAM"]` here AND
+# ensure cl.exe is on PATH (vcvars64.bat or explicit CC/CXX env).
+path = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
+env = []
+extras = {}
 
 [build.deps.code_oss]
 enabled = false

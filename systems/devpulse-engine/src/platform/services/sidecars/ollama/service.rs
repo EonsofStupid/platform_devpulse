@@ -6,7 +6,7 @@
 //! platform `Service` trait and preserves the public surface the Tauri
 //! commands and `Platform::ensure_ollama_started` depend on.
 
-use super::{Service, ServiceRole, ServiceState};
+use crate::platform::services::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_clyffy::cortex::persistence::ollama::{OllamaAdapter, OllamaConfig};
 use std::path::{Path, PathBuf};
