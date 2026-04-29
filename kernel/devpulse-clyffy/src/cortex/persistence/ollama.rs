@@ -9,7 +9,7 @@
 //!
 //! Kernel/engine split:
 //! - `OllamaAdapter` (this file) — lifecycle, port resolution, raw API.
-//! - `platform::services::ollama` — engine facade: `Service` trait
+//! - `platform::services::sidecars::ollama` — engine facade: `Service` trait
 //!   impl, plumbing into boot + devtool, Tauri command glue.
 
 use crate::cortex::persistence::port_alloc::{

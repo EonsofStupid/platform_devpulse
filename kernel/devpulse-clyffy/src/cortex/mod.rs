@@ -2,6 +2,8 @@
 pub mod adapters;
 /// Context-Augmented Generation (CAG) retrieval pipeline.
 pub mod cag;
+/// Governance graph — operator-authored reasoning trees per CORTEX.md §4.
+pub mod governance;
 /// Grammar and constrained decoding runtime ownership.
 pub mod grammar;
 /// Knowledge library — JSON-backed tips, did-you-know, glossary with libSQL runtime.

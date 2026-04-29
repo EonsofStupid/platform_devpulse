@@ -18,6 +18,13 @@ impl Task for Verify {
     fn run(&self, ws: &Workspace) -> anyhow::Result<()> {
         stage::section("Verify");
 
+        // Apply build env from the [build.deps.*] SSOT before spawning cargo —
+        // matches `run-dev` / `build-release`. Without this, native build
+        // scripts (e.g. llama-cpp-sys-2) fail to find cmake/ninja/nasm.
+        let platform_config = ws.platform_config()?;
+        println!("  > Build env from [build.deps.*] SSOT:");
+        platform_config.build.apply_env(ws.root());
+
         // Spawn both checks concurrently — don't wait for one to finish first
         let svelte_child = ws.spawn_in_verbose(&ws.desktop_dir(), "pnpm", &["svelte-check"])?;
 

@@ -956,6 +956,10 @@ pub struct BuildDepsConfig {
     /// CMake (for ort-sys source builds).
     #[serde(default)]
     pub cmake: Option<BuildDepEntry>,
+    /// Ninja (for cmake-rs when CMAKE_GENERATOR = "Ninja"; harmless under
+    /// the Visual Studio generator).
+    #[serde(default)]
+    pub ninja: Option<BuildDepEntry>,
     /// Legacy code-oss build toggle — disabled, kept for TOML compat only.
     /// DevForge REH is now fetched via `cargo xtask fetch-devforge`.
     #[serde(default)]
@@ -1013,6 +1017,7 @@ impl BuildConfig {
             ("python", &self.deps.python),
             ("onnxruntime", &self.deps.onnxruntime),
             ("cmake", &self.deps.cmake),
+            ("ninja", &self.deps.ninja),
         ];
 
         for (name, dep_opt) in deps {

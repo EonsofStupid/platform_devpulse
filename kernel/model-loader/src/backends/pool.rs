@@ -83,13 +83,13 @@ impl BackendPool {
             }
             #[cfg(not(feature = "llama-cpp-ffi"))]
             BackendType::LlamaCpp => {
-                // Fallback: try Candle for GGUF when llama.cpp isn't compiled
-                tracing::warn!(
-                    model = %model_id,
-                    "llama-cpp-ffi feature not enabled — falling back to Candle for GGUF"
+                // No silent fallback — locked direction (`feedback_inference_runtime_direction.md`)
+                // is llama.cpp primary. If the feature is off, fail loud so the
+                // build is corrected, not papered over with Candle.
+                anyhow::bail!(
+                    "llama-cpp-ffi feature is disabled; cannot load GGUF model {model_id} — \
+                     enable the `llama-cpp-ffi` feature on the model-loader crate"
                 );
-                let device = resolve_candle_device(&params);
-                InferenceBridge::spawn_candle(device)?
             }
             _ => {
                 // Candle for SafeTensors and everything else

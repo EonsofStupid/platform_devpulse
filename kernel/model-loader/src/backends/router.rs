@@ -1,10 +1,16 @@
 //! Backend routing — decide which inference engine handles a model.
+//!
+//! Locked direction (`feedback_inference_runtime_direction.md`):
+//! Focus = llama.cpp + Burn + vLLM. Backup = Candle (kept, never the
+//! path new code reaches for). The router enforces that here:
+//! every GGUF goes to llama.cpp by default; Candle is reached only
+//! when llama.cpp can't handle the architecture.
 
 use crate::models::registry::{BackendType, ModelFormat, ModelRegistryEntry};
 
 /// Select the appropriate backend for a model.
 ///
-/// `GGUF` → Candle (if supported) or llama.cpp.
+/// `GGUF` → llama.cpp (default), Candle only for archs llama.cpp can't load.
 /// `SafeTensors` → Candle.
 /// `ONNX` → ort (`SNAC`, `Kokoro`).
 /// `SherpaDir` → ort (`Whisper` dirs contain ONNX encoder/decoder).
@@ -18,10 +24,11 @@ pub fn select_backend(
 
     match entry.format {
         ModelFormat::Gguf => {
-            if candle_supports_architecture(&entry.architecture) {
-                BackendType::Candle
-            } else {
+            if llamacpp_supports_architecture(&entry.architecture) {
                 BackendType::LlamaCpp
+            } else {
+                // Rare path — niche archs llama.cpp doesn't load.
+                BackendType::Candle
             }
         }
         ModelFormat::SafeTensors => BackendType::Candle,
@@ -29,11 +36,14 @@ pub fn select_backend(
     }
 }
 
-/// Check if Candle has a GGUF loader for this architecture.
+/// Check if llama.cpp has a GGUF loader for this architecture.
 ///
-/// This list must be verified against the pinned Candle revision.
+/// llama.cpp's GGUF support is broad — every mainstream LLM family is
+/// supported. This list is the inverse of "things llama.cpp can't load,
+/// fall back to Candle." Add an entry here only after verifying upstream
+/// llama.cpp lists the arch in its loader switch.
 #[must_use]
-pub fn candle_supports_architecture(arch: &str) -> bool {
+pub fn llamacpp_supports_architecture(arch: &str) -> bool {
     matches!(
         arch,
         "llama"
@@ -43,9 +53,18 @@ pub fn candle_supports_architecture(arch: &str) -> bool {
             | "qwen3"
             | "phi2"
             | "phi3"
+            | "phi4"
             | "gemma"
             | "gemma2"
+            | "gemma3"
             | "stablelm"
             | "starcoder"
+            | "starcoder2"
+            | "deepseek"
+            | "deepseek2"
+            | "command-r"
+            | "dbrx"
+            | "olmo"
     )
 }
+

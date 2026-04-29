@@ -352,7 +352,7 @@ async fn steps_2_through_6_real_disk() {
         .iter()
         .filter(|e| {
             e.format == ModelFormat::Gguf
-                && model_loader::candle_supports_architecture(&e.architecture)
+                && model_loader::llamacpp_supports_architecture(&e.architecture)
         })
         .min_by_key(|e| e.size_bytes)
         .map(|e| (e.id.clone(), e.filename.clone()));
@@ -402,7 +402,7 @@ async fn steps_2_through_6_real_disk() {
         .iter()
         .filter(|e| {
             e.format == ModelFormat::Gguf
-                && !model_loader::candle_supports_architecture(&e.architecture)
+                && !model_loader::llamacpp_supports_architecture(&e.architecture)
         })
         .min_by_key(|e| e.size_bytes)
         .map(|e| (e.id.clone(), e.filename.clone(), e.architecture.clone()));

@@ -361,12 +361,17 @@ pub fn infer_capabilities(architecture: &str) -> Vec<ModelCapability> {
 }
 
 /// Infer supported backends from architecture.
+///
+/// Order = preference. llama.cpp first per locked direction
+/// (`feedback_inference_runtime_direction.md`); Candle stays in the list
+/// as a secondary fallback for archs both runtimes can load.
 #[must_use]
 pub fn infer_backends(architecture: &str) -> Vec<BackendType> {
-    let mut backends = vec![BackendType::LlamaCpp]; // llama.cpp supports almost everything
+    let mut backends = vec![BackendType::LlamaCpp]; // primary — supports almost everything
 
-    if crate::backends::router::candle_supports_architecture(architecture) {
-        backends.insert(0, BackendType::Candle); // Candle preferred when supported
+    if crate::backends::router::llamacpp_supports_architecture(architecture) {
+        // Same arch list — Candle remains a viable secondary for these.
+        backends.push(BackendType::Candle);
     }
 
     backends
