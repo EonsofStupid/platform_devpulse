@@ -123,6 +123,14 @@ pub fn classify(event: &InternalEvent) -> Visibility {
         // typed events for in-process subscribers (governance
         // reactors, hot-update freeze logic, capability registry).
         InternalEvent::SidecarPhaseTransition { .. } => Visibility::Internal,
+
+        // ── Routing Config ──────────────────────────────────
+        // User-scope routing config persistence. The user already
+        // saw their own action (clicking save in the wizard); the
+        // event is a back-channel for engine consumers (chat
+        // dispatcher, audio pipeline, voice brain orchestrator).
+        // Surfacing it would be redundant noise.
+        InternalEvent::RoutingConfigChanged { .. } => Visibility::Internal,
     }
 }
 

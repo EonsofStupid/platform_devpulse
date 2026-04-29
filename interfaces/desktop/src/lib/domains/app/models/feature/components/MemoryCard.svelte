@@ -4,14 +4,16 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Brain, Download, X } from "lucide-svelte";
+import { Brain, Download, Sparkles, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { logInfo } from "$lib/sys/logger.js";
 import { memoryCardState } from "../../data-access/memory-card.state.svelte.js";
+import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
 import {
 	formatEta,
@@ -20,6 +22,7 @@ import {
 	statusLabel,
 	statusToTone,
 } from "../../util/models.types.js";
+import { wizardState } from "../setup-wizard/wizard.state.svelte.js";
 import ModelPicker from "./ModelPicker.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
@@ -35,6 +38,38 @@ const cardM = $derived(renderForge({ kind: "memory-card", preset: "glass-elevate
 
 $effect(() => {
 	void memoryState.ensureCatalogLoaded();
+});
+
+// ── Recommendation prefill ──────────────────────────────
+// Memory has two slots: rag.embedder + rag.reranker. Each gets
+// independently prefilled when a recommendation exists, the model
+// is on disk, and no draft has been set yet. Both prefills respect
+// the user's overrides — the effect short-circuits the moment a
+// pending or committed model id appears.
+const embedderRec = $derived(wizardState.recommendations.find((r) => r.slot === "rag.embedder"));
+const rerankerRec = $derived(wizardState.recommendations.find((r) => r.slot === "rag.reranker"));
+const recIsActive = $derived(
+	(embedderRec !== undefined &&
+		memoryState.committedModelId(memoryState.embedderSlotId) === null &&
+		memoryState.pendingModelId(memoryState.embedderSlotId) === null) ||
+		(rerankerRec !== undefined &&
+			memoryState.committedModelId(memoryState.rerankerSlotId) === null &&
+			memoryState.pendingModelId(memoryState.rerankerSlotId) === null),
+);
+
+$effect(() => {
+	for (const [rec, slot] of [
+		[embedderRec, memoryState.embedderSlotId] as const,
+		[rerankerRec, memoryState.rerankerSlotId] as const,
+	]) {
+		if (!rec || !rec.alreadyDownloaded) continue;
+		if (memoryState.committedModelId(slot) || memoryState.pendingModelId(slot)) continue;
+		const model = modelsState.models.find((m) => m.filename === rec.file);
+		if (model && memoryState.selectedModelId(slot) !== model.id) {
+			logInfo("memory-card", `prefill ${slot}=${model.id} from recommendation`);
+			memoryState.selectModel(slot, model.id);
+		}
+	}
 });
 </script>
 
@@ -53,6 +88,16 @@ $effect(() => {
 				<div class={hstack({ gap: "2", align: "center" })}>
 					<Brain size={18} style="color: var(--accent-teal-main);" />
 					<Text size="base" weight="bold" color="primary">Memory</Text>
+					{#if recIsActive}
+						<Badge variant="informative" size="sm" title="Pre-filled from your model plan">
+							<Sparkles size={10} />
+							Recommended
+						</Badge>
+					{:else if embedderRec || rerankerRec}
+						<Badge variant="neutral" size="sm" title="You overrode the recommendation">
+							Custom pick
+						</Badge>
+					{/if}
 				</div>
 				<Text size="xs" color="muted">How much Clyffy remembers about your project</Text>
 			</div>

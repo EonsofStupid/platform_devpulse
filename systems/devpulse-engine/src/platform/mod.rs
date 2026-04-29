@@ -26,7 +26,6 @@
 
 mod boot;
 pub mod config;
-pub mod cortex;
 #[allow(missing_docs)]
 pub mod facade;
 pub mod health;
@@ -52,7 +51,11 @@ pub use reasoning::{
 };
 pub use services::candle_config::CandleConfig;
 pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
-pub use services::ollama::OllamaModel;
+pub use services::routing_config::{
+    EscalationConfig, EscalationTier, EscalationTierId, InferenceProvider, LatencyConfig,
+    RoutingConfig,
+};
+pub use services::sidecars::ollama::OllamaModel;
 pub use services::sherpa_streaming::{
     SherpaCompileInfo, SherpaInstalledModel, SherpaSessionInfo, SherpaStreamingService,
 };
@@ -98,6 +101,16 @@ pub use devpulse_clyffy::cortex::knowledge::{
     Tier as KnowledgeTier,
 };
 
+// IP-NOTE: cortex governance graph (CORTEX.md §4) — operator-authored
+// reasoning trees. `ThoughtRecord` / `thought_create` / `thought_load_branch`
+// are generic enough to cross outward; no rename needed. Engine callers
+// pass `graph.handle()` (the `&ScopedGraphHandle` returned by
+// `GraphService::handle()`) and convert their `RroState` via
+// `RroState::as_str()` at the seam.
+pub use devpulse_clyffy::cortex::governance::{
+    thought_create, thought_load_branch, ThoughtRecord,
+};
+
 // IP-NOTE: model-loader concepts the desktop UI surfaces directly
 // (registry entries, source-tier classification, slot identity).
 // All names describe industry-standard concepts, no rename needed.
@@ -129,7 +142,7 @@ use services::analytics::AnalyticsService;
 use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgePreflight, DevForgeService};
 use services::graph::GraphService;
-use services::ollama::OllamaService;
+use services::sidecars::ollama::OllamaService;
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
@@ -337,6 +350,23 @@ impl Platform {
             tracing::info!("Lane tracing disabled");
             None
         };
+
+        // Read the persisted routing config at boot. Even fields with
+        // no current consumer (audio_buffer_ms / vad_silence_ms /
+        // stream_chunk_size) are logged at INFO so it's verifiable in
+        // boot.log that the engine sees the persisted truth — the
+        // values are real config waiting on a real consumer, not
+        // write-to-nowhere preferences.
+        let routing_at_boot = services::routing_config::load(&data_dir);
+        tracing::info!(
+            target: "routing.config",
+            response_source = routing_at_boot.latency.response_source.as_str(),
+            enabled_tier_count = routing_at_boot.escalation.enabled_tiers().count(),
+            audio_buffer_ms = routing_at_boot.latency.audio_buffer_ms,
+            vad_silence_ms = routing_at_boot.latency.vad_silence_ms,
+            stream_chunk_size = routing_at_boot.latency.stream_chunk_size,
+            "routing config loaded at boot"
+        );
 
         Ok(Self {
             surreal: booted.surreal,
@@ -866,6 +896,115 @@ impl Platform {
     /// - Temp-file write or rename fails.
     pub fn voice_stt_config_save(&self, cfg: &VoiceSttConfig) -> Result<VoiceSttConfig> {
         services::voice_stt_config::save(&self.data_dir, cfg)
+    }
+
+    // ── Routing config (user scope) ────────────────────────────
+
+    /// Load user-scope routing preferences from
+    /// `{data_dir}/user/routing.toml`, reconciling
+    /// `latency.response_source` with the kernel `assistant.routing.mode`
+    /// SSOT so the surface always reflects what the chat dispatcher
+    /// will actually use at dispatch time.
+    ///
+    /// Never returns an error — on parse / IO failure, returns the
+    /// defaults so the wizard / settings surface always renders. When
+    /// the inference feature is compiled out (or the loader isn't
+    /// available yet), the persisted file value is returned verbatim.
+    pub async fn routing_config_load(&self) -> RoutingConfig {
+        // Reconcile against the kernel SSOT so the UI never disagrees
+        // with the dispatcher. The kernel write-through inside
+        // `routing_config_save` keeps these aligned on every write;
+        // the reconcile-on-read here covers the case where the kernel
+        // mode was changed via another path (legacy
+        // `set_inference_provider` command, direct assistant.toml edit)
+        // before the routing.toml surface existed. The binding is `mut`
+        // only on builds where the reconciliation actually mutates it
+        // (inference feature compiled in); the non-inference path keeps
+        // the file value verbatim.
+        #[cfg(feature = "inference")]
+        let mut cfg = services::routing_config::load(&self.data_dir);
+        #[cfg(not(feature = "inference"))]
+        let cfg = services::routing_config::load(&self.data_dir);
+
+        #[cfg(feature = "inference")]
+        if let Some(loader) = self.model_loader.as_ref() {
+            let assistant = loader.get_assistant_config().await;
+            let raw_mode = serde_json::to_value(&assistant.routing.mode)
+                .ok()
+                .and_then(|v| v.as_str().map(str::to_string))
+                .unwrap_or_else(|| "local_first".to_string());
+            cfg.latency.response_source = InferenceProvider::from_str(&raw_mode);
+        }
+
+        cfg
+    }
+
+    /// Persist user-scope routing preferences atomically and write
+    /// through to the kernel `assistant.routing.mode` SSOT so the
+    /// existing chat dispatcher (`commands::cloud::inner_get_inference_provider`)
+    /// is gated by this surface.
+    ///
+    /// Emits BOTH a `tracing::info!` event on the `routing.config`
+    /// target AND an `InternalEvent::RoutingConfigChanged` on the
+    /// internal broadcast bus — per `feedback_dual_observability.md`,
+    /// persistence surfaces are observable on both layers in lockstep.
+    ///
+    /// # Errors
+    /// - Creating the `user/` directory fails.
+    /// - Temp-file write or rename fails.
+    /// - Write-through to the kernel routing mode fails (when the
+    ///   inference feature is compiled in and the model loader is
+    ///   available).
+    pub async fn routing_config_save(&self, cfg: &RoutingConfig) -> Result<RoutingConfig> {
+        let saved = services::routing_config::save(&self.data_dir, cfg)?;
+
+        // Write-through: the kernel `assistant.routing.mode` is the SSOT
+        // the existing `inner_get_inference_provider` chat dispatcher
+        // reads at dispatch time. Update it in lockstep so the wizard's
+        // saved `latency.response_source` actually gates which Claude
+        // lane is allowed. Without this write-through, the routing.toml
+        // surface would be a parallel store that no consumer reads.
+        #[cfg(feature = "inference")]
+        if let Some(loader) = self.model_loader.as_ref() {
+            loader
+                .set_routing_mode(saved.latency.response_source.as_str().to_string())
+                .await?;
+        }
+
+        let enabled_tier_count: u32 = saved
+            .escalation
+            .enabled_tiers()
+            .count()
+            .try_into()
+            .unwrap_or(u32::MAX);
+
+        // Tracing leg of the dual-emit pair. Target is `routing.config`
+        // so subscribers can filter the same way they filter
+        // `sidecar.lifecycle`.
+        tracing::info!(
+            target: "routing.config",
+            response_source = saved.latency.response_source.as_str(),
+            enabled_tier_count,
+            audio_buffer_ms = saved.latency.audio_buffer_ms,
+            vad_silence_ms = saved.latency.vad_silence_ms,
+            stream_chunk_size = saved.latency.stream_chunk_size,
+            "routing config persisted"
+        );
+
+        // InternalEvent leg of the dual-emit pair. SendError when no
+        // subscribers attached is benign — the broadcast bus is best-
+        // effort and consumers are responsible for keeping up.
+        let _ = self
+            .internal_tx
+            .send(InternalEvent::RoutingConfigChanged {
+                response_source: saved.latency.response_source,
+                enabled_tier_count,
+                audio_buffer_ms: saved.latency.audio_buffer_ms,
+                vad_silence_ms: saved.latency.vad_silence_ms,
+                stream_chunk_size: saved.latency.stream_chunk_size,
+            });
+
+        Ok(saved)
     }
 
     /// Directory where rotated session logs live

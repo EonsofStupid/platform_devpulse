@@ -3,54 +3,24 @@
 //! Routing mode lives in assistant config and controls which Claude lane
 //! is allowed after local-first routing.
 //!
-//! # Type alias note
+//! # Type SSOT
 //!
-//! `InferenceProvider` below is the specta-derived Tauri-boundary enum. It
-//! mirrors the kernel routing mode (private to `kernel/model-loader`) value
-//! for value. The kernel type is not re-exported here — engine facades call
-//! `set_routing_mode(String)` with the `as_str()` form of this enum to keep
-//! the kernel boundary one-way. Do NOT add a third alias anywhere.
+//! The `InferenceProvider` enum is owned by the engine
+//! (`devpulse_engine::platform::InferenceProvider`) — it mirrors the kernel
+//! routing mode value-for-value and is the same surface the engine
+//! `Platform::routing_config_*` accessors use for the `latency.response_source`
+//! field. The cloud command module re-uses that enum directly so the
+//! TS layer never sees two parallel types named `InferenceProvider`.
 
 use crate::commands::credentials::get_api_key;
 use anyhow::{Context as _, Result as AnyhowResult};
 use devpulse_engine::ai_providers::ProviderId;
+use devpulse_engine::platform::InferenceProvider;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::{Emitter, State};
 
 use crate::state::PlatformState;
-
-// ── Routing Enum ────────────────────────────────────────────────
-
-/// Which Claude escalation lane is allowed after local-first routing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "snake_case")]
-pub enum InferenceProvider {
-    /// Prefer local models first.
-    LocalFirst,
-    /// Prefer local, then escalate through the Claude subscription lane.
-    LocalClaudeSubscription,
-    /// Prefer local, then escalate through Claude subscription and API council lanes.
-    LocalClaudeApiCouncil,
-}
-
-impl InferenceProvider {
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::LocalFirst => "local_first",
-            Self::LocalClaudeSubscription => "local_claude_subscription",
-            Self::LocalClaudeApiCouncil => "local_claude_api_council",
-        }
-    }
-
-    fn from_str(s: &str) -> Self {
-        match s {
-            "local_claude_subscription" => Self::LocalClaudeSubscription,
-            "local_claude_api_council" => Self::LocalClaudeApiCouncil,
-            _ => Self::LocalFirst,
-        }
-    }
-}
 
 // ── Routing Config Commands ─────────────────────────────────────
 

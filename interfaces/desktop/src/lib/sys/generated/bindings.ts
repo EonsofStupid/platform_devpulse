@@ -1652,6 +1652,23 @@ async fetchDashboard() : Promise<Result<DashboardPayload, string>> {
 }
 },
 /**
+ * Verify the user's DevPulse license. **STUB.** Always returns a
+ * `Free` tier license with `stub: true`.
+ * 
+ * # Errors
+ * Currently infallible — the real implementation will surface I/O
+ * errors (license file read), signature verification failures, and
+ * network errors when contacting the license server.
+ */
+async verifyLicense() : Promise<Result<LicenseStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("verify_license") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetch the current user profile. Creates a default if none exists.
  */
 async fetchUserProfile() : Promise<Result<UserProfile, string>> {
@@ -3199,6 +3216,45 @@ async cloudChat(messages: CloudMessage[], systemPrompt: string | null, model: st
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Load the persisted routing config (escalation chain + latency
+ * tuning + response source).
+ * 
+ * Reads `{data_dir}/user/routing.toml` and reconciles
+ * `latency.response_source` against the kernel `assistant.routing.mode`
+ * SSOT so the surface always reflects what the dispatcher will use.
+ * Returns defaults when the file is missing or malformed — never errors
+ * on parse failure.
+ */
+async routingLoadConfig() : Promise<Result<RoutingConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("routing_load_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Persist routing config atomically. Returns the clamped value the
+ * engine actually wrote (per-tier timeouts clamped to `[1s, 60s]`,
+ * audio buffer to `[50ms, 1000ms]`, VAD silence to `[200ms, 2000ms]`,
+ * stream chunk to `[64, 1024]`).
+ * 
+ * Save flow inside the engine:
+ * 1. Clamp + atomic temp-write + rename to `user/routing.toml`.
+ * 2. Write through `latency.response_source` → kernel
+ * `assistant.routing.mode` so the chat dispatcher is gated.
+ * 3. Dual-emit: `tracing::info!` on `routing.config` + broadcast
+ * `InternalEvent::RoutingConfigChanged` for engine consumers.
+ */
+async routingSaveConfig(cfg: RoutingConfig) : Promise<Result<RoutingConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("routing_save_config", { cfg }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -3589,11 +3645,24 @@ window: WindowConfig;
 /**
  * Chat routing mode and escalation lane selection.
  */
-routing: RoutingConfig; 
+routing: AssistantRoutingConfig; 
 /**
  * Partial GPU offload hints.
  */
 offload: OffloadConfig }
+/**
+ * Assistant-scope routing wrapper persisted in `assistant.toml`.
+ * 
+ * Renamed from `RoutingConfig` so the user-facing engine `RoutingConfig`
+ * (escalation chain + latency tuning) keeps the canonical short name
+ * at the specta / TS boundary. This struct only holds the kernel-side
+ * `mode` field consumed by `set_routing_mode`.
+ */
+export type AssistantRoutingConfig = { 
+/**
+ * Active routing mode — determines which escalation lanes are available.
+ */
+mode: RoutingMode }
 /**
  * Stable identifier for an inference backend. Each variant maps to
  * one concrete Candle / ORT / llama.cpp loader path.
@@ -4784,6 +4853,60 @@ export type ErrorKind =
  */
 "internal"
 /**
+ * Persisted escalation chain.
+ */
+export type EscalationConfig = { 
+/**
+ * Tiers in fall-through order. The chain runs top to bottom; if a
+ * tier is disabled or times out, the next enabled tier handles
+ * the request.
+ */
+tiers: EscalationTier[] }
+/**
+ * Persisted state for one escalation tier.
+ */
+export type EscalationTier = { 
+/**
+ * Stable tier id — matches a closed enum, never a free-form key.
+ */
+id: EscalationTierId; 
+/**
+ * Whether the tier participates in the escalation chain.
+ */
+enabled: boolean; 
+/**
+ * Per-tier timeout in milliseconds. Clamped on write to
+ * `[1_000, 60_000]` — outside that range the slider in the wizard
+ * can't author the value either.
+ */
+timeout_ms: number; 
+/**
+ * Optional slot id this tier dispatches to (`voice.brain`,
+ * `chat.brain`, etc.). `None` for tiers that do not bind to a
+ * model loader slot (e.g. `CloudApi`).
+ */
+slot_id: string | null }
+/**
+ * Stable identifier for an escalation tier.
+ * 
+ * Closed enum so the schema survives renames over time — the wire
+ * format is the variant string, not a free-form id, and code matches
+ * on `EscalationTierId::*` rather than string comparison.
+ */
+export type EscalationTierId = 
+/**
+ * Lightweight CPU model for fast turn-taking.
+ */
+"voice_brain" | 
+/**
+ * Full reasoning model on GPU — primary chat brain.
+ */
+"main_brain" | 
+/**
+ * External AI service (Claude / OpenAI / etc.).
+ */
+"cloud_api"
+/**
  * Hardware execution lane in the inference pipeline.
  * 
  * Each variant maps to a model slot + device combination.
@@ -5448,10 +5571,15 @@ name: string;
 tagline: string }
 /**
  * Which Claude escalation lane is allowed after local-first routing.
+ * 
+ * SSOT for the `response_source` decision the dispatcher consumes at
+ * chat dispatch time. Mirrors the kernel's `RoutingMode` value-for-value
+ * — the kernel type is private, this is the public surface engine +
+ * Tauri + frontend share via specta.
  */
 export type InferenceProvider = 
 /**
- * Prefer local models first.
+ * Prefer local models first — no cloud escalation.
  */
 "local_first" | 
 /**
@@ -5459,7 +5587,8 @@ export type InferenceProvider =
  */
 "local_claude_subscription" | 
 /**
- * Prefer local, then escalate through Claude subscription and API council lanes.
+ * Prefer local, then escalate through Claude subscription and API
+ * council lanes.
  */
 "local_claude_api_council"
 /**
@@ -5658,6 +5787,31 @@ verbose: boolean;
  */
 persist_to_duckdb: boolean }
 /**
+ * Persisted latency / response-source tuning.
+ */
+export type LatencyConfig = { 
+/**
+ * Which Claude lane is allowed after local-first routing. SSOT for
+ * the chat dispatcher.
+ */
+response_source: InferenceProvider; 
+/**
+ * Audio capture buffer in milliseconds. Smaller = lower latency,
+ * larger = smoother audio. Clamped to `[50, 1000]` on write.
+ */
+audio_buffer_ms: number; 
+/**
+ * VAD silence threshold in milliseconds — how long after the user
+ * stops talking before processing kicks in. Clamped to
+ * `[200, 2000]` on write.
+ */
+vad_silence_ms: number; 
+/**
+ * Stream chunk size in tokens. Larger reduces overhead but delays
+ * the first token. Clamped to `[64, 1024]` on write.
+ */
+stream_chunk_size: number }
+/**
  * Which `LibSQL` database to target.
  */
 export type LibSqlDatabase = 
@@ -5733,6 +5887,63 @@ name: string;
  * Number of rows.
  */
 row_count: number }
+/**
+ * IPC payload for `verify_license`. The shape is the contract —
+ * every field will keep its meaning when the stub is replaced with a
+ * real implementation; only the *values* change.
+ */
+export type LicenseStatus = { 
+/**
+ * Coarse tier the user is entitled to. Drives slot-tier visibility
+ * in the wizard and feature visibility in the main app.
+ */
+tier: LicenseTier; 
+/**
+ * True when the license is currently usable. False signals a
+ * blocking state (expired, revoked, signature failure) — the
+ * caller should refuse to enter paid surfaces.
+ */
+valid: boolean; 
+/**
+ * Unix seconds (UTC) at which the license stops being valid.
+ * `None` = perpetual / Free / not applicable.
+ */
+expires_at_unix: number | null; 
+/**
+ * Authoritative list of unlocked features. The frontend should
+ * gate against THIS list, not against `tier`. Empty list = nothing
+ * beyond the always-on minion floor.
+ */
+features: string[]; 
+/**
+ * **Stub flag.** True until the real verification path lands.
+ * Callers MUST treat this as read-only telemetry — never use it
+ * to make security decisions.
+ */
+stub: boolean; 
+/**
+ * Human-readable explanation of why the response is a stub.
+ * `None` once the real impl ships.
+ */
+stub_reason: string | null }
+/**
+ * Coarse-grained license tier. Frontend gates feature availability
+ * against this enum, NOT against `features` (features is the
+ * authoritative list — `tier` is a user-facing label).
+ */
+export type LicenseTier = 
+/**
+ * Floor — T1 Minions only. No paid features.
+ */
+"free" | 
+/**
+ * Mid — T1 + T2 Specialist slots unlocked.
+ */
+"pro" | 
+/**
+ * Top — full T1 + T2 + T3 Council unlocked, plus seat-bound features.
+ */
+"enterprise"
 /**
  * Convenience for the Config tab's model picker — same call as
  * `validate_provider`, returns just the model list (or an empty list
@@ -7036,13 +7247,20 @@ status_error: string;
  */
 vram_estimate_template: string }
 /**
- * Routing configuration persisted in assistant.toml.
+ * Persisted user-scope routing configuration.
+ * 
+ * One TOML file (`{data_dir}/user/routing.toml`), one accessor pair
+ * (`Platform::routing_config_load` / `routing_config_save`).
  */
 export type RoutingConfig = { 
 /**
- * Active routing mode — determines which escalation lanes are available.
+ * Escalation chain — Voice Brain → Main Brain → Cloud API.
  */
-mode: RoutingMode }
+escalation: EscalationConfig; 
+/**
+ * Latency tuning + response source.
+ */
+latency: LatencyConfig }
 /**
  * Primary routing mode for chat and escalation decisions.
  * 
@@ -7952,9 +8170,11 @@ id: string;
  */
 content: string; 
 /**
- * RRO state at thought creation time.
+ * RRO state at thought creation time, canonical lowercase string
+ * per `signals.registry.yaml` group `rro` (`"idle"`, `"gathering"`,
+ * `"processing"`, `"ruminating"`, `"ready"`, `"purged"`, `"forked"`).
  */
-rro_state: RroState; 
+rro_state: string; 
 /**
  * Branch depth, 1-based. Capped at 14 per `CORTEX.md` §4.3.
  */

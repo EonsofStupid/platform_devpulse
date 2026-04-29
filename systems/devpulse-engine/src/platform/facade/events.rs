@@ -37,6 +37,11 @@ pub enum EventCategory {
     /// [`crate::platform::services::lifecycle_phase`]. Both layers must
     /// emit in lockstep — see `feedback_dual_observability.md`.
     SidecarLifecycle,
+    /// User-scope routing config changed (escalation chain, latency
+    /// tuning, response source). Engine consumers (chat dispatcher,
+    /// audio pipeline, voice brain orchestrator) subscribe to react
+    /// without polling.
+    RoutingConfig,
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -387,6 +392,31 @@ pub enum InternalEvent {
         /// Human-readable summary — bind addr, error, elapsed time.
         detail: String,
     },
+
+    // ── Routing config persistence ──────────────────────────────
+    /// User-scope routing config persisted via `Platform::routing_config_save`.
+    ///
+    /// Emitted in lockstep with the `routing.config` `tracing::info!`
+    /// event — per `feedback_dual_observability.md`, persistence
+    /// surfaces are observable on BOTH the tracing taxonomy AND the
+    /// `InternalEvent` broadcast bus. Subscribers (chat dispatcher,
+    /// audio pipeline, voice brain orchestrator) react without polling.
+    RoutingConfigChanged {
+        /// Selected response source / Claude lane. Round-tripped to
+        /// the kernel `assistant.routing.mode` SSOT on save so the
+        /// existing `inner_get_inference_provider` consumer is gated
+        /// by this surface.
+        response_source: crate::platform::services::routing_config::InferenceProvider,
+        /// Number of escalation tiers currently `enabled` in the chain.
+        enabled_tier_count: u32,
+        /// Audio-pipeline buffer at time of persist (ms) — engine-stored
+        /// surface; consumer is the audio pipeline (`audio` service).
+        audio_buffer_ms: u32,
+        /// VAD silence threshold at time of persist (ms).
+        vad_silence_ms: u32,
+        /// Stream chunk size at time of persist (tokens).
+        stream_chunk_size: u32,
+    },
 }
 
 impl InternalEvent {
@@ -426,6 +456,8 @@ impl InternalEvent {
             | Self::InferenceComplete { .. } => EventCategory::InferenceMetrics,
 
             Self::SidecarPhaseTransition { .. } => EventCategory::SidecarLifecycle,
+
+            Self::RoutingConfigChanged { .. } => EventCategory::RoutingConfig,
         }
     }
 }

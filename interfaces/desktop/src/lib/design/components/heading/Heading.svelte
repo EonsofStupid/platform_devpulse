@@ -34,6 +34,9 @@ const SIZE: Record<HeadingSize, string> = {
 	xl: "text-xl",
 	"2xl": "text-2xl",
 	"3xl": "text-3xl",
+	// Layman-facing hero copy — one step above 3xl. Used by the
+	// first-run setup view's stage heading.
+	display: "text-4xl",
 };
 
 const WEIGHT: Record<number, string> = {

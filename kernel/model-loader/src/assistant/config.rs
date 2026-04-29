@@ -294,10 +294,15 @@ impl Default for RoutingMode {
     }
 }
 
-/// Routing configuration persisted in assistant.toml.
+/// Assistant-scope routing wrapper persisted in `assistant.toml`.
+///
+/// Renamed from `RoutingConfig` so the user-facing engine `RoutingConfig`
+/// (escalation chain + latency tuning) keeps the canonical short name
+/// at the specta / TS boundary. This struct only holds the kernel-side
+/// `mode` field consumed by `set_routing_mode`.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
-pub struct RoutingConfig {
+pub struct AssistantRoutingConfig {
     /// Active routing mode — determines which escalation lanes are available.
     pub mode: RoutingMode,
 }
@@ -357,7 +362,7 @@ pub struct AssistantConfig {
     /// Window idle + tray behaviour.
     pub window: WindowConfig,
     /// Chat routing mode and escalation lane selection.
-    pub routing: RoutingConfig,
+    pub routing: AssistantRoutingConfig,
     /// Partial GPU offload hints.
     pub offload: OffloadConfig,
 }

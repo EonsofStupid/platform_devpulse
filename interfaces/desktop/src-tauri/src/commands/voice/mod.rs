@@ -337,9 +337,12 @@ pub async fn preview_voice(
 /// Test the microphone — capture 500ms and return amplitude stats.
 #[tauri::command]
 #[specta::specta]
-pub async fn test_microphone(_state: State<'_, PlatformState>) -> Result<MicTestResult, String> {
-    devpulse_telemetry::spawn_blocking(|| {
-        let samples = capture_mic_samples(0.5, 16000)?;
+pub async fn test_microphone(state: State<'_, PlatformState>) -> Result<MicTestResult, String> {
+    let platform = state.platform.load_full().ok_or("Platform not ready")?;
+    let routing = platform.routing_config_load().await;
+    let buffer_ms = routing.latency.audio_buffer_ms;
+    devpulse_telemetry::spawn_blocking(move || {
+        let samples = capture_mic_samples(0.5, 16000, buffer_ms)?;
         if samples.is_empty() {
             return Ok(MicTestResult {
                 detected: false,
@@ -377,13 +380,18 @@ pub async fn test_microphone(_state: State<'_, PlatformState>) -> Result<MicTest
 pub async fn transcribe_audio(state: State<'_, PlatformState>) -> Result<String, String> {
     use devpulse_engine::platform::services::model_loader::AudioSamples;
 
-    // Capture audio on a blocking thread (cpal/rodio is sync)
-    let pcm_data = devpulse_telemetry::spawn_blocking(|| capture_mic_samples(3.0, 16000))
-        .await
-        .map_err(|e| format!("Mic capture thread failed: {e}"))??;
-
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
+    let routing = platform.routing_config_load().await;
+    let buffer_ms = routing.latency.audio_buffer_ms;
+
+    // Capture audio on a blocking thread (cpal/rodio is sync)
+    let pcm_data = devpulse_telemetry::spawn_blocking(move || {
+        capture_mic_samples(3.0, 16000, buffer_ms)
+    })
+    .await
+    .map_err(|e| format!("Mic capture thread failed: {e}"))??;
+
     let loader = platform
         .model_loader()
         .ok_or("Model Loader not available")?;
@@ -404,7 +412,26 @@ pub async fn transcribe_audio(state: State<'_, PlatformState>) -> Result<String,
 ///
 /// Uses rodio's input stream (backed by cpal). Returns mono f32 samples
 /// at the requested sample rate. Duration in seconds.
-fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Vec<f32>, String> {
+///
+/// `buffer_ms` is the user-configured cpal capture buffer length in
+/// milliseconds, sourced from `routing.toml`'s
+/// `latency.audio_buffer_ms` (clamped engine-side to `[50, 1000]`).
+/// We translate it into a frame count at the device's native sample
+/// rate and apply it as `cpal::BufferSize::Fixed`. Downstream cpal
+/// hosts that cannot honor the requested size (WASAPI in shared mode,
+/// some ALSA configurations) fall back internally; the user-visible
+/// effect is the latency slider biasing the OS choice rather than
+/// dictating it absolutely.
+///
+/// A hard floor of 64 frames is enforced at this seam — cpal rejects
+/// buffers below that on most backends. When the engine-clamped value
+/// produces fewer frames than 64 (only possible at extremely low
+/// sample rates), the floor is logged so the adjustment is visible.
+fn capture_mic_samples(
+    duration_secs: f32,
+    target_sample_rate: u32,
+    buffer_ms: u32,
+) -> Result<Vec<f32>, String> {
     use std::sync::{Arc, Mutex};
 
     // rodio doesn't expose input devices directly — use cpal
@@ -413,13 +440,40 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
         .ok_or_else(|| "No microphone detected".to_string())?;
 
     use rodio::cpal::traits::DeviceTrait;
-    let config = device
+    let supported = device
         .default_input_config()
         .map_err(|e| format!("Failed to get mic config: {e}"))?;
 
-    let sample_rate = config.sample_rate().0;
-    let channels = config.channels() as usize;
+    let sample_rate = supported.sample_rate().0;
+    let channels = supported.channels() as usize;
     let total_samples = (duration_secs * sample_rate as f32) as usize * channels;
+
+    // Translate user-config ms → cpal frame count at the device rate.
+    // Engine save-time clamp keeps `buffer_ms` in `[50, 1000]`; that
+    // converts to `[2_400, 48_000]` frames at 48 kHz which sits well
+    // above cpal's 64-frame floor. The floor still runs as a defensive
+    // bound (cpal rejects sub-64 on most backends) and emits when
+    // adjusted so the discrepancy is observable.
+    let raw_frames = u64::from(buffer_ms) * u64::from(sample_rate) / 1_000;
+    let mut frames = u32::try_from(raw_frames).unwrap_or(u32::MAX);
+    let mut floor_applied = false;
+    if frames < 64 {
+        frames = 64;
+        floor_applied = true;
+    }
+
+    let mut stream_config: rodio::cpal::StreamConfig = supported.into();
+    stream_config.buffer_size = rodio::cpal::BufferSize::Fixed(frames);
+
+    tracing::info!(
+        target: "audio.config",
+        buffer_ms,
+        buffer_frames = frames,
+        sample_rate,
+        channels,
+        floor_applied,
+        "mic capture stream opening with routing.latency.audio_buffer_ms"
+    );
 
     let buffer: Arc<Mutex<Vec<f32>>> = Arc::new(Mutex::new(Vec::with_capacity(total_samples)));
     let buf_clone = buffer.clone();
@@ -429,7 +483,7 @@ fn capture_mic_samples(duration_secs: f32, target_sample_rate: u32) -> Result<Ve
     use rodio::cpal::traits::StreamTrait;
     let stream = device
         .build_input_stream(
-            &config.into(),
+            &stream_config,
             move |data: &[f32], _: &rodio::cpal::InputCallbackInfo| {
                 let Ok(mut buf) = buf_clone.lock() else {
                     tracing::error!("Mic buffer mutex poisoned — dropping audio frame");

@@ -4,7 +4,7 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Flame, Power, PowerOff, RefreshCw, Search, X } from "lucide-svelte";
+import { Download, Flame, Power, PowerOff, RefreshCw, Search, Sparkles, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { logInfo } from "$lib/sys/logger.js";
 import { brainCardState } from "../../data-access/brain-card.state.svelte.js";
 import { downloadModel } from "../../data-access/download.service.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
@@ -25,6 +26,7 @@ import {
 	statusToTone,
 } from "../../util/models.types.js";
 import HuggingFaceSearch from "../setup-wizard/components/HuggingFaceSearch.svelte";
+import { wizardState } from "../setup-wizard/wizard.state.svelte.js";
 import ModelPicker from "./ModelPicker.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
@@ -66,6 +68,47 @@ $effect(() => {
 	void brainState.ensureCatalogLoaded();
 });
 
+// ── Recommendation prefill ──────────────────────────────
+//
+// `wizardState.recommendations` is populated by the Welcome view's
+// "Jesse Config" button — calls `commands.autoConfigure()` and
+// stores the per-slot picks. When a recommendation exists for
+// chat.brain AND the user hasn't picked a model yet, prefill the
+// brain card's draft selection so "Apply" downloads + activates
+// the recommended model. If the file is already on disk, also
+// auto-select the matching catalog index so the size selector
+// reflects the recommendation.
+const brainRec = $derived(wizardState.recommendations.find((r) => r.slot === "chat.brain"));
+const recIsActive = $derived(
+	brainRec !== undefined &&
+		brainState.committedModelId === null &&
+		brainState.pendingModelId === null,
+);
+
+$effect(() => {
+	const rec = brainRec;
+	if (!rec) return;
+	if (brainState.committedModelId || brainState.pendingModelId) return;
+
+	// Snap the catalog size selector to the recommended file when a match
+	// exists. Never clobber user clicks — only fires when no draft is set.
+	const idx = brainState.catalogOptions.findIndex((opt) => opt.file === rec.file);
+	if (idx >= 0 && brainState.selectedIdx !== idx) {
+		logInfo("brain-card", `prefill catalog idx=${idx} from recommendation`);
+		brainState.selectCatalogIndex(idx);
+	}
+
+	// Already-downloaded recs match a registry entry — pre-select that
+	// model so Apply works without an extra Browse click.
+	if (rec.alreadyDownloaded) {
+		const model = modelsState.models.find((m) => m.filename === rec.file);
+		if (model && brainState.selectedModelId !== model.id) {
+			logInfo("brain-card", `prefill selectedModelId=${model.id} from recommendation`);
+			brainState.selectModel(model.id);
+		}
+	}
+});
+
 // ── ColdLight renderForge — glass-elevated preset ────────
 const cardM = $derived(renderForge({ kind: "brain-card", preset: "glass-elevated" }));
 </script>
@@ -82,7 +125,19 @@ const cardM = $derived(renderForge({ kind: "brain-card", preset: "glass-elevated
 		<!-- Header -->
 		<div class={hstack({ justify: "between", align: "center" })}>
 			<div class={stack({ gap: "1" })}>
-				<Text size="base" weight="bold" color="primary">{brainState.catalogLabel}</Text>
+				<div class={hstack({ gap: "2", align: "center" })}>
+					<Text size="base" weight="bold" color="primary">{brainState.catalogLabel}</Text>
+					{#if recIsActive}
+						<Badge variant="informative" size="sm" title="This card is pre-filled from your model plan">
+							<Sparkles size={10} />
+							Recommended
+						</Badge>
+					{:else if brainRec}
+						<Badge variant="neutral" size="sm" title="You overrode the recommendation">
+							Custom pick
+						</Badge>
+					{/if}
+				</div>
 				<Text size="xs" color="muted">{brainState.catalogDescription}</Text>
 			</div>
 			<Badge

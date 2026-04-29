@@ -19,6 +19,7 @@ import { calculateFit, formatMb } from "../../../util/models.types.js";
 import { friendlyName, getSlotLabel } from "../wizard.types.js";
 
 type FormatFilter = "all" | "gguf" | "safetensors" | "onnx";
+type ImportMode = "copy" | "symlink";
 
 interface Props {
 	slotId: SlotId;
@@ -31,6 +32,7 @@ interface Props {
 let { slotId, capability, open, onSelect, onClose }: Props = $props();
 
 let formatFilter = $state<FormatFilter>("all");
+let importMode = $state<ImportMode>("copy");
 let importing = $state(false);
 let assigning = $state<string | null>(null);
 let error = $state<string | null>(null);
@@ -90,10 +92,14 @@ async function handleImport(): Promise<void> {
 	error = null;
 	importing = true;
 	try {
-		await importLocalModel(slotId, "copy");
+		await importLocalModel(slotId, importMode);
 		await modelsState.scan();
 		const { toast } = await import("svelte-sonner");
-		toast.success("Model imported — select it from the list.");
+		toast.success(
+			importMode === "symlink"
+				? "Model linked — original file stays where it is."
+				: "Model imported — copied into the DevPulse models folder.",
+		);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		// User cancelled file picker — not an error
@@ -126,15 +132,45 @@ function handleKeydown(e: KeyboardEvent): void {
 		</div>
 
 		<div class="popup-toolbar">
-			<Button preset="button-secondary" size="sm" onclick={handleImport} disabled={importing}>
-				{#if importing}
-					<Spinner size="xs" />
-					Importing...
-				{:else}
-					<Upload size={14} />
-					Import from File
-				{/if}
-			</Button>
+			<div class="popup-import-group">
+				<Button preset="button-secondary" size="sm" onclick={handleImport} disabled={importing}>
+					{#if importing}
+						<Spinner size="xs" />
+						Importing...
+					{:else}
+						<Upload size={14} />
+						Import from File
+					{/if}
+				</Button>
+
+				<div
+					class="import-mode-tabs"
+					role="radiogroup"
+					aria-label="Import mode"
+					title="Copy makes a duplicate in the DevPulse models folder. Link points at the original file in place — saves disk but breaks if you move the source."
+				>
+					<button
+						type="button"
+						class="import-mode-tab"
+						class:active={importMode === "copy"}
+						role="radio"
+						aria-checked={importMode === "copy"}
+						onclick={() => (importMode = "copy")}
+					>
+						Copy
+					</button>
+					<button
+						type="button"
+						class="import-mode-tab"
+						class:active={importMode === "symlink"}
+						role="radio"
+						aria-checked={importMode === "symlink"}
+						onclick={() => (importMode = "symlink")}
+					>
+						Link
+					</button>
+				</div>
+			</div>
 
 			<div class="format-tabs">
 				{#each (["all", "gguf", "safetensors", "onnx"] as const) as fmt}
@@ -251,6 +287,39 @@ function handleKeydown(e: KeyboardEvent): void {
 	.format-tabs {
 		display: flex;
 		gap: 0.25rem;
+	}
+
+	.popup-import-group {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.import-mode-tabs {
+		display: inline-flex;
+		gap: 0;
+		border-radius: 0.375rem;
+		border: 1px solid var(--border-soft);
+		overflow: hidden;
+	}
+
+	.import-mode-tab {
+		padding: 0.25rem 0.625rem;
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		font-size: 0.75rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background 150ms ease-out, color 150ms ease-out;
+	}
+	.import-mode-tab:hover {
+		color: var(--text-secondary);
+		background: color-mix(in oklch, var(--surface-raised) 70%, transparent);
+	}
+	.import-mode-tab.active {
+		background: var(--accent-teal-main);
+		color: var(--surface-base);
 	}
 
 	.format-tab {

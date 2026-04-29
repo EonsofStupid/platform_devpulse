@@ -30,6 +30,7 @@ import {
 	User,
 	Zap,
 } from "lucide-svelte";
+import { toast } from "svelte-sonner";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -59,22 +60,22 @@ const LEVELS: LevelOption[] = [
 		value: 1,
 		label: "Beginner",
 		desc: "New to coding or AI tools",
-		accent: "var(--wizard-role-minion-main)",
-		glow: "var(--wizard-role-minion-glow)",
+		accent: "var(--accent-electric-main)",
+		glow: "var(--accent-electric-glow)",
 	},
 	{
 		value: 2,
 		label: "Intermediate",
 		desc: "Comfortable with code, exploring AI",
-		accent: "var(--wizard-role-encoder-main)",
-		glow: "var(--wizard-role-encoder-glow)",
+		accent: "var(--accent-azure-main)",
+		glow: "var(--accent-azure-glow)",
 	},
 	{
 		value: 3,
 		label: "Advanced",
 		desc: "Professional developer, power user",
-		accent: "var(--wizard-role-voice-main)",
-		glow: "var(--wizard-role-voice-glow)",
+		accent: "var(--accent-violet-main)",
+		glow: "var(--accent-violet-glow)",
 	},
 ];
 
@@ -91,6 +92,11 @@ let projectSaved = $state(false);
 let projectError = $state<string | null>(null);
 let projectErrorDetail = $state<string | null>(null);
 let showInfoPopup = $state(false);
+
+// Profile save state (Let's Go persists identity BEFORE advancing — boot
+// flow wants username + email locked in before slot assignment begins).
+let savingProfile = $state(false);
+let profileError = $state<string | null>(null);
 
 async function handleBrowseFolder(): Promise<void> {
 	if (pickingFolder) return;
@@ -144,23 +150,39 @@ async function handleSaveProject(): Promise<void> {
 			rootPath: projectPath,
 			setActive: true,
 		});
-		if (created) {
+		// projectsState.createProject calls refresh() after the libSQL INSERT
+		// returns — so by the time `created` is non-null AND activeProject.id
+		// matches it, we've already round-tripped through the DB. Anything
+		// else means the write didn't stick and we MUST NOT show success.
+		const verified = !!created && projectsState.activeProject?.id === created.id;
+		if (verified && created) {
 			projectSaved = true;
+			toast.success(`Saved "${created.name}"`, {
+				description: `Active project · written to libSQL · ${created.id.slice(0, 8)}`,
+				duration: 5000,
+			});
 			logInfo(
 				"wizard.welcome",
 				`project saved + activated — ${created.name} (${created.id}) — indexing pending`,
 			);
 		} else {
-			const detail = projectsState.error ?? null;
+			const detail = projectsState.error ?? "(no adapter error captured)";
 			projectError =
 				"Couldn't save the project. The folder may not be accessible, or a project with that path already exists.";
 			projectErrorDetail = detail;
-			logError("wizard.welcome", `createProject returned null — ${detail ?? "(no error)"}`);
+			toast.error("Save failed", { description: detail });
+			logError(
+				"wizard.welcome",
+				`createProject did not verify — created=${created?.id ?? "null"} active=${
+					projectsState.activeProject?.id ?? "null"
+				} — ${detail}`,
+			);
 		}
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		projectError = "Couldn't save the project.";
 		projectErrorDetail = msg;
+		toast.error("Save failed", { description: msg });
 		logError("wizard.welcome", `createProject threw — ${msg}`);
 	} finally {
 		savingProject = false;
@@ -176,14 +198,42 @@ async function handleJesseConfig(): Promise<void> {
 	}
 }
 
-function handleLetsGo(): void {
-	// Project creation lives on its own explicit "Save Project" button
-	// above (see `handleSaveProject`). Let's Go just advances the wizard;
-	// the user may or may not have saved a project. If they did, the
-	// pending-indexing notice is already showing and the active-project
-	// state is set — system-check picks up naturally.
-	logInfo("wizard.welcome", "Let's Go clicked (welcome → system-check)");
-	overlayState.showSystemCheck();
+async function handleLetsGo(): Promise<void> {
+	// Boot-flow contract: identity (username + email + expertise + project
+	// folder if picked) is persisted BEFORE the wizard advances to the
+	// slot-assignment phase. Profile is required (gated by canContinue);
+	// project is optional but if a folder is picked we auto-save it here
+	// so the user can't fall through to slot assignment with an unsaved
+	// project sitting in the form.
+	if (savingProfile) return;
+	savingProfile = true;
+	profileError = null;
+	logInfo("wizard.welcome", "Let's Go clicked — saving identity then welcome → system-check");
+	try {
+		await overlayState.saveProfileDraft();
+		logInfo("wizard.welcome", "Profile persisted");
+
+		if (projectPath && projectName.trim() && !projectSaved) {
+			logInfo("wizard.welcome", "Project path set but not saved — saving as part of Let's Go");
+			await handleSaveProject();
+			if (!projectSaved) {
+				// handleSaveProject sets projectError/projectErrorDetail on failure;
+				// fall through without advancing so the user can retry.
+				logError("wizard.welcome", "Project auto-save failed — staying on welcome");
+				return;
+			}
+		}
+
+		logInfo("wizard.welcome", "Identity locked — advancing to system-check");
+		overlayState.showSystemCheck();
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		profileError =
+			"Couldn't save your profile. Try again, or check that the platform finished booting.";
+		logError("wizard.welcome", `saveProfileDraft FAILED — ${msg}`);
+	} finally {
+		savingProfile = false;
+	}
 }
 
 function handleSkip(): void {
@@ -207,7 +257,7 @@ const modelCount = $derived(modelsState.models.length);
 	<div class="wv-stage">
 		<img src="/imgs/mascot/clyffy-anim-wobble.png" alt="Clyffy welcomes you" class="wv-mascot" />
 		<span class="wv-kicker">First-Run Setup</span>
-		<Heading level={1} size="display">Hey — let's get you set up</Heading>
+		<Heading level={1} size="3xl">Hey — let's get you set up</Heading>
 		<Text size="lg" color="secondary" class="wv-subtitle">
 			A few quick questions, then Clyffy picks the right AI brains for your computer.
 			You can change anything later.
@@ -473,9 +523,14 @@ const modelCount = $derived(modelsState.models.length);
 
 	<!-- Action bar -->
 	<div class="wv-actions">
-		<Button preset="button-primary" size="lg" onclick={handleLetsGo} disabled={!overlayState.canContinue}>
-			<Sparkles size={18} />
-			Let's Go
+		<Button preset="button-primary" size="lg" onclick={handleLetsGo} disabled={!overlayState.canContinue || savingProfile}>
+			{#if savingProfile}
+				<Spinner size="xs" />
+				Saving…
+			{:else}
+				<Sparkles size={18} />
+				Let's Go
+			{/if}
 		</Button>
 		<Button preset="button-secondary" size="lg" onclick={handleJesseConfig} disabled={overlayState.loadingPreset}>
 			{#if overlayState.loadingPreset}
@@ -486,6 +541,10 @@ const modelCount = $derived(modelsState.models.length);
 			Jesse Config
 		</Button>
 	</div>
+
+	{#if profileError}
+		<Text size="sm" color="negative" class="wv-profile-error">{profileError}</Text>
+	{/if}
 
 	<button class="wv-skip" onclick={handleSkip}>
 		Skip for now — I'll set this up later
@@ -532,7 +591,7 @@ const modelCount = $derived(modelsState.models.length);
 		width: clamp(6rem, 5rem + 4vw, 9rem);
 		height: clamp(6rem, 5rem + 4vw, 9rem);
 		object-fit: contain;
-		filter: drop-shadow(0 0 1.75rem color-mix(in oklch, var(--accent-primary-glow) 55%, transparent));
+		filter: drop-shadow(0 0 1.75rem color-mix(in oklch, var(--accent-teal-glow) 55%, transparent));
 		animation: wv-float 4s ease-in-out infinite;
 	}
 
@@ -547,9 +606,9 @@ const modelCount = $derived(modelsState.models.length);
 		justify-content: center;
 		padding: 0.375rem 0.875rem;
 		border-radius: 999px;
-		background: color-mix(in oklch, var(--accent-primary-fill) 92%, transparent);
-		border: var(--border-width-hairline) solid color-mix(in oklch, var(--accent-primary-main) 40%, transparent);
-		color: var(--accent-primary-main);
+		background: color-mix(in oklch, var(--accent-teal-fill) 92%, transparent);
+		border: var(--border-width-hairline) solid color-mix(in oklch, var(--accent-teal-main) 40%, transparent);
+		color: var(--accent-teal-main);
 		font-size: 0.8125rem;
 		font-weight: 700;
 		letter-spacing: 0.08em;
@@ -580,7 +639,7 @@ const modelCount = $derived(modelsState.models.length);
 		max-width: 38rem;
 		padding: clamp(1.25rem, 1rem + 1vw, 2rem);
 		border-radius: 1rem;
-		background: var(--surface-elevated);
+		background: var(--surface-raised);
 		border: var(--border-width-hairline) solid var(--border-subtle);
 		box-shadow: 0 0.5rem 1.5rem color-mix(in oklch, var(--surface-base) 60%, transparent);
 		text-align: left;
@@ -613,8 +672,8 @@ const modelCount = $derived(modelsState.models.length);
 			box-shadow 150ms ease-out;
 	}
 	.wv-input:focus {
-		border-color: var(--accent-primary-main);
-		box-shadow: 0 0 0 0.1875rem color-mix(in oklch, var(--accent-primary-main) 25%, transparent);
+		border-color: var(--accent-teal-main);
+		box-shadow: 0 0 0 0.1875rem color-mix(in oklch, var(--accent-teal-main) 25%, transparent);
 	}
 	.wv-input::placeholder {
 		color: var(--text-muted);
@@ -645,20 +704,45 @@ const modelCount = $derived(modelsState.models.length);
 		gap: 0.25rem;
 		padding: 1rem 1.125rem;
 		border-radius: 0.75rem;
-		border: var(--border-width-hairline) solid var(--border-subtle);
-		background: var(--surface-base);
+		border: 0.0625rem solid color-mix(in oklch, var(--level-accent) 55%, transparent);
+		background:
+			linear-gradient(
+				135deg,
+				color-mix(in oklch, var(--level-accent) 38%, transparent),
+				color-mix(in oklch, var(--level-accent) 14%, transparent)
+			);
 		cursor: pointer;
 		text-align: left;
-		transition: border-color 180ms ease-out, background 180ms ease-out, box-shadow 180ms ease-out;
+		transition: border-color 180ms ease-out, background 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
+		box-shadow:
+			0 0 0.75rem color-mix(in oklch, var(--level-glow) 35%, transparent),
+			inset 0 0 1rem color-mix(in oklch, var(--level-accent) 18%, transparent);
 	}
 	.wv-level:hover {
-		border-color: color-mix(in oklch, var(--level-accent) 45%, var(--border-subtle));
-		background: color-mix(in oklch, var(--level-accent) 6%, var(--surface-base));
+		border-color: color-mix(in oklch, var(--level-accent) 80%, transparent);
+		background:
+			linear-gradient(
+				135deg,
+				color-mix(in oklch, var(--level-accent) 55%, transparent),
+				color-mix(in oklch, var(--level-accent) 24%, transparent)
+			);
+		box-shadow:
+			0 0 1.25rem color-mix(in oklch, var(--level-glow) 60%, transparent),
+			inset 0 0 1.25rem color-mix(in oklch, var(--level-accent) 28%, transparent);
+		transform: translateY(-0.0625rem);
 	}
 	.wv-level-active {
-		border-color: var(--level-accent);
-		background: color-mix(in oklch, var(--level-accent) 14%, var(--surface-base));
-		box-shadow: 0 0 1rem color-mix(in oklch, var(--level-glow) 55%, transparent);
+		border: 0.125rem solid var(--level-accent);
+		background:
+			linear-gradient(
+				135deg,
+				color-mix(in oklch, var(--level-accent) 75%, transparent),
+				color-mix(in oklch, var(--level-accent) 38%, transparent)
+			);
+		box-shadow:
+			0 0 0 0.0625rem var(--level-accent),
+			0 0 2rem color-mix(in oklch, var(--level-glow) 90%, transparent),
+			inset 0 0 1.5rem color-mix(in oklch, var(--level-accent) 30%, transparent);
 	}
 	.wv-level-name {
 		font-size: 1.0625rem;
@@ -684,7 +768,7 @@ const modelCount = $derived(modelsState.models.length);
 		max-width: 38rem;
 		padding: clamp(1rem, 0.75rem + 1vw, 1.5rem);
 		border-radius: 1rem;
-		background: var(--surface-elevated);
+		background: var(--surface-raised);
 		border: var(--border-width-hairline) solid var(--border-subtle);
 		box-shadow: 0 0.5rem 1.5rem color-mix(in oklch, var(--surface-base) 60%, transparent);
 		text-align: left;
@@ -739,8 +823,8 @@ const modelCount = $derived(modelsState.models.length);
 	.wv-snapshot-tag {
 		padding: 0.25rem 0.75rem;
 		border-radius: 999px;
-		background: color-mix(in oklch, var(--accent-primary-fill) 88%, transparent);
-		color: var(--accent-primary-main);
+		background: color-mix(in oklch, var(--accent-teal-fill) 88%, transparent);
+		color: var(--accent-teal-main);
 		font-size: 0.8125rem;
 		font-weight: 700;
 		white-space: nowrap;
@@ -760,6 +844,13 @@ const modelCount = $derived(modelsState.models.length);
 		margin-top: 0.25rem;
 	}
 
+	:global(.wv-profile-error) {
+		display: block;
+		margin-top: 0.5rem;
+		text-align: center;
+		color: var(--danger-main, var(--signal-error));
+	}
+
 	.wv-skip {
 		background: none;
 		border: none;
@@ -774,8 +865,8 @@ const modelCount = $derived(modelsState.models.length);
 			background 200ms ease-out;
 	}
 	.wv-skip:hover {
-		color: var(--accent-primary-main);
-		background: color-mix(in oklch, var(--accent-primary-fill) 60%, transparent);
+		color: var(--accent-teal-main);
+		background: color-mix(in oklch, var(--accent-teal-fill) 60%, transparent);
 	}
 
 	/* ── Invalid input (email required) ──────────────────────────── */

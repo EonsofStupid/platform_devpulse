@@ -4,14 +4,16 @@
   ALL styling via ColdLight semantic token vars.
 -->
 <script lang="ts">
-import { Download, Eye, Power, PowerOff, X } from "lucide-svelte";
+import { Download, Eye, Power, PowerOff, Sparkles, X } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { logInfo } from "$lib/sys/logger.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
+import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
 import { visionCardState } from "../../data-access/vision-card.state.svelte.js";
 import {
@@ -21,6 +23,7 @@ import {
 	statusLabel,
 	statusToTone,
 } from "../../util/models.types.js";
+import { wizardState } from "../setup-wizard/wizard.state.svelte.js";
 import ModelPicker from "./ModelPicker.svelte";
 
 interface Props {
@@ -33,6 +36,29 @@ const cardM = $derived(renderForge({ kind: "vision-card", preset: "glass-elevate
 
 $effect(() => {
 	void visionState.ensureCatalogLoaded();
+});
+
+// ── Recommendation prefill ──────────────────────────────
+// Vision card binds against `vision.embedder` — the standalone vision
+// slot used when the brain isn't a VLM. When a recommendation exists
+// for that slot AND the user hasn't picked yet AND the file is on
+// disk, prefill the model selection.
+const visionRec = $derived(wizardState.recommendations.find((r) => r.slot === "vision.embedder"));
+const recIsActive = $derived(
+	visionRec !== undefined &&
+		visionState.committedModelId === null &&
+		visionState.pendingModelId === null,
+);
+
+$effect(() => {
+	const rec = visionRec;
+	if (!rec || !rec.alreadyDownloaded) return;
+	if (visionState.committedModelId || visionState.pendingModelId) return;
+	const model = modelsState.models.find((m) => m.filename === rec.file);
+	if (model && visionState.selectedModelId !== model.id) {
+		logInfo("vision-card", `prefill selectedModelId=${model.id} from recommendation`);
+		visionState.selectModel(model.id);
+	}
 });
 </script>
 
@@ -50,6 +76,16 @@ $effect(() => {
 				<div class={hstack({ gap: "2", align: "center" })}>
 					<Eye size={18} style="color: var(--accent-teal-main);" />
 					<Text size="base" weight="bold" color="primary">Vision</Text>
+					{#if recIsActive}
+						<Badge variant="informative" size="sm" title="This card is pre-filled from your model plan">
+							<Sparkles size={10} />
+							Recommended
+						</Badge>
+					{:else if visionRec}
+						<Badge variant="neutral" size="sm" title="You overrode the recommendation">
+							Custom pick
+						</Badge>
+					{/if}
 				</div>
 				<Text size="xs" color="muted">How Clyffy sees your screen</Text>
 			</div>

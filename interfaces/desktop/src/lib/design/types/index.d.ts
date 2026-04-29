@@ -16,3 +16,4 @@ export * from "./gradient.js";
 export * from "./text.js";
 export * from "./signal.js";
 export * from "./accent.js";
+export * from "./role.js";

@@ -8,12 +8,24 @@
   finalizeAndClose. Owner closes wizard here — never bypassed.
 -->
 <script lang="ts">
-import { ArrowLeft, Brain, Check, Headphones, Image, Search, Sparkles, X } from "lucide-svelte";
+import {
+	ArrowLeft,
+	Brain,
+	Check,
+	Cloud,
+	Headphones,
+	Image,
+	Key,
+	Search,
+	Sparkles,
+	X,
+} from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { logInfo } from "$lib/sys/logger.js";
+import { type ApiKeyStatus, commands } from "$lib/sys/generated/bindings.js";
+import { logError, logInfo } from "$lib/sys/logger.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { setupWizardOverlayState } from "../../../data-access/setup-wizard-overlay.state.svelte.js";
 import { isInferenceReady } from "../../../util/models.types.js";
@@ -25,6 +37,29 @@ import { wizardState } from "../wizard.state.svelte.js";
 let showSettingsInfo = $state(false);
 
 const overlayState = setupWizardOverlayState;
+
+// ── API key summary ─────────────────────────────────────
+let apiKeyStatuses = $state<ApiKeyStatus[]>([]);
+const connectedProviders = $derived(apiKeyStatuses.filter((s) => s.stored));
+
+$effect(() => {
+	void loadApiKeyStatuses();
+});
+
+async function loadApiKeyStatuses(): Promise<void> {
+	logInfo("wizard.done", "loadApiKeyStatuses() → commands.getApiKeyStatus");
+	try {
+		const result = await commands.getApiKeyStatus();
+		if (result.status === "ok") {
+			apiKeyStatuses = result.data;
+		} else {
+			logError("wizard.done", `loadApiKeyStatuses() FAILED: ${result.error.message}`);
+		}
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.done", `loadApiKeyStatuses() threw: ${msg}`);
+	}
+}
 
 interface RoleSummary {
 	slotId: string;
@@ -151,6 +186,34 @@ function handleBack(): void {
 		{/each}
 	</div>
 
+	<!-- API key summary — shows which providers are connected, mirrors completion screen archive -->
+	<div class="d-api-row">
+		<div class="d-api-head">
+			<Key size={16} />
+			<Text size="sm" weight="bold">Cloud providers</Text>
+			<WizardHelpTip
+				tip="Optional. DevPulse runs locally without these. Connected providers are available to the escalation chain."
+				label="What are these?"
+			/>
+		</div>
+		{#if connectedProviders.length === 0}
+			<Text size="xs" color="muted">
+				No cloud providers connected. Local-only mode — every request stays on your machine.
+				You can add keys anytime from Settings → Routing.
+			</Text>
+		{:else}
+			<div class="d-api-chips">
+				{#each connectedProviders as p (p.provider)}
+					<span class="d-api-chip">
+						<Cloud size={12} />
+						<Text size="xs" weight="bold">{p.displayName}</Text>
+						<Check size={10} />
+					</span>
+				{/each}
+			</div>
+		{/if}
+	</div>
+
 	<div class="d-actions">
 		<Button preset="button-ghost" size="md" onclick={handleBack}>
 			<ArrowLeft size={14} />
@@ -242,6 +305,39 @@ function handleBack(): void {
 		align-items: center;
 		gap: 0.5rem;
 		color: var(--role-accent, var(--text-primary));
+	}
+
+	.d-api-row {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border-radius: 0.75rem;
+		background: var(--surface-raised);
+		border: 1px solid var(--border-soft);
+		text-align: left;
+	}
+	.d-api-head {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--text-secondary);
+	}
+	.d-api-chips {
+		display: flex;
+		gap: 0.375rem;
+		flex-wrap: wrap;
+	}
+	.d-api-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.25rem 0.625rem;
+		border-radius: 999px;
+		background: color-mix(in oklch, var(--signal-success) 12%, transparent);
+		border: 1px solid color-mix(in oklch, var(--signal-success) 30%, transparent);
+		color: var(--signal-success);
 	}
 
 	.d-actions {

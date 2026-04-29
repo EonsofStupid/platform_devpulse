@@ -238,6 +238,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::pixvix::pixvix_list_webcams,
         commands::pixvix::pixvix_capture_webcam_once,
         commands::devpulse::fetch_dashboard,
+        commands::devpulse::license::verify_license,
         commands::devpulse::profile::fetch_user_profile,
         commands::devpulse::profile::update_user_profile,
         commands::devpulse::profile::fetch_user_preferences,
@@ -360,6 +361,9 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::cloud::set_inference_provider,
         commands::cloud::cloud_ready,
         commands::cloud::cloud_chat,
+        // Routing config (escalation chain + latency tuning, user scope)
+        commands::routing::routing_load_config,
+        commands::routing::routing_save_config,
     ])
 }
 

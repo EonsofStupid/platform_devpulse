@@ -13,7 +13,20 @@
   and sends test messages.
 -->
 <script lang="ts">
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, MessageCircle, Send } from "lucide-svelte";
+import {
+	AlertTriangle,
+	ArrowLeft,
+	ArrowRight,
+	Brain,
+	Check,
+	MessageCircle,
+	Mic,
+	Play,
+	RotateCcw,
+	Send,
+	Volume2,
+	X,
+} from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
@@ -21,7 +34,10 @@ import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
-import { setupWizardOverlayState } from "../../../data-access/setup-wizard-overlay.state.svelte.js";
+import {
+	type PipelineStepId,
+	setupWizardOverlayState,
+} from "../../../data-access/setup-wizard-overlay.state.svelte.js";
 import { isInferenceReady } from "../../../util/models.types.js";
 import WizardHelpTip from "../components/WizardHelpTip.svelte";
 import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
@@ -29,6 +45,62 @@ import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
 let showWhyInfo = $state(false);
 
 const overlayState = setupWizardOverlayState;
+
+interface PipelineStepMeta {
+	id: PipelineStepId;
+	label: string;
+	desc: string;
+	icon: typeof Mic;
+}
+
+const PIPELINE_META: PipelineStepMeta[] = [
+	{
+		id: "stt-load",
+		label: "Load speech recognizer",
+		desc: "Brings the speech-to-text model into memory.",
+		icon: Mic,
+	},
+	{
+		id: "stt-test",
+		label: "Mic check",
+		desc: "Captures a half-second sample and confirms the mic is reachable.",
+		icon: Mic,
+	},
+	{
+		id: "brain-test",
+		label: "Brain response",
+		desc: "Asks the brain a one-line question and waits for a reply.",
+		icon: Brain,
+	},
+	{
+		id: "tts-load",
+		label: "Load voice synthesizer",
+		desc: "Brings the text-to-speech model into memory.",
+		icon: Volume2,
+	},
+	{
+		id: "tts-test",
+		label: "Speak it back",
+		desc: "Plays a short phrase through your speakers.",
+		icon: Volume2,
+	},
+];
+
+function pipelineMetaFor(id: PipelineStepId): PipelineStepMeta {
+	const meta = PIPELINE_META.find((m) => m.id === id);
+	if (!meta) throw new Error(`Missing pipeline meta: ${id}`);
+	return meta;
+}
+
+async function handleRunPipeline(): Promise<void> {
+	logInfo("wizard.validate", "Run pipeline test clicked");
+	await overlayState.runPipelineTest();
+}
+
+function handleResetPipeline(): void {
+	logInfo("wizard.validate", "Reset pipeline test clicked");
+	overlayState.resetPipelineTest();
+}
 
 const brainStatus = $derived(modelsState.statuses["chat.brain"]);
 const brainSlot = $derived(modelsState.slots.find((s) => s.id === "chat.brain"));
@@ -141,6 +213,96 @@ function handleBack(): void {
 			<Text size="xs" color="muted">Current status: {brainStatusLabel}</Text>
 		</div>
 	{:else}
+		<!-- ── Full pipeline test (5-step end-to-end voice + brain check) ── -->
+		<div class="v-pipeline">
+			<div class="v-pipeline-head">
+				<Play size={16} />
+				<div class="v-pipeline-head-text">
+					<Text size="sm" weight="bold">Full pipeline test</Text>
+					<Text size="xs" color="muted">
+						End-to-end voice check: load STT → mic → brain → load TTS → speak. Each step
+						runs a real call. Pass all five and Continue unlocks instantly.
+					</Text>
+				</div>
+				{#if overlayState.pipelineAllDone}
+					{#if overlayState.pipelineFailCount === 0}
+						<Badge tone="positive" size="sm">All passed</Badge>
+					{:else}
+						<Badge tone="warning" size="sm">
+							{overlayState.pipelinePassCount} of {overlayState.pipelineSteps.length} passed
+						</Badge>
+					{/if}
+				{/if}
+			</div>
+
+			<ul class="v-pipeline-steps">
+				{#each overlayState.pipelineSteps as step (step.id)}
+					{@const meta = pipelineMetaFor(step.id)}
+					{@const Icon = meta.icon}
+					<li
+						class="v-pipeline-step"
+						class:v-step-pass={step.status === "pass"}
+						class:v-step-fail={step.status === "fail"}
+						class:v-step-running={step.status === "running"}
+					>
+						<div class="v-step-icon">
+							{#if step.status === "running"}
+								<Spinner size="xs" tone="accent" />
+							{:else if step.status === "pass"}
+								<Check size={14} />
+							{:else if step.status === "fail"}
+								<X size={14} />
+							{:else}
+								<Icon size={14} />
+							{/if}
+						</div>
+						<div class="v-step-info">
+							<Text size="xs" weight="bold">{meta.label}</Text>
+							<Text size="xs" color="muted">{meta.desc}</Text>
+							{#if step.error}
+								<Text size="xs" class="v-step-error">{step.error}</Text>
+							{/if}
+						</div>
+						{#if step.latencyMs > 0}
+							<Text size="xs" color="muted" class="v-step-latency">{step.latencyMs}ms</Text>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+
+			<div class="v-pipeline-actions">
+				<Button
+					preset="button-primary"
+					size="sm"
+					onclick={handleRunPipeline}
+					disabled={overlayState.pipelineRunning}
+				>
+					{#if overlayState.pipelineRunning}
+						<Spinner size="xs" />
+						Running…
+					{:else if overlayState.pipelineAllDone}
+						<RotateCcw size={14} />
+						Run again
+					{:else}
+						<Play size={14} />
+						Run pipeline test
+					{/if}
+				</Button>
+				{#if overlayState.pipelineAllDone}
+					<Button preset="button-ghost" size="sm" onclick={handleResetPipeline}>
+						Reset
+					</Button>
+				{/if}
+			</div>
+		</div>
+
+		<!-- ── Or chat with the brain (3-exchange minimum) ───────── -->
+		<div class="v-or">
+			<span class="v-or-line"></span>
+			<Text size="xs" color="muted">or chat with the brain</Text>
+			<span class="v-or-line"></span>
+		</div>
+
 		<div class="v-progress">
 			{#each Array(overlayState.requiredExchanges) as _, i (i)}
 				<div
@@ -300,6 +462,108 @@ function handleBack(): void {
 	}
 	.v-warn .v-card-head {
 		color: var(--signal-warning);
+	}
+
+	/* ── Pipeline test ──────────────────────────── */
+
+	.v-pipeline {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		padding: 0.875rem;
+		border-radius: 0.75rem;
+		background: var(--surface-raised);
+		border: 1px solid var(--border-soft);
+	}
+
+	.v-pipeline-head {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+	.v-pipeline-head-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.v-pipeline-steps {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		margin: 0;
+		padding: 0;
+	}
+
+	.v-pipeline-step {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.375rem 0.5rem;
+		border-radius: 0.5rem;
+		background: var(--surface-base);
+		border: 1px solid var(--border-soft);
+	}
+	.v-pipeline-step.v-step-pass {
+		border-color: color-mix(in oklch, var(--signal-success) 35%, transparent);
+		background: color-mix(in oklch, var(--signal-success) 8%, var(--surface-base));
+	}
+	.v-pipeline-step.v-step-fail {
+		border-color: color-mix(in oklch, var(--signal-error) 35%, transparent);
+		background: color-mix(in oklch, var(--signal-error) 8%, var(--surface-base));
+	}
+	.v-pipeline-step.v-step-running {
+		border-color: var(--accent-teal-main);
+	}
+
+	.v-step-icon {
+		flex-shrink: 0;
+		color: var(--text-muted);
+	}
+	.v-step-pass .v-step-icon {
+		color: var(--signal-success);
+	}
+	.v-step-fail .v-step-icon {
+		color: var(--signal-error);
+	}
+	.v-step-running .v-step-icon {
+		color: var(--accent-teal-main);
+	}
+
+	.v-step-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		flex: 1;
+		min-width: 0;
+	}
+	:global(.v-step-error) {
+		color: var(--signal-error);
+	}
+	:global(.v-step-latency) {
+		flex-shrink: 0;
+	}
+
+	.v-pipeline-actions {
+		display: flex;
+		gap: 0.375rem;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.v-or {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0;
+	}
+	.v-or-line {
+		flex: 1;
+		height: 1px;
+		background: var(--border-soft);
 	}
 
 	.v-progress {

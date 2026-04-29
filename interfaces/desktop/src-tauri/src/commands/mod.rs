@@ -97,6 +97,7 @@ pub mod _util;
 pub mod ollama;
 pub mod pixvix;
 pub mod projects;
+pub mod routing;
 pub mod sherpa;
 pub mod surreal;
 pub mod providers;

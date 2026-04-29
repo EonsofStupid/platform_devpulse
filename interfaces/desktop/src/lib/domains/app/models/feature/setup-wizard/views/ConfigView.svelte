@@ -24,7 +24,7 @@
   `wizard.role.*` tokens.
 -->
 <script lang="ts">
-import { Brain, Headphones, Search, Sparkles } from "lucide-svelte";
+import { Brain, Headphones, Network, Search, Sparkles } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
@@ -38,16 +38,20 @@ import BrainCard from "../../components/BrainCard.svelte";
 import MemoryCard from "../../components/MemoryCard.svelte";
 import VisionCard from "../../components/VisionCard.svelte";
 import VoiceCard from "../../components/VoiceCard.svelte";
+import PresetBanner from "../components/PresetBanner.svelte";
 import VramBar from "../components/VramBar.svelte";
 import WizardHelpTip from "../components/WizardHelpTip.svelte";
 import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
+import ApiKeyPanel from "../panels/ApiKeyPanel.svelte";
+import EscalationConfigPanel from "../panels/EscalationConfigPanel.svelte";
+import LatencyTuningPanel from "../panels/LatencyTuningPanel.svelte";
 import BrowseLocalPopup from "../popups/BrowseLocalPopup.svelte";
 import { SlotCard } from "../popups/index.js";
 import SearchHfPopup from "../popups/SearchHfPopup.svelte";
 
 const overlayState = setupWizardOverlayState;
 
-type RoleTab = "brain" | "encoder" | "voice" | "helpers";
+type RoleTab = "brain" | "encoder" | "voice" | "helpers" | "routing";
 
 interface RoleDef {
 	id: RoleTab;
@@ -90,6 +94,15 @@ const ROLES: RoleDef[] = [
 		accent: "var(--wizard-role-minion-main)",
 		glow: "var(--wizard-role-minion-glow)",
 		description: "Background workers for routing, tagging, fast chat, vision summaries.",
+	},
+	{
+		id: "routing",
+		label: "Routing",
+		icon: Network,
+		accent: "var(--accent-teal-main)",
+		glow: "var(--accent-teal-glow)",
+		description:
+			"Cloud providers, escalation chain, and latency tuning. The plumbing between the brains you picked above.",
 	},
 ];
 
@@ -163,6 +176,9 @@ const totalSlots = $derived(modelsState.slots.length);
 </script>
 
 <div class="config-view">
+	<!-- Recommendation chassis — reads wizardState.recommendations + selectedPresetName/tier -->
+	<PresetBanner />
+
 	<!-- Hardware summary + VRAM bar -->
 	<div class="cv-hw-bar">
 		<Text size="xs" color="muted">
@@ -279,7 +295,7 @@ const totalSlots = $derived(modelsState.slots.length);
 					{/each}
 				</div>
 			</div>
-		{:else}
+		{:else if activeTab === "helpers"}
 			<!-- Helpers: all optional SlotCard entries -->
 			<div class="cv-stack">
 				<div class="cv-sub-label">
@@ -307,6 +323,36 @@ const totalSlots = $derived(modelsState.slots.length);
 						{/if}
 					{/each}
 				</div>
+			</div>
+		{:else}
+			<!-- Routing: API keys + escalation chain + latency tuning, stacked vertically -->
+			<div class="cv-stack cv-routing-stack">
+				<div class="cv-sub-label">
+					<Text size="xs" weight="bold" color="muted">Cloud providers</Text>
+					<WizardHelpTip
+						tip="Optional. Local-only stays fully on your machine. Adding API keys lets the escalation chain reach a cloud provider when local can't answer."
+						label="Do I need cloud providers?"
+					/>
+				</div>
+				<ApiKeyPanel />
+
+				<div class="cv-sub-label">
+					<Text size="xs" weight="bold" color="muted">Escalation chain</Text>
+					<WizardHelpTip
+						tip="The order Clyffy tries when answering. Voice Brain (CPU) handles fast turns, Main AI (GPU) takes complex questions, Cloud API kicks in when both can't keep up."
+						label="What's an escalation chain?"
+					/>
+				</div>
+				<EscalationConfigPanel />
+
+				<div class="cv-sub-label">
+					<Text size="xs" weight="bold" color="muted">Latency tuning</Text>
+					<WizardHelpTip
+						tip="Controls how fast Clyffy responds versus how thorough she is. Defaults work for most setups; tune buffer / silence / chunk size only if you notice lag."
+						label="Should I change these?"
+					/>
+				</div>
+				<LatencyTuningPanel />
 			</div>
 		{/if}
 	</div>
@@ -507,6 +553,19 @@ const totalSlots = $derived(modelsState.slots.length);
 	.cv-single-card > :global(*:hover),
 	.cv-stack > :global(*:hover) {
 		border-color: color-mix(in oklch, var(--accent-teal-main) 35%, var(--border-soft));
+	}
+
+	/* Routing tab — stacked panels already have their own surface chrome,
+	   so suppress the role-tinted card frame on direct children to avoid
+	   double-bordered nesting. The inner panels (ApiKey / Escalation /
+	   Latency) supply their own DTCG surfaces. */
+	.cv-routing-stack > :global(*) {
+		border: none;
+		box-shadow: none;
+		border-radius: 0;
+	}
+	.cv-routing-stack > :global(*:hover) {
+		border-color: transparent;
 	}
 
 	/* ── Footer ───────────────────────────────── */

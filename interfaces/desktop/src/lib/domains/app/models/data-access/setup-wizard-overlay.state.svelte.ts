@@ -12,11 +12,24 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { commands, type EscalationTier, type RoutingConfig } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo, logWarn } from "$lib/sys/logger.js";
 import type { AutoConfig } from "../util/models.types.js";
 import { modelsState } from "./models.state.svelte.js";
 import { setupSessionState } from "./setup-session.state.svelte.js";
+
+// Re-export the engine-derived routing types so panel components can
+// `import type { EscalationTierId, ... } from "../setup-wizard-overlay.state.svelte.js"`
+// without reaching into the generated bindings directly.
+export type {
+	EscalationConfig,
+	EscalationTier,
+	EscalationTierId,
+	InferenceProvider,
+	LatencyConfig,
+	RoutingConfig,
+} from "$lib/sys/generated/bindings.js";
 
 interface HfTokenCopy {
 	title: string;
@@ -57,6 +70,52 @@ export type SetupWizardView = "welcome" | "system-check" | "config" | "validate"
 
 const REQUIRED_EXCHANGES = 3;
 const LOG_TARGET = "wizard.overlay";
+
+// ── Routing config — escalation chain + latency tuning ──
+//
+// Persistence path: `routingLoadConfig` / `routingSaveConfig` (Tauri
+// commands → engine `Platform::routing_config_*`). The engine owns
+// the atomic `{data_dir}/user/routing.toml` write, the kernel
+// `assistant.routing.mode` write-through, and the dual-emit
+// (`tracing::*` + `InternalEvent::RoutingConfigChanged`).
+// Settings → Routing reads the same surface, so this is a first-class
+// persistence target — never a wizard-only buffer.
+
+const DEFAULT_ROUTING: RoutingConfig = {
+	escalation: {
+		tiers: [
+			{ id: "voice_brain", enabled: true, timeout_ms: 3_000, slot_id: "voice.brain" },
+			{ id: "main_brain", enabled: true, timeout_ms: 10_000, slot_id: "chat.brain" },
+			{ id: "cloud_api", enabled: false, timeout_ms: 30_000, slot_id: null },
+		],
+	},
+	latency: {
+		response_source: "local_first",
+		audio_buffer_ms: 200,
+		vad_silence_ms: 500,
+		stream_chunk_size: 256,
+	},
+};
+
+// ── Pipeline-test (Validate view) ───────────────────────
+
+export type PipelineStepId = "stt-load" | "stt-test" | "brain-test" | "tts-load" | "tts-test";
+export type PipelineStepStatus = "pending" | "running" | "pass" | "fail";
+
+export interface PipelineStep {
+	id: PipelineStepId;
+	status: PipelineStepStatus;
+	latencyMs: number;
+	error: string | null;
+}
+
+const DEFAULT_PIPELINE_STEPS: PipelineStep[] = [
+	{ id: "stt-load", status: "pending", latencyMs: 0, error: null },
+	{ id: "stt-test", status: "pending", latencyMs: 0, error: null },
+	{ id: "brain-test", status: "pending", latencyMs: 0, error: null },
+	{ id: "tts-load", status: "pending", latencyMs: 0, error: null },
+	{ id: "tts-test", status: "pending", latencyMs: 0, error: null },
+];
 
 /// Minimal RFC-5321 shape check — one `@`, something on both sides,
 /// at least one dot in the domain. Not a full validator (that path is
@@ -101,6 +160,20 @@ class SetupWizardOverlayState {
 	testChatSending = $state(false);
 	testChatSkipped = $state(false);
 
+	// ── Validate view — full pipeline test (5-step) ──────────
+	pipelineSteps = $state<PipelineStep[]>([...DEFAULT_PIPELINE_STEPS]);
+	pipelineRunning = $state(false);
+
+	// ── Routing config (persisted via routingLoadConfig / routingSaveConfig) ─
+	routing = $state<RoutingConfig>({
+		escalation: { tiers: [...DEFAULT_ROUTING.escalation.tiers] },
+		latency: { ...DEFAULT_ROUTING.latency },
+	});
+	routingLoaded = $state(false);
+
+	// ── STT language preference ──────────────────────────────
+	sttLanguage = $state("auto");
+
 	// ── Shared error state ───────────────────────────────────
 	error = $state<string | null>(null);
 
@@ -122,8 +195,14 @@ class SetupWizardOverlayState {
 			await modelsState.startStatusListener();
 			logInfo(LOG_TARGET, "start() → startStatusListener DONE");
 
-			logInfo(LOG_TARGET, "start() → Promise.all(copy, token, profile)");
-			await Promise.all([this.ensureCopyLoaded(), this.checkHfToken(), this.loadProfileDraft()]);
+			logInfo(LOG_TARGET, "start() → Promise.all(copy, token, profile, routing, stt-language)");
+			await Promise.all([
+				this.ensureCopyLoaded(),
+				this.checkHfToken(),
+				this.loadProfileDraft(),
+				this.loadRoutingDraft(),
+				this.loadSttLanguageDraft(),
+			]);
 			logInfo(LOG_TARGET, "start() → Promise.all DONE");
 		} catch (e) {
 			const msg = e instanceof Error ? `${e.message}\n${e.stack ?? ""}` : String(e);
@@ -376,7 +455,13 @@ class SetupWizardOverlayState {
 		return true;
 	}
 
-	private async saveProfileDraft(): Promise<void> {
+	/**
+	 * Persist name / email / expertise to the profile DB. Public because the
+	 * Welcome view calls it on Let's-Go (boot flow: identity captured BEFORE
+	 * slot assignment); also called internally by `applyAndAdvance` so the
+	 * Config-view path remains a no-op when the data is already saved.
+	 */
+	async saveProfileDraft(): Promise<void> {
 		if (!this.profileName.trim()) {
 			logInfo(LOG_TARGET, "saveProfileDraft() skipped — empty name");
 			return;
@@ -407,7 +492,14 @@ class SetupWizardOverlayState {
 	}
 
 	get testChatComplete(): boolean {
-		return this.testChatSkipped || this.testChatExchanges >= REQUIRED_EXCHANGES;
+		// Validate succeeds when EITHER:
+		//  - the user explicitly skipped, OR
+		//  - they hit the chat exchange floor, OR
+		//  - the full 5-step pipeline test passed end-to-end (locked test
+		//    shortcut — see `feedback_test_shortcut_requirements`).
+		return (
+			this.testChatSkipped || this.testChatExchanges >= REQUIRED_EXCHANGES || this.pipelineComplete
+		);
 	}
 
 	get requiredExchanges(): number {
@@ -479,6 +571,259 @@ class SetupWizardOverlayState {
 		this.testChatInput = "";
 		this.testChatSending = false;
 		this.testChatSkipped = false;
+	}
+
+	// ── Routing config — escalation + latency ─────────────────
+
+	/**
+	 * Load the persisted routing config from the engine (
+	 * `Platform::routing_config_load` via `commands.routingLoadConfig`).
+	 *
+	 * The engine reconciles `latency.response_source` against the kernel
+	 * `assistant.routing.mode` SSOT before returning, so the surface
+	 * always reflects what the chat dispatcher will actually use.
+	 */
+	async loadRoutingDraft(): Promise<void> {
+		try {
+			logInfo(LOG_TARGET, "loadRoutingDraft() → commands.routingLoadConfig");
+			const result = await commands.routingLoadConfig();
+			if (result.status === "ok") {
+				this.routing = result.data;
+				logInfo(
+					LOG_TARGET,
+					`loadRoutingDraft() DONE — source=${result.data.latency.response_source}, tiers=${result.data.escalation.tiers.length}`,
+				);
+			} else {
+				logWarn(LOG_TARGET, `loadRoutingDraft() returned error (using defaults): ${result.error}`);
+			}
+			this.routingLoaded = true;
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logWarn(LOG_TARGET, `loadRoutingDraft() FAILED (using defaults): ${msg}`);
+			this.routingLoaded = true;
+		}
+	}
+
+	/**
+	 * Persist the escalation chain. Replaces the in-memory tiers, then
+	 * round-trips through `routingSaveConfig` so the engine clamps +
+	 * dual-emits + writes through to the kernel routing mode.
+	 */
+	async saveEscalation(nextTiers: EscalationTier[]): Promise<boolean> {
+		const next: RoutingConfig = {
+			...this.routing,
+			escalation: { tiers: nextTiers },
+		};
+		this.routing = next;
+		try {
+			const result = await withAction(
+				"wizard.saveEscalation",
+				"Saving the escalation chain…",
+				async () => commands.routingSaveConfig(next),
+			);
+			if (result.status === "error") {
+				throw new Error(result.error);
+			}
+			// Engine returns the clamped value — adopt it so sliders that
+			// would otherwise show pre-clamp values snap to the post-clamp truth.
+			this.routing = result.data;
+			logInfo(LOG_TARGET, "saveEscalation() DONE");
+			return true;
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logError(LOG_TARGET, `saveEscalation() FAILED: ${msg}`);
+			return false;
+		}
+	}
+
+	/**
+	 * Persist the latency tuning + response source. Round-trips through
+	 * `routingSaveConfig` so the engine clamps + writes through to the
+	 * kernel `assistant.routing.mode` (which gates the chat dispatcher).
+	 */
+	async saveLatency(nextLatency: RoutingConfig["latency"]): Promise<boolean> {
+		const next: RoutingConfig = {
+			...this.routing,
+			latency: nextLatency,
+		};
+		this.routing = next;
+		try {
+			const result = await withAction(
+				"wizard.saveLatency",
+				"Saving the latency settings…",
+				async () => commands.routingSaveConfig(next),
+			);
+			if (result.status === "error") {
+				throw new Error(result.error);
+			}
+			this.routing = result.data;
+			logInfo(LOG_TARGET, "saveLatency() DONE");
+			return true;
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logError(LOG_TARGET, `saveLatency() FAILED: ${msg}`);
+			return false;
+		}
+	}
+
+	// ── STT language preference (persisted via voice_stt_save_config) ──
+
+	async loadSttLanguageDraft(): Promise<void> {
+		try {
+			logInfo(LOG_TARGET, "loadSttLanguageDraft() → voiceSttLoadConfig");
+			const result = await commands.voiceSttLoadConfig();
+			if (result.status === "ok") {
+				this.sttLanguage = result.data.language.length > 0 ? result.data.language : "auto";
+			}
+			logInfo(LOG_TARGET, `loadSttLanguageDraft() DONE — lang=${this.sttLanguage}`);
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logWarn(LOG_TARGET, `loadSttLanguageDraft() FAILED (using auto): ${msg}`);
+		}
+	}
+
+	async saveSttLanguage(next: string): Promise<boolean> {
+		this.sttLanguage = next;
+		try {
+			const loaded = await commands.voiceSttLoadConfig();
+			const base =
+				loaded.status === "ok"
+					? loaded.data
+					: { language: "auto", beam_size: 5, vad_threshold: 0.5 };
+			const cfg = {
+				...base,
+				// Empty string is the engine convention for "auto-detect" — translate
+				// the UI sentinel "auto" so the backend stores the canonical value.
+				language: next === "auto" ? "" : next,
+			};
+			const result = await withAction(
+				"wizard.saveSttLanguage",
+				"Saving the speech language…",
+				async () => commands.voiceSttSaveConfig(cfg),
+			);
+			if (result.status === "error") {
+				throw new Error(result.error);
+			}
+			logInfo(LOG_TARGET, `saveSttLanguage() DONE — lang=${next}`);
+			return true;
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logError(LOG_TARGET, `saveSttLanguage() FAILED: ${msg}`);
+			return false;
+		}
+	}
+
+	// ── Pipeline test (5-step) ────────────────────────────────
+
+	resetPipelineTest(): void {
+		logInfo(LOG_TARGET, "resetPipelineTest()");
+		this.pipelineSteps = [...DEFAULT_PIPELINE_STEPS];
+		this.pipelineRunning = false;
+	}
+
+	private updatePipelineStep(id: PipelineStepId, patch: Partial<PipelineStep>): void {
+		this.pipelineSteps = this.pipelineSteps.map((s) => (s.id === id ? { ...s, ...patch } : s));
+	}
+
+	async runPipelineTest(): Promise<void> {
+		if (this.pipelineRunning) {
+			logInfo(LOG_TARGET, "runPipelineTest() skipped — already running");
+			return;
+		}
+		this.pipelineRunning = true;
+		logInfo(LOG_TARGET, "runPipelineTest() BEGIN");
+		this.pipelineSteps = [...DEFAULT_PIPELINE_STEPS];
+
+		try {
+			await withAction(
+				"wizard.runPipelineTest",
+				"Running the full voice pipeline test…",
+				async () => {
+					for (const step of [...this.pipelineSteps]) {
+						this.updatePipelineStep(step.id, { status: "running", latencyMs: 0, error: null });
+						const start = performance.now();
+						try {
+							await this.runPipelineStep(step.id);
+							const elapsed = Math.round(performance.now() - start);
+							this.updatePipelineStep(step.id, { status: "pass", latencyMs: elapsed });
+						} catch (stepErr) {
+							const elapsed = Math.round(performance.now() - start);
+							const msg = stepErr instanceof Error ? stepErr.message : String(stepErr);
+							this.updatePipelineStep(step.id, {
+								status: "fail",
+								latencyMs: elapsed,
+								error: msg,
+							});
+							logError(LOG_TARGET, `runPipelineTest() step ${step.id} FAILED: ${msg}`);
+						}
+					}
+				},
+			);
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			logError(LOG_TARGET, `runPipelineTest() outer FAILED: ${msg}`);
+		} finally {
+			this.pipelineRunning = false;
+			logInfo(LOG_TARGET, "runPipelineTest() COMPLETE");
+		}
+	}
+
+	private async runPipelineStep(id: PipelineStepId): Promise<void> {
+		switch (id) {
+			case "stt-load": {
+				const r = await commands.loadSlot("voice.stt");
+				if (r.status === "error") {
+					throw new Error(typeof r.error === "string" ? r.error : JSON.stringify(r.error));
+				}
+				return;
+			}
+			case "stt-test": {
+				const r = await commands.testMicrophone();
+				if (r.status === "error") throw new Error(r.error);
+				if (!r.data.detected) throw new Error("Microphone not detected");
+				return;
+			}
+			case "brain-test": {
+				const r = await commands.testInference("chat.brain", "Hello, can you hear me?");
+				if (r.status === "error") throw new Error(r.error);
+				return;
+			}
+			case "tts-load": {
+				const r = await commands.loadSlot("voice.tts");
+				if (r.status === "error") {
+					throw new Error(typeof r.error === "string" ? r.error : JSON.stringify(r.error));
+				}
+				return;
+			}
+			case "tts-test": {
+				const r = await commands.speak(
+					"All checks passed. Clyffy can hear and speak.",
+					null,
+					"voice.tts",
+					null,
+				);
+				if (r.status === "error") throw new Error(r.error);
+				return;
+			}
+		}
+	}
+
+	get pipelineAllDone(): boolean {
+		return this.pipelineSteps.every((s) => s.status === "pass" || s.status === "fail");
+	}
+
+	get pipelinePassCount(): number {
+		return this.pipelineSteps.filter((s) => s.status === "pass").length;
+	}
+
+	get pipelineFailCount(): number {
+		return this.pipelineSteps.filter((s) => s.status === "fail").length;
+	}
+
+	get pipelineComplete(): boolean {
+		// Treat the pipeline test as "complete enough" when every step passed.
+		// Failures don't block — the chat-test fallback below still gates progression.
+		return this.pipelineAllDone && this.pipelineFailCount === 0;
 	}
 }
 
