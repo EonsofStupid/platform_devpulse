@@ -4,6 +4,7 @@ import "../app.css";
 // Loaded via app.css → design/index.css → css/index.css import chain
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
+import { Toaster } from "svelte-sonner";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge } from "$lib/domains/app/models/index.js";
@@ -145,3 +146,12 @@ onMount(() => {
 {#if fatalErrorState.current}
 	<ErrorOverlay />
 {/if}
+
+<Toaster
+	position="bottom-right"
+	richColors
+	closeButton
+	expand
+	duration={4000}
+	theme="dark"
+/>
