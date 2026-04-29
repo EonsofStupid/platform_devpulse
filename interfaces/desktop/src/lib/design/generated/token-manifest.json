@@ -31293,6 +31293,84 @@
 		},
 		"tokens": [
 			{
+				"name": "accent-main",
+				"path": [
+					"accent",
+					"main"
+				],
+				"cssVar": "--accent-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.08,
+						173
+					],
+					"hex": "#579f8a"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-glow",
+				"path": [
+					"accent",
+					"glow"
+				],
+				"cssVar": "--accent-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.08,
+						173
+					],
+					"alpha": 0.35,
+					"hex": "#519984"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-fill",
+				"path": [
+					"accent",
+					"fill"
+				],
+				"cssVar": "--accent-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.08,
+						173
+					],
+					"alpha": 0.08,
+					"hex": "#519984"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-fg",
+				"path": [
+					"accent",
+					"fg"
+				],
+				"cssVar": "--accent-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "accent-teal-main",
 				"path": [
 					"accent",
@@ -34044,6 +34122,562 @@
 					],
 					"alpha": 0.6,
 					"hex": "#010403"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"primary": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "primary-main",
+				"path": [
+					"primary",
+					"main"
+				],
+				"cssVar": "--primary-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.08,
+						173
+					],
+					"hex": "#579f8a"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-glow",
+				"path": [
+					"primary",
+					"glow"
+				],
+				"cssVar": "--primary-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.08,
+						173
+					],
+					"alpha": 0.35,
+					"hex": "#519984"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-fill",
+				"path": [
+					"primary",
+					"fill"
+				],
+				"cssVar": "--primary-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.08,
+						173
+					],
+					"alpha": 0.08,
+					"hex": "#519984"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-fg",
+				"path": [
+					"primary",
+					"fg"
+				],
+				"cssVar": "--primary-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-alt-main",
+				"path": [
+					"primary",
+					"alt-main"
+				],
+				"cssVar": "--primary-alt-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.12,
+						280
+					],
+					"hex": "#36347d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-alt-glow",
+				"path": [
+					"primary",
+					"alt-glow"
+				],
+				"cssVar": "--primary-alt-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.12,
+						280
+					],
+					"alpha": 0.35,
+					"hex": "#7b80d0"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-alt-fill",
+				"path": [
+					"primary",
+					"alt-fill"
+				],
+				"cssVar": "--primary-alt-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.12,
+						280
+					],
+					"alpha": 0.08,
+					"hex": "#7b80d0"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-alt-fg",
+				"path": [
+					"primary",
+					"alt-fg"
+				],
+				"cssVar": "--primary-alt-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-deep-main",
+				"path": [
+					"primary",
+					"deep-main"
+				],
+				"cssVar": "--primary-deep-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.18,
+						250
+					],
+					"hex": "#0c4170"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-deep-glow",
+				"path": [
+					"primary",
+					"deep-glow"
+				],
+				"cssVar": "--primary-deep-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.18,
+						250
+					],
+					"alpha": 0.35,
+					"hex": "#3a7ec9"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-deep-fill",
+				"path": [
+					"primary",
+					"deep-fill"
+				],
+				"cssVar": "--primary-deep-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.18,
+						250
+					],
+					"alpha": 0.08,
+					"hex": "#3a7ec9"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "primary-deep-fg",
+				"path": [
+					"primary",
+					"deep-fg"
+				],
+				"cssVar": "--primary-deep-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"secondary": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "secondary-main",
+				"path": [
+					"secondary",
+					"main"
+				],
+				"cssVar": "--secondary-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.12,
+						25
+					],
+					"hex": "#ce7069"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "secondary-glow",
+				"path": [
+					"secondary",
+					"glow"
+				],
+				"cssVar": "--secondary-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.12,
+						25
+					],
+					"alpha": 0.35,
+					"hex": "#c76a64"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "secondary-fill",
+				"path": [
+					"secondary",
+					"fill"
+				],
+				"cssVar": "--secondary-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.12,
+						25
+					],
+					"alpha": 0.08,
+					"hex": "#c76a64"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "secondary-fg",
+				"path": [
+					"secondary",
+					"fg"
+				],
+				"cssVar": "--secondary-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"danger": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "danger-main",
+				"path": [
+					"danger",
+					"main"
+				],
+				"cssVar": "--danger-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"hex": "#de3b3d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "danger-fg",
+				"path": [
+					"danger",
+					"fg"
+				],
+				"cssVar": "--danger-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"success": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "success-main",
+				"path": [
+					"success",
+					"main"
+				],
+				"cssVar": "--success-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"hex": "#31aa40"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "success-fg",
+				"path": [
+					"success",
+					"fg"
+				],
+				"cssVar": "--success-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"warning": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "warning-main",
+				"path": [
+					"warning",
+					"main"
+				],
+				"cssVar": "--warning-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.15,
+						85
+					],
+					"hex": "#d9a514"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "warning-fg",
+				"path": [
+					"warning",
+					"fg"
+				],
+				"cssVar": "--warning-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.1,
+						0.01,
+						220
+					],
+					"hex": "#010405"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"info": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "info-main",
+				"path": [
+					"info",
+					"main"
+				],
+				"cssVar": "--info-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.14,
+						230
+					],
+					"hex": "#139ccd"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "info-fg",
+				"path": [
+					"info",
+					"fg"
+				],
+				"cssVar": "--info-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"muted": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "muted-main",
+				"path": [
+					"muted",
+					"main"
+				],
+				"cssVar": "--muted-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.5,
+						0.02,
+						220
+					],
+					"hex": "#57666b"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "muted-bg",
+				"path": [
+					"muted",
+					"bg"
+				],
+				"cssVar": "--muted-bg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.2216,
+						0.0023,
+						9.36
+					],
+					"hex": "#1c1a1b"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "muted-fg",
+				"path": [
+					"muted",
+					"fg"
+				],
+				"cssVar": "--muted-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.72,
+						0.02,
+						220
+					],
+					"hex": "#98a8ad"
 				},
 				"type": "color",
 				"extensions": null

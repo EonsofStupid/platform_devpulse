@@ -1,0 +1,67 @@
+{
+	"$description": "Hand-authored Tier-2 role bindings. Roles are intent (primary/secondary/danger/success/warning/info/muted); each is a layman-readable pointer at a palette or signal seed. The visual editor rebinds role -> palette without touching components. Three primaries (main/alt/deep) ship as the brand floor — teal, deep purple, deep blue. Same shape as accent: { main, glow, fill, fg } with -alt- / -deep- sibling variants where roles need siblings.",
+
+	"primary": {
+		"$type": "color",
+		"$description": "Lead brand role. Three independent primaries — main (teal), alt (deep purple), deep (deep blue) — bound to palette seeds. Vibecoder-friendly names; rebind by swapping the $value reference, components keep working.",
+		"main":      { "$value": "{accent.teal.main}",       "$description": "Primary lead — bound to teal." },
+		"glow":      { "$value": "{accent.teal.glow}",       "$description": "Primary lead glow." },
+		"fill":      { "$value": "{accent.teal.fill}",       "$description": "Primary lead area fill." },
+		"fg":        { "$value": "{text.primary}",           "$description": "Foreground / on-primary text." },
+
+		"alt-main":  { "$value": "{color.purple.700}",       "$description": "Primary alt — deep purple (purple ramp stop 700)." },
+		"alt-glow":  { "$value": "{accent.purple.glow}",     "$description": "Primary alt glow." },
+		"alt-fill":  { "$value": "{accent.purple.fill}",     "$description": "Primary alt area fill." },
+		"alt-fg":    { "$value": "{text.primary}",           "$description": "Foreground / on-primary-alt text." },
+
+		"deep-main": { "$value": "{color.brand-azure.700}",  "$description": "Primary deep — deep blue (brand-azure ramp stop 700)." },
+		"deep-glow": { "$value": "{accent.azure.glow}",      "$description": "Primary deep glow." },
+		"deep-fill": { "$value": "{accent.azure.fill}",      "$description": "Primary deep area fill." },
+		"deep-fg":   { "$value": "{text.primary}",           "$description": "Foreground / on-primary-deep text." }
+	},
+
+	"secondary": {
+		"$type": "color",
+		"$description": "Secondary brand surface — paired with primary. Default: ember.",
+		"main": { "$value": "{accent.ember.main}", "$description": "Secondary indicator — bound to ember." },
+		"glow": { "$value": "{accent.ember.glow}", "$description": "Secondary glow." },
+		"fill": { "$value": "{accent.ember.fill}", "$description": "Secondary area fill." },
+		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-secondary text." }
+	},
+
+	"danger": {
+		"$type": "color",
+		"$description": "Destructive action / failure state. Bound to signal.error.",
+		"main": { "$value": "{signal.error}",      "$description": "Danger indicator — bound to signal.error." },
+		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-danger text." }
+	},
+
+	"success": {
+		"$type": "color",
+		"$description": "Positive outcome / confirmed state. Bound to signal.success.",
+		"main": { "$value": "{signal.success}",    "$description": "Success indicator — bound to signal.success." },
+		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-success text." }
+	},
+
+	"warning": {
+		"$type": "color",
+		"$description": "Caution / degraded state. Bound to signal.warning.",
+		"main": { "$value": "{signal.warning}",    "$description": "Warning indicator — bound to signal.warning." },
+		"fg":   { "$value": "{text.inverse}",      "$description": "Foreground / on-warning text — dark text on bright warning." }
+	},
+
+	"info": {
+		"$type": "color",
+		"$description": "Informational / neutral status update. Bound to signal.info.",
+		"main": { "$value": "{signal.info}",       "$description": "Info indicator — bound to signal.info." },
+		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-info text." }
+	},
+
+	"muted": {
+		"$type": "color",
+		"$description": "Low-emphasis surface + text role. Default: text.muted + surface.subtle.",
+		"main": { "$value": "{text.muted}",        "$description": "Muted text colour." },
+		"bg":   { "$value": "{surface.subtle}",    "$description": "Muted surface background." },
+		"fg":   { "$value": "{text.secondary}",    "$description": "Foreground for content on a muted surface." }
+	}
+}

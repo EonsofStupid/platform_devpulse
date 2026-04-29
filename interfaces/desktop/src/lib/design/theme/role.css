@@ -1,0 +1,33 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --primary-main: oklch(0.65 0.08 173);
+  --primary-glow: oklch(0.63 0.08 173 / 0.35);
+  --primary-fill: oklch(0.63 0.08 173 / 0.08);
+  --primary-fg: oklch(0.95 0.01 220);
+  --primary-alt-main: oklch(0.37 0.12 280);
+  --primary-alt-glow: oklch(0.63 0.12 280 / 0.35);
+  --primary-alt-fill: oklch(0.63 0.12 280 / 0.08);
+  --primary-alt-fg: oklch(0.95 0.01 220);
+  --primary-deep-main: oklch(0.37 0.18 250);
+  --primary-deep-glow: oklch(0.63 0.18 250 / 0.35);
+  --primary-deep-fill: oklch(0.63 0.18 250 / 0.08);
+  --primary-deep-fg: oklch(0.95 0.01 220);
+  --secondary-main: oklch(0.65 0.12 25);
+  --secondary-glow: oklch(0.63 0.12 25 / 0.35);
+  --secondary-fill: oklch(0.63 0.12 25 / 0.08);
+  --secondary-fg: oklch(0.95 0.01 220);
+  --danger-main: oklch(0.6 0.2 25);
+  --danger-fg: oklch(0.95 0.01 220);
+  --success-main: oklch(0.65 0.18 145);
+  --success-fg: oklch(0.95 0.01 220);
+  --warning-main: oklch(0.75 0.15 85);
+  --warning-fg: oklch(0.1 0.01 220);
+  --info-main: oklch(0.65 0.14 230);
+  --info-fg: oklch(0.95 0.01 220);
+  --muted-main: oklch(0.5 0.02 220);
+  --muted-bg: oklch(0.2216 0.0023 9.36);
+  --muted-fg: oklch(0.72 0.02 220);
+}

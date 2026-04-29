@@ -9,7 +9,11 @@
 			}
 		},
 		"$type": "color",
-		"$description": "Semantic accent aliases — main (indicator), glow (shadow/emission), fill (area fill). `main` references the generator-emitted primitive ramps; `glow` and `fill` are colour values with tuned alpha.",
+		"$description": "Semantic accent aliases. The `accent` role siblings (main/glow/fill/fg, no palette qualifier) are Tier-2 ROLE bindings that default to primary; rebindable independently. The palette siblings below (teal/purple/violet/...) are Tier-1 PALETTE primitives — pick one to bind a role to. Components consume role names, never palette names.",
+		"main": { "$value": "{primary.main}", "$description": "Accent indicator role — alias of primary.main by default; rebind freely." },
+		"glow": { "$value": "{primary.glow}", "$description": "Accent glow role — alias of primary.glow by default." },
+		"fill": { "$value": "{primary.fill}", "$description": "Accent fill role — alias of primary.fill by default." },
+		"fg":   { "$value": "{primary.fg}",   "$description": "Foreground / on-accent text — alias of primary.fg by default." },
 		"teal": {
 			"main": { "$value": "{color.teal.400}", "$description": "Primary indicator colour — teal ramp stop 400." },
 			"glow": {

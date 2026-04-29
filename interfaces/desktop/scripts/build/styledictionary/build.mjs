@@ -61,6 +61,7 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./semantic/text.css";
 @import "./semantic/signal.css";
 @import "./semantic/accent.css";
+@import "./semantic/role.css";
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";
@@ -96,6 +97,7 @@ const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./text.css";
 @import "./signal.css";
 @import "./accent.css";
+@import "./role.css";
 @import "./text-composed.css";
 `;
 
@@ -119,6 +121,7 @@ export * from './gradient.js';
 export * from './text.js';
 export * from './signal.js';
 export * from './accent.js';
+export * from './role.js';
 `;
 
 // ─── Build ───────────────────────────────────────────────────────────

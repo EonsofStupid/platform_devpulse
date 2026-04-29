@@ -4,6 +4,10 @@
 
 @layer tokens.semantic {
   :root {
+  --accent-main: var(--primary-main); /** Accent indicator role — alias of primary.main by default; rebind freely. */
+  --accent-glow: var(--primary-glow); /** Accent glow role — alias of primary.glow by default. */
+  --accent-fill: var(--primary-fill); /** Accent fill role — alias of primary.fill by default. */
+  --accent-fg: var(--primary-fg); /** Foreground / on-accent text — alias of primary.fg by default. */
   --accent-teal-main: var(--color-teal-400); /** Primary indicator colour — teal ramp stop 400. */
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle background tint. */

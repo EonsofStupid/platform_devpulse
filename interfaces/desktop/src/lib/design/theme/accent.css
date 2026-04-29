@@ -3,6 +3,10 @@
  */
 
 @theme {
+  --accent-main: oklch(0.65 0.08 173);
+  --accent-glow: oklch(0.63 0.08 173 / 0.35);
+  --accent-fill: oklch(0.63 0.08 173 / 0.08);
+  --accent-fg: oklch(0.95 0.01 220);
   --accent-teal-main: oklch(0.65 0.08 173);
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35);
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08);
