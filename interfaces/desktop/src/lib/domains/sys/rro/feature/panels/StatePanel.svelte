@@ -17,6 +17,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
 import { Card } from "$lib/design/components/card/index.js";
+import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
 import { Slider } from "$lib/design/components/slider/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { StatusDot } from "$lib/design/components/status-dot/index.js";
@@ -197,40 +198,59 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 	</div>
 </Card>
 
-<!-- ═══════ PROXIMITY — color-zoned gauge, not a numeric slider ═══════ -->
+<!-- ═══════ PROXIMITY — radial gauge + color-zoned bar + slider ═══════ -->
 <Card preset="glass">
-	<div class="p-4 space-y-3">
-		<div class="flex items-center justify-between gap-2">
-			<div>
-				<Text size="sm" weight="semibold">Friction gauge</Text>
-				<Text size="xs" preset="flat">How close the current context is to hitting trouble.</Text>
+	<div class="p-4">
+		<div class="flex items-center gap-5">
+			<!-- Radial: instant glance, big-and-bold visual hit. -->
+			<RadialGauge
+				value={(snapshot?.proximity ?? 0.5) * 100}
+				max={100}
+				label="Friction"
+				unit="%"
+				accent="cyber"
+				preset="glass"
+				size={140}
+				strokeWidth={8}
+			/>
+
+			<!-- Detail column: zoned bar + numeric slider + axis labels. -->
+			<div class="flex-1 space-y-3">
+				<div class="flex items-start justify-between gap-2">
+					<div>
+						<Text size="sm" weight="semibold">Friction gauge</Text>
+						<Text size="xs" preset="flat">
+							How close the current context is to hitting trouble.
+						</Text>
+					</div>
+					<Badge variant={zoneBadgeVariant} size="md" fillStyle="bold">
+						{zoneLabel}
+					</Badge>
+				</div>
+
+				<!-- Color-gradient bar — the position of the current value within the zone. -->
+				<div class="relative h-3 rounded-full overflow-hidden {proximityGradientClass()} opacity-80">
+					<div
+						class="absolute top-0 bottom-0 w-1 bg-[var(--text-primary)] shadow-md"
+						style:left="{((snapshot?.proximity ?? 0.5) * 100).toFixed(1)}%"
+					></div>
+				</div>
+
+				<Slider
+					min={0}
+					max={1}
+					step={0.05}
+					value={snapshot?.proximity ?? 0.5}
+					onValueChange={(v) => rroState.setProximity(v)}
+					disabled={rroState.rroActionLoading.proximity}
+				/>
+
+				<div class="flex justify-between">
+					<Text size="xs" preset="flat">Calm</Text>
+					<Text size="xs" preset="flat">Paying attention</Text>
+					<Text size="xs" preset="flat">Near friction</Text>
+				</div>
 			</div>
-			<Badge variant={zoneBadgeVariant} size="md" fillStyle="bold">
-				{zoneLabel}
-			</Badge>
-		</div>
-
-		<!-- Color-gradient bar that shows where we are -->
-		<div class="relative h-3 rounded-full overflow-hidden {proximityGradientClass()} opacity-80">
-			<div
-				class="absolute top-0 bottom-0 w-1 bg-[var(--text-primary)] shadow-md"
-				style:left="{((snapshot?.proximity ?? 0.5) * 100).toFixed(1)}%"
-			></div>
-		</div>
-
-		<Slider
-			min={0}
-			max={1}
-			step={0.05}
-			value={snapshot?.proximity ?? 0.5}
-			onValueChange={(v) => rroState.setProximity(v)}
-			disabled={rroState.rroActionLoading.proximity}
-		/>
-
-		<div class="flex justify-between">
-			<Text size="xs" preset="flat">Calm</Text>
-			<Text size="xs" preset="flat">Paying attention</Text>
-			<Text size="xs" preset="flat">Near friction</Text>
 		</div>
 	</div>
 </Card>

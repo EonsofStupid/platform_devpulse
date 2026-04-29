@@ -29,7 +29,7 @@ export interface Capability {
 	/** Whether this capability exposes verbose traces when debug flag is on. */
 	debug: boolean;
 	/** Icon key — resolved in the component to a lucide icon. */
-	icon: "search" | "settings" | "database" | "brain" | "shapes" | "activity";
+	icon: "search" | "settings" | "database" | "shapes" | "activity";
 }
 
 export const RRO_CAPABILITIES: readonly Capability[] = [
@@ -64,14 +64,6 @@ export const RRO_CAPABILITIES: readonly Capability[] = [
 		backend: "vector",
 		debug: false,
 		icon: "database",
-	},
-	{
-		id: "brain",
-		label: "Brain",
-		tagline: "Where Clyffy remembers — SurrealDB graph.",
-		backend: "graph",
-		debug: true,
-		icon: "brain",
 	},
 	{
 		id: "encoder",

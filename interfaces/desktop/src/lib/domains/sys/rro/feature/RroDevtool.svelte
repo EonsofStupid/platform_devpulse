@@ -11,7 +11,6 @@
 import {
 	Activity,
 	ArrowLeft,
-	Brain,
 	Check,
 	Compass,
 	Copy,
@@ -30,7 +29,6 @@ import type { Capability } from "../util/rro.capabilities.js";
 import { RRO_CAPABILITIES } from "../util/rro.capabilities.js";
 import { captureForTab } from "../util/rro.capture.js";
 import type { RroTabId } from "../util/rro.types.js";
-import BrainPanel from "./panels/BrainPanel.svelte";
 import CollectionsPanel from "./panels/CollectionsPanel.svelte";
 import EncoderPanel from "./panels/EncoderPanel.svelte";
 import SearchPanel from "./panels/SearchPanel.svelte";
@@ -42,7 +40,6 @@ const ICON_MAP: Record<Capability["icon"], Component<{ size?: number; class?: st
 	search: Search,
 	settings: Settings2,
 	database: Database,
-	brain: Brain,
 	shapes: Shapes,
 	activity: Activity,
 };
@@ -52,7 +49,6 @@ const PANEL_MAP: Record<RroTabId, Component> = {
 	search: SearchPanel,
 	tuning: TuningPanel,
 	collections: CollectionsPanel,
-	brain: BrainPanel,
 	encoder: EncoderPanel,
 };
 
@@ -61,13 +57,6 @@ $effect(() => {
 	void rroState.initialLoad();
 	// Tear down the listener when the component unmounts.
 	return () => rroState.teardownRroState();
-});
-
-// Brain loads lazily on first tab visit — saves a boot-time round-trip.
-$effect(() => {
-	if (rroState.activeTab === "brain" && !rroState.brainHealth && !rroState.brainLoading) {
-		void rroState.loadBrain();
-	}
 });
 
 // ── Capture (Copy / Export) ─────────────────────────────────
