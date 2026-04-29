@@ -27,6 +27,7 @@ import {
 	Volume2,
 	X,
 } from "lucide-svelte";
+import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import {
@@ -240,13 +241,20 @@ let serviceGroups: ServiceGroupEntry[] = $derived.by(() => {
 });
 
 // ── Tab change triggers data load ────────────────────────────
+// Only `activeTab` is a real reactive dependency — the rest are
+// loading-flag reads that the load*() bodies flip, which would
+// retrigger the effect indefinitely. `untrack` fences the body so
+// only `activeTab` flips re-run it. (Same trap as ProjectSwitcher.)
 $effect(() => {
-	if (activeTab === "lanes" && !laneConfig && !laneLoading) {
-		loadLaneConfig();
-	}
-	if (activeTab === "config" && !platformConfig) {
-		loadPlatformConfig();
-	}
+	const tab = activeTab;
+	untrack(() => {
+		if (tab === "lanes" && !laneConfig && !laneLoading) {
+			loadLaneConfig();
+		}
+		if (tab === "config" && !platformConfig) {
+			loadPlatformConfig();
+		}
+	});
 });
 
 // ── Window control ───────────────────────────────────────────

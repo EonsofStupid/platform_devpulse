@@ -30,6 +30,7 @@ import {
 	Wrench,
 	XCircle,
 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
@@ -187,7 +188,8 @@ async function toggleAutoRegister(target: ClaudeTarget): Promise<void> {
 	}
 }
 
-$effect(() => {
+// Mount-load — `$effect` would loop on the loading flag inside loadAutoRegisterPrefs.
+onMount(() => {
 	void loadAutoRegisterPrefs();
 });
 </script>

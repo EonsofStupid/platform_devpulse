@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
 import { Boxes, Download, Play, PowerOff, RefreshCw, Trash2 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -21,7 +22,11 @@ import {
 } from "$lib/domains/platform/index.js";
 
 // ── Mount: prime status + config on first render ──────────
-$effect(() => {
+// Use `onMount`, NOT `$effect`. Each `loadXxx()` flips a `*Loading`
+// flag (read → write); `$effect` would track that flag and re-fire
+// indefinitely. `onMount` runs exactly once, no reactive tracking.
+// Same anti-pattern as the ProjectSwitcher 1300+ refresh() loop.
+onMount(() => {
 	void ollamaSidecarState.loadStatus();
 	void ollamaSidecarState.loadConfig();
 	void ollamaSidecarState.loadHealth();

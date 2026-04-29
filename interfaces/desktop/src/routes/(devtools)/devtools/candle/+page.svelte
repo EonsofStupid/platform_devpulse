@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
 import { Cpu, PowerOff, RefreshCw, Send } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -163,7 +164,9 @@ async function loadLogs(): Promise<void> {
 	}
 }
 
-$effect(() => {
+// Mount-load — see ollama/+page.svelte:24 for the rationale.
+// `$effect` would re-fire on every `*Loading` flip inside refresh()/loadCfg().
+onMount(() => {
 	void refresh();
 	void loadCfg();
 });

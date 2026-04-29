@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { Check, Mic, Play, PowerOff, Trash2, Upload, Volume2 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
@@ -181,13 +182,12 @@ function buildVoiceString(
 }
 
 // ── Lifecycle: prime config + clone list ───────────────
-$effect(() => {
+// Both are mount-load only — bailouts (or function bodies) read
+// loading flags that the load functions flip. (See ProjectSwitcher fix.)
+onMount(() => {
 	if (!voiceTtsConfigState.config && !voiceTtsConfigState.loading) {
 		void voiceTtsConfigState.load();
 	}
-});
-
-$effect(() => {
 	void loadClones();
 });
 

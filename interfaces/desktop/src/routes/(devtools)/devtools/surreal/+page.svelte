@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
 import { Database, Globe, Network, RefreshCw, Terminal } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -44,7 +45,10 @@ const extraTabs: ExtraTab[] = [
 	{ id: "console", label: "Console", Icon: Terminal },
 ];
 
-$effect(() => {
+// One-shot mount load. The bailout reads `health` + `healthLoading`
+// reactively — `$effect` would re-fire when `loadHealth()` mutates them.
+// `onMount` doesn't track reads. (See ProjectSwitcher fix.)
+onMount(() => {
 	if (!surrealState.health && !surrealState.healthLoading) {
 		surrealState.loadHealth();
 	}

@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
 import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
@@ -36,7 +37,9 @@ import { logInfo } from "$lib/sys/logger.js";
 
 const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.stt", label: "STT devtool" }];
 
-$effect(() => {
+// Mount-load — bailout reads `loading`, which `load()` flips,
+// which would loop `$effect`. (See ProjectSwitcher fix.)
+onMount(() => {
 	if (!voiceSttConfigState.config && !voiceSttConfigState.loading) {
 		void voiceSttConfigState.load();
 	}

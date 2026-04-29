@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
 import { Code, ExternalLink, FolderOpen, Power, RefreshCw, Trash2 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -21,7 +22,9 @@ import {
 
 const extraTabs: ExtraTab[] = [{ id: "projects", label: "Projects", Icon: FolderOpen }];
 
-$effect(() => {
+// Mount-load — bailout reads `statusLoading`, which loadStatus() flips.
+// `$effect` would loop. (See ProjectSwitcher fix.)
+onMount(() => {
 	if (!devforgeState.status && !devforgeState.statusLoading) {
 		devforgeState.loadStatus();
 		devforgeState.loadRecentProjects();

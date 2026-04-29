@@ -14,6 +14,7 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Check, ChevronDown, FolderOpen, Plus } from "lucide-svelte";
+import { onMount } from "svelte";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { projectsState } from "../data-access/projects.state.svelte.js";
@@ -22,9 +23,12 @@ let open = $state(false);
 let opening = $state(false);
 let creating = $state(false);
 
-$effect(() => {
-	// One-shot load on mount. No polling — state is mutated by user
-	// action and refreshed in-place by the state module.
+// One-shot load on mount. `onMount` runs exactly once after mount and
+// does NOT re-track reactive reads — `$effect` would: the synchronous
+// head of `refresh()` reads `this.loading` then writes it, which makes
+// `$effect` re-fire every time `loading` flips → runaway loop (saw 1000+
+// invocations per session in the 2026-04-28 console).
+onMount(() => {
 	void projectsState.refresh("switcher-mount");
 });
 

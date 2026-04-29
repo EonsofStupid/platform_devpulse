@@ -16,6 +16,7 @@
 -->
 <script lang="ts">
 import { AlertCircle, Database, RefreshCw, RotateCcw, Save } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -28,7 +29,10 @@ import {
 } from "$lib/domains/platform/index.js";
 
 // ── Mount ─────────────────────────────────────────────────
-$effect(() => {
+// `onMount`, not `$effect`: each load*() reads + writes a *Loading
+// flag, which `$effect` would track and re-trigger on. (Same trap as
+// ProjectSwitcher's 1300+ refresh() loop.)
+onMount(() => {
 	void surrealdbSidecar.loadStatus();
 	void surrealdbSidecar.loadHealth();
 	void surrealdbSidecar.loadConfig();

@@ -16,6 +16,7 @@
 -->
 <script lang="ts">
 import { Database, RefreshCw, Table2, Terminal } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -53,11 +54,11 @@ const extraTabs: ExtraTab[] = [
 ];
 
 /**
- * Auto-load health on first mount. Extra tab data loads on-demand
- * when the user tabs into Tables or Console — handled below via the
- * host components' internal mount effects after the shell renders.
+ * Auto-load health on first mount. `onMount` (not `$effect`) — the
+ * bailout reads `healthLoading`, which `loadHealth()` flips, which
+ * would re-fire `$effect`. (See ProjectSwitcher fix for the trap.)
  */
-$effect(() => {
+onMount(() => {
 	if (!libsqlState.health && !libsqlState.healthLoading) {
 		libsqlState.loadHealth();
 	}

@@ -12,6 +12,7 @@
 -->
 <script lang="ts">
 import { Ear, Mic, Play, RefreshCw, StopCircle, Trash2 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -27,7 +28,9 @@ let sourceNode: MediaStreamAudioSourceNode | null = null;
 let micSelected = $state<string>("");
 
 // ── Mount: load compile info + models ────────────────────
-$effect(() => {
+// `onMount`, not `$effect` — load*() flips a `*Loading` flag the
+// effect would track. (See ProjectSwitcher fix.)
+onMount(() => {
 	void sherpaState.loadCompileInfo();
 	void sherpaState.loadModels();
 });

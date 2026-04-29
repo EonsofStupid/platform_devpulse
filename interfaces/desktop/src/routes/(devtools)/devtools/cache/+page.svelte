@@ -9,6 +9,7 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Database, RefreshCw } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -56,7 +57,8 @@ async function refresh(): Promise<void> {
 	}
 }
 
-$effect(() => {
+// Mount-load — `$effect` would re-fire on `refreshing` flag flips inside refresh().
+onMount(() => {
 	void refresh();
 });
 </script>

@@ -15,6 +15,7 @@
 -->
 <script lang="ts">
 import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
@@ -46,12 +47,24 @@ const extraTabs: ExtraTab[] = [
 ];
 
 // ── Auto-load on mount ──────────────────────────────────────
-$effect(() => {
+// `onMount`, NOT `$effect`. Each refresh*/load* flips a `*Loading`
+// flag (read+write); `$effect` would track + retrigger forever. Same
+// trap as the ProjectSwitcher 1300+ refresh() loop.
+onMount(() => {
 	if (!telemetryState.pipeline && !telemetryState.pipelineLoading) {
 		telemetryState.refreshStatus();
 	}
 	if (!telemetryState.laneConfig && !telemetryState.laneLoading) {
 		telemetryState.loadLaneConfig();
+	}
+	// Pre-load activity + baselines so first tab into Activity/Performance
+	// already has data. These also fire-once-on-mount; bailout reads are
+	// the same loading-flag trap.
+	if (telemetryState.spans.length === 0 && !telemetryState.spansLoading) {
+		telemetryState.loadSpans(undefined, 50);
+	}
+	if (telemetryState.baselines.length === 0 && !telemetryState.baselinesLoading) {
+		telemetryState.loadBaselines();
 	}
 });
 
@@ -95,21 +108,6 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 	if (level === "INFO") return "accent";
 	return "neutral";
 }
-
-// Load activity spans when the activity tab becomes visible (first visit).
-$effect(() => {
-	if (telemetryState.spans.length === 0 && !telemetryState.spansLoading) {
-		// Kick a recent load so Activity tab has data on first open.
-		telemetryState.loadSpans(undefined, 50);
-	}
-});
-
-// Load baselines lazily too.
-$effect(() => {
-	if (telemetryState.baselines.length === 0 && !telemetryState.baselinesLoading) {
-		telemetryState.loadBaselines();
-	}
-});
 </script>
 
 <ServiceDevtoolShell

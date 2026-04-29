@@ -20,6 +20,7 @@
 -->
 <script lang="ts">
 import { Cpu, ExternalLink, RefreshCw, ServerCog } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -51,7 +52,9 @@ let logsLoading = $state(false);
 let logsError = $state<string | null>(null);
 
 // ── Lifecycle ──────────────────────────────────────────────
-$effect(() => {
+// `onMount`, not `$effect`: refresh() flips `loading` (read+write),
+// which would loop `$effect`. (See ProjectSwitcher fix.)
+onMount(() => {
 	void refresh();
 });
 

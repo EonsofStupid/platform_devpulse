@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
 import { PackageOpen, PowerOff, RefreshCw, Send } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -239,7 +240,8 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	return undefined;
 }
 
-$effect(() => {
+// Mount-load — see ollama/+page.svelte:24 for the rationale.
+onMount(() => {
 	void loadCfg();
 	void refreshSlots();
 });

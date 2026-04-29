@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
 import { BarChart3, RefreshCw, Table2, Terminal } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -43,7 +44,9 @@ const extraTabs: ExtraTab[] = [
 	{ id: "console", label: "Console", Icon: Terminal },
 ];
 
-$effect(() => {
+// Mount-load — bailout reads `health`+`healthLoading`; `$effect` would
+// retrigger when `loadHealth()` flips them. (See ProjectSwitcher fix.)
+onMount(() => {
 	if (!duckdbState.health && !duckdbState.healthLoading) {
 		duckdbState.loadHealth();
 	}
