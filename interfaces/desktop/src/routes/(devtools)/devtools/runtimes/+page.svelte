@@ -238,7 +238,7 @@ function capture(tabId: string): CapturePayload | undefined {
 			{#if runtimeGroups.length === 0 && !loading}
 				<Text size="sm" color="muted">
 					No runtimes are loaded. Open a per-capability devtool
-					(e.g. <span class="font-mono">/devtools/tts</span>) and load a slot to populate this
+					(e.g. <span class="font-mono">/devtools/clyffy/mouth/tts</span>) and load a slot to populate this
 					view.
 				</Text>
 			{/if}
@@ -330,9 +330,9 @@ function capture(tabId: string): CapturePayload | undefined {
 			<Text size="xs" color="muted">
 				This devtool is a pure read-only view. Per-runtime config lives in the
 				individual runtime devtool — open
-				<span class="font-mono">/devtools/candle</span>,
-				<span class="font-mono">/devtools/llama_cpp_embedded</span>, or
-				<span class="font-mono">/devtools/ollama</span> to mutate behaviour.
+				<span class="font-mono">/devtools/runtimes/inference/candle</span>,
+				<span class="font-mono">/devtools/runtimes/inference/llama-cpp</span>, or
+				<span class="font-mono">/devtools/runtimes/inference/ollama</span> to mutate behaviour.
 			</Text>
 		</div>
 	{/snippet}

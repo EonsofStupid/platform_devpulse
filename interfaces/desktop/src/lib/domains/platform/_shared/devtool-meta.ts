@@ -1,52 +1,92 @@
 /**
  * @file DevtoolMeta — canonical metadata for every `/devtools/*` page.
  *
- * Two-axis taxonomy lives in this single struct:
+ * # Two-axis taxonomy
  *
- *  • DISPLAY axis  — `tier` + `clyffy_bucket` drive the dashboard
- *    groupings ("System / Clyffy / Model Loader" with Clyffy
- *    further sliced by sense bucket).
+ * Every devtool is described on two axes:
+ *
+ *  • DISPLAY axis  — `tier` + `bucket` drive the dashboard groupings
+ *    ("System / Clyffy / Runtimes" with each tier sub-bucketed).
  *  • RUNTIME axis  — `runtime_id` + `capability` let the future
  *    `/devtools/runtimes` aggregation page slice the same metadata
  *    against the engine's slot/runtime state.
  *
- * Single source of truth: every devtool page is registered exactly
- * once in `devtool-registry.ts`. Pages may also import their own
- * `DevtoolMeta` via `getDevtoolMeta(id)` so labels/blurbs/icons stay
- * in one place rather than being duplicated in each `+page.svelte`.
+ * # Hierarchy is normalized
+ *
+ * Every tier is bucketed — there is no "flat" tier. The bucket name
+ * is part of the route path, so the URL hierarchy mirrors the
+ * dashboard hierarchy exactly:
+ *
+ * ```
+ * /devtools/system/datastores/libsql      ← tier: system,   bucket: datastores
+ * /devtools/clyffy/ears/stt               ← tier: clyffy,   bucket: ears
+ * /devtools/runtimes/inference/candle     ← tier: runtimes, bucket: inference
+ * ```
+ *
+ * # Single source of truth
+ *
+ * Every devtool page is registered exactly once in
+ * `devtool-registry.ts`. Pages may also import their own metadata via
+ * `findDevtoolMeta(DEVTOOL_REGISTRY, "<id>")` so labels/blurbs/icons
+ * stay in one place rather than being duplicated in each `+page.svelte`.
  *
  * @example
  * ```ts
- * import { getDevtoolMeta } from "$lib/domains/platform/_shared";
- * const meta = getDevtoolMeta("tts");
- * // → { id: "tts", tier: "clyffy", clyffy_bucket: "mouth", … }
+ * import { DEVTOOL_REGISTRY, findDevtoolMeta } from
+ *   "$lib/domains/platform/_shared/index.js";
+ * const meta = findDevtoolMeta(DEVTOOL_REGISTRY, "tts");
+ * // → { id: "tts", tier: "clyffy", bucket: "mouth", … }
  * ```
  */
 
 import type { HelpCircle } from "lucide-svelte";
 
 /**
- * Top-tier dashboard category. Pre-release we ship exactly three —
- * `system` (platform infrastructure), `clyffy` (the assistant's senses
- * + cognition), `model_loader` (slot manager + inference runtimes).
+ * Top-tier dashboard category.
+ *
+ * - `system`   — platform infrastructure (datastores, caches, retrieval,
+ *   observability, IDE host)
+ * - `clyffy`   — the assistant's senses + cognition (ears, mouth, eyes,
+ *   memory, brain, providers)
+ * - `runtimes` — slot orchestrator + inference engines
  */
-export type DevtoolTier = "system" | "clyffy" | "model_loader";
+export type DevtoolTier = "system" | "clyffy" | "runtimes";
 
 /**
- * Sub-bucket within the Clyffy tier — represents a specific sense or
- * cognitive faculty of the assistant.
+ * System-tier bucket.
  *
- * REQUIRED when `tier === "clyffy"`. The dashboard groups Clyffy
- * pages by bucket so adding new senses (a2ui interactions, llguidance,
- * kvcache, …) is a registry edit, not a layout change.
+ * - `datastores`    — persistent stores: relational, analytical, graph,
+ *   document, vector. Survive a restart.
+ * - `caches`        — ephemeral key-value memory. Eviction-tuned, OK to
+ *   lose. Operationally distinct from datastores.
+ * - `retrieval`     — the RRO trifecta (embedder + encoder + vector
+ *   store) packaged as one capability.
+ * - `observability` — telemetry, lane tracing, metrics.
+ * - `ide`           — embedded developer environments (DevForge).
  */
-export type ClyffyBucket =
-	| "ears" // listening — stt, sts, sherpa
-	| "mouth" // speaking — tts, voice cloning
-	| "eyes" // seeing — vision encoders
-	| "brain" // reasoning, councils, escalation
-	| "memory" // cortex, knowledge graph
-	| "providers"; // external API providers (claude, …)
+export type SystemBucket = "datastores" | "caches" | "retrieval" | "observability" | "ide";
+
+/**
+ * Clyffy-tier bucket — a sense or cognitive faculty of the assistant.
+ *
+ * - `ears`      — listening: STT, streaming ASR, speech-to-speech entry
+ * - `mouth`     — speaking: TTS, voice cloning
+ * - `eyes`      — seeing: vision encoders
+ * - `memory`    — cortex, persona graph, knowledge lookup
+ * - `brain`     — reasoning, councils, escalation (currently empty —
+ *   reserved for the brain-tier devtools as they land)
+ * - `providers` — external API providers (Claude, …)
+ */
+export type ClyffyBucket = "ears" | "mouth" | "eyes" | "memory" | "brain" | "providers";
+
+/**
+ * Runtimes-tier bucket.
+ *
+ * - `orchestrator` — slot manager: the system that routes models to
+ *   runtimes, governs VRAM, swaps capabilities.
+ * - `inference`    — the runtimes themselves: Candle, llama.cpp, Ollama.
+ */
+export type RuntimesBucket = "orchestrator" | "inference";
 
 /** Lifecycle state — `"planned"` renders the tile dashed + dimmed. */
 export type DevtoolStatus = "ready" | "planned";
@@ -59,10 +99,17 @@ export type DevtoolStatus = "ready" | "planned";
  */
 export type LucideIcon = typeof HelpCircle;
 
-export interface DevtoolMeta {
+/**
+ * Common fields shared by every tier variant of [`DevtoolMeta`].
+ *
+ * Tier-specific narrowing is layered on top via the discriminated
+ * union below — you cannot construct a `DevtoolMeta` without picking
+ * a `(tier, bucket)` pair that the type system actually permits.
+ */
+interface DevtoolCommon {
 	/** Stable id — matches the leaf route folder name. */
 	id: string;
-	/** Absolute route from the dashboard root. */
+	/** Absolute route from the dashboard root. Mirrors `tier/bucket/id`. */
 	route: string;
 	/** User-facing label rendered on the dashboard tile. */
 	label: string;
@@ -70,16 +117,11 @@ export interface DevtoolMeta {
 	blurb: string;
 	/** Lucide icon component to render on the tile. */
 	icon: LucideIcon;
-
-	/** Top-tier dashboard category. */
-	tier: DevtoolTier;
-	/** REQUIRED when `tier === "clyffy"`. */
-	clyffy_bucket?: ClyffyBucket;
 	/**
 	 * Runtime crate / engine the devtool primarily documents. Set for
-	 * pure runtime-axis devtools (candle, llama_cpp_embedded, ollama)
-	 * AND for capability devtools that map 1-to-1 to a runtime
-	 * (sherpa → sherpa-onnx-asr). Drives the future
+	 * pure runtime-axis devtools (candle, llama-cpp, ollama) AND for
+	 * capability devtools that map 1-to-1 to a runtime
+	 * (streaming-asr → sherpa-onnx-asr). Drives the
 	 * `/devtools/runtimes` aggregation page.
 	 */
 	runtime_id?: string;
@@ -90,30 +132,42 @@ export interface DevtoolMeta {
 	 * engine fires on `LoaderEvent::CapabilityRebound`.
 	 */
 	capability?: string;
-
 	/** Lifecycle state — `"planned"` renders dashed + dimmed. */
 	status?: DevtoolStatus;
 }
 
 /**
+ * Canonical devtool metadata — discriminated union by tier.
+ *
+ * Each tier admits a strict bucket type, so the registry cannot
+ * accidentally place a Clyffy bucket on a System tile or vice versa.
+ */
+export type DevtoolMeta =
+	| (DevtoolCommon & { tier: "system"; bucket: SystemBucket })
+	| (DevtoolCommon & { tier: "clyffy"; bucket: ClyffyBucket })
+	| (DevtoolCommon & { tier: "runtimes"; bucket: RuntimesBucket });
+
+/** Union of every concrete bucket. Used by the renderer for indexing. */
+export type AnyBucket = SystemBucket | ClyffyBucket | RuntimesBucket;
+
+/**
  * Render-friendly grouping of registered devtools, produced by
- * `groupByTier(registry)`. The dashboard mounts one
- * `<TierSection>` per `TierGroup`, and inside the Clyffy tier one
- * `<BucketSection>` per `ClyffyBucketGroup`.
+ * `groupByTier(registry)`. The dashboard mounts one `<TierSection>`
+ * per `TierGroup`, and inside each tier one `<BucketSection>` per
+ * `BucketGroup`. The structure is uniform across tiers — no
+ * special-casing the renderer per tier.
  */
 export interface TierGroup {
 	tier: DevtoolTier;
 	label: string;
 	/** Used by the rendering side to pick an accent class. */
 	accent: "primary" | "secondary" | "success" | "warning" | "muted";
-	/** Tiles that don't belong to a bucket — flat under the tier. */
-	flat: DevtoolMeta[];
-	/** Bucketed tiles — only populated for `tier === "clyffy"`. */
-	buckets: ClyffyBucketGroup[];
+	/** Buckets in stable display order. */
+	buckets: BucketGroup[];
 }
 
-export interface ClyffyBucketGroup {
-	bucket: ClyffyBucket;
+export interface BucketGroup {
+	bucket: AnyBucket;
 	label: string;
 	/** Lucide icon for the bucket header. */
 	icon: LucideIcon;
@@ -123,46 +177,97 @@ export interface ClyffyBucketGroup {
 const TIER_LABELS: Record<DevtoolTier, string> = {
 	system: "System",
 	clyffy: "Clyffy",
-	model_loader: "Model Loader",
+	runtimes: "Runtimes",
 };
 
 const TIER_ACCENT: Record<DevtoolTier, TierGroup["accent"]> = {
 	system: "success",
 	clyffy: "primary",
-	model_loader: "warning",
+	runtimes: "warning",
 };
 
-const BUCKET_LABELS: Record<ClyffyBucket, string> = {
+const SYSTEM_BUCKET_LABELS: Record<SystemBucket, string> = {
+	datastores: "Datastores",
+	caches: "Caches",
+	retrieval: "Retrieval",
+	observability: "Observability",
+	ide: "IDE",
+};
+
+const CLYFFY_BUCKET_LABELS: Record<ClyffyBucket, string> = {
 	ears: "Ears",
 	mouth: "Mouth",
 	eyes: "Eyes",
-	brain: "Brain",
 	memory: "Memory",
+	brain: "Brain",
 	providers: "Providers",
 };
 
-/** Stable display order for tiers in the dashboard. */
-const TIER_ORDER: DevtoolTier[] = ["clyffy", "model_loader", "system"];
+const RUNTIMES_BUCKET_LABELS: Record<RuntimesBucket, string> = {
+	orchestrator: "Orchestrator",
+	inference: "Inference",
+};
 
-/** Stable display order for buckets within Clyffy. */
-const BUCKET_ORDER: ClyffyBucket[] = ["ears", "mouth", "eyes", "brain", "memory", "providers"];
+/** Stable display order for tiers in the dashboard. */
+const TIER_ORDER: DevtoolTier[] = ["system", "clyffy", "runtimes"];
+
+/** Stable display order for buckets within each tier. */
+const SYSTEM_BUCKET_ORDER: SystemBucket[] = [
+	"datastores",
+	"caches",
+	"retrieval",
+	"observability",
+	"ide",
+];
+const CLYFFY_BUCKET_ORDER: ClyffyBucket[] = [
+	"ears",
+	"mouth",
+	"eyes",
+	"memory",
+	"brain",
+	"providers",
+];
+const RUNTIMES_BUCKET_ORDER: RuntimesBucket[] = ["orchestrator", "inference"];
+
+/**
+ * Per-tier bucket icon registries. Pinning icons here (not inline in
+ * the registry literal) keeps `devtool-meta.ts` free of presentation
+ * imports — except this one lucide barrel — and gives one place to
+ * change a bucket's chrome.
+ */
+export interface BucketIcons {
+	system: Record<SystemBucket, LucideIcon>;
+	clyffy: Record<ClyffyBucket, LucideIcon>;
+	runtimes: Record<RuntimesBucket, LucideIcon>;
+}
+
+/**
+ * Resolve the human label for any bucket, regardless of tier.
+ * Pure lookup — no runtime narrowing required at the call site.
+ */
+export function bucketLabel(tier: DevtoolTier, bucket: AnyBucket): string {
+	switch (tier) {
+		case "system":
+			return SYSTEM_BUCKET_LABELS[bucket as SystemBucket];
+		case "clyffy":
+			return CLYFFY_BUCKET_LABELS[bucket as ClyffyBucket];
+		case "runtimes":
+			return RUNTIMES_BUCKET_LABELS[bucket as RuntimesBucket];
+	}
+}
 
 /**
  * Group a flat registry into render-ready `TierGroup`s.
  *
- * Pure function — accepts the registry, returns sorted groups +
- * buckets. The dashboard's `$derived` block calls this once per
- * registry change.
+ * Pure function — takes the registry and a per-tier icon map, returns
+ * sorted groups + buckets. The dashboard's `$derived` block calls
+ * this once per registry change.
  *
  * @param registry  Raw `DevtoolMeta[]` from `devtool-registry.ts`.
- * @param bucketIcons  Per-bucket icon override map. Required because
- *   we don't pin lucide icons inside this module — keeps the meta
- *   file dependency-free.
+ * @param icons     Per-tier bucket icon maps. Lives outside the meta
+ *   module so the meta file stays close to dependency-free.
  */
-export function groupByTier(
-	registry: DevtoolMeta[],
-	bucketIcons: Record<ClyffyBucket, LucideIcon>,
-): TierGroup[] {
+export function groupByTier(registry: DevtoolMeta[], icons: BucketIcons): TierGroup[] {
 	const tierMap = new Map<DevtoolTier, TierGroup>();
 
 	for (const tier of TIER_ORDER) {
@@ -170,46 +275,79 @@ export function groupByTier(
 			tier,
 			label: TIER_LABELS[tier],
 			accent: TIER_ACCENT[tier],
-			flat: [],
 			buckets: [],
 		});
 	}
 
-	const clyffyByBucket = new Map<ClyffyBucket, DevtoolMeta[]>();
-	for (const bucket of BUCKET_ORDER) {
-		clyffyByBucket.set(bucket, []);
-	}
+	const systemByBucket = emptyBucketMap(SYSTEM_BUCKET_ORDER);
+	const clyffyByBucket = emptyBucketMap(CLYFFY_BUCKET_ORDER);
+	const runtimesByBucket = emptyBucketMap(RUNTIMES_BUCKET_ORDER);
 
 	for (const meta of registry) {
-		const group = tierMap.get(meta.tier);
-		if (!group) continue;
-		if (meta.tier === "clyffy") {
-			if (!meta.clyffy_bucket) {
-				throw new Error(
-					`DevtoolMeta '${meta.id}' has tier='clyffy' but no clyffy_bucket — bucket is required for Clyffy tier (see devtool-meta.ts).`,
-				);
-			}
-			clyffyByBucket.get(meta.clyffy_bucket)?.push(meta);
-		} else {
-			group.flat.push(meta);
+		switch (meta.tier) {
+			case "system":
+				systemByBucket.get(meta.bucket)?.push(meta);
+				break;
+			case "clyffy":
+				clyffyByBucket.get(meta.bucket)?.push(meta);
+				break;
+			case "runtimes":
+				runtimesByBucket.get(meta.bucket)?.push(meta);
+				break;
 		}
 	}
 
-	const clyffy = tierMap.get("clyffy");
-	if (clyffy) {
-		clyffy.buckets = BUCKET_ORDER.filter((b) => (clyffyByBucket.get(b) ?? []).length > 0).map(
-			(bucket) => ({
-				bucket,
-				label: BUCKET_LABELS[bucket],
-				icon: bucketIcons[bucket],
-				tiles: clyffyByBucket.get(bucket) ?? [],
-			}),
-		);
-	}
+	hydrate(
+		tierMap.get("system"),
+		SYSTEM_BUCKET_ORDER,
+		systemByBucket,
+		SYSTEM_BUCKET_LABELS,
+		icons.system,
+	);
+	hydrate(
+		tierMap.get("clyffy"),
+		CLYFFY_BUCKET_ORDER,
+		clyffyByBucket,
+		CLYFFY_BUCKET_LABELS,
+		icons.clyffy,
+	);
+	hydrate(
+		tierMap.get("runtimes"),
+		RUNTIMES_BUCKET_ORDER,
+		runtimesByBucket,
+		RUNTIMES_BUCKET_LABELS,
+		icons.runtimes,
+	);
 
 	return TIER_ORDER.map((t) => tierMap.get(t)).filter(
-		(g): g is TierGroup => g !== undefined && (g.flat.length > 0 || g.buckets.length > 0),
+		(g): g is TierGroup => g !== undefined && g.buckets.length > 0,
 	);
+}
+
+function emptyBucketMap<B extends string>(order: B[]): Map<B, DevtoolMeta[]> {
+	const map = new Map<B, DevtoolMeta[]>();
+	for (const b of order) {
+		map.set(b, []);
+	}
+	return map;
+}
+
+function hydrate<B extends AnyBucket>(
+	group: TierGroup | undefined,
+	order: B[],
+	tilesByBucket: Map<B, DevtoolMeta[]>,
+	labels: Record<B, string>,
+	icons: Record<B, LucideIcon>,
+): void {
+	if (!group) return;
+	group.buckets = order
+		.filter((b) => (tilesByBucket.get(b) ?? []).length > 0)
+		.map((bucket) => ({
+			bucket,
+			label: labels[bucket],
+			icon: icons[bucket],
+			tiles: tilesByBucket.get(bucket) ?? [],
+		}));
 }
 
 /**

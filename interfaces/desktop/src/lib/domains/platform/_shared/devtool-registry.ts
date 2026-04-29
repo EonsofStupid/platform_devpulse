@@ -1,28 +1,50 @@
 /**
- * @file Devtool registry — single source of truth for all 21
- *       `/devtools/*` pages.
+ * @file Devtool registry — single source of truth for every devtool
+ *       page registered under `/devtools/`.
  *
- * Adding a new devtool: append one entry below. The dashboard root
- * picks it up automatically; the future `/devtools/runtimes` page
- * picks up entries with `runtime_id` set.
+ * # Adding a new devtool
  *
- * Why a single registry instead of per-page meta declarations?
+ * 1. Pick the right `(tier, bucket)` pair from
+ *    [`DevtoolMeta`](./devtool-meta.ts). The route path is forced to
+ *    mirror that hierarchy: `/devtools/{tier}/{bucket}/{id}`.
+ * 2. Append one entry below in display order (system → clyffy →
+ *    runtimes; within a tier, follow the bucket order).
+ * 3. Create the route folder at
+ *    `routes/(devtools)/devtools/{tier}/{bucket}/{id}/+page.svelte`
+ *    and have it mount whichever `$lib/domains/...` feature component
+ *    owns the logic. Routes are thin shells; domain code lives in
+ *    `domains/`.
+ * 4. Add the per-route accent in
+ *    [`serviceAccents.ts`](./serviceAccents.ts).
+ * 5. The dashboard root picks up the new tile automatically via
+ *    [`groupByTier`](./devtool-meta.ts).
+ *
+ * # Why a single registry instead of per-page meta declarations
+ *
  *  • Layout decisions (tier, bucket) live next to one another so
  *    coverage gaps surface visually (e.g. "no devtools have
- *    `clyffy_bucket: brain` yet — that's a planning signal").
+ *    `bucket: brain` yet — that's a planning signal").
  *  • The `/devtools` dashboard, the `/devtools/runtimes` aggregation
- *    page, and any future "All Capabilities" view all read this one
+ *    page, and any future "All Capabilities" view read this one
  *    array — there's nothing else to keep in sync.
  *  • Each `+page.svelte` can still read its own meta via
  *    `findDevtoolMeta(DEVTOOL_REGISTRY, "<id>")` so labels/blurbs
  *    aren't duplicated.
+ *
+ * # Why URLs mirror tier/bucket
+ *
+ * `/devtools/system/datastores/libsql` reads as a sentence — the
+ * customer always knows where they are in the hierarchy. Renaming
+ * a bucket is a registry edit + a folder rename, both deterministic.
  */
 
 import {
 	Boxes,
+	Brain,
 	BrainCircuit,
 	Cpu,
 	Database,
+	Ear,
 	Eye,
 	FileText,
 	Gauge,
@@ -31,222 +53,284 @@ import {
 	Headphones,
 	LineChart,
 	Mic,
+	MonitorCog,
 	Network,
 	Package,
 	PlugZap,
 	Radio,
-	ServerCog,
+	Search,
 	Sparkles,
 	Volume2,
 	Workflow,
 } from "lucide-svelte";
 
-import type { DevtoolMeta } from "./devtool-meta.js";
+import type {
+	BucketIcons,
+	ClyffyBucket,
+	DevtoolMeta,
+	LucideIcon,
+	RuntimesBucket,
+	SystemBucket,
+} from "./devtool-meta.js";
 
 /**
- * The 21 routed devtools, registered in display-axis order.
+ * Per-tier bucket icon registries.
  *
- * Order within this array does not affect rendering — `groupByTier`
- * sorts by tier and bucket. Keeping system → clyffy → model_loader
- * here just makes the file scan-able.
+ * Co-located with the registry so adding a bucket is one file edit:
+ * declare its label in [`devtool-meta.ts`], pick its icon here.
+ */
+export const DEVTOOL_BUCKET_ICONS: BucketIcons = {
+	system: {
+		datastores: Database,
+		caches: HardDrive,
+		retrieval: Search,
+		observability: Gauge,
+		ide: GitBranch,
+	} satisfies Record<SystemBucket, LucideIcon>,
+	clyffy: {
+		ears: Ear,
+		mouth: Volume2,
+		eyes: Eye,
+		memory: Sparkles,
+		brain: Brain,
+		providers: PlugZap,
+	} satisfies Record<ClyffyBucket, LucideIcon>,
+	runtimes: {
+		orchestrator: MonitorCog,
+		inference: Cpu,
+	} satisfies Record<RuntimesBucket, LucideIcon>,
+};
+
+/**
+ * The routed devtools, registered in display order.
+ *
+ * Order in this array is the display order on the dashboard. Within
+ * each tier, the order follows the bucket order declared in
+ * [`devtool-meta.ts`].
  */
 export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
-	// ── System tier ──────────────────────────────────────────
+	// ── System / Datastores ──────────────────────────────────
 	{
-		id: "cache",
-		route: "/devtools/cache",
-		label: "Cache",
-		blurb: "In-memory KV (Moka). Capacity, TTL, hit-rate.",
-		icon: HardDrive,
+		id: "libsql",
 		tier: "system",
+		bucket: "datastores",
+		route: "/devtools/system/datastores/libsql",
+		label: "LibSQL",
+		blurb: "Relational engine. System + user stores. WAL, schema, queries.",
+		icon: Database,
 	},
 	{
 		id: "duckdb",
-		route: "/devtools/duckdb",
-		label: "DuckDB",
-		blurb: "Analytics engine. Telemetry spans, OLAP queries.",
-		icon: LineChart,
 		tier: "system",
+		bucket: "datastores",
+		route: "/devtools/system/datastores/duckdb",
+		label: "DuckDB",
+		blurb: "Analytical engine. Telemetry spans, OLAP queries.",
+		icon: LineChart,
 	},
 	{
-		id: "libsql",
-		route: "/devtools/libsql",
-		label: "LibSQL",
-		blurb: "System + User relational stores. WAL, schema, queries.",
-		icon: Database,
+		id: "surrealdb",
 		tier: "system",
+		bucket: "datastores",
+		route: "/devtools/system/datastores/surrealdb",
+		label: "SurrealDB",
+		blurb: "Multi-model engine: graph + document. HTTP :8822. Sidecar lifecycle.",
+		icon: Network,
 	},
 	{
 		id: "mongodb",
-		route: "/devtools/mongodb",
-		label: "MongoDB",
-		blurb: "Document store for docs + images via GridFS.",
-		icon: FileText,
 		tier: "system",
+		bucket: "datastores",
+		route: "/devtools/system/datastores/mongodb",
+		label: "MongoDB",
+		blurb: "Document engine. Docs + images via GridFS.",
+		icon: FileText,
 		status: "planned",
 	},
 	{
-		id: "project_db",
-		route: "/devtools/project_db",
+		id: "project-db",
+		tier: "system",
+		bucket: "datastores",
+		route: "/devtools/system/datastores/project-db",
 		label: "Project DB",
 		blurb: "Per-project LibSQL. Lazy-loaded, on-demand.",
 		icon: FileText,
-		tier: "system",
 	},
+
+	// ── System / Caches ──────────────────────────────────────
+	{
+		id: "moka",
+		tier: "system",
+		bucket: "caches",
+		route: "/devtools/system/caches/moka",
+		label: "Moka Cache",
+		blurb: "In-memory KV. Capacity, TTL, hit-rate.",
+		icon: HardDrive,
+	},
+
+	// ── System / Retrieval ───────────────────────────────────
 	{
 		id: "rro",
-		route: "/devtools/rro",
-		label: "RRO / Vector",
-		blurb: "Qdrant vector store + dense encoder.",
+		tier: "system",
+		bucket: "retrieval",
+		route: "/devtools/system/retrieval/rro",
+		label: "RRO Trifecta",
+		blurb: "Embedder + encoder + vector store. The retrieval unit.",
 		icon: Workflow,
-		tier: "system",
 	},
-	{
-		id: "surreal",
-		route: "/devtools/surreal",
-		label: "SurrealDB",
-		blurb: "Knowledge graph. 3 namespaces. HTTP :8822.",
-		icon: Network,
-		tier: "system",
-	},
-	{
-		id: "surreal-sidecar",
-		route: "/devtools/surreal/sidecar",
-		label: "SurrealDB Process",
-		blurb: "Child-process lifecycle for SurrealDB server.",
-		icon: ServerCog,
-		tier: "system",
-	},
+
+	// ── System / Observability ───────────────────────────────
 	{
 		id: "telemetry",
-		route: "/devtools/telemetry",
+		tier: "system",
+		bucket: "observability",
+		route: "/devtools/system/observability/telemetry",
 		label: "Telemetry",
 		blurb: "OTel spans, lane baselines, exporter config.",
 		icon: Gauge,
-		tier: "system",
-	},
-	{
-		id: "devforge",
-		route: "/devtools/devforge",
-		label: "DevForge",
-		blurb: "REH server health, extensions, update channel.",
-		icon: GitBranch,
-		tier: "system",
 	},
 
-	// ── Clyffy tier ──────────────────────────────────────────
-	// Ears
+	// ── System / IDE ─────────────────────────────────────────
+	{
+		id: "devforge",
+		tier: "system",
+		bucket: "ide",
+		route: "/devtools/system/ide/devforge",
+		label: "DevForge",
+		blurb: "Embedded IDE host. REH server, extensions, update channel.",
+		icon: GitBranch,
+	},
+
+	// ── Clyffy / Ears ────────────────────────────────────────
 	{
 		id: "stt",
-		route: "/devtools/stt",
+		tier: "clyffy",
+		bucket: "ears",
+		route: "/devtools/clyffy/ears/stt",
 		label: "Speech-to-Text",
 		blurb: "Whisper transcription with VAD.",
 		icon: Mic,
-		tier: "clyffy",
-		clyffy_bucket: "ears",
 		capability: "voice.stt",
 		runtime_id: "whisper-onnx",
 	},
 	{
-		id: "sherpa",
-		route: "/devtools/sherpa",
+		id: "streaming-asr",
+		tier: "clyffy",
+		bucket: "ears",
+		route: "/devtools/clyffy/ears/streaming-asr",
 		label: "Streaming ASR",
 		blurb: "Sherpa streaming + wake-word detection.",
 		icon: Radio,
-		tier: "clyffy",
-		clyffy_bucket: "ears",
 		runtime_id: "sherpa-onnx-asr",
 	},
 	{
 		id: "sts",
-		route: "/devtools/sts",
+		tier: "clyffy",
+		bucket: "ears",
+		route: "/devtools/clyffy/ears/sts",
 		label: "Speech-to-Speech",
 		blurb: "Cascaded loop — wake → STT → brain → TTS.",
 		icon: Headphones,
-		tier: "clyffy",
-		// STS spans ears+brain+mouth; bucket under ears as the entry point.
-		clyffy_bucket: "ears",
 	},
-	// Mouth
+
+	// ── Clyffy / Mouth ───────────────────────────────────────
 	{
 		id: "tts",
-		route: "/devtools/tts",
+		tier: "clyffy",
+		bucket: "mouth",
+		route: "/devtools/clyffy/mouth/tts",
 		label: "Voice Synthesis",
 		blurb: "Qwen3-TTS preset speakers + zero-shot voice cloning.",
 		icon: Volume2,
-		tier: "clyffy",
-		clyffy_bucket: "mouth",
 		capability: "voice.tts",
 		runtime_id: "qwen3-tts-candle",
 	},
-	// Eyes
+
+	// ── Clyffy / Eyes ────────────────────────────────────────
 	{
 		id: "vision",
-		route: "/devtools/vision",
+		tier: "clyffy",
+		bucket: "eyes",
+		route: "/devtools/clyffy/eyes/vision",
 		label: "Vision Encoder",
 		blurb: "SigLIP2 image embeddings — 1152-dim L2.",
 		icon: Eye,
-		tier: "clyffy",
-		clyffy_bucket: "eyes",
 		capability: "vision.embedder",
 		runtime_id: "siglip2-onnx",
 	},
-	// Memory
+
+	// ── Clyffy / Memory ──────────────────────────────────────
 	{
 		id: "cortex",
-		route: "/devtools/cortex",
+		tier: "clyffy",
+		bucket: "memory",
+		route: "/devtools/clyffy/memory/cortex",
 		label: "Knowledge Engine",
 		blurb: "Prompt builder, memory lookup, councils.",
 		icon: Sparkles,
-		tier: "clyffy",
-		clyffy_bucket: "memory",
 		status: "planned",
 	},
-	// Providers
+	{
+		id: "persona-graph",
+		tier: "clyffy",
+		bucket: "memory",
+		route: "/devtools/clyffy/memory/persona-graph",
+		label: "Persona Graph",
+		blurb: "Clyffy's identity in SurrealDB namespaces. Links into the engine.",
+		icon: Brain,
+	},
+
+	// ── Clyffy / Providers ───────────────────────────────────
 	{
 		id: "claude",
-		route: "/devtools/claude",
+		tier: "clyffy",
+		bucket: "providers",
+		route: "/devtools/clyffy/providers/claude",
 		label: "Claude Integration",
 		blurb: "MCP server, subscription lane, API providers, councils.",
 		icon: PlugZap,
-		tier: "clyffy",
-		clyffy_bucket: "providers",
 	},
 
-	// ── Model Loader tier ────────────────────────────────────
+	// ── Runtimes / Orchestrator ──────────────────────────────
 	{
-		id: "models",
-		route: "/devtools/models",
+		id: "slots",
+		tier: "runtimes",
+		bucket: "orchestrator",
+		route: "/devtools/runtimes/orchestrator/slots",
 		label: "Slot Manager",
 		blurb: "Slot assignment, downloads, VRAM budget.",
 		icon: BrainCircuit,
-		tier: "model_loader",
 	},
+
+	// ── Runtimes / Inference ─────────────────────────────────
 	{
 		id: "candle",
-		route: "/devtools/candle",
+		tier: "runtimes",
+		bucket: "inference",
+		route: "/devtools/runtimes/inference/candle",
 		label: "Candle",
 		blurb: "Native-tensor runtime. GGUF + SafeTensors.",
 		icon: Cpu,
-		tier: "model_loader",
 		runtime_id: "candle",
 	},
 	{
-		id: "llama_cpp_embedded",
-		route: "/devtools/llama_cpp_embedded",
+		id: "llama-cpp",
+		tier: "runtimes",
+		bucket: "inference",
+		route: "/devtools/runtimes/inference/llama-cpp",
 		label: "llama.cpp",
 		blurb: "In-process GGUF runtime. Light path — CPU-friendly.",
 		icon: Package,
-		tier: "model_loader",
 		runtime_id: "llama-cpp-2",
 	},
 	{
 		id: "ollama",
-		route: "/devtools/ollama",
+		tier: "runtimes",
+		bucket: "inference",
+		route: "/devtools/runtimes/inference/ollama",
 		label: "Ollama",
 		blurb: "Backup runtime — kept available for fallback.",
 		icon: Boxes,
-		tier: "model_loader",
 		runtime_id: "ollama-external",
 	},
 ];

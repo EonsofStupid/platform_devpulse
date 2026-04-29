@@ -1,11 +1,6 @@
 /**
- * Per-devtool accent registry — maps each route slug under
- * `/devtools/<slug>/` to a ColdLight brand-accent name.
- *
- * The brand-accent names mirror the semantic-accent tokens authored in
- * [`tokens/src/semantic/accent/accent.tokens.json`] — every name listed
- * in [`BrandAccent`] is guaranteed to have a matching `--accent-{name}-{main,glow,fill}`
- * CSS variable triplet at runtime.
+ * Per-devtool accent registry — maps each devtool `id` to a ColdLight
+ * brand-accent name.
  *
  * # Why a registry, not per-page literals
  *
@@ -13,8 +8,15 @@
  * only thing that should differ in their look is *which* accent paints
  * the active-tab underline, the icon, and the badge. Storing the
  * mapping in one file means a visual editor (or a stylesheet refresh)
- * can rebind the whole devtools surface without touching 21 route
+ * can rebind the whole devtools surface without touching the route
  * files.
+ *
+ * # Keying
+ *
+ * Keys here MUST match `DevtoolMeta.id` from
+ * [`devtool-registry.ts`](./devtool-registry.ts). The id is the leaf
+ * folder name in the route tree (`/devtools/system/datastores/libsql`
+ * → id `libsql`). Renaming a devtool means updating both files.
  *
  * # How a route page uses it
  *
@@ -25,15 +27,21 @@
  * </script>
  *
  * <ServiceDevtoolShell
- *   title="SurrealDB Sidecar"
+ *   title="SurrealDB"
  *   axis="stores"
- *   accent={SERVICE_ACCENTS.surreal}
+ *   accent={SERVICE_ACCENTS.surrealdb}
+ *   backdrop="surrealdb"
  *   ...
  * />
  * ```
  *
  * Pages can also pass a literal (`accent="violet"`) — the registry is
  * the canonical source, the literal is a shortcut.
+ *
+ * The brand-accent names mirror the semantic-accent tokens authored
+ * in [`tokens/src/semantic/accent/accent.tokens.json`] — every name
+ * listed in [`BrandAccent`] is guaranteed to have a matching
+ * `--accent-{name}-{main,glow,fill}` CSS variable triplet at runtime.
  */
 
 /**
@@ -68,84 +76,104 @@ export type BrandAccent =
 export const DEFAULT_SERVICE_ACCENT: BrandAccent = "teal";
 
 /**
- * Devtool route-slug → ColdLight brand-accent. Slug = the directory
- * name under `interfaces/desktop/src/routes/(devtools)/devtools/`.
+ * Devtool `id` → ColdLight brand-accent. Keys match `DevtoolMeta.id`
+ * verbatim — see [`devtool-registry.ts`](./devtool-registry.ts).
  *
  * # Selection rationale
  *
- * Each functional group gets a coherent palette so a screenshot of any
- * devtool reads as "data store" / "runtime" / "capability" at a glance:
+ * Each tier-bucket gets a coherent palette so a screenshot of any
+ * devtool reads as "datastore" / "cache" / "runtime" / "capability"
+ * at a glance:
  *
- * - **Stores** lean cool & jewel-toned: blue, gold, frost, cyan, violet
- * - **Runtimes** lean warm & saturated: ember, salmon, hotpink, magenta
- * - **AI capabilities** lean vivid: purple, teal, cyber, coral
- * - **Audio capabilities** lean cool/warm contrast: blue, magenta, purple
- * - **Integrations** lean signal-coloured: coral, green
+ * - **System / Datastores** lean cool & jewel-toned: blue, gold, violet, green, cyan
+ * - **System / Caches**     lean frost-clean: frost
+ * - **System / Retrieval**  lean cyber: cyber
+ * - **System / Observability** lean signal-coloured: green
+ * - **System / IDE**        lean magenta
+ * - **Clyffy / Ears**       lean cool/warm contrast: blue, coral, purple
+ * - **Clyffy / Mouth**      lean magenta
+ * - **Clyffy / Eyes**       lean salmon
+ * - **Clyffy / Memory**     lean vivid: purple, violet
+ * - **Clyffy / Providers**  lean coral
+ * - **Runtimes**            lean warm & saturated: teal, ember, hotpink, salmon
  *
- * Color collisions across unrelated groups are acceptable — the eye
+ * Color collisions across unrelated buckets are acceptable — the eye
  * never sees them in the same view.
  */
 export const SERVICE_ACCENTS = {
-	// ── Stores ───────────────────────────────────────────────
+	// ── System / Datastores ──────────────────────────────────
 	libsql: "blue",
 	duckdb: "gold",
-	cache: "frost",
-	project_db: "cyan",
-	surreal: "violet",
+	surrealdb: "violet",
 	mongodb: "green",
+	"project-db": "cyan",
 
-	// ── Runtimes ─────────────────────────────────────────────
-	candle: "ember",
-	llama_cpp_embedded: "hotpink",
-	ollama: "salmon",
-	devforge: "magenta",
+	// ── System / Caches ──────────────────────────────────────
+	moka: "frost",
 
-	// ── AI capabilities ──────────────────────────────────────
-	cortex: "purple",
-	models: "teal",
+	// ── System / Retrieval ───────────────────────────────────
 	rro: "cyber",
-	sherpa: "coral",
-	vision: "salmon",
 
-	// ── Audio capabilities ───────────────────────────────────
-	stt: "blue",
-	tts: "magenta",
-	sts: "purple",
-
-	// ── Integrations ─────────────────────────────────────────
-	claude: "coral",
+	// ── System / Observability ───────────────────────────────
 	telemetry: "green",
 
-	// ── System ───────────────────────────────────────────────
-	grammar: "gold",
+	// ── System / IDE ─────────────────────────────────────────
+	devforge: "magenta",
+
+	// ── Clyffy / Ears ────────────────────────────────────────
+	stt: "blue",
+	"streaming-asr": "coral",
+	sts: "purple",
+
+	// ── Clyffy / Mouth ───────────────────────────────────────
+	tts: "magenta",
+
+	// ── Clyffy / Eyes ────────────────────────────────────────
+	vision: "salmon",
+
+	// ── Clyffy / Memory ──────────────────────────────────────
+	cortex: "purple",
+	"persona-graph": "violet",
+
+	// ── Clyffy / Providers ───────────────────────────────────
+	claude: "coral",
+
+	// ── Runtimes / Orchestrator ──────────────────────────────
+	slots: "teal",
+
+	// ── Runtimes / Inference ─────────────────────────────────
+	candle: "ember",
+	"llama-cpp": "hotpink",
+	ollama: "salmon",
 } as const satisfies Record<string, BrandAccent>;
 
 /**
  * Type-safe lookup helper. Falls back to [`DEFAULT_SERVICE_ACCENT`]
- * for unknown slugs (e.g. a devtool added before the registry is
+ * for unknown ids (e.g. a devtool added before the registry is
  * updated).
  */
-export function serviceAccent(slug: string): BrandAccent {
-	const known = (SERVICE_ACCENTS as Record<string, BrandAccent>)[slug];
+export function serviceAccent(id: string): BrandAccent {
+	const known = (SERVICE_ACCENTS as Record<string, BrandAccent>)[id];
 	return known ?? DEFAULT_SERVICE_ACCENT;
 }
 
 /**
  * Per-devtool BackgroundScene config — picks a subtly different
- * variation/intensity/speed per slug so two devtools never feel
+ * variation/intensity/speed per id so two devtools never feel
  * visually identical, while staying family-coherent through the
  * shared accent system.
  *
- * Variations are distributed by service group:
- * - **Stores** lean `void-breathe` (deep, contemplative, data-at-rest)
- * - **Runtimes** lean `chrome-flow` (molten flow, computation in motion)
- * - **AI capabilities** lean `cosmic-galaxy` or `neural-pulse` (the
- *   "thinking" feeling)
- * - **Audio capabilities** lean `neural-pulse` (waveform breathing)
- * - **Integrations** lean `circuit-drift` (signal infrastructure)
+ * Variations are distributed by bucket:
+ * - **Datastores** lean `void-breathe` (deep, contemplative, data-at-rest)
+ * - **Caches**     lean `circuit-drift` (fast cycles)
+ * - **Retrieval**  leans `circuit-drift` (signal flow)
+ * - **Runtimes**   lean `chrome-flow` (molten flow, computation in motion)
+ * - **Memory / Brain** lean `cosmic-galaxy` (the "thinking" feeling)
+ * - **Audio**      lean `neural-pulse` (waveform breathing)
+ * - **Providers + Observability** lean signal infrastructure
  *
- * Intensity matches "marquee-ness" — the user's daily-driver devtools
- * (claude, vision, models) get strong; supporting ones get subtle.
+ * Intensity matches "marquee-ness" — daily-driver devtools (claude,
+ * vision, slots) get strong; supporting ones get subtle.
  */
 export interface ServiceBackdrop {
 	variation: "circuit-drift" | "neural-pulse" | "void-breathe" | "chrome-flow" | "cosmic-galaxy";
@@ -166,7 +194,7 @@ export const DEFAULT_SERVICE_BACKDROP: ServiceBackdrop = {
 };
 
 /**
- * Devtool route-slug → backdrop config. Same slug surface as
+ * Devtool `id` → backdrop config. Same id surface as
  * [`SERVICE_ACCENTS`] — each devtool's accent paints the dot, this
  * config paints the ambient backdrop.
  *
@@ -175,46 +203,54 @@ export const DEFAULT_SERVICE_BACKDROP: ServiceBackdrop = {
  * stays in sync without authors maintaining two registries.
  */
 export const SERVICE_BACKDROPS = {
-	// ── Stores (data at rest — contemplative void) ───────────
+	// ── Datastores (data at rest — contemplative void) ───────
 	libsql: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 	duckdb: { variation: "void-breathe", intensity: "normal", speed: "slow" },
-	cache: { variation: "circuit-drift", intensity: "subtle", speed: "normal" },
-	project_db: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
-	surreal: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
+	surrealdb: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
 	mongodb: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
+	"project-db": { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 
-	// ── Runtimes (computation in motion — molten flow) ───────
-	candle: { variation: "chrome-flow", intensity: "normal", speed: "normal" },
-	llama_cpp_embedded: { variation: "chrome-flow", intensity: "strong", speed: "normal" },
-	ollama: { variation: "chrome-flow", intensity: "subtle", speed: "normal" },
-	devforge: { variation: "chrome-flow", intensity: "strong", speed: "fast" },
+	// ── Caches (fast cycles) ─────────────────────────────────
+	moka: { variation: "circuit-drift", intensity: "subtle", speed: "normal" },
 
-	// ── AI capabilities (the thinking feeling) ───────────────
-	cortex: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
-	models: { variation: "neural-pulse", intensity: "normal", speed: "normal" },
+	// ── Retrieval (signal flow) ──────────────────────────────
 	rro: { variation: "circuit-drift", intensity: "normal", speed: "normal" },
-	sherpa: { variation: "neural-pulse", intensity: "subtle", speed: "normal" },
-	vision: { variation: "neural-pulse", intensity: "strong", speed: "normal" },
 
-	// ── Audio capabilities (waveform breathing) ──────────────
-	stt: { variation: "neural-pulse", intensity: "subtle", speed: "fast" },
-	tts: { variation: "neural-pulse", intensity: "normal", speed: "normal" },
-	sts: { variation: "cosmic-galaxy", intensity: "normal", speed: "normal" },
-
-	// ── Integrations (signal infrastructure) ─────────────────
-	claude: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
+	// ── Observability (signal infrastructure) ────────────────
 	telemetry: { variation: "circuit-drift", intensity: "subtle", speed: "fast" },
 
-	// ── System ───────────────────────────────────────────────
-	grammar: { variation: "chrome-flow", intensity: "subtle", speed: "slow" },
+	// ── IDE (molten flow) ────────────────────────────────────
+	devforge: { variation: "chrome-flow", intensity: "strong", speed: "fast" },
+
+	// ── Audio (waveform breathing) ───────────────────────────
+	stt: { variation: "neural-pulse", intensity: "subtle", speed: "fast" },
+	"streaming-asr": { variation: "neural-pulse", intensity: "subtle", speed: "normal" },
+	sts: { variation: "cosmic-galaxy", intensity: "normal", speed: "normal" },
+	tts: { variation: "neural-pulse", intensity: "normal", speed: "normal" },
+
+	// ── Vision (waveform breathing, strong) ──────────────────
+	vision: { variation: "neural-pulse", intensity: "strong", speed: "normal" },
+
+	// ── Memory + Brain (the thinking feeling) ────────────────
+	cortex: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
+	"persona-graph": { variation: "cosmic-galaxy", intensity: "normal", speed: "slow" },
+
+	// ── Providers (signal infrastructure) ────────────────────
+	claude: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
+
+	// ── Runtimes (computation in motion — molten flow) ───────
+	slots: { variation: "neural-pulse", intensity: "normal", speed: "normal" },
+	candle: { variation: "chrome-flow", intensity: "normal", speed: "normal" },
+	"llama-cpp": { variation: "chrome-flow", intensity: "strong", speed: "normal" },
+	ollama: { variation: "chrome-flow", intensity: "subtle", speed: "normal" },
 } as const satisfies Record<string, ServiceBackdrop>;
 
 /**
  * Type-safe backdrop lookup. Falls back to [`DEFAULT_SERVICE_BACKDROP`]
- * for unknown slugs.
+ * for unknown ids.
  */
-export function serviceBackdrop(slug: string): ServiceBackdrop {
-	const known = (SERVICE_BACKDROPS as Record<string, ServiceBackdrop>)[slug];
+export function serviceBackdrop(id: string): ServiceBackdrop {
+	const known = (SERVICE_BACKDROPS as Record<string, ServiceBackdrop>)[id];
 	return known ?? DEFAULT_SERVICE_BACKDROP;
 }
 

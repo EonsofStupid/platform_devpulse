@@ -98,13 +98,13 @@ hotpink | coral | blue | salmon | gold | violet | electric | azure`
 
 | Devtool | Uses shipped primitives | Logs tab | Has backdrop |
 |---|---|---|---|
-| `/devtools/claude` | YES (golden pattern) | `DevtoolLogsTab` | `backdrop="claude"` |
-| `/devtools/stt` | partial | `DevtoolLogsTab` | not yet |
-| `/devtools/cache` | not yet | `ScopedLogPanel` (deprecated) | not yet |
-| `/devtools/devforge` | not yet | `ScopedLogPanel` (deprecated) | not yet |
-| `/devtools/ollama_sidecar` | not yet | `ScopedLogPanel` (deprecated) | not yet |
-| `/devtools/surrealdb_sidecar` | not yet | `ScopedLogPanel` (deprecated) | not yet |
-| `/devtools/vision` | not yet | `ScopedLogPanel` (deprecated) | not yet |
+| `/devtools/clyffy/providers/claude` | YES (golden pattern) | `DevtoolLogsTab` | `backdrop="claude"` |
+| `/devtools/clyffy/ears/stt` | partial | `DevtoolLogsTab` | not yet |
+| `/devtools/system/caches/moka` | not yet | `ScopedLogPanel` (deprecated) | not yet |
+| `/devtools/system/ide/devforge` | not yet | `ScopedLogPanel` (deprecated) | not yet |
+| `/devtools/runtimes/inference/ollama` | not yet | `ScopedLogPanel` (deprecated) | not yet |
+| `/devtools/system/datastores/surrealdb` | not yet | `ScopedLogPanel` (deprecated) | not yet |
+| `/devtools/clyffy/eyes/vision` | not yet | `ScopedLogPanel` (deprecated) | not yet |
 
 Lazy migration: convert each on next touch. The five `ScopedLogPanel`
 consumers + the bespoke divs in their tab bodies are stable, not

@@ -12,26 +12,19 @@
 import { invoke } from "@tauri-apps/api/core";
 import {
 	Activity,
-	Brain,
 	BrainCircuit,
 	Cpu,
-	Ear,
 	ExternalLink,
-	Eye,
 	Grid3x3,
-	Headphones,
 	Mic,
-	PlugZap,
 	Settings,
-	Sparkles,
-	Volume2,
 	X,
 } from "lucide-svelte";
 import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import {
-	type ClyffyBucket,
+	DEVTOOL_BUCKET_ICONS,
 	DEVTOOL_REGISTRY,
 	type DevtoolMeta,
 	groupByTier,
@@ -58,20 +51,10 @@ const tabs = [
 let activeTab = $state<TabId>("overview");
 
 // ── Registry-driven tier grouping ────────────────────────────
-// Bucket → header icon. Pinning the icons here (not in
-// devtool-registry.ts) keeps `_shared/devtool-meta.ts` free of
-// dependencies on the lucide barrel — the meta module is pure
-// types + grouping math, no presentation imports.
-const BUCKET_ICONS: Record<ClyffyBucket, LucideIcon> = {
-	ears: Ear,
-	mouth: Volume2,
-	eyes: Eye,
-	brain: Brain,
-	memory: Sparkles,
-	providers: PlugZap,
-};
-
-const tierGroups: TierGroup[] = $derived(groupByTier(DEVTOOL_REGISTRY, BUCKET_ICONS));
+// `groupByTier` resolves the per-tier bucket icons from the registry
+// module — every tier is bucketed, so the dashboard renders one
+// uniform `tier → buckets → tiles` shape with no special-casing.
+const tierGroups: TierGroup[] = $derived(groupByTier(DEVTOOL_REGISTRY, DEVTOOL_BUCKET_ICONS));
 
 // External windows — Tauri WebviewWindow targets that live outside
 // the routed devtools but still belong on this dashboard for
@@ -393,78 +376,57 @@ let laneGroups = $derived<LaneGroup[]>(
 					</div>
 				</section>
 
-				<!-- ── Three tiers from registry — Clyffy → Model Loader → System -->
+				<!-- ── Three tiers from registry — System → Clyffy → Runtimes.
+				     Every tier renders the same shape: section → buckets → tiles.
+				     Per-tier blurb is the only branch. -->
 				{#each tierGroups as group (group.tier)}
 					<section class="ds-section {tierAccentClass(group)}">
 						<header class="ds-section-header">
 							<h2 class="ds-section-title">{group.label}</h2>
-							{#if group.tier === "clyffy"}
+							{#if group.tier === "system"}
+								<p class="ds-section-blurb">
+									Platform infrastructure: datastores, caches, retrieval,
+									observability, IDE.
+								</p>
+							{:else if group.tier === "clyffy"}
 								<p class="ds-section-blurb">
 									The assistant's senses + cognition.
 								</p>
-							{:else if group.tier === "model_loader"}
-								<p class="ds-section-blurb">
-									Slot manager + inference runtimes.
-								</p>
 							{:else}
 								<p class="ds-section-blurb">
-									Platform infrastructure: stores, telemetry, IDE host.
+									Slot orchestrator + inference runtimes.
 								</p>
 							{/if}
 						</header>
 
-						{#if group.buckets.length > 0}
-							<!-- Clyffy tier: render each bucket as a sub-section. -->
-							<div class="ds-buckets">
-								{#each group.buckets as bucket (bucket.bucket)}
-									{@const BucketIcon = bucket.icon}
-									<div class="ds-bucket">
-										<header class="ds-bucket-header">
-											<BucketIcon size={14} class="ds-bucket-icon" />
-											<span class="ds-bucket-title">{bucket.label}</span>
-										</header>
-										<div class="ds-tile-grid">
-											{#each bucket.tiles as tile (tile.id)}
-												{@const Icon = tile.icon}
-												<a
-													href={tile.route}
-													class="ds-tile"
-													class:ds-tile--planned={isPlanned(tile)}
-												>
-													<Icon size={20} class="ds-tile-icon" />
-													<span class="ds-tile-title">{tile.label}</span>
-													<span class="ds-tile-blurb">{tile.blurb}</span>
-													{#if isPlanned(tile)}
-														<span class="ds-tile-planned-pill">Planned</span>
-													{/if}
-												</a>
-											{/each}
-										</div>
+						<div class="ds-buckets">
+							{#each group.buckets as bucket (bucket.bucket)}
+								{@const BucketIcon = bucket.icon}
+								<div class="ds-bucket">
+									<header class="ds-bucket-header">
+										<BucketIcon size={14} class="ds-bucket-icon" />
+										<span class="ds-bucket-title">{bucket.label}</span>
+									</header>
+									<div class="ds-tile-grid">
+										{#each bucket.tiles as tile (tile.id)}
+											{@const Icon = tile.icon}
+											<a
+												href={tile.route}
+												class="ds-tile"
+												class:ds-tile--planned={isPlanned(tile)}
+											>
+												<Icon size={20} class="ds-tile-icon" />
+												<span class="ds-tile-title">{tile.label}</span>
+												<span class="ds-tile-blurb">{tile.blurb}</span>
+												{#if isPlanned(tile)}
+													<span class="ds-tile-planned-pill">Planned</span>
+												{/if}
+											</a>
+										{/each}
 									</div>
-								{/each}
-							</div>
-						{/if}
-
-						{#if group.flat.length > 0}
-							<!-- Non-bucketed tier (System / Model Loader): flat grid. -->
-							<div class="ds-tile-grid">
-								{#each group.flat as tile (tile.id)}
-									{@const Icon = tile.icon}
-									<a
-										href={tile.route}
-										class="ds-tile"
-										class:ds-tile--planned={isPlanned(tile)}
-									>
-										<Icon size={20} class="ds-tile-icon" />
-										<span class="ds-tile-title">{tile.label}</span>
-										<span class="ds-tile-blurb">{tile.blurb}</span>
-										{#if isPlanned(tile)}
-											<span class="ds-tile-planned-pill">Planned</span>
-										{/if}
-									</a>
-								{/each}
-							</div>
-						{/if}
+								</div>
+							{/each}
+						</div>
 					</section>
 				{/each}
 			</div>
