@@ -34,7 +34,6 @@ pub mod init;
 pub mod integrations;
 pub mod metrics;
 pub mod module;
-pub mod reasoning;
 pub mod services;
 pub mod telemetry;
 
@@ -45,10 +44,6 @@ pub use config::{
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
 pub use metrics::ProcessMetrics;
-pub use reasoning::{
-    GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus, RroDepth, RroState,
-    RroStateHandle, RroStateSnapshot, RroStateTransition,
-};
 pub use services::candle_config::CandleConfig;
 pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
 pub use services::routing_config::{
@@ -87,6 +82,25 @@ pub use services::{Service, ServiceRole, ServiceState};
 // no kernel vocabulary, no rename needed.
 pub use devpulse_clyffy::cortex::persistence::{
     AnalyticsAdapter, CacheAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
+};
+
+// IP-NOTE: RRO state machine — public-vocabulary types + runtime handle.
+// Names match `signals.registry.yaml` group `rro` exactly (registry-aligned
+// public vocabulary, not kernel internals). The handle stores transition
+// snapshots in a bounded ring and broadcasts them via context-propagating
+// `BroadcastSender` (ADR-002). Authored under the kernel cortex SSOT at
+// `kernel/devpulse-clyffy/src/cortex/reasoning/state.rs`.
+pub use devpulse_clyffy::cortex::reasoning::{
+    RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
+};
+
+// IP-NOTE: grammar (constrained-decoding) runtime handle. Layman-friendly
+// type names (`GrammarKind::JsonSchema`/`Regex`/`Enum`/`Custom`,
+// `GrammarStatus::*`). The kernel owns the constraint engine; this is the
+// read/control snapshot the devtool consumes. Authored under the kernel
+// cortex SSOT at `kernel/devpulse-clyffy/src/cortex/grammar/handle.rs`.
+pub use devpulse_clyffy::cortex::grammar::{
+    GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus,
 };
 
 // IP-NOTE: knowledge-library types. Kernel uses short names

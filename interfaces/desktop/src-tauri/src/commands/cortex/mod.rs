@@ -6,8 +6,7 @@
 //! visualizer lands in B-3.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::cortex::{thought_create, thought_load_branch, ThoughtRecord};
-use devpulse_engine::platform::RroState;
+use devpulse_engine::platform::{thought_create, thought_load_branch, RroState, ThoughtRecord};
 use tauri::State;
 
 macro_rules! get_platform {
@@ -46,11 +45,11 @@ pub async fn cortex_thought_create(
         .ok_or_else(|| "User graph not available".to_string())?;
 
     thought_create(
-        graph,
+        graph.handle(),
         &project_id,
         &branch_id,
         &content,
-        rro_state,
+        rro_state.as_str(),
         depth,
         proximity,
     )
@@ -78,7 +77,7 @@ pub async fn cortex_thought_load_branch(
         .user_graph()
         .ok_or_else(|| "User graph not available".to_string())?;
 
-    thought_load_branch(graph, &project_id, &branch_id)
+    thought_load_branch(graph.handle(), &project_id, &branch_id)
         .await
         .map_err(|e| format!("{e:#}"))
 }

@@ -238,7 +238,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::pixvix::pixvix_list_webcams,
         commands::pixvix::pixvix_capture_webcam_once,
         commands::devpulse::fetch_dashboard,
-        commands::devpulse::license::verify_license,
         commands::devpulse::profile::fetch_user_profile,
         commands::devpulse::profile::update_user_profile,
         commands::devpulse::profile::fetch_user_preferences,

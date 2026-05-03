@@ -7,6 +7,10 @@
 //! The type names here (`RroState`, `RroDepth`, etc.) match the public
 //! signal attribute members exactly. No kernel-internal names leak.
 //!
+//! Authored inside the kernel (cortex SSOT) and re-exported through the
+//! engine facade per the IP-NOTE pattern at
+//! `systems/devpulse-engine/src/platform/mod.rs`.
+//!
 //! # Design
 //!
 //! - `RroStateHandle` is clone-friendly, Arc-wrapped.
@@ -30,7 +34,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
 use serde::{Deserialize, Serialize};
-use specta::Type;
 use tokio::sync::RwLock;
 
 /// Default proximity value on boot. 0.5 = neutral — neither near friction
@@ -50,7 +53,8 @@ const EVENT_BROADCAST_CAPACITY: usize = 64;
 /// RRO lifecycle state.
 ///
 /// SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.state`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "lowercase")]
 pub enum RroState {
     /// No active RRO.
@@ -88,7 +92,8 @@ impl RroState {
 /// Deliberation depth — how deeply Clyffy ruminates before acting.
 ///
 /// SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.depth`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "lowercase")]
 pub enum RroDepth {
     /// Fast-path, minimal deliberation.
@@ -112,7 +117,8 @@ impl RroDepth {
 }
 
 /// A single transition record. Held in the ring buffer for replay.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct RroStateTransition {
     /// Previous state (None for the initial transition into `idle`).
     pub from: Option<RroState>,
@@ -128,7 +134,8 @@ pub struct RroStateTransition {
 ///
 /// Returned by `get_rro_state` Tauri command. Emitted as the payload of
 /// `platform:rro-state-changed` Tauri events.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct RroStateSnapshot {
     /// Current state.
     pub state: RroState,

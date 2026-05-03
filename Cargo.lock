@@ -3502,6 +3502,7 @@ dependencies = [
  "candle-core 0.10.2",
  "candle-nn 0.10.2",
  "candle-transformers 0.10.2",
+ "devpulse-telemetry",
  "duckdb",
  "futures",
  "hf-hub",

@@ -3,12 +3,16 @@
 //! # What this is
 //!
 //! A runtime handle for the grammar-constrained decoding subsystem. The
-//! kernel provides the actual constraint engine; this façade exposes a
+//! kernel provides the actual constraint engine; this handle exposes a
 //! public-vocabulary snapshot that the devtool can read and control.
+//!
+//! Authored inside the kernel (cortex SSOT) and re-exported through the
+//! engine facade per the IP-NOTE pattern at
+//! `systems/devpulse-engine/src/platform/mod.rs`.
 //!
 //! # Architecture
 //!
-//! Same tier as [`RroStateHandle`] and [`TelemetryHandle`]. Clone-friendly
+//! Same tier as [`crate::cortex::reasoning::state::RroStateHandle`]. Clone-friendly
 //! (Arc-wrapped), not a `Service` (no lifecycle/ping/shutdown).
 //!
 //! The kernel will drive `record_enforcement` / `record_failure` as
@@ -27,7 +31,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
 use serde::{Deserialize, Serialize};
-use specta::Type;
 use tokio::sync::RwLock;
 
 /// Maximum failure records retained for replay in the dev tool.
@@ -41,7 +44,8 @@ const EVENT_BROADCAST_CAPACITY: usize = 32;
 // ═══════════════════════════════════════════════════════════════
 
 /// What shape the grammar engine is currently enforcing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
 pub enum GrammarKind {
     /// No constraint — model emits free text.
@@ -73,7 +77,8 @@ impl GrammarKind {
 }
 
 /// Overall health of the grammar engine.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
 pub enum GrammarStatus {
     /// No active grammar, no enforcement in progress.
@@ -87,7 +92,8 @@ pub enum GrammarStatus {
 }
 
 /// A single enforcement failure. Held in a bounded ring for replay.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct GrammarFailure {
     /// Unix epoch milliseconds.
     pub at_ms: i64,
@@ -103,7 +109,8 @@ pub struct GrammarFailure {
 ///
 /// Returned by `get_grammar_state` Tauri command. Emitted as the payload
 /// of `platform:grammar-changed` Tauri events on every change.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct GrammarSnapshot {
     /// Current status.
     pub status: GrammarStatus,

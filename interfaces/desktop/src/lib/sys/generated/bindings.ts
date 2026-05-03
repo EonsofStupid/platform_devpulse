@@ -1652,23 +1652,6 @@ async fetchDashboard() : Promise<Result<DashboardPayload, string>> {
 }
 },
 /**
- * Verify the user's DevPulse license. **STUB.** Always returns a
- * `Free` tier license with `stub: true`.
- * 
- * # Errors
- * Currently infallible — the real implementation will surface I/O
- * errors (license file read), signature verification failures, and
- * network errors when contacting the license server.
- */
-async verifyLicense() : Promise<Result<LicenseStatus, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("verify_license") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
  * Fetch the current user profile. Creates a default if none exists.
  */
 async fetchUserProfile() : Promise<Result<UserProfile, string>> {
@@ -5887,63 +5870,6 @@ name: string;
  * Number of rows.
  */
 row_count: number }
-/**
- * IPC payload for `verify_license`. The shape is the contract —
- * every field will keep its meaning when the stub is replaced with a
- * real implementation; only the *values* change.
- */
-export type LicenseStatus = { 
-/**
- * Coarse tier the user is entitled to. Drives slot-tier visibility
- * in the wizard and feature visibility in the main app.
- */
-tier: LicenseTier; 
-/**
- * True when the license is currently usable. False signals a
- * blocking state (expired, revoked, signature failure) — the
- * caller should refuse to enter paid surfaces.
- */
-valid: boolean; 
-/**
- * Unix seconds (UTC) at which the license stops being valid.
- * `None` = perpetual / Free / not applicable.
- */
-expires_at_unix: number | null; 
-/**
- * Authoritative list of unlocked features. The frontend should
- * gate against THIS list, not against `tier`. Empty list = nothing
- * beyond the always-on minion floor.
- */
-features: string[]; 
-/**
- * **Stub flag.** True until the real verification path lands.
- * Callers MUST treat this as read-only telemetry — never use it
- * to make security decisions.
- */
-stub: boolean; 
-/**
- * Human-readable explanation of why the response is a stub.
- * `None` once the real impl ships.
- */
-stub_reason: string | null }
-/**
- * Coarse-grained license tier. Frontend gates feature availability
- * against this enum, NOT against `features` (features is the
- * authoritative list — `tier` is a user-facing label).
- */
-export type LicenseTier = 
-/**
- * Floor — T1 Minions only. No paid features.
- */
-"free" | 
-/**
- * Mid — T1 + T2 Specialist slots unlocked.
- */
-"pro" | 
-/**
- * Top — full T1 + T2 + T3 Council unlocked, plus seat-bound features.
- */
-"enterprise"
 /**
  * Convenience for the Config tab's model picker — same call as
  * `validate_provider`, returns just the model list (or an empty list
