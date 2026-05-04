@@ -49,6 +49,11 @@ const ALLOW_LIST = [
 	"interfaces/desktop/scripts/build/styledictionary/",
 	"interfaces/desktop/src/lib/domains/app/models/",
 	"interfaces/desktop/src/routes/(devtools)/",
+	// `lib/devtools/` is the SSOT for devtool feature components — same
+	// dev-diagnostic surface as `routes/(devtools)/` and `lib/sys/debug/vpb/`,
+	// so the same pragmatic raw-value exemption applies (per
+	// `feedback_devtools_are_dev_diagnostics.md`).
+	"interfaces/desktop/src/lib/devtools/",
 	"interfaces/desktop/src/lib/layouts/app/BootOverlay",
 ];
 
