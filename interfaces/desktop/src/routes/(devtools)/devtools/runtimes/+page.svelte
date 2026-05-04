@@ -31,7 +31,7 @@ import {
 	type DevtoolMeta,
 	type HealthBadge,
 	ServiceDevtoolShell,
-} from "$lib/domains/platform/_shared/index.js";
+} from "$lib/devtools/index.js";
 import type {
 	RuntimeFingerprint,
 	RuntimeUpdateInfo,

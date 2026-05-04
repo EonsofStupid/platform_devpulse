@@ -1,13 +1,13 @@
 <!--
-	@file /devtools/system/retrieval/rro — thin route shell.
-	@route /devtools/system/retrieval/rro
+	@file /devtools/system/retrieval/rro — transitional shell.
+	@route /devtools/system/retrieval/rro (TO BE REPARENTED in Phase K)
 
-	Per docs/platform/Desktop.md §1.2: routes mirror their domain sister
-	and compose feature components. All logic, state, and IPC live in
-	$lib/domains/sys/rro.
+	The RRO devtool now lives at $lib/devtools/clyffy/reasoning/rro/. The
+	registry already routes to /devtools/clyffy/reasoning/rro; this file
+	stays only until Phase K rebirths route shells under the new tree.
 -->
 <script lang="ts">
-import { RroDevtool } from "$lib/domains/sys/rro/index.js";
+import { RroDevtool } from "$lib/devtools/clyffy/reasoning/rro/index.js";
 </script>
 
 <RroDevtool />

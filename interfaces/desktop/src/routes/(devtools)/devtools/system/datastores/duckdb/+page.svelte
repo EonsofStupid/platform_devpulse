@@ -12,14 +12,9 @@ import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { duckdbState } from "$lib/domains/infra/duckdb/index.js";
-import {
-	type ExtraTab,
-	type HealthBadge,
-	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
-import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
 
 let logEntries = $state<ScopedLogEntry[]>([]);
 let logLoading = $state(false);

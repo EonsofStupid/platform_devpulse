@@ -20,14 +20,9 @@ import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { DATABASE_OPTIONS, libsqlState } from "$lib/domains/infra/libsql/index.js";
-import {
-	type ExtraTab,
-	type HealthBadge,
-	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
-import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
 
 // ── Scoped log state ─────────────────────────────────────
 let logEntries = $state<ScopedLogEntry[]>([]);

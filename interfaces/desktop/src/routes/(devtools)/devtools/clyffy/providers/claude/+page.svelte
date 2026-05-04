@@ -48,7 +48,7 @@ import {
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/domains/platform/_shared/index.js";
+} from "$lib/devtools/index.js";
 import { type ClaudeInstall, type ClaudeTarget, commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { okQuery, PolledQuery } from "$lib/sys/runes/index.js";

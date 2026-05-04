@@ -30,7 +30,7 @@ import {
 	groupByTier,
 	type LucideIcon,
 	type TierGroup,
-} from "$lib/domains/platform/_shared/index.js";
+} from "$lib/devtools/index.js";
 import type {
 	LaneToggle,
 	LaneTraceConfig,

@@ -24,6 +24,7 @@ import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Stat } from "$lib/design/components/stat/index.js";
 import { StatusDot } from "$lib/design/components/status-dot/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import {
 	formatBytes,
 	formatDurationUs,
@@ -34,11 +35,6 @@ import {
 	laneLabel,
 	telemetryState,
 } from "$lib/domains/infra/telemetry/index.js";
-import {
-	type ExtraTab,
-	type HealthBadge,
-	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
 
 // ── Extra tabs (per-service) ────────────────────────────────
 const extraTabs: ExtraTab[] = [

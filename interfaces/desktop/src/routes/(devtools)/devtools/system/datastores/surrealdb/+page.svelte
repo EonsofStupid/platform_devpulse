@@ -41,16 +41,16 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import {
-	NAMESPACE_OPTIONS,
-	surrealSidecarState as surrealdbSidecar,
-	surrealState,
-} from "$lib/domains/infra/surreal/index.js";
-import {
 	type ExtraTab,
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
+} from "$lib/devtools/index.js";
+import {
+	NAMESPACE_OPTIONS,
+	surrealSidecarState as surrealdbSidecar,
+	surrealState,
+} from "$lib/domains/infra/surreal/index.js";
 
 // ── Mount ─────────────────────────────────────────────────
 // `onMount`, not `$effect`: each load*() reads + writes a *Loading

@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Brain, GitBranch, Search, Zap } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
 const badge: HealthBadge = {
 	state: "stopped",

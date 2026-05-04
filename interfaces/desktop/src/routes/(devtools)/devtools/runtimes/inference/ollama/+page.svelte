@@ -13,13 +13,13 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { ollamaSidecarState } from "$lib/domains/infra/ollama/index.js";
 import {
 	type CapturePayload,
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
+} from "$lib/devtools/index.js";
+import { ollamaSidecarState } from "$lib/domains/infra/ollama/index.js";
 
 // ── Mount: prime status + config on first render ──────────
 // Use `onMount`, NOT `$effect`. Each `loadXxx()` flips a `*Loading`

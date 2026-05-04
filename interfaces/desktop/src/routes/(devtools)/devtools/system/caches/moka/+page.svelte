@@ -13,11 +13,7 @@ import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import {
-	type HealthBadge,
-	ScopedLogPanel,
-	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
+import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
 // Local type — replaced by the generated binding on the next
 // `cargo xtask run-dev` (tauri-specta regenerates bindings.ts).

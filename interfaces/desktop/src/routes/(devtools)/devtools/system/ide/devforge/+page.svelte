@@ -12,13 +12,13 @@ import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { devforgeState } from "$lib/domains/app/devforge/index.js";
 import {
 	type ExtraTab,
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/domains/platform/index.js";
+} from "$lib/devtools/index.js";
+import { devforgeState } from "$lib/domains/app/devforge/index.js";
 
 const extraTabs: ExtraTab[] = [{ id: "projects", label: "Projects", Icon: FolderOpen }];
 

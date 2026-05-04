@@ -36,6 +36,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
 import {
 	listVoices,
@@ -49,7 +50,6 @@ import {
 	type VoiceInfo,
 	voiceState,
 } from "$lib/domains/app/voice/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/_shared/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";

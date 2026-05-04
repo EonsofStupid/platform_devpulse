@@ -24,7 +24,6 @@ import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Stat } from "$lib/design/components/stat/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
-import { modelsState } from "$lib/domains/app/models/index.js";
 import {
 	CommandErrorAlert,
 	DevtoolBentoGrid,
@@ -32,7 +31,8 @@ import {
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/domains/platform/_shared/index.js";
+} from "$lib/devtools/index.js";
+import { modelsState } from "$lib/domains/app/models/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";

@@ -27,16 +27,15 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
 import { speak, voiceTtsConfigState } from "$lib/domains/app/voice/index.js";
-import {
-	type CapturePayload,
-	type HealthBadge,
-	ServiceDevtoolShell,
-} from "$lib/domains/platform/_shared/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
-import type { ScopedLogEntry, VoiceCloneEntry } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import {
+	commands,
+	type ScopedLogEntry,
+	type VoiceCloneEntry,
+} from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
 
 // ── Static catalog ─────────────────────────────────────

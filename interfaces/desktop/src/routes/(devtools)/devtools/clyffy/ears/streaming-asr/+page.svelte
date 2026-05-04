@@ -17,8 +17,8 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { sherpaState } from "$lib/domains/infra/sherpa/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/domains/platform/index.js";
 
 // ── Mic-stream plumbing ──────────────────────────────────
 let audioCtx: AudioContext | null = null;
