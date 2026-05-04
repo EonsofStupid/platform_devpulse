@@ -23,10 +23,15 @@ pub mod traits;
 // Port allocation (shared by every sidecar).
 pub mod port_alloc;
 
-// Database adapters
+// Embedded deps — siblings of each other, composed by the
+// layman entries `cortex::rro` and (for the constrained-decoding
+// runtime) `cortex::llguidance`. Each in its own folder per
+// `project_devtool_modular_layout.md`.
+pub mod burn;
 pub mod duckdb;
 #[cfg(feature = "candle")]
 pub mod embedder;
+pub mod encoder;
 pub mod libsql;
 pub mod moka;
 #[cfg(feature = "rro")]

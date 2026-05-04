@@ -15,7 +15,7 @@
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
 
-use devpulse_clyffy::cortex::grammar::GrammarConfig;
+use devpulse_clyffy::cortex::llguidance::GrammarConfig;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};

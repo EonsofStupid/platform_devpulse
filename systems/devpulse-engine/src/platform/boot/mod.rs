@@ -74,7 +74,7 @@ use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, US
 use crate::platform::services::surreal::SurrealService;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
-use devpulse_clyffy::cortex::grammar::sync_grammar_service_from_config;
+use devpulse_clyffy::cortex::llguidance::sync_grammar_service_from_config;
 
 use anyhow::Result;
 use log::BootLog;

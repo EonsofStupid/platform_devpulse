@@ -8,7 +8,7 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
-use devpulse_clyffy::cortex::grammar::config::DEFAULT_GRAMMAR_KIND;
+use devpulse_clyffy::cortex::llguidance::config::DEFAULT_GRAMMAR_KIND;
 
 use super::config::{RedactionLevel, WhitelistConfig};
 use super::surface::{SurfaceCategory, SurfaceEvent};

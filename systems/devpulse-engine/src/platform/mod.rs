@@ -94,12 +94,14 @@ pub use devpulse_clyffy::cortex::reasoning::{
     RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
 };
 
-// IP-NOTE: grammar (constrained-decoding) runtime handle. Layman-friendly
-// type names (`GrammarKind::JsonSchema`/`Regex`/`Enum`/`Custom`,
-// `GrammarStatus::*`). The kernel owns the constraint engine; this is the
-// read/control snapshot the devtool consumes. Authored under the kernel
-// cortex SSOT at `kernel/devpulse-clyffy/src/cortex/grammar/handle.rs`.
-pub use devpulse_clyffy::cortex::grammar::{
+// IP-NOTE: LLM constrained-decoding runtime — `llguidance`-backed.
+// Layman-friendly type names (`GrammarKind::JsonSchema`/`Regex`/`Enum`/
+// `Custom`, `GrammarStatus::*`). The kernel owns the constraint engine;
+// this is the read/control snapshot the devtool consumes. Distinct from
+// the user-facing writing-grammar / spelling tool (Harper). Authored
+// under the kernel cortex SSOT at
+// `kernel/devpulse-clyffy/src/cortex/llguidance/handle.rs`.
+pub use devpulse_clyffy::cortex::llguidance::{
     GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus,
 };
 

@@ -4,8 +4,10 @@ pub mod adapters;
 pub mod cag;
 /// Governance graph — operator-authored reasoning trees per CORTEX.md §4.
 pub mod governance;
-/// Grammar and constrained decoding runtime ownership.
-pub mod grammar;
+/// LLM constrained-decoding runtime (`llguidance`-backed). Layman-facing
+/// surface is structured-output enforcement on the model token stream —
+/// distinct from the writing-grammar / spelling assistant (Harper).
+pub mod llguidance;
 /// Knowledge library — JSON-backed tips, did-you-know, glossary with libSQL runtime.
 pub mod knowledge;
 /// KV cache tier for attention optimization.
@@ -16,6 +18,10 @@ pub mod minions;
 pub mod persistence;
 /// Reasoning pipeline (chains, HMM).
 pub mod reasoning;
+/// RRO trifecta (layman entry) — sibling to `llguidance`. Re-exports
+/// the state machine from `reasoning` + the vector-store adapter from
+/// `persistence::rro`. Embedder + encoder land in Phase D'.
+pub mod rro;
 /// Trait definitions (memory, reasoning, security contracts).
 pub mod traits;
 

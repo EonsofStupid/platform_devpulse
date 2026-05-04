@@ -59,7 +59,7 @@ hf-hub = { version = "0.4", optional = true, default-features = false, features 
 # Observability
 tracing = { workspace = true }
 # Context-propagating broadcast channels (ADR-002) — required by
-# cortex::reasoning::state::RroStateHandle and cortex::grammar::handle::GrammarHandle
+# cortex::reasoning::state::RroStateHandle and cortex::llguidance::handle::GrammarHandle
 # to fan transition snapshots out to dev tools without losing OTel context.
 devpulse-telemetry = { workspace = true }
 
