@@ -4338,6 +4338,7 @@ name = "devpulse-clyffy"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "async-trait",
  "base64 0.22.1",
  "burn",
@@ -4357,6 +4358,7 @@ dependencies = [
  "serde",
  "serde_json",
  "specta",
+ "static_assertions",
  "streaming-iterator",
  "surrealdb",
  "thiserror 2.0.18",
@@ -4396,6 +4398,7 @@ dependencies = [
  "reqwest 0.12.28",
  "rmcp",
  "rodio",
+ "rrd",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -12644,6 +12647,18 @@ dependencies = [
  "lewton",
  "symphonia",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "rrd"
+version = "0.1.0"
+dependencies = [
+ "arc-swap",
+ "thiserror 2.0.18",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

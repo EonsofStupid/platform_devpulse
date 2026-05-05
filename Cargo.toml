@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "kernel/devpulse-clyffy",
     "kernel/model-loader",
+    "kernel/rrd",
     "systems/devpulse-engine",
     "systems/devpulse-media",
     "systems/infra/devpulse-telemetry",
@@ -67,6 +68,19 @@ flume = "0.11"
 # Used for platform state "init once, read many" patterns that must not hold
 # a tokio::sync::RwLock across await points.
 arc-swap = "1.7"
+
+# Compile-time trait-bound assertions. Used by the RRO encoder hot-update
+# pattern (`HOT_UPDATE_PATTERN.md` §12 verifications 1–2) to assert
+# `BurnEmbedder<B>: Send + Sync + 'static` per backend at compile time —
+# guards against a future Burn backend whose tensors aren't Sync silently
+# breaking the ArcSwap-based hot-swap path. Tiny crate, no transitive deps.
+static_assertions = "1.1"
+
+# Tokio extensions — `TaskTracker` (in-flight tracking) and
+# `CancellationToken` (drain signal). Used by the RRD daemon
+# (`HOT_UPDATE_PATTERN.md` §4.2 / H2). Pinned at 0.7.x line; 0.8 not
+# yet released as of 2026-05.
+tokio-util = { version = "0.7", features = ["rt"] }
 
 # Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
 devpulse-telemetry = { path = "systems/infra/devpulse-telemetry" }
