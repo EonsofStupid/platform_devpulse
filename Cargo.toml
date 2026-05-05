@@ -104,6 +104,13 @@ qwen3-tts = { git = "https://github.com/TrevorS/qwen3-tts-rs", rev = "711ceee07c
 # this dev box) and provides nothing we use.
 ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "ndarray", "load-dynamic"] }
 
+# Burn ML framework — locked authorship target for the RRO encoder per
+# `project_rro_burn_authorship.md`. Each kernel crate that consumes Burn
+# turns on the backend feature it needs (`burn-ndarray` for tests/CI,
+# `burn-cuda` for runtime). Default-features = false keeps optional
+# heavy backends (wgpu, metal, vulkan) opt-in.
+burn = { version = "0.20", default-features = false, features = ["std"] }
+
 # AST Analysis (GUARDIAN — tree-sitter powered security + refactoring safety)
 tree-sitter = "0.24"
 tree-sitter-rust = "0.23"

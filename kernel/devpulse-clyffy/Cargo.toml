@@ -9,6 +9,13 @@ rro = ["dep:rro"]
 # Upstream constrained-decoding engine (crates.io); enable for full grammar runtime.
 llguidance = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
+# Burn-backed authorship for the RRO encoder. `burn-cpu` keeps the dep
+# light (NdArray backend, pure CPU, dep-free) and is the test default.
+# `burn-cuda` adds the CUDA runtime dep — opt-in because it requires the
+# CUDA 12 toolkit on the build host. Both can be on simultaneously: the
+# code picks the backend at the type-parameter level.
+burn-cpu = ["dep:burn", "burn/ndarray"]
+burn-cuda = ["dep:burn", "burn/cuda"]
 model-loader = ["dep:model-loader", "model-loader/specta"]
 # Tauri IPC type derivation. Enable when this crate is consumed by the
 # Tauri facade (engine + desktop). Off by default so kernel-only builds
@@ -55,6 +62,12 @@ candle-nn = { workspace = true, optional = true }
 candle-transformers = { workspace = true, optional = true }
 tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
 hf-hub = { version = "0.4", optional = true, default-features = false, features = ["tokio"] }
+
+# Burn — RRO encoder authorship target. Optional; gated through
+# `burn-cpu` and `burn-cuda` features above. Default-features inherited
+# from the workspace dep (`std` only) so each consuming feature picks
+# its own backend without dragging others in.
+burn = { workspace = true, optional = true }
 
 # Observability
 tracing = { workspace = true }
