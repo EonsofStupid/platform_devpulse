@@ -1,0 +1,30 @@
+{
+  "version": "0.1.0",
+  "files": [
+    {
+      "name": "did_you_know.json",
+      "hash": "8c7c750101dc05da",
+      "count": 55
+    },
+    {
+      "name": "knowledge_drops.json",
+      "hash": "seed",
+      "count": 6
+    },
+    {
+      "name": "frustrations.json",
+      "hash": "seed",
+      "count": 5
+    },
+    {
+      "name": "insights.json",
+      "hash": "seed",
+      "count": 5
+    },
+    {
+      "name": "glossary.json",
+      "hash": "seed",
+      "count": 8
+    }
+  ]
+}

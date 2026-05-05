@@ -30,7 +30,13 @@ mod knowledge_smoke {
     #[test]
     fn all_entries_parse_clean() {
         let entries = loader::load_all().expect("load_all should succeed");
-        assert_eq!(entries.len(), 32, "expected 32 total entries (8+6+5+5+8)");
+        let manifest = loader::load_manifest().expect("manifest should parse");
+        let expected: usize = manifest.files.iter().map(|f| f.count).sum();
+        assert_eq!(
+            entries.len(),
+            expected,
+            "entry count must equal sum of manifest counts"
+        );
 
         for entry in &entries {
             assert!(!entry.id.is_empty(), "entry id must not be empty");
@@ -98,35 +104,30 @@ mod knowledge_smoke {
     // ── Test 6: Type counts are correct ─────────────────────
 
     #[test]
-    fn type_counts_match_expected() {
+    fn type_counts_match_manifest() {
+        // Counts come from `_manifest.json` so re-running the MD→JSON
+        // converter (`pnpm knowledge:build`) doesn't break this test —
+        // the manifest is regenerated in lockstep with the JSON files.
         let entries = loader::load_all().expect("load_all should succeed");
+        let manifest = loader::load_manifest().expect("manifest should parse");
 
-        let dyk = entries
-            .iter()
-            .filter(|e| matches!(e.entry_type, EntryType::Dyk))
-            .count();
-        let kdrop = entries
-            .iter()
-            .filter(|e| matches!(e.entry_type, EntryType::Kdrop))
-            .count();
-        let frust = entries
-            .iter()
-            .filter(|e| matches!(e.entry_type, EntryType::Frust))
-            .count();
-        let insight = entries
-            .iter()
-            .filter(|e| matches!(e.entry_type, EntryType::Insight))
-            .count();
-        let gloss = entries
-            .iter()
-            .filter(|e| matches!(e.entry_type, EntryType::Gloss))
-            .count();
+        let count_for = |name: &str| -> usize {
+            manifest
+                .files
+                .iter()
+                .find(|f| f.name == name)
+                .map(|f| f.count)
+                .unwrap_or(0)
+        };
+        let count_of = |t: EntryType| -> usize {
+            entries.iter().filter(|e| e.entry_type == t).count()
+        };
 
-        assert_eq!(dyk, 8, "expected 8 dyk entries");
-        assert_eq!(kdrop, 6, "expected 6 kdrop entries");
-        assert_eq!(frust, 5, "expected 5 frust entries");
-        assert_eq!(insight, 5, "expected 5 insight entries");
-        assert_eq!(gloss, 8, "expected 8 gloss entries");
+        assert_eq!(count_of(EntryType::Dyk), count_for("did_you_know.json"));
+        assert_eq!(count_of(EntryType::Kdrop), count_for("knowledge_drops.json"));
+        assert_eq!(count_of(EntryType::Frust), count_for("frustrations.json"));
+        assert_eq!(count_of(EntryType::Insight), count_for("insights.json"));
+        assert_eq!(count_of(EntryType::Gloss), count_for("glossary.json"));
     }
 
     // ── Test 7: Glossary entries have term+definition ────────

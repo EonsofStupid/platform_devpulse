@@ -1,0 +1,62 @@
+[
+  {
+    "id": "kdrop-001",
+    "type": "kdrop",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "intermediate",
+    "payload": { "title": "VRAM budgeting", "body": "Your GPU has a fixed amount of VRAM. Each loaded model takes a chunk. The VRAM bar shows what's left. If you load too many, the last one falls back to CPU (slower but works)." },
+    "tags": ["models", "vram", "gpu", "memory"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "kdrop-002",
+    "type": "kdrop",
+    "tool": "chat",
+    "category": "chat",
+    "tier": "beginner",
+    "payload": { "title": "Export your chats", "body": "Every conversation can be exported as Markdown or JSON. Use the actions menu in the chat sidebar. Your data, your format." },
+    "tags": ["chat", "export", "data"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "kdrop-003",
+    "type": "kdrop",
+    "tool": null,
+    "category": "platform",
+    "tier": "beginner",
+    "payload": { "title": "No internet required", "body": "Once your models are downloaded, everything runs offline. Chat, search, voice — all local. The internet is only needed to download new models." },
+    "tags": ["platform", "offline", "privacy"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "kdrop-004",
+    "type": "kdrop",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "advanced",
+    "payload": { "title": "Context length matters", "body": "A model's context length is how much text it can see at once. 4K = a few pages. 32K = a small book. 128K = a novel. Longer context uses more VRAM." },
+    "tags": ["models", "context", "memory"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "kdrop-005",
+    "type": "kdrop",
+    "tool": null,
+    "category": "voice",
+    "tier": "beginner",
+    "payload": { "title": "Voice is two models", "body": "Speech-to-text (your voice → text) and text-to-speech (AI text → spoken voice) are separate models. You can have one without the other." },
+    "tags": ["voice", "stt", "tts"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "kdrop-006",
+    "type": "kdrop",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "intermediate",
+    "payload": { "title": "devpulse.json manifests", "body": "Each model folder can have a devpulse.json that tells the system what the model does. Without it, DevPulse guesses from filenames and metadata." },
+    "tags": ["models", "manifest", "capabilities"],
+    "added": "2026-04-19"
+  }
+]

@@ -1,0 +1,973 @@
+[
+  {
+    "id": "dyk-001",
+    "type": "dyk",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "beginner",
+    "payload": {
+      "title": "What's a GGUF?",
+      "body": "GGUF files are single-file model checkpoints. One file = one model. No extra downloads needed."
+    },
+    "tags": [
+      "models",
+      "formats",
+      "gguf"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-002",
+    "type": "dyk",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "beginner",
+    "payload": {
+      "title": "Slots hold models",
+      "body": "Each slot is a job: Brain thinks, Voice speaks, Vision sees. Assign a model to each slot to enable that ability."
+    },
+    "tags": [
+      "models",
+      "slots"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-003",
+    "type": "dyk",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Warming vs Loading",
+      "body": "Warming loads weights to CPU RAM (fast, cheap). Loading pushes them to GPU VRAM (fast inference, uses GPU memory)."
+    },
+    "tags": [
+      "models",
+      "memory",
+      "gpu"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-004",
+    "type": "dyk",
+    "tool": null,
+    "category": "platform",
+    "tier": "beginner",
+    "payload": {
+      "title": "Portable by default",
+      "body": "All your data stays in the .userdata folder next to the app. Copy the folder, move to a new machine, everything comes with you."
+    },
+    "tags": [
+      "platform",
+      "portable",
+      "data"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-005",
+    "type": "dyk",
+    "tool": "chat",
+    "category": "chat",
+    "tier": "beginner",
+    "payload": {
+      "title": "Sessions auto-save",
+      "body": "Every message is saved to your local database the moment you send it. No cloud. No sync. It's yours."
+    },
+    "tags": [
+      "chat",
+      "sessions",
+      "privacy"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-006",
+    "type": "dyk",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Quantization = compression",
+      "body": "Q4 models use 4-bit weights (small, fast). Q8 uses 8-bit (larger, more accurate). F16 is uncompressed (huge, maximum quality)."
+    },
+    "tags": [
+      "models",
+      "quantization",
+      "quality"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-007",
+    "type": "dyk",
+    "tool": null,
+    "category": "rag",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Two-stage search",
+      "body": "Search uses an embedder to find candidates, then a reranker to sort them by relevance. Two models, one pipeline."
+    },
+    "tags": [
+      "rag",
+      "search",
+      "embedder",
+      "reranker"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-008",
+    "type": "dyk",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "advanced",
+    "payload": {
+      "title": "Backend routing",
+      "body": "Candle runs pure Rust inference. llama.cpp handles GGUF with GPU offload. ORT runs ONNX models. DevPulse picks the best backend per model."
+    },
+    "tags": [
+      "models",
+      "backends",
+      "candle",
+      "llamacpp",
+      "ort"
+    ],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "dyk-gen-001",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "beginner",
+    "payload": {
+      "title": "The Dartmouth AI workshop",
+      "body": "The term \"artificial intelligence\" was coined at a workshop at Dartmouth College in 1956. John McCarthy organized the event, and most attendees thought the problem would be solved within a generation. Nearly 70 years later, we're still working on it.",
+      "source": "Dartmouth AI Project Proposal, 1955"
+    },
+    "tags": [
+      "history",
+      "origins",
+      "john-mccarthy",
+      "dartmouth"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-002",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "beginner",
+    "payload": {
+      "title": "The 1958 Perceptron",
+      "body": "The first neural network, the Perceptron, was built in 1958 by Frank Rosenblatt at Cornell. The Navy funded it, and the New York Times predicted it would \"walk, talk, see, write, and be conscious of its existence.\" That hype cycle crashed spectacularly by 1969.",
+      "source": "Rosenblatt, Cornell Aeronautical Laboratory"
+    },
+    "tags": [
+      "perceptron",
+      "neural-network",
+      "hype-cycle",
+      "frank-rosenblatt"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-003",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "beginner",
+    "payload": {
+      "title": "Turing's 1950 Imitation Game",
+      "body": "Alan Turing proposed the \"Imitation Game\" test in 1950 — six years before anyone used the term \"artificial intelligence\". His question: if a machine can fool a human into thinking it's human, does it matter if it's \"really\" thinking?",
+      "source": "Turing, \"Computing Machinery and Intelligence,\" 1950"
+    },
+    "tags": [
+      "turing-test",
+      "alan-turing",
+      "philosophy",
+      "history"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-004",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Two AI winters",
+      "body": "The \"AI Winter\" happened twice. The first was in the 1970s when DARPA cut funding after overhyped promises. The second hit in the late 1980s when expert systems collapsed. Both times, researchers who stayed through the winter built the foundations of modern AI.",
+      "source": "Common knowledge, AI history surveys"
+    },
+    "tags": [
+      "ai-winter",
+      "funding",
+      "darpa",
+      "expert-systems"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-005",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "beginner",
+    "payload": {
+      "title": "Deep Blue vs Kasparov",
+      "body": "IBM's Deep Blue beat world chess champion Garry Kasparov in 1997. Kasparov accused IBM of cheating and demanded a rematch. IBM refused and dismantled the machine. The controversy hasn't been fully resolved.",
+      "source": "IBM archives, Kasparov interviews"
+    },
+    "tags": [
+      "deep-blue",
+      "chess",
+      "kasparov",
+      "ibm",
+      "milestone"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-006",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Backprop's four rediscoveries",
+      "body": "The backpropagation algorithm was rediscovered independently at least four times. Paul Werbos published it in 1974, but it stayed buried. Rumelhart, Hinton, and Williams popularized it in 1986 — and that paper launched the neural network revival.",
+      "source": "Werbos 1974; Rumelhart et al. 1986"
+    },
+    "tags": [
+      "backpropagation",
+      "hinton",
+      "history",
+      "algorithm"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-007",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Attention Is All You Need (2017)",
+      "body": "The transformer architecture that powers GPT, Claude, and Gemini came from a 2017 Google paper called \"Attention Is All You Need\". The authors didn't predict it would replace recurrent networks for almost every language task.",
+      "source": "Vaswani et al., NeurIPS 2017"
+    },
+    "tags": [
+      "transformer",
+      "attention",
+      "google",
+      "history"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-008",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "beginner",
+    "payload": {
+      "title": "From GPT-1 to GPT-4: 10,000×",
+      "body": "GPT-1 had 117 million parameters in 2018. GPT-4 is estimated at over a trillion. That's roughly a 10,000× increase in six years, yet the core architecture (transformer decoder) is almost unchanged.",
+      "source": "OpenAI papers"
+    },
+    "tags": [
+      "gpt",
+      "scaling",
+      "openai",
+      "history"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-009",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "advanced",
+    "payload": {
+      "title": "AlexNet's 2012 ImageNet upset",
+      "body": "AlexNet won the 2012 ImageNet competition with such a huge margin that it single-handedly convinced the research community to take deep learning seriously. It was trained on two consumer GTX 580 GPUs.",
+      "source": "Krizhevsky, Sutskever, Hinton 2012"
+    },
+    "tags": [
+      "alexnet",
+      "imagenet",
+      "gpu",
+      "breakthrough"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-010",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "beginner",
+    "payload": {
+      "title": "Where 'robot' came from",
+      "body": "The word \"robot\" comes from a 1920 Czech play called \"R.U.R.\" by Karel Čapek. It's derived from \"robota,\" meaning forced labor. The play ends with robots overthrowing humanity — a trope we've never stopped retelling.",
+      "source": "Čapek, \"R.U.R.\" 1920"
+    },
+    "tags": [
+      "robot",
+      "etymology",
+      "history",
+      "pop-culture"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-011",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "intermediate",
+    "payload": {
+      "title": "ELIZA, the 1966 chatbot",
+      "body": "ELIZA, the 1966 chatbot built by Joseph Weizenbaum at MIT, used pattern matching and reflection to simulate a psychotherapist. Weizenbaum was horrified when his secretary asked him to leave the room so she could have a \"private\" conversation with it.",
+      "source": "Weizenbaum, MIT 1966"
+    },
+    "tags": [
+      "eliza",
+      "chatbot",
+      "weizenbaum",
+      "history"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-012",
+    "type": "dyk",
+    "tool": null,
+    "category": "history",
+    "tier": "advanced",
+    "payload": {
+      "title": "LSTMs: 1997 to 2017",
+      "body": "LSTMs (Long Short-Term Memory networks) were invented in 1997 by Hochreiter and Schmidhuber. They dominated sequence modeling for two decades until transformers replaced them almost overnight in 2017-2018.",
+      "source": "Hochreiter & Schmidhuber 1997"
+    },
+    "tags": [
+      "lstm",
+      "rnn",
+      "history",
+      "schmidhuber"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-013",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "beginner",
+    "payload": {
+      "title": "What's a token?",
+      "body": "A \"token\" in large language models isn't always a word. \"Unbelievable\" might be split into \"un\", \"believ\", \"able\". This is why LLMs can sometimes struggle with rare words or long numbers — they see them as unfamiliar fragments."
+    },
+    "tags": [
+      "tokens",
+      "tokenization",
+      "llm-basics"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-014",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "beginner",
+    "payload": {
+      "title": "The context window",
+      "body": "\"Context window\" means the maximum amount of text an LLM can consider at once. Early GPT-3 had 2,048 tokens. Modern models stretch to millions. But bigger isn't always better — models often lose information in the middle of large contexts."
+    },
+    "tags": [
+      "context-window",
+      "lost-in-middle",
+      "llm"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-015",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "beginner",
+    "payload": {
+      "title": "What 'hallucination' means",
+      "body": "\"Hallucination\" in AI means the model making up facts with complete confidence. It's not lying — the model doesn't know the difference between recalling and inventing. This is why verification is critical for anything factual."
+    },
+    "tags": [
+      "hallucination",
+      "reliability",
+      "llm-basics"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-016",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Temperature controls randomness",
+      "body": "\"Temperature\" in LLM settings controls randomness. At 0.0 the model picks the most likely next token every time (deterministic). At 1.0+ it takes more creative risks. Code generation usually works best at 0.0-0.3."
+    },
+    "tags": [
+      "temperature",
+      "sampling",
+      "llm-tuning"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-017",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "How RAG works",
+      "body": "\"RAG\" (Retrieval-Augmented Generation) lets an LLM look up relevant documents before answering. It's how most modern AI tools handle large codebases — they don't \"know\" your code; they retrieve the relevant parts and read them fresh each time."
+    },
+    "tags": [
+      "rag",
+      "retrieval",
+      "vector-search"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-018",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Embeddings turn text into vectors",
+      "body": "\"Embeddings\" turn text into numbers (vectors) that capture meaning. \"King - Man + Woman ≈ Queen\" became a famous example. This is how AI tools find \"similar\" code or docs without keyword matching."
+    },
+    "tags": [
+      "embeddings",
+      "vectors",
+      "semantic-search"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-019",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "advanced",
+    "payload": {
+      "title": "Chain-of-thought prompting",
+      "body": "\"Chain of thought\" prompting (telling a model to think step by step) can dramatically improve complex reasoning. Google showed it boosts math accuracy on GSM8K from 18% to 57% with no model changes — just different prompts.",
+      "source": "Wei et al., Google Research 2022"
+    },
+    "tags": [
+      "chain-of-thought",
+      "prompting",
+      "reasoning"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-020",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Few-shot in-context learning",
+      "body": "\"Few-shot learning\" means giving an LLM a few examples in the prompt before asking it to do the same. You don't retrain the model — you show it the pattern and it extrapolates. Often works better than detailed instructions."
+    },
+    "tags": [
+      "few-shot",
+      "prompting",
+      "in-context-learning"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-021",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "advanced",
+    "payload": {
+      "title": "Fine-tuning vs prompting",
+      "body": "\"Fine-tuning\" permanently adjusts a model's weights for a specific task, while \"prompting\" doesn't change the model at all. Fine-tuning is expensive but persistent; prompting is cheap but resets every conversation."
+    },
+    "tags": [
+      "fine-tuning",
+      "prompting",
+      "training"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-022",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Quantization shrinks models",
+      "body": "\"Quantization\" shrinks model size by using lower-precision numbers (like 4-bit instead of 16-bit). A 70B model that needs 140GB at full precision can run in ~40GB at Q4 — losing only a tiny bit of quality."
+    },
+    "tags": [
+      "quantization",
+      "model-compression",
+      "gguf"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-023",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "advanced",
+    "payload": {
+      "title": "Attention scales quadratically",
+      "body": "\"Attention\" in transformers is literally a weighted lookup — each token decides how much it cares about every other token. This is why models scale quadratically with context length (twice the context = four times the compute)."
+    },
+    "tags": [
+      "attention",
+      "transformer",
+      "architecture"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-024",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "LoRA: cheap fine-tuning",
+      "body": "\"LoRA\" (Low-Rank Adaptation) lets you fine-tune huge models by training only a small \"adapter\" layer. You can create specialized versions of a 7B model with less than 1GB of extra weights."
+    },
+    "tags": [
+      "lora",
+      "adapters",
+      "fine-tuning"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-025",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "beginner",
+    "payload": {
+      "title": "Prompt injection attacks",
+      "body": "\"Prompt injection\" is a security vulnerability where malicious text hidden in a document can hijack an AI assistant's behavior. It's the AI equivalent of SQL injection. If your AI agent reads untrusted web pages, this is a real threat."
+    },
+    "tags": [
+      "prompt-injection",
+      "security",
+      "llm-risks"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-026",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "advanced",
+    "payload": {
+      "title": "Mixture of experts (MoE)",
+      "body": "\"Mixture of experts\" (MoE) models only activate a small subset of their parameters per token. A 30B MoE might only use 3B active parameters at any moment — dramatically cheaper inference for similar quality."
+    },
+    "tags": [
+      "moe",
+      "mixture-of-experts",
+      "architecture"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-027",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "advanced",
+    "payload": {
+      "title": "Constrained decoding",
+      "body": "\"Constrained decoding\" forces a model to produce output matching a grammar (like valid JSON or SQL). Instead of hoping the model behaves, you mathematically prevent impossible tokens at each step. Tools like llguidance make this practical."
+    },
+    "tags": [
+      "constrained-decoding",
+      "grammar",
+      "structured-output"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-028",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "What's the KV cache?",
+      "body": "\"KV cache\" stores intermediate attention values so the model doesn't recompute them for every new token. It's the difference between AI being usable and unusably slow. Managing KV cache is the main challenge for long contexts."
+    },
+    "tags": [
+      "kv-cache",
+      "inference-optimization",
+      "transformer"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-029",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Reranking with cross-encoders",
+      "body": "\"Reranking\" re-scores search results using a more expensive model. You retrieve 50 candidates with a fast embedder, then rerank the top 10 with a slower cross-encoder. You get much better results than either stage alone."
+    },
+    "tags": [
+      "reranking",
+      "retrieval",
+      "two-stage"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-030",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "advanced",
+    "payload": {
+      "title": "Speculative decoding",
+      "body": "\"Speculative decoding\" uses a small model to draft multiple tokens, then verifies them with the big model in parallel. You can get 2-3× faster generation with identical output. It's the main trick behind many \"fast\" inference engines."
+    },
+    "tags": [
+      "speculative-decoding",
+      "inference",
+      "optimization"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-031",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "beginner",
+    "payload": {
+      "title": "What 'agentic' means",
+      "body": "\"Agentic\" AI means the model takes actions (calling tools, writing files, running commands) rather than just generating text. The tradeoff: more power, more risk. An agent with bad instructions can do real damage before you notice."
+    },
+    "tags": [
+      "agents",
+      "agentic",
+      "tool-use"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-032",
+    "type": "dyk",
+    "tool": null,
+    "category": "concept",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Tool calling explained",
+      "body": "\"Tool calling\" is when an LLM decides to pause generation and call an external function (like a calculator, search, or API). The model doesn't actually call it — it outputs a request, your code executes, and the result feeds back in."
+    },
+    "tags": [
+      "tool-calling",
+      "function-calling",
+      "agents"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-033",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "beginner",
+    "payload": {
+      "title": "The deep-learning godfathers",
+      "body": "Geoffrey Hinton, Yann LeCun, and Yoshua Bengio shared the 2018 Turing Award for their work on deep learning. They're often called \"the godfathers of AI\" — though each has his own very different view on where the field should go next."
+    },
+    "tags": [
+      "hinton",
+      "lecun",
+      "bengio",
+      "turing-award"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-034",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "beginner",
+    "payload": {
+      "title": "Ilya Sutskever's SSI bet",
+      "body": "Ilya Sutskever co-founded OpenAI in 2015 and was chief scientist through the launch of GPT-4. He left in 2024 to start Safe Superintelligence Inc. with the goal of building one product: safe ASI."
+    },
+    "tags": [
+      "sutskever",
+      "openai",
+      "ssi"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-035",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Schmidhuber's credit war",
+      "body": "Jürgen Schmidhuber claims (with some justification) to have anticipated most modern deep learning ideas in the 1990s. He's the inventor of LSTM and has a famously combative relationship with the \"godfathers\" over credit attribution."
+    },
+    "tags": [
+      "schmidhuber",
+      "lstm",
+      "credit-wars"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-036",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "beginner",
+    "payload": {
+      "title": "Karpathy's char-rnn",
+      "body": "Andrej Karpathy wrote the first version of his \"char-rnn\" blog post in 2015, which taught a generation of engineers how neural networks work. He later led Tesla Autopilot and returned to building educational AI content."
+    },
+    "tags": [
+      "karpathy",
+      "education",
+      "rnn"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-037",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "beginner",
+    "payload": {
+      "title": "Demis Hassabis at DeepMind",
+      "body": "Demis Hassabis co-founded DeepMind in 2010 after careers as a chess prodigy, video game designer, and neuroscientist. DeepMind was acquired by Google in 2014 and went on to produce AlphaGo, AlphaFold, and Gemini."
+    },
+    "tags": [
+      "hassabis",
+      "deepmind",
+      "google"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-038",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "intermediate",
+    "payload": {
+      "title": "The Amodeis at Anthropic",
+      "body": "Dario and Daniela Amodei co-founded Anthropic in 2021 after leaving OpenAI with several colleagues over strategic differences. Anthropic has since focused heavily on AI safety research and built the Claude family of models."
+    },
+    "tags": [
+      "amodei",
+      "anthropic",
+      "claude",
+      "safety"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-039",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Chollet, Keras, ARC-AGI",
+      "body": "François Chollet created Keras, one of the most popular deep learning libraries, during lunch breaks at his day job. He also designed the ARC-AGI benchmark, which remains one of the hardest tests for AI reasoning."
+    },
+    "tags": [
+      "chollet",
+      "keras",
+      "arc-agi"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-040",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "advanced",
+    "payload": {
+      "title": "LeCun's 1980s CNN",
+      "body": "Yann LeCun invented convolutional neural networks (CNNs) in the 1980s while at Bell Labs. They were used commercially for reading handwritten checks by the late 1990s — long before the 2012 ImageNet moment put deep learning on the map."
+    },
+    "tags": [
+      "lecun",
+      "cnn",
+      "bell-labs"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-041",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "intermediate",
+    "payload": {
+      "title": "Timnit Gebru and DAIR",
+      "body": "Timnit Gebru was fired from Google in 2020 after raising concerns about the risks of large language models in a paper Google tried to suppress. She went on to found the Distributed AI Research Institute (DAIR)."
+    },
+    "tags": [
+      "gebru",
+      "ethics",
+      "dair"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-042",
+    "type": "dyk",
+    "tool": null,
+    "category": "figure",
+    "tier": "advanced",
+    "payload": {
+      "title": "Judea Pearl on causality",
+      "body": "Judea Pearl won the Turing Award in 2011 for his work on causal reasoning and Bayesian networks. He argues modern deep learning still can't do true causal inference — only correlation at enormous scale."
+    },
+    "tags": [
+      "pearl",
+      "causality",
+      "bayesian"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-043",
+    "type": "dyk",
+    "tool": null,
+    "category": "breakthrough",
+    "tier": "beginner",
+    "payload": {
+      "title": "AlphaGo's Move 37",
+      "body": "AlphaGo beat world champion Lee Sedol in 2016. Move 37 in game 2 was so unusual that commentators initially thought it was a mistake. It's now considered one of the most creative moves in Go history — and it came from a machine.",
+      "source": "DeepMind, 2016"
+    },
+    "tags": [
+      "alphago",
+      "go",
+      "deepmind",
+      "move-37"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-044",
+    "type": "dyk",
+    "tool": null,
+    "category": "breakthrough",
+    "tier": "intermediate",
+    "payload": {
+      "title": "AlphaFold solved protein folding",
+      "body": "AlphaFold 2 solved protein structure prediction in 2020 — a problem biologists had worked on for 50 years. DeepMind released predictions for 200 million proteins for free, accelerating drug discovery worldwide.",
+      "source": "DeepMind, Nature 2021"
+    },
+    "tags": [
+      "alphafold",
+      "biology",
+      "protein"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-045",
+    "type": "dyk",
+    "tool": null,
+    "category": "breakthrough",
+    "tier": "beginner",
+    "payload": {
+      "title": "GPT-3 and the scaling laws",
+      "body": "GPT-3's launch in 2020 surprised even OpenAI. It was the first model where scaling alone (more parameters, more data) produced qualitatively new capabilities like few-shot learning. The \"scaling laws\" paper that predicted this came out the same year.",
+      "source": "OpenAI, Kaplan et al. 2020"
+    },
+    "tags": [
+      "gpt-3",
+      "scaling-laws",
+      "emergence"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-046",
+    "type": "dyk",
+    "tool": null,
+    "category": "breakthrough",
+    "tier": "intermediate",
+    "payload": {
+      "title": "ChatGPT's first five days",
+      "body": "The original ChatGPT (Nov 2022) was just GPT-3.5 plus a chat interface. OpenAI expected maybe 100k users in the first week. It hit a million in five days — the fastest adoption of any consumer product at the time.",
+      "source": "OpenAI"
+    },
+    "tags": [
+      "chatgpt",
+      "adoption",
+      "launch"
+    ],
+    "added": "2026-05-04"
+  },
+  {
+    "id": "dyk-gen-047",
+    "type": "dyk",
+    "tool": null,
+    "category": "breakthrough",
+    "tier": "advanced",
+    "payload": {
+      "title": "Stable Diffusion's open release",
+      "body": "Stable Diffusion's 2022 release was a watershed moment — the first high-quality image model you could run on your own GPU. It launched an entire ecosystem of open-source image tools almost overnight.",
+      "source": "Stability AI, 2022"
+    },
+    "tags": [
+      "stable-diffusion",
+      "open-source",
+      "image-generation"
+    ],
+    "added": "2026-05-04"
+  }
+]

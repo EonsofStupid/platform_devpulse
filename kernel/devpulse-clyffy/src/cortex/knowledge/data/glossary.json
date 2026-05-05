@@ -1,0 +1,82 @@
+[
+  {
+    "id": "gloss-001",
+    "type": "gloss",
+    "tool": null,
+    "category": "models",
+    "tier": "beginner",
+    "payload": { "term": "GGUF", "definition": "A single-file model format used by llama.cpp. One file contains everything needed to run inference." },
+    "tags": ["models", "formats"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-002",
+    "type": "gloss",
+    "tool": null,
+    "category": "models",
+    "tier": "beginner",
+    "payload": { "term": "VRAM", "definition": "Video RAM — the memory on your GPU. Models load here for fast inference. More VRAM = bigger models." },
+    "tags": ["hardware", "gpu"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-003",
+    "type": "gloss",
+    "tool": null,
+    "category": "models",
+    "tier": "beginner",
+    "payload": { "term": "Slot", "definition": "A named job that needs a model. 'Brain' is a slot. 'Voice' is a slot. Assign a model to a slot to enable that ability." },
+    "tags": ["models", "slots"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-004",
+    "type": "gloss",
+    "tool": null,
+    "category": "models",
+    "tier": "intermediate",
+    "payload": { "term": "Quantization", "definition": "Compressing model weights to use less memory. Q4 = 4-bit (smallest), Q8 = 8-bit, F16 = 16-bit (full precision)." },
+    "tags": ["models", "quantization"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-005",
+    "type": "gloss",
+    "tool": null,
+    "category": "rag",
+    "tier": "intermediate",
+    "payload": { "term": "Embedder", "definition": "A model that converts text into a vector (list of numbers). Similar texts produce similar vectors, enabling semantic search." },
+    "tags": ["rag", "embedder"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-006",
+    "type": "gloss",
+    "tool": null,
+    "category": "rag",
+    "tier": "intermediate",
+    "payload": { "term": "Reranker", "definition": "A model that scores how relevant a document is to a query. Runs after the embedder to refine search results." },
+    "tags": ["rag", "reranker"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-007",
+    "type": "gloss",
+    "tool": null,
+    "category": "models",
+    "tier": "beginner",
+    "payload": { "term": "Inference", "definition": "Running a model to get a response. When the AI 'thinks' and produces text, that's inference." },
+    "tags": ["models", "inference"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-008",
+    "type": "gloss",
+    "tool": null,
+    "category": "platform",
+    "tier": "beginner",
+    "payload": { "term": "Context length", "definition": "How much text a model can read at once. Measured in tokens (roughly 1 token = 0.75 words). 4K tokens ~ 3,000 words." },
+    "tags": ["models", "context"],
+    "added": "2026-04-19"
+  }
+]

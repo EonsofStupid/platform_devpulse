@@ -15,6 +15,7 @@
     "verify": "tsx pipeline/verify.ts",
     "lint:plans": "tsx pipeline/lint-plan.ts",
     "lint:plans:self": "tsx pipeline/lint-plan.ts --self",
+    "knowledge:build": "node ../knowledge_library/build.mjs",
     "check": "pnpm scan && pnpm validate && pnpm preflight:check"
   },
   "dependencies": {

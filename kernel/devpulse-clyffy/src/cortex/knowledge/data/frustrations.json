@@ -1,0 +1,52 @@
+[
+  {
+    "id": "frust-001",
+    "type": "frust",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "beginner",
+    "payload": { "title": "Model download seems stuck", "body": "Large models (4GB+) take time. Check your network speed in the download bar. If speed drops to 0, HuggingFace might be throttling — wait a minute and it'll resume." },
+    "tags": ["models", "download", "stuck"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "frust-002",
+    "type": "frust",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "beginner",
+    "payload": { "title": "Model won't load (out of memory)", "body": "Your GPU doesn't have enough VRAM for this model. Try a smaller quantization (Q4 instead of Q8) or use CPU mode (slower but works with any RAM)." },
+    "tags": ["models", "vram", "oom", "gpu"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "frust-003",
+    "type": "frust",
+    "tool": "chat",
+    "category": "chat",
+    "tier": "beginner",
+    "payload": { "title": "Chat not responding", "body": "The brain model might not be loaded. Open Model Loader and check if the Brain card shows 'Active'. If it shows 'Not Loaded', click the load button." },
+    "tags": ["chat", "model", "not-loaded"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "frust-004",
+    "type": "frust",
+    "tool": null,
+    "category": "platform",
+    "tier": "beginner",
+    "payload": { "title": "App feels slow on startup", "body": "First boot initializes databases and scans for models. Subsequent starts are much faster because everything is cached. Give it 10-15 seconds on first run." },
+    "tags": ["platform", "boot", "slow"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "frust-005",
+    "type": "frust",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "intermediate",
+    "payload": { "title": "Wrong model in the picker", "body": "ModelPicker filters by capability. If a model doesn't appear where you expect, check its devpulse.json — the 'capabilities' array controls which slots it's compatible with." },
+    "tags": ["models", "picker", "capabilities", "manifest"],
+    "added": "2026-04-19"
+  }
+]
