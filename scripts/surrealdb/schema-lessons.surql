@@ -9,6 +9,8 @@
 -- The lesson engine itself is pure TS (platform/lesson-engine/) and
 -- can be consumed by any host: VS Code, Svelte, CLI, MCP.
 
+USE NS projects DB devpulse;
+
 -- ── Lesson Progress ──
 -- Tracks user progression through individual lessons.
 -- Each row = one user session through one lesson.
