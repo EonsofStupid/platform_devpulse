@@ -15,8 +15,29 @@
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 
-const ENDPOINT = "http://127.0.0.1:8822/sql";
+const LOCAL_BASE = "http://127.0.0.1:8822";
+const CLOUD_BASE = "https://devpulse-06e6sbjhctrt511bgpdvd3d6c8.aws-use1.surreal.cloud";
 const AUTH = "Basic " + Buffer.from("devpulse_engine:dp_sys_2026!").toString("base64");
+
+// Probe local first; fall back to cloud. ENDPOINT is set by chooseEndpoint().
+let ENDPOINT = LOCAL_BASE + "/sql";
+function chooseEndpoint() {
+	const probe = (base, timeoutMs) => {
+		try {
+			const r = spawnSync("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}",
+				"-X", "POST", base + "/sql",
+				"-H", "Accept: application/json",
+				"-H", "NS: global", "-H", "DB: knowledge",
+				"-H", `Authorization: ${AUTH}`,
+				"-d", "INFO FOR DB;",
+			], { encoding: "utf-8", timeout: timeoutMs });
+			return r.stdout && r.stdout.trim() === "200";
+		} catch (e) { return false; }
+	};
+	if (probe(LOCAL_BASE, 3000)) { ENDPOINT = LOCAL_BASE + "/sql"; return "local"; }
+	if (probe(CLOUD_BASE, 8000)) { ENDPOINT = CLOUD_BASE + "/sql"; return "cloud"; }
+	return null;
+}
 
 // Read hook input from stdin for CLAUDE_ENV_FILE
 let hookData = {};
@@ -52,23 +73,11 @@ function query(ns, db, sql) {
 	}
 }
 
-// Check if SurrealDB is accessible
-const testResult = query("global", "knowledge", "SELECT count() AS c FROM preferences GROUP ALL;");
-if (testResult.length === 0) {
-	// Try a simpler connectivity test
-	try {
-		const health = spawnSync("curl", ["-s", "http://127.0.0.1:8822/health"], {
-			encoding: "utf-8",
-			timeout: 3000,
-		});
-		if (!health.stdout || !health.stdout.includes("healthy")) {
-			console.log("[Banter: SurrealDB not accessible on port 8822 - skipping memory restore]");
-			process.exit(0);
-		}
-	} catch (e) {
-		console.log("[Banter: SurrealDB not accessible on port 8822 - skipping memory restore]");
-		process.exit(0);
-	}
+// Pick local-or-cloud endpoint before issuing real queries
+const where = chooseEndpoint();
+if (!where) {
+	console.log("[Banter: SurrealDB unreachable — local 8822 down, cloud unreachable. Skipping memory restore.]");
+	process.exit(0);
 }
 
 // ── Create or find active session ──
