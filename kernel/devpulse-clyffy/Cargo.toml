@@ -14,8 +14,14 @@ candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:to
 # `burn-cuda` adds the CUDA runtime dep — opt-in because it requires the
 # CUDA 12 toolkit on the build host. Both can be on simultaneously: the
 # code picks the backend at the type-parameter level.
-burn-cpu = ["dep:burn", "burn/ndarray"]
-burn-cuda = ["dep:burn", "burn/cuda"]
+#
+# `arc-swap` and `static_assertions` are pulled in by the burn features
+# specifically — the hot-update pattern (`HOT_UPDATE_PATTERN.md` §12)
+# needs `assert_impl_all!(BurnEmbedder<B>: Send, Sync, 'static)` and
+# the ArcSwap round-trip test, both of which only compile when the
+# encoder code itself is compiled.
+burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions"]
+burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions"]
 model-loader = ["dep:model-loader", "model-loader/specta"]
 # Tauri IPC type derivation. Enable when this crate is consumed by the
 # Tauri facade (engine + desktop). Off by default so kernel-only builds
@@ -68,6 +74,17 @@ hf-hub = { version = "0.4", optional = true, default-features = false, features 
 # from the workspace dep (`std` only) so each consuming feature picks
 # its own backend without dragging others in.
 burn = { workspace = true, optional = true }
+
+# Atomic Arc swap for the encoder hot-update pattern
+# (`HOT_UPDATE_PATTERN.md` §4.1, H1). Pulled in alongside Burn — the
+# encoder is the canonical user, no other path in this crate touches it.
+arc-swap = { workspace = true, optional = true }
+
+# Compile-time `Send + Sync + 'static` assertions per backend
+# (`HOT_UPDATE_PATTERN.md` §7.1, H6). Burn's `Module` trait declares
+# only `Clone + Send + Debug`; backends are Sync in practice but we
+# encode that contract at the assertion site, not silently.
+static_assertions = { workspace = true, optional = true }
 
 # Observability
 tracing = { workspace = true }

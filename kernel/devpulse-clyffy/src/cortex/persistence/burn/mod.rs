@@ -45,6 +45,34 @@ pub use embedder::{l2_normalize, pool_last_token, BurnEmbedder, EmbedderConfig};
 pub use qwen3::{Qwen3Config, Qwen3Model};
 
 // ═══════════════════════════════════════════════════════════════════════
+// Hot-update contract — compile-time bounds per backend
+// ═══════════════════════════════════════════════════════════════════════
+//
+// Per HOT_UPDATE_PATTERN.md §7.1 / H6: Burn's `Module` supertrait set is
+// `Clone + Send + Debug` (verified against Burn 0.20.1, NOT main). `Sync`
+// and `'static` are NOT in the bound set. ArcSwap requires `Send + Sync`
+// for the inner type, so we encode the constraint at the assertion site
+// per backend rather than discovering it at the first concurrent reader.
+//
+// `'static` is implied by the absence of non-static lifetime parameters
+// on `BurnEmbedder<B>` and is exercised at compile time by the ArcSwap
+// round-trip test below (ArcSwap's bounds reject non-`'static` types).
+//
+// HOT_UPDATE_PATTERN.md §12 verification targets 1 and 2.
+
+// PROBE: is Burn's bare tensor type itself Sync? If yes, the
+// re-authoring path (replace `burn::nn::*` with raw `Tensor` fields)
+// is viable. If no, we have a deeper Burn-vs-Sync incompatibility.
+#[cfg(feature = "burn-cpu")]
+static_assertions::assert_impl_all!(burn::tensor::Tensor<burn::backend::NdArray, 2>: Send, Sync);
+
+#[cfg(feature = "burn-cpu")]
+static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::NdArray>: Send, Sync);
+
+#[cfg(feature = "burn-cuda")]
+static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: Send, Sync);
+
+// ═══════════════════════════════════════════════════════════════════════
 // Tests — under `burn-cpu` so CI runs without a GPU host.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -129,6 +157,54 @@ mod tests {
                 "row {b}: L2 norm = {norm}, expected ≈ 1.0"
             );
         }
+    }
+
+    /// Round-trip the embedder through `ArcSwap` to validate the §4.1
+    /// hot-update primitive against real `BurnEmbedder<NdArray>` state.
+    ///
+    /// Three properties asserted:
+    ///
+    /// 1. `swap()` returns the previously-stored `Arc` (so the
+    ///    maintenance task owns the Drop, per H4 — slow-Drop never hits
+    ///    a reader thread).
+    /// 2. `load_full()` after a swap returns the new `Arc` identity
+    ///    (atomicity — no torn read where load returns half-old state).
+    /// 3. The whole sequence compiles, which implicitly proves
+    ///    `BurnEmbedder<NdArray>: Send + Sync + 'static` (ArcSwap's
+    ///    bounds on the inner type would reject otherwise).
+    ///
+    /// HOT_UPDATE_PATTERN.md §12 verification target 3.
+    #[test]
+    fn arcswap_round_trip_preserves_identity_through_swap() {
+        use arc_swap::ArcSwap;
+        use std::sync::Arc;
+
+        let device = Default::default();
+        let cfg = EmbedderConfig::new(tiny_config());
+        let a = Arc::new(BurnEmbedder::<B>::new(&cfg, &device));
+        let b = Arc::new(BurnEmbedder::<B>::new(&cfg, &device));
+
+        let slot = ArcSwap::from(a.clone());
+
+        let loaded = slot.load_full();
+        assert!(
+            Arc::ptr_eq(&loaded, &a),
+            "load_full() must return the originally-stored Arc identity"
+        );
+        drop(loaded);
+
+        let prev = slot.swap(b.clone());
+        assert!(
+            Arc::ptr_eq(&prev, &a),
+            "swap() must return the previously-stored Arc — that's how the \
+             maintenance task owns the Drop instead of a reader thread (H4)"
+        );
+
+        let loaded = slot.load_full();
+        assert!(
+            Arc::ptr_eq(&loaded, &b),
+            "load_full() after swap must return the new Arc identity"
+        );
     }
 
     /// Direct test of `pool_last_token`: build a known hidden tensor,

@@ -22,19 +22,37 @@
 //! - vocab_size = 151_936
 //! - max_position_embeddings = 32_768
 //!
+//! ## Authorship constraint — no `burn::nn::*`, no `Param<T>`
+//!
+//! Per `HOT_UPDATE_PATTERN.md` §7.1: Burn 0.20.1's `Param<T>` wraps
+//! every parameter in `Option<RwLock<Option<Uninitialized<T>>>>` for
+//! lazy initialization. `Uninitialized<T>` holds a
+//! `Box<dyn FnOnce(...) + Send>` (the init closure) and a
+//! `std::cell::OnceCell<T>` (the cached materialized tensor). Both are
+//! `!Sync`, so any struct that uses `nn::Linear` / `nn::Embedding` /
+//! `nn::RmsNorm` is `!Sync` — which makes `ArcSwap<Arc<Encoder>>` fail
+//! to compile against `HOT_UPDATE_PATTERN.md` §12 verification 1.
+//!
+//! Mitigation per H1: this file authors all parameters as **raw
+//! `Tensor<B, ?>` fields** (`Qwen3Linear`, `Qwen3Embedding`,
+//! `Qwen3RmsNorm` below). `Tensor<NdArray, ?>` is `Sync` (verified at
+//! [burn/mod.rs] probe), so the resulting `Qwen3Model<NdArray>` is
+//! `Sync` and ArcSwap-ready. Loss vs `nn::*`: no auto-Record
+//! serialization helper — Phase B authors the safetensors loader by
+//! filling these fields directly.
+//!
 //! ## Phase A boundary
 //!
 //! This file delivers the architecture + a forward pass with random-init
 //! weights. Loading real Harrier safetensors is **Phase B** (separate
-//! plan: HF tensor naming `model.embed_tokens.weight` ↔ Burn module
-//! record paths). Tokenizer wiring is **Phase C**.
+//! plan: HF tensor naming `model.embed_tokens.weight` ↔ this file's
+//! `embed_tokens.weight` field). Tokenizer wiring is **Phase C**.
 
 use burn::{
     config::Config,
     module::Module,
-    nn::{Embedding, EmbeddingConfig, Linear, LinearConfig, RmsNorm, RmsNormConfig},
     prelude::Backend,
-    tensor::{activation, Int, Tensor},
+    tensor::{activation, Distribution, Int, Tensor},
 };
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -80,6 +98,123 @@ impl Qwen3Config {
     /// GQA group size: how many query heads share one KV head.
     pub fn n_kv_groups(&self) -> usize {
         self.num_attention_heads / self.num_key_value_heads
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Sync-clean primitives — raw-Tensor replacements for `burn::nn::*`
+// ─────────────────────────────────────────────────────────────────────────
+
+/// Linear projection without bias, authored from raw `Tensor<B, 2>`.
+///
+/// Replaces `burn::nn::Linear` so the containing module stays `Sync`
+/// (see file-level docs). Forward computes `y = x @ W` for rank-3 input
+/// `[B, S, in_features]` against weight `[in_features, out_features]`.
+#[derive(Module, Debug)]
+pub struct Qwen3Linear<B: Backend> {
+    /// Weight matrix, shape `[in_features, out_features]` (Burn convention,
+    /// matching `nn::Linear`'s storage so safetensors loaders in Phase B
+    /// can fill this directly without transposition).
+    pub weight: Tensor<B, 2>,
+}
+
+impl<B: Backend> Qwen3Linear<B> {
+    /// Initialise with `Normal(0, 1/sqrt(in_features))` — Xavier-style
+    /// scaling that keeps activations finite at depth-28 random init.
+    pub fn new(in_features: usize, out_features: usize, device: &B::Device) -> Self {
+        let stddev = 1.0 / (in_features as f64).sqrt();
+        let weight = Tensor::random(
+            [in_features, out_features],
+            Distribution::Normal(0.0, stddev),
+            device,
+        );
+        Self { weight }
+    }
+
+    /// Forward pass on rank-3 input. Reshape-matmul-reshape avoids the
+    /// rank-mismatch issue with bare `Tensor::matmul` (which requires
+    /// equal-rank operands).
+    pub fn forward(&self, x: Tensor<B, 3>) -> Tensor<B, 3> {
+        let [batch, seq, in_features] = x.dims();
+        let [_, out_features] = self.weight.dims();
+        let x_2d = x.reshape([batch * seq, in_features]);
+        let y_2d = x_2d.matmul(self.weight.clone());
+        y_2d.reshape([batch, seq, out_features])
+    }
+}
+
+/// Token embedding lookup, authored from raw `Tensor<B, 2>`.
+///
+/// Replaces `burn::nn::Embedding`. Forward gathers rows from the weight
+/// matrix indexed by token ids.
+#[derive(Module, Debug)]
+pub struct Qwen3Embedding<B: Backend> {
+    /// Embedding matrix, shape `[vocab_size, hidden_size]` — same layout
+    /// as `nn::Embedding` so Phase B's safetensors loader can fill it
+    /// directly under the Hugging Face name `embed_tokens.weight`.
+    pub weight: Tensor<B, 2>,
+}
+
+impl<B: Backend> Qwen3Embedding<B> {
+    /// Initialise with `Normal(0, 0.02)` — GPT-2-family default that
+    /// keeps the random-init forward pass producing finite hidden states
+    /// even before real Harrier weights load.
+    pub fn new(vocab_size: usize, hidden_size: usize, device: &B::Device) -> Self {
+        let weight = Tensor::random(
+            [vocab_size, hidden_size],
+            Distribution::Normal(0.0, 0.02),
+            device,
+        );
+        Self { weight }
+    }
+
+    /// Forward gather: `indices: [B, S]` → output `[B, S, hidden_size]`.
+    /// Implemented via flatten-select-reshape because Burn's `select`
+    /// expects rank-1 indices.
+    pub fn forward(&self, indices: Tensor<B, 2, Int>) -> Tensor<B, 3> {
+        let [batch, seq] = indices.dims();
+        let [_, hidden] = self.weight.dims();
+        let flat = indices.reshape([batch * seq]);
+        let gathered = self.weight.clone().select(0, flat); // [B*S, H]
+        gathered.reshape([batch, seq, hidden])
+    }
+}
+
+/// Root-mean-square layer norm, authored from raw `Tensor<B, 1>`.
+///
+/// Replaces `burn::nn::RmsNorm`. Computes
+/// `x * rsqrt(mean(x², dim=-1) + eps) * weight` over the last dim.
+/// Weight initialises to ones (RMSNorm convention).
+#[derive(Module, Debug)]
+pub struct Qwen3RmsNorm<B: Backend> {
+    /// Per-feature scale, shape `[hidden_size]`. Initialised to ones so
+    /// the random-init forward pass is structurally correct before
+    /// Phase B fills real Harrier `*.norm.weight` values.
+    pub weight: Tensor<B, 1>,
+    /// Numerical-stability epsilon, stored on the Module so each
+    /// instance carries its config (matches `nn::RmsNorm` shape).
+    pub eps: f64,
+}
+
+impl<B: Backend> Qwen3RmsNorm<B> {
+    /// Initialise weight to ones (RMSNorm identity at init).
+    pub fn new(hidden_size: usize, eps: f64, device: &B::Device) -> Self {
+        let weight = Tensor::ones([hidden_size], device);
+        Self { weight, eps }
+    }
+
+    /// Forward over `[B, S, H]`: normalize each token's hidden vector
+    /// to unit RMS, then per-feature scale by `weight`.
+    pub fn forward(&self, x: Tensor<B, 3>) -> Tensor<B, 3> {
+        // variance = mean(x^2, dim=-1, keepdim=true) → [B, S, 1]
+        let variance = x.clone().powi_scalar(2).mean_dim(2);
+        // scale = 1 / sqrt(variance + eps) → [B, S, 1]
+        let scale = variance.add_scalar(self.eps).sqrt().recip();
+        // Broadcast multiply: [B, S, H] * [B, S, 1] → [B, S, H]
+        let normalized = x.mul(scale);
+        // Promote weight [H] → [1, 1, H] for broadcast against [B, S, H].
+        let weight = self.weight.clone().unsqueeze::<3>();
+        normalized.mul(weight)
     }
 }
 
@@ -168,10 +303,10 @@ impl<B: Backend> Qwen3Rope<B> {
 /// Grouped-query attention block (Qwen3 flavour).
 #[derive(Module, Debug)]
 pub struct Qwen3Attention<B: Backend> {
-    q_proj: Linear<B>,
-    k_proj: Linear<B>,
-    v_proj: Linear<B>,
-    o_proj: Linear<B>,
+    q_proj: Qwen3Linear<B>,
+    k_proj: Qwen3Linear<B>,
+    v_proj: Qwen3Linear<B>,
+    o_proj: Qwen3Linear<B>,
     rope: Qwen3Rope<B>,
     n_q_heads: usize,
     n_kv_heads: usize,
@@ -186,18 +321,10 @@ impl<B: Backend> Qwen3Attention<B> {
         let q_dim = config.num_attention_heads * config.head_dim;
         let kv_dim = config.num_key_value_heads * config.head_dim;
 
-        let q_proj = LinearConfig::new(config.hidden_size, q_dim)
-            .with_bias(false)
-            .init(device);
-        let k_proj = LinearConfig::new(config.hidden_size, kv_dim)
-            .with_bias(false)
-            .init(device);
-        let v_proj = LinearConfig::new(config.hidden_size, kv_dim)
-            .with_bias(false)
-            .init(device);
-        let o_proj = LinearConfig::new(q_dim, config.hidden_size)
-            .with_bias(false)
-            .init(device);
+        let q_proj = Qwen3Linear::new(config.hidden_size, q_dim, device);
+        let k_proj = Qwen3Linear::new(config.hidden_size, kv_dim, device);
+        let v_proj = Qwen3Linear::new(config.hidden_size, kv_dim, device);
+        let o_proj = Qwen3Linear::new(q_dim, config.hidden_size, device);
 
         let rope = Qwen3Rope::new(
             config.max_position_embeddings,
@@ -314,23 +441,17 @@ fn repeat_kv_heads<B: Backend>(t: Tensor<B, 4>, n_groups: usize) -> Tensor<B, 4>
 /// SwiGLU MLP block (`down(silu(gate(x)) * up(x))`).
 #[derive(Module, Debug)]
 pub struct Qwen3Mlp<B: Backend> {
-    gate_proj: Linear<B>,
-    up_proj: Linear<B>,
-    down_proj: Linear<B>,
+    gate_proj: Qwen3Linear<B>,
+    up_proj: Qwen3Linear<B>,
+    down_proj: Qwen3Linear<B>,
 }
 
 impl<B: Backend> Qwen3Mlp<B> {
     /// Initialise from a [`Qwen3Config`] on the given device.
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
-        let gate_proj = LinearConfig::new(config.hidden_size, config.intermediate_size)
-            .with_bias(false)
-            .init(device);
-        let up_proj = LinearConfig::new(config.hidden_size, config.intermediate_size)
-            .with_bias(false)
-            .init(device);
-        let down_proj = LinearConfig::new(config.intermediate_size, config.hidden_size)
-            .with_bias(false)
-            .init(device);
+        let gate_proj = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
+        let up_proj = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
+        let down_proj = Qwen3Linear::new(config.intermediate_size, config.hidden_size, device);
         Self {
             gate_proj,
             up_proj,
@@ -353,21 +474,17 @@ impl<B: Backend> Qwen3Mlp<B> {
 /// One Qwen3 decoder layer: pre-LN attention + pre-LN MLP, both residual.
 #[derive(Module, Debug)]
 pub struct Qwen3DecoderLayer<B: Backend> {
-    input_norm: RmsNorm<B>,
+    input_norm: Qwen3RmsNorm<B>,
     attention: Qwen3Attention<B>,
-    post_attn_norm: RmsNorm<B>,
+    post_attn_norm: Qwen3RmsNorm<B>,
     mlp: Qwen3Mlp<B>,
 }
 
 impl<B: Backend> Qwen3DecoderLayer<B> {
     /// Initialise from a [`Qwen3Config`] on the given device.
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
-        let input_norm = RmsNormConfig::new(config.hidden_size)
-            .with_epsilon(config.rms_norm_eps)
-            .init(device);
-        let post_attn_norm = RmsNormConfig::new(config.hidden_size)
-            .with_epsilon(config.rms_norm_eps)
-            .init(device);
+        let input_norm = Qwen3RmsNorm::new(config.hidden_size, config.rms_norm_eps, device);
+        let post_attn_norm = Qwen3RmsNorm::new(config.hidden_size, config.rms_norm_eps, device);
         Self {
             input_norm,
             attention: Qwen3Attention::new(config, device),
@@ -401,24 +518,22 @@ impl<B: Backend> Qwen3DecoderLayer<B> {
 /// Full Qwen3 transformer: embedding → N decoder layers → final RMSNorm.
 #[derive(Module, Debug)]
 pub struct Qwen3Model<B: Backend> {
-    embed_tokens: Embedding<B>,
+    embed_tokens: Qwen3Embedding<B>,
     layers: Vec<Qwen3DecoderLayer<B>>,
-    final_norm: RmsNorm<B>,
+    final_norm: Qwen3RmsNorm<B>,
 }
 
 impl<B: Backend> Qwen3Model<B> {
     /// Initialise the full transformer from a [`Qwen3Config`].
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
-        let embed_tokens = EmbeddingConfig::new(config.vocab_size, config.hidden_size).init(device);
+        let embed_tokens = Qwen3Embedding::new(config.vocab_size, config.hidden_size, device);
 
         let mut layers = Vec::with_capacity(config.num_hidden_layers);
         for _ in 0..config.num_hidden_layers {
             layers.push(Qwen3DecoderLayer::new(config, device));
         }
 
-        let final_norm = RmsNormConfig::new(config.hidden_size)
-            .with_epsilon(config.rms_norm_eps)
-            .init(device);
+        let final_norm = Qwen3RmsNorm::new(config.hidden_size, config.rms_norm_eps, device);
 
         Self {
             embed_tokens,
