@@ -544,6 +544,219 @@ category = "stores"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
 
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: RRD Lifecycle (in-process daemon hot-update)
+# ─────────────────────────────────────────────────────────────
+#
+# Per `scripts/docs/specs/cortex/rro/HOT_UPDATE_PATTERN.md` §10
+# (Layman Translation Surface). Five `RRD_STATE_*` for the
+# lifecycle state-machine, eleven `RRD_PHASE_*` for the
+# pause/drain/swap/resume sequence phases, six kernel-internal
+# primitives that have no customer-facing form.
+
+[[terms]]
+kernel = "RRD_STATE_LOADING"
+engine = "Starting"
+prod = "Starting Clyffy"
+dev = "RRD: Loading"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_STATE_RUNNING"
+engine = "Active"
+prod = "Clyffy active"
+dev = "RRD: Running"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_STATE_PAUSED"
+engine = "Maintenance"
+prod = "Clyffy maintenance"
+dev = "RRD: Paused"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_STATE_UPDATING"
+engine = "Updating"
+prod = "Updating Clyffy memory"
+dev = "RRD: Updating"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_STATE_FAILED"
+engine = "Error"
+prod = "Clyffy unavailable — see diagnostics"
+dev = "RRD: Failed"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "ui-text", "errors"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_PAUSE_REQUESTED"
+engine = "Pause requested"
+prod = "Beginning maintenance"
+dev = "phase: pause_requested"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_DRAIN_BEGIN"
+engine = "Draining requests"
+prod = "Finishing in-flight work"
+dev = "phase: drain_begin"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_DRAIN_COMPLETE"
+engine = "Drain complete"
+prod = "In-flight work finished"
+dev = "phase: drain_complete"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_DRAIN_TIMEOUT"
+engine = "Drain timeout"
+prod = "Force-finishing maintenance"
+dev = "phase: drain_timeout"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "errors"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_LOAD_BEGIN"
+engine = "Loading new memory"
+prod = "Loading new model"
+dev = "phase: load_begin"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_LOAD_COMPLETE"
+engine = "Memory loaded"
+prod = "Model loaded"
+dev = "phase: load_complete"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_VALIDATE_PASS"
+engine = "Validation passed"
+prod = "New model verified"
+dev = "phase: validate_pass"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_VALIDATE_FAIL"
+engine = "Validation failed — keeping previous"
+prod = "New model rejected — keeping previous"
+dev = "phase: validate_fail"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "errors"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_SWAP_COMMIT"
+engine = "Switched to new memory"
+prod = "New model now active"
+dev = "phase: swap_commit"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_RESUME_COMPLETE"
+engine = "Maintenance complete"
+prod = "Clyffy active again"
+dev = "phase: resume_complete"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRD_PHASE_FAIL"
+engine = "Failed"
+prod = "Clyffy hit an error"
+dev = "phase: fail"
+category = "rrd-lifecycle"
+context = ["logs", "traces", "errors"]
+severity = "hard"
+
+# ── Kernel-internal primitives (no customer-facing form) ───────
+# These names appear ONLY in dev-mode logs and never reach
+# the customer UI. They exist in the registry so dev-mode
+# log surfaces still translate via the same lookup.
+
+[[terms]]
+kernel = "ARCSWAP_ATOMIC_REPLACE"
+engine = "Atomic replace"
+prod = ""
+dev = "arc_swap::swap()"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "soft"
+
+[[terms]]
+kernel = "TASKTRACKER_DRAIN"
+engine = "Drain in-flight"
+prod = ""
+dev = "TaskTracker::wait()"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "soft"
+
+[[terms]]
+kernel = "CANCELLATION_TOKEN_PAUSE"
+engine = "Pause signal"
+prod = ""
+dev = "CancellationToken::cancel()"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "soft"
+
+[[terms]]
+kernel = "WATCH_STATE_CHANNEL"
+engine = "State broadcast"
+prod = ""
+dev = "watch::Sender (RRDState)"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "soft"
+
+[[terms]]
+kernel = "HOT_UPDATEABLE_TRAIT"
+engine = "Hot-update component"
+prod = ""
+dev = "HotUpdateable trait"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "soft"
+
+[[terms]]
+kernel = "PAUSE_HANDLE"
+engine = "Maintenance window token"
+prod = ""
+dev = "PauseHandle"
+category = "rrd-lifecycle"
+context = ["logs", "traces"]
+severity = "soft"
+
 # ═══════════════════════════════════════════════════════════════
 # FEATURES — replaces flags.ts
 # ═══════════════════════════════════════════════════════════════

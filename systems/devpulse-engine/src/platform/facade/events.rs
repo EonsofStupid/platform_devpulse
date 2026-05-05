@@ -37,6 +37,13 @@ pub enum EventCategory {
     /// [`crate::platform::services::lifecycle_phase`]. Both layers must
     /// emit in lockstep — see `feedback_dual_observability.md`.
     SidecarLifecycle,
+    /// RRD lifecycle phase transitions — pause, drain, load, validate,
+    /// swap, resume, fail. Mirror of the `rrd.lifecycle` tracing
+    /// taxonomy in [`crate::platform::services::rrd_lifecycle_phase`].
+    /// In-process daemon, NOT a sidecar — the RRO encoder hot-update
+    /// pattern (`HOT_UPDATE_PATTERN.md` §11). Both layers emit in
+    /// lockstep via `emit_rrd_lifecycle_dual!`.
+    RrdLifecycle,
     /// User-scope routing config changed (escalation chain, latency
     /// tuning, response source). Engine consumers (chat dispatcher,
     /// audio pipeline, voice brain orchestrator) subscribe to react
@@ -393,6 +400,26 @@ pub enum InternalEvent {
         detail: String,
     },
 
+    // ── RRD lifecycle (in-process daemon, NOT sidecar) ──────────
+    /// The Reason Ready Daemon transitioned between lifecycle phases.
+    ///
+    /// Mirrors the `rrd.lifecycle` tracing event so minion subscribers,
+    /// surface-events whitelist, governance reactors, and the RRD
+    /// devtool Debug tab can observe daemon state without parsing log
+    /// lines. Emitted in lockstep with the `emit_rrd_lifecycle!` macro
+    /// — see `emit_rrd_lifecycle_dual!` in
+    /// [`crate::platform::services`] for the helper that enforces 1:1
+    /// emission. `HOT_UPDATE_PATTERN.md` §11.
+    RrdPhaseTransition {
+        /// Phase identifier — one of the constants in
+        /// [`crate::platform::services::rrd_lifecycle_phase`]
+        /// (e.g. `"pause_requested"`, `"swap_commit"`, `"fail"`).
+        phase: String,
+        /// Human-readable summary — encoder path, validation error,
+        /// elapsed drain time.
+        detail: String,
+    },
+
     // ── Routing config persistence ──────────────────────────────
     /// User-scope routing config persisted via `Platform::routing_config_save`.
     ///
@@ -456,6 +483,8 @@ impl InternalEvent {
             | Self::InferenceComplete { .. } => EventCategory::InferenceMetrics,
 
             Self::SidecarPhaseTransition { .. } => EventCategory::SidecarLifecycle,
+
+            Self::RrdPhaseTransition { .. } => EventCategory::RrdLifecycle,
 
             Self::RoutingConfigChanged { .. } => EventCategory::RoutingConfig,
         }

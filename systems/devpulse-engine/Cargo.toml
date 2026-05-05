@@ -34,6 +34,14 @@ chrono = { workspace = true }
 # Kernel (the brain — always linked, facade controls exposure)
 devpulse-clyffy = { path = "../../kernel/devpulse-clyffy", features = ["specta"] }
 
+# Reason Ready Daemon (RRD) — in-process orchestrator for the RRO
+# cluster's hot-update lifecycle. The engine consumes only the
+# tracing taxonomy (`RRD_LIFECYCLE_TARGET`) for the
+# `RrdLifecycleTranslator` layer; daemon construction lives in
+# kernel-internal callers. tracing-subscriber (already a dep
+# above) provides the Layer infrastructure the translator extends.
+rrd = { path = "../../kernel/rrd" }
+
 # HTTP server (SurrealDB endpoint on :8822, MCP SSE on :9315)
 axum = "0.8"
 base64 = "0.22"

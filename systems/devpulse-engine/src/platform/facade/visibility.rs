@@ -124,6 +124,15 @@ pub fn classify(event: &InternalEvent) -> Visibility {
         // reactors, hot-update freeze logic, capability registry).
         InternalEvent::SidecarPhaseTransition { .. } => Visibility::Internal,
 
+        // ── RRD Lifecycle (in-process daemon) ───────────────
+        // Same plumbing rationale as `SidecarPhaseTransition`,
+        // but for the in-process Reason Ready Daemon. Devtool
+        // Log surfaces query the `rrd.lifecycle` tracing target
+        // through `query_scoped_log`. The bus carries typed events
+        // for governance reactors and the RRD devtool Debug tab.
+        // `HOT_UPDATE_PATTERN.md` §11.5.
+        InternalEvent::RrdPhaseTransition { .. } => Visibility::Internal,
+
         // ── Routing Config ──────────────────────────────────
         // User-scope routing config persistence. The user already
         // saw their own action (clicking save in the wizard); the

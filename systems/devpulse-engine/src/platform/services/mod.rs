@@ -9,6 +9,7 @@ pub mod graph;
 pub mod manifest;
 pub mod project_db;
 pub mod relational;
+pub mod rrd_translator;
 pub mod status;
 #[cfg(feature = "rro")]
 pub mod vector;
@@ -242,6 +243,25 @@ macro_rules! emit_lifecycle_dual {
         );
     }};
 }
+
+// ═══════════════════════════════════════════════════════════════
+// RRD lifecycle taxonomy → moved to kernel/rrd crate
+// ═══════════════════════════════════════════════════════════════
+//
+// `RRD_LIFECYCLE_TARGET`, `rrd_lifecycle_phase`, and the
+// `emit_rrd_lifecycle!` macro now live in the `rrd` kernel crate
+// (`kernel/rrd/src/lifecycle.rs`) per `HOT_UPDATE_PATTERN.md` §11
+// — the daemon must not depend on the engine. The dual-emission
+// rule (H12) is preserved structurally by the
+// `RrdLifecycleTranslator` tracing layer in
+// [`crate::platform::services::rrd_translator`], which mirrors
+// every event on the `rrd.lifecycle` target into
+// `InternalEvent::RrdPhaseTransition`.
+//
+// Engine code that wants to observe RRD lifecycle events should
+// either (a) subscribe to `query_scoped_log("rrd.lifecycle", ...)`
+// for the tracing trail, or (b) subscribe to the broadcast bus
+// for `InternalEvent::RrdPhaseTransition` (translator output).
 
 // ═══════════════════════════════════════════════════════════════
 // Preflight contract — pre-launch checks for managed sidecars
