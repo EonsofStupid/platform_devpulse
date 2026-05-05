@@ -187,7 +187,7 @@ async function runQuery(): Promise<void> {
 			{:else}
 				<Text size="sm" color="muted">
 					Project databases live at
-					<span class="font-mono text-xs">{`{project_root}/.devpulse/project.db`}</span>.
+					<span class="font-mono text-xs">{`{project_root}/.userdata/project.db`}</span>.
 					Path resolves after Init.
 				</Text>
 			{/if}

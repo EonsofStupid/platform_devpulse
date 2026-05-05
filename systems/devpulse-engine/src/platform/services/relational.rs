@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS projects (
     description TEXT,
     tool TEXT,                               -- lovable | cursor | vscode | etc.
     tech_stack TEXT,                         -- JSON array
-    constitution TEXT,                       -- JSON object from .devpulse/constitution.md
+    constitution TEXT,                       -- JSON object from .userdata/constitution.md
     settings TEXT,                           -- JSON object
     promoted_from_id TEXT,
     promotion_status TEXT DEFAULT 'pending', -- pending | suggested | promoted | declined
@@ -714,7 +714,7 @@ CREATE INDEX IF NOT EXISTS idx_vision_frames_time
 /// Schema for per-project relational stores.
 ///
 /// Each managed project gets its own `project.db` at
-/// `{project_root}/.devpulse/project.db`. Contains RAG data,
+/// `{project_root}/.userdata/project.db`. Contains RAG data,
 /// file index, chunks, signals, codebase patterns, conventions,
 /// and anti-drift enforcement log.
 pub const PROJECT_SCHEMA: &str = r"

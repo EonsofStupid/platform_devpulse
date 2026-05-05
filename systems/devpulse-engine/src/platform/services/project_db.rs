@@ -1,7 +1,7 @@
 //! Per-project relational store (`LibSQL`).
 //!
 //! Each managed project gets its own `project.db` at
-//! `{project_root}/.devpulse/project.db`. Created on demand when a project
+//! `{project_root}/.userdata/project.db`. Created on demand when a project
 //! is registered — NOT during boot. Manages file index, RAG chunks,
 //! signals, codebase patterns, conventions, and anti-drift enforcement.
 //!
@@ -40,9 +40,9 @@ impl ProjectDbManager {
         }
     }
 
-    /// Initialize a project database at `{project_root}/.devpulse/project.db`.
+    /// Initialize a project database at `{project_root}/.userdata/project.db`.
     ///
-    /// Creates the `.devpulse/` directory and database file if they don't exist.
+    /// Creates the `.userdata/` directory and database file if they don't exist.
     /// Applies `PROJECT_SCHEMA` (file index, chunks, signals, patterns, drift log).
     /// Seeds `project_meta` with the project's identity.
     ///
@@ -169,8 +169,8 @@ impl ProjectDbManager {
         self.dbs.read().await.keys().cloned().collect()
     }
 
-    /// Canonical path: `{project_root}/.devpulse/project.db`
+    /// Canonical path: `{project_root}/.userdata/project.db`
     fn db_path(project_root: &Path) -> PathBuf {
-        project_root.join(".devpulse").join("project.db")
+        project_root.join(".userdata").join("project.db")
     }
 }

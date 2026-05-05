@@ -740,7 +740,7 @@ async libsqlQuery(database: LibSqlDatabase, sql: string) : Promise<Result<LibSql
 }
 },
 /**
- * Initialize a project database at `{project_root}/.devpulse/project.db`.
+ * Initialize a project database at `{project_root}/.userdata/project.db`.
  * 
  * Creates the database, applies the project schema, and seeds `project_meta`.
  * Safe to call multiple times — uses `CREATE TABLE IF NOT EXISTS`.
@@ -1742,7 +1742,7 @@ async getProject(id: string) : Promise<Result<Project | null, string>> {
 },
 /**
  * Soft-delete: flip `active` to 0. Project row stays on disk and the
- * per-project `.devpulse/project.db` is untouched. Reversible via
+ * per-project `.userdata/project.db` is untouched. Reversible via
  * `restore_project`.
  */
 async deleteProject(id: string) : Promise<Result<boolean, string>> {

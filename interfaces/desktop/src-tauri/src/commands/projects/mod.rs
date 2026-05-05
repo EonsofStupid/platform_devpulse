@@ -693,7 +693,7 @@ pub async fn get_project(
 }
 
 /// Soft-delete: flip `active` to 0. Project row stays on disk and the
-/// per-project `.devpulse/project.db` is untouched. Reversible via
+/// per-project `.userdata/project.db` is untouched. Reversible via
 /// `restore_project`.
 #[tauri::command]
 #[specta::specta]

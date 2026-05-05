@@ -1,6 +1,6 @@
 //! Per-project `LibSQL` commands — init, health, query, table listing.
 //!
-//! Project databases live at `{project_root}/.devpulse/project.db`.
+//! Project databases live at `{project_root}/.userdata/project.db`.
 //! Created on demand via `init_project_db`, not during boot.
 
 use crate::state::PlatformState;
@@ -62,7 +62,7 @@ pub struct ProjectDbQueryResult {
 // Commands
 // ═══════════════════════════════════════════════════════════════
 
-/// Initialize a project database at `{project_root}/.devpulse/project.db`.
+/// Initialize a project database at `{project_root}/.userdata/project.db`.
 ///
 /// Creates the database, applies the project schema, and seeds `project_meta`.
 /// Safe to call multiple times — uses `CREATE TABLE IF NOT EXISTS`.
@@ -112,7 +112,7 @@ pub async fn init_project_db(
         .and_then(devpulse_engine::platform::SqlValue::as_integer)
         .unwrap_or(0) as u64;
 
-    let db_path = root.join(".devpulse").join("project.db");
+    let db_path = root.join(".userdata").join("project.db");
 
     Ok(ProjectDbInitResult {
         project_id,
