@@ -65,6 +65,16 @@ impl Task for RegenBindings {
             );
         }
 
+        // Apply build env from the [build.deps.*] SSOT before spawning cargo —
+        // matches `run-dev` / `verify` / `build-release`. Without this,
+        // native build scripts (e.g. llama-cpp-sys-2) fail to find
+        // cmake/ninja/nasm and the export-bindings build aborts before the
+        // specta export runs. The export-bindings binary lives in the
+        // same crate as the runtime app and pulls the same native deps.
+        let platform_config = ws.platform_config()?;
+        println!("  > Build env from [build.deps.*] SSOT:");
+        platform_config.build.apply_env(ws.root());
+
         let before_mtime = mtime_or_epoch(&bindings_ts);
         let cargo = ws.resolve("cargo").context("cargo not found on PATH")?;
 
