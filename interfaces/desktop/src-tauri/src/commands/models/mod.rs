@@ -779,6 +779,25 @@ pub async fn download_model(
         .map_err(|e| e.to_string())
 }
 
+/// Resolve the recommended primary filename inside a HuggingFace
+/// repo for a given slot. Tier-aware: uses the live hardware monitor
+/// to pick the right GGUF quant (or safetensors shard / onnx
+/// fallback) for the slot's required capability. Returns `None`
+/// when the repo ships no compatible files for the slot.
+#[tauri::command]
+#[specta::specta]
+pub async fn recommend_primary_for_slot(
+    state: State<'_, PlatformState>,
+    repo_id: String,
+    slot_id: String,
+) -> Result<Option<String>, String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .recommend_primary_for_slot(&repo_id, &slot_id)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// One-button install — download the bundle, scan, assign to slot,
 /// load. Composed from the four kernel verbs into a single atomic
 /// chain so the wizard's "install" CTA fires once and tracks progress

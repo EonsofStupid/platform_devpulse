@@ -320,6 +320,21 @@ impl ModelLoaderService {
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
+    /// Recommend the primary entry-point filename inside `repo_id`
+    /// for the slot `slot_id`. Uses tier-aware format heuristics —
+    /// the UI hands this directly to `install_to_slot` so the user
+    /// never picks a quant or a shard manually.
+    pub async fn recommend_primary_for_slot(
+        &self,
+        repo_id: &str,
+        slot_id: &str,
+    ) -> Result<Option<String>> {
+        self.inner
+            .recommend_primary_for_slot(repo_id, slot_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
     /// One-button install — composes `download_model` + `scan_models`
     /// + `assign_model` + `load_slot` into one atomic verb. Returns
     /// the install identifier as soon as the download starts; the

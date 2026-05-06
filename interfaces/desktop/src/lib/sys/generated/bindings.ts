@@ -2130,6 +2130,21 @@ async downloadModel(repoId: string, filename: string) : Promise<Result<string, s
 }
 },
 /**
+ * Resolve the recommended primary filename inside a HuggingFace
+ * repo for a given slot. Tier-aware: uses the live hardware monitor
+ * to pick the right GGUF quant (or safetensors shard / onnx
+ * fallback) for the slot's required capability. Returns `None`
+ * when the repo ships no compatible files for the slot.
+ */
+async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("recommend_primary_for_slot", { repoId, slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * One-button install — download the bundle, scan, assign to slot,
  * load. Composed from the four kernel verbs into a single atomic
  * chain so the wizard's "install" CTA fires once and tracks progress

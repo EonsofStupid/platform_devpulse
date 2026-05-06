@@ -3,6 +3,7 @@
 pub mod discovery;
 pub mod download;
 pub mod manifest;
+pub mod recommender;
 pub mod registry;
 pub mod search;
 pub mod secrets;

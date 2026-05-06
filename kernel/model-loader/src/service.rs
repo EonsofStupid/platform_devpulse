@@ -1272,6 +1272,79 @@ impl ModelLoaderService {
         })
     }
 
+    /// Recommend the primary entry-point filename inside `repo_id`
+    /// for the slot `slot_id`. Resolves the repo's sibling list,
+    /// reads the slot's required capability, reads the live hardware
+    /// tier, and walks the tier-aware preference list in
+    /// [`crate::models::recommender`].
+    ///
+    /// Returns `None` only when the repo has zero files in a format
+    /// the slot can run — UI surfaces that as "this repo doesn't ship
+    /// a model in a format we can run for this slot." Use this as
+    /// the input to `install_to_slot`.
+    ///
+    /// # Errors
+    /// - [`LoaderError::SlotNotFound`] — `slot_id` is not registered.
+    /// - [`LoaderError::Internal`] — `list_repo_files` failed
+    ///   (network, 401/403/404, malformed token). The kernel doesn't
+    ///   own retry policy here; surface and let the UI offer retry.
+    #[cfg(feature = "candle-backend")]
+    pub async fn recommend_primary_for_slot(
+        &self,
+        repo_id: &str,
+        slot_id: &str,
+    ) -> Result<Option<String>, LoaderError> {
+        // Capability lives on the slot; tier comes from the live
+        // hardware monitor. Both are cheap to read.
+        let capability = {
+            let cfg = self.config.read().await;
+            let slot = cfg
+                .slots
+                .get_slot(slot_id)
+                .ok_or(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                })?;
+            slot.capability
+        };
+        let tier = {
+            let hw = self.hardware.read();
+            crate::hardware::auto_config::detect_tier(hw.cached())
+        };
+
+        // Sibling list — the only step that touches the network.
+        // `list_repo_files` is sync; wrap in `block_in_place` so the
+        // tokio runtime keeps servicing other tasks during the HF
+        // round-trip.
+        let cfg = self.config.read().await;
+        let siblings_raw = tokio::task::block_in_place(|| cfg.downloads.list_repo_files(repo_id))
+            .map_err(|e| LoaderError::Internal {
+                message: format!("list_repo_files failed: {e:#}"),
+            })?;
+        drop(cfg);
+
+        let siblings: Vec<String> = siblings_raw.into_iter().map(|f| f.name).collect();
+        Ok(
+            crate::models::recommender::recommend_primary(&siblings, capability, tier)
+                .map(str::to_string),
+        )
+    }
+
+    /// Stub for builds without the candle-backend feature.
+    ///
+    /// # Errors
+    /// Always returns [`LoaderError::Internal`] — build with
+    /// `--features candle-backend` to enable.
+    #[cfg(not(feature = "candle-backend"))]
+    pub async fn recommend_primary_for_slot(
+        &self,
+        _repo_id: &str,
+        _slot_id: &str,
+    ) -> Result<Option<String>, LoaderError> {
+        Err(LoaderError::Internal {
+            message: "recommend_primary_for_slot requires candle-backend feature".to_string(),
+        })
+    }
+
     /// Atomic install — download → scan → assign → load — composed from
     /// the four kernel verbs that already exist independently.
     ///
