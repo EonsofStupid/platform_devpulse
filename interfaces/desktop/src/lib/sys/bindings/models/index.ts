@@ -30,6 +30,9 @@ export const warmSlot = commands.warmSlot;
 export const downloadModel = commands.downloadModel;
 export const cancelDownload = commands.cancelDownload;
 export const listRepoFiles = commands.listRepoFiles;
+export const modelsDirPath = commands.modelsDirPath;
+export const recommendPrimaryForSlot = commands.recommendPrimaryForSlot;
+export const installToSlot = commands.installToSlot;
 
 // ── Hugging Face token ──────────────────────────────────────────
 export const setHfToken = commands.setHfToken;

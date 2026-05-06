@@ -2,30 +2,43 @@
 	@component RepoDownloadButton
 	@domain platform/_shared
 
-	One-click download of a HuggingFace (or JanAI — same infra) repo.
-	Click → list siblings → resolve primary file → show bundle
-	confirmation modal → on confirm, kick off the kernel's bundle
-	downloader via the existing `download_model` Tauri command.
+	One-click install of a HuggingFace (or JanAI — same infra) repo
+	into a slot. Click → list siblings → kernel picks the primary file
+	(tier-aware) → bundle confirmation modal → on confirm, kick off
+	the kernel's atomic install chain (download + assign + load) via
+	the `install_to_slot` Tauri command.
 
-	The kernel's `execute_download` already does the actual bundle work
-	(pulls the primary + every companion shard / config / tokenizer
-	referenced by the model's index). This button's job is to make the
-	resolution automatic and show the user what they're about to pull.
+	The kernel's `execute_download` auto-fetches every shard / config
+	/ tokenizer companion alongside the primary; the kernel's
+	`recommend_primary_for_slot` resolves which file to pass as the
+	primary based on the slot's required capability and the host's
+	hardware tier (GGUF quant for chat slots, safetensors shard for
+	embedder slots, ONNX for voice slots, etc.). This button just
+	wires those two kernel verbs to one user click.
+
+	## Modes
+
+	With `slotId` (the layman one-button path):
+	  - kernel `recommendPrimaryForSlot` picks the file
+	  - confirm → `installToSlot` runs download → scan → assign → load
+	  - the user never picks a quant, never picks a shard, never has
+	    to manually assign or load after download
+
+	Without `slotId` (devtool smoke-test harness):
+	  - falls back to in-TS `resolvePrimaryFile` heuristic
+	  - confirm → `download_model` only (no auto-assign, no auto-load)
+	  - retained for /devtools landing-page smoke tests where there
+	    is no slot context
 
 	# Usage
 
 	```svelte
 	<RepoDownloadButton
 		repoId="microsoft/phi-4-mini-instruct"
+		slotId="chat.brain"
 		label="Install Phi-4 Mini"
 	/>
 	```
-
-	# Smoke test harness
-
-	A temporary `<RepoDownloadButton repoId="microsoft/phi-4-mini-instruct">`
-	lives on the /devtools landing page in Phase 4 (SPRINT-DEVTOOLS-
-	FOUNDATIONAL). Delete it in Phase 8.
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
@@ -45,8 +58,13 @@ import {
 interface Props {
 	/** HuggingFace repo id (e.g. `"microsoft/phi-4-mini-instruct"`). */
 	repoId: string;
-	/** Suggested slot id — informational only, passed through to logs. */
-	suggestedSlot?: string;
+	/**
+	 * Slot to install into. When set, the kernel picks the primary
+	 * file via `recommendPrimaryForSlot` and the confirm action runs
+	 * the atomic install chain (`installToSlot`). When unset, falls
+	 * back to in-TS `resolvePrimaryFile` + `download_model`.
+	 */
+	slotId?: string;
 	/** Button label shown before click. */
 	label?: string;
 	/** Size forwarded to the inner Button. */
@@ -56,16 +74,15 @@ interface Props {
 	/** Disable the button (e.g. while a parent download is active). */
 	disabled?: boolean;
 	/**
-	 * Fired after `download_model` returns. `ok=true` → download started
-	 * (tracked by `DownloadProgressRow`). `ok=false` → cancelled or
-	 * errored. `error` is populated on failure.
+	 * Fired after the underlying Tauri command returns. With `slotId`
+	 * the second arg is the install_id; without, it's the download_id.
 	 */
-	onComplete?: (ok: boolean, downloadId?: string, error?: string) => void;
+	onComplete?: (ok: boolean, opId?: string, error?: string) => void;
 }
 
 let {
 	repoId,
-	suggestedSlot,
+	slotId,
 	label = "Install",
 	size = "sm",
 	preset = "button-primary",
@@ -86,23 +103,47 @@ async function handleClick(): Promise<void> {
 
 	stage = "listing";
 	errorMessage = null;
-	logInfo("repo.download", `list_repo_files begin repo=${repoId}`);
+	logInfo("repo.download", `list_repo_files begin repo=${repoId} slot=${slotId ?? "<none>"}`);
 
 	try {
+		// Sibling list always comes from the kernel — used to render
+		// the bundle summary regardless of which primary picker runs.
 		const result = await invoke<RepoFile[]>("list_repo_files", { repoId });
 		siblings = result;
-		resolution = resolvePrimaryFile(result);
-		selectedPrimary = resolution.primary ?? "";
-		logInfo(
-			"repo.download",
-			`list_repo_files ok repo=${repoId} files=${result.length} primary=${resolution.primary ?? "<none>"}`,
-		);
+
+		if (slotId) {
+			// Slot-bound install — kernel picks the primary based on
+			// the slot's required capability + live hardware tier.
+			const primary = await invoke<string | null>("recommend_primary_for_slot", {
+				repoId,
+				slotId,
+			});
+			selectedPrimary = primary ?? "";
+			resolution = {
+				primary,
+				rationale: primary
+					? `Kernel-picked for ${slotId} (tier-aware quant + format)`
+					: `No file in this repo runs on ${slotId}.`,
+			};
+			logInfo(
+				"repo.download",
+				`recommend_primary_for_slot ok repo=${repoId} slot=${slotId} primary=${primary ?? "<none>"}`,
+			);
+		} else {
+			// Smoke-harness path — no slot context, in-TS heuristic.
+			resolution = resolvePrimaryFile(result);
+			selectedPrimary = resolution.primary ?? "";
+			logInfo(
+				"repo.download",
+				`resolve_primary_file ok repo=${repoId} files=${result.length} primary=${resolution.primary ?? "<none>"}`,
+			);
+		}
 		stage = "confirming";
 	} catch (e) {
 		const text = e instanceof Error ? e.message : String(e);
 		errorMessage = text;
 		stage = "error";
-		logInfo("repo.download", `list_repo_files failed repo=${repoId} error=${text}`);
+		logInfo("repo.download", `listing failed repo=${repoId} error=${text}`);
 		onComplete?.(false, undefined, text);
 	}
 }
@@ -120,27 +161,49 @@ function cancel(): void {
 async function confirm(): Promise<void> {
 	if (!selectedPrimary) return;
 	stage = "starting";
-	logInfo(
-		"repo.download",
-		`download_model begin repo=${repoId} primary=${selectedPrimary} suggestedSlot=${suggestedSlot ?? "<unassigned>"}`,
-	);
 
 	try {
-		const downloadId = await invoke<string>("download_model", {
-			repoId,
-			filename: selectedPrimary,
-		});
-		logInfo("repo.download", `download_model ok repo=${repoId} download_id=${downloadId}`);
-		try {
-			const { toast } = await import("svelte-sonner");
-			toast.success(`Downloading ${selectedPrimary}`);
-		} catch {
-			// toast failure is non-fatal
+		let opId: string;
+		if (slotId) {
+			logInfo(
+				"repo.download",
+				`install_to_slot begin repo=${repoId} primary=${selectedPrimary} slot=${slotId}`,
+			);
+			opId = await invoke<string>("install_to_slot", {
+				repoId,
+				primaryFilename: selectedPrimary,
+				slotId,
+			});
+			logInfo("repo.download", `install_to_slot ok repo=${repoId} install_id=${opId}`);
+			try {
+				const { toast } = await import("svelte-sonner");
+				toast.success(`Installing ${selectedPrimary} to ${slotId}`);
+			} catch {
+				// toast failure is non-fatal
+			}
+		} else {
+			logInfo(
+				"repo.download",
+				`download_model begin repo=${repoId} primary=${selectedPrimary} (no slot)`,
+			);
+			opId = await invoke<string>("download_model", {
+				repoId,
+				filename: selectedPrimary,
+			});
+			logInfo("repo.download", `download_model ok repo=${repoId} download_id=${opId}`);
+			try {
+				const { toast } = await import("svelte-sonner");
+				toast.success(`Downloading ${selectedPrimary}`);
+			} catch {
+				// toast failure is non-fatal
+			}
 		}
+
 		stage = "done";
-		onComplete?.(true, downloadId);
-		// Close the modal after a short confirmation window — the
-		// actual download progress is shown by `DownloadProgressRow`.
+		onComplete?.(true, opId);
+		// Close the modal after a short confirmation window — actual
+		// progress is surfaced by DownloadProgressRow + (with slotId)
+		// the install lifecycle events.
 		setTimeout(() => {
 			stage = "idle";
 			siblings = [];
@@ -153,11 +216,11 @@ async function confirm(): Promise<void> {
 		stage = "error";
 		logInfo(
 			"repo.download",
-			`download_model failed repo=${repoId} primary=${selectedPrimary} error=${text}`,
+			`${slotId ? "install_to_slot" : "download_model"} failed repo=${repoId} primary=${selectedPrimary} error=${text}`,
 		);
 		try {
 			const { toast } = await import("svelte-sonner");
-			toast.error(`Download failed: ${text}`);
+			toast.error(`${slotId ? "Install" : "Download"} failed: ${text}`);
 		} catch {
 			// toast failure is non-fatal
 		}
@@ -204,12 +267,14 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 			<!-- Header -->
 			<div class="flex items-center gap-2">
 				<FileArchive size={18} style="color: var(--accent-teal-main);" />
-				<Text size="sm" weight="bold">Download repo</Text>
+				<Text size="sm" weight="bold">
+					{slotId ? `Install to ${slotId}` : "Download repo"}
+				</Text>
 				<button
 					type="button"
 					class="ml-auto p-1 rounded hover:bg-[var(--surface-base)]"
 					onclick={cancel}
-					aria-label="Cancel download"
+					aria-label={slotId ? "Cancel install" : "Cancel download"}
 				>
 					<X size={14} />
 				</button>
@@ -282,8 +347,9 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 			{#if stage === "done"}
 				<div class="rounded p-2 border" style="background: color-mix(in oklch, var(--accent-teal-fill) 40%, transparent); border-color: var(--accent-teal-main);">
 					<Text size="xs">
-						Download started. Watch <code>DownloadProgressRow</code>
-						for real-time bytes / ETA.
+						{slotId
+							? `Installing into ${slotId} — download → assign → load runs in the background. Watch the install lifecycle events for progress.`
+							: "Download started. Watch DownloadProgressRow for real-time bytes / ETA."}
 					</Text>
 				</div>
 			{/if}
@@ -301,7 +367,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 						disabled={!selectedPrimary}
 					>
 						<Download size={14} />
-						Download
+						{slotId ? "Install" : "Download"}
 					</Button>
 				{:else if stage === "starting"}
 					<Button preset="button-primary" size="sm" disabled>
