@@ -12,6 +12,7 @@
 import {
 	Brain,
 	Check,
+	Download,
 	Headphones,
 	Play,
 	RefreshCw,
@@ -25,6 +26,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import HfSearchDialog from "$lib/devtools/_shared/HfSearchDialog.svelte";
 import {
 	type ExtraTab,
 	type HealthBadge,
@@ -47,6 +49,8 @@ let loading = $state(false);
 let actionSlot = $state<string | null>(null);
 let modelsDir = $state<string | null>(null);
 let modelsDirError = $state<string | null>(null);
+// Slot id whose Browse-models dialog is currently open. Null = closed.
+let browseSlot = $state<string | null>(null);
 
 onMount(async () => {
 	const r = await modelsDirPath();
@@ -200,6 +204,16 @@ const extraTabs: ExtraTab[] = [
 								</div>
 
 								<div class="slot-actions">
+									{#if !model}
+										<Button
+											preset="button-primary"
+											size="sm"
+											onclick={() => (browseSlot = slotId)}
+										>
+											<Download size={12} />
+											Install model
+										</Button>
+									{/if}
 									{#if model && !ready}
 										<Button preset="button-secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 											{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
@@ -321,6 +335,12 @@ const extraTabs: ExtraTab[] = [
 		{/if}
 	{/snippet}
 </ServiceDevtoolShell>
+
+<HfSearchDialog
+	slotId={browseSlot ?? ""}
+	open={browseSlot !== null}
+	onClose={() => (browseSlot = null)}
+/>
 
 {#snippet registryBody()}
 	<div class="space-y-3">
