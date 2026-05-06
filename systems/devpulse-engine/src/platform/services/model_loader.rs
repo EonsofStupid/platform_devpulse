@@ -320,6 +320,14 @@ impl ModelLoaderService {
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
+    /// On-disk directory where downloaded models live. UI shows this
+    /// so a layman can drop existing model bundles in by hand or
+    /// symlink them in without touching the wizard.
+    #[must_use]
+    pub fn models_dir(&self) -> std::path::PathBuf {
+        self.inner.models_dir().to_path_buf()
+    }
+
     /// Recommend the primary entry-point filename inside `repo_id`
     /// for the slot `slot_id`. Uses tier-aware format heuristics —
     /// the UI hands this directly to `install_to_slot` so the user

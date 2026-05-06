@@ -339,6 +339,16 @@ impl ModelLoaderService {
 
     // ── Read-only queries (no blocking, no contention) ────────
 
+    /// The on-disk directory where every downloaded model lives —
+    /// `BootState::models_dir`. UI surfaces this so a layman can point
+    /// their file-explorer at it (or symlink existing model bundles
+    /// into it without touching the registry CLI). Read-only after
+    /// boot; no lock needed.
+    #[must_use]
+    pub fn models_dir(&self) -> &std::path::Path {
+        &self.boot.models_dir
+    }
+
     /// List all registered slots.
     pub async fn list_slots(&self) -> Vec<Slot> {
         let cfg = self.config.read().await;

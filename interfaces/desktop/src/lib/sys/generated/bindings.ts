@@ -2130,6 +2130,19 @@ async downloadModel(repoId: string, filename: string) : Promise<Result<string, s
 }
 },
 /**
+ * On-disk directory where downloaded models live. UI shows this
+ * so the user can browse their downloads in the file explorer or
+ * drop existing model bundles in by hand.
+ */
+async modelsDirPath() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("models_dir_path") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Resolve the recommended primary filename inside a HuggingFace
  * repo for a given slot. Tier-aware: uses the live hardware monitor
  * to pick the right GGUF quant (or safetensors shard / onnx

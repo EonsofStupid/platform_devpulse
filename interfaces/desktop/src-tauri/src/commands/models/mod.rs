@@ -779,6 +779,16 @@ pub async fn download_model(
         .map_err(|e| e.to_string())
 }
 
+/// On-disk directory where downloaded models live. UI shows this
+/// so the user can browse their downloads in the file explorer or
+/// drop existing model bundles in by hand.
+#[tauri::command]
+#[specta::specta]
+pub async fn models_dir_path(state: State<'_, PlatformState>) -> Result<String, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.models_dir().to_string_lossy().into_owned())
+}
+
 /// Resolve the recommended primary filename inside a HuggingFace
 /// repo for a given slot. Tier-aware: uses the live hardware monitor
 /// to pick the right GGUF quant (or safetensors shard / onnx
