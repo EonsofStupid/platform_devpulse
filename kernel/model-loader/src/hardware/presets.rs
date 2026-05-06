@@ -373,13 +373,16 @@ mod tests {
         }
     }
 
-    /// Every preset must include the five common slots (rag.embedder,
-    /// rag.reranker, vision.embedder, voice.stt, voice.tts).
+    /// Every preset must include the six common slots (rag.embedder,
+    /// rag.encoder, rag.reranker, vision.embedder, voice.stt, voice.tts).
+    /// Tiers that override a slot with a tier-specific entry still satisfy
+    /// this check — the slot is present, just from the tier block.
     #[test]
     fn every_preset_includes_common_slots() {
         let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
         let required_common = [
             "rag.embedder",
+            "rag.encoder",
             "rag.reranker",
             "vision.embedder",
             "voice.stt",
@@ -399,11 +402,12 @@ mod tests {
     /// Floor preset has exactly 10 recommendations: 5 tier-specific
     /// (chat.brain, minion.shared, voice.brain via mistral.rs phi4mm,
     /// plus rag.embedder + rag.encoder overriding the common-slots
-    /// default with the smaller harrier-270m) + 5 common slots
-    /// (rag.reranker, vision.embedder, voice.stt, voice.tts,
-    /// voice.wake — rag.embedder is overridden so excluded from the
-    /// common merge). Breaks if either the Floor preset's tier block
-    /// or the `[[common.slots]]` table changes count.
+    /// defaults with harrier-270m) + 5 from common (rag.reranker,
+    /// vision.embedder, voice.stt, voice.tts, voice.wake —
+    /// rag.embedder and rag.encoder are both in the tier block so
+    /// the common entries for those two are skipped by dedup).
+    /// Breaks if either the Floor preset's tier block or the
+    /// `[[common.slots]]` table changes count.
     #[test]
     fn floor_preset_has_ten_recommendations() {
         let downloaded = std::collections::HashSet::new();

@@ -564,8 +564,13 @@ device = "Cpu"
 # unless a tier-specific entry with the same `slot_id` already
 # exists. The loader handles the merge deterministically.
 #
-# rag.embedder uses Microsoft Harrier 0.6B (Qwen3-based encoder,
-# optimised for retrieval, already on disk as microsoftharrier-oss-v1-0.6b).
+# rag.embedder + rag.encoder both default to Harrier 0.6B. Every
+# tier that needs 270M overrides both in its tier-specific block
+# (Floor, Minimal, CpuOnly already do this), so the common 0.6B
+# entry is skipped for those tiers by the HashSet dedup. Mid was
+# the only tier missing rag.encoder entirely — this entry closes
+# that gap without touching any other tier's recommendations.
+#
 # voice.wake added for the bundled sherpa-onnx KWS zipformer so
 # 24/7 wake detection works out-of-the-box with no user config.
 # voice.tts uses Kokoro English v0.19 — the same ONNX file the
@@ -573,6 +578,14 @@ device = "Cpu"
 
 [[common.slots]]
 slot_id = "rag.embedder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "rag.encoder"
 model_repo_id = "microsoft/harrier-oss-v1-0.6b"
 model_filename = "model.safetensors"
 model_size_mb = 1136
