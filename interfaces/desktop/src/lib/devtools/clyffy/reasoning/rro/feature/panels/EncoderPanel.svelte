@@ -2,14 +2,36 @@
 	@component EncoderPanel
 	@kind sys.rro.feature
 	@layer feature
-	@description rag.embedder slot status.
+	@description rag.embedder slot status — Burn encoder health + tier display.
 -->
 <script lang="ts">
-import { Shapes } from "lucide-svelte";
+import { Brain, Shapes } from "lucide-svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout, StatusRow } from "../../ui/index.js";
+
+// Detect which Harrier tier is loaded from the assigned model ID.
+const encoderTier = $derived((): { label: string; description: string } => {
+	const id = rroState.encoder?.assigned_model_id ?? "";
+	if (id.includes("270m") || id.includes("270M")) {
+		return {
+			label: "Harrier 270M",
+			description: "Efficient — optimised for low-RAM machines",
+		};
+	}
+	if (id.includes("0.6b") || id.includes("0.6B") || id.includes("0-6b")) {
+		return {
+			label: "Harrier 0.6B",
+			description: "Full — default on mid-range and above",
+		};
+	}
+	return { label: "Custom", description: id || "Unknown model" };
+});
+
+// True when the backend confirms Burn (the embedded cortex path, not a sidecar).
+const isBurnBackend = $derived((rroState.encoder?.backend ?? "").toLowerCase() === "burn");
 </script>
 
 <Card preset="glass">
@@ -18,8 +40,8 @@ import { CapabilityHeader, ErrorCallout, StatusRow } from "../../ui/index.js";
 			<Shapes size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		<CapabilityHeader
-			title="Encoder status"
-			subtitle="The encoder turns your text into searchable vectors."
+			title="Search encoder"
+			subtitle="Converts your text into searchable vectors — built into Clyffy, no network needed."
 			{icon}
 		/>
 
@@ -28,27 +50,43 @@ import { CapabilityHeader, ErrorCallout, StatusRow } from "../../ui/index.js";
 		{#if rroState.encoder}
 			<div class="space-y-2">
 				<StatusRow
-					label="Slot"
+					label="Status"
 					detail="rag.embedder"
 					ok={!!rroState.encoder.backend}
 					okText="Ready"
 					failText="Not loaded"
 				/>
-				{#if rroState.encoder.assigned_model_id}
+
+				{#if rroState.encoder.backend}
+					<!-- Runtime badge — surface whether this is Burn (embedded cortex)
+					     or a fallback backend, because it matters for offline capability. -->
+					<div class="flex items-center justify-between gap-2">
+						<Text size="xs" preset="flat">Runtime</Text>
+						<div class="flex items-center gap-1.5">
+							{#if isBurnBackend}
+								<Brain size={12} class="text-[var(--accent-service-main)]" />
+								<Badge tone="positive" size="sm">Cortex · embedded</Badge>
+							{:else}
+								<Badge tone="informative" size="sm">{rroState.encoder.backend}</Badge>
+							{/if}
+						</div>
+					</div>
+
+					<!-- Tier line — tells a non-technical user which size is running and why. -->
 					<div class="flex items-center justify-between gap-2">
 						<Text size="xs" preset="flat">Model</Text>
-						<Text size="xs" weight="medium">{rroState.encoder.assigned_model_id}</Text>
-					</div>
-				{/if}
-				{#if rroState.encoder.backend}
-					<div class="flex items-center justify-between">
-						<Text size="xs" preset="flat">Engine</Text>
-						<Text size="xs" weight="medium">{rroState.encoder.backend}</Text>
+						<div class="flex flex-col items-end">
+							<Text size="xs" weight="medium">{encoderTier().label}</Text>
+							<Text size="xs" color="muted">{encoderTier().description}</Text>
+						</div>
 					</div>
 				{/if}
 			</div>
 		{:else}
-			<Text size="xs" preset="flat">Encoder slot not found.</Text>
+			<Text size="xs" preset="flat">
+				Encoder not loaded — go to Slots and install a Harrier model into
+				the Search Engine slot to activate search.
+			</Text>
 		{/if}
 	</div>
 </Card>

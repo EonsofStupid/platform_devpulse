@@ -290,7 +290,7 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
-runtime = "Candle"
+runtime = "Burn"
 source_tier = "UserManaged"
 builtin = true
 
@@ -318,7 +318,7 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "warm_standby"
 lane = "cpu"
-runtime = "Candle"
+runtime = "Burn"
 source_tier = "UserManaged"
 builtin = true
 

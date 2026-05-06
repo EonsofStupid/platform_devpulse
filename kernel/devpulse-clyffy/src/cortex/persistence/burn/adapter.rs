@@ -171,7 +171,10 @@ where
             encode_texts::<B>(&tok, texts, &self.device)?;
 
         let pooled = encoder.forward_pooled(token_ids, attention_mask);
-        let hidden = self.config.model.hidden_size;
+        // Derive hidden_size from the actual tensor output, not the boot-time
+        // config — the adapter may load 270M or 0.6B depending on hardware tier
+        // and each has a different hidden dimension.
+        let [_batch, hidden] = pooled.dims();
         let flat: Vec<f32> = pooled
             .into_data()
             .into_vec::<f32>()
@@ -181,15 +184,109 @@ where
     }
 }
 
+/// Read `config.json` from `model_dir` and build an [`EmbedderConfig`] from it.
+///
+/// Supports both Harrier 0.6B (28 layers, hidden 1024) and Harrier 270M (fewer
+/// layers, smaller hidden dim). The loader reads actual tensor shapes from the
+/// safetensors file, so any mismatch between `EmbedderConfig` and the file
+/// surfaces as [`LoaderError::ShapeMismatch`] — using the real config.json
+/// prevents that failure for models whose geometry differs from the boot default.
+///
+/// Falls back to `fallback` on any I/O or parse error (config.json absent in
+/// dev sandboxes or custom model dirs) so the adapter stays usable.
+fn load_geometry_from_config_json(model_dir: &Path, fallback: &EmbedderConfig) -> EmbedderConfig {
+    let config_path = model_dir.join("config.json");
+    let raw = match std::fs::read_to_string(&config_path) {
+        Ok(s) => s,
+        Err(e) => {
+            tracing::warn!(
+                path = %config_path.display(),
+                error = %e,
+                "config.json not found — using boot-time geometry defaults"
+            );
+            return fallback.clone();
+        }
+    };
+    let json: serde_json::Value = match serde_json::from_str(&raw) {
+        Ok(v) => v,
+        Err(e) => {
+            tracing::warn!(error = %e, "config.json parse failed — using boot-time geometry defaults");
+            return fallback.clone();
+        }
+    };
+
+    let fb = &fallback.model;
+    let get_usize = |key: &str, default: usize| -> usize {
+        json.get(key)
+            .and_then(|v| v.as_u64())
+            .map(|v| v as usize)
+            .unwrap_or(default)
+    };
+    let get_f64 = |key: &str, default: f64| -> f64 {
+        json.get(key)
+            .and_then(|v| v.as_f64())
+            .unwrap_or(default)
+    };
+
+    let vocab_size = get_usize("vocab_size", fb.vocab_size);
+    let hidden_size = get_usize("hidden_size", fb.hidden_size);
+    let num_hidden_layers = get_usize("num_hidden_layers", fb.num_hidden_layers);
+    let num_attention_heads = get_usize("num_attention_heads", fb.num_attention_heads);
+    let num_key_value_heads = get_usize("num_key_value_heads", fb.num_key_value_heads);
+    // head_dim is often absent from config.json; derive it when missing.
+    let head_dim = get_usize(
+        "head_dim",
+        hidden_size / num_attention_heads.max(1),
+    );
+    let intermediate_size = get_usize("intermediate_size", fb.intermediate_size);
+    let rms_norm_eps = get_f64("rms_norm_eps", fb.rms_norm_eps);
+    let rope_theta = get_f64("rope_theta", fb.rope_theta);
+    let max_position_embeddings = get_usize("max_position_embeddings", fb.max_position_embeddings);
+
+    let mut model = super::qwen3::Qwen3Config::new();
+    model.vocab_size = vocab_size;
+    model.hidden_size = hidden_size;
+    model.num_hidden_layers = num_hidden_layers;
+    model.num_attention_heads = num_attention_heads;
+    model.num_key_value_heads = num_key_value_heads;
+    model.head_dim = head_dim;
+    model.intermediate_size = intermediate_size;
+    model.rms_norm_eps = rms_norm_eps;
+    model.rope_theta = rope_theta;
+    model.max_position_embeddings = max_position_embeddings;
+
+    tracing::info!(
+        hidden = hidden_size,
+        layers = num_hidden_layers,
+        heads = num_attention_heads,
+        kv_heads = num_key_value_heads,
+        head_dim,
+        intermediate = intermediate_size,
+        vocab = vocab_size,
+        "Burn encoder: geometry resolved from config.json"
+    );
+
+    EmbedderConfig::new(model)
+}
+
 impl<B> BurnEncoderAdapter for CortexBurnAdapter<B>
 where
     B: Backend,
     B::Device: Default + Clone + Send + Sync + 'static,
 {
     fn load_blocking(&self, path: &Path) -> anyhow::Result<MemoryFootprint> {
+        // Derive actual model geometry from config.json in the model directory.
+        // This is critical for tier-adaptive loading: High-end gets Harrier 0.6B,
+        // Floor gets Harrier 270M — each has different layer counts + hidden dims.
+        // Falls back to the boot-time 0.6B defaults if config.json is absent.
+        let model_dir = path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("burn load: safetensors path has no parent dir"))?;
+        let config = load_geometry_from_config_json(model_dir, &self.config);
+
         let source = BurnEmbedderSource {
             safetensors_path: path.to_path_buf(),
-            config: self.config.clone(),
+            config: config.clone(),
             device: self.device.clone(),
         };
 
@@ -233,9 +330,6 @@ where
 
         // Load tokenizer from the same directory as the weights.
         // Qwen3 / Harrier ship `tokenizer.json` alongside the safetensors.
-        let model_dir = path
-            .parent()
-            .ok_or_else(|| anyhow::anyhow!("burn load: safetensors path has no parent dir"))?;
         let tok = load_tokenizer(model_dir)
             .map_err(|e| anyhow::anyhow!("burn load: tokenizer: {e:#}"))?;
         self.tokenizer.store(Arc::new(Some(tok)));
@@ -248,7 +342,9 @@ where
         //                3 × hidden × intermediate (mlp) +
         //                2 × hidden (norm scales)
         //   - final norm: hidden
-        let cfg = &self.config.model;
+        // Use the actually-loaded geometry (from config.json), not the
+        // boot-time 0.6B default, so footprint is correct for Harrier 270M.
+        let cfg = &config.model;
         let per_layer = 4 * cfg.hidden_size * cfg.hidden_size
             + 3 * cfg.hidden_size * cfg.intermediate_size
             + 2 * cfg.hidden_size;

@@ -96,10 +96,8 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 					{/if}
 				{:else}
 					<Text size="xs" color="muted">
-						No phase transitions observed yet. The kernel daemon is
-						authored but not yet instantiated — once `Daemon::new` runs at
-						boot and an encoder is loaded, lifecycle events flow through
-						here automatically.
+						No transitions yet. Load a model into the <code>rag.embedder</code>
+						slot and the daemon starts immediately — events flow here live.
 					</Text>
 				{/if}
 			</div>
@@ -131,16 +129,16 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 	{#snippet config()}
 		<div class="space-y-3">
 			<Text size="sm" color="muted">
-				The Reason Ready Daemon orchestrates hot updates of the RRO
-				encoder per the four-phase pattern in
-				<code>HOT_UPDATE_PATTERN.md</code>: pause → drain in-flight →
-				load + validate the new weights → atomic swap → resume.
+				The Reason Ready Daemon orchestrates encoder hot-updates via a
+				four-phase protocol: pause → drain in-flight work → load and
+				validate new weights → atomic swap → resume. No requests are
+				dropped during the swap — they queue until the window closes.
 			</Text>
 			<Text size="sm" color="muted">
-				The daemon is implemented (<code>kernel/rrd/</code>) but not
-				yet instantiated at boot. Once an encoder is loaded into a slot
-				the daemon takes over its hot-update lifecycle and this devtool
-				renders the phase trace live.
+				The daemon starts the moment the Harrier encoder is loaded into
+				the <code>rag.embedder</code> slot. Loading a second time
+				(e.g. upgrading from 270M to 0.6B) triggers a full hot-update
+				cycle and emits each phase here in real time.
 			</Text>
 		</div>
 	{/snippet}
