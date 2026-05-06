@@ -37,6 +37,7 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 
+use devpulse_engine::platform::services::rrd_translator::RrdLifecycleTranslator;
 use devpulse_engine::platform::telemetry::{DuckDbLayer, SpanRecord, SPAN_CHANNEL_CAPACITY};
 
 /// Result of logging initialization — holds non-blocking writer guards and
@@ -165,6 +166,15 @@ pub fn init(
                 .with_filter(jsonl_filter),
         )
         .with(DuckDbLayer::new(span_tx).with_filter(duckdb_ceiling))
+        // RRD lifecycle translator — bridges every `rrd.lifecycle`
+        // tracing event into a typed `InternalEvent::RrdPhaseTransition`
+        // on the engine bus per HOT_UPDATE_PATTERN.md §11. Registered
+        // here in the lazy variant; the broadcast sender is installed
+        // post-boot from `Platform::internal_tx()` (see lib.rs boot
+        // task) — events emitted before installation are dropped,
+        // which is fine because the daemon doesn't fire until after
+        // boot completes anyway.
+        .with(RrdLifecycleTranslator::new_lazy())
         .init();
 
     install_panic_hook(&logs_dir);

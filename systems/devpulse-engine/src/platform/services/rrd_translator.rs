@@ -36,30 +36,73 @@
 //! parity rule restates as: "all `InternalEvent::RrdPhaseTransition`
 //! emissions originate from `RrdLifecycleTranslator::on_event`."
 
-use std::sync::Arc;
-use tokio::sync::broadcast;
+use std::sync::{Arc, OnceLock};
 use tracing::field::{Field, Visit};
 use tracing::Subscriber;
 use tracing_subscriber::layer::{Context, Layer};
 
+use devpulse_telemetry::prelude::BroadcastSender;
+
 use crate::platform::facade::events::InternalEvent;
+
+/// Process-global broadcast sender, installed exactly once by
+/// `Platform::boot` after the engine's bus is constructed.
+///
+/// Why a global: the translator is registered with the tracing
+/// subscriber inside `logging::init` (called from `main.rs` before
+/// `Platform::boot`), but the broadcast bus is owned by the engine
+/// platform (constructed inside `Platform::boot`). The two dependency
+/// orderings are opposite, so the layer registers without a sender
+/// and reads the sender out of this `OnceLock` once Platform installs
+/// it. Translator events emitted before installation are dropped —
+/// the daemon only emits after boot completes anyway.
+static LAZY_SENDER: OnceLock<Arc<BroadcastSender<InternalEvent>>> = OnceLock::new();
 
 /// Tracing-subscriber Layer that translates RRD lifecycle events
 /// into typed broadcast events.
 ///
-/// Construct with the engine's `broadcast::Sender<InternalEvent>`,
-/// then add to the tracing subscriber via `.with(translator)`.
+/// Two construction modes:
+///
+/// - `new_lazy()` — production path. Reads the sender from
+///   [`LAZY_SENDER`] on every event. Logging registers this variant
+///   at init time; `Platform::boot` later installs the sender via
+///   [`RrdLifecycleTranslator::install_global_sender`].
+/// - `new(tx)` — test path. Provides the sender explicitly so
+///   tests can assert against an isolated channel without touching
+///   process-global state.
 pub struct RrdLifecycleTranslator {
-    tx: Arc<broadcast::Sender<InternalEvent>>,
+    /// Explicit per-instance sender (test path). When `None`, the
+    /// translator falls back to the global [`LAZY_SENDER`] (production
+    /// path). The split is necessary because tests would otherwise
+    /// fight over the OnceLock — they can only set it once per
+    /// process, and parallel tests need independent channels.
+    tx: Option<Arc<BroadcastSender<InternalEvent>>>,
 }
 
 impl RrdLifecycleTranslator {
     /// Construct a translator that publishes onto the given
-    /// broadcast channel. Cloning is intentional — the layer
-    /// is moved into the tracing-subscriber pipeline at engine
-    /// boot and the sender is reused for every translated event.
-    pub fn new(tx: Arc<broadcast::Sender<InternalEvent>>) -> Self {
-        Self { tx }
+    /// broadcast channel. Used by tests so each test owns its own
+    /// channel. Production code should use `new_lazy()`.
+    pub fn new(tx: Arc<BroadcastSender<InternalEvent>>) -> Self {
+        Self { tx: Some(tx) }
+    }
+
+    /// Production constructor. The translator publishes onto the
+    /// process-global sender installed by `Platform::boot` via
+    /// [`Self::install_global_sender`]. Events emitted before the
+    /// sender is installed are silently dropped.
+    pub fn new_lazy() -> Self {
+        Self { tx: None }
+    }
+
+    /// Install the process-global broadcast sender. Called once by
+    /// `Platform::boot` after the engine's `InternalEvent` bus is
+    /// constructed. Idempotent — a second call returns `Err` with
+    /// the supplied sender (the existing one is kept).
+    pub fn install_global_sender(
+        tx: Arc<BroadcastSender<InternalEvent>>,
+    ) -> Result<(), Arc<BroadcastSender<InternalEvent>>> {
+        LAZY_SENDER.set(tx)
     }
 }
 
@@ -122,11 +165,23 @@ impl<S: Subscriber> Layer<S> for RrdLifecycleTranslator {
         // InternalEvent shape stays uniform.
         let detail = detail.unwrap_or_default();
 
+        // Pick the explicit per-instance sender (tests) or fall
+        // back to the global LAZY_SENDER (production). If neither
+        // is available — production case before Platform::boot has
+        // installed the sender — drop the event silently.
+        let tx = match &self.tx {
+            Some(tx) => tx,
+            None => match LAZY_SENDER.get() {
+                Some(tx) => tx,
+                None => return,
+            },
+        };
+
         // `send` returns Err if there are no active receivers.
         // That's fine — translator is fire-and-forget; nobody
         // listening just means the event is discarded, same as
         // a tracing event with no subscriber attached.
-        let _ = self.tx.send(InternalEvent::RrdPhaseTransition { phase, detail });
+        let _ = tx.send(InternalEvent::RrdPhaseTransition { phase, detail });
     }
 }
 
@@ -145,13 +200,14 @@ impl<S: Subscriber> Layer<S> for RrdLifecycleTranslator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use devpulse_telemetry::prelude::broadcast_channel;
     use tracing_subscriber::layer::SubscriberExt;
     use tracing_subscriber::registry::Registry;
 
     #[tokio::test]
     async fn translator_mirrors_rrd_lifecycle_event_to_internal_event() {
         // Set up the broadcast channel and translator.
-        let (tx, mut rx) = broadcast::channel::<InternalEvent>(64);
+        let (tx, mut rx) = broadcast_channel::<InternalEvent>(64);
         let translator = RrdLifecycleTranslator::new(Arc::new(tx));
 
         // Install the translator as the active subscriber for this
@@ -166,10 +222,10 @@ mod tests {
         );
 
         // Translator should have produced exactly one InternalEvent.
-        let event = rx
+        let envelope = rx
             .try_recv()
             .expect("translator must emit an InternalEvent for every rrd.lifecycle tracing event");
-        match event {
+        match envelope.value {
             InternalEvent::RrdPhaseTransition { phase, detail } => {
                 assert_eq!(phase, "swap_commit");
                 assert_eq!(detail, "atomic pointer swap committed in test");
@@ -186,7 +242,7 @@ mod tests {
 
     #[tokio::test]
     async fn translator_ignores_non_rrd_targets() {
-        let (tx, mut rx) = broadcast::channel::<InternalEvent>(64);
+        let (tx, mut rx) = broadcast_channel::<InternalEvent>(64);
         let translator = RrdLifecycleTranslator::new(Arc::new(tx));
         let subscriber = Registry::default().with(translator);
         let _guard = tracing::subscriber::set_default(subscriber);

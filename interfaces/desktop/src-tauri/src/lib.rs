@@ -1008,6 +1008,49 @@ async fn boot_task(
                 tracing::info!("grammar event bridge: spawned");
             }
 
+            // ── RRD lifecycle event bridge ───────────────────────
+            // Two-step wiring per HOT_UPDATE_PATTERN.md §11:
+            //   (1) Install the engine's `internal_tx` broadcast
+            //       sender into the global LAZY_SENDER so the
+            //       `RrdLifecycleTranslator` Layer (registered in
+            //       logging::init()) can publish typed events.
+            //   (2) Subscribe to the bus, filter for
+            //       `InternalEvent::RrdPhaseTransition`, and forward
+            //       to the frontend on `platform:rrd-phase-transition`
+            //       so the RRD devtool can render lifecycle history
+            //       without parsing log lines.
+            if let Some(platform_arc) = state.platform.load_full() {
+                use devpulse_engine::platform::facade::events::InternalEvent;
+                use devpulse_engine::platform::services::rrd_translator::RrdLifecycleTranslator;
+
+                let internal_tx = std::sync::Arc::new(platform_arc.internal_tx().clone());
+                if let Err(_existing) =
+                    RrdLifecycleTranslator::install_global_sender(internal_tx.clone())
+                {
+                    tracing::warn!(
+                        "rrd event bridge: LAZY_SENDER already installed (boot ran twice?) — keeping existing"
+                    );
+                } else {
+                    tracing::info!("rrd event bridge: LAZY_SENDER installed");
+                }
+
+                let mut rx = internal_tx.subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (event, _producer_cx) = envelope.into_parts();
+                        if let InternalEvent::RrdPhaseTransition { phase, detail } = event {
+                            let _ = app_handle.emit(
+                                "platform:rrd-phase-transition",
+                                serde_json::json!({ "phase": phase, "detail": detail }),
+                            );
+                        }
+                    }
+                    tracing::info!("rrd event bridge: broadcast channel closed");
+                });
+                tracing::info!("rrd event bridge: spawned");
+            }
+
             // ── Hardware metrics push loop ───────────────────────
             // Rust-driven: no frontend polling. Browser throttling can't
             // affect this — Rust tokio runtime is never throttled.
