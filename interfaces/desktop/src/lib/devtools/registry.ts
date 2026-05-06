@@ -58,6 +58,7 @@ import {
 	Package,
 	PlugZap,
 	Radio,
+	RotateCw,
 	Sparkles,
 	Volume2,
 	Workflow,
@@ -277,6 +278,15 @@ export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 		label: "RRO Trifecta",
 		blurb: "Embedder + encoder + vector store. The retrieval unit.",
 		icon: Workflow,
+	},
+	{
+		id: "rrd",
+		tier: "clyffy",
+		bucket: "reasoning",
+		route: "/devtools/clyffy/reasoning/rrd",
+		label: "RRD Daemon",
+		blurb: "Hot-update lifecycle — pause, drain, swap, resume on the encoder.",
+		icon: RotateCw,
 	},
 
 	// ── Clyffy / Providers ───────────────────────────────────
