@@ -56,6 +56,16 @@ impl<B: Backend> BurnEmbedderSnapshot<B> {
     pub fn embedder(&self) -> &BurnEmbedder<B> {
         &self.inner
     }
+
+    /// Test-only wrapper. Production callers go through
+    /// [`HotUpdateable::load`]; the test path uses this to build a
+    /// snapshot from a random-init embedder so the validate-accepts
+    /// regression test in `mod.rs` doesn't require a real
+    /// safetensors fixture.
+    #[cfg(test)]
+    pub fn wrap_for_test(inner: BurnEmbedder<B>) -> Self {
+        Self { inner }
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -110,49 +120,49 @@ where
     /// vector of the right shape. Catches dtype mistakes, dead
     /// weights, and silent shape bugs the loader's `ShapeMismatch`
     /// check missed.
+    ///
+    /// **Smoke test, not regression test.** This catches the
+    /// catastrophic failure modes (NaN/Inf in the output, wrong
+    /// pooled dim) but not "weights loaded but signs flipped" or
+    /// "wrong tokenizer used." A real regression suite — fixture
+    /// `(input_ids, expected_embedding)` pairs with cosine ≥ 0.99
+    /// against a Python sentence-transformers reference — lands
+    /// alongside Phase C tokenizer wiring. Until then the daemon's
+    /// validate gate accepts any model that produces finite output.
+    #[tracing::instrument(skip(snap))]
     async fn validate(snap: &Self::Snapshot) -> Result<(), Self::LoadError> {
-        // Pull a fresh device handle from one of the snapshot's
-        // tensors — every Tensor knows its own device, so we don't
-        // need to thread the source's device through.
         let emb = snap.embedder();
-
-        // Build a one-row, three-token synthetic batch. Token ids 1,
-        // 2, 3 are arbitrary but valid for any vocab > 4 (which
-        // every real Qwen variant satisfies). Mask is all-1s so
-        // pool_last_token picks position 2.
         let device = emb.model_device();
-        let token_ids: Tensor<B, 2, Int> =
-            Tensor::from_data([[1i64, 2, 3]], &device);
+
+        // Synthetic batch — three positions of token id 0. Using 0
+        // instead of {1, 2, 3} keeps the forward valid even on
+        // hypothetical tiny-vocab variants (vocab >= 1, always true).
+        // The actual numeric values don't matter for finite-checking;
+        // we just need the forward to traverse every layer.
+        let token_ids: Tensor<B, 2, Int> = Tensor::from_data([[0i64, 0, 0]], &device);
         let mask: Tensor<B, 2, Int> = Tensor::from_data([[1i64, 1, 1]], &device);
 
         let pooled = emb.forward_pooled(token_ids, mask);
-
-        // Shape: [1, hidden_size]. Pull the actual hidden_size off
-        // the embed_tokens weight matrix — avoids threading the cfg
-        // through the snapshot.
         let [batch, hidden] = pooled.dims();
         if batch != 1 {
-            return Err(LoaderError::ShapeMismatch {
-                key: "validate.pooled.batch".to_string(),
-                expected: vec![1, hidden],
-                got: vec![batch, hidden],
+            return Err(LoaderError::ValidationFailed {
+                reason: format!("expected pooled shape [1, hidden], got [{batch}, {hidden}]"),
             });
         }
 
         // Finite-check via TensorData → Vec<f32>.
-        let data = pooled.into_data();
-        let values: Vec<f32> = data
+        let values: Vec<f32> = pooled
+            .into_data()
             .into_vec::<f32>()
-            .map_err(|_| LoaderError::ShapeMismatch {
-                key: "validate.pooled.dtype".to_string(),
-                expected: vec![hidden],
-                got: vec![0],
+            .map_err(|e| LoaderError::ValidationFailed {
+                reason: format!("pooled output not f32-convertible: {e:?}"),
             })?;
-        if values.iter().any(|v| !v.is_finite()) {
-            return Err(LoaderError::ShapeMismatch {
-                key: "validate.pooled.finiteness".to_string(),
-                expected: vec![hidden],
-                got: vec![values.len()],
+        if let Some(bad_idx) = values.iter().position(|v| !v.is_finite()) {
+            return Err(LoaderError::ValidationFailed {
+                reason: format!(
+                    "pooled output has non-finite value at index {bad_idx} of {}",
+                    values.len()
+                ),
             });
         }
 

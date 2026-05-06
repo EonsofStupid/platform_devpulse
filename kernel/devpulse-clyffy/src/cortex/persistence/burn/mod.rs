@@ -174,6 +174,27 @@ mod tests {
         }
     }
 
+    /// Cover the `HotUpdateable::validate` smoke-test surface against
+    /// a random-init embedder. Real safetensors-loaded weights would
+    /// also pass; the goal here is to catch a regression where
+    /// `validate` itself reports failure on legitimate output (e.g.
+    /// a future change to `forward_pooled` that breaks the pool dim).
+    #[test]
+    fn hot_updateable_validate_accepts_random_init() {
+        let device = Default::default();
+        let cfg = EmbedderConfig::new(tiny_config());
+        let emb = BurnEmbedder::<B>::new(&cfg, &device);
+        let snap = hot_update::BurnEmbedderSnapshot::wrap_for_test(emb);
+
+        // The trait method is async — block_on a fresh runtime so we
+        // don't pull tokio into this test's surface.
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap();
+        let result = runtime.block_on(<BurnEmbedder<B> as rrd::HotUpdateable>::validate(&snap));
+        assert!(result.is_ok(), "validate must accept random-init: {result:?}");
+    }
+
     /// Round-trip the embedder through `ArcSwap` to validate the §4.1
     /// hot-update primitive against real `BurnEmbedder<NdArray>` state.
     ///
