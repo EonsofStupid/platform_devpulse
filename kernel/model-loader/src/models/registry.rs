@@ -30,6 +30,15 @@ pub enum BackendType {
     Ort,
     /// sherpa-rs (Whisper STT, Kokoro TTS).
     Sherpa,
+    /// Burn (locked direction per
+    /// `feedback_inference_runtime_direction.md`). Used for the RRO
+    /// encoder: Sync-clean Qwen3 authored from raw `Tensor<B,?>`
+    /// fields, hot-updated via `kernel/rrd`'s daemon. Concrete
+    /// implementation lives in `kernel/devpulse-clyffy` and reaches
+    /// model-loader through the [`BurnEncoderAdapter`] trait.
+    ///
+    /// [`BurnEncoderAdapter`]: crate::backends::burn_adapter::BurnEncoderAdapter
+    Burn,
 }
 
 /// Where the model was obtained.
@@ -115,6 +124,7 @@ impl std::fmt::Display for BackendType {
             Self::LlamaCpp => write!(f, "llama.cpp"),
             Self::Ort => write!(f, "ONNX Runtime"),
             Self::Sherpa => write!(f, "Sherpa"),
+            Self::Burn => write!(f, "Burn"),
         }
     }
 }

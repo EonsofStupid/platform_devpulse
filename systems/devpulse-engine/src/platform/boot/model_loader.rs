@@ -64,6 +64,12 @@ pub async fn boot(
     // Boot is sync (file I/O, GGUF parsing) — offload to blocking thread.
     // Slots + presets come from kernel SSOT loaded inside ModelLoaderService::boot,
     // not from the engine-side TOML shadow (which has been removed).
+    //
+    // Burn encoder adapter is wired in a follow-up slice — for now
+    // pass `None` and let `BackendType::Burn` slot dispatch return a
+    // clear "adapter not wired" error from the kernel side. The
+    // alternative (silently routing Burn slots to Candle) would
+    // gaslight the user; explicit error wins.
     let data_dir_owned = data_dir.to_path_buf();
     let result = devpulse_telemetry::spawn_blocking(move || {
         ModelLoaderService::boot(
@@ -72,6 +78,7 @@ pub async fn boot(
             models_dir,
             subdirs,
             libsql_adapter,
+            None,
         )
     })
     .await

@@ -84,6 +84,15 @@ pub(crate) struct BootState {
     pub(crate) models_dir: PathBuf,
     pub(crate) events: Arc<dyn LoaderEventSink>,
     pub(crate) presets: Vec<crate::hardware::presets::PresetBlueprint>,
+    /// Optional Burn-encoder adapter wired by the engine at boot
+    /// time. `None` when the consuming binary doesn't link the
+    /// clyffy Burn implementation (test harnesses, headless tooling)
+    /// — slots routed to `BackendType::Burn` then return a clear
+    /// `Internal` error instead of compile-failing or silently
+    /// falling back to Candle. The hosting binary is expected to
+    /// supply the adapter when burn-cpu/burn-cuda is on.
+    pub(crate) burn_encoder_adapter:
+        Option<crate::backends::burn_adapter::BurnEncoderAdapterArc>,
 }
 
 // ── Service ──────────────────────────────────────────────────────
@@ -223,6 +232,7 @@ impl ModelLoaderService {
         models_dir: PathBuf,
         subdirs: Vec<String>,
         presets: Vec<crate::hardware::presets::PresetBlueprint>,
+        burn_encoder_adapter: Option<crate::backends::burn_adapter::BurnEncoderAdapterArc>,
     ) -> Result<Self, LoaderError> {
         if !models_dir.exists() {
             for subdir in &subdirs {
@@ -305,6 +315,7 @@ impl ModelLoaderService {
                 models_dir,
                 events,
                 presets,
+                burn_encoder_adapter,
             }),
             hardware: Arc::new(parking_lot::RwLock::new(HardwareMonitor::new())),
         })
@@ -1561,7 +1572,9 @@ impl ModelLoaderService {
 
         let model_path = entry.path.clone();
         let capability = slot.capability;
-        let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
+        let backend = slot
+            .runtime
+            .unwrap_or_else(|| select_backend(entry, None, Some(capability)));
         let hw = self.hardware.read();
 
         let device_str = match slot.preferred_device {
@@ -1670,7 +1683,9 @@ impl ModelLoaderService {
 
         let model_path = entry.path.clone();
         let capability = slot.capability;
-        let backend = slot.runtime.unwrap_or_else(|| select_backend(entry, None));
+        let backend = slot
+            .runtime
+            .unwrap_or_else(|| select_backend(entry, None, Some(capability)));
         let params = LoadParams {
             device: "cpu".to_string(),
             context_length: entry.context_length,
@@ -1759,6 +1774,26 @@ impl ModelLoaderService {
             BackendType::Candle | BackendType::LlamaCpp => {
                 Err(anyhow::anyhow!("Candle backend not compiled"))
             }
+            BackendType::Burn => match self.boot.burn_encoder_adapter.as_ref() {
+                Some(adapter) => {
+                    // Adapter's `load_blocking` may sit for 1-3 seconds
+                    // (safetensors parse + per-tensor copies). Wrap in
+                    // spawn_blocking so the runtime keeps servicing
+                    // other tasks while the encoder loads. Adapter
+                    // clones cheaply (it's an Arc internally).
+                    let adapter = adapter.clone();
+                    let path = model_path.to_path_buf();
+                    tokio::task::spawn_blocking(move || adapter.load_blocking(&path))
+                        .await
+                        .unwrap_or_else(|e| Err(anyhow::anyhow!("burn load join error: {e}")))
+                }
+                None => Err(anyhow::anyhow!(
+                    "BackendType::Burn selected for slot '{slot_id}' but no \
+                     BurnEncoderAdapter is wired — engine boot must supply \
+                     `Some(adapter)` to ModelLoaderService::new when burn-cpu \
+                     or burn-cuda is enabled"
+                )),
+            },
         };
 
         match load_result {
@@ -1936,6 +1971,26 @@ impl ModelLoaderService {
             BackendType::Candle | BackendType::LlamaCpp => {
                 Err(anyhow::anyhow!("Candle backend not compiled"))
             }
+            BackendType::Burn => match self.boot.burn_encoder_adapter.as_ref() {
+                Some(adapter) => {
+                    // Adapter's `load_blocking` may sit for 1-3 seconds
+                    // (safetensors parse + per-tensor copies). Wrap in
+                    // spawn_blocking so the runtime keeps servicing
+                    // other tasks while the encoder loads. Adapter
+                    // clones cheaply (it's an Arc internally).
+                    let adapter = adapter.clone();
+                    let path = model_path.to_path_buf();
+                    tokio::task::spawn_blocking(move || adapter.load_blocking(&path))
+                        .await
+                        .unwrap_or_else(|e| Err(anyhow::anyhow!("burn load join error: {e}")))
+                }
+                None => Err(anyhow::anyhow!(
+                    "BackendType::Burn selected for slot '{slot_id}' but no \
+                     BurnEncoderAdapter is wired — engine boot must supply \
+                     `Some(adapter)` to ModelLoaderService::new when burn-cpu \
+                     or burn-cuda is enabled"
+                )),
+            },
         };
 
         match load_result {
@@ -2432,6 +2487,7 @@ mod tests {
             tmp,
             vec!["voice".to_string()],
             Vec::new(),
+            None, // no burn adapter in tests — Burn dispatch returns a clear error
         )
         .expect("ModelLoaderService::new must succeed with MemoryConfig")
     }

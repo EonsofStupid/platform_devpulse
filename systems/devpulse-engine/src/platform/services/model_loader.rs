@@ -58,6 +58,9 @@ impl ModelLoaderService {
         models_dir: std::path::PathBuf,
         subdirs: Vec<String>,
         libsql_adapter: Option<Arc<LibSqlAdapter>>,
+        burn_encoder_adapter: Option<
+            devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc,
+        >,
     ) -> Result<(Self, Vec<Slot>)> {
         let log_path = data_dir.join("logs").join("model-loader.log");
         let config: Box<dyn devpulse_clyffy::model_loader::ConfigBackend> = if let Some(adapter) =
@@ -79,13 +82,21 @@ impl ModelLoaderService {
         tracing::info!(
             slots = default_slots.len(),
             presets = presets.len(),
+            burn_encoder_wired = burn_encoder_adapter.is_some(),
             "Loaded kernel SSOT (slots + presets)"
         );
 
         // `Inner::new()` returns a Clone-able service (all fields Arc).
         // We wrap in Arc for engine-side sharing but the kernel already
         // manages per-sub-struct locking internally.
-        let service = Inner::new(config, events, models_dir, subdirs, presets)?;
+        let service = Inner::new(
+            config,
+            events,
+            models_dir,
+            subdirs,
+            presets,
+            burn_encoder_adapter,
+        )?;
 
         Ok((
             Self {

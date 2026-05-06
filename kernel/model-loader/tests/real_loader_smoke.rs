@@ -213,6 +213,7 @@ async fn steps_2_through_6_real_disk() {
             "rag".to_string(),
         ],
         presets,
+        None, // burn encoder adapter — tests don't exercise the Burn path
     )
     .expect("service construction must not fail with a real models dir");
 

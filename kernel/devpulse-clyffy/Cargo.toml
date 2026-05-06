@@ -20,9 +20,16 @@ candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:to
 # needs `assert_impl_all!(BurnEmbedder<B>: Send, Sync, 'static)` and
 # the ArcSwap round-trip test, both of which only compile when the
 # encoder code itself is compiled.
-burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd"]
-burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd"]
-model-loader = ["dep:model-loader", "model-loader/specta"]
+burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader"]
+burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader"]
+model-loader = [
+    "dep:model-loader",
+    "model-loader/specta",
+    "model-loader/candle-backend",
+    "model-loader/ort-backend",
+    "model-loader/nvml",
+    "model-loader/llama-cpp-ffi",
+]
 # Tauri IPC type derivation. Enable when this crate is consumed by the
 # Tauri facade (engine + desktop). Off by default so kernel-only builds
 # don't drag specta into their dep tree.
@@ -107,8 +114,12 @@ devpulse-telemetry = { workspace = true }
 # Kernel SSOT TOML loaders (interaction templates, minion routing, etc.)
 toml = "0.9"
 
-# Model Loader (self-enclosed, zero clyffy deps — re-exported for engine)
-model-loader = { path = "../model-loader", optional = true, features = ["candle-backend", "ort-backend", "nvml", "llama-cpp-ffi"] }
+# Model Loader (self-enclosed, zero clyffy deps — re-exported for engine).
+# Default-features = false so a feature like `burn-cpu` can pull in just the
+# trait surface (`backends::burn_adapter`, `loading::states::MemoryFootprint`)
+# without dragging llama-cpp-sys / candle / ort. The full backend surface is
+# pulled by the `model-loader` feature alias below.
+model-loader = { path = "../model-loader", optional = true, default-features = false }
 # `llama-cpp-ffi` is ON. cmake + MSVC are wired through the SSOT at
 # `config/platform/build/deps.toml [build.deps.{cmake,ninja}]`; xtask's
 # `apply_env` sets `CMAKE` / `CMAKE_MAKE_PROGRAM` / `CMAKE_GENERATOR`

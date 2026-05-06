@@ -504,6 +504,7 @@ mod tests {
                     BackendType::Candle => matches!(ext.as_str(), "safetensors" | "gguf"),
                     BackendType::LlamaCpp => ext == "gguf",
                     BackendType::Sherpa => matches!(ext.as_str(), "bin" | "onnx"),
+                    BackendType::Burn => ext == "safetensors",
                 };
 
                 assert!(

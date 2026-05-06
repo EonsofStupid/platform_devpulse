@@ -38,11 +38,13 @@
 
 #![cfg(any(feature = "burn-cpu", feature = "burn-cuda"))]
 
+pub mod adapter;
 pub mod embedder;
 pub mod hot_update;
 pub mod loader;
 pub mod qwen3;
 
+pub use adapter::CortexBurnAdapter;
 pub use embedder::{l2_normalize, pool_last_token, BurnEmbedder, EmbedderConfig};
 pub use hot_update::{BurnEmbedderSnapshot, BurnEmbedderSource};
 pub use loader::{load_qwen3_from_safetensors, LoaderError};
