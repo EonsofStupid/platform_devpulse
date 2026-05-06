@@ -39,9 +39,13 @@
 #![cfg(any(feature = "burn-cpu", feature = "burn-cuda"))]
 
 pub mod embedder;
+pub mod hot_update;
+pub mod loader;
 pub mod qwen3;
 
 pub use embedder::{l2_normalize, pool_last_token, BurnEmbedder, EmbedderConfig};
+pub use hot_update::{BurnEmbedderSnapshot, BurnEmbedderSource};
+pub use loader::{load_qwen3_from_safetensors, LoaderError};
 pub use qwen3::{Qwen3Config, Qwen3Model};
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -71,6 +75,17 @@ static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::NdArray>: Send, 
 
 #[cfg(feature = "burn-cuda")]
 static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: Send, Sync);
+
+// HOT_UPDATE_PATTERN.md §12 verification target 4 — BurnEmbedder<B>
+// implements HotUpdateable for every backend the file admits. If a
+// future backend's Device drops `Send + Sync + 'static`, the impl
+// stops applying and this assertion fails at compile time instead of
+// at first daemon attach.
+#[cfg(feature = "burn-cpu")]
+static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::NdArray>: rrd::HotUpdateable);
+
+#[cfg(feature = "burn-cuda")]
+static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: rrd::HotUpdateable);
 
 // ═══════════════════════════════════════════════════════════════════════
 // Tests — under `burn-cpu` so CI runs without a GPU host.

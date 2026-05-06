@@ -20,8 +20,8 @@ candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:to
 # needs `assert_impl_all!(BurnEmbedder<B>: Send, Sync, 'static)` and
 # the ArcSwap round-trip test, both of which only compile when the
 # encoder code itself is compiled.
-burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions"]
-burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions"]
+burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd"]
+burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd"]
 model-loader = ["dep:model-loader", "model-loader/specta"]
 # Tauri IPC type derivation. Enable when this crate is consumed by the
 # Tauri facade (engine + desktop). Off by default so kernel-only builds
@@ -85,6 +85,17 @@ arc-swap = { workspace = true, optional = true }
 # only `Clone + Send + Debug`; backends are Sync in practice but we
 # encode that contract at the assertion site, not silently.
 static_assertions = { workspace = true, optional = true }
+
+# Safetensors loader for the Burn embedder (`HOT_UPDATE_PATTERN.md`
+# §5 HotUpdateable). Reads HF weights into raw `Tensor<B, ?>` fields
+# via std::fs::read (mmap is `unsafe` and the crate-wide unsafe-code
+# deny lint disallows it without an explicit allow). Pulled in
+# alongside Burn — the encoder is the only consumer in this crate.
+safetensors = { version = "0.4", optional = true }
+
+# RRD daemon trait surface — `HotUpdateable` impl on `BurnEmbedder<B>`
+# is the entry point that lets the daemon manage encoder hot-updates.
+rrd = { path = "../rrd", optional = true }
 
 # Observability
 tracing = { workspace = true }

@@ -52,6 +52,23 @@ impl<B: Backend> BurnEmbedder<B> {
         }
     }
 
+    /// Construct from an already-loaded [`Qwen3Model`] — used by the
+    /// `HotUpdateable` load path which assembles the model directly
+    /// from safetensors instead of going through the random-init
+    /// `new` constructor.
+    #[must_use]
+    pub fn from_loaded(model: Qwen3Model<B>, normalize: bool) -> Self {
+        Self { model, normalize }
+    }
+
+    /// Borrow the device the underlying weights live on. Used by
+    /// `HotUpdateable::validate` to build the synthetic input batch
+    /// without threading a device handle through the snapshot.
+    #[must_use]
+    pub fn model_device(&self) -> B::Device {
+        self.model.device()
+    }
+
     /// Output dimension (= `model.hidden_size`).
     pub fn dimension(&self, config: &Qwen3Config) -> usize {
         config.hidden_size

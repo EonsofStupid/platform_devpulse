@@ -112,13 +112,18 @@ impl Qwen3Config {
 /// `[B, S, in_features]` against weight `[in_features, out_features]`.
 #[derive(Module, Debug)]
 pub struct Qwen3Linear<B: Backend> {
-    /// Weight matrix, shape `[in_features, out_features]` (Burn convention,
-    /// matching `nn::Linear`'s storage so safetensors loaders in Phase B
-    /// can fill this directly without transposition).
-    pub weight: Tensor<B, 2>,
+    /// Weight matrix, shape `[in_features, out_features]`. Crate-private;
+    /// reach via [`Self::new`] / [`Self::from_weight`].
+    pub(crate) weight: Tensor<B, 2>,
 }
 
 impl<B: Backend> Qwen3Linear<B> {
+    /// Construct from an already-loaded weight tensor. Used by the
+    /// safetensors loader after the per-tensor transpose.
+    pub(crate) fn from_weight(weight: Tensor<B, 2>) -> Self {
+        Self { weight }
+    }
+
     /// Initialise with `Normal(0, 1/sqrt(in_features))` — Xavier-style
     /// scaling that keeps activations finite at depth-28 random init.
     pub fn new(in_features: usize, out_features: usize, device: &B::Device) -> Self {
@@ -149,13 +154,18 @@ impl<B: Backend> Qwen3Linear<B> {
 /// matrix indexed by token ids.
 #[derive(Module, Debug)]
 pub struct Qwen3Embedding<B: Backend> {
-    /// Embedding matrix, shape `[vocab_size, hidden_size]` — same layout
-    /// as `nn::Embedding` so Phase B's safetensors loader can fill it
-    /// directly under the Hugging Face name `embed_tokens.weight`.
-    pub weight: Tensor<B, 2>,
+    /// Embedding matrix, shape `[vocab_size, hidden_size]`.
+    /// Crate-private; reach via [`Self::new`] / [`Self::from_weight`].
+    pub(crate) weight: Tensor<B, 2>,
 }
 
 impl<B: Backend> Qwen3Embedding<B> {
+    /// Construct from an already-loaded weight tensor. Used by the
+    /// safetensors loader.
+    pub(crate) fn from_weight(weight: Tensor<B, 2>) -> Self {
+        Self { weight }
+    }
+
     /// Initialise with `Normal(0, 0.02)` — GPT-2-family default that
     /// keeps the random-init forward pass producing finite hidden states
     /// even before real Harrier weights load.
@@ -187,16 +197,21 @@ impl<B: Backend> Qwen3Embedding<B> {
 /// Weight initialises to ones (RMSNorm convention).
 #[derive(Module, Debug)]
 pub struct Qwen3RmsNorm<B: Backend> {
-    /// Per-feature scale, shape `[hidden_size]`. Initialised to ones so
-    /// the random-init forward pass is structurally correct before
-    /// Phase B fills real Harrier `*.norm.weight` values.
-    pub weight: Tensor<B, 1>,
+    /// Per-feature scale, shape `[hidden_size]`. Crate-private;
+    /// reach via [`Self::new`] / [`Self::from_weight`].
+    pub(crate) weight: Tensor<B, 1>,
     /// Numerical-stability epsilon, stored on the Module so each
     /// instance carries its config (matches `nn::RmsNorm` shape).
-    pub eps: f64,
+    pub(crate) eps: f64,
 }
 
 impl<B: Backend> Qwen3RmsNorm<B> {
+    /// Construct from an already-loaded scale tensor. Used by the
+    /// safetensors loader.
+    pub(crate) fn from_weight(weight: Tensor<B, 1>, eps: f64) -> Self {
+        Self { weight, eps }
+    }
+
     /// Initialise weight to ones (RMSNorm identity at init).
     pub fn new(hidden_size: usize, eps: f64, device: &B::Device) -> Self {
         let weight = Tensor::ones([hidden_size], device);
@@ -301,21 +316,55 @@ impl<B: Backend> Qwen3Rope<B> {
 // ─────────────────────────────────────────────────────────────────────────
 
 /// Grouped-query attention block (Qwen3 flavour).
+///
+/// Fields are crate-private — the random-init `Self::new` and the
+/// safetensors loader's [`Self::from_components`] are the only two
+/// construction paths. External callers invariant-check via those
+/// constructors, never by reaching in.
 #[derive(Module, Debug)]
 pub struct Qwen3Attention<B: Backend> {
-    q_proj: Qwen3Linear<B>,
-    k_proj: Qwen3Linear<B>,
-    v_proj: Qwen3Linear<B>,
-    o_proj: Qwen3Linear<B>,
-    rope: Qwen3Rope<B>,
-    n_q_heads: usize,
-    n_kv_heads: usize,
-    head_dim: usize,
-    n_kv_groups: usize,
-    scale: f64,
+    pub(crate) q_proj: Qwen3Linear<B>,
+    pub(crate) k_proj: Qwen3Linear<B>,
+    pub(crate) v_proj: Qwen3Linear<B>,
+    pub(crate) o_proj: Qwen3Linear<B>,
+    pub(crate) rope: Qwen3Rope<B>,
+    pub(crate) n_q_heads: usize,
+    pub(crate) n_kv_heads: usize,
+    pub(crate) head_dim: usize,
+    pub(crate) n_kv_groups: usize,
+    pub(crate) scale: f64,
 }
 
 impl<B: Backend> Qwen3Attention<B> {
+    /// Construct from already-loaded projection matrices + the
+    /// derived geometry. Used by the safetensors loader. The
+    /// `n_kv_groups` and `scale` are derived from the geometry args
+    /// instead of taken as parameters so the loader can't mismatch
+    /// them.
+    pub(crate) fn from_components(
+        q_proj: Qwen3Linear<B>,
+        k_proj: Qwen3Linear<B>,
+        v_proj: Qwen3Linear<B>,
+        o_proj: Qwen3Linear<B>,
+        rope: Qwen3Rope<B>,
+        n_q_heads: usize,
+        n_kv_heads: usize,
+        head_dim: usize,
+    ) -> Self {
+        Self {
+            q_proj,
+            k_proj,
+            v_proj,
+            o_proj,
+            rope,
+            n_q_heads,
+            n_kv_heads,
+            head_dim,
+            n_kv_groups: n_q_heads / n_kv_heads,
+            scale: 1.0 / (head_dim as f64).sqrt(),
+        }
+    }
+
     /// Initialise from a [`Qwen3Config`] on the given device.
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
         let q_dim = config.num_attention_heads * config.head_dim;
@@ -439,14 +488,31 @@ fn repeat_kv_heads<B: Backend>(t: Tensor<B, 4>, n_groups: usize) -> Tensor<B, 4>
 // ─────────────────────────────────────────────────────────────────────────
 
 /// SwiGLU MLP block (`down(silu(gate(x)) * up(x))`).
+///
+/// Fields are crate-private; construct via `Self::new` (random init)
+/// or [`Self::from_components`] (loaded from safetensors).
 #[derive(Module, Debug)]
 pub struct Qwen3Mlp<B: Backend> {
-    gate_proj: Qwen3Linear<B>,
-    up_proj: Qwen3Linear<B>,
-    down_proj: Qwen3Linear<B>,
+    pub(crate) gate_proj: Qwen3Linear<B>,
+    pub(crate) up_proj: Qwen3Linear<B>,
+    pub(crate) down_proj: Qwen3Linear<B>,
 }
 
 impl<B: Backend> Qwen3Mlp<B> {
+    /// Construct from already-loaded projection matrices. Used by
+    /// the safetensors loader.
+    pub(crate) fn from_components(
+        gate_proj: Qwen3Linear<B>,
+        up_proj: Qwen3Linear<B>,
+        down_proj: Qwen3Linear<B>,
+    ) -> Self {
+        Self {
+            gate_proj,
+            up_proj,
+            down_proj,
+        }
+    }
+
     /// Initialise from a [`Qwen3Config`] on the given device.
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
         let gate_proj = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
@@ -472,15 +538,34 @@ impl<B: Backend> Qwen3Mlp<B> {
 // ─────────────────────────────────────────────────────────────────────────
 
 /// One Qwen3 decoder layer: pre-LN attention + pre-LN MLP, both residual.
+///
+/// Fields are crate-private; construct via `Self::new` (random init)
+/// or [`Self::from_components`] (loaded from safetensors).
 #[derive(Module, Debug)]
 pub struct Qwen3DecoderLayer<B: Backend> {
-    input_norm: Qwen3RmsNorm<B>,
-    attention: Qwen3Attention<B>,
-    post_attn_norm: Qwen3RmsNorm<B>,
-    mlp: Qwen3Mlp<B>,
+    pub(crate) input_norm: Qwen3RmsNorm<B>,
+    pub(crate) attention: Qwen3Attention<B>,
+    pub(crate) post_attn_norm: Qwen3RmsNorm<B>,
+    pub(crate) mlp: Qwen3Mlp<B>,
 }
 
 impl<B: Backend> Qwen3DecoderLayer<B> {
+    /// Construct from already-loaded sub-modules. Used by the
+    /// safetensors loader.
+    pub(crate) fn from_components(
+        input_norm: Qwen3RmsNorm<B>,
+        attention: Qwen3Attention<B>,
+        post_attn_norm: Qwen3RmsNorm<B>,
+        mlp: Qwen3Mlp<B>,
+    ) -> Self {
+        Self {
+            input_norm,
+            attention,
+            post_attn_norm,
+            mlp,
+        }
+    }
+
     /// Initialise from a [`Qwen3Config`] on the given device.
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
         let input_norm = Qwen3RmsNorm::new(config.hidden_size, config.rms_norm_eps, device);
@@ -518,12 +603,36 @@ impl<B: Backend> Qwen3DecoderLayer<B> {
 /// Full Qwen3 transformer: embedding → N decoder layers → final RMSNorm.
 #[derive(Module, Debug)]
 pub struct Qwen3Model<B: Backend> {
-    embed_tokens: Qwen3Embedding<B>,
-    layers: Vec<Qwen3DecoderLayer<B>>,
-    final_norm: Qwen3RmsNorm<B>,
+    pub(crate) embed_tokens: Qwen3Embedding<B>,
+    pub(crate) layers: Vec<Qwen3DecoderLayer<B>>,
+    pub(crate) final_norm: Qwen3RmsNorm<B>,
 }
 
 impl<B: Backend> Qwen3Model<B> {
+    /// Construct from already-loaded components. Used by the
+    /// safetensors loader. The loader builds the full layer stack
+    /// in-place; this constructor just plugs the assembled pieces
+    /// into the Module shell.
+    pub(crate) fn from_components(
+        embed_tokens: Qwen3Embedding<B>,
+        layers: Vec<Qwen3DecoderLayer<B>>,
+        final_norm: Qwen3RmsNorm<B>,
+    ) -> Self {
+        Self {
+            embed_tokens,
+            layers,
+            final_norm,
+        }
+    }
+
+    /// Borrow the device the loaded weights live on. Used by
+    /// `BurnEmbedder::model_device` so the validate path can
+    /// build a synthetic input tensor without threading the source's
+    /// device through the snapshot.
+    pub(crate) fn device(&self) -> B::Device {
+        self.embed_tokens.weight.device()
+    }
+
     /// Initialise the full transformer from a [`Qwen3Config`].
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
         let embed_tokens = Qwen3Embedding::new(config.vocab_size, config.hidden_size, device);
