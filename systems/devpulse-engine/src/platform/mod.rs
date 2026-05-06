@@ -200,6 +200,7 @@ macro_rules! for_each_service {
         $action!($self.system_cache);
         // User scope
         $action!($self.user_relational);
+        $action!($self.user_analytics);
         $action!($self.user_graph);
         // Global scope
         $action!($self.global_graph);
@@ -222,6 +223,7 @@ macro_rules! for_each_service_rev {
         $action!($self.vector);
         $action!($self.global_graph);
         $action!($self.user_graph);
+        $action!($self.user_analytics);
         $action!($self.user_relational);
         $action!($self.system_cache);
         $action!($self.system_graph);
@@ -263,6 +265,7 @@ pub struct Platform {
     system_cache: Option<Arc<CacheService>>,
     // ── User scope ──────────────────────────────────────────────
     user_relational: Option<Arc<RelationalService>>,
+    user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
     global_graph: Option<Arc<GraphService>>,
@@ -391,6 +394,7 @@ impl Platform {
             system_graph: booted.system_graph,
             system_cache: booted.system_cache,
             user_relational: booted.user_relational,
+            user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
             global_graph: booted.global_graph,
             #[cfg(feature = "rro")]
@@ -529,6 +533,7 @@ impl Platform {
             (ServiceRole::Graph, DataScope::System) => self.system_graph.is_some(),
             (ServiceRole::Cache, DataScope::System) => self.system_cache.is_some(),
             (ServiceRole::Relational, DataScope::User) => self.user_relational.is_some(),
+            (ServiceRole::Analytics, DataScope::User) => self.user_analytics.is_some(),
             (ServiceRole::Graph, DataScope::User) => self.user_graph.is_some(),
             (ServiceRole::Graph, DataScope::Global) => self.global_graph.is_some(),
             #[cfg(feature = "rro")]
@@ -570,7 +575,12 @@ impl Platform {
         self.system_relational.as_ref()
     }
 
-    /// Get the system analytics service (if enabled and booted).
+    /// Get the system analytics service (Clyffy AI behavior telemetry).
+    ///
+    /// Holds AI-side metrics: LLM calls, layer budgets, governance,
+    /// retrieval / lane / span traces, council performance, vision
+    /// pipeline, platform telemetry. User-perceived metrics live on
+    /// [`Platform::user_analytics`] in a separate DuckDB file.
     pub fn analytics(&self) -> Option<&Arc<AnalyticsService>> {
         self.system_analytics.as_ref()
     }
@@ -598,6 +608,15 @@ impl Platform {
     /// Get the user relational service (if enabled and booted).
     pub fn user_relational(&self) -> Option<&Arc<RelationalService>> {
         self.user_relational.as_ref()
+    }
+
+    /// Get the user analytics service (if enabled and booted).
+    ///
+    /// Holds user-perceived metrics: ROTI, perceived turn timing,
+    /// daily rollups, mood timeline, teaching moments. Separate from
+    /// [`Platform::analytics`] (system / Clyffy AI behavior store).
+    pub fn user_analytics(&self) -> Option<&Arc<AnalyticsService>> {
+        self.user_analytics.as_ref()
     }
 
     /// Get the user graph service (if enabled and booted).

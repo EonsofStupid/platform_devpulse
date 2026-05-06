@@ -5,3 +5,15 @@ kind = "duckdb"
 path = "system/duckdb/analytics.duckdb"
 # DuckDB uses exclusive file locks — generous retry for hot-reload.
 retry = { max_retries = 5, base_delay_ms = 500 }
+
+# User-scope analytics — user-perceived metrics (ROTI, mood, daily
+# rollups, token economics, teaching moments). Separate file from
+# the system analytics so user data is independently backup/wipeable.
+# Non-critical: dashboard widgets render an empty state when this
+# is unavailable; the AI runs without it.
+[services.user.analytics]
+enabled = true
+critical = false
+kind = "duckdb"
+path = "user/duckdb/user-analytics.duckdb"
+retry = { max_retries = 5, base_delay_ms = 500 }

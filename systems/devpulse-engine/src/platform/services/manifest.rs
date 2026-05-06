@@ -149,6 +149,15 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         group: ServiceGroup::Stores,
     },
     ServiceMeta {
+        role: ServiceRole::Analytics,
+        scope: DataScope::User,
+        stage: 6,
+        public_name: "User Analytics",
+        feature_gate: None,
+        step_id: Some("User analytics"),
+        group: ServiceGroup::Stores,
+    },
+    ServiceMeta {
         role: ServiceRole::Graph,
         scope: DataScope::User,
         stage: 6,
@@ -325,6 +334,12 @@ pub const BOOT_STEP_MANIFEST: &[BootStepMeta] = &[
         group: ServiceGroup::Stores,
         feature_gate: None,
         service_ref: Some((ServiceRole::Relational, DataScope::User)),
+    },
+    BootStepMeta {
+        step_id: "User analytics",
+        group: ServiceGroup::Stores,
+        feature_gate: None,
+        service_ref: Some((ServiceRole::Analytics, DataScope::User)),
     },
     BootStepMeta {
         step_id: "Graph store",

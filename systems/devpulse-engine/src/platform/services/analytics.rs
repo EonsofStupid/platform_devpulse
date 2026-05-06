@@ -1,8 +1,19 @@
 //! Analytics service wrapper (`DuckDB`).
 //!
-//! Scoped schemas:
-//! - **System**: LLM call telemetry, ROTI metrics, layer budgets,
-//!   interaction timing, governance violations, daily aggregates.
+//! Two scoped instances (one DuckDB file each, OLAP-optimized):
+//!
+//! - **System scope (Clyffy analytics)** — what the AI did. LLM call
+//!   telemetry, layer budgets, governance, retrieval/lane/span traces,
+//!   council performance, vision pipeline metrics, platform resource
+//!   snapshots. Schema: [`SYSTEM_ANALYTICS_SCHEMA`].
+//! - **User scope (user/project analytics)** — what the user did /
+//!   experienced. ROTI, perceived turn timing, daily rollups, token
+//!   economics, mood timeline, teaching moments. Schema:
+//!   [`USER_ANALYTICS_SCHEMA`].
+//!
+//! Same wrapper struct, different files + schemas. Lane / span trace
+//! writers target the system scope; ROTI / mood / teaching writers
+//! target the user scope.
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
@@ -61,13 +72,15 @@ impl Service for AnalyticsService {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// System scope schema
+// System scope schema — Clyffy analytics (what the AI did)
 // ═══════════════════════════════════════════════════════════════
 
-/// Schema for the system-scoped analytics store.
+/// Schema for the system-scoped analytics store ("Clyffy analytics").
 ///
-/// Contains all platform telemetry — LLM call tracking, ROTI metrics,
-/// layer budget enforcement, interaction timing, governance audit trail.
+/// AI behavior + infrastructure telemetry: LLM call tracking, layer
+/// budget enforcement, governance, retrieval / lane / span traces,
+/// council performance, vision pipeline metrics, platform resource
+/// snapshots. User-perceived metrics live in [`USER_ANALYTICS_SCHEMA`].
 /// Optimized for OLAP queries (`DuckDB` columnar storage).
 pub const SYSTEM_ANALYTICS_SCHEMA: &str = r"
 -- Key-value store for signal-based access
@@ -100,21 +113,6 @@ CREATE TABLE IF NOT EXISTS model_calls (
     created_at TIMESTAMP DEFAULT now()
 );
 
--- ── ROTI Metrics ───────────────────────────────────────────────
-
--- Return On Time Invested — signature DevPulse metric
-CREATE TABLE IF NOT EXISTS roti_metrics (
-    id VARCHAR NOT NULL,
-    session_id VARCHAR NOT NULL,
-    project_id VARCHAR,
-    user_time_invested_secs INTEGER NOT NULL,
-    ai_time_saved_secs INTEGER NOT NULL,
-    roti_ratio DOUBLE NOT NULL,            -- ai_saved / user_invested
-    task_category VARCHAR,                 -- code_gen | debug | refactor | explain | etc.
-    quality_score DOUBLE,                  -- 0.0-1.0 subjective quality
-    created_at TIMESTAMP DEFAULT now()
-);
-
 -- ── Layer Metrics ──────────────────────────────────────────────
 
 -- Per-layer token budget tracking
@@ -127,22 +125,6 @@ CREATE TABLE IF NOT EXISTS layer_metrics (
     budget_utilization DOUBLE NOT NULL,     -- tokens_used / token_budget
     overage INTEGER DEFAULT 0,
     latency_ms INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT now()
-);
-
--- ── Interaction Metrics ────────────────────────────────────────
-
--- Per-turn timing breakdown
-CREATE TABLE IF NOT EXISTS interaction_metrics (
-    id VARCHAR NOT NULL,
-    turn_id VARCHAR NOT NULL,
-    session_id VARCHAR NOT NULL,
-    context_assembly_ms INTEGER,
-    reasoning_ms INTEGER,
-    generation_ms INTEGER,
-    tool_call_ms INTEGER,
-    total_latency_ms INTEGER NOT NULL,
-    user_wait_ms INTEGER,                  -- perceived wait from user perspective
     created_at TIMESTAMP DEFAULT now()
 );
 
@@ -159,24 +141,6 @@ CREATE TABLE IF NOT EXISTS governance_violations (
     action_taken VARCHAR NOT NULL,         -- blocked | warned | throttled | logged
     metadata JSON,
     created_at TIMESTAMP DEFAULT now()
-);
-
--- ── Daily Aggregates ───────────────────────────────────────────
-
--- Pre-computed daily stats for dashboard widgets
-CREATE TABLE IF NOT EXISTS daily_stats (
-    date DATE PRIMARY KEY,
-    total_model_calls INTEGER DEFAULT 0,
-    total_sessions INTEGER DEFAULT 0,
-    total_messages INTEGER DEFAULT 0,
-    total_prompt_tokens INTEGER DEFAULT 0,
-    total_completion_tokens INTEGER DEFAULT 0,
-    total_cost_usd DOUBLE DEFAULT 0.0,
-    avg_latency_ms DOUBLE DEFAULT 0,
-    avg_roti_ratio DOUBLE DEFAULT 0,
-    cache_hit_rate DOUBLE DEFAULT 0,
-    error_count INTEGER DEFAULT 0,
-    governance_violations INTEGER DEFAULT 0
 );
 
 -- ── Signal Processing ──────────────────────────────────────────
@@ -248,26 +212,6 @@ CREATE INDEX IF NOT EXISTS idx_span_traces_trace
 
 CREATE INDEX IF NOT EXISTS idx_span_traces_name
     ON span_traces(name, created_at);
-
--- ── Token Economics ───────────────────────────────────────────
-
--- Track token spend vs value delivered
-CREATE TABLE IF NOT EXISTS token_economics (
-    id                  VARCHAR NOT NULL,
-    session_id          VARCHAR NOT NULL,
-    recorded_at         TIMESTAMP DEFAULT now(),
-    input_tokens        INTEGER,
-    output_tokens       INTEGER,
-    thinking_tokens     INTEGER,
-    embedding_tokens    INTEGER,
-    total_tokens        INTEGER,
-    estimated_cost_usd  DOUBLE,
-    inference_time_ms   INTEGER,
-    model_slot          VARCHAR,
-    loading_state       VARCHAR,                 -- what state was the model in when called?
-    tokens_per_useful_line DOUBLE,               -- total_tokens / lines_user_kept
-    cache_hit_rate      DOUBLE                   -- Moka hit rate for this session
-);
 
 -- ── Council Performance ───────────────────────────────────────
 
@@ -356,37 +300,6 @@ CREATE TABLE IF NOT EXISTS costar_satisfaction (
     gaps_unfilled       INTEGER
 );
 
--- ── Mood Timeline ─────────────────────────────────────────────
-
--- Mood tracking over time for trend analysis
-CREATE TABLE IF NOT EXISTS mood_timeline (
-    id                  VARCHAR NOT NULL,
-    session_id          VARCHAR NOT NULL,
-    recorded_at         TIMESTAMP DEFAULT now(),
-    mood_score          DOUBLE NOT NULL,         -- -1.0 (heavy negative) to +1.0 (heavy positive)
-    mood_signals        JSON,                    -- detected signals ['caps', 'profanity', 'short_responses']
-    mood_category       VARCHAR,                 -- frustrated | neutral | engaged | flow
-    trigger_turn_id     VARCHAR,
-    psych_action        VARCHAR,                 -- acknowledged | adjusted_tone | offered_break | none
-    action_effective    BOOLEAN
-);
-
--- ── Teaching Moments ──────────────────────────────────────────
-
--- Education tracking for progressive skill building
-CREATE TABLE IF NOT EXISTS teaching_moments (
-    id                  VARCHAR NOT NULL,
-    session_id          VARCHAR NOT NULL,
-    recorded_at         TIMESTAMP DEFAULT now(),
-    concept             VARCHAR NOT NULL,
-    explanation_given   VARCHAR,
-    context_trigger     VARCHAR,
-    user_engaged        BOOLEAN,
-    terminology_adopted BOOLEAN,
-    user_level_before   VARCHAR,                 -- novice | aware | practicing | fluent
-    user_level_after    VARCHAR
-);
-
 -- ── Platform Telemetry ────────────────────────────────────────
 
 -- System health and resource utilization snapshots
@@ -462,4 +375,128 @@ CREATE TABLE IF NOT EXISTS vision_embeddings (
 );
 CREATE INDEX IF NOT EXISTS idx_vision_embeddings_session
     ON vision_embeddings(session_id, captured_at_ms);
+";
+
+// ═══════════════════════════════════════════════════════════════
+// User scope schema — User / project analytics (what the user did)
+// ═══════════════════════════════════════════════════════════════
+
+/// Schema for the user-scoped analytics store.
+///
+/// User-perceived metrics: time invested, perceived turn timing,
+/// daily rollups for the dashboard widgets, token economics
+/// (cost vs lines kept), mood trajectory, teaching moments. Boots
+/// alongside `user/libsql/user.db` so user/project data lives in
+/// one user-scope folder.
+///
+/// Lives on a separate DuckDB file from [`SYSTEM_ANALYTICS_SCHEMA`]
+/// so the user data can be backed up / wiped independently of the
+/// AI behavior telemetry.
+pub const USER_ANALYTICS_SCHEMA: &str = r"
+-- Key-value store for user-scope signal access
+CREATE TABLE IF NOT EXISTS kv_store (
+    key VARCHAR PRIMARY KEY,
+    value BLOB NOT NULL,
+    updated_at TIMESTAMP DEFAULT now()
+);
+
+-- ── ROTI Metrics ───────────────────────────────────────────────
+
+-- Return On Time Invested — signature DevPulse metric
+CREATE TABLE IF NOT EXISTS roti_metrics (
+    id VARCHAR NOT NULL,
+    session_id VARCHAR NOT NULL,
+    project_id VARCHAR,
+    user_time_invested_secs INTEGER NOT NULL,
+    ai_time_saved_secs INTEGER NOT NULL,
+    roti_ratio DOUBLE NOT NULL,            -- ai_saved / user_invested
+    task_category VARCHAR,                 -- code_gen | debug | refactor | explain | etc.
+    quality_score DOUBLE,                  -- 0.0-1.0 subjective quality
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- ── Interaction Metrics ────────────────────────────────────────
+
+-- Per-turn timing breakdown — user-perceived wait
+CREATE TABLE IF NOT EXISTS interaction_metrics (
+    id VARCHAR NOT NULL,
+    turn_id VARCHAR NOT NULL,
+    session_id VARCHAR NOT NULL,
+    context_assembly_ms INTEGER,
+    reasoning_ms INTEGER,
+    generation_ms INTEGER,
+    tool_call_ms INTEGER,
+    total_latency_ms INTEGER NOT NULL,
+    user_wait_ms INTEGER,                  -- perceived wait from user perspective
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- ── Daily Aggregates ───────────────────────────────────────────
+
+-- Pre-computed daily stats for dashboard widgets
+CREATE TABLE IF NOT EXISTS daily_stats (
+    date DATE PRIMARY KEY,
+    total_model_calls INTEGER DEFAULT 0,
+    total_sessions INTEGER DEFAULT 0,
+    total_messages INTEGER DEFAULT 0,
+    total_prompt_tokens INTEGER DEFAULT 0,
+    total_completion_tokens INTEGER DEFAULT 0,
+    total_cost_usd DOUBLE DEFAULT 0.0,
+    avg_latency_ms DOUBLE DEFAULT 0,
+    avg_roti_ratio DOUBLE DEFAULT 0,
+    cache_hit_rate DOUBLE DEFAULT 0,
+    error_count INTEGER DEFAULT 0,
+    governance_violations INTEGER DEFAULT 0
+);
+
+-- ── Token Economics ───────────────────────────────────────────
+
+-- Track token spend vs value delivered to the user
+CREATE TABLE IF NOT EXISTS token_economics (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    input_tokens        INTEGER,
+    output_tokens       INTEGER,
+    thinking_tokens     INTEGER,
+    embedding_tokens    INTEGER,
+    total_tokens        INTEGER,
+    estimated_cost_usd  DOUBLE,
+    inference_time_ms   INTEGER,
+    model_slot          VARCHAR,
+    loading_state       VARCHAR,                 -- what state was the model in when called?
+    tokens_per_useful_line DOUBLE,               -- total_tokens / lines_user_kept
+    cache_hit_rate      DOUBLE                   -- Moka hit rate for this session
+);
+
+-- ── Mood Timeline ─────────────────────────────────────────────
+
+-- Mood tracking over time for trend analysis
+CREATE TABLE IF NOT EXISTS mood_timeline (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    mood_score          DOUBLE NOT NULL,         -- -1.0 (heavy negative) to +1.0 (heavy positive)
+    mood_signals        JSON,                    -- detected signals ['caps', 'profanity', 'short_responses']
+    mood_category       VARCHAR,                 -- frustrated | neutral | engaged | flow
+    trigger_turn_id     VARCHAR,
+    psych_action        VARCHAR,                 -- acknowledged | adjusted_tone | offered_break | none
+    action_effective    BOOLEAN
+);
+
+-- ── Teaching Moments ──────────────────────────────────────────
+
+-- Education tracking for progressive skill building
+CREATE TABLE IF NOT EXISTS teaching_moments (
+    id                  VARCHAR NOT NULL,
+    session_id          VARCHAR NOT NULL,
+    recorded_at         TIMESTAMP DEFAULT now(),
+    concept             VARCHAR NOT NULL,
+    explanation_given   VARCHAR,
+    context_trigger     VARCHAR,
+    user_engaged        BOOLEAN,
+    terminology_adopted BOOLEAN,
+    user_level_before   VARCHAR,                 -- novice | aware | practicing | fluent
+    user_level_after    VARCHAR
+);
 ";

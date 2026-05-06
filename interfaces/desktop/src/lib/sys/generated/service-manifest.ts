@@ -43,6 +43,7 @@ export const BOOT_STEP_MANIFEST: readonly BootStepMeta[] = Object.freeze([
 	{ step_id: "System analytics",       group: "stores", feature_gate: null,        service_role: "Analytics",    data_scope: "System"  },
 	{ step_id: "System cache",           group: "stores", feature_gate: null,        service_role: "Cache",        data_scope: "System"  },
 	{ step_id: "User relational",        group: "stores", feature_gate: null,        service_role: "Relational",   data_scope: "User"    },
+	{ step_id: "User analytics",         group: "stores", feature_gate: null,        service_role: "Analytics",    data_scope: "User"    },
 	{ step_id: "Graph store",            group: "graph",  feature_gate: null,        service_role: "Graph",        data_scope: "System"  },
 	{ step_id: "User graph namespace",   group: "graph",  feature_gate: null,        service_role: "Graph",        data_scope: "User"    },
 	{ step_id: "Global graph namespace", group: "graph",  feature_gate: null,        service_role: "Graph",        data_scope: "Global"  },

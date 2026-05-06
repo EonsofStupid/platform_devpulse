@@ -363,6 +363,12 @@ pub struct UserServicesConfig {
     /// Relational store (`LibSQL`) — sessions, messages, user config.
     #[serde(default = "ServiceEntry::user_relational_default")]
     pub relational: ServiceEntry,
+    /// Analytics store (`DuckDB`) — user/project stats: ROTI,
+    /// perceived turn timing, daily rollups, mood, teaching moments.
+    /// Separate file from system analytics so user data is
+    /// independently backup/wipeable.
+    #[serde(default = "ServiceEntry::user_analytics_default")]
+    pub analytics: ServiceEntry,
     /// Graph store (`SurrealDB`) — user knowledge graph, memory.
     #[serde(default = "GraphServiceEntry::user_default")]
     pub graph: GraphServiceEntry,
@@ -372,6 +378,7 @@ impl Default for UserServicesConfig {
     fn default() -> Self {
         Self {
             relational: ServiceEntry::user_relational_default(),
+            analytics: ServiceEntry::user_analytics_default(),
             graph: GraphServiceEntry::user_default(),
         }
     }
@@ -486,6 +493,21 @@ impl ServiceEntry {
             critical: false,
             kind: "libsql".to_string(),
             path: "user/libsql/user.db".to_string(),
+            retry: ServiceRetryConfig::default(),
+        }
+    }
+
+    /// User analytics service defaults.
+    ///
+    /// `critical = false` — user data being unavailable should not fail
+    /// platform boot. The Clyffy AI runs without user analytics; the
+    /// dashboard widgets simply render an empty state.
+    pub fn user_analytics_default() -> Self {
+        Self {
+            enabled: true,
+            critical: false,
+            kind: "duckdb".to_string(),
+            path: "user/duckdb/user-analytics.duckdb".to_string(),
             retry: ServiceRetryConfig::default(),
         }
     }
@@ -1749,6 +1771,10 @@ impl PlatformBootConfig {
             (ServiceRole::Relational, DataScope::User) => Some((
                 self.services.user.relational.enabled,
                 self.services.user.relational.critical,
+            )),
+            (ServiceRole::Analytics, DataScope::User) => Some((
+                self.services.user.analytics.enabled,
+                self.services.user.analytics.critical,
             )),
             (ServiceRole::Graph, DataScope::User) => Some((
                 self.services.user.graph.enabled,

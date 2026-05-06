@@ -61,7 +61,7 @@ mod vector;
 use crate::platform::config::PlatformBootConfig;
 use crate::platform::init::InitEvent;
 use crate::platform::services::analytics::AnalyticsService;
-use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
+use crate::platform::services::analytics::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
 use crate::platform::services::cache::CacheService;
 use crate::platform::services::graph::GraphService;
 #[cfg(feature = "candle")]
@@ -89,6 +89,7 @@ pub struct BootedServices {
     pub system_graph: Option<Arc<GraphService>>,
     pub system_cache: Option<Arc<CacheService>>,
     pub user_relational: Option<Arc<RelationalService>>,
+    pub user_analytics: Option<Arc<AnalyticsService>>,
     pub user_graph: Option<Arc<GraphService>>,
     pub global_graph: Option<Arc<GraphService>>,
     #[cfg(feature = "rro")]
@@ -296,6 +297,21 @@ async fn execute_inner(
         }
     }
 
+    // ── Stage 6c: User analytics (DuckDB) ─────────────────────
+    // Booted after user relational so the directory hierarchy
+    // (`{data_dir}/user/`) is already created. Non-critical: the
+    // dashboard widgets render an empty state when this is None.
+    let user_analytics = analytics::boot(
+        data_dir,
+        &boot_config.services.user.analytics,
+        &boot_config.windows,
+        USER_ANALYTICS_SCHEMA,
+        "User analytics",
+        on_event,
+        boot_log,
+    )
+    .await;
+
     // ── Stage 7: Vector store (RRO) — feature-gated ──────────
     drop(spin);
     let spin = boot_log.running("Vector store", "verifying RRO...");
@@ -418,6 +434,11 @@ async fn execute_inner(
                 boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::User),
             ),
             (
+                "User analytics",
+                user_analytics.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::User),
+            ),
+            (
                 "User graph namespace",
                 user_graph.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::User),
@@ -476,6 +497,7 @@ async fn execute_inner(
         system_graph,
         system_cache,
         user_relational,
+        user_analytics,
         user_graph,
         global_graph,
         #[cfg(feature = "rro")]
