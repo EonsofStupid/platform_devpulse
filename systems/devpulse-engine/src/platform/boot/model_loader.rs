@@ -65,11 +65,12 @@ pub async fn boot(
     // Slots + presets come from kernel SSOT loaded inside ModelLoaderService::boot,
     // not from the engine-side TOML shadow (which has been removed).
     //
-    // Burn encoder adapter is wired in a follow-up slice — for now
-    // pass `None` and let `BackendType::Burn` slot dispatch return a
-    // clear "adapter not wired" error from the kernel side. The
-    // alternative (silently routing Burn slots to Candle) would
-    // gaslight the user; explicit error wins.
+    // Burn encoder adapter — wired only when the engine is built with
+    // the `burn` feature (default ON in dev, off in builds that don't
+    // ship the Burn runtime). When absent, BackendType::Burn slot
+    // dispatch returns a clear "adapter not wired" error from the
+    // kernel rather than silently routing through Candle.
+    let burn_encoder_adapter = build_burn_encoder_adapter();
     let data_dir_owned = data_dir.to_path_buf();
     let result = devpulse_telemetry::spawn_blocking(move || {
         ModelLoaderService::boot(
@@ -78,7 +79,7 @@ pub async fn boot(
             models_dir,
             subdirs,
             libsql_adapter,
-            None,
+            burn_encoder_adapter,
         )
     })
     .await
@@ -161,5 +162,43 @@ pub async fn boot(
             boot_log.fail("Model Loader", &format!("{e:#} ({elapsed_ms}ms)"));
             None
         }
+    }
+}
+
+/// Construct the Burn encoder adapter when the `burn` feature is on.
+///
+/// Picks the NdArray (CPU) backend by default — Cuda variant gets
+/// added when the platform's hardware monitor signals a usable GPU
+/// AND the build has the `burn-cuda` feature. CPU on Harrier 0.6B
+/// is a few hundred ms per embedding, acceptable for the encoder
+/// path; GPU lands in a follow-up.
+///
+/// Returns `None` when the feature is off so kernel dispatch on
+/// `BackendType::Burn` surfaces an explicit "adapter not wired"
+/// error rather than silently falling back to Candle.
+#[cfg(feature = "inference")]
+fn build_burn_encoder_adapter() -> Option<
+    devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc,
+> {
+    #[cfg(feature = "burn")]
+    {
+        use devpulse_clyffy::cortex::persistence::burn::CortexBurnAdapter;
+        // NdArray's Device is a unit-style enum; default = `Cpu`.
+        let device = burn::backend::ndarray::NdArrayDevice::Cpu;
+        let adapter = CortexBurnAdapter::<burn::backend::NdArray>::harrier_0_6b(device);
+        tracing::info!(
+            backend = "burn-cpu",
+            geometry = "harrier-0.6b",
+            "Burn encoder adapter constructed for engine boot"
+        );
+        Some(std::sync::Arc::new(adapter))
+    }
+    #[cfg(not(feature = "burn"))]
+    {
+        tracing::debug!(
+            "burn feature off — BackendType::Burn slot dispatch will return \
+             an explicit `adapter not wired` error"
+        );
+        None
     }
 }

@@ -16,6 +16,10 @@ llguidance = ["devpulse-clyffy/llguidance"]
 # enabling pulls ~100 MB of prebuilt native binaries at build time.
 # `cargo xtask run-dev --features sherpa` to opt in.
 sherpa = ["dep:sherpa-onnx"]
+# Burn-backed RRO encoder. Activates clyffy's `burn-cpu` so the
+# `CortexBurnAdapter` is reachable from boot, plus implies `inference`
+# for the kernel ModelLoaderService surface that consumes the adapter.
+burn = ["devpulse-clyffy/burn-cpu", "inference"]
 
 [dependencies]
 # Core
