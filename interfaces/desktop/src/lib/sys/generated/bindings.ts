@@ -7983,6 +7983,10 @@ state: string;
 label: string }
 /**
  * Runtime status of the Surreal service — what the devtool renders.
+ * 
+ * Embedded path: no host/port/HTTP/WS — DevPulse holds the file lock
+ * directly. The devtool surfaces `data_path` so a layman can see
+ * exactly where the bytes live.
  */
 export type SurrealStatus = { 
 /**
@@ -7990,70 +7994,27 @@ export type SurrealStatus = {
  */
 running: boolean; 
 /**
- * True iff we spawned the child; false if we attached to an
- * externally-running `SurrealDB`.
+ * True iff DevPulse owns the embedded store. Always `true`
+ * for the embedded path — retained for source-compat with the
+ * prior managed/attached sidecar distinction.
  */
 managed: boolean; 
 /**
- * Bind host (e.g. `127.0.0.1`).
+ * Storage backend identifier (`"kv-surrealkv"`).
  */
-host: string; 
+backend: string; 
 /**
- * Port as configured in `platform.default.toml`.
+ * Absolute path to the SurrealKV data directory.
  */
-configuredPort: number; 
+dataPath: string }
 /**
- * Port we actually bound — may differ from `configured_port`
- * if the allocator bumped past a foreign listener.
- */
-actualPort: number; 
-/**
- * `actual_port - configured_port`. `0` = no bump.
- */
-portBumps: number; 
-/**
- * HTTP base URL (for `.claude/hooks` + curl debugging).
- */
-httpUrl: string; 
-/**
- * WebSocket RPC URL (what the `SurrealLifecycle` client uses).
- */
-wsUrl: string; 
-/**
- * Explicit binary path, if configured.
- */
-binaryPath: string | null }
-/**
- * Persisted user overrides for the Surreal service.
+ * Persisted user overrides for the Surreal embedded store.
  * 
- * All fields `Option<T>`: `None` means "inherit from platform TOML".
+ * Reserved for future tuning knobs (cache size, compaction policy,
+ * snapshot retention). Empty today — the embedded path has no
+ * port / binary / auth fields a user would override.
  */
-export type SurrealUserConfig = { 
-/**
- * Overrides `[services.network.graph_api].port`.
- */
-port: number | null; 
-/**
- * Overrides `[services.system.surreal].binary_path`.
- * Empty string is treated as `None`.
- */
-binary_path: string | null; 
-/**
- * Overrides `[services.system.surreal].root_user`.
- */
-root_user: string | null; 
-/**
- * Overrides `[services.system.surreal].root_password`.
- */
-root_password: string | null; 
-/**
- * Overrides `[services.system.surreal].log_level`.
- */
-log_level: string | null; 
-/**
- * Overrides the allocator's `max_bumps` ceiling.
- */
-max_bumps: number | null }
+export type SurrealUserConfig = Record<string, never>
 /**
  * Overall system health status.
  */

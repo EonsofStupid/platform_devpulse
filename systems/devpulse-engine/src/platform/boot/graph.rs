@@ -1,15 +1,11 @@
-//! Graph store boot — spawn the `SurrealDB` sidecar, connect the WS
-//! client, and initialize the three namespace scopes on one connection.
+//! Graph store boot — open the embedded SurrealKV store and
+//! initialize the three namespace scopes on one connection.
 //!
-//! The embedded `SurrealKV` path retired. We now manage a real
-//! `surreal start` child process (`RocksDB` backend) via
-//! [`SurrealService`] and open a single WS client to it via
-//! [`SurrealAdapter::connect_with_ns`]. All three namespace scopes
-//! (system, user, global) live on that one connection.
-//!
-//! The HTTP `/sql` / `/health` / `/rpc` endpoints come from the real
-//! sidecar — the hand-rolled axum facade (`platform/server.rs`) is
-//! gone, so `.claude/hooks/*.js` talk directly to `SurrealDB`.
+//! No child process, no port allocator, no WS handshake. DevPulse
+//! holds the SurrealKV file lock directly via [`SurrealService`].
+//! The single `Surreal<Db>` connection backs system / user / global
+//! namespace scopes; each query prefixes its own `USE NS .. DB ..;`
+//! so isolation is at the query level, not session state.
 
 use crate::platform::boot::log::BootLog;
 use crate::platform::config::PlatformBootConfig;
@@ -18,19 +14,18 @@ use crate::platform::services::graph::{
     GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
 use crate::platform::services::surreal::SurrealService;
-use crate::platform::services::surreal_config;
 use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot the `SurrealDB` sidecar and build three scoped graph services.
+/// Boot the embedded SurrealKV store and build three scoped graph services.
 ///
-/// Returns `(sidecar, system, user, global)`. Any element may be `None`:
-/// - `sidecar = None` → graph disabled in config OR sidecar spawn failed.
-/// - A `graph` = `None` → its namespace is disabled in config OR it couldn't
-///   initialize (but the sidecar itself is up).
+/// Returns `(store, system, user, global)`. Any element may be `None`:
+/// - `store = None` → graph disabled in config OR store open failed.
+/// - A `graph` = `None` → its namespace is disabled in config OR it
+///   couldn't initialize (but the store itself is up).
 ///
 /// Downstream validation in `boot::validate` decides whether `None`s are
 /// tolerable based on per-namespace `critical` flags.
@@ -56,92 +51,55 @@ pub async fn boot_consolidated(
         return (None, None, None, None);
     }
 
-    let sidecar_cfg = &boot_config.services.system.surreal;
-    if !sidecar_cfg.enabled {
+    let store_cfg = &boot_config.services.system.surreal;
+    if !store_cfg.enabled {
         on_event(InitEvent::skipped("Graph store"));
-        boot_log.skip("Graph store", "SurrealDB sidecar disabled");
+        boot_log.skip("Graph store", "SurrealDB embedded store disabled");
         return (None, None, None, None);
     }
 
-    // ── Stage A: Surreal child process (`surreal start`) ──────────
+    // ── Stage A: open the embedded SurrealKV store ──────────────
     on_event(InitEvent::running(
-        "SurrealDB sidecar",
-        "Spawning surreal start...",
+        "SurrealKV embedded",
+        "Opening on-disk store...",
     ));
-    boot_log.running("SurrealDB sidecar", "starting process...");
+    boot_log.running("SurrealKV embedded", "opening store...");
     let start = Instant::now();
 
-    let graph_api = &boot_config.services.network.graph_api;
     let data_path = data_dir.join("surreal").join("devpulse");
-
-    // Overlay: platform.toml defaults + user/surreal.toml.
-    // The user file persists devtool edits (port, binary, creds, etc.)
-    // and is atomic-written, so load failures just fall back to defaults.
-    let overlay = surreal_config::load(data_dir);
-    let resolved = surreal_config::apply_overlay(
-        graph_api.port,
-        sidecar_cfg.resolved_binary(),
-        &sidecar_cfg.root_user,
-        &sidecar_cfg.root_password,
-        &sidecar_cfg.log_level,
-        sidecar_cfg.max_bumps,
-        &overlay,
-    );
-
     let cfg = SurrealConfig {
-        host: graph_api.bind.clone(),
-        port: resolved.port,
-        max_bumps: resolved.max_bumps,
-        binary_path: resolved.binary_path,
-        data_path,
-        root_user: resolved.root_user,
-        root_password: resolved.root_password,
-        log_level: resolved.log_level,
+        data_path: data_path.clone(),
     };
 
-    let sidecar = match SurrealService::boot(cfg).await {
+    let store = match SurrealService::boot(cfg).await {
         Ok(svc) => Arc::new(svc),
         Err(e) => {
-            tracing::error!(error = ?e, "SurrealDB sidecar boot failed");
-            on_event(InitEvent::error("SurrealDB sidecar", &format!("{e:#}")));
-            boot_log.fail("SurrealDB sidecar", &format!("spawn failed: {e:#}"));
+            tracing::error!(error = ?e, "SurrealKV embedded store open failed");
+            on_event(InitEvent::error("SurrealKV embedded", &format!("{e:#}")));
+            boot_log.fail("SurrealKV embedded", &format!("open failed: {e:#}"));
             return (None, None, None, None);
         }
     };
 
-    let endpoint = sidecar.endpoint().clone();
-    let bumps = endpoint.allocation.bumps;
-    let sidecar_latency = start.elapsed();
-
-    on_event(InitEvent::ok_with_latency("SurrealDB sidecar", sidecar_latency));
+    let store_latency = start.elapsed();
+    on_event(InitEvent::ok_with_latency("SurrealKV embedded", store_latency));
     boot_log.ok(
-        "SurrealDB sidecar",
+        "SurrealKV embedded",
         &format!(
-            "{} on {}:{}{} ({}ms)",
-            if sidecar.adapter().is_managed() {
-                "managed"
-            } else {
-                "attached"
-            },
-            endpoint.host,
-            endpoint.allocation.actual,
-            if bumps > 0 {
-                format!(" (bumped +{bumps})")
-            } else {
-                String::new()
-            },
-            sidecar_latency.as_millis() as u64
+            "open at {} ({}ms)",
+            data_path.display(),
+            store_latency.as_millis() as u64
         ),
     );
 
-    // ── Stage B: WS client + system namespace ─────────────────────
-    on_event(InitEvent::running("Graph store", "Connecting WS client"));
-    boot_log.running("Graph store", "connecting WS client...");
+    // ── Stage B: clone the connection + initialize system namespace ─
+    on_event(InitEvent::running("Graph store", "Initializing schemas"));
+    boot_log.running("Graph store", "initializing schemas...");
     let connect_start = Instant::now();
 
     let sys_cfg = &boot_config.services.system.graph;
     let adapter = match SurrealAdapter::connect_with_ns(
-        &endpoint,
+        store.adapter(),
         &sys_cfg.namespace,
         &sys_cfg.database,
         SYSTEM_GRAPH_SCHEMA,
@@ -150,31 +108,12 @@ pub async fn boot_consolidated(
     {
         Ok(a) => Arc::new(a),
         Err(e) => {
-            tracing::error!(error = ?e, "SurrealDB WS client connect failed");
+            tracing::error!(error = ?e, "SurrealKV adapter init failed");
             on_event(InitEvent::error("Graph store", &format!("{e:#}")));
-            boot_log.fail("Graph store", &format!("WS connect failed: {e:#}"));
-            return (Some(sidecar), None, None, None);
+            boot_log.fail("Graph store", &format!("schema init failed: {e:#}"));
+            return (Some(store), None, None, None);
         }
     };
-
-    // NS-scoped system user — preserves the pre-sidecar contract that
-    // `.claude/hooks/*.js` use namespace-scoped creds to auth against
-    // `/sql`. The sidecar's `SURREAL_USER` is the root login; this
-    // creates a second, namespace-scoped principal.
-    let sys_user_ddl = format!(
-        "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
-        sys_cfg.system_user, sys_cfg.system_password,
-    );
-    if let Err(e) = adapter
-        .execute_in_ns(&sys_cfg.namespace, &sys_cfg.database, &sys_user_ddl)
-        .await
-    {
-        tracing::warn!(
-            error = ?e,
-            namespace = %sys_cfg.namespace,
-            "Failed to create system user on system namespace (non-fatal)"
-        );
-    }
 
     // ── Stage C: User + global namespaces on the same connection ─
     let usr_cfg = &boot_config.services.user.graph;
@@ -185,20 +124,6 @@ pub async fn boot_consolidated(
         {
             tracing::error!(error = ?e, namespace = %usr_cfg.namespace, "Failed to init user graph namespace");
             on_event(InitEvent::error("User graph namespace", &format!("{e:#}")));
-        }
-        let usr_user_ddl = format!(
-            "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
-            usr_cfg.system_user, usr_cfg.system_password,
-        );
-        if let Err(e) = adapter
-            .execute_in_ns(&usr_cfg.namespace, &usr_cfg.database, &usr_user_ddl)
-            .await
-        {
-            tracing::warn!(
-                error = ?e,
-                namespace = %usr_cfg.namespace,
-                "Failed to create system user on user namespace (non-fatal)"
-            );
         }
     }
 
@@ -214,31 +139,14 @@ pub async fn boot_consolidated(
                 &format!("{e:#}"),
             ));
         }
-        let glb_user_ddl = format!(
-            "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
-            glb_cfg.system_user, glb_cfg.system_password,
-        );
-        if let Err(e) = adapter
-            .execute_in_ns(&glb_cfg.namespace, &glb_cfg.database, &glb_user_ddl)
-            .await
-        {
-            tracing::warn!(
-                error = ?e,
-                namespace = %glb_cfg.namespace,
-                "Failed to create system user on global namespace (non-fatal)"
-            );
-        }
     }
 
     tracing::info!(
         status = "ready",
         latency_us = connect_start.elapsed().as_micros() as u64,
-        url = %endpoint.ws_url(),
-        port_configured = endpoint.allocation.configured,
-        port_actual = endpoint.allocation.actual,
-        port_bumps = bumps,
+        path = %data_path.display(),
         namespaces = "system, user, global",
-        "Graph store connected"
+        "Graph store connected (embedded SurrealKV)"
     );
     on_event(InitEvent::ok_with_latency("Graph store", connect_start.elapsed()));
     boot_log.ok(
@@ -283,5 +191,5 @@ pub async fn boot_consolidated(
         None
     };
 
-    (Some(sidecar), system_graph, user_graph, global_graph)
+    (Some(store), system_graph, user_graph, global_graph)
 }

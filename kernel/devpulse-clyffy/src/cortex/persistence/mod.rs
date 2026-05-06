@@ -55,7 +55,7 @@ pub use port_alloc::{Disposition, PortAllocation};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
 pub use surreal::{
-    ScopedGraphHandle, SurrealAdapter, SurrealConfig, SurrealEndpoint, SurrealLifecycle,
+    ScopedGraphHandle, SurrealAdapter, SurrealConfig, SurrealLifecycle,
 };
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
@@ -199,12 +199,13 @@ impl PersistenceLayer {
         Ok(())
     }
 
-    /// Connect `SurrealDB` as a client to a managed sidecar.
+    /// Connect `SurrealDB` against an already-booted embedded
+    /// [`SurrealLifecycle`].
     ///
     /// # Errors
-    /// Returns error if the WS connection or schema init fails.
-    pub async fn connect_surreal(&mut self, endpoint: &SurrealEndpoint) -> Result<()> {
-        let adapter = SurrealAdapter::connect(endpoint).await?;
+    /// Returns error if the schema init fails.
+    pub async fn connect_surreal(&mut self, lifecycle: &SurrealLifecycle) -> Result<()> {
+        let adapter = SurrealAdapter::connect(lifecycle).await?;
         self.surreal = Some(Arc::new(adapter));
         Ok(())
     }

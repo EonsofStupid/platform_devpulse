@@ -818,13 +818,7 @@ impl Platform {
     pub fn surreal_status(&self) -> SurrealStatus {
         match &self.surreal {
             Some(svc) => svc.snapshot(),
-            None => SurrealStatus::stopped(
-                self.boot_config
-                    .services
-                    .network
-                    .graph_api
-                    .port,
-            ),
+            None => SurrealStatus::stopped(),
         }
     }
 

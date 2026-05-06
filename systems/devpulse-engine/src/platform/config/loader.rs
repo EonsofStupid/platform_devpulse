@@ -1291,17 +1291,10 @@ impl DevForgeServiceEntry {
     }
 }
 
-/// `SurrealDB` sidecar service entry — managed `surreal start` child process.
-///
-/// Spawns a child running the real `SurrealDB` server binary against a
-/// `RocksDB` store at `{data_dir}/surreal/devpulse`. Attaches if a
-/// compatible `SurrealDB` is already listening on the configured port
-/// (identity probe via `/version`). Auto-bumps `+1` up to `max_bumps`
-/// if the configured port is held by a foreign listener.
-///
-/// The server's bind host/port come from `[services.network.graph_api]`
-/// (shared with the embedded path so `.claude/hooks/*.js` keep working
-/// on the same URL after the cutover).
+/// `SurrealDB` embedded store entry — DevPulse opens the SurrealKV
+/// backend in-process at `{data_dir}/surreal/devpulse`. No child
+/// process, no port, no auth — the Platform holds the file lock
+/// directly via the `kv-surrealkv` storage backend.
 #[derive(Debug, Clone, Deserialize)]
 pub struct SurrealServiceEntry {
     /// Whether this service is enabled.
@@ -1311,40 +1304,6 @@ pub struct SurrealServiceEntry {
     /// the graph store depends on it — defaults to `true`.
     #[serde(default = "default_true")]
     pub critical: bool,
-    /// Explicit path to the `surreal` binary. Empty = resolve against
-    /// sidecar bundle / standard install paths / PATH.
-    #[serde(default)]
-    pub binary_path: String,
-    /// Whether to start at platform boot. Defaults to `true` — the
-    /// graph store assumes the sidecar is running.
-    #[serde(default = "default_true")]
-    pub auto_start: bool,
-    /// Root user passed to `surreal start --user`. Must match one of
-    /// the NAMESPACE-scoped users created during boot so `/sql` auth
-    /// works. Defaults to `root`.
-    #[serde(default = "default_surreal_root_user")]
-    pub root_user: String,
-    /// Root password passed to `surreal start --pass`. Defaults to
-    /// `root` — override in `platform.default.toml`.
-    #[serde(default = "default_surreal_root_password")]
-    pub root_password: String,
-    /// `--log <level>` flag. Default `warn` to keep session logs clean.
-    #[serde(default = "default_surreal_log_level")]
-    pub log_level: String,
-    /// Maximum `+1` port bumps when the configured port is foreign.
-    /// `None` = use the allocator default (20).
-    #[serde(default)]
-    pub max_bumps: Option<u16>,
-}
-
-fn default_surreal_root_user() -> String {
-    "root".to_string()
-}
-fn default_surreal_root_password() -> String {
-    "root".to_string()
-}
-fn default_surreal_log_level() -> String {
-    "warn".to_string()
 }
 
 impl Default for SurrealServiceEntry {
@@ -1352,28 +1311,10 @@ impl Default for SurrealServiceEntry {
         Self {
             enabled: true,
             critical: true,
-            binary_path: String::new(),
-            auto_start: true,
-            root_user: default_surreal_root_user(),
-            root_password: default_surreal_root_password(),
-            log_level: default_surreal_log_level(),
-            max_bumps: None,
         }
     }
 }
 
-impl SurrealServiceEntry {
-    /// Explicit binary path if configured, else `None`.
-    #[must_use]
-    pub fn resolved_binary(&self) -> Option<PathBuf> {
-        let trimmed = self.binary_path.trim();
-        if trimmed.is_empty() {
-            None
-        } else {
-            Some(PathBuf::from(trimmed))
-        }
-    }
-}
 
 /// Ollama sidecar service entry — managed `ollama serve` child process.
 ///

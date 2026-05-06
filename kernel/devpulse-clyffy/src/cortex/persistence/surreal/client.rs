@@ -1,30 +1,26 @@
-//! Surreal client adapter — WebSocket connection to the managed child.
+//! Surreal client adapter — embedded `Surreal<Db>` connection.
 //!
-//! The embedded `Surreal<Db>` path has been retired. `DevPulse` now ships
-//! and manages the real `SurrealDB` server binary as a child process (see
-//! [`super::lifecycle::SurrealLifecycle`]). This adapter is a pure
-//! client: it opens a WebSocket to the already-running server, signs in
-//! with root credentials, and exposes namespace-scoped operations via
-//! [`ScopedGraphHandle`].
+//! DevPulse opens the SurrealKV store in-process via
+//! [`super::lifecycle::SurrealLifecycle`] and this adapter wraps the
+//! resulting `Surreal<Db>` connection with namespace-scoped operations.
+//! No WS, no socket, no auth — the Platform owns the file lock so
+//! every query crosses zero process / network boundaries.
 //!
 //! Two public types:
-//! - `SurrealAdapter` — owns the `Surreal<Any>` WS client, shared across
-//!   namespaces via `Arc`.
+//! - `SurrealAdapter` — owns the embedded `Surreal<Db>` connection;
+//!   cheap to clone (internal `Arc`) so multiple namespace scopes
+//!   share one open store.
 //! - `ScopedGraphHandle` — namespace-scoped operations. Every query is
 //!   prefixed with `USE NS {ns} DB {db};` so namespace isolation is
 //!   enforced at the query level, never implicit session state.
-//!
-//! In-memory mode for tests is still supported via `open_in_memory()`
-//! (feature `kv-mem`).
 
 use crate::cortex::persistence::config::SurrealNamespace;
-use crate::cortex::persistence::surreal::lifecycle::SurrealEndpoint;
+use crate::cortex::persistence::surreal::lifecycle::SurrealLifecycle;
 use anyhow::{Context, Result};
 use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use surrealdb::engine::any::Any;
-use surrealdb::opt::auth::Root;
+use surrealdb::engine::local::Db;
 use surrealdb::types::SurrealValue;
 use surrealdb::Surreal;
 
@@ -32,32 +28,31 @@ use surrealdb::Surreal;
 // SurrealAdapter — WS client connection owner
 // ═══════════════════════════════════════════════════════════════
 
-/// `SurrealDB` client adapter — owns a single `Surreal<Any>` WS connection.
+/// `SurrealDB` client adapter — owns a single embedded `Surreal<Db>` connection.
 ///
 /// The connection is shared across all scoped graph handles. Cloning
-/// the underlying `Surreal<Any>` is cheap (internal `Arc`). Every
+/// the underlying `Surreal<Db>` is cheap (internal `Arc`). Every
 /// runtime operation goes through `ScopedGraphHandle` which prefixes
-/// queries with `USE NS ... DB ...;` — no session-state mutation after
-/// sign-in.
+/// queries with `USE NS ... DB ...;` — no session-state mutation,
+/// no auth round-trip (embedded path holds the file lock directly).
 pub struct SurrealAdapter {
-    db: Surreal<Any>,
+    db: Surreal<Db>,
 }
 
 impl SurrealAdapter {
-    /// Connect to the sidecar, sign in as root, and apply the default
-    /// kernel reasoning schema.
+    /// Open against an already-booted [`SurrealLifecycle`] and apply
+    /// the default kernel reasoning schema.
     ///
     /// Equivalent to [`Self::connect_with_ns`] with the kernel's own
     /// `REASONING` namespace. Engine boot uses `connect_with_ns` so
-    /// system/user/global all land on the same connection.
+    /// system/user/global all land on the same embedded store.
     ///
     /// # Errors
-    /// - WebSocket connect fails (sidecar not running, wrong URL).
-    /// - `signin` rejects the credentials.
-    /// - Schema application fails.
-    pub async fn connect(endpoint: &SurrealEndpoint) -> Result<Self> {
+    /// - Embedded DB clone fails (extremely rare).
+    /// - Schema DDL fails.
+    pub async fn connect(lifecycle: &SurrealLifecycle) -> Result<Self> {
         Self::connect_with_ns(
-            endpoint,
+            lifecycle,
             SurrealNamespace::REASONING.namespace,
             SurrealNamespace::REASONING.database,
             REASONING_SCHEMA,
@@ -65,20 +60,20 @@ impl SurrealAdapter {
         .await
     }
 
-    /// Connect, sign in, and apply a schema scoped to `namespace/database`.
+    /// Clone the embedded connection and apply a schema scoped to
+    /// `namespace/database`.
     ///
-    /// This is the primary constructor. Opens ONE WS connection to the
-    /// sidecar — additional namespaces on the same connection are
-    /// initialized via [`Self::init_namespace`] on the returned adapter.
+    /// This is the primary constructor. The `Surreal<Db>` is cloned
+    /// (internal `Arc`) so multiple `SurrealAdapter` instances can
+    /// share one open SurrealKV store. Additional namespaces on the
+    /// same connection are initialized via [`Self::init_namespace`].
     ///
     /// # Errors
-    /// - Connection fails.
-    /// - Root signin fails.
     /// - Schema DDL fails.
     #[tracing::instrument(
-        skip(schema),
+        skip(lifecycle, schema),
         fields(
-            url = %endpoint.ws_url(),
+            data_path = %lifecycle.data_path().display(),
             namespace,
             database,
             schema_len = schema.len()
@@ -86,34 +81,25 @@ impl SurrealAdapter {
         err
     )]
     pub async fn connect_with_ns(
-        endpoint: &SurrealEndpoint,
+        lifecycle: &SurrealLifecycle,
         namespace: &str,
         database: &str,
         schema: &str,
     ) -> Result<Self> {
-        let ws = endpoint.ws_url();
-
-        let db = surrealdb::engine::any::connect(&ws)
-            .await
-            .with_context(|| format!("failed to connect SurrealDB client to {ws}"))?;
-
-        db.signin(Root {
-            username: endpoint.root_user.clone(),
-            password: endpoint.root_password.clone(),
-        })
-        .await
-        .context("SurrealDB root signin failed — check sidecar SURREAL_USER/SURREAL_PASS")?;
+        // Clone the live embedded connection. `Surreal<Db>: Clone`
+        // shares the internal `Arc` with no second open of the file.
+        let db = lifecycle.db().clone();
 
         tracing::info!(
-            url = %ws,
+            path = %lifecycle.data_path().display(),
             namespace,
             database,
-            "SurrealDB client connected — applying schema"
+            "SurrealKV adapter connected — applying schema"
         );
 
         let adapter = Self { db };
         adapter.init_namespace(namespace, database, schema).await?;
-        tracing::info!(namespace, database, "SurrealDB schema initialized");
+        tracing::info!(namespace, database, "SurrealKV schema initialized");
 
         Ok(adapter)
     }
@@ -230,11 +216,12 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Quiesce — WS close is a no-op; the sidecar's fsync happens on
-    /// its shutdown, not ours. Stays async for signature stability.
+    /// Quiesce — drops the cloned connection on Drop; SurrealKV
+    /// flushes its WAL automatically. Stays async for signature
+    /// stability with the prior WS-client surface.
     #[allow(clippy::unused_async)]
     pub async fn quiesce(&self) {
-        tracing::info!("SurrealDB: client quiesced (connection will close on drop)");
+        tracing::info!("SurrealKV: adapter quiesced (clone will close on drop)");
     }
 }
 
@@ -242,7 +229,7 @@ impl SurrealAdapter {
 // ScopedGraphHandle — namespace-scoped operations
 // ═══════════════════════════════════════════════════════════════
 
-/// Namespace-scoped handle to a shared `SurrealDB` WS connection.
+/// Namespace-scoped handle to a shared embedded `SurrealKV` connection.
 ///
 /// Every query is prefixed with `USE NS {namespace} DB {database};` so
 /// namespace isolation is enforced at the query level — no implicit
@@ -265,7 +252,7 @@ impl ScopedGraphHandle {
         &self.database
     }
 
-    /// The shared WS-client adapter backing this handle.
+    /// The shared adapter backing this handle.
     pub fn adapter(&self) -> &Arc<SurrealAdapter> {
         &self.adapter
     }
