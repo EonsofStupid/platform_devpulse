@@ -1244,7 +1244,7 @@ impl ModelLoaderService {
         let mut cfg = self.config.write().await;
         let handle = cfg
             .downloads
-            .start_download(repo_id, filename, &self.boot.events)
+            .start_download(repo_id, filename, &self.boot.events, None)
             .map_err(|e| LoaderError::DownloadFailed {
                 reason: e.to_string(),
                 can_retry: true,
@@ -1269,6 +1269,118 @@ impl ModelLoaderService {
     ) -> Result<String, LoaderError> {
         Err(LoaderError::Internal {
             message: "Download requires candle-backend feature".to_string(),
+        })
+    }
+
+    /// Atomic install — download → scan → assign → load — composed from
+    /// the four kernel verbs that already exist independently.
+    ///
+    /// Returns the `install_id` immediately after the download starts;
+    /// the chain runs in a detached `tokio::spawn`. Progress observable
+    /// via `LoaderEvent::InstallStarted`, `DownloadProgress`,
+    /// `LoadingStage`, and the terminal
+    /// `InstallComplete`/`InstallFailed`.
+    ///
+    /// `primary_filename` is the entry point inside the repo. The
+    /// download manager auto-resolves shards + companions via
+    /// `plan_bundle()` (`download.rs` §plan_bundle), so callers pass
+    /// only one filename even for sharded safetensors models.
+    ///
+    /// Slot validation runs synchronously before the download starts —
+    /// callers get `SlotNotFound` / `IncompatibleModel` (capability
+    /// mismatch deferred to `assign_model` inside the chain) before
+    /// any bytes hit the network.
+    ///
+    /// # Errors
+    /// - [`LoaderError::SlotNotFound`] — `slot_id` is not in the slot
+    ///   registry.
+    /// - [`LoaderError::DownloadFailed`] — `start_download` rejected
+    ///   the request (network init failure, malformed repo id).
+    /// - [`LoaderError::Internal`] — feature `candle-backend` is off
+    ///   so downloads cannot run.
+    ///
+    /// Failures *during* the chain (network drop, capability mismatch
+    /// at assign time, runtime can't fit the model) surface as
+    /// `LoaderEvent::InstallFailed` on the event sink — they cannot
+    /// reach this `Result` because the chain runs after the function
+    /// returns.
+    #[cfg(feature = "candle-backend")]
+    #[tracing::instrument(skip(self), fields(repo_id, primary_filename, slot_id))]
+    pub async fn install_to_slot(
+        &self,
+        repo_id: &str,
+        primary_filename: &str,
+        slot_id: &str,
+    ) -> Result<String, LoaderError> {
+        // Pre-flight: slot must exist. Cheap read-lock — no need to
+        // hold it across the download spawn.
+        {
+            let cfg = self.config.read().await;
+            if cfg.slots.get_slot(slot_id).is_none() {
+                return Err(LoaderError::SlotNotFound {
+                    slot_id: slot_id.to_string(),
+                });
+            }
+        }
+
+        let install_id = uuid::Uuid::now_v7().to_string();
+        let (tx, rx) = tokio::sync::oneshot::channel();
+
+        // Spawn the download under the config write-lock that
+        // start_download requires. The completion oneshot fires from
+        // the spawned download thread (download.rs §start_download).
+        {
+            let mut cfg = self.config.write().await;
+            cfg.downloads
+                .start_download(repo_id, primary_filename, &self.boot.events, Some(tx))
+                .map_err(|e| LoaderError::DownloadFailed {
+                    reason: e.to_string(),
+                    can_retry: true,
+                    bytes_completed: 0,
+                })?;
+        }
+
+        self.boot.events.emit(LoaderEvent::InstallStarted {
+            install_id: install_id.clone(),
+            repo_id: repo_id.to_string(),
+            primary_filename: primary_filename.to_string(),
+            slot_id: slot_id.to_string(),
+        });
+        tracing::info!(
+            install_id = %install_id,
+            repo = %repo_id,
+            file = %primary_filename,
+            slot = %slot_id,
+            "Install chain started"
+        );
+
+        // Detached chain — Service is Clone (every field is Arc), so
+        // a cheap clone is the right move; no `Arc<Self>` plumbing.
+        let svc = self.clone();
+        let install_id_for_task = install_id.clone();
+        let slot_id_owned = slot_id.to_string();
+        tokio::spawn(async move {
+            run_install_chain(svc, install_id_for_task, slot_id_owned, rx).await;
+        });
+
+        Ok(install_id)
+    }
+
+    /// Stub for builds without the candle-backend feature — the HF
+    /// download path is gated there so the install chain can't run.
+    ///
+    /// # Errors
+    /// Always returns [`LoaderError::Internal`] — build with
+    /// `--features candle-backend` to enable.
+    #[cfg(not(feature = "candle-backend"))]
+    pub async fn install_to_slot(
+        &self,
+        _repo_id: &str,
+        _primary_filename: &str,
+        _slot_id: &str,
+    ) -> Result<String, LoaderError> {
+        Err(LoaderError::Internal {
+            message: "install_to_slot requires candle-backend feature".to_string(),
         })
     }
 
@@ -2084,6 +2196,92 @@ impl ModelLoaderService {
                 can_retry: true,
             })
     }
+}
+
+// ── Install chain runner ─────────────────────────────────────────
+//
+// Free fn instead of an inherent method so the spawned task captures
+// only the cheap `ModelLoaderService` Clone (every field is Arc, so a
+// clone is just refcount bumps) and the oneshot receiver — no need to
+// thread `Arc<Self>` through `install_to_slot`.
+
+#[cfg(feature = "candle-backend")]
+async fn run_install_chain(
+    svc: ModelLoaderService,
+    install_id: String,
+    slot_id: String,
+    rx: tokio::sync::oneshot::Receiver<anyhow::Result<ModelRegistryEntry>>,
+) {
+    // Stage 1 — wait for the download thread to terminate. Receiver
+    // closing without a send means the download thread panicked
+    // before it could fire either branch; treat it as a failure with
+    // an explicit phase tag.
+    let entry = match rx.await {
+        Ok(Ok(entry)) => entry,
+        Ok(Err(e)) => {
+            return emit_install_failed(&svc, &install_id, &slot_id, format!("download: {e}"));
+        }
+        Err(_) => {
+            return emit_install_failed(
+                &svc,
+                &install_id,
+                &slot_id,
+                "download: completion channel dropped before result".to_string(),
+            );
+        }
+    };
+
+    let model_id = entry.id.clone();
+
+    // Stage 2 — refresh the registry so `assign_model` sees the new
+    // entry. The download thread already constructed the
+    // `ModelRegistryEntry` in-memory and emitted `DownloadComplete`,
+    // but the on-disk registry only catches up via `scan_models`.
+    if let Err(e) = svc.scan_models().await {
+        return emit_install_failed(&svc, &install_id, &slot_id, format!("scan: {e:#}"));
+    }
+
+    // Stage 3 — assign. Capability mismatches surface here.
+    if let Err(e) = svc.assign_model(&slot_id, &model_id).await {
+        return emit_install_failed(&svc, &install_id, &slot_id, format!("assign: {e:#}"));
+    }
+
+    // Stage 4 — load. Routes through `select_backend` per format.
+    if let Err(e) = svc.load_slot(&slot_id).await {
+        return emit_install_failed(&svc, &install_id, &slot_id, format!("load: {e:#}"));
+    }
+
+    svc.boot.events.emit(LoaderEvent::InstallComplete {
+        install_id: install_id.clone(),
+        slot_id: slot_id.clone(),
+        model_id: model_id.clone(),
+    });
+    tracing::info!(
+        install_id = %install_id,
+        slot = %slot_id,
+        model = %model_id,
+        "Install chain complete"
+    );
+}
+
+#[cfg(feature = "candle-backend")]
+fn emit_install_failed(
+    svc: &ModelLoaderService,
+    install_id: &str,
+    slot_id: &str,
+    error: String,
+) {
+    tracing::warn!(
+        install_id = %install_id,
+        slot = %slot_id,
+        error = %error,
+        "Install chain failed"
+    );
+    svc.boot.events.emit(LoaderEvent::InstallFailed {
+        install_id: install_id.to_string(),
+        slot_id: slot_id.to_string(),
+        error,
+    });
 }
 
 // ── Tests ────────────────────────────────────────────────────────

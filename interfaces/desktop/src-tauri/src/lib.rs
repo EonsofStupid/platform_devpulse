@@ -277,6 +277,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::models::unload_slot,
         commands::models::swap_slot_model,
         commands::models::download_model,
+        commands::models::install_to_slot,
         commands::models::cancel_download,
         commands::models::list_repo_files,
         commands::models::set_hf_token,

@@ -318,6 +318,64 @@ impl LoaderEventSink for FileEventSink {
                     "[model-loader] Runtime version changed"
                 );
             }
+
+            // ── Install (one-button download → assign → load) ─────
+            LoaderEvent::InstallStarted {
+                install_id,
+                repo_id,
+                primary_filename,
+                slot_id,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Install STARTED: id={install_id} repo={repo_id} primary={primary_filename} slot={slot_id}",
+                    ),
+                );
+                tracing::info!(
+                    install_id = %install_id,
+                    repo = %repo_id,
+                    file = %primary_filename,
+                    slot = %slot_id,
+                    "[model-loader] Install started"
+                );
+            }
+            LoaderEvent::InstallComplete {
+                install_id,
+                slot_id,
+                model_id,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Install COMPLETE: id={install_id} slot={slot_id} model={model_id}",
+                    ),
+                );
+                tracing::info!(
+                    install_id = %install_id,
+                    slot = %slot_id,
+                    model = %model_id,
+                    "[model-loader] Install complete"
+                );
+            }
+            LoaderEvent::InstallFailed {
+                install_id,
+                slot_id,
+                error,
+            } => {
+                self.write_line(
+                    "ERROR",
+                    &format!(
+                        "Install FAILED: id={install_id} slot={slot_id} error={error}",
+                    ),
+                );
+                tracing::error!(
+                    install_id = %install_id,
+                    slot = %slot_id,
+                    error = %error,
+                    "[model-loader] Install FAILED"
+                );
+            }
         }
     }
 }

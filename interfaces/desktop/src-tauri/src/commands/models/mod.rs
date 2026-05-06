@@ -779,6 +779,26 @@ pub async fn download_model(
         .map_err(|e| e.to_string())
 }
 
+/// One-button install — download the bundle, scan, assign to slot,
+/// load. Composed from the four kernel verbs into a single atomic
+/// chain so the wizard's "install" CTA fires once and tracks progress
+/// via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+/// Returns the `install_id` — the chain runs detached.
+#[tauri::command]
+#[specta::specta]
+pub async fn install_to_slot(
+    state: State<'_, PlatformState>,
+    repo_id: String,
+    primary_filename: String,
+    slot_id: String,
+) -> Result<String, String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .install_to_slot(&repo_id, &primary_filename, &slot_id)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Cancel an active model download.
 #[tauri::command]
 #[specta::specta]

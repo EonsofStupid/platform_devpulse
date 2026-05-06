@@ -100,6 +100,12 @@ impl DownloadManager {
         repo_id: &str,
         filename: &str,
         events: &Arc<dyn LoaderEventSink>,
+        // Optional one-shot fired exactly once when the spawned download
+        // thread terminates. `Ok(entry)` mirrors `DownloadComplete`,
+        // `Err` mirrors `DownloadFailed`/`DownloadCancelled`. Used by
+        // `install_to_slot` to chain scan → assign → load without a
+        // separate event-bus subscription.
+        on_complete: Option<tokio::sync::oneshot::Sender<anyhow::Result<ModelRegistryEntry>>>,
     ) -> anyhow::Result<DownloadHandle> {
         let download_id = uuid::Uuid::now_v7().to_string();
         let cancel = Arc::new(AtomicBool::new(false));
@@ -152,8 +158,14 @@ impl DownloadManager {
                     Ok(entry) => {
                         events_clone.emit(LoaderEvent::DownloadComplete {
                             download_id: dl_id,
-                            registry_entry: entry,
+                            registry_entry: entry.clone(),
                         });
+                        if let Some(tx) = on_complete {
+                            // Receiver dropped (caller cancelled the
+                            // install chain) is not an error here — the
+                            // event already fired.
+                            let _ = tx.send(Ok(entry));
+                        }
                     }
                     Err(e) => {
                         if cancel.load(Ordering::Relaxed) {
@@ -164,6 +176,9 @@ impl DownloadManager {
                                 download_id: dl_id,
                                 error: e.to_string(),
                             });
+                        }
+                        if let Some(tx) = on_complete {
+                            let _ = tx.send(Err(anyhow::anyhow!("{e}")));
                         }
                     }
                 }

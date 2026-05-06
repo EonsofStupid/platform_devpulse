@@ -320,6 +320,23 @@ impl ModelLoaderService {
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
+    /// One-button install — composes `download_model` + `scan_models`
+    /// + `assign_model` + `load_slot` into one atomic verb. Returns
+    /// the install identifier as soon as the download starts; the
+    /// chain runs in a detached task and surfaces progress via the
+    /// `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+    pub async fn install_to_slot(
+        &self,
+        repo_id: &str,
+        primary_filename: &str,
+        slot_id: &str,
+    ) -> Result<String> {
+        self.inner
+            .install_to_slot(repo_id, primary_filename, slot_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))
+    }
+
     /// Cancel an active download by identifier.
     pub async fn cancel_download(&self, download_id: &str) -> Result<()> {
         self.inner

@@ -2130,6 +2130,21 @@ async downloadModel(repoId: string, filename: string) : Promise<Result<string, s
 }
 },
 /**
+ * One-button install — download the bundle, scan, assign to slot,
+ * load. Composed from the four kernel verbs into a single atomic
+ * chain so the wizard's "install" CTA fires once and tracks progress
+ * via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+ * Returns the `install_id` — the chain runs detached.
+ */
+async installToSlot(repoId: string, primaryFilename: string, slotId: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("install_to_slot", { repoId, primaryFilename, slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Cancel an active model download.
  */
 async cancelDownload(downloadId: string) : Promise<Result<null, string>> {

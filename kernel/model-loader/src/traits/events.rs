@@ -226,6 +226,46 @@ pub enum LoaderEvent {
         slot_id: String,
     },
 
+    // ── Install (one-button download → assign → load) ─────
+    /// The atomic install chain started — download → scan → assign →
+    /// load, sequenced inside `ModelLoaderService::install_to_slot`.
+    /// Surfaces the install identity so the UI can correlate the
+    /// downstream `DownloadProgress`, `LoadingStage`, and final
+    /// `InstallComplete`/`InstallFailed` events back to a single
+    /// "install this model into this slot" user action.
+    InstallStarted {
+        /// Unique install identifier (UUID v7).
+        install_id: String,
+        /// `HuggingFace` repository ID.
+        repo_id: String,
+        /// Primary filename within the repo. The download manager
+        /// auto-resolves shards + companions from this entry point.
+        primary_filename: String,
+        /// Slot the model is being installed into.
+        slot_id: String,
+    },
+    /// The install chain finished successfully — download committed,
+    /// model registered, slot assigned, slot loaded into memory.
+    InstallComplete {
+        /// Install identifier matching the `InstallStarted` event.
+        install_id: String,
+        /// Slot that received the model.
+        slot_id: String,
+        /// Registry ID of the now-loaded model.
+        model_id: String,
+    },
+    /// The install chain failed. The stage at which it failed is encoded
+    /// in `error` (prefixed with `download:`/`scan:`/`assign:`/`load:`)
+    /// so the UI can surface which step the user can retry.
+    InstallFailed {
+        /// Install identifier matching the `InstallStarted` event.
+        install_id: String,
+        /// Slot the install was targeting.
+        slot_id: String,
+        /// Stage-prefixed error description.
+        error: String,
+    },
+
     // ── Capability / runtime ───────────────────────────────
     /// A capability slot is now fulfilled by a different runtime.
     ///
