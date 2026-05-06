@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
 import { Download, X } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
@@ -13,6 +14,18 @@ import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import { cancelDownload } from "$lib/domains/app/models/data-access/download.service.js";
 import { type ActiveDownload, downloadState } from "./download.state.svelte.js";
+import { installState } from "./install.state.svelte.js";
+
+// Activity-hud states attach their Tauri event listeners lazily — the
+// first time any consumer mounts. Both classes guard with an internal
+// `booted` flag, so calling boot() repeatedly is a no-op. We boot the
+// install state alongside the download state because the new
+// install_to_slot chain emits both `model:download-*` and
+// `model:install-*` events; consumers of either need both to wire.
+onMount(() => {
+	void downloadState.boot();
+	void installState.boot();
+});
 
 function formatSpeed(bps: number): string {
 	const mbps = bps / (1024 * 1024);

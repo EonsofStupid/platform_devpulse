@@ -108,6 +108,44 @@ impl LoaderEventSink for EventBridge {
                 "model:swap-failed",
                 json!({ "slot_id": slot_id, "error": error }),
             ),
+            LoaderEvent::InstallStarted {
+                install_id,
+                repo_id,
+                primary_filename,
+                slot_id,
+            } => (
+                "model:install-started",
+                json!({
+                    "install_id": install_id,
+                    "repo_id": repo_id,
+                    "primary_filename": primary_filename,
+                    "slot_id": slot_id,
+                }),
+            ),
+            LoaderEvent::InstallComplete {
+                install_id,
+                slot_id,
+                model_id,
+            } => (
+                "model:install-complete",
+                json!({
+                    "install_id": install_id,
+                    "slot_id": slot_id,
+                    "model_id": model_id,
+                }),
+            ),
+            LoaderEvent::InstallFailed {
+                install_id,
+                slot_id,
+                error,
+            } => (
+                "model:install-failed",
+                json!({
+                    "install_id": install_id,
+                    "slot_id": slot_id,
+                    "error": error,
+                }),
+            ),
             LoaderEvent::CapabilityRebound {
                 capability,
                 from_runtime,

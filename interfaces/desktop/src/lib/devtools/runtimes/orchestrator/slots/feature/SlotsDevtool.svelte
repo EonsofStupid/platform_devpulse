@@ -20,6 +20,7 @@ import {
 	Square,
 	X,
 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -39,9 +40,22 @@ import {
 	VramBar,
 } from "$lib/domains/app/models/index.js";
 import DownloadPanel from "$lib/sys/activity-hud/DownloadPanel.svelte";
+import InstallPanel from "$lib/sys/activity-hud/InstallPanel.svelte";
+import { modelsDirPath } from "$lib/sys/bindings/models/index.js";
 
 let loading = $state(false);
 let actionSlot = $state<string | null>(null);
+let modelsDir = $state<string | null>(null);
+let modelsDirError = $state<string | null>(null);
+
+onMount(async () => {
+	const r = await modelsDirPath();
+	if (r.status === "ok") {
+		modelsDir = r.data;
+	} else {
+		modelsDirError = String(r.error);
+	}
+});
 
 const ROLE_ICONS = {
 	brain: Brain,
@@ -208,19 +222,31 @@ const extraTabs: ExtraTab[] = [
 	{/snippet}
 
 	{#snippet config()}
-		<Text size="sm" color="muted">
-			Slot ↔ model assignments are configured via the Setup Wizard
-			and the Model Loader window. The slot registry SSOT lives in
-			the kernel <code>model-loader</code> crate
-			(<code>kernel/model-loader/src/slots/</code>); per-tier presets
-			(rapid / studio / max) live in
-			<code>config/platform/presets/</code>.
-		</Text>
-		<Text size="sm" color="muted">
-			Editing assignments here is intentionally not surfaced —
-			arbitrary in-place reassignment can leave the system in a
-			partially-loaded state. Use the wizard.
-		</Text>
+		<div class="space-y-3">
+			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+				<Text size="sm" weight="bold" class="block mb-1">Models directory</Text>
+				{#if modelsDir}
+					<Text size="xs" class="font-mono block">{modelsDir}</Text>
+				{:else if modelsDirError}
+					<Text size="xs" color="muted">Could not read path: {modelsDirError}</Text>
+				{:else}
+					<Text size="xs" color="muted">Reading…</Text>
+				{/if}
+				<Text size="xs" color="muted" class="block mt-1">
+					Every downloaded model lands here. Drop existing GGUF or
+					safetensors bundles into this folder and hit Rescan in
+					Actions to pick them up — symlinks work too.
+				</Text>
+			</div>
+			<Text size="sm" color="muted">
+				Slot definitions and per-tier presets live in the kernel
+				<code>model-loader</code> crate
+				(<code>kernel/model-loader/src/slots/</code>,
+				<code>config/presets.default.toml</code>). The kernel
+				picks the right model variant per tier; this devtool just
+				surfaces what's currently bound.
+			</Text>
+		</div>
 	{/snippet}
 
 	{#snippet logs()}
@@ -288,7 +314,10 @@ const extraTabs: ExtraTab[] = [
 		{#if tabId === "registry"}
 			{@render registryBody()}
 		{:else if tabId === "downloads"}
-			<DownloadPanel />
+			<div class="space-y-3">
+				<InstallPanel />
+				<DownloadPanel />
+			</div>
 		{/if}
 	{/snippet}
 </ServiceDevtoolShell>
