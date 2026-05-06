@@ -625,6 +625,15 @@ impl ModelLoaderService {
             .map_err(LoadError::from)
     }
 
+    /// Embed a batch of texts through the Burn encoder (no slot dispatch).
+    ///
+    /// The Burn encoder must be loaded via `load_slot` on `rag.embedder`
+    /// before calling. Returns one L2-normalized vector per input string.
+    #[tracing::instrument(skip(self, texts), fields(count = texts.len()))]
+    pub async fn burn_embed(&self, texts: Vec<String>) -> anyhow::Result<Vec<Vec<f32>>> {
+        self.inner.burn_embed(texts).await
+    }
+
     /// Score documents against a query through the reranker slot.
     #[tracing::instrument(skip(self, documents), fields(slot_id, count = documents.len()))]
     pub async fn rerank(

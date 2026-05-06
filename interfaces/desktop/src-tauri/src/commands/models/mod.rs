@@ -2175,3 +2175,30 @@ pub async fn resolve_architecture_compatibility(
         classified, format,
     ))
 }
+
+/// Embed a batch of texts through the wired Burn encoder.
+///
+/// Returns one L2-normalized dense vector per input string, in order.
+/// The encoder and its tokenizer must be loaded (via `load_slot` on the
+/// `rag.embedder` slot) before calling this — returns an error otherwise.
+///
+/// Intended call sites: RRO gather phase, devtool smoke-test button,
+/// semantic search queries from the UI. Async — the blocking forward
+/// pass is offloaded internally.
+///
+/// # Errors
+///
+/// - Platform not ready / model loader disabled.
+/// - Encoder or tokenizer not loaded.
+/// - Empty `texts` vec.
+/// - Forward pass non-finite output.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(text_count = texts.len()))]
+pub async fn encoder_embed(
+    state: State<'_, PlatformState>,
+    texts: Vec<String>,
+) -> Result<Vec<Vec<f32>>, String> {
+    let loader = get_loader(&state).await?;
+    loader.burn_embed(texts).await.map_err(|e| format!("{e:#}"))
+}

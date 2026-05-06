@@ -19,11 +19,19 @@
 //! - **Memory footprint**: returned at load time so the slot's
 //!   `MemoryFootprint` accounting stays accurate.
 //!
+//! ## What flows through the adapter (updated for Phase C)
+//!
+//! - **Load / unload**: lifecycle transitions Empty → Ready → Empty.
+//! - **State query**: `is_loaded()` for devtool status.
+//! - **Memory footprint**: returned at load time for slot accounting.
+//! - **Embed**: `embed_texts_blocking` — text → dense vectors. Added
+//!   in Phase C (tokenizer wiring) so the engine command layer can
+//!   invoke the full text→embedding pipeline without knowing the
+//!   concrete Burn backend type. The method is synchronous; async
+//!   callers wrap with `tokio::task::spawn_blocking`.
+//!
 //! ## What does NOT flow through the adapter
 //!
-//! - Forward / inference. The embedder is consumed by the RRO
-//!   service in clyffy directly via `Arc<ArcSwap<BurnEmbedder<B>>>`
-//!   readers; model-loader never invokes a forward pass.
 //! - Hot-update orchestration. The RRD daemon (`kernel/rrd`) owns
 //!   the swap surface; this adapter only exposes the initial load
 //!   so the slot system can transition Empty → Ready.
@@ -62,6 +70,20 @@ pub trait BurnEncoderAdapter: Send + Sync + 'static {
     /// True iff a Burn encoder is currently loaded. Cheap; the
     /// adapter implementation typically reads an `ArcSwap` slot.
     fn is_loaded(&self) -> bool;
+
+    /// Tokenize `texts` and run a full embedding forward pass, returning
+    /// one L2-normalized dense vector per input text.
+    ///
+    /// Synchronous and CPU-bound (Burn NdArray backend). Async callers
+    /// wrap with `tokio::task::spawn_blocking`.
+    ///
+    /// # Errors
+    ///
+    /// - Encoder or tokenizer not loaded (call `load_blocking` first).
+    /// - Empty `texts` slice.
+    /// - Tokenizer encode failure.
+    /// - Forward pass produces non-finite output.
+    fn embed_texts_blocking(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>>;
 }
 
 /// Type-erased handle held by `ModelLoaderService`. Engine wires the

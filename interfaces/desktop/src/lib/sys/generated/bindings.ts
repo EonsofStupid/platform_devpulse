@@ -2807,6 +2807,32 @@ async resolveArchitectureCompatibility(archRaw: string, modelType: string | null
 }
 },
 /**
+ * Embed a batch of texts through the wired Burn encoder.
+ * 
+ * Returns one L2-normalized dense vector per input string, in order.
+ * The encoder and its tokenizer must be loaded (via `load_slot` on the
+ * `rag.embedder` slot) before calling this — returns an error otherwise.
+ * 
+ * Intended call sites: RRO gather phase, devtool smoke-test button,
+ * semantic search queries from the UI. Async — the blocking forward
+ * pass is offloaded internally.
+ * 
+ * # Errors
+ * 
+ * - Platform not ready / model loader disabled.
+ * - Encoder or tokenizer not loaded.
+ * - Empty `texts` vec.
+ * - Forward pass non-finite output.
+ */
+async encoderEmbed(texts: string[]) : Promise<Result<number[][], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("encoder_embed", { texts }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current voice subsystem status.
  * 
  * Derives STT/TTS loaded state from model loader slot statuses.

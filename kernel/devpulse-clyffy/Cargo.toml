@@ -20,8 +20,8 @@ candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:to
 # needs `assert_impl_all!(BurnEmbedder<B>: Send, Sync, 'static)` and
 # the ArcSwap round-trip test, both of which only compile when the
 # encoder code itself is compiled.
-burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader"]
-burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader"]
+burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
+burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
 model-loader = [
     "dep:model-loader",
     "model-loader/specta",

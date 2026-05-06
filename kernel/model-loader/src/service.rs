@@ -555,6 +555,47 @@ impl ModelLoaderService {
         )
     }
 
+    /// Embed a batch of texts using the wired Burn encoder.
+    ///
+    /// Returns one L2-normalized dense vector (`Vec<f32>`) per input
+    /// string, in order. The forward pass is CPU-bound (NdArray backend);
+    /// this method offloads it to a Tokio blocking thread so the async
+    /// runtime stays responsive.
+    ///
+    /// # Errors
+    ///
+    /// - No Burn encoder adapter wired at boot (`burn` feature off).
+    /// - Encoder or tokenizer not yet loaded (call `load_slot` first).
+    /// - Empty `texts` vec.
+    /// - Tokenizer or forward-pass failure.
+    /// Embed a batch of texts using the wired Burn encoder.
+    ///
+    /// Distinct from the slot-routed [`embed`] method — this calls
+    /// the Burn encoder adapter directly (no slot dispatch). The
+    /// encoder and its tokenizer must be loaded via `load_slot` on
+    /// `rag.embedder` before calling.
+    ///
+    /// # Errors
+    ///
+    /// - No Burn encoder adapter wired (burn feature off or boot skipped).
+    /// - Encoder or tokenizer not yet loaded.
+    /// - Empty `texts` vec.
+    /// - Forward pass or tokenizer failure.
+    pub async fn burn_embed(&self, texts: Vec<String>) -> anyhow::Result<Vec<Vec<f32>>> {
+        let adapter = self
+            .boot
+            .burn_encoder_adapter
+            .clone()
+            .ok_or_else(|| anyhow::anyhow!("burn_embed: no Burn encoder adapter wired (burn feature off?)"))?;
+
+        tokio::task::spawn_blocking(move || {
+            let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
+            adapter.embed_texts_blocking(&refs)
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("burn_embed join error: {e}"))?
+    }
+
     /// Check if this is the first run.
     pub async fn is_first_run(&self) -> bool {
         let cfg = self.config.read().await;

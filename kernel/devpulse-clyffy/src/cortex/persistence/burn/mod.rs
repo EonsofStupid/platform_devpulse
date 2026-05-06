@@ -43,6 +43,7 @@ pub mod embedder;
 pub mod hot_update;
 pub mod loader;
 pub mod qwen3;
+pub mod tokenizer;
 
 pub use adapter::CortexBurnAdapter;
 pub use embedder::{l2_normalize, pool_last_token, BurnEmbedder, EmbedderConfig};
