@@ -29,18 +29,13 @@ pub struct LibSqlAdapter {
 }
 
 impl LibSqlAdapter {
-    /// Open or create database at path with the default core schema.
+    /// Open or create database at path with an explicit schema.
     ///
-    /// # Errors
-    /// Returns error if the database cannot be opened or schema initialization fails.
-    pub async fn open(path: &Path) -> Result<Self> {
-        Self::open_with_schema(path, CORE_SCHEMA).await
-    }
-
-    /// Open or create database at path with a custom schema.
-    ///
-    /// The engine layer uses this to apply scope-specific schemas
-    /// (system vs user) instead of the default core schema.
+    /// Callers MUST supply a schema appropriate to the scope they're
+    /// opening — there is no "default" schema the kernel imposes.
+    /// The engine layer applies scope-specific schemas
+    /// (`SYSTEM_SCHEMA` / `USER_SCHEMA`) at boot; tests supply their
+    /// own minimal schema next to the test module.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -253,48 +248,79 @@ impl SqlAdapter for LibSqlAdapter {
     }
 }
 
-/// Core schema for `LibSQL`.
-/// KV store for signal-based access + structured tables.
-const CORE_SCHEMA: &str = r"
--- Key-value store for signal-based access
+// Schema constants are NOT defined here. The kernel adapter is
+// schema-agnostic: every caller supplies the schema appropriate to
+// its scope (engine: `SYSTEM_SCHEMA` / `USER_SCHEMA`; tests:
+// `MINIMAL_TEST_SCHEMA` in the cfg(test) module below).
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    /// Minimal schema for kernel-side smoke tests of the libsql
+    /// adapter. Replaces the prior `CORE_SCHEMA` which was
+    /// referenced only by the now-deleted no-schema `open()`
+    /// shortcut and the orphan `PersistenceLayer` wrapper. Keeps
+    /// the kv + config + projects shape tests want without
+    /// implying any "default" production schema.
+    const MINIMAL_TEST_SCHEMA: &str = r"
 CREATE TABLE IF NOT EXISTS kv_store (
     key TEXT PRIMARY KEY,
     value BLOB NOT NULL,
     updated_at INTEGER DEFAULT (unixepoch())
 );
-
-CREATE INDEX IF NOT EXISTS idx_kv_updated ON kv_store(updated_at);
-
--- Projects registry
 CREATE TABLE IF NOT EXISTS projects (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    root_path TEXT NOT NULL UNIQUE,
-    project_type TEXT NOT NULL DEFAULT 'generic',
-    created_at INTEGER DEFAULT (unixepoch()),
-    last_accessed INTEGER DEFAULT (unixepoch())
+    root_path TEXT NOT NULL UNIQUE
 );
-
-CREATE INDEX IF NOT EXISTS idx_projects_path ON projects(root_path);
-
--- Chat persistence lives in the engine user-scoped schema (`turns` / `sessions`).
--- The kernel `CORE_SCHEMA` intentionally does not duplicate those tables.
-
--- Platform config
 CREATE TABLE IF NOT EXISTS platform_config (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,
-    category TEXT NOT NULL,
-    updated_at INTEGER DEFAULT (unixepoch())
-);
-
-CREATE INDEX IF NOT EXISTS idx_config_category ON platform_config(category);
-
--- User config
-CREATE TABLE IF NOT EXISTS user_config (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL,
-    category TEXT NOT NULL,
-    updated_at INTEGER DEFAULT (unixepoch())
+    category TEXT NOT NULL
 );
 ";
+
+    /// Build a unique throwaway path under the OS temp dir.
+    /// Stays stdlib-only so the test doesn't drag in `tempfile`.
+    fn unique_test_path() -> std::path::PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0);
+        std::env::temp_dir()
+            .join(format!("devpulse-libsql-test-{nanos}"))
+            .join("nested")
+            .join("test.db")
+    }
+
+    #[tokio::test]
+    async fn open_with_schema_creates_dir_and_runs_ddl() {
+        let path = unique_test_path();
+        // Best-effort cleanup at start so a prior crashed run doesn't poison this one.
+        let _ = std::fs::remove_dir_all(path.parent().unwrap().parent().unwrap());
+
+        let adapter = LibSqlAdapter::open_with_schema(&path, MINIMAL_TEST_SCHEMA)
+            .await
+            .expect("open_with_schema should succeed on a fresh path");
+
+        // Tables exist + are queryable. `kv_store` is the canonical
+        // signal-store table — every test schema variant carries it.
+        let mut rows = adapter
+            .connection()
+            .query("SELECT count(*) FROM kv_store", ())
+            .await
+            .expect("query against MINIMAL_TEST_SCHEMA tables should succeed");
+        let row = rows.next().await.unwrap().expect("at least one row");
+        let count: i64 = row.get(0).unwrap();
+        assert_eq!(count, 0);
+
+        adapter.ping().await.expect("ping should succeed");
+
+        // Cleanup — best-effort. WAL flush + drop happens above.
+        adapter.close().await;
+        drop(adapter);
+        let _ = std::fs::remove_dir_all(path.parent().unwrap().parent().unwrap());
+    }
+}
