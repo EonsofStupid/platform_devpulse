@@ -138,6 +138,15 @@ export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 		icon: Network,
 	},
 	{
+		id: "qdrant",
+		tier: "system",
+		bucket: "datastores",
+		route: "/devtools/system/datastores/qdrant",
+		label: "Qdrant",
+		blurb: "Embedded vector store · in-process · zero latency. Cross-linked from RRO.",
+		icon: Boxes,
+	},
+	{
 		id: "mongodb",
 		tier: "system",
 		bucket: "datastores",

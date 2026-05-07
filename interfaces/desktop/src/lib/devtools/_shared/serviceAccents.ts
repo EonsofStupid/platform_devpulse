@@ -105,6 +105,7 @@ export const SERVICE_ACCENTS = {
 	libsql: "blue",
 	duckdb: "gold",
 	surrealdb: "violet",
+	qdrant: "cyber",
 	mongodb: "green",
 	"project-db": "cyan",
 
@@ -207,6 +208,7 @@ export const SERVICE_BACKDROPS = {
 	libsql: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 	duckdb: { variation: "void-breathe", intensity: "normal", speed: "slow" },
 	surrealdb: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
+	qdrant: { variation: "circuit-drift", intensity: "normal", speed: "normal" },
 	mongodb: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 	"project-db": { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 
