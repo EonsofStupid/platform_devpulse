@@ -67,9 +67,10 @@ pub use qwen3::{Qwen3Config, Qwen3Model};
 //
 // HOT_UPDATE_PATTERN.md §12 verification targets 1 and 2.
 
-// PROBE: is Burn's bare tensor type itself Sync? If yes, the
-// re-authoring path (replace `burn::nn::*` with raw `Tensor` fields)
-// is viable. If no, we have a deeper Burn-vs-Sync incompatibility.
+// Granular tensor-level check — narrows the failure surface. If a
+// future Burn version drops `Sync` on `Tensor<NdArray, 2>`, this fires
+// before the wider `BurnEmbedder<NdArray>` assertion below, and the
+// compile error points at the primitive instead of the wrapping struct.
 #[cfg(feature = "burn-cpu")]
 static_assertions::assert_impl_all!(burn::tensor::Tensor<burn::backend::NdArray, 2>: Send, Sync);
 

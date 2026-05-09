@@ -3,6 +3,8 @@
 //! Handles: user analytics, AI metrics, telemetry, OLAP queries
 //! Optimized for analytical workloads and columnar storage.
 
+pub mod diagnostics;
+
 use crate::cortex::persistence::traits::{AnalyticsAdapter, PersistenceAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result};
 use std::path::Path;

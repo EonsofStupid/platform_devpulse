@@ -109,7 +109,9 @@ CREATE TABLE IF NOT EXISTS model_calls (
     cache_hit BOOLEAN DEFAULT FALSE,
     estimated_cost_usd DOUBLE DEFAULT 0.0,
     error_message VARCHAR,
-    metadata JSON,                         -- adapter-specific telemetry
+    metadata VARCHAR,                      -- JSON-encoded text; queried via json_extract(metadata, '$.field').
+                                           -- Native JSON column type triggers heap corruption when DuckDB is
+                                           -- initialized in a process holding heavy native libs (candle/llama-cpp/ort).
     created_at TIMESTAMP DEFAULT now()
 );
 
@@ -139,7 +141,7 @@ CREATE TABLE IF NOT EXISTS governance_violations (
     severity VARCHAR NOT NULL DEFAULT 'warning', -- info | warning | critical
     description VARCHAR NOT NULL,
     action_taken VARCHAR NOT NULL,         -- blocked | warned | throttled | logged
-    metadata JSON,
+    metadata VARCHAR,                      -- JSON-encoded text (see model_calls.metadata for rationale).
     created_at TIMESTAMP DEFAULT now()
 );
 
@@ -203,7 +205,7 @@ CREATE TABLE IF NOT EXISTS span_traces (
     target            VARCHAR NOT NULL,
     level             VARCHAR NOT NULL,
     duration_us       BIGINT NOT NULL,
-    fields_json       JSON,
+    fields_json       VARCHAR,                -- JSON-encoded span fields (see model_calls.metadata).
     created_at        TIMESTAMP DEFAULT now()
 );
 
@@ -310,12 +312,12 @@ CREATE TABLE IF NOT EXISTS platform_telemetry (
     vram_used_mb        INTEGER,
     ram_used_mb         INTEGER,
     cpu_util_pct        DOUBLE,
-    model_states        JSON,                    -- { 'chat.brain': 'hot', 'minion.shared': 'standby', ... }
+    model_states        VARCHAR,                 -- JSON-encoded { 'chat.brain': 'hot', 'minion.shared': 'standby', ... }
     p50_response_ms     INTEGER,
     p95_response_ms     INTEGER,
     p99_response_ms     INTEGER,
     error_count         INTEGER DEFAULT 0,
-    error_types         JSON                     -- { 'inference_timeout': 2, 'oom': 0, ... }
+    error_types         VARCHAR                  -- JSON-encoded { 'inference_timeout': 2, 'oom': 0, ... }
 );
 
 -- ── Vision Pipeline ───────────────────────────────────────────
@@ -477,7 +479,7 @@ CREATE TABLE IF NOT EXISTS mood_timeline (
     session_id          VARCHAR NOT NULL,
     recorded_at         TIMESTAMP DEFAULT now(),
     mood_score          DOUBLE NOT NULL,         -- -1.0 (heavy negative) to +1.0 (heavy positive)
-    mood_signals        JSON,                    -- detected signals ['caps', 'profanity', 'short_responses']
+    mood_signals        VARCHAR,                 -- JSON-encoded ['caps', 'profanity', 'short_responses']
     mood_category       VARCHAR,                 -- frustrated | neutral | engaged | flow
     trigger_turn_id     VARCHAR,
     psych_action        VARCHAR,                 -- acknowledged | adjusted_tone | offered_break | none
@@ -500,3 +502,140 @@ CREATE TABLE IF NOT EXISTS teaching_moments (
     user_level_after    VARCHAR
 );
 ";
+
+// ═══════════════════════════════════════════════════════════════
+// Schema baseline tests — chunk-by-chunk visual report.
+//
+// Built on the reusable harness in
+// `devpulse_clyffy::cortex::persistence::duckdb::diagnostics`. Each
+// test produces streaming output of the form:
+//
+//   ── SCHEMA BISECT: SYSTEM_ANALYTICS_SCHEMA (17 chunks) ──
+//   [01/17] table kv_store ........................ ✓   (412µs)
+//   [02/17] table model_calls ..................... ✓   (286µs)
+//   ...
+//   ── 17/17 chunks loaded cleanly (8.4ms) ──
+//
+// The streaming property is load-bearing: stdout is flushed after
+// every chunk so the last printed line names the chunk in flight if
+// the process aborts (e.g. STATUS_HEAP_CORRUPTION on Windows).
+//
+// These are baseline tests — re-run anytime the schemas change to
+// confirm every chunk still loads + the schema remains idempotent.
+// ═══════════════════════════════════════════════════════════════
+
+#[cfg(test)]
+mod schema_baseline_tests {
+    use super::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
+    use devpulse_clyffy::cortex::persistence::duckdb::diagnostics::{
+        assert_schema_idempotent, bisect_columns, bisect_schema, ColumnSpec,
+    };
+
+    // Tests are prefixed with `aNN_` / `bNN_` so the libtest harness's
+    // alphabetical ordering produces a deterministic, top-down diagnostic
+    // sequence: chunk-by-chunk baselines first (so visual output is in the
+    // log even if a later test crashes the process), idempotency second.
+
+    /// Baseline #1: every statement of `SYSTEM_ANALYTICS_SCHEMA` loads
+    /// cleanly against a fresh DuckDB. Visual chunk-by-chunk report
+    /// streamed to stdout — observe with `cargo test ... -- --nocapture`.
+    #[test]
+    fn a01_system_schema_loads_chunk_by_chunk() {
+        let report = bisect_schema("SYSTEM_ANALYTICS_SCHEMA", SYSTEM_ANALYTICS_SCHEMA);
+        report.assert_clean();
+    }
+
+    /// Baseline #2: every statement of `USER_ANALYTICS_SCHEMA` loads cleanly.
+    #[test]
+    fn a02_user_schema_loads_chunk_by_chunk() {
+        let report = bisect_schema("USER_ANALYTICS_SCHEMA", USER_ANALYTICS_SCHEMA);
+        report.assert_clean();
+    }
+
+    /// Idempotency guarantee: loading the schema twice on the same DB must
+    /// be a no-op. Catches regressions where a future chunk drops the
+    /// `IF NOT EXISTS` guard, which would crash boot on every restart
+    /// against an existing data dir. Phase markers narrate `open` →
+    /// `first load` → `second load` so a crash leaves a precise trail.
+    #[test]
+    fn b01_system_schema_is_idempotent() {
+        assert_schema_idempotent("SYSTEM_ANALYTICS_SCHEMA", SYSTEM_ANALYTICS_SCHEMA)
+            .expect("system schema must be idempotent");
+    }
+
+    /// Idempotency guarantee for the user-scope schema.
+    #[test]
+    fn b02_user_schema_is_idempotent() {
+        assert_schema_idempotent("USER_ANALYTICS_SCHEMA", USER_ANALYTICS_SCHEMA)
+            .expect("user schema must be idempotent");
+    }
+
+    /// Column-level baseline for `model_calls` (post-JSON-fix shape). All
+    /// columns must accept individually against a fresh DuckDB under any
+    /// feature loadout. Diagnostic baseline: if a future column is added
+    /// to `model_calls` and starts crashing this test, the streaming
+    /// report names exactly which column.
+    #[test]
+    fn c01_model_calls_columns_baseline() {
+        let candidates = [
+            ColumnSpec::new("session_id VARCHAR", "session_id VARCHAR"),
+            ColumnSpec::new("project_id VARCHAR", "project_id VARCHAR"),
+            ColumnSpec::new("model VARCHAR NOT NULL", "model VARCHAR NOT NULL"),
+            ColumnSpec::new("adapter VARCHAR NOT NULL", "adapter VARCHAR NOT NULL"),
+            ColumnSpec::new("prompt_tokens INTEGER NOT NULL", "prompt_tokens INTEGER NOT NULL"),
+            ColumnSpec::new(
+                "completion_tokens INTEGER NOT NULL",
+                "completion_tokens INTEGER NOT NULL",
+            ),
+            ColumnSpec::new("total_tokens INTEGER NOT NULL", "total_tokens INTEGER NOT NULL"),
+            ColumnSpec::new("latency_ms INTEGER NOT NULL", "latency_ms INTEGER NOT NULL"),
+            ColumnSpec::new("ttft_ms INTEGER", "ttft_ms INTEGER"),
+            ColumnSpec::new("tokens_per_second DOUBLE", "tokens_per_second DOUBLE"),
+            ColumnSpec::new("finish_reason VARCHAR", "finish_reason VARCHAR"),
+            ColumnSpec::new(
+                "cache_hit BOOLEAN DEFAULT FALSE",
+                "cache_hit BOOLEAN DEFAULT FALSE",
+            ),
+            ColumnSpec::new(
+                "estimated_cost_usd DOUBLE DEFAULT 0.0",
+                "estimated_cost_usd DOUBLE DEFAULT 0.0",
+            ),
+            ColumnSpec::new("error_message VARCHAR", "error_message VARCHAR"),
+            ColumnSpec::new("metadata VARCHAR", "metadata VARCHAR"),
+            ColumnSpec::new(
+                "created_at TIMESTAMP DEFAULT now()",
+                "created_at TIMESTAMP DEFAULT now()",
+            ),
+        ];
+        let report = bisect_columns("model_calls columns", &candidates);
+        report.assert_clean();
+    }
+
+    /// Regression detector for the **DuckDB JSON-extension heap-corruption
+    /// quirk**.
+    ///
+    /// Discovery (2026-05-07): when `devpulse-engine` is compiled with the
+    /// `rro,candle,inference` feature set (pulling candle BLAS, llama-cpp,
+    /// mistralrs, ort), opening a DuckDB connection and creating a column
+    /// of native type `JSON` aborts the process with
+    /// `STATUS_HEAP_CORRUPTION (0xc0000374)` on Windows. The harness above
+    /// pinpointed the offending construct at column granularity. The fix
+    /// was to migrate every `JSON` column in the analytics schemas to
+    /// `VARCHAR` (queried via `json_extract(varchar, '$.path')`), which
+    /// is the canonical SQLite-compatible pattern.
+    ///
+    /// This test is `#[ignore]`'d by default — running it would crash the
+    /// entire test process — but is kept on-tree as a *living regression
+    /// detector*: re-run with `cargo test ... -- --ignored` after every
+    /// duckdb-rs version bump or feature-set change. The day this test
+    /// passes (no crash, just a SQL `Ok`) is the day we know upstream
+    /// has resolved the JSON-extension allocator interaction and we can
+    /// migrate back to native JSON columns if desired.
+    #[test]
+    #[ignore = "deliberately reproduces the DuckDB JSON heap-corruption quirk; run with --ignored after upstream fixes"]
+    fn z01_json_column_known_crash_under_full_features() {
+        let candidates = [ColumnSpec::new("metadata JSON", "metadata JSON")];
+        let report = bisect_columns("JSON-extension regression probe", &candidates);
+        report.assert_clean();
+    }
+}

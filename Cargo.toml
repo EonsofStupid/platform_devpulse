@@ -36,7 +36,7 @@ specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")
 libsql = "0.9"
-duckdb = { version = "1.10500", features = ["bundled"] }
+duckdb = { version = "1.10502", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
