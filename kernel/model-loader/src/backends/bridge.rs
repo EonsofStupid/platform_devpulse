@@ -6,6 +6,11 @@
 //! tasks) with full `OTel` span correlation across the thread boundary.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
+// `InferenceBackend` is the trait surface every spawn_* path uses to drive
+// the inference thread. Only the cfg-gated spawn paths reference it
+// (`spawn_candle` under `candle-backend`, `spawn_llamacpp` under
+// `llama-cpp-ffi`); when neither feature is on, the trait isn't imported.
+#[cfg(any(feature = "candle-backend", feature = "llama-cpp-ffi"))]
 use crate::traits::backend::InferenceBackend;
 use devpulse_telemetry::prelude::*;
 use serde::{Deserialize, Serialize};

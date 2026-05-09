@@ -46,6 +46,11 @@ const IMAGE_MEAN: [f32; 3] = [0.5, 0.5, 0.5];
 const IMAGE_STD: [f32; 3] = [0.5, 0.5, 0.5];
 
 /// `SigLIP2` vision encoder backed by `Candle`.
+///
+/// `image_size` rides the same gate as `device` / `model` / `config`:
+/// it's only consulted by `load()`'s candle path and the encode methods,
+/// all of which require `candle-backend`. Without the feature the encoder
+/// is a stub that bails on `load()`, so the field would be unused.
 pub struct SigLipVision {
     /// Path to the model directory or file.
     model_path: Option<PathBuf>,
@@ -54,6 +59,7 @@ pub struct SigLipVision {
     /// Output embedding dimension.
     embedding_dim: usize,
     /// Expected input resolution (square, e.g. 384 for SigLIP2-SO400M-384).
+    #[cfg(feature = "candle-backend")]
     image_size: usize,
     /// Candle device (CPU or CUDA).
     #[cfg(feature = "candle-backend")]
@@ -74,6 +80,7 @@ impl SigLipVision {
             model_path: None,
             loaded: false,
             embedding_dim: 1152, // SO400M default
+            #[cfg(feature = "candle-backend")]
             image_size: 384,
             #[cfg(feature = "candle-backend")]
             device: Device::Cpu,

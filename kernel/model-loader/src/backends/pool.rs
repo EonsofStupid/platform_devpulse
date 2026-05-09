@@ -4,7 +4,14 @@
 //! The pool tracks references and only unloads when all refs are released.
 
 use crate::backends::bridge::{InferenceBridge, InferenceHandle};
-use crate::loading::states::{LoadParams, MemoryFootprint};
+use crate::loading::states::MemoryFootprint;
+// `LoadParams`, `BackendType`, and `Path` are referenced only by the
+// `load()` method, which is cfg-gated to the inference-backend features
+// (candle-backend + llama-cpp-ffi). Pool surface methods (get_handle,
+// is_loaded, ref_count, total_memory, …) work without either feature.
+#[cfg(any(feature = "candle-backend", feature = "llama-cpp-ffi"))]
+use crate::loading::states::LoadParams;
+#[cfg(any(feature = "candle-backend", feature = "llama-cpp-ffi"))]
 use crate::models::registry::BackendType;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -19,8 +26,10 @@ struct PooledInstance {
     ref_count: usize,
     /// Memory consumed by this instance.
     memory: MemoryFootprint,
-    /// Path to the model file (for identity — used in hot-swap).
-    #[allow(dead_code)]
+    /// Path to the model file. Identity key for hot-swap safety: if a
+    /// caller asks for the same `model_id` but a different `model_path`,
+    /// the registry has shifted under a live instance and we must refuse
+    /// to silently hand back a handle pointing at the old file.
     model_path: PathBuf,
 }
 
@@ -65,10 +74,25 @@ impl BackendPool {
     ) -> anyhow::Result<(InferenceHandle, MemoryFootprint)> {
         // Check if already loaded (shared instance)
         if let Some(instance) = self.instances.get_mut(model_id) {
+            // Hot-swap identity check. The pool keys on `model_id`, but the
+            // file backing that id can shift (registry relocation, custom
+            // local override, user-edited path). Sharing a handle whose
+            // `model_path` no longer matches what the caller asked for would
+            // hand back inference against the wrong file. Refuse instead.
+            if instance.model_path != model_path {
+                anyhow::bail!(
+                    "Hot-swap identity mismatch for model '{model_id}': pool \
+                     holds {:?} but caller requested {:?} — release the \
+                     existing reference before reloading at a new path",
+                    instance.model_path,
+                    model_path,
+                );
+            }
             instance.ref_count += 1;
             tracing::info!(
                 model = %model_id,
                 ref_count = instance.ref_count,
+                path = ?instance.model_path,
                 "Shared instance — bumped ref count"
             );
             return Ok((instance.handle.clone(), instance.memory));
@@ -166,6 +190,14 @@ impl BackendPool {
     #[must_use]
     pub fn memory(&self, model_id: &str) -> Option<MemoryFootprint> {
         self.instances.get(model_id).map(|i| i.memory)
+    }
+
+    /// Path of the file backing a loaded model. Returned by reference so
+    /// callers (swap diagnostics, hot-update probes, devtools) can compare
+    /// without forcing a clone on the common identity-check path.
+    #[must_use]
+    pub fn path_of(&self, model_id: &str) -> Option<&Path> {
+        self.instances.get(model_id).map(|i| i.model_path.as_path())
     }
 
     /// Total memory used by all loaded models.

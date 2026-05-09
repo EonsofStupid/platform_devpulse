@@ -1,10 +1,18 @@
 //! `HuggingFace` download manager — progress, cancel, checksum, auto-registry.
 
+// `ModelRegistryEntry`, `LoaderEvent`, `LoaderEventSink`, and `std::path::Path`
+// are only referenced by the cfg-gated `start_download` path and its event
+// emissions. The struct shell, token storage, and the `list_repo_files`
+// no-feature stub all stay accessible without `candle-backend`.
+#[cfg(feature = "candle-backend")]
 use crate::models::registry::ModelRegistryEntry;
+#[cfg(feature = "candle-backend")]
 use crate::traits::events::{LoaderEvent, LoaderEventSink};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+#[cfg(feature = "candle-backend")]
+use std::path::Path;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -50,7 +58,14 @@ pub struct DownloadProgress {
 }
 
 /// Manages model downloads from `HuggingFace` Hub.
+///
+/// `models_dir` is held only when the `candle-backend` feature is active —
+/// it's the destination root for `start_download` and `infer_download_folder`.
+/// Without that feature there is no download path, so the field would be
+/// dead code (the field-level cfg gate avoids `unused field` warnings
+/// instead of suppressing them).
 pub struct DownloadManager {
+    #[cfg(feature = "candle-backend")]
     models_dir: PathBuf,
     active: HashMap<String, DownloadHandle>,
     /// Optional HF access token — threaded into every `ApiBuilder`.
@@ -61,10 +76,28 @@ pub struct DownloadManager {
 
 impl DownloadManager {
     /// Create a new download manager.
+    ///
+    /// Two impls — one per feature state — keep API parity. Callers always
+    /// pass `models_dir`; with `candle-backend` off the value is accepted
+    /// for compatibility and dropped (no field to store it on).
+    #[cfg(feature = "candle-backend")]
     #[must_use]
     pub fn new(models_dir: PathBuf) -> Self {
         Self {
             models_dir,
+            active: HashMap::new(),
+            hf_token: None,
+        }
+    }
+
+    /// Create a new download manager. (No-feature variant — accepts
+    /// `models_dir` for API parity with the `candle-backend` build but
+    /// drops it; without the feature there is no download path that
+    /// would consult it.)
+    #[cfg(not(feature = "candle-backend"))]
+    #[must_use]
+    pub fn new(_models_dir: PathBuf) -> Self {
+        Self {
             active: HashMap::new(),
             hf_token: None,
         }
@@ -902,7 +935,9 @@ fn link_or_copy(src: &Path, dst: &Path) -> anyhow::Result<()> {
 ///
 /// Routes models into the correct subfolder so discovery folder-hints
 /// can assign capabilities. This is the layman path — no config.json
-/// needed, no manual folder creation.
+/// needed, no manual folder creation. Cfg-gated to `candle-backend`
+/// because the only caller (`start_download`) lives behind the same gate.
+#[cfg(feature = "candle-backend")]
 fn infer_download_folder(filename: &str) -> &'static str {
     let lower = filename.to_lowercase();
 
