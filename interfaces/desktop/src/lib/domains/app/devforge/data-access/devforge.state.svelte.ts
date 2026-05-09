@@ -40,6 +40,18 @@ class DevForgeState {
 		return this.status?.port ?? null;
 	}
 
+	get pid(): number | null {
+		return this.status?.pid ?? null;
+	}
+
+	get uptimeSecs(): number | null {
+		return this.status?.uptimeSecs ?? null;
+	}
+
+	get memoryRssBytes(): number | null {
+		return this.status?.memoryRssBytes ?? null;
+	}
+
 	// ── Actions ─────────────────────────────────────────────
 
 	async loadStatus(): Promise<void> {
@@ -52,6 +64,15 @@ class DevForgeState {
 		} finally {
 			this.statusLoading = false;
 		}
+	}
+
+	/**
+	 * Re-poll status + recent projects in one pass. Used by the devtool
+	 * Debug tab "Re-poll" button and any caller that wants both data
+	 * sources refreshed atomically.
+	 */
+	async refresh(): Promise<void> {
+		await Promise.all([this.loadStatus(), this.loadRecentProjects()]);
 	}
 
 	async openWindow(): Promise<void> {

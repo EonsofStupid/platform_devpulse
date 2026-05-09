@@ -22,6 +22,22 @@ import { devforgeState } from "$lib/domains/app/devforge/index.js";
 
 const extraTabs: ExtraTab[] = [{ id: "projects", label: "Projects", Icon: FolderOpen }];
 
+function formatUptime(secs: number): string {
+	if (secs < 60) return `${secs}s`;
+	const m = Math.floor(secs / 60);
+	if (m < 60) return `${m}m ${secs % 60}s`;
+	const h = Math.floor(m / 60);
+	return `${h}h ${m % 60}m`;
+}
+
+function formatBytes(bytes: number): string {
+	const mb = bytes / (1024 * 1024);
+	if (mb >= 1024) return `${(mb / 1024).toFixed(2)} GB`;
+	if (mb >= 1) return `${mb.toFixed(1)} MB`;
+	const kb = bytes / 1024;
+	return `${kb.toFixed(0)} KB`;
+}
+
 // Mount-load — bailout reads `statusLoading`, which loadStatus() flips.
 // `$effect` would loop. (See ProjectSwitcher fix.)
 onMount(() => {
@@ -100,7 +116,7 @@ const badge = $derived<HealthBadge>(
 									? 'var(--signal-success)'
 									: 'var(--signal-error)'}"
 							>
-								{devforgeState.running ? "Active" : "Stopped"}
+								{devforgeState.running ? "Running smoothly" : "Stopped"}
 							</span>
 						</div>
 						{#if devforgeState.port}
@@ -109,10 +125,28 @@ const badge = $derived<HealthBadge>(
 								<span class="font-mono">{devforgeState.port}</span>
 							</div>
 						{/if}
-						{#if devforgeState.status.reh_version}
+						{#if devforgeState.pid !== null}
 							<div class="flex justify-between">
-								<span class="text-[var(--text-secondary)]">Version</span>
-								<span class="font-mono text-[10px]">{devforgeState.status.reh_version}</span>
+								<span class="text-[var(--text-secondary)]">Process ID</span>
+								<span class="font-mono">{devforgeState.pid}</span>
+							</div>
+						{/if}
+						{#if devforgeState.uptimeSecs !== null}
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">Uptime</span>
+								<span class="font-mono">{formatUptime(devforgeState.uptimeSecs)}</span>
+							</div>
+						{/if}
+						{#if devforgeState.memoryRssBytes !== null}
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">Memory in use</span>
+								<span class="font-mono">{formatBytes(devforgeState.memoryRssBytes)}</span>
+							</div>
+						{/if}
+						{#if devforgeState.status.rehVersion}
+							<div class="flex justify-between">
+								<span class="text-[var(--text-secondary)]">REH version</span>
+								<span class="font-mono text-[10px]">{devforgeState.status.rehVersion}</span>
 							</div>
 						{/if}
 					</div>
@@ -196,13 +230,19 @@ const badge = $derived<HealthBadge>(
 						Re-poll
 					</Button>
 				</div>
-				{#if devforgeState.error}
+				{#if devforgeState.statusError}
 					<div class="text-xs font-mono text-red-400 break-all">
-						{devforgeState.error}
+						{devforgeState.statusError}
 					</div>
 				{:else if devforgeState.status}
-					<div class="text-xs font-mono">
-						state: {devforgeState.status.state ?? "unknown"}
+					<div class="text-xs font-mono space-y-1">
+						<div>installed: {devforgeState.status.installed}</div>
+						<div>running: {devforgeState.status.running}</div>
+						<div>port: {devforgeState.status.port ?? "—"}</div>
+						<div>pid: {devforgeState.status.pid ?? "—"}</div>
+						<div>uptime_secs: {devforgeState.status.uptimeSecs ?? "—"}</div>
+						<div>memory_rss_bytes: {devforgeState.status.memoryRssBytes ?? "—"}</div>
+						<div>reh_version: {devforgeState.status.rehVersion ?? "—"}</div>
 					</div>
 				{/if}
 			</div>

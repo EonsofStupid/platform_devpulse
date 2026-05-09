@@ -47,7 +47,7 @@ pub async fn devforge_start(state: State<'_, PlatformState>) -> Result<RehStatus
         running: true,
         port: Some(service.port()),
         url: Some(service.connection_url()),
-        pid: None,
+        pid: service.pid(),
     })
 }
 
@@ -88,7 +88,7 @@ pub async fn devforge_restart(state: State<'_, PlatformState>) -> Result<RehStat
         running: true,
         port: Some(service.port()),
         url: Some(service.connection_url()),
-        pid: None,
+        pid: service.pid(),
     })
 }
 
@@ -136,7 +136,7 @@ pub async fn get_reh_status(state: State<'_, PlatformState>) -> Result<RehStatus
             running: true,
             port: Some(service.port()),
             url: Some(service.connection_url()),
-            pid: None,
+            pid: service.pid(),
         }),
         None => Ok(RehStatus::default()),
     }
@@ -165,14 +165,28 @@ pub async fn devforge_get_status(
     let persisted = DevforgeState::load(&paths.state_file());
 
     // P0: lock-free atomic load.
-    let (running, url, port) = if let Some(platform) = state.platform.load_full() {
+    let (running, url, port, pid, uptime_secs) = if let Some(platform) =
+        state.platform.load_full()
+    {
         match platform.devforge() {
-            Some(service) => (true, Some(service.connection_url()), Some(service.port())),
-            None => (false, None, None),
+            Some(service) => (
+                true,
+                Some(service.connection_url()),
+                Some(service.port()),
+                service.pid(),
+                Some(service.uptime_secs()),
+            ),
+            None => (false, None, None, None, None),
         }
     } else {
-        (false, None, None)
+        (false, None, None, None, None)
     };
+
+    // RSS lookup via sysinfo — refreshes only the single REH PID we
+    // care about so this is cheap (~µs). `None` is non-fatal: child
+    // may have just exited, or the OS reaped it between the running
+    // check above and the sysinfo refresh.
+    let memory_rss_bytes = pid.and_then(|p| reh_child_rss_bytes(p));
 
     Ok(DevforgeBootstrapStatus {
         installed,
@@ -181,7 +195,28 @@ pub async fn devforge_get_status(
         port,
         workspace: persisted.last_workspace.clone(),
         reh_version: persisted.reh_version,
+        pid,
+        uptime_secs,
+        memory_rss_bytes,
     })
+}
+
+/// Resident set size of a single PID via `sysinfo`. Targeted refresh
+/// (only this PID's process info) so each status poll stays sub-ms.
+/// Returns `None` when sysinfo cannot locate the PID — caller renders
+/// "—" rather than treating this as an error.
+fn reh_child_rss_bytes(pid: u32) -> Option<u64> {
+    use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, RefreshKind, System};
+    let target = Pid::from_u32(pid);
+    let mut sys = System::new_with_specifics(
+        RefreshKind::nothing().with_processes(ProcessRefreshKind::nothing().with_memory()),
+    );
+    sys.refresh_processes_specifics(
+        ProcessesToUpdate::Some(&[target]),
+        true,
+        ProcessRefreshKind::nothing().with_memory(),
+    );
+    sys.process(target).map(|p| p.memory())
 }
 
 /// List recently opened project paths (newest first).

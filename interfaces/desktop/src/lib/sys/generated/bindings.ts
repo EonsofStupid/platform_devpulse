@@ -2247,8 +2247,8 @@ async hfTokenSuffix(count: number) : Promise<Result<string | null, string>> {
 }
 },
 /**
- * Read the current assistant configuration. Voice Lab panel calls
- * this once on mount and re-reads after every mutation.
+ * Read the current assistant configuration. The TTS devtool calls
+ * this once on mount and re-reads after every clone mutation.
  */
 async getAssistantConfig() : Promise<Result<AssistantConfig, string>> {
     try {
@@ -4659,7 +4659,25 @@ workspace: string | null;
 /**
  * Installed REH bundle version, if known.
  */
-rehVersion: string | null }
+rehVersion: string | null; 
+/**
+ * PID of the spawned `node.exe` REH child, if running. Snapshotted
+ * at boot so the frontend can show "Process ID: X" without racing
+ * the child reap.
+ */
+pid: number | null; 
+/**
+ * Seconds since the REH child entered READY. `None` when not
+ * running. Drives the layman uptime readout on `/devforge`.
+ */
+uptimeSecs: number | null; 
+/**
+ * Resident set size of the REH child in bytes — real memory the
+ * kernel has mapped for it. Looked up via `sysinfo` at status
+ * query time. `None` when not running or if sysinfo cannot find
+ * the PID (rare race during shutdown).
+ */
+memoryRssBytes: number | null }
 /**
  * Layman-phrased health of the `DevForge` runtime, consumed by the
  * devtool shell's `HealthBadge`.
@@ -5750,8 +5768,8 @@ tags: string[];
 added: string }
 /**
  * A single Kokoro voice available via the bundled ONNX runtime.
- * Returned by [`list_kokoro_voices`] so the Voice Lab picker can
- * group by gender and render preview buttons.
+ * Returned by [`list_kokoro_voices`] so the TTS devtool's voice
+ * picker can group by gender and render preview buttons.
  */
 export type KokoroVoiceInfo = { 
 /**
@@ -8751,22 +8769,6 @@ idle_timeout_secs: number;
  */
 minimize_to_tray: boolean }
 /**
- * Tracks an open window's state.
- */
-export type WindowInfo = { 
-/**
- * The role of this window.
- */
-role: WindowRole; 
-/**
- * Tauri window label (unique per instance).
- */
-label: string; 
-/**
- * Whether the window is currently open.
- */
-is_open: boolean }
-/**
  * One capturable window reported by xcap.
  * 
  * Filtered to "real" windows by the lister: title non-empty AND not
@@ -8818,6 +8820,22 @@ z: number;
  */
 isFocused: boolean }
 /**
+ * Tracks an open window's state.
+ */
+export type WindowInfo = { 
+/**
+ * The role of this window.
+ */
+role: WindowRole; 
+/**
+ * Tauri window label (unique per instance).
+ */
+label: string; 
+/**
+ * Whether the window is currently open.
+ */
+is_open: boolean }
+/**
  * Response shape for `list_windows` so we can carry the capability
  * flag alongside the window vector.
  */
@@ -8852,10 +8870,6 @@ export type WindowRole =
  * Model loader — slot management
  */
 "ModelLoader" | 
-/**
- * Voice Lab — TTS/STT config devtool
- */
-"VoiceLab" | 
 /**
  * Unified dev toolbox panel (Ctrl+Shift+Z)
  */

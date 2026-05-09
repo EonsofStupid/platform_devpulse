@@ -50,6 +50,15 @@ pub struct DevForgeService {
     host: String,
     port: u16,
     token: String,
+    /// PID captured from `tokio::process::Child::id()` at spawn. We
+    /// snapshot here because `child.id()` returns `None` once the
+    /// child is reaped (or moved out of the Mutex on shutdown), and
+    /// the frontend needs a stable PID for sysinfo lookups while the
+    /// service is alive.
+    pid: Option<u32>,
+    /// Wall-clock instant the REH child became READY (post health
+    /// check). Drives `uptime_secs()` for the layman dashboard.
+    started_at: tokio::time::Instant,
     /// Cloned sender for the platform-internal `InternalEvent` bus.
     /// Held so `Service::shutdown` can emit `SHUTDOWN` events without
     /// requiring the caller to thread the sender through every verb.
@@ -160,16 +169,23 @@ impl DevForgeService {
 
         let pid = child.id();
 
+        // Spawn-relative time anchor — overwritten with the post-health
+        // instant if the child becomes READY. We initialise here so
+        // `uptime_secs()` returns sane values even if a caller reads
+        // mid-boot (between spawn and ready).
+        let started_at = tokio::time::Instant::now();
+
         let service = Self {
             child: Mutex::new(Some(child)),
             host: entry.host.clone(),
             port,
             token,
+            pid,
+            started_at,
             internal_tx: internal_tx.clone(),
         };
 
         // ── Wait for the server to start ─────────────────────────
-        let started_at = tokio::time::Instant::now();
         if let Err(err) = wait_for_health(
             &bind_addr,
             entry.startup_timeout(),
@@ -218,6 +234,22 @@ impl DevForgeService {
     /// Port the REH server is listening on.
     pub fn port(&self) -> u16 {
         self.port
+    }
+
+    /// PID of the spawned `node.exe` (REH child). Snapshotted at boot
+    /// so it remains queryable for sysinfo lookups even when the
+    /// `tokio::process::Child` handle has already been reaped.
+    #[must_use]
+    pub fn pid(&self) -> Option<u32> {
+        self.pid
+    }
+
+    /// Seconds since the REH child entered READY (post first health
+    /// check). Used by the `/devforge` dashboard for layman uptime
+    /// readout.
+    #[must_use]
+    pub fn uptime_secs(&self) -> u64 {
+        self.started_at.elapsed().as_secs()
     }
 
     /// Kill the child process without waiting.

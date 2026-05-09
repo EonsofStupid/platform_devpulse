@@ -109,4 +109,16 @@ pub struct DevforgeBootstrapStatus {
     pub workspace: Option<PathBuf>,
     /// Installed REH bundle version, if known.
     pub reh_version: Option<String>,
+    /// PID of the spawned `node.exe` REH child, if running. Snapshotted
+    /// at boot so the frontend can show "Process ID: X" without racing
+    /// the child reap.
+    pub pid: Option<u32>,
+    /// Seconds since the REH child entered READY. `None` when not
+    /// running. Drives the layman uptime readout on `/devforge`.
+    pub uptime_secs: Option<u64>,
+    /// Resident set size of the REH child in bytes — real memory the
+    /// kernel has mapped for it. Looked up via `sysinfo` at status
+    /// query time. `None` when not running or if sysinfo cannot find
+    /// the PID (rare race during shutdown).
+    pub memory_rss_bytes: Option<u64>,
 }

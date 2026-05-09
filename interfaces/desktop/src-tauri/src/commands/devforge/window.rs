@@ -78,7 +78,12 @@ pub async fn open_devforge_window(
     workspace_path: Option<String>,
 ) -> Result<DevforgeBootstrapStatus, String> {
     // ── 1. Lazy-start DevForge on first open (idempotent on later calls).
-    let (connection_url, port) = {
+    //
+    // Capture `pid`/`uptime_secs` here while we still hold the service
+    // reference so the bootstrap status snapshot matches the live child.
+    // RSS is resolved below via the same sysinfo helper used by
+    // `devforge_get_status` so both surfaces report identical numbers.
+    let (connection_url, port, pid, uptime_secs) = {
         // P0: lock-free atomic load.
         let platform = state
             .platform
@@ -88,10 +93,14 @@ pub async fn open_devforge_window(
             .ensure_devforge_started()
             .await
             .map_err(|e| format!("DevForge failed to start: {e:#}"))?;
-        let url = service.connection_url();
-        let p = service.port();
-        (url, Some(p))
+        (
+            service.connection_url(),
+            Some(service.port()),
+            service.pid(),
+            Some(service.uptime_secs()),
+        )
     };
+    let memory_rss_bytes = pid.and_then(super::reh_child_rss_bytes);
 
     // Append `?folder=<workspace_path>` so REH opens that project on load.
     // URL-encode so backslashes and spaces survive. Preserves any existing
@@ -119,6 +128,9 @@ pub async fn open_devforge_window(
             port,
             workspace: workspace_pathbuf,
             reh_version: None,
+            pid,
+            uptime_secs,
+            memory_rss_bytes,
         });
     }
 
@@ -163,6 +175,9 @@ pub async fn open_devforge_window(
         port,
         workspace: workspace_pathbuf,
         reh_version: None,
+        pid,
+        uptime_secs,
+        memory_rss_bytes,
     })
 }
 
