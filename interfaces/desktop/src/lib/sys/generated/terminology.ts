@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-04-30T16:21:05.204Z
+ * Generated: 2026-05-07T19:38:24.772Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -394,10 +394,164 @@ export const TERMS: Record<string, Term> = {
 		category: "stores",
 		context: ["logs","traces","ui-text"],
 	},
+	"Starting": {
+		engine: "Starting",
+		prod: "Starting Clyffy",
+		dev: "RRD: Loading",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","ui-text"],
+	},
+	"Active": {
+		engine: "Active",
+		prod: "Clyffy active",
+		dev: "RRD: Running",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","ui-text"],
+	},
+	"Maintenance": {
+		engine: "Maintenance",
+		prod: "Clyffy maintenance",
+		dev: "RRD: Paused",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","ui-text"],
+	},
+	"Updating": {
+		engine: "Updating",
+		prod: "Updating Clyffy memory",
+		dev: "RRD: Updating",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","ui-text"],
+	},
+	"Error": {
+		engine: "Error",
+		prod: "Clyffy unavailable — see diagnostics",
+		dev: "RRD: Failed",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","ui-text","errors"],
+	},
+	"Pause requested": {
+		engine: "Pause requested",
+		prod: "Beginning maintenance",
+		dev: "phase: pause_requested",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Draining requests": {
+		engine: "Draining requests",
+		prod: "Finishing in-flight work",
+		dev: "phase: drain_begin",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Drain complete": {
+		engine: "Drain complete",
+		prod: "In-flight work finished",
+		dev: "phase: drain_complete",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Drain timeout": {
+		engine: "Drain timeout",
+		prod: "Force-finishing maintenance",
+		dev: "phase: drain_timeout",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","errors"],
+	},
+	"Loading new memory": {
+		engine: "Loading new memory",
+		prod: "Loading new model",
+		dev: "phase: load_begin",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Memory loaded": {
+		engine: "Memory loaded",
+		prod: "Model loaded",
+		dev: "phase: load_complete",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Validation passed": {
+		engine: "Validation passed",
+		prod: "New model verified",
+		dev: "phase: validate_pass",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Validation failed — keeping previous": {
+		engine: "Validation failed — keeping previous",
+		prod: "New model rejected — keeping previous",
+		dev: "phase: validate_fail",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","errors"],
+	},
+	"Switched to new memory": {
+		engine: "Switched to new memory",
+		prod: "New model now active",
+		dev: "phase: swap_commit",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Maintenance complete": {
+		engine: "Maintenance complete",
+		prod: "Clyffy active again",
+		dev: "phase: resume_complete",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Failed": {
+		engine: "Failed",
+		prod: "Clyffy hit an error",
+		dev: "phase: fail",
+		category: "rrd-lifecycle",
+		context: ["logs","traces","errors"],
+	},
+	"Atomic replace": {
+		engine: "Atomic replace",
+		prod: "",
+		dev: "arc_swap::swap()",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Drain in-flight": {
+		engine: "Drain in-flight",
+		prod: "",
+		dev: "TaskTracker::wait()",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Pause signal": {
+		engine: "Pause signal",
+		prod: "",
+		dev: "CancellationToken::cancel()",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"State broadcast": {
+		engine: "State broadcast",
+		prod: "",
+		dev: "watch::Sender (RRDState)",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Hot-update component": {
+		engine: "Hot-update component",
+		prod: "",
+		dev: "HotUpdateable trait",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
+	"Maintenance window token": {
+		engine: "Maintenance window token",
+		prod: "",
+		dev: "PauseHandle",
+		category: "rrd-lifecycle",
+		context: ["logs","traces"],
+	},
 };
 
 /** All term categories */
-export const CATEGORIES = ["sub-agents","rumination","costar","algorithms","architecture","stores"] as const;
+export const CATEGORIES = ["sub-agents","rumination","costar","algorithms","architecture","stores","rrd-lifecycle"] as const;
 export type TermCategory = (typeof CATEGORIES)[number];
 
 /** Store terms for boot/status display — indexed by engine step name */

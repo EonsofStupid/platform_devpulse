@@ -10,6 +10,7 @@ import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import Card from "$lib/design/components/card/Card.svelte";
+import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
 import { SparkLine } from "$lib/design/components/spark-line/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -70,7 +71,13 @@ $effect(() => {
 		</Button>
 	</div>
 {:else}
-<div class="grid grid-cols-12 gap-4 auto-rows-min" data-page="devpulse-dashboard">
+<div class="relative" data-page="devpulse-dashboard">
+	<!-- Per-domain animated backdrop — teal radial + cyan accent + grid
+	     pattern + slow breathe/drift. Sits behind the dashboard grid;
+	     the shell-wide cosmic layer in Frame.svelte stays as the base. -->
+	<DynamicBackground variant="devpulse" animated />
+
+	<div class="relative grid grid-cols-12 gap-4 auto-rows-min">
 	<!-- Row 1: Gauges + Stats -->
 	<div class="col-span-12 lg:col-span-4">
 		<Widget
@@ -320,6 +327,7 @@ $effect(() => {
 				{/each}
 			</div>
 		</Widget>
+	</div>
 	</div>
 </div>
 {/if}
