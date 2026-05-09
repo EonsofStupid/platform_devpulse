@@ -185,9 +185,21 @@ ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 moshi = { path = "deps/moshi/rust/moshi-core" }
 
 
-# Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)
+# Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast).
+#
+# `debug = "line-tables-only"` — keeps backtraces useful (file:line works
+# in panic dumps and tracing) but skips full DWARF type debug info. Cuts
+# compile time meaningfully on a 30+ crate workspace. Bump to `"full"`
+# only when stepping through with a debugger.
+#
+# `incremental = true` is the cargo default but explicit removes ambiguity.
+#
+# `split-debuginfo` defaults are platform-correct (`packed` on Windows MSVC
+# via .pdb side-files, `unpacked` on Linux). Not overriding here.
 [profile.dev]
 opt-level = 0
+incremental = true
+debug = "line-tables-only"
 
 [profile.dev.package."*"]
 opt-level = 2
