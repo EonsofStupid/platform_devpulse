@@ -112,9 +112,16 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 
 // When boot completes, open wizard ONLY if first run or models not ready.
 // If setup is already done → dismiss overlay, user lands on dashboard.
+//
+// Gate on `modelsStatusReceived` — the kernel emits `platform:ready` and
+// `platform:models-status` as separate events; without this gate the
+// effect would fire on `platform:ready` and act on the default
+// `modelsReady=false` / `modelsFirstRun=true` values, opening the wizard
+// even when setup is actually complete (the real status arrives a tick
+// later, too late).
 let wizardOpened = $state(false);
 $effect(() => {
-	if (bootComplete && !wizardOpened) {
+	if (bootComplete && platformState.modelsStatusReceived && !wizardOpened) {
 		wizardOpened = true;
 
 		if (platformState.modelsFirstRun || !platformState.modelsReady) {

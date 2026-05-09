@@ -12,7 +12,7 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
-import { cancelDownload } from "$lib/domains/app/models/data-access/download.service.js";
+import { cancelDownload } from "$lib/domains/app/models/index.js";
 import { type ActiveDownload, downloadState } from "./download.state.svelte.js";
 import { installState } from "./install.state.svelte.js";
 

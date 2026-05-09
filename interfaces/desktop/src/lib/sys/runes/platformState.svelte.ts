@@ -111,6 +111,15 @@ class PlatformState {
 	modelCount = $state(0);
 	/** Number of slots with assigned models. */
 	assignedCount = $state(0);
+	/**
+	 * Whether we've received at least one authoritative models-status
+	 * update — either the boot snapshot or a live `platform:models-status`
+	 * event. Consumers that decide flow based on `modelsReady` /
+	 * `modelsFirstRun` MUST gate on this first; the defaults
+	 * (`modelsReady=false`, `modelsFirstRun=true`) would otherwise cause
+	 * the wizard to fail-open before the kernel has reported state.
+	 */
+	modelsStatusReceived = $state(false);
 
 	private healthInterval: ReturnType<typeof setInterval> | null = null;
 	private bootTimer: ReturnType<typeof setInterval> | null = null;
@@ -298,6 +307,7 @@ class PlatformState {
 				this.modelCount = modelCount;
 				this.assignedCount = assignedCount;
 				this.modelsReady = !this.modelsFirstRun && modelCount > 0 && assignedCount > 0;
+				this.modelsStatusReceived = true;
 				if (this.modelsReady) this.error = null;
 				logInfo(
 					"boot",
@@ -309,6 +319,7 @@ class PlatformState {
 				this.modelsFirstRun = (p.firstRun as boolean) ?? true;
 				this.modelCount = (p.modelCount as number) ?? 0;
 				this.assignedCount = (p.assignedCount as number) ?? 0;
+				this.modelsStatusReceived = true;
 				if (typeof p.error === "string" && (p.error as string).length > 0) {
 					this.error = p.error as string;
 					logError("boot", `Models status error: ${p.error}`);
@@ -366,6 +377,7 @@ class PlatformState {
 			this.modelsFirstRun = m.firstRun;
 			this.modelCount = m.modelCount;
 			this.assignedCount = m.assignedCount;
+			this.modelsStatusReceived = true;
 			if (typeof m.error === "string" && m.error.length > 0) {
 				this.error = m.error;
 			}
