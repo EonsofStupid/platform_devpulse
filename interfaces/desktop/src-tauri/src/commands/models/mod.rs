@@ -927,8 +927,8 @@ pub async fn hf_token_suffix(
 // ASSISTANT CONFIG COMMANDS
 // ═══════════════════════════════════════════════════════════════
 
-/// Read the current assistant configuration. Voice Lab panel calls
-/// this once on mount and re-reads after every mutation.
+/// Read the current assistant configuration. The TTS devtool calls
+/// this once on mount and re-reads after every clone mutation.
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(level = "debug", skip(state), err)]
@@ -1192,7 +1192,7 @@ pub async fn upload_voice_sample(
 /// pre-setup), when the audio decoder can't open the file, or when
 /// the STT call itself errors. None of those cases are fatal — the
 /// user can edit the (empty) transcript by hand. All failures are
-/// logged at `warn` so the Voice Lab devtool can surface them.
+/// logged at `warn` so the TTS devtool can surface them.
 async fn transcribe_for_clone_reference(
     loader: &Arc<ModelLoaderService>,
     audio_path: &std::path::Path,
@@ -1243,8 +1243,8 @@ async fn transcribe_for_clone_reference(
 }
 
 /// A single Kokoro voice available via the bundled ONNX runtime.
-/// Returned by [`list_kokoro_voices`] so the Voice Lab picker can
-/// group by gender and render preview buttons.
+/// Returned by [`list_kokoro_voices`] so the TTS devtool's voice
+/// picker can group by gender and render preview buttons.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct KokoroVoiceInfo {
     /// Voice ID (e.g. `"am_eric"`, `"af_bella"`).

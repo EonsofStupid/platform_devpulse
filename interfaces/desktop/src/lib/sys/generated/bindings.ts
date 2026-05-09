@@ -950,6 +950,23 @@ async devforgeGetStatus() : Promise<Result<DevforgeBootstrapStatus, string>> {
 }
 },
 /**
+ * Live snapshot of `[services.system.devforge]` — the SSOT config
+ * the running platform is actually using.
+ * 
+ * Pulled from `Platform::boot_config()` so what the frontend sees
+ * matches what the engine is operating with. The Connection card on
+ * `/devforge` and the devtool's Config tab both render against this
+ * — never hardcoded copies of the host/port/etc.
+ */
+async devforgeGetConfig() : Promise<Result<DevforgeConfigView, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("devforge_get_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * List recently opened project paths (newest first).
  * 
  * These are real directories the user has opened in `DevForge`, persisted
@@ -4678,6 +4695,64 @@ uptimeSecs: number | null;
  * the PID (rare race during shutdown).
  */
 memoryRssBytes: number | null }
+/**
+ * Live snapshot of the `[services.system.devforge]` config block as
+ * loaded by the platform — i.e. the SSOT the running service is
+ * actually using.
+ * 
+ * Surfaced on `/devforge` (Connection card) and the devtool's Config
+ * tab so the user sees real values, not hardcoded copies. Mirrors
+ * every field on `DevForgeServiceEntry` that's relevant to the
+ * frontend; private knobs (e.g. `binary_path` legacy) stay backend-only.
+ */
+export type DevforgeConfigView = { 
+/**
+ * `true` if the platform will spawn DevForge on first launch.
+ */
+enabled: boolean; 
+/**
+ * `true` if a DevForge boot failure aborts platform boot.
+ */
+critical: boolean; 
+/**
+ * Service mode: `"reh"` (default — client/server) or `"standalone"`
+ * (legacy Electron, deprecated).
+ */
+mode: string; 
+/**
+ * Configured port (`0` = auto-pick at boot).
+ */
+portConfigured: number; 
+/**
+ * REH bind host (defaults to loopback).
+ */
+host: string; 
+/**
+ * User-data directory (relative to `data_dir`).
+ */
+userDataDir: string; 
+/**
+ * Extensions directory (relative to `data_dir`).
+ */
+extensionsDir: string; 
+/**
+ * Default workspace path (`.` = repo root).
+ */
+workspacePath: string; 
+/**
+ * Update channel URL for in-place REH binary swaps.
+ */
+updateChannelUrl: string; 
+/**
+ * Maximum seconds the platform waits for the REH child to become
+ * healthy before declaring boot failed.
+ */
+startupTimeoutSecs: number; 
+/**
+ * Milliseconds between successive TCP-connect probes during the
+ * startup health wait.
+ */
+healthPollIntervalMs: number }
 /**
  * Layman-phrased health of the `DevForge` runtime, consumed by the
  * devtool shell's `HealthBadge`.

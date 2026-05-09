@@ -21,15 +21,32 @@
 	speak immediately.
 -->
 <script lang="ts">
-import { Check, Mic, Play, PowerOff, Trash2, Upload, Volume2 } from "lucide-svelte";
+import {
+	Check,
+	Edit3,
+	Mic,
+	Play,
+	PowerOff,
+	Star,
+	Trash2,
+	Upload,
+	UserCircle,
+	Volume2,
+} from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import type { VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
+import { voiceSelectionState } from "$lib/devtools/_shared/voice-selection.state.svelte.js";
+import {
+	type CapturePayload,
+	type ExtraTab,
+	type HealthBadge,
+	ServiceDevtoolShell,
+} from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
-import { speak, voiceTtsConfigState } from "$lib/domains/app/voice/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import {
 	commands,
@@ -37,6 +54,9 @@ import {
 	type VoiceCloneEntry,
 } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
+import { profilesState } from "../data-access/profiles.state.svelte.js";
+import { listVoices, previewVoice, speak } from "../data-access/tts.svc.js";
+import { ttsConfigState } from "../data-access/tts-config.state.svelte.js";
 
 // ── Static catalog ─────────────────────────────────────
 // The 9 preset speakers shipped with Qwen3-TTS-12Hz-0.6B-Base. The
@@ -123,9 +143,26 @@ let logsLoading = $state(false);
 let logsError = $state<string | null>(null);
 
 let testText = $state(DEFAULT_TEST_TEXT);
+let testSpeed = $state(1.0);
 let speaking = $state(false);
+let lastSpeakMs = $state<number | null>(null);
 let loadingSlot = $state(false);
 let error = $state<string | null>(null);
+
+// Registry-driven voice list (Kokoro / non-Qwen3 voices, plus clones the
+// engine surfaces). Loaded once `voice.tts` is ready; harvested from the
+// retired wizard so devs can audition the full registry, not only the
+// hardcoded Qwen3 presets.
+let registryVoices = $state<VoiceInfo[]>([]);
+let registryLoading = $state(false);
+let registryError = $state<string | null>(null);
+let registryFilter = $state<"all" | "female" | "male" | "neutral">("all");
+
+const filteredRegistryVoices = $derived(
+	registryFilter === "all"
+		? registryVoices
+		: registryVoices.filter((v) => v.gender === registryFilter),
+);
 
 // Active selection drives the Speak button. `mode` decides whether we
 // dispatch to a preset or a clone; `id` is the entry id within that mode.
@@ -180,15 +217,51 @@ function buildVoiceString(
 	return clone ? `custom:${clone}` : "";
 }
 
-// ── Lifecycle: prime config + clone list ───────────────
-// Both are mount-load only — bailouts (or function bodies) read
+// ── Lifecycle: prime config + clone list + profiles ───
+// All three are mount-load only — bailouts (or function bodies) read
 // loading flags that the load functions flip. (See ProjectSwitcher fix.)
 onMount(() => {
-	if (!voiceTtsConfigState.config && !voiceTtsConfigState.loading) {
-		void voiceTtsConfigState.load();
+	if (!ttsConfigState.config && !ttsConfigState.loading) {
+		void ttsConfigState.load();
+	}
+	if (profilesState.profiles.length === 0 && !profilesState.loading) {
+		void profilesState.load();
 	}
 	void loadClones();
 });
+
+// Watcher: refresh the registry voice list when the slot becomes ready.
+// Reactive guard, not mount-load — `$effect` is correct here.
+$effect(() => {
+	if (ttsReady) {
+		void loadRegistryVoices();
+	}
+});
+
+async function loadRegistryVoices(): Promise<void> {
+	registryLoading = true;
+	registryError = null;
+	try {
+		registryVoices = await listVoices(voiceSelectionState.selectedTtsSlot);
+		logInfo("devtools.tts", `Registry voices loaded: ${registryVoices.length}`);
+	} catch (e) {
+		registryError = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `listVoices failed: ${registryError}`);
+	} finally {
+		registryLoading = false;
+	}
+}
+
+async function previewRegistryVoice(voice: VoiceInfo): Promise<void> {
+	voiceSelectionState.selectedVoice = voice.id;
+	error = null;
+	try {
+		await previewVoice(voice.id, voiceSelectionState.selectedTtsSlot);
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+		logInfo("devtools.tts", `Preview registry voice failed: ${error}`);
+	}
+}
 
 // ── Slot actions ───────────────────────────────────────
 async function loadTts(): Promise<void> {
@@ -225,14 +298,17 @@ async function unloadTts(): Promise<void> {
 async function handleSpeak(): Promise<void> {
 	if (!testText.trim()) return;
 	speaking = true;
+	lastSpeakMs = null;
 	error = null;
 	logInfo(
 		"devtools.tts",
-		`speak — voice=${activeVoice || "(default)"} text="${testText.slice(0, 50)}"`,
+		`speak — voice=${activeVoice || "(default)"} speed=${testSpeed.toFixed(2)} text="${testText.slice(0, 50)}"`,
 	);
+	const start = performance.now();
 	try {
-		await speak(testText, activeVoice, "voice.tts");
-		logInfo("devtools.tts", "speak complete");
+		await speak(testText, activeVoice, "voice.tts", testSpeed);
+		lastSpeakMs = Math.round(performance.now() - start);
+		logInfo("devtools.tts", `speak complete (${lastSpeakMs}ms)`);
 	} catch (e) {
 		error = e instanceof Error ? e.message : String(e);
 		logInfo("devtools.tts", `speak failed: ${error}`);
@@ -394,10 +470,12 @@ function capture(tabId: string): CapturePayload | undefined {
 			content: JSON.stringify(
 				{
 					slot: ttsSlot,
-					status: ttsStatus,
 					ready: ttsReady,
 					active_voice: activeVoice || "(default)",
 					clone_count: clones.length,
+					last_speak_ms: lastSpeakMs,
+					test_speed: testSpeed,
+					active_profile: profilesState.active?.id ?? null,
 				},
 				null,
 				2,
@@ -405,11 +483,11 @@ function capture(tabId: string): CapturePayload | undefined {
 		};
 	}
 	if (tabId === "config") {
-		return voiceTtsConfigState.config
+		return ttsConfigState.config
 			? {
 					filename: "voice-tts.toml.json",
 					mime: "application/json",
-					content: JSON.stringify(voiceTtsConfigState.config, null, 2),
+					content: JSON.stringify(ttsConfigState.config, null, 2),
 				}
 			: undefined;
 	}
@@ -429,8 +507,19 @@ function capture(tabId: string): CapturePayload | undefined {
 			content: JSON.stringify({ clones, presets: QWEN3_PRESETS }, null, 2),
 		};
 	}
+	if (tabId === "profiles") {
+		return profilesState.profiles.length > 0
+			? {
+					filename: "voice-profiles.json",
+					mime: "application/json",
+					content: JSON.stringify(profilesState.profiles, null, 2),
+				}
+			: undefined;
+	}
 	return undefined;
 }
+
+const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCircle }];
 </script>
 
 <ServiceDevtoolShell
@@ -441,6 +530,7 @@ function capture(tabId: string): CapturePayload | undefined {
 	accent="magenta"
 	health={badge}
 	{capture}
+	{extraTabs}
 >
 	{#snippet status()}
 		<div class="flex flex-col gap-3">
@@ -464,8 +554,8 @@ function capture(tabId: string): CapturePayload | undefined {
 				</Text>
 			{:else}
 				<Text size="xs" color="muted">
-					No model assigned. Pick a Qwen3-TTS build for this slot
-					in the setup wizard's Voice card.
+					No model assigned. Open the model loader and assign a Qwen3-TTS
+					build to <span class="font-mono">voice.tts</span>.
 				</Text>
 			{/if}
 
@@ -489,10 +579,44 @@ function capture(tabId: string): CapturePayload | undefined {
 				</Text>
 			</div>
 
-			{#if error}
+			{#if lastSpeakMs !== null}
 				<div
 					class="rounded-lg p-3"
-					style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					<Text size="xs" weight="bold">Last speak latency</Text>
+					<Text size="xs" color="muted">
+						<span class="font-mono">{lastSpeakMs}ms</span>
+						{#if testSpeed !== 1.0}
+							· override speed
+							<span class="font-mono">{testSpeed.toFixed(2)}×</span>
+						{/if}
+					</Text>
+				</div>
+			{/if}
+
+			{#if profilesState.active}
+				<div
+					class="rounded-lg p-3"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					<Text size="xs" weight="bold">Active profile</Text>
+					<Text size="xs" color="muted">
+						<span class="font-mono">{profilesState.active.name}</span>
+						· voice
+						<span class="font-mono">{profilesState.active.tts_voice_id}</span>
+						· STT
+						<span class="font-mono">{profilesState.active.stt_quality}</span>
+					</Text>
+				</div>
+			{/if}
+
+			{#if error}
+				<div
+					role="alert"
+					aria-live="assertive"
+					class="rounded-lg p-3"
+					style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
 				>
 					<Text size="xs">{error}</Text>
 				</div>
@@ -502,25 +626,28 @@ function capture(tabId: string): CapturePayload | undefined {
 
 	{#snippet config()}
 		<div class="space-y-4">
-			{#if voiceTtsConfigState.loading && !voiceTtsConfigState.config}
+			{#if ttsConfigState.loading && !ttsConfigState.config}
 				<Text size="sm" color="muted">Loading TTS config…</Text>
 			{/if}
 
-			{#if voiceTtsConfigState.error}
+			{#if ttsConfigState.error}
 				<div
-					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+					role="alert"
+					aria-live="assertive"
+					class="p-3 rounded-lg text-xs"
+					style="background: color-mix(in oklch, var(--signal-error) 12%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 40%, transparent); color: var(--signal-error);"
 				>
-					{voiceTtsConfigState.error}
+					{ttsConfigState.error}
 				</div>
 			{/if}
 
-			{#if voiceTtsConfigState.config}
+			{#if ttsConfigState.config}
 				<div class="space-y-3">
 					<div class="space-y-2">
 						<Text size="xs" weight="bold" color="muted">Default voice</Text>
 						<input
 							type="text"
-							bind:value={voiceTtsConfigState.draft.default_voice}
+							bind:value={ttsConfigState.draft.default_voice}
 							placeholder="qwen3:ryan"
 							class="w-full rounded px-2 py-1 text-xs font-mono outline-none"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
@@ -534,16 +661,18 @@ function capture(tabId: string): CapturePayload | undefined {
 
 					<div class="space-y-2">
 						<Text size="xs" weight="bold" color="muted">
-							Default speed · {voiceTtsConfigState.draft.default_speed.toFixed(2)}×
+							Default speed · {ttsConfigState.draft.default_speed.toFixed(2)}×
 						</Text>
 						<input
 							type="range"
 							min="0.5"
 							max="2.0"
 							step="0.05"
-							bind:value={voiceTtsConfigState.draft.default_speed}
+							bind:value={ttsConfigState.draft.default_speed}
+							aria-label="Default TTS speech speed (0.5× to 2.0×)"
+							aria-valuetext={`${ttsConfigState.draft.default_speed.toFixed(2)}×`}
 							class="w-full"
-							style="accent-color: var(--accent-teal-main);"
+							style="accent-color: var(--accent-service-main);"
 						/>
 					</div>
 
@@ -551,10 +680,10 @@ function capture(tabId: string): CapturePayload | undefined {
 						<Button
 							preset="button-primary"
 							size="sm"
-							onclick={() => void voiceTtsConfigState.save()}
-							disabled={voiceTtsConfigState.saving || !voiceTtsConfigState.dirty}
+							onclick={() => void ttsConfigState.save()}
+							disabled={ttsConfigState.saving || !ttsConfigState.dirty}
 						>
-							{#if voiceTtsConfigState.saving}
+							{#if ttsConfigState.saving}
 								<Spinner size="xs" />
 								Saving…
 							{:else}
@@ -564,12 +693,12 @@ function capture(tabId: string): CapturePayload | undefined {
 						<Button
 							preset="button-ghost"
 							size="sm"
-							onclick={() => voiceTtsConfigState.reset()}
-							disabled={!voiceTtsConfigState.dirty || voiceTtsConfigState.saving}
+							onclick={() => ttsConfigState.reset()}
+							disabled={!ttsConfigState.dirty || ttsConfigState.saving}
 						>
 							Discard
 						</Button>
-						{#if voiceTtsConfigState.dirty}
+						{#if ttsConfigState.dirty}
 							<Text size="xs" color="muted">Unsaved changes</Text>
 						{/if}
 					</div>
@@ -600,7 +729,10 @@ function capture(tabId: string): CapturePayload | undefined {
 
 			{#if logsError}
 				<div
-					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+					role="alert"
+					aria-live="assertive"
+					class="p-3 rounded-lg text-xs"
+					style="background: color-mix(in oklch, var(--signal-error) 12%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 40%, transparent); color: var(--signal-error);"
 				>
 					{logsError}
 				</div>
@@ -667,7 +799,7 @@ function capture(tabId: string): CapturePayload | undefined {
 					{/if}
 					{#if !ttsSlot?.assigned_model_id}
 						<Text size="xs" color="muted">
-							Assign a Qwen3-TTS model in the setup wizard first.
+							Assign a Qwen3-TTS model in the model loader first.
 						</Text>
 					{/if}
 				</div>
@@ -718,9 +850,11 @@ function capture(tabId: string): CapturePayload | undefined {
 								{#each QWEN3_PRESETS as p (p.id)}
 									<button
 										type="button"
+										aria-pressed={presetId === p.id}
+										aria-label={`Select Qwen3 preset ${p.label} — ${p.gender} ${p.accent}. Double-click to preview.`}
 										class="flex flex-col items-start gap-0.5 rounded-lg p-3 text-left transition-colors"
 										style={presetId === p.id
-											? "background: var(--accent-teal-fill); border: 1px solid var(--accent-teal-main);"
+											? "background: var(--accent-service-fill); border: 1px solid var(--accent-service-main);"
 											: "background: var(--surface-base); border: 1px solid var(--border-subtle);"}
 										onclick={() => {
 											presetId = p.id;
@@ -756,9 +890,11 @@ function capture(tabId: string): CapturePayload | undefined {
 									{#each clones as c (c.name)}
 										<button
 											type="button"
+											aria-pressed={cloneName === c.name}
+											aria-label={`Select cloned voice ${c.name}. Double-click to preview.`}
 											class="flex flex-col items-start gap-0.5 rounded-lg p-3 text-left transition-colors"
 											style={cloneName === c.name
-												? "background: var(--accent-teal-fill); border: 1px solid var(--accent-teal-main);"
+												? "background: var(--accent-service-fill); border: 1px solid var(--accent-service-main);"
 												: "background: var(--surface-base); border: 1px solid var(--border-subtle);"}
 											onclick={() => {
 												cloneName = c.name;
@@ -777,6 +913,75 @@ function capture(tabId: string): CapturePayload | undefined {
 						</div>
 					{/if}
 
+					<!-- Registry voices (non-Qwen3 / Kokoro / engine-reported) -->
+					<div class="flex flex-col gap-2">
+						<div class="flex items-center justify-between">
+							<Text size="sm" weight="bold">
+								Registry voices
+								{#if registryVoices.length > 0}
+									<span class="font-mono text-xs" style="color: var(--text-secondary);">
+										({filteredRegistryVoices.length} / {registryVoices.length})
+									</span>
+								{/if}
+							</Text>
+							<select
+								bind:value={registryFilter}
+								aria-label="Filter registry voices by gender"
+								class="rounded px-2 py-1 text-xs outline-none"
+								style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+							>
+								<option value="all">All</option>
+								<option value="female">Female</option>
+								<option value="male">Male</option>
+								<option value="neutral">Neutral</option>
+							</select>
+						</div>
+
+						{#if registryError}
+							<div
+								role="alert"
+								aria-live="assertive"
+								class="rounded-lg p-2 text-xs"
+								style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
+							>
+								Registry load failed: {registryError}
+							</div>
+						{:else if registryLoading}
+							<Text size="xs" color="muted">Loading registry…</Text>
+						{:else if registryVoices.length === 0}
+							<Text size="xs" color="muted">
+								No registry voices reported by the active TTS slot.
+							</Text>
+						{:else}
+							<div
+								class="grid gap-2"
+								style="grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));"
+							>
+								{#each filteredRegistryVoices as voice (voice.id)}
+									<button
+										type="button"
+										aria-pressed={voiceSelectionState.selectedVoice === voice.id}
+										aria-label={`Preview ${voice.label} — ${voice.gender}, ${voice.language}, ${voice.engine}.`}
+										class="flex flex-col items-start gap-0.5 rounded-lg p-3 text-left transition-colors"
+										style={voiceSelectionState.selectedVoice === voice.id
+											? "background: var(--accent-service-fill); border: 1px solid var(--accent-service-main);"
+											: "background: var(--surface-base); border: 1px solid var(--border-subtle);"}
+										onclick={() => previewRegistryVoice(voice)}
+										title={voice.description}
+									>
+										<Text size="sm" weight="bold">{voice.label}</Text>
+										<Text size="xs" color="muted">
+											{voice.gender} · {voice.language} · {voice.engine}
+										</Text>
+										<Text size="xs" color="muted" class="truncate">
+											{voice.description}
+										</Text>
+									</button>
+								{/each}
+							</div>
+						{/if}
+					</div>
+
 					<!-- Speak test -->
 					<div class="flex flex-col gap-2">
 						<Text size="sm" weight="bold">Test synthesis</Text>
@@ -787,6 +992,32 @@ function capture(tabId: string): CapturePayload | undefined {
 							class="w-full rounded-lg p-3 text-sm resize-none outline-none"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
 						></textarea>
+						<div class="flex items-center gap-3">
+							<Text size="xs" color="muted" class="w-16">
+								Speed · {testSpeed.toFixed(2)}×
+							</Text>
+							<input
+								type="range"
+								min="0.5"
+								max="2.0"
+								step="0.05"
+								bind:value={testSpeed}
+								aria-label="Per-test TTS speech speed override (0.5× to 2.0×)"
+								aria-valuetext={`${testSpeed.toFixed(2)}×`}
+								class="flex-1 max-w-80"
+								style="accent-color: var(--accent-service-main);"
+							/>
+							<Button
+								preset="button-ghost"
+								size="sm"
+								onclick={() => {
+									testSpeed = 1.0;
+								}}
+								disabled={testSpeed === 1.0}
+							>
+								Reset
+							</Button>
+						</div>
 						<Button
 							preset="button-primary"
 							size="md"
@@ -828,8 +1059,10 @@ function capture(tabId: string): CapturePayload | undefined {
 
 						{#if clonesError}
 							<div
+								role="alert"
+								aria-live="assertive"
 								class="rounded-lg p-2 text-xs"
-								style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);"
+								style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
 							>
 								{clonesError}
 							</div>
@@ -838,7 +1071,7 @@ function capture(tabId: string): CapturePayload | undefined {
 						{#if pendingClone}
 							<div
 								class="flex flex-col gap-2 rounded-lg p-3"
-								style="background: var(--surface-raised); border: 1px solid var(--accent-teal-main);"
+								style="background: var(--surface-raised); border: 1px solid var(--accent-service-main);"
 							>
 								<div class="flex items-center gap-2">
 									<Mic size={12} />
@@ -925,6 +1158,7 @@ function capture(tabId: string): CapturePayload | undefined {
 											<Button
 												preset="button-ghost"
 												size="sm"
+												aria-label={`Preview clone ${c.name}`}
 												onclick={() => previewClone(c.name)}
 											>
 												<Play size={12} />
@@ -932,6 +1166,8 @@ function capture(tabId: string): CapturePayload | undefined {
 											<Button
 												preset="button-ghost"
 												size="sm"
+												aria-label={`Delete clone ${c.name}`}
+												aria-busy={removingCloneName === c.name}
 												onclick={() => removeClone(c.name)}
 												disabled={removingCloneName === c.name}
 											>
@@ -1018,5 +1254,191 @@ function capture(tabId: string): CapturePayload | undefined {
 				poisoned — restart the app.
 			</Text>
 		</div>
+	{/snippet}
+
+	{#snippet extra(tabId: string)}
+		{#if tabId === "profiles"}
+			<div class="flex flex-col gap-4">
+				<div class="flex items-center justify-between">
+					<Text size="sm" weight="bold">Voice profiles</Text>
+					<div class="flex items-center gap-2">
+						<Button
+							preset="button-ghost"
+							size="sm"
+							onclick={() => void profilesState.load()}
+							disabled={profilesState.loading}
+						>
+							{#if profilesState.loading}
+								<Spinner size="xs" />
+							{:else}
+								Refresh
+							{/if}
+						</Button>
+						<Button
+							preset="button-primary"
+							size="sm"
+							onclick={() => profilesState.startNew(voiceSelectionState.selectedVoice)}
+							disabled={profilesState.draft !== null || profilesState.mutating}
+						>
+							<Play size={12} />
+							New profile
+						</Button>
+					</div>
+				</div>
+
+				{#if profilesState.error}
+					<div
+						role="alert"
+						aria-live="assertive"
+						class="rounded-lg p-3"
+						style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
+					>
+						<Text size="xs">{profilesState.error}</Text>
+					</div>
+				{/if}
+
+				{#if profilesState.draft}
+					<div
+						class="flex flex-col gap-3 rounded-lg p-4"
+						style="background: var(--surface-base); border: 1px solid var(--accent-service-main);"
+					>
+						<Text size="sm" weight="bold">
+							{profilesState.profiles.some((p) => p.id === profilesState.draft?.id)
+								? "Edit profile"
+								: "New profile"}
+						</Text>
+
+						<div class="flex flex-col gap-1">
+							<Text size="xs" color="muted">Display name</Text>
+							<input
+								type="text"
+								bind:value={profilesState.draft.name}
+								placeholder="Clyffy default"
+								class="rounded px-2 py-1 text-xs outline-none"
+								style="background: var(--surface-raised); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+							/>
+						</div>
+
+						<div class="flex flex-col gap-1">
+							<Text size="xs" color="muted">TTS voice id</Text>
+							<input
+								type="text"
+								bind:value={profilesState.draft.tts_voice_id}
+								placeholder="qwen3:ryan"
+								class="rounded px-2 py-1 text-xs font-mono outline-none"
+								style="background: var(--surface-raised); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+							/>
+							<Text size="xs" color="muted">
+								Empty = default. Use
+								<span class="font-mono">qwen3:&lt;preset&gt;</span> or
+								<span class="font-mono">custom:&lt;clone&gt;</span>.
+							</Text>
+						</div>
+
+						<div class="flex flex-col gap-1">
+							<Text size="xs" color="muted">STT quality</Text>
+							<select
+								bind:value={profilesState.draft.stt_quality}
+								class="rounded px-2 py-1 text-xs outline-none"
+								style="background: var(--surface-raised); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+							>
+								<option value="standard">standard</option>
+								<option value="high_quality">high_quality</option>
+								<option value="best">best</option>
+							</select>
+						</div>
+
+						<div class="flex items-center gap-2">
+							<Button
+								preset="button-primary"
+								size="sm"
+								onclick={() => void profilesState.commitDraft()}
+								disabled={profilesState.mutating || !profilesState.draft.name.trim()}
+							>
+								{#if profilesState.mutating}
+									<Spinner size="xs" />
+									Saving…
+								{:else}
+									<Check size={12} />
+									Save
+								{/if}
+							</Button>
+							<Button
+								preset="button-ghost"
+								size="sm"
+								onclick={() => profilesState.cancelDraft()}
+								disabled={profilesState.mutating}
+							>
+								Cancel
+							</Button>
+						</div>
+					</div>
+				{/if}
+
+				{#if profilesState.profiles.length === 0 && !profilesState.loading}
+					<Text size="xs" color="muted">
+						No profiles registered. Click "New profile" to capture the
+						current voice id and STT quality as a named preset.
+					</Text>
+				{:else}
+					<div class="flex flex-col gap-2">
+						{#each profilesState.profiles as p (p.id)}
+							<div
+								class="flex items-center justify-between gap-2 rounded-lg p-3"
+								style={p.active
+									? "background: var(--accent-service-fill); border: 1px solid var(--accent-service-main);"
+									: "background: var(--surface-base); border: 1px solid var(--border-subtle);"}
+							>
+								<div class="flex flex-col gap-0.5">
+									<div class="flex items-center gap-2">
+										{#if p.active}
+											<Star size={12} style="color: var(--accent-service-main);" />
+										{/if}
+										<Text size="sm" weight="bold">{p.name || "(unnamed)"}</Text>
+									</div>
+									<Text size="xs" color="muted">
+										voice <span class="font-mono">{p.tts_voice_id || "(default)"}</span>
+										· STT <span class="font-mono">{p.stt_quality}</span>
+									</Text>
+								</div>
+								<div class="flex items-center gap-1">
+									{#if !p.active}
+										<Button
+											preset="button-ghost"
+											size="sm"
+											aria-label={`Activate profile ${p.name || "(unnamed)"}`}
+											onclick={() => void profilesState.activate(p.id)}
+											disabled={profilesState.mutating}
+										>
+											Activate
+										</Button>
+									{/if}
+									<Button
+										preset="button-ghost"
+										size="sm"
+										aria-label={`Edit profile ${p.name || "(unnamed)"}`}
+										onclick={() => profilesState.startEdit(p.id)}
+										disabled={profilesState.mutating || profilesState.draft !== null}
+									>
+										<Edit3 size={12} />
+									</Button>
+									{#if p.id !== "default"}
+										<Button
+											preset="button-ghost"
+											size="sm"
+											aria-label={`Delete profile ${p.name || "(unnamed)"}`}
+											onclick={() => void profilesState.remove(p.id)}
+											disabled={profilesState.mutating}
+										>
+											<Trash2 size={12} />
+										</Button>
+									{/if}
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		{/if}
 	{/snippet}
 </ServiceDevtoolShell>

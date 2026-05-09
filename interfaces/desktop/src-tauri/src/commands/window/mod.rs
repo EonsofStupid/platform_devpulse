@@ -93,7 +93,6 @@ pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, Stri
         WindowRole::Chat,
         WindowRole::CortexViewer,
         WindowRole::ModelLoader,
-        WindowRole::VoiceLab,
         WindowRole::DevTools,
     ];
 

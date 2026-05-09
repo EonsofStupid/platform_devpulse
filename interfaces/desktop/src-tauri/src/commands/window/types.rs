@@ -20,8 +20,6 @@ pub enum WindowRole {
     CortexViewer,
     /// Model loader — slot management
     ModelLoader,
-    /// Voice Lab — TTS/STT config devtool
-    VoiceLab,
     /// Unified dev toolbox panel (Ctrl+Shift+Z)
     DevTools,
 }
@@ -35,7 +33,6 @@ impl WindowRole {
             Self::Chat => "chat",
             Self::CortexViewer => "cortex-viewer",
             Self::ModelLoader => "model-loader",
-            Self::VoiceLab => "voice-lab",
             Self::DevTools => "devtools",
         }
     }
@@ -48,7 +45,6 @@ impl WindowRole {
             Self::Chat => "Clyffy Chat",
             Self::CortexViewer => "Cortex Viewer",
             Self::ModelLoader => "Model Control",
-            Self::VoiceLab => "Voice Lab",
             Self::DevTools => "DevPulse Tools",
         }
     }
@@ -61,7 +57,6 @@ impl WindowRole {
             Self::Chat => (480.0, 700.0),
             Self::CortexViewer => (600.0, 450.0),
             Self::ModelLoader => (700.0, 500.0),
-            Self::VoiceLab => (800.0, 600.0),
             Self::DevTools => (720.0, 560.0),
         }
     }
@@ -74,7 +69,6 @@ impl WindowRole {
             Self::Chat => "/chat",
             Self::CortexViewer => "/cortex",
             Self::ModelLoader => "/model-loader",
-            Self::VoiceLab => "/voice-lab",
             Self::DevTools => "/devtools",
         }
     }
@@ -93,7 +87,7 @@ impl WindowRole {
     pub fn always_on_top(&self) -> bool {
         match self {
             Self::Chat | Self::CortexViewer | Self::DevTools => true,
-            Self::Main | Self::ModelLoader | Self::VoiceLab => false,
+            Self::Main | Self::ModelLoader => false,
         }
     }
 

@@ -10,16 +10,7 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import {
-	Activity,
-	BrainCircuit,
-	Cpu,
-	ExternalLink,
-	Grid3x3,
-	Mic,
-	Settings,
-	X,
-} from "lucide-svelte";
+import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
@@ -73,12 +64,6 @@ const EXTERNAL_WINDOWS: ExternalWindow[] = [
 		label: "Model Control Window",
 		blurb: "Slot management, downloads. Detached window.",
 		icon: BrainCircuit,
-	},
-	{
-		role: "VoiceLab",
-		label: "Voice Lab Window",
-		blurb: "Mic + speaker calibration. Detached window.",
-		icon: Mic,
 	},
 	{
 		role: "CortexViewer",

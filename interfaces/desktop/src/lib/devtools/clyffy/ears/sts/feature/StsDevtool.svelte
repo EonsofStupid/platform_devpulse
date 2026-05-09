@@ -32,27 +32,34 @@ import {
 	Radio,
 	Volume2,
 } from "lucide-svelte";
+import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
-import { modelsState } from "$lib/domains/app/models/index.js";
+import type { MicTestResult, VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
+import { voiceSelectionState } from "$lib/devtools/_shared/voice-selection.state.svelte.js";
 import {
-	listVoices,
-	type MicTestResult,
-	previewVoice,
-	runStsPipeline,
-	speak,
-	testMicrophone,
-	transcribeAudio,
-	transcribeAudioFile,
-	type VoiceInfo,
-	voiceState,
-} from "$lib/domains/app/voice/index.js";
+	DevtoolLogsTab,
+	type HealthBadge,
+	type LogTargetPreset,
+	ServiceDevtoolShell,
+} from "$lib/devtools/index.js";
+import { modelsState } from "$lib/domains/app/models/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
+import { listVoices, previewVoice, speak } from "../../../mouth/tts/data-access/tts.svc.js";
+import { ttsConfigState } from "../../../mouth/tts/data-access/tts-config.state.svelte.js";
+import {
+	testMicrophone,
+	transcribeAudio,
+	transcribeAudioFile,
+} from "../../stt/data-access/stt.svc.js";
+import { sttConfigState } from "../../stt/data-access/stt-config.state.svelte.js";
+import { runStsPipeline, stsLatencyState } from "../data-access/sts.svc.js";
+
+const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.sts", label: "STS devtool" }];
 
 // ── State ──────────────────────────────────────────────────
 let voices = $state<VoiceInfo[]>([]);
@@ -99,6 +106,18 @@ const badge = $derived<HealthBadge>(
 );
 
 // ── Init ───────────────────────────────────────────────────
+// Mount-load via onMount — bailouts read the load-flag the load
+// function flips, so $effect would loop. Watcher below is reactive,
+// not mount-load — that one stays $effect.
+onMount(() => {
+	if (!sttConfigState.config && !sttConfigState.loading) {
+		void sttConfigState.load();
+	}
+	if (!ttsConfigState.config && !ttsConfigState.loading) {
+		void ttsConfigState.load();
+	}
+});
+
 async function refreshVoices(): Promise<void> {
 	try {
 		voices = await listVoices("voice.tts");
@@ -171,8 +190,10 @@ async function handleMicTest(): Promise<void> {
 async function handleRecord(): Promise<void> {
 	recording = true;
 	error = null;
+	const start = performance.now();
 	try {
 		transcript = await transcribeAudio();
+		stsLatencyState.recordStt(performance.now() - start);
 	} catch (e) {
 		error = `STT failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
@@ -184,8 +205,10 @@ async function handleSpeak(): Promise<void> {
 	if (!ttsInput.trim()) return;
 	speaking = true;
 	error = null;
+	const start = performance.now();
 	try {
-		await speak(ttsInput, voiceState.selectedVoice, "voice.tts");
+		await speak(ttsInput, voiceSelectionState.selectedVoice, "voice.tts");
+		stsLatencyState.recordTts(performance.now() - start);
 	} catch (e) {
 		error = `TTS failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
@@ -194,7 +217,7 @@ async function handleSpeak(): Promise<void> {
 }
 
 async function handlePreview(voice: VoiceInfo): Promise<void> {
-	voiceState.selectedVoice = voice.id;
+	voiceSelectionState.selectedVoice = voice.id;
 	error = null;
 	try {
 		await previewVoice(voice.id, "voice.tts");
@@ -234,10 +257,12 @@ async function handleStsFile(event: Event): Promise<void> {
 	stsTranscript = "";
 	stsReply = "";
 	error = null;
+	const start = performance.now();
 	try {
-		const result = await runStsPipeline(path, "chat.brain", voiceState.selectedVoice, 256);
+		const result = await runStsPipeline(path, "chat.brain", voiceSelectionState.selectedVoice, 256);
 		stsTranscript = result.transcript;
 		stsReply = result.reply;
+		stsLatencyState.recordPipeline(performance.now() - start);
 	} catch (e) {
 		error = `STS pipeline failed: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
@@ -280,7 +305,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 			<div class="flex flex-wrap gap-3">
 				<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border"
 					style={sttReady
-						? "border-color: var(--accent-teal-main); background: var(--accent-teal-fill);"
+						? "border-color: var(--accent-service-main); background: var(--accent-service-fill);"
 						: "border-color: var(--border-subtle); background: var(--surface-base);"}>
 					<Ear size={12} />
 					<Text size="xs" weight="bold">STT (Whisper)</Text>
@@ -295,7 +320,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 
 				<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border"
 					style={ttsReady
-						? "border-color: var(--accent-teal-main); background: var(--accent-teal-fill);"
+						? "border-color: var(--accent-service-main); background: var(--accent-service-fill);"
 						: "border-color: var(--border-subtle); background: var(--surface-base);"}>
 					<Volume2 size={12} />
 					<Text size="xs" weight="bold">TTS (Kokoro)</Text>
@@ -327,6 +352,30 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 				</div>
 			{/if}
 
+			{#if stsLatencyState.pipelineMs !== null || stsLatencyState.sttMs !== null || stsLatencyState.ttsMs !== null}
+				<div
+					class="rounded-lg p-3 flex flex-wrap gap-4"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					<Text size="xs" weight="bold">Latency</Text>
+					{#if stsLatencyState.sttMs !== null}
+						<Text size="xs" color="muted">
+							STT <span class="font-mono">{stsLatencyState.sttMs}ms</span>
+						</Text>
+					{/if}
+					{#if stsLatencyState.ttsMs !== null}
+						<Text size="xs" color="muted">
+							TTS <span class="font-mono">{stsLatencyState.ttsMs}ms</span>
+						</Text>
+					{/if}
+					{#if stsLatencyState.pipelineMs !== null}
+						<Text size="xs" color="muted">
+							Pipeline <span class="font-mono">{stsLatencyState.pipelineMs}ms</span>
+						</Text>
+					{/if}
+				</div>
+			{/if}
+
 			{#if smokeReport}
 				<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 					<Text size="xs" weight="bold">Last smoke test</Text>
@@ -344,7 +393,12 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 			{/if}
 
 			{#if error}
-				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
+				<div
+					role="alert"
+					aria-live="assertive"
+					class="rounded-lg p-3"
+					style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
+				>
 					<Text size="xs">{error}</Text>
 				</div>
 			{/if}
@@ -352,21 +406,145 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 	{/snippet}
 
 	{#snippet config()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): Per-slot STS config (default voice,
-			listening gain, VAD threshold, end-of-turn silence window) not yet
-			exposed as a Tauri command. The <code>voice_state</code> singleton
-			holds session-scoped prefs; persistent config arrives with
-			<code>voice_sts_save_config</code>.
-		</Text>
+		<div class="space-y-5">
+			<Text size="xs" color="muted">
+				STS straddles the <span class="font-mono">voice.stt</span> and
+				<span class="font-mono">voice.tts</span> slots. Config below is
+				the union of both per-slot configs — saving here writes through to
+				each slot's user TOML.
+			</Text>
+
+			{#if sttConfigState.error}
+				<div
+					role="alert"
+					aria-live="assertive"
+					class="p-3 rounded-lg text-xs"
+					style="background: color-mix(in oklch, var(--signal-error) 12%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 40%, transparent); color: var(--signal-error);"
+				>
+					STT config: {sttConfigState.error}
+				</div>
+			{/if}
+			{#if ttsConfigState.error}
+				<div
+					role="alert"
+					aria-live="assertive"
+					class="p-3 rounded-lg text-xs"
+					style="background: color-mix(in oklch, var(--signal-error) 12%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 40%, transparent); color: var(--signal-error);"
+				>
+					TTS config: {ttsConfigState.error}
+				</div>
+			{/if}
+
+			{#if ttsConfigState.config}
+				<div class="space-y-2">
+					<Text size="xs" weight="bold" color="muted">Default voice (TTS)</Text>
+					<input
+						type="text"
+						bind:value={ttsConfigState.draft.default_voice}
+						placeholder="qwen3:ryan"
+						class="w-full max-w-80 rounded px-2 py-1 text-xs font-mono outline-none"
+						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
+					/>
+				</div>
+
+				<div class="space-y-2">
+					<Text size="xs" weight="bold" color="muted">
+						Default speed · {ttsConfigState.draft.default_speed.toFixed(2)}×
+					</Text>
+					<input
+						type="range"
+						min="0.5"
+						max="2.0"
+						step="0.05"
+						bind:value={ttsConfigState.draft.default_speed}
+						aria-label="Default TTS speech speed (0.5× to 2.0×)"
+						aria-valuetext={`${ttsConfigState.draft.default_speed.toFixed(2)}×`}
+						class="w-full max-w-80"
+						style="accent-color: var(--accent-service-main);"
+					/>
+				</div>
+			{/if}
+
+			{#if sttConfigState.config}
+				<div class="space-y-2">
+					<Text size="xs" weight="bold" color="muted">
+						VAD threshold · {sttConfigState.draft.vad_threshold.toFixed(2)}
+					</Text>
+					<input
+						type="range"
+						min="0.0"
+						max="1.0"
+						step="0.05"
+						bind:value={sttConfigState.draft.vad_threshold}
+						aria-label="Voice activity detection threshold (0 to 1)"
+						class="w-full max-w-80"
+						style="accent-color: var(--accent-service-main);"
+					/>
+					<Text size="xs" color="muted">
+						Lower = more sensitive (triggers on quieter audio).
+					</Text>
+				</div>
+
+				<div class="space-y-2">
+					<Text size="xs" weight="bold" color="muted">
+						Beam size · {sttConfigState.draft.beam_size}
+					</Text>
+					<input
+						type="range"
+						min="1"
+						max="10"
+						step="1"
+						bind:value={sttConfigState.draft.beam_size}
+						aria-label="Whisper beam size (1 to 10)"
+						aria-valuetext={`${sttConfigState.draft.beam_size} (${sttConfigState.draft.beam_size === 1 ? "greedy" : sttConfigState.draft.beam_size <= 5 ? "balanced" : "max quality"})`}
+						class="w-full max-w-80"
+						style="accent-color: var(--accent-service-main);"
+					/>
+					<Text size="xs" color="muted">
+						1 = greedy (fastest). 5 = quality default. 10 = max.
+					</Text>
+				</div>
+			{/if}
+
+			<div class="flex items-center gap-2 pt-2">
+				<Button
+					preset="button-primary"
+					size="sm"
+					onclick={async () => {
+						if (ttsConfigState.dirty) await ttsConfigState.save();
+						if (sttConfigState.dirty) await sttConfigState.save();
+					}}
+					disabled={(!ttsConfigState.dirty && !sttConfigState.dirty) ||
+						ttsConfigState.saving ||
+						sttConfigState.saving}
+				>
+					{#if ttsConfigState.saving || sttConfigState.saving}
+						<Spinner size="xs" />
+						Saving…
+					{:else}
+						Save both
+					{/if}
+				</Button>
+				<Button
+					preset="button-ghost"
+					size="sm"
+					onclick={() => {
+						ttsConfigState.reset();
+						sttConfigState.reset();
+					}}
+					disabled={!ttsConfigState.dirty && !sttConfigState.dirty}
+				>
+					Discard
+				</Button>
+				{#if ttsConfigState.dirty || sttConfigState.dirty}
+					<Text size="xs" color="muted">Unsaved changes</Text>
+				{/if}
+			</div>
+		</div>
 	{/snippet}
 
 	{#snippet logs()}
-		<Text size="sm" color="muted">
-			TODO(reality-gap 2026-04-21): STS-scoped log filter not yet wired.
-			Session logs live at <span class="font-mono text-[10px]">.userdata/logs/session-*.jsonl</span> —
-			filter by <code>component=devtools.sts</code>.
-		</Text>
+		<DevtoolLogsTab targetPresets={LOG_TARGETS} />
 	{/snippet}
 
 	{#snippet actions()}
@@ -413,7 +591,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					<div class="rounded-lg p-4 flex flex-col gap-3"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 						<div class="flex items-center gap-2">
-							<Mic size={16} style="color: var(--accent-teal-main);" />
+							<Mic size={16} style="color: var(--accent-service-main);" />
 							<Text size="sm" weight="semibold">Speech-to-Text</Text>
 						</div>
 
@@ -470,7 +648,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					<div class="rounded-lg p-4 flex flex-col gap-3"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 						<div class="flex items-center gap-2">
-							<Volume2 size={16} style="color: var(--accent-teal-main);" />
+							<Volume2 size={16} style="color: var(--accent-service-main);" />
 							<Text size="sm" weight="semibold">Text-to-Speech</Text>
 						</div>
 
@@ -492,7 +670,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 									Speak
 								{/if}
 							</Button>
-							<Text size="xs" color="muted">Voice: {voiceState.selectedVoice}</Text>
+							<Text size="xs" color="muted">Voice: {voiceSelectionState.selectedVoice}</Text>
 						</div>
 
 						{#if voices.length > 0}
@@ -500,9 +678,11 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 								{#each voices.slice(0, 12) as voice (voice.id)}
 									<button
 										type="button"
+										aria-pressed={voiceSelectionState.selectedVoice === voice.id}
+										aria-label={`Preview ${voice.label} — ${voice.gender}, ${voice.language}.`}
 										class="px-2 py-1 rounded text-xs border transition-colors"
-										style={voiceState.selectedVoice === voice.id
-											? "background: var(--accent-teal-fill); color: var(--accent-teal-main); border-color: var(--accent-teal-main);"
+										style={voiceSelectionState.selectedVoice === voice.id
+											? "background: var(--accent-service-fill); color: var(--accent-service-main); border-color: var(--accent-service-main);"
 											: "background: var(--surface-raised); color: var(--text-muted); border-color: transparent;"}
 										onclick={() => handlePreview(voice)}
 										title={voice.description}
@@ -521,7 +701,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					<div class="rounded-lg p-4 flex flex-col gap-3"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 						<div class="flex items-center gap-2">
-							<Activity size={16} style="color: var(--accent-teal-main);" />
+							<Activity size={16} style="color: var(--accent-service-main);" />
 							<Text size="sm" weight="semibold">Smoke test (TTS → STT round-trip)</Text>
 						</div>
 						<Text size="xs" color="muted">
@@ -542,7 +722,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					<div class="rounded-lg p-4 flex flex-col gap-3"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 						<div class="flex items-center gap-2">
-							<Radio size={16} style="color: var(--accent-teal-main);" />
+							<Radio size={16} style="color: var(--accent-service-main);" />
 							<Text size="sm" weight="semibold">Full STS pipeline</Text>
 						</div>
 						<Text size="xs" color="muted">
@@ -560,7 +740,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 							<span
 								class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs border"
 								style={sttReady && ttsReady && !runningPipeline
-									? "background: var(--accent-teal-fill); color: var(--accent-teal-main); border-color: var(--accent-teal-main);"
+									? "background: var(--accent-service-fill); color: var(--accent-service-main); border-color: var(--accent-service-main);"
 									: "background: var(--surface-raised); color: var(--text-muted); border-color: var(--border-subtle); opacity: 0.5; pointer-events: none;"}
 							>
 								<FileAudio size={14} />
@@ -574,7 +754,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 							</div>
 						{/if}
 						{#if stsReply}
-							<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--accent-teal-main);">
+							<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--accent-service-main);">
 								<Text size="xs" weight="bold">Clyffy replied</Text>
 								<Text size="xs">{stsReply}</Text>
 							</div>
@@ -598,7 +778,11 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 				<div class="text-xs space-y-1">
 					<div class="flex justify-between">
 						<span style="color: var(--text-secondary)">Active voice</span>
-						<span class="font-mono">{voiceState.activeVoice ?? "—"}</span>
+						<span class="font-mono">{voiceSelectionState.selectedVoice}</span>
+					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">TTS slot</span>
+						<span class="font-mono">{voiceSelectionState.selectedTtsSlot}</span>
 					</div>
 				</div>
 			</div>

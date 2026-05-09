@@ -19,6 +19,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import type { MicTestResult } from "$lib/devtools/_shared/voice-contracts.js";
 import {
 	DevtoolLogsTab,
 	type HealthBadge,
@@ -26,37 +27,45 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
-import {
-	testMicrophone,
-	transcribeAudio,
-	transcribeAudioFile,
-	voiceSttConfigState,
-} from "$lib/domains/app/voice/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { logInfo } from "$lib/sys/logger.js";
+import { testMicrophone, transcribeAudio, transcribeAudioFile } from "../data-access/stt.svc.js";
+import { sttConfigState } from "../data-access/stt-config.state.svelte.js";
 
 const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.stt", label: "STT devtool" }];
 
 // Mount-load — bailout reads `loading`, which `load()` flips,
 // which would loop `$effect`. (See ProjectSwitcher fix.)
 onMount(() => {
-	if (!voiceSttConfigState.config && !voiceSttConfigState.loading) {
-		void voiceSttConfigState.load();
+	if (!sttConfigState.config && !sttConfigState.loading) {
+		void sttConfigState.load();
 	}
 });
+
+const LANGUAGES = [
+	{ code: "", label: "Auto-detect" },
+	{ code: "en", label: "English" },
+	{ code: "es", label: "Spanish" },
+	{ code: "fr", label: "French" },
+	{ code: "de", label: "German" },
+	{ code: "ja", label: "Japanese" },
+	{ code: "zh", label: "Chinese" },
+	{ code: "ko", label: "Korean" },
+	{ code: "pt", label: "Portuguese" },
+	{ code: "ru", label: "Russian" },
+	{ code: "ar", label: "Arabic" },
+];
 
 // ── State ──────────────────────────────────────────────
 let loadingSlot = $state(false);
 let micTesting = $state(false);
-let micResult = $state<{
-	detected: boolean;
-	peak_amplitude: number;
-	avg_amplitude: number;
-} | null>(null);
+let micResult = $state<MicTestResult | null>(null);
 let recording = $state(false);
 let transcript = $state("");
+let lastRecordMs = $state<number | null>(null);
 let transcribing = $state(false);
 let fileTranscript = $state("");
+let lastFileMs = $state<number | null>(null);
 let error = $state<string | null>(null);
 
 // ── Derived ────────────────────────────────────────────
@@ -129,11 +138,14 @@ async function handleMicTest(): Promise<void> {
 async function handleRecord(): Promise<void> {
 	recording = true;
 	transcript = "";
+	lastRecordMs = null;
 	error = null;
 	logInfo("devtools.stt", "transcribeAudio() — 3s capture starting");
+	const start = performance.now();
 	try {
 		transcript = await transcribeAudio();
-		logInfo("devtools.stt", `Transcript: "${transcript.slice(0, 80)}"`);
+		lastRecordMs = Math.round(performance.now() - start);
+		logInfo("devtools.stt", `Transcript: "${transcript.slice(0, 80)}" (${lastRecordMs}ms)`);
 	} catch (e) {
 		error = e instanceof Error ? e.message : String(e);
 		logInfo("devtools.stt", `transcribeAudio failed: ${error}`);
@@ -148,12 +160,15 @@ async function handleFileDrop(e: DragEvent): Promise<void> {
 	if (!file) return;
 	transcribing = true;
 	fileTranscript = "";
+	lastFileMs = null;
 	error = null;
 	logInfo("devtools.stt", `transcribeAudioFile() — file=${file.name}`);
+	const start = performance.now();
 	try {
 		const path = (file as unknown as { path?: string }).path ?? file.name;
 		fileTranscript = await transcribeAudioFile(path);
-		logInfo("devtools.stt", `File transcript: "${fileTranscript.slice(0, 80)}"`);
+		lastFileMs = Math.round(performance.now() - start);
+		logInfo("devtools.stt", `File transcript: "${fileTranscript.slice(0, 80)}" (${lastFileMs}ms)`);
 	} catch (e2) {
 		error = e2 instanceof Error ? e2.message : String(e2);
 		logInfo("devtools.stt", `transcribeAudioFile failed: ${error}`);
@@ -197,24 +212,67 @@ function handleDragOver(e: DragEvent): void {
 				</Text>
 			{:else}
 				<Text size="xs" color="muted">
-					No model assigned. Use the setup wizard's Voice card to pick a
-					Whisper build for this slot.
+					No model assigned. Open the model loader to assign a Whisper build.
 				</Text>
 			{/if}
 
+			{#if lastRecordMs !== null || lastFileMs !== null}
+				<div
+					class="rounded-lg p-3 flex flex-wrap gap-4"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					{#if lastRecordMs !== null}
+						<Text size="xs" color="muted">
+							Last 3s record latency: <span class="font-mono">{lastRecordMs}ms</span>
+						</Text>
+					{/if}
+					{#if lastFileMs !== null}
+						<Text size="xs" color="muted">
+							Last file transcribe latency: <span class="font-mono">{lastFileMs}ms</span>
+						</Text>
+					{/if}
+				</div>
+			{/if}
+
 			{#if micResult}
-				<div class="mt-2 rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
+				<div
+					class="mt-2 rounded-lg p-3"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
 					<Text size="xs" weight="bold">Last microphone test</Text>
 					<Text size="xs" color="muted">
 						Detected: {micResult.detected ? "Yes" : "No"} ·
 						Peak: {(micResult.peak_amplitude * 100).toFixed(1)}% ·
-						Average: {(micResult.avg_amplitude * 100).toFixed(1)}%
+						Average: {(micResult.avg_amplitude * 100).toFixed(1)}% ·
+						Noise floor: {micResult.noise_floor.toFixed(3)}
 					</Text>
+					<div class="mt-2 flex items-center gap-2">
+						<Text size="xs" color="muted" class="w-12">Level</Text>
+						<div
+							class="flex-1 h-2 rounded-full overflow-hidden"
+							style="background: var(--surface-raised);"
+						>
+							<div
+								class="h-full rounded-full transition-all"
+								style="width: {Math.round(
+									micResult.avg_amplitude * 100,
+								)}%; background: var(--accent-service-main);"
+							></div>
+						</div>
+						<Text size="xs" color="muted" class="w-10 text-right">
+							{Math.round(micResult.avg_amplitude * 100)}%
+						</Text>
+					</div>
 				</div>
 			{/if}
 
 			{#if error}
-				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
+				<div
+					role="alert"
+					aria-live="assertive"
+					class="rounded-lg p-3"
+					style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
+				>
 					<Text size="xs">{error}</Text>
 				</div>
 			{/if}
@@ -223,46 +281,54 @@ function handleDragOver(e: DragEvent): void {
 
 	{#snippet config()}
 		<div class="space-y-4">
-			{#if voiceSttConfigState.loading && !voiceSttConfigState.config}
+			{#if sttConfigState.loading && !sttConfigState.config}
 				<Text size="sm" color="muted">Loading STT config…</Text>
 			{/if}
 
-			{#if voiceSttConfigState.error}
+			{#if sttConfigState.error}
 				<div
-					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
+					role="alert"
+					aria-live="assertive"
+					class="p-3 rounded-lg text-xs"
+					style="background: color-mix(in oklch, var(--signal-error) 12%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 40%, transparent); color: var(--signal-error);"
 				>
-					{voiceSttConfigState.error}
+					{sttConfigState.error}
 				</div>
 			{/if}
 
-			{#if voiceSttConfigState.config}
+			{#if sttConfigState.config}
 				<div class="space-y-3">
 					<div class="space-y-2">
-						<Text size="xs" weight="bold" color="muted">
-							Language hint (ISO-639-1, empty = auto-detect)
-						</Text>
-						<input
-							type="text"
-							bind:value={voiceSttConfigState.draft.language}
-							placeholder="auto"
-							maxlength="2"
-							class="w-32 rounded px-2 py-1 text-xs font-mono outline-none"
+						<Text size="xs" weight="bold" color="muted">Language hint</Text>
+						<select
+							bind:value={sttConfigState.draft.language}
+							aria-label="STT language hint (ISO-639-1)"
+							class="rounded px-2 py-1 text-xs outline-none"
 							style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);"
-						/>
+						>
+							{#each LANGUAGES as lang}
+								<option value={lang.code}>{lang.label}</option>
+							{/each}
+						</select>
+						<Text size="xs" color="muted">
+							Empty = auto-detect. ISO-639-1 codes.
+						</Text>
 					</div>
 
 					<div class="space-y-2">
 						<Text size="xs" weight="bold" color="muted">
-							Beam size · {voiceSttConfigState.draft.beam_size}
+							Beam size · {sttConfigState.draft.beam_size}
 						</Text>
 						<input
 							type="range"
 							min="1"
 							max="10"
 							step="1"
-							bind:value={voiceSttConfigState.draft.beam_size}
+							bind:value={sttConfigState.draft.beam_size}
+							aria-label="Whisper beam size, 1 to 10"
+							aria-valuetext={`${sttConfigState.draft.beam_size} (${sttConfigState.draft.beam_size === 1 ? "greedy" : sttConfigState.draft.beam_size <= 5 ? "balanced" : "max quality"})`}
 							class="w-full max-w-80"
-							style="accent-color: var(--accent-teal-main);"
+							style="accent-color: var(--accent-service-main);"
 						/>
 						<Text size="xs" color="muted">
 							1 = greedy (fastest). 5 = quality default. 10 = max.
@@ -271,16 +337,17 @@ function handleDragOver(e: DragEvent): void {
 
 					<div class="space-y-2">
 						<Text size="xs" weight="bold" color="muted">
-							VAD threshold · {voiceSttConfigState.draft.vad_threshold.toFixed(2)}
+							VAD threshold · {sttConfigState.draft.vad_threshold.toFixed(2)}
 						</Text>
 						<input
 							type="range"
 							min="0.0"
 							max="1.0"
 							step="0.05"
-							bind:value={voiceSttConfigState.draft.vad_threshold}
+							bind:value={sttConfigState.draft.vad_threshold}
+							aria-label="Voice activity detection threshold, 0 to 1"
 							class="w-full max-w-80"
-							style="accent-color: var(--accent-teal-main);"
+							style="accent-color: var(--accent-service-main);"
 						/>
 					</div>
 
@@ -288,10 +355,10 @@ function handleDragOver(e: DragEvent): void {
 						<Button
 							preset="button-primary"
 							size="sm"
-							onclick={() => void voiceSttConfigState.save()}
-							disabled={voiceSttConfigState.saving || !voiceSttConfigState.dirty}
+							onclick={() => void sttConfigState.save()}
+							disabled={sttConfigState.saving || !sttConfigState.dirty}
 						>
-							{#if voiceSttConfigState.saving}
+							{#if sttConfigState.saving}
 								<Spinner size="xs" />
 								Saving…
 							{:else}
@@ -301,12 +368,12 @@ function handleDragOver(e: DragEvent): void {
 						<Button
 							preset="button-ghost"
 							size="sm"
-							onclick={() => voiceSttConfigState.reset()}
-							disabled={!voiceSttConfigState.dirty || voiceSttConfigState.saving}
+							onclick={() => sttConfigState.reset()}
+							disabled={!sttConfigState.dirty || sttConfigState.saving}
 						>
 							Discard
 						</Button>
-						{#if voiceSttConfigState.dirty}
+						{#if sttConfigState.dirty}
 							<Text size="xs" color="muted">Unsaved changes</Text>
 						{/if}
 					</div>
@@ -351,7 +418,7 @@ function handleDragOver(e: DragEvent): void {
 					{/if}
 					{#if !sttSlot?.assigned_model_id}
 						<Text size="xs" color="muted">
-							Assign a Whisper model in the setup wizard first.
+							Assign a Whisper model in the model loader first.
 						</Text>
 					{/if}
 				</div>

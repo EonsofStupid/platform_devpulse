@@ -2,7 +2,7 @@
 	"$schema": "../gen/schemas/desktop-schema.json",
 	"identifier": "default",
 	"description": "Default capability — all windows",
-	"windows": ["main", "chat", "devtools", "cortex-viewer", "model-loader", "voice-lab"],
+	"windows": ["main", "chat", "devtools", "cortex-viewer", "model-loader"],
 	"permissions": [
 		"core:default",
 		"core:window:allow-minimize",
