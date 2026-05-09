@@ -59,6 +59,7 @@ import {
 	PlugZap,
 	Radio,
 	RotateCw,
+	Shield,
 	Sparkles,
 	Volume2,
 	Workflow,
@@ -93,6 +94,7 @@ export const DEVTOOL_BUCKET_ICONS: BucketIcons = {
 		memory: Sparkles,
 		reasoning: Workflow,
 		brain: Brain,
+		governance: Shield,
 		providers: PlugZap,
 	} satisfies Record<ClyffyBucket, LucideIcon>,
 	runtimes: {
@@ -296,6 +298,17 @@ export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 		label: "RRD Daemon",
 		blurb: "Hot-update lifecycle — pause, drain, swap, resume on the encoder.",
 		icon: RotateCw,
+	},
+
+	// ── Clyffy / Governance ──────────────────────────────────
+	{
+		id: "policy",
+		tier: "clyffy",
+		bucket: "governance",
+		route: "/devtools/clyffy/governance/policy",
+		label: "Agent Policy",
+		blurb: "Constrained decoding + AG-UI wire + A2UI grammar. What the agent is allowed to emit.",
+		icon: Shield,
 	},
 
 	// ── Clyffy / Providers ───────────────────────────────────

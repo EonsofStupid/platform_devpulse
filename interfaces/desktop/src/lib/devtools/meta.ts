@@ -79,6 +79,10 @@ export type SystemBucket = "datastores" | "caches" | "observability" | "ide";
  *   composed as the retrieval-augmented reasoning surface
  * - `brain`     — reasoning, councils, escalation (currently empty —
  *   reserved for the brain-tier devtools as they land)
+ * - `governance` — constrained decoding (llguidance) + agent↔user
+ *   wire (AG-UI) + generative-UI payload schema (A2UI). The "what
+ *   the agent is allowed to emit" surface, with friendly grammar
+ *   authoring + Clyffy explainer.
  * - `providers` — external API providers (Claude, …)
  */
 export type ClyffyBucket =
@@ -88,6 +92,7 @@ export type ClyffyBucket =
 	| "memory"
 	| "reasoning"
 	| "brain"
+	| "governance"
 	| "providers";
 
 /**
@@ -211,6 +216,7 @@ const CLYFFY_BUCKET_LABELS: Record<ClyffyBucket, string> = {
 	memory: "Memory",
 	reasoning: "Reasoning",
 	brain: "Brain",
+	governance: "Governance",
 	providers: "Providers",
 };
 
@@ -231,6 +237,7 @@ const CLYFFY_BUCKET_ORDER: ClyffyBucket[] = [
 	"memory",
 	"reasoning",
 	"brain",
+	"governance",
 	"providers",
 ];
 const RUNTIMES_BUCKET_ORDER: RuntimesBucket[] = ["orchestrator", "inference"];

@@ -136,6 +136,9 @@ export const SERVICE_ACCENTS = {
 	cortex: "purple",
 	"persona-graph": "violet",
 
+	// ── Clyffy / Governance ──────────────────────────────────
+	policy: "electric",
+
 	// ── Clyffy / Providers ───────────────────────────────────
 	claude: "coral",
 
@@ -236,6 +239,9 @@ export const SERVICE_BACKDROPS = {
 	// ── Memory + Brain (the thinking feeling) ────────────────
 	cortex: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
 	"persona-graph": { variation: "cosmic-galaxy", intensity: "normal", speed: "slow" },
+
+	// ── Governance (live constraint enforcement, signal flow) ─
+	policy: { variation: "circuit-drift", intensity: "strong", speed: "slow" },
 
 	// ── Providers (signal infrastructure) ────────────────────
 	claude: { variation: "cosmic-galaxy", intensity: "strong", speed: "slow" },
