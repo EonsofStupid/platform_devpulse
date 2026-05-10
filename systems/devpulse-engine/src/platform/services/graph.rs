@@ -322,6 +322,26 @@ DEFINE FIELD IF NOT EXISTS created_at ON refines TYPE datetime DEFAULT time::now
 
 DEFINE TABLE IF NOT EXISTS summarizes TYPE RELATION FROM thought TO thought SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS created_at ON summarizes TYPE datetime DEFAULT time::now();
+
+-- Chat-input prompt corpus — type-time suggestion engine. Embedded by
+-- the chat.suggest slot (Harrier 0.6B, 1024-d BF16) and queried by the
+-- suggestion service via HNSW cosine recall against the partial input
+-- the user is currently typing. User-scoped because the corpus is the
+-- user's own committed prompts; one row per send, persona-id partitions
+-- recall when multi-persona installs land.
+--
+-- HNSW DIMENSION 1024 matches Harrier's native output. TYPE F32 keeps
+-- the index resident in half the memory of F64 with no measurable
+-- recall loss at 1024-d cosine. M and EFC use SurrealDB v3 defaults —
+-- tune later if the corpus grows past ~100k entries per user.
+DEFINE TABLE IF NOT EXISTS chat_prompt SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS text ON chat_prompt TYPE string;
+DEFINE FIELD IF NOT EXISTS embedding ON chat_prompt TYPE array<float, 1024>;
+DEFINE FIELD IF NOT EXISTS persona_id ON chat_prompt TYPE string;
+DEFINE FIELD IF NOT EXISTS captured_at ON chat_prompt TYPE int DEFAULT time::now().to_secs();
+DEFINE FIELD IF NOT EXISTS accepted ON chat_prompt TYPE bool DEFAULT false;
+DEFINE INDEX IF NOT EXISTS chat_prompt_persona ON chat_prompt FIELDS persona_id;
+DEFINE INDEX IF NOT EXISTS chat_prompt_embedding ON chat_prompt FIELDS embedding HNSW DIMENSION 1024 DIST COSINE TYPE F32;
 ";
 
 // ═══════════════════════════════════════════════════════════════

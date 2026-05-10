@@ -322,6 +322,51 @@ runtime = "Burn"
 source_tier = "UserManaged"
 builtin = true
 
+# ── 9c. minion.embedder — Minion-process document encoder ────
+#
+# Dedicated 270m Harrier embedder for the minion process tier. Sized
+# down from the 0.6B `rag.embedder` so each minion process pays a
+# small RAM cost (~536 MB) for its own embedder rather than reaching
+# back into Clyffy main's larger model via IPC. Sized identically
+# regardless of host hardware tier — this is a CONSUMER tier (the
+# minion process), not a HARDWARE tier override.
+#
+# `warm_standby` keeps the model resident while the minion process
+# is alive; `on_demand` lifecycle would force a reload per query
+# which kills throughput.
+
+[[slots]]
+id = "minion.embedder"
+label = "Minion Search Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 9d. minion.encoder — Minion-process query encoder ────────
+#
+# Dedicated 270m Harrier encoder for the minion process tier. Pairs
+# with `minion.embedder` so each minion has its own retrieval-side
+# encoder/embedder pair. Same sizing rationale: 270m on every host
+# regardless of hardware tier — consumer-tier sizing, not hardware-
+# tier sizing.
+
+[[slots]]
+id = "minion.encoder"
+label = "Minion Query Encoder"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true
+
 # ── 10. rag.reranker — Search result filter ──────────────────
 #
 # Cross-encoder that refines vector search results. No file ships
@@ -337,5 +382,37 @@ preferred_device = "Cpu"
 loading = "OnDemand"
 persistence_class = "on_demand"
 lane = "cpu"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 11. chat.suggest — Type-time suggestion encoder ──────────
+#
+# Personal-history embedder for chat-input suggestions. Embeds the
+# user's partial input + their past prompts and returns top-K matches
+# via cosine search against the persona graph. Sub-50 ms latency
+# target — `warm_standby` keeps the model resident once typing starts
+# and evicts it last under memory pressure.
+#
+# Distinct from `rag.embedder` (document corpus) and `minion.embedder`
+# (minion-process retrieval): this slot's adapter target is per-user
+# personal history, not domain documents. The BackendPool ref-counts
+# the underlying weights so a fresh install only materialises ONE copy
+# of the Harrier 0.6B model in CPU memory even though three slots
+# (`rag.embedder`, `rag.encoder`, `chat.suggest`) reference it.
+#
+# `builtin = true` — platform essential, no user picker. The slot
+# auto-loads on first chat input and stays warm; the chat-input
+# surface drives type-time queries against it without a reasoner
+# round-trip.
+
+[[slots]]
+id = "chat.suggest"
+label = "Suggestion Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
 source_tier = "UserManaged"
 builtin = true

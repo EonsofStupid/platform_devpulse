@@ -122,3 +122,41 @@ pub struct DevforgeBootstrapStatus {
     /// the PID (rare race during shutdown).
     pub memory_rss_bytes: Option<u64>,
 }
+
+/// Live snapshot of the `[services.system.devforge]` config block as
+/// loaded by the platform — i.e. the SSOT the running service is
+/// actually using.
+///
+/// Surfaced on `/devforge` (Connection card) and the devtool's Config
+/// tab so the user sees real values, not hardcoded copies. Mirrors
+/// every field on `DevForgeServiceEntry` that's relevant to the
+/// frontend; private knobs (e.g. `binary_path` legacy) stay backend-only.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct DevforgeConfigView {
+    /// `true` if the platform will spawn DevForge on first launch.
+    pub enabled: bool,
+    /// `true` if a DevForge boot failure aborts platform boot.
+    pub critical: bool,
+    /// Service mode: `"reh"` (default — client/server) or `"standalone"`
+    /// (legacy Electron, deprecated).
+    pub mode: String,
+    /// Configured port (`0` = auto-pick at boot).
+    pub port_configured: u16,
+    /// REH bind host (defaults to loopback).
+    pub host: String,
+    /// User-data directory (relative to `data_dir`).
+    pub user_data_dir: String,
+    /// Extensions directory (relative to `data_dir`).
+    pub extensions_dir: String,
+    /// Default workspace path (`.` = repo root).
+    pub workspace_path: String,
+    /// Update channel URL for in-place REH binary swaps.
+    pub update_channel_url: String,
+    /// Maximum seconds the platform waits for the REH child to become
+    /// healthy before declaring boot failed.
+    pub startup_timeout_secs: u64,
+    /// Milliseconds between successive TCP-connect probes during the
+    /// startup health wait.
+    pub health_poll_interval_ms: u64,
+}

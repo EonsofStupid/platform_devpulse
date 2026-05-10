@@ -3,6 +3,7 @@
 pub mod history;
 pub mod interactions;
 pub mod sessions;
+pub mod suggest;
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::SqlAdapter;

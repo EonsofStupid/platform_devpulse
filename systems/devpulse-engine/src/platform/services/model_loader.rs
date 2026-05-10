@@ -106,6 +106,18 @@ impl ModelLoaderService {
         ))
     }
 
+    /// Clone the underlying kernel service for embedder-bridge construction.
+    ///
+    /// The kernel `ModelLoaderService` is `#[derive(Clone)]` over internal
+    /// `Arc`s, so the clone shares state with this wrapper — no extra
+    /// pool, no extra lock acquisition. Used by the suggestion service
+    /// builder to wire `ChatSuggestEmbedder` against the same loaded
+    /// slots the engine already manages.
+    #[must_use]
+    pub fn kernel_clone(&self) -> Inner {
+        (*self.inner).clone()
+    }
+
     /// Fast path: register slots only. Instant in-memory operation.
     ///
     /// This MUST complete before boot returns so other services can query

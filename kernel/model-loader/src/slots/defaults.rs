@@ -63,6 +63,7 @@ pub const BASELINE_SLOT_IDS: &[&str] = &[
     // than through the slot registry.
     "rag.embedder",
     "rag.reranker",
+    "chat.suggest",
 ];
 
 /// TOML file shape — a single `slots` array of entries.
@@ -399,7 +400,7 @@ mod tests {
     #[test]
     fn platform_essentials_are_builtin() {
         let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();
-        for slot_id in ["rag.embedder", "rag.reranker", "voice.wake"] {
+        for slot_id in ["rag.embedder", "rag.reranker", "voice.wake", "chat.suggest"] {
             let slot = slots
                 .iter()
                 .find(|s| s.id == slot_id)

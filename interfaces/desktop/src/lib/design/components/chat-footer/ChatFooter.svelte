@@ -31,18 +31,36 @@ let {
 	onVoice,
 	voiceActive = false,
 	disabled = false,
+	value: externalValue,
+	onValueChange: externalOnValueChange,
+	onInput,
 	style,
 	class: className,
 	...rest
 }: ChatFooterProps = $props();
 
-let inputValue = $state("");
+// Uncontrolled fallback — only consulted when the parent did NOT supply
+// `value` / `onValueChange`. Controlled-mode parents (e.g. ChatComposer
+// with the suggestion surface) keep the source of truth themselves so
+// the dropdown can inject accepted suggestions back into the input.
+let internalValue = $state("");
+const isControlled = $derived(externalValue !== undefined);
+const currentValue = $derived(isControlled ? (externalValue ?? "") : internalValue);
+
+function updateValue(next: string) {
+	if (isControlled) {
+		externalOnValueChange?.(next);
+	} else {
+		internalValue = next;
+	}
+	onInput?.(next);
+}
 
 function handleSend() {
-	const trimmed = inputValue.trim();
+	const trimmed = currentValue.trim();
 	if (trimmed.length === 0) return;
 	onSend?.(trimmed);
-	inputValue = "";
+	updateValue("");
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -66,8 +84,8 @@ const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 >
 	<TextField
 		placeholder="Type a message..."
-		value={inputValue}
-		onValueChange={(v) => (inputValue = v)}
+		value={currentValue}
+		onValueChange={updateValue}
 		{disabled}
 		onkeydown={handleKeydown}
 		class="flex-1"

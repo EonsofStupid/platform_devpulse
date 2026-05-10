@@ -18,6 +18,9 @@ pub mod minions;
 pub mod persistence;
 /// Reasoning pipeline (chains, HMM).
 pub mod reasoning;
+/// Type-time chat-input suggestion service. Embeds via the
+/// `chat.suggest` slot, recalls from the `chat_prompt` corpus.
+pub mod suggest;
 /// RRO trifecta (layman entry) — sibling to `llguidance`. Re-exports
 /// the state machine from `reasoning` + the vector-store adapter from
 /// `persistence::rro`. Embedder + encoder land in Phase D'.

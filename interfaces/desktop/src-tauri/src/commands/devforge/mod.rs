@@ -20,7 +20,7 @@ use crate::state::PlatformState;
 use state_file::DevforgeState;
 use std::path::PathBuf;
 use tauri::State;
-use types::{DevforgeBootstrapStatus, DevforgeHealth, DevforgeHealthState, RehStatus};
+use types::{DevforgeBootstrapStatus, DevforgeConfigView, DevforgeHealth, DevforgeHealthState, RehStatus};
 
 /// Start the `DevForge` REH child process (Module Charter verb).
 ///
@@ -198,6 +198,36 @@ pub async fn devforge_get_status(
         pid,
         uptime_secs,
         memory_rss_bytes,
+    })
+}
+
+/// Live snapshot of `[services.system.devforge]` — the SSOT config
+/// the running platform is actually using.
+///
+/// Pulled from `Platform::boot_config()` so what the frontend sees
+/// matches what the engine is operating with. The Connection card on
+/// `/devforge` and the devtool's Config tab both render against this
+/// — never hardcoded copies of the host/port/etc.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn devforge_get_config(
+    state: State<'_, PlatformState>,
+) -> Result<DevforgeConfigView, String> {
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
+    let entry = &platform.boot_config().services.system.devforge;
+    Ok(DevforgeConfigView {
+        enabled: entry.enabled,
+        critical: entry.critical,
+        mode: entry.mode.clone(),
+        port_configured: entry.port,
+        host: entry.host.clone(),
+        user_data_dir: entry.user_data_dir.clone(),
+        extensions_dir: entry.extensions_dir.clone(),
+        workspace_path: entry.workspace_path.clone(),
+        update_channel_url: entry.update_channel_url.clone(),
+        startup_timeout_secs: entry.startup_timeout_secs,
+        health_poll_interval_ms: entry.health_poll_interval_ms,
     })
 }
 

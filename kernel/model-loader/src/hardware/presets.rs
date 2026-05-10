@@ -399,21 +399,22 @@ mod tests {
         }
     }
 
-    /// Floor preset has exactly 10 recommendations: 5 tier-specific
+    /// Floor preset has exactly 13 recommendations: 5 tier-specific
     /// (chat.brain, minion.shared, voice.brain via mistral.rs phi4mm,
     /// plus rag.embedder + rag.encoder overriding the common-slots
-    /// defaults with harrier-270m) + 5 from common (rag.reranker,
-    /// vision.embedder, voice.stt, voice.tts, voice.wake —
-    /// rag.embedder and rag.encoder are both in the tier block so
-    /// the common entries for those two are skipped by dedup).
-    /// Breaks if either the Floor preset's tier block or the
-    /// `[[common.slots]]` table changes count.
+    /// defaults with harrier-270m) + 8 from common (rag.reranker,
+    /// minion.embedder, minion.encoder, vision.embedder, voice.stt,
+    /// voice.tts, voice.wake, chat.suggest — rag.embedder and
+    /// rag.encoder are both in the tier block so the common entries
+    /// for those two are skipped by dedup). Breaks if either the Floor
+    /// preset's tier block or the `[[common.slots]]` table changes
+    /// count.
     #[test]
     fn floor_preset_has_ten_recommendations() {
         let downloaded = std::collections::HashSet::new();
         let cfg =
             config_for_tier(HardwareTier::Floor, &downloaded, Path::new("/nonexistent")).unwrap();
-        assert_eq!(cfg.recommendations.len(), 10);
+        assert_eq!(cfg.recommendations.len(), 13);
         assert_eq!(cfg.preset_name, "Floor (8GB)");
     }
 

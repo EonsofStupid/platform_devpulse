@@ -127,6 +127,14 @@ pub use devpulse_clyffy::cortex::governance::{
     thought_create, thought_load_branch, ThoughtRecord,
 };
 
+// IP-NOTE: chat-input type-time suggestion service. `Suggestion` carries
+// a single recalled prompt + its score components; `SuggestionService`
+// is the embed-and-rank service over the user-scoped `chat_prompt`
+// corpus. Names describe industry-standard concepts (suggestion,
+// service) — no kernel vocabulary, no rename needed. Tauri layer calls
+// `Platform::ensure_suggest_service()` to obtain the service.
+pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
+
 // IP-NOTE: model-loader concepts the desktop UI surfaces directly
 // (registry entries, source-tier classification, slot identity).
 // All names describe industry-standard concepts, no rename needed.
@@ -276,6 +284,15 @@ pub struct Platform {
     // ── Model Loader (Inference) ──────────────────────────────
     #[cfg(feature = "inference")]
     model_loader: Option<Arc<ModelLoaderService>>,
+    // ── Suggestion service (chat-input intellisense) ─────────
+    // Lazy-constructed on first call to `ensure_suggest_service` —
+    // both `model_loader` and `user_graph` must be ready before the
+    // bridge can wire to the `chat.suggest` slot. Gated behind
+    // `inference` because the bridge depends on the kernel embedder
+    // pool; non-inference builds expose `suggest_service()` returning
+    // `None` and `ensure_suggest_service()` returning a clear error.
+    #[cfg(feature = "inference")]
+    suggest: ArcSwapOption<devpulse_clyffy::cortex::suggest::SuggestionService>,
     // ── DevForge (VSCode) — lazy, user-initiated ─────────────
     // NOT a boot-time service. First open of the code-editor window
     // calls `ensure_devforge_started()` which spawns the REH child
@@ -401,6 +418,8 @@ impl Platform {
             vector: booted.vector,
             #[cfg(feature = "inference")]
             model_loader: booted.model_loader,
+            #[cfg(feature = "inference")]
+            suggest: ArcSwapOption::empty(),
             devforge: ArcSwapOption::empty(),
             ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
@@ -639,6 +658,86 @@ impl Platform {
     #[cfg(feature = "inference")]
     pub fn model_loader(&self) -> Option<&Arc<ModelLoaderService>> {
         self.model_loader.as_ref()
+    }
+
+    // ── Suggestion service accessor + lazy builder ─────────────────
+
+    /// Get the chat-input suggestion service if it has been built.
+    ///
+    /// Returns `None` until [`Self::ensure_suggest_service`] succeeds
+    /// once. The accessor is non-blocking and lock-free
+    /// (`ArcSwapOption::load_full`).
+    #[cfg(feature = "inference")]
+    #[must_use]
+    pub fn suggest_service(
+        &self,
+    ) -> Option<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>> {
+        self.suggest.load_full()
+    }
+
+    /// Build the suggestion service on first call; return the cached
+    /// `Arc` on every subsequent call.
+    ///
+    /// Construction wires:
+    /// - [`devpulse_clyffy::cortex::suggest::ChatSuggestEmbedder`] over the
+    ///   `chat.suggest` slot via the kernel `ModelLoaderService`.
+    /// - The embedder is cast to `Arc<dyn Embedder>` (`#[async_trait]`
+    ///   on the trait makes this `dyn`-compatible).
+    /// - The user graph's `SurrealAdapter` + namespace pair so the
+    ///   service writes/reads the `chat_prompt` table inside
+    ///   USER_GRAPH_SCHEMA.
+    ///
+    /// # Errors
+    /// - `model_loader` is not booted (no embedder source).
+    /// - `user_graph` is not booted (no storage target).
+    #[cfg(feature = "inference")]
+    pub async fn ensure_suggest_service(
+        &self,
+    ) -> Result<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>, String> {
+        if let Some(svc) = self.suggest.load_full() {
+            return Ok(svc);
+        }
+
+        let loader = self
+            .model_loader
+            .as_ref()
+            .ok_or_else(|| "model_loader not booted".to_string())?;
+        let graph = self
+            .user_graph
+            .as_ref()
+            .ok_or_else(|| "user_graph not booted".to_string())?;
+
+        let kernel_loader = loader.kernel_clone();
+        let bridge = devpulse_clyffy::cortex::suggest::ChatSuggestEmbedder::new(kernel_loader);
+        let embedder: Arc<dyn devpulse_clyffy::cortex::cag::traits::Embedder> = Arc::new(bridge);
+
+        let adapter = Arc::clone(graph.adapter());
+        let namespace = graph.handle().namespace().to_string();
+        let database = graph.handle().database().to_string();
+
+        tracing::info!(
+            namespace = %namespace,
+            database = %database,
+            "constructing suggestion service (chat.suggest -> user graph)"
+        );
+
+        let svc = Arc::new(
+            devpulse_clyffy::cortex::suggest::SuggestionService::new(
+                embedder, adapter, namespace, database,
+            ),
+        );
+        self.suggest.store(Some(Arc::clone(&svc)));
+        Ok(svc)
+    }
+
+    /// `inference`-disabled fallback for callers that compile without
+    /// the feature. Always `None`.
+    #[cfg(not(feature = "inference"))]
+    #[must_use]
+    pub fn suggest_service(
+        &self,
+    ) -> Option<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>> {
+        None
     }
 
     /// Get the model download catalog from the boot config.

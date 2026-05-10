@@ -12,14 +12,24 @@
 //! HOW is deferred to concrete implementations.
 
 use anyhow::Result;
+use async_trait::async_trait;
 
 use super::types::{ContextBlob, PipelineConfig, RetrievedChunk, ScoredChunk, SparseVector};
 
 /// Dense embedding generation.
 ///
 /// Converts text → fixed-dimension dense vector for semantic similarity.
-/// Backed by Qwen3-Embedding-0.6B via Candle (GGUF quantized).
-#[allow(async_fn_in_trait)]
+/// Backed by Qwen3-Embedding-0.6B via Candle (GGUF quantized) for the
+/// CAG pipeline; bound to the `chat.suggest` slot (Harrier 0.6B) for
+/// the type-time suggestion service.
+///
+/// `#[async_trait]` rewrites the async fns into `Pin<Box<dyn Future>>`
+/// so the trait is `dyn`-compatible — the suggestion service holds an
+/// `Arc<dyn Embedder + Send + Sync>` rather than a generic parameter.
+/// Static-dispatch callers (e.g. the CAG pipeline) keep working
+/// unchanged; dynamic-dispatch callers gain the option of swapping
+/// implementations at runtime via the model-loader's hot-swap path.
+#[async_trait]
 pub trait Embedder: Send + Sync {
     /// Dimensionality of output vectors (e.g. 1024 for Qwen3-Embedding).
     fn dimension(&self) -> u32;

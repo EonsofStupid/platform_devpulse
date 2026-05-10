@@ -299,10 +299,12 @@ mod tests {
         assert_eq!(config.preset_name, "Floor (8GB)");
         // 5 tier-specific (chat.brain, minion.shared, voice.brain via
         // mistral.rs phi4mm, plus rag.embedder + rag.encoder overriding
-        // the common.slots default with the smaller harrier-270m) + 5
-        // common (rag.reranker, vision.embedder, voice.stt, voice.tts,
-        // voice.wake — rag.embedder is overridden so excluded) = 10.
-        assert_eq!(config.recommendations.len(), 10);
+        // the common.slots default with the smaller harrier-270m) + 8
+        // common (rag.reranker, minion.embedder, minion.encoder,
+        // vision.embedder, voice.stt, voice.tts, voice.wake,
+        // chat.suggest — rag.embedder/rag.encoder are overridden so
+        // excluded) = 13.
+        assert_eq!(config.recommendations.len(), 13);
 
         let slots: Vec<&str> = config
             .recommendations

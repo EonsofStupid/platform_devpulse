@@ -592,11 +592,49 @@ model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 
+# chat.suggest — same Harrier 0.6B base as rag.embedder/rag.encoder.
+# BackendPool ref-counts identical model ids so the three slots share
+# ONE copy of the weights in CPU memory. The chat-input surface drives
+# type-time queries against this slot without a reasoner round-trip;
+# personal-history adapter is layered per-user via the LoRA slot.
+[[common.slots]]
+slot_id = "chat.suggest"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
 [[common.slots]]
 slot_id = "rag.reranker"
 model_repo_id = "Qwen/Qwen3-Reranker-0.6B"
 model_filename = "model.safetensors"
 model_size_mb = 420
+vram_estimate_mb = 0
+device = "Cpu"
+
+# minion.embedder — Harrier 270m, ALWAYS the small variant regardless
+# of host hardware tier. Minion processes load their own embedder so
+# they don't reach back into Clyffy main's 0.6B over IPC for every
+# query. No tier-specific override exists or should exist for this
+# slot — it's consumer-tier-locked.
+[[common.slots]]
+slot_id = "minion.embedder"
+model_repo_id = "microsoft/harrier-oss-v1-270m"
+model_filename = "model.safetensors"
+model_size_mb = 536
+vram_estimate_mb = 0
+device = "Cpu"
+
+# minion.encoder — Harrier 270m, paired with minion.embedder. Same
+# consumer-tier-locked sizing reasoning. Each minion process owns one
+# encoder/embedder pair sized for fast in-process retrieval, separate
+# from Clyffy main's 0.6B pair.
+[[common.slots]]
+slot_id = "minion.encoder"
+model_repo_id = "microsoft/harrier-oss-v1-270m"
+model_filename = "model.safetensors"
+model_size_mb = 536
 vram_estimate_mb = 0
 device = "Cpu"
 

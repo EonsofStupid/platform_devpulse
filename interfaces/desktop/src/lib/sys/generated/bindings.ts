@@ -54,6 +54,49 @@ async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<C
 }
 },
 /**
+ * Recall top-`k` historical prompts most similar to the partial input
+ * the user is currently typing.
+ * 
+ * `persona_id` may be empty — the service falls back to the default
+ * persona for single-user installs.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Suggestion service cannot construct (model_loader or user_graph
+ * not yet ready).
+ * - Embedder failure (model not loaded).
+ * - SurrealDB query failure.
+ */
+async suggestQuery(partial: string, personaId: string, k: number) : Promise<Result<Suggestion[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("suggest_query", { partial, personaId, k }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Capture a committed prompt into the corpus for future recall.
+ * 
+ * `accepted` records whether the user accepted a prior suggestion to
+ * build this prompt — used by the recency × similarity × accepted
+ * ranking.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Suggestion service cannot construct.
+ * - Embedder failure.
+ * - SurrealDB write failure.
+ */
+async suggestRecord(text: string, personaId: string, accepted: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("suggest_record", { text, personaId, accepted }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * List all chat sessions (most recently touched first).
  */
 async listSessions() : Promise<Result<ChatSession[], string>> {
@@ -4221,6 +4264,18 @@ size_mb: number;
  */
 is_dir?: boolean }
 /**
+ * A single chat message (`OpenAI` format).
+ */
+export type ChatMessage = { 
+/**
+ * Role: "system", "user", or "assistant".
+ */
+role: string; 
+/**
+ * Message content.
+ */
+content: string }
+/**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
 export type ChatMessage = { 
@@ -4256,18 +4311,6 @@ modelUsed: string | null;
  * Inference latency in milliseconds (populated for assistant turns).
  */
 latencyMs: number | null }
-/**
- * A single chat message (`OpenAI` format).
- */
-export type ChatMessage = { 
-/**
- * Role: "system", "user", or "assistant".
- */
-role: string; 
-/**
- * Message content.
- */
-content: string }
 /**
  * Session row for sidebar / grouping.
  */
@@ -8020,6 +8063,36 @@ latency_us: number | null;
  * Human-readable status message.
  */
 message: string | null }
+/**
+ * One suggestion returned by [`SuggestionService::query`].
+ */
+export type Suggestion = { 
+/**
+ * Original prompt id (UUIDv7 — recency-sortable on lex order).
+ */
+id: string; 
+/**
+ * Original prompt text the user committed previously.
+ */
+text: string; 
+/**
+ * Cosine similarity score in `[0.0, 1.0]`. Higher is closer.
+ */
+similarity: number; 
+/**
+ * Unix-seconds capture time. Used by the recency factor in the
+ * final rank.
+ */
+capturedAt: number; 
+/**
+ * Whether the original prompt was accepted (boosts rank).
+ */
+accepted: boolean; 
+/**
+ * Final fused score after recency × similarity × accepted-boost
+ * reweighting. Sorted in descending order in the returned vec.
+ */
+score: number }
 /**
  * Whether the backend for this format is stable, experimental, or
  * not yet shipped. Used by the resolver to decide whether to surface
