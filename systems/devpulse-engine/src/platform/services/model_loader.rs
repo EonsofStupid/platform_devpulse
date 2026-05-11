@@ -646,6 +646,22 @@ impl ModelLoaderService {
         self.inner.burn_embed(texts).await
     }
 
+    /// Hot-swap the Burn encoder weights to the safetensors file at
+    /// `weights_path`. Drives the kernel RRD daemon through one full
+    /// pause → drain → load → validate → swap → resume cycle and
+    /// returns the structured `SwapStats` for the devtool SwapDialog.
+    ///
+    /// First-load goes through `load_slot` on `rag.embedder`; only the
+    /// second-and-later path uses this entry point (the daemon must
+    /// already exist).
+    #[tracing::instrument(skip(self), fields(path = %weights_path.display()))]
+    pub async fn burn_swap_encoder(
+        &self,
+        weights_path: std::path::PathBuf,
+    ) -> anyhow::Result<devpulse_clyffy::model_loader::backends::burn_adapter::SwapStats> {
+        self.inner.burn_swap_encoder(weights_path).await
+    }
+
     /// Score documents against a query through the reranker slot.
     #[tracing::instrument(skip(self, documents), fields(slot_id, count = documents.len()))]
     pub async fn rerank(

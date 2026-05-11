@@ -127,6 +127,13 @@ pub use devpulse_clyffy::cortex::governance::{
     thought_create, thought_load_branch, ThoughtRecord,
 };
 
+// IP-NOTE: RRD encoder hot-swap return shape. `SwapStats` carries dim
+// + elapsed_ms + phases_observed — generic enough to cross outward.
+// The Tauri command `cortex_swap_encoder` returns this directly; the
+// engine `ModelLoaderService::burn_swap_encoder` passthrough preserves
+// the shape unchanged.
+pub use devpulse_clyffy::model_loader::backends::burn_adapter::SwapStats;
+
 // IP-NOTE: chat-input type-time suggestion service. `Suggestion` carries
 // a single recalled prompt + its score components; `SuggestionService`
 // is the embed-and-rank service over the user-scoped `chat_prompt`

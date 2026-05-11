@@ -212,6 +212,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         // Cortex governance graph (CORTEX.md §4) — B-1 foundation slice.
         commands::cortex::cortex_thought_create,
         commands::cortex::cortex_thought_load_branch,
+        commands::cortex::cortex_swap_encoder,
         commands::sherpa::sherpa_compile_info,
         commands::sherpa::sherpa_list_models,
         commands::sherpa::sherpa_delete_model,

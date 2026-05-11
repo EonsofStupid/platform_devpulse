@@ -596,6 +596,42 @@ impl ModelLoaderService {
         .map_err(|e| anyhow::anyhow!("burn_embed join error: {e}"))?
     }
 
+    /// Hot-swap the live Burn encoder weights to the safetensors file
+    /// at `weights_path`. Drives the kernel adapter through one full
+    /// RRD pause → drain → load → validate → swap → resume cycle and
+    /// returns the structured [`SwapStats`] for callers (the devtool
+    /// SwapDialog flow).
+    ///
+    /// Async — internally offloads the synchronous adapter call to
+    /// `spawn_blocking` so the calling task stays responsive while
+    /// the daemon holds its maintenance window (typically 1-3 seconds
+    /// for Harrier 0.6B on NVMe).
+    ///
+    /// # Errors
+    ///
+    /// - No Burn encoder adapter wired (burn feature off or boot skipped).
+    /// - First-load not yet performed (daemon not constructed yet).
+    /// - Source file missing / unreadable / wrong format.
+    /// - Validate forward returned non-finite output (live unchanged).
+    pub async fn burn_swap_encoder(
+        &self,
+        weights_path: std::path::PathBuf,
+    ) -> anyhow::Result<crate::backends::burn_adapter::SwapStats> {
+        let adapter = self
+            .boot
+            .burn_encoder_adapter
+            .clone()
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "burn_swap_encoder: no Burn encoder adapter wired (burn feature off?)"
+                )
+            })?;
+
+        tokio::task::spawn_blocking(move || adapter.swap_blocking(&weights_path))
+            .await
+            .map_err(|e| anyhow::anyhow!("burn_swap_encoder join error: {e}"))?
+    }
+
     /// Check if this is the first run.
     pub async fn is_first_run(&self) -> bool {
         let cfg = self.config.read().await;

@@ -1397,6 +1397,36 @@ async cortexThoughtLoadBranch(projectId: string, branchId: string) : Promise<Res
 }
 },
 /**
+ * Hot-swap the live Burn encoder weights to a safetensors file on disk.
+ * 
+ * Drives the RRD daemon through one full
+ * `pause → drain → load → validate → swap → resume` cycle. Returns the
+ * structured [`SwapStats`] (renamed `SwapReport` on the TS side via the
+ * `swap.svc.ts` mirror) on a healthy swap; on failure the live encoder
+ * is unchanged and the daemon is resumed before the error returns.
+ * 
+ * The matching UI surface is the `SwapDialog` under
+ * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
+ * First-load (turning the slot from cold to ready) goes through the
+ * normal `load_slot` path on `rag.embedder`; only the second-and-later
+ * path uses this command.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Model Loader service is disabled or burn feature is off.
+ * - First-load has never run (daemon not constructed yet).
+ * - Source file missing / unreadable / wrong format.
+ * - Validate forward returned non-finite output (live unchanged).
+ */
+async cortexSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cortex_swap_encoder", { weightsPath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Report whether the `sherpa` cargo feature is baked into this build.
  * Used by the devtool to render a "not available in this build" banner
  * instead of silently failing when the user opens the page.
@@ -8181,6 +8211,35 @@ dataPath: string }
  * port / binary / auth fields a user would override.
  */
 export type SurrealUserConfig = Record<string, never>
+/**
+ * Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
+ * 
+ * Mirrors the `SwapReport` interface the desktop devtool consumes via
+ * the `cortex_swap_encoder` Tauri command (see
+ * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
+ * Fields are flat + plain types so the value crosses straight to the
+ * frontend under specta when the consuming crate enables the feature.
+ */
+export type SwapStats = { 
+/**
+ * Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B).
+ * Read off the live forward pass — authoritative against the
+ * loaded weights, not a config.json shadow.
+ */
+dim: number; 
+/**
+ * Total wall-clock time the maintenance window was held, in ms.
+ * Includes pause/drain + load + validate + swap + resume.
+ */
+elapsed_ms: number; 
+/**
+ * Phase names the daemon traversed during the swap, in order. The
+ * canonical sequence on a healthy swap is `pause_requested`,
+ * `drain_complete`, `load_complete`, `validate_pass`, `swap_commit`,
+ * `resume_complete`. Use `phases_observed.last()` to confirm the
+ * daemon settled at `resume_complete`.
+ */
+phases_observed: string[] }
 /**
  * Overall system health status.
  */

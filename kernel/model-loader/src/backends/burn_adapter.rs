@@ -51,9 +51,10 @@ use std::sync::Arc;
 /// Mirrors the `SwapReport` interface the desktop devtool consumes via
 /// the `cortex_swap_encoder` Tauri command (see
 /// `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
-/// Fields are flat + plain types so the engine facade can re-export
-/// them with a `#[derive(specta::Type)]` wrapper without re-shaping.
-#[derive(Debug, Clone)]
+/// Fields are flat + plain types so the value crosses straight to the
+/// frontend under specta when the consuming crate enables the feature.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct SwapStats {
     /// Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B).
     /// Read off the live forward pass — authoritative against the

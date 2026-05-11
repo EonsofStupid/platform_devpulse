@@ -6,7 +6,10 @@
 //! visualizer lands in B-3.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::{thought_create, thought_load_branch, RroState, ThoughtRecord};
+use devpulse_engine::platform::{
+    thought_create, thought_load_branch, RroState, SwapStats, ThoughtRecord,
+};
+use std::path::PathBuf;
 use tauri::State;
 
 macro_rules! get_platform {
@@ -78,6 +81,45 @@ pub async fn cortex_thought_load_branch(
         .ok_or_else(|| "User graph not available".to_string())?;
 
     thought_load_branch(graph.handle(), &project_id, &branch_id)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
+/// Hot-swap the live Burn encoder weights to a safetensors file on disk.
+///
+/// Drives the RRD daemon through one full
+/// `pause → drain → load → validate → swap → resume` cycle. Returns the
+/// structured [`SwapStats`] (renamed `SwapReport` on the TS side via the
+/// `swap.svc.ts` mirror) on a healthy swap; on failure the live encoder
+/// is unchanged and the daemon is resumed before the error returns.
+///
+/// The matching UI surface is the `SwapDialog` under
+/// `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
+/// First-load (turning the slot from cold to ready) goes through the
+/// normal `load_slot` path on `rag.embedder`; only the second-and-later
+/// path uses this command.
+///
+/// # Errors
+/// - Platform is still booting.
+/// - Model Loader service is disabled or burn feature is off.
+/// - First-load has never run (daemon not constructed yet).
+/// - Source file missing / unreadable / wrong format.
+/// - Validate forward returned non-finite output (live unchanged).
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(weights_path = %weights_path))]
+pub async fn cortex_swap_encoder(
+    state: State<'_, PlatformState>,
+    weights_path: String,
+) -> Result<SwapStats, String> {
+    let platform = get_platform!(state)?;
+    let loader = platform
+        .model_loader()
+        .cloned()
+        .ok_or_else(|| "Model Loader not available (disabled or failed to boot)".to_string())?;
+
+    loader
+        .burn_swap_encoder(PathBuf::from(weights_path))
         .await
         .map_err(|e| format!("{e:#}"))
 }
