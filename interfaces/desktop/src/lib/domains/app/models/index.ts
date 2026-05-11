@@ -28,6 +28,8 @@
 // without splitting the call site between two files.
 export { cancelDownload, downloadModel } from "$lib/sys/bindings/models/index.js";
 export { hardwareState } from "./data-access/hardware.state.svelte.js";
+// ── Inference (streaming text generation) ────────────────
+export { generateText, onInferenceToken } from "./data-access/inference.service.js";
 // ── State runes ──────────────────────────────────────────
 export { modelsState } from "./data-access/models.state.svelte.js";
 export { narrationState } from "./data-access/narration.state.svelte.js";
