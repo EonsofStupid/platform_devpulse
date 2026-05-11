@@ -37,9 +37,9 @@ use std::sync::Arc;
 
 use arc_swap::ArcSwap;
 use burn::prelude::Backend;
-use model_loader::backends::burn_adapter::BurnEncoderAdapter;
+use model_loader::backends::burn_adapter::{BurnEncoderAdapter, SwapStats};
 use model_loader::loading::states::MemoryFootprint;
-use rrd::{HotUpdateable, RRD};
+use rrd::{HotSwap, HotUpdateable, RRD};
 use tokio::sync::{watch, Mutex};
 use tokenizers::Tokenizer;
 
@@ -394,5 +394,113 @@ where
 
     fn embed_texts_blocking(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
         self.embed_text(texts)
+    }
+
+    fn swap_blocking(&self, weights_path: &Path) -> anyhow::Result<SwapStats> {
+        let start = std::time::Instant::now();
+
+        // Resolve the model directory + geometry. Same logic as
+        // `load_blocking` — config.json beside the safetensors picks
+        // 0.6B vs 270M without the caller knowing which is which.
+        let model_dir = weights_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("burn swap: safetensors path has no parent dir"))?;
+        let config = load_geometry_from_config_json(model_dir, &self.config);
+
+        let source = BurnEmbedderSource {
+            safetensors_path: weights_path.to_path_buf(),
+            config: config.clone(),
+            device: self.device.clone(),
+        };
+
+        // Pre-load the tokenizer outside the maintenance window so a
+        // malformed `tokenizer.json` surfaces fast — no point paying
+        // the pause/drain cost only to fail at the very end.
+        let new_tok = load_tokenizer(model_dir)
+            .map_err(|e| anyhow::anyhow!("burn swap: tokenizer: {e:#}"))?;
+
+        // Bridge sync ↔ async via the calling thread's Tokio handle.
+        // Callers MUST be inside a Tokio runtime (typically
+        // `spawn_blocking` from a Tauri command); raw OS threads
+        // surface the explicit error below instead of panicking.
+        let handle = tokio::runtime::Handle::try_current()
+            .map_err(|_| anyhow::anyhow!(
+                "burn swap: must be called from within a Tokio runtime (use `spawn_blocking`)"
+            ))?;
+
+        let daemon_guard = self.daemon.blocking_lock();
+        let daemon = daemon_guard.as_ref().ok_or_else(|| {
+            anyhow::anyhow!(
+                "burn swap: daemon not constructed — call `load_blocking` first"
+            )
+        })?;
+
+        let phases_observed: Vec<String> = handle.block_on(async move {
+            let mut phases = Vec::with_capacity(6);
+
+            // ── pause + drain ────────────────────────────────────
+            let pause_handle = daemon
+                .pause()
+                .await
+                .map_err(|e| anyhow::anyhow!("burn swap: pause failed: {e}"))?;
+            phases.push("pause_requested".to_string());
+            phases.push("drain_complete".to_string());
+
+            // ── load new snapshot ────────────────────────────────
+            // On any failure between here and `resume`, we MUST
+            // resume the daemon to release the maintenance window.
+            // Live encoder is unchanged unless `swap()` commits.
+            let snapshot =
+                match <BurnEmbedder<B> as HotUpdateable>::load(&source).await {
+                    Ok(s) => {
+                        phases.push("load_complete".to_string());
+                        s
+                    }
+                    Err(e) => {
+                        let _ = daemon.resume(pause_handle).await;
+                        return Err(anyhow::anyhow!("burn swap: load failed: {e:#}"));
+                    }
+                };
+
+            // ── validate + commit (inside the daemon) ────────────
+            if let Err(e) = daemon.swap(&pause_handle, snapshot).await {
+                let _ = daemon.resume(pause_handle).await;
+                return Err(anyhow::anyhow!("burn swap: swap failed: {e}"));
+            }
+            phases.push("validate_pass".to_string());
+            phases.push("swap_commit".to_string());
+
+            // ── sync adapter-local slots with the new live state ─
+            // Daemon's internal ArcSwap is the SSOT for the live
+            // encoder; the adapter's `slot` and `tokenizer` mirror
+            // it for the read-path that doesn't go through the
+            // daemon (e.g. `embed_text`). Updating inside the
+            // maintenance window means readers see encoder+tokenizer
+            // atomically post-resume.
+            let new_live = daemon.current();
+            self.slot.store(Arc::new(Some(new_live)));
+            self.tokenizer.store(Arc::new(Some(new_tok)));
+
+            // ── resume ───────────────────────────────────────────
+            daemon
+                .resume(pause_handle)
+                .await
+                .map_err(|e| anyhow::anyhow!("burn swap: resume failed: {e}"))?;
+            phases.push("resume_complete".to_string());
+
+            Ok::<Vec<String>, anyhow::Error>(phases)
+        })?;
+
+        // Dim is the hidden_size of the (now-loaded) geometry. The
+        // RRD daemon's `validate` already verified the loaded weights
+        // produce that exact output dim, so this is authoritative.
+        let dim = config.model.hidden_size;
+        let elapsed_ms = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
+
+        Ok(SwapStats {
+            dim,
+            elapsed_ms,
+            phases_observed,
+        })
     }
 }

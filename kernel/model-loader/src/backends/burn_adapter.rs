@@ -32,13 +32,43 @@
 //!
 //! ## What does NOT flow through the adapter
 //!
-//! - Hot-update orchestration. The RRD daemon (`kernel/rrd`) owns
-//!   the swap surface; this adapter only exposes the initial load
-//!   so the slot system can transition Empty → Ready.
+//! - Hot-update mechanics. The RRD daemon (`kernel/rrd`) owns the
+//!   atomic pause→validate→swap→resume primitive; this adapter exposes
+//!   the *entry point* (`swap_blocking`) that drives the daemon through
+//!   one full cycle and returns a structured [`SwapStats`] for the UI.
+//!   The daemon's own lifecycle events still flow through tracing →
+//!   `RrdLifecycleTranslator` → `InternalEvent::RrdPhaseTransition`
+//!   as before; `phases_observed` on [`SwapStats`] is a return-value
+//!   snapshot for callers that want the phase list without subscribing
+//!   to the live event stream.
 
 use crate::loading::states::MemoryFootprint;
 use std::path::Path;
 use std::sync::Arc;
+
+/// Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
+///
+/// Mirrors the `SwapReport` interface the desktop devtool consumes via
+/// the `cortex_swap_encoder` Tauri command (see
+/// `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
+/// Fields are flat + plain types so the engine facade can re-export
+/// them with a `#[derive(specta::Type)]` wrapper without re-shaping.
+#[derive(Debug, Clone)]
+pub struct SwapStats {
+    /// Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B).
+    /// Read off the live forward pass — authoritative against the
+    /// loaded weights, not a config.json shadow.
+    pub dim: usize,
+    /// Total wall-clock time the maintenance window was held, in ms.
+    /// Includes pause/drain + load + validate + swap + resume.
+    pub elapsed_ms: u64,
+    /// Phase names the daemon traversed during the swap, in order. The
+    /// canonical sequence on a healthy swap is `pause_requested`,
+    /// `drain_complete`, `load_complete`, `validate_pass`, `swap_commit`,
+    /// `resume_complete`. Use `phases_observed.last()` to confirm the
+    /// daemon settled at `resume_complete`.
+    pub phases_observed: Vec<String>,
+}
 
 /// The model-loader-facing surface the clyffy Burn encoder
 /// implementation must provide.
@@ -84,6 +114,31 @@ pub trait BurnEncoderAdapter: Send + Sync + 'static {
     /// - Tokenizer encode failure.
     /// - Forward pass produces non-finite output.
     fn embed_texts_blocking(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>>;
+
+    /// Hot-swap the live encoder weights to the safetensors file at
+    /// `weights_path`. Drives the RRD daemon through one full
+    /// `pause → drain → load → validate → swap → resume` cycle.
+    ///
+    /// Synchronous from the caller's POV; internally bridges to the
+    /// daemon's async surface via `tokio::runtime::Handle::current().block_on`,
+    /// so the caller MUST already be inside a Tokio context (the
+    /// model-loader's blocking pool counts; raw OS threads do not).
+    /// Returns [`SwapStats`] on a healthy swap; the live encoder is
+    /// unchanged if any phase fails.
+    ///
+    /// Requires the adapter to have been loaded at least once via
+    /// [`Self::load_blocking`] so the RRD daemon exists. First-load
+    /// callers go through `load_blocking`; only the second-and-later
+    /// path goes through this method.
+    ///
+    /// # Errors
+    ///
+    /// - Daemon not constructed yet (call `load_blocking` first).
+    /// - Source file missing / unreadable / wrong format.
+    /// - Validate forward returned non-finite output (live unchanged).
+    /// - Drain timeout (force-proceeds with warning; not a hard error).
+    /// - Not inside a Tokio context.
+    fn swap_blocking(&self, weights_path: &Path) -> anyhow::Result<SwapStats>;
 }
 
 /// Type-erased handle held by `ModelLoaderService`. Engine wires the
