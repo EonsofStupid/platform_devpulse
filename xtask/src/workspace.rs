@@ -1043,6 +1043,161 @@ impl BuildConfig {
                 }
             }
         }
+
+        // ── Fast-build wiring resolved at runtime ──
+        // rust-lld + sccache live outside the repo (per-machine toolchain and
+        // per-machine cargo bin). Hardcoded paths in `.cargo/config.toml`
+        // would break for every other dev box. cargo respects
+        // `CARGO_TARGET_<TARGET>_LINKER` and `RUSTC_WRAPPER` env vars with
+        // higher precedence than config-file settings, so injecting them
+        // here keeps the repo config portable.
+        self.apply_fast_build_env();
+    }
+
+    /// Detect installed acceleration SDKs and return the cargo `--features`
+    /// string that activates the buildable subset. Returns `None` when no
+    /// SDK is installed — caller builds with default features (pure CPU,
+    /// no MKL, no GPU).
+    ///
+    /// Detection composes GPU + CPU features into one comma-joined list:
+    ///   - CUDA Toolkit + NVIDIA GPU → `gpu-nvidia`
+    ///   - else Vulkan SDK installed → `gpu-vulkan`
+    ///   - Intel MKL (MKLROOT or default install) → `cpu-mkl` (additive)
+    ///
+    /// CUDA is preferred over Vulkan on NVIDIA (runs ~20-30% faster for
+    /// llama.cpp). MKL composes with either GPU pick — GPU handles the
+    /// heavy nets, MKL handles the remaining CPU BLAS/LAPACK.
+    pub fn detect_build_features(&self) -> Option<String> {
+        let mut features: Vec<&'static str> = Vec::new();
+
+        let cuda_toolkit = std::env::var("CUDA_PATH")
+            .ok()
+            .filter(|p| std::path::Path::new(p).join("bin").join("nvcc.exe").is_file())
+            .or_else(|| {
+                let base = std::path::Path::new("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA");
+                if !base.is_dir() {
+                    return None;
+                }
+                std::fs::read_dir(base)
+                    .ok()?
+                    .filter_map(Result::ok)
+                    .map(|e| e.path())
+                    .filter(|p| p.join("bin").join("nvcc.exe").is_file())
+                    .max()
+                    .map(|p| p.to_string_lossy().to_string())
+            });
+        let nvidia_gpu_present = which::which("nvidia-smi").is_ok();
+        let cuda_active = cuda_toolkit.is_some() && nvidia_gpu_present;
+
+        if cuda_active {
+            features.push("gpu-nvidia");
+        } else {
+            let vulkan_sdk = std::env::var("VULKAN_SDK")
+                .ok()
+                .filter(|p| std::path::Path::new(p).is_dir())
+                .or_else(|| {
+                    let candidates = ["C:/VulkanSDK", "C:/Program Files/VulkanSDK"];
+                    candidates
+                        .iter()
+                        .find(|c| std::path::Path::new(c).is_dir())
+                        .map(|s| (*s).to_string())
+                });
+            if vulkan_sdk.is_some() {
+                features.push("gpu-vulkan");
+            }
+        }
+
+        let mkl_root = std::env::var("MKLROOT")
+            .ok()
+            .filter(|p| std::path::Path::new(p).is_dir())
+            .or_else(|| {
+                // Default Intel oneAPI install layout on Windows.
+                let mkl_dir = std::path::Path::new("C:/Program Files (x86)/Intel/oneAPI/mkl");
+                if !mkl_dir.is_dir() {
+                    return None;
+                }
+                std::fs::read_dir(mkl_dir)
+                    .ok()?
+                    .filter_map(Result::ok)
+                    .map(|e| e.path())
+                    .filter(|p| p.is_dir())
+                    .max()
+                    .map(|p| p.to_string_lossy().to_string())
+            });
+        if mkl_root.is_some() {
+            features.push("cpu-mkl");
+        }
+
+        if features.is_empty() {
+            None
+        } else {
+            Some(features.join(","))
+        }
+    }
+
+    /// Resolve rust-lld and sccache from per-machine locations and export
+    /// them as cargo env vars. Idempotent; safe to call multiple times.
+    fn apply_fast_build_env(&self) {
+        // rust-lld ships in the `llvm-tools-preview` rustup component at
+        // `{sysroot}/lib/rustlib/{target}/bin/rust-lld[.exe]`.
+        match Command::new("rustc").args(["--print", "sysroot"]).output() {
+            Ok(out) if out.status.success() => {
+                let sysroot = String::from_utf8_lossy(&out.stdout).trim().to_string();
+                let lld_name = if cfg!(windows) { "rust-lld.exe" } else { "rust-lld" };
+                let rust_lld = Path::new(&sysroot)
+                    .join("lib")
+                    .join("rustlib")
+                    .join(&self.toolchain.target)
+                    .join("bin")
+                    .join(lld_name);
+                if rust_lld.is_file() {
+                    let env_key = format!(
+                        "CARGO_TARGET_{}_LINKER",
+                        self.toolchain.target.replace('-', "_").to_uppercase()
+                    );
+                    std::env::set_var(&env_key, &rust_lld);
+                    println!(
+                        "  [env] {} = {} (rust-lld fast linker)",
+                        env_key,
+                        rust_lld.display()
+                    );
+                } else {
+                    println!(
+                        "  [warn] rust-lld missing at {} — run `rustup component add llvm-tools-preview`",
+                        rust_lld.display()
+                    );
+                }
+            }
+            _ => println!("  [warn] `rustc --print sysroot` failed; rust-lld not wired"),
+        }
+
+        // sccache — compile cache that survives `cargo clean` and branch
+        // switches. Bootstrap with `cargo install sccache --locked` once;
+        // afterwards it lives at `~/.cargo/bin/sccache(.exe)` which is on
+        // every rustup user's PATH.
+        match which::which("sccache") {
+            Ok(path) => {
+                std::env::set_var("RUSTC_WRAPPER", &path);
+                println!(
+                    "  [env] RUSTC_WRAPPER = {} (sccache compile cache)",
+                    path.display()
+                );
+            }
+            Err(_) => println!(
+                "  [warn] sccache not on PATH — `cargo install sccache --locked` enables compile cache"
+            ),
+        }
+
+        // Acceleration probe — logs the auto-detected feature set so dev
+        // knows what the upcoming `cargo check`/`cargo build` will compile.
+        match self.detect_build_features() {
+            Some(feats) => println!("  [accel] auto-detected features = {feats}"),
+            None => println!(
+                "  [accel] no SDK detected — bare CPU build. \
+                 Install Vulkan SDK (cross-vendor GPU), CUDA Toolkit 12.x \
+                 (NVIDIA peak), and/or Intel oneAPI MKL (CPU BLAS) to enable."
+            ),
+        }
     }
 }
 

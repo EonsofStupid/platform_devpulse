@@ -25,6 +25,11 @@ candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:to
 # encoder code itself is compiled.
 burn-cpu = ["dep:burn", "burn/flex", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
 burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
+# Cross-vendor GPU via wgpu/Vulkan backend — runs on AMD + NVIDIA + Intel +
+# Apple. Slightly slower than `burn-cuda` on NVIDIA but the only GPU path on
+# AMD/Intel. Requires Vulkan SDK at build time; runtime loads the system's
+# `vulkan-1.dll` (every modern GPU driver ships one).
+burn-wgpu = ["dep:burn", "burn/wgpu", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
 model-loader = [
     "dep:model-loader",
     "model-loader/specta",
@@ -33,6 +38,13 @@ model-loader = [
     "model-loader/nvml",
     "model-loader/llama-cpp-ffi",
 ]
+# ── GPU backend proxies for the consumed model-loader crate ──
+# Cargo features can only chain one level deep (`dep/feature`, not
+# `dep/dep/feature`), so engine-level GPU proxies route through clyffy here.
+model-loader-cuda = ["model-loader", "model-loader/cuda"]
+model-loader-mkl = ["model-loader", "model-loader/mkl"]
+model-loader-llama-cuda = ["model-loader", "model-loader/llama-cpp-cuda"]
+model-loader-llama-vulkan = ["model-loader", "model-loader/llama-cpp-vulkan"]
 # Tauri IPC type derivation. Enable when this crate is consumed by the
 # Tauri facade (engine + desktop). Off by default so kernel-only builds
 # don't drag specta into their dep tree.

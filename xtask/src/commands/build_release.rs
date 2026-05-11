@@ -241,12 +241,18 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         "Tauri Bundle"
     });
     let log_path = ws.root().join("target").join("xtask-build-release.log");
-    let pnpm_args: &[&str] = if portable_only {
-        &["tauri", "build", "--no-bundle"]
+    let accel_feats = platform_config.build.detect_build_features();
+    let mut pnpm_args: Vec<String> = if portable_only {
+        vec!["tauri".into(), "build".into(), "--no-bundle".into()]
     } else {
-        &["tauri", "build"]
+        vec!["tauri".into(), "build".into()]
     };
-    println!("  > pnpm {}", pnpm_args.join(" "));
+    if let Some(feats) = accel_feats.as_deref() {
+        pnpm_args.push("--features".into());
+        pnpm_args.push(feats.into());
+    }
+    let pnpm_arg_refs: Vec<&str> = pnpm_args.iter().map(String::as_str).collect();
+    println!("  > pnpm {}", pnpm_arg_refs.join(" "));
     if portable_only {
         println!("  > Scope: release profile compile + static frontend (NO installers)");
     } else {
@@ -264,7 +270,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     };
     let bundle_guard = sink.start(bundle_stage_id);
     let build_start = Instant::now();
-    let status = ws.exec_tee_log(&ws.desktop_dir(), "pnpm", pnpm_args, &log_path)?;
+    let status = ws.exec_tee_log(&ws.desktop_dir(), "pnpm", &pnpm_arg_refs, &log_path)?;
     let build_secs = build_start.elapsed().as_secs_f64();
 
     if !status.success() {

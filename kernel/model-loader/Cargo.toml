@@ -41,7 +41,30 @@ mistralrs-backend = ["dep:mistralrs", "dep:image"]
 # Loaded by the voice_pool when a slot's `backend_variant = "qwen3-tts-candle"`.
 qwen3-tts-backend = ["dep:qwen3-tts", "candle-backend"]
 nvml = ["dep:nvml-wrapper"]
+# Candle MKL backend — Intel Math Kernel Library. CPU acceleration via
+# optimised BLAS/LAPACK kernels. Builds need Intel oneAPI Base Toolkit (or
+# standalone MKL); runtime needs the MKL DLLs bundled with the release
+# (~150 MB). Pairs naturally with `gpu-vulkan` or stands alone for pure-CPU
+# builds.
+mkl = ["candle-core/mkl"]
+# Candle CUDA backend — NVIDIA only, requires CUDA Toolkit 12.x at build time.
 cuda = ["candle-core/cuda"]
+# llama.cpp GPU backends. Pick ONE at build time; cargo features are
+# build-time, not runtime-selectable. `llama-cpp-vulkan` is the cross-vendor
+# default (AMD + NVIDIA + Intel + Apple via MoltenVK); requires Vulkan SDK at
+# build time, loads `vulkan-1.dll` (or libvulkan.so) from the user's GPU
+# driver at runtime. `llama-cpp-cuda` is NVIDIA-only, faster on NVIDIA
+# hardware (~20-30% over Vulkan), requires CUDA Toolkit 12.x at build time
+# AND ships ~100 MB of cudart/cublas DLLs into the bundle.
+# `llama-cpp-hipblas` is AMD ROCm — Linux-mature, Windows still rough as of
+# ROCm 6.x. Use Vulkan on Windows + AMD; only enable hipblas on Linux + AMD.
+llama-cpp-cuda = ["llama-cpp-ffi", "llama-cpp-2/cuda"]
+llama-cpp-vulkan = ["llama-cpp-ffi", "llama-cpp-2/vulkan"]
+# NOTE: llama-cpp-2 0.1.145 does NOT expose a `hipblas`/`rocm` feature, so
+# there is no direct AMD-ROCm path through this crate. Use `llama-cpp-vulkan`
+# for AMD — Vulkan is the practical AMD path on Windows anyway (ROCm 6.x on
+# Windows is still rough as of 2026-05). Revisit when llama-cpp-2 ships a
+# rocm feature upstream.
 specta = ["dep:specta"]
 
 # ── Build-mode selection (exactly one of the three must be active) ──

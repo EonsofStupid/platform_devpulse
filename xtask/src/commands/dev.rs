@@ -172,11 +172,18 @@ impl Task for Dev {
         platform_config.build.apply_env(ws.root());
 
         let compile_start = Instant::now();
-        let cargo_child = ws.spawn_in_stderr_piped(
-            ws.root(),
-            "cargo",
-            &["check", "-p", "devpulse_desktop_backend"],
-        )?;
+        // Auto-pick acceleration features (GPU + CPU MKL) based on host SDK
+        // detection. Falls through to a bare CPU build if no SDK is
+        // installed — pre-detection behavior is preserved.
+        let accel_feats = platform_config.build.detect_build_features();
+        let mut cargo_args: Vec<String> =
+            vec!["check".into(), "-p".into(), "devpulse_desktop_backend".into()];
+        if let Some(feats) = accel_feats.as_deref() {
+            cargo_args.push("--features".into());
+            cargo_args.push(feats.into());
+        }
+        let cargo_arg_refs: Vec<&str> = cargo_args.iter().map(String::as_str).collect();
+        let cargo_child = ws.spawn_in_stderr_piped(ws.root(), "cargo", &cargo_arg_refs)?;
 
         // Assign cargo to Job Object so it dies if we die
         #[cfg(windows)]

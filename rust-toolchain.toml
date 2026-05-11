@@ -6,4 +6,8 @@
 # components list matches the prior pin so existing IDE / lint flows
 # continue to work without per-developer install steps.
 channel = "1.92.0"
-components = ["rustfmt", "clippy", "rust-analyzer"]
+# llvm-tools-preview provides rust-lld.exe — wired as the Windows-MSVC linker
+# in .cargo/config.toml. Without it, cargo will fail to find the linker on a
+# fresh checkout. Cheap component (~80 MB), keeps the fast-link path
+# reproducible across developer boxes.
+components = ["rustfmt", "clippy", "rust-analyzer", "llvm-tools-preview"]
