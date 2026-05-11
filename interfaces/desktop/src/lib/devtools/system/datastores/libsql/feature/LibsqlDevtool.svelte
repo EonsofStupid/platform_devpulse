@@ -17,8 +17,10 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
 import { DATABASE_OPTIONS, libsqlState } from "$lib/domains/infra/libsql/index.js";
 import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import LibsqlHero from "./LibsqlHero.svelte";
 
 // ── Scoped log state ─────────────────────────────────────
 let logEntries = $state<ScopedLogEntry[]>([]);
@@ -70,6 +72,55 @@ onMount(() => {
 	}
 });
 
+// Hero-state derivation. libSQL is multi-database, so "up" means every
+// database is reachable; "degraded" means some-but-not-all are; "down"
+// means none. Latency on the hero is the average across reachable DBs
+// so a single slow DB doesn't dominate the readout — per-DB breakdown
+// still lives in the grid below for diagnosis.
+type StoreHealth = "up" | "starting" | "degraded" | "down" | "unknown";
+const heroState = $derived<StoreHealth>(
+	libsqlState.healthLoading
+		? "starting"
+		: libsqlState.healthError
+			? "down"
+			: libsqlState.health
+				? libsqlState.health.databases.length === 0
+					? "unknown"
+					: libsqlState.reachableCount === libsqlState.health.databases.length
+						? "up"
+						: libsqlState.reachableCount > 0
+							? "degraded"
+							: "down"
+				: "unknown",
+);
+const heroLatencyMs = $derived(
+	(() => {
+		const reachable = libsqlState.health?.databases.filter((d) => d.reachable) ?? [];
+		if (reachable.length === 0) return null;
+		const totalUs = reachable.reduce((sum, d) => sum + (d.latency_us ?? 0), 0);
+		return totalUs / reachable.length / 1000;
+	})(),
+);
+const heroHealthLabel = $derived(
+	libsqlState.healthLoading
+		? "Probing…"
+		: libsqlState.healthError
+			? "Unreachable"
+			: libsqlState.health
+				? libsqlState.reachableCount === libsqlState.health.databases.length
+					? `${libsqlState.reachableCount} reachable`
+					: libsqlState.reachableCount > 0
+						? `${libsqlState.reachableCount}/${libsqlState.health.databases.length} reachable`
+						: "All down"
+				: "Not probed yet",
+);
+let activityTick = $state(0);
+$effect(() => {
+	if (libsqlState.health) {
+		activityTick = activityTick + 1;
+	}
+});
+
 const badge = $derived<HealthBadge>(
 	libsqlState.healthLoading
 		? { state: "starting", label: "Checking…" }
@@ -109,9 +160,21 @@ function handleKeydown(event: KeyboardEvent): void {
 >
 	<!-- ── STATUS ────────────────────────────────────────────── -->
 	{#snippet status()}
-		<div class="space-y-4">
-			<div class="flex items-center justify-between">
-				<Text size="sm" weight="semibold">Database Health</Text>
+		<div class="space-y-3">
+			<StoreHeroCard
+				icon={Database}
+				name="libSQL"
+				purpose="Relational rows — system + user state, project notes, every persistent fact Clyffy keeps"
+				health={heroState}
+				latencyMs={heroLatencyMs}
+				healthLabel={heroHealthLabel}
+				{activityTick}
+				accentVar="--accent-cyan"
+			>
+				<LibsqlHero state={heroState} />
+			</StoreHeroCard>
+
+			<div class="flex items-center justify-end gap-2">
 				<Button
 					preset="ghost"
 					size="sm"
@@ -123,76 +186,64 @@ function handleKeydown(event: KeyboardEvent): void {
 					{:else}
 						<RefreshCw size={14} />
 					{/if}
-					Refresh
+					Re-probe
 				</Button>
 			</div>
 
 			{#if libsqlState.healthError}
-				<div
-					class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
-				>
-					{libsqlState.healthError}
+				<div class="rounded-lg p-3" style="background: color-mix(in oklch, var(--signal-error) 10%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);">
+					<Text size="xs" weight="semibold" class="block mb-1" style="color: var(--signal-error);">
+						Probe failed
+					</Text>
+					<Text size="xs" color="muted">{libsqlState.healthError}</Text>
 				</div>
 			{/if}
 
-			{#if libsqlState.health}
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-					{#each libsqlState.health.databases as db}
-						<div
-							class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
-						>
-							<div class="flex items-center justify-between mb-2">
-								<div class="flex items-center gap-2">
-									<Database size={14} class="text-[var(--color-teal-400)]" />
-									<Text size="sm" weight="semibold">{db.database}</Text>
-								</div>
-								<span
-									class="inline-block w-2 h-2 rounded-full"
-									style="background: {db.reachable
-										? 'var(--signal-success)'
-										: 'var(--signal-error)'}"
-								></span>
-							</div>
-							<div class="space-y-1 text-xs">
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">Status</span>
-									<span
-										style="color: {db.reachable
-											? 'var(--signal-success)'
-											: 'var(--signal-error)'}"
-									>
-										{db.reachable ? "Reachable" : "Down"}
-									</span>
-								</div>
-								{#if db.reachable}
-									<div class="flex justify-between">
-										<span class="text-[var(--text-secondary)]">Latency</span>
-										<span class="font-mono">
-											{db.latency_us >= 1000
-												? `${Math.round(db.latency_us / 1000)}ms`
-												: `${db.latency_us}µs`}
-										</span>
+			{#if libsqlState.health && libsqlState.health.databases.length > 0}
+				<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+					<Text size="xs" weight="semibold" class="block mb-2" color="muted">
+						Per-database breakdown
+					</Text>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+						{#each libsqlState.health.databases as db (db.database)}
+							<div class="flex flex-col gap-1 rounded p-2" style="background: var(--surface-base); border: 1px solid var(--border-soft);">
+								<div class="flex items-center justify-between gap-2">
+									<div class="flex items-center gap-2 min-w-0">
+										<span
+											class="inline-block w-2 h-2 rounded-full flex-shrink-0"
+											style="background: {db.reachable ? 'var(--signal-success)' : 'var(--signal-error)'};"
+										></span>
+										<Text size="xs" weight="semibold" class="truncate">{db.database}</Text>
 									</div>
-								{/if}
-								{#if db.path}
-									<div class="flex justify-between">
-										<span class="text-[var(--text-secondary)]">Path</span>
-										<span class="font-mono text-[10px] truncate max-w-[200px]">
-											{db.path}
-										</span>
+									<div class="flex items-center gap-2 flex-shrink-0">
+										{#if db.reachable}
+											<Text size="xs" color="muted" class="font-mono">
+												{db.latency_us >= 1000
+													? `${Math.round(db.latency_us / 1000)}ms`
+													: `${db.latency_us}µs`}
+											</Text>
+										{:else}
+											<Text size="xs" style="color: var(--signal-error);">Down</Text>
+										{/if}
 									</div>
-								{/if}
+								</div>
 								{#if db.error}
-									<div class="mt-1 text-red-400 break-all">{db.error}</div>
+									<Text size="xs" class="break-all" style="color: var(--signal-error);">
+										{db.error}
+									</Text>
 								{/if}
 							</div>
-						</div>
-					{/each}
+						{/each}
+					</div>
 				</div>
-			{:else if libsqlState.healthLoading}
-				<Text size="sm" color="muted">Pinging databases…</Text>
-			{:else}
-				<Text size="sm" color="muted">Click Refresh to check health.</Text>
+			{:else if !libsqlState.health && !libsqlState.healthLoading}
+				<EmptyStatePoster
+					icon={Database}
+					title="Probe libSQL to see its state"
+					hint="Each database file lives at the path declared in platform.toml. If they're missing, the first probe surfaces the path here."
+					logTarget="libsql.lifecycle"
+					accentVar="--accent-cyan"
+				/>
 			{/if}
 		</div>
 	{/snippet}
