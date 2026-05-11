@@ -17,8 +17,10 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
 import { duckdbState } from "$lib/domains/infra/duckdb/index.js";
 import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import DuckdbHero from "./DuckdbHero.svelte";
 
 let logEntries = $state<ScopedLogEntry[]>([]);
 let logLoading = $state(false);
@@ -66,6 +68,47 @@ onMount(() => {
 	}
 });
 
+// Map duckdbState into the unified HealthSignal vocabulary used by
+// StoreHeroCard. Keeps the badge-and-hero pair in sync — same state
+// driving both the top-of-shell health pill and the hero card's
+// breathing dot.
+type StoreHealth = "up" | "starting" | "degraded" | "down" | "unknown";
+const heroState = $derived<StoreHealth>(
+	duckdbState.healthLoading
+		? "starting"
+		: duckdbState.healthError
+			? "down"
+			: duckdbState.health
+				? duckdbState.health.reachable
+					? "up"
+					: "down"
+				: "unknown",
+);
+const heroLatencyMs = $derived(
+	duckdbState.health?.reachable && duckdbState.health?.latency_us !== undefined
+		? duckdbState.health.latency_us / 1000
+		: null,
+);
+const heroHealthLabel = $derived(
+	duckdbState.healthLoading
+		? "Probing…"
+		: duckdbState.healthError
+			? "Unreachable"
+			: duckdbState.health?.reachable
+				? "Online"
+				: duckdbState.health
+					? "Down"
+					: "Not probed yet",
+);
+// Activity tick — bump each time the health probe completes so the
+// LiveActivityPulse blips on every successful round-trip.
+let activityTick = $state(0);
+$effect(() => {
+	if (duckdbState.health) {
+		activityTick = activityTick + 1;
+	}
+});
+
 const badge = $derived<HealthBadge>(
 	duckdbState.healthLoading
 		? { state: "starting", label: "Checking…" }
@@ -99,9 +142,21 @@ function handleKeydown(e: KeyboardEvent): void {
 	{extraTabs}
 >
 	{#snippet status()}
-		<div class="space-y-4">
-			<div class="flex items-center justify-between">
-				<Text size="sm" weight="semibold">Analytics Engine Health</Text>
+		<div class="space-y-3">
+			<StoreHeroCard
+				icon={BarChart3}
+				name="DuckDB"
+				purpose="Columnar analytics engine — fast aggregates over local + warehouse data"
+				health={heroState}
+				latencyMs={heroLatencyMs}
+				healthLabel={heroHealthLabel}
+				{activityTick}
+				accentVar="--accent-amber"
+			>
+				<DuckdbHero state={heroState} />
+			</StoreHeroCard>
+
+			<div class="flex items-center justify-end gap-2">
 				<Button
 					preset="ghost"
 					size="sm"
@@ -113,66 +168,42 @@ function handleKeydown(e: KeyboardEvent): void {
 					{:else}
 						<RefreshCw size={14} />
 					{/if}
-					Refresh
+					Re-probe
 				</Button>
 			</div>
 
 			{#if duckdbState.healthError}
-				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-					{duckdbState.healthError}
+				<div class="rounded-lg p-3" style="background: color-mix(in oklch, var(--signal-error) 10%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);">
+					<Text size="xs" weight="semibold" class="block mb-1" style="color: var(--signal-error);">
+						Probe failed
+					</Text>
+					<Text size="xs" color="muted">{duckdbState.healthError}</Text>
 				</div>
 			{/if}
 
-			{#if duckdbState.health}
-				<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-					<div class="flex items-center justify-between mb-2">
-						<div class="flex items-center gap-2">
-							<BarChart3 size={14} class="text-[var(--color-purple-400)]" />
-							<Text size="sm" weight="semibold">analytics.duckdb</Text>
-						</div>
-						<span
-							class="inline-block w-2 h-2 rounded-full"
-							style="background: {duckdbState.health.reachable
-								? 'var(--signal-success)'
-								: 'var(--signal-error)'}"
-						></span>
-					</div>
+			{#if duckdbState.health && (duckdbState.health.path || duckdbState.health.error)}
+				<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+					<Text size="xs" weight="semibold" class="block mb-2" color="muted">Diagnostics</Text>
 					<div class="space-y-1 text-xs">
-						<div class="flex justify-between">
-							<span class="text-[var(--text-secondary)]">Status</span>
-							<span
-								style="color: {duckdbState.health.reachable
-									? 'var(--signal-success)'
-									: 'var(--signal-error)'}"
-							>
-								{duckdbState.health.reachable ? "Reachable" : "Down"}
-							</span>
-						</div>
-						{#if duckdbState.health.reachable}
-							<div class="flex justify-between">
-								<span class="text-[var(--text-secondary)]">Latency</span>
-								<span class="font-mono">
-									{duckdbState.health.latency_us >= 1000
-										? `${Math.round(duckdbState.health.latency_us / 1000)}ms`
-										: `${duckdbState.health.latency_us}µs`}
-								</span>
-							</div>
-						{/if}
 						{#if duckdbState.health.path}
-							<div class="flex justify-between">
-								<span class="text-[var(--text-secondary)]">Path</span>
-								<span class="font-mono text-[10px]">{duckdbState.health.path}</span>
+							<div class="flex justify-between gap-2">
+								<span style="color: var(--text-secondary);">Data file</span>
+								<span class="font-mono text-[10px] truncate" title={duckdbState.health.path}>{duckdbState.health.path}</span>
 							</div>
 						{/if}
 						{#if duckdbState.health.error}
-							<div class="mt-1 text-red-400 break-all">{duckdbState.health.error}</div>
+							<div class="mt-1 break-all" style="color: var(--signal-error);">{duckdbState.health.error}</div>
 						{/if}
 					</div>
 				</div>
-			{:else if duckdbState.healthLoading}
-				<Text size="sm" color="muted">Pinging DuckDB…</Text>
-			{:else}
-				<Text size="sm" color="muted">Click Refresh to check health.</Text>
+			{:else if !duckdbState.health && !duckdbState.healthLoading}
+				<EmptyStatePoster
+					icon={BarChart3}
+					title="Probe DuckDB to see its state"
+					hint="The engine is in-process — first probe is usually instant. If it stays down, the data file may be missing."
+					logTarget="duckdb.lifecycle"
+					accentVar="--accent-amber"
+				/>
 			{/if}
 		</div>
 	{/snippet}
