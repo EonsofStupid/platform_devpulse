@@ -1070,6 +1070,11 @@ impl BuildConfig {
     pub fn detect_build_features(&self) -> Option<String> {
         let mut features: Vec<&'static str> = Vec::new();
 
+        // CUDA Toolkit — picks the highest versioned subdir under the default
+        // install root. If `CUDA_PATH` is already set in env, prefer it.
+        // Whichever wins, we re-export it so child cargo processes (and
+        // build.rs scripts that read `std::env::var("CUDA_PATH")` directly)
+        // see it even when the parent shell was started before the install.
         let cuda_toolkit = std::env::var("CUDA_PATH")
             .ok()
             .filter(|p| std::path::Path::new(p).join("bin").join("nvcc.exe").is_file())
@@ -1090,28 +1095,67 @@ impl BuildConfig {
         let cuda_active = cuda_toolkit.is_some() && nvidia_gpu_present;
 
         if cuda_active {
+            if let Some(ref path) = cuda_toolkit {
+                std::env::set_var("CUDA_PATH", path);
+                println!("  [env] CUDA_PATH = {path} (auto-export for child build scripts)");
+            }
             features.push("gpu-nvidia");
         } else {
+            // Vulkan SDK — same pattern. Walk `C:/VulkanSDK/` for the latest
+            // versioned subdir (e.g. `1.4.341.1/`), not the parent root.
+            // llama-cpp-sys-2's build.rs requires `VULKAN_SDK` to point at
+            // the versioned install (it looks for `Include/vulkan/vulkan.h`
+            // under that path); the parent `C:/VulkanSDK/` is not enough.
             let vulkan_sdk = std::env::var("VULKAN_SDK")
                 .ok()
-                .filter(|p| std::path::Path::new(p).is_dir())
+                .filter(|p| {
+                    std::path::Path::new(p)
+                        .join("Include")
+                        .join("vulkan")
+                        .join("vulkan.h")
+                        .is_file()
+                })
                 .or_else(|| {
                     let candidates = ["C:/VulkanSDK", "C:/Program Files/VulkanSDK"];
-                    candidates
-                        .iter()
-                        .find(|c| std::path::Path::new(c).is_dir())
-                        .map(|s| (*s).to_string())
+                    for root in candidates {
+                        let root_path = std::path::Path::new(root);
+                        if !root_path.is_dir() {
+                            continue;
+                        }
+                        if let Ok(entries) = std::fs::read_dir(root_path) {
+                            if let Some(latest) = entries
+                                .filter_map(Result::ok)
+                                .map(|e| e.path())
+                                .filter(|p| {
+                                    p.is_dir()
+                                        && p.join("Include")
+                                            .join("vulkan")
+                                            .join("vulkan.h")
+                                            .is_file()
+                                })
+                                .max()
+                            {
+                                return Some(latest.to_string_lossy().to_string());
+                            }
+                        }
+                    }
+                    None
                 });
-            if vulkan_sdk.is_some() {
+            if let Some(ref path) = vulkan_sdk {
+                std::env::set_var("VULKAN_SDK", path);
+                println!(
+                    "  [env] VULKAN_SDK = {path} (auto-export for child build scripts)"
+                );
                 features.push("gpu-vulkan");
             }
         }
 
+        // Intel MKL — `MKLROOT` env or default oneAPI install path. Same
+        // re-export so candle-mkl-src and friends see it.
         let mkl_root = std::env::var("MKLROOT")
             .ok()
             .filter(|p| std::path::Path::new(p).is_dir())
             .or_else(|| {
-                // Default Intel oneAPI install layout on Windows.
                 let mkl_dir = std::path::Path::new("C:/Program Files (x86)/Intel/oneAPI/mkl");
                 if !mkl_dir.is_dir() {
                     return None;
@@ -1120,11 +1164,13 @@ impl BuildConfig {
                     .ok()?
                     .filter_map(Result::ok)
                     .map(|e| e.path())
-                    .filter(|p| p.is_dir())
+                    .filter(|p| p.is_dir() && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.chars().next().is_some_and(|c| c.is_ascii_digit())))
                     .max()
                     .map(|p| p.to_string_lossy().to_string())
             });
-        if mkl_root.is_some() {
+        if let Some(ref path) = mkl_root {
+            std::env::set_var("MKLROOT", path);
+            println!("  [env] MKLROOT = {path} (auto-export for child build scripts)");
             features.push("cpu-mkl");
         }
 
