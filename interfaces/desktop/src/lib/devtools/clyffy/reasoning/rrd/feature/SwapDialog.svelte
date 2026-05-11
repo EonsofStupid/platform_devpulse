@@ -40,6 +40,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
 import { type SwapReport, swapEncoderWeights } from "../data-access/swap.svc.js";
 
@@ -168,16 +169,10 @@ function handleKeydown(event: KeyboardEvent): void {
 	}
 }
 
-// Substring tone for the phase ticker rows — mirrors RrdDevtool:66
-// so the dialog and the parent devtool never disagree on what's red
-// vs green.
-function phaseTone(phase: string): "positive" | "negative" | "informative" | "neutral" {
-	const p = phase.toLowerCase();
-	if (p.includes("fail")) return "negative";
-	if (p.includes("complete") || p.includes("commit") || p.includes("pass")) return "positive";
-	if (p.includes("timeout") || p.includes("warn")) return "negative";
-	return "informative";
-}
+// Phase ticker uses the shared `laymanFor` map so the dialog and the
+// parent RrdDevtool render identical labels + tones for the same
+// kernel phase. Drift between them was a recurring bug in the
+// per-component-switch era.
 
 function fmtTime(ms: number): string {
 	const d = new Date(ms);
@@ -324,11 +319,12 @@ function fmtTime(ms: number): string {
 						{/if}
 					</div>
 					{#each newTransitions as t (t.receivedAtMs)}
+						{@const lab = laymanFor(t.phase)}
 						<div class="flex items-center gap-2">
 							<Text size="xs" color="muted" class="font-mono">
 								{fmtTime(t.receivedAtMs)}
 							</Text>
-							<Badge variant={phaseTone(t.phase)} size="sm">{t.phase}</Badge>
+							<Badge variant={lab.tone} size="sm">{lab.label}</Badge>
 							{#if t.detail}
 								<Text size="xs" color="muted" class="truncate">{t.detail}</Text>
 							{/if}

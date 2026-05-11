@@ -14,12 +14,13 @@
 	pre-instantiation diagnostic surface.
 -->
 <script lang="ts">
-import { Activity, RefreshCw, RotateCw, Trash2, Upload } from "lucide-svelte";
+import { Activity, RotateCw, Trash2, Upload } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
 import { ReasoningTopology } from "../../_shared/index.js";
 import SwapDialog from "./SwapDialog.svelte";
@@ -31,31 +32,27 @@ onMount(() => {
 // SwapDialog open state — driven by Actions tab button.
 let swapDialogOpen = $state(false);
 
-// Layman state derivation: failed > running > complete > unknown.
-// Walks back from the most recent transition.
+// Layman state derivation: failed > running > maintenance > unknown.
+// Uses the centralized phase-label map so the top badge and the
+// per-row badges agree on tone — drift between them used to be a
+// recurring bug in the raw-phase-name era.
 const stateBadge = $derived<HealthBadge>(
 	(() => {
 		const last = rrdState.last;
 		if (!last) {
-			return { state: "unknown", label: "Daemon not instantiated yet" };
+			return { state: "unknown", label: "Reasoning not started yet" };
 		}
-		const phase = last.phase.toLowerCase();
-		if (phase.includes("fail") || phase.includes("error")) {
-			return { state: "degraded", label: `Last: ${last.phase}` };
+		const { tone, label } = laymanFor(last.phase);
+		if (tone === "negative") {
+			return { state: "degraded", label };
 		}
-		if (phase.includes("resume_complete") || phase.includes("running")) {
-			return { state: "up", label: "Active" };
+		if (last.phase === "resume_complete" || last.phase === "ready") {
+			return { state: "up", label: "Live" };
 		}
-		if (
-			phase.includes("pause") ||
-			phase.includes("drain") ||
-			phase.includes("load") ||
-			phase.includes("validate") ||
-			phase.includes("swap")
-		) {
-			return { state: "starting", label: `Maintenance: ${last.phase}` };
+		if (tone === "positive" || tone === "informative") {
+			return { state: "starting", label };
 		}
-		return { state: "unknown", label: `Last: ${last.phase}` };
+		return { state: "unknown", label };
 	})(),
 );
 
@@ -66,14 +63,6 @@ function fmtTime(ms: number): string {
 	const ss = String(d.getSeconds()).padStart(2, "0");
 	const msMs = String(d.getMilliseconds()).padStart(3, "0");
 	return `${hh}:${mm}:${ss}.${msMs}`;
-}
-
-function phaseTone(phase: string): "positive" | "negative" | "informative" | "neutral" {
-	const p = phase.toLowerCase();
-	if (p.includes("fail")) return "negative";
-	if (p.includes("complete") || p.includes("commit") || p.includes("pass")) return "positive";
-	if (p.includes("timeout") || p.includes("warn")) return "negative";
-	return "informative";
 }
 </script>
 
@@ -94,28 +83,32 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 			<ReasoningTopology />
 
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
-				<Text size="sm" weight="bold" class="block mb-1">Recent phase</Text>
+				<Text size="sm" weight="bold" class="block mb-1">Right now</Text>
 				{#if rrdState.last}
+					{@const lab = laymanFor(rrdState.last.phase)}
 					<div class="flex items-center gap-2">
-						<Badge tone={phaseTone(rrdState.last.phase)} size="sm">
-							{rrdState.last.phase}
-						</Badge>
+						<Badge tone={lab.tone} size="sm">{lab.label}</Badge>
 						<Text size="xs" color="muted">{fmtTime(rrdState.last.receivedAtMs)}</Text>
 					</div>
+					{#if lab.subtitle}
+						<Text size="xs" color="muted" class="block mt-1">{lab.subtitle}</Text>
+					{/if}
 					{#if rrdState.last.detail}
-						<Text size="xs" color="muted" class="block mt-1">{rrdState.last.detail}</Text>
+						<Text size="xs" color="muted" class="block mt-1 phase-detail-tech">
+							<code>{rrdState.last.phase}</code> · {rrdState.last.detail}
+						</Text>
 					{/if}
 				{:else}
 					<Text size="xs" color="muted">
-						No transitions yet. Load a model into the <code>rag.embedder</code>
-						slot and the daemon starts immediately — events flow here live.
+						Reasoning hasn't started yet — load a model into the <code>rag.embedder</code>
+						slot and Clyffy's brain wires itself up. Activity shows up here in real time.
 					</Text>
 				{/if}
 			</div>
 
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<Text size="sm" weight="bold" class="block mb-2">
-					Lifecycle history
+					Recent activity
 					<Badge tone="neutral" size="sm">{rrdState.transitions.length}</Badge>
 				</Text>
 				{#if rrdState.transitions.length === 0}
@@ -123,9 +116,10 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 				{:else}
 					<div class="phase-list">
 						{#each [...rrdState.transitions].reverse() as t (t.receivedAtMs)}
+							{@const lab = laymanFor(t.phase)}
 							<div class="phase-row">
 								<Text size="xs" class="phase-time">{fmtTime(t.receivedAtMs)}</Text>
-								<Badge tone={phaseTone(t.phase)} size="sm">{t.phase}</Badge>
+								<Badge tone={lab.tone} size="sm">{lab.label}</Badge>
 								{#if t.detail}
 									<Text size="xs" class="phase-detail">{t.detail}</Text>
 								{/if}
@@ -278,5 +272,10 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+	:global(.phase-detail-tech) {
+		font-family: var(--font-mono);
+		color: var(--text-tertiary);
+		opacity: 0.7;
 	}
 </style>
