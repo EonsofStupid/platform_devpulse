@@ -10,6 +10,7 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+import { ReasoningTopology } from "../../../_shared/index.js";
 import { CapabilityHeader, ErrorCallout, StatusRow } from "../../ui/index.js";
 
 // Detect which Harrier tier is loaded from the assigned model ID.
@@ -46,6 +47,12 @@ const isBurnBackend = $derived((rroState.encoder?.backend ?? "").toLowerCase() =
 		/>
 
 		<ErrorCallout prefix="Encoder check failed" message={rroState.encoderError} />
+
+		<!-- Shared reasoning topology — same component the RRD devtool
+		     uses. Compact mode hides the technical Badge under each
+		     node so the panel reads tighter inside the RRO surface
+		     where space is already shared with four other panels. -->
+		<ReasoningTopology compact />
 
 		{#if rroState.encoder}
 			<div class="space-y-2">

@@ -14,17 +14,22 @@
 	pre-instantiation diagnostic surface.
 -->
 <script lang="ts">
-import { Activity, RefreshCw, RotateCw, Trash2 } from "lucide-svelte";
+import { Activity, RefreshCw, RotateCw, Trash2, Upload } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
+import { ReasoningTopology } from "../../_shared/index.js";
+import SwapDialog from "./SwapDialog.svelte";
 
 onMount(() => {
 	void rrdState.boot();
 });
+
+// SwapDialog open state — driven by Actions tab button.
+let swapDialogOpen = $state(false);
 
 // Layman state derivation: failed > running > complete > unknown.
 // Walks back from the most recent transition.
@@ -82,6 +87,12 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 >
 	{#snippet status()}
 		<div class="space-y-3">
+			<!-- Deep topology — read-only view of the reasoning pipeline.
+			     Lives above the phase cards because the user reads
+			     left-to-right then top-to-bottom: see the system shape
+			     first, then drill into events. -->
+			<ReasoningTopology />
+
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<Text size="sm" weight="bold" class="block mb-1">Recent phase</Text>
 				{#if rrdState.last}
@@ -151,6 +162,30 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 		<div class="space-y-3">
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-1">
+					<Text size="sm" weight="bold">Swap encoder weights</Text>
+					<Button
+						preset="button-primary"
+						size="sm"
+						onclick={() => {
+							swapDialogOpen = true;
+						}}
+					>
+						<Upload size={14} />
+						Swap
+					</Button>
+				</div>
+				<Text size="xs" color="muted">
+					Opens a guarded picker for a <code>.safetensors</code> checkpoint.
+					On confirm the daemon runs its full
+					<code>pause → drain → validate → swap → resume</code>
+					protocol — query traffic queues until resume completes.
+					Phase events stream into the topology and the history list
+					above in real time.
+				</Text>
+			</div>
+
+			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+				<div class="flex items-center justify-between mb-1">
 					<Text size="sm" weight="bold">Clear history buffer</Text>
 					<Button preset="button-ghost" size="sm" onclick={() => rrdState.clear()}>
 						<Trash2 size={14} />
@@ -205,6 +240,16 @@ function phaseTone(phase: string): "positive" | "negative" | "informative" | "ne
 		</div>
 	{/snippet}
 </ServiceDevtoolShell>
+
+<!-- Swap dialog — overlay, mounted alongside the shell so the
+     ServiceDevtoolShell's stacking context doesn't trap it inside a
+     tab panel. `open` controlled here, dialog calls back on close. -->
+<SwapDialog
+	open={swapDialogOpen}
+	onClose={() => {
+		swapDialogOpen = false;
+	}}
+/>
 
 <style>
 	.phase-list {
