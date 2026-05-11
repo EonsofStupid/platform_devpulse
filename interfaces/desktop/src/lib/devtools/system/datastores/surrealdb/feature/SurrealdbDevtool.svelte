@@ -46,11 +46,13 @@ import {
 	ScopedLogPanel,
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
+import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
 import {
 	NAMESPACE_OPTIONS,
 	surrealSidecarState as surrealdbSidecar,
 	surrealState,
 } from "$lib/domains/infra/surreal/index.js";
+import SurrealdbHero from "./SurrealdbHero.svelte";
 
 // ── Mount ─────────────────────────────────────────────────
 // `onMount`, not `$effect`: each load*() reads + writes a *Loading
@@ -71,6 +73,59 @@ const extraTabs: ExtraTab[] = [
 	{ id: "browser", label: "Browser", Icon: Database },
 	{ id: "console", label: "Console", Icon: Terminal },
 ];
+
+// ── Hero state ────────────────────────────────────────────
+// Sidecar liveness gates the hero state — if the process isn't up,
+// nothing else matters. Once running, hero state tracks namespace
+// reachability so a partial graph (e.g. 2/3 namespaces) reads as
+// "degraded" with the visual matching the badge.
+type StoreHealth = "up" | "starting" | "degraded" | "down" | "unknown";
+const heroState = $derived<StoreHealth>(
+	surrealdbSidecar.healthLoading
+		? "starting"
+		: surrealdbSidecar.health?.state === "down" || surrealdbSidecar.health?.state === "stopped"
+			? "down"
+			: surrealState.healthLoading
+				? "starting"
+				: surrealState.healthError
+					? "degraded"
+					: surrealState.health
+						? surrealState.health.namespaces.length === 0
+							? "unknown"
+							: surrealState.reachableCount === surrealState.health.namespaces.length
+								? "up"
+								: surrealState.reachableCount > 0
+									? "degraded"
+									: "down"
+						: "unknown",
+);
+const heroLatencyMs = $derived(
+	(() => {
+		const reachable = surrealState.health?.namespaces.filter((n) => n.reachable) ?? [];
+		if (reachable.length === 0) return null;
+		const totalUs = reachable.reduce((sum, n) => sum + (n.latency_us ?? 0), 0);
+		return totalUs / reachable.length / 1000;
+	})(),
+);
+const heroHealthLabel = $derived(
+	surrealdbSidecar.healthLoading
+		? "Booting…"
+		: surrealdbSidecar.health?.state === "down" || surrealdbSidecar.health?.state === "stopped"
+			? "Sidecar stopped"
+			: surrealState.healthLoading
+				? "Probing namespaces"
+				: surrealState.health
+					? surrealState.reachableCount === surrealState.health.namespaces.length
+						? `${surrealState.reachableCount} namespaces alive`
+						: `${surrealState.reachableCount}/${surrealState.health.namespaces.length} reachable`
+					: "Not probed yet",
+);
+let activityTick = $state(0);
+$effect(() => {
+	if (surrealState.health) {
+		activityTick = activityTick + 1;
+	}
+});
 
 // ── Unified health badge ──────────────────────────────────
 // Sidecar liveness gates everything — if the process isn't up, the
@@ -231,10 +286,30 @@ function handleKeydown(e: KeyboardEvent): void {
 				{/if}
 			</div>
 
-			<!-- Namespaces block -->
-			<div>
-				<div class="flex items-center justify-between mb-2">
-					<Text size="sm" weight="semibold">Namespaces</Text>
+			<!-- Namespaces hero + per-namespace breakdown -->
+			<div class="space-y-3">
+				<StoreHeroCard
+					icon={Network}
+					name="SurrealDB"
+					purpose="Graph + document multi-model — persona, projects, agents linked across namespaces"
+					health={heroState}
+					latencyMs={heroLatencyMs}
+					healthLabel={heroHealthLabel}
+					{activityTick}
+					accentVar="--accent-purple"
+				>
+					<SurrealdbHero state={heroState} />
+				</StoreHeroCard>
+
+				<div class="flex items-center justify-between gap-2">
+					{#if surrealState.health?.storage_path}
+						<Text size="xs" color="muted">
+							Storage:
+							<span class="font-mono">{surrealState.health.storage_path}/surreal/devpulse</span>
+						</Text>
+					{:else}
+						<span></span>
+					{/if}
 					<Button
 						preset="ghost"
 						size="sm"
@@ -246,75 +321,66 @@ function handleKeydown(e: KeyboardEvent): void {
 						{:else}
 							<RefreshCw size={14} />
 						{/if}
-						Refresh
+						Re-probe
 					</Button>
 				</div>
 
 				{#if surrealState.healthError}
-					<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-						{surrealState.healthError}
+					<div class="rounded-lg p-3" style="background: color-mix(in oklch, var(--signal-error) 10%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);">
+						<Text size="xs" weight="semibold" class="block mb-1" style="color: var(--signal-error);">
+							Namespace probe failed
+						</Text>
+						<Text size="xs" color="muted">{surrealState.healthError}</Text>
 					</div>
 				{/if}
 
-				{#if surrealState.health}
-					<div class="text-xs text-[var(--text-secondary)] mb-2">
-						Storage:
-						<span class="font-mono">{surrealState.health.storage_path}/surreal/devpulse</span>
-					</div>
-
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-						{#each surrealState.health.namespaces as ns}
-							<div
-								class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
-							>
-								<div class="flex items-center justify-between mb-2">
-									<div class="flex items-center gap-2">
-										<Globe size={14} class="text-[var(--color-teal-400)]" />
-										<Text size="sm" weight="semibold">{ns.namespace}</Text>
-									</div>
-									<span
-										class="inline-block w-2 h-2 rounded-full"
-										style="background: {ns.reachable
-											? 'var(--signal-success)'
-											: 'var(--signal-error)'}"
-									></span>
-								</div>
-								<div class="space-y-1 text-xs">
-									<div class="flex justify-between">
-										<span class="text-[var(--text-secondary)]">Database</span>
-										<span class="font-mono">{ns.database}</span>
-									</div>
-									<div class="flex justify-between">
-										<span class="text-[var(--text-secondary)]">Status</span>
+				{#if surrealState.health && surrealState.health.namespaces.length > 0}
+					<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+						<Text size="xs" weight="semibold" class="block mb-2" color="muted">
+							Per-namespace breakdown
+						</Text>
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+							{#each surrealState.health.namespaces as ns (ns.namespace)}
+								<div class="flex flex-col gap-1 rounded p-2" style="background: var(--surface-base); border: 1px solid var(--border-soft);">
+									<div class="flex items-center justify-between gap-2">
+										<div class="flex items-center gap-2 min-w-0">
+											<Globe size={14} style="color: var(--accent-purple); flex-shrink: 0;" />
+											<Text size="xs" weight="semibold" class="truncate">{ns.namespace}</Text>
+										</div>
 										<span
-											style="color: {ns.reachable
-												? 'var(--signal-success)'
-												: 'var(--signal-error)'}"
-										>
-											{ns.reachable ? "Reachable" : "Down"}
-										</span>
+											class="inline-block w-2 h-2 rounded-full flex-shrink-0"
+											style="background: {ns.reachable ? 'var(--signal-success)' : 'var(--signal-error)'};"
+										></span>
 									</div>
-									{#if ns.reachable}
-										<div class="flex justify-between">
-											<span class="text-[var(--text-secondary)]">Latency</span>
-											<span class="font-mono">
+									<div class="flex items-center justify-between text-xs">
+										<span style="color: var(--text-secondary);" class="font-mono">{ns.database}</span>
+										{#if ns.reachable}
+											<span class="font-mono" style="color: var(--text-muted);">
 												{ns.latency_us >= 1000
 													? `${Math.round(ns.latency_us / 1000)}ms`
 													: `${ns.latency_us}µs`}
 											</span>
-										</div>
-									{/if}
+										{:else}
+											<Text size="xs" style="color: var(--signal-error);">Down</Text>
+										{/if}
+									</div>
 									{#if ns.error}
-										<div class="mt-1 text-red-400 break-all">{ns.error}</div>
+										<Text size="xs" class="break-all" style="color: var(--signal-error);">
+											{ns.error}
+										</Text>
 									{/if}
 								</div>
-							</div>
-						{/each}
+							{/each}
+						</div>
 					</div>
-				{:else if surrealState.healthLoading}
-					<Text size="sm" color="muted">Pinging namespaces…</Text>
-				{:else}
-					<Text size="sm" color="muted">Click Refresh to check namespace health.</Text>
+				{:else if !surrealState.health && !surrealState.healthLoading}
+					<EmptyStatePoster
+						icon={Network}
+						title="Probe SurrealDB to see its namespaces"
+						hint="The sidecar may be up but no namespaces have been queried yet. Click Re-probe to enumerate them."
+						logTarget="surreal.lifecycle"
+						accentVar="--accent-purple"
+					/>
 				{/if}
 			</div>
 		</div>
