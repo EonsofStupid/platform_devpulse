@@ -126,6 +126,16 @@ where
         self.slot.load_full().as_ref().clone()
     }
 
+    /// Borrow the embedder geometry config. Carries `hidden_size`,
+    /// `vocab_size`, `num_hidden_layers`, etc. — the same shape the
+    /// loaded encoder will/does match. Used by the `cag::Embedder`
+    /// trait impl (see `embedder_impl.rs`) to surface `dimension()`
+    /// without re-parsing `config.json`.
+    #[must_use]
+    pub fn config(&self) -> &EmbedderConfig {
+        &self.config
+    }
+
     /// Snapshot the current RRD lifecycle state. `None` if the daemon
     /// has not been constructed yet (encoder never loaded).
     #[must_use]
@@ -335,8 +345,12 @@ where
         self.tokenizer.store(Arc::new(Some(tok)));
 
         // Memory footprint — rough estimate from the model config.
-        // Per-parameter bytes = 4 (F32 in Burn). Total params for a
-        // Qwen3-family model is dominated by:
+        // Per-parameter bytes = 2 (bf16 storage). On CPU this is selected
+        // at runtime by `set_default_dtypes(FloatDType::BF16, …)` called
+        // once at boot; on CUDA it's pinned by the `Cuda<bf16>` generic.
+        // See the `EmbedderCpuBackend` / `EmbedderCudaBackend` aliases in
+        // `super::mod.rs` for the per-backend mechanism. Total params for
+        // a Qwen3-family model is dominated by:
         //   - embed_tokens: vocab × hidden
         //   - per layer: 4 × hidden × hidden (attn) +
         //                3 × hidden × intermediate (mlp) +
@@ -351,7 +365,7 @@ where
         let total_params = cfg.vocab_size * cfg.hidden_size
             + cfg.num_hidden_layers * per_layer
             + cfg.hidden_size;
-        let bytes = total_params * 4;
+        let bytes = total_params * 2;
         Ok(MemoryFootprint {
             ram_bytes: bytes as u64,
             vram_bytes: 0,

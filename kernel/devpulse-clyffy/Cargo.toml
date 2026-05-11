@@ -9,18 +9,21 @@ rro = ["dep:rro"]
 # Upstream constrained-decoding engine (crates.io); enable for full grammar runtime.
 llguidance = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
-# Burn-backed authorship for the RRO encoder. `burn-cpu` keeps the dep
-# light (NdArray backend, pure CPU, dep-free) and is the test default.
-# `burn-cuda` adds the CUDA runtime dep — opt-in because it requires the
-# CUDA 12 toolkit on the build host. Both can be on simultaneously: the
-# code picks the backend at the type-parameter level.
+# Burn-backed authorship for the RRO encoder. `burn-cpu` selects Burn's
+# Flex CPU backend (Burn 0.21 PR #4761 — the new default CPU backend,
+# replaces NdArray for new authorship). Storage dtype is set at boot via
+# `burn::tensor::set_default_dtypes(FloatDType::BF16, IntDType::I64)` —
+# the Flex generic params are phantom in 0.21 so we don't pin bf16 via
+# the type; we pin it via runtime DType. `burn-cuda` adds the CUDA
+# runtime dep (CUDA 12 toolkit required) and DOES pin bf16 via the
+# generic (`Cuda<bf16>` works because `FloatElement` impls bf16).
 #
 # `arc-swap` and `static_assertions` are pulled in by the burn features
 # specifically — the hot-update pattern (`HOT_UPDATE_PATTERN.md` §12)
 # needs `assert_impl_all!(BurnEmbedder<B>: Send, Sync, 'static)` and
 # the ArcSwap round-trip test, both of which only compile when the
 # encoder code itself is compiled.
-burn-cpu = ["dep:burn", "burn/ndarray", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
+burn-cpu = ["dep:burn", "burn/flex", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
 burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
 model-loader = [
     "dep:model-loader",

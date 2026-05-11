@@ -38,8 +38,11 @@ pub struct EmbedderConfig {
 #[derive(Module, Debug)]
 pub struct BurnEmbedder<B: Backend> {
     model: Qwen3Model<B>,
-    /// Stored separately so the Module derive doesn't try to track it as
-    /// a tensor. Carrying the bool keeps `forward_pooled` self-contained.
+    /// Carrying the bool keeps `forward_pooled` self-contained. The
+    /// `#[module(skip)]` annotation replaces the prior `Ignored<T>`
+    /// wrapper deprecated in Burn 0.21 — the Module derive macro now
+    /// requires explicit opt-out for non-tensor scalar state.
+    #[module(skip)]
     normalize: bool,
 }
 

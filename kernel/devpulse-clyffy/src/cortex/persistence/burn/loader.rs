@@ -229,7 +229,15 @@ fn read_tensor_data(
         }
     };
 
-    Ok(TensorData::new(f32_buf, info.shape.clone()))
+    // Burn 0.21 — `TensorData::shape` is a typed `Shape`, not `Vec<usize>`.
+    // `Shape: From<Vec<usize>>` so the bare-Vec form still works via Into,
+    // but the explicit `Shape::from(...)` makes the typed seam visible at the
+    // call site — Burn's tensor surface is now strict about shape types
+    // (release notes 2026-05-07).
+    Ok(TensorData::new(
+        f32_buf,
+        burn::tensor::Shape::from(info.shape.clone()),
+    ))
 }
 
 /// Common shape-check helper. Returns `ShapeMismatch` with the full

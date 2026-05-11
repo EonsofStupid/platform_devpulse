@@ -120,10 +120,13 @@ ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "
 
 # Burn ML framework — locked authorship target for the RRO encoder per
 # `project_rro_burn_authorship.md`. Each kernel crate that consumes Burn
-# turns on the backend feature it needs (`burn-ndarray` for tests/CI,
-# `burn-cuda` for runtime). Default-features = false keeps optional
-# heavy backends (wgpu, metal, vulkan) opt-in.
-burn = { version = "0.20", default-features = false, features = ["std"] }
+# turns on the backend feature it needs (`burn/flex` for CPU storage
+# in bf16, `burn/cuda` for GPU). `flex` is the Burn 0.21 default CPU
+# backend (PR #4761) — runtime DType dispatch lets us pin bf16 storage
+# without an `NdArray<bf16>` generic (which 0.21 rejects because
+# `FloatNdArrayElement` is impl'd only for f32/f64). Default-features
+# = false keeps heavy backends (wgpu, metal, vulkan) opt-in.
+burn = { version = "0.21", default-features = false, features = ["std", "flex"] }
 
 # AST Analysis (GUARDIAN — tree-sitter powered security + refactoring safety)
 tree-sitter = "0.24"

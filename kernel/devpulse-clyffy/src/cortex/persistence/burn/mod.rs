@@ -15,13 +15,21 @@
 //!
 //! Two feature flags pick the backend at compile time:
 //!
-//! | Feature      | Burn backend             | When                  |
-//! |--------------|--------------------------|-----------------------|
-//! | `burn-cpu`   | `burn::backend::NdArray` | Tests, CI, no-GPU dev |
-//! | `burn-cuda`  | `burn::backend::Cuda`    | Runtime on CUDA hosts |
+//! | Feature      | Burn backend           | DType selection       | When                  |
+//! |--------------|------------------------|------------------------|-----------------------|
+//! | `burn-cpu`   | `burn::backend::Flex`  | runtime via DType enum | Tests, CI, no-GPU dev |
+//! | `burn-cuda`  | `burn::backend::Cuda`  | generic `Cuda<bf16>`   | Runtime on CUDA hosts |
 //!
 //! Both can be on simultaneously — the consumer picks the type
 //! parameter. Tests below run under `burn-cpu` to stay dep-free.
+//!
+//! Flex is Burn 0.21's new default CPU backend (PR #4761) — its `E`/`I`
+//! generic params are PHANTOM, so bf16 storage isn't selected via the
+//! type. The platform sets `FloatDType::BF16` + `IntDType::I64` once at
+//! boot via `burn::tensor::set_default_dtypes`; every `Tensor::from_data`
+//! after that narrows into bf16 at the boundary. NdArray was the prior
+//! CPU choice but Burn 0.21 only impls `FloatNdArrayElement` for f32/f64,
+//! so `NdArray<bf16>` is rejected at compile time.
 //!
 //! ## Phase boundaries (this slice = Phase A)
 //!
@@ -40,6 +48,7 @@
 
 pub mod adapter;
 pub mod embedder;
+pub mod embedder_impl;
 pub mod hot_update;
 pub mod loader;
 pub mod qwen3;
@@ -50,6 +59,43 @@ pub use embedder::{l2_normalize, pool_last_token, BurnEmbedder, EmbedderConfig};
 pub use hot_update::{BurnEmbedderSnapshot, BurnEmbedderSource};
 pub use loader::{load_qwen3_from_safetensors, LoaderError};
 pub use qwen3::{Qwen3Config, Qwen3Model};
+
+// ═══════════════════════════════════════════════════════════════════════
+// Backend pins
+// ═══════════════════════════════════════════════════════════════════════
+//
+// The RRO encoder runs in `bf16` storage. On-disk safetensors are bf16
+// (Harrier 0.6B); the loader widens to f32 in `loader.rs` and Burn
+// narrows back to bf16 inside `Tensor::from_data` via `convert_dtype`
+// once the device's default float dtype has been set to `BF16`.
+//
+// The two backends select bf16 via DIFFERENT mechanisms in Burn 0.21:
+//
+//   * `Flex` (CPU) — generic params are phantom; bf16 is picked at
+//     runtime via `set_default_dtypes(FloatDType::BF16, …)` called once
+//     at boot. Kernels lower bf16 storage to f32 compute via up/down-cast
+//     on each op (storage win, not compute win — acceptable on the
+//     embedder forward pass which already amortizes over the batch).
+//   * `Cuda<bf16>` — generic param IS the storage type; bf16 compute is
+//     native on Ampere+ (sm_80). Pre-Ampere falls back to CuBLAS f32 with
+//     identical numerics but reduced throughput.
+//
+// Zero-narrowing native-bf16 load (skip the f32 widen in `loader.rs`) is
+// a future tuning pass — out of scope for this slice.
+
+/// CPU backend pin: `Flex`. The Burn 0.21 default CPU backend (PR #4761).
+/// Storage dtype is picked at boot via `set_default_dtypes` — see the
+/// header comment for why this is a runtime decision rather than a type
+/// generic. Memory footprint = `params * 2 bytes` once `FloatDType::BF16`
+/// is wired (vs `* 4` for f32).
+#[cfg(feature = "burn-cpu")]
+pub type EmbedderCpuBackend = burn::backend::Flex;
+
+/// CUDA backend pin: `Cuda<bf16>`. bf16 storage + bf16 native compute on
+/// Ampere+ (sm_80 and above). Pre-Ampere hosts fall back via CuBLAS f32
+/// internally — correctness identical, perf parity drops.
+#[cfg(feature = "burn-cuda")]
+pub type EmbedderCudaBackend = burn::backend::Cuda<burn::tensor::bf16>;
 
 // ═══════════════════════════════════════════════════════════════════════
 // Hot-update contract — compile-time bounds per backend
@@ -68,17 +114,18 @@ pub use qwen3::{Qwen3Config, Qwen3Model};
 // HOT_UPDATE_PATTERN.md §12 verification targets 1 and 2.
 
 // Granular tensor-level check — narrows the failure surface. If a
-// future Burn version drops `Sync` on `Tensor<NdArray, 2>`, this fires
-// before the wider `BurnEmbedder<NdArray>` assertion below, and the
-// compile error points at the primitive instead of the wrapping struct.
+// future Burn version drops `Sync` on `Tensor<EmbedderCpuBackend, 2>`,
+// this fires before the wider `BurnEmbedder<EmbedderCpuBackend>`
+// assertion below, and the compile error points at the primitive
+// instead of the wrapping struct.
 #[cfg(feature = "burn-cpu")]
-static_assertions::assert_impl_all!(burn::tensor::Tensor<burn::backend::NdArray, 2>: Send, Sync);
+static_assertions::assert_impl_all!(burn::tensor::Tensor<EmbedderCpuBackend, 2>: Send, Sync);
 
 #[cfg(feature = "burn-cpu")]
-static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::NdArray>: Send, Sync);
+static_assertions::assert_impl_all!(BurnEmbedder<EmbedderCpuBackend>: Send, Sync);
 
 #[cfg(feature = "burn-cuda")]
-static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: Send, Sync);
+static_assertions::assert_impl_all!(BurnEmbedder<EmbedderCudaBackend>: Send, Sync);
 
 // HOT_UPDATE_PATTERN.md §12 verification target 4 — BurnEmbedder<B>
 // implements HotUpdateable for every backend the file admits. If a
@@ -86,10 +133,10 @@ static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: Send, Syn
 // stops applying and this assertion fails at compile time instead of
 // at first daemon attach.
 #[cfg(feature = "burn-cpu")]
-static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::NdArray>: rrd::HotUpdateable);
+static_assertions::assert_impl_all!(BurnEmbedder<EmbedderCpuBackend>: rrd::HotUpdateable);
 
 #[cfg(feature = "burn-cuda")]
-static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: rrd::HotUpdateable);
+static_assertions::assert_impl_all!(BurnEmbedder<EmbedderCudaBackend>: rrd::HotUpdateable);
 
 // ═══════════════════════════════════════════════════════════════════════
 // Tests — under `burn-cpu` so CI runs without a GPU host.
@@ -99,10 +146,13 @@ static_assertions::assert_impl_all!(BurnEmbedder<burn::backend::Cuda>: rrd::HotU
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
-    use burn::backend::NdArray;
     use burn::tensor::{Int, Tensor, TensorData};
 
-    type B = NdArray;
+    // Tests pin the same backend as production boot: `NdArray<bf16>` via
+    // `EmbedderCpuBackend`. Catches dtype regressions at the test layer
+    // (e.g. a future loader path that emits Vec<f32> against a bf16
+    // backend in a way Burn refuses to narrow).
+    type B = EmbedderCpuBackend;
 
     /// Tiny Qwen3 config so the test runs in milliseconds. Same shape
     /// pattern as Harrier (28 layers, 2:1 GQA), reduced dimensions.

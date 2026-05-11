@@ -182,12 +182,37 @@ fn build_burn_encoder_adapter() -> Option<
 > {
     #[cfg(feature = "burn")]
     {
-        use devpulse_clyffy::cortex::persistence::burn::CortexBurnAdapter;
-        // NdArray's Device is a unit-style enum; default = `Cpu`.
-        let device = burn::backend::ndarray::NdArrayDevice::Cpu;
-        let adapter = CortexBurnAdapter::<burn::backend::NdArray>::harrier_0_6b(device);
+        use burn::backend::flex::FlexDevice;
+        use burn::tensor::{set_default_dtypes, FloatDType, IntDType};
+        use devpulse_clyffy::cortex::persistence::burn::{CortexBurnAdapter, EmbedderCpuBackend};
+
+        // Flex is Burn 0.21's default CPU backend (PR #4761). Its `E`/`I`
+        // generic params are phantom; bf16 storage is selected at runtime
+        // via `set_default_dtypes`. Call this ONCE at boot before any
+        // `Tensor::from_data` lands so the safetensors loader's f32
+        // buffers narrow to bf16 storage at the tensor boundary.
+        //
+        // FloatDType::BF16 matches Harrier 0.6B's on-disk safetensors dtype
+        // and halves the runtime memory footprint vs f32. IntDType::I64
+        // matches the token-id buffer width the embedder pipeline emits.
+        let device = FlexDevice::default();
+        if let Err(e) = set_default_dtypes::<EmbedderCpuBackend>(
+            &device,
+            FloatDType::BF16,
+            IntDType::I64,
+        ) {
+            tracing::error!(
+                error = ?e,
+                "Burn Flex set_default_dtypes failed — encoder adapter NOT wired"
+            );
+            return None;
+        }
+
+        let adapter = CortexBurnAdapter::<EmbedderCpuBackend>::harrier_0_6b(device);
         tracing::info!(
-            backend = "burn-cpu",
+            backend = "burn-flex",
+            float_dtype = "bf16",
+            int_dtype = "i64",
             geometry = "harrier-0.6b",
             "Burn encoder adapter constructed for engine boot"
         );
