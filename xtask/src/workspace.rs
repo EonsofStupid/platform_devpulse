@@ -1052,6 +1052,29 @@ impl BuildConfig {
         // higher precedence than config-file settings, so injecting them
         // here keeps the repo config portable.
         self.apply_fast_build_env();
+
+        // ── llama-cpp-sys-2 + ggml-vulkan parallel-job workaround ──
+        // ggml-vulkan's CMakeLists uses ExternalProject_Add to build
+        // `vulkan-shaders-gen.exe` (a host tool that compiles GLSL → SPIR-V
+        // at build time). Under the VS 2022 generator, MSBuild's parallel
+        // scheduler can start the shader-compile jobs BEFORE
+        // vulkan-shaders-gen.exe finishes building — the dependency edge
+        // through ExternalProject isn't strict enough for MSBuild's
+        // job graph. Result: failure with no visible error because
+        // cmake-rs runs `cmake --build --parallel 12` and 12 racing
+        // workers eat each other's stderr.
+        //
+        // `CMAKE_BUILD_PARALLEL_LEVEL=1` forces sequential cmake build
+        // steps. The first cold build of llama-cpp-sys-2 takes longer
+        // because of single-threaded C++ compile, but sccache caches
+        // every object file — subsequent builds are fast regardless.
+        // Cargo's own Rust-side parallelism is untouched (this only
+        // affects `cmake --build` invocations).
+        std::env::set_var("CMAKE_BUILD_PARALLEL_LEVEL", "1");
+        println!(
+            "  [env] CMAKE_BUILD_PARALLEL_LEVEL = 1 (serialise cmake to avoid \
+             vulkan-shaders-gen race in ggml-vulkan ExternalProject)"
+        );
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`
