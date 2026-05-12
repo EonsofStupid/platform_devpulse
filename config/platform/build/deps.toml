@@ -10,21 +10,21 @@ env = ["PYO3_PYTHON"]
 extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 
 [build.deps.cmake]
-# Absolute path to the cmake bundled with VS 2019 Professional on this dev box.
-# `cmake-rs` (used by llama-cpp-sys-2) honours the `CMAKE` env var and skips
-# PATH lookup when it is set, so direct invocation works without
-# `vcvars64.bat` warm-up. When the dev box is upgraded to VS 2022 / a system-
-# installed cmake, swap this path. To make this portable for other devs,
-# vendor cmake into `deps/cmake/` (mirror the nasm/python pattern).
-path = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
+# System cmake on PATH (`C:\Program Files\CMake\bin\cmake.exe`). The dev box
+# moved off VS 2019 Pro to VS 2022 Build Tools at `D:\localdev\BuildTools\`,
+# which doesn't ship a bundled cmake; the system install is the canonical
+# choice. `cmake-rs` (used by llama-cpp-sys-2) honours the `CMAKE` env var
+# and skips PATH lookup when set, so we hand it the absolute path directly.
+path = "C:/Program Files/CMake/bin/cmake.exe"
 env = ["CMAKE"]
-# CMAKE_GENERATOR pins the Visual Studio version cmake-rs picks. The
-# llama-cpp-sys-2 build script defaults to "Visual Studio 17 2022";
-# this dev box has VS 2019 Professional. Without this override, the
-# llama-cpp-ffi feature fails at the build script with
-# "Could not create named generator Visual Studio 17 2022".
-# Update this string when bumping the dev box's Visual Studio install.
-extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5", CMAKE_GENERATOR = "Visual Studio 16 2019" }
+# CMAKE_GENERATOR pins the Visual Studio version cmake-rs picks. VS 2022
+# (Build Tools 17.x, MSVC 14.44) is what's installed at
+# `D:\localdev\BuildTools\`. The 2019 generator does NOT support
+# `add_custom_command(... DEPFILE ...)` which ggml-vulkan's CMakeLists
+# requires, so building with `gpu-vulkan` features against the 2019 gen
+# fails at configure. 17 2022 supports DEPFILE and matches the MSVC
+# toolchain that's actually present.
+extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5", CMAKE_GENERATOR = "Visual Studio 17 2022" }
 
 [build.deps.ninja]
 # Path to the ninja bundled with VS 2019. NOT injected as
