@@ -851,7 +851,7 @@ fn print_banner(task_name: &str) {
 /// tauri-bundler version the marker strings were last verified against.
 /// When the CLI upgrades and a real failure classifies as `Unknown`, refresh
 /// the markers in `observe_line` and bump this string.
-const TAURI_CLI_VERSION_VERIFIED: &str = "@tauri-apps/cli 2.10.x";
+const TAURI_CLI_VERSION_VERIFIED: &str = "@tauri-apps/cli 2.10.x (verified 2026-05-14)";
 
 /// Stage of `pnpm tauri build` that produced the non-zero exit.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -988,7 +988,13 @@ struct TranscriptObservations {
     built_app: bool,
     candle: bool,
     light: bool,
+    /// `Running makensis to produce …` — NSIS phase entered.
+    nsis: bool,
+    /// `Finished N bundle(s) at: …` — bundler ran to completion.
+    bundle_finished: bool,
     failed_to_run_light: bool,
+    /// 2.10.x `failed to run command "candle.exe": …` envelope.
+    failed_to_run_candle: bool,
     failed_nsis: bool,
     compile_error: bool,
 }
@@ -1001,6 +1007,7 @@ impl TranscriptObservations {
     /// child transcript directly.
     fn observe_line(&mut self, raw: &str) {
         let line = strip_log_prefix(raw);
+        let lower = line.to_lowercase();
 
         // Markers last verified against `TAURI_CLI_VERSION_VERIFIED`.
         // Update both sides together when the CLI changes phrasing.
@@ -1013,11 +1020,35 @@ impl TranscriptObservations {
         if line.contains("Running light") {
             self.light = true;
         }
-        let lower = line.to_lowercase();
-        if line.contains("failed to run") && lower.contains("light.exe") {
+        // 2.10.x: tauri-bundler emits `Running makensis to produce …`
+        // when the NSIS bundle stage begins. Without this we cannot
+        // distinguish "compile succeeded, NSIS staging died before
+        // makensis even ran" from "makensis ran and failed silently".
+        if line.contains("Running makensis") {
+            self.nsis = true;
+        }
+        // 2.10.x success marker — `Finished 1 bundle at:` / `Finished
+        // N bundles at:`. Tracks "the bundler reached completion" so
+        // the classifier can disambiguate `built_app && !bundle_finished`
+        // (real failure) from a re-invocation transcript.
+        if line.contains("Finished") && lower.contains("bundle") && line.contains(" at:") {
+            self.bundle_finished = true;
+        }
+        // 2.10.x error envelope: `failed to run command "light.exe": …`.
+        // The quoted form was new in 2.x — the unquoted 1.x form still
+        // matches via `contains("failed to run")` + the substring.
+        if lower.contains("failed to run") && lower.contains("light.exe") {
             self.failed_to_run_light = true;
         }
-        if lower.contains("makensis") && lower.contains("fail") {
+        if lower.contains("failed to run") && lower.contains("candle.exe") {
+            self.failed_to_run_candle = true;
+        }
+        // NSIS — 2.10.x quoted envelope OR the legacy "makensis failed"
+        // shape (kept so transcripts captured under earlier CLIs still
+        // classify).
+        if (lower.contains("failed to run") && lower.contains("makensis"))
+            || (lower.contains("makensis") && lower.contains("fail"))
+        {
             self.failed_nsis = true;
         }
         // rustc diagnostic prefixes. We only treat these as compile errors
@@ -1036,16 +1067,27 @@ impl TranscriptObservations {
     /// re-invocation of the build in a single log) still classifies as
     /// the stage that actually died.
     fn classify(&self) -> TauriStage {
+        // Explicit error markers first — they pin the exact failing tool.
         if self.failed_nsis {
             return TauriStage::NsisFailed;
         }
         if self.failed_to_run_light && self.built_app {
             return TauriStage::LightReportedFailed;
         }
+        if self.failed_to_run_candle && self.built_app {
+            return TauriStage::CandleFailed;
+        }
+        // No explicit error marker — infer from furthest-reached phase.
+        // NSIS phase entered but bundle never finished → NSIS failure
+        // even without an explicit `failed to run` line (2.10.x can die
+        // inside makensis stdout before tauri-cli wraps the error).
+        if self.nsis && !self.bundle_finished {
+            return TauriStage::NsisFailed;
+        }
         if self.candle && !self.light {
             return TauriStage::CandleFailed;
         }
-        if self.built_app {
+        if self.built_app && !self.bundle_finished {
             return TauriStage::CompileSucceededBundleFailed;
         }
         if self.compile_error {
@@ -1308,5 +1350,74 @@ mod tests {
             TauriStage::LightReportedFailed,
             "expected LightReportedFailed from file-backed streaming read"
         );
+    }
+
+    // ── tauri-cli 2.10.x phrasing verification ────────────────────────
+    //
+    // These transcripts mirror the exact CommandFailed Display envelope
+    // emitted by tauri-bundler 2.10.x: `failed to run command "<tool>":
+    // <io error>`. The legacy 1.x envelope (`failed to bundle project …`)
+    // is gone in 2.x; without the new markers we'd classify every
+    // bundler death as `Unknown`.
+
+    #[test]
+    fn tauri_2_10_light_command_failed_classifies_as_light() {
+        let t = "\
+               Built application at: D:\\target\\release\\app.exe\n\
+             Running candle for \"main.wxs\"\n\
+             Running light to produce D:\\target\\release\\bundle\\msi\\app.msi\n\
+            Error failed to run command \"light.exe\": program not found\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::LightReportedFailed);
+    }
+
+    #[test]
+    fn tauri_2_10_candle_command_failed_classifies_as_candle() {
+        // Quoted-envelope candle failure — the 2.10.x replacement for
+        // the inferred `candle && !light` heuristic. With the explicit
+        // `failed_to_run_candle` marker we no longer need to fall
+        // through the inference path.
+        let t = "\
+               Built application at: D:\\target\\release\\app.exe\n\
+             Running candle for \"main.wxs\"\n\
+            Error failed to run command \"candle.exe\": exit status 1\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::CandleFailed);
+    }
+
+    #[test]
+    fn tauri_2_10_makensis_command_failed_classifies_as_nsis() {
+        let t = "\
+               Built application at: D:\\target\\release\\app.exe\n\
+             Running candle for \"main.wxs\"\n\
+             Running light to produce D:\\target\\release\\bundle\\msi\\app.msi\n\
+             Running makensis to produce D:\\target\\release\\bundle\\nsis\\app-setup.exe\n\
+            Error failed to run command \"makensis.exe\": exit status 1\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::NsisFailed);
+    }
+
+    #[test]
+    fn tauri_2_10_nsis_entered_no_finished_classifies_as_nsis() {
+        // NSIS phase entered but bundle never reached `Finished` —
+        // implicit fail (tauri-bundler can die inside makensis stdout
+        // before wrapping a CommandFailed envelope).
+        let t = "\
+               Built application at: D:\\target\\release\\app.exe\n\
+             Running candle for \"main.wxs\"\n\
+             Running light to produce D:\\target\\release\\bundle\\msi\\app.msi\n\
+             Running makensis to produce D:\\target\\release\\bundle\\nsis\\app-setup.exe\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::NsisFailed);
+    }
+
+    #[test]
+    fn tauri_2_10_finished_bundle_marker_avoids_misclassification() {
+        // Successful bundle — `bundle_finished` short-circuits the
+        // "built_app && !finished" inference, so a successful
+        // transcript fed to the failure classifier returns Unknown
+        // (the correct verdict — there's no failure to classify).
+        let t = "\
+               Built application at: D:\\target\\release\\app.exe\n\
+             Running candle for \"main.wxs\"\n\
+             Running light to produce D:\\target\\release\\bundle\\msi\\app.msi\n\
+            Finished 1 bundle at: D:\\target\\release\\bundle\\msi\\app.msi\n";
+        assert_eq!(classify_from_transcript(t), TauriStage::Unknown);
     }
 }
