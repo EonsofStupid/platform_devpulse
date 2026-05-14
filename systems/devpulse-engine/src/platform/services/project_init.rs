@@ -98,15 +98,24 @@ pub struct ProjectScope {
 /// Construction is verbose — `Platform::init_project_full` forwards
 /// its own field refs in. Hand-construction is for tests.
 pub struct ProjectInitContext<'a> {
+    /// Per-project libSQL manager — owns the `<id> → adapter` map
+    /// and lazy-loads `project.db` on first lookup.
     pub project_db: &'a Arc<ProjectDbManager>,
+    /// Per-project DuckDB manager — owns the analytics adapter map.
     pub project_analytics: &'a Arc<ProjectAnalyticsManager>,
+    /// Per-project SurrealDB scope manager — mints `proj_<id>`
+    /// scoped graph handles off the shared adapter.
     pub project_graph: &'a Arc<ProjectGraphManager>,
     /// Shared SurrealDB adapter — borrowed from the system graph
     /// service. `None` only when SurrealDB is disabled in
     /// `PlatformBootConfig` (graph init will fail).
     pub surreal_adapter: Option<&'a Arc<SurrealAdapter>>,
+    /// Per-project Qdrant collection manager — names + provisions
+    /// the vector collections that back retrieval for one project.
     #[cfg(feature = "rro")]
     pub project_vector: &'a Arc<ProjectVectorManager>,
+    /// Shared vector service. `None` when the embedded Qdrant
+    /// instance has not started (RRO feature on but boot deferred).
     #[cfg(feature = "rro")]
     pub vector: Option<&'a Arc<VectorService>>,
 }
