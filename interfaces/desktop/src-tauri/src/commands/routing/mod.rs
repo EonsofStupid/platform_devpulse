@@ -21,9 +21,7 @@ use tauri::State;
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn routing_load_config(
-    state: State<'_, PlatformState>,
-) -> Result<RoutingConfig, String> {
+pub async fn routing_load_config(state: State<'_, PlatformState>) -> Result<RoutingConfig, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     Ok(platform.routing_config_load().await)
 }

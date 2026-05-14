@@ -79,9 +79,9 @@ pub use hardware::{
 
 // Wizard types — copy, tier display, tooltips
 pub use wizard::{
-    ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
-    ModelsCopy, ProfileCopy, ScanningCopy, StepTooltips, TierDisplay, TierRole, TooltipEntry,
-    WizardCopy,
+    ActivateCopy, AnalyticsEvent, AuthCopy, BrowseCopy, CompletionCopy, CustomizeCopy,
+    GreetingCopy, HardwareCopy, ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy,
+    StepTooltips, TierDisplay, TierRole, TooltipEntry, WizardCopy,
 };
 
 // Search types + function

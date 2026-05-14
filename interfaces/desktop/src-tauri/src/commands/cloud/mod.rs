@@ -12,6 +12,17 @@
 //! field. The cloud command module re-uses that enum directly so the
 //! TS layer never sees two parallel types named `InferenceProvider`.
 
+pub mod license;
+pub mod secrets;
+pub use license::{
+    get_license_summary, validate_license, LicenseSource, LicenseStatus, LicenseSummary,
+    LicenseTier,
+};
+pub use secrets::{
+    clear_supabase_anon_key, get_supabase_credentials, get_supabase_credentials_status,
+    set_supabase_anon_key, SupabaseCredentials, SupabaseCredentialsStatus,
+};
+
 use crate::commands::credentials::get_api_key;
 use anyhow::{Context as _, Result as AnyhowResult};
 use devpulse_engine::ai_providers::ProviderId;

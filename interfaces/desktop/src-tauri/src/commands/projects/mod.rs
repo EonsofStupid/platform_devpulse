@@ -189,7 +189,10 @@ pub async fn create_project(
         .unwrap_or("personal")
         .trim()
         .to_string();
-    if !matches!(project_type.as_str(), "general" | "personal" | "team" | "archived") {
+    if !matches!(
+        project_type.as_str(),
+        "general" | "personal" | "team" | "archived"
+    ) {
         return Err(format!(
             "project_type must be one of general|personal|team|archived, got `{project_type}`"
         ));
@@ -333,12 +336,7 @@ pub async fn add_project_reference(
     if project_id.is_empty() || path.is_empty() {
         return Err("project_id and path must be non-empty".to_string());
     }
-    let kind = input
-        .kind
-        .as_deref()
-        .unwrap_or("other")
-        .trim()
-        .to_string();
+    let kind = input.kind.as_deref().unwrap_or("other").trim().to_string();
     if !matches!(kind.as_str(), "docs" | "source" | "examples" | "other") {
         return Err(format!(
             "kind must be one of docs|source|examples|other, got `{kind}`"
@@ -697,10 +695,7 @@ pub async fn get_project(
 /// `restore_project`.
 #[tauri::command]
 #[specta::specta]
-pub async fn delete_project(
-    state: State<'_, PlatformState>,
-    id: String,
-) -> Result<bool, String> {
+pub async fn delete_project(state: State<'_, PlatformState>, id: String) -> Result<bool, String> {
     let platform = state
         .platform
         .load_full()
@@ -722,10 +717,7 @@ pub async fn delete_project(
 /// Reverse of [`delete_project`] — flip `active` back to 1.
 #[tauri::command]
 #[specta::specta]
-pub async fn restore_project(
-    state: State<'_, PlatformState>,
-    id: String,
-) -> Result<bool, String> {
+pub async fn restore_project(state: State<'_, PlatformState>, id: String) -> Result<bool, String> {
     let platform = state
         .platform
         .load_full()
@@ -749,10 +741,7 @@ pub async fn restore_project(
 
 /// Shared read path for `get_project` and `create_project` (the latter
 /// reads the row back post-insert to avoid trusting its own defaults).
-async fn read_one_project(
-    adapter: &dyn SqlAdapter,
-    id: &str,
-) -> anyhow::Result<Option<Project>> {
+async fn read_one_project(adapter: &dyn SqlAdapter, id: &str) -> anyhow::Result<Option<Project>> {
     let rows = adapter
         .query(
             "SELECT id, name, root_path, project_type, slug, description, tool, tech_stack, active, created_at

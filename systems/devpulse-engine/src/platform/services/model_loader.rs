@@ -21,12 +21,14 @@ use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
 use anyhow::Result;
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 pub use devpulse_clyffy::model_loader::registry::LoadError;
+pub use devpulse_clyffy::model_loader::wizard::analytics::emit_event as emit_analytics_event;
 pub use devpulse_clyffy::model_loader::AudioSamples;
+pub use devpulse_clyffy::model_loader::DownloadScope as ModelDownloadScope;
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 pub use devpulse_clyffy::model_loader::{
-    ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
-    ModelsCopy, ProfileCopy, ScanningCopy, StepTooltips, TierDisplay, TierRole, TooltipEntry,
-    WizardCopy,
+    ActivateCopy, AnalyticsEvent, AuthCopy, BrowseCopy, CompletionCopy, CustomizeCopy,
+    GreetingCopy, HardwareCopy, ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy,
+    StepTooltips, TierDisplay, TierRole, TooltipEntry, WizardCopy,
 };
 pub use devpulse_clyffy::model_loader::{
     AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
@@ -35,12 +37,11 @@ pub use devpulse_clyffy::model_loader::{
 pub use devpulse_clyffy::model_loader::{
     AutoConfig, BrainSwapPolicy, HardwareTier, SlotRecommendation,
 };
-pub use devpulse_clyffy::model_loader::{RebindReason, RuntimeFingerprint};
 use devpulse_clyffy::model_loader::{
     DownloadScope, HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot,
     SlotStatus, VramBudget,
 };
-pub use devpulse_clyffy::model_loader::DownloadScope as ModelDownloadScope;
+pub use devpulse_clyffy::model_loader::{RebindReason, RuntimeFingerprint};
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
 use std::sync::Arc;
 
@@ -306,10 +307,7 @@ impl ModelLoaderService {
     /// `assign_model` lands. Pairs with `unload_slot` when callers want
     /// to fully retract a slot (load → reassign happens elsewhere).
     #[tracing::instrument(skip(self), fields(slot_id))]
-    pub async fn unassign_slot(
-        &self,
-        slot_id: &str,
-    ) -> std::result::Result<(), LoadError> {
+    pub async fn unassign_slot(&self, slot_id: &str) -> std::result::Result<(), LoadError> {
         tracing::info!("unassign_slot");
         self.inner
             .unassign_slot(slot_id)
@@ -661,11 +659,7 @@ impl ModelLoaderService {
 
     /// Embed a batch of texts through the embedding slot.
     #[tracing::instrument(skip(self, texts), fields(slot_id, count = texts.len()))]
-    pub async fn embed(
-        &self,
-        slot_id: &str,
-        texts: &[&str],
-    ) -> Result<Vec<Vec<f32>>, LoadError> {
+    pub async fn embed(&self, slot_id: &str, texts: &[&str]) -> Result<Vec<Vec<f32>>, LoadError> {
         self.inner
             .embed(slot_id, texts)
             .await

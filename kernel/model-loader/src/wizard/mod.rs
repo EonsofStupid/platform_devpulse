@@ -17,13 +17,15 @@
 //! Reload: copy is loaded once at boot. To reload, restart the platform or
 //! call `WizardCopy::reload(path)` from the devtools UI.
 
+pub mod analytics;
 pub mod copy;
 pub mod tier_display;
 pub mod tooltips;
 
+pub use analytics::{emit_event, AnalyticsEvent};
 pub use copy::{
-    ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
-    ModelsCopy, ProfileCopy, ScanningCopy, WizardCopy,
+    ActivateCopy, AuthCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
+    ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy, WizardCopy,
 };
 pub use tier_display::{TierDisplay, TierRole};
 pub use tooltips::{StepTooltips, TooltipEntry};

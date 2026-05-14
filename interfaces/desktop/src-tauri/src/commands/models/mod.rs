@@ -1445,9 +1445,8 @@ pub struct RuntimeUpdateInfo {
     pub status: RuntimeUpdateStatus,
     /// Fingerprint at the time of the check, if the runtime is
     /// currently loaded. `None` when the runtime isn't in any slot.
-    pub current_fingerprint: Option<
-        devpulse_engine::platform::services::model_loader::RuntimeFingerprint,
-    >,
+    pub current_fingerprint:
+        Option<devpulse_engine::platform::services::model_loader::RuntimeFingerprint>,
     /// Layman-language summary of the result.
     pub message: String,
     /// Upstream source the user can inspect manually, if any.

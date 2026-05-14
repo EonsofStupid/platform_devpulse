@@ -83,8 +83,9 @@ fn resolve_path(target: ClaudeTarget) -> Result<PathBuf, CommandError> {
 }
 
 fn current_exe_string() -> Result<String, CommandError> {
-    let exe = std::env::current_exe()
-        .map_err(|e| CommandError::internal(format!("Could not resolve current executable: {e}")))?;
+    let exe = std::env::current_exe().map_err(|e| {
+        CommandError::internal(format!("Could not resolve current executable: {e}"))
+    })?;
     // Canonicalize when possible so symlinks (cargo target dir, dev shims)
     // resolve to a stable absolute path.
     let canonical = std::fs::canonicalize(&exe).unwrap_or(exe);
@@ -117,13 +118,15 @@ fn upsert_devpulse_entry(path: &Path, entry: Option<Value>) -> Result<(), Comman
 
     // Load current contents (or start from an empty object).
     let mut root: Map<String, Value> = if path.exists() {
-        let bytes = std::fs::read(path)
-            .map_err(|e| CommandError::internal(format!("Read failed for {}: {e}", path.display())))?;
+        let bytes = std::fs::read(path).map_err(|e| {
+            CommandError::internal(format!("Read failed for {}: {e}", path.display()))
+        })?;
         if bytes.is_empty() {
             Map::new()
         } else {
-            let parsed: Value = serde_json::from_slice(&bytes)
-                .map_err(|e| CommandError::parse(format!("Existing config is not valid JSON: {e}")))?;
+            let parsed: Value = serde_json::from_slice(&bytes).map_err(|e| {
+                CommandError::parse(format!("Existing config is not valid JSON: {e}"))
+            })?;
             match parsed {
                 Value::Object(map) => map,
                 other => {

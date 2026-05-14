@@ -20,7 +20,9 @@ use crate::state::PlatformState;
 use state_file::DevforgeState;
 use std::path::PathBuf;
 use tauri::State;
-use types::{DevforgeBootstrapStatus, DevforgeConfigView, DevforgeHealth, DevforgeHealthState, RehStatus};
+use types::{
+    DevforgeBootstrapStatus, DevforgeConfigView, DevforgeHealth, DevforgeHealthState, RehStatus,
+};
 
 /// Start the `DevForge` REH child process (Module Charter verb).
 ///
@@ -165,8 +167,7 @@ pub async fn devforge_get_status(
     let persisted = DevforgeState::load(&paths.state_file());
 
     // P0: lock-free atomic load.
-    let (running, url, port, pid, uptime_secs) = if let Some(platform) =
-        state.platform.load_full()
+    let (running, url, port, pid, uptime_secs) = if let Some(platform) = state.platform.load_full()
     {
         match platform.devforge() {
             Some(service) => (

@@ -8,6 +8,7 @@ import { Toaster } from "svelte-sonner";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
+import { authState, LoginShell } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
@@ -72,6 +73,11 @@ onMount(() => {
 	// Owns its own $effect.root internally; returns a teardown fn.
 	const stopClyffyStatus = clyffyStatus.start();
 
+	// Auth subsystem — probes the persisted Supabase session, subscribes
+	// to onAuthStateChange so subsequent sign-in/out events propagate.
+	// `init()` is idempotent so the layout can call it freely.
+	authState.init().catch((e) => logError("layout", `authState.init() FAILED: ${e}`));
+
 	// ── Idle auto-minimize ─────────────────────────────────
 	// Track last pointer/keyboard activity. When the window has been
 	// idle for N seconds (read from assistant.toml via the kernel),
@@ -112,6 +118,7 @@ onMount(() => {
 	return () => {
 		detachDownloadBridge?.();
 		stopClyffyStatus();
+		authState.destroy();
 		document.removeEventListener("pointermove", markActive);
 		document.removeEventListener("keydown", markActive);
 		clearInterval(idleInterval);
@@ -143,7 +150,18 @@ onMount(() => {
 		dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
 	-->
 	<ModelDownloaderOverlay />
-	{@render children()}
+	<!--
+		Auth gate. `pending` falls through to the BootOverlay above
+		(splash still covers the screen). `signed-out` and
+		`not-configured` render the LoginShell. `signed-in` renders
+		the routed children. Path-agnostic — there's no /login route,
+		the gate IS the route.
+	-->
+	{#if authState.phase === "signed-in"}
+		{@render children()}
+	{:else if authState.phase === "signed-out" || authState.phase === "not-configured"}
+		<LoginShell />
+	{/if}
 
 	{#snippet failed(error, reset)}
 		<ErrorOverlay {error} {reset} />

@@ -186,7 +186,9 @@ pub async fn list_provider_models(
         // refresh-button caller gets the same typed kind the Status
         // tab does for free.
         Err(CommandError::new(
-            result.error_kind.unwrap_or(crate::commands::_util::ErrorKind::Internal),
+            result
+                .error_kind
+                .unwrap_or(crate::commands::_util::ErrorKind::Internal),
             result
                 .error_message
                 .unwrap_or_else(|| "Provider validation failed".into()),

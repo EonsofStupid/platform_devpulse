@@ -102,9 +102,7 @@ pub struct OllamaConfig {
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn ollama_start(
-    state: State<'_, PlatformState>,
-) -> Result<OllamaStatus, String> {
+pub async fn ollama_start(state: State<'_, PlatformState>) -> Result<OllamaStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
         .ensure_ollama_started()
@@ -130,19 +128,14 @@ pub async fn ollama_start(
 #[allow(clippy::missing_errors_doc)]
 pub async fn ollama_stop(state: State<'_, PlatformState>) -> Result<(), String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    platform
-        .ollama_stop()
-        .await
-        .map_err(|e| format!("{e:#}"))
+    platform.ollama_stop().await.map_err(|e| format!("{e:#}"))
 }
 
 /// Restart the Ollama sidecar — stop then start.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn ollama_restart(
-    state: State<'_, PlatformState>,
-) -> Result<OllamaStatus, String> {
+pub async fn ollama_restart(state: State<'_, PlatformState>) -> Result<OllamaStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     let service = platform
         .ollama_restart()
@@ -166,9 +159,7 @@ pub async fn ollama_restart(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn ollama_status(
-    state: State<'_, PlatformState>,
-) -> Result<OllamaStatus, String> {
+pub async fn ollama_status(state: State<'_, PlatformState>) -> Result<OllamaStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     match platform.ollama() {
         Some(service) => {
@@ -194,9 +185,7 @@ pub async fn ollama_status(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn ollama_health(
-    state: State<'_, PlatformState>,
-) -> Result<OllamaHealth, String> {
+pub async fn ollama_health(state: State<'_, PlatformState>) -> Result<OllamaHealth, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     use devpulse_engine::platform::Service as _;
     match platform.ollama() {
@@ -221,9 +210,7 @@ pub async fn ollama_health(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn ollama_config(
-    state: State<'_, PlatformState>,
-) -> Result<OllamaConfig, String> {
+pub async fn ollama_config(state: State<'_, PlatformState>) -> Result<OllamaConfig, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     // The config is inside the boot config; we expose it read-only here.
     // Writing is a follow-up that persists to user TOML.
@@ -247,13 +234,8 @@ pub async fn ollama_list_models(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<OllamaModel>, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    let service = platform
-        .ollama()
-        .ok_or("Ollama not running")?;
-    service
-        .list_models()
-        .await
-        .map_err(|e| format!("{e:#}"))
+    let service = platform.ollama().ok_or("Ollama not running")?;
+    service.list_models().await.map_err(|e| format!("{e:#}"))
 }
 
 /// Pull a model via `POST /api/pull`. Blocks until the pull completes.
@@ -267,9 +249,7 @@ pub async fn ollama_pull_model(
     name: String,
 ) -> Result<(), String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    let service = platform
-        .ollama()
-        .ok_or("Ollama not running")?;
+    let service = platform.ollama().ok_or("Ollama not running")?;
     service
         .pull_model(&name)
         .await
@@ -285,9 +265,7 @@ pub async fn ollama_delete_model(
     name: String,
 ) -> Result<(), String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    let service = platform
-        .ollama()
-        .ok_or("Ollama not running")?;
+    let service = platform.ollama().ok_or("Ollama not running")?;
     service
         .delete_model(&name)
         .await

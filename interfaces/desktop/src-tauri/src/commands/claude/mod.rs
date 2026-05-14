@@ -112,7 +112,9 @@ pub fn detect_claude_installs() -> ClaudeInstalls {
 /// them in the error panel.
 #[tauri::command]
 #[specta::specta]
-pub fn register_devpulse_mcp(target: ClaudeTarget) -> Result<ClaudeInstalls, crate::commands::_util::CommandError> {
+pub fn register_devpulse_mcp(
+    target: ClaudeTarget,
+) -> Result<ClaudeInstalls, crate::commands::_util::CommandError> {
     register::register(target)
 }
 
@@ -125,6 +127,8 @@ pub fn register_devpulse_mcp(target: ClaudeTarget) -> Result<ClaudeInstalls, cra
 /// Surfaces IO and JSON parse errors verbatim.
 #[tauri::command]
 #[specta::specta]
-pub fn unregister_devpulse_mcp(target: ClaudeTarget) -> Result<ClaudeInstalls, crate::commands::_util::CommandError> {
+pub fn unregister_devpulse_mcp(
+    target: ClaudeTarget,
+) -> Result<ClaudeInstalls, crate::commands::_util::CommandError> {
     register::unregister(target)
 }

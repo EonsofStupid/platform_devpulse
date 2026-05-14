@@ -386,11 +386,10 @@ pub async fn transcribe_audio(state: State<'_, PlatformState>) -> Result<String,
     let buffer_ms = routing.latency.audio_buffer_ms;
 
     // Capture audio on a blocking thread (cpal/rodio is sync)
-    let pcm_data = devpulse_telemetry::spawn_blocking(move || {
-        capture_mic_samples(3.0, 16000, buffer_ms)
-    })
-    .await
-    .map_err(|e| format!("Mic capture thread failed: {e}"))??;
+    let pcm_data =
+        devpulse_telemetry::spawn_blocking(move || capture_mic_samples(3.0, 16000, buffer_ms))
+            .await
+            .map_err(|e| format!("Mic capture thread failed: {e}"))??;
 
     let loader = platform
         .model_loader()

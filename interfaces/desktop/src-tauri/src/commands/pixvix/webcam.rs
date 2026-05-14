@@ -173,7 +173,8 @@ fn open_camera(index: u32) -> Result<nokhwa::Camera, CommandError> {
     use nokhwa::pixel_format::RgbAFormat;
     use nokhwa::utils::{CameraIndex, RequestedFormat, RequestedFormatType};
 
-    let requested = RequestedFormat::new::<RgbAFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
+    let requested =
+        RequestedFormat::new::<RgbAFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
     nokhwa::Camera::new(CameraIndex::Index(index), requested).map_err(|e| {
         let s = e.to_string();
         CommandError::new(classify_nokhwa_error(&s), s)
@@ -189,7 +190,10 @@ fn classify_nokhwa_error(msg: &str) -> ErrorKind {
     let lower = msg.to_ascii_lowercase();
     if lower.contains("permission") || lower.contains("denied") || lower.contains("access") {
         ErrorKind::PermissionDenied
-    } else if lower.contains("not found") || lower.contains("not present") || lower.contains("no device") {
+    } else if lower.contains("not found")
+        || lower.contains("not present")
+        || lower.contains("no device")
+    {
         ErrorKind::NotFound
     } else if lower.contains("in use") || lower.contains("busy") || lower.contains("already") {
         ErrorKind::DeviceBusy

@@ -71,7 +71,10 @@ mod tests {
     fn encode_png_emits_valid_png_signature() {
         let bytes = encode_png(&red_pixel()).unwrap();
         // PNG magic: 89 50 4E 47 0D 0A 1A 0A
-        assert_eq!(&bytes[..8], &[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+        assert_eq!(
+            &bytes[..8],
+            &[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+        );
     }
 
     #[test]

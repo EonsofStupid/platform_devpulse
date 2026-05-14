@@ -164,8 +164,9 @@ pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, CommandError> {
             continue;
         }
         let keyring_key = keyring_key_for(provider.id);
-        let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-            .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
+        let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key).map_err(|e| {
+            CommandError::internal(format!("Keyring entry construction failed: {e}"))
+        })?;
         let (stored, masked_preview) = match keyring_entry.get_password() {
             Ok(key) => (true, Some(mask_preview(&key))),
             Err(keyring::Error::NoEntry) => (false, None),
@@ -192,7 +193,8 @@ pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, CommandError> {
 
 /// Look up the SSOT entry for a provider id.
 fn registry_entry(id: ProviderId) -> Result<&'static ai_providers::AiProvider, CommandError> {
-    ai_providers::find(id).ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {id:?}")))
+    ai_providers::find(id)
+        .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {id:?}")))
 }
 
 /// Reject providers that don't take an API key (local servers, subscription path).

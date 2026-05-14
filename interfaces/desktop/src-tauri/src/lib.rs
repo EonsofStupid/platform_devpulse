@@ -373,6 +373,16 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::cloud::set_inference_provider,
         commands::cloud::cloud_ready,
         commands::cloud::cloud_chat,
+        // Supabase cloud credentials (auth + remote DB + storage)
+        commands::cloud::secrets::get_supabase_credentials,
+        commands::cloud::secrets::set_supabase_anon_key,
+        commands::cloud::secrets::clear_supabase_anon_key,
+        commands::cloud::secrets::get_supabase_credentials_status,
+        // License validation (dev-mode bypass; Supabase wiring is follow-up)
+        commands::cloud::license::validate_license,
+        commands::cloud::license::get_license_summary,
+        // Onboarding analytics — typed event stream into tracing pipeline
+        commands::analytics::emit_analytics_event,
         // Routing config (escalation chain + latency tuning, user scope)
         commands::routing::routing_load_config,
         commands::routing::routing_save_config,

@@ -24,9 +24,7 @@ use tauri::State;
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn surreal_status(
-    state: State<'_, PlatformState>,
-) -> Result<SurrealStatus, String> {
+pub async fn surreal_status(state: State<'_, PlatformState>) -> Result<SurrealStatus, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     Ok(platform.surreal_status())
 }
@@ -36,9 +34,7 @@ pub async fn surreal_status(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn surreal_health(
-    state: State<'_, PlatformState>,
-) -> Result<SurrealHealth, String> {
+pub async fn surreal_health(state: State<'_, PlatformState>) -> Result<SurrealHealth, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     Ok(platform.surreal_health().await)
 }

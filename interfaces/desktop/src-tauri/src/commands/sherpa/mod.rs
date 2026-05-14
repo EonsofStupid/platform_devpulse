@@ -131,9 +131,7 @@ pub async fn sherpa_list_sessions(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn sherpa_models_dir(
-    state: State<'_, PlatformState>,
-) -> Result<String, String> {
+pub async fn sherpa_models_dir(state: State<'_, PlatformState>) -> Result<String, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     Ok(platform
         .sherpa_streaming()

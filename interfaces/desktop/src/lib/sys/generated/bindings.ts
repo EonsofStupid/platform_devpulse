@@ -3395,6 +3395,129 @@ async cloudChat(messages: CloudMessage[], systemPrompt: string | null, model: st
 }
 },
 /**
+ * Load the Supabase credentials envelope.
+ * 
+ * Reads the anon key from the OS keychain. URL is the deployment
+ * constant. Frontend instantiates `supabase-js` from the returned
+ * envelope when `anon_key` is `Some`.
+ * 
+ * # Errors
+ * Keychain access failure (other than `NoEntry`, which returns
+ * `anon_key: None`).
+ */
+async getSupabaseCredentials() : Promise<Result<SupabaseCredentials, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_supabase_credentials") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Store the Supabase anon key in the OS keychain.
+ * 
+ * Idempotent — re-storing overwrites. The key flows straight from the
+ * settings devtool's "paste your anon key" input; no validation here
+ * beyond reject-empty, since Supabase rejects bad keys at request time
+ * with a clear error.
+ * 
+ * # Errors
+ * - Empty key.
+ * - Keychain write failed.
+ */
+async setSupabaseAnonKey(key: string) : Promise<Result<null, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_supabase_anon_key", { key }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Remove the Supabase anon key from the OS keychain.
+ * 
+ * Idempotent — deleting a non-existent key is success.
+ * 
+ * # Errors
+ * Keychain delete failure (other than `NoEntry`).
+ */
+async clearSupabaseAnonKey() : Promise<Result<null, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clear_supabase_anon_key") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Frontend-safe status check — never returns the raw key. Used by the
+ * Cloud settings devtool to render "key stored" / "no key set" without
+ * pulling the value into the JS heap.
+ * 
+ * # Errors
+ * Keychain read failure (other than `NoEntry`).
+ */
+async getSupabaseCredentialsStatus() : Promise<Result<SupabaseCredentialsStatus, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_supabase_credentials_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Validate the operator's license.
+ * 
+ * Today: returns `Pro` tier with `source = Dev`. The hard-coded
+ * verdict is intentional — see the module docstring.
+ * 
+ * # Errors
+ * Reserved for the future Supabase path (network / DB failure).
+ */
+async validateLicense() : Promise<Result<LicenseStatus, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("validate_license") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the full license summary for the settings panel.
+ * 
+ * # Errors
+ * Reserved for the future Supabase path.
+ */
+async getLicenseSummary() : Promise<Result<LicenseSummary, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_license_summary") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Record a single analytics event.
+ * 
+ * The frontend calls this after a user-visible action that should be
+ * counted (auth sign-in, wizard step viewed, etc.). The backend emit
+ * sites (slot load, encoder activation) call
+ * `devpulse_engine::platform::services::model_loader::emit_analytics_event`
+ * directly — no Tauri round-trip.
+ * 
+ * # Errors
+ * Reserved for the future persistence layer; today the call always
+ * succeeds because tracing never fails synchronously.
+ */
+async emitAnalyticsEvent(event: AnalyticsEvent) : Promise<Result<null, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("emit_analytics_event", { event }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Load the persisted routing config (escalation chain + latency
  * tuning + response source).
  * 
@@ -3596,6 +3719,203 @@ export type AlternativeKind =
  * Update the build to pick up a newer backend feature.
  */
 "upgrade-build"
+/**
+ * One typed analytics record. Variant name is the event name; the
+ * variant's struct payload is the event props.
+ * 
+ * Wire shape: `{ "name": "slot-loaded", "props": { ... } }`.
+ * 
+ * `kebab-case` rename keeps the JSON output consistent with the rest
+ * of the platform's external event vocabulary (`platform:models-status`,
+ * `model:hardware`, etc.).
+ */
+export type AnalyticsEvent = 
+/**
+ * User has reached the wizard entry point.
+ */
+{ name: "wizard-started"; props: { 
+/**
+ * Stable per-session id generated at app boot — links all
+ * events emitted during one DevPulse run.
+ */
+session_id: string } } | 
+/**
+ * Hardware probe finished — tier picked, key metrics captured.
+ */
+{ name: "system-scan-completed"; props: { 
+/**
+ * Wall-clock duration of the scan.
+ */
+duration_ms: number; 
+/**
+ * Detected tier (`Floor` / `Minimal` / `CpuOnly` / `Mid` /
+ * `High` / `Workstation`, etc.). Wire-stable kebab-case.
+ */
+tier: string; 
+/**
+ * GPU model string. `None` for CPU-only boxes.
+ */
+gpu_name: string | null; 
+/**
+ * Detected VRAM in MB. `0` for CPU-only.
+ */
+vram_mb: number } } | 
+/**
+ * A preset (tier-adaptive model bundle) was applied. Tracks
+ * success rate so the recommendation engine can iterate.
+ */
+{ name: "preset-applied"; props: { 
+/**
+ * Preset identifier (e.g. `auto.recommended`, `manual.harrier`).
+ */
+preset_name: string; 
+/**
+ * `true` if every slot in the preset loaded successfully.
+ */
+success: boolean; 
+/**
+ * End-to-end apply latency.
+ */
+duration_ms: number } } | 
+/**
+ * HF download initiated.
+ */
+{ name: "model-download-started"; props: { 
+/**
+ * `<owner>/<repo>` form.
+ */
+repo_id: string; 
+/**
+ * Bundle total size in MB.
+ */
+size_mb: number; 
+/**
+ * `auto` (preset apply), `manual` (downloader UI), `wizard`.
+ */
+source: string } } | 
+/**
+ * HF download finished successfully.
+ */
+{ name: "model-download-completed"; props: { 
+/**
+ * `<owner>/<repo>` form.
+ */
+repo_id: string; 
+/**
+ * Wall-clock duration end-to-end.
+ */
+duration_ms: number; 
+/**
+ * Actual bytes pulled (may be less than `size_mb` if files
+ * were already on disk and resumed).
+ */
+bytes_downloaded: number } } | 
+/**
+ * HF download failed.
+ */
+{ name: "model-download-failed"; props: { 
+/**
+ * `<owner>/<repo>` form.
+ */
+repo_id: string; 
+/**
+ * Error message from the kernel.
+ */
+error: string } } | 
+/**
+ * A slot was loaded into a runtime. The unit of "the model is
+ * runnable now" — this proves the chain past on-disk into RAM.
+ */
+{ name: "slot-loaded"; props: { 
+/**
+ * Slot id (`chat.brain`, `rag.embedder`, etc.).
+ */
+slot_id: string; 
+/**
+ * Runtime that took the load (`llama-cpp`, `burn`, `candle`,
+ * `mistralrs`, etc.).
+ */
+runtime: string; 
+/**
+ * `<owner>/<repo>` form.
+ */
+repo_id: string; 
+/**
+ * Wall-clock load latency.
+ */
+duration_ms: number } } | 
+/**
+ * Slot load failed. The chain broke before "runnable."
+ */
+{ name: "slot-load-failed"; props: { 
+/**
+ * Slot id (`chat.brain`, `rag.embedder`, etc.).
+ */
+slot_id: string; 
+/**
+ * Runtime that attempted the load (`llama-cpp`, `burn`, etc.).
+ */
+runtime: string; 
+/**
+ * Error message from the kernel.
+ */
+error: string } } | 
+/**
+ * First embedding query against a newly-loaded embedder
+ * completed. Proves the on-disk → loaded → callable chain
+ * end-to-end. This is the event Phase D of the auth slice
+ * verifies.
+ */
+{ name: "embedder-first-query"; props: { 
+/**
+ * Round-trip latency for the first query.
+ */
+latency_ms: number } } | 
+/**
+ * Encoder activation failed — usually surfaces when the loaded
+ * model can't service a query (tokenizer mismatch, missing
+ * kernel, OOM). Distinct from `SlotLoadFailed` which fires
+ * before any query.
+ */
+{ name: "encoder-activation-failed"; props: { 
+/**
+ * Slot id (`rag.embedder`, `rag.encoder`, etc.).
+ */
+slot_id: string; 
+/**
+ * Error message from the kernel.
+ */
+error: string; 
+/**
+ * Runtime that hosted the encoder.
+ */
+runtime: string } } | 
+/**
+ * User signed in via Supabase. Emitted by the frontend after a
+ * successful supabase-js `signInWithPassword` round trip.
+ */
+{ name: "auth-signed-in"; props: { 
+/**
+ * Supabase user id (UUID).
+ */
+user_id: string } } | 
+/**
+ * User created a Supabase account. Fires once per signup; the
+ * subsequent first sign-in fires `AuthSignedIn`.
+ */
+{ name: "auth-signed-up"; props: { 
+/**
+ * Supabase user id (UUID).
+ */
+user_id: string } } | 
+/**
+ * User signed out.
+ */
+{ name: "auth-signed-out"; props: { 
+/**
+ * Supabase user id of the signed-out session.
+ */
+user_id: string } }
 /**
  * Stored-key status for a single provider — what the devtool renders.
  * 
@@ -3861,6 +4181,147 @@ export type AssistantRoutingConfig = {
  * Active routing mode — determines which escalation lanes are available.
  */
 mode: RoutingMode }
+/**
+ * Copy for the auth shell — sign-in route, sign-up route, sign-out
+ * affordances, error templates, "cloud not yet configured" empty state.
+ * 
+ * One struct covers both routes (sign-in + sign-up) and the headers
+ * in the post-login screen because they all share the same vocabulary
+ * surface ("account," "password," "sign in," "sign out"). Customer
+ * copy — layman English only, no jargon like "credentials," "session,"
+ * "JWT."
+ */
+export type AuthCopy = { 
+/**
+ * Page heading on the sign-in route.
+ */
+sign_in_heading: string; 
+/**
+ * Subtitle below the sign-in heading.
+ */
+sign_in_subtitle: string; 
+/**
+ * Visible button label that submits the sign-in form.
+ */
+sign_in_submit_label: string; 
+/**
+ * `aria-label` on the sign-in submit button.
+ */
+sign_in_submit_aria: string; 
+/**
+ * Button label rendered while the sign-in request is in flight.
+ */
+sign_in_submit_busy_label: string; 
+/**
+ * Page heading on the sign-up route.
+ */
+sign_up_heading: string; 
+/**
+ * Subtitle below the sign-up heading.
+ */
+sign_up_subtitle: string; 
+/**
+ * Visible button label that submits the sign-up form.
+ */
+sign_up_submit_label: string; 
+/**
+ * `aria-label` on the sign-up submit button.
+ */
+sign_up_submit_aria: string; 
+/**
+ * Button label rendered while the sign-up request is in flight.
+ */
+sign_up_submit_busy_label: string; 
+/**
+ * Heading shown after a successful sign-up while the user is
+ * waiting for the email confirmation link.
+ */
+sign_up_confirmation_heading: string; 
+/**
+ * Body shown after a successful sign-up. Placeholder `{email}`
+ * renders the address we sent the confirmation link to.
+ */
+sign_up_confirmation_body_template: string; 
+/**
+ * Label above the email input.
+ */
+email_label: string; 
+/**
+ * Placeholder inside the email input.
+ */
+email_placeholder: string; 
+/**
+ * `aria-label` on the email input.
+ */
+email_aria: string; 
+/**
+ * Label above the password input.
+ */
+password_label: string; 
+/**
+ * Placeholder inside the password input.
+ */
+password_placeholder: string; 
+/**
+ * `aria-label` on the password input.
+ */
+password_aria: string; 
+/**
+ * Label above the confirm-password input (sign-up only).
+ */
+confirm_password_label: string; 
+/**
+ * Placeholder inside the confirm-password input.
+ */
+confirm_password_placeholder: string; 
+/**
+ * `aria-label` on the confirm-password input.
+ */
+confirm_password_aria: string; 
+/**
+ * Link on the sign-in route that swaps to the sign-up route.
+ */
+to_sign_up_link_label: string; 
+/**
+ * Link on the sign-up route that swaps back to the sign-in route.
+ */
+to_sign_in_link_label: string; 
+/**
+ * Visible "Sign out" button label.
+ */
+sign_out_label: string; 
+/**
+ * `aria-label` on the sign-out button.
+ */
+sign_out_aria: string; 
+/**
+ * Banner text when the user tries to submit with empty fields.
+ */
+error_credentials_required: string; 
+/**
+ * Banner text when the two password inputs don't match on sign-up.
+ */
+error_passwords_dont_match: string; 
+/**
+ * Banner text when Supabase rejects the credentials. Deliberately
+ * vague — doesn't reveal whether the email or password was wrong
+ * (auth UX standard).
+ */
+error_invalid_credentials: string; 
+/**
+ * Banner text when the sign-in request can't reach Supabase
+ * (network / DNS / cloud outage).
+ */
+error_network: string; 
+/**
+ * Banner text rendered when no Supabase anon key is in the OS
+ * keychain. Tells the operator where to set it.
+ */
+error_supabase_not_configured: string; 
+/**
+ * Catch-all template for unexpected errors. Placeholder `{error}`.
+ */
+error_unknown_template: string }
 /**
  * Stable identifier for an inference backend. Each variant maps to
  * one concrete Candle / ORT / llama.cpp loader path.
@@ -6572,6 +7033,88 @@ name: string;
  */
 row_count: number }
 /**
+ * Where the license verdict came from. Drives UX copy on the
+ * "subscription" panel — `Dev` shows a "developer bypass" badge,
+ * `Supabase` shows the live verification timestamp, `OfflineBypass`
+ * shows the signed-token expiry.
+ */
+export type LicenseSource = 
+/**
+ * Debug build or `DEVPULSE_LICENSE_BYPASS=1` env var.
+ */
+"dev" | 
+/**
+ * Live verification against the Supabase `licenses` table (FUTURE).
+ */
+"supabase" | 
+/**
+ * Signed offline token for air-gapped installs (FUTURE).
+ */
+"offline-bypass"
+/**
+ * Concrete license state — boolean active flag plus the tier the
+ * feature-flag system reads.
+ */
+export type LicenseStatus = { 
+/**
+ * `true` when the license is in-period and the auth gate should
+ * admit the user past the login screen.
+ */
+active: boolean; 
+/**
+ * Feature tier — drives UI unlocks.
+ */
+tier: LicenseTier; 
+/**
+ * ISO 8601 expiry timestamp. `None` for the free tier and
+ * `Dev` source (which has no expiry concept).
+ */
+expiresAt: string | null; 
+/**
+ * How many seats this license has consumed.
+ */
+seatsUsed: number; 
+/**
+ * Total seat allowance.
+ */
+seatsAllowed: number }
+/**
+ * Full license summary — wraps `LicenseStatus` with the source the
+ * settings panel renders alongside it.
+ */
+export type LicenseSummary = { 
+/**
+ * The license verdict.
+ */
+status: LicenseStatus; 
+/**
+ * Email of the user the license is bound to. `None` until the
+ * Supabase path is wired AND the user has signed in.
+ */
+userEmail: string | null; 
+/**
+ * Where the verdict came from.
+ */
+source: LicenseSource }
+/**
+ * Feature tier the operator's license unlocks. Mirrors the tiers the
+ * public pricing page advertises so the UI can map 1:1 without a
+ * translation table.
+ */
+export type LicenseTier = 
+/**
+ * Free local-only tier — no cloud features, no team seats.
+ */
+"free" | 
+/**
+ * Paid individual tier — cloud features, single seat.
+ */
+"pro" | 
+/**
+ * Org tier — cloud features, multi-seat, SSO, audit log.
+ */
+"enterprise"
+/**
  * Convenience for the Config tab's model picker — same call as
  * `validate_provider`, returns just the model list (or an empty list
  * on failure, with the failure message in the Tauri error channel).
@@ -8078,6 +8621,75 @@ upstream_revision: string | null;
  */
 model_revision: string | null }
 /**
+ * Copy for the post-login runtime picker — the embedder selector
+ * + minion read-only section rendered at `/profile`.
+ * 
+ * Distinct from `ProfileCopy` (wizard's "tell me about yourself"
+ * step). Named `RuntimePickerCopy` so the two never collide in
+ * either Rust or TS bindings.
+ * 
+ * All templates use `{repo}`, `{size_mb}`, `{error}` placeholders the
+ * frontend substitutes. Layman English only — no jargon like "slot,"
+ * "runtime," "preset" in the customer-facing strings.
+ */
+export type RuntimePickerCopy = { 
+/**
+ * Heading above the embedder picker section.
+ */
+heading: string; 
+/**
+ * One-line subtitle below the heading.
+ */
+subtitle: string; 
+/**
+ * Label above the repo-id input.
+ */
+repo_field_label: string; 
+/**
+ * Placeholder inside the repo-id input.
+ */
+repo_field_placeholder: string; 
+/**
+ * `aria-label` on the repo-id input.
+ */
+repo_field_aria: string; 
+/**
+ * Visible "Apply" button label.
+ */
+apply_label: string; 
+/**
+ * `aria-label` on the Apply button.
+ */
+apply_aria: string; 
+/**
+ * Apply button label while the install chain is in flight.
+ */
+apply_busy_label: string; 
+/**
+ * Template — current loaded variant. Placeholder `{repo}`.
+ */
+status_currently_using_template: string; 
+/**
+ * Template — recommended variant from the system scan. Placeholder `{repo}`.
+ */
+status_recommended_template: string; 
+/**
+ * Template — success line after apply. Placeholders `{repo}` + `{size_mb}`.
+ */
+status_applied_template: string; 
+/**
+ * Template — failure line. Placeholder `{error}`.
+ */
+status_failed_template: string; 
+/**
+ * Heading above the minion read-only section.
+ */
+minion_section_heading: string; 
+/**
+ * Template subtitle below the minion heading. Placeholder `{repo}`.
+ */
+minion_section_subtitle_template: string }
+/**
  * Result of `check_runtime_updates` — surfaces whether a newer
  * version of a runtime is available without committing the user
  * to anything. The UI shows the message verbatim; if `status` is
@@ -8613,6 +9225,42 @@ accepted: boolean;
  * reweighting. Sorted in descending order in the returned vec.
  */
 score: number }
+/**
+ * Full Supabase client envelope returned to the frontend so it can
+ * instantiate `supabase-js` with `createClient(url, anon_key)`.
+ * 
+ * `anon_key` is `None` when the operator hasn't run setup yet; the
+ * auth shell renders the "Supabase isn't configured" empty state in
+ * that case rather than crashing on a null key.
+ */
+export type SupabaseCredentials = { 
+/**
+ * HTTPS API URL — feeds `createClient(url, ...)`.
+ */
+url: string; 
+/**
+ * The public anon key from the Supabase dashboard. `None` when
+ * not yet stored in the keychain.
+ */
+anonKey: string | null }
+/**
+ * Frontend-safe status used by the Cloud settings devtool — exposes
+ * whether the key is stored plus a masked preview, never the raw value.
+ */
+export type SupabaseCredentialsStatus = { 
+/**
+ * HTTPS API URL — same shape as `SupabaseCredentials::url`.
+ */
+url: string; 
+/**
+ * `true` when an anon key is in the OS keychain.
+ */
+anonKeyStored: boolean; 
+/**
+ * First-8-chars-then-mask preview, e.g. `eyJhbGci...****`. `None`
+ * when no key is stored.
+ */
+anonKeyPreview: string | null }
 /**
  * Whether the backend for this format is stable, experimental, or
  * not yet shipped. Used by the resolver to decide whether to surface
@@ -9661,7 +10309,23 @@ clyffy_tooltips?: ClyffyTooltipsCopy;
  * authenticated download. Lives outside the wizard's view chain;
  * `#[serde(default)]` keeps older user overrides parsing cleanly.
  */
-downloader?: DownloaderCopy }
+downloader?: DownloaderCopy; 
+/**
+ * Copy for the auth shell — sign-in route, sign-up route, sign-out
+ * affordances, error templates. Strings flow through this struct
+ * instead of being inlined in Svelte so Rule 6 (Rust SSOT for every
+ * visible string) stays satisfied. `#[serde(default)]` keeps older
+ * user `wizard_copy.toml` overrides parsing without `[auth]`.
+ */
+auth?: AuthCopy; 
+/**
+ * Copy for the post-login runtime picker — the embedder selector
+ * + minion read-only section that lives at `/profile`. Distinct
+ * from `profile: ProfileCopy` (which is the wizard's "tell me
+ * about yourself" step). `#[serde(default)]` keeps older
+ * overrides parsing without `[runtime_picker]`.
+ */
+runtime_picker?: RuntimePickerCopy }
 
 /** tauri-specta globals **/
 

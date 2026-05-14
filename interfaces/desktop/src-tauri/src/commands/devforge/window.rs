@@ -135,9 +135,9 @@ pub async fn open_devforge_window(
     }
 
     // ── 3. Parse the REH URL and build a new dedicated window. ─────
-    let parsed: Url = target_url.parse().map_err(|e| {
-        format!("REH connection URL is not a valid Url: {e} (url={target_url})")
-    })?;
+    let parsed: Url = target_url
+        .parse()
+        .map_err(|e| format!("REH connection URL is not a valid Url: {e} (url={target_url})"))?;
 
     let mut builder =
         WebviewWindowBuilder::new(&app, DEVFORGE_WINDOW_LABEL, WebviewUrl::External(parsed))
@@ -187,7 +187,11 @@ pub async fn open_devforge_window(
 /// present, `?` otherwise. Workspace path is URL-encoded so backslashes
 /// and spaces survive the round-trip through the browser URL parser.
 fn append_folder_query(connection_url: &str, workspace_path: &str) -> String {
-    let separator = if connection_url.contains('?') { '&' } else { '?' };
+    let separator = if connection_url.contains('?') {
+        '&'
+    } else {
+        '?'
+    };
     let encoded = url_encode_component(workspace_path);
     format!("{connection_url}{separator}folder={encoded}")
 }

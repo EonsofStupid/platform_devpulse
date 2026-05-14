@@ -20,9 +20,7 @@ use tauri::State;
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn candle_load_config(
-    state: State<'_, PlatformState>,
-) -> Result<CandleConfig, String> {
+pub async fn candle_load_config(state: State<'_, PlatformState>) -> Result<CandleConfig, String> {
     let platform = state.platform.load_full().ok_or("Platform not booted")?;
     Ok(platform.candle_config_load())
 }

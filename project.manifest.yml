@@ -167,8 +167,13 @@ datastores:
   - id: supabase
     name: "Supabase Cloud"
     type: postgres
-    url: "https://supabase.com/dashboard/project/devpulse"
-    description: "Remote cloud database"
+    project_ref: dcmgooupmorhqjbdaxtm
+    api_url: "https://dcmgooupmorhqjbdaxtm.supabase.co"
+    db_host: "db.dcmgooupmorhqjbdaxtm.supabase.co"
+    db_port: 5432
+    db_name: postgres
+    db_user: postgres
+    description: "Remote cloud database. Password + anon key + service_role key in OS keyring under namespace 'devpulse' provider 'supabase-cloud'."
 
 # ============================================
 # ENVIRONMENTS
