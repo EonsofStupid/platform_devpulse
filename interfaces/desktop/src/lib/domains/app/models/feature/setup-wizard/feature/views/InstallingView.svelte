@@ -65,7 +65,7 @@ let {
 				{@const label = getSlotLabel(rec.slot_id)}
 				{@const live = dispatchedInstalls.find((i) => i.slotId === rec.slot_id)}
 				{@const dispatchErr = dispatchErrors[rec.slot_id]}
-				<Card preset="matte" class="row">
+				<Card preset="matte" class="installing-view__row">
 					<div class="row-info">
 						<Text size="xs" weight="bold">
 							{label?.name ?? rec.slot_id}
@@ -124,9 +124,12 @@ let {
 		flex-direction: column;
 		gap: 0.375rem;
 	}
-	/* Tier 4 — `<Card preset="matte">` provides visual chrome.
-	   Layout-only overrides here. */
-	.row {
+	/* Tier 4 — `<Card preset="matte">` provides visual chrome. Layout-
+	   only overrides here. `:global()` because the class is passed to
+	   a child `<Card>` component; Svelte's per-file scoper can't track
+	   classes across the component boundary. Renamed from `.row` to be
+	   collision-proof under global scope. */
+	:global(.installing-view__row) {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

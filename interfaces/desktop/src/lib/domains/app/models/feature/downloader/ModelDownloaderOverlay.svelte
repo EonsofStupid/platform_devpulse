@@ -414,7 +414,9 @@ function formatError(): string {
 			color-mix(in oklch, var(--surface-base) 60%, transparent);
 	}
 
-	.downloader-dialog__aurora {
+	/* `:global()` because the class is passed to the
+	   `<AuroraGradientBackdrop>` child component. */
+	:global(.downloader-dialog__aurora) {
 		opacity: 0.35;
 	}
 
@@ -476,7 +478,9 @@ function formatError(): string {
 		outline-offset: 0.125rem;
 	}
 
-	.downloader-dialog__token-strip {
+	/* `:global()` because the class is passed to the
+	   `<DownloaderTokenStrip>` child component. */
+	:global(.downloader-dialog__token-strip) {
 		position: relative;
 		z-index: 1;
 	}
@@ -502,7 +506,10 @@ function formatError(): string {
 		justify-content: center;
 	}
 
-	.downloader-dialog__complete-icon {
+	/* `:global()` because the class is passed to the `<CheckCircle>`
+	   lucide-svelte component (the Lucide wrapper renders the class
+	   onto the SVG root). */
+	:global(.downloader-dialog__complete-icon) {
 		width: var(--space-48);
 		height: var(--space-48);
 		color: var(--accent-teal-main);

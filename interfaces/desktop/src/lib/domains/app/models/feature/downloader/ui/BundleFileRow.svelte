@@ -72,13 +72,16 @@ let { entry, isPrimary = false, class: className }: Props = $props();
 		opacity: 0.7;
 	}
 
-	.bundle-row__icon {
+	/* `:global()` because the class is on the `<FileText>` lucide-svelte
+	   child component — Svelte's per-file scoper can't track classes
+	   passed through component boundaries. */
+	:global(.bundle-row__icon) {
 		width: var(--space-14);
 		height: var(--space-14);
 		color: var(--text-muted);
 	}
 
-	.bundle-row[data-primary="true"] .bundle-row__icon {
+	.bundle-row[data-primary="true"] :global(.bundle-row__icon) {
 		color: var(--accent-main);
 	}
 

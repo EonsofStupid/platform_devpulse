@@ -126,8 +126,11 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 	}
 
 	/* The Card primitive provides the visual chrome. Only set sizing /
-	   spacing concerns here that Card's preset doesn't own. */
-	.shell-card {
+	   spacing concerns here that Card's preset doesn't own. `:global()`
+	   because the class is passed to a child component (`<Card>`); the
+	   class lands on Card's rendered root but Svelte's per-file scoper
+	   can't track classes across component boundaries. */
+	:global(.shell-card) {
 		position: relative;
 		display: flex;
 		flex-direction: column;
@@ -158,7 +161,8 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		height: 2.25rem;
 	}
 
-	.shell-body {
+	/* `:global()` — class is passed to a child `<Card>` component. */
+	:global(.shell-body) {
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;

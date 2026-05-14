@@ -37,14 +37,14 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 		<Text size="sm" class="text-frost-300">{tier.description}</Text>
 
 		<div class="metrics">
-			<Card preset="matte" class="well">
+			<Card preset="matte" class="hardware-view__well">
 				<Text size="xs" class="text-frost-500">{copy.gpu_label}</Text>
 				<Text size="xs">
 					{gpuName ?? (hasGpu ? "Detecting…" : "—")}
 				</Text>
 			</Card>
 			{#if hasGpu}
-				<Card preset="matte" class="well">
+				<Card preset="matte" class="hardware-view__well">
 					<Text size="xs" class="text-frost-500">{copy.vram_label}</Text>
 					<Text size="xs">
 						{vramTotalMb !== null ? formatMb(vramTotalMb) : "—"}
@@ -95,8 +95,10 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 	}
 	/* Tier 4 — `<Card preset="matte">` provides the visual chrome.
 	   Layout-only override here: flex justify-between + padding the
-	   matte preset doesn't own. */
-	.well {
+	   matte preset doesn't own. `:global()` because the class is passed
+	   to a child `<Card>` component. Renamed from `.well` to be
+	   collision-proof under global scope. */
+	:global(.hardware-view__well) {
 		display: flex;
 		justify-content: space-between;
 		padding: 0.5rem 0.75rem;
