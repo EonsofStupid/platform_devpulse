@@ -2,27 +2,32 @@
 	@feature EmbedderPicker
 	@module @devpulse/domains/profile/feature
 
-	Clyffy's encoder/embedder picker — post-login. Renders two cards
-	with distinct surface tokens (per the user's "different styled
-	components with different surface colors" intent):
+	Clyffy's encoder/embedder picker — post-login. Two cards composed
+	from ColdLight primitives with distinct presets so the surface
+	hierarchy reads at a glance:
 
-	  1. The PRIMARY card — embedder repo input + Apply button + live
-	     status (currently using / recommended / applied / failed). Uses
-	     `--surface-overlay` for prominence.
-	  2. The MINION card — read-only "auto-managed" section showing
-	     which small variant the helper processes use. Uses
-	     `--surface-base` with `--border-subtle` so it reads as
-	     secondary information, not actionable.
+	  1. Primary `<Card preset="glass">` — embedder repo input + Apply
+	     button + live status (currently using / recommended / applied
+	     / failed).
+	  2. Minion `<Card preset="matte">` — read-only "auto-managed"
+	     section showing the helper-process variant. Lower visual
+	     weight, no actionable controls.
 
-	All strings flow from `wizardCopy.runtime_picker` via `getWizardCopy()`.
+	Every visible string flows from `wizardCopy.runtime_picker` via
+	`getWizardCopy()`. The TextField + Button primitives carry their
+	own ARIA via `useTextField` / `useButton` behaviors — no manual
+	`aria-label` plumbing here.
 
-	ARIA: each card is a `<section>` with `aria-labelledby`. The picker
-	form uses an `<output role="status">` `aria-live="polite"` region
-	for the apply phase status, switching to `role="alert"` on the
-	failed phase so AT users hear the error immediately.
+	The status `<Text>` flips between `role="status"` (idle / success /
+	in-flight) and `role="alert"` (failed) so AT users hear errors
+	immediately but aren't spammed by non-failure transitions.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { Button } from "$lib/design/components/button/index.js";
+import { Card } from "$lib/design/components/card/index.js";
+import { Heading } from "$lib/design/components/heading/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { TextField } from "$lib/design/components/text-field/index.js";
 import { commands, type RuntimePickerCopy } from "$lib/sys/generated/bindings.js";
 import { profileState } from "../index.js";
 
@@ -106,105 +111,81 @@ function emptyCopy(): RuntimePickerCopy {
 }
 </script>
 
-<div class={cn("embedder-picker", className)}>
-	<section class="embedder-picker__primary" aria-labelledby="embedder-heading">
+<div class={className ? `embedder-picker ${className}` : "embedder-picker"}>
+	<Card preset="glass" class="embedder-picker__primary" labelledBy="embedder-heading">
 		<header class="embedder-picker__header">
-			<h2 id="embedder-heading" class="embedder-picker__heading">{copy.heading}</h2>
-			<p class="embedder-picker__subtitle">{copy.subtitle}</p>
+			<Heading level={2} size="md">
+				<span id="embedder-heading">{copy.heading}</span>
+			</Heading>
+			<Text size="sm" as="p" weight="normal">{copy.subtitle}</Text>
 		</header>
 
 		<form class="embedder-picker__form" onsubmit={handleSubmit} novalidate>
-			<label for="embedder-repo" class="embedder-picker__label">{copy.repo_field_label}</label>
-			<div class="embedder-picker__input-row">
-				<input
-					id="embedder-repo"
-					type="text"
-					class="embedder-picker__input"
-					placeholder={copy.repo_field_placeholder}
-					aria-label={copy.repo_field_aria}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={profileState.pendingRepoId}
-				/>
-				<button
+			<TextField
+				label={copy.repo_field_label}
+				placeholder={copy.repo_field_placeholder}
+				description={copy.repo_field_aria}
+				autocomplete="off"
+				spellcheck={false}
+				bind:value={profileState.pendingRepoId}
+			/>
+
+			<div class="embedder-picker__actions">
+				<Button
+					preset="primary"
+					size="md"
 					type="submit"
-					class="embedder-picker__apply"
 					aria-label={copy.apply_aria}
 					disabled={busy}
 				>
 					{applyLabel}
-				</button>
+				</Button>
 			</div>
 
-			<output class="embedder-picker__status" role={statusRole} aria-live="polite">
+			<Text size="sm" as="p" weight="normal" role={statusRole}>
 				{statusText}
-			</output>
+			</Text>
 		</form>
-	</section>
+	</Card>
 
-	<section class="embedder-picker__minion" aria-labelledby="minion-heading">
-		<header class="embedder-picker__header">
-			<h2 id="minion-heading" class="embedder-picker__heading embedder-picker__heading--minor">
-				{copy.minion_section_heading}
-			</h2>
-			<p class="embedder-picker__subtitle">{minionSubtitle}</p>
+	<Card preset="matte" class="embedder-picker__minion" labelledBy="minion-heading">
+		<header class="embedder-picker__header embedder-picker__header--minor">
+			<Heading level={2} size="sm">
+				<span id="minion-heading">{copy.minion_section_heading}</span>
+			</Heading>
+			<Text size="xs" as="p" weight="normal">{minionSubtitle}</Text>
 		</header>
-	</section>
+	</Card>
 </div>
 
 <style>
+	/* Layout-only. Visual chrome flows from each Card's preset. */
 	.embedder-picker {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-16);
+		gap: var(--space-14);
 		width: 100%;
 		max-width: 36rem;
 		margin: 0 auto;
 	}
 
-	.embedder-picker__primary {
-		display: flex;
-		flex-direction: column;
+	/* Card layout overrides. `:global()` — class is passed to a child
+	   `<Card>` component; Svelte's per-file scoper can't track classes
+	   across the component boundary. */
+	:global(.embedder-picker__primary) {
 		gap: var(--space-12);
 		padding: var(--space-18);
-		border-radius: var(--radius-lg);
-		background: var(--surface-overlay);
-		border: 0.0625rem solid var(--border-subtle);
-		box-shadow: 0 0.25rem 1rem var(--overlay-scrim, transparent);
 	}
 
-	.embedder-picker__minion {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-8);
+	:global(.embedder-picker__minion) {
+		gap: var(--space-7);
 		padding: var(--space-14) var(--space-18);
-		border-radius: var(--radius-md);
-		background: var(--surface-base);
-		border: 0.0625rem solid var(--border-subtle);
 	}
 
 	.embedder-picker__header {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-6);
-	}
-
-	.embedder-picker__heading {
-		margin: 0;
-		font-size: var(--space-16);
-		font-weight: 600;
-		color: var(--text-primary);
-	}
-
-	.embedder-picker__heading--minor {
-		font-size: var(--space-14);
-		color: var(--text-secondary);
-	}
-
-	.embedder-picker__subtitle {
-		margin: 0;
-		font-size: var(--space-12);
-		color: var(--text-muted);
+		gap: var(--space-5);
 	}
 
 	.embedder-picker__form {
@@ -213,66 +194,8 @@ function emptyCopy(): RuntimePickerCopy {
 		gap: var(--space-10);
 	}
 
-	.embedder-picker__label {
-		font-size: var(--space-12);
-		font-weight: 500;
-		color: var(--text-secondary);
-	}
-
-	.embedder-picker__input-row {
+	.embedder-picker__actions {
 		display: flex;
-		gap: var(--space-8);
-	}
-
-	.embedder-picker__input {
-		flex: 1;
-		min-width: 0;
-		padding: var(--space-8) var(--space-12);
-		border-radius: var(--radius-md);
-		background: var(--surface-inset);
-		border: 0.0625rem solid var(--border-subtle);
-		color: var(--text-primary);
-		font-size: var(--space-12);
-		font-family: var(--font-family-mono, monospace);
-		outline: none;
-	}
-
-	.embedder-picker__input:focus-visible {
-		border-color: var(--border-focus);
-	}
-
-	.embedder-picker__apply {
-		padding: var(--space-8) var(--space-16);
-		border-radius: var(--radius-md);
-		background: var(--accent-purple-main);
-		color: var(--text-on-accent, var(--text-primary));
-		border: none;
-		font-size: var(--space-12);
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	.embedder-picker__apply:hover:not(:disabled) {
-		opacity: 0.9;
-	}
-
-	.embedder-picker__apply:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-
-	.embedder-picker__apply:focus-visible {
-		outline: 0.125rem solid var(--border-focus);
-		outline-offset: 0.125rem;
-	}
-
-	.embedder-picker__status {
-		display: block;
-		padding: var(--space-8) var(--space-12);
-		border-radius: var(--radius-sm);
-		background: var(--surface-inset);
-		font-size: var(--space-12);
-		color: var(--text-secondary);
-		font-variant-numeric: tabular-nums;
+		justify-content: flex-end;
 	}
 </style>
