@@ -22,6 +22,7 @@ import { ArrowUpRight, Boxes, Database, RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import {
@@ -116,9 +117,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 			</div>
 
 			{#if rroState.healthError}
-				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-					{rroState.healthError}
-				</div>
+				<InlineMessage tone="error">{rroState.healthError}</InlineMessage>
 			{/if}
 
 			{#if rroState.health}

@@ -12,6 +12,7 @@ import { Database, RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
@@ -93,9 +94,7 @@ onMount(() => {
 					</Text>
 				</div>
 			{:else if health}
-				<div class="rounded-lg p-3" style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);">
-					<Text size="sm">{health.error ?? "Unreachable"}</Text>
-				</div>
+				<InlineMessage tone="error">{health.error ?? "Unreachable"}</InlineMessage>
 			{/if}
 		</div>
 	{/snippet}
@@ -172,10 +171,17 @@ onMount(() => {
 </ServiceDevtoolShell>
 
 {#if error}
-	<div
-		class="fixed bottom-4 right-4 rounded p-3 text-sm"
-		style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error); color: var(--text-primary); max-width: 30rem;"
-	>
-		{error}
+	<div class="moka-devtool__error-toast" role="alert">
+		<InlineMessage tone="error">{error}</InlineMessage>
 	</div>
 {/if}
+
+<style>
+	.moka-devtool__error-toast {
+		position: fixed;
+		bottom: var(--space-12);
+		right: var(--space-12);
+		max-width: 30rem;
+		z-index: 50;
+	}
+</style>

@@ -25,9 +25,11 @@ import {
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import {
+	type CapturePayload,
 	type ExtraTab,
 	type HealthBadge,
 	ScopedLogPanel,
@@ -195,6 +197,92 @@ const extraTabs: ExtraTab[] = [
 	{ id: "registry", label: "Registry", Icon: Search },
 	{ id: "downloads", label: "Downloads", Icon: Play },
 ];
+
+// ── Capture (copy / export) ────────────────────────────────
+// Shell calls this with the active tab id; we return a payload that
+// reflects what the user is looking at. Returning `undefined` hides
+// the Copy / Export buttons for that tab. Status + registry + debug
+// pay off the most: status snapshots the slot table at a frozen
+// moment, registry snapshots every discovered model with capability
+// + VRAM data, debug captures the aggregate counts that drive the
+// header badge.
+function captureFor(tabId: string): CapturePayload | undefined {
+	switch (tabId) {
+		case "status":
+			return {
+				filename: "slot-orchestrator-status.json",
+				mime: "application/json",
+				content: JSON.stringify(
+					{
+						roles: ROLE_FRAMES.map((frame) => ({
+							role: frame.id,
+							label: frame.label,
+							slots: frame.slots.map((id) => {
+								const d = slotData(id);
+								return {
+									slot_id: id,
+									slot_label: d.label?.name ?? id,
+									assigned_model: d.model?.filename ?? null,
+									vram_estimate_mb: d.model?.vram_estimate_mb ?? null,
+									ready: d.ready,
+									status_type: d.status?.type ?? null,
+								};
+							}),
+						})),
+						totals: {
+							slots: totalSlots,
+							assigned: assignedCount,
+							ready: readyCount,
+							registry_size: modelsState.models.length,
+						},
+					},
+					null,
+					2,
+				),
+			};
+		case "config":
+			return modelsDir
+				? {
+						filename: "slot-orchestrator-config.txt",
+						mime: "text/plain",
+						content: `models_dir = ${modelsDir}\n`,
+					}
+				: undefined;
+		case "debug":
+			return {
+				filename: "slot-orchestrator-debug.txt",
+				mime: "text/plain",
+				content: [
+					`total_slots: ${totalSlots}`,
+					`assigned: ${assignedCount}`,
+					`ready: ${readyCount}`,
+					`registry_size: ${modelsState.models.length}`,
+					`models_dir: ${modelsDir ?? "—"}`,
+				].join("\n"),
+			};
+		case "registry":
+			return modelsState.models.length === 0
+				? undefined
+				: {
+						filename: "slot-orchestrator-registry.json",
+						mime: "application/json",
+						content: JSON.stringify(
+							modelsState.models.map((m) => ({
+								id: m.id,
+								filename: m.filename,
+								architecture: m.architecture,
+								size_mb: m.size_mb,
+								vram_estimate_mb: m.vram_estimate_mb,
+								capabilities: m.compatible_capabilities,
+							})),
+							null,
+							2,
+						),
+					};
+		default:
+			return undefined;
+	}
+}
 </script>
 
 <ServiceDevtoolShell
@@ -205,6 +293,7 @@ const extraTabs: ExtraTab[] = [
 	accent="teal"
 	health={badge}
 	{extraTabs}
+	capture={captureFor}
 >
 	{#snippet status()}
 		<div class="space-y-4">
@@ -447,9 +536,7 @@ const extraTabs: ExtraTab[] = [
 			</div>
 
 			{#if pickLocalError}
-				<div class="picker-error">
-					<Text size="xs">{pickLocalError}</Text>
-				</div>
+				<InlineMessage tone="error">{pickLocalError}</InlineMessage>
 			{/if}
 
 			{#if modelsState.models.length === 0}
@@ -562,21 +649,27 @@ const extraTabs: ExtraTab[] = [
 
 	.picker-backdrop {
 		position: fixed; inset: 0;
-		background: rgb(0 0 0 / 0.55);
+		background: var(--overlay-scrim-heavy);
 		display: flex; align-items: center; justify-content: center;
 		z-index: 1000;
-		padding: 1rem;
+		padding: var(--space-12);
 	}
 	.picker-card {
 		background: var(--surface-base);
-		border: 0.0625rem solid var(--border-strong);
-		border-radius: 0.625rem;
-		box-shadow: 0 1.25rem 2.5rem rgb(0 0 0 / 0.45);
+		border: var(--border-width-hairline) solid var(--border-strong);
+		border-radius: var(--radius-lg);
+		box-shadow:
+			var(--elevation-modal-1-offset-x) var(--elevation-modal-1-offset-y)
+				var(--elevation-modal-1-blur) var(--elevation-modal-1-spread)
+				var(--elevation-modal-1-color),
+			var(--elevation-modal-2-offset-x) var(--elevation-modal-2-offset-y)
+				var(--elevation-modal-2-blur) var(--elevation-modal-2-spread)
+				var(--elevation-modal-2-color);
 		width: min(38rem, 100%);
 		max-height: min(36rem, 80vh);
 		display: flex; flex-direction: column;
-		gap: 0.5rem;
-		padding: 0.875rem 1rem;
+		gap: var(--space-7);
+		padding: var(--space-10) var(--space-12);
 	}
 	.picker-header {
 		display: flex; align-items: flex-start; justify-content: space-between;
@@ -586,13 +679,6 @@ const extraTabs: ExtraTab[] = [
 	}
 	.picker-title { display: flex; flex-direction: column; gap: 0.125rem; }
 	.picker-slot-raw { font-family: var(--font-mono); color: var(--text-muted); }
-	.picker-error {
-		padding: 0.5rem 0.625rem;
-		border-radius: 0.375rem;
-		background: rgb(220 38 38 / 0.12);
-		border: 0.0625rem solid rgb(220 38 38 / 0.45);
-		color: var(--text-primary);
-	}
 	.picker-empty {
 		padding: 1rem 0.5rem;
 		text-align: center;

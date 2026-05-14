@@ -28,6 +28,7 @@ import { ScopedLogPanel } from "$lib/devtools/index.js";
 -->
 <script lang="ts">
 	import { Button } from "$lib/design/components/button/index.js";
+	import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 	import { Spinner } from "$lib/design/components/spinner/index.js";
 	import { Text } from "$lib/design/components/text/index.js";
 	import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
@@ -76,9 +77,7 @@ import { ScopedLogPanel } from "$lib/devtools/index.js";
 	</div>
 
 	{#if error}
-		<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-			{error}
-		</div>
+		<InlineMessage tone="error">{error}</InlineMessage>
 	{/if}
 
 	{#if entries.length > 0}

@@ -25,7 +25,6 @@ import type {
 	RetrievalParamMeta,
 	RroDepth,
 	RroStateSnapshot,
-	RroTabId,
 	SlotInfo,
 	VectorHealthReport,
 	VectorSearchResult,
@@ -41,9 +40,6 @@ const PERSIST_KEY = "rro:retrieval_config";
 const BRAIN_NAMESPACES: GraphNamespace[] = ["System", "User", "Global"];
 
 class RroState {
-	// ── Tab ─────────────────────────────────────────────────
-	activeTab = $state<RroTabId>("state");
-
 	// ── Vector health ───────────────────────────────────────
 	health = $state<VectorHealthReport | null>(null);
 	healthError = $state<string | null>(null);
@@ -107,13 +103,6 @@ class RroState {
 	);
 
 	encoderReady = $derived<boolean>(!!this.encoder?.backend);
-
-	// ── Tab ─────────────────────────────────────────────────
-	setTab(t: RroTabId): void {
-		if (this.activeTab === t) return;
-		this.activeTab = t;
-		logInfo("rro.state", `tab:${t}`);
-	}
 
 	// ── Loaders ─────────────────────────────────────────────
 	async loadHealth(): Promise<void> {
