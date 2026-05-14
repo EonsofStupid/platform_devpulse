@@ -3,9 +3,9 @@
  */
 
 @theme {
-  --primary-main: oklch(0.65 0.08 173);
-  --primary-glow: oklch(0.63 0.08 173 / 0.35);
-  --primary-fill: oklch(0.63 0.08 173 / 0.08);
+  --primary-main: oklch(0.55 0.14 240);
+  --primary-glow: oklch(0.68 0.14 240 / 0.35);
+  --primary-fill: oklch(0.68 0.14 240 / 0.08);
   --primary-fg: oklch(0.95 0.01 220);
   --primary-alt-main: oklch(0.37 0.12 280);
   --primary-alt-glow: oklch(0.63 0.12 280 / 0.35);

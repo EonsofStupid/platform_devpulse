@@ -4,9 +4,9 @@
 
 @layer tokens.semantic {
   :root {
-  --primary-main: var(--accent-teal-main); /** Primary lead — bound to teal. */
-  --primary-glow: var(--accent-teal-glow); /** Primary lead glow. */
-  --primary-fill: var(--accent-teal-fill); /** Primary lead area fill. */
+  --primary-main: var(--accent-blue-main); /** Primary lead — bound to brand blue (hue 240). */
+  --primary-glow: var(--accent-blue-glow); /** Primary lead glow. */
+  --primary-fill: var(--accent-blue-fill); /** Primary lead area fill. */
   --primary-fg: var(--text-primary); /** Foreground / on-primary text. */
   --primary-alt-main: var(--color-purple-700); /** Primary alt — deep purple (purple ramp stop 700). */
   --primary-alt-glow: var(--accent-purple-glow); /** Primary alt glow. */

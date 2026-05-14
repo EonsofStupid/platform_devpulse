@@ -3,10 +3,10 @@
 
 	"primary": {
 		"$type": "color",
-		"$description": "Lead brand role. Three independent primaries — main (teal), alt (deep purple), deep (deep blue) — bound to palette seeds. Vibecoder-friendly names; rebind by swapping the $value reference, components keep working.",
-		"main":      { "$value": "{accent.teal.main}",       "$description": "Primary lead — bound to teal." },
-		"glow":      { "$value": "{accent.teal.glow}",       "$description": "Primary lead glow." },
-		"fill":      { "$value": "{accent.teal.fill}",       "$description": "Primary lead area fill." },
+		"$description": "Lead brand role. Three independent primaries — main (brand blue, hue 240), alt (deep purple), deep (deep blue). CTAs MUST be blue per locked product requirement #6 (project_model_loader_requirements.md): 'Blue tint — stop shipping black-and-white UI · CTAs must be BLUE.' Rebind by swapping the $value reference; components keep working.",
+		"main":      { "$value": "{accent.blue.main}",       "$description": "Primary lead — bound to brand blue (hue 240)." },
+		"glow":      { "$value": "{accent.blue.glow}",       "$description": "Primary lead glow." },
+		"fill":      { "$value": "{accent.blue.fill}",       "$description": "Primary lead area fill." },
 		"fg":        { "$value": "{text.primary}",           "$description": "Foreground / on-primary text." },
 
 		"alt-main":  { "$value": "{color.purple.700}",       "$description": "Primary alt — deep purple (purple ramp stop 700)." },
