@@ -1531,11 +1531,24 @@ impl ModelLoaderService {
 
         // Detached chain — Service is Clone (every field is Arc), so
         // a cheap clone is the right move; no `Arc<Self>` plumbing.
+        // `repo_id` + `started_at` thread through so the analytics
+        // `slot-loaded` / `slot-load-failed` events at chain-end carry
+        // the originating repo and the end-to-end latency.
         let svc = self.clone();
         let install_id_for_task = install_id.clone();
         let slot_id_owned = slot_id.to_string();
+        let repo_id_owned = repo_id.to_string();
+        let started_at = std::time::Instant::now();
         tokio::spawn(async move {
-            run_install_chain(svc, install_id_for_task, slot_id_owned, rx).await;
+            run_install_chain(
+                svc,
+                install_id_for_task,
+                slot_id_owned,
+                repo_id_owned,
+                started_at,
+                rx,
+            )
+            .await;
         });
 
         Ok(install_id)
@@ -2324,18 +2337,34 @@ impl ModelLoaderService {
     /// # Errors
     /// Returns [`LoaderError::Inference`] if the embedding slot is not
     /// loaded or the underlying embedder fails on any input text.
+    ///
+    /// Emits the `encoder-activation-failed` analytics event on error
+    /// so the apply/save → encoder runtime chain is observable from the
+    /// session JSONL without a separate devtool. Successful calls are
+    /// reported via the surrounding `embed_text` / `encoder_embed`
+    /// Tauri layer; this kernel surface only tracks failures.
     pub async fn embed(
         &self,
         slot_id: &str,
         texts: &[&str],
     ) -> Result<Vec<Vec<f32>>, LoaderError> {
         let inf = self.inference.read().await;
-        inf.voice_pool
+        let result = inf
+            .voice_pool
             .embed(slot_id, texts)
             .map_err(|e| LoaderError::Inference {
                 slot_id: slot_id.to_string(),
                 reason: format!("embed failed: {e:#}"),
-            })
+            });
+        if let Err(ref err) = result {
+            let runtime = slot_runtime_label(self, slot_id).await;
+            crate::wizard::emit_event(&crate::wizard::AnalyticsEvent::EncoderActivationFailed {
+                slot_id: slot_id.to_string(),
+                error: format!("{err}"),
+                runtime,
+            });
+        }
+        result
     }
 
     /// Rerank documents.
@@ -2430,6 +2459,8 @@ async fn run_install_chain(
     svc: ModelLoaderService,
     install_id: String,
     slot_id: String,
+    repo_id: String,
+    started_at: std::time::Instant,
     rx: tokio::sync::oneshot::Receiver<anyhow::Result<ModelRegistryEntry>>,
 ) {
     // Stage 1 — wait for the download thread to terminate. Receiver
@@ -2439,15 +2470,24 @@ async fn run_install_chain(
     let entry = match rx.await {
         Ok(Ok(entry)) => entry,
         Ok(Err(e)) => {
-            return emit_install_failed(&svc, &install_id, &slot_id, format!("download: {e}"));
+            return emit_install_failed(
+                &svc,
+                &install_id,
+                &slot_id,
+                &repo_id,
+                format!("download: {e}"),
+            )
+            .await;
         }
         Err(_) => {
             return emit_install_failed(
                 &svc,
                 &install_id,
                 &slot_id,
+                &repo_id,
                 "download: completion channel dropped before result".to_string(),
-            );
+            )
+            .await;
         }
     };
 
@@ -2458,50 +2498,101 @@ async fn run_install_chain(
     // `ModelRegistryEntry` in-memory and emitted `DownloadComplete`,
     // but the on-disk registry only catches up via `scan_models`.
     if let Err(e) = svc.scan_models().await {
-        return emit_install_failed(&svc, &install_id, &slot_id, format!("scan: {e:#}"));
+        return emit_install_failed(
+            &svc,
+            &install_id,
+            &slot_id,
+            &repo_id,
+            format!("scan: {e:#}"),
+        )
+        .await;
     }
 
     // Stage 3 — assign. Capability mismatches surface here.
     if let Err(e) = svc.assign_model(&slot_id, &model_id).await {
-        return emit_install_failed(&svc, &install_id, &slot_id, format!("assign: {e:#}"));
+        return emit_install_failed(
+            &svc,
+            &install_id,
+            &slot_id,
+            &repo_id,
+            format!("assign: {e:#}"),
+        )
+        .await;
     }
 
     // Stage 4 — load. Routes through `select_backend` per format.
     if let Err(e) = svc.load_slot(&slot_id).await {
-        return emit_install_failed(&svc, &install_id, &slot_id, format!("load: {e:#}"));
+        return emit_install_failed(
+            &svc,
+            &install_id,
+            &slot_id,
+            &repo_id,
+            format!("load: {e:#}"),
+        )
+        .await;
     }
+
+    let runtime = slot_runtime_label(&svc, &slot_id).await;
+    let duration_ms = started_at.elapsed().as_millis() as u64;
 
     svc.boot.events.emit(LoaderEvent::InstallComplete {
         install_id: install_id.clone(),
         slot_id: slot_id.clone(),
         model_id: model_id.clone(),
     });
+    crate::wizard::emit_event(&crate::wizard::AnalyticsEvent::SlotLoaded {
+        slot_id: slot_id.clone(),
+        runtime,
+        repo_id: repo_id.clone(),
+        duration_ms,
+    });
     tracing::info!(
         install_id = %install_id,
         slot = %slot_id,
         model = %model_id,
+        duration_ms,
         "Install chain complete"
     );
 }
 
 #[cfg(feature = "candle-backend")]
-fn emit_install_failed(
+async fn emit_install_failed(
     svc: &ModelLoaderService,
     install_id: &str,
     slot_id: &str,
+    repo_id: &str,
     error: String,
 ) {
+    let runtime = slot_runtime_label(svc, slot_id).await;
     tracing::warn!(
         install_id = %install_id,
         slot = %slot_id,
+        repo = %repo_id,
         error = %error,
         "Install chain failed"
     );
     svc.boot.events.emit(LoaderEvent::InstallFailed {
         install_id: install_id.to_string(),
         slot_id: slot_id.to_string(),
+        error: error.clone(),
+    });
+    crate::wizard::emit_event(&crate::wizard::AnalyticsEvent::SlotLoadFailed {
+        slot_id: slot_id.to_string(),
+        runtime,
         error,
     });
+}
+
+/// Look up the lane label for a slot — the analytics `runtime` field
+/// the frontend can group by. Cheap read-only config lock; returns
+/// `"unknown"` if the slot has been removed between dispatch and the
+/// chain-end emit. Always compiled (no candle-backend gate) because
+/// the `embed()` failure path calls it on every backend build.
+async fn slot_runtime_label(svc: &ModelLoaderService, slot_id: &str) -> String {
+    let cfg = svc.config.read().await;
+    cfg.slots
+        .get_slot(slot_id)
+        .map_or_else(|| "unknown".to_string(), |s| format!("{:?}", s.lane))
 }
 
 // ── Tests ────────────────────────────────────────────────────────
