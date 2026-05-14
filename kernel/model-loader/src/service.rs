@@ -107,6 +107,12 @@ pub struct ModelLoaderService {
     pub(crate) config: Arc<RwLock<ConfigState>>,
     pub(crate) boot: Arc<BootState>,
     pub(crate) hardware: Arc<parking_lot::RwLock<HardwareMonitor>>,
+    /// Per-slot first-query latch. An entry's presence means
+    /// `EmbedderFirstQuery` has already been emitted for that
+    /// `(slot, current assignment)` pair. `assign_model` removes
+    /// the entry so a model swap re-arms the trigger. Held under a
+    /// short-lived `parking_lot::Mutex` — never crosses an `await`.
+    pub(crate) first_query_seen: Arc<parking_lot::Mutex<HashSet<String>>>,
 }
 
 /// Read-only context gathered at the start of a slot load. Computed
@@ -318,6 +324,7 @@ impl ModelLoaderService {
                 burn_encoder_adapter,
             }),
             hardware: Arc::new(parking_lot::RwLock::new(HardwareMonitor::new())),
+            first_query_seen: Arc::new(parking_lot::Mutex::new(HashSet::new())),
         })
     }
 
@@ -821,6 +828,11 @@ impl ModelLoaderService {
             s.assigned_model = Some(model_id.to_string());
         }
         cfg.has_assignments = true;
+
+        // Re-arm the first-query latch — a swap should re-fire
+        // `EmbedderFirstQuery` so the dashboard can prove the new
+        // model is actually callable end-to-end, not just loaded.
+        self.first_query_seen.lock().remove(slot_id);
 
         self.boot.events.emit(LoaderEvent::SlotAssigned {
             slot_id: slot_id.to_string(),
@@ -2338,31 +2350,62 @@ impl ModelLoaderService {
     /// Returns [`LoaderError::Inference`] if the embedding slot is not
     /// loaded or the underlying embedder fails on any input text.
     ///
-    /// Emits the `encoder-activation-failed` analytics event on error
-    /// so the apply/save → encoder runtime chain is observable from the
-    /// session JSONL without a separate devtool. Successful calls are
-    /// reported via the surrounding `embed_text` / `encoder_embed`
-    /// Tauri layer; this kernel surface only tracks failures.
+    /// Emits two analytics events:
+    /// - `encoder-activation-failed` on error — the apply/save → encoder
+    ///   runtime chain is observable from session JSONL without a
+    ///   dedicated devtool.
+    /// - `embedder-first-query` on the FIRST successful call for a
+    ///   `(slot, current assignment)` pair — proves the on-disk →
+    ///   loaded → callable chain end-to-end. The latch resets on the
+    ///   next `assign_model` so swaps re-fire it.
     pub async fn embed(
         &self,
         slot_id: &str,
         texts: &[&str],
     ) -> Result<Vec<Vec<f32>>, LoaderError> {
-        let inf = self.inference.read().await;
-        let result = inf
-            .voice_pool
-            .embed(slot_id, texts)
-            .map_err(|e| LoaderError::Inference {
-                slot_id: slot_id.to_string(),
-                reason: format!("embed failed: {e:#}"),
-            });
-        if let Err(ref err) = result {
-            let runtime = slot_runtime_label(self, slot_id).await;
-            crate::wizard::emit_event(&crate::wizard::AnalyticsEvent::EncoderActivationFailed {
-                slot_id: slot_id.to_string(),
-                error: format!("{err}"),
-                runtime,
-            });
+        let started_at = std::time::Instant::now();
+        // Scope the inference lock so the post-emit can take
+        // `config.read()` without inverting the documented lock order
+        // (config → registry → inference → hardware).
+        let result = {
+            let inf = self.inference.read().await;
+            inf.voice_pool
+                .embed(slot_id, texts)
+                .map_err(|e| LoaderError::Inference {
+                    slot_id: slot_id.to_string(),
+                    reason: format!("embed failed: {e:#}"),
+                })
+        };
+        match &result {
+            Ok(_) => {
+                // `HashSet::insert` returns true when the entry was
+                // newly inserted — that's our atomic check-and-set.
+                let newly_seen = self
+                    .first_query_seen
+                    .lock()
+                    .insert(slot_id.to_string());
+                if newly_seen {
+                    let runtime = slot_runtime_label(self, slot_id).await;
+                    let latency_ms = started_at.elapsed().as_millis() as u64;
+                    crate::wizard::emit_event(
+                        &crate::wizard::AnalyticsEvent::EmbedderFirstQuery {
+                            slot_id: slot_id.to_string(),
+                            runtime,
+                            latency_ms,
+                        },
+                    );
+                }
+            }
+            Err(err) => {
+                let runtime = slot_runtime_label(self, slot_id).await;
+                crate::wizard::emit_event(
+                    &crate::wizard::AnalyticsEvent::EncoderActivationFailed {
+                        slot_id: slot_id.to_string(),
+                        error: format!("{err}"),
+                        runtime,
+                    },
+                );
+            }
         }
         result
     }

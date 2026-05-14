@@ -121,10 +121,17 @@ pub enum AnalyticsEvent {
     },
     /// First embedding query against a newly-loaded embedder
     /// completed. Proves the on-disk → loaded → callable chain
-    /// end-to-end. This is the event Phase D of the auth slice
-    /// verifies.
+    /// end-to-end. Fires exactly once per `(slot_id, assignment)`
+    /// pair — `assign_model` clears the seen-set so a swap re-arms
+    /// the trigger.
     EmbedderFirstQuery {
-        /// Round-trip latency for the first query.
+        /// Slot id that just served its first query
+        /// (`rag.embedder`, `minion.embedder`).
+        slot_id: String,
+        /// Runtime that hosted the embedder
+        /// (`candle`, `burn-cpu`, `llama-cpp-2`).
+        runtime: String,
+        /// Round-trip latency for the first query (ms).
         latency_ms: u64,
     },
     /// Encoder activation failed — usually surfaces when the loaded
@@ -213,12 +220,18 @@ mod tests {
 
     #[test]
     fn embedder_first_query_props_minimal() {
-        let evt = AnalyticsEvent::EmbedderFirstQuery { latency_ms: 42 };
+        let evt = AnalyticsEvent::EmbedderFirstQuery {
+            slot_id: "rag.embedder".to_string(),
+            runtime: "candle".to_string(),
+            latency_ms: 42,
+        };
         let json = serde_json::to_string(&evt).expect("serialize");
         assert!(
             json.contains("\"name\":\"embedder-first-query\""),
             "actual: {json}"
         );
+        assert!(json.contains("\"slot_id\":\"rag.embedder\""), "actual: {json}");
+        assert!(json.contains("\"runtime\":\"candle\""), "actual: {json}");
         assert!(json.contains("\"latency_ms\":42"), "actual: {json}");
     }
 }
