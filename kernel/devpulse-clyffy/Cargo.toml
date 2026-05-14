@@ -84,6 +84,15 @@ llguidance = { workspace = true, optional = true }
 # rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds.
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
+# rkyv 0.8 — zero-copy serialization. Backs `RroRecord` (the JIT
+# precomputed-context shape) under
+# `src/cortex/persistence/surreal/intelligence.rs`. Always-on (not
+# feature-gated): the type definitions and the access helper are part
+# of the always-compiled persistence surface so consumers downstream
+# (engine MCP server, future hooks) can reference them without juggling
+# a feature gate.
+rkyv = { workspace = true }
+
 # Candle inference (CPU-first, burst mode)
 candle-core = { workspace = true, optional = true }
 candle-nn = { workspace = true, optional = true }

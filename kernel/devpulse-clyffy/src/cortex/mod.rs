@@ -2,6 +2,11 @@
 pub mod adapters;
 /// Context-Augmented Generation (CAG) retrieval pipeline.
 pub mod cag;
+/// Abstract intelligence layer — connector-agnostic memory + RRO
+/// types, schema, project routing, and the `IntelligenceStore`
+/// trait. Backends under `cortex::persistence::<backend>::*`
+/// implement the trait.
+pub mod intelligence;
 /// Governance graph — operator-authored reasoning trees per CORTEX.md §4.
 pub mod governance;
 /// LLM constrained-decoding runtime (`llguidance`-backed). Layman-facing

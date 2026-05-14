@@ -13,6 +13,7 @@
 //! Two files, one domain — distinct concerns, single namespace.
 
 pub mod client;
+pub mod intelligence_impl;
 pub mod lifecycle;
 
 pub use client::{ScopedGraphHandle, SurrealAdapter};
