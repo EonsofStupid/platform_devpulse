@@ -69,6 +69,15 @@ flume = "0.11"
 # a tokio::sync::RwLock across await points.
 arc-swap = "1.7"
 
+# rkyv 0.8 — zero-copy serialization framework. Kernel term reserved at
+# `kernel_terms.toml` (severity=hard, prod "fast serialization"). Used by
+# `kernel/devpulse-clyffy/.../persistence/surreal/intelligence.rs` to define
+# `RroRecord` — precomputed reasoning context that loads via `rkyv::access`
+# with no deserialization. Default features include `std`, `alloc`, and
+# `bytecheck` (safe validation on access). Pinned to the 0.8 line; the API
+# differs significantly from 0.7 (rancor error type, AlignedVec return).
+rkyv = "0.8"
+
 # Compile-time trait-bound assertions. Used by the RRO encoder hot-update
 # pattern (`HOT_UPDATE_PATTERN.md` §12 verifications 1–2) to assert
 # `BurnEmbedder<B>: Send + Sync + 'static` per backend at compile time —
@@ -186,6 +195,26 @@ ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 # Without this patch, the upstream 0.6.4 release pins candle 0.9.1 and Cargo
 # pulls a duplicate candle copy → E0308 across the model-loader build.
 moshi = { path = "deps/moshi/rust/moshi-core" }
+
+# llama-cpp-rs durability fix for cpp-httplib + OpenSSL 3
+# -------------------------------------------------------
+# `llama-cpp-sys-2` 0.1.145 / 0.1.146 (crates.io latest) pins llama.cpp
+# at commit e21cdc11 (2026-04-13), BEFORE upstream llama.cpp's bump of
+# the vendored cpp-httplib to v0.43.1 (commit 606fa42f5d, 2026-04-21)
+# which fixes the OpenSSL 3 `const X509_NAME *` regression.
+#
+# To activate the durable fix:
+#   1. Run `scripts/build-tuning/apply-llama-cpp-httplib-fix.ps1` —
+#      vendors utilityai/llama-cpp-rs at `deps/llama-cpp-rs/` and
+#      advances its llama.cpp submodule to 606fa42f5d.
+#   2. Uncomment the two lines below.
+#   3. `cargo update && cargo clean -p llama-cpp-sys-2 && cargo xtask verify`.
+#
+# Until then, the kernel build relies on a hand-patch of the registry
+# source at `~/.cargo/registry/src/.../llama-cpp-sys-2-0.1.145/.../httplib.cpp`
+# line 12574, which is lost on every `cargo clean -p llama-cpp-sys-2`.
+# llama-cpp-2 = { path = "deps/llama-cpp-rs/llama-cpp-2" }
+# llama-cpp-sys-2 = { path = "deps/llama-cpp-rs/llama-cpp-sys-2" }
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast).
