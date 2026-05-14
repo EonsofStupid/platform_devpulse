@@ -18,7 +18,8 @@ use devpulse_engine::ai_providers::ProviderId;
 use devpulse_engine::platform::InferenceProvider;
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tauri::{Emitter, State};
+use tauri::State;
+use tauri_specta::Event;
 
 use crate::state::PlatformState;
 
@@ -84,10 +85,10 @@ async fn inner_set_inference_provider(
         .await
         .context("persist routing mode to assistant config")?;
 
-    let _ = app.emit(
-        "provider:changed",
-        serde_json::json!({ "provider": provider.as_str() }),
-    );
+    let _ = crate::events::InferenceProviderChanged {
+        provider: provider.as_str().to_string(),
+    }
+    .emit(&app);
 
     tracing::info!("Inference provider set");
     Ok(())
@@ -269,8 +270,10 @@ pub async fn cloud_chat(
                                 .and_then(|t| t.as_str())
                             {
                                 full_response.push_str(text);
-                                let _ =
-                                    app.emit("cloud:token", serde_json::json!({ "content": text }));
+                                let _ = crate::events::CloudTokenStreamed {
+                                    content: text.to_string(),
+                                }
+                                .emit(&app);
                             }
                         }
                         "message_start" => {
@@ -301,14 +304,12 @@ pub async fn cloud_chat(
         }
     }
 
-    let _ = app.emit(
-        "cloud:complete",
-        serde_json::json!({
-            "model": model_used,
-            "input_tokens": input_tokens,
-            "output_tokens": output_tokens,
-        }),
-    );
+    let _ = crate::events::CloudCompletionFinished {
+        model: model_used.clone(),
+        input_tokens,
+        output_tokens,
+    }
+    .emit(&app);
 
     tracing::info!(
         model = %model_used,

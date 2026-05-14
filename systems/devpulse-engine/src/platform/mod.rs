@@ -146,7 +146,7 @@ pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
 // (registry entries, source-tier classification, slot identity).
 // All names describe industry-standard concepts, no rename needed.
 #[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::{ModelRegistryEntry, ModelSourceTier, Slot};
+pub use devpulse_clyffy::model_loader::{HardwareMetrics, ModelRegistryEntry, ModelSourceTier, Slot};
 
 // IP-NOTE: architecture + backend compatibility registry. Public face
 // of the matrix the UI consumes for `ModelCompatibilityCard`. Names
@@ -180,7 +180,11 @@ use services::sidecars::ollama::OllamaService;
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
+use services::project_analytics::ProjectAnalyticsManager;
 use services::project_db::ProjectDbManager;
+use services::project_graph::ProjectGraphManager;
+#[cfg(feature = "rro")]
+use services::project_vector::ProjectVectorManager;
 use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
@@ -326,8 +330,17 @@ pub struct Platform {
     // Records enforcement / failure stats and exposes public toggle verbs.
     grammar: GrammarHandle,
     // ── Project scope ──────────────────────────────────────────
-    /// Per-project databases, created on demand (not at boot).
+    /// Per-project libSQL databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
+    /// Per-project DuckDB analytics, created on demand.
+    project_analytics: Arc<ProjectAnalyticsManager>,
+    /// Per-project SurrealDB namespace handles, minted on demand inside
+    /// the shared embedded instance.
+    project_graph: Arc<ProjectGraphManager>,
+    /// Per-project Qdrant collection registry, created on demand inside
+    /// the shared embedded RRO instance.
+    #[cfg(feature = "rro")]
+    project_vector: Arc<ProjectVectorManager>,
     // ── Internal event broadcast bus ─────────────────────────
     // `InternalEvent` stream every observability subscriber (facade
     // bridge, minions, surface-events whitelist, governance) listens
@@ -431,6 +444,10 @@ impl Platform {
             ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
             project_db: Arc::new(ProjectDbManager::new()),
+            project_analytics: Arc::new(ProjectAnalyticsManager::new()),
+            project_graph: Arc::new(ProjectGraphManager::new()),
+            #[cfg(feature = "rro")]
+            project_vector: Arc::new(ProjectVectorManager::new()),
             telemetry,
             reasoning: RroStateHandle::new(),
             grammar: GrammarHandle::new(),
@@ -1279,6 +1296,57 @@ impl Platform {
         &self.project_db
     }
 
+    /// Get the per-project analytics manager (DuckDB).
+    pub fn project_analytics(&self) -> &Arc<ProjectAnalyticsManager> {
+        &self.project_analytics
+    }
+
+    /// Get the per-project graph manager (SurrealDB namespaces inside
+    /// the shared embedded instance).
+    pub fn project_graph(&self) -> &Arc<ProjectGraphManager> {
+        &self.project_graph
+    }
+
+    /// Get the per-project vector collection manager (Qdrant collections
+    /// inside the shared embedded RRO instance).
+    #[cfg(feature = "rro")]
+    pub fn project_vector(&self) -> &Arc<ProjectVectorManager> {
+        &self.project_vector
+    }
+
+    /// Atomically initialize every per-project store for one project.
+    ///
+    /// Delegates to [`services::project_init::init_project_full`] with
+    /// the platform's own manager refs + the shared SurrealDB adapter
+    /// borrowed from the system graph service. Idempotent — safe to
+    /// call on every project boot.
+    ///
+    /// # Errors
+    /// Returns the first store-init failure. Stores that did succeed
+    /// before the failure stay cached on their managers.
+    pub async fn init_project_full(
+        &self,
+        config: &services::project_init::ProjectInitConfig,
+    ) -> anyhow::Result<services::project_init::ProjectScope> {
+        let surreal_adapter = self
+            .system_graph
+            .as_ref()
+            .map(|svc| svc.adapter().clone());
+
+        let cx = services::project_init::ProjectInitContext {
+            project_db: &self.project_db,
+            project_analytics: &self.project_analytics,
+            project_graph: &self.project_graph,
+            surreal_adapter: surreal_adapter.as_ref(),
+            #[cfg(feature = "rro")]
+            project_vector: &self.project_vector,
+            #[cfg(feature = "rro")]
+            vector: self.vector.as_ref(),
+        };
+
+        services::project_init::init_project_full(cx, config).await
+    }
+
     // ── Telemetry accessor ──────────────────────────────────────
 
     /// Get the telemetry handle (if enabled and analytics booted).
@@ -1360,7 +1428,14 @@ impl Platform {
 
         for_each_service_rev!(self, shutdown_one);
 
-        // Project databases are not in the macro — they're on-demand, not boot-time.
+        // Project-scope managers are not in the macro — they're
+        // on-demand, not boot-time. Order mirrors init: tear down
+        // graph + vector handles first (in-memory only), then the
+        // file-owning libSQL / DuckDB adapters.
+        self.project_graph.shutdown().await;
+        #[cfg(feature = "rro")]
+        self.project_vector.shutdown().await;
+        self.project_analytics.shutdown().await;
         self.project_db.shutdown().await;
 
         let elapsed = start.elapsed();

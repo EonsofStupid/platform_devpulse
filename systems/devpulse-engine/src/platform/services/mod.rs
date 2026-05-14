@@ -7,7 +7,12 @@ pub mod analytics;
 pub mod cache;
 pub mod graph;
 pub mod manifest;
+pub mod project_analytics;
 pub mod project_db;
+pub mod project_graph;
+pub mod project_init;
+#[cfg(feature = "rro")]
+pub mod project_vector;
 pub mod relational;
 pub mod rrd_translator;
 pub mod status;
@@ -18,6 +23,8 @@ pub mod audio;
 pub mod devforge;
 #[cfg(feature = "inference")]
 pub mod model_loader;
+#[cfg(feature = "inference")]
+pub use model_loader::ModelDownloadScope;
 #[cfg(feature = "inference")]
 pub mod model_loader_log;
 pub mod candle_config;

@@ -59,10 +59,10 @@ pub struct DownloadProgress {
 
 /// Manages model downloads from `HuggingFace` Hub.
 ///
-/// `models_dir` is held only when the `candle-backend` feature is active —
-/// it's the destination root for `start_download` and `infer_download_folder`.
-/// Without that feature there is no download path, so the field would be
-/// dead code (the field-level cfg gate avoids `unused field` warnings
+/// `models_dir` is held only when the `candle-backend` feature is
+/// active — it's the destination root for `start_download`. Without
+/// that feature there is no download path, so the field would be dead
+/// code (the field-level cfg gate avoids `unused field` warnings
 /// instead of suppressing them).
 pub struct DownloadManager {
     #[cfg(feature = "candle-backend")]
@@ -132,6 +132,7 @@ impl DownloadManager {
         &mut self,
         repo_id: &str,
         filename: &str,
+        scope: &crate::models::DownloadScope,
         events: &Arc<dyn LoaderEventSink>,
         // Optional one-shot fired exactly once when the spawned download
         // thread terminates. `Ok(entry)` mirrors `DownloadComplete`,
@@ -160,10 +161,14 @@ impl DownloadManager {
             total_bytes: 0, // Updated once we know the size
         });
 
-        // Route to purpose folder based on file extension and name heuristics.
-        // GGUF text-gen → chat/, embedding → rag/, voice → voice/
-        let subdir = infer_download_folder(filename);
-        let dest_dir = self.models_dir.join(subdir);
+        // Layout: `<scope_root>/<owner>/<repo>/<file>`. `resolve_bundle_dir`
+        // sanitises every component so a hostile `repo_id` cannot traverse
+        // outside `models_dir`; legitimate HF repos pass through unchanged
+        // because the sanitiser's keep-set matches HF's own repo-id alphabet.
+        // Pre-existing downloads under the legacy `chat/`, `rag/`, `voice/`,
+        // `vision/` flat directories remain loadable — `discover_models`
+        // recurses, so it picks up either layout without migration.
+        let dest_dir = crate::models::resolve_bundle_dir(&self.models_dir, scope, repo_id);
         std::fs::create_dir_all(&dest_dir)?;
 
         let target_path = dest_dir.join(filename);
@@ -933,10 +938,35 @@ fn link_or_copy(src: &Path, dst: &Path) -> anyhow::Result<()> {
 
 /// Infer the purpose folder for a downloaded file based on filename.
 ///
-/// Routes models into the correct subfolder so discovery folder-hints
-/// can assign capabilities. This is the layman path — no config.json
-/// needed, no manual folder creation. Cfg-gated to `candle-backend`
-/// because the only caller (`start_download`) lives behind the same gate.
+/// Routes models into the legacy `chat/`/`rag/`/`voice/`/`vision/` flat
+/// subdirs so the discovery folder-hint pass can assign capabilities
+/// without a `devpulse.json` manifest. Layman path — no config.json
+/// needed, no manual folder creation.
+///
+/// ## Status as of `DownloadScope` introduction
+///
+/// New downloads go through [`crate::models::resolve_bundle_dir`] which
+/// produces `<scope_root>/<owner>/<repo>/<file>`. This helper is no
+/// longer on the live download path — discovery still walks the legacy
+/// trees recursively, so already-on-disk files in `chat/`/`rag/`/etc.
+/// stay loadable.
+///
+/// The function is kept (not deleted) for two reasons:
+///   1. **Legacy migration tooling** — `cargo xtask model-manifest-backfill`
+///      and any future "consolidate-legacy-tree" operation use this
+///      mapping to confirm where a stray file *would have* landed.
+///   2. **Canonical keyword set** — the keyword groups here are the
+///      single source of truth for the four capability buckets the
+///      discovery hint resolver scans against. Re-deriving the same
+///      list in two places is the bug we avoid by keeping it here.
+///
+/// Cfg-gated to `candle-backend` so a build without download support
+/// doesn't ship the helper at all.
+///
+/// Verified by the `infer_download_folder_*` unit tests in this file
+/// — those are the live consumers. Future legacy-tree migration
+/// tooling can copy this lookup table verbatim (or, when it lands in
+/// a shared crate, depend on this function directly).
 #[cfg(feature = "candle-backend")]
 fn infer_download_folder(filename: &str) -> &'static str {
     let lower = filename.to_lowercase();
@@ -1058,6 +1088,86 @@ fn verify_sha256(path: &Path, expected_hex: &str) -> anyhow::Result<bool> {
     }
     let actual = format!("{:x}", hasher.finalize());
     Ok(actual.eq_ignore_ascii_case(expected_hex))
+}
+
+#[cfg(test)]
+#[cfg(feature = "candle-backend")]
+mod folder_inference_tests {
+    //! Lock the legacy filename → folder mapping in place. The live
+    //! download path no longer routes through `infer_download_folder`
+    //! (see `start_download` + `crate::models::resolve_bundle_dir`),
+    //! but the mapping is the canonical answer to "what bucket WOULD
+    //! this filename have landed in under the pre-Scope layout?" —
+    //! consumed by anything that has to consolidate or migrate the
+    //! legacy `<models_dir>/{chat,rag,voice,vision}/` trees.
+    //!
+    //! These tests are the live consumer: they pin the mapping so a
+    //! future edit that re-purposes the keyword groups (or that
+    //! removes the function outright when the tooling lands in a
+    //! shared crate) is caught at CI time, not at migration time.
+
+    use super::infer_download_folder;
+
+    #[test]
+    fn voice_keywords_route_to_voice() {
+        for f in [
+            "whisper-small.gguf",
+            "kokoro-en.bin",
+            "model-tts.safetensors",
+            "stt-streaming.onnx",
+            "piper-medium.onnx",
+            "snac-en.bin",
+            "orpheus-voice.gguf",
+        ] {
+            assert_eq!(infer_download_folder(f), "voice", "file: {f}");
+        }
+    }
+
+    #[test]
+    fn rag_keywords_route_to_rag() {
+        for f in [
+            "bge-small-en.safetensors",
+            "nomic-embed.bin",
+            "all-minilm-l6.safetensors",
+            "e5-large.safetensors",
+            "gte-base.safetensors",
+            "rerank-bge-v2.safetensors",
+            "text-embed-002.bin",
+        ] {
+            assert_eq!(infer_download_folder(f), "rag", "file: {f}");
+        }
+    }
+
+    #[test]
+    fn vision_keywords_route_to_vision() {
+        for f in [
+            "siglip2-so400m.safetensors",
+            "clip-vit-large.bin",
+            "vit-base-patch16.safetensors",
+            "vision-encoder.onnx",
+        ] {
+            assert_eq!(infer_download_folder(f), "vision", "file: {f}");
+        }
+    }
+
+    #[test]
+    fn unknown_keywords_default_to_chat() {
+        for f in [
+            "qwen3-30b-a3b.gguf",
+            "phi-4-reasoning-15b.gguf",
+            "model.safetensors",
+            "llama3-8b-q4_k_m.gguf",
+        ] {
+            assert_eq!(infer_download_folder(f), "chat", "file: {f}");
+        }
+    }
+
+    #[test]
+    fn matching_is_case_insensitive() {
+        assert_eq!(infer_download_folder("WHISPER-large.GGUF"), "voice");
+        assert_eq!(infer_download_folder("BGE-Reranker.BIN"), "rag");
+        assert_eq!(infer_download_folder("SigLIP2.safetensors"), "vision");
+    }
 }
 
 #[cfg(test)]

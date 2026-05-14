@@ -36,6 +36,23 @@ export { narrationState } from "./data-access/narration.state.svelte.js";
 
 // ── In-flight install/swap overlay ───────────────────────
 export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte";
+// ── Reusable Model Downloader overlay ────────────────────
+// One singleton; mount `ModelDownloaderOverlay` once at the app root
+// and call `modelDownloaderState.open({ slotId?, projectId?,
+// defaultQuery? })` from any feature surface to open the dialog.
+export {
+	type BundleFileEntry,
+	type DownloaderBundle,
+	type DownloaderPhase,
+	type DownloaderSelection,
+	type DownloaderTarget,
+	ModelDownloaderOverlay,
+	modelDownloaderState,
+	type SuggestedSlotTag,
+	suggestSlots,
+	type TagConfidence,
+	topSuggestion,
+} from "./feature/downloader/index.js";
 // ── Onboarding wizard ────────────────────────────────────
 export {
 	bootstrapDownloadBridge,

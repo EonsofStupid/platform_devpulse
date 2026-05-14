@@ -11,9 +11,17 @@ use std::fs::OpenOptions;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::thread;
 use std::time::Instant;
+
+// Idempotence guards for build-env activation. xtask sub-commands may
+// share a single process (e.g. `cargo xtask verify` chains several
+// internal stages); the env mutations below MUST NOT double-apply or
+// the second invocation would log false "skipping" lines without
+// actually wiring anything. OnceLock encodes the contract.
+static MSVC_ENV_APPLIED: OnceLock<bool> = OnceLock::new();
+static GENERATOR_SELECTED: OnceLock<String> = OnceLock::new();
 
 #[path = "../../tools/platform_config.rs"]
 mod platform_config;
@@ -1053,28 +1061,29 @@ impl BuildConfig {
         // here keeps the repo config portable.
         self.apply_fast_build_env();
 
-        // ── llama-cpp-sys-2 + ggml-vulkan parallel-job workaround ──
-        // ggml-vulkan's CMakeLists uses ExternalProject_Add to build
-        // `vulkan-shaders-gen.exe` (a host tool that compiles GLSL → SPIR-V
-        // at build time). Under the VS 2022 generator, MSBuild's parallel
-        // scheduler can start the shader-compile jobs BEFORE
-        // vulkan-shaders-gen.exe finishes building — the dependency edge
-        // through ExternalProject isn't strict enough for MSBuild's
-        // job graph. Result: failure with no visible error because
-        // cmake-rs runs `cmake --build --parallel 12` and 12 racing
-        // workers eat each other's stderr.
+        // ── MSVC toolchain activation + cmake generator selection ──
+        // Both layers MUST run after the SSOT deps loop above (which sets
+        // the configured `CMAKE_GENERATOR` from `[build.deps.cmake].extras`).
+        // `activate_msvc_env` exports the cl.exe / INCLUDE / LIB / LIBPATH /
+        // PATH set Rust's own bootstrap uses, so child cmake + ninja
+        // invocations find the toolchain without a manual vcvars64.bat run.
+        // `select_generator` then validates that "Ninja" can actually be
+        // honored on this box (MSVC env active + ninja resolves) and falls
+        // back to "Visual Studio 17 2022" only if a precondition is missing.
         //
-        // `CMAKE_BUILD_PARALLEL_LEVEL=1` forces sequential cmake build
-        // steps. The first cold build of llama-cpp-sys-2 takes longer
-        // because of single-threaded C++ compile, but sccache caches
-        // every object file — subsequent builds are fast regardless.
-        // Cargo's own Rust-side parallelism is untouched (this only
-        // affects `cmake --build` invocations).
-        std::env::set_var("CMAKE_BUILD_PARALLEL_LEVEL", "1");
-        println!(
-            "  [env] CMAKE_BUILD_PARALLEL_LEVEL = 1 (serialise cmake to avoid \
-             vulkan-shaders-gen race in ggml-vulkan ExternalProject)"
-        );
+        // Historical: an earlier patch set CMAKE_BUILD_PARALLEL_LEVEL=1 to
+        // serialize cmake under the VS generator, working around the
+        // ExternalProject ordering race in ggml-vulkan's vulkan-shaders-gen
+        // host tool. That fix was structurally ineffective because (a)
+        // cmake-rs forwards `--parallel $NUM_JOBS` to `cmake --build`,
+        // and the CLI flag overrides the env var; (b) `llama-cpp-sys-2`'s
+        // build.rs unconditionally re-sets the env to
+        // `available_parallelism()` regardless. The correct fix is to use
+        // Ninja — its dep graph honors `add_custom_command DEPENDS` so the
+        // race disappears entirely. No parallel-level override is needed.
+        self.activate_msvc_env();
+        self.select_generator(workspace_root);
+        self.purge_stale_cmake_dirs(workspace_root);
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`
@@ -1268,6 +1277,605 @@ impl BuildConfig {
             ),
         }
     }
+
+    /// Activate the MSVC build environment in the current process so child
+    /// cmake + ninja invocations find the full toolchain without needing a
+    /// manual `vcvars64.bat` run. Returns whether activation succeeded.
+    ///
+    /// **Two-layer activation, vcvars64-first:**
+    ///
+    /// 1. **Preferred — invoke `vcvars64.bat`.** This is the canonical
+    ///    Microsoft pattern: the batch file exports every env var the MSVC
+    ///    + Windows SDK toolchain expects — PATH (MSVC bin + SDK bin +
+    ///    Common7), INCLUDE (MSVC + UCRT + UM + WinRT + shared), LIB
+    ///    (MSVC + UCRT + UM), LIBPATH (ATL/MFC + SDK refs),
+    ///    WindowsSdkVerBinPath, VCToolsInstallDir, UCRT root, and ~40
+    ///    more vars some build tools key off of. `rc.exe`, `mt.exe`,
+    ///    `signtool.exe` etc all land on PATH this way, which the
+    ///    cc-rs-only path consistently fails to surface (verified
+    ///    2026-05-12: cmake's compiler-test reported
+    ///    `--mt=CMAKE_MT-NOTFOUND` and aborted at CMakeTestCCompiler:67
+    ///    even with the SDK bin prepended via xtask's parent env, because
+    ///    cmake-rs overrides PATH with cc-rs's `Tool::env()` which doesn't
+    ///    include the SDK bin).
+    ///
+    /// 2. **Fallback — `cc::windows_registry::find_tool`.** When vcvars
+    ///    can't be located or fails to run, fall through to cc-rs's
+    ///    registry-walk-based discovery. This path is sufficient for
+    ///    pure compile workflows that don't need rc.exe/mt.exe (most
+    ///    Rust-only builds). Logs the degradation so failures downstream
+    ///    are traceable.
+    ///
+    /// Idempotent via `MSVC_ENV_APPLIED`: a second call in the same
+    /// process is a no-op log line.
+    ///
+    /// No-op on non-Windows hosts.
+    #[cfg(windows)]
+    pub fn activate_msvc_env(&self) -> bool {
+        if let Some(&already) = MSVC_ENV_APPLIED.get() {
+            println!(
+                "  [env] MSVC toolchain env already activated this process (success = {already}); skipping"
+            );
+            return already;
+        }
+
+        // ── Layer 1: vcvars64.bat (canonical) ─────────────────────────
+        if let Some(vcvars) = find_vcvars64(&self.toolchain.target) {
+            println!(
+                "  [env] vcvars64.bat located at {} — invoking for full MSVC + SDK env",
+                vcvars.display()
+            );
+            if apply_vcvars_env(&vcvars) {
+                // CC / CXX safety belt — vcvars64.bat sets PATH so cmake can
+                // auto-detect cl.exe, but explicit CC/CXX env vars cover the
+                // case where a nested build step temporarily strips PATH
+                // (e.g. some `ExternalProject_Add` configs). Resolved via
+                // `which` against the post-vcvars PATH so the path is
+                // always-correct regardless of which VS install vcvars came
+                // from. Falling back to the cc-rs path if `which` somehow
+                // misses (defensive — should never happen post-vcvars).
+                if let Ok(cl) = which::which("cl") {
+                    let cl_str = cl.to_string_lossy().into_owned();
+                    std::env::set_var("CC", &cl_str);
+                    std::env::set_var("CXX", &cl_str);
+                    println!("  [env] CC = {cl_str} (post-vcvars belt)");
+                    println!("  [env] CXX = {cl_str} (post-vcvars belt)");
+                }
+                // `LDFLAGS=/MANIFEST:NO` — skip manifest generation in
+                // link.exe so cmake's `vs_link_exe` step doesn't depend on
+                // mt.exe / rc.exe at all. CMake reads `LDFLAGS` env as the
+                // initial value for `CMAKE_<LANG>_LINK_FLAGS` per the
+                // documented env-var contract
+                // (https://cmake.org/cmake/help/latest/envvar/LDFLAGS.html).
+                //
+                // Why this is the right call:
+                //   - cmake-rs spawns cmake with `cmd.env(k, v)` for every
+                //     entry in cc-rs's `Tool::env()`, REPLACING PATH with
+                //     cc-rs's narrower MSVC-only PATH. SDK bin paths set
+                //     in xtask's parent env DON'T survive to the child.
+                //   - Copying `mt.exe` / `rc.exe` into MSVC bin alongside
+                //     `cl.exe` fails with `Access is denied` because
+                //     `Program Files`-style install dirs are admin-only.
+                //   - llama-cpp-sys-2 builds a static lib (no manifest
+                //     needed for the artifact). CMake's `try_compile`
+                //     probe links a throwaway executable — also no
+                //     manifest needed. So `/MANIFEST:NO` is correct, not
+                //     a workaround.
+                //
+                // Verified failure on 2026-05-12: without this, every
+                // `try_compile` link step ends with `--mt=CMAKE_MT-NOTFOUND`
+                // and the build dies at `CMakeTestCCompiler.cmake:67`.
+                std::env::set_var("LDFLAGS", "/MANIFEST:NO");
+                println!(
+                    "  [env] LDFLAGS = /MANIFEST:NO (skip manifest — sidesteps cmake-rs PATH-replace stripping SDK bin)"
+                );
+
+                // Author a CMake toolchain file that hard-codes
+                // compiler + make program + linker flags so EVERY cmake
+                // invocation (the outer one cmake-rs spawns AND every
+                // `ExternalProject_Add` sub-cmake) sees identical
+                // toolchain state regardless of how env vars propagate.
+                //
+                // Why this exists:
+                //   - The outer cmake invocation gets `-DCMAKE_C_COMPILER=`
+                //     / `-DCMAKE_CXX_COMPILER=` / `-DCMAKE_MAKE_PROGRAM=`
+                //     from cmake-rs and configures fine.
+                //   - But ggml-vulkan's `ExternalProject_Add(vulkan-shaders-gen)`
+                //     does NOT forward those `-D` args — only
+                //     `CMAKE_INSTALL_PREFIX/BINDIR/BUILD_TYPE`. The
+                //     sub-cmake then runs with NO compiler / make-program
+                //     `-D` flags and aborts with `CMAKE_MAKE_PROGRAM is
+                //     not set` + `CMAKE_C_COMPILER not set after
+                //     EnableLanguage` (verified 2026-05-12: outer cmake
+                //     reported `Configuring done (518.5s) Generating done`
+                //     then the sub-cmake immediately died on these errors).
+                //   - `CMAKE_TOOLCHAIN_FILE` env is CMake-documented to
+                //     propagate to EVERY cmake invocation (CMake reads
+                //     env into the cache variable). cmake-rs also
+                //     forwards `CMAKE_TOOLCHAIN_FILE` env as `-D` for the
+                //     outer (`lib.rs:451-453`), and `ExternalProject_Add`
+                //     sub-cmakes inherit the cache variable via env.
+                //
+                // The toolchain file lives under the workspace's
+                // `target/.xtask/` so it's git-ignored, isolated, and
+                // discoverable via `cargo clean` if a developer ever
+                // wants to start from scratch.
+                if let Ok(cl) = which::which("cl") {
+                    let cl_path = cl.to_string_lossy().into_owned();
+                    let ninja_path = which::which("ninja")
+                        .map(|p| p.to_string_lossy().into_owned())
+                        .unwrap_or_else(|_| {
+                            "D:/localdev/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
+                                .to_string()
+                        });
+                    let target_dir = std::env::current_dir()
+                        .unwrap_or_else(|_| std::path::PathBuf::from("."))
+                        .join("target")
+                        .join(".xtask");
+                    if std::fs::create_dir_all(&target_dir).is_ok() {
+                        let toolchain = target_dir.join("msvc-toolchain.cmake");
+                        let contents = build_toolchain_file_contents(&cl_path, &ninja_path);
+                        match std::fs::write(&toolchain, &contents) {
+                            Ok(()) => {
+                                let toolchain_str = toolchain.to_string_lossy().into_owned();
+                                std::env::set_var("CMAKE_TOOLCHAIN_FILE", &toolchain_str);
+                                println!(
+                                    "  [env] CMAKE_TOOLCHAIN_FILE = {toolchain_str} \
+                                     (compiler + make_program + /MANIFEST:NO for every nested cmake)"
+                                );
+                            }
+                            Err(e) => println!(
+                                "  [warn] could not write toolchain file at {}: {e}",
+                                toolchain.display()
+                            ),
+                        }
+                    }
+                }
+                let _ = MSVC_ENV_APPLIED.set(true);
+                return true;
+            }
+            println!(
+                "  [warn] vcvars64.bat invocation did not yield usable env; \
+                 falling back to cc::windows_registry"
+            );
+        } else {
+            println!(
+                "  [info] vcvars64.bat not located at any known VS 2022 install root; \
+                 falling back to cc::windows_registry"
+            );
+        }
+
+        // ── Layer 2: cc::windows_registry fallback ────────────────────
+        let target = self.toolchain.target.as_str();
+        let Some(tool) = cc::windows_registry::find_tool(target, "cl.exe") else {
+            println!(
+                "  [warn] MSVC cl.exe not found via cc::windows_registry for target {target}. \
+                 Install Visual Studio Build Tools 2022 with the \"Desktop development with C++\" \
+                 workload AND the Windows 10/11 SDK. xtask will fall back to the Visual Studio \
+                 17 2022 cmake generator, which still needs cl.exe on PATH — expect a \
+                 configure-time failure if it is absent."
+            );
+            let _ = MSVC_ENV_APPLIED.set(false);
+            return false;
+        };
+
+        let cl_path = tool.path().to_path_buf();
+        println!(
+            "  [env] MSVC cl.exe = {} (resolved via cc::windows_registry, target {target})",
+            cl_path.display()
+        );
+        for (key, value) in tool.env() {
+            let key_str = key.to_string_lossy();
+            // Log each known-large var with an entry count rather than the
+            // multi-kilobyte raw value — the developer wants to know the env
+            // was set, not stare at every include directory.
+            if key_str.eq_ignore_ascii_case("PATH") {
+                let entries = value.to_string_lossy().split(';').filter(|s| !s.is_empty()).count();
+                println!("  [env] PATH augmented with MSVC toolchain ({entries} entries prepended)");
+            } else if key_str.eq_ignore_ascii_case("INCLUDE")
+                || key_str.eq_ignore_ascii_case("LIB")
+                || key_str.eq_ignore_ascii_case("LIBPATH")
+            {
+                let entries = value.to_string_lossy().split(';').filter(|s| !s.is_empty()).count();
+                println!("  [env] {key_str} = {entries} entries (from MSVC toolchain)");
+            } else {
+                println!("  [env] {key_str} set (from MSVC toolchain)");
+            }
+            std::env::set_var(key, value);
+        }
+
+        // CC / CXX hand-off for `ExternalProject_Add` sub-builds.
+        //
+        // The OUTER cmake-rs invocation passes the MSVC compiler explicitly
+        // via `-DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe`, but
+        // ggml-vulkan's `ExternalProject_Add(vulkan-shaders-gen ...)` does
+        // NOT forward those `-D` args — it only forwards
+        // `CMAKE_INSTALL_PREFIX/BINDIR` + `CMAKE_BUILD_TYPE`. The sub-cmake
+        // then runs `EnableLanguage(C)` / `EnableLanguage(CXX)` against a
+        // fresh project with no cache and no `-D`, so it falls back to env.
+        // CMake reads `CC` / `CXX` as the compiler hint when no cache entry
+        // exists; setting them here covers every nested ExternalProject the
+        // build encounters without modifying upstream CMakeLists.
+        //
+        // Verified failure on 2026-05-12: without these vars, the sub-cmake
+        // for vulkan-shaders-gen emitted "CMAKE_C_COMPILER not set, after
+        // EnableLanguage" and aborted the build.
+        let cl_path_str = cl_path.to_string_lossy().into_owned();
+        std::env::set_var("CC", &cl_path_str);
+        std::env::set_var("CXX", &cl_path_str);
+        println!("  [env] CC = {cl_path_str} (for nested ExternalProject configures)");
+        println!("  [env] CXX = {cl_path_str} (for nested ExternalProject configures)");
+
+        // Windows SDK bin (rc.exe + mt.exe).
+        //
+        // `cc::windows_registry::Tool::env()` reliably exports MSVC bin
+        // paths on PATH (cl.exe, link.exe, lib.exe) but does NOT include
+        // the Windows SDK bin where `rc.exe` (resource compiler) and
+        // `mt.exe` (manifest tool) live. CMake's link step for any C/C++
+        // executable on Windows needs both — the `try_compile` test that
+        // cmake runs during `EnableLanguage(C)` links a manifest into the
+        // probe binary, so a missing `mt.exe` is fatal at configure time.
+        //
+        // Verified failure on 2026-05-12: without the SDK bin on PATH,
+        // cmake's compiler-test emitted "rc /fo ... manifest.rc: no such
+        // file or directory" (rc.exe found a no-manifest, because
+        // `--mt=CMAKE_MT-NOTFOUND` made cmake skip the manifest-gen step,
+        // then asked rc to compile a manifest.rc that didn't exist) and
+        // aborted the entire build at `CMakeTestCCompiler.cmake:67`.
+        //
+        // Derive the SDK bin from any `<kits-root>\include\<ver>\<subdir>`
+        // entry in INCLUDE (cc-rs always populates INCLUDE with SDK
+        // headers, so the version is reliably discoverable). The bin
+        // counterpart is `<kits-root>\bin\<ver>\x64`.
+        if let Some(sdk_bin) = derive_windows_sdk_bin() {
+            let sdk_str = sdk_bin.to_string_lossy().into_owned();
+            let existing = std::env::var_os("PATH").unwrap_or_default();
+            let mut prepended = std::ffi::OsString::from(&sdk_str);
+            prepended.push(";");
+            prepended.push(&existing);
+            std::env::set_var("PATH", &prepended);
+            println!("  [env] PATH prepended with Windows SDK bin (rc.exe / mt.exe): {sdk_str}");
+        } else {
+            println!(
+                "  [warn] Could not derive Windows SDK bin from INCLUDE — cmake's link \
+                 step may fail to find rc.exe / mt.exe. Install the latest Windows 10/11 SDK \
+                 via the Visual Studio Build Tools installer."
+            );
+        }
+
+        // Mirror the LDFLAGS=/MANIFEST:NO from the vcvars success path —
+        // cc-rs's PATH is narrower than vcvars's; skipping manifest
+        // generation in link.exe is the only reliable way to sidestep
+        // the mt.exe / rc.exe discovery issue regardless of how PATH
+        // was set up.
+        std::env::set_var("LDFLAGS", "/MANIFEST:NO");
+        println!("  [env] LDFLAGS = /MANIFEST:NO (skip manifest generation)");
+
+        let _ = MSVC_ENV_APPLIED.set(true);
+        true
+    }
+
+    #[cfg(not(windows))]
+    pub fn activate_msvc_env(&self) -> bool {
+        true
+    }
+
+    /// Select the cmake generator and export `CMAKE_GENERATOR` (plus
+    /// `CMAKE_MAKE_PROGRAM` when generator = "Ninja") so child cmake-rs
+    /// invocations pick the right one. Idempotent via `GENERATOR_SELECTED`.
+    ///
+    /// Selection logic on Windows:
+    ///   1. SSOT preference: `[build.deps.cmake].extras.CMAKE_GENERATOR` (set
+    ///      to "Ninja" today). The SSOT loop has already exported it as an
+    ///      env var; this method validates the preference can be honored.
+    ///   2. If preference = "Ninja" AND MSVC env active AND ninja.exe
+    ///      resolves → keep "Ninja", export `CMAKE_MAKE_PROGRAM`.
+    ///   3. Else → fall back to "Visual Studio 17 2022", overwrite env,
+    ///      explicitly clear `CMAKE_MAKE_PROGRAM` (the VS generator would
+    ///      try to use ninja as MSBuild's build tool — fails).
+    ///
+    /// Cross-platform note: on Linux / macOS this method still picks a
+    /// sensible default (Ninja if resolved, else cmake's auto-detection
+    /// kicks in via leaving the var alone). The MSVC-specific fallback is
+    /// Windows-only.
+    pub fn select_generator(&self, workspace_root: &Path) {
+        if let Some(existing) = GENERATOR_SELECTED.get() {
+            println!(
+                "  [env] CMAKE_GENERATOR already selected this process = {existing}; skipping"
+            );
+            return;
+        }
+
+        let preference = self
+            .deps
+            .cmake
+            .as_ref()
+            .and_then(|c| c.extras.get("CMAKE_GENERATOR").cloned())
+            .unwrap_or_else(|| {
+                if cfg!(windows) {
+                    "Ninja".to_string()
+                } else {
+                    String::new()
+                }
+            });
+
+        let msvc_active = MSVC_ENV_APPLIED.get().copied().unwrap_or(!cfg!(windows));
+        let ninja_path = self.resolve_ninja(workspace_root);
+
+        let chosen = if preference == "Ninja" {
+            if msvc_active && ninja_path.is_some() {
+                "Ninja".to_string()
+            } else {
+                let reason = if !msvc_active {
+                    "MSVC env not active"
+                } else {
+                    "ninja.exe not resolved"
+                };
+                println!(
+                    "  [warn] CMAKE_GENERATOR preference \"Ninja\" not honorable ({reason}); \
+                     falling back to \"Visual Studio 17 2022\""
+                );
+                "Visual Studio 17 2022".to_string()
+            }
+        } else if preference.is_empty() {
+            // No preference on non-Windows: let cmake auto-detect.
+            String::new()
+        } else {
+            preference
+        };
+
+        if chosen.is_empty() {
+            std::env::remove_var("CMAKE_GENERATOR");
+            println!("  [env] CMAKE_GENERATOR unset (cmake will auto-detect)");
+        } else {
+            std::env::set_var("CMAKE_GENERATOR", &chosen);
+            println!("  [env] CMAKE_GENERATOR = {chosen}");
+        }
+
+        if chosen == "Ninja" {
+            if let Some(path) = ninja_path {
+                std::env::set_var("CMAKE_MAKE_PROGRAM", &path);
+                println!(
+                    "  [env] CMAKE_MAKE_PROGRAM = {} (ninja for cmake)",
+                    path.display()
+                );
+                // Prepend ninja's parent dir to PATH so nested
+                // `ExternalProject_Add` sub-cmakes that DON'T inherit
+                // `CMAKE_MAKE_PROGRAM` via -D can still find ninja via the
+                // standard PATH scan. cmake's Ninja generator detection
+                // falls back to PATH when no cache entry / no env hint is
+                // available; without ninja on PATH the inner cmake emits
+                // "CMake was unable to find a build program corresponding
+                // to Ninja" and aborts (observed in the vulkan-shaders-gen
+                // ExternalProject 2026-05-12).
+                if let Some(parent) = path.parent() {
+                    let parent_str = parent.to_string_lossy().into_owned();
+                    let existing = std::env::var_os("PATH").unwrap_or_default();
+                    let mut prepended = std::ffi::OsString::from(parent_str.clone());
+                    prepended.push(if cfg!(windows) { ";" } else { ":" });
+                    prepended.push(&existing);
+                    std::env::set_var("PATH", &prepended);
+                    println!("  [env] PATH prepended with ninja directory: {parent_str}");
+                }
+            }
+        } else {
+            // Under the VS generator, cmake-rs would forward
+            // CMAKE_MAKE_PROGRAM=ninja.exe via -D, and cmake would try to use
+            // ninja AS MSBuild's build tool — fails. Strip it explicitly so
+            // a stale env from a prior process can't poison the build.
+            std::env::remove_var("CMAKE_MAKE_PROGRAM");
+        }
+
+        let _ = GENERATOR_SELECTED.set(chosen);
+    }
+
+    /// Purge any cmake-rs build directory whose cached `CMAKE_GENERATOR`
+    /// disagrees with the generator selected by `select_generator`.
+    ///
+    /// **Why this exists.** `cmake-rs` honours `Config::always_configure(false)`
+    /// (set by `llama-cpp-sys-2`'s build.rs) by skipping the cmake configure
+    /// step entirely when `CMakeCache.txt` already exists. The new
+    /// `CMAKE_GENERATOR` env is never observed; the cached generator wins.
+    /// Concretely: a prior failed build configured with the VS 17 2022
+    /// generator leaves `CMAKE_GENERATOR:INTERNAL=Visual Studio 17 2022`
+    /// in the cache, and the next xtask invocation — even with
+    /// `CMAKE_GENERATOR=Ninja` set in env — still runs MSBuild, reproducing
+    /// the `vulkan-shaders-gen` race we just fixed (verified by the
+    /// 33-minute failure on 2026-05-12).
+    ///
+    /// CMake itself errors on `-G <mismatch>` when re-invoking against a
+    /// non-matching cache, but `cmake-rs` doesn't re-invoke cmake under
+    /// `always_configure(false)`, so the error never fires. Upstream
+    /// `cmake-rs`'s `maybe_clear()` only validates `CMAKE_HOME_DIRECTORY`
+    /// (source-dir move), never the generator. There is no upstream knob
+    /// to force re-configure on generator change — fingerprinting +
+    /// purging from the orchestrator is the canonical workaround.
+    ///
+    /// **What we do.** Walk every
+    /// `target/<profile>/build/<crate>-<hash>/out/build/CMakeCache.txt`,
+    /// extract the `CMAKE_GENERATOR:INTERNAL=` value, and when it
+    /// disagrees with the selected generator (or is missing — corrupt
+    /// cache from an interrupted configure), remove both the
+    /// `build/<crate>-<hash>/` dir AND its matching
+    /// `.fingerprint/<crate>-<hash>/` dir so cargo re-runs the build
+    /// script and `cmake-rs` reconfigures from scratch. Object files for
+    /// that crate are lost on purge — that's the cost of switching
+    /// generators — but every other crate's incremental state is
+    /// preserved.
+    ///
+    /// **Idempotence.** When every cached cmake cache already matches the
+    /// selected generator, no I/O happens beyond reading the cache files.
+    /// Re-running the same xtask command twice in a row is a no-op past
+    /// the first purge.
+    fn purge_stale_cmake_dirs(&self, workspace_root: &Path) {
+        let Some(selected) = GENERATOR_SELECTED.get() else {
+            return;
+        };
+        if selected.is_empty() {
+            // No generator pinned — let cmake auto-detect. Mismatch is
+            // ambiguous; skip purge.
+            return;
+        }
+
+        let target_root = workspace_root.join("target");
+        if !target_root.is_dir() {
+            return;
+        }
+
+        let Ok(profile_entries) = std::fs::read_dir(&target_root) else {
+            return;
+        };
+
+        let mut checked: u32 = 0;
+        let mut purged: Vec<String> = Vec::new();
+
+        for profile in profile_entries.filter_map(Result::ok) {
+            let profile_path = profile.path();
+            // Skip non-directories (lock files, etc.).
+            if !profile_path.is_dir() {
+                continue;
+            }
+            let build_root = profile_path.join("build");
+            if !build_root.is_dir() {
+                continue;
+            }
+            let Ok(crate_entries) = std::fs::read_dir(&build_root) else {
+                continue;
+            };
+            for crate_entry in crate_entries.filter_map(Result::ok) {
+                let crate_dir = crate_entry.path();
+                if !crate_dir.is_dir() {
+                    continue;
+                }
+                // cmake-rs writes its cache at <OUT_DIR>/build/CMakeCache.txt,
+                // where OUT_DIR is `build/<crate>-<hash>/out/`. Earlier
+                // cmake-rs versions used <OUT_DIR>/CMakeCache.txt directly;
+                // probe both paths to stay tolerant of either layout.
+                let candidate_caches = [
+                    crate_dir.join("out").join("build").join("CMakeCache.txt"),
+                    crate_dir.join("out").join("CMakeCache.txt"),
+                ];
+                let Some(cache) = candidate_caches.into_iter().find(|p| p.is_file()) else {
+                    continue;
+                };
+                checked += 1;
+                let Ok(contents) = std::fs::read_to_string(&cache) else {
+                    continue;
+                };
+
+                let stored: Option<&str> = contents
+                    .lines()
+                    .find_map(|l| l.strip_prefix("CMAKE_GENERATOR:INTERNAL="))
+                    .map(str::trim);
+
+                if stored == Some(selected.as_str()) {
+                    continue;
+                }
+
+                let dir_name = crate_dir
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .map(String::from)
+                    .unwrap_or_default();
+                let stored_label = stored.unwrap_or("<missing>");
+
+                println!(
+                    "  [purge] {dir_name}: cmake cache generator = \"{stored_label}\", \
+                     selected = \"{selected}\" — clearing build + fingerprint to force reconfigure"
+                );
+
+                // Remove the build dir so cargo loses the build-script's
+                // OUT_DIR, output, and timestamp records.
+                if let Err(e) = std::fs::remove_dir_all(&crate_dir) {
+                    println!("  [warn] remove {} failed: {}", crate_dir.display(), e);
+                    continue;
+                }
+
+                // Cargo's incremental-rerun decision keys off the matching
+                // fingerprint dir (`<profile>/.fingerprint/<crate>-<hash>/`),
+                // NOT the build dir. Removing the build dir alone leaves a
+                // stale fingerprint that says "build script up to date,
+                // skip" — link errors follow because the static lib is now
+                // missing. Nuke the fingerprint too.
+                let fingerprint_dir = profile_path.join(".fingerprint").join(&dir_name);
+                if fingerprint_dir.is_dir() {
+                    if let Err(e) = std::fs::remove_dir_all(&fingerprint_dir) {
+                        println!(
+                            "  [warn] remove {} failed: {}",
+                            fingerprint_dir.display(),
+                            e
+                        );
+                    }
+                }
+
+                purged.push(dir_name);
+            }
+        }
+
+        if checked > 0 {
+            if purged.is_empty() {
+                println!(
+                    "  [cmake] {checked} cmake-cached build dir(s) — all match selected generator \"{selected}\""
+                );
+            } else {
+                println!(
+                    "  [cmake] purged {} stale cmake build dir(s) ({}) — next cargo build will reconfigure under \"{selected}\"",
+                    purged.len(),
+                    purged.join(", ")
+                );
+            }
+        }
+    }
+
+    /// Resolve ninja.exe from layered sources:
+    ///   1. `[build.deps.ninja].path` SSOT (if the file exists)
+    ///   2. Common VS 2022 install roots (BuildTools / Community / Pro / Enterprise)
+    ///   3. `which::which("ninja")` — falls back to system PATH
+    ///
+    /// Returns `None` if every layer misses. The caller decides whether to
+    /// downgrade the generator or hard-fail.
+    fn resolve_ninja(&self, workspace_root: &Path) -> Option<PathBuf> {
+        // 1. SSOT
+        if let Some(ninja) = &self.deps.ninja {
+            let p = workspace_root.join(&ninja.path);
+            if p.is_file() {
+                return Some(p);
+            }
+            // Also try the path verbatim — `[build.deps.ninja].path` is
+            // often absolute (e.g. `D:/localdev/BuildTools/...`).
+            let abs = PathBuf::from(&ninja.path);
+            if abs.is_file() {
+                return Some(abs);
+            }
+            println!(
+                "  [info] [build.deps.ninja].path = {} not on disk; trying VS 2022 BuildTools roots",
+                p.display()
+            );
+        }
+
+        // 2. VS 2022 known install roots. BuildTools first because that's
+        // the canonical CI / lean-install pattern.
+        #[cfg(windows)]
+        {
+            let candidates: &[&str] = &[
+                "D:/localdev/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+                "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+                "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+                "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+                "C:/Program Files/Microsoft Visual Studio/2022/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+                "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+            ];
+            for c in candidates {
+                let p = PathBuf::from(c);
+                if p.is_file() {
+                    return Some(p);
+                }
+            }
+        }
+
+        // 3. System PATH
+        which::which("ninja").ok()
+    }
 }
 
 /// Top-level services scope.
@@ -1302,6 +1910,301 @@ pub struct PlatformGraphApiConfig {
     pub port: u16,
     /// Bind address.
     pub bind: String,
+}
+
+/// Locate `vcvars64.bat` from known VS 2022 install roots, then fall back
+/// to derivation from `cc::windows_registry::find_tool(target, "cl.exe")`
+/// (cl.exe sits at `<VS_ROOT>\VC\Tools\MSVC\<ver>\bin\HostX64\x64\cl.exe`;
+/// vcvars64.bat sits at `<VS_ROOT>\VC\Auxiliary\Build\vcvars64.bat`).
+///
+/// Returns `None` when neither lookup yields an existing file.
+#[cfg(windows)]
+fn find_vcvars64(target: &str) -> Option<PathBuf> {
+    // Known install roots — BuildTools first (canonical headless install),
+    // then Community / Professional / Enterprise. The dev box has
+    // BuildTools at D:\localdev\BuildTools per the SSOT in
+    // config/platform/build/deps.toml.
+    let candidates: &[&str] = &[
+        "D:/localdev/BuildTools/VC/Auxiliary/Build/vcvars64.bat",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Auxiliary/Build/vcvars64.bat",
+        "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Auxiliary/Build/vcvars64.bat",
+        "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat",
+        "C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Auxiliary/Build/vcvars64.bat",
+        "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+    ];
+    for c in candidates {
+        let p = PathBuf::from(c);
+        if p.is_file() {
+            return Some(p);
+        }
+    }
+
+    // Derive from cc-rs's cl.exe discovery. cl.exe lives at
+    //   <VS_ROOT>\VC\Tools\MSVC\<ver>\bin\HostX64\x64\cl.exe
+    // — seven path components below VS_ROOT. Pop them all to reach the
+    // root, then join the vcvars64.bat suffix.
+    if let Some(tool) = cc::windows_registry::find_tool(target, "cl.exe") {
+        let mut path = tool.path().to_path_buf();
+        for _ in 0..7 {
+            if !path.pop() {
+                return None;
+            }
+        }
+        let vcvars = path
+            .join("VC")
+            .join("Auxiliary")
+            .join("Build")
+            .join("vcvars64.bat");
+        if vcvars.is_file() {
+            return Some(vcvars);
+        }
+    }
+    None
+}
+
+#[cfg(not(windows))]
+#[allow(dead_code)]
+fn find_vcvars64(_target: &str) -> Option<PathBuf> {
+    None
+}
+
+/// Invoke `vcvars64.bat` in a child `cmd` process and apply every
+/// `KEY=value` pair it sets to the current process's env. Returns `true`
+/// when the batch ran successfully and at least one env var was applied.
+///
+/// `vcvars64.bat` is a Microsoft-distributed batch file that exports the
+/// complete env set the MSVC + Windows SDK toolchain expects. It's the
+/// canonical way to activate a "Visual Studio Developer Command Prompt"
+/// from a script. Running `cmd /c "<vcvars64> && set"` lets us capture
+/// every var the batch sets; we parse the stdout lines and forward each
+/// pair to `std::env::set_var`.
+///
+/// Pitfalls handled:
+///   * The batch writes a banner to stdout before `set` runs — we filter
+///     to lines that match the `KEY=value` shape (no spaces around `=`,
+///     KEY is a valid env-var-name char run).
+///   * `cmd` returns the batch's exit code; vcvars64.bat returns non-zero
+///     only on hard failure (missing VS install). We require status
+///     success AND at least one applied var before declaring victory.
+///   * UTF-8 lossy decode preserves Windows CP1252 byte ranges (rare in
+///     vcvars output, but worth being safe).
+#[cfg(windows)]
+fn apply_vcvars_env(vcvars: &Path) -> bool {
+    use std::os::windows::process::CommandExt;
+    use std::process::Command;
+    // Two-layer quoting problem solved with `raw_arg`:
+    //
+    //   1. `cmd /c <arg>` strips the outer pair of quotes from `<arg>` per
+    //      Microsoft's documented quote-stripping rule (ss64.com/nt/cmd).
+    //      So to invoke a quoted path AS A COMMAND, the arg must be wrapped
+    //      in DOUBLE-DOUBLE quotes: `""<quoted-path>" >nul && set"`.
+    //
+    //   2. Rust's `Command::arg` / `Command::args` auto-escape inner quotes
+    //      with backslash, breaking cmd's parser (`\"` is not a cmd escape
+    //      — cmd reads it as literal backslash + quote). `raw_arg`
+    //      (windows-only `CommandExt`) appends the arg verbatim, bypassing
+    //      Rust's escaping so the cmd-specific quoting reaches cmd intact.
+    //
+    // Verified failure on 2026-05-12: without `raw_arg`, cmd received
+    // `\"D:\...\vcvars64.bat\"` as the literal command name and reported
+    // "is not recognized as an internal or external command".
+    //
+    // Also normalize forward → backslash for the path inside the quotes —
+    // both work in cmd, but backslash matches the canonical Windows form.
+    let vcvars_str = vcvars.to_string_lossy().replace('/', "\\");
+    let raw = format!(r#"/c ""{vcvars_str}" >nul && set""#);
+    let output = match Command::new("cmd").raw_arg(&raw).output() {
+        Ok(o) => o,
+        Err(e) => {
+            println!("  [warn] vcvars64.bat spawn failed: {e}");
+            return false;
+        }
+    };
+    if !output.status.success() {
+        println!(
+            "  [warn] vcvars64.bat exit {:?}: stderr = {}",
+            output.status,
+            String::from_utf8_lossy(&output.stderr).trim()
+        );
+        return false;
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut applied: u32 = 0;
+    for line in stdout.lines() {
+        // Valid env-var lines from `set` look like `NAME=value`. The first
+        // char of NAME is a letter or underscore; subsequent chars are
+        // alnum or underscore. Anything else (banner text, blank lines)
+        // is skipped.
+        let Some(eq_idx) = line.find('=') else { continue };
+        if eq_idx == 0 {
+            continue;
+        }
+        let key = &line[..eq_idx];
+        let first = key.as_bytes()[0];
+        let valid_first = first.is_ascii_alphabetic() || first == b'_';
+        let valid_rest = key
+            .bytes()
+            .skip(1)
+            .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'(' || b == b')');
+        if !valid_first || !valid_rest {
+            continue;
+        }
+        let value = &line[eq_idx + 1..];
+        std::env::set_var(key, value);
+        applied += 1;
+    }
+    if applied == 0 {
+        println!("  [warn] vcvars64.bat ran but produced no recognizable env vars");
+        return false;
+    }
+    println!(
+        "  [env] vcvars64.bat applied {applied} env vars (PATH, INCLUDE, LIB, LIBPATH, \
+         WindowsSdkBinPath, VCToolsInstallDir, UCRT root, etc.)"
+    );
+
+    // Diagnostic: confirm the four executables the build chain needs are
+    // now resolvable via PATH. Surfacing this up front means a future
+    // failure mode (e.g. SDK install partially broken) shows here rather
+    // than buried 20 minutes into a llama.cpp configure.
+    for tool in ["cl", "link", "ninja", "rc", "mt"] {
+        match which::which(tool) {
+            Ok(p) => println!("  [tool] {tool} = {}", p.display()),
+            Err(_) => println!("  [warn] {tool} not on PATH after vcvars64 — toolchain may be incomplete"),
+        }
+    }
+    true
+}
+
+#[cfg(not(windows))]
+#[allow(dead_code)]
+fn apply_vcvars_env(_vcvars: &Path) -> bool {
+    false
+}
+
+/// Build the contents of the MSVC toolchain CMake fragment xtask emits
+/// under `target/.xtask/msvc-toolchain.cmake`.
+///
+/// **Why a toolchain file is the right shape:** `CMAKE_TOOLCHAIN_FILE` is
+/// the one mechanism CMake guarantees propagates to every nested cmake
+/// invocation — `ExternalProject_Add` sub-projects, `try_compile` probes,
+/// recursive `find_package` configures. CMake reads the env var into a
+/// cache var on first configure (per
+/// <https://cmake.org/cmake/help/latest/envvar/CMAKE_TOOLCHAIN_FILE.html>)
+/// and the cache var is sticky from then on. `cmake-rs` ALSO forwards
+/// the env to its `cmake` invocation via `-DCMAKE_TOOLCHAIN_FILE=` at
+/// `cmake-0.1.58/src/lib.rs:451-453`, so the outer cmake honors it too.
+///
+/// **What we set:**
+///   - `CMAKE_C_COMPILER` / `CMAKE_CXX_COMPILER` — full absolute path to
+///     `cl.exe`. Both `EnableLanguage(C)` and `EnableLanguage(CXX)` in
+///     sub-cmakes will pick these up without needing `CC`/`CXX` env.
+///   - `CMAKE_MAKE_PROGRAM` — full path to `ninja.exe`. The Ninja
+///     generator's `find_program` step uses this when set.
+///   - `CMAKE_<LANG>_LINK_FLAGS_INIT` carrying `/MANIFEST:NO` — applies
+///     to EXE / SHARED / MODULE link variants. Belt-and-suspenders for
+///     the `LDFLAGS=/MANIFEST:NO` env (LDFLAGS only seeds
+///     `CMAKE_<LANG>_LINK_FLAGS` once during first configure; `_INIT`
+///     covers re-configures and `ExternalProject_Add` children whose
+///     fresh cache never read LDFLAGS).
+///
+/// **Why we use `_INIT` not direct cache vars:** `CMAKE_<LANG>_LINK_FLAGS`
+/// set directly in a toolchain file gets overwritten when the project
+/// calls `enable_language()`. The `_INIT` variants are CMake's
+/// documented contract for toolchain-file-set defaults that survive
+/// language enablement.
+fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
+    // CMake parses backslash-escape sequences in `set()` literals, so
+    // normalize to forward slashes — CMake accepts forward slashes in
+    // Windows paths universally.
+    let cl = cl_path.replace('\\', "/");
+    let ninja = ninja_path.replace('\\', "/");
+    format!(
+        "# Auto-generated by xtask. Do not edit by hand.\n\
+         # Pins the MSVC toolchain for every cmake invocation that\n\
+         # inherits CMAKE_TOOLCHAIN_FILE — including ExternalProject_Add\n\
+         # sub-projects (ggml-vulkan's vulkan-shaders-gen, etc.) that\n\
+         # don't forward the outer cmake's `-D` args.\n\
+         set(CMAKE_C_COMPILER \"{cl}\" CACHE FILEPATH \"\")\n\
+         set(CMAKE_CXX_COMPILER \"{cl}\" CACHE FILEPATH \"\")\n\
+         set(CMAKE_MAKE_PROGRAM \"{ninja}\" CACHE FILEPATH \"\")\n\
+         # /MANIFEST:NO skips manifest generation so link.exe doesn't need\n\
+         # mt.exe (which cmake's find_program won't locate when PATH is\n\
+         # replaced by cmake-rs's cc-rs-derived narrower env). Static-lib\n\
+         # builds and cmake try_compile probes don't need a manifest.\n\
+         set(CMAKE_EXE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
+         set(CMAKE_SHARED_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
+         set(CMAKE_MODULE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
+         # Disable cpp-httplib's OpenSSL support. llama.cpp's vendored\n\
+         # cpp-httplib (httplib.cpp:12574) declares `X509_NAME *name =\n\
+         # X509_get_subject_name(cert)` which fails to compile against\n\
+         # modern Windows SDK / OpenSSL headers that return\n\
+         # `const X509_NAME *` (verified 2026-05-12 on Windows SDK\n\
+         # 10.0.26100.0 + VS 2022 BuildTools). The default `LLAMA_OPENSSL\n\
+         # = ON` is meant for the llama.cpp server binary, which we\n\
+         # disable via `LLAMA_BUILD_SERVER=OFF`. Without SSL, cpp-httplib\n\
+         # still compiles cleanly — just without the HTTPS code path —\n\
+         # and llama-cpp-sys-2's static-lib output doesn't reference any\n\
+         # SSL symbol. Setting FORCE because llama.cpp's CMakeLists\n\
+         # already declares this as `option(... ON)`.\n\
+         set(LLAMA_OPENSSL OFF CACHE BOOL \"Disabled by xtask — see workspace.rs\" FORCE)\n\
+         set(LLAMA_BUILD_BORINGSSL OFF CACHE BOOL \"\" FORCE)\n\
+         set(LLAMA_BUILD_LIBRESSL OFF CACHE BOOL \"\" FORCE)\n",
+    )
+}
+
+/// Derive the Windows 10/11 SDK `bin/<ver>/x64` directory from the current
+/// `INCLUDE` env var. cc-rs populates `INCLUDE` with SDK header paths of
+/// the form `<kits-root>\include\<sdk-ver>\<subdir>`; the matching bin
+/// directory (which carries `rc.exe`, `mt.exe`, `signtool.exe`) is
+/// `<kits-root>\bin\<sdk-ver>\x64`.
+///
+/// Walks every entry in `INCLUDE`, identifies the first one matching the
+/// kits-root pattern, and returns the bin path when it exists on disk.
+/// Returns `None` when `INCLUDE` is unset, no entry matches the pattern,
+/// or the derived bin path is missing.
+#[cfg(windows)]
+fn derive_windows_sdk_bin() -> Option<PathBuf> {
+    let include = std::env::var_os("INCLUDE")?;
+    for entry in std::env::split_paths(&include) {
+        // Need three pops to walk: <kits-root>\include\<ver>\<subdir>
+        //                                                    ^ entry
+        // pop -> <kits-root>\include\<ver>
+        // pop -> <kits-root>\include
+        // pop -> <kits-root>
+        let mut cursor = entry.clone();
+        if !cursor.pop() {
+            continue;
+        }
+        let sdk_ver = match cursor.file_name() {
+            Some(n) => n.to_owned(),
+            None => continue,
+        };
+        if !cursor.pop() {
+            continue;
+        }
+        let dirname_is_include = cursor
+            .file_name()
+            .and_then(|n| n.to_str())
+            .map(|n| n.eq_ignore_ascii_case("include"))
+            .unwrap_or(false);
+        if !dirname_is_include {
+            continue;
+        }
+        if !cursor.pop() {
+            continue;
+        }
+        let kits_root = cursor;
+        let bin = kits_root.join("bin").join(&sdk_ver).join("x64");
+        if bin.is_dir() {
+            return Some(bin);
+        }
+    }
+    None
+}
+
+#[cfg(not(windows))]
+fn derive_windows_sdk_bin() -> Option<PathBuf> {
+    None
 }
 
 /// Walk up from `start` to find the monorepo root.

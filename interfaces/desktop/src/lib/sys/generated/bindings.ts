@@ -2193,6 +2193,27 @@ async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
 }
 },
 /**
+ * Clear the persisted model assignment from a slot.
+ * 
+ * Distinct from `unload_slot`: this removes the libSQL
+ * `slot.<id>.model` key so the next app launch does NOT re-attempt
+ * the load. The use case is a stuck assignment whose load crashes the
+ * backend on every relaunch — clear it once, the slot stays empty
+ * across restarts until a new model is assigned.
+ * 
+ * Does NOT unload the currently-loaded model from memory (that's
+ * `unload_slot`'s job). Callers that want both behaviours invoke
+ * `unload_slot` first, then `clear_slot_assignment`.
+ */
+async clearSlotAssignment(slotId: string) : Promise<Result<null, LoadError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clear_slot_assignment", { slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Atomically swap the model on a slot (unload → reassign → load).
  * 
  * Blocks inference to the slot for the entire duration. The frontend
@@ -2209,11 +2230,20 @@ async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, L
 },
 /**
  * Start downloading a model from `HuggingFace`.
+ * 
+ * `scope` decides where the bundle lands on disk:
+ * - `{"kind":"global"}` — shared `<models_dir>/<owner>/<repo>/`
+ * - `{"kind":"project","id":"<id>"}` — `_per_project/<id>/<owner>/<repo>/`
+ * 
+ * Frontend `null` deserialises to `DownloadScope::Global` via the
+ * type's `Default` impl, so callers that don't care about scope can
+ * omit it.
+ * 
  * Returns the download ID for progress tracking.
  */
-async downloadModel(repoId: string, filename: string) : Promise<Result<string, string>> {
+async downloadModel(repoId: string, filename: string, scope: DownloadScope | null) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("download_model", { repoId, filename }) };
+    return { status: "ok", data: await TAURI_INVOKE("download_model", { repoId, filename, scope }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2252,11 +2282,16 @@ async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<s
  * load. Composed from the four kernel verbs into a single atomic
  * chain so the wizard's "install" CTA fires once and tracks progress
  * via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+ * 
+ * `scope` decides where the bundle lands — see
+ * [`download_model`] for the layout contract. Frontend `null`
+ * deserialises to `DownloadScope::Global`.
+ * 
  * Returns the `install_id` — the chain runs detached.
  */
-async installToSlot(repoId: string, primaryFilename: string, slotId: string) : Promise<Result<string, string>> {
+async installToSlot(repoId: string, primaryFilename: string, slotId: string, scope: DownloadScope | null) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("install_to_slot", { repoId, primaryFilename, slotId }) };
+    return { status: "ok", data: await TAURI_INVOKE("install_to_slot", { repoId, primaryFilename, slotId, scope }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3403,6 +3438,27 @@ async routingSaveConfig(cfg: RoutingConfig) : Promise<Result<RoutingConfig, stri
 /** user-defined events **/
 
 
+export const events = __makeEvents__<{
+bootPhaseChanged: BootPhaseChanged,
+chatSessionDeleted: ChatSessionDeleted,
+cloudCompletionFinished: CloudCompletionFinished,
+cloudTokenStreamed: CloudTokenStreamed,
+hardwareMetricsUpdated: HardwareMetricsUpdated,
+inferenceProviderChanged: InferenceProviderChanged,
+inferenceTokenStreamed: InferenceTokenStreamed,
+llamaServerReady: LlamaServerReady,
+llamaTokenStreamed: LlamaTokenStreamed
+}>({
+bootPhaseChanged: "boot-phase-changed",
+chatSessionDeleted: "chat-session-deleted",
+cloudCompletionFinished: "cloud-completion-finished",
+cloudTokenStreamed: "cloud-token-streamed",
+hardwareMetricsUpdated: "hardware-metrics-updated",
+inferenceProviderChanged: "inference-provider-changed",
+inferenceTokenStreamed: "inference-token-streamed",
+llamaServerReady: "llama-server-ready",
+llamaTokenStreamed: "llama-token-streamed"
+})
 
 /** user-defined constants **/
 
@@ -3949,6 +4005,47 @@ export type BootPhase =
  */
 "Failed"
 /**
+ * Emitted as the boot task transitions between phases. Replaces the
+ * stringly-typed `platform:boot-phase` event family.
+ * 
+ * Frontend listens via `events.bootPhaseChanged.listen(cb)` and
+ * renders the appropriate splash / dashboard / error overlay based
+ * on the phase.
+ * 
+ * The boot health snapshot is intentionally NOT a field here — it's
+ * a deep `SystemHealth` tree that doesn't implement `specta::Type`
+ * without a wider derive sweep. Consumers that need the post-boot
+ * health blob call the `get_boot_state` Tauri command which returns
+ * it inside a typed `BootSnapshot`.
+ */
+export type BootPhaseChanged = { 
+/**
+ * New phase value.
+ */
+phase: BootPhaseValue; 
+/**
+ * Failure message — populated only when `phase == Failed`.
+ */
+error: string | null }
+/**
+ * Boot phase value. Mirrors [`crate::state::BootPhase`] but lives in
+ * the events module so the event-export crate doesn't pull the
+ * managed-state surface.
+ */
+export type BootPhaseValue = 
+/**
+ * Platform is still starting up.
+ */
+"initializing" | 
+/**
+ * All services booted successfully (or degraded gracefully).
+ */
+"ready" | 
+/**
+ * Boot failed — `BootPhaseChanged.error` carries the reason.
+ */
+"failed"
+/**
  * Snapshot of boot state — returned by `get_boot_state` command.
  */
 export type BootSnapshot = { 
@@ -4378,6 +4475,16 @@ endedAt: number | null;
  */
 messageCount: number }
 /**
+ * A chat session was deleted. Frontend uses this to drop the session
+ * from the sidebar list without polling. Replaces
+ * `platform:chat-session-deleted`.
+ */
+export type ChatSessionDeleted = { 
+/**
+ * Identifier of the deleted session row.
+ */
+sessionId: string }
+/**
  * Layman-phrased install snapshot for a single Claude target.
  */
 export type ClaudeInstall = { 
@@ -4452,6 +4559,25 @@ input_tokens: number;
  */
 output_tokens: number }
 /**
+ * Final summary of a completed cloud inference request — model used,
+ * input + output token counts. Fires once at end-of-stream. Replaces
+ * `cloud:complete`.
+ */
+export type CloudCompletionFinished = { 
+/**
+ * Anthropic model identifier that actually served the request
+ * (may differ from the requested alias).
+ */
+model: string; 
+/**
+ * Total input tokens consumed.
+ */
+input_tokens: number; 
+/**
+ * Total output tokens emitted.
+ */
+output_tokens: number }
+/**
  * A chat message in Anthropic Messages API format.
  */
 export type CloudMessage = { 
@@ -4461,6 +4587,15 @@ export type CloudMessage = {
 role: string; 
 /**
  * Message content.
+ */
+content: string }
+/**
+ * One token of streamed completion text from the cloud inference
+ * path (Anthropic Messages API). Replaces `cloud:token`.
+ */
+export type CloudTokenStreamed = { 
+/**
+ * Decoded text fragment.
  */
 content: string }
 /**
@@ -4871,6 +5006,234 @@ export type DevforgeHealthState =
  * Status could not be determined.
  */
 "unknown"
+/**
+ * Where on disk a downloaded model lands.
+ */
+export type DownloadScope = 
+/**
+ * Shared library — every project sees the model.
+ */
+{ kind: "global" } | 
+/**
+ * Tied to one project's lifetime. The string is the project id
+ * (sanitised on construction via [`DownloadScope::project`]).
+ */
+{ kind: "project"; id: string }
+/**
+ * Copy for the standalone Model Downloader overlay.
+ * 
+ * Surfaced by every "Download a model" CTA in the platform — the
+ * SlotsDevtool browse buttons, the chat-side suggest CTAs, the
+ * wizard's manual-add path, and any future devtool that needs a HF
+ * fetch. The overlay walks five phases (search → confirm → downloading
+ * → complete / error) and every visible string lives here so layman
+ * English never lands inline in a Svelte file.
+ * 
+ * Naming convention: `<phase>_<element>_<kind>` where kind is one of
+ * `label` (visible button / heading), `aria` (assistive-tech-only),
+ * `template` (contains placeholders), `help` (longer descriptive
+ * paragraph).
+ */
+export type DownloaderCopy = { 
+/**
+ * Top-of-dialog heading rendered as the `aria-labelledby` target.
+ */
+dialog_title: string; 
+/**
+ * One-line subtitle rendered as the `aria-describedby` target.
+ */
+dialog_subtitle: string; 
+/**
+ * `aria-label` on the close (X) button in the dialog header.
+ */
+close_button_aria: string; 
+/**
+ * Visible "Cancel" label on the close button when a download is
+ * NOT in flight — closes without confirmation.
+ */
+close_button_label: string; 
+/**
+ * Confirmation prompt shown when the user tries to close mid-download.
+ */
+close_during_download_question: string; 
+/**
+ * "Yes, stop the download" — confirms abandoning an in-flight bundle.
+ */
+close_during_download_confirm: string; 
+/**
+ * "Keep downloading" — dismisses the confirmation, stays in the overlay.
+ */
+close_during_download_cancel: string; 
+/**
+ * Section heading above the HF token row.
+ */
+token_section_heading: string; 
+/**
+ * Placeholder text inside the token entry input.
+ */
+token_input_placeholder: string; 
+/**
+ * Visible "Save token" button label.
+ */
+token_save_label: string; 
+/**
+ * `aria-label` on the Save token button.
+ */
+token_save_aria: string; 
+/**
+ * Visible "Clear" button label — removes the stored token.
+ */
+token_clear_label: string; 
+/**
+ * `aria-label` on the Clear button.
+ */
+token_clear_aria: string; 
+/**
+ * Template shown when a token IS stored. Placeholder `{suffix}`
+ * (last 4 chars). Surfaced so the user can confirm which token
+ * is live without us ever displaying the full value.
+ */
+token_stored_template: string; 
+/**
+ * Layman explanation for "what is an HF token and why do I want one"
+ * — rendered next to the strip when no token is set.
+ */
+token_help: string; 
+/**
+ * Heading above the search input.
+ */
+search_phase_heading: string; 
+/**
+ * Placeholder inside the search input.
+ */
+search_input_placeholder: string; 
+/**
+ * `aria-label` on the search input.
+ */
+search_input_aria: string; 
+/**
+ * Empty-state message before the user types anything.
+ */
+search_empty_label: string; 
+/**
+ * Status text while a query is in flight.
+ */
+search_busy_label: string; 
+/**
+ * Status text when results land but the list is empty.
+ */
+search_no_results_template: string; 
+/**
+ * Template for the error banner when the HF query fails.
+ * Placeholder `{error}`.
+ */
+search_error_template: string; 
+/**
+ * Heading above the bundle preview.
+ */
+confirm_phase_heading: string; 
+/**
+ * One-line summary of what "bundle" means in this context.
+ */
+confirm_bundle_help: string; 
+/**
+ * Heading above the slot-tag dropdown.
+ */
+confirm_slot_label: string; 
+/**
+ * Label for the "don't assign to any slot" option.
+ */
+confirm_slot_unassigned_label: string; 
+/**
+ * Template above the bundle file list. Placeholders
+ * `{file_count}`, `{total_mb}`.
+ */
+confirm_bundle_summary_template: string; 
+/**
+ * The yes/no question rendered before the second-acknowledgement
+ * button — final affordance to bail out.
+ */
+confirm_acknowledge_question: string; 
+/**
+ * Visible "Download" button label on the confirm CTA.
+ */
+confirm_download_label: string; 
+/**
+ * `aria-label` on the Download CTA.
+ */
+confirm_download_aria: string; 
+/**
+ * "Back to search" button label.
+ */
+confirm_back_label: string; 
+/**
+ * `aria-label` on the Back to search button.
+ */
+confirm_back_aria: string; 
+/**
+ * Heading while files are downloading.
+ */
+downloading_phase_heading: string; 
+/**
+ * Template for the aggregate progress label. Placeholders
+ * `{percent}`, `{bytes_mb}`, `{total_mb}`, `{speed_mb_per_s}`.
+ */
+downloading_progress_template: string; 
+/**
+ * `aria-valuetext` template for the aggregate progress bar.
+ * Same placeholders as `downloading_progress_template`.
+ */
+downloading_aria_template: string; 
+/**
+ * Visible "Cancel download" button label.
+ */
+downloading_cancel_label: string; 
+/**
+ * `aria-label` on the Cancel button.
+ */
+downloading_cancel_aria: string; 
+/**
+ * Heading shown when every file in the bundle has landed.
+ */
+complete_phase_heading: string; 
+/**
+ * Template summarising what landed. Placeholders `{model_name}`,
+ * `{slot_label}` (when a slot was assigned; empty when not).
+ */
+complete_summary_template: string; 
+/**
+ * "Browse for another model" button label.
+ */
+complete_browse_more_label: string; 
+/**
+ * "Done" — closes the overlay.
+ */
+complete_done_label: string; 
+/**
+ * Heading shown on the error overlay (download failed mid-flight).
+ */
+error_phase_heading: string; 
+/**
+ * Template for the error body. Placeholder `{error}`.
+ */
+error_body_template: string; 
+/**
+ * "Retry the download" button label.
+ */
+error_retry_label: string; 
+/**
+ * `aria-label` on the Retry button.
+ */
+error_retry_aria: string; 
+/**
+ * "Back to search" button label.
+ */
+error_back_label: string; 
+/**
+ * Tag shown above the search input when the downloader is opened
+ * in `DownloadScope::Project(id)` mode. Placeholder `{project_id}`.
+ */
+project_scope_indicator_template: string }
 /**
  * Copy for the download progress rows rendered inside the overlay while
  * downloads are active.
@@ -5623,6 +5986,85 @@ nvml_available: boolean;
  */
 model_dir: string }
 /**
+ * System-wide hardware metrics. Model Loader is app-agnostic — no
+ * DevPulse-specific field names.
+ */
+export type HardwareMetrics = { 
+/**
+ * CPU usage as a percentage (0.0–100.0).
+ */
+cpu_usage_percent: number; 
+/**
+ * Number of logical CPU cores.
+ */
+cpu_cores: number; 
+/**
+ * CPU model name.
+ */
+cpu_name: string; 
+/**
+ * Total system RAM in MB.
+ */
+ram_total_mb: number; 
+/**
+ * Used system RAM in MB.
+ */
+ram_used_mb: number; 
+/**
+ * Available system RAM in MB.
+ */
+ram_available_mb: number; 
+/**
+ * Why GPU detection failed (None = success or not attempted).
+ */
+gpu_error: string | null; 
+/**
+ * GPU model name.
+ */
+gpu_name: string | null; 
+/**
+ * Total VRAM in MB.
+ */
+gpu_vram_total_mb: number | null; 
+/**
+ * Used VRAM in MB.
+ */
+gpu_vram_used_mb: number | null; 
+/**
+ * Free VRAM in MB.
+ */
+gpu_vram_free_mb: number | null; 
+/**
+ * GPU utilization percentage.
+ */
+gpu_utilization_percent: number | null; 
+/**
+ * GPU temperature in Celsius.
+ */
+gpu_temperature_c: number | null; 
+/**
+ * RAM consumed by this process in MB.
+ */
+process_ram_mb: number; 
+/**
+ * VRAM consumed by this process in MB.
+ */
+process_vram_mb: number }
+/**
+ * Periodic hardware metrics push (CPU / RAM / GPU / VRAM). Replaces
+ * the stringly-typed `model:hardware` event.
+ * 
+ * Emitted every 2s by the hardware push task in [`crate::lib`].
+ * Frontend `hardwareState` rune listens and updates VRAM bar, GPU
+ * utilization, etc.
+ */
+export type HardwareMetricsUpdated = { 
+/**
+ * Full metrics snapshot. The frontend overwrites its rune state
+ * from this struct directly — no diff merging.
+ */
+metrics: HardwareMetrics }
+/**
  * Health status enum.
  */
 export type HealthStatus = 
@@ -5809,6 +6251,30 @@ export type InferenceProvider =
  * council lanes.
  */
 "local_claude_api_council"
+/**
+ * The user changed the active inference provider (local / cloud /
+ * hybrid). Replaces `provider:changed`. Frontend uses this to
+ * invalidate slot-bound runes that depend on the active provider.
+ */
+export type InferenceProviderChanged = { 
+/**
+ * New provider identifier (matches `RoutingMode` on the kernel
+ * side, surfaced as a plain string here).
+ */
+provider: string }
+/**
+ * One token of streamed completion text from the in-process Candle
+ * or llama.cpp FFI inference engine. Replaces `inference-token`.
+ * 
+ * Distinct from [`LlamaTokenStreamed`] which carries tokens from the
+ * llama-server child process (OpenAI-compatible HTTP). This event
+ * fires for the embedded Rust inference path.
+ */
+export type InferenceTokenStreamed = { 
+/**
+ * Decoded text fragment.
+ */
+text: string }
 /**
  * Event emitted during platform initialization.
  */
@@ -6171,6 +6637,30 @@ pid: number;
  * Path to the loaded GGUF model.
  */
 model_path: string }
+/**
+ * The llama-server sidecar has bound to its port and is ready to
+ * accept OpenAI-compatible chat completion requests. Replaces
+ * `llama:server-ready`.
+ */
+export type LlamaServerReady = { 
+/**
+ * TCP port the sidecar bound to (loopback only).
+ */
+port: number; 
+/**
+ * Filesystem path of the GGUF model the sidecar loaded.
+ */
+model_path: string }
+/**
+ * One token of streamed completion text from the llama-server
+ * sidecar. Replaces `llama:token`.
+ */
+export type LlamaTokenStreamed = { 
+/**
+ * Decoded text fragment (typically 1–6 chars; whitespace
+ * preserved).
+ */
+content: string }
 /**
  * The single public wire type for every load-path failure. Returned
  * across the Tauri command boundary, serialized by specta, matched
@@ -8489,7 +8979,25 @@ export type UnsupportedReason =
  * The architecture is marked `Legacy` and the owner has opted
  * out of legacy fallbacks in settings.
  */
-{ kind: "legacy-disabled" }
+{ kind: "legacy-disabled" } | 
+/**
+ * The chosen backend is wired for this `(arch, format)` pair on
+ * paper, but inspection of the file's tensor names shows the
+ * layout it carries is incompatible with the loader's expectations
+ * (e.g. fused-QKV GGUF passed to a split-QKV loader, embedder
+ * GGUF passed to a decoder loader). Pre-flight probe caught this
+ * before the loader panicked.
+ */
+{ kind: "tensor-layout-mismatch"; expected_tensor_names: string[]; found_first_block_tensors: string[] } | 
+/**
+ * The architecture is known and the file's tensor layout looks
+ * plausible, but this build's backend allow-list does NOT include
+ * this arch for the requested format. Distinct from
+ * `FormatNotWired` (which means no backend declares support at all)
+ * — here the backend refuses to dispatch because it cannot
+ * guarantee a correct load.
+ */
+{ kind: "backend-cannot-load-arch"; backend: BackendId; suggested_backend: BackendId | null }
 /**
  * User preferences row from the `preferences` table.
  */
@@ -9145,7 +9653,15 @@ role_cards?: RoleCardsCopy;
 /**
  * Layman explanations for every "?" icon across the overlay.
  */
-clyffy_tooltips?: ClyffyTooltipsCopy }
+clyffy_tooltips?: ClyffyTooltipsCopy; 
+/**
+ * Copy for the standalone Model Downloader overlay — the search-
+ * driven modal that ANY surface can open to browse HuggingFace,
+ * tag a model with a slot role, confirm a bundle, and trigger an
+ * authenticated download. Lives outside the wizard's view chain;
+ * `#[serde(default)]` keeps older user overrides parsing cleanly.
+ */
+downloader?: DownloaderCopy }
 
 /** tauri-specta globals **/
 

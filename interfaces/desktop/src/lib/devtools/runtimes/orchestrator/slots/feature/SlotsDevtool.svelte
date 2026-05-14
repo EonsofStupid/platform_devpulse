@@ -13,6 +13,7 @@ import {
 	Brain,
 	Check,
 	Download,
+	FolderOpen,
 	Headphones,
 	Play,
 	RefreshCw,
@@ -26,7 +27,6 @@ import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import HfSearchDialog from "$lib/devtools/_shared/HfSearchDialog.svelte";
 import {
 	type ExtraTab,
 	type HealthBadge,
@@ -37,6 +37,7 @@ import {
 	formatMb,
 	getSlotLabel,
 	isInferenceReady,
+	modelDownloaderState,
 	modelsState,
 	ROLE_FRAMES,
 	VramBar,
@@ -49,8 +50,24 @@ let loading = $state(false);
 let actionSlot = $state<string | null>(null);
 let modelsDir = $state<string | null>(null);
 let modelsDirError = $state<string | null>(null);
-// Slot id whose Browse-models dialog is currently open. Null = closed.
-let browseSlot = $state<string | null>(null);
+// Slot id whose local-library picker is currently open. Null = closed.
+let pickLocalSlot = $state<string | null>(null);
+
+/**
+ * Open the singleton ModelDownloaderOverlay for the given slot. The
+ * overlay is mounted at the root layout — calling `.open(...)`
+ * surfaces it without owning the component here. Focus returns to
+ * the triggering button when the overlay closes (APG dialog focus
+ * contract handled inside `modelDownloaderState.finalize`).
+ */
+function openDownloader(slotId: string, e: MouseEvent): void {
+	const trigger = e.currentTarget as HTMLElement;
+	modelDownloaderState.open({ slotId }, trigger);
+}
+// Last assign error surfaced under the picker — capability mismatch,
+// missing file, etc. Cleared when the dialog opens or another assign
+// succeeds. Empty string = no error.
+let pickLocalError = $state<string>("");
 
 onMount(async () => {
 	const r = await modelsDirPath();
@@ -96,12 +113,47 @@ async function loadSlot(slotId: string): Promise<void> {
 	}
 }
 
+async function clearSlot(slotId: string): Promise<void> {
+	actionSlot = slotId;
+	try {
+		await modelsState.clearAssignment(slotId);
+	} catch (e) {
+		console.error(`Clear assignment failed for ${slotId}:`, e);
+	} finally {
+		actionSlot = null;
+	}
+}
+
 async function unloadSlot(slotId: string): Promise<void> {
 	actionSlot = slotId;
 	try {
 		await modelsState.unload(slotId);
 	} catch (e) {
 		console.error(`Unload failed for ${slotId}:`, e);
+	} finally {
+		actionSlot = null;
+	}
+}
+
+function openLocalPicker(slotId: string): void {
+	pickLocalError = "";
+	pickLocalSlot = slotId;
+}
+
+function closeLocalPicker(): void {
+	pickLocalSlot = null;
+	pickLocalError = "";
+}
+
+async function applyLocal(slotId: string, modelId: string): Promise<void> {
+	pickLocalError = "";
+	actionSlot = slotId;
+	try {
+		await modelsState.assign(slotId, modelId);
+		closeLocalPicker();
+	} catch (e) {
+		pickLocalError = e instanceof Error ? e.message : String(e);
+		console.error(`Assign failed for ${slotId} ← ${modelId}:`, e);
 	} finally {
 		actionSlot = null;
 	}
@@ -206,15 +258,35 @@ const extraTabs: ExtraTab[] = [
 								<div class="slot-actions">
 									{#if !model}
 										<Button
+											preset="button-secondary"
+											size="sm"
+											onclick={() => openLocalPicker(slotId)}
+											disabled={modelsState.models.length === 0}
+											title={modelsState.models.length === 0
+												? "No local models discovered yet — run Rescan or drop a GGUF into the models folder"
+												: "Bind a model already on disk to this slot"}
+										>
+											<FolderOpen size={12} />
+											Pick local
+										</Button>
+										<Button
 											preset="button-primary"
 											size="sm"
-											onclick={() => (browseSlot = slotId)}
+											onclick={(e: MouseEvent) => openDownloader(slotId, e)}
 										>
 											<Download size={12} />
 											Install model
 										</Button>
 									{/if}
 									{#if model && !ready}
+										<Button preset="button-ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
+											<FolderOpen size={12} />
+											Swap
+										</Button>
+										<Button preset="button-ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
+											<X size={12} />
+											Clear
+										</Button>
 										<Button preset="button-secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 											{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
 											Load
@@ -336,11 +408,90 @@ const extraTabs: ExtraTab[] = [
 	{/snippet}
 </ServiceDevtoolShell>
 
-<HfSearchDialog
-	slotId={browseSlot ?? ""}
-	open={browseSlot !== null}
-	onClose={() => (browseSlot = null)}
-/>
+<!--
+	HfSearchDialog removed — the slot Install model button now opens
+	the singleton ModelDownloaderOverlay mounted at the app root via
+	`modelDownloaderState.open({ slotId }, triggerEl)`. The downloader
+	carries the slot context, the HF token strip, bundle preview, and
+	the second-acknowledgement CTA in a single ARIA APG dialog.
+-->
+
+{#if pickLocalSlot !== null}
+	{@const slot = modelsState.slots.find((s) => s.id === pickLocalSlot)}
+	{@const slotLabel = getSlotLabel(pickLocalSlot)}
+	<div
+		class="picker-backdrop"
+		role="dialog"
+		aria-modal="true"
+		aria-label="Pick a local model for {slotLabel?.name ?? pickLocalSlot}"
+		onclick={(e) => {
+			if (e.target === e.currentTarget) closeLocalPicker();
+		}}
+		onkeydown={(e) => {
+			if (e.key === "Escape") closeLocalPicker();
+		}}
+		tabindex="-1"
+	>
+		<div class="picker-card">
+			<div class="picker-header">
+				<div class="picker-title">
+					<Text size="sm" weight="bold">Pick local model</Text>
+					<Text size="xs" color="muted">
+						→ {slotLabel?.name ?? pickLocalSlot}
+						<span class="picker-slot-raw">({pickLocalSlot})</span>
+					</Text>
+				</div>
+				<Button preset="button-ghost" size="sm" onclick={closeLocalPicker}>
+					<X size={14} />
+				</Button>
+			</div>
+
+			{#if pickLocalError}
+				<div class="picker-error">
+					<Text size="xs">{pickLocalError}</Text>
+				</div>
+			{/if}
+
+			{#if modelsState.models.length === 0}
+				<div class="picker-empty">
+					<Text size="xs" color="muted">
+						No models in the registry. Drop a GGUF / safetensors
+						file into <code>{modelsDir ?? "the models folder"}</code>
+						and hit Rescan in Actions.
+					</Text>
+				</div>
+			{:else}
+				<div class="picker-list">
+					{#each modelsState.models as m (m.id)}
+						{@const isCurrent = slot?.assigned_model_id === m.id}
+						<button
+							type="button"
+							class="picker-row"
+							class:picker-row--current={isCurrent}
+							disabled={isCurrent || actionSlot === pickLocalSlot}
+							onclick={() => applyLocal(pickLocalSlot!, m.id)}
+						>
+							<div class="picker-row-main">
+								<Text size="xs" weight="bold" class="picker-row-name">{m.filename}</Text>
+								<Text size="xs" class="picker-row-meta">
+									{m.architecture} · {formatMb(m.size_mb)} · {formatMb(m.vram_estimate_mb)} VRAM
+								</Text>
+							</div>
+							<div class="picker-row-caps">
+								{#each m.compatible_capabilities as cap}
+									<Badge tone="neutral" size="sm">{cap}</Badge>
+								{/each}
+							</div>
+							{#if isCurrent}
+								<Badge tone="positive" size="sm"><Check size={8} /> Assigned</Badge>
+							{/if}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
+	</div>
+{/if}
 
 {#snippet registryBody()}
 	<div class="space-y-3">
@@ -408,4 +559,74 @@ const extraTabs: ExtraTab[] = [
 	:global(.reg-filename) { font-family: var(--font-mono); min-width: 12rem; }
 	:global(.reg-detail) { color: var(--text-muted); }
 	.reg-caps { display: flex; gap: 0.25rem; margin-left: auto; }
+
+	.picker-backdrop {
+		position: fixed; inset: 0;
+		background: rgb(0 0 0 / 0.55);
+		display: flex; align-items: center; justify-content: center;
+		z-index: 1000;
+		padding: 1rem;
+	}
+	.picker-card {
+		background: var(--surface-base);
+		border: 0.0625rem solid var(--border-strong);
+		border-radius: 0.625rem;
+		box-shadow: 0 1.25rem 2.5rem rgb(0 0 0 / 0.45);
+		width: min(38rem, 100%);
+		max-height: min(36rem, 80vh);
+		display: flex; flex-direction: column;
+		gap: 0.5rem;
+		padding: 0.875rem 1rem;
+	}
+	.picker-header {
+		display: flex; align-items: flex-start; justify-content: space-between;
+		gap: 0.75rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 0.0625rem solid var(--border-subtle);
+	}
+	.picker-title { display: flex; flex-direction: column; gap: 0.125rem; }
+	.picker-slot-raw { font-family: var(--font-mono); color: var(--text-muted); }
+	.picker-error {
+		padding: 0.5rem 0.625rem;
+		border-radius: 0.375rem;
+		background: rgb(220 38 38 / 0.12);
+		border: 0.0625rem solid rgb(220 38 38 / 0.45);
+		color: var(--text-primary);
+	}
+	.picker-empty {
+		padding: 1rem 0.5rem;
+		text-align: center;
+	}
+	.picker-list {
+		display: flex; flex-direction: column; gap: 0.25rem;
+		overflow-y: auto;
+		min-height: 0;
+		padding-right: 0.125rem;
+	}
+	.picker-row {
+		display: grid;
+		grid-template-columns: 1fr auto auto;
+		align-items: center; gap: 0.75rem;
+		padding: 0.5rem 0.625rem;
+		border-radius: 0.5rem;
+		background: var(--surface-raised);
+		border: 0.0625rem solid var(--border-soft);
+		text-align: left;
+		cursor: pointer;
+		color: var(--text-primary);
+		font: inherit;
+	}
+	.picker-row:hover:not(:disabled) {
+		border-color: var(--accent-teal-main);
+		background: var(--surface-elevated);
+	}
+	.picker-row:disabled { cursor: not-allowed; opacity: 0.6; }
+	.picker-row--current { border-color: var(--accent-teal-main); }
+	.picker-row-main { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+	:global(.picker-row-name) {
+		font-family: var(--font-mono);
+		overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+	}
+	:global(.picker-row-meta) { color: var(--text-muted); }
+	.picker-row-caps { display: flex; gap: 0.25rem; flex-wrap: wrap; }
 </style>

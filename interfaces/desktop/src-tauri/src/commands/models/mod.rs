@@ -8,7 +8,8 @@ use devpulse_engine::platform::services::model_loader::ModelLoaderService;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::Arc;
-use tauri::{Emitter, State};
+use tauri::State;
+use tauri_specta::Event;
 
 /// Serializable slot info for the frontend (maps from model-loader Slot).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -742,6 +743,32 @@ pub async fn unload_slot(
     Ok(())
 }
 
+/// Clear the persisted model assignment from a slot.
+///
+/// Distinct from `unload_slot`: this removes the libSQL
+/// `slot.<id>.model` key so the next app launch does NOT re-attempt
+/// the load. The use case is a stuck assignment whose load crashes the
+/// backend on every relaunch — clear it once, the slot stays empty
+/// across restarts until a new model is assigned.
+///
+/// Does NOT unload the currently-loaded model from memory (that's
+/// `unload_slot`'s job). Callers that want both behaviours invoke
+/// `unload_slot` first, then `clear_slot_assignment`.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state), fields(slot_id))]
+pub async fn clear_slot_assignment(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+    slot_id: String,
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    tracing::info!("cmd clear_slot_assignment");
+    let loader = get_loader_typed(&state).await?;
+    loader.unassign_slot(&slot_id).await?;
+    emit_models_status(&app, &loader).await;
+    Ok(())
+}
+
 /// Atomically swap the model on a slot (unload → reassign → load).
 ///
 /// Blocks inference to the slot for the entire duration. The frontend
@@ -764,6 +791,15 @@ pub async fn swap_slot_model(
 }
 
 /// Start downloading a model from `HuggingFace`.
+///
+/// `scope` decides where the bundle lands on disk:
+///   - `{"kind":"global"}` — shared `<models_dir>/<owner>/<repo>/`
+///   - `{"kind":"project","id":"<id>"}` — `_per_project/<id>/<owner>/<repo>/`
+///
+/// Frontend `null` deserialises to `DownloadScope::Global` via the
+/// type's `Default` impl, so callers that don't care about scope can
+/// omit it.
+///
 /// Returns the download ID for progress tracking.
 #[tauri::command]
 #[specta::specta]
@@ -771,10 +807,12 @@ pub async fn download_model(
     state: State<'_, PlatformState>,
     repo_id: String,
     filename: String,
+    scope: Option<devpulse_engine::platform::services::ModelDownloadScope>,
 ) -> Result<String, String> {
     let loader = get_loader(&state).await?;
+    let scope = scope.unwrap_or_default();
     loader
-        .download_model(&repo_id, &filename)
+        .download_model(&repo_id, &filename, &scope)
         .await
         .map_err(|e| e.to_string())
 }
@@ -812,6 +850,11 @@ pub async fn recommend_primary_for_slot(
 /// load. Composed from the four kernel verbs into a single atomic
 /// chain so the wizard's "install" CTA fires once and tracks progress
 /// via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+///
+/// `scope` decides where the bundle lands — see
+/// [`download_model`] for the layout contract. Frontend `null`
+/// deserialises to `DownloadScope::Global`.
+///
 /// Returns the `install_id` — the chain runs detached.
 #[tauri::command]
 #[specta::specta]
@@ -820,10 +863,12 @@ pub async fn install_to_slot(
     repo_id: String,
     primary_filename: String,
     slot_id: String,
+    scope: Option<devpulse_engine::platform::services::ModelDownloadScope>,
 ) -> Result<String, String> {
     let loader = get_loader(&state).await?;
+    let scope = scope.unwrap_or_default();
     loader
-        .install_to_slot(&repo_id, &primary_filename, &slot_id)
+        .install_to_slot(&repo_id, &primary_filename, &slot_id, &scope)
         .await
         .map_err(|e| e.to_string())
 }
@@ -1999,7 +2044,7 @@ pub async fn inference_generate(
     while let Ok(traced) = token_rx.recv_async().await {
         match traced.value {
             devpulse_engine::platform::integrations::InferenceResponse::Token { text, .. } => {
-                let _ = app.emit("inference-token", &text);
+                let _ = crate::events::InferenceTokenStreamed { text: text.clone() }.emit(&app);
                 full_text.push_str(&text);
                 token_count += 1;
             }

@@ -15,6 +15,8 @@
 
 import { listen } from "@tauri-apps/api/event";
 import {
+	assignModelToSlot as assignModelToSlotCmd,
+	clearSlotAssignment as clearSlotAssignmentCmd,
 	getModelCatalog,
 	getSlots,
 	loadSlot as loadSlotCmd,
@@ -47,12 +49,13 @@ class ModelsState {
 		});
 
 		await listen<unknown>("platform:models-status", () => {
-			// Kernel pushed a status snapshot — refresh slots + registry
-			// since it likely means a scan or assignment changed. The
-			// kernel emits this once at boot and again on every change,
-			// so we don't need a separate eager refresh here — eagerly
-			// calling getSlots/getModelCatalog before the platform reports
-			// ready races and logs spurious "Platform not booted" errors.
+			// The kernel pushes a snapshot any time slots or registry
+			// change (scan, assign, load, unload, swap). Pull the fresh
+			// state so the UI mirrors the kernel without lagging behind.
+			// A failure here is non-fatal — the next mutation re-emits.
+			this.refresh().catch((e) => {
+				console.warn("modelsState: refresh on platform:models-status failed", e);
+			});
 		});
 	}
 
@@ -100,6 +103,47 @@ class ModelsState {
 			};
 			throw new Error(`load(${slotId}): ${r.error}`);
 		}
+	}
+
+	/**
+	 * Bind a discovered local model to `slotId`. The kernel persists the
+	 * choice to its libSQL kv store, validates capability compatibility,
+	 * and emits `platform:models-status` on success — the listener above
+	 * refreshes the local slot/model views so the UI flips immediately.
+	 *
+	 * The optimistic local update covers the gap between the assign
+	 * acknowledgement and the snapshot event arriving. If the kernel
+	 * rejects the assignment (incompatible capability, missing file)
+	 * the thrown error surfaces to the caller and the next refresh
+	 * reverts the optimistic write.
+	 */
+	async assign(slotId: string, modelId: string): Promise<void> {
+		const r = await assignModelToSlotCmd(slotId, modelId);
+		if (r.status === "error") {
+			throw new Error(`assign(${slotId} ← ${modelId}): ${r.error}`);
+		}
+		this.slots = this.slots.map((s) =>
+			s.id === slotId ? { ...s, assigned_model_id: modelId } : s,
+		);
+	}
+
+	/**
+	 * Clear the persisted model assignment on `slotId`. Removes the
+	 * libSQL `slot.<id>.model` key so the next app launch does NOT
+	 * re-attempt the load. Use case: a stuck assignment whose load
+	 * crashes the backend — clear it once, the slot stays empty across
+	 * restarts until the user assigns a new model.
+	 *
+	 * Does NOT unload the currently-loaded model from memory (that's
+	 * `unload`'s job). Callers wanting both call `unload` first, then
+	 * `clearAssignment`.
+	 */
+	async clearAssignment(slotId: string): Promise<void> {
+		const r = await clearSlotAssignmentCmd(slotId);
+		if (r.status === "error") {
+			throw new Error(`clearAssignment(${slotId}): ${r.error}`);
+		}
+		this.slots = this.slots.map((s) => (s.id === slotId ? { ...s, assigned_model_id: null } : s));
 	}
 
 	/**

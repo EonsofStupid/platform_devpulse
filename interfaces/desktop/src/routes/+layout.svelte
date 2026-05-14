@@ -7,7 +7,7 @@ import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
-import { bootstrapDownloadBridge } from "$lib/domains/app/models/index.js";
+import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
@@ -136,6 +136,13 @@ onMount(() => {
 >
 	<BootOverlay />
 	<TokenDebugOverlay />
+	<!--
+		Singleton Model Downloader overlay mounted at the app root.
+		Any feature surface opens it via `modelDownloaderState.open(...)`;
+		closing returns focus to whichever element opened it (APG
+		dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
+	-->
+	<ModelDownloaderOverlay />
 	{@render children()}
 
 	{#snippet failed(error, reset)}

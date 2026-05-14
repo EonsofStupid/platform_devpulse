@@ -26,11 +26,13 @@
 //! |---|---|---|
 //! | `qwen3` | `quantized_qwen3::ModelWeights` | Primary. Arch-native. |
 //! | `phi3` | `quantized_phi3::ModelWeights` | Primary. Arch-native. |
-//! | `qwen2`, `llama`, `mistral`, etc. | `quantized_llama::ModelWeights` | Legacy + Llama-compatible metadata. |
+//! | `qwen2`, `llama`, `mistral`, etc. | `quantized_llama::ModelWeights` | Backup path — emits `tracing::warn!` on every load so it stays visible in logs. |
 //!
-//! For the llama fallback we still rewrite `<arch>.*` metadata keys to
+//! For the backup path we still rewrite `<arch>.*` metadata keys to
 //! `llama.*` (the same trick llama.cpp uses) so older quantized exports
-//! without an arch-native loader keep working.
+//! without an arch-native loader keep working. Hitting this path is
+//! NOT silent — every entry warns + a `LoaderEvent::BackupPathUsed`
+//! is fired so devtools surface it.
 //!
 //! ## `SafeTensors` (full precision)
 //! HF-style model directory with `config.json`, `tokenizer.json`, and
@@ -54,8 +56,8 @@
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::ModelMetadata;
 use crate::registry::{
-    classify_arch_from_gguf, classify_arch_from_hf_config, Alternative, AlternativeKind, ArchId,
-    LoadError, UnsupportedReason,
+    classify_arch_from_gguf, classify_arch_from_hf_config, resolve_compatibility, Alternative,
+    AlternativeKind, ArchId, BackendId, LoadError, ModelFormat, Resolution, UnsupportedReason,
 };
 use crate::traits::backend::InferenceBackend;
 use candle_core::quantized::gguf_file::Content;
@@ -73,10 +75,11 @@ use std::path::{Path, PathBuf};
 /// struct has its own `forward()` signature. The dispatch at inference
 /// time (`forward_prefill` / `forward_step`) matches on this enum.
 enum LoadedWeights {
-    /// Generic llama-family GGUF (Llama, Mistral, Qwen2, or any arch
-    /// whose metadata was rewritten to the `llama.*` prefix). Covers
-    /// the fallback path for GGUF exports without an arch-native
-    /// quantized loader.
+    /// Backup-path GGUF: the source arch had no arch-native quantized
+    /// loader so its metadata was rewritten to the `llama.*` prefix and
+    /// loaded via `candle-transformers::quantized_llama`. Hitting this
+    /// variant ALWAYS emits `tracing::warn!(target: "candle.backup-path")`
+    /// at load time so the slots devtool's Logs tab surfaces it.
     Gguf(qlm::ModelWeights),
     /// Arch-native Qwen3 quantized weights.
     QuantizedQwen3(quantized_qwen3::ModelWeights),
@@ -948,25 +951,110 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     let eos_token = detect_eos_token(&tokenizer);
     let footprint = make_footprint(device, file_size);
 
-    // Classify via the canonical registry helper. Unknown archs fall
-    // through to the llama fallback path (which works for any
-    // llama-compatible quantized tensor layout via metadata rewrite).
-    // Known archs with an arch-native loader take that loader;
-    // everything else uses the fallback.
-    let classified = classify_arch_from_gguf(&metadata.architecture);
-    let weights = match classified {
-        Some(ArchId::Qwen3 | ArchId::Qwen3Moe) => {
+    // Classify via the canonical registry helper. Unknown archs are
+    // refused at the boundary (no llama fallback) because the fallback
+    // detonates the inference worker thread when tensor names don't
+    // match `blk.N.attn_q.weight` — see the 2026-05-12 incident where
+    // an embedder GGUF reached this path and panicked Candle.
+    let Some(arch_id) = classify_arch_from_gguf(&metadata.architecture) else {
+        return Err(anyhow::Error::new(LoadError::UnknownArchitecture {
+            raw: metadata.architecture.clone(),
+        }));
+    };
+
+    // Allow-list: Candle's GGUF backends (arch-native qwen3/phi3 + the
+    // metadata-rewrite llama fallback) only handle decoder-style
+    // llama-compatible tensor layouts. Vision encoders, embedders, and
+    // newer multimodal archs whose tensor names diverge must route to
+    // a different backend (llama.cpp FFI is the usual fallback).
+    const LLM_ALLOW: &[ArchId] = &[
+        ArchId::Llama,
+        ArchId::Mistral,
+        ArchId::Qwen2,
+        ArchId::Qwen25,
+        ArchId::Qwen3,
+        ArchId::Qwen3Moe,
+        ArchId::Phi3,
+        ArchId::Phi3Moe,
+        ArchId::Gemma,
+        ArchId::Gemma3Text,
+    ];
+    if !LLM_ALLOW.contains(&arch_id) {
+        let alternatives = match resolve_compatibility(arch_id, ModelFormat::Gguf) {
+            Resolution::Unsupported { alternatives, .. } => alternatives,
+            Resolution::Ok { .. } => Vec::new(),
+        };
+        return Err(anyhow::Error::new(LoadError::UnsupportedArchitecture {
+            arch: arch_id,
+            format: ModelFormat::Gguf,
+            reason: UnsupportedReason::BackendCannotLoadArch {
+                backend: BackendId::CandleQuantizedLlama,
+                suggested_backend: Some(BackendId::LlamaCppFfi),
+            },
+            alternatives,
+        }));
+    }
+
+    // Pre-flight tensor probe: when the arch will route to the llama
+    // fallback (anything outside the arch-native qwen3/phi3 paths),
+    // confirm at least one of the well-known first-block tensor names
+    // exists before invoking `qlm::ModelWeights::from_gguf`. This is
+    // the gate that prevents the "cannot find tensor info for
+    // blk.0.attn_q.weight" panic — we'd rather return a typed error
+    // the UI can render than crash the inference thread.
+    let needs_llama_fallback = !matches!(
+        arch_id,
+        ArchId::Qwen3 | ArchId::Qwen3Moe | ArchId::Phi3 | ArchId::Phi3Moe
+    );
+    if needs_llama_fallback {
+        const EXPECTED_TENSORS: &[&str] = &[
+            "blk.0.attn_q.weight",
+            "blk.0.attn_qkv.weight",
+            "blk.0.attn.wq.weight",
+        ];
+        let has_expected = EXPECTED_TENSORS
+            .iter()
+            .any(|n| content.tensor_infos.contains_key(*n));
+        if !has_expected {
+            let found_first_block_tensors: Vec<String> = content
+                .tensor_infos
+                .keys()
+                .filter(|k| k.starts_with("blk.0."))
+                .take(8)
+                .cloned()
+                .collect();
+            let alternatives = match resolve_compatibility(arch_id, ModelFormat::Gguf) {
+                Resolution::Unsupported { alternatives, .. } => alternatives,
+                Resolution::Ok { .. } => Vec::new(),
+            };
+            return Err(anyhow::Error::new(LoadError::UnsupportedArchitecture {
+                arch: arch_id,
+                format: ModelFormat::Gguf,
+                reason: UnsupportedReason::TensorLayoutMismatch {
+                    expected_tensor_names: EXPECTED_TENSORS
+                        .iter()
+                        .map(|s| (*s).to_string())
+                        .collect(),
+                    found_first_block_tensors,
+                },
+                alternatives,
+            }));
+        }
+    }
+
+    let weights = match arch_id {
+        ArchId::Qwen3 | ArchId::Qwen3Moe => {
             tracing::info!(
-                arch_id = ?classified,
+                arch_id = ?arch_id,
                 "Loading GGUF via arch-native quantized_qwen3 path"
             );
             let model = quantized_qwen3::ModelWeights::from_gguf(content, &mut reader, device)
                 .map_err(|e| anyhow::anyhow!("quantized_qwen3 load failed: {e}"))?;
             LoadedWeights::QuantizedQwen3(model)
         }
-        Some(ArchId::Phi3 | ArchId::Phi3Moe) => {
+        ArchId::Phi3 | ArchId::Phi3Moe => {
             tracing::info!(
-                arch_id = ?classified,
+                arch_id = ?arch_id,
                 "Loading GGUF via arch-native quantized_phi3 path"
             );
             // `use_flash_attn` is CUDA-only and optional — pass false
@@ -978,17 +1066,20 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
             LoadedWeights::QuantizedPhi3(model)
         }
         _ => {
-            tracing::info!(
+            // BACKUP PATH — surfaces in the slots devtool Logs tab via
+            // its `candle.backup-path` target filter. If this fires, the
+            // arch (qwen2, llama, mistral, gemma) lacks an arch-native
+            // quantized Candle loader in this build and we're falling
+            // back to metadata rewrite + the generic llama loader.
+            // Promote to a real arch-native path or route the slot
+            // through llama.cpp FFI when this is undesirable.
+            tracing::warn!(
+                target: "candle.backup-path",
                 arch = %metadata.architecture,
-                arch_id = ?classified,
-                "Loading GGUF via llama fallback path with metadata rewrite"
+                arch_id = ?arch_id,
+                "BACKUP PATH: loading GGUF via llama metadata-rewrite — \
+                 no arch-native Candle loader for this architecture"
             );
-            // Candle's quantized llama loader hardcodes the `llama.*`
-            // metadata prefix. Rewriting `<arch>.*` → `llama.*` lets
-            // the loader consume it without a per-arch code path.
-            // Does NOT change tensor data — only string keys. If the
-            // actual tensor layout diverges, load_gguf would fail
-            // anyway and this rewrite doesn't change that outcome.
             rewrite_arch_metadata_to_llama(&mut content.metadata, &metadata.architecture);
             let model = qlm::ModelWeights::from_gguf(content, &mut reader, device)?;
             LoadedWeights::Gguf(model)

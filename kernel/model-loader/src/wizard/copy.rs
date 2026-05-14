@@ -57,6 +57,13 @@ pub struct WizardCopy {
     /// Layman explanations for every "?" icon across the overlay.
     #[serde(default)]
     pub clyffy_tooltips: ClyffyTooltipsCopy,
+    /// Copy for the standalone Model Downloader overlay — the search-
+    /// driven modal that ANY surface can open to browse HuggingFace,
+    /// tag a model with a slot role, confirm a bundle, and trigger an
+    /// authenticated download. Lives outside the wizard's view chain;
+    /// `#[serde(default)]` keeps older user overrides parsing cleanly.
+    #[serde(default)]
+    pub downloader: DownloaderCopy,
 }
 
 /// Welcome screen — Clyffy greeting and CTA.
@@ -567,6 +574,144 @@ pub struct ClyffyTooltipsCopy {
     pub preset_picker_info: String,
     /// "What's a symlink?"
     pub symlink_info: String,
+}
+
+/// Copy for the standalone Model Downloader overlay.
+///
+/// Surfaced by every "Download a model" CTA in the platform — the
+/// SlotsDevtool browse buttons, the chat-side suggest CTAs, the
+/// wizard's manual-add path, and any future devtool that needs a HF
+/// fetch. The overlay walks five phases (search → confirm → downloading
+/// → complete / error) and every visible string lives here so layman
+/// English never lands inline in a Svelte file.
+///
+/// Naming convention: `<phase>_<element>_<kind>` where kind is one of
+/// `label` (visible button / heading), `aria` (assistive-tech-only),
+/// `template` (contains placeholders), `help` (longer descriptive
+/// paragraph).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct DownloaderCopy {
+    // ── Dialog frame ───────────────────────────────────────────────
+    /// Top-of-dialog heading rendered as the `aria-labelledby` target.
+    pub dialog_title: String,
+    /// One-line subtitle rendered as the `aria-describedby` target.
+    pub dialog_subtitle: String,
+    /// `aria-label` on the close (X) button in the dialog header.
+    pub close_button_aria: String,
+    /// Visible "Cancel" label on the close button when a download is
+    /// NOT in flight — closes without confirmation.
+    pub close_button_label: String,
+    /// Confirmation prompt shown when the user tries to close mid-download.
+    pub close_during_download_question: String,
+    /// "Yes, stop the download" — confirms abandoning an in-flight bundle.
+    pub close_during_download_confirm: String,
+    /// "Keep downloading" — dismisses the confirmation, stays in the overlay.
+    pub close_during_download_cancel: String,
+
+    // ── Token strip ────────────────────────────────────────────────
+    /// Section heading above the HF token row.
+    pub token_section_heading: String,
+    /// Placeholder text inside the token entry input.
+    pub token_input_placeholder: String,
+    /// Visible "Save token" button label.
+    pub token_save_label: String,
+    /// `aria-label` on the Save token button.
+    pub token_save_aria: String,
+    /// Visible "Clear" button label — removes the stored token.
+    pub token_clear_label: String,
+    /// `aria-label` on the Clear button.
+    pub token_clear_aria: String,
+    /// Template shown when a token IS stored. Placeholder `{suffix}`
+    /// (last 4 chars). Surfaced so the user can confirm which token
+    /// is live without us ever displaying the full value.
+    pub token_stored_template: String,
+    /// Layman explanation for "what is an HF token and why do I want one"
+    /// — rendered next to the strip when no token is set.
+    pub token_help: String,
+
+    // ── Search phase ───────────────────────────────────────────────
+    /// Heading above the search input.
+    pub search_phase_heading: String,
+    /// Placeholder inside the search input.
+    pub search_input_placeholder: String,
+    /// `aria-label` on the search input.
+    pub search_input_aria: String,
+    /// Empty-state message before the user types anything.
+    pub search_empty_label: String,
+    /// Status text while a query is in flight.
+    pub search_busy_label: String,
+    /// Status text when results land but the list is empty.
+    pub search_no_results_template: String,
+    /// Template for the error banner when the HF query fails.
+    /// Placeholder `{error}`.
+    pub search_error_template: String,
+
+    // ── Confirm phase ──────────────────────────────────────────────
+    /// Heading above the bundle preview.
+    pub confirm_phase_heading: String,
+    /// One-line summary of what "bundle" means in this context.
+    pub confirm_bundle_help: String,
+    /// Heading above the slot-tag dropdown.
+    pub confirm_slot_label: String,
+    /// Label for the "don't assign to any slot" option.
+    pub confirm_slot_unassigned_label: String,
+    /// Template above the bundle file list. Placeholders
+    /// `{file_count}`, `{total_mb}`.
+    pub confirm_bundle_summary_template: String,
+    /// The yes/no question rendered before the second-acknowledgement
+    /// button — final affordance to bail out.
+    pub confirm_acknowledge_question: String,
+    /// Visible "Download" button label on the confirm CTA.
+    pub confirm_download_label: String,
+    /// `aria-label` on the Download CTA.
+    pub confirm_download_aria: String,
+    /// "Back to search" button label.
+    pub confirm_back_label: String,
+    /// `aria-label` on the Back to search button.
+    pub confirm_back_aria: String,
+
+    // ── Downloading phase ──────────────────────────────────────────
+    /// Heading while files are downloading.
+    pub downloading_phase_heading: String,
+    /// Template for the aggregate progress label. Placeholders
+    /// `{percent}`, `{bytes_mb}`, `{total_mb}`, `{speed_mb_per_s}`.
+    pub downloading_progress_template: String,
+    /// `aria-valuetext` template for the aggregate progress bar.
+    /// Same placeholders as `downloading_progress_template`.
+    pub downloading_aria_template: String,
+    /// Visible "Cancel download" button label.
+    pub downloading_cancel_label: String,
+    /// `aria-label` on the Cancel button.
+    pub downloading_cancel_aria: String,
+
+    // ── Complete phase ─────────────────────────────────────────────
+    /// Heading shown when every file in the bundle has landed.
+    pub complete_phase_heading: String,
+    /// Template summarising what landed. Placeholders `{model_name}`,
+    /// `{slot_label}` (when a slot was assigned; empty when not).
+    pub complete_summary_template: String,
+    /// "Browse for another model" button label.
+    pub complete_browse_more_label: String,
+    /// "Done" — closes the overlay.
+    pub complete_done_label: String,
+
+    // ── Error phase ────────────────────────────────────────────────
+    /// Heading shown on the error overlay (download failed mid-flight).
+    pub error_phase_heading: String,
+    /// Template for the error body. Placeholder `{error}`.
+    pub error_body_template: String,
+    /// "Retry the download" button label.
+    pub error_retry_label: String,
+    /// `aria-label` on the Retry button.
+    pub error_retry_aria: String,
+    /// "Back to search" button label.
+    pub error_back_label: String,
+
+    // ── Scope indicator ────────────────────────────────────────────
+    /// Tag shown above the search input when the downloader is opened
+    /// in `DownloadScope::Project(id)` mode. Placeholder `{project_id}`.
+    pub project_scope_indicator_template: String,
 }
 
 impl WizardCopy {

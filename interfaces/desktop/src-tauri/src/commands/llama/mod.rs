@@ -15,6 +15,7 @@
 use tauri::Emitter;
 use tauri_plugin_shell::process::CommandChild;
 use tauri_plugin_shell::ShellExt;
+use tauri_specta::Event;
 use tokio::sync::Mutex;
 
 /// State managed by Tauri — holds the active llama-server child process.
@@ -180,13 +181,11 @@ pub async fn start_llama_server(
         return Err("llama-server failed to start within 30 seconds".into());
     }
 
-    let _ = app.emit(
-        "llama:server-ready",
-        serde_json::json!({
-            "port": port,
-            "model": model_path,
-        }),
-    );
+    let _ = crate::events::LlamaServerReady {
+        port,
+        model_path: model_path.clone(),
+    }
+    .emit(&app);
 
     Ok(LlamaServerInfo {
         port,
@@ -335,12 +334,10 @@ pub async fn llama_chat(
                         .and_then(|c| c.as_str())
                     {
                         full_response.push_str(content);
-                        let _ = app.emit(
-                            "llama:token",
-                            serde_json::json!({
-                                "content": content,
-                            }),
-                        );
+                        let _ = crate::events::LlamaTokenStreamed {
+                            content: content.to_string(),
+                        }
+                        .emit(&app);
                     }
                 }
             }

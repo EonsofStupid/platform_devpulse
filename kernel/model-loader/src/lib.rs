@@ -63,7 +63,8 @@ pub use slots::{
 
 // Model types
 pub use models::{
-    BackendType, ModelFormat, ModelMetadata, ModelRegistry, ModelRegistryEntry, ModelSource,
+    BackendType, DownloadScope, ModelFormat, ModelMetadata, ModelRegistry, ModelRegistryEntry,
+    ModelSource,
 };
 
 // Loading types

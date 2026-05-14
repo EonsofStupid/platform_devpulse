@@ -21,17 +21,20 @@
 //! in both modes. Frontend `DevTools` (F12) show platform events live.
 
 pub mod commands;
+pub mod events;
 pub mod logging;
 pub mod paths;
 pub mod state;
 
 use devpulse_engine::platform::{InitStatus, Platform};
 use devpulse_telemetry::boot::TelemetryGuard;
+use events::{BootPhaseChanged, BootPhaseValue, HardwareMetricsUpdated};
 use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
-use tauri_specta::{collect_commands, Builder};
+use tauri_specta::Event;
+use tauri_specta::{collect_commands, collect_events, Builder};
 
 /// Boot a Platform without Tauri and serve MCP over stdio.
 ///
@@ -279,6 +282,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::models::assign_model_to_slot,
         commands::models::load_slot,
         commands::models::unload_slot,
+        commands::models::clear_slot_assignment,
         commands::models::swap_slot_model,
         commands::models::download_model,
         commands::models::models_dir_path,
@@ -372,6 +376,24 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         // Routing config (escalation chain + latency tuning, user scope)
         commands::routing::routing_load_config,
         commands::routing::routing_save_config,
+    ])
+    .events(collect_events![
+        // Platform boot lifecycle — replaces `platform:boot-phase` string event.
+        events::BootPhaseChanged,
+        // Periodic hardware push (2 s tick) — replaces `model:hardware`.
+        events::HardwareMetricsUpdated,
+        // llama-server sidecar — replaces `llama:server-ready` / `llama:token`.
+        events::LlamaServerReady,
+        events::LlamaTokenStreamed,
+        // In-process Candle / llama.cpp FFI inference — replaces `inference-token`.
+        events::InferenceTokenStreamed,
+        // Cloud inference (Anthropic Messages API) — replaces `provider:changed`,
+        // `cloud:token`, `cloud:complete`.
+        events::InferenceProviderChanged,
+        events::CloudTokenStreamed,
+        events::CloudCompletionFinished,
+        // Chat sessions — replaces `platform:chat-session-deleted`.
+        events::ChatSessionDeleted,
     ])
 }
 
@@ -848,10 +870,11 @@ async fn boot_task(
 
     tracing::info!("Boot task started");
 
-    let _ = app.emit(
-        "platform:boot-phase",
-        serde_json::json!({ "phase": "initializing" }),
-    );
+    let _ = BootPhaseChanged {
+        phase: BootPhaseValue::Initializing,
+        error: None,
+    }
+    .emit(&app);
 
     let boot_start = std::time::Instant::now();
     let app_for_callback = app.clone();
@@ -955,13 +978,11 @@ async fn boot_task(
             // P0: lock-free atomic store. Boot task writes exactly once.
             state.platform.store(Some(Arc::new(platform)));
 
-            let _ = app.emit(
-                "platform:boot-phase",
-                serde_json::json!({
-                    "phase": "ready",
-                    "health": health
-                }),
-            );
+            let _ = BootPhaseChanged {
+                phase: BootPhaseValue::Ready,
+                error: None,
+            }
+            .emit(&app);
 
             // ── Claude MCP autoregister (operator opt-in) ────────
             // Reads `claude.autoregister.code` / `claude.autoregister.desktop`
@@ -1164,13 +1185,11 @@ async fn boot_task(
         Err(e) => {
             tracing::error!(error = %e, total_ms, "Platform boot failed");
             tracker.set_failed(e.to_string());
-            let _ = app.emit(
-                "platform:boot-phase",
-                serde_json::json!({
-                    "phase": "failed",
-                    "error": e.to_string()
-                }),
-            );
+            let _ = BootPhaseChanged {
+                phase: BootPhaseValue::Failed,
+                error: Some(e.to_string()),
+            }
+            .emit(&app);
         }
     }
 }
@@ -1200,7 +1219,7 @@ fn spawn_hardware_push(app: tauri::AppHandle) {
                     continue;
                 };
                 let metrics = loader.hardware_metrics().await;
-                let _ = app.emit("model:hardware", &metrics);
+                let _ = HardwareMetricsUpdated { metrics }.emit(&app);
             }
         }
     });

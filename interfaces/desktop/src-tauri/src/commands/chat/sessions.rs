@@ -5,8 +5,8 @@ use devpulse_engine::platform::{SqlAdapter, SqlValue};
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
-use tauri::Emitter;
 use tauri::State;
+use tauri_specta::Event;
 
 use super::{ChatMessage, ChatSession, ExportFormat, ExportSummary};
 
@@ -84,10 +84,10 @@ pub async fn delete_session(
         .await
         .map_err(|e| format!("Failed to delete session: {e}"))?;
 
-    let _ = app.emit(
-        "platform:chat-session-deleted",
-        serde_json::json!({ "sessionId": session_id }),
-    );
+    let _ = crate::events::ChatSessionDeleted {
+        session_id: session_id.clone(),
+    }
+    .emit(&app);
 
     Ok(())
 }

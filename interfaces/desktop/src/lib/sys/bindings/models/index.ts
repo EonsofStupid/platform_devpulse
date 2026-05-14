@@ -23,6 +23,7 @@ export const isSetupComplete = commands.isSetupComplete;
 export const assignModelToSlot = commands.assignModelToSlot;
 export const loadSlot = commands.loadSlot;
 export const unloadSlot = commands.unloadSlot;
+export const clearSlotAssignment = commands.clearSlotAssignment;
 export const swapSlotModel = commands.swapSlotModel;
 export const warmSlot = commands.warmSlot;
 

@@ -312,3 +312,71 @@ role_encoder_info = "The search model turns your notes and code into numbers so 
 role_voice_info = "Voice models hear what you say and let Clyffy speak back. Uses Whisper for listening and Kokoro for talking."
 preset_picker_info = "Presets are tested bundles of models that fit a hardware tier. Pick the one closest to your machine."
 symlink_info = "A symlink is a pointer. Clyffy references the file where it already lives instead of copying it — saves disk space."
+
+# ─────────────────────────────────────────────────────────────────────
+# Downloader overlay — standalone search-driven HF browser + installer
+# ─────────────────────────────────────────────────────────────────────
+[downloader]
+
+# ── Dialog frame ────────────────────────────────────────────────────
+dialog_title = "Add a model to your library"
+dialog_subtitle = "Search HuggingFace, pick what you want, Clyffy handles the rest."
+close_button_aria = "Close the downloader"
+close_button_label = "Close"
+close_during_download_question = "A download is still running — stop it?"
+close_during_download_confirm = "Yes, stop the download"
+close_during_download_cancel = "Keep downloading"
+
+# ── Token strip ─────────────────────────────────────────────────────
+token_section_heading = "HuggingFace token"
+token_input_placeholder = "Paste your HF token here"
+token_save_label = "Save token"
+token_save_aria = "Save HuggingFace token"
+token_clear_label = "Clear"
+token_clear_aria = "Remove the saved HuggingFace token"
+token_stored_template = "Token saved (…{suffix}). Auth downloads are on."
+token_help = "A free HuggingFace token unlocks gated models AND removes the unauth bandwidth cap — get one at huggingface.co/settings/tokens. Clyffy stores it in your OS keychain, never on disk in plain text."
+
+# ── Search phase ────────────────────────────────────────────────────
+search_phase_heading = "Find a model"
+search_input_placeholder = "Search HuggingFace — e.g. \"qwen3 vision\" or \"harrier embedder\""
+search_input_aria = "Search HuggingFace models"
+search_empty_label = "Type to search HuggingFace."
+search_busy_label = "Searching HuggingFace…"
+search_no_results_template = "No results for \"{query}\". Try a broader search term."
+search_error_template = "Search failed — {error}"
+
+# ── Confirm phase ───────────────────────────────────────────────────
+confirm_phase_heading = "Confirm download"
+confirm_bundle_help = "A bundle is the model file plus every config Clyffy needs to run it — tokenizer, special tokens, generation hints. Clyffy resolves them automatically."
+confirm_slot_label = "Use this model for"
+confirm_slot_unassigned_label = "Don't assign to a slot — just download"
+confirm_bundle_summary_template = "{file_count} files · {total_mb} MB"
+confirm_acknowledge_question = "Looks good?"
+confirm_download_label = "Download"
+confirm_download_aria = "Start the download"
+confirm_back_label = "Back to search"
+confirm_back_aria = "Return to the search panel"
+
+# ── Downloading phase ───────────────────────────────────────────────
+downloading_phase_heading = "Downloading…"
+downloading_progress_template = "{percent}% · {bytes_mb} of {total_mb} MB · {speed_mb_per_s} MB/s"
+downloading_aria_template = "{percent} percent — {bytes_mb} of {total_mb} megabytes downloaded at {speed_mb_per_s} megabytes per second"
+downloading_cancel_label = "Cancel download"
+downloading_cancel_aria = "Cancel the in-flight download"
+
+# ── Complete phase ──────────────────────────────────────────────────
+complete_phase_heading = "Ready!"
+complete_summary_template = "{model_name} is on disk{slot_label}."
+complete_browse_more_label = "Find another model"
+complete_done_label = "Done"
+
+# ── Error phase ─────────────────────────────────────────────────────
+error_phase_heading = "Something went wrong"
+error_body_template = "{error}"
+error_retry_label = "Retry"
+error_retry_aria = "Retry the failed download"
+error_back_label = "Back to search"
+
+# ── Scope indicator ─────────────────────────────────────────────────
+project_scope_indicator_template = "Saving to project: {project_id}"

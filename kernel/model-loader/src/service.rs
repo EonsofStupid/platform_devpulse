@@ -1338,18 +1338,19 @@ impl ModelLoaderService {
         &self,
         repo_id: &str,
         filename: &str,
+        scope: &crate::models::DownloadScope,
     ) -> Result<String, LoaderError> {
         let mut cfg = self.config.write().await;
         let handle = cfg
             .downloads
-            .start_download(repo_id, filename, &self.boot.events, None)
+            .start_download(repo_id, filename, scope, &self.boot.events, None)
             .map_err(|e| LoaderError::DownloadFailed {
                 reason: e.to_string(),
                 can_retry: true,
                 bytes_completed: 0,
             })?;
         let id = handle.id.clone();
-        tracing::info!(repo = %repo_id, file = %filename, download_id = %id, "Download started");
+        tracing::info!(repo = %repo_id, file = %filename, scope = ?scope, download_id = %id, "Download started");
         Ok(id)
     }
 
@@ -1364,6 +1365,7 @@ impl ModelLoaderService {
         &self,
         _repo_id: &str,
         _filename: &str,
+        _scope: &crate::models::DownloadScope,
     ) -> Result<String, LoaderError> {
         Err(LoaderError::Internal {
             message: "Download requires candle-backend feature".to_string(),
@@ -1482,6 +1484,7 @@ impl ModelLoaderService {
         repo_id: &str,
         primary_filename: &str,
         slot_id: &str,
+        scope: &crate::models::DownloadScope,
     ) -> Result<String, LoaderError> {
         // Pre-flight: slot must exist. Cheap read-lock — no need to
         // hold it across the download spawn.
@@ -1503,7 +1506,7 @@ impl ModelLoaderService {
         {
             let mut cfg = self.config.write().await;
             cfg.downloads
-                .start_download(repo_id, primary_filename, &self.boot.events, Some(tx))
+                .start_download(repo_id, primary_filename, scope, &self.boot.events, Some(tx))
                 .map_err(|e| LoaderError::DownloadFailed {
                     reason: e.to_string(),
                     can_retry: true,
@@ -1522,6 +1525,7 @@ impl ModelLoaderService {
             repo = %repo_id,
             file = %primary_filename,
             slot = %slot_id,
+            scope = ?scope,
             "Install chain started"
         );
 
@@ -1549,6 +1553,7 @@ impl ModelLoaderService {
         _repo_id: &str,
         _primary_filename: &str,
         _slot_id: &str,
+        _scope: &crate::models::DownloadScope,
     ) -> Result<String, LoaderError> {
         Err(LoaderError::Internal {
             message: "install_to_slot requires candle-backend feature".to_string(),

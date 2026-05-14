@@ -399,6 +399,34 @@ pub enum UnsupportedReason {
     /// The architecture is marked `Legacy` and the owner has opted
     /// out of legacy fallbacks in settings.
     LegacyDisabled,
+    /// The chosen backend is wired for this `(arch, format)` pair on
+    /// paper, but inspection of the file's tensor names shows the
+    /// layout it carries is incompatible with the loader's expectations
+    /// (e.g. fused-QKV GGUF passed to a split-QKV loader, embedder
+    /// GGUF passed to a decoder loader). Pre-flight probe caught this
+    /// before the loader panicked.
+    TensorLayoutMismatch {
+        /// Tensor names the backend was looking for (e.g. \
+        /// `["blk.0.attn_q.weight", "blk.0.attn_qkv.weight"]`).
+        expected_tensor_names: Vec<String>,
+        /// First-block tensor names actually present in the file. Helps
+        /// the user (or maintainer) identify the layout.
+        found_first_block_tensors: Vec<String>,
+    },
+    /// The architecture is known and the file's tensor layout looks
+    /// plausible, but this build's backend allow-list does NOT include
+    /// this arch for the requested format. Distinct from
+    /// `FormatNotWired` (which means no backend declares support at all)
+    /// — here the backend refuses to dispatch because it cannot
+    /// guarantee a correct load.
+    BackendCannotLoadArch {
+        /// Backend that refused the load.
+        backend: BackendId,
+        /// Optional suggestion for which backend (if any) is more
+        /// likely to succeed with this arch. UI surfaces as
+        /// "try via X backend".
+        suggested_backend: Option<BackendId>,
+    },
 }
 
 /// A suggested alternative path the user could take. The frontend
@@ -670,6 +698,25 @@ impl fmt::Display for UnsupportedReason {
                 f,
                 "this architecture is legacy and the legacy loader is disabled in settings"
             ),
+            Self::TensorLayoutMismatch {
+                expected_tensor_names,
+                found_first_block_tensors,
+            } => write!(
+                f,
+                "tensor layout mismatch: expected one of [{}], found [{}]",
+                expected_tensor_names.join(", "),
+                found_first_block_tensors.join(", ")
+            ),
+            Self::BackendCannotLoadArch {
+                backend,
+                suggested_backend,
+            } => {
+                write!(f, "backend {backend:?} cannot load this architecture")?;
+                if let Some(s) = suggested_backend {
+                    write!(f, " (try {s:?} instead)")?;
+                }
+                Ok(())
+            }
         }
     }
 }

@@ -11,33 +11,44 @@ extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 
 [build.deps.cmake]
 # System cmake on PATH (`C:\Program Files\CMake\bin\cmake.exe`). The dev box
-# moved off VS 2019 Pro to VS 2022 Build Tools at `D:\localdev\BuildTools\`,
-# which doesn't ship a bundled cmake; the system install is the canonical
-# choice. `cmake-rs` (used by llama-cpp-sys-2) honours the `CMAKE` env var
-# and skips PATH lookup when set, so we hand it the absolute path directly.
+# uses VS 2022 Build Tools at `D:\localdev\BuildTools\` (MSVC 14.44), which
+# doesn't ship a bundled cmake; the system install is the canonical choice.
+# `cmake-rs` (used by llama-cpp-sys-2) honours the `CMAKE` env var and skips
+# PATH lookup when set, so we hand it the absolute path directly.
 path = "C:/Program Files/CMake/bin/cmake.exe"
 env = ["CMAKE"]
-# CMAKE_GENERATOR pins the Visual Studio version cmake-rs picks. VS 2022
-# (Build Tools 17.x, MSVC 14.44) is what's installed at
-# `D:\localdev\BuildTools\`. The 2019 generator does NOT support
-# `add_custom_command(... DEPFILE ...)` which ggml-vulkan's CMakeLists
-# requires, so building with `gpu-vulkan` features against the 2019 gen
-# fails at configure. 17 2022 supports DEPFILE and matches the MSVC
-# toolchain that's actually present.
-extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5", CMAKE_GENERATOR = "Visual Studio 17 2022" }
+# CMAKE_GENERATOR = "Ninja". The VS 2022 MSBuild generator does NOT respect
+# `add_custom_command(... DEPENDS ...)` ordering across `ExternalProject_Add`
+# boundaries; ggml-vulkan's CMakeLists builds `vulkan-shaders-gen.exe` via
+# ExternalProject_Add as a host tool, then MSBuild's parallel scheduler
+# launches shader-compile jobs before the host tool finishes linking,
+# producing `unsuccessfulbuild` markers and silent failure (~22 min wasted).
+# Ninja's dependency graph is strict — the race disappears. cmake-rs honours
+# the `CMAKE_GENERATOR` env var; xtask's `select_generator` validates that
+# Ninja can actually be used (MSVC env active + ninja resolves) and falls
+# back to "Visual Studio 17 2022" only when those preconditions are absent.
+# CMAKE_POLICY_VERSION_MINIMUM avoids the deprecation barrage on older
+# CMakeLists in vendored deps.
+extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5", CMAKE_GENERATOR = "Ninja" }
 
 [build.deps.ninja]
-# Path to the ninja bundled with VS 2019. NOT injected as
-# `CMAKE_MAKE_PROGRAM` while the active generator is "Visual Studio 16
-# 2019" — cmake-rs unconditionally forwards `CMAKE_MAKE_PROGRAM` via
-# `-D`, and cmake then tries to use ninja AS MSBuild's build tool,
-# which fails with "ninja: error: loading 'build.ninja'" because the
-# VS generator emits `.vcxproj`, not `build.ninja`.
-# When flipping `[build.deps.cmake].extras.CMAKE_GENERATOR` to "Ninja"
-# (faster, single-config), set `env = ["CMAKE_MAKE_PROGRAM"]` here AND
-# ensure cl.exe is on PATH (vcvars64.bat or explicit CC/CXX env).
-path = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
-env = []
+# Ninja bundled with VS 2022 Build Tools. Injected as `CMAKE_MAKE_PROGRAM`
+# so cmake-rs's `-DCMAKE_MAKE_PROGRAM=` forwarding points at the right
+# binary when `CMAKE_GENERATOR=Ninja`. Under the VS generator this would
+# fail (cmake would try to use ninja AS MSBuild's build tool); xtask's
+# `select_generator` only exports `CMAKE_MAKE_PROGRAM` when the generator
+# is actually "Ninja".
+#
+# Path lookup order (xtask `resolve_ninja`):
+#   1. this SSOT path (if it exists)
+#   2. common VS 2022 install roots (BuildTools / Community / Pro / Enterprise)
+#   3. `which::which("ninja")` on the system PATH
+#
+# cl.exe + INCLUDE + LIB + LIBPATH must be live in the process env for
+# ninja to find the MSVC toolchain — xtask's `activate_msvc_env` uses
+# `cc::windows_registry::find_tool` to inject those before invoking cargo.
+path = "D:/localdev/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
+env = ["CMAKE_MAKE_PROGRAM"]
 extras = {}
 
 [build.deps.code_oss]

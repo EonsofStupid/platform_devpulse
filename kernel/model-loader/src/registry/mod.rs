@@ -59,6 +59,8 @@ pub use architectures::{
 // Migration alias — delete after consumer sweep.
 #[allow(deprecated)]
 pub use architectures::classify_safetensors_arch;
-pub use backends::{installed_backends, BackendId, BackendInfo, BackendMatrix, FormatSupport};
+pub use backends::{
+    installed_backends, BackendId, BackendInfo, BackendMatrix, FormatSupport, ModelFormat,
+};
 pub use load_error::{Alternative, AlternativeKind, LoadError, UnsupportedReason};
 pub use resolver::{resolve_compatibility, Resolution};

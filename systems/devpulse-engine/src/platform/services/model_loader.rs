@@ -37,8 +37,10 @@ pub use devpulse_clyffy::model_loader::{
 };
 pub use devpulse_clyffy::model_loader::{RebindReason, RuntimeFingerprint};
 use devpulse_clyffy::model_loader::{
-    HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot, SlotStatus, VramBudget,
+    DownloadScope, HardwareMetrics, ModelLoaderService as Inner, ModelRegistryEntry, Slot,
+    SlotStatus, VramBudget,
 };
+pub use devpulse_clyffy::model_loader::DownloadScope as ModelDownloadScope;
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
 use std::sync::Arc;
 
@@ -298,6 +300,23 @@ impl ModelLoaderService {
             .map_err(LoadError::from)
     }
 
+    /// Clear the persisted assignment on the given slot — leaves the
+    /// underlying model loaded (if any), but removes the slot's binding
+    /// so subsequent inference routes hard-fail until a new
+    /// `assign_model` lands. Pairs with `unload_slot` when callers want
+    /// to fully retract a slot (load → reassign happens elsewhere).
+    #[tracing::instrument(skip(self), fields(slot_id))]
+    pub async fn unassign_slot(
+        &self,
+        slot_id: &str,
+    ) -> std::result::Result<(), LoadError> {
+        tracing::info!("unassign_slot");
+        self.inner
+            .unassign_slot(slot_id)
+            .await
+            .map_err(LoadError::from)
+    }
+
     /// Return whether the loader has any persisted slot assignments yet.
     pub async fn is_first_run(&self) -> bool {
         self.inner.is_first_run().await
@@ -336,9 +355,21 @@ impl ModelLoaderService {
     // ── Downloads (config lock) ──────────────────────────────
 
     /// Start a model download and return its download identifier.
-    pub async fn download_model(&self, repo_id: &str, filename: &str) -> Result<String> {
+    ///
+    /// `scope` decides where the bundle lands on disk:
+    ///   - [`DownloadScope::Global`] — shared `<models_dir>/<owner>/<repo>/`
+    ///   - [`DownloadScope::Project(id)`] — per-project subtree
+    ///
+    /// See `devpulse-clyffy::model_loader::scope` for the full layout
+    /// contract and path-safety rules.
+    pub async fn download_model(
+        &self,
+        repo_id: &str,
+        filename: &str,
+        scope: &DownloadScope,
+    ) -> Result<String> {
         self.inner
-            .download_model(repo_id, filename)
+            .download_model(repo_id, filename, scope)
             .await
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
@@ -371,14 +402,18 @@ impl ModelLoaderService {
     /// the install identifier as soon as the download starts; the
     /// chain runs in a detached task and surfaces progress via the
     /// `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+    ///
+    /// `scope` decides where the bundle lands — see
+    /// [`download_model`](Self::download_model) for the layout contract.
     pub async fn install_to_slot(
         &self,
         repo_id: &str,
         primary_filename: &str,
         slot_id: &str,
+        scope: &DownloadScope,
     ) -> Result<String> {
         self.inner
-            .install_to_slot(repo_id, primary_filename, slot_id)
+            .install_to_slot(repo_id, primary_filename, slot_id, scope)
             .await
             .map_err(|e| anyhow::anyhow!("{e}"))
     }

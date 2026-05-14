@@ -30,6 +30,13 @@ uuid = { version = "1", features = ["v4"] }
 # 3000+ files) declare a whole subtree; we walk it to enumerate files. Tiny
 # crate, zero transitive bloat, already the de-facto Rust standard.
 walkdir = "2.5"
+# MSVC toolchain discovery via the same registry walk Rust's own bootstrap
+# uses. Powers `BuildConfig::activate_msvc_env` which exports INCLUDE / LIB /
+# LIBPATH / PATH for cl.exe so the cmake `Ninja` generator can find the
+# toolchain without a manual vcvars64.bat invocation. The crate is already a
+# transitive dep of dozens of build.rs scripts in the workspace — the explicit
+# entry just lets xtask use the public `windows_registry` module directly.
+cc = "1"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
