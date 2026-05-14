@@ -18,13 +18,24 @@
 -->
 <script lang="ts">
 import { BrainCircuit, Ear, Eye, Sparkles, Volume2 } from "lucide-svelte";
+import { onMount } from "svelte";
 import {
 	type SubsystemState,
 	SubsystemTile,
 	type SubsystemVerb,
 } from "$lib/design/blocks/devtools/index.js";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
-import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
+import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+
+onMount(() => {
+	// Subscribe to live RRO state transitions so the Reasoning tile
+	// updates in real time as the daemon walks
+	// idle → gathering → processing → ruminating → ready (or purged / forked).
+	// `initialLoad` is idempotent — re-entering the dashboard does
+	// not re-subscribe.
+	void rroState.initialLoad();
+	return () => rroState.teardownRroState();
+});
 
 /**
  * Build the live state summary for a slot-backed subsystem. Reads
@@ -115,37 +126,68 @@ const cortexState = $derived<SubsystemState>(() => {
 });
 
 /**
- * Reasoning · RRD daemon. Maps the RRD state machine (idle /
- * starting / running / maintenance / failed) onto the subsystem
- * tone bucket.
+ * Reasoning · RRO state machine (the "subconscious"). Drives off
+ * `rroState.rroSnapshot` which mirrors the kernel's live state
+ * transitions via `platform:rro-state-changed`.
+ *
+ * State map → tone:
+ * - `idle`        → `stopped` (no active retrieval)
+ * - `gathering`   → `up`      (collecting context)
+ * - `processing`  → `up`      (structuring context)
+ * - `ruminating`  → `up`      (weighing alternatives)
+ * - `ready`       → `up`      (context prepared — ready to act)
+ * - `purged`      → `degraded`(context discarded — needs re-gather)
+ * - `forked`      → `up`      (branched into alternative path)
  */
 const reasoningState = $derived<SubsystemState>(() => {
-	const last = rrdState.last;
-	if (!last) {
+	const snap = rroState.rroSnapshot;
+	if (!snap) {
 		return {
 			tone: "unknown",
-			label: "RRD not yet probed",
-			detail: "Open the devtool for first run",
+			label: "Reasoning not yet probed",
+			detail: "Open the devtool to initialize",
 		};
 	}
-	const phase = last.phase;
-	if (phase === "running") {
-		return { tone: "up", label: "Subconscious live", detail: `Phase · ${phase}` };
+	switch (snap.state) {
+		case "idle":
+			return { tone: "stopped", label: "Idle", detail: `source · ${snap.source}` };
+		case "gathering":
+			return {
+				tone: "up",
+				label: "Gathering context",
+				detail: `from · ${snap.source}`,
+			};
+		case "processing":
+			return {
+				tone: "up",
+				label: "Processing context",
+				detail: `depth · ${snap.depth}`,
+			};
+		case "ruminating":
+			return {
+				tone: "up",
+				label: "Weighing alternatives",
+				detail: `depth · ${snap.depth}`,
+			};
+		case "ready":
+			return {
+				tone: "up",
+				label: "Ready",
+				detail: `depth · ${snap.depth} · source ${snap.source}`,
+			};
+		case "purged":
+			return {
+				tone: "degraded",
+				label: "Context purged",
+				detail: "Run Gather to re-fill",
+			};
+		case "forked":
+			return {
+				tone: "up",
+				label: "Branched context active",
+				detail: `source · ${snap.source}`,
+			};
 	}
-	if (phase === "starting") {
-		return { tone: "starting", label: "Initializing…", detail: `Phase · ${phase}` };
-	}
-	if (phase === "failed") {
-		return {
-			tone: "down",
-			label: "RRD failed",
-			detail: last.detail ?? "See reasoning devtool logs",
-		};
-	}
-	if (phase === "maintenance") {
-		return { tone: "degraded", label: "Maintenance mode", detail: `Phase · ${phase}` };
-	}
-	return { tone: "stopped", label: "Idle", detail: `Phase · ${phase}` };
 });
 
 /**
@@ -232,18 +274,48 @@ const cortexVerbs = $derived<SubsystemVerb[]>([
 ]);
 
 /**
- * Reasoning verb: clear the rolling RRD phase-transition history.
- * The actual re-probe path is owned by the kernel daemon; the
- * frontend just listens. Clearing the history gives the dev a
- * clean slate to watch the next pause→resume cycle.
+ * Reasoning verbs — drive the RRO state machine from the tile.
+ * Each verb fires a kernel `trigger_*` IPC and the live
+ * `platform:rro-state-changed` event updates `rroSnapshot` so
+ * the tile reflects the new state without a manual refresh.
+ *
+ * - **Gather** — absorb context from the default source
+ *   (`gatherSource` rune field; "manual" if empty). Transitions
+ *   idle → gathering → processing → ruminating → ready.
+ * - **Purge** — discard the current context with the configured
+ *   reason ("stale" if empty). Transitions whatever-state →
+ *   purged. The dev runs Gather afterwards to re-fill.
+ * - **Fork** — branch the current context into an alternative
+ *   path under the configured label ("alt" if empty).
+ *
+ * Each verb's `busy` flag mirrors the matching
+ * `rroState.rroActionLoading.{gather,purge,fork}` field so the
+ * tile shows a spinner while the kernel transition is in flight.
  */
 const reasoningVerbs = $derived<SubsystemVerb[]>([
 	{
-		id: "clear-history",
-		label: "Clear history",
-		ariaLabel: "Clear the local RRD phase-transition history",
+		id: "gather",
+		label: "Gather",
+		ariaLabel: "Absorb context — transition the RRO state machine to gathering",
+		tone: "primary",
+		busy: rroState.rroActionLoading.gather,
+		onclick: () => rroState.triggerGather(),
+	},
+	{
+		id: "purge",
+		label: "Purge",
+		ariaLabel: "Discard the current RRO context",
 		tone: "ghost",
-		onclick: () => rrdState.clear(),
+		busy: rroState.rroActionLoading.purge,
+		onclick: () => rroState.triggerPurge(),
+	},
+	{
+		id: "fork",
+		label: "Fork",
+		ariaLabel: "Branch the current RRO context into an alternative path",
+		tone: "ghost",
+		busy: rroState.rroActionLoading.fork,
+		onclick: () => rroState.triggerFork(),
 	},
 ]);
 </script>
