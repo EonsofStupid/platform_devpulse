@@ -59,6 +59,13 @@ pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEnt
     // for models with no manifest and no sentence-transformers files.
     apply_folder_hints(models_dir, &mut entries);
 
+    // Filename hints are the deepest fallback — files at the new
+    // scope-resolved layout (`<owner>/<repo>/<file>`) sit outside the
+    // legacy purpose folders, so `apply_folder_hints` produces nothing.
+    // The filename keyword set is the SSOT in `download::infer_download_folder`.
+    #[cfg(feature = "candle-backend")]
+    apply_filename_hints(&mut entries);
+
     tracing::info!(
         count = entries.len(),
         path = %models_dir.display(),
@@ -593,6 +600,43 @@ fn now_epoch_ms() -> i64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0)
+}
+
+/// Apply filename-based capability hints to discovered entries that
+/// neither carry a manifest nor sit under a legacy purpose folder.
+///
+/// Reads through [`crate::models::download::infer_download_folder`] —
+/// that function owns the keyword SSOT (whisper / kokoro / embed /
+/// rerank / siglip / vit / …). Discovery hits this as the deepest
+/// fallback so a model under the new scope-resolved layout
+/// `<owner>/<repo>/<file>` still picks up the right capability shape
+/// for its slot routing.
+///
+/// Like folder hints, this is additive — it never strips capabilities
+/// inferred by architecture parsing or manifest declarations.
+#[cfg(feature = "candle-backend")]
+fn apply_filename_hints(entries: &mut [ModelRegistryEntry]) {
+    for entry in entries.iter_mut() {
+        if !entry.compatible_capabilities.is_empty() {
+            continue;
+        }
+        let bucket = crate::models::download::infer_download_folder(&entry.filename);
+        let hints: &[ModelCapability] = match bucket {
+            "voice" => &[ModelCapability::SpeechToText, ModelCapability::TextToSpeech],
+            "rag" => &[ModelCapability::Embedding, ModelCapability::Reranking],
+            "vision" => &[ModelCapability::VisionEmbedding],
+            _ => &[ModelCapability::TextGeneration],
+        };
+        for cap in hints {
+            entry.compatible_capabilities.push(*cap);
+        }
+        tracing::debug!(
+            file = %entry.filename,
+            bucket,
+            caps = ?entry.compatible_capabilities,
+            "Filename hint applied (no manifest, no purpose folder)"
+        );
+    }
 }
 
 /// Apply folder-aware capability hints to discovered models.

@@ -963,12 +963,20 @@ fn link_or_copy(src: &Path, dst: &Path) -> anyhow::Result<()> {
 /// Cfg-gated to `candle-backend` so a build without download support
 /// doesn't ship the helper at all.
 ///
-/// Verified by the `infer_download_folder_*` unit tests in this file
-/// — those are the live consumers. Future legacy-tree migration
-/// tooling can copy this lookup table verbatim (or, when it lands in
-/// a shared crate, depend on this function directly).
+/// ## Consumers
+///
+/// - [`crate::models::discovery::apply_filename_hints`] — fallback for
+///   files at the new scope-resolved layout (`<owner>/<repo>/<file>`)
+///   that sit outside the legacy `chat/`/`rag/`/`voice/`/`vision/`
+///   purpose folders. Without this fallback, a downloaded Whisper
+///   model under `microsoft/whisper-large/` would discover with zero
+///   capability hints because its parent folder is the HF owner, not
+///   a purpose bucket.
+/// - The `infer_download_folder_*` unit tests below.
+/// - Future legacy-tree migration tooling
+///   (`cargo xtask model-manifest-backfill`) — same keyword set.
 #[cfg(feature = "candle-backend")]
-fn infer_download_folder(filename: &str) -> &'static str {
+pub(crate) fn infer_download_folder(filename: &str) -> &'static str {
     let lower = filename.to_lowercase();
 
     // Voice models
