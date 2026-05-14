@@ -14,6 +14,7 @@ import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from 
 import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
 import {
 	DEVTOOL_BUCKET_ICONS,
 	DEVTOOL_REGISTRY,
@@ -307,6 +308,12 @@ let laneGroups = $derived<LaneGroup[]>(
 		<!-- OVERVIEW TAB — registry-driven, 3 tiers (Clyffy / Model Loader / System) -->
 		{#if activeTab === "overview"}
 			<div class="ds-sections">
+				<!-- ── Live subsystems — hover-overlay tiles for Cortex /
+				     Vision / Ears / Mouth / Reasoning. Each tile surfaces
+				     live status + a one-click load/reload verb. The
+				     dedicated devtool opens on click. -->
+				<LiveSubsystemStrip />
+
 				<!-- ── Quick Actions (primary) ─────────────────── -->
 				<section class="ds-section ds-section--primary">
 					<header class="ds-section-header">
