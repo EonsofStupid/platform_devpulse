@@ -95,7 +95,7 @@ let {
 							</Text>
 						{/if}
 					</div>
-				</div>
+				</Card>
 			{/each}
 		</div>
 	{/if}
