@@ -17,7 +17,6 @@
 use crate::cortex::persistence::config::SurrealNamespace;
 use crate::cortex::persistence::surreal::lifecycle::SurrealLifecycle;
 use anyhow::{Context, Result};
-use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use surrealdb::engine::local::Db;
@@ -223,6 +222,189 @@ impl SurrealAdapter {
     pub async fn quiesce(&self) {
         tracing::info!("SurrealKV: adapter quiesced (clone will close on drop)");
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Typed scoped helpers
+    // ═══════════════════════════════════════════════════════════════
+    //
+    // Every typed CRUD method below routes through a single SurrealQL
+    // `query` with `USE NS x DB y; <stmt>` prefix and parameter
+    // bindings. Three properties this guarantees:
+    //
+    // 1. Namespace isolation stays at the query level — no
+    //    `use_ns/use_db` session mutation that would race across
+    //    cloned `Surreal<Db>` handles.
+    // 2. No SurrealQL string interpolation — every identifier or
+    //    user-supplied value flows in via `.bind(...)`, eliminating
+    //    SurrealQL injection risk.
+    // 3. Connectors and `ScopedGraphHandle` consumers operate on
+    //    typed records (`KvRecord`, `MemoryRecord`, `RroRecord`,
+    //    etc) directly — no `serde_json::Value` round-trip.
+
+    /// Build a namespace-scoped SurrealQL `Query` the caller can
+    /// chain `.bind(...)` calls on and await for a typed
+    /// `Response`. The returned value borrows from `self.db`, so
+    /// the adapter must outlive the query — the standard pattern
+    /// is to chain `.bind(...).await` on the returned `Query`
+    /// before the borrow expires.
+    ///
+    /// Crate-internal: keeps namespace isolation owned by the
+    /// in-crate connector impls under `cortex::persistence::*`.
+    /// External callers reach for [`ScopedGraphHandle`] instead.
+    pub(crate) fn scoped_query(
+        &self,
+        namespace: &str,
+        database: &str,
+        surql: &str,
+    ) -> surrealdb::method::Query<'_, Db> {
+        let scoped = format!("USE NS {namespace} DB {database}; {surql}");
+        self.db.query(scoped)
+    }
+
+    /// Scoped UPSERT of a typed record on `type::thing(table, id)`.
+    ///
+    /// Internal helper consumed by [`ScopedGraphHandle`] +
+    /// [`super::intelligence_impl`]. Generic over the content type;
+    /// pass any `Serialize` value whose JSON shape matches the
+    /// target table's schema.
+    ///
+    /// # Errors
+    /// Propagates SurrealDB errors with the namespace + table + id
+    /// in the context message.
+    pub(crate) async fn upsert_typed_in_ns<T>(
+        &self,
+        namespace: &str,
+        database: &str,
+        table: &str,
+        id: &str,
+        record: T,
+    ) -> Result<()>
+    where
+        T: SurrealValue + Send + Sync + 'static,
+    {
+        let scoped = format!(
+            "USE NS {namespace} DB {database}; \
+             UPSERT type::thing($t, $id) CONTENT $rec;"
+        );
+        self.db
+            .query(scoped)
+            .bind(("t", table.to_string()))
+            .bind(("id", id.to_string()))
+            .bind(("rec", record))
+            .await
+            .with_context(|| format!("upsert {namespace}/{database}/{table}:{id}"))?;
+        Ok(())
+    }
+
+    /// Scoped SELECT-by-id with typed deserialization.
+    ///
+    /// Returns `Ok(None)` when no row matches. Deserialization to
+    /// `T` happens via `surrealdb::Response::take`, so `T` must be
+    /// `DeserializeOwned`.
+    ///
+    /// # Errors
+    /// Propagates SurrealDB errors with the namespace + table + id
+    /// in the context message.
+    pub(crate) async fn select_typed_in_ns<T>(
+        &self,
+        namespace: &str,
+        database: &str,
+        table: &str,
+        id: &str,
+    ) -> Result<Option<T>>
+    where
+        T: SurrealValue + Send + Sync + 'static,
+    {
+        let scoped = format!(
+            "USE NS {namespace} DB {database}; \
+             SELECT * FROM type::thing($t, $id);"
+        );
+        let mut response = self
+            .db
+            .query(scoped)
+            .bind(("t", table.to_string()))
+            .bind(("id", id.to_string()))
+            .await
+            .with_context(|| format!("select {namespace}/{database}/{table}:{id}"))?;
+        // Index 0 is the `USE NS .. DB ..` statement; the SELECT is
+        // at index 1. `Option<T>` take semantics: first row or None.
+        let row: Option<T> = response
+            .take(1)
+            .with_context(|| format!("take {namespace}/{database}/{table}:{id}"))?;
+        Ok(row)
+    }
+
+    /// Scoped DELETE-by-id with `RETURN BEFORE`.
+    ///
+    /// Returns `Ok(true)` when a row was deleted, `Ok(false)` when
+    /// no row matched.
+    ///
+    /// # Errors
+    /// Propagates SurrealDB errors with the namespace + table + id
+    /// in the context message.
+    pub(crate) async fn delete_typed_in_ns(
+        &self,
+        namespace: &str,
+        database: &str,
+        table: &str,
+        id: &str,
+    ) -> Result<bool> {
+        let scoped = format!(
+            "USE NS {namespace} DB {database}; \
+             DELETE type::thing($t, $id) RETURN BEFORE;"
+        );
+        let mut response = self
+            .db
+            .query(scoped)
+            .bind(("t", table.to_string()))
+            .bind(("id", id.to_string()))
+            .await
+            .with_context(|| format!("delete {namespace}/{database}/{table}:{id}"))?;
+        let row: Option<serde_json::Value> = response
+            .take(1)
+            .with_context(|| format!("take {namespace}/{database}/{table}:{id}"))?;
+        Ok(row.is_some())
+    }
+
+    /// Scoped vector-typed SELECT for the rkyv archive blob.
+    ///
+    /// Connectors backing the intelligence layer call this to fetch
+    /// the rkyv-archived bytes for a memory id. Returns `Ok(None)`
+    /// when no archive row exists.
+    ///
+    /// # Errors
+    /// Propagates SurrealDB errors with the namespace + memory id
+    /// in the context message.
+    pub(crate) async fn read_archive_bytes_in_ns(
+        &self,
+        namespace: &str,
+        database: &str,
+        memory_id: &str,
+    ) -> Result<Option<Vec<u8>>> {
+        // `bytes` column is loaded via a dedicated subquery so the
+        // result shape is a flat row, never the full archive
+        // record. Keeps the deserialization tight.
+        #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+        #[surreal(crate = "surrealdb::types")]
+        struct ArchiveRow {
+            bytes: Vec<u8>,
+        }
+        let scoped = format!(
+            "USE NS {namespace} DB {database}; \
+             SELECT bytes FROM rro_archive WHERE memory_id = type::thing('memories', $id) LIMIT 1;"
+        );
+        let mut response = self
+            .db
+            .query(scoped)
+            .bind(("id", memory_id.to_string()))
+            .await
+            .with_context(|| format!("archive read {namespace}/{database}:{memory_id}"))?;
+        let row: Option<ArchiveRow> = response
+            .take(1)
+            .with_context(|| format!("archive take {namespace}/{database}:{memory_id}"))?;
+        Ok(row.map(|r| r.bytes))
+    }
+
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -367,55 +549,45 @@ impl ScopedGraphHandle {
         }
     }
 
-    /// Set a key-value pair in the scoped kv table.
+    /// Set a key-value pair in the scoped `kv` table.
+    ///
+    /// Typed contract: builds a [`KvRecord`] and upserts via the
+    /// adapter's typed scoped helper. No SurrealQL string
+    /// interpolation, no base64 round-trip — the `bytes` column
+    /// roundtrips directly through serde.
     ///
     /// # Errors
     /// Returns error if the upsert fails.
     pub async fn kv_set(&self, key: &str, value: &[u8]) -> Result<()> {
-        let encoded = base64::engine::general_purpose::STANDARD.encode(value);
-        let surql = format!(
-            "UPSERT kv:`{key}` SET key = '{key}', value = encoding::base64::decode('{encoded}');"
-        );
-        self.execute(&surql).await
+        let record = KvRecord {
+            key: key.to_string(),
+            value: value.to_vec(),
+        };
+        self.adapter
+            .upsert_typed_in_ns(&self.namespace, &self.database, "kv", key, record)
+            .await
     }
 
-    /// Get a value from the scoped kv table.
+    /// Get a value from the scoped `kv` table.
     ///
     /// # Errors
     /// Returns error if the query fails.
     pub async fn kv_get(&self, key: &str) -> Result<Option<Vec<u8>>> {
-        let result = self
-            .query(&format!("SELECT value FROM kv:`{key}`;"))
+        let row: Option<KvRecord> = self
+            .adapter
+            .select_typed_in_ns(&self.namespace, &self.database, "kv", key)
             .await?;
-        if let serde_json::Value::Array(rows) = &result {
-            if let Some(row) = rows.first() {
-                if let Some(val) = row.get("value") {
-                    if !val.is_null() {
-                        if let Some(s) = val.as_str() {
-                            let bytes = base64::engine::general_purpose::STANDARD
-                                .decode(s)
-                                .context("Failed to decode base64 kv value")?;
-                            return Ok(Some(bytes));
-                        }
-                    }
-                }
-            }
-        }
-        Ok(None)
+        Ok(row.map(|r| r.value))
     }
 
-    /// Delete a key from the scoped kv table.
+    /// Delete a key from the scoped `kv` table.
     ///
     /// # Errors
     /// Returns error if the deletion fails.
     pub async fn kv_delete(&self, key: &str) -> Result<bool> {
-        let result = self
-            .query(&format!("DELETE kv:`{key}` RETURN BEFORE;"))
-            .await?;
-        if let serde_json::Value::Array(rows) = &result {
-            return Ok(!rows.is_empty());
-        }
-        Ok(false)
+        self.adapter
+            .delete_typed_in_ns(&self.namespace, &self.database, "kv", key)
+            .await
     }
 }
 
@@ -423,12 +595,19 @@ impl ScopedGraphHandle {
 // Data types — preserved from the pre-sidecar adapter
 // ═══════════════════════════════════════════════════════════════
 
-/// Key-value record for signal-based storage.
+/// Typed row shape for the scoped `kv` table.
+///
+/// Used by [`ScopedGraphHandle::kv_set`] / [`ScopedGraphHandle::kv_get`]
+/// / [`ScopedGraphHandle::kv_delete`] as the serde contract for
+/// round-tripping through the typed scoped helpers on
+/// [`SurrealAdapter`]. Keeping it `pub(crate)` rather than fully
+/// public preserves the encapsulation rule that all `kv` access
+/// goes through the namespace-scoped handle.
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[surreal(crate = "surrealdb::types")]
-struct KvRecord {
-    key: String,
-    value: Vec<u8>,
+pub(crate) struct KvRecord {
+    pub(crate) key: String,
+    pub(crate) value: Vec<u8>,
 }
 
 /// Reasoning node in the graph.
@@ -480,6 +659,26 @@ pub struct StateTransition {
 // ═══════════════════════════════════════════════════════════════
 
 /// Schema for the kernel reasoning system.
+///
+/// Applied per-namespace by [`SurrealAdapter::connect_with_ns`] when
+/// the reasoning NS (`clyffy/devpulse`) initializes. The schema covers:
+///
+/// - **kv / nodes / relates / states / transitions** — the original
+///   reasoning graph: facts, edges, context-switching state machine.
+/// - **estates / estate_aspects** — the Clyffy + minion identity
+///   cascade. Each `estate` is the SSOT for one primary persona node
+///   (Clyffy or the minion umbrella) and owns its child `estate_aspects`
+///   rows (working memory, personality facets, per-minion state). The
+///   two Harrier 0.6B encoders feed their respective estates: one
+///   serves Clyffy, one serves the minion umbrella.
+///
+/// Estate-aspect cascade semantics:
+/// - `estate.owner` is one of `"clyffy"` or `"minions"`.
+/// - Every aspect belongs to exactly one estate via `estate_id`.
+/// - `aspect_kind` distinguishes the cascade lane:
+///   `"persona"` (identity / personality), `"working_memory"` (recent
+///   context), `"task_state"` (current dispatch), `"minion_process"`
+///   (per-minion-process record under the `"minions"` estate).
 pub const REASONING_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
@@ -514,4 +713,33 @@ DEFINE FIELD IF NOT EXISTS from_state ON transitions TYPE record(states);
 DEFINE FIELD IF NOT EXISTS to_state ON transitions TYPE record(states);
 DEFINE FIELD IF NOT EXISTS probability ON transitions TYPE float;
 DEFINE FIELD IF NOT EXISTS trigger ON transitions TYPE string;
+
+-- ── Estates · the Clyffy + minion identity cascade ──────────────
+-- Each row is one primary persona node. The encoder/embedder slot
+-- (Harrier 0.6B) keyed by `encoder_slot_id` is the SSOT this estate
+-- cascades from.
+DEFINE TABLE IF NOT EXISTS estates SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS owner ON estates TYPE string
+    ASSERT $value IN ['clyffy', 'minions'];
+DEFINE FIELD IF NOT EXISTS encoder_slot_id ON estates TYPE string;
+DEFINE FIELD IF NOT EXISTS display_name ON estates TYPE string;
+DEFINE FIELD IF NOT EXISTS created_at ON estates TYPE datetime DEFAULT time::now();
+DEFINE FIELD IF NOT EXISTS updated_at ON estates TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS estates_owner ON estates FIELDS owner UNIQUE;
+
+-- Aspects · the cascade rows under each estate. Persona facets,
+-- working-memory snapshots, task state, and per-minion-process
+-- records all live here, distinguished by `aspect_kind`.
+DEFINE TABLE IF NOT EXISTS estate_aspects SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS estate_id ON estate_aspects TYPE record(estates);
+DEFINE FIELD IF NOT EXISTS aspect_kind ON estate_aspects TYPE string
+    ASSERT $value IN ['persona', 'working_memory', 'task_state', 'minion_process'];
+DEFINE FIELD IF NOT EXISTS aspect_key ON estate_aspects TYPE string;
+DEFINE FIELD IF NOT EXISTS payload ON estate_aspects TYPE object;
+DEFINE FIELD IF NOT EXISTS priority ON estate_aspects TYPE int DEFAULT 0;
+DEFINE FIELD IF NOT EXISTS created_at ON estate_aspects TYPE datetime DEFAULT time::now();
+DEFINE FIELD IF NOT EXISTS updated_at ON estate_aspects TYPE datetime DEFAULT time::now();
+DEFINE INDEX IF NOT EXISTS estate_aspects_lookup
+    ON estate_aspects FIELDS estate_id, aspect_kind, aspect_key UNIQUE;
+DEFINE INDEX IF NOT EXISTS estate_aspects_kind ON estate_aspects FIELDS aspect_kind;
 ";
