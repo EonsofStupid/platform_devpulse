@@ -90,6 +90,8 @@ model_filename = "Qwen3-VL-30B-A3B-Instruct-UD-Q4_K_XL.gguf"
 model_size_mb = 18500
 vram_estimate_mb = 20500
 device = "Gpu"
+display_name = "Qwen3-VL 30B-A3B"
+display_tagline = "Alibaba's vision + reasoning MoE (3B active per token). Runs through llama.cpp."
 
 # chat.fast — Qwen3-4B routing brain stays hot even on Ultra so
 # quick turns don't pay the full 30B MoE gating latency.
@@ -124,6 +126,8 @@ model_filename = "Qwen3-VL-30B-A3B-Instruct-UD-Q4_K_XL.gguf"
 model_size_mb = 0
 vram_estimate_mb = 0
 device = "Gpu"
+display_name = "Qwen3-VL 30B-A3B (shared with brain)"
+display_tagline = "Same weights as the brain — zero extra VRAM. Runs through llama.cpp."
 
 # minion.escalation — Phi-4-reasoning-plus GGUF Q4_K_M. Deep-reasoning
 # brain that escalates from chat.fast on hard queries. 14B Phi-3-arch
@@ -187,6 +191,8 @@ model_filename = "Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL.gguf"
 model_size_mb = 17700
 vram_estimate_mb = 18500
 device = "Gpu"
+display_name = "Qwen3 30B-A3B"
+display_tagline = "Alibaba's reasoning MoE — only 3B active per token. Runs through llama.cpp."
 
 [[presets.slots]]
 slot_id = "chat.fast"
@@ -219,6 +225,8 @@ model_filename = "Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL.gguf"
 model_size_mb = 0
 vram_estimate_mb = 0
 device = "Gpu"
+display_name = "Qwen3 30B-A3B (shared with brain)"
+display_tagline = "Refcounts the brain — zero extra VRAM. Runs through llama.cpp."
 
 # minion.escalation — Phi-4-reasoning-plus GGUF Q4_K_M (14B, ~9 GB).
 # Deep-reasoning brain reachable from chat.fast on hard queries.
@@ -295,6 +303,8 @@ model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
 model_size_mb = 9053
 vram_estimate_mb = 10500
 device = "Gpu"
+display_name = "Phi-4 Reasoning Vision 15B"
+display_tagline = "Microsoft's reasoning + vision model in one. Runs through llama.cpp."
 
 [presets.slots.extensions]
 mmproj_filename = "mmproj-microsoft.Phi-4-reasoning-vision-15B.f16.gguf"
@@ -321,6 +331,8 @@ model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
 model_size_mb = 0
 vram_estimate_mb = 0
 device = "Gpu"
+display_name = "Phi-4 Reasoning Vision 15B (shared with brain)"
+display_tagline = "Refcounts the brain — zero extra VRAM. Runs through llama.cpp."
 
 # rag.encoder — Harrier 0.6B on CPU for the RRO (Qdrant) query path.
 # Same model as rag.embedder (common slot) — BackendPool ref-counts
@@ -363,6 +375,8 @@ model_filename = "Qwen3.5-9B-Q4_K_M.gguf"
 model_size_mb = 5300
 vram_estimate_mb = 5800
 device = "Gpu"
+display_name = "Qwen3.5 9B"
+display_tagline = "Alibaba's general reasoning model. Runs through llama.cpp."
 
 [[presets.slots]]
 slot_id = "minion.shared"
@@ -371,6 +385,8 @@ model_filename = "qwen3-0.6b-q4_k_m.gguf"
 model_size_mb = 500
 vram_estimate_mb = 350
 device = "Gpu"
+display_name = "Qwen3 0.6B"
+display_tagline = "Tiny pre-sort + ranking model — runs everywhere. Through llama.cpp."
 
 # voice.brain — Phi-4-multimodal-instruct via mistral.rs at ISQ4
 # (~3-4 GB on a 12 GB tier alongside chat.brain 5.8 GB). Rotation
@@ -400,6 +416,8 @@ model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
 model_size_mb = 2600
 vram_estimate_mb = 3200
 device = "Gpu"
+display_name = "Qwen3-VL 4B"
+display_tagline = "Alibaba's compact vision-language reasoner. Runs through llama.cpp."
 
 [[presets.slots]]
 slot_id = "minion.shared"
@@ -408,6 +426,8 @@ model_filename = "qwen3-0.6b-q4_k_m.gguf"
 model_size_mb = 500
 vram_estimate_mb = 350
 device = "GpuWithCpuFallback"
+display_name = "Qwen3 0.6B"
+display_tagline = "Tiny pre-sort + ranking model — runs everywhere. Through llama.cpp."
 
 # voice.brain — Phi-4-multimodal-instruct via mistral.rs at ISQ4 with
 # CPU fallback. 8 GB rigs can't host both chat.brain (3.2 GB) and a
@@ -457,6 +477,8 @@ model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
 model_size_mb = 2600
 vram_estimate_mb = 3200
 device = "Cpu"
+display_name = "Qwen3-VL 4B (CPU)"
+display_tagline = "Compact vision-language reasoner running entirely on CPU. Through llama.cpp."
 
 [[presets.slots]]
 slot_id = "minion.shared"
@@ -465,6 +487,8 @@ model_filename = "qwen3-0.6b-q4_k_m.gguf"
 model_size_mb = 500
 vram_estimate_mb = 350
 device = "Cpu"
+display_name = "Qwen3 0.6B (CPU)"
+display_tagline = "Tiny pre-sort + ranking model on CPU. Through llama.cpp."
 
 # voice.brain — Phi-4-multimodal-instruct via mistral.rs ISQ Q3_K with
 # GpuWithCpuFallback. Minimal tier (sub-8 GB VRAM) flexes the load
@@ -514,6 +538,8 @@ model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
 model_size_mb = 2600
 vram_estimate_mb = 3200
 device = "Cpu"
+display_name = "Qwen3-VL 4B (CPU)"
+display_tagline = "Compact vision-language reasoner — CPU-only fallback. Through llama.cpp."
 
 [[presets.slots]]
 slot_id = "minion.shared"
@@ -522,6 +548,8 @@ model_filename = "qwen3-0.6b-q4_k_m.gguf"
 model_size_mb = 500
 vram_estimate_mb = 350
 device = "Cpu"
+display_name = "Qwen3 0.6B (CPU)"
+display_tagline = "Tiny pre-sort + ranking model — CPU-only fallback. Through llama.cpp."
 
 # voice.brain — Phi-4-multimodal-instruct via mistral.rs at Q4_0 ISQ on
 # pure CPU. Multi-second latency per turn vs. the GPU tiers' real-time
@@ -651,6 +679,8 @@ model_filename = "model.safetensors"
 model_size_mb = 4550
 vram_estimate_mb = 0
 device = "Cpu"
+display_name = "SigLIP 2 SO400M (HD)"
+display_tagline = "Google's compact vision encoder, higher-resolution variant. Runs through Candle."
 
 [[common.slots]]
 slot_id = "voice.stt"
@@ -659,6 +689,8 @@ model_filename = "ggml-small.bin"
 model_size_mb = 466
 vram_estimate_mb = 0
 device = "Cpu"
+display_name = "Whisper Small"
+display_tagline = "OpenAI's compact speech recognizer. Runs through Sherpa."
 
 # voice.tts — Qwen3-TTS-12Hz-0.6B-Base. Single TTS engine for both
 # default Clyffy voice and zero-shot voice cloning from a user-uploaded
@@ -694,6 +726,8 @@ model_size_mb = 1830
 # never happens for their hardware.
 vram_estimate_mb = 0
 device = "GpuWithCpuFallback"
+display_name = "Qwen3-TTS 0.6B (12 Hz)"
+display_tagline = "Alibaba's compact multilingual text-to-speech. Voice-cloning capable."
 
 [common.slots.extensions]
 codec_filename = "speech_tokenizer/model.safetensors"
