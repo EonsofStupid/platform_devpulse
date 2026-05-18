@@ -43,6 +43,7 @@ use surrealdb::types::SurrealValue;
     RkyvSerialize,
     RkyvDeserialize,
 )]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
 #[surreal(crate = "surrealdb::types")]
 pub enum MemoryKind {

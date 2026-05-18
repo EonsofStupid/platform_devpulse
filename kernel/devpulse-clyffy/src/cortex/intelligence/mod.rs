@@ -25,11 +25,15 @@
 //!   contract for save / recall / relate / write_archive /
 //!   read_archive_bytes.
 
+pub mod pipeline;
 pub mod record;
 pub mod schema;
 pub mod slug;
 pub mod store;
 
+pub use pipeline::{
+    process_chat_message, NullPipelineSink, PipelineEventSink, PipelineSignal, TextEmbedder,
+};
 pub use record::{
     ArchivedNeighborRef, ArchivedRroRecord, MemoryKind, MemoryRecord, NeighborRef, RroRecord,
 };

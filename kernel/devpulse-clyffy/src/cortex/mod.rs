@@ -15,6 +15,10 @@ pub mod governance;
 pub mod llguidance;
 /// Knowledge library — JSON-backed tips, did-you-know, glossary with libSQL runtime.
 pub mod knowledge;
+/// Community feed cache — local mirror of remote announcements, contributions,
+/// and activity. HTTP fetch lives in the desktop tier; this module owns the
+/// cache schema + CRUD only.
+pub mod community;
 /// KV cache tier for attention optimization.
 pub mod kv_cache;
 /// Minion task workers.
