@@ -109,6 +109,23 @@ enum Commands {
         #[arg(long)]
         kind: Option<String>,
     },
+    /// Download, verify, and extract a pinned `llama-cpp-prebuilt`
+    /// release artifact into `deps/llama-cpp-prebuilt/<target>/`. Reads
+    /// the committed manifest at `deps/llama-cpp-prebuilt/manifest.json`.
+    /// Requires `GITHUB_TOKEN` env (source repo is private). xtask's
+    /// `apply_env` auto-exports `LLAMA_CPP_PREBUILT_LIB_DIR` after this
+    /// completes, and the vendored `llama-cpp-sys-2`'s build.rs fast-path
+    /// then skips its in-tree cmake build.
+    FetchLlamaCpp {
+        /// Target platform + backend: `win32-x64-vulkan`,
+        /// `win32-x64-cuda`, or `win32-x64-cpu`. Match against the
+        /// `target` field of an entry in the manifest's `artifacts`.
+        #[arg(long)]
+        target: String,
+        /// Override the manifest path (defaults to the committed one).
+        #[arg(long)]
+        manifest: Option<PathBuf>,
+    },
     /// Download the SurrealDB sidecar binary into
     /// `interfaces/desktop/src-tauri/binaries/`. The release tag is
     /// pinned in `fetch_surreal.rs` to match the `surrealdb` crate
@@ -121,6 +138,35 @@ enum Commands {
         /// Re-download even if the destination file already exists.
         #[arg(long)]
         force: bool,
+    },
+    /// Launch the compiled portable .exe and stream every diagnostic
+    /// signal — boot log, session JSONL, captured stderr, crash JSONs —
+    /// through one stdout pipe. Pairs with the in-binary `crash_safety`
+    /// module so the operator never has to PowerShell-pipe to figure out
+    /// why the window vanished.
+    Launch {
+        /// Skip the portable-folder probe and run the loose
+        /// `target/release/devpulse-desktop-app.exe` directly.
+        #[arg(long)]
+        release: bool,
+        /// Seconds to keep the launcher alive after the child exits so
+        /// late-arriving telemetry / OTel flush lines still land.
+        /// Defaults to 2.
+        #[arg(long, default_value_t = 2)]
+        linger_secs: u64,
+    },
+    /// Sign the portable zip + emit `latest.json` for the auto-updater.
+    /// Run AFTER `build-release --portable-only` succeeds. Reads the
+    /// build manifest, signs via tauri-signer with the Ed25519 key from
+    /// `$env:TAURI_SIGNING_PRIVATE_KEY` (or OS keyring
+    /// `devpulse:release-signing-key`), then writes both `.sig` and
+    /// `latest.json` to `target/release/`. The operator publishes all
+    /// three to a GitHub Release tagged `v<version>`.
+    ReleasePublish {
+        /// Release notes to embed in `latest.json` (markdown). When
+        /// omitted, the field stays empty for editing on GitHub.
+        #[arg(long)]
+        notes: Option<String>,
     },
 }
 
@@ -154,8 +200,17 @@ fn main() -> anyhow::Result<()> {
             manifest,
             kind,
         }),
+        Commands::FetchLlamaCpp { target, manifest } => Box::new(
+            commands::fetch_llama_cpp::FetchLlamaCpp { target, manifest },
+        ),
         Commands::FetchSurreal { target, force } => {
             Box::new(commands::fetch_surreal::FetchSurreal { target, force })
+        }
+        Commands::Launch { release, linger_secs } => {
+            Box::new(commands::launch::Launch { release, linger_secs })
+        }
+        Commands::ReleasePublish { notes } => {
+            Box::new(commands::release_publish::ReleasePublish { notes })
         }
     };
 

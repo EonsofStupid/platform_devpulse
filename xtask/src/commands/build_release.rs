@@ -226,9 +226,9 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     // ── Stage 6: Hardened build env ──
     stage::section("Build Environment");
     println!("  > Build env from [build.deps.*] SSOT:");
-    let env_guard = sink.start("build-env");
+    let stage_guard = sink.start("build-env");
     platform_config.build.apply_env(ws.root());
-    env_guard.ok();
+    stage_guard.ok();
 
     // ── Stage 7: Launch `pnpm tauri build` with teed transcript ──
     // In portable-only mode, pass `--no-bundle` so tauri-cli skips the

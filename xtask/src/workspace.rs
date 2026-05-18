@@ -1084,97 +1084,75 @@ impl BuildConfig {
         self.activate_msvc_env();
         self.select_generator(workspace_root);
         self.purge_stale_cmake_dirs(workspace_root);
-        self.apply_long_paths_env();
+        self.export_prebuilt_llama_cpp(workspace_root);
     }
 
-    /// Ensure Windows long-paths are enabled and tell CMake to use the
-    /// long-path API.
+    /// Auto-export `LLAMA_CPP_PREBUILT_LIB_DIR` when the matching prebuilt
+    /// has been fetched into `deps/llama-cpp-prebuilt/<target>/`.
     ///
-    /// **Why this exists.** `llama-cpp-sys-2`'s `ExternalProject_Add` for
-    /// `vulkan-shaders-gen` spawns a nested CMake configure pass
-    /// (`TryCompile` probes for `cl.exe`'s ABI, etc) whose object-file
-    /// directory layout is roughly:
+    /// Target is derived from the detected build features + host OS:
     ///
-    /// ```text
-    /// <target>/release/build/llama-cpp-sys-2-<hash>/out/build/ggml/src/
-    /// ggml-vulkan/vulkan-shaders-gen-prefix/src/vulkan-shaders-gen-build/
-    /// CMakeFiles/CMakeScratch/TryCompile-<rand>/CMakeFiles/cmTC_<id>.dir/
-    /// ```
+    /// | feature       | target id           |
+    /// |---------------|---------------------|
+    /// | `gpu-nvidia`  | `win32-x64-cuda`    |
+    /// | `gpu-vulkan`  | `win32-x64-vulkan`  |
+    /// | (none)        | `win32-x64-cpu`     |
     ///
-    /// At a typical workspace path that's ~240 chars before any
-    /// `.obj` filename, well past both CMake's internal
-    /// `CMAKE_OBJECT_PATH_MAX` (default 250) and Win32's legacy
-    /// MAX_PATH (260). `cl.exe` aborts with
-    /// `fatal error C1083: Cannot open compiler generated file: '':
-    /// Invalid argument`. Verified against build-log 2026-05-14.
+    /// When the target subdir exists and contains `lib/llama.lib`, the
+    /// env var is exported and the vendored `llama-cpp-sys-2`'s build.rs
+    /// fast-path activates — skipping the in-tree cmake build of llama.cpp
+    /// entirely. Otherwise we log a warning + the fix-it command and fall
+    /// through (the in-tree cmake build runs; on Windows with Vulkan that
+    /// usually fails MAX_PATH, so the operator must fetch).
     ///
-    /// **The right fix keeps `target/` inside the workspace** so the
-    /// repo stays portable (build artifacts live with the project,
-    /// matching the `.userdata/` portability discipline). What we do
-    /// instead:
-    ///
-    ///   1. Set `CMAKE_OBJECT_PATH_MAX=32767` — overrides CMake's
-    ///      internal 250-char ceiling. Honored everywhere CMake runs
-    ///      in this build (cargo-driven and recursive `ExternalProject`
-    ///      passes alike).
-    ///   2. Probe the OS-level long-paths flag at
-    ///      `HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem\\LongPathsEnabled`
-    ///      and `git config --get core.longpaths`. If either is off,
-    ///      print the exact one-time fix commands and refuse to
-    ///      proceed — silently building against a known-broken
-    ///      precondition is worse than failing fast.
-    ///
-    /// Setup details live at `docs/platform/WINDOWS_LONG_PATHS.md`.
-    ///
-    /// Idempotent — safe to call multiple times per process.
-    fn apply_long_paths_env(&self) {
-        // CMake's path-max override is portable across platforms (it's
-        // a no-op on Linux/macOS where the issue doesn't exist); set
-        // unconditionally so cross-platform reproduction stays sane.
-        std::env::set_var("CMAKE_OBJECT_PATH_MAX", "32767");
-        println!(
-            "  [env] CMAKE_OBJECT_PATH_MAX = 32767 (override default 250-char \
-             ceiling for llama-cpp-sys nested ExternalProject builds)"
-        );
-
+    /// Linux and macOS dev boxes don't hit MAX_PATH and don't need the
+    /// prebuilt path — they fall through silently when no prebuilt is
+    /// staged.
+    fn export_prebuilt_llama_cpp(&self, workspace_root: &Path) {
         if !cfg!(windows) {
             return;
         }
 
-        let registry_ok = probe_registry_long_paths();
-        let git_ok = probe_git_long_paths();
-
-        if registry_ok && git_ok {
-            println!("  [long-paths] OK — registry LongPathsEnabled + git core.longpaths both ON");
+        // Honor an operator-set value — never override a deliberate choice.
+        if std::env::var_os("LLAMA_CPP_PREBUILT_LIB_DIR").is_some() {
+            println!(
+                "  [env] LLAMA_CPP_PREBUILT_LIB_DIR already exported by operator; \
+                 skipping auto-detection"
+            );
             return;
         }
 
-        eprintln!();
-        eprintln!("ERROR: Windows long-paths support is not fully enabled. The");
-        eprintln!("       llama-cpp-sys vulkan-shaders-gen sub-build will fail.");
-        eprintln!();
-        if !registry_ok {
-            eprintln!("  Registry flag is OFF. One-time fix (Admin PowerShell):");
-            eprintln!();
-            eprintln!("    New-ItemProperty `");
-            eprintln!("      -Path \"HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem\" `");
-            eprintln!("      -Name \"LongPathsEnabled\" -Value 1 -PropertyType DWORD -Force");
-            eprintln!();
+        let features = self.detect_build_features().unwrap_or_default();
+        let target_id = if features.split(',').any(|f| f == "gpu-nvidia") {
+            "win32-x64-cuda"
+        } else if features.split(',').any(|f| f == "gpu-vulkan") {
+            "win32-x64-vulkan"
+        } else {
+            "win32-x64-cpu"
+        };
+
+        let prebuilt_dir = workspace_root
+            .join("deps")
+            .join("llama-cpp-prebuilt")
+            .join(target_id);
+        let validity = prebuilt_dir.join("lib").join("llama.lib");
+
+        if !validity.is_file() {
+            println!(
+                "  [warn] llama-cpp prebuilt not fetched for target `{target_id}` — \
+                 falling back to in-tree cmake build."
+            );
+            println!(
+                "  [hint] cargo xtask fetch-llama-cpp --target {target_id}"
+            );
+            return;
         }
-        if !git_ok {
-            eprintln!("  Git config is OFF. Fix (any shell):");
-            eprintln!();
-            eprintln!("    git config --global core.longpaths true");
-            eprintln!();
-        }
-        eprintln!("  Then re-run the build. See docs/platform/WINDOWS_LONG_PATHS.md.");
-        eprintln!();
-        // Exit the xtask process with non-zero so cargo doesn't proceed.
-        // Keeping `apply_env` infallible matches the surrounding
-        // method shape; an explicit process::exit makes the failure
-        // visible to the operator without unwinding through every
-        // caller's `Result` plumbing.
-        std::process::exit(1);
+
+        let abs = prebuilt_dir.to_string_lossy().into_owned();
+        std::env::set_var("LLAMA_CPP_PREBUILT_LIB_DIR", &abs);
+        println!(
+            "  [env] LLAMA_CPP_PREBUILT_LIB_DIR = {abs} (target = {target_id})"
+        );
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`
@@ -2309,58 +2287,6 @@ fn find_root(start: &Path) -> Option<PathBuf> {
             return None;
         }
     }
-}
-
-/// Probe whether Windows long-path support is enabled at the OS level.
-///
-/// Reads
-/// `HKLM\SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled`
-/// via the `reg query` CLI (no winreg crate dep). Returns `false` on
-/// any of: registry value missing, value is zero, `reg.exe` not on
-/// PATH, query failed. Errors are diagnostic-only — the caller turns
-/// `false` into a build-stop with the exact fix command.
-///
-/// Non-Windows: returns `true` (the flag is meaningless elsewhere).
-fn probe_registry_long_paths() -> bool {
-    if !cfg!(windows) {
-        return true;
-    }
-    let output = Command::new("reg")
-        .args([
-            "query",
-            r"HKLM\SYSTEM\CurrentControlSet\Control\FileSystem",
-            "/v",
-            "LongPathsEnabled",
-        ])
-        .output();
-    let Ok(out) = output else { return false };
-    if !out.status.success() {
-        return false;
-    }
-    let stdout = String::from_utf8_lossy(&out.stdout);
-    // Match output shape `LongPathsEnabled    REG_DWORD    0x1`.
-    stdout.lines().any(|line| {
-        let trimmed = line.trim();
-        trimmed.starts_with("LongPathsEnabled")
-            && (trimmed.ends_with("0x1") || trimmed.ends_with("0x00000001"))
-    })
-}
-
-/// Probe whether `git config --get core.longpaths` returns `true`.
-///
-/// Walks the global git config; honors per-user `.gitconfig`. Returns
-/// `false` if git isn't on PATH or the key is unset (git exits with
-/// code 1 in that case). Errors are diagnostic-only — the caller
-/// turns `false` into a build-stop with the exact fix command.
-fn probe_git_long_paths() -> bool {
-    let output = Command::new("git")
-        .args(["config", "--get", "core.longpaths"])
-        .output();
-    let Ok(out) = output else { return false };
-    if !out.status.success() {
-        return false;
-    }
-    String::from_utf8_lossy(&out.stdout).trim().eq_ignore_ascii_case("true")
 }
 
 #[cfg(test)]
