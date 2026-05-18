@@ -11,6 +11,7 @@
 		"shell:allow-spawn",
 		"shell:allow-kill",
 		"shell:allow-stdin-write",
-		"global-shortcut:allow-register"
+		"global-shortcut:allow-register",
+		"updater:default"
 	]
 }

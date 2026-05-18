@@ -169,3 +169,41 @@ pub struct ChatSessionDeleted {
     /// Identifier of the deleted session row.
     pub session_id: String,
 }
+
+// ── Auto-updater lifecycle ──────────────────────────────────────────
+
+/// Emitted every time the updater finishes a probe. Subscribers (the
+/// Latest tab, a sidebar badge) flip their "update available" indicator
+/// without having to call [`crate::commands::updates::check_for_update`]
+/// themselves.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateAvailable {
+    /// Whether a newer build is available.
+    pub available: bool,
+    /// Version this build currently identifies as.
+    pub current_version: String,
+    /// Version offered by the endpoint, when one is offered.
+    pub latest_version: Option<String>,
+    /// Release notes from `latest.json` — markdown body.
+    pub notes: Option<String>,
+}
+
+/// Streamed progress while the update payload downloads. Frontend
+/// converts `downloaded_bytes / total_bytes` into a progress bar; a
+/// missing `total_bytes` means the server did not advertise a length
+/// (rare for GitHub Releases) and the UI shows an indeterminate bar.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateDownloadProgress {
+    /// Bytes received so far this download.
+    pub downloaded_bytes: u64,
+    /// Total bytes expected, when the server advertised a length.
+    pub total_bytes: Option<u64>,
+}
+
+/// Fires once the installer has been launched. The frontend transitions
+/// into a "restarting…" state; the process exits shortly after via
+/// `app.restart()`.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+pub struct UpdateInstallFinished {}

@@ -4,10 +4,16 @@
 //! `Entry`, `type: "dyk"`, `payload`, and nothing more.
 //!
 //! Delegates to kernel selector via engine facade — no duplicated SQL.
+//! Remote-sync helper fetches updated entries from a public Supabase
+//! Storage bucket so the catalog can be refreshed without a binary
+//! rebuild.
 
+use crate::commands::cloud::get_supabase_credentials;
 use crate::state::PlatformState;
+use anyhow::Context as _;
 use devpulse_engine::platform::{
-    knowledge_record_reaction, knowledge_select_entry, KnowledgeEntryType, KnowledgeReaction,
+    knowledge_record_reaction, knowledge_select_entry, knowledge_sync_remote_entries,
+    KnowledgeEntry, KnowledgeEntryType, KnowledgeManifest, KnowledgeReaction,
     KnowledgeSelectionParams, KnowledgeTier, SqlAdapter,
 };
 
@@ -126,4 +132,157 @@ pub async fn record_knowledge_reaction(
     knowledge_record_reaction(adapter, &entry_id, "default", parsed_reaction)
         .await
         .map_err(|e| format!("Failed to record reaction: {e}"))
+}
+
+// ── Remote knowledge sync ───────────────────────────────────────────
+
+/// Outcome of [`sync_knowledge_from_remote`].
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "snake_case", tag = "kind")]
+pub enum KnowledgeSyncResult {
+    /// Sync ran and `upserted` rows landed in the local cache. `0` when
+    /// the remote version matched what was already stored.
+    Synced {
+        /// Number of entries upserted in this run.
+        upserted: usize,
+        /// Manifest version that was applied.
+        version: String,
+    },
+    /// Sync skipped — supabase URL missing, public bucket layout
+    /// not configured, or operator declined.
+    Skipped {
+        /// Human-readable reason.
+        reason: String,
+    },
+    /// Sync attempted and failed.
+    Failed {
+        /// Stringified error.
+        error: String,
+    },
+}
+
+/// Pull the latest knowledge catalog from the configured Supabase
+/// Storage bucket and upsert into libSQL.
+///
+/// URL convention (public bucket, anon-keyed read):
+///
+/// - `{supabase_url}/storage/v1/object/public/knowledge/manifest.json`
+/// - `{supabase_url}/storage/v1/object/public/knowledge/{filename}`
+///
+/// When the manifest version matches what's already stored, the kernel
+/// fast-paths to zero work (returns `Synced { upserted: 0, .. }`).
+///
+/// # Errors
+/// Returns string error only when the platform handle is unavailable.
+/// All other failures degrade to a `KnowledgeSyncResult` variant.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn sync_knowledge_from_remote(
+    state: State<'_, PlatformState>,
+) -> Result<KnowledgeSyncResult, String> {
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or("Platform is still booting")?;
+    let svc = platform
+        .user_relational()
+        .ok_or("User relational service not available")?;
+    let adapter: &dyn SqlAdapter = svc.adapter().as_ref();
+
+    let creds = match get_supabase_credentials().await {
+        Ok(c) => c,
+        Err(e) => {
+            return Ok(KnowledgeSyncResult::Skipped {
+                reason: format!("supabase credentials unavailable: {e}"),
+            });
+        }
+    };
+
+    let manifest_url = format!(
+        "{}/storage/v1/object/public/knowledge/manifest.json",
+        creds.url.trim_end_matches('/')
+    );
+
+    let (manifest, entries) = match fetch_remote_catalog(&creds.url, &manifest_url).await {
+        Ok(v) => v,
+        Err(e) => {
+            return Ok(KnowledgeSyncResult::Failed {
+                error: format!("{e:#}"),
+            });
+        }
+    };
+
+    let upserted = match knowledge_sync_remote_entries(adapter, &entries, &manifest.version).await {
+        Ok(n) => n,
+        Err(e) => {
+            return Ok(KnowledgeSyncResult::Failed {
+                error: format!("kernel upsert failed: {e}"),
+            });
+        }
+    };
+
+    tracing::info!(
+        version = %manifest.version,
+        upserted,
+        "Remote knowledge sync complete"
+    );
+
+    Ok(KnowledgeSyncResult::Synced {
+        upserted,
+        version: manifest.version,
+    })
+}
+
+async fn fetch_remote_catalog(
+    base_url: &str,
+    manifest_url: &str,
+) -> anyhow::Result<(KnowledgeManifest, Vec<KnowledgeEntry>)> {
+    let client = reqwest::Client::new();
+
+    let manifest_resp = client
+        .get(manifest_url)
+        .header("accept", "application/json")
+        .send()
+        .await
+        .context("GET knowledge/manifest.json")?;
+    if !manifest_resp.status().is_success() {
+        anyhow::bail!(
+            "knowledge manifest fetch returned {}",
+            manifest_resp.status()
+        );
+    }
+    let manifest: KnowledgeManifest = manifest_resp
+        .json()
+        .await
+        .context("decode knowledge manifest")?;
+
+    let mut entries: Vec<KnowledgeEntry> = Vec::new();
+    for file in &manifest.files {
+        let file_url = format!(
+            "{}/storage/v1/object/public/knowledge/{}",
+            base_url.trim_end_matches('/'),
+            file.name
+        );
+        let file_resp = client
+            .get(&file_url)
+            .header("accept", "application/json")
+            .send()
+            .await
+            .with_context(|| format!("GET knowledge/{}", file.name))?;
+        if !file_resp.status().is_success() {
+            anyhow::bail!(
+                "knowledge file {} fetch returned {}",
+                file.name,
+                file_resp.status()
+            );
+        }
+        let mut parsed: Vec<KnowledgeEntry> = file_resp
+            .json()
+            .await
+            .with_context(|| format!("decode knowledge/{}", file.name))?;
+        entries.append(&mut parsed);
+    }
+
+    Ok((manifest, entries))
 }

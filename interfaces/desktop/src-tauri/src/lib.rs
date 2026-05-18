@@ -21,10 +21,13 @@
 //! in both modes. Frontend `DevTools` (F12) show platform events live.
 
 pub mod commands;
+pub mod crash_safety;
 pub mod events;
 pub mod logging;
 pub mod paths;
 pub mod state;
+
+pub use crash_safety::install_early_panic_hook;
 
 use devpulse_engine::platform::{InitStatus, Platform};
 use devpulse_telemetry::boot::TelemetryGuard;
@@ -199,6 +202,9 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::candle::candle_restart_pool,
         commands::llama_cpp_embedded::llama_cpp_embedded_load_config,
         commands::llama_cpp_embedded::llama_cpp_embedded_save_config,
+        commands::llama_cpp::llama_cpp_build_info,
+        commands::llama_cpp::llama_cpp_open_prebuilt_dir,
+        commands::llama_cpp::llama_cpp_bump_manifest,
         commands::ollama::sidecar::ollama_start,
         commands::ollama::sidecar::ollama_stop,
         commands::ollama::sidecar::ollama_restart,
@@ -216,6 +222,11 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::cortex::cortex_thought_create,
         commands::cortex::cortex_thought_load_branch,
         commands::cortex::cortex_swap_encoder,
+        commands::intelligence::intel_status,
+        commands::intelligence::intel_list_projects,
+        commands::intelligence::intel_save_memory,
+        commands::intelligence::infer_capability_bucket,
+        commands::interactions::get_interaction_template,
         commands::sherpa::sherpa_compile_info,
         commands::sherpa::sherpa_list_models,
         commands::sherpa::sherpa_delete_model,
@@ -229,6 +240,14 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::claude::detect_claude_installs,
         commands::claude::register_devpulse_mcp,
         commands::claude::unregister_devpulse_mcp,
+        // Direct Anthropic API (BYO key) path. Sibling to the MCP-via-
+        // subprocess registration above — different way to talk to
+        // Claude, same Claude. Registered through the submodule path
+        // because `collect_commands!` follows the attribute-macro-
+        // generated symbol names (`__cmd__*`, `__specta__fn__*`) at
+        // the literal path, not through `pub use` re-exports.
+        commands::claude::ping::ping_claude,
+        commands::claude::ping::anthropic_key_present,
         // AI Providers — multi-vendor SSOT-driven validation surface
         commands::providers::list_provider_status,
         commands::providers::validate_provider,
@@ -262,6 +281,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         commands::projects::remove_project_reference,
         commands::knowledge::get_knowledge_entry,
         commands::knowledge::record_knowledge_reaction,
+        commands::knowledge::sync_knowledge_from_remote,
         commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
         commands::window::open_window,
@@ -386,6 +406,16 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         // Routing config (escalation chain + latency tuning, user scope)
         commands::routing::routing_load_config,
         commands::routing::routing_save_config,
+        // Auto-updater — tauri-plugin-updater wrapped in typed surface.
+        commands::updates::check_for_update,
+        commands::updates::install_update,
+        commands::updates::get_update_channel,
+        commands::updates::set_update_channel,
+        // Community feed — local cache + remote Supabase sync.
+        commands::community::fetch_feed,
+        commands::community::sync_community_feed,
+        commands::community::community_status,
+        commands::community::set_community_enabled_cmd,
     ])
     .events(collect_events![
         // Platform boot lifecycle — replaces `platform:boot-phase` string event.
@@ -404,6 +434,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         events::CloudCompletionFinished,
         // Chat sessions — replaces `platform:chat-session-deleted`.
         events::ChatSessionDeleted,
+        // Auto-updater lifecycle — replaces ad-hoc string events.
+        events::UpdateAvailable,
+        events::UpdateDownloadProgress,
+        events::UpdateInstallFinished,
     ])
 }
 
@@ -562,6 +596,7 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(traced_invoke_handler)
         .setup(move |app| {
             builder.mount_events(app);
@@ -591,6 +626,39 @@ pub fn run() {
             // location regardless of whether data_dir resolved to
             // %APPDATA%/DevPulse or the exe-sibling .userdata/.
             write_bootstrap_log(&data_dir);
+
+            // ── Process-end marker ────────────────────────────────
+            // RAII guard handed to Tauri's managed state so it lives
+            // as long as the app does. Drops only on a clean Tauri
+            // shutdown — at which point its Drop impl appends
+            // `process_ended_at_utc: <ts>` to bootstrap.log. If the
+            // process is killed mid-flight (segfault, taskkill, OOM,
+            // window-vanish bug), the guard never drops and the
+            // marker stays absent. Post-mortem checks bootstrap.log:
+            // `process_started_at_utc` present + no end marker ⇒
+            // abnormal termination ⇒ check stderr-<ts>.log next.
+            app.manage(crash_safety::ProcessExitGuard::arm(
+                data_dir.join("bootstrap.log"),
+            ));
+
+            // ── Stderr → file (Windows release safety net) ───────
+            // Production runs `windows_subsystem = "windows"` so the
+            // OS detaches stderr at process start; any default-panic-
+            // handler printout, RUST_BACKTRACE dump, or third-party
+            // crate that writes to fd 2 evaporates. Rebinding the
+            // STD_ERROR_HANDLE to a file at this point captures every
+            // subsequent byte. Runs BEFORE the tracing subscriber so
+            // the file also catches stderr lines emitted between here
+            // and `logging::init` completing.
+            match crash_safety::redirect_stderr_to_file(&data_dir.join("logs")) {
+                Ok(Some(path)) => {
+                    eprintln!("devpulse: stderr captured to {}", path.display());
+                }
+                Ok(None) => {}
+                Err(e) => {
+                    eprintln!("devpulse: stderr redirect failed: {e}");
+                }
+            }
 
             // ── Logging: stderr + file + DuckDB + OTel ────────────
             let _ = logging::rotate_logs(&data_dir);
