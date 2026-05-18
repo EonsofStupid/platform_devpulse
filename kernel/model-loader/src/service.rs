@@ -813,6 +813,12 @@ impl ModelLoaderService {
                 });
             }
         }
+
+        // Capture the bits we'll need after `reg` is dropped so the
+        // symlink call below doesn't have to re-acquire the registry
+        // read lock.
+        let entry_format = entry.format;
+        let entry_path = entry.path.clone();
         drop(reg);
 
         // Phase 2: write under config lock only
@@ -823,6 +829,56 @@ impl ModelLoaderService {
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist assignment: {e}"),
             })?;
+
+        // Phase 2b: lay down the symlink — THIS is the load-bearing
+        // artifact. Until the symlink lands at
+        // `{userdata_dir}/slots/{slot_id}/model.<ext>`, the slot is
+        // not actually armed for chat / STS / vision callers. Config
+        // metadata above is for telemetry + UI; symlink is for the
+        // runtime. See [[engine-per-model-assignment]] for why.
+        //
+        // Dual-observability ([[feedback-dual-observability]]): every
+        // outcome here emits BOTH a `tracing` line on the
+        // `wizard.lifecycle` target AND a `WizardSymlinkArmed` /
+        // `WizardSymlinkFailed` `LoaderEvent`. Devtool subscribes to
+        // the event stream for live cortex-tile state; tracing is the
+        // log-replay/telemetry axis.
+        let link_path = match crate::slots::symlink::assign(
+            &cfg.userdata_dir,
+            slot_id,
+            entry_format,
+            &entry_path,
+        ) {
+            Ok(link) => link,
+            Err(e) => {
+                tracing::warn!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    model_id = %model_id,
+                    error = %e,
+                    "Slot symlink assign failed"
+                );
+                self.boot.events.emit(LoaderEvent::WizardSymlinkFailed {
+                    slot_id: slot_id.to_string(),
+                    error: e.to_string(),
+                });
+                return Err(e);
+            }
+        };
+
+        tracing::info!(
+            target: "wizard.lifecycle",
+            slot_id = %slot_id,
+            model_id = %model_id,
+            link_path = %link_path.display(),
+            target_path = %entry_path.display(),
+            "Slot symlink armed"
+        );
+        self.boot.events.emit(LoaderEvent::WizardSymlinkArmed {
+            slot_id: slot_id.to_string(),
+            link_path: link_path.display().to_string(),
+            target_path: entry_path.display().to_string(),
+        });
 
         if let Some(s) = cfg.slots.get_slot_mut(slot_id) {
             s.assigned_model = Some(model_id.to_string());
@@ -839,7 +895,7 @@ impl ModelLoaderService {
             model_id: model_id.to_string(),
         });
 
-        tracing::info!(slot = %slot_id, model = %model_id, "Model assigned to slot");
+        tracing::info!(slot = %slot_id, model = %model_id, "Model assigned to slot (symlink armed)");
         Ok(())
     }
 
@@ -861,6 +917,14 @@ impl ModelLoaderService {
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to delete assignment: {e}"),
             })?;
+
+        // Tear down the symlink alongside the config write so chat /
+        // STS / vision probers don't see a stale model.<ext> after
+        // unassign returns. Symlink is the load-bearing artifact
+        // ([[engine-per-model-assignment]]); leaving it would falsely
+        // tell every caller the slot is still armed.
+        crate::slots::symlink::unassign(&cfg.userdata_dir, slot_id)?;
+
         if let Some(s) = cfg.slots.get_slot_mut(slot_id) {
             s.assigned_model = None;
         }
@@ -889,6 +953,11 @@ impl ModelLoaderService {
                     key: "slot.*".to_string(),
                     reason: e.to_string(),
                 })?;
+        // Snapshot the path field once so the reconcile branch below can
+        // call into the symlink layer without re-borrowing `cfg` while
+        // `cfg.slots.get_slot_mut(...)` holds it mutably.
+        let userdata_dir = cfg.userdata_dir.clone();
+
         for (key, model_id) in persisted {
             // `.model` here is the config-key suffix `slot.<id>.model`,
             // not a file extension — case-sensitive comparison is correct.
@@ -909,6 +978,32 @@ impl ModelLoaderService {
                     }
                     Some(entry) => {
                         if entry.compatible_capabilities.contains(&slot.capability) {
+                            // Reconcile the symlink — config metadata
+                            // survives restarts trivially, but the symlink
+                            // on disk could have been wiped (userdata
+                            // migration, user fiddling). Re-arming here
+                            // keeps the runtime contract intact without
+                            // forcing the customer to re-hit Save.
+                            let symlink_target = crate::slots::symlink::symlink_path(
+                                &userdata_dir,
+                                slot_id,
+                                entry.format,
+                            );
+                            if !symlink_target.exists() {
+                                if let Err(e) = crate::slots::symlink::assign(
+                                    &userdata_dir,
+                                    slot_id,
+                                    entry.format,
+                                    &entry.path,
+                                ) {
+                                    tracing::warn!(
+                                        slot = %slot_id,
+                                        error = %e,
+                                        "Symlink reconcile failed — slot will report \
+                                         ModelFileMissing until customer re-Saves"
+                                    );
+                                }
+                            }
                             slot.assigned_model = Some(model_id);
                             tracing::info!(slot = %slot_id, model = %entry.filename, "Restored assignment");
                         } else {
@@ -1666,9 +1761,31 @@ impl ModelLoaderService {
                 can_redownload: false,
             })?;
 
-        if !entry.path.exists() {
+        // The symlink at `{userdata_dir}/slots/{slot_id}/model.<ext>`
+        // is the load-bearing artifact ([[engine-per-model-assignment]]).
+        // The registry entry still drives metadata (format, capability,
+        // architecture → backend routing), but the PATH the backend
+        // opens is the symlink path. That's what makes the slot
+        // discoverable on disk by every consumer without needing to
+        // query the loader.
+        let model_path = crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id)
+            .ok_or_else(|| LoaderError::ModelFileMissing {
+                path: crate::slots::symlink::symlink_path(
+                    &cfg.userdata_dir,
+                    slot_id,
+                    entry.format,
+                ),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: matches!(
+                    entry.source,
+                    crate::models::registry::ModelSource::HuggingFace { .. }
+                ),
+            })?;
+
+        if !model_path.exists() {
+            // Symlink present but target gone (model deleted under us).
             return Err(LoaderError::ModelFileMissing {
-                path: entry.path.clone(),
+                path: model_path,
                 slot_id: Some(slot_id.to_string()),
                 can_redownload: matches!(
                     entry.source,
@@ -1677,7 +1794,6 @@ impl ModelLoaderService {
             });
         }
 
-        let model_path = entry.path.clone();
         let capability = slot.capability;
         let backend = slot
             .runtime
@@ -1780,15 +1896,28 @@ impl ModelLoaderService {
                 slot_id: Some(slot_id.to_string()),
                 can_redownload: false,
             })?;
-        if !entry.path.exists() {
+
+        // Symlink-first resolution — see [[engine-per-model-assignment]].
+        // Registry entry stays as the metadata source; symlink target
+        // is what the backend actually opens.
+        let model_path = crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id)
+            .ok_or_else(|| LoaderError::ModelFileMissing {
+                path: crate::slots::symlink::symlink_path(
+                    &cfg.userdata_dir,
+                    slot_id,
+                    entry.format,
+                ),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: false,
+            })?;
+        if !model_path.exists() {
             return Err(LoaderError::ModelFileMissing {
-                path: entry.path.clone(),
+                path: model_path,
                 slot_id: Some(slot_id.to_string()),
                 can_redownload: false,
             });
         }
 
-        let model_path = entry.path.clone();
         let capability = slot.capability;
         let backend = slot
             .runtime
@@ -2506,6 +2635,25 @@ async fn run_install_chain(
     started_at: std::time::Instant,
     rx: tokio::sync::oneshot::Receiver<anyhow::Result<ModelRegistryEntry>>,
 ) {
+    // Stage 0 — announce the wizard apply on both observability
+    // axes ([[feedback-dual-observability]]). The `WizardTileApplied`
+    // event lets the cortex view flip the tile to "saving" the
+    // instant the install chain begins, without waiting for any IO.
+    // `model_id` is `None` here because the download thread hasn't
+    // resolved the registry entry yet — the wizard ties this back
+    // to the slot via `slot_id`.
+    tracing::info!(
+        target: "wizard.lifecycle",
+        slot_id = %slot_id,
+        repo_id = %repo_id,
+        install_id = %install_id,
+        "Wizard tile applied (install chain start)"
+    );
+    svc.boot.events.emit(LoaderEvent::WizardTileApplied {
+        slot_id: slot_id.clone(),
+        model_id: None,
+    });
+
     // Stage 1 — wait for the download thread to terminate. Receiver
     // closing without a send means the download thread panicked
     // before it could fire either branch; treat it as a failure with

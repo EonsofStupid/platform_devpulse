@@ -35,6 +35,14 @@ pub use backends::bridge::{InferenceHandle, InferenceResponse};
 // Backend routing
 pub use backends::router::llamacpp_supports_architecture;
 
+// Capability-bucket inference for downloaded model filenames.
+// Surfaced for the engine + Tauri layer (`commands::intelligence`)
+// so the UI can preview "this filename → chat / rag / voice / vision"
+// before a download lands. Schema-locked keyword set; see the function
+// docstring for the full rule.
+#[cfg(feature = "candle-backend")]
+pub use models::download::infer_download_folder;
+
 // Voice backend types
 pub use backends::voice::{AudioDecoderBackend, AudioSamples, SttBackend, TtsBackend};
 

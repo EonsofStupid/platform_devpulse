@@ -76,6 +76,14 @@ struct PresetEntry {
 /// Fields mirror [`SlotRecommendation`] one-for-one. `already_downloaded`
 /// is not a TOML field — the loader computes it from the runtime
 /// download set.
+///
+/// `display_name` and `display_tagline` are the customer-facing label
+/// strings the wizard renders on each slot tile. They live in the preset
+/// (not in the wizard's UI map) so the preset author can swap models per
+/// tier and the wizard reflects the change automatically — no hardcoded
+/// "Nemotron 7.6B" or "Qwen3 30B" duplicated on the TS side. Both fields
+/// are optional; absent values fall through to a deterministic derivation
+/// from `model_repo_id` in the wizard layer.
 #[derive(Debug, Clone, Deserialize)]
 struct SlotRecEntry {
     slot_id: String,
@@ -84,6 +92,10 @@ struct SlotRecEntry {
     model_size_mb: u64,
     vram_estimate_mb: u64,
     device: DevicePreferenceConfig,
+    #[serde(default)]
+    display_name: Option<String>,
+    #[serde(default)]
+    display_tagline: Option<String>,
 }
 
 /// Serialisation shadow for [`DevicePreference`] — TOML writes them
@@ -241,6 +253,13 @@ pub struct ResolvedRec {
     pub vram_estimate_mb: u64,
     /// Device preference for this slot in this preset.
     pub device: DevicePreference,
+    /// Customer-facing model label. When `None`, the consuming wizard
+    /// layer derives one from `model_repo_id` (last path segment +
+    /// quant/format suffix cleanup).
+    pub display_name: Option<String>,
+    /// One-line layman tagline. When `None`, the wizard renders an
+    /// engine-aware fallback (e.g. "Runs through llama.cpp" for GGUF).
+    pub display_tagline: Option<String>,
 }
 
 impl PresetBlueprint {
@@ -262,6 +281,8 @@ impl PresetBlueprint {
                 model_size_mb: r.model_size_mb,
                 vram_estimate_mb: r.vram_estimate_mb,
                 device: r.device,
+                display_name: r.display_name,
+                display_tagline: r.display_tagline,
             })
             .collect();
 
@@ -330,6 +351,8 @@ fn resolve(entry: SlotRecEntry) -> ResolvedRec {
         model_size_mb: entry.model_size_mb,
         vram_estimate_mb: entry.vram_estimate_mb,
         device: entry.device.into_kernel(),
+        display_name: entry.display_name,
+        display_tagline: entry.display_tagline,
     }
 }
 

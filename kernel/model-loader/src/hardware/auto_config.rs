@@ -79,6 +79,15 @@ pub struct AutoConfig {
 }
 
 /// A single slot's recommended model.
+///
+/// `display_name` and `display_tagline` are the customer-facing label
+/// strings for the wizard. Both are optional; the preset author sets
+/// them, and absent values get a deterministic UI-side fallback derived
+/// from `model_repo_id`. The fields exist HERE rather than in the
+/// wizard's TS map so swapping models per tier in
+/// `presets.default.toml` immediately surfaces the new label without any
+/// frontend edit — matches the agnostic/format-driven architecture the
+/// recommender already uses for file picks.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct SlotRecommendation {
@@ -96,6 +105,16 @@ pub struct SlotRecommendation {
     pub already_downloaded: bool,
     /// Recommended device for this slot.
     pub device: DevicePreference,
+    /// Customer-facing label (e.g. "Nemotron Nano 8B"). Preset-owned;
+    /// `None` falls through to a UI-side derivation from
+    /// `model_repo_id` (last path segment, GGUF/Instruct cleanup).
+    #[serde(default)]
+    pub display_name: Option<String>,
+    /// One-line layman tagline (e.g. "NVIDIA's reasoning-tuned model.
+    /// Runs through llama.cpp."). Preset-owned; `None` falls through
+    /// to a UI-side derivation from the file format + backend choice.
+    #[serde(default)]
+    pub display_tagline: Option<String>,
 }
 
 /// Detect hardware tier from metrics.

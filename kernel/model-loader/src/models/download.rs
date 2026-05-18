@@ -976,7 +976,7 @@ fn link_or_copy(src: &Path, dst: &Path) -> anyhow::Result<()> {
 /// - Future legacy-tree migration tooling
 ///   (`cargo xtask model-manifest-backfill`) — same keyword set.
 #[cfg(feature = "candle-backend")]
-pub(crate) fn infer_download_folder(filename: &str) -> &'static str {
+pub fn infer_download_folder(filename: &str) -> &'static str {
     let lower = filename.to_lowercase();
 
     // Voice models
