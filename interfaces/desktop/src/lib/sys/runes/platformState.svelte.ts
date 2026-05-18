@@ -256,7 +256,7 @@ class PlatformState {
 			logInfo("boot", `Boot snapshot: phase=${snapshot.phase}, events=${snapshot.events.length}`);
 			this.applySnapshot(snapshot);
 		} catch (e) {
-			// Non-terminal: live `platform:subsystem-status` / `platform:boot-phase` can still converge.
+			// Non-terminal: live `platform:subsystem-status` / `boot-phase-changed` can still converge.
 			logWarn(
 				"boot",
 				`get_boot_state failed — continuing on live events only (snapshot unavailable): ${String(e)}`,
@@ -282,7 +282,7 @@ class PlatformState {
 			phase: string;
 			health?: SystemHealth;
 			error?: string;
-		}>("platform:boot-phase", (e) => {
+		}>("boot-phase-changed", (e) => {
 			this.applyPhaseTransition(e.payload);
 		});
 		this.unlisteners.push(unlistenPhase);

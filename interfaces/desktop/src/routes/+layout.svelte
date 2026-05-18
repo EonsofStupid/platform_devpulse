@@ -8,6 +8,7 @@ import { Toaster } from "svelte-sonner";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
+import { updatesState } from "$lib/domains/app/updates/index.js";
 import { authState, LoginShell } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
@@ -78,6 +79,14 @@ onMount(() => {
 	// `init()` is idempotent so the layout can call it freely.
 	authState.init().catch((e) => logError("layout", `authState.init() FAILED: ${e}`));
 
+	// Auto-updater rune — attaches the three plugin event listeners and
+	// loads the persisted release channel. Network-free; the actual
+	// `check_for_update` IPC fires lazily when the Latest tab mounts or
+	// the user explicitly clicks "Check now."
+	updatesState
+		.bootstrap()
+		.catch((e) => logError("layout", `updatesState.bootstrap() FAILED: ${e}`));
+
 	// ── Idle auto-minimize ─────────────────────────────────
 	// Track last pointer/keyboard activity. When the window has been
 	// idle for N seconds (read from assistant.toml via the kernel),
@@ -119,6 +128,7 @@ onMount(() => {
 		detachDownloadBridge?.();
 		stopClyffyStatus();
 		authState.destroy();
+		updatesState.destroy();
 		document.removeEventListener("pointermove", markActive);
 		document.removeEventListener("keydown", markActive);
 		clearInterval(idleInterval);

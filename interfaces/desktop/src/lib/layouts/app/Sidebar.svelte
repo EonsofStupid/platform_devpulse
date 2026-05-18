@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import {
+	Bell,
 	Brain,
 	Database,
 	Home,
@@ -38,6 +39,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { updatesState } from "$lib/domains/app/updates/index.js";
 import { getChildRoutes } from "$lib/sys/routing/child-routes";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
@@ -49,6 +51,7 @@ interface NavHub {
 }
 
 const navHubs: NavHub[] = [
+	{ id: "latest", icon: Bell, label: "Latest", href: "/latest" },
 	{ id: "devpulse", icon: Home, label: "Home", href: "/devpulse" },
 	{ id: "ui-demo", icon: Palette, label: "UI Demo", href: "/ui-demo" },
 	{ id: "overmind", icon: Brain, label: "OverMind", href: "/overmind" },
@@ -56,6 +59,8 @@ const navHubs: NavHub[] = [
 	{ id: "devforge", icon: Wrench, label: "DevForge", href: "/devforge" },
 	{ id: "clyffy", icon: Sparkles, label: "Clyffy", href: "/clyffy" },
 ];
+
+const latestHasBadge = $derived(updatesState.info?.available === true);
 
 function isActive(href: string): boolean {
 	return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
@@ -92,6 +97,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 					preset={isActive(hub.href) ? "primary" : "ghost"}
 					size="sm"
 					class={cn(
+						"relative",
 						isExpanded
 							? "w-full justify-start gap-3 px-3 py-2"
 							: "h-11 w-11 justify-self-center",
@@ -104,6 +110,13 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 					<hub.icon size={20} />
 					{#if isExpanded}
 						<Text size="sm" color="secondary" class="truncate">{hub.label}</Text>
+					{/if}
+					{#if hub.id === "latest" && latestHasBadge}
+						<span
+							aria-label="Update available"
+							class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full"
+							style="background: var(--accent-positive-main)"
+						></span>
 					{/if}
 				</Button>
 			</a>
