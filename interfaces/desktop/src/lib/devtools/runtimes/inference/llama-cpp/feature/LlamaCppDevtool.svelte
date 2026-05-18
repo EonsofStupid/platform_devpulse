@@ -17,6 +17,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import type {
 	BackendMatrix,
+	LlamaCppBuildInfo,
 	LlamaCppEmbeddedConfig,
 	ModelInfo,
 	ScopedLogEntry,
@@ -24,6 +25,7 @@ import type {
 	VramBudgetInfo,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
+import EngineFoundationCard from "./EngineFoundationCard.svelte";
 
 // ── Config ───────────────────────────────────────────────
 let cfg = $state<LlamaCppEmbeddedConfig | null>(null);
@@ -77,6 +79,12 @@ let testLatencyMs = $state<number | null>(null);
 let testRunning = $state(false);
 let testError = $state<string | null>(null);
 
+// ── Prebuilt foundation (LLAMA_CPP_PREBUILT_LIB_DIR pipeline) ─
+let buildInfo = $state<LlamaCppBuildInfo | null>(null);
+let buildInfoLoading = $state(false);
+let buildInfoError = $state<string | null>(null);
+let openingDir = $state<string | null>(null);
+
 // ── Logs ─────────────────────────────────────────────────
 let logs = $state<ScopedLogEntry[]>([]);
 let logsLoading = $state(false);
@@ -114,6 +122,32 @@ async function saveCfg(): Promise<void> {
 
 function resetCfg(): void {
 	if (cfg) cfgDraft = { ...cfg };
+}
+
+async function loadBuildInfo(): Promise<void> {
+	buildInfoLoading = true;
+	buildInfoError = null;
+	try {
+		const r = await commands.llamaCppBuildInfo();
+		if (r.status === "error") throw new Error(r.error);
+		buildInfo = r.data;
+	} catch (e) {
+		buildInfoError = e instanceof Error ? e.message : String(e);
+	} finally {
+		buildInfoLoading = false;
+	}
+}
+
+async function openPrebuiltDir(target: string): Promise<void> {
+	openingDir = target;
+	try {
+		const r = await commands.llamaCppOpenPrebuiltDir(target);
+		if (r.status === "error") throw new Error(r.error);
+	} catch (e) {
+		buildInfoError = e instanceof Error ? e.message : String(e);
+	} finally {
+		openingDir = null;
+	}
 }
 
 async function loadLogs(): Promise<void> {
@@ -216,6 +250,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 	if (tabId === "debug") {
 		const snapshot = {
+			buildInfo,
 			cfg,
 			slots,
 			models,
@@ -238,6 +273,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 // Mount-load — see ollama/+page.svelte:24 for the rationale.
 onMount(() => {
+	void loadBuildInfo();
 	void loadCfg();
 	void refreshSlots();
 });
@@ -257,6 +293,7 @@ const badge = $derived<HealthBadge>(
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="llama.cpp"
 	title="llama.cpp (embedded)"
 	description="In-process GGUF runtime via llama-cpp-2"
 	icon={PackageOpen}
@@ -266,13 +303,31 @@ const badge = $derived<HealthBadge>(
 	capture={captureFor}
 >
 	{#snippet status()}
-		<div class="space-y-3">
+		<div class="space-y-4">
+			{#if buildInfoLoading && !buildInfo}
+				<Text size="sm" color="muted">Reading inference engine state…</Text>
+			{/if}
+			{#if buildInfoError}
+				<div class="error-panel">
+					<Text size="xs" weight="semibold" class="error-title">
+						Could not read engine state
+					</Text>
+					<Text size="xs" color="muted">{buildInfoError}</Text>
+				</div>
+			{/if}
+			{#if buildInfo}
+				<EngineFoundationCard
+					{buildInfo}
+					onOpenLocation={openPrebuiltDir}
+					openingTarget={openingDir}
+				/>
+			{/if}
+
 			<Text size="sm" color="muted">
-				llama.cpp-embedded is a library backend (bound via <code>llama-cpp-2</code>),
-				not a service — there is no child process to start or stop. When a slot
-				is assigned a GGUF model that routes to this backend, the pool loads the
-				model in-process using the config below. Use the Model Loader window to
-				assign models to slots.
+				The inference engine is woven into DevPulse — there's no separate process
+				to start or stop. When a slot is given a GGUF model, the engine loads it
+				in-place using the settings under Config. Use the Model Loader window to
+				pick which model goes where.
 			</Text>
 
 			<div class="flex items-center justify-between">
@@ -686,3 +741,18 @@ const badge = $derived<HealthBadge>(
 	{/snippet}
 
 </ServiceDevtoolShell>
+
+<style>
+	.error-panel {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: clamp(0.625rem, 1vw, 0.875rem);
+		border-radius: 0.5rem;
+		background: color-mix(in oklch, var(--signal-error) 10%, transparent);
+		border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);
+	}
+	:global(.error-title) {
+		color: var(--signal-error);
+	}
+</style>
