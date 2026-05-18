@@ -224,6 +224,74 @@ impl SurrealAdapter {
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // Inspector helpers — read-only surface for devtool consumers
+    // ═══════════════════════════════════════════════════════════════
+
+    /// List every database under the given namespace. Returns an
+    /// empty `Vec` when the namespace is unknown to SurrealDB (no
+    /// databases yet defined under it).
+    ///
+    /// Used by the `intelligence` devtool to show every per-project
+    /// database that currently exists under `projects/`. Read-only.
+    ///
+    /// # Errors
+    /// Propagates SurrealDB errors with the namespace in context.
+    pub async fn list_databases_in_ns(&self, namespace: &str) -> Result<Vec<String>> {
+        let scoped = format!("USE NS {namespace}; INFO FOR NS;");
+        let mut response = self
+            .db
+            .query(scoped)
+            .await
+            .with_context(|| format!("INFO FOR NS {namespace}"))?;
+        let info: Option<serde_json::Value> = response
+            .take(1)
+            .with_context(|| format!("take INFO FOR NS {namespace}"))?;
+        let mut databases: Vec<String> = info
+            .as_ref()
+            .and_then(|v| v.get("databases"))
+            .and_then(serde_json::Value::as_object)
+            .map(|m| m.keys().cloned().collect())
+            .unwrap_or_default();
+        databases.sort();
+        Ok(databases)
+    }
+
+    /// Count rows in a table within a scoped namespace/database.
+    /// Returns `0` when the table is empty or undefined.
+    ///
+    /// Used by the `intelligence` devtool to show per-project
+    /// memory + archive counts. Read-only.
+    ///
+    /// # Errors
+    /// Propagates SurrealDB errors with the namespace + table in
+    /// context.
+    pub async fn count_in_ns(
+        &self,
+        namespace: &str,
+        database: &str,
+        table: &str,
+    ) -> Result<u64> {
+        // `SELECT VALUE count() FROM <table> GROUP ALL` returns a
+        // single scalar — when the table is empty, the result set
+        // is empty (not zero), so an `Option<u64>` take with
+        // `unwrap_or(0)` covers both cases without an error path
+        // for "no rows".
+        let scoped = format!(
+            "USE NS {namespace} DB {database}; \
+             SELECT VALUE count() FROM {table} GROUP ALL;"
+        );
+        let mut response = self
+            .db
+            .query(scoped)
+            .await
+            .with_context(|| format!("count {namespace}/{database}/{table}"))?;
+        let row: Option<u64> = response
+            .take(1)
+            .with_context(|| format!("count take {namespace}/{database}/{table}"))?;
+        Ok(row.unwrap_or(0))
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // Typed scoped helpers
     // ═══════════════════════════════════════════════════════════════
     //
