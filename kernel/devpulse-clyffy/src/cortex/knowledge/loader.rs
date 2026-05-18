@@ -13,6 +13,9 @@ const KNOWLEDGE_DROPS_JSON: &str = include_str!("data/knowledge_drops.json");
 const FRUSTRATIONS_JSON: &str = include_str!("data/frustrations.json");
 const INSIGHTS_JSON: &str = include_str!("data/insights.json");
 const GLOSSARY_JSON: &str = include_str!("data/glossary.json");
+const QUIZZES_JSON: &str = include_str!("data/quizzes.json");
+const REARRANGES_JSON: &str = include_str!("data/rearranges.json");
+const ORDERINGS_JSON: &str = include_str!("data/orderings.json");
 
 /// All embedded artifact sources in order.
 const EMBEDDED_ARTIFACTS: &[(&str, &str)] = &[
@@ -21,6 +24,9 @@ const EMBEDDED_ARTIFACTS: &[(&str, &str)] = &[
     ("frustrations.json", FRUSTRATIONS_JSON),
     ("insights.json", INSIGHTS_JSON),
     ("glossary.json", GLOSSARY_JSON),
+    ("quizzes.json", QUIZZES_JSON),
+    ("rearranges.json", REARRANGES_JSON),
+    ("orderings.json", ORDERINGS_JSON),
 ];
 
 // ── Public API ──────────────────────────────────────────────────

@@ -1,0 +1,149 @@
+[
+  {
+    "id": "rank-001",
+    "type": "rank",
+    "tool": "wizard",
+    "category": "preferences",
+    "tier": "beginner",
+    "payload": {
+      "prompt": "Drag these inference priorities into your order of preference.",
+      "items": [
+        { "id": "speed", "label": "Speed", "detail": "Sub-second token-by-token responses for chat-style use." },
+        { "id": "quality", "label": "Quality", "detail": "Deeper reasoning and richer answers, even if slower." },
+        { "id": "cost", "label": "Cost", "detail": "Stay local-first; avoid cloud API spend." },
+        { "id": "privacy", "label": "Privacy", "detail": "Keep prompts + outputs strictly on this machine." }
+      ]
+    },
+    "tags": ["preferences", "onboarding", "inference"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-002",
+    "type": "rank",
+    "tool": "chat",
+    "category": "preferences",
+    "tier": "beginner",
+    "payload": {
+      "prompt": "Order these chat modes by which one you want as your default.",
+      "items": [
+        { "id": "quick", "label": "Quick", "detail": "Fastest response — minion-only on simple prompts." },
+        { "id": "pondering", "label": "Pondering Deeply", "detail": "Brain extends its thinking budget for one richer answer." },
+        { "id": "council", "label": "Council", "detail": "Multiple minions vote; brain summarizes consensus." },
+        { "id": "reasoning", "label": "Reasoning with Others", "detail": "Brain + cloud API exchange and reconcile drafts." }
+      ]
+    },
+    "tags": ["chat", "modes", "preferences"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-003",
+    "type": "rank",
+    "tool": "system",
+    "category": "preferences",
+    "tier": "intermediate",
+    "payload": {
+      "prompt": "Rank these AI capabilities by usefulness to you.",
+      "items": [
+        { "id": "code-gen", "label": "Code generation", "detail": "Write functions, classes, and tests from a description." },
+        { "id": "code-review", "label": "Code review", "detail": "Read existing code and flag issues / suggest fixes." },
+        { "id": "docs", "label": "Documentation drafts", "detail": "Generate README / doc-comment / changelog text." },
+        { "id": "search", "label": "Semantic codebase search", "detail": "Find the right file / function by describing what it does." },
+        { "id": "voice", "label": "Voice-to-text + back", "detail": "Talk to the assistant; hear it talk back." }
+      ]
+    },
+    "tags": ["capabilities", "preferences"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-004",
+    "type": "rank",
+    "tool": "models",
+    "category": "preferences",
+    "tier": "intermediate",
+    "payload": {
+      "prompt": "Order these qualities by importance when picking a chat brain.",
+      "items": [
+        { "id": "latency", "label": "Time-to-first-token", "detail": "How long until the first word appears on screen." },
+        { "id": "throughput", "label": "Tokens per second", "detail": "Sustained generation speed once the reply is flowing." },
+        { "id": "context", "label": "Context window length", "detail": "How many tokens of conversation history the brain can hold." },
+        { "id": "vram", "label": "VRAM footprint", "detail": "How much GPU memory the model needs to run." },
+        { "id": "license", "label": "License terms", "detail": "Whether the model is OK for commercial use, redistribution, etc." }
+      ]
+    },
+    "tags": ["models", "selection", "preferences"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-005",
+    "type": "rank",
+    "tool": "wizard",
+    "category": "preferences",
+    "tier": "beginner",
+    "payload": {
+      "prompt": "Drag these features into the order you want me to enable first.",
+      "items": [
+        { "id": "chat", "label": "Chat brain", "detail": "Talk to a local LLM, get answers." },
+        { "id": "voice", "label": "Voice in / out", "detail": "Hands-free assistant via STT + TTS." },
+        { "id": "embeddings", "label": "Semantic memory", "detail": "Save things now; recall them by meaning later." },
+        { "id": "vision", "label": "Vision (read images + screen)", "detail": "Drop an image or share screen; the brain reads it." },
+        { "id": "council", "label": "Multi-model council", "detail": "Several minions debate; brain summarizes." }
+      ]
+    },
+    "tags": ["wizard", "features", "preferences"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-006",
+    "type": "rank",
+    "tool": "intelligence",
+    "category": "preferences",
+    "tier": "advanced",
+    "payload": {
+      "prompt": "Rank these intelligence-layer surfaces by how often you'd use them.",
+      "items": [
+        { "id": "system-memory", "label": "System Memory", "detail": "Long-lived facts about your projects and preferences." },
+        { "id": "working-memory", "label": "Working Memory", "detail": "Per-session scratchpad the brain reads from / writes to mid-turn." },
+        { "id": "thinking", "label": "Thinking surface", "detail": "Live view of the brain's reasoning trace." },
+        { "id": "councils", "label": "Councils", "detail": "Multi-minion debate transcripts with consensus path highlighted." }
+      ]
+    },
+    "tags": ["cortex", "intelligence", "preferences"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-007",
+    "type": "rank",
+    "tool": "devforge",
+    "category": "preferences",
+    "tier": "intermediate",
+    "payload": {
+      "prompt": "Order these editor integrations by priority for your workflow.",
+      "items": [
+        { "id": "complete", "label": "Inline completion", "detail": "Ghost-text suggestions while you type." },
+        { "id": "chat-edit", "label": "Chat-driven edits", "detail": "Describe a change; the assistant rewrites the selection." },
+        { "id": "explain", "label": "Explain code on hover", "detail": "Hover any symbol; get a one-paragraph plain-English summary." },
+        { "id": "tests", "label": "Test generation", "detail": "Click a function; get a test stub seeded with realistic cases." }
+      ]
+    },
+    "tags": ["devforge", "editor", "preferences"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "rank-008",
+    "type": "rank",
+    "tool": "system",
+    "category": "preferences",
+    "tier": "beginner",
+    "payload": {
+      "prompt": "What should the platform protect most aggressively?",
+      "items": [
+        { "id": "battery", "label": "Battery life", "detail": "Throttle background work to keep the laptop cool + quiet." },
+        { "id": "memory", "label": "RAM availability", "detail": "Cap concurrent model loads so other apps stay responsive." },
+        { "id": "disk", "label": "Disk space", "detail": "Aggressive eviction of stale models and intermediate cache." },
+        { "id": "network", "label": "Network usage", "detail": "Never pull a model larger than the user explicitly opted into." }
+      ]
+    },
+    "tags": ["budgets", "preferences", "platform"],
+    "added": "2026-05-17"
+  }
+]

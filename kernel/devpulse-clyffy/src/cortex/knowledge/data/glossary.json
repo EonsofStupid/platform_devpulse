@@ -78,5 +78,165 @@
     "payload": { "term": "Context length", "definition": "How much text a model can read at once. Measured in tokens (roughly 1 token = 0.75 words). 4K tokens ~ 3,000 words." },
     "tags": ["models", "context"],
     "added": "2026-04-19"
+  },
+  {
+    "id": "gloss-009",
+    "type": "gloss",
+    "tool": "wizard",
+    "category": "wizard",
+    "tier": "beginner",
+    "payload": { "term": "Tier", "definition": "The wizard's read on your hardware — High / Mid / Low / CPU. Drives which preset is recommended so you don't end up with a model that won't fit." },
+    "tags": ["wizard", "tier", "hardware"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-010",
+    "type": "gloss",
+    "tool": "wizard",
+    "category": "wizard",
+    "tier": "beginner",
+    "payload": { "term": "Preset", "definition": "A bundle of model picks tuned for a given tier. Saves you from guessing what to download — the preset author already mapped 'High tier' to 'Nemotron 9B + SigLIP HD + Harrier 0.6B' (etc)." },
+    "tags": ["wizard", "preset", "models"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-011",
+    "type": "gloss",
+    "tool": "models",
+    "category": "engines",
+    "tier": "intermediate",
+    "payload": { "term": "Burn", "definition": "A Rust-native deep-learning framework. DevPulse uses it for the embedder + Harrier 0.6B minion — pure Rust, no FFI tax, fast token loops." },
+    "tags": ["engines", "burn", "rust"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-012",
+    "type": "gloss",
+    "tool": "models",
+    "category": "engines",
+    "tier": "intermediate",
+    "payload": { "term": "Candle", "definition": "Hugging Face's Rust deep-learning framework. DevPulse uses it for vision models like SigLIP HD where HF interop is the win." },
+    "tags": ["engines", "candle", "rust"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-013",
+    "type": "gloss",
+    "tool": "models",
+    "category": "engines",
+    "tier": "intermediate",
+    "payload": { "term": "llama.cpp", "definition": "The battle-tested C++ inference engine for GGUF models. DevPulse links it via FFI for chat brains (Nemotron, Llama-class) where its kernels win on throughput." },
+    "tags": ["engines", "llama-cpp", "ffi"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-014",
+    "type": "gloss",
+    "tool": "system",
+    "category": "storage",
+    "tier": "intermediate",
+    "payload": { "term": "SurrealDB", "definition": "A multi-model database DevPulse runs in-process (no sidecar, no port). Holds the persona graph + reasoning memories with graph queries instead of joins." },
+    "tags": ["storage", "surreal", "graph"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-015",
+    "type": "gloss",
+    "tool": "system",
+    "category": "storage",
+    "tier": "intermediate",
+    "payload": { "term": "Qdrant", "definition": "A vector database. DevPulse embeds it in-process for nearest-neighbor search across memory embeddings — that's how the brain finds the relevant past turn for your new question." },
+    "tags": ["storage", "qdrant", "vector"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-016",
+    "type": "gloss",
+    "tool": "system",
+    "category": "storage",
+    "tier": "intermediate",
+    "payload": { "term": "libSQL", "definition": "DevPulse's source-of-truth relational store (SQLite-compatible). Holds chat sessions, turns, slot assignments, and user preferences — anything that's structured + needs ACID." },
+    "tags": ["storage", "libsql", "sql"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-017",
+    "type": "gloss",
+    "tool": "system",
+    "category": "storage",
+    "tier": "intermediate",
+    "payload": { "term": "DuckDB", "definition": "An embedded columnar analytics database. DevPulse uses it for span traces and telemetry — anything where you want to ask 'across all the last 10K events, how often did X happen' fast." },
+    "tags": ["storage", "duckdb", "analytics"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-018",
+    "type": "gloss",
+    "tool": "intelligence",
+    "category": "reasoning",
+    "tier": "advanced",
+    "payload": { "term": "RRO", "definition": "Reasoning-Ready Object — a zero-copy pre-archived memory shape (text + embedding + 1-hop neighbors). Lets recall surface the surrounding graph without re-querying." },
+    "tags": ["intelligence", "rro", "memory"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-019",
+    "type": "gloss",
+    "tool": null,
+    "category": "integrations",
+    "tier": "intermediate",
+    "payload": { "term": "MCP", "definition": "Model Context Protocol — Anthropic's spec for tools, resources, and prompts that LLMs can call. DevPulse exposes one MCP entry so Claude Code / Claude Desktop can plug in." },
+    "tags": ["integrations", "mcp", "claude"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-020",
+    "type": "gloss",
+    "tool": "intelligence",
+    "category": "reasoning",
+    "tier": "intermediate",
+    "payload": { "term": "Council", "definition": "A reasoning mode where multiple small models vote on a question and the brain summarizes the consensus. Trades latency for breadth of opinion." },
+    "tags": ["intelligence", "council", "reasoning"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-021",
+    "type": "gloss",
+    "tool": "intelligence",
+    "category": "reasoning",
+    "tier": "intermediate",
+    "payload": { "term": "Minion", "definition": "A small, fast model that does the pre-work for the brain — embedding, classification, retrieval scoring. Currently Harrier 0.6B running on Burn." },
+    "tags": ["intelligence", "minion", "harrier"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-022",
+    "type": "gloss",
+    "tool": "intelligence",
+    "category": "reasoning",
+    "tier": "intermediate",
+    "payload": { "term": "Brain", "definition": "The main chat LLM (e.g. Nemotron 7.6B, Llama 3.1, Phi-15B). It produces the reply; the minion does the prep." },
+    "tags": ["intelligence", "brain", "chat"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-023",
+    "type": "gloss",
+    "tool": "models",
+    "category": "models",
+    "tier": "advanced",
+    "payload": { "term": "KV cache", "definition": "Stored intermediate tensors from past tokens so the model can skip recomputing context on every new token. Bigger context = bigger cache = more VRAM." },
+    "tags": ["models", "kv-cache", "performance"],
+    "added": "2026-05-17"
+  },
+  {
+    "id": "gloss-024",
+    "type": "gloss",
+    "tool": "system",
+    "category": "storage",
+    "tier": "advanced",
+    "payload": { "term": "Moka cache", "definition": "An in-process Rust cache library DevPulse uses for hot reads (registry lookups, slot resolutions). Bounded size, TTL-evicting, lock-free." },
+    "tags": ["storage", "moka", "cache"],
+    "added": "2026-05-17"
   }
 ]

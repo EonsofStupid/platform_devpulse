@@ -20,6 +20,17 @@ pub enum EntryType {
     Insight,
     /// Glossary: term definitions searchable by the user.
     Gloss,
+    /// Multiple-choice quiz — user picks one of N choices,
+    /// optional per-choice explanation surfaces after selection.
+    Quiz,
+    /// Preference ranking — user reorders N items from
+    /// most-to-least preferred. No "correct" answer; useful for
+    /// onboarding personalization and capturing user priorities.
+    Rank,
+    /// Sequence ordering — user reorders N steps into the right
+    /// implementation / debugging / workflow sequence. Optional
+    /// correct order exists for didactic surfaces.
+    Order,
 }
 
 impl EntryType {
@@ -32,6 +43,9 @@ impl EntryType {
             Self::Frust => "frust",
             Self::Insight => "insight",
             Self::Gloss => "gloss",
+            Self::Quiz => "quiz",
+            Self::Rank => "rank",
+            Self::Order => "order",
         }
     }
 }

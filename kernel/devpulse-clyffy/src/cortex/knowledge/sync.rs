@@ -1,11 +1,15 @@
-//! Boot-time sync — upserts embedded JSON artifacts into libSQL.
+//! Boot-time + remote sync — upserts knowledge entries into libSQL.
 //!
-//! Flow:
-//! 1. Read embedded manifest version
-//! 2. Query libSQL for stored version
-//! 3. Versions match → skip (fast path)
-//! 4. Mismatch → INSERT OR REPLACE all entries
-//! 5. `knowledge_seen` preserved across content updates
+//! Two callers:
+//! 1. [`sync_to_libsql`]   — embedded artifacts on every boot
+//! 2. [`sync_remote_entries`] — entries fetched from a remote manifest
+//!    by the desktop tier (HTTP lives there, kernel stays network-free)
+//!
+//! Both flow through [`sync_entries`] which owns the version-compare
+//! fast path, the per-entry upsert, and the `knowledge_config` write.
+//!
+//! `knowledge_seen` is intentionally never touched during sync — user
+//! cooldowns survive content updates.
 
 use super::loader;
 use super::types::KnowledgeEntry;
@@ -13,20 +17,48 @@ use crate::cortex::persistence::SqlAdapter;
 
 /// Sync embedded knowledge entries into libSQL.
 ///
-/// Called during boot after user relational is ready.
-/// Returns the number of entries upserted (0 if versions matched).
+/// Called during boot after user relational is ready. Delegates to
+/// [`sync_entries`] after loading the embedded manifest + data.
 ///
 /// # Errors
-/// Returns an error if the embedded manifest cannot be parsed, the version
-/// lookup fails, any entry upsert fails, or the stored version cannot be
-/// updated in `knowledge_config`.
+/// Returns an error if the embedded manifest cannot be parsed, the
+/// data files cannot be loaded, or the underlying upsert/version
+/// write fails.
 pub async fn sync_to_libsql(adapter: &dyn SqlAdapter) -> Result<usize, String> {
-    // 1. Load embedded manifest for version check
     let manifest =
         loader::load_manifest().map_err(|e| format!("Knowledge manifest parse failed: {e}"))?;
-    let content_version = manifest.version.as_str();
+    let entries = loader::load_all()?;
+    sync_entries(adapter, &entries, &manifest.version).await
+}
 
-    // 2. Check stored version in libSQL
+/// Upsert a remotely-fetched set of entries.
+///
+/// Desktop calls this from `sync_knowledge_from_remote` after GETting
+/// the manifest + each file. Same version-compare contract as the
+/// embedded path — repeated calls at the same version are no-ops.
+///
+/// # Errors
+/// Returns an error if any upsert fails or the version write fails.
+pub async fn sync_remote_entries(
+    adapter: &dyn SqlAdapter,
+    entries: &[KnowledgeEntry],
+    content_version: &str,
+) -> Result<usize, String> {
+    sync_entries(adapter, entries, content_version).await
+}
+
+/// Shared upsert pipeline. Returns 0 when the version matches the
+/// stored one (no work needed); returns the number of entries upserted
+/// otherwise.
+///
+/// # Errors
+/// Returns the underlying SQL error stringified on the first failing
+/// upsert or version write.
+async fn sync_entries(
+    adapter: &dyn SqlAdapter,
+    entries: &[KnowledgeEntry],
+    content_version: &str,
+) -> Result<usize, String> {
     let rows = adapter
         .query(
             "SELECT config_json FROM knowledge_config WHERE user_id = 'system' LIMIT 1",
@@ -43,28 +75,25 @@ pub async fn sync_to_libsql(adapter: &dyn SqlAdapter) -> Result<usize, String> {
         .and_then(|v| v.get("version").and_then(|v| v.as_str()).map(String::from))
         .unwrap_or_default();
 
-    // 3. Fast path — versions match
     if stored_version == content_version {
-        tracing::info!(version = %content_version, "Knowledge content up to date — skipping sync");
+        tracing::info!(
+            version = %content_version,
+            "Knowledge content up to date — skipping sync"
+        );
         return Ok(0);
     }
 
     tracing::info!(
         stored = %stored_version,
         new = %content_version,
+        entry_count = entries.len(),
         "Knowledge content version mismatch — syncing"
     );
 
-    // 4. Load all entries from embedded data
-    let entries = loader::load_all()?;
-    let count = entries.len();
-
-    // 5. Upsert all entries
-    for entry in &entries {
+    for entry in entries {
         upsert_entry(adapter, entry).await?;
     }
 
-    // 6. Update stored version
     let config_json = serde_json::json!({ "version": content_version }).to_string();
     adapter
         .execute(
@@ -76,9 +105,13 @@ pub async fn sync_to_libsql(adapter: &dyn SqlAdapter) -> Result<usize, String> {
         .await
         .map_err(|e| format!("Failed to update knowledge_config: {e}"))?;
 
-    tracing::info!(count = count, version = %content_version, "Knowledge sync complete");
+    tracing::info!(
+        count = entries.len(),
+        version = %content_version,
+        "Knowledge sync complete"
+    );
 
-    Ok(count)
+    Ok(entries.len())
 }
 
 /// Upsert a single entry into `knowledge_entries`.

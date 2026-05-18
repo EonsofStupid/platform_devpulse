@@ -18,5 +18,5 @@ mod tests;
 pub mod types;
 
 pub use selector::{record_reaction, select_entry, SelectedEntry};
-pub use sync::sync_to_libsql;
+pub use sync::{sync_remote_entries, sync_to_libsql};
 pub use types::{EntryType, KnowledgeEntry, KnowledgeManifest, Reaction, SelectionParams, Tier};

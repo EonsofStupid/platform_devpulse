@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "files": [
     {
       "name": "did_you_know.json",
@@ -23,6 +23,21 @@
     },
     {
       "name": "glossary.json",
+      "hash": "seed",
+      "count": 24
+    },
+    {
+      "name": "quizzes.json",
+      "hash": "seed",
+      "count": 8
+    },
+    {
+      "name": "rearranges.json",
+      "hash": "seed",
+      "count": 8
+    },
+    {
+      "name": "orderings.json",
       "hash": "seed",
       "count": 8
     }
