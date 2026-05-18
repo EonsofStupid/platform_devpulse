@@ -4,7 +4,13 @@
  */
 
 // Data access
-export { getKnowledgeEntry, knowledgeState, recordReaction } from "./data-access/index.js";
+export {
+	getKnowledgeEntry,
+	type KnowledgeSyncResult,
+	knowledgeState,
+	recordReaction,
+	syncKnowledgeFromRemote,
+} from "./data-access/index.js";
 
 // Types
 export type {

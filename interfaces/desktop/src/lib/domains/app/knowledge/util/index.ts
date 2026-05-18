@@ -8,6 +8,18 @@ export type {
 	KnowledgeEntryType,
 	KnowledgeReaction,
 	KnowledgeTier,
+	OrderingItem,
+	OrderPayload,
+	QuizChoice,
+	QuizPayload,
+	RankPayload,
 } from "./knowledge.types.js";
 
-export { hasTitleBody, isGlossary, parseKnowledgeEntry } from "./knowledge.types.js";
+export {
+	hasTitleBody,
+	isGlossary,
+	isOrder,
+	isQuiz,
+	isRank,
+	parseKnowledgeEntry,
+} from "./knowledge.types.js";
