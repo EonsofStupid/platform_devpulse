@@ -67,6 +67,7 @@ use serde::{Deserialize, Serialize};
 /// Phases are ordered, named, and carry pointers into the wizard
 /// copy TOML (kept separate so copy translators only edit one file).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct InteractionPhase {
     /// Stable phase identifier (`"welcome"`, `"scanning"`, etc.).
     /// Matches the frontend phase-machine enum variant the overlay
@@ -106,6 +107,7 @@ pub struct InteractionPhase {
 /// receives a "show this template now" signal from the platform
 /// based on trigger evaluation.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case", tag = "kind")]
 pub enum InteractionTrigger {
     /// Fires on first run — no `Factory Default` configuration exists
@@ -124,6 +126,13 @@ pub enum InteractionTrigger {
         /// The slot id whose load failure triggered this interaction.
         slot_id: String,
     },
+    /// Fires when the app opens and the gap since the user's last
+    /// recorded `last_seen_at` exceeds `days`. Drives the
+    /// `welcome-back` interaction template.
+    LongAbsence {
+        /// Days of absence required before this trigger fires.
+        days: u32,
+    },
 }
 
 /// A complete interaction template.
@@ -135,6 +144,7 @@ pub enum InteractionTrigger {
 /// (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
 /// the whole interaction play out.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct InteractionTemplate {
     /// Stable template identifier (e.g. `"setup"`,
     /// `"hardware-change"`). Used as the TOML file stem and as the
@@ -184,6 +194,32 @@ impl InteractionTemplate {
                 .join("config")
                 .join("interactions")
                 .join("setup.toml"),
+        )
+    }
+
+    /// Load the welcome-back interaction template bundled with the binary.
+    ///
+    /// Fires when the dispatcher detects the user has been absent
+    /// longer than the trigger's `days` threshold (default 7).
+    /// Re-orients the user with a short last-session recap + one
+    /// fresh knowledge nudge + a clear next-action picker.
+    ///
+    /// # Errors
+    /// Returns [`InteractionError::EmbeddedParse`] if the embedded
+    /// default is malformed. User override at
+    /// `{userdata_dir}/config/interactions/welcome-back.toml`
+    /// fully replaces the embedded default; parse failures on the
+    /// override are logged + the embedded default is used.
+    pub fn welcome_back(userdata_dir: &std::path::Path) -> Result<Self, InteractionError> {
+        const DEFAULT_TOML: &str =
+            include_str!("../../config/interactions/welcome-back.default.toml");
+        load_template(
+            "welcome-back",
+            DEFAULT_TOML,
+            &userdata_dir
+                .join("config")
+                .join("interactions")
+                .join("welcome-back.toml"),
         )
     }
 
