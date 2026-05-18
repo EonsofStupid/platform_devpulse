@@ -22,8 +22,16 @@ espeak-phonemizer = ["dep:espeakng-sys"]
 piper-backend = ["dep:piper-rs"]
 # Sherpa-onnx runtime backends — registry surfaced now, implementation later.
 sherpa-backend = []
-# llama.cpp FFI runtime — GGUF inference via llama-cpp-2 crate (CMake build).
+# llama.cpp FFI runtime — text-only GGUF inference via llama-cpp-2.
+# Built once on github.com/EonsofStupid/llama-cpp-prebuilt and linked
+# statically via the build.rs fast-path; see docs/platform/LLAMA_CPP_FFI_SPEC.md.
 llama-cpp-ffi = ["dep:llama-cpp-2", "dep:encoding_rs"]
+# Vision GGUFs (phi4-siglip and friends) via llama.cpp's mtmd module.
+# Currently UNSHIPPABLE — the v0.1.1 prebuilt zip omits
+# `llama.cpp/tools/mtmd/{*.h,*.cpp}` because the sub-repo's cmake
+# invocation runs with `LLAMA_BUILD_TOOLS=OFF`. Re-enable when a
+# sub-repo release stages mtmd headers + sources.
+llama-cpp-mtmd = ["llama-cpp-ffi", "llama-cpp-2/mtmd"]
 # Moshi STS — native Rust speech-to-speech via Candle (Kyutai Moshi 7B).
 # Vendored fork at deps/moshi/ runs against candle 0.10 (see deps/moshi/PATCHES.md).
 # Tokenization via the existing HF `tokenizers` crate (in `candle-backend`),
@@ -129,12 +137,20 @@ ndarray = { version = "0.17", optional = true }
 # FFT for Whisper mel spectrogram computation
 rustfft = { version = "6.2", optional = true }
 
-# llama.cpp FFI — GGUF inference (optional, requires CMake).
-# `mtmd` enables the multimodal projection wrapper (vision-language
-# GGUFs like Phi-4-Vision-15B) — backends/llamacpp/mtmd.rs depends on
-# it, and the feature is needed even for text-only builds because it's
-# transitively wired through the workspace lock.
-llama-cpp-2 = { version = "0.1.145", optional = true, features = ["mtmd"] }
+# llama.cpp FFI — GGUF inference. Vendored fork at
+# deps/llama-cpp-rs/llama-cpp-2/ via workspace [patch.crates-io]; the
+# build.rs there has a fast-path that skips cmake when
+# LLAMA_CPP_PREBUILT_LIB_DIR is set (links prebuilt static libs from
+# deps/llama-cpp-prebuilt/<target>/). See docs/platform/LLAMA_CPP_FFI_SPEC.md.
+#
+# `mtmd` (multimodal projection wrapper for vision GGUFs like
+# phi4-siglip) is DISABLED here as of 2026-05-15 — the v0.1.1 prebuilt
+# zip doesn't stage `llama.cpp/tools/mtmd/` headers + sources. Re-enable
+# when the sub-repo cuts a v0.1.x release with mtmd staged (workflow
+# bump + DevPulse-side manifest refresh + re-fetch). Until then,
+# vision-via-llama.cpp is unavailable; vision-via-mistral.rs is
+# unaffected (separate code path).
+llama-cpp-2 = { version = "0.1.147", optional = true }
 
 # UTF-8 streaming decoder used by `LlamaModel::token_to_piece`. Pulled
 # transitively by llama-cpp-2; declared here so the backend can hold a
@@ -169,6 +185,7 @@ nvml-wrapper = { version = "0.10", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["time", "macros", "rt", "rt-multi-thread"] }
+tempfile = "3"
 
 [lints]
 workspace = true

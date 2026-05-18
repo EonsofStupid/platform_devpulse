@@ -11,11 +11,15 @@
 #[cfg(feature = "llama-cpp-ffi")]
 pub mod backend;
 
-#[cfg(feature = "llama-cpp-ffi")]
+// Vision GGUFs via mtmd are gated behind a separate feature. Off by
+// default because the v0.1.1 prebuilt zip omits mtmd headers; turning
+// this on without re-cutting the prebuilt with mtmd staged will fail
+// at bindgen.
+#[cfg(feature = "llama-cpp-mtmd")]
 pub mod mtmd;
 
 #[cfg(feature = "llama-cpp-ffi")]
 pub use backend::LlamaCppBackend;
 
-#[cfg(feature = "llama-cpp-ffi")]
+#[cfg(feature = "llama-cpp-mtmd")]
 pub use mtmd::LlamaCppMtmdBackend;

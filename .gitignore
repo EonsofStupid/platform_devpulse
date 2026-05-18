@@ -53,8 +53,19 @@ pnpm-lock.yaml
 .claude/settings.local.json
 .claude/worktrees/
 deps/
-# Vendored fork tracked as submodule — see .gitmodules.
+# Vendored forks tracked as submodules — see .gitmodules.
 !deps/moshi/
+!deps/llama-cpp-rs/
+
+# llama-cpp-prebuilt — extracted static libs are fetched via
+# `cargo xtask fetch-llama-cpp` from github.com/EonsofStupid/llama-cpp-prebuilt
+# releases. The committed manifest.json pins which release this workspace
+# consumes; extracted per-target trees stay ignored.
+!deps/llama-cpp-prebuilt/
+deps/llama-cpp-prebuilt/win32-x64-vulkan/
+deps/llama-cpp-prebuilt/win32-x64-cuda/
+deps/llama-cpp-prebuilt/win32-x64-cpu/
+!deps/llama-cpp-prebuilt/manifest.json
 
 # DevForge REH trees — fetched via `cargo xtask fetch-devforge` from
 # github.com/EonsofStupid/devforge releases. The committed manifest.json

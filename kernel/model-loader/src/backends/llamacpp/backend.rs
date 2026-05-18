@@ -229,9 +229,10 @@ impl LlamaCppBackend {
                 break;
             }
 
-            // Render this token to text. `Special::Tokenize` emits
-            // special tokens as their literal piece (e.g. `<|im_end|>`)
-            // which lets callers see chat-template boundaries.
+            // Render this token to text. The `false` `special` flag
+            // hides control / chat-template tokens (e.g. `<|im_end|>`)
+            // from the streamed user-visible output; flip to `true` if a
+            // future surface needs to see those boundaries verbatim.
             let piece = self
                 .model_ref()?
                 .token_to_piece(next_token, &mut decoder, false, None)

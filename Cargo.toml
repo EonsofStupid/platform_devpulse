@@ -19,6 +19,7 @@ members = [
 # in the outer manifest.
 exclude = [
     "deps/moshi",
+    "deps/llama-cpp-rs",
 ]
 
 [workspace.dependencies]
@@ -196,25 +197,36 @@ ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 # pulls a duplicate candle copy → E0308 across the model-loader build.
 moshi = { path = "deps/moshi/rust/moshi-core" }
 
-# llama-cpp-rs durability fix for cpp-httplib + OpenSSL 3
-# -------------------------------------------------------
-# `llama-cpp-sys-2` 0.1.145 / 0.1.146 (crates.io latest) pins llama.cpp
-# at commit e21cdc11 (2026-04-13), BEFORE upstream llama.cpp's bump of
-# the vendored cpp-httplib to v0.43.1 (commit 606fa42f5d, 2026-04-21)
-# which fixes the OpenSSL 3 `const X509_NAME *` regression.
+# llama-cpp-rs — vendored fork with prebuilt-libs fast path
+# ---------------------------------------------------------
+# `utilityai/llama-cpp-rs` is vendored as a git submodule at
+# `deps/llama-cpp-rs/`. The fork carries one local change: a fast-path
+# branch in `llama-cpp-sys-2/build.rs` that activates when
+# `LLAMA_CPP_PREBUILT_LIB_DIR` is set, skipping the in-tree cmake build
+# of llama.cpp entirely and linking prebuilt static libs from
+# `deps/llama-cpp-prebuilt/<target>/` instead.
 #
-# To activate the durable fix:
-#   1. Run `scripts/build-tuning/apply-llama-cpp-httplib-fix.ps1` —
-#      vendors utilityai/llama-cpp-rs at `deps/llama-cpp-rs/` and
-#      advances its llama.cpp submodule to 606fa42f5d.
-#   2. Uncomment the two lines below.
-#   3. `cargo update && cargo clean -p llama-cpp-sys-2 && cargo xtask verify`.
+# The prebuilt libs are produced by
+# `github.com/EonsofStupid/llama-cpp-prebuilt` — a private wrapper repo
+# whose matrix workflow builds upstream `ggml-org/llama.cpp` at a
+# pinned SHA on GitHub Actions short paths, packages per-target zips,
+# and publishes a sha256-pinned manifest. `cargo xtask fetch-llama-cpp
+# --target <id>` downloads + verifies + extracts the right target into
+# `deps/llama-cpp-prebuilt/<target>/`. xtask's `apply_env` then exports
+# `LLAMA_CPP_PREBUILT_LIB_DIR` automatically based on detected build
+# features.
 #
-# Until then, the kernel build relies on a hand-patch of the registry
-# source at `~/.cargo/registry/src/.../llama-cpp-sys-2-0.1.145/.../httplib.cpp`
-# line 12574, which is lost on every `cargo clean -p llama-cpp-sys-2`.
-# llama-cpp-2 = { path = "deps/llama-cpp-rs/llama-cpp-2" }
-# llama-cpp-sys-2 = { path = "deps/llama-cpp-rs/llama-cpp-sys-2" }
+# Why the prebuilt detour: `llama-cpp-sys-2`'s nested vulkan-shaders-gen
+# ExternalProject blows past `cl.exe`'s MAX_PATH at any typical
+# workspace depth on Windows. Three workarounds were rejected
+# (CMAKE_OBJECT_PATH_MAX, LongPathsEnabled, subst virtual drive); see
+# `docs/platform/PREBUILT_LLAMA.md` for the full history once authored.
+#
+# The fast path falls through to the upstream in-tree cmake build when
+# the env var is unset (e.g. on Linux/Mac dev boxes where MAX_PATH isn't
+# an issue).
+llama-cpp-2 = { path = "deps/llama-cpp-rs/llama-cpp-2" }
+llama-cpp-sys-2 = { path = "deps/llama-cpp-rs/llama-cpp-sys-2" }
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast).

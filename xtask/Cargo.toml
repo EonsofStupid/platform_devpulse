@@ -37,6 +37,17 @@ walkdir = "2.5"
 # transitive dep of dozens of build.rs scripts in the workspace — the explicit
 # entry just lets xtask use the public `windows_registry` module directly.
 cc = "1"
+# OS keyring read for the auto-updater signing key. Matches the canonical
+# `devpulse:*` keyring entry pattern used by the desktop tier's cloud /
+# credential modules. The release-publish task pulls the Ed25519 private
+# key from `devpulse:release-signing-key` and passes it to `tauri signer`
+# via the `TAURI_SIGNING_PRIVATE_KEY` env var; the operator never has to
+# touch the raw key material.
+keyring = "3"
+
+[dev-dependencies]
+# Tempdir fixtures for smoke.rs boot-log parsing tests.
+tempfile = "3"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
