@@ -44,6 +44,7 @@ const plannedSurfaces = [
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="Brain"
 	title="Knowledge Engine"
 	description="Reasoning pipeline — prompt builder, memory, councils"
 	icon={Brain}

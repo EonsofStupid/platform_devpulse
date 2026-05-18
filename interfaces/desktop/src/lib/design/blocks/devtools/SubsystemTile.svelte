@@ -32,7 +32,7 @@
 		blurb="SigLIP image embeddings"
 		icon={Eye}
 		accent="purple"
-		state={{ tone: "up", label: "Ready · 1152-dim L2", detail: "siglip2-onnx · 8.7 GB" }}
+		status={{ tone: "up", label: "Ready · 1152-dim L2", detail: "siglip2-onnx · 8.7 GB" }}
 		verbs={[
 			{ id: "test", label: "Test encode", onclick: () => visionState.test() },
 			{ id: "swap", label: "Swap model", onclick: () => visionState.openSwap() },
@@ -108,8 +108,12 @@ interface Props {
 	 * scale (purple, cyan, teal, ember, etc.).
 	 */
 	accent?: string;
-	/** Live state — drives the hover overlay's status line + StatusDot. */
-	state: SubsystemState;
+	/**
+	 * Live status — drives the hover overlay's status line + StatusDot.
+	 * Named `status` (not `state`) so it does not shadow the `$state`
+	 * rune inside this component's `<script>`.
+	 */
+	status: SubsystemState;
 	/**
 	 * One-click verbs. Rendered in order inside the overlay. Empty
 	 * array hides the verb row but the state summary still shows on
@@ -130,7 +134,7 @@ let {
 	blurb,
 	icon: Icon,
 	accent = "primary",
-	state,
+	status,
 	verbs = [],
 	overlayExtra,
 }: Props = $props();
@@ -174,6 +178,16 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 }
 </script>
 
+<!--
+	Container is a hover-disclosure region (WAI-ARIA non-modal popover
+	pattern). The listeners on this wrapper manage overlay visibility
+	only — they don't take semantic action. The truly-interactive
+	children handle their own keyboard activation: the inner <a> opens
+	the dedicated devtool, the overlay <button>s fire their verbs.
+	The static a11y analyzer can't distinguish "delegation" from
+	"action," so the ignore is deliberate.
+-->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class="subsystem-tile"
 	style={accentStyle}
@@ -194,7 +208,7 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 			<Text size="xs" color="muted" as="span">{blurb}</Text>
 		</span>
 		<span class="subsystem-tile__dot" aria-hidden="true">
-			<StatusDot state={toneToDotState[state.tone]} />
+			<StatusDot state={toneToDotState[status.tone]} />
 		</span>
 	</a>
 
@@ -208,11 +222,11 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 		>
 			<Card preset="glass" class="subsystem-tile__overlay-card">
 				<header class="subsystem-tile__overlay-header">
-					<StatusDot state={toneToDotState[state.tone]} />
-					<Text size="sm" weight="semibold" as="span">{state.label}</Text>
+					<StatusDot state={toneToDotState[status.tone]} />
+					<Text size="sm" weight="semibold" as="span">{status.label}</Text>
 				</header>
-				{#if state.detail}
-					<Text size="xs" color="muted" as="p">{state.detail}</Text>
+				{#if status.detail}
+					<Text size="xs" color="muted" as="p">{status.detail}</Text>
 				{/if}
 
 				{#if verbs.length > 0}

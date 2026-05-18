@@ -335,7 +335,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="Memory orchestration · cross-sensor"
 			icon={Sparkles}
 			accent="cyan"
-			state={cortexState()}
+			status={cortexState()}
 			verbs={cortexVerbs}
 		/>
 		<SubsystemTile
@@ -344,7 +344,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="SigLIP image embeddings"
 			icon={Eye}
 			accent="purple"
-			state={visionState}
+			status={visionState}
 			verbs={visionVerbs}
 		/>
 		<SubsystemTile
@@ -353,7 +353,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="Sherpa speech-to-text"
 			icon={Ear}
 			accent="ember"
-			state={earsState}
+			status={earsState}
 			verbs={earsVerbs}
 		/>
 		<SubsystemTile
@@ -362,7 +362,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="Voice synthesis"
 			icon={Volume2}
 			accent="coral"
-			state={mouthState}
+			status={mouthState}
 			verbs={mouthVerbs}
 		/>
 		<SubsystemTile
@@ -371,7 +371,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="RRD subconscious daemon"
 			icon={BrainCircuit}
 			accent="teal"
-			state={reasoningState()}
+			status={reasoningState()}
 			verbs={reasoningVerbs}
 		/>
 	</div>

@@ -291,20 +291,20 @@ const NODE_H = 64;
 	<div class="overlay" aria-hidden="false">
 		{#each nodes as node (node.id)}
 			{@const active = activeNodes.has(node.id)}
-			<div
+			<svelte:element
+				this={clickable ? "button" : "div"}
 				class="node-label"
 				class:node-label--active={active}
 				class:node-label--clickable={clickable}
 				class:node-label--compact={compact}
 				style:left="{(node.x / 660) * 100}%"
 				style:top="{(node.y / 180) * 100}%"
-				role={clickable ? "button" : undefined}
-				tabindex={clickable ? 0 : undefined}
+				type={clickable ? "button" : undefined}
 				aria-label={clickable
 					? `${node.layman} — ${node.technical}, ${active ? "active" : "idle"}`
 					: undefined}
 				onclick={clickable ? () => handleNodeClick(node.id) : undefined}
-				onkeydown={clickable ? (e) => handleNodeKey(e, node.id) : undefined}
+				onkeydown={clickable ? (e: KeyboardEvent) => handleNodeKey(e, node.id) : undefined}
 			>
 				<div class="node-label__head">
 					<StatusDot tone={nodeStatusDot(node.id)} />
@@ -317,7 +317,7 @@ const NODE_H = 64;
 						{node.technical}
 					</Badge>
 				{/if}
-			</div>
+			</svelte:element>
 		{/each}
 	</div>
 
@@ -398,6 +398,13 @@ const NODE_H = 64;
 		pointer-events: auto;
 		border-radius: 8px;
 		transition: transform 200ms ease;
+		/* Reset native <button> chrome when `clickable` is true and the
+		   node renders via <svelte:element this="button">. Harmless on
+		   the <div> variant. */
+		background: transparent;
+		border: none;
+		color: inherit;
+		font: inherit;
 	}
 
 	.node-label--clickable {

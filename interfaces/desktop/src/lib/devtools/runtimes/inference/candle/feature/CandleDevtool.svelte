@@ -262,6 +262,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="Candle"
 	title="Candle"
 	description="In-process model runtime · GGUF + SafeTensors"
 	icon={Cpu}

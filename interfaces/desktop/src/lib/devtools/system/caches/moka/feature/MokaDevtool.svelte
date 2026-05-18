@@ -61,6 +61,7 @@ onMount(() => {
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="Moka cache"
 	title="Cache"
 	description="In-memory Moka store · non-persistent · TTL-driven"
 	icon={Database}

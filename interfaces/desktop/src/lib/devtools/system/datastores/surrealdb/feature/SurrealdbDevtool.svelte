@@ -192,6 +192,7 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="SurrealDB"
 	title="SurrealDB"
 	description="Multi-model engine · graph + document · 3 namespaces"
 	icon={Network}

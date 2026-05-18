@@ -150,6 +150,7 @@ function handleKeydown(event: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="libSQL"
 	title="LibSQL"
 	description="System + User relational store · SQLite"
 	icon={Database}

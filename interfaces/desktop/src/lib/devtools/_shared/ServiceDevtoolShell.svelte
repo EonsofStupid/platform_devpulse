@@ -60,6 +60,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 <script lang="ts">
 	import { type Component, type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
+	import { KnowledgeTerm } from "$lib/design/blocks/knowledge/index.js";
 	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 	import { Text } from "$lib/design/components/text/index.js";
 	import {
@@ -106,6 +107,18 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 
 		/** Extra per-service tabs rendered after the five standard tabs. */
 		extraTabs?: ExtraTab[];
+
+		/**
+		 * Glossary term shown as a hover chip in the header. When set,
+		 * the shell renders a `KnowledgeTerm` chip after the title that
+		 * surfaces the matching glossary entry on hover/focus. Use it
+		 * to give an operator the "what is this subsystem" definition
+		 * without forcing them to read the docs.
+		 *
+		 * Pass the exact `term` field of a `gloss`-type entry (e.g.
+		 * `"SurrealDB"`, `"RRO"`, `"DuckDB"`). Case-insensitive.
+		 */
+		infoTerm?: string;
 
 		// ── Standard tab snippets ────────────────────────────────
 		status?: Snippet;
@@ -155,6 +168,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 		backHref = "/devtools",
 		backdrop,
 		extraTabs = [],
+		infoTerm,
 		status,
 		config,
 		logs,
@@ -308,6 +322,14 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 
 		{#if description}
 			<span class="text-xs text-[var(--text-secondary)]">&middot; {description}</span>
+		{/if}
+
+		{#if infoTerm}
+			<KnowledgeTerm term={infoTerm} tool="devtools" plain>
+				<span class="ml-1 px-1.5 py-0.5 text-[10px] uppercase tracking-wider rounded border border-[var(--accent-purple-main)] text-[var(--accent-purple-main)] cursor-help">
+					?
+				</span>
+			</KnowledgeTerm>
 		{/if}
 
 		<span

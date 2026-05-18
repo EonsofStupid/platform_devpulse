@@ -135,6 +135,7 @@ export const SERVICE_ACCENTS = {
 	// ── Clyffy / Memory ──────────────────────────────────────
 	cortex: "purple",
 	"persona-graph": "violet",
+	intelligence: "cyber",
 
 	// ── Clyffy / Governance ──────────────────────────────────
 	policy: "electric",

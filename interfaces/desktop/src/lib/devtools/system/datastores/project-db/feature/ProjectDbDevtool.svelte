@@ -204,12 +204,13 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	{#snippet status()}
 		<div class="project-db__column">
 			<div class="project-db__row">
-				<TextField
-					label="Project ID"
-					placeholder="default"
-					bind:value={projectId}
-					class="project-db__id-field"
-				/>
+				<div class="project-db__id-field">
+					<TextField
+						label="Project ID"
+						placeholder="default"
+						bind:value={projectId}
+					/>
+				</div>
 				<Button preset="ghost" size="sm" onclick={refreshHealth} disabled={busy}>
 					<RefreshCw size={12} aria-hidden="true" />
 					Refresh

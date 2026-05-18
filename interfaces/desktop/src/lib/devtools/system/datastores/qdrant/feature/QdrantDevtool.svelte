@@ -57,6 +57,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 </script>
 
 <ServiceDevtoolShell
+	infoTerm="Qdrant"
 	title="Qdrant"
 	description="Embedded vector store · in-process · zero latency"
 	icon={Boxes}

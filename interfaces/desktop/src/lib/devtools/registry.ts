@@ -271,6 +271,15 @@ export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 		status: "planned",
 	},
 	{
+		id: "intelligence",
+		tier: "clyffy",
+		bucket: "memory",
+		route: "/devtools/clyffy/memory/intelligence",
+		label: "Memory Intelligence",
+		blurb: "Embedding-indexed memory + RRO archive across project namespaces.",
+		icon: BrainCircuit,
+	},
+	{
 		id: "persona-graph",
 		tier: "clyffy",
 		bucket: "memory",
