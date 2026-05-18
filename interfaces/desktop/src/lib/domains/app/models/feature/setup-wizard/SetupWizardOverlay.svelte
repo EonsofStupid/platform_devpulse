@@ -12,11 +12,12 @@
 	3. Owns the install-chain dispatch (`applyAutoConfig`).
 	4. Auto-advances from `installing` to `complete` once every
 	   dispatched install terminates.
-	5. Wires the optional Supabase MP4 backdrop snippet — set
-	   `MP4_BACKDROP_URL` to a Supabase Storage public-bucket URL
-	   (pre-encoded H.264 720p loop, `cacheControl: "public,
-	   max-age=31536000, immutable"` on upload) and the
-	   `OverlayShell.backdrop` slot renders it behind the card.
+	5. Wires the bundled MP4 backdrop snippet — `MP4_BACKDROP_URL`
+	   points at the asset that ships with the desktop binary; the
+	   dispatcher renders a `<video>` element behind every view so
+	   the wizard has a consistent atmospheric backdrop. A later
+	   batch lands `cargo xtask optimize-media` to emit AV1/WebM +
+	   H.264/MP4 variants for multi-source playback.
 	6. Routes `Skip → assign manually` to the Slot Orchestrator
 	   devtool (where Pick-local + Clear-assignment already work).
 
@@ -26,6 +27,7 @@
 -->
 <script lang="ts">
 import { goto } from "$app/navigation";
+import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
 import {
 	autoConfigure,
@@ -35,33 +37,32 @@ import {
 } from "$lib/sys/bindings/models/index.js";
 import type { TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
+import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
 import CompleteView from "./feature/views/CompleteView.svelte";
+import CortexView from "./feature/views/CortexView.svelte";
 import HardwareView from "./feature/views/HardwareView.svelte";
 import InstallingView from "./feature/views/InstallingView.svelte";
 import PresetView from "./feature/views/PresetView.svelte";
 import WelcomeView from "./feature/views/WelcomeView.svelte";
-import type { SlotRecommendation, WizardCallbacks } from "./util/wizard.types.js";
+import type {
+	SlotRecommendation,
+	SlotSaveEntryProps,
+	WizardCallbacks,
+} from "./util/wizard.types.js";
 import { wizardState } from "./wizard.state.svelte.js";
 
 /**
- * Animated MP4 backdrop for the wizard. Currently points at the
- * bundled asset that ships with the desktop binary — Tauri serves
- * `static/` at the app root so this URL resolves locally without a
- * network round-trip.
+ * Animated MP4 backdrop for the wizard. Bundled with the desktop
+ * binary — Tauri serves `static/` at the app root so this URL
+ * resolves locally without a network round-trip.
  *
- * To move to Supabase later (offload binary size from the installer,
- * pick up CDN edge delivery + range-request streaming):
- *
- * 1. Pre-encode the MP4 once — H.264 (or VP9) 720p, 5–15 s seamless
- *    loop, target 2–5 MB so first paint isn't blocked.
- * 2. Upload to a public Supabase Storage bucket with
- *    `cacheControl: "public, max-age=31536000, immutable"` so the
- *    browser caches it forever after one fetch.
- * 3. Replace this constant with the Supabase public-bucket URL.
- *
- * Supabase video assets are served as-is — there's no on-the-fly
- * transform — so "optimization" means pre-encode + CDN cache, not
- * server transcode.
+ * Optimization pipeline lands in a separate batch:
+ * `cargo xtask optimize-media` will scan
+ * `interfaces/desktop/static/imgs/backgrounds/` and emit per-source
+ * AV1/WebM + H.264/MP4 variants (`ffmpeg` system-detected with a
+ * portable fallback under `deps/ffmpeg-prebuilt/`). When that ships
+ * the `<video>` below switches to a multi-source element so modern
+ * WebView2 picks AV1 and falls back to H.264 on older runtimes.
  */
 const MP4_BACKDROP_URL = "/imgs/backgrounds/bganimation_loop.mp4";
 
@@ -82,10 +83,214 @@ let recommendations = $state<SlotRecommendation[]>([]);
 let dispatchedInstallIds = $state<string[]>([]);
 let dispatchErrors = $state<Record<string, string>>({});
 
+/**
+ * Per-slot save state for the cortex view. Keyed by
+ * `SlotRecommendation.slot_id`. Drives the SaveSlotCard's lifecycle
+ * badge + button label per row.
+ */
+let slotSaveStates = $state<Record<string, "ready" | "saving" | "saved" | "error">>({});
+let slotSaveErrors = $state<Record<string, string>>({});
+
+/**
+ * Translation table — kernel `slot_id` → layman card copy. Foundation
+ * baseline today (SigLIP HD / Harrier 0.6B / Nemotron 7.6B); extends
+ * naturally as the kernel adds slots. Anything missing from this map
+ * falls through with the kernel slot_id rendered as the title, which
+ * is visible enough to surface the gap during dev review.
+ */
+/**
+ * Anatomy-only translation table — kernel `slot_id` → wizard tile's
+ * **anatomy** identity (icon, accent color, role copy). Strictly
+ * frontend-owned because anatomy ↔ slot mapping is a UI-side design
+ * decision; the kernel doesn't know what an "Eye" is.
+ *
+ * The model NAME + model TAGLINE are NOT in this table — they live
+ * on each [`SlotRecommendation`] (`display_name`, `display_tagline`)
+ * so the preset author owns them in
+ * `kernel/model-loader/config/presets.default.toml`. Tier-swapping a
+ * model in the preset immediately reflects in the wizard tile, no
+ * frontend edit. This matches the agnostic / format-driven recommender
+ * pattern the kernel already uses for HF file picks.
+ *
+ * Slot ids MUST match `kernel/model-loader/config/slots.default.toml`
+ * verbatim. `accentVar` must reference a generated token from
+ * `interfaces/desktop/src/lib/design/generated/token-manifest.json`
+ * (the real names carry `-main` / `-fill` / `-glow` suffixes; cards
+ * point at `-main` because the surface gradient mixes the main hue).
+ */
+const SLOT_LAYMAN: Record<
+	string,
+	{
+		purpose: string;
+		tagline: string;
+		iconName: "Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit";
+		accentVar: string;
+		aboutHref?: string;
+	}
+> = {
+	"vision.embedder": {
+		purpose: "Eyes · what Clyffy sees",
+		tagline: "Encodes screenshots and uploads so Clyffy can reason about images.",
+		iconName: "Eye",
+		accentVar: "--accent-cyan-main",
+	},
+	"voice.stt": {
+		purpose: "Ears · what Clyffy hears",
+		tagline: "Listens to your microphone and turns speech into text.",
+		iconName: "Ear",
+		accentVar: "--accent-purple-main",
+	},
+	"voice.tts": {
+		purpose: "Mouth · how Clyffy speaks",
+		tagline: "Turns Clyffy's replies into natural-sounding speech.",
+		iconName: "Mic",
+		accentVar: "--accent-hotpink-main",
+	},
+	"minion.shared": {
+		purpose: "Sparkles · Clyffy's quick mind",
+		tagline: "Pre-sorts, ranks, and codes everything before the long-think wakes.",
+		iconName: "Sparkles",
+		accentVar: "--accent-teal-main",
+	},
+	"chat.brain": {
+		purpose: "Brain · the long-think reasoner",
+		tagline: "Handles the heavy reasoning once the quick mind has set the table.",
+		iconName: "BrainCircuit",
+		accentVar: "--accent-blue-main",
+	},
+};
+
+/**
+ * Derive a customer-facing model name from a kernel recommendation.
+ * Preset author's `display_name` wins; absent, falls back to a clean
+ * derivation of the HF repo id last segment (drops `-GGUF`,
+ * `-Instruct`, version-and-quant suffixes). Never throws — worst case
+ * returns the raw `model_repo_id` which is still recognizable.
+ */
+function deriveModelName(rec: SlotRecommendation): string {
+	if (rec.display_name && rec.display_name.length > 0) return rec.display_name;
+	const lastSeg = rec.model_repo_id.split("/").pop() ?? rec.model_repo_id;
+	return lastSeg
+		.replace(/-GGUF$/i, "")
+		.replace(/-Instruct(-\d+)?$/i, "")
+		.replace(/-v\d+(\.\d+)*$/i, "")
+		.replace(/-Base$/i, "")
+		.replace(/-/g, " ");
+}
+
+/**
+ * Derive a one-line layman tagline. Preset author's `display_tagline`
+ * wins; absent, falls back to a format-driven sentence
+ * ("Runs through llama.cpp." for `.gguf`, "Through Candle." for
+ * `.safetensors`, etc.) so the customer always sees engine context.
+ */
+function deriveModelTagline(rec: SlotRecommendation): string {
+	if (rec.display_tagline && rec.display_tagline.length > 0) return rec.display_tagline;
+	const fn = rec.model_filename.toLowerCase();
+	if (fn.endsWith(".gguf")) return "Runs through llama.cpp.";
+	if (fn.endsWith(".safetensors") || fn.endsWith(".safetensors.index.json")) {
+		return "Runs through the matching native backend.";
+	}
+	if (fn.endsWith(".onnx") || fn.endsWith(".bin")) return "Runs through Sherpa / ONNX.";
+	return "";
+}
+
+function formatSizeHint(mb: number): string {
+	if (mb >= 1024) return `~${(mb / 1024).toFixed(1)} GB`;
+	return `~${mb} MB`;
+}
+
+const slotSaveEntries = $derived<SlotSaveEntryProps[]>(
+	recommendations.flatMap((rec) => {
+		const layman = SLOT_LAYMAN[rec.slot_id];
+		if (!layman) return [];
+		const state = slotSaveStates[rec.slot_id] ?? "ready";
+		return [
+			{
+				kernelSlotId: rec.slot_id,
+				purpose: layman.purpose,
+				tagline: layman.tagline,
+				// Model name + tagline come from the kernel recommendation
+				// (preset author owns them via `display_name` /
+				// `display_tagline` in `presets.default.toml`); never
+				// hardcoded in this UI layer. See deriveModelName /
+				// deriveModelTagline for the fallback behavior.
+				modelName: deriveModelName(rec),
+				modelTagline: deriveModelTagline(rec),
+				sizeHint: formatSizeHint(rec.model_size_mb),
+				tierLabel: rec.already_downloaded ? "Already on disk" : "Recommended for this machine",
+				iconName: layman.iconName,
+				accentVar: layman.accentVar,
+				aboutHref: layman.aboutHref,
+				state,
+				errorText: slotSaveErrors[rec.slot_id],
+			},
+		];
+	}),
+);
+
+async function saveOneSlot(slotId: string): Promise<void> {
+	const rec = recommendations.find((r) => r.slot_id === slotId);
+	if (!rec) return;
+	slotSaveStates = { ...slotSaveStates, [slotId]: "saving" };
+	slotSaveErrors = { ...slotSaveErrors, [slotId]: "" };
+	const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id);
+	if (ir.status === "ok") {
+		dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
+		slotSaveStates = { ...slotSaveStates, [slotId]: "saved" };
+	} else {
+		slotSaveStates = { ...slotSaveStates, [slotId]: "error" };
+		slotSaveErrors = { ...slotSaveErrors, [slotId]: String(ir.error) };
+	}
+}
+
+async function saveAllSlots(): Promise<void> {
+	busy = true;
+	try {
+		const unsaved = slotSaveEntries.filter((e) => e.state !== "saved");
+		await Promise.all(unsaved.map((e) => saveOneSlot(e.kernelSlotId)));
+	} finally {
+		busy = false;
+	}
+}
+
 $effect(() => {
 	if (!wizardState.isOpen) return;
 	void loadCopy();
 });
+
+/**
+ * Load recommendations the first time the customer reaches the
+ * cortex view (so each anatomy tile can render with real model
+ * metadata). The autoConfigure call here POPULATES recommendations
+ * without firing installs — the installs only run when the customer
+ * clicks Apply on a tile. Compare with applyAutoConfig() (preset
+ * view's "Install all") which both populates AND dispatches.
+ */
+$effect(() => {
+	if (wizardState.view !== "cortex") return;
+	if (recommendations.length > 0) return;
+	void loadRecommendations();
+});
+
+async function loadRecommendations(): Promise<void> {
+	busy = true;
+	try {
+		const r = await autoConfigure();
+		if (r.status === "error") {
+			copyError = `Couldn't compute recommendations: ${r.error}`;
+			return;
+		}
+		try {
+			const payload = JSON.parse(r.data) as AutoConfigPayload;
+			recommendations = payload.recommendations;
+		} catch (e) {
+			copyError = `Couldn't parse auto-config response: ${(e as Error).message}`;
+		}
+	} finally {
+		busy = false;
+	}
+}
 
 $effect(() => {
 	if (!wizardState.isOpen) return;
@@ -236,6 +441,16 @@ const callbacks: WizardCallbacks = {
 		/>
 	{:else if wizardState.view === "preset"}
 		<PresetView copy={copy?.profile ?? null} {busy} {callbacks} />
+	{:else if wizardState.view === "cortex"}
+		<CortexView
+			title="Clyffy's cortex — five pieces, one mind"
+			subtitle="Each tile maps to a sense or thought layer. Hit Apply on the ones you want now — every slot is pre-selected, so you can just click through."
+			slotSaves={slotSaveEntries}
+			{busy}
+			onApplySlot={saveOneSlot}
+			onApplyAll={saveAllSlots}
+			{callbacks}
+		/>
 	{:else if wizardState.view === "installing"}
 		<InstallingView
 			copy={copy?.downloads ?? null}
@@ -248,9 +463,34 @@ const callbacks: WizardCallbacks = {
 			{installsTotal}
 			{installsCachedSkippedDownload}
 		/>
+	{:else if wizardState.view === "clyffy-collab"}
+		<ClyffyCollabView {busy} {callbacks} />
 	{:else if wizardState.view === "complete"}
 		<CompleteView copy={copy?.completion ?? null} {busy} {callbacks} />
 	{/if}
+
+	<!--
+		Per-phase knowledge chip — pinned bottom-right, doesn't
+		compete with the phase content. `{#key view}` re-mounts the
+		deck each phase transition so the context frame reflects
+		"wizard:<phase>" — kernel selector then biases toward
+		entries whose `tool` tag matches `wizard` and (when the
+		catalog grows scope tags) the active phase. Ambient rotation
+		every 45s so a user sitting on a phase sees variety.
+	-->
+	{#key wizardState.view}
+		<div class="dispatcher-knowledge-chip">
+			<KnowledgeDeck
+				context={{
+					id: `wizard-overlay-${wizardState.view}`,
+					tool: "wizard",
+					scope: `wizard:${wizardState.view}`,
+					preferred: "dyk",
+				}}
+				refreshIntervalMs={45000}
+			/>
+		</div>
+	{/key}
 
 	{#if MP4_BACKDROP_URL}
 		<!--
@@ -297,6 +537,19 @@ const callbacks: WizardCallbacks = {
 		object-fit: cover;
 		opacity: 0.35;
 		pointer-events: none;
+	}
+
+	/* Per-phase knowledge chip. Pinned bottom-right above the
+	   backdrop (z 8999) but below the dispatcher-error banner
+	   (z 9100). The KnowledgeDeck inside has its own ColdLight
+	   surface — this slot just owns positioning. */
+	.dispatcher-knowledge-chip {
+		position: fixed;
+		bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+		right: clamp(0.75rem, 1.5vw, 1.25rem);
+		z-index: 9050;
+		max-width: clamp(18rem, 30vw, 26rem);
+		pointer-events: auto;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

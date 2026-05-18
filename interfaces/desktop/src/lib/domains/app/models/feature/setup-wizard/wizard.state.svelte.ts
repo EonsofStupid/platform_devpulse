@@ -25,13 +25,35 @@
 
 import { isFirstRun, markSetupComplete } from "$lib/sys/bindings/models/index.js";
 
-export type WizardView = "welcome" | "hardware" | "preset" | "installing" | "complete";
+export type WizardView =
+	| "welcome"
+	| "hardware"
+	| "preset"
+	| "cortex"
+	| "slot-save"
+	| "installing"
+	| "clyffy-collab"
+	| "complete";
 
+/**
+ * Order in which views advance via `next()` / `back()`. `cortex`
+ * replaces `slot-save` as the primary per-slot step (anatomy-tile
+ * constellation). `slot-save` stays in the type union so the older
+ * `SlotSaveView.svelte` file still type-checks against direct
+ * `goTo("slot-save")` callers, but it's no longer reachable through
+ * `next()`/`back()` — the cortex view is the wizard surface customers
+ * actually see. `clyffy-collab` sits between installing and complete
+ * so the customer sees the Claude collab option AFTER models have
+ * finished landing — easier to make the "do you also want Claude?"
+ * decision when the local setup is visibly in place.
+ */
 const VIEW_ORDER: readonly WizardView[] = [
 	"welcome",
 	"hardware",
 	"preset",
+	"cortex",
 	"installing",
+	"clyffy-collab",
 	"complete",
 ] as const;
 

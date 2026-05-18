@@ -40,6 +40,14 @@ export interface SlotRecommendation {
 	vram_estimate_mb: number;
 	already_downloaded: boolean;
 	device: string;
+	/** Optional customer-facing model label set by the preset author
+	 *  (`display_name` in `kernel/model-loader/config/presets.default.toml`).
+	 *  Absent → wizard derives a label from `model_repo_id`. */
+	display_name?: string | null;
+	/** Optional one-line layman tagline set by the preset author.
+	 *  Absent → wizard derives an engine-aware fallback from
+	 *  `model_filename` (e.g. ".gguf" → "Runs through llama.cpp"). */
+	display_tagline?: string | null;
 }
 
 /**
@@ -102,8 +110,114 @@ export interface InstallingViewProps {
 	installsCachedSkippedDownload: number;
 }
 
+/**
+ * Per-slot save state for the `slot-save` view. One entry per
+ * foundation slot the customer is offered (SigLIP HD / Harrier 0.6B /
+ * Nemotron 7.6B today; cascade resolver fills the model + sizing
+ * fields from kernel side once Sprint 00 lands).
+ */
+export interface SlotSaveEntryProps {
+	/** Stable key — matches `SlotRecommendation.slot_id`. */
+	kernelSlotId: string;
+	/** Layman slot purpose ("Vision · what Clyffy sees"). */
+	purpose: string;
+	/** Role description for the slot. */
+	tagline: string;
+	/** Layman model name ("SigLIP HD"). */
+	modelName: string;
+	/** Short model tagline. */
+	modelTagline: string;
+	/** Pre-formatted size hint ("~400 MB"). */
+	sizeHint: string;
+	/** Optional tier badge label. */
+	tierLabel?: string;
+	/** Lifecycle state of the save. */
+	state: "ready" | "saving" | "saved" | "error";
+	/** Error message when `state === "error"`. */
+	errorText?: string;
+	/** Optional info-link href. */
+	aboutHref?: string;
+	/** Lucide-svelte icon name (the view resolves it to a component).
+	 *  Anatomy mapping: Eye = vision encoder, Ear = STT, Mic = TTS,
+	 *  Sparkles = minion / coder + embedder, BrainCircuit = deep
+	 *  reasoning. Extend with care — every name added here must also
+	 *  appear in `SlotSaveView.svelte`'s `ICON_MAP`. */
+	iconName: "Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit";
+	/** CSS variable name for the per-slot accent. */
+	accentVar: string;
+}
+
+export interface SlotSaveViewProps {
+	/** Header copy. */
+	title: string;
+	/** Subtitle / tagline. */
+	subtitle: string;
+	/** One entry per slot card to render. */
+	slotSaves: SlotSaveEntryProps[];
+	/** Whether any save is currently in flight. */
+	busy: boolean;
+	/** Save callback per slot. */
+	onSaveSlot: (kernelSlotId: string) => void | Promise<void>;
+	/** Optional: open model picker overlay for one slot. */
+	onPickDifferent?: (kernelSlotId: string) => void;
+	/** Save every unsaved slot in sequence. */
+	onSaveAll: () => void | Promise<void>;
+	/** Standard nav callbacks. */
+	callbacks: WizardCallbacks;
+}
+
+/**
+ * Props for the cortex view — anatomy-tile constellation
+ * (Brain / Sparkles / Eyes / Ears / Mouth). Same shape as
+ * `SlotSaveViewProps` so the existing handlers in
+ * `SetupWizardOverlay.svelte` plug in without rewiring; the
+ * difference is the wrapping component renders an
+ * `AnatomyConstellation` instead of a vertical card list.
+ */
+export interface CortexViewProps {
+	/** Header title. */
+	title: string;
+	/** Subtitle / tagline. */
+	subtitle: string;
+	/** One entry per anatomy tile to render. The cortex view picks
+	 *  out the entries matching its anatomy → slot id table
+	 *  (`brain` → `chat.brain`, `sparkles` → `minion.shared`,
+	 *  `eyes` → `vision.embedder`, `ears` → `voice.stt`,
+	 *  `mouth` → `voice.tts`). Extra entries are ignored. */
+	slotSaves: SlotSaveEntryProps[];
+	/** Whether any apply is currently in flight. */
+	busy: boolean;
+	/** Apply callback per slot — triggers the parent's install chain
+	 *  (download → symlink → load). The parent fires
+	 *  `WizardTileApplied` + `wizard.lifecycle.*` tracing per
+	 *  [[feedback-dual-observability]]. */
+	onApplySlot: (kernelSlotId: string) => void | Promise<void>;
+	/** Optional: open model picker overlay for one slot. */
+	onPickDifferent?: (kernelSlotId: string) => void;
+	/** Apply every unsaved slot in sequence. */
+	onApplyAll: () => void | Promise<void>;
+	/** Standard nav callbacks. */
+	callbacks: WizardCallbacks;
+}
+
 export interface CompleteViewProps {
 	copy: CompletionCopy | null;
+	busy: boolean;
+	callbacks: WizardCallbacks;
+}
+
+/**
+ * Props for the Clyffy Collab view — the step where the customer
+ * brings their Claude API key (or notes their existing Claude Code
+ * subscription) so the cortex reasoning router can escalate hard
+ * turns to Claude alongside the local llama.cpp brain.
+ *
+ * Skippable like every other wizard step. State lives in the view
+ * itself (key input is one-shot, presence polled from the keyring)
+ * so the only props needed are nav callbacks + a busy flag for the
+ * usual disable-during-action UX.
+ */
+export interface ClyffyCollabViewProps {
 	busy: boolean;
 	callbacks: WizardCallbacks;
 }
@@ -119,5 +233,8 @@ export type ViewProps =
 	| { view: "welcome"; props: WelcomeViewProps }
 	| { view: "hardware"; props: HardwareViewProps }
 	| { view: "preset"; props: PresetViewProps }
+	| { view: "cortex"; props: CortexViewProps }
+	| { view: "slot-save"; props: SlotSaveViewProps }
 	| { view: "installing"; props: InstallingViewProps }
+	| { view: "clyffy-collab"; props: ClyffyCollabViewProps }
 	| { view: "complete"; props: CompleteViewProps };
