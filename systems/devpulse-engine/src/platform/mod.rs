@@ -112,9 +112,20 @@ pub use devpulse_clyffy::cortex::llguidance::{
 // pattern — vocabulary rename at the seam, not a struct wrapper.
 pub use devpulse_clyffy::cortex::knowledge::{
     record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
-    EntryType as KnowledgeEntryType, Reaction as KnowledgeReaction,
+    sync_remote_entries as knowledge_sync_remote_entries, EntryType as KnowledgeEntryType,
+    KnowledgeEntry, KnowledgeManifest, Reaction as KnowledgeReaction,
     SelectedEntry as KnowledgeSelectedEntry, SelectionParams as KnowledgeSelectionParams,
     Tier as KnowledgeTier,
+};
+
+// IP-NOTE: community feed cache. `FeedItem` + `FeedKind` cross to TS via
+// specta; verbs are layman-named (`upsert_feed_item`, `query_feed`,
+// `most_recent_sync_at`) so the desktop Tauri command surface reads them
+// without kernel-vocabulary translation. The actual HTTP fetch lives in
+// `commands/community/` (desktop tier); kernel owns only the cache shape.
+pub use devpulse_clyffy::cortex::community::{
+    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled,
+    upsert_feed_item, FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS,
 };
 
 // IP-NOTE: cortex governance graph (CORTEX.md §4) — operator-authored
@@ -132,6 +143,15 @@ pub use devpulse_clyffy::cortex::governance::{
 // The Tauri command `cortex_swap_encoder` returns this directly; the
 // engine `ModelLoaderService::burn_swap_encoder` passthrough preserves
 // the shape unchanged.
+//
+// Feature gate matches `devpulse-clyffy`'s `model-loader` cfg: the
+// underlying `model_loader::backends::burn_adapter` module is only
+// compiled when devpulse-clyffy is built with `model-loader` enabled
+// (engine's `inference` feature → `devpulse-clyffy/model-loader`).
+// Without the gate, `cargo check -p devpulse-engine` against default
+// features fails with E0433 "could not find `model_loader` in
+// `devpulse_clyffy`".
+#[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::backends::burn_adapter::SwapStats;
 
 // IP-NOTE: chat-input type-time suggestion service. `Suggestion` carries
@@ -141,6 +161,37 @@ pub use devpulse_clyffy::model_loader::backends::burn_adapter::SwapStats;
 // service) — no kernel vocabulary, no rename needed. Tauri layer calls
 // `Platform::ensure_suggest_service()` to obtain the service.
 pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
+
+// IP-NOTE: intelligence layer surface — embedding-aware memory + RRO
+// archive types, schema constant, and project routing helper. The
+// trait `IntelligenceStore` is implemented for `SurrealAdapter` in
+// the kernel; the engine re-exports the abstract types so the Tauri
+// `commands::intelligence` module can build typed responses without
+// reaching into the kernel directly. Names describe industry-standard
+// concepts (memory, embedding, archive) — no kernel vocabulary leaks.
+pub use devpulse_clyffy::cortex::intelligence::{
+    slug_for_cwd, IntelligenceStore, MemoryKind, MemoryRecord, NeighborRef, RecallHit,
+    RroRecord, EMBEDDING_DIM, MEMORY_SCHEMA,
+};
+
+// IP-NOTE: interaction templates — kernel-owned scripted exchanges
+// (setup wizard, welcome-back, etc.). Re-exported for the Tauri
+// `commands::interactions` module so the dispatcher can load
+// templates without crossing the IP boundary directly. Industry-
+// standard concept (state-machine-driven UI walkthroughs); the
+// vocabulary stays generic.
+pub use devpulse_clyffy::interactions::{
+    InteractionError, InteractionPhase, InteractionTemplate, InteractionTrigger,
+};
+
+// IP-NOTE: capability-bucket inference for downloadable model
+// filenames. Wraps the keyword SSOT in `model_loader::download` —
+// surfaced to the Tauri layer for the model-downloader UI's
+// "this filename → chat / rag / voice / vision" preview and for
+// the intelligence devtool's Debug tab. Industry-standard concept
+// (capability classification), no kernel vocabulary.
+#[cfg(feature = "candle")]
+pub use devpulse_clyffy::model_loader::infer_download_folder;
 
 // IP-NOTE: model-loader concepts the desktop UI surfaces directly
 // (registry entries, source-tier classification, slot identity).

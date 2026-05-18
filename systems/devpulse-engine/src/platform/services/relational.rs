@@ -705,6 +705,38 @@ CREATE TABLE IF NOT EXISTS vision_frames (
 );
 CREATE INDEX IF NOT EXISTS idx_vision_frames_time
     ON vision_frames(session_id, captured_at_ms);
+
+-- ── Community feed cache ─────────────────────────────────────
+-- Local mirror of remote community content (announcements, knowledge
+-- contributions, activity highlights). Lets the Latest tab + Community
+-- page render offline; the desktop Tauri command refreshes from the
+-- configured endpoint on a schedule and upserts here. payload_json
+-- stays VARCHAR/TEXT (NOT a native JSON column) for cross-DB consistency
+-- with the DuckDB heap-corruption ground rule documented at
+-- `kernel/.../duckdb/diagnostics.rs`.
+
+CREATE TABLE IF NOT EXISTS community_feed (
+    id              TEXT PRIMARY KEY NOT NULL,
+    kind            TEXT NOT NULL,
+    title           TEXT,
+    body            TEXT,
+    actor           TEXT,
+    created_at      INTEGER NOT NULL,
+    synced_at       INTEGER NOT NULL,
+    url             TEXT,
+    payload_json    TEXT NOT NULL DEFAULT '{}'
+);
+CREATE INDEX IF NOT EXISTS idx_feed_kind_created
+    ON community_feed(kind, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feed_synced
+    ON community_feed(synced_at);
+
+CREATE TABLE IF NOT EXISTS community_config (
+    user_id         TEXT PRIMARY KEY NOT NULL,
+    last_sync_at    INTEGER NOT NULL DEFAULT 0,
+    enabled         INTEGER NOT NULL DEFAULT 1,
+    endpoint        TEXT
+);
 ";
 
 // ═══════════════════════════════════════════════════════════════

@@ -376,6 +376,165 @@ impl LoaderEventSink for FileEventSink {
                     "[model-loader] Install FAILED"
                 );
             }
+
+            // ── Wizard cortex lifecycle ────────────────────────────
+            //
+            // Sink writes layman-friendly lines to the user-visible
+            // model-loader log AND emits structured `tracing` on the
+            // shared `wizard.lifecycle` target so the dual-observability
+            // contract holds at THIS sink too. The same events also
+            // surface through `TracingEventSink` (see
+            // `kernel/model-loader/src/traits/events.rs`); this sink is
+            // additive — file-backed for user-facing log review.
+            LoaderEvent::WizardTileApplied { slot_id, model_id } => {
+                let model_display = model_id.as_deref().unwrap_or("(resolving)");
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Wizard tile applied: slot={slot_id} model={model_display}"
+                    ),
+                );
+                tracing::info!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    model_id = ?model_id,
+                    "[wizard] Tile applied"
+                );
+            }
+            LoaderEvent::WizardSymlinkArmed {
+                slot_id,
+                link_path,
+                target_path,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Wizard slot armed: slot={slot_id} link={link_path} -> {target_path}"
+                    ),
+                );
+                tracing::info!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    link_path = %link_path,
+                    target_path = %target_path,
+                    "[wizard] Symlink armed"
+                );
+            }
+            LoaderEvent::WizardSymlinkFailed { slot_id, error } => {
+                self.write_line(
+                    "WARN",
+                    &format!("Wizard slot symlink FAILED: slot={slot_id} error={error}"),
+                );
+                tracing::warn!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    error = %error,
+                    "[wizard] Symlink FAILED"
+                );
+            }
+            LoaderEvent::WizardCortexComplete {
+                slots_saved,
+                duration_ms,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Wizard cortex complete: {slots_saved} slot(s) saved in {duration_ms}ms"
+                    ),
+                );
+                tracing::info!(
+                    target: "wizard.lifecycle",
+                    slots_saved,
+                    duration_ms,
+                    "[wizard] Cortex complete"
+                );
+            }
+
+            // ── Intelligence pipeline ──────────────────────────────
+            //
+            // Layman-friendly log lines for the user-visible
+            // model-loader log plus structured tracing on
+            // `intel.pipeline` so the cortex devtool's live mirror
+            // and post-hoc replay both have the same signal.
+            LoaderEvent::IntelligenceClassifyStarted {
+                project_slug,
+                content_len,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Intel pipeline START: project={project_slug} content_len={content_len}"
+                    ),
+                );
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    content_len,
+                    "[intel] Chat turn entered pipeline"
+                );
+            }
+            LoaderEvent::IntelligenceEmbedComplete {
+                project_slug,
+                dim,
+                duration_ms,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Intel pipeline EMBED: project={project_slug} dim={dim} ms={duration_ms}"
+                    ),
+                );
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    dim,
+                    duration_ms,
+                    "[intel] Embedding produced"
+                );
+            }
+            LoaderEvent::IntelligenceMemorySaved {
+                project_slug,
+                memory_id,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!(
+                        "Intel pipeline SAVED: project={project_slug} memory_id={memory_id}"
+                    ),
+                );
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    memory_id = %memory_id,
+                    "[intel] Memory persisted"
+                );
+            }
+            LoaderEvent::ReasoningEscalated {
+                project_slug,
+                backend,
+            } => {
+                self.write_line(
+                    "INFO",
+                    &format!("Reasoning escalated: project={project_slug} backend={backend}"),
+                );
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    backend = %backend,
+                    "[intel] Reasoning escalated"
+                );
+            }
+            LoaderEvent::ClaudeApiActivated { key_present } => {
+                self.write_line(
+                    "INFO",
+                    &format!("Claude API key state changed: key_present={key_present}"),
+                );
+                tracing::info!(
+                    target: "intel.pipeline",
+                    key_present,
+                    "[intel] Claude API state changed"
+                );
+            }
         }
     }
 }

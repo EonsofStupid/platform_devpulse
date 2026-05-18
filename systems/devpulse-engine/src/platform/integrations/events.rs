@@ -172,6 +172,104 @@ impl LoaderEventSink for EventBridge {
                     "new_fingerprint": new_fingerprint,
                 }),
             ),
+            // ── Wizard cortex lifecycle → frontend bridge ─────────
+            //
+            // Bridged so devtool surfaces (cortex devtool mirror,
+            // ActivityHUD wizard channel) can render live state
+            // without polling the loader. Matches the dual-
+            // observability contract — kernel emits, sink fans out
+            // to both tracing and the IPC channel.
+            LoaderEvent::WizardTileApplied { slot_id, model_id } => (
+                "model:wizard-tile-applied",
+                json!({
+                    "slot_id": slot_id,
+                    "model_id": model_id,
+                }),
+            ),
+            LoaderEvent::WizardSymlinkArmed {
+                slot_id,
+                link_path,
+                target_path,
+            } => (
+                "model:wizard-symlink-armed",
+                json!({
+                    "slot_id": slot_id,
+                    "link_path": link_path,
+                    "target_path": target_path,
+                }),
+            ),
+            LoaderEvent::WizardSymlinkFailed { slot_id, error } => (
+                "model:wizard-symlink-failed",
+                json!({
+                    "slot_id": slot_id,
+                    "error": error,
+                }),
+            ),
+            LoaderEvent::WizardCortexComplete {
+                slots_saved,
+                duration_ms,
+            } => (
+                "model:wizard-cortex-complete",
+                json!({
+                    "slots_saved": slots_saved,
+                    "duration_ms": duration_ms,
+                }),
+            ),
+            // ── Intelligence pipeline → frontend bridge ───────────
+            //
+            // `intel:*` channel is the live mirror feed for
+            // `/devtools/clyffy/memory/intelligence`. The view
+            // listens for these three events in arrival order and
+            // renders one card per memory the cortex pipeline
+            // produced from a chat turn.
+            LoaderEvent::IntelligenceClassifyStarted {
+                project_slug,
+                content_len,
+            } => (
+                "intel:classify-started",
+                json!({
+                    "project_slug": project_slug,
+                    "content_len": content_len,
+                }),
+            ),
+            LoaderEvent::IntelligenceEmbedComplete {
+                project_slug,
+                dim,
+                duration_ms,
+            } => (
+                "intel:embed-complete",
+                json!({
+                    "project_slug": project_slug,
+                    "dim": dim,
+                    "duration_ms": duration_ms,
+                }),
+            ),
+            LoaderEvent::IntelligenceMemorySaved {
+                project_slug,
+                memory_id,
+            } => (
+                "intel:memory-saved",
+                json!({
+                    "project_slug": project_slug,
+                    "memory_id": memory_id,
+                }),
+            ),
+            LoaderEvent::ReasoningEscalated {
+                project_slug,
+                backend,
+            } => (
+                "intel:reasoning-escalated",
+                json!({
+                    "project_slug": project_slug,
+                    "backend": backend,
+                }),
+            ),
+            LoaderEvent::ClaudeApiActivated { key_present } => (
+                "intel:claude-activated",
+                json!({
+                    "key_present": key_present,
+                }),
+            ),
             _ => {
                 // Other events: log via tracing, don't emit to frontend
                 tracing::debug!(event = ?event, "Model loader event (not bridged)");

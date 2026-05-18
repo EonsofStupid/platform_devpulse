@@ -226,6 +226,125 @@ pub enum LoaderEvent {
         slot_id: String,
     },
 
+    // ── Wizard cortex lifecycle ────────────────────────────
+    //
+    // Paired with `tracing::info!(target: "wizard.lifecycle", …)`
+    // emissions in `service::assign_model` / `service::load_slot` /
+    // `service::run_install_chain`. Both axes (`InternalEvent` and
+    // tracing) MUST be wired together per
+    // `feedback_dual_observability` — the devtool subscribes to
+    // these `LoaderEvent`s for live cortex-tile state mirroring,
+    // while the tracing target is for log replay + telemetry.
+    /// Wizard customer hit Apply on a cortex tile. Fires BEFORE
+    /// the install chain begins so the UI can flip the tile to
+    /// "saving" state immediately, before any IO blocks.
+    WizardTileApplied {
+        /// Slot the customer applied (matches kernel slot id).
+        slot_id: String,
+        /// Registry model id about to be wired into the slot.
+        /// `None` when the install chain is still resolving the
+        /// HuggingFace download → registry entry mapping.
+        model_id: Option<String>,
+    },
+    /// The slot symlink at
+    /// `{userdata_dir}/slots/{slot_id}/model.<ext>` is now armed
+    /// and points at the registry target. Chat / STS / vision
+    /// callers probing that path will see the model from this
+    /// instant forward. Emitted from `service::assign_model`
+    /// regardless of whether load succeeds afterwards.
+    WizardSymlinkArmed {
+        /// Slot whose symlink was created or refreshed.
+        slot_id: String,
+        /// Absolute symlink path (the link, not the target).
+        link_path: String,
+        /// Absolute target path the symlink resolves to.
+        target_path: String,
+    },
+    /// Symlink creation failed for a wizard apply. Distinct from
+    /// the generic `InstallFailed` so the wizard can surface the
+    /// Developer-Mode hint specifically when
+    /// `ERROR_PRIVILEGE_NOT_HELD` (Windows 1314) is the cause.
+    WizardSymlinkFailed {
+        /// Slot whose symlink failed.
+        slot_id: String,
+        /// Human-readable failure reason (preserves the underlying
+        /// IO error message, including any layman hint the symlink
+        /// helper produced).
+        error: String,
+    },
+    /// Every cortex slot in the wizard reached the `saved` state.
+    /// Fired by the wizard view layer once `slotSaves.every(s =>
+    /// s.state === "saved")` flips true.
+    WizardCortexComplete {
+        /// How many slots are now armed (typically 5 for the
+        /// baseline foundation, but the constant is not enforced
+        /// here — extending the constellation shouldn't require
+        /// touching the event).
+        slots_saved: u32,
+        /// End-to-end wall time from first Apply to last Saved,
+        /// in milliseconds. The wizard view starts the timer on
+        /// first apply; the event fires when `allSaved` flips.
+        duration_ms: u64,
+    },
+
+    // ── Intelligence pipeline lifecycle ────────────────────────
+    //
+    // Fired by the cortex `process_chat_message` pipeline on every
+    // chat turn. The devtool's `/devtools/clyffy/memory/intelligence`
+    // live mirror subscribes to all three so the operator sees text
+    // → embed → save in real time. Tracing partner emits on the
+    // `intel.pipeline` target. See [[feedback-dual-observability]].
+    /// Chat turn entered the intelligence pipeline. Fires before
+    /// any embed/storage work so the devtool can light up the
+    /// "in flight" row immediately.
+    IntelligenceClassifyStarted {
+        /// Project slug — the SurrealDB database name under the
+        /// `projects` namespace. Derived via `slug_for_cwd`.
+        project_slug: String,
+        /// Byte length of the chat content (no PII in the event).
+        content_len: u64,
+    },
+    /// Burn embedder produced a vector for the chat content. Fired
+    /// before the storage write so devtool sees the embed step
+    /// separately from the persist step.
+    IntelligenceEmbedComplete {
+        /// Project slug (matches the corresponding
+        /// `IntelligenceClassifyStarted`).
+        project_slug: String,
+        /// Vector dimension actually produced (sanity-check
+        /// against `EMBEDDING_DIM`).
+        dim: u32,
+        /// Wall time to compute the embedding in milliseconds.
+        duration_ms: u64,
+    },
+    /// `IntelligenceStore::save_memory` succeeded. Carries the row
+    /// id the connector returned so the devtool can pivot into
+    /// SurrealDB / Qdrant inspectors with one click.
+    IntelligenceMemorySaved {
+        /// Project slug.
+        project_slug: String,
+        /// Connector-returned memory id (Surreal record id today,
+        /// future connectors may shape this differently).
+        memory_id: String,
+    },
+    /// A chat turn escalated from the minion classifier to a
+    /// heavier reasoning backend. `backend` is the human-readable
+    /// route — currently `"chat.brain"` (local llama.cpp) or
+    /// `"claude"` (Claude API or subscription).
+    ReasoningEscalated {
+        /// Project slug.
+        project_slug: String,
+        /// Which backend the router selected.
+        backend: String,
+    },
+    /// Claude API key was set or cleared in the OS keyring. The
+    /// boolean reflects the post-change presence, not the value.
+    ClaudeApiActivated {
+        /// `true` after a successful `set_claude_api_key`,
+        /// `false` after `clear_claude_api_key`.
+        key_present: bool,
+    },
+
     // ── Install (one-button download → assign → load) ─────
     /// The atomic install chain started — download → scan → assign →
     /// load, sequenced inside `ModelLoaderService::install_to_slot`.
@@ -397,6 +516,87 @@ impl LoaderEventSink for TracingEventSink {
                     old_upstream = ?old_fingerprint.as_ref().and_then(|f| f.upstream_revision.as_ref()),
                     new_upstream = ?new_fingerprint.upstream_revision,
                     "Runtime version changed"
+                );
+            }
+            // ── Wizard cortex lifecycle — `wizard.lifecycle` target.
+            // Consistent field names so log replay tools can correlate
+            // `slot_id` across events without per-variant adapters.
+            LoaderEvent::WizardTileApplied { slot_id, model_id } => {
+                tracing::info!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    model_id = ?model_id,
+                    "Wizard tile applied"
+                );
+            }
+            LoaderEvent::WizardSymlinkArmed {
+                slot_id,
+                link_path,
+                target_path,
+            } => {
+                tracing::info!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    link_path = %link_path,
+                    target_path = %target_path,
+                    "Wizard slot symlink armed"
+                );
+            }
+            LoaderEvent::WizardSymlinkFailed { slot_id, error } => {
+                tracing::warn!(
+                    target: "wizard.lifecycle",
+                    slot_id = %slot_id,
+                    error = %error,
+                    "Wizard slot symlink failed"
+                );
+            }
+            LoaderEvent::WizardCortexComplete { slots_saved, duration_ms } => {
+                tracing::info!(
+                    target: "wizard.lifecycle",
+                    slots_saved,
+                    duration_ms,
+                    "Wizard cortex complete"
+                );
+            }
+            // ── Intelligence pipeline lifecycle (`intel.pipeline` target).
+            LoaderEvent::IntelligenceClassifyStarted { project_slug, content_len } => {
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    content_len,
+                    "Chat turn entered intelligence pipeline"
+                );
+            }
+            LoaderEvent::IntelligenceEmbedComplete { project_slug, dim, duration_ms } => {
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    dim,
+                    duration_ms,
+                    "Embedding produced"
+                );
+            }
+            LoaderEvent::IntelligenceMemorySaved { project_slug, memory_id } => {
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    memory_id = %memory_id,
+                    "Memory persisted"
+                );
+            }
+            LoaderEvent::ReasoningEscalated { project_slug, backend } => {
+                tracing::info!(
+                    target: "intel.pipeline",
+                    project_slug = %project_slug,
+                    backend = %backend,
+                    "Reasoning escalated"
+                );
+            }
+            LoaderEvent::ClaudeApiActivated { key_present } => {
+                tracing::info!(
+                    target: "intel.pipeline",
+                    key_present,
+                    "Claude API key state changed"
                 );
             }
             _ => {
