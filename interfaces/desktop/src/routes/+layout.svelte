@@ -9,7 +9,7 @@ import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
-import { authState, LoginShell } from "$lib/domains/auth/index.js";
+import { authState } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
@@ -161,16 +161,16 @@ onMount(() => {
 	-->
 	<ModelDownloaderOverlay />
 	<!--
-		Auth gate. `pending` falls through to the BootOverlay above
-		(splash still covers the screen). `signed-out` and
-		`not-configured` render the LoginShell. `signed-in` renders
-		the routed children. Path-agnostic — there's no /login route,
-		the gate IS the route.
+		Local-first render contract. `pending` falls through to the
+		BootOverlay above (splash still covers the screen). Every other
+		phase renders the routed children — DevPulse is local-first, so
+		absence of Supabase cloud auth is the DEFAULT working state,
+		never a blocking screen. Users reach LoginShell from settings
+		if they explicitly want cloud sync; the app itself runs without
+		it.
 	-->
-	{#if authState.phase === "signed-in"}
+	{#if authState.phase !== "pending"}
 		{@render children()}
-	{:else if authState.phase === "signed-out" || authState.phase === "not-configured"}
-		<LoginShell />
 	{/if}
 
 	{#snippet failed(error, reset)}
