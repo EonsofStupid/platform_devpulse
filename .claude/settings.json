@@ -47,7 +47,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/save-chat.js\"",
+            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/banter-dump.js\" user-prompt",
             "timeout": 10,
             "async": true
           },
@@ -97,6 +97,11 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/banter-dump.js\" stop",
+            "timeout": 15
+          },
           {
             "type": "command",
             "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/verify-on-stop.js\"",

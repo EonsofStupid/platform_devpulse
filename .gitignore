@@ -52,6 +52,7 @@ lefthook.yml
 pnpm-lock.yaml
 .claude/settings.local.json
 .claude/worktrees/
+.claude/dumps/
 deps/
 # Vendored forks tracked as submodules — see .gitmodules.
 !deps/moshi/
