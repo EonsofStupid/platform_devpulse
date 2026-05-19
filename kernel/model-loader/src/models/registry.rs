@@ -146,15 +146,63 @@ impl ModelRegistry {
         }
     }
 
-    /// Scan the models directory and rebuild the registry.
+    /// Scan the models directory AND the Hugging Face hub cache, rebuilding
+    /// the registry from both sources.
+    ///
+    /// The HF cache scan ensures that any model the user (or any other
+    /// tooling) has already pulled into `~/.cache/huggingface/hub/` is
+    /// visible to the slot picker WITHOUT requiring a duplicate download
+    /// into `<models_dir>`. Entries from both sources are merged; the
+    /// shared `deduplicate_by_path` pass collapses symlink duplicates so
+    /// a file already linked from cache into `<models_dir>` appears once.
+    ///
+    /// HF cache discovery is best-effort: missing cache dir, unreadable
+    /// repos, and per-file parse failures all fail-soft so a corrupted
+    /// entry never prevents the rest of the registry from rebuilding.
     ///
     /// # Errors
     ///
-    /// Returns an error if discovery fails to walk the models directory
+    /// Returns an error only if discovery fails to walk `<models_dir>`
     /// (permission denied, path missing) or if persisting the rebuilt
     /// registry to `registry.json` fails.
     pub fn scan(&mut self) -> anyhow::Result<usize> {
-        let discovered = crate::models::discovery::discover_models(&self.models_dir)?;
+        let mut discovered = crate::models::discovery::discover_models(&self.models_dir)?;
+
+        if let Some(cache_dir) = crate::models::discovery::default_hf_cache_dir() {
+            match crate::models::discovery::discover_hf_cache(&cache_dir) {
+                Ok(mut cache_entries) => {
+                    tracing::info!(
+                        count = cache_entries.len(),
+                        path = %cache_dir.display(),
+                        "Merged HF cache discovery into registry"
+                    );
+                    discovered.append(&mut cache_entries);
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        error = %e,
+                        path = %cache_dir.display(),
+                        "HF cache discovery failed — continuing with models_dir only"
+                    );
+                }
+            }
+        }
+
+        // Merge dedup: the canonical-path comparator collapses any model
+        // that already lives in `<models_dir>` via symlink to the HF cache
+        // blob. The shared `normalize_path` resolves symlinks, so a model
+        // discovered from both sources lands as a single registry entry.
+        let mut seen = std::collections::HashSet::new();
+        discovered.retain(|e| {
+            let key = e
+                .path
+                .canonicalize()
+                .unwrap_or_else(|_| e.path.clone())
+                .to_string_lossy()
+                .to_string();
+            seen.insert(key)
+        });
+
         let count = discovered.len();
         self.entries = discovered;
         self.save()?;
