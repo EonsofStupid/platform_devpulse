@@ -1524,6 +1524,28 @@ async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
 }
 },
 /**
+ * Persist a memory row into the project's intelligence store.
+ * 
+ * Returns the connector-assigned memory id (typically a UUIDv7 the
+ * command generates). Idempotent at the connector layer when the
+ * connector dedupes by embedding similarity.
+ * 
+ * # Errors
+ * 
+ * - Platform is still booting.
+ * - Graph service is not available (Surreal not booted).
+ * - `embedding.len() != EMBEDDING_DIM` (rejected before the write).
+ * - Connector write failed.
+ */
+async intelSaveMemory(request: IntelSaveMemoryRequest) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("intel_save_memory", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Infer the capability bucket (`chat` / `rag` / `voice` / `vision`)
  * for a downloadable model filename.
  * 
@@ -1545,6 +1567,29 @@ async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
 async inferCapabilityBucket(filename: string) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("infer_capability_bucket", { filename }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load a parsed kernel interaction template by id.
+ * 
+ * Supported ids: `"setup"`, `"welcome-back"`. Each id maps to the
+ * matching `InteractionTemplate::<id>` constructor on the kernel
+ * side; templates are bundled at compile time via `include_str!`
+ * so this command never touches disk except to read user
+ * overrides at `{userdata_dir}/config/interactions/<id>.toml`.
+ * 
+ * # Errors
+ * Returns the kernel's parse / validation error message as a
+ * string when the embedded default or the user override fails to
+ * parse. Returns `"Unknown interaction id: <id>"` when the id
+ * doesn't match a built-in template.
+ */
+async getInteractionTemplate(id: string) : Promise<Result<InteractionTemplate, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_interaction_template", { id }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1708,6 +1753,49 @@ async registerDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls,
 async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("unregister_devpulse_mcp", { target }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Send a prompt to Anthropic and return the assistant's reply.
+ * 
+ * Reads the API key from the OS keychain (entry `devpulse :: api_key_anthropic-api`).
+ * If no key is stored, returns `CommandError` with a layman hint to
+ * run the wizard's Clyffy Collab step.
+ * 
+ * Synchronous (non-streaming) for the first cut. A streaming variant
+ * (`ping_claude_stream`) returning through Tauri events can land in a
+ * follow-up if the cortex reasoning surface needs incremental tokens.
+ * 
+ * # Errors
+ * 
+ * - No API key stored.
+ * - Network failure / Anthropic returned an error status (forwarded
+ * with the response body so the UI can surface 401 / 429 / 5xx
+ * specifically).
+ * - Response body did not match the expected envelope shape.
+ */
+async pingClaude(request: PingClaudeRequest) : Promise<Result<PingClaudeResponse, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ping_claude", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check whether an Anthropic API key is currently in the OS
+ * keychain. Cheap predicate the wizard + devtool poll without
+ * reading the actual key.
+ * 
+ * # Errors
+ * Keyring read failures other than NoEntry are surfaced verbatim.
+ */
+async anthropicKeyPresent() : Promise<Result<boolean, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("anthropic_key_present") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2071,6 +2159,30 @@ async getKnowledgeEntry(entryType: string, tool: string | null) : Promise<Result
 async recordKnowledgeReaction(entryId: string, reaction: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("record_knowledge_reaction", { entryId, reaction }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Pull the latest knowledge catalog from the configured Supabase
+ * Storage bucket and upsert into libSQL.
+ * 
+ * URL convention (public bucket, anon-keyed read):
+ * 
+ * - `{supabase_url}/storage/v1/object/public/knowledge/manifest.json`
+ * - `{supabase_url}/storage/v1/object/public/knowledge/{filename}`
+ * 
+ * When the manifest version matches what's already stored, the kernel
+ * fast-paths to zero work (returns `Synced { upserted: 0, .. }`).
+ * 
+ * # Errors
+ * Returns string error only when the platform handle is unavailable.
+ * All other failures degrade to a `KnowledgeSyncResult` variant.
+ */
+async syncKnowledgeFromRemote() : Promise<Result<KnowledgeSyncResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sync_knowledge_from_remote") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3679,6 +3791,175 @@ async routingSaveConfig(cfg: RoutingConfig) : Promise<Result<RoutingConfig, stri
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Probe the updater endpoint and report what's available.
+ * 
+ * Network-bound; do not call on the boot path. On success the
+ * [`UpdateAvailable`] event is also emitted so any other surface
+ * listening (a sidebar badge, the Latest tab) can react without a
+ * follow-up command call.
+ * 
+ * # Errors
+ * Returns the underlying plugin error stringified — typically network
+ * failure, malformed `latest.json`, or signature/version validation
+ * failure at the plugin layer.
+ */
+async checkForUpdate() : Promise<Result<UpdateInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("check_for_update") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Download + verify + install the available update, then restart.
+ * 
+ * Streams progress as [`UpdateDownloadProgress`] events. Fires
+ * [`UpdateInstallFinished`] once the bytes are on disk and the new
+ * installer has been invoked. Then calls `app.restart()` so the new
+ * build takes over the running process — the user does not need to
+ * re-launch.
+ * 
+ * Re-checks for the update in case the operator clicked install long
+ * after the probe (a stale token would otherwise be a confusing
+ * "available but won't install").
+ * 
+ * # Errors
+ * Returns plugin errors stringified — signature verification failure,
+ * download IO failure, installer launch failure.
+ */
+async installUpdate() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("install_update") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Read the persisted release channel preference.
+ * 
+ * Resolves the data dir via [`paths::resolve_data_dir`] instead of
+ * the `PlatformState` handle, so this command works the instant the
+ * Tauri runtime is up — well before the platform boot task finishes.
+ * Channel preference is operator metadata, not a runtime-critical
+ * signal; making it available pre-boot eliminates the race where the
+ * Sidebar / Latest tab mount before Platform::boot completes.
+ * 
+ * Defaults to [`UpdateChannel::Stable`] when the file is missing or
+ * unreadable — the channel preference is never load-bearing on boot,
+ * only on the next update probe.
+ * 
+ * # Errors
+ * Returns a string only if the data dir itself cannot be resolved
+ * (e.g. the executable has no parent path, which shouldn't happen
+ * outside a broken install). Disk-read failures fall back to
+ * [`UpdateChannel::Stable`] silently.
+ */
+async getUpdateChannel() : Promise<Result<UpdateChannel, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_update_channel") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Persist the release channel preference via atomic write.
+ * 
+ * Writes to `{data_dir}/user/updates.json` using the `tmp + rename`
+ * pattern so a crash mid-write never leaves the operator with a
+ * truncated config. Uses [`paths::resolve_data_dir`] for the same
+ * pre-boot-safe reason as [`get_update_channel`].
+ * 
+ * # Errors
+ * Returns string errors for data-dir resolution failure, filesystem
+ * write failure, or serialization failure (the latter is a
+ * programming error and indicates this build is broken).
+ */
+async setUpdateChannel(channel: UpdateChannel) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_update_channel", { channel }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Read recent feed items from the local cache.
+ * 
+ * Pure cache read — never touches the network. Returns whatever was
+ * synced last; an empty Vec is the legitimate steady state when no
+ * sync has run or the upstream table is empty.
+ * 
+ * # Errors
+ * Returns string errors for missing platform handle or SQL failure.
+ */
+async fetchFeed(kind: string | null, limit: number | null) : Promise<Result<FeedItem[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_feed", { kind, limit }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetch fresh items from the configured Supabase endpoint and upsert
+ * them into the local cache.
+ * 
+ * Behavior:
+ * 1. If community is operator-disabled → [`SyncResult::Skipped`].
+ * 2. If `force == false` and the cache is younger than
+ * `DEFAULT_FEED_TTL_SECS` → [`SyncResult::Skipped`] (no work needed).
+ * 3. If Supabase credentials are missing or the anon key is unset →
+ * [`SyncResult::Skipped`] (operator hasn't enrolled cloud yet).
+ * 4. Otherwise call `{supabase_url}/rest/v1/community_feed` with the
+ * anon key, parse the response, and upsert each row.
+ * 
+ * All failure modes degrade to a `SyncResult` variant — the command
+ * itself only `Err`s when the platform handle is unavailable.
+ * 
+ * # Errors
+ * Returns a string only when the platform handle is not yet bound.
+ */
+async syncCommunityFeed(force: boolean) : Promise<Result<SyncResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("sync_community_feed", { force }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Surface current community-subsystem health: enabled flag, last sync
+ * time, cache freshness, cached item count.
+ * 
+ * # Errors
+ * Returns string errors for missing platform handle.
+ */
+async communityStatus() : Promise<Result<CommunityStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("community_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Flip the operator-facing toggle for community sync.
+ * 
+ * # Errors
+ * Returns string errors for missing platform handle or SQL failure.
+ */
+async setCommunityEnabledCmd(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_community_enabled_cmd", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -3694,7 +3975,10 @@ hardwareMetricsUpdated: HardwareMetricsUpdated,
 inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
 llamaServerReady: LlamaServerReady,
-llamaTokenStreamed: LlamaTokenStreamed
+llamaTokenStreamed: LlamaTokenStreamed,
+updateAvailable: UpdateAvailable,
+updateDownloadProgress: UpdateDownloadProgress,
+updateInstallFinished: UpdateInstallFinished
 }>({
 bootPhaseChanged: "boot-phase-changed",
 chatSessionDeleted: "chat-session-deleted",
@@ -3704,7 +3988,10 @@ hardwareMetricsUpdated: "hardware-metrics-updated",
 inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
 llamaServerReady: "llama-server-ready",
-llamaTokenStreamed: "llama-token-streamed"
+llamaTokenStreamed: "llama-token-streamed",
+updateAvailable: "update-available",
+updateDownloadProgress: "update-download-progress",
+updateInstallFinished: "update-install-finished"
 })
 
 /** user-defined constants **/
@@ -5296,6 +5583,29 @@ message: string;
  */
 context: string | null }
 /**
+ * Lightweight status payload for the community subsystem.
+ * 
+ * Used by the Latest tab / Community page header to render "synced
+ * 12 min ago · enabled" without forcing a full feed reload.
+ */
+export type CommunityStatus = { 
+/**
+ * Whether community sync is allowed per operator toggle.
+ */
+enabled: boolean; 
+/**
+ * Most recent `synced_at` in the cache (epoch seconds, 0 = never).
+ */
+lastSyncAt: number; 
+/**
+ * Whether the cache is older than `DEFAULT_FEED_TTL_SECS`.
+ */
+cacheStale: boolean; 
+/**
+ * Total rows currently in `community_feed`.
+ */
+cachedItems: number }
+/**
  * Completion screen — summary and launch.
  */
 export type CompletionCopy = { 
@@ -6203,6 +6513,74 @@ rowsExported: number;
  */
 path: string }
 /**
+ * A single community feed item, both as fetched from the remote
+ * endpoint and as stored in libSQL.
+ * 
+ * `payload_json` is the JSON-encoded form of the kind-specific payload
+ * shape. Kept as `String` (not `serde_json::Value`) so the type is
+ * trivially `specta::Type`-able across the IP boundary; the UI layer
+ * parses on receive. Mirrors the existing knowledge-entry pattern.
+ */
+export type FeedItem = { 
+/**
+ * Stable, globally-unique id (UUID or `kind:hash`).
+ */
+id: string; 
+/**
+ * What sort of item this is.
+ */
+kind: FeedKind; 
+/**
+ * Short display title.
+ */
+title: string | null; 
+/**
+ * Long-form body / preview.
+ */
+body: string | null; 
+/**
+ * Author or source identifier.
+ */
+actor: string | null; 
+/**
+ * Original publication timestamp from the source (epoch seconds).
+ */
+createdAt: number; 
+/**
+ * When this row was last synchronised locally (epoch seconds).
+ */
+syncedAt: number; 
+/**
+ * Canonical URL on the community site, when one exists.
+ */
+url: string | null; 
+/**
+ * Kind-specific structured payload as a JSON-encoded string.
+ */
+payloadJson: string }
+/**
+ * Discriminant for the kind of community item.
+ * 
+ * Three kinds today; extensible by appending to this enum without
+ * breaking persisted rows (the kernel matches on a string slug stored
+ * in the `kind` column, falling back to [`FeedKind::Activity`] for
+ * unknown values).
+ */
+export type FeedKind = 
+/**
+ * Operator announcement (release notes, roadmap, outage).
+ */
+"announcement" | 
+/**
+ * User-authored knowledge entry promoted to the catalog.
+ */
+"knowledge_contribution" | 
+/**
+ * Friend/group lifecycle: someone joined a group, started a
+ * session, posted a tip, etc.
+ */
+"activity"
+/**
  * A single `(arch, format)` support declaration. The resolver
  * iterates backends looking for an entry that matches its query.
  * 
@@ -6941,6 +7319,42 @@ export type InitStatus =
  */
 "Skipped"
 /**
+ * Request shape for [`intel_save_memory`].
+ * 
+ * Embedding is supplied by the caller so this command can ship
+ * before the chat → Burn-embedder hook lands. Future "capture this
+ * chat turn" verbs will compose this command on the engine side
+ * after running the text through the active embedder.
+ */
+export type IntelSaveMemoryRequest = { 
+/**
+ * Project slug — the SurrealDB database name under the
+ * `projects` namespace. Derive on the frontend via the
+ * `intel_list_projects` output or hardcode for single-project
+ * dev flows.
+ */
+projectSlug: string; 
+/**
+ * Verbatim memory text (~2 KB practical max).
+ */
+text: string; 
+/**
+ * Pre-computed embedding. MUST be [`EMBEDDING_DIM`] long; any
+ * other length is rejected up front rather than corrupting the
+ * HNSW index downstream.
+ */
+embedding: number[]; 
+/**
+ * `"Prompt"` (user input) or `"Response"` (assistant reply) or
+ * `"Reflection"` (summary). Passed verbatim as a serde tag —
+ * see [`MemoryKind`].
+ */
+kind: MemoryKind; 
+/**
+ * Priority hint `0..=10` blended into recall scoring.
+ */
+priority: number }
+/**
  * Header status surfaced in the devtool's Status tab.
  */
 export type IntelStatus = { 
@@ -6963,6 +7377,119 @@ embedding_dim: number;
  * its intelligence schema yet.
  */
 project_count: number }
+/**
+ * A single phase inside an interaction's state machine.
+ * 
+ * Phases are ordered, named, and carry pointers into the wizard
+ * copy TOML (kept separate so copy translators only edit one file).
+ */
+export type InteractionPhase = { 
+/**
+ * Stable phase identifier (`"welcome"`, `"scanning"`, etc.).
+ * Matches the frontend phase-machine enum variant the overlay
+ * uses to decide which sub-component to render.
+ */
+id: string; 
+/**
+ * Human-readable label for developer traces and UI breadcrumbs.
+ */
+label: string; 
+/**
+ * Copy block name inside `wizard_copy.default.toml` that this
+ * phase renders from (e.g. `"greeting"`, `"scanning"`).
+ * 
+ * Empty when the phase renders dynamic content that is not
+ * copy-backed (e.g. the preset picker, which builds its rows
+ * from `list_presets` at runtime).
+ */
+copy_block?: string; 
+/**
+ * Ordered list of phase ids this phase can transition to.
+ * The overlay uses this for "Next" button wiring and for
+ * validating that the state machine cannot reach an undeclared
+ * phase.
+ */
+next?: string[]; 
+/**
+ * Whether this phase is terminal (no further transitions). The
+ * overlay shows a "Close" button instead of "Next" on terminal
+ * phases.
+ */
+terminal?: boolean }
+/**
+ * A complete interaction template.
+ * 
+ * Templates are **data**, not code. The kernel loader parses them
+ * from TOML and hands them to the engine facade, which in turn hands
+ * them to the frontend overlay via a Tauri command. Every phase
+ * transition fires a `SignalVariant::System` event through the
+ * (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
+ * the whole interaction play out.
+ */
+export type InteractionTemplate = { 
+/**
+ * Stable template identifier (e.g. `"setup"`,
+ * `"hardware-change"`). Used as the TOML file stem and as the
+ * Tauri event channel suffix.
+ */
+id: string; 
+/**
+ * One-line description for developer logs and template browsers.
+ */
+description: string; 
+/**
+ * Ordered list of triggers that open this interaction.
+ * Evaluated in order — the first trigger that matches opens
+ * the overlay.
+ */
+triggers?: InteractionTrigger[]; 
+/**
+ * Phase machine. Position in the array is the default entry
+ * order; the actual runtime order follows each phase's `next`
+ * pointers.
+ */
+phases: InteractionPhase[]; 
+/**
+ * Entry phase id — the state machine starts here. Must match
+ * exactly one phase in `phases`.
+ */
+entry_phase: string }
+/**
+ * A declarative trigger that opens an interaction.
+ * 
+ * Triggers are evaluated by the kernel's interaction dispatcher. The
+ * frontend overlay never decides on its own whether to open — it
+ * receives a "show this template now" signal from the platform
+ * based on trigger evaluation.
+ */
+export type InteractionTrigger = 
+/**
+ * Fires on first run — no `Factory Default` configuration exists
+ * in libSQL AND `chat.brain` has no assigned model. Authoritative
+ * signal per D12.
+ */
+{ kind: "first_run" } | 
+/**
+ * Fires when the user invokes the interaction manually from a
+ * menu, keyboard shortcut, or command palette entry.
+ */
+{ kind: "manual" } | 
+/**
+ * Fires when detected hardware changes materially from what the
+ * current `Factory Default` configuration was built against.
+ */
+{ kind: "hardware_changed" } | 
+/**
+ * Fires when a slot fails to load and the user needs guided
+ * recovery.
+ */
+{ kind: "slot_broken"; slot_id: string } | 
+/**
+ * Fires when the app opens and the gap since the user's last
+ * recorded `last_seen_at` exceeds `days`. Drives the
+ * `welcome-back` interaction template.
+ */
+{ kind: "long_absence"; days: number }
 /**
  * A named action the assistant can run when its associated phrase is
  * detected after the wake phrase fires.
@@ -7027,6 +7554,24 @@ tags: string[];
  * ISO-8601 timestamp recording when the entry was authored.
  */
 added: string }
+/**
+ * Outcome of [`sync_knowledge_from_remote`].
+ */
+export type KnowledgeSyncResult = 
+/**
+ * Sync ran and `upserted` rows landed in the local cache. `0` when
+ * the remote version matched what was already stored.
+ */
+{ kind: "synced"; upserted: number; version: string } | 
+/**
+ * Sync skipped — supabase URL missing, public bucket layout
+ * not configured, or operator declined.
+ */
+{ kind: "skipped"; reason: string } | 
+/**
+ * Sync attempted and failed.
+ */
+{ kind: "failed"; error: string }
 /**
  * A single Kokoro voice available via the bundled ONNX runtime.
  * Returned by [`list_kokoro_voices`] so the TTS devtool's voice
@@ -7690,6 +8235,47 @@ protocolVersion: string;
  */
 installs: ClaudeInstalls }
 /**
+ * Kind taxonomy for stored memories.
+ * 
+ * Carries both serde and rkyv derives so the same value flows
+ * through the JSON-shaped graph row ([`MemoryRecord`]) and the
+ * zero-copy archive ([`RroRecord`]) with no translation step.
+ * Variants are unit-only — the archived layout is a compact tag.
+ */
+export type MemoryKind = 
+/**
+ * Architectural decision — locked rules, design choices.
+ */
+"decision" | 
+/**
+ * Lesson captured from a mistake or correction.
+ */
+"learning" | 
+/**
+ * Recurring pattern worth labeling for retrieval.
+ */
+"pattern" | 
+/**
+ * Incident record (failure / regression / outage).
+ */
+"incident" | 
+/**
+ * File-scoped note pinned to a source path.
+ */
+"file" | 
+/**
+ * User prompt captured for recall and reflection.
+ */
+"prompt" | 
+/**
+ * Assistant response captured for recall and reflection.
+ */
+"response" | 
+/**
+ * End-of-session reflection / structured summary.
+ */
+"reflection"
+/**
  * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
  */
 export type MessageStats = { 
@@ -8084,6 +8670,57 @@ managed: boolean | null;
  * Ollama server version (if we have successfully queried it).
  */
 version: string | null }
+/**
+ * What the wizard / chat command sends.
+ */
+export type PingClaudeRequest = { 
+/**
+ * The user-side prompt. Plain text — system prompt lives on the
+ * engine side once the reasoning router is wired.
+ */
+prompt: string; 
+/**
+ * Optional model override. Defaults to [`DEFAULT_MODEL`] when
+ * `None`.
+ */
+model: string | null; 
+/**
+ * Optional max-token cap. Defaults to [`DEFAULT_MAX_TOKENS`].
+ */
+maxTokens: number | null }
+/**
+ * What `ping_claude` returns to the frontend.
+ * 
+ * The shape mirrors the parts of the Anthropic Messages API response
+ * the cortex actually needs (text + usage), not the full envelope.
+ */
+export type PingClaudeResponse = { 
+/**
+ * Plain-text assistant reply assembled from the response's
+ * `content[].text` segments.
+ */
+text: string; 
+/**
+ * Tokens billed in this turn.
+ */
+usage: PingClaudeUsage; 
+/**
+ * Model id Anthropic actually answered with (may differ from the
+ * request when a model was aliased or rolled over).
+ */
+model: string }
+/**
+ * Token usage reported by the Anthropic API for this turn.
+ */
+export type PingClaudeUsage = { 
+/**
+ * Tokens consumed by the request prompt (system + messages).
+ */
+inputTokens: number; 
+/**
+ * Tokens generated in the response content blocks.
+ */
+outputTokens: number }
 /**
  * Public platform configuration.
  * 
@@ -9661,6 +10298,26 @@ elapsed_ms: number;
  */
 phases_observed: string[] }
 /**
+ * Outcome of a [`sync_community_feed`] invocation.
+ * 
+ * `Synced` is the happy path; `Skipped` means we declined to call out
+ * (cache is fresh, or community is disabled); `Failed` carries a
+ * stringified reason for the UI to surface inline.
+ */
+export type SyncResult = 
+/**
+ * Sync ran and `upserted` rows landed in the local cache.
+ */
+{ kind: "synced"; upserted: number; completed_at: number } | 
+/**
+ * Sync skipped intentionally — cache fresh, disabled, or no creds.
+ */
+{ kind: "skipped"; reason: string } | 
+/**
+ * Sync attempted and failed — message describes the failure.
+ */
+{ kind: "failed"; error: string }
+/**
  * Overall system health status.
  */
 export type SystemHealth = { 
@@ -9964,6 +10621,98 @@ export type UnsupportedReason =
  * guarantee a correct load.
  */
 { kind: "backend-cannot-load-arch"; backend: BackendId; suggested_backend: BackendId | null }
+/**
+ * Emitted every time the updater finishes a probe. Subscribers (the
+ * Latest tab, a sidebar badge) flip their "update available" indicator
+ * without having to call [`crate::commands::updates::check_for_update`]
+ * themselves.
+ */
+export type UpdateAvailable = { 
+/**
+ * Whether a newer build is available.
+ */
+available: boolean; 
+/**
+ * Version this build currently identifies as.
+ */
+currentVersion: string; 
+/**
+ * Version offered by the endpoint, when one is offered.
+ */
+latestVersion: string | null; 
+/**
+ * Release notes from `latest.json` — markdown body.
+ */
+notes: string | null }
+/**
+ * Release channel preference.
+ * 
+ * v0.1.0 only `Stable` ships from CI; the other variants exist so the
+ * type contract is stable when beta/nightly arrive without forcing a
+ * breaking bindings regeneration at that point.
+ */
+export type UpdateChannel = 
+/**
+ * Default — signed release artifacts published from `main`.
+ */
+"stable" | 
+/**
+ * Pre-release candidates. Not yet emitted by the publish workflow.
+ */
+"beta" | 
+/**
+ * Per-main-commit nightlies. Not yet emitted by the publish workflow.
+ */
+"nightly"
+/**
+ * Streamed progress while the update payload downloads. Frontend
+ * converts `downloaded_bytes / total_bytes` into a progress bar; a
+ * missing `total_bytes` means the server did not advertise a length
+ * (rare for GitHub Releases) and the UI shows an indeterminate bar.
+ */
+export type UpdateDownloadProgress = { 
+/**
+ * Bytes received so far this download.
+ */
+downloadedBytes: number; 
+/**
+ * Total bytes expected, when the server advertised a length.
+ */
+totalBytes: number | null }
+/**
+ * Result of an update probe.
+ * 
+ * `available == false` is the steady state — the UI shows "up to date"
+ * and a "check again" button. `available == true` lights up the
+ * install affordance and renders `notes` as the release body.
+ */
+export type UpdateInfo = { 
+/**
+ * Whether a newer build is available at the configured endpoint.
+ */
+available: boolean; 
+/**
+ * Version this build identifies as (from `tauri.conf.json`).
+ */
+current_version: string; 
+/**
+ * Version offered by the endpoint, when one is offered.
+ */
+latest_version: string | null; 
+/**
+ * Release notes from the `notes` field in `latest.json`.
+ */
+notes: string | null; 
+/**
+ * ISO-8601 string from the `pub_date` field in `latest.json`.
+ */
+published_at: string | null }
+/**
+ * Fires once the installer has been launched. The frontend transitions
+ * into a "restarting…" state; the process exits shortly after via
+ * `app.restart()`.
+ */
+export type UpdateInstallFinished = Record<string, never>
 /**
  * User preferences row from the `preferences` table.
  */
