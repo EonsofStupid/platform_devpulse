@@ -3,10 +3,22 @@
     "allow": [
       "mcp__surrealdb-banter__query",
       "mcp__surrealdb-banter__create",
-      "mcp__context7__query-docs"
+      "mcp__context7__query-docs",
+      "Bash(tail -10 \"C:\\\\\\\\Users\\\\\\\\jessa\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\d--localdev-platform-devpulse\\\\\\\\0edce24a-4629-436d-a069-0a1faa6f7ec8\\\\\\\\tasks\\\\\\\\b7y3rki7w.output\")",
+      "Bash(tail -15 \"C:\\\\\\\\Users\\\\\\\\jessa\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\d--localdev-platform-devpulse\\\\\\\\0edce24a-4629-436d-a069-0a1faa6f7ec8\\\\\\\\tasks\\\\\\\\bdh2ojjyb.output\")",
+      "Bash(tail -20 \"C:\\\\\\\\Users\\\\\\\\jessa\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\d--localdev-platform-devpulse\\\\\\\\0edce24a-4629-436d-a069-0a1faa6f7ec8\\\\\\\\tasks\\\\\\\\bbfoaqx7c.output\")",
+      "Bash(tail -f -n 0 \"C:\\\\\\\\Users\\\\\\\\jessa\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\d--localdev-platform-devpulse\\\\\\\\0edce24a-4629-436d-a069-0a1faa6f7ec8\\\\\\\\tasks\\\\\\\\bmenaopog.output\")",
+      "Bash(tail -f -n 0 \"D:\\\\\\\\localdev\\\\\\\\platform_devpulse\\\\\\\\target\\\\\\\\xtask-build-release-retry.log\")",
+      "Bash(tail -f -n 0 \"D:\\\\\\\\localdev\\\\\\\\platform_devpulse\\\\\\\\target\\\\\\\\xtask-build-release-attempt3.log\")",
+      "Bash(tail -f -n 0 \"D:\\\\\\\\localdev\\\\\\\\platform_devpulse\\\\\\\\target\\\\\\\\xtask-build-release-attempt4.log\")",
+      "Bash(tail -f -n 0 \"D:\\\\\\\\localdev\\\\\\\\platform_devpulse\\\\\\\\target\\\\\\\\xtask-build-release-attempt5.log\")",
+      "mcp__claude_ai_Hugging_Face__hub_repo_search",
+      "mcp__claude_ai_Hugging_Face__hub_repo_details",
+      "Bash(rm -rf \"d:/localdev/platform_devpulse/.claude/dumps/2026-05-18\" && ls \"d:/localdev/platform_devpulse/.claude/dumps/\" 2>&1)"
     ],
     "additionalDirectories": [
-      "C:\\Users\\jessa\\.claude\\plans"
+      "C:\\Users\\jessa\\.claude\\plans",
+      "d:\\localdev\\platform_devpulse\\.claude\\dumps\\2026-05-18"
     ]
   }
 }
