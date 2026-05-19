@@ -197,42 +197,57 @@ pub async fn fetch_dashboard(state: State<'_, PlatformState>) -> Result<Dashboar
     };
 
     // ── DuckDB queries ───────────────────────────────────────────────────
-    let daily_stats = if let Some(svc) = platform.analytics() {
+    // `daily_stats` lives in the USER analytics schema (USER_ANALYTICS_SCHEMA
+    // in `systems/devpulse-engine/src/platform/services/analytics.rs`),
+    // not the system schema. Reading from `platform.analytics()` (system)
+    // tried to query a table that doesn't exist there and surfaced as
+    // "Failed to load dashboard" the moment the user opened the app on
+    // a fresh data dir. We read from `user_analytics()` instead, and
+    // fail-soft to an empty vec when the table is absent (fresh install
+    // before any usage events have accumulated) or any other DuckDB
+    // error occurs — the dashboard UI already renders a zero-state for
+    // an empty array, so the right product behavior is "no data yet"
+    // rather than a full dashboard failure.
+    let daily_stats = if let Some(svc) = platform.user_analytics() {
         let adapter = svc.adapter();
 
-        let stats_rows = adapter
+        match adapter
             .analytics_query(
                 "SELECT date, total_model_calls, total_messages, total_prompt_tokens + total_completion_tokens AS total_tokens, avg_latency_ms \
                  FROM daily_stats ORDER BY date DESC LIMIT 20",
             )
             .await
-            .map_err(|e| format!("Failed to query daily_stats: {e}"))?;
-
-        stats_rows
-            .into_iter()
-            .map(|row| DailyStatsRow {
-                date: row
-                    .first()
-                    .map(std::string::ToString::to_string)
-                    .unwrap_or_default(),
-                total_signals: row
-                    .get(1)
-                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                    .unwrap_or(0),
-                total_messages: row
-                    .get(2)
-                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                    .unwrap_or(0),
-                total_tokens: row
-                    .get(3)
-                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                    .unwrap_or(0),
-                avg_latency_ms: row
-                    .get(4)
-                    .and_then(devpulse_engine::platform::SqlValue::as_real)
-                    .unwrap_or(0.0),
-            })
-            .collect()
+        {
+            Ok(stats_rows) => stats_rows
+                .into_iter()
+                .map(|row| DailyStatsRow {
+                    date: row
+                        .first()
+                        .map(std::string::ToString::to_string)
+                        .unwrap_or_default(),
+                    total_signals: row
+                        .get(1)
+                        .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                        .unwrap_or(0),
+                    total_messages: row
+                        .get(2)
+                        .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                        .unwrap_or(0),
+                    total_tokens: row
+                        .get(3)
+                        .and_then(devpulse_engine::platform::SqlValue::as_integer)
+                        .unwrap_or(0),
+                    avg_latency_ms: row
+                        .get(4)
+                        .and_then(devpulse_engine::platform::SqlValue::as_real)
+                        .unwrap_or(0.0),
+                })
+                .collect(),
+            Err(e) => {
+                tracing::warn!(error = %e, "daily_stats query failed — returning empty");
+                Vec::new()
+            }
+        }
     } else {
         Vec::new()
     };
