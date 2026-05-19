@@ -31,10 +31,7 @@ import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { baselineState } from "$lib/domains/app/models/data-access/baseline.state.svelte.js";
-import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
-import { markSetupComplete } from "$lib/sys/bindings/models/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
@@ -112,61 +109,42 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 	}
 }
 
-// When boot completes, kick the baseline auto-tune chain on first
-// run OR if models aren't ready — silent, no wizard. The dashboard's
-// `LiveSubsystemStrip` reads `modelsState` + `baselineState` and
-// surfaces progress per subsystem tile. Setup is marked complete
-// downstream once `baselineState.verdict` resolves (separate $effect).
+// Boot is silent on model loading. The platform reports ready, the
+// BootOverlay fades, the dashboard renders the registry contents
+// (DevPulse models dir + the Hugging Face hub cache merged via
+// `Registry::scan`). The user opens the `ModelDownloaderOverlay`
+// explicitly — from the dashboard widget, the sidebar nav, or a
+// per-slot card in the slot orchestrator devtool — to add or assign
+// a model. There is no auto-install path. There never was a
+// product-supported one: the prior `baselineState.kick()` here
+// silently fired 13 concurrent installs against a tier-keyed preset
+// table whose entries had drifted (dead repos, wrong filename
+// casing), and lock-fought hf-hub's shared blob cache. The fix is
+// not to repair the preset table — the lock says cloud sync /
+// preset downloads stay opt-in and never gate the app. The fix is
+// to never fire on boot. User-initiated downloads remain wired
+// through the existing `installToSlot` / `downloadModel` IPC; this
+// surface just stops auto-triggering them.
 //
 // Gate on `modelsStatusReceived` — the kernel emits `platform:ready`
-// and `platform:models-status` as separate events; without this gate
-// the effect would fire on `platform:ready` and act on the default
-// `modelsReady=false` / `modelsFirstRun=true` values, kicking the
-// chain when setup is actually complete (the real status arrives a
-// tick later, too late).
-let baselineKicked = $state(false);
+// and `platform:models-status` as separate events. Without this gate
+// the overlay would fade before the first authoritative models
+// snapshot reaches the rune store, leaving the dashboard briefly
+// rendering against the default `modelsReady=false` / `modelsFirstRun=true`
+// placeholder values.
+let faded = $state(false);
 $effect(() => {
-	if (bootComplete && platformState.modelsStatusReceived && !baselineKicked) {
-		baselineKicked = true;
-
-		if (platformState.modelsFirstRun || !platformState.modelsReady) {
-			logInfo(
-				"layouts.app.BootOverlay",
-				"Boot complete — first run / models not ready, kicking baseline auto-tune",
-			);
-			void baselineState.kick();
-		} else {
-			logInfo("layouts.app.BootOverlay", "Boot complete — setup done, dashboard takes over");
-		}
-
+	if (bootComplete && platformState.modelsStatusReceived && !faded) {
+		faded = true;
+		logInfo(
+			"layouts.app.BootOverlay",
+			`Boot complete — modelsReady=${platformState.modelsReady} firstRun=${platformState.modelsFirstRun} — dashboard takes over`,
+		);
 		fading = true;
 		setTimeout(() => {
 			visible = false;
 		}, 600);
 	}
-});
-
-// Mark setup complete the moment the baseline chain produces a
-// definitive verdict (every dispatched install has terminated). We
-// only mark complete on `ready` OR `partial` — a full `failed`
-// verdict leaves setup-incomplete so the next boot retries.
-//
-// `partial` still marks complete: the dashboard's tile strip
-// surfaces the failures + a one-click retry from the offending tile,
-// which is the right recovery flow rather than re-firing the whole
-// chain on every boot.
-let setupCompleteFiredVia = $state<string | null>(null);
-$effect(() => {
-	const verdict = baselineState.verdict;
-	if (verdict === "pending" || verdict === "failed") return;
-	if (setupCompleteFiredVia !== null) return;
-	setupCompleteFiredVia = verdict;
-	logInfo("layouts.app.BootOverlay", `baseline verdict=${verdict} — marking setup complete`);
-	void markSetupComplete().then((r) => {
-		if (r.status === "error") {
-			logError("layouts.app.BootOverlay", `markSetupComplete failed: ${r.error}`);
-		}
-	});
 });
 </script>
 
