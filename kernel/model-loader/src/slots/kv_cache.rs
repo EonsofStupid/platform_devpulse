@@ -89,7 +89,6 @@ pub struct KvCacheConfig {
     pub rope_scaling_mode: RopeScalingMode,
 
     // ── Power-user knobs (default off, opt-in only) ──────────────
-
     /// `PagedAttention` block size. Only honoured by runtimes that
     /// support paged attention (mistral.rs on CUDA-Linux/WSL or Metal,
     /// vLLM). `None` = runtime default (32 for mistral.rs, 16 for

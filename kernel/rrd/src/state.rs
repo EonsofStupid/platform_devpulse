@@ -178,7 +178,9 @@ mod tests {
     #[test]
     fn try_transition_to_failed_preserves_reason() {
         let reason = FailureReason::EncoderValidationFailed("dim mismatch".into());
-        let next = RRDState::Updating.try_transition_to_failed(reason.clone()).unwrap();
+        let next = RRDState::Updating
+            .try_transition_to_failed(reason.clone())
+            .unwrap();
         assert_eq!(next.failure_reason(), Some(&reason));
     }
 
@@ -186,7 +188,10 @@ mod tests {
     fn partial_eq_is_variant_only() {
         let a = RRDState::Failed(FailureReason::DrainTimeout);
         let b = RRDState::Failed(FailureReason::Internal("other".into()));
-        assert_eq!(a, b, "Failed variants must compare equal regardless of reason");
+        assert_eq!(
+            a, b,
+            "Failed variants must compare equal regardless of reason"
+        );
         assert_ne!(a, RRDState::Running);
     }
 }

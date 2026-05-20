@@ -72,9 +72,9 @@ where
     ///   model and the backend's `FloatElem`).
     async fn embed(&self, text: &str) -> Result<Vec<f32>> {
         let mut batch = self.embed_text(&[text])?;
-        batch
-            .pop()
-            .ok_or_else(|| anyhow::anyhow!("CortexBurnAdapter::embed: empty batch from forward pass"))
+        batch.pop().ok_or_else(|| {
+            anyhow::anyhow!("CortexBurnAdapter::embed: empty batch from forward pass")
+        })
     }
 
     /// Batch embed. Overrides the trait default (sequential

@@ -115,12 +115,12 @@ pub fn pool_last_token<B: Backend>(
     let [batch, _seq, hidden_size] = hidden.dims();
 
     // last_pos[b] = sum(mask[b]) - 1, as Int [B, 1]
-    let last_pos = attention_mask
-        .sum_dim(1)
-        .sub_scalar(1); // [B, 1] Int
+    let last_pos = attention_mask.sum_dim(1).sub_scalar(1); // [B, 1] Int
 
     // Broadcast last_pos to [B, 1, H] for gather along seq dim.
-    let indices = last_pos.unsqueeze_dim::<3>(2).expand([batch, 1, hidden_size]);
+    let indices = last_pos
+        .unsqueeze_dim::<3>(2)
+        .expand([batch, 1, hidden_size]);
 
     // gather along dim=1 (seq): output [B, 1, H]
     let pooled = hidden.gather(1, indices);

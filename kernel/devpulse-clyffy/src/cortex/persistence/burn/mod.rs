@@ -178,7 +178,9 @@ mod tests {
         let batch = 2;
         let seq = 8;
         // Token ids in [0, vocab_size); attention mask all-ones.
-        let token_data: Vec<i64> = (0..(batch * seq)).map(|i| (i % cfg.vocab_size) as i64).collect();
+        let token_data: Vec<i64> = (0..(batch * seq))
+            .map(|i| (i % cfg.vocab_size) as i64)
+            .collect();
         let token_ids: Tensor<B, 2, Int> =
             Tensor::from_data(TensorData::new(token_data, [batch, seq]), &device);
         let mask_data: Vec<i64> = vec![1; batch * seq];
@@ -246,7 +248,10 @@ mod tests {
             .build()
             .unwrap();
         let result = runtime.block_on(<BurnEmbedder<B> as rrd::HotUpdateable>::validate(&snap));
-        assert!(result.is_ok(), "validate must accept random-init: {result:?}");
+        assert!(
+            result.is_ok(),
+            "validate must accept random-init: {result:?}"
+        );
     }
 
     /// Round-trip the embedder through `ArcSwap` to validate the §4.1
@@ -311,10 +316,7 @@ mod tests {
         // Position 2: [30, 31, 32]   ← last unmasked
         // Position 3: [40, 41, 42]   ← masked (pad)
         let hidden_data = vec![
-            10.0_f32, 11.0, 12.0,
-            20.0, 21.0, 22.0,
-            30.0, 31.0, 32.0,
-            40.0, 41.0, 42.0,
+            10.0_f32, 11.0, 12.0, 20.0, 21.0, 22.0, 30.0, 31.0, 32.0, 40.0, 41.0, 42.0,
         ];
         let hidden: Tensor<B, 3> =
             Tensor::from_data(TensorData::new(hidden_data, [1, 4, 3]), &device);

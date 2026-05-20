@@ -173,9 +173,9 @@ pub async fn init_project_full(
     // ── SurrealDB namespace ───────────────────────────────────────
     let graph = {
         let _s = tracing::info_span!("project_init.graph").entered();
-        let adapter = cx
-            .surreal_adapter
-            .ok_or_else(|| anyhow::anyhow!("Surreal adapter unavailable — graph not initialized"))?;
+        let adapter = cx.surreal_adapter.ok_or_else(|| {
+            anyhow::anyhow!("Surreal adapter unavailable — graph not initialized")
+        })?;
         cx.project_graph
             .init_project(adapter, project_id, project_name)
             .await

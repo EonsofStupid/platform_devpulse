@@ -65,8 +65,8 @@ pub use backends::phoneme::{text_to_kokoro_ids, text_to_phonemes, KokoroVocab};
 // Slot types
 pub use slots::{
     load_default_slots, DevicePreference, KvCacheConfig, KvCacheQuant, LoadingStrategy,
-    ModelCapability, ModelSourceTier, PersistenceClass, RopeScalingMode, Slot,
-    SlotDefaultsError, SlotRegistry, YarnConfig, BASELINE_SLOT_IDS,
+    ModelCapability, ModelSourceTier, PersistenceClass, RopeScalingMode, Slot, SlotDefaultsError,
+    SlotRegistry, YarnConfig, BASELINE_SLOT_IDS,
 };
 
 // Model types

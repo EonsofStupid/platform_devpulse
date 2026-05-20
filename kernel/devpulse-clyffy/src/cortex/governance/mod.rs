@@ -220,9 +220,9 @@ fn stringify_record_id(value: &serde_json::Value) -> Option<String> {
     let id_field = obj.get("id")?;
     let id_str = match id_field {
         serde_json::Value::String(s) => s.clone(),
-        serde_json::Value::Object(inner) => inner
-            .values()
-            .find_map(|v| v.as_str().map(String::from))?,
+        serde_json::Value::Object(inner) => {
+            inner.values().find_map(|v| v.as_str().map(String::from))?
+        }
         _ => return None,
     };
     Some(format!("{tb}:{id_str}"))

@@ -20,7 +20,6 @@ pub mod cache;
 pub mod types;
 
 pub use cache::{
-    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled,
-    upsert_feed_item,
+    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
 };
 pub use types::{FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS};

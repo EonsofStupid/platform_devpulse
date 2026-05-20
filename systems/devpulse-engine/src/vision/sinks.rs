@@ -156,7 +156,9 @@ impl DiskFrameSink {
     /// the disk sink would have used so the two sinks reference one
     /// canonical location).
     pub fn path_for(&self, session_id: &str, frame_id: u64) -> PathBuf {
-        self.directory.join(session_id).join(format!("{frame_id}.png"))
+        self.directory
+            .join(session_id)
+            .join(format!("{frame_id}.png"))
     }
 }
 
@@ -168,9 +170,9 @@ impl FrameSink for DiskFrameSink {
 
     async fn write(&self, record: &FrameSinkRecord) -> Result<()> {
         let path = self.path_for(&record.session_id, record.frame_id);
-        let parent = path
-            .parent()
-            .ok_or_else(|| anyhow::anyhow!("disk-sink path has no parent dir: {}", path.display()))?;
+        let parent = path.parent().ok_or_else(|| {
+            anyhow::anyhow!("disk-sink path has no parent dir: {}", path.display())
+        })?;
         let bytes = record.png_bytes.clone();
         let parent_buf = parent.to_path_buf();
         let path_buf = path.clone();
@@ -594,7 +596,11 @@ mod tests {
         ]);
         // Composite returns Ok because at least one member succeeded.
         composite.write(&record(0)).await.unwrap();
-        assert_eq!(c1.load(Ordering::SeqCst), 1, "failing member still attempted");
+        assert_eq!(
+            c1.load(Ordering::SeqCst),
+            1,
+            "failing member still attempted"
+        );
         assert_eq!(c2.load(Ordering::SeqCst), 1, "healthy member still wrote");
         // Health is degraded because one member is unhealthy.
         assert!(matches!(composite.health(), SinkHealth::Degraded(_)));
@@ -629,10 +635,7 @@ mod tests {
 
     #[tokio::test]
     async fn disk_sink_writes_then_reads_back() {
-        let tmp = std::env::temp_dir().join(format!(
-            "devpulse-vision-test-{}",
-            std::process::id()
-        ));
+        let tmp = std::env::temp_dir().join(format!("devpulse-vision-test-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
         let sink = DiskFrameSink::new(tmp.clone());
         let r = FrameSinkRecord {

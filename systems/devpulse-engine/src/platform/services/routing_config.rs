@@ -218,7 +218,9 @@ impl EscalationConfig {
                     slot_id: None,
                 });
             let mut tier = existing.unwrap_or(default_for_id.clone());
-            tier.timeout_ms = tier.timeout_ms.clamp(TIER_TIMEOUT_MIN_MS, TIER_TIMEOUT_MAX_MS);
+            tier.timeout_ms = tier
+                .timeout_ms
+                .clamp(TIER_TIMEOUT_MIN_MS, TIER_TIMEOUT_MAX_MS);
             // The canonical slot binding is part of the schema, not user
             // data. If a deserialised value drifted, snap it back.
             tier.slot_id = default_for_id.slot_id.clone();
@@ -348,8 +350,7 @@ pub fn save(data_dir: &Path, cfg: &RoutingConfig) -> Result<RoutingConfig> {
     let parent = path
         .parent()
         .with_context(|| format!("routing path has no parent: {}", path.display()))?;
-    fs::create_dir_all(parent)
-        .with_context(|| format!("create parent {}", parent.display()))?;
+    fs::create_dir_all(parent).with_context(|| format!("create parent {}", parent.display()))?;
 
     let serialized = toml::to_string_pretty(&clamped).context("serialize routing config")?;
     let mut tmp = path.clone();
@@ -362,16 +363,15 @@ pub fn save(data_dir: &Path, cfg: &RoutingConfig) -> Result<RoutingConfig> {
     tmp.set_extension(ext);
 
     {
-        let mut f = fs::File::create(&tmp)
-            .with_context(|| format!("open tmp {}", tmp.display()))?;
+        let mut f =
+            fs::File::create(&tmp).with_context(|| format!("open tmp {}", tmp.display()))?;
         f.write_all(serialized.as_bytes())
             .with_context(|| format!("write tmp {}", tmp.display()))?;
         f.sync_all().ok();
     }
 
-    fs::rename(&tmp, &path).with_context(|| {
-        format!("rename {} -> {}", tmp.display(), path.display())
-    })?;
+    fs::rename(&tmp, &path)
+        .with_context(|| format!("rename {} -> {}", tmp.display(), path.display()))?;
 
     Ok(clamped)
 }
@@ -446,6 +446,9 @@ mod tests {
             ],
         };
         let enabled: Vec<_> = cfg.enabled_tiers().map(|t| t.id).collect();
-        assert_eq!(enabled, vec![EscalationTierId::MainBrain, EscalationTierId::CloudApi]);
+        assert_eq!(
+            enabled,
+            vec![EscalationTierId::MainBrain, EscalationTierId::CloudApi]
+        );
     }
 }

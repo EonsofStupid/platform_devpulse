@@ -454,7 +454,9 @@ fn pre_flight_disk_scan(
     let mut already_present: std::collections::HashSet<String> = std::collections::HashSet::new();
     for file_name in bundle {
         let dest = dest_dir.join(file_name);
-        let Ok(meta) = std::fs::metadata(&dest) else { continue };
+        let Ok(meta) = std::fs::metadata(&dest) else {
+            continue;
+        };
         if !meta.is_file() || meta.len() == 0 {
             continue;
         }
@@ -611,14 +613,8 @@ fn execute_download(
             continue;
         }
 
-        match download_one_bundle_file(
-            &repo,
-            file_name,
-            &dest_dir,
-            &bridge,
-            &lfs_oid_map,
-            repo_id,
-        ) {
+        match download_one_bundle_file(&repo, file_name, &dest_dir, &bridge, &lfs_oid_map, repo_id)
+        {
             Ok(dest) => {
                 if file_name == filename {
                     primary_target = Some(dest);
@@ -1200,7 +1196,11 @@ mod sha256_tests {
         }
         let expected = "a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447";
         assert!(verify_sha256(&path, expected).unwrap());
-        assert!(!verify_sha256(&path, "0000000000000000000000000000000000000000000000000000000000000000").unwrap());
+        assert!(!verify_sha256(
+            &path,
+            "0000000000000000000000000000000000000000000000000000000000000000"
+        )
+        .unwrap());
         assert!(verify_sha256(&path, &expected.to_uppercase()).unwrap());
         let _ = std::fs::remove_file(&path);
     }

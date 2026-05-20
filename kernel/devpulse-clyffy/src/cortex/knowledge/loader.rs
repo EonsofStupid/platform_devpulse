@@ -70,9 +70,7 @@ pub fn load_all() -> Result<Vec<KnowledgeEntry>, String> {
     tracing::info!(
         total = all_entries.len(),
         files = EMBEDDED_ARTIFACTS.len(),
-        manifest_version = manifest
-            .as_ref()
-            .map_or("none", |m| m.version.as_str()),
+        manifest_version = manifest.as_ref().map_or("none", |m| m.version.as_str()),
         "Knowledge library loaded from embedded data"
     );
 

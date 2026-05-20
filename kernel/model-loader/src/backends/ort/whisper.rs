@@ -126,7 +126,10 @@ impl SttBackend for WhisperStt {
                 // Load token vocabulary
                 let tokens_content = std::fs::read_to_string(&tokens_path)
                     .map_err(|e| anyhow::anyhow!("Failed to read tokens.txt: {e}"))?;
-                self.tokens = tokens_content.lines().map(std::string::ToString::to_string).collect();
+                self.tokens = tokens_content
+                    .lines()
+                    .map(std::string::ToString::to_string)
+                    .collect();
                 tracing::debug!(
                     component = "Whisper STT",
                     vocab_size = self.tokens.len(),

@@ -26,9 +26,9 @@ use crate::assistant::config::VoiceCloneEntry;
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
-use std::sync::RwLock;
 #[cfg(feature = "qwen3-tts-backend")]
 use std::sync::Mutex;
+use std::sync::RwLock;
 
 #[cfg(feature = "qwen3-tts-backend")]
 use qwen3_tts::{auto_device, AudioBuffer, Language, Qwen3TTS, Speaker};
@@ -225,9 +225,10 @@ impl TtsBackend for Qwen3TtsBackend {
             // `(reference_path, transcript)` pair, then release so a
             // concurrent `register_voice_clone` doesn't block on synthesis.
             let (reference_path, transcript_owned) = {
-                let guard = self.voice_clones.read().map_err(|e| {
-                    anyhow::anyhow!("Qwen3-TTS voice_clones lock poisoned: {e}")
-                })?;
+                let guard = self
+                    .voice_clones
+                    .read()
+                    .map_err(|e| anyhow::anyhow!("Qwen3-TTS voice_clones lock poisoned: {e}"))?;
                 let entry = guard.iter().find(|e| e.name == name).ok_or_else(|| {
                     anyhow::anyhow!("Qwen3-TTS: no voice clone named '{name}' registered")
                 })?;

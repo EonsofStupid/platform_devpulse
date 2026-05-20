@@ -119,12 +119,14 @@ mod knowledge_smoke {
                 .map(|f| f.count)
                 .unwrap_or(0)
         };
-        let count_of = |t: EntryType| -> usize {
-            entries.iter().filter(|e| e.entry_type == t).count()
-        };
+        let count_of =
+            |t: EntryType| -> usize { entries.iter().filter(|e| e.entry_type == t).count() };
 
         assert_eq!(count_of(EntryType::Dyk), count_for("did_you_know.json"));
-        assert_eq!(count_of(EntryType::Kdrop), count_for("knowledge_drops.json"));
+        assert_eq!(
+            count_of(EntryType::Kdrop),
+            count_for("knowledge_drops.json")
+        );
         assert_eq!(count_of(EntryType::Frust), count_for("frustrations.json"));
         assert_eq!(count_of(EntryType::Insight), count_for("insights.json"));
         assert_eq!(count_of(EntryType::Gloss), count_for("glossary.json"));

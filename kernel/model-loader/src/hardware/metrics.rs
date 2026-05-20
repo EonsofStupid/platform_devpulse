@@ -267,9 +267,7 @@ pub fn collect_hardware() -> HardwareMetrics {
     let filter = sysinfo::ProcessesToUpdate::Some(&[pid]);
     sys.refresh_processes(filter, true);
 
-    let process_ram_mb = sys
-        .process(pid)
-        .map_or(0, |p| p.memory() / (1024 * 1024));
+    let process_ram_mb = sys.process(pid).map_or(0, |p| p.memory() / (1024 * 1024));
 
     #[allow(unused_mut)]
     let mut metrics = HardwareMetrics {

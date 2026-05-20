@@ -70,19 +70,13 @@ impl SurrealLifecycle {
     /// - SurrealKV refuses to open the existing store (corruption,
     ///   incompatible WAL, file locked by another process).
     pub async fn boot(cfg: SurrealConfig) -> Result<Self> {
-        std::fs::create_dir_all(&cfg.data_path).with_context(|| {
-            format!(
-                "create SurrealKV data dir {}",
-                cfg.data_path.display()
-            )
-        })?;
+        std::fs::create_dir_all(&cfg.data_path)
+            .with_context(|| format!("create SurrealKV data dir {}", cfg.data_path.display()))?;
 
         let path_str = cfg.data_path.to_string_lossy().into_owned();
         let db: Surreal<Db> = Surreal::new::<SurrealKv>(path_str.as_str())
             .await
-            .with_context(|| {
-                format!("open SurrealKV store at {}", cfg.data_path.display())
-            })?;
+            .with_context(|| format!("open SurrealKV store at {}", cfg.data_path.display()))?;
 
         tracing::info!(
             path = %cfg.data_path.display(),

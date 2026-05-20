@@ -120,11 +120,7 @@ where
                         disposition: Disposition::Attach,
                     });
                 }
-                tracing::warn!(
-                    host,
-                    port,
-                    "Port bound by a foreign listener — bumping +1"
-                );
+                tracing::warn!(host, port, "Port bound by a foreign listener — bumping +1");
                 // continue to next port
             }
         }

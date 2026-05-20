@@ -308,9 +308,7 @@ pub fn primary_weights_path(manifest: &ModelManifest) -> Option<&str> {
                 #[allow(clippy::case_sensitive_file_extension_comparisons)]
                 {
                     let p = f.path.to_ascii_lowercase();
-                    p.ends_with(".gguf")
-                        || p.ends_with(".safetensors")
-                        || p.ends_with(".onnx")
+                    p.ends_with(".gguf") || p.ends_with(".safetensors") || p.ends_with(".onnx")
                 }
             })
         })
@@ -363,7 +361,10 @@ mod tests {
         assert_eq!(r.parameter_count_b, Some(4.0));
         assert_eq!(r.quant.as_deref(), Some("Q4_K_M"));
         assert_eq!(r.files.len(), 1);
-        assert_eq!(primary_weights_path(&r), Some("Qwen3-4B-Instruct-Q4_K_M.gguf"));
+        assert_eq!(
+            primary_weights_path(&r),
+            Some("Qwen3-4B-Instruct-Q4_K_M.gguf")
+        );
     }
 
     #[test]

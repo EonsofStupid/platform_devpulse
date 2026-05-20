@@ -239,21 +239,10 @@ mod tests {
         ) -> Result<Vec<RecallHit>> {
             Ok(Vec::new())
         }
-        async fn relate(
-            &self,
-            _slug: &str,
-            _from: &str,
-            _to: &str,
-            _edge: &str,
-        ) -> Result<()> {
+        async fn relate(&self, _slug: &str, _from: &str, _to: &str, _edge: &str) -> Result<()> {
             Ok(())
         }
-        async fn write_archive(
-            &self,
-            _slug: &str,
-            _memory_id: &str,
-            _bytes: &[u8],
-        ) -> Result<()> {
+        async fn write_archive(&self, _slug: &str, _memory_id: &str, _bytes: &[u8]) -> Result<()> {
             Ok(())
         }
         async fn read_archive_bytes(

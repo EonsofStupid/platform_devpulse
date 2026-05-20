@@ -139,9 +139,7 @@ pub enum LoaderError {
 /// handle plus the metadata + the absolute offset where the data
 /// section begins. The file handle stays open for the per-tensor
 /// `seek + read_exact` calls that follow.
-fn open_and_parse_header(
-    path: &Path,
-) -> Result<(File, Metadata, u64), LoaderError> {
+fn open_and_parse_header(path: &Path) -> Result<(File, Metadata, u64), LoaderError> {
     let path_str = || path.display().to_string();
 
     let mut file = File::open(path).map_err(|source| LoaderError::Io {
@@ -151,10 +149,11 @@ fn open_and_parse_header(
 
     // First 8 bytes — little-endian u64 = JSON header length N.
     let mut len_buf = [0u8; 8];
-    file.read_exact(&mut len_buf).map_err(|source| LoaderError::Io {
-        path: path_str(),
-        source,
-    })?;
+    file.read_exact(&mut len_buf)
+        .map_err(|source| LoaderError::Io {
+            path: path_str(),
+            source,
+        })?;
     let json_header_len = u64::from_le_bytes(len_buf) as usize;
 
     // Read the JSON header. Allocate one buffer holding both the
@@ -189,7 +188,9 @@ fn read_tensor_data(
     // call site single-line and the error path uniform.
     let info = metadata
         .info(key)
-        .ok_or_else(|| LoaderError::MissingTensor { key: key.to_string() })?;
+        .ok_or_else(|| LoaderError::MissingTensor {
+            key: key.to_string(),
+        })?;
 
     let (start, end) = info.data_offsets;
     let absolute = data_start + start as u64;
@@ -202,10 +203,11 @@ fn read_tensor_data(
         })?;
 
     let mut raw = vec![0u8; length];
-    file.read_exact(&mut raw).map_err(|source| LoaderError::Io {
-        path: format!("(read for {key})"),
-        source,
-    })?;
+    file.read_exact(&mut raw)
+        .map_err(|source| LoaderError::Io {
+            path: format!("(read for {key})"),
+            source,
+        })?;
 
     let f32_buf: Vec<f32> = match info.dtype {
         Dtype::F32 => raw
@@ -261,7 +263,9 @@ fn lookup_shape<'a>(metadata: &'a Metadata, key: &str) -> Result<&'a [usize], Lo
     metadata
         .info(key)
         .map(|info| info.shape.as_slice())
-        .ok_or_else(|| LoaderError::MissingTensor { key: key.to_string() })
+        .ok_or_else(|| LoaderError::MissingTensor {
+            key: key.to_string(),
+        })
 }
 
 /// Load a 2-D tensor with no transpose — embedding weights, etc.
@@ -312,7 +316,9 @@ fn load_linear_transposed<B: Backend>(
         [out_features, in_features],
         device,
     )?;
-    Ok(super::qwen3::Qwen3Linear::from_weight(hf_weight.swap_dims(0, 1)))
+    Ok(super::qwen3::Qwen3Linear::from_weight(
+        hf_weight.swap_dims(0, 1),
+    ))
 }
 
 /// Load a Qwen3 model from a single safetensors file using the
@@ -363,14 +369,7 @@ pub fn load_qwen3_from_safetensors<B: Backend>(
     let mut layers = Vec::with_capacity(cfg.num_hidden_layers);
     for i in 0..cfg.num_hidden_layers {
         layers.push(load_decoder_layer::<B>(
-            &mut file,
-            &metadata,
-            data_start,
-            i,
-            cfg,
-            q_dim,
-            kv_dim,
-            device,
+            &mut file, &metadata, data_start, i, cfg, q_dim, kv_dim, device,
         )?);
     }
 
@@ -385,7 +384,11 @@ pub fn load_qwen3_from_safetensors<B: Backend>(
     )?;
     let final_norm = super::qwen3::Qwen3RmsNorm::from_weight(final_norm_weight, cfg.rms_norm_eps);
 
-    Ok(Qwen3Model::from_components(embed_tokens, layers, final_norm))
+    Ok(Qwen3Model::from_components(
+        embed_tokens,
+        layers,
+        final_norm,
+    ))
 }
 
 /// Load one decoder layer at index `i`. Hoisted so the loop in

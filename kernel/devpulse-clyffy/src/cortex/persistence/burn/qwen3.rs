@@ -404,11 +404,7 @@ impl<B: Backend> Qwen3Attention<B> {
     ///   Qwen3 used as encoder for embedding, bidirectional context).
     ///
     /// Returns `[B, S, H]`.
-    pub fn forward(
-        &self,
-        hidden: Tensor<B, 3>,
-        attention_mask: Tensor<B, 2, Int>,
-    ) -> Tensor<B, 3> {
+    pub fn forward(&self, hidden: Tensor<B, 3>, attention_mask: Tensor<B, 2, Int>) -> Tensor<B, 3> {
         let [batch, seq, _hidden_size] = hidden.dims();
 
         // Project to Q, K, V.
@@ -579,11 +575,7 @@ impl<B: Backend> Qwen3DecoderLayer<B> {
     }
 
     /// Forward pass through this decoder layer.
-    pub fn forward(
-        &self,
-        hidden: Tensor<B, 3>,
-        attention_mask: Tensor<B, 2, Int>,
-    ) -> Tensor<B, 3> {
+    pub fn forward(&self, hidden: Tensor<B, 3>, attention_mask: Tensor<B, 2, Int>) -> Tensor<B, 3> {
         // Pre-LN attention.
         let normed = self.input_norm.forward(hidden.clone());
         let attn_out = self.attention.forward(normed, attention_mask);

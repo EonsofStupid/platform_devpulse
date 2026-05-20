@@ -184,91 +184,91 @@ fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result
 /// reasons other than "missing" (permission denied, etc.). Per-repo parse
 /// failures fail-soft with a `tracing::warn!` and skip the entry.
 pub fn discover_hf_cache(cache_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEntry>> {
-	if !cache_dir.exists() {
-		tracing::debug!(
-			path = %cache_dir.display(),
-			"HF cache directory does not exist — skipping"
-		);
-		return Ok(Vec::new());
-	}
+    if !cache_dir.exists() {
+        tracing::debug!(
+            path = %cache_dir.display(),
+            "HF cache directory does not exist — skipping"
+        );
+        return Ok(Vec::new());
+    }
 
-	let mut entries = Vec::new();
-	let read_dir = std::fs::read_dir(cache_dir)?;
+    let mut entries = Vec::new();
+    let read_dir = std::fs::read_dir(cache_dir)?;
 
-	for entry in read_dir {
-		let entry = match entry {
-			Ok(e) => e,
-			Err(e) => {
-				tracing::warn!(error = %e, "Skipping unreadable HF cache entry");
-				continue;
-			}
-		};
-		let repo_dir = entry.path();
-		if !repo_dir.is_dir() {
-			continue;
-		}
+    for entry in read_dir {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(e) => {
+                tracing::warn!(error = %e, "Skipping unreadable HF cache entry");
+                continue;
+            }
+        };
+        let repo_dir = entry.path();
+        if !repo_dir.is_dir() {
+            continue;
+        }
 
-		let dir_name = match repo_dir.file_name().and_then(|n| n.to_str()) {
-			Some(n) => n,
-			None => continue,
-		};
-		// HF cache repos are named `models--<owner>--<repo>`. Datasets and
-		// spaces use different prefixes and are not relevant to the model
-		// registry — skip them silently.
-		let Some(owner_repo) = dir_name.strip_prefix("models--") else {
-			continue;
-		};
-		// Convert `<owner>--<repo>` back to `<owner>/<repo>` — HF uses `--`
-		// because filesystems don't allow `/` in directory names.
-		let repo_id = owner_repo.replacen("--", "/", 1);
+        let dir_name = match repo_dir.file_name().and_then(|n| n.to_str()) {
+            Some(n) => n,
+            None => continue,
+        };
+        // HF cache repos are named `models--<owner>--<repo>`. Datasets and
+        // spaces use different prefixes and are not relevant to the model
+        // registry — skip them silently.
+        let Some(owner_repo) = dir_name.strip_prefix("models--") else {
+            continue;
+        };
+        // Convert `<owner>--<repo>` back to `<owner>/<repo>` — HF uses `--`
+        // because filesystems don't allow `/` in directory names.
+        let repo_id = owner_repo.replacen("--", "/", 1);
 
-		// Resolve the active revision: `refs/main` is a text file containing
-		// the snapshot's revision hash. Fall back to "main" if absent.
-		let revision = std::fs::read_to_string(repo_dir.join("refs").join("main"))
-			.ok()
-			.map(|s| s.trim().to_string())
-			.filter(|s| !s.is_empty())
-			.unwrap_or_else(|| "main".to_string());
+        // Resolve the active revision: `refs/main` is a text file containing
+        // the snapshot's revision hash. Fall back to "main" if absent.
+        let revision = std::fs::read_to_string(repo_dir.join("refs").join("main"))
+            .ok()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| "main".to_string());
 
-		// Snapshots can have multiple revision dirs (the active one in
-		// `refs/main` plus historical pulls). Walk the active revision's
-		// snapshot dir; companion files in older snapshots are reachable
-		// via the blob store via the symlinks anyway.
-		let snapshot_dir = repo_dir.join("snapshots").join(&revision);
-		if !snapshot_dir.is_dir() {
-			// Some revisions may not have a snapshot dir if the download
-			// was interrupted before linking. Try any snapshot subdirectory
-			// as a best-effort fallback so the user sees what's actually
-			// resolvable on disk.
-			let Ok(snap_iter) = std::fs::read_dir(repo_dir.join("snapshots")) else {
-				continue;
-			};
-			let Some(any_snap) = snap_iter
-				.filter_map(Result::ok)
-				.find(|e| e.path().is_dir())
-				.map(|e| e.path())
-			else {
-				continue;
-			};
-			walk_hf_snapshot(&any_snap, &repo_id, &revision, &mut entries);
-		} else {
-			walk_hf_snapshot(&snapshot_dir, &repo_id, &revision, &mut entries);
-		}
-	}
+        // Snapshots can have multiple revision dirs (the active one in
+        // `refs/main` plus historical pulls). Walk the active revision's
+        // snapshot dir; companion files in older snapshots are reachable
+        // via the blob store via the symlinks anyway.
+        let snapshot_dir = repo_dir.join("snapshots").join(&revision);
+        if !snapshot_dir.is_dir() {
+            // Some revisions may not have a snapshot dir if the download
+            // was interrupted before linking. Try any snapshot subdirectory
+            // as a best-effort fallback so the user sees what's actually
+            // resolvable on disk.
+            let Ok(snap_iter) = std::fs::read_dir(repo_dir.join("snapshots")) else {
+                continue;
+            };
+            let Some(any_snap) = snap_iter
+                .filter_map(Result::ok)
+                .find(|e| e.path().is_dir())
+                .map(|e| e.path())
+            else {
+                continue;
+            };
+            walk_hf_snapshot(&any_snap, &repo_id, &revision, &mut entries);
+        } else {
+            walk_hf_snapshot(&snapshot_dir, &repo_id, &revision, &mut entries);
+        }
+    }
 
-	filter_safetensor_shards(&mut entries);
-	deduplicate_by_path(&mut entries);
-	apply_manifest_capabilities(&mut entries);
+    filter_safetensor_shards(&mut entries);
+    deduplicate_by_path(&mut entries);
+    apply_manifest_capabilities(&mut entries);
 
-	#[cfg(feature = "candle-backend")]
-	apply_filename_hints(&mut entries);
+    #[cfg(feature = "candle-backend")]
+    apply_filename_hints(&mut entries);
 
-	tracing::info!(
-		count = entries.len(),
-		path = %cache_dir.display(),
-		"HF cache discovery complete"
-	);
-	Ok(entries)
+    tracing::info!(
+        count = entries.len(),
+        path = %cache_dir.display(),
+        "HF cache discovery complete"
+    );
+    Ok(entries)
 }
 
 /// Default HF cache location: `$HF_HUB_CACHE` if set, otherwise
@@ -283,20 +283,20 @@ pub fn discover_hf_cache(cache_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEn
 /// returns `None`.
 #[must_use]
 pub fn default_hf_cache_dir() -> Option<std::path::PathBuf> {
-	if let Some(p) = std::env::var_os("HF_HUB_CACHE") {
-		return Some(std::path::PathBuf::from(p));
-	}
-	if let Some(p) = std::env::var_os("HF_HOME") {
-		return Some(std::path::PathBuf::from(p).join("hub"));
-	}
-	std::env::var_os("USERPROFILE")
-		.or_else(|| std::env::var_os("HOME"))
-		.map(|h| {
-			std::path::PathBuf::from(h)
-				.join(".cache")
-				.join("huggingface")
-				.join("hub")
-		})
+    if let Some(p) = std::env::var_os("HF_HUB_CACHE") {
+        return Some(std::path::PathBuf::from(p));
+    }
+    if let Some(p) = std::env::var_os("HF_HOME") {
+        return Some(std::path::PathBuf::from(p).join("hub"));
+    }
+    std::env::var_os("USERPROFILE")
+        .or_else(|| std::env::var_os("HOME"))
+        .map(|h| {
+            std::path::PathBuf::from(h)
+                .join(".cache")
+                .join("huggingface")
+                .join("hub")
+        })
 }
 
 /// Walk a single HF snapshot directory and append registry entries.
@@ -307,62 +307,62 @@ pub fn default_hf_cache_dir() -> Option<std::path::PathBuf> {
 /// applied as `ModelSource::HuggingFace` so downstream code knows the
 /// origin without re-parsing the cache layout.
 fn walk_hf_snapshot(
-	snapshot_dir: &Path,
-	repo_id: &str,
-	revision: &str,
-	entries: &mut Vec<ModelRegistryEntry>,
+    snapshot_dir: &Path,
+    repo_id: &str,
+    revision: &str,
+    entries: &mut Vec<ModelRegistryEntry>,
 ) {
-	let Ok(read_dir) = std::fs::read_dir(snapshot_dir) else {
-		return;
-	};
-	let source = ModelSource::HuggingFace {
-		repo_id: repo_id.to_string(),
-		revision: revision.to_string(),
-	};
-	for entry in read_dir.filter_map(Result::ok) {
-		let path = entry.path();
-		if path.is_dir() {
-			// Some HF repos cache nested files (e.g. `onnx/model.onnx`).
-			// Recurse so those are also picked up. A separate `walk_all`
-			// invocation would also work but this keeps the HF source
-			// metadata attached.
-			walk_hf_snapshot_recursive(&path, repo_id, revision, entries);
-			continue;
-		}
-		let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
-			continue;
-		};
-		let parsed = match ext {
-			"gguf" => parse_gguf_entry(&path).ok(),
-			"safetensors" => parse_safetensors_entry(&path).ok(),
-			"onnx" => parse_onnx_entry(&path).ok(),
-			"bin" => {
-				let filename = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
-				let is_whisper = filename.starts_with("ggml-")
-					&& (filename.contains("whisper")
-						|| filename.starts_with("ggml-tiny")
-						|| filename.starts_with("ggml-base")
-						|| filename.starts_with("ggml-small")
-						|| filename.starts_with("ggml-medium")
-						|| filename.starts_with("ggml-large"));
-				if is_whisper {
-					parse_whisper_bin_entry(&path).ok()
-				} else {
-					None
-				}
-			}
-			_ => None,
-		};
-		if let Some(mut e) = parsed {
-			e.source = source.clone();
-			tracing::debug!(
-				file = %path.display(),
-				repo = %repo_id,
-				"Discovered HF cache model"
-			);
-			entries.push(e);
-		}
-	}
+    let Ok(read_dir) = std::fs::read_dir(snapshot_dir) else {
+        return;
+    };
+    let source = ModelSource::HuggingFace {
+        repo_id: repo_id.to_string(),
+        revision: revision.to_string(),
+    };
+    for entry in read_dir.filter_map(Result::ok) {
+        let path = entry.path();
+        if path.is_dir() {
+            // Some HF repos cache nested files (e.g. `onnx/model.onnx`).
+            // Recurse so those are also picked up. A separate `walk_all`
+            // invocation would also work but this keeps the HF source
+            // metadata attached.
+            walk_hf_snapshot_recursive(&path, repo_id, revision, entries);
+            continue;
+        }
+        let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
+            continue;
+        };
+        let parsed = match ext {
+            "gguf" => parse_gguf_entry(&path).ok(),
+            "safetensors" => parse_safetensors_entry(&path).ok(),
+            "onnx" => parse_onnx_entry(&path).ok(),
+            "bin" => {
+                let filename = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
+                let is_whisper = filename.starts_with("ggml-")
+                    && (filename.contains("whisper")
+                        || filename.starts_with("ggml-tiny")
+                        || filename.starts_with("ggml-base")
+                        || filename.starts_with("ggml-small")
+                        || filename.starts_with("ggml-medium")
+                        || filename.starts_with("ggml-large"));
+                if is_whisper {
+                    parse_whisper_bin_entry(&path).ok()
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        };
+        if let Some(mut e) = parsed {
+            e.source = source.clone();
+            tracing::debug!(
+                file = %path.display(),
+                repo = %repo_id,
+                "Discovered HF cache model"
+            );
+            entries.push(e);
+        }
+    }
 }
 
 /// Recursive companion to [`walk_hf_snapshot`] for nested directories
@@ -370,21 +370,21 @@ fn walk_hf_snapshot(
 /// file it picks up. Sherpa-style directories (containing `tokens.txt`)
 /// register as a single `SherpaDir` entry.
 fn walk_hf_snapshot_recursive(
-	dir: &Path,
-	repo_id: &str,
-	revision: &str,
-	entries: &mut Vec<ModelRegistryEntry>,
+    dir: &Path,
+    repo_id: &str,
+    revision: &str,
+    entries: &mut Vec<ModelRegistryEntry>,
 ) {
-	if is_sherpa_model_dir(dir) {
-		let mut entry = parse_sherpa_dir_entry(dir);
-		entry.source = ModelSource::HuggingFace {
-			repo_id: repo_id.to_string(),
-			revision: revision.to_string(),
-		};
-		entries.push(entry);
-		return;
-	}
-	walk_hf_snapshot(dir, repo_id, revision, entries);
+    if is_sherpa_model_dir(dir) {
+        let mut entry = parse_sherpa_dir_entry(dir);
+        entry.source = ModelSource::HuggingFace {
+            repo_id: repo_id.to_string(),
+            revision: revision.to_string(),
+        };
+        entries.push(entry);
+        return;
+    }
+    walk_hf_snapshot(dir, repo_id, revision, entries);
 }
 
 /// Discover a single model file and set its source to `HuggingFace`.
@@ -491,9 +491,7 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
 /// lookup falls back to a sensible default, so the function returns
 /// `ModelMetadata` directly.
 #[cfg(feature = "candle-backend")]
-fn extract_metadata(
-    content: &candle_core::quantized::gguf_file::Content,
-) -> ModelMetadata {
+fn extract_metadata(content: &candle_core::quantized::gguf_file::Content) -> ModelMetadata {
     use candle_core::quantized::gguf_file::Value;
 
     let get_str = |key: &str| -> Option<String> {

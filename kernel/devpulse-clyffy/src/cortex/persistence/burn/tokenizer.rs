@@ -79,8 +79,7 @@ pub fn encode_texts<B: Backend>(
     }
 
     let token_ids = Tensor::from_data(TensorData::new(ids_flat, [batch, padded_len]), device);
-    let attention_mask =
-        Tensor::from_data(TensorData::new(mask_flat, [batch, padded_len]), device);
+    let attention_mask = Tensor::from_data(TensorData::new(mask_flat, [batch, padded_len]), device);
 
     Ok((token_ids, attention_mask))
 }

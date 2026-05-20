@@ -25,10 +25,10 @@ pub mod devforge;
 pub mod model_loader;
 #[cfg(feature = "inference")]
 pub use model_loader::ModelDownloadScope;
-#[cfg(feature = "inference")]
-pub mod model_loader_log;
 pub mod candle_config;
 pub mod llama_cpp_embedded_config;
+#[cfg(feature = "inference")]
+pub mod model_loader_log;
 pub mod routing_config;
 pub mod sherpa_streaming;
 pub mod sidecars;
@@ -311,11 +311,7 @@ pub struct PreflightCheck {
 impl PreflightCheck {
     /// Construct a passing check.
     #[must_use]
-    pub fn pass(
-        service: ServiceRole,
-        name: impl Into<String>,
-        detail: impl Into<String>,
-    ) -> Self {
+    pub fn pass(service: ServiceRole, name: impl Into<String>, detail: impl Into<String>) -> Self {
         Self {
             service,
             name: name.into(),
@@ -326,11 +322,7 @@ impl PreflightCheck {
 
     /// Construct a check with caveats.
     #[must_use]
-    pub fn warn(
-        service: ServiceRole,
-        name: impl Into<String>,
-        detail: impl Into<String>,
-    ) -> Self {
+    pub fn warn(service: ServiceRole, name: impl Into<String>, detail: impl Into<String>) -> Self {
         Self {
             service,
             name: name.into(),
@@ -341,11 +333,7 @@ impl PreflightCheck {
 
     /// Construct a failing check.
     #[must_use]
-    pub fn fail(
-        service: ServiceRole,
-        name: impl Into<String>,
-        detail: impl Into<String>,
-    ) -> Self {
+    pub fn fail(service: ServiceRole, name: impl Into<String>, detail: impl Into<String>) -> Self {
         Self {
             service,
             name: name.into(),

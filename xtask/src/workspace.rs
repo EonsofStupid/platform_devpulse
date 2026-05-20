@@ -410,8 +410,8 @@ impl Workspace {
                 let override_raw = std::fs::read_to_string(&override_path).with_context(|| {
                     format!("reading platform override {}", override_path.display())
                 })?;
-                let override_value: serde_json::Value =
-                    serde_json::from_str(&override_raw).with_context(|| {
+                let override_value: serde_json::Value = serde_json::from_str(&override_raw)
+                    .with_context(|| {
                         format!("parsing platform override {}", override_path.display())
                     })?;
                 merge_rfc7396(&mut value, &override_value);
@@ -583,7 +583,10 @@ mod merge_tests {
         let mut base = json!({ "bundle": { "resources": [] } });
         let patch = json!({ "bundle": { "resources": ["a.dll", "b.dll"] } });
         merge_rfc7396(&mut base, &patch);
-        assert_eq!(base, json!({ "bundle": { "resources": ["a.dll", "b.dll"] } }));
+        assert_eq!(
+            base,
+            json!({ "bundle": { "resources": ["a.dll", "b.dll"] } })
+        );
     }
 
     #[test]
@@ -1142,17 +1145,13 @@ impl BuildConfig {
                 "  [warn] llama-cpp prebuilt not fetched for target `{target_id}` — \
                  falling back to in-tree cmake build."
             );
-            println!(
-                "  [hint] cargo xtask fetch-llama-cpp --target {target_id}"
-            );
+            println!("  [hint] cargo xtask fetch-llama-cpp --target {target_id}");
             return;
         }
 
         let abs = prebuilt_dir.to_string_lossy().into_owned();
         std::env::set_var("LLAMA_CPP_PREBUILT_LIB_DIR", &abs);
-        println!(
-            "  [env] LLAMA_CPP_PREBUILT_LIB_DIR = {abs} (target = {target_id})"
-        );
+        println!("  [env] LLAMA_CPP_PREBUILT_LIB_DIR = {abs} (target = {target_id})");
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`
@@ -1178,9 +1177,15 @@ impl BuildConfig {
         // see it even when the parent shell was started before the install.
         let cuda_toolkit = std::env::var("CUDA_PATH")
             .ok()
-            .filter(|p| std::path::Path::new(p).join("bin").join("nvcc.exe").is_file())
+            .filter(|p| {
+                std::path::Path::new(p)
+                    .join("bin")
+                    .join("nvcc.exe")
+                    .is_file()
+            })
             .or_else(|| {
-                let base = std::path::Path::new("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA");
+                let base =
+                    std::path::Path::new("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA");
                 if !base.is_dir() {
                     return None;
                 }
@@ -1244,9 +1249,7 @@ impl BuildConfig {
                 });
             if let Some(ref path) = vulkan_sdk {
                 std::env::set_var("VULKAN_SDK", path);
-                println!(
-                    "  [env] VULKAN_SDK = {path} (auto-export for child build scripts)"
-                );
+                println!("  [env] VULKAN_SDK = {path} (auto-export for child build scripts)");
                 features.push("gpu-vulkan");
             }
         }
@@ -1265,7 +1268,12 @@ impl BuildConfig {
                     .ok()?
                     .filter_map(Result::ok)
                     .map(|e| e.path())
-                    .filter(|p| p.is_dir() && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.chars().next().is_some_and(|c| c.is_ascii_digit())))
+                    .filter(|p| {
+                        p.is_dir()
+                            && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| {
+                                n.chars().next().is_some_and(|c| c.is_ascii_digit())
+                            })
+                    })
                     .max()
                     .map(|p| p.to_string_lossy().to_string())
             });
@@ -1290,7 +1298,11 @@ impl BuildConfig {
         match Command::new("rustc").args(["--print", "sysroot"]).output() {
             Ok(out) if out.status.success() => {
                 let sysroot = String::from_utf8_lossy(&out.stdout).trim().to_string();
-                let lld_name = if cfg!(windows) { "rust-lld.exe" } else { "rust-lld" };
+                let lld_name = if cfg!(windows) {
+                    "rust-lld.exe"
+                } else {
+                    "rust-lld"
+                };
                 let rust_lld = Path::new(&sysroot)
                     .join("lib")
                     .join("rustlib")
@@ -1539,13 +1551,23 @@ impl BuildConfig {
             // multi-kilobyte raw value — the developer wants to know the env
             // was set, not stare at every include directory.
             if key_str.eq_ignore_ascii_case("PATH") {
-                let entries = value.to_string_lossy().split(';').filter(|s| !s.is_empty()).count();
-                println!("  [env] PATH augmented with MSVC toolchain ({entries} entries prepended)");
+                let entries = value
+                    .to_string_lossy()
+                    .split(';')
+                    .filter(|s| !s.is_empty())
+                    .count();
+                println!(
+                    "  [env] PATH augmented with MSVC toolchain ({entries} entries prepended)"
+                );
             } else if key_str.eq_ignore_ascii_case("INCLUDE")
                 || key_str.eq_ignore_ascii_case("LIB")
                 || key_str.eq_ignore_ascii_case("LIBPATH")
             {
-                let entries = value.to_string_lossy().split(';').filter(|s| !s.is_empty()).count();
+                let entries = value
+                    .to_string_lossy()
+                    .split(';')
+                    .filter(|s| !s.is_empty())
+                    .count();
                 println!("  [env] {key_str} = {entries} entries (from MSVC toolchain)");
             } else {
                 println!("  [env] {key_str} set (from MSVC toolchain)");
@@ -2104,7 +2126,9 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
         // char of NAME is a letter or underscore; subsequent chars are
         // alnum or underscore. Anything else (banner text, blank lines)
         // is skipped.
-        let Some(eq_idx) = line.find('=') else { continue };
+        let Some(eq_idx) = line.find('=') else {
+            continue;
+        };
         if eq_idx == 0 {
             continue;
         }
@@ -2138,7 +2162,9 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
     for tool in ["cl", "link", "ninja", "rc", "mt"] {
         match which::which(tool) {
             Ok(p) => println!("  [tool] {tool} = {}", p.display()),
-            Err(_) => println!("  [warn] {tool} not on PATH after vcvars64 — toolchain may be incomplete"),
+            Err(_) => {
+                println!("  [warn] {tool} not on PATH after vcvars64 — toolchain may be incomplete")
+            }
         }
     }
     true

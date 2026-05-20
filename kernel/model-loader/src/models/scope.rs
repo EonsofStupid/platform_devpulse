@@ -104,11 +104,7 @@ impl DownloadScope {
 ///
 /// Every path component is sanitised via [`sanitise_token`] so a
 /// hostile `repo_id` cannot traverse outside `models_dir`.
-pub fn resolve_bundle_dir(
-    models_dir: &Path,
-    scope: &DownloadScope,
-    repo_id: &str,
-) -> PathBuf {
+pub fn resolve_bundle_dir(models_dir: &Path, scope: &DownloadScope, repo_id: &str) -> PathBuf {
     let (owner_raw, name_raw) = repo_id
         .split_once('/')
         .unwrap_or((UNSCOPED_PLACEHOLDER, repo_id));

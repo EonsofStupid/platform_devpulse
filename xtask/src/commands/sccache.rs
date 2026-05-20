@@ -129,11 +129,11 @@ impl Guard {
         // logging changes. Use this when sccache itself is the cause of
         // a compile failure (transport errors, server panics) so the
         // build can complete uncached without uninstalling sccache.
-        if std::env::var_os("SCCACHE_DISABLE")
-            .is_some_and(|v| !v.is_empty() && v != "0")
-        {
+        if std::env::var_os("SCCACHE_DISABLE").is_some_and(|v| !v.is_empty() && v != "0") {
             s.skip("disabled via SCCACHE_DISABLE env var");
-            return Ok(Self { mode: Mode::Disabled });
+            return Ok(Self {
+                mode: Mode::Disabled,
+            });
         }
 
         // ── 1. Is sccache installed? ──

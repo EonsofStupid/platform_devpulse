@@ -151,12 +151,13 @@ where
         }
 
         // Finite-check via TensorData → Vec<f32>.
-        let values: Vec<f32> = pooled
-            .into_data()
-            .into_vec::<f32>()
-            .map_err(|e| LoaderError::ValidationFailed {
-                reason: format!("pooled output not f32-convertible: {e:?}"),
-            })?;
+        let values: Vec<f32> =
+            pooled
+                .into_data()
+                .into_vec::<f32>()
+                .map_err(|e| LoaderError::ValidationFailed {
+                    reason: format!("pooled output not f32-convertible: {e:?}"),
+                })?;
         if let Some(bad_idx) = values.iter().position(|v| !v.is_finite()) {
             return Err(LoaderError::ValidationFailed {
                 reason: format!(

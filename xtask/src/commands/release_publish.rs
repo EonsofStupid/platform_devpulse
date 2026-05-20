@@ -124,8 +124,7 @@ impl Task for ReleasePublish {
             .context("portable zip filename was not valid UTF-8")?;
         let download_url = format!("{GITHUB_RELEASES_BASE}/v{version}/{zip_filename}");
 
-        let pub_date =
-            chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
+        let pub_date = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
 
         let mut platforms = BTreeMap::new();
         platforms.insert(
@@ -202,9 +201,7 @@ fn resolve_private_key() -> Result<String> {
              $env:TAURI_SIGNING_PRIVATE_KEY before invoking this task"
         )
     })?;
-    crate::xinfo!(
-        "  signing key     : OS keyring ({KEYRING_SERVICE}:{KEYRING_KEY})"
-    );
+    crate::xinfo!("  signing key     : OS keyring ({KEYRING_SERVICE}:{KEYRING_KEY})");
     Ok(key)
 }
 

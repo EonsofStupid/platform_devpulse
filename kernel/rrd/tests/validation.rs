@@ -54,7 +54,9 @@ async fn failed_validation_keeps_previous_live_component() {
         matches!(state, RRDState::Failed(_)),
         "expected Failed state after validate fail, got {state:?}"
     );
-    let reason = state.failure_reason().expect("Failed should carry a reason");
+    let reason = state
+        .failure_reason()
+        .expect("Failed should carry a reason");
     assert!(
         matches!(reason, rrd::FailureReason::EncoderValidationFailed(_)),
         "expected EncoderValidationFailed reason, got {reason:?}"
@@ -91,7 +93,10 @@ async fn successful_validation_promotes_new_component() {
     // Live component is now generation 2.
     assert_eq!(daemon.current().generation, 2);
 
-    daemon.resume(pause_handle).await.expect("resume after successful swap");
+    daemon
+        .resume(pause_handle)
+        .await
+        .expect("resume after successful swap");
     assert_eq!(*daemon.subscribe().borrow(), RRDState::Running);
 }
 

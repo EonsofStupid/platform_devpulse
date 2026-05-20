@@ -160,7 +160,11 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         StageStatus::Ok,
         EventBuilder::new().detail(format!(
             "v{VERSION} build-release{}",
-            if portable_only { " --portable-only" } else { "" }
+            if portable_only {
+                " --portable-only"
+            } else {
+                ""
+            }
         )),
     );
 
@@ -703,17 +707,14 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
             renamed,
             if renamed == 1 { "" } else { "s" }
         );
-        quarantine_guard.ok_with(
-            EventBuilder::new().detail(format!("{renamed} artifacts renamed")),
-        );
+        quarantine_guard
+            .ok_with(EventBuilder::new().detail(format!("{renamed} artifacts renamed")));
     }
 
     println!();
     if smoke_passed {
         println!("  Smoke test: PASSED");
-        println!(
-            "    :8822/health answered healthy after launching the standalone exe."
-        );
+        println!("    :8822/health answered healthy after launching the standalone exe.");
     } else if smoke_result.is_none() {
         println!("  Smoke test: SKIPPED (no standalone exe to exercise)");
     } else {
@@ -729,9 +730,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     // treat the run as broken. The quarantine above ensures the artifacts
     // on disk match that verdict.
     if smoke_result.is_some() && !smoke_passed {
-        anyhow::bail!(
-            "smoke test failed — installer rejected. See event log for classification."
-        );
+        anyhow::bail!("smoke test failed — installer rejected. See event log for classification.");
     }
 
     // _job_guard drops here → any lingering children killed by kernel.

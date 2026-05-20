@@ -40,8 +40,8 @@ use burn::prelude::Backend;
 use model_loader::backends::burn_adapter::{BurnEncoderAdapter, SwapStats};
 use model_loader::loading::states::MemoryFootprint;
 use rrd::{HotSwap, HotUpdateable, RRD};
-use tokio::sync::{watch, Mutex};
 use tokenizers::Tokenizer;
+use tokio::sync::{watch, Mutex};
 
 use super::embedder::{BurnEmbedder, EmbedderConfig};
 use super::hot_update::BurnEmbedderSource;
@@ -152,10 +152,7 @@ where
     /// Returns `None` if the daemon is not yet constructed.
     #[must_use]
     pub fn subscribe_rrd(&self) -> Option<watch::Receiver<rrd::RRDState>> {
-        self.daemon
-            .blocking_lock()
-            .as_ref()
-            .map(|d| d.subscribe())
+        self.daemon.blocking_lock().as_ref().map(|d| d.subscribe())
     }
 
     /// Embed a batch of texts into L2-normalized dense vectors.
@@ -177,8 +174,7 @@ where
             .clone()
             .ok_or_else(|| anyhow::anyhow!("embed_text: tokenizer not loaded"))?;
 
-        let (token_ids, attention_mask) =
-            encode_texts::<B>(&tok, texts, &self.device)?;
+        let (token_ids, attention_mask) = encode_texts::<B>(&tok, texts, &self.device)?;
 
         let pooled = encoder.forward_pooled(token_ids, attention_mask);
         // Derive hidden_size from the actual tensor output, not the boot-time
@@ -233,9 +229,7 @@ fn load_geometry_from_config_json(model_dir: &Path, fallback: &EmbedderConfig) -
             .unwrap_or(default)
     };
     let get_f64 = |key: &str, default: f64| -> f64 {
-        json.get(key)
-            .and_then(|v| v.as_f64())
-            .unwrap_or(default)
+        json.get(key).and_then(|v| v.as_f64()).unwrap_or(default)
     };
 
     let vocab_size = get_usize("vocab_size", fb.vocab_size);
@@ -244,10 +238,7 @@ fn load_geometry_from_config_json(model_dir: &Path, fallback: &EmbedderConfig) -
     let num_attention_heads = get_usize("num_attention_heads", fb.num_attention_heads);
     let num_key_value_heads = get_usize("num_key_value_heads", fb.num_key_value_heads);
     // head_dim is often absent from config.json; derive it when missing.
-    let head_dim = get_usize(
-        "head_dim",
-        hidden_size / num_attention_heads.max(1),
-    );
+    let head_dim = get_usize("head_dim", hidden_size / num_attention_heads.max(1));
     let intermediate_size = get_usize("intermediate_size", fb.intermediate_size);
     let rms_norm_eps = get_f64("rms_norm_eps", fb.rms_norm_eps);
     let rope_theta = get_f64("rope_theta", fb.rope_theta);
@@ -362,9 +353,8 @@ where
         let per_layer = 4 * cfg.hidden_size * cfg.hidden_size
             + 3 * cfg.hidden_size * cfg.intermediate_size
             + 2 * cfg.hidden_size;
-        let total_params = cfg.vocab_size * cfg.hidden_size
-            + cfg.num_hidden_layers * per_layer
-            + cfg.hidden_size;
+        let total_params =
+            cfg.vocab_size * cfg.hidden_size + cfg.num_hidden_layers * per_layer + cfg.hidden_size;
         let bytes = total_params * 2;
         Ok(MemoryFootprint {
             ram_bytes: bytes as u64,
@@ -423,16 +413,15 @@ where
         // Callers MUST be inside a Tokio runtime (typically
         // `spawn_blocking` from a Tauri command); raw OS threads
         // surface the explicit error below instead of panicking.
-        let handle = tokio::runtime::Handle::try_current()
-            .map_err(|_| anyhow::anyhow!(
+        let handle = tokio::runtime::Handle::try_current().map_err(|_| {
+            anyhow::anyhow!(
                 "burn swap: must be called from within a Tokio runtime (use `spawn_blocking`)"
-            ))?;
+            )
+        })?;
 
         let daemon_guard = self.daemon.blocking_lock();
         let daemon = daemon_guard.as_ref().ok_or_else(|| {
-            anyhow::anyhow!(
-                "burn swap: daemon not constructed — call `load_blocking` first"
-            )
+            anyhow::anyhow!("burn swap: daemon not constructed — call `load_blocking` first")
         })?;
 
         let phases_observed: Vec<String> = handle.block_on(async move {
@@ -450,17 +439,16 @@ where
             // On any failure between here and `resume`, we MUST
             // resume the daemon to release the maintenance window.
             // Live encoder is unchanged unless `swap()` commits.
-            let snapshot =
-                match <BurnEmbedder<B> as HotUpdateable>::load(&source).await {
-                    Ok(s) => {
-                        phases.push("load_complete".to_string());
-                        s
-                    }
-                    Err(e) => {
-                        let _ = daemon.resume(pause_handle).await;
-                        return Err(anyhow::anyhow!("burn swap: load failed: {e:#}"));
-                    }
-                };
+            let snapshot = match <BurnEmbedder<B> as HotUpdateable>::load(&source).await {
+                Ok(s) => {
+                    phases.push("load_complete".to_string());
+                    s
+                }
+                Err(e) => {
+                    let _ = daemon.resume(pause_handle).await;
+                    return Err(anyhow::anyhow!("burn swap: load failed: {e:#}"));
+                }
+            };
 
             // ── validate + commit (inside the daemon) ────────────
             if let Err(e) = daemon.swap(&pause_handle, snapshot).await {

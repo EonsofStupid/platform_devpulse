@@ -59,10 +59,7 @@ impl Task for ModelManifestBackfill {
             "Model Manifest Backfill"
         });
 
-        let root = self
-            .dir
-            .clone()
-            .unwrap_or_else(|| ws.root().join("models"));
+        let root = self.dir.clone().unwrap_or_else(|| ws.root().join("models"));
         if !root.is_dir() {
             anyhow::bail!(
                 "models root not found at {}.\n  \
@@ -330,11 +327,7 @@ fn classify_file_role(name: &str) -> Option<String> {
 // Inference — turn a directory + its files into a ModelManifest
 // ═══════════════════════════════════════════════════════════════════════
 
-fn infer_manifest(
-    root: &Path,
-    dir: &Path,
-    files: &[ManifestFile],
-) -> Result<ModelManifest> {
+fn infer_manifest(root: &Path, dir: &Path, files: &[ManifestFile]) -> Result<ModelManifest> {
     let rel = dir.strip_prefix(root).unwrap_or(dir);
     let segments: Vec<&str> = rel
         .components()
@@ -437,7 +430,8 @@ fn infer_hf_repo(segments: &[&str]) -> Option<String> {
 /// Match against known architecture families. Keeps the normalized tag
 /// small and stable so presets can pattern-match without churn.
 fn infer_architecture(segments: &[&str], filename: &str) -> Option<String> {
-    let bag: String = segments.join(" ").to_ascii_lowercase() + " " + &filename.to_ascii_lowercase();
+    let bag: String =
+        segments.join(" ").to_ascii_lowercase() + " " + &filename.to_ascii_lowercase();
 
     if bag.contains("qwen3-vl") || bag.contains("qwen3_vl") {
         return Some("qwen3-vl".into());
@@ -512,7 +506,10 @@ fn infer_parameter_count(segments: &[&str], filename: &str) -> Option<f32> {
                 // like "tab" or "cube" — require a non-alphanumeric
                 // boundary after the `b`.
                 let after = bytes.get(i + 1).copied();
-                let boundary = matches!(after, None | Some(b'-') | Some(b'_') | Some(b'.') | Some(b' ') | Some(b'/'));
+                let boundary = matches!(
+                    after,
+                    None | Some(b'-') | Some(b'_') | Some(b'.') | Some(b' ') | Some(b'/')
+                );
                 if boundary && n > 0.0 && n < 2000.0 {
                     return Some(n);
                 }
@@ -651,7 +648,10 @@ mod tests {
     fn parameter_count_standard_b_suffix() {
         assert_eq!(infer_parameter_count(&["qwen3-4b"], ""), Some(4.0));
         assert_eq!(infer_parameter_count(&["qwen3-0.6b"], ""), Some(0.6));
-        assert_eq!(infer_parameter_count(&["chat", "qwen--qwen3.5-9b"], ""), Some(3.5));
+        assert_eq!(
+            infer_parameter_count(&["chat", "qwen--qwen3.5-9b"], ""),
+            Some(3.5)
+        );
         // ^ matches the FIRST number followed by 'b' — "3.5" in
         // "qwen3.5-9b". Edge case: not perfect, but backfill notes
         // field warns reviewer to verify.

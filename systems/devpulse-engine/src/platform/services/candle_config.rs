@@ -96,8 +96,7 @@ pub fn save(data_dir: &Path, cfg: &CandleConfig) -> Result<CandleConfig> {
     let parent = path
         .parent()
         .with_context(|| format!("candle path has no parent: {}", path.display()))?;
-    fs::create_dir_all(parent)
-        .with_context(|| format!("create parent {}", parent.display()))?;
+    fs::create_dir_all(parent).with_context(|| format!("create parent {}", parent.display()))?;
     let serialized = toml::to_string_pretty(&clamped).context("serialize candle config")?;
     let mut tmp = path.clone();
     let mut ext = tmp
@@ -108,8 +107,8 @@ pub fn save(data_dir: &Path, cfg: &CandleConfig) -> Result<CandleConfig> {
     ext.push_str(".tmp");
     tmp.set_extension(ext);
     {
-        let mut f = fs::File::create(&tmp)
-            .with_context(|| format!("open tmp {}", tmp.display()))?;
+        let mut f =
+            fs::File::create(&tmp).with_context(|| format!("open tmp {}", tmp.display()))?;
         f.write_all(serialized.as_bytes())
             .with_context(|| format!("write tmp {}", tmp.display()))?;
         f.sync_all().ok();

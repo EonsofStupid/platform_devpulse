@@ -50,15 +50,15 @@ pub use services::routing_config::{
     EscalationConfig, EscalationTier, EscalationTierId, InferenceProvider, LatencyConfig,
     RoutingConfig,
 };
-pub use services::sidecars::ollama::OllamaModel;
 pub use services::sherpa_streaming::{
     SherpaCompileInfo, SherpaInstalledModel, SherpaSessionInfo, SherpaStreamingService,
 };
+pub use services::sidecars::ollama::OllamaModel;
+pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
 pub use services::surreal::{SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus};
 pub use services::surreal_config::SurrealUserConfig;
 pub use services::voice_stt_config::VoiceSttConfig;
 pub use services::voice_tts_config::VoiceTtsConfig;
-pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
 pub use services::{Service, ServiceRole, ServiceState};
 
 // ════════════════════════════════════════════════════════════════
@@ -124,8 +124,8 @@ pub use devpulse_clyffy::cortex::knowledge::{
 // without kernel-vocabulary translation. The actual HTTP fetch lives in
 // `commands/community/` (desktop tier); kernel owns only the cache shape.
 pub use devpulse_clyffy::cortex::community::{
-    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled,
-    upsert_feed_item, FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS,
+    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
+    FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS,
 };
 
 // IP-NOTE: cortex governance graph (CORTEX.md §4) — operator-authored
@@ -134,9 +134,7 @@ pub use devpulse_clyffy::cortex::community::{
 // pass `graph.handle()` (the `&ScopedGraphHandle` returned by
 // `GraphService::handle()`) and convert their `RroState` via
 // `RroState::as_str()` at the seam.
-pub use devpulse_clyffy::cortex::governance::{
-    thought_create, thought_load_branch, ThoughtRecord,
-};
+pub use devpulse_clyffy::cortex::governance::{thought_create, thought_load_branch, ThoughtRecord};
 
 // IP-NOTE: RRD encoder hot-swap return shape. `SwapStats` carries dim
 // + elapsed_ms + phases_observed — generic enough to cross outward.
@@ -170,8 +168,8 @@ pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
 // reaching into the kernel directly. Names describe industry-standard
 // concepts (memory, embedding, archive) — no kernel vocabulary leaks.
 pub use devpulse_clyffy::cortex::intelligence::{
-    slug_for_cwd, IntelligenceStore, MemoryKind, MemoryRecord, NeighborRef, RecallHit,
-    RroRecord, EMBEDDING_DIM, MEMORY_SCHEMA,
+    slug_for_cwd, IntelligenceStore, MemoryKind, MemoryRecord, NeighborRef, RecallHit, RroRecord,
+    EMBEDDING_DIM, MEMORY_SCHEMA,
 };
 
 // IP-NOTE: interaction templates — kernel-owned scripted exchanges
@@ -197,7 +195,9 @@ pub use devpulse_clyffy::model_loader::infer_download_folder;
 // (registry entries, source-tier classification, slot identity).
 // All names describe industry-standard concepts, no rename needed.
 #[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::{HardwareMetrics, ModelRegistryEntry, ModelSourceTier, Slot};
+pub use devpulse_clyffy::model_loader::{
+    HardwareMetrics, ModelRegistryEntry, ModelSourceTier, Slot,
+};
 
 // IP-NOTE: architecture + backend compatibility registry. Public face
 // of the matrix the UI consumes for `ModelCompatibilityCard`. Names
@@ -224,7 +224,6 @@ use services::analytics::AnalyticsService;
 use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgePreflight, DevForgeService};
 use services::graph::GraphService;
-use services::sidecars::ollama::OllamaService;
 #[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
 #[cfg(feature = "candle")]
@@ -237,6 +236,7 @@ use services::project_graph::ProjectGraphManager;
 #[cfg(feature = "rro")]
 use services::project_vector::ProjectVectorManager;
 use services::relational::RelationalService;
+use services::sidecars::ollama::OllamaService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
 use services::{lifecycle_phase, PreflightRegistry};
@@ -641,9 +641,7 @@ impl Platform {
                 return ServiceRuntimeState::NotCompiled
             }
             (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
-            (ServiceRole::Ollama, DataScope::System) => {
-                self.ollama.load_full().is_some()
-            }
+            (ServiceRole::Ollama, DataScope::System) => self.ollama.load_full().is_some(),
             (ServiceRole::Surreal, DataScope::System) => self.surreal.is_some(),
             (ServiceRole::Grammar, DataScope::System) => grammar_runtime_enabled,
             // Any (role, scope) pair not in SERVICE_MANIFEST shouldn't
@@ -796,11 +794,9 @@ impl Platform {
             "constructing suggestion service (chat.suggest -> user graph)"
         );
 
-        let svc = Arc::new(
-            devpulse_clyffy::cortex::suggest::SuggestionService::new(
-                embedder, adapter, namespace, database,
-            ),
-        );
+        let svc = Arc::new(devpulse_clyffy::cortex::suggest::SuggestionService::new(
+            embedder, adapter, namespace, database,
+        ));
         self.suggest.store(Some(Arc::clone(&svc)));
         Ok(svc)
     }
@@ -901,10 +897,7 @@ impl Platform {
                 .fails()
                 .map(|c| format!("{}: {}", c.name, c.detail))
                 .collect();
-            let detail = format!(
-                "DevForge preflight failed:\n  - {}",
-                msgs.join("\n  - ")
-            );
+            let detail = format!("DevForge preflight failed:\n  - {}", msgs.join("\n  - "));
             crate::emit_lifecycle_dual!(
                 self.internal_tx,
                 ServiceRole::DevForge,
@@ -1043,10 +1036,7 @@ impl Platform {
     ///
     /// # Errors
     /// Returns an error if the file could not be written.
-    pub fn surreal_user_config_save(
-        &self,
-        cfg: &SurrealUserConfig,
-    ) -> Result<SurrealUserConfig> {
+    pub fn surreal_user_config_save(&self, cfg: &SurrealUserConfig) -> Result<SurrealUserConfig> {
         services::surreal_config::save(&self.data_dir, cfg)
     }
 
@@ -1197,15 +1187,13 @@ impl Platform {
         // InternalEvent leg of the dual-emit pair. SendError when no
         // subscribers attached is benign — the broadcast bus is best-
         // effort and consumers are responsible for keeping up.
-        let _ = self
-            .internal_tx
-            .send(InternalEvent::RoutingConfigChanged {
-                response_source: saved.latency.response_source,
-                enabled_tier_count,
-                audio_buffer_ms: saved.latency.audio_buffer_ms,
-                vad_silence_ms: saved.latency.vad_silence_ms,
-                stream_chunk_size: saved.latency.stream_chunk_size,
-            });
+        let _ = self.internal_tx.send(InternalEvent::RoutingConfigChanged {
+            response_source: saved.latency.response_source,
+            enabled_tier_count,
+            audio_buffer_ms: saved.latency.audio_buffer_ms,
+            vad_silence_ms: saved.latency.vad_silence_ms,
+            stream_chunk_size: saved.latency.stream_chunk_size,
+        });
 
         Ok(saved)
     }
@@ -1291,12 +1279,7 @@ impl Platform {
             );
         }
 
-        let service = OllamaService::boot(
-            &entry.host,
-            entry.port,
-            entry.resolved_binary(),
-        )
-        .await?;
+        let service = OllamaService::boot(&entry.host, entry.port, entry.resolved_binary()).await?;
 
         let arc = Arc::new(service);
         self.ollama.store(Some(Arc::clone(&arc)));
@@ -1379,10 +1362,7 @@ impl Platform {
         &self,
         config: &services::project_init::ProjectInitConfig,
     ) -> anyhow::Result<services::project_init::ProjectScope> {
-        let surreal_adapter = self
-            .system_graph
-            .as_ref()
-            .map(|svc| svc.adapter().clone());
+        let surreal_adapter = self.system_graph.as_ref().map(|svc| svc.adapter().clone());
 
         let cx = services::project_init::ProjectInitContext {
             project_db: &self.project_db,

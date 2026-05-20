@@ -29,7 +29,10 @@ fn main() {
     let builder = devpulse_desktop_backend::build_specta_builder();
     let target = "../src/lib/sys/generated/bindings.ts";
     builder
-        .export(Typescript::default().bigint(BigIntExportBehavior::Number), target)
+        .export(
+            Typescript::default().bigint(BigIntExportBehavior::Number),
+            target,
+        )
         .expect("failed to export specta TypeScript bindings");
 
     // Strip unused `Channel as TAURI_CHANNEL` import. tauri-specta emits

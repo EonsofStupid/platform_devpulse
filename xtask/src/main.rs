@@ -182,9 +182,15 @@ fn main() -> anyhow::Result<()> {
         Commands::BuildRelease { portable_only } => {
             Box::new(commands::build_release::BuildRelease { portable_only })
         }
-        Commands::ModelManifestBackfill { dir, force, dry_run } => Box::new(
-            commands::model_manifest_backfill::ModelManifestBackfill { dir, force, dry_run },
-        ),
+        Commands::ModelManifestBackfill {
+            dir,
+            force,
+            dry_run,
+        } => Box::new(commands::model_manifest_backfill::ModelManifestBackfill {
+            dir,
+            force,
+            dry_run,
+        }),
         Commands::RegenBindings => Box::new(commands::regen_bindings::RegenBindings),
         Commands::PackagePortable { dry_run } => {
             Box::new(commands::package_portable::PackagePortable { dry_run })
@@ -200,15 +206,19 @@ fn main() -> anyhow::Result<()> {
             manifest,
             kind,
         }),
-        Commands::FetchLlamaCpp { target, manifest } => Box::new(
-            commands::fetch_llama_cpp::FetchLlamaCpp { target, manifest },
-        ),
+        Commands::FetchLlamaCpp { target, manifest } => {
+            Box::new(commands::fetch_llama_cpp::FetchLlamaCpp { target, manifest })
+        }
         Commands::FetchSurreal { target, force } => {
             Box::new(commands::fetch_surreal::FetchSurreal { target, force })
         }
-        Commands::Launch { release, linger_secs } => {
-            Box::new(commands::launch::Launch { release, linger_secs })
-        }
+        Commands::Launch {
+            release,
+            linger_secs,
+        } => Box::new(commands::launch::Launch {
+            release,
+            linger_secs,
+        }),
         Commands::ReleasePublish { notes } => {
             Box::new(commands::release_publish::ReleasePublish { notes })
         }

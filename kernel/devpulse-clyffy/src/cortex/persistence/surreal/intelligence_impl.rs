@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use surrealdb::types::SurrealValue;
 
 use crate::cortex::intelligence::{
-    EMBEDDING_DIM, IntelligenceStore, MemoryKind, MemoryRecord, RecallHit, MEMORY_SCHEMA,
+    IntelligenceStore, MemoryKind, MemoryRecord, RecallHit, EMBEDDING_DIM, MEMORY_SCHEMA,
 };
 use crate::cortex::persistence::surreal::client::SurrealAdapter;
 
@@ -45,9 +45,15 @@ impl IntelligenceStore for SurrealAdapter {
         }
         // Clone once for the move into `upsert_typed_in_ns` — the
         // adapter helper requires `'static` for the bound payload.
-        self.upsert_typed_in_ns(PROJECT_NAMESPACE, slug, "memories", &record.id, record.clone())
-            .await
-            .with_context(|| format!("save_memory {slug}:{}", record.id))?;
+        self.upsert_typed_in_ns(
+            PROJECT_NAMESPACE,
+            slug,
+            "memories",
+            &record.id,
+            record.clone(),
+        )
+        .await
+        .with_context(|| format!("save_memory {slug}:{}", record.id))?;
         Ok(record.id.clone())
     }
 
@@ -105,9 +111,7 @@ impl IntelligenceStore for SurrealAdapter {
             // consistently across reads and writes.
             q = q.bind(("kind", k));
         }
-        let mut response = q
-            .await
-            .with_context(|| format!("recall {slug}"))?;
+        let mut response = q.await.with_context(|| format!("recall {slug}"))?;
         let rows: Vec<Row> = response
             .take(1)
             .with_context(|| format!("recall take {slug}"))?;

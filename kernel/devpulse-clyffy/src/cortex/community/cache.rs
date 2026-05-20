@@ -15,10 +15,7 @@ use crate::cortex::persistence::SqlAdapter;
 ///
 /// # Errors
 /// Returns the underlying SQL error stringified.
-pub async fn upsert_feed_item(
-    adapter: &dyn SqlAdapter,
-    item: &FeedItem,
-) -> Result<(), String> {
+pub async fn upsert_feed_item(adapter: &dyn SqlAdapter, item: &FeedItem) -> Result<(), String> {
     let kind = item.kind.as_str();
     let created_at = item.created_at.to_string();
     let synced_at = item.synced_at.to_string();
@@ -128,10 +125,7 @@ pub async fn most_recent_sync_at(adapter: &dyn SqlAdapter) -> Result<i64, String
 ///
 /// # Errors
 /// Returns the underlying SQL error stringified.
-pub async fn set_community_enabled(
-    adapter: &dyn SqlAdapter,
-    enabled: bool,
-) -> Result<(), String> {
+pub async fn set_community_enabled(adapter: &dyn SqlAdapter, enabled: bool) -> Result<(), String> {
     let flag = if enabled { "1" } else { "0" };
     adapter
         .execute(

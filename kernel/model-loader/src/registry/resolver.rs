@@ -197,9 +197,9 @@ fn collect_alternatives(
         if candidate.tier == SupportTier::Planned {
             continue;
         }
-        let available = backends.iter().any(|b| {
-            b.installed && b.supports.iter().any(|s| s.arch == candidate.id)
-        });
+        let available = backends
+            .iter()
+            .any(|b| b.installed && b.supports.iter().any(|s| s.arch == candidate.id));
         if available {
             let tier_descriptor = match candidate.tier {
                 SupportTier::Primary => "primary tier",

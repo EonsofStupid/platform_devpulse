@@ -49,6 +49,6 @@ pub use governor::GovernorHandle;
 pub use metrics::{cosine_similarity, l2_norm, MetricsBuffer, DEFAULT_RECENT_CAPACITY};
 pub use pipeline::{process_frame, should_skip_tick, CapturedTickFrame, PipelineConfig};
 pub use sinks::{
-    CompositeSink, DiscardSink, DiskFrameSink, DuckDbEmbeddingSink, FrameSink,
-    FrameSinkRecord, LibSqlFrameSink, SinkHealth,
+    CompositeSink, DiscardSink, DiskFrameSink, DuckDbEmbeddingSink, FrameSink, FrameSinkRecord,
+    LibSqlFrameSink, SinkHealth,
 };

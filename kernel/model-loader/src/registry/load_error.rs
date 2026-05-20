@@ -472,9 +472,9 @@ impl fmt::Display for LoadError {
             Self::UnknownArchitecture { .. } | Self::UnsupportedArchitecture { .. } => {
                 fmt_compatibility(self, f)
             }
-            Self::MissingFile { .. } | Self::ModelCorrupt { .. } | Self::ModelFileMissing { .. } => {
-                fmt_filesystem(self, f)
-            }
+            Self::MissingFile { .. }
+            | Self::ModelCorrupt { .. }
+            | Self::ModelFileMissing { .. } => fmt_filesystem(self, f),
             Self::VramInsufficient { .. }
             | Self::RamExhausted { .. }
             | Self::DiskFull { .. }
@@ -494,9 +494,9 @@ impl fmt::Display for LoadError {
             | Self::SlotSwapping { .. }
             | Self::IncompatibleModel { .. }
             | Self::ConfigCorrupt { .. } => fmt_slot_state(self, f),
-            Self::BackendInit { .. } | Self::TokenizerLoad { .. } | Self::InferenceFailed { .. } => {
-                fmt_backend(self, f)
-            }
+            Self::BackendInit { .. }
+            | Self::TokenizerLoad { .. }
+            | Self::InferenceFailed { .. } => fmt_backend(self, f),
             Self::IoFailed { .. }
             | Self::BootFailed { .. }
             | Self::ConfigBackendFailed { .. }

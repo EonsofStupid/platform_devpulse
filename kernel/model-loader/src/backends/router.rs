@@ -177,4 +177,3 @@ mod tests {
         assert_eq!(pick, BackendType::LlamaCpp);
     }
 }
-

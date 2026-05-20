@@ -128,8 +128,7 @@ impl VoicePool {
                 if variant
                     == Some(crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::backend_name())
                 {
-                    let mut backend =
-                        crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::new();
+                    let mut backend = crate::backends::ort::siglip_naflex::SigLip2OrtFixRes::new();
                     let footprint = backend.load(model_path, params.clone())?;
                     tracing::info!(
                         slot = %slot_id,
@@ -153,11 +152,7 @@ impl VoicePool {
                         backend = "siglip-candle",
                         "VoicePool: vision encoder loaded (SD path)"
                     );
-                    self.record_session(
-                        slot_id,
-                        VoiceSession::Vision(Box::new(backend)),
-                        footprint,
-                    )
+                    self.record_session(slot_id, VoiceSession::Vision(Box::new(backend)), footprint)
                 }
                 #[cfg(not(feature = "candle-backend"))]
                 {

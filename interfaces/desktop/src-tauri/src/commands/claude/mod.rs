@@ -24,7 +24,9 @@ pub mod paths;
 pub mod ping;
 pub mod register;
 
-pub use ping::{anthropic_key_present, ping_claude, PingClaudeRequest, PingClaudeResponse, PingClaudeUsage};
+pub use ping::{
+    anthropic_key_present, ping_claude, PingClaudeRequest, PingClaudeResponse, PingClaudeUsage,
+};
 
 use serde::Serialize;
 use specta::Type;

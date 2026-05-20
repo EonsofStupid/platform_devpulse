@@ -44,8 +44,8 @@ fn resolve_models_dir() -> PathBuf {
         return PathBuf::from(env_dir);
     }
 
-    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .expect("CARGO_MANIFEST_DIR set by cargo test");
+    let manifest_dir =
+        std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR set by cargo test");
     let workspace_root = Path::new(&manifest_dir)
         .parent()
         .expect("kernel/")
@@ -87,8 +87,10 @@ fn step1_voices_archive_extraction() {
     }
 
     let Some(personaplex_dir) = locate_personaplex(&models_dir) else {
-        skip("no personaplex-7b-v1 directory under .userdata/models — \
-              run the wizard's download flow first");
+        skip(
+            "no personaplex-7b-v1 directory under .userdata/models — \
+              run the wizard's download flow first",
+        );
         return;
     };
 
@@ -148,14 +150,9 @@ fn step2_moshi_load_and_unload() {
                 backend.is_loaded(),
                 "is_loaded must be true after a successful load"
             );
-            println!(
-                "[personaplex_smoke] PASS step2 — Moshi STS load + is_loaded contract"
-            );
+            println!("[personaplex_smoke] PASS step2 — Moshi STS load + is_loaded contract");
             backend.unload();
-            assert!(
-                !backend.is_loaded(),
-                "is_loaded must be false after unload"
-            );
+            assert!(!backend.is_loaded(), "is_loaded must be false after unload");
             println!("[personaplex_smoke] PASS step2b — unload contract");
         }
         Err(e) => {

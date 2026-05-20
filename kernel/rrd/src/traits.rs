@@ -98,9 +98,7 @@ pub trait HotUpdateable: Send + Sync + 'static {
 pub trait HotSwap<C: HotUpdateable>: Send + Sync {
     /// Begin the maintenance window: gate new queries, drain
     /// in-flight work. Returns the proof-of-pause handle.
-    fn pause(
-        &self,
-    ) -> impl std::future::Future<Output = Result<PauseHandle, RRDError>> + Send;
+    fn pause(&self) -> impl std::future::Future<Output = Result<PauseHandle, RRDError>> + Send;
 
     /// Replace the live `Arc<C>` with the validated snapshot.
     /// Caller supplies the handle from `pause`. Old `Arc<C>` is

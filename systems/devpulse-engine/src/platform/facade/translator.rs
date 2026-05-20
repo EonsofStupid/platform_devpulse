@@ -179,9 +179,7 @@ fn translate_vram_pressure(
 ) -> Option<SurfaceEvent> {
     let headline = match action {
         PressureAction::EvictToRam { .. } => "Adjusting for your other apps...".to_string(),
-        PressureAction::RequestRestart => {
-            "Restart recommended for best performance".to_string()
-        }
+        PressureAction::RequestRestart => "Restart recommended for best performance".to_string(),
         _ => return None,
     };
     Some(SurfaceEvent {

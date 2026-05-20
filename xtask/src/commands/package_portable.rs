@@ -531,10 +531,7 @@ fn resource_copy_entries(
                 .path()
                 .strip_prefix(&abs)
                 .map_err(|e| {
-                    anyhow::anyhow!(
-                        "walkdir produced path outside base {}: {e}",
-                        abs.display()
-                    )
+                    anyhow::anyhow!("walkdir produced path outside base {}: {e}", abs.display())
                 })?
                 .to_path_buf();
             let dest_rel = if target_root.as_os_str().is_empty() {
@@ -752,10 +749,7 @@ fn assert_resource_coverage(plan: &PackagePlan, report: &PortableReport) -> Resu
     if declared == 0 {
         return Ok(());
     }
-    let resource_files = report
-        .per_category
-        .get("resource")
-        .map_or(0, |t| t.files);
+    let resource_files = report.per_category.get("resource").map_or(0, |t| t.files);
     let tree_files = report
         .per_category
         .get("resource_tree_file")
@@ -1094,8 +1088,7 @@ fn zip_dir_recursive(src_dir: &Path, zip_path: &Path) -> Result<()> {
             .with_context(|| format!("zip entry {name}"))?;
         let mut f = File::open(walked.path())
             .with_context(|| format!("opening {}", walked.path().display()))?;
-        std::io::copy(&mut f, &mut zip)
-            .with_context(|| format!("streaming {name} into zip"))?;
+        std::io::copy(&mut f, &mut zip).with_context(|| format!("streaming {name} into zip"))?;
         count += 1;
     }
 
@@ -1447,10 +1440,7 @@ mod tests {
         fs::create_dir_all(&portable_dir).unwrap();
         write_file(&src_tauri.join("resources/tree/out/server-main.js"), b"js");
         // Intentionally stage at WRONG location (`/win32-x64/` not `/devforge/`)
-        write_file(
-            &portable_dir.join("win32-x64/out/server-main.js"),
-            b"js",
-        );
+        write_file(&portable_dir.join("win32-x64/out/server-main.js"), b"js");
 
         let plan = PackagePlan {
             conf: TauriConfig {

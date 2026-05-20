@@ -38,7 +38,8 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use ort::execution_providers::{
-    CPUExecutionProvider, CUDAExecutionProvider, DirectMLExecutionProvider, ExecutionProviderDispatch,
+    CPUExecutionProvider, CUDAExecutionProvider, DirectMLExecutionProvider,
+    ExecutionProviderDispatch,
 };
 use ort::session::Session;
 
@@ -118,12 +119,10 @@ impl PersonaplexOrtBackend {
 
         let text_session = Self::build_session(&text_path)
             .with_context(|| format!("Failed to load text decoder: {}", text_path.display()))?;
-        let encoder_session = Self::build_session(&encoder_path).with_context(|| {
-            format!("Failed to load audio encoder: {}", encoder_path.display())
-        })?;
-        let decoder_session = Self::build_session(&decoder_path).with_context(|| {
-            format!("Failed to load audio decoder: {}", decoder_path.display())
-        })?;
+        let encoder_session = Self::build_session(&encoder_path)
+            .with_context(|| format!("Failed to load audio encoder: {}", encoder_path.display()))?;
+        let decoder_session = Self::build_session(&decoder_path)
+            .with_context(|| format!("Failed to load audio decoder: {}", decoder_path.display()))?;
 
         *self
             .text_decoder
@@ -132,11 +131,13 @@ impl PersonaplexOrtBackend {
         *self
             .audio_encoder
             .lock()
-            .map_err(|e| anyhow::anyhow!("audio encoder mutex poisoned: {e}"))? = Some(encoder_session);
+            .map_err(|e| anyhow::anyhow!("audio encoder mutex poisoned: {e}"))? =
+            Some(encoder_session);
         *self
             .audio_decoder
             .lock()
-            .map_err(|e| anyhow::anyhow!("audio decoder mutex poisoned: {e}"))? = Some(decoder_session);
+            .map_err(|e| anyhow::anyhow!("audio decoder mutex poisoned: {e}"))? =
+            Some(decoder_session);
 
         self.model_dir = Some(model_dir.to_path_buf());
         self.loaded = true;
@@ -279,10 +280,8 @@ mod tests {
 
     #[test]
     fn find_session_file_errors_when_no_match() {
-        let dir = std::env::temp_dir().join(format!(
-            "devpulse-personaplex-test-{}",
-            std::process::id()
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("devpulse-personaplex-test-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let err = find_session_file(&dir, &["definitely-not-here.onnx"]).unwrap_err();
         assert!(err.to_string().contains("Tried:"));
@@ -291,10 +290,8 @@ mod tests {
 
     #[test]
     fn find_session_file_locates_root_match() {
-        let dir = std::env::temp_dir().join(format!(
-            "devpulse-personaplex-root-{}",
-            std::process::id()
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("devpulse-personaplex-root-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let target = dir.join("model.onnx");
         std::fs::write(&target, b"fake-onnx").unwrap();

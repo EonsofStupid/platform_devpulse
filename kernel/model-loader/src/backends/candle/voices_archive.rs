@@ -61,8 +61,8 @@ pub fn extract_tgz(src: &Path, dst: &Path) -> Result<usize> {
         .canonicalize()
         .with_context(|| format!("Failed to canonicalize destination {}", dst.display()))?;
 
-    let file = File::open(src)
-        .with_context(|| format!("Failed to open archive {}", src.display()))?;
+    let file =
+        File::open(src).with_context(|| format!("Failed to open archive {}", src.display()))?;
     let decoder = flate2::read::GzDecoder::new(file);
     let mut archive = tar::Archive::new(decoder);
 
@@ -110,9 +110,8 @@ pub fn extract_tgz(src: &Path, dst: &Path) -> Result<usize> {
             // `Archive::unpack` which walks ahead). Materialize them
             // explicitly before unpacking each file.
             if let Some(parent) = target.parent() {
-                std::fs::create_dir_all(parent).with_context(|| {
-                    format!("Failed to create parent dir {}", parent.display())
-                })?;
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("Failed to create parent dir {}", parent.display()))?;
             }
             entry
                 .unpack(&target)
@@ -189,8 +188,7 @@ mod tests {
     /// Unique-per-test temp dir. Tests run in parallel so we can't
     /// share `std::process::id()` across them — race on the same
     /// archive_path causes intermittent failures.
-    static TEST_DIR_COUNTER: std::sync::atomic::AtomicU64 =
-        std::sync::atomic::AtomicU64::new(0);
+    static TEST_DIR_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
     fn make_tgz(payload: &[(&str, &[u8])]) -> Result<PathBuf> {
         let n = TEST_DIR_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -260,9 +258,7 @@ mod tests {
         let err = make_tgz(&[("../escape.wav", b"x")]).unwrap_err();
         let msg = err.to_string();
         assert!(
-            msg.contains("must not have")
-                || msg.contains("relative")
-                || msg.contains(".."),
+            msg.contains("must not have") || msg.contains("relative") || msg.contains(".."),
             "expected build-time traversal rejection, got: {msg}"
         );
     }

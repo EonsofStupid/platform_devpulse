@@ -60,8 +60,10 @@ fn gguf_quants_for_tier(tier: HardwareTier) -> &'static [&'static str] {
 /// (case-insensitive) one of the tier's preferred quant suffixes.
 /// Falls through to any GGUF as a last resort.
 fn pick_gguf<'a>(siblings: &'a [String], tier: HardwareTier) -> Option<&'a str> {
-    let lower_pairs: Vec<(String, &str)> =
-        siblings.iter().map(|s| (s.to_lowercase(), s.as_str())).collect();
+    let lower_pairs: Vec<(String, &str)> = siblings
+        .iter()
+        .map(|s| (s.to_lowercase(), s.as_str()))
+        .collect();
 
     for quant in gguf_quants_for_tier(tier) {
         let needle = quant.to_lowercase();
@@ -194,19 +196,22 @@ mod tests {
             "model-Q8_0.gguf",
             "config.json",
         ]);
-        let pick = recommend_primary(&siblings, ModelCapability::TextGeneration, HardwareTier::High);
+        let pick = recommend_primary(
+            &siblings,
+            ModelCapability::TextGeneration,
+            HardwareTier::High,
+        );
         assert_eq!(pick, Some("model-Q8_0.gguf"));
     }
 
     #[test]
     fn floor_tier_picks_smallest_safe_quant() {
-        let siblings = s(&[
-            "model-Q4_K_M.gguf",
-            "model-Q6_K.gguf",
-            "model-Q8_0.gguf",
-        ]);
-        let pick =
-            recommend_primary(&siblings, ModelCapability::TextGeneration, HardwareTier::Floor);
+        let siblings = s(&["model-Q4_K_M.gguf", "model-Q6_K.gguf", "model-Q8_0.gguf"]);
+        let pick = recommend_primary(
+            &siblings,
+            ModelCapability::TextGeneration,
+            HardwareTier::Floor,
+        );
         assert_eq!(pick, Some("model-Q4_K_M.gguf"));
     }
 
@@ -252,8 +257,7 @@ mod tests {
     #[test]
     fn embedding_falls_back_to_onnx_when_no_safetensors() {
         let siblings = s(&["model.onnx", "tokenizer.json"]);
-        let pick =
-            recommend_primary(&siblings, ModelCapability::Embedding, HardwareTier::Floor);
+        let pick = recommend_primary(&siblings, ModelCapability::Embedding, HardwareTier::Floor);
         assert_eq!(pick, Some("model.onnx"));
     }
 

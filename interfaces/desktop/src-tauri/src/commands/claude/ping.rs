@@ -123,7 +123,9 @@ struct AnthropicResponseEnvelope {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
 enum AnthropicContentBlock {
-    Text { text: String },
+    Text {
+        text: String,
+    },
     /// Other block types (tool_use, etc.) are ignored for the chat
     /// surface — assistant text-only is what the cortex consumes.
     #[serde(other)]
@@ -155,12 +157,9 @@ struct AnthropicUsage {
 /// - Response body did not match the expected envelope shape.
 #[tauri::command]
 #[specta::specta]
-pub async fn ping_claude(
-    request: PingClaudeRequest,
-) -> Result<PingClaudeResponse, CommandError> {
-    let entry = keyring::Entry::new(SERVICE_NAME, KEYRING_KEY).map_err(|e| {
-        CommandError::internal(format!("Keyring entry construction failed: {e}"))
-    })?;
+pub async fn ping_claude(request: PingClaudeRequest) -> Result<PingClaudeResponse, CommandError> {
+    let entry = keyring::Entry::new(SERVICE_NAME, KEYRING_KEY)
+        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
     let key = entry.get_password().map_err(|e| {
         CommandError::not_found(format!(
             "Anthropic API key not stored: {e} \u{2014} run the wizard's Clyffy Collab step \
@@ -233,14 +232,11 @@ pub async fn ping_claude(
 #[tauri::command]
 #[specta::specta]
 pub fn anthropic_key_present() -> Result<bool, CommandError> {
-    let entry = keyring::Entry::new(SERVICE_NAME, KEYRING_KEY).map_err(|e| {
-        CommandError::internal(format!("Keyring entry construction failed: {e}"))
-    })?;
+    let entry = keyring::Entry::new(SERVICE_NAME, KEYRING_KEY)
+        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
     match entry.get_password() {
         Ok(_) => Ok(true),
         Err(keyring::Error::NoEntry) => Ok(false),
-        Err(e) => Err(CommandError::internal(format!(
-            "Keyring read failed: {e}"
-        ))),
+        Err(e) => Err(CommandError::internal(format!("Keyring read failed: {e}"))),
     }
 }

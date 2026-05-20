@@ -230,7 +230,10 @@ mod tests {
             json.contains("\"name\":\"embedder-first-query\""),
             "actual: {json}"
         );
-        assert!(json.contains("\"slot_id\":\"rag.embedder\""), "actual: {json}");
+        assert!(
+            json.contains("\"slot_id\":\"rag.embedder\""),
+            "actual: {json}"
+        );
         assert!(json.contains("\"runtime\":\"candle\""), "actual: {json}");
         assert!(json.contains("\"latency_ms\":42"), "actual: {json}");
     }

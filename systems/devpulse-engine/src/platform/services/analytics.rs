@@ -582,12 +582,18 @@ mod schema_baseline_tests {
             ColumnSpec::new("project_id VARCHAR", "project_id VARCHAR"),
             ColumnSpec::new("model VARCHAR NOT NULL", "model VARCHAR NOT NULL"),
             ColumnSpec::new("adapter VARCHAR NOT NULL", "adapter VARCHAR NOT NULL"),
-            ColumnSpec::new("prompt_tokens INTEGER NOT NULL", "prompt_tokens INTEGER NOT NULL"),
+            ColumnSpec::new(
+                "prompt_tokens INTEGER NOT NULL",
+                "prompt_tokens INTEGER NOT NULL",
+            ),
             ColumnSpec::new(
                 "completion_tokens INTEGER NOT NULL",
                 "completion_tokens INTEGER NOT NULL",
             ),
-            ColumnSpec::new("total_tokens INTEGER NOT NULL", "total_tokens INTEGER NOT NULL"),
+            ColumnSpec::new(
+                "total_tokens INTEGER NOT NULL",
+                "total_tokens INTEGER NOT NULL",
+            ),
             ColumnSpec::new("latency_ms INTEGER NOT NULL", "latency_ms INTEGER NOT NULL"),
             ColumnSpec::new("ttft_ms INTEGER", "ttft_ms INTEGER"),
             ColumnSpec::new("tokens_per_second DOUBLE", "tokens_per_second DOUBLE"),

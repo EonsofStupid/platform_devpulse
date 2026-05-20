@@ -27,8 +27,7 @@ use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::ModelMetadata;
 use anyhow::{Context, Result};
 use mistralrs::{
-    IsqType, Model, MultimodalMessages, MultimodalModelBuilder, TextMessageRole,
-    TokenSource,
+    IsqType, Model, MultimodalMessages, MultimodalModelBuilder, TextMessageRole, TokenSource,
 };
 use std::sync::Arc;
 use tokio::runtime::Runtime;
@@ -169,11 +168,8 @@ impl MistralRsPhi4MmBackend {
         let image = image::load_from_memory(image_bytes)
             .map_err(|e| anyhow::anyhow!("Failed to decode image: {e}"))?;
 
-        let messages = MultimodalMessages::new().add_image_message(
-            TextMessageRole::User,
-            prompt,
-            vec![image],
-        );
+        let messages =
+            MultimodalMessages::new().add_image_message(TextMessageRole::User, prompt, vec![image]);
 
         let runtime = Arc::clone(&self.runtime);
         let response = runtime.block_on(async { model.send_chat_request(messages).await })?;
@@ -210,8 +206,7 @@ impl MistralRsPhi4MmBackend {
     ) -> Result<String> {
         let model = self.model.as_ref().context("No mistralrs model loaded")?;
 
-        let messages =
-            MultimodalMessages::new().add_message(TextMessageRole::User, prompt);
+        let messages = MultimodalMessages::new().add_message(TextMessageRole::User, prompt);
 
         let runtime = Arc::clone(&self.runtime);
         let response = runtime.block_on(async { model.send_chat_request(messages).await })?;

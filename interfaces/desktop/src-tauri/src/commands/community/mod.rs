@@ -27,8 +27,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 use devpulse_engine::platform::{
-    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled,
-    upsert_feed_item, FeedItem, FeedKind, SqlAdapter, DEFAULT_FEED_TTL_SECS,
+    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
+    FeedItem, FeedKind, SqlAdapter, DEFAULT_FEED_TTL_SECS,
 };
 
 use crate::commands::cloud::{get_supabase_credentials, SupabaseCredentials};
@@ -206,9 +206,7 @@ pub async fn sync_community_feed(
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn community_status(
-    state: State<'_, PlatformState>,
-) -> Result<CommunityStatus, String> {
+pub async fn community_status(state: State<'_, PlatformState>) -> Result<CommunityStatus, String> {
     let platform = state
         .platform
         .load_full()
@@ -306,7 +304,10 @@ async fn fetch_from_supabase(creds: &SupabaseCredentials) -> anyhow::Result<Vec<
     let items = rows
         .into_iter()
         .map(|r| {
-            let kind = r.kind.as_deref().map_or(FeedKind::Activity, FeedKind::parse_or_activity);
+            let kind = r
+                .kind
+                .as_deref()
+                .map_or(FeedKind::Activity, FeedKind::parse_or_activity);
             let created_at = r
                 .created_at
                 .as_deref()

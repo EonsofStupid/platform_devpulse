@@ -160,11 +160,7 @@ impl RotaryEmbedding {
         })
     }
 
-    fn apply_rotary_emb_qkv(
-        &self,
-        q: &Tensor,
-        k: &Tensor,
-    ) -> Result<(Tensor, Tensor)> {
+    fn apply_rotary_emb_qkv(&self, q: &Tensor, k: &Tensor) -> Result<(Tensor, Tensor)> {
         let (_b_sz, _h, seq_len, _n_embd) = q.dims4()?;
         // Embedding loads always run from sequence start — no autoregressive
         // offset to thread through, so the cos/sin slice is simply [0..seq_len].

@@ -271,10 +271,7 @@ pub async fn get_update_channel(app: AppHandle) -> Result<UpdateChannel, String>
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn set_update_channel(
-    app: AppHandle,
-    channel: UpdateChannel,
-) -> Result<(), String> {
+pub async fn set_update_channel(app: AppHandle, channel: UpdateChannel) -> Result<(), String> {
     let data_dir = paths::resolve_data_dir(&app)?;
     let dir = data_dir.join("user");
     std::fs::create_dir_all(&dir).map_err(|e| format!("mkdir failed: {e}"))?;
@@ -282,8 +279,8 @@ pub async fn set_update_channel(
     let payload = UpdatesUserConfig {
         channel: channel.as_str().to_string(),
     };
-    let json = serde_json::to_string_pretty(&payload)
-        .map_err(|e| format!("serialize failed: {e}"))?;
+    let json =
+        serde_json::to_string_pretty(&payload).map_err(|e| format!("serialize failed: {e}"))?;
     let tmp = path.with_extension("json.tmp");
     std::fs::write(&tmp, json).map_err(|e| format!("write tmp failed: {e}"))?;
     std::fs::rename(&tmp, &path).map_err(|e| format!("atomic rename failed: {e}"))?;

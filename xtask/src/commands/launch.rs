@@ -108,12 +108,7 @@ impl Task for Launch {
         let watcher_logs = logs_dir.clone();
         let watcher_exe_dir = exe.parent().map(Path::to_path_buf);
         let watcher = thread::spawn(move || {
-            watch_new_logs(
-                watcher_logs,
-                watcher_exe_dir,
-                launched_at,
-                watcher_stop,
-            );
+            watch_new_logs(watcher_logs, watcher_exe_dir, launched_at, watcher_stop);
         });
 
         // Wait for the child to exit. Streamed output is already
@@ -156,7 +151,9 @@ impl Task for Launch {
             }
             ExitVerdict::Missing => {
                 println!("bootstrap.log: missing entirely");
-                println!("→ process never reached data-dir resolution; check early-crash next to exe");
+                println!(
+                    "→ process never reached data-dir resolution; check early-crash next to exe"
+                );
                 if let Some(exe_dir) = exe.parent() {
                     list_files_after(exe_dir, "early-crash-", launched_at, "[early-crash@exe]");
                 }
@@ -233,9 +230,9 @@ fn pick_exe(root: &Path, force_release: bool) -> Result<PathBuf> {
 /// `redirect_stderr_to_file` takes effect, stderr flows into the file
 /// the watcher will pick up automatically.
 fn spawn_child(exe: &Path) -> Result<Child> {
-    let exe_dir = exe.parent().ok_or_else(|| {
-        anyhow!("exe has no parent directory: {}", exe.display())
-    })?;
+    let exe_dir = exe
+        .parent()
+        .ok_or_else(|| anyhow!("exe has no parent directory: {}", exe.display()))?;
     Command::new(exe)
         .current_dir(exe_dir)
         .stdin(Stdio::null())
@@ -249,7 +246,11 @@ fn spawn_child(exe: &Path) -> Result<Child> {
 /// `[source]` prefix. Waits for the file to exist before opening
 /// (boot.log and stderr-*.log are written by the child, not by us, so
 /// we may race them). Exits when `stop` flips to true.
-fn spawn_tail(source: &'static str, path: PathBuf, stop: Arc<AtomicBool>) -> thread::JoinHandle<()> {
+fn spawn_tail(
+    source: &'static str,
+    path: PathBuf,
+    stop: Arc<AtomicBool>,
+) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         // Wait for file to appear (bounded — bail if the child exits
         // before the file ever exists).
@@ -316,7 +317,13 @@ fn watch_new_logs(
     let mut tail_handles: Vec<thread::JoinHandle<()>> = Vec::new();
 
     while !stop.load(Ordering::SeqCst) {
-        scan_dir(&logs_dir, launched_at, &mut started, &mut tail_handles, &stop);
+        scan_dir(
+            &logs_dir,
+            launched_at,
+            &mut started,
+            &mut tail_handles,
+            &stop,
+        );
         if let Some(d) = exe_dir.as_deref() {
             scan_dir(d, launched_at, &mut started, &mut tail_handles, &stop);
         }
@@ -348,7 +355,9 @@ fn scan_dir(
             continue;
         };
         let Ok(meta) = entry.metadata() else { continue };
-        let Ok(modified) = meta.modified() else { continue };
+        let Ok(modified) = meta.modified() else {
+            continue;
+        };
         if modified < launched_at {
             continue;
         }
@@ -435,7 +444,9 @@ fn newest_with_prefix(dir: &Path, prefix: &str) -> Option<PathBuf> {
             continue;
         }
         let Ok(meta) = entry.metadata() else { continue };
-        let Ok(modified) = meta.modified() else { continue };
+        let Ok(modified) = meta.modified() else {
+            continue;
+        };
         match &best {
             Some((m, _)) if *m >= modified => {}
             _ => best = Some((modified, entry.path())),
@@ -456,7 +467,9 @@ fn list_files_after(dir: &Path, prefix: &str, launched_at: SystemTime, tag: &str
             continue;
         }
         let Ok(meta) = entry.metadata() else { continue };
-        let Ok(modified) = meta.modified() else { continue };
+        let Ok(modified) = meta.modified() else {
+            continue;
+        };
         if modified < launched_at {
             continue;
         }

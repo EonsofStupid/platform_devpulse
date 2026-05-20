@@ -392,4 +392,3 @@ mod tests {
         assert!(brain.already_downloaded);
     }
 }
-

@@ -215,9 +215,8 @@ impl VisionEmbeddingBackend for SigLip2OrtFixRes {
         }
 
         // ndarray shape [1, 3, H, W] feeding the ONNX `pixel_values` input.
-        let pixel_values =
-            ndarray::Array4::<f32>::from_shape_vec((1, 3, size, size), tensor_data)
-                .map_err(|e| anyhow::anyhow!("Failed to build pixel tensor: {e}"))?;
+        let pixel_values = ndarray::Array4::<f32>::from_shape_vec((1, 3, size, size), tensor_data)
+            .map_err(|e| anyhow::anyhow!("Failed to build pixel tensor: {e}"))?;
 
         let mut guard = self
             .session
@@ -241,9 +240,7 @@ impl VisionEmbeddingBackend for SigLip2OrtFixRes {
             .map_err(|e| anyhow::anyhow!("Failed to extract SigLIP2 output: {e}"))?;
 
         if shape.len() < 2 {
-            anyhow::bail!(
-                "Unexpected SigLIP2 output shape: {shape:?} (expected [1, dim])"
-            );
+            anyhow::bail!("Unexpected SigLIP2 output shape: {shape:?} (expected [1, dim])");
         }
         let embedding_dim = shape[shape.len() - 1] as usize;
         let vec: Vec<f32> = data[..embedding_dim].to_vec();
@@ -324,7 +321,10 @@ mod tests {
     fn load_missing_path_returns_informative_error() {
         let mut backend = SigLip2OrtFixRes::new();
         let err = backend
-            .load(Path::new("/definitely/does/not/exist.onnx"), LoadParams::default())
+            .load(
+                Path::new("/definitely/does/not/exist.onnx"),
+                LoadParams::default(),
+            )
             .unwrap_err();
         let msg = err.to_string();
         assert!(
@@ -336,7 +336,9 @@ mod tests {
     #[test]
     fn unload_when_never_loaded_is_idempotent() {
         let mut backend = SigLip2OrtFixRes::new();
-        backend.unload().expect("unload should not error on cold backend");
+        backend
+            .unload()
+            .expect("unload should not error on cold backend");
         assert!(!backend.loaded);
     }
 

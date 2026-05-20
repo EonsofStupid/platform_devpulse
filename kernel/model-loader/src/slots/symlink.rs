@@ -248,7 +248,10 @@ mod tests {
     #[test]
     fn extension_mapping_is_stable() {
         assert_eq!(format_extension(ModelFormat::Gguf), Some("gguf"));
-        assert_eq!(format_extension(ModelFormat::SafeTensors), Some("safetensors"));
+        assert_eq!(
+            format_extension(ModelFormat::SafeTensors),
+            Some("safetensors")
+        );
         assert_eq!(format_extension(ModelFormat::Onnx), Some("onnx"));
         assert_eq!(format_extension(ModelFormat::SherpaDir), None);
     }

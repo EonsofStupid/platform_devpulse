@@ -54,9 +54,7 @@ pub use ollama::{OllamaAdapter, OllamaConfig, OllamaModel};
 pub use port_alloc::{Disposition, PortAllocation};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
-pub use surreal::{
-    ScopedGraphHandle, SurrealAdapter, SurrealConfig, SurrealLifecycle,
-};
+pub use surreal::{ScopedGraphHandle, SurrealAdapter, SurrealConfig, SurrealLifecycle};
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,

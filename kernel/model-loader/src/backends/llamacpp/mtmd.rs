@@ -121,7 +121,9 @@ impl LlamaCppMtmdBackend {
 
     fn ctx_ref(&self) -> Result<&LlamaContext<'static>> {
         // SAFETY: same lifetime bounding as `model_ref`.
-        self.ctx.map(|p| unsafe { &*p }).context("No context available")
+        self.ctx
+            .map(|p| unsafe { &*p })
+            .context("No context available")
     }
 
     #[allow(clippy::mut_from_ref)]

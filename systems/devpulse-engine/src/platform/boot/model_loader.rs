@@ -177,9 +177,8 @@ pub async fn boot(
 /// `BackendType::Burn` surfaces an explicit "adapter not wired"
 /// error rather than silently falling back to Candle.
 #[cfg(feature = "inference")]
-fn build_burn_encoder_adapter() -> Option<
-    devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc,
-> {
+fn build_burn_encoder_adapter(
+) -> Option<devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc> {
     #[cfg(feature = "burn")]
     {
         use burn::backend::flex::FlexDevice;
@@ -196,11 +195,9 @@ fn build_burn_encoder_adapter() -> Option<
         // and halves the runtime memory footprint vs f32. IntDType::I64
         // matches the token-id buffer width the embedder pipeline emits.
         let device = FlexDevice::default();
-        if let Err(e) = set_default_dtypes::<EmbedderCpuBackend>(
-            &device,
-            FloatDType::BF16,
-            IntDType::I64,
-        ) {
+        if let Err(e) =
+            set_default_dtypes::<EmbedderCpuBackend>(&device, FloatDType::BF16, IntDType::I64)
+        {
             tracing::error!(
                 error = ?e,
                 "Burn Flex set_default_dtypes failed — encoder adapter NOT wired"

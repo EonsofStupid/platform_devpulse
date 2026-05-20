@@ -550,7 +550,10 @@ impl LoaderEventSink for TracingEventSink {
                     "Wizard slot symlink failed"
                 );
             }
-            LoaderEvent::WizardCortexComplete { slots_saved, duration_ms } => {
+            LoaderEvent::WizardCortexComplete {
+                slots_saved,
+                duration_ms,
+            } => {
                 tracing::info!(
                     target: "wizard.lifecycle",
                     slots_saved,
@@ -559,7 +562,10 @@ impl LoaderEventSink for TracingEventSink {
                 );
             }
             // ── Intelligence pipeline lifecycle (`intel.pipeline` target).
-            LoaderEvent::IntelligenceClassifyStarted { project_slug, content_len } => {
+            LoaderEvent::IntelligenceClassifyStarted {
+                project_slug,
+                content_len,
+            } => {
                 tracing::info!(
                     target: "intel.pipeline",
                     project_slug = %project_slug,
@@ -567,7 +573,11 @@ impl LoaderEventSink for TracingEventSink {
                     "Chat turn entered intelligence pipeline"
                 );
             }
-            LoaderEvent::IntelligenceEmbedComplete { project_slug, dim, duration_ms } => {
+            LoaderEvent::IntelligenceEmbedComplete {
+                project_slug,
+                dim,
+                duration_ms,
+            } => {
                 tracing::info!(
                     target: "intel.pipeline",
                     project_slug = %project_slug,
@@ -576,7 +586,10 @@ impl LoaderEventSink for TracingEventSink {
                     "Embedding produced"
                 );
             }
-            LoaderEvent::IntelligenceMemorySaved { project_slug, memory_id } => {
+            LoaderEvent::IntelligenceMemorySaved {
+                project_slug,
+                memory_id,
+            } => {
                 tracing::info!(
                     target: "intel.pipeline",
                     project_slug = %project_slug,
@@ -584,7 +597,10 @@ impl LoaderEventSink for TracingEventSink {
                     "Memory persisted"
                 );
             }
-            LoaderEvent::ReasoningEscalated { project_slug, backend } => {
+            LoaderEvent::ReasoningEscalated {
+                project_slug,
+                backend,
+            } => {
                 tracing::info!(
                     target: "intel.pipeline",
                     project_slug = %project_slug,

@@ -176,8 +176,11 @@ impl Task for Dev {
         // detection. Falls through to a bare CPU build if no SDK is
         // installed — pre-detection behavior is preserved.
         let accel_feats = platform_config.build.detect_build_features();
-        let mut cargo_args: Vec<String> =
-            vec!["check".into(), "-p".into(), "devpulse_desktop_backend".into()];
+        let mut cargo_args: Vec<String> = vec![
+            "check".into(),
+            "-p".into(),
+            "devpulse_desktop_backend".into(),
+        ];
         if let Some(feats) = accel_feats.as_deref() {
             cargo_args.push("--features".into());
             cargo_args.push(feats.into());

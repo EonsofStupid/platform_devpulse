@@ -108,7 +108,9 @@ impl LlamaCppBackend {
 
     fn ctx_ref(&self) -> Result<&LlamaContext<'static>> {
         // SAFETY: same lifetime bounding as `model_ref`.
-        self.ctx.map(|p| unsafe { &*p }).context("No context available")
+        self.ctx
+            .map(|p| unsafe { &*p })
+            .context("No context available")
     }
 
     #[allow(clippy::mut_from_ref)]
@@ -186,8 +188,8 @@ impl LlamaCppBackend {
         let mut batch = LlamaBatch::new(prefill_capacity, 1);
         let last_idx = prompt_tokens.len() - 1;
         for (i, token) in prompt_tokens.iter().enumerate() {
-            let pos = i32::try_from(i)
-                .map_err(|_| anyhow::anyhow!("prompt index {i} exceeds i32"))?;
+            let pos =
+                i32::try_from(i).map_err(|_| anyhow::anyhow!("prompt index {i} exceeds i32"))?;
             batch
                 .add(*token, pos, &[0], i == last_idx)
                 .context("Failed to add prompt token to batch")?;

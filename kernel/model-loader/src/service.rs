@@ -91,8 +91,7 @@ pub(crate) struct BootState {
     /// `Internal` error instead of compile-failing or silently
     /// falling back to Candle. The hosting binary is expected to
     /// supply the adapter when burn-cpu/burn-cuda is on.
-    pub(crate) burn_encoder_adapter:
-        Option<crate::backends::burn_adapter::BurnEncoderAdapterArc>,
+    pub(crate) burn_encoder_adapter: Option<crate::backends::burn_adapter::BurnEncoderAdapterArc>,
 }
 
 // ── Service ──────────────────────────────────────────────────────
@@ -149,9 +148,7 @@ fn runtime_id_for(
     params: &LoadParams,
     model_path: &std::path::Path,
 ) -> String {
-    use ModelCapability::{
-        Embedding, Reranking, SpeechToText, TextToSpeech, VisionEmbedding,
-    };
+    use ModelCapability::{Embedding, Reranking, SpeechToText, TextToSpeech, VisionEmbedding};
 
     match (backend, capability) {
         (BackendType::Candle, _) => "candle".to_string(),
@@ -278,24 +275,20 @@ impl ModelLoaderService {
             );
             AssistantConfig::load_default().unwrap_or_default()
         });
-        let has_assignments = config
-            .list_by_prefix("slot.")
-            .map_or_else(
-                |e| {
-                    tracing::warn!(error = %e, "Failed to preload slot assignment state");
-                    false
-                },
-                |entries| entries.iter().any(|(key, _)| key.ends_with(".model")),
-            );
-        let setup_complete = config
-            .get("setup_complete")
-            .map_or_else(
-                |e| {
-                    tracing::warn!(error = %e, "Failed to preload setup completion state");
-                    false
-                },
-                |value| value.as_deref() == Some("true"),
-            );
+        let has_assignments = config.list_by_prefix("slot.").map_or_else(
+            |e| {
+                tracing::warn!(error = %e, "Failed to preload slot assignment state");
+                false
+            },
+            |entries| entries.iter().any(|(key, _)| key.ends_with(".model")),
+        );
+        let setup_complete = config.get("setup_complete").map_or_else(
+            |e| {
+                tracing::warn!(error = %e, "Failed to preload setup completion state");
+                false
+            },
+            |value| value.as_deref() == Some("true"),
+        );
 
         Ok(Self {
             inference: Arc::new(RwLock::new(InferenceState {
@@ -589,11 +582,9 @@ impl ModelLoaderService {
     /// - Empty `texts` vec.
     /// - Forward pass or tokenizer failure.
     pub async fn burn_embed(&self, texts: Vec<String>) -> anyhow::Result<Vec<Vec<f32>>> {
-        let adapter = self
-            .boot
-            .burn_encoder_adapter
-            .clone()
-            .ok_or_else(|| anyhow::anyhow!("burn_embed: no Burn encoder adapter wired (burn feature off?)"))?;
+        let adapter = self.boot.burn_encoder_adapter.clone().ok_or_else(|| {
+            anyhow::anyhow!("burn_embed: no Burn encoder adapter wired (burn feature off?)")
+        })?;
 
         tokio::task::spawn_blocking(move || {
             let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
@@ -624,15 +615,9 @@ impl ModelLoaderService {
         &self,
         weights_path: std::path::PathBuf,
     ) -> anyhow::Result<crate::backends::burn_adapter::SwapStats> {
-        let adapter = self
-            .boot
-            .burn_encoder_adapter
-            .clone()
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "burn_swap_encoder: no Burn encoder adapter wired (burn feature off?)"
-                )
-            })?;
+        let adapter = self.boot.burn_encoder_adapter.clone().ok_or_else(|| {
+            anyhow::anyhow!("burn_swap_encoder: no Burn encoder adapter wired (burn feature off?)")
+        })?;
 
         tokio::task::spawn_blocking(move || adapter.swap_blocking(&weights_path))
             .await
@@ -699,7 +684,10 @@ impl ModelLoaderService {
         self.boot
             .models_dir
             .parent()
-            .map_or_else(|| self.boot.models_dir.clone(), std::path::Path::to_path_buf)
+            .map_or_else(
+                || self.boot.models_dir.clone(),
+                std::path::Path::to_path_buf,
+            )
             .join("voice")
             .join("custom")
     }
@@ -726,12 +714,11 @@ impl ModelLoaderService {
         self.boot.events.emit(LoaderEvent::RegistryScanStarted);
 
         let mut reg = self.registry.write().await;
-        let count = tokio::task::block_in_place(|| reg.registry.scan()).map_err(|e| {
-            LoaderError::Io {
+        let count =
+            tokio::task::block_in_place(|| reg.registry.scan()).map_err(|e| LoaderError::Io {
                 path: self.boot.models_dir.clone(),
                 reason: format!("registry scan failed: {e:#}"),
-            }
-        })?;
+            })?;
 
         for entry in reg.registry.all() {
             self.boot
@@ -1525,8 +1512,8 @@ impl ModelLoaderService {
         let cfg = self.config.read().await;
         let siblings_raw = tokio::task::block_in_place(|| cfg.downloads.list_repo_files(repo_id))
             .map_err(|e| LoaderError::Internal {
-                message: format!("list_repo_files failed: {e:#}"),
-            })?;
+            message: format!("list_repo_files failed: {e:#}"),
+        })?;
         drop(cfg);
 
         let siblings: Vec<String> = siblings_raw.into_iter().map(|f| f.name).collect();
@@ -1613,7 +1600,13 @@ impl ModelLoaderService {
         {
             let mut cfg = self.config.write().await;
             cfg.downloads
-                .start_download(repo_id, primary_filename, scope, &self.boot.events, Some(tx))
+                .start_download(
+                    repo_id,
+                    primary_filename,
+                    scope,
+                    &self.boot.events,
+                    Some(tx),
+                )
                 .map_err(|e| LoaderError::DownloadFailed {
                     reason: e.to_string(),
                     can_retry: true,
@@ -1768,18 +1761,20 @@ impl ModelLoaderService {
         // opens is the symlink path. That's what makes the slot
         // discoverable on disk by every consumer without needing to
         // query the loader.
-        let model_path = crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id)
-            .ok_or_else(|| LoaderError::ModelFileMissing {
-                path: crate::slots::symlink::symlink_path(
-                    &cfg.userdata_dir,
-                    slot_id,
-                    entry.format,
-                ),
-                slot_id: Some(slot_id.to_string()),
-                can_redownload: matches!(
-                    entry.source,
-                    crate::models::registry::ModelSource::HuggingFace { .. }
-                ),
+        let model_path =
+            crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id).ok_or_else(|| {
+                LoaderError::ModelFileMissing {
+                    path: crate::slots::symlink::symlink_path(
+                        &cfg.userdata_dir,
+                        slot_id,
+                        entry.format,
+                    ),
+                    slot_id: Some(slot_id.to_string()),
+                    can_redownload: matches!(
+                        entry.source,
+                        crate::models::registry::ModelSource::HuggingFace { .. }
+                    ),
+                }
             })?;
 
         if !model_path.exists() {
@@ -1900,15 +1895,17 @@ impl ModelLoaderService {
         // Symlink-first resolution — see [[engine-per-model-assignment]].
         // Registry entry stays as the metadata source; symlink target
         // is what the backend actually opens.
-        let model_path = crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id)
-            .ok_or_else(|| LoaderError::ModelFileMissing {
-                path: crate::slots::symlink::symlink_path(
-                    &cfg.userdata_dir,
-                    slot_id,
-                    entry.format,
-                ),
-                slot_id: Some(slot_id.to_string()),
-                can_redownload: false,
+        let model_path =
+            crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id).ok_or_else(|| {
+                LoaderError::ModelFileMissing {
+                    path: crate::slots::symlink::symlink_path(
+                        &cfg.userdata_dir,
+                        slot_id,
+                        entry.format,
+                    ),
+                    slot_id: Some(slot_id.to_string()),
+                    can_redownload: false,
+                }
             })?;
         if !model_path.exists() {
             return Err(LoaderError::ModelFileMissing {
@@ -2487,11 +2484,7 @@ impl ModelLoaderService {
     ///   `(slot, current assignment)` pair — proves the on-disk →
     ///   loaded → callable chain end-to-end. The latch resets on the
     ///   next `assign_model` so swaps re-fire it.
-    pub async fn embed(
-        &self,
-        slot_id: &str,
-        texts: &[&str],
-    ) -> Result<Vec<Vec<f32>>, LoaderError> {
+    pub async fn embed(&self, slot_id: &str, texts: &[&str]) -> Result<Vec<Vec<f32>>, LoaderError> {
         let started_at = std::time::Instant::now();
         // Scope the inference lock so the post-emit can take
         // `config.read()` without inverting the documented lock order
@@ -2509,20 +2502,15 @@ impl ModelLoaderService {
             Ok(_) => {
                 // `HashSet::insert` returns true when the entry was
                 // newly inserted — that's our atomic check-and-set.
-                let newly_seen = self
-                    .first_query_seen
-                    .lock()
-                    .insert(slot_id.to_string());
+                let newly_seen = self.first_query_seen.lock().insert(slot_id.to_string());
                 if newly_seen {
                     let runtime = slot_runtime_label(self, slot_id).await;
                     let latency_ms = started_at.elapsed().as_millis() as u64;
-                    crate::wizard::emit_event(
-                        &crate::wizard::AnalyticsEvent::EmbedderFirstQuery {
-                            slot_id: slot_id.to_string(),
-                            runtime,
-                            latency_ms,
-                        },
-                    );
+                    crate::wizard::emit_event(&crate::wizard::AnalyticsEvent::EmbedderFirstQuery {
+                        slot_id: slot_id.to_string(),
+                        runtime,
+                        latency_ms,
+                    });
                 }
             }
             Err(err) => {

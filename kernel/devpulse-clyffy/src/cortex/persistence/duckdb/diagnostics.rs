@@ -203,7 +203,8 @@ fn extract_label(sql: &str) -> String {
     if let Some(name) = label_after_prefix(&head_upper, head, "CREATE TABLE ") {
         return format!("table {name}");
     }
-    if let Some(name) = label_after_prefix(&head_upper, head, "CREATE UNIQUE INDEX IF NOT EXISTS ") {
+    if let Some(name) = label_after_prefix(&head_upper, head, "CREATE UNIQUE INDEX IF NOT EXISTS ")
+    {
         return format!("unique index {name}");
     }
     if let Some(name) = label_after_prefix(&head_upper, head, "CREATE UNIQUE INDEX ") {
@@ -241,10 +242,7 @@ fn strip_leading_comments(sql: &str) -> &str {
     let mut bytes = sql.as_bytes();
     loop {
         // Skip whitespace.
-        let leading_ws = bytes
-            .iter()
-            .take_while(|b| b.is_ascii_whitespace())
-            .count();
+        let leading_ws = bytes.iter().take_while(|b| b.is_ascii_whitespace()).count();
         bytes = &bytes[leading_ws..];
         // Line comment.
         if bytes.starts_with(b"--") {
@@ -452,7 +450,9 @@ fn render_label_with_dots(label: &str, width: usize) -> String {
         return label.to_string();
     }
     let padding = width - label.len();
-    let dots: String = std::iter::repeat('.').take(padding.saturating_sub(1)).collect();
+    let dots: String = std::iter::repeat('.')
+        .take(padding.saturating_sub(1))
+        .collect();
     format!("{label} {dots}")
 }
 
@@ -784,7 +784,10 @@ pub fn assert_schema_idempotent(name: &str, schema: &str) -> Result<()> {
     let _ = std::io::stdout().flush();
     conn.execute_batch(schema)
         .with_context(|| format!("second load of {name} (idempotency)"))?;
-    println!("✓   ({})", render_micros(phase_second.elapsed().as_micros()));
+    println!(
+        "✓   ({})",
+        render_micros(phase_second.elapsed().as_micros())
+    );
     let _ = std::io::stdout().flush();
 
     println!("── idempotency holds ──");
@@ -861,7 +864,8 @@ mod tests {
 
     #[test]
     fn extract_label_finds_index_name() {
-        let label = extract_label("CREATE INDEX IF NOT EXISTS idx_lane_traces_lane ON lane_traces(lane);");
+        let label =
+            extract_label("CREATE INDEX IF NOT EXISTS idx_lane_traces_lane ON lane_traces(lane);");
         assert_eq!(label, "index idx_lane_traces_lane");
     }
 

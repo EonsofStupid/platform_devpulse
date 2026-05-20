@@ -41,7 +41,12 @@ const SUPPORTED_TARGETS: &[(&str, &str, &str, &str)] = &[
     ("darwin-arm64", "aarch64-apple-darwin", ".tgz", "surreal"),
     ("darwin-x64", "x86_64-apple-darwin", ".tgz", "surreal"),
     ("linux-x64", "x86_64-unknown-linux-gnu", ".tgz", "surreal"),
-    ("linux-arm64", "aarch64-unknown-linux-gnu", ".tgz", "surreal"),
+    (
+        "linux-arm64",
+        "aarch64-unknown-linux-gnu",
+        ".tgz",
+        "surreal",
+    ),
 ];
 
 /// Fetch the SurrealDB sidecar binary.
@@ -106,9 +111,8 @@ impl Task for FetchSurreal {
         }
 
         // ── Download ───────────────────────────────────────────────
-        let asset_name = format!(
-            "surreal-{SURREAL_RELEASE_TAG}.{upstream_os}-{upstream_arch}{suffix}"
-        );
+        let asset_name =
+            format!("surreal-{SURREAL_RELEASE_TAG}.{upstream_os}-{upstream_arch}{suffix}");
         let url = format!(
             "https://github.com/surrealdb/surrealdb/releases/download/{SURREAL_RELEASE_TAG}/{asset_name}"
         );
@@ -118,8 +122,7 @@ impl Task for FetchSurreal {
         let tmp_file = tmp_dir.join(&asset_name);
 
         let dl = Stage::start("download");
-        curl_to(&url, &tmp_file)
-            .with_context(|| format!("download {url}"))?;
+        curl_to(&url, &tmp_file).with_context(|| format!("download {url}"))?;
         let dl_size = fs::metadata(&tmp_file)?.len();
         dl.ok_with(format!(
             "{asset_name} ({} MB)",
@@ -133,10 +136,7 @@ impl Task for FetchSurreal {
                 .with_context(|| format!("copy {} → {}", tmp_file.display(), dst_file.display()))?;
         } else {
             extract_tgz_entry(&tmp_file, archive_bin_name, &dst_file).with_context(|| {
-                format!(
-                    "extract `{archive_bin_name}` from {}",
-                    tmp_file.display()
-                )
+                format!("extract `{archive_bin_name}` from {}", tmp_file.display())
             })?;
             #[cfg(unix)]
             {

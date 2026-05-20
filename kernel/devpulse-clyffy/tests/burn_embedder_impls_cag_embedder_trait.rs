@@ -18,8 +18,9 @@ fn burn_adapter_implements_cag_embedder_trait_and_reports_harrier_dimension() {
     // Construct the adapter with the Harrier 0.6B preset — same
     // shape engine boot uses. Device is the unit-style `Cpu` enum.
     let device = burn::backend::ndarray::NdArrayDevice::Cpu;
-    let adapter: Arc<CortexBurnAdapter<EmbedderCpuBackend>> =
-        Arc::new(CortexBurnAdapter::<EmbedderCpuBackend>::harrier_0_6b(device));
+    let adapter: Arc<CortexBurnAdapter<EmbedderCpuBackend>> = Arc::new(CortexBurnAdapter::<
+        EmbedderCpuBackend,
+    >::harrier_0_6b(device));
 
     // The cast is what's load-bearing: if the `impl Embedder for
     // CortexBurnAdapter<B>` block ever loses its bounds (or the trait's

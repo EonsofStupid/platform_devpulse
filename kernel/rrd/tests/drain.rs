@@ -79,7 +79,10 @@ async fn pause_waits_for_all_in_flight_tasks_to_complete() {
     }
 
     // Clean up: complete the cycle.
-    daemon.resume(pause_handle).await.expect("resume should succeed");
+    daemon
+        .resume(pause_handle)
+        .await
+        .expect("resume should succeed");
 }
 
 /// Test 4-bis — drain timeout path: tasks that ignore cancellation
@@ -90,9 +93,8 @@ async fn pause_waits_for_all_in_flight_tasks_to_complete() {
 async fn pause_force_proceeds_after_drain_timeout() {
     let initial = TestComponent::new(7);
     // Short timeout so the test runs in <1s instead of 30s.
-    let daemon = Arc::new(
-        RRD::<TestComponent>::new(initial).with_drain_timeout(Duration::from_millis(200)),
-    );
+    let daemon =
+        Arc::new(RRD::<TestComponent>::new(initial).with_drain_timeout(Duration::from_millis(200)));
     assert_eq!(daemon.current().generation, 7, "initial gen");
 
     // Spawn a task that sleeps WAY longer than the drain timeout
@@ -123,5 +125,8 @@ async fn pause_force_proceeds_after_drain_timeout() {
         elapsed
     );
 
-    daemon.resume(pause_handle).await.expect("resume should succeed");
+    daemon
+        .resume(pause_handle)
+        .await
+        .expect("resume should succeed");
 }

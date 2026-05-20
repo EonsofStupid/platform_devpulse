@@ -456,7 +456,11 @@ fn inference_thread_loop_llamacpp(
         let (request, _cx_guard) = traced.attach();
 
         match request {
-            InferenceRequest::Load { path, params, reply } => {
+            InferenceRequest::Load {
+                path,
+                params,
+                reply,
+            } => {
                 let result = backend.load(&path, params);
                 if result.is_err() {
                     let _ = backend.unload();
@@ -466,7 +470,11 @@ fn inference_thread_loop_llamacpp(
             InferenceRequest::Unload { reply } => {
                 let _ = reply.send(backend.unload());
             }
-            InferenceRequest::Forward { tokens, position, reply } => {
+            InferenceRequest::Forward {
+                tokens,
+                position,
+                reply,
+            } => {
                 let _ = reply.send(backend.forward(&tokens, position));
             }
             InferenceRequest::Tokenize { text, reply } => {

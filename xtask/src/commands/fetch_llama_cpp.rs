@@ -45,11 +45,7 @@ use std::path::{Path, PathBuf};
 
 /// Targets we know how to fetch. Must stay in sync with the matrix in
 /// `github.com/EonsofStupid/llama-cpp-prebuilt/.github/workflows/release.yml`.
-const SUPPORTED_TARGETS: &[&str] = &[
-    "win32-x64-vulkan",
-    "win32-x64-cuda",
-    "win32-x64-cpu",
-];
+const SUPPORTED_TARGETS: &[&str] = &["win32-x64-vulkan", "win32-x64-cuda", "win32-x64-cpu"];
 
 /// Minimum download buffer for streaming HTTP responses.
 const IO_BUF_SIZE: usize = 64 * 1024;

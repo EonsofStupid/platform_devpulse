@@ -93,11 +93,9 @@ pub fn save(data_dir: &Path, cfg: &VoiceTtsConfig) -> Result<VoiceTtsConfig> {
     let parent = path
         .parent()
         .with_context(|| format!("voice_tts path has no parent: {}", path.display()))?;
-    fs::create_dir_all(parent)
-        .with_context(|| format!("create parent {}", parent.display()))?;
+    fs::create_dir_all(parent).with_context(|| format!("create parent {}", parent.display()))?;
 
-    let serialized =
-        toml::to_string_pretty(&clamped).context("serialize voice_tts config")?;
+    let serialized = toml::to_string_pretty(&clamped).context("serialize voice_tts config")?;
     let mut tmp = path.clone();
     let mut ext = tmp
         .extension()
@@ -108,16 +106,15 @@ pub fn save(data_dir: &Path, cfg: &VoiceTtsConfig) -> Result<VoiceTtsConfig> {
     tmp.set_extension(ext);
 
     {
-        let mut f = fs::File::create(&tmp)
-            .with_context(|| format!("open tmp {}", tmp.display()))?;
+        let mut f =
+            fs::File::create(&tmp).with_context(|| format!("open tmp {}", tmp.display()))?;
         f.write_all(serialized.as_bytes())
             .with_context(|| format!("write tmp {}", tmp.display()))?;
         f.sync_all().ok(); // best-effort fsync
     }
 
-    fs::rename(&tmp, &path).with_context(|| {
-        format!("rename {} -> {}", tmp.display(), path.display())
-    })?;
+    fs::rename(&tmp, &path)
+        .with_context(|| format!("rename {} -> {}", tmp.display(), path.display()))?;
 
     Ok(clamped)
 }

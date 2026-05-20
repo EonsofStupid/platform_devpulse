@@ -14,8 +14,8 @@ use crate::platform::services::graph::{
     GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
 use crate::platform::services::surreal::SurrealService;
-use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
+use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
@@ -82,7 +82,10 @@ pub async fn boot_consolidated(
     };
 
     let store_latency = start.elapsed();
-    on_event(InitEvent::ok_with_latency("SurrealKV embedded", store_latency));
+    on_event(InitEvent::ok_with_latency(
+        "SurrealKV embedded",
+        store_latency,
+    ));
     boot_log.ok(
         "SurrealKV embedded",
         &format!(
@@ -148,7 +151,10 @@ pub async fn boot_consolidated(
         namespaces = "system, user, global",
         "Graph store connected (embedded SurrealKV)"
     );
-    on_event(InitEvent::ok_with_latency("Graph store", connect_start.elapsed()));
+    on_event(InitEvent::ok_with_latency(
+        "Graph store",
+        connect_start.elapsed(),
+    ));
     boot_log.ok(
         "Graph store",
         &format!(

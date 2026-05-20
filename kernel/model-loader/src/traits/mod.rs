@@ -11,6 +11,5 @@ pub use capability::{EmbeddingBackend, RerankerBackend, VisionEmbeddingBackend};
 pub use config::{ConfigBackend, MemoryConfig};
 pub use errors::{LoaderError, RecoverySuggestion};
 pub use events::{
-    LoaderEvent, LoaderEventSink, NullEventSink, RebindReason, RuntimeFingerprint,
-    TracingEventSink,
+    LoaderEvent, LoaderEventSink, NullEventSink, RebindReason, RuntimeFingerprint, TracingEventSink,
 };

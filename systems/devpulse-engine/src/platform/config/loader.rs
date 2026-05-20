@@ -1337,7 +1337,6 @@ impl Default for SurrealServiceEntry {
     }
 }
 
-
 /// Ollama sidecar service entry — managed `ollama serve` child process.
 ///
 /// Spawns a child running the Ollama HTTP server on `<host>:<port>`.

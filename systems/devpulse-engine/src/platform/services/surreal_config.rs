@@ -80,19 +80,14 @@ pub fn load(data_dir: &Path) -> SurrealUserConfig {
 /// - Creating the parent directory fails.
 /// - Temp-file write or rename fails.
 /// - Serialization fails (should be impossible for this shape).
-pub fn save(
-    data_dir: &Path,
-    cfg: &SurrealUserConfig,
-) -> Result<SurrealUserConfig> {
+pub fn save(data_dir: &Path, cfg: &SurrealUserConfig) -> Result<SurrealUserConfig> {
     let path = resolve_path(data_dir);
-    let parent = path.parent().with_context(|| {
-        format!("surreal path has no parent: {}", path.display())
-    })?;
-    fs::create_dir_all(parent)
-        .with_context(|| format!("create parent {}", parent.display()))?;
+    let parent = path
+        .parent()
+        .with_context(|| format!("surreal path has no parent: {}", path.display()))?;
+    fs::create_dir_all(parent).with_context(|| format!("create parent {}", parent.display()))?;
 
-    let serialized =
-        toml::to_string_pretty(cfg).context("serialize surreal config")?;
+    let serialized = toml::to_string_pretty(cfg).context("serialize surreal config")?;
     let mut tmp = path.clone();
     let mut ext = tmp
         .extension()
@@ -103,8 +98,8 @@ pub fn save(
     tmp.set_extension(ext);
 
     {
-        let mut f = fs::File::create(&tmp)
-            .with_context(|| format!("open tmp {}", tmp.display()))?;
+        let mut f =
+            fs::File::create(&tmp).with_context(|| format!("open tmp {}", tmp.display()))?;
         f.write_all(serialized.as_bytes())
             .with_context(|| format!("write tmp {}", tmp.display()))?;
         f.sync_all().ok();

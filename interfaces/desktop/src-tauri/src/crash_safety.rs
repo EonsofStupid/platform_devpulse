@@ -69,9 +69,8 @@ impl ProcessExitGuard {
 impl Drop for ProcessExitGuard {
     fn drop(&mut self) {
         let timestamp = chrono::Utc::now().to_rfc3339();
-        let marker = format!(
-            "---\nprocess_ended_at_utc: {timestamp}\nexit_kind: normal_drop_guard\n"
-        );
+        let marker =
+            format!("---\nprocess_ended_at_utc: {timestamp}\nexit_kind: normal_drop_guard\n");
         let mut existing = std::fs::read_to_string(&self.bootstrap_log).unwrap_or_default();
         existing.push_str(&marker);
         let _ = std::fs::write(&self.bootstrap_log, existing);

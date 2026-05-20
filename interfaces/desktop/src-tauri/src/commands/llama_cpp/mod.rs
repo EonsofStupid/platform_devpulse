@@ -76,9 +76,12 @@ pub async fn llama_cpp_build_info() -> Result<LlamaCppBuildInfo, String> {
     }
 
     let env_dir = std::env::var("LLAMA_CPP_PREBUILT_LIB_DIR").ok();
-    let active_target = env_dir
-        .as_ref()
-        .and_then(|d| Path::new(d).file_name().and_then(|s| s.to_str()).map(String::from));
+    let active_target = env_dir.as_ref().and_then(|d| {
+        Path::new(d)
+            .file_name()
+            .and_then(|s| s.to_str())
+            .map(String::from)
+    });
     let link_mode = if active_target.is_some() {
         LinkMode::Prebuilt
     } else if targets.iter().any(|t| t.extracted) {
@@ -210,11 +213,7 @@ pub async fn llama_cpp_bump_manifest(new_manifest_json: String) -> Result<BumpRe
     std::fs::write(&tmp_path, pretty).map_err(|e| format!("write tmp: {e}"))?;
     std::fs::rename(&tmp_path, &manifest_path).map_err(|e| format!("rename tmp: {e}"))?;
 
-    let targets: Vec<String> = parsed
-        .artifacts
-        .iter()
-        .map(|a| a.target.clone())
-        .collect();
+    let targets: Vec<String> = parsed.artifacts.iter().map(|a| a.target.clone()).collect();
     Ok(BumpResult {
         manifest_path: manifest_path.to_string_lossy().into_owned(),
         new_version: parsed.version,

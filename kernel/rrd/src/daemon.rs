@@ -207,10 +207,7 @@ impl<C: HotUpdateable> HotSwap<C> for RRD<C> {
 
         // Phase: drain_begin. Cancel new work, close tracker,
         // wait for in-flight to settle.
-        emit_rrd_lifecycle!(
-            lifecycle_phase::DRAIN_BEGIN,
-            in_flight = tracker.len()
-        );
+        emit_rrd_lifecycle!(lifecycle_phase::DRAIN_BEGIN, in_flight = tracker.len());
         cancel.cancel();
         tracker.close();
 
@@ -278,13 +275,10 @@ impl<C: HotUpdateable> HotSwap<C> for RRD<C> {
                 detail = %detail
             );
             // Transition to Failed; live component unchanged.
-            let next = self
-                .state_tx
-                .borrow()
-                .clone()
-                .try_transition_to_failed(FailureReason::EncoderValidationFailed(
-                    detail.clone(),
-                ))?;
+            let next =
+                self.state_tx.borrow().clone().try_transition_to_failed(
+                    FailureReason::EncoderValidationFailed(detail.clone()),
+                )?;
             self.state_tx
                 .send(next)
                 .map_err(|_| RRDError::StateBroadcastFailed)?;

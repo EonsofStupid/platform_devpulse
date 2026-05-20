@@ -374,10 +374,7 @@ pub fn classify_arch_from_hf_config(arch_raw: &str, model_type: Option<&str>) ->
     }
     // Phi-4 multimodal and Phi-4 vision must match before the generic
     // Phi3/Phi4 fallback because both arch strings start with "Phi4".
-    if arch_raw.contains("Phi4MM")
-        || arch_raw.contains("Phi4Mm")
-        || arch_raw.contains("phi4mm")
-    {
+    if arch_raw.contains("Phi4MM") || arch_raw.contains("Phi4Mm") || arch_raw.contains("phi4mm") {
         return Some(ArchId::Phi4Mm);
     }
     if arch_raw.contains("Phi4Siglip")

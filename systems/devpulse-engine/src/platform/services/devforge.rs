@@ -29,9 +29,7 @@
 //! `InternalEvent::SidecarPhaseTransition` on the broadcast bus. See
 //! `feedback_dual_observability.md`.
 
-use super::{
-    lifecycle_phase, PreflightCheck, Preflightable, Service, ServiceRole, ServiceState,
-};
+use super::{lifecycle_phase, PreflightCheck, Preflightable, Service, ServiceRole, ServiceState};
 use crate::emit_lifecycle_debug;
 use crate::emit_lifecycle_dual;
 use crate::platform::config::DevForgeServiceEntry;
@@ -91,10 +89,7 @@ impl DevForgeService {
         // ── Validate the REH tree ────────────────────────────────
         let server_main = server_dir.join("out").join("server-main.js");
         if !server_main.exists() {
-            let detail = format!(
-                "REH server-main.js not found at {}",
-                server_main.display()
-            );
+            let detail = format!("REH server-main.js not found at {}", server_main.display());
             emit_lifecycle_dual!(
                 internal_tx,
                 ServiceRole::DevForge,
@@ -532,10 +527,7 @@ impl<'a> Preflightable for DevForgePreflight<'a> {
             Err(e) => checks.push(PreflightCheck::fail(
                 ServiceRole::DevForge,
                 "user_data.writable",
-                format!(
-                    "create_dir_all failed at {}: {e}",
-                    user_data.display()
-                ),
+                format!("create_dir_all failed at {}: {e}", user_data.display()),
             )),
         }
 
@@ -550,10 +542,7 @@ impl<'a> Preflightable for DevForgePreflight<'a> {
             Err(e) => checks.push(PreflightCheck::fail(
                 ServiceRole::DevForge,
                 "extensions.writable",
-                format!(
-                    "create_dir_all failed at {}: {e}",
-                    extensions.display()
-                ),
+                format!("create_dir_all failed at {}: {e}", extensions.display()),
             )),
         }
 
@@ -562,10 +551,7 @@ impl<'a> Preflightable for DevForgePreflight<'a> {
             checks.push(PreflightCheck::pass(
                 ServiceRole::DevForge,
                 "port.free",
-                format!(
-                    "auto-pick at boot — host {} unrestricted",
-                    self.entry.host
-                ),
+                format!("auto-pick at boot — host {} unrestricted", self.entry.host),
             ));
         } else {
             let addr = format!("{}:{}", self.entry.host, self.entry.port);

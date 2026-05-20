@@ -347,9 +347,7 @@ impl LoaderEventSink for FileEventSink {
             } => {
                 self.write_line(
                     "INFO",
-                    &format!(
-                        "Install COMPLETE: id={install_id} slot={slot_id} model={model_id}",
-                    ),
+                    &format!("Install COMPLETE: id={install_id} slot={slot_id} model={model_id}",),
                 );
                 tracing::info!(
                     install_id = %install_id,
@@ -365,9 +363,7 @@ impl LoaderEventSink for FileEventSink {
             } => {
                 self.write_line(
                     "ERROR",
-                    &format!(
-                        "Install FAILED: id={install_id} slot={slot_id} error={error}",
-                    ),
+                    &format!("Install FAILED: id={install_id} slot={slot_id} error={error}",),
                 );
                 tracing::error!(
                     install_id = %install_id,
@@ -390,9 +386,7 @@ impl LoaderEventSink for FileEventSink {
                 let model_display = model_id.as_deref().unwrap_or("(resolving)");
                 self.write_line(
                     "INFO",
-                    &format!(
-                        "Wizard tile applied: slot={slot_id} model={model_display}"
-                    ),
+                    &format!("Wizard tile applied: slot={slot_id} model={model_display}"),
                 );
                 tracing::info!(
                     target: "wizard.lifecycle",
@@ -408,9 +402,7 @@ impl LoaderEventSink for FileEventSink {
             } => {
                 self.write_line(
                     "INFO",
-                    &format!(
-                        "Wizard slot armed: slot={slot_id} link={link_path} -> {target_path}"
-                    ),
+                    &format!("Wizard slot armed: slot={slot_id} link={link_path} -> {target_path}"),
                 );
                 tracing::info!(
                     target: "wizard.lifecycle",
@@ -498,9 +490,7 @@ impl LoaderEventSink for FileEventSink {
             } => {
                 self.write_line(
                     "INFO",
-                    &format!(
-                        "Intel pipeline SAVED: project={project_slug} memory_id={memory_id}"
-                    ),
+                    &format!("Intel pipeline SAVED: project={project_slug} memory_id={memory_id}"),
                 );
                 tracing::info!(
                     target: "intel.pipeline",

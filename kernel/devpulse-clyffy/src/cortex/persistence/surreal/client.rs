@@ -123,9 +123,10 @@ impl SurrealAdapter {
         tracing::debug!(namespace, database, "Initializing namespace (scoped)");
 
         let scoped = format!("USE NS {namespace} DB {database}; {schema}");
-        self.db.query(scoped).await.with_context(|| {
-            format!("Failed to initialize schema for '{namespace}/{database}'")
-        })?;
+        self.db
+            .query(scoped)
+            .await
+            .with_context(|| format!("Failed to initialize schema for '{namespace}/{database}'"))?;
 
         tracing::info!(namespace, database, "Namespace schema initialized");
         Ok(())
@@ -265,12 +266,7 @@ impl SurrealAdapter {
     /// # Errors
     /// Propagates SurrealDB errors with the namespace + table in
     /// context.
-    pub async fn count_in_ns(
-        &self,
-        namespace: &str,
-        database: &str,
-        table: &str,
-    ) -> Result<u64> {
+    pub async fn count_in_ns(&self, namespace: &str, database: &str, table: &str) -> Result<u64> {
         // `SELECT VALUE count() FROM <table> GROUP ALL` returns a
         // single scalar — when the table is empty, the result set
         // is empty (not zero), so an `Option<u64>` take with
@@ -472,7 +468,6 @@ impl SurrealAdapter {
             .with_context(|| format!("archive take {namespace}/{database}:{memory_id}"))?;
         Ok(row.map(|r| r.bytes))
     }
-
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -534,11 +529,7 @@ impl ScopedGraphHandle {
     /// Returns error if the namespace or kv table is broken.
     pub async fn ping(&self) -> Result<()> {
         self.adapter
-            .query_in_ns(
-                &self.namespace,
-                &self.database,
-                "SELECT * FROM kv LIMIT 1",
-            )
+            .query_in_ns(&self.namespace, &self.database, "SELECT * FROM kv LIMIT 1")
             .await
             .with_context(|| {
                 format!(
@@ -608,8 +599,7 @@ impl ScopedGraphHandle {
         edge_type: &str,
         depth: u32,
     ) -> Result<Vec<serde_json::Value>> {
-        let surql =
-            format!("SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};");
+        let surql = format!("SELECT ->{edge_type}->* AS connected FROM {start_id} LIMIT {depth};");
         let result = self.query(&surql).await?;
         match result {
             serde_json::Value::Array(rows) => Ok(rows),

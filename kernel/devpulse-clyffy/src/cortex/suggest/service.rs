@@ -93,12 +93,7 @@ impl SuggestionService {
         ),
         err
     )]
-    pub async fn record_prompt(
-        &self,
-        text: &str,
-        persona_id: &str,
-        accepted: bool,
-    ) -> Result<()> {
+    pub async fn record_prompt(&self, text: &str, persona_id: &str, accepted: bool) -> Result<()> {
         let persona = resolve_persona(persona_id);
         let embedding = self
             .embedder

@@ -197,8 +197,7 @@ impl SherpaStreamingService {
         if !dir.exists() {
             return Err(anyhow!("model {id} not installed"));
         }
-        std::fs::remove_dir_all(&dir)
-            .with_context(|| format!("remove {}", dir.display()))?;
+        std::fs::remove_dir_all(&dir).with_context(|| format!("remove {}", dir.display()))?;
         tracing::info!(model_id = id, "sherpa model deleted");
         Ok(())
     }
@@ -407,9 +406,7 @@ fn validate_model_id(id: &str) -> Result<()> {
         return Err(anyhow!("model id must be non-empty"));
     }
     if id.contains('/') || id.contains('\\') || id.contains("..") {
-        return Err(anyhow!(
-            "model id must not contain path separators: {id}"
-        ));
+        return Err(anyhow!("model id must not contain path separators: {id}"));
     }
     Ok(())
 }

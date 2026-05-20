@@ -204,7 +204,10 @@ mod tests {
 
     #[test]
     fn memory_kind_decision_renders_snake_case() -> anyhow::Result<()> {
-        assert_eq!(serde_json::to_string(&MemoryKind::Decision)?, "\"decision\"");
+        assert_eq!(
+            serde_json::to_string(&MemoryKind::Decision)?,
+            "\"decision\""
+        );
         assert_eq!(
             serde_json::to_string(&MemoryKind::Reflection)?,
             "\"reflection\""
