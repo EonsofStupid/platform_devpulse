@@ -1,7 +1,7 @@
 <!--
 	@route /profile
-	@description Post-login profile screen — Clyffy's embedder picker
-	             + minion read-only section. Reachable from the
+	@description Post-login profile screen — the embedder picker UI plus
+	             a read-only helper-status section. Reachable from the
 	             post-login surfaces (header link, dashboard CTA, etc.
 	             — those wire in follow-up slices). Today the operator
 	             types the URL or navigates programmatically.

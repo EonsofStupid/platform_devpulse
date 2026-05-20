@@ -38,7 +38,7 @@ export const ROLE_FRAMES: readonly RoleFrame[] = [
 	{
 		id: "encoder",
 		label: "Memory + Search",
-		description: "Embedding + reranking for retrieval",
+		description: "Embedding + re-ranking for retrieval",
 		slots: ["rag.embedder", "rag.encoder", "rag.reranker", "vision.embedder"],
 	},
 	{

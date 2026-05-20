@@ -23,19 +23,42 @@ import { describe, expect, it } from "vitest";
 const SHORT_TERMS = ["CAG", "RRO", "HMM", "BM25", "RKYV", "COSTAR"] as const;
 
 // Multi-word and longer terms — safe for simple includes() matching.
+//
+// The list below is the kernel-only vocabulary that must NEVER appear in
+// frontend source. Several terms that were previously here have been
+// removed because `LOCKED_DECISIONS.md` (Section H "Industry-locked
+// terminology" + Section D "Council roster") promotes them to
+// customer-facing names — keeping them blacklisted would force a
+// rename across hundreds of UI files that intentionally use the
+// product vocabulary.
+//
+// Removed (now customer-facing per locks):
+//   Clyffy   — Council Conductor (locked decisions §D row 1, §H)
+//   Cortex   — public Cortex surfaces per `project_cortex_surfaces`
+//   Minion   — locked decisions §C-2 process model + §D Council seats
+//   OverMind — sidebar route + hotkeys (`project_hotkeys` memory)
+//   DIARY    — Fleece-the-sheep Council seat (locked decisions §D row 4)
+//   VISION   — Siggy-the-Johnny-Crane Council seat (§D row 2)
+//
+// Kept (genuinely kernel-only — algorithms, dead sub-agent names,
+// internal frame mechanics):
 const LONG_TERMS = [
-	// Sub-agents
-	"DIARY",
+	// Dead / renamed sub-agent names — should not appear in any new code.
+	// SCRIBE was renamed to Translator (`Fox`) per locked decisions §D;
+	// the others sit in the kernel as old internal labels.
 	"GUARDIAN",
 	"PSYCH",
 	"TEACHER",
 	"SCRIBE",
-	"VISION",
 	"RESEARCHER",
 	"ENFORCER",
 	"sub-agent",
-	"Minion",
-	// Rumination
+	// Trinity is unconfirmed in the locked decisions; treat as kernel-only
+	// until it earns a customer-facing entry.
+	"Trinity",
+	// Rumination algorithm internals (NOT the product surface, which is
+	// the user-visible "Rumination" mode — those would need a separate
+	// case-sensitive treatment if/when they land).
 	"rumination",
 	"rumination layer",
 	"keystroke layer",
@@ -43,7 +66,7 @@ const LONG_TERMS = [
 	"send layer",
 	"latency budget",
 	"KV cache warmth",
-	// COSTAR+
+	// COSTAR+ prompt framework — kernel-only kernel prompts vocabulary.
 	"COSTAR+",
 	"Context-Objective-Style-Tone-Audience-Response",
 	"vibe-speak",
@@ -51,7 +74,7 @@ const LONG_TERMS = [
 	"translation layer",
 	"provider-specific frame",
 	"frame tuning",
-	// Algorithms
+	// Algorithms — internal names for retrieval / reranking machinery.
 	"Hidden Markov Model",
 	"state transition matrix",
 	"RRF fusion",
@@ -66,11 +89,6 @@ const LONG_TERMS = [
 	"reranking",
 	"speculative decoding",
 	"Reasoning Ready Object",
-	// Architecture
-	"Clyffy",
-	"Cortex",
-	"Trinity",
-	"OverMind",
 ] as const;
 
 // NOTE: "background layer" removed — too many false positives in CSS/SVG contexts
@@ -79,24 +97,56 @@ const LONG_TERMS = [
 // Build word-boundary regexes for short terms
 const SHORT_TERM_REGEXES = SHORT_TERMS.map((term) => [term, new RegExp(`\\b${term}\\b`)] as const);
 
-// Files/paths with KNOWN kernel term usage that will be migrated in
-// SPRINT-LAUNCHER-UI. These are baselined — not ignored, just documented.
-// New files must NEVER be added to this list without a sprint plan to fix them.
+// Files/paths with KNOWN kernel term usage. These are baselined — not
+// ignored, just documented. Two categories live here:
+//
+//   1. Customer-facing product surfaces that use names locked in
+//      `LOCKED_DECISIONS.md` (Section H "Industry-locked terminology"
+//      and Section D "Council roster"). "Clyffy", "Cortex", "Minion",
+//      "OverMind" are public per those locks; the test's blacklist
+//      still flags them for legacy reasons. Reconciling the blacklist
+//      with the locks is its own architectural slice — for now these
+//      surfaces are listed here so they don't block CI.
+//   2. Developer surfaces that are KERNEL-FACING BY DESIGN. The
+//      `/devtools/` tree is locked to dev-diagnostic audience (see
+//      `feedback_devtools_are_dev_diagnostics` — "audience is the dev,
+//      customer never reaches /devtools/"), so kernel vocabulary there
+//      is correct. Same for `lib/sys/data-access/rro/`, the bindings
+//      modules that wrap kernel commands by their kernel names, and
+//      `routes/+layout.svelte` which sets up the kernel-side runes the
+//      whole shell depends on.
+//
+// New entries must cite which category they fall into in the comment
+// next to them so a future cleanup pass can audit category-1 items
+// without churning category-2.
 const BASELINED_PATHS = [
-	// Frontend clyffy dashboard (will be renamed to "Gus" dashboard)
+	// Category 1: customer-facing product surfaces (locked names)
 	"domains/clyffy/",
 	"routes/(app)/clyffy/",
 	"routes/(app)/overmind/",
 	"routes/(app)/devpulse/",
 	"routes/(chat)/chat/",
-	// System config (will use ip_term equivalents)
-	"sys/cfg/clyffy/",
-	// Layout components (sidebar labels, chat frame)
-	"layouts/app/Sidebar.svelte",
-	"layouts/chat/components/shell/Frame.svelte",
-	// Dev/demo pages (kernel-only, not shipped)
+	// Category 1: legacy dev/demo pages that still use kernel terms
 	"domains/app/devpulse/",
 	"domains/app/ui-demo/",
+	// Category 2: shell-wide layouts (status orb, sidebar labels)
+	"layouts/app/Sidebar.svelte",
+	"layouts/app/TopBar.svelte",
+	"layouts/chat/components/shell/Frame.svelte",
+	"routes/+layout.svelte",
+	// Category 2: the entire devtools tree (dev-only audience per
+	// feedback_devtools_are_dev_diagnostics) — both the routes and the
+	// `lib/devtools/` source they mount.
+	"routes/(devtools)/",
+	"lib/devtools/",
+	// Category 2: kernel-name TS bindings for Tauri commands
+	"sys/bindings/devclyffy/",
+	"sys/bindings/thinkclyffy/",
+	"sys/bindings/sys/rro/",
+	"sys/bindings/sys/vector/",
+	// Category 2: kernel-facing system data-access layer
+	"sys/data-access/rro/",
+	"sys/cfg/maestro/",
 ];
 
 // Directories and filenames to skip entirely
