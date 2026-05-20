@@ -100,6 +100,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # SvelteKit's generated tsconfig (`.svelte-kit/tsconfig.json`) is
+      # referenced by the repo's `tsconfig.json` via the `extends` field
+      # and is required for any TypeScript tooling that parses configs —
+      # including vitest's TSConfck loader (`pnpm test:arch`),
+      # svelte-check, and the production build. The file is created by
+      # `svelte-kit sync`; without an explicit run the architecture
+      # test (and any subsequent step that touches tsconfig.json) fails
+      # with `TSConfckParseError: failed to resolve "extends":"./.svelte-kit/tsconfig.json"`.
+      # `pnpm build` runs sync as a prepare step, but CI invokes
+      # `test:arch` and `check` BEFORE `build`, so sync has to happen
+      # explicitly before any step that reads tsconfig.json. Cheap
+      # (~1s) and idempotent.
+      - name: Generate .svelte-kit (sync)
+        run: pnpm exec svelte-kit sync
+
       - name: Biome lint
         run: pnpm lint
 
