@@ -10,13 +10,19 @@ xtask = "run --package xtask --"
 # apply.
 
 [build]
-# sccache wraps every rustc invocation. Already installed at
-# ~/.cargo/bin/sccache.exe. Caches workspace dep compilation across `cargo
-# clean`, branch switches, and toolchain bumps. With `incremental = true` (set
-# in the workspace Cargo.toml dev profile), sccache silently bypasses
-# incremental crates — net effect is "no regression on in-place edits, big win
-# on cold builds." Verify with `sccache --show-stats` after a few builds.
-rustc-wrapper = "sccache.exe"
+# sccache wraps every rustc invocation. Caches workspace dep compilation
+# across `cargo clean`, branch switches, and toolchain bumps. With
+# `incremental = true` (set in the workspace Cargo.toml dev profile),
+# sccache silently bypasses incremental crates — net effect is "no
+# regression on in-place edits, big win on cold builds." Verify with
+# `sccache --show-stats` after a few builds.
+#
+# The unsuffixed `sccache` name is portable: Windows resolves it to
+# `sccache.exe` via PATHEXT, Linux/macOS resolve it to the bare
+# executable. The earlier `sccache.exe` form broke CI on the Ubuntu
+# runner (CI: `cargo clippy` step in .github/workflows/ci.yml) because
+# Linux has no implicit .exe resolution.
+rustc-wrapper = "sccache"
 
 # CRT alignment: DuckDB, ort, aws-lc-sys, and all other C/C++ deps use /MD (dynamic CRT).
 # esaxx-rs (from tokenizers) uses the cc crate which defaults to /MT.
