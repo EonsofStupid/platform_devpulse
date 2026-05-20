@@ -11,6 +11,19 @@ permissions:
   contents: write
   pull-requests: write
 
+# Force every JavaScript action in this workflow onto Node 24. The
+# project's minimum Node baseline is 22 (see .nvmrc); Node 20 is
+# deprecated by GitHub Actions per
+# https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/.
+# release-please-action@v4 still ships with a Node 20 runtime in its
+# manifest; this env var tells the runner to ignore the manifest's
+# node20 declaration and execute the action under node24 instead.
+# Node 24 is the next runner default starting June 2nd, 2026; opting
+# in now avoids the silent-failure window and keeps us above the
+# minimum-22 baseline the rest of the codebase enforces.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -21,10 +34,28 @@ jobs:
       clyffy_released: ${{ steps.release.outputs['kernel/devpulse-clyffy--release_created'] }}
       desktop_released: ${{ steps.release.outputs['interfaces/desktop--release_created'] }}
     steps:
+      # The default `GITHUB_TOKEN` cannot create or approve PRs when the
+      # repo setting "Allow GitHub Actions to create and approve pull
+      # requests" is off — that's the exact "GitHub Actions is not
+      # permitted to create or approve pull requests" error logged on
+      # 2025-05-19. Two paths to unblock release-please's PR step:
+      #
+      #   (a) Repo setting: Settings → Actions → General → Workflow
+      #       permissions → enable "Allow GitHub Actions to create and
+      #       approve pull requests". Then the default GITHUB_TOKEN
+      #       works as-is.
+      #   (b) Pass a fine-grained PAT or GitHub App installation token
+      #       via `secrets.RELEASE_PLEASE_TOKEN` and use it below
+      #       instead of GITHUB_TOKEN. Picks up if the secret exists,
+      #       falls back to GITHUB_TOKEN otherwise.
+      #
+      # The fallback expression below uses (a) when the secret is
+      # absent and (b) when present — so flipping either lever
+      # unblocks the workflow without further edits.
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
