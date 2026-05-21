@@ -1650,18 +1650,22 @@ pub async fn config_for_tier(
 ///
 /// Loads from `.userdata/config/wizard_copy.toml` if present, falls back to
 /// embedded `wizard_copy.default.toml`. Frontend caches the result.
+///
+/// The data this returns is embedded TOML + an optional user override file —
+/// neither depends on the Platform engine. Previously this gated on
+/// `state.platform.load_full()` which fired `"Platform is still booting"` on
+/// every launch because `<ModelDownloaderOverlay />` mounts globally in
+/// `routes/+layout.svelte` and its `onMount` calls this command immediately,
+/// well before Platform finishes booting. Resolving the data dir directly
+/// from `paths::resolve_data_dir` removes the structural gate. Pre-release
+/// rule: fix the cause, not the symptom.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_wizard_copy(
-    state: State<'_, PlatformState>,
+    app: tauri::AppHandle,
 ) -> Result<devpulse_engine::platform::services::model_loader::WizardCopy, String> {
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())?;
-    let userdata = platform.data_dir();
-    devpulse_engine::platform::services::model_loader::WizardCopy::load(userdata)
+    let userdata = crate::paths::resolve_data_dir(&app)?;
+    devpulse_engine::platform::services::model_loader::WizardCopy::load(&userdata)
         .map_err(|e| format!("Failed to load wizard copy: {e}"))
 }
 

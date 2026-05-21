@@ -291,47 +291,33 @@ tier = "JessePrimary"
 preset_name = "Jesse Primary (16GB) — Phi-4-rv-15B + Qwen3-TTS clone"
 brain_policy = "Static"
 
-# chat.brain — Phi-4-reasoning-vision-15B GGUF Q4_K_M + mmproj.
-# Reasoning + vision in one model, llama.cpp FFI. Day-1 path on
-# the GGUF backend; safetensors variant via mistral.rs scheduled
-# when the Phi-4-Reasoning + SigLIP-2 mid-fusion arch lands there.
-# vram_estimate ~10.5 GB; full GPU residence (no partial offload).
+# chat.brain — Nemotron-Nano-9B-v2 GGUF Q4_K_M. NVIDIA's locked
+# deep-reasoning model — see `[[project_seamless_gpu_nemotron_seed]]`.
+# Loads via llama.cpp FFI; ~5.5 GB GGUF + KV cache fits comfortably
+# on the 16 GB tier alongside voice.tts + the Harrier 0.6B retrieval
+# stack. Replaces the previous Phi-4-rv-15B entry; Qwen3 family stays
+# only on Floor/Minimal/CpuOnly where 9B is too big.
 [[presets.slots]]
 slot_id = "chat.brain"
-model_repo_id = "DevQuasar/microsoft.Phi-4-reasoning-vision-15B-GGUF"
-model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
-model_size_mb = 9053
-vram_estimate_mb = 10500
+model_repo_id = "unsloth/Nemotron-Nano-9B-v2-GGUF"
+model_filename = "Nemotron-Nano-9B-v2-Q4_K_M.gguf"
+model_size_mb = 5460
+vram_estimate_mb = 6000
 device = "Gpu"
-display_name = "Phi-4 Reasoning Vision 15B"
-display_tagline = "Microsoft's reasoning + vision model in one. Runs through llama.cpp."
+display_name = "Nemotron Nano 9B v2"
+display_tagline = "NVIDIA's locked deep-reasoning model. Runs through llama.cpp."
 
-[presets.slots.extensions]
-mmproj_filename = "mmproj-microsoft.Phi-4-reasoning-vision-15B.f16.gguf"
-
-# chat.vision — ref-count to chat.brain. Phi-4-rv-15B is the
-# unified reasoning + vision model; vision-specific calls reuse
-# the same weights via BackendPool ref-count. Zero extra VRAM.
-[[presets.slots]]
-slot_id = "chat.vision"
-model_repo_id = "DevQuasar/microsoft.Phi-4-reasoning-vision-15B-GGUF"
-model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
-model_size_mb = 0
-vram_estimate_mb = 0
-device = "Gpu"
-
-# minion.shared — ref-count to chat.brain (Phi-4-rv-15B). Routing,
+# minion.shared — ref-count to chat.brain (Nemotron 9B). Routing,
 # classification, tagging tasks reuse the brain weights at zero
-# extra VRAM. Quality stays Phi-4-reasoning-tier across all minion
-# work.
+# extra VRAM. Quality stays Nemotron-tier across all minion work.
 [[presets.slots]]
 slot_id = "minion.shared"
-model_repo_id = "DevQuasar/microsoft.Phi-4-reasoning-vision-15B-GGUF"
-model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
+model_repo_id = "unsloth/Nemotron-Nano-9B-v2-GGUF"
+model_filename = "Nemotron-Nano-9B-v2-Q4_K_M.gguf"
 model_size_mb = 0
 vram_estimate_mb = 0
 device = "Gpu"
-display_name = "Phi-4 Reasoning Vision 15B (shared with brain)"
+display_name = "Nemotron Nano 9B v2 (shared with brain)"
 display_tagline = "Refcounts the brain — zero extra VRAM. Runs through llama.cpp."
 
 # rag.encoder — Harrier 0.6B on CPU for the RRO (Qdrant) query path.
@@ -445,23 +431,12 @@ device = "GpuWithCpuFallback"
 [presets.slots.extensions]
 mistralrs_isq = "Q4_0"
 
-# rag.embedder + rag.encoder override — Harrier 270m on Floor-class
-# rigs (smaller embedder reduces CPU load and disk footprint).
-[[presets.slots]]
-slot_id = "rag.embedder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
-model_filename = "model.safetensors"
-model_size_mb = 536
-vram_estimate_mb = 0
-device = "Cpu"
-
-[[presets.slots]]
-slot_id = "rag.encoder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
-model_filename = "model.safetensors"
-model_size_mb = 536
-vram_estimate_mb = 0
-device = "Cpu"
+# rag.embedder + rag.encoder fall through to the common 0.6B
+# entry. Per locked decision — see `[[project_harrier_tier_locked_0_6b]]`
+# — the 270m variant is dropped. Harrier 0.6B GGUF footprint (~1.1 GB)
+# is small enough that no rig genuinely needs the smaller variant;
+# BackendPool ref-counts so one copy serves rag.embedder + rag.encoder
+# + chat.suggest simultaneously.
 
 # ── Preset 1 (Minimal) — <8 GB VRAM, CPU chat.brain ────────────
 
@@ -505,24 +480,9 @@ device = "GpuWithCpuFallback"
 [presets.slots.extensions]
 mistralrs_isq = "Q3_K"
 
-# rag.embedder + rag.encoder override — Harrier 270m on Minimal tier
-# (CPU-mostly; the smaller 268M-param embedder finishes batches in
-# under half the time of the 0.6B variant).
-[[presets.slots]]
-slot_id = "rag.embedder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
-model_filename = "model.safetensors"
-model_size_mb = 536
-vram_estimate_mb = 0
-device = "Cpu"
-
-[[presets.slots]]
-slot_id = "rag.encoder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
-model_filename = "model.safetensors"
-model_size_mb = 536
-vram_estimate_mb = 0
-device = "Cpu"
+# rag.embedder + rag.encoder fall through to common 0.6B
+# entry — 270m variant is dropped per the locked Harrier-0.6B
+# decision. See `[[project_harrier_tier_locked_0_6b]]`.
 
 # ── Preset 1 (CpuOnly) — no GPU, CPU everywhere ────────────────
 
@@ -567,24 +527,9 @@ device = "Cpu"
 [presets.slots.extensions]
 mistralrs_isq = "Q4_0"
 
-# rag.embedder + rag.encoder override — Harrier 270m on CpuOnly
-# (no GPU at all; smaller embedder is the obvious pick for retrieval
-# throughput on integrated graphics / embedded silicon).
-[[presets.slots]]
-slot_id = "rag.embedder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
-model_filename = "model.safetensors"
-model_size_mb = 536
-vram_estimate_mb = 0
-device = "Cpu"
-
-[[presets.slots]]
-slot_id = "rag.encoder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
-model_filename = "model.safetensors"
-model_size_mb = 536
-vram_estimate_mb = 0
-device = "Cpu"
+# rag.embedder + rag.encoder fall through to common 0.6B
+# entry — 270m variant is dropped per the locked Harrier-0.6B
+# decision. See `[[project_harrier_tier_locked_0_6b]]`.
 
 # ── Common slots — inherited by every preset ───────────────────
 #
@@ -641,28 +586,29 @@ model_size_mb = 420
 vram_estimate_mb = 0
 device = "Cpu"
 
-# minion.embedder — Harrier 270m, ALWAYS the small variant regardless
-# of host hardware tier. Minion processes load their own embedder so
-# they don't reach back into Clyffy main's 0.6B over IPC for every
-# query. No tier-specific override exists or should exist for this
-# slot — it's consumer-tier-locked.
+# minion.embedder — Harrier 0.6B (LOCKED — see
+# `[[project_harrier_tier_locked_0_6b]]`). Minion processes share the
+# same 0.6B model id as Clyffy main's rag.embedder/rag.encoder; the
+# BackendPool ref-counts identical model ids so disk + memory hold
+# exactly ONE copy regardless of how many slots reference it. The
+# previous 270m variant is dropped — 0.6B's 1.1 GB GGUF footprint is
+# small enough that no rig genuinely needs the smaller variant.
 [[common.slots]]
 slot_id = "minion.embedder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
 model_filename = "model.safetensors"
-model_size_mb = 536
+model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 
-# minion.encoder — Harrier 270m, paired with minion.embedder. Same
-# consumer-tier-locked sizing reasoning. Each minion process owns one
-# encoder/embedder pair sized for fast in-process retrieval, separate
-# from Clyffy main's 0.6B pair.
+# minion.encoder — Harrier 0.6B paired with minion.embedder. Same
+# ref-counted weights as rag.encoder + chat.suggest. ONE Harrier 0.6B
+# copy in memory serves all five slots.
 [[common.slots]]
 slot_id = "minion.encoder"
-model_repo_id = "microsoft/harrier-oss-v1-270m"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
 model_filename = "model.safetensors"
-model_size_mb = 536
+model_size_mb = 1136
 vram_estimate_mb = 0
 device = "Cpu"
 

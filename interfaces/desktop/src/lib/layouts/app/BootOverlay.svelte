@@ -31,6 +31,7 @@ import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
@@ -140,6 +141,25 @@ $effect(() => {
 			"layouts.app.BootOverlay",
 			`Boot complete — modelsReady=${platformState.modelsReady} firstRun=${platformState.modelsFirstRun} — dashboard takes over`,
 		);
+		// Wizard auto-open — authoritative signal is `platformState.modelsReady`
+		// which the boot snapshot computes as
+		// `setup_done && !registry.is_empty() && assigned > 0`
+		// (kernel side at `lib.rs:1195`). Anything less than fully ready means
+		// the customer needs the wizard: brand-new install, partial setup
+		// after a crash, or models scanned but no slots assigned.
+		//
+		// NOTE: we do NOT call `wizardState.refreshFirstRun()` here — that
+		// would fire a second IPC and overwrite the authoritative snapshot.
+		// `platformState.modelsFirstRun` is populated atomically by boot.
+		// The bool sync into `wizardState.firstRun` (used by the dashboard
+		// re-open path) happens lazily on dashboard mount.
+		if (!platformState.modelsReady) {
+			wizardState.open();
+			logInfo(
+				"layouts.app.BootOverlay",
+				`Models not ready (firstRun=${platformState.modelsFirstRun}) — opened setup wizard`,
+			);
+		}
 		fading = true;
 		setTimeout(() => {
 			visible = false;

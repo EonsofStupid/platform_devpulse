@@ -48,6 +48,7 @@
 -->
 <script lang="ts">
 import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "lucide-svelte";
+import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
 import { KnowledgeTermStrip } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
@@ -80,10 +81,16 @@ const ICON_MAP = { Eye, Ear, Mic, Sparkles, BrainCircuit } as const;
 /** Anatomy → slot id binding. Used to look the right entry up out
  *  of the unordered `slotSaves[]` array per cell. Falls back to
  *  undefined if the parent's SLOT_LAYMAN omits one (visible gap
- *  rather than silent drop). */
+ *  rather than silent drop).
+ *
+ *  Sparkles maps to `rag.embedder` — the user-visible action saves
+ *  Harrier 0.6B as the indexing encoder/embedder. SetupWizardOverlay's
+ *  `saveOneSlot` runs the install chain for BOTH `rag.embedder` and
+ *  `rag.encoder` when this tile fires (Harrier 0.6B ref-counts on the
+ *  BackendPool, so the save covers the full retrieval pair). */
 const SLOT_BY_ANATOMY = {
 	brain: "chat.brain",
-	sparkles: "minion.shared",
+	sparkles: "rag.embedder",
 	eyes: "vision.embedder",
 	ears: "voice.stt",
 	mouth: "voice.tts",
@@ -96,7 +103,11 @@ const allSaved = $derived(slotSaves.length > 0 && slotSaves.every((s) => s.state
 const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 </script>
 
-<OverlayShell label="DevPulse setup — cortex" step={4} totalSteps={6} {title}>
+<OverlayShell label="DevPulse setup — cortex" step={1} totalSteps={1} {title}>
+	{#snippet mascot()}
+		<ClyffyMascot pose="pointing" size="lg" />
+	{/snippet}
+
 	<div class="cortex-view">
 		<header class="cortex-header">
 			<Heading level={2} size="md">{title}</Heading>
@@ -228,29 +239,28 @@ const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 	</div>
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
-			Back
-		</Button>
 		<Button preset="ghost" size="sm" onclick={callbacks.onSkip} disabled={busy}>
 			Skip — assign manually later
 		</Button>
 		<div class="footer-spacer"></div>
 		{#if anyUnsaved}
-			<Button preset="ghost" size="sm" onclick={onApplyAll} disabled={busy}>
+			<Button preset="primary" size="md" onclick={onApplyAll} disabled={busy}>
 				{#if busy}<Spinner size="xs" tone="accent" />{/if}
 				Apply all
+				<ChevronRight size={14} />
+			</Button>
+		{:else}
+			<Button
+				preset="primary"
+				size="md"
+				onclick={callbacks.onFinish}
+				disabled={busy || !allSaved}
+			>
+				{#if busy}<Spinner size="xs" tone="accent" />{/if}
+				Done
+				<ChevronRight size={14} />
 			</Button>
 		{/if}
-		<Button
-			preset="primary"
-			size="md"
-			onclick={callbacks.onNext}
-			disabled={busy || !allSaved}
-		>
-			{#if busy}<Spinner size="xs" tone="accent" />{/if}
-			Continue
-			<ChevronRight size={14} />
-		</Button>
 	{/snippet}
 </OverlayShell>
 

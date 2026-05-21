@@ -146,15 +146,16 @@ const SLOT_LAYMAN: Record<
 		iconName: "Mic",
 		accentVar: "--accent-hotpink-main",
 	},
-	"minion.shared": {
-		purpose: "Sparkles · Clyffy's quick mind",
-		tagline: "Pre-sorts, ranks, and codes everything before the long-think wakes.",
+	"rag.embedder": {
+		purpose: "Sparkles · Clyffy's indexing brain",
+		tagline:
+			"Encodes + embeds every project file so retrieval finds the right chunks before the long-think wakes.",
 		iconName: "Sparkles",
 		accentVar: "--accent-teal-main",
 	},
 	"chat.brain": {
 		purpose: "Brain · the long-think reasoner",
-		tagline: "Handles the heavy reasoning once the quick mind has set the table.",
+		tagline: "Handles the heavy reasoning once the indexing brain has set the table.",
 		iconName: "BrainCircuit",
 		accentVar: "--accent-blue-main",
 	},
@@ -229,18 +230,48 @@ const slotSaveEntries = $derived<SlotSaveEntryProps[]>(
 	}),
 );
 
+/**
+ * Slots that ship paired and must save together. Clicking Save on the
+ * Sparkles tile (`rag.embedder`) fires the install chain for BOTH
+ * `rag.embedder` and `rag.encoder` — Harrier 0.6B ref-counts on the
+ * BackendPool so memory + disk hold ONE copy, but each kernel slot
+ * needs its own symlink for `Path::exists` probes by the retrieval
+ * consumer.
+ */
+const PAIRED_SLOTS: Record<string, string[]> = {
+	"rag.embedder": ["rag.embedder", "rag.encoder"],
+};
+
 async function saveOneSlot(slotId: string): Promise<void> {
-	const rec = recommendations.find((r) => r.slot_id === slotId);
-	if (!rec) return;
+	const slotsToSave = PAIRED_SLOTS[slotId] ?? [slotId];
+	// Mark the customer-facing slot as saving up front so the tile
+	// reflects the state change immediately, then drive each paired
+	// install in parallel.
 	slotSaveStates = { ...slotSaveStates, [slotId]: "saving" };
 	slotSaveErrors = { ...slotSaveErrors, [slotId]: "" };
-	const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id);
-	if (ir.status === "ok") {
-		dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
+
+	const results = await Promise.all(
+		slotsToSave.map(async (target) => {
+			const rec = recommendations.find((r) => r.slot_id === target);
+			if (!rec) {
+				return { target, ok: false, error: `No recommendation for ${target}` };
+			}
+			const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id);
+			if (ir.status === "ok") {
+				dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
+				return { target, ok: true, error: "" };
+			}
+			return { target, ok: false, error: String(ir.error) };
+		}),
+	);
+
+	const allOk = results.every((r) => r.ok);
+	if (allOk) {
 		slotSaveStates = { ...slotSaveStates, [slotId]: "saved" };
 	} else {
+		const firstError = results.find((r) => !r.ok)?.error ?? "unknown";
 		slotSaveStates = { ...slotSaveStates, [slotId]: "error" };
-		slotSaveErrors = { ...slotSaveErrors, [slotId]: String(ir.error) };
+		slotSaveErrors = { ...slotSaveErrors, [slotId]: firstError };
 	}
 }
 

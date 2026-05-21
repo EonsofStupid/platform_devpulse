@@ -60,8 +60,17 @@ const VIEW_ORDER: readonly WizardView[] = [
 class WizardState {
 	/** Whether the overlay is currently rendered. */
 	isOpen = $state(false);
-	/** Current step. */
-	view = $state<WizardView>("welcome");
+	/**
+	 * Current step.
+	 *
+	 * The wizard collapses to a single-screen experience anchored on the
+	 * `cortex` view — five anatomy tiles + Clyffy mascot, per the locked
+	 * "one clear screen" customer requirement. The welcome / hardware /
+	 * preset / installing / clyffy-collab / complete views remain in the
+	 * codebase as reachable destinations (per-step `goTo()`) but the
+	 * auto-open flow lands the customer on cortex directly.
+	 */
+	view = $state<WizardView>("cortex");
 	/** Whether the platform reports this is the user's first launch. */
 	firstRun = $state<boolean | null>(null);
 
