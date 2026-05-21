@@ -66,11 +66,11 @@ $effect(() => {
 							</div>
 						</div>
 						<div class={hstack({ gap: "2", justify: "end" })}>
-							<Button preset="button-ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
+							<Button preset="ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
 								<X size={14} />
 								Cancel
 							</Button>
-							<Button preset="button-primary" size="sm" onclick={() => settingsState.save()} disabled={settingsState.saving}>
+							<Button preset="primary" size="sm" onclick={() => settingsState.save()} disabled={settingsState.saving}>
 								{#if settingsState.saving}
 									<Spinner size="xs" />
 								{:else}
@@ -95,7 +95,7 @@ $effect(() => {
 							<Text>{settingsState.levelLabel(settingsState.profile.expertiseLevel)}</Text>
 						</div>
 						<div class={hstack({ justify: "end" })}>
-							<Button preset="button-ghost" size="sm" onclick={() => settingsState.startEdit()}>
+							<Button preset="ghost" size="sm" onclick={() => settingsState.startEdit()}>
 								<Pencil size={14} />
 								Edit
 							</Button>

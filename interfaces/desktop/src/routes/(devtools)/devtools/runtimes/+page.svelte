@@ -398,7 +398,7 @@ function capture(tabId: string): CapturePayload | undefined {
 	{#snippet actions()}
 		<div class="flex flex-col gap-4">
 			<div class="flex items-center gap-2">
-				<Button preset="button-primary" size="sm" onclick={refresh} disabled={loading}>
+				<Button preset="primary" size="sm" onclick={refresh} disabled={loading}>
 					{#if loading}
 						<Spinner size="xs" />
 						Refreshing…
@@ -431,7 +431,7 @@ function capture(tabId: string): CapturePayload | undefined {
 						<Text size="xs" color="muted">{statusLabel(check)}</Text>
 					</div>
 					<Button
-						preset="button-ghost"
+						preset="ghost"
 						size="sm"
 						onclick={() => checkUpdates(group.runtime_id)}
 						disabled={checkingRuntime === group.runtime_id}

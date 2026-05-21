@@ -34,7 +34,7 @@ let { copy, busy, callbacks }: CompleteViewProps = $props();
 	{#snippet footer()}
 		<div class="flex-1"></div>
 		<Button
-			preset="button-primary"
+			preset="primary"
 			size="sm"
 			onclick={callbacks.onFinish}
 			disabled={!copy || busy}

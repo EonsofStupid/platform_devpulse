@@ -208,7 +208,7 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 			<Text size="xs" color="muted" as="span">{blurb}</Text>
 		</span>
 		<span class="subsystem-tile__dot" aria-hidden="true">
-			<StatusDot state={toneToDotState[status.tone]} />
+			<StatusDot status={toneToDotState[status.tone]} />
 		</span>
 	</a>
 
@@ -222,7 +222,7 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 		>
 			<Card preset="glass" class="subsystem-tile__overlay-card">
 				<header class="subsystem-tile__overlay-header">
-					<StatusDot state={toneToDotState[status.tone]} />
+					<StatusDot status={toneToDotState[status.tone]} />
 					<Text size="sm" weight="semibold" as="span">{status.label}</Text>
 				</header>
 				{#if status.detail}

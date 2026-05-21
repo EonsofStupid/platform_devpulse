@@ -277,7 +277,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<Text size="sm" weight="bold">
 					{assignedCount} of {totalCount} slots assigned · {candleSlots.length} Candle-compatible
 				</Text>
-				<Button preset="button-ghost" size="sm" onclick={refresh} disabled={refreshing}>
+				<Button preset="ghost" size="sm" onclick={refresh} disabled={refreshing}>
 					<RefreshCw size={12} />
 					Refresh
 				</Button>
@@ -375,7 +375,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="button-primary"
+							preset="primary"
 							size="sm"
 							onclick={saveCfg}
 							disabled={cfgSaving || !cfgDirty}
@@ -388,7 +388,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							{/if}
 						</Button>
 						<Button
-							preset="button-ghost"
+							preset="ghost"
 							size="sm"
 							onclick={resetCfg}
 							disabled={!cfgDirty || cfgSaving}
@@ -478,7 +478,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				</Text>
 				<div class="flex items-center gap-2">
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={restartPool}
 						disabled={restarting}
@@ -605,7 +605,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						disabled={testRunning}
 					/>
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={runTest}
 						disabled={testRunning || !testSlotId || !testPrompt.trim()}

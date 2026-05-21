@@ -37,7 +37,7 @@ let { copy, busy, callbacks }: WelcomeViewProps = $props();
 
 	{#snippet footer()}
 		<Button
-			preset="button-ghost"
+			preset="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -46,7 +46,7 @@ let { copy, busy, callbacks }: WelcomeViewProps = $props();
 		</Button>
 		<div class="flex-1"></div>
 		<Button
-			preset="button-primary"
+			preset="primary"
 			size="sm"
 			onclick={callbacks.onNext}
 			disabled={!copy || busy}

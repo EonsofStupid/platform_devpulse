@@ -118,7 +118,7 @@ async function onInstall(): Promise<void> {
 		>
 			<div class="flex items-center gap-2">
 				<Sparkles size={16} aria-hidden="true" />
-				<Text size="md" weight="bold">
+				<Text size="base" weight="bold">
 					v{info.latestVersion} is ready to install
 				</Text>
 			</div>
@@ -170,14 +170,14 @@ async function onInstall(): Promise<void> {
 			{/if}
 		</div>
 	{:else if phase === "restarting"}
-		<InlineMessage variant="info">
+		<InlineMessage tone="info">
 			Restarting DevPulse to finish the update…
 		</InlineMessage>
 	{:else if phase === "checking"}
-		<InlineMessage variant="info">Checking for updates…</InlineMessage>
+		<InlineMessage tone="info">Checking for updates…</InlineMessage>
 	{:else if phase === "error"}
 		<div class={stack({ gap: "2" })}>
-			<InlineMessage variant="danger">
+			<InlineMessage tone="danger">
 				Update check failed: {updatesState.error ?? "unknown error"}
 			</InlineMessage>
 			<Button preset="ghost" size="sm" onclick={onCheck}>

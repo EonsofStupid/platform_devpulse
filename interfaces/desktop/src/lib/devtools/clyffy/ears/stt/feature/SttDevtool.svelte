@@ -353,7 +353,7 @@ function handleDragOver(e: DragEvent): void {
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="button-primary"
+							preset="primary"
 							size="sm"
 							onclick={() => void sttConfigState.save()}
 							disabled={sttConfigState.saving || !sttConfigState.dirty}
@@ -366,7 +366,7 @@ function handleDragOver(e: DragEvent): void {
 							{/if}
 						</Button>
 						<Button
-							preset="button-ghost"
+							preset="ghost"
 							size="sm"
 							onclick={() => sttConfigState.reset()}
 							disabled={!sttConfigState.dirty || sttConfigState.saving}
@@ -405,13 +405,13 @@ function handleDragOver(e: DragEvent): void {
 				<!-- Slot load / unload -->
 				<div class="flex flex-wrap items-center gap-2">
 					{#if !sttReady && sttSlot?.assigned_model_id}
-						<Button preset="button-primary" size="sm" onclick={loadStt}>
+						<Button preset="primary" size="sm" onclick={loadStt}>
 							<Play size={12} />
 							Load Whisper
 						</Button>
 					{/if}
 					{#if sttReady}
-						<Button preset="button-ghost" size="sm" onclick={unloadStt}>
+						<Button preset="ghost" size="sm" onclick={unloadStt}>
 							<PowerOff size={12} />
 							Unload Whisper
 						</Button>
@@ -450,7 +450,7 @@ function handleDragOver(e: DragEvent): void {
 						<Text size="sm" weight="bold">Record + transcribe (3 s)</Text>
 						<div class="flex items-center gap-2">
 							<Button
-								preset="button-primary"
+								preset="primary"
 								size="md"
 								onclick={handleRecord}
 								disabled={recording}

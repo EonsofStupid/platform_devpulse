@@ -496,7 +496,7 @@ onMount(() => {
 						</Text>
 						<div class="flex flex-wrap gap-2">
 							<Button
-								preset="button-primary"
+								preset="primary"
 								size="sm"
 								onclick={() => handleRegister("code")}
 							>
@@ -505,7 +505,7 @@ onMount(() => {
 							</Button>
 							{#if code?.devpulseRegistered}
 								<Button
-									preset="button-ghost"
+									preset="ghost"
 									size="sm"
 									onclick={() => handleUnregister("code")}
 								>
@@ -532,7 +532,7 @@ onMount(() => {
 						</Text>
 						<div class="flex flex-wrap gap-2">
 							<Button
-								preset="button-primary"
+								preset="primary"
 								size="sm"
 								onclick={() => handleRegister("desktop")}
 							>
@@ -541,7 +541,7 @@ onMount(() => {
 							</Button>
 							{#if desktop?.devpulseRegistered}
 								<Button
-									preset="button-ghost"
+									preset="ghost"
 									size="sm"
 									onclick={() => handleUnregister("desktop")}
 								>

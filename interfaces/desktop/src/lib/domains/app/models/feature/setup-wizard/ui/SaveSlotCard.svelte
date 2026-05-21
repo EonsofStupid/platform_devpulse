@@ -135,7 +135,7 @@ const buttonLabel = $derived(
 
 		<section class="model-panel">
 			<div class="model-name-row">
-				<Text size="md" weight="bold">{modelName}</Text>
+				<Text size="base" weight="bold">{modelName}</Text>
 				{#if tierLabel}
 					<Badge variant="accent" size="sm">{tierLabel}</Badge>
 				{/if}

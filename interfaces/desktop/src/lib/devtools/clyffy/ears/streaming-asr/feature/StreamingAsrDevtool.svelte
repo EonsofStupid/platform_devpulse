@@ -287,7 +287,7 @@ async function stopMic(): Promise<void> {
 					<div class="flex flex-wrap items-center gap-2">
 						{#each sherpaState.models as m (m.id)}
 							<Button
-								preset="button-primary"
+								preset="primary"
 								size="sm"
 								onclick={() => void startMic(m.id)}
 								disabled={!sherpaState.featureEnabled || sherpaState.starting}
@@ -305,7 +305,7 @@ async function stopMic(): Promise<void> {
 				{:else if sherpaState.streaming}
 					<div class="flex items-center gap-2">
 						<Button
-							preset="button-ghost"
+							preset="ghost"
 							size="sm"
 							onclick={() => void stopMic()}
 							disabled={sherpaState.stopping}

@@ -107,7 +107,7 @@ async function saveKey(): Promise<void> {
 	<div class="collab-view">
 		<header class="collab-head">
 			<Sparkles size={26} class="collab-icon" />
-			<Text size="md" color="muted">
+			<Text size="base" color="muted">
 				When Clyffy's local brain wants a second opinion, it can ask
 				Claude. Drop in an Anthropic API key, or skip this — you can
 				always come back later.

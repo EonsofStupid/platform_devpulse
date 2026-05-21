@@ -508,7 +508,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 
 			<div class="flex items-center gap-2 pt-2">
 				<Button
-					preset="button-primary"
+					preset="primary"
 					size="sm"
 					onclick={async () => {
 						if (ttsConfigState.dirty) await ttsConfigState.save();
@@ -526,7 +526,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					{/if}
 				</Button>
 				<Button
-					preset="button-ghost"
+					preset="ghost"
 					size="sm"
 					onclick={() => {
 						ttsConfigState.reset();
@@ -560,25 +560,25 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 				<!-- Slot controls (both STT + TTS) -->
 				<div class="flex flex-wrap items-center gap-2">
 					{#if !sttReady && sttSlot?.assigned_model_id}
-						<Button preset="button-primary" size="sm" onclick={() => handleLoadSlot("voice.stt", (v) => { loadingStt = v; })}>
+						<Button preset="primary" size="sm" onclick={() => handleLoadSlot("voice.stt", (v) => { loadingStt = v; })}>
 							<Play size={12} />
 							Load Whisper
 						</Button>
 					{/if}
 					{#if sttReady}
-						<Button preset="button-ghost" size="sm" onclick={() => handleUnloadSlot("voice.stt", (v) => { loadingStt = v; })}>
+						<Button preset="ghost" size="sm" onclick={() => handleUnloadSlot("voice.stt", (v) => { loadingStt = v; })}>
 							<PowerOff size={12} />
 							Unload Whisper
 						</Button>
 					{/if}
 					{#if !ttsReady && ttsSlot?.assigned_model_id}
-						<Button preset="button-primary" size="sm" onclick={() => handleLoadSlot("voice.tts", (v) => { loadingTts = v; })}>
+						<Button preset="primary" size="sm" onclick={() => handleLoadSlot("voice.tts", (v) => { loadingTts = v; })}>
 							<Play size={12} />
 							Load Kokoro
 						</Button>
 					{/if}
 					{#if ttsReady}
-						<Button preset="button-ghost" size="sm" onclick={() => handleUnloadSlot("voice.tts", (v) => { loadingTts = v; })}>
+						<Button preset="ghost" size="sm" onclick={() => handleUnloadSlot("voice.tts", (v) => { loadingTts = v; })}>
 							<PowerOff size={12} />
 							Unload Kokoro
 						</Button>
@@ -607,7 +607,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 						</div>
 
 						<div class="flex items-center gap-2">
-							<Button preset="button-primary" size="sm" onclick={handleRecord} disabled={recording || !sttReady}>
+							<Button preset="primary" size="sm" onclick={handleRecord} disabled={recording || !sttReady}>
 								{#if recording}
 									<MicOff size={14} />
 									Recording 3 s…
@@ -661,7 +661,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 						></textarea>
 
 						<div class="flex items-center gap-2">
-							<Button preset="button-primary" size="sm" onclick={handleSpeak} disabled={speaking || !ttsInput.trim() || !ttsReady}>
+							<Button preset="primary" size="sm" onclick={handleSpeak} disabled={speaking || !ttsInput.trim() || !ttsReady}>
 								{#if speaking}
 									<Spinner size="xs" />
 									Speaking…

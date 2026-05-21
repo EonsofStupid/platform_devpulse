@@ -272,7 +272,7 @@ function prettySize(bytes: number): string {
 			<div class="flex flex-wrap items-center gap-2">
 				{#if !ollamaSidecarState.running}
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={() => void ollamaSidecarState.start()}
 						disabled={ollamaSidecarState.starting}
@@ -287,7 +287,7 @@ function prettySize(bytes: number): string {
 					</Button>
 				{:else}
 					<Button
-						preset="button-ghost"
+						preset="ghost"
 						size="sm"
 						onclick={() => void ollamaSidecarState.stop()}
 						disabled={ollamaSidecarState.stopping}
@@ -349,7 +349,7 @@ function prettySize(bytes: number): string {
 							disabled={ollamaSidecarState.pullingName !== null}
 						/>
 						<Button
-							preset="button-primary"
+							preset="primary"
 							size="sm"
 							onclick={() => void ollamaSidecarState.pullModel()}
 							disabled={ollamaSidecarState.pullingName !== null ||

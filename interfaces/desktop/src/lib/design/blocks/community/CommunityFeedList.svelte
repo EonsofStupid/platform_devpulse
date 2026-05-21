@@ -105,7 +105,7 @@ function timeAgo(epoch: number): string {
 							</Text>
 						{:else}
 							{#if item.title}
-								<Text size="md" weight="bold">{item.title}</Text>
+								<Text size="base" weight="bold">{item.title}</Text>
 							{/if}
 							{#if item.body}
 								<Text size="sm" class="whitespace-pre-wrap">{item.body}</Text>

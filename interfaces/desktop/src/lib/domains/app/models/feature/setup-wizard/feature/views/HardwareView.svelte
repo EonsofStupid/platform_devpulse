@@ -55,11 +55,11 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 	{/if}
 
 	{#snippet footer()}
-		<Button preset="button-ghost" size="sm" onclick={callbacks.onBack}>
+		<Button preset="ghost" size="sm" onclick={callbacks.onBack}>
 			Back
 		</Button>
 		<Button
-			preset="button-ghost"
+			preset="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -68,7 +68,7 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 		</Button>
 		<div class="flex-1"></div>
 		<Button
-			preset="button-primary"
+			preset="primary"
 			size="sm"
 			onclick={callbacks.onNext}
 			disabled={!copy || !tier || busy}

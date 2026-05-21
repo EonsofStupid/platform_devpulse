@@ -74,8 +74,14 @@ interface Props {
 	 *  Apply callback and any signal correlation. */
 	slotId: string;
 	/** Lucide icon component matched to the anatomy (Eye / Ear /
-	 *  Mic / Sparkles / BrainCircuit). */
-	icon: Component<{ size?: number; class?: string }>;
+	 *  Mic / Sparkles / BrainCircuit). Lucide icons accept more props
+	 *  than the narrow `{ size?, class? }` shape (color, strokeWidth,
+	 *  aria-*, …); narrowing fights the upstream type. `Component<any>`
+	 *  with the biome-ignore matches the same lucide-icon convention
+	 *  the rest of the codebase uses (see `ServiceDevtoolShell.svelte`
+	 *  + the `getIcon` helper). */
+	// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape; narrow typing fights Svelte's generics.
+	icon: Component<any>;
 	/** Anatomy-themed slot name ("Eyes · what Clyffy sees"). */
 	purpose: string;
 	/** Tagline describing the role in one layman sentence. */
@@ -179,7 +185,7 @@ const ctaLabel = $derived(
 
 	<section class="model-panel">
 		<div class="model-name-row">
-			<Text size="md" weight="bold">{modelName}</Text>
+			<Text size="base" weight="bold">{modelName}</Text>
 			{#if tierLabel}
 				<Badge variant="accent" size="sm">{tierLabel}</Badge>
 			{/if}

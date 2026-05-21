@@ -158,7 +158,7 @@ function fmtTime(ms: number): string {
 				<div class="flex items-center justify-between mb-1">
 					<Text size="sm" weight="bold">Swap encoder weights</Text>
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={() => {
 							swapDialogOpen = true;
@@ -181,7 +181,7 @@ function fmtTime(ms: number): string {
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-1">
 					<Text size="sm" weight="bold">Clear history buffer</Text>
-					<Button preset="button-ghost" size="sm" onclick={() => rrdState.clear()}>
+					<Button preset="ghost" size="sm" onclick={() => rrdState.clear()}>
 						<Trash2 size={14} />
 						Clear
 					</Button>

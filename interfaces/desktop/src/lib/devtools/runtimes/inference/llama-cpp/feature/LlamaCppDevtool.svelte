@@ -335,7 +335,7 @@ const badge = $derived<HealthBadge>(
 					{llamaCppSlots.length} GGUF slot{llamaCppSlots.length === 1 ? "" : "s"} assigned
 				</Text>
 				<Button
-					preset="button-ghost"
+					preset="ghost"
 					size="sm"
 					onclick={refreshSlots}
 					disabled={slotRefreshing}
@@ -445,7 +445,7 @@ const badge = $derived<HealthBadge>(
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="button-primary"
+							preset="primary"
 							size="sm"
 							onclick={saveCfg}
 							disabled={cfgSaving || !cfgDirty}
@@ -458,7 +458,7 @@ const badge = $derived<HealthBadge>(
 							{/if}
 						</Button>
 						<Button
-							preset="button-ghost"
+							preset="ghost"
 							size="sm"
 							onclick={resetCfg}
 							disabled={!cfgDirty || cfgSaving}
@@ -543,7 +543,7 @@ const badge = $derived<HealthBadge>(
 				</Text>
 				<div class="flex items-center gap-2">
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={restartPool}
 						disabled={restarting}
@@ -571,7 +571,7 @@ const badge = $derived<HealthBadge>(
 					if a download finished outside the app or a slot was changed elsewhere.
 				</Text>
 				<Button
-					preset="button-ghost"
+					preset="ghost"
 					size="sm"
 					onclick={refreshSlots}
 					disabled={slotRefreshing}
@@ -700,7 +700,7 @@ const badge = $derived<HealthBadge>(
 						disabled={testRunning}
 					/>
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={runTest}
 						disabled={testRunning || !testSlotId || !testPrompt.trim()}

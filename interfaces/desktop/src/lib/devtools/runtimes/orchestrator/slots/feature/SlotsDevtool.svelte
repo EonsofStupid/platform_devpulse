@@ -359,7 +359,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 											Pick local
 										</Button>
 										<Button
-											preset="button-primary"
+											preset="primary"
 											size="sm"
 											onclick={(e: MouseEvent) => openDownloader(slotId, e)}
 										>
@@ -368,11 +368,11 @@ function captureFor(tabId: string): CapturePayload | undefined {
 										</Button>
 									{/if}
 									{#if model && !ready}
-										<Button preset="button-ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
+										<Button preset="ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
 											<FolderOpen size={12} />
 											Swap
 										</Button>
-										<Button preset="button-ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
+										<Button preset="ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
 											<X size={12} />
 											Clear
 										</Button>
@@ -382,7 +382,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 										</Button>
 									{/if}
 									{#if ready}
-										<Button preset="button-ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
+										<Button preset="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
 											<Square size={12} />
 											Unload
 										</Button>
@@ -530,7 +530,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<span class="picker-slot-raw">({pickLocalSlot})</span>
 					</Text>
 				</div>
-				<Button preset="button-ghost" size="sm" onclick={closeLocalPicker}>
+				<Button preset="ghost" size="sm" onclick={closeLocalPicker}>
 					<X size={14} />
 				</Button>
 			</div>

@@ -164,7 +164,7 @@ function slotData(slotId: string) {
 								</Button>
 							{/if}
 							{#if ready}
-								<Button preset="button-ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
+								<Button preset="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
 									<Square size={12} />
 									Unload
 								</Button>

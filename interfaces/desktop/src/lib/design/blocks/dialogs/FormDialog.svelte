@@ -145,7 +145,7 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
 		<form class="form-dialog__form" onsubmit={handleSubmit} novalidate>
 			<Dialog.Header class="form-dialog__header">
 				<Dialog.Title class="form-dialog__title">
-					<Text size="md" weight="semibold" as="span">{title}</Text>
+					<Text size="base" weight="semibold" as="span">{title}</Text>
 				</Dialog.Title>
 				{#if description}
 					<Dialog.Description class="form-dialog__description">

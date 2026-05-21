@@ -113,7 +113,7 @@ async function handleConfirm(): Promise<void> {
 	<AlertDialog.Overlay class="confirm-dialog__overlay" />
 	<AlertDialog.Content class="confirm-dialog__content">
 		<AlertDialog.Title class="confirm-dialog__title">
-			<Text size="md" weight="semibold" as="span">{title}</Text>
+			<Text size="base" weight="semibold" as="span">{title}</Text>
 		</AlertDialog.Title>
 
 		{#if description}

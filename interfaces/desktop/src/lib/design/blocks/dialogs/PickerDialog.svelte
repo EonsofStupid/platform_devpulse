@@ -150,7 +150,7 @@ const headingId = `picker-dialog-${Math.random().toString(36).slice(2, 9)}`;
 	<Dialog.Content class="picker-dialog__content">
 		<Dialog.Header class="picker-dialog__header">
 			<Dialog.Title class="picker-dialog__title">
-				<Text size="md" weight="semibold" as="span">{title}</Text>
+				<Text size="base" weight="semibold" as="span">{title}</Text>
 			</Dialog.Title>
 			{#if description}
 				<Dialog.Description class="picker-dialog__description">

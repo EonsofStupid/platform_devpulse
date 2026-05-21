@@ -71,7 +71,7 @@ function statusLabel(status: ActiveInstall["status"]): string {
 					{/if}
 					{#if ins.status !== "running"}
 						<Button
-							preset="button-ghost"
+							preset="ghost"
 							size="sm"
 							onclick={() => installState.dismiss(ins.installId)}
 							aria-label="Dismiss install"
