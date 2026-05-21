@@ -23,14 +23,14 @@ import brandSalmonLeaf from './brand-salmon.tokens.json' with { type: 'json' };
 import brandVioletLeaf from './brand-violet.tokens.json' with { type: 'json' };
 
 export const brandAccent = {
-	'brand-azure': brandAzureLeaf['brand-azure'],
-	'brand-blue': brandBlueLeaf['brand-blue'],
-	'brand-coral': brandCoralLeaf['brand-coral'],
-	'brand-cyan': brandCyanLeaf['brand-cyan'],
-	'brand-electric': brandElectricLeaf['brand-electric'],
-	'brand-gold': brandGoldLeaf['brand-gold'],
-	'brand-green': brandGreenLeaf['brand-green'],
-	'brand-hotpink': brandHotpinkLeaf['brand-hotpink'],
-	'brand-salmon': brandSalmonLeaf['brand-salmon'],
-	'brand-violet': brandVioletLeaf['brand-violet'],
+	'brand-azure': brandAzureLeaf.color['brand-azure'],
+	'brand-blue': brandBlueLeaf.color['brand-blue'],
+	'brand-coral': brandCoralLeaf.color['brand-coral'],
+	'brand-cyan': brandCyanLeaf.color['brand-cyan'],
+	'brand-electric': brandElectricLeaf.color['brand-electric'],
+	'brand-gold': brandGoldLeaf.color['brand-gold'],
+	'brand-green': brandGreenLeaf.color['brand-green'],
+	'brand-hotpink': brandHotpinkLeaf.color['brand-hotpink'],
+	'brand-salmon': brandSalmonLeaf.color['brand-salmon'],
+	'brand-violet': brandVioletLeaf.color['brand-violet'],
 } as const;

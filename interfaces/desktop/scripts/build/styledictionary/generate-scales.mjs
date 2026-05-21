@@ -1146,13 +1146,25 @@ function writeBarrel(categoryRelDir, entries) {
 		})
 		.join('\n');
 
-	// primitives/gradient/** files wrap leaves in { gradient: { <subcat>: { key: ... } } }.
-	// Everything else still emits the leaf as a top-level property.
+	// JSON shapes vary by category. The accessor must drill to the actual
+	// token atom; otherwise the typed barrel re-exports `undefined` and
+	// every downstream consumer trips an implicit-`any` error.
+	//
+	//  - `primitives/gradient/<subcat>/<key>.tokens.json` wraps as
+	//    `{ gradient: { <subcat>: { <key>: ... } } }`.
+	//  - `primitives/color/<subcat>/<key>.tokens.json` wraps as
+	//    `{ $description, color: { <key>: ... } }`.
+	//  - Every other category emits the leaf at the top level using its
+	//    own filename-derived key, e.g.
+	//    `primitives/dimension/backdrop-blur.tokens.json` → `{ "backdrop-blur": { ... } }`.
 	const gradientMatch = categoryRelDir.match(/^primitives\/gradient\/([^/]+)$/);
 	const gradientSubcat = gradientMatch ? gradientMatch[1] : null;
+	const isColor = categoryRelDir.startsWith('primitives/color/');
 	const accessor = gradientSubcat
 		? (key) => `${toIdent(key)}Leaf.gradient.${gradientSubcat}['${key}']`
-		: (key) => `${toIdent(key)}Leaf['${key}']`;
+		: isColor
+			? (key) => `${toIdent(key)}Leaf.color['${key}']`
+			: (key) => `${toIdent(key)}Leaf['${key}']`;
 
 	const members = sorted
 		.map((e) => `\t'${e.key}': ${accessor(e.key)},`)

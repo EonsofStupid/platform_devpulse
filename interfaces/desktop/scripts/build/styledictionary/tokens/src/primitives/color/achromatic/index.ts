@@ -17,8 +17,8 @@ import voidLeaf from './void.tokens.json' with { type: 'json' };
 import whiteLeaf from './white.tokens.json' with { type: 'json' };
 
 export const achromatic = {
-	'black': blackLeaf['black'],
-	'neutral': neutralLeaf['neutral'],
-	'void': voidLeaf['void'],
-	'white': whiteLeaf['white'],
+	'black': blackLeaf.color['black'],
+	'neutral': neutralLeaf.color['neutral'],
+	'void': voidLeaf.color['void'],
+	'white': whiteLeaf.color['white'],
 } as const;
