@@ -1,0 +1,53 @@
+[package]
+name = "devpulse-persona-mcp"
+version = "0.1.0"
+edition = "2021"
+description = "Persona MCP server — the mesh hub. Exposes persona.* / cortex.* / rrd.* MCP verbs over stdio JSON-RPC to Claude Desktop, Claude Code, the DevPulse orchestrator, and any future MCP client. SurrealDB + LibSQL + (optional) embedded Qdrant via devpulse-clyffy adapters."
+
+[features]
+default = []
+# Vector recall via devpulse-clyffy's embedded Qdrant (rro::QdrantInstance).
+# When OFF, persona.recall returns an explicit error envelope
+# (kind="backend", message="rro feature not built"). Not a stub —
+# the verb still validates input and returns a typed error.
+rro = ["devpulse-clyffy/rro"]
+
+[dependencies]
+# Core
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+async-trait = "0.1"
+
+# Kernel — the persona store calls into clyffy's persistence adapters.
+devpulse-clyffy = { path = "../../kernel/devpulse-clyffy" }
+
+# LibSQL — direct dep so the persona schema lives in this crate, not kernel.
+libsql = { workspace = true }
+
+# SurrealDB lands in Slice 5 with the bi-temporal fact pipeline. Slice 1
+# persona blocks are LibSQL-only; recall.mode="bfs" / "rrf" return an
+# explicit InvalidArg envelope until then. No premature dep here.
+
+# Idempotency LRU — moka hot path, LibSQL durable backstop.
+moka = { workspace = true }
+
+# Telemetry — workspace-wide spawn / sender wrappers per
+# `feedback_no_process_flooding.md` + `feedback_tracing_is_foundation.md`.
+devpulse-telemetry = { workspace = true }
+
+# Base64 — error envelopes carry raw bytes occasionally.
+base64 = "0.22"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }
+tempfile = "3.10"
+
+[lints]
+workspace = true

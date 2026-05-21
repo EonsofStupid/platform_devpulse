@@ -4763,6 +4763,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "devpulse-persona-mcp"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.22.1",
+ "chrono",
+ "devpulse-clyffy",
+ "devpulse-telemetry",
+ "libsql",
+ "moka",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "uuid 1.23.0",
+]
+
+[[package]]
 name = "devpulse-telemetry"
 version = "0.1.0"
 dependencies = [

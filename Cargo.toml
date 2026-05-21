@@ -6,6 +6,7 @@ members = [
     "kernel/rrd",
     "systems/devpulse-engine",
     "systems/devpulse-media",
+    "systems/devpulse-persona-mcp",
     "systems/infra/devpulse-telemetry",
     "systems/infra/devpulse-telemetry-macros",
     "interfaces/desktop/src-tauri",
