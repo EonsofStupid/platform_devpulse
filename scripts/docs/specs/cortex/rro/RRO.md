@@ -1,17 +1,19 @@
-﻿# RRO — Reasoning-Ready Object System
+﻿# RRO — Reason Ready Object System
 
 
 | Field | Value |
 |-------|-------|
-| Status | OFFICIAL — v2.0.0 |
-| Last Updated | 2026-05-01 |
+| Status | OFFICIAL — v2.0.1 |
+| Last Updated | 2026-05-20 |
 | Owner | @jesse |
 | Location | kernel/rro-* (workspace members) |
 | Part of | DevPulse Platform |
 | Also | Standalone open-source crate (rro), powers rroflow.ai enterprise |
 | License | Apache 2.0 / MIT dual |
 | Governs | All retrieval, encoding, and reasoning-substrate work in DevPulse |
-| Governed by | PHILOSOPHY.md |
+| Governed by | PHILOSOPHY.md, [CLYFFY-COGNITIVE-FOUNDATION.md](../../../../../docs/platform/CLYFFY-COGNITIVE-FOUNDATION.md) |
+
+> **Vocabulary lock (2026-05-20):** RRO = **Reason Ready Object(s)** — the artifact emitted by RRD. The constrained-decoding subsystem (llguidance v1.7.5) is the *mechanism* that emits them; it is not RRO itself. The prior "Reasoning-Ready Object" spelling and any "RRO = Orchestrator" reading are retired. See [CLYFFY-COGNITIVE-FOUNDATION.md §1](../../../../../docs/platform/CLYFFY-COGNITIVE-FOUNDATION.md#1-identity-hierarchy) for the full identity hierarchy.
 
 ---
 

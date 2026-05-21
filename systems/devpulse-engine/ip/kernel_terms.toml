@@ -445,10 +445,10 @@ context = ["logs", "traces"]
 severity = "hard"
 
 [[terms]]
-kernel = "Reasoning Ready Object"
+kernel = "Reason Ready Object"
 engine = "pre-processed context"
 prod = "pre-processed context"
-dev = "Reasoning Ready Object"
+dev = "Reason Ready Object"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"

@@ -79,7 +79,7 @@ sequential {
 			r"RAG pipeline",
 			r"Retrieval-Augmented Generation",
 			r"\bRRO\b",
-			r"Reasoning Ready Object",
+			r"Reason Ready Object",
 			r"\bBM25\b",
 			r"hybrid search",
 			r"speculative decoding",
