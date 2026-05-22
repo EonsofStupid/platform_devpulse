@@ -177,7 +177,7 @@ async function onInstall(): Promise<void> {
 		<InlineMessage tone="info">Checking for updates…</InlineMessage>
 	{:else if phase === "error"}
 		<div class={stack({ gap: "2" })}>
-			<InlineMessage tone="danger">
+			<InlineMessage tone="error">
 				Update check failed: {updatesState.error ?? "unknown error"}
 			</InlineMessage>
 			<Button preset="ghost" size="sm" onclick={onCheck}>

@@ -48,20 +48,50 @@ export function formatLoadError(error: LoadError | string | null | undefined): s
 	switch (error.kind) {
 		case "unknown-architecture":
 			return `Unknown model architecture (${error.raw}). File an issue if you expected this to work.`;
-		case "no-backend":
-			return `No backend can load this model in the requested format yet.`;
-		case "format-unsupported":
-			return `This model's file format isn't supported on the chosen backend.`;
+		case "unsupported-architecture":
+			return `This model's file format isn't supported on the chosen backend yet.`;
 		case "missing-file":
 			return `Model file is missing on disk — re-scan or re-download.`;
-		case "vram-too-low":
-			return `Not enough VRAM to load this model on the GPU.`;
-		case "io-error":
-			return `Couldn't read the model file.`;
-		case "backend-error":
-			return error.message ? `Backend error: ${error.message}` : "Backend error during load.";
-		default:
-			// Unknown discriminant — surface verbatim so we don't hide a real error.
+		case "model-corrupt":
+			return `Model file is corrupt or truncated — re-download to fix.`;
+		case "model-file-missing":
+			return `Registry referenced a file that no longer exists on disk.`;
+		case "vram-insufficient":
+			return `Not enough VRAM to load this model on the GPU (needs ${error.needed_mb} MB, ${error.available_mb} MB free).`;
+		case "ram-exhausted":
+			return `Not enough RAM available (used ${error.used_mb} MB of ${error.total_mb} MB).`;
+		case "disk-full":
+			return `Not enough disk space (needs ${error.needed_mb} MB, ${error.available_mb} MB free).`;
+		case "no-gpu-driver":
+			return `No GPU driver detected — install one or pick a CPU-only preset.`;
+		case "download-failed":
+			return `Download failed: ${error.reason}${error.can_retry ? " — retry to resume." : ""}`;
+		case "slot-not-found":
+			return `Slot ${error.slot_id} isn't registered.`;
+		case "no-model-assigned":
+			return `Slot ${error.slot_id} has no model assigned yet — pick one in the wizard.`;
+		case "already-loading":
+		case "slot-swapping":
+			return "Another load is already in progress for this slot.";
+		case "incompatible-model":
+			return `This model doesn't satisfy the ${error.capability} capability for the slot.`;
+		case "io-failed":
+		case "config-corrupt":
+		case "config-backend-failed":
+		case "tokenizer-load":
+		case "backend-init":
+		case "inference-failed":
+		case "boot-failed":
+		case "hugging-face-api":
+		case "other":
+			// Backend-internal failures — surface the JSON so the devtool
+			// can capture exact context. Customer-facing surfaces should
+			// wrap this with a friendlier "retry / contact" hint.
 			return JSON.stringify(error);
+		default:
+			// Exhaustive switch guard. If a new LoadError variant lands
+			// the union without an arm here, the assignment below trips
+			// at type-check time so the gap is impossible to miss.
+			return ((_: never) => JSON.stringify(error))(error);
 	}
 }

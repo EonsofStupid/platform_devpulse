@@ -23,12 +23,18 @@ import {
 	scanModels,
 	unloadSlot as unloadSlotCmd,
 } from "$lib/sys/bindings/models/index.js";
-import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
+import type { CatalogEntry, SlotInfo } from "$lib/sys/generated/bindings.js";
 import type { ModelLoadStatus } from "../util/types.js";
 
 class ModelsState {
 	slots = $state<SlotInfo[]>([]);
-	models = $state<ModelInfo[]>([]);
+	// `models` mirrors the kernel's `get_model_catalog` output which is a
+	// list of `CatalogEntry` rows (slot recommendation candidates) — NOT
+	// `ModelInfo` (registry entries). The two types diverged when the
+	// catalog command was promoted to its own surface; consumers that
+	// previously used `ModelInfo` should switch to `CatalogEntry` for
+	// catalog reads or call `scan_models` for the richer registry.
+	models = $state<CatalogEntry[]>([]);
 	statuses = $state<Record<string, ModelLoadStatus>>({});
 	private booted = false;
 

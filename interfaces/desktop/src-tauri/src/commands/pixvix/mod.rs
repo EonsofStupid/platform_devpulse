@@ -28,7 +28,7 @@ pub mod webcam;
 pub mod window;
 
 pub use dto::{
-    CapturedFrame, MonitorInfo, WebcamInfo, WindowCapability, WindowInfo, WindowListing,
+    CapturedFrame, MonitorInfo, WebcamInfo, WindowCapability, CaptureWindowInfo, WindowListing,
 };
 // Wildcard re-exports for the three command submodules — Tauri's
 // `#[tauri::command]` + `#[specta::specta]` macros generate companion

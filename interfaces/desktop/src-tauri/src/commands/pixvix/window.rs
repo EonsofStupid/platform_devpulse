@@ -13,7 +13,7 @@
 
 use std::time::Instant;
 
-use super::dto::{CapturedFrame, WindowCapability, WindowInfo, WindowListing};
+use super::dto::{CapturedFrame, WindowCapability, CaptureWindowInfo, WindowListing};
 use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
 
 /// Enumerate capturable windows.
@@ -108,8 +108,8 @@ fn capture_window_blocking(id: u32) -> Result<CapturedFrame, CommandError> {
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-fn window_to_info(w: &xcap::Window, title: &str) -> WindowInfo {
-    WindowInfo {
+fn window_to_info(w: &xcap::Window, title: &str) -> CaptureWindowInfo {
+    CaptureWindowInfo {
         id: w.id().unwrap_or(0),
         pid: w.pid().unwrap_or(0),
         app_name: w.app_name().unwrap_or_default(),

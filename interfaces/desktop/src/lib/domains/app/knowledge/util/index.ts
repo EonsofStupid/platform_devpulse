@@ -5,6 +5,7 @@ export type {
 	InsightPayload,
 	KdropPayload,
 	KnowledgeEntry,
+	KnowledgeEntryRaw,
 	KnowledgeEntryType,
 	KnowledgeReaction,
 	KnowledgeTier,

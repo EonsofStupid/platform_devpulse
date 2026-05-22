@@ -8,22 +8,13 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import { logError, logInfo } from "$lib/sys/logger.js";
-import type { KnowledgeEntry, KnowledgeEntryType, KnowledgeReaction } from "../util/index.js";
+import type {
+	KnowledgeEntry,
+	KnowledgeEntryRaw,
+	KnowledgeEntryType,
+	KnowledgeReaction,
+} from "../util/index.js";
 import { parseKnowledgeEntry } from "../util/index.js";
-
-/**
- * Raw shape from Rust — payload is a JSON string, not parsed.
- */
-interface KnowledgeEntryRaw {
-	id: string;
-	entryType: KnowledgeEntryType;
-	tool: string | null;
-	category: string;
-	tier: string;
-	payloadJson: string;
-	tags: string[];
-	added: string;
-}
 
 /**
  * Get a knowledge entry matching the given type and optional tool context.

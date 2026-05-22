@@ -24,7 +24,7 @@ use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use serde::Deserialize;
 use specta::Type;
 
-use dto::{ModelInfo, ProviderStatus, ValidationResult};
+use dto::{ProviderModelInfo, ProviderStatus, ValidationResult};
 
 use super::_util::{now_ms, CommandError};
 use super::credentials;
@@ -36,7 +36,7 @@ use super::credentials;
 /// validate-on-save model deliberately avoids.
 struct CacheEntry {
     last_validated_at_ms: i64,
-    last_models: Vec<ModelInfo>,
+    last_models: Vec<ProviderModelInfo>,
     last_error: Option<String>,
 }
 
@@ -177,7 +177,7 @@ pub struct ListModelsRequest {
 #[specta::specta]
 pub async fn list_provider_models(
     request: ListModelsRequest,
-) -> Result<Vec<ModelInfo>, CommandError> {
+) -> Result<Vec<ProviderModelInfo>, CommandError> {
     let result = validate_provider(request.provider).await?;
     if result.ok {
         Ok(result.models)

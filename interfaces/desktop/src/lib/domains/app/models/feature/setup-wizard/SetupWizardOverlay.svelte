@@ -256,7 +256,7 @@ async function saveOneSlot(slotId: string): Promise<void> {
 			if (!rec) {
 				return { target, ok: false, error: `No recommendation for ${target}` };
 			}
-			const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id);
+			const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id, null);
 			if (ir.status === "ok") {
 				dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
 				return { target, ok: true, error: "" };
@@ -366,7 +366,7 @@ async function applyAutoConfig() {
 
 		await Promise.all(
 			recommendations.map(async (rec) => {
-				const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id);
+				const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id, null);
 				if (ir.status === "ok") {
 					dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
 				} else {

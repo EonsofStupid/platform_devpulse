@@ -33,7 +33,7 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 	{#if !copy || !tier}
 		<div class="loading-row"><Spinner size="sm" /></div>
 	{:else}
-		<Heading level={3} size="md">{tier.label}</Heading>
+		<Heading level={3} size="md">{tier.name}</Heading>
 		<Text size="sm" class="text-frost-300">{tier.description}</Text>
 
 		<div class="metrics">

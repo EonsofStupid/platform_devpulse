@@ -57,7 +57,7 @@ pub struct MonitorInfo {
 /// dropped — they are technically windows but useless capture targets.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
-pub struct WindowInfo {
+pub struct CaptureWindowInfo {
     /// Stable OS window handle.
     pub id: u32,
     /// Process id that owns the window.
@@ -167,7 +167,7 @@ pub enum WindowCapability {
 #[serde(rename_all = "camelCase")]
 pub struct WindowListing {
     /// Captured-window candidates after the title/minimized filter.
-    pub windows: Vec<WindowInfo>,
+    pub windows: Vec<CaptureWindowInfo>,
     /// Per-host capability flag — driven by the Wayland-detection probe
     /// in `window.rs`. UI hides the per-window pick when set to `MonitorOnly`.
     pub capability: WindowCapability,

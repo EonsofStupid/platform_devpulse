@@ -263,7 +263,7 @@ pub async fn llama_server_health(
 pub async fn llama_chat(
     app: tauri::AppHandle,
     state: tauri::State<'_, LlamaServerState>,
-    messages: Vec<ChatMessage>,
+    messages: Vec<LlamaChatMessage>,
     max_tokens: Option<u32>,
     temperature: Option<f32>,
 ) -> Result<String, String> {
@@ -425,7 +425,7 @@ pub struct LlamaHealthStatus {
 
 /// A single chat message (`OpenAI` format).
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
-pub struct ChatMessage {
+pub struct LlamaChatMessage {
     /// Role: "system", "user", or "assistant".
     pub role: String,
     /// Message content.

@@ -1844,7 +1844,7 @@ async validateProvider(provider: ProviderId) : Promise<Result<ValidationResult, 
  * into the Tauri Result channel since the UI here only renders the
  * model dropdown and a toast on failure.
  */
-async listProviderModels(request: ListModelsRequest) : Promise<Result<ModelInfo[], CommandError>> {
+async listProviderModels(request: ListModelsRequest) : Promise<Result<ProviderModelInfo[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("list_provider_models", { request }) };
 } catch (e) {
@@ -2981,6 +2981,15 @@ async configForTier(tier: string) : Promise<Result<string, string>> {
  * 
  * Loads from `.userdata/config/wizard_copy.toml` if present, falls back to
  * embedded `wizard_copy.default.toml`. Frontend caches the result.
+ * 
+ * The data this returns is embedded TOML + an optional user override file —
+ * neither depends on the Platform engine. Previously this gated on
+ * `state.platform.load_full()` which fired `"Platform is still booting"` on
+ * every launch because `<ModelDownloaderOverlay />` mounts globally in
+ * `routes/+layout.svelte` and its `onMount` calls this command immediately,
+ * well before Platform finishes booting. Resolving the data dir directly
+ * from `paths::resolve_data_dir` removes the structural gate. Pre-release
+ * rule: fix the cause, not the symptom.
  */
 async getWizardCopy() : Promise<Result<WizardCopy, string>> {
     try {
@@ -3553,7 +3562,7 @@ async llamaServerHealth() : Promise<Result<LlamaHealthStatus, string>> {
  * 
  * Streams tokens back via Tauri events (`llama:token`).
  */
-async llamaChat(messages: ChatMessage[], maxTokens: number | null, temperature: number | null) : Promise<Result<string, string>> {
+async llamaChat(messages: LlamaChatMessage[], maxTokens: number | null, temperature: number | null) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("llama_chat", { messages, maxTokens, temperature }) };
 } catch (e) {
@@ -5204,6 +5213,57 @@ gpu_layers: number;
  */
 dtype: string }
 /**
+ * One capturable window reported by xcap.
+ * 
+ * Filtered to "real" windows by the lister: title non-empty AND not
+ * minimized. Tooltips, hidden helper windows, and OS overlays are
+ * dropped — they are technically windows but useless capture targets.
+ */
+export type CaptureWindowInfo = { 
+/**
+ * Stable OS window handle.
+ */
+id: number; 
+/**
+ * Process id that owns the window.
+ */
+pid: number; 
+/**
+ * Best-effort app name (e.g. "Google Chrome", "code").
+ */
+appName: string; 
+/**
+ * Window title at enumeration time. Stale by the time the operator
+ * clicks Capture; ids are the durable handle.
+ */
+title: string; 
+/**
+ * Logical pixel bounds — top-left x.
+ */
+x: number; 
+/**
+ * Logical pixel bounds — top-left y.
+ */
+y: number; 
+/**
+ * Logical pixel width.
+ */
+width: number; 
+/**
+ * Logical pixel height.
+ */
+height: number; 
+/**
+ * Z-order index (lower = closer to front; xcap returns the list
+ * sorted by z, so a smaller index here is on top).
+ */
+z: number; 
+/**
+ * `true` when the window is currently focused. UI uses this to
+ * pre-select the active window.
+ */
+isFocused: boolean }
+/**
  * One captured frame ready for one-shot consumption.
  * 
  * `data_url` is the canonical browser-friendly form: drop into
@@ -5301,18 +5361,6 @@ size_mb: number;
  * Whether this is a directory download (e.g., Whisper models).
  */
 is_dir?: boolean }
-/**
- * A single chat message (`OpenAI` format).
- */
-export type ChatMessage = { 
-/**
- * Role: "system", "user", or "assistant".
- */
-role: string; 
-/**
- * Message content.
- */
-content: string }
 /**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
@@ -7884,6 +7932,18 @@ export type ListModelsRequest = {
  */
 provider: ProviderId }
 /**
+ * A single chat message (`OpenAI` format).
+ */
+export type LlamaChatMessage = { 
+/**
+ * Role: "system", "user", or "assistant".
+ */
+role: string; 
+/**
+ * Message content.
+ */
+content: string }
+/**
  * Composite snapshot of the FFI prebuilt-link state.
  * 
  * Returned by [`llama_cpp_build_info`]. Combines the committed
@@ -8376,25 +8436,6 @@ supported_backends: string[];
  * Which slot capabilities this model can serve.
  */
 compatible_capabilities: string[] }
-/**
- * One row from a `/v1/models` response — projected to what the UI shows.
- * 
- * Vendor responses include more (created_at, owned_by, capabilities,
- * pricing) but those vary. We surface only the model id; per-vendor
- * detail panels can re-fetch when they need richer metadata.
- */
-export type ModelInfo = { 
-/**
- * Vendor model identifier — what callers pass as `model:` in chat
- * requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
- */
-id: string; 
-/**
- * Optional owner label — OpenAI returns "openai"/"system", Hugging
- * Face returns the namespace, Ollama returns the digest. UI shows
- * it as a subtitle when present.
- */
-ownedBy: string | null }
 /**
  * Models setup screen — preset card, recommendations.
  */
@@ -9078,6 +9119,25 @@ export type ProviderId =
  * vLLM running locally or on the LAN.
  */
 "vllm"
+/**
+ * One row from a `/v1/models` response — projected to what the UI shows.
+ * 
+ * Vendor responses include more (created_at, owned_by, capabilities,
+ * pricing) but those vary. We surface only the model id; per-vendor
+ * detail panels can re-fetch when they need richer metadata.
+ */
+export type ProviderModelInfo = { 
+/**
+ * Vendor model identifier — what callers pass as `model:` in chat
+ * requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
+ */
+id: string; 
+/**
+ * Optional owner label — OpenAI returns "openai"/"system", Hugging
+ * Face returns the namespace, Ollama returns the digest. UI shows
+ * it as a subtitle when present.
+ */
+ownedBy: string | null }
 /**
  * Aggregated row for the Status tab grid — one per visible provider.
  */
@@ -10825,7 +10885,7 @@ latencyMs: number;
 /**
  * Parsed model list (empty when `ok = false`).
  */
-models: ModelInfo[]; 
+models: ProviderModelInfo[]; 
 /**
  * Classified failure (`None` when `ok = true`).
  */
@@ -11199,57 +11259,6 @@ idle_timeout_secs: number;
  */
 minimize_to_tray: boolean }
 /**
- * One capturable window reported by xcap.
- * 
- * Filtered to "real" windows by the lister: title non-empty AND not
- * minimized. Tooltips, hidden helper windows, and OS overlays are
- * dropped — they are technically windows but useless capture targets.
- */
-export type WindowInfo = { 
-/**
- * Stable OS window handle.
- */
-id: number; 
-/**
- * Process id that owns the window.
- */
-pid: number; 
-/**
- * Best-effort app name (e.g. "Google Chrome", "code").
- */
-appName: string; 
-/**
- * Window title at enumeration time. Stale by the time the operator
- * clicks Capture; ids are the durable handle.
- */
-title: string; 
-/**
- * Logical pixel bounds — top-left x.
- */
-x: number; 
-/**
- * Logical pixel bounds — top-left y.
- */
-y: number; 
-/**
- * Logical pixel width.
- */
-width: number; 
-/**
- * Logical pixel height.
- */
-height: number; 
-/**
- * Z-order index (lower = closer to front; xcap returns the list
- * sorted by z, so a smaller index here is on top).
- */
-z: number; 
-/**
- * `true` when the window is currently focused. UI uses this to
- * pre-select the active window.
- */
-isFocused: boolean }
-/**
  * Tracks an open window's state.
  */
 export type WindowInfo = { 
@@ -11273,7 +11282,7 @@ export type WindowListing = {
 /**
  * Captured-window candidates after the title/minimized filter.
  */
-windows: WindowInfo[]; 
+windows: CaptureWindowInfo[]; 
 /**
  * Per-host capability flag — driven by the Wayland-detection probe
  * in `window.rs`. UI hides the per-window pick when set to `MonitorOnly`.

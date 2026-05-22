@@ -70,10 +70,13 @@ async function refreshPresence(): Promise<void> {
 }
 
 async function refreshDetect(): Promise<void> {
-	const r = await commands.detectClaudeInstalls();
-	if (r.status === "ok") {
-		claudeCodeDetected = Boolean(r.data.code?.path) || Boolean(r.data.desktop?.path);
-	}
+	// `detect_claude_installs` returns `ClaudeInstalls` directly — no
+	// Result wrapper because the command is infallible (best-effort
+	// filesystem probe, missing installs are an empty struct, not an
+	// error). Unlike the other `commands.*` calls in this file the
+	// response IS the data.
+	const installs = await commands.detectClaudeInstalls();
+	claudeCodeDetected = Boolean(installs.code?.path) || Boolean(installs.desktop?.path);
 }
 
 async function saveKey(): Promise<void> {

@@ -1993,7 +1993,7 @@ pub async fn inference_generate(
         );
 
         // Build chat messages — single user turn with the prompt
-        let messages = vec![crate::commands::llama::ChatMessage {
+        let messages = vec![crate::commands::llama::LlamaChatMessage {
             role: "user".to_string(),
             content: prompt,
         }];

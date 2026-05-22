@@ -146,13 +146,18 @@ const accentStyle = $derived(
 	`--accent-tile-main: var(--accent-${accent}-main); --accent-tile-fill: var(--accent-${accent}-fill);`,
 );
 
+// StatusDotStatus enum: online | offline | loading | ready | failed |
+// pending | hybrid. Health-tone names from the subsystem registry map
+// onto StatusDot's health vocabulary — `up`=ready (green), `starting`/
+// `degraded`=loading or pending (amber), `down`=failed (red),
+// `stopped`/`unknown`=offline (gray).
 const toneToDotState = {
-	up: "success",
-	starting: "warning",
-	degraded: "warning",
-	down: "error",
-	stopped: "neutral",
-	unknown: "neutral",
+	up: "ready",
+	starting: "loading",
+	degraded: "pending",
+	down: "failed",
+	stopped: "offline",
+	unknown: "offline",
 } as const;
 
 function openNow(): void {

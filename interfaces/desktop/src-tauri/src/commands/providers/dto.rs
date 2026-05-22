@@ -9,7 +9,7 @@
 //!   visible provider in the SSOT registry).
 //! - `ValidationResult` is the response from `validate_provider` —
 //!   either the parsed model list or a classified failure.
-//! - `ModelInfo` is the projection of `/v1/models` items the UI shows.
+//! - `ProviderModelInfo` is the projection of `/v1/models` items the UI shows.
 //! - `ProviderErrorKind` is the wire-stable failure classification —
 //!   the lane router (Sprint 7) reads this to decide retry vs back off.
 
@@ -63,7 +63,7 @@ pub struct ValidationResult {
     /// slow regions / cold starts.
     pub latency_ms: u64,
     /// Parsed model list (empty when `ok = false`).
-    pub models: Vec<ModelInfo>,
+    pub models: Vec<ProviderModelInfo>,
     /// Classified failure (`None` when `ok = true`).
     pub error_kind: Option<ErrorKind>,
     /// Human-readable failure message (`None` when `ok = true`).
@@ -77,7 +77,7 @@ pub struct ValidationResult {
 /// detail panels can re-fetch when they need richer metadata.
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
-pub struct ModelInfo {
+pub struct ProviderModelInfo {
     /// Vendor model identifier — what callers pass as `model:` in chat
     /// requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
     pub id: String,

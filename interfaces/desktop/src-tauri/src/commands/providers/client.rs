@@ -18,7 +18,7 @@ use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use reqwest::{Client, RequestBuilder, Response, StatusCode};
 use serde::Deserialize;
 
-use super::dto::ModelInfo;
+use super::dto::ProviderModelInfo;
 use crate::commands::_util::{CommandError, ErrorKind};
 
 /// Conservative timeouts — model listing is metadata-only and cheap.
@@ -52,7 +52,7 @@ fn shared_client() -> &'static Client {
 pub async fn fetch_models(
     provider: ProviderId,
     api_key: Option<&str>,
-) -> Result<Vec<ModelInfo>, CommandError> {
+) -> Result<Vec<ProviderModelInfo>, CommandError> {
     let entry = ai_providers::find(provider)
         .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {provider:?}")))?;
 
@@ -174,7 +174,7 @@ fn network_error(e: reqwest::Error) -> CommandError {
 async fn parse_response(
     provider: ProviderId,
     response: Response,
-) -> Result<Vec<ModelInfo>, CommandError> {
+) -> Result<Vec<ProviderModelInfo>, CommandError> {
     let status = response.status();
     if status.is_success() {
         let body = response
@@ -222,14 +222,14 @@ pub fn classify_status(status: StatusCode, body: &str) -> ErrorKind {
 /// 1. OpenAI-compatible: `{"data": [{"id": ..., "owned_by": ...}]}`
 /// 2. Anthropic: `{"data": [{"id": ..., "display_name": ..., "type": "model"}]}`
 /// 3. Gemini: `{"models": [{"name": "models/..."}]}`
-fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, CommandError> {
+fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ProviderModelInfo>, CommandError> {
     if matches!(provider, ProviderId::GoogleGemini) {
         let parsed: GeminiModels = serde_json::from_str(body)
             .map_err(|e| CommandError::parse(format!("Gemini /models parse failed: {e}")))?;
         return Ok(parsed
             .models
             .into_iter()
-            .map(|m| ModelInfo {
+            .map(|m| ProviderModelInfo {
                 id: m
                     .name
                     .strip_prefix("models/")
@@ -245,7 +245,7 @@ fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, Comm
     Ok(parsed
         .data
         .into_iter()
-        .map(|m| ModelInfo {
+        .map(|m| ProviderModelInfo {
             id: m.id,
             owned_by: m.owned_by,
         })
