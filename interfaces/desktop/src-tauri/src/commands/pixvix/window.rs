@@ -13,7 +13,7 @@
 
 use std::time::Instant;
 
-use super::dto::{CapturedFrame, WindowCapability, CaptureWindowInfo, WindowListing};
+use super::dto::{CaptureWindowInfo, CapturedFrame, WindowCapability, WindowListing};
 use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
 
 /// Enumerate capturable windows.
