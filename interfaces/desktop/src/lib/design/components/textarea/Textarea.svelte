@@ -54,7 +54,6 @@ const m = $derived(renderForge({ kind: "textarea", preset }));
 
 <textarea
 		{...textareaAnatomy.attrs.input}
-		{...rest}
 		aria-invalid={textarea.root["aria-invalid"]}
 		aria-required={textarea.root["aria-required"]}
 		aria-disabled={textarea.root["aria-disabled"]}
@@ -64,6 +63,8 @@ const m = $derived(renderForge({ kind: "textarea", preset }));
 		{required}
 		{rows}
 		{value}
+		placeholder={rest.placeholder}
+		aria-label={rest["aria-label"]}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		data-invalid={invalid || undefined}
