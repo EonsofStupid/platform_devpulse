@@ -20,6 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # `deps/llama-cpp-rs` and `deps/moshi` are git submodules vendored
+          # under workspace.dependencies in Cargo.toml. Without recursive
+          # submodule checkout, the build fails with
+          # "failed to read deps/llama-cpp-rs/llama-cpp-2/Cargo.toml".
+          submodules: recursive
 
       # Tauri 2.0 needs these on Ubuntu for webkit2gtk
       - name: Install system dependencies
