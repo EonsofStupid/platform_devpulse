@@ -22,4 +22,4 @@ export {
 export { default as DevForgeDashboard } from "./feature/dashboard/DevForgeDashboard.svelte";
 
 // ── Types ───────────────────────────────────────────────────
-export type { DevforgeBootstrapStatus, RehConfig, RehStatus } from "./util/devforge.types.js";
+export type { DevforgeBootstrapStatus, RehStatus } from "./util/devforge.types.js";

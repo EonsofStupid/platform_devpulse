@@ -5,9 +5,11 @@
  * Pure types. No runtime. No imports beyond bindings.
  */
 
-// Re-export specta-generated types so the domain has its own type surface.
-// These will exist once cargo check regenerates bindings.ts.
-export type {
+// Import the specta-generated types so the domain has its own type surface.
+// `GraphNamespace` is also referenced as a value-position type within this
+// file (see `NamespaceOption`), so it must be imported (not just re-exported)
+// to land in the file's type scope.
+import type {
 	GraphHealthAll,
 	GraphKvEntry,
 	GraphNamespace,
@@ -15,6 +17,15 @@ export type {
 	GraphPingResult,
 	GraphTableInfo,
 } from "$lib/sys/generated/bindings.js";
+
+export type {
+	GraphHealthAll,
+	GraphKvEntry,
+	GraphNamespace,
+	GraphNamespaceStats,
+	GraphPingResult,
+	GraphTableInfo,
+};
 
 /** Devtool tab identifiers. */
 export type SurrealTab = "health" | "browser" | "console";

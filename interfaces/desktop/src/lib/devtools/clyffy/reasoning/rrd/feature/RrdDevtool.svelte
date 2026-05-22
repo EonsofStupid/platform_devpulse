@@ -87,7 +87,7 @@ function fmtTime(ms: number): string {
 				{#if rrdState.last}
 					{@const lab = laymanFor(rrdState.last.phase)}
 					<div class="flex items-center gap-2">
-						<Badge tone={lab.tone} size="sm">{lab.label}</Badge>
+						<Badge variant={lab.tone} size="sm">{lab.label}</Badge>
 						<Text size="xs" color="muted">{fmtTime(rrdState.last.receivedAtMs)}</Text>
 					</div>
 					{#if lab.subtitle}
@@ -109,7 +109,7 @@ function fmtTime(ms: number): string {
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<Text size="sm" weight="bold" class="block mb-2">
 					Recent activity
-					<Badge tone="neutral" size="sm">{rrdState.transitions.length}</Badge>
+					<Badge variant="neutral" size="sm">{rrdState.transitions.length}</Badge>
 				</Text>
 				{#if rrdState.transitions.length === 0}
 					<Text size="xs" color="muted">Empty.</Text>
@@ -119,7 +119,7 @@ function fmtTime(ms: number): string {
 							{@const lab = laymanFor(t.phase)}
 							<div class="phase-row">
 								<Text size="xs" class="phase-time">{fmtTime(t.receivedAtMs)}</Text>
-								<Badge tone={lab.tone} size="sm">{lab.label}</Badge>
+								<Badge variant={lab.tone} size="sm">{lab.label}</Badge>
 								{#if t.detail}
 									<Text size="xs" class="phase-detail">{t.detail}</Text>
 								{/if}

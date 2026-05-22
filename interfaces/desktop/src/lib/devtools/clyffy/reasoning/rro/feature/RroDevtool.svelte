@@ -57,12 +57,12 @@ const badge = $derived<HealthBadge>(
 	rroState.healthLoading
 		? { state: "starting", label: "Probing vector store…" }
 		: rroState.health === null
-			? { state: "unknown", label: rroState.healthError ?? "Health unknown" }
-			: !rroState.health.reachable
-				? { state: "down", label: rroState.healthError ?? "Vector store unreachable" }
-				: rroState.rroSnapshot === null
-					? { state: "up", label: "Vector store reachable" }
-					: badgeFromSnapshotState(rroState.rroSnapshot.state),
+			? rroState.healthError !== null
+				? { state: "down", label: rroState.healthError }
+				: { state: "unknown", label: "Health unknown" }
+			: rroState.rroSnapshot === null
+				? { state: "up", label: "Vector store reachable" }
+				: badgeFromSnapshotState(rroState.rroSnapshot.state),
 );
 
 function badgeFromSnapshotState(

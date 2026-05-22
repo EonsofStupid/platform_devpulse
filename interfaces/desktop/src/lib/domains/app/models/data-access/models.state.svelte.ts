@@ -17,24 +17,44 @@ import { listen } from "@tauri-apps/api/event";
 import {
 	assignModelToSlot as assignModelToSlotCmd,
 	clearSlotAssignment as clearSlotAssignmentCmd,
-	getModelCatalog,
 	getSlots,
 	loadSlot as loadSlotCmd,
 	scanModels,
 	unloadSlot as unloadSlotCmd,
 } from "$lib/sys/bindings/models/index.js";
-import type { CatalogEntry, SlotInfo } from "$lib/sys/generated/bindings.js";
+import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
 import type { ModelLoadStatus } from "../util/types.js";
+
+/**
+ * Wire payload from the `platform:models-status` Tauri event. The
+ * kernel pushes a `StatusUpdate` envelope (`{ kind: "data", data: {...} }`)
+ * with the full slot + registry snapshot whenever models or slots
+ * mutate. We accept either the envelope or a raw payload for
+ * backwards compatibility with the boot-snapshot replay format
+ * defined in `platformState.svelte.ts`.
+ */
+interface ModelsStatusEnvelope {
+	kind?: string;
+	data?: {
+		slots?: SlotInfo[];
+		models?: ModelInfo[];
+		firstRun?: boolean;
+	};
+	slots?: SlotInfo[];
+	models?: ModelInfo[];
+}
 
 class ModelsState {
 	slots = $state<SlotInfo[]>([]);
-	// `models` mirrors the kernel's `get_model_catalog` output which is a
-	// list of `CatalogEntry` rows (slot recommendation candidates) — NOT
-	// `ModelInfo` (registry entries). The two types diverged when the
-	// catalog command was promoted to its own surface; consumers that
-	// previously used `ModelInfo` should switch to `CatalogEntry` for
-	// catalog reads or call `scan_models` for the richer registry.
-	models = $state<CatalogEntry[]>([]);
+	/**
+	 * Registry of every discovered model. Populated from the kernel
+	 * `platform:models-status` event (`ModelsStatusData.models`) which
+	 * mirrors `loader.get_registry()` post-mutation. Initial fill comes
+	 * from a one-shot `scanModels()` at boot — subsequent updates flow
+	 * exclusively through the event listener so the UI never lags the
+	 * authoritative kernel state.
+	 */
+	models = $state<ModelInfo[]>([]);
 	statuses = $state<Record<string, ModelLoadStatus>>({});
 	private booted = false;
 
@@ -54,14 +74,25 @@ class ModelsState {
 			this.statuses = { ...this.statuses, [slot_id]: status };
 		});
 
-		await listen<unknown>("platform:models-status", () => {
+		await listen<ModelsStatusEnvelope>("platform:models-status", (event) => {
 			// The kernel pushes a snapshot any time slots or registry
-			// change (scan, assign, load, unload, swap). Pull the fresh
-			// state so the UI mirrors the kernel without lagging behind.
-			// A failure here is non-fatal — the next mutation re-emits.
-			this.refresh().catch((e) => {
-				console.warn("modelsState: refresh on platform:models-status failed", e);
-			});
+			// change (scan, assign, load, unload, swap). Accept either
+			// the `emit_status` envelope (`{ kind, data }`) or the raw
+			// payload (boot-snapshot replay shape).
+			const p = event.payload;
+			const payload = p?.kind === "data" && p.data ? p.data : p;
+			if (Array.isArray(payload?.slots)) {
+				this.slots = payload.slots;
+			}
+			if (Array.isArray(payload?.models)) {
+				this.models = payload.models;
+			}
+		});
+
+		// One-shot boot refresh — covers the window before the live
+		// `platform:models-status` event arrives.
+		await this.refresh().catch((e) => {
+			console.warn("modelsState: initial refresh failed", e);
 		});
 	}
 
@@ -79,15 +110,20 @@ class ModelsState {
 
 	/**
 	 * Re-fetch slot definitions + model registry from the kernel.
-	 * Cheap (in-memory reads) and idempotent.
+	 *
+	 * Slots are cheap (in-memory list). The registry call (`scanModels`)
+	 * walks the models directory, so we only run it on initial boot.
+	 * Subsequent refreshes ride the `platform:models-status` event,
+	 * which carries the full registry snapshot the kernel just
+	 * computed — zero extra IO.
 	 */
 	async refresh(): Promise<void> {
-		const [slotsR, catalogR] = await Promise.all([getSlots(), getModelCatalog()]);
+		const [slotsR, modelsR] = await Promise.all([getSlots(), scanModels()]);
 		if (slotsR.status === "ok") this.slots = slotsR.data;
 		else console.error("modelsState.refresh getSlots failed:", slotsR.error);
 
-		if (catalogR.status === "ok") this.models = catalogR.data;
-		else console.error("modelsState.refresh getModelCatalog failed:", catalogR.error);
+		if (modelsR.status === "ok") this.models = modelsR.data;
+		else console.error("modelsState.refresh scanModels failed:", modelsR.error);
 	}
 
 	/**

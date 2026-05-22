@@ -310,11 +310,11 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					<Ear size={12} />
 					<Text size="xs" weight="bold">STT (Whisper)</Text>
 					{#if sttReady}
-						<Badge tone="positive" size="sm">Ready</Badge>
+						<Badge variant="positive" size="sm">Ready</Badge>
 					{:else if sttSlot?.assigned_model_id}
-						<Badge tone="neutral" size="sm">Assigned</Badge>
+						<Badge variant="neutral" size="sm">Assigned</Badge>
 					{:else}
-						<Badge tone="neutral" size="sm">Empty</Badge>
+						<Badge variant="neutral" size="sm">Empty</Badge>
 					{/if}
 				</div>
 
@@ -325,11 +325,11 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					<Volume2 size={12} />
 					<Text size="xs" weight="bold">TTS (Kokoro)</Text>
 					{#if ttsReady}
-						<Badge tone="positive" size="sm">Ready</Badge>
+						<Badge variant="positive" size="sm">Ready</Badge>
 					{:else if ttsSlot?.assigned_model_id}
-						<Badge tone="neutral" size="sm">Assigned</Badge>
+						<Badge variant="neutral" size="sm">Assigned</Badge>
 					{:else}
-						<Badge tone="neutral" size="sm">Empty</Badge>
+						<Badge variant="neutral" size="sm">Empty</Badge>
 					{/if}
 				</div>
 
@@ -596,7 +596,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 						</div>
 
 						<div class="flex items-center gap-2">
-							<Button preset="button-secondary" size="sm" onclick={handleMicTest} disabled={testingMic}>
+							<Button preset="secondary" size="sm" onclick={handleMicTest} disabled={testingMic}>
 								{testingMic ? "Testing…" : "Test mic"}
 							</Button>
 							{#if micResult}
@@ -708,7 +708,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 							Synthesizes a phrase via TTS, feeds it directly into STT.
 							Tests both pipelines without mic or speakers.
 						</Text>
-						<Button preset="button-secondary" size="sm" onclick={handleSmokeTest} disabled={smokeTesting || !(sttReady && ttsReady)}>
+						<Button preset="secondary" size="sm" onclick={handleSmokeTest} disabled={smokeTesting || !(sttReady && ttsReady)}>
 							{#if smokeTesting}
 								<Spinner size="xs" />
 								Running…

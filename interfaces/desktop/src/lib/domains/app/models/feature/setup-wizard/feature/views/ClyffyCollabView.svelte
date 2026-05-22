@@ -76,7 +76,10 @@ async function refreshDetect(): Promise<void> {
 	// error). Unlike the other `commands.*` calls in this file the
 	// response IS the data.
 	const installs = await commands.detectClaudeInstalls();
-	claudeCodeDetected = Boolean(installs.code?.path) || Boolean(installs.desktop?.path);
+	// `ClaudeInstall.configExists` reflects whether the per-target
+	// config file is present on disk — the closest signal we have to
+	// "Claude is installed here" without an Add Custom flow.
+	claudeCodeDetected = installs.code.configExists || installs.desktop.configExists;
 }
 
 async function saveKey(): Promise<void> {

@@ -46,7 +46,7 @@ function statusLabel(status: ActiveInstall["status"]): string {
 			Installs
 		</Heading>
 		{#if installState.activeCount > 0}
-			<Badge tone="informative" size="sm">{installState.activeCount} active</Badge>
+			<Badge variant="informative" size="sm">{installState.activeCount} active</Badge>
 		{/if}
 	</div>
 
@@ -63,7 +63,7 @@ function statusLabel(status: ActiveInstall["status"]): string {
 						<Text size="xs" class="ins-repo">{ins.repoId}</Text>
 						<Text size="xs" class="ins-primary">{ins.primaryFilename}</Text>
 					</div>
-					<Badge tone={statusTone(ins.status)} size="sm">
+					<Badge variant={statusTone(ins.status)} size="sm">
 						{statusLabel(ins.status)}
 					</Badge>
 					{#if ins.error}

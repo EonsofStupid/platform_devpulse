@@ -73,6 +73,18 @@ export const RRO_CAPABILITIES: readonly Capability[] = [
 		debug: false,
 		icon: "shapes",
 	},
+	{
+		// `brain` is a trace-category, not a UI tab — it groups the
+		// SurrealDB knowledge-graph IPC calls under a single log
+		// target (`rro.brain.*`). Surface label/tagline kept for
+		// completeness in case a future tab adopts it.
+		id: "brain",
+		label: "Brain",
+		tagline: "Knowledge graph — SurrealDB across 3 namespaces.",
+		backend: "graph",
+		debug: true,
+		icon: "database",
+	},
 ] as const;
 
 /** Get a capability by its ID. */

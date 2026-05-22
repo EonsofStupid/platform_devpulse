@@ -155,12 +155,12 @@ function prettySize(bytes: number): string {
 							<Text size="sm" weight="semibold">ollama</Text>
 							{#if ollamaSidecarState.running}
 								{#if ollamaSidecarState.managed === true}
-									<Badge tone="positive" size="sm">Managed</Badge>
+									<Badge variant="positive" size="sm">Managed</Badge>
 								{:else if ollamaSidecarState.managed === false}
-									<Badge tone="neutral" size="sm">Attached</Badge>
+									<Badge variant="neutral" size="sm">Attached</Badge>
 								{/if}
 							{:else}
-								<Badge tone="neutral" size="sm">Stopped</Badge>
+								<Badge variant="neutral" size="sm">Stopped</Badge>
 							{/if}
 						</div>
 						<span
@@ -301,7 +301,7 @@ function prettySize(bytes: number): string {
 						{/if}
 					</Button>
 					<Button
-						preset="button-secondary"
+						preset="secondary"
 						size="sm"
 						onclick={() => void ollamaSidecarState.restart()}
 						disabled={ollamaSidecarState.restarting}
@@ -428,11 +428,11 @@ function prettySize(bytes: number): string {
 										>
 											<td class="px-3 py-2 font-mono">{m.name}</td>
 											<td class="px-3 py-2 text-right font-mono"
-												>{prettySize(m.size)}</td
+												>{prettySize(m.size ?? 0)}</td
 											>
 											<td
 												class="px-3 py-2 text-right font-mono text-[10px] text-[var(--text-secondary)]"
-												>{m.modified_at.slice(0, 10) || "—"}</td
+												>{m.modified_at?.slice(0, 10) ?? "—"}</td
 											>
 											<td class="px-3 py-2 text-right">
 												<Button

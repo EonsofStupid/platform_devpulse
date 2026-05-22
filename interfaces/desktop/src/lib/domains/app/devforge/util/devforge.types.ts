@@ -5,6 +5,5 @@
 
 export type {
 	DevforgeBootstrapStatus,
-	RehConfig,
 	RehStatus,
 } from "$lib/sys/generated/bindings.js";

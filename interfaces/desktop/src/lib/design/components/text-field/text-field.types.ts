@@ -17,7 +17,7 @@ export interface TextFieldProps extends TextFieldPrimitiveProps {
 	description?: string;
 	/** Error message — shown when invalid */
 	error?: string;
-	/** Current value */
+	/** Current value — `$bindable` so callers can `bind:value` */
 	value?: string;
 	/** Callback on value change */
 	onValueChange?: (value: string) => void;
@@ -25,6 +25,10 @@ export interface TextFieldProps extends TextFieldPrimitiveProps {
 	type?: TextFieldType;
 	/** Placeholder */
 	placeholder?: string;
+	/** Native `autocomplete` attribute forwarded to the inner input. */
+	autocomplete?: string;
+	/** Native `spellcheck` attribute forwarded to the inner input. */
+	spellcheck?: boolean;
 	disabled?: boolean;
 	readonly?: boolean;
 	required?: boolean;

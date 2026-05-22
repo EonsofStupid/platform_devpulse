@@ -39,7 +39,7 @@ import SubsystemBadge from "./SubsystemBadge.svelte";
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
-const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "hot");
+const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "ready");
 const subsystemGroups = $derived(groupSubsystems(subsystems));
 
 // Subscribe to live hardware telemetry so the VRAM badge has real data.
@@ -119,7 +119,7 @@ $effect(() => hardwareState.subscribe("statusbar"));
 			</Badge>
 			{#if hardwareState.hasGpu}
 				<Badge variant="neutral" size="sm">
-					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb)}/{formatMb(hardwareState.vramTotalMb)}</Text>
+					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb ?? 0)}/{formatMb(hardwareState.vramTotalMb ?? 0)}</Text>
 				</Badge>
 			{/if}
 

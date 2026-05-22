@@ -6,10 +6,18 @@
 -->
 <script lang="ts">
 import { Badge } from "$lib/design/components/badge/index.js";
-import { StatusDot } from "$lib/design/components/status-dot/index.js";
+import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 
 type Tone = "success" | "warning" | "error" | "accent" | "neutral";
+
+const TONE_TO_STATUS: Record<Tone, StatusDotStatus> = {
+	success: "ready",
+	warning: "pending",
+	error: "failed",
+	accent: "online",
+	neutral: "offline",
+};
 
 interface Props {
 	label: string;
@@ -24,6 +32,7 @@ interface Props {
 let { label, detail, ok, okText = "Ready", failText = "Unreachable", tone }: Props = $props();
 
 const resolvedTone: Tone = $derived(tone ?? (ok ? "success" : "error"));
+const resolvedStatus = $derived(TONE_TO_STATUS[resolvedTone]);
 </script>
 
 <div class="flex items-center justify-between gap-2">
@@ -34,7 +43,7 @@ const resolvedTone: Tone = $derived(tone ?? (ok ? "success" : "error"));
 		{/if}
 	</div>
 	<Badge variant={ok ? "positive" : "negative"} size="sm" fillStyle="subtle">
-		<StatusDot tone={resolvedTone} />
+		<StatusDot status={resolvedStatus} />
 		{ok ? okText : failText}
 	</Badge>
 </div>

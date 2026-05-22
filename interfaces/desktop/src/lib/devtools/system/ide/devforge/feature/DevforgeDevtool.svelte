@@ -187,7 +187,7 @@ const badge = $derived<HealthBadge>(
 		<div class="space-y-3">
 			<div class="flex gap-3">
 				<Button
-					preset="default"
+					preset="primary"
 					size="md"
 					onclick={() => devforgeState.openWindow()}
 					disabled={!devforgeState.installed}

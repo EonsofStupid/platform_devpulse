@@ -66,4 +66,11 @@ export type ActionId =
 	| "rro.embedQuery"
 	| "rro.testSearch"
 	| "rro.loadBrainHealth"
-	| "rro.loadBrainStats";
+	| "rro.loadBrainStats"
+	| "rro.loadRroState"
+	| "rro.setDepth"
+	| "rro.triggerGather"
+	| "rro.triggerPurge"
+	| "rro.triggerFork"
+	| "rro.setProximity"
+	| "chat.suggest.record";

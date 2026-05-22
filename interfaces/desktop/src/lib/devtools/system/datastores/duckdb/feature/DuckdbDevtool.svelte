@@ -292,7 +292,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Re-ping the analytics engine and reload latency.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => duckdbState.loadHealth()}
 						disabled={duckdbState.healthLoading}
@@ -312,7 +312,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Refresh the table catalog.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => duckdbState.loadTables()}
 						disabled={duckdbState.tablesLoading}
@@ -341,7 +341,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Sanity probe</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={runSanityProbe}
 						disabled={probeRunning}
@@ -460,7 +460,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
 				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
 				<Button
-					preset="default"
+					preset="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
 					disabled={duckdbState.queryLoading || !duckdbState.queryInput.trim()}

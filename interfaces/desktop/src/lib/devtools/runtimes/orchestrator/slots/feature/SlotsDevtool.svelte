@@ -332,22 +332,22 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 								<div class="slot-status">
 									{#if ready}
-										<Badge tone="positive" size="sm"><Check size={8} /> Ready</Badge>
+										<Badge variant="positive" size="sm"><Check size={8} /> Ready</Badge>
 									{:else if status?.type === "loading"}
-										<Badge tone="informative" size="sm"><Spinner size="xs" /> Loading</Badge>
+										<Badge variant="informative" size="sm"><Spinner size="xs" /> Loading</Badge>
 									{:else if status?.type === "failed"}
-										<Badge tone="negative" size="sm"><X size={8} /> Failed</Badge>
+										<Badge variant="negative" size="sm"><X size={8} /> Failed</Badge>
 									{:else if model}
-										<Badge tone="neutral" size="sm">Assigned</Badge>
+										<Badge variant="neutral" size="sm">Assigned</Badge>
 									{:else}
-										<Badge tone="neutral" size="sm">Empty</Badge>
+										<Badge variant="neutral" size="sm">Empty</Badge>
 									{/if}
 								</div>
 
 								<div class="slot-actions">
 									{#if !model}
 										<Button
-											preset="button-secondary"
+											preset="secondary"
 											size="sm"
 											onclick={() => openLocalPicker(slotId)}
 											disabled={modelsState.models.length === 0}
@@ -376,7 +376,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 											<X size={12} />
 											Clear
 										</Button>
-										<Button preset="button-secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
+										<Button preset="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 											{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
 											Load
 										</Button>
@@ -433,7 +433,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="bold">Rescan models on disk</Text>
-					<Button preset="button-secondary" size="sm" onclick={rescan} disabled={loading}>
+					<Button preset="secondary" size="sm" onclick={rescan} disabled={loading}>
 						{#if loading}
 							<Spinner size="xs" />
 						{:else}
@@ -566,11 +566,11 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							</div>
 							<div class="picker-row-caps">
 								{#each m.compatible_capabilities as cap}
-									<Badge tone="neutral" size="sm">{cap}</Badge>
+									<Badge variant="neutral" size="sm">{cap}</Badge>
 								{/each}
 							</div>
 							{#if isCurrent}
-								<Badge tone="positive" size="sm"><Check size={8} /> Assigned</Badge>
+								<Badge variant="positive" size="sm"><Check size={8} /> Assigned</Badge>
 							{/if}
 						</button>
 					{/each}
@@ -597,7 +597,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 					<Text size="xs" class="reg-detail">{formatMb(model.vram_estimate_mb)} VRAM</Text>
 					<div class="reg-caps">
 						{#each model.compatible_capabilities as cap}
-							<Badge tone="neutral" size="sm">{cap}</Badge>
+							<Badge variant="neutral" size="sm">{cap}</Badge>
 						{/each}
 					</div>
 				</div>

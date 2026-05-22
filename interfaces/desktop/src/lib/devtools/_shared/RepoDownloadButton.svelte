@@ -43,7 +43,7 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Download, FileArchive, X } from "lucide-svelte";
-import { Button } from "$lib/design/components/button/index.js";
+import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { logInfo } from "$lib/sys/logger.js";
@@ -70,7 +70,7 @@ interface Props {
 	/** Size forwarded to the inner Button. */
 	size?: "sm" | "md" | "lg";
 	/** Preset forwarded to the inner Button. */
-	preset?: string;
+	preset?: ButtonPreset;
 	/** Disable the button (e.g. while a parent download is active). */
 	disabled?: boolean;
 	/**
@@ -85,7 +85,7 @@ let {
 	slotId,
 	label = "Install",
 	size = "sm",
-	preset = "button-primary",
+	preset = "primary",
 	disabled = false,
 	onComplete,
 }: Props = $props();
@@ -356,12 +356,12 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 
 			<!-- Actions -->
 			<div class="flex justify-end gap-2">
-				<Button preset="button-ghost" size="sm" onclick={cancel}>
+				<Button preset="ghost" size="sm" onclick={cancel}>
 					{stage === "done" ? "Close" : "Cancel"}
 				</Button>
 				{#if stage === "confirming"}
 					<Button
-						preset="button-primary"
+						preset="primary"
 						size="sm"
 						onclick={confirm}
 						disabled={!selectedPrimary}
@@ -370,7 +370,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 						{slotId ? "Install" : "Download"}
 					</Button>
 				{:else if stage === "starting"}
-					<Button preset="button-primary" size="sm" disabled>
+					<Button preset="primary" size="sm" disabled>
 						<Spinner size="xs" />
 						Starting…
 					</Button>

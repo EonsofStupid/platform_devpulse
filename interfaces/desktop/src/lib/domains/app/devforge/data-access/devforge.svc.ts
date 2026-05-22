@@ -17,9 +17,11 @@ export async function getDevforgeStatus(): Promise<DevforgeBootstrapStatus> {
 	return result.data;
 }
 
-export async function openDevforgeWindow(): Promise<DevforgeBootstrapStatus> {
-	logInfo("devforge.svc", "openDevforgeWindow()");
-	const result = await commands.openDevforgeWindow();
+export async function openDevforgeWindow(
+	workspacePath: string | null = null,
+): Promise<DevforgeBootstrapStatus> {
+	logInfo("devforge.svc", `openDevforgeWindow(${workspacePath ?? "<no-workspace>"})`);
+	const result = await commands.openDevforgeWindow(workspacePath);
 	if (result.status === "error") {
 		logError("devforge.svc", `openDevforgeWindow() FAILED: ${result.error}`);
 		throw new Error(result.error);

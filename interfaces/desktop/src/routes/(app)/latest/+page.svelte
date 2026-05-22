@@ -59,7 +59,7 @@ onMount(() => {
 	<Widget title="What's new in your tools" size="lg">
 		<div class="min-h-[12rem]">
 			<KnowledgeDeck
-				context={{ tool: "platform", scope: "latest:knowledge" }}
+				context={{ id: "latest:knowledge", tool: "platform", scope: "latest:knowledge" }}
 				preferred="dyk"
 				refreshIntervalMs={45_000}
 			/>
