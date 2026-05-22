@@ -345,7 +345,7 @@ const NODE_H = 64;
 		<div class="phase-ticker">
 			<Text size="xs" color="muted">
 				No phase events yet — daemon emits on first encoder load.
-				Watch the <Text as="span" size="xs" font="mono">model_loader</Text> log target.
+				Watch the <Text as="span" size="xs" class="font-mono">model_loader</Text> log target.
 			</Text>
 		</div>
 	{/if}

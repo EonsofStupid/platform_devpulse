@@ -28,7 +28,7 @@
 	`ServiceDevtoolShell` so the hero card and the shell agree.
 -->
 <script lang="ts">
-import type { Component, Snippet } from "svelte";
+import type { Snippet } from "svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import HealthSignal from "./HealthSignal.svelte";
 import LiveActivityPulse from "./LiveActivityPulse.svelte";
@@ -36,8 +36,13 @@ import LiveActivityPulse from "./LiveActivityPulse.svelte";
 type HealthState = "up" | "starting" | "degraded" | "down" | "unknown";
 
 interface Props {
-	/** Lucide icon component for this store. */
-	icon: Component<{ size?: number; class?: string }>;
+	/**
+	 * Lucide icon component for this store. Typed `any` because
+	 * lucide-svelte v0.564 exports class-based icons; the narrow
+	 * `{ size?, class? }` shape fights upstream typing.
+	 */
+	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+	icon: any;
 	/** Display name (e.g. "DuckDB", "libSQL", "SurrealDB"). */
 	name: string;
 	/** One-line layman purpose ("Columnar analytics engine", "Relational

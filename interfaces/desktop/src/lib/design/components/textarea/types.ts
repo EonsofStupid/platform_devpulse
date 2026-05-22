@@ -16,6 +16,8 @@ export interface TextareaProps extends TextareaPrimitiveProps {
 	required?: boolean;
 	invalid?: boolean;
 	rows?: number;
+	/** Current value — `$bindable` so callers can `bind:value`. */
+	value?: string;
 	onValueChange?: (value: string) => void;
 	/** Style preset. Default: "default". */
 	preset?: TextareaPreset;

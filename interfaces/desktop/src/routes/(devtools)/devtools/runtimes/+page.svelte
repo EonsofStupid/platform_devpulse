@@ -151,13 +151,13 @@ const badge = $derived<HealthBadge>(
 
 function statusTone(
 	info: RuntimeUpdateInfo | undefined,
-): "positive" | "warning" | "neutral" | "negative" {
+): "positive" | "notice" | "neutral" | "negative" {
 	if (!info) return "neutral";
 	switch (info.status) {
 		case "up_to_date":
 			return "positive";
 		case "update_available":
-			return "warning";
+			return "notice";
 		case "check_failed":
 			return "negative";
 		default:

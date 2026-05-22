@@ -25,8 +25,13 @@ export interface TextFieldProps extends TextFieldPrimitiveProps {
 	type?: TextFieldType;
 	/** Placeholder */
 	placeholder?: string;
-	/** Native `autocomplete` attribute forwarded to the inner input. */
-	autocomplete?: string;
+	/**
+	 * Native `autocomplete` attribute forwarded to the inner input.
+	 * Typed as `HTMLInputAttributes["autocomplete"]` so callers can
+	 * pass the standard tokens (`email` / `current-password` /
+	 * `new-password` / `off` / …) without `as` casts.
+	 */
+	autocomplete?: import("svelte/elements").HTMLInputAttributes["autocomplete"];
 	/** Native `spellcheck` attribute forwarded to the inner input. */
 	spellcheck?: boolean;
 	disabled?: boolean;
