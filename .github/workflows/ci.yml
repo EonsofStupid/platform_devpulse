@@ -37,6 +37,14 @@ jobs:
           toolchain: "1.89.0"
           components: rustfmt, clippy
 
+      # `.cargo/config.toml` sets `rustc-wrapper = "sccache"` for the whole
+      # workspace so every local + CI invocation goes through the same
+      # caching path. Without the binary on the runner, every cargo step
+      # fails with `could not execute process 'sccache ...'`. Install
+      # before any cargo step runs.
+      - name: Install sccache
+        uses: mozilla-actions/sccache-action@v0.0.6
+
       - name: Cache Cargo
         uses: actions/cache@v4
         with:
