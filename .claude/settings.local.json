@@ -14,7 +14,10 @@
       "Bash(tail -f -n 0 \"D:\\\\\\\\localdev\\\\\\\\platform_devpulse\\\\\\\\target\\\\\\\\xtask-build-release-attempt5.log\")",
       "mcp__claude_ai_Hugging_Face__hub_repo_search",
       "mcp__claude_ai_Hugging_Face__hub_repo_details",
-      "Bash(rm -rf \"d:/localdev/platform_devpulse/.claude/dumps/2026-05-18\" && ls \"d:/localdev/platform_devpulse/.claude/dumps/\" 2>&1)"
+      "Bash(rm -rf \"d:/localdev/platform_devpulse/.claude/dumps/2026-05-18\" && ls \"d:/localdev/platform_devpulse/.claude/dumps/\" 2>&1)",
+      "Bash(tail -3 \"C:\\\\\\\\Users\\\\\\\\jessa\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\d--localdev-platform-devpulse\\\\\\\\8b9d35e0-a97d-4226-9fc0-16fb754c7433\\\\\\\\tasks\\\\\\\\bfwmn6l8r.output\")",
+      "Bash(dev)",
+      "Bash(break)"
     ],
     "additionalDirectories": [
       "C:\\Users\\jessa\\.claude\\plans",
