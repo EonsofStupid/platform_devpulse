@@ -375,7 +375,11 @@ struct Manifest {
     version: String,
     tag: String,
     repository: String,
-    #[serde(default, rename = "releaseUrl", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "releaseUrl",
+        skip_serializing_if = "Option::is_none"
+    )]
     release_url: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     comment: Option<String>,
@@ -436,8 +440,7 @@ fn fetch_sha256sums(
     tag: &str,
 ) -> Result<HashMap<String, String>> {
     let asset_api_url = resolve_asset_api_url(agent, owner, repo, tag, "SHA256SUMS")?;
-    let req =
-        with_github_auth(agent.get(&asset_api_url)).set("Accept", "application/octet-stream");
+    let req = with_github_auth(agent.get(&asset_api_url)).set("Accept", "application/octet-stream");
     let resp = req.call().context("GET SHA256SUMS asset")?;
     if resp.status() != 200 {
         bail!(
@@ -502,9 +505,8 @@ fn rewrite_artifact_to_tag(
              — upstream asset naming may have changed",
         )
     })?;
-    artifact.url = format!(
-        "https://github.com/{owner}/{repo}/releases/download/{new_tag}/{new_file_name}"
-    );
+    artifact.url =
+        format!("https://github.com/{owner}/{repo}/releases/download/{new_tag}/{new_file_name}");
     artifact.file_name = new_file_name;
     artifact.sha256 = Some(new_sha);
     Ok(())
