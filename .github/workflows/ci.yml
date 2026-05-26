@@ -43,6 +43,16 @@ jobs:
           toolchain: "1.89.0"
           components: rustfmt, clippy
 
+      # protoc is required by `tonic-build` pulled in by the rro v2
+      # alpha (crates/storage-api/build.rs runs tonic_build::configure
+      # against qdrant.proto). Without it the build script fails with
+      # "Could not find `protoc`". Matches the protoc-install step in
+      # rro's own build.yml.
+      - name: Install protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       # `.cargo/config.toml` sets `rustc-wrapper = "sccache"` for the whole
       # workspace so every local + CI invocation goes through the same
       # caching path. Without the binary on the runner, every cargo step
