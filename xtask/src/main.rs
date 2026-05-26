@@ -108,6 +108,12 @@ enum Commands {
         /// standalone (not currently wired into the runtime).
         #[arg(long)]
         kind: Option<String>,
+        /// Skip the upstream-latest probe and use the manifest's pinned
+        /// tag exactly. Default behaviour auto-tracks the newest GitHub
+        /// release; flip this for hermetic release builds where
+        /// reproducibility outweighs freshness.
+        #[arg(long)]
+        pin: bool,
     },
     /// Download, verify, and extract a pinned `llama-cpp-prebuilt`
     /// release artifact into `deps/llama-cpp-prebuilt/<target>/`. Reads
@@ -201,10 +207,12 @@ fn main() -> anyhow::Result<()> {
             target,
             manifest,
             kind,
+            pin,
         } => Box::new(commands::fetch_devforge::FetchDevForge {
             target,
             manifest,
             kind,
+            pin,
         }),
         Commands::FetchLlamaCpp { target, manifest } => {
             Box::new(commands::fetch_llama_cpp::FetchLlamaCpp { target, manifest })
