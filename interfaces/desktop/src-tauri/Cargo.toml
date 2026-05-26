@@ -50,7 +50,11 @@ tracing-appender = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
-devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference"] }
+# `burn` enables the Burn-backed RRO encoder + embedder adapter at
+# boot/model_loader.rs:182-217. Without it `cortex_swap_encoder` and
+# `encoder_embed` dead-end with "adapter not wired" and the staged
+# indexing pipeline cannot reach Qdrant. See PLATFORM_TURNKEY_V2.md §4.1.
+devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference", "burn"] }
 # devpulse-media — audio_decode helpers for the voice loop (Whisper STT
 # + Qwen3-TTS reference ingest). default-features = false to skip the
 # camera-capture (nokhwa) feature, which is already declared directly
