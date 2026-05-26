@@ -500,7 +500,7 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 [[package]]
 name = "api"
 version = "1.16.3"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "ahash 0.8.12",
  "chrono",
@@ -2271,6 +2271,7 @@ dependencies = [
  "ptr_meta 0.3.1",
  "rancor",
  "simdutf8",
+ "uuid 1.23.0",
 ]
 
 [[package]]
@@ -2442,7 +2443,7 @@ dependencies = [
 [[package]]
 name = "cancel"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "thiserror 2.0.18",
  "tokio",
@@ -2975,13 +2976,13 @@ checksum = "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681"
 dependencies = [
  "serde",
  "termcolor",
- "unicode-width 0.2.2",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
 name = "collection"
 version = "0.4.2"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "actix-files",
  "actix-web",
@@ -3060,7 +3061,7 @@ version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "faf9468729b8cbcea668e36183cb69d317348c2e08e994829fb56ebfdfbaac34"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3087,7 +3088,7 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "atomicwrites",
  "bitvec",
@@ -4459,7 +4460,7 @@ checksum = "a4ae5f15dda3c708c0ade84bfee31ccab44a3da4f88015ed22f63732abe300c8"
 [[package]]
 name = "dataset"
 version = "0.0.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "anyhow",
  "flate2",
@@ -6885,7 +6886,7 @@ dependencies = [
 [[package]]
 name = "gridstore"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "ahash 0.8.12",
  "bitvec",
@@ -7656,7 +7657,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.62.2",
+ "windows-core 0.57.0",
 ]
 
 [[package]]
@@ -8017,7 +8018,7 @@ dependencies = [
 [[package]]
 name = "io"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "atomicwrites",
  "bincode 1.3.3",
@@ -8100,7 +8101,7 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 [[package]]
 name = "issues"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "chrono",
  "dashmap",
@@ -9049,7 +9050,7 @@ checksum = "670fdfda89751bc4a84ac13eaa63e205cf0fd22b4c9a5fbfa085b63c1f1d3a30"
 [[package]]
 name = "macros"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -9237,7 +9238,7 @@ dependencies = [
 [[package]]
 name = "memory"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "ahash 0.8.12",
  "bitvec",
@@ -11032,7 +11033,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d8fae84b431384b68627d0f9b3b1245fcf9f46f6c0e3dc902e9dce64edd1967"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.45.0",
 ]
 
 [[package]]
@@ -11740,7 +11741,7 @@ dependencies = [
 [[package]]
 name = "posting_list"
 version = "0.0.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "bitpacking",
  "common",
@@ -12072,7 +12073,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "27c6023962132f4b30eb4c172c91ce92d933da334c59c23cddee82358ddafb0b"
 dependencies = [
  "anyhow",
- "itertools 0.14.0",
+ "itertools 0.13.0",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -12291,7 +12292,7 @@ dependencies = [
 [[package]]
 name = "quantization"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "arrayvec 0.7.6",
  "bytemuck",
@@ -13327,7 +13328,7 @@ dependencies = [
 [[package]]
 name = "rro"
 version = "0.1.0-alpha.1"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "api",
  "async-trait",
@@ -13341,6 +13342,7 @@ dependencies = [
  "issues",
  "log",
  "memory",
+ "rro-kernel",
  "segment",
  "serde",
  "serde_json",
@@ -13352,6 +13354,22 @@ dependencies = [
  "tokio",
  "tracing",
  "validator",
+]
+
+[[package]]
+name = "rro-kernel"
+version = "0.1.0"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
+dependencies = [
+ "chrono",
+ "common",
+ "ordered-float 5.3.0",
+ "rkyv 0.8.16",
+ "schemars 0.8.22",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "uuid 1.23.0",
 ]
 
 [[package]]
@@ -14018,7 +14036,7 @@ dependencies = [
 [[package]]
 name = "segment"
 version = "0.6.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "ahash 0.8.12",
  "atomic_refcell",
@@ -14516,7 +14534,7 @@ dependencies = [
 [[package]]
 name = "shard"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "ahash 0.8.12",
  "api",
@@ -14876,7 +14894,7 @@ dependencies = [
 [[package]]
 name = "sparse"
 version = "0.1.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "bincode 1.3.3",
  "bitpacking",
@@ -15056,7 +15074,7 @@ dependencies = [
 [[package]]
 name = "storage"
 version = "0.2.0"
-source = "git+https://github.com/EonsofStupid/rro?branch=alpha#765bf431ca202d020014f262a0c552122ca1a3a4"
+source = "git+https://github.com/EonsofStupid/rro?branch=alpha#3f2017b59724305e9c02d703bf3a6f93ef6c14b3"
 dependencies = [
  "ahash 0.8.12",
  "anyhow",
@@ -15384,7 +15402,7 @@ dependencies = [
  "chrono",
  "flatbuffers",
  "futures",
- "geo 0.32.0",
+ "geo 0.31.0",
  "prost 0.14.3",
  "prost-types 0.14.3",
  "rust_decimal",
@@ -18627,7 +18645,7 @@ dependencies = [
  "objc2-metal",
  "objc2-quartz-core",
  "once_cell",
- "ordered-float 5.3.0",
+ "ordered-float 4.6.0",
  "parking_lot",
  "portable-atomic",
  "portable-atomic-util",
@@ -18756,7 +18774,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
