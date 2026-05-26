@@ -28,9 +28,10 @@ jobs:
           submodules: recursive
 
       # Tauri 2.0 needs these on Ubuntu for webkit2gtk.
-      # libpipewire-0.3-dev is required by libspa-sys, transitively
-      # pulled by rodio (audio playback in devpulse-media). Without
-      # it, the build script panics at pkg-config exit 1.
+      # libpipewire-0.3-dev required by libspa-sys (via rodio audio).
+      # libasound2-dev required by alsa-sys (also via rodio audio).
+      # Without either, the respective build script panics at
+      # pkg-config exit 1 looking for the .pc descriptor.
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -39,6 +40,7 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev \
             libpipewire-0.3-dev \
+            libasound2-dev \
             patchelf
 
       - name: Install Rust toolchain
