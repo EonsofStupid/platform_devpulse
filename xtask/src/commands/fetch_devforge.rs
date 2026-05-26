@@ -1,41 +1,54 @@
-//! `cargo xtask fetch-devforge` — download, verify, and extract a pinned
-//! DevForge REH release artifact into the per-platform resource dir.
+//! `cargo xtask fetch-devforge` — pull DevForge REH from upstream into
+//! the per-platform resource dir.
 //!
-//! # Flow
+//! # Flow (default: auto-track latest)
 //!
-//! 1. Read the committed pinned manifest at
-//!    `interfaces/desktop/src-tauri/resources/devforge/manifest.json`.
-//! 2. Resolve the artifact matching `--target <win32-x64|darwin-arm64|...>`
-//!    and `--kind` (default `reh-web-min`).
-//! 3. Cache-skip if `.devforge-version` marker in the target subdir
-//!    already matches the pinned version.
-//! 4. Download the artifact from `github.com/EonsofStupid/devforge/
-//!    releases/download/<tag>/<file>`. Uses `GITHUB_TOKEN` from env when
-//!    present (required for private repo release assets).
-//! 5. Verify SHA256 against the `sha256` field pinned in the manifest.
+//! 1. Read the committed manifest at
+//!    `interfaces/desktop/src-tauri/resources/devforge/manifest.json`
+//!    for the per-target artifact template + SHAs as a snapshot of the
+//!    last fetched release.
+//! 2. Hit `GET /repos/{owner}/{repo}/releases/latest` to discover the
+//!    current upstream tag. If it differs from the manifest's tag, the
+//!    manifest auto-updates in place:
+//!       * download the release's `SHA256SUMS` asset
+//!       * rewrite each artifact's `url`, `fileName`, and `sha256`
+//!         for the new tag (filename pattern is `{stem}-{tag}.{ext}`,
+//!         stable across releases)
+//!       * write the updated manifest back to disk (audit trail stays
+//!         truthful)
+//! 3. Cache-skip if the `.devforge-version` marker in the target
+//!    subdir already matches the resolved tag.
+//! 4. Download the artifact from the GitHub API asset URL. Uses
+//!    `GITHUB_TOKEN` from env when present (required for private repo
+//!    release assets).
+//! 5. SHA256-verify against the resolved digest.
 //! 6. Clear the target subdir and extract the zip into it.
-//! 7. Confirm `out/server-main.js` exists at the extracted root — the
-//!    REH entry script [`paths.rs`] uses as the validity marker.
+//! 7. Confirm `out/server-main.js` exists at the extracted root.
 //! 8. Write `.devforge-version` for future cache hits.
+//!
+//! # Pinning (override)
+//!
+//! Pass `--pin` to skip the upstream-latest probe and use whatever tag
+//! the committed manifest names. Useful for hermetic release builds
+//! where reproducibility outweighs freshness. The default is
+//! auto-tracking because "newer DevForge available but xtask refuses to
+//! pull it" is the worse failure mode for daily dev.
 //!
 //! # Why this exists
 //!
 //! Committing a 70 MB REH tree per platform into git is the wrong answer
 //! (huge history, fragile native modules, slow clones). The right answer
 //! is what every prebuilt-native-dep in Rust does: distribute via GitHub
-//! Releases, pin the version + digest in a small committed manifest, and
-//! fetch on build. `cargo xtask fetch-devforge` is that fetch step.
-//!
-//! This is **not** part of `preflight` or `run-dev` — it's a one-shot
-//! command you run after bumping the manifest version. The fetched tree
-//! is then bundled into the Tauri installer via `tauri.{os}.conf.json`
-//! per-target resource globs.
+//! Releases, ship a small committed manifest as an audit trail, and
+//! fetch + verify on build. The fetched tree is then bundled into the
+//! Tauri installer via `tauri.{os}.conf.json` per-target resource globs.
 
 use crate::commands::Task;
 use crate::stage::{self, Stage};
 use crate::workspace::Workspace;
 use anyhow::{bail, Context, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -57,11 +70,17 @@ const DEFAULT_KIND: &str = "reh-web-min";
 /// Minimum download buffer for streaming HTTP responses.
 const IO_BUF_SIZE: usize = 64 * 1024;
 
-/// Fetch a pinned DevForge REH artifact into the per-platform resource dir.
+/// Fetch a DevForge REH artifact into the per-platform resource dir.
+///
+/// Default behaviour is to track upstream latest; pass `--pin` to lock
+/// to the committed manifest tag.
 pub struct FetchDevForge {
     pub target: String,
     pub manifest: Option<PathBuf>,
     pub kind: Option<String>,
+    /// If true, skip the upstream-latest probe and use the manifest as
+    /// authoritative. Useful for hermetic release builds.
+    pub pin: bool,
 }
 
 impl Task for FetchDevForge {
@@ -104,7 +123,7 @@ impl Task for FetchDevForge {
         let load = Stage::start("load manifest");
         let manifest_txt = fs::read_to_string(&manifest_path)
             .with_context(|| format!("read {}", manifest_path.display()))?;
-        let manifest: Manifest = serde_json::from_str(&manifest_txt)
+        let mut manifest: Manifest = serde_json::from_str(&manifest_txt)
             .with_context(|| format!("parse {}", manifest_path.display()))?;
 
         if manifest.schema != 1 {
@@ -117,6 +136,31 @@ impl Task for FetchDevForge {
             "{} {} ({})",
             manifest.product, manifest.version, manifest.tag
         ));
+
+        // ── Auto-track upstream latest (unless --pin) ──────────────
+        let agent = build_http_agent()?;
+        let (owner, repo) = parse_github_repo(&manifest.repository)?;
+
+        if !self.pin {
+            let probe = Stage::start("probe upstream");
+            let latest_tag = query_latest_release_tag(&agent, &owner, &repo)
+                .with_context(|| format!("query latest release for {owner}/{repo}"))?;
+            if latest_tag == manifest.tag {
+                probe.ok_with(format!("{latest_tag} (manifest already current)"));
+            } else {
+                probe.ok_with(format!("{} → {latest_tag}", manifest.tag));
+
+                let sync = Stage::start("sync manifest to latest");
+                let shas = fetch_sha256sums(&agent, &owner, &repo, &latest_tag)
+                    .with_context(|| format!("fetch SHA256SUMS for {latest_tag}"))?;
+                rewrite_manifest_to_tag(&mut manifest, &owner, &repo, &latest_tag, &shas)?;
+                save_manifest(&manifest_path, &manifest)?;
+                sync.ok_with(format!(
+                    "{} {} ({}) — manifest rewritten",
+                    manifest.product, manifest.version, manifest.tag
+                ));
+            }
+        }
 
         // ── Select artifact ────────────────────────────────────────
         let kind = self.kind.as_deref().unwrap_or(DEFAULT_KIND);
@@ -174,10 +218,7 @@ impl Task for FetchDevForge {
         })?;
 
         if !is_cached(&tmp_file, pinned_sha)? {
-            let agent = build_http_agent()?;
-
             let resolve = Stage::start("resolve asset");
-            let (owner, repo) = parse_github_repo(&manifest.repository)?;
             let asset_api_url =
                 resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
             resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
@@ -200,7 +241,7 @@ impl Task for FetchDevForge {
         let verify = Stage::start("verify sha256");
         let actual = sha256_file(&tmp_file)?;
         if !actual.eq_ignore_ascii_case(pinned_sha) {
-            verify.fail(format!("expected {} got {}", pinned_sha, actual));
+            verify.fail(format!("expected {pinned_sha} got {actual}"));
             bail!("sha256 mismatch for {}", artifact.file_name);
         }
         verify.ok_with(&actual[..16]);
@@ -237,28 +278,27 @@ impl Task for FetchDevForge {
 
 // ─── Manifest schema ──────────────────────────────────────────────────
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Manifest {
     schema: u32,
     product: String,
     version: String,
     tag: String,
-    #[allow(dead_code)]
     repository: String,
-    #[serde(default, rename = "releaseUrl")]
-    #[allow(dead_code)]
+    #[serde(default, rename = "releaseUrl", skip_serializing_if = "Option::is_none")]
     release_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    comment: Option<String>,
     artifacts: Vec<Artifact>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Artifact {
     /// Browser-facing GitHub release asset URL. Kept for schema parity
     /// with the upstream devforge manifest and human-readable provenance;
     /// the fetch path itself resolves the API asset URL at runtime via
     /// [`resolve_asset_api_url`] because private repos refuse direct
     /// `browser_download_url` fetches even when authenticated.
-    #[allow(dead_code)]
     url: String,
     platform: String,
     kind: String,
@@ -266,11 +306,153 @@ struct Artifact {
     #[serde(rename = "fileName")]
     file_name: String,
     /// SHA256 digest as lowercase hex. Required for fetch verification.
-    /// The upstream devforge release manifest does not include this field;
-    /// it is pinned locally in the committed copy at
-    /// `resources/devforge/manifest.json`.
-    #[serde(default)]
+    /// Sourced from the upstream release's `SHA256SUMS` asset when the
+    /// manifest auto-tracks; otherwise hand-pinned per release.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     sha256: Option<String>,
+}
+
+// ─── Upstream sync ────────────────────────────────────────────────────
+
+/// Resolve the `tag_name` of the most recent release on `{owner}/{repo}`
+/// via `GET /repos/.../releases/latest`. Honors `GITHUB_TOKEN`.
+fn query_latest_release_tag(agent: &ureq::Agent, owner: &str, repo: &str) -> Result<String> {
+    let url = format!("https://api.github.com/repos/{owner}/{repo}/releases/latest");
+    let req = with_github_auth(agent.get(&url)).set("Accept", "application/vnd.github+json");
+    let resp = req.call().with_context(|| format!("GET {url}"))?;
+    if resp.status() != 200 {
+        bail!(
+            "latest-release lookup failed: HTTP {} {} for {url}",
+            resp.status(),
+            resp.status_text()
+        );
+    }
+    let body = resp.into_string().context("read release JSON body")?;
+    let json: serde_json::Value = serde_json::from_str(&body).context("parse release JSON")?;
+    let tag = json
+        .get("tag_name")
+        .and_then(|t| t.as_str())
+        .ok_or_else(|| anyhow::anyhow!("release JSON missing `tag_name`"))?;
+    Ok(tag.to_string())
+}
+
+/// Download and parse the `SHA256SUMS` asset attached to a release.
+/// Returns a map of `filename → lowercase hex digest`. The DevForge
+/// release process publishes this alongside the zips.
+fn fetch_sha256sums(
+    agent: &ureq::Agent,
+    owner: &str,
+    repo: &str,
+    tag: &str,
+) -> Result<HashMap<String, String>> {
+    let asset_api_url = resolve_asset_api_url(agent, owner, repo, tag, "SHA256SUMS")?;
+    let req =
+        with_github_auth(agent.get(&asset_api_url)).set("Accept", "application/octet-stream");
+    let resp = req.call().context("GET SHA256SUMS asset")?;
+    if resp.status() != 200 {
+        bail!(
+            "SHA256SUMS download failed: HTTP {} {}",
+            resp.status(),
+            resp.status_text()
+        );
+    }
+    let body = resp
+        .into_string()
+        .context("read SHA256SUMS body as UTF-8")?;
+
+    let mut shas = HashMap::new();
+    for (i, line) in body.lines().enumerate() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        // `sha256sum` output: `<hex>  <filename>` (two spaces) or
+        // `<hex> *<filename>` (binary mode). Accept either.
+        let (hex, rest) = line.split_once(char::is_whitespace).ok_or_else(|| {
+            anyhow::anyhow!("malformed SHA256SUMS line {} ({}): {line}", i + 1, tag)
+        })?;
+        let name = rest.trim_start_matches('*').trim();
+        if hex.len() != 64 || !hex.chars().all(|c| c.is_ascii_hexdigit()) {
+            bail!(
+                "SHA256SUMS line {} ({}): expected 64-char hex, got `{hex}`",
+                i + 1,
+                tag
+            );
+        }
+        shas.insert(name.to_string(), hex.to_ascii_lowercase());
+    }
+
+    if shas.is_empty() {
+        bail!("SHA256SUMS for {tag} contained no entries");
+    }
+    Ok(shas)
+}
+
+/// Replace `{tag}` segments in an artifact filename. Upstream DevForge
+/// names assets `devforge-<kind>-<platform>-<arch>-<tag>.<ext>`; the
+/// only thing that varies tag-to-tag is the embedded tag string.
+fn swap_tag_in_filename(file_name: &str, old_tag: &str, new_tag: &str) -> String {
+    file_name.replace(old_tag, new_tag)
+}
+
+/// Rewrite an artifact's url/fileName/sha256 for a new release tag.
+/// The new SHA is pulled from the SHA256SUMS map for the new tag.
+fn rewrite_artifact_to_tag(
+    artifact: &mut Artifact,
+    owner: &str,
+    repo: &str,
+    old_tag: &str,
+    new_tag: &str,
+    shas: &HashMap<String, String>,
+) -> Result<()> {
+    let new_file_name = swap_tag_in_filename(&artifact.file_name, old_tag, new_tag);
+    let new_sha = shas.get(&new_file_name).cloned().ok_or_else(|| {
+        anyhow::anyhow!(
+            "SHA256SUMS for {new_tag} has no entry for `{new_file_name}` \
+             — upstream asset naming may have changed",
+        )
+    })?;
+    artifact.url = format!(
+        "https://github.com/{owner}/{repo}/releases/download/{new_tag}/{new_file_name}"
+    );
+    artifact.file_name = new_file_name;
+    artifact.sha256 = Some(new_sha);
+    Ok(())
+}
+
+/// Rewrite the whole manifest to point at a new release tag. Mutates in
+/// place; caller saves the result to disk via [`save_manifest`].
+fn rewrite_manifest_to_tag(
+    manifest: &mut Manifest,
+    owner: &str,
+    repo: &str,
+    new_tag: &str,
+    shas: &HashMap<String, String>,
+) -> Result<()> {
+    let old_tag = manifest.tag.clone();
+    for artifact in &mut manifest.artifacts {
+        rewrite_artifact_to_tag(artifact, owner, repo, &old_tag, new_tag, shas)?;
+    }
+    manifest.tag = new_tag.to_string();
+    manifest.version = new_tag.trim_start_matches('v').to_string();
+    manifest.release_url = Some(format!(
+        "https://github.com/{owner}/{repo}/releases/tag/{new_tag}"
+    ));
+    Ok(())
+}
+
+/// Pretty-write manifest back to disk with tab indentation (matches the
+/// committed file's style — preserves diff cleanliness across runs).
+fn save_manifest(path: &Path, manifest: &Manifest) -> Result<()> {
+    let mut buf = Vec::with_capacity(2048);
+    let formatter = serde_json::ser::PrettyFormatter::with_indent(b"\t");
+    let mut ser = serde_json::Serializer::with_formatter(&mut buf, formatter);
+    manifest
+        .serialize(&mut ser)
+        .context("serialize manifest JSON")?;
+    buf.push(b'\n');
+    fs::write(path, &buf).with_context(|| format!("write {}", path.display()))?;
+    Ok(())
 }
 
 // ─── Download + hash ──────────────────────────────────────────────────
