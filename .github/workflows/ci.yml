@@ -27,7 +27,10 @@ jobs:
           # "failed to read deps/llama-cpp-rs/llama-cpp-2/Cargo.toml".
           submodules: recursive
 
-      # Tauri 2.0 needs these on Ubuntu for webkit2gtk
+      # Tauri 2.0 needs these on Ubuntu for webkit2gtk.
+      # libpipewire-0.3-dev is required by libspa-sys, transitively
+      # pulled by rodio (audio playback in devpulse-media). Without
+      # it, the build script panics at pkg-config exit 1.
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -35,6 +38,7 @@ jobs:
             libwebkit2gtk-4.1-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev \
+            libpipewire-0.3-dev \
             patchelf
 
       - name: Install Rust toolchain
