@@ -3,7 +3,7 @@
 //! Sibling to [`super::register`] (which manages Claude Code subprocess
 //! MCP registration). `ping` is the **other** Claude path the wizard
 //! offers: bring your own API key, talk to Claude directly from inside
-//! DevPulse without spawning Claude Code as a parent client.
+//! `DevPulse` without spawning Claude Code as a parent client.
 //!
 //! Key storage: re-uses [`crate::commands::credentials`] — namespace
 //! `devpulse`, provider id `anthropic-api`. The wizard's Clyffy Collab
@@ -11,7 +11,7 @@
 //! command reads it back via the same keyring entry.
 //!
 //! Why a separate command (vs. a generic `chat_with_provider`): the
-//! AnthropicApi has a distinct request shape (`messages` field,
+//! `AnthropicApi` has a distinct request shape (`messages` field,
 //! `anthropic-version` header, `x-api-key` auth) and we want the
 //! cortex reasoning router to call this directly without going through
 //! a routing-config indirection. Future: when more providers ship,
@@ -126,7 +126,7 @@ enum AnthropicContentBlock {
     Text {
         text: String,
     },
-    /// Other block types (tool_use, etc.) are ignored for the chat
+    /// Other block types (`tool_use`, etc.) are ignored for the chat
     /// surface — assistant text-only is what the cortex consumes.
     #[serde(other)]
     Other,
@@ -228,7 +228,7 @@ pub async fn ping_claude(request: PingClaudeRequest) -> Result<PingClaudeRespons
 /// reading the actual key.
 ///
 /// # Errors
-/// Keyring read failures other than NoEntry are surfaced verbatim.
+/// Keyring read failures other than `NoEntry` are surfaced verbatim.
 #[tauri::command]
 #[specta::specta]
 pub fn anthropic_key_present() -> Result<bool, CommandError> {

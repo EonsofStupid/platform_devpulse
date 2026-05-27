@@ -1,4 +1,4 @@
-//! Surreal service — engine facade over the embedded SurrealKV store.
+//! Surreal service — engine facade over the embedded `SurrealKV` store.
 //!
 //! The engine facade wraps [`SurrealLifecycle`] (now an embedded
 //! `Surreal<Db>` owner — no child process) with the platform `Service`
@@ -27,7 +27,7 @@ pub struct SurrealService {
 }
 
 impl SurrealService {
-    /// Boot the service — opens the embedded SurrealKV store at the
+    /// Boot the service — opens the embedded `SurrealKV` store at the
     /// configured data path.
     ///
     /// # Errors
@@ -89,7 +89,7 @@ impl Service for SurrealService {
 
 /// Runtime status of the Surreal service — what the devtool renders.
 ///
-/// Embedded path: no host/port/HTTP/WS — DevPulse holds the file lock
+/// Embedded path: no host/port/HTTP/WS — `DevPulse` holds the file lock
 /// directly. The devtool surfaces `data_path` so a layman can see
 /// exactly where the bytes live.
 #[derive(Debug, Clone, Serialize, Type)]
@@ -97,13 +97,13 @@ impl Service for SurrealService {
 pub struct SurrealStatus {
     /// True iff the service is present in the platform slot.
     pub running: bool,
-    /// True iff DevPulse owns the embedded store. Always `true`
+    /// True iff `DevPulse` owns the embedded store. Always `true`
     /// for the embedded path — retained for source-compat with the
     /// prior managed/attached sidecar distinction.
     pub managed: bool,
     /// Storage backend identifier (`"kv-surrealkv"`).
     pub backend: String,
-    /// Absolute path to the SurrealKV data directory.
+    /// Absolute path to the `SurrealKV` data directory.
     pub data_path: String,
 }
 

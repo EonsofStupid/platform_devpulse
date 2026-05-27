@@ -1,8 +1,8 @@
-//! DevPulse Media Pipeline
+//! `DevPulse` Media Pipeline
 //!
 //! Camera capture, background removal, composition, output routing,
 //! and audio-file decode for the voice loop. Originally video-focused
-//! ("OBS core" of DevPulse); audio decode added 2026-04-26 so engine
+//! ("OBS core" of `DevPulse`); audio decode added 2026-04-26 so engine
 //! and Tauri callers share one helper for mp3/wav → mono PCM
 //! conversion (Whisper STT + Qwen3-TTS voice-clone reference ingest).
 

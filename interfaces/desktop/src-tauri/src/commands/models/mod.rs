@@ -2,6 +2,10 @@
 //!
 //! Delegates to `ModelLoaderService` via `PlatformState`.
 //! Types flow from `model-loader` crate → specta → TypeScript bindings.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `ModelLoaderService` / `Platform` whose docs hold the canonical # Errors copy"
+)]
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::services::model_loader::ModelLoaderService;
@@ -615,14 +619,12 @@ pub async fn load_slot(
 ///   2. The model file exists on disk
 async fn should_use_sidecar(loader: &ModelLoaderService, slot_id: &str) -> bool {
     let slots = loader.list_slots().await;
-    let slot = match slots.iter().find(|s| s.id == slot_id) {
-        Some(s) => s,
-        None => return false,
+    let Some(slot) = slots.iter().find(|s| s.id == slot_id) else {
+        return false;
     };
 
-    let model_id = match &slot.assigned_model {
-        Some(id) => id.clone(),
-        None => return false,
+    let Some(model_id) = slot.assigned_model.clone() else {
+        return false;
     };
 
     // Check if slot explicitly requests LlamaCpp runtime
@@ -827,7 +829,7 @@ pub async fn models_dir_path(state: State<'_, PlatformState>) -> Result<String, 
     Ok(loader.models_dir().to_string_lossy().into_owned())
 }
 
-/// Resolve the recommended primary filename inside a HuggingFace
+/// Resolve the recommended primary filename inside a `HuggingFace`
 /// repo for a given slot. Tier-aware: uses the live hardware monitor
 /// to pick the right GGUF quant (or safetensors shard / onnx
 /// fallback) for the slot's required capability. Returns `None`
@@ -899,7 +901,7 @@ pub struct RepoFile {
     pub size: Option<u64>,
 }
 
-/// List every file in a HuggingFace repo.
+/// List every file in a `HuggingFace` repo.
 ///
 /// Used by `RepoDownloadButton` to render a bundle confirmation modal
 /// before the user clicks Download. Threaded through the stored HF
@@ -1434,7 +1436,7 @@ pub async fn list_runtime_fingerprints(
 /// (Phase 5 follow-up wires the actual swap).
 ///
 /// `source_url` is set when the runtime has a known upstream
-/// (HuggingFace repo, GitHub releases, crates.io page) — the UI
+/// (`HuggingFace` repo, GitHub releases, crates.io page) — the UI
 /// renders it as an external link so the user can manually
 /// inspect the upstream changelog before triggering an update.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -1474,7 +1476,7 @@ pub enum RuntimeUpdateStatus {
 ///
 /// **Phase 5 stub** — every runtime currently returns
 /// `NoCheckConfigured` because the upstream-query implementations
-/// (HuggingFace revision API, GitHub releases API, crates.io API)
+/// (`HuggingFace` revision API, GitHub releases API, crates.io API)
 /// are tracked separately and land per-runtime. The UI surface
 /// + Tauri command + return type are stable now so the per-runtime
 /// implementations can drop in without touching frontend code.
@@ -1796,7 +1798,6 @@ pub async fn import_local_model(
         Some(slot) => {
             let prefix = slot.split('.').next().unwrap_or("chat");
             match prefix {
-                "chat" | "minion" => "chat",
                 "voice" => "voice",
                 "rag" => "rag",
                 "vision" => "vision",

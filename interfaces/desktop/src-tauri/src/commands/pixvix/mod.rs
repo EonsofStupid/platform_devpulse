@@ -1,4 +1,4 @@
-//! PixVix — capture engine under the WiredFront physical boundary.
+//! `PixVix` — capture engine under the `WiredFront` physical boundary.
 //!
 //! V-3 ships the *one-shot primitives* operators can invoke directly
 //! from a button click or the Tauri devtools console:

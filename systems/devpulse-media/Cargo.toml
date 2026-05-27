@@ -30,8 +30,9 @@ image = "0.25"
 # GPU rendering (Phase 2)
 wgpu = { version = "24", optional = true }
 
-# Async channels for frame pipeline
-flume = "0.11"
+# Telemetry — supplies TracedSender/TracedReceiver (replaces raw flume)
+# and `spawn_blocking` that preserves the current tracing span.
+devpulse-telemetry = { workspace = true }
 
 # Frame timing
 chrono = { workspace = true }

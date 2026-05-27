@@ -16,6 +16,9 @@ use super::error::CommandError;
 /// uniform image compresses much smaller, but real screenshots
 /// approach the raw size, so this avoids `Vec` reallocations during
 /// encode.
+///
+/// # Errors
+/// Returns [`CommandError`] when the image crate's PNG encoder fails.
 pub fn encode_png(img: &image::RgbaImage) -> Result<Vec<u8>, CommandError> {
     let mut bytes = Vec::with_capacity((img.width() * img.height() * 4) as usize);
     img.write_to(&mut std::io::Cursor::new(&mut bytes), ImageFormat::Png)
@@ -30,6 +33,9 @@ pub fn encode_png(img: &image::RgbaImage) -> Result<Vec<u8>, CommandError> {
 /// over IPC at >1 fps — PNG encode is the dominant cost on screenshot
 /// pipelines (15–40 ms at 720p) where JPEG q70 is ~3–5 ms with a
 /// fraction of the bytes.
+///
+/// # Errors
+/// Returns [`CommandError`] when the image crate's JPEG encoder fails.
 pub fn encode_jpeg(img: &image::RgbaImage, quality: u8) -> Result<Vec<u8>, CommandError> {
     use image::codecs::jpeg::JpegEncoder;
     let mut bytes = Vec::with_capacity((img.width() * img.height()) as usize);

@@ -9,7 +9,7 @@
 //!   of the lifecycle state (H3). Receivers gate the query path
 //!   and feed the UI / devtool.
 //! - `cycle: Mutex<CycleState>` — the per-cycle drain state
-//!   (TaskTracker + CancellationToken). Replaced on every
+//!   (`TaskTracker` + `CancellationToken`). Replaced on every
 //!   resume so each pause/resume cycle gets a fresh tracker.
 //!
 //! ## What this doesn't own
@@ -17,7 +17,7 @@
 //! - The query path. Callers integrate with the tracker via
 //!   [`RRD::track`] which spawns a future that obeys the
 //!   cancellation token and counts toward the drain.
-//! - InternalEvent broadcast. The daemon emits tracing only;
+//! - `InternalEvent` broadcast. The daemon emits tracing only;
 //!   the engine's `RrdLifecycleTranslator` mirrors to
 //!   `InternalEvent::RrdPhaseTransition` (preserves H12 by
 //!   structural guarantee).
@@ -100,6 +100,7 @@ impl<C: HotUpdateable> RRD<C> {
     /// fails before this constructor is called, the caller should
     /// not construct an RRD at all (no `Loading → Failed` boot
     /// transition through the daemon's surface).
+    ///
     pub fn new(initial: Arc<C>) -> Self {
         let live = Arc::new(ArcSwap::new(initial));
         let (state_tx, state_rx) = watch::channel(RRDState::Loading);
@@ -108,9 +109,14 @@ impl<C: HotUpdateable> RRD<C> {
         // surface. A future spec evolution may add explicit
         // `boot()` semantics with health checks; for now the
         // caller has already done the load.
-        state_tx
-            .send(RRDState::Running)
-            .expect("we hold the keepalive receiver");
+        //
+        // SAFETY: `state_rx` (about to become `_state_rx_keepalive`)
+        // is still in scope here, so the channel always has at least
+        // one receiver. `watch::Sender::send` returns `Err` only when
+        // there are no receivers, which is unreachable. The
+        // `send_replace` API does not signal that failure mode at
+        // all, so we use it here to keep `expect_used` honest.
+        state_tx.send_replace(RRDState::Running);
         emit_rrd_lifecycle!(
             "ready",
             detail = "daemon constructed with initial live component"
@@ -126,6 +132,7 @@ impl<C: HotUpdateable> RRD<C> {
 
     /// Override the drain timeout. Primarily for tests so the
     /// drain test doesn't have to wait 30s for the timeout path.
+    #[must_use]
     pub fn with_drain_timeout(mut self, timeout: Duration) -> Self {
         self.drain_timeout = timeout;
         self
@@ -147,7 +154,7 @@ impl<C: HotUpdateable> RRD<C> {
         self.live.load_full()
     }
 
-    /// Spawn a future onto the daemon's per-cycle TaskTracker.
+    /// Spawn a future onto the daemon's per-cycle `TaskTracker`.
     /// The future receives the cancellation token so it can
     /// `select!` on `cancel.cancelled()` and exit cleanly when
     /// pause begins.
@@ -167,7 +174,7 @@ impl<C: HotUpdateable> RRD<C> {
     }
 
     /// Internal: drop the old Arc explicitly on the maintenance
-    /// task (H4). Called inside `swap()` after the ArcSwap commit
+    /// task (H4). Called inside `swap()` after the `ArcSwap` commit
     /// so the Drop cost is paid here, not on whichever reader
     /// happened to hold the last `Guard`.
     #[inline]
@@ -214,24 +221,21 @@ impl<C: HotUpdateable> HotSwap<C> for RRD<C> {
         let in_flight_at_start = tracker.len();
         let drain_result = tokio::time::timeout(self.drain_timeout, tracker.wait()).await;
 
-        match drain_result {
-            Ok(()) => {
-                emit_rrd_lifecycle!(
-                    lifecycle_phase::DRAIN_COMPLETE,
-                    drained = in_flight_at_start
-                );
-            }
-            Err(_) => {
-                // Force-proceed per H9 — daemon does NOT fail on
-                // drain timeout. Subscribers count this as a
-                // signal, not a fatal error.
-                let stuck = tracker.len();
-                emit_rrd_lifecycle!(
-                    lifecycle_phase::DRAIN_TIMEOUT,
-                    timeout_secs = self.drain_timeout.as_secs(),
-                    stuck = stuck
-                );
-            }
+        if drain_result.is_ok() {
+            emit_rrd_lifecycle!(
+                lifecycle_phase::DRAIN_COMPLETE,
+                drained = in_flight_at_start
+            );
+        } else {
+            // Force-proceed per H9 — daemon does NOT fail on
+            // drain timeout. Subscribers count this as a
+            // signal, not a fatal error.
+            let stuck = tracker.len();
+            emit_rrd_lifecycle!(
+                lifecycle_phase::DRAIN_TIMEOUT,
+                timeout_secs = self.drain_timeout.as_secs(),
+                stuck = stuck
+            );
         }
 
         Ok(PauseHandle::new())

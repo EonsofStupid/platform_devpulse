@@ -25,7 +25,7 @@
 //! contributor adding a `tracing::info!(target: "rrd.lifecycle", ...)`
 //! by hand would silently break dual emission. With the translator,
 //! every event on the target — regardless of the macro/syntax used
-//! to emit it — gets the InternalEvent. Drift is structurally
+//! to emit it — gets the `InternalEvent`. Drift is structurally
 //! impossible.
 //!
 //! ## H13 grep parity, restated
@@ -74,7 +74,7 @@ pub struct RrdLifecycleTranslator {
     /// Explicit per-instance sender (test path). When `None`, the
     /// translator falls back to the global [`LAZY_SENDER`] (production
     /// path). The split is necessary because tests would otherwise
-    /// fight over the OnceLock — they can only set it once per
+    /// fight over the `OnceLock` — they can only set it once per
     /// process, and parallel tests need independent channels.
     tx: Option<Arc<BroadcastSender<InternalEvent>>>,
 }
@@ -99,10 +99,45 @@ impl RrdLifecycleTranslator {
     /// `Platform::boot` after the engine's `InternalEvent` bus is
     /// constructed. Idempotent — a second call returns `Err` with
     /// the supplied sender (the existing one is kept).
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(tx)` (the supplied sender, unchanged) when the
+    /// global sender has already been installed by a prior call.
     pub fn install_global_sender(
         tx: Arc<BroadcastSender<InternalEvent>>,
     ) -> Result<(), Arc<BroadcastSender<InternalEvent>>> {
         LAZY_SENDER.set(tx)
+    }
+}
+
+/// Tracing-field visitor that plucks the `phase` + `detail` fields out
+/// of an `rrd.lifecycle` event. Hoisted to module scope so clippy's
+/// `items_after_statements` lint is satisfied — the previous in-function
+/// definition was OK semantically but reads cleanly as a top-level type.
+struct PhaseDetailVisitor<'a> {
+    phase: &'a mut Option<String>,
+    detail: &'a mut Option<String>,
+}
+
+impl Visit for PhaseDetailVisitor<'_> {
+    fn record_str(&mut self, field: &Field, value: &str) {
+        match field.name() {
+            "phase" => *self.phase = Some(value.to_string()),
+            "detail" => *self.detail = Some(value.to_string()),
+            _ => {}
+        }
+    }
+    fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
+        let v = format!("{value:?}");
+        // tracing's Debug-format for &str strings is `"foo"` with
+        // quotes — strip them so consumers don't see escaped strings.
+        let trimmed = v.trim_matches('"').to_string();
+        match field.name() {
+            "phase" => *self.phase = Some(trimmed),
+            "detail" => *self.detail = Some(trimmed),
+            _ => {}
+        }
     }
 }
 
@@ -120,31 +155,6 @@ impl<S: Subscriber> Layer<S> for RrdLifecycleTranslator {
         // once and pluck the two we care about.
         let mut phase: Option<String> = None;
         let mut detail: Option<String> = None;
-        struct PhaseDetailVisitor<'a> {
-            phase: &'a mut Option<String>,
-            detail: &'a mut Option<String>,
-        }
-        impl<'a> Visit for PhaseDetailVisitor<'a> {
-            fn record_str(&mut self, field: &Field, value: &str) {
-                match field.name() {
-                    "phase" => *self.phase = Some(value.to_string()),
-                    "detail" => *self.detail = Some(value.to_string()),
-                    _ => {}
-                }
-            }
-            fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
-                let v = format!("{value:?}");
-                // tracing's Debug-format for &str strings is
-                // `"foo"` with quotes — strip them so consumers
-                // don't see escaped strings.
-                let trimmed = v.trim_matches('"').to_string();
-                match field.name() {
-                    "phase" => *self.phase = Some(trimmed),
-                    "detail" => *self.detail = Some(trimmed),
-                    _ => {}
-                }
-            }
-        }
         event.record(&mut PhaseDetailVisitor {
             phase: &mut phase,
             detail: &mut detail,

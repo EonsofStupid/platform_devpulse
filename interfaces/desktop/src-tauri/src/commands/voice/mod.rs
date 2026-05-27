@@ -15,12 +15,15 @@
 //! not accidental truncation. The file-level allow keeps the lint
 //! active elsewhere in the workspace.
 
-#![allow(
+#![expect(
     clippy::cast_possible_truncation,
     clippy::cast_precision_loss,
     clippy::cast_sign_loss,
-    clippy::cast_possible_wrap,
-    clippy::cast_lossless
+    reason = "PCM audio-sample math — i16 <-> f32 sample conversions, u32 sample-rate arithmetic, usize frame-index math. All casts bounded by format-defined ranges (see module-level `# Cast lints` doc)."
+)]
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` voice services / audio playback whose docs hold the canonical # Errors copy"
 )]
 
 use crate::state::PlatformState;
@@ -431,6 +434,7 @@ fn capture_mic_samples(
     target_sample_rate: u32,
     buffer_ms: u32,
 ) -> Result<Vec<f32>, String> {
+    use rodio::cpal::traits::{DeviceTrait, StreamTrait};
     use std::sync::{Arc, Mutex};
 
     // rodio doesn't expose input devices directly — use cpal
@@ -438,7 +442,6 @@ fn capture_mic_samples(
     let device = rodio::cpal::traits::HostTrait::default_input_device(&host)
         .ok_or_else(|| "No microphone detected".to_string())?;
 
-    use rodio::cpal::traits::DeviceTrait;
     let supported = device
         .default_input_config()
         .map_err(|e| format!("Failed to get mic config: {e}"))?;
@@ -479,7 +482,6 @@ fn capture_mic_samples(
     let done = Arc::new(std::sync::atomic::AtomicBool::new(false));
     let done_clone = done.clone();
 
-    use rodio::cpal::traits::StreamTrait;
     let stream = device
         .build_input_stream(
             &stream_config,

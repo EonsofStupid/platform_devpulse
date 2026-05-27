@@ -14,7 +14,7 @@
 //! | `Running`  | `Failed`   | Critical health-check failure                        |
 //! | `Paused`   | `Updating` | `swap_encoder` called with new weights path          |
 //! | `Paused`   | `Running`  | `resume` called without an intervening swap          |
-//! | `Updating` | `Running`  | ArcSwap completed, new encoder validated             |
+//! | `Updating` | `Running`  | `ArcSwap` completed, new encoder validated           |
 //! | `Updating` | `Failed`   | New encoder failed validation                        |
 //! | `Failed`   | `Loading`  | Manual recovery: restart with cleared error state    |
 //!
@@ -41,7 +41,7 @@ pub enum RRDState {
     /// Maintenance window: new queries queue or get
     /// [`RRDError::NotReady`].
     Paused,
-    /// Atomic encoder swap in progress (ArcSwap).
+    /// Atomic encoder swap in progress (`ArcSwap`).
     Updating,
     /// Unrecoverable error. Required for diagnostics — daemon does
     /// not auto-recover; explicit transition to `Loading` is
@@ -74,17 +74,21 @@ impl RRDState {
     /// `Failed` is encoded with a placeholder reason (the matrix
     /// is variant-only); use [`RRDState::try_transition_to_failed`]
     /// when transitioning to `Failed` so the reason gets recorded.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`RRDError::StateTransitionInvalid`] when the `from → to`
+    /// edge is not in the legal-transition matrix above.
     pub fn try_transition(self, to: RRDState) -> Result<RRDState, RRDError> {
         let legal = matches!(
             (&self, &to),
-            (Self::Loading, Self::Running)
-                | (Self::Loading, Self::Failed(_))
+            (Self::Loading | Self::Paused | Self::Updating, Self::Running,)
+                | (
+                    Self::Loading | Self::Running | Self::Updating,
+                    Self::Failed(_),
+                )
                 | (Self::Running, Self::Paused)
-                | (Self::Running, Self::Failed(_))
                 | (Self::Paused, Self::Updating)
-                | (Self::Paused, Self::Running)
-                | (Self::Updating, Self::Running)
-                | (Self::Updating, Self::Failed(_))
                 | (Self::Failed(_), Self::Loading)
         );
         if legal {
@@ -100,6 +104,11 @@ impl RRDState {
     /// Sugar for transitioning to `Failed(reason)` while preserving
     /// the reason. Equivalent to
     /// `try_transition(Self::Failed(reason))`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`RRDError::InvalidTransition`] when the current state
+    /// is one from which the state machine forbids entering `Failed`.
     pub fn try_transition_to_failed(self, reason: FailureReason) -> Result<RRDState, RRDError> {
         self.try_transition(RRDState::Failed(reason))
     }
@@ -180,7 +189,7 @@ mod tests {
         let reason = FailureReason::EncoderValidationFailed("dim mismatch".into());
         let next = RRDState::Updating
             .try_transition_to_failed(reason.clone())
-            .unwrap();
+            .expect("Updating -> Failed is a legal edge in the spec matrix");
         assert_eq!(next.failure_reason(), Some(&reason));
     }
 

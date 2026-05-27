@@ -12,12 +12,12 @@
 //!
 //! 1. **libSQL** — `{project_root}/.userdata/project.db`
 //!    (file index, RAG chunks, signals, drift log)
-//! 2. **DuckDB** — `{project_root}/.userdata/analytics.duckdb`
+//! 2. **`DuckDB`** — `{project_root}/.userdata/analytics.duckdb`
 //!    (per-project OLAP telemetry — model calls, indexing,
 //!    retrieval, daily rollups)
-//! 3. **SurrealDB** — namespace `projects` / database
+//! 3. **`SurrealDB`** — namespace `projects` / database
 //!    `proj_<sanitized_project_id>` inside the single embedded
-//!    instance (symbol graph, call edges, project_meta)
+//!    instance (symbol graph, call edges, `project_meta`)
 //! 4. **Qdrant** — collections `proj_<sanitized>__chunks` +
 //!    `proj_<sanitized>__symbols` inside the single embedded RRO
 //!    instance (dense semantic vectors)
@@ -63,13 +63,13 @@ use super::vector::VectorService;
 #[derive(Debug, Clone)]
 pub struct ProjectInitConfig {
     /// Stable identifier for the project — typically a UUID, but any
-    /// string is acceptable. Sanitized when used as a SurrealDB
+    /// string is acceptable. Sanitized when used as a `SurrealDB`
     /// database name or Qdrant collection suffix.
     pub project_id: String,
     /// Project root directory. `.userdata/` is created beneath it.
     pub project_root: std::path::PathBuf,
     /// Human-readable name. Seeded into `project_meta` rows on both
-    /// libSQL and SurrealDB.
+    /// libSQL and `SurrealDB`.
     pub project_name: String,
     /// Per-project vector collection tuning. Only consulted when the
     /// `rro` feature is enabled.
@@ -84,9 +84,9 @@ pub struct ProjectInitConfig {
 pub struct ProjectScope {
     /// Per-project libSQL adapter (project.db).
     pub libsql: Arc<LibSqlAdapter>,
-    /// Per-project DuckDB adapter (analytics.duckdb).
+    /// Per-project `DuckDB` adapter (analytics.duckdb).
     pub analytics: Arc<DuckDbAdapter>,
-    /// Scoped SurrealDB handle (`projects` / `proj_<id>`).
+    /// Scoped `SurrealDB` handle (`projects` / `proj_<id>`).
     pub graph: Arc<ScopedGraphHandle>,
     /// Qdrant collection names owned by this project.
     #[cfg(feature = "rro")]
@@ -101,13 +101,13 @@ pub struct ProjectInitContext<'a> {
     /// Per-project libSQL manager — owns the `<id> → adapter` map
     /// and lazy-loads `project.db` on first lookup.
     pub project_db: &'a Arc<ProjectDbManager>,
-    /// Per-project DuckDB manager — owns the analytics adapter map.
+    /// Per-project `DuckDB` manager — owns the analytics adapter map.
     pub project_analytics: &'a Arc<ProjectAnalyticsManager>,
-    /// Per-project SurrealDB scope manager — mints `proj_<id>`
+    /// Per-project `SurrealDB` scope manager — mints `proj_<id>`
     /// scoped graph handles off the shared adapter.
     pub project_graph: &'a Arc<ProjectGraphManager>,
-    /// Shared SurrealDB adapter — borrowed from the system graph
-    /// service. `None` only when SurrealDB is disabled in
+    /// Shared `SurrealDB` adapter — borrowed from the system graph
+    /// service. `None` only when `SurrealDB` is disabled in
     /// `PlatformBootConfig` (graph init will fail).
     pub surreal_adapter: Option<&'a Arc<SurrealAdapter>>,
     /// Per-project Qdrant collection manager — names + provisions

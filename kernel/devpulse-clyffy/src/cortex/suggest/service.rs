@@ -18,7 +18,7 @@ pub const DEFAULT_PERSONA_ID: &str = "clyffy";
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct Suggestion {
-    /// Original prompt id (UUIDv7 — recency-sortable on lex order).
+    /// Original prompt id (`UUIDv7` — recency-sortable on lex order).
     pub id: String,
     /// Original prompt text the user committed previously.
     pub text: String,
@@ -78,12 +78,12 @@ impl SuggestionService {
     /// Capture a committed prompt for future type-time recall.
     ///
     /// Embeds `text` and writes a `chat_prompt` row. Idempotent at the
-    /// id level — caller-supplied UUIDv7 collisions overwrite (use
+    /// id level — caller-supplied `UUIDv7` collisions overwrite (use
     /// [`uuid::Uuid::now_v7`] to avoid that path).
     ///
     /// # Errors
     /// - Embedder failure (model not loaded, tokenization error).
-    /// - SurrealDB write failure.
+    /// - `SurrealDB` write failure.
     #[tracing::instrument(
         skip(self, text),
         fields(
@@ -143,7 +143,7 @@ impl SuggestionService {
     ///
     /// # Errors
     /// - Embedder failure.
-    /// - SurrealDB query failure.
+    /// - `SurrealDB` query failure.
     #[tracing::instrument(
         skip(self, partial),
         fields(
@@ -287,6 +287,16 @@ fn parse_candidates(raw: &serde_json::Value) -> Vec<RawCandidate> {
 /// Exponential decay on age: 1.0 for fresh, 0.5 at one half-life, ≈0
 /// past several half-lives. Capped at 1.0 to defend against
 /// clock-skew producing future timestamps.
+///
+/// The `i64 → f32` cast is intentional: `RECENCY_HALF_LIFE_SECS` is a
+/// `f32` constant, and the recency window is bounded to a handful of
+/// half-lives (a few days) — never approaches `2^23` seconds where
+/// f32 precision starts to round. The clamp keeps the output finite.
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "age window is bounded to a few half-lives (days); \
+              `i64 → f32` is exact for every realistic input."
+)]
 fn recency_weight(now_secs: i64, captured_at_secs: i64) -> f32 {
     let age_secs = (now_secs - captured_at_secs).max(0) as f32;
     let half_lives = age_secs / RECENCY_HALF_LIFE_SECS;
@@ -299,7 +309,7 @@ fn recency_weight(now_secs: i64, captured_at_secs: i64) -> f32 {
 fn unix_now_secs() -> i64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
+        .map(|d| d.as_secs().cast_signed())
         .unwrap_or(0)
 }
 

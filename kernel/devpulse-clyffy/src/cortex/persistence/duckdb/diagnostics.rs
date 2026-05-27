@@ -1,4 +1,4 @@
-//! DuckDB schema diagnostic harness.
+//! `DuckDB` schema diagnostic harness.
 //!
 //! # Why this exists
 //!
@@ -6,12 +6,12 @@
 //! mismatch, or native heap corruption — we need to know **which chunk**
 //! is at fault. A single `execute_batch` over the whole schema gives only
 //! "all-or-nothing" feedback. This harness splits the schema into labeled
-//! statements, applies them cumulatively to a fresh DuckDB file, and emits
+//! statements, applies them cumulatively to a fresh `DuckDB` file, and emits
 //! a streaming pass/fail report.
 //!
 //! # What it diagnoses
 //!
-//! - **SQL errors** — surfaces the offending chunk with the DuckDB error.
+//! - **SQL errors** — surfaces the offending chunk with the `DuckDB` error.
 //! - **Native crashes** (e.g. `STATUS_HEAP_CORRUPTION` on Windows) — the
 //!   harness flushes stdout after every chunk, so the **last printed line
 //!   names the chunk in flight when the process died**.
@@ -284,7 +284,7 @@ fn label_after_prefix(head_upper: &str, head: &str, prefix: &str) -> Option<Stri
 // On-disk fixture with Drop cleanup
 // ════════════════════════════════════════════════════════════════════
 
-/// Auto-cleanup wrapper around a unique on-disk DuckDB file.
+/// Auto-cleanup wrapper around a unique on-disk `DuckDB` file.
 ///
 /// On `Drop`, removes both the `.duckdb` file and any companion `.duckdb.wal`
 /// even if the test panics. Path uniqueness combines monotonic nanos with a
@@ -311,7 +311,7 @@ impl DuckDbFixture {
         Self { path }
     }
 
-    /// Filesystem path to the (not-yet-created) DuckDB file.
+    /// Filesystem path to the (not-yet-created) `DuckDB` file.
     #[must_use]
     pub fn path(&self) -> &Path {
         &self.path
@@ -335,7 +335,7 @@ impl Drop for DuckDbFixture {
 pub enum ChunkOutcome {
     /// Chunk executed cleanly.
     Ok,
-    /// DuckDB returned an error from the chunk's SQL.
+    /// `DuckDB` returned an error from the chunk's SQL.
     SqlError(String),
 }
 
@@ -381,6 +381,11 @@ impl BisectReport {
     /// Use in `#[test]` functions that should treat any failure as a
     /// regression. The panic message names the failing chunk, its index,
     /// and the underlying error.
+    ///
+    /// # Panics
+    /// Panics with a structured "schema X failed at chunk Y" message
+    /// when [`Self`] holds a recorded failure. Cleanly-applied reports
+    /// (`failure == None`) are silent.
     pub fn assert_clean(&self) {
         if let Some(rec) = &self.failure {
             let err = match &rec.outcome {
@@ -450,12 +455,21 @@ fn render_label_with_dots(label: &str, width: usize) -> String {
         return label.to_string();
     }
     let padding = width - label.len();
-    let dots: String = std::iter::repeat('.')
-        .take(padding.saturating_sub(1))
-        .collect();
+    let dots = ".".repeat(padding.saturating_sub(1));
     format!("{label} {dots}")
 }
 
+/// Convert a microsecond count to a one-line human duration string.
+///
+/// `u128 → f64` is intentional for display: timing samples never
+/// approach `2^52` microseconds (≈ 142 years), so the precision loss
+/// is structurally impossible for every value the schema-bisect
+/// harness will ever produce.
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "u128 microsecond timer values stay well inside f64 mantissa; \
+              cast feeds `{:.N}` display formatting only."
+)]
 fn render_micros(us: u128) -> String {
     if us < 1_000 {
         format!("{us}µs")
@@ -467,7 +481,7 @@ fn render_micros(us: u128) -> String {
 }
 
 /// Run each statement of `schema` in cumulative order against a fresh
-/// DuckDB file, streaming a chunk-by-chunk report to stdout.
+/// `DuckDB` file, streaming a chunk-by-chunk report to stdout.
 ///
 /// **The streaming property is load-bearing**: stdout is flushed after each
 /// chunk so the last printed line survives a hard process abort
@@ -614,7 +628,7 @@ pub struct ColumnRecord {
     pub index: usize,
     /// The candidate column.
     pub column: ColumnSpec,
-    /// Whether DuckDB accepted the `CREATE TABLE` containing this column.
+    /// Whether `DuckDB` accepted the `CREATE TABLE` containing this column.
     pub outcome: ChunkOutcome,
     /// Wall-clock microseconds the create took.
     pub elapsed_us: u128,
@@ -638,6 +652,11 @@ pub struct ColumnBisectReport {
 impl ColumnBisectReport {
     /// Panic with a clean message if any candidate failed. Use in `#[test]`
     /// functions that should treat any column-level failure as a regression.
+    ///
+    /// # Panics
+    /// Panics with a `"{label} column bisect: N of M columns failed: [...]"`
+    /// message when at least one [`ColumnRecord`] in [`Self::records`]
+    /// did not land [`ChunkOutcome::Ok`]. Clean reports are silent.
     pub fn assert_clean(&self) {
         let failures: Vec<&ColumnRecord> = self
             .records
@@ -657,7 +676,7 @@ impl ColumnBisectReport {
     }
 }
 
-/// Test each `candidate` column in isolation against a fresh DuckDB.
+/// Test each `candidate` column in isolation against a fresh `DuckDB`.
 ///
 /// For each candidate, opens a new on-disk DB and runs:
 ///
@@ -669,7 +688,7 @@ impl ColumnBisectReport {
 /// after every line, so a hard process abort during one candidate's run
 /// leaves a definitive trail naming exactly which column triggered it.
 ///
-/// Used to diagnose heap-corruption-class bugs where DuckDB extension
+/// Used to diagnose heap-corruption-class bugs where `DuckDB` extension
 /// types (e.g. `JSON`, `DOUBLE[]`) interact badly with the host process's
 /// allocator state — at column granularity, not whole-statement.
 pub fn bisect_columns(label: &str, candidates: &[ColumnSpec]) -> ColumnBisectReport {
@@ -747,7 +766,7 @@ pub fn bisect_columns(label: &str, candidates: &[ColumnSpec]) -> ColumnBisectRep
 /// is a no-op — the schema must use `CREATE … IF NOT EXISTS` consistently.
 ///
 /// Used to catch regressions where a new chunk forgets the `IF NOT EXISTS`
-/// guard, which would crash boot whenever DevPulse restarts against an
+/// guard, which would crash boot whenever `DevPulse` restarts against an
 /// existing data dir.
 ///
 /// Streams phase markers (`open`, `first load`, `second load`) to stdout
@@ -756,7 +775,7 @@ pub fn bisect_columns(label: &str, candidates: &[ColumnSpec]) -> ColumnBisectRep
 ///
 /// # Errors
 ///
-/// Returns the underlying DuckDB error if either load fails.
+/// Returns the underlying `DuckDB` error if either load fails.
 pub fn assert_schema_idempotent(name: &str, schema: &str) -> Result<()> {
     println!();
     println!("── IDEMPOTENCY CHECK: {name} ──");

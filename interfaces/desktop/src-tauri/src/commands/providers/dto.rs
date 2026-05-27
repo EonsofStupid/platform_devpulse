@@ -44,7 +44,7 @@ pub struct ProviderStatus {
     pub last_validated_at_ms: Option<i64>,
     /// Last validation error (`None` if last attempt succeeded or no
     /// attempts have run). Surfaces verbatim so the UI can show "401
-    /// authentication_error: Invalid API key" rather than just "fail".
+    /// `authentication_error`: Invalid API key" rather than just "fail".
     pub last_error: Option<String>,
     /// Number of models returned by the most recent successful validation
     /// (`None` if never validated).
@@ -72,7 +72,7 @@ pub struct ValidationResult {
 
 /// One row from a `/v1/models` response — projected to what the UI shows.
 ///
-/// Vendor responses include more (created_at, owned_by, capabilities,
+/// Vendor responses include more (`created_at`, `owned_by`, capabilities,
 /// pricing) but those vary. We surface only the model id; per-vendor
 /// detail panels can re-fetch when they need richer metadata.
 #[derive(Debug, Clone, Serialize, Type)]
@@ -81,7 +81,7 @@ pub struct ProviderModelInfo {
     /// Vendor model identifier — what callers pass as `model:` in chat
     /// requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
     pub id: String,
-    /// Optional owner label — OpenAI returns "openai"/"system", Hugging
+    /// Optional owner label — `OpenAI` returns "openai"/"system", Hugging
     /// Face returns the namespace, Ollama returns the digest. UI shows
     /// it as a subtitle when present.
     pub owned_by: Option<String>,

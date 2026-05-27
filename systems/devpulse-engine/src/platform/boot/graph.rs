@@ -1,8 +1,8 @@
-//! Graph store boot — open the embedded SurrealKV store and
+//! Graph store boot — open the embedded `SurrealKV` store and
 //! initialize the three namespace scopes on one connection.
 //!
-//! No child process, no port allocator, no WS handshake. DevPulse
-//! holds the SurrealKV file lock directly via [`SurrealService`].
+//! No child process, no port allocator, no WS handshake. `DevPulse`
+//! holds the `SurrealKV` file lock directly via [`SurrealService`].
 //! The single `Surreal<Db>` connection backs system / user / global
 //! namespace scopes; each query prefixes its own `USE NS .. DB ..;`
 //! so isolation is at the query level, not session state.
@@ -20,7 +20,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot the embedded SurrealKV store and build three scoped graph services.
+/// Boot the embedded `SurrealKV` store and build three scoped graph services.
 ///
 /// Returns `(store, system, user, global)`. Any element may be `None`:
 /// - `store = None` → graph disabled in config OR store open failed.

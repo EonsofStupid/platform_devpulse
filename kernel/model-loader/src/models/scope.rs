@@ -97,7 +97,7 @@ impl DownloadScope {
 /// Resolve the destination directory for a downloaded bundle.
 ///
 /// Layout: `<scope_root>/<owner>/<repo>/`. The `<owner>/<repo>` split
-/// is derived from `repo_id`; a malformed repo_id (no slash, or one
+/// is derived from `repo_id`; a malformed `repo_id` (no slash, or one
 /// whose owner / name sanitise to empty) lands under
 /// [`UNSCOPED_PLACEHOLDER`] so the bundle still has somewhere to live
 /// without escaping the tree.

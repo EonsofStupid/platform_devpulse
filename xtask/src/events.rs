@@ -255,7 +255,7 @@ impl EventSink {
 
         let (tx, rx) = mpsc::channel::<StageEvent>();
         let log_path_owned = log_path.to_path_buf();
-        let writer = thread::spawn(move || writer_thread(file, rx, log_path_owned));
+        let writer = thread::spawn(move || writer_thread(file, rx, &log_path_owned));
 
         Ok(Self {
             sender: EventSender {
@@ -313,7 +313,7 @@ impl EventSink {
 fn writer_thread(
     file: File,
     rx: mpsc::Receiver<StageEvent>,
-    log_path: PathBuf,
+    log_path: &Path,
 ) -> Result<Vec<StageEvent>> {
     let mut writer = BufWriter::new(file);
     let mut accumulated = Vec::<StageEvent>::new();

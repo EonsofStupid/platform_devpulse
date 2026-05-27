@@ -75,6 +75,13 @@ pub fn decode_audio_file_to_pcm(path: &Path, target_rate: u32) -> Result<Vec<f32
     }
 
     // Downmix to mono by averaging channels.
+    // SAFETY: `source_channels` is a channel count (≤ 8 in practice, hard
+    // capped at WAV's u16 channel limit upstream); the `as f32` cast is
+    // exact for every value we will ever see.
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "audio channel count fits in f32 mantissa (≤ 65535); cast is exact"
+    )]
     let mono: Vec<f32> = if source_channels > 1 {
         raw.chunks(source_channels)
             .map(|chunk| chunk.iter().sum::<f32>() / source_channels as f32)
@@ -88,21 +95,37 @@ pub fn decode_audio_file_to_pcm(path: &Path, target_rate: u32) -> Result<Vec<f32
         return Ok(mono);
     }
     let ratio = f64::from(target_rate) / f64::from(source_rate);
-    let new_len = (mono.len() as f64 * ratio) as usize;
-    let mut resampled = Vec::with_capacity(new_len);
-    for i in 0..new_len {
-        let src_pos = i as f64 / ratio;
-        let idx = src_pos as usize;
-        let frac = (src_pos - idx as f64) as f32;
-        let sample = if idx + 1 < mono.len() {
-            mono[idx] * (1.0 - frac) + mono[idx + 1] * frac
-        } else if idx < mono.len() {
-            mono[idx]
-        } else {
-            0.0
-        };
-        resampled.push(sample);
-    }
+    // SAFETY: Linear-interpolation resampling. `mono.len() * ratio` is the
+    // target sample count; `src_pos` is the source-domain coordinate. All
+    // casts are documented sample-rate math, not precision-critical paths.
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "audio resampling: usize sample index → f64 source coordinate. \
+                  Sample counts ≤ a few hours * 48 kHz stay well inside f64 mantissa."
+    )]
+    #[expect(
+        clippy::cast_sign_loss,
+        reason = "audio resampling: f64 source coordinate → usize sample index. \
+                  `src_pos = i / ratio` is non-negative because both i and ratio are non-negative."
+    )]
+    let resampled = {
+        let new_len = (mono.len() as f64 * ratio) as usize;
+        let mut resampled = Vec::with_capacity(new_len);
+        for i in 0..new_len {
+            let src_pos = i as f64 / ratio;
+            let idx = src_pos as usize;
+            let frac = (src_pos - idx as f64) as f32;
+            let sample = if idx + 1 < mono.len() {
+                mono[idx] * (1.0 - frac) + mono[idx + 1] * frac
+            } else if idx < mono.len() {
+                mono[idx]
+            } else {
+                0.0
+            };
+            resampled.push(sample);
+        }
+        resampled
+    };
     Ok(resampled)
 }
 

@@ -1,6 +1,6 @@
-//! SurrealDB Tauri commands.
+//! `SurrealDB` Tauri commands.
 //!
-//! Single umbrella for the operator-facing SurrealDB surface. Inside:
+//! Single umbrella for the operator-facing `SurrealDB` surface. Inside:
 //!
 //! - [`sidecar`] — managed-process lifecycle: status, health, user-config
 //!   load/save. Wraps the engine's `SurrealService`.

@@ -23,7 +23,7 @@ pub mod verify;
 use crate::workspace::Workspace;
 use anyhow::Result;
 
-/// A composable unit of work in the DevPulse orchestrator.
+/// A composable unit of work in the `DevPulse` orchestrator.
 ///
 /// Implemented by every subcommand. The [`Workspace`] context is created
 /// once in `main()` and threaded through — no re-discovery per command.

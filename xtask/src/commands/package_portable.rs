@@ -64,12 +64,27 @@ use crate::workspace::{ResourceEntry, TauriConfig, Workspace};
 use anyhow::{Context, Result};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 use zip::write::{FileOptions, ZipWriter};
 use zip::CompressionMethod;
+
+/// Convert a byte count to MB as `f64` for display-only formatting.
+///
+/// `u64 → f64` is intentional: see [`crate::commands::build_release`] for
+/// the rationale (largest artifacts are ~100 MB, well inside `f64`
+/// mantissa precision; the cast is used purely for `{:.N}` rendering).
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "u64 byte counts of ≤ a few GB stay well inside f64 mantissa precision; \
+              the f64 is used only for `{:.1}` / `{:.2}` display formatting."
+)]
+fn bytes_to_mb(bytes: u64) -> f64 {
+    bytes as f64 / (1024.0 * 1024.0)
+}
 
 /// Produce a runnable portable folder + zip from the compiled release build.
 ///
@@ -118,7 +133,7 @@ impl PackagePortable {
         print_plan_header(&plan);
 
         if self.dry_run {
-            execute_dry_run(&plan)?;
+            execute_dry_run(&plan);
             return Ok(None);
         }
 
@@ -382,7 +397,7 @@ impl PortableSummary {
     /// log detail field. Format:
     /// `"N files, M.M MB — R resources + S sidecars declared"`.
     pub fn event_detail(&self) -> String {
-        let mb = (self.total_bytes as f64) / (1024.0 * 1024.0);
+        let mb = bytes_to_mb(self.total_bytes);
         format!(
             "{} files, {mb:.1} MB — {} resources + {} sidecars declared",
             self.total_files, self.declared_resources, self.declared_external_bins,
@@ -449,7 +464,7 @@ fn plan_copies(plan: &PackagePlan) -> Result<Vec<CopyEntry>> {
     }
 
     // ── Primary .ico icon — first one that exists wins.
-    if let Some(icon) = locate_primary_icon(plan)? {
+    if let Some(icon) = locate_primary_icon(plan) {
         entries.push(icon);
     }
 
@@ -523,7 +538,7 @@ fn resource_copy_entries(
         };
 
         let mut out = Vec::new();
-        for walked in walker.into_iter().filter_map(|e| e.ok()) {
+        for walked in walker.into_iter().filter_map(std::result::Result::ok) {
             if !walked.file_type().is_file() {
                 continue;
             }
@@ -592,24 +607,27 @@ fn prototype_walkdir(prototype: &walkdir::WalkDir, abs: &Path) -> walkdir::WalkD
 /// Locate the first `.ico` from `bundle.icon` that exists on disk.
 /// Returns `None` with a warning printed if none do — not a hard error,
 /// because tauri-bundler itself tolerates a missing icon in bundles.
-fn locate_primary_icon(plan: &PackagePlan) -> Result<Option<CopyEntry>> {
+fn locate_primary_icon(plan: &PackagePlan) -> Option<CopyEntry> {
     for icon_rel in &plan.conf.icons {
-        if !icon_rel.ends_with(".ico") {
+        let has_ico_ext = Path::new(icon_rel)
+            .extension()
+            .is_some_and(|e| e.eq_ignore_ascii_case("ico"));
+        if !has_ico_ext {
             continue;
         }
         let src = plan.src_tauri.join(icon_rel);
         if src.exists() {
-            return Ok(Some(CopyEntry {
+            return Some(CopyEntry {
                 category: "icon",
                 source: src,
                 dest_rel: PathBuf::from("icon.ico"),
-            }));
+            });
         }
     }
     // Missing icon is non-fatal but worth surfacing — goes to stderr so
     // CI parsers that scan stderr for warnings pick it up.
     crate::xwarn!("  [!!] no .ico icon found in tauri.conf.json bundle.icon list — icon skipped");
-    Ok(None)
+    None
 }
 
 fn prepare_output_dir(portable_dir: &Path) -> Result<()> {
@@ -625,7 +643,7 @@ fn prepare_output_dir(portable_dir: &Path) -> Result<()> {
 /// Copy every planned file, hashing on the way in so the manifest is
 /// produced from the exact bytes that landed on disk (not a re-read).
 ///
-/// Per-file log lines would balloon under tree resources (DevForge alone
+/// Per-file log lines would balloon under tree resources (`DevForge` alone
 /// is 3000+ files); instead we log per-category aggregates after the
 /// copy loop so the transcript stays scannable.
 fn execute_copies(ws: &Workspace, plan: &PackagePlan) -> Result<PortableReport> {
@@ -651,7 +669,7 @@ fn execute_copies(ws: &Workspace, plan: &PackagePlan) -> Result<PortableReport> 
 
     let report = PortableReport::from_files(copied);
     for (cat, totals) in &report.per_category {
-        let mb = (totals.bytes as f64) / (1024.0 * 1024.0);
+        let mb = bytes_to_mb(totals.bytes);
         crate::xinfo!(
             "  > {cat:<20} {:>5} files, {mb:>8.2} MB",
             totals.files,
@@ -661,12 +679,12 @@ fn execute_copies(ws: &Workspace, plan: &PackagePlan) -> Result<PortableReport> 
     crate::xinfo!(
         "  > total                {:>5} files, {:>8.2} MB",
         report.files.len(),
-        (report.total_bytes as f64) / (1024.0 * 1024.0),
+        bytes_to_mb(report.total_bytes),
     );
     Ok(report)
 }
 
-fn execute_dry_run(plan: &PackagePlan) -> Result<()> {
+fn execute_dry_run(plan: &PackagePlan) {
     // Dry-run replays the plan without touching disk. We still call
     // plan_copies so missing resources/externals surface as errors the
     // same way they would in a real run.
@@ -676,7 +694,7 @@ fn execute_dry_run(plan: &PackagePlan) -> Result<()> {
             // Dry-run validation failures aren't hard xtask errors — they
             // surface missing preconditions. Warn-stream so CI can catch.
             crate::xwarn!("  [dry-run] would fail: {e:#}");
-            return Ok(());
+            return;
         }
     };
 
@@ -692,7 +710,7 @@ fn execute_dry_run(plan: &PackagePlan) -> Result<()> {
 
     crate::xinfo!("  [dry-run] would write {} files:", entries.len());
     for (cat, totals) in &per_category {
-        let mb = (totals.bytes as f64) / (1024.0 * 1024.0);
+        let mb = bytes_to_mb(totals.bytes);
         crate::xinfo!(
             "    [{cat:<20}] {:>5} files, {mb:>8.2} MB",
             totals.files,
@@ -705,7 +723,6 @@ fn execute_dry_run(plan: &PackagePlan) -> Result<()> {
         plan.zip_path.display()
     );
     crate::xinfo!("  [dry-run] nothing written.");
-    Ok(())
 }
 
 /// Streaming copy that computes SHA256 over the bytes as they flow.
@@ -718,7 +735,7 @@ fn copy_and_hash(src: &Path, dst: &Path) -> Result<(u64, String)> {
     let mut writer = BufWriter::new(dst_file);
 
     let mut hasher = Sha256::new();
-    let mut buf = [0u8; 64 * 1024];
+    let mut buf = vec![0u8; 64 * 1024].into_boxed_slice();
     let mut total: u64 = 0;
     loop {
         let n = reader
@@ -812,7 +829,7 @@ fn assert_declared_resources_present(plan: &PackagePlan) -> Result<()> {
                 walkdir::WalkDir::new(&target_root)
                     .follow_links(false)
                     .into_iter()
-                    .filter_map(|e| e.ok())
+                    .filter_map(std::result::Result::ok)
                     .any(|e| e.file_type().is_file())
             } else {
                 false
@@ -894,44 +911,45 @@ fn write_manifest(ws: &Workspace, plan: &PackagePlan, report: &PortableReport) -
     // parse with any JSON library.
     let mut body = String::new();
     body.push_str("{\n");
-    body.push_str(&format!(
-        "  \"product_name\": {},\n",
+    let _ = writeln!(
+        body,
+        "  \"product_name\": {},",
         json_string(&plan.conf.product_name)
-    ));
-    body.push_str(&format!(
-        "  \"version\": {},\n",
-        json_string(&plan.conf.version)
-    ));
-    body.push_str(&format!(
-        "  \"portable_name\": {},\n",
+    );
+    let _ = writeln!(body, "  \"version\": {},", json_string(&plan.conf.version));
+    let _ = writeln!(
+        body,
+        "  \"portable_name\": {},",
         json_string(&plan.portable_name)
-    ));
-    body.push_str(&format!(
-        "  \"built_at_unix_secs\": {built_at_unix_secs},\n",
-    ));
+    );
+    let _ = writeln!(body, "  \"built_at_unix_secs\": {built_at_unix_secs},");
     match git_sha {
-        Some(sha) => body.push_str(&format!("  \"git_sha\": {},\n", json_string(&sha))),
+        Some(sha) => {
+            let _ = writeln!(body, "  \"git_sha\": {},", json_string(&sha));
+        }
         None => body.push_str("  \"git_sha\": null,\n"),
     }
 
     // Per-category aggregate totals first — makes the manifest scannable
     // even when `files` holds thousands of entries.
     body.push_str("  \"totals\": {\n");
-    body.push_str(&format!(
-        "    \"files\": {}, \"bytes\": {},\n",
+    let _ = writeln!(
+        body,
+        "    \"files\": {}, \"bytes\": {},",
         report.files.len(),
         report.total_bytes
-    ));
+    );
     body.push_str("    \"per_category\": {\n");
     let cat_count = report.per_category.len();
     for (i, (cat, totals)) in report.per_category.iter().enumerate() {
         let comma = if i + 1 == cat_count { "" } else { "," };
-        body.push_str(&format!(
-            "      {cat}: {{ \"files\": {files}, \"bytes\": {bytes} }}{comma}\n",
+        let _ = writeln!(
+            body,
+            "      {cat}: {{ \"files\": {files}, \"bytes\": {bytes} }}{comma}",
             cat = json_string(cat),
             files = totals.files,
             bytes = totals.bytes,
-        ));
+        );
     }
     body.push_str("    }\n");
     body.push_str("  },\n");
@@ -940,13 +958,14 @@ fn write_manifest(ws: &Workspace, plan: &PackagePlan, report: &PortableReport) -
     let file_count = report.files.len();
     for (idx, file) in report.files.iter().enumerate() {
         let comma = if idx + 1 == file_count { "" } else { "," };
-        body.push_str(&format!(
-            "    {{ \"category\": {cat}, \"path\": {path}, \"size_bytes\": {size}, \"sha256\": {hash} }}{comma}\n",
+        let _ = writeln!(
+            body,
+            "    {{ \"category\": {cat}, \"path\": {path}, \"size_bytes\": {size}, \"sha256\": {hash} }}{comma}",
             cat = json_string(file.category),
             path = json_string(&rel_to_forward(&file.dest_rel)),
             size = file.size_bytes,
             hash = json_string(&file.sha256_hex),
-        ));
+        );
     }
     body.push_str("  ]\n");
     body.push_str("}\n");
@@ -989,7 +1008,7 @@ fn json_string(s: &str) -> String {
             '\r' => out.push_str("\\r"),
             '\t' => out.push_str("\\t"),
             c if (c as u32) < 0x20 => {
-                out.push_str(&format!("\\u{:04x}", c as u32));
+                let _ = write!(out, "\\u{:04x}", c as u32);
             }
             c => out.push(c),
         }
@@ -1000,37 +1019,41 @@ fn json_string(s: &str) -> String {
 
 fn write_readme(plan: &PackagePlan, report: &PortableReport) -> Result<()> {
     let mut body = String::new();
-    body.push_str(&format!(
-        "{} v{} — portable build\n\n",
+    let _ = writeln!(
+        body,
+        "{} v{} — portable build\n",
         plan.conf.product_name, plan.conf.version
-    ));
+    );
     body.push_str("Unzip this folder anywhere. No installer required.\n");
     body.push_str("All files MUST remain in the same folder — Windows DLL search\n");
     body.push_str("order resolves the runtime libraries as siblings of the exe.\n\n");
     body.push_str("Launch:\n");
-    body.push_str(&format!("  {}\n\n", plan.exe_name));
+    let _ = writeln!(body, "  {}\n", plan.exe_name);
     body.push_str("Contents:\n");
-    body.push_str(&format!(
-        "  {} — main application (Tauri + SvelteKit frontend)\n",
+    let _ = writeln!(
+        body,
+        "  {} — main application (Tauri + SvelteKit frontend)",
         plan.exe_name
-    ));
+    );
     for bin in &plan.conf.external_bins {
         if let Some(name) = Path::new(bin).file_name().and_then(|n| n.to_str()) {
-            body.push_str(&format!("  {name}.exe — sidecar process\n"));
+            let _ = writeln!(body, "  {name}.exe — sidecar process");
         }
     }
     if let Some(totals) = report.per_category.get("resource") {
-        body.push_str(&format!(
-            "  {} root-level resource file(s) (runtime DLLs: llama.cpp, CUDA, cuBLAS, libomp)\n",
+        let _ = writeln!(
+            body,
+            "  {} root-level resource file(s) (runtime DLLs: llama.cpp, CUDA, cuBLAS, libomp)",
             totals.files
-        ));
+        );
     }
     if let Some(totals) = report.per_category.get("resource_tree_file") {
-        let mb = (totals.bytes as f64) / (1024.0 * 1024.0);
-        body.push_str(&format!(
-            "  {} tree resource file(s), {mb:.1} MB (e.g. DevForge REH tree under devforge/)\n",
+        let mb = bytes_to_mb(totals.bytes);
+        let _ = writeln!(
+            body,
+            "  {} tree resource file(s), {mb:.1} MB (e.g. DevForge REH tree under devforge/)",
             totals.files
-        ));
+        );
     }
     body.push_str("  icon.ico — application icon\n");
     body.push_str("  manifest.json — build metadata + per-file SHA256 (integrity check)\n\n");
@@ -1055,7 +1078,7 @@ fn build_zip(plan: &PackagePlan) -> Result<u64> {
 
 /// Zip every FILE under `src_dir` into `zip_path`, preserving subdirectory
 /// structure. Extracts to the same shape as the portable folder. Replaces
-/// the old flat-layout packer, which dropped tree resources (DevForge,
+/// the old flat-layout packer, which dropped tree resources (`DevForge`,
 /// future model bundles) on the floor because it only iterated the top
 /// level of the portable dir.
 ///
@@ -1074,7 +1097,7 @@ fn zip_dir_recursive(src_dir: &Path, zip_path: &Path) -> Result<()> {
     for walked in walkdir::WalkDir::new(src_dir)
         .follow_links(false)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
     {
         if !walked.file_type().is_file() {
             continue;
@@ -1098,8 +1121,8 @@ fn zip_dir_recursive(src_dir: &Path, zip_path: &Path) -> Result<()> {
 }
 
 fn print_summary(plan: &PackagePlan, report: &PortableReport, zip_size: u64) {
-    let zip_mb = (zip_size as f64) / (1024.0 * 1024.0);
-    let portable_mb = (report.total_bytes as f64) / (1024.0 * 1024.0);
+    let zip_mb = bytes_to_mb(zip_size);
+    let portable_mb = bytes_to_mb(report.total_bytes);
     crate::xinfo!("");
     crate::xinfo!("  ────────────────────────────────────────");
     crate::xinfo!("  Portable build ready.");

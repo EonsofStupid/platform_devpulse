@@ -82,10 +82,10 @@ impl BackendPool {
             if instance.model_path != model_path {
                 anyhow::bail!(
                     "Hot-swap identity mismatch for model '{model_id}': pool \
-                     holds {:?} but caller requested {:?} — release the \
+                     holds {} but caller requested {} — release the \
                      existing reference before reloading at a new path",
-                    instance.model_path,
-                    model_path,
+                    instance.model_path.display(),
+                    model_path.display(),
                 );
             }
             instance.ref_count += 1;

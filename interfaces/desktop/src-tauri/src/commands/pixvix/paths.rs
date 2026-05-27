@@ -1,6 +1,6 @@
-//! Resolve PixVix on-disk locations from the platform data dir.
+//! Resolve `PixVix` on-disk locations from the platform data dir.
 //!
-//! Tiny helper module — every other PixVix command that touches disk
+//! Tiny helper module — every other `PixVix` command that touches disk
 //! goes through these so the convention is in one place.
 
 use std::path::PathBuf;
@@ -10,7 +10,7 @@ use std::path::PathBuf;
 /// helpers — read-only here.
 pub const FRAMES_SUBDIR: &str = "vision-frames";
 
-/// Subdirectory under `<data_dir>/` for V-10 demo recordings (WebM).
+/// Subdirectory under `<data_dir>/` for V-10 demo recordings (`WebM`).
 pub const RECORDINGS_SUBDIR: &str = "vision-recordings";
 
 /// `<data_dir>/vision-frames/`.

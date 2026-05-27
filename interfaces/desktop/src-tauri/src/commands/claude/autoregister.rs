@@ -1,4 +1,4 @@
-//! Boot-time auto-registration of the DevPulse MCP entry.
+//! Boot-time auto-registration of the `DevPulse` MCP entry.
 //!
 //! Reads the operator preferences set by the Claude devtool's Actions tab
 //! (`claude.autoregister.code` / `claude.autoregister.desktop`) and calls
@@ -39,7 +39,7 @@ pub fn apply_on_boot(data_dir: &Path) {
         match register::register(ClaudeTarget::Desktop) {
             Ok(_) => tracing::info!("claude.autoregister: registered with Claude Desktop"),
             Err(e) => {
-                tracing::warn!(error = %e, "claude.autoregister: Desktop registration failed")
+                tracing::warn!(error = %e, "claude.autoregister: Desktop registration failed");
             }
         }
     }

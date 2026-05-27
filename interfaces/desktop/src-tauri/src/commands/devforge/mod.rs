@@ -187,7 +187,7 @@ pub async fn devforge_get_status(
     // care about so this is cheap (~µs). `None` is non-fatal: child
     // may have just exited, or the OS reaped it between the running
     // check above and the sysinfo refresh.
-    let memory_rss_bytes = pid.and_then(|p| reh_child_rss_bytes(p));
+    let memory_rss_bytes = pid.and_then(reh_child_rss_bytes);
 
     Ok(DevforgeBootstrapStatus {
         installed,
@@ -247,7 +247,7 @@ fn reh_child_rss_bytes(pid: u32) -> Option<u64> {
         true,
         ProcessRefreshKind::nothing().with_memory(),
     );
-    sys.process(target).map(|p| p.memory())
+    sys.process(target).map(sysinfo::Process::memory)
 }
 
 /// List recently opened project paths (newest first).

@@ -1,6 +1,6 @@
 //! Analytics service wrapper (`DuckDB`).
 //!
-//! Two scoped instances (one DuckDB file each, OLAP-optimized):
+//! Two scoped instances (one `DuckDB` file each, OLAP-optimized):
 //!
 //! - **System scope (Clyffy analytics)** — what the AI did. LLM call
 //!   telemetry, layer budgets, governance, retrieval/lane/span traces,
@@ -391,7 +391,7 @@ CREATE INDEX IF NOT EXISTS idx_vision_embeddings_session
 /// alongside `user/libsql/user.db` so user/project data lives in
 /// one user-scope folder.
 ///
-/// Lives on a separate DuckDB file from [`SYSTEM_ANALYTICS_SCHEMA`]
+/// Lives on a separate `DuckDB` file from [`SYSTEM_ANALYTICS_SCHEMA`]
 /// so the user data can be backed up / wiped independently of the
 /// AI behavior telemetry.
 pub const USER_ANALYTICS_SCHEMA: &str = r"

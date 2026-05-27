@@ -1,9 +1,9 @@
-//! PixVix capture wire-format types.
+//! `PixVix` capture wire-format types.
 //!
 //! Every type crosses the Tauri boundary, so:
 //!   - `#[derive(Serialize, Deserialize, Type)]`
 //!   - camelCase JSON
-//!   - no `Vec<u8>` on snapshot DTOs (serde_json renders `Vec<u8>` as a
+//!   - no `Vec<u8>` on snapshot DTOs (`serde_json` renders `Vec<u8>` as a
 //!     number array — gross over IPC). One-shot frames carry a base64
 //!     `data:image/png;...` string so the frontend can drop it straight
 //!     into `<img src=>`. The V-4 streaming path uses the binary
@@ -19,7 +19,7 @@ use specta::Type;
 /// One physical/virtual monitor reported by xcap.
 ///
 /// Field accuracy varies by OS — `is_builtin` is reliable on macOS,
-/// best-effort elsewhere. `scale_factor` reflects HiDPI; multiply
+/// best-effort elsewhere. `scale_factor` reflects `HiDPI`; multiply
 /// `width`/`height` by it to get device pixels (xcap returns logical
 /// pixels by default).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -39,7 +39,7 @@ pub struct MonitorInfo {
     pub width: u32,
     /// Logical pixel height.
     pub height: u32,
-    /// HiDPI scale (1.0 on standard displays, 2.0 on Retina, etc.).
+    /// `HiDPI` scale (1.0 on standard displays, 2.0 on Retina, etc.).
     pub scale_factor: f32,
     /// Refresh rate in Hz.
     pub frequency: f32,
@@ -148,7 +148,7 @@ pub struct CapturedFrame {
 /// Wayland degraded-capability flag returned with `list_windows`.
 ///
 /// xcap on Wayland (issues #112, #136) cannot reliably enumerate or
-/// capture individual native-Wayland windows — only XWayland windows
+/// capture individual native-Wayland windows — only `XWayland` windows
 /// and full monitors work. The lister sets this flag so the UI can
 /// hide the window-pick option instead of showing a broken control.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]

@@ -96,6 +96,11 @@ pub trait BurnEncoderAdapter: Send + Sync + 'static {
     /// false. The adapter implementation MUST drop on the calling
     /// thread (not on a query thread) so a slow Drop doesn't stall a
     /// reader — same H4 invariant the RRD daemon enforces.
+    ///
+    /// # Errors
+    /// Returns an error when the adapter cannot release its loaded
+    /// weights — typically a poisoned `ArcSwap` slot or a downstream
+    /// resource shutdown failure (CUDA device drop, mmap unmap).
     fn unload_blocking(&self) -> anyhow::Result<()>;
 
     /// True iff a Burn encoder is currently loaded. Cheap; the
@@ -105,7 +110,7 @@ pub trait BurnEncoderAdapter: Send + Sync + 'static {
     /// Tokenize `texts` and run a full embedding forward pass, returning
     /// one L2-normalized dense vector per input text.
     ///
-    /// Synchronous and CPU-bound (Burn NdArray backend). Async callers
+    /// Synchronous and CPU-bound (Burn `NdArray` backend). Async callers
     /// wrap with `tokio::task::spawn_blocking`.
     ///
     /// # Errors

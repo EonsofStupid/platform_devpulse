@@ -9,7 +9,7 @@
 //!   user-configurable per session, so it stays in this file. When the
 //!   project changes Supabase instances, this constant updates.
 //!
-//! # Why anon_key is returned raw to the frontend
+//! # Why `anon_key` is returned raw to the frontend
 //!
 //! Supabase publishes a separate **anon** key precisely so it can ship
 //! to browser clients and the row-level-security policies on the
@@ -17,7 +17,7 @@
 //! The `project_secrets_keyring_ssot` lock ("frontend never sees raw
 //! values") was written for AI provider API keys, which are secret.
 //! The anon key isn't an analog of those — it's public-by-design. If
-//! we ever need the **service_role** key (full-admin), THAT one stays
+//! we ever need the **`service_role`** key (full-admin), THAT one stays
 //! backend-only and never crosses the IPC boundary.
 
 use crate::commands::_util::CommandError;

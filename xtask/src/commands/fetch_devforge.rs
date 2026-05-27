@@ -1,5 +1,5 @@
 //! `cargo xtask fetch-devforge` — download, verify, and extract a pinned
-//! DevForge REH release artifact into the per-platform resource dir.
+//! `DevForge` REH release artifact into the per-platform resource dir.
 //!
 //! # Flow
 //!
@@ -57,7 +57,7 @@ const DEFAULT_KIND: &str = "reh-web-min";
 /// Minimum download buffer for streaming HTTP responses.
 const IO_BUF_SIZE: usize = 64 * 1024;
 
-/// Fetch a pinned DevForge REH artifact into the per-platform resource dir.
+/// Fetch a pinned `DevForge` REH artifact into the per-platform resource dir.
 pub struct FetchDevForge {
     pub target: String,
     pub manifest: Option<PathBuf>,
@@ -72,51 +72,8 @@ impl Task for FetchDevForge {
     fn run(&self, ws: &Workspace) -> Result<()> {
         stage::section("Fetch DevForge REH tree");
 
-        // ── Validate target ────────────────────────────────────────
-        let validate = Stage::start("validate target");
-        let (_, platform, arch) = SUPPORTED_TARGETS
-            .iter()
-            .find(|(t, _, _)| *t == self.target)
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "unknown target `{}` — supported: {}",
-                    self.target,
-                    SUPPORTED_TARGETS
-                        .iter()
-                        .map(|(t, _, _)| *t)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                )
-            })?;
-        validate.ok_with(&self.target);
-
-        // ── Load manifest ──────────────────────────────────────────
-        let manifest_path = self.manifest.clone().unwrap_or_else(|| {
-            ws.root()
-                .join("interfaces")
-                .join("desktop")
-                .join("src-tauri")
-                .join("resources")
-                .join("devforge")
-                .join("manifest.json")
-        });
-
-        let load = Stage::start("load manifest");
-        let manifest_txt = fs::read_to_string(&manifest_path)
-            .with_context(|| format!("read {}", manifest_path.display()))?;
-        let manifest: Manifest = serde_json::from_str(&manifest_txt)
-            .with_context(|| format!("parse {}", manifest_path.display()))?;
-
-        if manifest.schema != 1 {
-            bail!(
-                "manifest schema {} not supported (expected 1)",
-                manifest.schema
-            );
-        }
-        load.ok_with(format!(
-            "{} {} ({})",
-            manifest.product, manifest.version, manifest.tag
-        ));
+        let (platform, arch) = validate_target(&self.target)?;
+        let manifest = load_manifest(ws, self.manifest.as_deref())?;
 
         // ── Select artifact ────────────────────────────────────────
         let kind = self.kind.as_deref().unwrap_or(DEFAULT_KIND);
@@ -124,13 +81,10 @@ impl Task for FetchDevForge {
         let artifact = manifest
             .artifacts
             .iter()
-            .find(|a| a.platform == *platform && a.arch == *arch && a.kind == kind)
+            .find(|a| a.platform == platform && a.arch == arch && a.kind == kind)
             .ok_or_else(|| {
                 anyhow::anyhow!(
-                    "no manifest artifact for platform={} arch={} kind={}",
-                    platform,
-                    arch,
-                    kind
+                    "no manifest artifact for platform={platform} arch={arch} kind={kind}"
                 )
             })?;
         select.ok_with(&artifact.file_name);
@@ -160,11 +114,6 @@ impl Task for FetchDevForge {
             }
         }
 
-        // ── Download (with local cache in .userdata/tmp) ───────────
-        let tmp_dir = ws.root().join(".userdata").join("tmp").join("devforge");
-        fs::create_dir_all(&tmp_dir)?;
-        let tmp_file = tmp_dir.join(&artifact.file_name);
-
         let pinned_sha = artifact.sha256.as_deref().ok_or_else(|| {
             anyhow::anyhow!(
                 "manifest artifact for target {} missing `sha256` field — \
@@ -172,35 +121,13 @@ impl Task for FetchDevForge {
                 self.target
             )
         })?;
-
-        if !is_cached(&tmp_file, pinned_sha)? {
-            let agent = build_http_agent()?;
-
-            let resolve = Stage::start("resolve asset");
-            let (owner, repo) = parse_github_repo(&manifest.repository)?;
-            let asset_api_url =
-                resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
-            resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
-
-            let dl = Stage::start("download");
-            download_artifact(&agent, &asset_api_url, &tmp_file)
-                .with_context(|| format!("download {}", artifact.file_name))?;
-            let dl_size = fs::metadata(&tmp_file)?.len();
-            dl.ok_with(format!(
-                "{} ({} MB)",
-                artifact.file_name,
-                dl_size / (1024 * 1024)
-            ));
-        } else {
-            let dl = Stage::start("download");
-            dl.ok_with("cached in .userdata/tmp/devforge");
-        }
+        let tmp_file = download_or_use_cache(ws, &manifest, artifact, pinned_sha)?;
 
         // ── SHA256 verify ──────────────────────────────────────────
         let verify = Stage::start("verify sha256");
         let actual = sha256_file(&tmp_file)?;
         if !actual.eq_ignore_ascii_case(pinned_sha) {
-            verify.fail(format!("expected {} got {}", pinned_sha, actual));
+            verify.fail(format!("expected {pinned_sha} got {actual}"));
             bail!("sha256 mismatch for {}", artifact.file_name);
         }
         verify.ok_with(&actual[..16]);
@@ -235,6 +162,104 @@ impl Task for FetchDevForge {
     }
 }
 
+/// Validate the operator-supplied target string against `SUPPORTED_TARGETS`
+/// and return the matching `(platform, arch)` strings. Reports the stage
+/// outcome to the terminal.
+fn validate_target(target: &str) -> Result<(&'static str, &'static str)> {
+    let stage = Stage::start("validate target");
+    let entry = SUPPORTED_TARGETS
+        .iter()
+        .find(|(t, _, _)| *t == target)
+        .ok_or_else(|| {
+            anyhow::anyhow!(
+                "unknown target `{target}` — supported: {}",
+                SUPPORTED_TARGETS
+                    .iter()
+                    .map(|(t, _, _)| *t)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        })?;
+    stage.ok_with(target);
+    Ok((entry.1, entry.2))
+}
+
+/// Load and parse the pinned `DevForge` manifest. Falls back to the committed
+/// path under `interfaces/desktop/src-tauri/resources/devforge/manifest.json`
+/// when no override is supplied.
+fn load_manifest(ws: &Workspace, override_path: Option<&Path>) -> Result<Manifest> {
+    let manifest_path = override_path.map_or_else(
+        || {
+            ws.root()
+                .join("interfaces")
+                .join("desktop")
+                .join("src-tauri")
+                .join("resources")
+                .join("devforge")
+                .join("manifest.json")
+        },
+        std::path::Path::to_path_buf,
+    );
+
+    let load = Stage::start("load manifest");
+    let manifest_txt = fs::read_to_string(&manifest_path)
+        .with_context(|| format!("read {}", manifest_path.display()))?;
+    let manifest: Manifest = serde_json::from_str(&manifest_txt)
+        .with_context(|| format!("parse {}", manifest_path.display()))?;
+
+    if manifest.schema != 1 {
+        bail!(
+            "manifest schema {} not supported (expected 1)",
+            manifest.schema
+        );
+    }
+    load.ok_with(format!(
+        "{} {} ({})",
+        manifest.product, manifest.version, manifest.tag
+    ));
+    Ok(manifest)
+}
+
+/// Download the artifact into `.userdata/tmp/devforge/<file>` unless the
+/// cached file already matches the pinned sha256. Returns the resolved
+/// path so the caller can re-verify the SHA and extract.
+fn download_or_use_cache(
+    ws: &Workspace,
+    manifest: &Manifest,
+    artifact: &Artifact,
+    pinned_sha: &str,
+) -> Result<PathBuf> {
+    let tmp_dir = ws.root().join(".userdata").join("tmp").join("devforge");
+    fs::create_dir_all(&tmp_dir)?;
+    let tmp_file = tmp_dir.join(&artifact.file_name);
+
+    if is_cached(&tmp_file, pinned_sha)? {
+        let dl = Stage::start("download");
+        dl.ok_with("cached in .userdata/tmp/devforge");
+        return Ok(tmp_file);
+    }
+
+    let agent = build_http_agent()?;
+
+    let resolve = Stage::start("resolve asset");
+    let (owner, repo) = parse_github_repo(&manifest.repository)?;
+    let asset_api_url =
+        resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
+    resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
+
+    let dl = Stage::start("download");
+    download_artifact(&agent, &asset_api_url, &tmp_file)
+        .with_context(|| format!("download {}", artifact.file_name))?;
+    let dl_size = fs::metadata(&tmp_file)?.len();
+    dl.ok_with(format!(
+        "{} ({} MB)",
+        artifact.file_name,
+        dl_size / (1024 * 1024)
+    ));
+
+    Ok(tmp_file)
+}
+
 // ─── Manifest schema ──────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
@@ -243,23 +268,12 @@ struct Manifest {
     product: String,
     version: String,
     tag: String,
-    #[allow(dead_code)]
     repository: String,
-    #[serde(default, rename = "releaseUrl")]
-    #[allow(dead_code)]
-    release_url: Option<String>,
     artifacts: Vec<Artifact>,
 }
 
 #[derive(Debug, Deserialize)]
 struct Artifact {
-    /// Browser-facing GitHub release asset URL. Kept for schema parity
-    /// with the upstream devforge manifest and human-readable provenance;
-    /// the fetch path itself resolves the API asset URL at runtime via
-    /// [`resolve_asset_api_url`] because private repos refuse direct
-    /// `browser_download_url` fetches even when authenticated.
-    #[allow(dead_code)]
-    url: String,
     platform: String,
     kind: String,
     arch: String,
@@ -386,6 +400,8 @@ fn resolve_asset_api_url(
 /// S3; `ureq`'s default redirect policy strips the Authorization header
 /// on cross-host redirects, which is exactly what S3 wants.
 fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Result<()> {
+    use std::io::Write;
+
     let req = with_github_auth(agent.get(asset_api_url)).set("Accept", "application/octet-stream");
 
     let resp = req.call().context("HTTP request failed")?;
@@ -407,7 +423,6 @@ fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Re
         if n == 0 {
             break;
         }
-        use std::io::Write;
         file.write_all(&buf[..n])
             .with_context(|| format!("write {}", dst.display()))?;
     }
@@ -457,7 +472,7 @@ fn unzip(zip_path: &Path, dst: &Path) -> Result<(u64, u64)> {
         let rel = entry
             .enclosed_name()
             .ok_or_else(|| anyhow::anyhow!("unsafe zip entry: {}", entry.name()))?
-            .to_owned();
+            .clone();
         let out_path = dst.join(&rel);
 
         if entry.is_dir() {

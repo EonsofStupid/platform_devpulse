@@ -2,6 +2,10 @@
 //!
 //! Analytics engine for telemetry spans, lane baselines, OLAP queries.
 //! Mirrors the graph.rs + relational.rs pattern.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the `Platform` analytics adapter whose docs hold the canonical # Errors copy"
+)]
 
 use crate::state::PlatformState;
 use serde::{Deserialize, Serialize};
@@ -131,7 +135,8 @@ pub async fn duckdb_list_tables(
             .first()
             .and_then(|r| r.first())
             .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0) as u64;
+            .and_then(|n| u64::try_from(n).ok())
+            .unwrap_or(0);
 
         tables.push(DuckDbTableInfo {
             name,

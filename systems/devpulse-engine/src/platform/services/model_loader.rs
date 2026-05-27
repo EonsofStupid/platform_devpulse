@@ -6,11 +6,11 @@
 //! # Concurrency (delegated to kernel)
 //!
 //! The kernel splits state into 4 sub-structs with independent locks:
-//! - **InferenceState** (write only during load/unload/warm/swap)
-//! - **RegistryState** (write only during scan)
-//! - **ConfigState** (write only during assign/config changes)
-//! - **BootState** (immutable after boot, no lock)
-//! - **HardwareMonitor** (parking_lot RwLock for cache reads)
+//! - **`InferenceState`** (write only during load/unload/warm/swap)
+//! - **`RegistryState`** (write only during scan)
+//! - **`ConfigState`** (write only during assign/config changes)
+//! - **`BootState`** (immutable after boot, no lock)
+//! - **`HardwareMonitor`** (`parking_lot` `RwLock` for cache reads)
 //!
 //! Reads of any sub-struct proceed concurrently with writes of any other.
 //! Only loading a model into GPU/CPU memory takes the exclusive inference lock.
@@ -53,6 +53,21 @@ pub struct ModelLoaderService {
     inner: Arc<Inner>,
 }
 
+// Engineering judgment: this `impl` block is a ~40-function thin
+// passthrough over `devpulse_clyffy::model_loader::ModelLoaderService`.
+// Every public method here forwards to a kernel method whose docs hold
+// the canonical `# Errors` semantics. Duplicating those sections on
+// each wrapper would create documentation that drifts the moment the
+// kernel error surface changes. We satisfy the workspace
+// `missing_errors_doc` policy with a documented block-scope `#[expect]`
+// per the workspace pattern (matches the per-site suppressions the
+// strict-foundation-engineer added across xtask + clyffy in the same
+// PR). Re-tighten by porting full doc sections per-method only when a
+// wrapper diverges from the kernel by wrapping its own error type.
+#[expect(
+    clippy::missing_errors_doc,
+    reason = "thin passthrough; canonical # Errors docs live on devpulse_clyffy::model_loader::ModelLoaderService::* methods these forward to"
+)]
 impl ModelLoaderService {
     /// Boot the model loader.
     pub fn boot(
@@ -165,7 +180,7 @@ impl ModelLoaderService {
         match self.inner.auto_assign_bundled_slots().await {
             Ok(hydrated) => tracing::info!(hydrated, "finalize_registry: bundled slots assigned"),
             Err(e) => {
-                tracing::warn!(error = %e, "finalize_registry: bundled auto-assign failed (non-fatal)")
+                tracing::warn!(error = %e, "finalize_registry: bundled auto-assign failed (non-fatal)");
             }
         }
 
@@ -381,8 +396,8 @@ impl ModelLoaderService {
     }
 
     /// Recommend the primary entry-point filename inside `repo_id`
-    /// for the slot `slot_id`. Uses tier-aware format heuristics —
-    /// the UI hands this directly to `install_to_slot` so the user
+    /// for the slot `slot_id`. Uses tier-aware format heuristics so
+    /// the UI hands this directly to `install_to_slot`; the user
     /// never picks a quant or a shard manually.
     pub async fn recommend_primary_for_slot(
         &self,
@@ -395,11 +410,11 @@ impl ModelLoaderService {
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
-    /// One-button install — composes `download_model` + `scan_models`
-    /// + `assign_model` + `load_slot` into one atomic verb. Returns
+    /// One-button install — composes `download_model`, `scan_models`,
+    /// `assign_model`, and `load_slot` into one atomic verb. Returns
     /// the install identifier as soon as the download starts; the
     /// chain runs in a detached task and surfaces progress via the
-    /// `InstallStarted`/`InstallComplete`/`InstallFailed` events.
+    /// `InstallStarted` / `InstallComplete` / `InstallFailed` events.
     ///
     /// `scope` decides where the bundle lands — see
     /// [`download_model`](Self::download_model) for the layout contract.
@@ -424,7 +439,7 @@ impl ModelLoaderService {
             .map_err(|e| anyhow::anyhow!("{e}"))
     }
 
-    /// List every file in a HuggingFace repo, threaded through any
+    /// List every file in a `HuggingFace` repo, threaded through any
     /// stored HF token. Used by the frontend `RepoDownloadButton` to
     /// render a bundle confirmation modal before a user commits to a
     /// download.
@@ -678,7 +693,7 @@ impl ModelLoaderService {
     /// Hot-swap the Burn encoder weights to the safetensors file at
     /// `weights_path`. Drives the kernel RRD daemon through one full
     /// pause → drain → load → validate → swap → resume cycle and
-    /// returns the structured `SwapStats` for the devtool SwapDialog.
+    /// returns the structured `SwapStats` for the devtool `SwapDialog`.
     ///
     /// First-load goes through `load_slot` on `rag.embedder`; only the
     /// second-and-later path uses this entry point (the daemon must

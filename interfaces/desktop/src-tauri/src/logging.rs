@@ -79,6 +79,9 @@ pub fn init(
     data_dir: &Path,
     otel_layer: devpulse_telemetry::boot::TelemetryLayer,
 ) -> anyhow::Result<LoggingHandle> {
+    use tracing_subscriber::filter::LevelFilter;
+    use tracing_subscriber::Layer as _;
+
     let logs_dir = data_dir.join("logs");
     std::fs::create_dir_all(&logs_dir)?;
 
@@ -138,9 +141,6 @@ pub fn init(
     // OTel layer MUST be first — OpenTelemetryLayer<Registry, Tracer>
     // implements Layer<Registry>, not Layer<Layered<..., Registry>>.
     // Placing it first ensures S = Registry at composition time.
-    use tracing_subscriber::filter::LevelFilter;
-    use tracing_subscriber::Layer as _;
-
     let otel_ceiling = LevelFilter::DEBUG;
     let duckdb_ceiling = LevelFilter::DEBUG;
 
@@ -311,7 +311,11 @@ pub fn rotate_logs(data_dir: &Path) -> anyhow::Result<()> {
         .filter_map(|entry| {
             let entry = entry.ok()?;
             let name = entry.file_name().to_string_lossy().to_string();
-            if name.starts_with("action-") && name.ends_with(".jsonl") {
+            if name.starts_with("action-")
+                && std::path::Path::new(&name)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl"))
+            {
                 Some(entry.path())
             } else {
                 None

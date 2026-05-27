@@ -8,7 +8,7 @@
 
 use std::path::Path;
 
-/// Derive the project-local SurrealDB database name from a
+/// Derive the project-local `SurrealDB` database name from a
 /// workspace path.
 ///
 /// Rule (canonical):
@@ -19,7 +19,7 @@ use std::path::Path;
 ///   3. Replace any run of non-alphanumeric bytes with a single
 ///      `_`.
 ///   4. Trim trailing `_`.
-///   5. Truncate to 32 chars (SurrealDB identifier sanity).
+///   5. Truncate to 32 chars (`SurrealDB` identifier sanity).
 ///   6. If the result is empty after trimming, fall back to
 ///      `"default"`.
 #[must_use]

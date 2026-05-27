@@ -11,6 +11,10 @@
 //!   4. `stop_llama_server()` on app exit or model unload
 //!
 //! Logging at every step — every spawn, health check, request, error.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the llama-server sidecar lifecycle (spawn / kill / HTTP proxy). Error context flows through the formatted String at the IPC boundary; per-fn doc summaries describe the failure modes."
+)]
 
 use tauri::Emitter;
 use tauri_plugin_shell::process::CommandChild;
@@ -145,33 +149,7 @@ pub async fn start_llama_server(
     });
 
     // Health check — poll until ready or timeout
-    let url = format!("http://127.0.0.1:{port}/health");
-    let client = reqwest::Client::new();
-    let mut ready = false;
-
-    for attempt in 1..=60 {
-        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-
-        match client.get(&url).send().await {
-            Ok(resp) => {
-                if let Ok(body) = resp.text().await {
-                    if body.contains("\"ok\"") {
-                        tracing::info!(attempt, "llama-server health check passed");
-                        ready = true;
-                        break;
-                    }
-                    tracing::debug!(attempt, body = %body, "llama-server not ready yet");
-                }
-            }
-            Err(_) => {
-                if attempt % 10 == 0 {
-                    tracing::debug!(attempt, "llama-server not responding yet");
-                }
-            }
-        }
-    }
-
-    if !ready {
+    if !poll_llama_health(port).await {
         tracing::error!("llama-server health check timed out after 30s");
         // Kill the stuck process
         let mut child_lock = state.child.lock().await;
@@ -192,6 +170,33 @@ pub async fn start_llama_server(
         pid: u64::from(pid),
         model_path,
     })
+}
+
+/// Poll `GET /health` for up to 30s (60 × 500ms). Returns `true` when
+/// the server returns a body containing `"ok"`, `false` on timeout.
+async fn poll_llama_health(port: u16) -> bool {
+    let url = format!("http://127.0.0.1:{port}/health");
+    let client = reqwest::Client::new();
+    for attempt in 1..=60_u32 {
+        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+        match client.get(&url).send().await {
+            Ok(resp) => {
+                if let Ok(body) = resp.text().await {
+                    if body.contains("\"ok\"") {
+                        tracing::info!(attempt, "llama-server health check passed");
+                        return true;
+                    }
+                    tracing::debug!(attempt, body = %body, "llama-server not ready yet");
+                }
+            }
+            Err(_) => {
+                if attempt % 10 == 0 {
+                    tracing::debug!(attempt, "llama-server not responding yet");
+                }
+            }
+        }
+    }
+    false
 }
 
 /// Stop the llama-server sidecar.
@@ -267,6 +272,8 @@ pub async fn llama_chat(
     max_tokens: Option<u32>,
     temperature: Option<f32>,
 ) -> Result<String, String> {
+    use futures::StreamExt;
+
     let port = *state.port.lock().await;
     if port == 0 {
         return Err("llama-server not running".into());
@@ -307,8 +314,6 @@ pub async fn llama_chat(
     // Stream SSE response
     let mut full_response = String::new();
     let mut stream = resp.bytes_stream();
-
-    use futures::StreamExt;
     let mut buffer = String::new();
 
     while let Some(chunk) = stream.next().await {

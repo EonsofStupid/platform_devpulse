@@ -208,9 +208,8 @@ pub fn discover_hf_cache(cache_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEn
             continue;
         }
 
-        let dir_name = match repo_dir.file_name().and_then(|n| n.to_str()) {
-            Some(n) => n,
-            None => continue,
+        let Some(dir_name) = repo_dir.file_name().and_then(|n| n.to_str()) else {
+            continue;
         };
         // HF cache repos are named `models--<owner>--<repo>`. Datasets and
         // spaces use different prefixes and are not relevant to the model
@@ -235,7 +234,9 @@ pub fn discover_hf_cache(cache_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEn
         // snapshot dir; companion files in older snapshots are reachable
         // via the blob store via the symlinks anyway.
         let snapshot_dir = repo_dir.join("snapshots").join(&revision);
-        if !snapshot_dir.is_dir() {
+        if snapshot_dir.is_dir() {
+            walk_hf_snapshot(&snapshot_dir, &repo_id, &revision, &mut entries);
+        } else {
             // Some revisions may not have a snapshot dir if the download
             // was interrupted before linking. Try any snapshot subdirectory
             // as a best-effort fallback so the user sees what's actually
@@ -251,8 +252,6 @@ pub fn discover_hf_cache(cache_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEn
                 continue;
             };
             walk_hf_snapshot(&any_snap, &repo_id, &revision, &mut entries);
-        } else {
-            walk_hf_snapshot(&snapshot_dir, &repo_id, &revision, &mut entries);
         }
     }
 

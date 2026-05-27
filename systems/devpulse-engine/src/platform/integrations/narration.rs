@@ -15,6 +15,10 @@ pub enum CompetencyLevel {
 
 /// Generate a Clyffy narration message for a loader event.
 #[must_use]
+#[expect(
+    clippy::too_many_lines,
+    reason = "narration matrix — one match arm per `(LoaderEvent, CompetencyLevel)` pair. Splitting by event family would obscure the readable side-by-side Layman/Advanced copy pairs; each pair is 4-6 lines."
+)]
 pub fn narrate(event: &LoaderEvent, level: CompetencyLevel) -> Option<String> {
     match (event, level) {
         // ── Loading ────────────────────────────────────────────

@@ -1,8 +1,9 @@
 //! Routing user-scope config — escalation chain + latency tuning + response source.
 //!
-//! Persists to `{data_dir}/user/routing.toml`. Atomic write via temp-file
-//! + rename. Load tolerates missing or malformed files by returning
-//! defaults so the wizard / settings surface always renders.
+//! Persists to `{data_dir}/user/routing.toml`. Atomic write via
+//! temp-file plus rename. Load tolerates missing or malformed files
+//! by returning defaults so the wizard / settings surface always
+//! renders.
 //!
 //! Concerns this file owns end-to-end:
 //!
@@ -67,10 +68,11 @@ const TIER_TIMEOUT_MAX_MS: u32 = 60_000;
 /// chat dispatch time. Mirrors the kernel's `RoutingMode` value-for-value
 /// — the kernel type is private, this is the public surface engine +
 /// Tauri + frontend share via specta.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, Type)]
 #[serde(rename_all = "snake_case")]
 pub enum InferenceProvider {
     /// Prefer local models first — no cloud escalation.
+    #[default]
     LocalFirst,
     /// Prefer local, then escalate through the Claude subscription lane.
     LocalClaudeSubscription,
@@ -92,8 +94,13 @@ impl InferenceProvider {
 
     /// Parse from the wire-format string. Unknown values fall back to
     /// `LocalFirst` so a malformed kernel persist never crashes the UI.
+    ///
+    /// Renamed away from `from_str` (clippy `should_implement_trait`
+    /// flagged the name as confusable with `std::str::FromStr`) — this
+    /// method is infallible and the trait is for fallible parsing, so
+    /// the name `from_wire` better matches the semantics.
     #[must_use]
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_wire(s: &str) -> Self {
         match s {
             "local_claude_subscription" => Self::LocalClaudeSubscription,
             "local_claude_api_council" => Self::LocalClaudeApiCouncil,
@@ -102,11 +109,6 @@ impl InferenceProvider {
     }
 }
 
-impl Default for InferenceProvider {
-    fn default() -> Self {
-        Self::LocalFirst
-    }
-}
 
 // ── Escalation chain ─────────────────────────────────────────
 
@@ -122,7 +124,7 @@ pub enum EscalationTierId {
     VoiceBrain,
     /// Full reasoning model on GPU — primary chat brain.
     MainBrain,
-    /// External AI service (Claude / OpenAI / etc.).
+    /// External AI service (Claude / `OpenAI` / etc.).
     CloudApi,
 }
 
@@ -211,19 +213,19 @@ impl EscalationConfig {
                 .iter()
                 .find(|t| t.id == canonical_id)
                 .cloned()
-                .unwrap_or_else(|| EscalationTier {
+                .unwrap_or(EscalationTier {
                     id: canonical_id,
                     enabled: false,
                     timeout_ms: TIER_TIMEOUT_MIN_MS,
                     slot_id: None,
                 });
-            let mut tier = existing.unwrap_or(default_for_id.clone());
+            let mut tier = existing.unwrap_or_else(|| default_for_id.clone());
             tier.timeout_ms = tier
                 .timeout_ms
                 .clamp(TIER_TIMEOUT_MIN_MS, TIER_TIMEOUT_MAX_MS);
             // The canonical slot binding is part of the schema, not user
             // data. If a deserialised value drifted, snap it back.
-            tier.slot_id = default_for_id.slot_id.clone();
+            tier.slot_id.clone_from(&default_for_id.slot_id);
             canonical.push(tier);
         }
         self.tiers = canonical;

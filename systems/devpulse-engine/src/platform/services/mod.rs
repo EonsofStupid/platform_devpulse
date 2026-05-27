@@ -372,7 +372,7 @@ pub trait Preflightable {
 ///
 /// The registry is generic over [`Preflightable`] — no `dyn`, no
 /// `Box`. Callers instantiate the per-service preflight view-struct
-/// from config + data_dir, hand it to [`PreflightRegistry::run`], and
+/// from config + `data_dir`, hand it to [`PreflightRegistry::run`], and
 /// inspect [`PreflightRegistry::checks`] / [`PreflightRegistry::has_fail`]
 /// before deciding whether to continue boot.
 #[derive(Debug, Default)]

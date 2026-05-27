@@ -1,8 +1,8 @@
-//! `cargo xtask fetch-surreal` — download the SurrealDB server binary
+//! `cargo xtask fetch-surreal` — download the `SurrealDB` server binary
 //! into the Tauri sidecar bundle dir.
 //!
 //! Mirrors [`fetch_devforge`] in spirit but is deliberately thinner:
-//! SurrealDB ships signed single-binary releases per platform and the
+//! `SurrealDB` ships signed single-binary releases per platform and the
 //! workspace pins the surrealdb crate to a specific version, so we hard
 //! code the matching release tag here rather than carrying a separate
 //! manifest file. Bump the const when `Cargo.toml`'s surrealdb crate
@@ -28,7 +28,7 @@ use crate::workspace::Workspace;
 use anyhow::{bail, Context, Result};
 use std::fs;
 use std::io::{Read, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Release tag to fetch. Bump in sync with the `surrealdb` workspace dep.
@@ -49,7 +49,7 @@ const SUPPORTED_TARGETS: &[(&str, &str, &str, &str)] = &[
     ),
 ];
 
-/// Fetch the SurrealDB sidecar binary.
+/// Fetch the `SurrealDB` sidecar binary.
 pub struct FetchSurreal {
     pub target: String,
     /// Re-download even if the target file already exists.
@@ -124,10 +124,7 @@ impl Task for FetchSurreal {
         let dl = Stage::start("download");
         curl_to(&url, &tmp_file).with_context(|| format!("download {url}"))?;
         let dl_size = fs::metadata(&tmp_file)?.len();
-        dl.ok_with(format!(
-            "{asset_name} ({} MB)",
-            dl_size / (1024 * 1024).max(1)
-        ));
+        dl.ok_with(format!("{asset_name} ({} MB)", dl_size / (1024 * 1024)));
 
         // ── Extract / install ──────────────────────────────────────
         let install = Stage::start("install");
@@ -161,7 +158,7 @@ impl Task for FetchSurreal {
 
 /// Download with `curl` — available on every dev machine that can git clone.
 /// We shell out instead of pulling an HTTP crate into xtask just for this.
-fn curl_to(url: &str, dst: &PathBuf) -> Result<()> {
+fn curl_to(url: &str, dst: &Path) -> Result<()> {
     let status = Command::new("curl")
         .arg("-fsSL")
         .arg("--retry")
@@ -181,8 +178,11 @@ fn curl_to(url: &str, dst: &PathBuf) -> Result<()> {
 /// we read gzip manually via `flate2` if we had it, but xtask stays
 /// dep-light, so shell out to `tar` (present on macOS, Linux, and
 /// modern Windows via `System32\tar.exe`).
-fn extract_tgz_entry(tgz: &PathBuf, entry_name: &str, dst: &PathBuf) -> Result<()> {
-    let work_dir = tgz.parent().unwrap().join("extracted");
+fn extract_tgz_entry(tgz: &Path, entry_name: &str, dst: &Path) -> Result<()> {
+    let work_dir = tgz
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("tgz path has no parent: {}", tgz.display()))?
+        .join("extracted");
     let _ = fs::remove_dir_all(&work_dir);
     fs::create_dir_all(&work_dir)?;
 
@@ -203,7 +203,7 @@ fn extract_tgz_entry(tgz: &PathBuf, entry_name: &str, dst: &PathBuf) -> Result<(
     // destination pre-exists and is being replaced.
     let mut src = fs::File::open(&found)?;
     let mut out = fs::File::create(dst)?;
-    let mut buf = [0u8; 64 * 1024];
+    let mut buf = vec![0u8; 64 * 1024].into_boxed_slice();
     loop {
         let n = src.read(&mut buf)?;
         if n == 0 {
@@ -215,8 +215,8 @@ fn extract_tgz_entry(tgz: &PathBuf, entry_name: &str, dst: &PathBuf) -> Result<(
 }
 
 /// Depth-first search for a file named `name` under `root`.
-fn walk_for_file(root: &PathBuf, name: &str) -> Option<PathBuf> {
-    let mut stack = vec![root.clone()];
+fn walk_for_file(root: &Path, name: &str) -> Option<PathBuf> {
+    let mut stack = vec![root.to_path_buf()];
     while let Some(dir) = stack.pop() {
         let entries = fs::read_dir(&dir).ok()?;
         for e in entries.flatten() {

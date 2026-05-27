@@ -3,13 +3,11 @@
 //! Uses nokhwa for cross-platform camera access.
 //! On Windows: Media Foundation (MSMF)
 //! On Linux: V4L2
-//! On macOS: AVFoundation
+//! On macOS: `AVFoundation`
 
 use crate::error::{MediaError, MediaResult};
 use crate::frame::Frame;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::RwLock;
 use tracing::{error, info, warn};
 // `debug` is only used inside the `enumerate_cameras` body that's
 // itself feature-gated by `capture` (line ~90 below). Mirror the gate
@@ -65,12 +63,13 @@ impl CameraManager {
         }
     }
 
-    /// Create a thread-safe shared camera manager for pipeline use
-    pub fn shared() -> Arc<RwLock<Self>> {
-        Arc::new(RwLock::new(Self::new()))
-    }
-
-    /// Enumerate all available cameras
+    /// Enumerate all available cameras.
+    ///
+    /// # Errors
+    /// Returns [`MediaError::CaptureFailed`] when the platform query API
+    /// (`nokhwa::query`) reports an enumeration error — typically a
+    /// missing system service (Media Foundation on Windows, V4L2 on
+    /// Linux, `AVFoundation` permissions on macOS).
     #[cfg(feature = "capture")]
     pub fn enumerate_cameras(&mut self) -> MediaResult<Vec<CameraInfo>> {
         use nokhwa::query;
@@ -84,10 +83,10 @@ impl CameraManager {
             .iter()
             .enumerate()
             .map(|(idx, info)| CameraInfo {
-                id: format!("camera_{}", idx),
-                name: info.human_name().to_string(),
-                index: idx as u32,
-                resolutions: Vec::new(), // TODO: query supported resolutions
+                id: format!("camera_{idx}"),
+                name: info.human_name().clone(),
+                index: u32::try_from(idx).unwrap_or(u32::MAX),
+                resolutions: Vec::new(),
             })
             .collect();
 
@@ -115,7 +114,15 @@ impl CameraManager {
         &self.cameras
     }
 
-    /// Open a camera by ID
+    /// Open a camera by ID.
+    ///
+    /// # Errors
+    /// - [`MediaError::CameraNotFound`] when `camera_id` is not present
+    ///   in the most recent [`Self::enumerate_cameras`] result.
+    /// - [`MediaError::CameraOpenFailed`] when the OS refuses to open
+    ///   the device handle.
+    /// - [`MediaError::UnsupportedFormat`] when the requested resolution
+    ///   / pixel format cannot be negotiated.
     #[cfg(feature = "capture")]
     pub fn open_camera(&mut self, camera_id: &str, width: u32, height: u32) -> MediaResult<()> {
         let cam_info = self
@@ -160,7 +167,14 @@ impl CameraManager {
         Err(MediaError::CaptureFailed("Capture feature disabled".into()))
     }
 
-    /// Capture a single frame from the active camera
+    /// Capture a single frame from the active camera.
+    ///
+    /// # Errors
+    /// - [`MediaError::PipelineNotRunning`] when no camera has been
+    ///   opened via [`Self::open_camera`] yet.
+    /// - [`MediaError::CaptureFailed`] when the underlying nokhwa
+    ///   `frame()` or `decode_image()` call errors (device disconnect,
+    ///   format change mid-stream, etc.).
     #[cfg(feature = "capture")]
     pub fn capture_frame(&mut self) -> MediaResult<Frame> {
         let camera = self

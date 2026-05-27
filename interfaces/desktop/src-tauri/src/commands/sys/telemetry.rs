@@ -1,4 +1,4 @@
-//! Telemetry commands — lane tracing, OTel pipeline health, and session file management.
+//! Telemetry commands — lane tracing, `OTel` pipeline health, and session file management.
 //!
 //! Backs the `/devtools/telemetry` devtool. All read paths are live —
 //! no mocked values. Write paths mutate runtime state and persist where
@@ -6,9 +6,13 @@
 //!
 //! Groups:
 //! - **Lane config**: which pipeline stages emit traces
-//! - **Pipeline info**: OTel service identity, exporter state, storage path
+//! - **Pipeline info**: `OTel` service identity, exporter state, storage path
 //! - **Session files**: rotating JSONL files the exporter writes
-//! - **Queries**: span traces + lane baselines (DuckDB)
+//! - **Queries**: span traces + lane baselines (`DuckDB`)
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` / telemetry guard whose docs hold the canonical # Errors copy (also documented per fn above)"
+)]
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{AnalyticsAdapter, LaneTraceConfig, SqlValue};
@@ -144,7 +148,6 @@ pub async fn query_span_traces(
             };
             let get_opt_i64 = |i: usize| match row.get(i) {
                 Some(SqlValue::Integer(n)) => Some(*n),
-                Some(SqlValue::Null) => None,
                 _ => None,
             };
             let get_opt_str = |i: usize| match row.get(i) {
@@ -261,7 +264,7 @@ pub async fn query_lane_baselines(
 /// it directly into their file explorer.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct TelemetryPipelineInfo {
-    /// Platform version string (matches `service.version` OTel attribute).
+    /// Platform version string (matches `service.version` `OTel` attribute).
     pub service_version: String,
     /// Per-launch session identifier (matches `service.instance.id`).
     pub session_id: String,
@@ -289,7 +292,7 @@ fn system_time_to_ms(t: std::time::SystemTime) -> i64 {
 ///
 /// # Errors
 /// Returns error if the platform's telemetry guard has not been installed
-/// (i.e. the app is very early in boot, before logging::init completed).
+/// (i.e. the app is very early in boot, before `logging::init` completed).
 #[tauri::command]
 #[specta::specta]
 pub async fn get_telemetry_info(app: tauri::AppHandle) -> Result<TelemetryPipelineInfo, String> {
@@ -381,15 +384,11 @@ pub async fn list_telemetry_sessions(
             let path = entry.path();
             let name = entry.file_name().to_string_lossy().to_string();
             let metadata = entry.metadata().ok();
-            let size_bytes = metadata.as_ref().map(std::fs::Metadata::len).unwrap_or(0);
+            let size_bytes = metadata.as_ref().map_or(0, std::fs::Metadata::len);
             let modified_ms = metadata
                 .and_then(|m| m.modified().ok())
-                .map(system_time_to_ms)
-                .unwrap_or(0);
-            let is_current = current_file
-                .as_ref()
-                .map(|cur| cur == &path)
-                .unwrap_or(false);
+                .map_or(0, system_time_to_ms);
+            let is_current = current_file.as_ref().is_some_and(|cur| cur == &path);
             TelemetrySessionFile {
                 name,
                 path: path.display().to_string(),
@@ -469,15 +468,15 @@ fn open_in_os_explorer(path: &std::path::Path) -> Result<(), String> {
 /// Count of persisted rows per telemetry table — drives the health panel.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct TelemetryRowCounts {
-    /// Rows in DuckDB `span_traces` table.
+    /// Rows in `DuckDB` `span_traces` table.
     pub span_traces: i64,
-    /// Rows in DuckDB `lane_traces` table.
+    /// Rows in `DuckDB` `lane_traces` table.
     pub lane_traces: i64,
-    /// Rows in DuckDB `lane_baselines` table.
+    /// Rows in `DuckDB` `lane_baselines` table.
     pub lane_baselines: i64,
 }
 
-/// Report how much telemetry has accumulated in DuckDB.
+/// Report how much telemetry has accumulated in `DuckDB`.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_telemetry_row_counts(

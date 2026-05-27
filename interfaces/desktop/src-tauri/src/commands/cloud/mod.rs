@@ -11,6 +11,10 @@
 //! `Platform::routing_config_*` accessors use for the `latency.response_source`
 //! field. The cloud command module re-uses that enum directly so the
 //! TS layer never sees two parallel types named `InferenceProvider`.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over either the model loader (provider config) or the Anthropic Messages API HTTP call. Failure modes are spelled out in the per-fn doc summary above."
+)]
 
 pub mod license;
 pub mod secrets;
@@ -60,7 +64,7 @@ async fn inner_get_inference_provider(
         .context("serialize routing mode")?
         .as_str()
         .map_or_else(|| "local_first".to_string(), str::to_string);
-    Ok(InferenceProvider::from_str(&raw_mode))
+    Ok(InferenceProvider::from_wire(&raw_mode))
 }
 
 /// Set the routing mode in assistant config.
@@ -176,22 +180,7 @@ pub async fn cloud_chat(
 ) -> Result<CloudChatResult, String> {
     // 1. Get API key — env var first (piggybacks off Claude Code session),
     //    then keyring, then fail with clear message.
-    let api_key = if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
-        if key.is_empty() {
-            get_api_key(ProviderId::AnthropicApi)
-                .await
-                .map_err(|e| e.to_string())?
-                .ok_or("No Anthropic API key configured. Add it in Settings → API Keys.")?
-        } else {
-            tracing::debug!("cloud_chat: using ANTHROPIC_API_KEY from environment");
-            key
-        }
-    } else {
-        get_api_key(ProviderId::AnthropicApi)
-            .await
-            .map_err(|e| e.to_string())?
-            .ok_or("No Anthropic API key found. Set ANTHROPIC_API_KEY or add key in Settings.")?
-    };
+    let api_key = resolve_anthropic_api_key().await?;
 
     let model = model.unwrap_or_else(|| "claude-sonnet-4-20250514".to_string());
     let max_tokens = max_tokens.unwrap_or(4096);
@@ -243,77 +232,12 @@ pub async fn cloud_chat(
     }
 
     // 4. Stream SSE response — same pattern as llama_chat
-    let mut full_response = String::new();
-    let mut input_tokens: u64 = 0;
-    let mut output_tokens: u64 = 0;
-    let mut model_used = model.clone();
-
-    use futures::StreamExt;
-    let mut stream = resp.bytes_stream();
-    let mut buffer = String::new();
-
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk.map_err(|e| format!("Stream error: {e}"))?;
-        buffer.push_str(&String::from_utf8_lossy(&chunk));
-
-        // Process complete SSE lines
-        while let Some(line_end) = buffer.find('\n') {
-            let line = buffer[..line_end].trim().to_string();
-            buffer = buffer[line_end + 1..].to_string();
-
-            if line.is_empty() || line.starts_with("event:") {
-                continue;
-            }
-
-            if let Some(json_str) = line.strip_prefix("data: ") {
-                if json_str == "[DONE]" {
-                    continue;
-                }
-
-                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str) {
-                    let event_type = parsed.get("type").and_then(|t| t.as_str()).unwrap_or("");
-
-                    match event_type {
-                        "content_block_delta" => {
-                            if let Some(text) = parsed
-                                .get("delta")
-                                .and_then(|d| d.get("text"))
-                                .and_then(|t| t.as_str())
-                            {
-                                full_response.push_str(text);
-                                let _ = crate::events::CloudTokenStreamed {
-                                    content: text.to_string(),
-                                }
-                                .emit(&app);
-                            }
-                        }
-                        "message_start" => {
-                            if let Some(msg) = parsed.get("message") {
-                                if let Some(m) = msg.get("model").and_then(|m| m.as_str()) {
-                                    model_used = m.to_string();
-                                }
-                                if let Some(usage) = msg.get("usage") {
-                                    input_tokens = usage
-                                        .get("input_tokens")
-                                        .and_then(serde_json::Value::as_u64)
-                                        .unwrap_or(0);
-                                }
-                            }
-                        }
-                        "message_delta" => {
-                            if let Some(usage) = parsed.get("usage") {
-                                output_tokens = usage
-                                    .get("output_tokens")
-                                    .and_then(serde_json::Value::as_u64)
-                                    .unwrap_or(0);
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-        }
-    }
+    let CloudChatResult {
+        content: full_response,
+        model: model_used,
+        input_tokens,
+        output_tokens,
+    } = stream_anthropic_messages(resp, &app, &model).await?;
 
     let _ = crate::events::CloudCompletionFinished {
         model: model_used.clone(),
@@ -336,4 +260,134 @@ pub async fn cloud_chat(
         input_tokens,
         output_tokens,
     })
+}
+
+/// Resolve the Anthropic API key from environment first, falling back
+/// to the OS keyring. Returns a clear error message when neither holds
+/// a non-empty key — the UI surfaces this verbatim.
+async fn resolve_anthropic_api_key() -> Result<String, String> {
+    if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
+        if !key.is_empty() {
+            tracing::debug!("cloud_chat: using ANTHROPIC_API_KEY from environment");
+            return Ok(key);
+        }
+        return get_api_key(ProviderId::AnthropicApi)
+            .await
+            .map_err(|e| e.to_string())?
+            .ok_or_else(|| {
+                "No Anthropic API key configured. Add it in Settings → API Keys.".to_string()
+            });
+    }
+    get_api_key(ProviderId::AnthropicApi)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| {
+            "No Anthropic API key found. Set ANTHROPIC_API_KEY or add key in Settings.".to_string()
+        })
+}
+
+/// Consume the SSE byte stream from `/v1/messages` until completion.
+/// Emits per-token events on `cloud:token` and returns the assembled
+/// response plus usage metadata.
+async fn stream_anthropic_messages(
+    resp: reqwest::Response,
+    app: &tauri::AppHandle,
+    fallback_model: &str,
+) -> Result<CloudChatResult, String> {
+    use futures::StreamExt;
+
+    let mut full_response = String::new();
+    let mut input_tokens: u64 = 0;
+    let mut output_tokens: u64 = 0;
+    let mut model_used = fallback_model.to_string();
+    let mut stream = resp.bytes_stream();
+    let mut buffer = String::new();
+
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk.map_err(|e| format!("Stream error: {e}"))?;
+        buffer.push_str(&String::from_utf8_lossy(&chunk));
+
+        // Process complete SSE lines
+        while let Some(line_end) = buffer.find('\n') {
+            let line = buffer[..line_end].trim().to_string();
+            buffer = buffer[line_end + 1..].to_string();
+
+            if line.is_empty() || line.starts_with("event:") {
+                continue;
+            }
+
+            if let Some(json_str) = line.strip_prefix("data: ") {
+                if json_str == "[DONE]" {
+                    continue;
+                }
+
+                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str) {
+                    apply_anthropic_event(
+                        &parsed,
+                        app,
+                        &mut full_response,
+                        &mut model_used,
+                        &mut input_tokens,
+                        &mut output_tokens,
+                    );
+                }
+            }
+        }
+    }
+
+    Ok(CloudChatResult {
+        content: full_response,
+        model: model_used,
+        input_tokens,
+        output_tokens,
+    })
+}
+
+/// Apply a single Anthropic SSE event to the running response state.
+fn apply_anthropic_event(
+    parsed: &serde_json::Value,
+    app: &tauri::AppHandle,
+    full_response: &mut String,
+    model_used: &mut String,
+    input_tokens: &mut u64,
+    output_tokens: &mut u64,
+) {
+    let event_type = parsed.get("type").and_then(|t| t.as_str()).unwrap_or("");
+    match event_type {
+        "content_block_delta" => {
+            if let Some(text) = parsed
+                .get("delta")
+                .and_then(|d| d.get("text"))
+                .and_then(|t| t.as_str())
+            {
+                full_response.push_str(text);
+                let _ = crate::events::CloudTokenStreamed {
+                    content: text.to_string(),
+                }
+                .emit(app);
+            }
+        }
+        "message_start" => {
+            if let Some(msg) = parsed.get("message") {
+                if let Some(m) = msg.get("model").and_then(|m| m.as_str()) {
+                    *model_used = m.to_string();
+                }
+                if let Some(usage) = msg.get("usage") {
+                    *input_tokens = usage
+                        .get("input_tokens")
+                        .and_then(serde_json::Value::as_u64)
+                        .unwrap_or(0);
+                }
+            }
+        }
+        "message_delta" => {
+            if let Some(usage) = parsed.get("usage") {
+                *output_tokens = usage
+                    .get("output_tokens")
+                    .and_then(serde_json::Value::as_u64)
+                    .unwrap_or(0);
+            }
+        }
+        _ => {}
+    }
 }

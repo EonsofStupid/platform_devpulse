@@ -134,9 +134,9 @@ pub struct DevforgeBootstrapStatus {
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct DevforgeConfigView {
-    /// `true` if the platform will spawn DevForge on first launch.
+    /// `true` if the platform will spawn `DevForge` on first launch.
     pub enabled: bool,
-    /// `true` if a DevForge boot failure aborts platform boot.
+    /// `true` if a `DevForge` boot failure aborts platform boot.
     pub critical: bool,
     /// Service mode: `"reh"` (default — client/server) or `"standalone"`
     /// (legacy Electron, deprecated).

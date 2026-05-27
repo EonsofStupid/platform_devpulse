@@ -20,7 +20,7 @@
 //! terminates them before they block the dev port or hold cargo locks.
 //!
 //! **Every subprocess call has a timeout.** If any OS tool (tasklist,
-//! PowerShell, taskkill) hangs, we print a warning and move on. The
+//! `PowerShell`, taskkill) hangs, we print a warning and move on. The
 //! pipeline NEVER freezes silently.
 
 use crate::stage::Stage;
@@ -94,7 +94,7 @@ mod job {
                 SetInformationJobObject(
                     handle,
                     JobObjectExtendedLimitInformation,
-                    (&info as *const JOBOBJECT_EXTENDED_LIMIT_INFORMATION).cast(),
+                    (&raw const info).cast(),
                     std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
                 )
             };
@@ -209,7 +209,7 @@ const ZOMBIE_NAMES: &[&str] = &[
     "llama-server-x86_64-pc-windows-msvc",
 ];
 
-/// Build command-line patterns that identify DevPulse dev processes.
+/// Build command-line patterns that identify `DevPulse` dev processes.
 /// Port is config-driven — no hardcoded values.
 fn zombie_patterns(dev_port: u16) -> Vec<String> {
     vec![
@@ -227,7 +227,7 @@ fn zombie_patterns(dev_port: u16) -> Vec<String> {
 /// a crashed session are sitting on the lock, we'd block forever with zero
 /// output — the exact "frozen pipeline" bug. This makes the failure visible
 /// and recovers automatically.
-pub fn clear_build_lock_holders() -> Result<u32> {
+pub fn clear_build_lock_holders() -> u32 {
     let stage = Stage::start("build lock scan");
 
     #[cfg(windows)]
@@ -235,8 +235,6 @@ pub fn clear_build_lock_holders() -> Result<u32> {
 
     #[cfg(not(windows))]
     let killed = clear_build_lock_unix();
-
-    let killed = killed?;
 
     if killed == 0 {
         stage.ok_with("no stale cargo/rustc — build lock is free");
@@ -246,11 +244,11 @@ pub fn clear_build_lock_holders() -> Result<u32> {
         ));
     }
 
-    Ok(killed)
+    killed
 }
 
 #[cfg(windows)]
-fn clear_build_lock_windows() -> Result<u32> {
+fn clear_build_lock_windows() -> u32 {
     use std::process::Command;
 
     let my_pid = std::process::id();
@@ -307,7 +305,7 @@ fn clear_build_lock_windows() -> Result<u32> {
         }
     }
 
-    Ok(killed)
+    killed
 }
 
 /// Collect the full ancestor chain of cargo.exe PIDs that lead to us.
@@ -330,7 +328,7 @@ fn get_ancestor_pids_windows() -> Vec<u32> {
     ancestors
 }
 
-/// Get the parent PID of a specific process via PowerShell (reliable, unlike wmic).
+/// Get the parent PID of a specific process via `PowerShell` (reliable, unlike wmic).
 #[cfg(windows)]
 fn get_parent_pid_of(pid: u32) -> Option<u32> {
     let output = run_with_timeout(
@@ -348,7 +346,7 @@ fn get_parent_pid_of(pid: u32) -> Option<u32> {
 }
 
 #[cfg(not(windows))]
-fn clear_build_lock_unix() -> Result<u32> {
+fn clear_build_lock_unix() -> u32 {
     use std::process::Command;
 
     let my_pid = std::process::id();
@@ -380,13 +378,13 @@ fn clear_build_lock_unix() -> Result<u32> {
         }
     }
 
-    Ok(killed)
+    killed
 }
 
 /// Scan for and kill zombie processes from previous dev sessions.
 ///
 /// `dev_port` is read from `[services.network.dev_server]` in `platform.default.toml`.
-pub fn cleanup(dev_port: u16) -> Result<u32> {
+pub fn cleanup(dev_port: u16) -> u32 {
     let stage = Stage::start("zombie scan");
 
     #[cfg(windows)]
@@ -395,19 +393,17 @@ pub fn cleanup(dev_port: u16) -> Result<u32> {
     #[cfg(not(windows))]
     let killed = cleanup_unix(dev_port);
 
-    let killed = killed?;
-
     if killed == 0 {
         stage.ok_with("no stale processes");
     } else {
         stage.ok_with(format!("killed {killed} stale process(es)"));
     }
 
-    Ok(killed)
+    killed
 }
 
 #[cfg(windows)]
-fn cleanup_windows(dev_port: u16) -> Result<u32> {
+fn cleanup_windows(dev_port: u16) -> u32 {
     let my_pid = std::process::id();
     let mut killed = 0u32;
 
@@ -495,11 +491,11 @@ fn cleanup_windows(dev_port: u16) -> Result<u32> {
         }
     }
 
-    Ok(killed)
+    killed
 }
 
 #[cfg(not(windows))]
-fn cleanup_unix(_dev_port: u16) -> Result<u32> {
+fn cleanup_unix(_dev_port: u16) -> u32 {
     let my_pid = std::process::id();
     let mut killed = 0u32;
 
@@ -529,7 +525,7 @@ fn cleanup_unix(_dev_port: u16) -> Result<u32> {
         }
     }
 
-    Ok(killed)
+    killed
 }
 
 /// Parse PID from tasklist CSV output: "name.exe","12345","Console","1","12,345 K"

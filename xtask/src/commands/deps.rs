@@ -150,8 +150,7 @@ fn verify_repo(ws: &Workspace, repo: &DepRepo) -> Result<String> {
             .iter()
             .find(|line| line.contains(&branch_ref))
             .and_then(|line| line.split_whitespace().next())
-            .map(|h| &h[..h.len().min(8)])
-            .unwrap_or("?");
+            .map_or("?", |h| &h[..h.len().min(8)]);
 
         Ok(format!("{branch} @ {hash}"))
     } else {

@@ -29,6 +29,11 @@ const TOTAL_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// Process-wide HTTP client. Built lazily so the cost is paid only when
 /// the operator actually opens the API Providers devtool.
+///
+/// Falls back to the reqwest default `Client::new()` if the builder
+/// rejects our settings (TLS backend init / DNS resolver failure);
+/// devtool reachability is non-essential and we'd rather show a working
+/// fallback client than poison the whole panel.
 fn shared_client() -> &'static Client {
     static CLIENT: OnceLock<Client> = OnceLock::new();
     CLIENT.get_or_init(|| {
@@ -37,7 +42,13 @@ fn shared_client() -> &'static Client {
             .timeout(TOTAL_TIMEOUT)
             .user_agent(concat!("DevPulse/", env!("CARGO_PKG_VERSION")))
             .build()
-            .expect("reqwest client construction failed — should be infallible with these settings")
+            .unwrap_or_else(|err| {
+                tracing::warn!(
+                    error = %err,
+                    "providers.client: builder failed, falling back to default reqwest Client"
+                );
+                Client::new()
+            })
     })
 }
 
@@ -57,7 +68,7 @@ pub async fn fetch_models(
         .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {provider:?}")))?;
 
     let request = build_request(provider, entry, api_key)?;
-    let response = request.send().await.map_err(network_error)?;
+    let response = request.send().await.map_err(|e| network_error(&e))?;
     parse_response(provider, response).await
 }
 
@@ -164,7 +175,7 @@ fn base_url(entry: &ai_providers::AiProvider) -> Result<&'static str, CommandErr
 }
 
 /// Map a reqwest send-time failure to our classified shape.
-fn network_error(e: reqwest::Error) -> CommandError {
+fn network_error(e: &reqwest::Error) -> CommandError {
     // is_timeout / is_connect / other all bucket to Network — the
     // distinction between them is rarely actionable for the UI.
     CommandError::network(format!("Network call failed: {e}"))
@@ -211,7 +222,6 @@ pub fn classify_status(status: StatusCode, body: &str) -> ErrorKind {
                 ErrorKind::RateLimit
             }
         }
-        500..=599 => ErrorKind::Server,
         _ => ErrorKind::Server,
     }
 }

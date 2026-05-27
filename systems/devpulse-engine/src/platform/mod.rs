@@ -224,9 +224,7 @@ use services::analytics::AnalyticsService;
 use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgePreflight, DevForgeService};
 use services::graph::GraphService;
-#[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
-#[cfg(feature = "candle")]
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use services::model_loader::ModelLoaderService;
@@ -383,9 +381,9 @@ pub struct Platform {
     // ── Project scope ──────────────────────────────────────────
     /// Per-project libSQL databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
-    /// Per-project DuckDB analytics, created on demand.
+    /// Per-project `DuckDB` analytics, created on demand.
     project_analytics: Arc<ProjectAnalyticsManager>,
-    /// Per-project SurrealDB namespace handles, minted on demand inside
+    /// Per-project `SurrealDB` namespace handles, minted on demand inside
     /// the shared embedded instance.
     project_graph: Arc<ProjectGraphManager>,
     /// Per-project Qdrant collection registry, created on demand inside
@@ -672,7 +670,7 @@ impl Platform {
     /// Holds AI-side metrics: LLM calls, layer budgets, governance,
     /// retrieval / lane / span traces, council performance, vision
     /// pipeline, platform telemetry. User-perceived metrics live on
-    /// [`Platform::user_analytics`] in a separate DuckDB file.
+    /// [`Platform::user_analytics`] in a separate `DuckDB` file.
     pub fn analytics(&self) -> Option<&Arc<AnalyticsService>> {
         self.system_analytics.as_ref()
     }
@@ -758,12 +756,16 @@ impl Platform {
     ///   on the trait makes this `dyn`-compatible).
     /// - The user graph's `SurrealAdapter` + namespace pair so the
     ///   service writes/reads the `chat_prompt` table inside
-    ///   USER_GRAPH_SCHEMA.
+    ///   `USER_GRAPH_SCHEMA`.
     ///
     /// # Errors
     /// - `model_loader` is not booted (no embedder source).
     /// - `user_graph` is not booted (no storage target).
     #[cfg(feature = "inference")]
+    #[expect(
+        clippy::unused_async,
+        reason = "callers in interfaces/desktop/src-tauri/src/commands/chat/suggest.rs `.await?` this; keeping the signature async is forward-compatible with a future construction step that becomes async (e.g. graph adapter warm-up) without breaking every call site"
+    )]
     pub async fn ensure_suggest_service(
         &self,
     ) -> Result<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>, String> {
@@ -1103,6 +1105,13 @@ impl Platform {
     /// defaults so the wizard / settings surface always renders. When
     /// the inference feature is compiled out (or the loader isn't
     /// available yet), the persisted file value is returned verbatim.
+    #[cfg_attr(
+        not(feature = "inference"),
+        expect(
+            clippy::unused_async,
+            reason = "async needed when feature=inference is on (loader.get_assistant_config().await); kept async on every build so the Tauri command signature is uniform"
+        )
+    )]
     pub async fn routing_config_load(&self) -> RoutingConfig {
         // Reconcile against the kernel SSOT so the UI never disagrees
         // with the dispatcher. The kernel write-through inside
@@ -1126,7 +1135,7 @@ impl Platform {
                 .ok()
                 .and_then(|v| v.as_str().map(str::to_string))
                 .unwrap_or_else(|| "local_first".to_string());
-            cfg.latency.response_source = InferenceProvider::from_str(&raw_mode);
+            cfg.latency.response_source = InferenceProvider::from_wire(&raw_mode);
         }
 
         cfg
@@ -1148,6 +1157,13 @@ impl Platform {
     /// - Write-through to the kernel routing mode fails (when the
     ///   inference feature is compiled in and the model loader is
     ///   available).
+    #[cfg_attr(
+        not(feature = "inference"),
+        expect(
+            clippy::unused_async,
+            reason = "async needed when feature=inference is on (loader.set_routing_mode().await); kept async on every build so the Tauri command signature is uniform"
+        )
+    )]
     pub async fn routing_config_save(&self, cfg: &RoutingConfig) -> Result<RoutingConfig> {
         let saved = services::routing_config::save(&self.data_dir, cfg)?;
 
@@ -1330,12 +1346,12 @@ impl Platform {
         &self.project_db
     }
 
-    /// Get the per-project analytics manager (DuckDB).
+    /// Get the per-project analytics manager (`DuckDB`).
     pub fn project_analytics(&self) -> &Arc<ProjectAnalyticsManager> {
         &self.project_analytics
     }
 
-    /// Get the per-project graph manager (SurrealDB namespaces inside
+    /// Get the per-project graph manager (`SurrealDB` namespaces inside
     /// the shared embedded instance).
     pub fn project_graph(&self) -> &Arc<ProjectGraphManager> {
         &self.project_graph
@@ -1351,7 +1367,7 @@ impl Platform {
     /// Atomically initialize every per-project store for one project.
     ///
     /// Delegates to [`services::project_init::init_project_full`] with
-    /// the platform's own manager refs + the shared SurrealDB adapter
+    /// the platform's own manager refs + the shared `SurrealDB` adapter
     /// borrowed from the system graph service. Idempotent — safe to
     /// call on every project boot.
     ///

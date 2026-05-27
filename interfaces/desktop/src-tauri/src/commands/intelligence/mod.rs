@@ -68,7 +68,7 @@ pub struct IntelStatus {
 /// in its Status tab.
 #[derive(Debug, Clone, Serialize, Type)]
 pub struct ProjectIntel {
-    /// Project slug — the SurrealDB database name under
+    /// Project slug — the `SurrealDB` database name under
     /// [`PROJECT_NAMESPACE`]. Derived from the project root path
     /// via `cortex::intelligence::slug_for_cwd`.
     pub slug: String,
@@ -184,7 +184,7 @@ pub async fn infer_capability_bucket(filename: String) -> Result<String, String>
 #[derive(Debug, Clone, serde::Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct IntelSaveMemoryRequest {
-    /// Project slug — the SurrealDB database name under the
+    /// Project slug — the `SurrealDB` database name under the
     /// `projects` namespace. Derive on the frontend via the
     /// `intel_list_projects` output or hardcode for single-project
     /// dev flows.
@@ -205,7 +205,7 @@ pub struct IntelSaveMemoryRequest {
 
 /// Persist a memory row into the project's intelligence store.
 ///
-/// Returns the connector-assigned memory id (typically a UUIDv7 the
+/// Returns the connector-assigned memory id (typically a `UUIDv7` the
 /// command generates). Idempotent at the connector layer when the
 /// connector dedupes by embedding similarity.
 ///
@@ -241,7 +241,7 @@ pub async fn intel_save_memory(
 
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
+        .map(|d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX))
         .unwrap_or(0);
     let record = MemoryRecord {
         id: format!("mem-{}", uuid::Uuid::new_v4()),

@@ -248,11 +248,12 @@ impl Default for WindowConfig {
 /// - `local_first` - prefer local inference first
 /// - `local_claude_subscription` - prefer local and escalate through the Claude subscription lane
 /// - `local_claude_api_council` - prefer local and allow both Claude subscription and API council escalation
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
 pub enum RoutingMode {
     /// Prefer local inference — no cloud escalation.
+    #[default]
     LocalFirst,
     /// Prefer local, escalate through the Claude subscription lane.
     LocalClaudeSubscription,
@@ -285,12 +286,6 @@ impl RoutingMode {
             Self::LocalClaudeSubscription => "local_claude_subscription",
             Self::LocalClaudeApiCouncil => "local_claude_api_council",
         }
-    }
-}
-
-impl Default for RoutingMode {
-    fn default() -> Self {
-        Self::LocalFirst
     }
 }
 

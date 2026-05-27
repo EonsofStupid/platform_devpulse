@@ -1,6 +1,6 @@
 //! Surreal client adapter — embedded `Surreal<Db>` connection.
 //!
-//! DevPulse opens the SurrealKV store in-process via
+//! `DevPulse` opens the `SurrealKV` store in-process via
 //! [`super::lifecycle::SurrealLifecycle`] and this adapter wraps the
 //! resulting `Surreal<Db>` connection with namespace-scoped operations.
 //! No WS, no socket, no auth — the Platform owns the file lock so
@@ -64,7 +64,7 @@ impl SurrealAdapter {
     ///
     /// This is the primary constructor. The `Surreal<Db>` is cloned
     /// (internal `Arc`) so multiple `SurrealAdapter` instances can
-    /// share one open SurrealKV store. Additional namespaces on the
+    /// share one open `SurrealKV` store. Additional namespaces on the
     /// same connection are initialized via [`Self::init_namespace`].
     ///
     /// # Errors
@@ -216,12 +216,12 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Quiesce — drops the cloned connection on Drop; SurrealKV
+    /// Quiesce — drops the cloned connection on Drop; `SurrealKV`
     /// flushes its WAL automatically. Stays async for signature
     /// stability with the prior WS-client surface.
     #[allow(clippy::unused_async)]
     pub async fn quiesce(&self) {
-        tracing::info!("SurrealKV: adapter quiesced (clone will close on drop)");
+        tracing::info!("`SurrealKV`: adapter quiesced (clone will close on drop)");
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -229,14 +229,14 @@ impl SurrealAdapter {
     // ═══════════════════════════════════════════════════════════════
 
     /// List every database under the given namespace. Returns an
-    /// empty `Vec` when the namespace is unknown to SurrealDB (no
+    /// empty `Vec` when the namespace is unknown to `SurrealDB` (no
     /// databases yet defined under it).
     ///
     /// Used by the `intelligence` devtool to show every per-project
     /// database that currently exists under `projects/`. Read-only.
     ///
     /// # Errors
-    /// Propagates SurrealDB errors with the namespace in context.
+    /// Propagates `SurrealDB` errors with the namespace in context.
     pub async fn list_databases_in_ns(&self, namespace: &str) -> Result<Vec<String>> {
         let scoped = format!("USE NS {namespace}; INFO FOR NS;");
         let mut response = self
@@ -264,7 +264,7 @@ impl SurrealAdapter {
     /// memory + archive counts. Read-only.
     ///
     /// # Errors
-    /// Propagates SurrealDB errors with the namespace + table in
+    /// Propagates `SurrealDB` errors with the namespace + table in
     /// context.
     pub async fn count_in_ns(&self, namespace: &str, database: &str, table: &str) -> Result<u64> {
         // `SELECT VALUE count() FROM <table> GROUP ALL` returns a
@@ -305,7 +305,7 @@ impl SurrealAdapter {
     //    typed records (`KvRecord`, `MemoryRecord`, `RroRecord`,
     //    etc) directly — no `serde_json::Value` round-trip.
 
-    /// Build a namespace-scoped SurrealQL `Query` the caller can
+    /// Build a namespace-scoped `SurrealQL` `Query` the caller can
     /// chain `.bind(...)` calls on and await for a typed
     /// `Response`. The returned value borrows from `self.db`, so
     /// the adapter must outlive the query — the standard pattern
@@ -333,7 +333,7 @@ impl SurrealAdapter {
     /// target table's schema.
     ///
     /// # Errors
-    /// Propagates SurrealDB errors with the namespace + table + id
+    /// Propagates `SurrealDB` errors with the namespace + table + id
     /// in the context message.
     pub(crate) async fn upsert_typed_in_ns<T>(
         &self,
@@ -367,7 +367,7 @@ impl SurrealAdapter {
     /// `DeserializeOwned`.
     ///
     /// # Errors
-    /// Propagates SurrealDB errors with the namespace + table + id
+    /// Propagates `SurrealDB` errors with the namespace + table + id
     /// in the context message.
     pub(crate) async fn select_typed_in_ns<T>(
         &self,
@@ -404,7 +404,7 @@ impl SurrealAdapter {
     /// no row matched.
     ///
     /// # Errors
-    /// Propagates SurrealDB errors with the namespace + table + id
+    /// Propagates `SurrealDB` errors with the namespace + table + id
     /// in the context message.
     pub(crate) async fn delete_typed_in_ns(
         &self,
@@ -437,7 +437,7 @@ impl SurrealAdapter {
     /// when no archive row exists.
     ///
     /// # Errors
-    /// Propagates SurrealDB errors with the namespace + memory id
+    /// Propagates `SurrealDB` errors with the namespace + memory id
     /// in the context message.
     pub(crate) async fn read_archive_bytes_in_ns(
         &self,
@@ -474,7 +474,7 @@ impl SurrealAdapter {
 // ScopedGraphHandle — namespace-scoped operations
 // ═══════════════════════════════════════════════════════════════
 
-/// Namespace-scoped handle to a shared embedded `SurrealKV` connection.
+/// Namespace-scoped handle to a shared embedded ``SurrealKV`` connection.
 ///
 /// Every query is prefixed with `USE NS {namespace} DB {database};` so
 /// namespace isolation is enforced at the query level — no implicit
@@ -610,7 +610,7 @@ impl ScopedGraphHandle {
     /// Set a key-value pair in the scoped `kv` table.
     ///
     /// Typed contract: builds a [`KvRecord`] and upserts via the
-    /// adapter's typed scoped helper. No SurrealQL string
+    /// adapter's typed scoped helper. No `SurrealQL` string
     /// interpolation, no base64 round-trip — the `bytes` column
     /// roundtrips directly through serde.
     ///
@@ -723,7 +723,7 @@ pub struct StateTransition {
 ///
 /// - **kv / nodes / relates / states / transitions** — the original
 ///   reasoning graph: facts, edges, context-switching state machine.
-/// - **estates / estate_aspects** — the Clyffy + minion identity
+/// - **estates / `estate_aspects`** — the Clyffy + minion identity
 ///   cascade. Each `estate` is the SSOT for one primary persona node
 ///   (Clyffy or the minion umbrella) and owns its child `estate_aspects`
 ///   rows (working memory, personality facets, per-minion state). The

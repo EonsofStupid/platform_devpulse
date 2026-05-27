@@ -26,7 +26,7 @@ use tauri::Emitter;
 /// - `Info`  → informational, show toast or log
 /// - `Error` → recoverable, show error banner
 /// - `Crash` → unrecoverable, show error overlay
-#[derive(Debug, Clone, Serialize, specta::Type)]
+#[derive(Debug, Clone, Copy, Serialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum StatusKind {
     /// Full state snapshot — frontend sets `$state` directly.
@@ -65,10 +65,7 @@ pub struct StatusUpdate<T: Serialize> {
 /// ```
 pub fn emit_status<T: Serialize>(app: &tauri::AppHandle, domain: &str, kind: StatusKind, data: &T) {
     let event_name = format!("platform:{domain}-status");
-    let update = StatusUpdate {
-        kind: kind.clone(),
-        data,
-    };
+    let update = StatusUpdate { kind, data };
     let _ = app.emit(&event_name, &update);
     tracing::info!(
         domain,

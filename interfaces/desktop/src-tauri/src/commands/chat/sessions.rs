@@ -3,6 +3,7 @@
 use crate::state::PlatformState;
 use devpulse_engine::platform::{SqlAdapter, SqlValue};
 use serde::Serialize;
+use std::fmt::Write as _;
 use std::fs;
 use std::path::PathBuf;
 use tauri::State;
@@ -60,10 +61,13 @@ pub async fn list_sessions(state: State<'_, PlatformState>) -> Result<Vec<ChatSe
         .collect())
 }
 
-/// Delete one session — cascades `turns` / anchors / open_loops` per engine schema.
+/// Delete one session — cascades `turns` / `anchors` / `open_loops` per engine schema.
+///
+/// # Errors
+/// Returns the formatted Platform / `SurrealDB` error if the cascade
+/// delete fails or the session is unknown.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
 pub async fn delete_session(
     session_id: String,
     app: tauri::AppHandle,
@@ -118,13 +122,10 @@ pub async fn clear_all_chat_history(state: State<'_, PlatformState>) -> Result<(
 fn turns_to_markdown(session_title: Option<&str>, messages: &[ChatMessage]) -> String {
     let mut out = String::new();
     if let Some(t) = session_title {
-        out.push_str(&format!("# {t}\n\n"));
+        let _ = write!(out, "# {t}\n\n");
     }
     for m in messages {
-        out.push_str(&format!(
-            "## {} ({})\n\n{}\n\n",
-            m.role, m.created_at, m.content
-        ));
+        let _ = write!(out, "## {} ({})\n\n{}\n\n", m.role, m.created_at, m.content);
     }
     out
 }
@@ -312,9 +313,7 @@ pub async fn export_all_sessions(
                     .to_string();
                 let msgs = load_session_turns(adapter.as_ref(), sid.as_str()).await?;
                 rows_total += i64::try_from(msgs.len()).unwrap_or(0);
-                body.push_str(&format!(
-                    "---\n\n# Session {sid} (project {project_id})\n\n"
-                ));
+                let _ = write!(body, "---\n\n# Session {sid} (project {project_id})\n\n");
                 body.push_str(&turns_to_markdown(title.as_deref(), &msgs));
                 body.push('\n');
             }

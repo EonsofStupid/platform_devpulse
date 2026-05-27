@@ -10,8 +10,14 @@
 //! All shared helpers (`now_ms`, `encode_png`, `data_url`) come from
 //! `commands::_util`. Errors classified via `CommandError` so the UI
 //! can `switch (err.kind)` instead of substring matching.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper that schedules an xcap call on the blocking pool. Failure modes (xcap I/O, task-join, NotFound on stale monitor id) are spelled out per-fn above."
+)]
 
 use std::time::Instant;
+
+use devpulse_telemetry::spawn_blocking;
 
 use super::dto::{CapturedFrame, MonitorInfo};
 use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
@@ -23,7 +29,7 @@ use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKi
 #[tauri::command]
 #[specta::specta]
 pub async fn pixvix_list_monitors() -> Result<Vec<MonitorInfo>, CommandError> {
-    tokio::task::spawn_blocking(list_monitors_blocking)
+    spawn_blocking(list_monitors_blocking)
         .await
         .map_err(|e| CommandError::internal(format!("monitor enumeration task failed: {e}")))?
 }
@@ -47,7 +53,7 @@ fn list_monitors_blocking() -> Result<Vec<MonitorInfo>, CommandError> {
 #[tauri::command]
 #[specta::specta]
 pub async fn pixvix_capture_monitor_once(id: u32) -> Result<CapturedFrame, CommandError> {
-    tokio::task::spawn_blocking(move || capture_monitor_blocking(id))
+    spawn_blocking(move || capture_monitor_blocking(id))
         .await
         .map_err(|e| CommandError::internal(format!("capture task panicked: {e}")))?
 }

@@ -156,10 +156,10 @@ fn crate_layer(name: &str) -> &'static str {
 // ── Line clearing helper ─────────────────────────────────────────
 
 /// Width of the progress line. Must be wide enough to overwrite any previous
-/// content on Windows ConHost (bare \r does not clear trailing chars).
+/// content on Windows `ConHost` (bare \r does not clear trailing chars).
 const LINE_WIDTH: usize = 100;
 
-/// Clear the current terminal line (works on Windows ConHost + Unix).
+/// Clear the current terminal line (works on Windows `ConHost` + Unix).
 fn clear_line() {
     eprint!("\r{}\r", " ".repeat(LINE_WIDTH));
     io::stderr().flush().ok();
@@ -192,8 +192,6 @@ pub fn monitor_cargo_child(
 ) -> anyhow::Result<CargoMonitorResult> {
     use std::io::BufRead;
     use std::sync::{Arc, Mutex};
-    use std::thread;
-    use std::time::Duration;
 
     let stderr = child
         .stderr
@@ -202,12 +200,6 @@ pub fn monitor_cargo_child(
 
     let reader = io::BufReader::new(stderr);
     let start = Instant::now();
-    let mut compiled = 0u32;
-    let mut checked = 0u32;
-    let mut warnings = 0u32;
-    let mut errors = Vec::<String>::new();
-    let mut current_layer = "";
-    let mut in_error_block = false;
 
     // Shared state for the heartbeat thread to display live elapsed time
     // even when cargo is silent (e.g. during long native C++ compilations).
@@ -219,10 +211,56 @@ pub fn monitor_cargo_child(
         alive: true,
     }));
 
-    // Heartbeat thread: updates elapsed timer every 2s so the UI never looks frozen.
-    let hb = Arc::clone(&heartbeat_state);
-    let hb_start = start;
-    let heartbeat = thread::spawn(move || {
+    let heartbeat = spawn_heartbeat_thread(Arc::clone(&heartbeat_state), start);
+
+    let mut counters = CompileCounters::default();
+    for line in reader.lines() {
+        let Ok(line) = line else { continue };
+        process_compile_line(
+            &line,
+            &mut counters,
+            start,
+            estimated_total,
+            &heartbeat_state,
+        );
+    }
+
+    // Stop heartbeat thread
+    if let Ok(mut state) = heartbeat_state.lock() {
+        state.alive = false;
+    }
+    let _ = heartbeat.join();
+
+    clear_line();
+
+    let status = child.wait().context("failed to wait on cargo")?;
+    let elapsed = format_duration(start.elapsed());
+    report_cargo_result(label, &counters, &elapsed, status);
+
+    Ok(CargoMonitorResult { status })
+}
+
+/// Running counters maintained while the cargo monitor consumes its
+/// stderr stream. `current_layer` and `in_error_block` are line-by-line
+/// state used to drive the rendered progress UI.
+#[derive(Default)]
+struct CompileCounters {
+    compiled: u32,
+    checked: u32,
+    warnings: u32,
+    errors: Vec<String>,
+    current_layer: &'static str,
+    in_error_block: bool,
+}
+
+fn spawn_heartbeat_thread(
+    hb: std::sync::Arc<std::sync::Mutex<HeartbeatState>>,
+    hb_start: Instant,
+) -> std::thread::JoinHandle<()> {
+    use std::thread;
+    use std::time::Duration;
+
+    thread::spawn(move || {
         let spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
         let mut tick = 0usize;
         loop {
@@ -231,10 +269,7 @@ pub fn monitor_cargo_child(
             // value and keep ticking — the only durable state we need is
             // `alive`, which the producer sets false on shutdown. Panicking
             // the heartbeat would just hide the real panic behind a second.
-            let state = match hb.lock() {
-                Ok(g) => g,
-                Err(poisoned) => poisoned.into_inner(),
-            };
+            let state = hb.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
             if !state.alive {
                 break;
             }
@@ -261,97 +296,98 @@ pub fn monitor_cargo_child(
             }
             io::stderr().flush().ok();
         }
-    });
+    })
+}
 
-    for line in reader.lines() {
-        let line = match line {
-            Ok(l) => l,
-            Err(_) => continue,
-        };
+fn process_compile_line(
+    line: &str,
+    counters: &mut CompileCounters,
+    start: Instant,
+    estimated_total: u32,
+    heartbeat_state: &std::sync::Mutex<HeartbeatState>,
+) {
+    let trimmed = line.trim();
 
-        let trimmed = line.trim();
-
-        if trimmed.starts_with("Compiling ") || trimmed.starts_with("Checking ") {
-            in_error_block = false;
-            let is_compile = trimmed.starts_with("Compiling ");
-            if is_compile {
-                compiled += 1;
-            } else {
-                checked += 1;
-            }
-
-            let prefix = if is_compile {
-                "Compiling "
-            } else {
-                "Checking "
-            };
-            let verb = if is_compile { "compiling" } else { "checking " };
-            let crate_name = trimmed
-                .strip_prefix(prefix)
-                .unwrap_or(trimmed)
-                .split_whitespace()
-                .next()
-                .unwrap_or("?");
-
-            let layer = crate_layer(crate_name);
-            let elapsed = format_duration(start.elapsed());
-            let total = compiled + checked;
-
-            // Update heartbeat shared state
-            if let Ok(mut state) = heartbeat_state.lock() {
-                state.last_verb = verb.to_string();
-                state.last_crate = crate_name.to_string();
-                state.total = total;
-            }
-
-            // Print layer transition header when entering a new layer
-            if !layer.is_empty() && layer != current_layer {
-                current_layer = layer;
-                clear_line();
-                eprintln!("  \u{251c}\u{2500} {layer}");
-            }
-
-            // Show progress with optional "X of ~Y" counter
-            clear_line();
-            if estimated_total > 0 {
-                let counter = format!("[{total:>3}/~{estimated_total}]");
-                eprint!("\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}  {counter}");
-            } else {
-                eprint!("\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}");
-            }
-            io::stderr().flush().ok();
-        } else if trimmed.starts_with("warning:") {
-            if trimmed.contains("generated") {
-                continue;
-            }
-            warnings += 1;
-            clear_line();
-            let detail = trimmed.strip_prefix("warning: ").unwrap_or(trimmed);
-            eprintln!("  \u{2502}  [warn] {detail}");
-        } else if trimmed.starts_with("error") {
-            in_error_block = true;
-            clear_line();
-            errors.push(trimmed.to_string());
-            eprintln!("  \u{2502}  [ERROR] {trimmed}");
-        } else if in_error_block && !trimmed.is_empty() {
-            eprintln!("  \u{2502}          {trimmed}");
-        } else if trimmed.starts_with("Finished") {
-            in_error_block = false;
-            clear_line();
+    if trimmed.starts_with("Compiling ") || trimmed.starts_with("Checking ") {
+        counters.in_error_block = false;
+        let is_compile = trimmed.starts_with("Compiling ");
+        if is_compile {
+            counters.compiled += 1;
+        } else {
+            counters.checked += 1;
         }
+
+        let prefix = if is_compile {
+            "Compiling "
+        } else {
+            "Checking "
+        };
+        let verb = if is_compile { "compiling" } else { "checking " };
+        let crate_name = trimmed
+            .strip_prefix(prefix)
+            .unwrap_or(trimmed)
+            .split_whitespace()
+            .next()
+            .unwrap_or("?");
+
+        let layer = crate_layer(crate_name);
+        let elapsed = format_duration(start.elapsed());
+        let total = counters.compiled + counters.checked;
+
+        // Update heartbeat shared state
+        if let Ok(mut state) = heartbeat_state.lock() {
+            state.last_verb = verb.to_string();
+            state.last_crate = crate_name.to_string();
+            state.total = total;
+        }
+
+        // Print layer transition header when entering a new layer
+        if !layer.is_empty() && layer != counters.current_layer {
+            counters.current_layer = layer;
+            clear_line();
+            eprintln!("  \u{251c}\u{2500} {layer}");
+        }
+
+        // Show progress with optional "X of ~Y" counter
+        clear_line();
+        if estimated_total > 0 {
+            let counter = format!("[{total:>3}/~{estimated_total}]");
+            eprint!("\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}  {counter}");
+        } else {
+            eprint!("\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}");
+        }
+        io::stderr().flush().ok();
+    } else if trimmed.starts_with("warning:") {
+        if trimmed.contains("generated") {
+            return;
+        }
+        counters.warnings += 1;
+        clear_line();
+        let detail = trimmed.strip_prefix("warning: ").unwrap_or(trimmed);
+        eprintln!("  \u{2502}  [warn] {detail}");
+    } else if trimmed.starts_with("error") {
+        counters.in_error_block = true;
+        clear_line();
+        counters.errors.push(trimmed.to_string());
+        eprintln!("  \u{2502}  [ERROR] {trimmed}");
+    } else if counters.in_error_block && !trimmed.is_empty() {
+        eprintln!("  \u{2502}          {trimmed}");
+    } else if trimmed.starts_with("Finished") {
+        counters.in_error_block = false;
+        clear_line();
     }
+}
 
-    // Stop heartbeat thread
-    if let Ok(mut state) = heartbeat_state.lock() {
-        state.alive = false;
-    }
-    let _ = heartbeat.join();
-
-    clear_line();
-
-    let status = child.wait().context("failed to wait on cargo")?;
-    let elapsed = format_duration(start.elapsed());
-    let total = compiled + checked;
+fn report_cargo_result(
+    label: &str,
+    counters: &CompileCounters,
+    elapsed: &str,
+    status: std::process::ExitStatus,
+) {
+    let total = counters.compiled + counters.checked;
+    let compiled = counters.compiled;
+    let checked = counters.checked;
+    let warnings = counters.warnings;
 
     if status.success() {
         let summary = if compiled > 0 && checked > 0 {
@@ -369,14 +405,12 @@ pub fn monitor_cargo_child(
     } else {
         eprintln!(
             "  \u{2514}\u{2500} [FAIL] {label} \u{2014} {} error(s) after {total} crates ({elapsed})",
-            errors.len().max(1)
+            counters.errors.len().max(1)
         );
-        for err in &errors {
+        for err in &counters.errors {
             eprintln!("           {err}");
         }
     }
-
-    Ok(CargoMonitorResult { status })
 }
 
 /// Shared state between the main reader loop and the heartbeat thread.

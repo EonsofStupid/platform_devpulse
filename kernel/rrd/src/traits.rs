@@ -18,7 +18,7 @@
 //! Required so [`ArcSwap<Self>`] can cross task boundaries.
 //! Verified at the assertion site
 //! `kernel/devpulse-clyffy/src/cortex/persistence/burn/mod.rs`
-//! per HOT_UPDATE_PATTERN.md §12 verification 1.
+//! per `HOT_UPDATE_PATTERN.md` §12 verification 1.
 
 use crate::error::RRDError;
 use crate::handle::PauseHandle;

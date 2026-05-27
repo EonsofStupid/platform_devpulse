@@ -46,7 +46,7 @@ pub enum AnalyticsEvent {
     /// User has reached the wizard entry point.
     WizardStarted {
         /// Stable per-session id generated at app boot — links all
-        /// events emitted during one DevPulse run.
+        /// events emitted during one `DevPulse` run.
         session_id: String,
     },
     /// Hardware probe finished — tier picked, key metrics captured.
@@ -179,7 +179,7 @@ pub fn emit_event(event: &AnalyticsEvent) {
     match serde_json::to_string(event) {
         Ok(json) => tracing::info!(target: "analytics", event = %json, "onboarding-event"),
         Err(e) => {
-            tracing::warn!(target: "analytics", error = %e, "failed to serialize analytics event")
+            tracing::warn!(target: "analytics", error = %e, "failed to serialize analytics event");
         }
     }
 }

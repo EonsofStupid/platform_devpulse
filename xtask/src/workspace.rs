@@ -63,7 +63,7 @@ impl Workspace {
         &self.root
     }
 
-    /// `interfaces/desktop/` — SvelteKit + Tauri frontend.
+    /// `interfaces/desktop/` — `SvelteKit` + Tauri frontend.
     pub fn desktop_dir(&self) -> PathBuf {
         self.root.join("interfaces").join("desktop")
     }
@@ -248,11 +248,11 @@ impl Workspace {
 
         let log_out = Arc::clone(&log);
         let stdout_handle =
-            thread::spawn(move || drain_stream(stdout, log_out, "OUT", start, true));
+            thread::spawn(move || drain_stream(stdout, &log_out, "OUT", start, true));
 
         let log_err = Arc::clone(&log);
         let stderr_handle =
-            thread::spawn(move || drain_stream(stderr, log_err, "ERR", start, false));
+            thread::spawn(move || drain_stream(stderr, &log_err, "ERR", start, false));
 
         let status = child
             .wait()
@@ -342,11 +342,11 @@ impl Workspace {
 
         let log_out = Arc::clone(&log);
         let stdout_handle =
-            thread::spawn(move || drain_stream(stdout, log_out, "OUT", start, true));
+            thread::spawn(move || drain_stream(stdout, &log_out, "OUT", start, true));
 
         let log_err = Arc::clone(&log);
         let stderr_handle =
-            thread::spawn(move || drain_stream(stderr, log_err, "ERR", start, false));
+            thread::spawn(move || drain_stream(stderr, &log_err, "ERR", start, false));
 
         Ok(TeeChild {
             child,
@@ -511,7 +511,7 @@ fn json_string_array(v: Option<&serde_json::Value>) -> Vec<String> {
 ///   `binaries/` subfolder.
 /// * Object: `{"src/path": "target/"}` — one entry per key, target taken
 ///   verbatim. This is the form the Windows/Linux/macOS platform
-///   overrides use today; it lets DevForge remap from
+///   overrides use today; it lets `DevForge` remap from
 ///   `resources/devforge/<platform>/**/*` to `devforge/` at bundle time.
 ///
 /// Unknown JSON shapes (null, bool, number, nested arrays) are dropped
@@ -548,12 +548,14 @@ fn parse_resources(v: Option<&serde_json::Value>) -> Vec<ResourceEntry> {
 ///
 /// Example (the one that burned us):
 ///
+/// ```text
 ///   base    : { "bundle": { "resources": [] } }
 ///   patch   : { "bundle": { "resources": ["binaries/llama.dll"] } }
 ///   merged  : { "bundle": { "resources": ["binaries/llama.dll"] } }
+/// ```
 ///
 /// Shipped as a small local helper instead of a dependency — the single
-/// call site is `tauri_config`, and we already have serde_json.
+/// call site is `tauri_config`, and we already have `serde_json`.
 fn merge_rfc7396(target: &mut serde_json::Value, patch: &serde_json::Value) {
     match (target, patch) {
         (serde_json::Value::Object(target_map), serde_json::Value::Object(patch_map)) => {
@@ -683,24 +685,26 @@ mod resource_parse_tests {
 // exec_tee_log support
 // ═══════════════════════════════════════════════════════════════
 
-/// Drain a child pipe with two layered behaviors:
-///
-///   1. **Byte passthrough to terminal** — every byte read from the
-///      pipe is written verbatim to the destination stream (stdout or
-///      stderr) and flushed. This preserves cargo's `\r`-based progress
-///      bar, rustc colors, and any other in-place terminal rewriting.
-///      From the user's perspective, the terminal behaves as if we had
-///      used `Stdio::inherit()`.
-///
-///   2. **Line-buffered log** — bytes are also accumulated into a line
-///      buffer; on `\n` the buffer is committed to the log with the
-///      `[<elapsed_ms>] [<label>] ` prefix. A `\r` resets the buffer
-///      without committing, because `\r` means "next writes overwrite
-///      this line" — logging every progress-bar tick would produce
-///      tens of thousands of noise entries and drown real events.
-///
-/// Non-UTF8 bytes in the line buffer become U+FFFD via `from_utf8_lossy`
-/// at commit time — dropped lines on Windows CP1252 output would hide
+// Drain a child pipe with two layered behaviors:
+//
+//   1. **Byte passthrough to terminal** — every byte read from the
+//      pipe is written verbatim to the destination stream (stdout or
+//      stderr) and flushed. This preserves cargo's `\r`-based progress
+//      bar, rustc colors, and any other in-place terminal rewriting.
+//      From the user's perspective, the terminal behaves as if we had
+//      used `Stdio::inherit()`.
+//
+//   2. **Line-buffered log** — bytes are also accumulated into a line
+//      buffer; on `\n` the buffer is committed to the log with the
+//      `[<elapsed_ms>] [<label>] ` prefix. A `\r` resets the buffer
+//      without committing, because `\r` means "next writes overwrite
+//      this line" — logging every progress-bar tick would produce
+//      tens of thousands of noise entries and drown real events.
+//
+// Non-UTF8 bytes in the line buffer become U+FFFD via `from_utf8_lossy`
+// at commit time — dropped lines on Windows CP1252 output would hide
+// real failures.
+
 // ═══════════════════════════════════════════════════════════════════════
 // Non-blocking tee child handle
 // ═══════════════════════════════════════════════════════════════════════
@@ -725,7 +729,7 @@ pub struct TeeChild {
     /// Stderr drain thread, same shape as stdout.
     stderr_handle: Option<thread::JoinHandle<std::io::Result<()>>>,
     /// Shared log file handle — held until `wait` so the final flush
-    /// commits the BufWriter's last partial buffer to disk.
+    /// commits the `BufWriter`'s last partial buffer to disk.
     log: Arc<Mutex<BufWriter<std::fs::File>>>,
     /// Path the log writes to — held so error context can name it.
     log_path: PathBuf,
@@ -780,13 +784,15 @@ impl TeeChild {
     }
 }
 
-/// real failures.
+/// Drain a child pipe with two layered behaviors: byte passthrough to
+/// the terminal (preserves cargo's `\r` progress bar) and a line-buffered
+/// log with timestamped `[<elapsed_ms>] [<label>] ` prefix.
 ///
 /// Returned `io::Result<()>` lets the caller surface drain failures
 /// instead of swallowing them with `let _ = handle.join()`.
 fn drain_stream<R: std::io::Read>(
     source: R,
-    log: Arc<Mutex<BufWriter<std::fs::File>>>,
+    log: &Arc<Mutex<BufWriter<std::fs::File>>>,
     label: &'static str,
     start: Instant,
     route_to_stdout: bool,
@@ -809,7 +815,7 @@ fn drain_stream<R: std::io::Read>(
             // whose final frame was never committed — drop it, do not
             // pollute the log with half-updates.
             if !line_buf.is_empty() && !pending_cr {
-                commit_line(&log, label, start, &line_buf)?;
+                commit_line(log, label, start, &line_buf)?;
                 line_buf.clear();
             }
             return Ok(());
@@ -840,7 +846,7 @@ fn drain_stream<R: std::io::Read>(
             if pending_cr {
                 match b {
                     b'\n' => {
-                        commit_line(&log, label, start, &line_buf)?;
+                        commit_line(log, label, start, &line_buf)?;
                         line_buf.clear();
                         pending_cr = false;
                     }
@@ -860,7 +866,7 @@ fn drain_stream<R: std::io::Read>(
             } else {
                 match b {
                     b'\n' => {
-                        commit_line(&log, label, start, &line_buf)?;
+                        commit_line(log, label, start, &line_buf)?;
                         line_buf.clear();
                     }
                     b'\r' => {
@@ -964,27 +970,13 @@ pub struct BuildDepsConfig {
     /// ONNX Runtime (for kokoros/ort).
     #[serde(default)]
     pub onnxruntime: Option<BuildDepEntry>,
-    /// CMake (for ort-sys source builds).
+    /// `CMake` (for ort-sys source builds).
     #[serde(default)]
     pub cmake: Option<BuildDepEntry>,
-    /// Ninja (for cmake-rs when CMAKE_GENERATOR = "Ninja"; harmless under
+    /// Ninja (for cmake-rs when `CMAKE_GENERATOR` = "Ninja"; harmless under
     /// the Visual Studio generator).
     #[serde(default)]
     pub ninja: Option<BuildDepEntry>,
-    /// Legacy code-oss build toggle — disabled, kept for TOML compat only.
-    /// DevForge REH is now fetched via `cargo xtask fetch-devforge`.
-    #[serde(default)]
-    #[allow(dead_code)]
-    pub code_oss: Option<BuildToggleEntry>,
-}
-
-/// Simple enable/disable entry for build-only external dependencies.
-/// Kept for backward-compatible TOML deserialization of `[build.deps.code_oss]`.
-#[derive(Debug, Default, Deserialize)]
-#[allow(dead_code)]
-pub struct BuildToggleEntry {
-    #[serde(default)]
-    pub enabled: bool,
 }
 
 /// A single build dependency entry.
@@ -1086,8 +1078,8 @@ impl BuildConfig {
         // race disappears entirely. No parallel-level override is needed.
         self.activate_msvc_env();
         self.select_generator(workspace_root);
-        self.purge_stale_cmake_dirs(workspace_root);
-        self.export_prebuilt_llama_cpp(workspace_root);
+        Self::purge_stale_cmake_dirs(workspace_root);
+        Self::export_prebuilt_llama_cpp(workspace_root);
     }
 
     /// Auto-export `LLAMA_CPP_PREBUILT_LIB_DIR` when the matching prebuilt
@@ -1106,12 +1098,12 @@ impl BuildConfig {
     /// fast-path activates — skipping the in-tree cmake build of llama.cpp
     /// entirely. Otherwise we log a warning + the fix-it command and fall
     /// through (the in-tree cmake build runs; on Windows with Vulkan that
-    /// usually fails MAX_PATH, so the operator must fetch).
+    /// usually fails `MAX_PATH`, so the operator must fetch).
     ///
-    /// Linux and macOS dev boxes don't hit MAX_PATH and don't need the
+    /// Linux and macOS dev boxes don't hit `MAX_PATH` and don't need the
     /// prebuilt path — they fall through silently when no prebuilt is
     /// staged.
-    fn export_prebuilt_llama_cpp(&self, workspace_root: &Path) {
+    fn export_prebuilt_llama_cpp(workspace_root: &Path) {
         if !cfg!(windows) {
             return;
         }
@@ -1125,7 +1117,7 @@ impl BuildConfig {
             return;
         }
 
-        let features = self.detect_build_features().unwrap_or_default();
+        let features = Self::detect_build_features().unwrap_or_default();
         let target_id = if features.split(',').any(|f| f == "gpu-nvidia") {
             "win32-x64-cuda"
         } else if features.split(',').any(|f| f == "gpu-vulkan") {
@@ -1167,119 +1159,17 @@ impl BuildConfig {
     /// CUDA is preferred over Vulkan on NVIDIA (runs ~20-30% faster for
     /// llama.cpp). MKL composes with either GPU pick — GPU handles the
     /// heavy nets, MKL handles the remaining CPU BLAS/LAPACK.
-    pub fn detect_build_features(&self) -> Option<String> {
+    pub fn detect_build_features() -> Option<String> {
         let mut features: Vec<&'static str> = Vec::new();
 
-        // CUDA Toolkit — picks the highest versioned subdir under the default
-        // install root. If `CUDA_PATH` is already set in env, prefer it.
-        // Whichever wins, we re-export it so child cargo processes (and
-        // build.rs scripts that read `std::env::var("CUDA_PATH")` directly)
-        // see it even when the parent shell was started before the install.
-        let cuda_toolkit = std::env::var("CUDA_PATH")
-            .ok()
-            .filter(|p| {
-                std::path::Path::new(p)
-                    .join("bin")
-                    .join("nvcc.exe")
-                    .is_file()
-            })
-            .or_else(|| {
-                let base =
-                    std::path::Path::new("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA");
-                if !base.is_dir() {
-                    return None;
-                }
-                std::fs::read_dir(base)
-                    .ok()?
-                    .filter_map(Result::ok)
-                    .map(|e| e.path())
-                    .filter(|p| p.join("bin").join("nvcc.exe").is_file())
-                    .max()
-                    .map(|p| p.to_string_lossy().to_string())
-            });
-        let nvidia_gpu_present = which::which("nvidia-smi").is_ok();
-        let cuda_active = cuda_toolkit.is_some() && nvidia_gpu_present;
-
+        let cuda_active = detect_and_export_cuda();
         if cuda_active {
-            if let Some(ref path) = cuda_toolkit {
-                std::env::set_var("CUDA_PATH", path);
-                println!("  [env] CUDA_PATH = {path} (auto-export for child build scripts)");
-            }
             features.push("gpu-nvidia");
-        } else {
-            // Vulkan SDK — same pattern. Walk `C:/VulkanSDK/` for the latest
-            // versioned subdir (e.g. `1.4.341.1/`), not the parent root.
-            // llama-cpp-sys-2's build.rs requires `VULKAN_SDK` to point at
-            // the versioned install (it looks for `Include/vulkan/vulkan.h`
-            // under that path); the parent `C:/VulkanSDK/` is not enough.
-            let vulkan_sdk = std::env::var("VULKAN_SDK")
-                .ok()
-                .filter(|p| {
-                    std::path::Path::new(p)
-                        .join("Include")
-                        .join("vulkan")
-                        .join("vulkan.h")
-                        .is_file()
-                })
-                .or_else(|| {
-                    let candidates = ["C:/VulkanSDK", "C:/Program Files/VulkanSDK"];
-                    for root in candidates {
-                        let root_path = std::path::Path::new(root);
-                        if !root_path.is_dir() {
-                            continue;
-                        }
-                        if let Ok(entries) = std::fs::read_dir(root_path) {
-                            if let Some(latest) = entries
-                                .filter_map(Result::ok)
-                                .map(|e| e.path())
-                                .filter(|p| {
-                                    p.is_dir()
-                                        && p.join("Include")
-                                            .join("vulkan")
-                                            .join("vulkan.h")
-                                            .is_file()
-                                })
-                                .max()
-                            {
-                                return Some(latest.to_string_lossy().to_string());
-                            }
-                        }
-                    }
-                    None
-                });
-            if let Some(ref path) = vulkan_sdk {
-                std::env::set_var("VULKAN_SDK", path);
-                println!("  [env] VULKAN_SDK = {path} (auto-export for child build scripts)");
-                features.push("gpu-vulkan");
-            }
+        } else if detect_and_export_vulkan() {
+            features.push("gpu-vulkan");
         }
 
-        // Intel MKL — `MKLROOT` env or default oneAPI install path. Same
-        // re-export so candle-mkl-src and friends see it.
-        let mkl_root = std::env::var("MKLROOT")
-            .ok()
-            .filter(|p| std::path::Path::new(p).is_dir())
-            .or_else(|| {
-                let mkl_dir = std::path::Path::new("C:/Program Files (x86)/Intel/oneAPI/mkl");
-                if !mkl_dir.is_dir() {
-                    return None;
-                }
-                std::fs::read_dir(mkl_dir)
-                    .ok()?
-                    .filter_map(Result::ok)
-                    .map(|e| e.path())
-                    .filter(|p| {
-                        p.is_dir()
-                            && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| {
-                                n.chars().next().is_some_and(|c| c.is_ascii_digit())
-                            })
-                    })
-                    .max()
-                    .map(|p| p.to_string_lossy().to_string())
-            });
-        if let Some(ref path) = mkl_root {
-            std::env::set_var("MKLROOT", path);
-            println!("  [env] MKLROOT = {path} (auto-export for child build scripts)");
+        if detect_and_export_mkl() {
             features.push("cpu-mkl");
         }
 
@@ -1289,7 +1179,127 @@ impl BuildConfig {
             Some(features.join(","))
         }
     }
+}
 
+/// CUDA Toolkit auto-detection: prefer `CUDA_PATH` if it points at a valid
+/// `nvcc`; otherwise pick the highest versioned subdir of the default
+/// NVIDIA install root. Returns `true` only when `nvidia-smi` is also
+/// present (the toolkit alone does not mean a usable GPU). On success
+/// `CUDA_PATH` is re-exported so child build scripts see it.
+fn detect_and_export_cuda() -> bool {
+    let cuda_toolkit = std::env::var("CUDA_PATH")
+        .ok()
+        .filter(|p| {
+            std::path::Path::new(p)
+                .join("bin")
+                .join("nvcc.exe")
+                .is_file()
+        })
+        .or_else(|| {
+            let base = std::path::Path::new("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA");
+            if !base.is_dir() {
+                return None;
+            }
+            std::fs::read_dir(base)
+                .ok()?
+                .filter_map(Result::ok)
+                .map(|e| e.path())
+                .filter(|p| p.join("bin").join("nvcc.exe").is_file())
+                .max()
+                .map(|p| p.to_string_lossy().to_string())
+        });
+    let nvidia_gpu_present = which::which("nvidia-smi").is_ok();
+    let cuda_active = cuda_toolkit.is_some() && nvidia_gpu_present;
+    if cuda_active {
+        if let Some(ref path) = cuda_toolkit {
+            std::env::set_var("CUDA_PATH", path);
+            println!("  [env] CUDA_PATH = {path} (auto-export for child build scripts)");
+        }
+    }
+    cuda_active
+}
+
+/// Vulkan SDK auto-detection: prefer `VULKAN_SDK` if it points at a valid
+/// install; otherwise pick the highest versioned subdir of the default
+/// `C:/VulkanSDK/` root. Returns `true` and re-exports `VULKAN_SDK` when
+/// a usable install is found (llama-cpp-sys-2's build.rs reads it).
+fn detect_and_export_vulkan() -> bool {
+    let vulkan_sdk = std::env::var("VULKAN_SDK")
+        .ok()
+        .filter(|p| {
+            std::path::Path::new(p)
+                .join("Include")
+                .join("vulkan")
+                .join("vulkan.h")
+                .is_file()
+        })
+        .or_else(|| {
+            let candidates = ["C:/VulkanSDK", "C:/Program Files/VulkanSDK"];
+            for root in candidates {
+                let root_path = std::path::Path::new(root);
+                if !root_path.is_dir() {
+                    continue;
+                }
+                if let Ok(entries) = std::fs::read_dir(root_path) {
+                    if let Some(latest) = entries
+                        .filter_map(Result::ok)
+                        .map(|e| e.path())
+                        .filter(|p| {
+                            p.is_dir()
+                                && p.join("Include").join("vulkan").join("vulkan.h").is_file()
+                        })
+                        .max()
+                    {
+                        return Some(latest.to_string_lossy().to_string());
+                    }
+                }
+            }
+            None
+        });
+    if let Some(ref path) = vulkan_sdk {
+        std::env::set_var("VULKAN_SDK", path);
+        println!("  [env] VULKAN_SDK = {path} (auto-export for child build scripts)");
+        true
+    } else {
+        false
+    }
+}
+
+/// Intel MKL auto-detection: prefer `MKLROOT` if valid; otherwise pick the
+/// highest versioned subdir of the default `oneAPI/mkl` root. Returns
+/// `true` and re-exports `MKLROOT` on success.
+fn detect_and_export_mkl() -> bool {
+    let mkl_root = std::env::var("MKLROOT")
+        .ok()
+        .filter(|p| std::path::Path::new(p).is_dir())
+        .or_else(|| {
+            let mkl_dir = std::path::Path::new("C:/Program Files (x86)/Intel/oneAPI/mkl");
+            if !mkl_dir.is_dir() {
+                return None;
+            }
+            std::fs::read_dir(mkl_dir)
+                .ok()?
+                .filter_map(Result::ok)
+                .map(|e| e.path())
+                .filter(|p| {
+                    p.is_dir()
+                        && p.file_name()
+                            .and_then(|n| n.to_str())
+                            .is_some_and(|n| n.chars().next().is_some_and(|c| c.is_ascii_digit()))
+                })
+                .max()
+                .map(|p| p.to_string_lossy().to_string())
+        });
+    if let Some(ref path) = mkl_root {
+        std::env::set_var("MKLROOT", path);
+        println!("  [env] MKLROOT = {path} (auto-export for child build scripts)");
+        true
+    } else {
+        false
+    }
+}
+
+impl BuildConfig {
     /// Resolve rust-lld and sccache from per-machine locations and export
     /// them as cargo env vars. Idempotent; safe to call multiple times.
     fn apply_fast_build_env(&self) {
@@ -1349,7 +1359,7 @@ impl BuildConfig {
 
         // Acceleration probe — logs the auto-detected feature set so dev
         // knows what the upcoming `cargo check`/`cargo build` will compile.
-        match self.detect_build_features() {
+        match Self::detect_build_features() {
             Some(feats) => println!("  [accel] auto-detected features = {feats}"),
             None => println!(
                 "  [accel] no SDK detected — bare CPU build. \
@@ -1368,17 +1378,17 @@ impl BuildConfig {
     /// 1. **Preferred — invoke `vcvars64.bat`.** This is the canonical
     ///    Microsoft pattern: the batch file exports every env var the MSVC
     ///    + Windows SDK toolchain expects — PATH (MSVC bin + SDK bin +
-    ///    Common7), INCLUDE (MSVC + UCRT + UM + WinRT + shared), LIB
-    ///    (MSVC + UCRT + UM), LIBPATH (ATL/MFC + SDK refs),
-    ///    WindowsSdkVerBinPath, VCToolsInstallDir, UCRT root, and ~40
-    ///    more vars some build tools key off of. `rc.exe`, `mt.exe`,
-    ///    `signtool.exe` etc all land on PATH this way, which the
-    ///    cc-rs-only path consistently fails to surface (verified
-    ///    2026-05-12: cmake's compiler-test reported
-    ///    `--mt=CMAKE_MT-NOTFOUND` and aborted at CMakeTestCCompiler:67
-    ///    even with the SDK bin prepended via xtask's parent env, because
-    ///    cmake-rs overrides PATH with cc-rs's `Tool::env()` which doesn't
-    ///    include the SDK bin).
+    ///      Common7), INCLUDE (MSVC + UCRT + UM + `WinRT` + shared), LIB
+    ///      (MSVC + UCRT + UM), LIBPATH (ATL/MFC + SDK refs),
+    ///      `WindowsSdkVerBinPath`, `VCToolsInstallDir`, UCRT root, and ~40
+    ///      more vars some build tools key off of. `rc.exe`, `mt.exe`,
+    ///      `signtool.exe` etc all land on PATH this way, which the
+    ///      cc-rs-only path consistently fails to surface (verified
+    ///      2026-05-12: cmake's compiler-test reported
+    ///      `--mt=CMAKE_MT-NOTFOUND` and aborted at CMakeTestCCompiler:67
+    ///      even with the SDK bin prepended via xtask's parent env, because
+    ///      cmake-rs overrides PATH with cc-rs's `Tool::env()` which doesn't
+    ///      include the SDK bin).
     ///
     /// 2. **Fallback — `cc::windows_registry::find_tool`.** When vcvars
     ///    can't be located or fails to run, fall through to cc-rs's
@@ -1407,111 +1417,7 @@ impl BuildConfig {
                 vcvars.display()
             );
             if apply_vcvars_env(&vcvars) {
-                // CC / CXX safety belt — vcvars64.bat sets PATH so cmake can
-                // auto-detect cl.exe, but explicit CC/CXX env vars cover the
-                // case where a nested build step temporarily strips PATH
-                // (e.g. some `ExternalProject_Add` configs). Resolved via
-                // `which` against the post-vcvars PATH so the path is
-                // always-correct regardless of which VS install vcvars came
-                // from. Falling back to the cc-rs path if `which` somehow
-                // misses (defensive — should never happen post-vcvars).
-                if let Ok(cl) = which::which("cl") {
-                    let cl_str = cl.to_string_lossy().into_owned();
-                    std::env::set_var("CC", &cl_str);
-                    std::env::set_var("CXX", &cl_str);
-                    println!("  [env] CC = {cl_str} (post-vcvars belt)");
-                    println!("  [env] CXX = {cl_str} (post-vcvars belt)");
-                }
-                // `LDFLAGS=/MANIFEST:NO` — skip manifest generation in
-                // link.exe so cmake's `vs_link_exe` step doesn't depend on
-                // mt.exe / rc.exe at all. CMake reads `LDFLAGS` env as the
-                // initial value for `CMAKE_<LANG>_LINK_FLAGS` per the
-                // documented env-var contract
-                // (https://cmake.org/cmake/help/latest/envvar/LDFLAGS.html).
-                //
-                // Why this is the right call:
-                //   - cmake-rs spawns cmake with `cmd.env(k, v)` for every
-                //     entry in cc-rs's `Tool::env()`, REPLACING PATH with
-                //     cc-rs's narrower MSVC-only PATH. SDK bin paths set
-                //     in xtask's parent env DON'T survive to the child.
-                //   - Copying `mt.exe` / `rc.exe` into MSVC bin alongside
-                //     `cl.exe` fails with `Access is denied` because
-                //     `Program Files`-style install dirs are admin-only.
-                //   - llama-cpp-sys-2 builds a static lib (no manifest
-                //     needed for the artifact). CMake's `try_compile`
-                //     probe links a throwaway executable — also no
-                //     manifest needed. So `/MANIFEST:NO` is correct, not
-                //     a workaround.
-                //
-                // Verified failure on 2026-05-12: without this, every
-                // `try_compile` link step ends with `--mt=CMAKE_MT-NOTFOUND`
-                // and the build dies at `CMakeTestCCompiler.cmake:67`.
-                std::env::set_var("LDFLAGS", "/MANIFEST:NO");
-                println!(
-                    "  [env] LDFLAGS = /MANIFEST:NO (skip manifest — sidesteps cmake-rs PATH-replace stripping SDK bin)"
-                );
-
-                // Author a CMake toolchain file that hard-codes
-                // compiler + make program + linker flags so EVERY cmake
-                // invocation (the outer one cmake-rs spawns AND every
-                // `ExternalProject_Add` sub-cmake) sees identical
-                // toolchain state regardless of how env vars propagate.
-                //
-                // Why this exists:
-                //   - The outer cmake invocation gets `-DCMAKE_C_COMPILER=`
-                //     / `-DCMAKE_CXX_COMPILER=` / `-DCMAKE_MAKE_PROGRAM=`
-                //     from cmake-rs and configures fine.
-                //   - But ggml-vulkan's `ExternalProject_Add(vulkan-shaders-gen)`
-                //     does NOT forward those `-D` args — only
-                //     `CMAKE_INSTALL_PREFIX/BINDIR/BUILD_TYPE`. The
-                //     sub-cmake then runs with NO compiler / make-program
-                //     `-D` flags and aborts with `CMAKE_MAKE_PROGRAM is
-                //     not set` + `CMAKE_C_COMPILER not set after
-                //     EnableLanguage` (verified 2026-05-12: outer cmake
-                //     reported `Configuring done (518.5s) Generating done`
-                //     then the sub-cmake immediately died on these errors).
-                //   - `CMAKE_TOOLCHAIN_FILE` env is CMake-documented to
-                //     propagate to EVERY cmake invocation (CMake reads
-                //     env into the cache variable). cmake-rs also
-                //     forwards `CMAKE_TOOLCHAIN_FILE` env as `-D` for the
-                //     outer (`lib.rs:451-453`), and `ExternalProject_Add`
-                //     sub-cmakes inherit the cache variable via env.
-                //
-                // The toolchain file lives under the workspace's
-                // `target/.xtask/` so it's git-ignored, isolated, and
-                // discoverable via `cargo clean` if a developer ever
-                // wants to start from scratch.
-                if let Ok(cl) = which::which("cl") {
-                    let cl_path = cl.to_string_lossy().into_owned();
-                    let ninja_path = which::which("ninja")
-                        .map(|p| p.to_string_lossy().into_owned())
-                        .unwrap_or_else(|_| {
-                            "D:/localdev/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
-                                .to_string()
-                        });
-                    let target_dir = std::env::current_dir()
-                        .unwrap_or_else(|_| std::path::PathBuf::from("."))
-                        .join("target")
-                        .join(".xtask");
-                    if std::fs::create_dir_all(&target_dir).is_ok() {
-                        let toolchain = target_dir.join("msvc-toolchain.cmake");
-                        let contents = build_toolchain_file_contents(&cl_path, &ninja_path);
-                        match std::fs::write(&toolchain, &contents) {
-                            Ok(()) => {
-                                let toolchain_str = toolchain.to_string_lossy().into_owned();
-                                std::env::set_var("CMAKE_TOOLCHAIN_FILE", &toolchain_str);
-                                println!(
-                                    "  [env] CMAKE_TOOLCHAIN_FILE = {toolchain_str} \
-                                     (compiler + make_program + /MANIFEST:NO for every nested cmake)"
-                                );
-                            }
-                            Err(e) => println!(
-                                "  [warn] could not write toolchain file at {}: {e}",
-                                toolchain.display()
-                            ),
-                        }
-                    }
-                }
+                finalize_vcvars_success();
                 let _ = MSVC_ENV_APPLIED.set(true);
                 return true;
             }
@@ -1527,123 +1433,9 @@ impl BuildConfig {
         }
 
         // ── Layer 2: cc::windows_registry fallback ────────────────────
-        let target = self.toolchain.target.as_str();
-        let Some(tool) = cc::windows_registry::find_tool(target, "cl.exe") else {
-            println!(
-                "  [warn] MSVC cl.exe not found via cc::windows_registry for target {target}. \
-                 Install Visual Studio Build Tools 2022 with the \"Desktop development with C++\" \
-                 workload AND the Windows 10/11 SDK. xtask will fall back to the Visual Studio \
-                 17 2022 cmake generator, which still needs cl.exe on PATH — expect a \
-                 configure-time failure if it is absent."
-            );
-            let _ = MSVC_ENV_APPLIED.set(false);
-            return false;
-        };
-
-        let cl_path = tool.path().to_path_buf();
-        println!(
-            "  [env] MSVC cl.exe = {} (resolved via cc::windows_registry, target {target})",
-            cl_path.display()
-        );
-        for (key, value) in tool.env() {
-            let key_str = key.to_string_lossy();
-            // Log each known-large var with an entry count rather than the
-            // multi-kilobyte raw value — the developer wants to know the env
-            // was set, not stare at every include directory.
-            if key_str.eq_ignore_ascii_case("PATH") {
-                let entries = value
-                    .to_string_lossy()
-                    .split(';')
-                    .filter(|s| !s.is_empty())
-                    .count();
-                println!(
-                    "  [env] PATH augmented with MSVC toolchain ({entries} entries prepended)"
-                );
-            } else if key_str.eq_ignore_ascii_case("INCLUDE")
-                || key_str.eq_ignore_ascii_case("LIB")
-                || key_str.eq_ignore_ascii_case("LIBPATH")
-            {
-                let entries = value
-                    .to_string_lossy()
-                    .split(';')
-                    .filter(|s| !s.is_empty())
-                    .count();
-                println!("  [env] {key_str} = {entries} entries (from MSVC toolchain)");
-            } else {
-                println!("  [env] {key_str} set (from MSVC toolchain)");
-            }
-            std::env::set_var(key, value);
-        }
-
-        // CC / CXX hand-off for `ExternalProject_Add` sub-builds.
-        //
-        // The OUTER cmake-rs invocation passes the MSVC compiler explicitly
-        // via `-DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe`, but
-        // ggml-vulkan's `ExternalProject_Add(vulkan-shaders-gen ...)` does
-        // NOT forward those `-D` args — it only forwards
-        // `CMAKE_INSTALL_PREFIX/BINDIR` + `CMAKE_BUILD_TYPE`. The sub-cmake
-        // then runs `EnableLanguage(C)` / `EnableLanguage(CXX)` against a
-        // fresh project with no cache and no `-D`, so it falls back to env.
-        // CMake reads `CC` / `CXX` as the compiler hint when no cache entry
-        // exists; setting them here covers every nested ExternalProject the
-        // build encounters without modifying upstream CMakeLists.
-        //
-        // Verified failure on 2026-05-12: without these vars, the sub-cmake
-        // for vulkan-shaders-gen emitted "CMAKE_C_COMPILER not set, after
-        // EnableLanguage" and aborted the build.
-        let cl_path_str = cl_path.to_string_lossy().into_owned();
-        std::env::set_var("CC", &cl_path_str);
-        std::env::set_var("CXX", &cl_path_str);
-        println!("  [env] CC = {cl_path_str} (for nested ExternalProject configures)");
-        println!("  [env] CXX = {cl_path_str} (for nested ExternalProject configures)");
-
-        // Windows SDK bin (rc.exe + mt.exe).
-        //
-        // `cc::windows_registry::Tool::env()` reliably exports MSVC bin
-        // paths on PATH (cl.exe, link.exe, lib.exe) but does NOT include
-        // the Windows SDK bin where `rc.exe` (resource compiler) and
-        // `mt.exe` (manifest tool) live. CMake's link step for any C/C++
-        // executable on Windows needs both — the `try_compile` test that
-        // cmake runs during `EnableLanguage(C)` links a manifest into the
-        // probe binary, so a missing `mt.exe` is fatal at configure time.
-        //
-        // Verified failure on 2026-05-12: without the SDK bin on PATH,
-        // cmake's compiler-test emitted "rc /fo ... manifest.rc: no such
-        // file or directory" (rc.exe found a no-manifest, because
-        // `--mt=CMAKE_MT-NOTFOUND` made cmake skip the manifest-gen step,
-        // then asked rc to compile a manifest.rc that didn't exist) and
-        // aborted the entire build at `CMakeTestCCompiler.cmake:67`.
-        //
-        // Derive the SDK bin from any `<kits-root>\include\<ver>\<subdir>`
-        // entry in INCLUDE (cc-rs always populates INCLUDE with SDK
-        // headers, so the version is reliably discoverable). The bin
-        // counterpart is `<kits-root>\bin\<ver>\x64`.
-        if let Some(sdk_bin) = derive_windows_sdk_bin() {
-            let sdk_str = sdk_bin.to_string_lossy().into_owned();
-            let existing = std::env::var_os("PATH").unwrap_or_default();
-            let mut prepended = std::ffi::OsString::from(&sdk_str);
-            prepended.push(";");
-            prepended.push(&existing);
-            std::env::set_var("PATH", &prepended);
-            println!("  [env] PATH prepended with Windows SDK bin (rc.exe / mt.exe): {sdk_str}");
-        } else {
-            println!(
-                "  [warn] Could not derive Windows SDK bin from INCLUDE — cmake's link \
-                 step may fail to find rc.exe / mt.exe. Install the latest Windows 10/11 SDK \
-                 via the Visual Studio Build Tools installer."
-            );
-        }
-
-        // Mirror the LDFLAGS=/MANIFEST:NO from the vcvars success path —
-        // cc-rs's PATH is narrower than vcvars's; skipping manifest
-        // generation in link.exe is the only reliable way to sidestep
-        // the mt.exe / rc.exe discovery issue regardless of how PATH
-        // was set up.
-        std::env::set_var("LDFLAGS", "/MANIFEST:NO");
-        println!("  [env] LDFLAGS = /MANIFEST:NO (skip manifest generation)");
-
-        let _ = MSVC_ENV_APPLIED.set(true);
-        true
+        let activated = apply_cc_rs_fallback(self.toolchain.target.as_str());
+        let _ = MSVC_ENV_APPLIED.set(activated);
+        activated
     }
 
     #[cfg(not(windows))]
@@ -1663,7 +1455,7 @@ impl BuildConfig {
     ///      resolves → keep "Ninja", export `CMAKE_MAKE_PROGRAM`.
     ///   3. Else → fall back to "Visual Studio 17 2022", overwrite env,
     ///      explicitly clear `CMAKE_MAKE_PROGRAM` (the VS generator would
-    ///      try to use ninja as MSBuild's build tool — fails).
+    ///      try to use ninja as `MSBuild`'s build tool — fails).
     ///
     /// Cross-platform note: on Linux / macOS this method still picks a
     /// sensible default (Ninja if resolved, else cmake's auto-detection
@@ -1697,10 +1489,10 @@ impl BuildConfig {
             if msvc_active && ninja_path.is_some() {
                 "Ninja".to_string()
             } else {
-                let reason = if !msvc_active {
-                    "MSVC env not active"
-                } else {
+                let reason = if msvc_active {
                     "ninja.exe not resolved"
+                } else {
+                    "MSVC env not active"
                 };
                 println!(
                     "  [warn] CMAKE_GENERATOR preference \"Ninja\" not honorable ({reason}); \
@@ -1770,11 +1562,11 @@ impl BuildConfig {
     /// Concretely: a prior failed build configured with the VS 17 2022
     /// generator leaves `CMAKE_GENERATOR:INTERNAL=Visual Studio 17 2022`
     /// in the cache, and the next xtask invocation — even with
-    /// `CMAKE_GENERATOR=Ninja` set in env — still runs MSBuild, reproducing
+    /// `CMAKE_GENERATOR=Ninja` set in env — still runs `MSBuild`, reproducing
     /// the `vulkan-shaders-gen` race we just fixed (verified by the
     /// 33-minute failure on 2026-05-12).
     ///
-    /// CMake itself errors on `-G <mismatch>` when re-invoking against a
+    /// `CMake` itself errors on `-G <mismatch>` when re-invoking against a
     /// non-matching cache, but `cmake-rs` doesn't re-invoke cmake under
     /// `always_configure(false)`, so the error never fires. Upstream
     /// `cmake-rs`'s `maybe_clear()` only validates `CMAKE_HOME_DIRECTORY`
@@ -1798,7 +1590,7 @@ impl BuildConfig {
     /// selected generator, no I/O happens beyond reading the cache files.
     /// Re-running the same xtask command twice in a row is a no-op past
     /// the first purge.
-    fn purge_stale_cmake_dirs(&self, workspace_root: &Path) {
+    fn purge_stale_cmake_dirs(workspace_root: &Path) {
         let Some(selected) = GENERATOR_SELECTED.get() else {
             return;
         };
@@ -1920,7 +1712,7 @@ impl BuildConfig {
 
     /// Resolve ninja.exe from layered sources:
     ///   1. `[build.deps.ninja].path` SSOT (if the file exists)
-    ///   2. Common VS 2022 install roots (BuildTools / Community / Pro / Enterprise)
+    ///   2. Common VS 2022 install roots (`BuildTools` / Community / Pro / Enterprise)
     ///   3. `which::which("ninja")` — falls back to system PATH
     ///
     /// Returns `None` if every layer misses. The caller decides whether to
@@ -2163,7 +1955,9 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
         match which::which(tool) {
             Ok(p) => println!("  [tool] {tool} = {}", p.display()),
             Err(_) => {
-                println!("  [warn] {tool} not on PATH after vcvars64 — toolchain may be incomplete")
+                println!(
+                    "  [warn] {tool} not on PATH after vcvars64 — toolchain may be incomplete"
+                );
             }
         }
     }
@@ -2176,13 +1970,13 @@ fn apply_vcvars_env(_vcvars: &Path) -> bool {
     false
 }
 
-/// Build the contents of the MSVC toolchain CMake fragment xtask emits
+/// Build the contents of the MSVC toolchain `CMake` fragment xtask emits
 /// under `target/.xtask/msvc-toolchain.cmake`.
 ///
 /// **Why a toolchain file is the right shape:** `CMAKE_TOOLCHAIN_FILE` is
-/// the one mechanism CMake guarantees propagates to every nested cmake
+/// the one mechanism `CMake` guarantees propagates to every nested cmake
 /// invocation — `ExternalProject_Add` sub-projects, `try_compile` probes,
-/// recursive `find_package` configures. CMake reads the env var into a
+/// recursive `find_package` configures. `CMake` reads the env var into a
 /// cache var on first configure (per
 /// <https://cmake.org/cmake/help/latest/envvar/CMAKE_TOOLCHAIN_FILE.html>)
 /// and the cache var is sticky from then on. `cmake-rs` ALSO forwards
@@ -2204,9 +1998,159 @@ fn apply_vcvars_env(_vcvars: &Path) -> bool {
 ///
 /// **Why we use `_INIT` not direct cache vars:** `CMAKE_<LANG>_LINK_FLAGS`
 /// set directly in a toolchain file gets overwritten when the project
-/// calls `enable_language()`. The `_INIT` variants are CMake's
+/// calls `enable_language()`. The `_INIT` variants are `CMake`'s
 /// documented contract for toolchain-file-set defaults that survive
 /// language enablement.
+/// Post-vcvars success path: set the `CC`/`CXX` belts, `LDFLAGS`, and
+/// write the toolchain file. Extracted from `activate_msvc_env` so the
+/// main function stays under `too_many_lines`.
+///
+/// The `LDFLAGS=/MANIFEST:NO` setting skips manifest generation in
+/// link.exe so cmake's `vs_link_exe` step doesn't depend on mt.exe /
+/// rc.exe at all. `CMake` reads `LDFLAGS` env as the initial value for
+/// `CMAKE_<LANG>_LINK_FLAGS` per the documented env-var contract
+/// (<https://cmake.org/cmake/help/latest/envvar/LDFLAGS.html>).
+///
+/// Verified failure on 2026-05-12: without this, every `try_compile`
+/// link step ends with `--mt=CMAKE_MT-NOTFOUND` and the build dies at
+/// `CMakeTestCCompiler.cmake:67`.
+#[cfg(windows)]
+fn finalize_vcvars_success() {
+    if let Ok(cl) = which::which("cl") {
+        let cl_str = cl.to_string_lossy().into_owned();
+        std::env::set_var("CC", &cl_str);
+        std::env::set_var("CXX", &cl_str);
+        println!("  [env] CC = {cl_str} (post-vcvars belt)");
+        println!("  [env] CXX = {cl_str} (post-vcvars belt)");
+    }
+    std::env::set_var("LDFLAGS", "/MANIFEST:NO");
+    println!(
+        "  [env] LDFLAGS = /MANIFEST:NO (skip manifest — sidesteps cmake-rs PATH-replace stripping SDK bin)"
+    );
+    write_msvc_toolchain_file();
+}
+
+/// `cc::windows_registry` fallback path: locate `cl.exe`, export the
+/// Tool's env (PATH/INCLUDE/LIB/LIBPATH), derive the Windows SDK bin,
+/// and set `CC`/`CXX`/`LDFLAGS` for nested `ExternalProject_Add` configures.
+/// Returns whether the activation succeeded.
+#[cfg(windows)]
+fn apply_cc_rs_fallback(target: &str) -> bool {
+    let Some(tool) = cc::windows_registry::find_tool(target, "cl.exe") else {
+        println!(
+            "  [warn] MSVC cl.exe not found via cc::windows_registry for target {target}. \
+             Install Visual Studio Build Tools 2022 with the \"Desktop development with C++\" \
+             workload AND the Windows 10/11 SDK. xtask will fall back to the Visual Studio \
+             17 2022 cmake generator, which still needs cl.exe on PATH — expect a \
+             configure-time failure if it is absent."
+        );
+        return false;
+    };
+
+    let cl_path = tool.path().to_path_buf();
+    println!(
+        "  [env] MSVC cl.exe = {} (resolved via cc::windows_registry, target {target})",
+        cl_path.display()
+    );
+    for (key, value) in tool.env() {
+        let key_str = key.to_string_lossy();
+        if key_str.eq_ignore_ascii_case("PATH") {
+            let entries = value
+                .to_string_lossy()
+                .split(';')
+                .filter(|s| !s.is_empty())
+                .count();
+            println!("  [env] PATH augmented with MSVC toolchain ({entries} entries prepended)");
+        } else if key_str.eq_ignore_ascii_case("INCLUDE")
+            || key_str.eq_ignore_ascii_case("LIB")
+            || key_str.eq_ignore_ascii_case("LIBPATH")
+        {
+            let entries = value
+                .to_string_lossy()
+                .split(';')
+                .filter(|s| !s.is_empty())
+                .count();
+            println!("  [env] {key_str} = {entries} entries (from MSVC toolchain)");
+        } else {
+            println!("  [env] {key_str} set (from MSVC toolchain)");
+        }
+        std::env::set_var(key, value);
+    }
+
+    // CC / CXX hand-off for `ExternalProject_Add` sub-builds — see the
+    // rationale in the original 2026-05-12 verification note.
+    let cl_path_str = cl_path.to_string_lossy().into_owned();
+    std::env::set_var("CC", &cl_path_str);
+    std::env::set_var("CXX", &cl_path_str);
+    println!("  [env] CC = {cl_path_str} (for nested ExternalProject configures)");
+    println!("  [env] CXX = {cl_path_str} (for nested ExternalProject configures)");
+
+    // Windows SDK bin (rc.exe + mt.exe).
+    if let Some(sdk_bin) = derive_windows_sdk_bin() {
+        let sdk_str = sdk_bin.to_string_lossy().into_owned();
+        let existing = std::env::var_os("PATH").unwrap_or_default();
+        let mut prepended = std::ffi::OsString::from(&sdk_str);
+        prepended.push(";");
+        prepended.push(&existing);
+        std::env::set_var("PATH", &prepended);
+        println!("  [env] PATH prepended with Windows SDK bin (rc.exe / mt.exe): {sdk_str}");
+    } else {
+        println!(
+            "  [warn] Could not derive Windows SDK bin from INCLUDE — cmake's link \
+             step may fail to find rc.exe / mt.exe. Install the latest Windows 10/11 SDK \
+             via the Visual Studio Build Tools installer."
+        );
+    }
+
+    std::env::set_var("LDFLAGS", "/MANIFEST:NO");
+    println!("  [env] LDFLAGS = /MANIFEST:NO (skip manifest generation)");
+
+    true
+}
+
+/// Locate `cl.exe` + `ninja.exe` on the post-vcvars PATH, materialise the
+/// MSVC toolchain `.cmake` file under `target/.xtask/`, and export
+/// `CMAKE_TOOLCHAIN_FILE` so every nested cmake invocation sees it.
+/// Best-effort — failures are logged, not propagated, because the
+/// outer `activate_msvc_env` still treats `CC`/`CXX`/`LDFLAGS` as the
+/// minimum-viable activation and only the deeper `ExternalProject_Add`
+/// sub-cmakes need the toolchain file.
+#[cfg(windows)]
+fn write_msvc_toolchain_file() {
+    let Ok(cl) = which::which("cl") else { return };
+    let cl_path = cl.to_string_lossy().into_owned();
+    let ninja_path = which::which("ninja").map_or_else(
+        |_| {
+            "D:/localdev/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
+                .to_string()
+        },
+        |p| p.to_string_lossy().into_owned(),
+    );
+    let target_dir = std::env::current_dir()
+        .unwrap_or_else(|_| std::path::PathBuf::from("."))
+        .join("target")
+        .join(".xtask");
+    if std::fs::create_dir_all(&target_dir).is_err() {
+        return;
+    }
+    let toolchain = target_dir.join("msvc-toolchain.cmake");
+    let contents = build_toolchain_file_contents(&cl_path, &ninja_path);
+    match std::fs::write(&toolchain, &contents) {
+        Ok(()) => {
+            let toolchain_str = toolchain.to_string_lossy().into_owned();
+            std::env::set_var("CMAKE_TOOLCHAIN_FILE", &toolchain_str);
+            println!(
+                "  [env] CMAKE_TOOLCHAIN_FILE = {toolchain_str} \
+                 (compiler + make_program + /MANIFEST:NO for every nested cmake)"
+            );
+        }
+        Err(e) => println!(
+            "  [warn] could not write toolchain file at {}: {e}",
+            toolchain.display()
+        ),
+    }
+}
+
 fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
     // CMake parses backslash-escape sequences in `set()` literals, so
     // normalize to forward slashes — CMake accepts forward slashes in
@@ -2280,8 +2224,7 @@ fn derive_windows_sdk_bin() -> Option<PathBuf> {
         let dirname_is_include = cursor
             .file_name()
             .and_then(|n| n.to_str())
-            .map(|n| n.eq_ignore_ascii_case("include"))
-            .unwrap_or(false);
+            .is_some_and(|n| n.eq_ignore_ascii_case("include"));
         if !dirname_is_include {
             continue;
         }
@@ -2343,7 +2286,7 @@ mod tests {
         let log = Arc::new(Mutex::new(BufWriter::new(file)));
         let start = Instant::now();
 
-        drain_stream(input, Arc::clone(&log), label, start, stdout).unwrap();
+        drain_stream(input, &log, label, start, stdout).unwrap();
 
         // Flush before reading back.
         log.lock().unwrap().flush().unwrap();

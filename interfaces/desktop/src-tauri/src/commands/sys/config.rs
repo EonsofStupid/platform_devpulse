@@ -1,4 +1,8 @@
 //! System configuration commands.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper that resolves `PlatformState` then reads/writes `{data_dir}/preferences.json` directly. Failure modes (Platform booting, IO, JSON parse) are spelled out in the per-fn doc summary above."
+)]
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{PlatformConfig, ServiceStatusSnapshot};

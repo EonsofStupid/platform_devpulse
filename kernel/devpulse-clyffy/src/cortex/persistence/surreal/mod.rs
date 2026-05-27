@@ -1,9 +1,9 @@
-//! Surreal — embedded SurrealKV store + WS-free protocol client.
+//! Surreal — embedded `SurrealKV` store + WS-free protocol client.
 //!
 //! Two adjacent files cover the two genuinely-different mental models
 //! of talking to `SurrealDB` 3.0 in embedded mode:
 //!
-//! - [`lifecycle`] owns the on-disk SurrealKV store: open, ping, drop-
+//! - [`lifecycle`] owns the on-disk `SurrealKV` store: open, ping, drop-
 //!   to-release. No child process, no port allocator. Returns a
 //!   `SurrealLifecycle` whose live `Surreal<Db>` connection backs
 //!   every namespace.

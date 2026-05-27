@@ -1,4 +1,4 @@
-//! Per-project DuckDB analytics manager.
+//! Per-project `DuckDB` analytics manager.
 //!
 //! Mirrors [`super::project_db::ProjectDbManager`] but for the OLAP
 //! columnar store. Each project gets its own `analytics.duckdb` at
@@ -13,8 +13,8 @@
 //! # Why no JSON columns
 //!
 //! Per the locked diagnostic (memory `project_duckdb_json_heap_corruption`),
-//! DuckDB `JSON` columns abort the host process with
-//! `STATUS_HEAP_CORRUPTION` when DuckDB initializes inside a binary
+//! `DuckDB` `JSON` columns abort the host process with
+//! `STATUS_HEAP_CORRUPTION` when `DuckDB` initializes inside a binary
 //! holding Candle / llama.cpp / mistral.rs / ort. We store payloads as
 //! `VARCHAR` and parse with `json_extract(col, '$.path')` on read.
 
@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// Manages per-project DuckDB analytics stores.
+/// Manages per-project `DuckDB` analytics stores.
 ///
 /// Stored as `Arc<ProjectAnalyticsManager>` on `Platform`.
 pub struct ProjectAnalyticsManager {
@@ -54,7 +54,7 @@ impl ProjectAnalyticsManager {
     /// project id.
     ///
     /// # Errors
-    /// Returns error if file creation, DuckDB open, or schema init fails.
+    /// Returns error if file creation, `DuckDB` open, or schema init fails.
     pub async fn init_project(
         &self,
         project_id: &str,
@@ -70,9 +70,11 @@ impl ProjectAnalyticsManager {
 
         // DuckDbAdapter::open_with_schema is synchronous — spawn_blocking
         // keeps the boot path off the tokio reactor for the duration of
-        // the file open + schema replay.
+        // the file open + schema replay. Routed through
+        // devpulse_telemetry::spawn_blocking per workspace policy
+        // (raw tokio::task::spawn_blocking is `disallowed-methods`).
         let path_buf = db_path.clone();
-        let adapter = tokio::task::spawn_blocking(move || {
+        let adapter = devpulse_telemetry::spawn_blocking(move || {
             DuckDbAdapter::open_with_schema(&path_buf, PROJECT_ANALYTICS_SCHEMA)
         })
         .await

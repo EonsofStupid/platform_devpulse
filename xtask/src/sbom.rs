@@ -1,4 +1,4 @@
-//! CycloneDX 1.4 SBOM generation — Rust crates + npm packages.
+//! `CycloneDX` 1.4 SBOM generation — Rust crates + npm packages.
 //!
 //! Produces `target/release/sbom.cdx.json` covering the full dependency
 //! tree of the product binary, from the workspace `Cargo.lock` (via
@@ -15,8 +15,8 @@
 //! ## Design
 //!
 //! This module owns a small set of `Serialize` structs named to mirror
-//! the CycloneDX JSON wire shape. We deliberately avoid pulling in a
-//! full CycloneDX library crate — the 1.4 subset we need is ~80 lines
+//! the `CycloneDX` JSON wire shape. We deliberately avoid pulling in a
+//! full `CycloneDX` library crate — the 1.4 subset we need is ~80 lines
 //! of structs + two collectors, and owning the schema gives us a
 //! single audit surface when the spec revs.
 //!
@@ -153,7 +153,7 @@ fn collect_rust_components(workspace_root: &Path) -> Result<Vec<Component>> {
         if metadata.workspace_members.iter().any(|m| m == &pkg.id) {
             continue;
         }
-        let name = pkg.name.to_string();
+        let name = pkg.name.clone();
         let version = pkg.version.to_string();
         let purl = format!("pkg:cargo/{name}@{version}");
         components.push(Component {

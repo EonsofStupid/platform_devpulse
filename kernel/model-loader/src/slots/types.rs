@@ -112,7 +112,7 @@ fn default_lane_vram() -> LaneKind {
 }
 
 /// Whether a slot's model ships with the app or is user-managed.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum ModelSourceTier {
     /// Ships with the app binary. Auto-loads on boot from bundled path.
@@ -122,13 +122,8 @@ pub enum ModelSourceTier {
         bundled_path: String,
     },
     /// User downloads and manages via Model Loader UI.
+    #[default]
     UserManaged,
-}
-
-impl Default for ModelSourceTier {
-    fn default() -> Self {
-        Self::UserManaged
-    }
 }
 
 /// What kind of inference a model supports.

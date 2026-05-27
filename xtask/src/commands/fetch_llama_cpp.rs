@@ -24,8 +24,8 @@
 //! exports `LLAMA_CPP_PREBUILT_LIB_DIR` automatically. The vendored
 //! `llama-cpp-sys-2`'s `build.rs` fast-path then skips its in-tree cmake
 //! build and links the prebuilt static libs directly. End result: a
-//! standalone DevPulse `.exe` with llama.cpp inference compiled in, no
-//! 11-minute cmake step per cold build, no Windows MAX_PATH pain.
+//! standalone `DevPulse` `.exe` with llama.cpp inference compiled in, no
+//! 11-minute cmake step per cold build, no Windows `MAX_PATH` pain.
 //!
 //! # When to re-run
 //!
@@ -64,42 +64,8 @@ impl Task for FetchLlamaCpp {
     fn run(&self, ws: &Workspace) -> Result<()> {
         stage::section("Fetch llama-cpp-prebuilt static libs");
 
-        // ── Validate target ────────────────────────────────────────
-        let validate = Stage::start("validate target");
-        if !SUPPORTED_TARGETS.contains(&self.target.as_str()) {
-            validate.fail(format!("unknown target `{}`", self.target));
-            bail!(
-                "unknown target `{}` — supported: {}",
-                self.target,
-                SUPPORTED_TARGETS.join(", ")
-            );
-        }
-        validate.ok_with(&self.target);
-
-        // ── Load manifest ──────────────────────────────────────────
-        let manifest_path = self.manifest.clone().unwrap_or_else(|| {
-            ws.root()
-                .join("deps")
-                .join("llama-cpp-prebuilt")
-                .join("manifest.json")
-        });
-
-        let load = Stage::start("load manifest");
-        let manifest_txt = fs::read_to_string(&manifest_path)
-            .with_context(|| format!("read {}", manifest_path.display()))?;
-        let manifest: Manifest = serde_json::from_str(&manifest_txt)
-            .with_context(|| format!("parse {}", manifest_path.display()))?;
-
-        if manifest.schema != 1 {
-            bail!(
-                "manifest schema {} not supported (expected 1)",
-                manifest.schema
-            );
-        }
-        load.ok_with(format!(
-            "{} {} ({})",
-            manifest.product, manifest.version, manifest.tag
-        ));
+        validate_target(&self.target)?;
+        let (manifest_path, manifest) = load_manifest(ws, self.manifest.as_deref())?;
 
         // ── Select artifact ────────────────────────────────────────
         let select = Stage::start("select artifact");
@@ -144,43 +110,16 @@ impl Task for FetchLlamaCpp {
             }
         }
 
-        // ── Download (with local cache in .userdata/tmp) ───────────
-        let tmp_dir = ws
-            .root()
-            .join(".userdata")
-            .join("tmp")
-            .join("llama-cpp-prebuilt");
-        fs::create_dir_all(&tmp_dir)?;
-        let tmp_file = tmp_dir.join(&artifact.file_name);
-
-        if !is_cached(&tmp_file, &artifact.sha256)? {
-            let agent = build_http_agent()?;
-
-            let resolve = Stage::start("resolve asset");
-            let (owner, repo) = parse_github_repo(&manifest.repository)?;
-            let asset_api_url =
-                resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
-            resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
-
-            let dl = Stage::start("download");
-            download_artifact(&agent, &asset_api_url, &tmp_file)
-                .with_context(|| format!("download {}", artifact.file_name))?;
-            let dl_size = fs::metadata(&tmp_file)?.len();
-            dl.ok_with(format!(
-                "{} ({} MB)",
-                artifact.file_name,
-                dl_size / (1024 * 1024)
-            ));
-        } else {
-            let dl = Stage::start("download");
-            dl.ok_with("cached in .userdata/tmp/llama-cpp-prebuilt");
-        }
+        let tmp_file = download_or_use_cache(ws, &manifest, artifact)?;
 
         // ── SHA256 verify ──────────────────────────────────────────
         let verify = Stage::start("verify sha256");
         let actual = sha256_file(&tmp_file)?;
         if !actual.eq_ignore_ascii_case(&artifact.sha256) {
-            verify.fail(format!("expected {} got {}", artifact.sha256, actual));
+            verify.fail(format!(
+                "expected {expected} got {actual}",
+                expected = artifact.sha256
+            ));
             bail!("sha256 mismatch for {}", artifact.file_name);
         }
         verify.ok_with(&actual[..16]);
@@ -231,9 +170,6 @@ struct Manifest {
     version: String,
     tag: String,
     repository: String,
-    #[allow(dead_code)]
-    #[serde(default, rename = "releaseUrl")]
-    release_url: Option<String>,
     artifacts: Vec<Artifact>,
 }
 
@@ -242,18 +178,101 @@ struct Artifact {
     /// Full target id like `win32-x64-vulkan`. This is the primary key
     /// the fetch command resolves against (`--target` matches here).
     target: String,
-    #[allow(dead_code)]
-    platform: String,
-    #[allow(dead_code)]
-    arch: String,
-    #[allow(dead_code)]
-    backend: String,
     #[serde(rename = "fileName")]
     file_name: String,
     /// SHA256 digest as lowercase hex. Required.
     sha256: String,
-    #[allow(dead_code)]
-    url: String,
+}
+
+/// Validate the operator-supplied target string against `SUPPORTED_TARGETS`.
+/// Reports the stage outcome and bails on unknown values.
+fn validate_target(target: &str) -> Result<()> {
+    let validate = Stage::start("validate target");
+    if !SUPPORTED_TARGETS.contains(&target) {
+        validate.fail(format!("unknown target `{target}`"));
+        bail!(
+            "unknown target `{target}` — supported: {}",
+            SUPPORTED_TARGETS.join(", ")
+        );
+    }
+    validate.ok_with(target);
+    Ok(())
+}
+
+/// Load and parse the pinned llama-cpp-prebuilt manifest. Returns the
+/// resolved path (so error messages elsewhere can cite it) plus the
+/// parsed value.
+fn load_manifest(ws: &Workspace, override_path: Option<&Path>) -> Result<(PathBuf, Manifest)> {
+    let manifest_path = override_path.map_or_else(
+        || {
+            ws.root()
+                .join("deps")
+                .join("llama-cpp-prebuilt")
+                .join("manifest.json")
+        },
+        std::path::Path::to_path_buf,
+    );
+
+    let load = Stage::start("load manifest");
+    let manifest_txt = fs::read_to_string(&manifest_path)
+        .with_context(|| format!("read {}", manifest_path.display()))?;
+    let manifest: Manifest = serde_json::from_str(&manifest_txt)
+        .with_context(|| format!("parse {}", manifest_path.display()))?;
+
+    if manifest.schema != 1 {
+        bail!(
+            "manifest schema {} not supported (expected 1)",
+            manifest.schema
+        );
+    }
+    load.ok_with(format!(
+        "{} {} ({})",
+        manifest.product, manifest.version, manifest.tag
+    ));
+    Ok((manifest_path, manifest))
+}
+
+/// Download the prebuilt artifact into `.userdata/tmp/llama-cpp-prebuilt/`
+/// unless the cache already matches the pinned SHA. Returns the path to
+/// the local file so the caller can re-verify and extract.
+fn download_or_use_cache(
+    ws: &Workspace,
+    manifest: &Manifest,
+    artifact: &Artifact,
+) -> Result<PathBuf> {
+    let tmp_dir = ws
+        .root()
+        .join(".userdata")
+        .join("tmp")
+        .join("llama-cpp-prebuilt");
+    fs::create_dir_all(&tmp_dir)?;
+    let tmp_file = tmp_dir.join(&artifact.file_name);
+
+    if is_cached(&tmp_file, &artifact.sha256)? {
+        let dl = Stage::start("download");
+        dl.ok_with("cached in .userdata/tmp/llama-cpp-prebuilt");
+        return Ok(tmp_file);
+    }
+
+    let agent = build_http_agent()?;
+
+    let resolve = Stage::start("resolve asset");
+    let (owner, repo) = parse_github_repo(&manifest.repository)?;
+    let asset_api_url =
+        resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
+    resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
+
+    let dl = Stage::start("download");
+    download_artifact(&agent, &asset_api_url, &tmp_file)
+        .with_context(|| format!("download {}", artifact.file_name))?;
+    let dl_size = fs::metadata(&tmp_file)?.len();
+    dl.ok_with(format!(
+        "{} ({} MB)",
+        artifact.file_name,
+        dl_size / (1024 * 1024)
+    ));
+
+    Ok(tmp_file)
 }
 
 // ─── Download + hash ──────────────────────────────────────────────────
@@ -362,6 +381,8 @@ fn resolve_asset_api_url(
 
 /// Download a release asset via the GitHub API asset URL.
 fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Result<()> {
+    use std::io::Write;
+
     let req = with_github_auth(agent.get(asset_api_url)).set("Accept", "application/octet-stream");
 
     let resp = req.call().context("HTTP request failed")?;
@@ -383,7 +404,6 @@ fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Re
         if n == 0 {
             break;
         }
-        use std::io::Write;
         file.write_all(&buf[..n])
             .with_context(|| format!("write {}", dst.display()))?;
     }
@@ -430,7 +450,7 @@ fn unzip(zip_path: &Path, dst: &Path) -> Result<(u64, u64)> {
         let rel = entry
             .enclosed_name()
             .ok_or_else(|| anyhow::anyhow!("unsafe zip entry: {}", entry.name()))?
-            .to_owned();
+            .clone();
         let out_path = dst.join(&rel);
 
         if entry.is_dir() {

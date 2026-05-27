@@ -64,7 +64,7 @@ pub trait TextEmbedder: Send + Sync {
 pub enum PipelineSignal {
     /// Pipeline entered for a chat turn.
     ClassifyStarted {
-        /// Project slug — SurrealDB database name under the
+        /// Project slug — `SurrealDB` database name under the
         /// `projects` namespace.
         project_slug: String,
         /// Byte length of the input content (no PII in the signal).
@@ -109,7 +109,7 @@ impl PipelineEventSink for NullPipelineSink {
 
 /// Run the chat-turn pipeline for a single message.
 ///
-/// Synchronously walks classify → embed → save_memory, emitting
+/// Synchronously walks classify → embed → `save_memory`, emitting
 /// [`PipelineSignal`]s at each hop. Returns the saved memory id on
 /// success. Callers that don't care about the id can ignore the
 /// `Ok(_)` payload — the events are the load-bearing observable.
@@ -168,9 +168,12 @@ pub async fn process_chat_message(
     });
 
     // Unix seconds — std::time keeps the cortex crate chrono-free.
+    // SAFETY: `u64::cast_signed` returns the bit-identical `i64`. The
+    // Unix epoch + ~292 billion years is when this overflows; we'll
+    // happily ship a different version of the cortex by then.
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
+        .map(|d| d.as_secs().cast_signed())
         .unwrap_or(0);
     let record = MemoryRecord {
         id: format!("mem-{}", Uuid::new_v4()),

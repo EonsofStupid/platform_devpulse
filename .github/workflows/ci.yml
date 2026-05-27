@@ -103,6 +103,15 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
+      # `.cargo/config.toml` sets `LLAMA_CPP_PREBUILT_LIB_DIR` for the
+      # win32-x64-vulkan prebuilt tree (only fetched on Windows dev
+      # boxes via `cargo xtask fetch-llama-cpp`). On Linux CI the tree
+      # is not fetched; if the var is set, llama-cpp-sys-2/build.rs:1195
+      # panics with "expected file lib/libllama.a not found". Override
+      # to empty so build.rs takes the from-source fallback path.
+      - name: Unset Windows-only prebuilt env var on Linux CI
+        run: echo "LLAMA_CPP_PREBUILT_LIB_DIR=" >> "$GITHUB_ENV"
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 

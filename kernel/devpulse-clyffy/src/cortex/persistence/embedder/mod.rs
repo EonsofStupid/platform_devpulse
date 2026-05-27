@@ -130,7 +130,9 @@ impl CandleEmbedder {
         if self.normalize {
             let norm: f32 = embedding.iter().map(|x| x * x).sum::<f32>().sqrt();
             if norm > 0.0 {
-                embedding.iter_mut().for_each(|x| *x /= norm);
+                for x in &mut embedding {
+                    *x /= norm;
+                }
             }
         }
 
@@ -140,11 +142,20 @@ impl CandleEmbedder {
     /// Batch embed multiple texts.
     ///
     /// Currently sequential — batch tokenization + padding is a future optimization.
+    ///
+    /// # Errors
+    /// Propagates the first per-text [`Self::embed`] failure (tokenizer
+    /// or Candle forward-pass error). On error the partial result is
+    /// discarded; the caller gets the underlying anyhow error.
     pub fn embed_batch(&self, texts: &[&str]) -> Result<Vec<Vec<f32>>> {
         texts.iter().map(|t| self.embed(t)).collect()
     }
 
     /// Health check — run a trivial embedding to verify the model is functional.
+    ///
+    /// # Errors
+    /// Propagates any error from the underlying [`Self::embed`] call;
+    /// callers typically map this to a service-health verdict.
     pub fn ping(&self) -> Result<()> {
         let _ = self.embed("health check")?;
         Ok(())

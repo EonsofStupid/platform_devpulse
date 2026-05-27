@@ -73,6 +73,10 @@ impl FileEventSink {
 }
 
 impl LoaderEventSink for FileEventSink {
+    #[expect(
+        clippy::too_many_lines,
+        reason = "central file-log dispatch — one match arm per `LoaderEvent` variant. Decomposing by event family would fragment the readable variant → log-line mapping; each arm is 2-5 lines and the function does exactly one thing (dispatch)."
+    )]
     fn emit(&self, event: LoaderEvent) {
         match &event {
             // ── Discovery ──────────────────────────────────────────

@@ -94,7 +94,7 @@ impl Task for ModelManifestBackfill {
                 continue;
             }
 
-            let manifest = infer_manifest(&root, dir, &files)?;
+            let manifest = infer_manifest(&root, dir, &files);
 
             if self.dry_run {
                 crate::xinfo!(
@@ -287,7 +287,7 @@ fn sha256_of(path: &Path) -> Result<String> {
     let f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
     let mut reader = BufReader::new(f);
     let mut hasher = Sha256::new();
-    let mut buf = [0u8; 64 * 1024];
+    let mut buf = vec![0u8; 64 * 1024].into_boxed_slice();
     loop {
         let n = reader
             .read(&mut buf)
@@ -314,10 +314,12 @@ fn classify_file_role(name: &str) -> Option<String> {
     if lower.starts_with("mmproj") {
         return Some("mmproj".into());
     }
-    if lower.ends_with(".gguf") || lower.ends_with(".safetensors") || lower.ends_with(".onnx") {
+    let ext = Path::new(&lower).extension();
+    let ext_is = |s: &str| ext.is_some_and(|e| e.eq_ignore_ascii_case(s));
+    if ext_is("gguf") || ext_is("safetensors") || ext_is("onnx") {
         return Some("weights".into());
     }
-    if lower.ends_with(".bin") && !lower.contains("training_args") {
+    if ext_is("bin") && !lower.contains("training_args") {
         return Some("weights".into());
     }
     None
@@ -327,7 +329,7 @@ fn classify_file_role(name: &str) -> Option<String> {
 // Inference — turn a directory + its files into a ModelManifest
 // ═══════════════════════════════════════════════════════════════════════
 
-fn infer_manifest(root: &Path, dir: &Path, files: &[ManifestFile]) -> Result<ModelManifest> {
+fn infer_manifest(root: &Path, dir: &Path, files: &[ManifestFile]) -> ModelManifest {
     let rel = dir.strip_prefix(root).unwrap_or(dir);
     let segments: Vec<&str> = rel
         .components()
@@ -347,9 +349,10 @@ fn infer_manifest(root: &Path, dir: &Path, files: &[ManifestFile]) -> Result<Mod
     let architecture = infer_architecture(&segments, &filename_hint);
     let parameter_count_b = infer_parameter_count(&segments, &filename_hint);
     let quant = infer_quant(&filename_hint);
-    let (role, capabilities, recommended_slots) = infer_capabilities(&folder_role, &architecture);
+    let (role, capabilities, recommended_slots) =
+        infer_capabilities(&folder_role, architecture.as_deref());
 
-    Ok(ModelManifest {
+    ModelManifest {
         schema_version: 1,
         canonical_id,
         label,
@@ -370,7 +373,7 @@ fn infer_manifest(root: &Path, dir: &Path, files: &[ManifestFile]) -> Result<Mod
              canonical_id / capabilities if inference was wrong."
                 .to_string(),
         ),
-    })
+    }
 }
 
 /// Extension trait so `infer_manifest` can take `&[ManifestFile]` and
@@ -392,7 +395,7 @@ impl VecOfFiles for [ManifestFile] {
 }
 
 /// Convert `qwen--qwen3-4b-instruct` → `qwen/qwen3-4b-instruct`, which
-/// mirrors HuggingFace's on-disk naming where `--` is the separator
+/// mirrors `HuggingFace`'s on-disk naming where `--` is the separator
 /// between org and repo (the `huggingface_hub` library writes cache
 /// entries as `models--org--repo`).
 fn infer_canonical_id(segments: &[&str]) -> Option<String> {
@@ -413,11 +416,10 @@ fn infer_canonical_id(segments: &[&str]) -> Option<String> {
 
 /// Pretty label from the final path segment.
 fn infer_label(segments: &[&str]) -> String {
-    segments
-        .last()
-        .copied()
-        .map(|s| s.replace("--", " / ").replace('-', " "))
-        .unwrap_or_else(|| "Unknown".to_string())
+    segments.last().copied().map_or_else(
+        || "Unknown".to_string(),
+        |s| s.replace("--", " / ").replace('-', " "),
+    )
 }
 
 /// Derive HF repo id from an `org--repo` folder name.
@@ -481,7 +483,7 @@ fn infer_architecture(segments: &[&str], filename: &str) -> Option<String> {
 /// Parse the first parameter-count token from a path/filename. Matches:
 /// `0.6b`, `4b`, `7B`, `13b`, `30b`, `35b-a3b`, etc. Returns the
 /// FIRST figure, which corresponds to the total parameter count
-/// (MoE active-expert counts like `a3b` are ignored — the `moe` tag
+/// (`MoE` active-expert counts like `a3b` are ignored — the `moe` tag
 /// on `architecture` carries that signal).
 fn infer_parameter_count(segments: &[&str], filename: &str) -> Option<f32> {
     let bag = segments.join(" ") + " " + filename;
@@ -506,10 +508,7 @@ fn infer_parameter_count(segments: &[&str], filename: &str) -> Option<f32> {
                 // like "tab" or "cube" — require a non-alphanumeric
                 // boundary after the `b`.
                 let after = bytes.get(i + 1).copied();
-                let boundary = matches!(
-                    after,
-                    None | Some(b'-') | Some(b'_') | Some(b'.') | Some(b' ') | Some(b'/')
-                );
+                let boundary = matches!(after, None | Some(b'-' | b'_' | b'.' | b' ' | b'/'));
                 if boundary && n > 0.0 && n < 2000.0 {
                     return Some(n);
                 }
@@ -520,15 +519,16 @@ fn infer_parameter_count(segments: &[&str], filename: &str) -> Option<f32> {
     None
 }
 
-/// Common GGUF / HuggingFace quant tags. Returns the canonical form as
+/// Common GGUF / `HuggingFace` quant tags. Returns the canonical form as
 /// the quant appears in filenames (`Q4_K_M`, `Q8_0`, `F16`, etc.).
+const QUANT_TAGS: &[&str] = &[
+    "Q8_0", "Q6_K", "Q5_K_M", "Q5_K_S", "Q4_K_XL", "Q4_K_M", "Q4_K_S", "Q3_K_M", "Q3_K_S", "Q2_K",
+    "BF16", "F16", "F32", "FP16", "FP32", "INT8", "INT4",
+];
+
 fn infer_quant(filename: &str) -> Option<String> {
     let upper = filename.to_ascii_uppercase();
-    const TAGS: &[&str] = &[
-        "Q8_0", "Q6_K", "Q5_K_M", "Q5_K_S", "Q4_K_XL", "Q4_K_M", "Q4_K_S", "Q3_K_M", "Q3_K_S",
-        "Q2_K", "BF16", "F16", "F32", "FP16", "FP32", "INT8", "INT4",
-    ];
-    for tag in TAGS {
+    for tag in QUANT_TAGS {
         if upper.contains(tag) {
             return Some((*tag).to_string());
         }
@@ -543,9 +543,9 @@ fn infer_quant(filename: &str) -> Option<String> {
 /// the kernel side.
 fn infer_capabilities(
     folder_role: &str,
-    architecture: &Option<String>,
+    architecture: Option<&str>,
 ) -> (String, Vec<String>, Vec<String>) {
-    let arch = architecture.as_deref().unwrap_or("");
+    let arch = architecture.unwrap_or("");
     match folder_role {
         "rag" => (
             "embedder".into(),

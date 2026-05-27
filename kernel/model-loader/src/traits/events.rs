@@ -243,7 +243,7 @@ pub enum LoaderEvent {
         slot_id: String,
         /// Registry model id about to be wired into the slot.
         /// `None` when the install chain is still resolving the
-        /// HuggingFace download → registry entry mapping.
+        /// `HuggingFace` download → registry entry mapping.
         model_id: Option<String>,
     },
     /// The slot symlink at
@@ -298,7 +298,7 @@ pub enum LoaderEvent {
     /// any embed/storage work so the devtool can light up the
     /// "in flight" row immediately.
     IntelligenceClassifyStarted {
-        /// Project slug — the SurrealDB database name under the
+        /// Project slug — the `SurrealDB` database name under the
         /// `projects` namespace. Derived via `slug_for_cwd`.
         project_slug: String,
         /// Byte length of the chat content (no PII in the event).
@@ -319,7 +319,7 @@ pub enum LoaderEvent {
     },
     /// `IntelligenceStore::save_memory` succeeded. Carries the row
     /// id the connector returned so the devtool can pivot into
-    /// SurrealDB / Qdrant inspectors with one click.
+    /// `SurrealDB` / Qdrant inspectors with one click.
     IntelligenceMemorySaved {
         /// Project slug.
         project_slug: String,
@@ -446,178 +446,208 @@ pub struct TracingEventSink;
 
 impl LoaderEventSink for TracingEventSink {
     fn emit(&self, event: LoaderEvent) {
-        match &event {
-            LoaderEvent::LoadingStarted { slot_id, model_id } => {
-                tracing::info!(slot = %slot_id, model = %model_id, "Model loading started");
-            }
-            LoaderEvent::LoadingComplete { slot_id, memory } => {
-                tracing::info!(
-                    slot = %slot_id,
-                    ram_mb = memory.ram_mb(),
-                    vram_mb = memory.vram_mb(),
-                    "Model loading complete"
-                );
-            }
-            LoaderEvent::LoadingFailed { slot_id, error } => {
-                tracing::error!(slot = %slot_id, error = %error, "Model loading failed");
-            }
-            LoaderEvent::VramInsufficient {
+        if trace_load_swap_event(&event) {
+            return;
+        }
+        if trace_wizard_event(&event) {
+            return;
+        }
+        if trace_intelligence_event(&event) {
+            return;
+        }
+        tracing::debug!("LoaderEvent: {event:?}");
+    }
+}
+
+/// Trace load / swap / capability / runtime-version events.
+/// Returns `true` when `event` matched one of the variants this helper
+/// owns (so the caller can short-circuit instead of falling through
+/// to the next family).
+fn trace_load_swap_event(event: &LoaderEvent) -> bool {
+    match event {
+        LoaderEvent::LoadingStarted { slot_id, model_id } => {
+            tracing::info!(slot = %slot_id, model = %model_id, "Model loading started");
+        }
+        LoaderEvent::LoadingComplete { slot_id, memory } => {
+            tracing::info!(
+                slot = %slot_id,
+                ram_mb = memory.ram_mb(),
+                vram_mb = memory.vram_mb(),
+                "Model loading complete"
+            );
+        }
+        LoaderEvent::LoadingFailed { slot_id, error } => {
+            tracing::error!(slot = %slot_id, error = %error, "Model loading failed");
+        }
+        LoaderEvent::VramInsufficient {
+            needed_mb,
+            available_mb,
+            ..
+        } => {
+            tracing::warn!(
                 needed_mb,
                 available_mb,
-                ..
-            } => {
-                tracing::warn!(
-                    needed_mb,
-                    available_mb,
-                    "VRAM insufficient for requested load"
-                );
-            }
-            LoaderEvent::SwapStarted {
-                slot_id,
-                from_model,
-                to_model,
-            } => {
-                tracing::info!(
-                    slot = %slot_id,
-                    from = ?from_model,
-                    to = %to_model,
-                    "Model swap started"
-                );
-            }
-            LoaderEvent::SwapComplete { slot_id, model_id } => {
-                tracing::info!(slot = %slot_id, model = %model_id, "Model swap complete");
-            }
-            LoaderEvent::SwapFailed { slot_id, error } => {
-                tracing::error!(slot = %slot_id, error = %error, "Model swap failed");
-            }
-            LoaderEvent::CapabilityRebound {
-                capability,
-                from_runtime,
-                to_runtime,
-                reason,
-            } => {
-                tracing::info!(
-                    capability = %capability,
-                    from = ?from_runtime,
-                    to = %to_runtime,
-                    reason = ?reason,
-                    "Capability rebound to new runtime"
-                );
-            }
-            LoaderEvent::RuntimeVersionChanged {
-                runtime_id,
-                old_fingerprint,
-                new_fingerprint,
-            } => {
-                tracing::info!(
-                    runtime = %runtime_id,
-                    old_crate_version = ?old_fingerprint.as_ref().and_then(|f| f.crate_version.as_ref()),
-                    new_crate_version = ?new_fingerprint.crate_version,
-                    old_upstream = ?old_fingerprint.as_ref().and_then(|f| f.upstream_revision.as_ref()),
-                    new_upstream = ?new_fingerprint.upstream_revision,
-                    "Runtime version changed"
-                );
-            }
-            // ── Wizard cortex lifecycle — `wizard.lifecycle` target.
-            // Consistent field names so log replay tools can correlate
-            // `slot_id` across events without per-variant adapters.
-            LoaderEvent::WizardTileApplied { slot_id, model_id } => {
-                tracing::info!(
-                    target: "wizard.lifecycle",
-                    slot_id = %slot_id,
-                    model_id = ?model_id,
-                    "Wizard tile applied"
-                );
-            }
-            LoaderEvent::WizardSymlinkArmed {
-                slot_id,
-                link_path,
-                target_path,
-            } => {
-                tracing::info!(
-                    target: "wizard.lifecycle",
-                    slot_id = %slot_id,
-                    link_path = %link_path,
-                    target_path = %target_path,
-                    "Wizard slot symlink armed"
-                );
-            }
-            LoaderEvent::WizardSymlinkFailed { slot_id, error } => {
-                tracing::warn!(
-                    target: "wizard.lifecycle",
-                    slot_id = %slot_id,
-                    error = %error,
-                    "Wizard slot symlink failed"
-                );
-            }
-            LoaderEvent::WizardCortexComplete {
+                "VRAM insufficient for requested load"
+            );
+        }
+        LoaderEvent::SwapStarted {
+            slot_id,
+            from_model,
+            to_model,
+        } => {
+            tracing::info!(
+                slot = %slot_id,
+                from = ?from_model,
+                to = %to_model,
+                "Model swap started"
+            );
+        }
+        LoaderEvent::SwapComplete { slot_id, model_id } => {
+            tracing::info!(slot = %slot_id, model = %model_id, "Model swap complete");
+        }
+        LoaderEvent::SwapFailed { slot_id, error } => {
+            tracing::error!(slot = %slot_id, error = %error, "Model swap failed");
+        }
+        LoaderEvent::CapabilityRebound {
+            capability,
+            from_runtime,
+            to_runtime,
+            reason,
+        } => {
+            tracing::info!(
+                capability = %capability,
+                from = ?from_runtime,
+                to = %to_runtime,
+                reason = ?reason,
+                "Capability rebound to new runtime"
+            );
+        }
+        LoaderEvent::RuntimeVersionChanged {
+            runtime_id,
+            old_fingerprint,
+            new_fingerprint,
+        } => {
+            tracing::info!(
+                runtime = %runtime_id,
+                old_crate_version = ?old_fingerprint.as_ref().and_then(|f| f.crate_version.as_ref()),
+                new_crate_version = ?new_fingerprint.crate_version,
+                old_upstream = ?old_fingerprint.as_ref().and_then(|f| f.upstream_revision.as_ref()),
+                new_upstream = ?new_fingerprint.upstream_revision,
+                "Runtime version changed"
+            );
+        }
+        _ => return false,
+    }
+    true
+}
+
+/// Trace wizard cortex lifecycle events on the `wizard.lifecycle`
+/// target. Consistent field names so log replay tools can correlate
+/// `slot_id` across events without per-variant adapters.
+fn trace_wizard_event(event: &LoaderEvent) -> bool {
+    match event {
+        LoaderEvent::WizardTileApplied { slot_id, model_id } => {
+            tracing::info!(
+                target: "wizard.lifecycle",
+                slot_id = %slot_id,
+                model_id = ?model_id,
+                "Wizard tile applied"
+            );
+        }
+        LoaderEvent::WizardSymlinkArmed {
+            slot_id,
+            link_path,
+            target_path,
+        } => {
+            tracing::info!(
+                target: "wizard.lifecycle",
+                slot_id = %slot_id,
+                link_path = %link_path,
+                target_path = %target_path,
+                "Wizard slot symlink armed"
+            );
+        }
+        LoaderEvent::WizardSymlinkFailed { slot_id, error } => {
+            tracing::warn!(
+                target: "wizard.lifecycle",
+                slot_id = %slot_id,
+                error = %error,
+                "Wizard slot symlink failed"
+            );
+        }
+        LoaderEvent::WizardCortexComplete {
+            slots_saved,
+            duration_ms,
+        } => {
+            tracing::info!(
+                target: "wizard.lifecycle",
                 slots_saved,
                 duration_ms,
-            } => {
-                tracing::info!(
-                    target: "wizard.lifecycle",
-                    slots_saved,
-                    duration_ms,
-                    "Wizard cortex complete"
-                );
-            }
-            // ── Intelligence pipeline lifecycle (`intel.pipeline` target).
-            LoaderEvent::IntelligenceClassifyStarted {
-                project_slug,
+                "Wizard cortex complete"
+            );
+        }
+        _ => return false,
+    }
+    true
+}
+
+/// Trace intelligence-pipeline events on the `intel.pipeline` target.
+fn trace_intelligence_event(event: &LoaderEvent) -> bool {
+    match event {
+        LoaderEvent::IntelligenceClassifyStarted {
+            project_slug,
+            content_len,
+        } => {
+            tracing::info!(
+                target: "intel.pipeline",
+                project_slug = %project_slug,
                 content_len,
-            } => {
-                tracing::info!(
-                    target: "intel.pipeline",
-                    project_slug = %project_slug,
-                    content_len,
-                    "Chat turn entered intelligence pipeline"
-                );
-            }
-            LoaderEvent::IntelligenceEmbedComplete {
-                project_slug,
+                "Chat turn entered intelligence pipeline"
+            );
+        }
+        LoaderEvent::IntelligenceEmbedComplete {
+            project_slug,
+            dim,
+            duration_ms,
+        } => {
+            tracing::info!(
+                target: "intel.pipeline",
+                project_slug = %project_slug,
                 dim,
                 duration_ms,
-            } => {
-                tracing::info!(
-                    target: "intel.pipeline",
-                    project_slug = %project_slug,
-                    dim,
-                    duration_ms,
-                    "Embedding produced"
-                );
-            }
-            LoaderEvent::IntelligenceMemorySaved {
-                project_slug,
-                memory_id,
-            } => {
-                tracing::info!(
-                    target: "intel.pipeline",
-                    project_slug = %project_slug,
-                    memory_id = %memory_id,
-                    "Memory persisted"
-                );
-            }
-            LoaderEvent::ReasoningEscalated {
-                project_slug,
-                backend,
-            } => {
-                tracing::info!(
-                    target: "intel.pipeline",
-                    project_slug = %project_slug,
-                    backend = %backend,
-                    "Reasoning escalated"
-                );
-            }
-            LoaderEvent::ClaudeApiActivated { key_present } => {
-                tracing::info!(
-                    target: "intel.pipeline",
-                    key_present,
-                    "Claude API key state changed"
-                );
-            }
-            _ => {
-                tracing::debug!("LoaderEvent: {event:?}");
-            }
+                "Embedding produced"
+            );
         }
+        LoaderEvent::IntelligenceMemorySaved {
+            project_slug,
+            memory_id,
+        } => {
+            tracing::info!(
+                target: "intel.pipeline",
+                project_slug = %project_slug,
+                memory_id = %memory_id,
+                "Memory persisted"
+            );
+        }
+        LoaderEvent::ReasoningEscalated {
+            project_slug,
+            backend,
+        } => {
+            tracing::info!(
+                target: "intel.pipeline",
+                project_slug = %project_slug,
+                backend = %backend,
+                "Reasoning escalated"
+            );
+        }
+        LoaderEvent::ClaudeApiActivated { key_present } => {
+            tracing::info!(
+                target: "intel.pipeline",
+                key_present,
+                "Claude API key state changed"
+            );
+        }
+        _ => return false,
     }
+    true
 }

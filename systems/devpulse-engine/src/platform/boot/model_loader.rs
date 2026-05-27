@@ -167,7 +167,7 @@ pub async fn boot(
 
 /// Construct the Burn encoder adapter when the `burn` feature is on.
 ///
-/// Picks the NdArray (CPU) backend by default — Cuda variant gets
+/// Picks the `NdArray` (CPU) backend by default — Cuda variant gets
 /// added when the platform's hardware monitor signals a usable GPU
 /// AND the build has the `burn-cuda` feature. CPU on Harrier 0.6B
 /// is a few hundred ms per embedding, acceptable for the encoder

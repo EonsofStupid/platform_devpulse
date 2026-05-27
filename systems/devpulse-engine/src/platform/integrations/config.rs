@@ -1,8 +1,8 @@
-//! ConfigBackend implementations for model-loader persistence.
+//! `ConfigBackend` implementations for model-loader persistence.
 //!
 //! Two backends:
 //! - `MemoryConfig` (re-exported from model-loader) — volatile, for tests
-//! - `LibSqlConfig` — persists to the system LibSQL database, survives restarts
+//! - `LibSqlConfig` — persists to the system `LibSQL` database, survives restarts
 
 #[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::MemoryConfig;
@@ -18,8 +18,8 @@ use std::sync::Arc;
 
 /// LibSQL-backed `ConfigBackend` — persists model assignments to the system database.
 ///
-/// Uses the system LibSQL's `kv_store` table with a `model_loader.` prefix.
-/// The ConfigBackend trait is sync; LibSQL is async. We bridge via
+/// Uses the system `LibSQL`'s `kv_store` table with a `model_loader.` prefix.
+/// The `ConfigBackend` trait is sync; `LibSQL` is async. We bridge via
 /// `tokio::task::block_in_place(|| handle.block_on(...))` which yields the
 /// current tokio worker thread to run the async block without nesting runtimes.
 #[cfg(feature = "inference")]
@@ -31,7 +31,7 @@ pub struct LibSqlConfig {
 
 #[cfg(feature = "inference")]
 impl LibSqlConfig {
-    /// Create a new LibSQL config backend.
+    /// Create a new `LibSQL` config backend.
     ///
     /// Must be called from a tokio context (captures `Handle::current()`).
     pub fn new(adapter: Arc<LibSqlAdapter>) -> Self {
@@ -41,7 +41,7 @@ impl LibSqlConfig {
         }
     }
 
-    /// Prefix all keys with `model_loader.` to namespace within the shared kv_store.
+    /// Prefix all keys with `model_loader.` to namespace within the shared `kv_store`.
     fn prefixed_key(key: &str) -> String {
         format!("model_loader.{key}")
     }
