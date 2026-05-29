@@ -358,6 +358,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::list_backend_matrix,
             commands::models::resolve_architecture_compatibility,
             // Burn encoder — text embedding (Phase C: tokenizer + forward pass)
+            commands::models::encoder_is_loaded,
             commands::models::encoder_embed,
             // Voice management
             commands::voice::get_voice_status,

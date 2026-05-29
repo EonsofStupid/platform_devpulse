@@ -566,6 +566,17 @@ impl ModelLoaderService {
         )
     }
 
+    /// `true` when a Burn encoder adapter is wired AND its weights are
+    /// currently loaded (post-`load_slot`). Used by UI surfaces to gate
+    /// the "Embed" button without polling slot statuses and inferring.
+    #[must_use]
+    pub fn burn_is_loaded(&self) -> bool {
+        self.boot
+            .burn_encoder_adapter
+            .as_ref()
+            .is_some_and(|adapter| adapter.is_loaded())
+    }
+
     /// Embed a batch of texts using the wired Burn encoder.
     ///
     /// Returns one L2-normalized dense vector (`Vec<f32>`) per input

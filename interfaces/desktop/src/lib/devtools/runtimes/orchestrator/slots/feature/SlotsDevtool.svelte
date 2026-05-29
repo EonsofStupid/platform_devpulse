@@ -21,6 +21,7 @@ import {
 	Sparkles,
 	Square,
 	X,
+	Zap,
 } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
@@ -46,7 +47,9 @@ import {
 } from "$lib/domains/app/models/index.js";
 import DownloadPanel from "$lib/sys/activity-hud/DownloadPanel.svelte";
 import InstallPanel from "$lib/sys/activity-hud/InstallPanel.svelte";
-import { modelsDirPath } from "$lib/sys/bindings/models/index.js";
+import { encoderEmbed, encoderIsLoaded, modelsDirPath } from "$lib/sys/bindings/models/index.js";
+
+const RAG_EMBEDDER_SLOT = "rag.embedder";
 
 let loading = $state(false);
 let actionSlot = $state<string | null>(null);
@@ -78,6 +81,7 @@ onMount(async () => {
 	} else {
 		modelsDirError = String(r.error);
 	}
+	await refreshEncoderReady();
 });
 
 const ROLE_ICONS = {
@@ -172,6 +176,57 @@ function slotData(slotId: string) {
 	return { slot, model, status, ready, label };
 }
 
+// ── Encoder smoke test ─────────────────────────────────────────
+// Single-shot inference verification: type text → click Embed →
+// read back vector dim + first 5 floats. Gates on `encoderIsLoaded`
+// so the button is disabled until the kernel adapter has weights.
+let encoderText = $state("hello world");
+let encoderResult = $state<{ dim: number; head: number[] } | null>(null);
+let encoderError = $state<string | null>(null);
+let encoderBusy = $state(false);
+let encoderReady = $state(false);
+
+async function refreshEncoderReady(): Promise<void> {
+	const r = await encoderIsLoaded();
+	encoderReady = r.status === "ok" && r.data === true;
+}
+
+async function runEncoderEmbed(): Promise<void> {
+	encoderBusy = true;
+	encoderError = null;
+	encoderResult = null;
+	try {
+		const r = await encoderEmbed([encoderText]);
+		if (r.status === "error") {
+			encoderError = r.error;
+			return;
+		}
+		const [vec] = r.data;
+		if (!vec) {
+			encoderError = "Backend returned an empty vector batch";
+			return;
+		}
+		encoderResult = { dim: vec.length, head: vec.slice(0, 5) };
+	} catch (e) {
+		encoderError = e instanceof Error ? e.message : String(e);
+	} finally {
+		encoderBusy = false;
+	}
+}
+
+// The kernel currently doesn't emit `model:slot-status` (statuses[]
+// stays optimistic post-load), so we cheap-poll `encoderIsLoaded`
+// while the encoder is not yet ready. Polling halts the instant we
+// observe a loaded encoder, so the steady-state cost is one call
+// at mount + one after each Embed run. Cleared on unmount.
+$effect(() => {
+	if (encoderReady) return;
+	const handle = window.setInterval(() => {
+		void refreshEncoderReady();
+	}, 1500);
+	return () => window.clearInterval(handle);
+});
+
 const readyCount = $derived(
 	modelsState.slots.filter((s) => {
 		const status = modelsState.statuses[s.id];
@@ -196,6 +251,7 @@ const badge = $derived<HealthBadge>(
 const extraTabs: ExtraTab[] = [
 	{ id: "registry", label: "Registry", Icon: Search },
 	{ id: "downloads", label: "Downloads", Icon: Play },
+	{ id: "encoder", label: "Encoder smoke", Icon: Zap },
 ];
 
 // ── Capture (copy / export) ────────────────────────────────
@@ -279,6 +335,24 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							2,
 						),
 					};
+		case "encoder":
+			return encoderResult || encoderError
+				? {
+						filename: "encoder-smoke.json",
+						mime: "application/json",
+						content: JSON.stringify(
+							{
+								slot: RAG_EMBEDDER_SLOT,
+								ready: encoderReady,
+								input: encoderText,
+								result: encoderResult,
+								error: encoderError,
+							},
+							null,
+							2,
+						),
+					}
+				: undefined;
 		default:
 			return undefined;
 	}
@@ -493,6 +567,8 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<InstallPanel />
 				<DownloadPanel />
 			</div>
+		{:else if tabId === "encoder"}
+			{@render encoderBody()}
 		{/if}
 	{/snippet}
 </ServiceDevtoolShell>
@@ -606,6 +682,68 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	</div>
 {/snippet}
 
+{#snippet encoderBody()}
+	<div class="space-y-3">
+		<Text size="sm" color="muted">
+			One-shot text-embedding verification for the
+			<code>{RAG_EMBEDDER_SLOT}</code> slot. Type a phrase, click
+			Embed, read back the vector dimension + first five floats.
+			The button is disabled until the kernel reports a loaded
+			Burn encoder (assign + Load a safetensors model first).
+		</Text>
+
+		<div class="encoder-row">
+			<label class="encoder-label" for="encoder-smoke-input">
+				<Text size="xs" weight="bold">Input text</Text>
+			</label>
+			<input
+				id="encoder-smoke-input"
+				class="encoder-input"
+				type="text"
+				bind:value={encoderText}
+				disabled={encoderBusy}
+				placeholder="hello world"
+			/>
+		</div>
+
+		<div class="encoder-actions">
+			<Button
+				preset="primary"
+				size="sm"
+				onclick={runEncoderEmbed}
+				disabled={!encoderReady || encoderBusy || encoderText.length === 0}
+			>
+				{#if encoderBusy}<Spinner size="xs" />{:else}<Zap size={12} />{/if}
+				Embed
+			</Button>
+			{#if encoderReady}
+				<Badge variant="positive" size="sm"><Check size={8} /> Encoder loaded</Badge>
+			{:else}
+				<Badge variant="neutral" size="sm">Encoder not loaded</Badge>
+			{/if}
+		</div>
+
+		{#if encoderError}
+			<InlineMessage tone="error">{encoderError}</InlineMessage>
+		{/if}
+
+		{#if encoderResult}
+			<div class="encoder-result">
+				<div class="encoder-result-row">
+					<Text size="xs" color="muted">Vector dimension</Text>
+					<Text size="xs" weight="bold" class="encoder-mono">{encoderResult.dim}</Text>
+				</div>
+				<div class="encoder-result-row">
+					<Text size="xs" color="muted">First 5 floats</Text>
+					<Text size="xs" class="encoder-mono">
+						[{encoderResult.head.map((f) => f.toFixed(4)).join(", ")}]
+					</Text>
+				</div>
+			</div>
+		{/if}
+	</div>
+{/snippet}
+
 <style>
 	.role-section { display: flex; flex-direction: column; gap: 0.5rem; }
 	.role-header {
@@ -715,4 +853,32 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 	:global(.picker-row-meta) { color: var(--text-muted); }
 	.picker-row-caps { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+	.encoder-row { display: flex; flex-direction: column; gap: 0.25rem; }
+	.encoder-label { display: flex; }
+	.encoder-input {
+		width: 100%;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.375rem;
+		background: var(--surface-raised);
+		border: 0.0625rem solid var(--border-soft);
+		color: var(--text-primary);
+		font: inherit;
+		font-family: var(--font-mono);
+	}
+	.encoder-input:focus {
+		outline: none;
+		border-color: var(--accent-teal-main);
+	}
+	.encoder-input:disabled { opacity: 0.6; cursor: not-allowed; }
+	.encoder-actions { display: flex; align-items: center; gap: 0.5rem; }
+	.encoder-result {
+		display: flex; flex-direction: column; gap: 0.25rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.5rem;
+		background: var(--surface-raised);
+		border: 0.0625rem solid var(--border-soft);
+	}
+	.encoder-result-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+	:global(.encoder-mono) { font-family: var(--font-mono); }
 </style>

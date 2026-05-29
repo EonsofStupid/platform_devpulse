@@ -7,6 +7,11 @@
 export const commands = {
 /**
  * Native save dialog — returns absolute path or `None` if cancelled.
+ * 
+ * # Errors
+ * Always returns `Ok(...)` — the dialog itself surfaces `None` on
+ * cancel. The `Result` shape is preserved for tauri-specta binding
+ * compatibility with sibling save-file commands.
  */
 async pickSaveFile(defaultName: string) : Promise<Result<string | null, string>> {
     try {
@@ -33,6 +38,11 @@ async sendMessage(projectId: string, content: string) : Promise<Result<ChatMessa
  * Called by the frontend after streaming inference completes.
  * Accepts metadata that only the inference pipeline knows: token count,
  * model identity, and latency.
+ * 
+ * # Errors
+ * Returns formatted error strings when the platform is still booting,
+ * the relational service is unavailable, or any of the sequence /
+ * insert / touch / read-back SQL operations fail.
  */
 async storeAssistantTurn(sessionId: string, projectId: string, content: string, tokenCount: number, modelUsed: string, latencyMs: number) : Promise<Result<ChatMessage, string>> {
     try {
@@ -62,10 +72,10 @@ async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<C
  * 
  * # Errors
  * - Platform is still booting.
- * - Suggestion service cannot construct (model_loader or user_graph
+ * - Suggestion service cannot construct (`model_loader` or `user_graph`
  * not yet ready).
  * - Embedder failure (model not loaded).
- * - SurrealDB query failure.
+ * - `SurrealDB` query failure.
  */
 async suggestQuery(partial: string, personaId: string, k: number) : Promise<Result<Suggestion[], string>> {
     try {
@@ -86,7 +96,7 @@ async suggestQuery(partial: string, personaId: string, k: number) : Promise<Resu
  * - Platform is still booting.
  * - Suggestion service cannot construct.
  * - Embedder failure.
- * - SurrealDB write failure.
+ * - `SurrealDB` write failure.
  */
 async suggestRecord(text: string, personaId: string, accepted: boolean) : Promise<Result<null, string>> {
     try {
@@ -108,7 +118,11 @@ async listSessions() : Promise<Result<ChatSession[], string>> {
 }
 },
 /**
- * Delete one session — cascades `turns` / anchors / open_loops` per engine schema.
+ * Delete one session — cascades `turns` / `anchors` / `open_loops` per engine schema.
+ * 
+ * # Errors
+ * Returns the formatted Platform / `SurrealDB` error if the cascade
+ * delete fails or the session is unknown.
  */
 async deleteSession(sessionId: string) : Promise<Result<null, string>> {
     try {
@@ -383,7 +397,7 @@ async queryLaneBaselines() : Promise<Result<LaneBaselineRow[], string>> {
  * 
  * # Errors
  * Returns error if the platform's telemetry guard has not been installed
- * (i.e. the app is very early in boot, before logging::init completed).
+ * (i.e. the app is very early in boot, before `logging::init` completed).
  */
 async getTelemetryInfo() : Promise<Result<TelemetryPipelineInfo, string>> {
     try {
@@ -426,7 +440,7 @@ async openTelemetryFolder() : Promise<Result<null, string>> {
 }
 },
 /**
- * Report how much telemetry has accumulated in DuckDB.
+ * Report how much telemetry has accumulated in `DuckDB`.
  */
 async getTelemetryRowCounts() : Promise<Result<TelemetryRowCounts, string>> {
     try {
@@ -537,6 +551,11 @@ async deleteVectorCollection(name: string) : Promise<Result<null, string>> {
  * 
  * Returns field metadata (label, family, description, slider bounds)
  * so the frontend renders sliders generically without hardcoded labels.
+ * 
+ * # Errors
+ * Infallible — the `Result` shape is kept for binding parity with the
+ * sibling `Result`-returning retrieval-config commands so the TS
+ * surface stays uniform.
  */
 async getRetrievalParamMeta() : Promise<Result<RetrievalParamMeta[], string>> {
     try {
@@ -1237,6 +1256,12 @@ async llamaCppOpenPrebuiltDir(target: string) : Promise<Result<null, string>> {
  * --target <id>` separately after the manifest lands. That's
  * deliberate: a manifest bump is a contract change; a fetch is a
  * per-machine action. Different concerns, different commands.
+ * 
+ * # Errors
+ * Returns the formatted error string when the incoming JSON does not
+ * parse, declares an unsupported schema version, has zero artifacts,
+ * contains a placeholder / empty `sha256`, targets an unknown
+ * platform, or the manifest cannot be written to disk.
  */
 async llamaCppBumpManifest(newManifestJson: string) : Promise<Result<BumpResult, string>> {
     try {
@@ -1306,6 +1331,11 @@ async ollamaStatus() : Promise<Result<OllamaStatus, string>> {
  * Pings the HTTP API if the service is running. Returns `Unknown` when
  * the platform hasn't booted or the service slot is empty AND disabled
  * in config. Returns `Stopped` when slot empty but enabled.
+ * 
+ * # Errors
+ * Returns the `"Platform not booted"` string when called before the
+ * platform handle is installed. The HTTP ping itself never errors back
+ * to the caller — failures are folded into `OllamaHealthState::Down`.
  */
 async ollamaHealth() : Promise<Result<OllamaHealth, string>> {
     try {
@@ -1364,7 +1394,7 @@ async ollamaDeleteModel(name: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Runtime status of the SurrealDB sidecar (configured vs. actual port,
+ * Runtime status of the `SurrealDB` sidecar (configured vs. actual port,
  * managed/attached, bind URL, etc.).
  * 
  * Lock-free read — never spawns, never blocks.
@@ -1526,7 +1556,7 @@ async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
 /**
  * Persist a memory row into the project's intelligence store.
  * 
- * Returns the connector-assigned memory id (typically a UUIDv7 the
+ * Returns the connector-assigned memory id (typically a `UUIDv7` the
  * command generates). Idempotent at the connector layer when the
  * connector dedupes by embedding similarity.
  * 
@@ -1666,7 +1696,7 @@ async sherpaFinishSession(sessionId: string) : Promise<Result<string, string>> {
 }
 },
 /**
- * Drop a session — releases its OnlineStream handle.
+ * Drop a session — releases its `OnlineStream` handle.
  */
 async sherpaStopSession(sessionId: string) : Promise<Result<null, string>> {
     try {
@@ -1722,7 +1752,7 @@ async detectClaudeInstalls() : Promise<ClaudeInstalls> {
     return await TAURI_INVOKE("detect_claude_installs");
 },
 /**
- * Register the DevPulse MCP entry with a Claude client.
+ * Register the `DevPulse` MCP entry with a Claude client.
  * 
  * Writes `mcpServers.devpulse = { command, args: ["--mcp-stdio"] }` into
  * the target client's config file (preserving every other entry) and
@@ -1742,7 +1772,7 @@ async registerDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstalls,
 }
 },
 /**
- * Remove the DevPulse MCP entry from a Claude client.
+ * Remove the `DevPulse` MCP entry from a Claude client.
  * 
  * Idempotent — removing a missing entry is success. The user must
  * restart their Claude client for the removal to take effect.
@@ -1791,7 +1821,7 @@ async pingClaude(request: PingClaudeRequest) : Promise<Result<PingClaudeResponse
  * reading the actual key.
  * 
  * # Errors
- * Keyring read failures other than NoEntry are surfaced verbatim.
+ * Keyring read failures other than `NoEntry` are surfaced verbatim.
  */
 async anthropicKeyPresent() : Promise<Result<boolean, CommandError>> {
     try {
@@ -1913,6 +1943,12 @@ async pixvixCaptureWindowOnce(id: number) : Promise<Result<CapturedFrame, Comman
  * 
  * Wraps `nokhwa::query` in `catch_unwind` to neutralize the
  * no-camera-plugged-in panic on Windows MSMF (issue #192).
+ * 
+ * # Errors
+ * Returns [`CommandError`] when the blocking enumeration task fails to
+ * join or when `nokhwa::query` returns an error (classified via
+ * `classify_nokhwa_error`). The no-camera-plugged-in panic path is
+ * translated to an empty list, not an error.
  */
 async pixvixListWebcams() : Promise<Result<WebcamInfo[], CommandError>> {
     try {
@@ -1928,6 +1964,12 @@ async pixvixListWebcams() : Promise<Result<WebcamInfo[], CommandError>> {
  * Opens + captures + drops per call. The pool-across-calls pattern
  * belongs in V-4's session lifecycle (`nokhwa::Camera` is `!Send`,
  * so a tokio-worker pool would not type-check).
+ * 
+ * # Errors
+ * Returns [`CommandError`] when the blocking capture task fails to
+ * join, when opening the camera fails (classified via
+ * `classify_nokhwa_error`), or when the captured frame fails to decode
+ * or PNG-encode.
  */
 async pixvixCaptureWebcamOnce(index: number) : Promise<Result<CapturedFrame, CommandError>> {
     try {
@@ -1987,18 +2029,23 @@ async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
 }
 },
 /**
- * Update user preferences. Only non-None fields are written.
+ * Update user preferences. Only non-None fields in `patch` are written.
+ * 
+ * # Errors
+ * Returns the formatted error string when the adapter cannot be
+ * resolved, the profile / preferences row cannot be loaded, or the
+ * `UPDATE preferences` statement fails.
  */
-async updateUserPreferences(theme: string | null, contextMode: string | null, showThinking: boolean | null, verbosity: string | null, defaultTemperature: number | null, allowTelemetry: boolean | null, screenCaptureEnabled: boolean | null) : Promise<Result<UserPreferences, string>> {
+async updateUserPreferences(patch: UpdateUserPreferencesInput) : Promise<Result<UserPreferences, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("update_user_preferences", { theme, contextMode, showThinking, verbosity, defaultTemperature, allowTelemetry, screenCaptureEnabled }) };
+    return { status: "ok", data: await TAURI_INVOKE("update_user_preferences", { patch }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Create a new project row in user LibSQL.
+ * Create a new project row in user `LibSQL`.
  * 
  * Duplicate `root_path` values are rejected at the SQL level — the
  * `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
@@ -2233,6 +2280,11 @@ async closeChildWindow(role: WindowRole) : Promise<Result<null, string>> {
 },
 /**
  * Get all window roles and whether they are currently open.
+ * 
+ * # Errors
+ * Infallible — the `Result` shape is preserved for binding parity with
+ * the sibling `open_window` / `close_window` commands so the TS
+ * surface stays uniform.
  */
 async listWindows() : Promise<Result<WindowInfo[], string>> {
     try {
@@ -2499,7 +2551,7 @@ async modelsDirPath() : Promise<Result<string, string>> {
 }
 },
 /**
- * Resolve the recommended primary filename inside a HuggingFace
+ * Resolve the recommended primary filename inside a `HuggingFace`
  * repo for a given slot. Tier-aware: uses the live hardware monitor
  * to pick the right GGUF quant (or safetensors shard / onnx
  * fallback) for the slot's required capability. Returns `None`
@@ -2545,7 +2597,7 @@ async cancelDownload(downloadId: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * List every file in a HuggingFace repo.
+ * List every file in a `HuggingFace` repo.
  * 
  * Used by `RepoDownloadButton` to render a bundle confirmation modal
  * before the user clicks Download. Threaded through the stored HF
@@ -2820,7 +2872,7 @@ async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: Runt
  * 
  * **Phase 5 stub** — every runtime currently returns
  * `NoCheckConfigured` because the upstream-query implementations
- * (HuggingFace revision API, GitHub releases API, crates.io API)
+ * (`HuggingFace` revision API, GitHub releases API, crates.io API)
  * are tracked separately and land per-runtime. The UI surface
  * + Tauri command + return type are stable now so the per-runtime
  * implementations can drop in without touching frontend code.
@@ -3177,6 +3229,23 @@ async resolveArchitectureCompatibility(archRaw: string, modelType: string | null
 }
 },
 /**
+ * `true` when the Burn encoder is wired AND its weights are loaded.
+ * The Slots devtool "Encoder smoke" tab calls this to gate the Embed
+ * button — the button is disabled while this returns `false`, avoiding
+ * a misleading error path through `encoder_embed`.
+ * 
+ * # Errors
+ * - Platform not ready / model loader disabled.
+ */
+async encoderIsLoaded() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("encoder_is_loaded") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Embed a batch of texts through the wired Burn encoder.
  * 
  * Returns one L2-normalized dense vector per input string, in order.
@@ -3474,7 +3543,7 @@ async storeApiKey(provider: ProviderId, key: string) : Promise<Result<null, Comm
  * Retrieve an API key from the OS keychain.
  * 
  * Backend-only consumer — never call this and pass the result to the
- * frontend. Provider clients (Anthropic / OpenAI / etc) call this to
+ * frontend. Provider clients (Anthropic / `OpenAI` / etc) call this to
  * load a key right before issuing a request.
  * 
  * Returns `Ok(None)` when the key has never been stored.
@@ -3512,6 +3581,10 @@ async deleteApiKey(provider: ProviderId) : Promise<Result<null, CommandError>> {
  * Skips local-only providers (Ollama, LM Studio, vLLM) and the subscription
  * path — they don't have API keys, so showing them with `stored: false`
  * would just confuse the operator.
+ * 
+ * # Errors
+ * Returns [`CommandError`] when keychain access fails while probing
+ * stored keys for any visible provider that takes an API key.
  */
 async getApiKeyStatus() : Promise<Result<ApiKeyStatus[], CommandError>> {
     try {
@@ -3855,7 +3928,7 @@ async installUpdate() : Promise<Result<null, string>> {
  * Tauri runtime is up — well before the platform boot task finishes.
  * Channel preference is operator metadata, not a runtime-critical
  * signal; making it available pre-boot eliminates the race where the
- * Sidebar / Latest tab mount before Platform::boot completes.
+ * Sidebar / Latest tab mount before `Platform::boot` completes.
  * 
  * Defaults to [`UpdateChannel::Stable`] when the file is missing or
  * unreadable — the channel preference is never load-bearing on boot,
@@ -4156,7 +4229,7 @@ export type AnalyticsEvent =
 { name: "wizard-started"; props: { 
 /**
  * Stable per-session id generated at app boot — links all
- * events emitted during one DevPulse run.
+ * events emitted during one `DevPulse` run.
  */
 session_id: string } } | 
 /**
@@ -5144,7 +5217,7 @@ loading_more_label: string }
  * Returned by [`llama_cpp_bump_manifest`] after a successful write.
  * 
  * Surfaces a confirmation summary so the devtool can render
- * "manifest at $path pinned to $new_version (upstream $sha)" without
+ * "manifest at $path pinned to `$new_version` (upstream $sha)" without
  * re-reading the file.
  */
 export type BumpResult = { 
@@ -5897,11 +5970,11 @@ memoryRssBytes: number | null }
  */
 export type DevforgeConfigView = { 
 /**
- * `true` if the platform will spawn DevForge on first launch.
+ * `true` if the platform will spawn `DevForge` on first launch.
  */
 enabled: boolean; 
 /**
- * `true` if a DevForge boot failure aborts platform boot.
+ * `true` if a `DevForge` boot failure aborts platform boot.
  */
 critical: boolean; 
 /**
@@ -6005,7 +6078,7 @@ export type DownloadScope =
  * Copy for the standalone Model Downloader overlay.
  * 
  * Surfaced by every "Download a model" CTA in the platform — the
- * SlotsDevtool browse buttons, the chat-side suggest CTAs, the
+ * `SlotsDevtool` browse buttons, the chat-side suggest CTAs, the
  * wizard's manual-add path, and any future devtool that needs a HF
  * fetch. The overlay walks five phases (search → confirm → downloading
  * → complete / error) and every visible string lives here so layman
@@ -6466,7 +6539,7 @@ export type EscalationTierId =
  */
 "main_brain" | 
 /**
- * External AI service (Claude / OpenAI / etc.).
+ * External AI service (Claude / `OpenAI` / etc.).
  */
 "cloud_api"
 /**
@@ -7376,7 +7449,7 @@ export type InitStatus =
  */
 export type IntelSaveMemoryRequest = { 
 /**
- * Project slug — the SurrealDB database name under the
+ * Project slug — the `SurrealDB` database name under the
  * `projects` namespace. Derive on the frontend via the
  * `intel_list_projects` output or hardcode for single-project
  * dev flows.
@@ -8528,7 +8601,7 @@ error: string | null }
  * One physical/virtual monitor reported by xcap.
  * 
  * Field accuracy varies by OS — `is_builtin` is reliable on macOS,
- * best-effort elsewhere. `scale_factor` reflects HiDPI; multiply
+ * best-effort elsewhere. `scale_factor` reflects `HiDPI`; multiply
  * `width`/`height` by it to get device pixels (xcap returns logical
  * pixels by default).
  */
@@ -8560,7 +8633,7 @@ width: number;
  */
 height: number; 
 /**
- * HiDPI scale (1.0 on standard displays, 2.0 on Retina, etc.).
+ * `HiDPI` scale (1.0 on standard displays, 2.0 on Retina, etc.).
  */
 scaleFactor: number; 
 /**
@@ -8861,7 +8934,7 @@ back_label: string }
  */
 export type Project = { 
 /**
- * UUIDv4 identifier assigned at `create_project` time. Stable for
+ * `UUIDv4` identifier assigned at `create_project` time. Stable for
  * the life of the row.
  */
 id: string; 
@@ -8973,7 +9046,7 @@ row_count: number }
  */
 export type ProjectIntel = { 
 /**
- * Project slug — the SurrealDB database name under
+ * Project slug — the `SurrealDB` database name under
  * [`PROJECT_NAMESPACE`]. Derived from the project root path
  * via `cortex::intelligence::slug_for_cwd`.
  */
@@ -8991,7 +9064,7 @@ archive_count: number }
  */
 export type ProjectReference = { 
 /**
- * UUIDv4 identifier for this reference link.
+ * `UUIDv4` identifier for this reference link.
  */
 id: string; 
 /**
@@ -9122,7 +9195,7 @@ export type ProviderId =
 /**
  * One row from a `/v1/models` response — projected to what the UI shows.
  * 
- * Vendor responses include more (created_at, owned_by, capabilities,
+ * Vendor responses include more (`created_at`, `owned_by`, capabilities,
  * pricing) but those vary. We surface only the model id; per-vendor
  * detail panels can re-fetch when they need richer metadata.
  */
@@ -9133,7 +9206,7 @@ export type ProviderModelInfo = {
  */
 id: string; 
 /**
- * Optional owner label — OpenAI returns "openai"/"system", Hugging
+ * Optional owner label — `OpenAI` returns "openai"/"system", Hugging
  * Face returns the namespace, Ollama returns the digest. UI shows
  * it as a subtitle when present.
  */
@@ -9176,7 +9249,7 @@ lastValidatedAtMs: number | null;
 /**
  * Last validation error (`None` if last attempt succeeded or no
  * attempts have run). Surfaces verbatim so the UI can show "401
- * authentication_error: Invalid API key" rather than just "fail".
+ * `authentication_error`: Invalid API key" rather than just "fail".
  */
 lastError: string | null; 
 /**
@@ -9676,7 +9749,7 @@ minion_section_subtitle_template: string }
  * (Phase 5 follow-up wires the actual swap).
  * 
  * `source_url` is set when the runtime has a known upstream
- * (HuggingFace repo, GitHub releases, crates.io page) — the UI
+ * (`HuggingFace` repo, GitHub releases, crates.io page) — the UI
  * renders it as an external link so the user can manually
  * inspect the upstream changelog before triggering an update.
  */
@@ -10179,7 +10252,7 @@ message: string | null }
  */
 export type Suggestion = { 
 /**
- * Original prompt id (UUIDv7 — recency-sortable on lex order).
+ * Original prompt id (`UUIDv7` — recency-sortable on lex order).
  */
 id: string; 
 /**
@@ -10297,7 +10370,7 @@ label: string }
 /**
  * Runtime status of the Surreal service — what the devtool renders.
  * 
- * Embedded path: no host/port/HTTP/WS — DevPulse holds the file lock
+ * Embedded path: no host/port/HTTP/WS — `DevPulse` holds the file lock
  * directly. The devtool surfaces `data_path` so a layman can see
  * exactly where the bytes live.
  */
@@ -10307,7 +10380,7 @@ export type SurrealStatus = {
  */
 running: boolean; 
 /**
- * True iff DevPulse owns the embedded store. Always `true`
+ * True iff `DevPulse` owns the embedded store. Always `true`
  * for the embedded path — retained for source-compat with the
  * prior managed/attached sidecar distinction.
  */
@@ -10317,7 +10390,7 @@ managed: boolean;
  */
 backend: string; 
 /**
- * Absolute path to the SurrealKV data directory.
+ * Absolute path to the `SurrealKV` data directory.
  */
 dataPath: string }
 /**
@@ -10438,7 +10511,7 @@ extract_dir: string }
  */
 export type TelemetryPipelineInfo = { 
 /**
- * Platform version string (matches `service.version` OTel attribute).
+ * Platform version string (matches `service.version` `OTel` attribute).
  */
 service_version: string; 
 /**
@@ -10474,15 +10547,15 @@ exporter_installed: boolean }
  */
 export type TelemetryRowCounts = { 
 /**
- * Rows in DuckDB `span_traces` table.
+ * Rows in `DuckDB` `span_traces` table.
  */
 span_traces: number; 
 /**
- * Rows in DuckDB `lane_traces` table.
+ * Rows in `DuckDB` `lane_traces` table.
  */
 lane_traces: number; 
 /**
- * Rows in DuckDB `lane_baselines` table.
+ * Rows in `DuckDB` `lane_baselines` table.
  */
 lane_baselines: number }
 /**
@@ -10773,6 +10846,40 @@ published_at: string | null }
  * `app.restart()`.
  */
 export type UpdateInstallFinished = Record<string, never>
+/**
+ * Patch input for [`update_user_preferences`]. Every field is optional;
+ * only the keys the caller supplies are written. Mirrors the
+ * camelCase TS shape via tauri-specta.
+ */
+export type UpdateUserPreferencesInput = { 
+/**
+ * New theme selection.
+ */
+theme: string | null; 
+/**
+ * New context-density mode.
+ */
+contextMode: string | null; 
+/**
+ * Whether model reasoning should be shown.
+ */
+showThinking: boolean | null; 
+/**
+ * New explanation verbosity preset.
+ */
+verbosity: string | null; 
+/**
+ * Default model temperature for freeform generation.
+ */
+defaultTemperature: number | null; 
+/**
+ * Whether product telemetry is allowed.
+ */
+allowTelemetry: boolean | null; 
+/**
+ * Whether screen capture features are enabled.
+ */
+screenCaptureEnabled: boolean | null }
 /**
  * User preferences row from the `preferences` table.
  */
@@ -11227,7 +11334,7 @@ backendHandle: string }
  * Wayland degraded-capability flag returned with `list_windows`.
  * 
  * xcap on Wayland (issues #112, #136) cannot reliably enumerate or
- * capture individual native-Wayland windows — only XWayland windows
+ * capture individual native-Wayland windows — only `XWayland` windows
  * and full monitors work. The lister sets this flag so the UI can
  * hide the window-pick option instead of showing a broken control.
  */
@@ -11380,7 +11487,7 @@ role_cards?: RoleCardsCopy;
 clyffy_tooltips?: ClyffyTooltipsCopy; 
 /**
  * Copy for the standalone Model Downloader overlay — the search-
- * driven modal that ANY surface can open to browse HuggingFace,
+ * driven modal that ANY surface can open to browse `HuggingFace`,
  * tag a model with a slot role, confirm a bundle, and trigger an
  * authenticated download. Lives outside the wizard's view chain;
  * `#[serde(default)]` keeps older user overrides parsing cleanly.
@@ -11396,10 +11503,10 @@ downloader?: DownloaderCopy;
 auth?: AuthCopy; 
 /**
  * Copy for the post-login runtime picker — the embedder selector
- * + minion read-only section that lives at `/profile`. Distinct
- * from `profile: ProfileCopy` (which is the wizard's "tell me
- * about yourself" step). `#[serde(default)]` keeps older
- * overrides parsing without `[runtime_picker]`.
+ * with the minion read-only section that lives at `/profile`.
+ * Distinct from `profile: ProfileCopy` (which is the wizard's
+ * "tell me about yourself" step). `#[serde(default)]` keeps
+ * older overrides parsing without `[runtime_picker]`.
  */
 runtime_picker?: RuntimePickerCopy }
 

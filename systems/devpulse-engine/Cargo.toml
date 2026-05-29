@@ -19,7 +19,10 @@ sherpa = ["dep:sherpa-onnx"]
 # Burn-backed RRO encoder. Activates clyffy's `burn-cpu` so the
 # `CortexBurnAdapter` is reachable from boot, plus implies `inference`
 # for the kernel ModelLoaderService surface that consumes the adapter.
-burn = ["devpulse-clyffy/burn-cpu", "inference"]
+# `dep:burn` exposes the `burn::backend::flex` + `burn::tensor::dtype`
+# surfaces that `platform/boot/model_loader.rs::build_burn_encoder_adapter`
+# uses to construct the device + narrow safetensors f32 → bf16 at boot.
+burn = ["devpulse-clyffy/burn-cpu", "dep:burn", "inference"]
 
 # ── GPU proxy features (build-time vendor selection) ──
 # Pick ONE per build. Selection is build-time because cargo features are
@@ -133,6 +136,12 @@ arc-swap = { workspace = true }
 
 # Audio playback (TTS output → speakers)
 rodio = "0.19"
+
+# Burn — optional, gated by the `burn` feature. Engine boot constructs
+# the FlexDevice + sets default dtypes for the CortexBurnAdapter that
+# kernel slot dispatch calls into. Workspace pins the version + the
+# minimal `std,flex` default-feature set.
+burn = { workspace = true, optional = true }
 
 [build-dependencies]
 toml = "0.8"

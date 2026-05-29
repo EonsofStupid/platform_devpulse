@@ -2225,6 +2225,21 @@ pub async fn resolve_architecture_compatibility(
     ))
 }
 
+/// `true` when the Burn encoder is wired AND its weights are loaded.
+/// The Slots devtool "Encoder smoke" tab calls this to gate the Embed
+/// button — the button is disabled while this returns `false`, avoiding
+/// a misleading error path through `encoder_embed`.
+///
+/// # Errors
+/// - Platform not ready / model loader disabled.
+#[tauri::command]
+#[specta::specta]
+#[tracing::instrument(skip(state))]
+pub async fn encoder_is_loaded(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.burn_is_loaded())
+}
+
 /// Embed a batch of texts through the wired Burn encoder.
 ///
 /// Returns one L2-normalized dense vector per input string, in order.

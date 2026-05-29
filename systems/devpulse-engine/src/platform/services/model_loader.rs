@@ -681,6 +681,14 @@ impl ModelLoaderService {
             .map_err(LoadError::from)
     }
 
+    /// `true` when the Burn encoder is wired AND its weights are loaded.
+    /// Used by Tauri command surfaces to gate inference-trigger UI without
+    /// having to interpret slot status structs.
+    #[must_use]
+    pub fn burn_is_loaded(&self) -> bool {
+        self.inner.burn_is_loaded()
+    }
+
     /// Embed a batch of texts through the Burn encoder (no slot dispatch).
     ///
     /// The Burn encoder must be loaded via `load_slot` on `rag.embedder`
