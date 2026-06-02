@@ -1,4 +1,4 @@
-//! `cargo xtask fetch-devforge` — pull DevForge REH from upstream into
+//! `cargo xtask fetch-devforge` — pull `DevForge` REH from upstream into
 //! the per-platform resource dir.
 //!
 //! # Flow (default: auto-track latest)
@@ -31,7 +31,7 @@
 //! Pass `--pin` to skip the upstream-latest probe and use whatever tag
 //! the committed manifest names. Useful for hermetic release builds
 //! where reproducibility outweighs freshness. The default is
-//! auto-tracking because "newer DevForge available but xtask refuses to
+//! auto-tracking because "newer `DevForge` available but xtask refuses to
 //! pull it" is the worse failure mode for daily dev.
 //!
 //! # Why this exists
@@ -70,7 +70,7 @@ const DEFAULT_KIND: &str = "reh-web-min";
 /// Minimum download buffer for streaming HTTP responses.
 const IO_BUF_SIZE: usize = 64 * 1024;
 
-/// Fetch a DevForge REH artifact into the per-platform resource dir.
+/// Fetch a `DevForge` REH artifact into the per-platform resource dir.
 ///
 /// Default behaviour is to track upstream latest; pass `--pin` to lock
 /// to the committed manifest tag.
@@ -91,75 +91,15 @@ impl Task for FetchDevForge {
     fn run(&self, ws: &Workspace) -> Result<()> {
         stage::section("Fetch DevForge REH tree");
 
-        // ── Validate target ────────────────────────────────────────
-        let validate = Stage::start("validate target");
-        let (_, platform, arch) = SUPPORTED_TARGETS
-            .iter()
-            .find(|(t, _, _)| *t == self.target)
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "unknown target `{}` — supported: {}",
-                    self.target,
-                    SUPPORTED_TARGETS
-                        .iter()
-                        .map(|(t, _, _)| *t)
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                )
-            })?;
-        validate.ok_with(&self.target);
+        let (platform, arch) = self.validate_target_strs()?;
+        let manifest_path = self.resolve_manifest_path(ws);
+        let mut manifest = load_manifest_at(&manifest_path)?;
 
-        // ── Load manifest ──────────────────────────────────────────
-        let manifest_path = self.manifest.clone().unwrap_or_else(|| {
-            ws.root()
-                .join("interfaces")
-                .join("desktop")
-                .join("src-tauri")
-                .join("resources")
-                .join("devforge")
-                .join("manifest.json")
-        });
-
-        let load = Stage::start("load manifest");
-        let manifest_txt = fs::read_to_string(&manifest_path)
-            .with_context(|| format!("read {}", manifest_path.display()))?;
-        let mut manifest: Manifest = serde_json::from_str(&manifest_txt)
-            .with_context(|| format!("parse {}", manifest_path.display()))?;
-
-        if manifest.schema != 1 {
-            bail!(
-                "manifest schema {} not supported (expected 1)",
-                manifest.schema
-            );
-        }
-        load.ok_with(format!(
-            "{} {} ({})",
-            manifest.product, manifest.version, manifest.tag
-        ));
-
-        // ── Auto-track upstream latest (unless --pin) ──────────────
         let agent = build_http_agent()?;
         let (owner, repo) = parse_github_repo(&manifest.repository)?;
 
         if !self.pin {
-            let probe = Stage::start("probe upstream");
-            let latest_tag = query_latest_release_tag(&agent, &owner, &repo)
-                .with_context(|| format!("query latest release for {owner}/{repo}"))?;
-            if latest_tag == manifest.tag {
-                probe.ok_with(format!("{latest_tag} (manifest already current)"));
-            } else {
-                probe.ok_with(format!("{} → {latest_tag}", manifest.tag));
-
-                let sync = Stage::start("sync manifest to latest");
-                let shas = fetch_sha256sums(&agent, &owner, &repo, &latest_tag)
-                    .with_context(|| format!("fetch SHA256SUMS for {latest_tag}"))?;
-                rewrite_manifest_to_tag(&mut manifest, &owner, &repo, &latest_tag, &shas)?;
-                save_manifest(&manifest_path, &manifest)?;
-                sync.ok_with(format!(
-                    "{} {} ({}) — manifest rewritten",
-                    manifest.product, manifest.version, manifest.tag
-                ));
-            }
+            sync_manifest_to_latest(&agent, &owner, &repo, &manifest_path, &mut manifest)?;
         }
 
         // ── Select artifact ────────────────────────────────────────
@@ -168,7 +108,7 @@ impl Task for FetchDevForge {
         let artifact = manifest
             .artifacts
             .iter()
-            .find(|a| a.platform == platform && a.arch == arch && a.kind == kind)
+            .find(|a| a.platform == *platform && a.arch == *arch && a.kind == kind)
             .ok_or_else(|| {
                 anyhow::anyhow!(
                     "no manifest artifact for platform={platform} arch={arch} kind={kind}"
@@ -201,6 +141,11 @@ impl Task for FetchDevForge {
             }
         }
 
+        // ── Download (with local cache in .userdata/tmp) ───────────
+        let tmp_dir = ws.root().join(".userdata").join("tmp").join("devforge");
+        fs::create_dir_all(&tmp_dir)?;
+        let tmp_file = tmp_dir.join(&artifact.file_name);
+
         let pinned_sha = artifact.sha256.as_deref().ok_or_else(|| {
             anyhow::anyhow!(
                 "manifest artifact for target {} missing `sha256` field — \
@@ -209,7 +154,10 @@ impl Task for FetchDevForge {
             )
         })?;
 
-        if !is_cached(&tmp_file, pinned_sha)? {
+        if is_cached(&tmp_file, pinned_sha)? {
+            let dl = Stage::start("download");
+            dl.ok_with("cached in .userdata/tmp/devforge");
+        } else {
             let resolve = Stage::start("resolve asset");
             let asset_api_url =
                 resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
@@ -224,9 +172,6 @@ impl Task for FetchDevForge {
                 artifact.file_name,
                 dl_size / (1024 * 1024)
             ));
-        } else {
-            let dl = Stage::start("download");
-            dl.ok_with("cached in .userdata/tmp/devforge");
         }
 
         // ── SHA256 verify ──────────────────────────────────────────
@@ -268,34 +213,34 @@ impl Task for FetchDevForge {
     }
 }
 
-/// Validate the operator-supplied target string against `SUPPORTED_TARGETS`
-/// and return the matching `(platform, arch)` strings. Reports the stage
-/// outcome to the terminal.
-fn validate_target(target: &str) -> Result<(&'static str, &'static str)> {
-    let stage = Stage::start("validate target");
-    let entry = SUPPORTED_TARGETS
-        .iter()
-        .find(|(t, _, _)| *t == target)
-        .ok_or_else(|| {
-            anyhow::anyhow!(
-                "unknown target `{target}` — supported: {}",
-                SUPPORTED_TARGETS
-                    .iter()
-                    .map(|(t, _, _)| *t)
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
-        })?;
-    stage.ok_with(target);
-    Ok((entry.1, entry.2))
-}
+impl FetchDevForge {
+    /// Resolve `self.target` against `SUPPORTED_TARGETS` and return the
+    /// `(platform, arch)` strings as a flat pair. Reports the stage outcome
+    /// to the terminal.
+    fn validate_target_strs(&self) -> Result<(&'static str, &'static str)> {
+        let stage = Stage::start("validate target");
+        let entry = SUPPORTED_TARGETS
+            .iter()
+            .find(|(t, _, _)| *t == self.target)
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "unknown target `{}` — supported: {}",
+                    self.target,
+                    SUPPORTED_TARGETS
+                        .iter()
+                        .map(|(t, _, _)| *t)
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            })?;
+        stage.ok_with(&self.target);
+        Ok((entry.1, entry.2))
+    }
 
-/// Load and parse the pinned `DevForge` manifest. Falls back to the committed
-/// path under `interfaces/desktop/src-tauri/resources/devforge/manifest.json`
-/// when no override is supplied.
-fn load_manifest(ws: &Workspace, override_path: Option<&Path>) -> Result<Manifest> {
-    let manifest_path = override_path.map_or_else(
-        || {
+    /// Resolve the manifest path: explicit `--manifest <path>` override,
+    /// or the committed default under `interfaces/desktop/src-tauri/resources/devforge/manifest.json`.
+    fn resolve_manifest_path(&self, ws: &Workspace) -> PathBuf {
+        self.manifest.clone().unwrap_or_else(|| {
             ws.root()
                 .join("interfaces")
                 .join("desktop")
@@ -303,15 +248,18 @@ fn load_manifest(ws: &Workspace, override_path: Option<&Path>) -> Result<Manifes
                 .join("resources")
                 .join("devforge")
                 .join("manifest.json")
-        },
-        std::path::Path::to_path_buf,
-    );
+        })
+    }
+}
 
+/// Read + parse the manifest at `path` and validate its schema version.
+/// Reports the stage outcome to the terminal.
+fn load_manifest_at(path: &Path) -> Result<Manifest> {
     let load = Stage::start("load manifest");
-    let manifest_txt = fs::read_to_string(&manifest_path)
-        .with_context(|| format!("read {}", manifest_path.display()))?;
-    let manifest: Manifest = serde_json::from_str(&manifest_txt)
-        .with_context(|| format!("parse {}", manifest_path.display()))?;
+    let manifest_txt =
+        fs::read_to_string(path).with_context(|| format!("read {}", path.display()))?;
+    let manifest: Manifest =
+        serde_json::from_str(&manifest_txt).with_context(|| format!("parse {}", path.display()))?;
 
     if manifest.schema != 1 {
         bail!(
@@ -326,44 +274,35 @@ fn load_manifest(ws: &Workspace, override_path: Option<&Path>) -> Result<Manifes
     Ok(manifest)
 }
 
-/// Download the artifact into `.userdata/tmp/devforge/<file>` unless the
-/// cached file already matches the pinned sha256. Returns the resolved
-/// path so the caller can re-verify the SHA and extract.
-fn download_or_use_cache(
-    ws: &Workspace,
-    manifest: &Manifest,
-    artifact: &Artifact,
-    pinned_sha: &str,
-) -> Result<PathBuf> {
-    let tmp_dir = ws.root().join(".userdata").join("tmp").join("devforge");
-    fs::create_dir_all(&tmp_dir)?;
-    let tmp_file = tmp_dir.join(&artifact.file_name);
-
-    if is_cached(&tmp_file, pinned_sha)? {
-        let dl = Stage::start("download");
-        dl.ok_with("cached in .userdata/tmp/devforge");
-        return Ok(tmp_file);
+/// Probe `releases/latest`. If the upstream tag differs from the manifest's
+/// tag, rewrite each artifact's url/fileName/sha256 in place and save the
+/// updated manifest back to disk. No-op if the manifest is already current.
+fn sync_manifest_to_latest(
+    agent: &ureq::Agent,
+    owner: &str,
+    repo: &str,
+    manifest_path: &Path,
+    manifest: &mut Manifest,
+) -> Result<()> {
+    let probe = Stage::start("probe upstream");
+    let latest_tag = query_latest_release_tag(agent, owner, repo)
+        .with_context(|| format!("query latest release for {owner}/{repo}"))?;
+    if latest_tag == manifest.tag {
+        probe.ok_with(format!("{latest_tag} (manifest already current)"));
+        return Ok(());
     }
+    probe.ok_with(format!("{} → {latest_tag}", manifest.tag));
 
-    let agent = build_http_agent()?;
-
-    let resolve = Stage::start("resolve asset");
-    let (owner, repo) = parse_github_repo(&manifest.repository)?;
-    let asset_api_url =
-        resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
-    resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
-
-    let dl = Stage::start("download");
-    download_artifact(&agent, &asset_api_url, &tmp_file)
-        .with_context(|| format!("download {}", artifact.file_name))?;
-    let dl_size = fs::metadata(&tmp_file)?.len();
-    dl.ok_with(format!(
-        "{} ({} MB)",
-        artifact.file_name,
-        dl_size / (1024 * 1024)
+    let sync = Stage::start("sync manifest to latest");
+    let shas = fetch_sha256sums(agent, owner, repo, &latest_tag)
+        .with_context(|| format!("fetch SHA256SUMS for {latest_tag}"))?;
+    rewrite_manifest_to_tag(manifest, owner, repo, &latest_tag, &shas)?;
+    save_manifest(manifest_path, manifest)?;
+    sync.ok_with(format!(
+        "{} {} ({}) — manifest rewritten",
+        manifest.product, manifest.version, manifest.tag
     ));
-
-    Ok(tmp_file)
+    Ok(())
 }
 
 // ─── Manifest schema ──────────────────────────────────────────────────
@@ -431,7 +370,7 @@ fn query_latest_release_tag(agent: &ureq::Agent, owner: &str, repo: &str) -> Res
 }
 
 /// Download and parse the `SHA256SUMS` asset attached to a release.
-/// Returns a map of `filename → lowercase hex digest`. The DevForge
+/// Returns a map of `filename → lowercase hex digest`. The `DevForge`
 /// release process publishes this alongside the zips.
 fn fetch_sha256sums(
     agent: &ureq::Agent,
@@ -461,10 +400,10 @@ fn fetch_sha256sums(
         }
         // `sha256sum` output: `<hex>  <filename>` (two spaces) or
         // `<hex> *<filename>` (binary mode). Accept either.
-        let (hex, rest) = line.split_once(char::is_whitespace).ok_or_else(|| {
+        let (hex, raw_name) = line.split_once(char::is_whitespace).ok_or_else(|| {
             anyhow::anyhow!("malformed SHA256SUMS line {} ({}): {line}", i + 1, tag)
         })?;
-        let name = rest.trim_start_matches('*').trim();
+        let name = raw_name.trim_start_matches('*').trim();
         if hex.len() != 64 || !hex.chars().all(|c| c.is_ascii_hexdigit()) {
             bail!(
                 "SHA256SUMS line {} ({}): expected 64-char hex, got `{hex}`",
@@ -481,7 +420,7 @@ fn fetch_sha256sums(
     Ok(shas)
 }
 
-/// Replace `{tag}` segments in an artifact filename. Upstream DevForge
+/// Replace `{tag}` segments in an artifact filename. Upstream `DevForge`
 /// names assets `devforge-<kind>-<platform>-<arch>-<tag>.<ext>`; the
 /// only thing that varies tag-to-tag is the embedded tag string.
 fn swap_tag_in_filename(file_name: &str, old_tag: &str, new_tag: &str) -> String {

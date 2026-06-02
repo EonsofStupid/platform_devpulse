@@ -194,7 +194,7 @@ fn build_burn_encoder_adapter(
         // FloatDType::BF16 matches Harrier 0.6B's on-disk safetensors dtype
         // and halves the runtime memory footprint vs f32. IntDType::I64
         // matches the token-id buffer width the embedder pipeline emits.
-        let device = FlexDevice::default();
+        let device = FlexDevice;
         if let Err(e) =
             set_default_dtypes::<EmbedderCpuBackend>(&device, FloatDType::BF16, IntDType::I64)
         {

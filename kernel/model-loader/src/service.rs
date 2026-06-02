@@ -1486,6 +1486,11 @@ impl ModelLoaderService {
     /// so callers compile against a uniform `download_model` API. Build
     /// with `--features candle-backend` to enable real downloads.
     #[cfg(not(feature = "candle-backend"))]
+    #[expect(
+        clippy::unused_async,
+        reason = "API parity stub — real impl behind `candle-backend` is async; callers \
+                  await this on both branches."
+    )]
     pub async fn download_model(
         &self,
         _repo_id: &str,
@@ -1560,6 +1565,10 @@ impl ModelLoaderService {
     /// Always returns [`LoaderError::Internal`] — build with
     /// `--features candle-backend` to enable.
     #[cfg(not(feature = "candle-backend"))]
+    #[expect(
+        clippy::unused_async,
+        reason = "API parity stub — real impl behind `candle-backend` is async."
+    )]
     pub async fn recommend_primary_for_slot(
         &self,
         _repo_id: &str,
@@ -1692,6 +1701,10 @@ impl ModelLoaderService {
     /// Always returns [`LoaderError::Internal`] — build with
     /// `--features candle-backend` to enable.
     #[cfg(not(feature = "candle-backend"))]
+    #[expect(
+        clippy::unused_async,
+        reason = "API parity stub — real impl behind `candle-backend` is async."
+    )]
     pub async fn install_to_slot(
         &self,
         _repo_id: &str,

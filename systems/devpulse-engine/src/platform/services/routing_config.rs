@@ -109,7 +109,6 @@ impl InferenceProvider {
     }
 }
 
-
 // ── Escalation chain ─────────────────────────────────────────
 
 /// Stable identifier for an escalation tier.

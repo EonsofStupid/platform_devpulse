@@ -9,18 +9,18 @@
 //! ## Architecture (Harrier 0.6B `config.json`)
 //!
 //! - 28 transformer decoder layers, all full-attention
-//! - hidden_size = 1024
-//! - num_attention_heads = 16, num_key_value_heads = 8 (GQA 2:1)
-//! - head_dim = 128
-//! - intermediate_size = 3072
-//! - rms_norm_eps = 1e-6
-//! - rope_theta = 1_000_000
-//! - silu activation in SwiGLU MLP
-//! - tie_word_embeddings = true (lm_head reuses input embedding — not
+//! - `hidden_size` = 1024
+//! - `num_attention_heads` = 16, `num_key_value_heads` = 8 (GQA 2:1)
+//! - `head_dim` = 128
+//! - `intermediate_size` = 3072
+//! - `rms_norm_eps` = 1e-6
+//! - `rope_theta` = `1_000_000`
+//! - silu activation in `SwiGLU` MLP
+//! - `tie_word_embeddings` = true (`lm_head` reuses input embedding — not
 //!   authored here since the embedder pools final hidden states; there
 //!   is no vocab projection in this slice)
-//! - vocab_size = 151_936
-//! - max_position_embeddings = 32_768
+//! - `vocab_size` = `151_936`
+//! - `max_position_embeddings` = `32_768`
 //!
 //! ## Authorship constraint — no `burn::nn::*`, no `Param<T>`
 //!
@@ -62,8 +62,8 @@ use burn::{
 /// Configuration for [`Qwen3Model`]. Defaults match Harrier 0.6B.
 #[derive(Config, Debug)]
 pub struct Qwen3Config {
-    /// Token vocabulary size (151_936 for Harrier).
-    #[config(default = 151936)]
+    /// Token vocabulary size (`151_936` for Harrier).
+    #[config(default = 151_936)]
     pub vocab_size: usize,
     /// Hidden state dimension `H` (output embedding size).
     #[config(default = 1024)]
@@ -80,16 +80,16 @@ pub struct Qwen3Config {
     /// Per-head dimension. `num_attention_heads * head_dim == hidden_size`.
     #[config(default = 128)]
     pub head_dim: usize,
-    /// SwiGLU intermediate dimension.
+    /// `SwiGLU` intermediate dimension.
     #[config(default = 3072)]
     pub intermediate_size: usize,
-    /// RMSNorm numerical-stability epsilon.
+    /// `RMSNorm` numerical-stability epsilon.
     #[config(default = 1.0e-6)]
     pub rms_norm_eps: f64,
-    /// RoPE frequency base (`theta`).
+    /// `RoPE` frequency base (`theta`).
     #[config(default = 1_000_000.0)]
     pub rope_theta: f64,
-    /// Maximum supported position index. Determines RoPE cache size.
+    /// Maximum supported position index. Determines `RoPE` cache size.
     #[config(default = 32768)]
     pub max_position_embeddings: usize,
 }
@@ -127,6 +127,13 @@ impl<B: Backend> Qwen3Linear<B> {
     /// Initialise with `Normal(0, 1/sqrt(in_features))` — Xavier-style
     /// scaling that keeps activations finite at depth-28 random init.
     pub fn new(in_features: usize, out_features: usize, device: &B::Device) -> Self {
+        // f64 precision loss on the `usize` widening is acceptable: in_features
+        // for Qwen3 layers is at most `intermediate_size` (~3072 for Harrier
+        // 0.6B), well under 2^52. The cast is exact for every realistic config.
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "in_features bounded by intermediate_size ≪ 2^52 in every Qwen3 config"
+        )]
         let stddev = 1.0 / (in_features as f64).sqrt();
         let weight = Tensor::random(
             [in_features, out_features],
@@ -194,7 +201,7 @@ impl<B: Backend> Qwen3Embedding<B> {
 ///
 /// Replaces `burn::nn::RmsNorm`. Computes
 /// `x * rsqrt(mean(x², dim=-1) + eps) * weight` over the last dim.
-/// Weight initialises to ones (RMSNorm convention).
+/// Weight initialises to ones (`RMSNorm` convention).
 #[derive(Module, Debug)]
 pub struct Qwen3RmsNorm<B: Backend> {
     /// Per-feature scale, shape `[hidden_size]`. Crate-private;
@@ -212,7 +219,7 @@ impl<B: Backend> Qwen3RmsNorm<B> {
         Self { weight, eps }
     }
 
-    /// Initialise weight to ones (RMSNorm identity at init).
+    /// Initialise weight to ones (`RMSNorm` identity at init).
     pub fn new(hidden_size: usize, eps: f64, device: &B::Device) -> Self {
         let weight = Tensor::ones([hidden_size], device);
         Self { weight, eps }
@@ -237,7 +244,7 @@ impl<B: Backend> Qwen3RmsNorm<B> {
 // Rotary positional embedding (RoPE)
 // ─────────────────────────────────────────────────────────────────────────
 
-/// Precomputed cos/sin RoPE tables.
+/// Precomputed cos/sin `RoPE` tables.
 ///
 /// Tables are constant for a given `(max_pos, head_dim, theta)` triple, so
 /// they're stored as plain tensors inside the Module. Apply via
@@ -252,18 +259,37 @@ pub struct Qwen3Rope<B: Backend> {
 }
 
 impl<B: Backend> Qwen3Rope<B> {
-    /// Build the RoPE cache for `max_pos` positions and `head_dim` per-head
+    /// Build the `RoPE` cache for `max_pos` positions and `head_dim` per-head
     /// dimensions, with frequency base `theta`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `head_dim` is odd. `RoPE` rotates pairs of features, so the
+    /// per-head dimension must be even for the rotation matrix to fit.
     pub fn new(max_pos: usize, head_dim: usize, theta: f64, device: &B::Device) -> Self {
-        assert!(head_dim % 2 == 0, "head_dim must be even for RoPE");
+        assert!(head_dim.is_multiple_of(2), "head_dim must be even for RoPE");
         let half = head_dim / 2;
 
         // inv_freq[i] = 1 / theta^(2i / head_dim) for i in 0..half
+        // f64 precision loss on `usize → f64` is acceptable: head_dim is
+        // bounded by 256 in every realistic Qwen3 config (Harrier uses 128);
+        // `i` ranges over 0..half ≤ 128. Both fit exactly in f64's mantissa.
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "i and head_dim both ≪ 2^52 — head_dim ≤ 256 in every realistic Qwen3 config"
+        )]
         let inv_freq_data: Vec<f32> = (0..half)
             .map(|i| (1.0 / theta.powf(2.0 * (i as f64) / (head_dim as f64))) as f32)
             .collect();
         let inv_freq: Tensor<B, 1> = Tensor::from_floats(inv_freq_data.as_slice(), device);
 
+        // `max_pos` is bounded by `max_position_embeddings` (≤ 32_768 in every
+        // realistic Qwen3 config); `p` ranges 0..max_pos. Both fit exactly in
+        // f32's 23-bit mantissa (max representable integer is 2^24 = 16_777_216).
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "p ≤ max_position_embeddings ≤ 32_768 ≪ 2^24 — exact in f32"
+        )]
         let positions_data: Vec<f32> = (0..max_pos).map(|p| p as f32).collect();
         let positions: Tensor<B, 1> = Tensor::from_floats(positions_data.as_slice(), device);
 
@@ -335,22 +361,45 @@ pub struct Qwen3Attention<B: Backend> {
     pub(crate) scale: f64,
 }
 
+/// Loader-side bundle of the four learnt projections + `RoPE` cache + the
+/// derived geometry needed to construct a [`Qwen3Attention`]. Authored as
+/// a struct so [`Qwen3Attention::from_components`] takes one parameter
+/// instead of the eight individual fields (clippy `too_many_arguments`).
+pub(crate) struct Qwen3AttentionParts<B: Backend> {
+    pub(crate) q_proj: Qwen3Linear<B>,
+    pub(crate) k_proj: Qwen3Linear<B>,
+    pub(crate) v_proj: Qwen3Linear<B>,
+    pub(crate) o_proj: Qwen3Linear<B>,
+    pub(crate) rope: Qwen3Rope<B>,
+    pub(crate) n_q_heads: usize,
+    pub(crate) n_kv_heads: usize,
+    pub(crate) head_dim: usize,
+}
+
 impl<B: Backend> Qwen3Attention<B> {
     /// Construct from already-loaded projection matrices + the
     /// derived geometry. Used by the safetensors loader. The
     /// `n_kv_groups` and `scale` are derived from the geometry args
     /// instead of taken as parameters so the loader can't mismatch
     /// them.
-    pub(crate) fn from_components(
-        q_proj: Qwen3Linear<B>,
-        k_proj: Qwen3Linear<B>,
-        v_proj: Qwen3Linear<B>,
-        o_proj: Qwen3Linear<B>,
-        rope: Qwen3Rope<B>,
-        n_q_heads: usize,
-        n_kv_heads: usize,
-        head_dim: usize,
-    ) -> Self {
+    pub(crate) fn from_components(parts: Qwen3AttentionParts<B>) -> Self {
+        let Qwen3AttentionParts {
+            q_proj,
+            k_proj,
+            v_proj,
+            o_proj,
+            rope,
+            n_q_heads,
+            n_kv_heads,
+            head_dim,
+        } = parts;
+        // `head_dim` is bounded by 256 in every realistic Qwen3 config
+        // (Harrier 0.6B uses 128). Exact in f64.
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "head_dim ≤ 256 in every realistic Qwen3 config ≪ 2^52"
+        )]
+        let scale = 1.0 / (head_dim as f64).sqrt();
         Self {
             q_proj,
             k_proj,
@@ -361,7 +410,7 @@ impl<B: Backend> Qwen3Attention<B> {
             n_kv_heads,
             head_dim,
             n_kv_groups: n_q_heads / n_kv_heads,
-            scale: 1.0 / (head_dim as f64).sqrt(),
+            scale,
         }
     }
 
@@ -382,6 +431,13 @@ impl<B: Backend> Qwen3Attention<B> {
             device,
         );
 
+        // `head_dim` is bounded by 256 in every realistic Qwen3 config
+        // (Harrier 0.6B uses 128). Exact in f64.
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "head_dim ≤ 256 in every realistic Qwen3 config ≪ 2^52"
+        )]
+        let scale = 1.0 / (config.head_dim as f64).sqrt();
         Self {
             q_proj,
             k_proj,
@@ -392,7 +448,7 @@ impl<B: Backend> Qwen3Attention<B> {
             n_kv_heads: config.num_key_value_heads,
             head_dim: config.head_dim,
             n_kv_groups: config.n_kv_groups(),
-            scale: 1.0 / (config.head_dim as f64).sqrt(),
+            scale,
         }
     }
 
@@ -444,7 +500,7 @@ impl<B: Backend> Qwen3Attention<B> {
         let bias = mask_f
             .clone()
             .sub_scalar(1.0) // 0 → -1, 1 → 0
-            .mul_scalar(-neg_inf as f64) // -1 → neg_inf, 0 → 0  ⇒  mask==0 → neg_inf
+            .mul_scalar(f64::from(-neg_inf)) // -1 → neg_inf, 0 → 0  ⇒  mask==0 → neg_inf
             .reshape([batch, 1, 1, seq]);
         let scores = scores + bias;
 
@@ -483,49 +539,47 @@ fn repeat_kv_heads<B: Backend>(t: Tensor<B, 4>, n_groups: usize) -> Tensor<B, 4>
 // MLP (SwiGLU)
 // ─────────────────────────────────────────────────────────────────────────
 
-/// SwiGLU MLP block (`down(silu(gate(x)) * up(x))`).
+/// `SwiGLU` MLP block (`down(silu(gate(x)) * up(x))`).
+///
+/// Field names match the `SwiGLU` formula component roles (`gate`, `up`,
+/// `down`) rather than echoing the HF safetensors postfix `_proj`. The
+/// loader translates HF keys (`mlp.gate_proj.weight`) to these field
+/// names by hand; the rename keeps the in-process surface clippy-clean
+/// (`struct_field_names`) without disturbing the on-disk contract.
 ///
 /// Fields are crate-private; construct via `Self::new` (random init)
 /// or [`Self::from_components`] (loaded from safetensors).
 #[derive(Module, Debug)]
 pub struct Qwen3Mlp<B: Backend> {
-    pub(crate) gate_proj: Qwen3Linear<B>,
-    pub(crate) up_proj: Qwen3Linear<B>,
-    pub(crate) down_proj: Qwen3Linear<B>,
+    pub(crate) gate: Qwen3Linear<B>,
+    pub(crate) up: Qwen3Linear<B>,
+    pub(crate) down: Qwen3Linear<B>,
 }
 
 impl<B: Backend> Qwen3Mlp<B> {
     /// Construct from already-loaded projection matrices. Used by
     /// the safetensors loader.
     pub(crate) fn from_components(
-        gate_proj: Qwen3Linear<B>,
-        up_proj: Qwen3Linear<B>,
-        down_proj: Qwen3Linear<B>,
+        gate: Qwen3Linear<B>,
+        up: Qwen3Linear<B>,
+        down: Qwen3Linear<B>,
     ) -> Self {
-        Self {
-            gate_proj,
-            up_proj,
-            down_proj,
-        }
+        Self { gate, up, down }
     }
 
     /// Initialise from a [`Qwen3Config`] on the given device.
     pub fn new(config: &Qwen3Config, device: &B::Device) -> Self {
-        let gate_proj = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
-        let up_proj = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
-        let down_proj = Qwen3Linear::new(config.intermediate_size, config.hidden_size, device);
-        Self {
-            gate_proj,
-            up_proj,
-            down_proj,
-        }
+        let gate = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
+        let up = Qwen3Linear::new(config.hidden_size, config.intermediate_size, device);
+        let down = Qwen3Linear::new(config.intermediate_size, config.hidden_size, device);
+        Self { gate, up, down }
     }
 
-    /// Forward pass: SwiGLU on `[B, S, H]` input, returns `[B, S, H]`.
+    /// Forward pass: `SwiGLU` on `[B, S, H]` input, returns `[B, S, H]`.
     pub fn forward(&self, x: Tensor<B, 3>) -> Tensor<B, 3> {
-        let gate = activation::silu(self.gate_proj.forward(x.clone()));
-        let up = self.up_proj.forward(x);
-        self.down_proj.forward(gate.mul(up))
+        let gate = activation::silu(self.gate.forward(x.clone()));
+        let up = self.up.forward(x);
+        self.down.forward(gate.mul(up))
     }
 }
 
@@ -592,7 +646,7 @@ impl<B: Backend> Qwen3DecoderLayer<B> {
 // Full model
 // ─────────────────────────────────────────────────────────────────────────
 
-/// Full Qwen3 transformer: embedding → N decoder layers → final RMSNorm.
+/// Full Qwen3 transformer: embedding → N decoder layers → final `RMSNorm`.
 #[derive(Module, Debug)]
 pub struct Qwen3Model<B: Backend> {
     pub(crate) embed_tokens: Qwen3Embedding<B>,
@@ -649,11 +703,11 @@ impl<B: Backend> Qwen3Model<B> {
     /// - `attention_mask`: `[B, S]` Int — 1 = real token, 0 = pad.
     ///
     /// Returns `[B, S, hidden_size]` — final hidden states after
-    /// the last decoder layer + final RMSNorm.
+    /// the last decoder layer + final `RMSNorm`.
     pub fn forward(
         &self,
         token_ids: Tensor<B, 2, Int>,
-        attention_mask: Tensor<B, 2, Int>,
+        attention_mask: &Tensor<B, 2, Int>,
     ) -> Tensor<B, 3> {
         let mut hidden = self.embed_tokens.forward(token_ids);
         for layer in &self.layers {

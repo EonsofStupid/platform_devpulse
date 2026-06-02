@@ -1,6 +1,6 @@
 //! Text tokenization bridge for the Burn embedder — Phase C.
 //!
-//! Loads a HuggingFace Fast Tokenizer (`tokenizer.json`) from the same
+//! Loads a `HuggingFace` Fast Tokenizer (`tokenizer.json`) from the same
 //! directory as the model weights and converts `&str` slices into
 //! Burn `Tensor<B, 2, Int>` batches suitable for
 //! `BurnEmbedder::forward_pooled`.
@@ -22,10 +22,15 @@ const MAX_SEQ_LEN: usize = 8_192;
 /// this id; the corresponding attention-mask entry is 0.
 const PAD_TOKEN_ID: i64 = 151_643;
 
-/// Load a HuggingFace Fast Tokenizer from `tokenizer.json` in
+/// Load a `HuggingFace` Fast Tokenizer from `tokenizer.json` in
 /// `model_dir`. The returned `Arc<Tokenizer>` is stored in the
 /// `CortexBurnAdapter` slot alongside the live encoder — both are
 /// released together on unload.
+///
+/// # Errors
+///
+/// Returns an error if `model_dir/tokenizer.json` does not exist, is
+/// unreadable, or is not a valid `tokenizers` Fast Tokenizer JSON file.
 pub fn load_tokenizer(model_dir: &Path) -> anyhow::Result<Arc<Tokenizer>> {
     let path = model_dir.join("tokenizer.json");
     let tok = Tokenizer::from_file(&path)
@@ -39,7 +44,11 @@ pub fn load_tokenizer(model_dir: &Path) -> anyhow::Result<Arc<Tokenizer>> {
 /// - Short sequences are right-padded to `S` with [`PAD_TOKEN_ID`]; mask = 0.
 /// - Long sequences are truncated at [`MAX_SEQ_LEN`].
 ///
-/// Returns `Err` if `texts` is empty or the tokenizer call fails.
+/// # Errors
+///
+/// Returns an error if `texts` is empty or if the underlying
+/// `tokenizers::Tokenizer::encode_batch` call fails (malformed input
+/// for the loaded tokenizer model).
 pub fn encode_texts<B: Backend>(
     tokenizer: &Tokenizer,
     texts: &[&str],
@@ -69,8 +78,8 @@ pub fn encode_texts<B: Backend>(
 
         for i in 0..padded_len {
             if i < actual {
-                ids_flat.push(raw_ids[i] as i64);
-                mask_flat.push(raw_mask[i] as i64);
+                ids_flat.push(i64::from(raw_ids[i]));
+                mask_flat.push(i64::from(raw_mask[i]));
             } else {
                 ids_flat.push(PAD_TOKEN_ID);
                 mask_flat.push(0);
