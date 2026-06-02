@@ -39,7 +39,7 @@ import {
 	X,
 	Zap,
 } from "lucide-svelte";
-import { onMount } from "svelte";
+import { type Component, onMount } from "svelte";
 import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -88,7 +88,16 @@ const SLOT_BY_ANATOMY = {
 	mouth: "voice.tts",
 } as const;
 
-const ICON_MAP = { Eye, Ear, Mic, Sparkles, BrainCircuit } as const;
+// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape; narrow typing fights Svelte's generics. Matches AnatomyTile's icon prop type.
+type AnatomyIcon = Component<any>;
+
+const ICON_MAP = {
+	Eye,
+	Ear,
+	Mic,
+	Sparkles,
+	BrainCircuit,
+} as unknown as Record<"Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit", AnatomyIcon>;
 
 const findEntry = (entries: SlotSaveEntry[], slotId: string): SlotSaveEntry | undefined =>
 	entries.find((s) => s.kernelSlotId === slotId);
@@ -785,7 +794,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<div class="flex items-center justify-between mb-2">
 							<Text size="sm" weight="bold">Mark setup complete</Text>
 							<Button
-								preset="button-secondary"
+								preset="secondary"
 								size="sm"
 								onclick={markBootstrapComplete}
 								disabled={markCompleteBusy}

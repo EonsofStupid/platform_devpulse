@@ -19,6 +19,23 @@ jobs:
     name: Rust Checks
     runs-on: ubuntu-latest
     steps:
+      # libduckdb-sys + llama-cpp-sys-2 + moshi + Tauri's web stack
+      # together produce ~5-7 GB of intermediate object files; combined
+      # with the cargo target dir + sccache cache + apt installs, the
+      # default Ubuntu runner's ~14 GB free disk is not enough and the
+      # final `ar` invocation that archives libduckdb fails with
+      # "No space left on device". Free up ~30 GB by removing the
+      # Android SDK / dotnet / GHC / CodeQL / pre-installed images that
+      # this workflow never uses.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -a -f || true
+          df -h
+
       - uses: actions/checkout@v4
         with:
           # `deps/llama-cpp-rs` and `deps/moshi` are git submodules vendored
