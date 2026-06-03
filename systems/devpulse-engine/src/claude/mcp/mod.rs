@@ -211,7 +211,8 @@ impl DevPulseMcpServer {
             let _ = (command, cwd, timeout_ms);
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(
                 "shell_execute is disabled: this build was compiled without the `kernel` feature \
-                 (engine-only / IP-protected build).".to_string(),
+                 (engine-only / IP-protected build)."
+                    .to_string(),
             )]))
         }
     }
