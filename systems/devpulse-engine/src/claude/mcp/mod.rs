@@ -166,28 +166,52 @@ impl DevPulseMcpServer {
         }
     }
 
-    /// Execute a shell command (dev builds only).
-    #[cfg(feature = "kernel")]
+    /// Execute a shell command (kernel-feature builds only).
+    ///
+    /// The method itself is unconditional so the `#[rmcp::tool_router]`
+    /// proc macro always sees it — proc-macro expansion runs before cfg
+    /// evaluation, so a `#[cfg(feature = "kernel")]` on the method made
+    /// the generated router reference a method that vanished under
+    /// `--no-default-features --features engine` (IP protection gate).
+    /// The body is cfg-switched instead: when `kernel` is off (engine-only
+    /// engine build) it returns a structured error; when on it delegates
+    /// to `tools::shell_execute::execute` as before.
     #[tool(description = "Execute a shell command in the project workspace (dev builds only)")]
     async fn shell_execute(
         &self,
         Parameters(params): Parameters<ShellExecuteParams>,
     ) -> Result<CallToolResult, rmcp::ErrorData> {
-        let result = tools::shell_execute::execute(
-            &self.platform,
-            &params.command,
-            params.cwd.as_deref(),
-            params.timeout_ms,
-        )
-        .await;
-        let is_error = result.starts_with("ERROR:");
-        if is_error {
+        #[cfg(feature = "kernel")]
+        {
+            let result = tools::shell_execute::execute(
+                &self.platform,
+                &params.command,
+                params.cwd.as_deref(),
+                params.timeout_ms,
+            )
+            .await;
+            let is_error = result.starts_with("ERROR:");
+            if is_error {
+                Ok(CallToolResult::error(vec![rmcp::model::Content::text(
+                    result,
+                )]))
+            } else {
+                Ok(CallToolResult::success(vec![rmcp::model::Content::text(
+                    result,
+                )]))
+            }
+        }
+        #[cfg(not(feature = "kernel"))]
+        {
+            let ShellExecuteParams {
+                command,
+                cwd,
+                timeout_ms,
+            } = params;
+            let _ = (command, cwd, timeout_ms);
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(
-                result,
-            )]))
-        } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
-                result,
+                "shell_execute is disabled: this build was compiled without the `kernel` feature \
+                 (engine-only / IP-protected build).".to_string(),
             )]))
         }
     }
