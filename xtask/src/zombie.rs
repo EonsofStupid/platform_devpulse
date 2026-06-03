@@ -211,7 +211,16 @@ const ZOMBIE_NAMES: &[&str] = &[
 
 /// Build command-line patterns that identify `DevPulse` dev processes.
 /// Port is config-driven — no hardcoded values.
-#[cfg(windows)]
+#[cfg_attr(
+    not(windows),
+    expect(
+        dead_code,
+        reason = "POSIX cleanup_unix currently does name-only matching against cargo/rustc; \
+                  extending it to command-line pattern matching (tauri dev / vite --port) \
+                  will reuse this helper. Kept cross-platform so the extension lands as a \
+                  callsite change, not a re-author."
+    )
+)]
 fn zombie_patterns(dev_port: u16) -> Vec<String> {
     vec![
         "tauri dev".to_string(),

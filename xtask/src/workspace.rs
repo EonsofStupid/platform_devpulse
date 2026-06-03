@@ -2246,6 +2246,23 @@ fn derive_windows_sdk_bin() -> Option<PathBuf> {
     None
 }
 
+/// Linux/macOS stub of [`derive_windows_sdk_bin`]. Returns `None` so that
+/// future cross-platform toolchain-probe code (e.g. clang/gcc resolver
+/// folded into the same call site) can call this without `#[cfg(windows)]`
+/// gating at every callsite. The Windows SDK has no analogue on POSIX —
+/// the equivalent abstraction there is "system include/lib roots" handled
+/// by clang/gcc themselves — so this stub stays a no-op until the
+/// cross-platform path is authored.
+#[cfg(not(windows))]
+#[expect(
+    dead_code,
+    reason = "API-parity stub for derive_windows_sdk_bin so future POSIX toolchain probes \
+              can share callsites with the Windows path without per-call cfg gating"
+)]
+fn derive_windows_sdk_bin() -> Option<PathBuf> {
+    None
+}
+
 /// Walk up from `start` to find the monorepo root.
 fn find_root(start: &Path) -> Option<PathBuf> {
     let mut dir = start.to_path_buf();
