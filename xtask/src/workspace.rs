@@ -742,6 +742,7 @@ impl TeeChild {
     /// like Job Object assignment. Do NOT call `wait` on this directly
     /// — use [`TeeChild::wait`] instead so the drain threads are
     /// joined and the log is flushed.
+    #[cfg(windows)]
     #[must_use]
     pub fn child(&self) -> &Child {
         &self.child
@@ -1439,6 +1440,10 @@ impl BuildConfig {
     }
 
     #[cfg(not(windows))]
+    #[expect(
+        clippy::unused_self,
+        reason = "Linux stub mirrors Windows method signature so callers stay platform-agnostic"
+    )]
     pub fn activate_msvc_env(&self) -> bool {
         true
     }
@@ -2151,6 +2156,7 @@ fn write_msvc_toolchain_file() {
     }
 }
 
+#[cfg(windows)]
 fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
     // CMake parses backslash-escape sequences in `set()` literals, so
     // normalize to forward slashes — CMake accepts forward slashes in
@@ -2237,11 +2243,6 @@ fn derive_windows_sdk_bin() -> Option<PathBuf> {
             return Some(bin);
         }
     }
-    None
-}
-
-#[cfg(not(windows))]
-fn derive_windows_sdk_bin() -> Option<PathBuf> {
     None
 }
 

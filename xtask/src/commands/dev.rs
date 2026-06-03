@@ -17,8 +17,9 @@ use crate::commands::preflight::Preflight;
 use crate::commands::sccache;
 use crate::commands::Task;
 use crate::net;
-use crate::stage::{self, Stage};
-#[allow(unused_imports)] // Stage used conditionally on Windows
+use crate::stage;
+#[cfg(windows)]
+use crate::stage::Stage;
 use crate::workspace::Workspace;
 use crate::zombie;
 

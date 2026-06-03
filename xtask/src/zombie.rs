@@ -211,6 +211,7 @@ const ZOMBIE_NAMES: &[&str] = &[
 
 /// Build command-line patterns that identify `DevPulse` dev processes.
 /// Port is config-driven — no hardcoded values.
+#[cfg(windows)]
 fn zombie_patterns(dev_port: u16) -> Vec<String> {
     vec![
         "tauri dev".to_string(),
