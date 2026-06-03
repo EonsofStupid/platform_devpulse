@@ -688,7 +688,7 @@ mod tests {
 
     #[test]
     fn capabilities_rag_folder() {
-        let (role, caps, slots) = infer_capabilities("rag", &Some("nomic-embed".into()));
+        let (role, caps, slots) = infer_capabilities("rag", Some("nomic-embed"));
         assert_eq!(role, "embedder");
         assert_eq!(caps, vec!["Embedding"]);
         assert!(slots.iter().any(|s| s == "rag.embedder"));
@@ -696,14 +696,14 @@ mod tests {
 
     #[test]
     fn capabilities_voice_kokoro_is_tts() {
-        let (role, caps, _) = infer_capabilities("voice", &Some("kokoro".into()));
+        let (role, caps, _) = infer_capabilities("voice", Some("kokoro"));
         assert_eq!(role, "tts");
         assert_eq!(caps, vec!["TextToSpeech"]);
     }
 
     #[test]
     fn capabilities_voice_whisper_is_stt() {
-        let (role, caps, _) = infer_capabilities("voice", &Some("whisper".into()));
+        let (role, caps, _) = infer_capabilities("voice", Some("whisper"));
         assert_eq!(role, "stt");
         assert_eq!(caps, vec!["SpeechToText"]);
     }
