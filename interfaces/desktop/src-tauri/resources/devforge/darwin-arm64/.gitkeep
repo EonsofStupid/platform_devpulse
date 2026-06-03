@@ -1,0 +1,1 @@
+Placeholder so Tauri's bundle resource glob `resources/devforge/darwin-arm64/**/*` finds at least one file on CI / fresh-clone builds where `cargo xtask fetch-devforge --target darwin-arm64` has not yet populated the actual DevForge REH tree.
