@@ -13,6 +13,14 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  # `debuginfo=0` cuts dev-profile rlib sizes by 4-6x. Without it, every
+  # cargo step that links (Build + Test) ends in
+  # `collect2: fatal error: ld terminated with signal 7 [Bus error]`
+  # because ld mmaps every .rlib and runs out of address space against
+  # the gigabyte-scale debuginfo from llama-cpp-sys-2 + tauri + the burn
+  # cascade. CI is verifying compile/link/test success; debug symbols
+  # are irrelevant for the runner's ephemeral artifacts.
+  CARGO_PROFILE_DEV_DEBUG: "0"
 
 jobs:
   rust:
@@ -138,17 +146,7 @@ jobs:
       - name: Clippy
         run: cargo clippy --workspace -- -D warnings
 
-      # `debuginfo=0` cuts the dev-profile rlib sizes by 4-6x. Without
-      # this, linking devpulse_desktop_backend on GHA's 7 GB runners ends
-      # in `collect2: fatal error: ld terminated with signal 7 [Bus error]`
-      # — ld mmaps every .rlib and runs out of address space mid-link
-      # against the gigabyte-scale debuginfo from llama-cpp-sys-2 +
-      # tauri + the burn cascade. CI Build verifies link success; the
-      # debug symbols are irrelevant here (clippy already type-checked
-      # with full info on the previous step).
       - name: Build
-        env:
-          CARGO_PROFILE_DEV_DEBUG: "0"
         run: cargo build --workspace
 
       - name: Check engine feature (IP protection gate)
