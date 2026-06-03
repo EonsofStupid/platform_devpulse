@@ -217,6 +217,11 @@ pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBu
 
 /// Non-Windows no-op. Production target is Windows; macOS + Linux land
 /// later and will use `libc::dup2(fd, STDERR_FILENO)` instead.
+///
+/// # Errors
+/// Never errors — this stub always returns `Ok(None)`. The `Result`
+/// return type is kept for signature parity with the Windows
+/// implementation so callers don't need `#[cfg]` branches.
 #[cfg(not(windows))]
 pub fn redirect_stderr_to_file(_logs_dir: &Path) -> std::io::Result<Option<PathBuf>> {
     Ok(None)
