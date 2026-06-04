@@ -72,9 +72,9 @@ const isBurnBackend = $derived((rroState.encoder?.backend ?? "").toLowerCase() =
 						<div class="flex items-center gap-1.5">
 							{#if isBurnBackend}
 								<Brain size={12} class="text-[var(--accent-service-main)]" />
-								<Badge tone="positive" size="sm">Cortex · embedded</Badge>
+								<Badge variant="positive" size="sm">Cortex · embedded</Badge>
 							{:else}
-								<Badge tone="informative" size="sm">{rroState.encoder.backend}</Badge>
+								<Badge variant="informative" size="sm">{rroState.encoder.backend}</Badge>
 							{/if}
 						</div>
 					</div>

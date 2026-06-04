@@ -85,6 +85,11 @@ pub async fn close_child_window(app: tauri::AppHandle, role: WindowRole) -> Resu
 }
 
 /// Get all window roles and whether they are currently open.
+///
+/// # Errors
+/// Infallible — the `Result` shape is preserved for binding parity with
+/// the sibling `open_window` / `close_window` commands so the TS
+/// surface stays uniform.
 #[tauri::command]
 #[specta::specta]
 pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, String> {

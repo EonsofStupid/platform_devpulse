@@ -4,16 +4,22 @@
 //! most Wayland compositors (xcap issues #112, #136). The lister
 //! returns a `WindowCapability::MonitorOnly` flag in that case so the
 //! UI can hide the window-pick option instead of pretending it works.
-//! Detection is strictly compile-time (Linux + WAYLAND_DISPLAY env)
+//! Detection is strictly compile-time (Linux + `WAYLAND_DISPLAY` env)
 //! since runtime capability probing would mean *trying* a capture and
 //! catching the failure, which is exactly the bad UX we're avoiding.
 //!
 //! All shared helpers (`now_ms`, `encode_png`, `data_url`) come from
 //! `commands::_util`.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper that schedules an xcap call on the blocking pool; failure modes are spelled out in the per-fn summary above (xcap I/O or task-join failure)."
+)]
 
 use std::time::Instant;
 
-use super::dto::{CapturedFrame, WindowCapability, WindowInfo, WindowListing};
+use devpulse_telemetry::spawn_blocking;
+
+use super::dto::{CaptureWindowInfo, CapturedFrame, WindowCapability, WindowListing};
 use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
 
 /// Enumerate capturable windows.
@@ -25,7 +31,7 @@ use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKi
 #[tauri::command]
 #[specta::specta]
 pub async fn pixvix_list_windows() -> Result<WindowListing, CommandError> {
-    tokio::task::spawn_blocking(list_windows_blocking)
+    spawn_blocking(list_windows_blocking)
         .await
         .map_err(|e| CommandError::internal(format!("window enumeration task failed: {e}")))?
 }
@@ -56,7 +62,7 @@ fn list_windows_blocking() -> Result<WindowListing, CommandError> {
 #[tauri::command]
 #[specta::specta]
 pub async fn pixvix_capture_window_once(id: u32) -> Result<CapturedFrame, CommandError> {
-    tokio::task::spawn_blocking(move || capture_window_blocking(id))
+    spawn_blocking(move || capture_window_blocking(id))
         .await
         .map_err(|e| CommandError::internal(format!("capture task panicked: {e}")))?
 }
@@ -108,8 +114,8 @@ fn capture_window_blocking(id: u32) -> Result<CapturedFrame, CommandError> {
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-fn window_to_info(w: &xcap::Window, title: &str) -> WindowInfo {
-    WindowInfo {
+fn window_to_info(w: &xcap::Window, title: &str) -> CaptureWindowInfo {
+    CaptureWindowInfo {
         id: w.id().unwrap_or(0),
         pid: w.pid().unwrap_or(0),
         app_name: w.app_name().unwrap_or_default(),
@@ -127,7 +133,7 @@ fn window_to_info(w: &xcap::Window, title: &str) -> WindowInfo {
 /// likely to break per-window capture?"
 ///
 /// On non-Linux platforms always returns `Full`. On Linux returns
-/// `MonitorOnly` when `WAYLAND_DISPLAY` is set — XWayland clients
+/// `MonitorOnly` when `WAYLAND_DISPLAY` is set — `XWayland` clients
 /// might still capture fine, but we'd rather mislead-toward-safer
 /// (UI hides per-window pick) than pretend everything works.
 fn detect_capability() -> WindowCapability {
@@ -140,7 +146,7 @@ fn detect_capability() -> WindowCapability {
     WindowCapability::Full
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(target_os = "linux")))]
 mod tests {
     use super::*;
 
@@ -148,7 +154,6 @@ mod tests {
     fn detect_capability_is_full_on_non_linux() {
         // Anywhere this test runs that isn't Linux, we should report Full.
         // The Wayland branch is Linux-only so it can never trip elsewhere.
-        #[cfg(not(target_os = "linux"))]
         assert_eq!(detect_capability(), WindowCapability::Full);
     }
 }

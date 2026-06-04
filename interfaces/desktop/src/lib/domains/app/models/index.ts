@@ -27,6 +27,10 @@
 // (legacy path) can be redirected by replacing only the import,
 // without splitting the call site between two files.
 export { cancelDownload, downloadModel } from "$lib/sys/bindings/models/index.js";
+// ── Boot-time event bridge ───────────────────────────────
+// Singleton bridge wired by `+layout.svelte` at app boot. Lives in
+// `data-access/` because it boots data-access runes; nothing UI-side.
+export { bootstrapDownloadBridge } from "./data-access/download-bootstrap.js";
 export { hardwareState } from "./data-access/hardware.state.svelte.js";
 // ── Inference (streaming text generation) ────────────────
 export { generateText, onInferenceToken } from "./data-access/inference.service.js";
@@ -54,8 +58,12 @@ export {
 	topSuggestion,
 } from "./feature/downloader/index.js";
 // ── Onboarding wizard ────────────────────────────────────
+// `bootstrapDownloadBridge` moved to `./data-access/download-bootstrap.js`
+// (re-exported above). The setup-wizard surface itself is being
+// absorbed into the SlotsDevtool — these exports remain only until
+// the next pass deletes the wizard files; consumers should migrate
+// to the slots devtool / data-access runes.
 export {
-	bootstrapDownloadBridge,
 	SetupWizardOverlay,
 	type WizardView,
 	wizardState,

@@ -10,23 +10,36 @@ use devpulse_clyffy::model_loader::{LoaderEvent, LoaderEventSink};
 use serde_json::json;
 use std::sync::Arc;
 
+/// Type-erased Tauri emit callback. Extracted from the inline
+/// `Arc<dyn Fn(&str, serde_json::Value) + Send + Sync>` so the field
+/// type, the `new` constructor, and any downstream signature share one
+/// definition (clippy `type_complexity` fires on the inline form, and
+/// the doc value of a single named type beats a 4-bound closure
+/// repeated three times).
+pub type TauriEmitFn = Arc<dyn Fn(&str, serde_json::Value) + Send + Sync>;
+
 /// Event bridge that emits model-loader events as Tauri events.
 ///
-/// The `AppHandle` is stored as an opaque `Arc<dyn EmitFn>` so this module
+/// The `AppHandle` is stored as an opaque `TauriEmitFn` so this module
 /// doesn't depend on `tauri` directly (engine crate has no tauri dep).
-/// The desktop crate passes a closure that captures the AppHandle.
+/// The desktop crate passes a closure that captures the `AppHandle`.
 pub struct EventBridge {
-    emit_fn: Arc<dyn Fn(&str, serde_json::Value) + Send + Sync>,
+    emit_fn: TauriEmitFn,
 }
 
 impl EventBridge {
     /// Create a new event bridge with a Tauri emit function.
-    pub fn new(emit_fn: Arc<dyn Fn(&str, serde_json::Value) + Send + Sync>) -> Self {
+    #[must_use]
+    pub fn new(emit_fn: TauriEmitFn) -> Self {
         Self { emit_fn }
     }
 }
 
 impl LoaderEventSink for EventBridge {
+    #[expect(
+        clippy::too_many_lines,
+        reason = "central event dispatch — one match arm per `LoaderEvent` variant. Decomposing by event family would obscure the readable variant → wire-payload mapping; each arm is 3-7 lines and lives next to the variant it handles."
+    )]
     fn emit(&self, event: LoaderEvent) {
         // Frontend wire payloads stay snake_case so every Rust-originated
         // event follows one predictable contract.

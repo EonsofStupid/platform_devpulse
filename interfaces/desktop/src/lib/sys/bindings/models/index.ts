@@ -82,6 +82,10 @@ export const embedBatch = commands.embedBatch;
 export const rerankDocuments = commands.rerankDocuments;
 export const encodeImage = commands.encodeImage;
 
+// ── Burn encoder — text embedding via rag.embedder slot ─────────
+export const encoderIsLoaded = commands.encoderIsLoaded;
+export const encoderEmbed = commands.encoderEmbed;
+
 // ── Compatibility registry ──────────────────────────────────────
 export const listBackendMatrix = commands.listBackendMatrix;
 export const resolveArchitectureCompatibility = commands.resolveArchitectureCompatibility;

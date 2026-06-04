@@ -58,7 +58,7 @@ pub struct WizardCopy {
     #[serde(default)]
     pub clyffy_tooltips: ClyffyTooltipsCopy,
     /// Copy for the standalone Model Downloader overlay — the search-
-    /// driven modal that ANY surface can open to browse HuggingFace,
+    /// driven modal that ANY surface can open to browse `HuggingFace`,
     /// tag a model with a slot role, confirm a bundle, and trigger an
     /// authenticated download. Lives outside the wizard's view chain;
     /// `#[serde(default)]` keeps older user overrides parsing cleanly.
@@ -72,10 +72,10 @@ pub struct WizardCopy {
     #[serde(default)]
     pub auth: AuthCopy,
     /// Copy for the post-login runtime picker — the embedder selector
-    /// + minion read-only section that lives at `/profile`. Distinct
-    /// from `profile: ProfileCopy` (which is the wizard's "tell me
-    /// about yourself" step). `#[serde(default)]` keeps older
-    /// overrides parsing without `[runtime_picker]`.
+    /// with the minion read-only section that lives at `/profile`.
+    /// Distinct from `profile: ProfileCopy` (which is the wizard's
+    /// "tell me about yourself" step). `#[serde(default)]` keeps
+    /// older overrides parsing without `[runtime_picker]`.
     #[serde(default)]
     pub runtime_picker: RuntimePickerCopy,
 }
@@ -593,7 +593,7 @@ pub struct ClyffyTooltipsCopy {
 /// Copy for the standalone Model Downloader overlay.
 ///
 /// Surfaced by every "Download a model" CTA in the platform — the
-/// SlotsDevtool browse buttons, the chat-side suggest CTAs, the
+/// `SlotsDevtool` browse buttons, the chat-side suggest CTAs, the
 /// wizard's manual-add path, and any future devtool that needs a HF
 /// fetch. The overlay walks five phases (search → confirm → downloading
 /// → complete / error) and every visible string lives here so layman

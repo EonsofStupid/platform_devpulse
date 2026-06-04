@@ -1,6 +1,6 @@
 //! # `PauseHandle` — opaque proof-of-pause
 //!
-//! Per HOT_UPDATE_PATTERN.md §5.2 / H7: encodes the
+//! Per `HOT_UPDATE_PATTERN.md` §5.2 / H7: encodes the
 //! `pause → swap → resume` protocol in the type system. The
 //! compiler rejects the three failure modes:
 //!

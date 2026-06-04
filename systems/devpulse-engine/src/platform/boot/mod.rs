@@ -64,9 +64,7 @@ use crate::platform::services::analytics::AnalyticsService;
 use crate::platform::services::analytics::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
 use crate::platform::services::cache::CacheService;
 use crate::platform::services::graph::GraphService;
-#[cfg(feature = "candle")]
 // EmbedderService removed — slot-managed by model loader
-#[cfg(feature = "candle")]
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
@@ -227,12 +225,12 @@ async fn execute_inner(
     let spin = boot_log.running("Graph + Model Loader", "initializing in parallel...");
     #[cfg(feature = "inference")]
     let ((surreal, system_graph, user_graph, global_graph), model_loader_svc) = tokio::join!(
-        graph::boot_consolidated(data_dir, boot_config, on_event, &boot_log),
+        graph::boot_consolidated(data_dir, boot_config, on_event, boot_log),
         model_loader::boot(
             data_dir,
             &boot_config.services.system.model_loader,
             on_event,
-            &boot_log,
+            boot_log,
             loader_event_sink,
             system_relational.as_ref().map(|svc| svc.adapter().clone()),
         )
@@ -320,7 +318,7 @@ async fn execute_inner(
         data_dir,
         &boot_config.services.system.vector,
         on_event,
-        &boot_log,
+        boot_log,
     )
     .await;
     #[cfg(not(feature = "rro"))]

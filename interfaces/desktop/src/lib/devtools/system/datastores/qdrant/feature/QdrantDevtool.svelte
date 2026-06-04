@@ -202,7 +202,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						Re-ping the vector store and reload the collections list.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => rroState.loadHealth()}
 						disabled={rroState.healthLoading}

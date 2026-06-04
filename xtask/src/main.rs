@@ -1,4 +1,4 @@
-//! DevPulse orchestrator — `cargo xtask <command>`.
+//! `DevPulse` orchestrator — `cargo xtask <command>`.
 //!
 //! Architecture:
 //! - [`Workspace`] — shared context, discovered once, threaded to every task
@@ -57,7 +57,7 @@ enum Commands {
         portable_only: bool,
     },
     /// Write `devpulse.json` manifests into every model directory under
-    /// `models/` (or `--dir <path>`). Infers canonical_id, architecture,
+    /// `models/` (or `--dir <path>`). Infers `canonical_id`, architecture,
     /// parameter count, quant from path + filename; computes SHA-256 for
     /// every file. One-shot migration to the canonical-id SSOT so presets
     /// stop filename-string-matching against phantom inventory.
@@ -91,7 +91,7 @@ enum Commands {
     Verify,
     /// Verify IP boundary: desktop must not depend on clyffy.
     VerifyIpBoundary,
-    /// Download, verify, and extract a pinned DevForge REH release
+    /// Download, verify, and extract a pinned `DevForge` REH release
     /// artifact into the per-platform resource dir. Reads the committed
     /// manifest at `interfaces/desktop/src-tauri/resources/devforge/
     /// manifest.json`. Requires `GITHUB_TOKEN` env var for private repos.
@@ -108,6 +108,12 @@ enum Commands {
         /// standalone (not currently wired into the runtime).
         #[arg(long)]
         kind: Option<String>,
+        /// Skip the upstream-latest probe and use the manifest's pinned
+        /// tag exactly. Default behaviour auto-tracks the newest GitHub
+        /// release; flip this for hermetic release builds where
+        /// reproducibility outweighs freshness.
+        #[arg(long)]
+        pin: bool,
     },
     /// Download, verify, and extract a pinned `llama-cpp-prebuilt`
     /// release artifact into `deps/llama-cpp-prebuilt/<target>/`. Reads
@@ -126,7 +132,7 @@ enum Commands {
         #[arg(long)]
         manifest: Option<PathBuf>,
     },
-    /// Download the SurrealDB sidecar binary into
+    /// Download the `SurrealDB` sidecar binary into
     /// `interfaces/desktop/src-tauri/binaries/`. The release tag is
     /// pinned in `fetch_surreal.rs` to match the `surrealdb` crate
     /// version in the workspace.
@@ -150,7 +156,7 @@ enum Commands {
         #[arg(long)]
         release: bool,
         /// Seconds to keep the launcher alive after the child exits so
-        /// late-arriving telemetry / OTel flush lines still land.
+        /// late-arriving telemetry / `OTel` flush lines still land.
         /// Defaults to 2.
         #[arg(long, default_value_t = 2)]
         linger_secs: u64,
@@ -201,10 +207,12 @@ fn main() -> anyhow::Result<()> {
             target,
             manifest,
             kind,
+            pin,
         } => Box::new(commands::fetch_devforge::FetchDevForge {
             target,
             manifest,
             kind,
+            pin,
         }),
         Commands::FetchLlamaCpp { target, manifest } => {
             Box::new(commands::fetch_llama_cpp::FetchLlamaCpp { target, manifest })

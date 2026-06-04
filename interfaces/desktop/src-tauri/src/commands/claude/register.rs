@@ -1,4 +1,4 @@
-//! Atomic registration of the DevPulse MCP entry in Claude config files.
+//! Atomic registration of the `DevPulse` MCP entry in Claude config files.
 //!
 //! Both Claude Code and Claude Desktop read MCP entries from a JSON file
 //! shaped like `{ "mcpServers": { "<name>": { "command": "...", "args": [...] } } }`.
@@ -35,10 +35,10 @@ pub enum ClaudeTarget {
     Desktop,
 }
 
-/// Add (or overwrite) the DevPulse MCP entry, then re-detect.
+/// Add (or overwrite) the `DevPulse` MCP entry, then re-detect.
 ///
 /// Idempotent — running twice with the same binary path leaves the file
-/// in the same state. If the user had a previous DevPulse entry pointing
+/// in the same state. If the user had a previous `DevPulse` entry pointing
 /// at a stale binary, this rewrites it to the current `current_exe()`.
 ///
 /// # Errors
@@ -54,7 +54,7 @@ pub fn register(target: ClaudeTarget) -> Result<ClaudeInstalls, CommandError> {
     Ok(detect_all())
 }
 
-/// Remove the DevPulse MCP entry (if present), then re-detect.
+/// Remove the `DevPulse` MCP entry (if present), then re-detect.
 ///
 /// Leaves the rest of the file untouched. If the target config doesn't
 /// exist, this is a no-op success — there is nothing to remove.
@@ -105,7 +105,7 @@ fn devpulse_entry(exe: &str) -> Value {
     })
 }
 
-/// Read-modify-write the config file, mutating only the DevPulse entry.
+/// Read-modify-write the config file, mutating only the `DevPulse` entry.
 ///
 /// `entry = Some(...)` upserts; `entry = None` removes.
 fn upsert_devpulse_entry(path: &Path, entry: Option<Value>) -> Result<(), CommandError> {

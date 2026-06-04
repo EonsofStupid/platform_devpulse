@@ -6,8 +6,6 @@
  * without fighting Svelte's `.svelte` type re-export rules.
  */
 
-import type { Component } from "svelte";
-
 /**
  * Axis placement — mirrors the `config/platform/{axis}/` folder and the
  * engine's `ModuleAxis` enum. Used to derive color accent + breadcrumb
@@ -63,9 +61,12 @@ export interface ExtraTab {
 	/** Short label shown in the tab strip. */
 	label: string;
 	/**
-	 * Optional lucide icon component. The props signature matches every
-	 * other icon used in the shell header + standard tabs.
+	 * Optional lucide icon component. Typed `any` because
+	 * lucide-svelte v0.564 exports class-based icons
+	 * (`SvelteComponentTyped<…>`), which structurally don't satisfy
+	 * Svelte 5's function-form `Component<P, E, S>`. Narrow typing
+	 * here causes assignment errors at every caller.
 	 */
-	// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape; narrow typing here fights Svelte's generics.
-	Icon?: Component<any>;
+	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+	Icon?: any;
 }

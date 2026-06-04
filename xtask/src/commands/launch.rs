@@ -8,7 +8,7 @@
 //! Production `devpulse-desktop-app.exe` is `windows_subsystem = "windows"`:
 //! the OS detaches stdout + stderr at process start, so `cargo run` or a
 //! double-click leaves no terminal trace. The previous workflow asked
-//! the operator to "open PowerShell, cd, pipe stderr, launch, watch."
+//! the operator to "open `PowerShell`, cd, pipe stderr, launch, watch."
 //! That fails because (a) the detached stderr means the pipe captures
 //! nothing, and (b) it puts the burden on the operator to know where
 //! every diagnostic sink lives.
@@ -31,7 +31,7 @@
 //!    the last N stderr lines + any crash-json files as the verdict.
 //!
 //! Pair with the [`crate::commands::build_release::BuildRelease`]
-//! command: build → launch, end-to-end visibility, zero PowerShell.
+//! command: build → launch, end-to-end visibility, zero `PowerShell`.
 
 use crate::commands::Task;
 use crate::workspace::Workspace;
@@ -61,7 +61,7 @@ pub struct Launch {
     /// `target/release/devpulse-desktop-app.exe` directly.
     pub release: bool,
     /// How long to keep the launcher alive after the child exits, so
-    /// any late-arriving log writes (telemetry flush, OTel shutdown)
+    /// any late-arriving log writes (telemetry flush, `OTel` shutdown)
     /// still reach stdout. Defaults to 2s.
     pub linger_secs: u64,
 }
@@ -108,7 +108,12 @@ impl Task for Launch {
         let watcher_logs = logs_dir.clone();
         let watcher_exe_dir = exe.parent().map(Path::to_path_buf);
         let watcher = thread::spawn(move || {
-            watch_new_logs(watcher_logs, watcher_exe_dir, launched_at, watcher_stop);
+            watch_new_logs(
+                &watcher_logs,
+                watcher_exe_dir.as_deref(),
+                launched_at,
+                &watcher_stop,
+            );
         });
 
         // Wait for the child to exit. Streamed output is already
@@ -132,12 +137,10 @@ impl Task for Launch {
         let verdict = read_exit_verdict(&bootstrap_log);
         println!("\n───────── verdict ─────────");
         println!(
-            "child exit: {} (raw: {:?})",
+            "child exit: {} (raw: {exit_status:?})",
             exit_status
                 .code()
-                .map(|c| format!("code {c}"))
-                .unwrap_or_else(|| "signal".to_string()),
-            exit_status,
+                .map_or_else(|| "signal".to_string(), |c| format!("code {c}")),
         );
         match verdict {
             ExitVerdict::Clean { ended_at } => {
@@ -195,7 +198,7 @@ fn pick_exe(root: &Path, force_release: bool) -> Result<PathBuf> {
             .ok()
             .into_iter()
             .flatten()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| {
                 e.file_name()
                     .to_string_lossy()
@@ -279,7 +282,7 @@ fn spawn_tail(
         loop {
             buf.clear();
             match reader.read_line(&mut buf) {
-                Ok(0) => {
+                Ok(0) | Err(_) => {
                     if stop.load(Ordering::SeqCst) {
                         break;
                     }
@@ -292,12 +295,6 @@ fn spawn_tail(
                     }
                     println!("[{source}] {line}");
                 }
-                Err(_) => {
-                    if stop.load(Ordering::SeqCst) {
-                        break;
-                    }
-                    thread::sleep(POLL_INTERVAL);
-                }
             }
         }
     })
@@ -308,24 +305,18 @@ fn spawn_tail(
 /// AND the exe dir for the early-panic fallback location. When a new
 /// file appears, spawn a tail thread for it.
 fn watch_new_logs(
-    logs_dir: PathBuf,
-    exe_dir: Option<PathBuf>,
+    logs_dir: &Path,
+    exe_dir: Option<&Path>,
     launched_at: SystemTime,
-    stop: Arc<AtomicBool>,
+    stop: &Arc<AtomicBool>,
 ) {
     let mut started: HashSet<PathBuf> = HashSet::new();
     let mut tail_handles: Vec<thread::JoinHandle<()>> = Vec::new();
 
     while !stop.load(Ordering::SeqCst) {
-        scan_dir(
-            &logs_dir,
-            launched_at,
-            &mut started,
-            &mut tail_handles,
-            &stop,
-        );
-        if let Some(d) = exe_dir.as_deref() {
-            scan_dir(d, launched_at, &mut started, &mut tail_handles, &stop);
+        scan_dir(logs_dir, launched_at, &mut started, &mut tail_handles, stop);
+        if let Some(d) = exe_dir {
+            scan_dir(d, launched_at, &mut started, &mut tail_handles, stop);
         }
         thread::sleep(POLL_INTERVAL);
     }
@@ -369,16 +360,19 @@ fn scan_dir(
 /// Map a filename to a stable `[source]` label for stdout prefix.
 /// `None` means "not a file we tail."
 fn source_label(name: &str) -> Option<&'static str> {
-    if name.starts_with("session-") && name.ends_with(".jsonl") {
+    let ext = Path::new(name).extension();
+    let ext_is = |s: &str| ext.is_some_and(|e| e.eq_ignore_ascii_case(s));
+
+    if name.starts_with("session-") && ext_is("jsonl") {
         return Some("session");
     }
-    if name.starts_with("stderr-") && name.ends_with(".log") {
+    if name.starts_with("stderr-") && ext_is("log") {
         return Some("stderr");
     }
-    if name.starts_with("early-crash-") && name.ends_with(".json") {
+    if name.starts_with("early-crash-") && ext_is("json") {
         return Some("early-crash");
     }
-    if name.starts_with("crash-") && name.ends_with(".json") {
+    if name.starts_with("crash-") && ext_is("json") {
         return Some("crash");
     }
     None

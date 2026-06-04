@@ -97,12 +97,12 @@ class ProjectsState {
 		try {
 			const created = await commands.createProject({
 				name: input.name,
-				rootPath: input.rootPath,
-				projectType: "personal",
+				root_path: input.rootPath,
+				project_type: "personal",
 				description: input.description ?? null,
 				tool: null,
-				techStack: null,
-				setActive: input.setActive ?? false,
+				tech_stack: null,
+				set_active: input.setActive ?? false,
 			});
 			await this.refresh("after-create");
 			return created as unknown as Project;
@@ -142,7 +142,7 @@ class ProjectsState {
 		}
 		try {
 			await commands.addProjectReference({
-				projectId: this.activeProjectId,
+				project_id: this.activeProjectId,
 				path,
 				label,
 				kind,

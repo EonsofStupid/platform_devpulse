@@ -31,6 +31,8 @@
 //! URLs in a `WebviewWindow`; the user data persists under
 //! `{data_dir}/devforge/user-data/` via REH's `--user-data-dir` flag.
 
+use std::fmt::Write as _;
+
 use crate::commands::devforge::types::DevforgeBootstrapStatus;
 use crate::state::PlatformState;
 use tauri::{AppHandle, Manager, State, Url, WebviewUrl, WebviewWindowBuilder};
@@ -205,7 +207,7 @@ fn url_encode_component(input: &str) -> String {
         if b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'~' | b'/') {
             out.push(b as char);
         } else {
-            out.push_str(&format!("%{b:02X}"));
+            let _ = write!(out, "%{b:02X}");
         }
     }
     out

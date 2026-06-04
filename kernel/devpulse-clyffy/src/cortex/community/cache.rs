@@ -92,7 +92,10 @@ pub async fn query_feed(
             .map_err(|e| format!("query community_feed: {e}"))?
     };
 
-    Ok(rows.into_iter().filter_map(row_to_item).collect())
+    Ok(rows
+        .iter()
+        .filter_map(|r| row_to_item(r.as_slice()))
+        .collect())
 }
 
 /// Most-recent `synced_at` across all rows, or `0` when empty.
@@ -154,10 +157,10 @@ pub async fn is_community_enabled(adapter: &dyn SqlAdapter) -> Result<bool, Stri
         .first()
         .and_then(|r| r.first())
         .and_then(crate::cortex::persistence::SqlValue::as_integer)
-        .map_or(true, |v| v != 0))
+        != Some(0))
 }
 
-fn row_to_item(row: Vec<crate::cortex::persistence::SqlValue>) -> Option<FeedItem> {
+fn row_to_item(row: &[crate::cortex::persistence::SqlValue]) -> Option<FeedItem> {
     let id = row.first()?.as_text()?.to_string();
     let kind = FeedKind::parse_or_activity(row.get(1)?.as_text()?);
     let title = row

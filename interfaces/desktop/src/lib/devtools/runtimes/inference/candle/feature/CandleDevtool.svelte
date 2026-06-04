@@ -53,7 +53,7 @@ let restarting = $state(false);
 let lastUnloaded = $state<number | null>(null);
 
 // ── Logs ─────────────────────────────────────────────────
-let logs = $state<ScopedLogEntry[]>([]);
+let logEntries = $state<ScopedLogEntry[]>([]);
 let logsLoading = $state(false);
 let logsError = $state<string | null>(null);
 
@@ -152,7 +152,7 @@ async function loadLogs(): Promise<void> {
 	try {
 		const r = await commands.queryScopedLog("devtools.candle", 100);
 		if (r.status === "error") throw new Error(r.error);
-		logs = r.data;
+		logEntries = r.data;
 	} catch (e) {
 		logsError = e instanceof Error ? e.message : String(e);
 	} finally {
@@ -230,8 +230,8 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			content: JSON.stringify(cfg, null, 2),
 		};
 	}
-	if (tabId === "logs" && logs.length > 0) {
-		const lines = logs.map((l) => `${l.timestamp}\t${l.level}\t${l.message}`);
+	if (tabId === "logs" && logEntries.length > 0) {
+		const lines = logEntries.map((l) => `${l.timestamp}\t${l.level}\t${l.message}`);
 		return {
 			filename: "candle-logs.log",
 			mime: "text/plain",
@@ -433,7 +433,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				</div>
 			{/if}
 
-			{#if logs.length > 0}
+			{#if logEntries.length > 0}
 				<div
 					class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto"
 				>
@@ -446,7 +446,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							</tr>
 						</thead>
 						<tbody>
-							{#each logs as line (line.timestamp + line.message)}
+							{#each logEntries as line (line.timestamp + line.message)}
 								<tr class="border-b border-[var(--border-subtle)]">
 									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]"
 										>{line.timestamp.slice(11, 19)}</td

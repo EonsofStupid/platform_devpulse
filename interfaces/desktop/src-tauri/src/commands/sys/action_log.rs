@@ -1,4 +1,12 @@
 //! Action log tail + open folder — reads `.userdata/logs/action-YYYY-MM-DD.jsonl`.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `paths::resolve_data_dir` and direct fs IO whose failure modes (IO error, missing data dir) are obvious from the signature."
+)]
+#![expect(
+    clippy::needless_pass_by_value,
+    reason = "Tauri command macro injects `AppHandle` by value via reflection; commands cannot take `&AppHandle` and remain `#[tauri::command]`-compatible."
+)]
 
 use crate::paths;
 use serde::Serialize;

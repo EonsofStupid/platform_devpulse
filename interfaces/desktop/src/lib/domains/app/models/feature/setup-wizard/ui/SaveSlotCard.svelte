@@ -37,7 +37,6 @@
 -->
 <script lang="ts">
 import { Check, Pencil } from "lucide-svelte";
-import type { Component } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
@@ -48,8 +47,15 @@ import { Text } from "$lib/design/components/text/index.js";
 export type SaveState = "ready" | "saving" | "saved" | "error";
 
 interface Props {
-	/** Lucide icon component for the slot. */
-	icon: Component<{ size?: number; class?: string }>;
+	/**
+	 * Lucide icon component for the slot. Typed `any` because
+	 * lucide-svelte v0.564 exports class-based icons
+	 * (`SvelteComponentTyped<…>`), which structurally don't satisfy
+	 * Svelte 5's function-form `Component<P, E, S>`. Narrow typing
+	 * here causes assignment errors at every caller.
+	 */
+	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+	icon: any;
 	/** Layman slot purpose (e.g. "Vision · what Clyffy sees"). */
 	purpose: string;
 	/** One-line role description (e.g. "Encodes screenshots and uploads

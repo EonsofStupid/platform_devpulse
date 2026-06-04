@@ -18,7 +18,7 @@ use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use reqwest::{Client, RequestBuilder, Response, StatusCode};
 use serde::Deserialize;
 
-use super::dto::ModelInfo;
+use super::dto::ProviderModelInfo;
 use crate::commands::_util::{CommandError, ErrorKind};
 
 /// Conservative timeouts — model listing is metadata-only and cheap.
@@ -29,6 +29,11 @@ const TOTAL_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// Process-wide HTTP client. Built lazily so the cost is paid only when
 /// the operator actually opens the API Providers devtool.
+///
+/// Falls back to the reqwest default `Client::new()` if the builder
+/// rejects our settings (TLS backend init / DNS resolver failure);
+/// devtool reachability is non-essential and we'd rather show a working
+/// fallback client than poison the whole panel.
 fn shared_client() -> &'static Client {
     static CLIENT: OnceLock<Client> = OnceLock::new();
     CLIENT.get_or_init(|| {
@@ -37,7 +42,13 @@ fn shared_client() -> &'static Client {
             .timeout(TOTAL_TIMEOUT)
             .user_agent(concat!("DevPulse/", env!("CARGO_PKG_VERSION")))
             .build()
-            .expect("reqwest client construction failed — should be infallible with these settings")
+            .unwrap_or_else(|err| {
+                tracing::warn!(
+                    error = %err,
+                    "providers.client: builder failed, falling back to default reqwest Client"
+                );
+                Client::new()
+            })
     })
 }
 
@@ -52,12 +63,12 @@ fn shared_client() -> &'static Client {
 pub async fn fetch_models(
     provider: ProviderId,
     api_key: Option<&str>,
-) -> Result<Vec<ModelInfo>, CommandError> {
+) -> Result<Vec<ProviderModelInfo>, CommandError> {
     let entry = ai_providers::find(provider)
         .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {provider:?}")))?;
 
     let request = build_request(provider, entry, api_key)?;
-    let response = request.send().await.map_err(network_error)?;
+    let response = request.send().await.map_err(|e| network_error(&e))?;
     parse_response(provider, response).await
 }
 
@@ -164,7 +175,7 @@ fn base_url(entry: &ai_providers::AiProvider) -> Result<&'static str, CommandErr
 }
 
 /// Map a reqwest send-time failure to our classified shape.
-fn network_error(e: reqwest::Error) -> CommandError {
+fn network_error(e: &reqwest::Error) -> CommandError {
     // is_timeout / is_connect / other all bucket to Network — the
     // distinction between them is rarely actionable for the UI.
     CommandError::network(format!("Network call failed: {e}"))
@@ -174,7 +185,7 @@ fn network_error(e: reqwest::Error) -> CommandError {
 async fn parse_response(
     provider: ProviderId,
     response: Response,
-) -> Result<Vec<ModelInfo>, CommandError> {
+) -> Result<Vec<ProviderModelInfo>, CommandError> {
     let status = response.status();
     if status.is_success() {
         let body = response
@@ -211,7 +222,6 @@ pub fn classify_status(status: StatusCode, body: &str) -> ErrorKind {
                 ErrorKind::RateLimit
             }
         }
-        500..=599 => ErrorKind::Server,
         _ => ErrorKind::Server,
     }
 }
@@ -222,14 +232,14 @@ pub fn classify_status(status: StatusCode, body: &str) -> ErrorKind {
 /// 1. OpenAI-compatible: `{"data": [{"id": ..., "owned_by": ...}]}`
 /// 2. Anthropic: `{"data": [{"id": ..., "display_name": ..., "type": "model"}]}`
 /// 3. Gemini: `{"models": [{"name": "models/..."}]}`
-fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, CommandError> {
+fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ProviderModelInfo>, CommandError> {
     if matches!(provider, ProviderId::GoogleGemini) {
         let parsed: GeminiModels = serde_json::from_str(body)
             .map_err(|e| CommandError::parse(format!("Gemini /models parse failed: {e}")))?;
         return Ok(parsed
             .models
             .into_iter()
-            .map(|m| ModelInfo {
+            .map(|m| ProviderModelInfo {
                 id: m
                     .name
                     .strip_prefix("models/")
@@ -245,7 +255,7 @@ fn parse_models(provider: ProviderId, body: &str) -> Result<Vec<ModelInfo>, Comm
     Ok(parsed
         .data
         .into_iter()
-        .map(|m| ModelInfo {
+        .map(|m| ProviderModelInfo {
             id: m.id,
             owned_by: m.owned_by,
         })

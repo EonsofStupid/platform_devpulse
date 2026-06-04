@@ -16,7 +16,7 @@
 //!
 //! The `cag::Embedder` trait wants `text → Vec<f32>`. That's a
 //! composition of (tokenize + forward + extract). `CortexBurnAdapter`
-//! IS that composition — it already holds the tokenizer ArcSwap, the
+//! IS that composition — it already holds the tokenizer `ArcSwap`, the
 //! RRD daemon, the geometry config, and the device. It is the DDD
 //! aggregate root for the Burn-backed embedder pipeline.
 //!
@@ -28,7 +28,7 @@
 //!
 //! ## Blocking discipline
 //!
-//! Burn's NdArray backend is synchronous CPU code; the forward pass
+//! Burn's `NdArray` backend is synchronous CPU code; the forward pass
 //! is a blocking compute. The trait's `async fn embed` returns a
 //! Future that runs the work on whatever executor calls `.await`.
 //! Callers wanting to keep an async runtime responsive MUST wrap the

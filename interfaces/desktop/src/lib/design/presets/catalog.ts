@@ -8,15 +8,24 @@
  * to resolution concerns.
  */
 
+// `PresetDefinition` is sourced from `visual/preset-definition.ts` (the
+// same module the value preset modules below are typed against). The
+// parallel definition under `./schema.ts` is structurally identical
+// but is its own nominal-ish identity in TS once its supporting types
+// (PresetFamily/PresetId/PresetVariant from `./families.js` / `./ids.js`)
+// don't match the visual side's `./preset-families.js` / `./preset-id.js`
+// counterparts. Pinning the type import here to the visual source aligns
+// the assignment in `ALL_PRESETS` below with what the spread value
+// modules actually export.
+import type { PresetDefinition } from "../visual/preset-definition.js";
+import type { PresetFamily } from "../visual/preset-families.js";
+import type { PresetId, PresetVariant } from "../visual/preset-id.js";
 import { CHROME_PRESETS } from "../visual/presets/chrome.js";
 import { FLAT_PRESETS } from "../visual/presets/flat.js";
 import { GLASS_PRESETS } from "../visual/presets/glass.js";
 import { NEURO_PRESETS } from "../visual/presets/neuro.js";
 import { RETRO_PRESETS } from "../visual/presets/retro.js";
 import { STARK_PRESETS } from "../visual/presets/stark.js";
-import type { PresetFamily } from "./families.js";
-import type { PresetId, PresetVariant } from "./ids.js";
-import type { PresetDefinition } from "./schema.js";
 
 export { CHROME_PRESETS } from "../visual/presets/chrome.js";
 export { FLAT_PRESETS } from "../visual/presets/flat.js";

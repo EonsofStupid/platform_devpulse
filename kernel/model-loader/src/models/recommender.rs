@@ -3,14 +3,14 @@
 //! Given a Hugging Face repo's sibling list, the slot's required
 //! capability, and the host's hardware tier, return the single
 //! filename `install_to_slot` should hand to `start_download`. The
-//! download manager's `plan_bundle` (`download.rs` §plan_bundle) then
+//! download manager's `plan_bundle` (`download.rs` §`plan_bundle`) then
 //! auto-resolves shards + companions from that entry point — callers
 //! only need to pick the *primary*.
 //!
 //! Rules are format-driven, not model-named. We never look at the
 //! repo id or filename's brand string ("phi", "llama", etc.). That
 //! keeps the recommender stable when new models ship — a Qwen-4
-//! Q4_K_M GGUF is picked the same way as a Llama-3 Q4_K_M GGUF.
+//! `Q4_K_M` GGUF is picked the same way as a Llama-3 `Q4_K_M` GGUF.
 //!
 //! ## Capability → preferred format
 //!
@@ -37,8 +37,8 @@ use crate::slots::types::ModelCapability;
 /// order) but kept in the source so the tier table reads as a ranked
 /// preference, not an opaque list.
 ///
-/// "F16" is the unquantized half-precision weight; "Q8_0" through
-/// "Q2_K" are llama.cpp quants from highest to lowest fidelity.
+/// "F16" is the unquantized half-precision weight; "`Q8_0`" through
+/// "`Q2_K`" are llama.cpp quants from highest to lowest fidelity.
 fn gguf_quants_for_tier(tier: HardwareTier) -> &'static [&'static str] {
     match tier {
         HardwareTier::Ultra | HardwareTier::High => &[
@@ -59,7 +59,7 @@ fn gguf_quants_for_tier(tier: HardwareTier) -> &'static [&'static str] {
 /// Walk `siblings` and return the first GGUF whose filename contains
 /// (case-insensitive) one of the tier's preferred quant suffixes.
 /// Falls through to any GGUF as a last resort.
-fn pick_gguf<'a>(siblings: &'a [String], tier: HardwareTier) -> Option<&'a str> {
+fn pick_gguf(siblings: &[String], tier: HardwareTier) -> Option<&str> {
     let lower_pairs: Vec<(String, &str)> = siblings
         .iter()
         .map(|s| (s.to_lowercase(), s.as_str()))
@@ -68,7 +68,7 @@ fn pick_gguf<'a>(siblings: &'a [String], tier: HardwareTier) -> Option<&'a str> 
     for quant in gguf_quants_for_tier(tier) {
         let needle = quant.to_lowercase();
         for (lower, original) in &lower_pairs {
-            if lower.ends_with(".gguf") && lower.contains(&needle) {
+            if has_gguf_ext(lower) && lower.contains(&needle) {
                 return Some(original);
             }
         }
@@ -78,8 +78,17 @@ fn pick_gguf<'a>(siblings: &'a [String], tier: HardwareTier) -> Option<&'a str> 
     // with a quant we didn't rank than fails outright.
     lower_pairs
         .into_iter()
-        .find(|(lower, _)| lower.ends_with(".gguf"))
+        .find(|(lower, _)| has_gguf_ext(lower))
         .map(|(_, original)| original)
+}
+
+/// Case-insensitive `.gguf` extension check via `std::path::Path`.
+/// Avoids `clippy::case_sensitive_file_extension_comparisons` and
+/// handles `.GGUF` / `.Gguf` consistently on operator-uploaded files.
+fn has_gguf_ext(name: &str) -> bool {
+    std::path::Path::new(name)
+        .extension()
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("gguf"))
 }
 
 /// Walk `siblings` and return the first safetensors entry point.
@@ -150,11 +159,11 @@ fn pick_onnx(siblings: &[String]) -> Option<&str> {
 /// — the user's one-button install completing with a fallback quant
 /// beats the install failing outright.
 #[must_use]
-pub fn recommend_primary<'a>(
-    siblings: &'a [String],
+pub fn recommend_primary(
+    siblings: &[String],
     capability: ModelCapability,
     tier: HardwareTier,
-) -> Option<&'a str> {
+) -> Option<&str> {
     match capability {
         ModelCapability::TextGeneration => {
             pick_gguf(siblings, tier).or_else(|| pick_safetensors(siblings))

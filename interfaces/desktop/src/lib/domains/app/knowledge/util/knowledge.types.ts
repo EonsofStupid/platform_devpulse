@@ -26,7 +26,7 @@ export type KnowledgeEntryType =
 export type KnowledgeTier = "beginner" | "intermediate" | "advanced";
 
 /** Raw entry from the backend — payload is a JSON string. */
-interface KnowledgeEntryRaw {
+export interface KnowledgeEntryRaw {
 	id: string;
 	entryType: KnowledgeEntryType;
 	tool: string | null;

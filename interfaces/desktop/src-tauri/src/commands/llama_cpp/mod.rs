@@ -167,10 +167,17 @@ fn open_in_os_explorer(path: &Path) -> Result<(), String> {
 /// --target <id>` separately after the manifest lands. That's
 /// deliberate: a manifest bump is a contract change; a fetch is a
 /// per-machine action. Different concerns, different commands.
+///
+/// # Errors
+/// Returns the formatted error string when the incoming JSON does not
+/// parse, declares an unsupported schema version, has zero artifacts,
+/// contains a placeholder / empty `sha256`, targets an unknown
+/// platform, or the manifest cannot be written to disk.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
 pub async fn llama_cpp_bump_manifest(new_manifest_json: String) -> Result<BumpResult, String> {
+    const SUPPORTED: &[&str] = &["win32-x64-vulkan", "win32-x64-cuda", "win32-x64-cpu"];
+
     let parsed: PrebuiltManifest = serde_json::from_str(&new_manifest_json)
         .map_err(|e| format!("manifest JSON parse failed: {e}"))?;
 
@@ -183,7 +190,6 @@ pub async fn llama_cpp_bump_manifest(new_manifest_json: String) -> Result<BumpRe
     if parsed.artifacts.is_empty() {
         return Err("manifest has zero artifacts — refusing to bump".into());
     }
-    const SUPPORTED: &[&str] = &["win32-x64-vulkan", "win32-x64-cuda", "win32-x64-cpu"];
     for art in &parsed.artifacts {
         if art.sha256.is_empty() || art.sha256.starts_with("__") {
             return Err(format!(
@@ -303,7 +309,7 @@ pub struct TargetState {
 /// Returned by [`llama_cpp_bump_manifest`] after a successful write.
 ///
 /// Surfaces a confirmation summary so the devtool can render
-/// "manifest at $path pinned to $new_version (upstream $sha)" without
+/// "manifest at $path pinned to `$new_version` (upstream $sha)" without
 /// re-reading the file.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct BumpResult {

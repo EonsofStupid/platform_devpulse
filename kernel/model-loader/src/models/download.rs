@@ -289,6 +289,11 @@ impl DownloadManager {
 
     /// Stub for builds without the candle-backend feature — the HF
     /// hub dep is gated there, so listing is unavailable.
+    ///
+    /// # Errors
+    /// Always returns an `anyhow::Error` — build with
+    /// `--features candle-backend` to enable real `HuggingFace` repo
+    /// listing.
     #[cfg(not(feature = "candle-backend"))]
     pub fn list_repo_files(&self, _repo_id: &str) -> anyhow::Result<Vec<RepoFileEntry>> {
         anyhow::bail!("list_repo_files requires candle-backend feature")

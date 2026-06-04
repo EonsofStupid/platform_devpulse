@@ -13,7 +13,7 @@
 //! # Adding a kind
 //!
 //! 1. Append a variant to `ErrorKind`. Variants are kebab-case on the
-//!    wire (serde rename_all).
+//!    wire (serde `rename_all`).
 //! 2. Add a constructor on `CommandError::<kind>()` for ergonomic
 //!    `?`-style returns at call sites.
 //! 3. Document semantics in this file's enum doc-comment.
@@ -24,7 +24,7 @@
 //! are provided so call sites can `?` straight from common upstream
 //! errors without manual `.map_err(...)` boilerplate. Each maps to the
 //! conservative `Internal` kind by default — call sites that have
-//! semantic context (e.g. "this io::Error means permission-denied")
+//! semantic context (e.g. "this `io::Error` means permission-denied")
 //! still construct explicitly.
 
 use serde::{Deserialize, Serialize};

@@ -9,6 +9,10 @@
 //! new snapshot as payload. The frontend subscribes via `listen()` so the
 //! UI updates live without polling. The event bridge is spawned from
 //! `lib.rs` after the platform handle is installed.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper that resolves the `Platform` handle then forwards to `RroState::*`; failure is exclusively the `Platform is still booting` case documented at `resolve_platform`."
+)]
 
 use std::sync::Arc;
 

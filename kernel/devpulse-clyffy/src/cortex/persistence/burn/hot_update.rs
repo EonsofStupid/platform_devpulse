@@ -2,7 +2,7 @@
 //!
 //! Per `HOT_UPDATE_PATTERN.md` §5.1: the encoder is the canonical
 //! `HotUpdateable` component. This file is the only place
-//! `Self::Source` / `Self::Snapshot` / the load+validate+into_live
+//! `Self::Source` / `Self::Snapshot` / the `load+validate+into_live`
 //! triple lives — the loader mechanics live one file over in
 //! `loader.rs`, the smoke-test forward-pass lives inline.
 //!
@@ -86,7 +86,7 @@ where
     type LoadError = LoaderError;
 
     /// Load Qwen3 weights from disk. Slow path — ~1-3 seconds for
-    /// Harrier 0.6B on NVMe, longer for larger Qwen3 variants. Runs
+    /// Harrier 0.6B on `NVMe`, longer for larger Qwen3 variants. Runs
     /// on a tokio blocking thread (the inner loader does sync
     /// mmap + parse + tensor copies) so the runtime stays responsive
     /// for query traffic during the daemon's `Updating` phase.
@@ -106,7 +106,7 @@ where
         let normalize = source.config.normalize;
         let device = source.device.clone();
 
-        let model: Qwen3Model<B> = tokio::task::spawn_blocking(move || {
+        let model: Qwen3Model<B> = devpulse_telemetry::spawn_blocking(move || {
             load_qwen3_from_safetensors::<B>(&path, &model_cfg, &device)
         })
         .await

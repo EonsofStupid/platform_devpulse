@@ -88,7 +88,7 @@ impl<B: Backend> BurnEmbedder<B> {
         token_ids: Tensor<B, 2, Int>,
         attention_mask: Tensor<B, 2, Int>,
     ) -> Tensor<B, 2> {
-        let hidden = self.model.forward(token_ids, attention_mask.clone());
+        let hidden = self.model.forward(token_ids, &attention_mask);
         let pooled = pool_last_token(hidden, attention_mask);
         if self.normalize {
             l2_normalize(pooled)

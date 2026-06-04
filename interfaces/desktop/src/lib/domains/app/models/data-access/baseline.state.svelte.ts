@@ -191,7 +191,7 @@ class BaselineState {
 
 		await Promise.all(
 			this.recommendations.map(async (rec) => {
-				const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id);
+				const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id, null);
 				if (ir.status === "ok") {
 					this.dispatchedInstallIds = [...this.dispatchedInstallIds, ir.data];
 					logInfo(

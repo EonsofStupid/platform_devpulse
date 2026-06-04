@@ -251,6 +251,11 @@ pub async fn delete_vector_collection(
 ///
 /// Returns field metadata (label, family, description, slider bounds)
 /// so the frontend renders sliders generically without hardcoded labels.
+///
+/// # Errors
+/// Infallible — the `Result` shape is kept for binding parity with the
+/// sibling `Result`-returning retrieval-config commands so the TS
+/// surface stays uniform.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_retrieval_param_meta() -> Result<Vec<RetrievalParamMeta>, String> {

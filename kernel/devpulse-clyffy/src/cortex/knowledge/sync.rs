@@ -33,7 +33,7 @@ pub async fn sync_to_libsql(adapter: &dyn SqlAdapter) -> Result<usize, String> {
 
 /// Upsert a remotely-fetched set of entries.
 ///
-/// Desktop calls this from `sync_knowledge_from_remote` after GETting
+/// Desktop calls this from `sync_knowledge_from_remote` after `GETting`
 /// the manifest + each file. Same version-compare contract as the
 /// embedded path — repeated calls at the same version are no-ops.
 ///

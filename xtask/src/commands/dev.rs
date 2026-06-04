@@ -17,8 +17,9 @@ use crate::commands::preflight::Preflight;
 use crate::commands::sccache;
 use crate::commands::Task;
 use crate::net;
-use crate::stage::{self, Stage};
-#[allow(unused_imports)] // Stage used conditionally on Windows
+use crate::stage;
+#[cfg(windows)]
+use crate::stage::Stage;
 use crate::workspace::Workspace;
 use crate::zombie;
 
@@ -57,168 +58,31 @@ impl Task for Dev {
         // Create BEFORE spawning any children. The _guard must live
         // until the end of this function — dropping it kills all children.
         #[cfg(windows)]
-        let _job_guard = {
-            let s = Stage::start("job object");
-            match zombie::JobGuard::new() {
-                Ok(guard) => {
-                    s.ok_with("children will die with xtask (kernel-enforced)");
-                    log.stage("job_object", "OK", "kernel-enforced child cleanup")?;
-                    Some(guard)
-                }
-                Err(e) => {
-                    let msg = format!("failed: {e} — zombies possible");
-                    s.warn(&msg);
-                    log.stage("job_object", "WARN", &msg)?;
-                    None
-                }
-            }
-        };
+        let job_guard = setup_job_guard(&mut log)?;
 
-        // ── Stage 3: Zombie cleanup ──
-        // Clean ALL platform ports — not just the dev server.
         let graph_api_port = platform_config.services.network.graph_api.port;
-        stage::section("Cleanup");
-        let cleanup_start = Instant::now();
-        zombie::cleanup(dev_port)?;
-        log.stage_timed(
-            "zombie_cleanup",
-            "OK",
-            "stale processes cleaned",
-            cleanup_start,
-        )?;
-
-        // ── Stage 4: Port management ──
-        // Ensure ALL platform ports are free before launching anything.
-        stage::section("Port Check");
-        let port_start = Instant::now();
-        net::ensure_port_free(dev_port)?;
-        log.stage_timed("port_check", "OK", &format!(":{dev_port} free"), port_start)?;
-
-        let graph_port_start = Instant::now();
-        net::ensure_port_free(graph_api_port)?;
-        log.stage_timed(
-            "port_check",
-            "OK",
-            &format!(":{graph_api_port} free (SurrealDB HTTP)"),
-            graph_port_start,
-        )?;
-
-        // ── Stage 5: Pre-flight ──
-        let preflight_start = Instant::now();
-        Preflight.run(ws)?;
-        log.stage_timed("preflight", "OK", "toolchain validated", preflight_start)?;
-
-        // ── Stage 5.5: External dep builds (only when source changed) ──
-        stage::section("External Dependencies");
-        let deps_start = Instant::now();
-        match crate::commands::build_deps::build_all(ws) {
-            Ok(()) => {
-                log.stage_timed("dep_builds", "OK", "external deps checked", deps_start)?;
-            }
-            Err(e) => {
-                // Non-fatal — DevForge/etc can be disabled
-                log.stage_timed("dep_builds", "WARN", &format!("{e:#}"), deps_start)?;
-                eprintln!("  [WARN] External dep build issue: {e:#}");
-            }
-        }
-
-        // ── Stage 5.6: Build lock scan ──
-        // Kill stale cargo/rustc from crashed sessions BEFORE we touch cargo.
-        // Without this, cargo check blocks forever on the file lock with zero output.
-        stage::section("Build Lock");
-        let lock_start = Instant::now();
-        let lock_killed = zombie::clear_build_lock_holders()?;
-        if lock_killed > 0 {
-            log.stage_timed(
-                "build_lock",
-                "OK",
-                &format!("killed {lock_killed} lock holder(s)"),
-                lock_start,
-            )?;
-        } else {
-            log.stage_timed("build_lock", "OK", "lock is free", lock_start)?;
-        }
+        run_prelaunch_checks(ws, &mut log, dev_port, graph_api_port)?;
 
         // ── Stage 5.7: Compile cache (sccache) ──
-        // Transparent rustc caching. If sccache is installed, every rustc
-        // invocation from here on routes through it — surviving `cargo
-        // clean`, feature-flag flips, and toolchain bumps. If not installed,
-        // this stage prints an install hint and proceeds without caching.
-        // See xtask/src/commands/sccache.rs for the rationale (sccache vs
-        // wrapper-crate staging).
         stage::section("Compile Cache");
         let sccache_start = Instant::now();
-        let sccache_guard = sccache::Guard::new(ws)?;
+        let sccache_guard = sccache::Guard::new(ws);
         log.stage_timed("sccache", "OK", "compile cache checked", sccache_start)?;
 
-        // ── Stage 6: Backend compile with live progress ──
-        let estimated = stage::estimate_crate_count(ws.root(), "devpulse_desktop_backend");
-        if estimated > 0 {
-            stage::section(&format!(
-                "Backend (~{estimated} crates in dependency graph)"
-            ));
-        } else {
-            stage::section("Backend");
-        }
-        println!("  > cargo check -p devpulse_desktop_backend");
-        println!("  > Scope: Tauri backend + Platform facade + 7 services");
-        log.entry(&format!(
-            "backend_compile: ~{estimated} crates in dep graph"
-        ))?;
-
-        // Build environment — all env vars from platform.default.toml [build.deps.*] SSOT.
-        // No hardcoded env vars here. Everything derives from the config.
-        println!("  > Build env from [build.deps.*] SSOT:");
-        platform_config.build.apply_env(ws.root());
-
-        let compile_start = Instant::now();
-        // Auto-pick acceleration features (GPU + CPU MKL) based on host SDK
-        // detection. Falls through to a bare CPU build if no SDK is
-        // installed — pre-detection behavior is preserved.
-        let accel_feats = platform_config.build.detect_build_features();
-        let mut cargo_args: Vec<String> = vec![
-            "check".into(),
-            "-p".into(),
-            "devpulse_desktop_backend".into(),
-        ];
-        if let Some(feats) = accel_feats.as_deref() {
-            cargo_args.push("--features".into());
-            cargo_args.push(feats.into());
-        }
-        let cargo_arg_refs: Vec<&str> = cargo_args.iter().map(String::as_str).collect();
-        let cargo_child = ws.spawn_in_stderr_piped(ws.root(), "cargo", &cargo_arg_refs)?;
-
-        // Assign cargo to Job Object so it dies if we die
         #[cfg(windows)]
-        if let Some(ref guard) = _job_guard {
-            if let Err(e) = guard.assign(&cargo_child) {
-                eprintln!("  [!!] failed to assign cargo to job: {e}");
-            }
-        }
-
-        let compile = stage::monitor_cargo_child("backend", cargo_child, estimated)?;
-
-        if !compile.status.success() {
-            log.stage_timed(
-                "backend_compile",
-                "FAIL",
-                "compilation errors",
-                compile_start,
+        {
+            run_backend_compile(
+                ws,
+                &platform_config,
+                &mut log,
+                run_start,
+                job_guard.as_ref(),
             )?;
-            log.footer(run_start)?;
-            anyhow::bail!(
-                "Backend compilation failed — fix the Rust errors above.\n  \
-                 Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
-                 (LibSQL, DuckDB, SurrealDB, Moka)."
-            );
         }
-        let compile_secs = compile_start.elapsed().as_secs_f64();
-        log.stage_timed(
-            "backend_compile",
-            "OK",
-            &format!("{estimated} crates in {compile_secs:.1}s"),
-            compile_start,
-        )?;
+        #[cfg(not(windows))]
+        {
+            run_backend_compile(ws, &platform_config, &mut log, run_start)?;
+        }
 
         // Diff sccache stats against the pre-compile snapshot so the dev
         // server UX shows the hit rate this build got from the cache.
@@ -237,7 +101,7 @@ impl Task for Dev {
         stage::section("Launch");
         println!("  > pnpm tauri dev");
         let dev_bind = &platform_config.services.network.dev_server.bind;
-        println!("  > Vite        → http://{}:{}", dev_bind, dev_port);
+        println!("  > Vite        → http://{dev_bind}:{dev_port}");
         println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka + RRO + Kokoros + Outlines");
         let graph_api = &platform_config.services.network.graph_api;
         println!(
@@ -275,7 +139,7 @@ impl Task for Dev {
         // Assign pnpm (and its child tree) to the Job Object so Ctrl+C
         // kills everything — vite, node, cargo, the Tauri backend, all of it.
         #[cfg(windows)]
-        if let Some(ref guard) = _job_guard {
+        if let Some(ref guard) = job_guard {
             if let Err(e) = guard.assign(tee.child()) {
                 eprintln!("  [!!] failed to assign tauri dev to job: {e}");
                 log.stage("launch", "WARN", &format!("job assign failed: {e}"))?;
@@ -294,6 +158,184 @@ impl Task for Dev {
         // _job_guard drops here → all remaining children killed by kernel
         Ok(())
     }
+}
+
+/// Run the cargo-check backend compile with live progress, an optional
+/// Job-Object assignment on Windows, and structured log entries. Extracted
+/// from `run` so the main flow stays under `too_many_lines`.
+fn run_backend_compile(
+    ws: &Workspace,
+    platform_config: &crate::workspace::PlatformConfig,
+    log: &mut LogFile,
+    run_start: Instant,
+    #[cfg(windows)] job_guard: Option<&zombie::JobGuard>,
+) -> anyhow::Result<()> {
+    // ── Stage 6: Backend compile with live progress ──
+    let estimated = stage::estimate_crate_count(ws.root(), "devpulse_desktop_backend");
+    if estimated > 0 {
+        stage::section(&format!(
+            "Backend (~{estimated} crates in dependency graph)"
+        ));
+    } else {
+        stage::section("Backend");
+    }
+    println!("  > cargo check -p devpulse_desktop_backend");
+    println!("  > Scope: Tauri backend + Platform facade + 7 services");
+    log.entry(&format!(
+        "backend_compile: ~{estimated} crates in dep graph"
+    ))?;
+
+    // Build environment — all env vars from platform.default.toml [build.deps.*] SSOT.
+    // No hardcoded env vars here. Everything derives from the config.
+    println!("  > Build env from [build.deps.*] SSOT:");
+    platform_config.build.apply_env(ws.root());
+
+    let compile_start = Instant::now();
+    // Auto-pick acceleration features (GPU + CPU MKL) based on host SDK
+    // detection. Falls through to a bare CPU build if no SDK is
+    // installed — pre-detection behavior is preserved.
+    let accel_feats = crate::workspace::BuildConfig::detect_build_features();
+    let mut cargo_args: Vec<String> = vec![
+        "check".into(),
+        "-p".into(),
+        "devpulse_desktop_backend".into(),
+    ];
+    if let Some(feats) = accel_feats.as_deref() {
+        cargo_args.push("--features".into());
+        cargo_args.push(feats.into());
+    }
+    let cargo_arg_refs: Vec<&str> = cargo_args.iter().map(String::as_str).collect();
+    let cargo_child = ws.spawn_in_stderr_piped(ws.root(), "cargo", &cargo_arg_refs)?;
+
+    // Assign cargo to Job Object so it dies if we die
+    #[cfg(windows)]
+    if let Some(guard) = job_guard {
+        if let Err(e) = guard.assign(&cargo_child) {
+            eprintln!("  [!!] failed to assign cargo to job: {e}");
+        }
+    }
+
+    let compile = stage::monitor_cargo_child("backend", cargo_child, estimated)?;
+
+    if !compile.status.success() {
+        log.stage_timed(
+            "backend_compile",
+            "FAIL",
+            "compilation errors",
+            compile_start,
+        )?;
+        log.footer(run_start)?;
+        anyhow::bail!(
+            "Backend compilation failed — fix the Rust errors above.\n  \
+             Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
+             (LibSQL, DuckDB, SurrealDB, Moka)."
+        );
+    }
+    let compile_secs = compile_start.elapsed().as_secs_f64();
+    log.stage_timed(
+        "backend_compile",
+        "OK",
+        &format!("{estimated} crates in {compile_secs:.1}s"),
+        compile_start,
+    )?;
+    Ok(())
+}
+
+/// Set up the Windows job object guard that kills every spawned child
+/// when xtask exits. Extracted from `run` so the main flow stays under
+/// `too_many_lines`. Returns `Some(guard)` on success, `None` if the
+/// kernel object could not be created — zombies are then possible but
+/// not fatal.
+#[cfg(windows)]
+fn setup_job_guard(log: &mut LogFile) -> anyhow::Result<Option<zombie::JobGuard>> {
+    let s = Stage::start("job object");
+    match zombie::JobGuard::new() {
+        Ok(guard) => {
+            s.ok_with("children will die with xtask (kernel-enforced)");
+            log.stage("job_object", "OK", "kernel-enforced child cleanup")?;
+            Ok(Some(guard))
+        }
+        Err(e) => {
+            let msg = format!("failed: {e} — zombies possible");
+            s.warn(&msg);
+            log.stage("job_object", "WARN", &msg)?;
+            Ok(None)
+        }
+    }
+}
+
+/// Pre-launch checks: zombie cleanup, port availability, preflight,
+/// external dep builds, build-lock scan. Each step writes to the
+/// session log; failures bubble up via `?`.
+fn run_prelaunch_checks(
+    ws: &Workspace,
+    log: &mut LogFile,
+    dev_port: u16,
+    graph_api_port: u16,
+) -> anyhow::Result<()> {
+    // ── Stage 3: Zombie cleanup ──
+    // Clean ALL platform ports — not just the dev server.
+    stage::section("Cleanup");
+    let cleanup_start = Instant::now();
+    zombie::cleanup(dev_port);
+    log.stage_timed(
+        "zombie_cleanup",
+        "OK",
+        "stale processes cleaned",
+        cleanup_start,
+    )?;
+
+    // ── Stage 4: Port management ──
+    // Ensure ALL platform ports are free before launching anything.
+    stage::section("Port Check");
+    let port_start = Instant::now();
+    net::ensure_port_free(dev_port)?;
+    log.stage_timed("port_check", "OK", &format!(":{dev_port} free"), port_start)?;
+
+    let graph_port_start = Instant::now();
+    net::ensure_port_free(graph_api_port)?;
+    log.stage_timed(
+        "port_check",
+        "OK",
+        &format!(":{graph_api_port} free (SurrealDB HTTP)"),
+        graph_port_start,
+    )?;
+
+    // ── Stage 5: Pre-flight ──
+    let preflight_start = Instant::now();
+    Preflight.run(ws)?;
+    log.stage_timed("preflight", "OK", "toolchain validated", preflight_start)?;
+
+    // ── Stage 5.5: External dep builds (only when source changed) ──
+    stage::section("External Dependencies");
+    let deps_start = Instant::now();
+    match crate::commands::build_deps::build_all(ws) {
+        Ok(()) => {
+            log.stage_timed("dep_builds", "OK", "external deps checked", deps_start)?;
+        }
+        Err(e) => {
+            // Non-fatal — DevForge/etc can be disabled
+            log.stage_timed("dep_builds", "WARN", &format!("{e:#}"), deps_start)?;
+            eprintln!("  [WARN] External dep build issue: {e:#}");
+        }
+    }
+
+    // ── Stage 5.6: Build lock scan ──
+    stage::section("Build Lock");
+    let lock_start = Instant::now();
+    let lock_killed = zombie::clear_build_lock_holders();
+    if lock_killed > 0 {
+        log.stage_timed(
+            "build_lock",
+            "OK",
+            &format!("killed {lock_killed} lock holder(s)"),
+            lock_start,
+        )?;
+    } else {
+        log.stage_timed("build_lock", "OK", "lock is free", lock_start)?;
+    }
+
+    Ok(())
 }
 
 fn print_banner(task_name: &str) {

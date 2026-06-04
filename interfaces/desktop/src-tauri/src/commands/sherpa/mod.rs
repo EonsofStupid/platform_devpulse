@@ -98,7 +98,7 @@ pub async fn sherpa_finish_session(
         .map_err(|e| format!("{e:#}"))
 }
 
-/// Drop a session — releases its OnlineStream handle.
+/// Drop a session — releases its `OnlineStream` handle.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]

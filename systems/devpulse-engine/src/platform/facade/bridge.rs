@@ -85,7 +85,7 @@ impl FacadeBridge {
                     if self.dev_tx.receiver_count() > 0 && self.dev_tx.send(event.clone()).is_err()
                     {
                         dev_dropped += 1;
-                        if dev_dropped % 100 == 0 {
+                        if dev_dropped.is_multiple_of(100) {
                             warn!(dropped = dev_dropped, "Dev channel: receivers lagging");
                         }
                     }
@@ -115,7 +115,7 @@ impl FacadeBridge {
 
                         if self.surface_tx.send(final_event).is_err() {
                             surface_dropped += 1;
-                            if surface_dropped % 100 == 0 {
+                            if surface_dropped.is_multiple_of(100) {
                                 warn!(
                                     dropped = surface_dropped,
                                     "Surface channel: receivers lagging"

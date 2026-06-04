@@ -422,9 +422,8 @@ async fn graph_list_tables_inner(
     svc: &devpulse_engine::platform::services::graph::GraphService,
 ) -> Vec<GraphTableInfo> {
     let handle = svc.handle();
-    let info = match handle.query("INFO FOR DB").await {
-        Ok(i) => i,
-        Err(_) => return Vec::new(),
+    let Ok(info) = handle.query("INFO FOR DB").await else {
+        return Vec::new();
     };
 
     let table_names = extract_table_names(&info);

@@ -195,14 +195,14 @@ function handleDragOver(e: DragEvent): void {
 			<div class="flex items-center gap-3">
 				<Text size="sm" weight="bold">voice.stt</Text>
 				{#if sttReady}
-					<Badge tone="positive" size="sm">
+					<Badge variant="positive" size="sm">
 						<Check size={8} />
 						Ready
 					</Badge>
 				{:else if sttSlot?.assigned_model_id}
-					<Badge tone="neutral" size="sm">Assigned</Badge>
+					<Badge variant="neutral" size="sm">Assigned</Badge>
 				{:else}
-					<Badge tone="neutral" size="sm">Empty</Badge>
+					<Badge variant="neutral" size="sm">Empty</Badge>
 				{/if}
 			</div>
 
@@ -426,7 +426,7 @@ function handleDragOver(e: DragEvent): void {
 				<!-- Mic test -->
 				<div class="flex items-center gap-2">
 					<Button
-						preset="button-secondary"
+						preset="secondary"
 						size="sm"
 						onclick={handleMicTest}
 						disabled={micTesting}

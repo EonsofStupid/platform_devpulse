@@ -1,10 +1,10 @@
-//! SurrealDB sidecar commands — status, health, and editable config.
+//! `SurrealDB` sidecar commands — status, health, and editable config.
 //!
 //! The engine side (`devpulse_engine::platform::Platform`) owns the
 //! `SurrealService` lifecycle; these commands are the frontend's handle
 //! into that service.
 //!
-//! Unlike Ollama, the SurrealDB sidecar is **boot-time, not lazy** —
+//! Unlike Ollama, the `SurrealDB` sidecar is **boot-time, not lazy** —
 //! the graph stores depend on it, so there is no `start` / `stop` /
 //! `restart` here. Config changes write to the user-scope overlay and
 //! take effect on the next app restart.
@@ -17,7 +17,7 @@ use tauri::State;
 // Commands
 // ═══════════════════════════════════════════════════════════════
 
-/// Runtime status of the SurrealDB sidecar (configured vs. actual port,
+/// Runtime status of the `SurrealDB` sidecar (configured vs. actual port,
 /// managed/attached, bind URL, etc.).
 ///
 /// Lock-free read — never spawns, never blocks.

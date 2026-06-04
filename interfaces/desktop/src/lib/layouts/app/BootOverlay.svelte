@@ -69,8 +69,11 @@ onMount(() => {
 
 async function openLogsFolder() {
 	try {
-		const { commands, unwrap } = await import("$lib/sys/generated/bindings.js");
-		unwrap(await commands.openActionLogsFolder());
+		const { commands } = await import("$lib/sys/generated/bindings.js");
+		const r = await commands.openActionLogsFolder();
+		if (r.status === "error") {
+			throw new Error(typeof r.error === "string" ? r.error : String(r.error));
+		}
 	} catch (e) {
 		logError("layouts.app.BootOverlay", `could not open logs folder: ${e}`);
 	}

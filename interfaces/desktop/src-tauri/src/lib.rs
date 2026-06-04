@@ -31,6 +31,7 @@ pub use crash_safety::install_early_panic_hook;
 
 use devpulse_engine::platform::{InitStatus, Platform};
 use devpulse_telemetry::boot::TelemetryGuard;
+use devpulse_telemetry::spawn_blocking;
 use events::{BootPhaseChanged, BootPhaseValue, HardwareMetricsUpdated};
 use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
 use std::path::PathBuf;
@@ -357,6 +358,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::list_backend_matrix,
             commands::models::resolve_architecture_compatibility,
             // Burn encoder — text embedding (Phase C: tokenizer + forward pass)
+            commands::models::encoder_is_loaded,
             commands::models::encoder_embed,
             // Voice management
             commands::voice::get_voice_status,
@@ -1069,7 +1071,7 @@ async fn boot_task(
             // preserved by the atomic-merge writer in commands/claude/register.
             if let Some(platform_arc) = state.platform.load_full() {
                 let data_dir = platform_arc.data_dir().clone();
-                tokio::task::spawn_blocking(move || {
+                spawn_blocking(move || {
                     commands::claude::autoregister::apply_on_boot(&data_dir);
                 });
             }
@@ -1450,7 +1452,7 @@ fn panic_message(payload: &Box<dyn std::any::Any + Send>) -> String {
 ///
 /// Windows GUI apps (`windows_subsystem = "windows"` at `main.rs`) have
 /// no attached stdout/stderr. If the `tracing` subscriber or any code
-/// AFTER this point panics — or if a LoadLibrary call after `main()`
+/// AFTER this point panics — or if a `LoadLibrary` call after `main()`
 /// returns `STATUS_DLL_NOT_FOUND` on a dynamic DLL — there is no trace
 /// at all of "did Rust even start". `bootstrap.log` is the one place
 /// the user can look: "file exists with fresh timestamp → process

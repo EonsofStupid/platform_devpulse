@@ -41,6 +41,7 @@ let {
 	required = false,
 	invalid = false,
 	rows,
+	value = $bindable(""),
 	onValueChange,
 	preset = "default",
 	class: className,
@@ -61,6 +62,9 @@ const m = $derived(renderForge({ kind: "textarea", preset }));
 		readonly={readOnly}
 		{required}
 		{rows}
+		{value}
+		placeholder={rest.placeholder}
+		aria-label={rest["aria-label"]}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		data-invalid={invalid || undefined}
@@ -71,5 +75,9 @@ const m = $derived(renderForge({ kind: "textarea", preset }));
 			"disabled:pointer-events-none disabled:opacity-50",
 			SIZE[size as TextareaSize] ?? SIZE.md,
 			className)}
-		oninput={(e) => onValueChange?.((e.target as HTMLTextAreaElement).value)}
+		oninput={(e) => {
+			const next = (e.target as HTMLTextAreaElement).value;
+			value = next;
+			onValueChange?.(next);
+		}}
 	></textarea>

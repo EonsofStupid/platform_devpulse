@@ -76,7 +76,7 @@ function statusTone(
 			Downloads
 		</Heading>
 		{#if downloadState.activeCount > 0}
-			<Badge tone="informative" size="sm">{downloadState.activeCount} active</Badge>
+			<Badge variant="informative" size="sm">{downloadState.activeCount} active</Badge>
 		{/if}
 	</div>
 
@@ -112,7 +112,7 @@ function statusTone(
 							<X size={14} />
 						</Button>
 					{:else}
-						<Badge tone={statusTone(dl.status)} size="sm">
+						<Badge variant={statusTone(dl.status)} size="sm">
 							{dl.status === "complete" ? "Complete" : dl.status === "failed" ? "Failed" : "Cancelled"}
 						</Badge>
 						{#if dl.error}

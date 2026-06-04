@@ -20,7 +20,7 @@
 //! 6. RRO services in clyffy that need to embed text read the live
 //!    `Arc` via `current()`.
 //!
-//! ## Why ArcSwap + Option
+//! ## Why `ArcSwap` + Option
 //!
 //! `ArcSwap<Option<Arc<BurnEmbedder<B>>>>` lets:
 //! - Concurrent readers see the latest live encoder atomically.
@@ -152,7 +152,7 @@ where
     /// Returns `None` if the daemon is not yet constructed.
     #[must_use]
     pub fn subscribe_rrd(&self) -> Option<watch::Receiver<rrd::RRDState>> {
-        self.daemon.blocking_lock().as_ref().map(|d| d.subscribe())
+        self.daemon.blocking_lock().as_ref().map(RRD::subscribe)
     }
 
     /// Embed a batch of texts into L2-normalized dense vectors.
@@ -161,8 +161,14 @@ where
     /// in the same order as `texts`. Errors if the encoder or tokenizer
     /// is not loaded yet.
     ///
-    /// This is a **blocking** call (Burn NdArray is synchronous CPU).
+    /// This is a **blocking** call (Burn `NdArray` is synchronous CPU).
     /// Async callers must wrap with `tokio::task::spawn_blocking`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the encoder or tokenizer is not yet loaded,
+    /// if tokenization fails, or if extracting the pooled tensor data
+    /// into a `Vec<f32>` fails (dtype mismatch from Burn).
     pub fn embed_text(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
         let encoder = self
             .current()
@@ -186,7 +192,7 @@ where
             .into_vec::<f32>()
             .map_err(|e| anyhow::anyhow!("embed_text: tensor extraction failed: {e:?}"))?;
 
-        Ok(flat.chunks(hidden).map(|c| c.to_vec()).collect())
+        Ok(flat.chunks(hidden).map(<[f32]>::to_vec).collect())
     }
 }
 
@@ -224,12 +230,13 @@ fn load_geometry_from_config_json(model_dir: &Path, fallback: &EmbedderConfig) -
     let fb = &fallback.model;
     let get_usize = |key: &str, default: usize| -> usize {
         json.get(key)
-            .and_then(|v| v.as_u64())
-            .map(|v| v as usize)
-            .unwrap_or(default)
+            .and_then(serde_json::Value::as_u64)
+            .map_or(default, |v| v as usize)
     };
     let get_f64 = |key: &str, default: f64| -> f64 {
-        json.get(key).and_then(|v| v.as_f64()).unwrap_or(default)
+        json.get(key)
+            .and_then(serde_json::Value::as_f64)
+            .unwrap_or(default)
     };
 
     let vocab_size = get_usize("vocab_size", fb.vocab_size);

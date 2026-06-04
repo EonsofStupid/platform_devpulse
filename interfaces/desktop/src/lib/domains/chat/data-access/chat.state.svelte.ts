@@ -132,7 +132,7 @@ class ChatState {
 
 			// 3. Store assistant turn
 			const assistantTurn = await chatService.storeAssistantTurn(
-				userTurn.session_id,
+				userTurn.sessionId,
 				pid,
 				fullText,
 				this.generatingTokens,

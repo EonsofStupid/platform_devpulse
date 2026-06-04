@@ -338,7 +338,7 @@ function handleKeydown(event: KeyboardEvent): void {
 						Re-ping every database and reload latency.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => libsqlState.loadHealth()}
 						disabled={libsqlState.healthLoading}
@@ -360,7 +360,7 @@ function handleKeydown(event: KeyboardEvent): void {
 						Refresh the table catalog for the active database.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => libsqlState.loadTables()}
 						disabled={libsqlState.tablesLoading}
@@ -390,7 +390,7 @@ function handleKeydown(event: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Sanity probe</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={runSanityProbe}
 						disabled={probeRunning}
@@ -548,7 +548,7 @@ function handleKeydown(event: KeyboardEvent): void {
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
 				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
 				<Button
-					preset="default"
+					preset="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
 					disabled={libsqlState.queryLoading || !libsqlState.queryInput.trim()}

@@ -154,6 +154,11 @@ impl WhisperAdapter {
     }
 
     /// Health check — verify model is loaded and can run a forward pass.
+    ///
+    /// # Errors
+    /// Returns any Candle / tokenizer failure that surfaces while
+    /// running the silent-audio probe — typically a missing weight,
+    /// mismatched mel-filter shape, or device-OOM on the encoder pass.
     pub fn ping(&mut self) -> Result<()> {
         // Generate a tiny silent audio segment and try to encode it
         let silence = vec![0.0f32; 16000]; // 1 second of silence

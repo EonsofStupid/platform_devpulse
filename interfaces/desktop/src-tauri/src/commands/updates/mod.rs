@@ -4,7 +4,7 @@
 //! typed commands so the frontend never has to touch the raw plugin API:
 //!
 //! - [`check_for_update`] — ask the configured endpoint whether a newer
-//!   build is available. Returns metadata (version, notes, pub_date) but
+//!   build is available. Returns metadata (version, notes, `pub_date`) but
 //!   does NOT download.
 //! - [`install_update`] — re-check + download + verify signature +
 //!   install + restart. Progress is streamed via
@@ -226,7 +226,7 @@ pub async fn install_update(app: AppHandle) -> Result<(), String> {
 /// Tauri runtime is up — well before the platform boot task finishes.
 /// Channel preference is operator metadata, not a runtime-critical
 /// signal; making it available pre-boot eliminates the race where the
-/// Sidebar / Latest tab mount before Platform::boot completes.
+/// Sidebar / Latest tab mount before `Platform::boot` completes.
 ///
 /// Defaults to [`UpdateChannel::Stable`] when the file is missing or
 /// unreadable — the channel preference is never load-bearing on boot,
@@ -239,16 +239,14 @@ pub async fn install_update(app: AppHandle) -> Result<(), String> {
 /// [`UpdateChannel::Stable`] silently.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
 pub async fn get_update_channel(app: AppHandle) -> Result<UpdateChannel, String> {
     let data_dir = paths::resolve_data_dir(&app)?;
     let path = data_dir.join("user").join("updates.json");
     if !path.exists() {
         return Ok(UpdateChannel::Stable);
     }
-    let raw = match std::fs::read_to_string(&path) {
-        Ok(s) => s,
-        Err(_) => return Ok(UpdateChannel::Stable),
+    let Ok(raw) = std::fs::read_to_string(&path) else {
+        return Ok(UpdateChannel::Stable);
     };
     let parsed: UpdatesUserConfig = match serde_json::from_str(&raw) {
         Ok(p) => p,

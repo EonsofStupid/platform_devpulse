@@ -141,9 +141,10 @@ fn mtime_or_epoch(p: &Path) -> SystemTime {
 }
 
 fn fmt_time(t: SystemTime) -> String {
-    t.duration_since(SystemTime::UNIX_EPOCH)
-        .map(|d| format!("epoch+{}s", d.as_secs()))
-        .unwrap_or_else(|_| "pre-epoch".to_string())
+    t.duration_since(SystemTime::UNIX_EPOCH).map_or_else(
+        |_| "pre-epoch".to_string(),
+        |d| format!("epoch+{}s", d.as_secs()),
+    )
 }
 
 #[cfg(test)]

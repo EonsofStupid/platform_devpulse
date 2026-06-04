@@ -934,6 +934,81 @@ fn synthesize_missing_llama_fields(
 /// llama fallback is still needed for Llama, Mistral, Qwen2, Gemma,
 /// and the long tail of derivative fine-tunes that don't have their
 /// own arch-native loader in candle-transformers yet.
+///
+/// Candle's GGUF backends (arch-native qwen3/phi3 + the
+/// metadata-rewrite llama fallback) only handle decoder-style
+/// llama-compatible tensor layouts. Vision encoders, embedders, and
+/// newer multimodal archs whose tensor names diverge must route to
+/// a different backend (llama.cpp FFI is the usual fallback).
+const CANDLE_GGUF_LLM_ALLOWLIST: &[ArchId] = &[
+    ArchId::Llama,
+    ArchId::Mistral,
+    ArchId::Qwen2,
+    ArchId::Qwen25,
+    ArchId::Qwen3,
+    ArchId::Qwen3Moe,
+    ArchId::Phi3,
+    ArchId::Phi3Moe,
+    ArchId::Gemma,
+    ArchId::Gemma3Text,
+];
+
+/// Well-known first-block tensor names emitted by every llama-compatible
+/// GGUF the Candle llama fallback can load.
+const EXPECTED_LLAMA_FALLBACK_TENSORS: &[&str] = &[
+    "blk.0.attn_q.weight",
+    "blk.0.attn_qkv.weight",
+    "blk.0.attn.wq.weight",
+];
+
+/// Pre-flight tensor probe for `load_gguf`. When the architecture will
+/// route to the llama fallback (anything outside the arch-native
+/// qwen3/phi3 paths), confirm at least one of the well-known first-block
+/// tensor names exists before invoking `qlm::ModelWeights::from_gguf`.
+/// This is the gate that prevents the "cannot find tensor info for
+/// `blk.0.attn_q.weight`" panic — we'd rather return a typed error the
+/// UI can render than crash the inference thread.
+fn probe_llama_fallback_tensors(content: &Content, arch_id: ArchId) -> anyhow::Result<()> {
+    let needs_llama_fallback = !matches!(
+        arch_id,
+        ArchId::Qwen3 | ArchId::Qwen3Moe | ArchId::Phi3 | ArchId::Phi3Moe
+    );
+    if !needs_llama_fallback {
+        return Ok(());
+    }
+
+    let has_expected = EXPECTED_LLAMA_FALLBACK_TENSORS
+        .iter()
+        .any(|n| content.tensor_infos.contains_key(*n));
+    if has_expected {
+        return Ok(());
+    }
+
+    let found_first_block_tensors: Vec<String> = content
+        .tensor_infos
+        .keys()
+        .filter(|k| k.starts_with("blk.0."))
+        .take(8)
+        .cloned()
+        .collect();
+    let alternatives = match resolve_compatibility(arch_id, ModelFormat::Gguf) {
+        Resolution::Unsupported { alternatives, .. } => alternatives,
+        Resolution::Ok { .. } => Vec::new(),
+    };
+    Err(anyhow::Error::new(LoadError::UnsupportedArchitecture {
+        arch: arch_id,
+        format: ModelFormat::Gguf,
+        reason: UnsupportedReason::TensorLayoutMismatch {
+            expected_tensor_names: EXPECTED_LLAMA_FALLBACK_TENSORS
+                .iter()
+                .map(|s| (*s).to_string())
+                .collect(),
+            found_first_block_tensors,
+        },
+        alternatives,
+    }))
+}
+
 fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
     let file = std::fs::File::open(path)?;
     let file_size = file.metadata()?.len();
@@ -962,24 +1037,7 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
         }));
     };
 
-    // Allow-list: Candle's GGUF backends (arch-native qwen3/phi3 + the
-    // metadata-rewrite llama fallback) only handle decoder-style
-    // llama-compatible tensor layouts. Vision encoders, embedders, and
-    // newer multimodal archs whose tensor names diverge must route to
-    // a different backend (llama.cpp FFI is the usual fallback).
-    const LLM_ALLOW: &[ArchId] = &[
-        ArchId::Llama,
-        ArchId::Mistral,
-        ArchId::Qwen2,
-        ArchId::Qwen25,
-        ArchId::Qwen3,
-        ArchId::Qwen3Moe,
-        ArchId::Phi3,
-        ArchId::Phi3Moe,
-        ArchId::Gemma,
-        ArchId::Gemma3Text,
-    ];
-    if !LLM_ALLOW.contains(&arch_id) {
+    if !CANDLE_GGUF_LLM_ALLOWLIST.contains(&arch_id) {
         let alternatives = match resolve_compatibility(arch_id, ModelFormat::Gguf) {
             Resolution::Unsupported { alternatives, .. } => alternatives,
             Resolution::Ok { .. } => Vec::new(),
@@ -995,52 +1053,7 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
         }));
     }
 
-    // Pre-flight tensor probe: when the arch will route to the llama
-    // fallback (anything outside the arch-native qwen3/phi3 paths),
-    // confirm at least one of the well-known first-block tensor names
-    // exists before invoking `qlm::ModelWeights::from_gguf`. This is
-    // the gate that prevents the "cannot find tensor info for
-    // blk.0.attn_q.weight" panic — we'd rather return a typed error
-    // the UI can render than crash the inference thread.
-    let needs_llama_fallback = !matches!(
-        arch_id,
-        ArchId::Qwen3 | ArchId::Qwen3Moe | ArchId::Phi3 | ArchId::Phi3Moe
-    );
-    if needs_llama_fallback {
-        const EXPECTED_TENSORS: &[&str] = &[
-            "blk.0.attn_q.weight",
-            "blk.0.attn_qkv.weight",
-            "blk.0.attn.wq.weight",
-        ];
-        let has_expected = EXPECTED_TENSORS
-            .iter()
-            .any(|n| content.tensor_infos.contains_key(*n));
-        if !has_expected {
-            let found_first_block_tensors: Vec<String> = content
-                .tensor_infos
-                .keys()
-                .filter(|k| k.starts_with("blk.0."))
-                .take(8)
-                .cloned()
-                .collect();
-            let alternatives = match resolve_compatibility(arch_id, ModelFormat::Gguf) {
-                Resolution::Unsupported { alternatives, .. } => alternatives,
-                Resolution::Ok { .. } => Vec::new(),
-            };
-            return Err(anyhow::Error::new(LoadError::UnsupportedArchitecture {
-                arch: arch_id,
-                format: ModelFormat::Gguf,
-                reason: UnsupportedReason::TensorLayoutMismatch {
-                    expected_tensor_names: EXPECTED_TENSORS
-                        .iter()
-                        .map(|s| (*s).to_string())
-                        .collect(),
-                    found_first_block_tensors,
-                },
-                alternatives,
-            }));
-        }
-    }
+    probe_llama_fallback_tensors(&content, arch_id)?;
 
     let weights = match arch_id {
         ArchId::Qwen3 | ArchId::Qwen3Moe => {

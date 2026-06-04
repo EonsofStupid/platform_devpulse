@@ -34,7 +34,7 @@ const SIZE: Record<ButtonSize, string> = {
 };
 
 let {
-	preset = "button-primary",
+	preset = "primary",
 	size = "md",
 	disabled = false,
 	loading = false,

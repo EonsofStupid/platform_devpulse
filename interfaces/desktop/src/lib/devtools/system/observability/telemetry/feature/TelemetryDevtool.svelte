@@ -147,7 +147,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 							<Text size="xs" weight="semibold">Recording</Text>
 							<div class="flex items-center gap-2">
 								<StatusDot
-									status={telemetryState.pipeline.exporter_installed ? "online" : "starting"}
+									status={telemetryState.pipeline.exporter_installed ? "online" : "loading"}
 									size="sm"
 									glow={telemetryState.pipeline.exporter_installed}
 								/>
@@ -629,7 +629,15 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 					<Button
 						preset="ghost"
 						size="sm"
-						onclick={() => telemetryState.refreshAll()}
+						onclick={async () => {
+							await Promise.all([
+								telemetryState.loadPipeline(),
+								telemetryState.loadLaneConfig(),
+								telemetryState.loadSessions(),
+								telemetryState.loadRowCounts(),
+								telemetryState.loadBaselines(),
+							]);
+						}}
 						disabled={telemetryState.pipelineLoading}
 					>
 						{#if telemetryState.pipelineLoading}
@@ -651,13 +659,17 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				{#if telemetryState.pipeline}
 					<div class="text-xs space-y-1">
 						<div class="flex justify-between">
-							<span style="color: var(--text-secondary)">Exporter</span>
-							<span class="font-mono">{telemetryState.pipeline.exporter ?? "—"}</span>
+							<span style="color: var(--text-secondary)">Exporter installed</span>
+							<span class="font-mono">
+								{telemetryState.pipeline.exporter_installed ? "yes" : "no"}
+							</span>
 						</div>
-						{#if telemetryState.pipeline.uptime_us !== undefined}
+						{#if telemetryState.pipeline.started_at_ms}
 							<div class="flex justify-between">
 								<span style="color: var(--text-secondary)">Uptime</span>
-								<span class="font-mono">{formatUptime(telemetryState.pipeline.uptime_us)}</span>
+								<span class="font-mono">
+									{formatUptime((Date.now() - telemetryState.pipeline.started_at_ms) * 1000)}
+								</span>
 							</div>
 						{/if}
 					</div>

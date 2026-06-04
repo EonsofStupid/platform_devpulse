@@ -12,7 +12,6 @@ export const listProviderModels = commands.listProviderModels;
 export type { CommandError, ProviderId } from "$lib/sys/bindings/_shared";
 export type {
 	ListModelsRequest,
-	ProviderErrorKind,
 	ProviderStatus,
 	ValidationResult,
 } from "$lib/sys/generated/bindings.js";

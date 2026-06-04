@@ -3,8 +3,8 @@
 //! # Threading discipline
 //!
 //! Every nokhwa call runs inside `tokio::task::spawn_blocking`. Tauri
-//! initializes the main thread as STA via OleInitialize (Tauri issues
-//! #4580, #6485); MediaFoundation needs `CoInitializeEx` per-thread
+//! initializes the main thread as STA via `OleInitialize` (Tauri issues
+//! #4580, #6485); `MediaFoundation` needs `CoInitializeEx` per-thread
 //! and accepts STA, but mixing with `app_handle.run_on_main_thread`
 //! risks `RPC_E_CHANGED_MODE`. tokio worker threads each get their
 //! own apartment state — nokhwa's MSMF init succeeds there.
@@ -18,7 +18,7 @@
 //!
 //! # macOS gate
 //!
-//! `nokhwa_initialize` triggers the AVFoundation TCC permission
+//! `nokhwa_initialize` triggers the `AVFoundation` TCC permission
 //! prompt. Call once, lazily, behind a `OnceLock`. After that
 //! `nokhwa_check()` reports whether the operator granted permission.
 //!
@@ -38,6 +38,8 @@ use std::panic::AssertUnwindSafe;
 #[cfg(target_os = "macos")]
 use std::sync::OnceLock;
 use std::time::Instant;
+
+use devpulse_telemetry::spawn_blocking;
 
 use super::dto::{CapturedFrame, WebcamInfo};
 use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
@@ -63,6 +65,10 @@ fn ensure_macos_init() -> Result<(), CommandError> {
 }
 
 #[cfg(not(target_os = "macos"))]
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "cross-cfg signature parity with the macOS branch above so call sites can use a single `ensure_macos_init()?;` shape"
+)]
 fn ensure_macos_init() -> Result<(), CommandError> {
     Ok(())
 }
@@ -73,10 +79,16 @@ fn ensure_macos_init() -> Result<(), CommandError> {
 ///
 /// Wraps `nokhwa::query` in `catch_unwind` to neutralize the
 /// no-camera-plugged-in panic on Windows MSMF (issue #192).
+///
+/// # Errors
+/// Returns [`CommandError`] when the blocking enumeration task fails to
+/// join or when `nokhwa::query` returns an error (classified via
+/// `classify_nokhwa_error`). The no-camera-plugged-in panic path is
+/// translated to an empty list, not an error.
 #[tauri::command]
 #[specta::specta]
 pub async fn pixvix_list_webcams() -> Result<Vec<WebcamInfo>, CommandError> {
-    tokio::task::spawn_blocking(list_webcams_blocking)
+    spawn_blocking(list_webcams_blocking)
         .await
         .map_err(|e| CommandError::internal(format!("webcam enumeration task failed: {e}")))?
 }
@@ -107,9 +119,9 @@ fn list_webcams_blocking() -> Result<Vec<WebcamInfo>, CommandError> {
         .into_iter()
         .map(|c| WebcamInfo {
             index: numeric_index(&c.index().clone()),
-            human_name: c.human_name().to_string(),
+            human_name: c.human_name().clone(),
             description: c.description().to_string(),
-            backend_handle: c.misc().to_string(),
+            backend_handle: c.misc().clone(),
         })
         .collect())
 }
@@ -119,10 +131,16 @@ fn list_webcams_blocking() -> Result<Vec<WebcamInfo>, CommandError> {
 /// Opens + captures + drops per call. The pool-across-calls pattern
 /// belongs in V-4's session lifecycle (`nokhwa::Camera` is `!Send`,
 /// so a tokio-worker pool would not type-check).
+///
+/// # Errors
+/// Returns [`CommandError`] when the blocking capture task fails to
+/// join, when opening the camera fails (classified via
+/// `classify_nokhwa_error`), or when the captured frame fails to decode
+/// or PNG-encode.
 #[tauri::command]
 #[specta::specta]
 pub async fn pixvix_capture_webcam_once(index: u32) -> Result<CapturedFrame, CommandError> {
-    tokio::task::spawn_blocking(move || capture_webcam_blocking(index))
+    spawn_blocking(move || capture_webcam_blocking(index))
         .await
         .map_err(|e| CommandError::internal(format!("webcam capture task panicked: {e}")))?
 }

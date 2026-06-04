@@ -1231,7 +1231,7 @@ pub struct DevForgeServiceEntry {
     #[serde(default)]
     pub binary_path: String,
     /// REH bind host. Loopback by default; non-loopback exposes the
-    /// editor to the LAN — DevPulse does not gate this, the operator
+    /// editor to the LAN — `DevPulse` does not gate this, the operator
     /// owns the security posture.
     #[serde(default = "default_devforge_host")]
     pub host: String,
@@ -1313,7 +1313,7 @@ impl DevForgeServiceEntry {
     }
 }
 
-/// `SurrealDB` embedded store entry — DevPulse opens the SurrealKV
+/// `SurrealDB` embedded store entry — `DevPulse` opens the `SurrealKV`
 /// backend in-process at `{data_dir}/surreal/devpulse`. No child
 /// process, no port, no auth — the Platform holds the file lock
 /// directly via the `kv-surrealkv` storage backend.

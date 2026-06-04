@@ -13,15 +13,54 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  # GHA runners default to Node 20 on actions/checkout@v4, actions/setup-node@v4,
+  # pnpm/action-setup@v4. June 16, 2026 GHA forces Node 24; opting in now avoids
+  # the deprecation warnings on every run and pins the runtime today.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  # `debuginfo=0` cuts dev-profile rlib sizes by 4-6x. Without it, every
+  # cargo step that links (Build + Test) ends in
+  # `collect2: fatal error: ld terminated with signal 7 [Bus error]`
+  # because ld mmaps every .rlib and runs out of address space against
+  # the gigabyte-scale debuginfo from llama-cpp-sys-2 + tauri + the burn
+  # cascade. CI is verifying compile/link/test success; debug symbols
+  # are irrelevant for the runner's ephemeral artifacts.
+  CARGO_PROFILE_DEV_DEBUG: "0"
 
 jobs:
   rust:
     name: Rust Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # libduckdb-sys + llama-cpp-sys-2 + moshi + Tauri's web stack
+      # together produce ~5-7 GB of intermediate object files; combined
+      # with the cargo target dir + sccache cache + apt installs, the
+      # default Ubuntu runner's ~14 GB free disk is not enough and the
+      # final `ar` invocation that archives libduckdb fails with
+      # "No space left on device". Free up ~30 GB by removing the
+      # Android SDK / dotnet / GHC / CodeQL / pre-installed images that
+      # this workflow never uses.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -a -f || true
+          df -h
 
-      # Tauri 2.0 needs these on Ubuntu for webkit2gtk
+      - uses: actions/checkout@v4
+        with:
+          # `deps/llama-cpp-rs` and `deps/moshi` are git submodules vendored
+          # under workspace.dependencies in Cargo.toml. Without recursive
+          # submodule checkout, the build fails with
+          # "failed to read deps/llama-cpp-rs/llama-cpp-2/Cargo.toml".
+          submodules: recursive
+
+      # Tauri 2.0 needs these on Ubuntu for webkit2gtk.
+      # libpipewire-0.3-dev required by libspa-sys (via rodio audio).
+      # libasound2-dev required by alsa-sys (also via rodio audio).
+      # Without either, the respective build script panics at
+      # pkg-config exit 1 looking for the .pc descriptor.
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -29,6 +68,11 @@ jobs:
             libwebkit2gtk-4.1-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev \
+            libpipewire-0.3-dev \
+            libasound2-dev \
+            libgbm-dev \
+            libdrm-dev \
+            libudev-dev \
             patchelf
 
       - name: Install Rust toolchain
@@ -36,6 +80,48 @@ jobs:
         with:
           toolchain: "1.89.0"
           components: rustfmt, clippy
+
+      # protoc is required by `tonic-build` pulled in by the rro v2
+      # alpha (crates/storage-api/build.rs runs tonic_build::configure
+      # against qdrant.proto). Without it the build script fails with
+      # "Could not find `protoc`". Matches the protoc-install step in
+      # rro's own build.yml.
+      - name: Install protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # `.cargo/config.toml` sets `rustc-wrapper = "sccache"` for the whole
+      # workspace so every local + CI invocation goes through the same
+      # caching path. Without the binary on the runner, every cargo step
+      # fails with `could not execute process 'sccache ...'`. Install
+      # before any cargo step runs.
+      - name: Install sccache
+        uses: mozilla-actions/sccache-action@v0.0.6
+
+      # `rro` is a private GitHub repo; cargo's anonymous git fetch
+      # cannot clone it. The `RRO_DEPLOY_TOKEN` secret (PAT with `repo`
+      # scope on EonsofStupid/rro) is rewritten into the clone URL via
+      # `git config --global url.<auth>.insteadOf`. Then we flip
+      # `CARGO_NET_GIT_FETCH_WITH_CLI=true` so cargo shells out to `git`
+      # (the only path that honors `insteadOf` rewrites — the libgit2
+      # path does not). When the secret is unset, the step prints a
+      # warning and the rust job will fail downstream with the existing
+      # "failed to authenticate" error from cargo, which is the desired
+      # signal — never silently skip private-dep auth.
+      - name: Configure cargo for private rro fetches
+        env:
+          RRO_DEPLOY_TOKEN: ${{ secrets.RRO_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$RRO_DEPLOY_TOKEN" ]; then
+            echo "::warning::RRO_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private rro dep."
+            echo "Fix: gh secret set RRO_DEPLOY_TOKEN --repo EonsofStupid/platform_devpulse"
+            exit 0
+          fi
+          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro".insteadOf "https://github.com/EonsofStupid/rro"
+          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro.git".insteadOf "https://github.com/EonsofStupid/rro.git"
+          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
+          echo "Configured cargo to use RRO_DEPLOY_TOKEN for private rro fetches"
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -48,6 +134,15 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
+
+      # `.cargo/config.toml` sets `LLAMA_CPP_PREBUILT_LIB_DIR` for the
+      # win32-x64-vulkan prebuilt tree (only fetched on Windows dev
+      # boxes via `cargo xtask fetch-llama-cpp`). On Linux CI the tree
+      # is not fetched; if the var is set, llama-cpp-sys-2/build.rs:1195
+      # panics with "expected file lib/libllama.a not found". Override
+      # to empty so build.rs takes the from-source fallback path.
+      - name: Unset Windows-only prebuilt env var on Linux CI
+        run: echo "LLAMA_CPP_PREBUILT_LIB_DIR=" >> "$GITHUB_ENV"
 
       - name: Check formatting
         run: cargo fmt --all -- --check

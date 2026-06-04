@@ -27,8 +27,11 @@ export type {
 
 // ── Domain-only types ───────────────────────────────────────
 
-/** Tab identity. Must match capability IDs. */
-export type RroTabId = "state" | "search" | "tuning" | "collections" | "encoder";
+/** Tab identity. Must match capability IDs. `"brain"` is a
+ *  trace-category that has no dedicated tab — `brain.svc.ts`
+ *  groups its SurrealDB calls under this prefix so the log
+ *  target reads `rro.brain.*`. */
+export type RroTabId = "state" | "search" | "tuning" | "collections" | "encoder" | "brain";
 
 /** Preset name (string union — custom means user-tuned away from named presets). */
 export type PresetName = "conservative" | "balanced" | "aggressive" | "precision" | "custom";

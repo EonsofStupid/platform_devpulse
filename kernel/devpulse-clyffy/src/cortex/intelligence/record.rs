@@ -7,7 +7,7 @@
 //!   through whichever connector implements
 //!   [`super::store::IntelligenceStore`]. Embedding dimension is
 //!   fixed at [`super::schema::EMBEDDING_DIM`] (matches the
-//!   `CandleEmbedder` MiniLM default).
+//!   `CandleEmbedder` `MiniLM` default).
 //! - [`RroRecord`] — rkyv-archivable shape that backs the zero-copy
 //!   fast path. Precomputed at WRITE time (text + embedding + 1-hop
 //!   neighbors + metadata), serialized via `rkyv::to_bytes`, stored
@@ -84,7 +84,7 @@ pub enum MemoryKind {
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[surreal(crate = "surrealdb::types")]
 pub struct MemoryRecord {
-    /// Stable id — UUIDv7 by convention.
+    /// Stable id — `UUIDv7` by convention.
     pub id: String,
     /// Verbatim memory text. Bounded by caller (≈ 2 KB practical max).
     pub text: String,

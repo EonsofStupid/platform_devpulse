@@ -65,6 +65,9 @@ mod knowledge_smoke {
                 EntryType::Frust => "frust-",
                 EntryType::Insight => "insight-",
                 EntryType::Gloss => "gloss-",
+                EntryType::Quiz => "quiz-",
+                EntryType::Rank => "rank-",
+                EntryType::Order => "order-",
             };
             assert!(
                 entry.id.starts_with(expected_prefix),

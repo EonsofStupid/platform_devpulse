@@ -1,169 +1,115 @@
 #!/usr/bin/env node
-// restore-memory.js - Creates/restores session, queries SurrealDB for context
-// Output goes directly to Claude's context via SessionStart hook
+// restore-memory.js — SessionStart hook
 //
-// Queries 3 namespaces:
-//   global/knowledge  — preferences, critical learnings
-//   projects/devpulse — context, pending tasks, architecture rules
-//   agents/claude     — recent sessions, unresolved blockers
+// Creates or restores an `agents/claude` session row and dumps a context
+// brief to stdout (Claude reads it as additional system context).
 //
-// Creates a session in agents/claude and writes the record ID to CLAUDE_ENV_FILE
+// SurrealDB: probes local 8842 first, falls back to cloud, via the
+// shared _surreal.js library. All endpoint / credential / header
+// constants live in _surreal.js — never redefine them here.
 //
-// Uses curl to HTTP /sql endpoint (surreal sql CLI cannot connect — /rpc not exposed)
-// Auth: devpulse_engine:dp_sys_2026! via Basic Auth
+// Authority: docs/platform/CLOUD_PREFLIGHT.md is canon. If anything
+// drifts from that doc, fix the artifact, not the doc.
 
-const { spawnSync } = require("child_process");
-const fs = require("fs");
-
-const LOCAL_BASE = "http://127.0.0.1:8822";
-const CLOUD_BASE = "https://devpulse-06e6sbjhctrt511bgpdvd3d6c8.aws-use1.surreal.cloud";
-const AUTH = "Basic " + Buffer.from("devpulse_engine:dp_sys_2026!").toString("base64");
-
-// Headers are ALWAYS lowercase `surreal-ns` / `surreal-db` per the
-// canonical SurrealDB HTTP convention
-// (https://surrealdb.com/docs/surrealdb/integration/http). HTTP
-// headers are case-insensitive so lowercase works on every SurrealDB
-// version including local 8822 — one pattern, no flip.
-let ENDPOINT = LOCAL_BASE + "/sql";
-function chooseEndpoint() {
-	const probe = (base, timeoutMs) => {
-		try {
-			const r = spawnSync("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}",
-				"-X", "POST", base + "/sql",
-				"-H", "Content-Type: application/json",
-				"-H", "Accept: application/json",
-				"-H", "surreal-ns: global", "-H", "surreal-db: knowledge",
-				"-H", `Authorization: ${AUTH}`,
-				"-d", "INFO FOR DB;",
-			], { encoding: "utf-8", timeout: timeoutMs });
-			return r.stdout && r.stdout.trim() === "200";
-		} catch (e) { return false; }
-	};
-	if (probe(LOCAL_BASE, 3000)) { ENDPOINT = LOCAL_BASE + "/sql"; return "local"; }
-	if (probe(CLOUD_BASE, 8000)) { ENDPOINT = CLOUD_BASE + "/sql"; return "cloud"; }
-	return null;
-}
+const fs = require("node:fs");
+const surreal = require("./_surreal.js");
 
 // Read hook input from stdin for CLAUDE_ENV_FILE
 let hookData = {};
 try {
 	const input = fs.readFileSync(0, "utf-8");
 	hookData = JSON.parse(input);
-} catch (e) {
-	// no stdin or invalid JSON
+} catch {
+	// no stdin or invalid JSON — non-fatal
 }
 
-function query(ns, db, sql) {
-	try {
-		const result = spawnSync("curl", [
-			"-s", "-X", "POST", ENDPOINT,
-			"-H", "Content-Type: application/json",
-			"-H", "Accept: application/json",
-			"-H", `surreal-ns: ${ns}`,
-			"-H", `surreal-db: ${db}`,
-			"-H", `Authorization: ${AUTH}`,
-			"-d", sql,
-		], {
-			encoding: "utf-8",
-			timeout: 10000,
-		});
-		if (result.error || result.status !== 0) return [];
-		const parsed = JSON.parse(result.stdout);
-		// SurrealDB HTTP returns array of results, each with "result" key
-		if (Array.isArray(parsed) && parsed[0] && Array.isArray(parsed[0].result)) {
-			return parsed[0].result;
-		}
-		return [];
-	} catch (e) {
-		return [];
-	}
-}
-
-// Pick local-or-cloud endpoint before issuing real queries
-const where = chooseEndpoint();
-if (!where) {
-	console.log("[Banter: SurrealDB unreachable — local 8822 down, cloud unreachable. Skipping memory restore.]");
+// Pick an endpoint by probing a known-existing route.
+// `agents/claude` always has the sessions table after the first run.
+const endpoint = surreal.probe("agents", "claude");
+if (!endpoint) {
+	console.log("[Banter: SurrealDB unreachable — local 8842 down, cloud unreachable. Skipping memory restore.]");
 	process.exit(0);
 }
 
-// ── Create or find active session ──
+// Bootstrap every namespace this hook touches. Cloud rejects writes
+// to undefined NS/DB with the misleading "read only transaction" error.
+surreal.bootstrap(endpoint, "agents", "claude");
+surreal.bootstrap(endpoint, "projects", "devpulse");
+surreal.bootstrap(endpoint, "global", "knowledge");
+surreal.bootstrap(endpoint, "platform_devpulse", "chat");
+
+// Heartbeat — defeats the SurrealDB Cloud free-tier 7-day auto-pause
+// on every session start. See CLOUD_PREFLIGHT.md.
+surreal.heartbeat(endpoint, "restore-memory");
+
+function query(ns, db, sql) {
+	const response = surreal.exec(endpoint, ns, db, sql);
+	return surreal.firstResult(response);
+}
+
+// ── Create or find active session ────────────────────────────────
 const cwd = hookData.cwd || process.cwd();
-const safeCwd = cwd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 
 let sessionRecordId = null;
 let sessionId = null;
 
-const activeSession = query(
-	"agents", "claude",
-	"SELECT * FROM sessions WHERE ended_at = NONE ORDER BY started_at DESC LIMIT 1;",
-);
+const active = query("agents", "claude",
+	"SELECT * FROM sessions WHERE ended_at = NONE ORDER BY started_at DESC LIMIT 1;");
 
-if (activeSession.length > 0 && activeSession[0].id) {
-	sessionRecordId = activeSession[0].id;
-	sessionId = activeSession[0].session_id;
+if (active.length > 0 && active[0].id) {
+	sessionRecordId = active[0].id;
+	sessionId = active[0].session_id;
 } else {
-	const created = query(
-		"agents", "claude",
-		`CREATE sessions SET session_id = <string> rand::uuid(), project = '${safeCwd}', started_at = time::now(), message_count = 0;`,
-	);
+	const created = query("agents", "claude",
+		`CREATE sessions SET session_id = <string> rand::uuid(), project = ${surreal.sqlString(cwd)}, started_at = time::now(), message_count = 0;`);
 	if (created.length > 0 && created[0].id) {
 		sessionRecordId = created[0].id;
 		sessionId = created[0].session_id;
 	}
 }
 
-// Write session ID to CLAUDE_ENV_FILE so other hooks can use it
+// Write session id to CLAUDE_ENV_FILE so other hooks can use it
 if (sessionRecordId && hookData.env_file) {
 	try {
 		let envContent = "";
 		try {
 			envContent = fs.readFileSync(hookData.env_file, "utf-8");
-		} catch (e) {
+		} catch {
 			// file may not exist yet
 		}
 		envContent = envContent
 			.split("\n")
-			.filter(l => !l.startsWith("SURREAL_SESSION_RECORD_ID=") && !l.startsWith("SURREAL_SESSION_ID="))
+			.filter((l) => !l.startsWith("SURREAL_SESSION_RECORD_ID=") && !l.startsWith("SURREAL_SESSION_ID="))
 			.join("\n");
 		envContent = envContent.trim();
 		if (envContent) envContent += "\n";
 		envContent += `SURREAL_SESSION_RECORD_ID=${sessionRecordId}\n`;
 		envContent += `SURREAL_SESSION_ID=${sessionId}\n`;
 		fs.writeFileSync(hookData.env_file, envContent);
-	} catch (e) {
+	} catch {
 		// env file write failed — non-fatal
 	}
 }
 
+// ── Brief output ─────────────────────────────────────────────────
 console.log("## RESTORED CONTEXT FROM SURREALDB\n");
 
 if (sessionRecordId) {
 	console.log(`**Active Session**: \`${sessionId}\` (record: \`${sessionRecordId}\`)\n`);
 }
 
-// ── projects/devpulse: Current Context ──
 console.log("### Current Context");
-const context = query(
-	"projects", "devpulse",
-	"SELECT key, value, priority FROM context ORDER BY priority DESC LIMIT 10;",
-);
-for (const row of context) {
-	if (row.key && row.value) {
-		console.log(`- **${row.key}**: ${row.value}`);
-	}
+for (const row of query("projects", "devpulse",
+	"SELECT key, value, priority FROM context ORDER BY priority DESC LIMIT 10;")) {
+	if (row.key && row.value) console.log(`- **${row.key}**: ${row.value}`);
 }
 console.log("");
 
-// ── global/knowledge: Critical Learnings ──
 console.log("### Critical Learnings (DO NOT REPEAT THESE MISTAKES)");
-const learnings = query(
-	"global", "knowledge",
-	"SELECT trigger, wrong_action, correct_action FROM learnings WHERE severity = 'critical';",
-);
 const seen = new Set();
-for (const row of learnings) {
-	if (!row.trigger) continue;
-	if (seen.has(row.trigger)) continue;
+for (const row of query("global", "knowledge",
+	"SELECT trigger, wrong_action, correct_action FROM learnings WHERE severity = 'critical';")) {
+	if (!row.trigger || seen.has(row.trigger)) continue;
 	seen.add(row.trigger);
 	console.log(`- When: ${row.trigger}`);
 	console.log(`  - WRONG: ${row.wrong_action}`);
@@ -171,39 +117,23 @@ for (const row of learnings) {
 }
 console.log("");
 
-// ── projects/devpulse: Pending Tasks ──
 console.log("### Pending Tasks");
-const tasks = query(
-	"projects", "devpulse",
-	"SELECT content, priority, status FROM tasks WHERE status IN ['pending', 'in_progress'] ORDER BY priority DESC;",
-);
-for (const row of tasks) {
-	if (row.content) {
-		console.log(`- [${row.status}] ${row.content} (priority: ${row.priority})`);
-	}
+for (const row of query("projects", "devpulse",
+	"SELECT content, priority, status FROM tasks WHERE status IN ['pending', 'in_progress'] ORDER BY priority DESC;")) {
+	if (row.content) console.log(`- [${row.status}] ${row.content} (priority: ${row.priority})`);
 }
 console.log("");
 
-// ── agents/claude: Unresolved Blockers ──
 console.log("### Unresolved Blockers");
-const blockers = query(
-	"agents", "claude",
-	"SELECT category, description FROM blockers WHERE resolved = false;",
-);
-for (const row of blockers) {
-	if (row.description) {
-		console.log(`- [${row.category}] ${row.description}`);
-	}
+for (const row of query("agents", "claude",
+	"SELECT category, description FROM blockers WHERE resolved = false;")) {
+	if (row.description) console.log(`- [${row.category}] ${row.description}`);
 }
 console.log("");
 
-// ── agents/claude: Recent Sessions ──
 console.log("### Recent Sessions");
-const sessions = query(
-	"agents", "claude",
-	"SELECT session_id, project, summary, started_at, ended_at, message_count FROM sessions ORDER BY started_at DESC LIMIT 5;",
-);
-for (const row of sessions) {
+for (const row of query("agents", "claude",
+	"SELECT session_id, project, summary, started_at, ended_at, message_count FROM sessions ORDER BY started_at DESC LIMIT 5;")) {
 	if (row.session_id) {
 		const summary = row.summary || "(no summary)";
 		const status = row.ended_at ? "closed" : "ACTIVE";
@@ -212,16 +142,10 @@ for (const row of sessions) {
 }
 console.log("");
 
-// ── global/knowledge: Key Preferences ──
 console.log("### Preferences");
-const prefs = query(
-	"global", "knowledge",
-	"SELECT category, key, value FROM preferences ORDER BY category LIMIT 10;",
-);
-for (const row of prefs) {
-	if (row.key && row.value) {
-		console.log(`- [${row.category}] ${row.key}: ${row.value}`);
-	}
+for (const row of query("global", "knowledge",
+	"SELECT category, key, value FROM preferences ORDER BY category LIMIT 10;")) {
+	if (row.key && row.value) console.log(`- [${row.category}] ${row.key}: ${row.value}`);
 }
 console.log("");
 

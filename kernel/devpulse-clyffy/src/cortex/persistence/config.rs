@@ -134,6 +134,6 @@ impl ReasoningTables {
     /// Table name for chat-input prompt corpus — embedded by the
     /// `chat.suggest` slot, queried by the type-time suggestion service
     /// for personal-history recall. Bare table name (no `reasoning:`
-    /// prefix) so SurQL queries hit it directly.
+    /// prefix) so `SurQL` queries hit it directly.
     pub const CHAT_PROMPT: &'static str = "chat_prompt";
 }

@@ -1,6 +1,6 @@
 //! Project CRUD commands — the foundation of "managed knowledge".
 //!
-//! A **project** is a directory the user has explicitly told DevPulse
+//! A **project** is a directory the user has explicitly told `DevPulse`
 //! to track. At any time there is **exactly one active project**; the
 //! user can link arbitrarily many read-only **reference directories**
 //! to the active project for context, search, and indexing.
@@ -8,17 +8,17 @@
 //! # Storage model
 //!
 //! Every mutation writes **libSQL first** (the authoritative SSOT) then
-//! mirrors the change to **SurrealDB** (the graph view). libSQL is the
+//! mirrors the change to **`SurrealDB`** (the graph view). libSQL is the
 //! transactional source — if the libSQL write fails, the mutation
-//! fails. The SurrealDB mirror is best-effort at the command layer —
+//! fails. The `SurrealDB` mirror is best-effort at the command layer —
 //! any failure there is logged and surfaced as a warning, but does not
 //! roll back the libSQL write. This keeps the app responsive when the
 //! graph store is degraded, with reconciliation handled out-of-band
 //! (the forthcoming graph-reconciler worker walks libSQL and repaves
 //! any missing graph nodes — not in scope for this command module).
 //!
-//! Active-project state is stored in the user LibSQL `kv_store` under
-//! `active_project_id`. No schema migration required — kv_store is the
+//! Active-project state is stored in the user `LibSQL` `kv_store` under
+//! `active_project_id`. No schema migration required — `kv_store` is the
 //! catch-all for singleton user state.
 //!
 //! # Tables touched
@@ -27,10 +27,10 @@
 //!   * `projects` — 1 row per project
 //!   * `project_references` — N rows per project (read-only dirs)
 //!   * `kv_store` — `active_project_id` singleton
-//! * SurrealDB user namespace:
+//! * `SurrealDB` user namespace:
 //!   * `project` nodes (mirror of libSQL projects)
 //!   * `project_reference` nodes (mirror of reference dirs)
-//!   * `references` edges (project → project_reference)
+//!   * `references` edges (project → `project_reference`)
 //!   * `active_project` node (singleton with id=`"singleton"`)
 //!
 //! # Command error surface
@@ -38,6 +38,10 @@
 //! All commands return `Result<T, String>` because tauri-specta
 //! flattens anyhow chains to `String` at the IPC boundary; error
 //! context is preserved via `.map_err(|e| format!("…{e:#}"))`.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` / `SqlAdapter` whose docs hold the canonical # Errors copy (also documented in the module-level `# Command error surface` section above)"
+)]
 
 use crate::state::PlatformState;
 use serde::{Deserialize, Serialize};
@@ -48,10 +52,10 @@ use uuid::Uuid;
 
 use devpulse_engine::platform::{Platform, SqlAdapter};
 
-/// Active-project singleton key in the user LibSQL `kv_store`.
+/// Active-project singleton key in the user `LibSQL` `kv_store`.
 const KV_ACTIVE_PROJECT: &str = "active_project_id";
 
-/// SurrealDB tables — kept as constants so any schema evolution is
+/// `SurrealDB` tables — kept as constants so any schema evolution is
 /// a single-site edit, and so the graph reconciler (future work) can
 /// reference the same names.
 const GRAPH_TABLE_PROJECT: &str = "project";
@@ -67,7 +71,7 @@ const GRAPH_ACTIVE_PROJECT_ID: &str = "singleton";
 /// A full project row returned to the frontend.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct Project {
-    /// UUIDv4 identifier assigned at `create_project` time. Stable for
+    /// `UUIDv4` identifier assigned at `create_project` time. Stable for
     /// the life of the row.
     pub id: String,
     /// Human-readable display name shown in the UI.
@@ -123,7 +127,7 @@ pub struct CreateProjectInput {
 /// A read-only reference directory linked to a project.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ProjectReference {
-    /// UUIDv4 identifier for this reference link.
+    /// `UUIDv4` identifier for this reference link.
     pub id: String,
     /// FK to [`Project::id`] — the project this reference is attached to.
     pub project_id: String,
@@ -159,7 +163,7 @@ pub struct AddReferenceInput {
 // Commands
 // ═══════════════════════════════════════════════════════════════════════
 
-/// Create a new project row in user LibSQL.
+/// Create a new project row in user `LibSQL`.
 ///
 /// Duplicate `root_path` values are rejected at the SQL level — the
 /// `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
@@ -309,7 +313,7 @@ pub async fn clear_active_project(state: State<'_, PlatformState>) -> Result<(),
         .ok_or_else(|| "user relational service not available".to_string())?;
     let adapter = svc.adapter();
     adapter
-        .execute("DELETE FROM kv_store WHERE key = ?", &[&KV_ACTIVE_PROJECT])
+        .execute("DELETE FROM kv_store WHERE key = ?", &[KV_ACTIVE_PROJECT])
         .await
         .map_err(|e| format!("clearing kv_store: {e:#}"))?;
 
@@ -457,7 +461,7 @@ async fn set_active_project_inner(platform: &Platform, id: &str) -> Result<Proje
         .execute(
             r"INSERT INTO kv_store (key, value) VALUES (?, ?)
               ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = unixepoch()",
-            &[&KV_ACTIVE_PROJECT, id],
+            &[KV_ACTIVE_PROJECT, id],
         )
         .await
         .map_err(|e| format!("writing kv_store active_project_id: {e:#}"))?;
@@ -469,14 +473,14 @@ async fn set_active_project_inner(platform: &Platform, id: &str) -> Result<Proje
 }
 
 async fn kv_get(adapter: &dyn SqlAdapter, key: &str) -> Result<Option<String>, String> {
+    use devpulse_engine::platform::SqlValue;
     let rows = adapter
-        .query("SELECT value FROM kv_store WHERE key = ? LIMIT 1", &[&key])
+        .query("SELECT value FROM kv_store WHERE key = ? LIMIT 1", &[key])
         .await
         .map_err(|e| format!("reading kv_store[{key}]: {e:#}"))?;
     let Some(row) = rows.into_iter().next() else {
         return Ok(None);
     };
-    use devpulse_engine::platform::SqlValue;
     match row.into_iter().next() {
         Some(SqlValue::Text(s)) => Ok(Some(s)),
         Some(SqlValue::Blob(b)) => Ok(Some(String::from_utf8_lossy(&b).into_owned())),
@@ -492,7 +496,7 @@ async fn read_one_reference(
         .query(
             "SELECT id, project_id, path, label, kind, created_at
              FROM project_references WHERE id = ? LIMIT 1",
-            &[&id],
+            &[id],
         )
         .await?;
     Ok(rows.into_iter().next().and_then(row_to_reference))
@@ -746,7 +750,7 @@ async fn read_one_project(adapter: &dyn SqlAdapter, id: &str) -> anyhow::Result<
         .query(
             "SELECT id, name, root_path, project_type, slug, description, tool, tech_stack, active, created_at
              FROM projects WHERE id = ? LIMIT 1",
-            &[&id],
+            &[id],
         )
         .await?;
     Ok(rows.into_iter().next().and_then(row_to_project))

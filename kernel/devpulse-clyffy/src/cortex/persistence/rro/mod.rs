@@ -23,7 +23,7 @@ use rro::segment::types::ExtendedPointId;
 /// Communicates via tokio mpsc channels to a dedicated engine thread.
 /// No HTTP, no gRPC overhead. Sub-millisecond message passing.
 pub struct RroAdapter {
-    client: Arc<rro::QdrantClient>,
+    client: Arc<rro::RroClient>,
 }
 
 impl RroAdapter {
@@ -37,7 +37,7 @@ impl RroAdapter {
     /// issues, corrupt data, or config parsing failure).
     pub fn boot(storage_path: &std::path::Path, config_path: Option<String>) -> Result<Self> {
         rro::setup_panic_hook();
-        let client = rro::QdrantInstance::start(storage_path, config_path)
+        let client = rro::RroInstance::start(storage_path, config_path)
             .context("Failed to start RRO vector engine")?;
         Ok(Self { client })
     }
@@ -120,7 +120,7 @@ impl RroAdapter {
     }
 
     /// Get the underlying client for advanced operations.
-    pub fn client(&self) -> &Arc<rro::QdrantClient> {
+    pub fn client(&self) -> &Arc<rro::RroClient> {
         &self.client
     }
 
@@ -150,7 +150,8 @@ impl RroAdapter {
 impl VectorAdapter for RroAdapter {
     async fn create_collection(&self, name: &str, dimension: u32) -> Result<()> {
         let params = rro::VectorParams {
-            size: NonZeroU64::new(u64::from(dimension)).expect("dimension must be > 0"),
+            size: NonZeroU64::new(u64::from(dimension))
+                .ok_or_else(|| anyhow::anyhow!("dimension must be > 0"))?,
             distance: rro::Distance::Cosine,
             hnsw_config: None,
             quantization_config: None,
@@ -187,11 +188,11 @@ impl VectorAdapter for RroAdapter {
     ) -> Result<()> {
         let point_id: ExtendedPointId = id
             .parse()
-            .map_err(|_| anyhow::anyhow!("Invalid point ID: {id}"))?;
+            .map_err(|()| anyhow::anyhow!("Invalid point ID: {id}"))?;
         let point = rro::PointStruct {
             id: point_id,
             vector: VectorStruct::Single(vector.to_vec()),
-            payload: payload.as_object().cloned().map(|m| m.into()),
+            payload: payload.as_object().cloned().map(std::convert::Into::into),
         };
         self.upsert_points(collection, vec![point]).await
     }
@@ -258,7 +259,7 @@ impl VectorAdapter for RroAdapter {
     async fn delete_point(&self, collection: &str, id: &str) -> Result<bool> {
         let point_id: ExtendedPointId = id
             .parse()
-            .map_err(|_| anyhow::anyhow!("Invalid point ID: {id}"))?;
+            .map_err(|()| anyhow::anyhow!("Invalid point ID: {id}"))?;
         let selector = PointsSelector::PointIdsSelector(PointIdsList {
             points: vec![point_id],
             shard_key: None,

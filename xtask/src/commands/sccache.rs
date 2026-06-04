@@ -20,7 +20,7 @@
 //! `CREATE_BREAKAWAY_FROM_JOB` to escape xtask's Job Object, reasoning
 //! that a daemon's value is surviving xtask invocations. In practice
 //! that flag failed on Windows with `ERROR_ACCESS_DENIED` (os error 5)
-//! because Windows Terminal / ConHost places the shell — and therefore
+//! because Windows Terminal / `ConHost` places the shell — and therefore
 //! xtask — inside its own outer Job Object, and
 //! `CREATE_BREAKAWAY_FROM_JOB` requires every enclosing nested job to
 //! allow breakaway (per the Win8+ nested-jobs model). The outer
@@ -33,7 +33,7 @@
 //!
 //! 1. **Health-check first.** `sccache --show-stats` returns 0 when a
 //!    server is already alive. If a developer started one from their
-//!    PowerShell `$PROFILE` (the recommended setup for maximum value),
+//!    `PowerShell` `$PROFILE` (the recommended setup for maximum value),
 //!    we detect it and reuse it without spawning anything.
 //! 2. **Start without breakaway if health-check fails.** The spawned
 //!    server inherits xtask's Job Object and dies when xtask exits
@@ -119,7 +119,8 @@ impl Guard {
     /// Emits its own [`Stage`] so the pipeline shows a line either way —
     /// "enabled", "not installed — install hint", or "unreachable —
     /// building without cache".
-    pub fn new(ws: &Workspace) -> Result<Self> {
+    #[must_use]
+    pub fn new(ws: &Workspace) -> Self {
         let s = Stage::start("sccache");
 
         // ── 0. User opt-out via env var ──
@@ -131,20 +132,17 @@ impl Guard {
         // build can complete uncached without uninstalling sccache.
         if std::env::var_os("SCCACHE_DISABLE").is_some_and(|v| !v.is_empty() && v != "0") {
             s.skip("disabled via SCCACHE_DISABLE env var");
-            return Ok(Self {
+            return Self {
                 mode: Mode::Disabled,
-            });
+            };
         }
 
         // ── 1. Is sccache installed? ──
-        let binary = match ws.resolve("sccache") {
-            Ok(path) => path,
-            Err(_) => {
-                s.skip("not installed — `cargo install sccache` to enable compile caching");
-                return Ok(Self {
-                    mode: Mode::Disabled,
-                });
-            }
+        let Ok(binary) = ws.resolve("sccache") else {
+            s.skip("not installed — `cargo install sccache` to enable compile caching");
+            return Self {
+                mode: Mode::Disabled,
+            };
         };
 
         // ── 2. Cache dir (workspace-local so one `.userdata/` wipe resets) ──
@@ -216,38 +214,35 @@ impl Guard {
         // across xtask runs" property is fully recovered for developers
         // who start the server from their shell profile, because the
         // health-check-first path detects and reuses it.
-        let pre_stats = match health_check(&binary) {
-            Ok(stats) => {
-                // Server already running — skip the spawn entirely.
-                stats
+        let pre_stats = if let Ok(stats) = health_check(&binary) {
+            // Server already running — skip the spawn entirely.
+            stats
+        } else {
+            // No server; start one. Inherits the job; dies with xtask.
+            if let Err(e) = start_server(&binary) {
+                s.warn(format!(
+                    "could not start sccache server: {e} — building without cache"
+                ));
+                crate::xwarn!(
+                    "  [!!] sccache server start failed ({e}) — proceeding without compile cache"
+                );
+                return Self {
+                    mode: Mode::Disabled,
+                };
             }
-            Err(_) => {
-                // No server; start one. Inherits the job; dies with xtask.
-                if let Err(e) = start_server(&binary) {
+            // Re-verify after start.
+            match health_check(&binary) {
+                Ok(stats) => stats,
+                Err(e) => {
                     s.warn(format!(
-                        "could not start sccache server: {e} — building without cache"
+                        "server unreachable after start: {e} — building without cache"
                     ));
                     crate::xwarn!(
-                        "  [!!] sccache server start failed ({e}) — proceeding without compile cache"
+                        "  [!!] sccache health-check failed ({e}) — proceeding without compile cache"
                     );
-                    return Ok(Self {
+                    return Self {
                         mode: Mode::Disabled,
-                    });
-                }
-                // Re-verify after start.
-                match health_check(&binary) {
-                    Ok(stats) => stats,
-                    Err(e) => {
-                        s.warn(format!(
-                            "server unreachable after start: {e} — building without cache"
-                        ));
-                        crate::xwarn!(
-                            "  [!!] sccache health-check failed ({e}) — proceeding without compile cache"
-                        );
-                        return Ok(Self {
-                            mode: Mode::Disabled,
-                        });
-                    }
+                    };
                 }
             }
         };
@@ -263,12 +258,12 @@ impl Guard {
 
         s.ok_with(format!("enabled → {}", cache_dir.display()));
 
-        Ok(Self {
+        Self {
             mode: Mode::Active {
                 binary,
                 pre_stats: Some(pre_stats),
             },
-        })
+        }
     }
 
     /// Print a one-line delta summary of cache activity during the compile.
@@ -296,6 +291,15 @@ impl Guard {
             return;
         }
 
+        // Hit-rate is a u64-to-f64 cast for display only. Compile counts
+        // never approach `2^52` requests in a single build, so the cast
+        // is exact for every value we will ever produce; loss-of-precision
+        // here is structurally impossible, not just statistically unlikely.
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "u64 request/hit counters are bounded by per-build cargo invocations \
+                      (≪ 2^52); cast feeds `{:.0}` display formatting only."
+        )]
         let pct = if req_delta > 0 {
             (hit_delta as f64 / req_delta as f64) * 100.0
         } else {
@@ -315,7 +319,7 @@ impl Guard {
 /// Start the sccache server.
 ///
 /// On Windows: **does NOT** use `CREATE_BREAKAWAY_FROM_JOB`. Windows
-/// Terminal / ConHost places the shell (and xtask) inside its own outer
+/// Terminal / `ConHost` places the shell (and xtask) inside its own outer
 /// Job Object. `CREATE_BREAKAWAY_FROM_JOB` requires every enclosing job
 /// in the nested hierarchy to allow breakaway; the outer terminal job
 /// often does not, which makes Windows return `ERROR_ACCESS_DENIED`
@@ -323,7 +327,7 @@ impl Guard {
 /// the "Access is denied. (os error 5)" failure in 14ms.
 ///
 /// The consequence of not breaking away is that the sccache server
-/// inherits xtask's job and dies when xtask exits (our JobGuard has
+/// inherits xtask's job and dies when xtask exits (our `JobGuard` has
 /// `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`). We trade that against having
 /// a working cache: subsequent xtask runs respawn the server, and since
 /// the cache **disk** at `.userdata/sccache/` persists across runs,
@@ -333,7 +337,7 @@ impl Guard {
 ///
 /// Developers who want a truly persistent server should start it from
 /// their shell profile (`sccache --start-server` in `$PROFILE` on
-/// PowerShell). The `Guard::new` health-check-first path detects the
+/// `PowerShell`). The `Guard::new` health-check-first path detects the
 /// externally-started server and reuses it without spawning anything,
 /// so the server survives across xtask runs in that configuration.
 ///

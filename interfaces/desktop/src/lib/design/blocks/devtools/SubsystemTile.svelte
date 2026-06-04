@@ -51,7 +51,7 @@
 	  popover open/close when reduced motion is requested.
 -->
 <script lang="ts">
-import type { Component, Snippet } from "svelte";
+import type { Snippet } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -99,9 +99,13 @@ interface Props {
 	label: string;
 	/** One-line blurb under the title. */
 	blurb: string;
-	/** Lucide icon component. */
-	// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a generic props shape
-	icon: Component<any>;
+	/**
+	 * Lucide icon component. Typed `any` because lucide-svelte v0.564
+	 * exports class-based icons (`SvelteComponentTyped<…>`), which
+	 * structurally don't satisfy Svelte 5's function-form `Component`.
+	 */
+	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+	icon: any;
 	/**
 	 * Brand accent name. Maps to `--accent-{name}-main` for the icon +
 	 * focus ring + StatusDot accent. Pick from the ColdLight brand
@@ -146,13 +150,18 @@ const accentStyle = $derived(
 	`--accent-tile-main: var(--accent-${accent}-main); --accent-tile-fill: var(--accent-${accent}-fill);`,
 );
 
+// StatusDotStatus enum: online | offline | loading | ready | failed |
+// pending | hybrid. Health-tone names from the subsystem registry map
+// onto StatusDot's health vocabulary — `up`=ready (green), `starting`/
+// `degraded`=loading or pending (amber), `down`=failed (red),
+// `stopped`/`unknown`=offline (gray).
 const toneToDotState = {
-	up: "success",
-	starting: "warning",
-	degraded: "warning",
-	down: "error",
-	stopped: "neutral",
-	unknown: "neutral",
+	up: "ready",
+	starting: "loading",
+	degraded: "pending",
+	down: "failed",
+	stopped: "offline",
+	unknown: "offline",
 } as const;
 
 function openNow(): void {

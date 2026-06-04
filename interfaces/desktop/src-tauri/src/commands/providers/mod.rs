@@ -7,11 +7,15 @@
 //! - `list_provider_status`  — grid data for the Status tab.
 //! - `validate_provider`     — dropdown-populates-on-save UX.
 //! - `list_provider_models`  — same call, different verb name for the
-//!                             Config tab's model picker refresh.
+//!   Config tab's model picker refresh.
 //!
 //! Validation results live in a process-local in-memory cache. Restart
 //! clears it deliberately — a fresh boot should give a fresh perspective
 //! and not pretend a stale "OK" from yesterday is still true.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the ai_providers registry + keychain (validate fans out to `client::list_models`). Failure modes are described in the per-fn doc summary above and surface as `CommandError`."
+)]
 
 pub mod client;
 pub mod dto;
@@ -24,7 +28,7 @@ use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
 use serde::Deserialize;
 use specta::Type;
 
-use dto::{ModelInfo, ProviderStatus, ValidationResult};
+use dto::{ProviderModelInfo, ProviderStatus, ValidationResult};
 
 use super::_util::{now_ms, CommandError};
 use super::credentials;
@@ -35,9 +39,9 @@ use super::credentials;
 /// devtool ever needs cross-restart "last seen healthy" UX, which the
 /// validate-on-save model deliberately avoids.
 struct CacheEntry {
-    last_validated_at_ms: i64,
-    last_models: Vec<ModelInfo>,
-    last_error: Option<String>,
+    validated_at_ms: i64,
+    models: Vec<ProviderModelInfo>,
+    error: Option<String>,
 }
 
 fn cache() -> &'static Mutex<HashMap<ProviderId, CacheEntry>> {
@@ -65,9 +69,9 @@ pub async fn list_provider_status() -> Result<Vec<ProviderStatus>, CommandError>
             configured,
             requires_account_setup: matches!(entry.id, ProviderId::Fireworks),
             is_local: matches!(entry.billing, BillingModel::Local),
-            last_validated_at_ms: cached.map(|c| c.last_validated_at_ms),
-            last_error: cached.and_then(|c| c.last_error.clone()),
-            model_count: cached.map(|c| c.last_models.len() as u32),
+            last_validated_at_ms: cached.map(|c| c.validated_at_ms),
+            last_error: cached.and_then(|c| c.error.clone()),
+            model_count: cached.map(|c| c.models.len() as u32),
         });
     }
     Ok(out)
@@ -105,9 +109,9 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
             store_cache_entry(
                 provider,
                 CacheEntry {
-                    last_validated_at_ms: now_ms(),
-                    last_models: models.clone(),
-                    last_error: None,
+                    validated_at_ms: now_ms(),
+                    models: models.clone(),
+                    error: None,
                 },
             );
             tracing::info!(
@@ -129,9 +133,9 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
             store_cache_entry(
                 provider,
                 CacheEntry {
-                    last_validated_at_ms: now_ms(),
-                    last_models: Vec::new(),
-                    last_error: Some(err.message.clone()),
+                    validated_at_ms: now_ms(),
+                    models: Vec::new(),
+                    error: Some(err.message.clone()),
                 },
             );
             tracing::warn!(
@@ -177,7 +181,7 @@ pub struct ListModelsRequest {
 #[specta::specta]
 pub async fn list_provider_models(
     request: ListModelsRequest,
-) -> Result<Vec<ModelInfo>, CommandError> {
+) -> Result<Vec<ProviderModelInfo>, CommandError> {
     let result = validate_provider(request.provider).await?;
     if result.ok {
         Ok(result.models)
@@ -212,9 +216,9 @@ fn snapshot_cache() -> HashMap<ProviderId, CacheEntry> {
             (
                 *k,
                 CacheEntry {
-                    last_validated_at_ms: v.last_validated_at_ms,
-                    last_models: v.last_models.clone(),
-                    last_error: v.last_error.clone(),
+                    validated_at_ms: v.validated_at_ms,
+                    models: v.models.clone(),
+                    error: v.error.clone(),
                 },
             )
         })

@@ -20,7 +20,7 @@ import { Card } from "$lib/design/components/card/index.js";
 import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
 import { Slider } from "$lib/design/components/slider/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
-import { StatusDot } from "$lib/design/components/status-dot/index.js";
+import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { TextField } from "$lib/design/components/text-field/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
@@ -35,7 +35,6 @@ import { RRO_DEPTH_NARRATIONS, RRO_STATE_NARRATIONS } from "../../util/rro.narra
 import type { RroDepth, RroState } from "../../util/rro.types.js";
 
 type StateVariant = "accent" | "informative" | "positive" | "notice" | "negative" | "neutral";
-type DotTone = "accent" | "success" | "warning" | "error" | "neutral";
 
 const DEPTHS: { value: RroDepth; label: string; hint: string }[] = [
 	{ value: "shallow", label: "Quick", hint: "Fast answers — skips deep thought" },
@@ -63,23 +62,23 @@ function stateVariant(s: RroState): StateVariant {
 	}
 }
 
-function stateDotTone(s: RroState): DotTone {
+function stateDotTone(s: RroState): StatusDotStatus {
 	switch (s) {
 		case "idle":
-			return "neutral";
+			return "offline";
 		case "gathering":
 		case "processing":
-			return "accent";
+			return "loading";
 		case "ruminating":
-			return "warning";
+			return "pending";
 		case "ready":
-			return "success";
+			return "ready";
 		case "purged":
-			return "error";
+			return "failed";
 		case "forked":
-			return "accent";
+			return "online";
 		default:
-			return "neutral";
+			return "offline";
 	}
 }
 
@@ -127,7 +126,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 		{#if snapshot}
 			<div class="space-y-2">
 				<div class="flex items-center gap-3">
-					<StatusDot tone={stateDotTone(snapshot.state)} />
+					<StatusDot status={stateDotTone(snapshot.state)} />
 					<Text size="lg" weight="semibold">
 						{layman || snapshot.state}
 					</Text>
@@ -385,7 +384,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 							: ''}"
 					>
 						<div class="flex items-center gap-2 min-w-0 flex-1">
-							<StatusDot tone={stateDotTone(t.to)} />
+							<StatusDot status={stateDotTone(t.to)} />
 							{#if t.from}
 								<Text size="xs" preset="flat">{t.from}</Text>
 								<Text size="xs" preset="flat">→</Text>

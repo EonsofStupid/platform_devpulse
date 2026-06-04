@@ -24,7 +24,7 @@
 //!      installed-app location (`%APPDATA%/com.devpulse.desktop/` on
 //!      Windows, `~/Library/Application Support/com.devpulse.desktop/`
 //!      on macOS, `$XDG_DATA_HOME/com.devpulse.desktop/` on Linux).
-//!      Only reached when the binary is truly outside any DevPulse
+//!      Only reached when the binary is truly outside any `DevPulse`
 //!      workspace — the customer install case. `resolve_data_dir`
 //!      can hit this; the standalone variant returns an error
 //!      because the MCP subprocess must never invent a fresh dir.
@@ -116,7 +116,7 @@ pub fn resolve_data_dir_standalone() -> Result<PathBuf, String> {
 /// resolution priorities and rationale.
 ///
 /// The OS app-data dir (step 4) is used only when nothing in the
-/// DevPulse workspace can be located — i.e., a properly-installed
+/// `DevPulse` workspace can be located — i.e., a properly-installed
 /// customer build outside any source tree. In that case the directory
 /// is `std::fs::create_dir_all`'d so first launch produces a clean
 /// `.userdata` in a stable location.

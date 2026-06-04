@@ -24,8 +24,6 @@
 //! tooling can pattern-match per-project collections by the `proj_`
 //! prefix.
 
-#![cfg(feature = "rro")]
-
 use anyhow::{Context, Result};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -35,7 +33,7 @@ use crate::platform::services::vector::VectorService;
 
 /// Default embedding dimension for project collections.
 ///
-/// Mirrors the BGE-small / SigLIP small dim used by the default
+/// Mirrors the BGE-small / `SigLIP` small dim used by the default
 /// indexing preset. Override via [`ProjectCollectionsConfig::dimension`]
 /// when the project picks a different embedder.
 pub const DEFAULT_PROJECT_VECTOR_DIM: u32 = 384;

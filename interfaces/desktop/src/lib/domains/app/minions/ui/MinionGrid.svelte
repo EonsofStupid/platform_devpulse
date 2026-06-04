@@ -3,7 +3,7 @@
   Shows which model each minion is using + escalation state.
 -->
 <script lang="ts">
-import { ClyffyNarration } from "$lib/domains/app/models/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import MinionCard from "./MinionCard.svelte";
 
 interface MinionState {
@@ -64,8 +64,17 @@ const clyffyMessage = $derived.by(() => {
 	</div>
 
 	<!-- Clyffy narration about minion state -->
-	<ClyffyNarration
-		message={clyffyMessage}
-		type={hasEscalated ? "warning" : "info"}
-	/>
+	<div
+		class="narration rounded-lg p-3"
+		data-tone={hasEscalated ? "warning" : "info"}
+	>
+		<Text size="xs" color="muted">{clyffyMessage}</Text>
+	</div>
 </div>
+
+<style>
+	.narration {
+		background: var(--surface-raised);
+		border: var(--border-width-1) solid var(--border-subtle);
+	}
+</style>

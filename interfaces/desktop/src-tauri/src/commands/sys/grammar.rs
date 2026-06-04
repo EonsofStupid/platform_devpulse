@@ -11,6 +11,10 @@
 //! new snapshot as payload. The event bridge is spawned from `lib.rs`
 //! after the platform handle is installed — mirrors the RRO bridge.
 //! Frontend subscribes via `listen()`; no polling.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper that resolves the `Platform` handle and forwards to the grammar engine handle. The only failure mode is `Platform is still booting` (documented at `resolve_platform`)."
+)]
 
 use std::sync::Arc;
 

@@ -6,7 +6,7 @@
 //! pointing to the registry's resolved path. Chat / STS / vision callers
 //! probe the symlink path directly; if it exists, the slot is armed and
 //! the engine matching the file format opens it on demand. No config
-//! indirection, no slot→model_id lookup table, no "engine knows which
+//! indirection, no `slot→model_id` lookup table, no "engine knows which
 //! slot it is" coupling.
 //!
 //! **Why not just a config string** (which is what the broken chain

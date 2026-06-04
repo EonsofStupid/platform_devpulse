@@ -20,10 +20,10 @@ use tauri::State;
 ///
 /// # Errors
 /// - Platform is still booting.
-/// - Suggestion service cannot construct (model_loader or user_graph
+/// - Suggestion service cannot construct (`model_loader` or `user_graph`
 ///   not yet ready).
 /// - Embedder failure (model not loaded).
-/// - SurrealDB query failure.
+/// - `SurrealDB` query failure.
 #[tauri::command]
 #[specta::specta]
 pub async fn suggest_query(
@@ -52,7 +52,7 @@ pub async fn suggest_query(
 /// - Platform is still booting.
 /// - Suggestion service cannot construct.
 /// - Embedder failure.
-/// - SurrealDB write failure.
+/// - `SurrealDB` write failure.
 #[tauri::command]
 #[specta::specta]
 pub async fn suggest_record(

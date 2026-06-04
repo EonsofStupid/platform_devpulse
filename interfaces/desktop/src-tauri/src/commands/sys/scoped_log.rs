@@ -9,6 +9,10 @@
 //! Used by per-service devtools (Claude, RRO, model loader, etc.) to
 //! show a live "scoped log" panel without a third-party log shipper.
 //! One read per invocation — refresh is the caller's job.
+#![expect(
+    clippy::needless_pass_by_value,
+    reason = "Tauri command macro injects `AppHandle` by value and deserializes `String` args from JSON; commands cannot take `&AppHandle` / `&str` and remain `#[tauri::command]`-compatible."
+)]
 
 use std::path::{Path, PathBuf};
 
@@ -81,9 +85,12 @@ fn newest_session_file(logs_dir: &Path) -> Result<Option<PathBuf>, String> {
         .filter_map(Result::ok)
         .map(|e| e.path())
         .filter(|p| {
-            p.file_name()
-                .and_then(|n| n.to_str())
-                .is_some_and(|n| n.starts_with("session-") && n.ends_with(".jsonl"))
+            p.file_name().and_then(|n| n.to_str()).is_some_and(|n| {
+                n.starts_with("session-")
+                    && Path::new(n)
+                        .extension()
+                        .is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl"))
+            })
         })
         .collect();
     if sessions.is_empty() {

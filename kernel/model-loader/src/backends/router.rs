@@ -24,7 +24,7 @@ use crate::slots::types::ModelCapability;
 ///
 /// `capability` is `None` for callers that don't have slot context
 /// (manual diagnostic paths). Without it the embedding-family hint
-/// can't fire and SafeTensors falls back to Candle — the safe
+/// can't fire and `SafeTensors` falls back to Candle — the safe
 /// default since Candle works for any safetensors model.
 pub fn select_backend(
     entry: &ModelRegistryEntry,

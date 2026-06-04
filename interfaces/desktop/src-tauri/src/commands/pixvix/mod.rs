@@ -1,4 +1,4 @@
-//! PixVix — capture engine under the WiredFront physical boundary.
+//! `PixVix` — capture engine under the `WiredFront` physical boundary.
 //!
 //! V-3 ships the *one-shot primitives* operators can invoke directly
 //! from a button click or the Tauri devtools console:
@@ -28,7 +28,7 @@ pub mod webcam;
 pub mod window;
 
 pub use dto::{
-    CapturedFrame, MonitorInfo, WebcamInfo, WindowCapability, WindowInfo, WindowListing,
+    CaptureWindowInfo, CapturedFrame, MonitorInfo, WebcamInfo, WindowCapability, WindowListing,
 };
 // Wildcard re-exports for the three command submodules — Tauri's
 // `#[tauri::command]` + `#[specta::specta]` macros generate companion

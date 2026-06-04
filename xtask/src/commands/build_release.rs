@@ -1,7 +1,7 @@
 //! `BuildRelease` — portable release `.exe` / installer bundle.
 //!
 //! Wraps `pnpm tauri build` with the same hardened env the dev
-//! command uses ([`Dev`]), so NASM, PYO3, CMake, sccache, and the
+//! command uses ([`Dev`]), so NASM, PYO3, `CMake`, sccache, and the
 //! llama.cpp / CUDA runtime DLLs declared in `platform.default.toml
 //! [build.deps.*]` all reach the bundle step with the correct flags.
 //!
@@ -13,8 +13,8 @@
 //!
 //! This is the dogfood build. When it runs, the owner has a portable
 //! app they can launch and actually use, and every subsequent sprint
-//! phase gains live ground truth (SurrealDB on :8822, libSQL
-//! `platform.db`, DuckDB `analytics.duckdb`) to verify against.
+//! phase gains live ground truth (`SurrealDB` on :8822, libSQL
+//! `platform.db`, `DuckDB` `analytics.duckdb`) to verify against.
 //!
 //! # Differences vs `RunDev`
 //!
@@ -41,7 +41,6 @@ use crate::commands::Task;
 use crate::events::{EventBuilder, EventSink, StageEvent, StageStatus, SummaryCounts};
 use crate::manifest::BuildManifest;
 use crate::stage;
-#[allow(unused_imports)]
 use crate::workspace::Workspace;
 use crate::zombie;
 
@@ -50,6 +49,22 @@ use std::path::{Path, PathBuf};
 use std::time::{Instant, SystemTime};
 
 const VERSION: &str = "0.1.0";
+
+/// Convert a byte count to MB as `f64` for display-only formatting.
+///
+/// `u64 → f64` is intentional: `u64::MAX` exceeds `f64`'s 52-bit mantissa,
+/// so the conversion is lossy for ≥ 4 PiB. Our largest portable
+/// artifact is ~100 MB, so the precision floor is several orders of
+/// magnitude away from this rendering. Centralised here so future
+/// callers don't reintroduce the lint per-site.
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "u64 byte counts of ≤ a few GB stay well inside f64 mantissa precision; \
+              the f64 is used only for `{:.1}` display formatting."
+)]
+fn bytes_to_mb(bytes: u64) -> f64 {
+    bytes as f64 / (1024.0 * 1024.0)
+}
 
 /// Portable release bundle build.
 ///
@@ -193,7 +208,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     // dev run can leave build-lock holders that silently block release.
     stage::section("Cleanup");
     let cleanup_guard = sink.start("cleanup-build-locks");
-    let lock_killed = zombie::clear_build_lock_holders()?;
+    let lock_killed = zombie::clear_build_lock_holders();
     if lock_killed > 0 {
         crate::xinfo!("  [OK] killed {lock_killed} stale build-lock holder(s)");
         cleanup_guard.ok_with(EventBuilder::new().detail(format!("killed {lock_killed}")));
@@ -216,16 +231,8 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     // ── Stage 5: Compile cache (sccache) ──
     stage::section("Compile Cache");
     let sccache_guard_event = sink.start("sccache-init");
-    let sccache_guard = match sccache::Guard::new(ws) {
-        Ok(g) => {
-            sccache_guard_event.ok();
-            g
-        }
-        Err(e) => {
-            sccache_guard_event.fail(EventBuilder::new().detail(format!("{e:#}")));
-            return Err(e);
-        }
-    };
+    let sccache_guard = sccache::Guard::new(ws);
+    sccache_guard_event.ok();
 
     // ── Stage 6: Hardened build env ──
     stage::section("Build Environment");
@@ -245,7 +252,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         "Tauri Bundle"
     });
     let log_path = ws.root().join("target").join("xtask-build-release.log");
-    let accel_feats = platform_config.build.detect_build_features();
+    let accel_feats = crate::workspace::BuildConfig::detect_build_features();
     let mut pnpm_args: Vec<String> = if portable_only {
         vec!["tauri".into(), "build".into(), "--no-bundle".into()]
     } else {
@@ -467,10 +474,10 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         let pkg = crate::commands::package_portable::PackagePortable { dry_run: false };
         match pkg.run_and_report(ws) {
             Ok(summary) => {
-                let detail = summary
-                    .as_ref()
-                    .map(|s| s.event_detail())
-                    .unwrap_or_else(|| "dry-run (no files on disk)".to_string());
+                let detail = summary.as_ref().map_or_else(
+                    || "dry-run (no files on disk)".to_string(),
+                    super::package_portable::PortableSummary::event_detail,
+                );
                 pkg_guard.ok_with(EventBuilder::new().detail(detail));
                 portable_summary = summary;
 
@@ -513,7 +520,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         crate::xinfo!(
             "    {} total files, {:.1} MB",
             summary.total_files,
-            (summary.total_bytes as f64) / (1024.0 * 1024.0),
+            bytes_to_mb(summary.total_bytes),
         );
         crate::xinfo!(
             "    declared: {} resources, {} external bins",
@@ -524,7 +531,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
             crate::xinfo!(
                 "    {cat:<20} {:>5} files, {:>8.2} MB",
                 totals.files,
-                (totals.bytes as f64) / (1024.0 * 1024.0),
+                bytes_to_mb(totals.bytes),
             );
         }
     }
@@ -635,11 +642,8 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         stage::section("Smoke test");
         let smoke_guard = sink.start("smoke-test");
         println!(
-            "  Launching {} and polling http://{}:{}{}  (timeout 90s)…",
+            "  Launching {} and polling http://127.0.0.1:8822/health  (timeout 90s)…",
             standalone.display(),
-            "127.0.0.1",
-            8822,
-            "/health"
         );
         let result = crate::smoke::run_smoke(&standalone);
         match &result {
@@ -859,7 +863,7 @@ enum TauriStage {
     Compile,
     /// Compile succeeded, bundling stage failed but which sub-step is unclear.
     CompileSucceededBundleFailed,
-    /// `Running candle` seen, `Running light` not reached — WiX compile failed.
+    /// `Running candle` seen, `Running light` not reached — `WiX` compile failed.
     CandleFailed,
     /// tauri-bundler reported `failed to run light.exe` after a successful build.
     /// If `target/release/wix/x64/output.msi` exists, light itself succeeded —
@@ -978,24 +982,46 @@ fn classify_from_transcript(transcript: &str) -> TauriStage {
     classify_from_reader(std::io::Cursor::new(transcript.as_bytes()))
 }
 
+/// Distinct transcript-observation flags. Each variant corresponds to
+/// a marker [`TranscriptObservations::observe_line`] scans for; the
+/// classifier in [`TranscriptObservations::classify`] then chooses the
+/// furthest-reached marker as the verdict. Defined as an enum + bitmask
+/// instead of N independent `bool` fields so the struct stays under
+/// `struct_excessive_bools` while preserving the single-bit semantics.
+#[derive(Copy, Clone)]
+#[repr(u16)]
+enum TranscriptMarker {
+    BuiltApp = 1 << 0,
+    Candle = 1 << 1,
+    Light = 1 << 2,
+    /// `Running makensis to produce …` — NSIS phase entered.
+    Nsis = 1 << 3,
+    /// `Finished N bundle(s) at: …` — bundler ran to completion.
+    BundleFinished = 1 << 4,
+    FailedToRunLight = 1 << 5,
+    /// 2.10.x `failed to run command "candle.exe": …` envelope.
+    FailedToRunCandle = 1 << 6,
+    FailedNsis = 1 << 7,
+    CompileError = 1 << 8,
+}
+
 /// Accumulates transcript observations across lines, then emits the
 /// furthest-reached stage. Keeping the line-level matching in one place
 /// — instead of scattering `line.contains(...)` across the for-loop —
 /// makes a tauri-bundler version bump a single edit site.
 #[derive(Default)]
 struct TranscriptObservations {
-    built_app: bool,
-    candle: bool,
-    light: bool,
-    /// `Running makensis to produce …` — NSIS phase entered.
-    nsis: bool,
-    /// `Finished N bundle(s) at: …` — bundler ran to completion.
-    bundle_finished: bool,
-    failed_to_run_light: bool,
-    /// 2.10.x `failed to run command "candle.exe": …` envelope.
-    failed_to_run_candle: bool,
-    failed_nsis: bool,
-    compile_error: bool,
+    flags: u16,
+}
+
+impl TranscriptObservations {
+    fn set(&mut self, m: TranscriptMarker) {
+        self.flags |= m as u16;
+    }
+
+    fn has(&self, m: TranscriptMarker) -> bool {
+        self.flags & m as u16 != 0
+    }
 }
 
 impl TranscriptObservations {
@@ -1011,36 +1037,36 @@ impl TranscriptObservations {
         // Markers last verified against `TAURI_CLI_VERSION_VERIFIED`.
         // Update both sides together when the CLI changes phrasing.
         if line.contains("Built application at:") || line.contains("Built application at ") {
-            self.built_app = true;
+            self.set(TranscriptMarker::BuiltApp);
         }
         if line.contains("Running candle") {
-            self.candle = true;
+            self.set(TranscriptMarker::Candle);
         }
         if line.contains("Running light") {
-            self.light = true;
+            self.set(TranscriptMarker::Light);
         }
         // 2.10.x: tauri-bundler emits `Running makensis to produce …`
         // when the NSIS bundle stage begins. Without this we cannot
         // distinguish "compile succeeded, NSIS staging died before
         // makensis even ran" from "makensis ran and failed silently".
         if line.contains("Running makensis") {
-            self.nsis = true;
+            self.set(TranscriptMarker::Nsis);
         }
         // 2.10.x success marker — `Finished 1 bundle at:` / `Finished
         // N bundles at:`. Tracks "the bundler reached completion" so
         // the classifier can disambiguate `built_app && !bundle_finished`
         // (real failure) from a re-invocation transcript.
         if line.contains("Finished") && lower.contains("bundle") && line.contains(" at:") {
-            self.bundle_finished = true;
+            self.set(TranscriptMarker::BundleFinished);
         }
         // 2.10.x error envelope: `failed to run command "light.exe": …`.
         // The quoted form was new in 2.x — the unquoted 1.x form still
         // matches via `contains("failed to run")` + the substring.
         if lower.contains("failed to run") && lower.contains("light.exe") {
-            self.failed_to_run_light = true;
+            self.set(TranscriptMarker::FailedToRunLight);
         }
         if lower.contains("failed to run") && lower.contains("candle.exe") {
-            self.failed_to_run_candle = true;
+            self.set(TranscriptMarker::FailedToRunCandle);
         }
         // NSIS — 2.10.x quoted envelope OR the legacy "makensis failed"
         // shape (kept so transcripts captured under earlier CLIs still
@@ -1048,15 +1074,17 @@ impl TranscriptObservations {
         if (lower.contains("failed to run") && lower.contains("makensis"))
             || (lower.contains("makensis") && lower.contains("fail"))
         {
-            self.failed_nsis = true;
+            self.set(TranscriptMarker::FailedNsis);
         }
         // rustc diagnostic prefixes. We only treat these as compile errors
         // when they happened BEFORE a successful `Built application at:`
         // marker — post-build `error:` text typically belongs to bundler
         // output, not the compiler.
         let trimmed = line.trim_start();
-        if !self.built_app && (trimmed.starts_with("error[E") || trimmed.starts_with("error: ")) {
-            self.compile_error = true;
+        if !self.has(TranscriptMarker::BuiltApp)
+            && (trimmed.starts_with("error[E") || trimmed.starts_with("error: "))
+        {
+            self.set(TranscriptMarker::CompileError);
         }
     }
 
@@ -1067,29 +1095,29 @@ impl TranscriptObservations {
     /// the stage that actually died.
     fn classify(&self) -> TauriStage {
         // Explicit error markers first — they pin the exact failing tool.
-        if self.failed_nsis {
+        if self.has(TranscriptMarker::FailedNsis) {
             return TauriStage::NsisFailed;
         }
-        if self.failed_to_run_light && self.built_app {
+        if self.has(TranscriptMarker::FailedToRunLight) && self.has(TranscriptMarker::BuiltApp) {
             return TauriStage::LightReportedFailed;
         }
-        if self.failed_to_run_candle && self.built_app {
+        if self.has(TranscriptMarker::FailedToRunCandle) && self.has(TranscriptMarker::BuiltApp) {
             return TauriStage::CandleFailed;
         }
         // No explicit error marker — infer from furthest-reached phase.
         // NSIS phase entered but bundle never finished → NSIS failure
         // even without an explicit `failed to run` line (2.10.x can die
         // inside makensis stdout before tauri-cli wraps the error).
-        if self.nsis && !self.bundle_finished {
+        if self.has(TranscriptMarker::Nsis) && !self.has(TranscriptMarker::BundleFinished) {
             return TauriStage::NsisFailed;
         }
-        if self.candle && !self.light {
+        if self.has(TranscriptMarker::Candle) && !self.has(TranscriptMarker::Light) {
             return TauriStage::CandleFailed;
         }
-        if self.built_app && !self.bundle_finished {
+        if self.has(TranscriptMarker::BuiltApp) && !self.has(TranscriptMarker::BundleFinished) {
             return TauriStage::CompileSucceededBundleFailed;
         }
-        if self.compile_error {
+        if self.has(TranscriptMarker::CompileError) {
             return TauriStage::Compile;
         }
         TauriStage::Unknown

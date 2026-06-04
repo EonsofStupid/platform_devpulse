@@ -59,4 +59,8 @@ SCCACHE_LOG = "warn"
 # actually fetch on this Windows dev box). If the prebuilt isn't
 # present, build.rs reports a clean "fast path requested but headers
 # absent" error instead of the cryptic bindgen panic.
+#
+# Linux CI explicitly unsets this in `.github/workflows/ci.yml`
+# before `cargo clippy` (no Linux prebuilt tree is fetched in CI;
+# build.rs falls back to a from-source llama.cpp build).
 LLAMA_CPP_PREBUILT_LIB_DIR = { value = "deps/llama-cpp-prebuilt/win32-x64-vulkan", relative = true }

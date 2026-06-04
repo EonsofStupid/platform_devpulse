@@ -6,7 +6,7 @@
 //! [`crate::logging`] only come online once `data_dir` has been resolved
 //! and `logging::init()` succeeds. Anything that fails before that point
 //! — a panic in argv parsing, a DLL load failure on the very first
-//! `LoadLibrary` call, a WebView2 init error in a worker thread —
+//! `LoadLibrary` call, a `WebView2` init error in a worker thread —
 //! historically left ZERO trace on disk: the window would briefly appear
 //! and vanish with no log, no crash dump, and no Windows Event Viewer
 //! entry (the OS doesn't fault-record a clean `process_exit(1)`).
@@ -171,6 +171,11 @@ fn write_early_crash_json(info: &std::panic::PanicHookInfo<'_>) {
 /// rebind `STD_ERROR_HANDLE`, and the alternative (pulling
 /// `windows-sys` as a direct dep purely for two symbols) is strictly
 /// worse than two explicit unsafe blocks documented in one place.
+///
+/// # Errors
+/// Returns `io::Error` if creating `logs_dir` fails, the bootstrap log
+/// file cannot be opened, or the Win32 `SetStdHandle` call returns
+/// failure.
 #[cfg(windows)]
 #[allow(unsafe_code)]
 pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBuf>> {
@@ -212,6 +217,11 @@ pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBu
 
 /// Non-Windows no-op. Production target is Windows; macOS + Linux land
 /// later and will use `libc::dup2(fd, STDERR_FILENO)` instead.
+///
+/// # Errors
+/// Never errors — this stub always returns `Ok(None)`. The `Result`
+/// return type is kept for signature parity with the Windows
+/// implementation so callers don't need `#[cfg]` branches.
 #[cfg(not(windows))]
 pub fn redirect_stderr_to_file(_logs_dir: &Path) -> std::io::Result<Option<PathBuf>> {
     Ok(None)

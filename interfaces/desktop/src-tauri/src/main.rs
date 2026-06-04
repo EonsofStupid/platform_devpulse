@@ -1,10 +1,10 @@
-//! DevPulse Desktop binary entry point.
+//! `DevPulse` Desktop binary entry point.
 //!
 //! Two modes share the binary:
 //! - default: Tauri GUI (`devpulse_desktop_backend::run`).
 //! - `--mcp-stdio`: headless MCP subprocess for Claude Code / Claude
 //!   Desktop integration. Constructed entirely without Tauri so the
-//!   WebView2 init never touches stdin/stdout.
+//!   `WebView2` init never touches stdin/stdout.
 
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]

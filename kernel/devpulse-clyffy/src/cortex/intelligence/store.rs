@@ -45,7 +45,7 @@ pub struct RecallHit {
 /// Every method is namespace-scoped via `slug` (a value produced by
 /// [`super::slug::slug_for_cwd`]). Connectors translate the slug to
 /// whatever shape their backend uses for project isolation
-/// (SurrealDB database name, libsql connection string, etc).
+/// (`SurrealDB` database name, libsql connection string, etc).
 #[async_trait]
 pub trait IntelligenceStore: Send + Sync {
     /// Apply [`super::schema::MEMORY_SCHEMA`] to the project's

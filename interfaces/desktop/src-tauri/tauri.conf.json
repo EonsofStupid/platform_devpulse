@@ -48,7 +48,6 @@
 			"icons/icon.icns",
 			"icons/icon.ico"
 		],
-		"externalBin": ["binaries/llama-server", "binaries/surreal"],
 		"windows": {
 			"nsis": {
 				"installMode": "currentUser",

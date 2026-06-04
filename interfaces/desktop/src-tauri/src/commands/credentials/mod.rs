@@ -1,11 +1,11 @@
-//! Credential management — OS keychain primary, LibSQL hint mirror.
+//! Credential management — OS keychain primary, `LibSQL` hint mirror.
 //!
 //! Storage strategy:
 //! - Keychain holds the actual API key. Per OS:
 //!   - Windows: Credential Manager
 //!   - macOS:   Keychain
 //!   - Linux:   Secret Service
-//! - LibSQL `api_keys` table holds a masked hint + last-used timestamp
+//! - `LibSQL` `api_keys` table holds a masked hint + last-used timestamp
 //!   so the engine + devtool can show "key configured" without paying
 //!   the keychain round-trip.
 //!
@@ -92,7 +92,7 @@ pub async fn store_api_key(
 /// Retrieve an API key from the OS keychain.
 ///
 /// Backend-only consumer — never call this and pass the result to the
-/// frontend. Provider clients (Anthropic / OpenAI / etc) call this to
+/// frontend. Provider clients (Anthropic / `OpenAI` / etc) call this to
 /// load a key right before issuing a request.
 ///
 /// Returns `Ok(None)` when the key has never been stored.
@@ -155,6 +155,10 @@ pub async fn delete_api_key(
 /// Skips local-only providers (Ollama, LM Studio, vLLM) and the subscription
 /// path — they don't have API keys, so showing them with `stored: false`
 /// would just confuse the operator.
+///
+/// # Errors
+/// Returns [`CommandError`] when keychain access fails while probing
+/// stored keys for any visible provider that takes an API key.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, CommandError> {
@@ -307,10 +311,10 @@ async fn delete_hint_from_libsql(state: State<'_, PlatformState>, provider: Prov
 /// Adapter column value for the libSQL `api_keys` table — same kebab
 /// form as the keyring key, minus the `api_key_` prefix.
 fn adapter_name_for(id: ProviderId) -> String {
-    serde_json::to_string(&id)
-        .ok()
-        .map(|s| s.trim_matches('"').to_string())
-        .unwrap_or_else(|| format!("{id:?}").to_lowercase())
+    serde_json::to_string(&id).ok().map_or_else(
+        || format!("{id:?}").to_lowercase(),
+        |s| s.trim_matches('"').to_string(),
+    )
 }
 
 #[cfg(test)]

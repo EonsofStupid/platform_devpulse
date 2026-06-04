@@ -11,12 +11,12 @@
 //! A line starting with `[FAIL!]` short-circuits the wait with an
 //! Unhealthy verdict carrying the failed stage as the snippet.
 //!
-//! # Why not the SurrealDB sidecar :8822/health
+//! # Why not the `SurrealDB` sidecar :8822/health
 //!
 //! The previous revision of this file probed `http://127.0.0.1:8822/health`
 //! and verified a `surreal-version:` response header. That contract was
-//! tied to the SurrealDB SIDECAR architecture. The platform has since
-//! moved to **embedded** SurrealKV (`kv-surrealkv` in-process, no HTTP,
+//! tied to the `SurrealDB` SIDECAR architecture. The platform has since
+//! moved to **embedded** `SurrealKV` (`kv-surrealkv` in-process, no HTTP,
 //! no port — see `project_surreal_purpose`), so :8822 intentionally no
 //! longer answers. Polling it produces a guaranteed timeout, masking
 //! a perfectly healthy boot. Reading the boot log follows the engine's
@@ -43,10 +43,10 @@
 //! - Windows: `%APPDATA%\com.devpulse.desktop\logs\boot.log`
 //! - macOS:   `~/Library/Application Support/com.devpulse.desktop/logs/boot.log`
 //! - Linux:   `$XDG_DATA_HOME/com.devpulse.desktop/logs/boot.log`
-//!            (or `~/.local/share/com.devpulse.desktop/logs/boot.log`)
+//!   (or `~/.local/share/com.devpulse.desktop/logs/boot.log`)
 //!
 //! The portable build also uses these paths because the bundled exe
-//! resolves data_dir via the same Tauri convention as a normal install.
+//! resolves `data_dir` via the same Tauri convention as a normal install.
 //!
 //! # Why not `--smoke-test-mode` in the app
 //!
@@ -62,14 +62,14 @@ use std::time::{Duration, Instant, SystemTime};
 
 /// Maximum time to wait for the app to boot before giving up.
 /// Cold first-run on a fresh install can take ~60s depending on disk
-/// and DuckDB initialization. 90s leaves head-room for slow CI hosts
+/// and `DuckDB` initialization. 90s leaves head-room for slow CI hosts
 /// and HDD-backed dev boxes.
 const SMOKE_TIMEOUT: Duration = Duration::from_secs(90);
 /// Gap between boot-log polls. 250 ms keeps the verdict latency low
 /// without burning CPU — file read is microseconds, but spinning
 /// faster yields no real win.
 const PROBE_INTERVAL: Duration = Duration::from_millis(250);
-/// Tauri app identifier — drives the data_dir resolution. Must match
+/// Tauri app identifier — drives the `data_dir` resolution. Must match
 /// `interfaces/desktop/src-tauri/tauri.conf.json::identifier`. If the
 /// identifier ever changes, this constant moves with it.
 const APP_IDENTIFIER: &str = "com.devpulse.desktop";

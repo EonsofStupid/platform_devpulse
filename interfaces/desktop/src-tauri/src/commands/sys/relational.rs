@@ -2,6 +2,10 @@
 //!
 //! Two databases: system (platform.db) and user (user.db).
 //! Mirrors the graph.rs pattern: read platform state, access service, execute.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the `Platform` relational service whose adapter docs hold the canonical # Errors copy"
+)]
 
 use crate::state::PlatformState;
 use serde::{Deserialize, Serialize};
@@ -195,7 +199,8 @@ pub async fn libsql_list_tables(
                 .first()
                 .and_then(|r| r.first())
                 .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                .unwrap_or(0) as u64;
+                .and_then(|n| u64::try_from(n).ok())
+                .unwrap_or(0);
 
             tables.push(LibSqlTableInfo {
                 name: name.to_string(),

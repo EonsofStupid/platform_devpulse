@@ -33,7 +33,7 @@
 -->
 <script lang="ts">
 import { BrainCog } from "lucide-svelte";
-import { Button } from "$lib/design/components/button/index.js";
+import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
 import { LoadingBlock } from "$lib/design/components/spinner/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
@@ -49,7 +49,7 @@ interface Props {
 	/** Size of the inner Button. */
 	size?: "sm" | "md" | "lg";
 	/** Visual preset forwarded to the inner Button. */
-	preset?: string;
+	preset?: ButtonPreset;
 	/** Disable the button (e.g. when the target model is already primary). */
 	disabled?: boolean;
 	/**
@@ -65,7 +65,7 @@ let {
 	slotId = "chat.brain",
 	label = "Make primary brain",
 	size = "sm",
-	preset = "button-primary",
+	preset = "primary",
 	disabled = false,
 	onComplete,
 }: Props = $props();

@@ -1,7 +1,7 @@
-//! SurrealQL schema for the project-local intelligence store.
+//! `SurrealQL` schema for the project-local intelligence store.
 //!
 //! Connector-agnostic at this layer: any backend that speaks
-//! SurrealQL applies the same DDL to its `projects/<slug>`
+//! `SurrealQL` applies the same DDL to its `projects/<slug>`
 //! namespace. The schema defines:
 //!
 //! * `memories` — HNSW-indexed embedding column for cosine
@@ -20,7 +20,7 @@
 /// at table-definition time.
 pub const EMBEDDING_DIM: usize = 384;
 
-/// SurrealQL schema applied per-project under `projects/<slug>`.
+/// `SurrealQL` schema applied per-project under `projects/<slug>`.
 pub const MEMORY_SCHEMA: &str = r"
 DEFINE TABLE IF NOT EXISTS memories SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS text       ON memories TYPE string;

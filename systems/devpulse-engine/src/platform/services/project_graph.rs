@@ -1,6 +1,6 @@
-//! Per-project SurrealDB namespace manager.
+//! Per-project `SurrealDB` namespace manager.
 //!
-//! SurrealDB is ONE embedded instance — `SurrealLifecycle` opens
+//! `SurrealDB` is ONE embedded instance — `SurrealLifecycle` opens
 //! `kv-surrealkv` once at boot. Per-project graph state lives as
 //! namespace `projects` / database `proj_<sanitized_project_id>`
 //! inside that single connection.
@@ -19,14 +19,14 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// SurrealDB namespace used for every project's graph database.
+/// `SurrealDB` namespace used for every project's graph database.
 ///
 /// All projects share the namespace; isolation is at the database
 /// layer (`proj_<id>`). Single-namespace shape keeps the cross-project
 /// graph queries (`SELECT * FROM projects.*` style) tractable later.
 pub const PROJECT_GRAPH_NAMESPACE: &str = "projects";
 
-/// Manages per-project SurrealDB databases under [`PROJECT_GRAPH_NAMESPACE`].
+/// Manages per-project `SurrealDB` databases under [`PROJECT_GRAPH_NAMESPACE`].
 ///
 /// Thread-safe via `RwLock<HashMap>`. Stored as `Arc<ProjectGraphManager>`
 /// on `Platform`.
@@ -49,7 +49,7 @@ impl ProjectGraphManager {
         }
     }
 
-    /// Initialize the SurrealDB namespace/database for a project.
+    /// Initialize the `SurrealDB` namespace/database for a project.
     ///
     /// Idempotent — `init_namespace` runs `DEFINE TABLE IF NOT EXISTS`
     /// style DDL so re-init on an existing project is safe. Seeds the
@@ -118,7 +118,7 @@ impl ProjectGraphManager {
     }
 
     /// Drop the cached handle for a project. Does NOT delete the
-    /// underlying SurrealDB data — graph data persists until an
+    /// underlying `SurrealDB` data — graph data persists until an
     /// explicit `REMOVE DATABASE` against the namespace.
     pub async fn forget(&self, project_id: &str) {
         if self.handles.write().await.remove(project_id).is_some() {
@@ -137,7 +137,7 @@ impl ProjectGraphManager {
     }
 }
 
-/// SurrealDB database name for a project — `proj_<sanitized>`.
+/// `SurrealDB` database name for a project — `proj_<sanitized>`.
 ///
 /// Sanitization keeps `[a-zA-Z0-9_]` characters; anything else is
 /// replaced with `_`. Surreal identifiers are stricter than UUIDs
@@ -157,7 +157,7 @@ pub fn project_database(project_id: &str) -> String {
     out
 }
 
-/// Escape single quotes for embedding into a SurQL string literal.
+/// Escape single quotes for embedding into a `SurQL` string literal.
 fn sql_escape(input: &str) -> String {
     input.replace('\'', "\\'")
 }
@@ -165,8 +165,8 @@ fn sql_escape(input: &str) -> String {
 /// Minimal per-project graph schema.
 ///
 /// Tables are scoped to one project's database. Schema is intentionally
-/// thin at this layer — domain-specific tables (file_index_graph,
-/// signal_edges, drift_log_graph, etc.) land as schema migrations on
+/// thin at this layer — domain-specific tables (`file_index_graph`,
+/// `signal_edges`, `drift_log_graph`, etc.) land as schema migrations on
 /// top of this baseline.
 pub const PROJECT_GRAPH_SCHEMA: &str = r"
 -- Project identity record. One row per project (id = project uuid).

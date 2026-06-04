@@ -9,7 +9,7 @@
 //!
 //! - [`get_interaction_template`] — load a template by id
 //!   (`"setup"` or `"welcome-back"`). Returns parsed phases +
-//!   triggers + entry_phase via the typed specta binding.
+//!   triggers + `entry_phase` via the typed specta binding.
 //!
 //! Trigger evaluation (does THIS interaction fire RIGHT NOW?) is
 //! a separate concern that depends on persisted state

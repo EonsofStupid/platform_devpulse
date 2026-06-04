@@ -30,7 +30,6 @@ interface LifecycleEvent {
 	target: string;
 	level: string;
 	message: string;
-	fields: Record<string, string>;
 }
 
 let opening = $state(false);
@@ -55,18 +54,19 @@ async function loadLifecycle(): Promise<void> {
 			lifecycleEvents = [];
 			return;
 		}
-		// Filter to DevForge rows only — the bus carries every sidecar.
+		// Filter to DevForge rows only. `ScopedLogEntry` no longer
+		// carries a structured `fields` map (the kernel flattened the
+		// payload into `message` + `target`); match on the target /
+		// message text instead, both of which carry the service label.
 		const filtered = r.data.filter((entry) => {
-			const fields = entry.fields ?? {};
-			const service = fields.service ?? "";
-			return service.includes("DevForge");
+			const haystack = `${entry.target} ${entry.message}`.toLowerCase();
+			return haystack.includes("devforge");
 		});
 		lifecycleEvents = filtered.slice(0, 6).map((entry) => ({
 			timestamp: entry.timestamp,
 			target: entry.target,
 			level: entry.level,
 			message: entry.message ?? "",
-			fields: (entry.fields ?? {}) as Record<string, string>,
 		}));
 	} catch {
 		lifecycleEvents = [];
@@ -279,12 +279,12 @@ function formatTime(iso: string): string {
 							<div class={stack({ gap: "1" })}>
 								<div class={hstack({ gap: "2", align: "center" })}>
 									<Badge size="sm" variant={event.level === "ERROR" ? "negative" : "neutral"}>
-										{event.fields.phase ?? event.level}
+										{event.level}
 									</Badge>
 									<Text size="xs" color="muted">{formatTime(event.timestamp)}</Text>
 								</div>
 								<Text size="xs" class="font-mono">
-									{event.fields.detail ?? event.message}
+									{event.message}
 								</Text>
 							</div>
 						</div>

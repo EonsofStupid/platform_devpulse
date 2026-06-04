@@ -9,7 +9,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// Unix epoch milliseconds, saturating to `i64::MAX` rather than panicking
 /// on the (post-year-292M) overflow path. Returns 0 if the system clock
 /// is somehow before the epoch — neither path is realistic on a machine
-/// healthy enough to run DevPulse.
+/// healthy enough to run `DevPulse`.
 #[must_use]
 pub fn now_ms() -> i64 {
     SystemTime::now()

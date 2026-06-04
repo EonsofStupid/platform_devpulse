@@ -14,11 +14,11 @@
 //! # Source semantics
 //!
 //! - `Dev`            — debug builds or `DEVPULSE_LICENSE_BYPASS=1`.
-//!                      Never reach the cloud. Always `Pro` tier.
+//!   Never reach the cloud. Always `Pro` tier.
 //! - `Supabase`       — pulled live from the `licenses` table keyed
-//!                      by the signed-in user's id (FUTURE).
+//!   by the signed-in user's id (FUTURE).
 //! - `OfflineBypass`  — signed offline token verified in-process
-//!                      (FUTURE; for air-gapped enterprise installs).
+//!   (FUTURE; for air-gapped enterprise installs).
 //!
 //! The `tier` field controls feature unlocks in the UI. The `active`
 //! flag is the boolean the auth gate consults — if `active = false`,
@@ -134,7 +134,7 @@ fn is_dev_bypass() -> bool {
     }
     matches!(
         std::env::var("DEVPULSE_LICENSE_BYPASS").as_deref(),
-        Ok("1") | Ok("true") | Ok("TRUE")
+        Ok("1" | "true" | "TRUE")
     )
 }
 

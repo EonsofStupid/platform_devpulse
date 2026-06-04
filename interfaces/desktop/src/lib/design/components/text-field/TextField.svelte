@@ -36,10 +36,12 @@ let {
 	label: labelText,
 	description: descriptionText,
 	error: errorText,
-	value,
+	value = $bindable(""),
 	onValueChange,
 	type = "text",
 	placeholder,
+	autocomplete,
+	spellcheck,
 	disabled = false,
 	readonly: readOnly = false,
 	required = false,
@@ -52,10 +54,15 @@ let {
 	...rest
 }: TextFieldProps = $props();
 
+function handleValueChange(next: string): void {
+	value = next;
+	onValueChange?.(next);
+}
+
 const field = $derived(
 	useTextField({
 		value,
-		onValueChange,
+		onValueChange: handleValueChange,
 		type,
 		placeholder,
 		disabled,
@@ -87,6 +94,8 @@ const m = $derived(renderForge({ kind: "text-field", preset }));
 			<input
 				{...textFieldAnatomy.attrs.input}
 				{...field.input}
+				{autocomplete}
+				{spellcheck}
 				{...rest}
 				class={cn(
 					"w-full bg-transparent outline-none rounded-md border",

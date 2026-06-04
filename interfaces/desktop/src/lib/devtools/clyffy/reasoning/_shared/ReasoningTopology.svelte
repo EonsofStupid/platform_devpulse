@@ -47,7 +47,7 @@
 -->
 <script lang="ts">
 import { Badge } from "$lib/design/components/badge/index.js";
-import { StatusDot } from "$lib/design/components/status-dot/index.js";
+import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
 
@@ -114,12 +114,12 @@ function nodeTone(id: NodeId): "neutral" | "starting" | "up" | "degraded" {
 	return "neutral";
 }
 
-function nodeStatusDot(id: NodeId): "neutral" | "info" | "success" | "warning" | "negative" {
+function nodeStatusDot(id: NodeId): StatusDotStatus {
 	const t = nodeTone(id);
-	if (t === "up") return "success";
-	if (t === "starting") return "info";
-	if (t === "degraded") return "negative";
-	return "neutral";
+	if (t === "up") return "ready";
+	if (t === "starting") return "loading";
+	if (t === "degraded") return "failed";
+	return "offline";
 }
 
 function handleNodeClick(id: NodeId) {
@@ -191,7 +191,7 @@ const nodeCoord = (id: NodeId) => nodes.find((n) => n.id === id) ?? nodes[0];
 
 // SVG geometry — abstract units (viewBox 660×180), scaled responsively
 // by container width so the layout stays crisp without raw px in the
-// .svelte/<style> blocks.
+// .svelte / style blocks.
 const NODE_R = 36;
 const NODE_W = 130;
 const NODE_H = 64;
@@ -307,13 +307,13 @@ const NODE_H = 64;
 				onkeydown={clickable ? (e: KeyboardEvent) => handleNodeKey(e, node.id) : undefined}
 			>
 				<div class="node-label__head">
-					<StatusDot tone={nodeStatusDot(node.id)} />
+					<StatusDot status={nodeStatusDot(node.id)} />
 					<Text size={compact ? "xs" : "sm"} weight="semibold">
 						{isCold ? node.skeletal : node.layman}
 					</Text>
 				</div>
 				{#if !compact && !isCold}
-					<Badge variant={active ? "info" : "neutral"} size="sm" fillStyle="soft">
+					<Badge variant={active ? "informative" : "neutral"} size="sm" fillStyle="subtle">
 						{node.technical}
 					</Badge>
 				{/if}
@@ -332,7 +332,7 @@ const NODE_H = 64;
 					? "negative"
 					: phase.includes("complete") || phase.includes("ready")
 						? "positive"
-						: "info"}
+						: "informative"}
 				size="sm"
 			>
 				{rrdState.last.phase}
@@ -345,7 +345,7 @@ const NODE_H = 64;
 		<div class="phase-ticker">
 			<Text size="xs" color="muted">
 				No phase events yet — daemon emits on first encoder load.
-				Watch the <Text as="span" size="xs" font="mono">model_loader</Text> log target.
+				Watch the <Text as="span" size="xs" class="font-mono">model_loader</Text> log target.
 			</Text>
 		</div>
 	{/if}

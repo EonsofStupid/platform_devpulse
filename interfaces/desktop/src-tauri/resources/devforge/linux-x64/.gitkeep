@@ -1,0 +1,3 @@
+Placeholder so Tauri's bundle resource glob `resources/devforge/linux-x64/**/*` finds at least one file on CI / fresh-clone builds where `cargo xtask fetch-devforge --target linux-x64` has not yet populated the actual DevForge REH tree.
+
+When a release build runs `cargo xtask fetch-devforge --target linux-x64`, the fetched tree (out/, node, bin/, extensions/) is extracted into this directory and bundled into the Tauri installer. This placeholder is harmless alongside the real content.

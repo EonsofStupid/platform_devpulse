@@ -73,7 +73,14 @@ deps/llama-cpp-prebuilt/win32-x64-cpu/
 # is the SSOT; extracted trees are reproducible from it and must never
 # be committed (70+ MB per platform).
 interfaces/desktop/src-tauri/resources/devforge/win32-x64/
-interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/
 interfaces/desktop/src-tauri/resources/devforge/darwin-x64/
-interfaces/desktop/src-tauri/resources/devforge/linux-x64/
+# linux-x64 + darwin-arm64 use glob-with-exception so the committed
+# .gitkeep placeholder satisfies Tauri's bundle resource glob on CI /
+# fresh-clone builds where `cargo xtask fetch-devforge --target <t>`
+# has not yet populated the real REH tree. Whole-dir ignore would
+# stop git from recursing into the dir to find .gitkeep.
+interfaces/desktop/src-tauri/resources/devforge/linux-x64/*
+!interfaces/desktop/src-tauri/resources/devforge/linux-x64/.gitkeep
+interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/*
+!interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/.gitkeep
 !interfaces/desktop/src-tauri/resources/devforge/manifest.json

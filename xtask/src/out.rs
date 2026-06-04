@@ -108,8 +108,12 @@ pub fn set_file_sink(path: &Path) -> io::Result<()> {
         .write(true)
         .truncate(true)
         .open(path)?;
-    *FILE_SINK.lock().unwrap() = Some(file);
-    *FILE_SINK_PATH.lock().unwrap() = Some(path.to_path_buf());
+    *FILE_SINK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner) = Some(file);
+    *FILE_SINK_PATH
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner) = Some(path.to_path_buf());
     Ok(())
 }
 
@@ -117,19 +121,27 @@ pub fn set_file_sink(path: &Path) -> io::Result<()> {
 /// is attached — subsequent `info!` / `warn!` calls revert to
 /// stdout/stderr only.
 pub fn close_file_sink() {
-    if let Some(mut f) = FILE_SINK.lock().unwrap().take() {
+    if let Some(mut f) = FILE_SINK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .take()
+    {
         let _ = f.flush();
     }
-    *FILE_SINK_PATH.lock().unwrap() = None;
+    *FILE_SINK_PATH
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner) = None;
 }
 
 /// Return the path of the currently attached file sink, if any.
 /// Reserved for callers that want to reference the transcript in error
 /// messages without threading the path through their own state — notably
 /// the portable-build coverage assertion in `package_portable.rs`.
-#[allow(dead_code)]
 pub fn file_sink_path() -> Option<PathBuf> {
-    FILE_SINK_PATH.lock().unwrap().clone()
+    FILE_SINK_PATH
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .clone()
 }
 
 fn level() -> u8 {
@@ -140,7 +152,11 @@ fn level() -> u8 {
 /// deliberately swallowed — a disk full or a read-only FS should not
 /// take down the build.
 fn tee_to_file(line: &str) {
-    if let Some(file) = FILE_SINK.lock().unwrap().as_mut() {
+    if let Some(file) = FILE_SINK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .as_mut()
+    {
         let _ = file.write_all(line.as_bytes());
     }
 }

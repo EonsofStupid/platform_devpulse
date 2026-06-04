@@ -183,7 +183,7 @@ function onInstallStarted(ok: boolean): void {
 								<div class="flex gap-2 items-center text-xs">
 									<Text size="xs" color="muted">{r.author}</Text>
 									{#if r.pipeline_tag}
-										<Badge tone="neutral" size="sm">{r.pipeline_tag}</Badge>
+										<Badge variant="neutral" size="sm">{r.pipeline_tag}</Badge>
 									{/if}
 									<Text size="xs" color="muted">↓ {r.downloads.toLocaleString()}</Text>
 								</div>

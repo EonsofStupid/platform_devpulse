@@ -44,6 +44,10 @@ pub struct UserProfile {
 /// User preferences row from the `preferences` table.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "Wire-DTO that mirrors the `preferences` SQL row 1:1 — each bool is an independent operator toggle in the Settings UI (show_thinking, use_semicolons, allow_telemetry, screen_capture_enabled). Folding into bitflags would break the tauri-specta TS surface and the SQL column mapping."
+)]
 pub struct UserPreferences {
     /// Primary key for the preferences row.
     pub id: String,
@@ -333,44 +337,48 @@ async fn inner_fetch_user_preferences(state: State<'_, PlatformState>) -> Result
         .context("fetch_user_preferences: ensure prefs")
 }
 
-/// Update user preferences. Only non-None fields are written.
+/// Patch input for [`update_user_preferences`]. Every field is optional;
+/// only the keys the caller supplies are written. Mirrors the
+/// camelCase TS shape via tauri-specta.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateUserPreferencesInput {
+    /// New theme selection.
+    pub theme: Option<String>,
+    /// New context-density mode.
+    pub context_mode: Option<String>,
+    /// Whether model reasoning should be shown.
+    pub show_thinking: Option<bool>,
+    /// New explanation verbosity preset.
+    pub verbosity: Option<String>,
+    /// Default model temperature for freeform generation.
+    pub default_temperature: Option<f64>,
+    /// Whether product telemetry is allowed.
+    pub allow_telemetry: Option<bool>,
+    /// Whether screen capture features are enabled.
+    pub screen_capture_enabled: Option<bool>,
+}
+
+/// Update user preferences. Only non-None fields in `patch` are written.
+///
+/// # Errors
+/// Returns the formatted error string when the adapter cannot be
+/// resolved, the profile / preferences row cannot be loaded, or the
+/// `UPDATE preferences` statement fails.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
 pub async fn update_user_preferences(
-    theme: Option<String>,
-    context_mode: Option<String>,
-    show_thinking: Option<bool>,
-    verbosity: Option<String>,
-    default_temperature: Option<f64>,
-    allow_telemetry: Option<bool>,
-    screen_capture_enabled: Option<bool>,
+    patch: UpdateUserPreferencesInput,
     state: State<'_, PlatformState>,
 ) -> std::result::Result<UserPreferences, String> {
-    inner_update_user_preferences(
-        theme,
-        context_mode,
-        show_thinking,
-        verbosity,
-        default_temperature,
-        allow_telemetry,
-        screen_capture_enabled,
-        state,
-    )
-    .await
-    .map_err(|e| format!("{e:#}"))
+    inner_update_user_preferences(patch, state)
+        .await
+        .map_err(|e| format!("{e:#}"))
 }
 
 #[tracing::instrument(skip(state), err)]
-#[allow(clippy::too_many_arguments)]
 async fn inner_update_user_preferences(
-    theme: Option<String>,
-    context_mode: Option<String>,
-    show_thinking: Option<bool>,
-    verbosity: Option<String>,
-    default_temperature: Option<f64>,
-    allow_telemetry: Option<bool>,
-    screen_capture_enabled: Option<bool>,
+    patch: UpdateUserPreferencesInput,
     state: State<'_, PlatformState>,
 ) -> Result<UserPreferences> {
     let adapter = get_adapter(&state)
@@ -383,23 +391,27 @@ async fn inner_update_user_preferences(
         .await
         .context("update_user_preferences: ensure prefs")?;
 
-    let new_theme = theme.unwrap_or(prefs.theme);
-    let new_ctx = context_mode.unwrap_or(prefs.context_mode);
-    let new_thinking = if show_thinking.unwrap_or(prefs.show_thinking) {
+    let new_theme = patch.theme.unwrap_or(prefs.theme);
+    let new_ctx = patch.context_mode.unwrap_or(prefs.context_mode);
+    let new_thinking = if patch.show_thinking.unwrap_or(prefs.show_thinking) {
         "1"
     } else {
         "0"
     };
-    let new_verbosity = verbosity.unwrap_or(prefs.verbosity);
-    let new_temp = default_temperature
+    let new_verbosity = patch.verbosity.unwrap_or(prefs.verbosity);
+    let new_temp = patch
+        .default_temperature
         .unwrap_or(prefs.default_temperature)
         .to_string();
-    let new_telemetry = if allow_telemetry.unwrap_or(prefs.allow_telemetry) {
+    let new_telemetry = if patch.allow_telemetry.unwrap_or(prefs.allow_telemetry) {
         "1"
     } else {
         "0"
     };
-    let new_capture = if screen_capture_enabled.unwrap_or(prefs.screen_capture_enabled) {
+    let new_capture = if patch
+        .screen_capture_enabled
+        .unwrap_or(prefs.screen_capture_enabled)
+    {
         "1"
     } else {
         "0"

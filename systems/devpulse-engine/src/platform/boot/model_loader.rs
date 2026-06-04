@@ -167,7 +167,7 @@ pub async fn boot(
 
 /// Construct the Burn encoder adapter when the `burn` feature is on.
 ///
-/// Picks the NdArray (CPU) backend by default — Cuda variant gets
+/// Picks the `NdArray` (CPU) backend by default — Cuda variant gets
 /// added when the platform's hardware monitor signals a usable GPU
 /// AND the build has the `burn-cuda` feature. CPU on Harrier 0.6B
 /// is a few hundred ms per embedding, acceptable for the encoder
@@ -194,7 +194,7 @@ fn build_burn_encoder_adapter(
         // FloatDType::BF16 matches Harrier 0.6B's on-disk safetensors dtype
         // and halves the runtime memory footprint vs f32. IntDType::I64
         // matches the token-id buffer width the embedder pipeline emits.
-        let device = FlexDevice::default();
+        let device = FlexDevice;
         if let Err(e) =
             set_default_dtypes::<EmbedderCpuBackend>(&device, FloatDType::BF16, IntDType::I64)
         {

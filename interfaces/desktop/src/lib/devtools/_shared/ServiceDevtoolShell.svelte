@@ -58,7 +58,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	- `Esc` in the back-link returns to `/devtools`
 -->
 <script lang="ts">
-	import { type Component, type Snippet, untrack } from "svelte";
+	import { type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
 	import { KnowledgeTerm } from "$lib/design/blocks/knowledge/index.js";
 	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
@@ -78,9 +78,14 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 		title: string;
 		/** One-line description under the title. */
 		description?: string;
-		/** Optional lucide icon component rendered next to the title. */
-		// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape.
-		icon?: Component<any>;
+		/**
+		 * Optional lucide icon component rendered next to the title.
+		 * Typed `any` because lucide-svelte v0.564 exports class-based
+		 * icons (`SvelteComponentTyped<…>`), which structurally don't
+		 * satisfy Svelte 5's function-form `Component<P, E, S>`.
+		 */
+		// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+		icon?: any;
 		/** Axis placement — used as the breadcrumb badge label. */
 		axis: ServiceAxis;
 		/**

@@ -134,6 +134,17 @@ struct LoadContext {
     voice_clones: Vec<VoiceCloneEntry>,
 }
 
+/// Owned context carried into [`ModelLoaderService::finalize_warm_result`].
+/// Wraps the per-slot identity, capability, and fingerprint so the
+/// helper signature stays under `too_many_arguments`.
+struct WarmResultCtx<'a> {
+    slot_id: &'a str,
+    model_id: &'a str,
+    capability: ModelCapability,
+    voice_clones: Vec<VoiceCloneEntry>,
+    new_fingerprint: RuntimeFingerprint,
+}
+
 /// Resolve the canonical `runtime_id` string for a load — the one
 /// stamped on `LoaderEvent::CapabilityRebound` and used by the
 /// frontend `DevtoolMeta` registry to look up the runtime devtool.
@@ -555,12 +566,28 @@ impl ModelLoaderService {
         )
     }
 
+    /// `true` when a Burn encoder adapter is wired AND its weights are
+    /// currently loaded (post-`load_slot`). Used by UI surfaces to gate
+    /// the "Embed" button without polling slot statuses and inferring.
+    #[must_use]
+    pub fn burn_is_loaded(&self) -> bool {
+        self.boot
+            .burn_encoder_adapter
+            .as_ref()
+            .is_some_and(|adapter| adapter.is_loaded())
+    }
+
     /// Embed a batch of texts using the wired Burn encoder.
     ///
     /// Returns one L2-normalized dense vector (`Vec<f32>`) per input
-    /// string, in order. The forward pass is CPU-bound (NdArray backend);
-    /// this method offloads it to a Tokio blocking thread so the async
-    /// runtime stays responsive.
+    /// string, in order. The forward pass is CPU-bound (Burn `NdArray`
+    /// backend); this method offloads it to a Tokio blocking thread so
+    /// the async runtime stays responsive.
+    ///
+    /// Distinct from the slot-routed `embed` method — this calls the
+    /// Burn encoder adapter directly (no slot dispatch). The encoder and
+    /// its tokenizer must be loaded via `load_slot` on `rag.embedder`
+    /// before calling.
     ///
     /// # Errors
     ///
@@ -568,25 +595,12 @@ impl ModelLoaderService {
     /// - Encoder or tokenizer not yet loaded (call `load_slot` first).
     /// - Empty `texts` vec.
     /// - Tokenizer or forward-pass failure.
-    /// Embed a batch of texts using the wired Burn encoder.
-    ///
-    /// Distinct from the slot-routed [`embed`] method — this calls
-    /// the Burn encoder adapter directly (no slot dispatch). The
-    /// encoder and its tokenizer must be loaded via `load_slot` on
-    /// `rag.embedder` before calling.
-    ///
-    /// # Errors
-    ///
-    /// - No Burn encoder adapter wired (burn feature off or boot skipped).
-    /// - Encoder or tokenizer not yet loaded.
-    /// - Empty `texts` vec.
-    /// - Forward pass or tokenizer failure.
     pub async fn burn_embed(&self, texts: Vec<String>) -> anyhow::Result<Vec<Vec<f32>>> {
         let adapter = self.boot.burn_encoder_adapter.clone().ok_or_else(|| {
             anyhow::anyhow!("burn_embed: no Burn encoder adapter wired (burn feature off?)")
         })?;
 
-        tokio::task::spawn_blocking(move || {
+        devpulse_telemetry::spawn_blocking(move || {
             let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
             adapter.embed_texts_blocking(&refs)
         })
@@ -598,12 +612,12 @@ impl ModelLoaderService {
     /// at `weights_path`. Drives the kernel adapter through one full
     /// RRD pause → drain → load → validate → swap → resume cycle and
     /// returns the structured [`SwapStats`] for callers (the devtool
-    /// SwapDialog flow).
+    /// `SwapDialog` flow).
     ///
     /// Async — internally offloads the synchronous adapter call to
     /// `spawn_blocking` so the calling task stays responsive while
     /// the daemon holds its maintenance window (typically 1-3 seconds
-    /// for Harrier 0.6B on NVMe).
+    /// for Harrier 0.6B on `NVMe`).
     ///
     /// # Errors
     ///
@@ -619,7 +633,7 @@ impl ModelLoaderService {
             anyhow::anyhow!("burn_swap_encoder: no Burn encoder adapter wired (burn feature off?)")
         })?;
 
-        tokio::task::spawn_blocking(move || adapter.swap_blocking(&weights_path))
+        devpulse_telemetry::spawn_blocking(move || adapter.swap_blocking(&weights_path))
             .await
             .map_err(|e| anyhow::anyhow!("burn_swap_encoder join error: {e}"))?
     }
@@ -769,37 +783,8 @@ impl ModelLoaderService {
             }
         }
 
-        // Budget check (reads hardware + inference).
-        // Extract total_vram from parking_lot guard BEFORE any await —
-        // parking_lot guards are !Send and must not cross an await.
-        let total_vram = {
-            let hw = self.hardware.read();
-            hw.cached().gpu_vram_total_mb.unwrap_or(0)
-        };
-        if total_vram > 0 {
-            let inf = self.inference.read().await;
-            let pool_used = inf.pool.total_memory().vram_mb();
-            let model_vram = entry.vram_estimate_mb;
-            let headroom = total_vram / 10;
-            let available = total_vram.saturating_sub(pool_used + headroom);
-
-            if model_vram > available && !inf.pool.is_loaded(model_id) {
-                let mut suggestions = Vec::new();
-                for loaded_id in inf.pool.loaded_model_ids() {
-                    if let Some(mem) = inf.pool.memory(&loaded_id) {
-                        suggestions.push(crate::traits::errors::RecoverySuggestion::UnloadSlot {
-                            slot_id: loaded_id.clone(),
-                            frees_mb: mem.vram_mb(),
-                        });
-                    }
-                }
-                return Err(LoaderError::VramInsufficient {
-                    needed_mb: model_vram,
-                    available_mb: available,
-                    suggestions,
-                });
-            }
-        }
+        self.check_vram_budget_for_assign(model_id, entry.vram_estimate_mb)
+            .await?;
 
         // Capture the bits we'll need after `reg` is dropped so the
         // symlink call below doesn't have to re-acquire the registry
@@ -883,6 +868,52 @@ impl ModelLoaderService {
         });
 
         tracing::info!(slot = %slot_id, model = %model_id, "Model assigned to slot (symlink armed)");
+        Ok(())
+    }
+
+    /// VRAM-budget gate for [`Self::assign_model`]. Reads the host VRAM
+    /// total, subtracts a 10% headroom + the current pool occupancy, and
+    /// returns [`LoaderError::VramInsufficient`] (with unload suggestions
+    /// for the loaded models that would free the most memory) when the
+    /// requested model wouldn't fit.
+    ///
+    /// Extracted from `assign_model` so the main entry point stays under
+    /// `too_many_lines`. The hardware read uses `parking_lot` and MUST be
+    /// scoped to a block that ends before any `.await` — those guards
+    /// are `!Send`.
+    async fn check_vram_budget_for_assign(
+        &self,
+        model_id: &str,
+        model_vram_mb: u64,
+    ) -> Result<(), LoaderError> {
+        let total_vram = {
+            let hw = self.hardware.read();
+            hw.cached().gpu_vram_total_mb.unwrap_or(0)
+        };
+        if total_vram == 0 {
+            return Ok(());
+        }
+        let inf = self.inference.read().await;
+        let pool_used = inf.pool.total_memory().vram_mb();
+        let headroom = total_vram / 10;
+        let available = total_vram.saturating_sub(pool_used + headroom);
+
+        if model_vram_mb > available && !inf.pool.is_loaded(model_id) {
+            let mut suggestions = Vec::new();
+            for loaded_id in inf.pool.loaded_model_ids() {
+                if let Some(mem) = inf.pool.memory(&loaded_id) {
+                    suggestions.push(crate::traits::errors::RecoverySuggestion::UnloadSlot {
+                        slot_id: loaded_id.clone(),
+                        frees_mb: mem.vram_mb(),
+                    });
+                }
+            }
+            return Err(LoaderError::VramInsufficient {
+                needed_mb: model_vram_mb,
+                available_mb: available,
+                suggestions,
+            });
+        }
         Ok(())
     }
 
@@ -1455,6 +1486,11 @@ impl ModelLoaderService {
     /// so callers compile against a uniform `download_model` API. Build
     /// with `--features candle-backend` to enable real downloads.
     #[cfg(not(feature = "candle-backend"))]
+    #[expect(
+        clippy::unused_async,
+        reason = "API parity stub — real impl behind `candle-backend` is async; callers \
+                  await this on both branches."
+    )]
     pub async fn download_model(
         &self,
         _repo_id: &str,
@@ -1529,6 +1565,10 @@ impl ModelLoaderService {
     /// Always returns [`LoaderError::Internal`] — build with
     /// `--features candle-backend` to enable.
     #[cfg(not(feature = "candle-backend"))]
+    #[expect(
+        clippy::unused_async,
+        reason = "API parity stub — real impl behind `candle-backend` is async."
+    )]
     pub async fn recommend_primary_for_slot(
         &self,
         _repo_id: &str,
@@ -1550,7 +1590,7 @@ impl ModelLoaderService {
     ///
     /// `primary_filename` is the entry point inside the repo. The
     /// download manager auto-resolves shards + companions via
-    /// `plan_bundle()` (`download.rs` §plan_bundle), so callers pass
+    /// `plan_bundle()` (`download.rs` §`plan_bundle`), so callers pass
     /// only one filename even for sharded safetensors models.
     ///
     /// Slot validation runs synchronously before the download starts —
@@ -1639,7 +1679,7 @@ impl ModelLoaderService {
         let slot_id_owned = slot_id.to_string();
         let repo_id_owned = repo_id.to_string();
         let started_at = std::time::Instant::now();
-        tokio::spawn(async move {
+        devpulse_telemetry::spawn(async move {
             run_install_chain(
                 svc,
                 install_id_for_task,
@@ -1661,6 +1701,10 @@ impl ModelLoaderService {
     /// Always returns [`LoaderError::Internal`] — build with
     /// `--features candle-backend` to enable.
     #[cfg(not(feature = "candle-backend"))]
+    #[expect(
+        clippy::unused_async,
+        reason = "API parity stub — real impl behind `candle-backend` is async."
+    )]
     pub async fn install_to_slot(
         &self,
         _repo_id: &str,
@@ -1793,47 +1837,8 @@ impl ModelLoaderService {
         let backend = slot
             .runtime
             .unwrap_or_else(|| select_backend(entry, None, Some(capability)));
-        let hw = self.hardware.read();
 
-        let device_str = match slot.preferred_device {
-            crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
-            crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
-            _ => {
-                if hw.cached().has_gpu() {
-                    "cuda:0".to_string()
-                } else {
-                    "cpu".to_string()
-                }
-            }
-        };
-
-        let gpu_layers: Option<u32> = {
-            let slot_hint = slot
-                .extensions
-                .get("llama_cpp_ngl")
-                .and_then(|s| s.parse::<i32>().ok());
-            let assistant_hint = if slot_id == "chat.brain" {
-                Some(cfg.assistant.offload.brain_ngl)
-            } else {
-                None
-            };
-            match slot_hint.or(assistant_hint) {
-                // Negative ngl is the "auto" sentinel; clamp to None.
-                // Positive `i32` fits in `u32` losslessly — sign-loss
-                // cannot happen because `n >= 0` is the match guard.
-                #[allow(clippy::cast_sign_loss)]
-                Some(n) if n >= 0 => Some(n as u32),
-                _ => None,
-            }
-        };
-
-        let params = LoadParams {
-            device: device_str,
-            context_length: entry.context_length,
-            gpu_layers,
-            auto_prime: false,
-            backend_variant: None,
-        };
+        let params = self.derive_load_params(slot, slot_id, &cfg, entry.context_length);
 
         let voice_clones = cfg.assistant.voice_clones.clone();
 
@@ -1845,6 +1850,64 @@ impl ModelLoaderService {
             params,
             voice_clones,
         })
+    }
+
+    /// Map a [`Slot`] + assistant config → [`LoadParams`]: pick the
+    /// device string (GPU / CPU / auto), resolve the optional
+    /// `llama_cpp_ngl` override, and feed the registry's `context_length`
+    /// through. Extracted from [`Self::prepare_load_context`] so the
+    /// async load surface stays under `too_many_lines`.
+    fn derive_load_params(
+        &self,
+        slot: &crate::slots::types::Slot,
+        slot_id: &str,
+        cfg: &ConfigState,
+        context_length: usize,
+    ) -> LoadParams {
+        let hw = self.hardware.read();
+        let device_str = match slot.preferred_device {
+            crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
+            crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
+            _ => {
+                if hw.cached().has_gpu() {
+                    "cuda:0".to_string()
+                } else {
+                    "cpu".to_string()
+                }
+            }
+        };
+        drop(hw);
+
+        let gpu_layers: Option<u32> = {
+            let slot_hint = slot
+                .extensions
+                .get("llama_cpp_ngl")
+                .and_then(|s| s.parse::<i32>().ok());
+            let assistant_hint = if slot_id == "chat.brain" {
+                Some(cfg.assistant.offload.brain_ngl)
+            } else {
+                None
+            };
+            // Negative ngl is the "auto" sentinel; clamp to None.
+            // Positive `i32` fits in `u32` losslessly because of the
+            // `n >= 0` guard, so the cast is sign-loss-free.
+            #[expect(
+                clippy::cast_sign_loss,
+                reason = "guard `n >= 0` proves the i32 → u32 cast cannot lose the sign"
+            )]
+            match slot_hint.or(assistant_hint) {
+                Some(n) if n >= 0 => Some(n as u32),
+                _ => None,
+            }
+        };
+
+        LoadParams {
+            device: device_str,
+            context_length,
+            gpu_layers,
+            auto_prime: false,
+            backend_variant: None,
+        }
     }
 
     /// Gather the warm-load context. Returns `Ok(None)` if the slot is
@@ -2015,8 +2078,8 @@ impl ModelLoaderService {
                     // other tasks while the encoder loads. Adapter
                     // clones cheaply (it's an Arc internally).
                     let adapter = adapter.clone();
-                    let path = model_path.to_path_buf();
-                    tokio::task::spawn_blocking(move || adapter.load_blocking(&path))
+                    let path = model_path.clone();
+                    devpulse_telemetry::spawn_blocking(move || adapter.load_blocking(&path))
                         .await
                         .unwrap_or_else(|e| Err(anyhow::anyhow!("burn load join error: {e}")))
                 }
@@ -2212,8 +2275,8 @@ impl ModelLoaderService {
                     // other tasks while the encoder loads. Adapter
                     // clones cheaply (it's an Arc internally).
                     let adapter = adapter.clone();
-                    let path = model_path.to_path_buf();
-                    tokio::task::spawn_blocking(move || adapter.load_blocking(&path))
+                    let path = model_path.clone();
+                    devpulse_telemetry::spawn_blocking(move || adapter.load_blocking(&path))
                         .await
                         .unwrap_or_else(|e| Err(anyhow::anyhow!("burn load join error: {e}")))
                 }
@@ -2226,6 +2289,35 @@ impl ModelLoaderService {
             },
         };
 
+        self.finalize_warm_result(
+            &mut inf,
+            WarmResultCtx {
+                slot_id,
+                model_id: &model_id,
+                capability,
+                voice_clones,
+                new_fingerprint,
+            },
+            load_result,
+        )
+    }
+
+    /// Convert a successful or failed warm-load into the appropriate
+    /// `ModelStatus` + event emission. Extracted from [`Self::warm_slot`]
+    /// so the public entry point stays under `too_many_lines`.
+    fn finalize_warm_result(
+        &self,
+        inf: &mut InferenceState,
+        ctx: WarmResultCtx<'_>,
+        load_result: anyhow::Result<MemoryFootprint>,
+    ) -> Result<(), LoaderError> {
+        let WarmResultCtx {
+            slot_id,
+            model_id,
+            capability,
+            voice_clones,
+            new_fingerprint,
+        } = ctx;
         match load_result {
             Ok(memory) => {
                 let footprint = MemoryFootprint {
@@ -2242,7 +2334,7 @@ impl ModelLoaderService {
                 if capability == ModelCapability::TextToSpeech {
                     inf.voice_pool.refresh_voice_clones(slot_id, voice_clones);
                 }
-                self.dispatch_runtime_events(&mut inf, slot_id, new_fingerprint);
+                self.dispatch_runtime_events(inf, slot_id, new_fingerprint);
                 tracing::info!(slot = %slot_id, model = %model_id, ram_mb = footprint.ram_mb(), "Slot warmed");
                 Ok(())
             }

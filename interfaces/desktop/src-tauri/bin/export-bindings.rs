@@ -25,15 +25,16 @@
 
 use specta_typescript::{BigIntExportBehavior, Typescript};
 
-fn main() {
+fn main() -> std::process::ExitCode {
     let builder = devpulse_desktop_backend::build_specta_builder();
     let target = "../src/lib/sys/generated/bindings.ts";
-    builder
-        .export(
-            Typescript::default().bigint(BigIntExportBehavior::Number),
-            target,
-        )
-        .expect("failed to export specta TypeScript bindings");
+    if let Err(err) = builder.export(
+        Typescript::default().bigint(BigIntExportBehavior::Number),
+        target,
+    ) {
+        eprintln!("[export-bindings] failed to export specta TypeScript bindings: {err}");
+        return std::process::ExitCode::FAILURE;
+    }
 
     // Strip unused `Channel as TAURI_CHANNEL` import. tauri-specta emits
     // it unconditionally regardless of whether any command actually uses
@@ -45,6 +46,7 @@ fn main() {
     strip_unused_tauri_channel_import(target);
 
     eprintln!("[export-bindings] wrote {target}");
+    std::process::ExitCode::SUCCESS
 }
 
 /// Remove `\tChannel as TAURI_CHANNEL,\n` from the generated import block

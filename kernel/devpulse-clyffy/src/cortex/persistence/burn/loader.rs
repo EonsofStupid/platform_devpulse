@@ -1,6 +1,6 @@
 //! # Safetensors → `Qwen3Model` loader (streaming)
 //!
-//! Reads HuggingFace Qwen3-family safetensors files (Harrier 0.6B
+//! Reads `HuggingFace` Qwen3-family safetensors files (Harrier 0.6B
 //! at the floor tier, larger Qwen3 variants on higher tiers) into
 //! the raw-`Tensor<B, ?>` `Qwen3Model` authored in `qwen3.rs`.
 //!
@@ -219,7 +219,7 @@ fn read_tensor_data(
             .map(|b| {
                 // BF16 = top 16 bits of an F32. Reconstruct by zero-
                 // extending into the low bits.
-                let bits = (u16::from_le_bytes([b[0], b[1]]) as u32) << 16;
+                let bits = u32::from(u16::from_le_bytes([b[0], b[1]])) << 16;
                 f32::from_bits(bits)
             })
             .collect(),
@@ -282,7 +282,7 @@ fn load_2d<B: Backend>(
     Ok(Tensor::<B, 2>::from_data(data, device))
 }
 
-/// Load a 1-D tensor — RMSNorm scales.
+/// Load a 1-D tensor — `RMSNorm` scales.
 fn load_1d<B: Backend>(
     file: &mut File,
     metadata: &Metadata,
@@ -298,7 +298,7 @@ fn load_1d<B: Backend>(
 
 /// Load a HF-shaped Linear weight `[out, in]` and produce a
 /// `Qwen3Linear` whose `weight` is `[in, out]` — transpose at load
-/// so forward() stays a clean `x @ W`.
+/// so `forward()` stays a clean `x @ W`.
 fn load_linear_transposed<B: Backend>(
     file: &mut File,
     metadata: &Metadata,
@@ -363,14 +363,22 @@ pub fn load_qwen3_from_safetensors<B: Backend>(
     )?;
     let embed_tokens = super::qwen3::Qwen3Embedding::from_weight(embed_weight);
 
-    // Per-layer parameters.
+    // Per-layer parameters. Bundle the streaming-read context into a
+    // `LoaderCtx` so the per-layer helpers don't all take the same five
+    // arguments (clippy `too_many_arguments`).
     let q_dim = cfg.num_attention_heads * cfg.head_dim;
     let kv_dim = cfg.num_key_value_heads * cfg.head_dim;
     let mut layers = Vec::with_capacity(cfg.num_hidden_layers);
-    for i in 0..cfg.num_hidden_layers {
-        layers.push(load_decoder_layer::<B>(
-            &mut file, &metadata, data_start, i, cfg, q_dim, kv_dim, device,
-        )?);
+    {
+        let mut ctx = LoaderCtx {
+            file: &mut file,
+            metadata: &metadata,
+            data_start,
+            device,
+        };
+        for i in 0..cfg.num_hidden_layers {
+            layers.push(load_decoder_layer::<B>(&mut ctx, i, cfg, q_dim, kv_dim)?);
+        }
     }
 
     // Final RMSNorm.
@@ -391,125 +399,163 @@ pub fn load_qwen3_from_safetensors<B: Backend>(
     ))
 }
 
-/// Load one decoder layer at index `i`. Hoisted so the loop in
-/// `load_qwen3_from_safetensors` stays single-screen.
-#[allow(clippy::too_many_arguments)] // hoisted helper — every arg threads through; would defeat the helper to bundle them
-#[tracing::instrument(skip(file, metadata, cfg, device), fields(layer = i))]
-fn load_decoder_layer<B: Backend>(
-    file: &mut File,
-    metadata: &Metadata,
+/// I/O context shared across the per-layer loader helpers. Bundles the
+/// open file handle, header-parsed metadata, the data section offset, and
+/// the target device into a single argument so the helpers don't all
+/// take 5+ parameters individually (clippy `too_many_arguments`).
+struct LoaderCtx<'a, B: Backend> {
+    file: &'a mut File,
+    metadata: &'a Metadata,
     data_start: u64,
-    i: usize,
+    device: &'a B::Device,
+}
+
+/// Load the four attention projections (`q`, `k`, `v`, `o`) plus the
+/// derived geometry into a [`super::qwen3::Qwen3AttentionParts`] bundle
+/// ready to hand to [`super::qwen3::Qwen3Attention::from_components`].
+/// Split out of [`load_decoder_layer`] to keep that fn under the
+/// `too_many_lines` threshold.
+fn load_attention_projections<B: Backend>(
+    ctx: &mut LoaderCtx<'_, B>,
+    prefix: &str,
     cfg: &Qwen3Config,
     q_dim: usize,
     kv_dim: usize,
-    device: &B::Device,
-) -> Result<super::qwen3::Qwen3DecoderLayer<B>, LoaderError> {
-    let prefix = format!("model.layers.{i}");
-
-    // Linear projections — HF stores [out, in], Qwen3Linear uses [in, out].
-    // Transpose at load so forward() stays a clean `x @ W`.
+    rope: super::qwen3::Qwen3Rope<B>,
+) -> Result<super::qwen3::Qwen3AttentionParts<B>, LoaderError> {
     let q_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
         &format!("{prefix}.self_attn.q_proj.weight"),
         cfg.hidden_size,
         q_dim,
-        device,
+        ctx.device,
     )?;
     let k_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
         &format!("{prefix}.self_attn.k_proj.weight"),
         cfg.hidden_size,
         kv_dim,
-        device,
+        ctx.device,
     )?;
     let v_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
         &format!("{prefix}.self_attn.v_proj.weight"),
         cfg.hidden_size,
         kv_dim,
-        device,
+        ctx.device,
     )?;
     let o_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
         &format!("{prefix}.self_attn.o_proj.weight"),
         q_dim,
         cfg.hidden_size,
-        device,
+        ctx.device,
     )?;
-
-    let gate_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
-        &format!("{prefix}.mlp.gate_proj.weight"),
-        cfg.hidden_size,
-        cfg.intermediate_size,
-        device,
-    )?;
-    let up_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
-        &format!("{prefix}.mlp.up_proj.weight"),
-        cfg.hidden_size,
-        cfg.intermediate_size,
-        device,
-    )?;
-    let down_proj = load_linear_transposed::<B>(
-        file,
-        metadata,
-        data_start,
-        &format!("{prefix}.mlp.down_proj.weight"),
-        cfg.intermediate_size,
-        cfg.hidden_size,
-        device,
-    )?;
-
-    let input_norm_weight = load_1d::<B>(
-        file,
-        metadata,
-        data_start,
-        &format!("{prefix}.input_layernorm.weight"),
-        cfg.hidden_size,
-        device,
-    )?;
-    let post_attn_norm_weight = load_1d::<B>(
-        file,
-        metadata,
-        data_start,
-        &format!("{prefix}.post_attention_layernorm.weight"),
-        cfg.hidden_size,
-        device,
-    )?;
-
-    // RoPE has no learned parameters — re-init from cfg.
-    let rope = super::qwen3::Qwen3Rope::new(
-        cfg.max_position_embeddings,
-        cfg.head_dim,
-        cfg.rope_theta,
-        device,
-    );
-
-    let attention = super::qwen3::Qwen3Attention::from_components(
+    Ok(super::qwen3::Qwen3AttentionParts {
         q_proj,
         k_proj,
         v_proj,
         o_proj,
         rope,
-        cfg.num_attention_heads,
-        cfg.num_key_value_heads,
+        n_q_heads: cfg.num_attention_heads,
+        n_kv_heads: cfg.num_key_value_heads,
+        head_dim: cfg.head_dim,
+    })
+}
+
+/// Load the three `SwiGLU` MLP projections (`gate`, `up`, `down`) for one
+/// decoder layer into a fully-constructed [`super::qwen3::Qwen3Mlp`].
+/// Returning the assembled MLP rather than a tuple keeps the call site
+/// clear of clippy `very_complex_type` noise.
+fn load_mlp_projections<B: Backend>(
+    ctx: &mut LoaderCtx<'_, B>,
+    prefix: &str,
+    cfg: &Qwen3Config,
+) -> Result<super::qwen3::Qwen3Mlp<B>, LoaderError> {
+    let gate = load_linear_transposed::<B>(
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
+        &format!("{prefix}.mlp.gate_proj.weight"),
+        cfg.hidden_size,
+        cfg.intermediate_size,
+        ctx.device,
+    )?;
+    let up = load_linear_transposed::<B>(
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
+        &format!("{prefix}.mlp.up_proj.weight"),
+        cfg.hidden_size,
+        cfg.intermediate_size,
+        ctx.device,
+    )?;
+    let down = load_linear_transposed::<B>(
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
+        &format!("{prefix}.mlp.down_proj.weight"),
+        cfg.intermediate_size,
+        cfg.hidden_size,
+        ctx.device,
+    )?;
+    Ok(super::qwen3::Qwen3Mlp::from_components(gate, up, down))
+}
+
+/// Load one decoder layer at index `i`. Hoisted so the loop in
+/// `load_qwen3_from_safetensors` stays single-screen.
+#[tracing::instrument(skip(ctx, cfg), fields(layer = i))]
+fn load_decoder_layer<B: Backend>(
+    ctx: &mut LoaderCtx<'_, B>,
+    i: usize,
+    cfg: &Qwen3Config,
+    q_dim: usize,
+    kv_dim: usize,
+) -> Result<super::qwen3::Qwen3DecoderLayer<B>, LoaderError> {
+    let prefix = format!("model.layers.{i}");
+
+    // RoPE has no learned parameters — re-init from cfg. Constructed here
+    // and threaded into `load_attention_projections` so that helper owns
+    // the full attention assembly.
+    let rope = super::qwen3::Qwen3Rope::new(
+        cfg.max_position_embeddings,
         cfg.head_dim,
+        cfg.rope_theta,
+        ctx.device,
     );
-    let mlp = super::qwen3::Qwen3Mlp::from_components(gate_proj, up_proj, down_proj);
+
+    // Linear projections — HF stores [out, in], Qwen3Linear uses [in, out].
+    // Transpose at load so forward() stays a clean `x @ W`.
+    let attn_parts = load_attention_projections::<B>(ctx, &prefix, cfg, q_dim, kv_dim, rope)?;
+    let attention = super::qwen3::Qwen3Attention::from_components(attn_parts);
+
+    let mlp = load_mlp_projections::<B>(ctx, &prefix, cfg)?;
+
+    let input_norm_weight = load_1d::<B>(
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
+        &format!("{prefix}.input_layernorm.weight"),
+        cfg.hidden_size,
+        ctx.device,
+    )?;
+    let post_attn_norm_weight = load_1d::<B>(
+        ctx.file,
+        ctx.metadata,
+        ctx.data_start,
+        &format!("{prefix}.post_attention_layernorm.weight"),
+        cfg.hidden_size,
+        ctx.device,
+    )?;
+
     let input_norm = super::qwen3::Qwen3RmsNorm::from_weight(input_norm_weight, cfg.rms_norm_eps);
     let post_attn_norm =
         super::qwen3::Qwen3RmsNorm::from_weight(post_attn_norm_weight, cfg.rms_norm_eps);

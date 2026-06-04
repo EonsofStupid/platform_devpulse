@@ -12,6 +12,7 @@
 			"binaries/cudart64_12.dll",
 			"binaries/libomp140.x86_64.dll",
 			"resources/devforge/win32-x64/"
-		]
+		],
+		"externalBin": ["binaries/llama-server", "binaries/surreal"]
 	}
 }

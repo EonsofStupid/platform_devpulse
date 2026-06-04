@@ -70,10 +70,16 @@ async function refreshPresence(): Promise<void> {
 }
 
 async function refreshDetect(): Promise<void> {
-	const r = await commands.detectClaudeInstalls();
-	if (r.status === "ok") {
-		claudeCodeDetected = Boolean(r.data.code?.path) || Boolean(r.data.desktop?.path);
-	}
+	// `detect_claude_installs` returns `ClaudeInstalls` directly — no
+	// Result wrapper because the command is infallible (best-effort
+	// filesystem probe, missing installs are an empty struct, not an
+	// error). Unlike the other `commands.*` calls in this file the
+	// response IS the data.
+	const installs = await commands.detectClaudeInstalls();
+	// `ClaudeInstall.configExists` reflects whether the per-target
+	// config file is present on disk — the closest signal we have to
+	// "Claude is installed here" without an Add Custom flow.
+	claudeCodeDetected = installs.code.configExists || installs.desktop.configExists;
 }
 
 async function saveKey(): Promise<void> {

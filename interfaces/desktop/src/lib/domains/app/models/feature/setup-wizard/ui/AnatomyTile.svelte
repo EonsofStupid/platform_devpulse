@@ -59,7 +59,6 @@
 -->
 <script lang="ts">
 import { Check, Pencil } from "lucide-svelte";
-import type { Component } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
@@ -80,8 +79,8 @@ interface Props {
 	 *  with the biome-ignore matches the same lucide-icon convention
 	 *  the rest of the codebase uses (see `ServiceDevtoolShell.svelte`
 	 *  + the `getIcon` helper). */
-	// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape; narrow typing fights Svelte's generics.
-	icon: Component<any>;
+	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+	icon: any;
 	/** Anatomy-themed slot name ("Eyes · what Clyffy sees"). */
 	purpose: string;
 	/** Tagline describing the role in one layman sentence. */

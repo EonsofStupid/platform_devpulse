@@ -79,9 +79,17 @@ pub struct ExportSummary {
 }
 
 /// Native save dialog — returns absolute path or `None` if cancelled.
+///
+/// # Errors
+/// Always returns `Ok(...)` — the dialog itself surfaces `None` on
+/// cancel. The `Result` shape is preserved for tauri-specta binding
+/// compatibility with sibling save-file commands.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "Tauri command macro deserializes `String` args from the IPC JSON payload; `&str` would not have a 'static lifetime for the command surface."
+)]
 pub fn pick_save_file(default_name: String) -> Result<Option<String>, String> {
     Ok(rfd::FileDialog::new()
         .set_file_name(&default_name)
@@ -247,6 +255,11 @@ pub async fn send_message(
 /// Called by the frontend after streaming inference completes.
 /// Accepts metadata that only the inference pipeline knows: token count,
 /// model identity, and latency.
+///
+/// # Errors
+/// Returns formatted error strings when the platform is still booting,
+/// the relational service is unavailable, or any of the sequence /
+/// insert / touch / read-back SQL operations fail.
 #[tauri::command]
 #[specta::specta]
 pub async fn store_assistant_turn(
@@ -334,7 +347,15 @@ pub async fn store_assistant_turn(
     let row = created_rows.first().ok_or("Turn not found after insert")?;
 
     tracing::info!(turn = %turn_id, "cmd store_assistant_turn: exit ok");
-    Ok(ChatMessage {
+    Ok(turn_row_to_chat_message(row))
+}
+
+/// Project a single turn row from `turns` into [`ChatMessage`].
+///
+/// Tolerates missing / nullable columns by emitting empty strings or
+/// `None` so the frontend never crashes on a partial row.
+fn turn_row_to_chat_message(row: &[devpulse_engine::platform::SqlValue]) -> ChatMessage {
+    ChatMessage {
         id: row
             .first()
             .map(std::string::ToString::to_string)
@@ -368,5 +389,5 @@ pub async fn store_assistant_turn(
         latency_ms: row
             .get(7)
             .and_then(devpulse_engine::platform::SqlValue::as_integer),
-    })
+    }
 }

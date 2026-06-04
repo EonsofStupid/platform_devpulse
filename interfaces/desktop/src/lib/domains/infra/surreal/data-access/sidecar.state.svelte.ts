@@ -26,14 +26,10 @@ import {
 } from "./sidecar.svc.js";
 
 function emptyDraft(): SurrealUserConfig {
-	return {
-		port: null,
-		binary_path: null,
-		root_user: null,
-		root_password: null,
-		log_level: null,
-		max_bumps: null,
-	};
+	// SurrealDB is now embedded (kv-surrealkv) — no port/binary/auth
+	// fields to override. `SurrealUserConfig` is `Record<string, never>`
+	// today; the cast keeps the runtime shape valid for the form bind.
+	return {} as SurrealUserConfig;
 }
 
 class SurrealSidecarState {
@@ -62,31 +58,29 @@ class SurrealSidecarState {
 		return this.status?.running ?? false;
 	}
 
+	/**
+	 * Embedded SurrealDB never bumps ports — the field is retained
+	 * for API compat with the old sidecar shape and always returns
+	 * `false`.
+	 */
 	get bumped(): boolean {
-		return (this.status?.portBumps ?? 0) > 0;
+		return false;
 	}
 
 	get portSummary(): string {
 		const s = this.status;
 		if (!s || !s.running) return "—";
-		if (s.portBumps > 0) {
-			return `:${s.actualPort} (configured :${s.configuredPort}, bumped +${s.portBumps})`;
-		}
-		return `:${s.actualPort}`;
+		// Embedded mode has no port — surface the data path instead so
+		// the devtool keeps a single "where is it live" line.
+		return s.dataPath;
 	}
 
 	get dirty(): boolean {
-		const a = this.draft;
-		const b = this.savedConfig;
-		if (!b) return false;
-		return (
-			a.port !== b.port ||
-			a.binary_path !== b.binary_path ||
-			a.root_user !== b.root_user ||
-			a.root_password !== b.root_password ||
-			a.log_level !== b.log_level ||
-			a.max_bumps !== b.max_bumps
-		);
+		// `SurrealUserConfig` is `Record<string, never>` today — no
+		// editable knobs means the draft is never dirty. Retained as a
+		// getter so the devtool form keeps the same shape when knobs
+		// land.
+		return false;
 	}
 
 	// ── Actions ─────────────────────────────────────────────

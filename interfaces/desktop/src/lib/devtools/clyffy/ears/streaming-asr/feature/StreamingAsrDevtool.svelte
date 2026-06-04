@@ -142,9 +142,9 @@ async function stopMic(): Promise<void> {
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">Active sessions</Text>
 				{#if sherpaState.streaming}
-					<Badge tone="positive" size="sm">Live</Badge>
+					<Badge variant="positive" size="sm">Live</Badge>
 				{:else}
-					<Badge tone="neutral" size="sm">Idle</Badge>
+					<Badge variant="neutral" size="sm">Idle</Badge>
 				{/if}
 			</div>
 

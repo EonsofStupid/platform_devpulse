@@ -47,7 +47,7 @@ let error = $state<string | null>(null);
 let updateChecks = $state<Record<string, RuntimeUpdateInfo>>({});
 let checkingRuntime = $state<string | null>(null);
 
-let logs = $state<ScopedLogEntry[]>([]);
+let logEntries = $state<ScopedLogEntry[]>([]);
 let logsLoading = $state(false);
 let logsError = $state<string | null>(null);
 
@@ -102,7 +102,7 @@ async function loadLogs(): Promise<void> {
 	try {
 		const r = await commands.queryScopedLog("devtools.runtimes", 100);
 		if (r.status === "error") throw new Error(r.error);
-		logs = r.data;
+		logEntries = r.data;
 	} catch (e) {
 		logsError = e instanceof Error ? e.message : String(e);
 	} finally {
@@ -151,13 +151,13 @@ const badge = $derived<HealthBadge>(
 
 function statusTone(
 	info: RuntimeUpdateInfo | undefined,
-): "positive" | "warning" | "neutral" | "negative" {
+): "positive" | "notice" | "neutral" | "negative" {
 	if (!info) return "neutral";
 	switch (info.status) {
 		case "up_to_date":
 			return "positive";
 		case "update_available":
-			return "warning";
+			return "notice";
 		case "check_failed":
 			return "negative";
 		default:
@@ -196,11 +196,11 @@ function capture(tabId: string): CapturePayload | undefined {
 		};
 	}
 	if (tabId === "logs") {
-		return logs.length > 0
+		return logEntries.length > 0
 			? {
 					filename: "runtimes-logs.txt",
 					mime: "text/plain",
-					content: logs.map((l) => `[${l.timestamp}] ${l.level} ${l.message}`).join("\n"),
+					content: logEntries.map((l) => `[${l.timestamp}] ${l.level} ${l.message}`).join("\n"),
 				}
 			: undefined;
 	}
@@ -256,7 +256,7 @@ function capture(tabId: string): CapturePayload | undefined {
 								<span class="font-mono">{group.runtime_id}</span>
 							</Text>
 						</div>
-						<Badge tone={statusTone(check)} size="sm">{statusLabel(check)}</Badge>
+						<Badge variant={statusTone(check)} size="sm">{statusLabel(check)}</Badge>
 					</div>
 
 					<div class="grid grid-cols-2 gap-2 text-xs">
@@ -360,7 +360,7 @@ function capture(tabId: string): CapturePayload | undefined {
 				</div>
 			{/if}
 
-			{#if logs.length > 0}
+			{#if logEntries.length > 0}
 				<div
 					class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto"
 				>
@@ -373,7 +373,7 @@ function capture(tabId: string): CapturePayload | undefined {
 							</tr>
 						</thead>
 						<tbody>
-							{#each logs as line (line.timestamp + line.message)}
+							{#each logEntries as line (line.timestamp + line.message)}
 								<tr class="border-b border-[var(--border-subtle)]">
 									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]">
 										{line.timestamp.slice(11, 19)}

@@ -97,7 +97,7 @@ const mouthState = $derived<SubsystemState>(slotState("voice.tts", "Ready · TTS
  * across the four sensory slots. Cortex itself has no slot — it's
  * "up" iff every dependency is up.
  */
-const cortexState = $derived<SubsystemState>(() => {
+const cortexState: SubsystemState = $derived.by<SubsystemState>(() => {
 	const slots = ["chat.brain", "vision.embedder", "voice.stt", "voice.tts"];
 	const states = slots.map((id) => slotState(id, "ready"));
 	const tones = states.map((s) => s.tone);
@@ -139,7 +139,7 @@ const cortexState = $derived<SubsystemState>(() => {
  * - `purged`      → `degraded`(context discarded — needs re-gather)
  * - `forked`      → `up`      (branched into alternative path)
  */
-const reasoningState = $derived<SubsystemState>(() => {
+const reasoningState: SubsystemState = $derived.by<SubsystemState>(() => {
 	const snap = rroState.rroSnapshot;
 	if (!snap) {
 		return {
@@ -335,7 +335,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="Memory orchestration · cross-sensor"
 			icon={Sparkles}
 			accent="cyan"
-			status={cortexState()}
+			status={cortexState}
 			verbs={cortexVerbs}
 		/>
 		<SubsystemTile
@@ -371,7 +371,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			blurb="RRD subconscious daemon"
 			icon={BrainCircuit}
 			accent="teal"
-			status={reasoningState()}
+			status={reasoningState}
 			verbs={reasoningVerbs}
 		/>
 	</div>

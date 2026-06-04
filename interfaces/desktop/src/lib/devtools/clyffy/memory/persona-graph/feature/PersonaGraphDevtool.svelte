@@ -92,7 +92,7 @@ const totalRecords = $derived(
 			<Text size="xs" preset="flat">{BRAIN_NARRATION.body}</Text>
 
 			{#if rroState.brainError}
-				<Callout variant="danger" preset="flat">
+				<Callout variant="error" preset="flat">
 					<Text size="xs">Couldn't reach the graph: {rroState.brainError}</Text>
 				</Callout>
 			{/if}
@@ -102,7 +102,7 @@ const totalRecords = $derived(
 					<div class="p-3 flex items-center justify-between">
 						<div class="flex items-center gap-2">
 							<StatusDot
-								tone={rroState.brainHealth.http_server_up ? "success" : "error"}
+								status={rroState.brainHealth.http_server_up ? "ready" : "failed"}
 							/>
 							<Text size="sm" weight="medium">Knowledge API</Text>
 						</div>
@@ -135,7 +135,7 @@ const totalRecords = $derived(
 									size="sm"
 									fillStyle="subtle"
 								>
-									<StatusDot tone={pingEntry?.reachable ? "success" : "error"} />
+									<StatusDot status={pingEntry?.reachable ? "ready" : "failed"} />
 									{pingEntry?.reachable ? "Ready" : "Unreachable"}
 								</Badge>
 							</div>

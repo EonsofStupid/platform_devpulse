@@ -3,7 +3,7 @@
 //! Reflects the actual subprocess model: Claude Code and Claude Desktop
 //! launch us as a child process via stdio MCP. Our Tauri GUI does NOT
 //! itself host an MCP server (it can't — its own stdin/stdout belong to
-//! the WebView). What the devtool controls is **registration** — adding
+//! the `WebView`). What the devtool controls is **registration** — adding
 //! / removing the `devpulse` entry in each client's MCP config so the
 //! client knows how to spawn us.
 //!
@@ -105,7 +105,7 @@ pub fn detect_claude_installs() -> ClaudeInstalls {
     detect::detect_all()
 }
 
-/// Register the DevPulse MCP entry with a Claude client.
+/// Register the `DevPulse` MCP entry with a Claude client.
 ///
 /// Writes `mcpServers.devpulse = { command, args: ["--mcp-stdio"] }` into
 /// the target client's config file (preserving every other entry) and
@@ -123,7 +123,7 @@ pub fn register_devpulse_mcp(
     register::register(target)
 }
 
-/// Remove the DevPulse MCP entry from a Claude client.
+/// Remove the `DevPulse` MCP entry from a Claude client.
 ///
 /// Idempotent — removing a missing entry is success. The user must
 /// restart their Claude client for the removal to take effect.

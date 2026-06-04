@@ -1,4 +1,4 @@
-//! Detect Claude installations + DevPulse MCP registration state.
+//! Detect Claude installations + `DevPulse` MCP registration state.
 //!
 //! For each target (Claude Code, Claude Desktop) we report:
 //! - whether the config file exists on disk,
@@ -151,7 +151,7 @@ struct RunningProcesses {
 /// - Windows: `Claude.exe` (Desktop), `claude.exe` / `node.exe` (CLI is
 ///   often spawned via Node — too noisy to detect reliably)
 /// - macOS: `Claude` (Desktop)
-/// - Linux: `claude-desktop` (Desktop, AppImage / Flatpak)
+/// - Linux: `claude-desktop` (Desktop, `AppImage` / Flatpak)
 fn running_processes() -> RunningProcesses {
     let mut sys = System::new();
     sys.refresh_processes(ProcessesToUpdate::All, true);

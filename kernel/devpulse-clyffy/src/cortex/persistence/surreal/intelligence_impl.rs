@@ -1,10 +1,10 @@
 //! `IntelligenceStore` implementation backed by the embedded
-//! SurrealKV `SurrealAdapter`.
+//! `SurrealKV` `SurrealAdapter`.
 //!
 //! Plugs the abstract intelligence layer
 //! ([`crate::cortex::intelligence`]) into the local embedded
 //! connector. Every method routes through the typed scoped helpers
-//! on [`SurrealAdapter`]: no SurrealQL string interpolation, no
+//! on [`SurrealAdapter`]: no `SurrealQL` string interpolation, no
 //! `serde_json::Value` round-trip for the primary record shape, no
 //! session-state mutation across cloned `Surreal<Db>` handles.
 //!
@@ -25,9 +25,28 @@ use crate::cortex::persistence::surreal::client::SurrealAdapter;
 
 /// Namespace under `projects/<slug>` is the routing convention. The
 /// abstract `slug` parameter on every trait method maps to the
-/// SurrealDB database name; namespace is fixed at `"projects"` so
+/// `SurrealDB` database name; namespace is fixed at `"projects"` so
 /// every project-local store sits in a single namespace bucket.
 const PROJECT_NAMESPACE: &str = "projects";
+
+/// Recall-row shape returned by the HNSW-knn similarity query.
+///
+/// `SurrealValue` derive does not honor serde's `flatten`, so this
+/// row mirrors [`MemoryRecord`] field-for-field and adds `score`.
+/// The query result is re-assembled into [`MemoryRecord`] +
+/// [`RecallHit::score`] inside `recall_by_embedding`.
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[surreal(crate = "surrealdb::types")]
+struct RecallRow {
+    id: String,
+    text: String,
+    embedding: Vec<f32>,
+    kind: MemoryKind,
+    priority: u8,
+    created_at: i64,
+    updated_at: i64,
+    score: f32,
+}
 
 #[async_trait]
 impl IntelligenceStore for SurrealAdapter {
@@ -85,22 +104,6 @@ impl IntelligenceStore for SurrealAdapter {
              ORDER BY score DESC LIMIT {top_k};"
         );
 
-        // SurrealValue derive does not honor serde's `flatten`, so
-        // the recall row mirrors `MemoryRecord` field-for-field and
-        // adds `score`. Re-assembled into `MemoryRecord` below.
-        #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
-        #[surreal(crate = "surrealdb::types")]
-        struct Row {
-            id: String,
-            text: String,
-            embedding: Vec<f32>,
-            kind: MemoryKind,
-            priority: u8,
-            created_at: i64,
-            updated_at: i64,
-            score: f32,
-        }
-
         let mut q = self
             .scoped_query(PROJECT_NAMESPACE, slug, &surql)
             .bind(("emb", query_embedding.to_vec()));
@@ -112,7 +115,7 @@ impl IntelligenceStore for SurrealAdapter {
             q = q.bind(("kind", k));
         }
         let mut response = q.await.with_context(|| format!("recall {slug}"))?;
-        let rows: Vec<Row> = response
+        let rows: Vec<RecallRow> = response
             .take(1)
             .with_context(|| format!("recall take {slug}"))?;
 

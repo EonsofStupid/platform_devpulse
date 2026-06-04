@@ -117,11 +117,12 @@ impl Default for PrimingConfig {
 ///                ↓         ↓       ↓        ↓
 ///              Failed   Failed  Failed   Failed
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum ModelStatus {
     /// No model loaded. Ready to accept a load request.
     /// Latency to inference: 3-10 seconds (full load + prime).
+    #[default]
     NotLoaded,
 
     /// Model is being loaded. Progress tracked by stage.
@@ -296,12 +297,6 @@ impl std::fmt::Display for ModelStatus {
             Self::Failed { .. } => write!(f, "failed"),
             Self::Unloading => write!(f, "unloading"),
         }
-    }
-}
-
-impl Default for ModelStatus {
-    fn default() -> Self {
-        Self::NotLoaded
     }
 }
 

@@ -3,28 +3,47 @@
 	@module @devpulse/devtools/runtimes/orchestrator/slots
 
 	Slot orchestrator devtool — view + manage slot↔model assignments,
-	per-slot load/unload, VRAM headroom. Wraps `ServiceDevtoolShell` so
-	it follows the same 5-tab template as every other devtool. The role
-	sections live in Status; rescan + bulk verbs live in Actions; the
-	full registry browser + download panel live in extra tabs.
+	per-slot load/unload, VRAM headroom, plus the cortex anatomy
+	bootstrap surface (Brain / Sparkles / Eyes / Ears / Mouth) absorbed
+	from the legacy SetupWizardOverlay. Wraps `ServiceDevtoolShell` so
+	it follows the same 5-tab template as every other devtool. The
+	cortex constellation + tier readout + role sections live in Status;
+	rescan + bulk verbs + Save-all live in Actions; the full registry
+	browser + downloads panel live in extra tabs.
+
+	## Bootstrap absorb
+
+	The `slotsBootstrapState` rune (sibling data-access file) owns
+	first-run detection, layman copy + tier display, auto-config
+	recommendations, and the per-slot save chain (with Harrier
+	ref-count paired fan-out for `rag.embedder`). The devtool mounts
+	the constellation when recommendations are present; absent
+	recommendations, the page just shows the existing slot table.
 -->
 <script lang="ts">
 import {
 	Brain,
+	BrainCircuit,
 	Check,
 	Download,
+	Ear,
+	Eye,
 	FolderOpen,
 	Headphones,
+	Mic,
 	Play,
 	RefreshCw,
 	Search,
 	Sparkles,
 	Square,
 	X,
+	Zap,
 } from "lucide-svelte";
-import { onMount } from "svelte";
+import { type Component, onMount } from "svelte";
+import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Heading } from "$lib/design/components/heading/index.js";
 import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -38,6 +57,7 @@ import {
 import {
 	formatMb,
 	getSlotLabel,
+	hardwareState,
 	isInferenceReady,
 	modelDownloaderState,
 	modelsState,
@@ -46,7 +66,41 @@ import {
 } from "$lib/domains/app/models/index.js";
 import DownloadPanel from "$lib/sys/activity-hud/DownloadPanel.svelte";
 import InstallPanel from "$lib/sys/activity-hud/InstallPanel.svelte";
-import { modelsDirPath } from "$lib/sys/bindings/models/index.js";
+import { encoderEmbed, encoderIsLoaded, modelsDirPath } from "$lib/sys/bindings/models/index.js";
+import { slotsBootstrapState } from "../data-access/slots-bootstrap.state.svelte.js";
+import AnatomyConstellation from "../ui/AnatomyConstellation.svelte";
+import AnatomyTile from "../ui/AnatomyTile.svelte";
+import BootstrapBackdrop from "../ui/BootstrapBackdrop.svelte";
+import type { SlotSaveEntry } from "../util/anatomy.types.js";
+
+const RAG_EMBEDDER_SLOT = "rag.embedder";
+
+/** Anatomy → kernel slot binding for the cortex constellation. Lives
+ *  in the feature file because the binding is rendering-side glue
+ *  (which named-area gets which kernel slot); the table is one-shot
+ *  and small enough that pulling it into a separate util module adds
+ *  more friction than value. */
+const SLOT_BY_ANATOMY = {
+	brain: "chat.brain",
+	sparkles: "rag.embedder",
+	eyes: "vision.embedder",
+	ears: "voice.stt",
+	mouth: "voice.tts",
+} as const;
+
+// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape; narrow typing fights Svelte's generics. Matches AnatomyTile's icon prop type.
+type AnatomyIcon = Component<any>;
+
+const ICON_MAP = {
+	Eye,
+	Ear,
+	Mic,
+	Sparkles,
+	BrainCircuit,
+} as unknown as Record<"Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit", AnatomyIcon>;
+
+const findEntry = (entries: SlotSaveEntry[], slotId: string): SlotSaveEntry | undefined =>
+	entries.find((s) => s.kernelSlotId === slotId);
 
 let loading = $state(false);
 let actionSlot = $state<string | null>(null);
@@ -78,7 +132,23 @@ onMount(async () => {
 	} else {
 		modelsDirError = String(r.error);
 	}
+	await refreshEncoderReady();
+	// Bootstrap surface — load layman copy + tier + recommendations so
+	// the cortex constellation can render. Each call is idempotent and
+	// safe to re-run; running here keeps the data fresh whenever the
+	// devtool is reopened. `refreshFirstRun` is best-effort — failure
+	// is logged inside the rune, the devtool keeps working.
+	void slotsBootstrapState.refreshFirstRun();
+	await slotsBootstrapState.loadCopy();
+	await slotsBootstrapState.recommend();
 });
+
+// Hardware live-state subscription. The cortex bootstrap reads tier +
+// VRAM via the bootstrap state rune; the inline `VramBar` reads from
+// `hardwareState` directly. Subscribe once for the lifetime of the
+// devtool — ref-counting in `createTauriEvent` keeps the underlying
+// listener attached only while at least one consumer is mounted.
+$effect(() => hardwareState.subscribe("SlotsDevtool"));
 
 const ROLE_ICONS = {
 	brain: Brain,
@@ -93,6 +163,24 @@ const ROLE_ACCENT: Record<string, string> = {
 	voice: "var(--accent-coral-main)",
 	helpers: "var(--text-muted)",
 };
+
+/** Mark-complete UX state — surfaces the kernel error inline rather
+ *  than relying on a toast. Owner-locked: errors visible in the
+ *  Actions tab next to the trigger. */
+let markCompleteBusy = $state(false);
+let markCompleteError = $state<string | null>(null);
+
+async function markBootstrapComplete(): Promise<void> {
+	markCompleteBusy = true;
+	markCompleteError = null;
+	try {
+		await slotsBootstrapState.markComplete();
+	} catch (e) {
+		markCompleteError = e instanceof Error ? e.message : String(e);
+	} finally {
+		markCompleteBusy = false;
+	}
+}
 
 async function rescan(): Promise<void> {
 	loading = true;
@@ -172,6 +260,57 @@ function slotData(slotId: string) {
 	return { slot, model, status, ready, label };
 }
 
+// ── Encoder smoke test ─────────────────────────────────────────
+// Single-shot inference verification: type text → click Embed →
+// read back vector dim + first 5 floats. Gates on `encoderIsLoaded`
+// so the button is disabled until the kernel adapter has weights.
+let encoderText = $state("hello world");
+let encoderResult = $state<{ dim: number; head: number[] } | null>(null);
+let encoderError = $state<string | null>(null);
+let encoderBusy = $state(false);
+let encoderReady = $state(false);
+
+async function refreshEncoderReady(): Promise<void> {
+	const r = await encoderIsLoaded();
+	encoderReady = r.status === "ok" && r.data === true;
+}
+
+async function runEncoderEmbed(): Promise<void> {
+	encoderBusy = true;
+	encoderError = null;
+	encoderResult = null;
+	try {
+		const r = await encoderEmbed([encoderText]);
+		if (r.status === "error") {
+			encoderError = r.error;
+			return;
+		}
+		const [vec] = r.data;
+		if (!vec) {
+			encoderError = "Backend returned an empty vector batch";
+			return;
+		}
+		encoderResult = { dim: vec.length, head: vec.slice(0, 5) };
+	} catch (e) {
+		encoderError = e instanceof Error ? e.message : String(e);
+	} finally {
+		encoderBusy = false;
+	}
+}
+
+// The kernel currently doesn't emit `model:slot-status` (statuses[]
+// stays optimistic post-load), so we cheap-poll `encoderIsLoaded`
+// while the encoder is not yet ready. Polling halts the instant we
+// observe a loaded encoder, so the steady-state cost is one call
+// at mount + one after each Embed run. Cleared on unmount.
+$effect(() => {
+	if (encoderReady) return;
+	const handle = window.setInterval(() => {
+		void refreshEncoderReady();
+	}, 1500);
+	return () => window.clearInterval(handle);
+});
+
 const readyCount = $derived(
 	modelsState.slots.filter((s) => {
 		const status = modelsState.statuses[s.id];
@@ -181,21 +320,36 @@ const readyCount = $derived(
 const assignedCount = $derived(modelsState.slots.filter((s) => s.assigned_model_id).length);
 const totalSlots = $derived(modelsState.slots.length);
 
+/** Live install progress derived from the bootstrap rune. When the
+ *  customer dispatches saves via the cortex constellation, the
+ *  installs surface here so the header badge tells the truth even
+ *  while the slot table is still empty. */
+const installsRunning = $derived(slotsBootstrapState.installsRunning);
+const installsComplete = $derived(slotsBootstrapState.installsComplete);
+const installsFailed = $derived(slotsBootstrapState.installsFailed);
+const installsTotal = $derived(slotsBootstrapState.installsTotal);
+
 const badge = $derived<HealthBadge>(
-	totalSlots === 0
-		? { state: "unknown", label: "No slots" }
-		: readyCount === 0 && assignedCount === 0
-			? { state: "stopped", label: "No slots assigned" }
-			: readyCount === assignedCount && readyCount > 0
-				? { state: "up", label: `${readyCount}/${assignedCount} ready` }
-				: readyCount > 0
-					? { state: "degraded", label: `${readyCount}/${assignedCount} ready` }
-					: { state: "starting", label: `${assignedCount} assigned, none loaded yet` },
+	installsRunning > 0
+		? {
+				state: "starting",
+				label: `Installing ${installsComplete + installsFailed}/${installsTotal}`,
+			}
+		: totalSlots === 0
+			? { state: "unknown", label: "No slots" }
+			: readyCount === 0 && assignedCount === 0
+				? { state: "stopped", label: "No slots assigned" }
+				: readyCount === assignedCount && readyCount > 0
+					? { state: "up", label: `${readyCount}/${assignedCount} ready` }
+					: readyCount > 0
+						? { state: "degraded", label: `${readyCount}/${assignedCount} ready` }
+						: { state: "starting", label: `${assignedCount} assigned, none loaded yet` },
 );
 
 const extraTabs: ExtraTab[] = [
 	{ id: "registry", label: "Registry", Icon: Search },
 	{ id: "downloads", label: "Downloads", Icon: Play },
+	{ id: "encoder", label: "Encoder smoke", Icon: Zap },
 ];
 
 // ── Capture (copy / export) ────────────────────────────────
@@ -279,6 +433,24 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							2,
 						),
 					};
+		case "encoder":
+			return encoderResult || encoderError
+				? {
+						filename: "encoder-smoke.json",
+						mime: "application/json",
+						content: JSON.stringify(
+							{
+								slot: RAG_EMBEDDER_SLOT,
+								ready: encoderReady,
+								input: encoderText,
+								result: encoderResult,
+								error: encoderError,
+							},
+							null,
+							2,
+						),
+					}
+				: undefined;
 		default:
 			return undefined;
 	}
@@ -297,7 +469,173 @@ function captureFor(tabId: string): CapturePayload | undefined {
 >
 	{#snippet status()}
 		<div class="space-y-4">
-			<VramBar />
+			<!--
+				Bootstrap header — tier readout + live VRAM. The
+				`<VramBar/>` is the live hardware subscription; the
+				adjacent tier badge reflects the kernel's auto-tuned
+				`TierDisplay` payload. Together they answer the customer's
+				"what is this machine running" question before they
+				see the slot table.
+			-->
+			<div class="bootstrap-header">
+				<VramBar />
+				{#if slotsBootstrapState.tierDisplay}
+					<div
+						class="tier-readout"
+						role="status"
+						aria-label={`Detected tier: ${slotsBootstrapState.tierDisplay.name}`}
+					>
+						<Text size="xs" color="muted" class="tier-label">Tier</Text>
+						<Text size="sm" weight="bold">{slotsBootstrapState.tierDisplay.name}</Text>
+						<Text size="xs" color="muted">{slotsBootstrapState.tierDisplay.description}</Text>
+					</div>
+				{/if}
+			</div>
+
+			{#if slotsBootstrapState.error}
+				<InlineMessage tone="error">{slotsBootstrapState.error}</InlineMessage>
+			{/if}
+
+			{#if slotsBootstrapState.slotSaveEntries.length > 0}
+				<!--
+					Cortex anatomy bootstrap — five tiles arranged through
+					AnatomyConstellation, customer hits Apply on the ones
+					they want now. The bootstrap rune owns the per-tile
+					save chain (paired fan-out for `rag.embedder` → all
+					five Harrier slots). Replaces the legacy
+					SetupWizardOverlay cortex view; lives here so the
+					customer never leaves the devtool to bootstrap models.
+				-->
+				<section class="cortex-section" aria-label="Cortex anatomy bootstrap">
+					<BootstrapBackdrop />
+					<div class="cortex-stack">
+						<header class="cortex-header">
+							<Heading level={3} size="md">Clyffy's cortex — five pieces, one mind</Heading>
+							<Text size="sm" color="muted">
+								Each tile maps to a sense or thought layer. Hit Apply on the ones you want now —
+								every slot is pre-selected, so you can just click through.
+							</Text>
+						</header>
+						<AnatomyConstellation>
+							{#snippet brain()}
+								{@const entry = findEntry(
+									slotsBootstrapState.slotSaveEntries,
+									SLOT_BY_ANATOMY.brain,
+								)}
+								{#if entry}
+									<AnatomyTile
+										slotId={entry.kernelSlotId}
+										icon={ICON_MAP[entry.iconName]}
+										purpose={entry.purpose}
+										tagline={entry.tagline}
+										modelName={entry.modelName}
+										modelTagline={entry.modelTagline}
+										sizeHint={entry.sizeHint}
+										tierLabel={entry.tierLabel}
+										aboutHref={entry.aboutHref}
+										state={entry.state}
+										errorText={entry.errorText}
+										accentVar={entry.accentVar}
+										onApply={() => slotsBootstrapState.saveOneSlot(entry.kernelSlotId)}
+									/>
+								{/if}
+							{/snippet}
+							{#snippet sparkles()}
+								{@const entry = findEntry(
+									slotsBootstrapState.slotSaveEntries,
+									SLOT_BY_ANATOMY.sparkles,
+								)}
+								{#if entry}
+									<AnatomyTile
+										slotId={entry.kernelSlotId}
+										icon={ICON_MAP[entry.iconName]}
+										purpose={entry.purpose}
+										tagline={entry.tagline}
+										modelName={entry.modelName}
+										modelTagline={entry.modelTagline}
+										sizeHint={entry.sizeHint}
+										tierLabel={entry.tierLabel}
+										aboutHref={entry.aboutHref}
+										state={entry.state}
+										errorText={entry.errorText}
+										accentVar={entry.accentVar}
+										onApply={() => slotsBootstrapState.saveOneSlot(entry.kernelSlotId)}
+									/>
+								{/if}
+							{/snippet}
+							{#snippet eyes()}
+								{@const entry = findEntry(
+									slotsBootstrapState.slotSaveEntries,
+									SLOT_BY_ANATOMY.eyes,
+								)}
+								{#if entry}
+									<AnatomyTile
+										slotId={entry.kernelSlotId}
+										icon={ICON_MAP[entry.iconName]}
+										purpose={entry.purpose}
+										tagline={entry.tagline}
+										modelName={entry.modelName}
+										modelTagline={entry.modelTagline}
+										sizeHint={entry.sizeHint}
+										tierLabel={entry.tierLabel}
+										aboutHref={entry.aboutHref}
+										state={entry.state}
+										errorText={entry.errorText}
+										accentVar={entry.accentVar}
+										onApply={() => slotsBootstrapState.saveOneSlot(entry.kernelSlotId)}
+									/>
+								{/if}
+							{/snippet}
+							{#snippet ears()}
+								{@const entry = findEntry(
+									slotsBootstrapState.slotSaveEntries,
+									SLOT_BY_ANATOMY.ears,
+								)}
+								{#if entry}
+									<AnatomyTile
+										slotId={entry.kernelSlotId}
+										icon={ICON_MAP[entry.iconName]}
+										purpose={entry.purpose}
+										tagline={entry.tagline}
+										modelName={entry.modelName}
+										modelTagline={entry.modelTagline}
+										sizeHint={entry.sizeHint}
+										tierLabel={entry.tierLabel}
+										aboutHref={entry.aboutHref}
+										state={entry.state}
+										errorText={entry.errorText}
+										accentVar={entry.accentVar}
+										onApply={() => slotsBootstrapState.saveOneSlot(entry.kernelSlotId)}
+									/>
+								{/if}
+							{/snippet}
+							{#snippet mouth()}
+								{@const entry = findEntry(
+									slotsBootstrapState.slotSaveEntries,
+									SLOT_BY_ANATOMY.mouth,
+								)}
+								{#if entry}
+									<AnatomyTile
+										slotId={entry.kernelSlotId}
+										icon={ICON_MAP[entry.iconName]}
+										purpose={entry.purpose}
+										tagline={entry.tagline}
+										modelName={entry.modelName}
+										modelTagline={entry.modelTagline}
+										sizeHint={entry.sizeHint}
+										tierLabel={entry.tierLabel}
+										aboutHref={entry.aboutHref}
+										state={entry.state}
+										errorText={entry.errorText}
+										accentVar={entry.accentVar}
+										onApply={() => slotsBootstrapState.saveOneSlot(entry.kernelSlotId)}
+									/>
+								{/if}
+							{/snippet}
+						</AnatomyConstellation>
+					</div>
+				</section>
+			{/if}
 
 			{#each ROLE_FRAMES as frame (frame.id)}
 				{@const Icon = ROLE_ICONS[frame.id as keyof typeof ROLE_ICONS] ?? Sparkles}
@@ -332,22 +670,22 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 								<div class="slot-status">
 									{#if ready}
-										<Badge tone="positive" size="sm"><Check size={8} /> Ready</Badge>
+										<Badge variant="positive" size="sm"><Check size={8} /> Ready</Badge>
 									{:else if status?.type === "loading"}
-										<Badge tone="informative" size="sm"><Spinner size="xs" /> Loading</Badge>
+										<Badge variant="informative" size="sm"><Spinner size="xs" /> Loading</Badge>
 									{:else if status?.type === "failed"}
-										<Badge tone="negative" size="sm"><X size={8} /> Failed</Badge>
+										<Badge variant="negative" size="sm"><X size={8} /> Failed</Badge>
 									{:else if model}
-										<Badge tone="neutral" size="sm">Assigned</Badge>
+										<Badge variant="neutral" size="sm">Assigned</Badge>
 									{:else}
-										<Badge tone="neutral" size="sm">Empty</Badge>
+										<Badge variant="neutral" size="sm">Empty</Badge>
 									{/if}
 								</div>
 
 								<div class="slot-actions">
 									{#if !model}
 										<Button
-											preset="button-secondary"
+											preset="secondary"
 											size="sm"
 											onclick={() => openLocalPicker(slotId)}
 											disabled={modelsState.models.length === 0}
@@ -376,7 +714,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 											<X size={12} />
 											Clear
 										</Button>
-										<Button preset="button-secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
+										<Button preset="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 											{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
 											Load
 										</Button>
@@ -430,10 +768,56 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 	{#snippet actions()}
 		<div class="space-y-3">
+			{#if slotsBootstrapState.slotSaveEntries.length > 0}
+				<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+					<div class="flex items-center justify-between mb-2">
+						<Text size="sm" weight="bold">Save every recommended slot</Text>
+						<Button
+							preset="primary"
+							size="sm"
+							onclick={() => slotsBootstrapState.saveAllSlots()}
+							disabled={installsRunning > 0
+								|| slotsBootstrapState.slotSaveEntries.every((e) => e.state === "saved")}
+						>
+							{#if installsRunning > 0}<Spinner size="xs" />{:else}<Check size={14} />{/if}
+							Apply all
+						</Button>
+					</div>
+					<Text size="xs" color="muted">
+						Fires the install chain for every cortex tile that isn't already
+						saved. Harrier-served slots fan out under the hood — one download,
+						five symlinks.
+					</Text>
+				</div>
+				{#if slotsBootstrapState.firstRun}
+					<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
+						<div class="flex items-center justify-between mb-2">
+							<Text size="sm" weight="bold">Mark setup complete</Text>
+							<Button
+								preset="secondary"
+								size="sm"
+								onclick={markBootstrapComplete}
+								disabled={markCompleteBusy}
+							>
+								{#if markCompleteBusy}<Spinner size="xs" />{:else}<Check size={14} />{/if}
+								Mark complete
+							</Button>
+						</div>
+						<Text size="xs" color="muted">
+							Tells the kernel the first-run bootstrap is done. The cortex
+							tiles stay editable afterwards — this just flips the
+							`is_first_run` signal.
+						</Text>
+						{#if markCompleteError}
+							<InlineMessage tone="error">{markCompleteError}</InlineMessage>
+						{/if}
+					</div>
+				{/if}
+			{/if}
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="bold">Rescan models on disk</Text>
-					<Button preset="button-secondary" size="sm" onclick={rescan} disabled={loading}>
+					<Button preset="secondary" size="sm" onclick={rescan} disabled={loading}>
 						{#if loading}
 							<Spinner size="xs" />
 						{:else}
@@ -480,6 +864,30 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<span style="color: var(--text-secondary)">Models in registry</span>
 						<span class="font-mono">{modelsState.models.length}</span>
 					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">Bootstrap first-run</span>
+						<span class="font-mono">{slotsBootstrapState.firstRun ?? "—"}</span>
+					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">Recommendations</span>
+						<span class="font-mono">{slotsBootstrapState.recommendations.length}</span>
+					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">Installs dispatched</span>
+						<span class="font-mono">{slotsBootstrapState.dispatchedInstalls.length}</span>
+					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">Installs running</span>
+						<span class="font-mono">{installsRunning}</span>
+					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">Installs complete</span>
+						<span class="font-mono">{installsComplete}</span>
+					</div>
+					<div class="flex justify-between">
+						<span style="color: var(--text-secondary)">Installs failed</span>
+						<span class="font-mono">{installsFailed}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -493,9 +901,30 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<InstallPanel />
 				<DownloadPanel />
 			</div>
+		{:else if tabId === "encoder"}
+			{@render encoderBody()}
 		{/if}
 	{/snippet}
 </ServiceDevtoolShell>
+
+<!--
+	Bootstrap KnowledgeDeck — pinned bottom-right, doesn't compete
+	with the cortex constellation. The deck rotates between dyk /
+	gloss / insight cards tagged for the `slots` tool scope so the
+	customer sees fresh vocabulary while they work through the
+	tiles. 45 s rotation matches the legacy wizard deck cadence.
+-->
+<div class="slots-knowledge-chip">
+	<KnowledgeDeck
+		context={{
+			id: "slots-devtool",
+			tool: "slots",
+			scope: "slots:bootstrap",
+			preferred: "dyk",
+		}}
+		refreshIntervalMs={45000}
+	/>
+</div>
 
 <!--
 	HfSearchDialog removed — the slot Install model button now opens
@@ -566,11 +995,11 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							</div>
 							<div class="picker-row-caps">
 								{#each m.compatible_capabilities as cap}
-									<Badge tone="neutral" size="sm">{cap}</Badge>
+									<Badge variant="neutral" size="sm">{cap}</Badge>
 								{/each}
 							</div>
 							{#if isCurrent}
-								<Badge tone="positive" size="sm"><Check size={8} /> Assigned</Badge>
+								<Badge variant="positive" size="sm"><Check size={8} /> Assigned</Badge>
 							{/if}
 						</button>
 					{/each}
@@ -597,12 +1026,74 @@ function captureFor(tabId: string): CapturePayload | undefined {
 					<Text size="xs" class="reg-detail">{formatMb(model.vram_estimate_mb)} VRAM</Text>
 					<div class="reg-caps">
 						{#each model.compatible_capabilities as cap}
-							<Badge tone="neutral" size="sm">{cap}</Badge>
+							<Badge variant="neutral" size="sm">{cap}</Badge>
 						{/each}
 					</div>
 				</div>
 			{/each}
 		</div>
+	</div>
+{/snippet}
+
+{#snippet encoderBody()}
+	<div class="space-y-3">
+		<Text size="sm" color="muted">
+			One-shot text-embedding verification for the
+			<code>{RAG_EMBEDDER_SLOT}</code> slot. Type a phrase, click
+			Embed, read back the vector dimension + first five floats.
+			The button is disabled until the kernel reports a loaded
+			Burn encoder (assign + Load a safetensors model first).
+		</Text>
+
+		<div class="encoder-row">
+			<label class="encoder-label" for="encoder-smoke-input">
+				<Text size="xs" weight="bold">Input text</Text>
+			</label>
+			<input
+				id="encoder-smoke-input"
+				class="encoder-input"
+				type="text"
+				bind:value={encoderText}
+				disabled={encoderBusy}
+				placeholder="hello world"
+			/>
+		</div>
+
+		<div class="encoder-actions">
+			<Button
+				preset="primary"
+				size="sm"
+				onclick={runEncoderEmbed}
+				disabled={!encoderReady || encoderBusy || encoderText.length === 0}
+			>
+				{#if encoderBusy}<Spinner size="xs" />{:else}<Zap size={12} />{/if}
+				Embed
+			</Button>
+			{#if encoderReady}
+				<Badge variant="positive" size="sm"><Check size={8} /> Encoder loaded</Badge>
+			{:else}
+				<Badge variant="neutral" size="sm">Encoder not loaded</Badge>
+			{/if}
+		</div>
+
+		{#if encoderError}
+			<InlineMessage tone="error">{encoderError}</InlineMessage>
+		{/if}
+
+		{#if encoderResult}
+			<div class="encoder-result">
+				<div class="encoder-result-row">
+					<Text size="xs" color="muted">Vector dimension</Text>
+					<Text size="xs" weight="bold" class="encoder-mono">{encoderResult.dim}</Text>
+				</div>
+				<div class="encoder-result-row">
+					<Text size="xs" color="muted">First 5 floats</Text>
+					<Text size="xs" class="encoder-mono">
+						[{encoderResult.head.map((f) => f.toFixed(4)).join(", ")}]
+					</Text>
+				</div>
+			</div>
+		{/if}
 	</div>
 {/snippet}
 
@@ -715,4 +1206,90 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 	:global(.picker-row-meta) { color: var(--text-muted); }
 	.picker-row-caps { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+	.encoder-row { display: flex; flex-direction: column; gap: 0.25rem; }
+	.encoder-label { display: flex; }
+	.encoder-input {
+		width: 100%;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.375rem;
+		background: var(--surface-raised);
+		border: 0.0625rem solid var(--border-soft);
+		color: var(--text-primary);
+		font: inherit;
+		font-family: var(--font-mono);
+	}
+	.encoder-input:focus {
+		outline: none;
+		border-color: var(--accent-teal-main);
+	}
+	.encoder-input:disabled { opacity: 0.6; cursor: not-allowed; }
+	.encoder-actions { display: flex; align-items: center; gap: 0.5rem; }
+	.encoder-result {
+		display: flex; flex-direction: column; gap: 0.25rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.5rem;
+		background: var(--surface-raised);
+		border: 0.0625rem solid var(--border-soft);
+	}
+	.encoder-result-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+	:global(.encoder-mono) { font-family: var(--font-mono); }
+
+	/* ── Bootstrap header — VRAM bar + tier readout side by side ── */
+	.bootstrap-header {
+		display: flex;
+		align-items: stretch;
+		gap: var(--space-7);
+		flex-wrap: wrap;
+	}
+	.tier-readout {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		padding: var(--space-5) var(--space-7);
+		border-radius: var(--radius-lg);
+		background: var(--surface-raised);
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		min-width: 12rem;
+	}
+	:global(.tier-label) {
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	/* ── Cortex section — anatomy constellation + backdrop ── */
+	.cortex-section {
+		position: relative;
+		padding: clamp(1rem, 2vw, 1.75rem);
+		border-radius: var(--radius-lg);
+		background: var(--surface-raised);
+		border: var(--border-width-hairline) solid var(--border-subtle);
+		overflow: hidden;
+		isolation: isolate;
+	}
+	.cortex-stack {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		gap: clamp(0.875rem, 1.8vw, 1.5rem);
+	}
+	.cortex-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		text-align: center;
+		max-width: 48rem;
+		margin-inline: auto;
+	}
+
+	/* ── Knowledge deck chip — pinned bottom-right ── */
+	.slots-knowledge-chip {
+		position: fixed;
+		bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+		right: clamp(0.75rem, 1.5vw, 1.25rem);
+		z-index: 50;
+		max-width: clamp(18rem, 30vw, 26rem);
+		pointer-events: auto;
+	}
 </style>

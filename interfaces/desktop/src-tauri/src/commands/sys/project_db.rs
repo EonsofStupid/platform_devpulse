@@ -2,6 +2,10 @@
 //!
 //! Project databases live at `{project_root}/.userdata/project.db`.
 //! Created on demand via `init_project_db`, not during boot.
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform::project_db()` whose adapter docs hold the canonical # Errors copy"
+)]
 
 use crate::state::PlatformState;
 use serde::{Deserialize, Serialize};
@@ -110,7 +114,8 @@ pub async fn init_project_db(
         .first()
         .and_then(|r| r.first())
         .and_then(devpulse_engine::platform::SqlValue::as_integer)
-        .unwrap_or(0) as u64;
+        .and_then(|n| u64::try_from(n).ok())
+        .unwrap_or(0);
 
     let db_path = root.join(".userdata").join("project.db");
 
@@ -195,7 +200,8 @@ pub async fn project_db_list_tables(
                 .first()
                 .and_then(|r| r.first())
                 .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                .unwrap_or(0) as u64;
+                .and_then(|n| u64::try_from(n).ok())
+                .unwrap_or(0);
 
             tables.push(ProjectDbTableInfo {
                 name: name.to_string(),

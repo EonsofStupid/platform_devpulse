@@ -24,12 +24,17 @@
 	```
 -->
 <script lang="ts">
-import type { Component } from "svelte";
 import { Text } from "$lib/design/components/text/index.js";
 
 interface Props {
-	/** Lucide icon component (or any SvelteComponent that accepts size + color). */
-	icon: Component<{ size?: number; class?: string }>;
+	/**
+	 * Lucide icon component. Typed `any` because lucide-svelte v0.564
+	 * exports class-based icons (`SvelteComponentTyped<…>`), which
+	 * structurally don't satisfy Svelte 5's function-form
+	 * `Component<P, E, S>`.
+	 */
+	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
+	icon: any;
 	/** Layman-friendly headline. Not "empty" — explain what wasn't found. */
 	title: string;
 	/** One-line hint pointing at why this could be empty. */

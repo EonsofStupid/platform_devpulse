@@ -182,12 +182,17 @@ pub async fn ollama_status(state: State<'_, PlatformState>) -> Result<OllamaStat
 /// Pings the HTTP API if the service is running. Returns `Unknown` when
 /// the platform hasn't booted or the service slot is empty AND disabled
 /// in config. Returns `Stopped` when slot empty but enabled.
+///
+/// # Errors
+/// Returns the `"Platform not booted"` string when called before the
+/// platform handle is installed. The HTTP ping itself never errors back
+/// to the caller — failures are folded into `OllamaHealthState::Down`.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
 pub async fn ollama_health(state: State<'_, PlatformState>) -> Result<OllamaHealth, String> {
-    let platform = state.platform.load_full().ok_or("Platform not booted")?;
     use devpulse_engine::platform::Service as _;
+
+    let platform = state.platform.load_full().ok_or("Platform not booted")?;
     match platform.ollama() {
         Some(service) => match service.ping().await {
             Ok(()) => Ok(OllamaHealth {

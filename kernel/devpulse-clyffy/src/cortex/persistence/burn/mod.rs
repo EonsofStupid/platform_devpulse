@@ -7,7 +7,7 @@
 //!
 //! This module owns:
 //! - [`qwen3`] — real Qwen3 transformer architecture (28 layers, GQA
-//!   2:1, RoPE, RMSNorm, SwiGLU MLP). Random-init weights in Phase A.
+//!   2:1, `RoPE`, `RMSNorm`, `SwiGLU` MLP). Random-init weights in Phase A.
 //! - [`embedder`] — pipeline glue: pool + normalize on top of the
 //!   transformer's `[B, S, H]` output.
 //!
@@ -15,9 +15,9 @@
 //!
 //! Two feature flags pick the backend at compile time:
 //!
-//! | Feature      | Burn backend           | DType selection       | When                  |
+//! | Feature      | Burn backend           | `DType` selection     | When                  |
 //! |--------------|------------------------|------------------------|-----------------------|
-//! | `burn-cpu`   | `burn::backend::Flex`  | runtime via DType enum | Tests, CI, no-GPU dev |
+//! | `burn-cpu`   | `burn::backend::Flex`  | runtime via `DType` enum | Tests, CI, no-GPU dev |
 //! | `burn-cuda`  | `burn::backend::Cuda`  | generic `Cuda<bf16>`   | Runtime on CUDA hosts |
 //!
 //! Both can be on simultaneously — the consumer picks the type
@@ -27,7 +27,7 @@
 //! generic params are PHANTOM, so bf16 storage isn't selected via the
 //! type. The platform sets `FloatDType::BF16` + `IntDType::I64` once at
 //! boot via `burn::tensor::set_default_dtypes`; every `Tensor::from_data`
-//! after that narrows into bf16 at the boundary. NdArray was the prior
+//! after that narrows into bf16 at the boundary. `NdArray` was the prior
 //! CPU choice but Burn 0.21 only impls `FloatNdArrayElement` for f32/f64,
 //! so `NdArray<bf16>` is rejected at compile time.
 //!
@@ -35,10 +35,10 @@
 //!
 //! - **Phase A** *(this file)* — architecture authored, forward pass
 //!   on random-init weights, three behavioural tests on `NdArray`.
-//! - **Phase B** — Harrier 0.6B SafeTensors → Burn record loader.
+//! - **Phase B** — Harrier 0.6B `SafeTensors` → Burn record loader.
 //! - **Phase C** — HF tokenizers crate wiring + real-text embed test.
 //! - **Phase D** — BM25 sparse pass alongside dense.
-//! - **Phase E** — ArcSwap hot-reload protocol per spec §4.3.
+//! - **Phase E** — `ArcSwap` hot-reload protocol per spec §4.3.
 //! - **Phase F** — 13-crate `rro-*` workspace split per spec §8.
 //!
 //! Each phase is gated to its own plan
@@ -187,7 +187,7 @@ mod tests {
         let mask: Tensor<B, 2, Int> =
             Tensor::from_data(TensorData::new(mask_data, [batch, seq]), &device);
 
-        let out = model.forward(token_ids, mask);
+        let out = model.forward(token_ids, &mask);
         assert_eq!(out.dims(), [batch, seq, cfg.hidden_size]);
 
         let raw: Vec<f32> = out.to_data().to_vec().unwrap();

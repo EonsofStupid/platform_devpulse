@@ -24,17 +24,7 @@
 	makes that constraint visible.
 -->
 <script lang="ts">
-import {
-	AlertCircle,
-	Database,
-	Globe,
-	Network,
-	RefreshCw,
-	RotateCcw,
-	Save,
-	ServerCog,
-	Terminal,
-} from "lucide-svelte";
+import { Database, Globe, Network, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -156,29 +146,10 @@ const badge = $derived<HealthBadge>(
 						: { state: "unknown", label: "Not checked yet" },
 );
 
-// ── Config draft helpers ──────────────────────────────────
-// Inputs use value || null so empty strings become None on the
-// Rust side (= "inherit from platform.default.toml").
-function updatePort(raw: string) {
-	const n = Number.parseInt(raw, 10);
-	surrealdbSidecar.draft.port = Number.isFinite(n) && n >= 1024 ? n : null;
-}
-function updateMaxBumps(raw: string) {
-	const n = Number.parseInt(raw, 10);
-	surrealdbSidecar.draft.max_bumps = Number.isFinite(n) && n > 0 && n <= 100 ? n : null;
-}
-function updateBinary(raw: string) {
-	surrealdbSidecar.draft.binary_path = raw.trim() === "" ? null : raw;
-}
-function updateLogLevel(raw: string) {
-	surrealdbSidecar.draft.log_level = raw === "" ? null : raw;
-}
-function updateRootUser(raw: string) {
-	surrealdbSidecar.draft.root_user = raw.trim() === "" ? null : raw;
-}
-function updateRootPassword(raw: string) {
-	surrealdbSidecar.draft.root_password = raw === "" ? null : raw;
-}
+// SurrealDB is now embedded (kv-surrealkv) — no port / binary /
+// credentials to override. `SurrealUserConfig` is reserved as
+// `Record<string, never>` for future tuning knobs; until they
+// land the Config tab renders a flat "no overrides" panel.
 
 // ── Console handlers ──────────────────────────────────────
 function handleQuerySubmit(): void {
@@ -242,17 +213,12 @@ function handleKeydown(e: KeyboardEvent): void {
 								<Text size="sm" weight="semibold">surreal</Text>
 								{#if surrealdbSidecar.status.running}
 									{#if surrealdbSidecar.status.managed}
-										<Badge tone="positive" size="sm">Managed</Badge>
+										<Badge variant="positive" size="sm">Embedded</Badge>
 									{:else}
-										<Badge tone="neutral" size="sm">Attached</Badge>
-									{/if}
-									{#if surrealdbSidecar.bumped}
-										<Badge tone="warning" size="sm">
-											port +{surrealdbSidecar.status.portBumps}
-										</Badge>
+										<Badge variant="neutral" size="sm">Attached</Badge>
 									{/if}
 								{:else}
-									<Badge tone="neutral" size="sm">Stopped</Badge>
+									<Badge variant="neutral" size="sm">Stopped</Badge>
 								{/if}
 							</div>
 							<span
@@ -266,20 +232,17 @@ function handleKeydown(e: KeyboardEvent): void {
 						<div class="space-y-1 text-xs">
 							{#if surrealdbSidecar.status.running}
 								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">Port</span>
-									<span class="font-mono">{surrealdbSidecar.portSummary}</span>
+									<span class="text-[var(--text-secondary)]">Backend</span>
+									<span class="font-mono">{surrealdbSidecar.status.backend}</span>
 								</div>
 								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">HTTP</span>
-									<span class="font-mono">{surrealdbSidecar.status.httpUrl}</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">WS</span>
-									<span class="font-mono">{surrealdbSidecar.status.wsUrl}</span>
+									<span class="text-[var(--text-secondary)]">Data path</span>
+									<span class="font-mono break-all">{surrealdbSidecar.status.dataPath}</span>
 								</div>
 							{:else}
 								<Text size="xs" color="muted">
-									Sidecar not booted — check boot log at <code>.userdata/logs/boot.log</code>.
+									Embedded store not initialized — check boot log at
+									<code>.userdata/logs/boot.log</code>.
 								</Text>
 							{/if}
 						</div>
@@ -388,7 +351,8 @@ function handleKeydown(e: KeyboardEvent): void {
 	{/snippet}
 
 	<!-- ── CONFIG ────────────────────────────────────────── -->
-	<!-- Sidecar overrides — port, binary, credentials, log level. -->
+	<!-- Embedded SurrealKV has no runtime knobs to override; the
+	     Config tab surfaces the data path the kernel boots against. -->
 	{#snippet config()}
 		<div class="space-y-3">
 			{#if surrealdbSidecar.configError}
@@ -397,125 +361,21 @@ function handleKeydown(e: KeyboardEvent): void {
 				</div>
 			{/if}
 
-			{#if surrealdbSidecar.needsRestart}
-				<div class="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 text-xs text-blue-300 flex gap-2">
-					<AlertCircle size={14} class="shrink-0 mt-0.5" />
-					<div>
-						<div class="font-semibold mb-1">Restart to apply</div>
-						<div>
-							Config saved to <code>user/surreal.toml</code>. Restart the app for changes to take effect — the sidecar
-							only reads this file at boot.
-						</div>
-					</div>
-				</div>
-			{/if}
-
 			<Text size="xs" color="muted">
-				Every field is an override. Leave blank to inherit from
-				<code>platform.default.toml</code>. Persists to <code>user/surreal.toml</code>.
+				SurrealDB now runs embedded (<code>kv-surrealkv</code>). There are
+				no port, binary, or credential overrides — the kernel holds the
+				file lock directly. Future tuning knobs (cache size, compaction
+				policy) land here.
 			</Text>
 
-			<div class="grid grid-cols-2 gap-3">
-				<label class="flex flex-col gap-1">
-					<span class="text-xs text-[var(--text-secondary)]">Port</span>
-					<input
-						type="number"
-						min="1024"
-						max="65535"
-						class="px-2 py-1 text-xs font-mono rounded border border-[var(--border-subtle)] bg-[var(--surface-base)]"
-						value={surrealdbSidecar.draft.port ?? ""}
-						placeholder={surrealdbSidecar.status?.configuredPort?.toString() ?? "inherit"}
-						oninput={(e) => updatePort(e.currentTarget.value)}
-					/>
-				</label>
-
-				<label class="flex flex-col gap-1">
-					<span class="text-xs text-[var(--text-secondary)]">Max port bumps</span>
-					<input
-						type="number"
-						min="0"
-						max="100"
-						class="px-2 py-1 text-xs font-mono rounded border border-[var(--border-subtle)] bg-[var(--surface-base)]"
-						value={surrealdbSidecar.draft.max_bumps ?? ""}
-						placeholder="20 (default)"
-						oninput={(e) => updateMaxBumps(e.currentTarget.value)}
-					/>
-				</label>
-
-				<label class="col-span-2 flex flex-col gap-1">
-					<span class="text-xs text-[var(--text-secondary)]">Binary path</span>
-					<input
-						type="text"
-						class="px-2 py-1 text-xs font-mono rounded border border-[var(--border-subtle)] bg-[var(--surface-base)]"
-						value={surrealdbSidecar.draft.binary_path ?? ""}
-						placeholder="(bundled / standard install / PATH)"
-						oninput={(e) => updateBinary(e.currentTarget.value)}
-					/>
-				</label>
-
-				<label class="flex flex-col gap-1">
-					<span class="text-xs text-[var(--text-secondary)]">Log level</span>
-					<select
-						class="px-2 py-1 text-xs font-mono rounded border border-[var(--border-subtle)] bg-[var(--surface-base)]"
-						value={surrealdbSidecar.draft.log_level ?? ""}
-						onchange={(e) => updateLogLevel(e.currentTarget.value)}
-					>
-						<option value="">(inherit)</option>
-						<option value="error">error</option>
-						<option value="warn">warn</option>
-						<option value="info">info</option>
-						<option value="debug">debug</option>
-						<option value="trace">trace</option>
-					</select>
-				</label>
-
-				<label class="flex flex-col gap-1">
-					<span class="text-xs text-[var(--text-secondary)]">Root user</span>
-					<input
-						type="text"
-						class="px-2 py-1 text-xs font-mono rounded border border-[var(--border-subtle)] bg-[var(--surface-base)]"
-						value={surrealdbSidecar.draft.root_user ?? ""}
-						placeholder="root (default)"
-						oninput={(e) => updateRootUser(e.currentTarget.value)}
-					/>
-				</label>
-
-				<label class="col-span-2 flex flex-col gap-1">
-					<span class="text-xs text-[var(--text-secondary)]">Root password</span>
-					<input
-						type="password"
-						class="px-2 py-1 text-xs font-mono rounded border border-[var(--border-subtle)] bg-[var(--surface-base)]"
-						value={surrealdbSidecar.draft.root_password ?? ""}
-						placeholder="root (default)"
-						oninput={(e) => updateRootPassword(e.currentTarget.value)}
-					/>
-				</label>
-			</div>
-
-			<div class="flex gap-2 justify-end pt-2">
-				<Button
-					preset="ghost"
-					size="sm"
-					onclick={() => surrealdbSidecar.reset()}
-					disabled={!surrealdbSidecar.dirty || surrealdbSidecar.configSaving}
-				>
-					<RotateCcw size={14} />
-					Reset
-				</Button>
-				<Button
-					preset="primary"
-					size="sm"
-					onclick={() => void surrealdbSidecar.save()}
-					disabled={!surrealdbSidecar.dirty || surrealdbSidecar.configSaving}
-				>
-					{#if surrealdbSidecar.configSaving}
-						<Spinner size="xs" tone="accent" />
-					{:else}
-						<Save size={14} />
-					{/if}
-					Save
-				</Button>
-			</div>
+			{#if surrealdbSidecar.status?.dataPath}
+				<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-1">
+					<Text size="xs" weight="semibold">Data path</Text>
+					<code class="text-xs font-mono text-[var(--text-secondary)] break-all">
+						{surrealdbSidecar.status.dataPath}
+					</code>
+				</div>
+			{/if}
 		</div>
 	{/snippet}
 
@@ -542,7 +402,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Re-poll the sidecar liveness and ping every namespace.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => {
 							void surrealdbSidecar.loadStatus();
@@ -566,12 +426,12 @@ function handleKeydown(e: KeyboardEvent): void {
 						Refresh the table catalog for the active namespace.
 					</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={() => surrealState.loadTables()}
-						disabled={surrealState.tablesLoading}
+						disabled={surrealState.browserLoading}
 					>
-						{#if surrealState.tablesLoading}
+						{#if surrealState.browserLoading}
 							<Spinner size="xs" tone="accent" />
 						{:else}
 							<Database size={14} />
@@ -597,7 +457,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Sanity probe</Text>
 					<Button
-						preset="default"
+						preset="primary"
 						size="sm"
 						onclick={async () => {
 							surrealState.queryInput = "INFO FOR DB;";
@@ -619,7 +479,7 @@ function handleKeydown(e: KeyboardEvent): void {
 					</div>
 				{:else if surrealState.queryResult !== null}
 					<div class="text-xs font-mono" style="color: var(--signal-success)">
-						ok — {surrealState.queryResult.row_count} rows
+						ok — query returned
 					</div>
 				{/if}
 			</div>
@@ -631,16 +491,16 @@ function handleKeydown(e: KeyboardEvent): void {
 						<span class="text-[var(--text-secondary)]">Running</span>
 						<span class="font-mono">{surrealdbSidecar.running ? "yes" : "no"}</span>
 					</div>
-					{#if surrealdbSidecar.status?.bound_port}
+					{#if surrealdbSidecar.status?.backend}
 						<div class="flex justify-between">
-							<span class="text-[var(--text-secondary)]">Port</span>
-							<span class="font-mono">{surrealdbSidecar.status.bound_port}</span>
+							<span class="text-[var(--text-secondary)]">Backend</span>
+							<span class="font-mono">{surrealdbSidecar.status.backend}</span>
 						</div>
 					{/if}
-					{#if surrealdbSidecar.status?.portBumps !== undefined && surrealdbSidecar.status.portBumps > 0}
+					{#if surrealdbSidecar.status?.dataPath}
 						<div class="flex justify-between">
-							<span class="text-[var(--text-secondary)]">Port bumps</span>
-							<span class="font-mono">+{surrealdbSidecar.status.portBumps}</span>
+							<span class="text-[var(--text-secondary)]">Data path</span>
+							<span class="font-mono break-all">{surrealdbSidecar.status.dataPath}</span>
 						</div>
 					{/if}
 				</div>
@@ -660,51 +520,27 @@ function handleKeydown(e: KeyboardEvent): void {
 	{/snippet}
 </ServiceDevtoolShell>
 
-<!-- ── PROCESS — port-bump + binary path detail ────────── -->
+<!-- ── PROCESS — embedded backend + data-path detail ───── -->
 {#snippet processBody()}
 	<div class="space-y-4">
-		{#if surrealdbSidecar.bumped}
-			<div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex gap-2">
-				<AlertCircle size={14} class="shrink-0 mt-0.5" />
-				<div>
-					<div class="font-semibold mb-1">Port auto-bumped</div>
-					<div>
-						The configured port
-						<code>:{surrealdbSidecar.status?.configuredPort}</code>
-						was held by another process; the allocator landed on
-						<code>:{surrealdbSidecar.status?.actualPort}</code>
-						instead. Edit the port in Config to pin a different one,
-						or free <code>:{surrealdbSidecar.status?.configuredPort}</code>
-						and restart.
-					</div>
-				</div>
-			</div>
-		{/if}
-
-		{#if surrealdbSidecar.status?.binaryPath}
+		{#if surrealdbSidecar.status?.running}
 			<div class="space-y-2">
-				<Text size="xs" weight="bold" color="muted">Binary</Text>
+				<Text size="xs" weight="bold" color="muted">Embedded backend</Text>
 				<div
 					class="rounded p-2 font-mono text-xs"
 					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
 				>
-					{surrealdbSidecar.status.binaryPath}
+					{surrealdbSidecar.status.backend}
 				</div>
 			</div>
-		{/if}
 
-		{#if surrealdbSidecar.status?.running}
 			<div class="space-y-2">
-				<Text size="xs" weight="bold" color="muted">Endpoints</Text>
-				<div class="grid grid-cols-1 gap-1 text-xs">
-					<div class="flex justify-between rounded px-2 py-1 font-mono" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-						<span class="text-[var(--text-secondary)]">HTTP</span>
-						<span>{surrealdbSidecar.status.httpUrl}</span>
-					</div>
-					<div class="flex justify-between rounded px-2 py-1 font-mono" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
-						<span class="text-[var(--text-secondary)]">WS</span>
-						<span>{surrealdbSidecar.status.wsUrl}</span>
-					</div>
+				<Text size="xs" weight="bold" color="muted">Data path</Text>
+				<div
+					class="rounded p-2 font-mono text-xs break-all"
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+				>
+					{surrealdbSidecar.status.dataPath}
 				</div>
 			</div>
 		{:else}
@@ -857,7 +693,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
 				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
 				<Button
-					preset="default"
+					preset="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
 					disabled={surrealState.queryLoading || !surrealState.queryInput.trim()}

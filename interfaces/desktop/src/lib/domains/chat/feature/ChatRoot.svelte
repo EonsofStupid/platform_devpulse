@@ -5,7 +5,7 @@
 import DynamicBackground from "$lib/design/components/dynamic-background/DynamicBackground.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import { ModelEventCard, modelsState, narrationState } from "$lib/domains/app/models/index.js";
+import { ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import ChatActionsMenu from "./ChatActionsMenu.svelte";
@@ -22,16 +22,12 @@ const activeModelEvents = $derived.by(() => {
 	for (const [slotId, status] of Object.entries(modelsState.statuses)) {
 		if (!status) continue;
 		if (dismissedEvents.has(slotId)) continue;
-		if (status.type === "loading" || status.type === "hot" || status.type === "failed") {
+		if (status.type === "loading" || status.type === "ready" || status.type === "failed") {
 			events.push({ slotId, status });
 		}
 	}
 	return events;
 });
-
-function dismissEvent(slotId: string): void {
-	dismissedEvents = new Set([...dismissedEvents, slotId]);
-}
 
 $effect(() => {
 	void devpulseState.data.recentProjects[0]?.id;
@@ -47,13 +43,7 @@ $effect(() => {
 
 <div class="relative flex min-h-0 flex-1 flex-col">
 	{#each activeModelEvents as event (event.slotId)}
-		{@const msg = narrationState.forSlot(event.slotId)}
-		<ModelEventCard
-			slotId={event.slotId}
-			status={event.status}
-			clyffyMessage={msg?.text ?? "Working on it..."}
-			onDismiss={() => dismissEvent(event.slotId)}
-		/>
+		<ModelEventCard slotId={event.slotId} />
 	{/each}
 	<DynamicBackground variant="devpulse" animated={true} class="pointer-events-none absolute inset-0 opacity-[0.25]" />
 	<div class="relative z-10 flex min-h-0 flex-1 gap-2 p-2">

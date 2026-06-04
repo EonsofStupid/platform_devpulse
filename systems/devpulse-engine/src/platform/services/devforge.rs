@@ -120,32 +120,17 @@ impl DevForgeService {
                 .with_context(|| format!("create {}", ext_dir.display()))?;
         }
 
-        // ── Build command ────────────────────────────────────────
-        let mut cmd = Command::new(&node_exe);
-        cmd.arg(&server_main)
-            .arg("--host")
-            .arg(&entry.host)
-            .arg("--port")
-            .arg(port.to_string())
-            .arg("--connection-token")
-            .arg(&token)
-            .arg("--accept-server-license-terms")
-            .arg("--user-data-dir")
-            .arg(user_data_dir);
-
-        if let Some(ext_dir) = extensions_dir {
-            cmd.arg("--extensions-dir").arg(ext_dir);
-        }
-
-        if let Some(ws) = workspace_path {
-            cmd.arg("--folder-uri").arg(folder_uri(ws));
-        }
-
-        cmd.current_dir(server_dir);
-        cmd.kill_on_drop(true);
-
-        #[cfg(windows)]
-        cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+        let mut cmd = build_reh_command(
+            &node_exe,
+            &server_main,
+            entry,
+            port,
+            &token,
+            user_data_dir,
+            extensions_dir,
+            workspace_path,
+            server_dir,
+        );
 
         let bind_addr = format!("{}:{}", entry.host, port);
 
@@ -320,7 +305,7 @@ impl Service for DevForgeService {
 /// formatting and the [`DevForgeService`] does not need to hold the
 /// poll cadence on itself. Each connect attempt is emitted at `DEBUG`
 /// level on the `sidecar.lifecycle` target — intra-phase debug events
-/// are tracing-only by design (the InternalEvent layer carries phase
+/// are tracing-only by design (the `InternalEvent` layer carries phase
 /// transitions, not poll attempts).
 async fn wait_for_health(addr: &str, timeout: Duration, poll: Duration) -> Result<()> {
     let deadline = tokio::time::Instant::now() + timeout;
@@ -376,6 +361,54 @@ fn generate_token() -> String {
         let _ = write!(&mut s, "{b:02x}");
     }
     s
+}
+
+/// Build the `tokio::process::Command` that launches the REH server.
+///
+/// Extracted from `DevForgeService::boot_reh` so that function stays
+/// under the workspace `clippy::too_many_lines` budget (100 lines).
+/// All side effects (kill-on-drop, Windows no-console flag,
+/// current-dir) are applied here so the caller only deals with the
+/// finished `Command`.
+#[allow(clippy::too_many_arguments)]
+fn build_reh_command(
+    node_exe: &Path,
+    server_main: &Path,
+    entry: &DevForgeServiceEntry,
+    port: u16,
+    token: &str,
+    user_data_dir: &Path,
+    extensions_dir: Option<&Path>,
+    workspace_path: Option<&Path>,
+    server_dir: &Path,
+) -> Command {
+    let mut cmd = Command::new(node_exe);
+    cmd.arg(server_main)
+        .arg("--host")
+        .arg(&entry.host)
+        .arg("--port")
+        .arg(port.to_string())
+        .arg("--connection-token")
+        .arg(token)
+        .arg("--accept-server-license-terms")
+        .arg("--user-data-dir")
+        .arg(user_data_dir);
+
+    if let Some(ext_dir) = extensions_dir {
+        cmd.arg("--extensions-dir").arg(ext_dir);
+    }
+
+    if let Some(ws) = workspace_path {
+        cmd.arg("--folder-uri").arg(folder_uri(ws));
+    }
+
+    cmd.current_dir(server_dir);
+    cmd.kill_on_drop(true);
+
+    #[cfg(windows)]
+    cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+
+    cmd
 }
 
 /// Convert a filesystem path into the `file://` URI the REH server expects.
@@ -454,11 +487,11 @@ pub fn resolve_devforge_server_dir(data_dir: &Path) -> Option<PathBuf> {
 // Preflight contract — pre-launch checks for DevForge
 // ═══════════════════════════════════════════════════════════════
 
-/// Stateless preflight view-struct for DevForge.
+/// Stateless preflight view-struct for `DevForge`.
 ///
 /// The service does not exist yet at preflight time — it has not been
 /// spawned. This struct holds borrowed config + paths, runs every
-/// pre-launch probe DevForge needs, and returns one [`PreflightCheck`]
+/// pre-launch probe `DevForge` needs, and returns one [`PreflightCheck`]
 /// per probe via the [`Preflightable`] contract.
 ///
 /// Probes:
@@ -476,7 +509,7 @@ pub struct DevForgePreflight<'a> {
     pub data_dir: &'a Path,
 }
 
-impl<'a> Preflightable for DevForgePreflight<'a> {
+impl Preflightable for DevForgePreflight<'_> {
     fn role(&self) -> ServiceRole {
         ServiceRole::DevForge
     }
