@@ -146,7 +146,7 @@ fn detect_capability() -> WindowCapability {
     WindowCapability::Full
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(target_os = "linux")))]
 mod tests {
     use super::*;
 
@@ -154,7 +154,6 @@ mod tests {
     fn detect_capability_is_full_on_non_linux() {
         // Anywhere this test runs that isn't Linux, we should report Full.
         // The Wayland branch is Linux-only so it can never trip elsewhere.
-        #[cfg(not(target_os = "linux"))]
         assert_eq!(detect_capability(), WindowCapability::Full);
     }
 }

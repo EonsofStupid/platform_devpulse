@@ -10,14 +10,18 @@
 
 use std::sync::Arc;
 
+use burn::prelude::Device;
 use devpulse_clyffy::cortex::cag::Embedder;
 use devpulse_clyffy::cortex::persistence::burn::{CortexBurnAdapter, EmbedderCpuBackend};
 
 #[test]
 fn burn_adapter_implements_cag_embedder_trait_and_reports_harrier_dimension() {
-    // Construct the adapter with the Harrier 0.6B preset — same
-    // shape engine boot uses. Device is the unit-style `Cpu` enum.
-    let device = burn::backend::ndarray::NdArrayDevice::Cpu;
+    // Construct the adapter with the Harrier 0.6B preset — same shape
+    // engine boot uses. `burn::prelude::Device<B>` is the canonical type
+    // alias for `<B as Backend>::Device` in Burn 0.21+, picked because it
+    // keeps the test agnostic to the concrete backend the cortex
+    // abstraction selects (`Flex` today, `Cuda` / `Wgpu` tomorrow).
+    let device: Device<EmbedderCpuBackend> = Default::default();
     let adapter: Arc<CortexBurnAdapter<EmbedderCpuBackend>> = Arc::new(CortexBurnAdapter::<
         EmbedderCpuBackend,
     >::harrier_0_6b(device));

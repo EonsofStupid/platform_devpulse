@@ -13,6 +13,10 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  # GHA runners default to Node 20 on actions/checkout@v4, actions/setup-node@v4,
+  # pnpm/action-setup@v4. June 16, 2026 GHA forces Node 24; opting in now avoids
+  # the deprecation warnings on every run and pins the runtime today.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   # `debuginfo=0` cuts dev-profile rlib sizes by 4-6x. Without it, every
   # cargo step that links (Build + Test) ends in
   # `collect2: fatal error: ld terminated with signal 7 [Bus error]`
