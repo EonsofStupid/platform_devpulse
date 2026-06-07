@@ -1,6 +1,6 @@
 {
   "interfaces/desktop/src/lib/design": "0.2.1",
-  "interfaces/desktop": "2.0.0",
+  "interfaces/desktop": "2.0.1",
   "systems/devpulse-engine": "1.0.1",
   "kernel/devpulse-clyffy": "1.0.1"
 }
