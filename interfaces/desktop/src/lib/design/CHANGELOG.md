@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/EonsofStupid/platform_devpulse/compare/coldlight-v0.2.0...coldlight-v0.2.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* **desktop:** post-API-alignment cleanup across Rust + frontend ([#8](https://github.com/EonsofStupid/platform_devpulse/issues/8)) ([4071c1a](https://github.com/EonsofStupid/platform_devpulse/commit/4071c1a8e10aea58be164bde34bfe00f76e814ab))
+
 ## [0.2.0](https://github.com/EonsofStupid/platform_devpulse/compare/coldlight-v0.1.0...coldlight-v0.2.0) (2026-05-21)
 
 
