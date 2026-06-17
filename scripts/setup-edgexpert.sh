@@ -43,6 +43,42 @@ else
   warn "nvidia-smi not found — expected on the GB10. Not fatal for the CLI, but a red flag if you think you're on the EdgeXpert."
 fi
 
+# --- clyffy build-readiness preflight (informational) -------------------------
+# The Claude Code CLI does NOT need CUDA. This block checks whether the box can
+# later build model-loader with --features cuda,nvml,llama-cpp-cuda for local
+# GPU inference (clyffy on the GB10). Warnings only — never fatal.
+clyffy_preflight() {
+  log "clyffy GPU build-readiness check (informational):"
+  local ready=1
+
+  case "$arch" in
+    aarch64|arm64) log "  arch: ${arch} (Grace) OK" ;;
+    *) warn "  arch: ${arch} — not the GB10; cuda build targets aarch64."; ready=0 ;;
+  esac
+
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    log "  driver: $(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -1)"
+  else
+    warn "  driver: nvidia-smi missing — runtime GPU load will fail."; ready=0
+  fi
+
+  if command -v nvcc >/dev/null 2>&1; then
+    log "  CUDA toolkit: $(nvcc --version 2>/dev/null | grep -oE 'release [0-9.]+' | head -1)"
+  else
+    warn "  CUDA toolkit: nvcc missing — candle-core/cuda + llama-cpp-2/cuda cannot compile."
+    warn "    install the CUDA toolkit (DGX OS ships it; ensure nvcc is on PATH) before building."
+    ready=0
+  fi
+
+  if [[ "$ready" == "1" ]]; then
+    log "  -> box looks build-ready. clyffy build:"
+    log "     cargo build -p model-loader --no-default-features \\"
+    log "       --features candle-backend,moshi-sts,cuda,nvml,llama-cpp-cuda"
+  else
+    warn "  -> not yet build-ready for GPU clyffy; resolve the warnings above first."
+  fi
+}
+
 # --- Verify path --------------------------------------------------------------
 verify() {
   if command -v claude >/dev/null 2>&1; then
@@ -60,7 +96,9 @@ verify() {
 if [[ "$CHECK_ONLY" == "1" ]]; then
   log "--check: verifying existing install only."
   verify
-  exit $?
+  rc=$?
+  clyffy_preflight
+  exit $rc
 fi
 
 # --- Install (native installer: auto-detects aarch64, bundles ripgrep) --------
@@ -84,6 +122,7 @@ fi
 
 # --- Verify -------------------------------------------------------------------
 verify || true
+clyffy_preflight
 
 cat <<'EOF'
 
