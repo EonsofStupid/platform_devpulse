@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-05-31T01:00:34.756Z
+ * Generated: 2026-06-18T22:09:49.278Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -334,7 +334,7 @@ export const TERMS: Record<string, Term> = {
 	"pre-processed context": {
 		engine: "pre-processed context",
 		prod: "pre-processed context",
-		dev: "Reasoning Ready Object",
+		dev: "Reason Ready Object",
 		category: "algorithms",
 		context: ["logs","traces"],
 	},
