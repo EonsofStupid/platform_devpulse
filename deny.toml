@@ -43,6 +43,7 @@ ignore = [
     "RUSTSEC-2026-0099", # rustls-webpki wildcard DNS constraints (transitive via libsql/rustls 0.22)
     "RUSTSEC-2026-0104", # aws-lc CRL parse panic (transitive via surrealdb — supersedes 0044/0048)
     "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs → rro)
+    "RUSTSEC-2026-0173", # proc-macro-error2 unmaintained (transitive via rro/getset/raft + validator_derive + jieba-rs/include-flate; upstream forks all unmaintained, no maintained replacement yet)
 ]
 
 [licenses]

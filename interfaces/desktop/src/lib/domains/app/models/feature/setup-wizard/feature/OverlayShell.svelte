@@ -136,8 +136,13 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		flex-direction: column;
 		gap: 1rem;
 		padding: 1.5rem;
+		/* min/max widths in real rem so child grids (AnatomyConstellation
+		   uses max-width: 64rem) actually get their intended room.
+		   40rem was crushing the cortex constellation's 3-column row
+		   to ~183px per cell, which forced single-word title wrap. */
 		min-width: 30rem;
-		max-width: 40rem;
+		max-width: 64rem;
+		width: 100%;
 	}
 
 	.shell-head {
