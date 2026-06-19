@@ -3,8 +3,26 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    # Docs/scripts/agent-config changes do not affect the cargo or pnpm build
+    # output, so they must not trigger the full llama-cpp/DuckDB/Tauri/Candle
+    # workspace build. A PR is skipped only when EVERY changed file matches —
+    # mixed PRs (docs + code) still run. NOTE: if branch protection later marks
+    # "CI Pass" as a required check, switch to a dorny/paths-filter gate so the
+    # required check still reports on skipped runs.
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "scripts/**"
+      - ".claude/**"
+      - "LICENSE"
   push:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "scripts/**"
+      - ".claude/**"
+      - "LICENSE"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
