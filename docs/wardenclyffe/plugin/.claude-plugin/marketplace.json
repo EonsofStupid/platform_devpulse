@@ -1,0 +1,23 @@
+{
+  "name": "wardenclyffe-marketplace",
+  "description": "WardenClyffe — Claude extensions for the self-hosted DevPulse / Clyffy AI platform.",
+  "owner": {
+    "name": "EonsofStupid",
+    "email": "jessay@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "wardenclyffe",
+      "displayName": "WardenClyffe",
+      "description": "Self-hosted Clyffy/RRD MCP connector plus the signal-routing and memory-ledger skills and site-scaffolding commands.",
+      "author": {
+        "name": "EonsofStupid",
+        "email": "jessay@gmail.com"
+      },
+      "category": "development",
+      "source": "./plugins/wardenclyffe",
+      "version": "0.1.0",
+      "tags": ["mcp", "self-hosted", "rrd", "coldlight", "lovable"]
+    }
+  ]
+}

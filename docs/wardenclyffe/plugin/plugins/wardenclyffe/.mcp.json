@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "clyffy": {
+      "type": "http",
+      "url": "https://mcp.wardenclyffe.local/mcp",
+      "headers": {
+        "Authorization": "Bearer ${WARDENCLYFFE_TOKEN}"
+      }
+    }
+  }
+}

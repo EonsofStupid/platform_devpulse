@@ -1,0 +1,9 @@
+{
+  "name": "wardenclyffe",
+  "description": "Self-hosted Clyffy/RRD MCP connector, signal-routing + memory-ledger skills, and site-scaffolding commands for the DevPulse platform.",
+  "author": {
+    "name": "EonsofStupid",
+    "email": "jessay@gmail.com"
+  },
+  "version": "0.1.0"
+}
