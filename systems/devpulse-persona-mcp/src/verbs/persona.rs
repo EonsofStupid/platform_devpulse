@@ -202,9 +202,8 @@ pub async fn recall(
     match mode {
         RecallMode::Bfs | RecallMode::Rrf => {
             return Err(PersonaError::InvalidArg(format!(
-                "recall mode={:?} requires the graph adapter (Slice 5); \
-                 use cos or bm25 for v1",
-                mode
+                "recall mode={mode:?} requires the graph adapter (Slice 5); \
+                 use cos or bm25 for v1"
             )));
         }
         RecallMode::Cos | RecallMode::Bm25 => {}
@@ -241,7 +240,17 @@ pub async fn recall(
             // bodies receive a small length penalty to keep relevance
             // tight. Replaced by cosine score in Slice 3.
             let base = if label_hit { 1.0_f32 } else { 0.7_f32 };
-            let len_penalty = 1.0_f32 / ((b.body.len() as f32 / 256.0).max(1.0));
+            // Body lengths are bounded < 64 KB in practice (persona blocks
+            // are short JSON snippets, not large blobs). f32 mantissa is
+            // 23 bits ≈ 8 MB max precise representation — body.len() is
+            // well within that. `as f32` is safe here. Replaced by proper
+            // scoring in Slice 3 anyway.
+            #[expect(
+                clippy::cast_precision_loss,
+                reason = "persona block bodies are bounded < 64 KB; usize → f32 stays within mantissa precision; crude scoring superseded in Slice 3"
+            )]
+            let body_len_f32 = b.body.len() as f32;
+            let len_penalty = 1.0_f32 / ((body_len_f32 / 256.0).max(1.0));
             Some((base * len_penalty, b))
         })
         .collect();

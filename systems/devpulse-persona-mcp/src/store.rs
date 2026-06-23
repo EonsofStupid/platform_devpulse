@@ -458,6 +458,10 @@ impl PersonaStore {
     /// # Errors
     /// Returns [`PersonaError::InvalidArg`] on validation failure or
     /// [`PersonaError::Backend`] on storage failure.
+    #[expect(
+        clippy::too_many_lines,
+        reason = "branching SQL builder across 4 optional filters (scope, slug, label_filter, since); extracting helpers would obscure the WHERE-clause flow and the param-binding order which is positional in libsql"
+    )]
     pub async fn list_blocks(
         &self,
         scope: PersonaScope,
@@ -601,7 +605,7 @@ fn validate_scope_slug(scope: PersonaScope, slug: Option<&str>) -> PersonaResult
         (PersonaScope::Project, None) => Err(PersonaError::InvalidArg(
             "scope=project requires a slug".to_string(),
         )),
-        (PersonaScope::Project, Some(s)) if s.is_empty() => Err(PersonaError::InvalidArg(
+        (PersonaScope::Project, Some("")) => Err(PersonaError::InvalidArg(
             "project slug must be non-empty".to_string(),
         )),
         (PersonaScope::User, Some(_)) => Err(PersonaError::InvalidArg(

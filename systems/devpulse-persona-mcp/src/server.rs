@@ -171,6 +171,10 @@ impl Server {
     }
 
     /// `initialize` — return MCP server capabilities.
+    #[expect(
+        clippy::unused_self,
+        reason = "kept on Server impl for protocol consistency; Slice 6 will wire per-session capability gating via self.auth_gate"
+    )]
     fn initialize(&self) -> Value {
         json!({
             "protocolVersion": MCP_PROTOCOL_VERSION,
@@ -185,6 +189,10 @@ impl Server {
     }
 
     /// `tools/list` — advertise the persona.* verb surface.
+    #[expect(
+        clippy::unused_self,
+        reason = "kept on Server impl for protocol consistency; Slice 6 will scope tool visibility per auth context via self.auth_gate"
+    )]
     fn tools_list(&self) -> Value {
         json!({
             "tools": [
@@ -253,6 +261,17 @@ impl Server {
     /// `tools/call` — extract `(name, arguments)` and route to the
     /// matching verb handler.
     async fn tools_call(&self, params: Value) -> Result<Value, ErrorEnvelope> {
+        // Items FIRST — at the very top of the function body, before any
+        // statement, per clippy::items_after_statements. The params DTO
+        // is local to this function so it stays inside the body rather
+        // than at module scope.
+        #[derive(Deserialize)]
+        struct ToolsCallParams {
+            name: String,
+            #[serde(default)]
+            arguments: Value,
+        }
+
         // Authentication gate. v1: when CLYFFY_OFFLINE is set, all
         // requests pass without inspecting a bearer.
         if let Err(e) = self.auth.check(None) {
@@ -263,14 +282,7 @@ impl Server {
         // v1 — Slice 6 wires `sub` into per-verb scoping. Construct
         // it locally so the type stays referenced and the compiler
         // catches Slice 6's wiring breakage early.
-        let _ctx = AuthContext::Offline;
-
-        #[derive(Deserialize)]
-        struct ToolsCallParams {
-            name: String,
-            #[serde(default)]
-            arguments: Value,
-        }
+        let _: AuthContext = AuthContext::Offline;
 
         let parsed: ToolsCallParams = match serde_json::from_value(params) {
             Ok(p) => p,
@@ -319,6 +331,10 @@ impl Server {
     }
 }
 
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "json! macro moves the value into the resulting object; passing &Value would force a manual .clone() at every call site"
+)]
 fn tool_descriptor(name: &str, description: &str, input_schema: Value) -> Value {
     json!({
         "name": name,

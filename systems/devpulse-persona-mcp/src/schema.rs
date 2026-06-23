@@ -22,7 +22,7 @@
 /// All statements are `CREATE ... IF NOT EXISTS` so the schema is
 /// idempotent on every boot. No migrations in v1 — pre-release reauthor
 /// rule applies.
-pub const PERSONA_SCHEMA: &str = r#"
+pub const PERSONA_SCHEMA: &str = r"
 CREATE TABLE IF NOT EXISTS persona_blocks (
     id            TEXT PRIMARY KEY,
     scope         TEXT NOT NULL CHECK(scope IN ('user','project')),
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS persona_idempotency (
 
 CREATE INDEX IF NOT EXISTS persona_idempotency_expires
     ON persona_idempotency(expires_at);
-"#;
+";
 
 /// Default char limit for new blocks (Letta default).
 pub const DEFAULT_BLOCK_CHAR_LIMIT: usize = 5000;
