@@ -390,9 +390,9 @@ impl PersonaStore {
         self.get_block(scope, slug, label)
             .await
             .map_err(|e| match e {
-                PersonaError::NotFound(_) => PersonaError::Backend(anyhow::anyhow!(
-                    "save_block: row missing after upsert"
-                )),
+                PersonaError::NotFound(_) => {
+                    PersonaError::Backend(anyhow::anyhow!("save_block: row missing after upsert"))
+                }
                 other => other,
             })
     }
@@ -477,96 +477,110 @@ impl PersonaStore {
         // binding is positional and doesn't support OR-IS-NULL elegantly,
         // so we keep four branches readable rather than dynamic.
         let mut rows = match (slug, label_filter, since.is_some()) {
-            (Some(s), Some(lab), true) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+            (Some(s), Some(lab), true) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 AND label = ?3 \
                        AND updated_at >= ?4 \
                      ORDER BY updated_at DESC LIMIT ?5",
-                    libsql::params![scope_str, s.to_string(), lab.to_string(), since_rfc, limit_i64],
-                )
-                .await,
-            (Some(s), Some(lab), false) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![
+                            scope_str,
+                            s.to_string(),
+                            lab.to_string(),
+                            since_rfc,
+                            limit_i64
+                        ],
+                    )
+                    .await
+            }
+            (Some(s), Some(lab), false) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 AND label = ?3 \
                      ORDER BY updated_at DESC LIMIT ?4",
-                    libsql::params![scope_str, s.to_string(), lab.to_string(), limit_i64],
-                )
-                .await,
-            (Some(s), None, true) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![scope_str, s.to_string(), lab.to_string(), limit_i64],
+                    )
+                    .await
+            }
+            (Some(s), None, true) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 AND updated_at >= ?3 \
                      ORDER BY updated_at DESC LIMIT ?4",
-                    libsql::params![scope_str, s.to_string(), since_rfc, limit_i64],
-                )
-                .await,
-            (Some(s), None, false) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![scope_str, s.to_string(), since_rfc, limit_i64],
+                    )
+                    .await
+            }
+            (Some(s), None, false) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 \
                      ORDER BY updated_at DESC LIMIT ?3",
-                    libsql::params![scope_str, s.to_string(), limit_i64],
-                )
-                .await,
-            (None, Some(lab), true) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![scope_str, s.to_string(), limit_i64],
+                    )
+                    .await
+            }
+            (None, Some(lab), true) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL AND label = ?2 \
                        AND updated_at >= ?3 \
                      ORDER BY updated_at DESC LIMIT ?4",
-                    libsql::params![scope_str, lab.to_string(), since_rfc, limit_i64],
-                )
-                .await,
-            (None, Some(lab), false) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![scope_str, lab.to_string(), since_rfc, limit_i64],
+                    )
+                    .await
+            }
+            (None, Some(lab), false) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL AND label = ?2 \
                      ORDER BY updated_at DESC LIMIT ?3",
-                    libsql::params![scope_str, lab.to_string(), limit_i64],
-                )
-                .await,
-            (None, None, true) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![scope_str, lab.to_string(), limit_i64],
+                    )
+                    .await
+            }
+            (None, None, true) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL AND updated_at >= ?2 \
                      ORDER BY updated_at DESC LIMIT ?3",
-                    libsql::params![scope_str, since_rfc, limit_i64],
-                )
-                .await,
-            (None, None, false) => self
-                .conn()
-                .query(
-                    "SELECT id, scope, slug, label, body, char_limit, \
+                        libsql::params![scope_str, since_rfc, limit_i64],
+                    )
+                    .await
+            }
+            (None, None, false) => {
+                self.conn()
+                    .query(
+                        "SELECT id, scope, slug, label, body, char_limit, \
                             created_at, updated_at, version \
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL \
                      ORDER BY updated_at DESC LIMIT ?2",
-                    libsql::params![scope_str, limit_i64],
-                )
-                .await,
+                        libsql::params![scope_str, limit_i64],
+                    )
+                    .await
+            }
         }
         .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;
 

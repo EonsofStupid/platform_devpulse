@@ -104,27 +104,17 @@ impl IdempotencyCache {
     ///
     /// # Errors
     /// Returns [`PersonaError::Backend`] if the LibSQL insert fails.
-    pub async fn put(
-        &self,
-        key: &str,
-        response_json: &str,
-    ) -> Result<(), PersonaError> {
+    pub async fn put(&self, key: &str, response_json: &str) -> Result<(), PersonaError> {
         let now = Utc::now();
-        let expires = now + chrono::Duration::seconds(
-            i64::try_from(IDEMPOTENCY_TTL_SECS).unwrap_or(i64::MAX),
-        );
+        let expires = now
+            + chrono::Duration::seconds(i64::try_from(IDEMPOTENCY_TTL_SECS).unwrap_or(i64::MAX));
 
         self.conn
             .execute(
                 "INSERT OR REPLACE INTO persona_idempotency \
                  (key, response_json, inserted_at, expires_at) \
                  VALUES (?1, ?2, ?3, ?4)",
-                libsql::params![
-                    key,
-                    response_json,
-                    now.to_rfc3339(),
-                    expires.to_rfc3339(),
-                ],
+                libsql::params![key, response_json, now.to_rfc3339(), expires.to_rfc3339(),],
             )
             .await
             .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;

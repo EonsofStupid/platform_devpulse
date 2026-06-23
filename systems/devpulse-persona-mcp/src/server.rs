@@ -23,12 +23,10 @@
 //! `main.rs` — keep the dispatch loop free of side tasks per
 //! `feedback_no_process_flooding.md`.
 
-use crate::auth::{AuthGate, AuthContext};
+use crate::auth::{AuthContext, AuthGate};
 use crate::error::{ErrorEnvelope, ErrorKind, PersonaError};
 use crate::store::PersonaStore;
-use crate::verbs::{
-    self, PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs,
-};
+use crate::verbs::{self, PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::sync::Arc;
@@ -129,15 +127,10 @@ impl Server {
             Ok(req) => req,
             Err(e) => {
                 tracing::warn!(target = "persona_mcp", error = %e, "JSON-RPC parse error");
-                return Some(
-                    serialise_error(
-                        Value::Null,
-                        ErrorEnvelope::new(
-                            ErrorKind::InvalidArg,
-                            format!("parse error: {e}"),
-                        ),
-                    ),
-                );
+                return Some(serialise_error(
+                    Value::Null,
+                    ErrorEnvelope::new(ErrorKind::InvalidArg, format!("parse error: {e}")),
+                ));
             }
         };
 
@@ -159,11 +152,7 @@ impl Server {
     }
 
     /// Method-name router.
-    async fn dispatch_method(
-        &self,
-        method: &str,
-        params: Value,
-    ) -> Result<Value, ErrorEnvelope> {
+    async fn dispatch_method(&self, method: &str, params: Value) -> Result<Value, ErrorEnvelope> {
         match method {
             "initialize" => Ok(self.initialize()),
             "ping" => Ok(json!({ "ok": true })),
@@ -339,9 +328,8 @@ fn tool_descriptor(name: &str, description: &str, input_schema: Value) -> Value 
 }
 
 fn decode_args<T: serde::de::DeserializeOwned>(v: Value) -> Result<T, ErrorEnvelope> {
-    serde_json::from_value(v).map_err(|e| {
-        ErrorEnvelope::new(ErrorKind::InvalidArg, format!("argument decode: {e}"))
-    })
+    serde_json::from_value(v)
+        .map_err(|e| ErrorEnvelope::new(ErrorKind::InvalidArg, format!("argument decode: {e}")))
 }
 
 fn serialise_success(id: Value, result: Value) -> String {
@@ -392,9 +380,7 @@ mod tests {
         let path = dir.path().join("dispatch-test.libsql");
         Box::leak(Box::new(dir));
         #[cfg(feature = "rro")]
-        let store: Arc<PersonaStore> = PersonaStore::open(&path, None)
-            .await
-            .expect("open store");
+        let store: Arc<PersonaStore> = PersonaStore::open(&path, None).await.expect("open store");
         #[cfg(not(feature = "rro"))]
         let store: Arc<PersonaStore> = PersonaStore::open(&path).await.expect("open store");
         Server::new(store, AuthGate::offline())
@@ -496,12 +482,10 @@ mod tests {
         let response = s.dispatch(raw).await.expect("response");
         let parsed: Value = serde_json::from_str(&response).expect("JSON");
         assert_eq!(parsed["error"]["data"]["kind"], "invalid_arg");
-        assert!(
-            parsed["error"]["message"]
-                .as_str()
-                .unwrap_or_default()
-                .contains("unknown tool")
-        );
+        assert!(parsed["error"]["message"]
+            .as_str()
+            .unwrap_or_default()
+            .contains("unknown tool"));
     }
 
     #[tokio::test]
@@ -513,4 +497,3 @@ mod tests {
         assert_eq!(parsed["error"]["code"], -32_601);
     }
 }
-

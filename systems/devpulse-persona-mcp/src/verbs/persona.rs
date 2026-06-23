@@ -105,18 +105,13 @@ pub async fn save(
 ) -> PersonaResult<PersonaSaveResult> {
     if args.idempotency_key.is_empty() {
         return Err(PersonaError::InvalidArg(
-            "idempotency_key is required for write verbs (per SSOT §2)"
-                .to_string(),
+            "idempotency_key is required for write verbs (per SSOT §2)".to_string(),
         ));
     }
 
     // Idempotency check — returns cached response if the key has been
     // seen in the last 24h.
-    if let Some(cached) = store
-        .idempotency()
-        .get(&args.idempotency_key)
-        .await?
-    {
+    if let Some(cached) = store.idempotency().get(&args.idempotency_key).await? {
         let parsed: PersonaSaveResult = serde_json::from_str(&cached.response_json)
             .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;
         return Ok(parsed);
@@ -134,8 +129,8 @@ pub async fn save(
     };
 
     // Cache the response under the idempotency key.
-    let payload = serde_json::to_string(&result)
-        .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;
+    let payload =
+        serde_json::to_string(&result).map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;
     store
         .idempotency()
         .put(&args.idempotency_key, &payload)
@@ -233,11 +228,7 @@ pub async fn recall(
 
     let mut scored: Vec<(f32, &PersonaBlock)> = all
         .iter()
-        .filter(|b| {
-            args.kinds
-                .as_ref()
-                .is_none_or(|k| k.contains(&b.label))
-        })
+        .filter(|b| args.kinds.as_ref().is_none_or(|k| k.contains(&b.label)))
         .filter_map(|b| {
             let label = b.label.to_lowercase();
             let body = b.body.to_lowercase();
@@ -328,9 +319,7 @@ pub async fn list(
             DateTime::parse_from_rfc3339(s)
                 .map(|t| t.with_timezone(&Utc))
                 .map_err(|e| {
-                    PersonaError::InvalidArg(format!(
-                        "since must be RFC3339, got {s:?}: {e}"
-                    ))
+                    PersonaError::InvalidArg(format!("since must be RFC3339, got {s:?}: {e}"))
                 })
         })
         .transpose()?;

@@ -16,8 +16,8 @@
 //!   `data_dir` resolves via `dirs::data_local_dir`.
 
 use anyhow::Context;
-use devpulse_persona_mcp::{server::Server, store::PersonaStore};
 use devpulse_persona_mcp::auth::AuthGate;
+use devpulse_persona_mcp::{server::Server, store::PersonaStore};
 use std::env;
 use std::path::PathBuf;
 use tracing_subscriber::{fmt, EnvFilter};
@@ -48,8 +48,8 @@ async fn main() -> anyhow::Result<()> {
 fn init_tracing() {
     // Stdout is reserved for JSON-RPC protocol frames. Tracing MUST
     // go to stderr — `fmt::layer().with_writer(std::io::stderr)`.
-    let filter = EnvFilter::try_from_env("DEVPULSE_PERSONA_LOG")
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+    let filter =
+        EnvFilter::try_from_env("DEVPULSE_PERSONA_LOG").unwrap_or_else(|_| EnvFilter::new("info"));
     let _ = fmt()
         .with_env_filter(filter)
         .with_writer(std::io::stderr)
