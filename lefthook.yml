@@ -11,10 +11,13 @@ pre-commit:
       glob: "*.rs"
       run: cargo fmt --all -- --check
 
-    # Rust linting (quick check, not full clippy)
-    rust-check:
-      glob: "*.rs"
-      run: cargo check --workspace --quiet
+    # NOTE: full-workspace compile verification (`cargo check --workspace`)
+    # was removed from pre-commit. On a workspace with llama-cpp-sys/DuckDB/
+    # Tauri/Candle it cost minutes on EVERY commit, stalling tight edit loops
+    # (human and agent) and duplicating the compile that pre-push `clippy
+    # --workspace -D warnings` already performs. Compile errors are still
+    # caught before they leave the machine (pre-push) and per-crate during a
+    # session (.claude/hooks/verify-on-stop.js). Keep pre-commit fast.
 
     # Svelte check
     svelte-check:
