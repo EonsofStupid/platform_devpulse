@@ -19,6 +19,23 @@ const IGNORABLE_PATTERNS = [
   'Blocking waiting for file lock on build directory',
 ];
 
+// Environmental/infra failures the agent CANNOT fix inside its own diff:
+// missing private-dep auth, missing prebuilt native libs, toolchain/linker/
+// disk/network problems. exit(2) on these would trap the session looping on
+// something no code change resolves — treat as warnings, never as blockers.
+const ENVIRONMENTAL_PATTERNS = [
+  'failed to authenticate',             // private rro/wal git fetch w/o RRO_DEPLOY_TOKEN
+  'RRO_DEPLOY_TOKEN',
+  'failed to get `',                    // cargo registry/network fetch failure
+  'failed to load source for dependency',
+  'spurious network error',
+  'could not execute process `sccache',  // sccache wrapper not installed
+  'error: linker',                      // linker/rust-lld not resolvable outside xtask
+  'libllama',                           // llama.cpp prebuilt fast-path lib missing
+  'LLAMA_CPP_PREBUILT',
+  'No space left on device',
+];
+
 function isOnlyIgnorableOutput(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   return lines.every(line =>
@@ -50,6 +67,11 @@ function run(cmd, label, timeoutMs) {
     // If cargo failed because another build holds the lock, don't count it
     if (out.includes('Blocking waiting for file lock')) {
       process.stderr.write('  ⚠️ ' + label + ' (build lock contention — skipped)\n');
+      return;
+    }
+    // Environmental/infra failure the agent can't fix in its diff — warn, don't block.
+    if (ENVIRONMENTAL_PATTERNS.some(p => out.includes(p))) {
+      process.stderr.write('  ⚠️ ' + label + ' (environmental failure, not a code error — skipped)\n' + tail + '\n');
       return;
     }
     process.stderr.write('  ❌ ' + label + ' FAILED\n' + tail + '\n');
