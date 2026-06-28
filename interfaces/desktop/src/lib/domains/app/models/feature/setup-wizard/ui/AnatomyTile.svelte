@@ -69,12 +69,14 @@ interface Props {
 	purpose: string;
 	/** Tagline describing the role in one layman sentence. */
 	tagline: string;
-	/** Layman model name ("SigLIP HD"). */
-	modelName: string;
+	/** Layman model name ("SigLIP HD"). Optional — populated only
+	 *  when the configured backend reports a loaded model for this
+	 *  slot via its capability endpoint. */
+	modelName?: string;
 	/** Short model tagline ("Google's compact vision encoder. Runs through Candle."). */
-	modelTagline: string;
-	/** Pre-formatted size hint ("~400 MB"). */
-	sizeHint: string;
+	modelTagline?: string;
+	/** Pre-formatted size hint ("~400 MB"). Backend-reported. */
+	sizeHint?: string;
 	/** Optional tier label ("Recommended for this machine"). */
 	tierLabel?: string;
 	/** Apply lifecycle state. */
@@ -97,9 +99,9 @@ let {
 	icon: Icon,
 	purpose,
 	tagline,
-	modelName,
-	modelTagline,
-	sizeHint,
+	modelName = undefined,
+	modelTagline = undefined,
+	sizeHint = undefined,
 	tierLabel = undefined,
 	state,
 	errorText = undefined,
@@ -110,36 +112,46 @@ let {
 }: Props = $props();
 
 /** Stable id per tile so `aria-labelledby` / `aria-describedby` lock
- *  to the right heading even when several tiles render in parallel. */
-const headingId = `anatomy-tile-${slotId}-heading`;
-const taglineId = `anatomy-tile-${slotId}-tagline`;
+ *  to the right heading even when several tiles render in parallel.
+ *  `$derived` so the ids track if `slotId` ever changes — silences the
+ *  Svelte 5 `state_referenced_locally` warning that fires when a prop
+ *  is captured by value at component-init time. */
+const headingId = $derived(`anatomy-tile-${slotId}-heading`);
+const taglineId = $derived(`anatomy-tile-${slotId}-tagline`);
+
+/** True when the backend has not reported a loaded model for this
+ *  slot yet — the tile renders anatomy-only with a "waiting" badge
+ *  and no install action. Per the preconfigured-capabilities lock:
+ *  the wizard does NOT install models; it shows what the configured
+ *  endpoint (local or networked GB10) is serving. */
+const awaitingBackend = $derived(!modelName);
 
 const STATE_BADGE: Record<
 	ApplyState,
 	{ label: string; tone: "neutral" | "informative" | "positive" | "negative" }
 > = {
 	ready: { label: "Ready", tone: "neutral" },
-	saving: { label: "Saving…", tone: "informative" },
-	saved: { label: "Saved", tone: "positive" },
-	error: { label: "Couldn't save", tone: "negative" },
+	saving: { label: "Connecting…", tone: "informative" },
+	saved: { label: "Live", tone: "positive" },
+	error: { label: "Couldn't connect", tone: "negative" },
 };
 
 const ctaLabel = $derived(
 	state === "saving"
-		? "Saving…"
+		? "Connecting…"
 		: state === "saved"
-			? "Saved"
+			? "Live"
 			: state === "error"
-				? "Try again"
-				: "Apply",
+				? "Retry"
+				: "Connect",
 );
 </script>
 
 <section
 	class="anatomy-tile"
 	data-state={state}
+	data-awaiting={awaitingBackend}
 	style={`--slot-accent: var(${accentVar});`}
-	role="region"
 	aria-labelledby={headingId}
 	aria-busy={state === "saving"}
 >
@@ -152,64 +164,76 @@ const ctaLabel = $derived(
 				<div class="anatomy-tile__title-row">
 					<Heading level={3} size="md" id={headingId}>{purpose}</Heading>
 					<div class="anatomy-tile__badge-zone" aria-live="polite" aria-atomic="true">
-						<Badge variant={STATE_BADGE[state].tone} size="sm">
-							{STATE_BADGE[state].label}
-						</Badge>
+						{#if awaitingBackend}
+							<Badge variant="informative" size="sm">Awaiting backend</Badge>
+						{:else}
+							<Badge variant={STATE_BADGE[state].tone} size="sm">
+								{STATE_BADGE[state].label}
+							</Badge>
+						{/if}
 					</div>
 				</div>
 				<Text size="sm" color="muted" id={taglineId}>{tagline}</Text>
 			</div>
 		</header>
 
-		<Card preset="glass" class="anatomy-tile__model">
-			<div class="anatomy-tile__model-row">
-				<Text size="base" weight="bold">{modelName}</Text>
-				{#if tierLabel}
-					<Badge variant="accent" size="sm">{tierLabel}</Badge>
+		{#if !awaitingBackend && modelName}
+			<Card preset="glass" class="anatomy-tile__model">
+				<div class="anatomy-tile__model-row">
+					<Text size="base" weight="bold">{modelName}</Text>
+					{#if tierLabel}
+						<Badge variant="accent" size="sm">{tierLabel}</Badge>
+					{/if}
+				</div>
+				{#if modelTagline}
+					<Text size="sm" color="muted">{modelTagline}</Text>
 				{/if}
-			</div>
-			<Text size="sm" color="muted">{modelTagline}</Text>
-			<div class="anatomy-tile__model-meta">
-				<KeyValue label="On disk" value={sizeHint} size="sm" />
-			</div>
-		</Card>
+				{#if sizeHint}
+					<div class="anatomy-tile__model-meta">
+						<KeyValue label="Loaded" value={sizeHint} size="sm" />
+					</div>
+				{/if}
+			</Card>
+		{/if}
 
 		{#if state === "error" && errorText}
 			<InlineMessage tone="error">
-				<Text size="xs" weight="semibold">Couldn't save this slot</Text>
+				<Text size="xs" weight="semibold">Connection failed</Text>
 				<Text size="xs" color="muted">{errorText}</Text>
 			</InlineMessage>
 		{/if}
 
-		<footer class="anatomy-tile__foot">
-			<div class="anatomy-tile__foot-left">
-				{#if onPickDifferent && state !== "saving"}
-					<Button preset="ghost" size="sm" onclick={onPickDifferent}>
-						<Pencil size={12} />
-						Pick a different one
-					</Button>
-				{/if}
-				{#if aboutHref}
-					<a class="anatomy-tile__about" href={aboutHref} target="_blank" rel="noreferrer">
-						<Text size="xs">What is this for?</Text>
-					</a>
-				{/if}
-			</div>
-			<Button
-				preset={state === "saved" ? "ghost" : "primary"}
-				size="md"
-				onclick={onApply}
-				disabled={state === "saving" || state === "saved"}
-				aria-describedby={taglineId}
-			>
-				{#if state === "saving"}
-					<Spinner size="xs" tone="accent" />
-				{:else if state === "saved"}
-					<Check size={14} />
-				{/if}
-				{ctaLabel}
-			</Button>
-		</footer>
+		{#if !awaitingBackend}
+			<footer class="anatomy-tile__foot">
+				<div class="anatomy-tile__foot-left">
+					{#if onPickDifferent && state !== "saving"}
+						<Button preset="ghost" size="sm" onclick={onPickDifferent}>
+							<Pencil size={12} />
+							Pick a different one
+						</Button>
+					{/if}
+					{#if aboutHref}
+						<a class="anatomy-tile__about" href={aboutHref} target="_blank" rel="noreferrer">
+							<Text size="xs">What is this for?</Text>
+						</a>
+					{/if}
+				</div>
+				<Button
+					preset={state === "saved" ? "ghost" : "primary"}
+					size="md"
+					onclick={onApply}
+					disabled={state === "saving" || state === "saved"}
+					aria-describedby={taglineId}
+				>
+					{#if state === "saving"}
+						<Spinner size="xs" tone="accent" />
+					{:else if state === "saved"}
+						<Check size={14} />
+					{/if}
+					{ctaLabel}
+				</Button>
+			</footer>
+		{/if}
 	</Card>
 </section>
 

@@ -201,32 +201,47 @@ function formatSizeHint(mb: number): string {
 	return `~${mb} MB`;
 }
 
+/**
+ * Preconfigured anatomy entries — the wizard ALWAYS shows the five
+ * tiles (Brain / Sparkles / Eyes / Ears / Mouth) regardless of
+ * whether a backend is reachable. Model name, tagline, and size are
+ * intentionally absent here — they populate only when the configured
+ * endpoint (local or networked GB10 at `clyffy.local`) reports its
+ * loaded models via the capability response. Per
+ * [[devpulse-preconfigured-capabilities]]: the wizard does NOT
+ * install models; it shows what the backend is serving.
+ *
+ * Recommendations from `autoConfigure()` are kept as fallback model
+ * metadata only — if the local-inference-legacy path is enabled and
+ * has a recommendation for a slot, the tile populates with it. Under
+ * the GB10-first architecture this array is normally empty.
+ */
 const slotSaveEntries = $derived<SlotSaveEntryProps[]>(
-	recommendations.flatMap((rec) => {
-		const layman = SLOT_LAYMAN[rec.slot_id];
-		if (!layman) return [];
-		const state = slotSaveStates[rec.slot_id] ?? "ready";
-		return [
-			{
-				kernelSlotId: rec.slot_id,
-				purpose: layman.purpose,
-				tagline: layman.tagline,
-				// Model name + tagline come from the kernel recommendation
-				// (preset author owns them via `display_name` /
-				// `display_tagline` in `presets.default.toml`); never
-				// hardcoded in this UI layer. See deriveModelName /
-				// deriveModelTagline for the fallback behavior.
-				modelName: deriveModelName(rec),
-				modelTagline: deriveModelTagline(rec),
-				sizeHint: formatSizeHint(rec.model_size_mb),
-				tierLabel: rec.already_downloaded ? "Already on disk" : "Recommended for this machine",
-				iconName: layman.iconName,
-				accentVar: layman.accentVar,
-				aboutHref: layman.aboutHref,
-				state,
-				errorText: slotSaveErrors[rec.slot_id],
-			},
-		];
+	(Object.keys(SLOT_LAYMAN) as Array<keyof typeof SLOT_LAYMAN>).map((slotId) => {
+		const layman = SLOT_LAYMAN[slotId];
+		const rec = recommendations.find((r) => r.slot_id === slotId);
+		const state = slotSaveStates[slotId] ?? "ready";
+		return {
+			kernelSlotId: slotId,
+			purpose: layman.purpose,
+			tagline: layman.tagline,
+			// modelName / modelTagline / sizeHint / tierLabel intentionally
+			// undefined unless a backend recommendation exists. AnatomyTile
+			// renders the "awaiting-backend" framing when these are absent.
+			modelName: rec ? deriveModelName(rec) : undefined,
+			modelTagline: rec ? deriveModelTagline(rec) : undefined,
+			sizeHint: rec ? formatSizeHint(rec.model_size_mb) : undefined,
+			tierLabel: rec
+				? rec.already_downloaded
+					? "Loaded"
+					: "Recommended for this machine"
+				: undefined,
+			iconName: layman.iconName,
+			accentVar: layman.accentVar,
+			aboutHref: layman.aboutHref,
+			state,
+			errorText: slotSaveErrors[slotId],
+		};
 	}),
 );
 
@@ -275,53 +290,20 @@ async function saveOneSlot(slotId: string): Promise<void> {
 	}
 }
 
-async function saveAllSlots(): Promise<void> {
-	busy = true;
-	try {
-		const unsaved = slotSaveEntries.filter((e) => e.state !== "saved");
-		await Promise.all(unsaved.map((e) => saveOneSlot(e.kernelSlotId)));
-	} finally {
-		busy = false;
-	}
-}
-
 $effect(() => {
 	if (!wizardState.isOpen) return;
 	void loadCopy();
 });
 
 /**
- * Load recommendations the first time the customer reaches the
- * cortex view (so each anatomy tile can render with real model
- * metadata). The autoConfigure call here POPULATES recommendations
- * without firing installs — the installs only run when the customer
- * clicks Apply on a tile. Compare with applyAutoConfig() (preset
- * view's "Install all") which both populates AND dispatches.
+ * Cortex view used to call `autoConfigure()` here to pre-fill local
+ * hardware-based recommendations. Under the preconfigured-capabilities
+ * lock ([[devpulse-preconfigured-capabilities]]) the tiles render
+ * anatomy-only by default and populate from the configured backend's
+ * capability response — NOT from local hardware introspection. The
+ * `loadRecommendations` helper is gone; recommendations stay empty
+ * until a future GB10 client populates them from `/v1/capability`.
  */
-$effect(() => {
-	if (wizardState.view !== "cortex") return;
-	if (recommendations.length > 0) return;
-	void loadRecommendations();
-});
-
-async function loadRecommendations(): Promise<void> {
-	busy = true;
-	try {
-		const r = await autoConfigure();
-		if (r.status === "error") {
-			copyError = `Couldn't compute recommendations: ${r.error}`;
-			return;
-		}
-		try {
-			const payload = JSON.parse(r.data) as AutoConfigPayload;
-			recommendations = payload.recommendations;
-		} catch (e) {
-			copyError = `Couldn't parse auto-config response: ${(e as Error).message}`;
-		}
-	} finally {
-		busy = false;
-	}
-}
 
 $effect(() => {
 	if (!wizardState.isOpen) return;
@@ -474,12 +456,11 @@ const callbacks: WizardCallbacks = {
 		<PresetView copy={copy?.profile ?? null} {busy} {callbacks} />
 	{:else if wizardState.view === "cortex"}
 		<CortexView
-			title="Clyffy's cortex — five pieces, one mind"
-			subtitle="Each tile maps to a sense or thought layer. Hit Apply on the ones you want now — every slot is pre-selected, so you can just click through."
+			title="Clyffy's cortex — five preconfigured senses"
+			subtitle="Eyes, ears, mouth, indexing, and brain ship preconfigured. Each lights up once your backend (this workstation or a networked Clyffy host like clyffy.local) reports it online."
 			slotSaves={slotSaveEntries}
 			{busy}
 			onApplySlot={saveOneSlot}
-			onApplyAll={saveAllSlots}
 			{callbacks}
 		/>
 	{:else if wizardState.view === "installing"}

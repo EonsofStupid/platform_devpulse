@@ -123,12 +123,15 @@ export interface SlotSaveEntryProps {
 	purpose: string;
 	/** Role description for the slot. */
 	tagline: string;
-	/** Layman model name ("SigLIP HD"). */
-	modelName: string;
-	/** Short model tagline. */
-	modelTagline: string;
-	/** Pre-formatted size hint ("~400 MB"). */
-	sizeHint: string;
+	/** Layman model name ("SigLIP HD"). Optional: omitted until the
+	 *  configured backend (local or networked GB10) reports its
+	 *  loaded models via the capability endpoint. Tiles render in
+	 *  "awaiting-backend" framing when this is absent. */
+	modelName?: string;
+	/** Short model tagline. Optional — see `modelName`. */
+	modelTagline?: string;
+	/** Pre-formatted size hint ("~400 MB"). Optional — backend-reported. */
+	sizeHint?: string;
 	/** Optional tier badge label. */
 	tierLabel?: string;
 	/** Lifecycle state of the save. */
@@ -194,8 +197,6 @@ export interface CortexViewProps {
 	onApplySlot: (kernelSlotId: string) => void | Promise<void>;
 	/** Optional: open model picker overlay for one slot. */
 	onPickDifferent?: (kernelSlotId: string) => void;
-	/** Apply every unsaved slot in sequence. */
-	onApplyAll: () => void | Promise<void>;
 	/** Standard nav callbacks. */
 	callbacks: WizardCallbacks;
 }

@@ -66,7 +66,6 @@ let {
 	busy,
 	onApplySlot,
 	onPickDifferent = undefined,
-	onApplyAll,
 	callbacks,
 }: CortexViewProps = $props();
 
@@ -98,9 +97,6 @@ const SLOT_BY_ANATOMY = {
 
 const findEntry = (slotId: string): SlotSaveEntryProps | undefined =>
 	slotSaves.find((s) => s.kernelSlotId === slotId);
-
-const allSaved = $derived(slotSaves.length > 0 && slotSaves.every((s) => s.state === "saved"));
-const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 </script>
 
 <OverlayShell label="DevPulse setup — cortex" step={1} totalSteps={1} {title}>
@@ -240,27 +236,14 @@ const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 
 	{#snippet footer()}
 		<Button preset="ghost" size="sm" onclick={callbacks.onSkip} disabled={busy}>
-			Skip — assign manually later
+			Set up backend later
 		</Button>
 		<div class="footer-spacer"></div>
-		{#if anyUnsaved}
-			<Button preset="primary" size="md" onclick={onApplyAll} disabled={busy}>
-				{#if busy}<Spinner size="xs" tone="accent" />{/if}
-				Apply all
-				<ChevronRight size={14} />
-			</Button>
-		{:else}
-			<Button
-				preset="primary"
-				size="md"
-				onclick={callbacks.onFinish}
-				disabled={busy || !allSaved}
-			>
-				{#if busy}<Spinner size="xs" tone="accent" />{/if}
-				Done
-				<ChevronRight size={14} />
-			</Button>
-		{/if}
+		<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
+			{#if busy}<Spinner size="xs" tone="accent" />{/if}
+			Continue
+			<ChevronRight size={14} />
+		</Button>
 	{/snippet}
 </OverlayShell>
 
