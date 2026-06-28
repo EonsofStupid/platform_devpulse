@@ -25,5 +25,10 @@
       "C:\\Users\\jessa\\.claude\\plans",
       "d:\\localdev\\platform_devpulse\\.claude\\dumps\\2026-05-18"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "surrealdb",
+    "context7",
+    "devpulse-persona"
+  ]
 }
