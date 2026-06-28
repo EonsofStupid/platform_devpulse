@@ -15,6 +15,17 @@ This is the single source of truth for:
 If you are about to write a curl that hits cloud SurrealDB or cloud Qdrant,
 read this file first.
 
+> ## ⚠ REFRAMED — 2026-06-28
+>
+> This is the cloud-dev SurrealDB + Qdrant SSOT (instances, credentials, namespaces, heartbeat). Accurate as a dev-iteration baseline, but it predates the 2026-06-27 DevPulse-frontend / ClyffyOS-backend split.
+>
+> - **Split / relocation** — SurrealDB + the vector store + the connectome are ClyffyOS-side services (headless backend on GB10 / networked VRAM pool), reached via Bonjour discovery + `/v1/capability` + MCP — not in-process in the DevPulse .exe. DevPulse-local stores are now Turso + DuckDB only. The "embedded in the shipped .exe" framing (lines 54-56) and "local 8842 is the shipped runtime target" (lines 170-181) describe what now lives on ClyffyOS.
+> - **Renames land in Phase 2, with the code** — `Qdrant` → `qortex` (Qdrant-based vector store), `cortex` → `connectome`, `libSQL` → `Turso`. Cluster URLs, collection ids (`clyffy_messages`, `clyffy_minion_capabilities`, `clyffy_route_entities`), table names, and the `projects_to_qdrant` relation stay ACCURATE until the code rename; this header only flags them.
+> - **Deferred, not retired** — the cloud SurrealDB + cloud Qdrant instances are the cloud-dev tier (chat dump, search/recovery, drift correction) and remain in play; the flow is cloud-dev → ClyffyOS-embedded, one-way. Not retired.
+> - **Still valid** — lowercase `surreal-ns:` / `surreal-db:` header rule; "read only transaction" = undefined NS/DB (not auth); DEFINE NS/DB-before-first-write bootstrap; credential resolution order (Infisical → keyring → bootstrap fallback); two-principal `clyffy` vs `devpulse_engine` separation; heartbeat / auto-pause policy; the verified namespace ownership map and row counts.
+>
+> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
+
 ---
 
 ## Cloud inventory

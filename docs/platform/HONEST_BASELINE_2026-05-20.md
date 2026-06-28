@@ -4,6 +4,16 @@
 > "yes" answers followed by "actually nothing works." This document is
 > the truth as of today, citing files and line numbers. It supersedes
 > any prior session's narrative.
+>
+> ## ⚠ REFRAMED — 2026-06-28
+>
+> Point-in-time honest baseline (2026-05-20) — its verified boot evidence, file:line citations, and gap analysis are accurate, but it predates the 2026-06-27 DevPulse/ClyffyOS split.
+>
+> - **Split / relocation** — This baseline describes a single-process monolith: all four DBs + Burn embedding + RRO upsert + inference run inside one binary. Post-pivot, SurrealDB + qortex (the Qdrant vector store) + the encoder/embedder/reranker stack + ALL inference + the connectome live on ClyffyOS (GB10 / networked VRAM pool). DevPulse is the standalone frontend (Turso + DuckDB local), connecting via Bonjour + /v1/capability + MCP verbs. The "staged indexing orchestrator" gap named here is GB10-side work.
+> - **Renames land in Phase 2, with the code** — cortex → connectome, Qdrant → qortex, libSQL → Turso. The code paths and constants cited below (`kernel/devpulse-clyffy/src/cortex/persistence/{burn,rro}/`, `boot/relational.rs`, the `qdrant` devtool folder, `cortex_swap_encoder`) stay ACCURATE until Phase 2 renames them. The qwen3/Burn embedder + RRO collection dim are GB10-side, model-size-agnostic config (8GB LLM floor, scales up), not DevPulse architecture.
+> - **Still valid** — The verified four-DB boot.log, all file:line citations, the staged-indexing-pipeline gap, the branch-fossil net-diff analysis, the memory-patch records, and the cloud-SurrealDB attribution corrections are preserved as the project's memory.
+>
+> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
 
 ## What boots today (verified)
 
