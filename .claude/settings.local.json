@@ -17,7 +17,9 @@
       "Bash(rm -rf \"d:/localdev/platform_devpulse/.claude/dumps/2026-05-18\" && ls \"d:/localdev/platform_devpulse/.claude/dumps/\" 2>&1)",
       "Bash(tail -3 \"C:\\\\\\\\Users\\\\\\\\jessa\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\d--localdev-platform-devpulse\\\\\\\\8b9d35e0-a97d-4226-9fc0-16fb754c7433\\\\\\\\tasks\\\\\\\\bfwmn6l8r.output\")",
       "Bash(dev)",
-      "Bash(break)"
+      "Bash(break)",
+      "Read(//c/Users/jessa/AppData/Local/Temp/claude/**)",
+      "Edit(/.claude/skills/spec-first/**)"
     ],
     "additionalDirectories": [
       "C:\\Users\\jessa\\.claude\\plans",
