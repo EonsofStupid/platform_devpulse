@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-06-18T22:09:49.278Z
+ * Generated: 2026-06-28T17:30:45.466Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -341,7 +341,7 @@ export const TERMS: Record<string, Term> = {
 	"knowledge engine": {
 		engine: "knowledge engine",
 		prod: "knowledge engine",
-		dev: "Cortex",
+		dev: "Connectome",
 		category: "architecture",
 		context: ["logs","traces","ui-text"],
 	},
@@ -375,7 +375,7 @@ export const TERMS: Record<string, Term> = {
 	},
 	"Graph store": {
 		engine: "Graph store",
-		prod: "Cortex",
+		prod: "Connectome",
 		dev: "SurrealDB",
 		category: "stores",
 		context: ["logs","traces","ui-text"],
