@@ -377,7 +377,7 @@ impl LoaderEventSink for FileEventSink {
                 );
             }
 
-            // ── Wizard cortex lifecycle ────────────────────────────
+            // ── Wizard connectome lifecycle ────────────────────────────
             //
             // Sink writes layman-friendly lines to the user-visible
             // model-loader log AND emits structured `tracing` on the
@@ -428,21 +428,21 @@ impl LoaderEventSink for FileEventSink {
                     "[wizard] Symlink FAILED"
                 );
             }
-            LoaderEvent::WizardCortexComplete {
+            LoaderEvent::WizardConnectomeComplete {
                 slots_saved,
                 duration_ms,
             } => {
                 self.write_line(
                     "INFO",
                     &format!(
-                        "Wizard cortex complete: {slots_saved} slot(s) saved in {duration_ms}ms"
+                        "Wizard connectome complete: {slots_saved} slot(s) saved in {duration_ms}ms"
                     ),
                 );
                 tracing::info!(
                     target: "wizard.lifecycle",
                     slots_saved,
                     duration_ms,
-                    "[wizard] Cortex complete"
+                    "[wizard] Connectome complete"
                 );
             }
 
@@ -450,7 +450,7 @@ impl LoaderEventSink for FileEventSink {
             //
             // Layman-friendly log lines for the user-visible
             // model-loader log plus structured tracing on
-            // `intel.pipeline` so the cortex devtool's live mirror
+            // `intel.pipeline` so the connectome devtool's live mirror
             // and post-hoc replay both have the same signal.
             LoaderEvent::IntelligenceClassifyStarted {
                 project_slug,

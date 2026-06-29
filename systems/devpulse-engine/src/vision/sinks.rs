@@ -21,7 +21,7 @@ use async_trait::async_trait;
 // Concrete adapter types + their traits — the persistence traits use
 // native `async fn` so they aren't dyn-compatible, but bringing them
 // into scope lets us call `.execute` / `.append` via the trait method.
-use devpulse_clyffy::cortex::persistence::{
+use devpulse_clyffy::connectome::persistence::{
     AnalyticsAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter,
 };
 use serde::{Deserialize, Serialize};

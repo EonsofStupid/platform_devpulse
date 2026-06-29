@@ -2,8 +2,8 @@
  * @file RRD encoder swap service — typed Tauri command wrapper.
  * @module @devpulse/devtools/clyffy/reasoning/rrd/data-access
  *
- * Wraps the `cortex_swap_encoder` Tauri command (authored under
- * `interfaces/desktop/src-tauri/src/commands/cortex/`). The kernel
+ * Wraps the `connectome_swap_encoder` Tauri command (authored under
+ * `interfaces/desktop/src-tauri/src/commands/connectome/`). The kernel
  * routes the call through the RRD daemon's `pause → drain →
  * validate → swap → resume` protocol; phase events fire on the
  * `platform:rrd-phase-transition` channel that `rrdState` already
@@ -18,8 +18,8 @@
  *
  * ## Pending kernel side
  *
- * The matching `cortex_swap_encoder` Tauri command + its kernel
- * implementation (`CortexBurnAdapter::swap`) land together in the
+ * The matching `connectome_swap_encoder` Tauri command + its kernel
+ * implementation (`ConnectomeBurnAdapter::swap`) land together in the
  * Phase 2 batch (drop-slot + route-through-daemon). Until that
  * batch lands, clicking the dialog's "Confirm swap" surfaces a
  * "command not found" runtime error — the UI flow is fully
@@ -54,5 +54,5 @@ export interface SwapReport {
  * — under the hood the kernel is pausing query traffic the whole time.
  */
 export async function swapEncoderWeights(weightsPath: string): Promise<SwapReport> {
-	return invoke<SwapReport>("cortex_swap_encoder", { weightsPath });
+	return invoke<SwapReport>("connectome_swap_encoder", { weightsPath });
 }

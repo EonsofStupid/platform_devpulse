@@ -2,8 +2,13 @@
 //!
 //! Foundation Slice 1 of `CLYFFY-COGNITIVE-FOUNDATION.md`. Exposes the
 //! `persona.*` verb surface (load / save / recall / list) over stdio
-//! JSON-RPC. Future slices add `cortex.*` (thought_emit / thought_read)
+//! JSON-RPC. Future slices add `knowledge.*` (thought_emit / thought_read)
 //! and `rrd.*` (episode_ingest / fact_query / fact_invalidate / lifecycle).
+//!
+//! `knowledge.*` is the engine-facing name of the Connectome surface
+//! (per `kernel_terms.toml` — kernel term `Connectome`, prod/engine
+//! label "knowledge engine"). Kernel terms never cross the IPC
+//! boundary; the verb namespace uses the engine label.
 //!
 //! # Module layout
 //!

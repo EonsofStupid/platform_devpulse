@@ -11,7 +11,7 @@
 
 use super::relational::PROJECT_SCHEMA;
 use anyhow::{Context, Result};
-use devpulse_clyffy::cortex::persistence::{LibSqlAdapter, SqlAdapter};
+use devpulse_clyffy::connectome::persistence::{LibSqlAdapter, SqlAdapter};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;

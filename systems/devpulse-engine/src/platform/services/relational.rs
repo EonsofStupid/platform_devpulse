@@ -11,7 +11,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
+use devpulse_clyffy::connectome::persistence::LibSqlAdapter;
 use std::path::Path;
 use std::sync::Arc;
 

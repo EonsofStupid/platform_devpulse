@@ -220,10 +220,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::surreal::sidecar::surreal_health,
             commands::surreal::sidecar::surreal_config_load,
             commands::surreal::sidecar::surreal_config_save,
-            // Cortex governance graph (CORTEX.md §4) — B-1 foundation slice.
-            commands::cortex::cortex_thought_create,
-            commands::cortex::cortex_thought_load_branch,
-            commands::cortex::cortex_swap_encoder,
+            // Connectome governance graph (CORTEX.md §4) — B-1 foundation slice.
+            commands::connectome::connectome_thought_create,
+            commands::connectome::connectome_thought_load_branch,
+            commands::connectome::connectome_swap_encoder,
             commands::intelligence::intel_status,
             commands::intelligence::intel_list_projects,
             commands::intelligence::intel_save_memory,

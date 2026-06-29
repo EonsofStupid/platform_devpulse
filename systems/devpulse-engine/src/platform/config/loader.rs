@@ -15,7 +15,7 @@
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
 
-use devpulse_clyffy::cortex::llguidance::GrammarConfig;
+use devpulse_clyffy::connectome::llguidance::GrammarConfig;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};
@@ -682,8 +682,8 @@ impl Default for CacheServiceEntry {
 
 impl CacheServiceEntry {
     /// Convert to a `MokaCacheConfig`.
-    pub fn to_moka_config(&self) -> devpulse_clyffy::cortex::persistence::MokaCacheConfig {
-        devpulse_clyffy::cortex::persistence::MokaCacheConfig {
+    pub fn to_moka_config(&self) -> devpulse_clyffy::connectome::persistence::MokaCacheConfig {
+        devpulse_clyffy::connectome::persistence::MokaCacheConfig {
             max_capacity: self.max_capacity,
             time_to_live: Duration::from_secs(self.time_to_live_secs),
             time_to_idle: Duration::from_secs(self.time_to_idle_secs),

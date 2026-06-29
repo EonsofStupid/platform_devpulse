@@ -13,7 +13,7 @@ use serde_json::json;
 use tokio::sync::mpsc;
 
 use crate::platform::services::analytics::AnalyticsService;
-use devpulse_clyffy::cortex::persistence::AnalyticsAdapter;
+use devpulse_clyffy::connectome::persistence::AnalyticsAdapter;
 
 /// Channel buffer size for completed spans.
 /// Same as lane traces — backpressure drops silently.

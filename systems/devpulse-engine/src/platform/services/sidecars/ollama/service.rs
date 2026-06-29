@@ -2,20 +2,20 @@
 //!
 //! The kernel owns the lifecycle (spawn / attach / health / shutdown,
 //! HTTP client, model commands). This facade wraps
-//! [`devpulse_clyffy::cortex::persistence::OllamaAdapter`] with the
+//! [`devpulse_clyffy::connectome::persistence::OllamaAdapter`] with the
 //! platform `Service` trait and preserves the public surface the Tauri
 //! commands and `Platform::ensure_ollama_started` depend on.
 
 use crate::platform::services::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::ollama::{OllamaAdapter, OllamaConfig};
+use devpulse_clyffy::connectome::persistence::ollama::{OllamaAdapter, OllamaConfig};
 use std::path::{Path, PathBuf};
 
 // IP-NOTE: `OllamaModel` is a public-vocabulary-safe kernel type — it
 // only contains generic Ollama API fields (name, size, digest, …). It
 // crosses the Tauri IPC boundary directly via the optional `specta`
 // feature on `devpulse-clyffy`. No engine-side wrapper.
-pub use devpulse_clyffy::cortex::persistence::OllamaModel;
+pub use devpulse_clyffy::connectome::persistence::OllamaModel;
 
 /// Ollama service — thin engine wrapper around [`OllamaAdapter`].
 pub struct OllamaService {

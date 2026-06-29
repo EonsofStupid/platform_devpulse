@@ -54,7 +54,7 @@ pub struct IntelStatus {
     /// active connector kind once the cloud connector ships.
     pub connector_kind: String,
     /// HNSW embedding dimension locked in
-    /// `cortex::intelligence::EMBEDDING_DIM`. Surfaced so the
+    /// `connectome::intelligence::EMBEDDING_DIM`. Surfaced so the
     /// devtool can flag a mismatch when a different embedder
     /// would be wired in.
     pub embedding_dim: u32,
@@ -70,7 +70,7 @@ pub struct IntelStatus {
 pub struct ProjectIntel {
     /// Project slug — the `SurrealDB` database name under
     /// [`PROJECT_NAMESPACE`]. Derived from the project root path
-    /// via `cortex::intelligence::slug_for_cwd`.
+    /// via `connectome::intelligence::slug_for_cwd`.
     pub slug: String,
     /// Number of rows in this project's `memories` table.
     pub memory_count: u64,
@@ -234,7 +234,7 @@ pub async fn intel_save_memory(
     let adapter = graph.adapter();
 
     // SurrealAdapter implements `IntelligenceStore` (per
-    // kernel/devpulse-clyffy/src/cortex/persistence/surreal/intelligence_impl.rs).
+    // kernel/devpulse-clyffy/src/connectome/persistence/surreal/intelligence_impl.rs).
     // Reference-cast via the trait object so future connector swaps
     // route through the same call site unchanged.
     let store: &dyn IntelligenceStore = adapter.as_ref();

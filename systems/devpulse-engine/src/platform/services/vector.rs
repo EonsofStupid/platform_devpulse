@@ -10,7 +10,7 @@
 use super::{Service, ServiceRole, ServiceState};
 use crate::platform::config::RetrievalConfig;
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::RroAdapter;
+use devpulse_clyffy::connectome::persistence::RroAdapter;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -66,7 +66,7 @@ impl VectorService {
         limit: usize,
         filter: Option<serde_json::Value>,
     ) -> anyhow::Result<Vec<VectorSearchMatch>> {
-        use devpulse_clyffy::cortex::persistence::VectorAdapter;
+        use devpulse_clyffy::connectome::persistence::VectorAdapter;
 
         let matches =
             VectorAdapter::search(self.adapter.as_ref(), collection, vector, limit, filter).await?;
@@ -85,7 +85,7 @@ impl VectorService {
     /// # Errors
     /// Returns error if creation fails (e.g. collection already exists).
     pub async fn create_collection(&self, name: &str, dimension: u32) -> anyhow::Result<()> {
-        use devpulse_clyffy::cortex::persistence::VectorAdapter;
+        use devpulse_clyffy::connectome::persistence::VectorAdapter;
 
         VectorAdapter::create_collection(self.adapter.as_ref(), name, dimension).await
     }
@@ -95,7 +95,7 @@ impl VectorService {
     /// # Errors
     /// Returns error if deletion fails (e.g. collection does not exist).
     pub async fn delete_collection(&self, name: &str) -> anyhow::Result<()> {
-        use devpulse_clyffy::cortex::persistence::VectorAdapter;
+        use devpulse_clyffy::connectome::persistence::VectorAdapter;
 
         VectorAdapter::delete_collection(self.adapter.as_ref(), name).await
     }

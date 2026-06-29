@@ -14,8 +14,8 @@ use crate::platform::services::graph::{
     GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
 use crate::platform::services::surreal::SurrealService;
-use devpulse_clyffy::cortex::persistence::SurrealAdapter;
-use devpulse_clyffy::cortex::persistence::SurrealConfig;
+use devpulse_clyffy::connectome::persistence::SurrealAdapter;
+use devpulse_clyffy::connectome::persistence::SurrealConfig;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;

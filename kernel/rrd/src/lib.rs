@@ -2,8 +2,8 @@
 //!
 //! In-process orchestrator for the RRO cluster's hot-update lifecycle.
 //! Implements the contract specified in
-//! [`scripts/docs/specs/cortex/rro/HOT_UPDATE_PATTERN.md`] and consumed
-//! by [`scripts/docs/specs/cortex/rro/RRD.md`].
+//! [`scripts/docs/specs/connectome/rro/HOT_UPDATE_PATTERN.md`] and consumed
+//! by [`scripts/docs/specs/connectome/rro/RRD.md`].
 //!
 //! ## What this crate owns
 //!

@@ -19,7 +19,7 @@ use super::model_loader_log::FileEventSink;
 use super::{Service, ServiceRole, ServiceState};
 use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
+use devpulse_clyffy::connectome::persistence::LibSqlAdapter;
 pub use devpulse_clyffy::model_loader::registry::LoadError;
 pub use devpulse_clyffy::model_loader::wizard::analytics::emit_event as emit_analytics_event;
 pub use devpulse_clyffy::model_loader::AudioSamples;

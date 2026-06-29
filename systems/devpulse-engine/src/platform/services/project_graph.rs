@@ -14,7 +14,7 @@
 //! `Arc<…>` on `Platform`, both are dropped at shutdown.
 
 use anyhow::{Context, Result};
-use devpulse_clyffy::cortex::persistence::{ScopedGraphHandle, SurrealAdapter};
+use devpulse_clyffy::connectome::persistence::{ScopedGraphHandle, SurrealAdapter};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;

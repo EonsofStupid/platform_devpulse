@@ -33,7 +33,7 @@ pub async fn boot(
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
     event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
-    libsql_adapter: Option<std::sync::Arc<devpulse_clyffy::cortex::persistence::LibSqlAdapter>>,
+    libsql_adapter: Option<std::sync::Arc<devpulse_clyffy::connectome::persistence::LibSqlAdapter>>,
 ) -> Option<Arc<ModelLoaderService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped("Model Loader"));
@@ -183,7 +183,9 @@ fn build_burn_encoder_adapter(
     {
         use burn::backend::flex::FlexDevice;
         use burn::tensor::{set_default_dtypes, FloatDType, IntDType};
-        use devpulse_clyffy::cortex::persistence::burn::{CortexBurnAdapter, EmbedderCpuBackend};
+        use devpulse_clyffy::connectome::persistence::burn::{
+            ConnectomeBurnAdapter, EmbedderCpuBackend,
+        };
 
         // Flex is Burn 0.21's default CPU backend (PR #4761). Its `E`/`I`
         // generic params are phantom; bf16 storage is selected at runtime
@@ -205,7 +207,7 @@ fn build_burn_encoder_adapter(
             return None;
         }
 
-        let adapter = CortexBurnAdapter::<EmbedderCpuBackend>::harrier_0_6b(device);
+        let adapter = ConnectomeBurnAdapter::<EmbedderCpuBackend>::harrier_0_6b(device);
         tracing::info!(
             backend = "burn-flex",
             float_dtype = "bf16",

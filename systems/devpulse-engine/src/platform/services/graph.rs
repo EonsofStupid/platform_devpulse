@@ -13,7 +13,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::{ScopedGraphHandle, SurrealAdapter};
+use devpulse_clyffy::connectome::persistence::{ScopedGraphHandle, SurrealAdapter};
 use std::sync::Arc;
 
 /// Graph store backed by `SurrealDB` with explicit namespace scoping.
@@ -296,7 +296,7 @@ DEFINE INDEX IF NOT EXISTS grammar_bindings_project ON grammar_bindings FIELDS p
 DEFINE INDEX IF NOT EXISTS grammar_bindings_schema ON grammar_bindings FIELDS schema_id;
 DEFINE INDEX IF NOT EXISTS grammar_bindings_lane ON grammar_bindings FIELDS lane;
 
--- Cortex governance graph (CORTEX.md §4): operator-authored reasoning
+-- Connectome governance graph (CORTEX.md §4): operator-authored reasoning
 -- trees. `thought` rows are scoped per project via the `project_id`
 -- field, mirroring the `memories` / `corrections` per-project pattern.
 -- Three built-in edge types (leads_to / refines / summarizes) ship now;

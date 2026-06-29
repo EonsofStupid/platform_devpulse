@@ -72,7 +72,7 @@ use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, US
 use crate::platform::services::surreal::SurrealService;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
-use devpulse_clyffy::cortex::llguidance::sync_grammar_service_from_config;
+use devpulse_clyffy::connectome::llguidance::sync_grammar_service_from_config;
 
 use anyhow::Result;
 use log::BootLog;
@@ -277,7 +277,8 @@ async fn execute_inner(
     // skips if manifest version matches stored version.
     if let Some(ref user_svc) = user_relational {
         let _kspin = boot_log.running("Knowledge sync", "syncing knowledge library...");
-        match devpulse_clyffy::cortex::knowledge::sync_to_libsql(user_svc.adapter().as_ref()).await
+        match devpulse_clyffy::connectome::knowledge::sync_to_libsql(user_svc.adapter().as_ref())
+            .await
         {
             Ok(count) => {
                 if count > 0 {

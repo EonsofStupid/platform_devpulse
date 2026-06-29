@@ -15,7 +15,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::surreal::{SurrealConfig, SurrealLifecycle};
+use devpulse_clyffy::connectome::persistence::surreal::{SurrealConfig, SurrealLifecycle};
 use serde::Serialize;
 use specta::Type;
 use std::path::PathBuf;

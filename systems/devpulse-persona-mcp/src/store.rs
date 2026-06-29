@@ -26,9 +26,9 @@ use crate::error::{PersonaError, PersonaResult};
 use crate::idempotency::IdempotencyCache;
 use crate::schema::{DEFAULT_BLOCK_CHAR_LIMIT, PERSONA_SCHEMA};
 use chrono::{DateTime, Utc};
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
+use devpulse_clyffy::connectome::persistence::LibSqlAdapter;
 #[cfg(feature = "rro")]
-use devpulse_clyffy::cortex::persistence::RroAdapter;
+use devpulse_clyffy::connectome::persistence::RroAdapter;
 use libsql::Connection;
 use serde::{Deserialize, Serialize};
 use std::path::Path;

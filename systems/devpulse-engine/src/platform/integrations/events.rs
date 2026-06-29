@@ -185,9 +185,9 @@ impl LoaderEventSink for EventBridge {
                     "new_fingerprint": new_fingerprint,
                 }),
             ),
-            // ── Wizard cortex lifecycle → frontend bridge ─────────
+            // ── Wizard connectome lifecycle → frontend bridge ─────────
             //
-            // Bridged so devtool surfaces (cortex devtool mirror,
+            // Bridged so devtool surfaces (connectome devtool mirror,
             // ActivityHUD wizard channel) can render live state
             // without polling the loader. Matches the dual-
             // observability contract — kernel emits, sink fans out
@@ -218,11 +218,11 @@ impl LoaderEventSink for EventBridge {
                     "error": error,
                 }),
             ),
-            LoaderEvent::WizardCortexComplete {
+            LoaderEvent::WizardConnectomeComplete {
                 slots_saved,
                 duration_ms,
             } => (
-                "model:wizard-cortex-complete",
+                "model:wizard-connectome-complete",
                 json!({
                     "slots_saved": slots_saved,
                     "duration_ms": duration_ms,
@@ -233,7 +233,7 @@ impl LoaderEventSink for EventBridge {
             // `intel:*` channel is the live mirror feed for
             // `/devtools/clyffy/memory/intelligence`. The view
             // listens for these three events in arrival order and
-            // renders one card per memory the cortex pipeline
+            // renders one card per memory the connectome pipeline
             // produced from a chat turn.
             LoaderEvent::IntelligenceClassifyStarted {
                 project_slug,

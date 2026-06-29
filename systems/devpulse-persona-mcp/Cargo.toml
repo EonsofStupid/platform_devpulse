@@ -2,7 +2,7 @@
 name = "devpulse-persona-mcp"
 version = "0.1.0"
 edition = "2021"
-description = "Persona MCP server — the mesh hub. Exposes persona.* / cortex.* / rrd.* MCP verbs over stdio JSON-RPC to Claude Desktop, Claude Code, the DevPulse orchestrator, and any future MCP client. SurrealDB + LibSQL + (optional) embedded Qdrant via devpulse-clyffy adapters."
+description = "Persona MCP server — the mesh hub. Exposes persona.* / knowledge.* / rrd.* MCP verbs over stdio JSON-RPC to Claude Desktop, Claude Code, the DevPulse orchestrator, and any future MCP client. The knowledge.* namespace is the engine-facing surface of the Connectome (kernel-side IP-boundary rename, kernel_terms.toml 2026-06-27). SurrealDB + LibSQL + (optional) embedded Qdrant via devpulse-clyffy adapters."
 
 [features]
 default = []

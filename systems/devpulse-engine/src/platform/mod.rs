@@ -80,7 +80,7 @@ pub use services::{Service, ServiceRole, ServiceState};
 // IP-NOTE: persistence adapter traits + raw SQL value types. All names
 // are generic (Analytics / Cache / LibSql / Sql{Adapter,Row,Value}) —
 // no kernel vocabulary, no rename needed.
-pub use devpulse_clyffy::cortex::persistence::{
+pub use devpulse_clyffy::connectome::persistence::{
     AnalyticsAdapter, CacheAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
@@ -88,9 +88,9 @@ pub use devpulse_clyffy::cortex::persistence::{
 // Names match `signals.registry.yaml` group `rro` exactly (registry-aligned
 // public vocabulary, not kernel internals). The handle stores transition
 // snapshots in a bounded ring and broadcasts them via context-propagating
-// `BroadcastSender` (ADR-002). Authored under the kernel cortex SSOT at
-// `kernel/devpulse-clyffy/src/cortex/reasoning/state.rs`.
-pub use devpulse_clyffy::cortex::reasoning::{
+// `BroadcastSender` (ADR-002). Authored under the kernel connectome SSOT at
+// `kernel/devpulse-clyffy/src/connectome/reasoning/state.rs`.
+pub use devpulse_clyffy::connectome::reasoning::{
     RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
 };
 
@@ -99,9 +99,9 @@ pub use devpulse_clyffy::cortex::reasoning::{
 // `Custom`, `GrammarStatus::*`). The kernel owns the constraint engine;
 // this is the read/control snapshot the devtool consumes. Distinct from
 // the user-facing writing-grammar / spelling tool (Harper). Authored
-// under the kernel cortex SSOT at
-// `kernel/devpulse-clyffy/src/cortex/llguidance/handle.rs`.
-pub use devpulse_clyffy::cortex::llguidance::{
+// under the kernel connectome SSOT at
+// `kernel/devpulse-clyffy/src/connectome/llguidance/handle.rs`.
+pub use devpulse_clyffy::connectome::llguidance::{
     GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus,
 };
 
@@ -110,7 +110,7 @@ pub use devpulse_clyffy::cortex::llguidance::{
 // so consumers see `KnowledgeEntryType`. The verbs `record_reaction`
 // / `select_entry` are also re-prefixed. This IS the translation
 // pattern — vocabulary rename at the seam, not a struct wrapper.
-pub use devpulse_clyffy::cortex::knowledge::{
+pub use devpulse_clyffy::connectome::knowledge::{
     record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
     sync_remote_entries as knowledge_sync_remote_entries, EntryType as KnowledgeEntryType,
     KnowledgeEntry, KnowledgeManifest, Reaction as KnowledgeReaction,
@@ -123,22 +123,24 @@ pub use devpulse_clyffy::cortex::knowledge::{
 // `most_recent_sync_at`) so the desktop Tauri command surface reads them
 // without kernel-vocabulary translation. The actual HTTP fetch lives in
 // `commands/community/` (desktop tier); kernel owns only the cache shape.
-pub use devpulse_clyffy::cortex::community::{
+pub use devpulse_clyffy::connectome::community::{
     is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
     FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS,
 };
 
-// IP-NOTE: cortex governance graph (CORTEX.md §4) — operator-authored
+// IP-NOTE: connectome governance graph (CORTEX.md §4) — operator-authored
 // reasoning trees. `ThoughtRecord` / `thought_create` / `thought_load_branch`
 // are generic enough to cross outward; no rename needed. Engine callers
 // pass `graph.handle()` (the `&ScopedGraphHandle` returned by
 // `GraphService::handle()`) and convert their `RroState` via
 // `RroState::as_str()` at the seam.
-pub use devpulse_clyffy::cortex::governance::{thought_create, thought_load_branch, ThoughtRecord};
+pub use devpulse_clyffy::connectome::governance::{
+    thought_create, thought_load_branch, ThoughtRecord,
+};
 
 // IP-NOTE: RRD encoder hot-swap return shape. `SwapStats` carries dim
 // + elapsed_ms + phases_observed — generic enough to cross outward.
-// The Tauri command `cortex_swap_encoder` returns this directly; the
+// The Tauri command `connectome_swap_encoder` returns this directly; the
 // engine `ModelLoaderService::burn_swap_encoder` passthrough preserves
 // the shape unchanged.
 //
@@ -158,7 +160,7 @@ pub use devpulse_clyffy::model_loader::backends::burn_adapter::SwapStats;
 // corpus. Names describe industry-standard concepts (suggestion,
 // service) — no kernel vocabulary, no rename needed. Tauri layer calls
 // `Platform::ensure_suggest_service()` to obtain the service.
-pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
+pub use devpulse_clyffy::connectome::suggest::{Suggestion, SuggestionService};
 
 // IP-NOTE: intelligence layer surface — embedding-aware memory + RRO
 // archive types, schema constant, and project routing helper. The
@@ -167,7 +169,7 @@ pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
 // `commands::intelligence` module can build typed responses without
 // reaching into the kernel directly. Names describe industry-standard
 // concepts (memory, embedding, archive) — no kernel vocabulary leaks.
-pub use devpulse_clyffy::cortex::intelligence::{
+pub use devpulse_clyffy::connectome::intelligence::{
     slug_for_cwd, IntelligenceStore, MemoryKind, MemoryRecord, NeighborRef, RecallHit, RroRecord,
     EMBEDDING_DIM, MEMORY_SCHEMA,
 };
@@ -352,7 +354,7 @@ pub struct Platform {
     // pool; non-inference builds expose `suggest_service()` returning
     // `None` and `ensure_suggest_service()` returning a clear error.
     #[cfg(feature = "inference")]
-    suggest: ArcSwapOption<devpulse_clyffy::cortex::suggest::SuggestionService>,
+    suggest: ArcSwapOption<devpulse_clyffy::connectome::suggest::SuggestionService>,
     // ── DevForge (VSCode) — lazy, user-initiated ─────────────
     // NOT a boot-time service. First open of the code-editor window
     // calls `ensure_devforge_started()` which spawns the REH child
@@ -742,7 +744,7 @@ impl Platform {
     #[must_use]
     pub fn suggest_service(
         &self,
-    ) -> Option<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>> {
+    ) -> Option<Arc<devpulse_clyffy::connectome::suggest::SuggestionService>> {
         self.suggest.load_full()
     }
 
@@ -750,7 +752,7 @@ impl Platform {
     /// `Arc` on every subsequent call.
     ///
     /// Construction wires:
-    /// - [`devpulse_clyffy::cortex::suggest::ChatSuggestEmbedder`] over the
+    /// - [`devpulse_clyffy::connectome::suggest::ChatSuggestEmbedder`] over the
     ///   `chat.suggest` slot via the kernel `ModelLoaderService`.
     /// - The embedder is cast to `Arc<dyn Embedder>` (`#[async_trait]`
     ///   on the trait makes this `dyn`-compatible).
@@ -768,7 +770,7 @@ impl Platform {
     )]
     pub async fn ensure_suggest_service(
         &self,
-    ) -> Result<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>, String> {
+    ) -> Result<Arc<devpulse_clyffy::connectome::suggest::SuggestionService>, String> {
         if let Some(svc) = self.suggest.load_full() {
             return Ok(svc);
         }
@@ -783,8 +785,9 @@ impl Platform {
             .ok_or_else(|| "user_graph not booted".to_string())?;
 
         let kernel_loader = loader.kernel_clone();
-        let bridge = devpulse_clyffy::cortex::suggest::ChatSuggestEmbedder::new(kernel_loader);
-        let embedder: Arc<dyn devpulse_clyffy::cortex::cag::traits::Embedder> = Arc::new(bridge);
+        let bridge = devpulse_clyffy::connectome::suggest::ChatSuggestEmbedder::new(kernel_loader);
+        let embedder: Arc<dyn devpulse_clyffy::connectome::cag::traits::Embedder> =
+            Arc::new(bridge);
 
         let adapter = Arc::clone(graph.adapter());
         let namespace = graph.handle().namespace().to_string();
@@ -796,9 +799,11 @@ impl Platform {
             "constructing suggestion service (chat.suggest -> user graph)"
         );
 
-        let svc = Arc::new(devpulse_clyffy::cortex::suggest::SuggestionService::new(
-            embedder, adapter, namespace, database,
-        ));
+        let svc = Arc::new(
+            devpulse_clyffy::connectome::suggest::SuggestionService::new(
+                embedder, adapter, namespace, database,
+            ),
+        );
         self.suggest.store(Some(Arc::clone(&svc)));
         Ok(svc)
     }
@@ -809,7 +814,7 @@ impl Platform {
     #[must_use]
     pub fn suggest_service(
         &self,
-    ) -> Option<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>> {
+    ) -> Option<Arc<devpulse_clyffy::connectome::suggest::SuggestionService>> {
         None
     }
 

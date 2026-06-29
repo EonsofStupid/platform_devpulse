@@ -1461,9 +1461,9 @@ async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConf
  * - User graph service is not available.
  * - Surreal write fails.
  */
-async cortexThoughtCreate(projectId: string, branchId: string, content: string, rroState: RroState, depth: number, proximity: number) : Promise<Result<ThoughtRecord, string>> {
+async connectomeThoughtCreate(projectId: string, branchId: string, content: string, rroState: RroState, depth: number, proximity: number) : Promise<Result<ThoughtRecord, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("cortex_thought_create", { projectId, branchId, content, rroState, depth, proximity }) };
+    return { status: "ok", data: await TAURI_INVOKE("connectome_thought_create", { projectId, branchId, content, rroState, depth, proximity }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1479,9 +1479,9 @@ async cortexThoughtCreate(projectId: string, branchId: string, content: string, 
  * - User graph service is not available.
  * - Surreal query fails.
  */
-async cortexThoughtLoadBranch(projectId: string, branchId: string) : Promise<Result<ThoughtRecord[], string>> {
+async connectomeThoughtLoadBranch(projectId: string, branchId: string) : Promise<Result<ThoughtRecord[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("cortex_thought_load_branch", { projectId, branchId }) };
+    return { status: "ok", data: await TAURI_INVOKE("connectome_thought_load_branch", { projectId, branchId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1509,9 +1509,9 @@ async cortexThoughtLoadBranch(projectId: string, branchId: string) : Promise<Res
  * - Source file missing / unreadable / wrong format.
  * - Validate forward returned non-finite output (live unchanged).
  */
-async cortexSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, string>> {
+async connectomeSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("cortex_swap_encoder", { weightsPath }) };
+    return { status: "ok", data: await TAURI_INVOKE("connectome_swap_encoder", { weightsPath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1797,7 +1797,7 @@ async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstall
  * 
  * Synchronous (non-streaming) for the first cut. A streaming variant
  * (`ping_claude_stream`) returning through Tauri events can land in a
- * follow-up if the cortex reasoning surface needs incremental tokens.
+ * follow-up if the connectome reasoning surface needs incremental tokens.
  * 
  * # Errors
  * 
@@ -7487,7 +7487,7 @@ export type IntelStatus = {
 connector_kind: string; 
 /**
  * HNSW embedding dimension locked in
- * `cortex::intelligence::EMBEDDING_DIM`. Surfaced so the
+ * `connectome::intelligence::EMBEDDING_DIM`. Surfaced so the
  * devtool can flag a mismatch when a different embedder
  * would be wired in.
  */
@@ -8806,7 +8806,7 @@ maxTokens: number | null }
  * What `ping_claude` returns to the frontend.
  * 
  * The shape mirrors the parts of the Anthropic Messages API response
- * the cortex actually needs (text + usage), not the full envelope.
+ * the connectome actually needs (text + usage), not the full envelope.
  */
 export type PingClaudeResponse = { 
 /**
@@ -9048,7 +9048,7 @@ export type ProjectIntel = {
 /**
  * Project slug — the `SurrealDB` database name under
  * [`PROJECT_NAMESPACE`]. Derived from the project root path
- * via `cortex::intelligence::slug_for_cwd`.
+ * via `connectome::intelligence::slug_for_cwd`.
  */
 slug: string; 
 /**
@@ -10405,7 +10405,7 @@ export type SurrealUserConfig = Record<string, never>
  * Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
  * 
  * Mirrors the `SwapReport` interface the desktop devtool consumes via
- * the `cortex_swap_encoder` Tauri command (see
+ * the `connectome_swap_encoder` Tauri command (see
  * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
  * Fields are flat + plain types so the value crosses straight to the
  * frontend under specta when the consuming crate enables the feature.
@@ -11409,9 +11409,9 @@ export type WindowRole =
  */
 "Chat" | 
 /**
- * Cortex viewer — telemetry / devtools
+ * Connectome viewer — telemetry / devtools
  */
-"CortexViewer" | 
+"ConnectomeViewer" | 
 /**
  * Model loader — slot management
  */

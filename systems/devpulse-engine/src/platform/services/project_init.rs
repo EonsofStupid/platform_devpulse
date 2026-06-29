@@ -44,7 +44,7 @@
 //! as a convenience that forwards here with its own field refs.
 
 use anyhow::{Context, Result};
-use devpulse_clyffy::cortex::persistence::{
+use devpulse_clyffy::connectome::persistence::{
     DuckDbAdapter, LibSqlAdapter, ScopedGraphHandle, SurrealAdapter,
 };
 use std::path::Path;

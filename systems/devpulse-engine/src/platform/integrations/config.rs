@@ -11,7 +11,7 @@ pub use devpulse_clyffy::model_loader::MemoryConfig;
 use devpulse_clyffy::model_loader::ConfigBackend;
 
 #[cfg(feature = "inference")]
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
+use devpulse_clyffy::connectome::persistence::LibSqlAdapter;
 
 #[cfg(feature = "inference")]
 use std::sync::Arc;

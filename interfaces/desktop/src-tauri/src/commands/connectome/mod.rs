@@ -1,8 +1,8 @@
-//! Cortex governance-graph commands.
+//! Connectome governance-graph commands.
 //!
 //! Operator-authored reasoning trees per `CORTEX.md` §4. B-1 ships
-//! the foundation slice — `cortex_thought_create` and
-//! `cortex_thought_load_branch`. Edge linking lands in B-2; the
+//! the foundation slice — `connectome_thought_create` and
+//! `connectome_thought_load_branch`. Edge linking lands in B-2; the
 //! visualizer lands in B-3.
 
 use crate::state::PlatformState;
@@ -33,7 +33,7 @@ macro_rules! get_platform {
 /// - Surreal write fails.
 #[tauri::command]
 #[specta::specta]
-pub async fn cortex_thought_create(
+pub async fn connectome_thought_create(
     state: State<'_, PlatformState>,
     project_id: String,
     branch_id: String,
@@ -70,7 +70,7 @@ pub async fn cortex_thought_create(
 /// - Surreal query fails.
 #[tauri::command]
 #[specta::specta]
-pub async fn cortex_thought_load_branch(
+pub async fn connectome_thought_load_branch(
     state: State<'_, PlatformState>,
     project_id: String,
     branch_id: String,
@@ -108,7 +108,7 @@ pub async fn cortex_thought_load_branch(
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(weights_path = %weights_path))]
-pub async fn cortex_swap_encoder(
+pub async fn connectome_swap_encoder(
     state: State<'_, PlatformState>,
     weights_path: String,
 ) -> Result<SwapStats, String> {
