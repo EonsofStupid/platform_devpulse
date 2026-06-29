@@ -7,8 +7,11 @@ members = [
     "systems/devpulse-engine",
     "systems/devpulse-media",
     "systems/devpulse-persona-mcp",
-    "systems/infra/devpulse-telemetry",
-    "systems/infra/devpulse-telemetry-macros",
+    # systems/infra/devpulse-telemetry{,-macros} extracted to
+    # github.com/EonsofStupid/devpulse-telemetry (2026-06-28). Sources still on
+    # disk under systems/infra/ until the Phase 5 cut; workspace no longer
+    # claims them as members so cargo resolves the workspace.dependencies
+    # `devpulse-telemetry = { git = ... }` against the published repo.
     "interfaces/desktop/src-tauri",
     "xtask", # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
@@ -93,8 +96,11 @@ static_assertions = "1.1"
 # yet released as of 2026-05.
 tokio-util = { version = "0.7", features = ["rt"] }
 
-# Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
-devpulse-telemetry = { path = "systems/infra/devpulse-telemetry" }
+# Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK).
+# Extracted to its own repo 2026-06-28. Branch-tracked while pre-release; pin a
+# rev when the API stabilises. CI auth: secrets.DEVPULSE_TELEMETRY_TOKEN (set
+# via Infisical, see .github/workflows/ci.yml).
+devpulse-telemetry = { git = "https://github.com/EonsofStupid/devpulse-telemetry", branch = "main" }
 
 # Error Handling
 anyhow = "1.0"

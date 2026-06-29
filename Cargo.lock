@@ -4787,6 +4787,7 @@ dependencies = [
 [[package]]
 name = "devpulse-telemetry"
 version = "0.1.0"
+source = "git+https://github.com/EonsofStupid/devpulse-telemetry?branch=main#1f4c7d300044e1471c069acb602593628dddb120"
 dependencies = [
  "chrono",
  "flume",
@@ -4800,10 +4801,6 @@ dependencies = [
  "tracing-opentelemetry",
  "tracing-subscriber",
 ]
-
-[[package]]
-name = "devpulse-telemetry-macros"
-version = "0.1.0"
 
 [[package]]
 name = "devpulse_desktop_backend"

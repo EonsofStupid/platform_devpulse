@@ -143,6 +143,24 @@ jobs:
           echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
           echo "Configured cargo to use RRO_DEPLOY_TOKEN for private rro fetches"
 
+      # `devpulse-telemetry` was extracted to its own private repo 2026-06-28;
+      # workspace.dependencies declares it as `git = "..."`. Same `insteadOf`
+      # pattern as rro above. Secret name `DEVPULSE_TELEMETRY_TOKEN` is set on
+      # this repo via Infisical (`infisical run --env=dev -- gh secret set ...`).
+      - name: Configure cargo for private devpulse-telemetry fetches
+        env:
+          DEVPULSE_TELEMETRY_TOKEN: ${{ secrets.DEVPULSE_TELEMETRY_TOKEN }}
+        run: |
+          if [ -z "$DEVPULSE_TELEMETRY_TOKEN" ]; then
+            echo "::warning::DEVPULSE_TELEMETRY_TOKEN secret not set on this repo — cargo will fail to fetch private devpulse-telemetry dep."
+            echo "Fix: pull PAT from Infisical and pipe to gh secret set."
+            exit 0
+          fi
+          git config --global url."https://x-access-token:${DEVPULSE_TELEMETRY_TOKEN}@github.com/EonsofStupid/devpulse-telemetry".insteadOf "https://github.com/EonsofStupid/devpulse-telemetry"
+          git config --global url."https://x-access-token:${DEVPULSE_TELEMETRY_TOKEN}@github.com/EonsofStupid/devpulse-telemetry.git".insteadOf "https://github.com/EonsofStupid/devpulse-telemetry.git"
+          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
+          echo "Configured cargo to use DEVPULSE_TELEMETRY_TOKEN for private devpulse-telemetry fetches"
+
       - name: Cache Cargo
         uses: actions/cache@v4
         with:
