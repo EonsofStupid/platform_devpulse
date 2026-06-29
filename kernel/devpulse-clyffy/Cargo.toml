@@ -86,7 +86,7 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 
 # rkyv 0.8 — zero-copy serialization. Backs `RroRecord` (the JIT
 # precomputed-context shape) under
-# `src/cortex/persistence/surreal/intelligence.rs`. Always-on (not
+# `src/connectome/persistence/surreal/intelligence.rs`. Always-on (not
 # feature-gated): the type definitions and the access helper are part
 # of the always-compiled persistence surface so consumers downstream
 # (engine MCP server, future hooks) can reference them without juggling
@@ -131,7 +131,7 @@ rrd = { path = "../rrd", optional = true }
 # Observability
 tracing = { workspace = true }
 # Context-propagating broadcast channels (ADR-002) — required by
-# cortex::reasoning::state::RroStateHandle and cortex::llguidance::handle::GrammarHandle
+# connectome::reasoning::state::RroStateHandle and connectome::llguidance::handle::GrammarHandle
 # to fan transition snapshots out to dev tools without losing OTel context.
 devpulse-telemetry = { workspace = true }
 
