@@ -50,12 +50,107 @@ Per-project SurrealQL (NOT migrating to Turso — stays on SurrealDB):
 | Persona blocks (`persona_blocks`, `persona_idempotency`) | **ClyffyOS local libsql** | Letta-style core memory. Per `clyffyos-persona-mcp` charter. Server-owned. |
 | Per-project memory (HNSW + RRO archive) | **ClyffyOS SurrealDB** | Already SurrealQL. Not affected. |
 
-**Net:** USER_SCHEMA → DevPulse Turso (the entire `user.db`). SYSTEM_SCHEMA
-stays as a libsql file in clyffyos data dir (renamed for clarity).
-Persona-MCP schema stays as a libsql file in clyffyos data dir.
+**Net (first draft):** USER_SCHEMA → DevPulse Turso (the entire `user.db`).
+SYSTEM_SCHEMA stays as a libsql file in clyffyos data dir. Persona-MCP
+schema stays as a libsql file in clyffyos data dir.
 
-The DevPulse-local Turso is the load-bearing new piece. ClyffyOS retains
-two small libsql files for its own state; those don't need Turso.
+> See §3.5 — this first-draft split is REVISED to comply with a locked
+> SurrealDB decision row.
+
+---
+
+## 3.5 Reconciliation with `decisions:sw2wunt00tcgk6l8brm7`
+
+The agent-memory SurrealDB (queryable at
+`https://devpulse-06e6sbjhctrt511bgpdvd3d6c8.aws-use1.surreal.cloud`,
+NS=`projects`, DB=`devpulse` — see [[reference-surrealdb-active-use]])
+carries a sprint-00 decision row that this draft initially missed:
+
+> **"DuckDB and libSQL per-project, SurrealDB global"**
+> — `decisions:sw2wunt00tcgk6l8brm7`, 2026-05-09
+> Decision: DuckDB analytical store and libSQL relational store: fresh
+> per project. SurrealDB: ONE global instance (kv-surrealkv embedded),
+> persona namespaces span projects.
+> Reasoning: Per-project isolation for clean teardown + analytics
+> partition. Global SurrealDB for cross-project persona/knowledge that
+> should persist.
+
+The first-draft proposal in §3 bundles the entire 28-table USER_SCHEMA
+into one DevPulse-local Turso replica. That violates the per-project
+libsql rule for tables that carry a `project_id` foreign key.
+
+### 3.5.1 The correct split, three buckets
+
+| Bucket | Where it goes | Tables (from USER_SCHEMA) |
+|---|---|---|
+| **User scope** — cross-project, identity + preferences + the project registry itself | **DevPulse Turso** (one replica, syncs to remote) | `profiles`, `preferences`, `grammar_preferences`, `api_keys`, `user_config`, **`projects`** (the registry — list of every project the user has touched), `model_registry`, `user_concepts`, `attunement_preferences`, `attunement_learned`, `translation_memory`, `kv_store` |
+| **Project scope** — state that exists ONLY in the context of one project | **Per-project libsql file** (one DB per project, e.g. `.userdata/projects/{project_id}/state.db`) | `golden_path`, `project_references`, `project_context`, `grammar_schemas`, `grammar_bindings`, `sessions`, `turns`, `anchors`, `open_loops`, `focus_contexts`, `psych_states`, `ambient_observations`, `corrections`, `learnings`, `decisions` (USER_SCHEMA's), `decision_factors` |
+| **Persona / cross-project knowledge** | **Clyffy-embedded SurrealDB** (per the existing arch rule "TWO SurrealDB instances: embedded (Clyffy) + standalone (agent memory). Zero shared data.") | `persona_blocks`, `persona_idempotency` (already from `clyffyos-persona-mcp`) — NO change from current. |
+
+Test for which bucket a USER_SCHEMA row belongs in:
+
+1. Does the row have a non-null `project_id` (or transitively via `session_id`)? → **Project scope**, per-project libsql.
+2. Is it user-identity / projects-registry / user-wide preference / cross-project learning? → **User scope**, DevPulse Turso.
+3. Is it Letta-style persona block / memory the persona MCP serves? → **Persona scope**, clyffy-embedded SurrealDB.
+
+### 3.5.2 Why this is correct, not pedantic
+
+- **Clean per-project teardown.** Delete a project = drop its `state.db`
+  file. No FK cascade gymnastics against a giant shared store.
+- **Project-scope analytics partition.** Sprint-00 reasoning verbatim:
+  "analytics partition." DuckDB analytics already shipped per-project;
+  per-project libsql matches.
+- **Smaller Turso sync surface.** The cross-project user data is small
+  (probably <100 KB after migration). Per-project rows (sessions/turns
+  may grow into MB) stay local and never sync — matches the charter's
+  "DevPulse Turso ↔ Clyffy bridge" (only what's worth bridging crosses).
+- **clyffyd embedded-replica gets only what it needs.** Reading "what
+  models does the user have" (model_registry) + "what's the user's
+  current style preferences" (preferences) — those sync. Per-project
+  conversation history doesn't (clyffyd reasons against the live
+  session, not historical turns).
+
+### 3.5.3 What changes in the migration procedure (§6)
+
+Phase B (data dump) splits into two passes:
+- **B-user.json** — dump the 12 user-scope tables (per §3.5.1) for direct
+  import into DevPulse Turso.
+- **B-per-project.json** (one file per distinct project_id appearing in
+  any project-scope table) — dump each project's slice into its own
+  JSON. The project_id list comes from `SELECT id FROM projects`.
+
+Phase C (import) splits:
+- **C-user** — apply user-scope DDL to Turso, import `B-user.json`.
+- **C-per-project** — for each project_id, create
+  `.userdata/projects/{project_id}/state.db`, apply the per-project DDL
+  subset, import `B-per-project-{project_id}.json`.
+
+Phase D (rewrite reads) — DevPulse-side adapter routes a read to:
+- DevPulse Turso if the table is user-scope
+- The active project's libsql file if it's project-scope
+
+The `project_id` must be in the read call's context (already true today —
+the engine has `ProjectInit::active_project()`).
+
+### 3.5.4 What this does NOT change
+
+- The §4 crate decision (stay on `libsql`) — same crate handles both the
+  Turso embedded-replica AND the per-project files.
+- The §5 schema portability — DDL ports verbatim either way.
+- The §8 wire shape — DevPulse Turso ↔ remote ↔ clyffyd replica is
+  unchanged. The per-project files are LOCAL ONLY; they never sync.
+- The §9 token discipline — applies to Turso credentials; per-project
+  files are local-on-disk.
+
+### 3.5.5 Open question carried forward
+
+Add to §10:
+
+| # | Question | Default |
+|---|---|---|
+| OQ-6 | Should the per-project libsql files also publish a redacted slice (project_id only — "this user worked on project X") into DevPulse Turso so clyffyd can know what projects exist without seeing their contents? | Yes — write a `project_id_visibility` table to Turso with just `(project_id, last_active_at)`. clyffyd reads this to know the project list; reads detailed state only when the user routes a query through DevPulse. |
+
+
 
 ## 4. Crate decision: `libsql` vs `turso`/Limbo
 
