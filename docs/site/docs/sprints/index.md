@@ -1,0 +1,57 @@
+---
+sidebar_position: 1
+title: "Sprint Plans"
+---
+
+# Sprint Plans
+
+Sprint files are in `scripts/docs/sprints/`. Regenerate the inventory after each sprint:
+
+```bash
+pnpm coldlight:inventory --write
+```
+
+## Sprints
+
+- SPRINT-01-sys-layer
+- SPRINT-01B-routing-foundation
+- SPRINT-02-dialog-gold-standard
+- SPRINT-02-signals-system
+- SPRINT-10-component-layer
+- SPRINT-11-token-tailwind-integration
+- SPRINT-12-aria-context-layer
+- SPRINT-APP-SHELL-REBUILD
+- SPRINT-CHAT-OVERLAY
+- SPRINT-COLDLIGHT-CENTRALIZATION
+- SPRINT-COLDLIGHT-SOLE-PROVIDER
+- SPRINT-COMPONENT-FOUNDATION
+- SPRINT-DESIGN-SYSTEM-ENFORCEMENT
+- SPRINT-F1-foundation-infrastructure
+- SPRINT-F2-rust-crate-hygiene
+- SPRINT-F3-biome-lint-hygiene
+- SPRINT-LEFTHOOK-HARDENING
+- SPRINT-PREFIX-PURGE
+- SPRINT-PRIMITIVES-FOUNDATION
+- SPRINT-SCHEMA-FOUNDATION
+- SPRINT-SD5-FOUNDATION
+- SPRINT-SURREALDB-STANDALONE
+- SPRINT-TAXONOMY-FOUNDATION
+- SPRINT-TAXONOMY-SIMPLIFICATION
+- SPRINT-TOKEN-BRIDGE
+- SPRINT-TS-ERRORS-CLEANUP
+- SPRINT-VISUAL-SCAFFOLDING
+
+## Research Documents
+
+- SPRINT-COLDLIGHT-FOUNDATION.research
+- SPRINT-COLDLIGHT-SOLE-PROVIDER.research
+- SPRINT-COMPONENT-FOUNDATION.research
+- SPRINT-DESIGN-SYSTEM-ENFORCEMENT.research
+- SPRINT-LEFTHOOK-HARDENING.research
+- SPRINT-PRIMITIVES-FOUNDATION.research
+- SPRINT-SD5-FOUNDATION.research
+- SPRINT-SURREALDB-STANDALONE.research
+- SPRINT-TAXONOMY-FOUNDATION.research
+- SPRINT-TAXONOMY-SIMPLIFICATION.research
+- SPRINT-TS-ERRORS-CLEANUP.research
+- SPRINT-VISUAL-SCAFFOLDING.research
