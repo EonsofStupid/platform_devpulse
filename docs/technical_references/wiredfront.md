@@ -35,7 +35,7 @@ It is the frontend for DevPulse's **proprietary in-house broadcasting and collab
 *   **Layout:** Retains the global Sidebar, Topbar, and Statusbar.
 *   **Function:**
     *   **Control Center:** Manage the Native Engine sessions and External Bridges.
-    *   **Asset Gallery:** Intelligent grid of local and cloud assets (`libsql` backed).
+    *   **Asset Gallery:** Intelligent grid of local and cloud assets (**Turso**-backed — the DevPulse-local store).
     *   **Session Manager:** Join/Host Zed-like collaboration rooms.
 
 ### 2.2 The Tool: `PixVix` (The Snapper)
@@ -76,5 +76,5 @@ interfaces/desktop/src/lib/domains/pixvix/
 ---
 
 ## 4. Pending Infrastructure (Maintenance Protocol)
-*   **LibSQL Integration:** Required for the Session and Asset databases.
+*   **Turso Integration:** The DevPulse-local **Turso** store backs the Session and Asset databases (projects / conversations / stats). Syncs to Clyffy via the designed service account — see the libSQL→Turso migration + `turso-clyffy-bridge`.
 *   **Capture Engine:** Currently scaffolding the frontend; backend requires `scap` or native platform integration for the "Zed-like" performance.

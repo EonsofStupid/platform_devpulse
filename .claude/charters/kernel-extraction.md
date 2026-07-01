@@ -62,9 +62,15 @@ Now the two split, **maximize ways to bridge the local store to Clyffy**:
 3. **`devpulse-media`** = **stays in DevPulse** (capture is client-side; heavy processing runs on GB10 via the wire).
 4. **WardenClyffe** = **separate, unrelated** (`D:\localdev\wardenclyffe`); the extraction does not touch it.
 
-Still open — NON-blocking (a later DevPulse UI surface, not needed to extract):
+Resolved 2026-06-30 — NON-blocking (a later DevPulse UI surface, not needed to extract):
 
-- **"obs under wirefront"** — confirm exact meaning before building that surface.
+- **"obs under wiredfront"** — answered by the recovered `docs/technical_references/wiredfront.md`
+  (purged in 581ac988, restored 2026-06-30). **WiredFront** = DevPulse's native in-house
+  broadcasting / real-time collaboration engine (Zed-collab-class) + **PixVix** capture tool
+  (Pix=screenshot, Vix=recording). "obs" = OBS-style broadcasting/capture, not observability.
+  Both `wiredfront` + `pixvix` are already commitlint scopes. Backed by the DevPulse-local
+  **Turso** store. See memory `wiredfront-broadcast-surface`. (Confirm OBS-broadcast vs
+  observability with operator before building; lead with broadcasting.)
 
 ## Success criteria
 
