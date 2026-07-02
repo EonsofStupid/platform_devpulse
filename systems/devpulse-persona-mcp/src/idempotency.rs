@@ -17,10 +17,10 @@
 
 use crate::error::PersonaError;
 use chrono::Utc;
-use libsql::Connection;
 use moka::future::Cache;
 use std::sync::Arc;
 use std::time::Duration;
+use turso::Connection;
 
 use crate::schema::IDEMPOTENCY_TTL_SECS;
 
@@ -76,7 +76,7 @@ impl IdempotencyCache {
             .query(
                 "SELECT response_json FROM persona_idempotency \
                  WHERE key = ?1 AND expires_at > ?2 LIMIT 1",
-                libsql::params![key, Utc::now().to_rfc3339()],
+                turso::params![key, Utc::now().to_rfc3339()],
             )
             .await
             .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;
@@ -114,7 +114,7 @@ impl IdempotencyCache {
                 "INSERT OR REPLACE INTO persona_idempotency \
                  (key, response_json, inserted_at, expires_at) \
                  VALUES (?1, ?2, ?3, ?4)",
-                libsql::params![key, response_json, now.to_rfc3339(), expires.to_rfc3339(),],
+                turso::params![key, response_json, now.to_rfc3339(), expires.to_rfc3339(),],
             )
             .await
             .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;
@@ -142,7 +142,7 @@ impl IdempotencyCache {
             .conn
             .execute(
                 "DELETE FROM persona_idempotency WHERE expires_at <= ?1",
-                libsql::params![Utc::now().to_rfc3339()],
+                turso::params![Utc::now().to_rfc3339()],
             )
             .await
             .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;

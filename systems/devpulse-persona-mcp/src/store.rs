@@ -29,10 +29,10 @@ use chrono::{DateTime, Utc};
 use devpulse_clyffy::connectome::persistence::LibSqlAdapter;
 #[cfg(feature = "rro")]
 use devpulse_clyffy::connectome::persistence::RroAdapter;
-use libsql::Connection;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
+use turso::Connection;
 use uuid::Uuid;
 
 /// Persona scope discriminator. Persisted as a TEXT column with
@@ -260,7 +260,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 \
                      ORDER BY label",
-                    libsql::params![scope_str, s.to_string()],
+                    turso::params![scope_str, s.to_string()],
                 )
                 .await
                 .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?,
@@ -272,7 +272,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL \
                      ORDER BY label",
-                    libsql::params![scope_str],
+                    turso::params![scope_str],
                 )
                 .await
                 .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?,
@@ -334,7 +334,7 @@ impl PersonaStore {
                     "UPDATE persona_blocks \
                      SET body = ?1, updated_at = ?2, version = version + 1 \
                      WHERE scope = ?3 AND slug = ?4 AND label = ?5",
-                    libsql::params![
+                    turso::params![
                         body_owned.clone(),
                         now_str.clone(),
                         scope_str.clone(),
@@ -350,7 +350,7 @@ impl PersonaStore {
                     "UPDATE persona_blocks \
                      SET body = ?1, updated_at = ?2, version = version + 1 \
                      WHERE scope = ?3 AND slug IS NULL AND label = ?4",
-                    libsql::params![
+                    turso::params![
                         body_owned.clone(),
                         now_str.clone(),
                         scope_str.clone(),
@@ -370,7 +370,7 @@ impl PersonaStore {
                      (id, scope, slug, label, body, char_limit, \
                       created_at, updated_at, version) \
                      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1)",
-                    libsql::params![
+                    turso::params![
                         id,
                         scope_str.clone(),
                         slug_owned.clone(),
@@ -419,7 +419,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 AND label = ?3 \
                      LIMIT 1",
-                    libsql::params![scope_str, s.to_string(), label_owned],
+                    turso::params![scope_str, s.to_string(), label_owned],
                 )
                 .await
                 .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?,
@@ -431,7 +431,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL AND label = ?2 \
                      LIMIT 1",
-                    libsql::params![scope_str, label_owned],
+                    turso::params![scope_str, label_owned],
                 )
                 .await
                 .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?,
@@ -490,7 +490,7 @@ impl PersonaStore {
                      WHERE scope = ?1 AND slug = ?2 AND label = ?3 \
                        AND updated_at >= ?4 \
                      ORDER BY updated_at DESC LIMIT ?5",
-                        libsql::params![
+                        turso::params![
                             scope_str,
                             s.to_string(),
                             lab.to_string(),
@@ -508,7 +508,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 AND label = ?3 \
                      ORDER BY updated_at DESC LIMIT ?4",
-                        libsql::params![scope_str, s.to_string(), lab.to_string(), limit_i64],
+                        turso::params![scope_str, s.to_string(), lab.to_string(), limit_i64],
                     )
                     .await
             }
@@ -520,7 +520,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 AND updated_at >= ?3 \
                      ORDER BY updated_at DESC LIMIT ?4",
-                        libsql::params![scope_str, s.to_string(), since_rfc, limit_i64],
+                        turso::params![scope_str, s.to_string(), since_rfc, limit_i64],
                     )
                     .await
             }
@@ -532,7 +532,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug = ?2 \
                      ORDER BY updated_at DESC LIMIT ?3",
-                        libsql::params![scope_str, s.to_string(), limit_i64],
+                        turso::params![scope_str, s.to_string(), limit_i64],
                     )
                     .await
             }
@@ -545,7 +545,7 @@ impl PersonaStore {
                      WHERE scope = ?1 AND slug IS NULL AND label = ?2 \
                        AND updated_at >= ?3 \
                      ORDER BY updated_at DESC LIMIT ?4",
-                        libsql::params![scope_str, lab.to_string(), since_rfc, limit_i64],
+                        turso::params![scope_str, lab.to_string(), since_rfc, limit_i64],
                     )
                     .await
             }
@@ -557,7 +557,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL AND label = ?2 \
                      ORDER BY updated_at DESC LIMIT ?3",
-                        libsql::params![scope_str, lab.to_string(), limit_i64],
+                        turso::params![scope_str, lab.to_string(), limit_i64],
                     )
                     .await
             }
@@ -569,7 +569,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL AND updated_at >= ?2 \
                      ORDER BY updated_at DESC LIMIT ?3",
-                        libsql::params![scope_str, since_rfc, limit_i64],
+                        turso::params![scope_str, since_rfc, limit_i64],
                     )
                     .await
             }
@@ -581,7 +581,7 @@ impl PersonaStore {
                      FROM persona_blocks \
                      WHERE scope = ?1 AND slug IS NULL \
                      ORDER BY updated_at DESC LIMIT ?2",
-                        libsql::params![scope_str, limit_i64],
+                        turso::params![scope_str, limit_i64],
                     )
                     .await
             }
@@ -615,7 +615,7 @@ fn validate_scope_slug(scope: PersonaScope, slug: Option<&str>) -> PersonaResult
     }
 }
 
-fn row_to_block(row: &libsql::Row) -> PersonaResult<PersonaBlock> {
+fn row_to_block(row: &turso::Row) -> PersonaResult<PersonaBlock> {
     let id: String = row
         .get(0)
         .map_err(|e| PersonaError::Backend(anyhow::anyhow!(e)))?;

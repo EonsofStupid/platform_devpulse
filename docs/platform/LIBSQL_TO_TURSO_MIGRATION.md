@@ -163,19 +163,30 @@ Add to §10:
 | Tracing integration in this workspace | already wired via `LibSqlAdapter` | would need re-author |
 | Workspace pin | `libsql = "0.9"` (workspace.dependencies) | — |
 
-**Recommendation:** **stay on the `libsql` crate** for both DevPulse and
-ClyffyOS. Reasons:
+**DECISION (operator, 2026-07-01): replace the `libsql` crate with the `turso`
+crate everywhere.** This supersedes the earlier "stay on libsql" recommendation.
 
-1. **Embedded-replica sync is the load-bearing feature** for the charter's
-   "DevPulse Turso ↔ Clyffy bridge" — ClyffyOS pulls DevPulse's
-   sync-published Turso. Limbo doesn't support this yet.
-2. **Zero refactor cost** — `LibSqlAdapter` already exists
-   (`clyffyos-connectome/src/connectome/persistence/libsql/mod.rs`) and is
-   in production use in the dev box's actual `.userdata/`.
-3. **Turso embedded-replica spec is owned by the libsql crate.** Migrating
-   to Limbo would require building the sync layer ourselves.
+The blocking reason that recommendation gave — that `turso`/Limbo lacked
+embedded-replica sync — is **no longer true** (verified against current Turso
+docs 2026-07-01). The `turso` crate (**0.4.3** stable; `turso::sync`, Offline
+Sync public beta) does local reads+writes with explicit `push()` / `pull()`
+change-data-capture sync. That satisfies the charter's "DevPulse Turso ↔ Clyffy
+bridge" ([[turso-clyffy-bridge]]): DevPulse writes locally and `push()`es to the
+remote; clyffyd `pull()`s a read-only replica. **The sync bridge survives the swap.**
 
-**Revisit when** Limbo reaches embedded-replica parity (track upstream).
+- **Crate:** `turso = "0.4.3"` (workspace pin) replaces `libsql = "0.9"`. Pure
+  Rust, zero vendored C. Native **vector search** — folds the "vector seed for
+  Turso" goal into the same store rather than a separate engine.
+- **API mapping:** `libsql::Builder::new_local` → `turso::Builder::new_local`;
+  `libsql::Connection` → `turso::Connection`; `libsql::{Value,Row}` →
+  `turso::{Value,Row}`; `row.get::<T>(i)` supported verbatim; `libsql::params!`
+  → turso's params utilities (heterogeneous named + positional).
+- **Sync:** `turso::sync::Builder` (`new_remote` / `with_remote_url` /
+  `with_auth_token` / `bootstrap_if_empty`) drives the DevPulse↔remote↔clyffyd
+  bridge (§8); token via keyring SSOT (§9), never hardcoded.
+
+The migration is a direct crate + idiom swap across the current `libsql` call
+sites. Both the DevPulse embedded replica and the per-project files use `turso`.
 
 ## 5. Schema portability
 

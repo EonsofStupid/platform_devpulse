@@ -5,7 +5,7 @@
 //!
 //! # P0: Boot Never Freezes
 //!
-//! `libsql::Connection` is `Clone + Send + Sync` — internally `Arc<dyn Conn>`
+//! `turso::Connection` is `Clone + Send + Sync` — internally `Arc<dyn Conn>`
 //! with its own synchronization. Wrapping it in `tokio::sync::RwLock` serialized
 //! every query behind a yield-on-acquire mutex and was a prime deadlock risk
 //! whenever a slow query held the read guard while another task wanted to call
@@ -19,13 +19,13 @@ use std::sync::Arc;
 
 /// `LibSQL` database adapter.
 ///
-/// Lock-free: `libsql::Connection` is internally `Arc<dyn Conn>` and handles
+/// Lock-free: `turso::Connection` is internally `Arc<dyn Conn>` and handles
 /// its own synchronization. Cloning the adapter or the inner connection is
 /// cheap (atomic refcount bump).
 pub struct LibSqlAdapter {
     #[allow(dead_code)] // Kept for potential reconnection
-    db: Arc<libsql::Database>,
-    conn: libsql::Connection,
+    db: Arc<turso::Database>,
+    conn: turso::Connection,
 }
 
 impl LibSqlAdapter {
@@ -46,10 +46,11 @@ impl LibSqlAdapter {
             std::fs::create_dir_all(parent).context("Failed to create database directory")?;
         }
 
-        let db = libsql::Builder::new_local(path)
-            .build()
-            .await
-            .context("Failed to open LibSQL database")?;
+        let db =
+            turso::Builder::new_local(path.to_str().context("database path is not valid UTF-8")?)
+                .build()
+                .await
+                .context("Failed to open turso database")?;
 
         let conn = db
             .connect()
@@ -77,9 +78,9 @@ impl LibSqlAdapter {
 
     /// Get a reference to the underlying connection for queries.
     ///
-    /// Lock-free: returns a borrow of the shared `libsql::Connection`.
+    /// Lock-free: returns a borrow of the shared `turso::Connection`.
     /// Callers can `.query(...).await` / `.execute(...).await` directly.
-    pub fn connection(&self) -> &libsql::Connection {
+    pub fn connection(&self) -> &turso::Connection {
         &self.conn
     }
 
@@ -118,14 +119,14 @@ impl LibSqlAdapter {
         Ok(())
     }
 
-    /// Execute one SQL statement with bound parameters (for example `libsql::params![..]`).
+    /// Execute one SQL statement with bound parameters (for example `turso::params![..]`).
     ///
     /// # Errors
     /// Returns an error if `LibSQL` rejects the statement.
     pub async fn execute_bound(
         &self,
         sql: &str,
-        params: impl libsql::params::IntoParams + Send,
+        params: impl turso::params::IntoParams + Send,
     ) -> Result<u64> {
         let affected = self
             .conn
@@ -141,7 +142,7 @@ impl PersistenceAdapter for LibSqlAdapter {
         self.conn
             .execute(
                 "INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?, ?, unixepoch())",
-                libsql::params![key, value],
+                turso::params![key, value],
             )
             .await
             .context("Failed to set value in LibSQL")?;
@@ -153,7 +154,7 @@ impl PersistenceAdapter for LibSqlAdapter {
             .conn
             .query(
                 "SELECT value FROM kv_store WHERE key = ?",
-                libsql::params![key],
+                turso::params![key],
             )
             .await
             .context("Failed to query LibSQL")?;
@@ -169,7 +170,7 @@ impl PersistenceAdapter for LibSqlAdapter {
     async fn delete(&self, key: &str) -> Result<bool> {
         let affected = self
             .conn
-            .execute("DELETE FROM kv_store WHERE key = ?", libsql::params![key])
+            .execute("DELETE FROM kv_store WHERE key = ?", turso::params![key])
             .await
             .context("Failed to delete from LibSQL")?;
         Ok(affected > 0)
@@ -180,7 +181,7 @@ impl PersistenceAdapter for LibSqlAdapter {
             .conn
             .query(
                 "SELECT 1 FROM kv_store WHERE key = ? LIMIT 1",
-                libsql::params![key],
+                turso::params![key],
             )
             .await
             .context("Failed to check existence in LibSQL")?;
@@ -193,9 +194,9 @@ impl SqlAdapter for LibSqlAdapter {
     #[tracing::instrument(skip(self, params), fields(sql_preview = %sql.chars().take(80).collect::<String>(), param_count = params.len()), err)]
     async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>> {
         // Convert params to libsql format
-        let params: Vec<libsql::Value> = params
+        let params: Vec<turso::Value> = params
             .iter()
-            .map(|s| libsql::Value::from((*s).to_string()))
+            .map(|s| turso::Value::from((*s).to_string()))
             .collect();
 
         let mut rows = self
@@ -210,11 +211,11 @@ impl SqlAdapter for LibSqlAdapter {
             // LibSQL doesn't expose column count easily, so we try columns until failure
             for i in 0..32 {
                 match row.get_value(i) {
-                    Ok(libsql::Value::Null) => row_values.push(SqlValue::Null),
-                    Ok(libsql::Value::Integer(v)) => row_values.push(SqlValue::Integer(v)),
-                    Ok(libsql::Value::Real(v)) => row_values.push(SqlValue::Real(v)),
-                    Ok(libsql::Value::Text(v)) => row_values.push(SqlValue::Text(v)),
-                    Ok(libsql::Value::Blob(v)) => row_values.push(SqlValue::Blob(v)),
+                    Ok(turso::Value::Null) => row_values.push(SqlValue::Null),
+                    Ok(turso::Value::Integer(v)) => row_values.push(SqlValue::Integer(v)),
+                    Ok(turso::Value::Real(v)) => row_values.push(SqlValue::Real(v)),
+                    Ok(turso::Value::Text(v)) => row_values.push(SqlValue::Text(v)),
+                    Ok(turso::Value::Blob(v)) => row_values.push(SqlValue::Blob(v)),
                     Err(_) => break,
                 }
             }
@@ -225,9 +226,9 @@ impl SqlAdapter for LibSqlAdapter {
 
     #[tracing::instrument(skip(self, params), fields(sql_preview = %sql.chars().take(80).collect::<String>(), param_count = params.len()), err)]
     async fn execute(&self, sql: &str, params: &[&str]) -> Result<u64> {
-        let params: Vec<libsql::Value> = params
+        let params: Vec<turso::Value> = params
             .iter()
-            .map(|s| libsql::Value::from((*s).to_string()))
+            .map(|s| turso::Value::from((*s).to_string()))
             .collect();
 
         let affected = self

@@ -4,8 +4,8 @@
 //! kernel-side write contract for those rows.
 
 use anyhow::{Context, Result};
-use libsql::params;
 use serde_json::json;
+use turso::params;
 
 use super::GrammarConfig;
 use crate::connectome::persistence::LibSqlAdapter;
