@@ -16,9 +16,9 @@ other doc disagrees, this wins; reconcile the other doc in the same change.
 | Concern | Owner | Notes |
 |---|---|---|
 | UI / windows / ColdLight | **DevPulse** | frontend only |
-| "engine" (config, boot, services, wire client) | **DevPulse** | DevPulse's serious local backend |
+| "engine" (config, boot, services, wire client) | **DevPulse** | DevPulse's **core backend** — "the kernel" of DevPulse (there is no kernel in DevPulse) |
 | **Turso** (local system of record) | **DevPulse** | replaces libSQL; installed; **the only local SSOT**; powers + backs DevPulse — projects / conversations / stats / config |
-| "kernel" (vocabulary + code) | **ClyffyOS** | connectome/cognition, model-loader, rrd/RRO |
+| "kernel" (vocabulary + code) | **ClyffyOS** | headless (GB10, optional local install later); connectome/cognition, model-loader, rrd/RRO |
 | AI layer + all inference | **ClyffyOS** | on GB10 |
 | **DuckDB — project analytics** | **DevPulse** | **local** OLAP *read model* over Turso data; powers standalone Tier-1 (non-AI) project stats; rebuildable, **NOT** a source of record |
 | **DuckDB — AI analytics** | **ClyffyOS** | inference / model / reasoning metrics on GB10 |
@@ -32,7 +32,9 @@ other doc disagrees, this wins; reconcile the other doc in the same change.
 DevPulse also runs a **local DuckDB** as a *derived analytics read model* (rebuildable from
 Turso) for its Tier-1 **project** stats. Everything else — SurrealDB, the persistence adapters,
 the kernel, the AI, inference, and **AI-specific analytics** — lives on **ClyffyOS / GB10**.
-DevPulse never compiles the kernel and never owns a *system of record* beyond Turso.
+DevPulse never compiles the kernel and never owns a *system of record* beyond Turso. And
+there is **no kernel in DevPulse**: engine is DevPulse's core ("the kernel" of DevPulse), so
+the old engine↔kernel vocabulary boundary is ClyffyOS-internal, not DevPulse's.
 
 ## The seam (best practice)
 
