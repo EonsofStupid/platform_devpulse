@@ -108,14 +108,18 @@ $effect(() => hardwareState.subscribe("statusbar"));
 				<Text size="xs" color="secondary">{platformState.connectionStatus}</Text>
 			</Badge>
 
-			<!-- Model status segment -->
+			<!-- AI-layer segment — DevPulse runs standalone; the AI layer (Clyffy on
+			     the GB10) is a CONNECTION, not a local component. "Standalone" is a
+			     valid mode, not an error. Sourced from the model-ready signal today;
+			     re-sources from devpulse-gb10-client's ConnectionState.tier2_available()
+			     once the wire client is wired (see systems/devpulse-gb10-client/SPEC.md). -->
 			<Badge variant={brainLoaded ? "positive" : "neutral"} size="sm" class="gap-1">
 				<span
 					class="status-dot h-1.5 w-1.5 rounded-full"
 					data-subsystem-state={brainLoaded ? "ready" : "pending"}
 					aria-hidden="true"
 				></span>
-				<Text size="xs" color="secondary">Brain: {brainLoaded ? "ON" : "OFF"}</Text>
+				<Text size="xs" color="secondary">AI: {brainLoaded ? "Clyffy" : "Standalone"}</Text>
 			</Badge>
 			{#if hardwareState.hasGpu}
 				<Badge variant="neutral" size="sm">

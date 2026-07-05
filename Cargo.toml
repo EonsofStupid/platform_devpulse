@@ -7,6 +7,7 @@ members = [
     "systems/devpulse-engine",
     "systems/devpulse-media",
     "systems/devpulse-persona-mcp",
+    "systems/devpulse-gb10-client",
     # systems/infra/devpulse-telemetry{,-macros} extracted to
     # github.com/EonsofStupid/devpulse-telemetry (2026-06-28). Sources still on
     # disk under systems/infra/ until the Phase 5 cut; workspace no longer
