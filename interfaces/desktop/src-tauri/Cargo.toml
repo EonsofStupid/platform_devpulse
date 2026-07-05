@@ -50,7 +50,11 @@ tracing-appender = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
-devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference", "burn"] }
+# NOTE: `rro` (qortex, the embedded Qdrant vector store) is intentionally
+# NOT enabled here — it is kernel/ClyffyOS-side and relocates behind the
+# gb10-client wire. See the `kernel-inproc` feature below for why it cannot
+# co-exist with the Turso store in a desktop build.
+devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["candle", "inference", "burn"] }
 # devpulse-media — audio_decode helpers for the voice loop (Whisper STT
 # + Qwen3-TTS reference ingest). default-features = false to skip the
 # camera-capture (nokhwa) feature, which is already declared directly
@@ -87,6 +91,17 @@ default = ["inference"]
 # Model loader + hardware push — always on for now.
 # Separate feature so release builds can control binary size.
 inference = []
+# ── qortex / in-process vector store (RRO) — RELOCATION MARKER ──
+# qortex (the embedded Qdrant fork) is kernel/ClyffyOS-side, NOT part of the
+# standalone DevPulse desktop. It is deliberately un-buildable alongside the
+# Tier-1 store: qortex hard-enables parking_lot `deadlock_detection`, which is
+# mutually exclusive with the `send_guard` that Turso's sync SDK hard-enables —
+# so a Turso-backed desktop CANNOT also link qortex (parking_lot fails to
+# compile, by design). The in-process vector devtool surface
+# (`commands/sys/vector`) is gated behind this feature and relocates behind the
+# gb10-client wire (Tier-2, additive once Clyffy connects). Kept as a
+# relocation marker, not a shipping config.
+kernel-inproc = ["devpulse-engine/rro"]
 # Jesse's dev build — sidecar, Claude Code, full MCP surface.
 # Compiled OUT of release binary. Passthrough to engine.
 internal = ["devpulse-engine/internal"]
