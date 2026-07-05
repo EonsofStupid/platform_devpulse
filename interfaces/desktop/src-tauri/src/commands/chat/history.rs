@@ -20,7 +20,7 @@ pub async fn load_recent(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .relational()
+        .user_relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 

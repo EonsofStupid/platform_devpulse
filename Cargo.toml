@@ -7,6 +7,7 @@ members = [
     "systems/devpulse-engine",
     "systems/devpulse-media",
     "systems/devpulse-persona-mcp",
+    "systems/devpulse-gb10-client",
     # systems/infra/devpulse-telemetry{,-macros} extracted to
     # github.com/EonsofStupid/devpulse-telemetry (2026-06-28). Sources still on
     # disk under systems/infra/ until the Phase 5 cut; workspace no longer
@@ -40,7 +41,9 @@ specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid"] }
 specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")
-libsql = "0.9"
+# turso (Limbo) replaces libsql (operator decision 2026-07-01) — pure-Rust, native
+# vector search, turso::sync for the DevPulse↔Clyffy bridge. libsql fully removed.
+turso = "0.4.3"
 duckdb = { version = "1.10502", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }

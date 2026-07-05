@@ -142,7 +142,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::telemetry::list_telemetry_sessions,
             commands::sys::telemetry::open_telemetry_folder,
             commands::sys::telemetry::get_telemetry_row_counts,
-            // Vector store (RRO) devtools
+            // Vector store (RRO/qortex) devtools. In the standalone desktop
+            // (no `kernel-inproc`) these return a typed "Tier-2 unavailable"
+            // until Clyffy connects over the gb10-client wire; the real
+            // in-process impl is compiled only under `kernel-inproc`.
             commands::sys::vector::get_vector_config,
             commands::sys::vector::set_vector_config,
             commands::sys::vector::get_vector_health,

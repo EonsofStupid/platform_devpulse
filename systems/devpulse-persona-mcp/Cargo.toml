@@ -28,8 +28,8 @@ async-trait = "0.1"
 # Kernel — the persona store calls into clyffy's persistence adapters.
 devpulse-clyffy = { path = "../../kernel/devpulse-clyffy" }
 
-# LibSQL — direct dep so the persona schema lives in this crate, not kernel.
-libsql = { workspace = true }
+# turso — direct dep so the persona schema lives in this crate, not kernel.
+turso = { workspace = true }
 
 # SurrealDB lands in Slice 5 with the bi-temporal fact pipeline. Slice 1
 # persona blocks are LibSQL-only; recall.mode="bfs" / "rrf" return an

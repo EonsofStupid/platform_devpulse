@@ -454,7 +454,8 @@ async getTelemetryRowCounts() : Promise<Result<TelemetryRowCounts, string>> {
  * Get the current retrieval configuration.
  * 
  * # Errors
- * Returns error if platform is still booting or vector store is disabled.
+ * Returns error if platform is still booting, the vector store is disabled,
+ * or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
  */
 async getVectorConfig() : Promise<Result<RetrievalConfig, string>> {
     try {
@@ -470,7 +471,8 @@ async getVectorConfig() : Promise<Result<RetrievalConfig, string>> {
  * Changes take effect immediately — no restart required.
  * 
  * # Errors
- * Returns error if platform is still booting or vector store is disabled.
+ * Returns error if platform is still booting, the vector store is disabled,
+ * or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
  */
 async setVectorConfig(config: RetrievalConfig) : Promise<Result<null, string>> {
     try {
@@ -484,7 +486,8 @@ async setVectorConfig(config: RetrievalConfig) : Promise<Result<null, string>> {
  * Get vector store health — collections, point counts, storage path.
  * 
  * # Errors
- * Returns error if platform is still booting or vector store is disabled.
+ * Returns error if platform is still booting, the vector store is disabled,
+ * or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
  */
 async getVectorHealth() : Promise<Result<VectorHealthReport, string>> {
     try {
@@ -502,8 +505,9 @@ async getVectorHealth() : Promise<Result<VectorHealthReport, string>> {
  * the encoder slot.
  * 
  * # Errors
- * Returns error if platform is booting, vector store is disabled,
- * or the search fails.
+ * Returns error if platform is booting, the vector store is disabled, the
+ * search fails, or (standalone desktop) the store is a not-yet-connected
+ * Tier-2 capability.
  */
 async vectorTestSearch(collection: string, vector: number[], limit: number) : Promise<Result<VectorSearchResult[], string>> {
     try {
@@ -520,8 +524,9 @@ async vectorTestSearch(collection: string, vector: number[], limit: number) : Pr
  * Collection-level settings are fixed at creation.
  * 
  * # Errors
- * Returns error if platform is booting, vector store is disabled,
- * or collection creation fails.
+ * Returns error if platform is booting, the vector store is disabled, creation
+ * fails, or (standalone desktop) the store is a not-yet-connected Tier-2
+ * capability.
  */
 async createVectorCollection(name: string, dimension: number) : Promise<Result<null, string>> {
     try {
@@ -535,8 +540,9 @@ async createVectorCollection(name: string, dimension: number) : Promise<Result<n
  * Delete a vector collection and all its points.
  * 
  * # Errors
- * Returns error if platform is booting, vector store is disabled,
- * or collection deletion fails.
+ * Returns error if platform is booting, the vector store is disabled, deletion
+ * fails, or (standalone desktop) the store is a not-yet-connected Tier-2
+ * capability.
  */
 async deleteVectorCollection(name: string) : Promise<Result<null, string>> {
     try {
@@ -551,6 +557,9 @@ async deleteVectorCollection(name: string) : Promise<Result<null, string>> {
  * 
  * Returns field metadata (label, family, description, slider bounds)
  * so the frontend renders sliders generically without hardcoded labels.
+ * 
+ * Always available — pure metadata, independent of the vector store backend,
+ * so the retrieval-config UI renders identically in Tier-1 and Tier-2.
  * 
  * # Errors
  * Infallible — the `Result` shape is kept for binding parity with the

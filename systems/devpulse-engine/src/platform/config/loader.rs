@@ -695,7 +695,12 @@ impl CacheServiceEntry {
 #[derive(Debug, Clone, Deserialize)]
 pub struct VectorServiceEntry {
     /// Whether this store is enabled.
-    #[serde(default = "default_true")]
+    ///
+    /// Defaults to whether qortex (the `rro` feature) is compiled in. A
+    /// standalone Turso-only desktop build has NO in-process vector store, so
+    /// the `not(rro)` boot path must not bail — the default resolves to `false`
+    /// there and `true` when the vector store is linked (GB10/kernel-inproc).
+    #[serde(default = "default_vector_enabled")]
     pub enabled: bool,
     /// Whether boot fails if this service fails.
     #[serde(default = "default_true")]
@@ -714,7 +719,7 @@ pub struct VectorServiceEntry {
 impl Default for VectorServiceEntry {
     fn default() -> Self {
         Self {
-            enabled: true,
+            enabled: default_vector_enabled(),
             critical: true,
             kind: default_rro_kind(),
             path: default_rro_path(),
@@ -2137,6 +2142,12 @@ fn default_rro_kind() -> String {
 }
 fn default_rro_path() -> String {
     "system/rro/storage".to_string()
+}
+/// Vector store default-enabled = whether qortex (`rro`) is compiled in.
+/// Keeps a standalone Turso-only desktop (no `rro`) from bailing boot when the
+/// resolved config would otherwise request an uncompiled vector store.
+fn default_vector_enabled() -> bool {
+    cfg!(feature = "rro")
 }
 fn default_retry_max() -> u32 {
     5

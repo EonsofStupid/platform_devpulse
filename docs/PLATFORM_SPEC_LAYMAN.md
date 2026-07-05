@@ -3,16 +3,28 @@
 
 This document defines what **layman users** should expect from DevPulse — a local-first AI platform that "just works" without requiring users to understand model formats, VRAM, or inference backends.
 
+> **Architecture context (2026-06-30).** DevPulse is a **standalone Tauri + Svelte +
+> ColdLight frontend** with its own local store (**Turso** for projects / conversations /
+> stats; DuckDB for analytics). It **boots by itself** with no backend reachable, then
+> **discovers Clyffy** additively in one of three modes — **local** (ClyffyOS on the same
+> machine), **network** (a Clyffy on the LAN), or **GB10** (the headless EdgeXpert node).
+> Inference, model loading, and hardware-fit run on the **Clyffy side**. The model slots,
+> loading strategies, and "hardware tiers" below are **COMPUTED from the discovered
+> endpoint's reported resources at runtime — never a hardcoded VRAM→model table.**
+> DevPulse displays the chosen setup; ClyffyOS owns the model-loader internals.
+
 ---
 
 ## Core Philosophy
 
 | Principle | What It Means |
 |-----------|---------------|
-| **Zero Config Default** | App works out of the box with bundled models |
+| **Standalone Boot** | The UI renders and runs its local Turso store with no backend reachable |
+| **Zero Config Default** | Works the moment a Clyffy endpoint is discovered; bundled fallbacks need no setup |
 | **Progressive Disclosure** | Power users can customize; beginners never need to |
-| **Local First** | All processing on-device; no data leaves the machine |
-| **Graceful Degradation** | Weaker hardware gets smaller models, still works |
+| **Three Connection Modes** | local / network / GB10 — chosen by discovery; capability computed per endpoint |
+| **Local First** | Processing runs on the discovered Clyffy endpoint (same machine, LAN, or GB10); data stays on the user's network |
+| **Graceful Degradation** | Capability is **computed** from the endpoint's reported resources — the largest model that fits with headroom, continuously, never a fixed GB table |
 | **Hot Swap** | Switch models without restarting the app |
 
 ---
@@ -88,17 +100,24 @@ media.matting   → OnDemand   (only when user opens media tools)
 
 ---
 
-## 3. Hardware Auto-Configuration
+## 3. Capability-Computed Configuration
 
-DevPulse detects hardware on first run and configures defaults:
+DevPulse never maps a fixed VRAM number to a fixed model. On connecting to a Clyffy
+endpoint, ClyffyOS reports its actual resources (GPU/VRAM, RAM, compute) and computes a
+**continuous capability band**: for each slot it selects the **largest model whose
+measured footprint fits the reported budget with headroom** — recomputed per endpoint,
+per machine. The same DevPulse install adapts to a potato laptop, a 24 GB workstation,
+or a GB10 node with no code change and no tier table.
 
-| Hardware Tier | Detection Criteria | Default Setup |
-|---------------|-------------------|---------------|
-| **Potato** | <4GB VRAM, <8GB RAM | Qwen 0.6B (Q4), CPU embedder, no voice |
-| **Entry** | 4-6GB VRAM | Qwen 3B (Q4), GPU embedder, voice on-demand |
-| **Mainstream** | 8-12GB VRAM | Qwen 9B (Q4), all models GPU, voice warm |
-| **Prosumer** | 16-24GB VRAM | Qwen 14B+ (Q4), multi-model hot loading |
-| **Workstation** | 24GB+ VRAM | Full precision options, parallel inference |
+- **What is fixed:** the slot's *capability* (chat brain, embedder, …) and a tier→repo
+  *resolver* the loader fills at runtime.
+- **What is computed:** which model, which quant, how many GPU layers, the context
+  length — all derived from the endpoint's reported resources, never a literal threshold.
+
+> The model-loader that performs this fit lives in **ClyffyOS** (the headless backend).
+> There is **no** hardware→model table in DevPulse. (The legacy `Potato/Entry/Mainstream/
+> Prosumer/Workstation` VRAM ladder is removed — it was the exact "capability pinned to a
+> number" anti-pattern that kept the app from loading on arbitrary machines.)
 
 ### User Flow: First Launch
 
@@ -109,7 +128,7 @@ DevPulse detects hardware on first run and configures defaults:
 │                                                              │
 │  GPU: NVIDIA RTX 3080 (10 GB)                               │
 │  RAM: 32 GB                                                  │
-│  Tier: Mainstream                                            │
+│  Tier: (computed)                                            │
 │                                                              │
 │  ────────────────────────────────────────────────────────   │
 │                                                              │
@@ -366,10 +385,16 @@ Slot fails to load
 
 ---
 
-## 11. Slot Registry — Default Configuration
+## 11. Slot Registry — Capability Declarations
+
+DevPulse declares slot **capabilities**, not model files. ClyffyOS resolves the actual
+model at runtime by fitting the discovered endpoint's reported resources — no fixed
+`.gguf` filenames, no VRAM tiers. The registry lives in ClyffyOS; this is the shape.
 
 ```rust
-// Pre-configured slots for layman users
+// Slots declare a CAPABILITY + a runtime resolver. The loader picks the largest model
+// that fits the discovered endpoint's reported budget with headroom — never a literal
+// model file. Bundled small models exist ONLY as offline fallbacks.
 SlotRegistry::default_slots() = [
     Slot {
         id: "chat.brain",
@@ -377,7 +402,7 @@ SlotRegistry::default_slots() = [
         capability: TextGeneration,
         preferred_device: Gpu,
         loading: Hot,
-        default_model: Some("Qwen3.5-9B-Q4_K_M.gguf"),
+        model: ResolvedAtRuntime,          // largest fit, computed — not a filename
         fallback: Some("chat.brain.lite"),
     },
     Slot {
@@ -386,17 +411,17 @@ SlotRegistry::default_slots() = [
         capability: TextGeneration,
         preferred_device: GpuWithCpuFallback,
         loading: OnDemand,
-        default_model: Some("Qwen3-0.6B-Q4_K_M.gguf"),
+        model: ResolvedAtRuntime,          // smallest viable fit for constrained endpoints
         fallback: None,
     },
     Slot {
         id: "rag.embedder",
         label: "Search Brain",
         capability: Embedding,
-        preferred_device: Cpu,  // Embedders are fast on CPU
+        preferred_device: Cpu,
         loading: Hot,
-        default_model: Some("nomic-embed-text-v1.5.Q8_0.gguf"),
-        source_tier: Bundled { bundled_path: "rag/nomic-embed.gguf" },
+        model: ResolvedAtRuntime,          // dims + model from connectome, computed
+        fallback_bundled: Some("rag/nomic-embed.gguf"),   // offline fallback only
     },
     Slot {
         id: "voice.stt",
@@ -404,7 +429,7 @@ SlotRegistry::default_slots() = [
         capability: SpeechToText,
         preferred_device: GpuWithCpuFallback,
         loading: OnDemand,
-        default_model: Some("ggml-small.bin"),
+        model: ResolvedAtRuntime,
     },
     Slot {
         id: "voice.tts",
@@ -412,16 +437,16 @@ SlotRegistry::default_slots() = [
         capability: TextToSpeech,
         preferred_device: Gpu,
         loading: Warm,
-        default_model: Some("kokoro-v1.0.int8.onnx"),
-        source_tier: Bundled { bundled_path: "voice/kokoro-int8.onnx" },
+        model: ResolvedAtRuntime,
+        fallback_bundled: Some("voice/kokoro-int8.onnx"), // offline fallback only
     },
     Slot {
         id: "media.matting",
         label: "Background Removal",
-        capability: VisionLanguage,  // Uses segmentation model
+        capability: VisionLanguage,
         preferred_device: Gpu,
         loading: OnDemand,
-        default_model: Some("u2net.onnx"),
+        model: ResolvedAtRuntime,
     },
 ]
 ```

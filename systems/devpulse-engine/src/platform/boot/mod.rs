@@ -324,16 +324,17 @@ async fn execute_inner(
     .await;
     #[cfg(not(feature = "rro"))]
     {
-        if boot_config.services.system.vector.enabled {
-            boot_log.fail(
-                "Vector store",
-                "enabled in config but 'rro' feature not compiled",
-            );
-            anyhow::bail!(
-                "FATAL: Vector store (RRO) is enabled in config but the 'rro' feature is not compiled in. \
-                 Add features = [\"rro\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
-            );
-        }
+        // The RRO/qortex vector store is a Tier-2 capability, compiled only under
+        // the `rro` feature (the desktop `kernel-inproc` build). In the standalone
+        // Tier-1 build it is simply UNAVAILABLE — Clyffy serves vectors over the
+        // gb10-client wire instead. Treat it as a graceful SKIP regardless of the
+        // (possibly persisted) `vector.enabled` flag: an absent Tier-2 service must
+        // NEVER fail the Tier-1 boot.
+        on_event(InitEvent::skipped("Vector store"));
+        boot_log.skip(
+            "Vector store",
+            "RRO/qortex not compiled — Tier-2 capability (connect Clyffy)",
+        );
     }
 
     drop(spin);
