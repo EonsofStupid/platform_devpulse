@@ -26,6 +26,18 @@ crate **depends on it, re-exports it, and never re-declares it** — one serde
 definition, two consumers (`clyffyd` server + this client), no drift
 ([[feedback_ip_boundary_is_vocabulary_not_wrappers]]).
 
+**Tier-2 capability DTOs** (grown as the desktop command surface repointed to this
+wire): the same crate owns the shapes each connection-gated Tier-2 command returns —
+`GrammarSnapshot` + `GrammarKind` / `GrammarStatus` / `GrammarFailure`
+(structured-output control), `RroStateSnapshot` + `RroState` / `RroDepth` /
+`RroStateTransition` (reasoning state), `ThoughtRecord` (connectome governance graph),
+`MemoryKind` (intelligence-store save), and `SwapStats` (Burn encoder hot-swap). Each is
+re-exported here and consumed by a gated command in
+`interfaces/desktop/src-tauri/src/commands/*`: disconnected → typed "connect Clyffy",
+connected-but-unserved → typed "endpoint pending" (deferred, not retired — the `clyffyd`
+`/v1/*` endpoints that fill them are built in `clyffyos`
+[[feedback_deferred_not_retired]]).
+
 **Cross-repo link:** path dependency to the sibling checkout
 `../../../clyffyos/crates/clyffyos-wire` (resolves against clyffyos's own workspace,
 as it lives outside this workspace tree). **Graduation:** switch to a git/published
