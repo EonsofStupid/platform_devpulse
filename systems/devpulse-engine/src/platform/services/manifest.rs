@@ -261,9 +261,8 @@ pub fn compiled_service_count() -> usize {
     for meta in SERVICE_MANIFEST {
         let compiled = match meta.feature_gate {
             None => true,
-            Some("rro") => cfg!(feature = "rro"),
-            Some("candle") => cfg!(feature = "candle"),
-            Some("inference") => cfg!(feature = "inference"),
+            // rro/candle/inference features removed (kernel-severance) — these
+            // Tier-2 services are Clyffy's on GB10, never compiled locally.
             Some(_) => false,
         };
         if compiled {

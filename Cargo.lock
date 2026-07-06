@@ -4751,9 +4751,8 @@ dependencies = [
  "async-trait",
  "axum 0.8.8",
  "base64 0.22.1",
- "burn",
  "chrono",
- "devpulse-clyffy",
+ "devpulse-store",
  "devpulse-telemetry",
  "figment",
  "flume",
@@ -4832,6 +4831,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "devpulse-store"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "duckdb",
+ "futures",
+ "moka",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "turso",
+]
+
+[[package]]
 name = "devpulse-telemetry"
 version = "0.1.0"
 source = "git+https://github.com/EonsofStupid/devpulse-telemetry?branch=main#1f4c7d300044e1471c069acb602593628dddb120"
@@ -4858,6 +4873,7 @@ dependencies = [
  "base64 0.22.1",
  "chrono",
  "devpulse-engine",
+ "devpulse-gb10-client",
  "devpulse-media",
  "devpulse-telemetry",
  "flume",

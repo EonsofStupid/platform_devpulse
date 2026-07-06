@@ -67,11 +67,19 @@ On connect the client probes `/v1/capability`, stores the returned
 
 ## Consumers (wiring — Pass 2)
 
-- `systems/devpulse-engine` holds a `ClyffyClient`, feeds it endpoints from DevPulse
-  config, and emits connection-state changes.
-- `interfaces/desktop/src-tauri` exposes the connection state as a Tauri command/event;
-  `platformState.connectionStatus` (today `online/offline/hybrid` in `StatusBar.svelte`)
-  reorients to derive from this wire state.
+- **`interfaces/desktop/src-tauri` holds the client — NOT `devpulse-engine`** (revised
+  2026-07-05). The engine links the kernel unconditionally (`devpulse-clyffy` = "always
+  linked"), so holding this kernel-free client there would weld it to the kernel and
+  destroy the isolation this crate exists for (and violate the engine-lite bisect). So:
+  `ConnectionState` lives in a dedicated Tauri managed state (`ClyffyConnectionState` in
+  `src-tauri/src/state.rs`); a detached probe / auto-reconnect task (`clyffy_probe_loop`
+  in `src-tauri/src/lib.rs`) owns the `ClyffyClient` and writes it; the endpoint is read
+  from `platform.toml` via `Platform::boot_config().services.system.clyffy`
+  (`ClyffyServiceEntry` — `base_url` empty ⇒ standalone, never a hardcoded host).
+- `interfaces/desktop/src-tauri` exposes the state as the `connection_status` command +
+  the `ClyffyConnectionChanged` event; `platformState.connectionStatus` (today
+  `online/offline/hybrid` in `StatusBar.svelte`) reorients to derive from this wire state
+  (Pass 2 frontend).
 - Stat surfaces (models/slots/etc.) read from the connected capability; disconnected →
   typed "connect Clyffy" (the `commands/sys/vector.rs:28` seam pattern).
 

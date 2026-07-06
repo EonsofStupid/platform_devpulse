@@ -187,6 +187,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::analytics::duckdb_query,
             // Cache service (Moka) devtool
             commands::sys::cache::cache_health,
+            // Clyffy wire connection status (gb10-client) — Tier-2 availability.
+            commands::sys::clyffy::connection_status,
             commands::devclyffy::get_status,
             commands::devforge::devforge_start,
             commands::devforge::devforge_stop,
@@ -444,7 +446,74 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateAvailable,
             events::UpdateDownloadProgress,
             events::UpdateInstallFinished,
+            // Clyffy wire connection — probe task pushes state transitions.
+            events::ClyffyConnectionChanged,
         ])
+}
+
+/// Background Clyffy connection probe + seamless auto-reconnect.
+///
+/// Builds one kernel-free [`ClyffyClient`] and probes `{base_url}/v1/capability`
+/// every `interval`. Each **changed** state is written to the managed
+/// [`ClyffyConnectionState`] and pushed to the frontend as a
+/// [`ClyffyConnectionChanged`] event. An unreachable endpoint yields
+/// `Disconnected` (honest standalone) — never a fabricated capability — and the
+/// loop keeps retrying so the AI layer lights up seamlessly whenever Clyffy comes
+/// back. Detached via `devpulse_telemetry::spawn`; never awaited by boot.
+///
+/// [`ClyffyClient`]: devpulse_gb10_client::ClyffyClient
+/// [`ClyffyConnectionState`]: crate::state::ClyffyConnectionState
+/// [`ClyffyConnectionChanged`]: crate::events::ClyffyConnectionChanged
+async fn clyffy_probe_loop(
+    app: tauri::AppHandle,
+    base_url: String,
+    interval: std::time::Duration,
+    timeout: std::time::Duration,
+) {
+    use crate::events::ClyffyConnectionChanged;
+    use crate::state::ClyffyConnectionState;
+    use devpulse_gb10_client::{ClyffyClient, ConnectionState};
+    use tauri::Manager;
+    use tauri_specta::Event;
+
+    let client = match ClyffyClient::new(timeout) {
+        Ok(c) => c,
+        Err(err) => {
+            tracing::warn!(%err, "clyffy probe: HTTP client build failed — AI layer stays offline");
+            return;
+        }
+    };
+
+    // Write managed state + emit the typed transition to the webview.
+    let publish = |next: &ConnectionState| {
+        app.state::<ClyffyConnectionState>().store(next.clone());
+        let _ = ClyffyConnectionChanged {
+            connection: next.clone(),
+        }
+        .emit(&app);
+    };
+
+    // Initial "connecting…" cue before the first probe.
+    let connecting = ConnectionState::Connecting {
+        url: base_url.clone(),
+    };
+    publish(&connecting);
+    let mut last = connecting;
+
+    loop {
+        let next = match client.probe_capability(&base_url).await {
+            Ok(capability) => ConnectionState::Connected {
+                url: base_url.clone(),
+                capability,
+            },
+            Err(_) => ConnectionState::Disconnected,
+        };
+        if next != last {
+            publish(&next);
+            last = next;
+        }
+        tokio::time::sleep(interval).await;
+    }
 }
 
 /// Bootstrap and run the Tauri application.
@@ -732,6 +801,8 @@ pub fn run() {
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
             app.manage(commands::voice::PlaybackState::new());
+            // Clyffy wire connection — kernel-free managed state; probe task writes it.
+            app.manage(crate::state::ClyffyConnectionState::new());
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
@@ -1159,6 +1230,34 @@ async fn boot_task(
                     tracing::info!("rrd event bridge: broadcast channel closed");
                 });
                 tracing::info!("rrd event bridge: spawned");
+            }
+
+            // ── Clyffy wire connection probe (auto-reconnect) ────
+            // Kernel-free: reads the configured endpoint and probes
+            // {base_url}/v1/capability on a cadence, writing the managed
+            // ClyffyConnectionState + emitting ClyffyConnectionChanged. An
+            // unreachable/unconfigured endpoint stays Disconnected — DevPulse
+            // keeps running standalone (Tier-1). Never blocks or fails boot.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let clyffy_cfg = &platform_arc.boot_config().services.system.clyffy;
+                if clyffy_cfg.enabled && !clyffy_cfg.base_url.trim().is_empty() {
+                    let base_url = clyffy_cfg.base_url.trim().to_string();
+                    let interval =
+                        std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
+                    let timeout =
+                        std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
+                    devpulse_telemetry::spawn(clyffy_probe_loop(
+                        app.clone(),
+                        base_url,
+                        interval,
+                        timeout,
+                    ));
+                    tracing::info!("clyffy connection probe: spawned");
+                } else {
+                    tracing::info!(
+                        "clyffy connection probe: no endpoint configured — standalone (Tier-1)"
+                    );
+                }
             }
 
             // ── Hardware metrics push loop ───────────────────────

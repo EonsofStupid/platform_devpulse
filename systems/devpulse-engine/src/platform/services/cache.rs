@@ -2,7 +2,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::connectome::persistence::{MokaAdapter, MokaCacheConfig};
+use devpulse_store::{MokaAdapter, MokaCacheConfig};
 use std::sync::Arc;
 
 /// In-memory cache store backed by `Moka`.

@@ -13,8 +13,9 @@
 //! after service initialization completes.
 
 use crate::commands::devforge::paths::DevforgePaths;
-use arc_swap::ArcSwapOption;
+use arc_swap::{ArcSwap, ArcSwapOption};
 use devpulse_engine::platform::{InitEvent, SystemHealth};
+use devpulse_gb10_client::ConnectionState;
 use serde::Serialize;
 use specta::Type;
 use std::sync::{Arc, Mutex};
@@ -52,6 +53,42 @@ impl PlatformState {
             platform: ArcSwapOption::new(None),
             devforge_paths,
         }
+    }
+}
+
+/// Managed state for the Clyffy wire connection — **kernel-free**, held separately
+/// from [`PlatformState`] so the gb10-client never drags the kernel into its
+/// compile graph (the bisect boundary). Holds only the current
+/// [`ConnectionState`]; the background probe / auto-reconnect task (spawned in
+/// `boot_task`) owns the `ClyffyClient` and writes here on every transition.
+pub struct ClyffyConnectionState {
+    state: ArcSwap<ConnectionState>,
+}
+
+impl Default for ClyffyConnectionState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ClyffyConnectionState {
+    /// Fresh state — `Disconnected` (standalone) until the probe task connects.
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            state: ArcSwap::new(Arc::new(ConnectionState::Disconnected)),
+        }
+    }
+
+    /// Current connection state (lock-free atomic load + clone).
+    #[must_use]
+    pub fn current(&self) -> ConnectionState {
+        (*self.state.load_full()).clone()
+    }
+
+    /// Atomically replace the connection state (the probe task writes here).
+    pub fn store(&self, next: ConnectionState) {
+        self.state.store(Arc::new(next));
     }
 }
 

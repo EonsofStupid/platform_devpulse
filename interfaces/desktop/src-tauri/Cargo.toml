@@ -54,13 +54,21 @@ uuid = { workspace = true, features = ["v4"] }
 # NOT enabled here — it is kernel/ClyffyOS-side and relocates behind the
 # gb10-client wire. See the `kernel-inproc` feature below for why it cannot
 # co-exist with the Turso store in a desktop build.
-devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["candle", "inference", "burn"] }
+# Kernel AI features (candle/inference/burn) dropped — the engine is
+# standalone Tier-1 now (kernel-severance); AI is Clyffy's on GB10 via
+# devpulse-gb10-client. No llama.cpp in the desktop compile graph.
+devpulse-engine = { path = "../../../systems/devpulse-engine" }
 # devpulse-media — audio_decode helpers for the voice loop (Whisper STT
 # + Qwen3-TTS reference ingest). default-features = false to skip the
 # camera-capture (nokhwa) feature, which is already declared directly
 # below with a different backend; we only need audio decode here.
 devpulse-media = { path = "../../../systems/devpulse-media", default-features = false }
 devpulse-telemetry = { workspace = true }
+# Clyffy wire client — kernel-free HTTP/JSON client to headless Clyffy
+# (ClyffyOS) on the GB10. Held as separate Tauri managed state (NOT on
+# Platform) so it never drags the kernel into its compile graph. The `specta`
+# feature makes `ConnectionState` codegen TS bindings against one Rust source.
+devpulse-gb10-client = { path = "../../../systems/devpulse-gb10-client", features = ["specta"] }
 flume = "0.11"
 arc-swap = { workspace = true }
 rfd = "0.15"
@@ -101,19 +109,16 @@ inference = []
 # (`commands/sys/vector`) is gated behind this feature and relocates behind the
 # gb10-client wire (Tier-2, additive once Clyffy connects). Kept as a
 # relocation marker, not a shipping config.
-kernel-inproc = ["devpulse-engine/rro"]
+# EMPTY marker now — the engine `rro` feature was removed (kernel-severance);
+# qortex is Clyffy/ClyffyOS-side behind the gb10-client wire. `commands/sys/vector`
+# stays gated behind this never-enabled feature as a relocation marker.
+kernel-inproc = []
 # Jesse's dev build — sidecar, Claude Code, full MCP surface.
 # Compiled OUT of release binary. Passthrough to engine.
 internal = ["devpulse-engine/internal"]
-# ── GPU proxies — selected by xtask at build time based on host vendor ──
-# Pick ONE per build. `gpu-vulkan` is the cross-vendor default (AMD + NVIDIA
-# + Intel); `gpu-nvidia` is the opt-in for peak NVIDIA perf via CUDA.
-# AMD-on-Linux currently also routes through `gpu-vulkan` because
-# llama-cpp-2 0.1.145 has no hipblas/rocm feature.
-gpu-nvidia = ["devpulse-engine/gpu-nvidia"]
-gpu-vulkan = ["devpulse-engine/gpu-vulkan"]
-# CPU Intel MKL — stands alone or composes with a GPU feature.
-cpu-mkl = ["devpulse-engine/cpu-mkl"]
+# GPU proxy features (gpu-nvidia / gpu-vulkan / cpu-mkl) REMOVED — GPU
+# inference is Clyffy's on GB10 (kernel-severance); the desktop no longer
+# selects a local GPU backend. (xtask's GPU-append step becomes a no-op.)
 
 [lints]
 workspace = true
