@@ -13,6 +13,13 @@ internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled 
 # `cargo xtask run-dev --features sherpa` to opt in.
 sherpa = ["dep:sherpa-onnx"]
 
+# NVIDIA GPU telemetry (VRAM / util / temp) via NVML. Off by default —
+# enabling links nvml-wrapper, which loads the NVML shared library at
+# runtime (graceful Err when no NVIDIA driver is present). Tier-1 LOCAL
+# hardware monitoring — NOT inference (that's Clyffy's on GB10); relocated
+# with hardware/metrics.rs from kernel/model-loader (kernel-severance).
+nvml = ["dep:nvml-wrapper"]
+
 # Kernel AI features (rro / candle / inference / llguidance / burn +
 # gpu-nvidia / gpu-vulkan / cpu-mkl) REMOVED — every one referenced
 # `devpulse-clyffy/*` and pulled llama.cpp. All AI is Clyffy's on GB10,
@@ -88,6 +95,12 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 # so it is gated behind the `sherpa` cargo feature. v1.12.x matches the
 # public sherpa-onnx C library version at time of integration.
 sherpa-onnx = { version = "1.12", optional = true }
+
+# NVIDIA GPU telemetry — optional, gated behind the `nvml` feature.
+# Loads the NVML shared library at runtime; no NVIDIA driver ⇒ graceful
+# Err and GPU metrics fall back to the platform fallback path. Local
+# hardware monitoring only; inference GPUs live on Clyffy/GB10.
+nvml-wrapper = { version = "0.10", optional = true }
 
 # Lock-free Option<Arc<T>> for lazy-started services (DevForge)
 arc-swap = { workspace = true }

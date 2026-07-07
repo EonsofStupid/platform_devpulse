@@ -24,27 +24,54 @@
 //! └── logs/       Rotated log files
 //! ```
 
+pub mod assistant;
 mod boot;
+pub mod community;
 pub mod config;
 #[allow(missing_docs)]
 pub mod facade;
+pub mod hardware;
 pub mod health;
 pub mod init;
+pub mod interactions;
+pub mod knowledge;
 // integrations module removed — it bridged kernel model_loader events
 // (`#[cfg(inference)]`); model events now come from Clyffy over the
 // gb10-client wire (kernel-severance).
 pub mod metrics;
+pub mod model_registry;
 pub mod module;
 pub mod services;
 pub mod telemetry;
+pub mod wizard;
 
+pub use assistant::{
+    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
+    VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+};
+pub use community::{
+    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
+    FeedItem, FeedKind, DEFAULT_FEED_TTL_SECS,
+};
 pub use config::{
     retrieval_param_meta, sanitize_path, DataScope, ExecutionLane, LaneToggle, LaneTraceConfig,
     PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
 };
+pub use hardware::{HardwareMetrics, HardwareTier};
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
+pub use interactions::{InteractionPhase, InteractionTemplate, InteractionTrigger};
+pub use knowledge::{
+    record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
+    sync_remote_entries as knowledge_sync_remote_entries, EntryType as KnowledgeEntryType,
+    KnowledgeEntry, KnowledgeManifest, Reaction as KnowledgeReaction,
+    SelectionParams as KnowledgeSelectionParams, Tier as KnowledgeTier,
+};
 pub use metrics::ProcessMetrics;
+pub use model_registry::{
+    classify_arch_from_hf_config, installed_backends, resolve_compatibility, BackendMatrix,
+    LoadError, ModelFormat, Resolution,
+};
 pub use services::candle_config::CandleConfig;
 pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
 pub use services::routing_config::{
@@ -59,6 +86,9 @@ pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
 pub use services::voice_stt_config::VoiceSttConfig;
 pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::{Service, ServiceRole, ServiceState};
+pub use wizard::{
+    emit_event as emit_analytics_event, AnalyticsEvent, TierDisplay, TierRole, WizardCopy,
+};
 
 // ════════════════════════════════════════════════════════════════
 // Kernel re-exports — the engine's *declared public kernel API*
