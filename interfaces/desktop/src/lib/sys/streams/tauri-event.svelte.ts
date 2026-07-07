@@ -23,6 +23,7 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import type { ConnectionState } from "$lib/sys/generated/bindings.js";
 import { log, logError } from "$lib/sys/logger.js";
 
 export interface TauriEventStream<T> {
@@ -153,4 +154,15 @@ export const modelEvents = {
 export const inferenceEvents = {
 	started: createTauriEvent<{ slot_id: string }>("inference:started"),
 	complete: createTauriEvent<{ slot_id: string }>("inference:complete"),
+} as const;
+
+/**
+ * Clyffy (headless AI layer) wire-connection stream. Emitted by the
+ * background probe task on every transition (disconnected ↔ connecting ↔
+ * connected). The `connection` payload carries the COMPUTED capability when
+ * connected — the no-AI indicator + every Tier-2 gate derive from it.
+ * Event name matches `events.clyffyConnectionChanged` in the generated bindings.
+ */
+export const clyffyEvents = {
+	connectionChanged: createTauriEvent<{ connection: ConnectionState }>("clyffy-connection-changed"),
 } as const;
