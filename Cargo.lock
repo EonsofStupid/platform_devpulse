@@ -2941,6 +2941,7 @@ checksum = "4bfbf56724aa9eca8afa4fcfadeb479e722935bb2a0900c2d37e0cc477af0688"
 [[package]]
 name = "clyffyos-wire"
 version = "0.1.0"
+source = "git+https://github.com/EonsofStupid/clyffyos.git?rev=eae33539025cca0c5149c783118171c5bef39af4#eae33539025cca0c5149c783118171c5bef39af4"
 dependencies = [
  "chrono",
  "serde",
