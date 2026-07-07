@@ -49,7 +49,11 @@ pub async fn candle_save_config(
 /// endpoint as not-yet-served (deferred, not retired).
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc)]
+#[expect(
+    clippy::missing_errors_doc,
+    clippy::needless_pass_by_value,
+    reason = "Tier-2 gated shell — `clyffy` State is Tauri-mandated by-value and used only by-ref while gated; the Result's Err arms are self-documenting. Consumed once forwarded over the wire; #[expect] warns to remove once clyffyd serves pool control."
+)]
 pub fn candle_restart_pool(clyffy: State<'_, ClyffyConnectionState>) -> Result<u32, String> {
     match clyffy.current() {
         ConnectionState::Connected { .. } => Err(

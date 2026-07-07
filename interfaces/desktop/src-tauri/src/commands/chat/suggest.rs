@@ -6,7 +6,8 @@
 //! returns the honest "connect Clyffy" state.
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — each command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'not advertised by this capability yet' message when connected but Clyffy's capability does not include the embedder."
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — each command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'not advertised by this capability yet' message when connected but Clyffy's capability does not include the embedder. Args (Tauri State + deserialized payloads) are framework-mandated by-value and used only by-ref while gated; consumed once forwarded over the wire, so needless_pass_by_value is a false-positive here (the #![expect] warns to remove itself once clyffyd lands)."
 )]
 
 use crate::state::ClyffyConnectionState;

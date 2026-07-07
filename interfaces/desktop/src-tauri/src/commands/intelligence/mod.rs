@@ -18,7 +18,8 @@
 //! (deferred, not retired).
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — each Result-returning command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'endpoint not yet served' message when connected but clyffyd has not exposed the surface."
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — each Result-returning command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'endpoint not yet served' message when connected but clyffyd has not exposed the surface. Args (Tauri State + deserialized payloads) are framework-mandated by-value and used only by-ref while gated; they are consumed once forwarded over the wire, so needless_pass_by_value is a false-positive here (the #![expect] warns to remove itself once clyffyd lands and the args are used)."
 )]
 
 use crate::state::ClyffyConnectionState;

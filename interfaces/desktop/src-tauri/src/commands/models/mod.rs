@@ -4,7 +4,8 @@
 //! Types flow from `model-loader` crate → specta → TypeScript bindings.
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `ModelLoaderService` / `Platform` whose docs hold the canonical # Errors copy"
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `ModelLoaderService` / `Platform` whose docs hold the canonical # Errors copy. `State<…>` and deserialized payload args are Tauri-mandated by-value (you cannot take `&State`) and used only by-ref, so needless_pass_by_value is a framework false-positive across the whole command surface."
 )]
 
 use crate::state::{ClyffyConnectionState, PlatformState};

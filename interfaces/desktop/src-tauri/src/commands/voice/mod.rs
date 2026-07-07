@@ -25,7 +25,8 @@
 )]
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` voice services / audio playback whose docs hold the canonical # Errors copy"
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` voice services / audio playback whose docs hold the canonical # Errors copy. `State<…>` and payload args are Tauri-mandated by-value (you cannot take `&State`); the Tier-2 TTS/STT shells use them only by-ref while gated (consumed once forwarded over the wire), so needless_pass_by_value is a framework false-positive here."
 )]
 
 use crate::state::{ClyffyConnectionState, PlatformState};

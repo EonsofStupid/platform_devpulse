@@ -10,6 +10,10 @@
 //! The response DTOs below (`GraphPingResult`, `GraphHealthAll`, …) are the
 //! devtool's own presentation shapes — desktop-local, not wire types — and are
 //! returned once `clyffyd` serves the graph endpoint (deferred, not retired).
+#![expect(
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — each command is a connection-gated shell; State/payload args are Tauri-mandated by-value (you cannot take `&State`) and used only by-ref while gated, consumed once forwarded over the wire. #![expect] warns to remove once clyffyd serves the graph endpoint."
+)]
 
 use crate::state::ClyffyConnectionState;
 use devpulse_gb10_client::ConnectionState;
