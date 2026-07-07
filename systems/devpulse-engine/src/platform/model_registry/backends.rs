@@ -121,6 +121,24 @@ pub enum ModelFormat {
     Onnx,
     /// Raw `PyTorch` checkpoints.
     Pytorch,
+    /// Sherpa model directory (Whisper / Kokoro — a directory carrying
+    /// `tokens.txt` + config, discovered as a unit rather than a single
+    /// weight file). Folded in from the relocated model-loader management
+    /// layer (kernel-severance); the loader's discovery scanner emits this
+    /// for `tokens.txt`-bearing directories.
+    SherpaDir,
+}
+
+impl std::fmt::Display for ModelFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Gguf => write!(f, "GGUF"),
+            Self::Safetensors => write!(f, "SafeTensors"),
+            Self::Onnx => write!(f, "ONNX"),
+            Self::Pytorch => write!(f, "PyTorch"),
+            Self::SherpaDir => write!(f, "Sherpa Directory"),
+        }
+    }
 }
 
 /// Full `(arch × backend)` compatibility grid, ready for the frontend.

@@ -39,6 +39,9 @@ pub mod knowledge;
 // (`#[cfg(inference)]`); model events now come from Clyffy over the
 // gb10-client wire (kernel-severance).
 pub mod metrics;
+// Model-loader MANAGEMENT layer (relocated from kernel/model-loader during
+// the kernel-severance). DevPulse-local, links no inference backend.
+pub mod model_loader;
 pub mod model_registry;
 pub mod module;
 pub mod services;
@@ -68,6 +71,16 @@ pub use knowledge::{
     SelectionParams as KnowledgeSelectionParams, Tier as KnowledgeTier,
 };
 pub use metrics::ProcessMetrics;
+// Model-loader MANAGEMENT surface — DevPulse-local model management types +
+// the `ModelLoaderService` facade. No inference symbols cross here (those
+// are Clyffy's over the wire). See `platform::model_loader`.
+pub use model_loader::{
+    BackendType, BuildMode, ConfigBackend, DownloadScope, HfFileInfo, HfSearchResult, LoaderError,
+    LoaderEvent, LoaderEventSink, LoadingStage, ModelCapability, ModelLoaderService, ModelMetadata,
+    ModelRegistry, ModelRegistryEntry, ModelSourceTier, ModelSource, ModelStatus, MemoryConfig,
+    NullEventSink, PersistenceClass, Slot, SlotRegistry, TracingEventSink, VoiceEntry,
+    VoiceRegistry,
+};
 pub use model_registry::{
     classify_arch_from_hf_config, installed_backends, resolve_compatibility, BackendMatrix,
     LoadError, ModelFormat, Resolution,
@@ -214,6 +227,13 @@ pub struct Platform {
     sherpa_streaming: Arc<SherpaStreamingService>,
     // ── Telemetry (lane tracing) ─────────────────────────────
     telemetry: Option<TelemetryHandle>,
+    // ── Model-loader MANAGEMENT service ──────────────────────
+    // DevPulse-local model management (slot registry, discovery, download,
+    // hardware auto-config). `None` until boot constructs it — construction
+    // needs a `ConfigBackend` persistence adapter that only existed on the
+    // kernel side, so wiring it is a reported follow-up (see boot). The
+    // inference half is Clyffy's over the wire, not held here.
+    model_loader: Option<Arc<model_loader::ModelLoaderService>>,
     // ── Project scope ──────────────────────────────────────────
     /// Per-project Turso databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
@@ -302,12 +322,31 @@ impl Platform {
             "routing config loaded at boot"
         );
 
+        // Model-loader MANAGEMENT service. The service TYPE + its full
+        // management surface are relocated and compiled (see
+        // `platform::model_loader`), but construction via
+        // `ModelLoaderService::new` requires a `ConfigBackend` persistence
+        // adapter (slot assignments / setup flags). That adapter only
+        // existed kernel-side; a DevPulse-local implementation (Turso-backed
+        // vs atomic-TOML-file) is an unresolved architectural decision, so
+        // the field boots `None` rather than being silently skipped —
+        // reported for owner wiring, never fabricated.
+        tracing::warn!(
+            target: "model_loader.lifecycle",
+            "Model-loader management service NOT constructed at boot: \
+             ModelLoaderService::new requires a ConfigBackend impl that has no \
+             DevPulse-local adapter yet (kernel-severance follow-up). \
+             Platform::model_loader() returns None until that adapter is wired."
+        );
+        let model_loader: Option<Arc<model_loader::ModelLoaderService>> = None;
+
         Ok(Self {
             system_relational: booted.system_relational,
             system_analytics: booted.system_analytics,
             system_cache: booted.system_cache,
             user_relational: booted.user_relational,
             user_analytics: booted.user_analytics,
+            model_loader,
             devforge: ArcSwapOption::empty(),
             ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
@@ -498,10 +537,31 @@ impl Platform {
         self.user_analytics.as_ref()
     }
 
-    // Graph / vector / model-loader / suggestion / model-catalog accessors
-    // removed — those AI services are Clyffy's, served from GB10 over the
-    // gb10-client wire (kernel-severance). DevPulse-local keeps only the
-    // Tier-1 stores (Turso relational + DuckDB analytics + Moka cache).
+    // ── Model-loader MANAGEMENT accessors ──────────────────────
+
+    /// Get the model-loader MANAGEMENT service (if constructed at boot).
+    ///
+    /// Returns `None` until boot wires a `ConfigBackend` persistence adapter
+    /// (a reported kernel-severance follow-up). This is the DevPulse-local
+    /// management surface only — inference (load/generate/embed/…) is
+    /// Clyffy's over the gb10-client wire, not served through this handle.
+    #[must_use]
+    pub fn model_loader(&self) -> Option<&Arc<model_loader::ModelLoaderService>> {
+        self.model_loader.as_ref()
+    }
+
+    /// The model download catalog — engine-level presentation data
+    /// (`[services.system.model_loader.catalog]`) the model browser renders
+    /// against each slot id. Pure boot-config data; always available.
+    #[must_use]
+    pub fn model_loader_catalog(&self) -> &[config::CatalogEntry] {
+        &self.boot_config.services.system.model_loader.catalog
+    }
+
+    // Graph / vector / suggestion accessors removed — those AI services are
+    // Clyffy's, served from GB10 over the gb10-client wire (kernel-severance).
+    // DevPulse-local keeps only the Tier-1 stores (Turso relational + DuckDB
+    // analytics + Moka cache) plus the model-loader MANAGEMENT service above.
 
     // ── DevForge accessor + lazy starter ───────────────────────
 

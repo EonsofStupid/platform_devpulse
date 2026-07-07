@@ -4757,7 +4757,10 @@ dependencies = [
  "figment",
  "flume",
  "futures-core",
+ "ggus",
+ "hf-hub",
  "nvml-wrapper",
+ "parking_lot",
  "portpicker",
  "rand 0.8.5",
  "reqwest 0.12.28",
@@ -4767,6 +4770,7 @@ dependencies = [
  "schemars 0.8.22",
  "serde",
  "serde_json",
+ "sha2",
  "sherpa-onnx",
  "specta",
  "sysinfo 0.33.1",
@@ -4917,6 +4921,15 @@ dependencies = [
  "const-oid",
  "crypto-common",
  "subtle",
+]
+
+[[package]]
+name = "digit-layout"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21cba97b8c9bd3d9a6381565825ddabba86ddcd3a3ba090f48f39c1217d7f0d4"
+dependencies = [
+ "half 2.7.1",
 ]
 
 [[package]]
@@ -6738,6 +6751,30 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
+]
+
+[[package]]
+name = "ggml-quants"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5e19ad18fcb0c1bc4f4ee534a17a6743055be2952ea6c51f094d0867a927d4e"
+dependencies = [
+ "digit-layout",
+ "half 2.7.1",
+ "rayon",
+]
+
+[[package]]
+name = "ggus"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc099d0395c63a57e0e97069e1dfe23a2c1d9c72aaf16bab2648701316c341a5"
+dependencies = [
+ "ggml-quants",
+ "indexmap 2.13.0",
+ "log",
+ "num_enum",
+ "regex",
 ]
 
 [[package]]

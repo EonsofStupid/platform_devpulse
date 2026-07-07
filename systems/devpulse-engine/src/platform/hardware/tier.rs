@@ -23,3 +23,17 @@ pub enum HardwareTier {
     /// No GPU detected — CPU-only or API.
     CpuOnly,
 }
+
+impl std::fmt::Display for HardwareTier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Ultra => write!(f, "Ultra (40GB+ VRAM)"),
+            Self::High => write!(f, "High (24GB+ VRAM)"),
+            Self::JessePrimary => write!(f, "Jesse Primary (16GB VRAM)"),
+            Self::Mid => write!(f, "Mid (10GB+ VRAM)"),
+            Self::Floor => write!(f, "Floor (8GB VRAM)"),
+            Self::Minimal => write!(f, "Minimal (<8GB VRAM)"),
+            Self::CpuOnly => write!(f, "CPU Only"),
+        }
+    }
+}

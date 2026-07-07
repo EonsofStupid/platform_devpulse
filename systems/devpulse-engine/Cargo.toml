@@ -4,10 +4,18 @@ version = "1.0.1"
 edition = "2021"
 
 [features]
-default = ["kernel"]
+default = ["kernel", "mode-dev"]
 kernel = []
 engine = []
 internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled OUT of release.
+
+# Build-mode selection for the relocated model-loader `build_mode.rs`
+# (kernel-severance). Exactly one must be active; `mode-dev` is the default
+# so local cargo workflows behave as they did in the kernel. Release/customer
+# builds swap it via `--no-default-features` + the chosen mode.
+mode-dev = []
+mode-production = []
+mode-customer = []
 # Streaming ASR via sherpa-onnx (next-gen Kaldi). Off by default —
 # enabling pulls ~100 MB of prebuilt native binaries at build time.
 # `cargo xtask run-dev --features sherpa` to opt in.
@@ -31,7 +39,9 @@ nvml = ["dep:nvml-wrapper"]
 serde = { workspace = true }
 serde_json = { workspace = true }
 specta = { workspace = true }
-uuid = { workspace = true }
+# `v5` (stable name→UUID) is used by the relocated model-loader discovery
+# scanner for stable registry ids; `v7`/`serde` come from the workspace pin.
+uuid = { workspace = true, features = ["v5"] }
 tokio = { workspace = true }
 async-trait = "0.1"
 anyhow = { workspace = true }
@@ -86,9 +96,24 @@ schemars = "0.8"
 portpicker = "0.1"
 rand = "0.8"
 
-# Ollama sidecar HTTP client — matches kernel/model-loader's reqwest config
-# (rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds).
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# Ollama sidecar HTTP client + model-loader HF search / LFS-oid tree fetch.
+# `blocking` is required by `models/download.rs::fetch_lfs_oid_map`; async
+# `Client` (HF search) rides the same crate. rustls-tls avoids a system
+# OpenSSL dep on Windows/Linux release builds.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+
+# ── Model-loader MANAGEMENT deps (kernel-severance relocation) ──────
+# All pure management — zero inference linkage (verified by `cargo tree`).
+# hf-hub: HuggingFace downloader/search. rustls (no OpenSSL), sync `ureq`
+#   path used by models/download.rs (`api::sync` + `Progress`).
+hf-hub = { version = "0.4", default-features = false, features = ["ureq", "rustls-tls"] }
+# sha2: HF LFS oid (SHA-256) download-integrity verification.
+sha2 = "0.10"
+# ggus: pure-Rust GGUF header/metadata reader — candle-free replacement for
+#   the kernel's `candle_core::quantized::gguf_file` parse in discovery.rs.
+ggus = "0.5"
+# parking_lot: `RwLock<HardwareMonitor>` + `Mutex<HashSet>` on ModelLoaderService.
+parking_lot = "0.12"
 
 # Sherpa streaming ASR (next-gen Kaldi / onnxruntime). Optional — the
 # crate's build script downloads ~100 MB of prebuilt native binaries,
