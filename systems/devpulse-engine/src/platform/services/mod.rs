@@ -17,8 +17,8 @@ pub mod status;
 // those services are Clyffy's on GB10, served over the gb10-client wire
 // (kernel-severance). embedder + whisper were already slot-managed (Layer 2).
 pub mod audio;
-pub mod devforge;
 pub mod candle_config;
+pub mod devforge;
 pub mod llama_cpp_embedded_config;
 pub mod routing_config;
 pub mod sherpa_streaming;

@@ -36,8 +36,7 @@ use serde::{Deserialize, Serialize};
 /// `mode-dev`, `mode-production`, or `mode-customer` Cargo features is
 /// active. Exactly one must be enabled; the build fails if zero or
 /// multiple are selected (see the compile-time assertions below).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum BuildMode {
     /// Full developer access. Built-ins are fully configurable — users

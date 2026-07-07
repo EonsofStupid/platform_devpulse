@@ -22,8 +22,7 @@ use serde::{Deserialize, Serialize};
 /// SHA stamps, `HuggingFace` LFS oid). A missing field means "not known
 /// for this runtime"; the loader still produces a stable fingerprint
 /// because `runtime_id` alone is sufficient for rebind detection.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub struct RuntimeFingerprint {
     /// Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
     /// `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
@@ -46,8 +45,7 @@ pub struct RuntimeFingerprint {
 
 /// Why a capability rebind happened — drives layman-language UI
 /// copy in the runtime devtool's Activity tab.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "snake_case")]
 pub enum RebindReason {
     /// First load of this slot in the current session — no prior

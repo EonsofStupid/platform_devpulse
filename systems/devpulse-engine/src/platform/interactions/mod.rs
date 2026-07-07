@@ -40,8 +40,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// Phases are ordered, named, and carry pointers into the wizard
 /// copy TOML (kept separate so copy translators only edit one file).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct InteractionPhase {
     /// Stable phase identifier (`"welcome"`, `"scanning"`, etc.).
     /// Matches the frontend phase-machine enum variant the overlay
@@ -80,8 +79,7 @@ pub struct InteractionPhase {
 /// frontend overlay never decides on its own whether to open — it
 /// receives a "show this template now" signal from the platform
 /// based on trigger evaluation.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 #[serde(rename_all = "snake_case", tag = "kind")]
 pub enum InteractionTrigger {
     /// Fires on first run — no `Factory Default` configuration exists
@@ -117,8 +115,7 @@ pub enum InteractionTrigger {
 /// transition fires a `SignalVariant::System` event through the
 /// (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
 /// the whole interaction play out.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct InteractionTemplate {
     /// Stable template identifier (e.g. `"setup"`,
     /// `"hardware-change"`). Used as the TOML file stem and as the
@@ -185,8 +182,7 @@ impl InteractionTemplate {
     /// fully replaces the embedded default; parse failures on the
     /// override are logged + the embedded default is used.
     pub fn welcome_back(userdata_dir: &std::path::Path) -> Result<Self, InteractionError> {
-        const DEFAULT_TOML: &str =
-            include_str!("config/welcome-back.default.toml");
+        const DEFAULT_TOML: &str = include_str!("config/welcome-back.default.toml");
         load_template(
             "welcome-back",
             DEFAULT_TOML,

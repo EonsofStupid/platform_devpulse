@@ -15,8 +15,7 @@ use serde::Serialize;
 
 /// Resolver output. Either a concrete plan or a typed failure with
 /// alternatives.
-#[derive(Debug, Clone, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 pub enum Resolution {
     /// The registry has a backend that can load this `(arch, format)`

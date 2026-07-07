@@ -39,8 +39,7 @@ use serde::{Deserialize, Serialize};
 /// `kebab-case` rename keeps the JSON output consistent with the rest
 /// of the platform's external event vocabulary (`platform:models-status`,
 /// `model:hardware`, etc.).
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(tag = "name", content = "props", rename_all = "kebab-case")]
 pub enum AnalyticsEvent {
     /// User has reached the wizard entry point.

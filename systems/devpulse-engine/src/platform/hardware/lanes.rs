@@ -49,8 +49,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// The ordering of variants is stable: `Vram` / `Ddr` / `Cpu` / `Ssd`
 /// matches the budgeter's display order and the TOML file key ordering.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum LaneKind {
     /// GPU video RAM. Primary lane for transformer-style LLMs and any
@@ -120,8 +119,7 @@ impl std::fmt::Display for LaneKind {
 /// runtime (no GPU detected, SSD lane not yet implemented). The status
 /// lets the budgeter and the UI distinguish "works but full" from
 /// "doesn't exist on this hardware".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "snake_case")]
 pub enum LaneStatus {
     /// Lane is real, detected, and ready to allocate against.
@@ -150,8 +148,7 @@ impl LaneStatus {
 /// All lanes report a `total_bytes` figure so the budgeter can compare
 /// apples to apples, but each carries its own metadata (core count,
 /// bandwidth, etc.) exposed via the `LaneKind`-specific variants below.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default, specta::Type)]
 pub struct LaneCapacity {
     /// Total bytes this lane can hold. `0` means the lane is
     /// unavailable on this host (see [`LaneStatus::Unavailable`]).
@@ -207,8 +204,7 @@ impl LaneCapacity {
 /// The budgeter aggregates these into per-lane totals when computing a
 /// [`LaneBudget`]. Each allocation carries the slot's persistence class
 /// because eviction ordering depends on it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub struct LaneAllocation {
     /// Slot this allocation belongs to.
     pub slot_id: String,
@@ -238,8 +234,7 @@ impl LaneAllocation {
 /// The resource budgeter builds one `LaneBudget` per [`LaneKind`] and
 /// aggregates them into a `ResourceBudget` (future follow-up — today the
 /// VRAM budgeter is still standalone in `hardware::vram`).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub struct LaneBudget {
     /// Which lane this budget covers.
     pub kind: LaneKind,

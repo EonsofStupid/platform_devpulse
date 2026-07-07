@@ -130,7 +130,6 @@ pub trait SqlAdapter: Send + Sync {
     async fn execute_batch(&self, sql: &str) -> Result<()>;
 }
 
-
 /// Analytics query interface for `DuckDB`
 #[allow(async_fn_in_trait)]
 pub trait AnalyticsAdapter: Send + Sync {
@@ -156,4 +155,3 @@ pub trait CacheAdapter: PersistenceAdapter {
     /// Number of entries currently in the cache.
     fn entry_count(&self) -> u64;
 }
-

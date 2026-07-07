@@ -139,7 +139,10 @@ mod tests {
             reloaded.get("slot.chat.brain.model").unwrap().as_deref(),
             Some("qwen3-14b.gguf")
         );
-        assert_eq!(reloaded.get("setup_complete").unwrap().as_deref(), Some("true"));
+        assert_eq!(
+            reloaded.get("setup_complete").unwrap().as_deref(),
+            Some("true")
+        );
 
         let slots = reloaded.list_by_prefix("slot.").unwrap();
         assert_eq!(slots.len(), 1);

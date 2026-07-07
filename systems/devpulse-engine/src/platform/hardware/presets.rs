@@ -480,7 +480,8 @@ mod tests {
     fn every_preset_slot_id_resolves_to_a_slot() {
         let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
         let slots =
-            crate::platform::model_loader::slots::load_default_slots(Path::new("/nonexistent")).expect("slots load");
+            crate::platform::model_loader::slots::load_default_slots(Path::new("/nonexistent"))
+                .expect("slots load");
         let slot_ids: std::collections::HashSet<&str> =
             slots.iter().map(|s| s.id.as_str()).collect();
 
@@ -509,9 +510,12 @@ mod tests {
 
         let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
         let slots =
-            crate::platform::model_loader::slots::load_default_slots(Path::new("/nonexistent")).expect("slots load");
-        let slot_by_id: std::collections::HashMap<&str, &crate::platform::model_loader::slots::Slot> =
-            slots.iter().map(|s| (s.id.as_str(), s)).collect();
+            crate::platform::model_loader::slots::load_default_slots(Path::new("/nonexistent"))
+                .expect("slots load");
+        let slot_by_id: std::collections::HashMap<
+            &str,
+            &crate::platform::model_loader::slots::Slot,
+        > = slots.iter().map(|s| (s.id.as_str(), s)).collect();
 
         for bp in &blueprints {
             for rec in &bp.recommendations {
@@ -557,9 +561,12 @@ mod tests {
 
         let blueprints = load_default_presets(Path::new("/nonexistent")).unwrap();
         let slots =
-            crate::platform::model_loader::slots::load_default_slots(Path::new("/nonexistent")).expect("slots load");
-        let slot_by_id: std::collections::HashMap<&str, &crate::platform::model_loader::slots::Slot> =
-            slots.iter().map(|s| (s.id.as_str(), s)).collect();
+            crate::platform::model_loader::slots::load_default_slots(Path::new("/nonexistent"))
+                .expect("slots load");
+        let slot_by_id: std::collections::HashMap<
+            &str,
+            &crate::platform::model_loader::slots::Slot,
+        > = slots.iter().map(|s| (s.id.as_str(), s)).collect();
 
         for bp in &blueprints {
             for rec in &bp.recommendations {

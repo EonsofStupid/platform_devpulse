@@ -47,8 +47,7 @@ use std::fmt;
 /// layman-friendly — the UI can call `err.to_string()` and get a
 /// readable message, but should prefer matching on the variant to
 /// render interactive affordances (alternatives, retry buttons).
-#[derive(Debug, Clone, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 pub enum LoadError {
     // ── Compatibility failures (pre-download / pre-load gate) ──────
@@ -283,8 +282,7 @@ impl LoadError {
 }
 
 /// Why a known architecture cannot be loaded in the requested format.
-#[derive(Debug, Clone, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 pub enum UnsupportedReason {
     /// The registry has no backend that declares support for this
@@ -339,8 +337,7 @@ pub enum UnsupportedReason {
 
 /// A suggested alternative path the user could take. The frontend
 /// renders each as a one-click action.
-#[derive(Debug, Clone, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 pub struct Alternative {
     /// Category of follow-up action the UI should offer.
     pub kind: AlternativeKind,
@@ -356,8 +353,7 @@ pub struct Alternative {
 
 /// Categorical hint for how the frontend should render the
 /// alternative suggestion.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum AlternativeKind {
     /// Same repo, different file (most common — suggest GGUF when

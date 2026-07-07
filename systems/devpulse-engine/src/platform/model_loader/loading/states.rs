@@ -16,8 +16,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Memory footprint of a loaded model.
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, specta::Type)]
 pub struct MemoryFootprint {
     /// RAM consumed in bytes (e.g., mmap'd weights before GPU transfer).
     pub ram_bytes: u64,
@@ -54,8 +53,7 @@ impl MemoryFootprint {
 }
 
 /// Parameters for loading a model.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct LoadParams {
     /// Target device (`"cpu"`, `"cuda:0"`, etc.).
     pub device: String,
@@ -84,8 +82,7 @@ impl Default for LoadParams {
 }
 
 /// Priming configuration — controls warmup behavior.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct PrimingConfig {
     /// Sequence length for dummy forward pass.
     pub warmup_seq_len: usize,
@@ -117,8 +114,7 @@ impl Default for PrimingConfig {
 ///                ↓         ↓       ↓        ↓
 ///              Failed   Failed  Failed   Failed
 /// ```
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub enum ModelStatus {
     /// No model loaded. Ready to accept a load request.
     /// Latency to inference: 3-10 seconds (full load + prime).
@@ -194,8 +190,7 @@ pub enum ModelStatus {
 }
 
 /// Granular loading stages — visible in UI progress bars.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub enum LoadingStage {
     /// Checking file integrity and parsing header metadata.
     Verifying,
@@ -218,8 +213,7 @@ pub enum LoadingStage {
 }
 
 /// Combined slot status for UI display.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct SlotStatus {
     /// The slot this status belongs to.
     pub slot_id: String,

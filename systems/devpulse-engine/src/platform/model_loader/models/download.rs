@@ -142,7 +142,11 @@ impl DownloadManager {
         // Pre-existing downloads under the legacy `chat/`, `rag/`, `voice/`,
         // `vision/` flat directories remain loadable — `discover_models`
         // recurses, so it picks up either layout without migration.
-        let dest_dir = crate::platform::model_loader::models::resolve_bundle_dir(&self.models_dir, scope, repo_id);
+        let dest_dir = crate::platform::model_loader::models::resolve_bundle_dir(
+            &self.models_dir,
+            scope,
+            repo_id,
+        );
         std::fs::create_dir_all(&dest_dir)?;
 
         let target_path = dest_dir.join(filename);

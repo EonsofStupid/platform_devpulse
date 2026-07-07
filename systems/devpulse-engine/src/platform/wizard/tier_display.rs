@@ -14,8 +14,7 @@ use crate::platform::hardware::HardwareTier;
 use serde::{Deserialize, Serialize};
 
 /// Semantic role for visual coding. Frontend maps to SD5 design tokens.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum TierRole {
     /// Ultra tier — magenta, flagship / 40GB+
@@ -38,8 +37,7 @@ pub enum TierRole {
 ///
 /// All user-facing strings. Frontend renders these directly inside `ColdLight`
 /// `<Heading>`, `<Text>`, `<Badge>` components.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct TierDisplay {
     /// Layman tier name shown on the badge (e.g. "Mainstream", "Workstation").
     pub name: String,

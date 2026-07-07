@@ -58,8 +58,7 @@ pub const PER_PROJECT_ROOT: &str = "_per_project";
 pub const UNSCOPED_PLACEHOLDER: &str = "__unscoped__";
 
 /// Where on disk a downloaded model lands.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default, specta::Type)]
 #[serde(tag = "kind", content = "id", rename_all = "lowercase")]
 pub enum DownloadScope {
     /// Shared library — every project sees the model.

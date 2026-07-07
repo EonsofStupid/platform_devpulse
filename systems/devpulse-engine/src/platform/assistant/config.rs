@@ -17,8 +17,7 @@ use std::path::{Path, PathBuf};
 
 /// Embedded default configuration. Always available; the boot path
 /// uses this when the userdata override is missing or corrupt.
-const DEFAULT_TOML: &str =
-    include_str!("../../../config/assistant.default.toml");
+const DEFAULT_TOML: &str = include_str!("../../../config/assistant.default.toml");
 
 /// Relative filename within `{userdata_dir}/config/` for the user
 /// override.
@@ -29,8 +28,7 @@ const OVERRIDE_FILENAME: &str = "assistant.toml";
 /// `name` drives every prompt template via `{assistant_name}` and the
 /// default wake phrase root. `tagline` is displayed under the name in
 /// the welcome overlay and boot splash.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct IdentityConfig {
     /// User-facing label the assistant answers to. Default "Clyffy".
     pub name: String,
@@ -53,8 +51,7 @@ impl Default for IdentityConfig {
 /// Drives the bundled sherpa-onnx KWS zipformer open-vocab keyword
 /// spotter. Changing `phrase` reloads the KWS worker's keywords file
 /// at runtime — no model retraining required.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct WakeConfig {
     /// Whether 24/7 wake listening is active. `false` disables the
     /// microphone entirely; the assistant only responds to explicit
@@ -87,8 +84,7 @@ impl Default for WakeConfig {
 /// real-time speech-to-speech with native turn-taking. When `false`,
 /// the cascaded path (wake -> STT -> chat.fast -> TTS) handles voice
 /// interactions instead.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct VoiceBrainConfig {
     /// Whether Moshi stays hot in VRAM for always-on STS.
     pub enabled_24_7: bool,
@@ -127,8 +123,7 @@ impl Default for VoiceBrainConfig {
 /// - `custom:<filename_stem>` — a user-uploaded reference sample
 ///   cloned via `CosyVoice2-0.5B`. The stem matches the filename in
 ///   `{userdata_dir}/voice/custom/*.mp3`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct TtsConfig {
     /// Canonical voice profile identifier.
     pub profile: String,
@@ -155,8 +150,7 @@ impl Default for TtsConfig {
 /// the Voice Lab panel. Each entry is passed to `CosyVoice2-0.5B` via
 /// sherpa-onnx for zero-shot cloning on the next TTS call that
 /// selects `custom:<name>`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct VoiceCloneEntry {
     /// Short name the user gave this clone (e.g. `"my_male"`).
     pub name: String,
@@ -175,8 +169,7 @@ pub struct VoiceCloneEntry {
 /// free-form string. Handlers live frontend-side; see
 /// `interfaces/desktop/src/lib/domains/app/models/features/setup-wizard/
 /// assistant-actions.ts` for the dispatch table.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct KeywordActionEntry {
     /// Phrase to listen for (case-insensitive, open vocabulary).
     pub phrase: String,
@@ -195,8 +188,7 @@ pub struct KeywordActionEntry {
 /// Handlers are implemented on the frontend side inside the
 /// `assistant-actions.ts` dispatch table. New variants require both a
 /// Rust addition here and a matching frontend handler.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "snake_case")]
 pub enum AssistantAction {
     /// Start the voice note recorder.
@@ -224,8 +216,7 @@ pub enum AssistantAction {
 /// and tracks a last-activity timestamp. When the window has been
 /// unfocused for `idle_timeout_secs`, it auto-minimises. Setting the
 /// value to `0` disables the behaviour entirely.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct WindowConfig {
     /// Seconds of inactivity before auto-minimise. `0` disables.
     pub idle_timeout_secs: u32,
@@ -248,8 +239,7 @@ impl Default for WindowConfig {
 /// - `local_first` - prefer local inference first
 /// - `local_claude_subscription` - prefer local and escalate through the Claude subscription lane
 /// - `local_claude_api_council` - prefer local and allow both Claude subscription and API council escalation
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "snake_case")]
 pub enum RoutingMode {
     /// Prefer local inference — no cloud escalation.
@@ -295,8 +285,7 @@ impl RoutingMode {
 /// (escalation chain + latency tuning) keeps the canonical short name
 /// at the specta / TS boundary. This struct only holds the kernel-side
 /// `mode` field consumed by `set_routing_mode`.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct AssistantRoutingConfig {
     /// Active routing mode — determines which escalation lanes are available.
     pub mode: RoutingMode,
@@ -313,8 +302,7 @@ pub struct AssistantRoutingConfig {
 /// The three fields target the three llama.cpp slots in the preset
 /// loadout: `chat.brain` (the 30B-A3B warm brain), `chat.fast` (the
 /// Qwen3-4B hot routing brain), and `chat.vision` (Qwen3-VL-2B).
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct OffloadConfig {
     /// Layers of `chat.brain` on GPU.
     pub brain_ngl: i32,
@@ -337,8 +325,7 @@ impl Default for OffloadConfig {
 /// Root assistant configuration struct. One TOML file, one Tauri call
 /// returns the whole thing, the UI mutates sub-sections via targeted
 /// Tauri commands.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct AssistantConfig {
     /// Who the assistant is.
     pub identity: IdentityConfig,

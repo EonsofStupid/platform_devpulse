@@ -137,7 +137,9 @@ impl SlotRegistry {
 #[allow(clippy::unwrap_used)] // tests panic on slot-registration failure by design
 mod tests {
     use super::*;
-    use crate::platform::model_loader::slots::types::{DevicePreference, LoadingStrategy, ModelCapability};
+    use crate::platform::model_loader::slots::types::{
+        DevicePreference, LoadingStrategy, ModelCapability,
+    };
 
     fn test_slot(id: &str, cap: ModelCapability) -> Slot {
         Slot {

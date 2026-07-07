@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 
 /// A slot is a named position where a model can be assigned.
 /// Slots are hierarchical: `subsystem.purpose` convention.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct Slot {
     /// Unique identifier. Convention: `"subsystem.purpose"`.
     ///
@@ -112,8 +111,7 @@ fn default_lane_vram() -> LaneKind {
 }
 
 /// Whether a slot's model ships with the app or is user-managed.
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub enum ModelSourceTier {
     /// Ships with the app binary. Auto-loads on boot from bundled path.
     /// User never downloads or manages these.
@@ -127,8 +125,7 @@ pub enum ModelSourceTier {
 }
 
 /// What kind of inference a model supports.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type)]
 pub enum ModelCapability {
     /// LLM — chat, reasoning, translation.
     TextGeneration,
@@ -149,8 +146,7 @@ pub enum ModelCapability {
 }
 
 /// Preferred device for a slot.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub enum DevicePreference {
     /// Must be GPU (generation models).
     Gpu,
@@ -163,8 +159,7 @@ pub enum DevicePreference {
 }
 
 /// When should the model for this slot be loaded?
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 pub enum LoadingStrategy {
     /// Keep loaded while platform is active.
     Hot,

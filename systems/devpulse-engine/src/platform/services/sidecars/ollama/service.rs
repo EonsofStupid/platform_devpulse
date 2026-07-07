@@ -6,9 +6,9 @@
 //! with the platform `Service` trait and preserves the public surface the
 //! Tauri commands and `Platform::ensure_ollama_started` depend on.
 
+use super::adapter::{OllamaAdapter, OllamaConfig};
 use crate::platform::services::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use super::adapter::{OllamaAdapter, OllamaConfig};
 use std::path::{Path, PathBuf};
 
 // `OllamaModel` only contains generic Ollama API fields (name, size,

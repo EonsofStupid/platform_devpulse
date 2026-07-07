@@ -3,8 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 /// A model found on `HuggingFace`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct HfSearchResult {
     /// Repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
     pub repo_id: String,
@@ -27,8 +26,7 @@ pub struct HfSearchResult {
 }
 
 /// A single GGUF file in a `HuggingFace` repo.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct HfFileInfo {
     /// Filename (e.g. `"Qwen3-14B-Q4_K_M.gguf"`).
     pub filename: String,

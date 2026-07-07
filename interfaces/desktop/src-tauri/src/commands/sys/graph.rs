@@ -139,7 +139,9 @@ pub fn ping_graph(
 /// `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
 #[tauri::command]
 #[specta::specta]
-pub fn graph_health_all(clyffy: State<'_, ClyffyConnectionState>) -> Result<GraphHealthAll, String> {
+pub fn graph_health_all(
+    clyffy: State<'_, ClyffyConnectionState>,
+) -> Result<GraphHealthAll, String> {
     require_connected(&clyffy)?;
     Err(GRAPH_ENDPOINT_PENDING.to_string())
 }

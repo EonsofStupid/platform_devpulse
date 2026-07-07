@@ -24,8 +24,8 @@
 //! that's frequently false (models on D:, userdata on C:) — so reaching
 //! for it as a "fallback" creates inconsistency, not robustness.
 
-use crate::platform::model_registry::ModelFormat;
 use crate::platform::model_loader::traits::errors::LoaderError;
+use crate::platform::model_registry::ModelFormat;
 use std::path::{Path, PathBuf};
 
 /// Slot directory: `{userdata_dir}/slots/{slot_id}/`.

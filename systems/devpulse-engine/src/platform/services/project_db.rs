@@ -11,7 +11,7 @@
 
 use super::relational::PROJECT_SCHEMA;
 use anyhow::{Context, Result};
-use devpulse_store::{TursoAdapter, SqlAdapter};
+use devpulse_store::{SqlAdapter, TursoAdapter};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;

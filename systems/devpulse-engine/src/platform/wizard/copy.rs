@@ -12,12 +12,10 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 /// Embedded default copy. Always available, even if no user override exists.
-const DEFAULT_TOML: &str =
-    include_str!("../../../config/wizard_copy.default.toml");
+const DEFAULT_TOML: &str = include_str!("../../../config/wizard_copy.default.toml");
 
 /// All wizard copy. One root struct, one Tauri call to fetch everything.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct WizardCopy {
     /// Copy for the welcome / greeting step.
     pub greeting: GreetingCopy,
@@ -81,8 +79,7 @@ pub struct WizardCopy {
 }
 
 /// Welcome screen — Clyffy greeting and CTA.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct GreetingCopy {
     /// Main heading shown at the top of the welcome screen (e.g. "Hey! I'm Clyffy.").
     pub title: String,
@@ -99,8 +96,7 @@ pub struct GreetingCopy {
 }
 
 /// Scanning state — shown during hardware detection.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct ScanningCopy {
     /// Heading displayed while the hardware probe is running (e.g. "Checking your gear…").
     pub title: String,
@@ -111,8 +107,7 @@ pub struct ScanningCopy {
 }
 
 /// Hardware detected screen — tier badge, metric cards, tooltips.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct HardwareCopy {
     /// Heading for the hardware results step (e.g. "Here's what you're working with").
     pub title: String,
@@ -149,8 +144,7 @@ pub struct HardwareCopy {
 }
 
 /// Models setup screen — preset card, recommendations.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct ModelsCopy {
     /// Heading for the model-selection step (e.g. "Let's pick your brain").
     pub title: String,
@@ -181,8 +175,7 @@ pub struct ModelsCopy {
 }
 
 /// Customize screen — slot cards grouped by role.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct CustomizeCopy {
     /// Heading for the customization step (e.g. "Fine-tune your setup").
     pub title: String,
@@ -205,8 +198,7 @@ pub struct CustomizeCopy {
 }
 
 /// Browse / Search models screen.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct BrowseCopy {
     /// Heading for the browse / search step (e.g. "Find a model").
     pub title: String,
@@ -297,8 +289,7 @@ pub struct BrowseCopy {
 }
 
 /// Clyffy chat activation screen.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct ActivateCopy {
     /// Heading for the activation step (e.g. "Say hi to Clyffy").
     pub title: String,
@@ -327,8 +318,7 @@ pub struct ActivateCopy {
 }
 
 /// Project setup / About You screen.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct ProfileCopy {
     /// Heading for the profile / About You step (e.g. "Tell me a bit about yourself").
     pub title: String,
@@ -357,8 +347,7 @@ pub struct ProfileCopy {
 }
 
 /// Completion screen — summary and launch.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct CompletionCopy {
     /// Heading for the completion step (e.g. "You're all set!").
     pub title: String,
@@ -379,8 +368,7 @@ pub struct CompletionCopy {
 /// Surface: a dialog rendered inside `SetupWizardOverlay` with a password
 /// field, save / clear / cancel buttons, and a help link back to HF's
 /// token settings page.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct HfTokenCopy {
     /// Dialog heading.
     pub title: String,
@@ -418,8 +406,7 @@ pub struct HfTokenCopy {
 
 /// Copy for the download progress rows rendered inside the overlay while
 /// downloads are active.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct DownloadsCopy {
     /// Section heading above the active downloads list.
     pub title: String,
@@ -467,8 +454,7 @@ pub struct DownloadsCopy {
 
 /// Copy for the per-slot model loading feedback. Rendered by
 /// `ClyffyLoadSpinner` inside each role card while the slot is loading.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct LoadingCopy {
     /// Title template. Placeholder `{model_name}`.
     pub title_template: String,
@@ -498,8 +484,7 @@ pub struct LoadingCopy {
 ///
 /// Role colours come from the DTCG `wizard.role.{brain, minion, encoder,
 /// voice}` tokens; this struct carries only strings.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct RoleCardsCopy {
     /// Section heading above the four-card grid.
     pub group_title: String,
@@ -569,8 +554,7 @@ pub struct RoleCardsCopy {
 /// Every "?" icon in the overlay pulls its body text from this struct.
 /// Fields are flat string keys so the frontend can reference them by
 /// stable names without parsing a nested path.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct ClyffyTooltipsCopy {
     /// "What's an HF token?"
     pub hf_token_info: String,
@@ -603,8 +587,7 @@ pub struct ClyffyTooltipsCopy {
 /// `label` (visible button / heading), `aria` (assistive-tech-only),
 /// `template` (contains placeholders), `help` (longer descriptive
 /// paragraph).
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct DownloaderCopy {
     // ── Dialog frame ───────────────────────────────────────────────
     /// Top-of-dialog heading rendered as the `aria-labelledby` target.
@@ -738,8 +721,7 @@ pub struct DownloaderCopy {
 /// All templates use `{repo}`, `{size_mb}`, `{error}` placeholders the
 /// frontend substitutes. Layman English only — no jargon like "slot,"
 /// "runtime," "preset" in the customer-facing strings.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct RuntimePickerCopy {
     /// Heading above the embedder picker section.
     pub heading: String,
@@ -779,8 +761,7 @@ pub struct RuntimePickerCopy {
 /// surface ("account," "password," "sign in," "sign out"). Customer
 /// copy — layman English only, no jargon like "credentials," "session,"
 /// "JWT."
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct AuthCopy {
     // ── Sign-in route ──────────────────────────────────────────────
     /// Page heading on the sign-in route.

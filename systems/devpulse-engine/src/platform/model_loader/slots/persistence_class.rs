@@ -44,8 +44,7 @@ use serde::{Deserialize, Serialize};
 ///    `OnDemand` candidates have been unloaded.
 /// 3. [`Self::AlwaysOn`] — non-evictable. The budgeter treats the
 ///    slot's footprint as unavailable memory for every other slot.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default, specta::Type)]
 #[serde(rename_all = "snake_case")]
 pub enum PersistenceClass {
     /// Lazy first load; fully evictable under memory pressure.

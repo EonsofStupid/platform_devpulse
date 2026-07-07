@@ -498,9 +498,7 @@ pub struct SlotBudgetEntryInfo {
 /// over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
 #[tauri::command]
 #[specta::specta]
-pub fn get_vram_budget(
-    clyffy: State<'_, ClyffyConnectionState>,
-) -> Result<VramBudgetInfo, String> {
+pub fn get_vram_budget(clyffy: State<'_, ClyffyConnectionState>) -> Result<VramBudgetInfo, String> {
     require_connected(&clyffy)?;
     Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
 }
@@ -647,12 +645,11 @@ pub async fn clear_slot_assignment(
     let loader = get_loader_typed(&state).await?;
     // `unassign_slot` is management — map its `LoaderError` onto this command's
     // `LoadError` surface to keep the frontend binding stable.
-    loader
-        .unassign_slot(&slot_id)
-        .await
-        .map_err(|e| devpulse_engine::platform::LoadError::Other {
+    loader.unassign_slot(&slot_id).await.map_err(|e| {
+        devpulse_engine::platform::LoadError::Other {
             message: e.to_string(),
-        })?;
+        }
+    })?;
     emit_models_status(&app, &loader).await;
     Ok(())
 }

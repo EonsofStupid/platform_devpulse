@@ -5,9 +5,7 @@
 
 pub mod diagnostics;
 
-use crate::traits::{
-    AnalyticsAdapter, PersistenceAdapter, SqlRow, SqlValue,
-};
+use crate::traits::{AnalyticsAdapter, PersistenceAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::sync::Arc;

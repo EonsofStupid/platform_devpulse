@@ -47,8 +47,7 @@ use serde::{Deserialize, Serialize};
 /// back to runtime defaults for the rest. `Default::default()` produces
 /// the "use all runtime defaults" case so existing presets that don't
 /// declare a `[presets.slots.kv_cache]` block keep working unchanged.
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, specta::Type)]
 pub struct KvCacheConfig {
     /// Effective context window length in tokens. `None` defers to the
     /// model's trained max as reported by the loader.
@@ -133,8 +132,7 @@ pub struct KvCacheConfig {
 /// quantisation settings. Lower precision halves memory at modest
 /// quality cost (mostly imperceptible at `Q8_0`, perceptible at
 /// `Q4_0` for long contexts).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
 #[allow(non_camel_case_types)]
 pub enum KvCacheQuant {
@@ -158,8 +156,9 @@ pub enum KvCacheQuant {
 }
 
 /// `RoPE` position-embedding scaling mode for context-window extension.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(
+    Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type,
+)]
 #[serde(rename_all = "lowercase")]
 pub enum RopeScalingMode {
     /// No scaling — use the model's native trained context length.
@@ -179,8 +178,7 @@ pub enum RopeScalingMode {
 
 /// Explicit `YaRN` parameters. Defaults match `llama.cpp` upstream
 /// (which match the original `YaRN` paper).
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, specta::Type)]
 pub struct YarnConfig {
     /// Linear extrapolation factor. Default `1.0`.
     #[serde(default = "yarn_default_one")]

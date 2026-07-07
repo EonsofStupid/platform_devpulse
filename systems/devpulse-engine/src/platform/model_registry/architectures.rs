@@ -31,8 +31,7 @@ use serde::{Deserialize, Serialize};
 /// is used in both directions across the Tauri boundary (returned
 /// from `list_backend_matrix`, expected to be accepted as input by
 /// future commands like `get_architecture_details(arch: ArchId)`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum ArchId {
     /// Qwen 3 dense decoder-only language models.
@@ -73,8 +72,7 @@ pub enum ArchId {
 
 /// Architecture family. Drives grouping in the frontend matrix view
 /// and lets the resolver suggest same-family alternatives.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum ArchFamily {
     /// Qwen-family architectures.
@@ -90,8 +88,7 @@ pub enum ArchFamily {
 }
 
 /// Relative priority for recommendation order.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum SupportTier {
     /// First-class path shown as the default recommendation.
@@ -107,8 +104,7 @@ pub enum SupportTier {
 /// Whether the backend for this format is stable, experimental, or
 /// not yet shipped. Used by the resolver to decide whether to surface
 /// a compatibility warning alongside a successful plan.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum SupportStatus {
     /// Shipped and expected to work in routine use.
@@ -128,8 +124,7 @@ pub enum SupportStatus {
 /// round-trip through serde's `Deserialize` (would need `Cow<str>`).
 /// This type flows one direction: kernel registry → Tauri command
 /// return → frontend. Never accepted as an input.
-#[derive(Debug, Clone, Copy, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, Serialize, specta::Type)]
 pub struct ArchitectureSpec {
     /// Canonical id used by the resolver.
     pub id: ArchId,

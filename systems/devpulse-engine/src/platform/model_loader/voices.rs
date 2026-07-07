@@ -13,12 +13,10 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 /// Embedded default voice registry, bundled at compile time.
-const DEFAULT_TOML: &str =
-    include_str!("../../../config/voices.default.toml");
+const DEFAULT_TOML: &str = include_str!("../../../config/voices.default.toml");
 
 /// A single TTS voice entry — metadata used by the UI picker.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct VoiceEntry {
     /// Stable identifier consumed by the TTS engine (e.g. `af_heart`).
     pub id: String,

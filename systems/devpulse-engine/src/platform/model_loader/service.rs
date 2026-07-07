@@ -1009,7 +1009,9 @@ impl ModelLoaderService {
 mod tests {
     use super::*;
     use crate::platform::hardware::lanes::LaneKind;
-    use crate::platform::model_loader::models::{BackendType, ModelFormat, ModelRegistryEntry, ModelSource};
+    use crate::platform::model_loader::models::{
+        BackendType, ModelFormat, ModelRegistryEntry, ModelSource,
+    };
     use crate::platform::model_loader::slots::{
         DevicePreference, LoadingStrategy, ModelCapability, ModelSourceTier, PersistenceClass,
     };

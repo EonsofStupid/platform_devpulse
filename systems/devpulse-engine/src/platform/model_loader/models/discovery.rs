@@ -864,7 +864,8 @@ fn apply_filename_hints(entries: &mut [ModelRegistryEntry]) {
         if !entry.compatible_capabilities.is_empty() {
             continue;
         }
-        let bucket = crate::platform::model_loader::models::download::infer_download_folder(&entry.filename);
+        let bucket =
+            crate::platform::model_loader::models::download::infer_download_folder(&entry.filename);
         let hints: &[ModelCapability] = match bucket {
             "voice" => &[ModelCapability::SpeechToText, ModelCapability::TextToSpeech],
             "rag" => &[ModelCapability::Embedding, ModelCapability::Reranking],

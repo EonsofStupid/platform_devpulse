@@ -8,8 +8,7 @@ use std::sync::OnceLock;
 
 /// System-wide hardware metrics. Model Loader is app-agnostic — no
 /// DevPulse-specific field names.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct HardwareMetrics {
     // CPU
     /// CPU usage as a percentage (0.0–100.0).

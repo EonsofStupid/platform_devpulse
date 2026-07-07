@@ -108,7 +108,10 @@ pub async fn query_feed(
 /// Returns the underlying SQL error stringified.
 pub async fn most_recent_sync_at(adapter: &dyn SqlAdapter) -> Result<i64, String> {
     let rows = adapter
-        .query("SELECT COALESCE(MAX(synced_at), 0) FROM community_feed", &[])
+        .query(
+            "SELECT COALESCE(MAX(synced_at), 0) FROM community_feed",
+            &[],
+        )
         .await
         .map_err(|e| format!("max(synced_at): {e}"))?;
     Ok(rows

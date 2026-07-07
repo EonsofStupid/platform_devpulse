@@ -11,8 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 /// Which inference backend can run this model.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type)]
 pub enum BackendType {
     /// Candle (canonical — Rust-native, llguidance integration).
     Candle,
@@ -31,8 +30,7 @@ pub enum BackendType {
 }
 
 /// Where the model was obtained.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub enum ModelSource {
     /// Discovered on local disk.
     Local,
@@ -46,8 +44,7 @@ pub enum ModelSource {
 }
 
 /// Metadata extracted from model file headers (GGUF metadata keys).
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct ModelMetadata {
     /// Architecture identifier (e.g. `"llama"`, `"qwen2"`, `"phi3"`).
     pub architecture: String,
@@ -62,8 +59,7 @@ pub struct ModelMetadata {
 }
 
 /// A single model in the registry — fully described, ready for assignment.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct ModelRegistryEntry {
     /// Unique identifier (UUID v7).
     pub id: String,
@@ -144,9 +140,12 @@ impl ModelRegistry {
     /// (permission denied, path missing) or if persisting the rebuilt
     /// registry to `registry.json` fails.
     pub fn scan(&mut self) -> anyhow::Result<usize> {
-        let mut discovered = crate::platform::model_loader::models::discovery::discover_models(&self.models_dir)?;
+        let mut discovered =
+            crate::platform::model_loader::models::discovery::discover_models(&self.models_dir)?;
 
-        if let Some(cache_dir) = crate::platform::model_loader::models::discovery::default_hf_cache_dir() {
+        if let Some(cache_dir) =
+            crate::platform::model_loader::models::discovery::default_hf_cache_dir()
+        {
             match crate::platform::model_loader::models::discovery::discover_hf_cache(&cache_dir) {
                 Ok(mut cache_entries) => {
                     tracing::info!(

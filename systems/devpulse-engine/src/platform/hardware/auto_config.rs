@@ -27,8 +27,7 @@ use crate::platform::model_loader::slots::types::DevicePreference;
 use serde::{Deserialize, Serialize};
 
 /// Brain swap policy — how the brain model changes based on user activity.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub enum BrainSwapPolicy {
     /// Single model always loaded. Default for 8GB and 24GB+.
     Static,
@@ -46,8 +45,7 @@ pub enum BrainSwapPolicy {
 }
 
 /// Complete auto-configuration plan for a hardware tier.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct AutoConfig {
     /// Detected hardware tier.
     pub tier: HardwareTier,
@@ -73,8 +71,7 @@ pub struct AutoConfig {
 /// `presets.default.toml` immediately surfaces the new label without any
 /// frontend edit — matches the agnostic/format-driven architecture the
 /// recommender already uses for file picks.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 pub struct SlotRecommendation {
     /// Target slot ID.
     pub slot_id: String,
@@ -274,8 +271,10 @@ mod tests {
     /// present, so the `/nonexistent` userdata path is fine — it skips the
     /// user override branch and reads only the embedded catalog.
     fn load_presets() -> Vec<crate::platform::hardware::presets::PresetBlueprint> {
-        crate::platform::hardware::presets::load_default_presets(std::path::Path::new("/nonexistent"))
-            .expect("embedded presets.default.toml must load")
+        crate::platform::hardware::presets::load_default_presets(std::path::Path::new(
+            "/nonexistent",
+        ))
+        .expect("embedded presets.default.toml must load")
     }
 
     #[test]

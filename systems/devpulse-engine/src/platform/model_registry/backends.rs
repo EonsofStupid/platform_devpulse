@@ -16,8 +16,7 @@ use serde::{Deserialize, Serialize};
 
 /// Stable identifier for an inference backend. Each variant maps to
 /// one concrete Candle / ORT / llama.cpp loader path.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum BackendId {
     /// Candle `quantized_llama` — generic GGUF path with arch metadata
@@ -70,8 +69,7 @@ pub enum BackendId {
 
 /// Metadata for a single backend row. Field-level `pub` so specta can
 /// walk the struct.
-#[derive(Debug, Clone, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 pub struct BackendInfo {
     /// Canonical backend identifier used by the resolver and UI.
     pub id: BackendId,
@@ -92,8 +90,7 @@ pub struct BackendInfo {
 ///
 /// Serialize-only — part of the static catalog, flows outbound
 /// from `list_backend_matrix` → frontend, never accepted as input.
-#[derive(Debug, Clone, Copy, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, Serialize, specta::Type)]
 pub struct FormatSupport {
     /// Architecture covered by this backend support row.
     pub arch: ArchId,
@@ -109,8 +106,7 @@ pub struct FormatSupport {
 /// crosses the Tauri command boundary in both directions — it's
 /// returned from `list_backend_matrix` and accepted as an input
 /// argument by `resolve_architecture_compatibility`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "kebab-case")]
 pub enum ModelFormat {
     /// Quantized GGUF model weights.
@@ -142,8 +138,7 @@ impl std::fmt::Display for ModelFormat {
 }
 
 /// Full `(arch × backend)` compatibility grid, ready for the frontend.
-#[derive(Debug, Clone, Serialize)]
-#[derive(specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 pub struct BackendMatrix {
     /// Every backend declaration, with `installed` reflecting this
     /// build's Cargo features.

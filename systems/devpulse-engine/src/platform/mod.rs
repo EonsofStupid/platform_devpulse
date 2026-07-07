@@ -76,8 +76,8 @@ pub use metrics::ProcessMetrics;
 // are Clyffy's over the wire). See `platform::model_loader`.
 pub use model_loader::{
     BackendType, BuildMode, ConfigBackend, DownloadScope, HfFileInfo, HfSearchResult, LoaderError,
-    LoaderEvent, LoaderEventSink, LoadingStage, ModelCapability, ModelLoaderService, ModelMetadata,
-    ModelRegistry, ModelRegistryEntry, ModelSourceTier, ModelSource, ModelStatus, MemoryConfig,
+    LoaderEvent, LoaderEventSink, LoadingStage, MemoryConfig, ModelCapability, ModelLoaderService,
+    ModelMetadata, ModelRegistry, ModelRegistryEntry, ModelSource, ModelSourceTier, ModelStatus,
     NullEventSink, PersistenceClass, Slot, SlotRegistry, TracingEventSink, VoiceEntry,
     VoiceRegistry,
 };
@@ -125,7 +125,6 @@ pub use wizard::{
 pub use devpulse_store::{
     AnalyticsAdapter, CacheAdapter, DuckDbAdapter, SqlAdapter, SqlRow, SqlValue, TursoAdapter,
 };
-
 
 use anyhow::Result;
 use arc_swap::ArcSwapOption;
