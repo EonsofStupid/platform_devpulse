@@ -494,8 +494,7 @@ fn read_gguf_metadata(path: &Path) -> anyhow::Result<ModelMetadata> {
 
     let architecture = gguf
         .general_architecture()
-        .map(str::to_string)
-        .unwrap_or_else(|_| "unknown".to_string());
+        .map_or_else(|_| "unknown".to_string(), str::to_string);
 
     // `llm_context_length()` resolves the arch-prefixed
     // `<arch>.context_length` key for us.

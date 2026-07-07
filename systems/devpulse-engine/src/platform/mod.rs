@@ -321,69 +321,9 @@ impl Platform {
             "routing config loaded at boot"
         );
 
-        // Model-loader MANAGEMENT service — DevPulse-local, kernel-free.
-        // Persisted via an atomic-TOML `ConfigBackend` under `{data_dir}/user/`
-        // (slot assignments / setup flags), matching the platform config
-        // convention; Turso stays the SSOT for real data, this is settings-like
-        // slot state. Inference is Clyffy's over the wire — management-only here.
-        let model_loader: Option<Arc<model_loader::ModelLoaderService>> = {
-            let ml_entry = &boot_config.services.system.model_loader;
-            if ml_entry.enabled {
-                let userdata_dir = data_dir.join("user");
-                let models_dir = ml_entry.resolve_models_dir(&data_dir);
-                let subdirs = ml_entry.subdir_names();
-                let presets = crate::platform::hardware::load_default_presets(&userdata_dir)
-                    .unwrap_or_else(|e| {
-                        tracing::warn!(
-                            target: "model_loader.lifecycle",
-                            error = %e,
-                            "hardware presets load failed — continuing with none"
-                        );
-                        Vec::new()
-                    });
-                let config: Box<dyn model_loader::ConfigBackend> =
-                    match model_loader::FileConfigBackend::load(&userdata_dir) {
-                        Ok(backend) => Box::new(backend),
-                        Err(e) => {
-                            tracing::warn!(
-                                target: "model_loader.lifecycle",
-                                error = %e,
-                                "model-loader config file unreadable — falling back to in-memory \
-                                 (assignments won't persist this session)"
-                            );
-                            Box::new(model_loader::MemoryConfig::new())
-                        }
-                    };
-                let events: Arc<dyn model_loader::LoaderEventSink> =
-                    Arc::new(model_loader::TracingEventSink);
-                match model_loader::ModelLoaderService::new(
-                    config, events, models_dir, subdirs, presets,
-                ) {
-                    Ok(service) => {
-                        tracing::info!(
-                            target: "model_loader.lifecycle",
-                            "Model-loader management service constructed (atomic-TOML config)"
-                        );
-                        Some(Arc::new(service))
-                    }
-                    Err(e) => {
-                        tracing::error!(
-                            target: "model_loader.lifecycle",
-                            error = %e,
-                            "Model-loader management construction FAILED — \
-                             management commands will report unavailable"
-                        );
-                        None
-                    }
-                }
-            } else {
-                tracing::info!(
-                    target: "model_loader.lifecycle",
-                    "Model-loader disabled by config (services.system.model_loader.enabled = false)"
-                );
-                None
-            }
-        };
+        // Model-loader MANAGEMENT service (DevPulse-local, kernel-free) —
+        // see `construct_model_loader`.
+        let model_loader = Self::construct_model_loader(&boot_config, &data_dir);
 
         Ok(Self {
             system_relational: booted.system_relational,
@@ -403,6 +343,72 @@ impl Platform {
             boot_time,
             data_dir,
         })
+    }
+
+    /// Construct the DevPulse-local, kernel-free model-loader MANAGEMENT
+    /// service. Persisted via an atomic-TOML `ConfigBackend` under
+    /// `{data_dir}/user/` (slot assignments / setup flags), matching the
+    /// platform config convention; Turso stays the SSOT for real data, this is
+    /// settings-like slot state. Inference is Clyffy's over the wire —
+    /// management-only here. Returns `None` when disabled by config or when
+    /// construction fails (management commands then report unavailable).
+    fn construct_model_loader(
+        boot_config: &PlatformBootConfig,
+        data_dir: &std::path::Path,
+    ) -> Option<Arc<model_loader::ModelLoaderService>> {
+        let ml_entry = &boot_config.services.system.model_loader;
+        if !ml_entry.enabled {
+            tracing::info!(
+                target: "model_loader.lifecycle",
+                "Model-loader disabled by config (services.system.model_loader.enabled = false)"
+            );
+            return None;
+        }
+        let userdata_dir = data_dir.join("user");
+        let models_dir = ml_entry.resolve_models_dir(data_dir);
+        let subdirs = ml_entry.subdir_names();
+        let presets = crate::platform::hardware::load_default_presets(&userdata_dir)
+            .unwrap_or_else(|e| {
+                tracing::warn!(
+                    target: "model_loader.lifecycle",
+                    error = %e,
+                    "hardware presets load failed — continuing with none"
+                );
+                Vec::new()
+            });
+        let config: Box<dyn model_loader::ConfigBackend> =
+            match model_loader::FileConfigBackend::load(&userdata_dir) {
+                Ok(backend) => Box::new(backend),
+                Err(e) => {
+                    tracing::warn!(
+                        target: "model_loader.lifecycle",
+                        error = %e,
+                        "model-loader config file unreadable — falling back to in-memory \
+                         (assignments won't persist this session)"
+                    );
+                    Box::new(model_loader::MemoryConfig::new())
+                }
+            };
+        let events: Arc<dyn model_loader::LoaderEventSink> =
+            Arc::new(model_loader::TracingEventSink);
+        match model_loader::ModelLoaderService::new(config, events, models_dir, subdirs, presets) {
+            Ok(service) => {
+                tracing::info!(
+                    target: "model_loader.lifecycle",
+                    "Model-loader management service constructed (atomic-TOML config)"
+                );
+                Some(Arc::new(service))
+            }
+            Err(e) => {
+                tracing::error!(
+                    target: "model_loader.lifecycle",
+                    error = %e,
+                    "Model-loader management construction FAILED — \
+                     management commands will report unavailable"
+                );
+                None
+            }
+        }
     }
 
     /// Borrow the platform-internal `InternalEvent` broadcast sender.

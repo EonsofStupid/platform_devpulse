@@ -84,12 +84,12 @@ pub struct ServiceStatusSnapshot {
 pub fn feature_gate_compiled_in(meta: &ServiceMeta) -> bool {
     match meta.feature_gate {
         None => true,
-        // rro/candle/inference/llguidance features removed (kernel-severance)
-        // — Clyffy serves these from GB10; never compiled locally.
-        Some("rro" | "candle" | "inference" | "llguidance") => false,
+        // `sherpa` (streaming ASR) is the one remaining optional local feature.
         Some("sherpa") => cfg!(feature = "sherpa"),
-        // Unknown gate string — drift protection: surface as not-compiled
-        // so the devtool shows something rather than lying about truthy state.
+        // Everything else is not compiled locally: rro/candle/inference/llguidance
+        // were removed in kernel-severance (Clyffy serves them from GB10), and any
+        // unknown gate string falls through here as drift protection — the devtool
+        // shows not-compiled rather than lying about truthy state.
         Some(_) => false,
     }
 }
