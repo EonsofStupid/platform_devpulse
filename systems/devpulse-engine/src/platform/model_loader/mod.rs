@@ -23,6 +23,7 @@
 //! Clyffy/GB10 over the wire.
 
 pub mod build_mode;
+pub mod config_store;
 pub mod loading;
 pub mod models;
 pub mod service;
@@ -31,6 +32,7 @@ pub mod traits;
 pub mod voices;
 
 pub use build_mode::BuildMode;
+pub use config_store::FileConfigBackend;
 pub use service::ModelLoaderService;
 
 pub use loading::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotStatus};
