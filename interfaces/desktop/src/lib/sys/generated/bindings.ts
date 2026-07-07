@@ -64,18 +64,7 @@ async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<C
 }
 },
 /**
- * Recall top-`k` historical prompts most similar to the partial input
- * the user is currently typing.
- * 
- * `persona_id` may be empty — the service falls back to the default
- * persona for single-user installs.
- * 
- * # Errors
- * - Platform is still booting.
- * - Suggestion service cannot construct (`model_loader` or `user_graph`
- * not yet ready).
- * - Embedder failure (model not loaded).
- * - `SurrealDB` query failure.
+ * Recall top-`k` historical prompts most similar to the partial being typed.
  */
 async suggestQuery(partial: string, personaId: string, k: number) : Promise<Result<Suggestion[], string>> {
     try {
@@ -86,17 +75,7 @@ async suggestQuery(partial: string, personaId: string, k: number) : Promise<Resu
 }
 },
 /**
- * Capture a committed prompt into the corpus for future recall.
- * 
- * `accepted` records whether the user accepted a prior suggestion to
- * build this prompt — used by the recency × similarity × accepted
- * ranking.
- * 
- * # Errors
- * - Platform is still booting.
- * - Suggestion service cannot construct.
- * - Embedder failure.
- * - `SurrealDB` write failure.
+ * Capture a committed prompt into Clyffy's recall corpus for future recall.
  */
 async suggestRecord(text: string, personaId: string, accepted: boolean) : Promise<Result<null, string>> {
     try {
@@ -575,7 +554,7 @@ async getRetrievalParamMeta() : Promise<Result<RetrievalParamMeta[], string>> {
 }
 },
 /**
- * Get the current RRO state snapshot.
+ * Get the current RRO state snapshot from headless Clyffy.
  */
 async getRroState() : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -586,7 +565,7 @@ async getRroState() : Promise<Result<RroStateSnapshot, string>> {
 }
 },
 /**
- * Set the deliberation depth. Does not transition state.
+ * Set the deliberation depth on Clyffy. Does not transition state.
  */
 async setRroDepth(depth: RroDepth) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -597,7 +576,7 @@ async setRroDepth(depth: RroDepth) : Promise<Result<RroStateSnapshot, string>> {
 }
 },
 /**
- * Trigger a gather. Transitions state → gathering.
+ * Trigger a gather on Clyffy. Transitions state → gathering.
  */
 async triggerRroGather(source: string) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -608,7 +587,7 @@ async triggerRroGather(source: string) : Promise<Result<RroStateSnapshot, string
 }
 },
 /**
- * Trigger a purge. Transitions state → purged.
+ * Trigger a purge on Clyffy. Transitions state → purged.
  */
 async triggerRroPurge(reason: string) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -619,7 +598,7 @@ async triggerRroPurge(reason: string) : Promise<Result<RroStateSnapshot, string>
 }
 },
 /**
- * Trigger a fork. Transitions state → forked.
+ * Trigger a fork on Clyffy. Transitions state → forked.
  */
 async triggerRroFork(label: string) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -630,7 +609,7 @@ async triggerRroFork(label: string) : Promise<Result<RroStateSnapshot, string>> 
 }
 },
 /**
- * Set the proximity diagnostic indicator. Clamped to [0.0, 1.0].
+ * Set the proximity diagnostic indicator on Clyffy. Clamped to [0.0, 1.0].
  */
 async setRroProximity(value: number) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -641,7 +620,7 @@ async setRroProximity(value: number) : Promise<Result<RroStateSnapshot, string>>
 }
 },
 /**
- * Get the current grammar snapshot.
+ * Get the current grammar snapshot from headless Clyffy.
  */
 async getGrammarState() : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -652,7 +631,7 @@ async getGrammarState() : Promise<Result<GrammarSnapshot, string>> {
 }
 },
 /**
- * Set the active grammar kind (does not imply enforcement).
+ * Set the active grammar kind on Clyffy (does not imply enforcement).
  */
 async setGrammarKind(kind: GrammarKind) : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -663,10 +642,7 @@ async setGrammarKind(kind: GrammarKind) : Promise<Result<GrammarSnapshot, string
 }
 },
 /**
- * Enable the grammar engine with an opaque grammar id.
- * 
- * The caller supplies the id; it's treated as an opaque handle for
- * display (`active_grammar_id` in snapshots) and never parsed.
+ * Enable Clyffy's grammar engine with an opaque grammar id.
  */
 async enableGrammar(grammarId: string) : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -677,7 +653,7 @@ async enableGrammar(grammarId: string) : Promise<Result<GrammarSnapshot, string>
 }
 },
 /**
- * Disable the grammar engine entirely.
+ * Disable Clyffy's grammar engine entirely.
  */
 async disableGrammar() : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -688,10 +664,10 @@ async disableGrammar() : Promise<Result<GrammarSnapshot, string>> {
 }
 },
 /**
- * Ping a single graph namespace — returns reachable + latency.
+ * Ping a single graph namespace on Clyffy — reachable + latency.
  * 
  * # Errors
- * Returns error string if platform is still booting.
+ * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
  */
 async pingGraph(namespace: GraphNamespace) : Promise<Result<GraphPingResult, string>> {
     try {
@@ -702,10 +678,10 @@ async pingGraph(namespace: GraphNamespace) : Promise<Result<GraphPingResult, str
 }
 },
 /**
- * Ping all three graph namespaces + check HTTP server.
+ * Ping all three graph namespaces on Clyffy + check the graph server.
  * 
  * # Errors
- * Returns error string if platform is still booting.
+ * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
  */
 async graphHealthAll() : Promise<Result<GraphHealthAll, string>> {
     try {
@@ -716,13 +692,10 @@ async graphHealthAll() : Promise<Result<GraphHealthAll, string>> {
 }
 },
 /**
- * List tables and record counts for a namespace.
- * 
- * Runs `INFO FOR DB` then `SELECT count() FROM {table} GROUP ALL`
- * for each table discovered.
+ * List tables and record counts for a namespace on Clyffy.
  * 
  * # Errors
- * Returns error string if platform is still booting or namespace unavailable.
+ * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
  */
 async graphListTables(namespace: GraphNamespace) : Promise<Result<GraphTableInfo[], string>> {
     try {
@@ -733,10 +706,10 @@ async graphListTables(namespace: GraphNamespace) : Promise<Result<GraphTableInfo
 }
 },
 /**
- * Get aggregate stats for a namespace.
+ * Get aggregate stats for a namespace on Clyffy.
  * 
  * # Errors
- * Returns error string if platform is still booting or namespace unavailable.
+ * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
  */
 async graphStats(namespace: GraphNamespace) : Promise<Result<GraphNamespaceStats, string>> {
     try {
@@ -747,13 +720,10 @@ async graphStats(namespace: GraphNamespace) : Promise<Result<GraphNamespaceStats
 }
 },
 /**
- * Execute a raw `SurrealQL` query against a namespace — devtools console.
- * 
- * Returns JSON-encoded string of the result.
+ * Execute a raw `SurrealQL` query against a namespace on Clyffy — devtools console.
  * 
  * # Errors
- * Returns error string if platform is still booting, namespace unavailable,
- * or the query fails.
+ * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
  */
 async graphQuery(namespace: GraphNamespace, query: string) : Promise<Result<string, string>> {
     try {
@@ -764,10 +734,10 @@ async graphQuery(namespace: GraphNamespace, query: string) : Promise<Result<stri
 }
 },
 /**
- * List all keys in the scoped kv table for a namespace.
+ * List all keys in the scoped kv table for a namespace on Clyffy.
  * 
  * # Errors
- * Returns error string if platform is still booting or namespace unavailable.
+ * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
  */
 async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], string>> {
     try {
@@ -896,6 +866,25 @@ async duckdbQuery(sql: string) : Promise<Result<DuckDbQueryResult, string>> {
 async cacheHealth() : Promise<Result<CacheHealth, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("cache_health") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Current Clyffy connection state.
+ * 
+ * Always succeeds — `Disconnected` is the honest standalone answer, not a
+ * failure. The frontend derives `tier2Available` and the no-AI indicator from
+ * the returned variant, and reads the computed `capability` when `Connected`.
+ * 
+ * # Errors
+ * Never returns `Err` today; the `Result` keeps the specta signature stable if
+ * a fallible read is introduced later.
+ */
+async connectionStatus() : Promise<Result<ConnectionState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("connection_status") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1177,11 +1166,13 @@ async candleSaveConfig(cfg: CandleConfig) : Promise<Result<CandleConfig, string>
 }
 },
 /**
- * Unload every loaded slot — forces the backend pool to start fresh.
+ * Restart Clyffy's model pool — unload every loaded slot to force a fresh
+ * start (all backends: Candle, llama.cpp, ORT voice).
  * 
- * Applies to all backends (Candle, llama.cpp-embedded, ORT voice).
- * Returns the number of slots actually unloaded so the devtool can
- * show "Restarted N slots."
+ * **Tier-2**: the model pool is Clyffy's (headless, on the GB10). Returns the
+ * number of slots unloaded once `clyffyd` serves it; connection-gated until
+ * then — disconnected reports "connect Clyffy", connected reports the
+ * endpoint as not-yet-served (deferred, not retired).
  */
 async candleRestartPool() : Promise<Result<number, string>> {
     try {
@@ -1403,10 +1394,7 @@ async ollamaDeleteModel(name: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Runtime status of the `SurrealDB` sidecar (configured vs. actual port,
- * managed/attached, bind URL, etc.).
- * 
- * Lock-free read — never spawns, never blocks.
+ * Runtime status of Clyffy's `SurrealDB` store.
  */
 async surrealStatus() : Promise<Result<SurrealStatus, string>> {
     try {
@@ -1417,8 +1405,7 @@ async surrealStatus() : Promise<Result<SurrealStatus, string>> {
 }
 },
 /**
- * Live-probe the sidecar via `GET /health` and return a badge-shaped
- * tri-state (`up` / `down` / `stopped`).
+ * Live-probe Clyffy's `SurrealDB` store and return a badge tri-state.
  */
 async surrealHealth() : Promise<Result<SurrealHealth, string>> {
     try {
@@ -1429,11 +1416,7 @@ async surrealHealth() : Promise<Result<SurrealHealth, string>> {
 }
 },
 /**
- * Load the user-scope editable overlay from
- * `{data_dir}/user/surreal.toml`.
- * 
- * Returns defaults if the file is missing or malformed — never errors
- * on parse failure. The devtool mounts this as its Config draft.
+ * Load the user-scope config overlay for Clyffy's store.
  */
 async surrealConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
     try {
@@ -1444,11 +1427,7 @@ async surrealConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
 }
 },
 /**
- * Atomically persist the user-scope overlay.
- * 
- * The returned config is the clamped/normalized shape that was
- * written to disk — the devtool should update its state from this
- * rather than echoing the request back.
+ * Atomically persist the user-scope config overlay for Clyffy's store.
  */
 async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConfig, string>> {
     try {
@@ -1459,16 +1438,11 @@ async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConf
 }
 },
 /**
- * Create a new thought in the operator's reasoning tree.
+ * Create a new thought in the operator's reasoning tree on Clyffy.
  * 
- * Writes to the user namespace under the given `project_id` per
- * `CORTEX.md` §4.5. Returns the persisted `ThoughtRecord` whose `id`
- * is the canonical Surreal record reference for subsequent edges.
- * 
- * # Errors
- * - Platform is still booting.
- * - User graph service is not available.
- * - Surreal write fails.
+ * Writes to Clyffy's user graph, scoped to `project_id`. Returns the
+ * persisted [`ThoughtRecord`] whose `id` is the canonical Surreal record
+ * reference for subsequent edges.
  */
 async connectomeThoughtCreate(projectId: string, branchId: string, content: string, rroState: RroState, depth: number, proximity: number) : Promise<Result<ThoughtRecord, string>> {
     try {
@@ -1479,14 +1453,7 @@ async connectomeThoughtCreate(projectId: string, branchId: string, content: stri
 }
 },
 /**
- * Load every thought in a branch, ordered by depth ascending.
- * 
- * Returns an empty vector for unknown branches — never an error.
- * 
- * # Errors
- * - Platform is still booting.
- * - User graph service is not available.
- * - Surreal query fails.
+ * Load every thought in a branch from Clyffy, ordered by depth ascending.
  */
 async connectomeThoughtLoadBranch(projectId: string, branchId: string) : Promise<Result<ThoughtRecord[], string>> {
     try {
@@ -1497,26 +1464,12 @@ async connectomeThoughtLoadBranch(projectId: string, branchId: string) : Promise
 }
 },
 /**
- * Hot-swap the live Burn encoder weights to a safetensors file on disk.
+ * Hot-swap the live Burn encoder weights to a safetensors file on Clyffy.
  * 
- * Drives the RRD daemon through one full
- * `pause → drain → load → validate → swap → resume` cycle. Returns the
- * structured [`SwapStats`] (renamed `SwapReport` on the TS side via the
- * `swap.svc.ts` mirror) on a healthy swap; on failure the live encoder
- * is unchanged and the daemon is resumed before the error returns.
- * 
- * The matching UI surface is the `SwapDialog` under
- * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
- * First-load (turning the slot from cold to ready) goes through the
- * normal `load_slot` path on `rag.embedder`; only the second-and-later
- * path uses this command.
- * 
- * # Errors
- * - Platform is still booting.
- * - Model Loader service is disabled or burn feature is off.
- * - First-load has never run (daemon not constructed yet).
- * - Source file missing / unreadable / wrong format.
- * - Validate forward returned non-finite output (live unchanged).
+ * Drives Clyffy's RRD daemon through one full
+ * `pause → drain → load → validate → swap → resume` cycle and returns the
+ * structured [`SwapStats`]. The matching UI surface is the `SwapDialog`
+ * under `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
  */
 async connectomeSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, string>> {
     try {
@@ -1527,12 +1480,7 @@ async connectomeSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, str
 }
 },
 /**
- * Header status for the intelligence devtool.
- * 
- * # Errors
- * - Platform is still booting.
- * - Graph service is not available (Surreal not booted).
- * - Surreal `INFO FOR NS` query fails.
+ * Header status for the intelligence devtool, from headless Clyffy.
  */
 async intelStatus() : Promise<Result<IntelStatus, string>> {
     try {
@@ -1543,16 +1491,7 @@ async intelStatus() : Promise<Result<IntelStatus, string>> {
 }
 },
 /**
- * Per-project memory + archive counts.
- * 
- * Returns one [`ProjectIntel`] per database under
- * [`PROJECT_NAMESPACE`]. Empty vector when no project has
- * bootstrapped its intelligence schema yet.
- * 
- * # Errors
- * - Platform is still booting.
- * - Graph service is not available.
- * - Surreal queries fail.
+ * Per-project memory + archive counts from headless Clyffy.
  */
 async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
     try {
@@ -1563,18 +1502,10 @@ async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
 }
 },
 /**
- * Persist a memory row into the project's intelligence store.
+ * Persist a memory row into the project's intelligence store on Clyffy.
  * 
- * Returns the connector-assigned memory id (typically a `UUIDv7` the
- * command generates). Idempotent at the connector layer when the
- * connector dedupes by embedding similarity.
- * 
- * # Errors
- * 
- * - Platform is still booting.
- * - Graph service is not available (Surreal not booted).
- * - `embedding.len() != EMBEDDING_DIM` (rejected before the write).
- * - Connector write failed.
+ * Returns the connector-assigned memory id. Idempotent at Clyffy's connector
+ * layer when it dedupes by embedding similarity.
  */
 async intelSaveMemory(request: IntelSaveMemoryRequest) : Promise<Result<string, string>> {
     try {
@@ -1585,23 +1516,8 @@ async intelSaveMemory(request: IntelSaveMemoryRequest) : Promise<Result<string, 
 }
 },
 /**
- * Infer the capability bucket (`chat` / `rag` / `voice` / `vision`)
- * for a downloadable model filename.
- * 
- * Wraps `model_loader::infer_download_folder` — the keyword SSOT
- * that routes model files to their capability bucket. Surfaced for
- * the model-downloader UI's preview ("this filename → RAG") and
- * for the intelligence devtool's Debug tab so an operator can
- * verify how a filename WOULD be classified before downloading.
- * 
- * Pure CPU work, no I/O — runs synchronously inside the async
- * command body. Always available in `devpulse_desktop_backend`
- * because the engine dep enables `candle` unconditionally.
- * 
- * # Errors
- * Never errors today; the `Result` shape matches the rest of the
- * command surface and reserves room for a future failure mode
- * (e.g. quarantine flag on a known-bad filename).
+ * Infer the capability bucket (`chat` / `rag` / `voice` / `vision`) for a
+ * downloadable model filename — Clyffy owns the model catalog + keyword SSOT.
  */
 async inferCapabilityBucket(filename: string) : Promise<Result<string, string>> {
     try {
@@ -2457,18 +2373,13 @@ async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, 
 /**
  * Load a slot's assigned model into memory.
  * 
- * Load a model into a slot.
+ * **Tier-2**: loading model weights and running inference is Clyffy's, reached
+ * over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
+ * Slot *assignment* (which model a slot points at) is management and stays
+ * local via [`assign_model_to_slot`].
  * 
- * Routing logic:
- * - GGUF files with `LlamaCpp` runtime → llama-server sidecar (HTTP)
- * - `SafeTensors` with Candle runtime → kernel `BackendPool` (in-process)
- * - ONNX/Sherpa → kernel `VoicePool` (in-process)
- * 
- * Returns a typed [`LoadError`] covering the full load-path failure
- * surface — compatibility, filesystem, resources, backend init,
- * slot state. The frontend renders each variant with targeted UI
- * (alternatives for compatibility errors, retry for network errors,
- * slot reassignment for `NoModelAssigned`, etc.).
+ * Returns a typed [`LoadError`] so the frontend keeps its targeted
+ * error-variant UI once Clyffy serves the load path.
  */
 async loadSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2480,6 +2391,9 @@ async loadSlot(slotId: string) : Promise<Result<null, LoadError>> {
 },
 /**
  * Unload a slot's model from memory.
+ * 
+ * **Tier-2**: model residency is Clyffy's, served over the gb10-client wire.
+ * Connection-gated until `clyffyd` advertises it.
  */
 async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2513,9 +2427,9 @@ async clearSlotAssignment(slotId: string) : Promise<Result<null, LoadError>> {
 /**
  * Atomically swap the model on a slot (unload → reassign → load).
  * 
- * Blocks inference to the slot for the entire duration. The frontend
- * should show `SwapOverlay` while this runs — events are emitted via
- * `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
+ * **Tier-2**: the live unload/reload is Clyffy's inference path, served over
+ * the gb10-client wire. Connection-gated until `clyffyd` advertises it.
+ * Persisting a new slot assignment is management via [`assign_model_to_slot`].
  */
 async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2565,6 +2479,11 @@ async modelsDirPath() : Promise<Result<string, string>> {
  * to pick the right GGUF quant (or safetensors shard / onnx
  * fallback) for the slot's required capability. Returns `None`
  * when the repo ships no compatible files for the slot.
+ * 
+ * **Tier-2**: the tier-aware primary-file resolver runs against Clyffy's live
+ * hardware monitor over the gb10-client wire. Connection-gated until `clyffyd`
+ * advertises it. Browsing repo files ([`list_repo_files`]) is management and
+ * stays local.
  */
 async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<string | null, string>> {
     try {
@@ -2585,6 +2504,12 @@ async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<s
  * deserialises to `DownloadScope::Global`.
  * 
  * Returns the `install_id` — the chain runs detached.
+ * 
+ * **Tier-2**: the install chain ends in a slot *load* (inference), which is
+ * Clyffy's over the gb10-client wire — so the composed verb is gated as a
+ * whole. Connection-gated until `clyffyd` advertises it. The individual
+ * management steps ([`download_model`], [`scan_models`],
+ * [`assign_model_to_slot`]) remain available standalone.
  */
 async installToSlot(repoId: string, primaryFilename: string, slotId: string, scope: DownloadScope | null) : Promise<Result<string, string>> {
     try {
@@ -2861,11 +2786,10 @@ async listKokoroVoices() : Promise<Result<KokoroVoiceInfo[], string>> {
 /**
  * Snapshot every slot's currently-cached runtime fingerprint.
  * 
- * Returns a `(slot_id → fingerprint)` map for slots that have a
- * model loaded right now. The frontend `capabilityChannel` calls
- * this on mount to hydrate state before `LoaderEvent::CapabilityRebound`
- * events stream in — without it, already-loaded slots would
- * briefly show "no runtime" in the UI.
+ * **Tier-2**: runtime residency lives on Clyffy (headless, on the GB10) and is
+ * served over the gb10-client wire. Connection-gated until `clyffyd` advertises
+ * it; the frontend `capabilityChannel` still hydrates against this shape once
+ * Clyffy connects and streams `model:runtime-version-changed` events.
  */
 async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: RuntimeFingerprint }>, string>> {
     try {
@@ -2888,6 +2812,10 @@ async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: Runt
  * 
  * The current fingerprint is always included so the user can see
  * what they're running today even when no upstream check exists.
+ * 
+ * **Tier-2**: the loaded fingerprint is read from Clyffy's live runtime
+ * residency over the gb10-client wire. Connection-gated until `clyffyd`
+ * advertises it.
  */
 async checkRuntimeUpdates(runtimeId: string) : Promise<Result<RuntimeUpdateInfo, string>> {
     try {
@@ -2900,8 +2828,8 @@ async checkRuntimeUpdates(runtimeId: string) : Promise<Result<RuntimeUpdateInfo,
 /**
  * Warm a slot — load weights to CPU RAM only, no GPU allocation.
  * 
- * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
- * Returns a typed [`LoadError`] with the same surface as `load_slot`.
+ * **Tier-2**: warming is a residency operation on Clyffy, served over the
+ * gb10-client wire. Connection-gated until `clyffyd` advertises it.
  */
 async warmSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2914,7 +2842,9 @@ async warmSlot(slotId: string) : Promise<Result<null, LoadError>> {
 /**
  * Delete a model from disk and remove from registry.
  * 
- * Clears any slot assignments. Refuses if the model is currently loaded.
+ * **Tier-2**: deletion is refused while a model is loaded, and load state
+ * lives on Clyffy — so the guarded delete is served over the gb10-client wire.
+ * Connection-gated until `clyffyd` advertises it.
  */
 async deleteModel(modelId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2926,6 +2856,10 @@ async deleteModel(modelId: string) : Promise<Result<null, LoadError>> {
 },
 /**
  * Search `HuggingFace` for GGUF models.
+ * 
+ * HF search is a public, stateless network call (management, Tier-1). The
+ * engine exposes it as the free `search_huggingface` function, decoupled from
+ * the model-loader service — no platform-ready gate is required.
  */
 async searchHuggingface(query: string, limit: number | null) : Promise<Result<HfSearchResultInfo[], string>> {
     try {
@@ -3095,14 +3029,9 @@ async completeModelSetup() : Promise<Result<null, string>> {
 /**
  * Generate text using a loaded model slot.
  * 
- * Routing:
- * - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
- * - `SafeTensors` models loaded via Candle → kernel `BackendPool`
- * - Cloud provider → `cloud_chat` (if configured)
- * 
- * Streams tokens via Tauri events (`inference-token` for Candle,
- * `llama:token` for sidecar — frontend listens to both).
- * Hard fails if no model is loaded — no silent fallback.
+ * **Tier-2**: text generation runs on Clyffy (headless, on the GB10) over the
+ * gb10-client wire — token streaming is re-established from Clyffy's event
+ * stream once connected. Connection-gated until `clyffyd` advertises it.
  */
 async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
     try {
@@ -3115,8 +3044,8 @@ async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, tempe
 /**
  * Simplified inference for wizard test chat.
  * 
- * Wraps `inference_generate` with sensible defaults so the frontend
- * only needs to send `slot_id` and `prompt`.
+ * **Tier-2**: thin wrapper over the same generation surface as
+ * [`inference_generate`]; connection-gated until `clyffyd` advertises it.
  */
 async testInference(slotId: string, prompt: string) : Promise<Result<string, string>> {
     try {
@@ -3128,6 +3057,9 @@ async testInference(slotId: string, prompt: string) : Promise<Result<string, str
 },
 /**
  * Get the VRAM budget plan — per-slot VRAM allocation breakdown.
+ * 
+ * **Tier-2**: VRAM occupancy is a function of what Clyffy has loaded, served
+ * over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
  */
 async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
     try {
@@ -3139,6 +3071,9 @@ async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
 },
 /**
  * Embed a single text — convenience wrapper over [`embed_batch`].
+ * 
+ * **Tier-2**: same embedding surface; connection-gated until `clyffyd`
+ * advertises it.
  */
 async embedText(slotId: string, text: string) : Promise<Result<number[], string>> {
     try {
@@ -3151,8 +3086,8 @@ async embedText(slotId: string, text: string) : Promise<Result<number[], string>
 /**
  * Embed a batch of texts via the embedder model loaded in a slot.
  * 
- * Returns one dense vector per input string, all the same dimensionality.
- * Hard-fails if the slot has no embedder loaded — no silent fallback.
+ * **Tier-2**: embedding runs on Clyffy over the gb10-client wire.
+ * Connection-gated until `clyffyd` advertises it.
  */
 async embedBatch(slotId: string, texts: string[]) : Promise<Result<number[][], string>> {
     try {
@@ -3165,8 +3100,8 @@ async embedBatch(slotId: string, texts: string[]) : Promise<Result<number[][], s
 /**
  * Rerank documents against a query via the reranker model loaded in a slot.
  * 
- * Returns one score in `[0.0, 1.0]` per document, higher = more relevant.
- * Used as the second-stage refinement after initial vector search.
+ * **Tier-2**: reranking runs on Clyffy over the gb10-client wire.
+ * Connection-gated until `clyffyd` advertises it.
  */
 async rerankDocuments(slotId: string, query: string, documents: string[]) : Promise<Result<number[], string>> {
     try {
@@ -3179,8 +3114,8 @@ async rerankDocuments(slotId: string, query: string, documents: string[]) : Prom
 /**
  * Encode an image file on disk via the vision encoder loaded in a slot.
  * 
- * Returns a dense embedding vector (e.g. 1152-dim for SigLIP2-SO400M).
- * Used for screenshot understanding, visual search, cross-modal retrieval.
+ * **Tier-2**: vision encoding runs on Clyffy over the gb10-client wire.
+ * Connection-gated until `clyffyd` advertises it.
  */
 async encodeImage(slotId: string, path: string) : Promise<Result<number[], string>> {
     try {
@@ -3239,12 +3174,11 @@ async resolveArchitectureCompatibility(archRaw: string, modelType: string | null
 },
 /**
  * `true` when the Burn encoder is wired AND its weights are loaded.
- * The Slots devtool "Encoder smoke" tab calls this to gate the Embed
- * button — the button is disabled while this returns `false`, avoiding
- * a misleading error path through `encoder_embed`.
  * 
- * # Errors
- * - Platform not ready / model loader disabled.
+ * **Tier-2**: the Burn encoder runs on Clyffy over the gb10-client wire, so
+ * its residency is a wire query. Connection-gated until `clyffyd` advertises
+ * it — the Slots devtool "Encoder smoke" tab keeps the Embed button disabled
+ * while this returns `Err`.
  */
 async encoderIsLoaded() : Promise<Result<boolean, string>> {
     try {
@@ -3257,20 +3191,8 @@ async encoderIsLoaded() : Promise<Result<boolean, string>> {
 /**
  * Embed a batch of texts through the wired Burn encoder.
  * 
- * Returns one L2-normalized dense vector per input string, in order.
- * The encoder and its tokenizer must be loaded (via `load_slot` on the
- * `rag.embedder` slot) before calling this — returns an error otherwise.
- * 
- * Intended call sites: RRO gather phase, devtool smoke-test button,
- * semantic search queries from the UI. Async — the blocking forward
- * pass is offloaded internally.
- * 
- * # Errors
- * 
- * - Platform not ready / model loader disabled.
- * - Encoder or tokenizer not loaded.
- * - Empty `texts` vec.
- * - Forward pass non-finite output.
+ * **Tier-2**: the Burn encoder forward pass runs on Clyffy over the
+ * gb10-client wire. Connection-gated until `clyffyd` advertises it.
  */
 async encoderEmbed(texts: string[]) : Promise<Result<number[][], string>> {
     try {
@@ -3281,10 +3203,7 @@ async encoderEmbed(texts: string[]) : Promise<Result<number[][], string>> {
 }
 },
 /**
- * Get the current voice subsystem status.
- * 
- * Derives STT/TTS loaded state from model loader slot statuses.
- * Mic detection is best-effort until the audio sprint wires real device enumeration.
+ * Get the current voice subsystem status from headless Clyffy.
  */
 async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
     try {
@@ -3295,10 +3214,10 @@ async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
 }
 },
 /**
- * Speak text using TTS.
+ * Speak text using TTS on Clyffy, then play the returned PCM locally.
  * 
- * Synthesizes via the TTS model loaded in the voice.tts slot,
- * then plays the PCM audio through rodio.
+ * Tier-2: synthesis runs on Clyffy; audio playback is DevPulse-local
+ * (`stop_speaking` / `is_speaking` drive the local `PlaybackState`).
  */
 async speak(text: string, voice: string | null, slot: string | null, speed: number | null) : Promise<Result<null, string>> {
     try {
@@ -3331,12 +3250,10 @@ async isSpeaking() : Promise<Result<boolean, string>> {
 }
 },
 /**
- * List available TTS voices.
+ * List available TTS voices from Clyffy's voice registry.
  * 
- * Reads the voice registry TOML (`voices.default.toml` plus any user
- * override at `{userdata}/config/voices.toml`) — nothing is hardcoded.
- * The `slot_id` parameter is accepted for API symmetry but not used:
- * the registry is global, not per-slot.
+ * The `slot_id` parameter is accepted for API symmetry but not used — the
+ * registry is global, not per-slot.
  */
 async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
     try {
@@ -3347,10 +3264,7 @@ async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
 }
 },
 /**
- * Preview a voice by synthesizing and playing its registry `sample_text`.
- * 
- * Looks up the voice in the registry — returns an error if the voice is
- * not registered, rather than playing a canned fallback line.
+ * Preview a voice by synthesizing its registry sample text on Clyffy.
  */
 async previewVoice(voice: string, slotId: string) : Promise<Result<null, string>> {
     try {
@@ -3372,10 +3286,9 @@ async testMicrophone() : Promise<Result<MicTestResult, string>> {
 }
 },
 /**
- * Transcribe audio from the microphone.
+ * Transcribe microphone audio via Clyffy's STT.
  * 
- * Captures ~3 seconds of audio from the default input device via rodio/cpal,
- * then runs it through the Whisper STT model loaded in voice.stt slot.
+ * Mic capture is DevPulse-local; the transcription runs on Clyffy.
  */
 async transcribeAudio() : Promise<Result<string, string>> {
     try {
@@ -3386,11 +3299,9 @@ async transcribeAudio() : Promise<Result<string, string>> {
 }
 },
 /**
- * Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
+ * Transcribe an audio file on disk via Clyffy's STT.
  * 
- * Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
- * upload any supported audio file and get back a transcript without
- * going through the microphone path.
+ * Decoding is DevPulse-local; the transcription runs on Clyffy.
  */
 async transcribeAudioFile(path: string) : Promise<Result<string, string>> {
     try {
@@ -3401,16 +3312,10 @@ async transcribeAudioFile(path: string) : Promise<Result<string, string>> {
 }
 },
 /**
- * Run the full speech-to-speech pipeline.
+ * Run the full speech-to-speech pipeline (STT → brain → TTS) on Clyffy.
  * 
- * Stages:
- * 1. **STT** — transcribe `audio_path` via voice.stt slot
- * 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
- * 3. **TTS** — synthesize the reply via voice.tts slot with `voice`
- * 4. **Playback** — play through the default output device
- * 
- * Errors from any stage are returned with enough context that the UI can
- * show which stage failed.
+ * Decoding + playback are DevPulse-local; STT, brain inference, and TTS all
+ * run on Clyffy.
  */
 async runStsPipeline(audioPath: string, brainSlot: string | null, voice: string | null, maxTokens: number | null) : Promise<Result<StsPipelineResult, string>> {
     try {
@@ -3421,12 +3326,7 @@ async runStsPipeline(audioPath: string, brainSlot: string | null, voice: string 
 }
 },
 /**
- * Closed-loop voice smoke test: TTS → STT round-trip.
- * 
- * Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
- * and feeds it into `voice.stt`. No audio is played and no files are
- * needed. Failure at any stage is captured in the report rather than
- * bubbled up, so the UI can show a two-green-check or a pinpoint error.
+ * Closed-loop voice smoke test (TTS → STT) on Clyffy.
  */
 async voiceSmokeTest() : Promise<Result<VoiceSmokeReport, string>> {
     try {
@@ -4062,6 +3962,7 @@ bootPhaseChanged: BootPhaseChanged,
 chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
 cloudTokenStreamed: CloudTokenStreamed,
+clyffyConnectionChanged: ClyffyConnectionChanged,
 hardwareMetricsUpdated: HardwareMetricsUpdated,
 inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
@@ -4075,6 +3976,7 @@ bootPhaseChanged: "boot-phase-changed",
 chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
 cloudTokenStreamed: "cloud-token-streamed",
+clyffyConnectionChanged: "clyffy-connection-changed",
 hardwareMetricsUpdated: "hardware-metrics-updated",
 inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
@@ -5640,6 +5542,19 @@ export type CloudTokenStreamed = {
  */
 content: string }
 /**
+ * The Clyffy (headless AI layer) connection state changed — emitted by the
+ * background probe task on every transition (Disconnected ↔ Connecting ↔
+ * Connected). Frontend listens via `events.clyffyConnectionChanged.listen(cb)`
+ * to flip the no-AI indicator and light up Tier-2 surfaces. The `capability`
+ * inside a `Connected` payload is always **computed** from the endpoint
+ * handshake, never assumed.
+ */
+export type ClyffyConnectionChanged = { 
+/**
+ * New connection state (carries the computed capability when Connected).
+ */
+connection: ConnectionState }
+/**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
  * Every "?" icon in the overlay pulls its body text from this struct.
@@ -5763,6 +5678,24 @@ launch_label: string;
  * Small hint below the launch button (e.g. reassurance that settings can be changed later).
  */
 hint: string }
+/**
+ * Connection lifecycle from DevPulse's perspective. Drives the no-AI indicator
+ * and every Tier-2 feature gate; the capability is always **computed** from the
+ * endpoint, never assumed.
+ */
+export type ConnectionState = 
+/**
+ * No endpoint reachable — DevPulse runs standalone (Tier-1, Turso only).
+ */
+{ state: "disconnected" } | 
+/**
+ * A capability probe is in flight against `url`.
+ */
+{ state: "connecting"; url: string } | 
+/**
+ * Connected; `capability` was computed from the endpoint handshake.
+ */
+{ state: "connected"; url: string; capability: EndpointCapability }
 /**
  * Input for [`create_project`]. Only `name` and `root_path` are
  * required; every other field has a sensible default or is nullable.
@@ -6430,6 +6363,33 @@ name: string;
  */
 row_count: number }
 /**
+ * Snapshot of what a ClyffyOS endpoint can serve right now.
+ */
+export type EndpointCapability = { 
+/**
+ * Endpoint family. `"clyffyos"` for a clyffyd daemon. Reserved
+ * strings for future relatives (e.g. `"clyffyos-relay"`).
+ */
+kind: string; 
+/**
+ * Daemon semver. The Cargo crate version of the `clyffyd` binary
+ * at build time. Clients can warn when the wire crate they ship
+ * expects shapes only this version's daemon exposes.
+ */
+version: string; 
+/**
+ * Short git SHA the daemon was built from. Tooling can correlate
+ * against the clyffyos repo to identify exactly what binary is
+ * running. Empty string when the build context isn't a git tree.
+ */
+build_sha: string; 
+/**
+ * All loaded slots on this endpoint. Empty when the daemon has
+ * booted but no slot is warm yet (e.g. headless first run before
+ * any model has been pulled).
+ */
+slots: LoadedSlotSummary[] }
+/**
  * Wire-stable failure classification.
  * 
  * Kebab-case on the wire (`auth-failed`, `not-found`, etc.). Stable
@@ -6643,13 +6603,12 @@ rowsExported: number;
  */
 path: string }
 /**
- * A single community feed item, both as fetched from the remote
- * endpoint and as stored in libSQL.
+ * A single community feed item, both as fetched from the remote endpoint and
+ * as stored in the local `community_feed` cache.
  * 
- * `payload_json` is the JSON-encoded form of the kind-specific payload
- * shape. Kept as `String` (not `serde_json::Value`) so the type is
- * trivially `specta::Type`-able across the IP boundary; the UI layer
- * parses on receive. Mirrors the existing knowledge-entry pattern.
+ * `payload_json` is the JSON-encoded kind-specific payload, kept as `String`
+ * (not `serde_json::Value`) so the type is trivially `specta::Type`-able; the
+ * UI parses on receive.
  */
 export type FeedItem = { 
 /**
@@ -6691,10 +6650,9 @@ payloadJson: string }
 /**
  * Discriminant for the kind of community item.
  * 
- * Three kinds today; extensible by appending to this enum without
- * breaking persisted rows (the kernel matches on a string slug stored
- * in the `kind` column, falling back to [`FeedKind::Activity`] for
- * unknown values).
+ * Extensible by appending — the `kind` column stores a string slug and
+ * unknown values fall back to [`FeedKind::Activity`], so a row written by a
+ * newer build never breaks an older reader.
  */
 export type FeedKind = 
 /**
@@ -6706,8 +6664,8 @@ export type FeedKind =
  */
 "knowledge_contribution" | 
 /**
- * Friend/group lifecycle: someone joined a group, started a
- * session, posted a tip, etc.
+ * Friend/group lifecycle: someone joined a group, started a session,
+ * posted a tip, etc.
  */
 "activity"
 /**
@@ -6771,14 +6729,14 @@ export type GrammarKind =
  */
 "enum" | 
 /**
- * Custom kernel-defined grammar (public label only).
+ * Custom Clyffy-defined grammar (public label only).
  */
 "custom"
 /**
  * A snapshot of the grammar machine.
  * 
- * Returned by `get_grammar_state` Tauri command. Emitted as the payload
- * of `platform:grammar-changed` Tauri events on every change.
+ * Returned by the `get_grammar_state` client command and emitted as the
+ * payload of `platform:grammar-changed` events on every change.
  */
 export type GrammarSnapshot = { 
 /**
@@ -6810,7 +6768,7 @@ enabled: boolean;
  */
 last_change_at_ms: number; 
 /**
- * Recent failures (newest first, capped at `FAILURE_HISTORY_CAP`).
+ * Recent failures (newest first).
  */
 recent_failures: GrammarFailure[] }
 /**
@@ -6842,7 +6800,7 @@ export type GraphHealthAll = {
  */
 namespaces: GraphPingResult[]; 
 /**
- * Whether the HTTP server on :8822 is reachable.
+ * Whether the HTTP server is reachable.
  */
 http_server_up: boolean; 
 /**
@@ -7451,17 +7409,13 @@ export type InitStatus =
 /**
  * Request shape for [`intel_save_memory`].
  * 
- * Embedding is supplied by the caller so this command can ship
- * before the chat → Burn-embedder hook lands. Future "capture this
- * chat turn" verbs will compose this command on the engine side
- * after running the text through the active embedder.
+ * The embedding is supplied by the caller so the save can be composed before
+ * the chat → embedder hook lands; when connected, Clyffy validates it against
+ * its active embedder dimension.
  */
 export type IntelSaveMemoryRequest = { 
 /**
- * Project slug — the `SurrealDB` database name under the
- * `projects` namespace. Derive on the frontend via the
- * `intel_list_projects` output or hardcode for single-project
- * dev flows.
+ * Project slug — the database name in Clyffy's `projects` namespace.
  */
 projectSlug: string; 
 /**
@@ -7469,15 +7423,12 @@ projectSlug: string;
  */
 text: string; 
 /**
- * Pre-computed embedding. MUST be [`EMBEDDING_DIM`] long; any
- * other length is rejected up front rather than corrupting the
- * HNSW index downstream.
+ * Pre-computed embedding. Length MUST match Clyffy's active embedder
+ * dimension; validated Clyffy-side before the write.
  */
 embedding: number[]; 
 /**
- * `"Prompt"` (user input) or `"Response"` (assistant reply) or
- * `"Reflection"` (summary). Passed verbatim as a serde tag —
- * see [`MemoryKind`].
+ * Memory classification blended into recall scoring. See [`MemoryKind`].
  */
 kind: MemoryKind; 
 /**
@@ -7489,22 +7440,19 @@ priority: number }
  */
 export type IntelStatus = { 
 /**
- * Backing connector identifier — fixed at `"embedded-surrealkv"`
- * while we ship only the local connector. Replaced with the
- * active connector kind once the cloud connector ships.
+ * Backing connector identifier reported by Clyffy (e.g.
+ * `"embedded-surrealkv"`). Computed from the connected capability, never
+ * hardcoded.
  */
 connector_kind: string; 
 /**
- * HNSW embedding dimension locked in
- * `connectome::intelligence::EMBEDDING_DIM`. Surfaced so the
- * devtool can flag a mismatch when a different embedder
- * would be wired in.
+ * HNSW embedding dimension of Clyffy's active embedder. Surfaced so the
+ * devtool can flag a mismatch.
  */
 embedding_dim: number; 
 /**
- * Number of project-local databases under
- * [`PROJECT_NAMESPACE`]. Zero when no project has bootstrapped
- * its intelligence schema yet.
+ * Number of project-local databases Clyffy tracks. Zero when no project
+ * has bootstrapped its intelligence schema yet.
  */
 project_count: number }
 /**
@@ -8302,6 +8250,31 @@ export type LoadError =
  */
 { kind: "other"; message: string }
 /**
+ * One loaded model on the daemon side.
+ */
+export type LoadedSlotSummary = { 
+/**
+ * Stable slot identifier — `clyffy`, `minion`, `voice`, `rag_embed`.
+ * The same enum lives kernel-side in the model-loader crate; the
+ * wire form is a plain string so the daemon and clients can evolve
+ * the kernel enum independently.
+ */
+slot_id: string; 
+/**
+ * HuggingFace-style `org/repo` (or local model identifier) of the
+ * model currently loaded into this slot.
+ */
+model_id: string; 
+/**
+ * Role label (e.g. `"chat"`, `"embed"`, `"vision"`). Free-form to
+ * avoid coupling clients to the kernel's role taxonomy.
+ */
+role: string; 
+/**
+ * Lifecycle state of the slot.
+ */
+status: SlotStatus }
+/**
  * Copy for the per-slot model loading feedback. Rendered by
  * `ClyffyLoadSpinner` inside each role card while the slot is loading.
  */
@@ -8377,12 +8350,9 @@ protocolVersion: string;
  */
 installs: ClaudeInstalls }
 /**
- * Kind taxonomy for stored memories.
- * 
- * Carries both serde and rkyv derives so the same value flows
- * through the JSON-shaped graph row ([`MemoryRecord`]) and the
- * zero-copy archive ([`RroRecord`]) with no translation step.
- * Variants are unit-only — the archived layout is a compact tag.
+ * Classification of a stored memory, blended into recall scoring on the
+ * Clyffy side. Serialized as a snake_case string to match the `kind`
+ * field of Clyffy's `memories` table.
  */
 export type MemoryKind = 
 /**
@@ -8473,7 +8443,15 @@ export type ModelFormat =
 /**
  * Raw `PyTorch` checkpoints.
  */
-"pytorch"
+"pytorch" | 
+/**
+ * Sherpa model directory (Whisper / Kokoro — a directory carrying
+ * `tokens.txt` + config, discovered as a unit rather than a single
+ * weight file). Folded in from the relocated model-loader management
+ * layer (kernel-severance); the loader's discovery scanner emits this
+ * for `tokens.txt`-bearing directories.
+ */
+"sherpa-dir"
 /**
  * Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
  */
@@ -8743,9 +8721,8 @@ export type OllamaHealthState =
 /**
  * A model reported by `GET /api/tags`.
  * 
- * Crosses the Tauri IPC boundary verbatim — no engine-side wrapper.
- * `specta::Type` is gated on the optional `specta` feature so kernel-only
- * builds don't pull specta into their dep tree.
+ * Crosses the Tauri IPC boundary verbatim — no additional wrapper. The
+ * engine always links `specta`, so `Type` is derived unconditionally.
  */
 export type OllamaModel = { 
 /**
@@ -9050,14 +9027,12 @@ name: string;
  */
 row_count: number }
 /**
- * One row in the per-project inventory table the devtool renders
- * in its Status tab.
+ * One row in the per-project inventory table the devtool renders in its
+ * Status tab.
  */
 export type ProjectIntel = { 
 /**
- * Project slug — the `SurrealDB` database name under
- * [`PROJECT_NAMESPACE`]. Derived from the project root path
- * via `connectome::intelligence::slug_for_cwd`.
+ * Project slug — the database name in Clyffy's `projects` namespace.
  */
 slug: string; 
 /**
@@ -9539,8 +9514,6 @@ export type RoutingMode =
 "local_claude_api_council"
 /**
  * Deliberation depth — how deeply Clyffy ruminates before acting.
- * 
- * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.depth`.
  */
 export type RroDepth = 
 /**
@@ -9557,8 +9530,6 @@ export type RroDepth =
 "deep"
 /**
  * RRO lifecycle state.
- * 
- * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.state`.
  */
 export type RroState = 
 /**
@@ -9592,8 +9563,8 @@ export type RroState =
 /**
  * A snapshot of the RRO machine at a point in time.
  * 
- * Returned by `get_rro_state` Tauri command. Emitted as the payload of
- * `platform:rro-state-changed` Tauri events.
+ * Returned by the `get_rro_state` client command and emitted as the payload
+ * of `platform:rro-state-changed` events on every transition.
  */
 export type RroStateSnapshot = { 
 /**
@@ -9617,15 +9588,15 @@ last_transition_at_ms: number;
  */
 proximity: number; 
 /**
- * Recent transitions (newest first, capped at `TRANSITION_HISTORY_CAP`).
+ * Recent transitions (newest first).
  */
 history: RroStateTransition[] }
 /**
- * A single transition record. Held in the ring buffer for replay.
+ * A single transition record. Held in a ring buffer for replay.
  */
 export type RroStateTransition = { 
 /**
- * Previous state (None for the initial transition into `idle`).
+ * Previous state (`None` for the initial transition into `idle`).
  */
 from: RroState | null; 
 /**
@@ -9641,44 +9612,36 @@ at_ms: number;
  */
 reason: string }
 /**
- * Identifies the engine fulfilling a capability slot at a moment in time.
+ * Desktop presentation shape for one slot's runtime fingerprint — the engine
+ * identity of *which* runtime is fulfilling a capability slot, plus the
+ * version stamps used for rebind / hot-update detection.
  * 
- * The loader stamps a fingerprint on every successful load and caches
- * the previous one per slot. When the next load produces a different
- * `runtime_id`, the engine fires [`LoaderEvent::CapabilityRebound`] —
- * when only `crate_version` / `upstream_revision` / `model_revision`
- * differ, it fires [`LoaderEvent::RuntimeVersionChanged`] instead.
- * 
- * All four version fields are optional because they're discovered at
- * load time from heterogeneous sources (cargo metadata, vendored fork
- * SHA stamps, `HuggingFace` LFS oid). A missing field means "not known
- * for this runtime"; the loader still produces a stable fingerprint
- * because `runtime_id` alone is sufficient for rebind detection.
+ * This is DevPulse's Tier-2 presentation type (mirrors the `VoiceInfo`
+ * pattern): the data is produced on **Clyffy** (headless, on the GB10) and
+ * arrives over the gb10-client wire via `model:runtime-version-changed` /
+ * `model:capability-rebound` events and the hydration call below. Nothing here
+ * is hardcoded — every field is discovered at load time on Clyffy. The
+ * frontend `capabilityChannel` binds directly to this shape.
  */
 export type RuntimeFingerprint = { 
 /**
  * Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
- * `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
- * `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
- * `runtime_id` field on the frontend `DevtoolMeta` registry.
+ * `"sherpa-onnx-asr"`, … Matches the `runtime_id` on the frontend
+ * `DevtoolMeta` registry.
  */
 runtime_id: string; 
 /**
- * Cargo crate version of the runtime crate
- * (`env!("CARGO_PKG_VERSION")` at runtime). `None` for runtimes
- * that don't ship as a Rust crate (Ollama, system services).
+ * Cargo crate version of the runtime crate. `None` for runtimes that
+ * don't ship as a Rust crate (Ollama, system services).
  */
 crate_version: string | null; 
 /**
- * Git commit SHA for vendored forks (`deps/moshi/`, `deps/ort/`,
- * kokoros, …). `None` when the runtime is consumed unmodified.
+ * Git commit SHA for vendored forks. `None` when consumed unmodified.
  */
 upstream_revision: string | null; 
 /**
- * SHA-256 of the model weights — already computed by the LFS
- * download verifier for HuggingFace-sourced models. Lets the UI
- * distinguish "same runtime, new model file" from "same model,
- * new runtime version".
+ * SHA-256 of the model weights — distinguishes "same runtime, new model
+ * file" from "same model, new runtime version". `None` when unknown.
  */
 model_revision: string | null }
 /**
@@ -10171,6 +10134,27 @@ context_length: number | null;
  */
 backend: string | null }
 /**
+ * Lifecycle state of one loaded slot.
+ */
+export type SlotStatus = 
+/**
+ * Model file resolved, weights memory-mapped, warm and serving.
+ */
+"ready" | 
+/**
+ * Daemon is loading weights / warming the runtime. Not yet ready.
+ */
+"loading" | 
+/**
+ * Slot is registered but no model is bound yet.
+ */
+"empty" | 
+/**
+ * Last load attempt failed; the daemon kept the prior state if any.
+ * The associated string is a one-line human-readable reason.
+ */
+{ failed: string }
+/**
  * A span trace row from `DuckDB`, serialized for the frontend.
  */
 export type SpanTraceRow = { 
@@ -10257,7 +10241,8 @@ latency_us: number | null;
  */
 message: string | null }
 /**
- * One suggestion returned by [`SuggestionService::query`].
+ * A recalled prompt suggestion — DevPulse's presentation shape for one entry
+ * Clyffy's embedder recall returns once connected.
  */
 export type Suggestion = { 
 /**
@@ -10269,12 +10254,11 @@ id: string;
  */
 text: string; 
 /**
- * Cosine similarity score in `[0.0, 1.0]`. Higher is closer.
+ * Cosine similarity in `[0.0, 1.0]`. Higher is closer.
  */
 similarity: number; 
 /**
- * Unix-seconds capture time. Used by the recency factor in the
- * final rank.
+ * Unix-seconds capture time — feeds the recency factor in the final rank.
  */
 capturedAt: number; 
 /**
@@ -10282,8 +10266,7 @@ capturedAt: number;
  */
 accepted: boolean; 
 /**
- * Final fused score after recency × similarity × accepted-boost
- * reweighting. Sorted in descending order in the returned vec.
+ * Final fused score (recency × similarity × accepted-boost), descending.
  */
 score: number }
 /**
@@ -10365,7 +10348,7 @@ export type SupportTier =
  */
 "planned"
 /**
- * Serde-friendly health probe result.
+ * Badge-shaped tri-state health of Clyffy's `SurrealDB` store.
  */
 export type SurrealHealth = { 
 /**
@@ -10377,21 +10360,16 @@ state: string;
  */
 label: string }
 /**
- * Runtime status of the Surreal service — what the devtool renders.
- * 
- * Embedded path: no host/port/HTTP/WS — `DevPulse` holds the file lock
- * directly. The devtool surfaces `data_path` so a layman can see
- * exactly where the bytes live.
+ * Runtime status of Clyffy's `SurrealDB` store — DevPulse's presentation shape.
  */
 export type SurrealStatus = { 
 /**
- * True iff the service is present in the platform slot.
+ * True iff the store is present in Clyffy's slot table.
  */
 running: boolean; 
 /**
- * True iff `DevPulse` owns the embedded store. Always `true`
- * for the embedded path — retained for source-compat with the
- * prior managed/attached sidecar distinction.
+ * True iff Clyffy owns the embedded store (always `true` for the
+ * embedded path — retained for source-compat).
  */
 managed: boolean; 
 /**
@@ -10399,44 +10377,39 @@ managed: boolean;
  */
 backend: string; 
 /**
- * Absolute path to the `SurrealKV` data directory.
+ * Absolute path to the `SurrealKV` data directory on the node.
  */
 dataPath: string }
 /**
- * Persisted user overrides for the Surreal embedded store.
- * 
- * Reserved for future tuning knobs (cache size, compaction policy,
- * snapshot retention). Empty today — the embedded path has no
- * port / binary / auth fields a user would override.
+ * Persisted user overrides for the store. Empty today — reserved for future
+ * tuning knobs (cache size, compaction policy, snapshot retention).
  */
 export type SurrealUserConfig = Record<string, never>
 /**
- * Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
+ * Result of a single Burn encoder hot-swap cycle
+ * (`pause → drain → load → validate → swap → resume`).
  * 
- * Mirrors the `SwapReport` interface the desktop devtool consumes via
- * the `connectome_swap_encoder` Tauri command (see
- * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
- * Fields are flat + plain types so the value crosses straight to the
- * frontend under specta when the consuming crate enables the feature.
+ * Mirrors the `SwapReport` interface the desktop devtool consumes via the
+ * `connectome_swap_encoder` command. Fields are flat + plain so the value
+ * crosses straight to the frontend under `specta`.
  */
 export type SwapStats = { 
 /**
- * Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B).
- * Read off the live forward pass — authoritative against the
- * loaded weights, not a config.json shadow.
+ * Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B),
+ * read off the live forward pass — authoritative against the loaded
+ * weights, not a `config.json` shadow.
  */
 dim: number; 
 /**
- * Total wall-clock time the maintenance window was held, in ms.
- * Includes pause/drain + load + validate + swap + resume.
+ * Total wall-clock time the maintenance window was held, in ms —
+ * pause/drain + load + validate + swap + resume.
  */
 elapsed_ms: number; 
 /**
- * Phase names the daemon traversed during the swap, in order. The
- * canonical sequence on a healthy swap is `pause_requested`,
- * `drain_complete`, `load_complete`, `validate_pass`, `swap_commit`,
- * `resume_complete`. Use `phases_observed.last()` to confirm the
- * daemon settled at `resume_complete`.
+ * Phase names the daemon traversed, in order. Canonical healthy
+ * sequence: `pause_requested`, `drain_complete`, `load_complete`,
+ * `validate_pass`, `swap_commit`, `resume_complete`. Check
+ * `phases_observed.last()` for `resume_complete`.
  */
 phases_observed: string[] }
 /**
@@ -10592,9 +10565,9 @@ modified_ms: number;
  */
 is_current: boolean }
 /**
- * One thought in a reasoning tree — mirrors the `thought` table in
- * `USER_GRAPH_SCHEMA`. `id` is the Surreal record id (`thought:<uuid>`)
- * so callers can use it directly as a relation endpoint.
+ * One thought in a reasoning tree — a `thought` node in Clyffy's user
+ * graph. `id` is the Surreal record id (`thought:<uuid>`) so callers can
+ * use it directly as a relation endpoint.
  */
 export type ThoughtRecord = { 
 /**
@@ -10606,8 +10579,8 @@ id: string;
  */
 content: string; 
 /**
- * RRO state at thought creation time, canonical lowercase string
- * per `signals.registry.yaml` group `rro` (`"idle"`, `"gathering"`,
+ * RRO state at thought-creation time, canonical lowercase string per
+ * `signals.registry.yaml` group `rro` (`"idle"`, `"gathering"`,
  * `"processing"`, `"ruminating"`, `"ready"`, `"purged"`, `"forked"`).
  */
 rro_state: string; 
@@ -10616,18 +10589,18 @@ rro_state: string;
  */
 depth: number; 
 /**
- * Proximity diagnostic at thought creation time (0.0..1.0).
+ * Proximity diagnostic at thought-creation time (0.0..1.0).
  */
 proximity: number; 
 /**
- * Branch grouping id (UUID) — every thought in the same branch
- * shares this value, regardless of depth.
+ * Branch grouping id (UUID) — every thought in the same branch shares
+ * this value, regardless of depth.
  */
 branch_id: string; 
 /**
- * Project this thought belongs to. `CORTEX.md` §4.5 — per-project
- * scope is the default; cross-project happens via explicit
- * `@<project>` mention in `content`, never an implicit edge.
+ * Project this thought belongs to. Per-project scope is the default;
+ * cross-project happens via an explicit `@<project>` mention in
+ * `content`, never an implicit edge.
  */
 project_id: string; 
 /**
@@ -11090,10 +11063,9 @@ reference_path: string;
  */
 transcript?: string }
 /**
- * Voice information for the frontend.
- * 
- * Mirrors [`model_loader::VoiceEntry`] — every field comes from the
- * voice registry TOML (`voices.default.toml`). Nothing here is hardcoded.
+ * Voice information for the frontend — the devtool's presentation shape for
+ * one entry in Clyffy's voice registry. Populated once Clyffy serves the
+ * voice surface; nothing here is hardcoded.
  */
 export type VoiceInfo = { 
 /**

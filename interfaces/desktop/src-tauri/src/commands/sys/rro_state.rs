@@ -1,92 +1,115 @@
-//! RRO state machine commands — snapshot + control verbs.
+//! RRO (reasoning) state machine commands — Tier-2, served by headless Clyffy.
 //!
-//! All 6 verbs map 1:1 to public vocabulary in `signals.registry.yaml`.
-//! No kernel-internal names cross this boundary.
+//! The RRO deliberation state machine is **Clyffy's** (headless, on the GB10),
+//! not a local DevPulse service. These commands are **connection-gated**: when
+//! Clyffy is disconnected DevPulse returns the honest "connect Clyffy" state;
+//! when connected it renders whatever Clyffy advertises in its capability.
+//! Available once the AI-layer connection is active.
+//!
+//! The snapshot / depth DTOs are the wire-contract types (`clyffyos-wire`),
+//! re-exported via `devpulse-gb10-client` — one source of truth, no parallel
+//! DTOs. The serving daemon (`clyffyd`) is built in the clyffyos repo; until it
+//! advertises the reasoning state machine in its capability, the connected path
+//! reports it as not-yet-advertised (deferred, not retired).
 //!
 //! # Event emission
 //!
-//! Transitions fire Tauri events on `platform:rro-state-changed` with the
-//! new snapshot as payload. The frontend subscribes via `listen()` so the
-//! UI updates live without polling. The event bridge is spawned from
-//! `lib.rs` after the platform handle is installed.
+//! When served, transitions fire Tauri events on `platform:rro-state-changed`
+//! with the new snapshot as payload; the frontend subscribes via `listen()`.
+//! The bridge is re-established from the gb10-client event stream once Clyffy
+//! connects.
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper that resolves the `Platform` handle then forwards to `RroState::*`; failure is exclusively the `Platform is still booting` case documented at `resolve_platform`."
+    reason = "Tauri command module — each Result-returning command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'not advertised by this capability yet' message when connected but Clyffy's capability does not include the reasoning state machine."
 )]
 
-use std::sync::Arc;
-
-use crate::state::PlatformState;
-use devpulse_engine::platform::{Platform, RroDepth, RroStateSnapshot};
+use crate::state::ClyffyConnectionState;
+use devpulse_gb10_client::{ConnectionState, RroDepth, RroStateSnapshot};
 use tauri::State;
 
-/// Resolve the platform handle or surface a boot-in-progress error.
-fn resolve_platform(state: &State<'_, PlatformState>) -> Result<Arc<Platform>, String> {
-    state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())
+/// Standalone answer (Clyffy disconnected) — RRO is a Tier-2 capability.
+const RRO_TIER2_UNAVAILABLE: &str = "Reasoning (RRO) unavailable — the deliberation state machine is a Tier-2 capability served by Clyffy over the gb10-client wire. Connect Clyffy to enable.";
+
+/// Connected, but Clyffy's advertised capability does not include the reasoning
+/// state machine yet (deferred, not retired — lands when `clyffyd` advertises it).
+const RRO_ENDPOINT_PENDING: &str =
+    "Reasoning control pending — connected to Clyffy, but its advertised capability does not include the reasoning state machine yet.";
+
+/// Connection gate: `Ok` only when Clyffy is connected (the caller may then
+/// proxy to the wire); the honest standalone `Err` otherwise.
+fn require_connected(clyffy: &State<'_, ClyffyConnectionState>) -> Result<(), String> {
+    match clyffy.current() {
+        ConnectionState::Connected { .. } => Ok(()),
+        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => {
+            Err(RRO_TIER2_UNAVAILABLE.to_string())
+        }
+    }
 }
 
-/// Get the current RRO state snapshot.
+/// Get the current RRO state snapshot from headless Clyffy.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_rro_state(state: State<'_, PlatformState>) -> Result<RroStateSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.reasoning().snapshot().await)
+pub fn get_rro_state(clyffy: State<'_, ClyffyConnectionState>) -> Result<RroStateSnapshot, String> {
+    require_connected(&clyffy)?;
+    Err(RRO_ENDPOINT_PENDING.to_string())
 }
 
-/// Set the deliberation depth. Does not transition state.
+/// Set the deliberation depth on Clyffy. Does not transition state.
 #[tauri::command]
 #[specta::specta]
-pub async fn set_rro_depth(
-    state: State<'_, PlatformState>,
+pub fn set_rro_depth(
+    clyffy: State<'_, ClyffyConnectionState>,
     depth: RroDepth,
 ) -> Result<RroStateSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.reasoning().set_depth(depth).await)
+    require_connected(&clyffy)?;
+    let _ = depth;
+    Err(RRO_ENDPOINT_PENDING.to_string())
 }
 
-/// Trigger a gather. Transitions state → gathering.
+/// Trigger a gather on Clyffy. Transitions state → gathering.
 #[tauri::command]
 #[specta::specta]
-pub async fn trigger_rro_gather(
-    state: State<'_, PlatformState>,
+pub fn trigger_rro_gather(
+    clyffy: State<'_, ClyffyConnectionState>,
     source: String,
 ) -> Result<RroStateSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.reasoning().gather(source).await)
+    require_connected(&clyffy)?;
+    let _ = source;
+    Err(RRO_ENDPOINT_PENDING.to_string())
 }
 
-/// Trigger a purge. Transitions state → purged.
+/// Trigger a purge on Clyffy. Transitions state → purged.
 #[tauri::command]
 #[specta::specta]
-pub async fn trigger_rro_purge(
-    state: State<'_, PlatformState>,
+pub fn trigger_rro_purge(
+    clyffy: State<'_, ClyffyConnectionState>,
     reason: String,
 ) -> Result<RroStateSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.reasoning().purge(reason).await)
+    require_connected(&clyffy)?;
+    let _ = reason;
+    Err(RRO_ENDPOINT_PENDING.to_string())
 }
 
-/// Trigger a fork. Transitions state → forked.
+/// Trigger a fork on Clyffy. Transitions state → forked.
 #[tauri::command]
 #[specta::specta]
-pub async fn trigger_rro_fork(
-    state: State<'_, PlatformState>,
+pub fn trigger_rro_fork(
+    clyffy: State<'_, ClyffyConnectionState>,
     label: String,
 ) -> Result<RroStateSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.reasoning().fork(label).await)
+    require_connected(&clyffy)?;
+    let _ = label;
+    Err(RRO_ENDPOINT_PENDING.to_string())
 }
 
-/// Set the proximity diagnostic indicator. Clamped to [0.0, 1.0].
+/// Set the proximity diagnostic indicator on Clyffy. Clamped to [0.0, 1.0].
 #[tauri::command]
 #[specta::specta]
-pub async fn set_rro_proximity(
-    state: State<'_, PlatformState>,
+pub fn set_rro_proximity(
+    clyffy: State<'_, ClyffyConnectionState>,
     value: f32,
 ) -> Result<RroStateSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.reasoning().set_proximity(value).await)
+    require_connected(&clyffy)?;
+    let _ = value;
+    Err(RRO_ENDPOINT_PENDING.to_string())
 }

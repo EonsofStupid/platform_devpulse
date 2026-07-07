@@ -1,18 +1,19 @@
-//! Candle runtime devtool commands — config persistence + pool restart.
+//! Candle runtime devtool commands — config persistence (local) + pool
+//! restart (Tier-2, Clyffy).
 //!
-//! The Candle *inference backend* is a library inside the engine (not a
-//! service in the lifecycle sense). These commands expose what the
-//! devtool actually needs:
+//! Candle *inference* runs on **Clyffy** (headless, on the GB10), not in
+//! DevPulse. These commands expose what the devtool needs:
 //!
 //! - `candle_load_config` / `candle_save_config` — user-scope preferences
-//!   (`context_size`, `gpu_layers`, `dtype`) persisted to
-//!   `{data_dir}/user/candle.toml`. Honored by the pool at next slot-load.
-//! - `candle_restart_pool` — unload every loaded slot to force a fresh
-//!   start (all backends, not just Candle — this is the only lifecycle
-//!   action that pool exposes today).
+//!   (`context_size`, `gpu_layers`, `dtype`) persisted **locally** to
+//!   `{data_dir}/user/candle.toml` (Tier-1). Shipped to Clyffy on connect and
+//!   honored by its pool at next slot-load.
+//! - `candle_restart_pool` — unload every loaded slot on Clyffy to force a
+//!   fresh start. **Tier-2**: connection-gated, served once Clyffy connects.
 
-use crate::state::PlatformState;
+use crate::state::{ClyffyConnectionState, PlatformState};
 use devpulse_engine::platform::CandleConfig;
+use devpulse_gb10_client::ConnectionState;
 use tauri::State;
 
 /// Load the persisted Candle runtime config. Missing / malformed file
@@ -39,38 +40,25 @@ pub async fn candle_save_config(
         .map_err(|e| format!("{e:#}"))
 }
 
-/// Unload every loaded slot — forces the backend pool to start fresh.
+/// Restart Clyffy's model pool — unload every loaded slot to force a fresh
+/// start (all backends: Candle, llama.cpp, ORT voice).
 ///
-/// Applies to all backends (Candle, llama.cpp-embedded, ORT voice).
-/// Returns the number of slots actually unloaded so the devtool can
-/// show "Restarted N slots."
+/// **Tier-2**: the model pool is Clyffy's (headless, on the GB10). Returns the
+/// number of slots unloaded once `clyffyd` serves it; connection-gated until
+/// then — disconnected reports "connect Clyffy", connected reports the
+/// endpoint as not-yet-served (deferred, not retired).
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-#[cfg(feature = "inference")]
-pub async fn candle_restart_pool(state: State<'_, PlatformState>) -> Result<u32, String> {
-    let platform = state.platform.load_full().ok_or("Platform not booted")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model loader not available")?;
-    let slots = loader.list_slots().await;
-    let mut unloaded = 0u32;
-    for slot in slots {
-        if loader.unload_slot(&slot.id).await.is_ok() {
-            unloaded += 1;
-        }
+pub fn candle_restart_pool(clyffy: State<'_, ClyffyConnectionState>) -> Result<u32, String> {
+    match clyffy.current() {
+        ConnectionState::Connected { .. } => Err(
+            "Pool restart pending — connected to Clyffy, but its advertised capability does not include model-loader control yet."
+                .to_string(),
+        ),
+        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => Err(
+            "Model pool unavailable — slot management is a Tier-2 capability served by Clyffy over the gb10-client wire. Connect Clyffy to enable."
+                .to_string(),
+        ),
     }
-    tracing::info!(unloaded, "candle_restart_pool: unloaded slots");
-    Ok(unloaded)
-}
-
-/// Non-inference build: the pool does not exist, so restart is a no-op
-/// that returns 0 unloaded. Kept for command-surface symmetry so the
-/// frontend never has to branch on cargo features.
-#[tauri::command]
-#[specta::specta]
-#[allow(clippy::missing_errors_doc)]
-#[cfg(not(feature = "inference"))]
-pub async fn candle_restart_pool(_state: State<'_, PlatformState>) -> Result<u32, String> {
-    Ok(0)
 }

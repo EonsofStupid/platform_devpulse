@@ -1034,17 +1034,11 @@ async fn boot_task(
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
 
-    // Create model-loader event bridge — emits Tauri events for load/download progress
-    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = {
-        let app_for_events = app.clone();
-        Some(std::sync::Arc::new(
-            devpulse_engine::platform::integrations::EventBridge::new(std::sync::Arc::new(
-                move |event_name: &str, payload: serde_json::Value| {
-                    let _ = app_for_events.emit(event_name, payload);
-                },
-            )),
-        ))
-    };
+    // Model-loader inference events (load / download progress) are Clyffy's now
+    // — they arrive over the gb10-client wire, not from a local EventBridge (the
+    // engine `integrations` module was removed in the kernel-severance). Boot
+    // with no sink; the engine's Tier-1 services emit no local inference events.
+    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = None;
 
     // Platform::boot() now writes boot.log in real-time via BootLog.
     // The callback here is ONLY for Tauri event bridging + tracker.
@@ -1150,44 +1144,15 @@ async fn boot_task(
                 });
             }
 
-            // ── RRO state event bridge ───────────────────────────
-            // Subscribe to the reasoning handle's broadcast channel and
-            // forward snapshots onto the Tauri event bus. Frontend listens
-            // on `platform:rro-state-changed` — no polling needed.
-            //
-            // `rx.recv()` yields a `LinkedTraced<RroStateSnapshot>` — the
-            // producer's OTel context rides as a link target, not a parent.
-            // We forward just the payload; causality is preserved in the
-            // trace tree via the link.
-            if let Some(platform_arc) = state.platform.load_full() {
-                let mut rx = platform_arc.reasoning().subscribe();
-                let app_handle = app.clone();
-                devpulse_telemetry::spawn(async move {
-                    while let Ok(envelope) = rx.recv().await {
-                        let (snapshot, _producer_cx) = envelope.into_parts();
-                        let _ = app_handle.emit("platform:rro-state-changed", &snapshot);
-                    }
-                    tracing::info!("rro state event bridge: broadcast channel closed");
-                });
-                tracing::info!("rro state event bridge: spawned");
-            }
-
-            // ── Grammar state event bridge ───────────────────────
-            // Same shape as the RRO bridge. Subscribes to the grammar
-            // handle's broadcast channel and forwards snapshots onto
-            // `platform:grammar-changed`. Frontend listens without polling.
-            if let Some(platform_arc) = state.platform.load_full() {
-                let mut rx = platform_arc.grammar().subscribe();
-                let app_handle = app.clone();
-                devpulse_telemetry::spawn(async move {
-                    while let Ok(envelope) = rx.recv().await {
-                        let (snapshot, _producer_cx) = envelope.into_parts();
-                        let _ = app_handle.emit("platform:grammar-changed", &snapshot);
-                    }
-                    tracing::info!("grammar event bridge: broadcast channel closed");
-                });
-                tracing::info!("grammar event bridge: spawned");
-            }
+            // ── RRO + Grammar state event bridges — REMOVED ──────
+            // The reasoning (RRO) and grammar deliberation state machines are
+            // Clyffy's (headless, on the GB10), not local Platform services —
+            // `Platform::reasoning()` / `::grammar()` were dropped in the
+            // kernel-severance. Their snapshots reach the frontend over the
+            // gb10-client wire once `clyffyd` advertises them (deferred, not
+            // retired). The `platform:rro-state-changed` /
+            // `platform:grammar-changed` event contracts are re-established from
+            // Clyffy's event stream at that point; nothing is emitted locally.
 
             // ── RRD lifecycle event bridge ───────────────────────
             // Two-step wiring per HOT_UPDATE_PATTERN.md §11:
@@ -1400,7 +1365,7 @@ fn spawn_hardware_push(app: tauri::AppHandle) {
                 let Some(loader) = platform.model_loader() else {
                     continue;
                 };
-                let metrics = loader.hardware_metrics().await;
+                let metrics = loader.hardware_metrics();
                 let _ = HardwareMetricsUpdated { metrics }.emit(&app);
             }
         }

@@ -1,8 +1,10 @@
-//! Voice Tauri commands — TTS, STT, voice profiles.
+//! Voice Tauri commands — TTS/STT (Tier-2, Clyffy) + local playback,
+//! mic capture, profiles, and config (Tier-1).
 //!
-//! All 11 commands required by the frontend voice domain.
-//! Actual audio inference (Kokoro TTS, Whisper STT) requires the
-//! voice inference sprint. Until then, commands return clear errors.
+//! Speech synthesis + transcription run on **Clyffy** (headless, on the GB10)
+//! — those commands are connection-gated. Audio playback, microphone capture,
+//! voice profiles, and TTS/STT preference config are DevPulse-local (Tier-1)
+//! and work standalone.
 //!
 //! # Cast lints
 //!
@@ -26,8 +28,8 @@
     reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` voice services / audio playback whose docs hold the canonical # Errors copy"
 )]
 
-use crate::state::PlatformState;
-use devpulse_media::decode_audio_file_to_pcm;
+use crate::state::{ClyffyConnectionState, PlatformState};
+use devpulse_gb10_client::ConnectionState;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -61,12 +63,32 @@ impl PlaybackState {
     }
 }
 
+// ── Connection gate ───────────────────────────────────────────
+
+/// Standalone answer (Clyffy disconnected) — voice inference is a Tier-2 capability.
+const VOICE_TIER2_UNAVAILABLE: &str = "Voice inference unavailable — TTS/STT run on Clyffy (headless, on the GB10) over the gb10-client wire. Connect Clyffy to enable. Audio playback, mic capture, profiles, and config work standalone.";
+
+/// Connected, but this Clyffy endpoint does not yet serve the voice surface
+/// (deferred, not retired — lands when `clyffyd` exposes `/v1/voice`).
+const VOICE_ENDPOINT_PENDING: &str =
+    "Voice pending — connected to Clyffy, but its advertised capability does not include voice inference yet.";
+
+/// Connection gate: `Ok` only when Clyffy is connected; the honest standalone
+/// `Err` otherwise.
+fn require_connected(clyffy: &State<'_, ClyffyConnectionState>) -> Result<(), String> {
+    match clyffy.current() {
+        ConnectionState::Connected { .. } => Ok(()),
+        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => {
+            Err(VOICE_TIER2_UNAVAILABLE.to_string())
+        }
+    }
+}
+
 // ── Types ─────────────────────────────────────────────────────
 
-/// Voice information for the frontend.
-///
-/// Mirrors [`model_loader::VoiceEntry`] — every field comes from the
-/// voice registry TOML (`voices.default.toml`). Nothing here is hardcoded.
+/// Voice information for the frontend — the devtool's presentation shape for
+/// one entry in Clyffy's voice registry. Populated once Clyffy serves the
+/// voice surface; nothing here is hardcoded.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct VoiceInfo {
     /// Voice identifier (e.g. `af_heart`).
@@ -130,119 +152,34 @@ pub struct VoiceStatusInfo {
     pub active_voice: String,
 }
 
-/// Get the current voice subsystem status.
-///
-/// Derives STT/TTS loaded state from model loader slot statuses.
-/// Mic detection is best-effort until the audio sprint wires real device enumeration.
+/// Get the current voice subsystem status from headless Clyffy.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_voice_status(state: State<'_, PlatformState>) -> Result<VoiceStatusInfo, String> {
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-
-    let (stt_loaded, tts_loaded) = if let Some(loader) = platform.model_loader() {
-        use devpulse_engine::platform::services::model_loader::SlotModelStatus;
-        let stt_status = loader.slot_status("voice.stt").await;
-        let tts_status = loader.slot_status("voice.tts").await;
-        let stt_via_slot = matches!(stt_status.model_status, SlotModelStatus::Loaded { .. });
-        let tts_via_slot = matches!(tts_status.model_status, SlotModelStatus::Loaded { .. });
-        // Also check VoicePool (ort-backed models report loaded there)
-        let stt_via_voice = loader.voice_loaded("voice.stt").await;
-        let tts_via_voice = loader.voice_loaded("voice.tts").await;
-        (stt_via_slot || stt_via_voice, tts_via_slot || tts_via_voice)
-    } else {
-        (false, false)
-    };
-
-    Ok(VoiceStatusInfo {
-        stt_loaded,
-        tts_loaded,
-        mic_detected: false, // Real detection requires audio sprint
-        active_profile: "default".to_string(),
-        active_voice: "af_heart".to_string(),
-    })
+pub fn get_voice_status(
+    clyffy: State<'_, ClyffyConnectionState>,
+) -> Result<VoiceStatusInfo, String> {
+    require_connected(&clyffy)?;
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 // ── TTS Commands ──────────────────────────────────────────────
 
-/// Speak text using TTS.
+/// Speak text using TTS on Clyffy, then play the returned PCM locally.
 ///
-/// Synthesizes via the TTS model loaded in the voice.tts slot,
-/// then plays the PCM audio through rodio.
+/// Tier-2: synthesis runs on Clyffy; audio playback is DevPulse-local
+/// (`stop_speaking` / `is_speaking` drive the local `PlaybackState`).
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state), fields(text_len = text.len()))]
-pub async fn speak(
-    state: State<'_, PlatformState>,
-    playback: State<'_, PlaybackState>,
+pub fn speak(
+    clyffy: State<'_, ClyffyConnectionState>,
     text: String,
     voice: Option<String>,
     slot: Option<String>,
     speed: Option<f32>,
 ) -> Result<(), String> {
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
-
-    let slot_id = slot.as_deref().unwrap_or("voice.tts");
-    let voice_name = voice.as_deref().unwrap_or("af_heart");
-    let tts_speed = speed.unwrap_or(1.0);
-    tracing::info!(
-        slot = %slot_id,
-        voice = %voice_name,
-        speed = %tts_speed,
-        text_len = text.len(),
-        "speak() starting"
-    );
-
-    let samples = loader
-        .synthesize(slot_id, &text, voice_name)
-        .await
-        .map_err(|e| format!("TTS synthesis failed: {e}"))?;
-
-    // Set playback state + clear stop flag
-    playback.playing.store(true, Ordering::SeqCst);
-    playback.stop_requested.store(false, Ordering::SeqCst);
-    let stop_flag = Arc::clone(&playback.stop_requested);
-    let playing_flag = Arc::clone(&playback.playing);
-
-    // Play audio via rodio on a blocking thread
-    devpulse_telemetry::spawn_blocking(move || {
-        use rodio::{OutputStream, Sink, Source};
-        let (_stream, stream_handle) =
-            OutputStream::try_default().map_err(|e| format!("Audio output failed: {e}"))?;
-        let sink = Sink::try_new(&stream_handle).map_err(|e| format!("Audio sink failed: {e}"))?;
-
-        let source =
-            rodio::buffer::SamplesBuffer::new(samples.channels, samples.sample_rate, samples.data);
-        tracing::debug!(
-            channels = source.channels(),
-            sample_rate = source.sample_rate(),
-            "Playing TTS audio via rodio"
-        );
-        sink.set_speed(tts_speed);
-        sink.append(source);
-
-        // Poll for stop request instead of blocking forever
-        while !sink.empty() {
-            if stop_flag.load(Ordering::SeqCst) {
-                tracing::info!("speak() — stop requested, halting playback");
-                sink.stop();
-                break;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(50));
-        }
-
-        playing_flag.store(false, Ordering::SeqCst);
-        Ok::<(), String>(())
-    })
-    .await
-    .map_err(|e| format!("Audio playback thread failed: {e}"))??;
-
-    playback.playing.store(false, Ordering::SeqCst);
-    Ok(())
+    require_connected(&clyffy)?;
+    let _ = (text, voice, slot, speed);
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 /// Stop current speech.
@@ -263,76 +200,31 @@ pub async fn is_speaking(playback: State<'_, PlaybackState>) -> Result<bool, Str
     Ok(playback.playing.load(Ordering::SeqCst))
 }
 
-/// List available TTS voices.
+/// List available TTS voices from Clyffy's voice registry.
 ///
-/// Reads the voice registry TOML (`voices.default.toml` plus any user
-/// override at `{userdata}/config/voices.toml`) — nothing is hardcoded.
-/// The `slot_id` parameter is accepted for API symmetry but not used:
-/// the registry is global, not per-slot.
+/// The `slot_id` parameter is accepted for API symmetry but not used — the
+/// registry is global, not per-slot.
 #[tauri::command]
 #[specta::specta]
-pub async fn list_voices(
-    state: State<'_, PlatformState>,
+pub fn list_voices(
+    clyffy: State<'_, ClyffyConnectionState>,
     _slot_id: String,
 ) -> Result<Vec<VoiceInfo>, String> {
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-
-    let userdata = platform.data_dir().clone();
-    let registry =
-        devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
-            .map_err(|e| format!("Failed to load voice registry: {e}"))?;
-
-    Ok(registry
-        .all()
-        .iter()
-        .map(|v| VoiceInfo {
-            id: v.id.clone(),
-            label: v.label.clone(),
-            gender: v.gender.clone(),
-            language: v.language.clone(),
-            engine: v.engine.clone(),
-            style: v.style.clone(),
-            sample_text: v.sample_text.clone(),
-            description: v.description.clone(),
-        })
-        .collect())
+    require_connected(&clyffy)?;
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
-/// Preview a voice by synthesizing and playing its registry `sample_text`.
-///
-/// Looks up the voice in the registry — returns an error if the voice is
-/// not registered, rather than playing a canned fallback line.
+/// Preview a voice by synthesizing its registry sample text on Clyffy.
 #[tauri::command]
 #[specta::specta]
-pub async fn preview_voice(
-    state: State<'_, PlatformState>,
-    playback: State<'_, PlaybackState>,
+pub fn preview_voice(
+    clyffy: State<'_, ClyffyConnectionState>,
     voice: String,
     slot_id: String,
 ) -> Result<(), String> {
-    let sample_text = {
-        // P0: lock-free atomic load.
-        let platform = state.platform.load_full().ok_or("Platform not ready")?;
-        let userdata = platform.data_dir().clone();
-        let registry =
-            devpulse_engine::platform::services::model_loader::VoiceRegistry::load(&userdata)
-                .map_err(|e| format!("Failed to load voice registry: {e}"))?;
-        registry
-            .find(&voice)
-            .ok_or_else(|| format!("Voice '{voice}' not found in registry"))?
-            .sample_text
-            .clone()
-    };
-    speak(
-        state,
-        playback,
-        sample_text,
-        Some(voice),
-        Some(slot_id),
-        None,
-    )
-    .await
+    require_connected(&clyffy)?;
+    let _ = (voice, slot_id);
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 // ── STT Commands ──────────────────────────────────────────────
@@ -373,41 +265,14 @@ pub async fn test_microphone(state: State<'_, PlatformState>) -> Result<MicTestR
     .map_err(|e| format!("Mic test thread failed: {e}"))?
 }
 
-/// Transcribe audio from the microphone.
+/// Transcribe microphone audio via Clyffy's STT.
 ///
-/// Captures ~3 seconds of audio from the default input device via rodio/cpal,
-/// then runs it through the Whisper STT model loaded in voice.stt slot.
+/// Mic capture is DevPulse-local; the transcription runs on Clyffy.
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state))]
-pub async fn transcribe_audio(state: State<'_, PlatformState>) -> Result<String, String> {
-    use devpulse_engine::platform::services::model_loader::AudioSamples;
-
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let routing = platform.routing_config_load().await;
-    let buffer_ms = routing.latency.audio_buffer_ms;
-
-    // Capture audio on a blocking thread (cpal/rodio is sync)
-    let pcm_data =
-        devpulse_telemetry::spawn_blocking(move || capture_mic_samples(3.0, 16000, buffer_ms))
-            .await
-            .map_err(|e| format!("Mic capture thread failed: {e}"))??;
-
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
-
-    let audio = AudioSamples {
-        data: pcm_data,
-        sample_rate: 16000,
-        channels: 1,
-    };
-
-    loader
-        .transcribe("voice.stt", &audio)
-        .await
-        .map_err(|e| format!("STT transcription failed: {e}"))
+pub fn transcribe_audio(clyffy: State<'_, ClyffyConnectionState>) -> Result<String, String> {
+    require_connected(&clyffy)?;
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 /// Capture PCM audio from the default microphone.
@@ -722,43 +587,18 @@ pub async fn activate_voice_profile(
 
 // ── Audio file upload + STS pipeline ──────────────────────────
 
-/// Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
+/// Transcribe an audio file on disk via Clyffy's STT.
 ///
-/// Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
-/// upload any supported audio file and get back a transcript without
-/// going through the microphone path.
+/// Decoding is DevPulse-local; the transcription runs on Clyffy.
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state), fields(path))]
-pub async fn transcribe_audio_file(
-    state: State<'_, PlatformState>,
+pub fn transcribe_audio_file(
+    clyffy: State<'_, ClyffyConnectionState>,
     path: String,
 ) -> Result<String, String> {
-    use devpulse_engine::platform::services::model_loader::AudioSamples;
-
-    let pcm = {
-        let path = std::path::PathBuf::from(&path);
-        devpulse_telemetry::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
-            .await
-            .map_err(|e| format!("Audio decode thread failed: {e}"))??
-    };
-
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
-
-    let audio = AudioSamples {
-        data: pcm,
-        sample_rate: 16000,
-        channels: 1,
-    };
-
-    loader
-        .transcribe("voice.stt", &audio)
-        .await
-        .map_err(|e| format!("STT transcription failed: {e}"))
+    require_connected(&clyffy)?;
+    let _ = path;
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 /// Result of a voice smoke test — closed-loop TTS→STT round-trip.
@@ -784,123 +624,14 @@ pub struct VoiceSmokeReport {
     pub error: Option<String>,
 }
 
-/// Closed-loop voice smoke test: TTS → STT round-trip.
-///
-/// Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
-/// and feeds it into `voice.stt`. No audio is played and no files are
-/// needed. Failure at any stage is captured in the report rather than
-/// bubbled up, so the UI can show a two-green-check or a pinpoint error.
+/// Closed-loop voice smoke test (TTS → STT) on Clyffy.
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state))]
-pub async fn voice_smoke_test(state: State<'_, PlatformState>) -> Result<VoiceSmokeReport, String> {
-    use devpulse_engine::platform::services::model_loader::AudioSamples;
-
-    let spoken = "Smoke test one two three.".to_string();
-    let start = std::time::Instant::now();
-
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
-
-    // Stage 1: TTS
-    let tts_samples = match loader.synthesize("voice.tts", &spoken, "af_heart").await {
-        Ok(s) if !s.data.is_empty() => s,
-        Ok(_) => {
-            return Ok(VoiceSmokeReport {
-                tts_ok: false,
-                stt_ok: false,
-                spoken,
-                transcript: String::new(),
-                duration_ms: start.elapsed().as_millis() as u64,
-                error: Some("TTS returned zero samples".to_string()),
-            });
-        }
-        Err(e) => {
-            return Ok(VoiceSmokeReport {
-                tts_ok: false,
-                stt_ok: false,
-                spoken,
-                transcript: String::new(),
-                duration_ms: start.elapsed().as_millis() as u64,
-                error: Some(format!("TTS failed: {e}")),
-            });
-        }
-    };
-
-    // Resample to 16 kHz mono for Whisper. Downmix channels first, then
-    // linear-interpolate to the target rate (same cheap path the file
-    // decoder uses — good enough for a smoke test).
-    let channels = tts_samples.channels as usize;
-    let source_rate = tts_samples.sample_rate;
-    let raw = tts_samples.data;
-    let mono: Vec<f32> = if channels > 1 {
-        raw.chunks(channels)
-            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
-            .collect()
-    } else {
-        raw
-    };
-    let resampled = if source_rate == 16_000 {
-        mono
-    } else {
-        let ratio = 16_000.0_f64 / f64::from(source_rate);
-        let new_len = (mono.len() as f64 * ratio) as usize;
-        let mut out = Vec::with_capacity(new_len);
-        for i in 0..new_len {
-            let src_pos = i as f64 / ratio;
-            let idx = src_pos as usize;
-            let frac = (src_pos - idx as f64) as f32;
-            let sample = if idx + 1 < mono.len() {
-                mono[idx] * (1.0 - frac) + mono[idx + 1] * frac
-            } else if idx < mono.len() {
-                mono[idx]
-            } else {
-                0.0
-            };
-            out.push(sample);
-        }
-        out
-    };
-
-    let stt_input = AudioSamples {
-        data: resampled,
-        sample_rate: 16_000,
-        channels: 1,
-    };
-
-    // Stage 2: STT
-    let transcript = match loader.transcribe("voice.stt", &stt_input).await {
-        Ok(t) => t,
-        Err(e) => {
-            return Ok(VoiceSmokeReport {
-                tts_ok: true,
-                stt_ok: false,
-                spoken,
-                transcript: String::new(),
-                duration_ms: start.elapsed().as_millis() as u64,
-                error: Some(format!("STT failed: {e}")),
-            });
-        }
-    };
-
-    let stt_ok = !transcript.trim().is_empty();
-    let error = if stt_ok {
-        None
-    } else {
-        Some("STT returned empty transcript".to_string())
-    };
-
-    Ok(VoiceSmokeReport {
-        tts_ok: true,
-        stt_ok,
-        spoken,
-        transcript,
-        duration_ms: start.elapsed().as_millis() as u64,
-        error,
-    })
+pub fn voice_smoke_test(
+    clyffy: State<'_, ClyffyConnectionState>,
+) -> Result<VoiceSmokeReport, String> {
+    require_connected(&clyffy)?;
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 /// Result of a full STS (speech-to-speech) pipeline run.
@@ -919,126 +650,22 @@ pub struct StsPipelineResult {
     pub voice: String,
 }
 
-/// Run the full speech-to-speech pipeline.
+/// Run the full speech-to-speech pipeline (STT → brain → TTS) on Clyffy.
 ///
-/// Stages:
-/// 1. **STT** — transcribe `audio_path` via voice.stt slot
-/// 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
-/// 3. **TTS** — synthesize the reply via voice.tts slot with `voice`
-/// 4. **Playback** — play through the default output device
-///
-/// Errors from any stage are returned with enough context that the UI can
-/// show which stage failed.
+/// Decoding + playback are DevPulse-local; STT, brain inference, and TTS all
+/// run on Clyffy.
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state), fields(audio_path, brain_slot, voice))]
-pub async fn run_sts_pipeline(
-    state: State<'_, PlatformState>,
+pub fn run_sts_pipeline(
+    clyffy: State<'_, ClyffyConnectionState>,
     audio_path: String,
     brain_slot: Option<String>,
     voice: Option<String>,
     max_tokens: Option<u32>,
 ) -> Result<StsPipelineResult, String> {
-    use devpulse_engine::platform::integrations::InferenceResponse;
-    use devpulse_engine::platform::services::model_loader::AudioSamples;
-    use devpulse_engine::platform::telemetry::TraceContext;
-
-    let brain_slot_id = brain_slot.unwrap_or_else(|| "chat.brain".to_string());
-    let voice_name = voice.unwrap_or_else(|| "af_heart".to_string());
-    let max_tokens = max_tokens.unwrap_or(256);
-
-    // Stage 1: STT — decode + transcribe
-    let pcm = {
-        let path = std::path::PathBuf::from(&audio_path);
-        devpulse_telemetry::spawn_blocking(move || decode_audio_file_to_pcm(&path, 16000))
-            .await
-            .map_err(|e| format!("STS stage 1 (decode) thread failed: {e}"))??
-    };
-
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
-
-    let samples = AudioSamples {
-        data: pcm,
-        sample_rate: 16000,
-        channels: 1,
-    };
-
-    let transcript = loader
-        .transcribe("voice.stt", &samples)
-        .await
-        .map_err(|e| format!("STS stage 1 (STT) failed: {e}"))?;
-    tracing::info!(transcript_len = transcript.len(), "STS stage 1 complete");
-
-    // Stage 2: Brain — chain transcript into inference
-    let handle = loader
-        .inference_handle(&brain_slot_id)
-        .await
-        .map_err(|e| format!("STS stage 2 (brain lookup) failed: {e}"))?
-        .ok_or_else(|| format!("STS stage 2: no model loaded in brain slot '{brain_slot_id}'"))?;
-
-    let trace_ctx = TraceContext::new();
-    let token_rx = handle
-        .generate(
-            transcript.clone(),
-            max_tokens,
-            0.7,
-            trace_ctx.trace_id.clone(),
-        )
-        .await
-        .map_err(|e| format!("STS stage 2 (generate) failed: {e:#}"))?;
-
-    let mut reply = String::new();
-    while let Ok(traced) = token_rx.recv_async().await {
-        match traced.value {
-            InferenceResponse::Token { text, .. } => reply.push_str(&text),
-            InferenceResponse::Done(text) => {
-                reply = text;
-                break;
-            }
-            InferenceResponse::Error(e) => {
-                return Err(format!("STS stage 2 (generate) error: {e}"));
-            }
-        }
-    }
-    tracing::info!(reply_len = reply.len(), "STS stage 2 complete");
-
-    // Stage 3: TTS — synthesize the reply
-    let tts_samples = loader
-        .synthesize("voice.tts", &reply, &voice_name)
-        .await
-        .map_err(|e| format!("STS stage 3 (TTS) failed: {e}"))?;
-    tracing::info!(
-        samples = tts_samples.data.len(),
-        "STS stage 3 complete — playing audio"
-    );
-
-    // Stage 4: Playback — reuse the same rodio path as speak()
-    devpulse_telemetry::spawn_blocking(move || {
-        use rodio::{OutputStream, Sink};
-        let (_stream, stream_handle) =
-            OutputStream::try_default().map_err(|e| format!("Audio output failed: {e}"))?;
-        let sink = Sink::try_new(&stream_handle).map_err(|e| format!("Audio sink failed: {e}"))?;
-        let source = rodio::buffer::SamplesBuffer::new(
-            tts_samples.channels,
-            tts_samples.sample_rate,
-            tts_samples.data,
-        );
-        sink.append(source);
-        sink.sleep_until_end();
-        Ok::<(), String>(())
-    })
-    .await
-    .map_err(|e| format!("STS stage 4 (playback thread) failed: {e}"))??;
-
-    Ok(StsPipelineResult {
-        transcript,
-        reply,
-        voice: voice_name,
-    })
+    require_connected(&clyffy)?;
+    let _ = (audio_path, brain_slot, voice, max_tokens);
+    Err(VOICE_ENDPOINT_PENDING.to_string())
 }
 
 // ═══════════════════════════════════════════════════════════════

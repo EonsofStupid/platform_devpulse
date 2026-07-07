@@ -1,76 +1,80 @@
-//! Intelligence layer Tauri commands.
+//! Intelligence-layer commands — Tier-2, served by headless Clyffy.
 //!
-//! Backs the `/devtools/clyffy/memory/intelligence` devtool. Three
-//! commands today, all read-only:
+//! Backs the `/devtools/clyffy/memory/intelligence` devtool. The intelligence
+//! store (HNSW-indexed per-project `memories`), its embedder, and the
+//! model-download keyword classifier are all **Clyffy's** — headless, on the
+//! GB10 — not local DevPulse services. These commands are
+//! **connection-gated**: when Clyffy is disconnected DevPulse returns the
+//! honest "connect Clyffy" state; when connected they proxy to Clyffy's
+//! `/v1/graph` (intelligence) + `/v1/loader` (classifier) surfaces over the
+//! gb10-client wire. Available once the AI-layer connection is active.
 //!
-//! - [`intel_status`] — connector kind + embedding dim + project
-//!   count for the inventory header.
-//! - [`intel_list_projects`] — per-project memory + archive counts
-//!   so the devtool can render the namespace inventory table.
-//! - [`infer_capability_bucket`] — wraps
-//!   `model_loader::infer_download_folder` so the UI can preview
-//!   "this filename → chat / rag / voice / vision" before a
-//!   download lands.
-//!
-//! Writes: [`intel_save_memory`] is the first write-side command
-//! exposed — accepts a pre-computed embedding so it can ship without
-//! the chat→embedder hook (that lands in the next batch when the
-//! Burn embedder bridge is wired). MCP-server-side writes still
-//! defer to the future hook layer to keep the IPC surface guarded.
+//! The response shapes below (`IntelStatus`, `ProjectIntel`) are the devtool's
+//! own presentation types — desktop-local, not wire types. The [`MemoryKind`]
+//! tag on a save request is the wire-contract type (`clyffyos-wire`),
+//! re-exported via `devpulse-gb10-client` — one source of truth, no parallel
+//! DTOs. The live endpoints are served by `clyffyd`; until they land on the
+//! connected build, the connected path reports them as not-yet-served
+//! (deferred, not retired).
+#![expect(
+    clippy::missing_errors_doc,
+    reason = "Tauri command module — each Result-returning command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'endpoint not yet served' message when connected but clyffyd has not exposed the surface."
+)]
 
-use crate::state::PlatformState;
-use serde::Serialize;
+use crate::state::ClyffyConnectionState;
+use devpulse_gb10_client::{ConnectionState, MemoryKind};
+use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
 
-// `devpulse_engine::platform` re-exports both the intelligence
-// types (always-on, kernel pass-through) and `infer_download_folder`
-// (gated behind engine's `candle` feature, which `devpulse_desktop_backend`
-// always enables — see this crate's `Cargo.toml`'s
-// `devpulse-engine = { features = [..., "candle", ...] }` line).
-use devpulse_engine::platform::{
-    infer_download_folder, IntelligenceStore, MemoryKind, MemoryRecord, EMBEDDING_DIM,
-};
+/// Standalone answer (Clyffy disconnected) — intelligence is a Tier-2 capability.
+const INTEL_TIER2_UNAVAILABLE: &str = "Intelligence store unavailable — per-project memory + the embedder are Tier-2 capabilities served by Clyffy over the gb10-client wire. Connect Clyffy to enable.";
 
-macro_rules! get_platform {
-    ($state:expr) => {
-        $state
-            .platform
-            .load_full()
-            .ok_or_else(|| "Platform is still booting".to_string())
-    };
+/// Connected, but this Clyffy endpoint does not yet serve the intelligence
+/// surface (deferred, not retired — lands when `clyffyd` exposes `/v1/graph`).
+const INTEL_ENDPOINT_PENDING: &str =
+    "Intelligence query pending — connected to Clyffy, but its advertised capability does not include the intelligence store yet.";
+
+/// Connected, but this Clyffy endpoint does not yet serve the model-loader
+/// classifier (deferred, not retired — lands when `clyffyd` exposes `/v1/loader`).
+const LOADER_ENDPOINT_PENDING: &str =
+    "Capability classification pending — connected to Clyffy, but its advertised capability does not include the model-loader classifier yet.";
+
+/// Connection gate: `Ok` only when Clyffy is connected; the honest standalone
+/// `Err` otherwise.
+fn require_connected(clyffy: &State<'_, ClyffyConnectionState>) -> Result<(), String> {
+    match clyffy.current() {
+        ConnectionState::Connected { .. } => Ok(()),
+        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => {
+            Err(INTEL_TIER2_UNAVAILABLE.to_string())
+        }
+    }
 }
 
-/// Surreal namespace under which every project-local intelligence
-/// store lives. Mirrors the `PROJECT_NAMESPACE` constant in
-/// `kernel/devpulse-clyffy/.../surreal/intelligence_impl.rs`.
-const PROJECT_NAMESPACE: &str = "projects";
+// ═══════════════════════════════════════════════════════════════
+// Presentation DTOs (desktop-local)
+// ═══════════════════════════════════════════════════════════════
 
 /// Header status surfaced in the devtool's Status tab.
 #[derive(Debug, Clone, Serialize, Type)]
 pub struct IntelStatus {
-    /// Backing connector identifier — fixed at `"embedded-surrealkv"`
-    /// while we ship only the local connector. Replaced with the
-    /// active connector kind once the cloud connector ships.
+    /// Backing connector identifier reported by Clyffy (e.g.
+    /// `"embedded-surrealkv"`). Computed from the connected capability, never
+    /// hardcoded.
     pub connector_kind: String,
-    /// HNSW embedding dimension locked in
-    /// `connectome::intelligence::EMBEDDING_DIM`. Surfaced so the
-    /// devtool can flag a mismatch when a different embedder
-    /// would be wired in.
+    /// HNSW embedding dimension of Clyffy's active embedder. Surfaced so the
+    /// devtool can flag a mismatch.
     pub embedding_dim: u32,
-    /// Number of project-local databases under
-    /// [`PROJECT_NAMESPACE`]. Zero when no project has bootstrapped
-    /// its intelligence schema yet.
+    /// Number of project-local databases Clyffy tracks. Zero when no project
+    /// has bootstrapped its intelligence schema yet.
     pub project_count: u32,
 }
 
-/// One row in the per-project inventory table the devtool renders
-/// in its Status tab.
+/// One row in the per-project inventory table the devtool renders in its
+/// Status tab.
 #[derive(Debug, Clone, Serialize, Type)]
 pub struct ProjectIntel {
-    /// Project slug — the `SurrealDB` database name under
-    /// [`PROJECT_NAMESPACE`]. Derived from the project root path
-    /// via `connectome::intelligence::slug_for_cwd`.
+    /// Project slug — the database name in Clyffy's `projects` namespace.
     pub slug: String,
     /// Number of rows in this project's `memories` table.
     pub memory_count: u64,
@@ -78,183 +82,73 @@ pub struct ProjectIntel {
     pub archive_count: u64,
 }
 
-/// Header status for the intelligence devtool.
-///
-/// # Errors
-/// - Platform is still booting.
-/// - Graph service is not available (Surreal not booted).
-/// - Surreal `INFO FOR NS` query fails.
-#[tauri::command]
-#[specta::specta]
-pub async fn intel_status(state: State<'_, PlatformState>) -> Result<IntelStatus, String> {
-    let platform = get_platform!(state)?;
-    let graph = platform
-        .graph()
-        .ok_or_else(|| "Graph service not available".to_string())?;
-    let adapter = graph.adapter();
-    let projects = adapter
-        .list_databases_in_ns(PROJECT_NAMESPACE)
-        .await
-        .map_err(|e| format!("{e:#}"))?;
-    Ok(IntelStatus {
-        connector_kind: "embedded-surrealkv".to_string(),
-        embedding_dim: u32::try_from(EMBEDDING_DIM).unwrap_or(u32::MAX),
-        project_count: u32::try_from(projects.len()).unwrap_or(u32::MAX),
-    })
-}
-
-/// Per-project memory + archive counts.
-///
-/// Returns one [`ProjectIntel`] per database under
-/// [`PROJECT_NAMESPACE`]. Empty vector when no project has
-/// bootstrapped its intelligence schema yet.
-///
-/// # Errors
-/// - Platform is still booting.
-/// - Graph service is not available.
-/// - Surreal queries fail.
-#[tauri::command]
-#[specta::specta]
-pub async fn intel_list_projects(
-    state: State<'_, PlatformState>,
-) -> Result<Vec<ProjectIntel>, String> {
-    let platform = get_platform!(state)?;
-    let graph = platform
-        .graph()
-        .ok_or_else(|| "Graph service not available".to_string())?;
-    let adapter = graph.adapter();
-
-    let slugs = adapter
-        .list_databases_in_ns(PROJECT_NAMESPACE)
-        .await
-        .map_err(|e| format!("{e:#}"))?;
-
-    let mut out = Vec::with_capacity(slugs.len());
-    for slug in slugs {
-        // Counts default to zero on table-undefined; the devtool
-        // surfaces the row regardless so the operator sees the
-        // bootstrapped namespace even before any memory is saved.
-        let memory_count = adapter
-            .count_in_ns(PROJECT_NAMESPACE, &slug, "memories")
-            .await
-            .map_err(|e| format!("{e:#}"))?;
-        let archive_count = adapter
-            .count_in_ns(PROJECT_NAMESPACE, &slug, "rro_archive")
-            .await
-            .map_err(|e| format!("{e:#}"))?;
-        out.push(ProjectIntel {
-            slug,
-            memory_count,
-            archive_count,
-        });
-    }
-    Ok(out)
-}
-
-/// Infer the capability bucket (`chat` / `rag` / `voice` / `vision`)
-/// for a downloadable model filename.
-///
-/// Wraps `model_loader::infer_download_folder` — the keyword SSOT
-/// that routes model files to their capability bucket. Surfaced for
-/// the model-downloader UI's preview ("this filename → RAG") and
-/// for the intelligence devtool's Debug tab so an operator can
-/// verify how a filename WOULD be classified before downloading.
-///
-/// Pure CPU work, no I/O — runs synchronously inside the async
-/// command body. Always available in `devpulse_desktop_backend`
-/// because the engine dep enables `candle` unconditionally.
-///
-/// # Errors
-/// Never errors today; the `Result` shape matches the rest of the
-/// command surface and reserves room for a future failure mode
-/// (e.g. quarantine flag on a known-bad filename).
-#[tauri::command]
-#[specta::specta]
-#[allow(clippy::needless_pass_by_value)] // Tauri command convention
-pub async fn infer_capability_bucket(filename: String) -> Result<String, String> {
-    Ok(infer_download_folder(&filename).to_string())
-}
-
 /// Request shape for [`intel_save_memory`].
 ///
-/// Embedding is supplied by the caller so this command can ship
-/// before the chat → Burn-embedder hook lands. Future "capture this
-/// chat turn" verbs will compose this command on the engine side
-/// after running the text through the active embedder.
-#[derive(Debug, Clone, serde::Deserialize, Type)]
+/// The embedding is supplied by the caller so the save can be composed before
+/// the chat → embedder hook lands; when connected, Clyffy validates it against
+/// its active embedder dimension.
+#[derive(Debug, Clone, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct IntelSaveMemoryRequest {
-    /// Project slug — the `SurrealDB` database name under the
-    /// `projects` namespace. Derive on the frontend via the
-    /// `intel_list_projects` output or hardcode for single-project
-    /// dev flows.
+    /// Project slug — the database name in Clyffy's `projects` namespace.
     pub project_slug: String,
     /// Verbatim memory text (~2 KB practical max).
     pub text: String,
-    /// Pre-computed embedding. MUST be [`EMBEDDING_DIM`] long; any
-    /// other length is rejected up front rather than corrupting the
-    /// HNSW index downstream.
+    /// Pre-computed embedding. Length MUST match Clyffy's active embedder
+    /// dimension; validated Clyffy-side before the write.
     pub embedding: Vec<f32>,
-    /// `"Prompt"` (user input) or `"Response"` (assistant reply) or
-    /// `"Reflection"` (summary). Passed verbatim as a serde tag —
-    /// see [`MemoryKind`].
+    /// Memory classification blended into recall scoring. See [`MemoryKind`].
     pub kind: MemoryKind,
     /// Priority hint `0..=10` blended into recall scoring.
     pub priority: u8,
 }
 
-/// Persist a memory row into the project's intelligence store.
-///
-/// Returns the connector-assigned memory id (typically a `UUIDv7` the
-/// command generates). Idempotent at the connector layer when the
-/// connector dedupes by embedding similarity.
-///
-/// # Errors
-///
-/// - Platform is still booting.
-/// - Graph service is not available (Surreal not booted).
-/// - `embedding.len() != EMBEDDING_DIM` (rejected before the write).
-/// - Connector write failed.
+// ═══════════════════════════════════════════════════════════════
+// Commands
+// ═══════════════════════════════════════════════════════════════
+
+/// Header status for the intelligence devtool, from headless Clyffy.
 #[tauri::command]
 #[specta::specta]
-pub async fn intel_save_memory(
-    state: State<'_, PlatformState>,
+pub fn intel_status(clyffy: State<'_, ClyffyConnectionState>) -> Result<IntelStatus, String> {
+    require_connected(&clyffy)?;
+    Err(INTEL_ENDPOINT_PENDING.to_string())
+}
+
+/// Per-project memory + archive counts from headless Clyffy.
+#[tauri::command]
+#[specta::specta]
+pub fn intel_list_projects(
+    clyffy: State<'_, ClyffyConnectionState>,
+) -> Result<Vec<ProjectIntel>, String> {
+    require_connected(&clyffy)?;
+    Err(INTEL_ENDPOINT_PENDING.to_string())
+}
+
+/// Infer the capability bucket (`chat` / `rag` / `voice` / `vision`) for a
+/// downloadable model filename — Clyffy owns the model catalog + keyword SSOT.
+#[tauri::command]
+#[specta::specta]
+pub fn infer_capability_bucket(
+    clyffy: State<'_, ClyffyConnectionState>,
+    filename: String,
+) -> Result<String, String> {
+    require_connected(&clyffy)?;
+    let _ = filename;
+    Err(LOADER_ENDPOINT_PENDING.to_string())
+}
+
+/// Persist a memory row into the project's intelligence store on Clyffy.
+///
+/// Returns the connector-assigned memory id. Idempotent at Clyffy's connector
+/// layer when it dedupes by embedding similarity.
+#[tauri::command]
+#[specta::specta]
+pub fn intel_save_memory(
+    clyffy: State<'_, ClyffyConnectionState>,
     request: IntelSaveMemoryRequest,
 ) -> Result<String, String> {
-    if request.embedding.len() != EMBEDDING_DIM {
-        return Err(format!(
-            "embedding dim {} != EMBEDDING_DIM ({EMBEDDING_DIM})",
-            request.embedding.len()
-        ));
-    }
-    let platform = get_platform!(state)?;
-    let graph = platform
-        .graph()
-        .ok_or_else(|| "Graph service not available".to_string())?;
-    let adapter = graph.adapter();
-
-    // SurrealAdapter implements `IntelligenceStore` (per
-    // kernel/devpulse-clyffy/src/connectome/persistence/surreal/intelligence_impl.rs).
-    // Reference-cast via the trait object so future connector swaps
-    // route through the same call site unchanged.
-    let store: &dyn IntelligenceStore = adapter.as_ref();
-
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX))
-        .unwrap_or(0);
-    let record = MemoryRecord {
-        id: format!("mem-{}", uuid::Uuid::new_v4()),
-        text: request.text,
-        embedding: request.embedding,
-        kind: request.kind,
-        priority: request.priority,
-        created_at: now,
-        updated_at: now,
-    };
-
-    store
-        .save_memory(&request.project_slug, &record)
-        .await
-        .map_err(|e| format!("{e:#}"))
+    require_connected(&clyffy)?;
+    let _ = request;
+    Err(INTEL_ENDPOINT_PENDING.to_string())
 }
