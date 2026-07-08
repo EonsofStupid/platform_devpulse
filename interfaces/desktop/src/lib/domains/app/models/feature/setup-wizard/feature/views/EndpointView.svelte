@@ -37,6 +37,7 @@
 -->
 <script lang="ts">
 import { Check, Home, Server } from "lucide-svelte";
+import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
@@ -91,6 +92,11 @@ async function connect(): Promise<void> {
 	totalSteps={2}
 	title={copy?.title ?? ""}
 >
+	{#snippet mascot()}
+		<!-- ClyffyMascot is LOCKED on wizard steps (mascot ≠ brain icon). -->
+		<ClyffyMascot pose="pointing" size="lg" />
+	{/snippet}
+
 	<div class="endpoint-view">
 		<Text size="base" color="muted">{copy?.subtitle ?? ""}</Text>
 
