@@ -126,6 +126,17 @@ $effect(() => clyffyConnection.subscribe());
 				></span>
 				<Text size="xs" color="secondary">AI: {clyffyConnection.tier2Available ? "Clyffy" : "Standalone"}</Text>
 			</Badge>
+			<!-- Endpoint-metadata chip — surfaces what the live handshake
+			     reported (kind/version/short sha). Renders only while
+			     connected; every field is capability-computed. -->
+			{#if clyffyConnection.capability}
+				{@const cap = clyffyConnection.capability}
+				<Badge variant="neutral" size="sm">
+					<Text size="xs" color="muted">
+						{cap.kind} v{cap.version}{cap.build_sha ? ` · ${cap.build_sha}` : ""}
+					</Text>
+				</Badge>
+			{/if}
 			{#if hardwareState.hasGpu}
 				<Badge variant="neutral" size="sm">
 					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb ?? 0)}/{formatMb(hardwareState.vramTotalMb ?? 0)}</Text>

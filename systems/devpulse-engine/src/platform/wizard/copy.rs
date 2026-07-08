@@ -76,6 +76,14 @@ pub struct WizardCopy {
     /// older overrides parsing without `[runtime_picker]`.
     #[serde(default)]
     pub runtime_picker: RuntimePickerCopy,
+    /// Copy for the connect (endpoint-entry) step — where the operator
+    /// links the standalone Tier-1 app to a Clyffy endpoint (Local /
+    /// GB10 over the mesh). The address itself is always operator-
+    /// entered or discovered, never shipped in copy; these strings are
+    /// the layman framing around that choice. `#[serde(default)]`
+    /// keeps older user overrides parsing without `[connect]`.
+    #[serde(default)]
+    pub connect: ConnectCopy,
 }
 
 /// Welcome screen — Clyffy greeting and CTA.
@@ -844,6 +852,75 @@ pub struct AuthCopy {
     pub error_unknown_template: String,
 }
 
+/// Connect (endpoint-entry) step — linking standalone DevPulse to a
+/// Clyffy endpoint. Two modes surface here: Local (this machine / LAN)
+/// and GB10 (the box over the operator's private mesh). The endpoint
+/// address is ALWAYS operator-entered or discovered at runtime — the
+/// only address-shaped string in this copy is a placeholder example the
+/// operator can edit in their `wizard_copy.toml` override. Layman
+/// English only: "AI brain", never "inference endpoint".
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
+pub struct ConnectCopy {
+    /// Heading for the connect step.
+    pub title: String,
+    /// Supporting line — states the honest two-tier deal: DevPulse
+    /// already works standalone; connecting lights up the AI features.
+    pub subtitle: String,
+    /// Alt text for the Clyffy mascot illustration on this step.
+    pub mascot_alt: String,
+
+    // ── Mode cards ─────────────────────────────────────────────────
+    /// Visible label on the Local mode card (this machine / home network).
+    pub mode_local_label: String,
+    /// One-line layman hint under the Local mode label.
+    pub mode_local_hint: String,
+    /// Visible label on the GB10 mode card (the box over the mesh).
+    pub mode_gb10_label: String,
+    /// One-line layman hint under the GB10 mode label.
+    pub mode_gb10_hint: String,
+
+    // ── Address entry ──────────────────────────────────────────────
+    /// Label above the endpoint address input.
+    pub url_label: String,
+    /// Placeholder inside the address input — an editable EXAMPLE, not
+    /// a wired endpoint (the real address is what the operator types).
+    pub url_placeholder: String,
+    /// `aria-label` on the address input.
+    pub url_aria: String,
+
+    // ── Actions ────────────────────────────────────────────────────
+    /// Visible label on the Connect button.
+    pub connect_cta: String,
+    /// `aria-label` on the Connect button.
+    pub connect_aria: String,
+    /// Visible label on the footer Back button.
+    pub back_label: String,
+    /// Visible label on the footer Continue button (advances the
+    /// wizard — distinct from `connect_cta`, which dials the endpoint).
+    pub continue_label: String,
+    /// Visible label on the Skip button — standalone is a mode, not a
+    /// failure, so this reads as a real choice.
+    pub skip_label: String,
+    /// `aria-label` on the Skip button.
+    pub skip_aria: String,
+    /// Small reassurance under the actions: connecting is available
+    /// any time later.
+    pub skip_hint: String,
+
+    // ── Live status cues ───────────────────────────────────────────
+    /// Status line while the probe dials the entered endpoint.
+    pub status_connecting: String,
+    /// Status line once the capability handshake lands.
+    pub status_connected: String,
+    /// Status line when the endpoint can't be reached — includes the
+    /// honest note that the probe keeps retrying in the background.
+    pub status_failed: String,
+
+    // ── Validation ─────────────────────────────────────────────────
+    /// Inline error when Connect is pressed with an empty address.
+    pub error_empty: String,
+}
+
 impl WizardCopy {
     /// Load wizard copy with TOML override fallback.
     ///
@@ -917,6 +994,16 @@ mod tests {
         assert!(!copy.greeting.cta_label.is_empty());
         assert!(!copy.hardware.title.is_empty());
         assert!(!copy.models.title.is_empty());
+    }
+
+    #[test]
+    fn embedded_default_has_connect_copy() {
+        let copy = WizardCopy::load_default().expect("default TOML must parse");
+        assert!(!copy.connect.title.is_empty());
+        assert!(!copy.connect.connect_cta.is_empty());
+        assert!(!copy.connect.skip_label.is_empty());
+        assert!(!copy.connect.status_failed.is_empty());
+        assert!(!copy.connect.error_empty.is_empty());
     }
 
     #[test]

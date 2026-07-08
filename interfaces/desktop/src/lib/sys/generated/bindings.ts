@@ -5718,6 +5718,106 @@ launch_label: string;
  */
 hint: string }
 /**
+ * Connect (endpoint-entry) step — linking standalone DevPulse to a
+ * Clyffy endpoint. Two modes surface here: Local (this machine / LAN)
+ * and GB10 (the box over the operator's private mesh). The endpoint
+ * address is ALWAYS operator-entered or discovered at runtime — the
+ * only address-shaped string in this copy is a placeholder example the
+ * operator can edit in their `wizard_copy.toml` override. Layman
+ * English only: "AI brain", never "inference endpoint".
+ */
+export type ConnectCopy = { 
+/**
+ * Heading for the connect step.
+ */
+title: string; 
+/**
+ * Supporting line — states the honest two-tier deal: DevPulse
+ * already works standalone; connecting lights up the AI features.
+ */
+subtitle: string; 
+/**
+ * Alt text for the Clyffy mascot illustration on this step.
+ */
+mascot_alt: string; 
+/**
+ * Visible label on the Local mode card (this machine / home network).
+ */
+mode_local_label: string; 
+/**
+ * One-line layman hint under the Local mode label.
+ */
+mode_local_hint: string; 
+/**
+ * Visible label on the GB10 mode card (the box over the mesh).
+ */
+mode_gb10_label: string; 
+/**
+ * One-line layman hint under the GB10 mode label.
+ */
+mode_gb10_hint: string; 
+/**
+ * Label above the endpoint address input.
+ */
+url_label: string; 
+/**
+ * Placeholder inside the address input — an editable EXAMPLE, not
+ * a wired endpoint (the real address is what the operator types).
+ */
+url_placeholder: string; 
+/**
+ * `aria-label` on the address input.
+ */
+url_aria: string; 
+/**
+ * Visible label on the Connect button.
+ */
+connect_cta: string; 
+/**
+ * `aria-label` on the Connect button.
+ */
+connect_aria: string; 
+/**
+ * Visible label on the footer Back button.
+ */
+back_label: string; 
+/**
+ * Visible label on the footer Continue button (advances the
+ * wizard — distinct from `connect_cta`, which dials the endpoint).
+ */
+continue_label: string; 
+/**
+ * Visible label on the Skip button — standalone is a mode, not a
+ * failure, so this reads as a real choice.
+ */
+skip_label: string; 
+/**
+ * `aria-label` on the Skip button.
+ */
+skip_aria: string; 
+/**
+ * Small reassurance under the actions: connecting is available
+ * any time later.
+ */
+skip_hint: string; 
+/**
+ * Status line while the probe dials the entered endpoint.
+ */
+status_connecting: string; 
+/**
+ * Status line once the capability handshake lands.
+ */
+status_connected: string; 
+/**
+ * Status line when the endpoint can't be reached — includes the
+ * honest note that the probe keeps retrying in the background.
+ */
+status_failed: string; 
+/**
+ * Inline error when Connect is pressed with an empty address.
+ */
+error_empty: string }
+/**
  * Connection lifecycle from DevPulse's perspective. Drives the no-AI indicator
  * and every Tier-2 feature gate; the capability is always **computed** from the
  * endpoint, never assumed.
@@ -11528,7 +11628,16 @@ auth?: AuthCopy;
  * "tell me about yourself" step). `#[serde(default)]` keeps
  * older overrides parsing without `[runtime_picker]`.
  */
-runtime_picker?: RuntimePickerCopy }
+runtime_picker?: RuntimePickerCopy; 
+/**
+ * Copy for the connect (endpoint-entry) step — where the operator
+ * links the standalone Tier-1 app to a Clyffy endpoint (Local /
+ * GB10 over the mesh). The address itself is always operator-
+ * entered or discovered, never shipped in copy; these strings are
+ * the layman framing around that choice. `#[serde(default)]`
+ * keeps older user overrides parsing without `[connect]`.
+ */
+connect?: ConnectCopy }
 
 /** tauri-specta globals **/
 
