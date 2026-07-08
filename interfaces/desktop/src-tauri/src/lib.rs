@@ -21,6 +21,7 @@
 //! in both modes. Frontend `DevTools` (F12) show platform events live.
 
 pub mod commands;
+pub mod connection_store;
 pub mod crash_safety;
 pub mod events;
 pub mod logging;
@@ -192,6 +193,9 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             // Runtime connect/disconnect — re-points the probe loop without a restart.
             commands::sys::clyffy::connect_clyffy,
             commands::sys::clyffy::disconnect_clyffy,
+            // Persisted connect-or-skip decision — drives the boot gate.
+            commands::sys::clyffy::is_clyffy_setup_decided,
+            commands::sys::clyffy::skip_clyffy_setup,
             commands::devclyffy::get_status,
             commands::devforge::devforge_start,
             commands::devforge::devforge_stop,
@@ -1212,18 +1216,44 @@ async fn boot_task(
                     std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
                 let timeout =
                     std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
-                let configured = clyffy_cfg.base_url.trim();
-                if clyffy_cfg.enabled && !configured.is_empty() {
-                    app.state::<crate::state::ClyffyConnectionState>()
-                        .set_endpoint(Some(configured.to_string()));
-                    tracing::info!(
-                        endpoint = %configured,
-                        "clyffy probe: seeded endpoint from config"
-                    );
-                } else {
-                    tracing::info!(
-                        "clyffy probe: no endpoint configured — standalone (Tier-1), awaiting runtime connect"
-                    );
+                // Seed priority: the operator's PERSISTED choice (survives
+                // restarts, written by connect/disconnect) wins over the
+                // static boot config's base_url. A persisted explicit
+                // disconnect (record present, endpoint None) stays
+                // standalone even when the boot config names an endpoint —
+                // the operator's last decision is the truth.
+                let persisted = crate::paths::resolve_data_dir(&app)
+                    .ok()
+                    .map(|dir| crate::connection_store::ConnectionStore::new(&dir).load());
+                let seed: Option<String> = match &persisted {
+                    Some(record) if record.setup_decided => record.endpoint.clone(),
+                    _ => {
+                        let configured = clyffy_cfg.base_url.trim();
+                        (clyffy_cfg.enabled && !configured.is_empty())
+                            .then(|| configured.to_string())
+                    }
+                };
+                match &seed {
+                    Some(endpoint) => {
+                        app.state::<crate::state::ClyffyConnectionState>()
+                            .set_endpoint(Some(endpoint.clone()));
+                        tracing::info!(
+                            target: "clyffy.connection",
+                            endpoint = %endpoint,
+                            source = if persisted.as_ref().is_some_and(|r| r.setup_decided) {
+                                "persisted"
+                            } else {
+                                "boot-config"
+                            },
+                            "clyffy probe: seeded endpoint"
+                        );
+                    }
+                    None => {
+                        tracing::info!(
+                            target: "clyffy.connection",
+                            "clyffy probe: no endpoint — standalone (Tier-1), awaiting runtime connect"
+                        );
+                    }
                 }
                 devpulse_telemetry::spawn(clyffy_probe_loop(app.clone(), interval, timeout));
                 tracing::info!("clyffy connection probe: spawned (re-pointable)");

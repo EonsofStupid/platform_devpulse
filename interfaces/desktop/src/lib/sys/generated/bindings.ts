@@ -930,6 +930,41 @@ async disconnectClyffy() : Promise<Result<ConnectionState, string>> {
 }
 },
 /**
+ * Whether the operator has made the connect-or-skip decision at least
+ * once. The boot gate reads this: undecided → the wizard auto-opens on
+ * the connect step; decided → it never force-opens again (re-entry
+ * stays available from the status surfaces).
+ * 
+ * # Errors
+ * Returns `Err` when the data dir can't be resolved.
+ */
+async isClyffySetupDecided() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_clyffy_setup_decided") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Record the operator's "not now" — standalone is their decision, a
+ * mode, never an error. Leaves any previously persisted endpoint
+ * untouched (skipping the wizard must not silently drop a working
+ * connection choice).
+ * 
+ * # Errors
+ * Returns `Err` when the data dir can't be resolved or the record
+ * can't be written.
+ */
+async skipClyffySetup() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("skip_clyffy_setup") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.

@@ -37,6 +37,7 @@ import {
 	installToSlot,
 } from "$lib/sys/bindings/models/index.js";
 import type { SlotStatus, TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
 import CompleteView from "./feature/views/CompleteView.svelte";
@@ -454,6 +455,27 @@ async function skipToSlotOrchestrator() {
 	}
 }
 
+/**
+ * Endpoint-step Skip — "not now" is a real decision: persist it
+ * (`skip_clyffy_setup`, so the wizard never force-opens again) and load
+ * the app standalone. Distinct from `skipToSlotOrchestrator`, which is
+ * the models-flow skip. Re-entry stays available from the status
+ * surfaces (the standalone chip in the top bar).
+ */
+async function skipConnect(): Promise<void> {
+	busy = true;
+	try {
+		const r = await commands.skipClyffySetup();
+		if (r.status === "error") {
+			copyError = `Couldn't save your choice: ${r.error}`;
+			return;
+		}
+		wizardState.close();
+	} finally {
+		busy = false;
+	}
+}
+
 const callbacks: WizardCallbacks = {
 	onNext: () => wizardState.next(),
 	onBack: () => wizardState.back(),
@@ -490,7 +512,11 @@ const callbacks: WizardCallbacks = {
 	{:else if wizardState.view === "preset"}
 		<PresetView copy={copy?.profile ?? null} {busy} {callbacks} />
 	{:else if wizardState.view === "endpoint"}
-		<EndpointView copy={copy?.connect ?? null} {busy} {callbacks} />
+		<EndpointView
+			copy={copy?.connect ?? null}
+			{busy}
+			callbacks={{ ...callbacks, onSkip: skipConnect }}
+		/>
 	{:else if wizardState.view === "cortex"}
 		<CortexView
 			title="Clyffy's cortex — five preconfigured senses"

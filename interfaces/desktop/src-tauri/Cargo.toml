@@ -48,6 +48,9 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-appender = { workspace = true }
 chrono = { workspace = true }
+# Persisted connection record ({data_dir}/user/clyffy_connection.toml) —
+# matches the engine's direct `toml = "0.8"` (no workspace entry exists).
+toml = "0.8"
 uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
 # NOTE: `rro` (qortex, the embedded Qdrant vector store) is intentionally
