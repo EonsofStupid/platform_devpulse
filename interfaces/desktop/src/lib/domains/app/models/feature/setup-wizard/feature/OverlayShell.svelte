@@ -108,6 +108,11 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		/* Container context — the wizard overlay is a `fixed` sibling of
+		   the shell grid zones, so this is its only container seam for
+		   container-fluid (cqi) tokens. See S1.C in S1-FLUID-TOKENS.md. */
+		container-type: inline-size;
+		container-name: setup-overlay;
 	}
 
 	/* MP4 / animated backdrop slot — sits below the card, above the
