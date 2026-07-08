@@ -36,6 +36,8 @@ export {
 	clyffyStatus,
 	createClyffyStatus,
 } from "./status/clyffy.state.svelte.js";
+// ── Status (gb10-client wire connection — Tier-1/Tier-2 branch SSOT)
+export { clyffyConnection } from "./status/connection.state.svelte.js";
 export { default as ToolsBrowser } from "./tools/ToolsBrowser.svelte";
 // ── Tools (capability catalog)
 export {

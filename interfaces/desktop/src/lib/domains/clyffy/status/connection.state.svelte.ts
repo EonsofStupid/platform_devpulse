@@ -26,6 +26,7 @@
 import {
 	type ConnectionState,
 	commands,
+	type EndpointCapability,
 	type LoadedSlotSummary,
 } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
@@ -57,12 +58,42 @@ class ClyffyConnection {
 	}
 
 	/**
+	 * The two-tier branch, as a single named primitive so surfaces stop
+	 * re-deriving the ternary: `"tier1"` = standalone (local, non-AI
+	 * stats), `"tier2"` = the AI layer is live over the wire. `connecting`
+	 * is still Tier-1 — nothing is served until the handshake lands.
+	 */
+	get tier(): "tier1" | "tier2" {
+		return this.tier2Available ? "tier2" : "tier1";
+	}
+
+	/**
+	 * The full capability the connected endpoint advertised (`kind` /
+	 * `version` / `build_sha` / `slots`), or `null` when not connected.
+	 * The endpoint-metadata chip and any Tier-2 stat surface read this —
+	 * computed from the live handshake, never assumed.
+	 */
+	get capability(): EndpointCapability | null {
+		return this.#state.state === "connected" ? this.#state.capability : null;
+	}
+
+	/**
 	 * Loaded-slot summaries the connected endpoint advertised (empty when not
 	 * connected). Tier-2 surfaces gate off this — capability-computed, never a
 	 * hardcoded slot table.
 	 */
 	get slots(): LoadedSlotSummary[] {
 		return this.#state.state === "connected" ? this.#state.capability.slots : [];
+	}
+
+	/**
+	 * The advertised slot with the given wire `slot_id`, or `undefined`
+	 * when the endpoint doesn't serve it (or nothing is connected). The
+	 * per-slot lookup surfaces key off — takes the wire's own id
+	 * vocabulary verbatim, maps nothing.
+	 */
+	slotFor(slotId: string): LoadedSlotSummary | undefined {
+		return this.slots.find((slot) => slot.slot_id === slotId);
 	}
 
 	/**

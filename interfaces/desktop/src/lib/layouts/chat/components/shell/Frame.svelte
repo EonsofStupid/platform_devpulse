@@ -13,10 +13,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
 import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
 import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
+import { clyffyConnection } from "$lib/domains/clyffy/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 
 interface Props {
@@ -24,6 +26,10 @@ interface Props {
 }
 
 let { children }: Props = $props();
+
+// Wire connection (Tier-1/Tier-2) — the chat window is one of the three
+// no-AI indicator surfaces (statusbar / topbar / chat). Ref-counted.
+$effect(() => clyffyConnection.subscribe());
 
 const frameState = $derived<"open" | "minimized" | "closed">(
 	globalState.chat_minimized ? "minimized" : "open",
@@ -54,6 +60,11 @@ function openModelLoader(): void {
 		onClose={handleClose}
 	>
 		{#snippet children()}
+			<!-- No-AI indicator (chat surface). Subtle absence cue — renders
+			     only while standalone; a mode, never an error. -->
+			{#if clyffyConnection.tier === "tier1"}
+				<Badge variant="neutral" size="sm">AI: Standalone</Badge>
+			{/if}
 			<Button preset="ghost" size="sm" onclick={openConnectomeViewer} title="Connectome Viewer" aria-label="Open Connectome Viewer">
 				<Brain size={14} />
 			</Button>
