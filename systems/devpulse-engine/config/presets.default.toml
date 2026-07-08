@@ -1,0 +1,687 @@
+# ═══════════════════════════════════════════════════════════════
+# PRESETS — Kernel SSOT
+# ═══════════════════════════════════════════════════════════════
+#
+# Per-tier model recommendations. Absorbed from the hardcoded
+# `preset_for_tier()` function in `hardware/auto_config.rs`.
+#
+# Each `[[presets]]` block describes one hardware tier's default
+# configuration: a display name, a brain swap policy, and the list of
+# slots it populates with a suggested model.
+#
+# The kernel loader at `hardware/presets.rs` parses this file at build
+# time via `include_str!` and honours `{userdata}/config/presets.toml`
+# as a user override (full-replace, same pattern as every other
+# kernel-owned config file).
+#
+# ── Tier → preset mapping ──────────────────────────────────────
+#
+# `hardware/auto_config.rs::detect_tier` maps VRAM to a
+# [`HardwareTier`] variant:
+#
+#   High         — 24 GB+     → Preset 4 (Static 14B brain)
+#   JessePrimary — 16 GB      → Preset 3 (ActiveIdle Phi-4 15B / 4B)
+#   Mid          — 10 GB+     → Preset 2 (ActiveIdle 9B / 4B)
+#   Floor        —  8 GB      → Preset 1 (Static 4B brain)
+#   Minimal      — <8 GB      → Preset 1 on CPU
+#   CpuOnly      — no GPU     → Preset 1 on CPU
+#
+# The tier name in each `[[presets]]` block matches one of the
+# enum variants above (case-sensitive).
+#
+# ── Brain swap policy values ───────────────────────────────────
+#
+#   brain_policy = "Static"
+#
+#   brain_policy = { ActiveIdle = {
+#     active_model = "FileName.gguf",
+#     idle_model = "FileName.gguf",
+#     idle_after_secs = 300,
+#   } }
+#
+#   brain_policy = "ApiEnhanced"
+#
+# ── Common slots ───────────────────────────────────────────────
+#
+# Every preset inherits the slots listed in `[common]` at the bottom
+# of the file. Tier-specific slots override matching ids. Consumers
+# rely on this split so "add a new voice slot" is one edit, not
+# seven copy-paste edits across every preset.
+#
+# ── Extension pattern ──────────────────────────────────────────
+#
+# To add a new preset:
+#
+#   1. Add a new `HardwareTier` enum variant in `auto_config.rs`.
+#   2. Append a `[[presets]]` block here with every slot the tier
+#      should populate.
+#   3. Update `detect_tier` to route hardware into the new variant.
+#   4. Update the `list_all_presets` ordering helper.
+#
+# The wizard preset picker picks up the new preset automatically.
+#
+# ═══════════════════════════════════════════════════════════════
+
+# ── Preset 5: Ultra (40 GB+) — Qwen3-VL-30B-A3B MoE omni brain ─
+#
+# Top tier for users with 40+ GB of VRAM (RTX 5090, A6000, dual-GPU).
+# Uses the vision-language MoE variant so the same 30B handles chat
+# + vision inline — one model, two capabilities, one VRAM reservation.
+# Qwen3-30B-A3B is Mixture-of-Experts with ~3 B active per token, so
+# inference speed is close to a 4 B dense model while reasoning
+# quality approaches a 30 B dense model. Static load, full GPU
+# (ngl = -1), warm standby.
+#
+# Voice stack: Moshi 7B (8 GB) always-hot voice.brain for 24/7 STS.
+# The 30B-VL fills the heavy-reasoning and vision roles; Moshi owns
+# the voice loop. Total peak ~30 GB VRAM — fits 40 GB with headroom.
+
+[[presets]]
+tier = "Ultra"
+preset_name = "Ultra (40GB+) — 30B-A3B VL + Moshi STS"
+brain_policy = "Static"
+
+# chat.brain — Qwen3-VL-30B-A3B omni. Full GPU load, no partial
+# offload needed at 40 GB+ (ngl = -1 implicit).
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF"
+model_filename = "Qwen3-VL-30B-A3B-Instruct-UD-Q4_K_XL.gguf"
+model_size_mb = 18500
+vram_estimate_mb = 20500
+device = "Gpu"
+display_name = "Qwen3-VL 30B-A3B"
+display_tagline = "Alibaba's vision + reasoning MoE (3B active per token). Runs through llama.cpp."
+
+# chat.fast — Qwen3-4B routing brain stays hot even on Ultra so
+# quick turns don't pay the full 30B MoE gating latency.
+[[presets.slots]]
+slot_id = "chat.fast"
+model_repo_id = "Qwen/Qwen3-4B-Instruct-GGUF"
+model_filename = "Qwen3-4B-Instruct-Q4_K_M.gguf"
+model_size_mb = 2500
+vram_estimate_mb = 2700
+device = "Gpu"
+
+# chat.vision — Phi-4-reasoning-vision-15B GGUF + mmproj. Dedicated
+# reasoning vision model; pairs with chat.brain (VL-30B-A3B) for the
+# omni stack. Loads via llama.cpp FFI — phi4-siglip arch isn't covered
+# by Candle's arch-native loaders. The mmproj projection is a separate
+# file llama.cpp reads alongside the main GGUF.
+[[presets.slots]]
+slot_id = "chat.vision"
+model_repo_id = "DevQuasar/microsoft.Phi-4-reasoning-vision-15B-GGUF"
+model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
+model_size_mb = 9053
+vram_estimate_mb = 10500
+device = "Gpu"
+
+[presets.slots.extensions]
+mmproj_filename = "mmproj-microsoft.Phi-4-reasoning-vision-15B.f16.gguf"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF"
+model_filename = "Qwen3-VL-30B-A3B-Instruct-UD-Q4_K_XL.gguf"
+model_size_mb = 0
+vram_estimate_mb = 0
+device = "Gpu"
+display_name = "Qwen3-VL 30B-A3B (shared with brain)"
+display_tagline = "Same weights as the brain — zero extra VRAM. Runs through llama.cpp."
+
+# minion.escalation — Phi-4-reasoning-plus GGUF Q4_K_M. Deep-reasoning
+# brain that escalates from chat.fast on hard queries. 14B Phi-3-arch
+# loads via Candle's arch-native quantized_phi3 path.
+[[presets.slots]]
+slot_id = "minion.escalation"
+model_repo_id = "unsloth/Phi-4-reasoning-plus-GGUF"
+model_filename = "Phi-4-reasoning-plus-Q4_K_M.gguf"
+model_size_mb = 9053
+vram_estimate_mb = 9500
+device = "Gpu"
+
+[[presets.slots]]
+slot_id = "rag.encoder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+# voice.brain — Personaplex-7B (NVIDIA, moshi-architecture, audio-to-audio).
+# 16.7 GB BF16 weights fit comfortably on 40 GB+ tier. Replaces the prior
+# Kyutai Moshi 7B entry — Personaplex is the same arch family with better
+# tuning. Loaded via the moshi-sts Candle feature.
+[[presets.slots]]
+slot_id = "voice.brain"
+model_repo_id = "nvidia/personaplex-7b-v1"
+model_filename = "model.safetensors"
+model_size_mb = 16742
+vram_estimate_mb = 17500
+device = "Gpu"
+
+# ── Preset 4: High (24 GB) — Qwen3-30B-A3B text + Qwen3-VL-8B ──
+#
+# 24 GB rigs (RTX 3090, 4090, 7900 XTX) get the text-only 30B-A3B
+# with full GPU load plus a dedicated Qwen3-VL-8B for vision tasks.
+# Moshi 7B stays always-hot as voice.brain. Minions share the 30B
+# via BackendPool ref-count so there's no duplicate load.
+#
+# Peak VRAM: 30B-A3B (18 GB) + Moshi (8 GB) = 26 GB — slightly over,
+# so 30B-A3B runs with ngl = 50 (partial offload) to keep headroom
+# for KV cache + vision-on-demand. The ActiveIdle policy swaps Moshi
+# out when a complex query fires to free up VRAM for full 30B load.
+
+[[presets]]
+tier = "High"
+preset_name = "High (24GB) — 30B-A3B + Moshi STS"
+
+[presets.brain_policy.ActiveIdle]
+active_model = "Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL.gguf"
+idle_model = "Qwen3-4B-Instruct-Q4_K_M.gguf"
+idle_after_secs = 300
+
+# chat.brain — full 30B-A3B on GPU, all layers in VRAM (ngl = -1).
+# 24 GB is enough to host the 30B + Moshi + chat.fast + chat.vision
+# without partial offload, so no `llama_cpp_ngl` extension here.
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF"
+model_filename = "Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL.gguf"
+model_size_mb = 17700
+vram_estimate_mb = 18500
+device = "Gpu"
+display_name = "Qwen3 30B-A3B"
+display_tagline = "Alibaba's reasoning MoE — only 3B active per token. Runs through llama.cpp."
+
+[[presets.slots]]
+slot_id = "chat.fast"
+model_repo_id = "Qwen/Qwen3-4B-Instruct-GGUF"
+model_filename = "Qwen3-4B-Instruct-Q4_K_M.gguf"
+model_size_mb = 2500
+vram_estimate_mb = 2700
+device = "Gpu"
+
+# chat.vision — Phi-4-reasoning-vision-15B on 24 GB. Dedicated
+# reasoning + vision brain; pairs with the Qwen3-30B-A3B chat.brain
+# for omni capability without the unified-model VRAM cost. Loaded
+# via llama.cpp FFI; mmproj projection is published alongside the
+# main GGUF in the DevQuasar repo.
+[[presets.slots]]
+slot_id = "chat.vision"
+model_repo_id = "DevQuasar/microsoft.Phi-4-reasoning-vision-15B-GGUF"
+model_filename = "microsoft.Phi-4-reasoning-vision-15B.f16.gguf.Q4_K_M.gguf"
+model_size_mb = 9053
+vram_estimate_mb = 10500
+device = "Gpu"
+
+[presets.slots.extensions]
+mmproj_filename = "mmproj-microsoft.Phi-4-reasoning-vision-15B.f16.gguf"
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF"
+model_filename = "Qwen3-30B-A3B-Instruct-2507-UD-Q4_K_XL.gguf"
+model_size_mb = 0
+vram_estimate_mb = 0
+device = "Gpu"
+display_name = "Qwen3 30B-A3B (shared with brain)"
+display_tagline = "Refcounts the brain — zero extra VRAM. Runs through llama.cpp."
+
+# minion.escalation — Phi-4-reasoning-plus GGUF Q4_K_M (14B, ~9 GB).
+# Deep-reasoning brain reachable from chat.fast on hard queries.
+# Active-idle pattern keeps it warm but not always-loaded so 24 GB
+# can host the omni stack alongside it.
+[[presets.slots]]
+slot_id = "minion.escalation"
+model_repo_id = "unsloth/Phi-4-reasoning-plus-GGUF"
+model_filename = "Phi-4-reasoning-plus-Q4_K_M.gguf"
+model_size_mb = 9053
+vram_estimate_mb = 9500
+device = "GpuWithCpuFallback"
+
+[[presets.slots]]
+slot_id = "rag.encoder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+# voice.brain — Personaplex-7B BF16 (16.7 GB). Replaces the prior
+# Kyutai Moshi entry — same moshi arch family, better tuning. The
+# active-idle pattern with chat.brain (30B-A3B) handles the 24 GB
+# budget pressure: when chat.brain expands to full ngl, voice.brain
+# drops to KV-cache-only state.
+[[presets.slots]]
+slot_id = "voice.brain"
+model_repo_id = "nvidia/personaplex-7b-v1"
+model_filename = "model.safetensors"
+model_size_mb = 16742
+vram_estimate_mb = 17500
+device = "Gpu"
+
+# ── Preset 3: Jesse Primary (16 GB) — Phi-4-rv-15B + Qwen3-TTS clone ──
+#
+# The owner's daily 16 GB loadout. Phi-4-reasoning-vision-15B GGUF
+# (Q4_K_M) handles chat AND vision inline at ~10.5 GB GPU; Qwen3-TTS
+# 0.6B safetensors at ~2.5 GB GPU drives the cloned-voice loop in
+# real time (RTF ~0.5 on GPU). Total GPU steady-state ~13 GB +
+# ~1.5 GB KV = ~14.5 GB peak on a 16 GB card with ~1.5 GB headroom.
+#
+# Composed STS pipeline (Whisper STT → Phi 15B → Qwen3-TTS) is the
+# real STS today. Foundation-model duplex STS (PersonaPlex-7B / Phi-4-mm)
+# stays in High/Ultra where it fits the 24 GB+ budget.
+#
+# `chat.fast` removed at this tier — Phi 15B handles all turns
+# including quick routing, freeing 2.7 GB GPU for voice.tts. Heavy
+# reasoning escalates to Claude API via the inference provider router
+# (subscription turbo path).
+#
+# `minion.shared` ref-counts to `chat.brain` so minion tasks
+# (routing, classification, tagging) get Phi-4-reasoning quality
+# at zero extra VRAM. One load, two slots.
+#
+# `chat.vision` ref-counts to `chat.brain` because Phi-4-rv-15B is
+# the unified reasoning + vision model — vision-specific calls hit
+# the same weights.
+
+[[presets]]
+tier = "JessePrimary"
+preset_name = "Jesse Primary (16GB) — Phi-4-rv-15B + Qwen3-TTS clone"
+brain_policy = "Static"
+
+# chat.brain — Nemotron-Nano-9B-v2 GGUF Q4_K_M. NVIDIA's locked
+# deep-reasoning model — see `[[project_seamless_gpu_nemotron_seed]]`.
+# Loads via llama.cpp FFI; ~5.5 GB GGUF + KV cache fits comfortably
+# on the 16 GB tier alongside voice.tts + the Harrier 0.6B retrieval
+# stack. Replaces the previous Phi-4-rv-15B entry; Qwen3 family stays
+# only on Floor/Minimal/CpuOnly where 9B is too big.
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "unsloth/Nemotron-Nano-9B-v2-GGUF"
+model_filename = "Nemotron-Nano-9B-v2-Q4_K_M.gguf"
+model_size_mb = 5460
+vram_estimate_mb = 6000
+device = "Gpu"
+display_name = "Nemotron Nano 9B v2"
+display_tagline = "NVIDIA's locked deep-reasoning model. Runs through llama.cpp."
+
+# minion.shared — ref-count to chat.brain (Nemotron 9B). Routing,
+# classification, tagging tasks reuse the brain weights at zero
+# extra VRAM. Quality stays Nemotron-tier across all minion work.
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "unsloth/Nemotron-Nano-9B-v2-GGUF"
+model_filename = "Nemotron-Nano-9B-v2-Q4_K_M.gguf"
+model_size_mb = 0
+vram_estimate_mb = 0
+device = "Gpu"
+display_name = "Nemotron Nano 9B v2 (shared with brain)"
+display_tagline = "Refcounts the brain — zero extra VRAM. Runs through llama.cpp."
+
+# rag.encoder — Harrier 0.6B on CPU for the RRO (Qdrant) query path.
+# Same model as rag.embedder (common slot) — BackendPool ref-counts
+# the underlying weights so there's only one copy in memory.
+[[presets.slots]]
+slot_id = "rag.encoder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+# minion.escalation — Phi-4-reasoning-plus Q4_K_M (14B Phi-3 arch).
+# CPU fallback with disk mmap; loads on-demand for offline deep
+# reasoning when Claude API isn't reachable. The 9 GB file streams
+# from disk without filling RAM.
+[[presets.slots]]
+slot_id = "minion.escalation"
+model_repo_id = "unsloth/Phi-4-reasoning-plus-GGUF"
+model_filename = "Phi-4-reasoning-plus-Q4_K_M.gguf"
+model_size_mb = 9053
+vram_estimate_mb = 0
+device = "Cpu"
+
+# ── Preset 2: Mid (12 GB) — ActiveIdle Qwen3.5-9B / 4B ──────────
+
+[[presets]]
+tier = "Mid"
+preset_name = "Mid ActiveIdle (12GB)"
+
+[presets.brain_policy.ActiveIdle]
+active_model = "Qwen3.5-9B-Q4_K_M.gguf"
+idle_model = "Qwen3-VL-4B-Q4_K_M.gguf"
+idle_after_secs = 300
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3.5-9B-GGUF"
+model_filename = "Qwen3.5-9B-Q4_K_M.gguf"
+model_size_mb = 5300
+vram_estimate_mb = 5800
+device = "Gpu"
+display_name = "Qwen3.5 9B"
+display_tagline = "Alibaba's general reasoning model. Runs through llama.cpp."
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Gpu"
+display_name = "Qwen3 0.6B"
+display_tagline = "Tiny pre-sort + ranking model — runs everywhere. Through llama.cpp."
+
+# voice.brain — Phi-4-multimodal-instruct via mistral.rs at ISQ4
+# (~3-4 GB on a 12 GB tier alongside chat.brain 5.8 GB). Rotation
+# pair counterpart to Personaplex-7B at High/Ultra.
+[[presets.slots]]
+slot_id = "voice.brain"
+model_repo_id = "microsoft/Phi-4-multimodal-instruct"
+model_filename = "model.safetensors.index.json"
+model_size_mb = 11149
+vram_estimate_mb = 4000
+device = "Gpu"
+
+[presets.slots.extensions]
+mistralrs_isq = "Q4_0"
+
+# ── Preset 1: Floor (8 GB) — Static Qwen3-VL-4B ────────────────
+
+[[presets]]
+tier = "Floor"
+preset_name = "Floor (8GB)"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-VL-4B-GGUF"
+model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
+model_size_mb = 2600
+vram_estimate_mb = 3200
+device = "Gpu"
+display_name = "Qwen3-VL 4B"
+display_tagline = "Alibaba's compact vision-language reasoner. Runs through llama.cpp."
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "GpuWithCpuFallback"
+display_name = "Qwen3 0.6B"
+display_tagline = "Tiny pre-sort + ranking model — runs everywhere. Through llama.cpp."
+
+# voice.brain — Phi-4-multimodal-instruct via mistral.rs at ISQ4 with
+# CPU fallback. 8 GB rigs can't host both chat.brain (3.2 GB) and a
+# fully-resident voice model, so on-demand load with disk mmap is
+# the sane policy here. Cascade falls back to whisper STT + chat.fast
+# + Kokoro TTS if Phi-4-mm can't be brought online.
+[[presets.slots]]
+slot_id = "voice.brain"
+model_repo_id = "microsoft/Phi-4-multimodal-instruct"
+model_filename = "model.safetensors.index.json"
+model_size_mb = 11149
+vram_estimate_mb = 3500
+device = "GpuWithCpuFallback"
+
+[presets.slots.extensions]
+mistralrs_isq = "Q4_0"
+
+# rag.embedder + rag.encoder fall through to the common 0.6B
+# entry. Per locked decision — see `[[project_harrier_tier_locked_0_6b]]`
+# — the 270m variant is dropped. Harrier 0.6B GGUF footprint (~1.1 GB)
+# is small enough that no rig genuinely needs the smaller variant;
+# BackendPool ref-counts so one copy serves rag.embedder + rag.encoder
+# + chat.suggest simultaneously.
+
+# ── Preset 1 (Minimal) — <8 GB VRAM, CPU chat.brain ────────────
+
+[[presets]]
+tier = "Minimal"
+preset_name = "Floor — CPU Mode"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-VL-4B-GGUF"
+model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
+model_size_mb = 2600
+vram_estimate_mb = 3200
+device = "Cpu"
+display_name = "Qwen3-VL 4B (CPU)"
+display_tagline = "Compact vision-language reasoner running entirely on CPU. Through llama.cpp."
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Cpu"
+display_name = "Qwen3 0.6B (CPU)"
+display_tagline = "Tiny pre-sort + ranking model on CPU. Through llama.cpp."
+
+# voice.brain — Phi-4-multimodal-instruct via mistral.rs ISQ Q3_K with
+# GpuWithCpuFallback. Minimal tier (sub-8 GB VRAM) flexes the load
+# across whatever GPU is present + DDR + CPU. Active-idle handoff with
+# chat.brain keeps real-time voice possible even on constrained rigs.
+[[presets.slots]]
+slot_id = "voice.brain"
+model_repo_id = "microsoft/Phi-4-multimodal-instruct"
+model_filename = "model.safetensors.index.json"
+model_size_mb = 11149
+vram_estimate_mb = 2500
+device = "GpuWithCpuFallback"
+
+[presets.slots.extensions]
+mistralrs_isq = "Q3_K"
+
+# rag.embedder + rag.encoder fall through to common 0.6B
+# entry — 270m variant is dropped per the locked Harrier-0.6B
+# decision. See `[[project_harrier_tier_locked_0_6b]]`.
+
+# ── Preset 1 (CpuOnly) — no GPU, CPU everywhere ────────────────
+
+[[presets]]
+tier = "CpuOnly"
+preset_name = "Floor — CPU Mode"
+brain_policy = "Static"
+
+[[presets.slots]]
+slot_id = "chat.brain"
+model_repo_id = "bartowski/Qwen3-VL-4B-GGUF"
+model_filename = "Qwen3-VL-4B-Q4_K_M.gguf"
+model_size_mb = 2600
+vram_estimate_mb = 3200
+device = "Cpu"
+display_name = "Qwen3-VL 4B (CPU)"
+display_tagline = "Compact vision-language reasoner — CPU-only fallback. Through llama.cpp."
+
+[[presets.slots]]
+slot_id = "minion.shared"
+model_repo_id = "Qwen/Qwen3-0.6B-GGUF"
+model_filename = "qwen3-0.6b-q4_k_m.gguf"
+model_size_mb = 500
+vram_estimate_mb = 350
+device = "Cpu"
+display_name = "Qwen3 0.6B (CPU)"
+display_tagline = "Tiny pre-sort + ranking model — CPU-only fallback. Through llama.cpp."
+
+# voice.brain — Phi-4-multimodal-instruct via mistral.rs at Q4_0 ISQ on
+# pure CPU. Multi-second latency per turn vs. the GPU tiers' real-time
+# response, but the slot stays available — flex DDR + CPU end-to-end
+# instead of dropping the capability. User can override to a smaller
+# voice path via the devtool if latency is unacceptable.
+[[presets.slots]]
+slot_id = "voice.brain"
+model_repo_id = "microsoft/Phi-4-multimodal-instruct"
+model_filename = "model.safetensors.index.json"
+model_size_mb = 11149
+vram_estimate_mb = 0
+device = "Cpu"
+
+[presets.slots.extensions]
+mistralrs_isq = "Q4_0"
+
+# rag.embedder + rag.encoder fall through to common 0.6B
+# entry — 270m variant is dropped per the locked Harrier-0.6B
+# decision. See `[[project_harrier_tier_locked_0_6b]]`.
+
+# ── Common slots — inherited by every preset ───────────────────
+#
+# These entries are added to every preset's recommendation list
+# unless a tier-specific entry with the same `slot_id` already
+# exists. The loader handles the merge deterministically.
+#
+# rag.embedder + rag.encoder both default to Harrier 0.6B. Every
+# tier that needs 270M overrides both in its tier-specific block
+# (Floor, Minimal, CpuOnly already do this), so the common 0.6B
+# entry is skipped for those tiers by the HashSet dedup. Mid was
+# the only tier missing rag.encoder entirely — this entry closes
+# that gap without touching any other tier's recommendations.
+#
+# voice.wake added for the bundled sherpa-onnx KWS zipformer so
+# 24/7 wake detection works out-of-the-box with no user config.
+# voice.tts uses Kokoro English v0.19 — the same ONNX file the
+# voice.tts slot already defaults to in slots.default.toml.
+
+[[common.slots]]
+slot_id = "rag.embedder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "rag.encoder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+# chat.suggest — same Harrier 0.6B base as rag.embedder/rag.encoder.
+# BackendPool ref-counts identical model ids so the three slots share
+# ONE copy of the weights in CPU memory. The chat-input surface drives
+# type-time queries against this slot without a reasoner round-trip;
+# personal-history adapter is layered per-user via the LoRA slot.
+[[common.slots]]
+slot_id = "chat.suggest"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+[[common.slots]]
+slot_id = "rag.reranker"
+model_repo_id = "Qwen/Qwen3-Reranker-0.6B"
+model_filename = "model.safetensors"
+model_size_mb = 420
+vram_estimate_mb = 0
+device = "Cpu"
+
+# minion.embedder — Harrier 0.6B (LOCKED — see
+# `[[project_harrier_tier_locked_0_6b]]`). Minion processes share the
+# same 0.6B model id as Clyffy main's rag.embedder/rag.encoder; the
+# BackendPool ref-counts identical model ids so disk + memory hold
+# exactly ONE copy regardless of how many slots reference it. The
+# previous 270m variant is dropped — 0.6B's 1.1 GB GGUF footprint is
+# small enough that no rig genuinely needs the smaller variant.
+[[common.slots]]
+slot_id = "minion.embedder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+# minion.encoder — Harrier 0.6B paired with minion.embedder. Same
+# ref-counted weights as rag.encoder + chat.suggest. ONE Harrier 0.6B
+# copy in memory serves all five slots.
+[[common.slots]]
+slot_id = "minion.encoder"
+model_repo_id = "microsoft/harrier-oss-v1-0.6b"
+model_filename = "model.safetensors"
+model_size_mb = 1136
+vram_estimate_mb = 0
+device = "Cpu"
+
+# vision.embedder — SigLIP2 SO400M patch16-512 ("HD"). 4.55 GB
+# safetensors on CPU/DRAM. Higher resolution + finer patches than
+# the patch14-384 variant — better localization for image retrieval
+# and dense features. Used by `vision.embedder` consumers (RRO image
+# index, vision-search). Locked as the HD default per the canonical
+# vision-embedder requirement.
+[[common.slots]]
+slot_id = "vision.embedder"
+model_repo_id = "google/siglip2-so400m-patch16-512"
+model_filename = "model.safetensors"
+model_size_mb = 4550
+vram_estimate_mb = 0
+device = "Cpu"
+display_name = "SigLIP 2 SO400M (HD)"
+display_tagline = "Google's compact vision encoder, higher-resolution variant. Runs through Candle."
+
+[[common.slots]]
+slot_id = "voice.stt"
+model_repo_id = "ggerganov/whisper.cpp"
+model_filename = "ggml-small.bin"
+model_size_mb = 466
+vram_estimate_mb = 0
+device = "Cpu"
+display_name = "Whisper Small"
+display_tagline = "OpenAI's compact speech recognizer. Runs through Sherpa."
+
+# voice.tts — Qwen3-TTS-12Hz-0.6B-Base. Single TTS engine for both
+# default Clyffy voice and zero-shot voice cloning from a user-uploaded
+# reference clip (3-10 sec mp3/wav). Apache 2.0; loaded via Candle
+# through the `qwen3-tts` crate (TrevorS/qwen3-tts-rs).
+#
+# Two safetensors files in the repo, both mandatory: `model.safetensors`
+# (1.83 GB talker LM) + `speech_tokenizer/model.safetensors` (682 MB
+# neural codec). Total disk + memory ~2.52 GB. The codec is bundled
+# in the same repo; no separate vocoder.
+#
+# Output: f32 PCM mono 24 kHz — drops directly into rodio playback.
+# Reference audio input: 24 kHz mono (resample upstream via rubato).
+# ICL cloning on the Base variant requires the reference clip's
+# transcript alongside the audio (`VoiceCloneEntry.reference_text`).
+#
+# Device = "GpuWithCpuFallback": GPU residence (~2.5 GB) gives RTF
+# ~0.5 (real-time conversational); CPU fallback runs RTF ~4.5 which
+# is offline-batch-only — wake-word loop stutters on CPU. The runtime
+# budgeter picks GPU when fits (e.g. JessePrimary 16 GB rig with
+# Phi 15B already resident has ~3 GB headroom for voice.tts on GPU).
+[[common.slots]]
+slot_id = "voice.tts"
+model_repo_id = "Qwen/Qwen3-TTS-12Hz-0.6B-Base"
+model_filename = "model.safetensors"
+model_size_mb = 1830
+# vram_estimate_mb stays 0: the canonical lane in slots.default.toml is
+# CPU. When the runtime budgeter detects free GPU headroom on a tier
+# that can afford it (e.g. JessePrimary 16 GB rig with Phi 15B already
+# resident has ~3 GB free), the per-load device picker promotes voice.tts
+# to GPU at request time. Preset-time VRAM accounting stays canonical
+# so Floor/Minimal tiers don't lose budget to a GPU residency that
+# never happens for their hardware.
+vram_estimate_mb = 0
+device = "GpuWithCpuFallback"
+display_name = "Qwen3-TTS 0.6B (12 Hz)"
+display_tagline = "Alibaba's compact multilingual text-to-speech. Voice-cloning capable."
+
+[common.slots.extensions]
+codec_filename = "speech_tokenizer/model.safetensors"
+
+[[common.slots]]
+slot_id = "voice.wake"
+model_repo_id = "k2-fsa/sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20"
+model_filename = "encoder-epoch-99-avg-1.int8.onnx"
+model_size_mb = 12
+vram_estimate_mb = 0
+device = "Cpu"

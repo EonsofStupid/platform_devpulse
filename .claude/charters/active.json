@@ -1,0 +1,6 @@
+{
+  "slug": "kernel-extraction",
+  "goal": "Remove the kernel from `platform_devpulse` into a separate headless **ClyffyOS** backend, and make **DevPulse load as a clean standalone app** (Tauri + Svelte + ColdLight) with its own local store and **configs for three connection modes: local / network (WiFi·Ethernet) / GB10**.",
+  "activatedAt": "2026-06-28",
+  "note": "Managed by .claude/charters/{activate.mjs,fork.ps1,fork.sh} + the /fork skill. See README.md."
+}

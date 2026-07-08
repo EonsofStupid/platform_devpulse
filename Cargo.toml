@@ -6,8 +6,14 @@ members = [
     "kernel/rrd",
     "systems/devpulse-engine",
     "systems/devpulse-media",
-    "systems/infra/devpulse-telemetry",
-    "systems/infra/devpulse-telemetry-macros",
+    "systems/devpulse-persona-mcp",
+    "systems/devpulse-gb10-client",
+    "systems/devpulse-store",
+    # systems/infra/devpulse-telemetry{,-macros} extracted to
+    # github.com/EonsofStupid/devpulse-telemetry (2026-06-28). Sources still on
+    # disk under systems/infra/ until the Phase 5 cut; workspace no longer
+    # claims them as members so cargo resolves the workspace.dependencies
+    # `devpulse-telemetry = { git = ... }` against the published repo.
     "interfaces/desktop/src-tauri",
     "xtask", # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
@@ -36,7 +42,9 @@ specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid"] }
 specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")
-libsql = "0.9"
+# turso (Limbo) replaces libsql (operator decision 2026-07-01) — pure-Rust, native
+# vector search, turso::sync for the DevPulse↔Clyffy bridge. libsql fully removed.
+turso = "0.4.3"
 duckdb = { version = "1.10502", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
@@ -92,8 +100,11 @@ static_assertions = "1.1"
 # yet released as of 2026-05.
 tokio-util = { version = "0.7", features = ["rt"] }
 
-# Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
-devpulse-telemetry = { path = "systems/infra/devpulse-telemetry" }
+# Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK).
+# Extracted to its own repo 2026-06-28. Branch-tracked while pre-release; pin a
+# rev when the API stabilises. CI auth: secrets.DEVPULSE_TELEMETRY_TOKEN (set
+# via Infisical, see .github/workflows/ci.yml).
+devpulse-telemetry = { git = "https://github.com/EonsofStupid/devpulse-telemetry", branch = "main" }
 
 # Error Handling
 anyhow = "1.0"
@@ -180,6 +191,17 @@ disallowed_methods = "deny"
 # Migration of flume + broadcast channels to `devpulse_telemetry::TracedSender`
 # / `BroadcastSender` is scheduled alongside the signal-bus unification in
 # the next sprint phase. Escalate to `deny` after migration completes.
+
+# These pedantic-group lints fire on the soon-to-be-deleted setup-wizard
+# tree (kernel/model-loader/src/wizard/) and other Qdrant-derived crates
+# that the rro v2 alpha brought in. The wizard tree is fully absorbed
+# by PR #7 into the Slot Orchestrator devtool (per PLATFORM_TURNKEY_V2
+# §11); allowing here keeps PR #8 mergeable until #7 lands.
+# Re-tighten in the panic-hygiene milestone once both PRs are merged
+# and the legacy wizard code is gone.
+semicolon_if_nothing_returned = "allow"
+doc_markdown = "allow"
+doc_lazy_continuation = "allow"
 
 [workspace.lints.rust]
 unsafe_code = "deny"

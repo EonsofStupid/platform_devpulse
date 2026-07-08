@@ -17,7 +17,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::DuckDbAdapter;
+use devpulse_store::DuckDbAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -507,7 +507,7 @@ CREATE TABLE IF NOT EXISTS teaching_moments (
 // Schema baseline tests — chunk-by-chunk visual report.
 //
 // Built on the reusable harness in
-// `devpulse_clyffy::cortex::persistence::duckdb::diagnostics`. Each
+// `devpulse_store::duckdb::diagnostics`. Each
 // test produces streaming output of the form:
 //
 //   ── SCHEMA BISECT: SYSTEM_ANALYTICS_SCHEMA (17 chunks) ──
@@ -527,7 +527,7 @@ CREATE TABLE IF NOT EXISTS teaching_moments (
 #[cfg(test)]
 mod schema_baseline_tests {
     use super::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
-    use devpulse_clyffy::cortex::persistence::duckdb::diagnostics::{
+    use devpulse_store::duckdb::diagnostics::{
         assert_schema_idempotent, bisect_columns, bisect_schema, ColumnSpec,
     };
 

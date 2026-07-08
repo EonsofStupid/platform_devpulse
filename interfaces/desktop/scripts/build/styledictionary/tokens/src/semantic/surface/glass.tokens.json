@@ -74,6 +74,33 @@
 				"hex": "#000406"
 			},
 			"$description": "Purple-tinted glass — accent panels."
+		},
+		"blue": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.11, 0.05, 240],
+				"alpha": 0.749,
+				"hex": "#020408"
+			},
+			"$description": "Blue-tinted glass — connect / CTA-adjacent panels. Hue 240 matches brand blue (locked requirement #6). H-rotation sibling of teal/purple at the same L/alpha band (S1.C surface diversification)."
+		},
+		"ember": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.115, 0.045, 25],
+				"alpha": 0.749,
+				"hex": "#070302"
+			},
+			"$description": "Ember-tinted glass — warm accent panels. Hue 25 matches the ember brand ramp. H-rotation sibling of teal/purple (S1.C surface diversification)."
+		},
+		"coral": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.11, 0.045, 10],
+				"alpha": 0.749,
+				"hex": "#070203"
+			},
+			"$description": "Coral-tinted glass — voice / warm accent panels. Hue 10 matches the brand-coral ramp. H-rotation sibling of teal/purple (S1.C surface diversification)."
 		}
 	}
 }

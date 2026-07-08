@@ -1,9 +1,10 @@
 //! Platform engine — the sole public API for persistence, health, and config.
 //!
 //! The engine owns every service lifecycle: boot, health, shutdown.
-//! Clyffy (kernel) provides low-level adapters. The engine wraps them
-//! into managed services with config-driven boot and health orchestration.
-//! Tauri desktop is the thin facade that calls into this engine via IPC.
+//! DevPulse's own store (`devpulse-store`: Turso + DuckDB + Moka) provides
+//! the local adapters; the engine wraps them into managed services with
+//! config-driven boot and health orchestration. AI services are Clyffy's,
+//! served from GB10 over the wire. Tauri desktop is the thin facade.
 //!
 //! # Architecture
 //! ```text
@@ -17,33 +18,73 @@
 //! # Data Scopes
 //! ```text
 //! .userdata/
-//! ├── system/     Kernel internals (LibSQL, DuckDB, SurrealDB)
-//! ├── user/       User data (LibSQL, SurrealDB)
-//! ├── global/     Cross-project knowledge (SurrealDB)
-//! ├── projects/   Per-project data (SurrealDB, on demand)
+//! ├── system/     System stores (Turso relational, DuckDB analytics, Moka cache)
+//! ├── user/       User data (Turso relational, DuckDB analytics)
+//! ├── projects/   Per-project data (Turso + DuckDB, on demand)
 //! └── logs/       Rotated log files
 //! ```
 
+pub mod assistant;
 mod boot;
+pub mod community;
 pub mod config;
 #[allow(missing_docs)]
 pub mod facade;
+pub mod hardware;
 pub mod health;
 pub mod init;
-#[cfg(feature = "inference")]
-pub mod integrations;
+pub mod interactions;
+pub mod knowledge;
+// integrations module removed — it bridged kernel model_loader events
+// (`#[cfg(inference)]`); model events now come from Clyffy over the
+// gb10-client wire (kernel-severance).
 pub mod metrics;
+// Model-loader MANAGEMENT layer (relocated from kernel/model-loader during
+// the kernel-severance). DevPulse-local, links no inference backend.
+pub mod model_loader;
+pub mod model_registry;
 pub mod module;
 pub mod services;
 pub mod telemetry;
+pub mod wizard;
 
+pub use assistant::{
+    AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
+    VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
+};
+pub use community::{
+    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
+    FeedItem, FeedKind, DEFAULT_FEED_TTL_SECS,
+};
 pub use config::{
     retrieval_param_meta, sanitize_path, DataScope, ExecutionLane, LaneToggle, LaneTraceConfig,
     PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
 };
+pub use hardware::{HardwareMetrics, HardwareTier};
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
+pub use interactions::{InteractionPhase, InteractionTemplate, InteractionTrigger};
+pub use knowledge::{
+    record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
+    sync_remote_entries as knowledge_sync_remote_entries, EntryType as KnowledgeEntryType,
+    KnowledgeEntry, KnowledgeManifest, Reaction as KnowledgeReaction,
+    SelectionParams as KnowledgeSelectionParams, Tier as KnowledgeTier,
+};
 pub use metrics::ProcessMetrics;
+// Model-loader MANAGEMENT surface — DevPulse-local model management types +
+// the `ModelLoaderService` facade. No inference symbols cross here (those
+// are Clyffy's over the wire). See `platform::model_loader`.
+pub use model_loader::{
+    BackendType, BuildMode, ConfigBackend, DownloadScope, HfFileInfo, HfSearchResult, LoaderError,
+    LoaderEvent, LoaderEventSink, LoadingStage, MemoryConfig, ModelCapability, ModelLoaderService,
+    ModelMetadata, ModelRegistry, ModelRegistryEntry, ModelSource, ModelSourceTier, ModelStatus,
+    NullEventSink, PersistenceClass, Slot, SlotRegistry, TracingEventSink, VoiceEntry,
+    VoiceRegistry,
+};
+pub use model_registry::{
+    classify_arch_from_hf_config, installed_backends, resolve_compatibility, BackendMatrix,
+    LoadError, ModelFormat, Resolution,
+};
 pub use services::candle_config::CandleConfig;
 pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
 pub use services::routing_config::{
@@ -55,11 +96,12 @@ pub use services::sherpa_streaming::{
 };
 pub use services::sidecars::ollama::OllamaModel;
 pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
-pub use services::surreal::{SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus};
-pub use services::surreal_config::SurrealUserConfig;
 pub use services::voice_stt_config::VoiceSttConfig;
 pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::{Service, ServiceRole, ServiceState};
+pub use wizard::{
+    emit_event as emit_analytics_event, AnalyticsEvent, TierDisplay, TierRole, WizardCopy,
+};
 
 // ════════════════════════════════════════════════════════════════
 // Kernel re-exports — the engine's *declared public kernel API*
@@ -77,141 +119,11 @@ pub use services::{Service, ServiceRole, ServiceState};
 //
 // See `feedback_ip_boundary_is_vocabulary_not_wrappers.md` for the rule.
 
-// IP-NOTE: persistence adapter traits + raw SQL value types. All names
-// are generic (Analytics / Cache / LibSql / Sql{Adapter,Row,Value}) —
-// no kernel vocabulary, no rename needed.
-pub use devpulse_clyffy::cortex::persistence::{
-    AnalyticsAdapter, CacheAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
-};
-
-// IP-NOTE: RRO state machine — public-vocabulary types + runtime handle.
-// Names match `signals.registry.yaml` group `rro` exactly (registry-aligned
-// public vocabulary, not kernel internals). The handle stores transition
-// snapshots in a bounded ring and broadcasts them via context-propagating
-// `BroadcastSender` (ADR-002). Authored under the kernel cortex SSOT at
-// `kernel/devpulse-clyffy/src/cortex/reasoning/state.rs`.
-pub use devpulse_clyffy::cortex::reasoning::{
-    RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
-};
-
-// IP-NOTE: LLM constrained-decoding runtime — `llguidance`-backed.
-// Layman-friendly type names (`GrammarKind::JsonSchema`/`Regex`/`Enum`/
-// `Custom`, `GrammarStatus::*`). The kernel owns the constraint engine;
-// this is the read/control snapshot the devtool consumes. Distinct from
-// the user-facing writing-grammar / spelling tool (Harper). Authored
-// under the kernel cortex SSOT at
-// `kernel/devpulse-clyffy/src/cortex/llguidance/handle.rs`.
-pub use devpulse_clyffy::cortex::llguidance::{
-    GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus,
-};
-
-// IP-NOTE: knowledge-library types. Kernel uses short names
-// (`EntryType`, `Reaction`, …); engine prefixes them with `Knowledge`
-// so consumers see `KnowledgeEntryType`. The verbs `record_reaction`
-// / `select_entry` are also re-prefixed. This IS the translation
-// pattern — vocabulary rename at the seam, not a struct wrapper.
-pub use devpulse_clyffy::cortex::knowledge::{
-    record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
-    sync_remote_entries as knowledge_sync_remote_entries, EntryType as KnowledgeEntryType,
-    KnowledgeEntry, KnowledgeManifest, Reaction as KnowledgeReaction,
-    SelectedEntry as KnowledgeSelectedEntry, SelectionParams as KnowledgeSelectionParams,
-    Tier as KnowledgeTier,
-};
-
-// IP-NOTE: community feed cache. `FeedItem` + `FeedKind` cross to TS via
-// specta; verbs are layman-named (`upsert_feed_item`, `query_feed`,
-// `most_recent_sync_at`) so the desktop Tauri command surface reads them
-// without kernel-vocabulary translation. The actual HTTP fetch lives in
-// `commands/community/` (desktop tier); kernel owns only the cache shape.
-pub use devpulse_clyffy::cortex::community::{
-    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
-    FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS,
-};
-
-// IP-NOTE: cortex governance graph (CORTEX.md §4) — operator-authored
-// reasoning trees. `ThoughtRecord` / `thought_create` / `thought_load_branch`
-// are generic enough to cross outward; no rename needed. Engine callers
-// pass `graph.handle()` (the `&ScopedGraphHandle` returned by
-// `GraphService::handle()`) and convert their `RroState` via
-// `RroState::as_str()` at the seam.
-pub use devpulse_clyffy::cortex::governance::{thought_create, thought_load_branch, ThoughtRecord};
-
-// IP-NOTE: RRD encoder hot-swap return shape. `SwapStats` carries dim
-// + elapsed_ms + phases_observed — generic enough to cross outward.
-// The Tauri command `cortex_swap_encoder` returns this directly; the
-// engine `ModelLoaderService::burn_swap_encoder` passthrough preserves
-// the shape unchanged.
-//
-// Feature gate matches `devpulse-clyffy`'s `model-loader` cfg: the
-// underlying `model_loader::backends::burn_adapter` module is only
-// compiled when devpulse-clyffy is built with `model-loader` enabled
-// (engine's `inference` feature → `devpulse-clyffy/model-loader`).
-// Without the gate, `cargo check -p devpulse-engine` against default
-// features fails with E0433 "could not find `model_loader` in
-// `devpulse_clyffy`".
-#[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::backends::burn_adapter::SwapStats;
-
-// IP-NOTE: chat-input type-time suggestion service. `Suggestion` carries
-// a single recalled prompt + its score components; `SuggestionService`
-// is the embed-and-rank service over the user-scoped `chat_prompt`
-// corpus. Names describe industry-standard concepts (suggestion,
-// service) — no kernel vocabulary, no rename needed. Tauri layer calls
-// `Platform::ensure_suggest_service()` to obtain the service.
-pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
-
-// IP-NOTE: intelligence layer surface — embedding-aware memory + RRO
-// archive types, schema constant, and project routing helper. The
-// trait `IntelligenceStore` is implemented for `SurrealAdapter` in
-// the kernel; the engine re-exports the abstract types so the Tauri
-// `commands::intelligence` module can build typed responses without
-// reaching into the kernel directly. Names describe industry-standard
-// concepts (memory, embedding, archive) — no kernel vocabulary leaks.
-pub use devpulse_clyffy::cortex::intelligence::{
-    slug_for_cwd, IntelligenceStore, MemoryKind, MemoryRecord, NeighborRef, RecallHit, RroRecord,
-    EMBEDDING_DIM, MEMORY_SCHEMA,
-};
-
-// IP-NOTE: interaction templates — kernel-owned scripted exchanges
-// (setup wizard, welcome-back, etc.). Re-exported for the Tauri
-// `commands::interactions` module so the dispatcher can load
-// templates without crossing the IP boundary directly. Industry-
-// standard concept (state-machine-driven UI walkthroughs); the
-// vocabulary stays generic.
-pub use devpulse_clyffy::interactions::{
-    InteractionError, InteractionPhase, InteractionTemplate, InteractionTrigger,
-};
-
-// IP-NOTE: capability-bucket inference for downloadable model
-// filenames. Wraps the keyword SSOT in `model_loader::download` —
-// surfaced to the Tauri layer for the model-downloader UI's
-// "this filename → chat / rag / voice / vision" preview and for
-// the intelligence devtool's Debug tab. Industry-standard concept
-// (capability classification), no kernel vocabulary.
-#[cfg(feature = "candle")]
-pub use devpulse_clyffy::model_loader::infer_download_folder;
-
-// IP-NOTE: model-loader concepts the desktop UI surfaces directly
-// (registry entries, source-tier classification, slot identity).
-// All names describe industry-standard concepts, no rename needed.
-#[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::{
-    HardwareMetrics, ModelRegistryEntry, ModelSourceTier, Slot,
-};
-
-// IP-NOTE: architecture + backend compatibility registry. Public face
-// of the matrix the UI consumes for `ModelCompatibilityCard`. Names
-// describe model formats (gguf, safetensors), GPU backends (cuda,
-// metal), and arch families (LLaMA, Mistral) — all industry terms,
-// no kernel vocabulary, no rename needed.
-#[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
-#[cfg(feature = "inference")]
-pub use devpulse_clyffy::model_loader::registry::{
-    classify_arch_from_gguf, classify_arch_from_hf_config, installed_backends,
-    resolve_compatibility, Alternative, AlternativeKind, ArchFamily, ArchId, ArchitectureSpec,
-    BackendId, BackendInfo, BackendMatrix, FormatSupport, LoadError, Resolution, SupportStatus,
-    SupportTier, UnsupportedReason,
+// Persistence adapter traits + raw SQL value types, from the DevPulse-owned
+// kernel-free store crate. Turso (relational SSOT), DuckDB (analytics), Moka
+// (cache) live behind these agnostic traits.
+pub use devpulse_store::{
+    AnalyticsAdapter, CacheAdapter, DuckDbAdapter, SqlAdapter, SqlRow, SqlValue, TursoAdapter,
 };
 
 use anyhow::Result;
@@ -223,20 +135,12 @@ use std::time::Instant;
 use services::analytics::AnalyticsService;
 use services::cache::CacheService;
 use services::devforge::{resolve_devforge_server_dir, DevForgePreflight, DevForgeService};
-use services::graph::GraphService;
 // EmbedderService removed — slot-managed by model loader
 // WhisperService removed — slot-managed by model loader
-#[cfg(feature = "inference")]
-use services::model_loader::ModelLoaderService;
 use services::project_analytics::ProjectAnalyticsManager;
 use services::project_db::ProjectDbManager;
-use services::project_graph::ProjectGraphManager;
-#[cfg(feature = "rro")]
-use services::project_vector::ProjectVectorManager;
 use services::relational::RelationalService;
 use services::sidecars::ollama::OllamaService;
-#[cfg(feature = "rro")]
-use services::vector::VectorService;
 use services::{lifecycle_phase, PreflightRegistry};
 use telemetry::TelemetryHandle;
 
@@ -257,26 +161,13 @@ use devpulse_telemetry::prelude::{broadcast_channel, BroadcastSender};
 /// Feature gates are handled inline — non-compiled services are skipped.
 macro_rules! for_each_service {
     ($self:ident, $action:ident) => {
-        // SurrealDB sidecar — runs FIRST in health checks (the graph
-        // scopes below hold WS clients; sidecar health is the upstream
-        // signal).
-        $action!($self.surreal);
         // System scope (boot order)
         $action!($self.system_relational);
         $action!($self.system_analytics);
-        $action!($self.system_graph);
         $action!($self.system_cache);
         // User scope
         $action!($self.user_relational);
         $action!($self.user_analytics);
-        $action!($self.user_graph);
-        // Global scope
-        $action!($self.global_graph);
-        // Feature-gated services
-        #[cfg(feature = "rro")]
-        $action!($self.vector);
-        #[cfg(feature = "inference")]
-        $action!($self.model_loader);
         // DevForge is NOT in this macro — it's lazy-started on user demand
         // and lives in `ArcSwapOption`. Health + shutdown touch it manually.
     };
@@ -285,21 +176,11 @@ macro_rules! for_each_service {
 /// Reverse enumeration for shutdown (last booted = first shutdown).
 macro_rules! for_each_service_rev {
     ($self:ident, $action:ident) => {
-        #[cfg(feature = "inference")]
-        $action!($self.model_loader);
-        #[cfg(feature = "rro")]
-        $action!($self.vector);
-        $action!($self.global_graph);
-        $action!($self.user_graph);
         $action!($self.user_analytics);
         $action!($self.user_relational);
         $action!($self.system_cache);
-        $action!($self.system_graph);
         $action!($self.system_analytics);
         $action!($self.system_relational);
-        // Surreal sidecar shuts down LAST — after every client has had a
-        // chance to close its WS connection.
-        $action!($self.surreal);
     };
 }
 
@@ -321,38 +202,13 @@ const INTERNAL_EVENT_CAPACITY: usize = 1024;
 /// - `user_*`: User sessions, preferences, knowledge
 /// - `global_*`: Cross-project shared knowledge graph
 pub struct Platform {
-    // ── SurrealDB sidecar ─────────────────────────────────────
-    // Boot-time, not lazy: the graph scopes below hold WS clients
-    // that depend on this process. Keep it first in the struct so
-    // drop order shuts the clients down before killing the child.
-    surreal: Option<Arc<SurrealService>>,
     // ── System scope ────────────────────────────────────────────
     system_relational: Option<Arc<RelationalService>>,
     system_analytics: Option<Arc<AnalyticsService>>,
-    system_graph: Option<Arc<GraphService>>,
     system_cache: Option<Arc<CacheService>>,
     // ── User scope ──────────────────────────────────────────────
     user_relational: Option<Arc<RelationalService>>,
     user_analytics: Option<Arc<AnalyticsService>>,
-    user_graph: Option<Arc<GraphService>>,
-    // ── Global scope ────────────────────────────────────────────
-    global_graph: Option<Arc<GraphService>>,
-    // ── Vector (RRO) ──────────────────────────────────────────
-    #[cfg(feature = "rro")]
-    vector: Option<Arc<VectorService>>,
-    // Embedder + Whisper removed — slot-managed by model loader.
-    // ── Model Loader (Inference) ──────────────────────────────
-    #[cfg(feature = "inference")]
-    model_loader: Option<Arc<ModelLoaderService>>,
-    // ── Suggestion service (chat-input intellisense) ─────────
-    // Lazy-constructed on first call to `ensure_suggest_service` —
-    // both `model_loader` and `user_graph` must be ready before the
-    // bridge can wire to the `chat.suggest` slot. Gated behind
-    // `inference` because the bridge depends on the kernel embedder
-    // pool; non-inference builds expose `suggest_service()` returning
-    // `None` and `ensure_suggest_service()` returning a clear error.
-    #[cfg(feature = "inference")]
-    suggest: ArcSwapOption<devpulse_clyffy::cortex::suggest::SuggestionService>,
     // ── DevForge (VSCode) — lazy, user-initiated ─────────────
     // NOT a boot-time service. First open of the code-editor window
     // calls `ensure_devforge_started()` which spawns the REH child
@@ -370,26 +226,18 @@ pub struct Platform {
     sherpa_streaming: Arc<SherpaStreamingService>,
     // ── Telemetry (lane tracing) ─────────────────────────────
     telemetry: Option<TelemetryHandle>,
-    // ── Reasoning (RRO state machine) ────────────────────────
-    // Always present — the handle is in-memory only. Kernel rumination
-    // loop will drive transitions; the facade exposes snapshot + verbs.
-    reasoning: RroStateHandle,
-    // ── Grammar (structured-output constraint engine) ────────
-    // Always present — in-memory facade for the kernel grammar engine.
-    // Records enforcement / failure stats and exposes public toggle verbs.
-    grammar: GrammarHandle,
+    // ── Model-loader MANAGEMENT service ──────────────────────
+    // DevPulse-local model management (slot registry, discovery, download,
+    // hardware auto-config). `None` until boot constructs it — construction
+    // needs a `ConfigBackend` persistence adapter that only existed on the
+    // kernel side, so wiring it is a reported follow-up (see boot). The
+    // inference half is Clyffy's over the wire, not held here.
+    model_loader: Option<Arc<model_loader::ModelLoaderService>>,
     // ── Project scope ──────────────────────────────────────────
-    /// Per-project libSQL databases, created on demand (not at boot).
+    /// Per-project Turso databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
     /// Per-project `DuckDB` analytics, created on demand.
     project_analytics: Arc<ProjectAnalyticsManager>,
-    /// Per-project `SurrealDB` namespace handles, minted on demand inside
-    /// the shared embedded instance.
-    project_graph: Arc<ProjectGraphManager>,
-    /// Per-project Qdrant collection registry, created on demand inside
-    /// the shared embedded RRO instance.
-    #[cfg(feature = "rro")]
-    project_vector: Arc<ProjectVectorManager>,
     // ── Internal event broadcast bus ─────────────────────────
     // `InternalEvent` stream every observability subscriber (facade
     // bridge, minions, surface-events whitelist, governance) listens
@@ -473,38 +321,94 @@ impl Platform {
             "routing config loaded at boot"
         );
 
+        // Model-loader MANAGEMENT service (DevPulse-local, kernel-free) —
+        // see `construct_model_loader`.
+        let model_loader = Self::construct_model_loader(&boot_config, &data_dir);
+
         Ok(Self {
-            surreal: booted.surreal,
             system_relational: booted.system_relational,
             system_analytics: booted.system_analytics,
-            system_graph: booted.system_graph,
             system_cache: booted.system_cache,
             user_relational: booted.user_relational,
             user_analytics: booted.user_analytics,
-            user_graph: booted.user_graph,
-            global_graph: booted.global_graph,
-            #[cfg(feature = "rro")]
-            vector: booted.vector,
-            #[cfg(feature = "inference")]
-            model_loader: booted.model_loader,
-            #[cfg(feature = "inference")]
-            suggest: ArcSwapOption::empty(),
+            model_loader,
             devforge: ArcSwapOption::empty(),
             ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
             project_db: Arc::new(ProjectDbManager::new()),
             project_analytics: Arc::new(ProjectAnalyticsManager::new()),
-            project_graph: Arc::new(ProjectGraphManager::new()),
-            #[cfg(feature = "rro")]
-            project_vector: Arc::new(ProjectVectorManager::new()),
             telemetry,
-            reasoning: RroStateHandle::new(),
-            grammar: GrammarHandle::new(),
             internal_tx,
             boot_config,
             boot_time,
             data_dir,
         })
+    }
+
+    /// Construct the DevPulse-local, kernel-free model-loader MANAGEMENT
+    /// service. Persisted via an atomic-TOML `ConfigBackend` under
+    /// `{data_dir}/user/` (slot assignments / setup flags), matching the
+    /// platform config convention; Turso stays the SSOT for real data, this is
+    /// settings-like slot state. Inference is Clyffy's over the wire —
+    /// management-only here. Returns `None` when disabled by config or when
+    /// construction fails (management commands then report unavailable).
+    fn construct_model_loader(
+        boot_config: &PlatformBootConfig,
+        data_dir: &std::path::Path,
+    ) -> Option<Arc<model_loader::ModelLoaderService>> {
+        let ml_entry = &boot_config.services.system.model_loader;
+        if !ml_entry.enabled {
+            tracing::info!(
+                target: "model_loader.lifecycle",
+                "Model-loader disabled by config (services.system.model_loader.enabled = false)"
+            );
+            return None;
+        }
+        let userdata_dir = data_dir.join("user");
+        let models_dir = ml_entry.resolve_models_dir(data_dir);
+        let subdirs = ml_entry.subdir_names();
+        let presets = crate::platform::hardware::load_default_presets(&userdata_dir)
+            .unwrap_or_else(|e| {
+                tracing::warn!(
+                    target: "model_loader.lifecycle",
+                    error = %e,
+                    "hardware presets load failed — continuing with none"
+                );
+                Vec::new()
+            });
+        let config: Box<dyn model_loader::ConfigBackend> =
+            match model_loader::FileConfigBackend::load(&userdata_dir) {
+                Ok(backend) => Box::new(backend),
+                Err(e) => {
+                    tracing::warn!(
+                        target: "model_loader.lifecycle",
+                        error = %e,
+                        "model-loader config file unreadable — falling back to in-memory \
+                         (assignments won't persist this session)"
+                    );
+                    Box::new(model_loader::MemoryConfig::new())
+                }
+            };
+        let events: Arc<dyn model_loader::LoaderEventSink> =
+            Arc::new(model_loader::TracingEventSink);
+        match model_loader::ModelLoaderService::new(config, events, models_dir, subdirs, presets) {
+            Ok(service) => {
+                tracing::info!(
+                    target: "model_loader.lifecycle",
+                    "Model-loader management service constructed (atomic-TOML config)"
+                );
+                Some(Arc::new(service))
+            }
+            Err(e) => {
+                tracing::error!(
+                    target: "model_loader.lifecycle",
+                    error = %e,
+                    "Model-loader management construction FAILED — \
+                     management commands will report unavailable"
+                );
+                None
+            }
+        }
     }
 
     /// Borrow the platform-internal `InternalEvent` broadcast sender.
@@ -578,10 +482,12 @@ impl Platform {
     /// the platform know about, and what state are they in right now".
     /// The devtools config tab consumes it verbatim — there is no
     /// hand-maintained `DatabaseConfig` mirror.
+    #[expect(
+        clippy::unused_async,
+        reason = "kept async so the Tauri command signature stays uniform; Tier-2 runtime probes (grammar) move to the gb10-client (kernel-severance)"
+    )]
     pub async fn services_status(&self) -> Vec<ServiceStatusSnapshot> {
         use services::status::{feature_gate_compiled_in, manifest_entries, snapshot_from};
-
-        let grammar_runtime_enabled = self.grammar.snapshot().await.enabled;
 
         let mut out = Vec::with_capacity(manifest_entries().count());
         for meta in manifest_entries() {
@@ -596,7 +502,7 @@ impl Platform {
             } else if !config_enabled {
                 ServiceRuntimeState::ConfigDisabled
             } else {
-                self.runtime_state_for(meta.role, meta.scope, grammar_runtime_enabled)
+                self.runtime_state_for(meta.role, meta.scope)
             };
 
             out.push(snapshot_from(
@@ -616,34 +522,20 @@ impl Platform {
         &self,
         role: ServiceRole,
         scope: config::DataScope,
-        grammar_runtime_enabled: bool,
     ) -> ServiceRuntimeState {
         use config::DataScope;
         let present = match (role, scope) {
             (ServiceRole::Relational, DataScope::System) => self.system_relational.is_some(),
             (ServiceRole::Analytics, DataScope::System) => self.system_analytics.is_some(),
-            (ServiceRole::Graph, DataScope::System) => self.system_graph.is_some(),
             (ServiceRole::Cache, DataScope::System) => self.system_cache.is_some(),
             (ServiceRole::Relational, DataScope::User) => self.user_relational.is_some(),
             (ServiceRole::Analytics, DataScope::User) => self.user_analytics.is_some(),
-            (ServiceRole::Graph, DataScope::User) => self.user_graph.is_some(),
-            (ServiceRole::Graph, DataScope::Global) => self.global_graph.is_some(),
-            #[cfg(feature = "rro")]
-            (ServiceRole::Vector, DataScope::System) => self.vector.is_some(),
-            #[cfg(not(feature = "rro"))]
-            (ServiceRole::Vector, DataScope::System) => return ServiceRuntimeState::NotCompiled,
-            #[cfg(feature = "inference")]
-            (ServiceRole::ModelLoader, DataScope::System) => self.model_loader.is_some(),
-            #[cfg(not(feature = "inference"))]
-            (ServiceRole::ModelLoader, DataScope::System) => {
-                return ServiceRuntimeState::NotCompiled
-            }
             (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
             (ServiceRole::Ollama, DataScope::System) => self.ollama.load_full().is_some(),
-            (ServiceRole::Surreal, DataScope::System) => self.surreal.is_some(),
-            (ServiceRole::Grammar, DataScope::System) => grammar_runtime_enabled,
-            // Any (role, scope) pair not in SERVICE_MANIFEST shouldn't
-            // reach here — manifest→runtime dispatch covers every entry.
+            // Tier-2 roles (Graph/Vector/ModelLoader/Surreal/Grammar) are
+            // served by Clyffy on GB10 now — not local. Any manifest role
+            // without a local accessor reports Unknown until the manifest
+            // drops them (kernel-severance Pass 4 removes them from the enum).
             _ => return ServiceRuntimeState::Unknown,
         };
         if present {
@@ -675,22 +567,9 @@ impl Platform {
         self.system_analytics.as_ref()
     }
 
-    /// Get the system graph service (if enabled and booted).
-    pub fn graph(&self) -> Option<&Arc<GraphService>> {
-        self.system_graph.as_ref()
-    }
-
     /// Get the system cache service (if enabled and booted).
     pub fn cache(&self) -> Option<&Arc<CacheService>> {
         self.system_cache.as_ref()
-    }
-
-    // ── Vector accessor ────────────────────────────────────────
-
-    /// Get the vector service (if enabled and booted).
-    #[cfg(feature = "rro")]
-    pub fn vector(&self) -> Option<&Arc<VectorService>> {
-        self.vector.as_ref()
     }
 
     // ── User scope accessors ────────────────────────────────────
@@ -709,114 +588,31 @@ impl Platform {
         self.user_analytics.as_ref()
     }
 
-    /// Get the user graph service (if enabled and booted).
-    pub fn user_graph(&self) -> Option<&Arc<GraphService>> {
-        self.user_graph.as_ref()
-    }
+    // ── Model-loader MANAGEMENT accessors ──────────────────────
 
-    // ── Global scope accessors ──────────────────────────────────
-
-    /// Get the global graph service (if enabled and booted).
-    pub fn global_graph(&self) -> Option<&Arc<GraphService>> {
-        self.global_graph.as_ref()
-    }
-
-    // Embedder + Whisper accessors removed — slot-managed by model loader.
-
-    // ── Model Loader accessor ──────────────────────────────────────
-
-    /// Get the model loader service (if enabled and booted).
-    #[cfg(feature = "inference")]
-    pub fn model_loader(&self) -> Option<&Arc<ModelLoaderService>> {
+    /// Get the model-loader MANAGEMENT service (if constructed at boot).
+    ///
+    /// Returns `None` until boot wires a `ConfigBackend` persistence adapter
+    /// (a reported kernel-severance follow-up). This is the DevPulse-local
+    /// management surface only — inference (load/generate/embed/…) is
+    /// Clyffy's over the gb10-client wire, not served through this handle.
+    #[must_use]
+    pub fn model_loader(&self) -> Option<&Arc<model_loader::ModelLoaderService>> {
         self.model_loader.as_ref()
     }
 
-    // ── Suggestion service accessor + lazy builder ─────────────────
-
-    /// Get the chat-input suggestion service if it has been built.
-    ///
-    /// Returns `None` until [`Self::ensure_suggest_service`] succeeds
-    /// once. The accessor is non-blocking and lock-free
-    /// (`ArcSwapOption::load_full`).
-    #[cfg(feature = "inference")]
+    /// The model download catalog — engine-level presentation data
+    /// (`[services.system.model_loader.catalog]`) the model browser renders
+    /// against each slot id. Pure boot-config data; always available.
     #[must_use]
-    pub fn suggest_service(
-        &self,
-    ) -> Option<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>> {
-        self.suggest.load_full()
-    }
-
-    /// Build the suggestion service on first call; return the cached
-    /// `Arc` on every subsequent call.
-    ///
-    /// Construction wires:
-    /// - [`devpulse_clyffy::cortex::suggest::ChatSuggestEmbedder`] over the
-    ///   `chat.suggest` slot via the kernel `ModelLoaderService`.
-    /// - The embedder is cast to `Arc<dyn Embedder>` (`#[async_trait]`
-    ///   on the trait makes this `dyn`-compatible).
-    /// - The user graph's `SurrealAdapter` + namespace pair so the
-    ///   service writes/reads the `chat_prompt` table inside
-    ///   `USER_GRAPH_SCHEMA`.
-    ///
-    /// # Errors
-    /// - `model_loader` is not booted (no embedder source).
-    /// - `user_graph` is not booted (no storage target).
-    #[cfg(feature = "inference")]
-    #[expect(
-        clippy::unused_async,
-        reason = "callers in interfaces/desktop/src-tauri/src/commands/chat/suggest.rs `.await?` this; keeping the signature async is forward-compatible with a future construction step that becomes async (e.g. graph adapter warm-up) without breaking every call site"
-    )]
-    pub async fn ensure_suggest_service(
-        &self,
-    ) -> Result<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>, String> {
-        if let Some(svc) = self.suggest.load_full() {
-            return Ok(svc);
-        }
-
-        let loader = self
-            .model_loader
-            .as_ref()
-            .ok_or_else(|| "model_loader not booted".to_string())?;
-        let graph = self
-            .user_graph
-            .as_ref()
-            .ok_or_else(|| "user_graph not booted".to_string())?;
-
-        let kernel_loader = loader.kernel_clone();
-        let bridge = devpulse_clyffy::cortex::suggest::ChatSuggestEmbedder::new(kernel_loader);
-        let embedder: Arc<dyn devpulse_clyffy::cortex::cag::traits::Embedder> = Arc::new(bridge);
-
-        let adapter = Arc::clone(graph.adapter());
-        let namespace = graph.handle().namespace().to_string();
-        let database = graph.handle().database().to_string();
-
-        tracing::info!(
-            namespace = %namespace,
-            database = %database,
-            "constructing suggestion service (chat.suggest -> user graph)"
-        );
-
-        let svc = Arc::new(devpulse_clyffy::cortex::suggest::SuggestionService::new(
-            embedder, adapter, namespace, database,
-        ));
-        self.suggest.store(Some(Arc::clone(&svc)));
-        Ok(svc)
-    }
-
-    /// `inference`-disabled fallback for callers that compile without
-    /// the feature. Always `None`.
-    #[cfg(not(feature = "inference"))]
-    #[must_use]
-    pub fn suggest_service(
-        &self,
-    ) -> Option<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>> {
-        None
-    }
-
-    /// Get the model download catalog from the boot config.
     pub fn model_loader_catalog(&self) -> &[config::CatalogEntry] {
         &self.boot_config.services.system.model_loader.catalog
     }
+
+    // Graph / vector / suggestion accessors removed — those AI services are
+    // Clyffy's, served from GB10 over the gb10-client wire (kernel-severance).
+    // DevPulse-local keeps only the Tier-1 stores (Turso relational + DuckDB
+    // analytics + Moka cache) plus the model-loader MANAGEMENT service above.
 
     // ── DevForge accessor + lazy starter ───────────────────────
 
@@ -986,61 +782,8 @@ impl Platform {
         self.ollama.load_full()
     }
 
-    /// Get the managed `SurrealDB` sidecar, if boot succeeded.
-    #[must_use]
-    pub fn surreal(&self) -> Option<&Arc<SurrealService>> {
-        self.surreal.as_ref()
-    }
-
-    /// Read-only access to the `SurrealDB` sidecar config entry.
-    #[must_use]
-    pub fn boot_config_surreal(&self) -> &config::SurrealServiceEntry {
-        &self.boot_config.services.system.surreal
-    }
-
-    /// Serialize-friendly sidecar status for the Tauri command layer.
-    ///
-    /// Returns [`SurrealStatus::stopped`] if the sidecar is
-    /// absent (either disabled in config or its boot failed).
-    #[must_use]
-    pub fn surreal_status(&self) -> SurrealStatus {
-        match &self.surreal {
-            Some(svc) => svc.snapshot(),
-            None => SurrealStatus::stopped(),
-        }
-    }
-
-    /// Live-probe the sidecar and convert to a serialize-friendly result.
-    pub async fn surreal_health(&self) -> SurrealHealth {
-        match &self.surreal {
-            None => SurrealHealth::stopped(),
-            Some(svc) => match svc.adapter().ping().await {
-                Ok(()) => SurrealHealth::up(),
-                Err(e) => SurrealHealth::down(&format!("{e:#}")),
-            },
-        }
-    }
-
-    /// Load the user-scope editable overlay for the `SurrealDB` sidecar.
-    ///
-    /// Never errors — returns defaults if the file is missing or
-    /// malformed. The devtool mounts this as the starting point for
-    /// its Config tab draft.
-    #[must_use]
-    pub fn surreal_user_config_load(&self) -> SurrealUserConfig {
-        services::surreal_config::load(&self.data_dir)
-    }
-
-    /// Persist a user-scope overlay atomically.
-    ///
-    /// Returns the clamped, normalized version that was written so the
-    /// devtool can reflect the post-save state.
-    ///
-    /// # Errors
-    /// Returns an error if the file could not be written.
-    pub fn surreal_user_config_save(&self, cfg: &SurrealUserConfig) -> Result<SurrealUserConfig> {
-        services::surreal_config::save(&self.data_dir, cfg)
-    }
+    // SurrealDB sidecar accessors removed — the graph store is Clyffy's,
+    // on GB10 (kernel-severance). DevPulse-local is Turso + DuckDB only.
 
     /// Read-only view into the Ollama sidecar boot config entry.
     ///
@@ -1105,40 +848,16 @@ impl Platform {
     /// defaults so the wizard / settings surface always renders. When
     /// the inference feature is compiled out (or the loader isn't
     /// available yet), the persisted file value is returned verbatim.
-    #[cfg_attr(
-        not(feature = "inference"),
-        expect(
-            clippy::unused_async,
-            reason = "async needed when feature=inference is on (loader.get_assistant_config().await); kept async on every build so the Tauri command signature is uniform"
-        )
+    #[expect(
+        clippy::unused_async,
+        reason = "kept async so the Tauri command signature stays uniform; routing reconciliation against Clyffy moved to the gb10-client (kernel-severance)"
     )]
     pub async fn routing_config_load(&self) -> RoutingConfig {
-        // Reconcile against the kernel SSOT so the UI never disagrees
-        // with the dispatcher. The kernel write-through inside
-        // `routing_config_save` keeps these aligned on every write;
-        // the reconcile-on-read here covers the case where the kernel
-        // mode was changed via another path (legacy
-        // `set_inference_provider` command, direct assistant.toml edit)
-        // before the routing.toml surface existed. The binding is `mut`
-        // only on builds where the reconciliation actually mutates it
-        // (inference feature compiled in); the non-inference path keeps
-        // the file value verbatim.
-        #[cfg(feature = "inference")]
-        let mut cfg = services::routing_config::load(&self.data_dir);
-        #[cfg(not(feature = "inference"))]
-        let cfg = services::routing_config::load(&self.data_dir);
-
-        #[cfg(feature = "inference")]
-        if let Some(loader) = self.model_loader.as_ref() {
-            let assistant = loader.get_assistant_config().await;
-            let raw_mode = serde_json::to_value(&assistant.routing.mode)
-                .ok()
-                .and_then(|v| v.as_str().map(str::to_string))
-                .unwrap_or_else(|| "local_first".to_string());
-            cfg.latency.response_source = InferenceProvider::from_wire(&raw_mode);
-        }
-
-        cfg
+        // Routing preference is DevPulse-local persistence. The dispatch
+        // SSOT (which lane actually serves) is Clyffy's on GB10 now and is
+        // reconciled by the gb10-client (kernel-severance) — no local
+        // kernel loader read here.
+        services::routing_config::load(&self.data_dir)
     }
 
     /// Persist user-scope routing preferences atomically and write
@@ -1157,12 +876,9 @@ impl Platform {
     /// - Write-through to the kernel routing mode fails (when the
     ///   inference feature is compiled in and the model loader is
     ///   available).
-    #[cfg_attr(
-        not(feature = "inference"),
-        expect(
-            clippy::unused_async,
-            reason = "async needed when feature=inference is on (loader.set_routing_mode().await); kept async on every build so the Tauri command signature is uniform"
-        )
+    #[expect(
+        clippy::unused_async,
+        reason = "kept async so the Tauri command signature stays uniform; routing write-through to Clyffy moved to the gb10-client (kernel-severance)"
     )]
     pub async fn routing_config_save(&self, cfg: &RoutingConfig) -> Result<RoutingConfig> {
         let saved = services::routing_config::save(&self.data_dir, cfg)?;
@@ -1173,12 +889,9 @@ impl Platform {
         // saved `latency.response_source` actually gates which Claude
         // lane is allowed. Without this write-through, the routing.toml
         // surface would be a parallel store that no consumer reads.
-        #[cfg(feature = "inference")]
-        if let Some(loader) = self.model_loader.as_ref() {
-            loader
-                .set_routing_mode(saved.latency.response_source.as_str().to_string())
-                .await?;
-        }
+        // Write-through to the dispatch SSOT (Clyffy on GB10) is the
+        // gb10-client's job now (kernel-severance); the local save above
+        // is DevPulse's persistence of the user preference.
 
         let enabled_tier_count: u32 = saved
             .escalation
@@ -1351,18 +1064,8 @@ impl Platform {
         &self.project_analytics
     }
 
-    /// Get the per-project graph manager (`SurrealDB` namespaces inside
-    /// the shared embedded instance).
-    pub fn project_graph(&self) -> &Arc<ProjectGraphManager> {
-        &self.project_graph
-    }
-
-    /// Get the per-project vector collection manager (Qdrant collections
-    /// inside the shared embedded RRO instance).
-    #[cfg(feature = "rro")]
-    pub fn project_vector(&self) -> &Arc<ProjectVectorManager> {
-        &self.project_vector
-    }
+    // project_graph / project_vector accessors removed — per-project graph
+    // + vector stores are Clyffy's on GB10 (kernel-severance).
 
     /// Atomically initialize every per-project store for one project.
     ///
@@ -1378,17 +1081,9 @@ impl Platform {
         &self,
         config: &services::project_init::ProjectInitConfig,
     ) -> anyhow::Result<services::project_init::ProjectScope> {
-        let surreal_adapter = self.system_graph.as_ref().map(|svc| svc.adapter().clone());
-
         let cx = services::project_init::ProjectInitContext {
             project_db: &self.project_db,
             project_analytics: &self.project_analytics,
-            project_graph: &self.project_graph,
-            surreal_adapter: surreal_adapter.as_ref(),
-            #[cfg(feature = "rro")]
-            project_vector: &self.project_vector,
-            #[cfg(feature = "rro")]
-            vector: self.vector.as_ref(),
         };
 
         services::project_init::init_project_full(cx, config).await
@@ -1404,29 +1099,9 @@ impl Platform {
         self.telemetry.as_ref()
     }
 
-    // ── Reasoning accessor (RRO state machine) ──────────────────
-
-    /// Get the RRO state handle.
-    ///
-    /// Always present — the handle is in-memory, independent of persistence
-    /// services. The kernel rumination loop drives transitions; the façade
-    /// exposes snapshot + public verbs (gather/purge/fork).
-    pub fn reasoning(&self) -> &RroStateHandle {
-        &self.reasoning
-    }
-
-    // ── Grammar accessor (structured-output constraint engine) ──
-
-    /// Get the grammar handle.
-    ///
-    /// Always present — in-memory facade, independent of persistence services.
-    /// The kernel grammar engine drives enforcement / failure counters through
-    /// `record_enforcement` / `record_failure`; the façade exposes snapshot +
-    /// public verbs (`set_kind` / `enable` / `disable`) and a broadcast
-    /// subscription for live UI updates.
-    pub fn grammar(&self) -> &GrammarHandle {
-        &self.grammar
-    }
+    // reasoning (RRO) + grammar (constrained decoding) accessors removed —
+    // both are Clyffy's on GB10, surfaced through the gb10-client wire,
+    // not held on the local Platform (kernel-severance).
 
     /// Graceful shutdown — close all services in reverse boot order.
     ///
@@ -1475,13 +1150,9 @@ impl Platform {
 
         for_each_service_rev!(self, shutdown_one);
 
-        // Project-scope managers are not in the macro — they're
-        // on-demand, not boot-time. Order mirrors init: tear down
-        // graph + vector handles first (in-memory only), then the
-        // file-owning libSQL / DuckDB adapters.
-        self.project_graph.shutdown().await;
-        #[cfg(feature = "rro")]
-        self.project_vector.shutdown().await;
+        // Project-scope managers are not in the macro — they're on-demand,
+        // not boot-time. Tear down the file-owning Turso / DuckDB adapters
+        // (graph + vector are Clyffy's on GB10 now, kernel-severance).
         self.project_analytics.shutdown().await;
         self.project_db.shutdown().await;
 

@@ -58,7 +58,7 @@ pub const BASELINE_SLOT_IDS: &[&str] = &[
     "voice.wake",
     // Platform built-ins — appear in the "System" tab of the devtool.
     // Vector store (RRO) is NOT in this list — it's a storage adapter,
-    // not a model binding point, and lives in cortex/persistence/rro.rs.
+    // not a model binding point, and lives in connectome/persistence/rro.rs.
     // The devtool queries RRO status directly through the kernel rather
     // than through the slot registry.
     "rag.embedder",
@@ -459,7 +459,7 @@ mod tests {
     /// This is narrowed from the full `.claude/rules/ip-protection.md`
     /// list to only the *tactic / dep / library* names that would tell
     /// a reader "`DevPulse` uses X technique for Y". Internal codenames
-    /// (DIARY, GUARDIAN, PSYCH, Minion, Cortex, Trinity) are not on this
+    /// (DIARY, GUARDIAN, PSYCH, Minion, Connectome, Trinity) are not on this
     /// list — they are labels for industry-standard things ("agent skill",
     /// "specialist agent", "data layer") and naming them internally
     /// doesn't leak anything useful to a competitor.

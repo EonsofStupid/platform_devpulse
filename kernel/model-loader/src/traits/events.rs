@@ -226,16 +226,16 @@ pub enum LoaderEvent {
         slot_id: String,
     },
 
-    // ── Wizard cortex lifecycle ────────────────────────────
+    // ── Wizard connectome lifecycle ────────────────────────────
     //
     // Paired with `tracing::info!(target: "wizard.lifecycle", …)`
     // emissions in `service::assign_model` / `service::load_slot` /
     // `service::run_install_chain`. Both axes (`InternalEvent` and
     // tracing) MUST be wired together per
     // `feedback_dual_observability` — the devtool subscribes to
-    // these `LoaderEvent`s for live cortex-tile state mirroring,
+    // these `LoaderEvent`s for live connectome-tile state mirroring,
     // while the tracing target is for log replay + telemetry.
-    /// Wizard customer hit Apply on a cortex tile. Fires BEFORE
+    /// Wizard customer hit Apply on a connectome tile. Fires BEFORE
     /// the install chain begins so the UI can flip the tile to
     /// "saving" state immediately, before any IO blocks.
     WizardTileApplied {
@@ -272,10 +272,10 @@ pub enum LoaderEvent {
         /// helper produced).
         error: String,
     },
-    /// Every cortex slot in the wizard reached the `saved` state.
+    /// Every connectome slot in the wizard reached the `saved` state.
     /// Fired by the wizard view layer once `slotSaves.every(s =>
     /// s.state === "saved")` flips true.
-    WizardCortexComplete {
+    WizardConnectomeComplete {
         /// How many slots are now armed (typically 5 for the
         /// baseline foundation, but the constant is not enforced
         /// here — extending the constellation shouldn't require
@@ -289,7 +289,7 @@ pub enum LoaderEvent {
 
     // ── Intelligence pipeline lifecycle ────────────────────────
     //
-    // Fired by the cortex `process_chat_message` pipeline on every
+    // Fired by the connectome `process_chat_message` pipeline on every
     // chat turn. The devtool's `/devtools/clyffy/memory/intelligence`
     // live mirror subscribes to all three so the operator sees text
     // → embed → save in real time. Tracing partner emits on the
@@ -541,7 +541,7 @@ fn trace_load_swap_event(event: &LoaderEvent) -> bool {
     true
 }
 
-/// Trace wizard cortex lifecycle events on the `wizard.lifecycle`
+/// Trace wizard connectome lifecycle events on the `wizard.lifecycle`
 /// target. Consistent field names so log replay tools can correlate
 /// `slot_id` across events without per-variant adapters.
 fn trace_wizard_event(event: &LoaderEvent) -> bool {
@@ -575,7 +575,7 @@ fn trace_wizard_event(event: &LoaderEvent) -> bool {
                 "Wizard slot symlink failed"
             );
         }
-        LoaderEvent::WizardCortexComplete {
+        LoaderEvent::WizardConnectomeComplete {
             slots_saved,
             duration_ms,
         } => {
@@ -583,7 +583,7 @@ fn trace_wizard_event(event: &LoaderEvent) -> bool {
                 target: "wizard.lifecycle",
                 slots_saved,
                 duration_ms,
-                "Wizard cortex complete"
+                "Wizard connectome complete"
             );
         }
         _ => return false,

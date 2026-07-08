@@ -33,6 +33,7 @@
 //! type contract that the frontend listener generation depends on.
 
 use devpulse_engine::platform::HardwareMetrics;
+use devpulse_gb10_client::ConnectionState;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri_specta::Event;
@@ -207,3 +208,17 @@ pub struct UpdateDownloadProgress {
 /// `app.restart()`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 pub struct UpdateInstallFinished {}
+
+// ── Clyffy wire connection ──────────────────────────────────────────
+
+/// The Clyffy (headless AI layer) connection state changed — emitted by the
+/// background probe task on every transition (Disconnected ↔ Connecting ↔
+/// Connected). Frontend listens via `events.clyffyConnectionChanged.listen(cb)`
+/// to flip the no-AI indicator and light up Tier-2 surfaces. The `capability`
+/// inside a `Connected` payload is always **computed** from the endpoint
+/// handshake, never assumed.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+pub struct ClyffyConnectionChanged {
+    /// New connection state (carries the computed capability when Connected).
+    pub connection: ConnectionState,
+}

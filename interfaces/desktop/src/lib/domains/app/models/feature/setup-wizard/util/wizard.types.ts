@@ -16,6 +16,7 @@
 
 import type {
 	CompletionCopy,
+	ConnectCopy,
 	DownloadsCopy,
 	GreetingCopy,
 	HardwareCopy,
@@ -123,12 +124,15 @@ export interface SlotSaveEntryProps {
 	purpose: string;
 	/** Role description for the slot. */
 	tagline: string;
-	/** Layman model name ("SigLIP HD"). */
-	modelName: string;
-	/** Short model tagline. */
-	modelTagline: string;
-	/** Pre-formatted size hint ("~400 MB"). */
-	sizeHint: string;
+	/** Layman model name ("SigLIP HD"). Optional: omitted until the
+	 *  configured backend (local or networked GB10) reports its
+	 *  loaded models via the capability endpoint. Tiles render in
+	 *  "awaiting-backend" framing when this is absent. */
+	modelName?: string;
+	/** Short model tagline. Optional — see `modelName`. */
+	modelTagline?: string;
+	/** Pre-formatted size hint ("~400 MB"). Optional — backend-reported. */
+	sizeHint?: string;
 	/** Optional tier badge label. */
 	tierLabel?: string;
 	/** Lifecycle state of the save. */
@@ -180,22 +184,21 @@ export interface CortexViewProps {
 	/** Subtitle / tagline. */
 	subtitle: string;
 	/** One entry per anatomy tile to render. The cortex view picks
-	 *  out the entries matching its anatomy → slot id table
-	 *  (`brain` → `chat.brain`, `sparkles` → `minion.shared`,
+	 *  out the entries matching its anatomy → tile-key table
+	 *  (`brain` → `chat.brain`, `sparkles` → `rag.embedder`,
 	 *  `eyes` → `vision.embedder`, `ears` → `voice.stt`,
-	 *  `mouth` → `voice.tts`). Extra entries are ignored. */
+	 *  `mouth` → `voice.tts`). (Reconciled 2026-07-08: this doc
+	 *  previously said `sparkles` → `minion.shared`, drifted from the
+	 *  code.) Extra entries are ignored. */
 	slotSaves: SlotSaveEntryProps[];
 	/** Whether any apply is currently in flight. */
 	busy: boolean;
-	/** Apply callback per slot — triggers the parent's install chain
-	 *  (download → symlink → load). The parent fires
-	 *  `WizardTileApplied` + `wizard.lifecycle.*` tracing per
-	 *  [[feedback-dual-observability]]. */
+	/** Apply callback per slot — routes to the endpoint (connect)
+	 *  step. Tiles light up from the connected endpoint's capability
+	 *  (`clyffyConnection.slots`); they do not install anything. */
 	onApplySlot: (kernelSlotId: string) => void | Promise<void>;
 	/** Optional: open model picker overlay for one slot. */
 	onPickDifferent?: (kernelSlotId: string) => void;
-	/** Apply every unsaved slot in sequence. */
-	onApplyAll: () => void | Promise<void>;
 	/** Standard nav callbacks. */
 	callbacks: WizardCallbacks;
 }
@@ -223,6 +226,20 @@ export interface ClyffyCollabViewProps {
 }
 
 /**
+ * Props for the endpoint (connect) view — where the operator links the
+ * standalone app to a Clyffy endpoint (Local / GB10 over the mesh).
+ * Copy is the `[connect]` table from the Rust SSOT (`ConnectCopy`);
+ * live connection state comes from the `clyffyConnection` rune inside
+ * the view (capability-computed, never assumed), so the only props are
+ * copy + nav.
+ */
+export interface EndpointViewProps {
+	copy: ConnectCopy | null;
+	busy: boolean;
+	callbacks: WizardCallbacks;
+}
+
+/**
  * Discriminated union of every view's typed prop struct. The
  * dispatcher matches on the active view ID and renders the
  * corresponding component with the matching variant's `props`
@@ -233,6 +250,7 @@ export type ViewProps =
 	| { view: "welcome"; props: WelcomeViewProps }
 	| { view: "hardware"; props: HardwareViewProps }
 	| { view: "preset"; props: PresetViewProps }
+	| { view: "endpoint"; props: EndpointViewProps }
 	| { view: "cortex"; props: CortexViewProps }
 	| { view: "slot-save"; props: SlotSaveViewProps }
 	| { view: "installing"; props: InstallingViewProps }

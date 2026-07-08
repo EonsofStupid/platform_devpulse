@@ -93,6 +93,16 @@ pre-push:
       glob: "*.rs"
       run: cargo clippy --workspace -- -D warnings
 
+    # Format check on push — catches fmt drift that slipped through
+    # pre-commit's per-file glob (e.g. fmt issues introduced by a merge
+    # commit where incoming branch files weren't staged locally).
+    # 2026-06-22: persona MCP fmt drift slipped to GH CI via the Branch 1
+    # merge commit; pre-commit fmt only ran on locally-staged files, not
+    # merge-introduced ones. Pre-push fmt closes that gap.
+    cargo-fmt:
+      glob: "*.rs"
+      run: cargo fmt --all -- --check
+
     # Security audit
     cargo-deny:
       run: cargo deny check advisories

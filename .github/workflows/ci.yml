@@ -3,16 +3,18 @@ name: CI
 on:
   pull_request:
     branches: [main]
-    # Docs/scripts/agent-config changes do not affect the cargo or pnpm build
+    # Docs/agent-config changes do not affect the cargo or pnpm build
     # output, so they must not trigger the full llama-cpp/DuckDB/Tauri/Candle
     # workspace build. A PR is skipped only when EVERY changed file matches —
     # mixed PRs (docs + code) still run. NOTE: if branch protection later marks
     # "CI Pass" as a required check, switch to a dorny/paths-filter gate so the
     # required check still reports on skipped runs.
+    # `scripts/docs/**` (not `scripts/**`) — `scripts/build/` contains
+    # styledictionary + build tools that DO affect output.
     paths-ignore:
       - "**/*.md"
       - "docs/**"
-      - "scripts/**"
+      - "scripts/docs/**"
       - ".claude/**"
       - "LICENSE"
   push:
@@ -20,7 +22,7 @@ on:
     paths-ignore:
       - "**/*.md"
       - "docs/**"
-      - "scripts/**"
+      - "scripts/docs/**"
       - ".claude/**"
       - "LICENSE"
 
@@ -140,6 +142,45 @@ jobs:
           git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro.git".insteadOf "https://github.com/EonsofStupid/rro.git"
           echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
           echo "Configured cargo to use RRO_DEPLOY_TOKEN for private rro fetches"
+
+      # `devpulse-telemetry` was extracted to its own private repo 2026-06-28;
+      # workspace.dependencies declares it as `git = "..."`. Same `insteadOf`
+      # pattern as rro above. Secret name `DEVPULSE_TELEMETRY_TOKEN` is set on
+      # this repo via Infisical (`infisical run --env=dev -- gh secret set ...`).
+      - name: Configure cargo for private devpulse-telemetry fetches
+        env:
+          DEVPULSE_TELEMETRY_TOKEN: ${{ secrets.DEVPULSE_TELEMETRY_TOKEN }}
+        run: |
+          if [ -z "$DEVPULSE_TELEMETRY_TOKEN" ]; then
+            echo "::warning::DEVPULSE_TELEMETRY_TOKEN secret not set on this repo — cargo will fail to fetch private devpulse-telemetry dep."
+            echo "Fix: pull PAT from Infisical and pipe to gh secret set."
+            exit 0
+          fi
+          git config --global url."https://x-access-token:${DEVPULSE_TELEMETRY_TOKEN}@github.com/EonsofStupid/devpulse-telemetry".insteadOf "https://github.com/EonsofStupid/devpulse-telemetry"
+          git config --global url."https://x-access-token:${DEVPULSE_TELEMETRY_TOKEN}@github.com/EonsofStupid/devpulse-telemetry.git".insteadOf "https://github.com/EonsofStupid/devpulse-telemetry.git"
+          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
+          echo "Configured cargo to use DEVPULSE_TELEMETRY_TOKEN for private devpulse-telemetry fetches"
+
+      # `clyffyos-wire` is the Tier-2 wire CONTRACT SSOT, owned by the private
+      # EonsofStupid/clyffyos repo; `devpulse-gb10-client` declares it as a pinned
+      # `git = "..."` dep so DevPulse builds standalone (no sibling checkout). Same
+      # `insteadOf` pattern as rro/telemetry above. Secret `CLYFFYOS_DEPLOY_TOKEN`
+      # (PAT with `repo` scope on EonsofStupid/clyffyos) is set on this repo via
+      # Infisical (`infisical run --env=dev -- gh secret set ...`), never gh-secret-set
+      # by hand. Unset ⇒ warn + fail downstream with cargo's auth error (never silently skip).
+      - name: Configure cargo for private clyffyos-wire fetches
+        env:
+          CLYFFYOS_DEPLOY_TOKEN: ${{ secrets.CLYFFYOS_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$CLYFFYOS_DEPLOY_TOKEN" ]; then
+            echo "::warning::CLYFFYOS_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private clyffyos-wire dep."
+            echo "Fix: pull PAT from Infisical and pipe to gh secret set."
+            exit 0
+          fi
+          git config --global url."https://x-access-token:${CLYFFYOS_DEPLOY_TOKEN}@github.com/EonsofStupid/clyffyos".insteadOf "https://github.com/EonsofStupid/clyffyos"
+          git config --global url."https://x-access-token:${CLYFFYOS_DEPLOY_TOKEN}@github.com/EonsofStupid/clyffyos.git".insteadOf "https://github.com/EonsofStupid/clyffyos.git"
+          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
+          echo "Configured cargo to use CLYFFYOS_DEPLOY_TOKEN for private clyffyos-wire fetches"
 
       - name: Cache Cargo
         uses: actions/cache@v4

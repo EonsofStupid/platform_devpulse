@@ -5,11 +5,12 @@ Tauri desktop with managed models, voice pipeline, and visual builder.
 Pre-release — aggressive reauthoring, no shims.
 
 ## Stack
-- **Rust workspace** — kernel, engine, Tauri backend, xtask
+- **Rust workspace** — engine (DevPulse's core), Tauri backend, xtask. `kernel/` is legacy → headless ClyffyOS
 - **Svelte 5 runes** — `$state`, `$derived`, `$effect`. No legacy stores.
 - **Tauri 2.0** — multi-window cockpit via WebviewWindow
 - **Candle** (primary inference) + **llama.cpp FFI** (GGUF, secondary)
-- **libSQL** (SSOT) + **SurrealDB** (graph) + **DuckDB** (analytics)
+- **Turso** (local SSOT — replaces libSQL) + local **DuckDB** (project analytics).
+  **SurrealDB** + qortex + AI analytics run on **ClyffyOS/GB10**, not local.
 - **Style Dictionary 5** drives ColdLight — DTCG tokens → CSS + TS types
 
 ## Commands
@@ -21,9 +22,12 @@ Pre-release — aggressive reauthoring, no shims.
 - `cd interfaces/desktop && pnpm ds:tokens:build` — ColdLight token regen
 
 ## Structure
-- `kernel/devpulse-clyffy/`, `kernel/model-loader/` — **SENSITIVE IP**. Kernel
-  paths are OK to cite; kernel vocabulary is banned outside `kernel/` (CI-enforced).
-- `systems/devpulse-engine/` — platform engine (services, boot, config, signals)
+- `kernel/devpulse-clyffy/`, `kernel/model-loader/` — **not DevPulse's.** The kernel is
+  Clyffy's, headless on ClyffyOS/GB10 (optional local install later); these dirs are
+  **legacy pending extraction**. Engine is DevPulse's core ("the kernel" of DevPulse).
+  **NOT sensitive IP** — cite freely; the layman/Teaching-Mode simplify is engine→UI.
+- `systems/devpulse-engine/` — DevPulse's **core backend** ("the kernel" of DevPulse):
+  services, boot, config, signals, wire client
 - `systems/devpulse-media/` — audio/media crate
 - `systems/infra/{devpulse-telemetry, devpulse-telemetry-macros}/` — peer
   infrastructure crates (upward-only dependency direction)
@@ -40,7 +44,9 @@ Pre-release — aggressive reauthoring, no shims.
 ## Top 5 Hard Rules
 1. **No Python. No Docker. No external services.** Full Rust + TS + Svelte.
 2. **No `unwrap()` in production Rust.** Use `?` or explicit handling.
-3. **Kernel vocabulary stays in `kernel/`.** IP boundary is CI-enforced.
+3. **No kernel in DevPulse.** The kernel is Clyffy's (headless ClyffyOS/GB10);
+   `kernel/` here is legacy pending extraction. Engine is DevPulse's core; layman
+   Teaching-Mode simplification runs engine→UI (no sensitive IP, not secrecy).
 4. **Pre-release mode.** Reauthor aggressively. No shims. No backcompat.
 5. **Verify after every edit.** Never report "done" before compile passes.
 

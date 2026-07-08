@@ -445,10 +445,10 @@ context = ["logs", "traces"]
 severity = "hard"
 
 [[terms]]
-kernel = "Reasoning Ready Object"
+kernel = "Reason Ready Object"
 engine = "pre-processed context"
 prod = "pre-processed context"
-dev = "Reasoning Ready Object"
+dev = "Reason Ready Object"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -461,10 +461,10 @@ severity = "hard"
 # OverMind — PUBLIC route name, not protected.
 
 [[terms]]
-kernel = "Cortex"
+kernel = "Connectome"
 engine = "knowledge engine"
 prod = "knowledge engine"
-dev = "Cortex"
+dev = "Connectome"
 category = "architecture"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -520,7 +520,7 @@ severity = "hard"
 [[terms]]
 kernel = "SurrealAdapter"
 engine = "Graph store"
-prod = "Cortex"
+prod = "Connectome"
 dev = "SurrealDB"
 category = "stores"
 context = ["logs", "traces", "ui-text"]

@@ -1,7 +1,7 @@
 //! `DevPulse` Clyffy — AI orchestrator kernel.
 
-/// Cortex subsystem — persistence, reasoning, minions, KV cache.
-pub mod cortex;
+/// Connectome subsystem — persistence, reasoning, minions, KV cache.
+pub mod connectome;
 
 /// Clyffy interaction templates — kernel SSOT for structured,
 /// scripted exchanges between Clyffy and the user. The Setup Wizard
@@ -22,11 +22,11 @@ pub use model_loader;
 
 /// Top-level orchestrator facade.
 #[derive(Default)]
-pub struct Cortex {
+pub struct Connectome {
     // Main entry point
 }
 
-impl Cortex {
+impl Connectome {
     /// Create a new orchestrator instance.
     pub fn new() -> Self {
         Self::default()

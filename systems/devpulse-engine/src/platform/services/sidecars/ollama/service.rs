@@ -1,21 +1,20 @@
-//! Ollama service — engine facade over the kernel adapter.
+//! Ollama service — engine facade over the local adapter.
 //!
-//! The kernel owns the lifecycle (spawn / attach / health / shutdown,
-//! HTTP client, model commands). This facade wraps
-//! [`devpulse_clyffy::cortex::persistence::OllamaAdapter`] with the
-//! platform `Service` trait and preserves the public surface the Tauri
-//! commands and `Platform::ensure_ollama_started` depend on.
+//! DevPulse owns the lifecycle (spawn / attach / health / shutdown,
+//! HTTP client, model commands) via [`super::adapter::OllamaAdapter`]
+//! (kernel-severance relocated it here). This facade wraps the adapter
+//! with the platform `Service` trait and preserves the public surface the
+//! Tauri commands and `Platform::ensure_ollama_started` depend on.
 
+use super::adapter::{OllamaAdapter, OllamaConfig};
 use crate::platform::services::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::ollama::{OllamaAdapter, OllamaConfig};
 use std::path::{Path, PathBuf};
 
-// IP-NOTE: `OllamaModel` is a public-vocabulary-safe kernel type — it
-// only contains generic Ollama API fields (name, size, digest, …). It
-// crosses the Tauri IPC boundary directly via the optional `specta`
-// feature on `devpulse-clyffy`. No engine-side wrapper.
-pub use devpulse_clyffy::cortex::persistence::OllamaModel;
+// `OllamaModel` only contains generic Ollama API fields (name, size,
+// digest, …). It crosses the Tauri IPC boundary directly (the engine
+// always links `specta`). DevPulse owns the adapter now (kernel-severance).
+pub use super::adapter::OllamaModel;
 
 /// Ollama service — thin engine wrapper around [`OllamaAdapter`].
 pub struct OllamaService {

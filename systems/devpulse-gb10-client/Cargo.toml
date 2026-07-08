@@ -1,0 +1,29 @@
+[package]
+name = "devpulse-gb10-client"
+version = "0.1.0"
+edition = "2021"
+description = "DevPulse-side thin wire client to headless Clyffy (ClyffyOS) on the GB10 cluster. HTTP/JSON, capability-computed handshake against clyffyos-wire. DevPulse displays GB10 stats; it does not compute or store them."
+
+[features]
+default = []
+# Tauri IPC type derivation — on when the desktop shell codegens TS bindings for
+# ConnectionState against the same Rust definition. Propagates to the clyffyos-wire
+# contract so both share one specta source.
+specta = ["dep:specta", "clyffyos-wire/specta"]
+
+[dependencies]
+# The wire CONTRACT SSOT — git dep on the sibling clyffyos repo (private). One serde
+# definition, two consumers (clyffyd server + this client), no drift, and DevPulse
+# builds standalone without the clyffyos checkout on disk. Pinned to a rev so the
+# contract is reproducible; bump deliberately when the wire changes. CI fetches it via
+# CLYFFYOS_DEPLOY_TOKEN (see .github/workflows/ci.yml, same insteadOf pattern as rro).
+clyffyos-wire = { git = "https://github.com/EonsofStupid/clyffyos.git", rev = "eae33539025cca0c5149c783118171c5bef39af4" }
+serde = { workspace = true }
+thiserror = { workspace = true }
+# Async HTTP/JSON client for the /v1/capability handshake. native-tls (SChannel on
+# Windows-first) avoids an external crypto build; revisit rustls at cross-platform.
+reqwest = { version = "0.12", default-features = false, features = ["json", "native-tls"] }
+specta = { workspace = true, optional = true }
+
+[lints]
+workspace = true

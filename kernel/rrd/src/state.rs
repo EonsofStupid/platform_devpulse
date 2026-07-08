@@ -1,7 +1,7 @@
 //! # `RRDState` — daemon lifecycle state machine
 //!
 //! Five-state machine specified in
-//! [`scripts/docs/specs/cortex/rro/RRD.md`] §2 and re-quoted verbatim
+//! [`scripts/docs/specs/connectome/rro/RRD.md`] §2 and re-quoted verbatim
 //! in [`HOT_UPDATE_PATTERN.md`] §3.1.
 //!
 //! ## Legal transitions

@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-05-31T01:00:34.756Z
+ * Generated: 2026-07-03T06:03:02.684Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -334,14 +334,14 @@ export const TERMS: Record<string, Term> = {
 	"pre-processed context": {
 		engine: "pre-processed context",
 		prod: "pre-processed context",
-		dev: "Reasoning Ready Object",
+		dev: "Reason Ready Object",
 		category: "algorithms",
 		context: ["logs","traces"],
 	},
 	"knowledge engine": {
 		engine: "knowledge engine",
 		prod: "knowledge engine",
-		dev: "Cortex",
+		dev: "Connectome",
 		category: "architecture",
 		context: ["logs","traces","ui-text"],
 	},
@@ -375,7 +375,7 @@ export const TERMS: Record<string, Term> = {
 	},
 	"Graph store": {
 		engine: "Graph store",
-		prod: "Cortex",
+		prod: "Connectome",
 		dev: "SurrealDB",
 		category: "stores",
 		context: ["logs","traces","ui-text"],

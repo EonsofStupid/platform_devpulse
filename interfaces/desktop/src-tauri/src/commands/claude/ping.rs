@@ -13,7 +13,7 @@
 //! Why a separate command (vs. a generic `chat_with_provider`): the
 //! `AnthropicApi` has a distinct request shape (`messages` field,
 //! `anthropic-version` header, `x-api-key` auth) and we want the
-//! cortex reasoning router to call this directly without going through
+//! connectome reasoning router to call this directly without going through
 //! a routing-config indirection. Future: when more providers ship,
 //! refactor to a `chat_with_provider` dispatcher.
 
@@ -47,7 +47,7 @@ const ANTHROPIC_URL: &str = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VERSION: &str = "2023-06-01";
 
 /// Default model when the caller doesn't specify one. Sonnet is the
-/// balanced default — capable enough for the cortex reasoning
+/// balanced default — capable enough for the connectome reasoning
 /// escalation slot, cheap enough that a chat-turn call doesn't
 /// surprise-bill the customer.
 const DEFAULT_MODEL: &str = "claude-sonnet-4-5";
@@ -74,7 +74,7 @@ pub struct PingClaudeRequest {
 /// What `ping_claude` returns to the frontend.
 ///
 /// The shape mirrors the parts of the Anthropic Messages API response
-/// the cortex actually needs (text + usage), not the full envelope.
+/// the connectome actually needs (text + usage), not the full envelope.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct PingClaudeResponse {
@@ -127,7 +127,7 @@ enum AnthropicContentBlock {
         text: String,
     },
     /// Other block types (`tool_use`, etc.) are ignored for the chat
-    /// surface — assistant text-only is what the cortex consumes.
+    /// surface — assistant text-only is what the connectome consumes.
     #[serde(other)]
     Other,
 }
@@ -146,7 +146,7 @@ struct AnthropicUsage {
 ///
 /// Synchronous (non-streaming) for the first cut. A streaming variant
 /// (`ping_claude_stream`) returning through Tauri events can land in a
-/// follow-up if the cortex reasoning surface needs incremental tokens.
+/// follow-up if the connectome reasoning surface needs incremental tokens.
 ///
 /// # Errors
 ///

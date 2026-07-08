@@ -16,6 +16,10 @@
   --primary-deep-glow: var(--accent-azure-glow); /** Primary deep glow. */
   --primary-deep-fill: var(--accent-azure-fill); /** Primary deep area fill. */
   --primary-deep-fg: var(--text-primary); /** Foreground / on-primary-deep text. */
+  --cta-main: var(--primary-main); /** CTA lead — aliases primary.main (brand blue). */
+  --cta-glow: var(--primary-glow); /** CTA glow — aliases primary.glow. */
+  --cta-fill: var(--primary-fill); /** CTA area fill — aliases primary.fill. */
+  --cta-fg: var(--primary-fg); /** Foreground / on-CTA text — aliases primary.fg. */
   --secondary-main: var(--accent-ember-main); /** Secondary indicator — bound to ember. */
   --secondary-glow: var(--accent-ember-glow); /** Secondary glow. */
   --secondary-fill: var(--accent-ember-fill); /** Secondary area fill. */

@@ -15,37 +15,19 @@
 import { Brain, Ear, Eye, MessageCircle, Search, Wrench } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { clyffyConnection } from "$lib/domains/clyffy/status/connection.state.svelte.js";
 import {
-	type ClyffyCapability,
 	type ClyffyCapabilityGroup,
 	groupCapabilities,
-	listCapabilities,
+	resolveCapabilities,
 } from "./tools.service.js";
 
-let capabilities = $state<readonly ClyffyCapability[]>([]);
-let loading = $state<boolean>(true);
-let error = $state<string | null>(null);
+// Availability is a pure function of the connected endpoint's
+// advertised slots — live over the connection event, never a stub.
+// Standalone resolves every tile to "Not yet available", honestly.
+$effect(() => clyffyConnection.subscribe());
 
-$effect(() => {
-	let cancelled = false;
-	loading = true;
-	error = null;
-	listCapabilities()
-		.then((list) => {
-			if (cancelled) return;
-			capabilities = list;
-			loading = false;
-		})
-		.catch((e) => {
-			if (cancelled) return;
-			error = e instanceof Error ? e.message : String(e);
-			loading = false;
-		});
-	return () => {
-		cancelled = true;
-	};
-});
-
+const capabilities = $derived(resolveCapabilities(clyffyConnection.slots));
 const grouped = $derived(groupCapabilities(capabilities));
 
 const groupMeta: Record<ClyffyCapabilityGroup, { label: string; icon: typeof Brain }> = {
@@ -59,13 +41,13 @@ const groupMeta: Record<ClyffyCapabilityGroup, { label: string; icon: typeof Bra
 const orderedGroups: ClyffyCapabilityGroup[] = ["thinking", "memory", "voice", "vision", "tools"];
 </script>
 
-<div class={stack({ gap: "4" })} data-kind="clyffy-tools-browser" data-slot="root">
-	{#if loading}
-		<Text size="sm" color="muted">Loading capabilities...</Text>
-	{:else if error}
-		<Text size="sm" color="muted">Could not load capabilities: {error}</Text>
-	{:else}
-		{#each orderedGroups as group (group)}
+<div
+	class={stack({ gap: "4" })}
+	data-kind="clyffy-tools-browser"
+	data-slot="root"
+	data-tier={clyffyConnection.tier}
+>
+	{#each orderedGroups as group (group)}
 			{@const items = grouped[group]}
 			{#if items.length > 0}
 				{@const meta = groupMeta[group]}
@@ -97,6 +79,5 @@ const orderedGroups: ClyffyCapabilityGroup[] = ["thinking", "memory", "voice", "
 					</div>
 				</section>
 			{/if}
-		{/each}
-	{/if}
+	{/each}
 </div>

@@ -137,7 +137,7 @@ onMount(() => {
 });
 
 // ── Chat window auto-open ─────────────────────────────────
-// Five WindowRoles are authored kernel-side (Main / Chat / CortexViewer /
+// Five WindowRoles are authored kernel-side (Main / Chat / ConnectomeViewer /
 // ModelLoader / DevTools) but `tauri.conf.json` declares only Main; the
 // rest spawn via `commands::window::open_window(role)`. Nothing fires the
 // Chat spawn after boot — the customer flow per spec is "chat window

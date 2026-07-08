@@ -22,7 +22,7 @@ pub async fn list_sessions(state: State<'_, PlatformState>) -> Result<Vec<ChatSe
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .relational()
+        .user_relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 
@@ -79,7 +79,7 @@ pub async fn delete_session(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .relational()
+        .user_relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 
@@ -107,7 +107,7 @@ pub async fn clear_all_chat_history(state: State<'_, PlatformState>) -> Result<(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .relational()
+        .user_relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 
@@ -205,7 +205,7 @@ pub async fn export_session(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .relational()
+        .user_relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 
@@ -271,7 +271,7 @@ pub async fn export_all_sessions(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .relational()
+        .user_relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 

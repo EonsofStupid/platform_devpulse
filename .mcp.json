@@ -18,6 +18,13 @@
       "env": {
         "CONTEXT7_API_KEY": "ctx7sk-2ee50c50-bb37-44af-ad7c-83a76b874a69"
       }
+    },
+    "devpulse-persona": {
+      "command": "D:\\localdev\\platform_devpulse\\target\\release\\devpulse-persona-mcp.exe",
+      "env": {
+        "CLYFFY_OFFLINE": "true",
+        "DEVPULSE_PERSONA_LOG": "info"
+      }
     }
   }
 }

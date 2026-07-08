@@ -29,6 +29,7 @@ export type WizardView =
 	| "welcome"
 	| "hardware"
 	| "preset"
+	| "endpoint"
 	| "cortex"
 	| "slot-save"
 	| "installing"
@@ -47,10 +48,19 @@ export type WizardView =
  * finished landing — easier to make the "do you also want Claude?"
  * decision when the local setup is visibly in place.
  */
+/**
+ * `endpoint` (the connect step — Local / GB10 address entry) sits
+ * before `cortex` so the sense tiles light up from the freshly
+ * connected endpoint's capability instead of rendering empty first.
+ * Skip on the endpoint step leaves the app standalone (Tier-1) — a
+ * mode, never an error — and the tiles render their honest
+ * awaiting-backend framing.
+ */
 const VIEW_ORDER: readonly WizardView[] = [
 	"welcome",
 	"hardware",
 	"preset",
+	"endpoint",
 	"cortex",
 	"installing",
 	"clyffy-collab",
