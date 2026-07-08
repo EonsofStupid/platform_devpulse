@@ -1214,8 +1214,7 @@ async fn boot_task(
                 let clyffy_cfg = &platform_arc.boot_config().services.system.clyffy;
                 let interval =
                     std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
-                let timeout =
-                    std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
+                let timeout = std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
                 // Seed priority: the operator's PERSISTED choice (survives
                 // restarts, written by connect/disconnect) wins over the
                 // static boot config's base_url. A persisted explicit

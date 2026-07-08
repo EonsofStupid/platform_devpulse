@@ -106,10 +106,7 @@ mod tests {
 
     #[test]
     fn roundtrip_persists_endpoint_and_decision() {
-        let dir = std::env::temp_dir().join(format!(
-            "devpulse-connstore-{}",
-            std::process::id()
-        ));
+        let dir = std::env::temp_dir().join(format!("devpulse-connstore-{}", std::process::id()));
         let store = ConnectionStore::new(&dir);
         let record = ClyffyConnectionRecord {
             endpoint: Some("http://example.invalid:1".to_string()),
