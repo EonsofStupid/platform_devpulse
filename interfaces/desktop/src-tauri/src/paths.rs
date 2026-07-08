@@ -219,10 +219,8 @@ mod tests {
 
     #[test]
     fn portable_probe_creates_userdata_in_writable_dir() {
-        let base = std::env::temp_dir().join(format!(
-            "devpulse-portable-probe-{}",
-            std::process::id()
-        ));
+        let base =
+            std::env::temp_dir().join(format!("devpulse-portable-probe-{}", std::process::id()));
         std::fs::create_dir_all(&base).expect("temp base must create");
         let resolved =
             try_create_portable_userdata(&base).expect("writable dir must resolve to Some");
