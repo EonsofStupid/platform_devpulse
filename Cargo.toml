@@ -6,7 +6,9 @@ members = [
     "kernel/rrd",
     "systems/devpulse-engine",
     "systems/devpulse-media",
-    "systems/devpulse-persona-mcp",
+    # persona-mcp is Clyffy's — lives at github.com/EonsofStupid/clyffyos
+    # (systems/clyffyos-persona-mcp, evolved). Removed 2026-07-08 with the
+    # kernel cut; .mcp.json repoints at the clyffyos-built binary.
     "systems/devpulse-gb10-client",
     "systems/devpulse-store",
     # systems/infra/devpulse-telemetry{,-macros} extracted to
