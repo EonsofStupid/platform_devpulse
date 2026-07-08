@@ -55,17 +55,12 @@ chrono = { workspace = true }
 # come from the kernel. See systems/devpulse-store.
 devpulse-store = { path = "../devpulse-store" }
 
-# devpulse-clyffy dependency REMOVED (kernel-severance) — the engine no
-# longer links the kernel or llama.cpp. AI services are Clyffy's on GB10,
-# reached over the gb10-client wire; Tier-1 stores come from devpulse-store.
-
-# Reason Ready Daemon (RRD) — in-process orchestrator for the RRO
-# cluster's hot-update lifecycle. The engine consumes only the
-# tracing taxonomy (`RRD_LIFECYCLE_TARGET`) for the
-# `RrdLifecycleTranslator` layer; daemon construction lives in
-# kernel-internal callers. tracing-subscriber (already a dep
-# above) provides the Layer infrastructure the translator extends.
-rrd = { path = "../../kernel/rrd" }
+# The AI layer is Clyffy's, in the clyffyos repo — the engine links no
+# AI/kernel crates. AI services are reached over the gb10-client wire;
+# Tier-1 stores come from devpulse-store. The RRD daemon (clyffyos-rrd)
+# is likewise Clyffy-side; the engine's RrdLifecycleTranslator owns the
+# subscriber half of the `rrd.lifecycle` tracing contract with the
+# target const defined locally (see services/rrd_translator.rs).
 
 # HTTP server (SurrealDB endpoint on :8822, MCP SSE on :9315)
 axum = "0.8"

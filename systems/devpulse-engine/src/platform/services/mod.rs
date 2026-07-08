@@ -241,18 +241,18 @@ macro_rules! emit_lifecycle_dual {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RRD lifecycle taxonomy → moved to kernel/rrd crate
+// RRD lifecycle taxonomy — a tracing contract with Clyffy's daemon
 // ═══════════════════════════════════════════════════════════════
 //
-// `RRD_LIFECYCLE_TARGET`, `rrd_lifecycle_phase`, and the
-// `emit_rrd_lifecycle!` macro now live in the `rrd` kernel crate
-// (`kernel/rrd/src/lifecycle.rs`) per `HOT_UPDATE_PATTERN.md` §11
-// — the daemon must not depend on the engine. The dual-emission
-// rule (H12) is preserved structurally by the
-// `RrdLifecycleTranslator` tracing layer in
-// [`crate::platform::services::rrd_translator`], which mirrors
-// every event on the `rrd.lifecycle` target into
-// `InternalEvent::RrdPhaseTransition`.
+// The RRD daemon is Clyffy's (`clyffyos-rrd`, clyffyos repo) and
+// emits lifecycle events on the `rrd.lifecycle` tracing target per
+// `HOT_UPDATE_PATTERN.md` §11 — the daemon never depends on this
+// engine. The engine owns the SUBSCRIBER half of that contract:
+// `RRD_LIFECYCLE_TARGET` is defined in
+// [`crate::platform::services::rrd_translator`], whose
+// `RrdLifecycleTranslator` tracing layer preserves the dual-emission
+// rule (H12) structurally by mirroring every event on the target
+// into `InternalEvent::RrdPhaseTransition`.
 //
 // Engine code that wants to observe RRD lifecycle events should
 // either (a) subscribe to `query_scoped_log("rrd.lifecycle", ...)`

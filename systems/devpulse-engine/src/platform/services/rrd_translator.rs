@@ -2,16 +2,17 @@
 //!
 //! Per `HOT_UPDATE_PATTERN.md` §11 (Observability Contract) and
 //! H12 (Dual Emission): every state transition emitted by the
-//! kernel-resident RRD daemon must surface on BOTH observability
-//! layers — structured tracing (where the devtool log surface and
+//! RRD daemon must surface on BOTH observability layers —
+//! structured tracing (where the devtool log surface and
 //! OTLP exporter consume from) AND the typed `InternalEvent`
 //! broadcast bus (where minion subscribers, governance reactors,
 //! and the devtool Debug tab consume from).
 //!
-//! The kernel `rrd` crate does NOT depend on `devpulse-engine`
-//! (kernel sits below engine in the dependency layering). The
-//! daemon therefore emits via `tracing` only. This translator
-//! preserves H12 by **structural guarantee**: a single
+//! The daemon is Clyffy's (`clyffyos-rrd`, in the clyffyos repo) and
+//! has no dependency on this engine. It emits via `tracing` only, on
+//! the contract target [`RRD_LIFECYCLE_TARGET`] — the engine owns the
+//! subscriber half of that contract here. This translator preserves
+//! H12 by **structural guarantee**: a single
 //! [`tracing_subscriber::Layer`] in the engine's tracing pipeline
 //! intercepts every event with `target = rrd.lifecycle`, extracts
 //! the `phase` and `detail` fields, and emits a corresponding
@@ -44,6 +45,13 @@ use tracing_subscriber::layer::{Context, Layer};
 use devpulse_telemetry::prelude::BroadcastSender;
 
 use crate::platform::facade::events::InternalEvent;
+
+/// Tracing target every RRD lifecycle event uses — the engine's half of
+/// the tracing contract with the Clyffy-side daemon (`clyffyos-rrd`
+/// defines the same value on its emitter half; the string IS the
+/// contract, like a wire route). Subscribers (devtool log surface,
+/// OTLP exporter, this translator) filter on this single target.
+pub const RRD_LIFECYCLE_TARGET: &str = "rrd.lifecycle";
 
 /// Process-global broadcast sender, installed exactly once by
 /// `Platform::boot` after the engine's bus is constructed.
@@ -143,10 +151,10 @@ impl Visit for PhaseDetailVisitor<'_> {
 
 impl<S: Subscriber> Layer<S> for RrdLifecycleTranslator {
     fn on_event(&self, event: &tracing::Event<'_>, _ctx: Context<'_, S>) {
-        // Filter — only translate events on the kernel's
+        // Filter — only translate events on the daemon's
         // `rrd.lifecycle` target. Other tracing traffic flows
         // through unchanged to other Layers.
-        if event.metadata().target() != rrd::RRD_LIFECYCLE_TARGET {
+        if event.metadata().target() != RRD_LIFECYCLE_TARGET {
             return;
         }
 
@@ -225,9 +233,14 @@ mod tests {
         let subscriber = Registry::default().with(translator);
         let _guard = tracing::subscriber::set_default(subscriber);
 
-        // Emit an event on the RRD lifecycle target the daemon way.
-        rrd::emit_rrd_lifecycle!(
-            "swap_commit",
+        // Emit an event on the RRD lifecycle target exactly the way the
+        // daemon's macro expands — a raw tracing event on the contract
+        // target. Deliberately NOT a macro call: the module doc's thesis
+        // is that ANY emission on the target gets translated, macro or
+        // not, and this exercises that stronger contract directly.
+        tracing::info!(
+            target: RRD_LIFECYCLE_TARGET,
+            phase = "swap_commit",
             detail = "atomic pointer swap committed in test"
         );
 

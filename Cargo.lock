@@ -4767,7 +4767,6 @@ dependencies = [
  "reqwest 0.12.28",
  "rmcp",
  "rodio",
- "rrd",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -4812,28 +4811,6 @@ dependencies = [
  "tokio-test",
  "tracing",
  "wgpu 24.0.5",
-]
-
-[[package]]
-name = "devpulse-persona-mcp"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.22.1",
- "chrono",
- "devpulse-clyffy",
- "devpulse-telemetry",
- "moka",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "turso",
- "uuid 1.23.0",
 ]
 
 [[package]]
