@@ -11,28 +11,28 @@
   --breakpoint-xl: 80rem; /** Desktops — 1280 px. */
   --breakpoint-2xl: 96rem; /** Wide desktops — 1536 px. */
   --padding-xs-y: 0.3125rem; /** padding xs-y — min 4px, max 5px. */
-  --padding-xs-x: clamp(0.5rem, 0.4643rem + 0.1786vw, 0.625rem); /** padding xs-x — min 8px, max 10px. */
-  --padding-sm-y: clamp(0.375rem, 0.3393rem + 0.1786vw, 0.5rem); /** padding sm-y — min 6px, max 8px. */
-  --padding-sm-x: clamp(0.75rem, 0.6786rem + 0.3571vw, 1rem); /** padding sm-x — min 12px, max 16px. */
-  --padding-md-y: clamp(0.5rem, 0.4286rem + 0.3571vw, 0.75rem); /** padding md-y — min 8px, max 12px. */
-  --padding-md-x: clamp(1rem, 0.8929rem + 0.5357vw, 1.375rem); /** padding md-x — min 16px, max 22px. */
-  --padding-lg-y: clamp(0.75rem, 0.6786rem + 0.3571vw, 1rem); /** padding lg-y — min 12px, max 16px. */
-  --padding-lg-x: clamp(1.5rem, 1.3571rem + 0.7143vw, 2rem); /** padding lg-x — min 24px, max 32px. */
-  --padding-xl-y: clamp(1rem, 0.8929rem + 0.5357vw, 1.375rem); /** padding xl-y — min 16px, max 22px. */
-  --padding-xl-x: clamp(2rem, 1.7857rem + 1.0714vw, 2.75rem); /** padding xl-x — min 32px, max 44px. */
-  --padding-2xl-y: clamp(1.5rem, 1.3571rem + 0.7143vw, 2rem); /** padding 2xl-y — min 24px, max 32px. */
-  --padding-2xl-x: clamp(3rem, 2.7143rem + 1.4286vw, 4rem); /** padding 2xl-x — min 48px, max 64px. */
-  --size-3xs: clamp(1rem, 0.9643rem + 0.1786vw, 1.125rem); /** size 3xs — min 16px, max 18px. */
-  --size-2xs: clamp(1.25rem, 1.1786rem + 0.3571vw, 1.5rem); /** size 2xs — min 20px, max 24px. */
-  --size-xs: clamp(1.5rem, 1.4286rem + 0.3571vw, 1.75rem); /** size xs — min 24px, max 28px. */
-  --size-sm: clamp(2rem, 1.8929rem + 0.5357vw, 2.375rem); /** size sm — min 32px, max 38px. */
-  --size-md: clamp(2.5rem, 2.3571rem + 0.7143vw, 3rem); /** size md — min 40px, max 48px. */
-  --size-lg: clamp(3rem, 2.8214rem + 0.8929vw, 3.625rem); /** size lg — min 48px, max 58px. */
-  --size-xl: clamp(3.5rem, 3.2857rem + 1.0714vw, 4.25rem); /** size xl — min 56px, max 68px. */
-  --size-2xl: clamp(4rem, 3.7143rem + 1.4286vw, 5rem); /** size 2xl — min 64px, max 80px. */
-  --size-3xl: clamp(5rem, 4.6429rem + 1.7857vw, 6.25rem); /** size 3xl — min 80px, max 100px. */
-  --size-4xl: clamp(6rem, 5.5714rem + 2.1429vw, 7.5rem); /** size 4xl — min 96px, max 120px. */
-  --size-5xl: clamp(8rem, 7.4286rem + 2.8571vw, 10rem); /** size 5xl — min 128px, max 160px. */
+  --padding-xs-x: clamp(0.5rem, 0.4643rem + 0.1786cqi, 0.625rem); /** padding xs-x — min 8px, max 10px. */
+  --padding-sm-y: clamp(0.375rem, 0.3393rem + 0.1786cqi, 0.5rem); /** padding sm-y — min 6px, max 8px. */
+  --padding-sm-x: clamp(0.75rem, 0.6786rem + 0.3571cqi, 1rem); /** padding sm-x — min 12px, max 16px. */
+  --padding-md-y: clamp(0.5rem, 0.4286rem + 0.3571cqi, 0.75rem); /** padding md-y — min 8px, max 12px. */
+  --padding-md-x: clamp(1rem, 0.8929rem + 0.5357cqi, 1.375rem); /** padding md-x — min 16px, max 22px. */
+  --padding-lg-y: clamp(0.75rem, 0.6786rem + 0.3571cqi, 1rem); /** padding lg-y — min 12px, max 16px. */
+  --padding-lg-x: clamp(1.5rem, 1.3571rem + 0.7143cqi, 2rem); /** padding lg-x — min 24px, max 32px. */
+  --padding-xl-y: clamp(1rem, 0.8929rem + 0.5357cqi, 1.375rem); /** padding xl-y — min 16px, max 22px. */
+  --padding-xl-x: clamp(2rem, 1.7857rem + 1.0714cqi, 2.75rem); /** padding xl-x — min 32px, max 44px. */
+  --padding-2xl-y: clamp(1.5rem, 1.3571rem + 0.7143cqi, 2rem); /** padding 2xl-y — min 24px, max 32px. */
+  --padding-2xl-x: clamp(3rem, 2.7143rem + 1.4286cqi, 4rem); /** padding 2xl-x — min 48px, max 64px. */
+  --size-3xs: clamp(1rem, 0.9643rem + 0.1786cqi, 1.125rem); /** size 3xs — min 16px, max 18px. */
+  --size-2xs: clamp(1.25rem, 1.1786rem + 0.3571cqi, 1.5rem); /** size 2xs — min 20px, max 24px. */
+  --size-xs: clamp(1.5rem, 1.4286rem + 0.3571cqi, 1.75rem); /** size xs — min 24px, max 28px. */
+  --size-sm: clamp(2rem, 1.8929rem + 0.5357cqi, 2.375rem); /** size sm — min 32px, max 38px. */
+  --size-md: clamp(2.5rem, 2.3571rem + 0.7143cqi, 3rem); /** size md — min 40px, max 48px. */
+  --size-lg: clamp(3rem, 2.8214rem + 0.8929cqi, 3.625rem); /** size lg — min 48px, max 58px. */
+  --size-xl: clamp(3.5rem, 3.2857rem + 1.0714cqi, 4.25rem); /** size xl — min 56px, max 68px. */
+  --size-2xl: clamp(4rem, 3.7143rem + 1.4286cqi, 5rem); /** size 2xl — min 64px, max 80px. */
+  --size-3xl: clamp(5rem, 4.6429rem + 1.7857cqi, 6.25rem); /** size 3xl — min 80px, max 100px. */
+  --size-4xl: clamp(6rem, 5.5714rem + 2.1429cqi, 7.5rem); /** size 4xl — min 96px, max 120px. */
+  --size-5xl: clamp(8rem, 7.4286rem + 2.8571cqi, 10rem); /** size 5xl — min 128px, max 160px. */
   --size-container-xs: 20rem; /** size container-xs — min 320px, max 320px. */
   --size-container-sm: 40rem; /** size container-sm — min 640px, max 640px. */
   --size-container-md: 48rem; /** size container-md — min 768px, max 768px. */

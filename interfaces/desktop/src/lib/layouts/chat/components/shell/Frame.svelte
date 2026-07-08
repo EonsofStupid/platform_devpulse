@@ -3,7 +3,7 @@
   @module @devpulse/layouts/chat/Frame
 
   Chat window layout — single-column grid (topbar, messages, footer).
-  TopBar includes buttons to spawn peer child windows (CortexViewer, ModelLoader).
+  TopBar includes buttons to spawn peer child windows (ConnectomeViewer, ModelLoader).
   Per cockpit architecture — these are separate OS windows, not grid columns.
 
   Layout chrome only — message stream + composer live inside `ChatRoot` on the route.
@@ -13,10 +13,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
 import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
 import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
+import { clyffyConnection } from "$lib/domains/clyffy/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 
 interface Props {
@@ -24,6 +26,10 @@ interface Props {
 }
 
 let { children }: Props = $props();
+
+// Wire connection (Tier-1/Tier-2) — the chat window is one of the three
+// no-AI indicator surfaces (statusbar / topbar / chat). Ref-counted.
+$effect(() => clyffyConnection.subscribe());
 
 const frameState = $derived<"open" | "minimized" | "closed">(
 	globalState.chat_minimized ? "minimized" : "open",
@@ -37,8 +43,8 @@ function handleClose(): void {
 	invoke("close_window", { label: "chat" });
 }
 
-function openCortexViewer(): void {
-	invoke("open_window", { role: "CortexViewer" });
+function openConnectomeViewer(): void {
+	invoke("open_window", { role: "ConnectomeViewer" });
 }
 
 function openModelLoader(): void {
@@ -54,7 +60,12 @@ function openModelLoader(): void {
 		onClose={handleClose}
 	>
 		{#snippet children()}
-			<Button preset="ghost" size="sm" onclick={openCortexViewer} title="Cortex Viewer" aria-label="Open Cortex Viewer">
+			<!-- No-AI indicator (chat surface). Subtle absence cue — renders
+			     only while standalone; a mode, never an error. -->
+			{#if clyffyConnection.tier === "tier1"}
+				<Badge variant="neutral" size="sm">AI: Standalone</Badge>
+			{/if}
+			<Button preset="ghost" size="sm" onclick={openConnectomeViewer} title="Connectome Viewer" aria-label="Open Connectome Viewer">
 				<Brain size={14} />
 			</Button>
 			<Button preset="ghost" size="sm" onclick={openModelLoader} title="Model Control" aria-label="Open Model Control">

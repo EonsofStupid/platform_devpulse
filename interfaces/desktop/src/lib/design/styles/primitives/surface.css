@@ -12,6 +12,9 @@
   --glass-frost: oklch(0.9228 0.0189 30.62 / 0.4); /** Frosted glass — light mode, headers. */
   --glass-teal: oklch(0.1149 0.0123 158.92 / 0.749); /** Teal-tinted glass — accent panels. */
   --glass-purple: oklch(0.1001 0.0644 218.28 / 0.749); /** Purple-tinted glass — accent panels. */
+  --glass-blue: oklch(0.11 0.05 240 / 0.749); /** Blue-tinted glass — connect / CTA-adjacent panels. Hue 240 matches brand blue (locked requirement #6). H-rotation sibling of teal/purple at the same L/alpha band (S1.C surface diversification). */
+  --glass-ember: oklch(0.115 0.045 25 / 0.749); /** Ember-tinted glass — warm accent panels. Hue 25 matches the ember brand ramp. H-rotation sibling of teal/purple (S1.C surface diversification). */
+  --glass-coral: oklch(0.11 0.045 10 / 0.749); /** Coral-tinted glass — voice / warm accent panels. Hue 10 matches the brand-coral ramp. H-rotation sibling of teal/purple (S1.C surface diversification). */
   --matte-dark: oklch(0.14 0.0014 314.64); /** Darkest matte — inset wells, input backgrounds. */
   --matte-medium: oklch(0.2216 0.0023 9.36); /** Medium matte — sidebar, subtle raised surfaces. */
   --matte-light: oklch(0.301 0.005 20.6); /** Lightest matte — UI chrome, toolbar backgrounds. */

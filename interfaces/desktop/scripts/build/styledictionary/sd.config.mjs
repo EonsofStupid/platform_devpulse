@@ -108,7 +108,7 @@ const tiers = {
 		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
 		'text', 'signal', 'accent',
 		// Tier-2 role bindings (intent layer — primary/secondary/state/muted)
-		'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted',
+		'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta',
 		// New DTCG semantic roots
 		'glass-blur', 'backdrop-glow', 'backdrop-grid',
 		'backdrop-grid-line', 'backdrop-grid-size',
@@ -346,9 +346,15 @@ StyleDictionary.registerTransform({
 		const maxRem = maxPx / 16;
 		const slope = (maxPx - minPx) / (maxVwPx - minVwPx);
 		const intercept = (minPx - slope * minVwPx) / 16;
-		const vw = (slope * 100).toFixed(4);
+		const slopePct = (slope * 100).toFixed(4);
 		const base = intercept.toFixed(4);
-		return `clamp(${minRem}rem, ${base}rem + ${vw}vw, ${maxRem}rem)`;
+		// S1.C container-fluid: `basis: "container"` interpolates on the
+		// nearest container's inline size (cqi) instead of the viewport
+		// (vw). With no `container-type` ancestor, cqi falls back to the
+		// small viewport — container contexts are declared on the shell
+		// zones / overlays / chat frame (see S1-FLUID-TOKENS.md § S1.C).
+		const unit = f.basis === 'container' ? 'cqi' : 'vw';
+		return `clamp(${minRem}rem, ${base}rem + ${slopePct}${unit}, ${maxRem}rem)`;
 	},
 });
 
@@ -916,6 +922,11 @@ const config = {
 				cssFile('blur.css', pathFilter('blur'), layers.primitives),
 				cssFile('surface.css', pathFilter('glass', 'matte'), layers.primitives),
 				cssFile('radius.css', pathFilter('radius'), layers.primitives),
+				// borderWidth/outlineOffset were classified in tiers.primitive but
+				// emitted NOWHERE (silent drop) while 11+ components consumed the
+				// vars — reconciled 2026-07-07. Do not remove without re-checking
+				// `var(--border-width-` / `var(--outline-offset-` consumers.
+				cssFile('border-width.css', pathFilter('borderWidth', 'outlineOffset'), layers.primitives),
 				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion', 'duration', 'easing'), layers.primitives),
@@ -941,7 +952,7 @@ const config = {
 			cssFile('text.css', pathFilter('text'), layers.semantic),
 			cssFile('signal.css', pathFilter('signal'), layers.semantic),
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
-			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'), layers.semantic),
+			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
 			],
 		},
@@ -1018,7 +1029,7 @@ const config = {
 		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
 		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
 		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
-		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'))] },
+		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
@@ -1029,7 +1040,7 @@ const config = {
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
 				typesFile('blur.d.ts', pathFilter('blur')),
 				typesFile('surface.d.ts', pathFilter('glass', 'matte', 'surface')),
-				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index')),
+				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index', 'borderWidth', 'outlineOffset')),
 				typesFile('typography.d.ts', pathFilter('font', 'textSize', 'font-size', 'textStyle')),
 				typesFile('motion.d.ts', pathFilter('motion', 'transition')),
 				typesFile('gradient.d.ts', pathFilter('gradient')),
@@ -1046,7 +1057,7 @@ const config = {
 				typesFile('text.d.ts', pathFilter('text')),
 				typesFile('signal.d.ts', pathFilter('signal')),
 				typesFile('accent.d.ts', pathFilter('accent')),
-				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted')),
+				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta')),
 			],
 		},
 		'types-components': {

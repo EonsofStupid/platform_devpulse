@@ -25,26 +25,29 @@
 
 	## Slot ↔ Anatomy mapping (locked)
 
-	| Anatomy   | Kernel slot         | Engine    | Default model |
-	|-----------|---------------------|-----------|---------------|
-	| Eyes      | `vision.embedder`   | Candle    | SigLIP HD     |
-	| Ears      | `voice.stt`         | Sherpa    | Whisper       |
-	| Mouth     | `voice.tts`         | Sherpa    | Kokoro        |
-	| Sparkles  | `minion.shared`     | Burn      | Harrier 0.6B  |
-	| Brain     | `chat.brain`        | llama.cpp | Nemotron 7.6B |
+	| Anatomy   | Tile key            | Wire match (capability)  |
+	|-----------|---------------------|--------------------------|
+	| Eyes      | `vision.embedder`   | role `vision`            |
+	| Ears      | `voice.stt`         | slot `voice`             |
+	| Mouth     | `voice.tts`         | slot `voice`             |
+	| Sparkles  | `rag.embedder`      | slot `rag_embed`         |
+	| Brain     | `chat.brain`        | slot `clyffy`            |
+
+	(Reconciled 2026-07-08 — this table previously said Sparkles →
+	`minion.shared`, drifted from the code's `rag.embedder`. Model
+	names come from the connected endpoint's capability, never a
+	hardcoded default column.)
 
 	The mapping uses anatomy ICONS, not the slot ids — the parent
-	view (`SetupWizardOverlay`) is the one that joins kernel slot
-	ids to the anatomy-themed copy via its SLOT_LAYMAN table.
+	view (`SetupWizardOverlay`) is the one that joins tile keys to
+	the anatomy-themed copy + wire matchers via its SLOT_LAYMAN table.
 
 	## Signal contract
 
-	`onApplySlot(slotId)` triggers the full install chain in the
-	parent (download → symlink → load). The parent emits BOTH the
-	`wizard.lifecycle.*` tracing AND the `WizardTileApplied` /
-	`WizardSymlinkArmed` `InternalEvent` per
-	[[feedback-dual-observability]]. This view is presentational —
-	it does not fire tracing of its own.
+	`onApplySlot(slotId)` routes to the endpoint (connect) step — the
+	tiles light up from the connected endpoint's capability; they do
+	not install anything. This view is presentational — it does not
+	fire tracing of its own.
 -->
 <script lang="ts">
 import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "lucide-svelte";
@@ -99,7 +102,7 @@ const findEntry = (slotId: string): SlotSaveEntryProps | undefined =>
 	slotSaves.find((s) => s.kernelSlotId === slotId);
 </script>
 
-<OverlayShell label="DevPulse setup — cortex" step={1} totalSteps={1} {title}>
+<OverlayShell label="DevPulse setup — cortex" step={2} totalSteps={2} {title}>
 	{#snippet mascot()}
 		<ClyffyMascot pose="pointing" size="lg" />
 	{/snippet}

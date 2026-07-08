@@ -1,17 +1,17 @@
 //! Ollama sidecar — managed `ollama serve` child process.
 //!
-//! The kernel owns the lifecycle (spawn / attach / health / shutdown,
-//! HTTP client, model commands). This module wraps the kernel adapter
-//! with the platform `Service` trait.
+//! DevPulse owns the full lifecycle (spawn / attach / health / shutdown,
+//! HTTP client, model commands) — kernel-severance relocated the adapter
+//! here from the kernel. This module wraps it with the platform `Service`
+//! trait.
 //!
 //! Submodules:
+//! - [`adapter`] — `OllamaAdapter`: lifecycle, port resolution, raw API.
+//! - `port_alloc` — probe / attach / bump port allocation for the sidecar.
 //! - [`service`] — `OllamaService` wrapper + `Service` impl.
-//!
-//! Future submodules as work lands:
-//! - `config` — user-scope persisted preferences (binary path override,
-//!   default keep-alive, etc.). Currently inline in kernel `OllamaConfig`.
-//! - `preflight` — pre-launch checks (binary present, port free).
 
+mod adapter;
+mod port_alloc;
 pub mod service;
 
 pub use service::{OllamaModel, OllamaService};

@@ -34,7 +34,7 @@ use devpulse_telemetry::spawn;
 
 use crate::platform::config::{ExecutionLane, LaneTraceConfig};
 use crate::platform::services::analytics::AnalyticsService;
-use devpulse_clyffy::connectome::persistence::AnalyticsAdapter;
+use devpulse_store::AnalyticsAdapter;
 
 /// Channel buffer size for completed traces.
 /// Backpressure: if buffer is full, traces are silently dropped.

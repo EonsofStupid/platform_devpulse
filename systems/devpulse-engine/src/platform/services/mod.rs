@@ -5,35 +5,24 @@
 
 pub mod analytics;
 pub mod cache;
-pub mod graph;
 pub mod manifest;
 pub mod project_analytics;
 pub mod project_db;
-pub mod project_graph;
 pub mod project_init;
-#[cfg(feature = "rro")]
-pub mod project_vector;
 pub mod relational;
 pub mod rrd_translator;
 pub mod status;
-#[cfg(feature = "rro")]
-pub mod vector;
-// embedder + whisper modules DELETED — slot-managed by model loader (Layer 2).
+// Tier-2 service modules (graph / surreal / surreal_config / vector /
+// project_graph / project_vector / model_loader / model_loader_log) removed —
+// those services are Clyffy's on GB10, served over the gb10-client wire
+// (kernel-severance). embedder + whisper were already slot-managed (Layer 2).
 pub mod audio;
-pub mod devforge;
-#[cfg(feature = "inference")]
-pub mod model_loader;
-#[cfg(feature = "inference")]
-pub use model_loader::ModelDownloadScope;
 pub mod candle_config;
+pub mod devforge;
 pub mod llama_cpp_embedded_config;
-#[cfg(feature = "inference")]
-pub mod model_loader_log;
 pub mod routing_config;
 pub mod sherpa_streaming;
 pub mod sidecars;
-pub mod surreal;
-pub mod surreal_config;
 pub mod voice_stt_config;
 pub mod voice_tts_config;
 

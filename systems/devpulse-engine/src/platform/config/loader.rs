@@ -15,7 +15,6 @@
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
 
-use devpulse_clyffy::connectome::llguidance::GrammarConfig;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};
@@ -319,9 +318,8 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
-    /// Grammar service — structured generation engine.
-    #[serde(default)]
-    pub grammar: GrammarConfig,
+    // Grammar service config removed — grammar (constrained decoding) is
+    // Clyffy's on GB10 (kernel-severance); no local grammar service entry.
     /// Model Loader service (`AI` model management, inference).
     #[serde(default)]
     pub model_loader: ModelLoaderServiceEntry,
@@ -337,6 +335,12 @@ pub struct SystemServicesConfig {
     /// `SurrealDB` sidecar service (managed `surreal start` child process).
     #[serde(default)]
     pub surreal: SurrealServiceEntry,
+    /// `Clyffy` (headless AI layer on ClyffyOS/GB10) — wire-client endpoint.
+    /// A **client target**, not a managed sidecar: DevPulse probes
+    /// `{base_url}/v1/capability` to compute Tier-2 (AI) availability. Empty
+    /// `base_url` ⇒ DevPulse stays standalone (Tier-1, Turso only).
+    #[serde(default)]
+    pub clyffy: ClyffyServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -347,12 +351,59 @@ impl Default for SystemServicesConfig {
             graph: GraphServiceEntry::system_default(),
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
-            grammar: GrammarConfig::default(),
             model_loader: ModelLoaderServiceEntry::default(),
             devforge: DevForgeServiceEntry::default(),
             claude: ClaudeServiceEntry::default(),
             ollama: OllamaServiceEntry::default(),
             surreal: SurrealServiceEntry::default(),
+            clyffy: ClyffyServiceEntry::default(),
+        }
+    }
+}
+
+/// Clyffy wire-client endpoint config — the headless AI layer on ClyffyOS/GB10.
+///
+/// Unlike the sidecar entries (Ollama/Surreal), this is a **remote client
+/// target**, not a managed child process. DevPulse probes
+/// `{base_url}/v1/capability` on a fixed cadence to compute Tier-2 (AI)
+/// availability; an unreachable or unconfigured endpoint leaves DevPulse running
+/// standalone (Tier-1, Turso only). No host is hardcoded — `base_url` is supplied
+/// by first-run connect / the devtool per connection mode (local / network /
+/// gb10 / mesh).
+#[derive(Debug, Clone, Deserialize)]
+pub struct ClyffyServiceEntry {
+    /// Whether DevPulse attempts to reach Clyffy at all. `true` = probe when a
+    /// `base_url` is set; `false` = never probe (forced offline).
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Base URL of the Clyffy (`clyffyd`) endpoint for the active connection
+    /// mode, e.g. `http://127.0.0.1:8080` (local) or `https://<gb10-host>:8080`.
+    /// **Empty = no endpoint configured** ⇒ DevPulse stays standalone. Never a
+    /// hardcoded default host.
+    #[serde(default)]
+    pub base_url: String,
+    /// Seconds between capability probes — the seamless auto-reconnect cadence.
+    #[serde(default = "default_clyffy_probe_interval_secs")]
+    pub probe_interval_secs: u64,
+    /// Per-probe HTTP timeout in seconds.
+    #[serde(default = "default_clyffy_probe_timeout_secs")]
+    pub probe_timeout_secs: u64,
+}
+
+fn default_clyffy_probe_interval_secs() -> u64 {
+    15
+}
+fn default_clyffy_probe_timeout_secs() -> u64 {
+    5
+}
+
+impl Default for ClyffyServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            base_url: String::new(),
+            probe_interval_secs: default_clyffy_probe_interval_secs(),
+            probe_timeout_secs: default_clyffy_probe_timeout_secs(),
         }
     }
 }
@@ -682,8 +733,8 @@ impl Default for CacheServiceEntry {
 
 impl CacheServiceEntry {
     /// Convert to a `MokaCacheConfig`.
-    pub fn to_moka_config(&self) -> devpulse_clyffy::connectome::persistence::MokaCacheConfig {
-        devpulse_clyffy::connectome::persistence::MokaCacheConfig {
+    pub fn to_moka_config(&self) -> devpulse_store::MokaCacheConfig {
+        devpulse_store::MokaCacheConfig {
             max_capacity: self.max_capacity,
             time_to_live: Duration::from_secs(self.time_to_live_secs),
             time_to_idle: Duration::from_secs(self.time_to_idle_secs),
@@ -1752,10 +1803,8 @@ impl PlatformBootConfig {
                 self.services.system.vector.enabled,
                 self.services.system.vector.critical,
             )),
-            (ServiceRole::Grammar, DataScope::System) => Some((
-                self.services.system.grammar.enabled,
-                self.services.system.grammar.critical,
-            )),
+            // Grammar (constrained decoding) is Clyffy's on GB10
+            // (kernel-severance) — no local config; falls to `_ => None`.
             (ServiceRole::ModelLoader, DataScope::System) => Some((
                 self.services.system.model_loader.enabled,
                 self.services.system.model_loader.critical,
@@ -2147,7 +2196,9 @@ fn default_rro_path() -> String {
 /// Keeps a standalone Turso-only desktop (no `rro`) from bailing boot when the
 /// resolved config would otherwise request an uncompiled vector store.
 fn default_vector_enabled() -> bool {
-    cfg!(feature = "rro")
+    // rro feature removed (kernel-severance) — no local vector store; Clyffy
+    // serves vectors from GB10. Vector config defaults to disabled locally.
+    false
 }
 fn default_retry_max() -> u32 {
     5

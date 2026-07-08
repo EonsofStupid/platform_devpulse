@@ -19,7 +19,7 @@
 //! `VARCHAR` and parse with `json_extract(col, '$.path')` on read.
 
 use anyhow::{Context, Result};
-use devpulse_clyffy::connectome::persistence::DuckDbAdapter;
+use devpulse_store::DuckDbAdapter;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;

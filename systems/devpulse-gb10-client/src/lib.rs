@@ -21,4 +21,8 @@ pub use client::{ClientError, ClyffyClient, ConnectionState};
 
 // Re-export the wire contract SSOT so consumers depend on ONE place and no parallel
 // DTO tree ever forms.
-pub use clyffyos_wire::{EndpointCapability, LoadedSlotSummary, RegisteredEndpoint, SlotStatus};
+pub use clyffyos_wire::{
+    EndpointCapability, GrammarFailure, GrammarKind, GrammarSnapshot, GrammarStatus,
+    LoadedSlotSummary, MemoryKind, RegisteredEndpoint, RroDepth, RroState, RroStateSnapshot,
+    RroStateTransition, SlotStatus, SwapStats, ThoughtRecord,
+};

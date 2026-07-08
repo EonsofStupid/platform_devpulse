@@ -10,7 +10,7 @@
 
 use crate::state::PlatformState;
 use anyhow::{Context, Result};
-use devpulse_engine::platform::{LibSqlAdapter, SqlAdapter, SqlValue};
+use devpulse_engine::platform::{SqlAdapter, SqlValue, TursoAdapter};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::Arc;
@@ -142,7 +142,7 @@ const PREFS_SELECT: &str = "SELECT id, user_id, theme, context_mode, show_thinki
 
 /// Get or create the single user profile via the given adapter.
 #[tracing::instrument(skip_all, err)]
-async fn ensure_profile(adapter: &LibSqlAdapter) -> Result<UserProfile> {
+async fn ensure_profile(adapter: &TursoAdapter) -> Result<UserProfile> {
     let rows = adapter
         .query(PROFILE_SELECT, &[])
         .await
@@ -185,7 +185,7 @@ async fn ensure_profile(adapter: &LibSqlAdapter) -> Result<UserProfile> {
 
 /// Get or create preferences for the given profile.
 #[tracing::instrument(skip(adapter), fields(profile_id), err)]
-async fn ensure_prefs(adapter: &LibSqlAdapter, profile_id: &str) -> Result<UserPreferences> {
+async fn ensure_prefs(adapter: &TursoAdapter, profile_id: &str) -> Result<UserPreferences> {
     let rows = adapter
         .query(PREFS_SELECT, &[profile_id])
         .await
@@ -226,7 +226,7 @@ async fn ensure_prefs(adapter: &LibSqlAdapter, profile_id: &str) -> Result<UserP
 /// access in this crate. The body is lock-free today, but consistent
 /// calling convention keeps the command-layer surface uniform.
 #[allow(clippy::unused_async)]
-async fn get_adapter(state: &State<'_, PlatformState>) -> Result<Arc<LibSqlAdapter>> {
+async fn get_adapter(state: &State<'_, PlatformState>) -> Result<Arc<TursoAdapter>> {
     // P0: lock-free atomic load. No await, no RwLock.
     let platform = state
         .platform

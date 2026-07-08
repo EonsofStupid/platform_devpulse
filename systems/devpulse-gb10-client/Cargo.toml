@@ -12,10 +12,12 @@ default = []
 specta = ["dep:specta", "clyffyos-wire/specta"]
 
 [dependencies]
-# The wire CONTRACT SSOT — path dep to the sibling clyffyos repo. One serde
-# definition, two consumers (clyffyd server + this client), no drift. Graduates to a
-# git/published dep once clyffyos has a remote.
-clyffyos-wire = { path = "../../../clyffyos/crates/clyffyos-wire" }
+# The wire CONTRACT SSOT — git dep on the sibling clyffyos repo (private). One serde
+# definition, two consumers (clyffyd server + this client), no drift, and DevPulse
+# builds standalone without the clyffyos checkout on disk. Pinned to a rev so the
+# contract is reproducible; bump deliberately when the wire changes. CI fetches it via
+# CLYFFYOS_DEPLOY_TOKEN (see .github/workflows/ci.yml, same insteadOf pattern as rro).
+clyffyos-wire = { git = "https://github.com/EonsofStupid/clyffyos.git", rev = "eae33539025cca0c5149c783118171c5bef39af4" }
 serde = { workspace = true }
 thiserror = { workspace = true }
 # Async HTTP/JSON client for the /v1/capability handshake. native-tls (SChannel on

@@ -1,0 +1,21 @@
+[package]
+name = "devpulse-store"
+version = "0.1.0"
+edition = "2021"
+description = "DevPulse's kernel-free, store-agnostic persistence layer: Turso (relational SSOT), DuckDB (project analytics), Moka (cache). The thin store DevPulse owns after the ClyffyOS split — no kernel, no llama.cpp."
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+turso = { workspace = true }
+duckdb = { workspace = true }
+moka = { workspace = true }
+futures = { workspace = true }
+# async-trait: SqlAdapter is dyn-compatible via #[async_trait]. Not a workspace dep.
+async-trait = "0.1"
+
+[lints]
+workspace = true
