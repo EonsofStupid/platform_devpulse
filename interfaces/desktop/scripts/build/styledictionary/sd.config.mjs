@@ -108,7 +108,7 @@ const tiers = {
 		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
 		'text', 'signal', 'accent',
 		// Tier-2 role bindings (intent layer — primary/secondary/state/muted)
-		'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted',
+		'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta',
 		// New DTCG semantic roots
 		'glass-blur', 'backdrop-glow', 'backdrop-grid',
 		'backdrop-grid-line', 'backdrop-grid-size',
@@ -952,7 +952,7 @@ const config = {
 			cssFile('text.css', pathFilter('text'), layers.semantic),
 			cssFile('signal.css', pathFilter('signal'), layers.semantic),
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
-			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'), layers.semantic),
+			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
 			],
 		},
@@ -1029,7 +1029,7 @@ const config = {
 		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
 		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
 		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
-		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'))] },
+		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
@@ -1057,7 +1057,7 @@ const config = {
 				typesFile('text.d.ts', pathFilter('text')),
 				typesFile('signal.d.ts', pathFilter('signal')),
 				typesFile('accent.d.ts', pathFilter('accent')),
-				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted')),
+				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta')),
 			],
 		},
 		'types-components': {

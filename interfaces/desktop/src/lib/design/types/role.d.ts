@@ -49,6 +49,18 @@ export type PrimaryRecord = {
 	"deep-fg": string;
 };
 
+export const CtaTokens = ["main", "glow", "fill", "fg"] as const;
+export type CtaToken = (typeof CtaTokens)[number];
+
+export type CtaCSSVar = "--cta-main" | "--cta-glow" | "--cta-fill" | "--cta-fg";
+
+export type CtaRecord = {
+	main: string;
+	glow: string;
+	fill: string;
+	fg: string;
+};
+
 export const SecondaryTokens = ["main", "glow", "fill", "fg"] as const;
 export type SecondaryToken = (typeof SecondaryTokens)[number];
 

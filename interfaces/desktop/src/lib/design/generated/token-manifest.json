@@ -34041,6 +34041,89 @@
 			}
 		]
 	},
+	"cta": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "cta-main",
+				"path": [
+					"cta",
+					"main"
+				],
+				"cssVar": "--cta-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.14,
+						240
+					],
+					"hex": "#2079ad"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "cta-glow",
+				"path": [
+					"cta",
+					"glow"
+				],
+				"cssVar": "--cta-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.68,
+						0.14,
+						240
+					],
+					"alpha": 0.35,
+					"hex": "#2ea2e5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "cta-fill",
+				"path": [
+					"cta",
+					"fill"
+				],
+				"cssVar": "--cta-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.68,
+						0.14,
+						240
+					],
+					"alpha": 0.08,
+					"hex": "#2ea2e5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "cta-fg",
+				"path": [
+					"cta",
+					"fg"
+				],
+				"cssVar": "--cta-fg",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
 	"secondary": {
 		"extensions": {},
 		"tokens": [
@@ -36017,6 +36100,66 @@
 					],
 					"alpha": 0.749,
 					"hex": "#000406"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glass-blue",
+				"path": [
+					"glass",
+					"blue"
+				],
+				"cssVar": "--glass-blue",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.11,
+						0.05,
+						240
+					],
+					"alpha": 0.749,
+					"hex": "#020408"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glass-ember",
+				"path": [
+					"glass",
+					"ember"
+				],
+				"cssVar": "--glass-ember",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.115,
+						0.045,
+						25
+					],
+					"alpha": 0.749,
+					"hex": "#070302"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glass-coral",
+				"path": [
+					"glass",
+					"coral"
+				],
+				"cssVar": "--glass-coral",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.11,
+						0.045,
+						10
+					],
+					"alpha": 0.749,
+					"hex": "#070203"
 				},
 				"type": "color",
 				"extensions": null
