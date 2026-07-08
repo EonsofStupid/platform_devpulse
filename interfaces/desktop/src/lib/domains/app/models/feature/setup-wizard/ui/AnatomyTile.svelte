@@ -250,17 +250,20 @@ const ctaLabel = $derived(
 		display: contents;
 	}
 
+	/* Fluid clamps interpolate on cqi (container-fluid, S1.C): the tile
+	   scales with the wizard overlay (.shell-root declares the container
+	   in OverlayShell), not the OS window. */
 	.anatomy-tile :global(.anatomy-tile__shell) {
 		display: flex;
 		flex-direction: column;
-		gap: clamp(0.75rem, 1.4vw, 1.125rem);
-		padding: clamp(1rem, 1.8vw, 1.5rem);
+		gap: clamp(0.75rem, 1.4cqi, 1.125rem);
+		padding: clamp(1rem, 1.8cqi, 1.5rem);
 	}
 
 	/* ── Header row — icon tile + title + state badge ── */
 	.anatomy-tile__head {
 		display: flex;
-		gap: clamp(0.75rem, 1.4vw, 1rem);
+		gap: clamp(0.75rem, 1.4cqi, 1rem);
 		align-items: flex-start;
 	}
 
@@ -268,9 +271,9 @@ const ctaLabel = $derived(
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
-		width: clamp(2.75rem, 4vw, 3.25rem);
-		height: clamp(2.75rem, 4vw, 3.25rem);
-		border-radius: clamp(0.5rem, 1vw, 0.75rem);
+		width: clamp(2.75rem, 4cqi, 3.25rem);
+		height: clamp(2.75rem, 4cqi, 3.25rem);
+		border-radius: clamp(0.5rem, 1cqi, 0.75rem);
 		/* The one accent override — per-anatomy color the preset
 		   can't know. Resolves the `--slot-accent` the parent set
 		   on `.anatomy-tile` into an oklch-mixed background + icon

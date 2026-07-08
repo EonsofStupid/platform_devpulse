@@ -139,13 +139,17 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
-		padding: 1.5rem;
-		/* min/max widths in real rem so child grids (AnatomyConstellation
-		   uses max-width: 64rem) actually get their intended room.
+		/* Container-fluid (cqi resolves against .shell-root, declared a
+		   container in this file — S1.C): the card's rhythm scales with
+		   the overlay, not the OS window. */
+		gap: clamp(0.75rem, 1.5cqi, 1rem);
+		padding: clamp(1rem, 2.5cqi, 1.5rem);
+		/* min/max widths so child grids (AnatomyConstellation uses
+		   max-width: 64rem) get their intended room; min() keeps the
+		   card inside narrow windows instead of overflowing them.
 		   40rem was crushing the cortex constellation's 3-column row
 		   to ~183px per cell, which forced single-word title wrap. */
-		min-width: 30rem;
+		min-width: min(30rem, 92cqi);
 		max-width: 64rem;
 		width: 100%;
 	}

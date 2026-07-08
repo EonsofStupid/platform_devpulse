@@ -27,10 +27,20 @@ import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ButtonProps, ButtonSize } from "./button.types.js";
 
+/**
+ * Sizing rides the fluid named tokens (S1.C) via arbitrary values — the
+ * house idiom (see DialogContent / ContextualHelp / box()). The previous
+ * Tailwind-convention numerics (`h-8 px-3 gap-1.5`) were a defect against
+ * this repo's px-indexed `--spacing-*` scale: `h-8` resolved to ~8–10px
+ * heights and `gap-2` to ~2px. Token minimums match the original intent
+ * (`--size-sm` min = 32px = the old `h-8` intent) and scale with the
+ * component's container (cqi). Gaps use the px-indexed numeric scale
+ * (fluid: 6→7 / 8→10 / 10→12px).
+ */
 const SIZE: Record<ButtonSize, string> = {
-	sm: "h-8 px-3 text-sm gap-1.5",
-	md: "h-10 px-4 text-sm gap-2",
-	lg: "h-12 px-6 text-base gap-2.5",
+	sm: "h-[var(--size-sm)] px-[var(--padding-sm-x)] text-[var(--font-size-sm)] gap-6",
+	md: "h-[var(--size-md)] px-[var(--padding-md-x)] text-[var(--font-size-sm)] gap-8",
+	lg: "h-[var(--size-lg)] px-[var(--padding-lg-x)] text-[var(--font-size-base)] gap-10",
 };
 
 let {
