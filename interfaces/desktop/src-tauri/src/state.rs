@@ -63,6 +63,11 @@ impl PlatformState {
 /// `boot_task`) owns the `ClyffyClient` and writes here on every transition.
 pub struct ClyffyConnectionState {
     state: ArcSwap<ConnectionState>,
+    /// Target endpoint the probe loop dials each tick. `None` = standalone
+    /// (Tier-1). `connect_clyffy` sets `Some(url)`, `disconnect_clyffy` clears
+    /// it; the loop re-reads this every iteration, so the endpoint is
+    /// **re-pointable at runtime** with no restart.
+    endpoint: ArcSwapOption<String>,
 }
 
 impl Default for ClyffyConnectionState {
@@ -77,6 +82,7 @@ impl ClyffyConnectionState {
     pub fn new() -> Self {
         Self {
             state: ArcSwap::new(Arc::new(ConnectionState::Disconnected)),
+            endpoint: ArcSwapOption::empty(),
         }
     }
 
@@ -89,6 +95,20 @@ impl ClyffyConnectionState {
     /// Atomically replace the connection state (the probe task writes here).
     pub fn store(&self, next: ConnectionState) {
         self.state.store(Arc::new(next));
+    }
+
+    /// Current target endpoint (`None` = standalone). The probe loop reads this
+    /// on every tick to decide what to dial — the seam that makes the endpoint
+    /// re-pointable at runtime.
+    #[must_use]
+    pub fn endpoint(&self) -> Option<String> {
+        self.endpoint.load_full().map(|url| (*url).clone())
+    }
+
+    /// Set or clear the target endpoint. The probe loop re-points on its next
+    /// tick — no restart. `None` returns DevPulse to standalone (Tier-1).
+    pub fn set_endpoint(&self, url: Option<String>) {
+        self.endpoint.store(url.map(Arc::new));
     }
 }
 

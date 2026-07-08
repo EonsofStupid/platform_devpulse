@@ -891,6 +891,45 @@ async connectionStatus() : Promise<Result<ConnectionState, string>> {
 }
 },
 /**
+ * Connect the AI layer to a Clyffy endpoint (the operator's Local or GB10
+ * address — discovered or entered, never hardcoded).
+ * 
+ * Sets the runtime target the probe loop dials; the connection lights up on the
+ * next probe tick. Returns (and emits) the immediate `Connecting` cue so the
+ * no-AI indicator flips instantly, then the probe settles it to `Connected`
+ * (capability computed from the live handshake) or back to `Disconnected` if
+ * unreachable — the loop keeps retrying so it reconnects seamlessly.
+ * 
+ * # Errors
+ * Returns `Err` when `url` is empty/whitespace.
+ */
+async connectClyffy(url: string) : Promise<Result<ConnectionState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("connect_clyffy", { url }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Disconnect the AI layer — return DevPulse to standalone (Tier-1).
+ * 
+ * Clears the target endpoint; the probe loop settles to `Disconnected` on its
+ * next tick. Returns (and emits) `Disconnected` immediately so the indicator
+ * flips without waiting for the tick.
+ * 
+ * # Errors
+ * Never returns `Err`; the `Result` keeps the specta signature stable.
+ */
+async disconnectClyffy() : Promise<Result<ConnectionState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("disconnect_clyffy") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.

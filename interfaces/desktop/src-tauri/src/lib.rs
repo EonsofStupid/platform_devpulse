@@ -189,6 +189,9 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::cache::cache_health,
             // Clyffy wire connection status (gb10-client) — Tier-2 availability.
             commands::sys::clyffy::connection_status,
+            // Runtime connect/disconnect — re-points the probe loop without a restart.
+            commands::sys::clyffy::connect_clyffy,
+            commands::sys::clyffy::disconnect_clyffy,
             commands::devclyffy::get_status,
             commands::devforge::devforge_start,
             commands::devforge::devforge_stop,
@@ -466,7 +469,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
 /// [`ClyffyConnectionChanged`]: crate::events::ClyffyConnectionChanged
 async fn clyffy_probe_loop(
     app: tauri::AppHandle,
-    base_url: String,
     interval: std::time::Duration,
     timeout: std::time::Duration,
 ) {
@@ -493,20 +495,20 @@ async fn clyffy_probe_loop(
         .emit(&app);
     };
 
-    // Initial "connecting…" cue before the first probe.
-    let connecting = ConnectionState::Connecting {
-        url: base_url.clone(),
-    };
-    publish(&connecting);
-    let mut last = connecting;
+    let mut last = app.state::<ClyffyConnectionState>().current();
 
     loop {
-        let next = match client.probe_capability(&base_url).await {
-            Ok(capability) => ConnectionState::Connected {
-                url: base_url.clone(),
-                capability,
+        // Re-read the target endpoint every tick — it is re-pointable at runtime
+        // via `connect_clyffy` / `disconnect_clyffy` with no restart. `None` is
+        // the honest standalone (Tier-1) answer; a set endpoint that is
+        // unreachable stays `Disconnected` and the loop keeps retrying so the AI
+        // layer lights up seamlessly whenever Clyffy comes back.
+        let next = match app.state::<ClyffyConnectionState>().endpoint() {
+            None => ConnectionState::Disconnected,
+            Some(url) => match client.probe_capability(&url).await {
+                Ok(capability) => ConnectionState::Connected { url, capability },
+                Err(_) => ConnectionState::Disconnected,
             },
-            Err(_) => ConnectionState::Disconnected,
         };
         if next != last {
             publish(&next);
@@ -1197,32 +1199,34 @@ async fn boot_task(
                 tracing::info!("rrd event bridge: spawned");
             }
 
-            // ── Clyffy wire connection probe (auto-reconnect) ────
-            // Kernel-free: reads the configured endpoint and probes
-            // {base_url}/v1/capability on a cadence, writing the managed
-            // ClyffyConnectionState + emitting ClyffyConnectionChanged. An
-            // unreachable/unconfigured endpoint stays Disconnected — DevPulse
-            // keeps running standalone (Tier-1). Never blocks or fails boot.
+            // ── Clyffy wire connection probe (re-pointable, auto-reconnect) ──
+            // Kernel-free: the loop dials whatever endpoint the managed
+            // ClyffyConnectionState currently holds, re-reading it EACH tick, so
+            // a runtime `connect_clyffy` / `disconnect_clyffy` re-points it with
+            // no restart. We seed it from persisted config (if any) and spawn the
+            // loop UNCONDITIONALLY — an empty/disabled endpoint stays standalone
+            // (Tier-1) until the operator connects. Never blocks or fails boot.
             if let Some(platform_arc) = state.platform.load_full() {
                 let clyffy_cfg = &platform_arc.boot_config().services.system.clyffy;
-                if clyffy_cfg.enabled && !clyffy_cfg.base_url.trim().is_empty() {
-                    let base_url = clyffy_cfg.base_url.trim().to_string();
-                    let interval =
-                        std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
-                    let timeout =
-                        std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
-                    devpulse_telemetry::spawn(clyffy_probe_loop(
-                        app.clone(),
-                        base_url,
-                        interval,
-                        timeout,
-                    ));
-                    tracing::info!("clyffy connection probe: spawned");
+                let interval =
+                    std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
+                let timeout =
+                    std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
+                let configured = clyffy_cfg.base_url.trim();
+                if clyffy_cfg.enabled && !configured.is_empty() {
+                    app.state::<crate::state::ClyffyConnectionState>()
+                        .set_endpoint(Some(configured.to_string()));
+                    tracing::info!(
+                        endpoint = %configured,
+                        "clyffy probe: seeded endpoint from config"
+                    );
                 } else {
                     tracing::info!(
-                        "clyffy connection probe: no endpoint configured — standalone (Tier-1)"
+                        "clyffy probe: no endpoint configured — standalone (Tier-1), awaiting runtime connect"
                     );
                 }
+                devpulse_telemetry::spawn(clyffy_probe_loop(app.clone(), interval, timeout));
+                tracing::info!("clyffy connection probe: spawned (re-pointable)");
             }
 
             // ── Hardware metrics push loop ───────────────────────
