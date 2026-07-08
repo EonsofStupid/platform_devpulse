@@ -71,12 +71,11 @@ allow = [
 [bans]
 multiple-versions = "warn"
 wildcards = "allow"
-# Deny known bad crates
-deny = [
-    # Desktop must NEVER depend on clyffy directly.
-    # All kernel access goes through the engine facade.
-    { name = "devpulse-clyffy", wrappers = ["devpulse-engine"] },
-]
+# Deny known bad crates. The AI kernel is Clyffy's (clyffyos repo) —
+# no crate in this workspace may link it, so no wrapper allowance
+# exists; `cargo xtask verify-ip-boundary` enforces the inference-free
+# build alongside this.
+deny = []
 
 [sources]
 unknown-registry = "warn"

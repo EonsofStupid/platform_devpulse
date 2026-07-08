@@ -80,9 +80,7 @@ if (fs.existsSync(path.join(dir, 'Cargo.toml'))) {
       // Detect which crates were changed and check only those
       const crates = new Set();
       for (const f of changed) {
-        if (f.startsWith('kernel/model-loader/')) crates.add('model-loader');
-        else if (f.startsWith('kernel/devpulse-clyffy/')) crates.add('devpulse-clyffy');
-        else if (f.startsWith('systems/devpulse-engine/')) crates.add('devpulse-engine');
+        if (f.startsWith('systems/devpulse-engine/')) crates.add('devpulse-engine');
         else if (f.startsWith('interfaces/desktop/src-tauri/')) crates.add('devpulse_desktop_backend');
         else if (f === 'Cargo.toml' || f === 'Cargo.lock') crates.add('devpulse_desktop_backend'); // workspace root change — check top-level
       }

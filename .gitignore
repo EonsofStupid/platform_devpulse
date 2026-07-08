@@ -19,7 +19,7 @@ node_modules
 .env.*
 !.env.example
 
-# HuggingFace / API secrets — kernel/model-loader/src/models/secrets.rs
+# HuggingFace / API secrets — the engine's model_loader/models/secrets.rs
 # writes this next to the models_dir. Never commit.
 secrets.toml
 **/secrets.toml
@@ -35,12 +35,12 @@ interfaces/desktop/src/lib/design/.cowlevel
 .userdata/
 # Legacy data directory (migrated to .userdata/)
 data/
-# Embedded JSON content artifacts MUST be tracked — they're built into
-# the kernel binary via `include_str!`. Without these the runtime ships
-# with empty knowledge content. The bare `data/` rule above otherwise
-# excludes them.
-!kernel/devpulse-clyffy/src/cortex/knowledge/data/
-!kernel/devpulse-clyffy/src/cortex/knowledge/data/**
+# Embedded JSON content artifacts MUST be tracked — the engine builds
+# them in via `include_str!` (platform/knowledge/data). Without these
+# the runtime ships with empty knowledge content. The bare `data/` rule
+# above otherwise excludes them.
+!systems/devpulse-engine/src/platform/knowledge/data/
+!systems/devpulse-engine/src/platform/knowledge/data/**
 
 # DevPulse Portable Architecture
 # Ignore model weights, but keep the folder structure

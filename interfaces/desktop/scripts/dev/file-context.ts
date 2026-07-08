@@ -44,8 +44,6 @@ export const ROOTS = {
 	tauri: path.join(DESKTOP_ROOT, "src-tauri"),
 	/** Signal engine */
 	engine: path.resolve(DESKTOP_ROOT, "../../systems/devpulse-engine"),
-	/** AI orchestrator kernel */
-	clyffy: path.resolve(DESKTOP_ROOT, "../../kernel/devpulse-clyffy"),
 	/** Build/doc scripts */
 	scripts: path.resolve(DESKTOP_ROOT, "../../scripts"),
 	/** Desktop-local scripts */
@@ -65,7 +63,6 @@ export type Namespace =
 	| "@devpulse/routes"
 	| "@devpulse/tauri"
 	| "@devpulse/engine"
-	| "@devpulse/clyffy"
 	| "@devpulse/scripts";
 
 export interface FileContext {
@@ -212,12 +209,6 @@ function resolveNamespace(filePath: string): {
 		return { namespace: "@devpulse/engine", localPath: engineRel, root: ROOTS.engine };
 	}
 
-	// AI orchestrator
-	const clyffyRel = relativeUnder(ROOTS.clyffy, filePath);
-	if (clyffyRel !== null) {
-		return { namespace: "@devpulse/clyffy", localPath: clyffyRel, root: ROOTS.clyffy };
-	}
-
 	// Desktop-local scripts (interfaces/desktop/scripts/)
 	const dScriptsRel = relativeUnder(ROOTS.desktopScripts, filePath);
 	if (dScriptsRel !== null) {
@@ -300,12 +291,6 @@ function resolveLayer(namespace: Namespace, localPath: string): string {
 		if (localPath.startsWith("src/signals/")) return "signals";
 		if (localPath.startsWith("src/engine/")) return "engine";
 		return "engine";
-	}
-
-	if (namespace === "@devpulse/clyffy") {
-		if (localPath.startsWith("src/cortex/")) return "cortex";
-		if (localPath.startsWith("src/config/")) return "config";
-		return "clyffy";
 	}
 
 	return "scripts";

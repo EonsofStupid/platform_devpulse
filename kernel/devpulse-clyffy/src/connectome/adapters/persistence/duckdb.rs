@@ -1,1 +1,0 @@
-// DuckDB Adapter (Telemetry/Analytics)

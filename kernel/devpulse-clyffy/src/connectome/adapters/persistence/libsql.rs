@@ -1,1 +1,0 @@
-// LibSQL Adapter (Core/Auth)

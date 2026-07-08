@@ -43,13 +43,6 @@ organizations:
 # HUBS (Domain Modules)
 # ============================================
 hubs:
-  - id: clyffy-ai
-    name: "ClyffyAI"
-    slug: clyffy-ai
-    path: kernel/devpulse-clyffy
-    type: core
-    description: "AI orchestration kernel"
-    
   - id: wiredfront
     name: "WiredFront"
     slug: wiredfront
@@ -116,13 +109,6 @@ services:
       - rust
     description: "Public API facade"
     
-  - id: clyffy
-    name: "Clyffy Kernel"
-    path: kernel/devpulse-clyffy
-    tech:
-      - rust
-    description: "Proprietary AI orchestration"
-
 # ============================================
 # DESIGN SYSTEM
 # ============================================

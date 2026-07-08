@@ -1,9 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "kernel/devpulse-clyffy",
-    "kernel/model-loader",
-    "kernel/rrd",
+    # The AI layer (connectome kernel, model loading/inference, RRD daemon)
+    # is Clyffy's — it lives at github.com/EonsofStupid/clyffyos
+    # (clyffyos-connectome / clyffyos-model-loader / clyffyos-rrd). DevPulse
+    # reaches it over the devpulse-gb10-client wire; model MANAGEMENT is the
+    # engine's own platform/model_loader module.
     "systems/devpulse-engine",
     "systems/devpulse-media",
     # persona-mcp is Clyffy's — lives at github.com/EonsofStupid/clyffyos
