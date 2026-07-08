@@ -1,72 +1,92 @@
-//! Grammar (structured-output) Tauri commands — snapshot + control verbs.
+//! Grammar (structured-output) Tauri commands — Tier-2, served by headless Clyffy.
 //!
-//! Mirrors the shape of [`commands::sys::rro_state`] (same facade tier:
-//! in-memory handle, broadcast events, public vocabulary). The kernel
-//! grammar engine records enforcement / failure counts through the
-//! handle; this command surface exposes the snapshot + mutator verbs.
+//! Grammar-constrained decoding is **Clyffy's** (headless, on the GB10), not a
+//! local DevPulse service. These commands are **connection-gated**: when Clyffy
+//! is disconnected DevPulse returns the honest "connect Clyffy" state; when
+//! connected it renders whatever Clyffy advertises in its capability. Available
+//! once the AI-layer connection is active.
+//!
+//! The snapshot / kind DTOs are the wire-contract types (`clyffyos-wire`),
+//! re-exported via `devpulse-gb10-client` — one source of truth, no parallel
+//! DTOs. The serving daemon (`clyffyd`) is built in the clyffyos repo; until it
+//! advertises structured-output control in its capability, the connected path
+//! reports it as not-yet-advertised (deferred, not retired).
 //!
 //! # Event emission
 //!
-//! Transitions fire Tauri events on `platform:grammar-changed` with the
-//! new snapshot as payload. The event bridge is spawned from `lib.rs`
-//! after the platform handle is installed — mirrors the RRO bridge.
-//! Frontend subscribes via `listen()`; no polling.
+//! When served, transitions fire Tauri events on `platform:grammar-changed`
+//! with the new snapshot as payload — the frontend subscribes via `listen()`,
+//! no polling. The bridge is re-established from the gb10-client event stream
+//! once Clyffy connects.
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper that resolves the `Platform` handle and forwards to the grammar engine handle. The only failure mode is `Platform is still booting` (documented at `resolve_platform`)."
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — each Result-returning command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'not advertised by this capability yet' message when connected but Clyffy's capability does not include grammar control. Args (Tauri State + payloads) are framework-mandated by-value and used only by-ref while gated; consumed once forwarded over the wire, so needless_pass_by_value is a false-positive here (#![expect] warns to remove once clyffyd lands)."
 )]
 
-use std::sync::Arc;
-
-use crate::state::PlatformState;
-use devpulse_engine::platform::{GrammarKind, GrammarSnapshot, Platform};
+use crate::state::ClyffyConnectionState;
+use devpulse_gb10_client::{ConnectionState, GrammarKind, GrammarSnapshot};
 use tauri::State;
 
-/// Resolve the platform handle or surface a boot-in-progress error.
-fn resolve_platform(state: &State<'_, PlatformState>) -> Result<Arc<Platform>, String> {
-    state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())
+/// Standalone answer (Clyffy disconnected) — grammar is a Tier-2 capability.
+const GRAMMAR_TIER2_UNAVAILABLE: &str = "Grammar unavailable — structured-output control is a Tier-2 capability served by Clyffy over the gb10-client wire. Connect Clyffy to enable.";
+
+/// Connected, but Clyffy's advertised capability does not include grammar
+/// control yet (deferred, not retired — lands when `clyffyd` advertises it).
+const GRAMMAR_ENDPOINT_PENDING: &str =
+    "Grammar control pending — connected to Clyffy, but its advertised capability does not include structured-output control yet.";
+
+/// Connection gate: `Ok` only when Clyffy is connected (the caller may then
+/// proxy to the wire); the honest standalone `Err` otherwise.
+fn require_connected(clyffy: &State<'_, ClyffyConnectionState>) -> Result<(), String> {
+    match clyffy.current() {
+        ConnectionState::Connected { .. } => Ok(()),
+        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => {
+            Err(GRAMMAR_TIER2_UNAVAILABLE.to_string())
+        }
+    }
 }
 
-/// Get the current grammar snapshot.
+/// Get the current grammar snapshot from headless Clyffy.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_grammar_state(state: State<'_, PlatformState>) -> Result<GrammarSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.grammar().snapshot().await)
+pub fn get_grammar_state(
+    clyffy: State<'_, ClyffyConnectionState>,
+) -> Result<GrammarSnapshot, String> {
+    require_connected(&clyffy)?;
+    Err(GRAMMAR_ENDPOINT_PENDING.to_string())
 }
 
-/// Set the active grammar kind (does not imply enforcement).
+/// Set the active grammar kind on Clyffy (does not imply enforcement).
 #[tauri::command]
 #[specta::specta]
-pub async fn set_grammar_kind(
-    state: State<'_, PlatformState>,
+pub fn set_grammar_kind(
+    clyffy: State<'_, ClyffyConnectionState>,
     kind: GrammarKind,
 ) -> Result<GrammarSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.grammar().set_kind(kind).await)
+    require_connected(&clyffy)?;
+    let _ = kind;
+    Err(GRAMMAR_ENDPOINT_PENDING.to_string())
 }
 
-/// Enable the grammar engine with an opaque grammar id.
-///
-/// The caller supplies the id; it's treated as an opaque handle for
-/// display (`active_grammar_id` in snapshots) and never parsed.
+/// Enable Clyffy's grammar engine with an opaque grammar id.
 #[tauri::command]
 #[specta::specta]
-pub async fn enable_grammar(
-    state: State<'_, PlatformState>,
+pub fn enable_grammar(
+    clyffy: State<'_, ClyffyConnectionState>,
     grammar_id: String,
 ) -> Result<GrammarSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.grammar().enable(grammar_id).await)
+    require_connected(&clyffy)?;
+    let _ = grammar_id;
+    Err(GRAMMAR_ENDPOINT_PENDING.to_string())
 }
 
-/// Disable the grammar engine entirely.
+/// Disable Clyffy's grammar engine entirely.
 #[tauri::command]
 #[specta::specta]
-pub async fn disable_grammar(state: State<'_, PlatformState>) -> Result<GrammarSnapshot, String> {
-    let platform = resolve_platform(&state)?;
-    Ok(platform.grammar().disable().await)
+pub fn disable_grammar(
+    clyffy: State<'_, ClyffyConnectionState>,
+) -> Result<GrammarSnapshot, String> {
+    require_connected(&clyffy)?;
+    Err(GRAMMAR_ENDPOINT_PENDING.to_string())
 }

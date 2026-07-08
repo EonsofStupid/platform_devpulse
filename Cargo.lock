@@ -2939,6 +2939,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4bfbf56724aa9eca8afa4fcfadeb479e722935bb2a0900c2d37e0cc477af0688"
 
 [[package]]
+name = "clyffyos-wire"
+version = "0.1.0"
+source = "git+https://github.com/EonsofStupid/clyffyos.git?rev=eae33539025cca0c5149c783118171c5bef39af4#eae33539025cca0c5149c783118171c5bef39af4"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "specta",
+ "uuid 1.23.0",
+]
+
+[[package]]
 name = "cmake"
 version = "0.1.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3560,9 +3572,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-epoch"
-version = "0.9.18"
+version = "0.9.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b82ac4a3c2ca9c3460964f020e1402edd5753411d7737aa39c3714ad1b5420e"
+checksum = "2d6914041f254d6e9176c01941b21115dcfb7089e55135a35411081bd106ef3f"
 dependencies = [
  "crossbeam-utils",
 ]
@@ -4740,13 +4752,16 @@ dependencies = [
  "async-trait",
  "axum 0.8.8",
  "base64 0.22.1",
- "burn",
  "chrono",
- "devpulse-clyffy",
+ "devpulse-store",
  "devpulse-telemetry",
  "figment",
  "flume",
  "futures-core",
+ "ggus",
+ "hf-hub",
+ "nvml-wrapper",
+ "parking_lot",
  "portpicker",
  "rand 0.8.5",
  "reqwest 0.12.28",
@@ -4756,6 +4771,7 @@ dependencies = [
  "schemars 0.8.22",
  "serde",
  "serde_json",
+ "sha2",
  "sherpa-onnx",
  "specta",
  "sysinfo 0.33.1",
@@ -4766,6 +4782,17 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid 1.23.0",
+]
+
+[[package]]
+name = "devpulse-gb10-client"
+version = "0.1.0"
+dependencies = [
+ "clyffyos-wire",
+ "reqwest 0.12.28",
+ "serde",
+ "specta",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -4810,6 +4837,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "devpulse-store"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "duckdb",
+ "futures",
+ "moka",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "turso",
+]
+
+[[package]]
 name = "devpulse-telemetry"
 version = "0.1.0"
 source = "git+https://github.com/EonsofStupid/devpulse-telemetry?branch=main#1f4c7d300044e1471c069acb602593628dddb120"
@@ -4836,6 +4879,7 @@ dependencies = [
  "base64 0.22.1",
  "chrono",
  "devpulse-engine",
+ "devpulse-gb10-client",
  "devpulse-media",
  "devpulse-telemetry",
  "flume",
@@ -4878,6 +4922,15 @@ dependencies = [
  "const-oid",
  "crypto-common",
  "subtle",
+]
+
+[[package]]
+name = "digit-layout"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21cba97b8c9bd3d9a6381565825ddabba86ddcd3a3ba090f48f39c1217d7f0d4"
+dependencies = [
+ "half 2.7.1",
 ]
 
 [[package]]
@@ -6699,6 +6752,30 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
+]
+
+[[package]]
+name = "ggml-quants"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5e19ad18fcb0c1bc4f4ee534a17a6743055be2952ea6c51f094d0867a927d4e"
+dependencies = [
+ "digit-layout",
+ "half 2.7.1",
+ "rayon",
+]
+
+[[package]]
+name = "ggus"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc099d0395c63a57e0e97069e1dfe23a2c1d9c72aaf16bab2648701316c341a5"
+dependencies = [
+ "ggml-quants",
+ "indexmap 2.13.0",
+ "log",
+ "num_enum",
+ "regex",
 ]
 
 [[package]]
@@ -14932,6 +15009,7 @@ version = "2.0.0-rc.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab7f01e9310a820edd31c80fde3cae445295adde21a3f9416517d7d65015b971"
 dependencies = [
+ "chrono",
  "paste",
  "specta-macros",
  "thiserror 1.0.69",

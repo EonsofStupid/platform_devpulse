@@ -30,7 +30,8 @@
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
-import { formatMb, hardwareState, modelsState } from "$lib/domains/app/models/index.js";
+import { formatMb, hardwareState } from "$lib/domains/app/models/index.js";
+import { clyffyConnection } from "$lib/domains/clyffy/status/connection.state.svelte.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
@@ -39,13 +40,16 @@ import SubsystemBadge from "./SubsystemBadge.svelte";
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
-const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "ready");
 const subsystemGroups = $derived(groupSubsystems(subsystems));
 
 // Subscribe to live hardware telemetry so the VRAM badge has real data.
 // Ref-counted via createTauriEvent — shared with dashboard and any other
 // active subscriber; detaches automatically when StatusBar unmounts.
 $effect(() => hardwareState.subscribe("statusbar"));
+
+// Subscribe to the Clyffy wire connection so the AI-layer badge (the no-AI
+// indicator) reflects the live ConnectionState. Ref-counted; detaches on unmount.
+$effect(() => clyffyConnection.subscribe());
 </script>
 
 <div class="statusbar-surface flex w-full items-center justify-between" aria-label="System status">
@@ -108,15 +112,31 @@ $effect(() => hardwareState.subscribe("statusbar"));
 				<Text size="xs" color="secondary">{platformState.connectionStatus}</Text>
 			</Badge>
 
-			<!-- Model status segment -->
-			<Badge variant={brainLoaded ? "positive" : "neutral"} size="sm" class="gap-1">
+			<!-- AI-layer segment — the no-AI indicator. DevPulse runs standalone
+			     (Tier-1, Turso only); the AI layer (Clyffy on the GB10) is a
+			     CONNECTION, not a local component, so "Standalone" is a valid mode,
+			     never an error. Sourced from the devpulse-gb10-client wire
+			     ConnectionState.tier2_available() — capability computed, never
+			     hardcoded (see systems/devpulse-gb10-client/SPEC.md). -->
+			<Badge variant={clyffyConnection.tier2Available ? "positive" : "neutral"} size="sm" class="gap-1">
 				<span
 					class="status-dot h-1.5 w-1.5 rounded-full"
-					data-subsystem-state={brainLoaded ? "ready" : "pending"}
+					data-subsystem-state={clyffyConnection.tier2Available ? "ready" : "pending"}
 					aria-hidden="true"
 				></span>
-				<Text size="xs" color="secondary">Brain: {brainLoaded ? "ON" : "OFF"}</Text>
+				<Text size="xs" color="secondary">AI: {clyffyConnection.tier2Available ? "Clyffy" : "Standalone"}</Text>
 			</Badge>
+			<!-- Endpoint-metadata chip — surfaces what the live handshake
+			     reported (kind/version/short sha). Renders only while
+			     connected; every field is capability-computed. -->
+			{#if clyffyConnection.capability}
+				{@const cap = clyffyConnection.capability}
+				<Badge variant="neutral" size="sm">
+					<Text size="xs" color="muted">
+						{cap.kind} v{cap.version}{cap.build_sha ? ` · ${cap.build_sha}` : ""}
+					</Text>
+				</Badge>
+			{/if}
 			{#if hardwareState.hasGpu}
 				<Badge variant="neutral" size="sm">
 					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb ?? 0)}/{formatMb(hardwareState.vramTotalMb ?? 0)}</Text>

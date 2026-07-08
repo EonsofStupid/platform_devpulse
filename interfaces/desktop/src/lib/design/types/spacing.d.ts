@@ -290,3 +290,31 @@ export type ZIndexRecord = {
 	toast: string;
 	tooltip: string;
 };
+
+export const BorderWidthTokens = ["hairline", "thin", "medium"] as const;
+export type BorderWidthToken = (typeof BorderWidthTokens)[number];
+
+export type BorderWidthCSSVar =
+	| "--border-width-hairline"
+	| "--border-width-thin"
+	| "--border-width-medium";
+
+export type BorderWidthRecord = {
+	hairline: string;
+	thin: string;
+	medium: string;
+};
+
+export const OutlineOffsetTokens = ["sm", "md", "lg"] as const;
+export type OutlineOffsetToken = (typeof OutlineOffsetTokens)[number];
+
+export type OutlineOffsetCSSVar =
+	| "--outline-offset-sm"
+	| "--outline-offset-md"
+	| "--outline-offset-lg";
+
+export type OutlineOffsetRecord = {
+	sm: string;
+	md: string;
+	lg: string;
+};

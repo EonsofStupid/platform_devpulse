@@ -8,8 +8,6 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
-use devpulse_clyffy::connectome::llguidance::config::DEFAULT_GRAMMAR_KIND;
-
 use super::config::{RedactionLevel, WhitelistConfig};
 use super::surface::{SurfaceCategory, SurfaceEvent};
 
@@ -166,7 +164,7 @@ fn redact_ip(text: &str) -> String {
         ("SurrealDB", "graph"),
         ("Candle", "AI engine"),
         ("llama.cpp", "AI engine"),
-        (DEFAULT_GRAMMAR_KIND, "format system"),
+        ("llguidance", "format system"),
         ("Qwen3", "AI model"),
         ("SigLIP2", "vision model"),
         ("Whisper", "voice model"),

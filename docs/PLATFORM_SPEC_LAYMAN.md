@@ -1,17 +1,16 @@
-# DevPulse Platform Specification
-## For Software Developers Targeting Non-Technical Users
+# DevPulse Platform Specification — Layman Baseline
 
-This document defines what **layman users** should expect from DevPulse — a local-first AI platform that "just works" without requiring users to understand model formats, VRAM, or inference backends.
+**The official pre-release baseline** for what non-technical users experience in
+DevPulse. This document is normative for user-facing behavior; it deliberately
+contains **zero hardcoded model names, sizes, tiers, or endpoints** — every
+concrete value a user sees is *computed at runtime* (hardware probe, capability
+handshake, config SSOT) and would be a lie if written down here.
 
-> **Architecture context (2026-06-30).** DevPulse is a **standalone Tauri + Svelte +
-> ColdLight frontend** with its own local store (**Turso** for projects / conversations /
-> stats; DuckDB for analytics). It **boots by itself** with no backend reachable, then
-> **discovers Clyffy** additively in one of three modes — **local** (ClyffyOS on the same
-> machine), **network** (a Clyffy on the LAN), or **GB10** (the headless EdgeXpert node).
-> Inference, model loading, and hardware-fit run on the **Clyffy side**. The model slots,
-> loading strategies, and "hardware tiers" below are **COMPUTED from the discovered
-> endpoint's reported resources at runtime — never a hardcoded VRAM→model table.**
-> DevPulse displays the chosen setup; ClyffyOS owns the model-loader internals.
+> **Document status.** Version 2.0.0, reauthored 2026-07-08 for the kernel
+> severance + standalone-first architecture. Supersedes v1.0 (2026-04-07),
+> which described a pre-severance world: bundled models, hardcoded
+> VRAM-tier→model tables, and local-only inference. That framing is dead —
+> do not restore it. History lives in git.
 
 ---
 
@@ -19,612 +18,249 @@ This document defines what **layman users** should expect from DevPulse — a lo
 
 | Principle | What It Means |
 |-----------|---------------|
-| **Standalone Boot** | The UI renders and runs its local Turso store with no backend reachable |
-| **Zero Config Default** | Works the moment a Clyffy endpoint is discovered; bundled fallbacks need no setup |
-| **Progressive Disclosure** | Power users can customize; beginners never need to |
-| **Three Connection Modes** | local / network / GB10 — chosen by discovery; capability computed per endpoint |
-| **Local First** | Processing runs on the discovered Clyffy endpoint (same machine, LAN, or GB10); data stays on the user's network |
-| **Graceful Degradation** | Capability is **computed** from the endpoint's reported resources — the largest model that fits with headroom, continuously, never a fixed GB table |
-| **Hot Swap** | Switch models without restarting the app |
+| **Loads standalone** | DevPulse opens and works with no AI backend reachable. Standalone is a *mode*, never an error. |
+| **AI is a connection** | The AI layer is headless Clyffy on a machine the user controls — this PC, a box on their network, or their GB10 over their private mesh. |
+| **Computed, never hardcoded** | What the AI can do is read live from the connected endpoint's capability handshake. No fabricated slot tables, no shipped endpoints, no model defaults in code or docs. |
+| **Progressive disclosure** | Power users can inspect everything (devtools); beginners never need to. |
+| **Local-first** | Data lives on machines the user controls — this PC (Turso + DuckDB) and their own Clyffy host. Nothing goes to a third party. |
+| **Layman language** | Every visible string comes from the copy SSOT (`wizard_copy` TOML, user-overridable). No jargon reaches the customer. |
 
 ---
 
-## 1. Model Slots — The User Mental Model
+## 1. The Two Tiers
 
-Users don't think in "models." They think in **capabilities**. DevPulse exposes slots:
+### Tier 1 — Standalone (always available)
 
-| Slot ID | User-Facing Name | What It Does |
-|---------|------------------|--------------|
-| `chat.brain` | "AI Assistant" | Main conversational AI |
-| `rag.embedder` | "Search Brain" | Turns documents into searchable vectors |
-| `rag.reranker` | "Relevance Scorer" | Picks most relevant results |
-| `voice.stt` | "Voice Input" | Converts speech to text |
-| `voice.tts` | "Voice Output" | Converts text to speech |
-| `vision.encoder` | "Image Understanding" | Describes images, extracts text |
-| `media.matting` | "Background Removal" | Removes video/image backgrounds |
+DevPulse boots by itself: the full shell, projects, local stats, and local
+model *management*. No GPU, no AI backend, no network required.
 
-### User Experience
+What Tier 1 includes:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Settings > AI Models                                        │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  🧠 AI Assistant                              [Qwen 9B ▼]   │
-│     Status: ● Ready (6.7 GB VRAM)                           │
-│     [Change Model]  [Unload]                                │
-│                                                              │
-│  🔍 Search Brain                              [Nomic ▼]     │
-│     Status: ● Ready (152 MB VRAM)                           │
-│     [Change Model]  [Unload]                                │
-│                                                              │
-│  🎤 Voice Input                               [Whisper ▼]   │
-│     Status: ○ Not Loaded                                    │
-│     [Load Now]  [Auto-load when needed]                     │
-│                                                              │
-│  🔊 Voice Output                              [Kokoro ▼]    │
-│     Status: ● Ready (88 MB VRAM)                            │
-│     [Change Model]  [Unload]                                │
-│                                                              │
-│  🖼️ Background Removal                        [U2Net ▼]     │
-│     Status: ○ Not Loaded                                    │
-│     [Load Now]  [Auto-load when needed]                     │
-│                                                              │
-│  ────────────────────────────────────────────────────────   │
-│  VRAM Usage: 7.1 GB / 12 GB  [████████░░░░]                 │
-│  System RAM: 4.2 GB / 32 GB  [██░░░░░░░░░░]                 │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+- The app shell (topbar / sidebar / content / context / statusbar) and every
+  non-AI surface
+- Project data in the local store (Turso — the local source of truth;
+  DuckDB for project analytics)
+- **Local model management** — browse, download, catalog, and organize model
+  files (the Model Downloader + Slot Orchestrator devtool). Management is
+  DevPulse's job; *running* models is the AI layer's job.
+- Honest, subtle **no-AI indicators** on three surfaces: the status bar
+  (`AI: Standalone`), the top bar, and the chat window. They present a mode,
+  not a failure.
+
+### Tier 2 — Connected (additive)
+
+When the user connects a Clyffy endpoint, the AI features light up — chat,
+helpers, voice, vision, retrieval — **exactly as advertised by that
+endpoint**, nothing more, nothing less.
+
+- The handshake reads the endpoint's live capability (its kind, version,
+  build, and the slots it currently serves).
+- Every AI surface derives from that answer. If the endpoint serves no voice,
+  no voice UI pretends otherwise.
+- If the connection drops, DevPulse returns to Tier 1 and quietly keeps
+  retrying — reconnection is seamless and automatic, no restart, no error
+  wall.
 
 ---
 
-## 2. Loading Strategies — What Users See
+## 2. Connecting the AI Layer
 
-| Strategy | User-Facing | Behavior |
-|----------|-------------|----------|
-| `Hot` | "Always Ready" | Loads on app start, stays loaded |
-| `Warm` | "Quick Start" | Pre-loads when app predicts need |
-| `OnDemand` | "Load When Needed" | First use has ~3s delay, then instant |
-| `Signal` | "Smart Loading" | Loads when specific action triggers |
+### First run
 
-### Default Configuration (Layman Mode)
+1. DevPulse loads standalone (Tier 1) — the user sees a working app first.
+2. The setup wizard offers the **connect step**: link the AI now, or skip.
+3. Two modes are presented (both are just an address — the mode cards are
+   layman guidance, not different protocols):
+   - **This machine / home network** — Clyffy running locally or on a box on
+     the same LAN.
+   - **GB10** — the user's box reached over *their* private mesh; the address
+     is pasted in manually (link-local discovery cannot cross a mesh, so this
+     stays explicit by design).
+4. **Connect** dials the entered address and the UI shows the honest live
+   status: connecting → connected (capability received) → or "couldn't reach
+   it, retrying in the background."
+5. **Skip is a first-class choice.** The app stays standalone; the no-AI
+   indicator remains; the user can connect any time later from the same
+   surfaces.
 
-```
-chat.brain      → Hot        (users expect instant chat)
-rag.embedder    → Hot        (search must be instant)
-voice.stt       → OnDemand   (only if user enables voice)
-voice.tts       → Warm       (pre-loads if voice features enabled)
-media.matting   → OnDemand   (only when user opens media tools)
-```
+Rules that hold everywhere:
 
----
+- **The endpoint address is never shipped, guessed, or hardcoded.** It is
+  typed by the user (or discovered locally, when discovery lands — a deferred
+  feature, not a removed one).
+- The wizard's strings come from the copy SSOT; the only address-shaped text
+  anywhere is an *editable example placeholder* in that user-overridable
+  config.
 
-## 3. Capability-Computed Configuration
+### After first run
 
-DevPulse never maps a fixed VRAM number to a fixed model. On connecting to a Clyffy
-endpoint, ClyffyOS reports its actual resources (GPU/VRAM, RAM, compute) and computes a
-**continuous capability band**: for each slot it selects the **largest model whose
-measured footprint fits the reported budget with headroom** — recomputed per endpoint,
-per machine. The same DevPulse install adapts to a potato laptop, a 24 GB workstation,
-or a GB10 node with no code change and no tier table.
-
-- **What is fixed:** the slot's *capability* (chat brain, embedder, …) and a tier→repo
-  *resolver* the loader fills at runtime.
-- **What is computed:** which model, which quant, how many GPU layers, the context
-  length — all derived from the endpoint's reported resources, never a literal threshold.
-
-> The model-loader that performs this fit lives in **ClyffyOS** (the headless backend).
-> There is **no** hardware→model table in DevPulse. (The legacy `Potato/Entry/Mainstream/
-> Prosumer/Workstation` VRAM ladder is removed — it was the exact "capability pinned to a
-> number" anti-pattern that kept the app from loading on arbitrary machines.)
-
-### User Flow: First Launch
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                              │
-│  🔍 Detecting your hardware...                              │
-│                                                              │
-│  GPU: NVIDIA RTX 3080 (10 GB)                               │
-│  RAM: 32 GB                                                  │
-│  Tier: (computed)                                            │
-│                                                              │
-│  ────────────────────────────────────────────────────────   │
-│                                                              │
-│  Recommended Setup:                                          │
-│                                                              │
-│  ✓ AI Assistant: Qwen 9B (best balance of speed/quality)    │
-│  ✓ Search: Nomic Embed (fast, accurate)                     │
-│  ✓ Voice: Whisper Small + Kokoro TTS                        │
-│                                                              │
-│  Total VRAM: ~7.4 GB / 10 GB available                      │
-│                                                              │
-│        [ Use Recommended ]    [ Customize ]                  │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+- The chosen endpoint persists across restarts (pending slice: endpoint
+  persistence + "decided" flag — see §9).
+- Re-entry points: the status-bar AI badge area and the connect step of the
+  wizard, re-openable on demand.
 
 ---
 
-## 4. Hot Swap — Changing Models at Runtime
+## 3. Capabilities — The User Mental Model
 
-Users can change models **without restarting** the app:
+Users don't think in "models." They think in **what Clyffy can do**. DevPulse
+presents capabilities in two layman surfaces, both computed from the same
+live handshake:
 
-### What Happens Behind the Scenes
+### The five senses (setup wizard cortex view)
 
-```
-User clicks [Change Model] on "AI Assistant"
-    ↓
-1. Current model receives "prepare to unload" signal
-2. Pending requests drain (max 5 second timeout)
-3. Model unloaded from VRAM
-4. New model loaded
-5. Slot status updates to "Ready"
-6. User can continue chatting (no app restart)
-```
+Five anatomy tiles — Brain, Sparkles (indexing), Eyes, Ears, Mouth — each
+lights up when the connected endpoint advertises the matching capability:
 
-### User-Facing UI
+| Anatomy | What the user is told | Lights up from |
+|---------|----------------------|----------------|
+| Brain | the long-think reasoner | the endpoint's main reasoning slot |
+| Sparkles | the indexing brain | the retrieval/embedding slot |
+| Eyes | what Clyffy sees | any advertised vision capability |
+| Ears | what Clyffy hears | the voice slot |
+| Mouth | how Clyffy speaks | the voice slot |
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Change AI Assistant Model                                   │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Current: Qwen 9B (Q4_K_M) — 6.7 GB VRAM                    │
-│                                                              │
-│  Available Models:                                           │
-│                                                              │
-│  ○ Qwen 0.6B (Q4) .......... 472 MB   "Fast, basic tasks"   │
-│  ● Qwen 9B (Q4) ........... 6.7 GB   "Balanced" ✓ Current   │
-│  ○ Qwen 14B (Q4) ......... 10.2 GB   "High quality"         │
-│                                      ⚠️ May exceed VRAM      │
-│                                                              │
-│  [ Download More Models ]                                    │
-│                                                              │
-│        [ Cancel ]              [ Switch Model ]              │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+The tile shows the *advertised* model's friendly name and status
+(Connect / Connecting… / Live / Retry). A tile that isn't served shows its
+honest "awaiting backend" framing. **No default model column exists** —
+what's served is the Clyffy host's configuration, not DevPulse's opinion.
+
+### The capability browser (chat surface)
+
+A grouped catalog (Thinking / Memory / Voice / Vision / Tools) whose
+availability is a pure function of the advertised slots. Standalone shows
+every entry as "Not yet available" — honestly.
 
 ---
 
-## 5. Pre-Loaded vs Configurable Models
+## 4. Local Model Management (Tier 1, DevPulse-owned)
 
-### Bundled Models (Ship with App)
+DevPulse manages model *files*; it does not run them.
 
-These are **always available**, no download required:
-
-| Model | Purpose | Size | Why Bundled |
-|-------|---------|------|-------------|
-| Kokoro TTS (int8) | Voice output | 88 MB | Essential for accessibility |
-| Nomic Embed (Q8) | Search/RAG | 152 MB | Core feature, small |
-| U2Net (FP16) | Background removal | ~170 MB | Media tools essential |
-
-### User-Managed Models (Download via UI)
-
-| Model | Purpose | Size | Why User-Managed |
-|-------|---------|------|------------------|
-| Qwen 0.6B - 14B | Chat/reasoning | 400MB - 10GB | Size varies by hardware |
-| Whisper (small/medium/large) | Speech-to-text | 500MB - 3GB | Quality/speed tradeoff |
-| SigLIP2 | Vision encoding | ~400 MB | Optional feature |
+- **Browse & download** — the Model Downloader overlay searches the model
+  hub, tags a file with its intended role, verifies integrity, and registers
+  it in the local catalog. Downloads show progress / pause / resume / speed /
+  ETA with layman copy.
+- **Organize** — the Slot Orchestrator devtool assigns catalog entries to
+  roles, clears assignments, and points at local files.
+- **Recommendations are computed** — the hardware probe (GPU, VRAM, RAM)
+  drives a tier *badge* and sizing guidance at runtime. The tier names,
+  thresholds, and any model suggestions come from runtime config
+  (tier-adaptive presets), never from this spec. Writing a VRAM→model table
+  here would hardcode a decision the probe + preset config own.
 
 ---
 
-## 6. Model Discovery & Download
+## 5. Language & Copy Baseline
 
-### In-App Model Browser
+- **Every visible string** flows from the Rust copy SSOT
+  (`wizard_copy.default.toml`, embedded; user override at
+  `{data_dir}/config/wizard_copy.toml`). Views receive typed copy structs and
+  render them — zero hardcoded English in Layer-2 views.
+- **Layman vocabulary is the product surface.** "AI brain," "what Clyffy
+  sees" — never "inference endpoint," "embedder," or quant levels. The
+  terminology SSOT drives the rename consistently.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Model Library                                    [Search 🔍]│
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌─ Installed ──────────────────────────────────────────┐   │
-│  │                                                       │   │
-│  │  Qwen3.5-9B-Q4_K_M          6.7 GB    ● Loaded       │   │
-│  │  Qwen3-0.6B-Q4_K_M          400 MB    ○ Available    │   │
-│  │  nomic-embed-text-v1.5      152 MB    ● Loaded       │   │
-│  │  whisper-small              465 MB    ○ Available    │   │
-│  │  kokoro-v1.0-int8           88 MB     ● Loaded       │   │
-│  │                                                       │   │
-│  └───────────────────────────────────────────────────────┘   │
-│                                                              │
-│  ┌─ Recommended Downloads ───────────────────────────────┐   │
-│  │                                                       │   │
-│  │  Qwen3.5-14B-Q4_K_M         10.2 GB   [Download]     │   │
-│  │  "Better reasoning, needs 12GB+ VRAM"                │   │
-│  │                                                       │   │
-│  │  whisper-medium             1.5 GB    [Download]     │   │
-│  │  "More accurate transcription"                       │   │
-│  │                                                       │   │
-│  │  bge-reranker-v2-m3         420 MB    [Download]     │   │
-│  │  "Improves search relevance"                         │   │
-│  │                                                       │   │
-│  └───────────────────────────────────────────────────────┘   │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+Users never see: model formats (GGUF/ONNX/SafeTensors), quantization labels,
+backend names, VRAM allocation internals, or wire-protocol details.
 
-### Download Flow
-
-```
-User clicks [Download] on Qwen3.5-14B
-    ↓
-1. VRAM check: "This model needs 10.2 GB. You have 10 GB."
-   → Warning shown, user can proceed anyway
-    ↓
-2. Download progress with pause/resume
-   → Progress bar, speed, ETA
-    ↓
-3. Integrity verification (SHA256)
-    ↓
-4. Auto-register in model registry
-    ↓
-5. Model appears in slot assignment UI
-```
+Users always see: capability names in plain language, simple status cues
+(Live / Connecting… / Standalone / Retry), actionable buttons, and friendly
+error messages with a next step.
 
 ---
 
-## 7. RRO (Retrieval, Reasoning, Orchestration) — Pre-Loaded Pipeline
+## 6. Look & Feel Baseline (ColdLight)
 
-Your existing RRO system should be **transparent to users**:
+The visual baseline every user-facing surface conforms to:
 
-| Component | Slot | Loading | User Sees |
-|-----------|------|---------|-----------|
-| Embedder | `rag.embedder` | Hot | Instant search results |
-| Reranker | `rag.reranker` | Warm | "Finding best matches..." |
-| Brain (LLM) | `chat.brain` | Hot | Instant responses |
-
-### User Experience
-
-```
-User: "Find my notes about the quarterly budget"
-    ↓
-[Behind scenes: embedder → vector search → reranker → LLM synthesis]
-    ↓
-User sees: "I found 3 relevant notes about Q3 budget..."
-```
-
-**Users don't know** about embeddings, vectors, or reranking. They just see fast, relevant results.
+- **OKLCH color end-to-end** — perceptually uniform; tinted surfaces are
+  hue-rotations at matched lightness/chroma (teal, purple, blue, ember,
+  coral glass fills), so variety stays coherent.
+- **REM units + fluid sizing** — dimensions are `clamp()` scales; component
+  and inset scales interpolate on **container size** (`cqi`), so panels,
+  overlays, and the separate chat window truly rescale with their own
+  container, not just the OS window.
+- **Blue CTAs** (locked) — the call-to-action role is bound to brand blue;
+  `cta` is a stable alias of `primary`.
+- **Animated MP4 backdrop** (locked) on the setup wizard; 4-tier depth
+  stacking (backdrop → glass → stark → matte) for every overlay.
+- **Clyffy mascot** (locked) — the mascot illustration, never a generic
+  brain icon.
+- ColdLight owns ARIA; views compose primitives and never hand-author
+  visual CSS a preset covers.
 
 ---
 
-## 8. Media Pipeline — Background Removal & More
+## 7. Error States & Recovery
 
-### User-Facing Features
+| Situation | User sees |
+|-----------|-----------|
+| Endpoint unreachable | "Couldn't reach it. Check the address and that Clyffy is running — I'll keep trying in the background." (probe keeps retrying; app stays usable in Tier 1) |
+| Connection drops mid-session | AI surfaces return to their standalone framing; the three no-AI indicators reappear; auto-reconnect continues silently |
+| A served slot fails | The tile/status shows the endpoint's own failure message (the wire carries it) with a Retry cue |
+| Download interrupted | "Download paused. Resume when connected." |
+| Damaged model file | "This model file is damaged." with a re-download action |
 
-| Feature | User Action | What Happens |
-|---------|-------------|--------------|
-| **BG Removal (Image)** | Drag image → "Remove Background" | U2Net inference, returns PNG with alpha |
-| **BG Removal (Video)** | Upload video → "Remove Background" | Frame-by-frame matting, real-time preview |
-| **Virtual Camera** | Toggle "Enable Virtual Camera" | Processed feed available in Zoom/Discord |
-| **Snip & Remove** | Screenshot tool → auto-remove BG | Snip → matting → clipboard |
-
-### Loading Behavior
-
-```
-media.matting slot:
-  - Loading: OnDemand
-  - First use: "Loading background removal..." (2-3 seconds)
-  - Subsequent use: Instant (model stays warm for 5 minutes)
-  - Unload after: 5 minutes idle
-```
+The principle: errors are **states the wire or the local operation actually
+reported**, translated to layman copy — never fabricated, never a dead end.
 
 ---
 
-## 9. Voice Pipeline
+## 8. What Runs Where
 
-### User-Facing Features
+| Concern | Where | Why |
+|---------|-------|-----|
+| UI shell, projects, settings | DevPulse (this PC) | the product surface |
+| Local store (source of truth) | DevPulse — Turso | standalone must work offline |
+| Project analytics | DevPulse — DuckDB | local, per-project |
+| Model file management (download/catalog/assign) | DevPulse | management is local; files are the user's |
+| Hardware probe + tier badge | DevPulse | drives display + sizing guidance |
+| **Inference** (chat, embeddings, rerank, voice, vision) | **Clyffy host** (local box or GB10) | the AI layer is a connection |
+| Slot loading/unloading, model runtime | Clyffy host | advertised via capability, displayed by DevPulse |
+| Deep AI analytics / memory | Clyffy host | DevPulse renders what it's served |
 
-| Feature | Trigger | Behavior |
-|---------|---------|----------|
-| **Voice Input** | Click mic / hotkey | STT transcribes, text appears in input |
-| **Voice Output** | Toggle "Read responses" | TTS speaks AI responses |
-| **Dictation Mode** | "Hey DevPulse" / hotkey | Continuous listening, hands-free |
-
-### Model Recommendations by Use Case
-
-| Use Case | STT Model | TTS Model | Latency |
-|----------|-----------|-----------|---------|
-| Quick commands | Whisper Small | Kokoro int8 | <500ms |
-| Transcription | Whisper Medium | — | ~1s |
-| Accessibility | Whisper Small | Kokoro fp16 | <500ms |
-
-### User Settings
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Voice Settings                                              │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Voice Input                                                 │
-│  ├─ Model: [Whisper Small ▼]                                │
-│  ├─ Language: [Auto-detect ▼]                               │
-│  └─ Hotkey: [Ctrl+Shift+V]                                  │
-│                                                              │
-│  Voice Output                                                │
-│  ├─ Model: [Kokoro int8 ▼]                                  │
-│  ├─ Voice: [American Female ▼]                              │
-│  ├─ Speed: [━━━━━━●━━━] 1.0x                                │
-│  └─ [✓] Read AI responses aloud                             │
-│                                                              │
-│  Wake Word (Experimental)                                    │
-│  └─ [ ] Enable "Hey DevPulse" wake word                     │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+Hardware expectations follow from this split: **DevPulse itself is a
+lightweight desktop app** (no GPU required for Tier 1). AI capability is the
+*Clyffy host's* hardware story, and the architecture is size-agnostic — the
+same UI renders whatever the endpoint advertises, from a modest single-GPU
+box upward. Minimum/recommended numbers are runtime-probe and host-config
+concerns, not spec constants.
 
 ---
 
-## 10. Error States & Recovery
+## 9. Pre-Release Baseline Checklist
 
-### User-Friendly Error Messages
+What this baseline **guarantees today** (verified in code):
 
-| Actual Error | User Sees |
-|--------------|-----------|
-| CUDA OOM | "Not enough graphics memory. Try a smaller model or close other apps." |
-| Model corrupted | "This model file is damaged. [Re-download]" |
-| Backend crash | "AI temporarily unavailable. [Retry] or [Switch to backup model]" |
-| Network timeout | "Download paused. [Resume] when connected." |
+- [x] Loads standalone; no AI required (Tier 1)
+- [x] Three-surface no-AI indicator (status bar, top bar, chat window), all
+      reading the one connection source
+- [x] Connect step in the wizard: Local / GB10 modes, manual address, real
+      connect command, live status; Skip is first-class
+- [x] Runtime re-pointing — connect/disconnect without restart (probe loop
+      re-reads the endpoint)
+- [x] Capability-computed surfaces: cortex tiles + capability browser +
+      endpoint-metadata chip all derive from the live handshake
+- [x] Copy SSOT for the connect flow (`[connect]` table, user-overridable)
+- [x] ColdLight baseline: OKLCH, REM, container-fluid (cqi) sizing, blue
+      CTA role, tinted glass families, MP4 wizard backdrop
 
-### Automatic Recovery
+Deferred — **not retired** (each has a named owner slice):
 
-```
-Slot fails to load
-    ↓
-1. Check fallback slot
-   → If exists and compatible, load fallback
-   → Notify user: "Using backup model"
-    ↓
-2. If no fallback, offer options:
-   → "Try smaller model"
-   → "Free up VRAM" (list what's using it)
-   → "Report issue"
-```
+- [ ] Endpoint persistence across restarts + "setup decided" flag
+      (B1-persist)
+- [ ] Boot gate keyed to the connect decision instead of local model
+      assignment (B7)
+- [ ] Local (LAN) endpoint discovery; GB10 stays manual by design (B8)
+- [ ] Voice/vision end-to-end over the wire (needs the Clyffy daemon live)
 
----
-
-## 11. Slot Registry — Capability Declarations
-
-DevPulse declares slot **capabilities**, not model files. ClyffyOS resolves the actual
-model at runtime by fitting the discovered endpoint's reported resources — no fixed
-`.gguf` filenames, no VRAM tiers. The registry lives in ClyffyOS; this is the shape.
-
-```rust
-// Slots declare a CAPABILITY + a runtime resolver. The loader picks the largest model
-// that fits the discovered endpoint's reported budget with headroom — never a literal
-// model file. Bundled small models exist ONLY as offline fallbacks.
-SlotRegistry::default_slots() = [
-    Slot {
-        id: "chat.brain",
-        label: "AI Assistant",
-        capability: TextGeneration,
-        preferred_device: Gpu,
-        loading: Hot,
-        model: ResolvedAtRuntime,          // largest fit, computed — not a filename
-        fallback: Some("chat.brain.lite"),
-    },
-    Slot {
-        id: "chat.brain.lite",
-        label: "AI Assistant (Lite)",
-        capability: TextGeneration,
-        preferred_device: GpuWithCpuFallback,
-        loading: OnDemand,
-        model: ResolvedAtRuntime,          // smallest viable fit for constrained endpoints
-        fallback: None,
-    },
-    Slot {
-        id: "rag.embedder",
-        label: "Search Brain",
-        capability: Embedding,
-        preferred_device: Cpu,
-        loading: Hot,
-        model: ResolvedAtRuntime,          // dims + model from connectome, computed
-        fallback_bundled: Some("rag/nomic-embed.gguf"),   // offline fallback only
-    },
-    Slot {
-        id: "voice.stt",
-        label: "Voice Input",
-        capability: SpeechToText,
-        preferred_device: GpuWithCpuFallback,
-        loading: OnDemand,
-        model: ResolvedAtRuntime,
-    },
-    Slot {
-        id: "voice.tts",
-        label: "Voice Output",
-        capability: TextToSpeech,
-        preferred_device: Gpu,
-        loading: Warm,
-        model: ResolvedAtRuntime,
-        fallback_bundled: Some("voice/kokoro-int8.onnx"), // offline fallback only
-    },
-    Slot {
-        id: "media.matting",
-        label: "Background Removal",
-        capability: VisionLanguage,
-        preferred_device: Gpu,
-        loading: OnDemand,
-        model: ResolvedAtRuntime,
-    },
-]
-```
+Runtime verification note: the *connected* path cannot be end-to-end
+verified until a Clyffy daemon is reachable; the standalone path and the
+disconnected behavior of every surface above are verifiable now.
 
 ---
 
-## 12. Implementation Checklist
-
-### Phase 1: Core Infrastructure (You Have This ✅)
-
-- [x] Model registry with auto-discovery
-- [x] Slot system with fallback chains
-- [x] Hardware detection + VRAM budgeting
-- [x] Multi-backend support (Candle, ORT, LlamaCpp)
-- [x] Voice backends (Whisper, Kokoro)
-- [x] Event system for UI updates
-
-### Phase 2: User-Facing Model Management
-
-- [ ] Settings UI: "AI Models" panel
-- [ ] Per-slot model selector dropdown
-- [ ] VRAM usage visualization
-- [ ] Download manager with progress/pause/resume
-- [ ] HuggingFace browser integration
-
-### Phase 3: Hot Swap
-
-- [ ] Graceful unload with request draining
-- [ ] In-place model swap without restart
-- [ ] Progress indicator during swap
-- [ ] Rollback if new model fails to load
-
-### Phase 4: Media Pipeline
-
-- [ ] `media.matting` slot with U2Net/ISNet
-- [ ] Camera capture via nokhwa
-- [ ] Virtual camera output (DirectShow filter)
-- [ ] Real-time background removal preview
-- [ ] OBS integration via obs-websocket
-
-### Phase 5: Polish
-
-- [ ] First-run hardware wizard
-- [ ] Model recommendations by tier
-- [ ] Error recovery with user-friendly messages
-- [ ] Telemetry opt-in for crash reports
-
----
-
-## 13. Technical Requirements
-
-### Minimum System Requirements
-
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| OS | Windows 10 64-bit | Windows 11 |
-| CPU | 4 cores, AVX2 | 8+ cores |
-| RAM | 8 GB | 16+ GB |
-| GPU | None (CPU fallback) | 6+ GB VRAM |
-| Storage | 5 GB (app + base models) | 20+ GB (full model library) |
-
-### Supported GPU Vendors
-
-| Vendor | Support Level | Notes |
-|--------|---------------|-------|
-| NVIDIA | Full | CUDA 12+, best performance |
-| AMD | Full | ROCm on Linux, DirectML on Windows |
-| Intel Arc | Experimental | oneAPI/SYCL |
-| Apple Silicon | Full | Metal via Candle |
-
----
-
-## 14. Summary: What Layman Users Experience
-
-1. **Install DevPulse** → Hardware auto-detected
-2. **First launch** → "Use Recommended" one-click setup
-3. **Chat immediately** → AI assistant ready, no config needed
-4. **Voice works** → Click mic to talk, hear responses
-5. **Search works** → Type query, get relevant results instantly
-6. **Media tools** → Background removal loads when needed
-7. **Want more power?** → Settings > AI Models > Download bigger models
-8. **Low VRAM?** → App suggests smaller models, graceful degradation
-
-**Users never see:**
-- Model formats (GGUF, ONNX, SafeTensors)
-- Quantization levels (Q4_K_M, int8, fp16)
-- Backend selection (Candle, ORT, LlamaCpp)
-- VRAM allocation details
-- Inference configuration
-
-**Users always see:**
-- Clear capability names ("AI Assistant", "Voice Input")
-- Simple status indicators (●Ready, ○Not Loaded, ⚠️Error)
-- Actionable buttons ([Load], [Unload], [Change Model])
-- Friendly error messages with solutions
-
----
-
-*Document Version: 1.0*
-*Last Updated: 2026-04-07*
-*Author: DevPulse Platform Team*
-
-
----
-
-## 15. Advanced: Model State Machine (Technical)
-
-DevPulse implements a **multi-stage loading pipeline** for optimal latency:
-
-### State Transitions
-
-```
-COLD (disk) ──load_to_ram──► WARM (RAM) ──transfer_to_gpu──► HOT (VRAM) ──inference──► ACTIVE
-     │                           │                               │                        │
-     │                           │                               │                        │
-     ▼                           ▼                               ▼                        ▼
-  3-10 sec                   50-500ms                        5-20ms                   Immediate
-```
-
-### State Definitions
-
-| State | Memory | VRAM | KV Cache | Latency to First Token |
-|-------|--------|------|----------|------------------------|
-| **Cold** | 0 | 0 | ✗ | 3-10 seconds |
-| **Warm** | Model size | 0 | ✗ | 50-500ms |
-| **Standby** | Minimal | Model size | Pre-allocated (empty) | <100ms |
-| **Hot/Loaded** | Minimal | Model size | Pre-allocated (empty) | 5-20ms |
-| **Active** | Minimal | Model + KV | Filled | Immediate (streaming) |
-
-### Loading Strategies Mapped to States
-
-| Strategy | Target State | Transition |
-|----------|--------------|------------|
-| `Hot` | Loaded | Boot → Load → Transfer → Ready |
-| `Warm` | Warm | Boot → Load to RAM → Wait for request |
-| `OnDemand` | Cold | Wait for request → Full load |
-| `Signal` | Cold/Warm | Signal fires → Load |
-
-### Warm → Hot Promotion (Automatic)
-
-When a request arrives for a `Warm` model:
-
-1. **Check VRAM budget** — Is there room?
-2. **If yes** → Transfer to GPU (50-500ms), update state to `Loaded`
-3. **If no** → Run on CPU (slower) OR evict another model
-
-### Inference Optimization
-
-Once `Loaded`, the model is ready for inference. DevPulse optimizes:
-
-1. **KV Cache Pooling** — Pre-allocated slots, reused across requests
-2. **Continuous Batching** — Multiple requests batched for throughput
-3. **Speculative Decoding** — (Optional) Draft model for faster generation
-
-### User Impact
-
-| User Action | What Happens | Perceived Latency |
-|-------------|--------------|-------------------|
-| App launch | `Hot` slots load to VRAM | User waits ~5-10s at splash screen |
-| First chat | Model already `Loaded` | Instant response |
-| Voice command | `voice.stt` promotes Warm→Hot | ~200ms then instant |
-| BG removal | `media.matting` loads OnDemand | ~2-3s first time, then instant |
-
-### Memory Pressure Handling
-
-When VRAM is tight:
-
-```
-1. Identify lowest-priority Loaded model (by LoadingStrategy)
-2. Demote to Warm (transfer weights back to RAM)
-3. Free VRAM
-4. Load requested model
-5. If RAM also tight, demote Warm to Cold (unload)
-```
-
-Priority order for eviction:
-1. `OnDemand` models idle >5 minutes
-2. `Warm` models not accessed recently
-3. `Hot` models with lower priority slots
-
----
+*Document version: 2.0.0 — official pre-release baseline*
+*Reauthored: 2026-07-08 (kernel severance + standalone-first)*
+*Owner: DevPulse Platform Team*

@@ -1,40 +1,65 @@
-//! Connectome governance-graph commands.
+//! Connectome governance-graph + encoder-swap commands — Tier-2, served
+//! by headless Clyffy.
 //!
-//! Operator-authored reasoning trees per `CORTEX.md` §4. B-1 ships
-//! the foundation slice — `connectome_thought_create` and
-//! `connectome_thought_load_branch`. Edge linking lands in B-2; the
-//! visualizer lands in B-3.
+//! Operator-authored reasoning trees (`CORTEX.md` §4) and the Burn encoder
+//! hot-swap are **Clyffy's** — headless, on the GB10 — not local DevPulse
+//! services. These commands are **connection-gated**: when Clyffy is
+//! disconnected DevPulse returns the honest "connect Clyffy" state; when
+//! connected they proxy to Clyffy's `/v1/graph` (thoughts) and `/v1/loader`
+//! (encoder swap) surfaces over the gb10-client wire. Available once the
+//! AI-layer connection is active.
+//!
+//! The [`ThoughtRecord`], [`RroState`], and [`SwapStats`] DTOs are the
+//! wire-contract types (`clyffyos-wire`), re-exported via
+//! `devpulse-gb10-client` — one source of truth, no parallel DTOs. The live
+//! `/v1/graph` + `/v1/loader` endpoints are served by `clyffyd`; until they
+//! land on the connected build, the connected path reports them as
+//! not-yet-served (deferred, not retired).
+#![expect(
+    clippy::missing_errors_doc,
+    clippy::needless_pass_by_value,
+    reason = "Tauri command module — each Result-returning command is a thin connection-gated shell: it fails with the standalone 'connect Clyffy' message when disconnected, or the 'endpoint not yet served' message when connected but clyffyd has not exposed the surface. Args (Tauri State + deserialized payloads) are framework-mandated by-value and used only by-ref while gated; they are consumed once forwarded over the wire, so needless_pass_by_value is a false-positive here (the #![expect] warns to remove itself once clyffyd lands and the args are used)."
+)]
 
-use crate::state::PlatformState;
-use devpulse_engine::platform::{
-    thought_create, thought_load_branch, RroState, SwapStats, ThoughtRecord,
-};
-use std::path::PathBuf;
+use crate::state::ClyffyConnectionState;
+use devpulse_gb10_client::{ConnectionState, RroState, SwapStats, ThoughtRecord};
 use tauri::State;
 
-macro_rules! get_platform {
-    ($state:expr) => {
-        $state
-            .platform
-            .load_full()
-            .ok_or_else(|| "Platform is still booting".to_string())
-    };
+/// Standalone answer (Clyffy disconnected) — the connectome graph + encoder
+/// swap are Tier-2 capabilities.
+const CONNECTOME_TIER2_UNAVAILABLE: &str = "Connectome unavailable — reasoning trees and the encoder hot-swap are Tier-2 capabilities served by Clyffy over the gb10-client wire. Connect Clyffy to enable.";
+
+/// Connected, but this Clyffy endpoint does not yet serve the reasoning-tree
+/// graph surface (deferred, not retired — lands when `clyffyd` exposes
+/// `/v1/graph`).
+const GRAPH_ENDPOINT_PENDING: &str =
+    "Reasoning-tree control pending — connected to Clyffy, but its advertised capability does not include the reasoning-tree graph yet.";
+
+/// Connected, but this Clyffy endpoint does not yet serve the model-loader
+/// surface (deferred, not retired — lands when `clyffyd` exposes `/v1/loader`).
+const LOADER_ENDPOINT_PENDING: &str =
+    "Encoder swap pending — connected to Clyffy, but its advertised capability does not include model-loader control yet.";
+
+/// Connection gate: `Ok` only when Clyffy is connected (the caller may then
+/// proxy to the wire); the honest standalone `Err` otherwise.
+fn require_connected(clyffy: &State<'_, ClyffyConnectionState>) -> Result<(), String> {
+    match clyffy.current() {
+        ConnectionState::Connected { .. } => Ok(()),
+        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => {
+            Err(CONNECTOME_TIER2_UNAVAILABLE.to_string())
+        }
+    }
 }
 
-/// Create a new thought in the operator's reasoning tree.
+/// Create a new thought in the operator's reasoning tree on Clyffy.
 ///
-/// Writes to the user namespace under the given `project_id` per
-/// `CORTEX.md` §4.5. Returns the persisted `ThoughtRecord` whose `id`
-/// is the canonical Surreal record reference for subsequent edges.
-///
-/// # Errors
-/// - Platform is still booting.
-/// - User graph service is not available.
-/// - Surreal write fails.
+/// Writes to Clyffy's user graph, scoped to `project_id`. Returns the
+/// persisted [`ThoughtRecord`] whose `id` is the canonical Surreal record
+/// reference for subsequent edges.
 #[tauri::command]
 #[specta::specta]
-pub async fn connectome_thought_create(
-    state: State<'_, PlatformState>,
+pub fn connectome_thought_create(
+    clyffy: State<'_, ClyffyConnectionState>,
     project_id: String,
     branch_id: String,
     content: String,
@@ -42,84 +67,37 @@ pub async fn connectome_thought_create(
     depth: i32,
     proximity: f32,
 ) -> Result<ThoughtRecord, String> {
-    let platform = get_platform!(state)?;
-    let graph = platform
-        .user_graph()
-        .ok_or_else(|| "User graph not available".to_string())?;
-
-    thought_create(
-        graph.handle(),
-        &project_id,
-        &branch_id,
-        &content,
-        rro_state.as_str(),
-        depth,
-        proximity,
-    )
-    .await
-    .map_err(|e| format!("{e:#}"))
+    require_connected(&clyffy)?;
+    let _ = (project_id, branch_id, content, rro_state, depth, proximity);
+    Err(GRAPH_ENDPOINT_PENDING.to_string())
 }
 
-/// Load every thought in a branch, ordered by depth ascending.
-///
-/// Returns an empty vector for unknown branches — never an error.
-///
-/// # Errors
-/// - Platform is still booting.
-/// - User graph service is not available.
-/// - Surreal query fails.
+/// Load every thought in a branch from Clyffy, ordered by depth ascending.
 #[tauri::command]
 #[specta::specta]
-pub async fn connectome_thought_load_branch(
-    state: State<'_, PlatformState>,
+pub fn connectome_thought_load_branch(
+    clyffy: State<'_, ClyffyConnectionState>,
     project_id: String,
     branch_id: String,
 ) -> Result<Vec<ThoughtRecord>, String> {
-    let platform = get_platform!(state)?;
-    let graph = platform
-        .user_graph()
-        .ok_or_else(|| "User graph not available".to_string())?;
-
-    thought_load_branch(graph.handle(), &project_id, &branch_id)
-        .await
-        .map_err(|e| format!("{e:#}"))
+    require_connected(&clyffy)?;
+    let _ = (project_id, branch_id);
+    Err(GRAPH_ENDPOINT_PENDING.to_string())
 }
 
-/// Hot-swap the live Burn encoder weights to a safetensors file on disk.
+/// Hot-swap the live Burn encoder weights to a safetensors file on Clyffy.
 ///
-/// Drives the RRD daemon through one full
-/// `pause → drain → load → validate → swap → resume` cycle. Returns the
-/// structured [`SwapStats`] (renamed `SwapReport` on the TS side via the
-/// `swap.svc.ts` mirror) on a healthy swap; on failure the live encoder
-/// is unchanged and the daemon is resumed before the error returns.
-///
-/// The matching UI surface is the `SwapDialog` under
-/// `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
-/// First-load (turning the slot from cold to ready) goes through the
-/// normal `load_slot` path on `rag.embedder`; only the second-and-later
-/// path uses this command.
-///
-/// # Errors
-/// - Platform is still booting.
-/// - Model Loader service is disabled or burn feature is off.
-/// - First-load has never run (daemon not constructed yet).
-/// - Source file missing / unreadable / wrong format.
-/// - Validate forward returned non-finite output (live unchanged).
+/// Drives Clyffy's RRD daemon through one full
+/// `pause → drain → load → validate → swap → resume` cycle and returns the
+/// structured [`SwapStats`]. The matching UI surface is the `SwapDialog`
+/// under `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
 #[tauri::command]
 #[specta::specta]
-#[tracing::instrument(skip(state), fields(weights_path = %weights_path))]
-pub async fn connectome_swap_encoder(
-    state: State<'_, PlatformState>,
+pub fn connectome_swap_encoder(
+    clyffy: State<'_, ClyffyConnectionState>,
     weights_path: String,
 ) -> Result<SwapStats, String> {
-    let platform = get_platform!(state)?;
-    let loader = platform
-        .model_loader()
-        .cloned()
-        .ok_or_else(|| "Model Loader not available (disabled or failed to boot)".to_string())?;
-
-    loader
-        .burn_swap_encoder(PathBuf::from(weights_path))
-        .await
-        .map_err(|e| format!("{e:#}"))
+    require_connected(&clyffy)?;
+    let _ = weights_path;
+    Err(LOADER_ENDPOINT_PENDING.to_string())
 }

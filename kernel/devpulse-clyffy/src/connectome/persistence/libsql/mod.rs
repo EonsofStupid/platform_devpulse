@@ -207,16 +207,21 @@ impl SqlAdapter for LibSqlAdapter {
 
         let mut results = Vec::new();
         while let Some(row) = rows.next().await? {
-            let mut row_values: SqlRow = Vec::new();
-            // LibSQL doesn't expose column count easily, so we try columns until failure
-            for i in 0..32 {
-                match row.get_value(i) {
-                    Ok(turso::Value::Null) => row_values.push(SqlValue::Null),
-                    Ok(turso::Value::Integer(v)) => row_values.push(SqlValue::Integer(v)),
-                    Ok(turso::Value::Real(v)) => row_values.push(SqlValue::Real(v)),
-                    Ok(turso::Value::Text(v)) => row_values.push(SqlValue::Text(v)),
-                    Ok(turso::Value::Blob(v)) => row_values.push(SqlValue::Blob(v)),
-                    Err(_) => break,
+            // turso's `Row::get_value` panics on an out-of-bounds column index
+            // — turso 0.4.4 `rows.rs:51` does a raw `self.values[index]` with no
+            // bounds check, unlike libsql which returned `Err` past the last
+            // column. Probing a fixed `0..32` therefore PANICS on the first
+            // out-of-range column and unwinds the whole caller (this crashed boot
+            // inside `knowledge::sync`). Bound the loop by the actual column count.
+            let col_count = row.column_count();
+            let mut row_values: SqlRow = Vec::with_capacity(col_count);
+            for i in 0..col_count {
+                match row.get_value(i)? {
+                    turso::Value::Null => row_values.push(SqlValue::Null),
+                    turso::Value::Integer(v) => row_values.push(SqlValue::Integer(v)),
+                    turso::Value::Real(v) => row_values.push(SqlValue::Real(v)),
+                    turso::Value::Text(v) => row_values.push(SqlValue::Text(v)),
+                    turso::Value::Blob(v) => row_values.push(SqlValue::Blob(v)),
                 }
             }
             results.push(row_values);

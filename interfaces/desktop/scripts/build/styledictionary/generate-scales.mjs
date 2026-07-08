@@ -650,7 +650,7 @@ function buildMeshGradientFile(mesh) {
  * `$extensions.com.devpulse.coldlight.fluid`, and `$description`
  * stay on each leaf.
  */
-function buildFluidDimensionFile({ group, description, entries }) {
+function buildFluidDimensionFile({ group, description, entries, basis }) {
 	const children = {};
 	for (const [name, minPx, maxPx] of entries) {
 		const { $type: _stripped, ...leaf } = dtcgFluidDimensionToken(
@@ -660,6 +660,7 @@ function buildFluidDimensionFile({ group, description, entries }) {
 			1440,
 			16,
 			`${group} ${name} — min ${minPx}px, max ${maxPx}px.`,
+			basis,
 		);
 		children[name] = leaf;
 	}
@@ -1015,8 +1016,10 @@ MANIFEST.push(
 		build: () =>
 			buildFluidDimensionFile({
 				group: 'padding',
-				description: 'Fluid padding y/x pairs per T-shirt size.',
+				description:
+					'Fluid padding y/x pairs per T-shirt size — container-basis (cqi): insets follow their surface, not the screen (S1.C).',
 				entries: PADDING_ENTRIES,
+				basis: 'container',
 			}),
 		key: 'padding',
 		category: 'primitives/dimension',
@@ -1026,8 +1029,10 @@ MANIFEST.push(
 		build: () =>
 			buildFluidDimensionFile({
 				group: 'size',
-				description: 'Fluid component + container sizes.',
+				description:
+					'Fluid component + container sizes — container-basis (cqi): dimensions rescale to their shell zone / overlay, not the window (S1.C).',
 				entries: SIZE_ENTRIES,
+				basis: 'container',
 			}),
 		key: 'size',
 		category: 'primitives/dimension',

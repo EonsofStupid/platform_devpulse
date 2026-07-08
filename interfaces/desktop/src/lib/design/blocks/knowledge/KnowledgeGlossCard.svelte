@@ -8,7 +8,7 @@
 	register than the curious-blue DYK or the teal kdrop. No
 	mascot column by default (the gloss surface is usually a
 	hover popover where the mascot would crowd the layout); pass
-	`mascot={true}` to opt in.
+	`showMascot={true}` to opt in.
 -->
 <script lang="ts">
 import { Button } from "$lib/design/components/button/index.js";
@@ -21,7 +21,7 @@ interface Props {
 	entry: KnowledgeEntry & { payload: GlossPayload };
 	live?: "off" | "polite" | "assertive";
 	/** Show the Clyffy headshot column. Default: false. */
-	mascot?: boolean;
+	showMascot?: boolean;
 	onDismiss?: () => void;
 	labels?: {
 		kicker: string;
@@ -29,7 +29,7 @@ interface Props {
 	};
 }
 
-let { entry, live = "polite", mascot = false, onDismiss, labels }: Props = $props();
+let { entry, live = "polite", showMascot = false, onDismiss, labels }: Props = $props();
 
 const resolved = $derived({
 	kicker: labels?.kicker ?? "Glossary",
@@ -41,7 +41,7 @@ const headingId = $derived(`kc-gloss-${entry.id}`);
 
 <KnowledgeCard accent="purple" {headingId} {live}>
 	{#snippet mascot()}
-		{#if mascot}
+		{#if showMascot}
 			<ClyffyHeadshot pose="idle" size="sm" decorative />
 		{/if}
 	{/snippet}

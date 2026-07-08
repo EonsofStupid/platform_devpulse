@@ -4,75 +4,44 @@ version = "1.0.1"
 edition = "2021"
 
 [features]
-default = ["kernel"]
+default = ["kernel", "mode-dev"]
 kernel = []
 engine = []
 internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled OUT of release.
-rro = ["devpulse-clyffy/rro"]
-candle = ["devpulse-clyffy/candle"]
-inference = ["devpulse-clyffy/model-loader"]
-llguidance = ["devpulse-clyffy/llguidance"]
+
+# Build-mode selection for the relocated model-loader `build_mode.rs`
+# (kernel-severance). Exactly one must be active; `mode-dev` is the default
+# so local cargo workflows behave as they did in the kernel. Release/customer
+# builds swap it via `--no-default-features` + the chosen mode.
+mode-dev = []
+mode-production = []
+mode-customer = []
 # Streaming ASR via sherpa-onnx (next-gen Kaldi). Off by default —
 # enabling pulls ~100 MB of prebuilt native binaries at build time.
 # `cargo xtask run-dev --features sherpa` to opt in.
 sherpa = ["dep:sherpa-onnx"]
-# Burn-backed RRO encoder. Activates clyffy's `burn-cpu` so the
-# `ConnectomeBurnAdapter` is reachable from boot, plus implies `inference`
-# for the kernel ModelLoaderService surface that consumes the adapter.
-# `dep:burn` exposes the `burn::backend::flex` + `burn::tensor::dtype`
-# surfaces that `platform/boot/model_loader.rs::build_burn_encoder_adapter`
-# uses to construct the device + narrow safetensors f32 → bf16 at boot.
-burn = ["devpulse-clyffy/burn-cpu", "dep:burn", "inference"]
 
-# ── GPU proxy features (build-time vendor selection) ──
-# Pick ONE per build. Selection is build-time because cargo features are
-# build-time; the binary is committed to its GPU backend. xtask detects the
-# host GPU vendor at invocation time and appends the right proxy.
-#
-# `gpu-nvidia`  — peak perf on NVIDIA. CUDA Toolkit 12.x required at build.
-#                 Bundles cudart/cublas DLLs (~100 MB) for the release.
-# `gpu-vulkan`  — cross-vendor (AMD + NVIDIA + Intel). Vulkan SDK required at
-#                 build; runtime loads vulkan-1.dll from the driver. ~80-90%
-#                 of CUDA perf on NVIDIA, AND the only GPU path on AMD on
-#                 Windows (llama-cpp-2 0.1.145 has no `hipblas`/`rocm` feature
-#                 yet, so AMD/Linux users also route through Vulkan via wgpu).
-gpu-nvidia = [
-    "devpulse-clyffy/burn-cuda",
-    "devpulse-clyffy/model-loader-cuda",
-    "devpulse-clyffy/model-loader-llama-cuda",
-    "candle",
-    "inference",
-]
-gpu-vulkan = [
-    # NOTE: `devpulse-clyffy/burn-wgpu` is intentionally omitted. Burn 0.21 →
-    # cubecl-wgpu 0.10 → wgpu 29.0.3 → wgpu-hal 29.0.3 activates the `dx12`
-    # backend through wgpu's default features, dragging in gpu-allocator 0.28
-    # (windows 0.54) which conflicts with wgpu-hal's own windows 0.62 direct
-    # dep. Two `windows` crate versions = type mismatch in
-    # wgpu-hal/src/dx12/suballocation.rs. We don't need DX12 (Vulkan is the
-    # target), but cargo's feature unification can't subtract features, so
-    # disabling DX12 requires forking cubecl-wgpu. Until upstream fixes the
-    # gpu-allocator/windows version skew, Burn runs on its `flex` CPU backend
-    # under gpu-vulkan; llama.cpp still gets Vulkan acceleration via
-    # model-loader-llama-vulkan.
-    "devpulse-clyffy/model-loader-llama-vulkan",
-    "inference",
-]
-# CPU-MKL — Intel Math Kernel Library for accelerated BLAS/LAPACK on CPU.
-# Stands alone (pure CPU build with MKL) OR composes with a GPU feature
-# above (GPU for the heavy nets, MKL for the remaining CPU math).
-cpu-mkl = [
-    "devpulse-clyffy/model-loader-mkl",
-    "candle",
-    "inference",
-]
+# NVIDIA GPU telemetry (VRAM / util / temp) via NVML. Off by default —
+# enabling links nvml-wrapper, which loads the NVML shared library at
+# runtime (graceful Err when no NVIDIA driver is present). Tier-1 LOCAL
+# hardware monitoring — NOT inference (that's Clyffy's on GB10); relocated
+# with hardware/metrics.rs from kernel/model-loader (kernel-severance).
+nvml = ["dep:nvml-wrapper"]
+
+# Kernel AI features (rro / candle / inference / llguidance / burn +
+# gpu-nvidia / gpu-vulkan / cpu-mkl) REMOVED — every one referenced
+# `devpulse-clyffy/*` and pulled llama.cpp. All AI is Clyffy's on GB10,
+# served over the gb10-client wire (kernel-severance). DevPulse builds
+# standalone, Tier-1 (Turso + DuckDB + Moka), no kernel, no llama.
 
 [dependencies]
 # Core
 serde = { workspace = true }
 serde_json = { workspace = true }
 specta = { workspace = true }
-uuid = { workspace = true }
+# `v5` (stable name→UUID) is used by the relocated model-loader discovery
+# scanner for stable registry ids; `v7`/`serde` come from the workspace pin.
+uuid = { workspace = true, features = ["v5"] }
 tokio = { workspace = true }
 async-trait = "0.1"
 anyhow = { workspace = true }
@@ -81,8 +50,14 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 chrono = { workspace = true }
 
-# Kernel (the brain — always linked, facade controls exposure)
-devpulse-clyffy = { path = "../../kernel/devpulse-clyffy", features = ["specta"] }
+# DevPulse-owned agnostic store — Turso (SSOT) + DuckDB (analytics) + Moka
+# (cache). Kernel-free; supplies the Tier-1 persistence adapters that used to
+# come from the kernel. See systems/devpulse-store.
+devpulse-store = { path = "../devpulse-store" }
+
+# devpulse-clyffy dependency REMOVED (kernel-severance) — the engine no
+# longer links the kernel or llama.cpp. AI services are Clyffy's on GB10,
+# reached over the gb10-client wire; Tier-1 stores come from devpulse-store.
 
 # Reason Ready Daemon (RRD) — in-process orchestrator for the RRO
 # cluster's hot-update lifecycle. The engine consumes only the
@@ -121,9 +96,24 @@ schemars = "0.8"
 portpicker = "0.1"
 rand = "0.8"
 
-# Ollama sidecar HTTP client — matches kernel/model-loader's reqwest config
-# (rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds).
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# Ollama sidecar HTTP client + model-loader HF search / LFS-oid tree fetch.
+# `blocking` is required by `models/download.rs::fetch_lfs_oid_map`; async
+# `Client` (HF search) rides the same crate. rustls-tls avoids a system
+# OpenSSL dep on Windows/Linux release builds.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+
+# ── Model-loader MANAGEMENT deps (kernel-severance relocation) ──────
+# All pure management — zero inference linkage (verified by `cargo tree`).
+# hf-hub: HuggingFace downloader/search. rustls (no OpenSSL), sync `ureq`
+#   path used by models/download.rs (`api::sync` + `Progress`).
+hf-hub = { version = "0.4", default-features = false, features = ["ureq", "rustls-tls"] }
+# sha2: HF LFS oid (SHA-256) download-integrity verification.
+sha2 = "0.10"
+# ggus: pure-Rust GGUF header/metadata reader — candle-free replacement for
+#   the kernel's `candle_core::quantized::gguf_file` parse in discovery.rs.
+ggus = "0.5"
+# parking_lot: `RwLock<HardwareMonitor>` + `Mutex<HashSet>` on ModelLoaderService.
+parking_lot = "0.12"
 
 # Sherpa streaming ASR (next-gen Kaldi / onnxruntime). Optional — the
 # crate's build script downloads ~100 MB of prebuilt native binaries,
@@ -131,17 +121,20 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 # public sherpa-onnx C library version at time of integration.
 sherpa-onnx = { version = "1.12", optional = true }
 
+# NVIDIA GPU telemetry — optional, gated behind the `nvml` feature.
+# Loads the NVML shared library at runtime; no NVIDIA driver ⇒ graceful
+# Err and GPU metrics fall back to the platform fallback path. Local
+# hardware monitoring only; inference GPUs live on Clyffy/GB10.
+nvml-wrapper = { version = "0.10", optional = true }
+
 # Lock-free Option<Arc<T>> for lazy-started services (DevForge)
 arc-swap = { workspace = true }
 
 # Audio playback (TTS output → speakers)
 rodio = "0.19"
 
-# Burn — optional, gated by the `burn` feature. Engine boot constructs
-# the FlexDevice + sets default dtypes for the ConnectomeBurnAdapter that
-# kernel slot dispatch calls into. Workspace pins the version + the
-# minimal `std,flex` default-feature set.
-burn = { workspace = true, optional = true }
+# Burn dep REMOVED (kernel-severance) — the boot-time Burn encoder adapter
+# was deleted with the kernel Tier-2 boot stages; Burn/RRO run on Clyffy/GB10.
 
 [build-dependencies]
 toml = "0.8"
