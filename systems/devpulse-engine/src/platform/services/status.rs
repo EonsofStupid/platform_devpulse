@@ -58,7 +58,7 @@ pub struct ServiceStatusSnapshot {
     pub scope: DataScope,
     /// Boot stage number from the manifest.
     pub stage: u8,
-    /// Public name ("Vector Store", "Grammar Engine", …).
+    /// Public name ("Vector Store", "Model Manager", …).
     pub public_name: String,
     /// UI grouping literal — matches `ServiceGroup::as_ts_literal`.
     pub group: String,

@@ -1326,10 +1326,10 @@ async llamaCppOpenPrebuiltDir(target: string) : Promise<Result<null, string>> {
  * The write itself is atomic — staged at `manifest.json.tmp` then
  * renamed.
  * 
- * **Does NOT fetch** — operator runs `cargo xtask fetch-llama-cpp
- * --target <id>` separately after the manifest lands. That's
+ * **Does NOT fetch** — the fetch tooling left with the kernel cut and
+ * lives with Clyffy (clyffyos repo, `tools/fetch-llama-cpp/`). That's
  * deliberate: a manifest bump is a contract change; a fetch is a
- * per-machine action. Different concerns, different commands.
+ * per-machine action on the workspace that actually builds llama.cpp.
  * 
  * # Errors
  * Returns the formatted error string when the incoming JSON does not
@@ -8116,9 +8116,8 @@ export type LinkMode =
  */
 "prebuilt-staged-but-not-exported" | 
 /**
- * No prebuilt staged. Either the operator hasn't run
- * `fetch-llama-cpp` yet, or this is a Linux / macOS box where the
- * fallback works fine.
+ * No prebuilt staged — the normal state since the kernel cut (the
+ * fetch tooling is Clyffy's; nothing here links llama.cpp).
  */
 "fallback-cmake-or-unbuilt"
 /**
@@ -10013,10 +10012,6 @@ export type ServiceRole =
  */
 "Vector" | 
 /**
- * Grammar service (Clyffy-side constrained decoding).
- */
-"Grammar" | 
-/**
  * `DevForge` service (managed REH web server).
  */
 "DevForge" | 
@@ -10107,7 +10102,7 @@ scope: DataScope;
  */
 stage: number; 
 /**
- * Public name ("Vector Store", "Grammar Engine", …).
+ * Public name ("Vector Store", "Model Manager", …).
  */
 public_name: string; 
 /**

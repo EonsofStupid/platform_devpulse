@@ -531,10 +531,10 @@ impl Platform {
             (ServiceRole::Analytics, DataScope::User) => self.user_analytics.is_some(),
             (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
             (ServiceRole::Ollama, DataScope::System) => self.ollama.load_full().is_some(),
-            // Tier-2 roles (Graph/Vector/ModelLoader/Surreal/Grammar) are
+            // Tier-2 roles (Graph/Vector/ModelLoader/Surreal) are
             // Clyffy's, served from GB10 — not local. Any manifest role
             // without a local accessor reports Unknown until the manifest
-            // drops them from the enum.
+            // drops them from the enum (Grammar already left this way).
             _ => return ServiceRuntimeState::Unknown,
         };
         if present {

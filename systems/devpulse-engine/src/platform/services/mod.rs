@@ -47,8 +47,9 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
-    /// Grammar service (Clyffy-side constrained decoding).
-    Grammar,
+    // No Grammar role — grammar / constrained decoding is Clyffy's on
+    // GB10; the desktop's grammar commands are connection-gated wire
+    // shells, not a local service.
     /// `DevForge` service (managed REH web server).
     DevForge,
     /// Model Loader service (AI model management, inference).

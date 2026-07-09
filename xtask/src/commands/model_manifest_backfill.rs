@@ -650,11 +650,12 @@ mod tests {
         assert_eq!(infer_parameter_count(&["qwen3-0.6b"], ""), Some(0.6));
         assert_eq!(
             infer_parameter_count(&["chat", "qwen--qwen3.5-9b"], ""),
-            Some(3.5)
+            Some(9.0)
         );
-        // ^ matches the FIRST number followed by 'b' — "3.5" in
-        // "qwen3.5-9b". Edge case: not perfect, but backfill notes
-        // field warns reviewer to verify.
+        // ^ "3.5" is NOT followed by 'b' (a '-' intervenes) so the
+        // scanner correctly skips the version number and matches "9b"
+        // — the actual parameter count. An earlier scanner returned
+        // 3.5 here; this pins the fixed behavior.
     }
 
     #[test]

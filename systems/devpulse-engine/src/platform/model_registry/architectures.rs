@@ -331,7 +331,7 @@ pub const ALL: &[ArchitectureSpec] = &[
 /// # Examples
 ///
 /// ```
-/// use model_loader::registry::{classify_arch_from_hf_config, ArchId};
+/// use devpulse_engine::platform::model_registry::architectures::{classify_arch_from_hf_config, ArchId};
 ///
 /// assert_eq!(
 ///     classify_arch_from_hf_config("Qwen3ForCausalLM", Some("qwen3")),
@@ -432,7 +432,7 @@ pub fn classify_arch_from_hf_config(arch_raw: &str, model_type: Option<&str>) ->
 /// # Examples
 ///
 /// ```
-/// use model_loader::registry::{classify_arch_from_gguf, ArchId};
+/// use devpulse_engine::platform::model_registry::architectures::{classify_arch_from_gguf, ArchId};
 ///
 /// assert_eq!(classify_arch_from_gguf("qwen3"), Some(ArchId::Qwen3));
 /// assert_eq!(classify_arch_from_gguf("phi3"), Some(ArchId::Phi3));
@@ -477,7 +477,7 @@ pub fn classify_safetensors_arch(arch_raw: &str, model_type: Option<&str>) -> Op
 /// # Examples
 ///
 /// ```
-/// use model_loader::registry::{architectures::get, ArchId, SupportTier};
+/// use devpulse_engine::platform::model_registry::architectures::{get, ArchId, SupportTier};
 ///
 /// let qwen3 = get(ArchId::Qwen3).expect("Qwen3 must be in the registry");
 /// assert_eq!(qwen3.tier, SupportTier::Primary);
