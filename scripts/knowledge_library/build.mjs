@@ -4,7 +4,7 @@
  *
  * Reads MD files in `docs/knowledge_library/` (one per content type), parses
  * the canonical entry shape, and merges into the embedded JSON artifacts
- * under `kernel/devpulse-clyffy/src/cortex/knowledge/data/`. The kernel
+ * under `systems/devpulse-engine/src/platform/knowledge/data/`. The engine
  * loads these via `include_str!` at compile time, so a `cargo build` after
  * running this script picks up the new content.
  *
