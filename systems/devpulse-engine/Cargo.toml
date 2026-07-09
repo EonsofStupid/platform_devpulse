@@ -4,8 +4,12 @@ version = "1.0.1"
 edition = "2021"
 
 [features]
-default = ["kernel", "mode-dev"]
-kernel = []
+default = ["full", "mode-dev"]
+# Build-surface pair (mutually exclusive; lib.rs compile_error-enforced):
+# `full` = the trusted dev/operator build (dev-only providers, full MCP
+# surface, ip/ dev tooling); `engine` = the restricted release surface
+# (CI's IP gate builds `--no-default-features --features engine`).
+full = []
 engine = []
 internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled OUT of release.
 

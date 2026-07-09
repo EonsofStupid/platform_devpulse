@@ -7,7 +7,7 @@
 //! from the live endpoint handshake, never assumed.
 //!
 //! The client is standalone and always present, so unlike the
-//! [`crate::commands::sys::vector`] seam there is no `kernel-inproc` arm: a
+//! [`crate::commands::sys::vector`] seam there is no `totalrecall` arm: a
 //! `Disconnected` result is the honest standalone answer, not an error.
 
 use crate::connection_store::{ClyffyConnectionRecord, ConnectionStore};

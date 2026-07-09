@@ -399,13 +399,13 @@ pub fn by_capability(
 
 /// All entries visible in the current build.
 ///
-/// Release builds (no `kernel` feature) hide every `dev_only = true`
+/// Release builds (no `full` feature) hide every `dev_only = true`
 /// provider — primarily the subscription-as-MCP path which requires
 /// vendor prior approval per the Agent SDK terms of service.
 pub fn visible() -> impl Iterator<Item = &'static AiProvider> {
     PROVIDERS
         .iter()
-        .filter(|p| !p.dev_only || cfg!(feature = "kernel"))
+        .filter(|p| !p.dev_only || cfg!(feature = "full"))
 }
 
 #[cfg(test)]

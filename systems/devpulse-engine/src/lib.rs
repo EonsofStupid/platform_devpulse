@@ -16,11 +16,11 @@
 // Feature gate enforcement
 // ═══════════════════════════════════════════════════════════════
 
-#[cfg(all(feature = "kernel", feature = "engine"))]
-compile_error!("Cannot enable both 'kernel' and 'engine' features. Pick one.");
+#[cfg(all(feature = "full", feature = "engine"))]
+compile_error!("Cannot enable both 'full' and 'engine' features. Pick one.");
 
-#[cfg(not(any(feature = "kernel", feature = "engine")))]
-compile_error!("Must enable either 'kernel' or 'engine' feature.");
+#[cfg(not(any(feature = "full", feature = "engine")))]
+compile_error!("Must enable either 'full' or 'engine' feature.");
 
 // ═══════════════════════════════════════════════════════════════
 // Modules

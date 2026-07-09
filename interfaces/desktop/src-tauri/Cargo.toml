@@ -55,7 +55,7 @@ uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
 # NOTE: `rro` (qortex, the embedded Qdrant vector store) is intentionally
 # NOT enabled here — it is Clyffy/ClyffyOS-side, behind the
-# gb10-client wire. See the `kernel-inproc` feature below for why it cannot
+# gb10-client wire. See the `totalrecall` feature below for why it cannot
 # co-exist with the Turso store in a desktop build.
 # There are no AI features (candle/inference/burn) — the engine is
 # standalone Tier-1; AI is Clyffy's on GB10 via
@@ -114,7 +114,7 @@ inference = []
 # EMPTY marker — no local `rro`;
 # qortex is Clyffy/ClyffyOS-side behind the gb10-client wire. `commands/sys/vector`
 # stays gated behind this never-enabled feature as the Tier-2 seam marker.
-kernel-inproc = []
+totalrecall = []
 # Jesse's dev build — sidecar, Claude Code, full MCP surface.
 # Compiled OUT of release binary. Passthrough to engine.
 internal = ["devpulse-engine/internal"]
