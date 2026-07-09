@@ -4,7 +4,7 @@
  *
  * Svelte 5 rune state tracking ALL active model downloads platform-wide.
  * NOT wizard-specific — downloads survive wizard close.
- * Subscribes to Tauri events emitted by the kernel download manager.
+ * Subscribes to Tauri events emitted by the engine's download manager.
  */
 
 import { listen } from "@tauri-apps/api/event";

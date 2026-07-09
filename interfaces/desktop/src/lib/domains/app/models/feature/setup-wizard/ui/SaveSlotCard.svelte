@@ -62,7 +62,7 @@ interface Props {
 	 *  so Clyffy can reason about images"). */
 	tagline: string;
 	/** Layman model name (e.g. "SigLIP HD"). Absent when no model is
-	 *  assigned yet — post-severance a slot's model comes from Clyffy's
+	 *  assigned yet — a slot's model comes from Clyffy's
 	 *  advertised capability, not a local install, so it may be unresolved. */
 	modelName?: string;
 	/** Short model tagline (e.g. "Google's compact vision encoder"). Absent with modelName. */

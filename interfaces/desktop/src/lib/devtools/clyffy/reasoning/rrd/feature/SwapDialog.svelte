@@ -7,7 +7,7 @@
 	Composes the existing devtool overlay shape (HfSearchDialog
 	pattern: self-contained, `open` + `onClose` props, color-mix
 	backdrop + blur, ColdLight tokens throughout). The dialog is the
-	UI seam over the kernel's `pause → drain → validate → swap →
+	UI seam over the daemon's `pause → drain → validate → swap →
 	resume` protocol — every phase the daemon emits gets surfaced
 	here in real time via the same `rrdState` rune the topology
 	component reads.
@@ -171,7 +171,7 @@ function handleKeydown(event: KeyboardEvent): void {
 
 // Phase ticker uses the shared `laymanFor` map so the dialog and the
 // parent RrdDevtool render identical labels + tones for the same
-// kernel phase. Drift between them was a recurring bug in the
+// daemon phase. Drift between them was a recurring bug in the
 // per-component-switch era.
 
 function fmtTime(ms: number): string {

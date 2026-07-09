@@ -3,23 +3,23 @@
 	@domain platform/_shared
 
 	One-click install of a HuggingFace (or JanAI — same infra) repo
-	into a slot. Click → list siblings → kernel picks the primary file
+	into a slot. Click → list siblings → the engine picks the primary file
 	(tier-aware) → bundle confirmation modal → on confirm, kick off
-	the kernel's atomic install chain (download + assign + load) via
+	the engine's atomic install chain (download + assign + load) via
 	the `install_to_slot` Tauri command.
 
-	The kernel's `execute_download` auto-fetches every shard / config
-	/ tokenizer companion alongside the primary; the kernel's
+	The engine's `execute_download` auto-fetches every shard / config
+	/ tokenizer companion alongside the primary; the engine's
 	`recommend_primary_for_slot` resolves which file to pass as the
 	primary based on the slot's required capability and the host's
 	hardware tier (GGUF quant for chat slots, safetensors shard for
 	embedder slots, ONNX for voice slots, etc.). This button just
-	wires those two kernel verbs to one user click.
+	wires those two engine verbs to one user click.
 
 	## Modes
 
 	With `slotId` (the layman one-button path):
-	  - kernel `recommendPrimaryForSlot` picks the file
+	  - the engine's `recommendPrimaryForSlot` picks the file
 	  - confirm → `installToSlot` runs download → scan → assign → load
 	  - the user never picks a quant, never picks a shard, never has
 	    to manually assign or load after download
@@ -59,7 +59,7 @@ interface Props {
 	/** HuggingFace repo id (e.g. `"microsoft/phi-4-mini-instruct"`). */
 	repoId: string;
 	/**
-	 * Slot to install into. When set, the kernel picks the primary
+	 * Slot to install into. When set, the engine picks the primary
 	 * file via `recommendPrimaryForSlot` and the confirm action runs
 	 * the atomic install chain (`installToSlot`). When unset, falls
 	 * back to in-TS `resolvePrimaryFile` + `download_model`.
@@ -106,13 +106,13 @@ async function handleClick(): Promise<void> {
 	logInfo("repo.download", `list_repo_files begin repo=${repoId} slot=${slotId ?? "<none>"}`);
 
 	try {
-		// Sibling list always comes from the kernel — used to render
+		// Sibling list always comes from the engine — used to render
 		// the bundle summary regardless of which primary picker runs.
 		const result = await invoke<RepoFile[]>("list_repo_files", { repoId });
 		siblings = result;
 
 		if (slotId) {
-			// Slot-bound install — kernel picks the primary based on
+			// Slot-bound install — the engine picks the primary based on
 			// the slot's required capability + live hardware tier.
 			const primary = await invoke<string | null>("recommend_primary_for_slot", {
 				repoId,

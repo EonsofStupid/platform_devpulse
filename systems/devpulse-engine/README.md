@@ -1,7 +1,7 @@
 # Systems: devpulse-engine (The Facade)
 
 > **ROLE**: The "Muscle" & "Translator". Public Types.
-> **ACCESS**: The ONLY crate that Desktop and Kernel both touch.
+> **ACCESS**: DevPulse's core backend — the only crate Desktop touches; the AI layer is Clyffy's, reached over the wire.
 > **VISIBILITY**: Public (Workspace Shared).
 
 ## The Law

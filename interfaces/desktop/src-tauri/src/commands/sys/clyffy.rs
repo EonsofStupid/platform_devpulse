@@ -6,7 +6,7 @@
 //! indicator and every Tier-2 surface gate — capability is always **computed**
 //! from the live endpoint handshake, never assumed.
 //!
-//! The client is kernel-free and always present, so unlike the
+//! The client is standalone and always present, so unlike the
 //! [`crate::commands::sys::vector`] seam there is no `kernel-inproc` arm: a
 //! `Disconnected` result is the honest standalone answer, not an error.
 

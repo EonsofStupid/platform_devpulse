@@ -4,7 +4,7 @@
 //! fetch (`commands/community/`, where reqwest lives) and the sync schedule;
 //! the engine owns the content [`types`] and the offline [`cache`] CRUD backed
 //! by the `community_feed` / `community_config` tables in `USER_SCHEMA`. This
-//! lives in the engine (DevPulse's core), never the AI-only kernel.
+//! lives in the engine (DevPulse's core), never Clyffy's AI layer.
 
 pub mod cache;
 pub mod types;

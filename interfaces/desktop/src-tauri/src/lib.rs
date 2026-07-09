@@ -1,7 +1,7 @@
 //! `DevPulse` Desktop — Tauri backend.
 //!
 //! The Tauri layer depends on `devpulse-engine` only — never on clyffy.
-//! All kernel access goes through the Platform engine.
+//! All backend access goes through the Platform engine.
 //!
 //! # Boot Architecture (P0: Boot Never Freezes)
 //!
@@ -460,7 +460,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
 
 /// Background Clyffy connection probe + seamless auto-reconnect.
 ///
-/// Builds one kernel-free [`ClyffyClient`] and probes `{base_url}/v1/capability`
+/// Builds one standalone [`ClyffyClient`] and probes `{base_url}/v1/capability`
 /// every `interval`. Each **changed** state is written to the managed
 /// [`ClyffyConnectionState`] and pushed to the frontend as a
 /// [`ClyffyConnectionChanged`] event. An unreachable endpoint yields
@@ -807,7 +807,7 @@ pub fn run() {
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
             app.manage(commands::voice::PlaybackState::new());
-            // Clyffy wire connection — kernel-free managed state; probe task writes it.
+            // Clyffy wire connection — managed state; probe task writes it.
             app.manage(crate::state::ClyffyConnectionState::new());
 
             // DevForge REH now boots through the platform service pipeline
@@ -1040,9 +1040,9 @@ async fn boot_task(
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
 
-    // Model-loader inference events (load / download progress) are Clyffy's now
-    // — they arrive over the gb10-client wire, not from a local EventBridge (the
-    // engine `integrations` module was removed in the kernel-severance). Boot
+    // Model-loader inference events (load / download progress) are Clyffy's —
+    // they arrive over the gb10-client wire, not from a local EventBridge
+    // (the engine has no `integrations` bridge module). Boot
     // with no sink; the engine's Tier-1 services emit no local inference events.
     let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = None;
 
@@ -1150,11 +1150,11 @@ async fn boot_task(
                 });
             }
 
-            // ── RRO + Grammar state event bridges — REMOVED ──────
+            // ── RRO + Grammar state event bridges — none locally ──
             // The reasoning (RRO) and grammar deliberation state machines are
             // Clyffy's (headless, on the GB10), not local Platform services —
-            // `Platform::reasoning()` / `::grammar()` were dropped in the
-            // kernel-severance. Their snapshots reach the frontend over the
+            // there is no `Platform::reasoning()` / `::grammar()`.
+            // Their snapshots reach the frontend over the
             // gb10-client wire once `clyffyd` advertises them (deferred, not
             // retired). The `platform:rro-state-changed` /
             // `platform:grammar-changed` event contracts are re-established from
@@ -1204,7 +1204,7 @@ async fn boot_task(
             }
 
             // ── Clyffy wire connection probe (re-pointable, auto-reconnect) ──
-            // Kernel-free: the loop dials whatever endpoint the managed
+            // The loop dials whatever endpoint the managed
             // ClyffyConnectionState currently holds, re-reading it EACH tick, so
             // a runtime `connect_clyffy` / `disconnect_clyffy` re-points it with
             // no restart. We seed it from persisted config (if any) and spawn the

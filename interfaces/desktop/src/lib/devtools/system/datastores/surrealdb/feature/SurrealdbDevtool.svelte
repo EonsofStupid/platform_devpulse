@@ -352,7 +352,7 @@ function handleKeydown(e: KeyboardEvent): void {
 
 	<!-- ── CONFIG ────────────────────────────────────────── -->
 	<!-- Embedded SurrealKV has no runtime knobs to override; the
-	     Config tab surfaces the data path the kernel boots against. -->
+	     Config tab surfaces the data path the backend boots against. -->
 	{#snippet config()}
 		<div class="space-y-3">
 			{#if surrealdbSidecar.configError}

@@ -3,7 +3,7 @@
 //! Same shape as the voice STT / TTS config commands: thin Tauri facade
 //! over the `Platform::routing_config_*` accessors. The engine owns
 //! atomic IO, default-on-missing, dual-emit (`tracing::*` +
-//! `InternalEvent::RoutingConfigChanged`), and the kernel
+//! `InternalEvent::RoutingConfigChanged`), and the
 //! `assistant.routing.mode` write-through.
 
 use crate::state::PlatformState;
@@ -14,8 +14,8 @@ use tauri::State;
 /// tuning + response source).
 ///
 /// Reads `{data_dir}/user/routing.toml` and reconciles
-/// `latency.response_source` against the kernel `assistant.routing.mode`
-/// SSOT so the surface always reflects what the dispatcher will use.
+/// `latency.response_source` against the `assistant.routing.mode`
+/// dispatch SSOT so the surface always reflects what the dispatcher will use.
 /// Returns defaults when the file is missing or malformed — never errors
 /// on parse failure.
 #[tauri::command]
@@ -33,7 +33,7 @@ pub async fn routing_load_config(state: State<'_, PlatformState>) -> Result<Rout
 ///
 /// Save flow inside the engine:
 ///   1. Clamp + atomic temp-write + rename to `user/routing.toml`.
-///   2. Write through `latency.response_source` → kernel
+///   2. Write through `latency.response_source` →
 ///      `assistant.routing.mode` so the chat dispatcher is gated.
 ///   3. Dual-emit: `tracing::info!` on `routing.config` + broadcast
 ///      `InternalEvent::RoutingConfigChanged` for engine consumers.

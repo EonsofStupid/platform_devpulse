@@ -18,7 +18,7 @@ import type { LoadedSlotSummary } from "$lib/sys/generated/bindings.js";
 
 /** A single user-facing Clyffy capability. */
 export interface ClyffyCapability {
-	/** Stable id — matches the kernel capability registry key. */
+	/** Stable id — matches the capability registry key. */
 	id: string;
 	/** One- or two-word name the user sees. */
 	label: string;

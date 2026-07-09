@@ -132,7 +132,7 @@ pub struct InferenceTokenStreamed {
 /// invalidate slot-bound runes that depend on the active provider.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 pub struct InferenceProviderChanged {
-    /// New provider identifier (matches `RoutingMode` on the kernel
+    /// New provider identifier (matches `RoutingMode` on the engine
     /// side, surfaced as a plain string here).
     pub provider: String,
 }

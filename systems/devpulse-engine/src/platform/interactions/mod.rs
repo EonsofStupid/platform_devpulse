@@ -75,7 +75,7 @@ pub struct InteractionPhase {
 
 /// A declarative trigger that opens an interaction.
 ///
-/// Triggers are evaluated by the kernel's interaction dispatcher. The
+/// Triggers are evaluated by the engine's interaction dispatcher. The
 /// frontend overlay never decides on its own whether to open — it
 /// receives a "show this template now" signal from the platform
 /// based on trigger evaluation.
@@ -109,8 +109,8 @@ pub enum InteractionTrigger {
 
 /// A complete interaction template.
 ///
-/// Templates are **data**, not code. The kernel loader parses them
-/// from TOML and hands them to the engine facade, which in turn hands
+/// Templates are **data**, not code. The engine's loader parses them
+/// from TOML and hands them to the facade, which in turn hands
 /// them to the frontend overlay via a Tauri command. Every phase
 /// transition fires a `SignalVariant::System` event through the
 /// (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
@@ -144,10 +144,10 @@ pub struct InteractionTemplate {
 impl InteractionTemplate {
     /// Load the setup wizard template bundled with the binary.
     ///
-    /// Reads `kernel/devpulse-clyffy/config/interactions/setup.default.toml`
+    /// Reads this module's `config/setup.default.toml`
     /// via `include_str!`. User overrides at
     /// `{userdata_dir}/config/interactions/setup.toml` fully replace
-    /// the embedded default (same pattern as every other kernel
+    /// the embedded default (same pattern as every other engine
     /// config loader — no merging).
     ///
     /// # Errors

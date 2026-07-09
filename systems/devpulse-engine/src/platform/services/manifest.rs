@@ -259,7 +259,7 @@ pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
 pub fn compiled_service_count() -> usize {
     let mut count = 0;
     for meta in SERVICE_MANIFEST {
-        // rro/candle/inference features removed (kernel-severance) — these Tier-2
+        // No rro/candle/inference features in DevPulse — those Tier-2
         // services are Clyffy's on GB10, never compiled locally, so any
         // `feature_gate` means "not compiled in."
         if meta.feature_gate.is_none() {

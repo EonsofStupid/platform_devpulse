@@ -4,7 +4,7 @@
 
 	Reads `listCapabilities()` and groups them by category. Each tile
 	renders layman copy only — no algorithm names, no config, no
-	kernel terminology. Config of each capability lives in devtools.
+	internal terminology. Config of each capability lives in devtools.
 
 	@defaults {
 		"background-color": "oklch(0.0901 0.017 224.61 / 0)",

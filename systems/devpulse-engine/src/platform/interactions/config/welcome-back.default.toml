@@ -22,8 +22,8 @@
 #
 # ── Schema ─────────────────────────────────────────────────────
 #
-# See `kernel/devpulse-clyffy/src/interactions/mod.rs` for the full
-# `InteractionTemplate` type.
+# See `systems/devpulse-engine/src/platform/interactions/mod.rs` for
+# the full `InteractionTemplate` type.
 #
 # Each phase maps to a Svelte sub-component the wizard renders.
 # Component names follow the same pattern as the setup template

@@ -27,7 +27,7 @@
 	# Direct-props block (same rationale as MultipleChoice)
 
 	Takes the prompt + items + handlers directly. A future
-	kernel `Order` EntryType will hand a translated payload.
+	engine `Order` EntryType will hand a translated payload.
 -->
 <script lang="ts">
 import { Button } from "$lib/design/components/button/index.js";

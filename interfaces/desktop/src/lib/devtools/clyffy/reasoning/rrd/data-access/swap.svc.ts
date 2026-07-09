@@ -3,7 +3,7 @@
  * @module @devpulse/devtools/clyffy/reasoning/rrd/data-access
  *
  * Wraps the `connectome_swap_encoder` Tauri command (authored under
- * `interfaces/desktop/src-tauri/src/commands/connectome/`). The kernel
+ * `interfaces/desktop/src-tauri/src/commands/connectome/`). The backend
  * routes the call through the RRD daemon's `pause → drain →
  * validate → swap → resume` protocol; phase events fire on the
  * `platform:rrd-phase-transition` channel that `rrdState` already
@@ -16,9 +16,9 @@
  * phase names the daemon emitted (sanity check that the protocol
  * actually fired vs being silently no-op).
  *
- * ## Pending kernel side
+ * ## Pending backend side
  *
- * The matching `connectome_swap_encoder` Tauri command + its kernel
+ * The matching `connectome_swap_encoder` Tauri command + its Clyffy-side
  * implementation (`ConnectomeBurnAdapter::swap`) land together in the
  * Phase 2 batch (drop-slot + route-through-daemon). Until that
  * batch lands, clicking the dialog's "Confirm swap" surfaces a
@@ -51,7 +51,7 @@ export interface SwapReport {
  * Throws if the path doesn't resolve, the validate step rejects the
  * new weights, or the daemon's drain times out. Callers should hold
  * the dialog open + render the in-flight spinner until this resolves
- * — under the hood the kernel is pausing query traffic the whole time.
+ * — under the hood the daemon is pausing query traffic the whole time.
  */
 export async function swapEncoderWeights(weightsPath: string): Promise<SwapReport> {
 	return invoke<SwapReport>("connectome_swap_encoder", { weightsPath });

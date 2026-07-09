@@ -3,7 +3,7 @@
 //! Two callers:
 //! 1. [`sync_to_libsql`]   — embedded artifacts on every boot
 //! 2. [`sync_remote_entries`] — entries fetched from a remote manifest
-//!    by the desktop tier (HTTP lives there, kernel stays network-free)
+//!    by the desktop tier (HTTP lives there, the engine stays network-free)
 //!
 //! Both flow through [`sync_entries`] which owns the version-compare
 //! fast path, the per-entry upsert, and the `knowledge_config` write.

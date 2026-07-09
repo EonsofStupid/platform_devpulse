@@ -4,7 +4,7 @@
 # Edit this file (or create an override at .userdata/config/wizard_copy.toml)
 # to change copy without recompiling.
 #
-# Schema: kernel/model-loader/src/wizard/copy.rs
+# Schema: systems/devpulse-engine/src/platform/wizard/copy.rs
 
 # ─────────────────────────────────────────────────────────────────────
 # Welcome screen — Clyffy greeting

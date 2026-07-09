@@ -5,7 +5,7 @@
 //!
 //! # Tier-2 seam (standalone desktop vs. kernel-inproc)
 //!
-//! The RRO/qortex vector store is a **Tier-2** capability: it is kernel-side
+//! The RRO/qortex vector store is a **Tier-2** capability: it is Clyffy-side
 //! (headless Clyffy / ClyffyOS) and is NOT linked into the standalone DevPulse
 //! desktop — the desktop's Turso store hard-enables a `parking_lot` feature
 //! mutually exclusive with qortex's, so the two cannot co-compile (see the

@@ -18,10 +18,9 @@
 //!   .bin (GGML) → sherpa-rs
 
 use crate::platform::hardware::metrics::HardwareMetrics;
-// `HardwareTier` is the engine's canonical hardware class (relocated to
-// `platform/hardware/tier.rs`). Auto-config reuses it rather than defining
-// a parallel copy — the duplicate that lived here was deleted during the
-// kernel-severance reconciliation.
+// `HardwareTier` is the engine's canonical hardware class, owned by
+// `platform/hardware/tier.rs`. Auto-config reuses it rather than defining
+// a parallel copy.
 use crate::platform::hardware::HardwareTier;
 use crate::platform::model_loader::slots::types::DevicePreference;
 use serde::{Deserialize, Serialize};
@@ -118,7 +117,7 @@ pub fn detect_tier(metrics: &HardwareMetrics) -> HardwareTier {
 /// `metrics` — live hardware metrics used to compute the tier.
 /// `downloaded_filenames` — set of filenames already in the local registry;
 /// used to mark recommendations as `already_downloaded`.
-/// `presets` — every preset the kernel knows about, typically pre-loaded at
+/// `presets` — every preset the engine knows about, typically pre-loaded at
 /// boot via [`crate::platform::hardware::load_default_presets`] and cached in the
 /// model loader service. If no preset exists for the detected tier, the
 /// function returns an empty `AutoConfig` for that tier rather than
@@ -158,7 +157,7 @@ pub fn config_for_tier<S: std::hash::BuildHasher>(
     }
 }
 
-/// Materialise every preset into an [`AutoConfig`], in kernel display order.
+/// Materialise every preset into an [`AutoConfig`], in catalog display order.
 /// Used by the wizard preset picker so the owner can switch off the
 /// auto-detected default and pick any other tier manually.
 #[must_use]
@@ -266,7 +265,7 @@ mod tests {
         assert_eq!(detect_tier(&metrics_with_vram(None)), HardwareTier::CpuOnly);
     }
 
-    /// Load presets from the kernel SSOT TOML for every test that needs
+    /// Load presets from the engine's SSOT TOML for every test that needs
     /// to exercise the auto-configure path. The embedded default is always
     /// present, so the `/nonexistent` userdata path is fine — it skips the
     /// user override branch and reads only the embedded catalog.

@@ -18,8 +18,8 @@
  * which step to render. Keeping nav separate from data lets the
  * overlay component own its own data lifecycle.
  *
- * The kernel-side data layer lives in `kernel/model-loader/src/wizard/`
- * (`copy.rs`, `tier_display.rs`, `tooltips.rs`); the Tauri commands
+ * The copy SSOT lives in the engine (`platform/wizard/` —
+ * `copy.rs`, `tier_display.rs`); the Tauri commands
  * `getWizardCopy` + `getTierDisplay` expose them to the overlay.
  */
 
@@ -116,7 +116,7 @@ class WizardState {
 	}
 
 	/**
-	 * Refresh `firstRun` from the kernel. Called by `BootOverlay` once
+	 * Refresh `firstRun` from the engine. Called by `BootOverlay` once
 	 * boot completes so the overlay decides whether to auto-open.
 	 */
 	async refreshFirstRun(): Promise<void> {
@@ -130,7 +130,7 @@ class WizardState {
 	}
 
 	/**
-	 * Mark setup complete with the kernel + close the overlay. Called
+	 * Mark setup complete with the engine + close the overlay. Called
 	 * from the `complete` view's "Finish" button.
 	 */
 	async finish(): Promise<void> {

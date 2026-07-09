@@ -237,7 +237,7 @@ pub enum LoaderEvent {
     /// the install chain begins so the UI can flip the tile to
     /// "saving" state immediately, before any IO blocks.
     WizardTileApplied {
-        /// Slot the customer applied (matches kernel slot id).
+        /// Slot the customer applied (matches the slot-table slot id).
         slot_id: String,
         /// Registry model id about to be wired into the slot.
         /// `None` when the install chain is still resolving the

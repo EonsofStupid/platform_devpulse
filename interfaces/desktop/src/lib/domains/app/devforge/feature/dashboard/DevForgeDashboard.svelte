@@ -54,8 +54,8 @@ async function loadLifecycle(): Promise<void> {
 			lifecycleEvents = [];
 			return;
 		}
-		// Filter to DevForge rows only. `ScopedLogEntry` no longer
-		// carries a structured `fields` map (the kernel flattened the
+		// Filter to DevForge rows only. `ScopedLogEntry` does not
+		// carry a structured `fields` map (the engine flattens the
 		// payload into `message` + `target`); match on the target /
 		// message text instead, both of which carry the service label.
 		const filtered = r.data.filter((entry) => {

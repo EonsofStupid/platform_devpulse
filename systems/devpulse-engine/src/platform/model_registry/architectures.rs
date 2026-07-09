@@ -122,7 +122,7 @@ pub enum SupportStatus {
 ///
 /// Serialize-only because the `&'static str` fields can't cleanly
 /// round-trip through serde's `Deserialize` (would need `Cow<str>`).
-/// This type flows one direction: kernel registry → Tauri command
+/// This type flows one direction: engine registry → Tauri command
 /// return → frontend. Never accepted as an input.
 #[derive(Debug, Clone, Copy, Serialize, specta::Type)]
 pub struct ArchitectureSpec {

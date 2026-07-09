@@ -21,7 +21,7 @@
 	The block looks up the glossary entry by `term` (case-insensitive
 	match against `payload.term` field on entries with
 	`entryType === "gloss"`). On first hover/focus it fetches via
-	the kernel selector with a hint that the desired term matches.
+	the engine's selector with a hint that the desired term matches.
 
 	# WAI-ARIA APG: Tooltip pattern
 

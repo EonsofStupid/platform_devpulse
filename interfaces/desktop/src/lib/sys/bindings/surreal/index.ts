@@ -5,7 +5,7 @@
  *
  * SurrealDB on devpulse is the **full server**, run as a managed sidecar
  * by the engine (never embedded mode). It serves as clyffy's graph
- * persistence layer (`kernel/devpulse-clyffy/cortex/persistence`). This
+ * persistence layer (Clyffy-side — clyffyos repo: clyffyos-connectome). This
  * facade exposes both halves of the surface as one domain — sidecar
  * lifecycle and graph data-plane are verb groups within a single
  * managed service, not separate concerns.
@@ -28,7 +28,7 @@
  * - Sidecar lifecycle (Tauri): `interfaces/desktop/src-tauri/src/commands/surreal/sidecar/`
  * - Graph data plane: `interfaces/desktop/src-tauri/src/commands/sys/graph.rs`
  * - Engine service: `systems/devpulse-engine/src/platform/services/surreal.rs`
- * - Kernel consumer: `kernel/devpulse-clyffy/src/cortex/persistence/surreal/`
+ * - Clyffy-side consumer: clyffyos repo (clyffyos-connectome persistence)
  */
 
 import { commands } from "$lib/sys/generated/bindings.js";
@@ -75,7 +75,7 @@ export const surrealKvList = commands.graphKvList;
 
 // ── Types ────────────────────────────────────────────────────────
 //
-// `Graph*` types still come from the data-plane Rust naming (kernel
+// `Graph*` types still come from the data-plane Rust naming (the backend
 // keeps them as `Graph*` under sys::graph), so they're aliased to
 // `Surreal*` at the facade boundary. The lifecycle types
 // (`SurrealStatus`, `SurrealHealth`, `SurrealUserConfig`) are now

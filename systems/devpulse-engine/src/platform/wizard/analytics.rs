@@ -93,7 +93,7 @@ pub enum AnalyticsEvent {
     ModelDownloadFailed {
         /// `<owner>/<repo>` form.
         repo_id: String,
-        /// Error message from the kernel.
+        /// Error message from the engine.
         error: String,
     },
     /// A slot was loaded into a runtime. The unit of "the model is
@@ -115,7 +115,7 @@ pub enum AnalyticsEvent {
         slot_id: String,
         /// Runtime that attempted the load (`llama-cpp`, `burn`, etc.).
         runtime: String,
-        /// Error message from the kernel.
+        /// Error message from the runtime.
         error: String,
     },
     /// First embedding query against a newly-loaded embedder
@@ -140,7 +140,7 @@ pub enum AnalyticsEvent {
     EncoderActivationFailed {
         /// Slot id (`rag.embedder`, `rag.encoder`, etc.).
         slot_id: String,
-        /// Error message from the kernel.
+        /// Error message from the runtime.
         error: String,
         /// Runtime that hosted the encoder.
         runtime: String,

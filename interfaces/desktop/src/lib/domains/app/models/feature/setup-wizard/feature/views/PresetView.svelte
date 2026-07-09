@@ -3,14 +3,14 @@
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/views/preset
 
 	Step 3 — Preset selection. Hardware tier already determined what
-	the recommended preset is (computed kernel-side via
+	the recommended preset is (computed engine-side via
 	`autoConfigure`). This view confirms the choice + offers the
 	"already have files on disk" escape hatch as a visible Skip
 	button (not a buried `<Text>` mention).
 
 	`onApplyAutoConfig` kicks off the install chain and advances to
 	the InstallingView. Until the cascade resolver lands, copy comes
-	from `ProfileCopy` (the existing kernel-side struct used by the
+	from `ProfileCopy` (the existing engine-side struct used by the
 	current wizard for this step).
 -->
 <script lang="ts">

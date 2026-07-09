@@ -9,9 +9,9 @@ kernel = []
 engine = []
 internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled OUT of release.
 
-# Build-mode selection for the relocated model-loader `build_mode.rs`
-# (kernel-severance). Exactly one must be active; `mode-dev` is the default
-# so local cargo workflows behave as they did in the kernel. Release/customer
+# Build-mode selection for the model-loader's `build_mode.rs`.
+# Exactly one must be active; `mode-dev` is the default
+# so local cargo workflows keep their dev behavior. Release/customer
 # builds swap it via `--no-default-features` + the chosen mode.
 mode-dev = []
 mode-production = []
@@ -24,22 +24,21 @@ sherpa = ["dep:sherpa-onnx"]
 # NVIDIA GPU telemetry (VRAM / util / temp) via NVML. Off by default —
 # enabling links nvml-wrapper, which loads the NVML shared library at
 # runtime (graceful Err when no NVIDIA driver is present). Tier-1 LOCAL
-# hardware monitoring — NOT inference (that's Clyffy's on GB10); relocated
-# with hardware/metrics.rs from kernel/model-loader (kernel-severance).
+# hardware monitoring — NOT inference (that's Clyffy's on GB10); pairs
+# with the engine's `platform/hardware/metrics.rs`.
 nvml = ["dep:nvml-wrapper"]
 
-# Kernel AI features (rro / candle / inference / llguidance / burn +
-# gpu-nvidia / gpu-vulkan / cpu-mkl) REMOVED — every one referenced
-# `devpulse-clyffy/*` and pulled llama.cpp. All AI is Clyffy's on GB10,
-# served over the gb10-client wire (kernel-severance). DevPulse builds
-# standalone, Tier-1 (Turso + DuckDB + Moka), no kernel, no llama.
+# There are no AI features here (rro / candle / inference / llguidance /
+# burn + gpu-nvidia / gpu-vulkan / cpu-mkl) — all AI is Clyffy's on GB10,
+# served over the gb10-client wire. DevPulse builds
+# standalone, Tier-1 (Turso + DuckDB + Moka), no AI linkage, no llama.
 
 [dependencies]
 # Core
 serde = { workspace = true }
 serde_json = { workspace = true }
 specta = { workspace = true }
-# `v5` (stable name→UUID) is used by the relocated model-loader discovery
+# `v5` (stable name→UUID) is used by the model-loader discovery
 # scanner for stable registry ids; `v7`/`serde` come from the workspace pin.
 uuid = { workspace = true, features = ["v5"] }
 tokio = { workspace = true }
@@ -97,15 +96,15 @@ rand = "0.8"
 # OpenSSL dep on Windows/Linux release builds.
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
 
-# ── Model-loader MANAGEMENT deps (kernel-severance relocation) ──────
+# ── Model-loader MANAGEMENT deps ────────────────────────────────────
 # All pure management — zero inference linkage (verified by `cargo tree`).
 # hf-hub: HuggingFace downloader/search. rustls (no OpenSSL), sync `ureq`
 #   path used by models/download.rs (`api::sync` + `Progress`).
 hf-hub = { version = "0.4", default-features = false, features = ["ureq", "rustls-tls"] }
 # sha2: HF LFS oid (SHA-256) download-integrity verification.
 sha2 = "0.10"
-# ggus: pure-Rust GGUF header/metadata reader — candle-free replacement for
-#   the kernel's `candle_core::quantized::gguf_file` parse in discovery.rs.
+# ggus: pure-Rust GGUF header/metadata reader — candle-free GGUF parse
+#   for discovery.rs (no `candle_core::quantized::gguf_file` linkage).
 ggus = "0.5"
 # parking_lot: `RwLock<HardwareMonitor>` + `Mutex<HashSet>` on ModelLoaderService.
 parking_lot = "0.12"
@@ -128,8 +127,8 @@ arc-swap = { workspace = true }
 # Audio playback (TTS output → speakers)
 rodio = "0.19"
 
-# Burn dep REMOVED (kernel-severance) — the boot-time Burn encoder adapter
-# was deleted with the kernel Tier-2 boot stages; Burn/RRO run on Clyffy/GB10.
+# No Burn dep — the Burn encoder adapter is Clyffy's;
+# Burn/RRO run on Clyffy/GB10, reached over the wire.
 
 [build-dependencies]
 toml = "0.8"

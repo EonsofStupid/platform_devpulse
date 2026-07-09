@@ -16,7 +16,8 @@
 > [`RENDERFORGE.md`](./RENDERFORGE.md) (P1–P5 properties),
 > [`MACRO-LAW.md`](./MACRO-LAW.md) (5 family-CSS laws),
 > [`ONBOARDING-CASCADE.md`](./ONBOARDING-CASCADE.md),
-> [`CONNECTOR-DEFERRAL.md`](../../../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md),
+> the connector-deferral rule (formerly `CONNECTOR-DEFERRAL.md`, now
+> recorded in git history / Clyffy-side),
 > locked memory `project_central_ui_library.md`,
 > `project_nx_library_types.md`.
 

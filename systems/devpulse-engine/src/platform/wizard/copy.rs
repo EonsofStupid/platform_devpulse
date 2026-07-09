@@ -434,11 +434,11 @@ pub struct DownloadsCopy {
     pub eta_seconds_template: String,
     /// Placeholder ETA label while the first sample is pending.
     pub eta_computing_label: String,
-    /// Label while the kernel is starting the HF request.
+    /// Label while the engine is starting the HF request.
     pub starting_label: String,
-    /// Label while the kernel is hashing / verifying the file after download.
+    /// Label while the engine is hashing / verifying the file after download.
     pub verifying_label: String,
-    /// Label while the kernel is symlinking / copying into the registry.
+    /// Label while the engine is symlinking / copying into the registry.
     pub importing_label: String,
     /// Label on a completed row before it's dismissed.
     pub complete_label: String,

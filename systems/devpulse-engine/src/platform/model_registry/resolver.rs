@@ -5,8 +5,8 @@
 //! variant with alternatives ordered by tier.
 //!
 //! No IO, no allocation of heavy data — callable from the frontend
-//! via the Tauri command layer and from the kernel inline during the
-//! actual load pass.
+//! via the Tauri command layer and inline during the actual load
+//! pass (Clyffy-side).
 
 use super::architectures::{get as get_arch, ArchId, SupportTier};
 use super::backends::{installed_backends, BackendId, ModelFormat};

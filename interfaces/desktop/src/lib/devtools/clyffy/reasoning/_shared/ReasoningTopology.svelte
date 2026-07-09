@@ -9,7 +9,7 @@
 	Each node carries:
 
 	- a layman-first label (the bold text the user reads first)
-	- a small technical Badge underneath (the kernel name for the
+	- a small technical Badge underneath (the internal name for the
 	  reader who's actually debugging)
 	- a `StatusDot` whose tone is derived from the live RRD lifecycle
 	  phase (substring tone matching like `RrdDevtool:66`)

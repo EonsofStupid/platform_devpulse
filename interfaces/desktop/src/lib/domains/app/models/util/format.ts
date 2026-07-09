@@ -36,8 +36,8 @@ export function formatBytes(bytes: number): string {
 }
 
 /**
- * Render a structured `LoadError` (from the kernel) as a one-line
- * layman string suitable for badges + toasts. The kernel ships
+ * Render a structured `LoadError` (from the engine) as a one-line
+ * layman string suitable for badges + toasts. The engine ships
  * structured kinds; this collapses them into a sentence the user
  * can read without opening a debug panel.
  */

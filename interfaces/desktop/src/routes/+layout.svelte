@@ -41,7 +41,7 @@ onMount(() => {
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
 
-	// Single subscription point for every kernel model-loader event —
+	// Single subscription point for every model-loader event —
 	// downloads, loads, cancels. Routes through wizardState rune methods
 	// so the overlay reflects live state whether it is currently open or
 	// dismissed. Attached here (root layout) so downloads started before
@@ -89,7 +89,7 @@ onMount(() => {
 
 	// ── Idle auto-minimize ─────────────────────────────────
 	// Track last pointer/keyboard activity. When the window has been
-	// idle for N seconds (read from assistant.toml via the kernel),
+	// idle for N seconds (read from assistant.toml via the engine),
 	// minimize to the system tray. Default 300s = 5 min.
 	let lastActivity = Date.now();
 	let idleTimeoutSecs = 300;
@@ -100,7 +100,7 @@ onMount(() => {
 	document.addEventListener("pointermove", markActive, { passive: true });
 	document.addEventListener("keydown", markActive, { passive: true });
 
-	// Fetch the configured timeout from the kernel (non-blocking).
+	// Fetch the configured timeout from the engine (non-blocking).
 	invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config")
 		.then((cfg) => {
 			if (cfg?.window?.idle_timeout_secs > 0) {
@@ -137,7 +137,7 @@ onMount(() => {
 });
 
 // ── Chat window auto-open ─────────────────────────────────
-// Five WindowRoles are authored kernel-side (Main / Chat / ConnectomeViewer /
+// Five WindowRoles are authored engine-side (Main / Chat / ConnectomeViewer /
 // ModelLoader / DevTools) but `tauri.conf.json` declares only Main; the
 // rest spawn via `commands::window::open_window(role)`. Nothing fires the
 // Chat spawn after boot — the customer flow per spec is "chat window

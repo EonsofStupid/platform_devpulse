@@ -2,7 +2,7 @@
 	@file InstallPanel.svelte
 	Platform-level install tracker — distinct from DownloadPanel.
 
-	A "download" is bytes-to-disk; an "install" is the kernel's atomic
+	A "download" is bytes-to-disk; an "install" is the engine's atomic
 	chain (`install_to_slot`): download → scan → assign → load. This
 	panel tracks the chain identity so the user sees one row per
 	install, not three rows (one per stage). Each row collapses the

@@ -12,10 +12,10 @@ pub mod project_init;
 pub mod relational;
 pub mod rrd_translator;
 pub mod status;
-// Tier-2 service modules (graph / surreal / surreal_config / vector /
-// project_graph / project_vector / model_loader / model_loader_log) removed —
-// those services are Clyffy's on GB10, served over the gb10-client wire
-// (kernel-severance). embedder + whisper were already slot-managed (Layer 2).
+// There are no Tier-2 service modules (graph / surreal / surreal_config /
+// vector / project_graph / project_vector / model_loader / model_loader_log)
+// — those services are Clyffy's on GB10, served over the gb10-client wire.
+// embedder + whisper are slot-managed (Layer 2).
 pub mod audio;
 pub mod candle_config;
 pub mod devforge;
@@ -47,7 +47,7 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
-    /// Grammar service (kernel-owned constrained decoding).
+    /// Grammar service (Clyffy-side constrained decoding).
     Grammar,
     /// `DevForge` service (managed REH web server).
     DevForge,

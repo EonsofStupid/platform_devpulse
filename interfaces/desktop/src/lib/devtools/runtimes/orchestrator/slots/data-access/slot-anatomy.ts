@@ -2,22 +2,22 @@
  * @file slot-anatomy.ts
  * @module @devpulse/devtools/runtimes/orchestrator/slots/data-access/slot-anatomy
  *
- * Frontend-owned anatomy-to-kernel-slot translation tables for the
+ * Frontend-owned anatomy-to-engine-slot translation tables for the
  * cortex constellation rendered in the SlotsDevtool Status tab.
  *
  * Two tables:
  *
- *   - `SLOT_LAYMAN` — anatomy identity per kernel slot (icon, accent
- *      var, purpose copy, role tagline). The kernel doesn't know what
+ *   - `SLOT_LAYMAN` — anatomy identity per engine slot (icon, accent
+ *      var, purpose copy, role tagline). The engine doesn't know what
  *      an "Eye" is; this mapping is strictly a UI-side design choice.
  *      Model NAME + model TAGLINE are NOT in this table — those live
  *      on each `SlotRecommendation` (`display_name`, `display_tagline`)
  *      so the preset author owns them in
- *      `kernel/model-loader/config/presets.default.toml`.
+ *      the engine's `config/presets.default.toml`.
  *
  *   - `PAIRED_SLOTS` — slots that ship paired and must save together.
  *      Harrier 0.6B ref-counts on the BackendPool (one 1.1 GB copy
- *      serves all 5 slots) but EACH kernel slot needs its own
+ *      serves all 5 slots) but EACH engine slot needs its own
  *      symlink for `Path::exists` probes by downstream consumers. So
  *      clicking Save on the Sparkles tile (`rag.embedder`) fires the
  *      install chain for every Harrier-served slot. Memory + disk
@@ -31,15 +31,15 @@
  *     chat.suggest + minion.embedder + minion.encoder. The trigger
  *     tile is `rag.embedder` (the "Sparkles" anatomy slot).
  *
- * Verbatim layman strings are owned here so the kernel-owned
+ * Verbatim layman strings are owned here so the engine-owned
  * `WizardCopy` payload stays focused on its own phases (greeting,
  * hardware, downloads, completion); anatomy purpose lines are
- * UI-design copy, not kernel copy.
+ * UI-design copy, not engine copy.
  */
 
 /**
  * Per-slot anatomy identity. Slot ids MUST match
- * `kernel/model-loader/config/slots.default.toml` verbatim.
+ * the engine's `config/slots.default.toml` verbatim.
  * `accentVar` must reference a generated token from
  * `interfaces/desktop/src/lib/design/generated/token-manifest.json`
  * (real names carry `-main` / `-fill` / `-glow` suffixes; cards point
@@ -89,7 +89,7 @@ export const SLOT_LAYMAN: Record<string, SlotLaymanEntry> = {
 
 /**
  * Look the anatomy identity up for a slot id. Returns `undefined` for
- * any kernel slot not in the constellation (e.g. future slots the
+ * any engine slot not in the constellation (e.g. future slots the
  * frontend hasn't mapped yet) — callers should treat that as a signal
  * to skip the tile rather than render a half-broken card.
  */
@@ -102,7 +102,7 @@ export function findLayman(slotId: string): SlotLaymanEntry | undefined {
  * Sparkles tile (`rag.embedder`) fires the install chain for EVERY
  * Harrier-served slot: rag.embedder + rag.encoder + chat.suggest +
  * minion.embedder + minion.encoder. Harrier 0.6B ref-counts on the
- * BackendPool so memory + disk hold ONE copy, but each kernel slot
+ * BackendPool so memory + disk hold ONE copy, but each engine slot
  * needs its own symlink for `Path::exists` probes by the retrieval
  * consumer.
  *

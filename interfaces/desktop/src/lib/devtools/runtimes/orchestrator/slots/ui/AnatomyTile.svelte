@@ -56,7 +56,7 @@ import { Text } from "$lib/design/components/text/index.js";
 export type ApplyState = "ready" | "saving" | "saved" | "error";
 
 interface Props {
-	/** Stable kernel slot id (e.g. `vision.embedder`). Drives the
+	/** Stable engine slot id (e.g. `vision.embedder`). Drives the
 	 *  Apply callback and any signal correlation. */
 	slotId: string;
 	/** Lucide icon component matched to the anatomy (Eye / Ear /

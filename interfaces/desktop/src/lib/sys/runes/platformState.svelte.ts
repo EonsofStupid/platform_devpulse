@@ -117,7 +117,7 @@ class PlatformState {
 	 * event. Consumers that decide flow based on `modelsReady` /
 	 * `modelsFirstRun` MUST gate on this first; the defaults
 	 * (`modelsReady=false`, `modelsFirstRun=true`) would otherwise cause
-	 * the wizard to fail-open before the kernel has reported state.
+	 * the wizard to fail-open before the engine has reported state.
 	 */
 	modelsStatusReceived = $state(false);
 

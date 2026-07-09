@@ -3,7 +3,7 @@
  *
  * Given the sibling list from `list_repo_files(repo_id)`, pick ONE
  * filename that should be passed to `download_model(repo_id, filename)`
- * to pull the whole model bundle (the kernel's `execute_download` auto-
+ * to pull the whole model bundle (the engine's `execute_download` auto-
  * fetches companion shards, configs, tokenizer files around the
  * primary).
  *

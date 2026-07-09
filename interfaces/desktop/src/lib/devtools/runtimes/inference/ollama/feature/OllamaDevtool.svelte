@@ -4,7 +4,7 @@
 
 	Live controls for the managed `ollama serve` child process. Wires
 	through `ollamaSidecarState` + the specta bindings to the engine's
-	`OllamaService` (kernel adapter `OllamaAdapter`).
+	`OllamaService` (engine adapter `OllamaAdapter`).
 -->
 <script lang="ts">
 import { Boxes, Download, Play, PowerOff, RefreshCw, Trash2 } from "lucide-svelte";

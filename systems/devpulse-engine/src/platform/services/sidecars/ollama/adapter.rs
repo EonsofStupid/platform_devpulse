@@ -2,7 +2,7 @@
 //!
 //! Port allocation (attach / bump), spawn / attach disposition, health
 //! poll, and an HTTP client for the Ollama REST API. DevPulse owns this
-//! adapter directly now (kernel-severance): the Ollama sidecar is a
+//! adapter directly: the Ollama sidecar is a
 //! locally managed process, not an AI service served from GB10.
 //!
 //! Layering:

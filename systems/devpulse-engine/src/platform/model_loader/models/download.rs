@@ -2,7 +2,7 @@
 //!
 //! Downloading is DevPulse-local management: it links `hf-hub` (the HF
 //! downloader) + `reqwest`/`sha2` (LFS oid integrity), never any inference
-//! backend. Post-severance these are plain management dependencies, so the
+//! backend. These are plain management dependencies, so the
 //! whole download path compiles unconditionally with zero candle linked.
 
 use crate::platform::model_loader::models::registry::ModelRegistryEntry;

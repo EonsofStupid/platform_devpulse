@@ -1,8 +1,9 @@
-//! `DevPulse` engine — owns all platform services and bridges to clyffy kernel.
+//! `DevPulse` engine — DevPulse's core backend: platform services, boot,
+//! config, signals, wire client.
 //!
 //! The engine is the **sole boundary** between the desktop app (Tauri) and
-//! the kernel (Clyffy). Tauri depends on this crate only — never on Clyffy
-//! directly.
+//! Clyffy (headless AI layer, clyffyos repo — reached over the wire).
+//! Tauri depends on this crate only — never on Clyffy directly.
 //!
 //! # Feature Gates
 //!

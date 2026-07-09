@@ -19,14 +19,14 @@
 	# Lifecycle
 
 	1. Click → `logInfo("swap.primary", "begin", …)` → overlay opens.
-	2. `await commands.swapSlotModel(slotId, newModelId)` — kernel runs
+	2. `await commands.swapSlotModel(slotId, newModelId)` — the engine runs
 	   the atomic unload → reassign → load sequence.
 	3. On `ok`: `logInfo` complete, toast success, refresh `modelsState`,
 	   fire optional `onComplete(true)` callback.
 	4. On `error`: `logInfo` failed, toast error, fire optional
 	   `onComplete(false, errorText)`. The overlay closes either way.
 
-	The kernel also emits the `model:swap-started`, `model:swap-complete`,
+	The engine also emits the `model:swap-started`, `model:swap-complete`,
 	`model:swap-failed` Tauri events for OTHER listeners (status bars,
 	telemetry). This component does not need them — Promise resolution
 	carries the final outcome.

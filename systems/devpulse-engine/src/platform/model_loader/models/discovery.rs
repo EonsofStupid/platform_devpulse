@@ -411,8 +411,8 @@ pub fn discover_single(path: &Path, repo_id: &str) -> anyhow::Result<ModelRegist
 /// Parse a single GGUF file into a registry entry.
 ///
 /// Header metadata is read via the pure-Rust `ggus` crate — no candle /
-/// ggml / llama.cpp linkage (kernel-severance: the engine is management
-/// only). If the header can't be parsed (truncated / corrupt / an
+/// ggml / llama.cpp linkage (the engine is management only; inference is
+/// Clyffy's). If the header can't be parsed (truncated / corrupt / an
 /// unexpectedly large metadata region beyond the bounded prefix), the
 /// entry is still registered with filename-derived metadata so a bad
 /// header never hides an on-disk model from the slot picker.
@@ -581,7 +581,7 @@ pub fn infer_capabilities(architecture: &str) -> Vec<ModelCapability> {
 /// (`feedback_inference_runtime_direction.md`); Candle stays in the list
 /// as a secondary fallback for archs both runtimes can load.
 ///
-/// This is advisory METADATA only — post-severance the engine links no
+/// This is advisory METADATA only — the engine links no
 /// inference backend, so the returned set describes which backend *could*
 /// serve a model on Clyffy, never a local capability.
 #[must_use]

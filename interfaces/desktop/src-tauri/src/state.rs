@@ -36,7 +36,7 @@ use devpulse_engine::platform::Platform;
 /// directory and shared immutably — commands consult it for canonical
 /// workspace / user-data / install paths.
 pub struct PlatformState {
-    /// Platform engine (owns all services, bridges to clyffy kernel).
+    /// Platform engine (owns all services; Clyffy is reached over the wire).
     /// `None` while boot task is running, `Some` after completion.
     /// Readers: `state.platform.load_full()` — lock-free.
     /// Writer: `boot_task` stores exactly once via `state.platform.store(Some(Arc::new(p)))`.
@@ -56,8 +56,8 @@ impl PlatformState {
     }
 }
 
-/// Managed state for the Clyffy wire connection — **kernel-free**, held separately
-/// from [`PlatformState`] so the gb10-client never drags the kernel into its
+/// Managed state for the Clyffy wire connection — held separately
+/// from [`PlatformState`] so the gb10-client keeps its own lean
 /// compile graph (the bisect boundary). Holds only the current
 /// [`ConnectionState`]; the background probe / auto-reconnect task (spawned in
 /// `boot_task`) owns the `ClyffyClient` and writes here on every transition.

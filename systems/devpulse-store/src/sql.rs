@@ -32,7 +32,7 @@ impl TursoAdapter {
     /// Open or create database at path with an explicit schema.
     ///
     /// Callers MUST supply a schema appropriate to the scope they're
-    /// opening — there is no "default" schema the kernel imposes.
+    /// opening — there is no "default" schema the adapter imposes.
     /// The engine layer applies scope-specific schemas
     /// (`SYSTEM_SCHEMA` / `USER_SCHEMA`) at boot; tests supply their
     /// own minimal schema next to the test module.
@@ -254,7 +254,7 @@ impl SqlAdapter for TursoAdapter {
     }
 }
 
-// Schema constants are NOT defined here. The kernel adapter is
+// Schema constants are NOT defined here. The adapter is
 // schema-agnostic: every caller supplies the schema appropriate to
 // its scope (engine: `SYSTEM_SCHEMA` / `USER_SCHEMA`; tests:
 // `MINIMAL_TEST_SCHEMA` in the cfg(test) module below).
@@ -264,7 +264,7 @@ mod tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    /// Minimal schema for kernel-side smoke tests of the libsql
+    /// Minimal schema for in-crate smoke tests of the libsql
     /// adapter. Replaces the prior `CORE_SCHEMA` which was
     /// referenced only by the now-deleted no-schema `open()`
     /// shortcut and the orphan `PersistenceLayer` wrapper. Keeps
