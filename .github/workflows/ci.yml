@@ -184,15 +184,20 @@ jobs:
       - name: Test
         run: cargo test --workspace
 
-      - name: Security audit
-        uses: EmbarkStudios/cargo-deny-action@v2
+      # cargo-deny runs on the HOST, not the containerized action: the
+      # container inherits neither the job's git `insteadOf` auth (private
+      # devpulse-telemetry / clyffyos-wire fetches fail) nor the host's
+      # sccache that `.cargo/config.toml` demands as rustc-wrapper.
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@v2
         with:
-          command: check advisories
+          tool: cargo-deny
+
+      - name: Security audit
+        run: cargo deny check advisories
 
       - name: Dependency bans (IP boundary)
-        uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check bans
+        run: cargo deny check bans
 
   desktop:
     name: Desktop Checks

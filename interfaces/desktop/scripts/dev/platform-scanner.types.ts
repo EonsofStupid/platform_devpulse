@@ -5,7 +5,7 @@
  *
  * Types for the DevPulse platform-wide scanner and manifest.
  * The platform scanner extends beyond ColdLight primitives to cover
- * every namespace in the platform: sys, domains, routes, tauri, engine, clyffy, scripts.
+ * every namespace in the platform: sys, domains, routes, tauri, engine, scripts.
  *
  * @since 1.0.0
  */
@@ -249,7 +249,7 @@ export interface DevPulseManifest {
 	readonly routes: NamespaceSummary;
 	readonly tauri: NamespaceSummary;
 	readonly engine: NamespaceSummary;
-	readonly clyffy: NamespaceSummary;
+	// No clyffy namespace — the AI layer left this repo with the kernel cut.
 	readonly scripts: NamespaceSummary;
 
 	readonly stats: PlatformStats;
