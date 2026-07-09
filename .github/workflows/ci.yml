@@ -130,13 +130,15 @@ jobs:
       # `clyffyos-wire` is the Tier-2 wire CONTRACT SSOT, owned by the private
       # EonsofStupid/clyffyos repo; `devpulse-gb10-client` declares it as a pinned
       # `git = "..."` dep so DevPulse builds standalone (no sibling checkout). Same
-      # `insteadOf` pattern as rro/telemetry above. Secret `CLYFFYOS_DEPLOY_TOKEN`
-      # (PAT with `repo` scope on EonsofStupid/clyffyos) is set on this repo via
-      # Infisical (`infisical run --env=dev -- gh secret set ...`), never gh-secret-set
-      # by hand. Unset ⇒ warn + fail downstream with cargo's auth error (never silently skip).
+      # `insteadOf` pattern as telemetry above. Auth: prefers a dedicated
+      # `CLYFFYOS_DEPLOY_TOKEN` secret when set; falls back to `RRO_DEPLOY_TOKEN`
+      # (the owner's full-access PAT, already on this repo — operator-confirmed
+      # 2026-07-09). Secrets are set via Infisical (`infisical run --env=dev --
+      # gh secret set ...`), never pasted by hand. Neither set ⇒ warn + fail
+      # downstream with cargo's auth error (never silently skip).
       - name: Configure cargo for private clyffyos-wire fetches
         env:
-          CLYFFYOS_DEPLOY_TOKEN: ${{ secrets.CLYFFYOS_DEPLOY_TOKEN }}
+          CLYFFYOS_DEPLOY_TOKEN: ${{ secrets.CLYFFYOS_DEPLOY_TOKEN || secrets.RRO_DEPLOY_TOKEN }}
         run: |
           if [ -z "$CLYFFYOS_DEPLOY_TOKEN" ]; then
             echo "::warning::CLYFFYOS_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private clyffyos-wire dep."
