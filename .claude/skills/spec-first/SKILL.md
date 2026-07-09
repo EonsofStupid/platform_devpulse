@@ -35,7 +35,7 @@ Locked memories this skill cites in refusals:
 
 Caller (you, or the operator invoking `/spec-first`) MUST supply or infer:
 
-1. The **boundary** — the exact crate / folder / module / subsystem / term the work touches (e.g. `kernel/devpulse-clyffy/src/cortex/`, the `connectome` intelligence system, `interfaces/desktop/.../setup-wizard/`).
+1. The **boundary** — the exact crate / folder / module / subsystem / term the work touches (e.g. `systems/devpulse-engine/src/platform/knowledge/`, the `devpulse-gb10-client` wire, `interfaces/desktop/.../setup-wizard/`).
 2. The **intent** — what the code work will do once the spec is current.
 
 Caller MUST honor:
@@ -100,11 +100,11 @@ Now write the code, against the now-current spec. Every new file/fn has an impor
 2. **Verify** — `cargo check -p <crate>` (per crate, never workspace-wide) and/or `cd interfaces/desktop && pnpm check`. Compile-green is necessary, not sufficient — name the runtime signal that proves it works ([[compile-green-not-enough]]).
 3. **Grow the convention** — if a NEW folder shape or pattern emerged that future work should follow, record it: a line in the boundary's spec, and if it's a cross-boundary standard, a `reference` memory + a note in `references/boundary-spec-map.md`. This is how conventions grow dynamically instead of being re-invented per session.
 
-## Worked example — `cortex` → `connectome`
+## Worked example — `cortex` → `connectome` (historical; the rename LANDED with the clyffyos extraction — the crate is `clyffyos-connectome` in the clyffyos repo, and the kernel left this repo 2026-07-08)
 
-The operator's standing instruction "have cortex changed to connectome" is exactly this skill's job, run once for the rename boundary:
+The operator's standing instruction "have cortex changed to connectome" was exactly this skill's job, run once for the rename boundary:
 
-- **Boundary** — the cognitive/intelligence system: code under `kernel/devpulse-clyffy/src/cortex/`, the term in `kernel_terms.toml`, the codegen in `terminology.ts`, the public surfaces.
+- **Boundary** — the cognitive/intelligence system: code under the then-`kernel/devpulse-clyffy/src/cortex/`, the term in `kernel_terms.toml`, the codegen in `terminology.ts`, the public surfaces.
 - **Specs found** — `docs/platform/CLYFFY-COGNITIVE-FOUNDATION.md` (already **rewritten** to v2.0.0, current), `INTELLIGENCE_LAYER.md` (**reframed**), the `kernel_terms.toml` term entry (the **SSOT** the rename flows from), the `project_connectome_replaces_cortex` memory.
 - **Treatment** — concept is already reconciled (Phase 1). The remaining work is the **code rename**, which is Phase 2: `cortex` → `connectome` in `kernel_terms.toml` → regen `terminology.ts` → rename the code paths → strip any hardcoded names. The doc citations to `kernel/.../cortex/` stay accurate **until that phase flips them** — that's Step 3's "never pre-rename ahead of the code."
 - **Naming note** — a `connectome` subagent dispatcher already exists in `.claude/agents/`. It is Claude-side tooling, a different namespace from the product's intelligence system; the two coexist. Disambiguating the agent is the operator's call, not a blocker on the product rename.

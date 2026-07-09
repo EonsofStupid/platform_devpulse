@@ -90,7 +90,7 @@ The fold step emits a `drift_findings` array per crate in the saved plan:
 ```markdown
 ## 2. Anti-drift findings
 
-### `clyffyos-cortex` (from `kernel/devpulse-clyffy/`)
+### `clyffyos-connectome` (from `kernel/devpulse-clyffy/` — historical worked example, the move landed 2026-06-28)
 
 - ✗ H1: 3 hardcoded constants found in `src/cortex/persistence/surreal/intelligence.rs` lines 122, 188, 304
   - **Resolution:** Pre-phase fix-up. Lift to `crate::config::IntelligenceTunables` first.
