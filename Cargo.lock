@@ -8065,8 +8065,9 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 
 [[package]]
 name = "tar"
-version = "0.4.41"
-source = "git+https://github.com/EonsofStupid/tar-rs?branch=rro-alpha#856dbd090eede1736604f23cfe99a104b5639734"
+version = "0.4.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f6221d9a6003c78398e3b239969f352578258df48c8eb051caadae0015bc840"
 dependencies = [
  "filetime",
  "libc",
@@ -11233,25 +11234,3 @@ dependencies = [
  "syn 2.0.117",
  "winnow 0.7.15",
 ]
-
-[[patch.unused]]
-name = "llama-cpp-2"
-version = "0.1.147"
-
-[[patch.unused]]
-name = "llama-cpp-sys-2"
-version = "0.1.147"
-
-[[patch.unused]]
-name = "moshi"
-version = "0.6.5+devpulse"
-
-[[patch.unused]]
-name = "ort"
-version = "2.0.0-rc.12"
-source = "git+https://github.com/eonsofstupid/ort.git?rev=f5c1548#f5c1548f88c1685b4347e6eb7af82d000d2cca95"
-
-[[patch.unused]]
-name = "ort-sys"
-version = "2.0.0-rc.12"
-source = "git+https://github.com/eonsofstupid/ort.git?rev=f5c1548#f5c1548f88c1685b4347e6eb7af82d000d2cca95"

@@ -101,16 +101,6 @@ jobs:
           toolchain: "1.89.0"
           components: rustfmt, clippy
 
-      # protoc is required by `tonic-build` pulled in by the rro v2
-      # alpha (crates/storage-api/build.rs runs tonic_build::configure
-      # against qdrant.proto). Without it the build script fails with
-      # "Could not find `protoc`". Matches the protoc-install step in
-      # rro's own build.yml.
-      - name: Install protoc
-        uses: arduino/setup-protoc@v2
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       # `.cargo/config.toml` sets `rustc-wrapper = "sccache"` for the whole
       # workspace so every local + CI invocation goes through the same
       # caching path. Without the binary on the runner, every cargo step
@@ -119,33 +109,14 @@ jobs:
       - name: Install sccache
         uses: mozilla-actions/sccache-action@v0.0.6
 
-      # `rro` is a private GitHub repo; cargo's anonymous git fetch
-      # cannot clone it. The `RRO_DEPLOY_TOKEN` secret (PAT with `repo`
-      # scope on EonsofStupid/rro) is rewritten into the clone URL via
-      # `git config --global url.<auth>.insteadOf`. Then we flip
-      # `CARGO_NET_GIT_FETCH_WITH_CLI=true` so cargo shells out to `git`
-      # (the only path that honors `insteadOf` rewrites — the libgit2
-      # path does not). When the secret is unset, the step prints a
-      # warning and the rust job will fail downstream with the existing
-      # "failed to authenticate" error from cargo, which is the desired
-      # signal — never silently skip private-dep auth.
-      - name: Configure cargo for private rro fetches
-        env:
-          RRO_DEPLOY_TOKEN: ${{ secrets.RRO_DEPLOY_TOKEN }}
-        run: |
-          if [ -z "$RRO_DEPLOY_TOKEN" ]; then
-            echo "::warning::RRO_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private rro dep."
-            echo "Fix: gh secret set RRO_DEPLOY_TOKEN --repo EonsofStupid/platform_devpulse"
-            exit 0
-          fi
-          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro".insteadOf "https://github.com/EonsofStupid/rro"
-          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro.git".insteadOf "https://github.com/EonsofStupid/rro.git"
-          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
-          echo "Configured cargo to use RRO_DEPLOY_TOKEN for private rro fetches"
+      # protoc + the RRO_DEPLOY_TOKEN insteadOf step were removed with the
+      # kernel cut — rro/wal (embedded qortex) are Clyffy-side deps now; no
+      # crate in this workspace fetches them.
 
       # `devpulse-telemetry` was extracted to its own private repo 2026-06-28;
-      # workspace.dependencies declares it as `git = "..."`. Same `insteadOf`
-      # pattern as rro above. Secret name `DEVPULSE_TELEMETRY_TOKEN` is set on
+      # workspace.dependencies declares it as `git = "..."`. The insteadOf
+      # rewrite + CARGO_NET_GIT_FETCH_WITH_CLI is the only path cargo honors
+      # for private git deps. Secret name `DEVPULSE_TELEMETRY_TOKEN` is set on
       # this repo via Infisical (`infisical run --env=dev -- gh secret set ...`).
       - name: Configure cargo for private devpulse-telemetry fetches
         env:
