@@ -54,14 +54,10 @@ pnpm-lock.yaml
 .claude/worktrees/
 .claude/dumps/
 deps/
-# Vendored forks tracked as submodules — see .gitmodules.
-!deps/moshi/
-!deps/llama-cpp-rs/
-
-# llama-cpp-prebuilt — extracted static libs are fetched via
-# `cargo xtask fetch-llama-cpp` from github.com/EonsofStupid/llama-cpp-prebuilt
-# releases. The committed manifest.json pins which release this workspace
-# consumes; extracted per-target trees stay ignored.
+# llama-cpp-prebuilt manifest — the committed pin the llama-cpp devtool
+# displays. The fetch tooling + vendored llama/moshi forks left with the
+# kernel cut (clyffyos owns them: tools/fetch-llama-cpp/ + deps/ submodules);
+# extracted per-target trees stay ignored if one is ever staged manually.
 !deps/llama-cpp-prebuilt/
 deps/llama-cpp-prebuilt/win32-x64-vulkan/
 deps/llama-cpp-prebuilt/win32-x64-cuda/

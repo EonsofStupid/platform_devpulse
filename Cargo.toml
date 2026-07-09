@@ -22,14 +22,11 @@ members = [
     "xtask", # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
 ]
-# Vendored sub-workspaces — isolated so their own [workspace.package.*]
-# inheritance resolves against THEIR root, not ours. No crate here consumes
-# them post-cut (their patches are gone); the trees remain on disk pending
-# byte-verification against clyffyos's own deps/ vendors, then deletion.
-exclude = [
-    "deps/moshi",
-    "deps/llama-cpp-rs",
-]
+# The vendored deps/ sub-workspaces (moshi, llama-cpp-rs submodules + the
+# llama-cpp prebuilt trees) left with the kernel cut Phase 7 — byte-verified
+# against clyffyos's vendors first (moshi pins identical; the llama-cpp-rs
+# fork commits live on EonsofStupid/llama-cpp-rs main; fetch tooling absorbed
+# at clyffyos tools/fetch-llama-cpp/).
 
 [workspace.dependencies]
 # Core

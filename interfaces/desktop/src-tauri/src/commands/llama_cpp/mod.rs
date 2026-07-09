@@ -118,7 +118,7 @@ pub async fn llama_cpp_open_prebuilt_dir(target: String) -> Result<(), String> {
         .join(&target);
     if !dir.is_dir() {
         return Err(format!(
-            "no extract for target `{target}` at {} — run `cargo xtask fetch-llama-cpp --target {target}` first",
+            "no extract for target `{target}` at {} — the fetch tooling lives with Clyffy (clyffyos repo, tools/fetch-llama-cpp/); this workspace no longer builds llama.cpp",
             dir.display()
         ));
     }
@@ -163,10 +163,10 @@ fn open_in_os_explorer(path: &Path) -> Result<(), String> {
 /// The write itself is atomic — staged at `manifest.json.tmp` then
 /// renamed.
 ///
-/// **Does NOT fetch** — operator runs `cargo xtask fetch-llama-cpp
-/// --target <id>` separately after the manifest lands. That's
+/// **Does NOT fetch** — the fetch tooling left with the kernel cut and
+/// lives with Clyffy (clyffyos repo, `tools/fetch-llama-cpp/`). That's
 /// deliberate: a manifest bump is a contract change; a fetch is a
-/// per-machine action. Different concerns, different commands.
+/// per-machine action on the workspace that actually builds llama.cpp.
 ///
 /// # Errors
 /// Returns the formatted error string when the incoming JSON does not
@@ -277,9 +277,8 @@ pub enum LinkMode {
     /// fire, or this dev box doesn't run through xtask. Build falls
     /// through to the in-tree cmake path.
     PrebuiltStagedButNotExported,
-    /// No prebuilt staged. Either the operator hasn't run
-    /// `fetch-llama-cpp` yet, or this is a Linux / macOS box where the
-    /// fallback works fine.
+    /// No prebuilt staged — the normal state since the kernel cut (the
+    /// fetch tooling is Clyffy's; nothing here links llama.cpp).
     FallbackCmakeOrUnbuilt,
 }
 

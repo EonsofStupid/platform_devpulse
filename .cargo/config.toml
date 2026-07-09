@@ -48,14 +48,6 @@ PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"
 # `warn` keeps real errors visible (cache write failures, server crashes)
 # without the per-invocation noise.
 SCCACHE_LOG = "warn"
-# NOTE: `LLAMA_CPP_PREBUILT_LIB_DIR` is intentionally NOT set here.
-# `[env]` applies on every platform but the prebuilt tree only ships
-# per-platform (Windows dev fetches `deps/llama-cpp-prebuilt/win32-x64-vulkan`
-# via `cargo xtask fetch-llama-cpp`; Linux/CI has no equivalent fetched).
-# A blanket export tripped llama-cpp-sys-2/build.rs:1196 on Linux CI
-# with "expected file lib/libllama.a not found". xtask's `apply_env`
-# in xtask/src/workspace.rs:1153 sets this env var on Windows
-# explicitly when a matching prebuilt tree exists — that's the canonical
-# entry point. Local standalone `cargo check` on Windows must export
-# the var manually (or run via `cargo xtask`); the previous
-# stop-hook convenience is gone.
+# `LLAMA_CPP_PREBUILT_LIB_DIR` is gone from this workspace — nothing here
+# links llama-cpp-sys-2 since the kernel cut. The prebuilt pipeline + fetch
+# tooling live with Clyffy (clyffyos repo, tools/fetch-llama-cpp/).
