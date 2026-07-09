@@ -140,7 +140,6 @@ let {
 <section
 	class="knowledge-card"
 	data-accent={accent}
-	role="region"
 	aria-labelledby={headingId}
 	aria-live={live}
 >

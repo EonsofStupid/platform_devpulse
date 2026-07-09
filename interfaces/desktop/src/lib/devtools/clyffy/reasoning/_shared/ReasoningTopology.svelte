@@ -300,6 +300,7 @@ const NODE_H = 64;
 				style:left="{(node.x / 660) * 100}%"
 				style:top="{(node.y / 180) * 100}%"
 				type={clickable ? "button" : undefined}
+				role={clickable ? "button" : undefined}
 				aria-label={clickable
 					? `${node.layman} — ${node.technical}, ${active ? "active" : "idle"}`
 					: undefined}

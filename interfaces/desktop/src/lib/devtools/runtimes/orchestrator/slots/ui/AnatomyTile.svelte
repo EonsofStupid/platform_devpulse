@@ -113,8 +113,8 @@ let {
 
 /** Stable id per tile so `aria-labelledby` / `aria-describedby` lock
  *  to the right heading even when several tiles render in parallel. */
-const headingId = `anatomy-tile-${slotId}-heading`;
-const taglineId = `anatomy-tile-${slotId}-tagline`;
+const headingId = $derived(`anatomy-tile-${slotId}-heading`);
+const taglineId = $derived(`anatomy-tile-${slotId}-tagline`);
 
 const STATE_BADGE: Record<
 	ApplyState,
@@ -141,7 +141,6 @@ const ctaLabel = $derived(
 	class="anatomy-tile"
 	data-state={state}
 	style={`--slot-accent: var(${accentVar});`}
-	role="region"
 	aria-labelledby={headingId}
 	aria-busy={state === "saving"}
 >

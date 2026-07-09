@@ -57,14 +57,18 @@ jobs:
       # runner's ~14 GB free disk is not enough and the final `ar`
       # invocation that archives libduckdb fails with "No space left on
       # device". Free up ~30 GB by removing the Android SDK / dotnet /
-      # GHC / CodeQL / pre-installed images that this workflow never uses.
+      # GHC / CodeQL directories this workflow never uses.
+      #
+      # Do NOT `docker image prune` here: GitHub pre-builds container
+      # actions (cargo-deny-action) at job setup, BEFORE this step — the
+      # prune deleted that local image and the Security audit step died
+      # with "pull access denied for <local image id>".
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune -a -f || true
           df -h
 
       # No submodules — the vendored deps/ forks (moshi, llama-cpp-rs)
