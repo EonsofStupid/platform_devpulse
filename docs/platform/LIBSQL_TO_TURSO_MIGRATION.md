@@ -4,6 +4,12 @@
 > Predecessor planning artifact: held workflow `wg4az7jvm` (the libsql→
 > turso draft that the operator paused pre-extraction).
 > Anchor commit on `platform_devpulse`: `d8bc4f3d`.
+>
+> **Status 2026-07-08 — LANDED.** `platform_devpulse` is libsql-free
+> (`turso` 0.4.3 everywhere; f3748059 + the kernel cut). The connectome +
+> persona-mcp turso port was back-ported to clyffyos (`8d6fbb6`) before the
+> kernel crates left this repo. The `clyffyos-*` references below are the
+> crates' real homes.
 
 ---
 
