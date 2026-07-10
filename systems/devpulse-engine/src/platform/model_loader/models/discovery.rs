@@ -490,7 +490,14 @@ fn read_gguf_metadata(path: &Path) -> anyhow::Result<ModelMetadata> {
     let mut buf = Vec::new();
     file.take(GGUF_HEADER_PREFIX_CAP).read_to_end(&mut buf)?;
 
-    let gguf = GGuf::new(&buf).map_err(|e| anyhow::anyhow!("GGUF header parse: {e:?}"))?;
+    // ggus 0.5.1's `GGuf::new` PANICS (subtract-overflow, ggus file.rs:132) on
+    // a truncated / malformed header instead of returning `Err`. The panic
+    // unwinds past this `map_err` and past `walk_all`'s per-file skip arm,
+    // aborting discovery of every remaining model. Isolate it so one corrupt
+    // file becomes a skippable `Err`, not a scan-killing unwind.
+    let gguf = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| GGuf::new(&buf)))
+        .map_err(|_| anyhow::anyhow!("GGUF header parser panicked (corrupt or truncated file)"))?
+        .map_err(|e| anyhow::anyhow!("GGUF header parse: {e:?}"))?;
 
     let architecture = gguf
         .general_architecture()

@@ -214,17 +214,17 @@ impl AnalyticsAdapter for DuckDbAdapter {
                     placeholders.join(", ")
                 );
 
-                // Convert values to strings for simplicity
-                let values: Vec<String> = map
-                    .values()
-                    .map(|v| match v {
-                        serde_json::Value::String(s) => s.clone(),
-                        other => other.to_string(),
-                    })
-                    .collect();
+                // Bind each JSON value with its DuckDB type — NOT stringified.
+                // Stringifying bound a JSON `null` as the literal text "null",
+                // which a non-VARCHAR column (e.g. `span_traces.parent_span_id
+                // BIGINT` for root spans) rejects → "Failed to append data" on
+                // every flush. Typed binding maps null→NULL, integers→BIGINT,
+                // non-integers→DOUBLE, bool→BOOLEAN, and arrays/objects→JSON text.
+                let values: Vec<duckdb::types::Value> =
+                    map.values().map(json_to_duck_value).collect();
 
                 let params: Vec<&dyn duckdb::ToSql> =
-                    values.iter().map(|s| s as &dyn duckdb::ToSql).collect();
+                    values.iter().map(|v| v as &dyn duckdb::ToSql).collect();
 
                 conn.execute(&sql, params.as_slice())
                     .context("Failed to append data")?;
@@ -233,6 +233,31 @@ impl AnalyticsAdapter for DuckDbAdapter {
         }
 
         Ok(count)
+    }
+}
+
+/// Map a JSON value to its DuckDB-typed [`duckdb::types::Value`] for parameter
+/// binding. Null→NULL, integers→BIGINT, non-integers→DOUBLE, bool→BOOLEAN,
+/// strings pass through, and arrays/objects serialize to JSON text (for `JSON`
+/// columns). This is what keeps a JSON `null` from becoming the literal string
+/// `"null"` against a numeric column.
+fn json_to_duck_value(v: &serde_json::Value) -> duckdb::types::Value {
+    use duckdb::types::Value;
+    match v {
+        serde_json::Value::Null => Value::Null,
+        serde_json::Value::Bool(b) => Value::Boolean(*b),
+        serde_json::Value::Number(n) => n
+            .as_i64()
+            .map(Value::BigInt)
+            .or_else(|| {
+                n.as_u64()
+                    .and_then(|u| i64::try_from(u).ok())
+                    .map(Value::BigInt)
+            })
+            .or_else(|| n.as_f64().map(Value::Double))
+            .unwrap_or(Value::Null),
+        serde_json::Value::String(s) => Value::Text(s.clone()),
+        other => Value::Text(other.to_string()),
     }
 }
 
