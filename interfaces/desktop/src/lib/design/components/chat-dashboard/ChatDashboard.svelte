@@ -24,7 +24,9 @@ import type { ChatDashboardProps } from "./types.js";
 
 let { style, children, class: className, ...rest }: ChatDashboardProps = $props();
 
-const m = $derived(renderForge({ kind: "chat-dashboard", preset: "default" }));
+// Recessed translucent viewport per the documented @defaults (α0.4 dark
+// wash over the frame glass) until the per-kind @styleIds layer is emitted.
+const m = $derived(renderForge({ kind: "chat-dashboard", preset: "glass-muted" }));
 </script>
 
 <div
