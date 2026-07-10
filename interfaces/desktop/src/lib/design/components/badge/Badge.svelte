@@ -7,7 +7,7 @@
 	@container false
 	@compound false
 	@blockCategory content
-	@defaultStyle badge-neutral
+	@defaultStyle badge-default
 	@styleIds badge-default, badge-stark, badge-glass, badge-flat, badge-matte
 	@requiredAxes backgroundColor, color, borderRadius, typography
 	@slots root:all

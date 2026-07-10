@@ -38,9 +38,8 @@ let {
 	...rest
 }: ChatTopBarProps = $props();
 
-// Closest emitted preset to the documented @defaults (translucent dark
-// teal-blue, α0.6) until the pipeline emits the per-kind @styleIds layer.
-const m = $derived(renderForge({ kind: "chat-topbar", preset: "glass-deep" }));
+// "default" resolves --style-chat-topbar-default-* (the documented @defaults).
+const m = $derived(renderForge({ kind: "chat-topbar", preset: "default" }));
 </script>
 
 <div

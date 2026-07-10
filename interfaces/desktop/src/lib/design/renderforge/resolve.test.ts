@@ -61,10 +61,10 @@ describe("renderForge — CSS var chains", () => {
 		expect(m.dataAttrs["data-kind"]).toBe("card");
 	});
 
-	test("cssVars contains -bg", () => {
+	test("cssVars contains --background-color", () => {
 		const m = renderForge({ kind: "button", preset: "primary" });
-		expect(m.cssVars["-bg"]).toBeDefined();
-		expect(m.cssVars["-bg"]).toContain("var(");
+		expect(m.cssVars["--background-color"]).toBeDefined();
+		expect(m.cssVars["--background-color"]).toContain("var(");
 	});
 
 	test("cssVars contains --box-shadow", () => {
@@ -82,23 +82,25 @@ describe("renderForge — CSS var chains", () => {
 		expect(m.cssVars["--border-radius"]).toBeDefined();
 	});
 
-	test("cssVars uses two-tier var() chain (per-kind → shared → fallback)", () => {
+	test("per-kind tier keys off the RAW preset; shared tier off the resolved intent", () => {
 		const m = renderForge({ kind: "button", preset: "primary" });
-		const bg = m.cssVars["-bg"];
-		// Should contain var(--style-button-glass-deep-..., var(--preset-glass-deep-..., ...))
-		expect(bg).toContain("--style-button-glass-deep");
+		const bg = m.cssVars["--background-color"];
+		// var(--style-button-primary-..., var(--preset-glass-deep-..., ...))
+		expect(bg).toContain("--style-button-primary");
 		expect(bg).toContain("--preset-glass-deep");
 	});
 
-	test("'default' preset resolves through neuro-elevated tokens", () => {
+	test("preset:'default' targets the per-kind default @defaults layer", () => {
 		const m = renderForge({ kind: "card", preset: "default" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
+		// The emitted --style-card-default-* wins; shared neuro-elevated backs it.
+		expect(bg).toContain("--style-card-default");
 		expect(bg).toContain("--preset-neuro-elevated");
 	});
 
-	test("'glass' preset resolves through glass-deep tokens", () => {
+	test("'glass' preset resolves through glass-deep shared tokens", () => {
 		const m = renderForge({ kind: "card", preset: "glass" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
 		expect(bg).toContain("--preset-glass-deep");
 	});
 });
@@ -107,23 +109,30 @@ describe("renderForge — CSS var chains", () => {
 // STATE OVERRIDES
 // ═══════════════════════════════════════════════════════════════
 
-describe("renderForge — state overrides", () => {
-	test("state='disabled' applies state-specific vars", () => {
+describe("renderForge — state overrides (4-tier option-b chain)", () => {
+	test("state='disabled' layers per-kind state → per-kind base → shared state → shared base", () => {
 		const m = renderForge({ kind: "button", preset: "primary", state: "disabled" });
-		const bg = m.cssVars["-bg"];
-		expect(bg).toContain("disabled");
+		const bg = m.cssVars["--background-color"];
+		// per-kind state outranks shared state; both appear in the chain
+		expect(bg).toContain("--style-button-primary-disabled");
+		expect(bg).toContain("--preset-glass-deep-disabled");
+		expect(bg.indexOf("--style-button-primary-disabled")).toBeLessThan(
+			bg.indexOf("--preset-glass-deep-disabled"),
+		);
 	});
 
 	test("state='active' applies active-specific vars", () => {
 		const m = renderForge({ kind: "button", preset: "primary", state: "active" });
-		const bg = m.cssVars["-bg"];
-		expect(bg).toContain("active");
+		const bg = m.cssVars["--background-color"];
+		expect(bg).toContain("--style-button-primary-active");
+		expect(bg).toContain("--preset-glass-deep-active");
 	});
 
 	test("state='default' does NOT apply state overrides", () => {
 		const m = renderForge({ kind: "button", preset: "primary", state: "default" });
-		const bg = m.cssVars["-bg"];
-		expect(bg).not.toContain("default-background");
+		const bg = m.cssVars["--background-color"];
+		expect(bg).not.toContain("-disabled-");
+		expect(bg).not.toContain("-active-");
 	});
 });
 

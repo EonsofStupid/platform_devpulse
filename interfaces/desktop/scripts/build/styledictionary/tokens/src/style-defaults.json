@@ -1,0 +1,2108 @@
+{
+	"style": {
+		"accordion-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"alert-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"alert-dialog-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"avatar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"avatar-group-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"badge-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"banner-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"button-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"calendar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"callout-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"card-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"chat-bubble-ai": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"chat-context-panel-default": {
+			"background-color": {
+				"$value": "oklch(0.0601 0.012 224.61 / 0.5)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0 0 0 0.0625rem",
+				"$type": "string"
+			}
+		},
+		"chat-dashboard-default": {
+			"background-color": {
+				"$value": "oklch(0.0601 0.012 224.61 / 0.4)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			}
+		},
+		"chat-footer-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem 0 0 0",
+				"$type": "string"
+			}
+		},
+		"chat-frame-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.25rem 1rem oklch(0 0 0 / 0.3), 0 0 2rem oklch(0.5106 0.0979 173.17 / 0.08)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.5106 0.0979 173.17 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			},
+			"backdrop-filter": {
+				"$value": "blur(1rem)",
+				"$type": "string"
+			}
+		},
+		"chat-sidebar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.5)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0 0.0625rem 0 0",
+				"$type": "string"
+			}
+		},
+		"chat-topbar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0 0 0.0625rem 0",
+				"$type": "string"
+			}
+		},
+		"checkbox-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"collapsible-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"color-area-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"color-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"color-slider-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"color-swatch-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"color-swatch-picker-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"color-wheel-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"combobox-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"contextual-help-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"data-table-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"date-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"date-picker-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"date-range-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"date-range-picker-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"description-list-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"dialog-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"dynamic-background-boot": {
+			"background-color": {
+				"$value": "oklch(0.05 0.015 224)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "string"
+			}
+		},
+		"empty-state-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			}
+		},
+		"file-upload-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"form-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"form-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"heading-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"inline-message-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"input-group-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"kbd-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"label-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"link-preview-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"list-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"loading-overlay-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"menubar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"meter-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			}
+		},
+		"nav-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"navigation-menu-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"notification-center-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"number-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"pagination-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"pin-input-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"popover-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"progress-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"prose-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"radio-group-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"range-calendar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"scroll-area-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"search-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"select-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"separator-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"sheet-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"sidebar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"skeleton-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"skip-link-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"slider-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"steps-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"switch-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"table-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"table-of-contents-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"tabs-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"text-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"text-field-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"textarea-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"toaster-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"toggle-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"toggle-group-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"toolbar-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"tooltip-default": {
+			"background-color": {
+				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		}
+	}
+}

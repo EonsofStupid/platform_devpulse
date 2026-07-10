@@ -37,11 +37,9 @@ let {
 	...rest
 }: ChatFrameProps = $props();
 
-// The chat window's golden preset (visual/presets/chat.ts) — emitted as
-// --preset-chat-frame-shell-*. "default" would collapse to the shared
-// neuro-elevated surface and flatten the window; the per-kind
-// @styleIds layer (--style-chat-frame-*) is not emitted by the pipeline yet.
-const m = $derived(renderForge({ kind: "chat-frame", preset: "chat-frame-shell" }));
+// "default" resolves this component's emitted @defaults
+// (--style-chat-frame-default-*) — the documented window chrome.
+const m = $derived(renderForge({ kind: "chat-frame", preset: "default" }));
 </script>
 
 <div

@@ -1,4 +1,5817 @@
 {
+	"style": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "style-accordion-default-background-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"background-color"
+				],
+				"cssVar": "--style-accordion-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-radius",
+				"path": [
+					"style",
+					"accordion-default",
+					"border-radius"
+				],
+				"cssVar": "--style-accordion-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-box-shadow",
+				"path": [
+					"style",
+					"accordion-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-accordion-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"color"
+				],
+				"cssVar": "--style-accordion-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"border-color"
+				],
+				"cssVar": "--style-accordion-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-width",
+				"path": [
+					"style",
+					"accordion-default",
+					"border-width"
+				],
+				"cssVar": "--style-accordion-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-default-background-color",
+				"path": [
+					"style",
+					"alert-default",
+					"background-color"
+				],
+				"cssVar": "--style-alert-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-default-border-radius",
+				"path": [
+					"style",
+					"alert-default",
+					"border-radius"
+				],
+				"cssVar": "--style-alert-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-default-box-shadow",
+				"path": [
+					"style",
+					"alert-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-alert-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-default-color",
+				"path": [
+					"style",
+					"alert-default",
+					"color"
+				],
+				"cssVar": "--style-alert-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-default-border-color",
+				"path": [
+					"style",
+					"alert-default",
+					"border-color"
+				],
+				"cssVar": "--style-alert-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-default-border-width",
+				"path": [
+					"style",
+					"alert-default",
+					"border-width"
+				],
+				"cssVar": "--style-alert-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-dialog-default-background-color",
+				"path": [
+					"style",
+					"alert-dialog-default",
+					"background-color"
+				],
+				"cssVar": "--style-alert-dialog-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-dialog-default-border-radius",
+				"path": [
+					"style",
+					"alert-dialog-default",
+					"border-radius"
+				],
+				"cssVar": "--style-alert-dialog-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-dialog-default-box-shadow",
+				"path": [
+					"style",
+					"alert-dialog-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-alert-dialog-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-dialog-default-color",
+				"path": [
+					"style",
+					"alert-dialog-default",
+					"color"
+				],
+				"cssVar": "--style-alert-dialog-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-dialog-default-border-color",
+				"path": [
+					"style",
+					"alert-dialog-default",
+					"border-color"
+				],
+				"cssVar": "--style-alert-dialog-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-alert-dialog-default-border-width",
+				"path": [
+					"style",
+					"alert-dialog-default",
+					"border-width"
+				],
+				"cssVar": "--style-alert-dialog-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-default-background-color",
+				"path": [
+					"style",
+					"avatar-default",
+					"background-color"
+				],
+				"cssVar": "--style-avatar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-default-border-radius",
+				"path": [
+					"style",
+					"avatar-default",
+					"border-radius"
+				],
+				"cssVar": "--style-avatar-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-default-box-shadow",
+				"path": [
+					"style",
+					"avatar-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-avatar-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-default-color",
+				"path": [
+					"style",
+					"avatar-default",
+					"color"
+				],
+				"cssVar": "--style-avatar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-default-border-color",
+				"path": [
+					"style",
+					"avatar-default",
+					"border-color"
+				],
+				"cssVar": "--style-avatar-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-default-border-width",
+				"path": [
+					"style",
+					"avatar-default",
+					"border-width"
+				],
+				"cssVar": "--style-avatar-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-group-default-background-color",
+				"path": [
+					"style",
+					"avatar-group-default",
+					"background-color"
+				],
+				"cssVar": "--style-avatar-group-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-group-default-border-radius",
+				"path": [
+					"style",
+					"avatar-group-default",
+					"border-radius"
+				],
+				"cssVar": "--style-avatar-group-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-group-default-box-shadow",
+				"path": [
+					"style",
+					"avatar-group-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-avatar-group-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-group-default-color",
+				"path": [
+					"style",
+					"avatar-group-default",
+					"color"
+				],
+				"cssVar": "--style-avatar-group-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-group-default-border-color",
+				"path": [
+					"style",
+					"avatar-group-default",
+					"border-color"
+				],
+				"cssVar": "--style-avatar-group-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-avatar-group-default-border-width",
+				"path": [
+					"style",
+					"avatar-group-default",
+					"border-width"
+				],
+				"cssVar": "--style-avatar-group-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-default-background-color",
+				"path": [
+					"style",
+					"badge-default",
+					"background-color"
+				],
+				"cssVar": "--style-badge-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-default-border-radius",
+				"path": [
+					"style",
+					"badge-default",
+					"border-radius"
+				],
+				"cssVar": "--style-badge-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-default-box-shadow",
+				"path": [
+					"style",
+					"badge-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-badge-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-default-color",
+				"path": [
+					"style",
+					"badge-default",
+					"color"
+				],
+				"cssVar": "--style-badge-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-default-border-color",
+				"path": [
+					"style",
+					"badge-default",
+					"border-color"
+				],
+				"cssVar": "--style-badge-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-default-border-width",
+				"path": [
+					"style",
+					"badge-default",
+					"border-width"
+				],
+				"cssVar": "--style-badge-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-banner-default-background-color",
+				"path": [
+					"style",
+					"banner-default",
+					"background-color"
+				],
+				"cssVar": "--style-banner-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-banner-default-border-radius",
+				"path": [
+					"style",
+					"banner-default",
+					"border-radius"
+				],
+				"cssVar": "--style-banner-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-banner-default-box-shadow",
+				"path": [
+					"style",
+					"banner-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-banner-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-banner-default-color",
+				"path": [
+					"style",
+					"banner-default",
+					"color"
+				],
+				"cssVar": "--style-banner-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-banner-default-border-color",
+				"path": [
+					"style",
+					"banner-default",
+					"border-color"
+				],
+				"cssVar": "--style-banner-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-banner-default-border-width",
+				"path": [
+					"style",
+					"banner-default",
+					"border-width"
+				],
+				"cssVar": "--style-banner-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-button-default-background-color",
+				"path": [
+					"style",
+					"button-default",
+					"background-color"
+				],
+				"cssVar": "--style-button-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-button-default-border-radius",
+				"path": [
+					"style",
+					"button-default",
+					"border-radius"
+				],
+				"cssVar": "--style-button-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-button-default-box-shadow",
+				"path": [
+					"style",
+					"button-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-button-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-button-default-color",
+				"path": [
+					"style",
+					"button-default",
+					"color"
+				],
+				"cssVar": "--style-button-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-button-default-border-color",
+				"path": [
+					"style",
+					"button-default",
+					"border-color"
+				],
+				"cssVar": "--style-button-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-button-default-border-width",
+				"path": [
+					"style",
+					"button-default",
+					"border-width"
+				],
+				"cssVar": "--style-button-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-calendar-default-background-color",
+				"path": [
+					"style",
+					"calendar-default",
+					"background-color"
+				],
+				"cssVar": "--style-calendar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-calendar-default-border-radius",
+				"path": [
+					"style",
+					"calendar-default",
+					"border-radius"
+				],
+				"cssVar": "--style-calendar-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-calendar-default-box-shadow",
+				"path": [
+					"style",
+					"calendar-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-calendar-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-calendar-default-color",
+				"path": [
+					"style",
+					"calendar-default",
+					"color"
+				],
+				"cssVar": "--style-calendar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-calendar-default-border-color",
+				"path": [
+					"style",
+					"calendar-default",
+					"border-color"
+				],
+				"cssVar": "--style-calendar-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-calendar-default-border-width",
+				"path": [
+					"style",
+					"calendar-default",
+					"border-width"
+				],
+				"cssVar": "--style-calendar-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-callout-default-background-color",
+				"path": [
+					"style",
+					"callout-default",
+					"background-color"
+				],
+				"cssVar": "--style-callout-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-callout-default-border-radius",
+				"path": [
+					"style",
+					"callout-default",
+					"border-radius"
+				],
+				"cssVar": "--style-callout-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-callout-default-box-shadow",
+				"path": [
+					"style",
+					"callout-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-callout-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-callout-default-color",
+				"path": [
+					"style",
+					"callout-default",
+					"color"
+				],
+				"cssVar": "--style-callout-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-callout-default-border-color",
+				"path": [
+					"style",
+					"callout-default",
+					"border-color"
+				],
+				"cssVar": "--style-callout-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-callout-default-border-width",
+				"path": [
+					"style",
+					"callout-default",
+					"border-width"
+				],
+				"cssVar": "--style-callout-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-card-default-background-color",
+				"path": [
+					"style",
+					"card-default",
+					"background-color"
+				],
+				"cssVar": "--style-card-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-card-default-border-radius",
+				"path": [
+					"style",
+					"card-default",
+					"border-radius"
+				],
+				"cssVar": "--style-card-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-card-default-box-shadow",
+				"path": [
+					"style",
+					"card-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-card-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-card-default-color",
+				"path": [
+					"style",
+					"card-default",
+					"color"
+				],
+				"cssVar": "--style-card-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-card-default-border-color",
+				"path": [
+					"style",
+					"card-default",
+					"border-color"
+				],
+				"cssVar": "--style-card-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-card-default-border-width",
+				"path": [
+					"style",
+					"card-default",
+					"border-width"
+				],
+				"cssVar": "--style-card-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-background-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"background-color"
+				],
+				"cssVar": "--style-chat-bubble-ai-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-radius",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"border-radius"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-box-shadow",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"box-shadow"
+				],
+				"cssVar": "--style-chat-bubble-ai-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-ai-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"border-color"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-width",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"border-width"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-context-panel-default-background-color",
+				"path": [
+					"style",
+					"chat-context-panel-default",
+					"background-color"
+				],
+				"cssVar": "--style-chat-context-panel-default-background-color",
+				"value": "oklch(0.0601 0.012 224.61 / 0.5)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-context-panel-default-color",
+				"path": [
+					"style",
+					"chat-context-panel-default",
+					"color"
+				],
+				"cssVar": "--style-chat-context-panel-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-context-panel-default-border-color",
+				"path": [
+					"style",
+					"chat-context-panel-default",
+					"border-color"
+				],
+				"cssVar": "--style-chat-context-panel-default-border-color",
+				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-context-panel-default-border-width",
+				"path": [
+					"style",
+					"chat-context-panel-default",
+					"border-width"
+				],
+				"cssVar": "--style-chat-context-panel-default-border-width",
+				"value": "0 0 0 0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-dashboard-default-background-color",
+				"path": [
+					"style",
+					"chat-dashboard-default",
+					"background-color"
+				],
+				"cssVar": "--style-chat-dashboard-default-background-color",
+				"value": "oklch(0.0601 0.012 224.61 / 0.4)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-dashboard-default-color",
+				"path": [
+					"style",
+					"chat-dashboard-default",
+					"color"
+				],
+				"cssVar": "--style-chat-dashboard-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-footer-default-background-color",
+				"path": [
+					"style",
+					"chat-footer-default",
+					"background-color"
+				],
+				"cssVar": "--style-chat-footer-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-footer-default-color",
+				"path": [
+					"style",
+					"chat-footer-default",
+					"color"
+				],
+				"cssVar": "--style-chat-footer-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-footer-default-border-color",
+				"path": [
+					"style",
+					"chat-footer-default",
+					"border-color"
+				],
+				"cssVar": "--style-chat-footer-default-border-color",
+				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-footer-default-border-width",
+				"path": [
+					"style",
+					"chat-footer-default",
+					"border-width"
+				],
+				"cssVar": "--style-chat-footer-default-border-width",
+				"value": "0.0625rem 0 0 0",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-background-color",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"background-color"
+				],
+				"cssVar": "--style-chat-frame-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-border-radius",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"border-radius"
+				],
+				"cssVar": "--style-chat-frame-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-box-shadow",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-chat-frame-default-box-shadow",
+				"value": "0 0.25rem 1rem oklch(0 0 0 / 0.3), 0 0 2rem oklch(0.5106 0.0979 173.17 / 0.08)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-color",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"color"
+				],
+				"cssVar": "--style-chat-frame-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-border-color",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"border-color"
+				],
+				"cssVar": "--style-chat-frame-default-border-color",
+				"value": "oklch(0.5106 0.0979 173.17 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-border-width",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"border-width"
+				],
+				"cssVar": "--style-chat-frame-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-frame-default-backdrop-filter",
+				"path": [
+					"style",
+					"chat-frame-default",
+					"backdrop-filter"
+				],
+				"cssVar": "--style-chat-frame-default-backdrop-filter",
+				"value": "blur(1rem)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-sidebar-default-background-color",
+				"path": [
+					"style",
+					"chat-sidebar-default",
+					"background-color"
+				],
+				"cssVar": "--style-chat-sidebar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.5)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-sidebar-default-color",
+				"path": [
+					"style",
+					"chat-sidebar-default",
+					"color"
+				],
+				"cssVar": "--style-chat-sidebar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-sidebar-default-border-color",
+				"path": [
+					"style",
+					"chat-sidebar-default",
+					"border-color"
+				],
+				"cssVar": "--style-chat-sidebar-default-border-color",
+				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-sidebar-default-border-width",
+				"path": [
+					"style",
+					"chat-sidebar-default",
+					"border-width"
+				],
+				"cssVar": "--style-chat-sidebar-default-border-width",
+				"value": "0 0.0625rem 0 0",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-topbar-default-background-color",
+				"path": [
+					"style",
+					"chat-topbar-default",
+					"background-color"
+				],
+				"cssVar": "--style-chat-topbar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-topbar-default-color",
+				"path": [
+					"style",
+					"chat-topbar-default",
+					"color"
+				],
+				"cssVar": "--style-chat-topbar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-topbar-default-border-color",
+				"path": [
+					"style",
+					"chat-topbar-default",
+					"border-color"
+				],
+				"cssVar": "--style-chat-topbar-default-border-color",
+				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-topbar-default-border-width",
+				"path": [
+					"style",
+					"chat-topbar-default",
+					"border-width"
+				],
+				"cssVar": "--style-chat-topbar-default-border-width",
+				"value": "0 0 0.0625rem 0",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-checkbox-default-background-color",
+				"path": [
+					"style",
+					"checkbox-default",
+					"background-color"
+				],
+				"cssVar": "--style-checkbox-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-checkbox-default-border-radius",
+				"path": [
+					"style",
+					"checkbox-default",
+					"border-radius"
+				],
+				"cssVar": "--style-checkbox-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-checkbox-default-box-shadow",
+				"path": [
+					"style",
+					"checkbox-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-checkbox-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-checkbox-default-color",
+				"path": [
+					"style",
+					"checkbox-default",
+					"color"
+				],
+				"cssVar": "--style-checkbox-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-checkbox-default-border-color",
+				"path": [
+					"style",
+					"checkbox-default",
+					"border-color"
+				],
+				"cssVar": "--style-checkbox-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-checkbox-default-border-width",
+				"path": [
+					"style",
+					"checkbox-default",
+					"border-width"
+				],
+				"cssVar": "--style-checkbox-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-collapsible-default-background-color",
+				"path": [
+					"style",
+					"collapsible-default",
+					"background-color"
+				],
+				"cssVar": "--style-collapsible-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-collapsible-default-border-radius",
+				"path": [
+					"style",
+					"collapsible-default",
+					"border-radius"
+				],
+				"cssVar": "--style-collapsible-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-collapsible-default-box-shadow",
+				"path": [
+					"style",
+					"collapsible-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-collapsible-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-collapsible-default-color",
+				"path": [
+					"style",
+					"collapsible-default",
+					"color"
+				],
+				"cssVar": "--style-collapsible-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-collapsible-default-border-color",
+				"path": [
+					"style",
+					"collapsible-default",
+					"border-color"
+				],
+				"cssVar": "--style-collapsible-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-collapsible-default-border-width",
+				"path": [
+					"style",
+					"collapsible-default",
+					"border-width"
+				],
+				"cssVar": "--style-collapsible-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-area-default-background-color",
+				"path": [
+					"style",
+					"color-area-default",
+					"background-color"
+				],
+				"cssVar": "--style-color-area-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-area-default-border-radius",
+				"path": [
+					"style",
+					"color-area-default",
+					"border-radius"
+				],
+				"cssVar": "--style-color-area-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-area-default-box-shadow",
+				"path": [
+					"style",
+					"color-area-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-color-area-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-area-default-color",
+				"path": [
+					"style",
+					"color-area-default",
+					"color"
+				],
+				"cssVar": "--style-color-area-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-area-default-border-color",
+				"path": [
+					"style",
+					"color-area-default",
+					"border-color"
+				],
+				"cssVar": "--style-color-area-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-area-default-border-width",
+				"path": [
+					"style",
+					"color-area-default",
+					"border-width"
+				],
+				"cssVar": "--style-color-area-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-field-default-background-color",
+				"path": [
+					"style",
+					"color-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-color-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-field-default-border-radius",
+				"path": [
+					"style",
+					"color-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-color-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-field-default-box-shadow",
+				"path": [
+					"style",
+					"color-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-color-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-field-default-color",
+				"path": [
+					"style",
+					"color-field-default",
+					"color"
+				],
+				"cssVar": "--style-color-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-field-default-border-color",
+				"path": [
+					"style",
+					"color-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-color-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-field-default-border-width",
+				"path": [
+					"style",
+					"color-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-color-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-slider-default-background-color",
+				"path": [
+					"style",
+					"color-slider-default",
+					"background-color"
+				],
+				"cssVar": "--style-color-slider-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-slider-default-border-radius",
+				"path": [
+					"style",
+					"color-slider-default",
+					"border-radius"
+				],
+				"cssVar": "--style-color-slider-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-slider-default-box-shadow",
+				"path": [
+					"style",
+					"color-slider-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-color-slider-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-slider-default-color",
+				"path": [
+					"style",
+					"color-slider-default",
+					"color"
+				],
+				"cssVar": "--style-color-slider-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-slider-default-border-color",
+				"path": [
+					"style",
+					"color-slider-default",
+					"border-color"
+				],
+				"cssVar": "--style-color-slider-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-slider-default-border-width",
+				"path": [
+					"style",
+					"color-slider-default",
+					"border-width"
+				],
+				"cssVar": "--style-color-slider-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-default-background-color",
+				"path": [
+					"style",
+					"color-swatch-default",
+					"background-color"
+				],
+				"cssVar": "--style-color-swatch-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-default-border-radius",
+				"path": [
+					"style",
+					"color-swatch-default",
+					"border-radius"
+				],
+				"cssVar": "--style-color-swatch-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-default-box-shadow",
+				"path": [
+					"style",
+					"color-swatch-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-color-swatch-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-default-color",
+				"path": [
+					"style",
+					"color-swatch-default",
+					"color"
+				],
+				"cssVar": "--style-color-swatch-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-default-border-color",
+				"path": [
+					"style",
+					"color-swatch-default",
+					"border-color"
+				],
+				"cssVar": "--style-color-swatch-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-default-border-width",
+				"path": [
+					"style",
+					"color-swatch-default",
+					"border-width"
+				],
+				"cssVar": "--style-color-swatch-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-picker-default-background-color",
+				"path": [
+					"style",
+					"color-swatch-picker-default",
+					"background-color"
+				],
+				"cssVar": "--style-color-swatch-picker-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-picker-default-border-radius",
+				"path": [
+					"style",
+					"color-swatch-picker-default",
+					"border-radius"
+				],
+				"cssVar": "--style-color-swatch-picker-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-picker-default-box-shadow",
+				"path": [
+					"style",
+					"color-swatch-picker-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-color-swatch-picker-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-picker-default-color",
+				"path": [
+					"style",
+					"color-swatch-picker-default",
+					"color"
+				],
+				"cssVar": "--style-color-swatch-picker-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-picker-default-border-color",
+				"path": [
+					"style",
+					"color-swatch-picker-default",
+					"border-color"
+				],
+				"cssVar": "--style-color-swatch-picker-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-swatch-picker-default-border-width",
+				"path": [
+					"style",
+					"color-swatch-picker-default",
+					"border-width"
+				],
+				"cssVar": "--style-color-swatch-picker-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-wheel-default-background-color",
+				"path": [
+					"style",
+					"color-wheel-default",
+					"background-color"
+				],
+				"cssVar": "--style-color-wheel-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-wheel-default-border-radius",
+				"path": [
+					"style",
+					"color-wheel-default",
+					"border-radius"
+				],
+				"cssVar": "--style-color-wheel-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-wheel-default-box-shadow",
+				"path": [
+					"style",
+					"color-wheel-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-color-wheel-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-wheel-default-color",
+				"path": [
+					"style",
+					"color-wheel-default",
+					"color"
+				],
+				"cssVar": "--style-color-wheel-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-wheel-default-border-color",
+				"path": [
+					"style",
+					"color-wheel-default",
+					"border-color"
+				],
+				"cssVar": "--style-color-wheel-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-color-wheel-default-border-width",
+				"path": [
+					"style",
+					"color-wheel-default",
+					"border-width"
+				],
+				"cssVar": "--style-color-wheel-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-combobox-default-background-color",
+				"path": [
+					"style",
+					"combobox-default",
+					"background-color"
+				],
+				"cssVar": "--style-combobox-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-combobox-default-border-radius",
+				"path": [
+					"style",
+					"combobox-default",
+					"border-radius"
+				],
+				"cssVar": "--style-combobox-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-combobox-default-box-shadow",
+				"path": [
+					"style",
+					"combobox-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-combobox-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-combobox-default-color",
+				"path": [
+					"style",
+					"combobox-default",
+					"color"
+				],
+				"cssVar": "--style-combobox-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-combobox-default-border-color",
+				"path": [
+					"style",
+					"combobox-default",
+					"border-color"
+				],
+				"cssVar": "--style-combobox-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-combobox-default-border-width",
+				"path": [
+					"style",
+					"combobox-default",
+					"border-width"
+				],
+				"cssVar": "--style-combobox-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-contextual-help-default-background-color",
+				"path": [
+					"style",
+					"contextual-help-default",
+					"background-color"
+				],
+				"cssVar": "--style-contextual-help-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-contextual-help-default-border-radius",
+				"path": [
+					"style",
+					"contextual-help-default",
+					"border-radius"
+				],
+				"cssVar": "--style-contextual-help-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-contextual-help-default-box-shadow",
+				"path": [
+					"style",
+					"contextual-help-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-contextual-help-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-contextual-help-default-color",
+				"path": [
+					"style",
+					"contextual-help-default",
+					"color"
+				],
+				"cssVar": "--style-contextual-help-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-contextual-help-default-border-color",
+				"path": [
+					"style",
+					"contextual-help-default",
+					"border-color"
+				],
+				"cssVar": "--style-contextual-help-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-contextual-help-default-border-width",
+				"path": [
+					"style",
+					"contextual-help-default",
+					"border-width"
+				],
+				"cssVar": "--style-contextual-help-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-data-table-default-background-color",
+				"path": [
+					"style",
+					"data-table-default",
+					"background-color"
+				],
+				"cssVar": "--style-data-table-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-data-table-default-border-radius",
+				"path": [
+					"style",
+					"data-table-default",
+					"border-radius"
+				],
+				"cssVar": "--style-data-table-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-data-table-default-box-shadow",
+				"path": [
+					"style",
+					"data-table-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-data-table-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-data-table-default-color",
+				"path": [
+					"style",
+					"data-table-default",
+					"color"
+				],
+				"cssVar": "--style-data-table-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-data-table-default-border-color",
+				"path": [
+					"style",
+					"data-table-default",
+					"border-color"
+				],
+				"cssVar": "--style-data-table-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-data-table-default-border-width",
+				"path": [
+					"style",
+					"data-table-default",
+					"border-width"
+				],
+				"cssVar": "--style-data-table-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-field-default-background-color",
+				"path": [
+					"style",
+					"date-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-date-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-field-default-border-radius",
+				"path": [
+					"style",
+					"date-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-date-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-field-default-box-shadow",
+				"path": [
+					"style",
+					"date-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-date-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-field-default-color",
+				"path": [
+					"style",
+					"date-field-default",
+					"color"
+				],
+				"cssVar": "--style-date-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-field-default-border-color",
+				"path": [
+					"style",
+					"date-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-date-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-field-default-border-width",
+				"path": [
+					"style",
+					"date-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-date-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-picker-default-background-color",
+				"path": [
+					"style",
+					"date-picker-default",
+					"background-color"
+				],
+				"cssVar": "--style-date-picker-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-picker-default-border-radius",
+				"path": [
+					"style",
+					"date-picker-default",
+					"border-radius"
+				],
+				"cssVar": "--style-date-picker-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-picker-default-box-shadow",
+				"path": [
+					"style",
+					"date-picker-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-date-picker-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-picker-default-color",
+				"path": [
+					"style",
+					"date-picker-default",
+					"color"
+				],
+				"cssVar": "--style-date-picker-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-picker-default-border-color",
+				"path": [
+					"style",
+					"date-picker-default",
+					"border-color"
+				],
+				"cssVar": "--style-date-picker-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-picker-default-border-width",
+				"path": [
+					"style",
+					"date-picker-default",
+					"border-width"
+				],
+				"cssVar": "--style-date-picker-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-field-default-background-color",
+				"path": [
+					"style",
+					"date-range-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-date-range-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-field-default-border-radius",
+				"path": [
+					"style",
+					"date-range-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-date-range-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-field-default-box-shadow",
+				"path": [
+					"style",
+					"date-range-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-date-range-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-field-default-color",
+				"path": [
+					"style",
+					"date-range-field-default",
+					"color"
+				],
+				"cssVar": "--style-date-range-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-field-default-border-color",
+				"path": [
+					"style",
+					"date-range-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-date-range-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-field-default-border-width",
+				"path": [
+					"style",
+					"date-range-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-date-range-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-picker-default-background-color",
+				"path": [
+					"style",
+					"date-range-picker-default",
+					"background-color"
+				],
+				"cssVar": "--style-date-range-picker-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-picker-default-border-radius",
+				"path": [
+					"style",
+					"date-range-picker-default",
+					"border-radius"
+				],
+				"cssVar": "--style-date-range-picker-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-picker-default-box-shadow",
+				"path": [
+					"style",
+					"date-range-picker-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-date-range-picker-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-picker-default-color",
+				"path": [
+					"style",
+					"date-range-picker-default",
+					"color"
+				],
+				"cssVar": "--style-date-range-picker-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-picker-default-border-color",
+				"path": [
+					"style",
+					"date-range-picker-default",
+					"border-color"
+				],
+				"cssVar": "--style-date-range-picker-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-date-range-picker-default-border-width",
+				"path": [
+					"style",
+					"date-range-picker-default",
+					"border-width"
+				],
+				"cssVar": "--style-date-range-picker-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-description-list-default-background-color",
+				"path": [
+					"style",
+					"description-list-default",
+					"background-color"
+				],
+				"cssVar": "--style-description-list-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-description-list-default-border-radius",
+				"path": [
+					"style",
+					"description-list-default",
+					"border-radius"
+				],
+				"cssVar": "--style-description-list-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-description-list-default-box-shadow",
+				"path": [
+					"style",
+					"description-list-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-description-list-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-description-list-default-color",
+				"path": [
+					"style",
+					"description-list-default",
+					"color"
+				],
+				"cssVar": "--style-description-list-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-description-list-default-border-color",
+				"path": [
+					"style",
+					"description-list-default",
+					"border-color"
+				],
+				"cssVar": "--style-description-list-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-description-list-default-border-width",
+				"path": [
+					"style",
+					"description-list-default",
+					"border-width"
+				],
+				"cssVar": "--style-description-list-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dialog-default-background-color",
+				"path": [
+					"style",
+					"dialog-default",
+					"background-color"
+				],
+				"cssVar": "--style-dialog-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dialog-default-border-radius",
+				"path": [
+					"style",
+					"dialog-default",
+					"border-radius"
+				],
+				"cssVar": "--style-dialog-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dialog-default-box-shadow",
+				"path": [
+					"style",
+					"dialog-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-dialog-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dialog-default-color",
+				"path": [
+					"style",
+					"dialog-default",
+					"color"
+				],
+				"cssVar": "--style-dialog-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dialog-default-border-color",
+				"path": [
+					"style",
+					"dialog-default",
+					"border-color"
+				],
+				"cssVar": "--style-dialog-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dialog-default-border-width",
+				"path": [
+					"style",
+					"dialog-default",
+					"border-width"
+				],
+				"cssVar": "--style-dialog-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-background-color",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-boot-background-color",
+				"value": "oklch(0.05 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-color",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-boot-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-opacity",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-boot-opacity",
+				"value": "1",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-empty-state-default-background-color",
+				"path": [
+					"style",
+					"empty-state-default",
+					"background-color"
+				],
+				"cssVar": "--style-empty-state-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-empty-state-default-border-radius",
+				"path": [
+					"style",
+					"empty-state-default",
+					"border-radius"
+				],
+				"cssVar": "--style-empty-state-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-empty-state-default-box-shadow",
+				"path": [
+					"style",
+					"empty-state-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-empty-state-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-empty-state-default-color",
+				"path": [
+					"style",
+					"empty-state-default",
+					"color"
+				],
+				"cssVar": "--style-empty-state-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-empty-state-default-border-color",
+				"path": [
+					"style",
+					"empty-state-default",
+					"border-color"
+				],
+				"cssVar": "--style-empty-state-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-empty-state-default-border-width",
+				"path": [
+					"style",
+					"empty-state-default",
+					"border-width"
+				],
+				"cssVar": "--style-empty-state-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-field-default-background-color",
+				"path": [
+					"style",
+					"field-default",
+					"background-color"
+				],
+				"cssVar": "--style-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-field-default-border-radius",
+				"path": [
+					"style",
+					"field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-field-default-color",
+				"path": [
+					"style",
+					"field-default",
+					"color"
+				],
+				"cssVar": "--style-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-file-upload-default-background-color",
+				"path": [
+					"style",
+					"file-upload-default",
+					"background-color"
+				],
+				"cssVar": "--style-file-upload-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-file-upload-default-border-radius",
+				"path": [
+					"style",
+					"file-upload-default",
+					"border-radius"
+				],
+				"cssVar": "--style-file-upload-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-file-upload-default-box-shadow",
+				"path": [
+					"style",
+					"file-upload-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-file-upload-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-file-upload-default-color",
+				"path": [
+					"style",
+					"file-upload-default",
+					"color"
+				],
+				"cssVar": "--style-file-upload-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-file-upload-default-border-color",
+				"path": [
+					"style",
+					"file-upload-default",
+					"border-color"
+				],
+				"cssVar": "--style-file-upload-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-file-upload-default-border-width",
+				"path": [
+					"style",
+					"file-upload-default",
+					"border-width"
+				],
+				"cssVar": "--style-file-upload-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-default-background-color",
+				"path": [
+					"style",
+					"form-default",
+					"background-color"
+				],
+				"cssVar": "--style-form-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-default-border-radius",
+				"path": [
+					"style",
+					"form-default",
+					"border-radius"
+				],
+				"cssVar": "--style-form-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-default-box-shadow",
+				"path": [
+					"style",
+					"form-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-form-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-default-color",
+				"path": [
+					"style",
+					"form-default",
+					"color"
+				],
+				"cssVar": "--style-form-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-default-border-color",
+				"path": [
+					"style",
+					"form-default",
+					"border-color"
+				],
+				"cssVar": "--style-form-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-default-border-width",
+				"path": [
+					"style",
+					"form-default",
+					"border-width"
+				],
+				"cssVar": "--style-form-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-field-default-background-color",
+				"path": [
+					"style",
+					"form-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-form-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-field-default-border-radius",
+				"path": [
+					"style",
+					"form-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-form-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-field-default-box-shadow",
+				"path": [
+					"style",
+					"form-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-form-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-field-default-color",
+				"path": [
+					"style",
+					"form-field-default",
+					"color"
+				],
+				"cssVar": "--style-form-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-field-default-border-color",
+				"path": [
+					"style",
+					"form-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-form-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-form-field-default-border-width",
+				"path": [
+					"style",
+					"form-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-form-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-background-color",
+				"path": [
+					"style",
+					"heading-default",
+					"background-color"
+				],
+				"cssVar": "--style-heading-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-border-radius",
+				"path": [
+					"style",
+					"heading-default",
+					"border-radius"
+				],
+				"cssVar": "--style-heading-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-box-shadow",
+				"path": [
+					"style",
+					"heading-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-heading-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-color",
+				"path": [
+					"style",
+					"heading-default",
+					"color"
+				],
+				"cssVar": "--style-heading-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-border-color",
+				"path": [
+					"style",
+					"heading-default",
+					"border-color"
+				],
+				"cssVar": "--style-heading-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-border-width",
+				"path": [
+					"style",
+					"heading-default",
+					"border-width"
+				],
+				"cssVar": "--style-heading-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-background-color",
+				"path": [
+					"style",
+					"inline-message-default",
+					"background-color"
+				],
+				"cssVar": "--style-inline-message-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-border-radius",
+				"path": [
+					"style",
+					"inline-message-default",
+					"border-radius"
+				],
+				"cssVar": "--style-inline-message-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-box-shadow",
+				"path": [
+					"style",
+					"inline-message-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-inline-message-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-color",
+				"path": [
+					"style",
+					"inline-message-default",
+					"color"
+				],
+				"cssVar": "--style-inline-message-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-border-color",
+				"path": [
+					"style",
+					"inline-message-default",
+					"border-color"
+				],
+				"cssVar": "--style-inline-message-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-border-width",
+				"path": [
+					"style",
+					"inline-message-default",
+					"border-width"
+				],
+				"cssVar": "--style-inline-message-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-input-group-default-background-color",
+				"path": [
+					"style",
+					"input-group-default",
+					"background-color"
+				],
+				"cssVar": "--style-input-group-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-input-group-default-border-radius",
+				"path": [
+					"style",
+					"input-group-default",
+					"border-radius"
+				],
+				"cssVar": "--style-input-group-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-input-group-default-box-shadow",
+				"path": [
+					"style",
+					"input-group-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-input-group-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-input-group-default-color",
+				"path": [
+					"style",
+					"input-group-default",
+					"color"
+				],
+				"cssVar": "--style-input-group-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-input-group-default-border-color",
+				"path": [
+					"style",
+					"input-group-default",
+					"border-color"
+				],
+				"cssVar": "--style-input-group-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-input-group-default-border-width",
+				"path": [
+					"style",
+					"input-group-default",
+					"border-width"
+				],
+				"cssVar": "--style-input-group-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-kbd-default-background-color",
+				"path": [
+					"style",
+					"kbd-default",
+					"background-color"
+				],
+				"cssVar": "--style-kbd-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-kbd-default-border-radius",
+				"path": [
+					"style",
+					"kbd-default",
+					"border-radius"
+				],
+				"cssVar": "--style-kbd-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-kbd-default-box-shadow",
+				"path": [
+					"style",
+					"kbd-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-kbd-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-kbd-default-color",
+				"path": [
+					"style",
+					"kbd-default",
+					"color"
+				],
+				"cssVar": "--style-kbd-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-kbd-default-border-color",
+				"path": [
+					"style",
+					"kbd-default",
+					"border-color"
+				],
+				"cssVar": "--style-kbd-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-kbd-default-border-width",
+				"path": [
+					"style",
+					"kbd-default",
+					"border-width"
+				],
+				"cssVar": "--style-kbd-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-background-color",
+				"path": [
+					"style",
+					"label-default",
+					"background-color"
+				],
+				"cssVar": "--style-label-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-border-radius",
+				"path": [
+					"style",
+					"label-default",
+					"border-radius"
+				],
+				"cssVar": "--style-label-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-box-shadow",
+				"path": [
+					"style",
+					"label-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-label-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-color",
+				"path": [
+					"style",
+					"label-default",
+					"color"
+				],
+				"cssVar": "--style-label-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-border-color",
+				"path": [
+					"style",
+					"label-default",
+					"border-color"
+				],
+				"cssVar": "--style-label-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-border-width",
+				"path": [
+					"style",
+					"label-default",
+					"border-width"
+				],
+				"cssVar": "--style-label-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-link-preview-default-background-color",
+				"path": [
+					"style",
+					"link-preview-default",
+					"background-color"
+				],
+				"cssVar": "--style-link-preview-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-link-preview-default-border-radius",
+				"path": [
+					"style",
+					"link-preview-default",
+					"border-radius"
+				],
+				"cssVar": "--style-link-preview-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-link-preview-default-box-shadow",
+				"path": [
+					"style",
+					"link-preview-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-link-preview-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-link-preview-default-color",
+				"path": [
+					"style",
+					"link-preview-default",
+					"color"
+				],
+				"cssVar": "--style-link-preview-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-link-preview-default-border-color",
+				"path": [
+					"style",
+					"link-preview-default",
+					"border-color"
+				],
+				"cssVar": "--style-link-preview-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-link-preview-default-border-width",
+				"path": [
+					"style",
+					"link-preview-default",
+					"border-width"
+				],
+				"cssVar": "--style-link-preview-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-list-default-background-color",
+				"path": [
+					"style",
+					"list-default",
+					"background-color"
+				],
+				"cssVar": "--style-list-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-list-default-border-radius",
+				"path": [
+					"style",
+					"list-default",
+					"border-radius"
+				],
+				"cssVar": "--style-list-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-list-default-box-shadow",
+				"path": [
+					"style",
+					"list-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-list-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-list-default-color",
+				"path": [
+					"style",
+					"list-default",
+					"color"
+				],
+				"cssVar": "--style-list-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-list-default-border-color",
+				"path": [
+					"style",
+					"list-default",
+					"border-color"
+				],
+				"cssVar": "--style-list-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-list-default-border-width",
+				"path": [
+					"style",
+					"list-default",
+					"border-width"
+				],
+				"cssVar": "--style-list-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-loading-overlay-default-background-color",
+				"path": [
+					"style",
+					"loading-overlay-default",
+					"background-color"
+				],
+				"cssVar": "--style-loading-overlay-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-loading-overlay-default-border-radius",
+				"path": [
+					"style",
+					"loading-overlay-default",
+					"border-radius"
+				],
+				"cssVar": "--style-loading-overlay-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-loading-overlay-default-box-shadow",
+				"path": [
+					"style",
+					"loading-overlay-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-loading-overlay-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-loading-overlay-default-color",
+				"path": [
+					"style",
+					"loading-overlay-default",
+					"color"
+				],
+				"cssVar": "--style-loading-overlay-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-loading-overlay-default-border-color",
+				"path": [
+					"style",
+					"loading-overlay-default",
+					"border-color"
+				],
+				"cssVar": "--style-loading-overlay-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-loading-overlay-default-border-width",
+				"path": [
+					"style",
+					"loading-overlay-default",
+					"border-width"
+				],
+				"cssVar": "--style-loading-overlay-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-menubar-default-background-color",
+				"path": [
+					"style",
+					"menubar-default",
+					"background-color"
+				],
+				"cssVar": "--style-menubar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-menubar-default-border-radius",
+				"path": [
+					"style",
+					"menubar-default",
+					"border-radius"
+				],
+				"cssVar": "--style-menubar-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-menubar-default-box-shadow",
+				"path": [
+					"style",
+					"menubar-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-menubar-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-menubar-default-color",
+				"path": [
+					"style",
+					"menubar-default",
+					"color"
+				],
+				"cssVar": "--style-menubar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-menubar-default-border-color",
+				"path": [
+					"style",
+					"menubar-default",
+					"border-color"
+				],
+				"cssVar": "--style-menubar-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-menubar-default-border-width",
+				"path": [
+					"style",
+					"menubar-default",
+					"border-width"
+				],
+				"cssVar": "--style-menubar-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-meter-default-background-color",
+				"path": [
+					"style",
+					"meter-default",
+					"background-color"
+				],
+				"cssVar": "--style-meter-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-meter-default-border-radius",
+				"path": [
+					"style",
+					"meter-default",
+					"border-radius"
+				],
+				"cssVar": "--style-meter-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-meter-default-color",
+				"path": [
+					"style",
+					"meter-default",
+					"color"
+				],
+				"cssVar": "--style-meter-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-nav-default-background-color",
+				"path": [
+					"style",
+					"nav-default",
+					"background-color"
+				],
+				"cssVar": "--style-nav-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-nav-default-border-radius",
+				"path": [
+					"style",
+					"nav-default",
+					"border-radius"
+				],
+				"cssVar": "--style-nav-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-nav-default-box-shadow",
+				"path": [
+					"style",
+					"nav-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-nav-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-nav-default-color",
+				"path": [
+					"style",
+					"nav-default",
+					"color"
+				],
+				"cssVar": "--style-nav-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-nav-default-border-color",
+				"path": [
+					"style",
+					"nav-default",
+					"border-color"
+				],
+				"cssVar": "--style-nav-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-nav-default-border-width",
+				"path": [
+					"style",
+					"nav-default",
+					"border-width"
+				],
+				"cssVar": "--style-nav-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-navigation-menu-default-background-color",
+				"path": [
+					"style",
+					"navigation-menu-default",
+					"background-color"
+				],
+				"cssVar": "--style-navigation-menu-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-navigation-menu-default-border-radius",
+				"path": [
+					"style",
+					"navigation-menu-default",
+					"border-radius"
+				],
+				"cssVar": "--style-navigation-menu-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-navigation-menu-default-box-shadow",
+				"path": [
+					"style",
+					"navigation-menu-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-navigation-menu-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-navigation-menu-default-color",
+				"path": [
+					"style",
+					"navigation-menu-default",
+					"color"
+				],
+				"cssVar": "--style-navigation-menu-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-navigation-menu-default-border-color",
+				"path": [
+					"style",
+					"navigation-menu-default",
+					"border-color"
+				],
+				"cssVar": "--style-navigation-menu-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-navigation-menu-default-border-width",
+				"path": [
+					"style",
+					"navigation-menu-default",
+					"border-width"
+				],
+				"cssVar": "--style-navigation-menu-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-notification-center-default-background-color",
+				"path": [
+					"style",
+					"notification-center-default",
+					"background-color"
+				],
+				"cssVar": "--style-notification-center-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-notification-center-default-border-radius",
+				"path": [
+					"style",
+					"notification-center-default",
+					"border-radius"
+				],
+				"cssVar": "--style-notification-center-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-notification-center-default-box-shadow",
+				"path": [
+					"style",
+					"notification-center-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-notification-center-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-notification-center-default-color",
+				"path": [
+					"style",
+					"notification-center-default",
+					"color"
+				],
+				"cssVar": "--style-notification-center-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-notification-center-default-border-color",
+				"path": [
+					"style",
+					"notification-center-default",
+					"border-color"
+				],
+				"cssVar": "--style-notification-center-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-notification-center-default-border-width",
+				"path": [
+					"style",
+					"notification-center-default",
+					"border-width"
+				],
+				"cssVar": "--style-notification-center-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-number-field-default-background-color",
+				"path": [
+					"style",
+					"number-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-number-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-number-field-default-border-radius",
+				"path": [
+					"style",
+					"number-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-number-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-number-field-default-box-shadow",
+				"path": [
+					"style",
+					"number-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-number-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-number-field-default-color",
+				"path": [
+					"style",
+					"number-field-default",
+					"color"
+				],
+				"cssVar": "--style-number-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-number-field-default-border-color",
+				"path": [
+					"style",
+					"number-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-number-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-number-field-default-border-width",
+				"path": [
+					"style",
+					"number-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-number-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pagination-default-background-color",
+				"path": [
+					"style",
+					"pagination-default",
+					"background-color"
+				],
+				"cssVar": "--style-pagination-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pagination-default-border-radius",
+				"path": [
+					"style",
+					"pagination-default",
+					"border-radius"
+				],
+				"cssVar": "--style-pagination-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pagination-default-box-shadow",
+				"path": [
+					"style",
+					"pagination-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-pagination-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pagination-default-color",
+				"path": [
+					"style",
+					"pagination-default",
+					"color"
+				],
+				"cssVar": "--style-pagination-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pagination-default-border-color",
+				"path": [
+					"style",
+					"pagination-default",
+					"border-color"
+				],
+				"cssVar": "--style-pagination-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pagination-default-border-width",
+				"path": [
+					"style",
+					"pagination-default",
+					"border-width"
+				],
+				"cssVar": "--style-pagination-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pin-input-default-background-color",
+				"path": [
+					"style",
+					"pin-input-default",
+					"background-color"
+				],
+				"cssVar": "--style-pin-input-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pin-input-default-border-radius",
+				"path": [
+					"style",
+					"pin-input-default",
+					"border-radius"
+				],
+				"cssVar": "--style-pin-input-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pin-input-default-box-shadow",
+				"path": [
+					"style",
+					"pin-input-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-pin-input-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pin-input-default-color",
+				"path": [
+					"style",
+					"pin-input-default",
+					"color"
+				],
+				"cssVar": "--style-pin-input-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pin-input-default-border-color",
+				"path": [
+					"style",
+					"pin-input-default",
+					"border-color"
+				],
+				"cssVar": "--style-pin-input-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-pin-input-default-border-width",
+				"path": [
+					"style",
+					"pin-input-default",
+					"border-width"
+				],
+				"cssVar": "--style-pin-input-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-popover-default-background-color",
+				"path": [
+					"style",
+					"popover-default",
+					"background-color"
+				],
+				"cssVar": "--style-popover-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-popover-default-border-radius",
+				"path": [
+					"style",
+					"popover-default",
+					"border-radius"
+				],
+				"cssVar": "--style-popover-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-popover-default-box-shadow",
+				"path": [
+					"style",
+					"popover-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-popover-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-popover-default-color",
+				"path": [
+					"style",
+					"popover-default",
+					"color"
+				],
+				"cssVar": "--style-popover-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-popover-default-border-color",
+				"path": [
+					"style",
+					"popover-default",
+					"border-color"
+				],
+				"cssVar": "--style-popover-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-popover-default-border-width",
+				"path": [
+					"style",
+					"popover-default",
+					"border-width"
+				],
+				"cssVar": "--style-popover-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-progress-default-background-color",
+				"path": [
+					"style",
+					"progress-default",
+					"background-color"
+				],
+				"cssVar": "--style-progress-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-progress-default-border-radius",
+				"path": [
+					"style",
+					"progress-default",
+					"border-radius"
+				],
+				"cssVar": "--style-progress-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-progress-default-box-shadow",
+				"path": [
+					"style",
+					"progress-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-progress-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-progress-default-color",
+				"path": [
+					"style",
+					"progress-default",
+					"color"
+				],
+				"cssVar": "--style-progress-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-progress-default-border-color",
+				"path": [
+					"style",
+					"progress-default",
+					"border-color"
+				],
+				"cssVar": "--style-progress-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-progress-default-border-width",
+				"path": [
+					"style",
+					"progress-default",
+					"border-width"
+				],
+				"cssVar": "--style-progress-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-background-color",
+				"path": [
+					"style",
+					"prose-default",
+					"background-color"
+				],
+				"cssVar": "--style-prose-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-border-radius",
+				"path": [
+					"style",
+					"prose-default",
+					"border-radius"
+				],
+				"cssVar": "--style-prose-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-box-shadow",
+				"path": [
+					"style",
+					"prose-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-prose-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-color",
+				"path": [
+					"style",
+					"prose-default",
+					"color"
+				],
+				"cssVar": "--style-prose-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-border-color",
+				"path": [
+					"style",
+					"prose-default",
+					"border-color"
+				],
+				"cssVar": "--style-prose-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-border-width",
+				"path": [
+					"style",
+					"prose-default",
+					"border-width"
+				],
+				"cssVar": "--style-prose-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-radio-group-default-background-color",
+				"path": [
+					"style",
+					"radio-group-default",
+					"background-color"
+				],
+				"cssVar": "--style-radio-group-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-radio-group-default-border-radius",
+				"path": [
+					"style",
+					"radio-group-default",
+					"border-radius"
+				],
+				"cssVar": "--style-radio-group-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-radio-group-default-box-shadow",
+				"path": [
+					"style",
+					"radio-group-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-radio-group-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-radio-group-default-color",
+				"path": [
+					"style",
+					"radio-group-default",
+					"color"
+				],
+				"cssVar": "--style-radio-group-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-radio-group-default-border-color",
+				"path": [
+					"style",
+					"radio-group-default",
+					"border-color"
+				],
+				"cssVar": "--style-radio-group-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-radio-group-default-border-width",
+				"path": [
+					"style",
+					"radio-group-default",
+					"border-width"
+				],
+				"cssVar": "--style-radio-group-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-range-calendar-default-background-color",
+				"path": [
+					"style",
+					"range-calendar-default",
+					"background-color"
+				],
+				"cssVar": "--style-range-calendar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-range-calendar-default-border-radius",
+				"path": [
+					"style",
+					"range-calendar-default",
+					"border-radius"
+				],
+				"cssVar": "--style-range-calendar-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-range-calendar-default-box-shadow",
+				"path": [
+					"style",
+					"range-calendar-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-range-calendar-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-range-calendar-default-color",
+				"path": [
+					"style",
+					"range-calendar-default",
+					"color"
+				],
+				"cssVar": "--style-range-calendar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-range-calendar-default-border-color",
+				"path": [
+					"style",
+					"range-calendar-default",
+					"border-color"
+				],
+				"cssVar": "--style-range-calendar-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-range-calendar-default-border-width",
+				"path": [
+					"style",
+					"range-calendar-default",
+					"border-width"
+				],
+				"cssVar": "--style-range-calendar-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-scroll-area-default-background-color",
+				"path": [
+					"style",
+					"scroll-area-default",
+					"background-color"
+				],
+				"cssVar": "--style-scroll-area-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-scroll-area-default-border-radius",
+				"path": [
+					"style",
+					"scroll-area-default",
+					"border-radius"
+				],
+				"cssVar": "--style-scroll-area-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-scroll-area-default-box-shadow",
+				"path": [
+					"style",
+					"scroll-area-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-scroll-area-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-scroll-area-default-color",
+				"path": [
+					"style",
+					"scroll-area-default",
+					"color"
+				],
+				"cssVar": "--style-scroll-area-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-scroll-area-default-border-color",
+				"path": [
+					"style",
+					"scroll-area-default",
+					"border-color"
+				],
+				"cssVar": "--style-scroll-area-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-scroll-area-default-border-width",
+				"path": [
+					"style",
+					"scroll-area-default",
+					"border-width"
+				],
+				"cssVar": "--style-scroll-area-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-search-field-default-background-color",
+				"path": [
+					"style",
+					"search-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-search-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-search-field-default-border-radius",
+				"path": [
+					"style",
+					"search-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-search-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-search-field-default-box-shadow",
+				"path": [
+					"style",
+					"search-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-search-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-search-field-default-color",
+				"path": [
+					"style",
+					"search-field-default",
+					"color"
+				],
+				"cssVar": "--style-search-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-search-field-default-border-color",
+				"path": [
+					"style",
+					"search-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-search-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-search-field-default-border-width",
+				"path": [
+					"style",
+					"search-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-search-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-select-default-background-color",
+				"path": [
+					"style",
+					"select-default",
+					"background-color"
+				],
+				"cssVar": "--style-select-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-select-default-border-radius",
+				"path": [
+					"style",
+					"select-default",
+					"border-radius"
+				],
+				"cssVar": "--style-select-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-select-default-box-shadow",
+				"path": [
+					"style",
+					"select-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-select-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-select-default-color",
+				"path": [
+					"style",
+					"select-default",
+					"color"
+				],
+				"cssVar": "--style-select-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-select-default-border-color",
+				"path": [
+					"style",
+					"select-default",
+					"border-color"
+				],
+				"cssVar": "--style-select-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-select-default-border-width",
+				"path": [
+					"style",
+					"select-default",
+					"border-width"
+				],
+				"cssVar": "--style-select-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-separator-default-background-color",
+				"path": [
+					"style",
+					"separator-default",
+					"background-color"
+				],
+				"cssVar": "--style-separator-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-separator-default-border-radius",
+				"path": [
+					"style",
+					"separator-default",
+					"border-radius"
+				],
+				"cssVar": "--style-separator-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-separator-default-box-shadow",
+				"path": [
+					"style",
+					"separator-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-separator-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-separator-default-color",
+				"path": [
+					"style",
+					"separator-default",
+					"color"
+				],
+				"cssVar": "--style-separator-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-separator-default-border-color",
+				"path": [
+					"style",
+					"separator-default",
+					"border-color"
+				],
+				"cssVar": "--style-separator-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-separator-default-border-width",
+				"path": [
+					"style",
+					"separator-default",
+					"border-width"
+				],
+				"cssVar": "--style-separator-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sheet-default-background-color",
+				"path": [
+					"style",
+					"sheet-default",
+					"background-color"
+				],
+				"cssVar": "--style-sheet-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sheet-default-border-radius",
+				"path": [
+					"style",
+					"sheet-default",
+					"border-radius"
+				],
+				"cssVar": "--style-sheet-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sheet-default-box-shadow",
+				"path": [
+					"style",
+					"sheet-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-sheet-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sheet-default-color",
+				"path": [
+					"style",
+					"sheet-default",
+					"color"
+				],
+				"cssVar": "--style-sheet-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sheet-default-border-color",
+				"path": [
+					"style",
+					"sheet-default",
+					"border-color"
+				],
+				"cssVar": "--style-sheet-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sheet-default-border-width",
+				"path": [
+					"style",
+					"sheet-default",
+					"border-width"
+				],
+				"cssVar": "--style-sheet-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sidebar-default-background-color",
+				"path": [
+					"style",
+					"sidebar-default",
+					"background-color"
+				],
+				"cssVar": "--style-sidebar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sidebar-default-border-radius",
+				"path": [
+					"style",
+					"sidebar-default",
+					"border-radius"
+				],
+				"cssVar": "--style-sidebar-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sidebar-default-box-shadow",
+				"path": [
+					"style",
+					"sidebar-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-sidebar-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sidebar-default-color",
+				"path": [
+					"style",
+					"sidebar-default",
+					"color"
+				],
+				"cssVar": "--style-sidebar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sidebar-default-border-color",
+				"path": [
+					"style",
+					"sidebar-default",
+					"border-color"
+				],
+				"cssVar": "--style-sidebar-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-sidebar-default-border-width",
+				"path": [
+					"style",
+					"sidebar-default",
+					"border-width"
+				],
+				"cssVar": "--style-sidebar-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skeleton-default-background-color",
+				"path": [
+					"style",
+					"skeleton-default",
+					"background-color"
+				],
+				"cssVar": "--style-skeleton-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skeleton-default-border-radius",
+				"path": [
+					"style",
+					"skeleton-default",
+					"border-radius"
+				],
+				"cssVar": "--style-skeleton-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skeleton-default-box-shadow",
+				"path": [
+					"style",
+					"skeleton-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-skeleton-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skeleton-default-color",
+				"path": [
+					"style",
+					"skeleton-default",
+					"color"
+				],
+				"cssVar": "--style-skeleton-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skeleton-default-border-color",
+				"path": [
+					"style",
+					"skeleton-default",
+					"border-color"
+				],
+				"cssVar": "--style-skeleton-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skeleton-default-border-width",
+				"path": [
+					"style",
+					"skeleton-default",
+					"border-width"
+				],
+				"cssVar": "--style-skeleton-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skip-link-default-background-color",
+				"path": [
+					"style",
+					"skip-link-default",
+					"background-color"
+				],
+				"cssVar": "--style-skip-link-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skip-link-default-border-radius",
+				"path": [
+					"style",
+					"skip-link-default",
+					"border-radius"
+				],
+				"cssVar": "--style-skip-link-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skip-link-default-box-shadow",
+				"path": [
+					"style",
+					"skip-link-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-skip-link-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skip-link-default-color",
+				"path": [
+					"style",
+					"skip-link-default",
+					"color"
+				],
+				"cssVar": "--style-skip-link-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skip-link-default-border-color",
+				"path": [
+					"style",
+					"skip-link-default",
+					"border-color"
+				],
+				"cssVar": "--style-skip-link-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-skip-link-default-border-width",
+				"path": [
+					"style",
+					"skip-link-default",
+					"border-width"
+				],
+				"cssVar": "--style-skip-link-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-slider-default-background-color",
+				"path": [
+					"style",
+					"slider-default",
+					"background-color"
+				],
+				"cssVar": "--style-slider-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-slider-default-border-radius",
+				"path": [
+					"style",
+					"slider-default",
+					"border-radius"
+				],
+				"cssVar": "--style-slider-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-slider-default-box-shadow",
+				"path": [
+					"style",
+					"slider-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-slider-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-slider-default-color",
+				"path": [
+					"style",
+					"slider-default",
+					"color"
+				],
+				"cssVar": "--style-slider-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-slider-default-border-color",
+				"path": [
+					"style",
+					"slider-default",
+					"border-color"
+				],
+				"cssVar": "--style-slider-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-slider-default-border-width",
+				"path": [
+					"style",
+					"slider-default",
+					"border-width"
+				],
+				"cssVar": "--style-slider-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-steps-default-background-color",
+				"path": [
+					"style",
+					"steps-default",
+					"background-color"
+				],
+				"cssVar": "--style-steps-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-steps-default-border-radius",
+				"path": [
+					"style",
+					"steps-default",
+					"border-radius"
+				],
+				"cssVar": "--style-steps-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-steps-default-box-shadow",
+				"path": [
+					"style",
+					"steps-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-steps-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-steps-default-color",
+				"path": [
+					"style",
+					"steps-default",
+					"color"
+				],
+				"cssVar": "--style-steps-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-steps-default-border-color",
+				"path": [
+					"style",
+					"steps-default",
+					"border-color"
+				],
+				"cssVar": "--style-steps-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-steps-default-border-width",
+				"path": [
+					"style",
+					"steps-default",
+					"border-width"
+				],
+				"cssVar": "--style-steps-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-switch-default-background-color",
+				"path": [
+					"style",
+					"switch-default",
+					"background-color"
+				],
+				"cssVar": "--style-switch-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-switch-default-border-radius",
+				"path": [
+					"style",
+					"switch-default",
+					"border-radius"
+				],
+				"cssVar": "--style-switch-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-switch-default-box-shadow",
+				"path": [
+					"style",
+					"switch-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-switch-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-switch-default-color",
+				"path": [
+					"style",
+					"switch-default",
+					"color"
+				],
+				"cssVar": "--style-switch-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-switch-default-border-color",
+				"path": [
+					"style",
+					"switch-default",
+					"border-color"
+				],
+				"cssVar": "--style-switch-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-switch-default-border-width",
+				"path": [
+					"style",
+					"switch-default",
+					"border-width"
+				],
+				"cssVar": "--style-switch-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-default-background-color",
+				"path": [
+					"style",
+					"table-default",
+					"background-color"
+				],
+				"cssVar": "--style-table-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-default-border-radius",
+				"path": [
+					"style",
+					"table-default",
+					"border-radius"
+				],
+				"cssVar": "--style-table-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-default-box-shadow",
+				"path": [
+					"style",
+					"table-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-table-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-default-color",
+				"path": [
+					"style",
+					"table-default",
+					"color"
+				],
+				"cssVar": "--style-table-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-default-border-color",
+				"path": [
+					"style",
+					"table-default",
+					"border-color"
+				],
+				"cssVar": "--style-table-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-default-border-width",
+				"path": [
+					"style",
+					"table-default",
+					"border-width"
+				],
+				"cssVar": "--style-table-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-of-contents-default-background-color",
+				"path": [
+					"style",
+					"table-of-contents-default",
+					"background-color"
+				],
+				"cssVar": "--style-table-of-contents-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-of-contents-default-border-radius",
+				"path": [
+					"style",
+					"table-of-contents-default",
+					"border-radius"
+				],
+				"cssVar": "--style-table-of-contents-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-of-contents-default-box-shadow",
+				"path": [
+					"style",
+					"table-of-contents-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-table-of-contents-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-of-contents-default-color",
+				"path": [
+					"style",
+					"table-of-contents-default",
+					"color"
+				],
+				"cssVar": "--style-table-of-contents-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-of-contents-default-border-color",
+				"path": [
+					"style",
+					"table-of-contents-default",
+					"border-color"
+				],
+				"cssVar": "--style-table-of-contents-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-table-of-contents-default-border-width",
+				"path": [
+					"style",
+					"table-of-contents-default",
+					"border-width"
+				],
+				"cssVar": "--style-table-of-contents-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-default-background-color",
+				"path": [
+					"style",
+					"tabs-default",
+					"background-color"
+				],
+				"cssVar": "--style-tabs-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-default-border-radius",
+				"path": [
+					"style",
+					"tabs-default",
+					"border-radius"
+				],
+				"cssVar": "--style-tabs-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-default-box-shadow",
+				"path": [
+					"style",
+					"tabs-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-tabs-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-default-color",
+				"path": [
+					"style",
+					"tabs-default",
+					"color"
+				],
+				"cssVar": "--style-tabs-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-default-border-color",
+				"path": [
+					"style",
+					"tabs-default",
+					"border-color"
+				],
+				"cssVar": "--style-tabs-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-default-border-width",
+				"path": [
+					"style",
+					"tabs-default",
+					"border-width"
+				],
+				"cssVar": "--style-tabs-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-background-color",
+				"path": [
+					"style",
+					"text-default",
+					"background-color"
+				],
+				"cssVar": "--style-text-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-border-radius",
+				"path": [
+					"style",
+					"text-default",
+					"border-radius"
+				],
+				"cssVar": "--style-text-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-box-shadow",
+				"path": [
+					"style",
+					"text-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-text-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-color",
+				"path": [
+					"style",
+					"text-default",
+					"color"
+				],
+				"cssVar": "--style-text-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-border-color",
+				"path": [
+					"style",
+					"text-default",
+					"border-color"
+				],
+				"cssVar": "--style-text-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-border-width",
+				"path": [
+					"style",
+					"text-default",
+					"border-width"
+				],
+				"cssVar": "--style-text-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-field-default-background-color",
+				"path": [
+					"style",
+					"text-field-default",
+					"background-color"
+				],
+				"cssVar": "--style-text-field-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-field-default-border-radius",
+				"path": [
+					"style",
+					"text-field-default",
+					"border-radius"
+				],
+				"cssVar": "--style-text-field-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-field-default-box-shadow",
+				"path": [
+					"style",
+					"text-field-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-text-field-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-field-default-color",
+				"path": [
+					"style",
+					"text-field-default",
+					"color"
+				],
+				"cssVar": "--style-text-field-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-field-default-border-color",
+				"path": [
+					"style",
+					"text-field-default",
+					"border-color"
+				],
+				"cssVar": "--style-text-field-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-field-default-border-width",
+				"path": [
+					"style",
+					"text-field-default",
+					"border-width"
+				],
+				"cssVar": "--style-text-field-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-textarea-default-background-color",
+				"path": [
+					"style",
+					"textarea-default",
+					"background-color"
+				],
+				"cssVar": "--style-textarea-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-textarea-default-border-radius",
+				"path": [
+					"style",
+					"textarea-default",
+					"border-radius"
+				],
+				"cssVar": "--style-textarea-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-textarea-default-box-shadow",
+				"path": [
+					"style",
+					"textarea-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-textarea-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-textarea-default-color",
+				"path": [
+					"style",
+					"textarea-default",
+					"color"
+				],
+				"cssVar": "--style-textarea-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-textarea-default-border-color",
+				"path": [
+					"style",
+					"textarea-default",
+					"border-color"
+				],
+				"cssVar": "--style-textarea-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-textarea-default-border-width",
+				"path": [
+					"style",
+					"textarea-default",
+					"border-width"
+				],
+				"cssVar": "--style-textarea-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toaster-default-background-color",
+				"path": [
+					"style",
+					"toaster-default",
+					"background-color"
+				],
+				"cssVar": "--style-toaster-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toaster-default-border-radius",
+				"path": [
+					"style",
+					"toaster-default",
+					"border-radius"
+				],
+				"cssVar": "--style-toaster-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toaster-default-box-shadow",
+				"path": [
+					"style",
+					"toaster-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-toaster-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toaster-default-color",
+				"path": [
+					"style",
+					"toaster-default",
+					"color"
+				],
+				"cssVar": "--style-toaster-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toaster-default-border-color",
+				"path": [
+					"style",
+					"toaster-default",
+					"border-color"
+				],
+				"cssVar": "--style-toaster-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toaster-default-border-width",
+				"path": [
+					"style",
+					"toaster-default",
+					"border-width"
+				],
+				"cssVar": "--style-toaster-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-default-background-color",
+				"path": [
+					"style",
+					"toggle-default",
+					"background-color"
+				],
+				"cssVar": "--style-toggle-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-default-border-radius",
+				"path": [
+					"style",
+					"toggle-default",
+					"border-radius"
+				],
+				"cssVar": "--style-toggle-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-default-box-shadow",
+				"path": [
+					"style",
+					"toggle-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-toggle-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-default-color",
+				"path": [
+					"style",
+					"toggle-default",
+					"color"
+				],
+				"cssVar": "--style-toggle-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-default-border-color",
+				"path": [
+					"style",
+					"toggle-default",
+					"border-color"
+				],
+				"cssVar": "--style-toggle-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-default-border-width",
+				"path": [
+					"style",
+					"toggle-default",
+					"border-width"
+				],
+				"cssVar": "--style-toggle-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-group-default-background-color",
+				"path": [
+					"style",
+					"toggle-group-default",
+					"background-color"
+				],
+				"cssVar": "--style-toggle-group-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-group-default-border-radius",
+				"path": [
+					"style",
+					"toggle-group-default",
+					"border-radius"
+				],
+				"cssVar": "--style-toggle-group-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-group-default-box-shadow",
+				"path": [
+					"style",
+					"toggle-group-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-toggle-group-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-group-default-color",
+				"path": [
+					"style",
+					"toggle-group-default",
+					"color"
+				],
+				"cssVar": "--style-toggle-group-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-group-default-border-color",
+				"path": [
+					"style",
+					"toggle-group-default",
+					"border-color"
+				],
+				"cssVar": "--style-toggle-group-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toggle-group-default-border-width",
+				"path": [
+					"style",
+					"toggle-group-default",
+					"border-width"
+				],
+				"cssVar": "--style-toggle-group-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toolbar-default-background-color",
+				"path": [
+					"style",
+					"toolbar-default",
+					"background-color"
+				],
+				"cssVar": "--style-toolbar-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toolbar-default-border-radius",
+				"path": [
+					"style",
+					"toolbar-default",
+					"border-radius"
+				],
+				"cssVar": "--style-toolbar-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toolbar-default-box-shadow",
+				"path": [
+					"style",
+					"toolbar-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-toolbar-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toolbar-default-color",
+				"path": [
+					"style",
+					"toolbar-default",
+					"color"
+				],
+				"cssVar": "--style-toolbar-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toolbar-default-border-color",
+				"path": [
+					"style",
+					"toolbar-default",
+					"border-color"
+				],
+				"cssVar": "--style-toolbar-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-toolbar-default-border-width",
+				"path": [
+					"style",
+					"toolbar-default",
+					"border-width"
+				],
+				"cssVar": "--style-toolbar-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tooltip-default-background-color",
+				"path": [
+					"style",
+					"tooltip-default",
+					"background-color"
+				],
+				"cssVar": "--style-tooltip-default-background-color",
+				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tooltip-default-border-radius",
+				"path": [
+					"style",
+					"tooltip-default",
+					"border-radius"
+				],
+				"cssVar": "--style-tooltip-default-border-radius",
+				"value": "0.75rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tooltip-default-box-shadow",
+				"path": [
+					"style",
+					"tooltip-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-tooltip-default-box-shadow",
+				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tooltip-default-color",
+				"path": [
+					"style",
+					"tooltip-default",
+					"color"
+				],
+				"cssVar": "--style-tooltip-default-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tooltip-default-border-color",
+				"path": [
+					"style",
+					"tooltip-default",
+					"border-color"
+				],
+				"cssVar": "--style-tooltip-default-border-color",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-tooltip-default-border-width",
+				"path": [
+					"style",
+					"tooltip-default",
+					"border-width"
+				],
+				"cssVar": "--style-tooltip-default-border-width",
+				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			}
+		]
+	},
 	"preset": {
 		"extensions": {},
 		"tokens": [

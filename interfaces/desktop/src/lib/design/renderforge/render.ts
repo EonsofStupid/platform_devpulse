@@ -81,7 +81,13 @@ export function renderForge(input: StyleMacro): ResolvedMacro {
 
 	const resolved = resolveIntent(preset);
 
-	const perKind = `--style-${kind}-${resolved}`;
+	// Per-kind layer keys off the RAW preset name, so `preset:"default"`
+	// resolves `--style-{kind}-default-*` — the component's emitted @defaults
+	// (collect-element-seed-defs.mjs). The shared fallback resolves through
+	// INTENT_MAP. Compound preset ids that already carry the kind prefix
+	// (e.g. "chat-bubble-user") miss the per-kind tier harmlessly and fall to
+	// the shared `--preset-*` layer that already serves them.
+	const perKind = `--style-${kind}-${preset}`;
 	const shared = `--preset-${resolved}`;
 
 	/** Build a var() chain: per-kind override → shared preset → fallback */
@@ -121,10 +127,13 @@ export function renderForge(input: StyleMacro): ResolvedMacro {
 		"--transition-timing": v("transition-timing-function", "ease-out"),
 	};
 
-	// State overrides
+	// State overrides. Per-kind base OUTRANKS shared-preset state (option b,
+	// RenderForge.md P3): a hand-authored @defaults base must not inherit a
+	// foreign design family's hover/active. Chain per axis:
+	// per-kind state → per-kind base → shared state → shared base → fallback.
 	if (state !== "default") {
 		const sv = (axis: string, fallback: string): string =>
-			`var(${shared}-${state}-${axis}, ${v(axis, fallback)})`;
+			`var(${perKind}-${state}-${axis}, var(${perKind}-${axis}, var(${shared}-${state}-${axis}, var(${shared}-${axis}, ${fallback}))))`;
 
 		cssVars["--background-color"] = sv("background-color", "transparent");
 		cssVars["--box-shadow"] = sv("box-shadow", cssVars["--box-shadow"]);

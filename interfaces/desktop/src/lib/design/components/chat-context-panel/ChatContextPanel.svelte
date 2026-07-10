@@ -33,9 +33,8 @@ let {
 	...rest
 }: ChatContextPanelProps = $props();
 
-// Teal-tinted glow glass (hue 190) — the memory-viz accent surface per the
-// documented teal-border @defaults, until the per-kind @styleIds layer lands.
-const m = $derived(renderForge({ kind: "chat-context-panel", preset: "glass-glow" }));
+// "default" resolves --style-chat-context-panel-default-* (the documented @defaults).
+const m = $derived(renderForge({ kind: "chat-context-panel", preset: "default" }));
 </script>
 
 <aside

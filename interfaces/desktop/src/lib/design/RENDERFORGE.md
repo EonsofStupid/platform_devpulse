@@ -79,27 +79,45 @@ pure.
 ### P2 — Two-tier var() chain (default state)
 
 ```
-var(--style-{kind}-{preset}-{axis},     ← per-kind override
-    var(--preset-{preset}-{axis},        ← shared preset default
-        {fallback}))                      ← absolute fallback
+var(--style-{kind}-{rawPreset}-{axis},   ← per-kind layer (RAW preset name)
+    var(--preset-{resolved}-{axis},        ← shared preset (INTENT_MAP-resolved)
+        {fallback}))                        ← absolute fallback
 ```
 
-**Why:** StyleOS users can fork a single (kind, preset, axis) tuple
-without forking the whole preset. This is the customization story
-sold to enterprise buyers.
+The per-kind tier keys off the **raw** preset string, so `preset:"default"`
+resolves `--style-{kind}-default-*` — the component's emitted `@defaults`
+(`collect-element-seed-defs.mjs`). The shared tier keys off the resolved
+intent. A compound preset id that already carries the kind prefix
+(e.g. `"chat-bubble-user"`) misses the per-kind tier harmlessly and falls to
+the shared layer that serves it.
 
-### P3 — Five-tier var() chain (non-default state) — INTENDED
+**Why:** a component's documented `@defaults` reach the screen for its default
+preset, and StyleOS users can still fork a single (kind, preset, axis) tuple
+without forking the whole preset.
+
+### P3 — Four-tier var() chain (non-default state) — per-kind base outranks shared state
 
 ```
-var(--style-{kind}-{preset}-{state}-{axis},  ← per-kind state override
-    var(--preset-{preset}-{state}-{axis},     ← shared preset state
-        var(--style-{kind}-{preset}-{axis},   ← per-kind default
-            var(--preset-{preset}-{axis},      ← shared preset default
+var(--style-{kind}-{rawPreset}-{state}-{axis},  ← per-kind state override
+    var(--style-{kind}-{rawPreset}-{axis},        ← per-kind default (base)
+        var(--preset-{resolved}-{state}-{axis},    ← shared preset state
+            var(--preset-{resolved}-{axis},         ← shared preset default
                 {fallback}))))
 ```
 
-**Status:** The current `render.ts` implements only a 3-tier chain in the
-state branch (skips the per-kind state tier). See bug B1 below.
+**Ordering (amended 2026-07-09):** the per-kind base sits ABOVE the shared
+preset's state (option b), reversing the earlier "shared-state-first" intent.
+Rationale — `@defaults` bases are hand-authored and routinely diverge from
+their resolved preset's design family; shared-state-first would bleed a
+foreign family's hover/active onto an authored base. A forked kind with no
+per-kind state holds its base until per-kind states are authored; un-forked
+kinds still get the shared preset's full state table via tiers 3–4.
+
+**Status:** implemented in `render.ts` 2026-07-09 (bug B1 resolved). The state
+branch is currently dead code — `RenderState` has no `'hover'`/`'focus'` and no
+call site passes a non-default state (bug B2); real hover is the
+`[data-cl-interactive]:hover` brightness filter in `render-base.css`. Authoring
+per-kind states + a hover activation path is a separate follow-on.
 
 ### P4 — Canonical longhand CSS variable names
 
@@ -136,17 +154,18 @@ Step 1 — Resolve intent. `'primary'` is a `SemanticIntent` (per
 Step 2 — Build the prefixes:
 
 ```
-perKind = '--style-button-glass-deep'
-shared  = '--preset-glass-deep'
+perKind = '--style-button-primary'    (RAW preset name)
+shared  = '--preset-glass-deep'       (INTENT_MAP-resolved)
 ```
 
 Step 3 — For each axis, build the var() chain. For `--background-color`
-in the `disabled` state (with all 5 tiers, per P3):
+in the `disabled` state (all 4 tiers, per P3 — per-kind base outranks
+shared state):
 
 ```
-var(--style-button-glass-deep-disabled-background-color,
-    var(--preset-glass-deep-disabled-background-color,
-        var(--style-button-glass-deep-background-color,
+var(--style-button-primary-disabled-background-color,
+    var(--style-button-primary-background-color,
+        var(--preset-glass-deep-disabled-background-color,
             var(--preset-glass-deep-background-color,
                 transparent))))
 ```
@@ -207,7 +226,7 @@ have authored values but no glue-CSS rule yet.
 
 | ID | Severity | File | Description | Fix |
 |---|---|---|---|---|
-| B1 | **HIGH** | `render.ts` ~L114–L130 | State branch implements 3-tier chain, not 5-tier. `--style-button-glass-deep-disabled-background-color` is never consulted. | Replace inline state-handling block with full 5-tier `sv()` builder mirroring P3. |
+| B1 | **RESOLVED (2026-07-09)** | `render.ts` | State branch was a 2-tier chain; now the 4-tier option-b chain (per-kind state → per-kind base → shared state → shared base), per P3. Dead code until B2 + a hover activation path land. | — |
 | B2 | **HIGH** | `types.ts` L17 | `RenderState = 'default' \| 'disabled' \| 'active'` — missing `'hover'` and `'focus'`. | Expand to `'default' \| 'hover' \| 'focus' \| 'active' \| 'disabled'`. Audit downstream callsites. |
 | B3 | MEDIUM | `render.ts` L106 | `'--border-style': "solid"` hardcoded; bypasses var chain. | Replace with `v('border-style', 'solid')`. |
 | B4 | **HIGH** | `resolve.test.ts` | Multiple assertions of `m.cssVars["-bg"]`. Resolver emits `--background-color`. All `-bg` assertions fail. | Delete and rewrite as `render.test.ts` from scratch (per Phase 2 plan). |

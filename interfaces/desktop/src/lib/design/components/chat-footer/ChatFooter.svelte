@@ -70,9 +70,8 @@ function handleKeydown(event: KeyboardEvent) {
 	}
 }
 
-// Mirrors the topbar's documented @defaults (same translucent dark band)
-// until the pipeline emits the per-kind @styleIds layer.
-const m = $derived(renderForge({ kind: "chat-footer", preset: "glass-deep" }));
+// "default" resolves --style-chat-footer-default-* (the documented @defaults).
+const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 </script>
 
 <div
