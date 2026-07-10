@@ -101,7 +101,11 @@ onMount(() => {
 	document.addEventListener("keydown", markActive, { passive: true });
 
 	// Fetch the configured timeout from the engine (non-blocking).
-	invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config")
+	// Gated on platform readiness — `get_assistant_config` routes through
+	// the engine loader and rejects with "Platform not ready" during boot.
+	platformState
+		.whenReady()
+		.then(() => invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config"))
 		.then((cfg) => {
 			if (cfg?.window?.idle_timeout_secs > 0) {
 				idleTimeoutSecs = cfg.window.idle_timeout_secs;
