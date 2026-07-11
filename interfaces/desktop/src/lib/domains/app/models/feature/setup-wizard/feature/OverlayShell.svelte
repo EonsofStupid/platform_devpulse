@@ -6,14 +6,18 @@
 	styling comes from preset chains via renderForge — this file
 	NEVER authors color / border / shadow CSS directly.
 
-	## 4 surface tiers — depth-stacked via ColdLight presets
+	## 4 surface tiers — depth-stacked via the `wizard-*` preset family
+
+	Brand-hued tiers (style-presets.json `wizard-*`): blue glass shell →
+	violet content panel → cyan wells. Color IS the requirement — the
+	achromatic glass/stark tiers read as black boxes and are retired here.
 
 	| Tier         | Where                          | Composition                  |
 	|--------------|--------------------------------|------------------------------|
 	| 1 (deepest)  | wizard backdrop                | `.shell-root` (layout only — backdrop glow lives in app.css `[data-layout="setup"]`) |
-	| 2            | card outer shell               | `<Card preset="glass">`      |
-	| 3            | card inner content panel       | `<Card preset="stark">`      |
-	| 4 (top)      | nested wells (consumer-owned)  | `<Card preset="matte">` in views |
+	| 2            | card outer shell               | `<Card preset="wizard-deep">` — blue glass + glow halo |
+	| 3            | card inner content panel       | `<Card preset="wizard-solid">` — violet tint + purple glow |
+	| 4 (top)      | nested wells (consumer-owned)  | `<Card preset="wizard-elevated">` in views — cyan raised glass |
 
 	Layout-only CSS in this file: positioning, sizing, gap. No colors,
 	no borders, no shadows — those flow from the Card preset chain.
@@ -72,8 +76,8 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		</div>
 	{/if}
 
-	<!-- Tier 2: card outer shell — ColdLight glass preset. -->
-	<Card preset="glass" class="shell-card">
+	<!-- Tier 2: card outer shell — wizard blue glass (glow halo + blur). -->
+	<Card preset="wizard-deep" class="shell-card">
 		<header class="shell-head">
 			<div class="shell-head-left">
 				{#if mascot}
@@ -86,8 +90,8 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 			</Text>
 		</header>
 
-		<!-- Tier 3: inner content panel — ColdLight stark preset. -->
-		<Card preset="stark" class="shell-body">
+		<!-- Tier 3: inner content panel — wizard violet tint. -->
+		<Card preset="wizard-solid" class="shell-body">
 			{@render children()}
 		</Card>
 

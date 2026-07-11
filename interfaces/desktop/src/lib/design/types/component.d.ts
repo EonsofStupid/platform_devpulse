@@ -369,6 +369,10 @@ export const StyleTokens = [
 	"search-field-default-color",
 	"search-field-default-border-color",
 	"search-field-default-border-width",
+	"section-default-background-color",
+	"section-default-box-shadow",
+	"section-default-border-width",
+	"section-default-color",
 	"select-default-background-color",
 	"select-default-border-radius",
 	"select-default-box-shadow",
@@ -411,6 +415,10 @@ export const StyleTokens = [
 	"slider-default-color",
 	"slider-default-border-color",
 	"slider-default-border-width",
+	"spinner-default-background-color",
+	"spinner-default-box-shadow",
+	"spinner-default-border-width",
+	"spinner-default-color",
 	"steps-default-background-color",
 	"steps-default-border-radius",
 	"steps-default-box-shadow",
@@ -857,6 +865,10 @@ export type StyleCSSVar =
 	| "--style-search-field-default-color"
 	| "--style-search-field-default-border-color"
 	| "--style-search-field-default-border-width"
+	| "--style-section-default-background-color"
+	| "--style-section-default-box-shadow"
+	| "--style-section-default-border-width"
+	| "--style-section-default-color"
 	| "--style-select-default-background-color"
 	| "--style-select-default-border-radius"
 	| "--style-select-default-box-shadow"
@@ -899,6 +911,10 @@ export type StyleCSSVar =
 	| "--style-slider-default-color"
 	| "--style-slider-default-border-color"
 	| "--style-slider-default-border-width"
+	| "--style-spinner-default-background-color"
+	| "--style-spinner-default-box-shadow"
+	| "--style-spinner-default-border-width"
+	| "--style-spinner-default-color"
 	| "--style-steps-default-background-color"
 	| "--style-steps-default-border-radius"
 	| "--style-steps-default-box-shadow"
@@ -1471,6 +1487,12 @@ export type StyleRecord = {
 		"border-color": string;
 		"border-width": string;
 	};
+	"section-default": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-width": string;
+		color: string;
+	};
 	"select-default": {
 		"background-color": string;
 		"border-radius": string;
@@ -1526,6 +1548,12 @@ export type StyleRecord = {
 		color: string;
 		"border-color": string;
 		"border-width": string;
+	};
+	"spinner-default": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-width": string;
+		color: string;
 	};
 	"steps-default": {
 		"background-color": string;
@@ -2931,6 +2959,35 @@ export const PresetTokens = [
 	"button-destructive-background-alpha",
 	"button-destructive-hover-background-color",
 	"button-destructive-hover-box-shadow",
+	"wizard-deep-background-color",
+	"wizard-deep-gradient",
+	"wizard-deep-border-radius",
+	"wizard-deep-box-shadow",
+	"wizard-deep-color",
+	"wizard-deep-border-color",
+	"wizard-deep-border-width",
+	"wizard-deep-backdrop-filter",
+	"wizard-deep-transition-duration",
+	"wizard-deep-transition-timing-function",
+	"wizard-solid-background-color",
+	"wizard-solid-gradient",
+	"wizard-solid-border-radius",
+	"wizard-solid-box-shadow",
+	"wizard-solid-color",
+	"wizard-solid-border-color",
+	"wizard-solid-border-width",
+	"wizard-solid-transition-duration",
+	"wizard-solid-transition-timing-function",
+	"wizard-elevated-background-color",
+	"wizard-elevated-gradient",
+	"wizard-elevated-border-radius",
+	"wizard-elevated-box-shadow",
+	"wizard-elevated-color",
+	"wizard-elevated-border-color",
+	"wizard-elevated-border-width",
+	"wizard-elevated-backdrop-filter",
+	"wizard-elevated-transition-duration",
+	"wizard-elevated-transition-timing-function",
 ] as const;
 export type PresetToken = (typeof PresetTokens)[number];
 
@@ -4231,7 +4288,36 @@ export type PresetCSSVar =
 	| "--preset-button-destructive-background-image"
 	| "--preset-button-destructive-background-alpha"
 	| "--preset-button-destructive-hover-background-color"
-	| "--preset-button-destructive-hover-box-shadow";
+	| "--preset-button-destructive-hover-box-shadow"
+	| "--preset-wizard-deep-background-color"
+	| "--preset-wizard-deep-gradient"
+	| "--preset-wizard-deep-border-radius"
+	| "--preset-wizard-deep-box-shadow"
+	| "--preset-wizard-deep-color"
+	| "--preset-wizard-deep-border-color"
+	| "--preset-wizard-deep-border-width"
+	| "--preset-wizard-deep-backdrop-filter"
+	| "--preset-wizard-deep-transition-duration"
+	| "--preset-wizard-deep-transition-timing-function"
+	| "--preset-wizard-solid-background-color"
+	| "--preset-wizard-solid-gradient"
+	| "--preset-wizard-solid-border-radius"
+	| "--preset-wizard-solid-box-shadow"
+	| "--preset-wizard-solid-color"
+	| "--preset-wizard-solid-border-color"
+	| "--preset-wizard-solid-border-width"
+	| "--preset-wizard-solid-transition-duration"
+	| "--preset-wizard-solid-transition-timing-function"
+	| "--preset-wizard-elevated-background-color"
+	| "--preset-wizard-elevated-gradient"
+	| "--preset-wizard-elevated-border-radius"
+	| "--preset-wizard-elevated-box-shadow"
+	| "--preset-wizard-elevated-color"
+	| "--preset-wizard-elevated-border-color"
+	| "--preset-wizard-elevated-border-width"
+	| "--preset-wizard-elevated-backdrop-filter"
+	| "--preset-wizard-elevated-transition-duration"
+	| "--preset-wizard-elevated-transition-timing-function";
 
 export type PresetRecord = {
 	"neuro-elevated": {
@@ -5862,5 +5948,40 @@ export type PresetRecord = {
 	"button-destructive-hover": {
 		"background-color": string;
 		"box-shadow": string;
+	};
+	"wizard-deep": {
+		"background-color": string;
+		gradient: string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+	};
+	"wizard-solid": {
+		"background-color": string;
+		gradient: string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+	};
+	"wizard-elevated": {
+		"background-color": string;
+		gradient: string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"backdrop-filter": string;
+		"transition-duration": string;
+		"transition-timing-function": string;
 	};
 };

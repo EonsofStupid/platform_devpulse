@@ -5697,6 +5697,131 @@
 				"$value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
 				"$type": "shadow"
 			}
+		},
+		"wizard-deep": {
+			"$description": "wizard-deep: Tier-2 onboarding shell — deep blue glass, real blur, blue glow halo + cyan inner rim, blue→purple gradient wash (Lock #6 connect-blue identity)",
+			"background-color": {
+				"$value": "oklch(0.12 0.04 240 / 0.78)",
+				"$type": "color"
+			},
+			"gradient": {
+				"$value": "linear-gradient(160deg, oklch(0.68 0.14 240 / 0.1) 0%, oklch(0.63 0.12 280 / 0.05) 45%, transparent 75%)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "1rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.5rem 2rem 0 oklch(0 0 0 / 0.55), 0 0 3rem 0 oklch(0.55 0.14 240 / 0.22), inset 0 0.0625rem 0.125rem 0 oklch(0.82 0.14 195 / 0.12)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.93 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.55 0.12 240 / 0.4)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "blur(1.25rem)",
+				"$type": "dimension"
+			},
+			"transition-duration": {
+				"$value": "200ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
+		},
+		"wizard-solid": {
+			"$description": "wizard-solid: Tier-3 onboarding content panel — violet-blue tinted surface, crisp violet hairline, soft purple glow + top wash",
+			"background-color": {
+				"$value": "oklch(0.14 0.035 262 / 0.88)",
+				"$type": "color"
+			},
+			"gradient": {
+				"$value": "linear-gradient(180deg, oklch(0.63 0.12 280 / 0.08) 0%, transparent 60%)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.75rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 1.5rem 0 oklch(0.63 0.12 280 / 0.14), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.05)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.93 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.6 0.13 265 / 0.38)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"transition-duration": {
+				"$value": "200ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
+		},
+		"wizard-elevated": {
+			"$description": "wizard-elevated: Tier-4 onboarding wells (mode cards, address panel) — teal-cyan raised glass, crisp cyan hairline, soft cyan glow + top sheen",
+			"background-color": {
+				"$value": "oklch(0.17 0.035 225 / 0.75)",
+				"$type": "color"
+			},
+			"gradient": {
+				"$value": "linear-gradient(180deg, oklch(0.82 0.14 195 / 0.06) 0%, transparent 55%)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "0.625rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.1875rem 0.75rem 0 oklch(0 0 0 / 0.4), 0 0 1rem 0 oklch(0.82 0.14 195 / 0.1)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.93 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.7 0.11 210 / 0.35)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "blur(0.75rem)",
+				"$type": "dimension"
+			},
+			"transition-duration": {
+				"$value": "200ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
 		}
 	}
 }

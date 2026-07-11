@@ -40,6 +40,7 @@ import { Check, Home, Server } from "lucide-svelte";
 import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Card } from "$lib/design/components/card/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
@@ -102,10 +103,13 @@ async function connect(): Promise<void> {
 
 		<!-- Exclusive toggle pair (aria-pressed), not a hand-rolled radio
 		     group — no roving-tabindex obligation, and ColdLight owns the
-		     richer ARIA patterns. Guidance only: both feed the one input. -->
+		     richer ARIA patterns. Guidance only: both feed the one input.
+		     Chrome comes from the wizard-elevated preset; scoped CSS adds
+		     ONLY layout + the selected/focus accent overlay. -->
 		<div class="mode-row">
-			<button
-				type="button"
+			<Card
+				as="button"
+				preset="wizard-elevated"
 				class="mode-card"
 				aria-pressed={mode === "local"}
 				data-selected={mode === "local" ? "true" : undefined}
@@ -116,9 +120,10 @@ async function connect(): Promise<void> {
 				<Home size={18} class="mode-icon" />
 				<Heading level={3} size="sm">{copy?.mode_local_label ?? ""}</Heading>
 				<Text size="xs" color="muted">{copy?.mode_local_hint ?? ""}</Text>
-			</button>
-			<button
-				type="button"
+			</Card>
+			<Card
+				as="button"
+				preset="wizard-elevated"
 				class="mode-card"
 				aria-pressed={mode === "gb10"}
 				data-selected={mode === "gb10" ? "true" : undefined}
@@ -129,10 +134,10 @@ async function connect(): Promise<void> {
 				<Server size={18} class="mode-icon" />
 				<Heading level={3} size="sm">{copy?.mode_gb10_label ?? ""}</Heading>
 				<Text size="xs" color="muted">{copy?.mode_gb10_hint ?? ""}</Text>
-			</button>
+			</Card>
 		</div>
 
-		<section class="address-panel">
+		<Card preset="wizard-elevated" class="address-panel">
 			<div class="address-head">
 				<Heading level={3} size="sm">{copy?.url_label ?? ""}</Heading>
 				{#if connectionState === "connected"}
@@ -175,7 +180,7 @@ async function connect(): Promise<void> {
 			{#if showFailed}
 				<Text size="xs" color="muted">{copy?.status_failed ?? ""}</Text>
 			{/if}
-		</section>
+		</Card>
 
 		<Text size="xs" color="muted">{copy?.skip_hint ?? ""}</Text>
 	</div>
@@ -201,7 +206,9 @@ async function connect(): Promise<void> {
 </OverlayShell>
 
 <style>
-	/* Layout-only; fluid via cqi (container = .shell-root, S1.C). */
+	/* Layout-only; fluid via cqi (container = .shell-root, S1.C).
+	   Surface chrome lives on the wizard-elevated preset — scoped CSS
+	   adds layout + the ONE sanctioned selected/focus accent overlay. */
 	.endpoint-view {
 		display: flex;
 		flex-direction: column;
@@ -217,25 +224,23 @@ async function connect(): Promise<void> {
 		gap: clamp(0.75rem, 1.4cqi, 1rem);
 	}
 
-	.mode-card {
-		display: flex;
+	/* `:global()` — classes land on child <Card> roots. Layout + accent
+	   overlay only; bg/border/shadow/radius come from wizard-elevated. */
+	.endpoint-view :global(.mode-card) {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: clamp(0.375rem, 0.8cqi, 0.5rem);
 		padding: clamp(0.875rem, 1.6cqi, 1.125rem);
-		border-radius: clamp(0.5rem, 0.8cqi, 0.75rem);
 		text-align: left;
 		cursor: pointer;
-		background: var(--surface-raised);
-		border: var(--border-width-hairline) solid var(--border-subtle);
-		transition: border-color 120ms ease, background 120ms ease;
 	}
-	.mode-card[data-selected] {
-		/* Blue-tinted glass + CTA-blue edge — the C4 surface tokens. */
-		background: var(--glass-blue);
+	.endpoint-view :global(.mode-card[data-selected]) {
+		/* Blue-tinted glass + CTA-blue edge — Lock #6 connect identity. */
+		background-color: var(--glass-blue);
 		border-color: color-mix(in oklch, var(--cta-main) 55%, var(--border-subtle));
+		box-shadow: 0 0.1875rem 0.75rem 0 oklch(0 0 0 / 0.4), 0 0 1.25rem 0 var(--accent-blue-glow, oklch(0.68 0.14 240 / 0.35));
 	}
-	.mode-card:focus-visible {
+	.endpoint-view :global(.mode-card:focus-visible) {
 		outline: var(--border-width-thin) solid var(--cta-main);
 		outline-offset: var(--outline-offset-md);
 	}
@@ -243,14 +248,10 @@ async function connect(): Promise<void> {
 		color: var(--cta-main);
 	}
 
-	.address-panel {
-		display: flex;
+	.endpoint-view :global(.address-panel) {
 		flex-direction: column;
 		gap: clamp(0.5rem, 1cqi, 0.75rem);
 		padding: clamp(0.875rem, 1.6cqi, 1.125rem);
-		border-radius: clamp(0.5rem, 0.8cqi, 0.75rem);
-		background: var(--surface-raised);
-		border: var(--border-width-hairline) solid var(--border-subtle);
 	}
 
 	.address-head {

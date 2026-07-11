@@ -1584,6 +1584,24 @@
 				"$type": "string"
 			}
 		},
+		"section-default": {
+			"background-color": {
+				"$value": "transparent",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "inherit",
+				"$type": "string"
+			}
+		},
 		"select-default": {
 			"background-color": {
 				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
@@ -1763,6 +1781,24 @@
 			},
 			"border-width": {
 				"$value": "0.0625rem",
+				"$type": "string"
+			}
+		},
+		"spinner-default": {
+			"background-color": {
+				"$value": "transparent",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "inherit",
 				"$type": "string"
 			}
 		},

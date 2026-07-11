@@ -4371,6 +4371,54 @@
 				"extensions": null
 			},
 			{
+				"name": "style-section-default-background-color",
+				"path": [
+					"style",
+					"section-default",
+					"background-color"
+				],
+				"cssVar": "--style-section-default-background-color",
+				"value": "transparent",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-section-default-box-shadow",
+				"path": [
+					"style",
+					"section-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-section-default-box-shadow",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-section-default-border-width",
+				"path": [
+					"style",
+					"section-default",
+					"border-width"
+				],
+				"cssVar": "--style-section-default-border-width",
+				"value": "0",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-section-default-color",
+				"path": [
+					"style",
+					"section-default",
+					"color"
+				],
+				"cssVar": "--style-section-default-color",
+				"value": "inherit",
+				"type": "string",
+				"extensions": null
+			},
+			{
 				"name": "style-select-default-background-color",
 				"path": [
 					"style",
@@ -4871,6 +4919,54 @@
 				],
 				"cssVar": "--style-slider-default-border-width",
 				"value": "0.0625rem",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-spinner-default-background-color",
+				"path": [
+					"style",
+					"spinner-default",
+					"background-color"
+				],
+				"cssVar": "--style-spinner-default-background-color",
+				"value": "transparent",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-spinner-default-box-shadow",
+				"path": [
+					"style",
+					"spinner-default",
+					"box-shadow"
+				],
+				"cssVar": "--style-spinner-default-box-shadow",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-spinner-default-border-width",
+				"path": [
+					"style",
+					"spinner-default",
+					"border-width"
+				],
+				"cssVar": "--style-spinner-default-border-width",
+				"value": "0",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-spinner-default-color",
+				"path": [
+					"style",
+					"spinner-default",
+					"color"
+				],
+				"cssVar": "--style-spinner-default-color",
+				"value": "inherit",
 				"type": "string",
 				"extensions": null
 			},
@@ -21593,6 +21689,354 @@
 				"cssVar": "--preset-button-destructive-hover-box-shadow",
 				"value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
 				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-background-color",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"background-color"
+				],
+				"cssVar": "--preset-wizard-deep-background-color",
+				"value": "oklch(0.12 0.04 240 / 0.78)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-gradient",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"gradient"
+				],
+				"cssVar": "--preset-wizard-deep-gradient",
+				"value": "linear-gradient(160deg, oklch(0.68 0.14 240 / 0.1) 0%, oklch(0.63 0.12 280 / 0.05) 45%, transparent 75%)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-border-radius",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"border-radius"
+				],
+				"cssVar": "--preset-wizard-deep-border-radius",
+				"value": "1rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-box-shadow",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"box-shadow"
+				],
+				"cssVar": "--preset-wizard-deep-box-shadow",
+				"value": "0 0.5rem 2rem 0 oklch(0 0 0 / 0.55), 0 0 3rem 0 oklch(0.55 0.14 240 / 0.22), inset 0 0.0625rem 0.125rem 0 oklch(0.82 0.14 195 / 0.12)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-color",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"color"
+				],
+				"cssVar": "--preset-wizard-deep-color",
+				"value": "oklch(0.93 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-border-color",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"border-color"
+				],
+				"cssVar": "--preset-wizard-deep-border-color",
+				"value": "oklch(0.55 0.12 240 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-border-width",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"border-width"
+				],
+				"cssVar": "--preset-wizard-deep-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-backdrop-filter",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-wizard-deep-backdrop-filter",
+				"value": "blur(1.25rem)",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-transition-duration",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"transition-duration"
+				],
+				"cssVar": "--preset-wizard-deep-transition-duration",
+				"value": "200ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-deep-transition-timing-function",
+				"path": [
+					"preset",
+					"wizard-deep",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-wizard-deep-transition-timing-function",
+				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-background-color",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"background-color"
+				],
+				"cssVar": "--preset-wizard-solid-background-color",
+				"value": "oklch(0.14 0.035 262 / 0.88)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-gradient",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"gradient"
+				],
+				"cssVar": "--preset-wizard-solid-gradient",
+				"value": "linear-gradient(180deg, oklch(0.63 0.12 280 / 0.08) 0%, transparent 60%)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-border-radius",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"border-radius"
+				],
+				"cssVar": "--preset-wizard-solid-border-radius",
+				"value": "0.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-box-shadow",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"box-shadow"
+				],
+				"cssVar": "--preset-wizard-solid-box-shadow",
+				"value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 1.5rem 0 oklch(0.63 0.12 280 / 0.14), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.05)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-color",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"color"
+				],
+				"cssVar": "--preset-wizard-solid-color",
+				"value": "oklch(0.93 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-border-color",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"border-color"
+				],
+				"cssVar": "--preset-wizard-solid-border-color",
+				"value": "oklch(0.6 0.13 265 / 0.38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-border-width",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"border-width"
+				],
+				"cssVar": "--preset-wizard-solid-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-transition-duration",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"transition-duration"
+				],
+				"cssVar": "--preset-wizard-solid-transition-duration",
+				"value": "200ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-solid-transition-timing-function",
+				"path": [
+					"preset",
+					"wizard-solid",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-wizard-solid-transition-timing-function",
+				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-background-color",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"background-color"
+				],
+				"cssVar": "--preset-wizard-elevated-background-color",
+				"value": "oklch(0.17 0.035 225 / 0.75)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-gradient",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"gradient"
+				],
+				"cssVar": "--preset-wizard-elevated-gradient",
+				"value": "linear-gradient(180deg, oklch(0.82 0.14 195 / 0.06) 0%, transparent 55%)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-border-radius",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"border-radius"
+				],
+				"cssVar": "--preset-wizard-elevated-border-radius",
+				"value": "0.625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-box-shadow",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"box-shadow"
+				],
+				"cssVar": "--preset-wizard-elevated-box-shadow",
+				"value": "0 0.1875rem 0.75rem 0 oklch(0 0 0 / 0.4), 0 0 1rem 0 oklch(0.82 0.14 195 / 0.1)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-color",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"color"
+				],
+				"cssVar": "--preset-wizard-elevated-color",
+				"value": "oklch(0.93 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-border-color",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"border-color"
+				],
+				"cssVar": "--preset-wizard-elevated-border-color",
+				"value": "oklch(0.7 0.11 210 / 0.35)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-border-width",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"border-width"
+				],
+				"cssVar": "--preset-wizard-elevated-border-width",
+				"value": "0.0625rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-backdrop-filter",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-wizard-elevated-backdrop-filter",
+				"value": "blur(0.75rem)",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-transition-duration",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"transition-duration"
+				],
+				"cssVar": "--preset-wizard-elevated-transition-duration",
+				"value": "200ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-transition-timing-function",
+				"path": [
+					"preset",
+					"wizard-elevated",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-wizard-elevated-transition-timing-function",
+				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"type": "cubicBezier",
 				"extensions": null
 			}
 		]
