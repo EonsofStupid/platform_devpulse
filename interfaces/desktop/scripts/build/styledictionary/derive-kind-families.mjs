@@ -138,7 +138,7 @@ for (const kind of INTERACTIVE_KINDS) {
 // Merged from the per-family preset files (tokens/src/presets/*.tokens.json)
 // — the hand-maintained shared-preset layer, one file per visual family.
 const presets = {};
-for (const file of readdirSync(PRESETS_DIR).sort()) {
+for (const file of readdirSync(PRESETS_DIR).sort((a, b) => a.localeCompare(b))) {
 	if (!file.endsWith(".tokens.json")) continue;
 	const group = loadGroup(resolve(PRESETS_DIR, file), ["preset", "style"], `presets/${file}`);
 	Object.assign(presets, group);
@@ -157,9 +157,10 @@ for (const [presetId, entry] of Object.entries(presets)) {
 
 // ── Emit ──────────────────────────────────────────────────────────
 function emitMap(name, map) {
+	const byName = (a, b) => a.localeCompare(b);
 	const lines = [`export const ${name}: Record<string, CssFamily[]> = {`];
-	for (const key of [...map.keys()].sort()) {
-		const fams = [...map.get(key)].sort().map((f) => `"${f}"`).join(", ");
+	for (const key of [...map.keys()].sort(byName)) {
+		const fams = [...map.get(key)].sort(byName).map((f) => `"${f}"`).join(", ");
 		// Biome: unquoted keys for valid JS identifiers (no hyphens)
 		const outKey = key.includes("-") ? `"${key}"` : key;
 		lines.push(`\t${outKey}: [${fams}],`);

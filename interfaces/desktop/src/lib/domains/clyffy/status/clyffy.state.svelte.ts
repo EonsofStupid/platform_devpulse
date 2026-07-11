@@ -179,15 +179,17 @@ export function createClyffyStatus(): ClyffyStatus {
 		// platform readiness — `get_status` returns "Platform is still
 		// booting" until boot completes. The interval below is left as-is;
 		// a tick during boot degrades gracefully (setReachable(false)).
-		void platformState
-			.whenReady()
-			.then(() => pollHealth())
-			.catch((e) => {
+		void (async () => {
+			try {
+				await platformState.whenReady();
+				await pollHealth();
+			} catch (e) {
 				logError(
 					"clyffy.status",
 					`initial health poll failed: ${e instanceof Error ? e.message : String(e)}`,
 				);
-			});
+			}
+		})();
 		healthTimer = setInterval(() => {
 			void pollHealth().catch((e) => {
 				logError(

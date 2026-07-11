@@ -444,6 +444,34 @@ StyleDictionary.registerTransform({
 // This converts to linear-gradient() CSS shorthand.
 // ═══════════════════════════════════════════════════════════════
 
+/** Hex color + DTCG alpha channel → #rrggbb[aa]. */
+const hexWithAlpha = (hex, alpha) => {
+	if (typeof alpha !== 'number' || alpha >= 1) return hex;
+	return `${hex}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
+};
+
+/**
+ * DTCG gradient stop color → CSS color. The oklch components ARE the
+ * designed value — the hex sibling is a lossy preview fallback and must
+ * never win over the real color (it was flattening every designed
+ * gradient to near-black).
+ */
+const gradientStopColor = (c) => {
+	if (!isPlainObj(c)) return c;
+	if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
+		const [l, ch, h] = c.components;
+		const alpha = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
+		return `oklch(${l} ${ch} ${h}${alpha})`;
+	}
+	if (typeof c.hex === 'string') return hexWithAlpha(c.hex, c.alpha);
+	if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+		const [r, g, b] = c.components;
+		const to255 = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+		return `#${to255(r)}${to255(g)}${to255(b)}`;
+	}
+	return c;
+};
+
 StyleDictionary.registerTransform({
 	name: clTransforms.gradientCssShorthand,
 	type: transformTypes.value,
@@ -453,39 +481,12 @@ StyleDictionary.registerTransform({
 		const val = token.$value ?? token.value;
 		if (!Array.isArray(val)) return val;
 
-		const colorOf = (c) => {
-			if (isPlainObj(c)) {
-				// The oklch components ARE the designed value — the hex
-				// sibling is a lossy preview fallback and must never win
-				// over the real color (it was flattening every designed
-				// gradient to near-black).
-				if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
-					const [l, ch, h] = c.components;
-					const a = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
-					return `oklch(${l} ${ch} ${h}${a})`;
-				}
-				if (typeof c.hex === 'string') {
-					if (typeof c.alpha === 'number' && c.alpha < 1) {
-						const a = Math.round(c.alpha * 255);
-						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
-					}
-					return c.hex;
-				}
-				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
-					const [r, g, b] = c.components;
-					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
-					return `#${h(r)}${h(g)}${h(b)}`;
-				}
-			}
-			return c;
-		};
-
 		const stops = val
 			.map((stop) => {
 				const pos = typeof stop.position === 'number'
 					? ` ${stop.position * 100}%`
 					: '';
-				return `${colorOf(stop.color)}${pos}`;
+				return `${gradientStopColor(stop.color)}${pos}`;
 			})
 			.join(', ');
 
