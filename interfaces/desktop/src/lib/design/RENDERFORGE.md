@@ -177,7 +177,7 @@ build-derived maps (derive-kind-families.mjs):
   (`tokens/src/style-defaults.json`); missing kinds fall back to
   `['surface', 'text', 'frame']`.
 - `PRESET_FAMILIES[resolvedPreset]` — from the shared preset layer
-  (`tokens/src/style-presets.json`), keyed by FULL preset id. This is
+  (`tokens/src/presets/*.tokens.json`, one file per family), keyed by FULL preset id. This is
   what lets an axis the preset carries (e.g. glass-deep's
   `backdrop-filter` → `overlay`) actually apply on any kind wearing it.
 

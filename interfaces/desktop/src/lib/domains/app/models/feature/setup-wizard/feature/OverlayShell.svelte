@@ -8,9 +8,11 @@
 
 	## 4 surface tiers — depth-stacked via the `wizard-*` preset family
 
-	Brand-hued tiers (style-presets.json `wizard-*`): blue glass shell →
-	violet content panel → cyan wells. Color IS the requirement — the
-	achromatic glass/stark tiers read as black boxes and are retired here.
+	Brand-hued tiers (tokens/src/presets/wizard.tokens.json — composed
+	from the designed token library: glass surfaces, gradient fields,
+	depth + glow stacks): blue glass shell → violet content panel → cyan
+	wells. Color IS the requirement — the achromatic glass/stark tiers
+	read as black boxes and are retired here.
 
 	| Tier         | Where                          | Composition                  |
 	|--------------|--------------------------------|------------------------------|

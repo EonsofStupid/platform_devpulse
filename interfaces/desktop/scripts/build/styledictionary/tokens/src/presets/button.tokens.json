@@ -1,0 +1,390 @@
+{
+	"$extensions": {
+		"com.coldlight": {
+			"semanticFamilies": [
+				"surface",
+				"elevation",
+				"frame",
+				"motion"
+			],
+			"format": "coldlight-style-presets-v1",
+			"note": "Hand-authored button preset ids (compound per-kind ids served by the shared --preset-* layer). Moved verbatim from the retired style-presets.json."
+		}
+	},
+	"preset": {
+		"button-primary": {
+			"background-color": {
+				"$value": "oklch(0.55 0.14 180)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0 1rem 0 oklch(0.55 0.14 180 / 0.35)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.97 0.01 180)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.6 0.12 180 / 0.4)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "600",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "button-primary: Teal CTA — high contrast, visible glow on dark backgrounds"
+		},
+		"button-primary-hover": {
+			"$description": "button-primary hover overrides",
+			"background-color": {
+				"$value": "oklch(0.48 0.13 180)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0 1.5rem 0.125rem oklch(0.55 0.14 180 / 0.5)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.65 0.12 180 / 0.5)",
+				"$type": "color"
+			}
+		},
+		"button-primary-active": {
+			"$description": "button-primary active overrides",
+			"background-color": {
+				"$value": "oklch(0.42 0.12 180)",
+				"$type": "color"
+			}
+		},
+		"button-primary-disabled": {
+			"$description": "button-primary disabled overrides",
+			"opacity": {
+				"$value": "0.35",
+				"$type": "number"
+			}
+		},
+		"button-secondary": {
+			"background-color": {
+				"$value": "oklch(0.2 0.01 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0 0.5rem 0 oklch(0 0 0 / 0.3)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.8 0.01 240)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.3 0.01 240)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "button-secondary: Dark surface button — subtle border, light text"
+		},
+		"button-secondary-hover": {
+			"$description": "button-secondary hover overrides",
+			"background-color": {
+				"$value": "oklch(0.25 0.015 240)",
+				"$type": "color"
+			}
+		},
+		"button-ghost": {
+			"background-color": {
+				"$value": "oklch(0 0 0 / 0)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.65 0.01 240)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0 0 0 / 0)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "0",
+				"$type": "number"
+			},
+			"$description": "button-ghost: Transparent button — muted text, no border, hover reveals surface"
+		},
+		"button-ghost-hover": {
+			"$description": "button-ghost hover overrides",
+			"background-color": {
+				"$value": "oklch(0.2 0.01 240 / 0.5)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.88 0.01 240)",
+				"$type": "color"
+			}
+		},
+		"button-destructive": {
+			"background-color": {
+				"$value": "oklch(0.45 0.18 25)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.97 0.01 25)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.55 0.2 25 / 0.4)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "600",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "button-destructive: Red danger button — visible warning glow"
+		},
+		"button-destructive-hover": {
+			"$description": "button-destructive hover overrides",
+			"background-color": {
+				"$value": "oklch(0.4 0.17 25)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+				"$type": "shadow"
+			}
+		}
+	}
+}

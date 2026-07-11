@@ -1,0 +1,136 @@
+{
+	"$extensions": {
+		"com.coldlight": {
+			"semanticFamilies": ["surface", "elevation", "frame", "motion"],
+			"format": "coldlight-style-presets-v1",
+			"note": "Wizard brand family — onboarding tiers COMPOSED from the designed token library (glass surfaces, gradient-surface fields, depth stacks, glow shadows, accent triplets, radius/blur/duration scales). var() references resolve at runtime against the emitted tokens; no invented literals. wizard-deep = Tier-2 shell, wizard-solid = Tier-3 panel, wizard-elevated = Tier-4 wells."
+		}
+	},
+	"preset": {
+		"wizard-deep": {
+			"$description": "wizard-deep: Tier-2 onboarding shell — designed blue glass + brand-blue gradient field, depth z3 + blue glow (Lock #6 connect-blue identity)",
+			"background-color": {
+				"$value": "var(--glass-blue)",
+				"$type": "string"
+			},
+			"gradient": {
+				"$value": "var(--gradient-surface-brand-blue)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "var(--radius-lg)",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "var(--depth-z3), var(--glow-blue)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "var(--text-primary)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "color-mix(in oklch, var(--accent-blue-main) 45%, transparent)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "var(--border-width-hairline)",
+				"$type": "string"
+			},
+			"backdrop-filter": {
+				"$value": "blur(var(--blur-lg))",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "var(--duration-normal)",
+				"$type": "string"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
+		},
+		"wizard-solid": {
+			"$description": "wizard-solid: Tier-3 onboarding content panel — designed purple glass + purple gradient field, depth z2 + purple glow + subtle bevel",
+			"background-color": {
+				"$value": "var(--glass-purple)",
+				"$type": "string"
+			},
+			"gradient": {
+				"$value": "var(--gradient-surface-purple)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "var(--radius-md)",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "var(--depth-z2), var(--glow-purple), var(--bevel-subtle)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "var(--text-primary)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "color-mix(in oklch, var(--accent-purple-main) 40%, transparent)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "var(--border-width-hairline)",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "var(--duration-normal)",
+				"$type": "string"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
+		},
+		"wizard-elevated": {
+			"$description": "wizard-elevated: Tier-4 onboarding wells (mode cards, address panel) — designed teal glass + brand-cyan gradient field, depth z1 + teal glow",
+			"background-color": {
+				"$value": "var(--glass-teal)",
+				"$type": "string"
+			},
+			"gradient": {
+				"$value": "var(--gradient-surface-brand-cyan)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "var(--radius-md)",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "var(--depth-z1), var(--glow-teal)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "var(--text-primary)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "color-mix(in oklch, var(--accent-cyan-main) 40%, transparent)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "var(--border-width-hairline)",
+				"$type": "string"
+			},
+			"backdrop-filter": {
+				"$value": "blur(var(--blur-sm))",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "var(--duration-fast)",
+				"$type": "string"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
+		}
+	}
+}

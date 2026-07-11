@@ -17,10 +17,13 @@ import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Card from "./Card.svelte";
 
-// The two halves of the runtime chain the resolver depends on:
-// family-gated glue consumers + the SD5-emitted custom properties.
+// The runtime chain the resolver depends on: family-gated glue consumers
+// + the full emitted token barrel (primitives + semantic + components) —
+// wizard presets COMPOSE designed tokens via var(), so the primitives
+// (glass surfaces, depth/glow stacks, gradient fields) must be loaded for
+// computed styles to resolve exactly as they do in the app.
 import "../../generated/render-base.css";
-import "../../styles/components/components.generated.css";
+import "../../styles/index.css";
 
 function root(container: HTMLElement): HTMLElement {
 	const el = container.querySelector<HTMLElement>('[data-kind="card"]');
@@ -70,32 +73,34 @@ describe("card — var chain", () => {
 // ═══════════════════════════════════════════════════════════════
 
 describe("card — wizard-elevated computed surface", () => {
-	test("renders the authored teal-cyan raised glass, fully resolved", async () => {
+	test("renders the DESIGNED teal glass composition, fully resolved", async () => {
 		const { container } = render(Card, { preset: "wizard-elevated" });
 		const cs = getComputedStyle(root(container as HTMLElement));
 
-		// Fill: oklch(0.17 0.035 225 / 0.75) — a COLOR surface, not black,
-		// not the transparent fallback renderForge uses on a resolution miss.
+		// Fill: var(--glass-teal) — the DESIGNED teal glass surface, not an
+		// invented literal, not black, and not the transparent fallback
+		// renderForge uses on a resolution miss.
 		expect(cs.backgroundColor).toContain("oklch");
-		expect(cs.backgroundColor).toContain("225");
 		expect(cs.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
 
-		// Crisp edge: 1px cyan hairline (0.0625rem) + 10px radius (0.625rem).
+		// Crisp edge: hairline (--border-width-hairline = 1px) mixed from
+		// the designed cyan accent; radius from the scale (--radius-md = 8px).
 		expect(cs.borderTopWidth).toBe("1px");
 		expect(cs.borderStyle).toBe("solid");
-		expect(cs.borderTopColor).toContain("oklch");
-		expect(cs.borderRadius).toBe("10px");
+		expect(cs.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
+		expect(cs.borderRadius).toBe("8px");
 
-		// Depth: black depth layer + cyan glow layer — never "none".
+		// Depth: var(--depth-z1) + var(--glow-teal) — designed stacks.
 		expect(cs.boxShadow).not.toBe("none");
 		expect(cs.boxShadow.split(",").length).toBeGreaterThanOrEqual(2);
 
-		// Color field: the cyan top-sheen gradient wash.
+		// Color field: var(--gradient-surface-brand-cyan) — the designed
+		// gradient field, resolved to a paintable image.
 		expect(cs.backgroundImage).toContain("linear-gradient");
 
-		// Glass: blur(0.75rem) = 12px — dead app-wide before the family
-		// union fix; this assertion is the regression guard.
-		expect(cs.backdropFilter).toBe("blur(12px)");
+		// Glass: blur(var(--blur-sm)) = blur(4px) — dead app-wide before
+		// the family union fix; this assertion is the regression guard.
+		expect(cs.backdropFilter).toBe("blur(4px)");
 	});
 
 	test("as=button keeps the identical chrome (mode-card case)", async () => {
@@ -104,8 +109,8 @@ describe("card — wizard-elevated computed surface", () => {
 		expect(el.tagName).toBe("BUTTON");
 		const cs = getComputedStyle(el);
 		expect(cs.backgroundColor).toContain("oklch");
-		expect(cs.backdropFilter).toBe("blur(12px)");
-		expect(cs.borderRadius).toBe("10px");
+		expect(cs.backdropFilter).toBe("blur(4px)");
+		expect(cs.borderRadius).toBe("8px");
 	});
 });
 

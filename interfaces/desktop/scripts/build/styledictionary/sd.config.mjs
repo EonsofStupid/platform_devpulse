@@ -455,6 +455,15 @@ StyleDictionary.registerTransform({
 
 		const colorOf = (c) => {
 			if (isPlainObj(c)) {
+				// The oklch components ARE the designed value — the hex
+				// sibling is a lossy preview fallback and must never win
+				// over the real color (it was flattening every designed
+				// gradient to near-black).
+				if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
+					const [l, ch, h] = c.components;
+					const a = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
+					return `oklch(${l} ${ch} ${h}${a})`;
+				}
 				if (typeof c.hex === 'string') {
 					if (typeof c.alpha === 'number' && c.alpha < 1) {
 						const a = Math.round(c.alpha * 255);
@@ -480,10 +489,14 @@ StyleDictionary.registerTransform({
 			})
 			.join(', ');
 
-		const angle =
+		// Tokens author the angle as a bare number (180); CSS requires a
+		// unit — a unitless angle invalidates the whole declaration and
+		// killed every designed gradient at parse time.
+		const rawAngle =
 			token.$extensions?.[DP_EXT]?.gradient?.angle
 			?? token.$extensions?.[CL_EXT]?.angle
 			?? '135deg';
+		const angle = typeof rawAngle === 'number' ? `${rawAngle}deg` : rawAngle;
 		return `linear-gradient(${angle}, ${stops})`;
 	},
 });

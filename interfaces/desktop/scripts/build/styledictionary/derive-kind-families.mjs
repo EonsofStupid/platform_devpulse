@@ -25,13 +25,13 @@
  * Output: src/lib/design/renderforge/generated/kind-families.ts
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEFAULTS_PATH = resolve(__dirname, "tokens/src/style-defaults.json");
-const PRESETS_PATH = resolve(__dirname, "tokens/src/style-presets.json");
+const PRESETS_DIR = resolve(__dirname, "tokens/src/presets");
 const OUTPUT_PATH = resolve(
 	__dirname,
 	"../../../src/lib/design/renderforge/generated/kind-families.ts",
@@ -135,7 +135,14 @@ for (const kind of INTERACTIVE_KINDS) {
 }
 
 // ── PRESET_FAMILIES — full shared-preset ids, no stripping ────────
-const presets = loadGroup(PRESETS_PATH, ["style", "preset"], "style-presets.json");
+// Merged from the per-family preset files (tokens/src/presets/*.tokens.json)
+// — the hand-maintained shared-preset layer, one file per visual family.
+const presets = {};
+for (const file of readdirSync(PRESETS_DIR).sort()) {
+	if (!file.endsWith(".tokens.json")) continue;
+	const group = loadGroup(resolve(PRESETS_DIR, file), ["preset", "style"], `presets/${file}`);
+	Object.assign(presets, group);
+}
 /** @type {Map<string, Set<string>>} */
 const presetFamilies = new Map();
 

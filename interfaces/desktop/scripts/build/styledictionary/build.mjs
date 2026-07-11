@@ -132,11 +132,9 @@ async function build() {
 	// Step 0: Emit the PER-KIND style layer from component @defaults
 	// doc-headers (tokens/src/style-defaults.json → --style-{kind}-{variant}-*).
 	//
-	// NOTE: generate-style-presets.ts (shared --preset-* layer) is deliberately
-	// NOT run here. tokens/src/style-presets.json is a HAND-MAINTAINED superset —
-	// the button-* presets have no visual/presets/*.ts source, so regenerating
-	// from ALL_PRESETS would silently drop them. Run that script manually only
-	// when editing presets that DO live under visual/presets/.
+	// The shared --preset-* layer is HAND-MAINTAINED as one file per visual
+	// family under tokens/src/presets/*.tokens.json (glass, neuro, chrome,
+	// flat, retro, stark, chat, button, wizard). No generator writes it.
 	console.log('[SD5] Collecting element @defaults (per-kind style layer)...');
 	execSync('node scripts/build/styledictionary/collect-element-seed-defs.mjs', {
 		cwd: process.cwd(),
