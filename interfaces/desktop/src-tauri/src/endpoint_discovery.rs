@@ -211,10 +211,10 @@ async fn enumerate_candidates(
 ) -> Vec<(String, DiscoverySource)> {
     let mut seen: HashSet<String> = HashSet::new();
     let mut candidates: Vec<(String, DiscoverySource)> = Vec::new();
-    let mut push = |url: String,
-                    source: DiscoverySource,
-                    seen: &mut HashSet<String>,
-                    out: &mut Vec<(String, DiscoverySource)>| {
+    let push = |url: String,
+                source: DiscoverySource,
+                seen: &mut HashSet<String>,
+                out: &mut Vec<(String, DiscoverySource)>| {
         let url = normalize(&url);
         if !url.is_empty() && seen.insert(url.clone()) {
             out.push((url, source));
