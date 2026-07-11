@@ -40,6 +40,9 @@ tauri-plugin-shell = "2.3.5"
 tauri-plugin-single-instance = "2.4.0"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-updater = "2"
+# Remembered window geometry (size/position per label) across restarts.
+# Config min_inner_size stays the hard floor against bad restored state.
+tauri-plugin-window-state = "2"
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

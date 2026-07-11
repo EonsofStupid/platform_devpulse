@@ -677,6 +677,9 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        // Remembered window geometry (per label, incl. chat). Role
+        // min_inner_size stays the floor against bad restored state.
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .invoke_handler(traced_invoke_handler)
         .setup(move |app| {
             builder.mount_events(app);
