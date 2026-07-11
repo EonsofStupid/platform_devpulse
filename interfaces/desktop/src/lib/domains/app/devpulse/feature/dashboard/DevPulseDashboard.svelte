@@ -79,7 +79,7 @@ $effect(() => {
 
 	<div class="relative grid grid-cols-12 gap-4 auto-rows-min">
 	<!-- Row 1: Gauges + Stats -->
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 @lg:col-span-4">
 		<Widget
 			title="Clyffy Control"
 			icon={Gauge}
@@ -99,7 +99,7 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 @lg:col-span-4">
 		<Widget
 			title="System Overview"
 			icon={Activity}
@@ -130,7 +130,7 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 @lg:col-span-4">
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
@@ -193,7 +193,7 @@ $effect(() => {
 	</div>
 
 	<!-- Row 2: Charts -->
-	<div class="col-span-12 lg:col-span-8">
+	<div class="col-span-12 @lg:col-span-8">
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
@@ -245,7 +245,7 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 @lg:col-span-4">
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
@@ -303,7 +303,7 @@ $effect(() => {
 			]}
 			activeTab="all"
 		>
-			<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+			<div class="grid grid-cols-2 @lg:grid-cols-4 gap-3">
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
 					<Card preset="neuro-deep" class="p-3">

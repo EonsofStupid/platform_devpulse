@@ -64,6 +64,8 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./semantic/signal.css";
 @import "./semantic/accent.css";
 @import "./semantic/role.css";
+@import "./semantic/chat.css";
+@import "./semantic/wizard.css";
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";

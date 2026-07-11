@@ -128,9 +128,9 @@ const m = $derived(renderForge({ kind: "chat-frame", preset: "default" }));
 		left: 0;
 		bottom: var(--chat-footer-height, 3.5rem);
 		width: var(--chat-sidebar-width, 3.5rem);
-		z-index: 10;
+		z-index: var(--chat-z-index, 10);
 		transform: translateX(-100%);
-		transition: transform 200ms ease-out;
+		transition: transform var(--chat-transition-duration, 200ms) ease-out;
 	}
 
 	.chat-frame :global([data-slot="mode-selector"][data-visible="true"]) {
@@ -143,9 +143,9 @@ const m = $derived(renderForge({ kind: "chat-frame", preset: "default" }));
 		right: 0;
 		bottom: var(--chat-footer-height, 3.5rem);
 		width: var(--chat-context-width, 12rem);
-		z-index: 10;
+		z-index: var(--chat-z-index, 10);
 		transform: translateX(100%);
-		transition: transform 200ms ease-out;
+		transition: transform var(--chat-transition-duration, 200ms) ease-out;
 	}
 
 	.chat-frame :global([data-slot="context-panel"][data-collapsed="false"]) {

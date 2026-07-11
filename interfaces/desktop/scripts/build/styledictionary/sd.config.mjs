@@ -989,6 +989,10 @@ const config = {
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
 			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
+			// Groups without a registered file are dropped SILENTLY by SD —
+			// chat + wizard semantic tokens were authored but never emitted.
+			cssFile('chat.css', pathFilter('chat'), layers.semantic),
+			cssFile('wizard.css', pathFilter('wizard'), layers.semantic),
 			],
 		},
 
