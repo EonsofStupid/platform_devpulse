@@ -17,6 +17,7 @@ import { onMount } from "svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
@@ -127,7 +128,11 @@ function formatTime(iso: string): string {
 }
 </script>
 
-<div class="grid grid-cols-12 gap-4" data-page="devforge-dashboard">
+<div class="relative" data-page="devforge-dashboard">
+	<!-- Ember glow + ember grid — the devforge color identity
+	     (authored variant, mounted per the DevPulseDashboard pattern). -->
+	<DynamicBackground variant="devforge" animated />
+	<div class="relative grid grid-cols-12 gap-4">
 	<!-- Row 0: Launch widget — always present, badge live-tied to status. -->
 	<div class="col-span-12">
 		<Widget
@@ -318,5 +323,6 @@ function formatTime(iso: string): string {
 				</div>
 			{/if}
 		</Widget>
+	</div>
 	</div>
 </div>
