@@ -3,12 +3,25 @@
  * @file derive-kind-families.mjs
  * @package @devpulse/coldlight
  *
- * Build step: reads enriched presets, maps --cl-* vars through VAR_TO_FAMILY,
- * outputs KIND_FAMILIES — a kind → CssFamily[] mapping.
+ * Build step: derives the two family maps renderForge needs to know which
+ * `data-cl-*` markers an element gets (render-base.css only applies an axis
+ * under its family marker):
  *
- * Per MACRO-LAW.md Law 5 — families are derived at build time, never hand-authored per component.
+ *   KIND_FAMILIES   — component kind → families, derived from the per-kind
+ *                     `@defaults` layer (tokens/src/style-defaults.json,
+ *                     written by collect-element-seed-defs.mjs). Ids are
+ *                     "{kind}-default" / "{kind}-{variant}"; axes are
+ *                     unioned across a kind's ids.
+ *   PRESET_FAMILIES — FULL shared-preset id → families, derived from
+ *                     tokens/src/style-presets.json. No id stripping: a
+ *                     preset is not a kind. renderForge unions this with
+ *                     the kind's families at resolve time, so a Card
+ *                     carrying preset "glass-deep" gains `overlay` and its
+ *                     backdrop-filter actually applies.
  *
- * Pipeline position: after enrich-presets, before SD5.
+ * Families are derived at build time, never hand-authored per component.
+ *
+ * Pipeline position: after collect-element-seed-defs, before SD5.
  * Output: src/lib/design/renderforge/generated/kind-families.ts
  */
 
@@ -17,8 +30,12 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const DEFAULTS_PATH = resolve(__dirname, "tokens/src/style-defaults.json");
 const PRESETS_PATH = resolve(__dirname, "tokens/src/style-presets.json");
-const OUTPUT_PATH = resolve(__dirname, "../../../src/lib/design/renderforge/generated/kind-families.ts");
+const OUTPUT_PATH = resolve(
+	__dirname,
+	"../../../src/lib/design/renderforge/generated/kind-families.ts",
+);
 
 /**
  * CSS variable → family mapping.
@@ -29,6 +46,8 @@ const VAR_TO_FAMILY = {
 	"background-color": "surface",
 	"box-shadow": "surface",
 	"border-color": "surface",
+	"gradient": "surface",
+	"background-image": "surface",
 	// Text
 	"color": "text",
 	"font-family": "text",
@@ -61,47 +80,51 @@ const INTERACTIVE_KINDS = new Set([
 	"toggle", "toggle-group", "toolbar", "tooltip",
 ]);
 
-const raw = readFileSync(PRESETS_PATH, "utf-8");
-const data = JSON.parse(raw);
-// style-presets.json uses "preset" as the top-level key (was "style" in earlier format)
-const style = data.style ?? data.preset;
+/** Families active in one style/preset entry (inactive values don't grant a family). */
+function familiesFromAxes(entry) {
+	const fams = new Set();
+	for (const axis of Object.keys(entry)) {
+		if (axis.startsWith("$")) continue;
+		const family = VAR_TO_FAMILY[axis];
+		if (!family) continue;
+		const val = entry[axis]?.$value;
+		if (val && val !== "inherit" && val !== "none" && val !== "0" && val !== "transparent") {
+			fams.add(family);
+		}
+	}
+	return fams;
+}
 
-if (!style) {
-	console.error("[derive-kind-families] FATAL: style-presets.json has no 'style' or 'preset' key");
+function loadGroup(path, keys, label) {
+	const data = JSON.parse(readFileSync(path, "utf-8"));
+	for (const key of keys) {
+		if (data[key]) return data[key];
+	}
+	console.error(`[derive-kind-families] FATAL: ${label} has none of the keys: ${keys.join(", ")}`);
 	console.error("  Keys found:", Object.keys(data).join(", "));
 	process.exit(1);
 }
 
-/** Map of kind → Set<family> */
+// ── KIND_FAMILIES — from the per-kind @defaults layer ─────────────
+const defaults = loadGroup(DEFAULTS_PATH, ["style"], "style-defaults.json");
+/** @type {Map<string, Set<string>>} */
 const kindFamilies = new Map();
 
-for (const [presetName, preset] of Object.entries(style)) {
-	if (presetName.startsWith("$")) continue;
-	if (typeof preset !== "object" || preset === null) continue;
+for (const [styleId, entry] of Object.entries(defaults)) {
+	if (styleId.startsWith("$")) continue;
+	if (typeof entry !== "object" || entry === null) continue;
 
-	// Extract kind: "button-glass" → "button", "chat-sidebar-default" → "chat-sidebar"
-	const parts = presetName.split("-");
-	parts.pop(); // remove variant
+	// "{kind}-default" / "{kind}-{variant}" → kind
+	const parts = styleId.split("-");
+	parts.pop();
 	const kind = parts.join("-");
+	if (!kind) continue;
 
-	if (!kindFamilies.has(kind)) {
-		kindFamilies.set(kind, new Set());
+	const families = kindFamilies.get(kind) ?? new Set();
+	for (const family of familiesFromAxes(entry)) {
+		families.add(family);
 	}
-
-	const families = kindFamilies.get(kind);
-
-	// Walk preset axes, map to families
-	for (const axis of Object.keys(preset)) {
-		if (axis.startsWith("$")) continue;
-		const family = VAR_TO_FAMILY[axis];
-		if (family) {
-			// Only add if the value is not "inherit" / "none" / "0" (i.e., it's active)
-			const val = preset[axis]?.$value;
-			if (val && val !== "inherit" && val !== "none" && val !== "0" && val !== "transparent") {
-				families.add(family);
-			}
-		}
-	}
+	kindFamilies.set(kind, families);
 }
 
 // Add interactive family to known interactive kinds
@@ -111,31 +134,45 @@ for (const kind of INTERACTIVE_KINDS) {
 	}
 }
 
-// Sort families for consistent output
-const sorted = {};
-const allKinds = [...kindFamilies.keys()].sort();
-for (const kind of allKinds) {
-	sorted[kind] = [...kindFamilies.get(kind)].sort();
+// ── PRESET_FAMILIES — full shared-preset ids, no stripping ────────
+const presets = loadGroup(PRESETS_PATH, ["style", "preset"], "style-presets.json");
+/** @type {Map<string, Set<string>>} */
+const presetFamilies = new Map();
+
+for (const [presetId, entry] of Object.entries(presets)) {
+	if (presetId.startsWith("$")) continue;
+	if (typeof entry !== "object" || entry === null) continue;
+	const families = familiesFromAxes(entry);
+	if (families.size > 0) {
+		presetFamilies.set(presetId, families);
+	}
 }
 
-// Generate TypeScript output
-const lines = [
+// ── Emit ──────────────────────────────────────────────────────────
+function emitMap(name, map) {
+	const lines = [`export const ${name}: Record<string, CssFamily[]> = {`];
+	for (const key of [...map.keys()].sort()) {
+		const fams = [...map.get(key)].sort().map((f) => `"${f}"`).join(", ");
+		// Biome: unquoted keys for valid JS identifiers (no hyphens)
+		const outKey = key.includes("-") ? `"${key}"` : key;
+		lines.push(`\t${outKey}: [${fams}],`);
+	}
+	lines.push("};");
+	return lines;
+}
+
+const out = [
 	"/* AUTO-GENERATED by derive-kind-families.mjs — DO NOT EDIT */",
 	"",
 	`import type { CssFamily } from "../types.js";`,
 	"",
-	"export const KIND_FAMILIES: Record<string, CssFamily[]> = {",
+	...emitMap("KIND_FAMILIES", kindFamilies),
+	"",
+	...emitMap("PRESET_FAMILIES", presetFamilies),
+	"",
 ];
 
-for (const [kind, families] of Object.entries(sorted)) {
-	const fams = families.map((f) => `"${f}"`).join(", ");
-	// Biome: unquoted keys for valid JS identifiers (no hyphens)
-	const key = kind.includes("-") ? `"${kind}"` : kind;
-	lines.push(`\t${key}: [${fams}],`);
-}
-
-lines.push("};");
-lines.push("");
-
-writeFileSync(OUTPUT_PATH, lines.join("\n"));
-console.log(`[derive-kind-families] ${allKinds.length} kinds → ${OUTPUT_PATH.split("src/")[1]}`);
+writeFileSync(OUTPUT_PATH, out.join("\n"));
+console.log(
+	`[derive-kind-families] ${kindFamilies.size} kinds + ${presetFamilies.size} presets → src/lib/design/renderforge/generated/kind-families.ts`,
+);

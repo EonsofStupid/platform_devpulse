@@ -58,6 +58,11 @@ const clPreprocessors = {
 	captureExtensions: 'coldlight/capture-extensions',
 };
 
+/** Custom parser names */
+const clParsers = {
+	stripRootDescription: 'coldlight/strip-root-description',
+};
+
 /** DTCG $extensions namespace */
 const CL_EXT = 'com.coldlight';
 
@@ -492,6 +497,21 @@ StyleDictionary.registerTransform({
 // into the groupExtensions map so custom formats can read them.
 // ═══════════════════════════════════════════════════════════════
 
+// Every token source file self-documents with a ROOT-level $description
+// (129 files — the house convention). SD merges all sources into one tree,
+// so those root keys collide pairwise and SD warns on every build. The
+// descriptions are per-FILE documentation, not tokens: strip them at parse
+// time so the merge is silent and the file convention stays.
+StyleDictionary.registerParser({
+	name: clParsers.stripRootDescription,
+	pattern: /\.json$/,
+	parser: ({ contents }) => {
+		const data = JSON.parse(contents);
+		delete data.$description;
+		return data;
+	},
+});
+
 StyleDictionary.registerPreprocessor({
 	name: clPreprocessors.captureExtensions,
 	preprocessor: (dictionary) => {
@@ -900,6 +920,7 @@ const config = {
 		// typography, transition, border still expand into sub-properties.
 		return true;
 	},
+	parsers: [clParsers.stripRootDescription],
 	preprocessors: [clPreprocessors.captureExtensions],
 	log: {
 		verbosity: logVerbosityLevels.verbose,

@@ -128,7 +128,7 @@ let emitted = 0;
 for (const file of files) {
 	const parsed = parseComponent(file);
 	if (!parsed) continue;
-	// First (root) component per kind wins — mirrors scan-annotations.
+	// First (root) component per kind wins.
 	if (seenKinds.has(parsed.kind)) continue;
 	seenKinds.add(parsed.kind);
 

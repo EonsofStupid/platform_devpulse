@@ -15,6 +15,10 @@ export const INTENT_MAP: Record<SemanticIntent, PresetId> = {
 	secondary: "neuro-minimal",
 	ghost: "flat-minimal",
 	danger: "stark-glow",
+	// `error` = alias of danger — consumers pass variant strings verbatim
+	// (Alert passes "error"); without the alias they silently fell back to
+	// neuro-elevated instead of the danger skin.
+	error: "stark-glow",
 	neutral: "neuro-muted",
 	accent: "chrome-glow",
 	info: "glass-minimal",
@@ -24,7 +28,10 @@ export const INTENT_MAP: Record<SemanticIntent, PresetId> = {
 	glass: "glass-deep",
 	matte: "neuro-solid",
 	flat: "flat-minimal",
-	stark: "stark-glow",
+	// High-contrast structural intent — NOT the danger skin. stark-glow
+	// (red glow) is reachable only via `danger`/`error` or an explicit
+	// compound id; the wizard's inner panel wearing red was this mapping.
+	stark: "stark-elevated",
 } as const;
 
 /**

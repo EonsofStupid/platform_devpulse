@@ -63,7 +63,7 @@
  * ```
  */
 
-import { KIND_FAMILIES } from "./generated/kind-families.js";
+import { KIND_FAMILIES, PRESET_FAMILIES } from "./generated/kind-families.js";
 import { resolveIntent } from "./intent.js";
 import type { CssFamily, ResolvedMacro, StyleDataAttrs, StyleMacro } from "./types.js";
 
@@ -145,7 +145,15 @@ export function renderForge(input: StyleMacro): ResolvedMacro {
 		cssVars["--gradient"] = sv("gradient", v("gradient", "none"));
 	}
 
-	const families: CssFamily[] = KIND_FAMILIES[kind] ?? DEFAULT_FAMILIES;
+	// Kind ∪ resolved preset: the kind's own @defaults axes decide its base
+	// families, and the shared preset it wears grants the rest — a Card
+	// carrying "glass-deep" gains `overlay` so its backdrop-filter applies.
+	const families: CssFamily[] = [
+		...new Set<CssFamily>([
+			...(KIND_FAMILIES[kind] ?? DEFAULT_FAMILIES),
+			...(PRESET_FAMILIES[resolved] ?? []),
+		]),
+	];
 
 	const dataAttrs = { "data-kind": kind } as StyleDataAttrs;
 	families.forEach((fam) => {

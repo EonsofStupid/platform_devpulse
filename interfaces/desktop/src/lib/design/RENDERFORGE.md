@@ -170,15 +170,25 @@ var(--style-button-primary-disabled-background-color,
                 transparent))))
 ```
 
-Step 4 — Look up the kind's families in `KIND_FAMILIES` and emit the
-matching `data-cl-{family}` markers:
+Step 4 — Emit the `data-cl-{family}` markers as the UNION of two
+build-derived maps (derive-kind-families.mjs):
+
+- `KIND_FAMILIES[kind]` — from the per-kind `@defaults` layer
+  (`tokens/src/style-defaults.json`); missing kinds fall back to
+  `['surface', 'text', 'frame']`.
+- `PRESET_FAMILIES[resolvedPreset]` — from the shared preset layer
+  (`tokens/src/style-presets.json`), keyed by FULL preset id. This is
+  what lets an axis the preset carries (e.g. glass-deep's
+  `backdrop-filter` → `overlay`) actually apply on any kind wearing it.
 
 ```
 KIND_FAMILIES['button'] = ['frame', 'interactive', 'surface', 'text']
-→ dataAttrs = {
+PRESET_FAMILIES['glass-deep'] = ['overlay', 'surface', ...]
+→ dataAttrs (button + preset "primary" → glass-deep) = {
     'data-kind': 'button',
     'data-cl-frame': '',
     'data-cl-interactive': '',
+    'data-cl-overlay': '',
     'data-cl-surface': '',
     'data-cl-text': '',
   }
@@ -232,7 +242,7 @@ have authored values but no glue-CSS rule yet.
 | B4 | **HIGH** | `resolve.test.ts` | Multiple assertions of `m.cssVars["-bg"]`. Resolver emits `--background-color`. All `-bg` assertions fail. | Delete and rewrite as `render.test.ts` from scratch (per Phase 2 plan). |
 | B5 | **HIGH** | `components/chat-frame/ChatFrame.test.ts` L107–L112 | `expect(style).toContain("-bg")`. Same root cause as B4. | Replace with `expect(style).toContain('--background-color')`. |
 | B6 | **HIGH** | `components/chat-footer/ChatFooter.test.ts` L57–L63 | Same as B5. | Same fix. |
-| B7 | MEDIUM | `generated/kind-families.ts` | `glass`, `glass-deep`, `chat-frame`, etc. don't include `overlay` in their family list. The resolver emits `--backdrop-filter` for these kinds, but the `[data-cl-overlay]` rule never fires because the marker isn't on the element. | Architectural call: see PARKING-LOT.md PL-003. Either fix `kind-families.ts` or rewrite the CSS rule. |
+| B7 | **RESOLVED (2026-07-10)** | `generated/kind-families.ts` | Was: `overlay` never granted, so `--backdrop-filter` never applied. Architectural call made: derive-kind-families.mjs now derives `KIND_FAMILIES` from the per-kind `@defaults` layer (style-defaults.json — 80+ real kinds, was 3) AND emits `PRESET_FAMILIES` keyed by full preset id; `render.ts` unions kind ∪ resolved-preset families (Step 4). Blur is live wherever a glass preset or a `backdrop-filter` `@defaults` axis is worn. | — |
 | B8 | LOW | Multiple | Code comments reference "Per RenderForge.md Law 1/5/6" and "Per MACRO-LAW.md Law 5" — neither doc exists. | Replace with citations to TRUTH.md / RENDERFORGE.md / MACRO-LAW.md as appropriate. |
 
 ---

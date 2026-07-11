@@ -7,9 +7,10 @@
  * Usage: node scripts/build/styledictionary/build.mjs
  *
  * Pipeline:
- *   1. Collect colocated component tokens.ts → DTCG JSON
- *   2. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
- *   3. Write barrel index files (CSS, theme, types)
+ *   1. collect-element-seed-defs — per-kind @defaults → style-defaults.json
+ *   2. derive-kind-families — KIND_FAMILIES + PRESET_FAMILIES → kind-families.ts
+ *   3. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
+ *   4. Write barrel index files (CSS, theme, types)
  *
  * Output boundary (no second token pipeline):
  * - src/lib/design/styles/  — token custom properties (@layer tokens.*)
@@ -142,22 +143,9 @@ async function build() {
 		stdio: 'inherit',
 	});
 
-	// Step 1: Collect colocated component tokens.ts → JSON for SD5
-	console.log('[SD5] Collecting colocated component tokens...');
-	execSync('npx tsx scripts/build/styledictionary/collect-component-tokens.ts', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 2: Expand preset shorthand → 11-axis DTCG in component.json
-	console.log('[SD5] Expanding preset styles...');
-	execSync('node scripts/build/styledictionary/collect-preset-styles.mjs', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 3: Derive kind → family mapping from enriched presets
-	console.log('[SD5] Deriving kind families...');
+	// Step 1: Derive KIND_FAMILIES (from style-defaults.json) +
+	// PRESET_FAMILIES (from style-presets.json, full preset ids).
+	console.log('[SD5] Deriving kind + preset families...');
 	execSync('node scripts/build/styledictionary/derive-kind-families.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',
