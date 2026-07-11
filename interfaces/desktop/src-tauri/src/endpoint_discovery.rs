@@ -142,7 +142,10 @@ fn mesh_peer_ips() -> Vec<String> {
     };
     let mut ips = Vec::new();
     for peer in peers.values() {
-        let online = peer.get("Online").and_then(serde_json::Value::as_bool).unwrap_or(false);
+        let online = peer
+            .get("Online")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false);
         if !online {
             continue;
         }
@@ -210,7 +213,10 @@ pub async fn discover(
 ) -> Vec<DiscoveredEndpoint> {
     let mut seen: HashSet<String> = HashSet::new();
     let mut candidates: Vec<(String, DiscoverySource)> = Vec::new();
-    let mut push = |url: String, source: DiscoverySource, seen: &mut HashSet<String>, out: &mut Vec<(String, DiscoverySource)>| {
+    let mut push = |url: String,
+                    source: DiscoverySource,
+                    seen: &mut HashSet<String>,
+                    out: &mut Vec<(String, DiscoverySource)>| {
         let url = normalize(&url);
         if !url.is_empty() && seen.insert(url.clone()) {
             out.push((url, source));
@@ -220,15 +226,28 @@ pub async fn discover(
     // Rung 1 — persisted choice.
     let mut n = 0u32;
     if let Some(url) = &cfg.persisted {
-        push(url.clone(), DiscoverySource::Persisted, &mut seen, &mut candidates);
+        push(
+            url.clone(),
+            DiscoverySource::Persisted,
+            &mut seen,
+            &mut candidates,
+        );
         n = 1;
     }
-    on_event(DiscoveryEvent::SourceScanned { source: DiscoverySource::Persisted, candidates: n });
+    on_event(DiscoveryEvent::SourceScanned {
+        source: DiscoverySource::Persisted,
+        candidates: n,
+    });
 
     // Rung 2 — configured base_url.
     let before = candidates.len();
     if !cfg.base_url.trim().is_empty() {
-        push(cfg.base_url.clone(), DiscoverySource::Configured, &mut seen, &mut candidates);
+        push(
+            cfg.base_url.clone(),
+            DiscoverySource::Configured,
+            &mut seen,
+            &mut candidates,
+        );
     }
     on_event(DiscoveryEvent::SourceScanned {
         source: DiscoverySource::Configured,
@@ -238,7 +257,12 @@ pub async fn discover(
     // Rung 3 — localhost on every configured discovery port.
     let before = candidates.len();
     for port in &cfg.ports {
-        push(format!("http://127.0.0.1:{port}"), DiscoverySource::Localhost, &mut seen, &mut candidates);
+        push(
+            format!("http://127.0.0.1:{port}"),
+            DiscoverySource::Localhost,
+            &mut seen,
+            &mut candidates,
+        );
     }
     on_event(DiscoveryEvent::SourceScanned {
         source: DiscoverySource::Localhost,
@@ -262,10 +286,17 @@ pub async fn discover(
 
     // Rung 5 — mesh peers × configured ports.
     let before = candidates.len();
-    let peer_ips = tokio::task::spawn_blocking(mesh_peer_ips).await.unwrap_or_default();
+    let peer_ips = tokio::task::spawn_blocking(mesh_peer_ips)
+        .await
+        .unwrap_or_default();
     for ip in &peer_ips {
         for port in &cfg.ports {
-            push(format!("http://{ip}:{port}"), DiscoverySource::MeshPeer, &mut seen, &mut candidates);
+            push(
+                format!("http://{ip}:{port}"),
+                DiscoverySource::MeshPeer,
+                &mut seen,
+                &mut candidates,
+            );
         }
     }
     on_event(DiscoveryEvent::SourceScanned {
@@ -285,7 +316,10 @@ pub async fn discover(
         Ok(c) => c,
         Err(err) => {
             tracing::warn!(target: "clyffy.discovery", %err, "probe client build failed — discovery aborted");
-            on_event(DiscoveryEvent::Finished { found: 0, probed: 0 });
+            on_event(DiscoveryEvent::Finished {
+                found: 0,
+                probed: 0,
+            });
             return Vec::new();
         }
     };
@@ -296,7 +330,11 @@ pub async fn discover(
             let client = client.clone();
             async move {
                 match client.probe_capability(&url).await {
-                    Ok(capability) => Some(DiscoveredEndpoint { url, source, capability }),
+                    Ok(capability) => Some(DiscoveredEndpoint {
+                        url,
+                        source,
+                        capability,
+                    }),
                     Err(_) => None,
                 }
             }
@@ -314,9 +352,14 @@ pub async fn discover(
             kind = %endpoint.capability.kind,
             "endpoint verified via capability handshake"
         );
-        on_event(DiscoveryEvent::Found { endpoint: endpoint.clone() });
+        on_event(DiscoveryEvent::Found {
+            endpoint: endpoint.clone(),
+        });
     }
-    on_event(DiscoveryEvent::Finished { found: found.len() as u32, probed });
+    on_event(DiscoveryEvent::Finished {
+        found: found.len() as u32,
+        probed,
+    });
     tracing::info!(target: "clyffy.discovery", found = found.len(), probed, "discovery complete");
 
     found

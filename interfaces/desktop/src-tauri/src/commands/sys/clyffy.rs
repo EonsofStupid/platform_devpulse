@@ -194,7 +194,9 @@ pub async fn discover_clyffy(
     };
     let clyffy_cfg = platform_arc.boot_config().services.system.clyffy.clone();
     if !clyffy_cfg.discovery_enabled {
-        return Err("Endpoint discovery is disabled in config — enter the address manually.".to_string());
+        return Err(
+            "Endpoint discovery is disabled in config — enter the address manually.".to_string(),
+        );
     }
 
     let persisted = crate::paths::resolve_data_dir(&app)
