@@ -75,6 +75,10 @@ devpulse-telemetry = { workspace = true }
 # Platform) so it keeps its own lean compile graph. The `specta`
 # feature makes `ConnectionState` codegen TS bindings against one Rust source.
 devpulse-gb10-client = { path = "../../../systems/devpulse-gb10-client", features = ["specta"] }
+# Turnkey endpoint discovery — pure-Rust mDNS/DNS-SD browse for the LAN rung
+# of the candidate ladder (endpoint_discovery.rs). One ServiceDaemon per
+# process (upstream issue #478: multiple daemons can hang socket creation).
+mdns-sd = "0.20"
 flume = "0.11"
 arc-swap = { workspace = true }
 rfd = "0.15"

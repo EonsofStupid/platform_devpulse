@@ -388,6 +388,27 @@ pub struct ClyffyServiceEntry {
     /// Per-probe HTTP timeout in seconds.
     #[serde(default = "default_clyffy_probe_timeout_secs")]
     pub probe_timeout_secs: u64,
+    /// Whether the turnkey discovery ladder (persisted / configured /
+    /// localhost / mDNS / mesh peers) runs when the operator asks to find
+    /// their Clyffy. `false` = manual address entry only.
+    #[serde(default = "default_true")]
+    pub discovery_enabled: bool,
+    /// DNS-SD service type `clyffyd` advertises on the LAN. The canonical
+    /// constant belongs to `clyffyos-wire`; this default tracks the wire
+    /// contract (`_clyffy._tcp.local.`, kernel-extraction charter).
+    #[serde(default = "default_clyffy_discovery_service_type")]
+    pub discovery_service_type: String,
+    /// Candidate ports probed on localhost and enumerated mesh peers.
+    /// (mDNS answers carry their own port via SRV and ignore this list.)
+    #[serde(default = "default_clyffy_discovery_ports")]
+    pub discovery_ports: Vec<u16>,
+    /// How long the mDNS browse collects answers before the ladder moves on.
+    #[serde(default = "default_clyffy_discovery_mdns_wait_ms")]
+    pub discovery_mdns_wait_ms: u64,
+    /// Bounded fan-out for candidate capability probes — only enumerated
+    /// candidates are probed, never address sweeps.
+    #[serde(default = "default_clyffy_discovery_max_probes")]
+    pub discovery_max_probes: usize,
 }
 
 fn default_clyffy_probe_interval_secs() -> u64 {
@@ -395,6 +416,18 @@ fn default_clyffy_probe_interval_secs() -> u64 {
 }
 fn default_clyffy_probe_timeout_secs() -> u64 {
     5
+}
+fn default_clyffy_discovery_service_type() -> String {
+    "_clyffy._tcp.local.".to_string()
+}
+fn default_clyffy_discovery_ports() -> Vec<u16> {
+    vec![8080]
+}
+fn default_clyffy_discovery_mdns_wait_ms() -> u64 {
+    1500
+}
+fn default_clyffy_discovery_max_probes() -> usize {
+    8
 }
 
 impl Default for ClyffyServiceEntry {
@@ -404,6 +437,11 @@ impl Default for ClyffyServiceEntry {
             base_url: String::new(),
             probe_interval_secs: default_clyffy_probe_interval_secs(),
             probe_timeout_secs: default_clyffy_probe_timeout_secs(),
+            discovery_enabled: true,
+            discovery_service_type: default_clyffy_discovery_service_type(),
+            discovery_ports: default_clyffy_discovery_ports(),
+            discovery_mdns_wait_ms: default_clyffy_discovery_mdns_wait_ms(),
+            discovery_max_probes: default_clyffy_discovery_max_probes(),
         }
     }
 }

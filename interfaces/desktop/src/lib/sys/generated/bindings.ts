@@ -965,6 +965,29 @@ async skipClyffySetup() : Promise<Result<null, string>> {
 }
 },
 /**
+ * Run the turnkey discovery ladder and return every endpoint that
+ * answered the capability handshake. Streams `ClyffyDiscoveryProgress`
+ * events (per rung scanned, per endpoint verified, final tally) while it
+ * runs, so the UI shows honest per-source progress.
+ * 
+ * READ-ONLY: this never touches `ClyffyConnectionState` — the operator
+ * confirms a result and the UI calls `connect_clyffy` with its URL; the
+ * probe loop stays the sole connection-state writer. Only enumerated
+ * candidates are probed, never address sweeps.
+ * 
+ * # Errors
+ * Returns `Err` when discovery is disabled by config or the platform is
+ * not booted yet (config SSOT unavailable).
+ */
+async discoverClyffy() : Promise<Result<DiscoveredEndpoint[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discover_clyffy") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.
@@ -4037,6 +4060,7 @@ chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
 cloudTokenStreamed: CloudTokenStreamed,
 clyffyConnectionChanged: ClyffyConnectionChanged,
+clyffyDiscoveryProgress: ClyffyDiscoveryProgress,
 hardwareMetricsUpdated: HardwareMetricsUpdated,
 inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
@@ -4051,6 +4075,7 @@ chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
 cloudTokenStreamed: "cloud-token-streamed",
 clyffyConnectionChanged: "clyffy-connection-changed",
+clyffyDiscoveryProgress: "clyffy-discovery-progress",
 hardwareMetricsUpdated: "hardware-metrics-updated",
 inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
@@ -5629,6 +5654,19 @@ export type ClyffyConnectionChanged = {
  */
 connection: ConnectionState }
 /**
+ * Live progress from the turnkey endpoint-discovery ladder — one event per
+ * rung scanned, per endpoint verified, and a final tally. The frontend
+ * renders honest per-source progress ("searched your network, your mesh…")
+ * and appends found endpoints as capability cards as they verify.
+ * Discovery is READ-ONLY: connecting stays the operator's confirm via
+ * `connect_clyffy`.
+ */
+export type ClyffyDiscoveryProgress = { 
+/**
+ * What happened (source_scanned / found / finished).
+ */
+event: DiscoveryEvent }
+/**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
  * Every "?" icon in the overlay pulls its body text from this struct.
@@ -5851,7 +5889,42 @@ status_failed: string;
 /**
  * Inline error when Connect is pressed with an empty address.
  */
-error_empty: string }
+error_empty: string; 
+/**
+ * Visible label on the primary "find my Clyffy" button.
+ */
+discover_cta: string; 
+/**
+ * `aria-label` on the discover button.
+ */
+discover_aria: string; 
+/**
+ * Status line while the ladder runs (per-source progress renders
+ * beneath it).
+ */
+discovering: string; 
+/**
+ * Heading above the verified-endpoint result cards.
+ */
+found_title: string; 
+/**
+ * Visible label on a result card's confirm/connect button.
+ */
+confirm_cta: string; 
+/**
+ * Honest empty state after the ladder finishes with nothing —
+ * names what was searched and points at the manual field.
+ */
+none_found: string; 
+/**
+ * Hint when a rung was degraded (multicast blocked / no mesh
+ * client) — a mode, never an error.
+ */
+degraded_hint: string; 
+/**
+ * Reveal label for the manual address entry fallback.
+ */
+manual_reveal: string }
 /**
  * Connection lifecycle from DevPulse's perspective. Drives the no-AI indicator
  * and every Tier-2 feature gate; the capability is always **computed** from the
@@ -6177,6 +6250,63 @@ export type DevforgeHealthState =
  * Status could not be determined.
  */
 "unknown"
+/**
+ * A verified endpoint: it answered the capability handshake.
+ */
+export type DiscoveredEndpoint = { 
+/**
+ * Base URL, no trailing slash — what `connect_clyffy` takes verbatim.
+ */
+url: string; 
+/**
+ * Which rung found it.
+ */
+source: DiscoverySource; 
+/**
+ * What it advertised (computed from the live handshake, never assumed).
+ */
+capability: EndpointCapability }
+/**
+ * Live progress from the ladder — the Tauri seam maps these onto the
+ * typed `ClyffyDiscoveryProgress` event.
+ */
+export type DiscoveryEvent = 
+/**
+ * A rung finished enumerating; `candidates` is how many it contributed.
+ */
+{ kind: "source_scanned"; source: DiscoverySource; candidates: number } | 
+/**
+ * A candidate answered the capability handshake.
+ */
+{ kind: "found"; endpoint: DiscoveredEndpoint } | 
+/**
+ * The ladder is done.
+ */
+{ kind: "finished"; found: number; probed: number }
+/**
+ * Which rung of the ladder produced a candidate.
+ */
+export type DiscoverySource = 
+/**
+ * The operator's persisted last-connected endpoint.
+ */
+"persisted" | 
+/**
+ * The configured `base_url` from `services.system.clyffy`.
+ */
+"configured" | 
+/**
+ * Loopback probe on a configured discovery port.
+ */
+"localhost" | 
+/**
+ * DNS-SD answer on the LAN.
+ */
+"mdns" | 
+/**
+ * Enumerated tailscale/Headscale mesh peer.
+ */
+"mesh_peer"
 /**
  * Where on disk a downloaded model lands.
  */

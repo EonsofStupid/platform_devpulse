@@ -11,8 +11,9 @@
 //! `Disconnected` result is the honest standalone answer, not an error.
 
 use crate::connection_store::{ClyffyConnectionRecord, ConnectionStore};
-use crate::events::ClyffyConnectionChanged;
-use crate::state::ClyffyConnectionState;
+use crate::endpoint_discovery::{self, DiscoveredEndpoint, DiscoveryConfig};
+use crate::events::{ClyffyConnectionChanged, ClyffyDiscoveryProgress};
+use crate::state::{ClyffyConnectionState, PlatformState};
 use devpulse_gb10_client::ConnectionState;
 use tauri::{AppHandle, State};
 use tauri_specta::Event;
@@ -167,4 +168,54 @@ pub async fn skip_clyffy_setup(app: AppHandle) -> Result<(), String> {
         "operator skipped connect — standalone by choice"
     );
     store.save(&record)
+}
+
+/// Run the turnkey discovery ladder and return every endpoint that
+/// answered the capability handshake. Streams `ClyffyDiscoveryProgress`
+/// events (per rung scanned, per endpoint verified, final tally) while it
+/// runs, so the UI shows honest per-source progress.
+///
+/// READ-ONLY: this never touches `ClyffyConnectionState` — the operator
+/// confirms a result and the UI calls `connect_clyffy` with its URL; the
+/// probe loop stays the sole connection-state writer. Only enumerated
+/// candidates are probed, never address sweeps.
+///
+/// # Errors
+/// Returns `Err` when discovery is disabled by config or the platform is
+/// not booted yet (config SSOT unavailable).
+#[tauri::command]
+#[specta::specta]
+pub async fn discover_clyffy(
+    app: AppHandle,
+    platform: State<'_, PlatformState>,
+) -> Result<Vec<DiscoveredEndpoint>, String> {
+    let Some(platform_arc) = platform.platform.load_full() else {
+        return Err("Platform is still booting — try again in a moment.".to_string());
+    };
+    let clyffy_cfg = platform_arc.boot_config().services.system.clyffy.clone();
+    if !clyffy_cfg.discovery_enabled {
+        return Err("Endpoint discovery is disabled in config — enter the address manually.".to_string());
+    }
+
+    let persisted = crate::paths::resolve_data_dir(&app)
+        .ok()
+        .map(|dir| ConnectionStore::new(&dir).load())
+        .and_then(|record| record.endpoint);
+
+    let cfg = DiscoveryConfig {
+        persisted,
+        base_url: clyffy_cfg.base_url.clone(),
+        service_type: clyffy_cfg.discovery_service_type.clone(),
+        ports: clyffy_cfg.discovery_ports.clone(),
+        mdns_wait: std::time::Duration::from_millis(clyffy_cfg.discovery_mdns_wait_ms),
+        probe_timeout: std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1)),
+        max_probes: clyffy_cfg.discovery_max_probes,
+    };
+
+    tracing::info!(target: "clyffy.discovery", "operator started discovery");
+    let found = endpoint_discovery::discover(cfg, |event| {
+        let _ = ClyffyDiscoveryProgress { event }.emit(&app);
+    })
+    .await;
+    Ok(found)
 }

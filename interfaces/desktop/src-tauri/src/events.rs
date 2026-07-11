@@ -222,3 +222,15 @@ pub struct ClyffyConnectionChanged {
     /// New connection state (carries the computed capability when Connected).
     pub connection: ConnectionState,
 }
+
+/// Live progress from the turnkey endpoint-discovery ladder — one event per
+/// rung scanned, per endpoint verified, and a final tally. The frontend
+/// renders honest per-source progress ("searched your network, your mesh…")
+/// and appends found endpoints as capability cards as they verify.
+/// Discovery is READ-ONLY: connecting stays the operator's confirm via
+/// `connect_clyffy`.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+pub struct ClyffyDiscoveryProgress {
+    /// What happened (source_scanned / found / finished).
+    pub event: crate::endpoint_discovery::DiscoveryEvent,
+}

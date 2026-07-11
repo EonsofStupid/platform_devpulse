@@ -23,6 +23,7 @@
 pub mod commands;
 pub mod connection_store;
 pub mod crash_safety;
+pub mod endpoint_discovery;
 pub mod events;
 pub mod logging;
 pub mod paths;
@@ -196,6 +197,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             // Persisted connect-or-skip decision — drives the boot gate.
             commands::sys::clyffy::is_clyffy_setup_decided,
             commands::sys::clyffy::skip_clyffy_setup,
+            // Turnkey discovery — candidate ladder + capability verification.
+            commands::sys::clyffy::discover_clyffy,
             commands::devclyffy::get_status,
             commands::devforge::devforge_start,
             commands::devforge::devforge_stop,
@@ -455,6 +458,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateInstallFinished,
             // Clyffy wire connection — probe task pushes state transitions.
             events::ClyffyConnectionChanged,
+            // Turnkey discovery — per-rung progress + verified endpoints.
+            events::ClyffyDiscoveryProgress,
         ])
 }
 

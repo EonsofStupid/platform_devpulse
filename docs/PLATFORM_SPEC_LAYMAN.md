@@ -279,7 +279,12 @@ Deferred — **not retired** (each has a named owner slice):
       (B1-persist)
 - [ ] Boot gate keyed to the connect decision instead of local model
       assignment (B7)
-- [ ] Local (LAN) endpoint discovery; GB10 stays manual by design (B8)
+- [x] Endpoint discovery — the turnkey candidate ladder (B8, landed
+      2026-07-11): persisted choice, configured address, this machine,
+      the local network (mDNS `_clyffy._tcp.local.`), AND the private
+      mesh (tailscale peer enumeration). The old "GB10 stays manual by
+      design" was overridden by the operator — every mode is discovered
+      and confirmed, with manual entry as the always-available fallback.
 - [ ] Voice/vision end-to-end over the wire (needs the Clyffy daemon live)
 
 Runtime verification note: the *connected* path cannot be end-to-end

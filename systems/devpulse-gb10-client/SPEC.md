@@ -128,8 +128,15 @@ On connect the client probes `/v1/capability`, stores the returned
 
 ## Not this pass (deferred, not retired — [[feedback_deferred_not_retired]])
 
-- mDNS discovery implementation (Local mode; GB10 stays a typed address by design —
-  link-local discovery cannot cross a mesh).
+- ~~mDNS discovery implementation~~ **LANDED 2026-07-11** — the turnkey
+  candidate ladder lives desktop-side in
+  `interfaces/desktop/src-tauri/src/endpoint_discovery.rs` (persisted /
+  configured / localhost / mDNS `_clyffy._tcp.local.` / tailscale mesh
+  peers → bounded parallel `probe_capability`). The operator overrode
+  "GB10 stays typed-in by design": link-local mDNS still cannot cross a
+  mesh, but mesh peers are ENUMERATED via `tailscale status --json` and
+  verified by the same handshake. This crate stays the thin wire —
+  discovery orchestration is the desktop app's concern.
 - The serving side (`clyffyd`) — built in the `clyffyos` repo; until it answers,
   only the **disconnected** path is runtime-verifiable here.
 - A devtool connect tile (`clyffy/providers/connect`) — the UI consumer for
