@@ -10,14 +10,11 @@
 //! `EndpointCapability` IS a Clyffy (capability computed, never assumed).
 //!
 //! Rungs (charter modes local / network / gb10):
-//!   1. Persisted   — the operator's last connected endpoint
-//!   2. Configured  — `services.system.clyffy.base_url`
-//!   3. Localhost   — `http://127.0.0.1:{port}` per configured port
-//!   4. mDNS        — DNS-SD browse for `_clyffy._tcp.local.` (LAN; SRV
-//!                    carries the port). Link-local only — cannot cross the
-//!                    mesh, which is what rung 5 is for.
-//!   5. Mesh peers  — `tailscale status --json` peer enumeration when a
-//!                    tailscaled (Headscale-identical) is present.
+//!   1. Persisted — the operator's last connected endpoint
+//!   2. Configured — `services.system.clyffy.base_url`
+//!   3. Localhost — `http://127.0.0.1:{port}` per configured port
+//!   4. mDNS — DNS-SD browse for `_clyffy._tcp.local.` (LAN; SRV carries the port; link-local, cannot cross the mesh)
+//!   5. Mesh peers — `tailscale status --json` enumeration when a tailscaled (Headscale-identical) is present
 //!
 //! HARD RULES:
 //! - READ-ONLY w.r.t. `ClyffyConnectionState`: this module streams
@@ -205,12 +202,13 @@ fn mdns_browse(service_type: &str, wait: Duration) -> Vec<String> {
     urls
 }
 
-/// Run the ladder: enumerate candidates per rung, then verify every
-/// deduped candidate with a bounded-concurrency capability probe.
-pub async fn discover(
-    cfg: DiscoveryConfig,
-    on_event: impl Fn(DiscoveryEvent) + Send + Sync,
-) -> Vec<DiscoveredEndpoint> {
+/// Enumerate the ladder's candidates (rungs 1–5), reporting each rung as
+/// it finishes. Dedup by normalized URL — the first rung to name a URL
+/// owns it.
+async fn enumerate_candidates(
+    cfg: &DiscoveryConfig,
+    on_event: &(impl Fn(DiscoveryEvent) + Send + Sync),
+) -> Vec<(String, DiscoverySource)> {
     let mut seen: HashSet<String> = HashSet::new();
     let mut candidates: Vec<(String, DiscoverySource)> = Vec::new();
     let mut push = |url: String,
@@ -222,9 +220,15 @@ pub async fn discover(
             out.push((url, source));
         }
     };
+    let scanned = |source: DiscoverySource, count: usize| {
+        on_event(DiscoveryEvent::SourceScanned {
+            source,
+            candidates: count as u32,
+        });
+    };
 
     // Rung 1 — persisted choice.
-    let mut n = 0u32;
+    let before = candidates.len();
     if let Some(url) = &cfg.persisted {
         push(
             url.clone(),
@@ -232,12 +236,8 @@ pub async fn discover(
             &mut seen,
             &mut candidates,
         );
-        n = 1;
     }
-    on_event(DiscoveryEvent::SourceScanned {
-        source: DiscoverySource::Persisted,
-        candidates: n,
-    });
+    scanned(DiscoverySource::Persisted, candidates.len() - before);
 
     // Rung 2 — configured base_url.
     let before = candidates.len();
@@ -249,10 +249,7 @@ pub async fn discover(
             &mut candidates,
         );
     }
-    on_event(DiscoveryEvent::SourceScanned {
-        source: DiscoverySource::Configured,
-        candidates: (candidates.len() - before) as u32,
-    });
+    scanned(DiscoverySource::Configured, candidates.len() - before);
 
     // Rung 3 — localhost on every configured discovery port.
     let before = candidates.len();
@@ -264,29 +261,23 @@ pub async fn discover(
             &mut candidates,
         );
     }
-    on_event(DiscoveryEvent::SourceScanned {
-        source: DiscoverySource::Localhost,
-        candidates: (candidates.len() - before) as u32,
-    });
+    scanned(DiscoverySource::Localhost, candidates.len() - before);
 
     // Rung 4 — mDNS browse (blocking socket work off the async runtime).
     let before = candidates.len();
     let service_type = cfg.service_type.clone();
     let wait = cfg.mdns_wait;
-    let mdns_urls = tokio::task::spawn_blocking(move || mdns_browse(&service_type, wait))
+    let mdns_urls = devpulse_telemetry::spawn_blocking(move || mdns_browse(&service_type, wait))
         .await
         .unwrap_or_default();
     for url in mdns_urls {
         push(url, DiscoverySource::Mdns, &mut seen, &mut candidates);
     }
-    on_event(DiscoveryEvent::SourceScanned {
-        source: DiscoverySource::Mdns,
-        candidates: (candidates.len() - before) as u32,
-    });
+    scanned(DiscoverySource::Mdns, candidates.len() - before);
 
     // Rung 5 — mesh peers × configured ports.
     let before = candidates.len();
-    let peer_ips = tokio::task::spawn_blocking(mesh_peer_ips)
+    let peer_ips = devpulse_telemetry::spawn_blocking(mesh_peer_ips)
         .await
         .unwrap_or_default();
     for ip in &peer_ips {
@@ -299,10 +290,7 @@ pub async fn discover(
             );
         }
     }
-    on_event(DiscoveryEvent::SourceScanned {
-        source: DiscoverySource::MeshPeer,
-        candidates: (candidates.len() - before) as u32,
-    });
+    scanned(DiscoverySource::MeshPeer, candidates.len() - before);
 
     tracing::info!(
         target: "clyffy.discovery",
@@ -310,6 +298,16 @@ pub async fn discover(
         mesh_peers = peer_ips.len(),
         "candidate ladder enumerated — probing"
     );
+    candidates
+}
+
+/// Run the ladder: enumerate candidates per rung, then verify every
+/// deduped candidate with a bounded-concurrency capability probe.
+pub async fn discover(
+    cfg: DiscoveryConfig,
+    on_event: impl Fn(DiscoveryEvent) + Send + Sync,
+) -> Vec<DiscoveredEndpoint> {
+    let candidates = enumerate_candidates(&cfg, &on_event).await;
 
     // Verify: every candidate gets the real handshake, bounded fan-out.
     let client = match ClyffyClient::new(cfg.probe_timeout) {
