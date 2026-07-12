@@ -20,16 +20,23 @@
  * src/**\/*.{ts,svelte} for JS-set definitions (setProperty / cssVars maps).
  */
 
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { join, relative } from "node:path";
 
 const ROOT = process.cwd();
-const SRC = join(ROOT, 'src');
-const SKIP_DIRS = new Set(['node_modules', '.svelte-kit', 'build', 'dist', 'storybook-static', '.cowlevel']);
+const SRC = join(ROOT, "src");
+const SKIP_DIRS = new Set([
+	"node_modules",
+	".svelte-kit",
+	"build",
+	"dist",
+	"storybook-static",
+	".cowlevel",
+]);
 
 // Registered @property names and dynamic axes RenderForge sets at runtime
 // are defined outside static CSS; treat prefixes listed here as runtime-defined.
-const RUNTIME_DEFINED_PREFIXES = ['--style-', '--svg-'];
+const RUNTIME_DEFINED_PREFIXES = ["--style-", "--svg-"];
 
 /** @returns {string[]} */
 function walk(dir, exts, acc = []) {
@@ -47,7 +54,7 @@ function walk(dir, exts, acc = []) {
 
 const DEFINE_RE = /(?:^|[{;\s])(--[a-zA-Z0-9-]+)\s*:/gm;
 const CONSUME_RE = /var\(\s*(--[a-zA-Z0-9-]+)/gm;
-const JS_SET_RE = /(?:setProperty\(\s*|["'`])(--[a-zA-Z0-9-]+)["'`]\s*[,:\)]/gm;
+const JS_SET_RE = /(?:setProperty\(\s*|["'`])(--[a-zA-Z0-9-]+)["'`]\s*[,:)]/gm;
 const AT_PROPERTY_RE = /@property\s+(--[a-zA-Z0-9-]+)/gm;
 
 /** name -> Set<relPath> */
@@ -60,15 +67,15 @@ function record(map, name, file) {
 	map.get(name).add(file);
 }
 
-for (const file of walk(SRC, ['.css', '.svelte', '.ts'])) {
-	const rel = relative(ROOT, file).replaceAll('\\', '/');
-	const text = readFileSync(file, 'utf8');
-	if (file.endsWith('.css') || file.endsWith('.svelte')) {
+for (const file of walk(SRC, [".css", ".svelte", ".ts"])) {
+	const rel = relative(ROOT, file).replaceAll("\\", "/");
+	const text = readFileSync(file, "utf8");
+	if (file.endsWith(".css") || file.endsWith(".svelte")) {
 		for (const m of text.matchAll(DEFINE_RE)) record(defined, m[1], rel);
 		for (const m of text.matchAll(AT_PROPERTY_RE)) record(defined, m[1], rel);
 		for (const m of text.matchAll(CONSUME_RE)) record(consumed, m[1], rel);
 	}
-	if (file.endsWith('.ts') || file.endsWith('.svelte')) {
+	if (file.endsWith(".ts") || file.endsWith(".svelte")) {
 		for (const m of text.matchAll(JS_SET_RE)) record(defined, m[1], rel);
 	}
 }
@@ -103,28 +110,29 @@ const report = {
 	contested,
 };
 
-const jsonIdx = process.argv.indexOf('--json');
+const jsonIdx = process.argv.indexOf("--json");
 if (jsonIdx !== -1 && process.argv[jsonIdx + 1]) {
-	writeFileSync(process.argv[jsonIdx + 1], JSON.stringify(report, null, '\t'));
+	writeFileSync(process.argv[jsonIdx + 1], JSON.stringify(report, null, "\t"));
 	console.log(`[css-var-audit] JSON written: ${process.argv[jsonIdx + 1]}`);
 }
 
 const { summary } = report;
-console.log('[css-var-audit] ColdLight custom-property chain');
+console.log("[css-var-audit] ColdLight custom-property chain");
 console.log(`  defined:   ${summary.definedCount}`);
 console.log(`  consumed:  ${summary.consumedCount}`);
 console.log(`  UNDEFINED (consumed, never defined): ${summary.undefinedCount}`);
 console.log(`  DEAD      (defined, never consumed): ${summary.deadCount}`);
 console.log(`  CONTESTED (defined in 2+ files):     ${summary.contestedCount}`);
-console.log('');
-console.log('── UNDEFINED (broken chains — silent render failures) ──');
+console.log("");
+console.log("── UNDEFINED (broken chains — silent render failures) ──");
 for (const v of undefinedVars.slice(0, 60)) {
 	console.log(`  ${v.name}`);
 	for (const c of v.consumers.slice(0, 3)) console.log(`      <- ${c}`);
 }
-if (undefinedVars.length > 60) console.log(`  ... and ${undefinedVars.length - 60} more (see --json)`);
-console.log('');
-console.log('── CONTESTED (top 25 — cascade fights) ──');
+if (undefinedVars.length > 60)
+	console.log(`  ... and ${undefinedVars.length - 60} more (see --json)`);
+console.log("");
+console.log("── CONTESTED (top 25 — cascade fights) ──");
 for (const v of contested.slice(0, 25)) {
 	console.log(`  ${v.name}  (${v.files.length} definers)`);
 	for (const f of v.files.slice(0, 4)) console.log(`      = ${f}`);
