@@ -53,7 +53,7 @@ export function useRadioGroup(props: UseRadioGroupProps = {}): UseRadioGroupRetu
 		loop,
 		homeEnd: false,
 		onFocusItem: (radio) => {
-			const radioValue = radio.getAttribute("data-value");
+			const radioValue = radio.dataset.value;
 			if (radioValue) doSetValue(radioValue);
 		},
 	});

@@ -72,8 +72,8 @@ const dotClass = $derived(`dot dot-${state}`);
 		animation: breathing 2.4s ease-in-out infinite;
 	}
 	.dot-starting {
-		background: var(--accent-cyber, var(--accent-electric));
-		box-shadow: 0 0 0.5rem color-mix(in oklch, var(--accent-cyber, var(--accent-electric)) 60%, transparent);
+		background: var(--accent-cyber-main, var(--accent-electric-main));
+		box-shadow: 0 0 0.5rem color-mix(in oklch, var(--accent-cyber-main, var(--accent-electric-main)) 60%, transparent);
 		animation: pulse-fast 0.9s ease-in-out infinite;
 	}
 	.dot-degraded {

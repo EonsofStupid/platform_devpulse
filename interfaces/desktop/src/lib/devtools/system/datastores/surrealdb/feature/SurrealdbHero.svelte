@@ -69,9 +69,9 @@ const containerClass = $derived(`hero-graph hero-graph-${state}`);
 	<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 		<defs>
 			<linearGradient id="surreal-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-				<stop offset="0%" stop-color="color-mix(in oklch, var(--accent-purple, mediumpurple) 10%, transparent)" />
-				<stop offset="50%" stop-color="var(--accent-purple, mediumpurple)" />
-				<stop offset="100%" stop-color="color-mix(in oklch, var(--accent-purple, mediumpurple) 10%, transparent)" />
+				<stop offset="0%" stop-color="color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 10%, transparent)" />
+				<stop offset="50%" stop-color="var(--store-accent, var(--accent-primary-main))" />
+				<stop offset="100%" stop-color="color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 10%, transparent)" />
 			</linearGradient>
 		</defs>
 
@@ -111,7 +111,7 @@ const containerClass = $derived(`hero-graph hero-graph-${state}`);
 	}
 
 	.edge {
-		stroke: var(--accent-purple, mediumpurple);
+		stroke: var(--store-accent, var(--accent-primary-main));
 		stroke-width: 0.875;
 		stroke-opacity: 0.35;
 		stroke-linecap: round;
@@ -120,12 +120,12 @@ const containerClass = $derived(`hero-graph hero-graph-${state}`);
 	}
 
 	.node {
-		fill: color-mix(in oklch, var(--accent-purple, mediumpurple) 75%, transparent);
-		stroke: var(--accent-purple, mediumpurple);
+		fill: color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 75%, transparent);
+		stroke: var(--store-accent, var(--accent-primary-main));
 		stroke-width: 0.5;
 		animation: node-float 4.5s ease-in-out infinite;
 		animation-delay: calc(var(--node-drift) * -4.5s);
-		filter: drop-shadow(0 0 1.5px color-mix(in oklch, var(--accent-purple, mediumpurple) 80%, transparent));
+		filter: drop-shadow(0 0 1.5px color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 80%, transparent));
 	}
 
 	@keyframes edge-pulse {

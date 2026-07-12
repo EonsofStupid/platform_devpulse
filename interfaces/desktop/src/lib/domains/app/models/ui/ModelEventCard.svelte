@@ -35,7 +35,7 @@ function dismiss() {
 </script>
 
 {#if narration}
-	<aside class="event-card" data-tone={narration.tone} style:--accent={accent}>
+	<aside class="event-card" data-tone={narration.tone} style:--event-accent={accent}>
 		<div class="head">
 			<span class="strip"></span>
 			<Text size="xs" weight="bold">{label?.name ?? slotId}</Text>
@@ -72,7 +72,7 @@ function dismiss() {
 		display: inline-block;
 		width: 0.25rem;
 		height: 0.875rem;
-		background: var(--accent);
+		background: var(--event-accent);
 		border-radius: 0.125rem;
 	}
 	.dismiss {

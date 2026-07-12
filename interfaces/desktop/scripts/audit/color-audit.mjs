@@ -71,7 +71,9 @@ function walk(dir, exts, acc = []) {
 
 // ─── Harvest custom-property definitions in cascade-ish order ────────
 
-const DEF_RE = /(--[a-zA-Z0-9-]+)\s*:\s*([^;{}]+);/g;
+// Value starts with a non-space char — removes the \s*/[^;{}] overlap
+// that made the pattern backtrack super-linearly (Sonar S5852).
+const DEF_RE = /(--[a-zA-Z0-9-]+)\s*:\s*([^;{}\s][^;{}]*);/g;
 const vars = new Map();
 
 const CSS_SOURCES = [
@@ -85,7 +87,7 @@ const CSS_SOURCES = [
 for (const src of CSS_SOURCES) {
 	const full = join(ROOT, src);
 	const files = statSync(full).isDirectory() ? walk(full, [".css"]) : [full];
-	for (const f of files.sort()) {
+	for (const f of files.toSorted((a, b) => a.localeCompare(b))) {
 		const text = readFileSync(f, "utf8");
 		for (const m of text.matchAll(DEF_RE)) {
 			vars.set(m[1], m[2].trim());
@@ -93,15 +95,29 @@ for (const src of CSS_SOURCES) {
 	}
 }
 
+/**
+ * Hand-parse a `var(--name[, fallback])` call — the anchored regex form
+ * backtracks super-linearly on long fallbacks (Sonar S5852).
+ * @returns {{ name: string, fallback: string | null } | null}
+ */
+function parseVarCall(v) {
+	if (!v.startsWith("var(") || !v.endsWith(")")) return null;
+	const inner = v.slice(4, -1);
+	const comma = inner.indexOf(",");
+	const name = (comma === -1 ? inner : inner.slice(0, comma)).trim();
+	if (!/^--[a-zA-Z0-9-]+$/.test(name)) return null;
+	return { name, fallback: comma === -1 ? null : inner.slice(comma + 1).trim() };
+}
+
 /** Resolve a value through var() chains to a culori color, or null. */
 function resolveColor(value, depth = 0) {
 	if (depth > 32 || typeof value !== "string") return null;
 	const v = value.trim();
-	const varMatch = v.match(/^var\(\s*(--[a-zA-Z0-9-]+)\s*(?:,\s*(.+))?\)$/s);
-	if (varMatch) {
-		const target = vars.get(varMatch[1]);
+	const varCall = parseVarCall(v);
+	if (varCall) {
+		const target = vars.get(varCall.name);
 		if (target !== undefined) return resolveColor(target, depth + 1);
-		return varMatch[2] ? resolveColor(varMatch[2], depth + 1) : null;
+		return varCall.fallback ? resolveColor(varCall.fallback, depth + 1) : null;
 	}
 	if (v.includes("color-mix") || v.includes("gradient")) return null;
 	const parsed = parse(v);

@@ -14,7 +14,7 @@
 	"preset": {
 		"button-primary": {
 			"background-color": {
-				"$value": "oklch(0.55 0.14 180)",
+				"$value": "{color.mint.500}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -22,11 +22,11 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0 1rem 0 oklch(0.55 0.14 180 / 0.35)",
+				"$value": "0 0 1rem 0 oklch(from {color.mint.500} l c h / 0.35)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.97 0.01 180)",
+				"$value": "{color.void.50}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -94,15 +94,15 @@
 		"button-primary-hover": {
 			"$description": "button-primary hover overrides",
 			"background-color": {
-				"$value": "oklch(0.48 0.13 180)",
+				"$value": "{color.mint.600}",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0 1.5rem 0.125rem oklch(0.55 0.14 180 / 0.5)",
+				"$value": "0 0 1.5rem 0.125rem oklch(from {color.mint.500} l c h / 0.5)",
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "oklch(0.65 0.12 180 / 0.5)",
+				"$value": "oklch(from {color.mint.400} l c h / 0.5)",
 				"$type": "color"
 			}
 		},
@@ -122,7 +122,7 @@
 		},
 		"button-secondary": {
 			"background-color": {
-				"$value": "oklch(0.2 0.01 240)",
+				"$value": "{color.void.900}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -130,15 +130,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0 0.5rem 0 oklch(0 0 0 / 0.3)",
+				"$value": "0 0 0.5rem 0 oklch(from {color.black} l c h / 0.3)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.8 0.01 240)",
+				"$value": "{color.void.200}",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(0.3 0.01 240)",
+				"$value": "{color.void.800}",
 				"$type": "color"
 			},
 			"border-width": {
@@ -202,13 +202,13 @@
 		"button-secondary-hover": {
 			"$description": "button-secondary hover overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.015 240)",
+				"$value": "{color.void.800}",
 				"$type": "color"
 			}
 		},
 		"button-ghost": {
 			"background-color": {
-				"$value": "oklch(0 0 0 / 0)",
+				"$value": "oklch(from {color.black} l c h / 0)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -220,11 +220,11 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.65 0.01 240)",
+				"$value": "{color.void.400}",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(0 0 0 / 0)",
+				"$value": "oklch(from {color.black} l c h / 0)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -288,11 +288,11 @@
 		"button-ghost-hover": {
 			"$description": "button-ghost hover overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.01 240 / 0.5)",
+				"$value": "oklch(from {color.void.900} l c h / 0.5)",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.88 0.01 240)",
+				"$value": "{color.void.100}",
 				"$type": "color"
 			}
 		},
@@ -310,11 +310,11 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.97 0.01 25)",
+				"$value": "{color.neutral.50}",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(0.55 0.2 25 / 0.4)",
+				"$value": "oklch(from {accent.danger.glow} l c h / 0.4)",
 				"$type": "color"
 			},
 			"border-width": {

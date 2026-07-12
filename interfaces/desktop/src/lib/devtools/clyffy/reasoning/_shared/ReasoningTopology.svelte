@@ -197,12 +197,15 @@ const NODE_W = 130;
 const NODE_H = 64;
 </script>
 
+<!-- Reasoning-subtree identity accent (cyber), named ONCE here per the
+     binding-map rule 3; descendants consume the locals. -->
 <div
 	class="reasoning-topology"
 	data-cold={isCold}
 	data-flowing={isFlowing}
 	role="figure"
 	aria-label="Reasoning encoder pipeline: tokenizer to encoder to embedder to daemon"
+	style="--reasoning-accent: var(--accent-cyber-main); --reasoning-accent-soft: var(--accent-cyber-glow);"
 >
 	<svg
 		viewBox="0 0 660 180"
@@ -211,10 +214,10 @@ const NODE_H = 64;
 		aria-hidden="true"
 	>
 		<defs>
-			<!-- Edge gradient — cyan to electric, gives the trace a direction. -->
+			<!-- Edge gradient — soft glow to full accent, gives the trace a direction. -->
 			<linearGradient id="edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-				<stop offset="0%" stop-color="var(--accent-cyber-soft, var(--accent-electric))" />
-				<stop offset="100%" stop-color="var(--accent-cyber, var(--accent-electric-strong))" />
+				<stop offset="0%" stop-color="var(--reasoning-accent-soft)" />
+				<stop offset="100%" stop-color="var(--reasoning-accent)" />
 			</linearGradient>
 
 			<!-- Glow filter for active nodes. -->
@@ -254,7 +257,7 @@ const NODE_H = 64;
 							cy={from.y}
 							style:--travel-x="{endX - startX}px"
 							style:--delay="{i * 0.35}s"
-							fill="var(--accent-cyber, var(--accent-electric-strong))"
+							fill="var(--reasoning-accent)"
 						/>
 					{/each}
 				{/if}
@@ -278,7 +281,7 @@ const NODE_H = 64;
 					ry="10"
 					fill="var(--surface-raised)"
 					stroke={active
-						? "var(--accent-cyber, var(--accent-electric))"
+						? "var(--reasoning-accent)"
 						: "var(--border-subtle)"}
 					stroke-width={active ? 1.5 : 1}
 				/>
@@ -415,7 +418,7 @@ const NODE_H = 64;
 	.node-label--clickable:hover,
 	.node-label--clickable:focus-visible {
 		transform: translate(-50%, -50%) scale(1.04);
-		outline: 1px solid var(--accent-cyber, var(--accent-electric));
+		outline: 1px solid var(--reasoning-accent);
 		outline-offset: 2px;
 	}
 
@@ -435,7 +438,7 @@ const NODE_H = 64;
 		   feel like one surface. */
 		background: color-mix(
 			in oklch,
-			var(--accent-cyber, var(--accent-electric)) 8%,
+			var(--reasoning-accent) 8%,
 			transparent
 		);
 	}
