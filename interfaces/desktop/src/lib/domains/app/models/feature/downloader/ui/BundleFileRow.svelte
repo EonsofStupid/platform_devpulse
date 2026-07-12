@@ -89,7 +89,7 @@ let { entry, isPrimary = false, class: className }: Props = $props();
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		font-family: var(--font-family-mono, monospace);
+		font-family: var(--font-mono);
 	}
 
 	.bundle-row__size {

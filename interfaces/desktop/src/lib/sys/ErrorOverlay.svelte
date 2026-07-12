@@ -115,7 +115,7 @@ function dismiss() {
 		backdrop-filter: blur(0.5rem);
 		color: var(--color-neutral-50, oklch(0.97 0.01 270));
 		font-family:
-			var(--font-family-sans, system-ui),
+			var(--font-sans),
 			-apple-system,
 			sans-serif;
 	}
@@ -158,7 +158,7 @@ function dismiss() {
 		padding: 0.125rem 0.375rem;
 		border-radius: 0.25rem;
 		background: var(--color-neutral-800, oklch(0.22 0.02 270));
-		font-family: var(--font-family-mono, ui-monospace, monospace);
+		font-family: var(--font-mono);
 	}
 
 	.message {
@@ -167,7 +167,7 @@ function dismiss() {
 		border-radius: 0.5rem;
 		background: var(--color-neutral-800, oklch(0.22 0.02 270));
 		border-left: 0.1875rem solid var(--color-red-500, oklch(0.62 0.22 25));
-		font-family: var(--font-family-mono, ui-monospace, monospace);
+		font-family: var(--font-mono);
 		font-size: 0.875rem;
 		line-height: 1.5;
 		white-space: pre-wrap;
@@ -182,7 +182,7 @@ function dismiss() {
 		border-radius: 0.5rem;
 		background: var(--color-neutral-950, oklch(0.1 0.02 270));
 		border: 0.0625rem solid var(--color-neutral-800, oklch(0.22 0.02 270));
-		font-family: var(--font-family-mono, ui-monospace, monospace);
+		font-family: var(--font-mono);
 		font-size: 0.75rem;
 		line-height: 1.6;
 		opacity: 0.85;

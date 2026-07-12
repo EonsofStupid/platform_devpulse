@@ -229,7 +229,7 @@ function capture(tabId: string): CapturePayload | undefined {
 			{#if error}
 				<div
 					class="rounded-lg p-3"
-					style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error);"
+					style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error);"
 				>
 					<Text size="xs">{error}</Text>
 				</div>
