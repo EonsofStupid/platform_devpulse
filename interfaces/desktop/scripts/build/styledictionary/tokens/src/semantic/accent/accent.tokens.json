@@ -14,6 +14,43 @@
 		"glow": { "$value": "{primary.glow}", "$description": "Accent glow role — alias of primary.glow by default." },
 		"fill": { "$value": "{primary.fill}", "$description": "Accent fill role — alias of primary.fill by default." },
 		"fg":   { "$value": "{primary.fg}",   "$description": "Foreground / on-accent text — alias of primary.fg by default." },
+
+		"primary": {
+			"$description": "CANONICAL role vocabulary (--accent-primary-*): pure alias of the Tier-2 role tokens in semantic/role/role.tokens.json. Promoted from the retired app.css hand shim 2026-07-11 (audit S2). Components consume THESE names; rebind at the role tier, never here.",
+			"main": { "$value": "{primary.main}", "$description": "Alias of role primary.main." },
+			"glow": { "$value": "{primary.glow}", "$description": "Alias of role primary.glow." },
+			"fill": { "$value": "{primary.fill}", "$description": "Alias of role primary.fill." }
+		},
+		"secondary": {
+			"$description": "Role alias — secondary. Bound through role secondary (ember per the role SSOT; the retired app.css shim said purple — the role tier wins).",
+			"main": { "$value": "{secondary.main}", "$description": "Alias of role secondary.main." },
+			"glow": { "$value": "{secondary.glow}", "$description": "Alias of role secondary.glow." },
+			"fill": { "$value": "{secondary.fill}", "$description": "Alias of role secondary.fill." }
+		},
+		"danger": {
+			"$description": "Role alias — danger. Bound through role danger (signal.error seed).",
+			"main": { "$value": "{danger.main}", "$description": "Alias of role danger.main." },
+			"glow": { "$value": "{danger.glow}", "$description": "Alias of role danger.glow." },
+			"fill": { "$value": "{danger.fill}", "$description": "Alias of role danger.fill." }
+		},
+		"success": {
+			"$description": "Role alias — success. Bound through role success (signal.success seed).",
+			"main": { "$value": "{success.main}", "$description": "Alias of role success.main." },
+			"glow": { "$value": "{success.glow}", "$description": "Alias of role success.glow." },
+			"fill": { "$value": "{success.fill}", "$description": "Alias of role success.fill." }
+		},
+		"warning": {
+			"$description": "Role alias — warning. Bound through role warning (signal.warning seed).",
+			"main": { "$value": "{warning.main}", "$description": "Alias of role warning.main." },
+			"glow": { "$value": "{warning.glow}", "$description": "Alias of role warning.glow." },
+			"fill": { "$value": "{warning.fill}", "$description": "Alias of role warning.fill." }
+		},
+		"muted": {
+			"$description": "Role alias — muted, indicator-flavoured. The role-tier muted is text-shaped (main/bg/fg); this triplet binds the frost palette entry, preserving the retired shim's visual.",
+			"main": { "$value": "{accent.frost.main}", "$description": "Muted indicator — frost." },
+			"glow": { "$value": "{accent.frost.glow}", "$description": "Muted emission tint — frost." },
+			"fill": { "$value": "{accent.frost.fill}", "$description": "Muted area fill — frost." }
+		},
 		"teal": {
 			"main": { "$value": "{color.teal.400}", "$description": "Primary indicator colour — teal ramp stop 400." },
 			"glow": {

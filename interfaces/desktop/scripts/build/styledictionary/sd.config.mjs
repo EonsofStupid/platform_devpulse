@@ -15,7 +15,12 @@
  */
 
 import StyleDictionary from 'style-dictionary';
-import { fileHeader, createPropertyFormatter } from 'style-dictionary/utils';
+import {
+	fileHeader,
+	createPropertyFormatter,
+	usesReferences,
+	getReferences,
+} from 'style-dictionary/utils';
 import {
 	transforms,
 	transformTypes,
@@ -685,21 +690,54 @@ StyleDictionary.registerFormat({
 
 StyleDictionary.registerFormat({
 	name: clFormats.tailwindTheme,
-	format: async ({ dictionary, file, options }) => {
+	format: async ({ dictionary, file }) => {
 		const header = await fileHeader({ file });
-		const lines = [];
+		const literals = [];
+		const refs = [];
+
+		// Whole-value `{ref}` tokens emit as live var() pointers so a
+		// primitive rebind propagates through the @theme copy instead of
+		// being frozen into a flattened literal (audit finding F5).
+		// Tailwind requires the `inline` option for var()-valued theme
+		// variables (tailwindcss.com/docs/theme) — utilities then resolve
+		// at the use site.
+		const WHOLE_REF = /^\{[^}]+\}$/;
 
 		for (const token of dictionary.allTokens) {
 			if (isComponent(token)) continue;
 
 			const name = toTw4VarName(token);
+			const original = token.original?.$value ?? token.original?.value;
+
+			if (
+				typeof original === 'string' &&
+				WHOLE_REF.test(original.trim()) &&
+				usesReferences(original)
+			) {
+				// dictionary.tokens is filtered per-file; ref targets usually
+				// live outside the filter, so resolve against the full tree.
+				const [target] = getReferences(
+					original,
+					dictionary.unfilteredTokens ?? dictionary.tokens,
+					{ usesDtcg: true },
+				);
+				if (target?.name) {
+					refs.push(`  ${name}: var(--${target.name});`);
+					continue;
+				}
+			}
+
 			const val = token.$value ?? token.value;
-			lines.push(`  ${name}: ${val};`);
+			literals.push(`  ${name}: ${val};`);
 		}
 
-		if (lines.length === 0) return '';
+		const blocks = [];
+		if (literals.length > 0) blocks.push(`@theme {\n${literals.join('\n')}\n}`);
+		if (refs.length > 0) blocks.push(`@theme inline {\n${refs.join('\n')}\n}`);
 
-		return `${header}@theme {\n${lines.join('\n')}\n}\n`;
+		if (blocks.length === 0) return '';
+
+		return `${header}${blocks.join('\n\n')}\n`;
 	},
 });
 
@@ -997,16 +1035,15 @@ const config = {
 		},
 
 		// ── CSS: Components ───────────────────────────────────────
+		// MUST use the layered format: unlayered emission outranks every
+		// @layer tokens.* declaration and hands the cascade to whatever
+		// literal happens to load last (root cause of the 2026-07-11
+		// monochrome-teal audit finding F2).
 		'css-components': {
 			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/styles/${layers.components}/`,
 			files: [
-				{
-					destination: 'components.generated.css',
-					format: 'css/variables',
-					filter: isComponent,
-					options: { outputReferences: false },
-				},
+				cssFile('components.generated.css', isComponent, layers.components),
 			],
 		},
 

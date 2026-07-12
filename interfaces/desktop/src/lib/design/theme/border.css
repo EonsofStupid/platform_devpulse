@@ -5,10 +5,8 @@
 @theme {
   --border-subtle: oklch(0.4256 0.0453 163.89 / 0.22);
   --border-strong: oklch(0.5133 0.0547 163.65 / 0.302);
-  --border-focus: oklch(0.65 0.08 173);
   --border-divider: oklch(1.0032 0.0305 28.88 / 0.059);
   --border-soft: oklch(0.5133 0.0547 163.65 / 0.3);
-  --border-emphasis: oklch(0.5133 0.0547 163.65 / 0.302);
   --border-preset-default-color-color-space: oklch;
   --border-preset-default-color-components: 0.4256,0.0453,163.89;
   --border-preset-default-color-alpha: 0.22;
@@ -36,4 +34,9 @@
   --border-preset-divider-width-value: 0.0625;
   --border-preset-divider-width-unit: rem;
   --border-preset-divider-style: solid;
+}
+
+@theme inline {
+  --border-focus: var(--color-teal-400);
+  --border-emphasis: var(--border-strong);
 }

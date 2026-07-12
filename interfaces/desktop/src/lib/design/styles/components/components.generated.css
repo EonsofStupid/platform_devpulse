@@ -2,7 +2,8 @@
  * Do not edit directly, this file was auto-generated.
  */
 
-:root {
+@layer tokens.components {
+  :root {
   --style-accordion-default-background-color: oklch(0.0901 0.017 224.61 / 0.8);
   --style-accordion-default-border-radius: 0.75rem;
   --style-accordion-default-box-shadow: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24);
@@ -494,7 +495,7 @@
   --preset-button-primary-transition-duration: 150ms;
   --preset-button-primary-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-button-primary-gradient: none;
-  --preset-button-primary-font-family: Inter, system-ui, sans-serif;
+  --preset-button-primary-font-family: var(--font-sans);
   --preset-button-primary-font-size: 0.875rem;
   --preset-button-primary-font-weight: 600;
   --preset-button-primary-letter-spacing: 0.000625rem;
@@ -518,7 +519,7 @@
   --preset-button-secondary-transition-duration: 150ms;
   --preset-button-secondary-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-button-secondary-gradient: none;
-  --preset-button-secondary-font-family: Inter, system-ui, sans-serif;
+  --preset-button-secondary-font-family: var(--font-sans);
   --preset-button-secondary-font-size: 0.875rem;
   --preset-button-secondary-font-weight: 500;
   --preset-button-secondary-letter-spacing: 0em;
@@ -538,7 +539,7 @@
   --preset-button-ghost-transition-duration: 150ms;
   --preset-button-ghost-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-button-ghost-gradient: none;
-  --preset-button-ghost-font-family: Inter, system-ui, sans-serif;
+  --preset-button-ghost-font-family: var(--font-sans);
   --preset-button-ghost-font-size: 0.875rem;
   --preset-button-ghost-font-weight: 500;
   --preset-button-ghost-letter-spacing: 0em;
@@ -559,7 +560,7 @@
   --preset-button-destructive-transition-duration: 150ms;
   --preset-button-destructive-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-button-destructive-gradient: none;
-  --preset-button-destructive-font-family: Inter, system-ui, sans-serif;
+  --preset-button-destructive-font-family: var(--font-sans);
   --preset-button-destructive-font-size: 0.875rem;
   --preset-button-destructive-font-weight: 600;
   --preset-button-destructive-letter-spacing: 0.000625rem;
@@ -580,7 +581,7 @@
   --preset-chat-bubble-user-transition-duration: 150ms;
   --preset-chat-bubble-user-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-bubble-user-gradient: none;
-  --preset-chat-bubble-user-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-bubble-user-font-family: var(--font-sans);
   --preset-chat-bubble-user-font-size: 0.875rem;
   --preset-chat-bubble-user-font-weight: 500;
   --preset-chat-bubble-user-letter-spacing: 0em;
@@ -599,7 +600,7 @@
   --preset-chat-bubble-ai-developer-transition-duration: 150ms;
   --preset-chat-bubble-ai-developer-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-bubble-ai-developer-gradient: none;
-  --preset-chat-bubble-ai-developer-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-bubble-ai-developer-font-family: var(--font-sans);
   --preset-chat-bubble-ai-developer-font-size: 0.875rem;
   --preset-chat-bubble-ai-developer-font-weight: 500;
   --preset-chat-bubble-ai-developer-letter-spacing: 0em;
@@ -618,7 +619,7 @@
   --preset-chat-bubble-ai-planning-transition-duration: 150ms;
   --preset-chat-bubble-ai-planning-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-bubble-ai-planning-gradient: none;
-  --preset-chat-bubble-ai-planning-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-bubble-ai-planning-font-family: var(--font-sans);
   --preset-chat-bubble-ai-planning-font-size: 0.875rem;
   --preset-chat-bubble-ai-planning-font-weight: 500;
   --preset-chat-bubble-ai-planning-letter-spacing: 0em;
@@ -637,7 +638,7 @@
   --preset-chat-bubble-ai-image-transition-duration: 150ms;
   --preset-chat-bubble-ai-image-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-bubble-ai-image-gradient: none;
-  --preset-chat-bubble-ai-image-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-bubble-ai-image-font-family: var(--font-sans);
   --preset-chat-bubble-ai-image-font-size: 0.875rem;
   --preset-chat-bubble-ai-image-font-weight: 500;
   --preset-chat-bubble-ai-image-letter-spacing: 0em;
@@ -656,7 +657,7 @@
   --preset-chat-bubble-ai-general-transition-duration: 150ms;
   --preset-chat-bubble-ai-general-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-bubble-ai-general-gradient: none;
-  --preset-chat-bubble-ai-general-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-bubble-ai-general-font-family: var(--font-sans);
   --preset-chat-bubble-ai-general-font-size: 0.875rem;
   --preset-chat-bubble-ai-general-font-weight: 500;
   --preset-chat-bubble-ai-general-letter-spacing: 0em;
@@ -675,7 +676,7 @@
   --preset-chat-bubble-system-transition-duration: 150ms;
   --preset-chat-bubble-system-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-bubble-system-gradient: none;
-  --preset-chat-bubble-system-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-bubble-system-font-family: var(--font-sans);
   --preset-chat-bubble-system-font-size: 0.875rem;
   --preset-chat-bubble-system-font-weight: 500;
   --preset-chat-bubble-system-letter-spacing: 0em;
@@ -694,7 +695,7 @@
   --preset-chat-mode-pill-active-transition-duration: 150ms;
   --preset-chat-mode-pill-active-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-mode-pill-active-gradient: none;
-  --preset-chat-mode-pill-active-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-mode-pill-active-font-family: var(--font-sans);
   --preset-chat-mode-pill-active-font-size: 0.6875rem;
   --preset-chat-mode-pill-active-font-weight: 600;
   --preset-chat-mode-pill-active-letter-spacing: 0em;
@@ -713,7 +714,7 @@
   --preset-chat-mode-pill-idle-transition-duration: 150ms;
   --preset-chat-mode-pill-idle-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-mode-pill-idle-gradient: none;
-  --preset-chat-mode-pill-idle-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-mode-pill-idle-font-family: var(--font-sans);
   --preset-chat-mode-pill-idle-font-size: 0.6875rem;
   --preset-chat-mode-pill-idle-font-weight: 500;
   --preset-chat-mode-pill-idle-letter-spacing: 0em;
@@ -732,7 +733,7 @@
   --preset-chat-decision-card-transition-duration: 150ms;
   --preset-chat-decision-card-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-decision-card-gradient: none;
-  --preset-chat-decision-card-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-decision-card-font-family: var(--font-sans);
   --preset-chat-decision-card-font-size: 0.875rem;
   --preset-chat-decision-card-font-weight: 500;
   --preset-chat-decision-card-letter-spacing: 0em;
@@ -751,7 +752,7 @@
   --preset-chat-voice-orb-idle-transition-duration: 150ms;
   --preset-chat-voice-orb-idle-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-voice-orb-idle-gradient: none;
-  --preset-chat-voice-orb-idle-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-voice-orb-idle-font-family: var(--font-sans);
   --preset-chat-voice-orb-idle-font-size: 0.875rem;
   --preset-chat-voice-orb-idle-font-weight: 500;
   --preset-chat-voice-orb-idle-letter-spacing: 0em;
@@ -770,7 +771,7 @@
   --preset-chat-voice-orb-listening-transition-duration: 150ms;
   --preset-chat-voice-orb-listening-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-voice-orb-listening-gradient: none;
-  --preset-chat-voice-orb-listening-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-voice-orb-listening-font-family: var(--font-sans);
   --preset-chat-voice-orb-listening-font-size: 0.875rem;
   --preset-chat-voice-orb-listening-font-weight: 500;
   --preset-chat-voice-orb-listening-letter-spacing: 0em;
@@ -789,7 +790,7 @@
   --preset-chat-cortex-node-transition-duration: 150ms;
   --preset-chat-cortex-node-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-cortex-node-gradient: none;
-  --preset-chat-cortex-node-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-cortex-node-font-family: var(--font-sans);
   --preset-chat-cortex-node-font-size: 0.625rem;
   --preset-chat-cortex-node-font-weight: 500;
   --preset-chat-cortex-node-letter-spacing: 0em;
@@ -808,7 +809,7 @@
   --preset-chat-session-row-active-transition-duration: 150ms;
   --preset-chat-session-row-active-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-session-row-active-gradient: none;
-  --preset-chat-session-row-active-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-session-row-active-font-family: var(--font-sans);
   --preset-chat-session-row-active-font-size: 0.875rem;
   --preset-chat-session-row-active-font-weight: 500;
   --preset-chat-session-row-active-letter-spacing: 0em;
@@ -827,7 +828,7 @@
   --preset-chat-frame-shell-transition-duration: 150ms;
   --preset-chat-frame-shell-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chat-frame-shell-gradient: none;
-  --preset-chat-frame-shell-font-family: Inter, system-ui, sans-serif;
+  --preset-chat-frame-shell-font-family: var(--font-sans);
   --preset-chat-frame-shell-font-size: 0.875rem;
   --preset-chat-frame-shell-font-weight: 500;
   --preset-chat-frame-shell-letter-spacing: 0em;
@@ -846,7 +847,7 @@
   --preset-chrome-elevated-transition-duration: 200ms;
   --preset-chrome-elevated-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-chrome-elevated-gradient: linear-gradient(135deg, oklch(0.4 0.01 250) 0%, oklch(0.25 0.008 250) 50%, oklch(0.35 0.01 250) 100%);
-  --preset-chrome-elevated-font-family: Inter, system-ui, sans-serif;
+  --preset-chrome-elevated-font-family: var(--font-sans);
   --preset-chrome-elevated-font-size: 0.875rem;
   --preset-chrome-elevated-font-weight: 600;
   --preset-chrome-elevated-letter-spacing: 0.00125rem;
@@ -877,7 +878,7 @@
   --preset-chrome-deep-transition-duration: 180ms;
   --preset-chrome-deep-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-chrome-deep-gradient: linear-gradient(160deg, oklch(0.22 0.01 260) 0%, oklch(0.12 0.005 260) 100%);
-  --preset-chrome-deep-font-family: Inter, system-ui, sans-serif;
+  --preset-chrome-deep-font-family: var(--font-sans);
   --preset-chrome-deep-font-size: 0.875rem;
   --preset-chrome-deep-font-weight: 500;
   --preset-chrome-deep-letter-spacing: 0.000625rem;
@@ -905,7 +906,7 @@
   --preset-chrome-minimal-transition-duration: 150ms;
   --preset-chrome-minimal-transition-timing-function: ease-out;
   --preset-chrome-minimal-gradient: none;
-  --preset-chrome-minimal-font-family: Inter, system-ui, sans-serif;
+  --preset-chrome-minimal-font-family: var(--font-sans);
   --preset-chrome-minimal-font-size: 0.875rem;
   --preset-chrome-minimal-font-weight: 400;
   --preset-chrome-minimal-letter-spacing: 0.000625rem;
@@ -933,7 +934,7 @@
   --preset-chrome-solid-transition-duration: 150ms;
   --preset-chrome-solid-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-chrome-solid-gradient: none;
-  --preset-chrome-solid-font-family: Inter, system-ui, sans-serif;
+  --preset-chrome-solid-font-family: var(--font-sans);
   --preset-chrome-solid-font-size: 0.875rem;
   --preset-chrome-solid-font-weight: 600;
   --preset-chrome-solid-letter-spacing: 0.00125rem;
@@ -961,7 +962,7 @@
   --preset-chrome-glow-transition-duration: 250ms;
   --preset-chrome-glow-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-chrome-glow-gradient: linear-gradient(135deg, oklch(0.3 0.02 250) 0%, oklch(0.18 0.015 240) 100%);
-  --preset-chrome-glow-font-family: Inter, system-ui, sans-serif;
+  --preset-chrome-glow-font-family: var(--font-sans);
   --preset-chrome-glow-font-size: 0.875rem;
   --preset-chrome-glow-font-weight: 600;
   --preset-chrome-glow-letter-spacing: 0.00125rem;
@@ -990,7 +991,7 @@
   --preset-chrome-muted-transition-duration: 100ms;
   --preset-chrome-muted-transition-timing-function: ease-out;
   --preset-chrome-muted-gradient: none;
-  --preset-chrome-muted-font-family: Inter, system-ui, sans-serif;
+  --preset-chrome-muted-font-family: var(--font-sans);
   --preset-chrome-muted-font-size: 0.875rem;
   --preset-chrome-muted-font-weight: 400;
   --preset-chrome-muted-letter-spacing: 0.000625rem;
@@ -1017,7 +1018,7 @@
   --preset-flat-elevated-transition-duration: 120ms;
   --preset-flat-elevated-transition-timing-function: ease-out;
   --preset-flat-elevated-gradient: none;
-  --preset-flat-elevated-font-family: Inter, system-ui, sans-serif;
+  --preset-flat-elevated-font-family: var(--font-sans);
   --preset-flat-elevated-font-size: 0.875rem;
   --preset-flat-elevated-font-weight: 500;
   --preset-flat-elevated-letter-spacing: 0em;
@@ -1041,7 +1042,7 @@
   --preset-flat-deep-transition-duration: 100ms;
   --preset-flat-deep-transition-timing-function: ease-out;
   --preset-flat-deep-gradient: none;
-  --preset-flat-deep-font-family: Inter, system-ui, sans-serif;
+  --preset-flat-deep-font-family: var(--font-sans);
   --preset-flat-deep-font-size: 0.875rem;
   --preset-flat-deep-font-weight: 400;
   --preset-flat-deep-letter-spacing: 0em;
@@ -1065,7 +1066,7 @@
   --preset-flat-minimal-transition-duration: 100ms;
   --preset-flat-minimal-transition-timing-function: ease-out;
   --preset-flat-minimal-gradient: none;
-  --preset-flat-minimal-font-family: Inter, system-ui, sans-serif;
+  --preset-flat-minimal-font-family: var(--font-sans);
   --preset-flat-minimal-font-size: 0.875rem;
   --preset-flat-minimal-font-weight: 400;
   --preset-flat-minimal-letter-spacing: 0em;
@@ -1088,7 +1089,7 @@
   --preset-flat-solid-transition-duration: 120ms;
   --preset-flat-solid-transition-timing-function: ease-out;
   --preset-flat-solid-gradient: none;
-  --preset-flat-solid-font-family: Inter, system-ui, sans-serif;
+  --preset-flat-solid-font-family: var(--font-sans);
   --preset-flat-solid-font-size: 0.875rem;
   --preset-flat-solid-font-weight: 500;
   --preset-flat-solid-letter-spacing: 0em;
@@ -1114,7 +1115,7 @@
   --preset-flat-glow-transition-duration: 150ms;
   --preset-flat-glow-transition-timing-function: ease-out;
   --preset-flat-glow-gradient: none;
-  --preset-flat-glow-font-family: Inter, system-ui, sans-serif;
+  --preset-flat-glow-font-family: var(--font-sans);
   --preset-flat-glow-font-size: 0.875rem;
   --preset-flat-glow-font-weight: 500;
   --preset-flat-glow-letter-spacing: 0em;
@@ -1138,7 +1139,7 @@
   --preset-flat-muted-transition-duration: 80ms;
   --preset-flat-muted-transition-timing-function: ease-out;
   --preset-flat-muted-gradient: none;
-  --preset-flat-muted-font-family: Inter, system-ui, sans-serif;
+  --preset-flat-muted-font-family: var(--font-sans);
   --preset-flat-muted-font-size: 0.875rem;
   --preset-flat-muted-font-weight: 400;
   --preset-flat-muted-letter-spacing: 0em;
@@ -1164,7 +1165,7 @@
   --preset-glass-elevated-transition-duration: 200ms;
   --preset-glass-elevated-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-glass-elevated-gradient: none;
-  --preset-glass-elevated-font-family: Inter, system-ui, sans-serif;
+  --preset-glass-elevated-font-family: var(--font-sans);
   --preset-glass-elevated-font-size: 0.875rem;
   --preset-glass-elevated-font-weight: 500;
   --preset-glass-elevated-letter-spacing: 0em;
@@ -1192,7 +1193,7 @@
   --preset-glass-deep-transition-duration: 200ms;
   --preset-glass-deep-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-glass-deep-gradient: none;
-  --preset-glass-deep-font-family: Inter, system-ui, sans-serif;
+  --preset-glass-deep-font-family: var(--font-sans);
   --preset-glass-deep-font-size: 0.875rem;
   --preset-glass-deep-font-weight: 400;
   --preset-glass-deep-letter-spacing: 0em;
@@ -1219,7 +1220,7 @@
   --preset-glass-minimal-transition-duration: 150ms;
   --preset-glass-minimal-transition-timing-function: ease-out;
   --preset-glass-minimal-gradient: none;
-  --preset-glass-minimal-font-family: Inter, system-ui, sans-serif;
+  --preset-glass-minimal-font-family: var(--font-sans);
   --preset-glass-minimal-font-size: 0.875rem;
   --preset-glass-minimal-font-weight: 400;
   --preset-glass-minimal-letter-spacing: 0em;
@@ -1244,7 +1245,7 @@
   --preset-glass-solid-transition-duration: 180ms;
   --preset-glass-solid-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-glass-solid-gradient: none;
-  --preset-glass-solid-font-family: Inter, system-ui, sans-serif;
+  --preset-glass-solid-font-family: var(--font-sans);
   --preset-glass-solid-font-size: 0.875rem;
   --preset-glass-solid-font-weight: 500;
   --preset-glass-solid-letter-spacing: 0em;
@@ -1271,7 +1272,7 @@
   --preset-glass-glow-transition-duration: 250ms;
   --preset-glass-glow-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-glass-glow-gradient: none;
-  --preset-glass-glow-font-family: Inter, system-ui, sans-serif;
+  --preset-glass-glow-font-family: var(--font-sans);
   --preset-glass-glow-font-size: 0.875rem;
   --preset-glass-glow-font-weight: 500;
   --preset-glass-glow-letter-spacing: 0em;
@@ -1299,7 +1300,7 @@
   --preset-glass-muted-transition-duration: 100ms;
   --preset-glass-muted-transition-timing-function: ease-out;
   --preset-glass-muted-gradient: none;
-  --preset-glass-muted-font-family: Inter, system-ui, sans-serif;
+  --preset-glass-muted-font-family: var(--font-sans);
   --preset-glass-muted-font-size: 0.875rem;
   --preset-glass-muted-font-weight: 400;
   --preset-glass-muted-letter-spacing: 0em;
@@ -1326,7 +1327,7 @@
   --preset-neuro-elevated-transition-duration: 150ms;
   --preset-neuro-elevated-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-neuro-elevated-gradient: none;
-  --preset-neuro-elevated-font-family: Inter, system-ui, sans-serif;
+  --preset-neuro-elevated-font-family: var(--font-sans);
   --preset-neuro-elevated-font-size: 0.875rem;
   --preset-neuro-elevated-font-weight: 500;
   --preset-neuro-elevated-letter-spacing: 0em;
@@ -1351,7 +1352,7 @@
   --preset-neuro-deep-transition-duration: 150ms;
   --preset-neuro-deep-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-neuro-deep-gradient: none;
-  --preset-neuro-deep-font-family: Inter, system-ui, sans-serif;
+  --preset-neuro-deep-font-family: var(--font-sans);
   --preset-neuro-deep-font-size: 0.875rem;
   --preset-neuro-deep-font-weight: 400;
   --preset-neuro-deep-letter-spacing: 0em;
@@ -1374,7 +1375,7 @@
   --preset-neuro-minimal-transition-duration: 120ms;
   --preset-neuro-minimal-transition-timing-function: ease-out;
   --preset-neuro-minimal-gradient: none;
-  --preset-neuro-minimal-font-family: Inter, system-ui, sans-serif;
+  --preset-neuro-minimal-font-family: var(--font-sans);
   --preset-neuro-minimal-font-size: 0.875rem;
   --preset-neuro-minimal-font-weight: 400;
   --preset-neuro-minimal-letter-spacing: 0em;
@@ -1397,7 +1398,7 @@
   --preset-neuro-solid-transition-duration: 150ms;
   --preset-neuro-solid-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-neuro-solid-gradient: none;
-  --preset-neuro-solid-font-family: Inter, system-ui, sans-serif;
+  --preset-neuro-solid-font-family: var(--font-sans);
   --preset-neuro-solid-font-size: 0.875rem;
   --preset-neuro-solid-font-weight: 500;
   --preset-neuro-solid-letter-spacing: 0.000625rem;
@@ -1420,7 +1421,7 @@
   --preset-neuro-glow-transition-duration: 200ms;
   --preset-neuro-glow-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --preset-neuro-glow-gradient: none;
-  --preset-neuro-glow-font-family: Inter, system-ui, sans-serif;
+  --preset-neuro-glow-font-family: var(--font-sans);
   --preset-neuro-glow-font-size: 0.875rem;
   --preset-neuro-glow-font-weight: 500;
   --preset-neuro-glow-letter-spacing: 0em;
@@ -1446,7 +1447,7 @@
   --preset-neuro-muted-transition-duration: 100ms;
   --preset-neuro-muted-transition-timing-function: ease-out;
   --preset-neuro-muted-gradient: none;
-  --preset-neuro-muted-font-family: Inter, system-ui, sans-serif;
+  --preset-neuro-muted-font-family: var(--font-sans);
   --preset-neuro-muted-font-size: 0.875rem;
   --preset-neuro-muted-font-weight: 400;
   --preset-neuro-muted-letter-spacing: 0em;
@@ -1469,7 +1470,7 @@
   --preset-retro-elevated-transition-duration: 50ms;
   --preset-retro-elevated-transition-timing-function: steps(3, end);
   --preset-retro-elevated-gradient: none;
-  --preset-retro-elevated-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --preset-retro-elevated-font-family: var(--font-mono);
   --preset-retro-elevated-font-size: 0.875rem;
   --preset-retro-elevated-font-weight: 700;
   --preset-retro-elevated-letter-spacing: 0.003125rem;
@@ -1496,7 +1497,7 @@
   --preset-retro-deep-transition-duration: 0ms;
   --preset-retro-deep-transition-timing-function: steps(1, end);
   --preset-retro-deep-gradient: none;
-  --preset-retro-deep-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --preset-retro-deep-font-family: var(--font-mono);
   --preset-retro-deep-font-size: 0.8125rem;
   --preset-retro-deep-font-weight: 400;
   --preset-retro-deep-letter-spacing: 0.005rem;
@@ -1521,7 +1522,7 @@
   --preset-retro-minimal-transition-duration: 0ms;
   --preset-retro-minimal-transition-timing-function: steps(1, end);
   --preset-retro-minimal-gradient: none;
-  --preset-retro-minimal-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --preset-retro-minimal-font-family: var(--font-mono);
   --preset-retro-minimal-font-size: 0.875rem;
   --preset-retro-minimal-font-weight: 500;
   --preset-retro-minimal-letter-spacing: 0.001875rem;
@@ -1545,7 +1546,7 @@
   --preset-retro-solid-transition-duration: 50ms;
   --preset-retro-solid-transition-timing-function: steps(2, end);
   --preset-retro-solid-gradient: none;
-  --preset-retro-solid-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --preset-retro-solid-font-family: var(--font-mono);
   --preset-retro-solid-font-size: 0.875rem;
   --preset-retro-solid-font-weight: 700;
   --preset-retro-solid-letter-spacing: 0.0025rem;
@@ -1570,7 +1571,7 @@
   --preset-retro-glow-transition-duration: 50ms;
   --preset-retro-glow-transition-timing-function: steps(4, end);
   --preset-retro-glow-gradient: none;
-  --preset-retro-glow-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --preset-retro-glow-font-family: var(--font-mono);
   --preset-retro-glow-font-size: 0.875rem;
   --preset-retro-glow-font-weight: 700;
   --preset-retro-glow-letter-spacing: 0.00375rem;
@@ -1596,7 +1597,7 @@
   --preset-retro-muted-transition-duration: 0ms;
   --preset-retro-muted-transition-timing-function: steps(1, end);
   --preset-retro-muted-gradient: none;
-  --preset-retro-muted-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --preset-retro-muted-font-family: var(--font-mono);
   --preset-retro-muted-font-size: 0.8125rem;
   --preset-retro-muted-font-weight: 400;
   --preset-retro-muted-letter-spacing: 0.0025rem;
@@ -1619,7 +1620,7 @@
   --preset-stark-elevated-transition-duration: 100ms;
   --preset-stark-elevated-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-stark-elevated-gradient: none;
-  --preset-stark-elevated-font-family: Inter, system-ui, sans-serif;
+  --preset-stark-elevated-font-family: var(--font-sans);
   --preset-stark-elevated-font-size: 0.875rem;
   --preset-stark-elevated-font-weight: 700;
   --preset-stark-elevated-letter-spacing: 0.00125rem;
@@ -1648,7 +1649,7 @@
   --preset-stark-deep-transition-duration: 100ms;
   --preset-stark-deep-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-stark-deep-gradient: none;
-  --preset-stark-deep-font-family: Inter, system-ui, sans-serif;
+  --preset-stark-deep-font-family: var(--font-sans);
   --preset-stark-deep-font-size: 0.875rem;
   --preset-stark-deep-font-weight: 600;
   --preset-stark-deep-letter-spacing: 0.000625rem;
@@ -1677,7 +1678,7 @@
   --preset-stark-minimal-transition-duration: 80ms;
   --preset-stark-minimal-transition-timing-function: ease-out;
   --preset-stark-minimal-gradient: none;
-  --preset-stark-minimal-font-family: Inter, system-ui, sans-serif;
+  --preset-stark-minimal-font-family: var(--font-sans);
   --preset-stark-minimal-font-size: 0.875rem;
   --preset-stark-minimal-font-weight: 500;
   --preset-stark-minimal-letter-spacing: 0.000625rem;
@@ -1704,7 +1705,7 @@
   --preset-stark-solid-transition-duration: 100ms;
   --preset-stark-solid-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-stark-solid-gradient: none;
-  --preset-stark-solid-font-family: Inter, system-ui, sans-serif;
+  --preset-stark-solid-font-family: var(--font-sans);
   --preset-stark-solid-font-size: 0.875rem;
   --preset-stark-solid-font-weight: 700;
   --preset-stark-solid-letter-spacing: 0.001875rem;
@@ -1733,7 +1734,7 @@
   --preset-stark-glow-transition-duration: 120ms;
   --preset-stark-glow-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-stark-glow-gradient: none;
-  --preset-stark-glow-font-family: Inter, system-ui, sans-serif;
+  --preset-stark-glow-font-family: var(--font-sans);
   --preset-stark-glow-font-size: 0.875rem;
   --preset-stark-glow-font-weight: 600;
   --preset-stark-glow-letter-spacing: 0.000625rem;
@@ -1763,7 +1764,7 @@
   --preset-stark-muted-transition-duration: 80ms;
   --preset-stark-muted-transition-timing-function: ease-out;
   --preset-stark-muted-gradient: none;
-  --preset-stark-muted-font-family: Inter, system-ui, sans-serif;
+  --preset-stark-muted-font-family: var(--font-sans);
   --preset-stark-muted-font-size: 0.875rem;
   --preset-stark-muted-font-weight: 400;
   --preset-stark-muted-letter-spacing: 0.000625rem;
@@ -1808,4 +1809,5 @@
   --preset-wizard-elevated-backdrop-filter: blur(var(--blur-sm));
   --preset-wizard-elevated-transition-duration: var(--duration-fast);
   --preset-wizard-elevated-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }

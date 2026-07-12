@@ -21013,6 +21013,378 @@
 				"extensions": null
 			},
 			{
+				"name": "accent-primary-main",
+				"path": [
+					"accent",
+					"primary",
+					"main"
+				],
+				"cssVar": "--accent-primary-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.14,
+						240
+					],
+					"hex": "#2079ad"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-primary-glow",
+				"path": [
+					"accent",
+					"primary",
+					"glow"
+				],
+				"cssVar": "--accent-primary-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.68,
+						0.14,
+						240
+					],
+					"alpha": 0.35,
+					"hex": "#2ea2e5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-primary-fill",
+				"path": [
+					"accent",
+					"primary",
+					"fill"
+				],
+				"cssVar": "--accent-primary-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.68,
+						0.14,
+						240
+					],
+					"alpha": 0.08,
+					"hex": "#2ea2e5"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-secondary-main",
+				"path": [
+					"accent",
+					"secondary",
+					"main"
+				],
+				"cssVar": "--accent-secondary-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.12,
+						25
+					],
+					"hex": "#ce7069"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-secondary-glow",
+				"path": [
+					"accent",
+					"secondary",
+					"glow"
+				],
+				"cssVar": "--accent-secondary-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.12,
+						25
+					],
+					"alpha": 0.35,
+					"hex": "#c76a64"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-secondary-fill",
+				"path": [
+					"accent",
+					"secondary",
+					"fill"
+				],
+				"cssVar": "--accent-secondary-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.12,
+						25
+					],
+					"alpha": 0.08,
+					"hex": "#c76a64"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-danger-main",
+				"path": [
+					"accent",
+					"danger",
+					"main"
+				],
+				"cssVar": "--accent-danger-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"hex": "#de3b3d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-danger-glow",
+				"path": [
+					"accent",
+					"danger",
+					"glow"
+				],
+				"cssVar": "--accent-danger-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"alpha": 0.35,
+					"hex": "#de3b3d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-danger-fill",
+				"path": [
+					"accent",
+					"danger",
+					"fill"
+				],
+				"cssVar": "--accent-danger-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"alpha": 0.08,
+					"hex": "#de3b3d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-success-main",
+				"path": [
+					"accent",
+					"success",
+					"main"
+				],
+				"cssVar": "--accent-success-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"hex": "#31aa40"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-success-glow",
+				"path": [
+					"accent",
+					"success",
+					"glow"
+				],
+				"cssVar": "--accent-success-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"alpha": 0.35,
+					"hex": "#31aa40"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-success-fill",
+				"path": [
+					"accent",
+					"success",
+					"fill"
+				],
+				"cssVar": "--accent-success-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"alpha": 0.08,
+					"hex": "#31aa40"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-warning-main",
+				"path": [
+					"accent",
+					"warning",
+					"main"
+				],
+				"cssVar": "--accent-warning-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.15,
+						85
+					],
+					"hex": "#d9a514"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-warning-glow",
+				"path": [
+					"accent",
+					"warning",
+					"glow"
+				],
+				"cssVar": "--accent-warning-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.15,
+						85
+					],
+					"alpha": 0.35,
+					"hex": "#d9a514"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-warning-fill",
+				"path": [
+					"accent",
+					"warning",
+					"fill"
+				],
+				"cssVar": "--accent-warning-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.15,
+						85
+					],
+					"alpha": 0.08,
+					"hex": "#d9a514"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-muted-main",
+				"path": [
+					"accent",
+					"muted",
+					"main"
+				],
+				"cssVar": "--accent-muted-main",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.06,
+						220
+					],
+					"hex": "#6598a9"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-muted-glow",
+				"path": [
+					"accent",
+					"muted",
+					"glow"
+				],
+				"cssVar": "--accent-muted-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.06,
+						220
+					],
+					"alpha": 0.35,
+					"hex": "#5f92a2"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "accent-muted-fill",
+				"path": [
+					"accent",
+					"muted",
+					"fill"
+				],
+				"cssVar": "--accent-muted-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.63,
+						0.06,
+						220
+					],
+					"alpha": 0.08,
+					"hex": "#5f92a2"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "accent-teal-main",
 				"path": [
 					"accent",
@@ -24198,6 +24570,46 @@
 				"extensions": null
 			},
 			{
+				"name": "danger-glow",
+				"path": [
+					"danger",
+					"glow"
+				],
+				"cssVar": "--danger-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"alpha": 0.35,
+					"hex": "#de3b3d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "danger-fill",
+				"path": [
+					"danger",
+					"fill"
+				],
+				"cssVar": "--danger-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"alpha": 0.08,
+					"hex": "#de3b3d"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "danger-fg",
 				"path": [
 					"danger",
@@ -24235,6 +24647,46 @@
 						0.18,
 						145
 					],
+					"hex": "#31aa40"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "success-glow",
+				"path": [
+					"success",
+					"glow"
+				],
+				"cssVar": "--success-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"alpha": 0.35,
+					"hex": "#31aa40"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "success-fill",
+				"path": [
+					"success",
+					"fill"
+				],
+				"cssVar": "--success-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"alpha": 0.08,
 					"hex": "#31aa40"
 				},
 				"type": "color",
@@ -24284,6 +24736,46 @@
 				"extensions": null
 			},
 			{
+				"name": "warning-glow",
+				"path": [
+					"warning",
+					"glow"
+				],
+				"cssVar": "--warning-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.15,
+						85
+					],
+					"alpha": 0.35,
+					"hex": "#d9a514"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "warning-fill",
+				"path": [
+					"warning",
+					"fill"
+				],
+				"cssVar": "--warning-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.75,
+						0.15,
+						85
+					],
+					"alpha": 0.08,
+					"hex": "#d9a514"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "warning-fg",
 				"path": [
 					"warning",
@@ -24321,6 +24813,46 @@
 						0.14,
 						230
 					],
+					"hex": "#139ccd"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "info-glow",
+				"path": [
+					"info",
+					"glow"
+				],
+				"cssVar": "--info-glow",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.14,
+						230
+					],
+					"alpha": 0.35,
+					"hex": "#139ccd"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "info-fill",
+				"path": [
+					"info",
+					"fill"
+				],
+				"cssVar": "--info-fill",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.14,
+						230
+					],
+					"alpha": 0.08,
 					"hex": "#139ccd"
 				},
 				"type": "color",
