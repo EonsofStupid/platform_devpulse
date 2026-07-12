@@ -1,11 +1,12 @@
 <script lang="ts">
 import "../app.css";
 // Style presets compiled via SD5 DTCG pipeline → components.generated.css
-// Loaded via app.css → design/index.css → css/index.css import chain
+// Loaded via app.css → design/index.css → styles/index.css import chain
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
+import { ColdLightProvider } from "$lib/design/provider/index.js";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
@@ -185,27 +186,36 @@ $effect(() => {
 		});
 	}}
 >
-	<BootOverlay />
-	<TokenDebugOverlay />
 	<!--
-		Singleton Model Downloader overlay mounted at the app root.
-		Any feature surface opens it via `modelDownloaderState.open(...)`;
-		closing returns focus to whichever element opened it (APG
-		dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
+		ColdLightProvider: theme context (accent/scheme/neumorphism/
+		animations/scale) for every ColdLight surface. Mounted 2026-07-11
+		(a11y audit Gap 8 — it existed since the provider sprint but was
+		never wired). Renders display:contents; theme data-attrs become
+		the rebind seam for the Phase 2 accent work.
 	-->
-	<ModelDownloaderOverlay />
-	<!--
-		Local-first render contract. `pending` falls through to the
-		BootOverlay above (splash still covers the screen). Every other
-		phase renders the routed children — DevPulse is local-first, so
-		absence of Supabase cloud auth is the DEFAULT working state,
-		never a blocking screen. Users reach LoginShell from settings
-		if they explicitly want cloud sync; the app itself runs without
-		it.
-	-->
-	{#if authState.phase !== "pending"}
-		{@render children()}
-	{/if}
+	<ColdLightProvider>
+		<BootOverlay />
+		<TokenDebugOverlay />
+		<!--
+			Singleton Model Downloader overlay mounted at the app root.
+			Any feature surface opens it via `modelDownloaderState.open(...)`;
+			closing returns focus to whichever element opened it (APG
+			dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
+		-->
+		<ModelDownloaderOverlay />
+		<!--
+			Local-first render contract. `pending` falls through to the
+			BootOverlay above (splash still covers the screen). Every other
+			phase renders the routed children — DevPulse is local-first, so
+			absence of Supabase cloud auth is the DEFAULT working state,
+			never a blocking screen. Users reach LoginShell from settings
+			if they explicitly want cloud sync; the app itself runs without
+			it.
+		-->
+		{#if authState.phase !== "pending"}
+			{@render children()}
+		{/if}
+	</ColdLightProvider>
 
 	{#snippet failed(error, reset)}
 		<ErrorOverlay {error} {reset} />
