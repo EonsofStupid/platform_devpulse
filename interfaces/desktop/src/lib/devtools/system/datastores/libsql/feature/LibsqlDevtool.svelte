@@ -170,7 +170,7 @@ function handleKeydown(event: KeyboardEvent): void {
 				latencyMs={heroLatencyMs}
 				healthLabel={heroHealthLabel}
 				{activityTick}
-				accentVar="--accent-cyan"
+				accentVar="--accent-cyan-main"
 			>
 				<LibsqlHero state={heroState} />
 			</StoreHeroCard>
@@ -243,7 +243,7 @@ function handleKeydown(event: KeyboardEvent): void {
 					title="Probe libSQL to see its state"
 					hint="Each database file lives at the path declared in platform.toml. If they're missing, the first probe surfaces the path here."
 					logTarget="libsql.lifecycle"
-					accentVar="--accent-cyan"
+					accentVar="--accent-cyan-main"
 				/>
 			{/if}
 		</div>

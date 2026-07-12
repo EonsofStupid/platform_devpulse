@@ -14,6 +14,7 @@
 import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -25,7 +26,11 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 const activity = $derived(clyffyStatus.activity);
 </script>
 
-<div class="grid grid-cols-12 gap-4" data-page="clyffy-dashboard">
+<div class="relative" data-page="clyffy-dashboard">
+	<!-- Purple glow + purple grid — the Clyffy color identity
+	     (authored variant, mounted per the DevPulseDashboard pattern). -->
+	<DynamicBackground variant="clyffy" animated />
+	<div class="relative grid grid-cols-12 gap-4">
 	<!-- ── Layman-safe: always visible ────────────────────────── -->
 	<div class="col-span-12 lg:col-span-5">
 		<Widget
@@ -229,4 +234,5 @@ const activity = $derived(clyffyStatus.activity);
 			</Widget>
 		</div>
 	{/if}
+	</div>
 </div>

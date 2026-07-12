@@ -9,6 +9,24 @@ export const AccentTokens = [
 	"glow",
 	"fill",
 	"fg",
+	"primary-main",
+	"primary-glow",
+	"primary-fill",
+	"secondary-main",
+	"secondary-glow",
+	"secondary-fill",
+	"danger-main",
+	"danger-glow",
+	"danger-fill",
+	"success-main",
+	"success-glow",
+	"success-fill",
+	"warning-main",
+	"warning-glow",
+	"warning-fill",
+	"muted-main",
+	"muted-glow",
+	"muted-fill",
 	"teal-main",
 	"teal-glow",
 	"teal-fill",
@@ -65,6 +83,24 @@ export type AccentCSSVar =
 	| "--accent-glow"
 	| "--accent-fill"
 	| "--accent-fg"
+	| "--accent-primary-main"
+	| "--accent-primary-glow"
+	| "--accent-primary-fill"
+	| "--accent-secondary-main"
+	| "--accent-secondary-glow"
+	| "--accent-secondary-fill"
+	| "--accent-danger-main"
+	| "--accent-danger-glow"
+	| "--accent-danger-fill"
+	| "--accent-success-main"
+	| "--accent-success-glow"
+	| "--accent-success-fill"
+	| "--accent-warning-main"
+	| "--accent-warning-glow"
+	| "--accent-warning-fill"
+	| "--accent-muted-main"
+	| "--accent-muted-glow"
+	| "--accent-muted-fill"
 	| "--accent-teal-main"
 	| "--accent-teal-glow"
 	| "--accent-teal-fill"
@@ -119,6 +155,36 @@ export type AccentRecord = {
 	glow: string;
 	fill: string;
 	fg: string;
+	primary: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	secondary: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	danger: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	success: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	warning: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	muted: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
 	teal: {
 		main: string;
 		glow: string;

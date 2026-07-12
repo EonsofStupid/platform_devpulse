@@ -43,16 +43,19 @@ separate builds (separate repos after the extraction) that connect over a wire.
 
 **ClyffyOS** (extracted headless repo, runs on **GB10** / networked VRAM pool):
 
-- A `clyffyd` server binary embedding the engine + persona-mcp + kernel.
+- A `clyffyd` server binary embedding the ClyffyOS crates (connectome ·
+  model-loader · rrd) + persona-mcp.
 - Owns ALL inference and the connectome (§2).
 - Advertises itself via Bonjour (`_clyffy._tcp.local.`) and exposes the wire
   contract (§4).
 
 **Transports:** local direct (same machine) → WiFi / Ethernet → USB-C 20 Gbps.
 
-**The cut line is the engine.** Only `systems/devpulse-engine` and
-`systems/devpulse-persona-mcp` depend on the kernel, so the engine is the seam.
-Extraction follows `clyffyos-extraction-first` via the `/clean-extract` workflow.
+**The cut landed (2026-07-08).** The AI crates left this repo via the
+`/clean-extract` workflow (branch `refactor/kernel-severance`); they live at
+`github.com/EonsofStupid/clyffyos` as clyffyos-connectome / clyffyos-model-loader
+/ clyffyos-rrd (+ clyffyos-persona-mcp). DevPulse keeps the engine, the desktop,
+and the `devpulse-gb10-client` wire — the engine is the seam, as designed.
 
 ---
 
@@ -66,7 +69,7 @@ reasoning on Clyffy's behalf, and it runs **headless on GB10**. Two layers.
 
 Orchestration · lifecycle · routing · governance.
 
-- **RRD — Reason Ready Daemon** (`kernel/rrd/`) — the conductor: five-state
+- **RRD — Reason Ready Daemon** (`clyffyos-rrd`) — the conductor: five-state
   lifecycle (Loading / Running / Paused / Updating / Failed), `PauseHandle`,
   `HotUpdateable` / `HotSwap`. Extend, never reauthor.
 - **Orchestrator / router** — the always-loaded supervisor that dispatches to
@@ -165,14 +168,16 @@ correct):
 Sequencing is owned by `clyffyos-extraction-first` plus
 `architecture-corrections-2026-06-27.md`, executed via `/clean-extract`:
 
-1. Finish the 2026-06-27 memory + build-spec re-baseline (this work).
-2. `/clean-extract clyffyos` — fork-survey → fold → phased extraction of
-   `kernel/*` + `devpulse-engine` + `devpulse-persona-mcp` into the headless
-   ClyffyOS repo, plus a new `clyffyd` server binary (Bonjour discovery +
-   `/v1/capability` + the verb surface in §4).
+1. ~~Finish the 2026-06-27 memory + build-spec re-baseline.~~ **DONE.**
+2. ~~`/clean-extract` — phased extraction of the AI crates + persona-mcp into
+   the headless ClyffyOS repo.~~ **DONE 2026-07-08** (kernel cut, branch
+   `refactor/kernel-severance`). The `clyffyd` server binary (Bonjour
+   discovery + `/v1/capability` + the verb surface in §4) is ClyffyOS's
+   next build — it does not exist yet.
 3. DevPulse-side `systems/devpulse-gb10-client` (the wire client) + standalone
-   Turso boot, so DevPulse loads regardless of connection and connects Clyffy
-   when present.
+   Turso boot — **SHIPPED**: DevPulse boots standalone, the endpoint wizard +
+   persisted decided gate + capability-computed surfaces landed; runtime
+   connect e2e awaits `clyffyd`.
 
 ---
 

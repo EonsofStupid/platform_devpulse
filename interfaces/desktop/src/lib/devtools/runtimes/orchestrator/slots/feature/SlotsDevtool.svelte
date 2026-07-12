@@ -75,9 +75,9 @@ import type { SlotSaveEntry } from "../util/anatomy.types.js";
 
 const RAG_EMBEDDER_SLOT = "rag.embedder";
 
-/** Anatomy → kernel slot binding for the cortex constellation. Lives
+/** Anatomy → engine slot binding for the cortex constellation. Lives
  *  in the feature file because the binding is rendering-side glue
- *  (which named-area gets which kernel slot); the table is one-shot
+ *  (which named-area gets which engine slot); the table is one-shot
  *  and small enough that pulling it into a separate util module adds
  *  more friction than value. */
 const SLOT_BY_ANATOMY = {
@@ -164,7 +164,7 @@ const ROLE_ACCENT: Record<string, string> = {
 	helpers: "var(--text-muted)",
 };
 
-/** Mark-complete UX state — surfaces the kernel error inline rather
+/** Mark-complete UX state — surfaces the engine error inline rather
  *  than relying on a toast. Owner-locked: errors visible in the
  *  Actions tab next to the trigger. */
 let markCompleteBusy = $state(false);
@@ -263,7 +263,7 @@ function slotData(slotId: string) {
 // ── Encoder smoke test ─────────────────────────────────────────
 // Single-shot inference verification: type text → click Embed →
 // read back vector dim + first 5 floats. Gates on `encoderIsLoaded`
-// so the button is disabled until the kernel adapter has weights.
+// so the button is disabled until the backend adapter has weights.
 let encoderText = $state("hello world");
 let encoderResult = $state<{ dim: number; head: number[] } | null>(null);
 let encoderError = $state<string | null>(null);
@@ -298,7 +298,7 @@ async function runEncoderEmbed(): Promise<void> {
 	}
 }
 
-// The kernel currently doesn't emit `model:slot-status` (statuses[]
+// The engine currently doesn't emit `model:slot-status` (statuses[]
 // stays optimistic post-load), so we cheap-poll `encoderIsLoaded`
 // while the encoder is not yet ready. Polling halts the instant we
 // observe a loaded encoder, so the steady-state cost is one call
@@ -752,10 +752,9 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				</Text>
 			</div>
 			<Text size="sm" color="muted">
-				Slot definitions and per-tier presets live in the kernel
-				<code>model-loader</code> crate
-				(<code>kernel/model-loader/src/slots/</code>,
-				<code>config/presets.default.toml</code>). The kernel
+				Slot definitions and per-tier presets live in the engine
+				(<code>platform/model_loader/slots/</code>,
+				<code>config/presets.default.toml</code>). The engine
 				picks the right model variant per tier; this devtool just
 				surfaces what's currently bound.
 			</Text>

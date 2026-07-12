@@ -35,12 +35,11 @@ pub mod health;
 pub mod init;
 pub mod interactions;
 pub mod knowledge;
-// integrations module removed — it bridged kernel model_loader events
-// (`#[cfg(inference)]`); model events now come from Clyffy over the
-// gb10-client wire (kernel-severance).
+// There is no integrations bridge module — model events come from
+// Clyffy over the gb10-client wire.
 pub mod metrics;
-// Model-loader MANAGEMENT layer (relocated from kernel/model-loader during
-// the kernel-severance). DevPulse-local, links no inference backend.
+// Model-loader MANAGEMENT layer (absorbed from the former kernel crate,
+// 2026-07). DevPulse-local, links no inference backend.
 pub mod model_loader;
 pub mod model_registry;
 pub mod module;
@@ -104,23 +103,23 @@ pub use wizard::{
 };
 
 // ════════════════════════════════════════════════════════════════
-// Kernel re-exports — the engine's *declared public kernel API*
+// Boundary re-exports — the engine's *declared public API*
 // ════════════════════════════════════════════════════════════════
 //
 // Every type below is a deliberate public-surface contract. Types
-// renamed at the boundary use `as` to translate kernel-internal short
+// renamed at the boundary use `as` to translate module-internal short
 // names into engine-public prefixed names (the canonical example is
 // `EntryType` → `KnowledgeEntryType`).
 //
 // Adding a new re-export here is an API decision — annotate with an
 // `IP-NOTE:` comment explaining either *why this is vocabulary-safe*
 // or *what rename was applied*. Glob re-exports (`pub use foo::*;`)
-// are NOT permitted; every kernel type that crosses must be named.
+// are NOT permitted; every type that crosses must be named.
 //
 // See `feedback_ip_boundary_is_vocabulary_not_wrappers.md` for the rule.
 
 // Persistence adapter traits + raw SQL value types, from the DevPulse-owned
-// kernel-free store crate. Turso (relational SSOT), DuckDB (analytics), Moka
+// store crate. Turso (relational SSOT), DuckDB (analytics), Moka
 // (cache) live behind these agnostic traits.
 pub use devpulse_store::{
     AnalyticsAdapter, CacheAdapter, DuckDbAdapter, SqlAdapter, SqlRow, SqlValue, TursoAdapter,
@@ -198,7 +197,7 @@ macro_rules! for_each_service_rev {
 /// dev-side stream at 1:1 capacity.
 const INTERNAL_EVENT_CAPACITY: usize = 1024;
 
-/// - `system_*`: Kernel internals, telemetry, FSM state
+/// - `system_*`: Engine internals, telemetry, FSM state
 /// - `user_*`: User sessions, preferences, knowledge
 /// - `global_*`: Cross-project shared knowledge graph
 pub struct Platform {
@@ -228,10 +227,10 @@ pub struct Platform {
     telemetry: Option<TelemetryHandle>,
     // ── Model-loader MANAGEMENT service ──────────────────────
     // DevPulse-local model management (slot registry, discovery, download,
-    // hardware auto-config). `None` until boot constructs it — construction
-    // needs a `ConfigBackend` persistence adapter that only existed on the
-    // kernel side, so wiring it is a reported follow-up (see boot). The
-    // inference half is Clyffy's over the wire, not held here.
+    // hardware auto-config). Constructed at `Platform::new` with the
+    // atomic-TOML `ConfigBackend`; `None` when disabled by config — see
+    // `construct_model_loader`. The inference half is Clyffy's over the
+    // wire, not held here.
     model_loader: Option<Arc<model_loader::ModelLoaderService>>,
     // ── Project scope ──────────────────────────────────────────
     /// Per-project Turso databases, created on demand (not at boot).
@@ -321,7 +320,7 @@ impl Platform {
             "routing config loaded at boot"
         );
 
-        // Model-loader MANAGEMENT service (DevPulse-local, kernel-free) —
+        // Model-loader MANAGEMENT service (DevPulse-local) —
         // see `construct_model_loader`.
         let model_loader = Self::construct_model_loader(&boot_config, &data_dir);
 
@@ -345,7 +344,7 @@ impl Platform {
         })
     }
 
-    /// Construct the DevPulse-local, kernel-free model-loader MANAGEMENT
+    /// Construct the DevPulse-local model-loader MANAGEMENT
     /// service. Persisted via an atomic-TOML `ConfigBackend` under
     /// `{data_dir}/user/` (slot assignments / setup flags), matching the
     /// platform config convention; Turso stays the SSOT for real data, this is
@@ -532,10 +531,10 @@ impl Platform {
             (ServiceRole::Analytics, DataScope::User) => self.user_analytics.is_some(),
             (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
             (ServiceRole::Ollama, DataScope::System) => self.ollama.load_full().is_some(),
-            // Tier-2 roles (Graph/Vector/ModelLoader/Surreal/Grammar) are
-            // served by Clyffy on GB10 now — not local. Any manifest role
+            // Tier-2 roles (Graph/Vector/ModelLoader/Surreal) are
+            // Clyffy's, served from GB10 — not local. Any manifest role
             // without a local accessor reports Unknown until the manifest
-            // drops them (kernel-severance Pass 4 removes them from the enum).
+            // drops them from the enum (Grammar already left this way).
             _ => return ServiceRuntimeState::Unknown,
         };
         if present {
@@ -592,8 +591,8 @@ impl Platform {
 
     /// Get the model-loader MANAGEMENT service (if constructed at boot).
     ///
-    /// Returns `None` until boot wires a `ConfigBackend` persistence adapter
-    /// (a reported kernel-severance follow-up). This is the DevPulse-local
+    /// Returns `None` when the service is disabled by config or failed to
+    /// construct (see `construct_model_loader`). This is the DevPulse-local
     /// management surface only — inference (load/generate/embed/…) is
     /// Clyffy's over the gb10-client wire, not served through this handle.
     #[must_use]
@@ -609,8 +608,8 @@ impl Platform {
         &self.boot_config.services.system.model_loader.catalog
     }
 
-    // Graph / vector / suggestion accessors removed — those AI services are
-    // Clyffy's, served from GB10 over the gb10-client wire (kernel-severance).
+    // There are no graph / vector / suggestion accessors — those AI services
+    // are Clyffy's, served from GB10 over the gb10-client wire.
     // DevPulse-local keeps only the Tier-1 stores (Turso relational + DuckDB
     // analytics + Moka cache) plus the model-loader MANAGEMENT service above.
 
@@ -782,8 +781,8 @@ impl Platform {
         self.ollama.load_full()
     }
 
-    // SurrealDB sidecar accessors removed — the graph store is Clyffy's,
-    // on GB10 (kernel-severance). DevPulse-local is Turso + DuckDB only.
+    // There are no SurrealDB sidecar accessors — the graph store is
+    // Clyffy's, on GB10. DevPulse-local is Turso + DuckDB only.
 
     /// Read-only view into the Ollama sidecar boot config entry.
     ///
@@ -839,31 +838,28 @@ impl Platform {
     // ── Routing config (user scope) ────────────────────────────
 
     /// Load user-scope routing preferences from
-    /// `{data_dir}/user/routing.toml`, reconciling
-    /// `latency.response_source` with the kernel `assistant.routing.mode`
-    /// SSOT so the surface always reflects what the chat dispatcher
-    /// will actually use at dispatch time.
+    /// `{data_dir}/user/routing.toml`. The dispatch SSOT
+    /// (`assistant.routing.mode` — which lane actually serves) is
+    /// Clyffy's; the gb10-client reconciles against it, so this
+    /// returns the persisted preference verbatim.
     ///
     /// Never returns an error — on parse / IO failure, returns the
-    /// defaults so the wizard / settings surface always renders. When
-    /// the inference feature is compiled out (or the loader isn't
-    /// available yet), the persisted file value is returned verbatim.
+    /// defaults so the wizard / settings surface always renders.
     #[expect(
         clippy::unused_async,
         reason = "kept async so the Tauri command signature stays uniform; routing reconciliation against Clyffy moved to the gb10-client (kernel-severance)"
     )]
     pub async fn routing_config_load(&self) -> RoutingConfig {
         // Routing preference is DevPulse-local persistence. The dispatch
-        // SSOT (which lane actually serves) is Clyffy's on GB10 now and is
-        // reconciled by the gb10-client (kernel-severance) — no local
-        // kernel loader read here.
+        // SSOT (which lane actually serves) is Clyffy's on GB10 and is
+        // reconciled by the gb10-client — no local loader read here.
         services::routing_config::load(&self.data_dir)
     }
 
-    /// Persist user-scope routing preferences atomically and write
-    /// through to the kernel `assistant.routing.mode` SSOT so the
-    /// existing chat dispatcher (`commands::cloud::inner_get_inference_provider`)
-    /// is gated by this surface.
+    /// Persist user-scope routing preferences atomically. Write-through
+    /// to the dispatch SSOT (Clyffy's `assistant.routing.mode`, read by
+    /// `commands::cloud::inner_get_inference_provider` at dispatch time)
+    /// is the gb10-client's job.
     ///
     /// Emits BOTH a `tracing::info!` event on the `routing.config`
     /// target AND an `InternalEvent::RoutingConfigChanged` on the
@@ -873,9 +869,6 @@ impl Platform {
     /// # Errors
     /// - Creating the `user/` directory fails.
     /// - Temp-file write or rename fails.
-    /// - Write-through to the kernel routing mode fails (when the
-    ///   inference feature is compiled in and the model loader is
-    ///   available).
     #[expect(
         clippy::unused_async,
         reason = "kept async so the Tauri command signature stays uniform; routing write-through to Clyffy moved to the gb10-client (kernel-severance)"
@@ -883,15 +876,12 @@ impl Platform {
     pub async fn routing_config_save(&self, cfg: &RoutingConfig) -> Result<RoutingConfig> {
         let saved = services::routing_config::save(&self.data_dir, cfg)?;
 
-        // Write-through: the kernel `assistant.routing.mode` is the SSOT
-        // the existing `inner_get_inference_provider` chat dispatcher
-        // reads at dispatch time. Update it in lockstep so the wizard's
+        // The dispatch SSOT (`assistant.routing.mode`, Clyffy's on GB10)
+        // is what `inner_get_inference_provider` reads at dispatch time;
+        // the gb10-client writes it through in lockstep so the wizard's
         // saved `latency.response_source` actually gates which Claude
-        // lane is allowed. Without this write-through, the routing.toml
-        // surface would be a parallel store that no consumer reads.
-        // Write-through to the dispatch SSOT (Clyffy on GB10) is the
-        // gb10-client's job now (kernel-severance); the local save above
-        // is DevPulse's persistence of the user preference.
+        // lane is allowed. The local save above is DevPulse's persistence
+        // of the user preference.
 
         let enabled_tier_count: u32 = saved
             .escalation
@@ -1064,8 +1054,8 @@ impl Platform {
         &self.project_analytics
     }
 
-    // project_graph / project_vector accessors removed — per-project graph
-    // + vector stores are Clyffy's on GB10 (kernel-severance).
+    // There are no project_graph / project_vector accessors — per-project
+    // graph + vector stores are Clyffy's on GB10.
 
     /// Atomically initialize every per-project store for one project.
     ///
@@ -1099,9 +1089,9 @@ impl Platform {
         self.telemetry.as_ref()
     }
 
-    // reasoning (RRO) + grammar (constrained decoding) accessors removed —
-    // both are Clyffy's on GB10, surfaced through the gb10-client wire,
-    // not held on the local Platform (kernel-severance).
+    // There are no reasoning (RRO) or grammar (constrained decoding)
+    // accessors — both are Clyffy's on GB10, surfaced through the
+    // gb10-client wire, not held on the local Platform.
 
     /// Graceful shutdown — close all services in reverse boot order.
     ///
@@ -1152,7 +1142,7 @@ impl Platform {
 
         // Project-scope managers are not in the macro — they're on-demand,
         // not boot-time. Tear down the file-owning Turso / DuckDB adapters
-        // (graph + vector are Clyffy's on GB10 now, kernel-severance).
+        // (graph + vector are Clyffy's on GB10).
         self.project_analytics.shutdown().await;
         self.project_db.shutdown().await;
 

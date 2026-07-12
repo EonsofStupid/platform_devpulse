@@ -2,8 +2,8 @@
 //! events, scripted copy, and hardware-tier display metadata.
 //!
 //! Content, not logic — greetings, hints, button labels, event vocabulary,
-//! tier badges. It lives in the engine (DevPulse's core), never the AI-only
-//! kernel. The frontend reads it via Tauri commands and renders it directly.
+//! tier badges. It lives in the engine (DevPulse's core), never Clyffy's
+//! AI layer. The frontend reads it via Tauri commands and renders it directly.
 
 pub mod analytics;
 pub mod copy;

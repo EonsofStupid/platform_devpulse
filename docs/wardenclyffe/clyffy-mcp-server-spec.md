@@ -7,6 +7,14 @@
 >
 > SDK: official `rmcp` v1.7.0 (`modelcontextprotocol/rust-sdk`). Spec rev
 > `2025-11-25` (stable), forward-compatible with the `2026-07-28` RC.
+>
+> **⚠ CUT LANDED — 2026-07-08.** RRD + inference left this repo with the
+> kernel cut (AI layer = `github.com/EonsofStupid/clyffyos`; persona-mcp
+> already lives there as `clyffyos-persona-mcp`). An MCP edge over the AI
+> layer is now ClyffyOS's to build — this spec's placement/dependency lines
+> (`systems/devpulse-mcp` over the engine facade, the private `rro` dep) no
+> longer apply as written. Deferred, not retired; the tool surface + rmcp
+> research below remain the reference.
 
 ## 1. Placement & IP boundary (decide first)
 

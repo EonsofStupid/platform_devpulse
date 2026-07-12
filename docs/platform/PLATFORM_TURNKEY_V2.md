@@ -30,6 +30,8 @@ slogan.
 > - **Still valid** — The three-month foundation gap (§3: the staged-indexing orchestrator that sequences discover -> classify -> embed -> store -> verify is missing), the §1 verified DB-boot status and devtool observability, the dual-observability discipline (§2 Rule 11, §4.3 unified Signal taxonomy, §8 gates), the §4.2 pipeline-stage design, real file:line citations, and the DONE/verification records all stay correct — they just relocate the GB10-side stages to ClyffyOS.
 >
 > Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
+>
+> **⚠ CUT LANDED — 2026-07-08.** The split described above happened: the kernel left this repo (AI layer = `github.com/EonsofStupid/clyffyos`). Every `kernel/…` path below is a git-history reference. The staged-indexing orchestrator gap (§3) is now ClyffyOS's to close; the DevPulse-local items (boot gate, signal taxonomy, devtool observability) remain this repo's, deferred-not-retired.
 
 ---
 

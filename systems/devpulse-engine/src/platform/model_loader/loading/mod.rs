@@ -2,9 +2,9 @@
 //! management layer (slot status snapshots, memory footprint, load
 //! parameters).
 //!
-//! Only the shared TYPES are relocated here. The actual load / prime /
-//! swap orchestration is inference and runs on headless Clyffy/GB10
-//! (kernel-severance) — `loading::{prime, safe, swap}` are NOT part of
+//! Only the shared TYPES live here. The actual load / prime / swap
+//! orchestration is inference and is Clyffy's, running on headless
+//! Clyffy/GB10 — `loading::{prime, safe, swap}` are NOT part of
 //! this crate.
 
 pub mod states;

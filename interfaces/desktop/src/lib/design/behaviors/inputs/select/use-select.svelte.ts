@@ -14,6 +14,7 @@ import { uid } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_shared/escape-layer/index.js";
 import { usePresence } from "../../_shared/presence/index.js";
+import { useTypeahead } from "../../_shared/typeahead/index.js";
 import { selectAnatomy } from "./select.anatomy.js";
 import type { UseSelectProps, UseSelectReturn } from "./select.types.js";
 
@@ -55,38 +56,78 @@ export function useSelect(props: UseSelectProps = {}): UseSelectReturn {
 		}
 	}
 
-	function handleTriggerKeydown(e: KeyboardEvent): void {
-		if (globalDisabled) return;
-		const options = getOptions();
-		const currentIndex = highlightedId ? options.findIndex((el) => el.id === highlightedId) : -1;
+	// APG select-only combobox: typed characters highlight the matching
+	// option (active-descendant — options are never focused, so the search
+	// anchors on the highlighted option, not document.activeElement).
+	const typeahead = useTypeahead({
+		getItems: getOptions,
+		getActiveItem: () => getOptions().find((el) => el.id === highlightedId) ?? null,
+		onMatch: (option) => {
+			highlightedId = option.id;
+			option.scrollIntoView({ block: "nearest" });
+		},
+	});
 
+	/** Arrow/Home/End highlight movement. Returns true when handled. */
+	function handleHighlightNav(
+		e: KeyboardEvent,
+		options: HTMLElement[],
+		currentIndex: number,
+	): boolean {
 		if (e.key === kbd.ARROW_DOWN) {
 			e.preventDefault();
 			if (!isOpen) {
 				setOpen(true);
 				highlightByIndex(0);
 			} else highlightByIndex(currentIndex < options.length - 1 ? currentIndex + 1 : 0);
-		} else if (e.key === kbd.ARROW_UP) {
+			return true;
+		}
+		if (e.key === kbd.ARROW_UP) {
 			e.preventDefault();
 			if (!isOpen) {
 				setOpen(true);
 				highlightByIndex(options.length - 1);
 			} else highlightByIndex(currentIndex > 0 ? currentIndex - 1 : options.length - 1);
-		} else if (e.key === kbd.HOME) {
+			return true;
+		}
+		if (e.key === kbd.HOME) {
 			e.preventDefault();
 			if (isOpen) highlightByIndex(0);
-		} else if (e.key === kbd.END) {
+			return true;
+		}
+		if (e.key === kbd.END) {
 			e.preventDefault();
 			if (isOpen) highlightByIndex(options.length - 1);
-		} else if ((e.key === kbd.ENTER || e.key === kbd.SPACE) && isOpen && highlightedId) {
+			return true;
+		}
+		return false;
+	}
+
+	function handleTriggerKeydown(e: KeyboardEvent): void {
+		if (globalDisabled) return;
+		const options = getOptions();
+		const currentIndex = highlightedId ? options.findIndex((el) => el.id === highlightedId) : -1;
+
+		if (handleHighlightNav(e, options, currentIndex)) return;
+
+		if ((e.key === kbd.ENTER || e.key === kbd.SPACE) && isOpen && highlightedId) {
 			e.preventDefault();
 			const el = options.find((o) => o.id === highlightedId);
-			const val = el?.getAttribute("data-value");
+			const val = el?.dataset.value;
 			if (val) selectOption(val);
 		} else if (e.key === kbd.SPACE && !isOpen) {
 			e.preventDefault();
 			setOpen(true);
 			highlightByIndex(0);
+		} else if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+			// Printable character: open (if closed) and typeahead-highlight.
+			// The listbox mounts on open, so defer the first search a frame.
+			if (!isOpen) {
+				setOpen(true);
+				requestAnimationFrame(() => typeahead.handleKeydown(e));
+				return;
+			}
+			typeahead.handleKeydown(e);
 		}
 	}
 

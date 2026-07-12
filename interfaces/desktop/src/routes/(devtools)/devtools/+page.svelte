@@ -13,6 +13,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
+import { Section } from "$lib/design/components/section/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
 import {
@@ -74,8 +75,15 @@ const EXTERNAL_WINDOWS: ExternalWindow[] = [
 	},
 ];
 
-function tierAccentClass(tier: TierGroup): string {
-	return `ds-section--${tier.accent}`;
+/** Per-tier blurb — the only branch in the uniform tier→buckets→tiles shape. */
+function tierBlurb(tier: TierGroup["tier"]): string {
+	if (tier === "system") {
+		return "Platform infrastructure: datastores, caches, retrieval, observability, IDE.";
+	}
+	if (tier === "clyffy") {
+		return "The assistant's senses + cognition.";
+	}
+	return "Slot orchestrator + inference runtimes.";
 }
 
 function isPlanned(tile: DevtoolMeta): boolean {
@@ -315,14 +323,11 @@ let laneGroups = $derived<LaneGroup[]>(
 				<LiveSubsystemStrip />
 
 				<!-- ── Quick Actions (primary) ─────────────────── -->
-				<section class="ds-section ds-section--primary">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Quick Actions</h2>
-						<p class="ds-section-blurb">
-							Most-used surfaces. Lane tracing presets, config inspector,
-							runtime aggregation.
-						</p>
-					</header>
+				<Section
+					title="Quick Actions"
+					blurb="Most-used surfaces. Lane tracing presets, config inspector, runtime aggregation."
+					accent="primary"
+				>
 					<div class="ds-tile-grid ds-tile-grid--lg">
 						<button class="ds-tile ds-tile--lg" onclick={() => (activeTab = "lanes")}>
 							<Activity size={26} class="ds-tile-icon" />
@@ -345,16 +350,14 @@ let laneGroups = $derived<LaneGroup[]>(
 							</span>
 						</a>
 					</div>
-				</section>
+				</Section>
 
 				<!-- ── Detached windows (muted) — Tauri WebviewWindow targets, kept here for discoverability. -->
-				<section class="ds-section ds-section--muted">
-					<header class="ds-section-header">
-						<h2 class="ds-section-title">Detached Windows</h2>
-						<p class="ds-section-blurb">
-							Surfaces that pop into their own always-on-top window.
-						</p>
-					</header>
+				<Section
+					title="Detached Windows"
+					blurb="Surfaces that pop into their own always-on-top window."
+					accent="muted"
+				>
 					<div class="ds-tile-grid">
 						{#each EXTERNAL_WINDOWS as win (win.role)}
 							{@const Icon = win.icon}
@@ -366,31 +369,13 @@ let laneGroups = $derived<LaneGroup[]>(
 							</button>
 						{/each}
 					</div>
-				</section>
+				</Section>
 
 				<!-- ── Three tiers from registry — System → Clyffy → Runtimes.
 				     Every tier renders the same shape: section → buckets → tiles.
 				     Per-tier blurb is the only branch. -->
 				{#each tierGroups as group (group.tier)}
-					<section class="ds-section {tierAccentClass(group)}">
-						<header class="ds-section-header">
-							<h2 class="ds-section-title">{group.label}</h2>
-							{#if group.tier === "system"}
-								<p class="ds-section-blurb">
-									Platform infrastructure: datastores, caches, retrieval,
-									observability, IDE.
-								</p>
-							{:else if group.tier === "clyffy"}
-								<p class="ds-section-blurb">
-									The assistant's senses + cognition.
-								</p>
-							{:else}
-								<p class="ds-section-blurb">
-									Slot orchestrator + inference runtimes.
-								</p>
-							{/if}
-						</header>
-
+					<Section title={group.label} blurb={tierBlurb(group.tier)} accent={group.accent}>
 						<div class="ds-buckets">
 							{#each group.buckets as bucket (bucket.bucket)}
 								{@const BucketIcon = bucket.icon}
@@ -419,7 +404,7 @@ let laneGroups = $derived<LaneGroup[]>(
 								</div>
 							{/each}
 						</div>
-					</section>
+					</Section>
 				{/each}
 			</div>
 
@@ -535,9 +520,8 @@ let laneGroups = $derived<LaneGroup[]>(
 
 <style>
 	/* ── Dashboard chrome — semantic-accent driven ─────────────
-	   Each `.ds-section` declares its own --accent-section-* trio via
-	   a modifier class. Tiles inside read those vars; switching
-	   accents is one className change. */
+	   Sections are ColdLight `<Section>` (owns the --accent-section-*
+	   trio + header). Tiles/buckets below read the section's trio. */
 
 	.ds-tabbar {
 		display: flex;
@@ -572,65 +556,6 @@ let laneGroups = $derived<LaneGroup[]>(
 		flex-direction: column;
 		gap: 1.25rem;
 		padding: 1rem;
-	}
-
-	.ds-section {
-		--accent-section-main: var(--accent-primary-main);
-		--accent-section-glow: var(--accent-primary-glow);
-		--accent-section-fill: var(--accent-primary-fill);
-		display: flex;
-		flex-direction: column;
-		gap: 0.625rem;
-	}
-
-	.ds-section--primary {
-		--accent-section-main: var(--accent-primary-main);
-		--accent-section-glow: var(--accent-primary-glow);
-		--accent-section-fill: var(--accent-primary-fill);
-	}
-	.ds-section--secondary {
-		--accent-section-main: var(--accent-secondary-main);
-		--accent-section-glow: var(--accent-secondary-glow);
-		--accent-section-fill: var(--accent-secondary-fill);
-	}
-	.ds-section--success {
-		--accent-section-main: var(--accent-success-main);
-		--accent-section-glow: var(--accent-success-glow);
-		--accent-section-fill: var(--accent-success-fill);
-	}
-	.ds-section--warning {
-		--accent-section-main: var(--accent-warning-main);
-		--accent-section-glow: var(--accent-warning-glow);
-		--accent-section-fill: var(--accent-warning-fill);
-	}
-	.ds-section--muted {
-		--accent-section-main: var(--accent-muted-main);
-		--accent-section-glow: var(--accent-muted-glow);
-		--accent-section-fill: var(--accent-muted-fill);
-	}
-
-	.ds-section-header {
-		display: flex;
-		align-items: baseline;
-		gap: 0.625rem;
-		padding-inline: 0.25rem;
-		border-left: 2px solid var(--accent-section-main);
-		padding-left: 0.625rem;
-	}
-
-	.ds-section-title {
-		margin: 0;
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-		color: var(--accent-section-main);
-		letter-spacing: 0.02em;
-		text-transform: uppercase;
-	}
-
-	.ds-section-blurb {
-		margin: 0;
-		font-size: var(--font-size-xs);
-		color: var(--text-secondary);
 	}
 
 	.ds-tile-grid {

@@ -10,7 +10,7 @@
 //! there is no hand-maintained `DatabaseConfig` mirror.
 //!
 //! Store layout uses four scopes:
-//! - **system**: Kernel/engine internals (FSM, telemetry, boot state)
+//! - **system**: Engine internals (FSM, telemetry, boot state)
 //! - **user**: User-owned data (sessions, messages, preferences, memory)
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
@@ -283,7 +283,7 @@ impl Default for WindowsConfig {
 /// All service configurations, organized by scope.
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct ScopedServicesConfig {
-    /// System-scope services (kernel internals).
+    /// System-scope services (engine internals).
     #[serde(default)]
     pub system: SystemServicesConfig,
     /// User-scope services (sessions, preferences, auto-managed).
@@ -303,13 +303,13 @@ pub struct ScopedServicesConfig {
 /// System-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
 pub struct SystemServicesConfig {
-    /// Relational store (`LibSQL`) — kernel state, boot records.
+    /// Relational store (`LibSQL`) — engine state, boot records.
     #[serde(default = "ServiceEntry::system_relational_default")]
     pub relational: ServiceEntry,
     /// Analytics store (`DuckDB`) — system telemetry.
     #[serde(default = "ServiceEntry::system_analytics_default")]
     pub analytics: ServiceEntry,
-    /// Graph store (`SurrealDB`) — kernel FSM, reasoning.
+    /// Graph store (`SurrealDB`) — Clyffy-side FSM, reasoning.
     #[serde(default = "GraphServiceEntry::system_default")]
     pub graph: GraphServiceEntry,
     /// In-memory cache (`Moka`).
@@ -318,8 +318,8 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
-    // Grammar service config removed — grammar (constrained decoding) is
-    // Clyffy's on GB10 (kernel-severance); no local grammar service entry.
+    // There is no grammar service config — grammar (constrained decoding)
+    // is Clyffy's on GB10; no local grammar service entry.
     /// Model Loader service (`AI` model management, inference).
     #[serde(default)]
     pub model_loader: ModelLoaderServiceEntry,
@@ -388,6 +388,27 @@ pub struct ClyffyServiceEntry {
     /// Per-probe HTTP timeout in seconds.
     #[serde(default = "default_clyffy_probe_timeout_secs")]
     pub probe_timeout_secs: u64,
+    /// Whether the turnkey discovery ladder (persisted / configured /
+    /// localhost / mDNS / mesh peers) runs when the operator asks to find
+    /// their Clyffy. `false` = manual address entry only.
+    #[serde(default = "default_true")]
+    pub discovery_enabled: bool,
+    /// DNS-SD service type `clyffyd` advertises on the LAN. The canonical
+    /// constant belongs to `clyffyos-wire`; this default tracks the wire
+    /// contract (`_clyffy._tcp.local.`, kernel-extraction charter).
+    #[serde(default = "default_clyffy_discovery_service_type")]
+    pub discovery_service_type: String,
+    /// Candidate ports probed on localhost and enumerated mesh peers.
+    /// (mDNS answers carry their own port via SRV and ignore this list.)
+    #[serde(default = "default_clyffy_discovery_ports")]
+    pub discovery_ports: Vec<u16>,
+    /// How long the mDNS browse collects answers before the ladder moves on.
+    #[serde(default = "default_clyffy_discovery_mdns_wait_ms")]
+    pub discovery_mdns_wait_ms: u64,
+    /// Bounded fan-out for candidate capability probes — only enumerated
+    /// candidates are probed, never address sweeps.
+    #[serde(default = "default_clyffy_discovery_max_probes")]
+    pub discovery_max_probes: usize,
 }
 
 fn default_clyffy_probe_interval_secs() -> u64 {
@@ -395,6 +416,18 @@ fn default_clyffy_probe_interval_secs() -> u64 {
 }
 fn default_clyffy_probe_timeout_secs() -> u64 {
     5
+}
+fn default_clyffy_discovery_service_type() -> String {
+    "_clyffy._tcp.local.".to_string()
+}
+fn default_clyffy_discovery_ports() -> Vec<u16> {
+    vec![8080]
+}
+fn default_clyffy_discovery_mdns_wait_ms() -> u64 {
+    1500
+}
+fn default_clyffy_discovery_max_probes() -> usize {
+    8
 }
 
 impl Default for ClyffyServiceEntry {
@@ -404,6 +437,11 @@ impl Default for ClyffyServiceEntry {
             base_url: String::new(),
             probe_interval_secs: default_clyffy_probe_interval_secs(),
             probe_timeout_secs: default_clyffy_probe_timeout_secs(),
+            discovery_enabled: true,
+            discovery_service_type: default_clyffy_discovery_service_type(),
+            discovery_ports: default_clyffy_discovery_ports(),
+            discovery_mdns_wait_ms: default_clyffy_discovery_mdns_wait_ms(),
+            discovery_max_probes: default_clyffy_discovery_max_probes(),
         }
     }
 }
@@ -750,7 +788,7 @@ pub struct VectorServiceEntry {
     /// Defaults to whether qortex (the `rro` feature) is compiled in. A
     /// standalone Turso-only desktop build has NO in-process vector store, so
     /// the `not(rro)` boot path must not bail — the default resolves to `false`
-    /// there and `true` when the vector store is linked (GB10/kernel-inproc).
+    /// there and `true` when the vector store is linked (Clyffy-side/GB10).
     #[serde(default = "default_vector_enabled")]
     pub enabled: bool,
     /// Whether boot fails if this service fails.
@@ -1023,10 +1061,10 @@ pub struct ModelLoaderServiceEntry {
     pub subdirs: ModelSubdirsConfig,
     /// Download catalog — HF repos and options per slot.
     ///
-    /// Slots themselves are NOT defined here — the kernel owns the slot
-    /// registry via `kernel/model-loader/config/slots.default.toml`. The
+    /// Slots themselves are NOT defined here — the engine owns the slot
+    /// registry via its `config/slots.default.toml`. The
     /// catalog is engine-level presentation data that the frontend model
-    /// browser renders against each kernel slot id.
+    /// browser renders against each slot id.
     #[serde(default)]
     pub catalog: Vec<CatalogEntry>,
 }
@@ -1119,11 +1157,11 @@ impl Default for ModelSubdirsConfig {
 
 // ── Catalog entry (exposed to frontend via specta) ──
 //
-// Slot / capability / device / loading-strategy / backend-type / source-tier
-// shadow types used to live here. They are deleted — the engine no longer
-// carries a parallel definition of the kernel's Slot vocabulary. Every
-// deserialization of a slot now goes through kernel/model-loader/src/slots/
-// defaults.rs via load_default_slots() at boot.
+// There are no slot / capability / device / loading-strategy /
+// backend-type / source-tier shadow types here — the Slot vocabulary has
+// a single definition in `platform/model_loader/slots/`. Every
+// deserialization of a slot goes through `slots/defaults.rs` via
+// `load_default_slots()` at boot.
 
 /// A download catalog entry — one per slot. Each has one or more download options.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -1707,7 +1745,7 @@ impl Default for BootGateConfig {
 /// Identifies which scope a store belongs to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum DataScope {
-    /// Kernel/engine internals — never user-facing.
+    /// Engine internals — never user-facing.
     System,
     /// User-owned data — sessions, preferences, memories.
     User,
@@ -1804,7 +1842,7 @@ impl PlatformBootConfig {
                 self.services.system.vector.critical,
             )),
             // Grammar (constrained decoding) is Clyffy's on GB10
-            // (kernel-severance) — no local config; falls to `_ => None`.
+            // — no local config; falls to `_ => None`.
             (ServiceRole::ModelLoader, DataScope::System) => Some((
                 self.services.system.model_loader.enabled,
                 self.services.system.model_loader.critical,
@@ -2196,7 +2234,7 @@ fn default_rro_path() -> String {
 /// Keeps a standalone Turso-only desktop (no `rro`) from bailing boot when the
 /// resolved config would otherwise request an uncompiled vector store.
 fn default_vector_enabled() -> bool {
-    // rro feature removed (kernel-severance) — no local vector store; Clyffy
+    // No local vector store (no `rro` feature in DevPulse) — Clyffy
     // serves vectors from GB10. Vector config defaults to disabled locally.
     false
 }

@@ -18,7 +18,7 @@
 //! No automatic schedule today — the UI fires `sync_community_feed`
 //! on tab-mount and lets the operator click "refresh." A server-side
 //! schedule can land later by spawning a tokio task that calls the
-//! same kernel helpers; the shape of this module won't change.
+//! same engine helpers; the shape of this module won't change.
 
 use anyhow::Context as _;
 use serde::{Deserialize, Serialize};

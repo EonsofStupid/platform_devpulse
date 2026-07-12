@@ -4,7 +4,7 @@
  *
  * Reads MD files in `docs/knowledge_library/` (one per content type), parses
  * the canonical entry shape, and merges into the embedded JSON artifacts
- * under `kernel/devpulse-clyffy/src/cortex/knowledge/data/`. The kernel
+ * under `systems/devpulse-engine/src/platform/knowledge/data/`. The engine
  * loads these via `include_str!` at compile time, so a `cargo build` after
  * running this script picks up the new content.
  *
@@ -36,12 +36,16 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..", "..");
 const MD_DIR = resolve(ROOT, "docs", "knowledge_library");
+// The engine's knowledge data is the SSOT (loader.rs include_str!s these
+// files). This previously pointed at the kernel crate's pre-rename
+// `cortex/` path — doubly dead: the module became `connectome/` and the
+// kernel is Clyffy's (lives in the clyffyos repo, not here).
 const JSON_DIR = resolve(
 	ROOT,
-	"kernel",
-	"devpulse-clyffy",
+	"systems",
+	"devpulse-engine",
 	"src",
-	"cortex",
+	"platform",
 	"knowledge",
 	"data",
 );

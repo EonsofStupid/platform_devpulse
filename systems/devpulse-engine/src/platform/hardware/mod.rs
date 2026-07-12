@@ -6,8 +6,8 @@
 //! - [`auto_config`] / [`presets`] — deterministic, config-driven mapping
 //!   from a tier to per-slot model recommendations (read from
 //!   `presets.default.toml`). This is MANAGEMENT (which model to suggest
-//!   for which slot), not inference — relocated from the kernel model-loader
-//!   during the kernel-severance so DevPulse can plan standalone.
+//!   for which slot), not inference — engine-owned so DevPulse can plan
+//!   standalone.
 //! - [`lanes`] / [`vram`] — compute-lane vocabulary + the VRAM budget
 //!   planner the slot picker uses to check a preset fits the machine.
 //!

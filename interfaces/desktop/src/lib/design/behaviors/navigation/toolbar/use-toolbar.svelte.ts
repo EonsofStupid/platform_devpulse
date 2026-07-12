@@ -9,10 +9,12 @@
  */
 
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
-import { getNextKey, getPrevKey, kbd } from "../../_internal/utils/kbd.js";
 import { uid } from "../../_internal/utils/uid.js";
+import { createRovingHandler } from "../../_shared/roving-focus/index.js";
 import { toolbarAnatomy } from "./toolbar.anatomy.js";
 import type { UseToolbarProps, UseToolbarReturn } from "./toolbar.types.js";
+
+const ITEM_SELECTOR = '[data-slot="item"]:not([data-disabled])';
 
 export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 	const id = uid("toolbar");
@@ -22,41 +24,16 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 
 	let activeValue = $state<string | undefined>(undefined);
 
-	function handleKeydown(e: KeyboardEvent): void {
-		const nextKey = getNextKey("ltr", orientation);
-		const prevKey = getPrevKey("ltr", orientation);
-
-		if (![nextKey, prevKey, kbd.HOME, kbd.END].includes(e.key)) return;
-		e.preventDefault();
-
-		const target = e.currentTarget as HTMLElement;
-		const toolbar = target.closest('[role="toolbar"]');
-		if (!toolbar) return;
-
-		const items = Array.from(
-			toolbar.querySelectorAll<HTMLElement>('[data-slot="item"]:not([data-disabled])'),
-		);
-		if (items.length === 0) return;
-
-		const currentIndex = items.indexOf(target);
-		let nextIndex: number;
-
-		if (e.key === nextKey) {
-			nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : loop ? 0 : currentIndex;
-		} else if (e.key === prevKey) {
-			nextIndex = currentIndex > 0 ? currentIndex - 1 : loop ? items.length - 1 : currentIndex;
-		} else if (e.key === kbd.HOME) {
-			nextIndex = 0;
-		} else {
-			nextIndex = items.length - 1;
-		}
-
-		const nextItem = items[nextIndex];
-		if (nextItem) {
-			nextItem.focus();
-			activeValue = nextItem.getAttribute("data-value") ?? undefined;
-		}
-	}
+	// Shared composite-widget keyboard: Arrow/Home/End, RTL-aware.
+	const handleKeydown = createRovingHandler({
+		containerSelector: '[role="toolbar"]',
+		itemSelector: ITEM_SELECTOR,
+		orientation,
+		loop,
+		onFocusItem: (item) => {
+			activeValue = item.dataset.value;
+		},
+	});
 
 	const root = $derived({
 		...toolbarAnatomy.attrs.root,
@@ -66,6 +43,17 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 		"aria-label": props.label,
 		"data-orientation": orientation,
 		"data-disabled": dataAttr(globalDisabled),
+		// Before first interaction every item is tabindex=-1 — the toolbar
+		// itself is the single tab stop and forwards focus to the first
+		// enabled item (a11y audit Gap 5: keyboard-unreachable toolbar).
+		tabindex: activeValue === undefined ? 0 : -1,
+		onfocus: (e: FocusEvent) => {
+			if (e.target !== e.currentTarget) return;
+			const first = (e.currentTarget as HTMLElement).querySelector<HTMLElement>(ITEM_SELECTOR);
+			if (!first) return;
+			first.focus();
+			activeValue = first.dataset.value;
+		},
 	});
 
 	return {
@@ -83,6 +71,11 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 				"data-disabled": isDisabled ? ("" as const) : undefined,
 				"aria-disabled": disabledAttr(isDisabled),
 				onkeydown: handleKeydown,
+				// Pointer focus moves the roving anchor too, so Tab-out →
+				// Tab-in returns to the last used item.
+				onfocus: () => {
+					if (!isDisabled) activeValue = value;
+				},
 			};
 		},
 	};

@@ -1,7 +1,7 @@
-//! Model-loader MANAGEMENT layer — DevPulse-local, kernel-free.
+//! Model-loader MANAGEMENT layer — DevPulse-local.
 //!
-//! Relocated from `kernel/model-loader` during the kernel-severance. Owns
-//! the DevPulse-local half of model management:
+//! The engine's model management module (absorbed from the former kernel
+//! crate, 2026-07). Owns the DevPulse-local half of model management:
 //!
 //! - [`slots`] — the slot table (named model positions), defaults,
 //!   fallback chains, KV-cache config, persistence classes, symlink

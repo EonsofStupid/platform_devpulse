@@ -20,7 +20,7 @@
       }
     },
     "devpulse-persona": {
-      "command": "D:\\localdev\\platform_devpulse\\target\\release\\devpulse-persona-mcp.exe",
+      "command": "D:\\localdev\\clyffyos\\target\\release\\clyffyos-persona-mcp.exe",
       "env": {
         "CLYFFY_OFFLINE": "true",
         "DEVPULSE_PERSONA_LOG": "info"

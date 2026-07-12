@@ -44,15 +44,27 @@ const isContextExpanded = $derived(globalState.context_mode === "expanded");
  *  Context:  400px (w-[25rem])    — chat portal / devtools panel
  */
 const SLOTS = {
-	frame:
-		"grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
+	// Named-areas shell: the zone map is declared ONCE here; every slot
+	// binds by name. Zones are cqi container seams (S1.C adoption
+	// contract) — the frame ROOT stays container-free so the fixed
+	// overlays below keep the viewport as their containing block.
+	frame: cn(
+		"grid h-screen w-screen overflow-hidden font-sans",
+		"grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto]",
+		"[grid-template-areas:'topbar_topbar_topbar'_'sidebar_content_context'_'statusbar_statusbar_statusbar']",
+	),
 	topbar: cn(
-		"col-span-full flex items-center justify-between",
+		"[grid-area:topbar] flex items-center justify-between",
 		"h-[var(--layout-topbar-height)] px-4",
 		"border-b border-[var(--border-soft)]",
+		// Shell chrome paints above the content zone — the zone's container
+		// seam creates a stacking context, and its absolute dropdown must
+		// not slip under content.
+		"relative z-10",
+		"[container-type:inline-size] [container-name:topbar]",
 	),
 	sidebar: cn(
-		"row-start-2 col-start-1 flex flex-col items-center relative",
+		"[grid-area:sidebar] flex flex-col items-center relative",
 		"w-[var(--layout-sidebar-collapsed)] py-3 gap-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
@@ -61,7 +73,7 @@ const SLOTS = {
 		"[container-type:inline-size] [container-name:sidebar]",
 	),
 	sidebarExpanded: cn(
-		"row-start-2 col-start-1 flex flex-col relative",
+		"[grid-area:sidebar] flex flex-col relative",
 		"w-[var(--layout-sidebar-expanded)] py-3 px-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
@@ -70,24 +82,22 @@ const SLOTS = {
 		"[container-type:inline-size] [container-name:sidebar]",
 	),
 	content: cn(
-		"row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
+		"[grid-area:content] overflow-y-auto scrollbar-thin p-4 lg:p-6",
 		"[container-type:inline-size] [container-name:content]",
 	),
-	context: cn(
-		"row-start-2 col-start-3 w-0 overflow-hidden",
-		"border-l border-[var(--border-subtle)]",
-	),
+	context: cn("[grid-area:context] w-0 overflow-hidden", "border-l border-[var(--border-subtle)]"),
 	contextExpanded: cn(
-		"row-start-2 col-start-3 w-[var(--layout-context-width)] overflow-y-auto scrollbar-thin",
+		"[grid-area:context] w-[var(--layout-context-width)] overflow-y-auto scrollbar-thin",
 		"border-l border-[var(--border-subtle)]",
 		"[container-type:inline-size] [container-name:context]",
 	),
 	statusbar: cn(
-		"col-span-full flex items-center justify-between",
+		"[grid-area:statusbar] flex items-center justify-between",
 		"h-[var(--layout-statusbar-height)] px-4 py-1",
 		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",
+		"[container-type:inline-size] [container-name:statusbar]",
 	),
 	overlay: "fixed inset-0 z-50 bg-transparent pointer-events-none",
 	overlayActive: "fixed inset-0 z-50 bg-[var(--overlay-bg)] pointer-events-auto",

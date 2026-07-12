@@ -130,7 +130,7 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 // through the existing `installToSlot` / `downloadModel` IPC; this
 // surface just stops auto-triggering them.
 //
-// Gate on `modelsStatusReceived` — the kernel emits `platform:ready`
+// Gate on `modelsStatusReceived` — the engine emits `platform:ready`
 // and `platform:models-status` as separate events. Without this gate
 // the overlay would fade before the first authoritative models
 // snapshot reaches the rune store, leaving the dashboard briefly

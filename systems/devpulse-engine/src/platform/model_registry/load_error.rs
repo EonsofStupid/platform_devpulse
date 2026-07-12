@@ -10,8 +10,8 @@
 //! specta bindings.
 //!
 //! The old `anyhow::Error` plumbing is preserved for internal plumbing
-//! (tracing spans, logging), but the boundary between the kernel and
-//! the engine facade should return `Result<T, LoadError>` wherever
+//! (tracing spans, logging), but the boundary between loader internals
+//! and the engine facade should return `Result<T, LoadError>` wherever
 //! possible so the typed information makes it to the UI.
 
 use super::architectures::ArchId;
@@ -25,14 +25,14 @@ use std::fmt;
 ///
 /// # Why one type
 ///
-/// Historically the kernel raised several different error types
+/// Historically the load path raised several different error types
 /// (`LoaderError`, `anyhow::Error`, raw strings) and the frontend got
 /// opaque `String` errors at the Tauri boundary. This discarded every
 /// bit of actionable context — the UI couldn't show alternatives,
 /// couldn't offer a retry, couldn't distinguish VRAM exhaustion from
 /// a missing file.
 ///
-/// `LoadError` is the funnel point. Internal kernel errors
+/// `LoadError` is the funnel point. Internal loader errors
 /// ([`crate::traits::errors::LoaderError`], [`anyhow::Error`]) are
 /// converted into `LoadError` at the engine facade boundary via
 /// [`From<LoaderError>`] and [`LoadError::from_anyhow`]. From there
@@ -254,14 +254,14 @@ impl LoadError {
     /// is recovered. Otherwise the error's display form is captured
     /// in [`LoadError::Other`].
     ///
-    /// This is the canonical boundary conversion: kernel code raises
+    /// This is the canonical boundary conversion: loader code raises
     /// anyhow errors internally (tensor ops, IO, tracing spans), the
     /// service boundary downcasts them to typed `LoadError` for
     /// specta serialization to the frontend.
     #[must_use]
     pub fn from_anyhow(err: anyhow::Error) -> Self {
         // Recover a typed LoadError that was wrapped, else capture the display.
-        // (The kernel-internal `LoaderError` projection lives on Clyffy now; the
+        // (The loader-internal `LoaderError` projection is Clyffy's; the
         // engine only sees anyhow errors carrying an already-typed LoadError.)
         match err.downcast::<LoadError>() {
             Ok(typed) => typed,

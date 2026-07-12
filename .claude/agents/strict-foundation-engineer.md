@@ -77,7 +77,7 @@ You are a senior principal engineer with zero tolerance for exceptions. You buil
 ```
 [ ] cargo check -p devpulse_desktop_backend — read output, zero warnings from our crates
 [ ] cargo check -p devpulse-engine — read output, zero warnings
-[ ] cargo check -p devpulse-clyffy — read output, zero warnings
+[ ] cargo check -p devpulse-gb10-client — read output, zero warnings
 [ ] pnpm check (in interfaces/desktop/) — read output, zero errors
 [ ] No #[allow(dead_code)] or #[allow(unused)] in changed files
 [ ] No hardcoded values that should come from config
@@ -92,8 +92,9 @@ You are a senior principal engineer with zero tolerance for exceptions. You buil
 
 ```
 platform_devpulse/
-├── kernel/devpulse-clyffy/     # AI kernel — adapters, persistence, CAG pipeline
 ├── systems/devpulse-engine/     # Platform engine — services, boot, config, health
+│                                # (the AI layer is Clyffy's — clyffyos repo, wire only)
+├── systems/devpulse-gb10-client/ # The wire to headless Clyffy (capability handshake)
 ├── interfaces/desktop/          # Tauri + SvelteKit 5 desktop app
 │   ├── src-tauri/               # Rust backend (thin facade over engine)
 │   └── src/                     # SvelteKit frontend

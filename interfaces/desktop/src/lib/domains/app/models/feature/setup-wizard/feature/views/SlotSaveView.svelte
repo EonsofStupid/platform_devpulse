@@ -18,9 +18,9 @@
 	| 2     | Quick thinking · Clyffy's minion   | Harrier 0.6B     | `--accent-hotpink` |
 	| 3     | Deep reasoning · the long-think    | Nemotron 7.6B    | `--accent-amber` |
 
-	The slot IDs themselves are kernel-side
+	The slot IDs themselves are engine-side
 	([SlotRecommendation`s][`SlotRecommendation`]). This view's
-	`slotSaves` prop maps each kernel recommendation to a customer-
+	`slotSaves` prop maps each engine recommendation to a customer-
 	friendly preset by `slot_id`.
 
 	## Polish discipline
@@ -53,7 +53,7 @@ let {
 }: SlotSaveViewProps = $props();
 
 /**
- * Resolve a kernel-supplied icon name to a lucide component. Lives
+ * Resolve an engine-supplied icon name to a lucide component. Lives
  * here so the typed prop struct stays JSON-serializable (callable
  * components can't cross the typed-state boundary cleanly).
  */

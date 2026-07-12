@@ -35,14 +35,6 @@
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true,
       "tag-separator": "-"
-    },
-    "kernel/devpulse-clyffy": {
-      "release-type": "rust",
-      "package-name": "devpulse-clyffy",
-      "component": "devpulse-clyffy",
-      "changelog-path": "CHANGELOG.md",
-      "include-component-in-tag": true,
-      "tag-separator": "-"
     }
   },
   "separate-pull-requests": true,

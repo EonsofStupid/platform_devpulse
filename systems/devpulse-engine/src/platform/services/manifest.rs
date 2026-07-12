@@ -46,7 +46,7 @@ pub enum ServiceGroup {
     Graph,
     /// AI capability surface: Model Loader, Vector store.
     Ai,
-    /// Platform plumbing: preflight, Grammar service, etc.
+    /// Platform plumbing: preflight, lazy sidecars (DevForge, Ollama).
     System,
 }
 
@@ -184,15 +184,8 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         step_id: Some("Vector store"),
         group: ServiceGroup::Ai,
     },
-    ServiceMeta {
-        role: ServiceRole::Grammar,
-        scope: DataScope::System,
-        stage: 9,
-        public_name: "Grammar Engine",
-        feature_gate: None, // Skipped at runtime, not feature-gated
-        step_id: Some("Grammar service"),
-        group: ServiceGroup::System,
-    },
+    // No Grammar entry — grammar / constrained decoding is Clyffy's on GB10
+    // (wire-served; the desktop's grammar commands are connection-gated).
     // Stages 10-11 (Embedder, Whisper) DELETED — slot-managed by model loader.
     ServiceMeta {
         role: ServiceRole::ModelLoader,
@@ -239,14 +232,16 @@ pub const SERVICE_COUNT: usize = SERVICE_MANIFEST.len();
 /// Every `ServiceRole` variant MUST have at least one entry in the manifest.
 /// This function uses exhaustive match — compiler error if a role is missing.
 pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
+    // Exhaustive match — compiler error if a role is missing. The indices
+    // are protected by the `meta_for_role_returns_matching_role` drift test
+    // (they had silently rotted once before: Vector→Global-Graph off-by-one).
     let idx = match role {
         ServiceRole::Surreal => 0,
         ServiceRole::Relational => 1, // System relational (first entry)
         ServiceRole::Analytics => 2,
         ServiceRole::Graph => 3, // System graph (first entry)
         ServiceRole::Cache => 4,
-        ServiceRole::Vector => 8,
-        ServiceRole::Grammar => 9,
+        ServiceRole::Vector => 9,
         ServiceRole::ModelLoader => 10,
         ServiceRole::DevForge => 11,
         ServiceRole::Ollama => 12,
@@ -259,7 +254,7 @@ pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
 pub fn compiled_service_count() -> usize {
     let mut count = 0;
     for meta in SERVICE_MANIFEST {
-        // rro/candle/inference features removed (kernel-severance) — these Tier-2
+        // No rro/candle/inference features in DevPulse — those Tier-2
         // services are Clyffy's on GB10, never compiled locally, so any
         // `feature_gate` means "not compiled in."
         if meta.feature_gate.is_none() {
@@ -380,12 +375,7 @@ pub const BOOT_STEP_MANIFEST: &[BootStepMeta] = &[
         feature_gate: Some("rro"),
         service_ref: Some((ServiceRole::Vector, DataScope::System)),
     },
-    BootStepMeta {
-        step_id: "Grammar service",
-        group: ServiceGroup::System,
-        feature_gate: None,
-        service_ref: Some((ServiceRole::Grammar, DataScope::System)),
-    },
+    // No "Grammar service" step — grammar is Clyffy's (wire-served).
 ];
 
 /// Look up a boot step by its `InitEvent` `step_id` string.
@@ -446,6 +436,32 @@ mod tests {
                  services_status() would report it as ConfigDisabled forever",
                 svc.role,
                 svc.scope,
+            );
+        }
+    }
+
+    #[test]
+    fn meta_for_role_returns_matching_role() {
+        // Drift protection: `meta_for_role`'s hardcoded indices must point
+        // at an entry whose role matches. They rotted silently once —
+        // Vector mapped to the Global-Graph entry (off-by-one after a
+        // manifest reshuffle) and nothing caught it.
+        for role in [
+            ServiceRole::Surreal,
+            ServiceRole::Relational,
+            ServiceRole::Analytics,
+            ServiceRole::Graph,
+            ServiceRole::Cache,
+            ServiceRole::Vector,
+            ServiceRole::ModelLoader,
+            ServiceRole::DevForge,
+            ServiceRole::Ollama,
+        ] {
+            let meta = meta_for_role(role);
+            assert_eq!(
+                meta.role, role,
+                "meta_for_role({role:?}) returned the entry for {:?} — index drift",
+                meta.role
             );
         }
     }

@@ -8,6 +8,7 @@
  */
 
 import { uid } from "../../_internal/utils/uid.js";
+import { createRovingHandler } from "../../_shared/roving-focus/index.js";
 import { tabsAnatomy } from "./tabs.anatomy.js";
 import type { UseTabsProps, UseTabsReturn } from "./tabs.types.js";
 
@@ -25,50 +26,18 @@ export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 		props.onValueChange?.(v);
 	}
 
-	function handleKeydown(e: KeyboardEvent): void {
-		const isHorizontal = orientation === "horizontal";
-		const nextKey = isHorizontal ? "ArrowRight" : "ArrowDown";
-		const prevKey = isHorizontal ? "ArrowLeft" : "ArrowUp";
-
-		if (![nextKey, prevKey, "Home", "End"].includes(e.key)) return;
-		e.preventDefault();
-
-		const target = e.currentTarget as HTMLElement;
-		const tablist = target.closest('[role="tablist"]');
-		if (!tablist) return;
-
-		const enabledTabs = Array.from(
-			tablist.querySelectorAll<HTMLElement>('[role="tab"]:not([data-disabled])'),
-		);
-		if (enabledTabs.length === 0) return;
-
-		const currentIndex = enabledTabs.indexOf(target);
-		let nextIndex: number;
-
-		if (currentIndex === -1) {
-			nextIndex = 0;
-		} else if (e.key === nextKey) {
-			nextIndex = currentIndex + 1;
-			if (nextIndex >= enabledTabs.length) nextIndex = loop ? 0 : currentIndex;
-		} else if (e.key === prevKey) {
-			nextIndex = currentIndex - 1;
-			if (nextIndex < 0) nextIndex = loop ? enabledTabs.length - 1 : currentIndex;
-		} else if (e.key === "Home") {
-			nextIndex = 0;
-		} else {
-			nextIndex = enabledTabs.length - 1;
-		}
-
-		const nextTab = enabledTabs[nextIndex];
-		if (!nextTab) return;
-
-		nextTab.focus();
-
-		if (activateOnFocus) {
-			const tabValue = nextTab.getAttribute("data-value");
+	// Shared composite-widget keyboard: Arrow/Home/End, RTL-aware.
+	const handleKeydown = createRovingHandler({
+		containerSelector: '[role="tablist"]',
+		itemSelector: '[role="tab"]:not([data-disabled])',
+		orientation,
+		loop,
+		onFocusItem: (tab) => {
+			if (!activateOnFocus) return;
+			const tabValue = tab.dataset.value;
 			if (tabValue) setValue(tabValue);
-		}
-	}
+		},
+	});
 
 	const root = $derived({
 		...tabsAnatomy.attrs.root,

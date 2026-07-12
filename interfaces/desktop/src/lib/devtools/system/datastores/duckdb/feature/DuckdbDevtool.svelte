@@ -152,7 +152,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				latencyMs={heroLatencyMs}
 				healthLabel={heroHealthLabel}
 				{activityTick}
-				accentVar="--accent-amber"
+				accentVar="--accent-gold-main"
 			>
 				<DuckdbHero state={heroState} />
 			</StoreHeroCard>
@@ -203,7 +203,7 @@ function handleKeydown(e: KeyboardEvent): void {
 					title="Probe DuckDB to see its state"
 					hint="The engine is in-process — first probe is usually instant. If it stays down, the data file may be missing."
 					logTarget="duckdb.lifecycle"
-					accentVar="--accent-amber"
+					accentVar="--accent-gold-main"
 				/>
 			{/if}
 		</div>

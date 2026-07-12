@@ -34,11 +34,14 @@ let {
 	onOpenChange,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
+	modal = false,
 	preset = "default",
 	trigger,
 	content,
 	children,
 	class: className,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledby,
 }: PopoverProps = $props();
 
 const hook = usePopover({
@@ -51,6 +54,15 @@ const hook = usePopover({
 	},
 	get closeOnOutsideClick() {
 		return closeOnOutsideClick;
+	},
+	get modal() {
+		return modal;
+	},
+	get "aria-label"() {
+		return ariaLabel ?? undefined;
+	},
+	get "aria-labelledby"() {
+		return ariaLabelledby ?? undefined;
 	},
 });
 
@@ -77,7 +89,6 @@ const m = $derived(renderForge({ kind: "popover", preset }));
 				use:hook.attachContent
 				{...m.dataAttrs}
 				style={cssVarString(m.cssVars)}
-				data-state="open"
 				class="absolute z-50 mt-2 rounded-md border"
 			>
 				{#if content}

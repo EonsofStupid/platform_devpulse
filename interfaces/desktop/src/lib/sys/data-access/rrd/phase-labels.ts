@@ -4,9 +4,10 @@
  * @module @devpulse/sys/data-access/rrd/phase-labels
  *
  * The platform emits `platform:rrd-phase-transition` events carrying
- * raw kernel phase strings (`pause_requested`, `drain_complete`,
- * `validate_pass`, …) — the same identifiers `kernel/rrd/src/lifecycle.rs`
- * passes into `emit_rrd_lifecycle!`. Those strings are accurate for
+ * raw RRD phase strings (`pause_requested`, `drain_complete`,
+ * `validate_pass`, …) — the identifiers Clyffy's RRD daemon
+ * (clyffyos-rrd) emits; the engine's rrd_translator owns the
+ * subscriber contract. Those strings are accurate for
  * engineers reading the daemon source but unfriendly for the devtool
  * surface a vibecoder watches their model swap in.
  *

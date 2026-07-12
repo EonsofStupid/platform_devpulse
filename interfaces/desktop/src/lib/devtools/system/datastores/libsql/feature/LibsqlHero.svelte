@@ -69,8 +69,8 @@ const containerClass = $derived(`hero-grid hero-grid-${state}`);
 	.cell {
 		background: linear-gradient(
 			135deg,
-			color-mix(in oklch, var(--accent-cyan, cyan) 65%, transparent) 0%,
-			color-mix(in oklch, var(--accent-cyan, cyan) 25%, transparent) 100%
+			color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 65%, transparent) 0%,
+			color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 25%, transparent) 100%
 		);
 		border-radius: 0.1875rem;
 		opacity: 0.85;

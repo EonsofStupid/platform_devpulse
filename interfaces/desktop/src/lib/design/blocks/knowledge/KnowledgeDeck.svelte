@@ -5,10 +5,10 @@
 	The orchestrator that turns a context tag into a rendered
 	knowledge surface. Consumers don't pick a variant card by
 	hand — they mount `<KnowledgeDeck context={frame} />` and
-	the deck fetches from the kernel catalog (affinity-weighted,
+	the deck fetches from the engine catalog (affinity-weighted,
 	sporadic, cooldown-gated), dispatches to the right variant
 	(DykCard / KdropCard / GlossCard), and forwards
-	reaction/dismiss back to the kernel.
+	reaction/dismiss back to the engine.
 
 	# Lifecycle
 
@@ -23,7 +23,7 @@
 
 	The deck calls `knowledgeContext.noteShown(entry.id)` after
 	the fetch resolves, so the next deck mount under the same
-	context skips the same entry. Combined with the kernel
+	context skips the same entry. Combined with the engine's
 	`cooldown_secs` (1h default), the user sees variety.
 
 	# Auto-refresh
@@ -38,7 +38,7 @@
 	The deck handles only entry-backed surfaces (dyk/kdrop/gloss).
 	Interactive variants (`KnowledgeMultipleChoiceCard`,
 	`KnowledgeOrderingCard`) take direct props and don't go
-	through the kernel catalog; mount them directly when you
+	through the engine catalog; mount them directly when you
 	want to author a single quiz or ordering surface in-place.
 -->
 <script lang="ts">

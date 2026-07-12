@@ -25,6 +25,7 @@
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
 import { uid } from "../../_internal/utils/uid.js";
+import { createRovingHandler } from "../../_shared/roving-focus/index.js";
 import { radioGroupAnatomy } from "./radio-group.anatomy.js";
 import type { UseRadioGroupProps, UseRadioGroupReturn } from "./radio-group.types.js";
 
@@ -43,44 +44,23 @@ export function useRadioGroup(props: UseRadioGroupProps = {}): UseRadioGroupRetu
 		props.onValueChange?.(v);
 	}
 
+	// Shared composite-widget keyboard: arrows only (APG radio has no
+	// Home/End), RTL-aware; selection follows focus per APG.
+	const handleRovingKeydown = createRovingHandler({
+		containerSelector: '[role="radiogroup"]',
+		itemSelector: '[role="radio"]:not([data-disabled])',
+		orientation,
+		loop,
+		homeEnd: false,
+		onFocusItem: (radio) => {
+			const radioValue = radio.dataset.value;
+			if (radioValue) doSetValue(radioValue);
+		},
+	});
+
 	function handleKeydown(e: KeyboardEvent): void {
 		if (disabled) return;
-
-		const isVertical = orientation === "vertical";
-		const nextKey = isVertical ? kbd.ARROW_DOWN : kbd.ARROW_RIGHT;
-		const prevKey = isVertical ? kbd.ARROW_UP : kbd.ARROW_LEFT;
-
-		if (e.key !== nextKey && e.key !== prevKey) return;
-		e.preventDefault();
-
-		const target = e.currentTarget as HTMLElement;
-		const group = target.closest('[role="radiogroup"]');
-		if (!group) return;
-
-		const enabledRadios = Array.from(
-			group.querySelectorAll<HTMLElement>('[role="radio"]:not([data-disabled])'),
-		);
-		if (enabledRadios.length === 0) return;
-
-		const currentIndex = enabledRadios.indexOf(target);
-		let nextIndex: number;
-
-		if (currentIndex === -1) {
-			nextIndex = 0;
-		} else if (e.key === nextKey) {
-			nextIndex = currentIndex + 1;
-			if (nextIndex >= enabledRadios.length) nextIndex = loop ? 0 : currentIndex;
-		} else {
-			nextIndex = currentIndex - 1;
-			if (nextIndex < 0) nextIndex = loop ? enabledRadios.length - 1 : currentIndex;
-		}
-
-		const nextRadio = enabledRadios[nextIndex];
-		if (!nextRadio) return;
-
-		nextRadio.focus();
-		const radioValue = nextRadio.getAttribute("data-value");
-		if (radioValue) doSetValue(radioValue);
+		handleRovingKeydown(e);
 	}
 
 	// ── Root attributes ──────────────────────────────────────────

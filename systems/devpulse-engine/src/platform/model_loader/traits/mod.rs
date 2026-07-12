@@ -3,8 +3,8 @@
 //!
 //! The inference-backend trait DEFINITIONS ([`InferenceBackend`],
 //! [`EmbeddingBackend`], [`RerankerBackend`], [`VisionEmbeddingBackend`])
-//! are pure type contracts with no linkage — the concrete IMPLs live on
-//! Clyffy (kernel-severance) and are not part of this crate.
+//! are pure type contracts with no linkage — the concrete IMPLs are
+//! Clyffy's (clyffyos repo) and are not part of this crate.
 
 pub mod backend;
 pub mod capability;

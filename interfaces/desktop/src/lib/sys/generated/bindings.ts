@@ -200,7 +200,7 @@ async getPreference(key: string) : Promise<Result<string | null, string>> {
  * Set a user preference by key.
  * 
  * Writes to `{data_dir}/preferences.json`. Creates the file if it doesn't exist.
- * User scope only — does not mutate kernel slot/preset defaults or project bindings.
+ * User scope only — does not mutate engine slot/preset defaults or project bindings.
  * One key per call; other keys in the file are preserved.
  */
 async setPreference(key: string, value: string) : Promise<Result<null, string>> {
@@ -965,6 +965,29 @@ async skipClyffySetup() : Promise<Result<null, string>> {
 }
 },
 /**
+ * Run the turnkey discovery ladder and return every endpoint that
+ * answered the capability handshake. Streams `ClyffyDiscoveryProgress`
+ * events (per rung scanned, per endpoint verified, final tally) while it
+ * runs, so the UI shows honest per-source progress.
+ * 
+ * READ-ONLY: this never touches `ClyffyConnectionState` — the operator
+ * confirms a result and the UI calls `connect_clyffy` with its URL; the
+ * probe loop stays the sole connection-state writer. Only enumerated
+ * candidates are probed, never address sweeps.
+ * 
+ * # Errors
+ * Returns `Err` when discovery is disabled by config or the platform is
+ * not booted yet (config SSOT unavailable).
+ */
+async discoverClyffy() : Promise<Result<DiscoveredEndpoint[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discover_clyffy") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the current system health status.
  * 
  * Returns health if platform is booted, or a "booting" status if still initializing.
@@ -1326,10 +1349,10 @@ async llamaCppOpenPrebuiltDir(target: string) : Promise<Result<null, string>> {
  * The write itself is atomic — staged at `manifest.json.tmp` then
  * renamed.
  * 
- * **Does NOT fetch** — operator runs `cargo xtask fetch-llama-cpp
- * --target <id>` separately after the manifest lands. That's
+ * **Does NOT fetch** — the fetch tooling left with the kernel cut and
+ * lives with Clyffy (clyffyos repo, `tools/fetch-llama-cpp/`). That's
  * deliberate: a manifest bump is a contract change; a fetch is a
- * per-machine action. Different concerns, different commands.
+ * per-machine action on the workspace that actually builds llama.cpp.
  * 
  * # Errors
  * Returns the formatted error string when the incoming JSON does not
@@ -1602,16 +1625,16 @@ async inferCapabilityBucket(filename: string) : Promise<Result<string, string>> 
 }
 },
 /**
- * Load a parsed kernel interaction template by id.
+ * Load a parsed engine interaction template by id.
  * 
  * Supported ids: `"setup"`, `"welcome-back"`. Each id maps to the
- * matching `InteractionTemplate::<id>` constructor on the kernel
+ * matching `InteractionTemplate::<id>` constructor on the engine
  * side; templates are bundled at compile time via `include_str!`
  * so this command never touches disk except to read user
  * overrides at `{userdata_dir}/config/interactions/<id>.toml`.
  * 
  * # Errors
- * Returns the kernel's parse / validation error message as a
+ * Returns the engine's parse / validation error message as a
  * string when the embedded default or the user override fails to
  * parse. Returns `"Unknown interaction id: <id>"` when the id
  * doesn't match a built-in template.
@@ -2189,7 +2212,7 @@ async removeProjectReference(id: string) : Promise<Result<boolean, string>> {
 /**
  * Get a knowledge entry matching the given type and optional tool context.
  * 
- * Delegates to kernel selector — affinity-weighted, cooldown-gated.
+ * Delegates to the engine's selector — affinity-weighted, cooldown-gated.
  */
 async getKnowledgeEntry(entryType: string, tool: string | null) : Promise<Result<KnowledgeEntryDto | null, string>> {
     try {
@@ -2219,7 +2242,7 @@ async recordKnowledgeReaction(entryId: string, reaction: string) : Promise<Resul
  * - `{supabase_url}/storage/v1/object/public/knowledge/manifest.json`
  * - `{supabase_url}/storage/v1/object/public/knowledge/{filename}`
  * 
- * When the manifest version matches what's already stored, the kernel
+ * When the manifest version matches what's already stored, the engine
  * fast-paths to zero work (returns `Synced { upserted: 0, .. }`).
  * 
  * # Errors
@@ -2569,7 +2592,7 @@ async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<s
 },
 /**
  * One-button install — download the bundle, scan, assign to slot,
- * load. Composed from the four kernel verbs into a single atomic
+ * load. Composed from the four loader verbs into a single atomic
  * chain so the wizard's "install" CTA fires once and tracks progress
  * via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
  * 
@@ -3823,8 +3846,8 @@ async emitAnalyticsEvent(event: AnalyticsEvent) : Promise<Result<null, CommandEr
  * tuning + response source).
  * 
  * Reads `{data_dir}/user/routing.toml` and reconciles
- * `latency.response_source` against the kernel `assistant.routing.mode`
- * SSOT so the surface always reflects what the dispatcher will use.
+ * `latency.response_source` against the `assistant.routing.mode`
+ * dispatch SSOT so the surface always reflects what the dispatcher will use.
  * Returns defaults when the file is missing or malformed — never errors
  * on parse failure.
  */
@@ -3844,7 +3867,7 @@ async routingLoadConfig() : Promise<Result<RoutingConfig, string>> {
  * 
  * Save flow inside the engine:
  * 1. Clamp + atomic temp-write + rename to `user/routing.toml`.
- * 2. Write through `latency.response_source` → kernel
+ * 2. Write through `latency.response_source` →
  * `assistant.routing.mode` so the chat dispatcher is gated.
  * 3. Dual-emit: `tracing::info!` on `routing.config` + broadcast
  * `InternalEvent::RoutingConfigChanged` for engine consumers.
@@ -4037,6 +4060,7 @@ chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
 cloudTokenStreamed: CloudTokenStreamed,
 clyffyConnectionChanged: ClyffyConnectionChanged,
+clyffyDiscoveryProgress: ClyffyDiscoveryProgress,
 hardwareMetricsUpdated: HardwareMetricsUpdated,
 inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
@@ -4051,6 +4075,7 @@ chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
 cloudTokenStreamed: "cloud-token-streamed",
 clyffyConnectionChanged: "clyffy-connection-changed",
+clyffyDiscoveryProgress: "clyffy-discovery-progress",
 hardwareMetricsUpdated: "hardware-metrics-updated",
 inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
@@ -4297,7 +4322,7 @@ bytes_downloaded: number } } |
  */
 repo_id: string; 
 /**
- * Error message from the kernel.
+ * Error message from the engine.
  */
 error: string } } | 
 /**
@@ -4335,7 +4360,7 @@ slot_id: string;
  */
 runtime: string; 
 /**
- * Error message from the kernel.
+ * Error message from the runtime.
  */
 error: string } } | 
 /**
@@ -4372,7 +4397,7 @@ latency_ms: number } } |
  */
 slot_id: string; 
 /**
- * Error message from the kernel.
+ * Error message from the runtime.
  */
 error: string; 
 /**
@@ -4535,7 +4560,7 @@ export type ArchId =
  * 
  * Serialize-only because the `&'static str` fields can't cleanly
  * round-trip through serde's `Deserialize` (would need `Cow<str>`).
- * This type flows one direction: kernel registry → Tauri command
+ * This type flows one direction: engine registry → Tauri command
  * return → frontend. Never accepted as an input.
  */
 export type ArchitectureSpec = { 
@@ -4662,7 +4687,7 @@ offload: OffloadConfig }
  * 
  * Renamed from `RoutingConfig` so the user-facing engine `RoutingConfig`
  * (escalation chain + latency tuning) keeps the canonical short name
- * at the specta / TS boundary. This struct only holds the kernel-side
+ * at the specta / TS boundary. This struct only holds the engine-side
  * `mode` field consumed by `set_routing_mode`.
  */
 export type AssistantRoutingConfig = { 
@@ -5629,6 +5654,19 @@ export type ClyffyConnectionChanged = {
  */
 connection: ConnectionState }
 /**
+ * Live progress from the turnkey endpoint-discovery ladder — one event per
+ * rung scanned, per endpoint verified, and a final tally. The frontend
+ * renders honest per-source progress ("searched your network, your mesh…")
+ * and appends found endpoints as capability cards as they verify.
+ * Discovery is READ-ONLY: connecting stays the operator's confirm via
+ * `connect_clyffy`.
+ */
+export type ClyffyDiscoveryProgress = { 
+/**
+ * What happened (source_scanned / found / finished).
+ */
+event: DiscoveryEvent }
+/**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
  * Every "?" icon in the overlay pulls its body text from this struct.
@@ -5851,7 +5889,42 @@ status_failed: string;
 /**
  * Inline error when Connect is pressed with an empty address.
  */
-error_empty: string }
+error_empty: string; 
+/**
+ * Visible label on the primary "find my Clyffy" button.
+ */
+discover_cta: string; 
+/**
+ * `aria-label` on the discover button.
+ */
+discover_aria: string; 
+/**
+ * Status line while the ladder runs (per-source progress renders
+ * beneath it).
+ */
+discovering: string; 
+/**
+ * Heading above the verified-endpoint result cards.
+ */
+found_title: string; 
+/**
+ * Visible label on a result card's confirm/connect button.
+ */
+confirm_cta: string; 
+/**
+ * Honest empty state after the ladder finishes with nothing —
+ * names what was searched and points at the manual field.
+ */
+none_found: string; 
+/**
+ * Hint when a rung was degraded (multicast blocked / no mesh
+ * client) — a mode, never an error.
+ */
+degraded_hint: string; 
+/**
+ * Reveal label for the manual address entry fallback.
+ */
+manual_reveal: string }
 /**
  * Connection lifecycle from DevPulse's perspective. Drives the no-AI indicator
  * and every Tier-2 feature gate; the capability is always **computed** from the
@@ -6007,7 +6080,7 @@ uptime_secs: number }
  */
 export type DataScope = 
 /**
- * Kernel/engine internals — never user-facing.
+ * Engine internals — never user-facing.
  */
 "System" | 
 /**
@@ -6177,6 +6250,63 @@ export type DevforgeHealthState =
  * Status could not be determined.
  */
 "unknown"
+/**
+ * A verified endpoint: it answered the capability handshake.
+ */
+export type DiscoveredEndpoint = { 
+/**
+ * Base URL, no trailing slash — what `connect_clyffy` takes verbatim.
+ */
+url: string; 
+/**
+ * Which rung found it.
+ */
+source: DiscoverySource; 
+/**
+ * What it advertised (computed from the live handshake, never assumed).
+ */
+capability: EndpointCapability }
+/**
+ * Live progress from the ladder — the Tauri seam maps these onto the
+ * typed `ClyffyDiscoveryProgress` event.
+ */
+export type DiscoveryEvent = 
+/**
+ * A rung finished enumerating; `candidates` is how many it contributed.
+ */
+{ kind: "source_scanned"; source: DiscoverySource; candidates: number } | 
+/**
+ * A candidate answered the capability handshake.
+ */
+{ kind: "found"; endpoint: DiscoveredEndpoint } | 
+/**
+ * The ladder is done.
+ */
+{ kind: "finished"; found: number; probed: number }
+/**
+ * Which rung of the ladder produced a candidate.
+ */
+export type DiscoverySource = 
+/**
+ * The operator's persisted last-connected endpoint.
+ */
+"persisted" | 
+/**
+ * The configured `base_url` from `services.system.clyffy`.
+ */
+"configured" | 
+/**
+ * Loopback probe on a configured discovery port.
+ */
+"localhost" | 
+/**
+ * DNS-SD answer on the LAN.
+ */
+"mdns" | 
+/**
+ * Enumerated tailscale/Headscale mesh peer.
+ */
+"mesh_peer"
 /**
  * Where on disk a downloaded model lands.
  */
@@ -6445,15 +6575,15 @@ eta_seconds_template: string;
  */
 eta_computing_label: string; 
 /**
- * Label while the kernel is starting the HF request.
+ * Label while the engine is starting the HF request.
  */
 starting_label: string; 
 /**
- * Label while the kernel is hashing / verifying the file after download.
+ * Label while the engine is hashing / verifying the file after download.
  */
 verifying_label: string; 
 /**
- * Label while the kernel is symlinking / copying into the registry.
+ * Label while the engine is symlinking / copying into the registry.
  */
 importing_label: string; 
 /**
@@ -7497,8 +7627,8 @@ tagline: string }
  * Which Claude escalation lane is allowed after local-first routing.
  * 
  * SSOT for the `response_source` decision the dispatcher consumes at
- * chat dispatch time. Mirrors the kernel's `RoutingMode` value-for-value
- * — the kernel type is private, this is the public surface engine +
+ * chat dispatch time. Mirrors the assistant `RoutingMode` value-for-value
+ * — that type is internal, this is the public surface engine +
  * Tauri + frontend share via specta.
  */
 export type InferenceProvider = 
@@ -7522,7 +7652,7 @@ export type InferenceProvider =
  */
 export type InferenceProviderChanged = { 
 /**
- * New provider identifier (matches `RoutingMode` on the kernel
+ * New provider identifier (matches `RoutingMode` on the engine
  * side, surfaced as a plain string here).
  */
 provider: string }
@@ -7671,8 +7801,8 @@ terminal?: boolean }
 /**
  * A complete interaction template.
  * 
- * Templates are **data**, not code. The kernel loader parses them
- * from TOML and hands them to the engine facade, which in turn hands
+ * Templates are **data**, not code. The engine's loader parses them
+ * from TOML and hands them to the facade, which in turn hands
  * them to the frontend overlay via a Tauri command. Every phase
  * transition fires a `SignalVariant::System` event through the
  * (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
@@ -7709,7 +7839,7 @@ entry_phase: string }
 /**
  * A declarative trigger that opens an interaction.
  * 
- * Triggers are evaluated by the kernel's interaction dispatcher. The
+ * Triggers are evaluated by the engine's interaction dispatcher. The
  * frontend overlay never decides on its own whether to open — it
  * receives a "show this template now" signal from the platform
  * based on trigger evaluation.
@@ -7770,7 +7900,7 @@ payload?: string;
  */
 enabled: boolean }
 /**
- * A knowledge entry as the frontend sees it — no kernel vocabulary.
+ * A knowledge entry as the frontend sees it — no internal vocabulary.
  */
 export type KnowledgeEntryDto = { 
 /**
@@ -8116,9 +8246,8 @@ export type LinkMode =
  */
 "prebuilt-staged-but-not-exported" | 
 /**
- * No prebuilt staged. Either the operator hasn't run
- * `fetch-llama-cpp` yet, or this is a Linux / macOS box where the
- * fallback works fine.
+ * No prebuilt staged — the normal state since the kernel cut (the
+ * fetch tooling is Clyffy's; nothing here links llama.cpp).
  */
 "fallback-cmake-or-unbuilt"
 /**
@@ -8283,14 +8412,14 @@ content: string }
  * 
  * # Why one type
  * 
- * Historically the kernel raised several different error types
+ * Historically the load path raised several different error types
  * (`LoaderError`, `anyhow::Error`, raw strings) and the frontend got
  * opaque `String` errors at the Tauri boundary. This discarded every
  * bit of actionable context — the UI couldn't show alternatives,
  * couldn't offer a retry, couldn't distinguish VRAM exhaustion from
  * a missing file.
  * 
- * `LoadError` is the funnel point. Internal kernel errors
+ * `LoadError` is the funnel point. Internal loader errors
  * ([`crate::traits::errors::LoaderError`], [`anyhow::Error`]) are
  * converted into `LoadError` at the engine facade boundary via
  * [`From<LoaderError>`] and [`LoadError::from_anyhow`]. From there
@@ -8621,8 +8750,7 @@ export type ModelFormat =
 /**
  * Sherpa model directory (Whisper / Kokoro — a directory carrying
  * `tokens.txt` + config, discovered as a unit rather than a single
- * weight file). Folded in from the relocated model-loader management
- * layer (kernel-severance); the loader's discovery scanner emits this
+ * weight file). The model-loader's discovery scanner emits this
  * for `tokens.txt`-bearing directories.
  */
 "sherpa-dir"
@@ -10014,10 +10142,6 @@ export type ServiceRole =
  */
 "Vector" | 
 /**
- * Grammar service (kernel-owned constrained decoding).
- */
-"Grammar" | 
-/**
  * `DevForge` service (managed REH web server).
  */
 "DevForge" | 
@@ -10108,7 +10232,7 @@ scope: DataScope;
  */
 stage: number; 
 /**
- * Public name ("Vector Store", "Grammar Engine", …).
+ * Public name ("Vector Store", "Model Manager", …).
  */
 public_name: string; 
 /**
@@ -10291,7 +10415,7 @@ bundled_path: string | null;
  * filter, wake-word detector). They live in the same slot table as user
  * slots and use the same mutation path — this flag just drives the
  * devtool grouping: Slots tab filters `!builtin`, System tab filters `builtin`.
- * Kernel SSOT: `kernel/model-loader/config/slots.default.toml` with
+ * SSOT: the engine's `config/slots.default.toml` with
  * `builtin = true` per entry.
  */
 builtin: boolean; 
@@ -11200,7 +11324,7 @@ export type VoiceBrainConfig = {
 enabled_24_7: boolean; 
 /**
  * Whether Moshi may hand complex queries off to `chat.brain`
- * (Qwen3-30B-A3B) via the kernel escalation path.
+ * (Qwen3-30B-A3B) via the escalation path.
  */
 escalate_on_complex: boolean; 
 /**

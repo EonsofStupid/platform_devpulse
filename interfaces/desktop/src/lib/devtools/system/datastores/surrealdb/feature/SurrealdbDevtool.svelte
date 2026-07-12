@@ -260,7 +260,7 @@ function handleKeydown(e: KeyboardEvent): void {
 					latencyMs={heroLatencyMs}
 					healthLabel={heroHealthLabel}
 					{activityTick}
-					accentVar="--accent-purple"
+					accentVar="--accent-purple-main"
 				>
 					<SurrealdbHero state={heroState} />
 				</StoreHeroCard>
@@ -343,7 +343,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						title="Probe SurrealDB to see its namespaces"
 						hint="The sidecar may be up but no namespaces have been queried yet. Click Re-probe to enumerate them."
 						logTarget="surreal.lifecycle"
-						accentVar="--accent-purple"
+						accentVar="--accent-purple-main"
 					/>
 				{/if}
 			</div>
@@ -352,7 +352,7 @@ function handleKeydown(e: KeyboardEvent): void {
 
 	<!-- ── CONFIG ────────────────────────────────────────── -->
 	<!-- Embedded SurrealKV has no runtime knobs to override; the
-	     Config tab surfaces the data path the kernel boots against. -->
+	     Config tab surfaces the data path the backend boots against. -->
 	{#snippet config()}
 		<div class="space-y-3">
 			{#if surrealdbSidecar.configError}

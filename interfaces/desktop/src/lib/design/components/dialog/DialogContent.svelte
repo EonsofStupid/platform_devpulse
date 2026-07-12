@@ -36,7 +36,6 @@ const SIZE_CLASSES: Record<string, string> = {
 			style={cssVarString(m.cssVars)}
 			class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
 			{...rest}
-			open
 		>
 			{@render children?.()}
 		</dialog>

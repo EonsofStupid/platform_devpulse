@@ -4,7 +4,7 @@
  *
  * Types for the cortex anatomy constellation that sits in the
  * SlotsDevtool Status tab. Each anatomy tile (Brain / Sparkles /
- * Eyes / Ears / Mouth) maps to one kernel slot id and renders a
+ * Eyes / Ears / Mouth) maps to one engine slot id and renders a
  * customer-facing slot save card.
  *
  * Extracted from `feature/setup-wizard/util/wizard.types.ts` as the
@@ -15,8 +15,8 @@
  */
 
 /**
- * One row of the kernel's `AutoConfig.recommendations` JSON. Mirrors
- * `SlotRecommendation` in `kernel/model-loader/src/hardware/auto_config.rs`.
+ * One row of the engine's `AutoConfig.recommendations` JSON. Mirrors
+ * `SlotRecommendation` in the engine's `platform/hardware/auto_config.rs`.
  *
  * `already_downloaded` lets progress UIs show the right total instead
  * of pretending nothing is queued when every recommended file is on
@@ -32,7 +32,7 @@ export interface SlotRecommendation {
 	already_downloaded: boolean;
 	device: string;
 	/** Optional customer-facing model label set by the preset author
-	 *  (`display_name` in `kernel/model-loader/config/presets.default.toml`).
+	 *  (`display_name` in the engine's `config/presets.default.toml`).
 	 *  Absent → wizard derives a label from `model_repo_id`. */
 	display_name?: string | null;
 	/** Optional one-line layman tagline set by the preset author.
@@ -53,11 +53,11 @@ export type SlotSaveLifecycle = "ready" | "saving" | "saved" | "error";
 
 /**
  * Per-tile entry the cortex constellation renders. One per anatomy
- * tile that has a kernel recommendation today; the SLOT_LAYMAN table
+ * tile that has an engine recommendation today; the SLOT_LAYMAN table
  * in `data-access/slot-anatomy.ts` drives which slots qualify.
  */
 export interface SlotSaveEntry {
-	/** Stable kernel slot id — matches `SlotRecommendation.slot_id`. */
+	/** Stable engine slot id — matches `SlotRecommendation.slot_id`. */
 	kernelSlotId: string;
 	/** Layman slot purpose ("Eyes · what Clyffy sees"). */
 	purpose: string;

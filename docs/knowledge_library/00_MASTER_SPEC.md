@@ -24,6 +24,8 @@ The Knowledge Library is the **content corpus** that TEACHER, SENSEI, and Clyffy
 > - **Still valid** — The 5 content types + payload shapes, the shared schema, the configurable selection logic + affinity SQL, the TEACHER/SENSEI/Clyffy query contract, the current inventory (407 entries / 4 tools audited), the authoring workflow, and the changelog all remain correct.
 >
 > Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
+>
+> **⚠ CUT LANDED — 2026-07-08.** The split described above happened: the kernel left this repo. The corpus data lives at `systems/devpulse-engine/src/platform/knowledge/data/` (engine-owned SSOT; `scripts/knowledge_library/build.mjs` reads it); the consuming minions are ClyffyOS's, reached over the wire.
 
 ## Architecture Placement
 

@@ -12,10 +12,10 @@ pub mod project_init;
 pub mod relational;
 pub mod rrd_translator;
 pub mod status;
-// Tier-2 service modules (graph / surreal / surreal_config / vector /
-// project_graph / project_vector / model_loader / model_loader_log) removed —
-// those services are Clyffy's on GB10, served over the gb10-client wire
-// (kernel-severance). embedder + whisper were already slot-managed (Layer 2).
+// There are no Tier-2 service modules (graph / surreal / surreal_config /
+// vector / project_graph / project_vector / model_loader / model_loader_log)
+// — those services are Clyffy's on GB10, served over the gb10-client wire.
+// embedder + whisper are slot-managed (Layer 2).
 pub mod audio;
 pub mod candle_config;
 pub mod devforge;
@@ -47,8 +47,9 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
-    /// Grammar service (kernel-owned constrained decoding).
-    Grammar,
+    // No Grammar role — grammar / constrained decoding is Clyffy's on
+    // GB10; the desktop's grammar commands are connection-gated wire
+    // shells, not a local service.
     /// `DevForge` service (managed REH web server).
     DevForge,
     /// Model Loader service (AI model management, inference).
@@ -241,18 +242,18 @@ macro_rules! emit_lifecycle_dual {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RRD lifecycle taxonomy → moved to kernel/rrd crate
+// RRD lifecycle taxonomy — a tracing contract with Clyffy's daemon
 // ═══════════════════════════════════════════════════════════════
 //
-// `RRD_LIFECYCLE_TARGET`, `rrd_lifecycle_phase`, and the
-// `emit_rrd_lifecycle!` macro now live in the `rrd` kernel crate
-// (`kernel/rrd/src/lifecycle.rs`) per `HOT_UPDATE_PATTERN.md` §11
-// — the daemon must not depend on the engine. The dual-emission
-// rule (H12) is preserved structurally by the
-// `RrdLifecycleTranslator` tracing layer in
-// [`crate::platform::services::rrd_translator`], which mirrors
-// every event on the `rrd.lifecycle` target into
-// `InternalEvent::RrdPhaseTransition`.
+// The RRD daemon is Clyffy's (`clyffyos-rrd`, clyffyos repo) and
+// emits lifecycle events on the `rrd.lifecycle` tracing target per
+// `HOT_UPDATE_PATTERN.md` §11 — the daemon never depends on this
+// engine. The engine owns the SUBSCRIBER half of that contract:
+// `RRD_LIFECYCLE_TARGET` is defined in
+// [`crate::platform::services::rrd_translator`], whose
+// `RrdLifecycleTranslator` tracing layer preserves the dual-emission
+// rule (H12) structurally by mirroring every event on the target
+// into `InternalEvent::RrdPhaseTransition`.
 //
 // Engine code that wants to observe RRD lifecycle events should
 // either (a) subscribe to `query_scoped_log("rrd.lifecycle", ...)`

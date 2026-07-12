@@ -87,27 +87,27 @@ let dispatchedInstallIds = $state<string[]>([]);
 let dispatchErrors = $state<Record<string, string>>({});
 
 /**
- * Translation table — kernel `slot_id` → layman card copy. Foundation
+ * Translation table — engine `slot_id` → layman card copy. Foundation
  * baseline today (SigLIP HD / Harrier 0.6B / Nemotron 7.6B); extends
- * naturally as the kernel adds slots. Anything missing from this map
- * falls through with the kernel slot_id rendered as the title, which
+ * naturally as the engine adds slots. Anything missing from this map
+ * falls through with the engine slot_id rendered as the title, which
  * is visible enough to surface the gap during dev review.
  */
 /**
- * Anatomy-only translation table — kernel `slot_id` → wizard tile's
+ * Anatomy-only translation table — engine `slot_id` → wizard tile's
  * **anatomy** identity (icon, accent color, role copy). Strictly
  * frontend-owned because anatomy ↔ slot mapping is a UI-side design
- * decision; the kernel doesn't know what an "Eye" is.
+ * decision; the engine doesn't know what an "Eye" is.
  *
  * The model NAME + model TAGLINE are NOT in this table — they live
  * on each [`SlotRecommendation`] (`display_name`, `display_tagline`)
  * so the preset author owns them in
- * `kernel/model-loader/config/presets.default.toml`. Tier-swapping a
+ * the engine's `config/presets.default.toml`. Tier-swapping a
  * model in the preset immediately reflects in the wizard tile, no
  * frontend edit. This matches the agnostic / format-driven recommender
- * pattern the kernel already uses for HF file picks.
+ * pattern the engine already uses for HF file picks.
  *
- * Slot ids MUST match `kernel/model-loader/config/slots.default.toml`
+ * Slot ids MUST match the engine's `config/slots.default.toml`
  * verbatim. `accentVar` must reference a generated token from
  * `interfaces/desktop/src/lib/design/generated/token-manifest.json`
  * (the real names carry `-main` / `-fill` / `-glow` suffixes; cards
@@ -172,7 +172,7 @@ const SLOT_LAYMAN: Record<
 };
 
 /**
- * Derive a customer-facing model name from a kernel recommendation.
+ * Derive a customer-facing model name from an engine recommendation.
  * Preset author's `display_name` wins; absent, falls back to a clean
  * derivation of the HF repo id last segment (drops `-GGUF`,
  * `-Instruct`, version-and-quant suffixes). Never throws — worst case
@@ -354,7 +354,7 @@ async function loadCopy() {
 }
 
 /**
- * Kick off the kernel-side auto-config + install chain. Per slot:
+ * Kick off the engine-side auto-config + install chain. Per slot:
  * download → scan → assign → load. Already-downloaded models pass
  * through the chain with the download step as a HF cache hit.
  */
@@ -548,7 +548,7 @@ const callbacks: WizardCallbacks = {
 		Per-phase knowledge chip — pinned bottom-right, doesn't
 		compete with the phase content. `{#key view}` re-mounts the
 		deck each phase transition so the context frame reflects
-		"wizard:<phase>" — kernel selector then biases toward
+		"wizard:<phase>" — the engine's selector then biases toward
 		entries whose `tool` tag matches `wizard` and (when the
 		catalog grows scope tags) the active phase. Ambient rotation
 		every 45s so a user sitting on a phase sees variety.
@@ -615,14 +615,17 @@ const callbacks: WizardCallbacks = {
 	}
 
 	/* Per-phase knowledge chip. Pinned bottom-right above the
-	   backdrop (z 8999) but below the dispatcher-error banner
-	   (z 9100). The KnowledgeDeck inside has its own ColdLight
-	   surface — this slot just owns positioning. */
+	   backdrop (z 8999) but BELOW the wizard shell (z 9000): the
+	   shell's footer CTAs live in the same corner, and the chip must
+	   never paint over or intercept a Connect/Continue button. Where
+	   the two overlap the card wins; the chip stays visible outside
+	   the card's footprint. The KnowledgeDeck inside has its own
+	   ColdLight surface — this slot just owns positioning. */
 	.dispatcher-knowledge-chip {
 		position: fixed;
 		bottom: clamp(0.75rem, 1.5vw, 1.25rem);
 		right: clamp(0.75rem, 1.5vw, 1.25rem);
-		z-index: 9050;
+		z-index: 8990;
 		max-width: clamp(18rem, 30vw, 26rem);
 		pointer-events: auto;
 	}

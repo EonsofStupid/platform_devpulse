@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-# PRESETS — Kernel SSOT
+# PRESETS — Engine SSOT
 # ═══════════════════════════════════════════════════════════════
 #
 # Per-tier model recommendations. Absorbed from the hardcoded
@@ -9,10 +9,10 @@
 # configuration: a display name, a brain swap policy, and the list of
 # slots it populates with a suggested model.
 #
-# The kernel loader at `hardware/presets.rs` parses this file at build
-# time via `include_str!` and honours `{userdata}/config/presets.toml`
+# The engine's loader at `platform/hardware/presets.rs` parses this file
+# at build time via `include_str!` and honours `{userdata}/config/presets.toml`
 # as a user override (full-replace, same pattern as every other
-# kernel-owned config file).
+# engine-owned config file).
 #
 # ── Tier → preset mapping ──────────────────────────────────────
 #

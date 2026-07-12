@@ -15,6 +15,7 @@ const ctx = getDialogContext();
 
 <button
 	{...ctx.hook.trigger}
+	{...rest}
 	use:ctx.hook.attachTrigger
 	id={ctx.ids.trigger}
 	data-kind="dialog"

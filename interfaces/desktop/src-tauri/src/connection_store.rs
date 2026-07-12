@@ -3,7 +3,7 @@
 //! The operator's connect-or-skip decision and chosen endpoint survive
 //! restarts here. Dedicated file (not a key on the model-loader config):
 //! the wire connection is DevPulse-the-frontend's concern, not model
-//! management's, and severance semantics stay clean when each concern owns
+//! management's, and the boundary stays clean when each concern owns
 //! its own record. Mirrors the platform's atomic-TOML discipline
 //! (temp-write + rename, never a partial file on crash).
 //!

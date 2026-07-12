@@ -10,7 +10,65 @@
  */
 
 import { getNextKey, getPrevKey, kbd } from "../../_internal/utils/kbd.js";
-import type { RovingFocusConfig } from "./types.js";
+import { getDocumentDir } from "../../locale/use-locale.svelte.js";
+import type { RovingFocusConfig, RovingHandlerConfig } from "./types.js";
+
+/**
+ * THE composite-widget keyboard implementation (tabs, toolbar, radio-group,
+ * menu). Returns a keydown handler that moves focus with Arrow/Home/End,
+ * RTL-aware per keystroke, skipping disabled items via the item selector.
+ * Consolidated 2026-07-11 (a11y audit Gaps 5-6) — widgets previously each
+ * hand-rolled this, most with hardcoded "ltr".
+ */
+function computeNextIndex(
+	key: string,
+	keys: { nextKey: string; prevKey: string },
+	currentIndex: number,
+	count: number,
+	loop: boolean,
+): number {
+	if (currentIndex === -1) return 0;
+	if (key === keys.nextKey) {
+		if (currentIndex + 1 < count) return currentIndex + 1;
+		return loop ? 0 : currentIndex;
+	}
+	if (key === keys.prevKey) {
+		if (currentIndex - 1 >= 0) return currentIndex - 1;
+		return loop ? count - 1 : currentIndex;
+	}
+	if (key === kbd.HOME) return 0;
+	return count - 1; // END
+}
+
+export function createRovingHandler(config: RovingHandlerConfig): (e: KeyboardEvent) => void {
+	const orientation = config.orientation ?? "horizontal";
+	const loop = config.loop ?? true;
+	const homeEnd = config.homeEnd ?? true;
+
+	return (e: KeyboardEvent): void => {
+		const dir = config.dir?.() ?? getDocumentDir();
+		const keys = { nextKey: getNextKey(dir, orientation), prevKey: getPrevKey(dir, orientation) };
+
+		const isHomeEnd = homeEnd && (e.key === kbd.HOME || e.key === kbd.END);
+		if (e.key !== keys.nextKey && e.key !== keys.prevKey && !isHomeEnd) return;
+
+		const target = e.currentTarget as HTMLElement;
+		const container = target.closest<HTMLElement>(config.containerSelector);
+		if (!container) return;
+
+		const items = Array.from(container.querySelectorAll<HTMLElement>(config.itemSelector));
+		if (items.length === 0) return;
+		e.preventDefault();
+
+		// Index off the focused element, not currentTarget — the handler may
+		// be attached per-item (tabs, toolbar) or on the container (menu).
+		const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+		const item = items[computeNextIndex(e.key, keys, currentIndex, items.length, loop)];
+		if (!item) return;
+		item.focus();
+		config.onFocusItem?.(item);
+	};
+}
 
 export function useRovingFocus(config: RovingFocusConfig): void {
 	const orientation = config.orientation ?? "horizontal";

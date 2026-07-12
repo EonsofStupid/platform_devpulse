@@ -1,8 +1,8 @@
 /**
  * @module @devpulse/domains/app/models
  *
- * Public API for the model loader domain. The kernel-side rebuild (post
- * 2026-05-01 sweep) lives at `kernel/model-loader/` with the Tauri
+ * Public API for the model loader domain. The backend is the engine's
+ * `platform/model_loader` (management) with the Tauri
  * command surface at `$lib/sys/bindings/models/`. This module is the
  * **state + UI bridge** between those bindings and consumer surfaces:
  * the dashboard, the slot orchestrator devtool, the chat strip, the

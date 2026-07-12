@@ -6,7 +6,7 @@
 //! existing atomic-TOML config convention. There is deliberately **no** async
 //! Turso bridge here: Turso stays the SSOT for real data; slot state is
 //! settings-like and the sync trait maps cleanly onto a file, avoiding an
-//! async→sync bridge (kernel-severance follow-up, owner-chosen).
+//! async→sync bridge (owner-chosen).
 //!
 //! Dotted keys (`slot.chat.brain.model`) are stored inside an `[entries]`
 //! table so the TOML serializer **quotes** them (rather than treating each dot

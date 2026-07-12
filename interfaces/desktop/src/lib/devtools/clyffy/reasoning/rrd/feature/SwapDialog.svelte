@@ -7,7 +7,7 @@
 	Composes the existing devtool overlay shape (HfSearchDialog
 	pattern: self-contained, `open` + `onClose` props, color-mix
 	backdrop + blur, ColdLight tokens throughout). The dialog is the
-	UI seam over the kernel's `pause → drain → validate → swap →
+	UI seam over the daemon's `pause → drain → validate → swap →
 	resume` protocol — every phase the daemon emits gets surfaced
 	here in real time via the same `rrdState` rune the topology
 	component reads.
@@ -171,7 +171,7 @@ function handleKeydown(event: KeyboardEvent): void {
 
 // Phase ticker uses the shared `laymanFor` map so the dialog and the
 // parent RrdDevtool render identical labels + tones for the same
-// kernel phase. Drift between them was a recurring bug in the
+// daemon phase. Drift between them was a recurring bug in the
 // per-component-switch era.
 
 function fmtTime(ms: number): string {
@@ -185,9 +185,10 @@ function fmtTime(ms: number): string {
 </script>
 
 {#if open}
+	<!-- Reasoning-subtree identity accent, named once on the dialog root. -->
 	<div
 		class="fixed inset-0 z-[90] flex items-center justify-center p-4"
-		style="background: color-mix(in oklch, var(--surface-base) 75%, transparent); backdrop-filter: blur(var(--blur-md));"
+		style="--reasoning-accent: var(--accent-cyber-main); background: color-mix(in oklch, var(--surface-base) 75%, transparent); backdrop-filter: blur(var(--blur-md));"
 		role="dialog"
 		aria-modal="true"
 		aria-label="Swap encoder weights"
@@ -202,7 +203,7 @@ function fmtTime(ms: number): string {
 			<div class="flex items-center gap-2">
 				<RotateCw
 					size={18}
-					style="color: var(--accent-cyber, var(--accent-electric)); flex-shrink: 0;"
+					style="color: var(--reasoning-accent); flex-shrink: 0;"
 				/>
 				<div class="flex flex-col">
 					<Text size="sm" weight="bold">Swap encoder weights</Text>
@@ -225,7 +226,7 @@ function fmtTime(ms: number): string {
 			<div class="flex flex-col gap-2">
 				<label
 					for="swap-file-input"
-					class="flex items-center gap-2 px-3 py-2 rounded border cursor-pointer hover:border-[var(--accent-cyber,var(--accent-electric))]"
+					class="flex items-center gap-2 px-3 py-2 rounded border cursor-pointer hover:border-[var(--reasoning-accent)]"
 					style="border-color: var(--border-subtle); background: var(--surface-base);"
 					class:opacity-40={inFlight}
 					class:cursor-not-allowed={inFlight}

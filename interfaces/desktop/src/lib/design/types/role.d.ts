@@ -77,43 +77,51 @@ export type SecondaryRecord = {
 	fg: string;
 };
 
-export const DangerTokens = ["main", "fg"] as const;
+export const DangerTokens = ["main", "glow", "fill", "fg"] as const;
 export type DangerToken = (typeof DangerTokens)[number];
 
-export type DangerCSSVar = "--danger-main" | "--danger-fg";
+export type DangerCSSVar = "--danger-main" | "--danger-glow" | "--danger-fill" | "--danger-fg";
 
 export type DangerRecord = {
 	main: string;
+	glow: string;
+	fill: string;
 	fg: string;
 };
 
-export const SuccessTokens = ["main", "fg"] as const;
+export const SuccessTokens = ["main", "glow", "fill", "fg"] as const;
 export type SuccessToken = (typeof SuccessTokens)[number];
 
-export type SuccessCSSVar = "--success-main" | "--success-fg";
+export type SuccessCSSVar = "--success-main" | "--success-glow" | "--success-fill" | "--success-fg";
 
 export type SuccessRecord = {
 	main: string;
+	glow: string;
+	fill: string;
 	fg: string;
 };
 
-export const WarningTokens = ["main", "fg"] as const;
+export const WarningTokens = ["main", "glow", "fill", "fg"] as const;
 export type WarningToken = (typeof WarningTokens)[number];
 
-export type WarningCSSVar = "--warning-main" | "--warning-fg";
+export type WarningCSSVar = "--warning-main" | "--warning-glow" | "--warning-fill" | "--warning-fg";
 
 export type WarningRecord = {
 	main: string;
+	glow: string;
+	fill: string;
 	fg: string;
 };
 
-export const InfoTokens = ["main", "fg"] as const;
+export const InfoTokens = ["main", "glow", "fill", "fg"] as const;
 export type InfoToken = (typeof InfoTokens)[number];
 
-export type InfoCSSVar = "--info-main" | "--info-fg";
+export type InfoCSSVar = "--info-main" | "--info-glow" | "--info-fill" | "--info-fg";
 
 export type InfoRecord = {
 	main: string;
+	glow: string;
+	fill: string;
 	fg: string;
 };
 

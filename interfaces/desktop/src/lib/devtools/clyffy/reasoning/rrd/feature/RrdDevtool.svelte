@@ -2,9 +2,9 @@
 	@file RrdDevtool.svelte
 	@module @devpulse/devtools/clyffy/reasoning/rrd
 
-	Reason Ready Daemon devtool — surfaces the kernel daemon's
-	pause/drain/swap/resume lifecycle. Subscribes to
-	`platform:rrd-phase-transition` (bridged from the kernel via
+	Reason Ready Daemon devtool — surfaces the RRD daemon's
+	(Clyffy's, clyffyos-rrd) pause/drain/swap/resume lifecycle. Subscribes to
+	`platform:rrd-phase-transition` (bridged through the engine via
 	`RrdLifecycleTranslator` → `InternalEvent::RrdPhaseTransition`) and
 	renders a rolling phase log + most-recent-state badge.
 

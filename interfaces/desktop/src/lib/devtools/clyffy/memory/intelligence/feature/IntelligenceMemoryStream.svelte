@@ -3,9 +3,8 @@
 	@module @devpulse/devtools/clyffy/memory/intelligence/memory-stream
 
 	Live mirror of the cortex intelligence pipeline. Subscribes to the
-	`intel:*` event channel (emitted from
-	`systems/devpulse-engine/src/platform/integrations/events.rs` via
-	the kernel's `LoaderEvent::Intelligence*` variants) and renders
+	`intel:*` event channel (bridged from
+	the engine's `LoaderEvent::Intelligence*` variants) and renders
 	one card per chat-turn pipeline pass, with each hop lighting up
 	as the event arrives:
 

@@ -1,9 +1,8 @@
 //! Ollama sidecar — managed `ollama serve` child process.
 //!
 //! DevPulse owns the full lifecycle (spawn / attach / health / shutdown,
-//! HTTP client, model commands) — kernel-severance relocated the adapter
-//! here from the kernel. This module wraps it with the platform `Service`
-//! trait.
+//! HTTP client, model commands). This module wraps the adapter with the
+//! platform `Service` trait.
 //!
 //! Submodules:
 //! - [`adapter`] — `OllamaAdapter`: lifecycle, port resolution, raw API.

@@ -1080,71 +1080,10 @@ impl BuildConfig {
         self.activate_msvc_env();
         self.select_generator(workspace_root);
         Self::purge_stale_cmake_dirs(workspace_root);
-        Self::export_prebuilt_llama_cpp(workspace_root);
-    }
-
-    /// Auto-export `LLAMA_CPP_PREBUILT_LIB_DIR` when the matching prebuilt
-    /// has been fetched into `deps/llama-cpp-prebuilt/<target>/`.
-    ///
-    /// Target is derived from the detected build features + host OS:
-    ///
-    /// | feature       | target id           |
-    /// |---------------|---------------------|
-    /// | `gpu-nvidia`  | `win32-x64-cuda`    |
-    /// | `gpu-vulkan`  | `win32-x64-vulkan`  |
-    /// | (none)        | `win32-x64-cpu`     |
-    ///
-    /// When the target subdir exists and contains `lib/llama.lib`, the
-    /// env var is exported and the vendored `llama-cpp-sys-2`'s build.rs
-    /// fast-path activates — skipping the in-tree cmake build of llama.cpp
-    /// entirely. Otherwise we log a warning + the fix-it command and fall
-    /// through (the in-tree cmake build runs; on Windows with Vulkan that
-    /// usually fails `MAX_PATH`, so the operator must fetch).
-    ///
-    /// Linux and macOS dev boxes don't hit `MAX_PATH` and don't need the
-    /// prebuilt path — they fall through silently when no prebuilt is
-    /// staged.
-    fn export_prebuilt_llama_cpp(workspace_root: &Path) {
-        if !cfg!(windows) {
-            return;
-        }
-
-        // Honor an operator-set value — never override a deliberate choice.
-        if std::env::var_os("LLAMA_CPP_PREBUILT_LIB_DIR").is_some() {
-            println!(
-                "  [env] LLAMA_CPP_PREBUILT_LIB_DIR already exported by operator; \
-                 skipping auto-detection"
-            );
-            return;
-        }
-
-        let features = Self::detect_build_features().unwrap_or_default();
-        let target_id = if features.split(',').any(|f| f == "gpu-nvidia") {
-            "win32-x64-cuda"
-        } else if features.split(',').any(|f| f == "gpu-vulkan") {
-            "win32-x64-vulkan"
-        } else {
-            "win32-x64-cpu"
-        };
-
-        let prebuilt_dir = workspace_root
-            .join("deps")
-            .join("llama-cpp-prebuilt")
-            .join(target_id);
-        let validity = prebuilt_dir.join("lib").join("llama.lib");
-
-        if !validity.is_file() {
-            println!(
-                "  [warn] llama-cpp prebuilt not fetched for target `{target_id}` — \
-                 falling back to in-tree cmake build."
-            );
-            println!("  [hint] cargo xtask fetch-llama-cpp --target {target_id}");
-            return;
-        }
-
-        let abs = prebuilt_dir.to_string_lossy().into_owned();
-        std::env::set_var("LLAMA_CPP_PREBUILT_LIB_DIR", &abs);
-        println!("  [env] LLAMA_CPP_PREBUILT_LIB_DIR = {abs} (target = {target_id})");
+        // The LLAMA_CPP_PREBUILT_LIB_DIR auto-export left with the kernel
+        // cut — nothing in this workspace links llama-cpp-sys-2. The fetch
+        // tooling + prebuilt pipeline live with Clyffy (clyffyos repo,
+        // tools/fetch-llama-cpp/).
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`

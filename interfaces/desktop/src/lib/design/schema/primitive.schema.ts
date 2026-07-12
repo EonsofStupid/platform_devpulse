@@ -135,7 +135,27 @@ export type PrimitiveSpecInput = typeof BasePrimitiveBase.infer;
  * ```
  */
 export function definePrimitive(spec: PrimitiveSpecInput): PrimitiveSpec {
-	return BasePrimitiveSchema.from(spec) as PrimitiveSpec;
+	const validated = BasePrimitiveSchema.from(spec);
+	// ArkType validates the SHAPE but does not materialize the documented
+	// defaults — SlotSpec promises role/ariaAttrs/decorative/container/
+	// optional are always present, and enforce.ts iterates ariaAttrs
+	// unconditionally. Normalize here so the SlotSpec contract is real
+	// (surfaced by the first live consumer, checkbox.spec.ts, 2026-07-11).
+	const slots = Object.fromEntries(
+		Object.entries(validated.a11y.slots).map(([name, s]) => [
+			name,
+			{
+				element: s.element,
+				role: s.role ?? null,
+				ariaAttrs: s.ariaAttrs ?? [],
+				decorative: s.decorative ?? false,
+				container: s.container ?? false,
+				optional: s.optional ?? false,
+				description: s.description,
+			},
+		]),
+	);
+	return { ...validated, a11y: { ...validated.a11y, slots } } as PrimitiveSpec;
 }
 
 // =============================================================================

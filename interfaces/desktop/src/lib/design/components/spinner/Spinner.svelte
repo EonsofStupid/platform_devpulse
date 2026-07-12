@@ -15,6 +15,12 @@
 	@styleIds spinner-default
 	@requiredAxes color, animation
 	@slots root:all
+	@defaults {
+		"background-color": "transparent",
+		"box-shadow": "none",
+		"border-width": "0",
+		"color": "inherit"
+	}
 -->
 <script lang="ts">
 import { spinnerAnatomy, useSpinner } from "$lib/design/behaviors/display/spinner/index.js";

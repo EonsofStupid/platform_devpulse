@@ -57,6 +57,7 @@ export type SemanticIntent =
 	| "secondary"
 	| "ghost"
 	| "danger"
+	| "error"
 	| "neutral"
 	| "accent"
 	| "info"
@@ -74,6 +75,7 @@ export const SEMANTIC_INTENTS: readonly SemanticIntent[] = [
 	"secondary",
 	"ghost",
 	"danger",
+	"error",
 	"neutral",
 	"accent",
 	"info",

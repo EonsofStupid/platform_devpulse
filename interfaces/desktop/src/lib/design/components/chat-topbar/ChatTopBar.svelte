@@ -38,6 +38,7 @@ let {
 	...rest
 }: ChatTopBarProps = $props();
 
+// "default" resolves --style-chat-topbar-default-* (the documented @defaults).
 const m = $derived(renderForge({ kind: "chat-topbar", preset: "default" }));
 </script>
 

@@ -70,6 +70,7 @@ function handleKeydown(event: KeyboardEvent) {
 	}
 }
 
+// "default" resolves --style-chat-footer-default-* (the documented @defaults).
 const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 </script>
 

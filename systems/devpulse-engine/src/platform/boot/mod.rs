@@ -6,9 +6,9 @@
 //! - [`analytics`] — `DuckDB` (system + user)
 //! - [`cache`] — Moka
 //!
-//! Tier-2 boot stages (graph/vector/model_loader/grammar) removed — those AI
-//! services are Clyffy's on GB10, served over the gb10-client wire
-//! (kernel-severance). DevPulse-local boot is Tier-1 only.
+//! There are no Tier-2 boot stages (graph/vector/model_loader/grammar) —
+//! those AI services are Clyffy's on GB10, served over the gb10-client
+//! wire. DevPulse-local boot is Tier-1 only.
 //!
 //! # Boot Sequence
 //!  1. **Preflight** — validate config, create directory hierarchy
@@ -24,10 +24,8 @@
 //! editor window). Keeping it out of the boot pipeline means cold boot never
 //! pays for Node REH health-polling.
 //!
-//! Most stages complete sequentially. Model Loader runs in parallel with the
-//! Graph store via `tokio::join!` because they have zero shared dependency —
-//! this saves 3-7s of boot time that was previously wasted blocking on
-//! `SurrealDB` WAL recovery.
+//! Stages complete sequentially — with only Tier-1 stores in the
+//! pipeline there is no cross-stage parallelism to exploit.
 //! The boot log writes to file AND stderr in real time.
 //!
 //! # Validation Contract
@@ -68,8 +66,8 @@ pub struct BootedServices {
     pub system_cache: Option<Arc<CacheService>>,
     pub user_relational: Option<Arc<RelationalService>>,
     pub user_analytics: Option<Arc<AnalyticsService>>,
-    // Tier-2 (surreal/graph/vector/model_loader) removed — Clyffy serves
-    // those from GB10 over the gb10-client wire (kernel-severance).
+    // Tier-2 (surreal/graph/vector/model_loader) is Clyffy's — served
+    // from GB10 over the gb10-client wire, so no handles here.
     // DevForge is lazy-started on first open, not a boot-time service.
 }
 
@@ -177,9 +175,9 @@ async fn execute_inner(
 
     drop(spin);
 
-    // Stage 4 + 12 (Graph store + Model Loader) REMOVED — the Surreal graph
-    // and the model loader are Clyffy's on GB10, served over the gb10-client
-    // wire (kernel-severance). DevPulse-local boot is Tier-1 only.
+    // No graph-store or model-loading boot stage — the Surreal graph and
+    // inference-side model loading are Clyffy's on GB10, served over the
+    // gb10-client wire. DevPulse-local boot is Tier-1 only.
 
     // ── Stage 5: System cache (Moka) ──────────────────────────
     let system_cache = cache::boot(&boot_config.services.system.cache, on_event, boot_log);
@@ -197,10 +195,10 @@ async fn execute_inner(
     )
     .await;
 
-    // Stage 6b (Knowledge library sync) REMOVED — the embedded knowledge
-    // corpus + its sync logic live in the kernel, relocating to Clyffy on
-    // GB10 (kernel-severance). Tips arrive over the gb10-client wire; a
-    // Tier-1 reimplementation, if wanted, is its own later slice.
+    // No knowledge-library sync stage — the embedded knowledge corpus +
+    // its sync logic are Clyffy's (clyffyos repo), running on GB10.
+    // Tips arrive over the gb10-client wire; a Tier-1 reimplementation,
+    // if wanted, is its own later slice.
 
     // ── Stage 6c: User analytics (DuckDB) ─────────────────────
     // Booted after user relational so the directory hierarchy
@@ -217,12 +215,12 @@ async fn execute_inner(
     )
     .await;
 
-    // Stage 7 (Vector store / RRO) REMOVED — the vector store is Clyffy's
-    // on GB10, served over the gb10-client wire (kernel-severance).
+    // No vector-store (RRO) stage — the vector store is Clyffy's
+    // on GB10, served over the gb10-client wire.
     drop(spin);
 
-    // Stage 9 (Grammar — system LibSQL row) REMOVED — grammar / constrained
-    // decoding is Clyffy's on GB10 (kernel-severance). No local grammar row.
+    // No grammar stage — grammar / constrained decoding is Clyffy's
+    // on GB10. No local grammar row.
 
     // Stages 10-11 (Embedder, Whisper) REMOVED — slot-managed by model loader.
     // rag.embedder and voice.stt slots handle these capabilities through Layer 2.
@@ -243,8 +241,8 @@ async fn execute_inner(
         use crate::platform::config::DataScope;
         use crate::platform::services::ServiceRole;
 
-        // Tier-1 only. Tier-2 (Graph/Vector/Model Loader) validation removed —
-        // those are Clyffy's on GB10 (kernel-severance).
+        // Tier-1 only. Tier-2 (Graph/Vector/Model Loader) is Clyffy's on
+        // GB10 — nothing local to validate.
         let checks: Vec<(&str, bool, bool)> = vec![
             (
                 "System relational",

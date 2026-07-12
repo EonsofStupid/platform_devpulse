@@ -275,7 +275,7 @@ interface ConfirmationProps {
 
 1. **No direct Tauri commands** from chat components
 2. **Event bus pattern** for AI communication
-3. **Type alignment** with Clyffy kernel types
+3. **Type alignment** with Clyffy's wire types
 
 ### Events (Chat → Clyffy)
 

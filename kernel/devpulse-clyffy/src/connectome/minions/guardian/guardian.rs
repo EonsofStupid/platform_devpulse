@@ -1,1 +1,0 @@
-// Guardian minion (stub)

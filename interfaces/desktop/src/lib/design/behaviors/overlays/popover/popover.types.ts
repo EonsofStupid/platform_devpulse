@@ -6,6 +6,10 @@ export interface UsePopoverProps {
 	closeOnEscape?: boolean;
 	closeOnOutsideClick?: boolean;
 	modal?: boolean;
+	/** Accessible name for the panel — role=dialog MUST be named. */
+	"aria-label"?: string;
+	/** Id of the element that labels the panel (wins over aria-label). */
+	"aria-labelledby"?: string;
 }
 
 export type PopoverTriggerAttrs = HTMLButtonAttributes & {

@@ -19,10 +19,10 @@
 //!
 //! **2026-04-20 note (owner directive — no auto-load):** the
 //! `LoadingStrategy::Hot` variant is retained in the type system as an
-//! inert hint. Nothing in kernel or engine auto-loads based on it. Every
+//! inert hint. Nothing in the engine auto-loads based on it. Every
 //! model load is a deliberate user action triggered from the UI. The
-//! `auto_load_hot_slots` function was removed from both the kernel
-//! service and the engine facade.
+//! `auto_load_hot_slots` function was removed from both the service
+//! and the engine facade.
 //!
 //! # Why this lives in a dedicated module
 //!
@@ -65,7 +65,7 @@ pub enum PersistenceClass {
     /// for the lifetime of the process.
     ///
     /// Reserved for genuine always-on requirements: the wake-word
-    /// detector, the kernel persona (Conductor), and any built-in the
+    /// detector, the Clyffy persona (Conductor), and any built-in the
     /// user expects to respond with zero warm-up latency. The budgeter
     /// subtracts the slot's footprint from every other slot's
     /// available lane capacity.

@@ -89,7 +89,7 @@ pub struct VoiceBrainConfig {
     /// Whether Moshi stays hot in VRAM for always-on STS.
     pub enabled_24_7: bool,
     /// Whether Moshi may hand complex queries off to `chat.brain`
-    /// (Qwen3-30B-A3B) via the kernel escalation path.
+    /// (Qwen3-30B-A3B) via the escalation path.
     pub escalate_on_complex: bool,
     /// Silence threshold in milliseconds that marks a user turn as
     /// complete. Moshi's own VAD handles the low-latency path; this
@@ -283,7 +283,7 @@ impl RoutingMode {
 ///
 /// Renamed from `RoutingConfig` so the user-facing engine `RoutingConfig`
 /// (escalation chain + latency tuning) keeps the canonical short name
-/// at the specta / TS boundary. This struct only holds the kernel-side
+/// at the specta / TS boundary. This struct only holds the engine-side
 /// `mode` field consumed by `set_routing_mode`.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct AssistantRoutingConfig {

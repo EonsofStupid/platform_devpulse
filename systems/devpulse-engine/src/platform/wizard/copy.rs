@@ -434,11 +434,11 @@ pub struct DownloadsCopy {
     pub eta_seconds_template: String,
     /// Placeholder ETA label while the first sample is pending.
     pub eta_computing_label: String,
-    /// Label while the kernel is starting the HF request.
+    /// Label while the engine is starting the HF request.
     pub starting_label: String,
-    /// Label while the kernel is hashing / verifying the file after download.
+    /// Label while the engine is hashing / verifying the file after download.
     pub verifying_label: String,
-    /// Label while the kernel is symlinking / copying into the registry.
+    /// Label while the engine is symlinking / copying into the registry.
     pub importing_label: String,
     /// Label on a completed row before it's dismissed.
     pub complete_label: String,
@@ -919,6 +919,27 @@ pub struct ConnectCopy {
     // ── Validation ─────────────────────────────────────────────────
     /// Inline error when Connect is pressed with an empty address.
     pub error_empty: String,
+
+    // ── Turnkey discovery ──────────────────────────────────────────
+    /// Visible label on the primary "find my Clyffy" button.
+    pub discover_cta: String,
+    /// `aria-label` on the discover button.
+    pub discover_aria: String,
+    /// Status line while the ladder runs (per-source progress renders
+    /// beneath it).
+    pub discovering: String,
+    /// Heading above the verified-endpoint result cards.
+    pub found_title: String,
+    /// Visible label on a result card's confirm/connect button.
+    pub confirm_cta: String,
+    /// Honest empty state after the ladder finishes with nothing —
+    /// names what was searched and points at the manual field.
+    pub none_found: String,
+    /// Hint when a rung was degraded (multicast blocked / no mesh
+    /// client) — a mode, never an error.
+    pub degraded_hint: String,
+    /// Reveal label for the manual address entry fallback.
+    pub manual_reveal: String,
 }
 
 impl WizardCopy {

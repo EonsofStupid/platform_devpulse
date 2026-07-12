@@ -23,6 +23,7 @@ import {
 	unloadSlot as unloadSlotCmd,
 } from "$lib/sys/bindings/models/index.js";
 import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import type { ModelLoadStatus } from "../util/types.js";
 
 /**
@@ -88,6 +89,14 @@ class ModelsState {
 				this.models = payload.models;
 			}
 		});
+
+		// Gate the one-shot refresh on platform readiness. `getSlots` /
+		// `scanModels` route through the engine loader and reject with
+		// "Platform not ready" until boot_task stores the platform (~9s
+		// into boot). Listeners are already attached above, so no live
+		// `model:slot-status` / `platform:models-status` event is lost
+		// while we wait.
+		await platformState.whenReady();
 
 		// One-shot boot refresh — covers the window before the live
 		// `platform:models-status` event arrives.

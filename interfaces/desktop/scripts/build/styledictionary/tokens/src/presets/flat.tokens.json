@@ -14,7 +14,7 @@
 	"preset": {
 		"flat-elevated": {
 			"background-color": {
-				"$value": "oklch(0.35 0.04 220)",
+				"$value": "{color.frost.700}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -26,7 +26,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.95 0.01 220)",
+				"$value": "{accent.fg}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -94,25 +94,25 @@
 		"flat-elevated-hover": {
 			"$description": "flat-elevated hover overrides",
 			"background-color": {
-				"$value": "oklch(0.38 0.045 220)",
+				"$value": "{color.frost.700}",
 				"$type": "color"
 			}
 		},
 		"flat-elevated-active": {
 			"$description": "flat-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(0.32 0.035 220)",
+				"$value": "{color.frost.800}",
 				"$type": "color"
 			}
 		},
 		"flat-elevated-disabled": {
 			"$description": "flat-elevated disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.01 220)",
+				"$value": "{color.void.800}",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.65 0.005 220)",
+				"$value": "{color.void.400}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -122,7 +122,7 @@
 		},
 		"flat-deep": {
 			"background-color": {
-				"$value": "oklch(0.15 0.02 240)",
+				"$value": "{color.void.900}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -134,7 +134,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.85 0.01 220)",
+				"$value": "{color.void.100}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -202,25 +202,25 @@
 		"flat-deep-hover": {
 			"$description": "flat-deep hover overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.022 240)",
+				"$value": "{color.frost.950}",
 				"$type": "color"
 			}
 		},
 		"flat-deep-active": {
 			"$description": "flat-deep active overrides",
 			"background-color": {
-				"$value": "oklch(0.12 0.018 240)",
+				"$value": "{color.void.950}",
 				"$type": "color"
 			}
 		},
 		"flat-deep-disabled": {
 			"$description": "flat-deep disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.12 0.005 240)",
+				"$value": "{warning.fg}",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.55 0.005 220)",
+				"$value": "{color.void.500}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -242,7 +242,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.75 0.008 220)",
+				"$value": "{color.void.300}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -310,21 +310,21 @@
 		"flat-minimal-hover": {
 			"$description": "flat-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(0.3 0.01 220 / 0.08)",
+				"$value": "oklch(from {color.void.800} l c h / 0.08)",
 				"$type": "color"
 			}
 		},
 		"flat-minimal-active": {
 			"$description": "flat-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.008 220 / 0.12)",
+				"$value": "oklch(from {color.void.800} l c h / 0.12)",
 				"$type": "color"
 			}
 		},
 		"flat-minimal-disabled": {
 			"$description": "flat-minimal disabled overrides",
 			"color": {
-				"$value": "oklch(0.5 0.004 220)",
+				"$value": "{color.neutral.600}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -334,7 +334,7 @@
 		},
 		"flat-solid": {
 			"background-color": {
-				"$value": "oklch(0.25 0.03 220)",
+				"$value": "{color.void.800}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -346,11 +346,11 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.9 0.01 220)",
+				"$value": "{color.void.100}",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(0.4 0.02 220 / 0.3)",
+				"$value": "oklch(from {color.void.700} l c h / 0.3)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -414,29 +414,29 @@
 		"flat-solid-hover": {
 			"$description": "flat-solid hover overrides",
 			"background-color": {
-				"$value": "oklch(0.28 0.033 220)",
+				"$value": "{color.frost.800}",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(0.45 0.025 220 / 0.38)",
+				"$value": "oklch(from {color.void.600} l c h / 0.38)",
 				"$type": "color"
 			}
 		},
 		"flat-solid-active": {
 			"$description": "flat-solid active overrides",
 			"background-color": {
-				"$value": "oklch(0.22 0.027 220)",
+				"$value": "{color.cyan.950}",
 				"$type": "color"
 			}
 		},
 		"flat-solid-disabled": {
 			"$description": "flat-solid disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.008 220)",
+				"$value": "{color.void.900}",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.6 0.005 220)",
+				"$value": "{color.neutral.400}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -444,13 +444,13 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(0.3 0.005 220 / 0.15)",
+				"$value": "oklch(from {color.void.800} l c h / 0.15)",
 				"$type": "color"
 			}
 		},
 		"flat-glow": {
 			"background-color": {
-				"$value": "oklch(0.25 0.06 180)",
+				"$value": "{color.teal.900}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -530,25 +530,25 @@
 		"flat-glow-hover": {
 			"$description": "flat-glow hover overrides",
 			"background-color": {
-				"$value": "oklch(0.28 0.065 180)",
+				"$value": "{color.teal.800}",
 				"$type": "color"
 			}
 		},
 		"flat-glow-active": {
 			"$description": "flat-glow active overrides",
 			"background-color": {
-				"$value": "oklch(0.22 0.055 180)",
+				"$value": "{color.teal.900}",
 				"$type": "color"
 			}
 		},
 		"flat-glow-disabled": {
 			"$description": "flat-glow disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.015 180)",
+				"$value": "{color.void.900}",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.6 0.01 180)",
+				"$value": "{color.void.400}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -558,7 +558,7 @@
 		},
 		"flat-muted": {
 			"background-color": {
-				"$value": "oklch(0.18 0.005 220)",
+				"$value": "{color.neutral.900}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -570,7 +570,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.55 0.005 220)",
+				"$value": "{color.void.500}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -638,7 +638,7 @@
 		"flat-muted-hover": {
 			"$description": "flat-muted hover overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.007 220)",
+				"$value": "{color.void.900}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -649,7 +649,7 @@
 		"flat-muted-active": {
 			"$description": "flat-muted active overrides",
 			"background-color": {
-				"$value": "oklch(0.16 0.004 220)",
+				"$value": "{color.void.950}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -660,11 +660,11 @@
 		"flat-muted-disabled": {
 			"$description": "flat-muted disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.003 220)",
+				"$value": "{color.neutral.950}",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.4 0.003 220)",
+				"$value": "{color.neutral.700}",
 				"$type": "color"
 			},
 			"opacity": {

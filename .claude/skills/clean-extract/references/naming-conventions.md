@@ -13,7 +13,7 @@
 Examples (verified-good in current workspace):
 
 - `devpulse-engine` → `clyffyos-engine` (subsystem prefix changes, facet stays)
-- `devpulse-clyffy` → `clyffyos-cortex` (facet renamed to its actual ROLE, not the legacy product name)
+- `devpulse-clyffy` → `clyffyos-connectome` (facet renamed to its actual ROLE, not the legacy product name — this is the name that LANDED; earlier drafts said `clyffyos-cortex` before cortex→connectome)
 - `devpulse-persona-mcp` → `clyffyos-persona-mcp` (composite facet `persona-mcp` is acceptable — both words have meaning)
 - `model-loader` → `clyffyos-model-loader` (gain prefix because the bare name collides outside its monorepo context)
 
@@ -109,7 +109,7 @@ When moving a folder during extraction:
 
 ```
 old: kernel/devpulse-clyffy/
-new: clyffyos/kernel/clyffyos-cortex/
+new: clyffyos/kernel/clyffyos-connectome/   # the move that landed 2026-06-28
 ```
 
 Pattern:

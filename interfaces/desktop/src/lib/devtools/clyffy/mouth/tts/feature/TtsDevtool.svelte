@@ -7,7 +7,7 @@
 	Qwen3-TTS-12Hz-0.6B safetensors talker + bundled codec via the
 	model-loader's Candle backend.
 
-	Voice routing follows the kernel convention parsed by
+	Voice routing follows the backend convention parsed by
 	`Qwen3TtsBackend::synthesize`:
 
 	  - empty string or `"default"` — Qwen3-TTS default voice

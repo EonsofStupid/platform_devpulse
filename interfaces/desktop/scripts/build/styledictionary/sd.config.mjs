@@ -15,7 +15,12 @@
  */
 
 import StyleDictionary from 'style-dictionary';
-import { fileHeader, createPropertyFormatter } from 'style-dictionary/utils';
+import {
+	fileHeader,
+	createPropertyFormatter,
+	usesReferences,
+	getReferences,
+} from 'style-dictionary/utils';
 import {
 	transforms,
 	transformTypes,
@@ -56,6 +61,11 @@ const DP_EXT = 'com.devpulse.coldlight';
 /** Custom preprocessor names */
 const clPreprocessors = {
 	captureExtensions: 'coldlight/capture-extensions',
+};
+
+/** Custom parser names */
+const clParsers = {
+	stripRootDescription: 'coldlight/strip-root-description',
 };
 
 /** DTCG $extensions namespace */
@@ -439,6 +449,34 @@ StyleDictionary.registerTransform({
 // This converts to linear-gradient() CSS shorthand.
 // ═══════════════════════════════════════════════════════════════
 
+/** Hex color + DTCG alpha channel → #rrggbb[aa]. */
+const hexWithAlpha = (hex, alpha) => {
+	if (typeof alpha !== 'number' || alpha >= 1) return hex;
+	return `${hex}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
+};
+
+/**
+ * DTCG gradient stop color → CSS color. The oklch components ARE the
+ * designed value — the hex sibling is a lossy preview fallback and must
+ * never win over the real color (it was flattening every designed
+ * gradient to near-black).
+ */
+const gradientStopColor = (c) => {
+	if (!isPlainObj(c)) return c;
+	if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
+		const [l, ch, h] = c.components;
+		const alpha = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
+		return `oklch(${l} ${ch} ${h}${alpha})`;
+	}
+	if (typeof c.hex === 'string') return hexWithAlpha(c.hex, c.alpha);
+	if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+		const [r, g, b] = c.components;
+		const to255 = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+		return `#${to255(r)}${to255(g)}${to255(b)}`;
+	}
+	return c;
+};
+
 StyleDictionary.registerTransform({
 	name: clTransforms.gradientCssShorthand,
 	type: transformTypes.value,
@@ -448,37 +486,23 @@ StyleDictionary.registerTransform({
 		const val = token.$value ?? token.value;
 		if (!Array.isArray(val)) return val;
 
-		const colorOf = (c) => {
-			if (isPlainObj(c)) {
-				if (typeof c.hex === 'string') {
-					if (typeof c.alpha === 'number' && c.alpha < 1) {
-						const a = Math.round(c.alpha * 255);
-						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
-					}
-					return c.hex;
-				}
-				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
-					const [r, g, b] = c.components;
-					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
-					return `#${h(r)}${h(g)}${h(b)}`;
-				}
-			}
-			return c;
-		};
-
 		const stops = val
 			.map((stop) => {
 				const pos = typeof stop.position === 'number'
 					? ` ${stop.position * 100}%`
 					: '';
-				return `${colorOf(stop.color)}${pos}`;
+				return `${gradientStopColor(stop.color)}${pos}`;
 			})
 			.join(', ');
 
-		const angle =
+		// Tokens author the angle as a bare number (180); CSS requires a
+		// unit — a unitless angle invalidates the whole declaration and
+		// killed every designed gradient at parse time.
+		const rawAngle =
 			token.$extensions?.[DP_EXT]?.gradient?.angle
 			?? token.$extensions?.[CL_EXT]?.angle
 			?? '135deg';
+		const angle = typeof rawAngle === 'number' ? `${rawAngle}deg` : rawAngle;
 		return `linear-gradient(${angle}, ${stops})`;
 	},
 });
@@ -491,6 +515,21 @@ StyleDictionary.registerTransform({
 // and captures group-level $extensions.com.coldlight metadata
 // into the groupExtensions map so custom formats can read them.
 // ═══════════════════════════════════════════════════════════════
+
+// Every token source file self-documents with a ROOT-level $description
+// (129 files — the house convention). SD merges all sources into one tree,
+// so those root keys collide pairwise and SD warns on every build. The
+// descriptions are per-FILE documentation, not tokens: strip them at parse
+// time so the merge is silent and the file convention stays.
+StyleDictionary.registerParser({
+	name: clParsers.stripRootDescription,
+	pattern: /\.json$/,
+	parser: ({ contents }) => {
+		const data = JSON.parse(contents);
+		delete data.$description;
+		return data;
+	},
+});
 
 StyleDictionary.registerPreprocessor({
 	name: clPreprocessors.captureExtensions,
@@ -651,21 +690,54 @@ StyleDictionary.registerFormat({
 
 StyleDictionary.registerFormat({
 	name: clFormats.tailwindTheme,
-	format: async ({ dictionary, file, options }) => {
+	format: async ({ dictionary, file }) => {
 		const header = await fileHeader({ file });
-		const lines = [];
+		const literals = [];
+		const refs = [];
+
+		// Whole-value `{ref}` tokens emit as live var() pointers so a
+		// primitive rebind propagates through the @theme copy instead of
+		// being frozen into a flattened literal (audit finding F5).
+		// Tailwind requires the `inline` option for var()-valued theme
+		// variables (tailwindcss.com/docs/theme) — utilities then resolve
+		// at the use site.
+		const WHOLE_REF = /^\{[^}]+\}$/;
 
 		for (const token of dictionary.allTokens) {
 			if (isComponent(token)) continue;
 
 			const name = toTw4VarName(token);
+			const original = token.original?.$value ?? token.original?.value;
+
+			if (
+				typeof original === 'string' &&
+				WHOLE_REF.test(original.trim()) &&
+				usesReferences(original)
+			) {
+				// dictionary.tokens is filtered per-file; ref targets usually
+				// live outside the filter, so resolve against the full tree.
+				const [target] = getReferences(
+					original,
+					dictionary.unfilteredTokens ?? dictionary.tokens,
+					{ usesDtcg: true },
+				);
+				if (target?.name) {
+					refs.push(`  ${name}: var(--${target.name});`);
+					continue;
+				}
+			}
+
 			const val = token.$value ?? token.value;
-			lines.push(`  ${name}: ${val};`);
+			literals.push(`  ${name}: ${val};`);
 		}
 
-		if (lines.length === 0) return '';
+		const blocks = [];
+		if (literals.length > 0) blocks.push(`@theme {\n${literals.join('\n')}\n}`);
+		if (refs.length > 0) blocks.push(`@theme inline {\n${refs.join('\n')}\n}`);
 
-		return `${header}@theme {\n${lines.join('\n')}\n}\n`;
+		if (blocks.length === 0) return '';
+
+		return `${header}${blocks.join('\n\n')}\n`;
 	},
 });
 
@@ -900,6 +972,7 @@ const config = {
 		// typography, transition, border still expand into sub-properties.
 		return true;
 	},
+	parsers: [clParsers.stripRootDescription],
 	preprocessors: [clPreprocessors.captureExtensions],
 	log: {
 		verbosity: logVerbosityLevels.verbose,
@@ -954,20 +1027,23 @@ const config = {
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
 			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
+			// Groups without a registered file are dropped SILENTLY by SD —
+			// chat + wizard semantic tokens were authored but never emitted.
+			cssFile('chat.css', pathFilter('chat'), layers.semantic),
+			cssFile('wizard.css', pathFilter('wizard'), layers.semantic),
 			],
 		},
 
 		// ── CSS: Components ───────────────────────────────────────
+		// MUST use the layered format: unlayered emission outranks every
+		// @layer tokens.* declaration and hands the cascade to whatever
+		// literal happens to load last (root cause of the 2026-07-11
+		// monochrome-teal audit finding F2).
 		'css-components': {
 			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/styles/${layers.components}/`,
 			files: [
-				{
-					destination: 'components.generated.css',
-					format: 'css/variables',
-					filter: isComponent,
-					options: { outputReferences: false },
-				},
+				cssFile('components.generated.css', isComponent, layers.components),
 			],
 		},
 

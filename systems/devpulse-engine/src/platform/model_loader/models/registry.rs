@@ -1,11 +1,11 @@
 //! Model registry — discovered models with metadata and capability inference.
 
 use crate::platform::model_loader::slots::types::ModelCapability;
-// `ModelFormat` is the engine's canonical file-format enum (relocated to
-// `platform/model_registry`). The management layer reuses it rather than
-// defining a parallel copy — the `SherpaDir` variant was folded into the
-// canonical enum during the kernel-severance reconciliation. Re-exported
-// (`pub use`) so consumers keep resolving it at `models::registry::ModelFormat`.
+// `ModelFormat` is the engine's canonical file-format enum, owned by
+// `platform/model_registry`. The management layer reuses it rather than
+// defining a parallel copy — the `SherpaDir` variant is part of the
+// canonical enum. Re-exported (`pub use`) so consumers keep resolving
+// it at `models::registry::ModelFormat`.
 pub use crate::platform::model_registry::ModelFormat;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -22,9 +22,9 @@ pub enum BackendType {
     /// sherpa-rs (Whisper STT, Kokoro TTS).
     Sherpa,
     /// Burn (locked direction per `feedback_inference_runtime_direction.md`).
-    /// Used for the RRO encoder. Post-severance the concrete Burn
-    /// implementation runs on headless Clyffy/GB10 over the wire — this
-    /// variant remains as advisory metadata describing which backend
+    /// Used for the RRO encoder. The concrete Burn
+    /// implementation is Clyffy's, on headless Clyffy/GB10 over the wire —
+    /// this variant remains as advisory metadata describing which backend
     /// *could* serve a model, never a local linkage.
     Burn,
 }

@@ -79,27 +79,45 @@ pure.
 ### P2 — Two-tier var() chain (default state)
 
 ```
-var(--style-{kind}-{preset}-{axis},     ← per-kind override
-    var(--preset-{preset}-{axis},        ← shared preset default
-        {fallback}))                      ← absolute fallback
+var(--style-{kind}-{rawPreset}-{axis},   ← per-kind layer (RAW preset name)
+    var(--preset-{resolved}-{axis},        ← shared preset (INTENT_MAP-resolved)
+        {fallback}))                        ← absolute fallback
 ```
 
-**Why:** StyleOS users can fork a single (kind, preset, axis) tuple
-without forking the whole preset. This is the customization story
-sold to enterprise buyers.
+The per-kind tier keys off the **raw** preset string, so `preset:"default"`
+resolves `--style-{kind}-default-*` — the component's emitted `@defaults`
+(`collect-element-seed-defs.mjs`). The shared tier keys off the resolved
+intent. A compound preset id that already carries the kind prefix
+(e.g. `"chat-bubble-user"`) misses the per-kind tier harmlessly and falls to
+the shared layer that serves it.
 
-### P3 — Five-tier var() chain (non-default state) — INTENDED
+**Why:** a component's documented `@defaults` reach the screen for its default
+preset, and StyleOS users can still fork a single (kind, preset, axis) tuple
+without forking the whole preset.
+
+### P3 — Four-tier var() chain (non-default state) — per-kind base outranks shared state
 
 ```
-var(--style-{kind}-{preset}-{state}-{axis},  ← per-kind state override
-    var(--preset-{preset}-{state}-{axis},     ← shared preset state
-        var(--style-{kind}-{preset}-{axis},   ← per-kind default
-            var(--preset-{preset}-{axis},      ← shared preset default
+var(--style-{kind}-{rawPreset}-{state}-{axis},  ← per-kind state override
+    var(--style-{kind}-{rawPreset}-{axis},        ← per-kind default (base)
+        var(--preset-{resolved}-{state}-{axis},    ← shared preset state
+            var(--preset-{resolved}-{axis},         ← shared preset default
                 {fallback}))))
 ```
 
-**Status:** The current `render.ts` implements only a 3-tier chain in the
-state branch (skips the per-kind state tier). See bug B1 below.
+**Ordering (amended 2026-07-09):** the per-kind base sits ABOVE the shared
+preset's state (option b), reversing the earlier "shared-state-first" intent.
+Rationale — `@defaults` bases are hand-authored and routinely diverge from
+their resolved preset's design family; shared-state-first would bleed a
+foreign family's hover/active onto an authored base. A forked kind with no
+per-kind state holds its base until per-kind states are authored; un-forked
+kinds still get the shared preset's full state table via tiers 3–4.
+
+**Status:** implemented in `render.ts` 2026-07-09 (bug B1 resolved). The state
+branch is currently dead code — `RenderState` has no `'hover'`/`'focus'` and no
+call site passes a non-default state (bug B2); real hover is the
+`[data-cl-interactive]:hover` brightness filter in `render-base.css`. Authoring
+per-kind states + a hover activation path is a separate follow-on.
 
 ### P4 — Canonical longhand CSS variable names
 
@@ -136,30 +154,41 @@ Step 1 — Resolve intent. `'primary'` is a `SemanticIntent` (per
 Step 2 — Build the prefixes:
 
 ```
-perKind = '--style-button-glass-deep'
-shared  = '--preset-glass-deep'
+perKind = '--style-button-primary'    (RAW preset name)
+shared  = '--preset-glass-deep'       (INTENT_MAP-resolved)
 ```
 
 Step 3 — For each axis, build the var() chain. For `--background-color`
-in the `disabled` state (with all 5 tiers, per P3):
+in the `disabled` state (all 4 tiers, per P3 — per-kind base outranks
+shared state):
 
 ```
-var(--style-button-glass-deep-disabled-background-color,
-    var(--preset-glass-deep-disabled-background-color,
-        var(--style-button-glass-deep-background-color,
+var(--style-button-primary-disabled-background-color,
+    var(--style-button-primary-background-color,
+        var(--preset-glass-deep-disabled-background-color,
             var(--preset-glass-deep-background-color,
                 transparent))))
 ```
 
-Step 4 — Look up the kind's families in `KIND_FAMILIES` and emit the
-matching `data-cl-{family}` markers:
+Step 4 — Emit the `data-cl-{family}` markers as the UNION of two
+build-derived maps (derive-kind-families.mjs):
+
+- `KIND_FAMILIES[kind]` — from the per-kind `@defaults` layer
+  (`tokens/src/style-defaults.json`); missing kinds fall back to
+  `['surface', 'text', 'frame']`.
+- `PRESET_FAMILIES[resolvedPreset]` — from the shared preset layer
+  (`tokens/src/presets/*.tokens.json`, one file per family), keyed by FULL preset id. This is
+  what lets an axis the preset carries (e.g. glass-deep's
+  `backdrop-filter` → `overlay`) actually apply on any kind wearing it.
 
 ```
 KIND_FAMILIES['button'] = ['frame', 'interactive', 'surface', 'text']
-→ dataAttrs = {
+PRESET_FAMILIES['glass-deep'] = ['overlay', 'surface', ...]
+→ dataAttrs (button + preset "primary" → glass-deep) = {
     'data-kind': 'button',
     'data-cl-frame': '',
     'data-cl-interactive': '',
+    'data-cl-overlay': '',
     'data-cl-surface': '',
     'data-cl-text': '',
   }
@@ -207,13 +236,13 @@ have authored values but no glue-CSS rule yet.
 
 | ID | Severity | File | Description | Fix |
 |---|---|---|---|---|
-| B1 | **HIGH** | `render.ts` ~L114–L130 | State branch implements 3-tier chain, not 5-tier. `--style-button-glass-deep-disabled-background-color` is never consulted. | Replace inline state-handling block with full 5-tier `sv()` builder mirroring P3. |
+| B1 | **RESOLVED (2026-07-09)** | `render.ts` | State branch was a 2-tier chain; now the 4-tier option-b chain (per-kind state → per-kind base → shared state → shared base), per P3. Dead code until B2 + a hover activation path land. | — |
 | B2 | **HIGH** | `types.ts` L17 | `RenderState = 'default' \| 'disabled' \| 'active'` — missing `'hover'` and `'focus'`. | Expand to `'default' \| 'hover' \| 'focus' \| 'active' \| 'disabled'`. Audit downstream callsites. |
 | B3 | MEDIUM | `render.ts` L106 | `'--border-style': "solid"` hardcoded; bypasses var chain. | Replace with `v('border-style', 'solid')`. |
 | B4 | **HIGH** | `resolve.test.ts` | Multiple assertions of `m.cssVars["-bg"]`. Resolver emits `--background-color`. All `-bg` assertions fail. | Delete and rewrite as `render.test.ts` from scratch (per Phase 2 plan). |
 | B5 | **HIGH** | `components/chat-frame/ChatFrame.test.ts` L107–L112 | `expect(style).toContain("-bg")`. Same root cause as B4. | Replace with `expect(style).toContain('--background-color')`. |
 | B6 | **HIGH** | `components/chat-footer/ChatFooter.test.ts` L57–L63 | Same as B5. | Same fix. |
-| B7 | MEDIUM | `generated/kind-families.ts` | `glass`, `glass-deep`, `chat-frame`, etc. don't include `overlay` in their family list. The resolver emits `--backdrop-filter` for these kinds, but the `[data-cl-overlay]` rule never fires because the marker isn't on the element. | Architectural call: see PARKING-LOT.md PL-003. Either fix `kind-families.ts` or rewrite the CSS rule. |
+| B7 | **RESOLVED (2026-07-10)** | `generated/kind-families.ts` | Was: `overlay` never granted, so `--backdrop-filter` never applied. Architectural call made: derive-kind-families.mjs now derives `KIND_FAMILIES` from the per-kind `@defaults` layer (style-defaults.json — 80+ real kinds, was 3) AND emits `PRESET_FAMILIES` keyed by full preset id; `render.ts` unions kind ∪ resolved-preset families (Step 4). Blur is live wherever a glass preset or a `backdrop-filter` `@defaults` axis is worn. | — |
 | B8 | LOW | Multiple | Code comments reference "Per RenderForge.md Law 1/5/6" and "Per MACRO-LAW.md Law 5" — neither doc exists. | Replace with citations to TRUTH.md / RENDERFORGE.md / MACRO-LAW.md as appropriate. |
 
 ---

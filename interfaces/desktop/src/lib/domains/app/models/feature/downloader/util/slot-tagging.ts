@@ -8,7 +8,7 @@
  * repo id, then return the slot ids in confidence order so the dropdown
  * defaults to the most likely role.
  *
- * NOT a replacement for `recommend_primary_for_slot` on the kernel side
+ * NOT a replacement for `recommend_primary_for_slot` on the engine side
  * — that's the authoritative capability check at install time. These
  * tags are purely a UI affordance to skip the "what is this?" friction.
  */

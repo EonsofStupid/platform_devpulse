@@ -1,9 +1,9 @@
 # ═══════════════════════════════════════════════════════════════
-# SLOTS — Kernel SSOT
+# SLOTS — Engine SSOT
 # ═══════════════════════════════════════════════════════════════
 #
 # Every user-configurable model binding point lives in this file. The
-# kernel `model-loader::slots::defaults` loader embeds it at compile
+# engine's `model_loader::slots::defaults` loader embeds it at compile
 # time via `include_str!` and loads any user override from
 # `{userdata}/config/slots.toml`.
 #
@@ -14,8 +14,8 @@
 #
 # ── Schema ─────────────────────────────────────────────────────
 #
-# Each `[[slots]]` entry produces one `Slot` (see
-# `kernel/model-loader/src/slots/types.rs`). Required fields:
+# Each `[[slots]]` entry produces one `Slot` (see the engine's
+# `src/platform/model_loader/slots/types.rs`). Required fields:
 #
 #   id                  — unique dotted identifier (e.g. "chat.brain")
 #   label               — human-readable name
@@ -40,11 +40,11 @@
 # To add a new slot:
 #   1. Append a new `[[slots]]` block here with every required field.
 #   2. If a new capability is needed, add a variant to
-#      `ModelCapability` in `kernel/model-loader/src/slots/types.rs`.
-#   3. Add the slot id to `kernel/model-loader/src/slots/defaults.rs`
+#      `ModelCapability` in `src/platform/model_loader/slots/types.rs`.
+#   3. Add the slot id to `src/platform/model_loader/slots/defaults.rs`
 #      `BASELINE_SLOT_IDS` so the baseline test picks it up.
 #   4. If an auto-config preset should populate it, edit
-#      `kernel/model-loader/config/presets.default.toml` and add an
+#      the engine's `config/presets.default.toml` and add an
 #      entry under the appropriate `[[presets.<tier>.recommendations]]`.
 # Nothing else changes — the frontend picks up the new slot via
 # `list_presets`, the Slot Config overlay shows it in the Slots tab,
@@ -267,10 +267,10 @@ builtin = true
 # views, one source of truth. There is no second TOML file.
 #
 # NOTE: The vector store (RRO) is NOT a slot. It's a storage
-# adapter that lives in `kernel/devpulse-clyffy/src/connectome/
-# persistence/rro.rs` — pure storage, no model file, no model
+# adapter that is Clyffy's (clyffyos repo: clyffyos-connectome
+# persistence) — pure storage, no model file, no model
 # capability that fits the slot schema. The devtool surfaces RRO
-# status through a direct kernel query in the System tab, not
+# status through a direct Clyffy-side query in the System tab, not
 # through the slot registry. Forcing it into slots would have
 # required inventing a capability variant for storage adapters.
 

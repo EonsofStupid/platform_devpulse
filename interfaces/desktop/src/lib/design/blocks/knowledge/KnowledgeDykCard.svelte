@@ -8,7 +8,7 @@
 
 	Pure presentational — caller supplies the entry and the
 	handlers. Used by `KnowledgeDeck` when dispatching `dyk`
-	entries from the kernel catalog.
+	entries from the engine catalog.
 -->
 <script lang="ts">
 import { Button } from "$lib/design/components/button/index.js";

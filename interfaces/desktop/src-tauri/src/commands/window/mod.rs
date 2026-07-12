@@ -36,14 +36,34 @@ pub async fn open_window(app: tauri::AppHandle, role: WindowRole) -> Result<Wind
         });
     }
 
-    // Spawn new child window
-    let (width, height) = role.default_size();
+    // Spawn new child window. Proportional roles size against the main
+    // window's monitor (logical pixels — Tauri applies the DPI scale);
+    // the static default is only the no-monitor fallback. min_inner_size
+    // is the OS resize floor and the guard against bad persisted state.
+    let (min_width, min_height) = role.min_size();
+    let (width, height) = match role.size_fraction() {
+        Some((fw, fh)) => {
+            let monitor_logical = app
+                .get_webview_window("main")
+                .and_then(|w| w.current_monitor().ok().flatten())
+                .map(|m| m.size().to_logical::<f64>(m.scale_factor()));
+            match monitor_logical {
+                Some(logical) => (
+                    (logical.width * fw).clamp(min_width, logical.width),
+                    (logical.height * fh).clamp(min_height, logical.height),
+                ),
+                None => role.default_size(),
+            }
+        }
+        None => role.default_size(),
+    };
     let route = role.route();
 
     let mut builder =
         tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App(route.into()))
             .title(role.title())
             .inner_size(width, height)
+            .min_inner_size(min_width, min_height)
             .decorations(role.decorations())
             .transparent(role.transparent());
 

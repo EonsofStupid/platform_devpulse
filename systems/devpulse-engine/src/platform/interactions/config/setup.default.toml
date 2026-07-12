@@ -11,7 +11,7 @@
 #
 # Runtime flow:
 #
-#   1. Kernel dispatcher evaluates `triggers` at boot (first_run)
+#   1. The engine's dispatcher evaluates `triggers` at boot (first_run)
 #      and on user action (manual). First match opens the overlay.
 #   2. Frontend SetupWizardOverlay reads the parsed template,
 #      enters `entry_phase`, renders its `copy_block`.
@@ -21,8 +21,8 @@
 #
 # ── Schema ─────────────────────────────────────────────────────
 #
-# See `kernel/devpulse-clyffy/src/interactions/mod.rs` for the full
-# `InteractionTemplate` type. Every phase below maps directly to a
+# See `systems/devpulse-engine/src/platform/interactions/mod.rs` for the
+# full `InteractionTemplate` type. Every phase below maps directly to a
 # Svelte sub-component the wizard renders:
 #
 #   welcome      → WelcomePhase.svelte (greeting + Let's Go)

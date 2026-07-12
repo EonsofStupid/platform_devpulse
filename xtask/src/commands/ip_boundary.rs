@@ -1,9 +1,8 @@
-//! `IpBoundary` — verify the post-severance boundary via cargo-metadata.
+//! `IpBoundary` — verify the DevPulse/Clyffy boundary via cargo-metadata.
 //!
-//! Invariants (kernel-severance, 2026-07 — supersedes the old facade model
-//! where the engine depended on `devpulse-clyffy`):
+//! Invariants (the AI layer is Clyffy's — clyffyos repo):
 //!   1. Desktop does NOT depend on `devpulse-clyffy`.
-//!   2. Engine does NOT depend on `devpulse-clyffy` — the AI kernel is severed;
+//!   2. Engine does NOT depend on `devpulse-clyffy` — the AI layer is Clyffy's;
 //!      DevPulse builds standalone and reaches Clyffy over the gb10-client wire.
 //!   3. Engine keeps the `engine` feature gate (release/customer selection).
 //!   4. No inference-runtime crate is a *non-optional* dependency of engine or
@@ -73,7 +72,7 @@ impl Task for IpBoundary {
         );
         s1.ok();
 
-        // 2. Engine must NOT depend on clyffy (post-severance; was the facade).
+        // 2. Engine must NOT depend on clyffy (the AI layer is Clyffy's).
         let s2 = Stage::start("engine severed from clyffy");
         let engine = find("devpulse-engine")?;
         anyhow::ensure!(

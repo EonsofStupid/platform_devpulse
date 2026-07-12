@@ -117,7 +117,7 @@ class PlatformState {
 	 * event. Consumers that decide flow based on `modelsReady` /
 	 * `modelsFirstRun` MUST gate on this first; the defaults
 	 * (`modelsReady=false`, `modelsFirstRun=true`) would otherwise cause
-	 * the wizard to fail-open before the kernel has reported state.
+	 * the wizard to fail-open before the engine has reported state.
 	 */
 	modelsStatusReceived = $state(false);
 
@@ -126,6 +126,14 @@ class PlatformState {
 	private unlisteners: Array<() => void> = [];
 	private initialized = false;
 	private destroyed = false;
+
+	/**
+	 * Deferred backing `whenReady()`. Created lazily on the first
+	 * caller that awaits before we've reached `ready`; resolved by
+	 * `markReady()` when the platform transitions in.
+	 */
+	private readyPromise: Promise<void> | null = null;
+	private resolveReady: (() => void) | null = null;
 
 	// Derived state — boot readiness
 	get isReady(): boolean {
@@ -213,6 +221,31 @@ class PlatformState {
 			list.push(info);
 		});
 		return list;
+	}
+
+	/**
+	 * Await platform readiness — resolves the instant the backend has
+	 * stored the platform (the `boot-phase-changed → ready` event, or a
+	 * boot snapshot already reporting `Ready`), or eagerly if we're
+	 * already there. Callers MUST await this before invoking any command
+	 * that routes through the engine loader; those reject with
+	 * "Platform not ready" until `boot_task` stores the platform. Rides
+	 * the existing boot signal — no new IPC.
+	 */
+	whenReady(): Promise<void> {
+		if (this.phase === "ready") return Promise.resolve();
+		if (!this.readyPromise) {
+			this.readyPromise = new Promise<void>((resolve) => {
+				this.resolveReady = resolve;
+			});
+		}
+		return this.readyPromise;
+	}
+
+	/** Resolve any pending `whenReady()` awaiters. Idempotent. */
+	private markReady(): void {
+		this.resolveReady?.();
+		this.resolveReady = null;
 	}
 
 	/** Initialize — call once from root layout onMount. */
@@ -387,7 +420,10 @@ class PlatformState {
 			);
 		}
 
-		if (this.phase === "ready") this.startHealthPolling();
+		if (this.phase === "ready") {
+			this.markReady();
+			this.startHealthPolling();
+		}
 	}
 
 	/** Apply a single subsystem init event (idempotent via Map key). */
@@ -435,6 +471,7 @@ class PlatformState {
 		if (payload.phase === "ready") {
 			logInfo("boot", "Platform READY — all services healthy");
 			this.bootStepLabel = "All systems go";
+			this.markReady();
 			this.stopBootTimer();
 			this.startHealthPolling();
 		} else if (payload.phase === "failed") {

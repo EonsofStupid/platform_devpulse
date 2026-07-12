@@ -20,7 +20,7 @@
 //! The mode directly governs what the slot/lane/built-in UIs allow.
 //! Keeping the enum inside `model-loader` means every consumer (the
 //! Slot Config overlay, the Setup Wizard, the Resource Manager page,
-//! every Tauri command) reads the same kernel source of truth.
+//! every Tauri command) reads the same engine source of truth.
 //!
 //! # Runtime access
 //!

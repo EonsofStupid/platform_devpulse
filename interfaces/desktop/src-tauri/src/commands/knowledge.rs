@@ -1,9 +1,9 @@
 //! Knowledge library Tauri commands — generalized types only.
 //!
-//! No Clyffy references. No kernel-internal naming. The frontend sees
+//! No Clyffy references. No engine-internal naming. The frontend sees
 //! `Entry`, `type: "dyk"`, `payload`, and nothing more.
 //!
-//! Delegates to kernel selector via engine facade — no duplicated SQL.
+//! Delegates to the engine's selector via the facade — no duplicated SQL.
 //! Remote-sync helper fetches updated entries from a public Supabase
 //! Storage bucket so the catalog can be refreshed without a binary
 //! rebuild.
@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
 
-/// A knowledge entry as the frontend sees it — no kernel vocabulary.
+/// A knowledge entry as the frontend sees it — no internal vocabulary.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct KnowledgeEntryDto {
@@ -46,7 +46,7 @@ pub struct KnowledgeEntryDto {
 
 /// Get a knowledge entry matching the given type and optional tool context.
 ///
-/// Delegates to kernel selector — affinity-weighted, cooldown-gated.
+/// Delegates to the engine's selector — affinity-weighted, cooldown-gated.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -169,7 +169,7 @@ pub enum KnowledgeSyncResult {
 /// - `{supabase_url}/storage/v1/object/public/knowledge/manifest.json`
 /// - `{supabase_url}/storage/v1/object/public/knowledge/{filename}`
 ///
-/// When the manifest version matches what's already stored, the kernel
+/// When the manifest version matches what's already stored, the engine
 /// fast-paths to zero work (returns `Synced { upserted: 0, .. }`).
 ///
 /// # Errors

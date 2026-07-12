@@ -33,8 +33,8 @@ pub struct RuntimeFingerprint {
     /// (`env!("CARGO_PKG_VERSION")` at runtime). `None` for runtimes
     /// that don't ship as a Rust crate (Ollama, system services).
     pub crate_version: Option<String>,
-    /// Git commit SHA for vendored forks (`deps/moshi/`, `deps/ort/`,
-    /// kokoros, …). `None` when the runtime is consumed unmodified.
+    /// Git commit SHA for vendored forks (Clyffy-side — clyffyos vendors
+    /// its own `deps/`). `None` when the runtime is consumed unmodified.
     pub upstream_revision: Option<String>,
     /// SHA-256 of the model weights — already computed by the LFS
     /// download verifier for HuggingFace-sourced models. Lets the UI
@@ -237,7 +237,7 @@ pub enum LoaderEvent {
     /// the install chain begins so the UI can flip the tile to
     /// "saving" state immediately, before any IO blocks.
     WizardTileApplied {
-        /// Slot the customer applied (matches kernel slot id).
+        /// Slot the customer applied (matches the slot-table slot id).
         slot_id: String,
         /// Registry model id about to be wired into the slot.
         /// `None` when the install chain is still resolving the

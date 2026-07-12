@@ -5,7 +5,7 @@
 	Agent-policy devtool — the unified surface for what the agent is
 	allowed to emit. Three layers visible in one shell:
 
-	  • llguidance — constrained-decoding enforcement (kernel module
+	  • llguidance — constrained-decoding enforcement (Clyffy-side module
 	    `cortex/llguidance/`, target `llguidance`).
 	  • AG-UI — bi-directional event wire between agent + user app.
 	  • A2UI — generative-UI payload schema the agent emits inside that
@@ -14,7 +14,7 @@
 	# Phase 1 (this commit)
 	Layout + real log feed only. Wire panel, Grammar Builder, and the
 	live grammar-state surface land in subsequent phases when their
-	kernel surfaces are wired (cortex `agui/` schema + Tauri commands
+	Clyffy-side surfaces are wired (cortex `agui/` schema + Tauri commands
 	for `GrammarHandle::status()` and the AG-UI event tap).
 -->
 <script lang="ts">
