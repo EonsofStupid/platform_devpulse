@@ -59,10 +59,10 @@ const hook = usePopover({
 		return modal;
 	},
 	get "aria-label"() {
-		return ariaLabel;
+		return ariaLabel ?? undefined;
 	},
 	get "aria-labelledby"() {
-		return ariaLabelledby;
+		return ariaLabelledby ?? undefined;
 	},
 });
 
