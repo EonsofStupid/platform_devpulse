@@ -31,14 +31,15 @@ import { Text } from "$lib/design/components/text/index.js";
 interface Props {
 	/** Monotonically incrementing counter — every change fires a blip. */
 	activityTick: number;
-	/** Accent color CSS variable name, e.g. "--accent-amber". Drives the
-	 *  blip color so each store's pulse reads as its own identity. */
+	/** Accent color CSS variable name (full token, with -main suffix),
+	 *  e.g. "--accent-gold-main". Drives the blip color so each store's
+	 *  pulse reads as its own identity. */
 	accentVar?: string;
 	/** Milliseconds of quiet before we fade to idle. */
 	idleAfterMs?: number;
 }
 
-let { activityTick, accentVar = "--accent-electric", idleAfterMs = 4000 }: Props = $props();
+let { activityTick, accentVar = "--accent-electric-main", idleAfterMs = 4000 }: Props = $props();
 
 let isLive = $state(false);
 let isIdle = $state(true);
@@ -82,7 +83,7 @@ function describeAgo(ms: number): string {
 </script>
 
 <div class="live-activity" title={ago}>
-	<div class={liveClass} style={`--accent: var(${accentVar});`}></div>
+	<div class={liveClass} style={`--pulse-accent: var(${accentVar});`}></div>
 	<Text size="xs" color="muted">{ago}</Text>
 </div>
 
@@ -103,15 +104,15 @@ function describeAgo(ms: number): string {
 		opacity: 0.4;
 	}
 	.pulse-armed {
-		background: var(--accent);
+		background: var(--pulse-accent);
 		opacity: 0.7;
-		box-shadow: 0 0 0.4rem color-mix(in oklch, var(--accent) 40%, transparent);
+		box-shadow: 0 0 0.4rem color-mix(in oklch, var(--pulse-accent) 40%, transparent);
 	}
 	.pulse-live {
-		background: var(--accent);
+		background: var(--pulse-accent);
 		opacity: 1;
 		transform: scale(1.6);
-		box-shadow: 0 0 0.875rem color-mix(in oklch, var(--accent) 80%, transparent);
+		box-shadow: 0 0 0.875rem color-mix(in oklch, var(--pulse-accent) 80%, transparent);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
