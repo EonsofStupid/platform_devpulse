@@ -615,14 +615,17 @@ const callbacks: WizardCallbacks = {
 	}
 
 	/* Per-phase knowledge chip. Pinned bottom-right above the
-	   backdrop (z 8999) but below the dispatcher-error banner
-	   (z 9100). The KnowledgeDeck inside has its own ColdLight
-	   surface — this slot just owns positioning. */
+	   backdrop (z 8999) but BELOW the wizard shell (z 9000): the
+	   shell's footer CTAs live in the same corner, and the chip must
+	   never paint over or intercept a Connect/Continue button. Where
+	   the two overlap the card wins; the chip stays visible outside
+	   the card's footprint. The KnowledgeDeck inside has its own
+	   ColdLight surface — this slot just owns positioning. */
 	.dispatcher-knowledge-chip {
 		position: fixed;
 		bottom: clamp(0.75rem, 1.5vw, 1.25rem);
 		right: clamp(0.75rem, 1.5vw, 1.25rem);
-		z-index: 9050;
+		z-index: 8990;
 		max-width: clamp(18rem, 30vw, 26rem);
 		pointer-events: auto;
 	}

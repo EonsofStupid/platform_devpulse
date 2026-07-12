@@ -1000,53 +1000,37 @@
 		},
 		"heading-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"$type": "string"
-			},
-			"border-radius": {
-				"$value": "0.75rem",
+				"$value": "transparent",
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
 				"$type": "string"
 			},
 			"color": {
 				"$value": "oklch(0.9319 0.015 224)",
-				"$type": "string"
-			},
-			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"$type": "string"
-			},
-			"border-width": {
-				"$value": "0.0625rem",
 				"$type": "string"
 			}
 		},
 		"inline-message-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"$type": "string"
-			},
-			"border-radius": {
-				"$value": "0.75rem",
+				"$value": "transparent",
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
 				"$type": "string"
 			},
 			"color": {
 				"$value": "oklch(0.9319 0.015 224)",
-				"$type": "string"
-			},
-			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"$type": "string"
-			},
-			"border-width": {
-				"$value": "0.0625rem",
 				"$type": "string"
 			}
 		},
@@ -1104,27 +1088,19 @@
 		},
 		"label-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"$type": "string"
-			},
-			"border-radius": {
-				"$value": "0.75rem",
+				"$value": "transparent",
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
 				"$type": "string"
 			},
 			"color": {
 				"$value": "oklch(0.9319 0.015 224)",
-				"$type": "string"
-			},
-			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"$type": "string"
-			},
-			"border-width": {
-				"$value": "0.0625rem",
 				"$type": "string"
 			}
 		},
@@ -1456,27 +1432,19 @@
 		},
 		"prose-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"$type": "string"
-			},
-			"border-radius": {
-				"$value": "0.75rem",
+				"$value": "transparent",
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
 				"$type": "string"
 			},
 			"color": {
 				"$value": "oklch(0.9319 0.015 224)",
-				"$type": "string"
-			},
-			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"$type": "string"
-			},
-			"border-width": {
-				"$value": "0.0625rem",
 				"$type": "string"
 			}
 		},
@@ -1630,27 +1598,15 @@
 		},
 		"separator-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"$type": "string"
-			},
-			"border-radius": {
-				"$value": "0.75rem",
-				"$type": "string"
-			},
-			"box-shadow": {
-				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
-				"$type": "string"
-			},
-			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
-				"$type": "string"
-			},
-			"border-color": {
 				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
 				"$type": "string"
 			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "string"
+			},
 			"border-width": {
-				"$value": "0.0625rem",
+				"$value": "0",
 				"$type": "string"
 			}
 		},
@@ -1934,27 +1890,19 @@
 		},
 		"text-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"$type": "string"
-			},
-			"border-radius": {
-				"$value": "0.75rem",
+				"$value": "transparent",
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"$value": "none",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "0",
 				"$type": "string"
 			},
 			"color": {
 				"$value": "oklch(0.9319 0.015 224)",
-				"$type": "string"
-			},
-			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"$type": "string"
-			},
-			"border-width": {
-				"$value": "0.0625rem",
 				"$type": "string"
 			}
 		},

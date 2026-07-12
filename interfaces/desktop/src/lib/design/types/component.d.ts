@@ -235,17 +235,13 @@ export const StyleTokens = [
 	"form-field-default-border-color",
 	"form-field-default-border-width",
 	"heading-default-background-color",
-	"heading-default-border-radius",
 	"heading-default-box-shadow",
-	"heading-default-color",
-	"heading-default-border-color",
 	"heading-default-border-width",
+	"heading-default-color",
 	"inline-message-default-background-color",
-	"inline-message-default-border-radius",
 	"inline-message-default-box-shadow",
-	"inline-message-default-color",
-	"inline-message-default-border-color",
 	"inline-message-default-border-width",
+	"inline-message-default-color",
 	"input-group-default-background-color",
 	"input-group-default-border-radius",
 	"input-group-default-box-shadow",
@@ -259,11 +255,9 @@ export const StyleTokens = [
 	"kbd-default-border-color",
 	"kbd-default-border-width",
 	"label-default-background-color",
-	"label-default-border-radius",
 	"label-default-box-shadow",
-	"label-default-color",
-	"label-default-border-color",
 	"label-default-border-width",
+	"label-default-color",
 	"link-preview-default-background-color",
 	"link-preview-default-border-radius",
 	"link-preview-default-box-shadow",
@@ -340,11 +334,9 @@ export const StyleTokens = [
 	"progress-default-border-color",
 	"progress-default-border-width",
 	"prose-default-background-color",
-	"prose-default-border-radius",
 	"prose-default-box-shadow",
-	"prose-default-color",
-	"prose-default-border-color",
 	"prose-default-border-width",
+	"prose-default-color",
 	"radio-group-default-background-color",
 	"radio-group-default-border-radius",
 	"radio-group-default-box-shadow",
@@ -380,10 +372,7 @@ export const StyleTokens = [
 	"select-default-border-color",
 	"select-default-border-width",
 	"separator-default-background-color",
-	"separator-default-border-radius",
 	"separator-default-box-shadow",
-	"separator-default-color",
-	"separator-default-border-color",
 	"separator-default-border-width",
 	"sheet-default-background-color",
 	"sheet-default-border-radius",
@@ -450,11 +439,9 @@ export const StyleTokens = [
 	"tabs-default-border-color",
 	"tabs-default-border-width",
 	"text-default-background-color",
-	"text-default-border-radius",
 	"text-default-box-shadow",
-	"text-default-color",
-	"text-default-border-color",
 	"text-default-border-width",
+	"text-default-color",
 	"text-field-default-background-color",
 	"text-field-default-border-radius",
 	"text-field-default-box-shadow",
@@ -731,17 +718,13 @@ export type StyleCSSVar =
 	| "--style-form-field-default-border-color"
 	| "--style-form-field-default-border-width"
 	| "--style-heading-default-background-color"
-	| "--style-heading-default-border-radius"
 	| "--style-heading-default-box-shadow"
-	| "--style-heading-default-color"
-	| "--style-heading-default-border-color"
 	| "--style-heading-default-border-width"
+	| "--style-heading-default-color"
 	| "--style-inline-message-default-background-color"
-	| "--style-inline-message-default-border-radius"
 	| "--style-inline-message-default-box-shadow"
-	| "--style-inline-message-default-color"
-	| "--style-inline-message-default-border-color"
 	| "--style-inline-message-default-border-width"
+	| "--style-inline-message-default-color"
 	| "--style-input-group-default-background-color"
 	| "--style-input-group-default-border-radius"
 	| "--style-input-group-default-box-shadow"
@@ -755,11 +738,9 @@ export type StyleCSSVar =
 	| "--style-kbd-default-border-color"
 	| "--style-kbd-default-border-width"
 	| "--style-label-default-background-color"
-	| "--style-label-default-border-radius"
 	| "--style-label-default-box-shadow"
-	| "--style-label-default-color"
-	| "--style-label-default-border-color"
 	| "--style-label-default-border-width"
+	| "--style-label-default-color"
 	| "--style-link-preview-default-background-color"
 	| "--style-link-preview-default-border-radius"
 	| "--style-link-preview-default-box-shadow"
@@ -836,11 +817,9 @@ export type StyleCSSVar =
 	| "--style-progress-default-border-color"
 	| "--style-progress-default-border-width"
 	| "--style-prose-default-background-color"
-	| "--style-prose-default-border-radius"
 	| "--style-prose-default-box-shadow"
-	| "--style-prose-default-color"
-	| "--style-prose-default-border-color"
 	| "--style-prose-default-border-width"
+	| "--style-prose-default-color"
 	| "--style-radio-group-default-background-color"
 	| "--style-radio-group-default-border-radius"
 	| "--style-radio-group-default-box-shadow"
@@ -876,10 +855,7 @@ export type StyleCSSVar =
 	| "--style-select-default-border-color"
 	| "--style-select-default-border-width"
 	| "--style-separator-default-background-color"
-	| "--style-separator-default-border-radius"
 	| "--style-separator-default-box-shadow"
-	| "--style-separator-default-color"
-	| "--style-separator-default-border-color"
 	| "--style-separator-default-border-width"
 	| "--style-sheet-default-background-color"
 	| "--style-sheet-default-border-radius"
@@ -946,11 +922,9 @@ export type StyleCSSVar =
 	| "--style-tabs-default-border-color"
 	| "--style-tabs-default-border-width"
 	| "--style-text-default-background-color"
-	| "--style-text-default-border-radius"
 	| "--style-text-default-box-shadow"
-	| "--style-text-default-color"
-	| "--style-text-default-border-color"
 	| "--style-text-default-border-width"
+	| "--style-text-default-color"
 	| "--style-text-field-default-background-color"
 	| "--style-text-field-default-border-radius"
 	| "--style-text-field-default-box-shadow"
@@ -1308,19 +1282,15 @@ export type StyleRecord = {
 	};
 	"heading-default": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
-		"border-color": string;
 		"border-width": string;
+		color: string;
 	};
 	"inline-message-default": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
-		"border-color": string;
 		"border-width": string;
+		color: string;
 	};
 	"input-group-default": {
 		"background-color": string;
@@ -1340,11 +1310,9 @@ export type StyleRecord = {
 	};
 	"label-default": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
-		"border-color": string;
 		"border-width": string;
+		color: string;
 	};
 	"link-preview-default": {
 		"background-color": string;
@@ -1449,11 +1417,9 @@ export type StyleRecord = {
 	};
 	"prose-default": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
-		"border-color": string;
 		"border-width": string;
+		color: string;
 	};
 	"radio-group-default": {
 		"background-color": string;
@@ -1503,10 +1469,7 @@ export type StyleRecord = {
 	};
 	"separator-default": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
-		"border-color": string;
 		"border-width": string;
 	};
 	"sheet-default": {
@@ -1597,11 +1560,9 @@ export type StyleRecord = {
 	};
 	"text-default": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
-		"border-color": string;
 		"border-width": string;
+		color: string;
 	};
 	"text-field-default": {
 		"background-color": string;

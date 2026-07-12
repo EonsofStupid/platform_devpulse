@@ -2758,19 +2758,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-heading-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-heading-default-border-radius",
-				"path": [
-					"style",
-					"heading-default",
-					"border-radius"
-				],
-				"cssVar": "--style-heading-default-border-radius",
-				"value": "0.75rem",
+				"value": "transparent",
 				"type": "string",
 				"extensions": null
 			},
@@ -2782,7 +2770,19 @@
 					"box-shadow"
 				],
 				"cssVar": "--style-heading-default-box-shadow",
-				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-heading-default-border-width",
+				"path": [
+					"style",
+					"heading-default",
+					"border-width"
+				],
+				"cssVar": "--style-heading-default-border-width",
+				"value": "0",
 				"type": "string",
 				"extensions": null
 			},
@@ -2799,30 +2799,6 @@
 				"extensions": null
 			},
 			{
-				"name": "style-heading-default-border-color",
-				"path": [
-					"style",
-					"heading-default",
-					"border-color"
-				],
-				"cssVar": "--style-heading-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-heading-default-border-width",
-				"path": [
-					"style",
-					"heading-default",
-					"border-width"
-				],
-				"cssVar": "--style-heading-default-border-width",
-				"value": "0.0625rem",
-				"type": "string",
-				"extensions": null
-			},
-			{
 				"name": "style-inline-message-default-background-color",
 				"path": [
 					"style",
@@ -2830,19 +2806,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-inline-message-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-inline-message-default-border-radius",
-				"path": [
-					"style",
-					"inline-message-default",
-					"border-radius"
-				],
-				"cssVar": "--style-inline-message-default-border-radius",
-				"value": "0.75rem",
+				"value": "transparent",
 				"type": "string",
 				"extensions": null
 			},
@@ -2854,7 +2818,19 @@
 					"box-shadow"
 				],
 				"cssVar": "--style-inline-message-default-box-shadow",
-				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-inline-message-default-border-width",
+				"path": [
+					"style",
+					"inline-message-default",
+					"border-width"
+				],
+				"cssVar": "--style-inline-message-default-border-width",
+				"value": "0",
 				"type": "string",
 				"extensions": null
 			},
@@ -2867,30 +2843,6 @@
 				],
 				"cssVar": "--style-inline-message-default-color",
 				"value": "oklch(0.9319 0.015 224)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-inline-message-default-border-color",
-				"path": [
-					"style",
-					"inline-message-default",
-					"border-color"
-				],
-				"cssVar": "--style-inline-message-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-inline-message-default-border-width",
-				"path": [
-					"style",
-					"inline-message-default",
-					"border-width"
-				],
-				"cssVar": "--style-inline-message-default-border-width",
-				"value": "0.0625rem",
 				"type": "string",
 				"extensions": null
 			},
@@ -3046,19 +2998,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-label-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-label-default-border-radius",
-				"path": [
-					"style",
-					"label-default",
-					"border-radius"
-				],
-				"cssVar": "--style-label-default-border-radius",
-				"value": "0.75rem",
+				"value": "transparent",
 				"type": "string",
 				"extensions": null
 			},
@@ -3070,7 +3010,19 @@
 					"box-shadow"
 				],
 				"cssVar": "--style-label-default-box-shadow",
-				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-label-default-border-width",
+				"path": [
+					"style",
+					"label-default",
+					"border-width"
+				],
+				"cssVar": "--style-label-default-border-width",
+				"value": "0",
 				"type": "string",
 				"extensions": null
 			},
@@ -3083,30 +3035,6 @@
 				],
 				"cssVar": "--style-label-default-color",
 				"value": "oklch(0.9319 0.015 224)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-label-default-border-color",
-				"path": [
-					"style",
-					"label-default",
-					"border-color"
-				],
-				"cssVar": "--style-label-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-label-default-border-width",
-				"path": [
-					"style",
-					"label-default",
-					"border-width"
-				],
-				"cssVar": "--style-label-default-border-width",
-				"value": "0.0625rem",
 				"type": "string",
 				"extensions": null
 			},
@@ -4018,19 +3946,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-prose-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-prose-default-border-radius",
-				"path": [
-					"style",
-					"prose-default",
-					"border-radius"
-				],
-				"cssVar": "--style-prose-default-border-radius",
-				"value": "0.75rem",
+				"value": "transparent",
 				"type": "string",
 				"extensions": null
 			},
@@ -4042,7 +3958,19 @@
 					"box-shadow"
 				],
 				"cssVar": "--style-prose-default-box-shadow",
-				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-prose-default-border-width",
+				"path": [
+					"style",
+					"prose-default",
+					"border-width"
+				],
+				"cssVar": "--style-prose-default-border-width",
+				"value": "0",
 				"type": "string",
 				"extensions": null
 			},
@@ -4055,30 +3983,6 @@
 				],
 				"cssVar": "--style-prose-default-color",
 				"value": "oklch(0.9319 0.015 224)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-prose-default-border-color",
-				"path": [
-					"style",
-					"prose-default",
-					"border-color"
-				],
-				"cssVar": "--style-prose-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-prose-default-border-width",
-				"path": [
-					"style",
-					"prose-default",
-					"border-width"
-				],
-				"cssVar": "--style-prose-default-border-width",
-				"value": "0.0625rem",
 				"type": "string",
 				"extensions": null
 			},
@@ -4498,19 +4402,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-separator-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-separator-default-border-radius",
-				"path": [
-					"style",
-					"separator-default",
-					"border-radius"
-				],
-				"cssVar": "--style-separator-default-border-radius",
-				"value": "0.75rem",
+				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4522,31 +4414,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--style-separator-default-box-shadow",
-				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-separator-default-color",
-				"path": [
-					"style",
-					"separator-default",
-					"color"
-				],
-				"cssVar": "--style-separator-default-color",
-				"value": "oklch(0.9319 0.015 224)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-separator-default-border-color",
-				"path": [
-					"style",
-					"separator-default",
-					"border-color"
-				],
-				"cssVar": "--style-separator-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "none",
 				"type": "string",
 				"extensions": null
 			},
@@ -4558,7 +4426,7 @@
 					"border-width"
 				],
 				"cssVar": "--style-separator-default-border-width",
-				"value": "0.0625rem",
+				"value": "0",
 				"type": "string",
 				"extensions": null
 			},
@@ -5338,19 +5206,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-text-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-text-default-border-radius",
-				"path": [
-					"style",
-					"text-default",
-					"border-radius"
-				],
-				"cssVar": "--style-text-default-border-radius",
-				"value": "0.75rem",
+				"value": "transparent",
 				"type": "string",
 				"extensions": null
 			},
@@ -5362,7 +5218,19 @@
 					"box-shadow"
 				],
 				"cssVar": "--style-text-default-box-shadow",
-				"value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "style-text-default-border-width",
+				"path": [
+					"style",
+					"text-default",
+					"border-width"
+				],
+				"cssVar": "--style-text-default-border-width",
+				"value": "0",
 				"type": "string",
 				"extensions": null
 			},
@@ -5375,30 +5243,6 @@
 				],
 				"cssVar": "--style-text-default-color",
 				"value": "oklch(0.9319 0.015 224)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-text-default-border-color",
-				"path": [
-					"style",
-					"text-default",
-					"border-color"
-				],
-				"cssVar": "--style-text-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
-				"type": "string",
-				"extensions": null
-			},
-			{
-				"name": "style-text-default-border-width",
-				"path": [
-					"style",
-					"text-default",
-					"border-width"
-				],
-				"cssVar": "--style-text-default-border-width",
-				"value": "0.0625rem",
 				"type": "string",
 				"extensions": null
 			},
