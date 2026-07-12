@@ -9,3 +9,8 @@ node_modules
 
 *storybook.log
 storybook-static
+
+# Vitest browser-mode failure artifacts (regenerated per run)
+__screenshots__/
+__traces__/
+.vitest-attachments/
