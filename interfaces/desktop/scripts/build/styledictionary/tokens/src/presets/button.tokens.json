@@ -14,7 +14,7 @@
 	"preset": {
 		"button-primary": {
 			"background-color": {
-				"$value": "{color.mint.500}",
+				"$value": "{accent.primary.main}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -22,15 +22,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0 1rem 0 oklch(from {color.mint.500} l c h / 0.35)",
+				"$value": "0 0 1rem 0 {accent.primary.glow}",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.void.50}",
+				"$value": "{primary.fg}",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(0.6 0.12 180 / 0.4)",
+				"$value": "color-mix(in oklch, {accent.primary.main} 60%, transparent)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -89,27 +89,27 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "button-primary: Teal CTA — high contrast, visible glow on dark backgrounds"
+			"$description": "button-primary: Primary CTA — bound to the primary ROLE (blue per locked requirement #6); rebind the role, never this preset"
 		},
 		"button-primary-hover": {
-			"$description": "button-primary hover overrides",
+			"$description": "button-primary hover overrides — §A4 derivation formula",
 			"background-color": {
-				"$value": "{color.mint.600}",
+				"$value": "color-mix(in oklch, {accent.primary.main} 82%, black 12%)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0 1.5rem 0.125rem oklch(from {color.mint.500} l c h / 0.5)",
+				"$value": "0 0 1.5rem 0.125rem {accent.primary.glow}",
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.mint.400} l c h / 0.5)",
+				"$value": "color-mix(in oklch, {accent.primary.main} 78%, transparent)",
 				"$type": "color"
 			}
 		},
 		"button-primary-active": {
-			"$description": "button-primary active overrides",
+			"$description": "button-primary active overrides — §A4 derivation formula",
 			"background-color": {
-				"$value": "oklch(0.42 0.12 180)",
+				"$value": "color-mix(in oklch, {accent.primary.main} 66%, black 28%)",
 				"$type": "color"
 			}
 		},
@@ -298,7 +298,7 @@
 		},
 		"button-destructive": {
 			"background-color": {
-				"$value": "oklch(0.45 0.18 25)",
+				"$value": "{accent.danger.main}",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -306,7 +306,7 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+				"$value": "0 0 1rem 0 {accent.danger.glow}",
 				"$type": "shadow"
 			},
 			"color": {
@@ -376,13 +376,13 @@
 			"$description": "button-destructive: Red danger button — visible warning glow"
 		},
 		"button-destructive-hover": {
-			"$description": "button-destructive hover overrides",
+			"$description": "button-destructive hover overrides — §A4 derivation formula",
 			"background-color": {
-				"$value": "oklch(0.4 0.17 25)",
+				"$value": "color-mix(in oklch, {accent.danger.main} 82%, black 12%)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+				"$value": "0 0 1.5rem 0.125rem {accent.danger.glow}",
 				"$type": "shadow"
 			}
 		}

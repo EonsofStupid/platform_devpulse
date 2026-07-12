@@ -2,7 +2,11 @@
 	"$description": "Hand-authored backdrop grid line colours + per-hub grid cell dimensions. Combined by the CSS transform to paint the circuit-board grid overlay behind every page.",
 	"backdrop-grid": {
 		"$type": "color",
-		"$description": "Grid line stroke colours keyed by hub accent.",
+		"$description": "Grid line stroke colours keyed by hub accent, plus the semantic primary mirror (rebinds with the role).",
+		"primary": {
+			"$value": "color-mix(in oklch, {color.brand-blue.500} 8%, transparent)",
+			"$description": "Semantic-primary grid lines — promoted from the retired app.css S3 mirror (P2.4)."
+		},
 		"teal": {
 			"$value": { "colorSpace": "oklch", "components": [0.322, 0.032, 179.71], "alpha": 0.078, "hex": "#203934" },
 			"$description": "DevPulse teal grid lines."
@@ -27,6 +31,7 @@
 	"backdrop-grid-size": {
 		"$type": "dimension",
 		"$description": "Grid cell size per hub backdrop.",
+		"primary": { "$value": { "value": 3, "unit": "rem" }, "$description": "Semantic-primary grid spacing — promoted from the retired app.css S3 mirror. 48 px." },
 		"neural": { "$value": { "value": 1.75, "unit": "rem" }, "$description": "Chat neural network — tightest grid. 28 px." },
 		"magenta": { "$value": { "value": 2, "unit": "rem" }, "$description": "OverMind grid spacing. 32 px." },
 		"purple": { "$value": { "value": 2.25, "unit": "rem" }, "$description": "Clyffy grid spacing. 36 px." },

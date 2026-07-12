@@ -22382,6 +22382,17 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "backdrop-glow-primary",
+				"path": [
+					"backdrop-glow",
+					"primary"
+				],
+				"cssVar": "--backdrop-glow-primary",
+				"value": "color-mix(in oklch, [object Object] 35%, transparent)",
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "backdrop-glow-teal",
 				"path": [
 					"backdrop-glow",
@@ -22507,6 +22518,17 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "backdrop-grid-primary",
+				"path": [
+					"backdrop-grid",
+					"primary"
+				],
+				"cssVar": "--backdrop-grid-primary",
+				"value": "color-mix(in oklch, [object Object] 8%, transparent)",
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "backdrop-grid-teal",
 				"path": [
 					"backdrop-grid",
@@ -22611,6 +22633,20 @@
 	"backdrop-grid-size": {
 		"extensions": {},
 		"tokens": [
+			{
+				"name": "backdrop-grid-size-primary",
+				"path": [
+					"backdrop-grid-size",
+					"primary"
+				],
+				"cssVar": "--backdrop-grid-size-primary",
+				"value": {
+					"value": 3,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
 			{
 				"name": "backdrop-grid-size-neural",
 				"path": [
@@ -28622,10 +28658,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.55,
-						0.12,
-						170
+						0.14,
+						240
 					],
-					"hex": "#048568"
+					"hex": "#2079ad"
 				},
 				"type": "color",
 				"extensions": null
@@ -28650,7 +28686,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-box-shadow",
-				"value": "0 0 1rem 0 oklch(from [object Object] l c h / 0.35)",
+				"value": "0 0 1rem 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28665,11 +28701,11 @@
 				"value": {
 					"colorSpace": "oklch",
 					"components": [
-						0.97,
+						0.95,
 						0.01,
 						220
 					],
-					"hex": "#eef7fa"
+					"hex": "#e8f0f3"
 				},
 				"type": "color",
 				"extensions": null
@@ -28682,7 +28718,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-border-color",
-				"value": "oklch(0.6 0.12 180 / 0.4)",
+				"value": "color-mix(in oklch, [object Object] 60%, transparent)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28866,15 +28902,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-hover-background-color",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.46,
-						0.12,
-						170
-					],
-					"hex": "#0c6750"
-				},
+				"value": "color-mix(in oklch, [object Object] 82%, black 12%)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28886,7 +28914,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-hover-box-shadow",
-				"value": "0 0 1.5rem 0.125rem oklch(from [object Object] l c h / 0.5)",
+				"value": "0 0 1.5rem 0.125rem [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28898,7 +28926,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-hover-border-color",
-				"value": "oklch(from [object Object] l c h / 0.5)",
+				"value": "color-mix(in oklch, [object Object] 78%, transparent)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28910,7 +28938,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-active-background-color",
-				"value": "oklch(0.42 0.12 180)",
+				"value": "color-mix(in oklch, [object Object] 66%, black 28%)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29482,7 +29510,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-destructive-background-color",
-				"value": "oklch(0.45 0.18 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"hex": "#de3b3d"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29506,7 +29542,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-destructive-box-shadow",
-				"value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+				"value": "0 0 1rem 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -29722,7 +29758,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-destructive-hover-background-color",
-				"value": "oklch(0.4 0.17 25)",
+				"value": "color-mix(in oklch, [object Object] 82%, black 12%)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29734,7 +29770,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-destructive-hover-box-shadow",
-				"value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+				"value": "0 0 1.5rem 0.125rem [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
