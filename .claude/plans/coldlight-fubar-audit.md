@@ -250,6 +250,84 @@ Phase 3 §details superseded by the binding map.
 TokenDebugOverlay to log real zone inline-sizes, then retune ranges from
 data (agent-estimated 30–75rem must be validated, not trusted).
 
+## Execution runbook (2026-07-12 — slices ≤5 files, one gate per slice)
+
+Gate battery per slice unless noted: `pnpm ds:tokens:build` (token slices) →
+`audit:presetmap` / `audit:color` / `audit:cssvars` (counts must not regress)
+→ `pnpm check` → affected component tests. Commit per slice.
+
+### Track LB — live bugs (no dependencies, fire first)
+
+- **LB1**: SurrealdbHero, LibsqlHero, DuckdbHero, StoreHeroCard,
+  EmptyStatePoster — add `-main` suffixes to malformed hue reaches, fix
+  nonexistent defaults (`--accent-electric`→`-main`, `--accent-amber`→
+  `--accent-gold-main`). Kills the mediumpurple/cyan/gold keyword fallbacks.
+- **LB2**: HealthSignal, ReasoningTopology, SwapDialog, LiveActivityPulse
+  (`--accent`→`--pulse-accent` + default), ModelEventCard.
+
+### Track P2 — preset restoration (SEED-PRESETS Part A §A5)
+
+- **P2.1**: rewrite glass/neuro/stark/flat/chat `.tokens.json` — EXACT+NEAR
+  literals → `{refs}` per `audit:presetmap --json`; declare family seeds
+  (§A3). States stay explicit-but-ref'd this slice.
+- **P2.2**: chrome/button/wizard/retro (retro gains its synthwave seed
+  quartet as real tokens). Gate adds: visual spot-check the ~20 ΔE 5–6
+  NEAR bindings; `Card.test.ts` computed-style assertions may legitimately
+  shift — update WITH evidence, never loosen.
+- **P2.3**: sd.config `col()` oklch-before-hex + retire the `--drop-shadow-*`
+  glow mis-emission. Gate: `audit:color` hex-leak count → 0 in styles/.
+- **P2.4**: svg-accent-defaults → `--accent-main`; delete app.css S1 button
+  shim; add semantic backdrop-primary tokens and retire S3 mirrors.
+- **P2.5**: state-derivation generator (new `derive-preset-states.mjs` in
+  the SD5 pipeline, formulas §A4) — strip hand-authored hover/active/
+  disabled entries; emitted names unchanged.
+- **P2.6**: layer the glue — render-base.css, diagonal-blends.css,
+  scrollbars.css into a layer ordered below `utilities` (W3C-audit fix;
+  Tailwind utilities must win on [data-kind] elements again).
+- **P2.7**: chroma envelope Option A in generate-scales.mjs + ramp regen.
+  Gate: `audit:color` out-of-gamut 406 → ~0. (Decision 5; A is the standing
+  recommendation — owner may override to B later without rework, the
+  envelope is one function.)
+
+### Track P3 — binding sweep (start after P2.4; spec = coldlight-binding-map.md)
+
+- **P3.1a/b**: rename indirections out of the global namespace (Section +
+  SubsystemTile + consumers / ServiceDevtoolShell + serviceAccents.ts +
+  ~9 service devtools, split to ≤5).
+- **P3.2**: `--accent-positive-*` → success (3 consumers).
+- **P3.3–P3.8**: bucket-1 role swaps in file-cluster slices: chat ui →
+  downloader suite → projects+layouts → devtools chrome → knowledge/
+  community locals (`--feed-accent`, via `--accent-strip`) → reasoning/
+  provider/devtool new locals.
+- **P3.9**: wrong-named token renames (~40: text/surface/signal/scale
+  canonical names), 2 slices.
+- **P3.10**: fix the 3 circular domain barrels (profile, auth,
+  models/downloader). Gate: `audit:deps` errors → 0.
+- **P3.11**: lint rules R1/R2 into `scripts/hooks/no-raw-values.mjs`
+  (lefthook already runs it) — locks the discipline in.
+
+### Track P4 — layout (P4.1/P4.2 independent; P4.3+ blocked on measurement)
+
+- **P4.1** (Rust): per-window `StateFlags` filter so chat's proportional
+  size beats stale window-state restore (`lib.rs:687` + window/types.rs).
+  Gate: cargo check -p devpulse_desktop_backend + run-and-observe.
+- **P4.2**: TokenDebugOverlay live container-width + resolved-cqi readout —
+  the Pass-4 measurement instrument. Build BEFORE the run-dev session.
+- **P4.3**: retune fluid ranges in generate-scales from measured zone data
+  (owner session) · **P4.4**: devtools vw→cqi via Section adoption (sliced
+  per devtool cluster) · **P4.5**: unify duplicated AnatomyTile/SaveSlotCard/
+  Constellation at the source.
+
+### Blocked on owner
+
+Phase 5 sediment (586-file vs Sprint-02 reconciliation, coldlight.config.ts
+fate); Decision 7 (behaviors doc relabel — cheap, one doc slice when ruled);
+Sheet.test.ts pre-existing failure (own /debug pass); storybook a11y-error
+fallout triage on first storybook run.
+
+**Order of fire: LB1 → LB2 → P2.1 → … → P2.7 → P3.1a → … (P4.1/P4.2 may
+interleave anytime).** ~26 slices total, each independently green.
+
 ## New owner decisions
 
 - **Decision 5 — Ramp chroma strategy**: taper per-stop (recommended; see Pass-5 Option A) vs full perceptual re-normalization (Option B) vs accept browser clamping.
