@@ -42991,7 +42991,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-glow-hover-color",
-				"value": "oklch(0.95 0.25 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0.16,
+						340
+					],
+					"hex": "#f5f5f5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43003,7 +43011,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-glow-hover-box-shadow",
-				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
+				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(from [object Object] l c h / 0.5), 0 0 2rem 0 oklch(from [object Object] l c h / 0.2)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -43015,7 +43023,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-glow-hover-border-color",
-				"value": "oklch(0.85 0.28 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.16,
+						340
+					],
+					"hex": "#fe9ade"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43047,7 +43063,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-glow-disabled-color",
-				"value": "oklch(0.4 0.05 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.14,
+						330
+					],
+					"hex": "#651962"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43331,7 +43355,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-muted-hover-color",
-				"value": "oklch(0.65 0.03 200)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.06,
+						220
+					],
+					"hex": "#6598a9"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43863,7 +43895,15 @@
 					"color"
 				],
 				"cssVar": "--preset-stark-deep-color",
-				"value": "oklch(0.92 0.04 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.08,
+						173
+					],
+					"hex": "#a3edd6"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -44223,7 +44263,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-stark-deep-disabled-border-color",
-				"value": "oklch(0.4 0.02 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.01,
+						220
+					],
+					"hex": "#3a4143"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -45087,7 +45135,15 @@
 					"color"
 				],
 				"cssVar": "--preset-stark-glow-color",
-				"value": "oklch(0.92 0.08 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.12,
+						25
+					],
+					"hex": "#ffcdc8"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -45315,7 +45371,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-stark-glow-hover-border-color",
-				"value": "oklch(0.7 0.25 25 / 0.7)",
+				"value": "oklch(from [object Object] l c h / 0.7)",
 				"type": "color",
 				"extensions": null
 			},
@@ -45391,7 +45447,15 @@
 					"color"
 				],
 				"cssVar": "--preset-stark-glow-disabled-color",
-				"value": "oklch(0.55 0.02 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0,
+						0
+					],
+					"hex": "#717171"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -45415,7 +45479,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-stark-glow-disabled-border-color",
-				"value": "oklch(0.4 0.05 25 / 0.25)",
+				"value": "oklch(from [object Object] l c h / 0.25)",
 				"type": "color",
 				"extensions": null
 			},
