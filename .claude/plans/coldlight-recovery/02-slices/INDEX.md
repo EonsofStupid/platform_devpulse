@@ -26,16 +26,16 @@
 | # | Slice | Files | Status |
 | --- | --- | --- | --- |
 | 01 | slice-01-delete-domains-common.md — delete dead `domains/common` + fix CLAUDE.md registry path | 2 | DONE |
-| 02 | slice-02-svg-accent-prefix.md — fix `--cl-svg-accent-*` → `--svg-accent-*` in svg-presets SOURCE + regen (SVG presets currently resolve to NOTHING) | 1+regen | PENDING |
-| 03 | slice-03-retro-stark-literals.md — 12 raw oklch literals → token refs in retro/stark preset sources + regen | 2+regen | PENDING |
-| 04 | slice-04-emission-gaps.md — sd.config.mjs: `z-index` kebab filter (line 1012) + `scrollbar-size` in scrollbar filters (1031/1110/1139) + regen → z-scale + scrollbar sizes finally emit | 1+regen | PENDING |
-| 05 | slice-05-rebind-accents-a.md — WRONG-NAME batch A (KnowledgeCard, IntelligenceMemoryStream, Sidebar, SuggestionDropdown, SurrealdbDevtool) | 5 | PENDING |
-| 06 | slice-06-rebind-accents-b.md — batch B (BootOverlay, ProjectReferences, Frame, ProjectSwitcher, LoadingContentCard) | 5 | PENDING |
-| 07 | slice-07-rebind-fonts-c.md — batch C (TokenDebugOverlay, ProjectDbDevtool, 3× Downloader panels) | 5 | PENDING |
-| 08 | slice-08-rebind-fonts-shadows-d.md — batch D (BundleFileRow, ErrorOverlay, Panel.stories, CandleDevtool, runtimes/+page) | 5 | PENDING |
-| 09 | slice-09-rebind-surfaces-e.md — batch E (StreamingAsrDevtool, IntelligenceDevtool, SlotsDevtool, ClyffyStatusOrb, RrdDevtool) | 5 | PENDING |
-| 10 | slice-10-rebind-text-f.md — batch F (KnowledgeMultipleChoiceCard, ClyffyCollabView, EndpointView, ModelEventCard) | 4 | PENDING |
-| 11 | slice-11-keyword-fallback.md — ClyffyHeadshot `var(--surface-inset, transparent)` → `var(--surface-inset)` (rule 6) | 1 | PENDING |
+| 02 | slice-02-svg-accent-prefix.md — fix `--cl-svg-accent-*` → `--svg-accent-*` in svg-presets SOURCE + regen (SVG presets currently resolve to NOTHING) | 1+regen | DONE |
+| 03 | slice-03-retro-stark-literals.md — 12 raw oklch literals → token refs in retro/stark preset sources + regen | 2+regen | DONE |
+| 04 | slice-04-emission-gaps.md — sd.config.mjs: `z-index` kebab filter (line 1012) + `scrollbar-size` in scrollbar filters (1031/1110/1139) + regen → z-scale + scrollbar sizes finally emit | 1+regen | DONE |
+| 05 | slice-05-rebind-accents-a.md — WRONG-NAME batch A (KnowledgeCard, IntelligenceMemoryStream, Sidebar, SuggestionDropdown, SurrealdbDevtool) | 5 | DONE |
+| 06 | slice-06-rebind-accents-b.md — batch B (BootOverlay, ProjectReferences, Frame, ProjectSwitcher, LoadingContentCard) | 5 | DONE |
+| 07 | slice-07-rebind-fonts-c.md — batch C (TokenDebugOverlay, ProjectDbDevtool, 3× Downloader panels) | 5 | DONE |
+| 08 | slice-08-rebind-fonts-shadows-d.md — batch D (BundleFileRow, ErrorOverlay, Panel.stories, CandleDevtool, runtimes/+page) | 5 | DONE |
+| 09 | slice-09-rebind-surfaces-e.md — batch E (StreamingAsrDevtool, IntelligenceDevtool, SlotsDevtool, ClyffyStatusOrb, RrdDevtool) | 5 | DONE |
+| 10 | slice-10-rebind-text-f.md — batch F (KnowledgeMultipleChoiceCard, ClyffyCollabView, EndpointView, ModelEventCard) | 4 | DONE |
+| 11 | slice-11-keyword-fallback.md — ClyffyHeadshot `var(--surface-inset, transparent)` → `var(--surface-inset)` (rule 6) | 1 | DONE |
 | ✔ | **CHECKPOINT V1 — /coldlight-verify: gates + operator run-dev eyes** (SVG accents alive, no wrong-name grays, scrollbars sized, blue CTAs from P2.4) | — | PENDING |
 
 ## Families F2–F9 — TO-AUTHOR (next /coldlight-slices invocation; rulings rows locked)
