@@ -49,7 +49,7 @@ use std::sync::Arc;
 /// Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
 ///
 /// Mirrors the `SwapReport` interface the desktop devtool consumes via
-/// the `connectome_swap_encoder` Tauri command (see
+/// the `cortex_swap_encoder` Tauri command (see
 /// `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
 /// Fields are flat + plain types so the value crosses straight to the
 /// frontend under specta when the consuming crate enables the feature.
@@ -74,7 +74,7 @@ pub struct SwapStats {
 /// The model-loader-facing surface the clyffy Burn encoder
 /// implementation must provide.
 ///
-/// Implementor: `clyffy::connectome::persistence::burn::adapter::ConnectomeBurnAdapter`.
+/// Implementor: `clyffy::cortex::persistence::burn::adapter::CortexBurnAdapter`.
 pub trait BurnEncoderAdapter: Send + Sync + 'static {
     /// Load a safetensors-format Burn encoder from disk and stash
     /// the live `Arc` somewhere only the adapter knows about. The

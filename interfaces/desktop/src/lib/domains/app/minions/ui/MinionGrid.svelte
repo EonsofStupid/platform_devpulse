@@ -75,6 +75,6 @@ const clyffyMessage = $derived.by(() => {
 <style>
 	.narration {
 		background: var(--surface-raised);
-		border: var(--border-width-hairline) solid var(--border-subtle);
+		border: var(--border-width-1) solid var(--border-subtle);
 	}
 </style>

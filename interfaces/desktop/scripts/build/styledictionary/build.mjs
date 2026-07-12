@@ -42,7 +42,6 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./primitives/blur.css";
 @import "./primitives/surface.css";
 @import "./primitives/radius.css";
-@import "./primitives/border-width.css";
 @import "./primitives/spacing.css";
 @import "./primitives/typography.css";
 @import "./primitives/motion.css";

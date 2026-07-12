@@ -449,33 +449,3 @@ status_applied_template = "Loaded {repo} ({size_mb} MB)"
 status_failed_template = "Couldn't apply — {error}"
 minion_section_heading = "Helper processes (auto-managed)"
 minion_section_subtitle_template = "Always uses the small {repo} for speed. Clyffy manages this for you."
-
-# ─────────────────────────────────────────────────────────────────────
-# Connect step — link standalone DevPulse to a Clyffy endpoint.
-# Two modes: Local (this machine / home network) and GB10 (over the
-# operator's private mesh). The placeholder is an editable EXAMPLE —
-# the real address is always typed or discovered, never shipped here.
-# Layman English only: "AI brain", never "inference endpoint".
-# ─────────────────────────────────────────────────────────────────────
-[connect]
-title = "Link up your AI"
-subtitle = "DevPulse already works on its own. Connect it to Clyffy and the AI features light up — chat, helpers, and live model info."
-mascot_alt = "Clyffy mascot offering a connection"
-mode_local_label = "This machine or home network"
-mode_local_hint = "Clyffy runs on this computer or another box on your network."
-mode_gb10_label = "GB10 box"
-mode_gb10_hint = "Your GB10 over your private mesh — paste its address."
-url_label = "Clyffy address"
-url_placeholder = "http://clyffy.local:8080"
-url_aria = "Clyffy endpoint address"
-connect_cta = "Connect"
-connect_aria = "Connect to the Clyffy endpoint"
-back_label = "Back"
-continue_label = "Continue"
-skip_label = "Not now — keep it standalone"
-skip_aria = "Skip connecting and use DevPulse standalone"
-skip_hint = "You can connect anytime — the AI badge in the corner takes you back here."
-status_connecting = "Connecting…"
-status_connected = "Connected — your AI is live."
-status_failed = "Couldn't reach it. Check the address and that Clyffy is running — I'll keep trying in the background."
-error_empty = "Type an address first — your Local or GB10 Clyffy."

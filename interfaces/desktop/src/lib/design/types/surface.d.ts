@@ -13,9 +13,6 @@ export const GlassTokens = [
 	"frost",
 	"teal",
 	"purple",
-	"blue",
-	"ember",
-	"coral",
 ] as const;
 export type GlassToken = (typeof GlassTokens)[number];
 
@@ -27,10 +24,7 @@ export type GlassCSSVar =
 	| "--glass-light"
 	| "--glass-frost"
 	| "--glass-teal"
-	| "--glass-purple"
-	| "--glass-blue"
-	| "--glass-ember"
-	| "--glass-coral";
+	| "--glass-purple";
 
 export type GlassRecord = {
 	void: string;
@@ -41,9 +35,6 @@ export type GlassRecord = {
 	frost: string;
 	teal: string;
 	purple: string;
-	blue: string;
-	ember: string;
-	coral: string;
 };
 
 export const MatteTokens = ["dark", "medium", "light"] as const;

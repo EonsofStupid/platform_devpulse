@@ -2,16 +2,16 @@
 	"$description": "Hand-authored semantic border-width + outline-offset scales. Pure dimensions — no colour, no style.",
 	"borderWidth": {
 		"$type": "dimension",
-		"$description": "Border width scale. Consumed by every border composite downstream and directly as `var(--border-width-*)` in component styles. Names align to the live consumer vocabulary (hairline/thin/medium — 2026-07-07 reconciliation of the previously unemitted group).",
-		"hairline": {
+		"$description": "Border width scale. Consumed by every border composite downstream.",
+		"thin": {
 			"$value": { "value": 0.0625, "unit": "rem" },
 			"$description": "Default border, dividers, grid lines. 1 px."
 		},
-		"thin": {
+		"medium": {
 			"$value": { "value": 0.125, "unit": "rem" },
 			"$description": "Focus rings, emphasis borders. 2 px."
 		},
-		"medium": {
+		"thick": {
 			"$value": { "value": 0.1875, "unit": "rem" },
 			"$description": "Active state, strong emphasis. 3 px."
 		}

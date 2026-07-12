@@ -21,7 +21,6 @@
 //! in both modes. Frontend `DevTools` (F12) show platform events live.
 
 pub mod commands;
-pub mod connection_store;
 pub mod crash_safety;
 pub mod events;
 pub mod logging;
@@ -143,10 +142,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::telemetry::list_telemetry_sessions,
             commands::sys::telemetry::open_telemetry_folder,
             commands::sys::telemetry::get_telemetry_row_counts,
-            // Vector store (RRO/qortex) devtools. In the standalone desktop
-            // (no `kernel-inproc`) these return a typed "Tier-2 unavailable"
-            // until Clyffy connects over the gb10-client wire; the real
-            // in-process impl is compiled only under `kernel-inproc`.
+            // Vector store (RRO) devtools
             commands::sys::vector::get_vector_config,
             commands::sys::vector::set_vector_config,
             commands::sys::vector::get_vector_health,
@@ -188,14 +184,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::analytics::duckdb_query,
             // Cache service (Moka) devtool
             commands::sys::cache::cache_health,
-            // Clyffy wire connection status (gb10-client) — Tier-2 availability.
-            commands::sys::clyffy::connection_status,
-            // Runtime connect/disconnect — re-points the probe loop without a restart.
-            commands::sys::clyffy::connect_clyffy,
-            commands::sys::clyffy::disconnect_clyffy,
-            // Persisted connect-or-skip decision — drives the boot gate.
-            commands::sys::clyffy::is_clyffy_setup_decided,
-            commands::sys::clyffy::skip_clyffy_setup,
             commands::devclyffy::get_status,
             commands::devforge::devforge_start,
             commands::devforge::devforge_stop,
@@ -232,10 +220,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::surreal::sidecar::surreal_health,
             commands::surreal::sidecar::surreal_config_load,
             commands::surreal::sidecar::surreal_config_save,
-            // Connectome governance graph (CORTEX.md §4) — B-1 foundation slice.
-            commands::connectome::connectome_thought_create,
-            commands::connectome::connectome_thought_load_branch,
-            commands::connectome::connectome_swap_encoder,
+            // Cortex governance graph (CORTEX.md §4) — B-1 foundation slice.
+            commands::cortex::cortex_thought_create,
+            commands::cortex::cortex_thought_load_branch,
+            commands::cortex::cortex_swap_encoder,
             commands::intelligence::intel_status,
             commands::intelligence::intel_list_projects,
             commands::intelligence::intel_save_memory,
@@ -453,73 +441,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateAvailable,
             events::UpdateDownloadProgress,
             events::UpdateInstallFinished,
-            // Clyffy wire connection — probe task pushes state transitions.
-            events::ClyffyConnectionChanged,
         ])
-}
-
-/// Background Clyffy connection probe + seamless auto-reconnect.
-///
-/// Builds one kernel-free [`ClyffyClient`] and probes `{base_url}/v1/capability`
-/// every `interval`. Each **changed** state is written to the managed
-/// [`ClyffyConnectionState`] and pushed to the frontend as a
-/// [`ClyffyConnectionChanged`] event. An unreachable endpoint yields
-/// `Disconnected` (honest standalone) — never a fabricated capability — and the
-/// loop keeps retrying so the AI layer lights up seamlessly whenever Clyffy comes
-/// back. Detached via `devpulse_telemetry::spawn`; never awaited by boot.
-///
-/// [`ClyffyClient`]: devpulse_gb10_client::ClyffyClient
-/// [`ClyffyConnectionState`]: crate::state::ClyffyConnectionState
-/// [`ClyffyConnectionChanged`]: crate::events::ClyffyConnectionChanged
-async fn clyffy_probe_loop(
-    app: tauri::AppHandle,
-    interval: std::time::Duration,
-    timeout: std::time::Duration,
-) {
-    use crate::events::ClyffyConnectionChanged;
-    use crate::state::ClyffyConnectionState;
-    use devpulse_gb10_client::{ClyffyClient, ConnectionState};
-    use tauri::Manager;
-    use tauri_specta::Event;
-
-    let client = match ClyffyClient::new(timeout) {
-        Ok(c) => c,
-        Err(err) => {
-            tracing::warn!(%err, "clyffy probe: HTTP client build failed — AI layer stays offline");
-            return;
-        }
-    };
-
-    // Write managed state + emit the typed transition to the webview.
-    let publish = |next: &ConnectionState| {
-        app.state::<ClyffyConnectionState>().store(next.clone());
-        let _ = ClyffyConnectionChanged {
-            connection: next.clone(),
-        }
-        .emit(&app);
-    };
-
-    let mut last = app.state::<ClyffyConnectionState>().current();
-
-    loop {
-        // Re-read the target endpoint every tick — it is re-pointable at runtime
-        // via `connect_clyffy` / `disconnect_clyffy` with no restart. `None` is
-        // the honest standalone (Tier-1) answer; a set endpoint that is
-        // unreachable stays `Disconnected` and the loop keeps retrying so the AI
-        // layer lights up seamlessly whenever Clyffy comes back.
-        let next = match app.state::<ClyffyConnectionState>().endpoint() {
-            None => ConnectionState::Disconnected,
-            Some(url) => match client.probe_capability(&url).await {
-                Ok(capability) => ConnectionState::Connected { url, capability },
-                Err(_) => ConnectionState::Disconnected,
-            },
-        };
-        if next != last {
-            publish(&next);
-            last = next;
-        }
-        tokio::time::sleep(interval).await;
-    }
 }
 
 /// Bootstrap and run the Tauri application.
@@ -807,8 +729,6 @@ pub fn run() {
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
             app.manage(commands::voice::PlaybackState::new());
-            // Clyffy wire connection — kernel-free managed state; probe task writes it.
-            app.manage(crate::state::ClyffyConnectionState::new());
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
@@ -1040,11 +960,17 @@ async fn boot_task(
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
 
-    // Model-loader inference events (load / download progress) are Clyffy's now
-    // — they arrive over the gb10-client wire, not from a local EventBridge (the
-    // engine `integrations` module was removed in the kernel-severance). Boot
-    // with no sink; the engine's Tier-1 services emit no local inference events.
-    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = None;
+    // Create model-loader event bridge — emits Tauri events for load/download progress
+    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = {
+        let app_for_events = app.clone();
+        Some(std::sync::Arc::new(
+            devpulse_engine::platform::integrations::EventBridge::new(std::sync::Arc::new(
+                move |event_name: &str, payload: serde_json::Value| {
+                    let _ = app_for_events.emit(event_name, payload);
+                },
+            )),
+        ))
+    };
 
     // Platform::boot() now writes boot.log in real-time via BootLog.
     // The callback here is ONLY for Tauri event bridging + tracker.
@@ -1150,15 +1076,44 @@ async fn boot_task(
                 });
             }
 
-            // ── RRO + Grammar state event bridges — REMOVED ──────
-            // The reasoning (RRO) and grammar deliberation state machines are
-            // Clyffy's (headless, on the GB10), not local Platform services —
-            // `Platform::reasoning()` / `::grammar()` were dropped in the
-            // kernel-severance. Their snapshots reach the frontend over the
-            // gb10-client wire once `clyffyd` advertises them (deferred, not
-            // retired). The `platform:rro-state-changed` /
-            // `platform:grammar-changed` event contracts are re-established from
-            // Clyffy's event stream at that point; nothing is emitted locally.
+            // ── RRO state event bridge ───────────────────────────
+            // Subscribe to the reasoning handle's broadcast channel and
+            // forward snapshots onto the Tauri event bus. Frontend listens
+            // on `platform:rro-state-changed` — no polling needed.
+            //
+            // `rx.recv()` yields a `LinkedTraced<RroStateSnapshot>` — the
+            // producer's OTel context rides as a link target, not a parent.
+            // We forward just the payload; causality is preserved in the
+            // trace tree via the link.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let mut rx = platform_arc.reasoning().subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (snapshot, _producer_cx) = envelope.into_parts();
+                        let _ = app_handle.emit("platform:rro-state-changed", &snapshot);
+                    }
+                    tracing::info!("rro state event bridge: broadcast channel closed");
+                });
+                tracing::info!("rro state event bridge: spawned");
+            }
+
+            // ── Grammar state event bridge ───────────────────────
+            // Same shape as the RRO bridge. Subscribes to the grammar
+            // handle's broadcast channel and forwards snapshots onto
+            // `platform:grammar-changed`. Frontend listens without polling.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let mut rx = platform_arc.grammar().subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (snapshot, _producer_cx) = envelope.into_parts();
+                        let _ = app_handle.emit("platform:grammar-changed", &snapshot);
+                    }
+                    tracing::info!("grammar event bridge: broadcast channel closed");
+                });
+                tracing::info!("grammar event bridge: spawned");
+            }
 
             // ── RRD lifecycle event bridge ───────────────────────
             // Two-step wiring per HOT_UPDATE_PATTERN.md §11:
@@ -1201,61 +1156,6 @@ async fn boot_task(
                     tracing::info!("rrd event bridge: broadcast channel closed");
                 });
                 tracing::info!("rrd event bridge: spawned");
-            }
-
-            // ── Clyffy wire connection probe (re-pointable, auto-reconnect) ──
-            // Kernel-free: the loop dials whatever endpoint the managed
-            // ClyffyConnectionState currently holds, re-reading it EACH tick, so
-            // a runtime `connect_clyffy` / `disconnect_clyffy` re-points it with
-            // no restart. We seed it from persisted config (if any) and spawn the
-            // loop UNCONDITIONALLY — an empty/disabled endpoint stays standalone
-            // (Tier-1) until the operator connects. Never blocks or fails boot.
-            if let Some(platform_arc) = state.platform.load_full() {
-                let clyffy_cfg = &platform_arc.boot_config().services.system.clyffy;
-                let interval =
-                    std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
-                let timeout = std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
-                // Seed priority: the operator's PERSISTED choice (survives
-                // restarts, written by connect/disconnect) wins over the
-                // static boot config's base_url. A persisted explicit
-                // disconnect (record present, endpoint None) stays
-                // standalone even when the boot config names an endpoint —
-                // the operator's last decision is the truth.
-                let persisted = crate::paths::resolve_data_dir(&app)
-                    .ok()
-                    .map(|dir| crate::connection_store::ConnectionStore::new(&dir).load());
-                let seed: Option<String> = match &persisted {
-                    Some(record) if record.setup_decided => record.endpoint.clone(),
-                    _ => {
-                        let configured = clyffy_cfg.base_url.trim();
-                        (clyffy_cfg.enabled && !configured.is_empty())
-                            .then(|| configured.to_string())
-                    }
-                };
-                match &seed {
-                    Some(endpoint) => {
-                        app.state::<crate::state::ClyffyConnectionState>()
-                            .set_endpoint(Some(endpoint.clone()));
-                        tracing::info!(
-                            target: "clyffy.connection",
-                            endpoint = %endpoint,
-                            source = if persisted.as_ref().is_some_and(|r| r.setup_decided) {
-                                "persisted"
-                            } else {
-                                "boot-config"
-                            },
-                            "clyffy probe: seeded endpoint"
-                        );
-                    }
-                    None => {
-                        tracing::info!(
-                            target: "clyffy.connection",
-                            "clyffy probe: no endpoint — standalone (Tier-1), awaiting runtime connect"
-                        );
-                    }
-                }
-                devpulse_telemetry::spawn(clyffy_probe_loop(app.clone(), interval, timeout));
-                tracing::info!("clyffy connection probe: spawned (re-pointable)");
             }
 
             // ── Hardware metrics push loop ───────────────────────
@@ -1398,7 +1298,7 @@ fn spawn_hardware_push(app: tauri::AppHandle) {
                 let Some(loader) = platform.model_loader() else {
                     continue;
                 };
-                let metrics = loader.hardware_metrics();
+                let metrics = loader.hardware_metrics().await;
                 let _ = HardwareMetricsUpdated { metrics }.emit(&app);
             }
         }

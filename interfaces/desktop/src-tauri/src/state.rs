@@ -13,9 +13,8 @@
 //! after service initialization completes.
 
 use crate::commands::devforge::paths::DevforgePaths;
-use arc_swap::{ArcSwap, ArcSwapOption};
+use arc_swap::ArcSwapOption;
 use devpulse_engine::platform::{InitEvent, SystemHealth};
-use devpulse_gb10_client::ConnectionState;
 use serde::Serialize;
 use specta::Type;
 use std::sync::{Arc, Mutex};
@@ -53,62 +52,6 @@ impl PlatformState {
             platform: ArcSwapOption::new(None),
             devforge_paths,
         }
-    }
-}
-
-/// Managed state for the Clyffy wire connection — **kernel-free**, held separately
-/// from [`PlatformState`] so the gb10-client never drags the kernel into its
-/// compile graph (the bisect boundary). Holds only the current
-/// [`ConnectionState`]; the background probe / auto-reconnect task (spawned in
-/// `boot_task`) owns the `ClyffyClient` and writes here on every transition.
-pub struct ClyffyConnectionState {
-    state: ArcSwap<ConnectionState>,
-    /// Target endpoint the probe loop dials each tick. `None` = standalone
-    /// (Tier-1). `connect_clyffy` sets `Some(url)`, `disconnect_clyffy` clears
-    /// it; the loop re-reads this every iteration, so the endpoint is
-    /// **re-pointable at runtime** with no restart.
-    endpoint: ArcSwapOption<String>,
-}
-
-impl Default for ClyffyConnectionState {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ClyffyConnectionState {
-    /// Fresh state — `Disconnected` (standalone) until the probe task connects.
-    #[must_use]
-    pub fn new() -> Self {
-        Self {
-            state: ArcSwap::new(Arc::new(ConnectionState::Disconnected)),
-            endpoint: ArcSwapOption::empty(),
-        }
-    }
-
-    /// Current connection state (lock-free atomic load + clone).
-    #[must_use]
-    pub fn current(&self) -> ConnectionState {
-        (*self.state.load_full()).clone()
-    }
-
-    /// Atomically replace the connection state (the probe task writes here).
-    pub fn store(&self, next: ConnectionState) {
-        self.state.store(Arc::new(next));
-    }
-
-    /// Current target endpoint (`None` = standalone). The probe loop reads this
-    /// on every tick to decide what to dial — the seam that makes the endpoint
-    /// re-pointable at runtime.
-    #[must_use]
-    pub fn endpoint(&self) -> Option<String> {
-        self.endpoint.load_full().map(|url| (*url).clone())
-    }
-
-    /// Set or clear the target endpoint. The probe loop re-points on its next
-    /// tick — no restart. `None` returns DevPulse to standalone (Tier-1).
-    pub fn set_endpoint(&self, url: Option<String>) {
-        self.endpoint.store(url.map(Arc::new));
     }
 }
 

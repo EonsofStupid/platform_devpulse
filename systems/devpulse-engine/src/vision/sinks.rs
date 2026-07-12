@@ -21,7 +21,9 @@ use async_trait::async_trait;
 // Concrete adapter types + their traits — the persistence traits use
 // native `async fn` so they aren't dyn-compatible, but bringing them
 // into scope lets us call `.execute` / `.append` via the trait method.
-use devpulse_store::{AnalyticsAdapter, DuckDbAdapter, SqlAdapter, TursoAdapter};
+use devpulse_clyffy::cortex::persistence::{
+    AnalyticsAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter,
+};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -225,7 +227,7 @@ impl FrameSink for DiskFrameSink {
 /// at on-disk PNGs. Set `sink_path` to an empty string when the disk
 /// sink isn't paired (the row still records dims + embedding).
 pub struct LibSqlFrameSink {
-    adapter: Arc<TursoAdapter>,
+    adapter: Arc<LibSqlAdapter>,
     /// Optional disk-sink path generator. When `None`, `sink_path`
     /// column is written empty.
     paired_disk: Option<Arc<DiskFrameSink>>,
@@ -238,7 +240,7 @@ impl LibSqlFrameSink {
     /// (not `dyn SqlAdapter`) because the persistence trait is a
     /// native `async fn` trait — not yet dyn-compatible in stable Rust.
     #[must_use]
-    pub fn new(adapter: Arc<TursoAdapter>, paired_disk: Option<Arc<DiskFrameSink>>) -> Self {
+    pub fn new(adapter: Arc<LibSqlAdapter>, paired_disk: Option<Arc<DiskFrameSink>>) -> Self {
         Self {
             adapter,
             paired_disk,

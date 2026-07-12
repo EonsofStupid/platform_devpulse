@@ -151,7 +151,7 @@ function onDismiss(): void {
 	{:else if entry.entryType === "kdrop" && hasTitleBody(entry)}
 		<KnowledgeKdropCard {entry} {onHelpful} {onNotHelpful} {onDismiss} />
 	{:else if entry.entryType === "gloss" && isGlossary(entry)}
-		<KnowledgeGlossCard {entry} showMascot {onDismiss} />
+		<KnowledgeGlossCard {entry} mascot {onDismiss} />
 	{:else if entry.entryType === "frust" && hasTitleBody(entry)}
 		<KnowledgeFrustCard {entry} {onHelpful} {onNotHelpful} {onDismiss} />
 	{:else if entry.entryType === "insight" && hasTitleBody(entry)}

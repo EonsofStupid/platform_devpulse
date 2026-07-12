@@ -28,7 +28,6 @@
 <script lang="ts">
 import { goto } from "$app/navigation";
 import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
-import { clyffyConnection } from "$lib/domains/clyffy/index.js";
 import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
 import {
 	autoConfigure,
@@ -36,13 +35,11 @@ import {
 	getWizardCopy,
 	installToSlot,
 } from "$lib/sys/bindings/models/index.js";
-import type { SlotStatus, TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import type { TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
 import CompleteView from "./feature/views/CompleteView.svelte";
 import CortexView from "./feature/views/CortexView.svelte";
-import EndpointView from "./feature/views/EndpointView.svelte";
 import HardwareView from "./feature/views/HardwareView.svelte";
 import InstallingView from "./feature/views/InstallingView.svelte";
 import PresetView from "./feature/views/PresetView.svelte";
@@ -87,6 +84,14 @@ let dispatchedInstallIds = $state<string[]>([]);
 let dispatchErrors = $state<Record<string, string>>({});
 
 /**
+ * Per-slot save state for the cortex view. Keyed by
+ * `SlotRecommendation.slot_id`. Drives the SaveSlotCard's lifecycle
+ * badge + button label per row.
+ */
+let slotSaveStates = $state<Record<string, "ready" | "saving" | "saved" | "error">>({});
+let slotSaveErrors = $state<Record<string, string>>({});
+
+/**
  * Translation table — kernel `slot_id` → layman card copy. Foundation
  * baseline today (SigLIP HD / Harrier 0.6B / Nemotron 7.6B); extends
  * naturally as the kernel adds slots. Anything missing from this map
@@ -121,16 +126,6 @@ const SLOT_LAYMAN: Record<
 		iconName: "Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit";
 		accentVar: string;
 		aboutHref?: string;
-		/**
-		 * How this tile finds itself in the connected endpoint's
-		 * capability (`clyffyConnection.slots`). `slotId` matches the
-		 * wire contract's own slot vocabulary verbatim (clyffy / minion /
-		 * voice / rag_embed); `role` matches the advertised role when the
-		 * concept is a capability rather than a slot (vision). Both tiles
-		 * of a shared slot (ears + mouth → voice) light from the same
-		 * advertised entry — one voice slot serves both, honestly.
-		 */
-		wire: { slotId?: string; role?: string };
 	}
 > = {
 	"vision.embedder": {
@@ -138,21 +133,18 @@ const SLOT_LAYMAN: Record<
 		tagline: "Encodes screenshots and uploads so Clyffy can reason about images.",
 		iconName: "Eye",
 		accentVar: "--accent-cyan-main",
-		wire: { role: "vision" },
 	},
 	"voice.stt": {
 		purpose: "Ears · what Clyffy hears",
 		tagline: "Listens to your microphone and turns speech into text.",
 		iconName: "Ear",
 		accentVar: "--accent-purple-main",
-		wire: { slotId: "voice" },
 	},
 	"voice.tts": {
 		purpose: "Mouth · how Clyffy speaks",
 		tagline: "Turns Clyffy's replies into natural-sounding speech.",
 		iconName: "Mic",
 		accentVar: "--accent-hotpink-main",
-		wire: { slotId: "voice" },
 	},
 	"rag.embedder": {
 		purpose: "Sparkles · Clyffy's indexing brain",
@@ -160,14 +152,12 @@ const SLOT_LAYMAN: Record<
 			"Encodes + embeds every project file so retrieval finds the right chunks before the long-think wakes.",
 		iconName: "Sparkles",
 		accentVar: "--accent-teal-main",
-		wire: { slotId: "rag_embed" },
 	},
 	"chat.brain": {
 		purpose: "Brain · the long-think reasoner",
 		tagline: "Handles the heavy reasoning once the indexing brain has set the table.",
 		iconName: "BrainCircuit",
 		accentVar: "--accent-blue-main",
-		wire: { slotId: "clyffy" },
 	},
 };
 
@@ -180,38 +170,13 @@ const SLOT_LAYMAN: Record<
  */
 function deriveModelName(rec: SlotRecommendation): string {
 	if (rec.display_name && rec.display_name.length > 0) return rec.display_name;
-	return deriveNameFromRepoId(rec.model_repo_id);
-}
-
-/**
- * Clean a customer-facing label out of an HF-style `org/repo` id.
- * Shared by the legacy recommendation path and the wire capability
- * path (`LoadedSlotSummary.model_id` is the same id shape).
- */
-function deriveNameFromRepoId(repoId: string): string {
-	const lastSeg = repoId.split("/").pop() ?? repoId;
+	const lastSeg = rec.model_repo_id.split("/").pop() ?? rec.model_repo_id;
 	return lastSeg
 		.replace(/-GGUF$/i, "")
 		.replace(/-Instruct(-\d+)?$/i, "")
 		.replace(/-v\d+(\.\d+)*$/i, "")
 		.replace(/-Base$/i, "")
 		.replace(/-/g, " ");
-}
-
-/**
- * Map the wire's advertised `SlotStatus` onto the tile lifecycle the
- * AnatomyTile already renders (Connect / Connecting… / Live / Retry).
- * Pure translation — the wire computed the truth, the tile shows it.
- */
-function tileStateFromWire(status: SlotStatus): "ready" | "saving" | "saved" | "error" {
-	if (status === "ready") return "saved";
-	if (status === "loading") return "saving";
-	if (status === "empty") return "ready";
-	return "error"; // { failed: string }
-}
-
-function wireFailureText(status: SlotStatus): string | undefined {
-	return typeof status === "object" && "failed" in status ? status.failed : undefined;
 }
 
 /**
@@ -236,88 +201,88 @@ function formatSizeHint(mb: number): string {
 	return `~${mb} MB`;
 }
 
-/**
- * Preconfigured anatomy entries — the wizard ALWAYS shows the five
- * tiles (Brain / Sparkles / Eyes / Ears / Mouth) regardless of
- * whether a backend is reachable. Model name, tagline, and size are
- * intentionally absent here — they populate only when the configured
- * endpoint (local or networked GB10 at `clyffy.local`) reports its
- * loaded models via the capability response. Per
- * [[devpulse-preconfigured-capabilities]]: the wizard does NOT
- * install models; it shows what the backend is serving.
- *
- * Recommendations from `autoConfigure()` are kept as fallback model
- * metadata only — if the local-inference-legacy path is enabled and
- * has a recommendation for a slot, the tile populates with it. Under
- * the GB10-first architecture this array is normally empty.
- */
 const slotSaveEntries = $derived<SlotSaveEntryProps[]>(
-	(Object.keys(SLOT_LAYMAN) as Array<keyof typeof SLOT_LAYMAN>).map((slotId) => {
-		const layman = SLOT_LAYMAN[slotId];
-		// PRIMARY source: the connected endpoint's capability. The tile
-		// matches itself via the wire vocabulary (`layman.wire`) and
-		// renders exactly what Clyffy advertised — model, status, error.
-		const wireSlot = clyffyConnection.slots.find(
-			(s) =>
-				(layman.wire.slotId === undefined || s.slot_id === layman.wire.slotId) &&
-				(layman.wire.role === undefined || s.role === layman.wire.role),
-		);
-		if (wireSlot) {
-			const state = tileStateFromWire(wireSlot.status);
-			return {
-				kernelSlotId: slotId,
+	recommendations.flatMap((rec) => {
+		const layman = SLOT_LAYMAN[rec.slot_id];
+		if (!layman) return [];
+		const state = slotSaveStates[rec.slot_id] ?? "ready";
+		return [
+			{
+				kernelSlotId: rec.slot_id,
 				purpose: layman.purpose,
 				tagline: layman.tagline,
-				modelName: deriveNameFromRepoId(wireSlot.model_id),
-				// Wire capability carries no tagline/size — the tile's own
-				// purpose line already explains the role in layman terms.
-				modelTagline: undefined,
-				sizeHint: undefined,
-				tierLabel: state === "saved" ? "Loaded" : undefined,
+				// Model name + tagline come from the kernel recommendation
+				// (preset author owns them via `display_name` /
+				// `display_tagline` in `presets.default.toml`); never
+				// hardcoded in this UI layer. See deriveModelName /
+				// deriveModelTagline for the fallback behavior.
+				modelName: deriveModelName(rec),
+				modelTagline: deriveModelTagline(rec),
+				sizeHint: formatSizeHint(rec.model_size_mb),
+				tierLabel: rec.already_downloaded ? "Already on disk" : "Recommended for this machine",
 				iconName: layman.iconName,
 				accentVar: layman.accentVar,
 				aboutHref: layman.aboutHref,
 				state,
-				errorText: wireFailureText(wireSlot.status),
-			};
-		}
-		// FALLBACK: legacy local recommendation metadata (display only).
-		// modelName / modelTagline / sizeHint / tierLabel intentionally
-		// undefined unless a recommendation exists. AnatomyTile renders
-		// the "awaiting-backend" framing when these are absent.
-		const rec = recommendations.find((r) => r.slot_id === slotId);
-		return {
-			kernelSlotId: slotId,
-			purpose: layman.purpose,
-			tagline: layman.tagline,
-			modelName: rec ? deriveModelName(rec) : undefined,
-			modelTagline: rec ? deriveModelTagline(rec) : undefined,
-			sizeHint: rec ? formatSizeHint(rec.model_size_mb) : undefined,
-			tierLabel: rec
-				? rec.already_downloaded
-					? "Loaded"
-					: "Recommended for this machine"
-				: undefined,
-			iconName: layman.iconName,
-			accentVar: layman.accentVar,
-			aboutHref: layman.aboutHref,
-			state: "ready",
-			errorText: undefined,
-		};
+				errorText: slotSaveErrors[rec.slot_id],
+			},
+		];
 	}),
 );
 
 /**
- * Cortex tile action — the tile CTA reads "Connect / Connecting… /
- * Live / Retry", and its honest target is the endpoint step: the
- * tiles LIGHT UP from the connected endpoint's capability, they don't
- * install anything (the old `saveOneSlot` → `installToSlot` chain is
- * gone from this path; local model *management* lives in the Model
- * Downloader overlay + Slot Orchestrator devtool). Ready/Retry tiles
- * route to the address entry; Live tiles have nothing to do.
+ * Slots that ship paired and must save together. Clicking Save on the
+ * Sparkles tile (`rag.embedder`) fires the install chain for BOTH
+ * `rag.embedder` and `rag.encoder` — Harrier 0.6B ref-counts on the
+ * BackendPool so memory + disk hold ONE copy, but each kernel slot
+ * needs its own symlink for `Path::exists` probes by the retrieval
+ * consumer.
  */
-function goToEndpoint(): void {
-	wizardState.goTo("endpoint");
+const PAIRED_SLOTS: Record<string, string[]> = {
+	"rag.embedder": ["rag.embedder", "rag.encoder"],
+};
+
+async function saveOneSlot(slotId: string): Promise<void> {
+	const slotsToSave = PAIRED_SLOTS[slotId] ?? [slotId];
+	// Mark the customer-facing slot as saving up front so the tile
+	// reflects the state change immediately, then drive each paired
+	// install in parallel.
+	slotSaveStates = { ...slotSaveStates, [slotId]: "saving" };
+	slotSaveErrors = { ...slotSaveErrors, [slotId]: "" };
+
+	const results = await Promise.all(
+		slotsToSave.map(async (target) => {
+			const rec = recommendations.find((r) => r.slot_id === target);
+			if (!rec) {
+				return { target, ok: false, error: `No recommendation for ${target}` };
+			}
+			const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id, null);
+			if (ir.status === "ok") {
+				dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
+				return { target, ok: true, error: "" };
+			}
+			return { target, ok: false, error: String(ir.error) };
+		}),
+	);
+
+	const allOk = results.every((r) => r.ok);
+	if (allOk) {
+		slotSaveStates = { ...slotSaveStates, [slotId]: "saved" };
+	} else {
+		const firstError = results.find((r) => !r.ok)?.error ?? "unknown";
+		slotSaveStates = { ...slotSaveStates, [slotId]: "error" };
+		slotSaveErrors = { ...slotSaveErrors, [slotId]: firstError };
+	}
+}
+
+async function saveAllSlots(): Promise<void> {
+	busy = true;
+	try {
+		const unsaved = slotSaveEntries.filter((e) => e.state !== "saved");
+		await Promise.all(unsaved.map((e) => saveOneSlot(e.kernelSlotId)));
+	} finally {
+		busy = false;
+	}
 }
 
 $effect(() => {
@@ -325,21 +290,38 @@ $effect(() => {
 	void loadCopy();
 });
 
-// Live wire capability — the PRIMARY source for the cortex tiles.
+/**
+ * Load recommendations the first time the customer reaches the
+ * cortex view (so each anatomy tile can render with real model
+ * metadata). The autoConfigure call here POPULATES recommendations
+ * without firing installs — the installs only run when the customer
+ * clicks Apply on a tile. Compare with applyAutoConfig() (preset
+ * view's "Install all") which both populates AND dispatches.
+ */
 $effect(() => {
-	if (!wizardState.isOpen) return;
-	return clyffyConnection.subscribe();
+	if (wizardState.view !== "cortex") return;
+	if (recommendations.length > 0) return;
+	void loadRecommendations();
 });
 
-/**
- * Cortex view used to call `autoConfigure()` here to pre-fill local
- * hardware-based recommendations. Under the preconfigured-capabilities
- * lock ([[devpulse-preconfigured-capabilities]]) the tiles render
- * anatomy-only by default and populate from the configured backend's
- * capability response — NOT from local hardware introspection. The
- * `loadRecommendations` helper is gone; recommendations stay empty
- * until a future GB10 client populates them from `/v1/capability`.
- */
+async function loadRecommendations(): Promise<void> {
+	busy = true;
+	try {
+		const r = await autoConfigure();
+		if (r.status === "error") {
+			copyError = `Couldn't compute recommendations: ${r.error}`;
+			return;
+		}
+		try {
+			const payload = JSON.parse(r.data) as AutoConfigPayload;
+			recommendations = payload.recommendations;
+		} catch (e) {
+			copyError = `Couldn't parse auto-config response: ${(e as Error).message}`;
+		}
+	} finally {
+		busy = false;
+	}
+}
 
 $effect(() => {
 	if (!wizardState.isOpen) return;
@@ -455,27 +437,6 @@ async function skipToSlotOrchestrator() {
 	}
 }
 
-/**
- * Endpoint-step Skip — "not now" is a real decision: persist it
- * (`skip_clyffy_setup`, so the wizard never force-opens again) and load
- * the app standalone. Distinct from `skipToSlotOrchestrator`, which is
- * the models-flow skip. Re-entry stays available from the status
- * surfaces (the standalone chip in the top bar).
- */
-async function skipConnect(): Promise<void> {
-	busy = true;
-	try {
-		const r = await commands.skipClyffySetup();
-		if (r.status === "error") {
-			copyError = `Couldn't save your choice: ${r.error}`;
-			return;
-		}
-		wizardState.close();
-	} finally {
-		busy = false;
-	}
-}
-
 const callbacks: WizardCallbacks = {
 	onNext: () => wizardState.next(),
 	onBack: () => wizardState.back(),
@@ -511,19 +472,14 @@ const callbacks: WizardCallbacks = {
 		/>
 	{:else if wizardState.view === "preset"}
 		<PresetView copy={copy?.profile ?? null} {busy} {callbacks} />
-	{:else if wizardState.view === "endpoint"}
-		<EndpointView
-			copy={copy?.connect ?? null}
-			{busy}
-			callbacks={{ ...callbacks, onSkip: skipConnect }}
-		/>
 	{:else if wizardState.view === "cortex"}
 		<CortexView
-			title="Clyffy's cortex — five preconfigured senses"
-			subtitle="Eyes, ears, mouth, indexing, and brain ship preconfigured. Each lights up once your backend (this workstation or a networked Clyffy host like clyffy.local) reports it online."
+			title="Clyffy's cortex — five pieces, one mind"
+			subtitle="Each tile maps to a sense or thought layer. Hit Apply on the ones you want now — every slot is pre-selected, so you can just click through."
 			slotSaves={slotSaveEntries}
 			{busy}
-			onApplySlot={goToEndpoint}
+			onApplySlot={saveOneSlot}
+			onApplyAll={saveAllSlots}
 			{callbacks}
 		/>
 	{:else if wizardState.view === "installing"}

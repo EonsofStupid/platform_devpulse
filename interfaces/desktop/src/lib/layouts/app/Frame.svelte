@@ -58,7 +58,6 @@ const SLOTS = {
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
 		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
 		"motion-reduce:transition-none",
-		"[container-type:inline-size] [container-name:sidebar]",
 	),
 	sidebarExpanded: cn(
 		"row-start-2 col-start-1 flex flex-col relative",
@@ -67,12 +66,8 @@ const SLOTS = {
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
 		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
 		"motion-reduce:transition-none",
-		"[container-type:inline-size] [container-name:sidebar]",
 	),
-	content: cn(
-		"row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
-		"[container-type:inline-size] [container-name:content]",
-	),
+	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
 	context: cn(
 		"row-start-2 col-start-3 w-0 overflow-hidden",
 		"border-l border-[var(--border-subtle)]",
@@ -80,7 +75,6 @@ const SLOTS = {
 	contextExpanded: cn(
 		"row-start-2 col-start-3 w-[var(--layout-context-width)] overflow-y-auto scrollbar-thin",
 		"border-l border-[var(--border-subtle)]",
-		"[container-type:inline-size] [container-name:context]",
 	),
 	statusbar: cn(
 		"col-span-full flex items-center justify-between",

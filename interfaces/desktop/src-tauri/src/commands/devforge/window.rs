@@ -152,7 +152,7 @@ pub async fn open_devforge_window(
 
     // Parent to the main DevPulse window so closing the parent tears
     // DevForge down with it. This matches the cockpit pattern used by
-    // chat / connectome-viewer / model-loader in
+    // chat / cortex-viewer / model-loader in
     // [`crate::commands::window::open_window`].
     if let Some(main_window) = app.get_webview_window("main") {
         builder = builder

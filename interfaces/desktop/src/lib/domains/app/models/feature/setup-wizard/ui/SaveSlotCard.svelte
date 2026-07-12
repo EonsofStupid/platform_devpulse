@@ -61,14 +61,12 @@ interface Props {
 	/** One-line role description (e.g. "Encodes screenshots and uploads
 	 *  so Clyffy can reason about images"). */
 	tagline: string;
-	/** Layman model name (e.g. "SigLIP HD"). Absent when no model is
-	 *  assigned yet — post-severance a slot's model comes from Clyffy's
-	 *  advertised capability, not a local install, so it may be unresolved. */
-	modelName?: string;
-	/** Short model tagline (e.g. "Google's compact vision encoder"). Absent with modelName. */
-	modelTagline?: string;
-	/** On-disk size hint (e.g. "~400 MB"). Absent until a model is resolved. */
-	sizeHint?: string;
+	/** Layman model name (e.g. "SigLIP HD"). */
+	modelName: string;
+	/** Short model tagline (e.g. "Google's compact vision encoder"). */
+	modelTagline: string;
+	/** On-disk size hint (e.g. "~400 MB"). */
+	sizeHint: string;
 	/** Optional tier label (e.g. "Recommended for this machine"). */
 	tierLabel?: string;
 	/** Save lifecycle state. */
@@ -149,11 +147,9 @@ const buttonLabel = $derived(
 				{/if}
 			</div>
 			<Text size="sm" color="muted">{modelTagline}</Text>
-			{#if sizeHint}
-				<div class="model-meta">
-					<KeyValue label="On disk" value={sizeHint} size="sm" />
-				</div>
-			{/if}
+			<div class="model-meta">
+				<KeyValue label="On disk" value={sizeHint} size="sm" />
+			</div>
 		</section>
 
 		{#if state === "error" && errorText}

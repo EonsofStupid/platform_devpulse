@@ -11,13 +11,13 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_store::TursoAdapter;
+use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
 /// Relational store backed by `LibSQL`.
 pub struct RelationalService {
-    adapter: Arc<TursoAdapter>,
+    adapter: Arc<LibSqlAdapter>,
     /// Scoped name for health checks (e.g., "System relational", "User relational").
     label: &'static str,
 }
@@ -28,7 +28,7 @@ impl RelationalService {
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn boot(path: &Path, schema: &str, label: &'static str) -> Result<Self> {
-        let adapter = TursoAdapter::open_with_schema(path, schema).await?;
+        let adapter = LibSqlAdapter::open_with_schema(path, schema).await?;
         Ok(Self {
             adapter: Arc::new(adapter),
             label,
@@ -36,7 +36,7 @@ impl RelationalService {
     }
 
     /// Get the underlying adapter for typed access.
-    pub fn adapter(&self) -> &Arc<TursoAdapter> {
+    pub fn adapter(&self) -> &Arc<LibSqlAdapter> {
         &self.adapter
     }
 }

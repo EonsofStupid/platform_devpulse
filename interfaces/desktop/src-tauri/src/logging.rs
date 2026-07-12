@@ -126,17 +126,7 @@ pub fn init(
                 "debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace",
             )
         })
-    }
-    // Cap known-firehose dependency internals. `turso_core` (the embedded SQL
-    // VM) emits a tracing event per VDBE instruction + per btree/pager/WAL
-    // page access at DEBUG/TRACE — uncapped it wrote 30 GB+ of JSONL per dev
-    // session and filled the disk. WARN keeps real turso faults visible while
-    // killing the per-instruction firehose; our own `devpulse*` crates stay at
-    // TRACE. Applied in EVERY mode (faithful included) — this noise is never
-    // useful for post-mortem. Add further `<crate>=warn` directives here if a
-    // new dependency starts flooding the session log.
-    .add_directive("turso_core=warn".parse()?)
-    .add_directive("turso=warn".parse()?);
+    };
 
     if faithful {
         eprintln!("[logging] DEVPULSE_LOG_FAITHFUL=1 — JSONL captures at TRACE level (every crate, every span)");

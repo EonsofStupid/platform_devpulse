@@ -6,17 +6,6 @@
 
 The four-layer locked chain is the contract this spec implements. Layer 1 is partially wired and broken (`vulkan-shaders-gen` race); layers 2 / 3 / 4 are open gaps. This document is the single foundation, not a series of patches.
 
-> ## ⚠ REFRAMED — 2026-06-28
->
-> Research-grounded four-layer GPU/seed build spec (authored 2026-05-12) — accurate engineering, but pre-pivot. It predates the DevPulse-frontend / ClyffyOS-backend split.
->
-> - **Split / relocation** — ALL inference, the GPU vendor probe, the main-LLM GPU reservation/headroom budgeter, the council orchestration, and the `bench-seed` harness now live in **ClyffyOS** (headless GB10 backend or networked VRAM pool), not DevPulse-local. DevPulse is the frontend: it consumes hardware/capability over Bonjour + `/v1/capability` + MCP rather than owning the kernel probe path. The first-run wizard steps (Performance / AI Collaboration / Help DevPulse Learn / Model License) configure GB10-side state surfaced through the DevPulse UI.
-> - **Renames land in Phase 2, with the code** — `cortex` → `connectome` (e.g. "Cortex Councils modes", `cortex.training_log`); the SurrealDB training sink moves GB10-side. The model picks (Nemotron-Nano-9B-v2, Qwen3-0.6B council, Phi-4-rv, Qwen3-30B-A3B, SigLIP2, Harrier 0.5B) and the literals (`8 GB` floor, `vram_total_mb >= 8000`, `JessePrimary 16 GB`, all quant ladders) are **GB10-side configuration**, not architecture — the platform is model-size-agnostic (8 GB LLM floor, scales up) with paths/ids/dims/hosts flowing from SSOT. Code paths/constants below stay accurate until Phase 2; this header flags them, it does not pre-rename them.
-> - **Deferred, not retired** — the Unsloth Nemotron LoRA fine-tune path (§5.6) and the seed A/B bench remain valid future work, deferred to later phases, not killed.
-> - **Still valid** — the Layer 1 build foundation (Ninja generator + `cc::windows_registry` MSVC activation + the `vulkan-shaders-gen` race root-cause analysis), the `GpuProbeReport` struct design, the shared-weight multi-context council architecture, the four collaboration strategies, the tracing/dual-observability taxonomies, and every file:line citation + verified source remain correct — they relocate to ClyffyOS, they do not disappear.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
-
 ---
 
 ## 0. Resolved decisions (2026-05-12 — locked, implementation gated only by S1 readiness)

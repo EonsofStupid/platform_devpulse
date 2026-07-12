@@ -84,6 +84,3 @@ interfaces/desktop/src-tauri/resources/devforge/linux-x64/*
 interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/*
 !interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/.gitkeep
 !interfaces/desktop/src-tauri/resources/devforge/manifest.json
-
-# scratch
-.tmp/

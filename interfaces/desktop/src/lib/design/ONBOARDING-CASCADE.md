@@ -1,39 +1,10 @@
 # Onboarding Cascade — authoritative spec
 
-> ⚠ **REFRAMED 2026-07-08 (kernel severance + standalone-first).** The
-> four-layer cascade below is still the locked contract. Three things
-> changed around it; the records below are preserved as authored:
->
-> 1. **Layer 3 SSOT paths moved with the severance.** `wizard_copy.toml`
->    now lives at `systems/devpulse-engine/config/wizard_copy.default.toml`
->    (embedded via `include_str!` in
->    `systems/devpulse-engine/src/platform/wizard/copy.rs`), with the
->    user override at `{data_dir}/config/wizard_copy.toml`. The
->    `kernel/model-loader/config/` paths cited below are the
->    pre-severance locations — historical, do not extend them.
-> 2. **The flow is standalone-first, two-tier.** DevPulse loads Tier-1
->    (local, non-AI) with no backend reachable; the AI layer is a
->    CONNECTION, not a local install. The wizard therefore carries a
->    **`endpoint` (connect) stage**: Local (this machine / LAN) or GB10
->    (over the operator's mesh), manual address entry (+ discovery
->    later), real `connect_clyffy(url)` → capability handshake. Skip is
->    a first-class choice that leaves the app standalone; re-entry is
->    always available. Copy for the stage is the `[connect]` table in
->    the Layer-3 SSOT (`ConnectCopy` in `copy.rs`) — zero hardcoded
->    strings in the view, and the endpoint address itself is never
->    shipped in copy (the placeholder is an editable example).
-> 3. **The model-install framing below (preset → installing) predates
->    the two-tier model.** Local model *management* remains DevPulse's;
->    *inference* slots light up from the connected endpoint's
->    capability (`clyffyConnection.slots`) — computed, never a
->    hardcoded slot table. Flow-example gates like `models.scanned`
->    are historical records of that older framing.
->
 > **Sprint 00 deliverable.** Locks the four-layer cascade that drives
 > the onboarding wizard, the per-template configuration system, and
 > the per-user vs per-project model scope rule.
 >
-> **Status:** Locked (reframed 2026-07-08 — see banner above).
+> **Status:** Locked.
 > **Owner:** Jesse.
 > **Authored:** 2026-05-09.
 > **Cross-references:**

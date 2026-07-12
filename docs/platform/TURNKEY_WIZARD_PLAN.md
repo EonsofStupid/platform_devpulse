@@ -13,31 +13,6 @@ the Burn + llama.cpp wiring, the RRD/RRO substrate, the intelligence
 pipeline, and the DevForge removal target — each tied to the actual
 file that owns it.
 
-> ## ⚠ REFRAMED — 2026-06-28
->
-> This plan is **accurate** (every file:line citation is real), but it predates
-> the architecture pivot. Read it with:
->
-> - **Split** — the four-DB topology divides: **Turso** (was libSQL) + DuckDB
->   stay **DevPulse-local**; **SurrealDB + qortex** (was Qdrant) + the model
->   loader / encoder / embedder / reranker move to **ClyffyOS (headless, GB10)**.
->   DevPulse no longer installs models locally.
-> - **Wizard's job changes** — it becomes **backend discovery + `/v1/capability`**
->   (find GB10, show what it's serving), NOT a local slot-install flow. Cortex
->   tiles render capability COMPUTED from the connected backend.
-> - **Renames land in Phase 2, with the code** — `cortex→connectome`,
->   `Qdrant→qortex`, `libSQL→Turso`; the old 11-slot list (§4) → the four-slot
->   taxonomy; model picks (Harrier 0.6B / Nemotron 7.6B / SigLIP HD / 384-dim) →
->   GB10-side config, model-size-agnostic (8GB floor), nothing hardcoded.
-> - **Still valid as DevPulse-local UI work** — §12 STEPS 1–5 (chat-window
->   auto-open, wizard auto-open, decouple `get_wizard_copy` from the boot gate,
->   DevForge customer-pull, dev-noise gating) remain correct local fixes. STEPS
->   6–7 (slot-chain verify, staged-indexing orchestrator) move to ClyffyOS/GB10.
-> - **Deferred, not retired** — anything cloud / online is sequenced, not killed.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27
-> architecture corrections. The file:line records below are preserved.
-
 ---
 
 ## 1. Multi-window architecture (what the customer sees)

@@ -813,7 +813,7 @@ impl ModelLoaderService {
         // outcome here emits BOTH a `tracing` line on the
         // `wizard.lifecycle` target AND a `WizardSymlinkArmed` /
         // `WizardSymlinkFailed` `LoaderEvent`. Devtool subscribes to
-        // the event stream for live connectome-tile state; tracing is the
+        // the event stream for live cortex-tile state; tracing is the
         // log-replay/telemetry axis.
         let link_path = match crate::slots::symlink::assign(
             &cfg.userdata_dir,
@@ -2717,7 +2717,7 @@ async fn run_install_chain(
 ) {
     // Stage 0 — announce the wizard apply on both observability
     // axes ([[feedback-dual-observability]]). The `WizardTileApplied`
-    // event lets the connectome view flip the tile to "saving" the
+    // event lets the cortex view flip the tile to "saving" the
     // instant the install chain begins, without waiting for any IO.
     // `model_id` is `None` here because the download thread hasn't
     // resolved the registry entry yet — the wizard ties this back

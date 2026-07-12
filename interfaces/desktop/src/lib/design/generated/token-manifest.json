@@ -27052,6 +27052,81 @@
 			}
 		]
 	},
+	"backdrop-blur": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "backdrop-blur-sm",
+				"path": [
+					"backdrop-blur",
+					"sm"
+				],
+				"cssVar": "--backdrop-blur-sm",
+				"value": {
+					"value": 0.375,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-md",
+				"path": [
+					"backdrop-blur",
+					"md"
+				],
+				"cssVar": "--backdrop-blur-md",
+				"value": {
+					"value": 0.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-lg",
+				"path": [
+					"backdrop-blur",
+					"lg"
+				],
+				"cssVar": "--backdrop-blur-lg",
+				"value": {
+					"value": 1,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-xl",
+				"path": [
+					"backdrop-blur",
+					"xl"
+				],
+				"cssVar": "--backdrop-blur-xl",
+				"value": {
+					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-blur-2xl",
+				"path": [
+					"backdrop-blur",
+					"2xl"
+				],
+				"cssVar": "--backdrop-blur-2xl",
+				"value": {
+					"value": 2,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
 	"blur": {
 		"extensions": {},
 		"tokens": [
@@ -27134,6 +27209,53 @@
 				"cssVar": "--blur-2xl",
 				"value": {
 					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"border-width": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "border-width-hairline",
+				"path": [
+					"border-width",
+					"hairline"
+				],
+				"cssVar": "--border-width-hairline",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-thin",
+				"path": [
+					"border-width",
+					"thin"
+				],
+				"cssVar": "--border-width-thin",
+				"value": {
+					"value": 0.125,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-medium",
+				"path": [
+					"border-width",
+					"medium"
+				],
+				"cssVar": "--border-width-medium",
+				"value": {
+					"value": 0.1875,
 					"unit": "rem"
 				},
 				"type": "dimension",
@@ -30955,6 +31077,210 @@
 			}
 		]
 	},
+	"font-weight": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "font-weight-regular",
+				"path": [
+					"font-weight",
+					"regular"
+				],
+				"cssVar": "--font-weight-regular",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "font-weight-medium",
+				"path": [
+					"font-weight",
+					"medium"
+				],
+				"cssVar": "--font-weight-medium",
+				"value": 500,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "font-weight-semibold",
+				"path": [
+					"font-weight",
+					"semibold"
+				],
+				"cssVar": "--font-weight-semibold",
+				"value": 600,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "font-weight-bold",
+				"path": [
+					"font-weight",
+					"bold"
+				],
+				"cssVar": "--font-weight-bold",
+				"value": 700,
+				"type": "fontWeight",
+				"extensions": null
+			}
+		]
+	},
+	"letter-spacing": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "letter-spacing-none",
+				"path": [
+					"letter-spacing",
+					"none"
+				],
+				"cssVar": "--letter-spacing-none",
+				"value": {
+					"value": 0,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-tight",
+				"path": [
+					"letter-spacing",
+					"tight"
+				],
+				"cssVar": "--letter-spacing-tight",
+				"value": {
+					"value": 0.01,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-normal",
+				"path": [
+					"letter-spacing",
+					"normal"
+				],
+				"cssVar": "--letter-spacing-normal",
+				"value": {
+					"value": 0.02,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-wide",
+				"path": [
+					"letter-spacing",
+					"wide"
+				],
+				"cssVar": "--letter-spacing-wide",
+				"value": {
+					"value": 0.03,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-wider",
+				"path": [
+					"letter-spacing",
+					"wider"
+				],
+				"cssVar": "--letter-spacing-wider",
+				"value": {
+					"value": 0.04,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-widest",
+				"path": [
+					"letter-spacing",
+					"widest"
+				],
+				"cssVar": "--letter-spacing-widest",
+				"value": {
+					"value": 0.05,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-ultra",
+				"path": [
+					"letter-spacing",
+					"ultra"
+				],
+				"cssVar": "--letter-spacing-ultra",
+				"value": {
+					"value": 0.06,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "letter-spacing-mega",
+				"path": [
+					"letter-spacing",
+					"mega"
+				],
+				"cssVar": "--letter-spacing-mega",
+				"value": {
+					"value": 0.08,
+					"unit": "em"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"line-height": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "line-height-tight",
+				"path": [
+					"line-height",
+					"tight"
+				],
+				"cssVar": "--line-height-tight",
+				"value": 1.4,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "line-height-normal",
+				"path": [
+					"line-height",
+					"normal"
+				],
+				"cssVar": "--line-height-normal",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "line-height-relaxed",
+				"path": [
+					"line-height",
+					"relaxed"
+				],
+				"cssVar": "--line-height-relaxed",
+				"value": 1.6,
+				"type": "number",
+				"extensions": null
+			}
+		]
+	},
 	"accent": {
 		"extensions": {
 			"semanticFamily": "accent",
@@ -32507,20 +32833,6 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "border-width-hairline",
-				"path": [
-					"borderWidth",
-					"hairline"
-				],
-				"cssVar": "--border-width-hairline",
-				"value": {
-					"value": 0.0625,
-					"unit": "rem"
-				},
-				"type": "dimension",
-				"extensions": null
-			},
-			{
 				"name": "border-width-thin",
 				"path": [
 					"borderWidth",
@@ -32528,7 +32840,7 @@
 				],
 				"cssVar": "--border-width-thin",
 				"value": {
-					"value": 0.125,
+					"value": 0.0625,
 					"unit": "rem"
 				},
 				"type": "dimension",
@@ -32541,6 +32853,20 @@
 					"medium"
 				],
 				"cssVar": "--border-width-medium",
+				"value": {
+					"value": 0.125,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-thick",
+				"path": [
+					"borderWidth",
+					"thick"
+				],
+				"cssVar": "--border-width-thick",
 				"value": {
 					"value": 0.1875,
 					"unit": "rem"
@@ -34027,89 +34353,6 @@
 					"deep-fg"
 				],
 				"cssVar": "--primary-deep-fg",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.95,
-						0.01,
-						220
-					],
-					"hex": "#e8f0f3"
-				},
-				"type": "color",
-				"extensions": null
-			}
-		]
-	},
-	"cta": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "cta-main",
-				"path": [
-					"cta",
-					"main"
-				],
-				"cssVar": "--cta-main",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.55,
-						0.14,
-						240
-					],
-					"hex": "#2079ad"
-				},
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "cta-glow",
-				"path": [
-					"cta",
-					"glow"
-				],
-				"cssVar": "--cta-glow",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.68,
-						0.14,
-						240
-					],
-					"alpha": 0.35,
-					"hex": "#2ea2e5"
-				},
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "cta-fill",
-				"path": [
-					"cta",
-					"fill"
-				],
-				"cssVar": "--cta-fill",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.68,
-						0.14,
-						240
-					],
-					"alpha": 0.08,
-					"hex": "#2ea2e5"
-				},
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "cta-fg",
-				"path": [
-					"cta",
-					"fg"
-				],
-				"cssVar": "--cta-fg",
 				"value": {
 					"colorSpace": "oklch",
 					"components": [
@@ -36100,66 +36343,6 @@
 					],
 					"alpha": 0.749,
 					"hex": "#000406"
-				},
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "glass-blue",
-				"path": [
-					"glass",
-					"blue"
-				],
-				"cssVar": "--glass-blue",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.11,
-						0.05,
-						240
-					],
-					"alpha": 0.749,
-					"hex": "#020408"
-				},
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "glass-ember",
-				"path": [
-					"glass",
-					"ember"
-				],
-				"cssVar": "--glass-ember",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.115,
-						0.045,
-						25
-					],
-					"alpha": 0.749,
-					"hex": "#070302"
-				},
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "glass-coral",
-				"path": [
-					"glass",
-					"coral"
-				],
-				"cssVar": "--glass-coral",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.11,
-						0.045,
-						10
-					],
-					"alpha": 0.749,
-					"hex": "#070203"
 				},
 				"type": "color",
 				"extensions": null

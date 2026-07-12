@@ -4235,3 +4235,98 @@ export type PresetRecord = {
 		"box-shadow": string;
 	};
 };
+
+export const BackdropBlurTokens = ["sm", "md", "lg", "xl", "2xl"] as const;
+export type BackdropBlurToken = (typeof BackdropBlurTokens)[number];
+
+export type BackdropBlurCSSVar =
+	| "--backdrop-blur-sm"
+	| "--backdrop-blur-md"
+	| "--backdrop-blur-lg"
+	| "--backdrop-blur-xl"
+	| "--backdrop-blur-2xl";
+
+export type BackdropBlurRecord = {
+	sm: string;
+	md: string;
+	lg: string;
+	xl: string;
+	"2xl": string;
+};
+
+export const BorderWidthTokens = ["hairline", "thin", "medium"] as const;
+export type BorderWidthToken = (typeof BorderWidthTokens)[number];
+
+export type BorderWidthCSSVar =
+	| "--border-width-hairline"
+	| "--border-width-thin"
+	| "--border-width-medium";
+
+export type BorderWidthRecord = {
+	hairline: string;
+	thin: string;
+	medium: string;
+};
+
+export const FontWeightTokens = ["regular", "medium", "semibold", "bold"] as const;
+export type FontWeightToken = (typeof FontWeightTokens)[number];
+
+export type FontWeightCSSVar =
+	| "--font-weight-regular"
+	| "--font-weight-medium"
+	| "--font-weight-semibold"
+	| "--font-weight-bold";
+
+export type FontWeightRecord = {
+	regular: string;
+	medium: string;
+	semibold: string;
+	bold: string;
+};
+
+export const LetterSpacingTokens = [
+	"none",
+	"tight",
+	"normal",
+	"wide",
+	"wider",
+	"widest",
+	"ultra",
+	"mega",
+] as const;
+export type LetterSpacingToken = (typeof LetterSpacingTokens)[number];
+
+export type LetterSpacingCSSVar =
+	| "--letter-spacing-none"
+	| "--letter-spacing-tight"
+	| "--letter-spacing-normal"
+	| "--letter-spacing-wide"
+	| "--letter-spacing-wider"
+	| "--letter-spacing-widest"
+	| "--letter-spacing-ultra"
+	| "--letter-spacing-mega";
+
+export type LetterSpacingRecord = {
+	none: string;
+	tight: string;
+	normal: string;
+	wide: string;
+	wider: string;
+	widest: string;
+	ultra: string;
+	mega: string;
+};
+
+export const LineHeightTokens = ["tight", "normal", "relaxed"] as const;
+export type LineHeightToken = (typeof LineHeightTokens)[number];
+
+export type LineHeightCSSVar =
+	| "--line-height-tight"
+	| "--line-height-normal"
+	| "--line-height-relaxed";
+
+export type LineHeightRecord = {
+	tight: string;
+	normal: string;
+	relaxed: string;
+};

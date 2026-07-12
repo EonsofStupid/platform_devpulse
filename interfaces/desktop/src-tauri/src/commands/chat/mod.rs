@@ -113,7 +113,7 @@ pub async fn send_message(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .user_relational()
+        .relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 
@@ -286,7 +286,7 @@ pub async fn store_assistant_turn(
         .load_full()
         .ok_or("Platform is still booting")?;
     let svc = platform
-        .user_relational()
+        .relational()
         .ok_or("Relational service not available")?;
     let adapter = svc.adapter();
 

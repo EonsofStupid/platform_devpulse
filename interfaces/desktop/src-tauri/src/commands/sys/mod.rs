@@ -4,7 +4,6 @@ pub mod action_log;
 pub mod analytics;
 pub mod boot;
 pub mod cache;
-pub mod clyffy;
 pub mod config;
 pub mod grammar;
 pub mod graph;

@@ -48,22 +48,9 @@ function isOnlyIgnorableOutput(text) {
   );
 }
 
-// Per `.cargo/config.toml` (Branch 2 absorption 2026-06-23): the workspace
-// no longer exports `LLAMA_CPP_PREBUILT_LIB_DIR` because that lane is dead
-// in the new GB10-headless architecture. Standalone `cargo check` on
-// Windows still needs the env to find llama.cpp/include/llama.h until
-// the desktop_backend dep on llama-cpp-sys-2 is retired. Set it here so
-// the hook's check doesn't fail. On Linux/CI the env is intentionally
-// not set (no prebuilt tree fetched there); the hook only runs locally.
-const prebuiltDir = path.join(dir, 'deps', 'llama-cpp-prebuilt', 'win32-x64-vulkan');
-const hookEnv = {
-  ...process.env,
-  LLAMA_CPP_PREBUILT_LIB_DIR: prebuiltDir,
-};
-
 function run(cmd, label, timeoutMs) {
   try {
-    execSync(cmd, { cwd: dir, stdio: 'pipe', timeout: timeoutMs || 120000, env: hookEnv });
+    execSync(cmd, { cwd: dir, stdio: 'pipe', timeout: timeoutMs || 120000 });
     process.stderr.write('  ✅ ' + label + '\n');
   } catch (e) {
     if (e.killed) {

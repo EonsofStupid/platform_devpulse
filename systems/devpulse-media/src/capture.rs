@@ -103,10 +103,6 @@ impl CameraManager {
     }
 
     /// Enumerate cameras (stub when capture feature disabled)
-    ///
-    /// # Errors
-    /// Never errors in this build — the `capture` feature is disabled, so this
-    /// returns an empty list.
     #[cfg(not(feature = "capture"))]
     pub fn enumerate_cameras(&mut self) -> MediaResult<Vec<CameraInfo>> {
         warn!("Camera capture disabled (compile with 'capture' feature)");
@@ -165,10 +161,6 @@ impl CameraManager {
     }
 
     /// Open camera stub
-    ///
-    /// # Errors
-    /// Always returns [`MediaError::CaptureFailed`] — the `capture` feature is
-    /// disabled at compile time.
     #[cfg(not(feature = "capture"))]
     pub fn open_camera(&mut self, _camera_id: &str, _width: u32, _height: u32) -> MediaResult<()> {
         error!("Cannot open camera: capture feature disabled at compile time");
@@ -213,10 +205,6 @@ impl CameraManager {
     }
 
     /// Capture frame stub
-    ///
-    /// # Errors
-    /// Always returns [`MediaError::CaptureFailed`] — the `capture` feature is
-    /// disabled at compile time.
     #[cfg(not(feature = "capture"))]
     pub fn capture_frame(&mut self) -> MediaResult<Frame> {
         Err(MediaError::CaptureFailed("Capture feature disabled".into()))

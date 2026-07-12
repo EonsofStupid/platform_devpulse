@@ -20,17 +20,6 @@ Reconcile the older artifact in the same PR that diverged. Keep the
 plan thin enough that "single source of truth" is a fact, not a
 slogan.
 
-> ## ⚠ REFRAMED — 2026-06-28
->
-> This is the citation-rich V2 turnkey SSOT (verified status + sequenced §4 phases + PR cadence). It is accurate but pre-pivot: written for the single-binary embedded-everything topology, before the DevPulse-frontend / ClyffyOS-backend split.
->
-> - **Split / relocation** — DevPulse is the FRONTEND (all visuals/UI) and boots fully standalone regardless of connection; DevPulse-local keeps only Turso + DuckDB (analytics). SurrealDB + qortex (the Qdrant-based vector store) + the Burn encoder/embedder/reranker stack + ALL inference + the connectome move to ClyffyOS (headless backend on GB10 or a networked VRAM pool). DevPulse reaches ClyffyOS via Bonjour discovery + `/v1/capability` + MCP verbs. The §2/§4 "embedded in one DevPulse.exe" and "service supervisor owns 6 runtimes" framing must split across the two hosts.
-> - **Renames land in Phase 2, with the code** — cortex -> connectome (control layer + intelligence layer); Qdrant -> qortex; libSQL/LibSQL -> Turso. The code paths and constants below (`kernel/devpulse-clyffy/src/cortex/...`, `EMBEDDING_DIM=384`, Qdrant/LibSQL service rows) stay ACCURATE until Phase 2 — this header flags them, it does not pre-rename them. The §2 Rule 7 slot/model picks (Cascade 2 / Nano-9B, Harrier 0.6B, Sherpa Whisper+Kokoro, ColEmbed VL), §5 bench seeds, and any dims (384) are GB10-side CONFIGURATION, not architecture: the system is model-size-agnostic (8GB LLM floor, scales up), with nothing hardcoded — paths/ids/dims/hosts flow from SSOT/config.
-> - **Deferred, not retired** — §5 `CLOUD_PREFLIGHT.md` cloud connectors and §6 Phase E (Cloud-Surreal connector + devpulse-secrets) are deferred to later phases, not killed; under the split, SurrealDB/qortex are the ClyffyOS backend rather than a dev-only convenience.
-> - **Still valid** — The three-month foundation gap (§3: the staged-indexing orchestrator that sequences discover -> classify -> embed -> store -> verify is missing), the §1 verified DB-boot status and devtool observability, the dual-observability discipline (§2 Rule 11, §4.3 unified Signal taxonomy, §8 gates), the §4.2 pipeline-stage design, real file:line citations, and the DONE/verification records all stay correct — they just relocate the GB10-side stages to ClyffyOS.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
-
 ---
 
 ## 1. Status today — verified, no aspirations

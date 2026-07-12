@@ -23,17 +23,12 @@ import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
-import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
-import { ClyffyStatusOrb, clyffyConnection } from "$lib/domains/clyffy/index.js";
+import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
-
-// Wire connection (Tier-1/Tier-2) — drives the platform-chrome no-AI
-// indicator next to the orb. Ref-counted; teardown returned to $effect.
-$effect(() => clyffyConnection.subscribe());
 
 function toggleSearch(): void {
 	searchOpen = !searchOpen;
@@ -104,30 +99,6 @@ function onKey(e: KeyboardEvent): void {
 					placeholder="Search..."
 				/>
 			</div>
-		{/if}
-
-		<!-- No-AI indicator (platform-chrome surface of the three: statusbar /
-		     topbar / chat). Subtle absence cue: renders ONLY while standalone —
-		     the AI layer is a connection, so this is a mode, never an error.
-		     Clicking it is the RE-ENTRY point: opens the wizard on the
-		     endpoint (connect) step. The mood orb next door is a separate
-		     concern (clyffyStatus, not the wire) and stays connection-blind
-		     by design. -->
-		{#if clyffyConnection.tier === "tier1"}
-			<Button
-				preset="ghost"
-				size="sm"
-				aria-label="Connect the AI layer"
-				onclick={() => {
-					wizardState.goTo("endpoint");
-					wizardState.open();
-				}}
-			>
-				<Badge variant="neutral" size="sm" class="gap-1.5">
-					<span class="status-dot h-1.5 w-1.5 rounded-full" data-subsystem-state="pending" style="background: currentColor; opacity: 0.55;"></span>
-					<span class="text-xs">AI: Standalone</span>
-				</Badge>
-			</Button>
 		{/if}
 
 		<!-- Clyffy presence orb -->

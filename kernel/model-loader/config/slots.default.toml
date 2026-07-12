@@ -267,7 +267,7 @@ builtin = true
 # views, one source of truth. There is no second TOML file.
 #
 # NOTE: The vector store (RRO) is NOT a slot. It's a storage
-# adapter that lives in `kernel/devpulse-clyffy/src/connectome/
+# adapter that lives in `kernel/devpulse-clyffy/src/cortex/
 # persistence/rro.rs` — pure storage, no model file, no model
 # capability that fits the slot schema. The devtool surfaces RRO
 # status through a direct kernel query in the System tab, not

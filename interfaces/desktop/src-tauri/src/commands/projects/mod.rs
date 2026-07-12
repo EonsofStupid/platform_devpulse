@@ -7,34 +7,31 @@
 //!
 //! # Storage model
 //!
-//! Every mutation writes the user **Turso** database (the authoritative
-//! local SSOT) — if that write fails, the mutation fails. DevPulse runs
-//! **standalone** on Turso alone; project CRUD never depends on the AI
-//! layer.
+//! Every mutation writes **libSQL first** (the authoritative SSOT) then
+//! mirrors the change to **`SurrealDB`** (the graph view). libSQL is the
+//! transactional source — if the libSQL write fails, the mutation
+//! fails. The `SurrealDB` mirror is best-effort at the command layer —
+//! any failure there is logged and surfaced as a warning, but does not
+//! roll back the libSQL write. This keeps the app responsive when the
+//! graph store is degraded, with reconciliation handled out-of-band
+//! (the forthcoming graph-reconciler worker walks libSQL and repaves
+//! any missing graph nodes — not in scope for this command module).
 //!
-//! The knowledge **graph** (a `SurrealDB` view of projects + references)
-//! is **Clyffy's** — headless, on the GB10, reached over the
-//! `devpulse-gb10-client` wire. It is a **Tier-2 capability**: when
-//! Clyffy is disconnected the graph mirror is simply skipped (Turso is
-//! authoritative); when connected, DevPulse notifies Clyffy of the
-//! mutation so Clyffy mirrors it into its own graph. That notify path is
-//! best-effort and non-fatal — a mirror failure never rolls back the
-//! Turso write. Available once the AI-layer connection is active.
-//!
-//! Active-project state is stored in the user Turso `kv_store` under
+//! Active-project state is stored in the user `LibSQL` `kv_store` under
 //! `active_project_id`. No schema migration required — `kv_store` is the
 //! catch-all for singleton user state.
 //!
 //! # Tables touched
 //!
-//! * User Turso DB (authoritative, local, standalone):
+//! * libSQL user DB:
 //!   * `projects` — 1 row per project
 //!   * `project_references` — N rows per project (read-only dirs)
 //!   * `kv_store` — `active_project_id` singleton
-//! * Clyffy's graph (Tier-2, over the wire, deferred notify): the
-//!   `project` / `project_reference` / `active_project` nodes + the
-//!   `references` edge live in **Clyffy's** `SurrealDB` schema (in the
-//!   ClyffyOS repo), not here.
+//! * `SurrealDB` user namespace:
+//!   * `project` nodes (mirror of libSQL projects)
+//!   * `project_reference` nodes (mirror of reference dirs)
+//!   * `references` edges (project → `project_reference`)
+//!   * `active_project` node (singleton with id=`"singleton"`)
 //!
 //! # Command error surface
 //!
@@ -46,17 +43,26 @@
     reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` / `SqlAdapter` whose docs hold the canonical # Errors copy (also documented in the module-level `# Command error surface` section above)"
 )]
 
-use crate::state::{ClyffyConnectionState, PlatformState};
-use devpulse_gb10_client::ConnectionState;
+use crate::state::PlatformState;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use specta::Type;
 use tauri::State;
 use uuid::Uuid;
 
 use devpulse_engine::platform::{Platform, SqlAdapter};
 
-/// Active-project singleton key in the user Turso `kv_store`.
+/// Active-project singleton key in the user `LibSQL` `kv_store`.
 const KV_ACTIVE_PROJECT: &str = "active_project_id";
+
+/// `SurrealDB` tables — kept as constants so any schema evolution is
+/// a single-site edit, and so the graph reconciler (future work) can
+/// reference the same names.
+const GRAPH_TABLE_PROJECT: &str = "project";
+const GRAPH_TABLE_PROJECT_REFERENCE: &str = "project_reference";
+const GRAPH_EDGE_REFERENCES: &str = "references";
+const GRAPH_TABLE_ACTIVE_PROJECT: &str = "active_project";
+const GRAPH_ACTIVE_PROJECT_ID: &str = "singleton";
 
 // ═══════════════════════════════════════════════════════════════════════
 // Types
@@ -168,7 +174,6 @@ pub struct AddReferenceInput {
 #[specta::specta]
 pub async fn create_project(
     state: State<'_, PlatformState>,
-    clyffy: State<'_, ClyffyConnectionState>,
     input: CreateProjectInput,
 ) -> Result<Project, String> {
     // Trim + validate — refuse obviously-broken input at the boundary
@@ -234,16 +239,15 @@ pub async fn create_project(
         .map_err(|e| format!("reading back project {id}: {e:#}"))?
         .ok_or_else(|| format!("project {id} disappeared immediately after insert"))?;
 
-    // Notify Clyffy's graph (best-effort, Tier-2, non-fatal). Skipped
-    // when Clyffy is disconnected — Turso is authoritative and project
-    // creation succeeds standalone.
-    let clyffy_connected = matches!(clyffy.current(), ConnectionState::Connected { .. });
-    mirror_project_to_graph(clyffy_connected, &project);
+    // Mirror to SurrealDB (best-effort — logged, not fatal). `platform`
+    // is `Arc<Platform>` from `load_full()`; deref to `&Platform` for
+    // the mirror helpers.
+    mirror_project_to_graph(&platform, &project).await;
 
     // If the caller requested it, flip the active-project singleton
     // in the same command. Avoids a second round-trip at wizard time.
     if input.set_active {
-        if let Err(e) = set_active_project_inner(&platform, clyffy_connected, &id).await {
+        if let Err(e) = set_active_project_inner(&platform, &id).await {
             tracing::warn!(project_id = %id, error = %e, "set_active after create failed");
         }
     }
@@ -286,25 +290,20 @@ pub async fn get_active_project(
 #[specta::specta]
 pub async fn set_active_project(
     state: State<'_, PlatformState>,
-    clyffy: State<'_, ClyffyConnectionState>,
     id: String,
 ) -> Result<Project, String> {
     let platform = state
         .platform
         .load_full()
         .ok_or_else(|| "platform not booted".to_string())?;
-    let clyffy_connected = matches!(clyffy.current(), ConnectionState::Connected { .. });
-    set_active_project_inner(&platform, clyffy_connected, &id).await
+    set_active_project_inner(&platform, &id).await
 }
 
 /// Clear the active-project singleton. `get_active_project` returns
 /// `None` after this. Does NOT delete the project row itself.
 #[tauri::command]
 #[specta::specta]
-pub async fn clear_active_project(
-    state: State<'_, PlatformState>,
-    clyffy: State<'_, ClyffyConnectionState>,
-) -> Result<(), String> {
+pub async fn clear_active_project(state: State<'_, PlatformState>) -> Result<(), String> {
     let platform = state
         .platform
         .load_full()
@@ -318,8 +317,7 @@ pub async fn clear_active_project(
         .await
         .map_err(|e| format!("clearing kv_store: {e:#}"))?;
 
-    let clyffy_connected = matches!(clyffy.current(), ConnectionState::Connected { .. });
-    mirror_active_project_cleared_to_graph(clyffy_connected);
+    mirror_active_project_cleared_to_graph(&platform).await;
     tracing::info!("active project cleared");
     Ok(())
 }
@@ -335,7 +333,6 @@ pub async fn clear_active_project(
 #[specta::specta]
 pub async fn add_project_reference(
     state: State<'_, PlatformState>,
-    clyffy: State<'_, ClyffyConnectionState>,
     input: AddReferenceInput,
 ) -> Result<ProjectReference, String> {
     let project_id = input.project_id.trim();
@@ -376,8 +373,7 @@ pub async fn add_project_reference(
         .map_err(|e| format!("reading back reference {id}: {e:#}"))?
         .ok_or_else(|| format!("reference {id} disappeared immediately after insert"))?;
 
-    let clyffy_connected = matches!(clyffy.current(), ConnectionState::Connected { .. });
-    mirror_reference_to_graph(clyffy_connected, &reference);
+    mirror_reference_to_graph(&platform, &reference).await;
 
     tracing::info!(reference_id = %id, project_id = %project_id, path = %path, "reference added");
     Ok(reference)
@@ -421,7 +417,6 @@ pub async fn list_project_references(
 #[specta::specta]
 pub async fn remove_project_reference(
     state: State<'_, PlatformState>,
-    clyffy: State<'_, ClyffyConnectionState>,
     id: String,
 ) -> Result<bool, String> {
     let platform = state
@@ -438,8 +433,7 @@ pub async fn remove_project_reference(
         .await
         .map_err(|e| format!("deleting reference {id}: {e:#}"))?;
 
-    let clyffy_connected = matches!(clyffy.current(), ConnectionState::Connected { .. });
-    mirror_reference_removed_from_graph(clyffy_connected, &id);
+    mirror_reference_removed_from_graph(&platform, &id).await;
 
     tracing::info!(reference_id = %id, rows_affected, "reference removed");
     Ok(rows_affected > 0)
@@ -449,11 +443,7 @@ pub async fn remove_project_reference(
 // Shared inner implementations
 // ═══════════════════════════════════════════════════════════════════════
 
-async fn set_active_project_inner(
-    platform: &Platform,
-    clyffy_connected: bool,
-    id: &str,
-) -> Result<Project, String> {
+async fn set_active_project_inner(platform: &Platform, id: &str) -> Result<Project, String> {
     let svc = platform
         .user_relational()
         .ok_or_else(|| "user relational service not available".to_string())?;
@@ -477,7 +467,7 @@ async fn set_active_project_inner(
         .map_err(|e| format!("writing kv_store active_project_id: {e:#}"))?;
     let _ = value_bytes; // reserved for future binary-value kv_store writes.
 
-    mirror_active_project_to_graph(clyffy_connected, &project);
+    mirror_active_project_to_graph(platform, &project).await;
     tracing::info!(project_id = %id, name = %project.name, "active project set");
     Ok(project)
 }
@@ -532,72 +522,118 @@ fn row_to_reference(row: Vec<devpulse_engine::platform::SqlValue>) -> Option<Pro
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Clyffy graph mirror — Tier-2, best-effort, non-fatal
+// SurrealDB mirrors — best-effort, warn on failure, never fatal
 // ═══════════════════════════════════════════════════════════════════════
 //
-// Turso is authoritative. The knowledge graph is **Clyffy's** — headless,
-// on the GB10 — reached over the `devpulse-gb10-client` wire. When Clyffy
-// is disconnected these mirrors are skipped (DevPulse runs standalone on
-// Turso). When connected, DevPulse notifies Clyffy of the mutation so
-// Clyffy mirrors it into its own `SurrealDB` graph (that graph's schema —
-// the `project` / `project_reference` / `active_project` nodes + the
-// `references` edge — lives in Clyffy's repo, not here).
-//
-// The notify call itself is deferred: it lands when the gb10-client gains
-// the notify method and `clyffyd` exposes the `/v1/graph` ingest endpoint
-// (deferred, not retired — tracked as Tier-2 wire work). These functions
-// are the exact insertion points for that call; a mirror failure never
-// rolls back the Turso write. They are synchronous today because the gate
-// is a pure state check — they turn `async` again once the wire call lands.
+// libSQL is authoritative. SurrealDB is the secondary graph view — it
+// exists so future commands (semantic search, reference traversal,
+// related-project suggestions) have an indexed, queryable graph
+// without rehydrating from relational rows. If the graph write fails
+// we log a warning; the forthcoming graph-reconciler walks libSQL
+// periodically and repaves any missing nodes.
 
-fn mirror_project_to_graph(clyffy_connected: bool, project: &Project) {
-    if !clyffy_connected {
+async fn mirror_project_to_graph(platform: &Platform, project: &Project) {
+    let Some(graph) = platform.graph() else {
+        tracing::debug!("graph service unavailable — skipping project mirror");
         return;
+    };
+    let props = json!({
+        "id": project.id,
+        "name": project.name,
+        "root_path": project.root_path,
+        "project_type": project.project_type,
+        "description": project.description,
+        "active": project.active,
+        "created_at": project.created_at,
+    });
+    if let Err(e) = graph
+        .handle()
+        .create_node(GRAPH_TABLE_PROJECT, &project.id, &props)
+        .await
+    {
+        tracing::warn!(project_id = %project.id, error = %e, "graph project mirror failed");
     }
-    tracing::debug!(
-        project_id = %project.id,
-        "clyffy connected — project graph mirror pending the wire graph-ingest endpoint"
-    );
 }
 
-fn mirror_reference_to_graph(clyffy_connected: bool, reference: &ProjectReference) {
-    if !clyffy_connected {
+async fn mirror_reference_to_graph(platform: &Platform, reference: &ProjectReference) {
+    let Some(graph) = platform.graph() else {
+        return;
+    };
+    let node_props = json!({
+        "id": reference.id,
+        "project_id": reference.project_id,
+        "path": reference.path,
+        "label": reference.label,
+        "kind": reference.kind,
+        "created_at": reference.created_at,
+    });
+    if let Err(e) = graph
+        .handle()
+        .create_node(GRAPH_TABLE_PROJECT_REFERENCE, &reference.id, &node_props)
+        .await
+    {
+        tracing::warn!(reference_id = %reference.id, error = %e, "graph reference mirror failed");
         return;
     }
-    tracing::debug!(
-        reference_id = %reference.id,
-        project_id = %reference.project_id,
-        "clyffy connected — reference graph mirror pending the wire graph-ingest endpoint"
-    );
+    // Edge: project ->references-> project_reference.
+    let from = format!("{GRAPH_TABLE_PROJECT}:{}", reference.project_id);
+    let to = format!("{GRAPH_TABLE_PROJECT_REFERENCE}:{}", reference.id);
+    if let Err(e) = graph
+        .handle()
+        .create_edge(GRAPH_EDGE_REFERENCES, &from, &to, &json!({}))
+        .await
+    {
+        tracing::warn!(reference_id = %reference.id, error = %e, "graph references edge failed");
+    }
 }
 
-fn mirror_reference_removed_from_graph(clyffy_connected: bool, reference_id: &str) {
-    if !clyffy_connected {
+async fn mirror_reference_removed_from_graph(platform: &Platform, reference_id: &str) {
+    let Some(graph) = platform.graph() else {
         return;
+    };
+    let surql = format!("DELETE {GRAPH_TABLE_PROJECT_REFERENCE}:{reference_id};");
+    if let Err(e) = graph.handle().execute(&surql).await {
+        tracing::warn!(reference_id = %reference_id, error = %e, "graph reference delete failed");
     }
-    tracing::debug!(
-        reference_id = %reference_id,
-        "clyffy connected — reference-removal graph mirror pending the wire graph-ingest endpoint"
-    );
 }
 
-fn mirror_active_project_to_graph(clyffy_connected: bool, project: &Project) {
-    if !clyffy_connected {
+async fn mirror_active_project_to_graph(platform: &Platform, project: &Project) {
+    let Some(graph) = platform.graph() else {
         return;
+    };
+    let props = json!({
+        "project_id": project.id,
+        "project_name": project.name,
+        "root_path": project.root_path,
+    });
+    if let Err(e) = graph
+        .handle()
+        .create_node(GRAPH_TABLE_ACTIVE_PROJECT, GRAPH_ACTIVE_PROJECT_ID, &props)
+        .await
+    {
+        // Node may already exist — SurrealDB's `CREATE` errors on
+        // duplicate. Retry with UPDATE on that path.
+        let surql = format!(
+            "UPDATE {GRAPH_TABLE_ACTIVE_PROJECT}:{GRAPH_ACTIVE_PROJECT_ID} CONTENT {props};"
+        );
+        if let Err(e2) = graph.handle().execute(&surql).await {
+            tracing::warn!(
+                error_create = %e,
+                error_update = %e2,
+                "graph active_project singleton upsert failed"
+            );
+        }
     }
-    tracing::debug!(
-        project_id = %project.id,
-        "clyffy connected — active-project graph mirror pending the wire graph-ingest endpoint"
-    );
 }
 
-fn mirror_active_project_cleared_to_graph(clyffy_connected: bool) {
-    if !clyffy_connected {
+async fn mirror_active_project_cleared_to_graph(platform: &Platform) {
+    let Some(graph) = platform.graph() else {
         return;
+    };
+    let surql = format!("DELETE {GRAPH_TABLE_ACTIVE_PROJECT}:{GRAPH_ACTIVE_PROJECT_ID};");
+    if let Err(e) = graph.handle().execute(&surql).await {
+        tracing::warn!(error = %e, "graph active_project singleton clear failed");
     }
-    tracing::debug!(
-        "clyffy connected — active-project-cleared graph mirror pending the wire graph-ingest endpoint"
-    );
 }
 
 /// List every project ordered newest-first.

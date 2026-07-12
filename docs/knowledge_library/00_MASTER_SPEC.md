@@ -14,17 +14,6 @@
 
 The Knowledge Library is the **content corpus** that TEACHER, SENSEI, and Clyffy consume to surface educational, tactical, and warning content to the user. It is the **foundation** from which minions extend — not something that lives inside a minion.
 
-> ## ⚠ REFRAMED — 2026-06-28
->
-> This is the accurate-but-pre-pivot spec for the DevPulse Knowledge Library content corpus (407 entries, 5 types, JSON-authored + runtime-queried). The data model, selection logic, and minion-query contract still hold; the storage naming and the kernel/topology placement predate the 2026-06-27 DevPulse/ClyffyOS split.
->
-> - **Split / relocation** — The JSON portable artifact + the runtime query layer (content mirror, per-user seen-tracking, reactions, analytics, config) are **DevPulse-local** (the frontend, boots standalone). The minions that *consume* this corpus — TEACHER / SENSEI / Clyffy in the Minion Contract section — run on the **ClyffyOS / GB10** inference side. "Kernel owns this" was the single-binary framing; the boundary now runs DevPulse-corpus ↔ ClyffyOS-minions.
-> - **Renames land in Phase 2, with the code** — `libSQL` → `Turso` everywhere it appears (the `## libSQL Schema` heading, the `JSON + libSQL` directive, the `### libSQL (runtime)` subsection, the storage diagram, authoring-workflow step 4, and Open Decision #2). The `CREATE TABLE` / SQL comment text stays accurate as written until the code rename lands. No cortex/Qdrant or model-pick terms appear here, so those axes don't apply.
-> - **Deferred, not retired** — `CDN-deliverable for Clyffy webapp` (the cloud/Clyffy.ai delivery path for this corpus) is deferred to a later phase, not killed.
-> - **Still valid** — The 5 content types + payload shapes, the shared schema, the configurable selection logic + affinity SQL, the TEACHER/SENSEI/Clyffy query contract, the current inventory (407 entries / 4 tools audited), the authoring workflow, and the changelog all remain correct.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
-
 ## Architecture Placement
 
 **Kernel owns this.** Generalized terminology at the boundary. UI/interactions library consumes.

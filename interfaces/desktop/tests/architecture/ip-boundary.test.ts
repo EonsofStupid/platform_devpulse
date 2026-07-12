@@ -88,7 +88,7 @@ const LONG_TERMS = [
 	"hybrid search",
 	"reranking",
 	"speculative decoding",
-	"Reason Ready Object",
+	"Reasoning Ready Object",
 ] as const;
 
 // NOTE: "background layer" removed — too many false positives in CSS/SVG contexts

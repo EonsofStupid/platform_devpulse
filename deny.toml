@@ -43,13 +43,6 @@ ignore = [
     "RUSTSEC-2026-0099", # rustls-webpki wildcard DNS constraints (transitive via libsql/rustls 0.22)
     "RUSTSEC-2026-0104", # aws-lc CRL parse panic (transitive via surrealdb — supersedes 0044/0048)
     "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs → rro)
-    "RUSTSEC-2026-0173", # proc-macro-error2 unmaintained (transitive via rro/getset/raft + validator_derive + jieba-rs/include-flate; upstream forks all unmaintained, no maintained replacement yet)
-    # quick-xml XML-parser DoS — 0.39.2 patched to 0.39.4; the remaining exposed versions are
-    # pinned transitive: 0.30.0 (platform dep) + 0.38.4 (rro → object_store), no semver-compatible
-    # patch. Parsers see trusted internal data (surrealdb protocol / object_store metadata), not
-    # adversarial XML. Remove when the upstream pins bump.
-    "RUSTSEC-2026-0194", # quick-xml quadratic dup-attr scan (transitive 0.30.0/0.38.4)
-    "RUSTSEC-2026-0195", # quick-xml unbounded namespace-declaration alloc DoS (transitive 0.30.0/0.38.4)
 ]
 
 [licenses]

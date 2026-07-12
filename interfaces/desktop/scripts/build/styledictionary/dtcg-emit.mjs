@@ -158,20 +158,12 @@ export function dtcgDimension(value, unit = 'rem') {
  * When `|maxPx - minPx| < 2` the token collapses to a static dimension
  * and the `$extensions` are omitted — there is no useful clamp to emit.
  *
- * `basis` selects the interpolation axis (S1.C container-fluid
- * extension, see scripts/docs/sprints/S1-FLUID-TOKENS.md): omitted /
- * `"viewport"` emits `vw` (window-relative — the S1 default);
- * `"container"` emits `cqi` (nearest `container-type` ancestor's inline
- * size — true per-zone resizing). When `basis: "container"`,
- * `minViewport`/`maxViewport` are read as min/max container inline size.
- *
  * @param {number} minPx
  * @param {number} maxPx
  * @param {number} [minViewport=320]
  * @param {number} [maxViewport=1440]
  * @param {number} [base=16]
  * @param {string} [description] optional `$description` for the token
- * @param {"viewport" | "container"} [basis] interpolation axis — omitted = viewport (`vw`)
  */
 export function dtcgFluidDimensionToken(
 	minPx,
@@ -180,7 +172,6 @@ export function dtcgFluidDimensionToken(
 	maxViewport = 1440,
 	base = 16,
 	description,
-	basis,
 ) {
 	const collapsed = Math.abs(maxPx - minPx) < 2;
 	const token = {
@@ -189,15 +180,15 @@ export function dtcgFluidDimensionToken(
 	};
 	if (description) token.$description = description;
 	if (!collapsed) {
-		const fluid = {
-			min: dtcgDimension(minPx / base, 'rem'),
-			max: dtcgDimension(maxPx / base, 'rem'),
-			minViewport: dtcgDimension(minViewport / base, 'rem'),
-			maxViewport: dtcgDimension(maxViewport / base, 'rem'),
-		};
-		if (basis === 'container') fluid.basis = 'container';
 		token.$extensions = {
-			'com.devpulse.coldlight': { fluid },
+			'com.devpulse.coldlight': {
+				fluid: {
+					min: dtcgDimension(minPx / base, 'rem'),
+					max: dtcgDimension(maxPx / base, 'rem'),
+					minViewport: dtcgDimension(minViewport / base, 'rem'),
+					maxViewport: dtcgDimension(maxViewport / base, 'rem'),
+				},
+			},
 		};
 	}
 	return token;

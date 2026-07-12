@@ -6,15 +6,11 @@
  * each capability (grammars, guardrails, llguidance rules, MCP tool
  * wiring) lives in devtools — this surface is strictly READ.
  *
- * The catalog below is frontend-owned VOCABULARY (labels, layman
- * descriptions, grouping). Availability is NEVER authored here — it is
- * computed per render from the connected endpoint's advertised
- * capability (`clyffyConnection.slots`) via each entry's `wire`
- * matcher, the same idiom the wizard's SLOT_LAYMAN table uses.
- * Standalone (Tier-1) honestly resolves every entry to unavailable.
+ * TODO(kernel-backed): Today this returns a hardcoded list. Replace
+ * with a Tauri command `clyffy.listCapabilities()` that sources from
+ * the kernel capability registry once that command exists. Frontend
+ * shape is stable; only the fetch swaps.
  */
-
-import type { LoadedSlotSummary } from "$lib/sys/generated/bindings.js";
 
 /** A single user-facing Clyffy capability. */
 export interface ClyffyCapability {
@@ -26,100 +22,71 @@ export interface ClyffyCapability {
 	description: string;
 	/** Broad grouping for the browser UI. */
 	group: ClyffyCapabilityGroup;
-	/** Whether the capability is currently usable — computed from the
-	 *  connected endpoint's capability, never authored. */
+	/** Whether the capability is currently usable. Driven by backend later. */
 	available: boolean;
 }
 
 export type ClyffyCapabilityGroup = "thinking" | "memory" | "voice" | "vision" | "tools";
 
-/** Catalog entry — vocabulary + how it finds itself on the wire. */
-interface CapabilityCatalogEntry {
-	id: string;
-	label: string;
-	description: string;
-	group: ClyffyCapabilityGroup;
-	/** Match against `LoadedSlotSummary` — `slotId` speaks the wire
-	 *  contract's slot vocabulary verbatim (clyffy / minion / voice /
-	 *  rag_embed); `role` matches advertised roles for concepts that
-	 *  are capabilities rather than slots (vision). */
-	wire: { slotId?: string; role?: string };
-}
-
-/** Frontend-owned vocabulary — labels + grouping only, no availability. */
-const CAPABILITY_CATALOG: readonly CapabilityCatalogEntry[] = [
+/** Placeholder list — replaced by a kernel query when the command lands. */
+const STUB_CAPABILITIES: readonly ClyffyCapability[] = [
 	{
 		id: "chat.brain",
 		label: "Chat",
 		description: "Answers questions, writes, and reasons through problems.",
 		group: "thinking",
-		wire: { slotId: "clyffy" },
+		available: true,
 	},
 	{
 		id: "chat.minion",
 		label: "Quick Help",
 		description: "Fast answers for short questions without waking the main brain.",
 		group: "thinking",
-		wire: { slotId: "minion" },
+		available: true,
 	},
 	{
 		id: "memory.recall",
 		label: "Recall",
 		description: "Remembers earlier conversations and project context.",
 		group: "memory",
-		wire: { slotId: "rag_embed" },
+		available: true,
 	},
 	{
 		id: "memory.search",
 		label: "Search",
 		description: "Finds relevant snippets across saved notes and files.",
 		group: "memory",
-		wire: { slotId: "rag_embed" },
+		available: true,
 	},
 	{
 		id: "voice.listen",
 		label: "Listen",
 		description: "Transcribes what you say into text.",
 		group: "voice",
-		wire: { slotId: "voice" },
+		available: false,
 	},
 	{
 		id: "voice.speak",
 		label: "Speak",
 		description: "Reads replies out loud with a chosen voice.",
 		group: "voice",
-		wire: { slotId: "voice" },
+		available: false,
 	},
 	{
 		id: "vision.see",
 		label: "See",
 		description: "Looks at screenshots and images to answer questions about them.",
 		group: "vision",
-		wire: { role: "vision" },
+		available: false,
 	},
 ] as const;
 
 /**
- * Resolve the catalog against the advertised slots — availability is a
- * pure function of what the connected endpoint serves right now. An
- * empty `slots` (standalone / connecting) resolves everything to
- * unavailable, which is the honest Tier-1 answer.
+ * Fetch the current capability catalog. Async today so the real
+ * kernel-backed version can slot in without touching callers.
  */
-export function resolveCapabilities(
-	slots: readonly LoadedSlotSummary[],
-): readonly ClyffyCapability[] {
-	return CAPABILITY_CATALOG.map((entry) => ({
-		id: entry.id,
-		label: entry.label,
-		description: entry.description,
-		group: entry.group,
-		available: slots.some(
-			(slot) =>
-				(entry.wire.slotId === undefined || slot.slot_id === entry.wire.slotId) &&
-				(entry.wire.role === undefined || slot.role === entry.wire.role) &&
-				slot.status === "ready",
-		),
-	}));
+export async function listCapabilities(): Promise<readonly ClyffyCapability[]> {
+	return STUB_CAPABILITIES;
 }
 
 /** Group capabilities for UI rendering. */

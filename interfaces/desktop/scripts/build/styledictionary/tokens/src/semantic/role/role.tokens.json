@@ -20,15 +20,6 @@
 		"deep-fg":   { "$value": "{text.primary}",           "$description": "Foreground / on-primary-deep text." }
 	},
 
-	"cta": {
-		"$type": "color",
-		"$description": "Call-to-action role — a pure vocabulary alias onto primary (which is BOUND to brand blue per locked requirement #6). Exists so surfaces can say 'CTA' instead of 'primary' without a second binding to drift; rebinding primary rebinds cta automatically.",
-		"main": { "$value": "{primary.main}", "$description": "CTA lead — aliases primary.main (brand blue)." },
-		"glow": { "$value": "{primary.glow}", "$description": "CTA glow — aliases primary.glow." },
-		"fill": { "$value": "{primary.fill}", "$description": "CTA area fill — aliases primary.fill." },
-		"fg":   { "$value": "{primary.fg}",   "$description": "Foreground / on-CTA text — aliases primary.fg." }
-	},
-
 	"secondary": {
 		"$type": "color",
 		"$description": "Secondary brand surface — paired with primary. Default: ember.",

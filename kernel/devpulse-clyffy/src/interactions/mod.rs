@@ -42,7 +42,7 @@
 //!   engine's IP boundary. The loader redacts kernel terms via the
 //!   `kernel_terms.toml` dictionary before exposing any interaction
 //!   payload to the engine build.
-//! - Interaction templates stay with the Connectome code that drives
+//! - Interaction templates stay with the Cortex code that drives
 //!   them, so a new interaction is authored near its handlers
 //!   rather than across three crates.
 //!

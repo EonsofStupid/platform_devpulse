@@ -206,7 +206,7 @@ onMount(() => {
 			onDismiss={handleDismiss}
 		/>
 	{:else if entry.entryType === "gloss" && isGlossary(entry)}
-		<KnowledgeGlossCard {entry} showMascot onDismiss={handleDismiss} />
+		<KnowledgeGlossCard {entry} mascot onDismiss={handleDismiss} />
 	{/if}
 {/if}
 

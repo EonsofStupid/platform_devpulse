@@ -66,11 +66,6 @@
             "type": "command",
             "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/restore-memory.js\"",
             "timeout": 30
-          },
-          {
-            "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/inject-charter.js\"",
-            "timeout": 5
           }
         ]
       }

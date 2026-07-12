@@ -71,12 +71,6 @@ const m = $derived(renderForge({ kind: "chat-frame", preset: "default" }));
 		width: 100%;
 		height: 100vh;
 		overflow: hidden;
-		/* Container context — the chat OS-window's root seam for
-		   container-fluid (cqi) tokens. See S1.C in S1-FLUID-TOKENS.md.
-		   Already position:relative, so the absolute mode-selector /
-		   context-panel overlays keep their containing block. */
-		container-type: inline-size;
-		container-name: chat;
 	}
 
 	/* ── State: Open ────────────────────────────────────────── */

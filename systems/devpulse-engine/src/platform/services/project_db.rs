@@ -11,7 +11,7 @@
 
 use super::relational::PROJECT_SCHEMA;
 use anyhow::{Context, Result};
-use devpulse_store::{SqlAdapter, TursoAdapter};
+use devpulse_clyffy::cortex::persistence::{LibSqlAdapter, SqlAdapter};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -23,7 +23,7 @@ use tokio::sync::RwLock;
 /// Interior mutability via `RwLock<HashMap>` for lazy connection creation.
 pub struct ProjectDbManager {
     /// Open project databases, keyed by project ID (UUID string).
-    dbs: RwLock<HashMap<String, Arc<TursoAdapter>>>,
+    dbs: RwLock<HashMap<String, Arc<LibSqlAdapter>>>,
 }
 
 impl Default for ProjectDbManager {
@@ -55,7 +55,7 @@ impl ProjectDbManager {
         project_id: &str,
         project_root: &Path,
         project_name: &str,
-    ) -> Result<Arc<TursoAdapter>> {
+    ) -> Result<Arc<LibSqlAdapter>> {
         let db_path = Self::db_path(project_root);
 
         tracing::info!(
@@ -64,7 +64,7 @@ impl ProjectDbManager {
             "Initializing project database"
         );
 
-        let adapter = TursoAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
+        let adapter = LibSqlAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
             .await
             .with_context(|| {
                 format!(
@@ -110,7 +110,7 @@ impl ProjectDbManager {
     /// Get an already-opened project database by ID.
     ///
     /// Returns `None` if the project hasn't been initialized yet.
-    pub async fn get(&self, project_id: &str) -> Option<Arc<TursoAdapter>> {
+    pub async fn get(&self, project_id: &str) -> Option<Arc<LibSqlAdapter>> {
         self.dbs.read().await.get(project_id).cloned()
     }
 
@@ -125,14 +125,14 @@ impl ProjectDbManager {
         &self,
         project_id: &str,
         project_root: &Path,
-    ) -> Result<Arc<TursoAdapter>> {
+    ) -> Result<Arc<LibSqlAdapter>> {
         let db_path = Self::db_path(project_root);
 
         if !db_path.exists() {
             anyhow::bail!("Project database does not exist at {}", db_path.display());
         }
 
-        let adapter = TursoAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
+        let adapter = LibSqlAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
             .await
             .with_context(|| format!("Failed to open project database at {}", db_path.display()))?;
 

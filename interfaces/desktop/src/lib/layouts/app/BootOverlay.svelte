@@ -144,34 +144,25 @@ $effect(() => {
 			"layouts.app.BootOverlay",
 			`Boot complete — modelsReady=${platformState.modelsReady} firstRun=${platformState.modelsFirstRun} — dashboard takes over`,
 		);
-		// Wizard auto-open — TWO-STAGE (standalone-first). The app always
-		// loads Tier-1; the only question the wizard must force on the
-		// customer is the CONNECT-OR-SKIP decision, exactly once. The old
-		// gate keyed off `platformState.modelsReady` (local slot
-		// assignments) — permanently false under the connect-based model,
-		// which force-opened the wizard on every launch. The decision flag
-		// is persisted by connect_clyffy / skip_clyffy_setup; re-entry
-		// stays available from the status surfaces after Skip.
-		void import("$lib/sys/generated/bindings.js")
-			.then(({ commands }) => commands.isClyffySetupDecided())
-			.then((r) => {
-				if (r.status === "ok" && !r.data) {
-					wizardState.goTo("endpoint");
-					wizardState.open();
-					logInfo(
-						"layouts.app.BootOverlay",
-						"Connect-or-skip undecided — opened setup wizard on the endpoint step",
-					);
-				} else if (r.status === "error") {
-					logInfo(
-						"layouts.app.BootOverlay",
-						`Couldn't read setup decision (${String(r.error)}) — staying standalone, no forced wizard`,
-					);
-				}
-			})
-			.catch((e) => {
-				logError("layouts.app.BootOverlay", `setup-decision check failed: ${e}`);
-			});
+		// Wizard auto-open — authoritative signal is `platformState.modelsReady`
+		// which the boot snapshot computes as
+		// `setup_done && !registry.is_empty() && assigned > 0`
+		// (kernel side at `lib.rs:1195`). Anything less than fully ready means
+		// the customer needs the wizard: brand-new install, partial setup
+		// after a crash, or models scanned but no slots assigned.
+		//
+		// NOTE: we do NOT call `wizardState.refreshFirstRun()` here — that
+		// would fire a second IPC and overwrite the authoritative snapshot.
+		// `platformState.modelsFirstRun` is populated atomically by boot.
+		// The bool sync into `wizardState.firstRun` (used by the dashboard
+		// re-open path) happens lazily on dashboard mount.
+		if (!platformState.modelsReady) {
+			wizardState.open();
+			logInfo(
+				"layouts.app.BootOverlay",
+				`Models not ready (firstRun=${platformState.modelsFirstRun}) — opened setup wizard`,
+			);
+		}
 		fading = true;
 		setTimeout(() => {
 			visible = false;

@@ -1,7 +1,7 @@
 //! `devpulse.json` — per-model manifest: the single source of truth for a
 //! model's **identity**, **capability**, and **integrity** on this machine.
 //!
-//! Follows the same pattern Jan / Connectome / Ollama use: one machine-written
+//! Follows the same pattern Jan / Cortex / Ollama use: one machine-written
 //! manifest per model directory declares "what this model is" independent
 //! of filename, path, or how it got here. Presets bind to the stable
 //! `canonical_id`; downstream code never matches on filename strings.
