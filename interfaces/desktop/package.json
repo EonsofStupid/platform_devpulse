@@ -28,6 +28,7 @@
 		"ds:tokens:build": "node scripts/build/styledictionary/build.mjs",
 		"audit:cssvars": "node scripts/audit/css-var-audit.mjs",
 		"audit:color": "node scripts/audit/color-audit.mjs",
+		"audit:presetmap": "node scripts/audit/preset-map.mjs",
 		"audit:deps": "depcruise src --config .dependency-cruiser.cjs --output-type err-long",
 		"audit:deps:graph": "depcruise src/lib/design --config .dependency-cruiser.cjs --output-type mermaid",
 		"audit:unused": "knip",

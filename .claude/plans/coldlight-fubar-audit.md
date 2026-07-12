@@ -34,6 +34,7 @@ Unlayered CSS **always beats** `@layer`ed CSS at equal specificity. So the corre
 ### The vocabulary schism (roles)
 
 Four role vocabularies coexist; none is canonical:
+
 - `--primary-main` (generated, `styles/semantic/role.css`) — 6 consumers
 - `--accent-main` (generated, `styles/semantic/accent.css`) — 3 consumers
 - `--accent-primary-*` (hand shim, `app.css:21-44`) — 13 consumers
@@ -98,9 +99,11 @@ These four are the regression harness for the recovery: every phase below must l
 > Ordering rationale: fix **emission layering first** — rewriting teal sources while the component tier is unlayered changes nothing (unlayered literals still outrank the palette). Cascade → sources → consumers → layout → sediment.
 
 ### Phase 0 — Spec truth (docs only, before any code per spec-first)
+
 Declare the canon: `TRUTH.md` + `RenderForge.md` + corrected `.claude/CLAUDE.md`. Fix `design/CLAUDE.md` (behaviors not primitives, real axis count, renderForge-fn). Mark `MASTER-PLAN.md` and stale sections of `ADR-001` as superseded (ABSORB unique content first, never bare delete). Update `TOKEN_PIPELINE.md` to the real `.mjs` pipeline.
 
 ### Phase 1 — Win the cascade (the "properly loading" fix)
+
 1. Emit `components.generated.css` **inside `@layer tokens.components`** (sd.config format or build.mjs barrel `@import … layer(tokens.components)`).
 2. Stop `@theme` from re-emitting flattened duplicates of reference vars (emit registrations only, or `@theme inline` refs — verify Tailwind 4 semantics online first per Rust-weakness rule analog: verify before authoring).
 3. Promote the app.css role vocabulary (S2 shim) into SD5 source under `tokens/src/semantic/` → emitted in `tokens.semantic`; delete the shim.
@@ -108,18 +111,23 @@ Declare the canon: `TRUTH.md` + `RenderForge.md` + corrected `.claude/CLAUDE.md`
 Verify: `audit:cssvars` contested count drops; visual spot-check that accents bind.
 
 ### Phase 2 — Re-source the component tiers (kill the 360 teal literals)
-Rewrite `tokens/src/presets/*.tokens.json` color axes as `{accent.*}`/`{color.*}` DTCG references (emit with `outputReferences: true` for the components platform). Re-seed the `@defaults` doc-comment blocks to reference role vars. Retarget `svg-accent-defaults.css` to `--accent-primary-*`. Delete the app.css button-primary preset shim (S1). Batched ≤5 files; presets are 9 files → 2 slices.
+
+Superseded in detail by `SEED-PRESETS.md` Part A §A5 (Pass 1) — summary:
+rewrite `tokens/src/presets/*.tokens.json` color axes as `{accent.*}`/`{color.*}` DTCG references (emit with `outputReferences: true` for the components platform). Re-seed the `@defaults` doc-comment blocks to reference role vars. Retarget `svg-accent-defaults.css` to `--accent-primary-*`. Delete the app.css button-primary preset shim (S1). Batched ≤5 files; presets are 9 files → 2 slices.
 
 ### Phase 3 — Consumption sweep (app surface)
+
 Replace, in batches of ≤5 files: 154 direct palette reaches → role vars; 95 undefined-var consumptions (define the missing `--accent-{section,service,tile,positive}-*` as REAL role tokens in SD5 source if the vocabulary is wanted, else rebind consumers); 72 legacy `--color-*` reaches → semantic tokens; 152 runtime hardcoded colors (excluding the generative backgrounds + debug overlay, which are legitimately raw). Fix the 3 circular barrel imports while touching those domains.
 
 ### Phase 4 — Layout truth
+
 1. Chat-tiny: filter `chat` out of `tauri_plugin_window_state` (per-window `StateFlags` / skip list) or validate restored geometry against the proportional minimum on show.
 2. Finish the vw→cqi migration: devtools subtree (the declared-but-unused `devtools` seam), knowledge blocks, wizard views — and unify the duplicated AnatomyTile/SaveSlotCard/Constellation copies at the source (extend-over-rewrite).
 3. Re-slope the micro-clamps if fluidity should be visible (owner call on travel range).
 4. **DECISION NEEDED (owner):** should shell chrome (topbar/sidebar/statusbar heights) stay static rem (predictable cockpit) or scale with a seam? Recommendation: keep static; the directive's value is in the content zones.
 
 ### Phase 5 — Sediment excision (ABSORB before DELETE; deferred ≠ retired)
+
 - NOT deletion candidates without owner call: the 586-file unused-component catalog overlaps the deliberate "73 components restored as blank shells" Sprint-02 plan — reconcile against that sprint first.
 - Deletion/absorption candidates: `attachments/`, `presets/` (fold façade intent into `visual/presets`), `patterns/` stubs, `provider/` (or mount it — it's the only place the ColdLight context would live), `config/` + `coldlight.config.ts` + `surface.config.ts` (either wire as actual SSOT or remove the fiction), fictional `design/package.json` exports, `.cowlevel/` → move out of `src/` or gitignore.
 - Finish the `StyleMacro → renderForge` rename across the ~20 residue files (CC-007 multi-search).
@@ -140,7 +148,7 @@ Agent transcripts + `css-var-audit.json` in session scratchpad; re-runnable anyt
 
 ---
 
-# ADDENDUM — Resumed audit 2026-07-11: OKLCH · W3C · RAC · Fluid XY
+## ADDENDUM — Resumed audit 2026-07-11: OKLCH · W3C · RAC · Fluid XY
 
 Four further deep-audit agents + a new color-science tool (`pnpm audit:color` —
 culori-backed gamut / WCAG-contrast / hex-drift checks, `scripts/audit/color-audit.mjs`).
@@ -199,9 +207,42 @@ Every dimension found quality infrastructure with no consumers:
 - **NEW Phase 3.5 — A11y correctness** (can run parallel to Phase 3): DialogContent `open` fix; wire `_shared/focus-trap` into sheet/popover + name popovers; consolidate roving/typeahead on `_shared`; toolbar tab stop; chat live-region; role fg contrast fixes + text-muted raise; flip storybook a11y to error + invoke `schema/enforce.ts` in test:arch or delete it; then delete `attachments/`.
 - **Phase 4 (layout) rewritten** per fluid fix package above.
 
+## Pass ledger (pre-execution focused passes, started 2026-07-11)
+
+**Pass 1 — Preset/seed architecture: DONE.** SSOT authored at
+`src/lib/design/SEED-PRESETS.md` Part A (reconciled with VISUAL-LANGUAGE.md +
+RENDERFORGE.md; §21's axis-composition model is restored, not invented).
+New tool `pnpm audit:presetmap` (CIEDE2000 mapper): of **427 preset color
+literals — 187 EXACT + 196 NEAR bind mechanically (~90%), only 44 are true
+seeds**, clustering into: retro's synthwave quartet (hues 280/150/330/90),
+one glass/neuro/stark border-tint + alpha ramp, and button-destructive =
+danger-role derivation. State variants (~half the tier) are DEAD at runtime
+(RenderForge B2 — hover is a brightness filter) → they become build-time
+derivations (formulas in Part A §A4). Phase 2 §3 is superseded by the
+restoration procedure in Part A §A5.
+
+**Pass 5 — Chroma envelope: computed.** Per-hue sRGB max-chroma at all 11 L
+stops (culori clampChroma): brand-electric's flat C 0.22 clips at **11/11
+stops** (max achievable 0.143 @ L 0.81); brand-cyan + brand-azure clip 10/11;
+even teal (C 0.08) clips at 5/11 extremes. Because clipping already happens
+in-browser, envelope-clamping ≈ current rendered reality.
+- **Option A (recommended, minimal):** per-stop `C = min(flatC, 0.95 × cusp(L,H))`
+  in generate-scales.mjs — restores honesty, near-zero visual change.
+- **Option B (designed future):** per-tier relative saturation
+  `C = k × cusp(L,H)` — uniform perceptual weight across hues (fixes the
+  3.7× cross-hue variance), visible redesign, owner eyes required.
+
+**Pass 2 — Effects library census + composition contract: agent in flight**;
+lands as SEED-PRESETS Part A addendum (effect knobs/derivations).
+**Pass 3 — Consumption binding rules + per-site map: agent in flight**; feeds
+Phase 3.
+**Pass 4 — Fluid runtime measurement: PENDING a run-dev session** — extend
+TokenDebugOverlay to log real zone inline-sizes, then retune ranges from
+data (agent-estimated 30–75rem must be validated, not trusted).
+
 ## New owner decisions
 
-5. **Ramp chroma strategy**: taper per-stop (recommended) vs gamut-map at build vs accept browser clamping.
-6. **Hex fallback**: drop from generated tokens (recommended after shadow fix) vs regenerate gamut-mapped.
-7. **Behaviors north star**: relabel docs to Zag/Ark-style anatomy model (recommended — matches reality) vs refactor toward RAC vocabulary.
-8. **`--text-muted`**: raise lightness to ~0.62 (recommended) vs restrict to large text.
+- **Decision 5 — Ramp chroma strategy**: taper per-stop (recommended; see Pass-5 Option A) vs full perceptual re-normalization (Option B) vs accept browser clamping.
+- **Decision 6 — Hex fallback**: drop from generated tokens (recommended after shadow fix) vs regenerate gamut-mapped.
+- **Decision 7 — Behaviors north star**: relabel docs to Zag/Ark-style anatomy model (recommended — matches reality) vs refactor toward RAC vocabulary.
+- **Decision 8 — `--text-muted`**: raise lightness to ~0.62 (recommended) vs restrict to large text.

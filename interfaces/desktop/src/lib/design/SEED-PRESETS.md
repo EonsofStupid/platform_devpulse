@@ -1,8 +1,153 @@
-# Seed Preset Catalog — Complete Token Inventory
+# Seed Preset Catalog — Architecture + Token Inventory
 
-> Deep-scanned from entire codebase. Every `var()` reference, every hardcoded value,
-> every Tailwind arbitrary value captured. This is the full visual vocabulary.
-> VPB parses this via AST to populate the style editor.
+> Two documents in one. **Part A (below, added 2026-07-11)** is the SEED
+> ARCHITECTURE — how preset families are parameterized, derived, and
+> generated; it is the SSOT for Phase 2 of the FUBAR recovery
+> (`.claude/plans/coldlight-fubar-audit.md`). **Part B** (the numbered
+> inventory sections) is the VPB browsing catalog, deep-scanned 2026-03-24;
+> its hub tables predate the 16-hue palette and the role vocabulary — see
+> the staleness notes inline.
+
+---
+
+## Part A — Seed Architecture (SSOT, 2026-07-11)
+
+### A1. The model (restored, not invented)
+
+§21 of this document always defined the model: **a preset is a per-axis
+composition of token references** (surface + blur + depth + bevel + glow +
+frame + radius), with accent identity applied as an override. That model
+was abandoned in practice when the preset families were flattened verbatim
+into `tokens/src/presets/*.tokens.json` as ~427 raw `oklch()` literals
+("moved verbatim from the retired style-presets.json" — the files'
+own headers). Phase 2 restores the model. Nothing here contradicts
+RENDERFORGE.md — the resolver chain (P2/P3) is unchanged; only what the
+`--preset-*` tier is AUTHORED from changes.
+
+### A2. Ground truth from the mapper (`pnpm audit:presetmap`)
+
+Every color literal in every family, matched against the emitted
+palette/role pool by CIEDE2000 (tool: `scripts/audit/preset-map.mjs`;
+rerun after any palette change — numbers below are the 2026-07-11 run,
+pool = 562 vars):
+
+| Family | Literals | EXACT (ΔE≤2) | NEAR (ΔE≤6) | SEED (ΔE>6) |
+| --- | --- | --- | --- | --- |
+| button | 24 | 8 | 10 | 6 |
+| chat | 2 | 2 | 0 | 0 |
+| chrome | 90 | 33 | 55 | 2 |
+| flat | 37 | 14 | 22 | 1 |
+| glass | 69 | 36 | 27 | 6 |
+| neuro | 65 | 39 | 24 | 2 |
+| retro | 56 | 13 | 22 | 21 |
+| stark | 84 | 42 | 36 | 6 |
+| **total** | **427** | **187** | **196** | **44** |
+
+**~90% of the preset tier binds mechanically to existing tokens.** The 44
+SEED literals are the real family parameters, and they cluster:
+
+- **retro** is a self-contained synthwave palette (bg hue 280 purple,
+  accent hue 150–160 green, glow hue 330 rose at C 0.25–0.28, text hue 90
+  amber). Deliberately OUTSIDE the 16-hue system → retro gets true family
+  seed tokens (and its C 0.28 values must pass the gamut gate, see A5).
+- **glass/neuro/stark borders** are one low-chroma teal-band tint
+  (hue 180–200, C 0.03–0.12) swept across an alpha ramp (0.1 → 0.6) →
+  ONE border-tint seed + the alpha ramp, not 14 independent literals.
+- **button-destructive** is hue-25 at darker L than `signal.error` →
+  NOT a seed; a state DERIVATION of the danger role (A4).
+
+### A3. Seed schema
+
+Family-level seeds live in the family's tokens file under
+`$extensions["com.devpulse.coldlight"].seeds` (same namespace as the
+fluid extension; the `com.coldlight` root is being retired — W3C audit):
+
+```jsonc
+// tokens/src/presets/glass.tokens.json (illustrative)
+"$extensions": {
+  "com.devpulse.coldlight": {
+    "seeds": {
+      "accent":      { "ref": "{accent.main}" },        // role-bound identity
+      "borderTint":  { "hue": 200, "chroma": 0.06 },    // family constant
+      "surfaceBase": { "ref": "{glass.deep}" },
+      "alphaRamp":   { "rest": 0.15, "hover": 0.22, "active": 0.3, "disabled": 0.1 },
+      "glowAlpha":   0.35,
+      "fillAlpha":   0.08
+    }
+  }
+}
+```
+
+Rules:
+
+1. A seed is either a **ref** (rebindable through the role/palette system)
+   or a **scalar/hue constant** (a true family parameter, e.g. retro's 330
+   rose). Anything expressible as a ref MUST be a ref.
+2. `glowAlpha 0.35` / `fillAlpha 0.08` are the system-wide convention
+   (already canon in `semantic/accent` and `semantic/role`) — families may
+   override, never silently diverge.
+3. Seeds are the ONLY place a preset family may introduce a color that is
+   not a palette/role reference. The mapper enforces this: any literal in
+   a preset file that is neither a `{ref}` nor derived from a declared
+   seed is a violation.
+
+### A4. Derivation formulas (states are computed, not authored)
+
+The hover/active/disabled variants (~half of all preset entries) are
+hand-authored literal drift today — and currently DEAD at runtime:
+RENDERFORGE.md B2 notes no call site passes a non-default state; real
+hover is the `[data-cl-interactive]:hover` brightness filter. When state
+activation lands, variants must be DERIVED from the rest value:
+
+| State | Formula (canonical, from the proven app.css button shim) |
+| --- | --- |
+| hover | `color-mix(in oklch, <rest> 82%, black 12%)` — or alphaRamp.hover for alpha-carried axes |
+| active | `color-mix(in oklch, <rest> 66%, black 28%)` |
+| disabled | rest at `alphaRamp.disabled`, chroma × 0.5 |
+| glow axes | same hue as main, `glowAlpha`; hover widens spread one step (`--glow-spread-*`), never re-colors |
+
+Derivation runs at BUILD time (an SD5 transform or a derive step in
+`build.mjs`), emitting the same `--preset-{id}-{state}-{axis}` names the
+resolver already expects. Hand-authoring a state literal when a formula
+exists is a review-rejectable offense.
+
+### A5. Restoration procedure (Phase 2, now mechanical)
+
+1. **Bind**: rewrite EXACT + NEAR literals (383) as `{refs}` per the
+   mapper's candidate column (`audit:presetmap --json` has every mapping).
+   NEAR deltas are sub-threshold by construction; spot-check the ~20
+   largest (ΔE 5–6) visually.
+2. **Seed**: declare the 44 SEED literals as family seeds per A3 (retro
+   gets its quartet; glass/neuro/stark get border-tint + alphaRamp).
+3. **Gate**: components platform emits with `outputReferences: true`
+   (already flipped in Phase 1); `audit:presetmap` must report **0
+   unclassified literals**; `audit:color` must report 0 out-of-gamut in
+   emitted presets (retro's C 0.28 entries get gamut-mapped or the seed
+   chroma lowered — owner call flagged in the plan).
+4. **Retire**: delete the app.css button-primary retarget shim (S1) and
+   `svg-accent-defaults.css`'s teal pin (retarget to `--accent-main`).
+5. `visual/presets/*.ts` (the flattening's source) is then dead —
+   ABSORB check, then delete; `derive-kind-families.mjs` reads the JSON.
+
+### A6. What stays out of scope here
+
+Component `@defaults` doc-headers (the `--style-*` tier) keep their
+literal seeds for now — they are per-kind, not family-scale; converting
+them rides the Phase 3 consumption sweep. The effects library contract
+(glow/bevel/keyframes/SVG parameterization) is being authored from the
+Pass-2 effects audit and lands as its own section when complete.
+
+---
+
+## Part B — Token Inventory (VPB catalog, scanned 2026-03-24)
+
+> STALENESS NOTE (2026-07-11): tables below predate the 16-hue palette
+> (§6 lists 6 hubs; there are 16 accent triplets now), the role
+> vocabulary (`--accent-{primary|secondary|danger|success|warning|muted}-*`
+> is canonical — see `semantic/accent/accent.tokens.json`), and the
+> primary=blue lock (§18 says "Teal (Primary)"; primary is BLUE per
+> role.tokens.json). Treat Part B as the browsing catalog it is; Part A
+> and the token sources win every conflict.
 
 ---
 
