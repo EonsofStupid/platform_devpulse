@@ -1009,7 +1009,7 @@ const config = {
 				// vars — reconciled 2026-07-07. Do not remove without re-checking
 				// `var(--border-width-` / `var(--outline-offset-` consumers.
 				cssFile('border-width.css', pathFilter('borderWidth', 'outlineOffset'), layers.primitives),
-				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index'), layers.primitives),
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion', 'duration', 'easing'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
@@ -1028,7 +1028,7 @@ const config = {
 				cssFile('transition.css', pathFilter('transition'), layers.semantic),
 				cssFile('interaction.css', pathFilter('interaction'), layers.semantic),
 				cssFile('overlay.css', pathFilter('overlay'), layers.semantic),
-				cssFile('scrollbar.css', pathFilter('scrollbar'), layers.semantic),
+				cssFile('scrollbar.css', pathFilter('scrollbar', 'scrollbar-size'), layers.semantic),
 				cssFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'), layers.semantic),
 				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
 			cssFile('text.css', pathFilter('text'), layers.semantic),
@@ -1107,7 +1107,7 @@ const config = {
 		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
 		'theme-interaction': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('interaction.css', pathFilter('interaction'))] },
 		'theme-overlay': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('overlay.css', pathFilter('overlay'))] },
-		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
+		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar', 'scrollbar-size'))] },
 		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'))] },
 		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
 		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
@@ -1136,7 +1136,7 @@ const config = {
 			files: [
 				typesFile('elevation.d.ts', pathFilter('elevation')),
 				typesFile('border.d.ts', pathFilter('border', 'borderPreset')),
-				typesFile('interaction.d.ts', pathFilter('interaction', 'overlay', 'scrollbar')),
+				typesFile('interaction.d.ts', pathFilter('interaction', 'overlay', 'scrollbar', 'scrollbar-size')),
 				typesFile('backdrop.d.ts', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line')),
 				typesFile('text.d.ts', pathFilter('text')),
 				typesFile('signal.d.ts', pathFilter('signal')),
