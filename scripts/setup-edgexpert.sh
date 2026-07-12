@@ -4,8 +4,8 @@
 #
 # RUN THIS ON THE EDGEXPERT ITSELF (locally or over SSH) — NOT in a cloud
 # session. Claude Code is an API-backed agent CLI; installing it does not run a
-# model locally. Local inference on the GB10 is DevPulse's own job
-# (kernel/devpulse-clyffy + kernel/model-loader), not this installer.
+# model locally. Inference on the GB10 is Clyffy's job (the clyffyos repo,
+# headless), not this installer's.
 #
 # Usage:
 #   bash scripts/setup-edgexpert.sh          # install + verify
@@ -132,7 +132,7 @@ Next steps (on the EdgeXpert):
      Requires a PAID plan (Pro / Max / Team / Enterprise / Console).
      Free Claude.ai does NOT include Claude Code.
   2. Reminder: this CLI is API-backed. It is not local inference.
-     Loading a model onto the GB10's 128 GB is DevPulse's own pipeline
-     (kernel/devpulse-clyffy + kernel/model-loader), run via `cargo xtask run-dev`.
+     Loading a model onto the GB10's 128 GB is Clyffy's pipeline
+     (the clyffyos repo, headless); DevPulse connects to it over the wire.
 ------------------------------------------------------------------------------
 EOF

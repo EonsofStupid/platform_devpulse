@@ -81,7 +81,7 @@ pub struct SlotInfo {
     /// filter, wake-word detector). They live in the same slot table as user
     /// slots and use the same mutation path — this flag just drives the
     /// devtool grouping: Slots tab filters `!builtin`, System tab filters `builtin`.
-    /// Kernel SSOT: `kernel/model-loader/config/slots.default.toml` with
+    /// SSOT: the engine's `config/slots.default.toml` with
     /// `builtin = true` per entry.
     pub builtin: bool,
     /// Architecture of the assigned model (e.g. "qwen3", "llama"). None if unassigned.
@@ -119,7 +119,7 @@ pub struct ModelInfo {
 
 // ── Conversion helpers (reused by IPC commands AND boot push) ────
 
-/// Convert kernel `ModelRegistryEntry` → frontend `ModelInfo`.
+/// Convert engine `ModelRegistryEntry` → frontend `ModelInfo`.
 pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) -> ModelInfo {
     ModelInfo {
         id: e.id.clone(),
@@ -143,7 +143,7 @@ pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) ->
     }
 }
 
-/// Convert kernel `Slot` → frontend `SlotInfo`, with registry for cross-ref.
+/// Convert engine `Slot` → frontend `SlotInfo`, with registry for cross-ref.
 pub fn slot_to_slot_info(
     s: &devpulse_engine::platform::Slot,
     models: &[devpulse_engine::platform::ModelRegistryEntry],
@@ -735,7 +735,7 @@ pub fn recommend_primary_for_slot(
 }
 
 /// One-button install — download the bundle, scan, assign to slot,
-/// load. Composed from the four kernel verbs into a single atomic
+/// load. Composed from the four loader verbs into a single atomic
 /// chain so the wizard's "install" CTA fires once and tracks progress
 /// via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
 ///
@@ -1892,7 +1892,7 @@ pub fn encode_image(
 
 // ─────────────────────────────────────────────────────────────────
 // Compatibility registry — architecture × backend matrix and the
-// pre-download resolver. See `kernel/model-loader/src/registry/`
+// pre-download resolver. See the engine's `platform/model_registry/`
 // for the authoring source.
 // ─────────────────────────────────────────────────────────────────
 

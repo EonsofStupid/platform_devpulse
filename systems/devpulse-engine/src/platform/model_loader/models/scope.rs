@@ -13,7 +13,7 @@
 //! Discovery walks the whole tree recursively, so a project-scoped
 //! model is still loadable into any slot — scope is a STORAGE concept,
 //! not an access gate. UI surfaces decide whether to filter results by
-//! scope; the kernel doesn't.
+//! scope; the engine doesn't.
 //!
 //! ## Path safety
 //!

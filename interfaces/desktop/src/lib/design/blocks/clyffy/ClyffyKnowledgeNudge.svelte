@@ -20,7 +20,7 @@
 
 	- `KnowledgeDeck` for context-driven auto-mount (chat empty,
 	  wizard phase chip — picks the right variant per `entryType`
-	  pulled from the kernel selector).
+	  pulled from the engine's selector).
 	- `KnowledgeTerm` for inline hover-glossary on technical
 	  terms (lighter than this block; no helpful/not-helpful).
 

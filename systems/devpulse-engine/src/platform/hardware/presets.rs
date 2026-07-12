@@ -3,9 +3,8 @@
 //!
 //! This module is the TOML-driven replacement for the hardcoded
 //! `preset_for_tier()` function that used to live in [`auto_config`].
-//! The content moved verbatim into
-//! `kernel/model-loader/config/presets.default.toml` so presets become
-//! editable without recompiling.
+//! The content lives in the engine's `config/presets.default.toml`
+//! so presets stay editable without recompiling.
 //!
 //! # Merge semantics
 //!
@@ -19,7 +18,7 @@
 //!
 //! `{userdata_dir}/config/presets.toml`, when present and parseable,
 //! fully replaces the embedded defaults — same pattern as every other
-//! kernel-owned config file (`slots.default.toml`, `voices.default.toml`,
+//! engine-owned config file (`slots.default.toml`, `voices.default.toml`,
 //! `wizard_copy.default.toml`).
 
 use super::auto_config::{AutoConfig, BrainSwapPolicy, SlotRecommendation};
@@ -30,8 +29,8 @@ use std::path::Path;
 
 /// Embedded default preset catalog, bundled at compile time.
 ///
-/// Path is relative to this source file. `../../config/` walks from
-/// `src/hardware/presets.rs` up to `kernel/model-loader/config/`.
+/// Path is relative to this source file, walking from
+/// `src/platform/hardware/presets.rs` up to the engine's `config/`.
 const DEFAULT_TOML: &str = include_str!("../../../config/presets.default.toml");
 
 // ── TOML file shape ──────────────────────────────────────────────

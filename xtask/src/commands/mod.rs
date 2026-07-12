@@ -8,7 +8,6 @@ pub mod build_release;
 pub mod deps;
 pub mod dev;
 pub mod fetch_devforge;
-pub mod fetch_llama_cpp;
 pub mod fetch_surreal;
 pub mod ip_boundary;
 pub mod launch;

@@ -3,6 +3,7 @@
  * @module @devpulse/domains/chat/data-access/chat.state.svelte
  */
 
+import { announce } from "$lib/design/behaviors/_shared/live-region/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import {
 	generateText,
@@ -112,6 +113,9 @@ class ChatState {
 		this.isGenerating = true;
 		this.streamingContent = "";
 		this.generatingTokens = 0;
+		// The streaming bubble is aria-hidden (token mutations would spam
+		// screen readers) — cue the turn start explicitly instead.
+		announce("Clyffy is responding");
 
 		const unlistenTokens = onInferenceToken((text) => {
 			this.streamingContent += text;
@@ -140,10 +144,14 @@ class ChatState {
 				latencyMs,
 			);
 			this.messages = [...this.messages, assistantTurn];
+			// The stored turn lands in the role=log stream, which reads the
+			// content; this cue marks the turn boundary for screen readers.
+			announce("Response complete");
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			this.error = msg;
 			logError("chat", `generateResponse: failed — ${msg}`);
+			announce("Response failed", "assertive");
 		} finally {
 			unlistenTokens();
 			this.isGenerating = false;

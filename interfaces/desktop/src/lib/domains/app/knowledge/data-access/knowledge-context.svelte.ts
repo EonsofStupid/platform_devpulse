@@ -12,7 +12,7 @@
  * `KnowledgeContext` frames. Components push a frame on mount
  * ("we're inside the wizard's preset phase") and pop on destroy.
  * The TOP frame is what `KnowledgeDeck` reads when it asks the
- * kernel for an entry — the kernel selector uses `tool` + tag
+ * engine for an entry — the engine's selector uses `tool` + tag
  * affinity to pick a contextually-relevant entry.
  *
  * # Why a stack (not just a single current frame)
@@ -28,7 +28,7 @@
  * The picker (`pickNextEntry` on the deck) consults a recent-id
  * memory and skips entries shown within the last N minutes —
  * this is what makes the same surface not repeat the same DYK
- * on every revisit. Combined with the kernel-side cooldown
+ * on every revisit. Combined with the engine-side cooldown
  * (3600s default), the user sees variety without manual rotation.
  *
  * # The "deep planning" hook
@@ -52,14 +52,14 @@ export interface KnowledgeContextFrame {
 	/** Stable id for this frame — used when popping. */
 	id: string;
 	/**
-	 * Tool tag matching kernel `tool` field on entries
+	 * Tool tag matching the engine's `tool` field on entries
 	 * (e.g. `"chat"`, `"wizard"`, `"models"`, `"devforge"`).
-	 * Drives affinity weighting in the kernel selector.
+	 * Drives affinity weighting in the engine's selector.
 	 */
 	tool: string;
 	/**
 	 * Optional sub-context (e.g. `"chat:empty"` / `"wizard:preset"` /
-	 * `"action:download:in-progress"`). The kernel doesn't use this
+	 * `"action:download:in-progress"`). The engine doesn't use this
 	 * for selection today — it's stashed for cortex-driven
 	 * enrichment to consume in the future.
 	 */
@@ -141,7 +141,7 @@ class KnowledgeContextState {
 		// TODO(cortex-bridge): when Platform::capture_chat_turn
 		// lands, this method becomes async and consults the
 		// active session's recent turns + the in-flight action
-		// tracker. For now we return the raw frame — the kernel
+		// tracker. For now we return the raw frame — the engine's
 		// selector still gets tool + cooldown signals.
 		return this.current;
 	}

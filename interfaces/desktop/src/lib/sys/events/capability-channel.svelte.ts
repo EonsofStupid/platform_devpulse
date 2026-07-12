@@ -50,7 +50,7 @@ import { commands } from "$lib/sys/generated/bindings.js";
 /**
  * Why a capability rebind happened.
  *
- * SSOT: `kernel/model-loader/src/traits/events.rs` →
+ * SSOT: the engine's `platform/model_loader/traits/events.rs` →
  * `enum RebindReason`. Hand-defined here because no Tauri
  * command currently returns this type — the variant flows in
  * over the `model:capability-rebound` Tauri event payload as a

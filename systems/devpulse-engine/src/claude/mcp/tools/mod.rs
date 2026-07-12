@@ -10,7 +10,7 @@ pub mod query_libsql;
 pub mod repo_get_file;
 pub mod repo_list_files;
 
-#[cfg(feature = "kernel")]
+#[cfg(feature = "full")]
 pub mod shell_execute;
 
 // ── Shared helpers used by tool implementations ──────────────

@@ -2,47 +2,19 @@
 @import "$lib/design/index.css";
 
 /* ═══════════════════════════════════════════════════════
-   Semantic accent layer — VISUAL-EDITOR REBINDABLE.
-   Components consume --accent-primary-* / --accent-secondary-* /
-   --accent-danger-* / --accent-success-* / --accent-warning-* /
-   --accent-muted-*. They MUST NOT reach for palette names
-   (--accent-blue-*, --accent-teal-*) directly — the whole point
-   of this indirection is that a visual editor can rebind what
-   "primary" looks like by changing these pointers, and every
-   component updates without code changes.
+   Semantic role vocabulary (--accent-{role}-{main,glow,fill})
+   is GENERATED — SD5 emits it in @layer tokens.semantic from
+   tokens/src/semantic/accent/accent.tokens.json, aliased onto
+   the role tier (semantic/role/role.tokens.json = the binding
+   SSOT). The hand-authored copy that lived here was retired
+   2026-07-11 (FUBAR audit, shim S2). Rebind roles in the role
+   SSOT, never here.
 
-   Default binding: primary = blue, secondary = purple,
-   danger = coral, success = green, warning = gold, muted = frost.
-
-   TODO: promote to SD5 source tokens once the visual-editor
-   binding UX stabilizes. For now, hand-authored so the semantic
-   layer exists while the generator catches up.
+   Remaining shims below (backdrop mirrors, button-primary
+   preset retarget) die in Phase 2 when the preset tier is
+   re-sourced as palette references.
    ═══════════════════════════════════════════════════════ */
 :root {
-	--accent-primary-main: var(--accent-blue-main);
-	--accent-primary-glow: var(--accent-blue-glow);
-	--accent-primary-fill: var(--accent-blue-fill);
-
-	--accent-secondary-main: var(--accent-purple-main);
-	--accent-secondary-glow: var(--accent-purple-glow);
-	--accent-secondary-fill: var(--accent-purple-fill);
-
-	--accent-danger-main: var(--accent-coral-main);
-	--accent-danger-glow: var(--accent-coral-glow);
-	--accent-danger-fill: var(--accent-coral-fill);
-
-	--accent-success-main: var(--accent-green-main);
-	--accent-success-glow: var(--accent-green-glow);
-	--accent-success-fill: var(--accent-green-fill);
-
-	--accent-warning-main: var(--accent-gold-main);
-	--accent-warning-glow: var(--accent-gold-glow);
-	--accent-warning-fill: var(--accent-gold-fill);
-
-	--accent-muted-main: var(--accent-frost-main);
-	--accent-muted-glow: var(--accent-frost-glow);
-	--accent-muted-fill: var(--accent-frost-fill);
-
 	/* Backdrop mirrors for semantic primary — used by full-viewport
 	   background variants (DynamicBackground, app.css route overrides). */
 	--backdrop-glow-primary: color-mix(in oklch, var(--color-brand-blue-500) 35%, transparent);

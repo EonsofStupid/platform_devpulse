@@ -6,7 +6,7 @@
 	`SubsystemTile` per Clyffy subsystem the dev cares about most:
 	cortex (memory), vision (eyes), ears (STT/Sherpa), mouth (TTS),
 	and reasoning (RRD). Each tile shows live status on hover + a
-	one-click verb that hits the real kernel command (load/reload).
+	one-click verb that hits the real backend command (load/reload).
 
 	# Why this lives in `_shared`, not `design/blocks`
 
@@ -127,7 +127,7 @@ const cortexState: SubsystemState = $derived.by<SubsystemState>(() => {
 
 /**
  * Reasoning · RRO state machine (the "subconscious"). Drives off
- * `rroState.rroSnapshot` which mirrors the kernel's live state
+ * `rroState.rroSnapshot` which mirrors the backend's live state
  * transitions via `platform:rro-state-changed`.
  *
  * State map → tone:
@@ -275,7 +275,7 @@ const cortexVerbs = $derived<SubsystemVerb[]>([
 
 /**
  * Reasoning verbs — drive the RRO state machine from the tile.
- * Each verb fires a kernel `trigger_*` IPC and the live
+ * Each verb fires a `trigger_*` IPC and the live
  * `platform:rro-state-changed` event updates `rroSnapshot` so
  * the tile reflects the new state without a manual refresh.
  *
@@ -290,7 +290,7 @@ const cortexVerbs = $derived<SubsystemVerb[]>([
  *
  * Each verb's `busy` flag mirrors the matching
  * `rroState.rroActionLoading.{gather,purge,fork}` field so the
- * tile shows a spinner while the kernel transition is in flight.
+ * tile shows a spinner while the backend transition is in flight.
  */
 const reasoningVerbs = $derived<SubsystemVerb[]>([
 	{

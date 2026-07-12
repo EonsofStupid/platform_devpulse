@@ -1,8 +1,8 @@
 //! Ollama service — engine facade over the local adapter.
 //!
 //! DevPulse owns the lifecycle (spawn / attach / health / shutdown,
-//! HTTP client, model commands) via [`super::adapter::OllamaAdapter`]
-//! (kernel-severance relocated it here). This facade wraps the adapter
+//! HTTP client, model commands) via [`super::adapter::OllamaAdapter`].
+//! This facade wraps the adapter
 //! with the platform `Service` trait and preserves the public surface the
 //! Tauri commands and `Platform::ensure_ollama_started` depend on.
 
@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 
 // `OllamaModel` only contains generic Ollama API fields (name, size,
 // digest, …). It crosses the Tauri IPC boundary directly (the engine
-// always links `specta`). DevPulse owns the adapter now (kernel-severance).
+// always links `specta`). DevPulse owns the adapter.
 pub use super::adapter::OllamaModel;
 
 /// Ollama service — thin engine wrapper around [`OllamaAdapter`].

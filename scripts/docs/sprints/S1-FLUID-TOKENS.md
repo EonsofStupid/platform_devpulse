@@ -550,8 +550,35 @@ rules (all `@container` hits are ColdLight JSDoc metadata parsed by `scan-annota
 
 ### Gate (S1.C)
 
-- [ ] Generated `--size-*` / `--padding-*` show `clamp(… cqi …)`; `--spacing-*` / `--font-size-*` unchanged (`vw`)
-- [ ] Container contexts live on: shell content/sidebar/contextExpanded zones, `.chat-frame`, `.shell-root` — and NOT the frame root
-- [ ] No overlay repositioning / zone collapse at runtime (fixed-descendant audit)
-- [ ] `pnpm ds:tokens:build` + `pnpm check` — 0 errors
+- [x] Generated `--size-*` / `--padding-*` show `clamp(… cqi …)`; `--spacing-*` / `--font-size-*` unchanged (`vw`) — verified 2026-07-11 against `styles/primitives/spacing.css`
+- [x] Container contexts live on: shell content/sidebar/contextExpanded zones, `.chat-frame`, `.shell-root` — and NOT the frame root — verified 2026-07-11 (audit: these are the ONLY 6 `container-type` declarations in `src/`)
+- [ ] No overlay repositioning / zone collapse at runtime (fixed-descendant audit) — pending the L-phase run-and-observe sweep
+- [x] `pnpm ds:tokens:build` + `pnpm check` — 0 errors (2026-07-11)
 - [ ] Every token-source edit is followed by regeneration + committed output (regen is NOT hook-enforced — `tokens-regen` lefthook glob watches only legacy `tokens.ts`; flagged for follow-up)
+
+### S1.C adoption contract (added 2026-07-11 — the payoff phase)
+
+The plumbing above landed 2026-07-07 but adoption did not: only Button +
+ContextualHelp consumed the cqi tokens, and content views kept viewport
+breakpoints that ignore the seams. The adoption rules, now in force:
+
+1. **`Section` is the canonical fluid-token consumer** —
+   `src/lib/design/components/section/Section.svelte`. It owns section
+   rhythm via `--padding-*` (cqi), rebinds the `--accent-section-{main,
+   glow,fill}` trio from a named accent, and optionally declares a
+   container seam (`container` prop). Views compose `Section`; they do
+   not hand-author section headers, accent trios, or rhythm CSS.
+   First consumer: the devtools dashboard (`routes/(devtools)/devtools/
+   +page.svelte`) — its one-off `.ds-section` vocabulary is absorbed.
+2. **Content views respond to their ZONE, not the viewport** — new view
+   layout uses `@container` queries / cqi tokens against the enclosing
+   seam; `sm:`/`lg:` viewport variants in zone content are drift.
+3. **Fluid tokens stay inline-axis (`cqi`) only** — `cqh`/`cqb` skip
+   inline-size containers and silently fall back to the viewport
+   (css-contain-3 per-axis fallback).
+4. **Fixed-position overlays portal to the app root** — a zone container
+   is a containing block for fixed descendants; overlays must not live
+   inside one.
+5. **Seam inventory (post L2/L3):** app Frame zones (content, sidebar,
+   contextExpanded, topbar, statusbar), `.chat-frame`, `.shell-root`,
+   devtools window content wrapper. Frame ROOT stays container-free.

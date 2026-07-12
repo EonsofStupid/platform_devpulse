@@ -17,14 +17,6 @@
   --matte-dark: oklch(0.14 0.0014 314.64);
   --matte-medium: oklch(0.2216 0.0023 9.36);
   --matte-light: oklch(0.301 0.005 20.6);
-  --surface-base: oklch(0.0612 0.0072 185.78 / 0.878);
-  --surface-raised: oklch(0.1407 0.0033 189.37 / 0.651);
-  --surface-overlay: oklch(0.0906 0.0149 205.53 / 0.8);
-  --surface-frosted: oklch(0.9228 0.0189 30.62 / 0.4);
-  --surface-inset: oklch(0.14 0.0014 314.64);
-  --surface-subtle: oklch(0.2216 0.0023 9.36);
-  --surface-chrome: oklch(0.301 0.005 20.6);
-  --surface-primary: oklch(0.0612 0.0072 185.78 / 0.878);
   --surface-neuro-elevated-bg: oklch(0.18 0.015 240);
   --surface-neuro-elevated-bg-active: oklch(0.16 0.015 240);
   --surface-neuro-elevated-text: oklch(0.93 0.015 224);
@@ -60,4 +52,15 @@
   --surface-neuro-muted-text: oklch(0.65 0.005 224);
   --surface-neuro-muted-text-disabled: oklch(0.45 0.003 224);
   --surface-neuro-muted-border: oklch(0.35 0.005 240 / 0.2);
+}
+
+@theme inline {
+  --surface-base: var(--glass-void);
+  --surface-raised: var(--glass-smoke);
+  --surface-overlay: var(--glass-deep);
+  --surface-frosted: var(--glass-frost);
+  --surface-inset: var(--matte-dark);
+  --surface-subtle: var(--matte-medium);
+  --surface-chrome: var(--matte-light);
+  --surface-primary: var(--glass-void);
 }

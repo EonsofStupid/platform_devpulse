@@ -37,6 +37,14 @@ file that owns it.
 >
 > Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27
 > architecture corrections. The file:line records below are preserved.
+>
+> **⚠ CUT LANDED — 2026-07-08.** The kernel physically left this repo: every
+> `kernel/…` path below is a git-history reference, not a working path. The AI
+> layer lives at `github.com/EonsofStupid/clyffyos`. The wizard items here were
+> superseded by the landed two-stage endpoint flow (EndpointView →
+> `connect_clyffy` → persisted decided boot gate; capability parses from the
+> connection). STEPS 6–7 are ClyffyOS's; remaining local items stay
+> deferred-not-retired. This document is a preserved planning record.
 
 ---
 

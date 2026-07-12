@@ -5,8 +5,8 @@
 //! variant with alternatives ordered by tier.
 //!
 //! No IO, no allocation of heavy data — callable from the frontend
-//! via the Tauri command layer and from the kernel inline during the
-//! actual load pass.
+//! via the Tauri command layer and inline during the actual load
+//! pass (Clyffy-side).
 
 use super::architectures::{get as get_arch, ArchId, SupportTier};
 use super::backends::{installed_backends, BackendId, ModelFormat};
@@ -143,8 +143,13 @@ pub fn resolve_compatibility(arch: ArchId, format: ModelFormat) -> Resolution {
 /// 1. Same arch, different format (GGUF alternative for a failed
 ///    safetensors request, and vice versa).
 /// 2. Same family, different arch (Qwen3 for a failed Qwen2 request).
-/// 3. Upgrade hint if any backend declares support but is missing a
-///    feature flag.
+/// 3. Connect hint if any backend declares support but isn't served
+///    locally (loading is Clyffy's, over the wire).
+///
+/// Suggestions derive from DECLARATIONS, not local installs — the
+/// engine is the management layer and compiles no backend; whether a
+/// suggested path actually loads is computed from the connected Clyffy
+/// capability at a different layer.
 fn collect_alternatives(
     arch: ArchId,
     format: ModelFormat,
@@ -154,9 +159,6 @@ fn collect_alternatives(
 
     // Same arch, different format
     for backend in backends {
-        if !backend.installed {
-            continue;
-        }
         for support in backend.supports {
             if support.arch == arch && support.format != format {
                 alternatives.push(Alternative {
@@ -176,7 +178,7 @@ fn collect_alternatives(
     // Same family, different arch (in tier order). The architectures
     // array is already ordered Primary → Secondary → Legacy → Planned,
     // so we walk it and suggest the first non-Planned same-family
-    // candidate that has any installed backend coverage.
+    // candidate that has any declared backend coverage.
     //
     // The format is NOT required to match the original request: when
     // the requested format is unsupported across the board (e.g. a
@@ -196,10 +198,10 @@ fn collect_alternatives(
         if candidate.tier == SupportTier::Planned {
             continue;
         }
-        let available = backends
+        let declared = backends
             .iter()
-            .any(|b| b.installed && b.supports.iter().any(|s| s.arch == candidate.id));
-        if available {
+            .any(|b| b.supports.iter().any(|s| s.arch == candidate.id));
+        if declared {
             let tier_descriptor = match candidate.tier {
                 SupportTier::Primary => "primary tier",
                 SupportTier::Secondary => "secondary fallback",
@@ -219,7 +221,8 @@ fn collect_alternatives(
         }
     }
 
-    // Upgrade hint
+    // Connect hint — the combination is declared but nothing serves it
+    // locally: loading happens on Clyffy, over the wire.
     let has_declared_uninstalled = backends.iter().any(|b| {
         !b.installed
             && b.supports
@@ -231,9 +234,8 @@ fn collect_alternatives(
             kind: AlternativeKind::UpgradeBuild,
             repo_id: None,
             filename: None,
-            reason: "A backend for this combination is declared but its Cargo \
-                     feature is disabled in this build. Enable the feature and \
-                     rebuild to unlock it."
+            reason: "This model type is served by your AI assistant — connect \
+                     the AI layer to load it."
                 .to_string(),
         });
     }
@@ -243,84 +245,99 @@ fn collect_alternatives(
 
 // ── Tests ─────────────────────────────────────────────────────────
 //
-// These tests assume `candle-backend` is enabled (the default for
-// `cargo test -p model-loader`). If you run the test suite with
-// `--no-default-features` the `Candle*` backends are not installed
-// and the expectations flip — use the per-variant checks.
+// The engine is the model MANAGEMENT layer — it compiles no inference
+// backend, so `installed` is uniformly false and every declared
+// `(arch, format)` combination resolves to `BackendNotInstalled`
+// naming the backend that WOULD satisfy it (live availability is
+// computed from the connected Clyffy capability over the wire). These
+// tests assert that management-level truth; the installed/Ok path is
+// exercised where backends actually load — Clyffy-side.
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// Primary path: Qwen3 safetensors should resolve to the
-    /// Candle safetensors Qwen3 backend when the feature is on.
+    /// The registry DECLARES the arch-native Qwen3 safetensors loader
+    /// and reports it uninstalled locally (it is Clyffy's).
     #[test]
-    fn qwen3_safetensors_resolves_to_candle_qwen3() {
+    fn qwen3_safetensors_declares_candle_qwen3_uninstalled() {
         let result = resolve_compatibility(ArchId::Qwen3, ModelFormat::Safetensors);
         match result {
-            Resolution::Ok { backend, notes: _ } => {
-                if cfg!(feature = "candle-backend") {
-                    assert_eq!(
-                        backend,
-                        BackendId::CandleSafetensorsQwen3,
-                        "Qwen3 safetensors must resolve to the arch-native loader"
-                    );
-                }
-            }
-            Resolution::Unsupported { .. } => {
-                // Only acceptable when the candle feature is OFF.
-                assert!(
-                    !cfg!(feature = "candle-backend"),
-                    "Qwen3 safetensors should resolve when candle-backend is on"
-                );
-            }
+            Resolution::Unsupported {
+                reason: UnsupportedReason::BackendNotInstalled { backend, .. },
+                ..
+            } => assert_eq!(
+                backend,
+                BackendId::CandleSafetensorsQwen3,
+                "Qwen3 safetensors must surface the arch-native loader as the missing backend"
+            ),
+            other => panic!("expected BackendNotInstalled, got {other:?}"),
         }
     }
 
-    /// Primary path: Qwen3 GGUF → arch-native quantized loader.
+    /// Qwen3 GGUF → the arch-native quantized loader is the declared path.
     #[test]
-    fn qwen3_gguf_resolves_to_quantized_qwen3() {
+    fn qwen3_gguf_declares_quantized_qwen3_uninstalled() {
         let result = resolve_compatibility(ArchId::Qwen3, ModelFormat::Gguf);
-        if let Resolution::Ok { backend, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                assert_eq!(backend, BackendId::CandleQuantizedQwen3);
-            }
+        match result {
+            Resolution::Unsupported {
+                reason: UnsupportedReason::BackendNotInstalled { backend, .. },
+                ..
+            } => assert_eq!(backend, BackendId::CandleQuantizedQwen3),
+            other => panic!("expected BackendNotInstalled, got {other:?}"),
         }
     }
 
-    /// Phi-3 safetensors is a first-class target too — must resolve.
+    /// Phi-3 safetensors is a declared first-class combination.
     #[test]
-    fn phi3_safetensors_resolves() {
+    fn phi3_safetensors_is_declared() {
         let result = resolve_compatibility(ArchId::Phi3, ModelFormat::Safetensors);
-        if cfg!(feature = "candle-backend") {
-            assert!(matches!(result, Resolution::Ok { .. }));
+        assert!(
+            matches!(
+                result,
+                Resolution::Unsupported {
+                    reason: UnsupportedReason::BackendNotInstalled { .. },
+                    ..
+                }
+            ),
+            "Phi-3 safetensors must be a declared combination, got {result:?}"
+        );
+    }
+
+    /// Phi-3 `MoE` — both formats are declared combinations.
+    #[test]
+    fn phi3_moe_both_formats_are_declared() {
+        for format in [ModelFormat::Safetensors, ModelFormat::Gguf] {
+            let result = resolve_compatibility(ArchId::Phi3Moe, format);
+            assert!(
+                matches!(
+                    result,
+                    Resolution::Unsupported {
+                        reason: UnsupportedReason::BackendNotInstalled { .. },
+                        ..
+                    }
+                ),
+                "Phi-3 MoE {format:?} must be declared, got {result:?}"
+            );
         }
     }
 
-    /// Phi-3 `MoE` is the benchmark target — both formats must resolve.
+    /// Qwen2 is legacy but stays a declared combination — the registry
+    /// keeps the routing knowledge. (The deprecation advisory attaches
+    /// on the installed/Ok path, which lives Clyffy-side.)
     #[test]
-    fn phi3_moe_both_formats_resolve() {
-        let sft = resolve_compatibility(ArchId::Phi3Moe, ModelFormat::Safetensors);
-        let gguf = resolve_compatibility(ArchId::Phi3Moe, ModelFormat::Gguf);
-        if cfg!(feature = "candle-backend") {
-            assert!(matches!(sft, Resolution::Ok { .. }));
-            assert!(matches!(gguf, Resolution::Ok { .. }));
-        }
-    }
-
-    /// Qwen2 is legacy — should still resolve but carry an advisory
-    /// note steering the user toward Qwen3.
-    #[test]
-    fn qwen2_legacy_resolves_with_deprecation_note() {
+    fn qwen2_legacy_is_still_declared() {
         let result = resolve_compatibility(ArchId::Qwen2, ModelFormat::Safetensors);
-        if let Resolution::Ok { notes, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                assert!(
-                    notes.iter().any(|n| n.contains("deprecated")),
-                    "Qwen2 must surface a deprecation note"
-                );
-            }
-        }
+        assert!(
+            matches!(
+                result,
+                Resolution::Unsupported {
+                    reason: UnsupportedReason::BackendNotInstalled { .. },
+                    ..
+                }
+            ),
+            "Qwen2 safetensors must remain declared, got {result:?}"
+        );
     }
 
     /// Qwen 3.5 is a planned slot — must return Unsupported with
@@ -348,14 +365,16 @@ mod tests {
         // Safetensors and/or GGUF.
         let result = resolve_compatibility(ArchId::Qwen3, ModelFormat::Pytorch);
         if let Resolution::Unsupported { alternatives, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                assert!(
-                    alternatives
-                        .iter()
-                        .any(|a| matches!(a.kind, AlternativeKind::SwitchFormat)),
-                    "Unsupported format must suggest switching to a wired format"
-                );
-            }
+            // Alternatives derive from DECLARATIONS, not local installs —
+            // they hold unconditionally in the management layer.
+            assert!(
+                alternatives
+                    .iter()
+                    .any(|a| matches!(a.kind, AlternativeKind::SwitchFormat)),
+                "Unsupported format must suggest switching to a wired format"
+            );
+        } else {
+            panic!("Qwen3 Pytorch must be unsupported");
         }
     }
 
@@ -369,17 +388,18 @@ mod tests {
         // unwired format.
         let result = resolve_compatibility(ArchId::Qwen2, ModelFormat::Pytorch);
         if let Resolution::Unsupported { alternatives, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                // The family walk visits Qwen3 first (primary) so a
-                // SwitchModel alternative should be present.
-                let has_family_upgrade = alternatives
-                    .iter()
-                    .any(|a| matches!(a.kind, AlternativeKind::SwitchModel));
-                assert!(
-                    has_family_upgrade,
-                    "Legacy arch in unwired format should suggest a same-family upgrade"
-                );
-            }
+            // The family walk visits Qwen3 first (primary) so a
+            // SwitchModel alternative should be present — declarations
+            // drive alternatives, independent of local installs.
+            let has_family_upgrade = alternatives
+                .iter()
+                .any(|a| matches!(a.kind, AlternativeKind::SwitchModel));
+            assert!(
+                has_family_upgrade,
+                "Legacy arch in unwired format should suggest a same-family upgrade"
+            );
+        } else {
+            panic!("Qwen2 Pytorch must be unsupported");
         }
     }
 }

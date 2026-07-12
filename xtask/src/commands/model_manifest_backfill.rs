@@ -138,10 +138,10 @@ impl Task for ModelManifestBackfill {
 // Manifest shape — inlined mirror of `model-loader::manifest::ModelManifest`
 // ═══════════════════════════════════════════════════════════════════════
 //
-// xtask does NOT depend on kernel/model-loader (kernel is IP-sensitive
-// and xtask is a dev tool). We inline a serde mirror of the manifest
-// schema so the backfilled files parse correctly on the kernel side.
-// If the kernel schema evolves, this mirror must move in lockstep —
+// xtask does NOT depend on the engine's model_loader (xtask is a dev
+// tool). We inline a serde mirror of the manifest schema so the
+// backfilled files parse correctly on the engine side.
+// If the engine schema evolves, this mirror must move in lockstep —
 // the CI test `manifest_schema_matches_xtask_mirror` (to be authored)
 // will enforce that.
 
@@ -538,9 +538,9 @@ fn infer_quant(filename: &str) -> Option<String> {
 
 /// Map folder name + architecture to capability set. Returns
 /// `(role, capabilities, recommended_slots)`. Capability strings
-/// deliberately match the `ModelCapability` discriminants in
-/// `kernel/model-loader/src/slots/types.rs` so serde round-trips on
-/// the kernel side.
+/// deliberately match the `ModelCapability` discriminants in the engine's
+/// `src/platform/model_loader/slots/types.rs` so serde round-trips on
+/// the engine side.
 fn infer_capabilities(
     folder_role: &str,
     architecture: Option<&str>,
@@ -650,11 +650,12 @@ mod tests {
         assert_eq!(infer_parameter_count(&["qwen3-0.6b"], ""), Some(0.6));
         assert_eq!(
             infer_parameter_count(&["chat", "qwen--qwen3.5-9b"], ""),
-            Some(3.5)
+            Some(9.0)
         );
-        // ^ matches the FIRST number followed by 'b' — "3.5" in
-        // "qwen3.5-9b". Edge case: not perfect, but backfill notes
-        // field warns reviewer to verify.
+        // ^ "3.5" is NOT followed by 'b' (a '-' intervenes) so the
+        // scanner correctly skips the version number and matches "9b"
+        // — the actual parameter count. An earlier scanner returned
+        // 3.5 here; this pins the fixed behavior.
     }
 
     #[test]

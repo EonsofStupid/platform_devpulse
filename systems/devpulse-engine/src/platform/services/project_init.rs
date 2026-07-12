@@ -16,8 +16,8 @@
 //!    (per-project OLAP telemetry — model calls, indexing,
 //!    retrieval, daily rollups)
 //!
-//! Per-project graph + vector stores are Clyffy's on GB10 now
-//! (kernel-severance) — DevPulse-local project state is Turso + DuckDB.
+//! Per-project graph + vector stores are Clyffy's on GB10 —
+//! DevPulse-local project state is Turso + DuckDB.
 //!
 //! Both are idempotent. Calling `init_project_full` on an existing
 //! project = re-opening adapters + re-running `CREATE … IF NOT EXISTS`

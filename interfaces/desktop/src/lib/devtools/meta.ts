@@ -142,7 +142,7 @@ interface DevtoolCommon {
 	 */
 	runtime_id?: string;
 	/**
-	 * Slot capability handle this devtool drives. Matches kernel slot
+	 * Slot capability handle this devtool drives. Matches engine slot
 	 * ids verbatim (`voice.stt`, `voice.tts`, `vision.embedder`,
 	 * `chat.brain`). Drives the capability event channel that the
 	 * engine fires on `LoaderEvent::CapabilityRebound`.

@@ -7,9 +7,10 @@
  * Usage: node scripts/build/styledictionary/build.mjs
  *
  * Pipeline:
- *   1. Collect colocated component tokens.ts → DTCG JSON
- *   2. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
- *   3. Write barrel index files (CSS, theme, types)
+ *   1. collect-element-seed-defs — per-kind @defaults → style-defaults.json
+ *   2. derive-kind-families — KIND_FAMILIES + PRESET_FAMILIES → kind-families.ts
+ *   3. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
+ *   4. Write barrel index files (CSS, theme, types)
  *
  * Output boundary (no second token pipeline):
  * - src/lib/design/styles/  — token custom properties (@layer tokens.*)
@@ -63,6 +64,8 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./semantic/signal.css";
 @import "./semantic/accent.css";
 @import "./semantic/role.css";
+@import "./semantic/chat.css";
+@import "./semantic/wizard.css";
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";
@@ -128,29 +131,21 @@ export * from './role.js';
 // ─── Build ───────────────────────────────────────────────────────────
 
 async function build() {
-	// Step 0: Scan element annotations → ui-catalog.json
-	console.log('[SD5] Scanning element seed definitions...');
+	// Step 0: Emit the PER-KIND style layer from component @defaults
+	// doc-headers (tokens/src/style-defaults.json → --style-{kind}-{variant}-*).
+	//
+	// The shared --preset-* layer is HAND-MAINTAINED as one file per visual
+	// family under tokens/src/presets/*.tokens.json (glass, neuro, chrome,
+	// flat, retro, stark, chat, button, wizard). No generator writes it.
+	console.log('[SD5] Collecting element @defaults (per-kind style layer)...');
 	execSync('node scripts/build/styledictionary/collect-element-seed-defs.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',
 	});
 
-	// Step 1: Collect colocated component tokens.ts → JSON for SD5
-	console.log('[SD5] Collecting colocated component tokens...');
-	execSync('npx tsx scripts/build/styledictionary/collect-component-tokens.ts', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 2: Expand preset shorthand → 11-axis DTCG in component.json
-	console.log('[SD5] Expanding preset styles...');
-	execSync('node scripts/build/styledictionary/collect-preset-styles.mjs', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 3: Derive kind → family mapping from enriched presets
-	console.log('[SD5] Deriving kind families...');
+	// Step 1: Derive KIND_FAMILIES (from style-defaults.json) +
+	// PRESET_FAMILIES (from style-presets.json, full preset ids).
+	console.log('[SD5] Deriving kind + preset families...');
 	execSync('node scripts/build/styledictionary/derive-kind-families.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',

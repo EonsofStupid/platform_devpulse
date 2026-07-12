@@ -14,6 +14,7 @@ import { uid } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_shared/escape-layer/index.js";
 import { usePresence } from "../../_shared/presence/index.js";
+import { useTypeahead } from "../../_shared/typeahead/index.js";
 import { selectAnatomy } from "./select.anatomy.js";
 import type { UseSelectProps, UseSelectReturn } from "./select.types.js";
 
@@ -55,6 +56,18 @@ export function useSelect(props: UseSelectProps = {}): UseSelectReturn {
 		}
 	}
 
+	// APG select-only combobox: typed characters highlight the matching
+	// option (active-descendant — options are never focused, so the search
+	// anchors on the highlighted option, not document.activeElement).
+	const typeahead = useTypeahead({
+		getItems: getOptions,
+		getActiveItem: () => getOptions().find((el) => el.id === highlightedId) ?? null,
+		onMatch: (option) => {
+			highlightedId = option.id;
+			option.scrollIntoView({ block: "nearest" });
+		},
+	});
+
 	function handleTriggerKeydown(e: KeyboardEvent): void {
 		if (globalDisabled) return;
 		const options = getOptions();
@@ -87,6 +100,15 @@ export function useSelect(props: UseSelectProps = {}): UseSelectReturn {
 			e.preventDefault();
 			setOpen(true);
 			highlightByIndex(0);
+		} else if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+			// Printable character: open (if closed) and typeahead-highlight.
+			// The listbox mounts on open, so defer the first search a frame.
+			if (!isOpen) {
+				setOpen(true);
+				requestAnimationFrame(() => typeahead.handleKeydown(e));
+				return;
+			}
+			typeahead.handleKeydown(e);
 		}
 	}
 

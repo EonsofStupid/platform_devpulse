@@ -7,7 +7,7 @@
 	not yet shipped — this page is intentionally honest about that
 	rather than showing disabled buttons or "TODO" stubs. Status lists
 	the planned surfaces; the other 4 tabs each describe what they
-	will hold when the corresponding kernel command lands.
+	will hold when the corresponding backend command lands.
 -->
 <script lang="ts">
 import { Brain, GitBranch, Search, Zap } from "lucide-svelte";

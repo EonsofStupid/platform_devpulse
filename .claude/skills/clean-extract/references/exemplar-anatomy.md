@@ -1,20 +1,28 @@
-# Exemplar Anatomy — `kernel/devpulse-clyffy/`
+# Exemplar Anatomy — the anatomized crate
 
 > This is the canonical reference for "well-organized crate / subsystem" on
 > the DevPulse platform. ALL extracted subsystems must conform to this
 > shape unless a documented deviation is signed off by the user.
+>
+> **⚠ The anatomized crate left this repo.** `kernel/devpulse-clyffy/` was
+> extracted 2026-07-08 (kernel cut) and lives on as `clyffyos-connectome`
+> in `github.com/EonsofStupid/clyffyos`. The anatomy below remains the
+> pattern; the living in-repo exemplar is **`systems/devpulse-engine/`**
+> (same config/-vs-domain/-vs-IO discipline, same Cargo.toml patterns).
+> Paths below are git-history references, preserved because the shape —
+> not the address — is what extractions must conform to.
 
 ## Why this specific crate
 
-- Carries SENSITIVE IP per CLAUDE.md kernel marker — strict discipline applied
+- Carried SENSITIVE IP per the then-CLAUDE.md kernel marker — strict discipline applied
 - Was reauthored under the senior-dev pre-release constraint (no shims, no backcompat)
 - Combines multi-backend features (Burn CPU/CUDA/wgpu, Candle, llama.cpp FFI) cleanly via feature gates
-- Top-level structure has stayed stable across the GB10 pivot
+- Top-level structure stayed stable across the GB10 pivot AND survived extraction intact
 
 ## Shape
 
 ```
-kernel/devpulse-clyffy/
+kernel/devpulse-clyffy/   (now clyffyos-connectome, clyffyos repo)
 ├── Cargo.toml                  # crate manifest (NO bin entry — lib only)
 ├── src/
 │   ├── lib.rs                  # public surface; module declarations + re-exports
@@ -33,7 +41,9 @@ The three top-level modules form the **anatomy invariant**:
 
 ## Cargo.toml discipline
 
-Read [kernel/devpulse-clyffy/Cargo.toml](kernel/devpulse-clyffy/Cargo.toml) to absorb these patterns:
+Read the crate manifest (now `kernel/clyffyos-connectome/Cargo.toml` in the
+clyffyos repo; in-repo equivalent: `systems/devpulse-engine/Cargo.toml`) to
+absorb these patterns:
 
 ### Feature flag hierarchy
 
@@ -156,9 +166,9 @@ Rules:
 
 The exemplar has historical artifacts that are NOT canonical:
 
-- The `setup-wizard` tree under `kernel/model-loader/src/wizard/` is "soon-to-be-deleted" per workspace Cargo.toml comment lines 184–193. Do NOT use as a template.
-- `[patch.crates-io]` entries are global workspace concerns, not per-crate (won't survive extraction)
-- `LLAMA_CPP_PREBUILT_LIB_DIR` env handling is being retired under the GB10 pivot per [[devpulse-data-collector-gb10-inference]]
+- The `setup-wizard` tree under the old `kernel/model-loader/src/wizard/` was deleted with the kernel cut (its copy SSOT lives in the engine's `wizard_copy.default.toml`). Do NOT use as a template.
+- `[patch.crates-io]` entries are global workspace concerns, not per-crate (won't survive extraction) — this workspace's patch table left with the kernel cut
+- `LLAMA_CPP_PREBUILT_LIB_DIR` env handling is Clyffy-side (clyffyos vendors its own llama build) per [[devpulse-data-collector-gb10-inference]]
 
 ## Conformance scoring (used by fork-survey manifest)
 

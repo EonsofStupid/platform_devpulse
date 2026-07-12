@@ -48,8 +48,9 @@ the old engine↔kernel vocabulary boundary is ClyffyOS-internal, not DevPulse's
   background. No hardcoded host.
 - **Serving side:** `clyffyd` (clyffyos repo, to be built) answers the contract on the GB10.
 - **Litmus for "separated":** `cargo tree -p devpulse_desktop_backend` shows **no
-  `devpulse-clyffy`, no `rrd`, no `model-loader`**. Today it still does → the app-side cut is
-  not yet complete.
+  `devpulse-clyffy`, no `rrd`, no `model-loader`**. **PASSES since 2026-07-08** — the kernel
+  cut removed the crates from this workspace entirely; `verify-ip-boundary` + cargo-deny
+  enforce it in CI.
 - **DevPulse owns a THIN store** (operator decision 2026-07-05): DevPulse authors its own minimal
   Turso + DuckDB access using the `turso`/`duckdb` crates **directly** — no kernel persistence
   adapter crosses into DevPulse. Supersedes engine-bisect decision #3 ("lift the relational
@@ -88,18 +89,18 @@ is done **upfront**.
   **extends the base program** once first-run setup completes; additive, never a precondition to
   render.
 
-## Migration reality (2026-07-05)
+## Migration reality (updated 2026-07-08)
 
-- libSQL → **turso** crate migration **LANDED** (commit `f3748059`). Turso is the installed
-  backing store. Naming lag only: the adapter type is still `LibSqlAdapter` pending the CC-007
-  rename.
-- `clyffyos` repo exists (Phase 3c) with the renamed kernel + `clyffyos-wire`, **but**
-  `platform_devpulse` still contains `kernel/` and still compiles it → the app-side cut is
-  **not done**. Completing it is the separation work; the phased plan lives in
-  `.claude/plans/clyffyos-separation-plan.md` (correct it for: the **kernel + SurrealDB +
-  persistence adapters + AI analytics stay on ClyffyOS**; DevPulse keeps **Turso (SSOT) + a
-  derived local DuckDB for project analytics** and does NOT absorb the persistence adapters or
-  the kernel).
+- libSQL → **turso** crate migration **LANDED** (commit `f3748059`); the connectome +
+  persona-mcp turso port was back-ported to clyffyos (`8d6fbb6`). The `LibSqlAdapter`
+  naming lag noted on 2026-07-05 is resolved — the type is gone from the engine.
+- **The app-side cut is DONE (2026-07-08, branch `refactor/kernel-severance`).**
+  `kernel/` left this repo (−55k lines); persona-mcp removed (`.mcp.json` repoints at the
+  clyffyos binary); the rrd tracing contract is engine-owned; orphaned AI deps +
+  `[patch.crates-io]` purged. The executed plan lives in
+  `.claude/plans/kernel-cut-extraction.md`. DevPulse keeps **Turso (SSOT) + a derived local
+  DuckDB for project analytics** and did NOT absorb the persistence adapters or the kernel —
+  exactly as this SSOT locked it.
 
 ## Related
 

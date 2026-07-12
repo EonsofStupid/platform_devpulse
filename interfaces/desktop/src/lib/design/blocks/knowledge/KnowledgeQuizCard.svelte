@@ -5,11 +5,11 @@
 	Entry-backed wrapper around `KnowledgeMultipleChoiceCard`.
 	Takes a `KnowledgeEntry` with a `QuizPayload`, forwards
 	question + choices to the underlying card, and routes
-	dismiss/choose through the kernel reaction handler.
+	dismiss/choose through the engine's reaction handler.
 
 	Authored separately from `KnowledgeMultipleChoiceCard` so
 	the latter stays usable as a pure direct-props block for
-	one-off quiz authoring outside the kernel catalog (test
+	one-off quiz authoring outside the engine catalog (test
 	harnesses, devtool diagnostics, etc.).
 -->
 <script lang="ts">

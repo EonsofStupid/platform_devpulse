@@ -4,7 +4,7 @@
 # first run. The user-facing Voice Lab UI mutates the userdata copy;
 # this file is the fallback. Every field is overridable.
 #
-# Schema: kernel/model-loader/src/assistant/config.rs
+# Schema: systems/devpulse-engine/src/platform/assistant/config.rs
 
 # ── Identity ────────────────────────────────────────────────────
 #

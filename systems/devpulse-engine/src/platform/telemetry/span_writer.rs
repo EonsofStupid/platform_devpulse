@@ -25,6 +25,11 @@ const BATCH_SIZE: usize = 64;
 /// Maximum time to hold a batch before flushing (milliseconds).
 const BATCH_FLUSH_INTERVAL_MS: u64 = 500;
 
+/// Disable the writer after this many consecutive flush failures. A
+/// permanently-incompatible analytics table (schema drift) then yields a few
+/// loud logs and one final ERROR instead of one WARN per batch forever.
+const MAX_CONSECUTIVE_FAILURES: u32 = 3;
+
 /// A completed span record ready for `DuckDB` persistence.
 #[derive(Debug, Clone, Serialize)]
 pub struct SpanRecord {
@@ -57,6 +62,11 @@ pub struct SpanTraceWriter {
     rx: mpsc::Receiver<SpanRecord>,
     analytics: Arc<AnalyticsService>,
     batch: Vec<SpanRecord>,
+    /// Consecutive flush failures. Reset to 0 on any success.
+    consecutive_failures: u32,
+    /// Set once `MAX_CONSECUTIVE_FAILURES` is hit — subsequent batches are
+    /// drained and dropped without touching the DB (no more log spam).
+    disabled: bool,
 }
 
 impl SpanTraceWriter {
@@ -66,6 +76,8 @@ impl SpanTraceWriter {
             rx,
             analytics,
             batch: Vec::with_capacity(BATCH_SIZE),
+            consecutive_failures: 0,
+            disabled: false,
         }
     }
 
@@ -104,6 +116,13 @@ impl SpanTraceWriter {
             return;
         }
 
+        // Writer disabled after repeated failures — drain and drop silently so
+        // the batch never grows unbounded and the channel keeps draining.
+        if self.disabled {
+            self.batch.clear();
+            return;
+        }
+
         let records: Vec<serde_json::Value> = self
             .batch
             .drain(..)
@@ -130,10 +149,23 @@ impl SpanTraceWriter {
             .await
         {
             Ok(inserted) => {
+                self.consecutive_failures = 0;
                 tracing::debug!(count, inserted, "Flushed span traces to DuckDB");
             }
             Err(e) => {
-                tracing::warn!(count, error = %e, "Failed to flush span traces to DuckDB");
+                self.consecutive_failures += 1;
+                if self.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
+                    self.disabled = true;
+                    tracing::error!(
+                        count,
+                        failures = self.consecutive_failures,
+                        error = %e,
+                        "Span trace persistence failed repeatedly — disabling span writer for \
+                         this session (likely analytics-schema drift; wipe .userdata to reset)",
+                    );
+                } else {
+                    tracing::warn!(count, error = %e, "Failed to flush span traces to DuckDB");
+                }
             }
         }
     }

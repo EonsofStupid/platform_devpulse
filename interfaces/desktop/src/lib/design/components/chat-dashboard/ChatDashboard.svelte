@@ -24,6 +24,7 @@ import type { ChatDashboardProps } from "./types.js";
 
 let { style, children, class: className, ...rest }: ChatDashboardProps = $props();
 
+// "default" resolves --style-chat-dashboard-default-* (the documented @defaults).
 const m = $derived(renderForge({ kind: "chat-dashboard", preset: "default" }));
 </script>
 

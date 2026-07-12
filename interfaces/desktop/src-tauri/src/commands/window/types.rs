@@ -49,15 +49,42 @@ impl WindowRole {
         }
     }
 
-    /// Default inner size (width, height).
+    /// Fallback inner size (width, height) — used only when the main
+    /// window's monitor can't be resolved (see `size_fraction`).
     #[must_use]
     pub fn default_size(&self) -> (f64, f64) {
         match self {
             Self::Main => (1280.0, 800.0),
-            Self::Chat => (480.0, 700.0),
+            Self::Chat => (960.0, 720.0),
             Self::ConnectomeViewer => (600.0, 450.0),
             Self::ModelLoader => (700.0, 500.0),
             Self::DevTools => (720.0, 560.0),
+        }
+    }
+
+    /// Proportional inner size as a fraction of the monitor's logical
+    /// size. `None` = the static `default_size` is authoritative. Chat is
+    /// proportional so it is never a fixed sliver on large displays — the
+    /// window scales with the screen and the min floor guards the bottom.
+    #[must_use]
+    pub fn size_fraction(&self) -> Option<(f64, f64)> {
+        match self {
+            Self::Chat => Some((0.45, 0.8)),
+            Self::Main | Self::ConnectomeViewer | Self::ModelLoader | Self::DevTools => None,
+        }
+    }
+
+    /// Minimum inner size (width, height). The OS resize floor — the
+    /// window-state plugin restores whatever was saved, so this is the
+    /// hard guard against bad persisted geometry.
+    #[must_use]
+    pub fn min_size(&self) -> (f64, f64) {
+        match self {
+            Self::Main => (900.0, 600.0),
+            Self::Chat => (640.0, 520.0),
+            Self::ConnectomeViewer => (480.0, 360.0),
+            Self::ModelLoader => (560.0, 420.0),
+            Self::DevTools => (600.0, 440.0),
         }
     }
 

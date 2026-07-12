@@ -1,6 +1,11 @@
 # FOUNDATIONAL AUDIT & STANDARDIZATION PLAN
 > **Goal**: Lock the Desktop Architecture with explicit standards. No more "Drift".
 > **Scope**: `interfaces/desktop`
+>
+> **⚠ HISTORICAL — pre-severance.** Dated audit plan. The kernel left this
+> repo 2026-07-08 (AI layer = `github.com/EonsofStupid/clyffyos`);
+> `$domains/clyffy` is now the frontend's connection/status surface for the
+> remote AI layer, not "The AI Kernel". Alias + topology records preserved.
 
 ## 1. The Alias Standard (The "Shortcuts of Truth")
 To ensure methodic imports and zero-relative-path-madness, we will standardize these aliases:

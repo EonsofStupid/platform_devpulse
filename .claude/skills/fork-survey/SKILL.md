@@ -13,8 +13,8 @@ Caller MUST supply:
 
 1. Subsystem name (matches what `/clean-extract` was invoked with)
 2. Source root (absolute path)
-3. Candidate folder list — explicit set of top-level folders to survey (e.g. `["kernel/devpulse-clyffy", "kernel/model-loader", "systems/devpulse-engine"]`). If the list isn't supplied, the skill computes it from a shallow scan of the source root plus the user's MEMORY.md hints.
-4. Exemplar reference path (default `kernel/devpulse-clyffy`)
+3. Candidate folder list — explicit set of top-level folders to survey (e.g. `["systems/devpulse-engine", "systems/devpulse-media", "systems/devpulse-gb10-client"]`). If the list isn't supplied, the skill computes it from a shallow scan of the source root plus the user's MEMORY.md hints.
+4. Exemplar reference path (default `systems/devpulse-engine`)
 
 ## Anti-pattern guard
 
@@ -28,6 +28,10 @@ This skill is FORK-ONLY. It MUST NOT:
 If the caller asks it to synthesize, refuse and redirect to `/fold-and-execute`.
 
 ## Manifest schema (each agent emits one)
+
+Values below are the historical worked example — the real 2026-06-28 clyffyos
+extraction survey (that crate now lives in the clyffyos repo as
+`clyffyos-connectome`). The SHAPE is the contract.
 
 ```json
 {

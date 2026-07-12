@@ -3,7 +3,7 @@
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/views/complete
 
 	Step 5 — Handoff to dashboard. `onFinish` marks setup complete in
-	the kernel + closes the overlay. The wizard does NOT auto-open
+	the engine + closes the overlay. The wizard does NOT auto-open
 	on subsequent launches once `[onboarding].completed = true` lands
 	in the user preferences TOML (per ONBOARDING-CASCADE Layer 4).
 -->

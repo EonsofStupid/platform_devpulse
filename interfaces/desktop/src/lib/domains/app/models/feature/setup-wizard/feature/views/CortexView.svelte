@@ -73,7 +73,7 @@ let {
 }: CortexViewProps = $props();
 
 /**
- * Resolve a kernel-supplied icon name to a lucide component. Lives
+ * Resolve an engine-supplied icon name to a lucide component. Lives
  * here so the typed prop struct (`SlotSaveEntryProps`) stays
  * JSON-serializable — callable components can't cross the typed-state
  * boundary cleanly.

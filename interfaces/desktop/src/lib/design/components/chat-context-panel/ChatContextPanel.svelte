@@ -33,6 +33,7 @@ let {
 	...rest
 }: ChatContextPanelProps = $props();
 
+// "default" resolves --style-chat-context-panel-default-* (the documented @defaults).
 const m = $derived(renderForge({ kind: "chat-context-panel", preset: "default" }));
 </script>
 

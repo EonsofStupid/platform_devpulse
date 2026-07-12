@@ -35,7 +35,7 @@ There are three separate sources of truth. They do different jobs.
 ### 2.2 Operator Tier
 
 * Audience: internal devtools/operator cockpit.
-* May see: kernel controls, lifecycle, health, queue depth, slot state, timing, confidence bands, stage summaries.
+* May see: AI-layer controls (Clyffy, over the wire), lifecycle, health, queue depth, slot state, timing, confidence bands, stage summaries.
 * Must **not** show the secret recipe.
 
 ### 2.3 Surface Tier
@@ -60,7 +60,7 @@ Must remain private:
 1. Prompt recipe and COSTAR satisfaction steps.
 2. Pre-context conditioning before anything reaches Clyffy.
 3. Encoder selection or composition.
-4. Qdrant schema, payload structure, and retrieval recipe.
+4. qortex schema, payload structure, and retrieval recipe.
 5. Reranking heuristics and governance arbitration internals.
 6. JIT/native compilation path and machine-level execution details.
 
@@ -76,7 +76,7 @@ Before any builder or devtools UI is added:
 
 ## 5. Devtools Alignment
 
-Devtools are allowed to manage the kernel clearly during development.
+Devtools are allowed to manage the AI layer (Clyffy, over the wire) clearly during development.
 
 That does **not** mean the shipped product exposes the same stream.
 

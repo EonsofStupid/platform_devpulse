@@ -3,19 +3,19 @@
 //! Read and mutate retrieval config at runtime. Query collection
 //! health and run test searches from the devtools UI.
 //!
-//! # Tier-2 seam (standalone desktop vs. kernel-inproc)
+//! # Tier-2 seam (standalone desktop vs. totalrecall)
 //!
-//! The RRO/qortex vector store is a **Tier-2** capability: it is kernel-side
+//! The RRO/qortex vector store is a **Tier-2** capability: it is Clyffy-side
 //! (headless Clyffy / ClyffyOS) and is NOT linked into the standalone DevPulse
 //! desktop — the desktop's Turso store hard-enables a `parking_lot` feature
 //! mutually exclusive with qortex's, so the two cannot co-compile (see the
-//! `kernel-inproc` feature in `Cargo.toml`).
+//! `totalrecall` feature in `Cargo.toml`).
 //!
 //! These command entry points therefore keep a **stable** Tauri/specta
 //! signature so the generated frontend bindings never churn, but in the default
-//! (no `kernel-inproc`) build they return a typed "Tier-2 unavailable" — the
+//! (no `totalrecall`) build they return a typed "Tier-2 unavailable" — the
 //! exact seam the gb10-client wire calls replace once Clyffy connects. The real
-//! in-process implementation is compiled only under `kernel-inproc`.
+//! in-process implementation is compiled only under `totalrecall`.
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{retrieval_param_meta, RetrievalConfig, RetrievalParamMeta};
@@ -25,7 +25,7 @@ use tauri::State;
 
 /// Returned by the vector-store commands when the in-process qortex store is
 /// not linked (standalone desktop). Connect Clyffy (gb10-client wire) to enable.
-#[cfg(not(feature = "kernel-inproc"))]
+#[cfg(not(feature = "totalrecall"))]
 const VECTOR_TIER2_UNAVAILABLE: &str = "Vector store unavailable — RRO/qortex is a Tier-2 capability served by Clyffy over the gb10-client wire. Connect Clyffy to enable.";
 
 // ═══════════════════════════════════════════════════════════════
@@ -40,7 +40,7 @@ const VECTOR_TIER2_UNAVAILABLE: &str = "Vector store unavailable — RRO/qortex 
 #[tauri::command]
 #[specta::specta]
 pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<RetrievalConfig, String> {
-    #[cfg(feature = "kernel-inproc")]
+    #[cfg(feature = "totalrecall")]
     {
         // P0: lock-free atomic load.
         match state.platform.load_full() {
@@ -51,7 +51,7 @@ pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<Retrie
             None => Err("Platform is still booting".to_string()),
         }
     }
-    #[cfg(not(feature = "kernel-inproc"))]
+    #[cfg(not(feature = "totalrecall"))]
     {
         let _ = &state;
         Err(VECTOR_TIER2_UNAVAILABLE.to_string())
@@ -71,7 +71,7 @@ pub async fn set_vector_config(
     state: State<'_, PlatformState>,
     config: RetrievalConfig,
 ) -> Result<(), String> {
-    #[cfg(feature = "kernel-inproc")]
+    #[cfg(feature = "totalrecall")]
     {
         // P0: lock-free atomic load.
         match state.platform.load_full() {
@@ -85,7 +85,7 @@ pub async fn set_vector_config(
             None => Err("Platform is still booting".to_string()),
         }
     }
-    #[cfg(not(feature = "kernel-inproc"))]
+    #[cfg(not(feature = "totalrecall"))]
     {
         let _ = (&state, &config);
         Err(VECTOR_TIER2_UNAVAILABLE.to_string())
@@ -124,7 +124,7 @@ pub struct VectorHealthReport {
 pub async fn get_vector_health(
     state: State<'_, PlatformState>,
 ) -> Result<VectorHealthReport, String> {
-    #[cfg(feature = "kernel-inproc")]
+    #[cfg(feature = "totalrecall")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -163,7 +163,7 @@ pub async fn get_vector_health(
             collections,
         })
     }
-    #[cfg(not(feature = "kernel-inproc"))]
+    #[cfg(not(feature = "totalrecall"))]
     {
         let _ = &state;
         Err(VECTOR_TIER2_UNAVAILABLE.to_string())
@@ -203,7 +203,7 @@ pub async fn vector_test_search(
     vector: Vec<f32>,
     limit: u32,
 ) -> Result<Vec<VectorSearchResult>, String> {
-    #[cfg(feature = "kernel-inproc")]
+    #[cfg(feature = "totalrecall")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -228,7 +228,7 @@ pub async fn vector_test_search(
             })
             .collect())
     }
-    #[cfg(not(feature = "kernel-inproc"))]
+    #[cfg(not(feature = "totalrecall"))]
     {
         let _ = (&state, &collection, &vector, limit);
         Err(VECTOR_TIER2_UNAVAILABLE.to_string())
@@ -255,7 +255,7 @@ pub async fn create_vector_collection(
     name: String,
     dimension: u32,
 ) -> Result<(), String> {
-    #[cfg(feature = "kernel-inproc")]
+    #[cfg(feature = "totalrecall")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -271,7 +271,7 @@ pub async fn create_vector_collection(
             .await
             .map_err(|e| format!("Create collection failed: {e:#}"))
     }
-    #[cfg(not(feature = "kernel-inproc"))]
+    #[cfg(not(feature = "totalrecall"))]
     {
         let _ = (&state, &name, dimension);
         Err(VECTOR_TIER2_UNAVAILABLE.to_string())
@@ -290,7 +290,7 @@ pub async fn delete_vector_collection(
     state: State<'_, PlatformState>,
     name: String,
 ) -> Result<(), String> {
-    #[cfg(feature = "kernel-inproc")]
+    #[cfg(feature = "totalrecall")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -306,7 +306,7 @@ pub async fn delete_vector_collection(
             .await
             .map_err(|e| format!("Delete collection failed: {e:#}"))
     }
-    #[cfg(not(feature = "kernel-inproc"))]
+    #[cfg(not(feature = "totalrecall"))]
     {
         let _ = (&state, &name);
         Err(VECTOR_TIER2_UNAVAILABLE.to_string())

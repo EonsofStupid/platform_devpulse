@@ -55,7 +55,7 @@ For every MOVE / RENAME, compute the new path + new crate name by applying `refe
 
 Apply the checklist (`references/anti-drift-checklist.md`) to the unified dispositions. Surface every violation. Examples:
 
-- `MOVE kernel/devpulse-clyffy → clyffyos-cortex` but manifest reports `hardcoded_constants_in_lib_files = 3` → flag for fix-before-move
+- `MOVE kernel/devpulse-clyffy → clyffyos-connectome` (the historical worked example) but manifest reports `hardcoded_constants_in_lib_files = 3` → flag for fix-before-move
 - Naming convention says `<subsystem>-<facet>` but a manifest's suggested rename gives `<subsystem>_<facet>` → fix to hyphen
 - `exemplar_conformance_score < 0.80` → flag and require explicit acknowledgment to proceed
 

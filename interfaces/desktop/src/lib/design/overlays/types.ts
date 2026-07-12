@@ -8,7 +8,7 @@
 
 /** Configuration for a minion's sprite sheets. */
 export interface MinionSpriteConfig {
-	/** Minion identifier (matches kernel minion names). */
+	/** Minion identifier (matches backend minion names). */
 	minionId: string;
 	/** Display name. */
 	label: string;

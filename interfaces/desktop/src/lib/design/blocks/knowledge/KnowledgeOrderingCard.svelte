@@ -27,7 +27,7 @@
 	# Direct-props block (same rationale as MultipleChoice)
 
 	Takes the prompt + items + handlers directly. A future
-	kernel `Order` EntryType will hand a translated payload.
+	engine `Order` EntryType will hand a translated payload.
 -->
 <script lang="ts">
 import { Button } from "$lib/design/components/button/index.js";
@@ -109,6 +109,8 @@ const headingId = $derived(`kc-order-${id}`);
 const listboxLabelId = $derived(`kc-order-${id}-prompt`);
 const statusId = $derived(`kc-order-${id}-status`);
 
+// svelte-ignore state_referenced_locally -- intentional one-time seed:
+// the ordering exercise starts from the prop and then owns its state.
 let order = $state<KnowledgeOrderingItem[]>([...initialItems]);
 let focusedIndex = $state(0);
 let lastMoveMessage = $state("");
@@ -168,6 +170,7 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 		<ol
 			class="knowledge-order__list"
 			role="listbox"
+			tabindex={0}
 			aria-labelledby={listboxLabelId}
 			aria-activedescendant={`kc-order-${id}-item-${focusedIndex}`}
 		>

@@ -23,6 +23,13 @@
 >
 > Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27
 > architecture corrections. The phase records below are preserved deliberately.
+>
+> **⚠ EXTRACTION LANDED — 2026-07-08.** This layer now LIVES in
+> `github.com/EonsofStupid/clyffyos` (clyffyos-connectome; `cortex` became
+> `connectome`). Every `kernel/devpulse-clyffy/…` path below is a git-history
+> reference — the crates left this repo with the kernel cut. The roadmap's open
+> phases are ClyffyOS's to sequence; DevPulse reaches the layer over the
+> `devpulse-gb10-client` wire (capability computed, never hardcoded).
 
 The intelligence layer is the per-project memory + reasoning surface
 that backs every cross-tool persistence flow in DevPulse — Claude

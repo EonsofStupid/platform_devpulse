@@ -1,15 +1,14 @@
 //! `ModelLoaderService` — the MANAGEMENT facade for model management.
 //!
-//! Post kernel-severance this is the management half of the former kernel
-//! god-object: slot registry, model registry + discovery scan, hardware
-//! auto-config, HuggingFace download, secrets, and assistant/keyword
-//! config. It links NO inference backend.
+//! The engine's model management module — slot registry, model registry +
+//! discovery scan, hardware auto-config, HuggingFace download, secrets,
+//! and assistant/keyword config. It links NO inference backend.
 //!
-//! The inference half (load / warm / unload / swap / generate / embed /
-//! rerank / encode / synthesize / transcribe / install-to-slot, plus the
-//! Burn encoder adapter and the `BackendPool` / `VoicePool` runtime
-//! state) was DROPPED — that work runs on headless Clyffy/GB10 and is
-//! reached over the gb10-client wire from the desktop, not held here.
+//! Inference (load / warm / unload / swap / generate / embed / rerank /
+//! encode / synthesize / transcribe / install-to-slot, plus the Burn
+//! encoder adapter and the `BackendPool` / `VoicePool` runtime state)
+//! is Clyffy's — it runs on headless Clyffy/GB10 and is reached over
+//! the gb10-client wire from the desktop, not held here.
 //!
 //! # Concurrency: fine-grained interior locks
 //!
@@ -820,7 +819,7 @@ impl ModelLoaderService {
     /// Remove a registered voice clone by name and persist `assistant.toml`.
     ///
     /// As with [`Self::register_voice_clone`], the live-TTS-pool refresh is
-    /// the wire client's job post-severance.
+    /// the wire client's job.
     ///
     /// # Errors
     /// [`LoaderError::Internal`] if `name` isn't registered or the

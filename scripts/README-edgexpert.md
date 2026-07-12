@@ -71,4 +71,4 @@ cargo xtask run-dev    # THE dev command — starts everything with GPU loading 
 
 On 128 GB unified memory the loader auto-selects the **Ultra** tier (Preset 5:
 Qwen3-VL-30B-A3B brain + PersonaPlex-7B voice). See
-`kernel/model-loader/src/hardware/auto_config.rs` for tier → preset mapping.
+`systems/devpulse-engine/src/platform/hardware/auto_config.rs` for tier → preset mapping.

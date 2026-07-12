@@ -5,7 +5,7 @@
 //! (`commands/community/`); the engine owns the cache shape + CRUD so the
 //! store and the UI agree on what a feed item is. This is a **Tier-1 DevPulse**
 //! concern — non-AI, local-first — which is why it lives in the engine, not
-//! the (AI-only) kernel.
+//! Clyffy's AI layer.
 
 use serde::{Deserialize, Serialize};
 use specta::Type;

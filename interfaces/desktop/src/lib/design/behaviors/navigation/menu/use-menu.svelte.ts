@@ -13,6 +13,8 @@ import { uid } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_shared/escape-layer/index.js";
 import { usePresence } from "../../_shared/presence/index.js";
+import { createRovingHandler } from "../../_shared/roving-focus/index.js";
+import { useTypeahead } from "../../_shared/typeahead/index.js";
 import { menuAnatomy } from "./menu.anatomy.js";
 import type { UseMenuProps, UseMenuReturn } from "./menu.types.js";
 
@@ -45,27 +47,24 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 		);
 	}
 
+	// Shared composite-widget keyboard (vertical: Down/Up/Home/End) +
+	// APG-recommended typeahead — type characters to jump to an item.
+	const handleRovingKeydown = createRovingHandler({
+		containerSelector: '[role="menu"]',
+		itemSelector: '[role="menuitem"]:not([data-disabled])',
+		orientation: "vertical",
+	});
+
+	const typeahead = useTypeahead({
+		getItems,
+		onMatch: (item) => item.focus(),
+	});
+
 	function handleContentKeydown(e: KeyboardEvent): void {
-		const items = getItems();
-		if (items.length === 0) return;
-
-		const currentIndex = items.indexOf(document.activeElement as HTMLElement);
-
-		if (e.key === kbd.ARROW_DOWN) {
-			e.preventDefault();
-			const next = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
-			items[next]?.focus();
-		} else if (e.key === kbd.ARROW_UP) {
-			e.preventDefault();
-			const prev = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
-			items[prev]?.focus();
-		} else if (e.key === kbd.HOME) {
-			e.preventDefault();
-			items[0]?.focus();
-		} else if (e.key === kbd.END) {
-			e.preventDefault();
-			items[items.length - 1]?.focus();
-		}
+		handleRovingKeydown(e);
+		// Item-level Enter/Space activation preventDefaults before this
+		// bubbles here — don't buffer activation keys as typed characters.
+		if (!e.defaultPrevented) typeahead.handleKeydown(e);
 	}
 
 	const trigger = $derived({

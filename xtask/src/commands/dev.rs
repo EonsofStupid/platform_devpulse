@@ -193,11 +193,11 @@ fn run_backend_compile(
     let compile_start = Instant::now();
     // Run host-SDK detection for its env-export side effects (MSVC/CMAKE +
     // prebuilt-lib paths consumed by nested native build scripts), but do NOT
-    // forward GPU/inference accel features to the desktop crate. Post-
-    // severance the desktop is a pure UI client: it no longer declares
-    // gpu-vulkan / gpu-nvidia / cpu-mkl (candle/llama/burn moved to Clyffy on
+    // forward GPU/inference accel features to the desktop crate. The
+    // desktop is a pure UI client: it declares no
+    // gpu-vulkan / gpu-nvidia / cpu-mkl (candle/llama/burn are Clyffy's on
     // GB10, reached over the gb10-client wire), so forwarding them errors. GPU
-    // acceleration is Clyffy's build concern now, not DevPulse's.
+    // acceleration is Clyffy's build concern, not DevPulse's.
     let _ = crate::workspace::BuildConfig::detect_build_features();
     let cargo_args = ["check", "-p", "devpulse_desktop_backend"];
     let cargo_child = ws.spawn_in_stderr_piped(ws.root(), "cargo", &cargo_args)?;

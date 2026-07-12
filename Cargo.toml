@@ -1,12 +1,16 @@
 [workspace]
 resolver = "2"
 members = [
-    "kernel/devpulse-clyffy",
-    "kernel/model-loader",
-    "kernel/rrd",
+    # The AI layer (connectome kernel, model loading/inference, RRD daemon)
+    # is Clyffy's — it lives at github.com/EonsofStupid/clyffyos
+    # (clyffyos-connectome / clyffyos-model-loader / clyffyos-rrd). DevPulse
+    # reaches it over the devpulse-gb10-client wire; model MANAGEMENT is the
+    # engine's own platform/model_loader module.
     "systems/devpulse-engine",
     "systems/devpulse-media",
-    "systems/devpulse-persona-mcp",
+    # persona-mcp is Clyffy's — lives at github.com/EonsofStupid/clyffyos
+    # (systems/clyffyos-persona-mcp, evolved). Removed 2026-07-08 with the
+    # kernel cut; .mcp.json repoints at the clyffyos-built binary.
     "systems/devpulse-gb10-client",
     "systems/devpulse-store",
     # systems/infra/devpulse-telemetry{,-macros} extracted to
@@ -18,15 +22,11 @@ members = [
     "xtask", # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
 ]
-# Vendored sub-workspaces — patched in via [patch.crates-io] but isolated so
-# their own [workspace.package.*] inheritance resolves against THEIR root,
-# not ours. Without this, Cargo claims the path-dep crate as a member of the
-# outer workspace and `edition.workspace = true` fails to find an `edition`
-# in the outer manifest.
-exclude = [
-    "deps/moshi",
-    "deps/llama-cpp-rs",
-]
+# The vendored deps/ sub-workspaces (moshi, llama-cpp-rs submodules + the
+# llama-cpp prebuilt trees) left with the kernel cut Phase 7 — byte-verified
+# against clyffyos's vendors first (moshi pins identical; the llama-cpp-rs
+# fork commits live on EonsofStupid/llama-cpp-rs main; fetch tooling absorbed
+# at clyffyos tools/fetch-llama-cpp/).
 
 [workspace.dependencies]
 # Core
@@ -48,12 +48,10 @@ turso = "0.4.3"
 duckdb = { version = "1.10502", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
-# fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
-wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
-rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
-
-# Constrained decoding (kernel — optional feature on `devpulse-clyffy`)
-llguidance = "1.7"
+# fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it.
+# wal/rro (embedded qortex vector store) and llguidance (constrained decoding)
+# are Clyffy-side (clyffyos repo) — no crate here consumes them, so the git
+# deps (and their private-fetch CI auth) are gone with the kernel cut.
 
 # Observability — OTel 0.31 pin set (SPRINT-TELEMETRY-FOUNDATION, ADR-002)
 # Pinned 2026-04-15 after Q1/Q2 2026 research. Do not bump independently.
@@ -78,28 +76,6 @@ flume = "0.11"
 # a tokio::sync::RwLock across await points.
 arc-swap = "1.7"
 
-# rkyv 0.8 — zero-copy serialization framework. Kernel term reserved at
-# `kernel_terms.toml` (severity=hard, prod "fast serialization"). Used by
-# `kernel/devpulse-clyffy/.../persistence/surreal/intelligence.rs` to define
-# `RroRecord` — precomputed reasoning context that loads via `rkyv::access`
-# with no deserialization. Default features include `std`, `alloc`, and
-# `bytecheck` (safe validation on access). Pinned to the 0.8 line; the API
-# differs significantly from 0.7 (rancor error type, AlignedVec return).
-rkyv = "0.8"
-
-# Compile-time trait-bound assertions. Used by the RRO encoder hot-update
-# pattern (`HOT_UPDATE_PATTERN.md` §12 verifications 1–2) to assert
-# `BurnEmbedder<B>: Send + Sync + 'static` per backend at compile time —
-# guards against a future Burn backend whose tensors aren't Sync silently
-# breaking the ArcSwap-based hot-swap path. Tiny crate, no transitive deps.
-static_assertions = "1.1"
-
-# Tokio extensions — `TaskTracker` (in-flight tracking) and
-# `CancellationToken` (drain signal). Used by the RRD daemon
-# (`HOT_UPDATE_PATTERN.md` §4.2 / H2). Pinned at 0.7.x line; 0.8 not
-# yet released as of 2026-05.
-tokio-util = { version = "0.7", features = ["rt"] }
-
 # Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK).
 # Extracted to its own repo 2026-06-28. Branch-tracked while pre-release; pin a
 # rev when the API stabilises. CI auth: secrets.DEVPULSE_TELEMETRY_TOKEN (set
@@ -110,54 +86,10 @@ devpulse-telemetry = { git = "https://github.com/EonsofStupid/devpulse-telemetry
 anyhow = "1.0"
 thiserror = "2.0"
 
-# AI & Voice (The "Senses")
-# Pre-release stance: minor-version pins so `cargo update` picks up
-# latest patches automatically. Candle 0.10 (was 0.9.2 exact) because
-# mistralrs 0.8.x requires candle 0.10.x for Phi-4-multimodal-instruct.
-# moshi: vendored fork at `deps/moshi/` lifts candle from 0.9.1 → 0.10 so
-# the workspace ships a single candle version. See `deps/moshi/PATCHES.md`
-# for the fork rationale. The path override in `[patch.crates-io]` below
-# rewires every transitive `moshi` dep to the vendored copy.
-candle-core = "0.10"
-candle-nn = "0.10"
-candle-transformers = "0.10"
-moshi = { version = "0.6", default-features = false }
-# Qwen3-TTS — pure-Rust TTS with zero-shot voice cloning, Candle-based.
-# Single engine: default voice + 9 preset speakers + clone-from-reference.
-# Not published on crates.io (the `qwen3_tts` package by second-state is
-# yanked and uses tch/libtorch — different path). Pinned to TrevorS's
-# Candle-based fork (MIT, "experiment, not production" per README).
-# Re-pin the SHA after upstream stabilises. Used by the qwen3-tts-backend
-# feature in kernel/model-loader.
-qwen3-tts = { git = "https://github.com/TrevorS/qwen3-tts-rs", rev = "711ceee07cad92673f86de8997bdf54c30caa49f", default-features = false, features = ["hub"] }
-# sentencepiece dep removed 2026-04-26: moshi-core uses an `encode: impl Fn`
-# callback for tokenization (see moshi-core/src/tts_streaming.rs::tokenize_prompt),
-# never depends on a specific tokenizer crate. Personaplex's SentencePiece-format
-# tokenizer.json loads via the HF `tokenizers` crate already in model-loader's
-# deps. Adding sentencepiece back forces sentencepiece-sys to compile a C++
-# tree via CMake — environment-fragile (VS 2019/2022 generator mismatch on
-# this dev box) and provides nothing we use.
-ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "ndarray", "load-dynamic"] }
-
-# Burn ML framework — locked authorship target for the RRO encoder per
-# `project_rro_burn_authorship.md`. Each kernel crate that consumes Burn
-# turns on the backend feature it needs (`burn/flex` for CPU storage
-# in bf16, `burn/cuda` for GPU). `flex` is the Burn 0.21 default CPU
-# backend (PR #4761) — runtime DType dispatch lets us pin bf16 storage
-# without an `NdArray<bf16>` generic (which 0.21 rejects because
-# `FloatNdArrayElement` is impl'd only for f32/f64). Default-features
-# = false keeps heavy backends (wgpu, metal, vulkan) opt-in.
-burn = { version = "0.21", default-features = false, features = ["std", "flex"] }
-
-# AST Analysis (GUARDIAN — tree-sitter powered security + refactoring safety)
-tree-sitter = "0.24"
-tree-sitter-rust = "0.23"
-tree-sitter-typescript = "0.23"
-tree-sitter-javascript = "0.23"
-tree-sitter-python = "0.23"
-tree-sitter-go = "0.23"
-tree-sitter-java = "0.23"
-tree-sitter-c = "0.23"
+# AI & Voice inference (candle/moshi/qwen3-tts/ort/burn) and AST analysis
+# (tree-sitter GUARDIAN) are Clyffy-side (clyffyos repo) — no crate in this
+# workspace consumes them. Their workspace entries, crates-io patches, and
+# vendored-fork wiring left with the kernel cut.
 
 # Ops (xtask Support)
 xshell = "0.2" # Shell scripting in Rust
@@ -192,13 +124,10 @@ disallowed_methods = "deny"
 # / `BroadcastSender` is scheduled alongside the signal-bus unification in
 # the next sprint phase. Escalate to `deny` after migration completes.
 
-# These pedantic-group lints fire on the soon-to-be-deleted setup-wizard
-# tree (kernel/model-loader/src/wizard/) and other Qdrant-derived crates
-# that the rro v2 alpha brought in. The wizard tree is fully absorbed
-# by PR #7 into the Slot Orchestrator devtool (per PLATFORM_TURNKEY_V2
-# §11); allowing here keeps PR #8 mergeable until #7 lands.
-# Re-tighten in the panic-hygiene milestone once both PRs are merged
-# and the legacy wizard code is gone.
+# These three stay allowed pending a dedicated lint-tightening slice —
+# their original justification (the removed kernel wizard tree + rro
+# transitive crates) is gone, but flipping them to warn now would surface
+# a workspace-wide diagnostic sweep that deserves its own verified pass.
 semicolon_if_nothing_returned = "allow"
 doc_markdown = "allow"
 doc_lazy_continuation = "allow"
@@ -207,48 +136,10 @@ doc_lazy_continuation = "allow"
 unsafe_code = "deny"
 missing_docs = "warn"
 
-[patch.crates-io]
-# RRO's fork of tar with set_sync method for snapshot serialization
-tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
-# ort: fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)
-ort = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
-ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
-# moshi: in-tree fork of kyutai-labs/moshi v0.6.4 with candle pins lifted to
-# 0.10 so the workspace ships a single candle version. See deps/moshi/PATCHES.md.
-# Without this patch, the upstream 0.6.4 release pins candle 0.9.1 and Cargo
-# pulls a duplicate candle copy → E0308 across the model-loader build.
-moshi = { path = "deps/moshi/rust/moshi-core" }
-
-# llama-cpp-rs — vendored fork with prebuilt-libs fast path
-# ---------------------------------------------------------
-# `utilityai/llama-cpp-rs` is vendored as a git submodule at
-# `deps/llama-cpp-rs/`. The fork carries one local change: a fast-path
-# branch in `llama-cpp-sys-2/build.rs` that activates when
-# `LLAMA_CPP_PREBUILT_LIB_DIR` is set, skipping the in-tree cmake build
-# of llama.cpp entirely and linking prebuilt static libs from
-# `deps/llama-cpp-prebuilt/<target>/` instead.
-#
-# The prebuilt libs are produced by
-# `github.com/EonsofStupid/llama-cpp-prebuilt` — a private wrapper repo
-# whose matrix workflow builds upstream `ggml-org/llama.cpp` at a
-# pinned SHA on GitHub Actions short paths, packages per-target zips,
-# and publishes a sha256-pinned manifest. `cargo xtask fetch-llama-cpp
-# --target <id>` downloads + verifies + extracts the right target into
-# `deps/llama-cpp-prebuilt/<target>/`. xtask's `apply_env` then exports
-# `LLAMA_CPP_PREBUILT_LIB_DIR` automatically based on detected build
-# features.
-#
-# Why the prebuilt detour: `llama-cpp-sys-2`'s nested vulkan-shaders-gen
-# ExternalProject blows past `cl.exe`'s MAX_PATH at any typical
-# workspace depth on Windows. Three workarounds were rejected
-# (CMAKE_OBJECT_PATH_MAX, LongPathsEnabled, subst virtual drive); see
-# `docs/platform/PREBUILT_LLAMA.md` for the full history once authored.
-#
-# The fast path falls through to the upstream in-tree cmake build when
-# the env var is unset (e.g. on Linux/Mac dev boxes where MAX_PATH isn't
-# an issue).
-llama-cpp-2 = { path = "deps/llama-cpp-rs/llama-cpp-2" }
-llama-cpp-sys-2 = { path = "deps/llama-cpp-rs/llama-cpp-sys-2" }
+# [patch.crates-io] removed with the kernel cut — every entry (rro's tar
+# fork, the ort fork, the vendored moshi + llama-cpp-rs path patches)
+# patched crates that only the AI layer consumed. Inference tooling lives
+# with Clyffy (clyffyos repo, which vendors its own deps/ forks).
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast).

@@ -56,7 +56,7 @@ import { Text } from "$lib/design/components/text/index.js";
 export type ApplyState = "ready" | "saving" | "saved" | "error";
 
 interface Props {
-	/** Stable kernel slot id (e.g. `vision.embedder`). Drives the
+	/** Stable engine slot id (e.g. `vision.embedder`). Drives the
 	 *  Apply callback and any signal correlation. */
 	slotId: string;
 	/** Lucide icon component matched to the anatomy (Eye / Ear /
@@ -113,8 +113,8 @@ let {
 
 /** Stable id per tile so `aria-labelledby` / `aria-describedby` lock
  *  to the right heading even when several tiles render in parallel. */
-const headingId = `anatomy-tile-${slotId}-heading`;
-const taglineId = `anatomy-tile-${slotId}-tagline`;
+const headingId = $derived(`anatomy-tile-${slotId}-heading`);
+const taglineId = $derived(`anatomy-tile-${slotId}-tagline`);
 
 const STATE_BADGE: Record<
 	ApplyState,
@@ -141,7 +141,6 @@ const ctaLabel = $derived(
 	class="anatomy-tile"
 	data-state={state}
 	style={`--slot-accent: var(${accentVar});`}
-	role="region"
 	aria-labelledby={headingId}
 	aria-busy={state === "saving"}
 >

@@ -4,7 +4,7 @@
 # Edit this file (or create an override at .userdata/config/wizard_copy.toml)
 # to change copy without recompiling.
 #
-# Schema: kernel/model-loader/src/wizard/copy.rs
+# Schema: systems/devpulse-engine/src/platform/wizard/copy.rs
 
 # ─────────────────────────────────────────────────────────────────────
 # Welcome screen — Clyffy greeting
@@ -479,3 +479,11 @@ status_connecting = "Connecting…"
 status_connected = "Connected — your AI is live."
 status_failed = "Couldn't reach it. Check the address and that Clyffy is running — I'll keep trying in the background."
 error_empty = "Type an address first — your Local or GB10 Clyffy."
+discover_cta = "Find my Clyffy"
+discover_aria = "Search this machine, your network, and your mesh for a running Clyffy"
+discovering = "Looking for your Clyffy…"
+found_title = "Found on your network"
+confirm_cta = "Connect to this one"
+none_found = "Nothing answered yet — I checked this machine, your network, and your mesh. If Clyffy is running somewhere, type its address below."
+degraded_hint = "Part of the search was blocked (firewall or no mesh client) — the address field always works."
+manual_reveal = "Enter an address instead"

@@ -8,7 +8,15 @@
  */
 
 /** Visual family identifier */
-export type PresetFamily = "neuro" | "glass" | "retro" | "chrome" | "flat" | "stark" | "chat";
+export type PresetFamily =
+	| "neuro"
+	| "glass"
+	| "retro"
+	| "chrome"
+	| "flat"
+	| "stark"
+	| "chat"
+	| "wizard";
 
 /** Runtime array for VPB family tab selector */
 export const PRESET_FAMILIES: readonly PresetFamily[] = [
@@ -19,6 +27,7 @@ export const PRESET_FAMILIES: readonly PresetFamily[] = [
 	"flat",
 	"stark",
 	"chat",
+	"wizard",
 ] as const;
 
 /** Human-readable labels for VPB */
@@ -30,6 +39,7 @@ export const FAMILY_LABELS: Record<PresetFamily, string> = {
 	flat: "Flat Minimal",
 	stark: "Stark Bold",
 	chat: "Chat (Golden)",
+	wizard: "Wizard (Brand)",
 } as const;
 
 /** One-line descriptions for VPB tooltips */
@@ -41,4 +51,5 @@ export const FAMILY_DESCRIPTIONS: Record<PresetFamily, string> = {
 	flat: "Zero depth, solid backgrounds, clean geometry, fastest rendering",
 	stark: "Maximum contrast, bold shadows, thick borders, commanding presence",
 	chat: "Golden chat reference — token-driven bubbles, pills, voice, cortex",
+	wizard: "Brand-hued glass — blue/cyan/purple glow tiers for onboarding surfaces",
 } as const;

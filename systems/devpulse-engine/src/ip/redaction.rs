@@ -3,20 +3,20 @@
 //! Beyond vocabulary remapping (`ip_term!()`), some internal DETAIL needs
 //! summarizing. The customer gets the insight, not the implementation.
 //!
-//! - `kernel` builds: `TraceDetail` contains full agent/layer/algorithm info
+//! - `full` builds: `TraceDetail` contains full agent/layer/algorithm info
 //! - `engine` builds: `TraceDetail` contains summarized phase/confidence info
 
 use serde::Serialize;
 
 // ═══════════════════════════════════════════════════════════════
-// Kernel builds: full internal detail
+// Full builds: full internal detail
 // ═══════════════════════════════════════════════════════════════
 
-/// Full trace detail — visible in kernel (dev) builds only.
+/// Full trace detail — visible in full (dev) builds only.
 ///
 /// Contains agent names, layer identifiers, algorithm names, latency budgets,
 /// and reasoning step traces. Never shipped to customers.
-#[cfg(feature = "kernel")]
+#[cfg(feature = "full")]
 #[derive(Debug, Clone, Serialize)]
 pub struct TraceDetail {
     /// Agent that produced this trace (e.g., "GUARDIAN", "DIARY").

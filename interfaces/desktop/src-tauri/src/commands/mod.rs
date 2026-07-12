@@ -59,7 +59,9 @@ pub struct StatusUpdate<T: Serialize> {
 /// This is THE function. Every domain. Every mutation. Every boot.
 /// The frontend listens and sets `$state` directly from `data`.
 ///
-/// ```rust
+/// ```rust,ignore
+/// // Illustrative call shape — needs a live tauri::AppHandle, so it
+/// // can't run as a doctest.
 /// emit_status(&app, "models", StatusKind::Data, &models_payload);
 /// emit_status(&app, "voice",  StatusKind::Error, &"TTS engine crashed");
 /// ```

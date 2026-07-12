@@ -71,6 +71,7 @@ export function useFocusTrap(config: FocusTrapConfig): void {
 		});
 
 		function onKeydown(e: KeyboardEvent): void {
+			if (config.contain === false) return;
 			if (e.key !== "Tab") return;
 
 			// biome-ignore lint/style/noNonNullAssertion: container is guaranteed set by $effect before keydown fires

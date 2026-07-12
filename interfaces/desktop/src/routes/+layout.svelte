@@ -1,11 +1,12 @@
 <script lang="ts">
 import "../app.css";
 // Style presets compiled via SD5 DTCG pipeline → components.generated.css
-// Loaded via app.css → design/index.css → css/index.css import chain
+// Loaded via app.css → design/index.css → styles/index.css import chain
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
 import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
+import { ColdLightProvider } from "$lib/design/provider/index.js";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
@@ -41,7 +42,7 @@ onMount(() => {
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
 
-	// Single subscription point for every kernel model-loader event —
+	// Single subscription point for every model-loader event —
 	// downloads, loads, cancels. Routes through wizardState rune methods
 	// so the overlay reflects live state whether it is currently open or
 	// dismissed. Attached here (root layout) so downloads started before
@@ -89,7 +90,7 @@ onMount(() => {
 
 	// ── Idle auto-minimize ─────────────────────────────────
 	// Track last pointer/keyboard activity. When the window has been
-	// idle for N seconds (read from assistant.toml via the kernel),
+	// idle for N seconds (read from assistant.toml via the engine),
 	// minimize to the system tray. Default 300s = 5 min.
 	let lastActivity = Date.now();
 	let idleTimeoutSecs = 300;
@@ -100,8 +101,12 @@ onMount(() => {
 	document.addEventListener("pointermove", markActive, { passive: true });
 	document.addEventListener("keydown", markActive, { passive: true });
 
-	// Fetch the configured timeout from the kernel (non-blocking).
-	invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config")
+	// Fetch the configured timeout from the engine (non-blocking).
+	// Gated on platform readiness — `get_assistant_config` routes through
+	// the engine loader and rejects with "Platform not ready" during boot.
+	platformState
+		.whenReady()
+		.then(() => invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config"))
 		.then((cfg) => {
 			if (cfg?.window?.idle_timeout_secs > 0) {
 				idleTimeoutSecs = cfg.window.idle_timeout_secs;
@@ -137,7 +142,7 @@ onMount(() => {
 });
 
 // ── Chat window auto-open ─────────────────────────────────
-// Five WindowRoles are authored kernel-side (Main / Chat / ConnectomeViewer /
+// Five WindowRoles are authored engine-side (Main / Chat / ConnectomeViewer /
 // ModelLoader / DevTools) but `tauri.conf.json` declares only Main; the
 // rest spawn via `commands::window::open_window(role)`. Nothing fires the
 // Chat spawn after boot — the customer flow per spec is "chat window
@@ -181,27 +186,36 @@ $effect(() => {
 		});
 	}}
 >
-	<BootOverlay />
-	<TokenDebugOverlay />
 	<!--
-		Singleton Model Downloader overlay mounted at the app root.
-		Any feature surface opens it via `modelDownloaderState.open(...)`;
-		closing returns focus to whichever element opened it (APG
-		dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
+		ColdLightProvider: theme context (accent/scheme/neumorphism/
+		animations/scale) for every ColdLight surface. Mounted 2026-07-11
+		(a11y audit Gap 8 — it existed since the provider sprint but was
+		never wired). Renders display:contents; theme data-attrs become
+		the rebind seam for the Phase 2 accent work.
 	-->
-	<ModelDownloaderOverlay />
-	<!--
-		Local-first render contract. `pending` falls through to the
-		BootOverlay above (splash still covers the screen). Every other
-		phase renders the routed children — DevPulse is local-first, so
-		absence of Supabase cloud auth is the DEFAULT working state,
-		never a blocking screen. Users reach LoginShell from settings
-		if they explicitly want cloud sync; the app itself runs without
-		it.
-	-->
-	{#if authState.phase !== "pending"}
-		{@render children()}
-	{/if}
+	<ColdLightProvider>
+		<BootOverlay />
+		<TokenDebugOverlay />
+		<!--
+			Singleton Model Downloader overlay mounted at the app root.
+			Any feature surface opens it via `modelDownloaderState.open(...)`;
+			closing returns focus to whichever element opened it (APG
+			dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
+		-->
+		<ModelDownloaderOverlay />
+		<!--
+			Local-first render contract. `pending` falls through to the
+			BootOverlay above (splash still covers the screen). Every other
+			phase renders the routed children — DevPulse is local-first, so
+			absence of Supabase cloud auth is the DEFAULT working state,
+			never a blocking screen. Users reach LoginShell from settings
+			if they explicitly want cloud sync; the app itself runs without
+			it.
+		-->
+		{#if authState.phase !== "pending"}
+			{@render children()}
+		{/if}
+	</ColdLightProvider>
 
 	{#snippet failed(error, reset)}
 		<ErrorOverlay {error} {reset} />

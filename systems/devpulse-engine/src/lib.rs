@@ -1,8 +1,9 @@
-//! `DevPulse` engine — owns all platform services and bridges to clyffy kernel.
+//! `DevPulse` engine — DevPulse's core backend: platform services, boot,
+//! config, signals, wire client.
 //!
 //! The engine is the **sole boundary** between the desktop app (Tauri) and
-//! the kernel (Clyffy). Tauri depends on this crate only — never on Clyffy
-//! directly.
+//! Clyffy (headless AI layer, clyffyos repo — reached over the wire).
+//! Tauri depends on this crate only — never on Clyffy directly.
 //!
 //! # Feature Gates
 //!
@@ -15,11 +16,11 @@
 // Feature gate enforcement
 // ═══════════════════════════════════════════════════════════════
 
-#[cfg(all(feature = "kernel", feature = "engine"))]
-compile_error!("Cannot enable both 'kernel' and 'engine' features. Pick one.");
+#[cfg(all(feature = "full", feature = "engine"))]
+compile_error!("Cannot enable both 'full' and 'engine' features. Pick one.");
 
-#[cfg(not(any(feature = "kernel", feature = "engine")))]
-compile_error!("Must enable either 'kernel' or 'engine' feature.");
+#[cfg(not(any(feature = "full", feature = "engine")))]
+compile_error!("Must enable either 'full' or 'engine' feature.");
 
 // ═══════════════════════════════════════════════════════════════
 // Modules

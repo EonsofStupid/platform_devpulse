@@ -19,7 +19,7 @@ export type {
  * Per-slot frontend load status, derived from `model:slot-status` events.
  * Discriminator on `.type` so consumers can `switch (status.type)` cleanly.
  *
- * The kernel emits one of these per slot when the slot's lifecycle state
+ * The engine emits one of these per slot when the slot's lifecycle state
  * changes; the rune store buckets them by slot id.
  */
 export type ModelLoadStatus =

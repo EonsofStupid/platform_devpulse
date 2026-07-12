@@ -39,13 +39,13 @@ pub static ENGINE_VOCABULARY: std::sync::LazyLock<HashMap<&'static str, &'static
 /// Remap a kernel term to its public equivalent (engine builds)
 /// or pass through unchanged (kernel builds).
 ///
-/// # Kernel build
+/// # Full build
 /// Returns the input string unchanged — full internal detail visible.
 ///
 /// # Engine build
 /// Looks up the term in `ENGINE_VOCABULARY` (generated from `kernel_terms.toml`).
 /// Returns the public equivalent if found, otherwise the original term.
-#[cfg(feature = "kernel")]
+#[cfg(feature = "full")]
 #[macro_export]
 macro_rules! ip_term {
     ($term:expr) => {
@@ -66,29 +66,29 @@ macro_rules! ip_term {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Dev tool helpers — kernel builds only
+// Dev tool helpers — full builds only
 // ═══════════════════════════════════════════════════════════════
 
 /// Load the vocabulary on-demand for dev tool display.
 ///
-/// Returns a fresh `HashMap` each call. Not a static — kernel builds
+/// Returns a fresh `HashMap` each call. Not a static — full builds
 /// only need this for the dev tool preview, not hot-path lookup.
-#[cfg(feature = "kernel")]
+#[cfg(feature = "full")]
 pub fn dev_vocabulary() -> HashMap<&'static str, &'static str> {
     include!(concat!(env!("OUT_DIR"), "/engine_vocabulary.rs"))
 }
 
 /// Get the full dictionary as a vec of (kernel, engine) pairs.
-/// Only available in kernel builds (dev tool display).
-#[cfg(feature = "kernel")]
+/// Only available in full builds (dev tool display).
+#[cfg(feature = "full")]
 pub fn dictionary_entries() -> Vec<(&'static str, &'static str)> {
     dev_vocabulary().into_iter().collect()
 }
 
 /// Remap an arbitrary text string by applying all dictionary substitutions.
 /// Used by the dev tool for live kernel↔engine preview.
-/// Only available in kernel builds.
-#[cfg(feature = "kernel")]
+/// Only available in full builds.
+#[cfg(feature = "full")]
 pub fn remap_text(text: &str) -> String {
     let vocab = dev_vocabulary();
     let mut entries: Vec<_> = vocab.iter().collect();

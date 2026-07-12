@@ -36,6 +36,7 @@
 
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { inferenceEvents, modelEvents } from "$lib/sys/streams/tauri-event.svelte.js";
 
 /** Clyffy's current disposition, layman-safe. */
@@ -174,13 +175,21 @@ export function createClyffyStatus(): ClyffyStatus {
 			});
 		});
 
-		// Kick off initial poll + interval loop.
-		void pollHealth().catch((e) => {
-			logError(
-				"clyffy.status",
-				`initial health poll failed: ${e instanceof Error ? e.message : String(e)}`,
-			);
-		});
+		// Kick off initial poll + interval loop. Gate the first poll on
+		// platform readiness — `get_status` returns "Platform is still
+		// booting" until boot completes. The interval below is left as-is;
+		// a tick during boot degrades gracefully (setReachable(false)).
+		void (async () => {
+			try {
+				await platformState.whenReady();
+				await pollHealth();
+			} catch (e) {
+				logError(
+					"clyffy.status",
+					`initial health poll failed: ${e instanceof Error ? e.message : String(e)}`,
+				);
+			}
+		})();
 		healthTimer = setInterval(() => {
 			void pollHealth().catch((e) => {
 				logError(

@@ -2,8 +2,8 @@
  * @file Slot identity helpers — labels, readiness, role membership.
  * @module @devpulse/domains/app/models/util/slots
  *
- * Pure functions over the slot identifiers defined in
- * `kernel/model-loader/config/presets.default.toml` + frontend-only
+ * Pure functions over the slot identifiers defined in the engine's
+ * `config/presets.default.toml` + frontend-only
  * pseudo-slots (e.g. `system.pending` for downloads-without-assignment).
  *
  * Layman labels live here so every consumer that displays a slot in a

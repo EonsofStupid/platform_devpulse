@@ -1,7 +1,7 @@
 //! # Backend matrix
 //!
 //! Enumerates every inference backend, with its local install state.
-//! Post-severance the engine is the model **management** layer and
+//! The engine is the model **management** layer and
 //! compiles **no** inference backend, so `installed` is uniformly
 //! `false` locally; live availability is **computed** from the
 //! connected Clyffy capability over the wire, never a compile flag.
@@ -119,8 +119,7 @@ pub enum ModelFormat {
     Pytorch,
     /// Sherpa model directory (Whisper / Kokoro — a directory carrying
     /// `tokens.txt` + config, discovered as a unit rather than a single
-    /// weight file). Folded in from the relocated model-loader management
-    /// layer (kernel-severance); the loader's discovery scanner emits this
+    /// weight file). The model-loader's discovery scanner emits this
     /// for `tokens.txt`-bearing directories.
     SherpaDir,
 }
@@ -429,7 +428,7 @@ fn aux_backends(
 /// Return the backend matrix — the full catalog of inference backends
 /// with their local install state.
 ///
-/// Post-severance no inference backend is compiled into the engine
+/// No inference backend is compiled into the engine
 /// (inference is Clyffy's, served over the wire), so every backend is
 /// catalogued with `installed = false`. The frontend overlays live
 /// availability from the connected Clyffy capability (`capability.slots`),

@@ -136,7 +136,7 @@ fn redact_pii(text: &str) -> String {
 
 /// Strip IP-sensitive method names and internal architecture terms.
 ///
-/// This is the key function that protects kernel internals
+/// This is the key function that protects engine internals
 /// from leaking to the user-facing UI.
 fn redact_ip(text: &str) -> String {
     // Terms that must NEVER appear in Surface-level output.

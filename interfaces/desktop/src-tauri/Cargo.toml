@@ -40,6 +40,9 @@ tauri-plugin-shell = "2.3.5"
 tauri-plugin-single-instance = "2.4.0"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-updater = "2"
+# Remembered window geometry (size/position per label) across restarts.
+# Config min_inner_size stays the hard floor against bad restored state.
+tauri-plugin-window-state = "2"
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }
@@ -54,11 +57,11 @@ toml = "0.8"
 uuid = { workspace = true, features = ["v4"] }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
 # NOTE: `rro` (qortex, the embedded Qdrant vector store) is intentionally
-# NOT enabled here — it is kernel/ClyffyOS-side and relocates behind the
-# gb10-client wire. See the `kernel-inproc` feature below for why it cannot
+# NOT enabled here — it is Clyffy/ClyffyOS-side, behind the
+# gb10-client wire. See the `totalrecall` feature below for why it cannot
 # co-exist with the Turso store in a desktop build.
-# Kernel AI features (candle/inference/burn) dropped — the engine is
-# standalone Tier-1 now (kernel-severance); AI is Clyffy's on GB10 via
+# There are no AI features (candle/inference/burn) — the engine is
+# standalone Tier-1; AI is Clyffy's on GB10 via
 # devpulse-gb10-client. No llama.cpp in the desktop compile graph.
 devpulse-engine = { path = "../../../systems/devpulse-engine" }
 # devpulse-media — audio_decode helpers for the voice loop (Whisper STT
@@ -67,11 +70,15 @@ devpulse-engine = { path = "../../../systems/devpulse-engine" }
 # below with a different backend; we only need audio decode here.
 devpulse-media = { path = "../../../systems/devpulse-media", default-features = false }
 devpulse-telemetry = { workspace = true }
-# Clyffy wire client — kernel-free HTTP/JSON client to headless Clyffy
+# Clyffy wire client — standalone HTTP/JSON client to headless Clyffy
 # (ClyffyOS) on the GB10. Held as separate Tauri managed state (NOT on
-# Platform) so it never drags the kernel into its compile graph. The `specta`
+# Platform) so it keeps its own lean compile graph. The `specta`
 # feature makes `ConnectionState` codegen TS bindings against one Rust source.
 devpulse-gb10-client = { path = "../../../systems/devpulse-gb10-client", features = ["specta"] }
+# Turnkey endpoint discovery — pure-Rust mDNS/DNS-SD browse for the LAN rung
+# of the candidate ladder (endpoint_discovery.rs). One ServiceDaemon per
+# process (upstream issue #478: multiple daemons can hang socket creation).
+mdns-sd = "0.20"
 flume = "0.11"
 arc-swap = { workspace = true }
 rfd = "0.15"
@@ -102,26 +109,25 @@ default = ["inference"]
 # Model loader + hardware push — always on for now.
 # Separate feature so release builds can control binary size.
 inference = []
-# ── qortex / in-process vector store (RRO) — RELOCATION MARKER ──
-# qortex (the embedded Qdrant fork) is kernel/ClyffyOS-side, NOT part of the
+# ── qortex / in-process vector store (RRO) — Tier-2 seam marker ──
+# qortex (the embedded Qdrant fork) is Clyffy/ClyffyOS-side, NOT part of the
 # standalone DevPulse desktop. It is deliberately un-buildable alongside the
 # Tier-1 store: qortex hard-enables parking_lot `deadlock_detection`, which is
 # mutually exclusive with the `send_guard` that Turso's sync SDK hard-enables —
 # so a Turso-backed desktop CANNOT also link qortex (parking_lot fails to
 # compile, by design). The in-process vector devtool surface
-# (`commands/sys/vector`) is gated behind this feature and relocates behind the
-# gb10-client wire (Tier-2, additive once Clyffy connects). Kept as a
-# relocation marker, not a shipping config.
-# EMPTY marker now — the engine `rro` feature was removed (kernel-severance);
+# (`commands/sys/vector`) is gated behind this feature and is served over the
+# gb10-client wire (Tier-2, additive once Clyffy connects).
+# EMPTY marker — no local `rro`;
 # qortex is Clyffy/ClyffyOS-side behind the gb10-client wire. `commands/sys/vector`
-# stays gated behind this never-enabled feature as a relocation marker.
-kernel-inproc = []
+# stays gated behind this never-enabled feature as the Tier-2 seam marker.
+totalrecall = []
 # Jesse's dev build — sidecar, Claude Code, full MCP surface.
 # Compiled OUT of release binary. Passthrough to engine.
 internal = ["devpulse-engine/internal"]
-# GPU proxy features (gpu-nvidia / gpu-vulkan / cpu-mkl) REMOVED — GPU
-# inference is Clyffy's on GB10 (kernel-severance); the desktop no longer
-# selects a local GPU backend. (xtask's GPU-append step becomes a no-op.)
+# There are no GPU proxy features (gpu-nvidia / gpu-vulkan / cpu-mkl) — GPU
+# inference is Clyffy's on GB10; the desktop never
+# selects a local GPU backend. (xtask's GPU-append step is a no-op.)
 
 [lints]
 workspace = true

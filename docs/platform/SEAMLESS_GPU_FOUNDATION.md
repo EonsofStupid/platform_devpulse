@@ -16,6 +16,8 @@ The four-layer locked chain is the contract this spec implements. Layer 1 is par
 > - **Still valid** — the Layer 1 build foundation (Ninja generator + `cc::windows_registry` MSVC activation + the `vulkan-shaders-gen` race root-cause analysis), the `GpuProbeReport` struct design, the shared-weight multi-context council architecture, the four collaboration strategies, the tracing/dual-observability taxonomies, and every file:line citation + verified source remain correct — they relocate to ClyffyOS, they do not disappear.
 >
 > Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
+>
+> **⚠ CUT LANDED — 2026-07-08.** The relocation above happened: the kernel left this repo, and this spec's implementation home is `github.com/EonsofStupid/clyffyos`. Every `kernel/…` / `cortex::…` citation below is a git-history reference. The engineering record (Ninja/MSVC root-cause, `GpuProbeReport` design, council architecture, tracing taxonomies) is preserved deliberately.
 
 ---
 

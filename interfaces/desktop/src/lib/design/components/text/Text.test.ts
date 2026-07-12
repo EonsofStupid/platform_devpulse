@@ -12,7 +12,42 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
+import Heading from "../heading/Heading.svelte";
 import Text from "./Text.svelte";
+
+// Render-truth guard needs the REAL generated CSS so computed styles
+// resolve exactly as in the app.
+import "../../generated/render-base.css";
+import "../../styles/index.css";
+
+// =============================================================================
+// RENDER TRUTH — typography must never paint a surface
+// =============================================================================
+// The mass-stamped card-look @defaults regression rendered every Text and
+// Heading as a dark pill (wizard screenshot, 2026-07-11). These computed-
+// style assertions are the standing guard against that class.
+
+describe("typography — default paints color only, never a surface", () => {
+	test("Text: transparent bg, no shadow, no border; owns its color", async () => {
+		const { container } = render(Text);
+		const el = container.querySelector("[data-kind='text']") as HTMLElement;
+		const cs = getComputedStyle(el);
+		expect(cs.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+		expect(cs.boxShadow).toBe("none");
+		expect(cs.borderTopWidth).toBe("0px");
+		expect(cs.color).toContain("oklch");
+	});
+
+	test("Heading: transparent bg, no shadow, no border; owns its color", async () => {
+		const { container } = render(Heading, { level: 2 });
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		const cs = getComputedStyle(el);
+		expect(cs.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+		expect(cs.boxShadow).toBe("none");
+		expect(cs.borderTopWidth).toBe("0px");
+		expect(cs.color).toContain("oklch");
+	});
+});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES

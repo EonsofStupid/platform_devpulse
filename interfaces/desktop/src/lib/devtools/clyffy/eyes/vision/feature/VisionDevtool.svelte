@@ -9,8 +9,8 @@
 	SERVICE_BACKDROPS["vision"] → neural-pulse @ strong intensity, the
 	"thinking feeling" for AI capability surfaces.
 
-	Wraps the real SigLIP2 backend at
-	`kernel/model-loader/src/backends/candle/siglip.rs` (load/unload +
+	Wraps the real SigLIP2 backend — Clyffy-side (clyffyos repo:
+	clyffyos-model-loader candle backend; load/unload +
 	encode_image producing an L2-normalized 1152-dim embedding for the
 	SO400M default). Slot id is `vision.embedder`.
 -->

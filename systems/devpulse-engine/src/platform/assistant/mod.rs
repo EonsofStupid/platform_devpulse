@@ -2,7 +2,7 @@
 //! actions, window idle behaviour, partial offload hints.
 //!
 //! Loaded from `{userdata}/config/assistant.toml` with a compile-time
-//! default embedded from `kernel/model-loader/config/assistant.default.toml`.
+//! default embedded from the engine's `config/assistant.default.toml`.
 //! The Voice Lab panel in the setup wizard is the canonical UI that
 //! mutates this config through the `set_*` / `add_*` Tauri commands.
 //!

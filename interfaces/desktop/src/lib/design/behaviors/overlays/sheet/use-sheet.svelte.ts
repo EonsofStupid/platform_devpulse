@@ -9,6 +9,7 @@
 
 import { createIds } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
+import { useFocusTrap } from "../../_shared/focus-trap/index.js";
 import { usePresence } from "../../_shared/presence/index.js";
 import { useScrollLock } from "../../_shared/scroll-lock/index.js";
 import { sheetAnatomy } from "./sheet.anatomy.js";
@@ -79,6 +80,14 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 	function attachContent(node: HTMLDivElement): { destroy(): void } {
 		contentEl = node;
 		useScrollLock(() => isOpen);
+		// Non-native dialog: aria-modal alone does not trap — contain Tab
+		// for real. Restore is owned by presence.onExitComplete (animation-
+		// aware), so the trap's own restore is disabled.
+		useFocusTrap({
+			enabled: () => isOpen,
+			node: () => contentEl,
+			restoreFocus: false,
+		});
 		if (closeOnOutsideClick) {
 			useDismissLayer({
 				enabled: () => isOpen,

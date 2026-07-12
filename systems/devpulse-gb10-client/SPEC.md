@@ -1,7 +1,9 @@
 # devpulse-gb10-client — DevPulse ↔ Clyffy wire client (SPEC)
 
 **Boundary:** `systems/devpulse-gb10-client/` — Rust crate, DevPulse workspace member.
-**Authored:** 2026-07-05. **Pass 1** = this SPEC + the compiling foundation client.
+**Authored:** 2026-07-05. **Updated 2026-07-08** — Pass 2 shipped (runtime re-point,
+persistence, decided boot gate, three-surface indicator, capability-computed
+surfaces); the kernel cut landed (no kernel crates exist in this workspace).
 **SSOT for:** how DevPulse connects to headless Clyffy and computes what it may display.
 
 ## Architecture context (current truth)
@@ -38,11 +40,11 @@ connected-but-unserved → typed "endpoint pending" (deferred, not retired — t
 `/v1/*` endpoints that fill them are built in `clyffyos`
 [[feedback_deferred_not_retired]]).
 
-**Cross-repo link:** path dependency to the sibling checkout
-`../../../clyffyos/crates/clyffyos-wire` (resolves against clyffyos's own workspace,
-as it lives outside this workspace tree). **Graduation:** switch to a git/published
-dependency once `clyffyos` has a remote — the path dep is the pre-release
-local-sibling mechanism, not the permanent one.
+**Cross-repo link (graduated 2026-07-07):** `clyffyos-wire` is a **pinned git
+dependency** on `github.com/EonsofStupid/clyffyos` — DevPulse builds on a clean
+checkout with no sibling clone on disk. CI fetches the private repo via the
+`CLYFFYOS_DEPLOY_TOKEN` insteadOf rewrite (same pattern as rro/telemetry). Bump
+the pinned rev deliberately when the wire contract evolves.
 
 ## Protocol (decided by the contract, not invented)
 
@@ -77,35 +79,75 @@ On connect the client probes `/v1/capability`, stores the returned
 + in-platform + in-chat cue — [[project_ai_layer_optional_and_indicators]]): shown while
 `Disconnected`, cleared on `Connected`.
 
-## Consumers (wiring — Pass 2)
+## Consumers (SHIPPED — Pass 2, 2026-07-07/08)
 
-- **`interfaces/desktop/src-tauri` holds the client — NOT `devpulse-engine`** (revised
-  2026-07-05). The engine links the kernel unconditionally (`devpulse-clyffy` = "always
-  linked"), so holding this kernel-free client there would weld it to the kernel and
-  destroy the isolation this crate exists for (and violate the engine-lite bisect). So:
-  `ConnectionState` lives in a dedicated Tauri managed state (`ClyffyConnectionState` in
-  `src-tauri/src/state.rs`); a detached probe / auto-reconnect task (`clyffy_probe_loop`
-  in `src-tauri/src/lib.rs`) owns the `ClyffyClient` and writes it; the endpoint is read
-  from `platform.toml` via `Platform::boot_config().services.system.clyffy`
-  (`ClyffyServiceEntry` — `base_url` empty ⇒ standalone, never a hardcoded host).
-- `interfaces/desktop/src-tauri` exposes the state as the `connection_status` command +
-  the `ClyffyConnectionChanged` event; `platformState.connectionStatus` (today
-  `online/offline/hybrid` in `StatusBar.svelte`) reorients to derive from this wire state
-  (Pass 2 frontend).
-- Stat surfaces (models/slots/etc.) read from the connected capability; disconnected →
-  typed "connect Clyffy" (the `commands/sys/vector.rs:28` seam pattern).
+- **`interfaces/desktop/src-tauri` holds the client — NOT `devpulse-engine`.** The
+  connection is the desktop app's concern (it drives app-level UI state, the boot
+  gate, and the wizard); the engine stays a pure local backend. Concretely:
+  - `ClyffyConnectionState` (managed state, `src-tauri/src/state.rs`) holds the
+    live `ConnectionState` + a shared `ArcSwapOption<String>` endpoint.
+  - `clyffy_probe_loop` (`src-tauri/src/lib.rs`) re-reads that endpoint **each
+    tick** — `connect_clyffy(url)` / `disconnect_clyffy()` re-point it at runtime
+    with no restart. The probe loop touches no disk.
+  - Commands: `connection_status`, `connect_clyffy`, `disconnect_clyffy`,
+    `is_clyffy_setup_decided`, `skip_clyffy_setup`; live event
+    `ClyffyConnectionChanged`.
+- **Frontend SSOT:** the `clyffyConnection` rune
+  (`src/lib/domains/clyffy/status/connection.state.svelte.ts`) — ref-counted
+  subscribe (one-shot `connection_status` catch-up + the live event), getters
+  `state` / `tier` (`tier1|tier2`) / `tier2Available` / `endpointUrl` /
+  `capability` / `slots` / `slotFor(slot_id)`. Every surface parses THIS source.
+- **Shipped consumers:** StatusBar both-state badge + endpoint-metadata chip
+  (`kind vX · sha`); TopBar + chat-window absence-only chips (three-surface no-AI
+  indicator); the wizard's `EndpointView` (Local/GB10 address entry →
+  `connectClyffy`); cortex anatomy tiles (light from `capability.slots` via wire
+  matchers); the capability browser (`resolveCapabilities(slots)` — availability
+  is a pure function of what's served).
+
+## Persistence + boot gate (SHIPPED 2026-07-08)
+
+- **Record:** `{data_dir}/user/clyffy_connection.toml` —
+  `ClyffyConnectionRecord { endpoint: Option<String>, setup_decided: bool }`,
+  atomic temp-write + rename (`src-tauri/src/connection_store.rs`). Corrupt or
+  absent ⇒ undecided standalone, never a boot error.
+- **Writes:** `connect_clyffy` persists `{endpoint, decided}` on success;
+  `disconnect_clyffy` persists `{None, decided}`; `skip_clyffy_setup` sets
+  `decided` and leaves any prior endpoint untouched. A persistence failure warns
+  but never undoes the live re-point (the operator's intent already applied).
+- **Boot seed priority:** the persisted record (when `setup_decided`) **wins over**
+  `platform.toml`'s `services.system.clyffy.base_url` — an explicit disconnect
+  stays standalone even if config names an endpoint. No record ⇒ config fallback
+  ⇒ empty = standalone.
+- **Boot gate (two-stage):** `BootOverlay` auto-opens the wizard **on the endpoint
+  step, only while `!is_clyffy_setup_decided`**. Skip/connect decide it once;
+  re-entry = the TopBar standalone chip (opens the wizard on the endpoint step).
+- **Signals:** every transition emits structured tracing under the
+  **`clyffy.connection`** target (replayable via
+  `query_scoped_log("clyffy.connection", …)`), paired with the
+  `ClyffyConnectionChanged` typed event ([[feedback_dual_observability]]).
 
 ## Not this pass (deferred, not retired — [[feedback_deferred_not_retired]])
 
-- mDNS discovery implementation (config-supplied endpoints land first).
-- The serving side (`clyffyd`) — built in the `clyffyos` repo; until it answers, only
-  the **disconnected** path is runtime-verifiable here.
-- The stat-surface repoint + `StatusBar` reorientation (Pass 2).
+- ~~mDNS discovery implementation~~ **LANDED 2026-07-11** — the turnkey
+  candidate ladder lives desktop-side in
+  `interfaces/desktop/src-tauri/src/endpoint_discovery.rs` (persisted /
+  configured / localhost / mDNS `_clyffy._tcp.local.` / tailscale mesh
+  peers → bounded parallel `probe_capability`). The operator overrode
+  "GB10 stays typed-in by design": link-local mDNS still cannot cross a
+  mesh, but mesh peers are ENUMERATED via `tailscale status --json` and
+  verified by the same handshake. This crate stays the thin wire —
+  discovery orchestration is the desktop app's concern.
+- The serving side (`clyffyd`) — built in the `clyffyos` repo; until it answers,
+  only the **disconnected** path is runtime-verifiable here.
+- A devtool connect tile (`clyffy/providers/connect`) — the UI consumer for
+  `disconnect_clyffy`.
 
 ## Verification
 
-- Pass 1: `cargo check -p devpulse-gb10-client` (isolated — no kernel, no llama.cpp)
-  green, warnings addressed.
-- Runtime (once wired): a probe against an unreachable URL yields `Disconnected` and the
-  no-AI indicator shows; against a live `clyffyd`, `Connected` with real `slots`
+- `cargo check -p devpulse-gb10-client` green (kernel-free by construction — the
+  workspace contains no kernel crates; `verify-ip-boundary` enforces it).
+- `connection_store` unit tests (atomic roundtrip; absent-file = undecided).
+- Runtime matrix: `.claude/plans/devpulse-standalone-connect.md` §R — standalone
+  boot, skip persistence, relaunch gate, unreachable-connect honesty, re-entry.
+  Against a live `clyffyd`: `Connected` with real `slots`
   ([[feedback_compile_green_not_enough]]).

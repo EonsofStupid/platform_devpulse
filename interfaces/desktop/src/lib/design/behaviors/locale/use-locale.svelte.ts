@@ -25,7 +25,7 @@ function getDocumentLocale(): string {
 	return document.documentElement.lang || DEFAULT_LOCALE;
 }
 
-function getDocumentDir(): "ltr" | "rtl" {
+export function getDocumentDir(): "ltr" | "rtl" {
 	if (typeof document === "undefined") return DEFAULT_DIR;
 	const dir = document.documentElement.dir;
 	return dir === "rtl" ? "rtl" : "ltr";

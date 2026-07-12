@@ -411,8 +411,8 @@ pub fn discover_single(path: &Path, repo_id: &str) -> anyhow::Result<ModelRegist
 /// Parse a single GGUF file into a registry entry.
 ///
 /// Header metadata is read via the pure-Rust `ggus` crate — no candle /
-/// ggml / llama.cpp linkage (kernel-severance: the engine is management
-/// only). If the header can't be parsed (truncated / corrupt / an
+/// ggml / llama.cpp linkage (the engine is management only; inference is
+/// Clyffy's). If the header can't be parsed (truncated / corrupt / an
 /// unexpectedly large metadata region beyond the bounded prefix), the
 /// entry is still registered with filename-derived metadata so a bad
 /// header never hides an on-disk model from the slot picker.
@@ -490,7 +490,14 @@ fn read_gguf_metadata(path: &Path) -> anyhow::Result<ModelMetadata> {
     let mut buf = Vec::new();
     file.take(GGUF_HEADER_PREFIX_CAP).read_to_end(&mut buf)?;
 
-    let gguf = GGuf::new(&buf).map_err(|e| anyhow::anyhow!("GGUF header parse: {e:?}"))?;
+    // ggus 0.5.1's `GGuf::new` PANICS (subtract-overflow, ggus file.rs:132) on
+    // a truncated / malformed header instead of returning `Err`. The panic
+    // unwinds past this `map_err` and past `walk_all`'s per-file skip arm,
+    // aborting discovery of every remaining model. Isolate it so one corrupt
+    // file becomes a skippable `Err`, not a scan-killing unwind.
+    let gguf = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| GGuf::new(&buf)))
+        .map_err(|_| anyhow::anyhow!("GGUF header parser panicked (corrupt or truncated file)"))?
+        .map_err(|e| anyhow::anyhow!("GGUF header parse: {e:?}"))?;
 
     let architecture = gguf
         .general_architecture()
@@ -581,7 +588,7 @@ pub fn infer_capabilities(architecture: &str) -> Vec<ModelCapability> {
 /// (`feedback_inference_runtime_direction.md`); Candle stays in the list
 /// as a secondary fallback for archs both runtimes can load.
 ///
-/// This is advisory METADATA only — post-severance the engine links no
+/// This is advisory METADATA only — the engine links no
 /// inference backend, so the returned set describes which backend *could*
 /// serve a model on Clyffy, never a local capability.
 #[must_use]

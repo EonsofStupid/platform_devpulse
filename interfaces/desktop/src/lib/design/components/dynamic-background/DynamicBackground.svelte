@@ -34,7 +34,11 @@ let {
 	...rest
 }: DynamicBackgroundProps = $props();
 
-const m = $derived(renderForge({ kind: "dynamic-background", preset: "default" }));
+// Variant-driven: the `variant` prop selects the per-hub background. "boot"
+// resolves its emitted @defaults (--style-dynamic-background-boot-*); the other
+// hub variants have @styleIds but no emitted values yet, so they fall to the
+// shared layer until authored.
+const m = $derived(renderForge({ kind: "dynamic-background", preset: variant }));
 const mergedStyle = $derived(
 	[cssVarString(m.cssVars), src ? `--dynamic-background-image: url('${src}');` : ""]
 		.filter(Boolean)

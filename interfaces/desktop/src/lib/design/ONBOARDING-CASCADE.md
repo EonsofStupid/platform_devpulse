@@ -37,7 +37,8 @@
 > **Owner:** Jesse.
 > **Authored:** 2026-05-09.
 > **Cross-references:**
-> [`CONNECTOR-DEFERRAL.md`](../../../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md),
+> the connector-deferral rule (formerly `CONNECTOR-DEFERRAL.md`, now
+> recorded in git history / Clyffy-side),
 > [`COMPOSITION-CONTRACT.md`](./COMPOSITION-CONTRACT.md),
 > [`TRUTH.md`](./TRUTH.md),
 > [`MACRO-LAW.md`](./MACRO-LAW.md),
@@ -169,8 +170,9 @@ view-internal state changes.
 
 ## Layer 3 — Content config (Rust SSOT)
 
-Three files, all under `kernel/model-loader/config/` (or family
-override paths — see Layer 4):
+Three files, all engine-owned — `systems/devpulse-engine/config/` for
+the wizard copy / presets and `systems/devpulse-engine/ip/` for
+`kernel_terms.toml` (or family override paths — see Layer 4):
 
 ```
 config/
@@ -228,8 +230,9 @@ text. Tier names, model names, and quant labels stay in tooltips
 "voice.stt"       = "whisper-base"
 ```
 
-The wizard's preset apply path consumes this map. Per
-[`CONNECTOR-DEFERRAL.md`](../../../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md),
+The wizard's preset apply path consumes this map. Per the
+connector-deferral rule (formerly `CONNECTOR-DEFERRAL.md`, now recorded
+in git history / Clyffy-side),
 `vision.embedder` may defer if the chosen brain has native vision —
 the auto_config entry exists as a fallback only.
 

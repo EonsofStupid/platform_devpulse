@@ -35,7 +35,7 @@ them before answering anything substantive.
 | [interfaces/desktop/src/lib/design/MACRO-LAW.md](../../interfaces/desktop/src/lib/design/MACRO-LAW.md) | The 5 laws of family-split CSS: family scope opt-in, uniform var names, `[data-kind]` universal, pseudo-classes own interactive state, selectors only target Tier-1/Tier-2 |
 | [interfaces/desktop/src/lib/design/COMPOSITION-CONTRACT.md](../../interfaces/desktop/src/lib/design/COMPOSITION-CONTRACT.md) | Compose-don't-author rule. 94 primitive inventory. `feature/` + `ui/` + `util/` colocation pattern (RRO is reference). Hand-rolled CSS in feature orchestrators is refused. |
 | [interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md](../../interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md) | 4-layer cascade (Flow → View → Content → User prefs). Family TOML schema. Per-user vs per-project model scope rule. Gate language. |
-| [kernel/model-loader/src/CONNECTOR-DEFERRAL.md](../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md) | Capability deferral table. D6 omni-override warning rule. Voice fallback chain. Integration message wording locks. |
+| [systems/devpulse-engine/src/platform/model_loader/CONNECTOR-DEFERRAL.md](../../systems/devpulse-engine/src/platform/model_loader/CONNECTOR-DEFERRAL.md) | Capability deferral table. D6 omni-override warning rule. Voice fallback chain. Integration message wording locks. |
 | [interfaces/desktop/src/lib/design/PARKING-LOT.md](../../interfaces/desktop/src/lib/design/PARKING-LOT.md) | PL-001..PL-008 — what's deferred and why. Don't act inside a parked decision. |
 | [scripts/docs/sprints/dev-onboarding/MODEL-LOADER-REQUIREMENTS.md](../../scripts/docs/sprints/dev-onboarding/MODEL-LOADER-REQUIREMENTS.md) | Rules 1-82 — every UI rule from Rust-SSOT-strings to layman-only-error-messages |
 | `~/.claude/projects/d--localdev-platform-devpulse/memory/MEMORY.md` | Locked memory index — start with `project_model_loader_requirements.md`, `project_test_shortcut_requirements.md`, `feedback_token_tier_naming.md`, `project_central_ui_library.md` |
@@ -67,7 +67,7 @@ Read the file. The high-impact ones to memorize:
 - **Rules 28, 51-55 — layman discipline:** minimum `text-sm` (zero `text-xs` anywhere); users never see GGUF/ONNX/SafeTensors, Q4_K_M/int8/fp16, Candle/ORT/LlamaCpp, VRAM bytes by default, inference config.
 - **Rule 29 — oklch only.** No hex, no px, no rgb, no hsl in authored code.
 - **Rules 43-47 — core philosophy:** zero-config default, progressive disclosure, local-first, graceful degradation, hot-swap.
-- **Rule 14 — IP boundary:** desktop NEVER imports `devpulse-clyffy`. Engine facade only. Kernel vocabulary banned outside `kernel/`.
+- **Rule 14 — IP boundary:** no AI/inference crates in this workspace (the AI layer is Clyffy's — `github.com/EonsofStupid/clyffyos`, wire only). Desktop consumes Rust via the engine surface / generated bindings. Internal vocabulary stays behind the engine seam per `kernel_terms.toml`.
 - **Rule 33 — hard stop between phases:** `cargo check` + `pnpm check` zero errors before next phase.
 - **Rule 39 — max 5 files per phase.** State plan upfront. Wait for approval between phases.
 - **Rule 67 — `title=` on interactive elements is BANNED.** Use ColdLight Tooltip component.
@@ -148,7 +148,7 @@ don't unilaterally unpark.
 ## Anti-patterns specific to this codebase
 
 - **`title=` attributes** — Rule 67. Always.
-- **`devpulse-clyffy` imports in `interfaces/desktop`** — Rule 14. Always.
+- **AI-crate imports anywhere in the workspace** — Rule 14. Always. (The AI layer is Clyffy's, reached over the wire.)
 - **Inventing `--accent-cyan-*` on role cards** — Rule 7. Always.
 - **Reading `modelsReady` / `modelsFirstRun` without checking `modelsStatusReceived`** — defaults are wrong-side; the gate exists for a reason.
 - **`pick_directory` to arbitrary paths for project location** — projects live under `<root>/.userdata/projects/<id>/`, not `C:\Users\...\Documents`.

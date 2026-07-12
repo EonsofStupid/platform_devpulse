@@ -25,8 +25,8 @@ import type {
 } from "$lib/sys/generated/bindings.js";
 
 /**
- * One row of the kernel's `AutoConfig.recommendations` JSON. Mirrors
- * `SlotRecommendation` in `kernel/model-loader/src/hardware/auto_config.rs`.
+ * One row of the engine's `AutoConfig.recommendations` JSON. Mirrors
+ * `SlotRecommendation` in the engine's `platform/hardware/auto_config.rs`.
  *
  * `already_downloaded` lets the InstallingView show the right total
  * instead of pretending nothing is queued when every recommended
@@ -42,7 +42,7 @@ export interface SlotRecommendation {
 	already_downloaded: boolean;
 	device: string;
 	/** Optional customer-facing model label set by the preset author
-	 *  (`display_name` in `kernel/model-loader/config/presets.default.toml`).
+	 *  (`display_name` in the engine's `config/presets.default.toml`).
 	 *  Absent → wizard derives a label from `model_repo_id`. */
 	display_name?: string | null;
 	/** Optional one-line layman tagline set by the preset author.
@@ -115,7 +115,7 @@ export interface InstallingViewProps {
  * Per-slot save state for the `slot-save` view. One entry per
  * foundation slot the customer is offered (SigLIP HD / Harrier 0.6B /
  * Nemotron 7.6B today; cascade resolver fills the model + sizing
- * fields from kernel side once Sprint 00 lands).
+ * fields from the engine side once Sprint 00 lands).
  */
 export interface SlotSaveEntryProps {
 	/** Stable key — matches `SlotRecommendation.slot_id`. */

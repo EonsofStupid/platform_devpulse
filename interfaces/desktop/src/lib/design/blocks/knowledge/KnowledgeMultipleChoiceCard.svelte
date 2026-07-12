@@ -11,9 +11,9 @@
 
 	# Direct-props block
 
-	Until the kernel `EntryType` enum grows a `Quiz` variant +
+	Until the engine's `EntryType` enum grows a `Quiz` variant +
 	seeded JSON, this card takes its data as direct typed props
-	(no `KnowledgeEntry` argument). When the kernel extension
+	(no `KnowledgeEntry` argument). When the engine extension
 	lands, a thin adapter will translate `entry.payload` into
 	these props — the rendering surface stays identical.
 

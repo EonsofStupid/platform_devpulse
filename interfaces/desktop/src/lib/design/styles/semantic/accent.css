@@ -8,6 +8,24 @@
   --accent-glow: var(--primary-glow); /** Accent glow role — alias of primary.glow by default. */
   --accent-fill: var(--primary-fill); /** Accent fill role — alias of primary.fill by default. */
   --accent-fg: var(--primary-fg); /** Foreground / on-accent text — alias of primary.fg by default. */
+  --accent-primary-main: var(--primary-main); /** Alias of role primary.main. */
+  --accent-primary-glow: var(--primary-glow); /** Alias of role primary.glow. */
+  --accent-primary-fill: var(--primary-fill); /** Alias of role primary.fill. */
+  --accent-secondary-main: var(--secondary-main); /** Alias of role secondary.main. */
+  --accent-secondary-glow: var(--secondary-glow); /** Alias of role secondary.glow. */
+  --accent-secondary-fill: var(--secondary-fill); /** Alias of role secondary.fill. */
+  --accent-danger-main: var(--danger-main); /** Alias of role danger.main. */
+  --accent-danger-glow: var(--danger-glow); /** Alias of role danger.glow. */
+  --accent-danger-fill: var(--danger-fill); /** Alias of role danger.fill. */
+  --accent-success-main: var(--success-main); /** Alias of role success.main. */
+  --accent-success-glow: var(--success-glow); /** Alias of role success.glow. */
+  --accent-success-fill: var(--success-fill); /** Alias of role success.fill. */
+  --accent-warning-main: var(--warning-main); /** Alias of role warning.main. */
+  --accent-warning-glow: var(--warning-glow); /** Alias of role warning.glow. */
+  --accent-warning-fill: var(--warning-fill); /** Alias of role warning.fill. */
+  --accent-muted-main: var(--accent-frost-main); /** Muted indicator — frost. */
+  --accent-muted-glow: var(--accent-frost-glow); /** Muted emission tint — frost. */
+  --accent-muted-fill: var(--accent-frost-fill); /** Muted area fill — frost. */
   --accent-teal-main: var(--color-teal-400); /** Primary indicator colour — teal ramp stop 400. */
   --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission tint. */
   --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle background tint. */

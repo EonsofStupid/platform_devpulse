@@ -166,14 +166,14 @@ impl DevPulseMcpServer {
         }
     }
 
-    /// Execute a shell command (kernel-feature builds only).
+    /// Execute a shell command (`full`-feature builds only).
     ///
     /// The method itself is unconditional so the `#[rmcp::tool_router]`
     /// proc macro always sees it — proc-macro expansion runs before cfg
-    /// evaluation, so a `#[cfg(feature = "kernel")]` on the method made
+    /// evaluation, so a `#[cfg(feature = "full")]` on the method made
     /// the generated router reference a method that vanished under
     /// `--no-default-features --features engine` (IP protection gate).
-    /// The body is cfg-switched instead: when `kernel` is off (engine-only
+    /// The body is cfg-switched instead: when `full` is off (restricted
     /// engine build) it returns a structured error; when on it delegates
     /// to `tools::shell_execute::execute` as before.
     #[tool(description = "Execute a shell command in the project workspace (dev builds only)")]
@@ -181,7 +181,7 @@ impl DevPulseMcpServer {
         &self,
         Parameters(params): Parameters<ShellExecuteParams>,
     ) -> Result<CallToolResult, rmcp::ErrorData> {
-        #[cfg(feature = "kernel")]
+        #[cfg(feature = "full")]
         {
             let result = tools::shell_execute::execute(
                 &self.platform,
@@ -201,7 +201,7 @@ impl DevPulseMcpServer {
                 )]))
             }
         }
-        #[cfg(not(feature = "kernel"))]
+        #[cfg(not(feature = "full"))]
         {
             let ShellExecuteParams {
                 command,

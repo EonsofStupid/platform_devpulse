@@ -1,6 +1,6 @@
 ---
 name: clean-extract
-description: Fork-fold-execute workflow for extracting a subsystem (crate group, folder tree, IP boundary) cleanly into its own repo or relocated namespace. Parallel survey agents fork; their outputs are catamorphically folded into a single plan; that plan is executed phase-by-phase with lefthook gates and STOPs between phases. NEVER hardcoded, ALWAYS modular, naming follows the exemplar (today `kernel/devpulse-clyffy/`). Invoke as `/clean-extract <subsystem-name>`. Composes with `/fork-survey` and `/fold-and-execute`.
+description: Fork-fold-execute workflow for extracting a subsystem (crate group, folder tree, IP boundary) cleanly into its own repo or relocated namespace. Parallel survey agents fork; their outputs are catamorphically folded into a single plan; that plan is executed phase-by-phase with lefthook gates and STOPs between phases. NEVER hardcoded, ALWAYS modular, naming follows the exemplar (today `systems/devpulse-engine/`). Invoke as `/clean-extract <subsystem-name>`. Composes with `/fork-survey` and `/fold-and-execute`.
 ---
 
 # `/clean-extract <subsystem-name>`
@@ -26,7 +26,7 @@ Caller MUST supply:
 1. Subsystem name (exact slug, e.g. `clyffyos`)
 2. Source root (e.g. `d:\localdev\platform_devpulse`)
 3. Destination root (e.g. `D:\localdev\clyffyos\`) — may not exist yet
-4. Exemplar reference (default: `kernel/devpulse-clyffy/` per `references/exemplar-anatomy.md`)
+4. Exemplar reference (default: `systems/devpulse-engine/` per `references/exemplar-anatomy.md`)
 
 Caller MUST honor:
 

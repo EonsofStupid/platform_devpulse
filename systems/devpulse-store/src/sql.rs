@@ -5,34 +5,44 @@
 //!
 //! # P0: Boot Never Freezes
 //!
-//! `turso::Connection` is `Clone + Send + Sync` — internally `Arc<dyn Conn>`
-//! with its own synchronization. Wrapping it in `tokio::sync::RwLock` serialized
-//! every query behind a yield-on-acquire mutex and was a prime deadlock risk
-//! whenever a slow query held the read guard while another task wanted to call
-//! into the adapter. The `RwLock` is removed. Callers share the `Connection`
-//! directly — libsql owns the per-statement locking inside.
+//! `turso::Connection` (0.4.x) FORBIDS concurrent statement execution — a
+//! second statement while one is in flight fails with
+//! "concurrent use forbidden" (observed 2026-07-09 breaking the chat
+//! session list and startup KV reads racing each other). turso is not
+//! libsql: there is no internal per-statement locking to lean on.
+//!
+//! The adapter therefore owns a `tokio::sync::Mutex` around the connection
+//! and holds it strictly per statement, INSIDE each method: acquire → run →
+//! fully consume rows → release. Guards never escape the adapter and never
+//! cross a caller-owned await point — that caller-held-guard pattern is
+//! what made the earlier adapter-level `RwLock` a deadlock risk, not
+//! method-local locking. If per-statement serialization ever becomes a
+//! measured bottleneck, the upgrade seam is a small multi-connection pool
+//! (`db.connect()` per worker), not a shared unlocked connection.
 
 use crate::traits::{PersistenceAdapter, SqlAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 /// `LibSQL` database adapter.
 ///
-/// Lock-free: `turso::Connection` is internally `Arc<dyn Conn>` and handles
-/// its own synchronization. Cloning the adapter or the inner connection is
-/// cheap (atomic refcount bump).
+/// Serialized: all statements funnel through a method-local
+/// `tokio::sync::Mutex` acquire — see the module header for why turso
+/// requires this. Cloning the adapter is not supported; share it via
+/// `Arc` like every service does.
 pub struct TursoAdapter {
     #[allow(dead_code)] // Kept for potential reconnection
     db: Arc<turso::Database>,
-    conn: turso::Connection,
+    conn: Mutex<turso::Connection>,
 }
 
 impl TursoAdapter {
     /// Open or create database at path with an explicit schema.
     ///
     /// Callers MUST supply a schema appropriate to the scope they're
-    /// opening — there is no "default" schema the kernel imposes.
+    /// opening — there is no "default" schema the adapter imposes.
     /// The engine layer applies scope-specific schemas
     /// (`SYSTEM_SCHEMA` / `USER_SCHEMA`) at boot; tests supply their
     /// own minimal schema next to the test module.
@@ -58,7 +68,7 @@ impl TursoAdapter {
 
         let adapter = Self {
             db: Arc::new(db),
-            conn,
+            conn: Mutex::new(conn),
         };
 
         // Initialize with provided schema
@@ -70,18 +80,12 @@ impl TursoAdapter {
     /// Initialize the database schema.
     async fn init_schema(&self, schema: &str) -> Result<()> {
         self.conn
+            .lock()
+            .await
             .execute_batch(schema)
             .await
             .context("Failed to initialize LibSQL schema")?;
         Ok(())
-    }
-
-    /// Get a reference to the underlying connection for queries.
-    ///
-    /// Lock-free: returns a borrow of the shared `turso::Connection`.
-    /// Callers can `.query(...).await` / `.execute(...).await` directly.
-    pub fn connection(&self) -> &turso::Connection {
-        &self.conn
     }
 
     /// Graceful shutdown — checkpoint WAL and release the connection.
@@ -95,6 +99,8 @@ impl TursoAdapter {
         // This is the cleanest state for the next process to open the database.
         if let Err(e) = self
             .conn
+            .lock()
+            .await
             .execute("PRAGMA wal_checkpoint(TRUNCATE)", ())
             .await
         {
@@ -109,8 +115,8 @@ impl TursoAdapter {
     /// Returns error if the database is unreachable.
     #[tracing::instrument(skip(self), err)]
     pub async fn ping(&self) -> Result<()> {
-        let mut rows = self
-            .conn
+        let conn = self.conn.lock().await;
+        let mut rows = conn
             .query("SELECT 1", ())
             .await
             .context("LibSQL ping failed")?;
@@ -130,6 +136,8 @@ impl TursoAdapter {
     ) -> Result<u64> {
         let affected = self
             .conn
+            .lock()
+            .await
             .execute(sql, params)
             .await
             .with_context(|| format!("LibSQL execute failed: {sql}"))?;
@@ -140,6 +148,8 @@ impl TursoAdapter {
 impl PersistenceAdapter for TursoAdapter {
     async fn set(&self, key: &str, value: &[u8]) -> Result<()> {
         self.conn
+            .lock()
+            .await
             .execute(
                 "INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?, ?, unixepoch())",
                 turso::params![key, value],
@@ -150,8 +160,8 @@ impl PersistenceAdapter for TursoAdapter {
     }
 
     async fn get(&self, key: &str) -> Result<Option<Vec<u8>>> {
-        let mut rows = self
-            .conn
+        let conn = self.conn.lock().await;
+        let mut rows = conn
             .query(
                 "SELECT value FROM kv_store WHERE key = ?",
                 turso::params![key],
@@ -170,6 +180,8 @@ impl PersistenceAdapter for TursoAdapter {
     async fn delete(&self, key: &str) -> Result<bool> {
         let affected = self
             .conn
+            .lock()
+            .await
             .execute("DELETE FROM kv_store WHERE key = ?", turso::params![key])
             .await
             .context("Failed to delete from LibSQL")?;
@@ -177,8 +189,8 @@ impl PersistenceAdapter for TursoAdapter {
     }
 
     async fn exists(&self, key: &str) -> Result<bool> {
-        let mut rows = self
-            .conn
+        let conn = self.conn.lock().await;
+        let mut rows = conn
             .query(
                 "SELECT 1 FROM kv_store WHERE key = ? LIMIT 1",
                 turso::params![key],
@@ -199,8 +211,11 @@ impl SqlAdapter for TursoAdapter {
             .map(|s| turso::Value::from((*s).to_string()))
             .collect();
 
-        let mut rows = self
-            .conn
+        // The guard spans row consumption too — `Rows` streams from the
+        // connection, so releasing early would readmit the concurrent-use
+        // race mid-iteration.
+        let conn = self.conn.lock().await;
+        let mut rows = conn
             .query(sql, params)
             .await
             .context("Failed to execute query")?;
@@ -238,6 +253,8 @@ impl SqlAdapter for TursoAdapter {
 
         let affected = self
             .conn
+            .lock()
+            .await
             .execute(sql, params)
             .await
             .context("Failed to execute statement")?;
@@ -247,6 +264,8 @@ impl SqlAdapter for TursoAdapter {
     #[tracing::instrument(skip(self, sql), fields(sql_len = sql.len()), err)]
     async fn execute_batch(&self, sql: &str) -> Result<()> {
         self.conn
+            .lock()
+            .await
             .execute_batch(sql)
             .await
             .context("Failed to execute batch")?;
@@ -254,7 +273,7 @@ impl SqlAdapter for TursoAdapter {
     }
 }
 
-// Schema constants are NOT defined here. The kernel adapter is
+// Schema constants are NOT defined here. The adapter is
 // schema-agnostic: every caller supplies the schema appropriate to
 // its scope (engine: `SYSTEM_SCHEMA` / `USER_SCHEMA`; tests:
 // `MINIMAL_TEST_SCHEMA` in the cfg(test) module below).
@@ -264,7 +283,7 @@ mod tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    /// Minimal schema for kernel-side smoke tests of the libsql
+    /// Minimal schema for in-crate smoke tests of the libsql
     /// adapter. Replaces the prior `CORE_SCHEMA` which was
     /// referenced only by the now-deleted no-schema `open()`
     /// shortcut and the orphan `PersistenceLayer` wrapper. Keeps
@@ -311,20 +330,56 @@ CREATE TABLE IF NOT EXISTS platform_config (
             .await
             .expect("open_with_schema should succeed on a fresh path");
 
-        // Tables exist + are queryable. `kv_store` is the canonical
-        // signal-store table — every test schema variant carries it.
-        let mut rows = adapter
-            .connection()
-            .query("SELECT count(*) FROM kv_store", ())
+        // Tables exist + are queryable through the serialized adapter API.
+        // `kv_store` is the canonical signal-store table — every test schema
+        // variant carries it.
+        let rows = adapter
+            .query("SELECT count(*) FROM kv_store", &[])
             .await
             .expect("query against MINIMAL_TEST_SCHEMA tables should succeed");
-        let row = rows.next().await.unwrap().expect("at least one row");
-        let count: i64 = row.get(0).unwrap();
-        assert_eq!(count, 0);
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0][0], SqlValue::Integer(0));
 
         adapter.ping().await.expect("ping should succeed");
 
         // Cleanup — best-effort. WAL flush + drop happens above.
+        adapter.close().await;
+        drop(adapter);
+        let _ = std::fs::remove_dir_all(path.parent().unwrap().parent().unwrap());
+    }
+
+    /// Regression: turso forbids concurrent statement use on one
+    /// connection. Fire a burst of parallel reads+writes through the
+    /// adapter — with method-local serialization every one must succeed;
+    /// without it this reproduces "concurrent use forbidden".
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+    async fn concurrent_ops_are_serialized_not_rejected() {
+        let path = unique_test_path();
+        let _ = std::fs::remove_dir_all(path.parent().unwrap().parent().unwrap());
+
+        let adapter = std::sync::Arc::new(
+            TursoAdapter::open_with_schema(&path, MINIMAL_TEST_SCHEMA)
+                .await
+                .expect("open_with_schema should succeed on a fresh path"),
+        );
+
+        let mut tasks = tokio::task::JoinSet::new();
+        for i in 0..16u32 {
+            let a = adapter.clone();
+            tasks.spawn(async move {
+                let key = format!("k{i}");
+                a.set(&key, b"v").await?;
+                let got = a.get(&key).await?;
+                anyhow::ensure!(got.as_deref() == Some(b"v".as_slice()), "readback mismatch");
+                a.query("SELECT count(*) FROM kv_store", &[]).await?;
+                Ok::<(), anyhow::Error>(())
+            });
+        }
+        while let Some(res) = tasks.join_next().await {
+            res.expect("task must not panic")
+                .expect("no operation may fail with concurrent use forbidden");
+        }
+
         adapter.close().await;
         drop(adapter);
         let _ = std::fs::remove_dir_all(path.parent().unwrap().parent().unwrap());

@@ -1,8 +1,8 @@
 //! Default slot registry loader — SSOT for the baseline slots the
 //! platform ships with.
 //!
-//! The authoritative slot list lives in
-//! `kernel/model-loader/config/slots.default.toml`. This module embeds
+//! The authoritative slot list lives in the engine's
+//! `config/slots.default.toml`. This module embeds
 //! that file at compile time via `include_str!` and exposes a loader
 //! that honours an optional user override at
 //! `{userdata_dir}/config/slots.toml` (same pattern as `voices.rs` and
@@ -31,8 +31,8 @@ use std::path::Path;
 
 /// Embedded default slot configuration, bundled at compile time.
 ///
-/// Path is relative to this source file. `../../config/` walks from
-/// `src/slots/defaults.rs` up to `kernel/model-loader/config/`.
+/// Path is relative to this source file, walking from
+/// `src/platform/model_loader/slots/defaults.rs` up to the engine's `config/`.
 const DEFAULT_TOML: &str = include_str!("../../../../config/slots.default.toml");
 
 /// Slot identifiers that every build MUST include. The baseline test
@@ -59,7 +59,7 @@ pub const BASELINE_SLOT_IDS: &[&str] = &[
     // Platform built-ins — appear in the "System" tab of the devtool.
     // Vector store (RRO) is NOT in this list — it's a storage adapter,
     // not a model binding point, and lives in connectome/persistence/rro.rs.
-    // The devtool queries RRO status directly through the kernel rather
+    // The devtool queries RRO status directly from Clyffy rather
     // than through the slot registry.
     "rag.embedder",
     "rag.reranker",
@@ -68,7 +68,7 @@ pub const BASELINE_SLOT_IDS: &[&str] = &[
 
 /// TOML file shape — a single `slots` array of entries.
 ///
-/// `SlotEntry` is a shallow mirror of the kernel [`Slot`] struct that
+/// `SlotEntry` is a shallow mirror of the engine's [`Slot`] struct that
 /// allows TOML-friendly defaults. The conversion into a full [`Slot`]
 /// happens in [`SlotEntry::into_slot`] below.
 #[derive(Debug, Clone, Deserialize)]
@@ -79,7 +79,7 @@ struct SlotsFile {
 
 /// A single `[[slots]]` TOML entry.
 ///
-/// This is intentionally separate from the kernel [`Slot`] struct:
+/// This is intentionally separate from the engine's [`Slot`] struct:
 /// - `assigned_model` is always `None` at boot and does not appear in
 ///   the file at all.
 /// - `runtime` / `default_model` / `fallback` / `overrides` are all
@@ -396,7 +396,7 @@ mod tests {
     /// `builtin = true` so the devtool can group them in the System tab.
     /// The vector store (RRO) is intentionally NOT in this list — it's
     /// a storage adapter, not a slot, and is surfaced through a
-    /// separate kernel query.
+    /// separate Clyffy-side query.
     #[test]
     fn platform_essentials_are_builtin() {
         let slots = load_default_slots(Path::new("/nonexistent/path")).unwrap();

@@ -14,6 +14,8 @@
 > - **Still valid** — The verified four-DB boot.log, all file:line citations, the staged-indexing-pipeline gap, the branch-fossil net-diff analysis, the memory-patch records, and the cloud-SurrealDB attribution corrections are preserved as the project's memory.
 >
 > Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
+>
+> **⚠ CUT LANDED — 2026-07-08.** The split described above happened: the kernel left this repo (AI layer = `github.com/EonsofStupid/clyffyos`). Every `kernel/…` path below is a git-history reference. This point-in-time baseline is preserved as the project's memory.
 
 ## What boots today (verified)
 
