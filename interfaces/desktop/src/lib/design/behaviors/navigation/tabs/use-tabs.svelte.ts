@@ -34,7 +34,7 @@ export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 		loop,
 		onFocusItem: (tab) => {
 			if (!activateOnFocus) return;
-			const tabValue = tab.getAttribute("data-value");
+			const tabValue = tab.dataset.value;
 			if (tabValue) setValue(tabValue);
 		},
 	});

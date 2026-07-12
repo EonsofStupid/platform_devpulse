@@ -31,7 +31,7 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 		orientation,
 		loop,
 		onFocusItem: (item) => {
-			activeValue = item.getAttribute("data-value") ?? undefined;
+			activeValue = item.dataset.value;
 		},
 	});
 
@@ -52,7 +52,7 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 			const first = (e.currentTarget as HTMLElement).querySelector<HTMLElement>(ITEM_SELECTOR);
 			if (!first) return;
 			first.focus();
-			activeValue = first.getAttribute("data-value") ?? undefined;
+			activeValue = first.dataset.value;
 		},
 	});
 

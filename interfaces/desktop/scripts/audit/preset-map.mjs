@@ -42,7 +42,9 @@ const POOL_FILES = [
 	"src/lib/design/styles/semantic/text.css",
 ];
 
-const DEF_RE = /(--[a-zA-Z0-9-]+)\s*:\s*([^;{}]+);/g;
+// Value starts with a non-space char — removes the \s*/[^;{}] overlap
+// that made the pattern backtrack super-linearly (Sonar S5852).
+const DEF_RE = /(--[a-zA-Z0-9-]+)\s*:\s*([^;{}\s][^;{}]*);/g;
 
 /** varName -> raw value string (may be var() chain) */
 const rawDefs = new Map();
@@ -51,14 +53,28 @@ for (const rel of POOL_FILES) {
 	for (const m of text.matchAll(DEF_RE)) rawDefs.set(m[1], m[2].trim());
 }
 
+/**
+ * Hand-parse a `var(--name[, fallback])` call — the anchored regex form
+ * backtracks super-linearly on long fallbacks (Sonar S5852).
+ * @returns {{ name: string, fallback: string | null } | null}
+ */
+function parseVarCall(v) {
+	if (!v.startsWith("var(") || !v.endsWith(")")) return null;
+	const inner = v.slice(4, -1);
+	const comma = inner.indexOf(",");
+	const name = (comma === -1 ? inner : inner.slice(0, comma)).trim();
+	if (!/^--[a-zA-Z0-9-]+$/.test(name)) return null;
+	return { name, fallback: comma === -1 ? null : inner.slice(comma + 1).trim() };
+}
+
 function resolveVar(value, depth = 0) {
 	if (depth > 16 || typeof value !== "string") return null;
 	const v = value.trim();
-	const varMatch = v.match(/^var\(\s*(--[a-zA-Z0-9-]+)\s*(?:,\s*(.+))?\)$/s);
-	if (varMatch) {
-		const target = rawDefs.get(varMatch[1]);
+	const varCall = parseVarCall(v);
+	if (varCall) {
+		const target = rawDefs.get(varCall.name);
 		if (target !== undefined) return resolveVar(target, depth + 1);
-		return varMatch[2] ? resolveVar(varMatch[2], depth + 1) : null;
+		return varCall.fallback ? resolveVar(varCall.fallback, depth + 1) : null;
 	}
 	return parse(v) ?? null;
 }
@@ -93,7 +109,9 @@ function classify(literal) {
 		}
 	}
 
-	const verdict = best.dE <= 2 ? "EXACT" : best.dE <= 6 ? "NEAR" : "SEED";
+	let verdict = "SEED";
+	if (best.dE <= 2) verdict = "EXACT";
+	else if (best.dE <= 6) verdict = "NEAR";
 	return {
 		literal,
 		alpha: Number(alpha.toFixed(3)),

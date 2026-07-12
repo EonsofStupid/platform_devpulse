@@ -88,12 +88,12 @@ const isRuntimeDefined = (name) => RUNTIME_DEFINED_PREFIXES.some((p) => name.sta
 
 const undefinedVars = [...consumed.keys()]
 	.filter((n) => !defined.has(n) && !isRuntimeDefined(n))
-	.sort()
+	.sort((a, b) => a.localeCompare(b))
 	.map((n) => ({ name: n, consumers: [...consumed.get(n)] }));
 
 const deadVars = [...defined.keys()]
 	.filter((n) => !consumed.has(n))
-	.sort()
+	.sort((a, b) => a.localeCompare(b))
 	.map((n) => ({ name: n, definers: [...defined.get(n)] }));
 
 const contested = [...defined.entries()]

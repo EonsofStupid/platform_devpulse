@@ -20,6 +20,26 @@ import type { RovingFocusConfig, RovingHandlerConfig } from "./types.js";
  * Consolidated 2026-07-11 (a11y audit Gaps 5-6) — widgets previously each
  * hand-rolled this, most with hardcoded "ltr".
  */
+function computeNextIndex(
+	key: string,
+	keys: { nextKey: string; prevKey: string },
+	currentIndex: number,
+	count: number,
+	loop: boolean,
+): number {
+	if (currentIndex === -1) return 0;
+	if (key === keys.nextKey) {
+		if (currentIndex + 1 < count) return currentIndex + 1;
+		return loop ? 0 : currentIndex;
+	}
+	if (key === keys.prevKey) {
+		if (currentIndex - 1 >= 0) return currentIndex - 1;
+		return loop ? count - 1 : currentIndex;
+	}
+	if (key === kbd.HOME) return 0;
+	return count - 1; // END
+}
+
 export function createRovingHandler(config: RovingHandlerConfig): (e: KeyboardEvent) => void {
 	const orientation = config.orientation ?? "horizontal";
 	const loop = config.loop ?? true;
@@ -27,11 +47,10 @@ export function createRovingHandler(config: RovingHandlerConfig): (e: KeyboardEv
 
 	return (e: KeyboardEvent): void => {
 		const dir = config.dir?.() ?? getDocumentDir();
-		const nextKey = getNextKey(dir, orientation);
-		const prevKey = getPrevKey(dir, orientation);
+		const keys = { nextKey: getNextKey(dir, orientation), prevKey: getPrevKey(dir, orientation) };
 
 		const isHomeEnd = homeEnd && (e.key === kbd.HOME || e.key === kbd.END);
-		if (e.key !== nextKey && e.key !== prevKey && !isHomeEnd) return;
+		if (e.key !== keys.nextKey && e.key !== keys.prevKey && !isHomeEnd) return;
 
 		const target = e.currentTarget as HTMLElement;
 		const container = target.closest<HTMLElement>(config.containerSelector);
@@ -44,22 +63,7 @@ export function createRovingHandler(config: RovingHandlerConfig): (e: KeyboardEv
 		// Index off the focused element, not currentTarget — the handler may
 		// be attached per-item (tabs, toolbar) or on the container (menu).
 		const currentIndex = items.indexOf(document.activeElement as HTMLElement);
-
-		let nextIndex: number;
-		if (currentIndex === -1) {
-			nextIndex = 0;
-		} else if (e.key === nextKey) {
-			nextIndex = currentIndex + 1 >= items.length ? (loop ? 0 : currentIndex) : currentIndex + 1;
-		} else if (e.key === prevKey) {
-			nextIndex =
-				currentIndex - 1 < 0 ? (loop ? items.length - 1 : currentIndex) : currentIndex - 1;
-		} else if (e.key === kbd.HOME) {
-			nextIndex = 0;
-		} else {
-			nextIndex = items.length - 1;
-		}
-
-		const item = items[nextIndex];
+		const item = items[computeNextIndex(e.key, keys, currentIndex, items.length, loop)];
 		if (!item) return;
 		item.focus();
 		config.onFocusItem?.(item);

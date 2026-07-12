@@ -68,33 +68,52 @@ export function useSelect(props: UseSelectProps = {}): UseSelectReturn {
 		},
 	});
 
-	function handleTriggerKeydown(e: KeyboardEvent): void {
-		if (globalDisabled) return;
-		const options = getOptions();
-		const currentIndex = highlightedId ? options.findIndex((el) => el.id === highlightedId) : -1;
-
+	/** Arrow/Home/End highlight movement. Returns true when handled. */
+	function handleHighlightNav(
+		e: KeyboardEvent,
+		options: HTMLElement[],
+		currentIndex: number,
+	): boolean {
 		if (e.key === kbd.ARROW_DOWN) {
 			e.preventDefault();
 			if (!isOpen) {
 				setOpen(true);
 				highlightByIndex(0);
 			} else highlightByIndex(currentIndex < options.length - 1 ? currentIndex + 1 : 0);
-		} else if (e.key === kbd.ARROW_UP) {
+			return true;
+		}
+		if (e.key === kbd.ARROW_UP) {
 			e.preventDefault();
 			if (!isOpen) {
 				setOpen(true);
 				highlightByIndex(options.length - 1);
 			} else highlightByIndex(currentIndex > 0 ? currentIndex - 1 : options.length - 1);
-		} else if (e.key === kbd.HOME) {
+			return true;
+		}
+		if (e.key === kbd.HOME) {
 			e.preventDefault();
 			if (isOpen) highlightByIndex(0);
-		} else if (e.key === kbd.END) {
+			return true;
+		}
+		if (e.key === kbd.END) {
 			e.preventDefault();
 			if (isOpen) highlightByIndex(options.length - 1);
-		} else if ((e.key === kbd.ENTER || e.key === kbd.SPACE) && isOpen && highlightedId) {
+			return true;
+		}
+		return false;
+	}
+
+	function handleTriggerKeydown(e: KeyboardEvent): void {
+		if (globalDisabled) return;
+		const options = getOptions();
+		const currentIndex = highlightedId ? options.findIndex((el) => el.id === highlightedId) : -1;
+
+		if (handleHighlightNav(e, options, currentIndex)) return;
+
+		if ((e.key === kbd.ENTER || e.key === kbd.SPACE) && isOpen && highlightedId) {
 			e.preventDefault();
 			const el = options.find((o) => o.id === highlightedId);
-			const val = el?.getAttribute("data-value");
+			const val = el?.dataset.value;
 			if (val) selectOption(val);
 		} else if (e.key === kbd.SPACE && !isOpen) {
 			e.preventDefault();
