@@ -304,7 +304,7 @@ function formatAge(createdAt: number): string {
 		border-color: color-mix(in oklch, var(--accent-teal-main) 40%, var(--border-subtle));
 	}
 	.card[data-state="saved"] {
-		border-color: color-mix(in oklch, var(--accent-positive-main, var(--accent-teal-main)) 50%, var(--border-subtle));
+		border-color: color-mix(in oklch, var(--accent-success-main) 50%, var(--border-subtle));
 	}
 
 	.card-strip {
@@ -318,7 +318,7 @@ function formatAge(createdAt: number): string {
 		background: var(--accent-teal-main);
 	}
 	.card[data-state="saved"] .card-strip {
-		background: var(--accent-positive-main, var(--accent-teal-main));
+		background: var(--accent-success-main);
 	}
 
 	.card-body {
