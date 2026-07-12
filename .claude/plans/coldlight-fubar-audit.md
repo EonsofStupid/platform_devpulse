@@ -178,7 +178,7 @@ Every dimension found quality infrastructure with no consumers:
 
 ## B. W3C conformance
 
-- **DTCG 2025.10: conformant** — color shape incl. `hex` is spec-legal; composites, $type placement, refs all clean. ONE defect: `$extensions` vendor-root split (`com.coldlight` ×11 vs `com.devpulse.coldlight` ×139; `semantic/border/color.tokens.json` uses BOTH). Unify on `com.devpulse.coldlight`.
+- **DTCG 2025.10: conformant** — color shape incl. `hex` is spec-legal; composites, $type placement, refs all clean. ONE defect: the $extensions vendor-root split (`com.coldlight` ×11 vs `com.devpulse.coldlight` ×139; `semantic/border/color.tokens.json` uses BOTH). Unify on `com.devpulse.coldlight`.
 - **REAL layer hazard (MAJOR)**: `generated/render-base.css` (+ `diagonal-blends.css`, `scrollbars.css`) set REAL properties on `[data-kind]` UNLAYERED → they beat Tailwind utilities; utility overrides on RenderForge components silently lose. Wrap in a layer ordered below `utilities`.
 - `@property`: zero registrations; currently harmless (nothing animates a custom property directly) but required before chrome-flow's planned hue animation.
 - **WCAG (exact numbers, audit:color)**: `--text-muted` on void = **3.49:1 FAIL** AA body (2.3:1 on chrome surface); role fg on solid mains: primary 4.14 / danger 3.78 / **success 2.61** FAIL — only warning (text.inverse) passes at 9.15. Fix: signal roles adopt `{text.inverse}` fg or "main is indicator-only, text sits on fill" rule; raise text-muted to ~L0.62.
@@ -226,16 +226,26 @@ stops (culori clampChroma): brand-electric's flat C 0.22 clips at **11/11
 stops** (max achievable 0.143 @ L 0.81); brand-cyan + brand-azure clip 10/11;
 even teal (C 0.08) clips at 5/11 extremes. Because clipping already happens
 in-browser, envelope-clamping ≈ current rendered reality.
+
 - **Option A (recommended, minimal):** per-stop `C = min(flatC, 0.95 × cusp(L,H))`
   in generate-scales.mjs — restores honesty, near-zero visual change.
 - **Option B (designed future):** per-tier relative saturation
   `C = k × cusp(L,H)` — uniform perceptual weight across hues (fixes the
   3.7× cross-hue variance), visible redesign, owner eyes required.
 
-**Pass 2 — Effects library census + composition contract: agent in flight**;
-lands as SEED-PRESETS Part A addendum (effect knobs/derivations).
-**Pass 3 — Consumption binding rules + per-site map: agent in flight**; feeds
-Phase 3.
+**Pass 2 — Effects library census + composition contract: DONE** — landed as
+SEED-PRESETS.md Part A §A7 (glow/bevel/blur/gradient/animation as first-class
+derivable axes; 12/28 dead keyframes; shadow-family hex double-emission fix;
+diagonal-blends + ui-demo Glass* marked for absorption).
+**Pass 3 — Consumption binding rules + per-site map: DONE** — full spec at
+`coldlight-binding-map.md` (same directory). Headline: the component-scoped
+`*-accent` indirection pattern already exists (store/engine/slot/orb) — the
+"phantom vocabulary" was largely mis-namespaced locals + audit false
+positives (tool fixed: template-literal style attrs now detected; UNDEFINED
+baseline 95 → 82). LIVE BUGS: malformed hue reaches without -main/-glow/-fill
+fall to raw CSS keywords (mediumpurple/cyan/gold) in the datastore heroes
+today. End-state: ~1/3 role-bound, ~1/3 identity-via-local, ~1/3 structural.
+Phase 3 §details superseded by the binding map.
 **Pass 4 — Fluid runtime measurement: PENDING a run-dev session** — extend
 TokenDebugOverlay to log real zone inline-sizes, then retune ranges from
 data (agent-estimated 30–75rem must be validated, not trusted).
