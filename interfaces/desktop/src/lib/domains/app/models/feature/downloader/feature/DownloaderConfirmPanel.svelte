@@ -195,7 +195,7 @@ void formatBytes;
 		margin: 0;
 		font-size: var(--space-12);
 		font-family: var(--font-mono);
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
 	}
 
 	.confirm-panel__slot-row {
@@ -298,9 +298,9 @@ void formatBytes;
 	.confirm-panel__confirm {
 		padding: var(--space-8) var(--space-16);
 		border-radius: var(--radius-sm);
-		background: var(--accent-teal-fill);
-		border: 0.0625rem solid var(--accent-teal-main);
-		color: var(--accent-teal-main);
+		background: var(--accent-primary-fill);
+		border: 0.0625rem solid var(--accent-primary-main);
+		color: var(--accent-primary-main);
 		font-size: var(--space-12);
 		font-weight: 600;
 		cursor: pointer;

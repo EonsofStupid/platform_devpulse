@@ -140,7 +140,7 @@ async function handleCancel(): Promise<void> {
 		margin: 0;
 		font-size: var(--space-12);
 		font-family: var(--font-mono);
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
 		text-align: center;
 	}
 

@@ -131,7 +131,7 @@ function formatSuffix(suffix: string | null): string {
 		align-items: center;
 		gap: var(--space-8);
 		font-size: var(--space-12);
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
 	}
 
 	.token-strip__check {

@@ -151,7 +151,7 @@ function prettySize(bytes: number): string {
 				>
 					<div class="flex items-center justify-between mb-2">
 						<div class="flex items-center gap-2">
-							<Boxes size={14} class="text-[var(--color-teal-400)]" />
+							<Boxes size={14} class="text-[var(--accent-primary-main)]" />
 							<Text size="sm" weight="semibold">ollama</Text>
 							{#if ollamaSidecarState.running}
 								{#if ollamaSidecarState.managed === true}

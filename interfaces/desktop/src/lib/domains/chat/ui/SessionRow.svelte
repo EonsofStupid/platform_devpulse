@@ -27,7 +27,7 @@ const m = $derived(renderForge({ kind: "chat-sidebar", preset, state: "default" 
 	style={cssVarString(m.cssVars)}
 	class={cn(
 		"flex w-full flex-col gap-0.5 rounded-md px-2 py-2 text-left border-l-4",
-		active ? "border-[var(--accent-teal-main)]" : "border-transparent",
+		active ? "border-[var(--accent-primary-main)]" : "border-transparent",
 		className,
 	)}
 	onclick={onClick}

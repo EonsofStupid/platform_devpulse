@@ -169,7 +169,7 @@ async function handleOpenInDevForge(): Promise<void> {
 		justify-content: space-between;
 		gap: 0.5rem;
 		padding: 0.375rem 0.625rem;
-		border: 0.0625rem solid color-mix(in oklch, var(--accent-teal-main) 20%, var(--border-soft));
+		border: 0.0625rem solid color-mix(in oklch, var(--accent-primary-main) 20%, var(--border-soft));
 		border-radius: 0.5rem;
 		background: color-mix(in oklch, var(--glass-deep) 70%, transparent);
 		color: var(--text-primary);
@@ -178,7 +178,7 @@ async function handleOpenInDevForge(): Promise<void> {
 		width: 100%;
 	}
 	.ps-trigger:hover {
-		border-color: var(--accent-teal-main);
+		border-color: var(--accent-primary-main);
 	}
 	.ps-label {
 		display: flex;
@@ -187,7 +187,7 @@ async function handleOpenInDevForge(): Promise<void> {
 	}
 	.ps-name {
 		font-weight: 600;
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -243,11 +243,11 @@ async function handleOpenInDevForge(): Promise<void> {
 		text-align: left;
 	}
 	.ps-row:hover {
-		background: color-mix(in oklch, var(--accent-teal-main) 12%, transparent);
+		background: color-mix(in oklch, var(--accent-primary-main) 12%, transparent);
 	}
 	.ps-row.active {
-		background: color-mix(in oklch, var(--accent-teal-main) 18%, transparent);
-		border: 0.0625rem solid color-mix(in oklch, var(--accent-teal-main) 40%, transparent);
+		background: color-mix(in oklch, var(--accent-primary-main) 18%, transparent);
+		border: 0.0625rem solid color-mix(in oklch, var(--accent-primary-main) 40%, transparent);
 	}
 	.ps-row-left {
 		display: flex;
@@ -292,7 +292,7 @@ async function handleOpenInDevForge(): Promise<void> {
 		justify-content: center;
 	}
 	.ps-action:hover:not(:disabled) {
-		border-color: var(--accent-teal-main);
+		border-color: var(--accent-primary-main);
 		color: var(--text-primary);
 	}
 	.ps-action:disabled {
