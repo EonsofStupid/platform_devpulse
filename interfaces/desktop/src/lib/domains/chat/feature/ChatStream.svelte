@@ -24,8 +24,14 @@ $effect(() => {
 });
 </script>
 
+<!-- role=log: additions (completed turns) are announced politely by screen
+     readers. The transient streaming bubble mutates every token, so it is
+     aria-hidden — the full assistant turn announces ONCE when stored; turn
+     start/completion cues come from announce() in chat.state. -->
 <div
 	bind:this={root}
+	role="log"
+	aria-label="Chat messages"
 	class={cn("flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto px-3 py-2", className)}
 >
 	{#if chatState.loading}
@@ -40,15 +46,17 @@ $effect(() => {
 		{/each}
 	{/if}
 	{#if chatState.isGenerating && chatState.streamingContent}
-		<MessageBubble
-			message={{
-				id: "streaming",
-				variant: "ai",
-				author: "Clyffy",
-				content: chatState.streamingContent,
-			}}
-			mode={chatState.mode}
-		/>
+		<div aria-hidden="true" class="contents">
+			<MessageBubble
+				message={{
+					id: "streaming",
+					variant: "ai",
+					author: "Clyffy",
+					content: chatState.streamingContent,
+				}}
+				mode={chatState.mode}
+			/>
+		</div>
 	{:else if chatState.isGenerating || chatState.sending}
 		<TypingIndicator />
 	{/if}
