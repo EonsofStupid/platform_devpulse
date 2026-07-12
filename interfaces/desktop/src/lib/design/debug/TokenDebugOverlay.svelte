@@ -285,22 +285,22 @@ function runFullDiag() {
 
 {#if visible}
 	<div
-		class="fixed top-0 right-0 z-[9999] w-[540px] h-screen overflow-y-auto font-mono text-xs"
-		style="background: oklch(0.08 0.01 220 / 0.95); color: oklch(0.9 0.01 220); border-left: 2px solid oklch(0.4 0.08 173); backdrop-filter: blur(12px);"
+		class="fixed top-0 right-0 z-[9999] w-[33.75rem] h-screen overflow-y-auto font-mono text-xs"
+		style="background: oklch(0.08 0.01 220 / 0.95); color: oklch(0.9 0.01 220); border-left: 0.125rem solid oklch(0.4 0.08 173); backdrop-filter: blur(0.75rem);"
 	>
 		<!-- Header -->
-		<div style="padding: 12px 16px; border-bottom: 1px solid oklch(0.3 0.04 173); display: flex; justify-content: space-between; align-items: center;">
-			<span style="font-size: 14px; font-weight: 700; color: oklch(0.7 0.08 173);">TOKEN DEBUG</span>
-			<div style="display: flex; gap: 8px;">
+		<div style="padding: 0.75rem 1rem; border-bottom: 0.0625rem solid oklch(0.3 0.04 173); display: flex; justify-content: space-between; align-items: center;">
+			<span style="font-size: 0.875rem; font-weight: 700; color: oklch(0.7 0.08 173);">TOKEN DEBUG</span>
+			<div style="display: flex; gap: 0.5rem;">
 				<button
 					onclick={runFullDiag}
-					style="padding: 4px 12px; background: oklch(0.2 0.06 173); border: 1px solid oklch(0.4 0.08 173); border-radius: 4px; color: oklch(0.9 0.08 173); cursor: pointer;"
+					style="padding: 0.25rem 0.75rem; background: oklch(0.2 0.06 173); border: 0.0625rem solid oklch(0.4 0.08 173); border-radius: 0.25rem; color: oklch(0.9 0.08 173); cursor: pointer;"
 				>
 					{scanning ? "Scanning..." : "Re-scan"}
 				</button>
 				<button
 					onclick={() => (visible = false)}
-					style="padding: 4px 8px; background: oklch(0.15 0.02 220); border: 1px solid oklch(0.3 0.02 220); border-radius: 4px; color: oklch(0.6 0.02 220); cursor: pointer;"
+					style="padding: 0.25rem 0.5rem; background: oklch(0.15 0.02 220); border: 0.0625rem solid oklch(0.3 0.02 220); border-radius: 0.25rem; color: oklch(0.6 0.02 220); cursor: pointer;"
 				>
 					✕
 				</button>
@@ -371,56 +371,56 @@ function runFullDiag() {
 		</div>
 
 		<!-- Summary -->
-		<div style="padding: 12px 16px; border-bottom: 1px solid oklch(0.2 0.02 220); display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+		<div style="padding: 0.75rem 1rem; border-bottom: 0.0625rem solid oklch(0.2 0.02 220); display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
 			<div>
 				<div style="color: oklch(0.5 0.02 220);">Total</div>
-				<div style="font-size: 20px; font-weight: 700;">{summary.total}</div>
+				<div style="font-size: 1.25rem; font-weight: 700;">{summary.total}</div>
 			</div>
 			<div>
 				<div style="color: oklch(0.65 0.18 145);">OK</div>
-				<div style="font-size: 20px; font-weight: 700; color: oklch(0.65 0.18 145);">{summary.ok}</div>
+				<div style="font-size: 1.25rem; font-weight: 700; color: oklch(0.65 0.18 145);">{summary.ok}</div>
 			</div>
 			<div>
 				<div style="color: oklch(0.75 0.15 85);">Empty</div>
-				<div style="font-size: 20px; font-weight: 700; color: oklch(0.75 0.15 85);">{summary.empty}</div>
+				<div style="font-size: 1.25rem; font-weight: 700; color: oklch(0.75 0.15 85);">{summary.empty}</div>
 			</div>
 			<div>
 				<div style="color: oklch(0.6 0.2 25);">Missing</div>
-				<div style="font-size: 20px; font-weight: 700; color: oklch(0.6 0.2 25);">{summary.missing}</div>
+				<div style="font-size: 1.25rem; font-weight: 700; color: oklch(0.6 0.2 25);">{summary.missing}</div>
 			</div>
 		</div>
 
 		<!-- Variant visual report -->
 		{#if variantReport.length > 0}
-			<div style="padding: 12px 16px; border-bottom: 1px solid oklch(0.2 0.02 220);">
-				<div style="color: oklch(0.75 0.15 85); font-weight: 700; margin-bottom: 8px;">
+			<div style="padding: 0.75rem 1rem; border-bottom: 0.0625rem solid oklch(0.2 0.02 220);">
+				<div style="color: oklch(0.75 0.15 85); font-weight: 700; margin-bottom: 0.5rem;">
 					v-* CLASSES WITH NO VISUAL EFFECT ({variantReport.length})
 				</div>
 				{#each variantReport as line}
-					<div style="padding: 4px 0; color: oklch(0.75 0.15 85); word-break: break-all;">{line}</div>
+					<div style="padding: 0.25rem 0; color: oklch(0.75 0.15 85); word-break: break-all;">{line}</div>
 				{/each}
 			</div>
 		{/if}
 
 		<!-- Filter -->
 		{#if missing.length > 0}
-			<div style="padding: 8px 16px;">
+			<div style="padding: 0.5rem 1rem;">
 				<input
 					type="text"
 					placeholder="Filter vars..."
 					bind:value={filterText}
-					style="width: 100%; padding: 6px 10px; background: oklch(0.12 0.01 220); border: 1px solid oklch(0.3 0.02 220); border-radius: 4px; color: oklch(0.9 0.01 220); font-family: inherit; font-size: inherit;"
+					style="width: 100%; padding: 0.375rem 0.625rem; background: oklch(0.12 0.01 220); border: 0.0625rem solid oklch(0.3 0.02 220); border-radius: 0.25rem; color: oklch(0.9 0.01 220); font-family: inherit; font-size: inherit;"
 				/>
 			</div>
 		{/if}
 
 		<!-- Grouped by var name -->
-		<div style="padding: 8px 16px;">
-			<div style="color: oklch(0.5 0.02 220); margin-bottom: 8px; font-weight: 700;">
+		<div style="padding: 0.5rem 1rem;">
+			<div style="color: oklch(0.5 0.02 220); margin-bottom: 0.5rem; font-weight: 700;">
 				EMPTY/MISSING VARS (grouped)
 			</div>
 			{#each groupedByVar() as [varName, info]}
-				<div style="padding: 6px 8px; margin-bottom: 4px; background: oklch(0.12 0.02 25 / 0.3); border-left: 3px solid oklch(0.6 0.2 25); border-radius: 2px;">
+				<div style="padding: 0.375rem 0.5rem; margin-bottom: 0.25rem; background: oklch(0.12 0.02 25 / 0.3); border-left: 0.1875rem solid oklch(0.6 0.2 25); border-radius: 0.125rem;">
 					<div style="display: flex; justify-content: space-between;">
 						<span style="color: oklch(0.8 0.15 25); font-weight: 600;">{varName}</span>
 						<span style="color: oklch(0.5 0.02 220);">×{info.count}</span>
@@ -430,13 +430,13 @@ function runFullDiag() {
 			{/each}
 
 			{#if missing.length === 0 && results.length > 0}
-				<div style="padding: 16px; text-align: center; color: oklch(0.65 0.18 145);">
+				<div style="padding: 1rem; text-align: center; color: oklch(0.65 0.18 145);">
 					All {summary.ok} CSS vars resolved successfully.
 				</div>
 			{/if}
 
 			{#if results.length === 0}
-				<div style="padding: 16px; text-align: center; color: oklch(0.5 0.02 220);">
+				<div style="padding: 1rem; text-align: center; color: oklch(0.5 0.02 220);">
 					Press "Re-scan" or Ctrl+Shift+D to scan.
 				</div>
 			{/if}
@@ -444,15 +444,15 @@ function runFullDiag() {
 
 		<!-- Per-element detail -->
 		{#if filtered.length > 0}
-			<div style="padding: 8px 16px; border-top: 1px solid oklch(0.2 0.02 220);">
-				<div style="color: oklch(0.5 0.02 220); margin-bottom: 8px; font-weight: 700;">
+			<div style="padding: 0.5rem 1rem; border-top: 0.0625rem solid oklch(0.2 0.02 220);">
+				<div style="color: oklch(0.5 0.02 220); margin-bottom: 0.5rem; font-weight: 700;">
 					PER-ELEMENT DETAIL ({filtered.length})
 				</div>
 				{#each filtered as r}
-					<div style="padding: 4px 8px; margin-bottom: 2px; background: oklch(0.1 0.01 220); border-radius: 2px;">
+					<div style="padding: 0.25rem 0.5rem; margin-bottom: 0.125rem; background: oklch(0.1 0.01 220); border-radius: 0.125rem;">
 						<span style="color: oklch(0.5 0.02 220);">{r.selector}</span>
-						<span style="color: oklch(0.6 0.2 25); margin-left: 4px;">{r.varName}</span>
-						<span style="color: oklch(0.35 0.02 220); margin-left: 4px;">→ {r.resolved}</span>
+						<span style="color: oklch(0.6 0.2 25); margin-left: 0.25rem;">{r.varName}</span>
+						<span style="color: oklch(0.35 0.02 220); margin-left: 0.25rem;">→ {r.resolved}</span>
 					</div>
 				{/each}
 			</div>
@@ -505,7 +505,7 @@ function runFullDiag() {
 	.hf-token-input {
 		flex: 1;
 		padding: var(--space-2);
-		font-family: var(--font-family-mono);
+		font-family: var(--font-mono);
 		font-size: var(--font-size-xs);
 		background: var(--surface-inset);
 		color: var(--text-primary);
@@ -560,17 +560,17 @@ function runFullDiag() {
 	}
 	.hf-token-btn-save:hover:not(:disabled) {
 		background: var(--accent-teal-main);
-		color: var(--text-on-accent);
+		color: var(--accent-fg);
 	}
 
 	.hf-token-btn-clear {
-		background: var(--signal-error-fill);
-		border-color: var(--signal-error-main);
-		color: var(--signal-error-main);
+		background: var(--danger-fill);
+		border-color: var(--signal-error);
+		color: var(--signal-error);
 	}
 	.hf-token-btn-clear:hover:not(:disabled) {
-		background: var(--signal-error-main);
-		color: var(--text-on-accent);
+		background: var(--signal-error);
+		color: var(--accent-fg);
 	}
 
 	.hf-token-btn-refresh {
@@ -587,10 +587,10 @@ function runFullDiag() {
 	.hf-token-error {
 		margin-top: var(--space-2);
 		padding: var(--space-2);
-		background: var(--signal-error-fill);
-		border: var(--border-width-thin) solid var(--signal-error-main);
+		background: var(--danger-fill);
+		border: var(--border-width-thin) solid var(--signal-error);
 		border-radius: var(--radius-sm);
-		color: var(--signal-error-main);
+		color: var(--signal-error);
 		font-size: var(--font-size-xs);
 	}
 </style>
