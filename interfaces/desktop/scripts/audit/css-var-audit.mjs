@@ -56,7 +56,7 @@ function walk(dir, exts, acc = []) {
 // (style="--x: var(...)") define custom properties at runtime — without
 // the quotes, component-scoped indirections (--store-accent et al.) show
 // up as false-positive UNDEFINED (found by the Pass-3 binding audit).
-const DEFINE_RE = /(?:^|[{;\s"'`])(--[a-zA-Z0-9-]+)\s*:/gm;
+const DEFINE_RE = /(?:^|[{;\s"'`:])(--[a-zA-Z0-9-]+)\s*[:=]/gm;
 const CONSUME_RE = /var\(\s*(--[a-zA-Z0-9-]+)/gm;
 const JS_SET_RE = /(?:setProperty\(\s*|["'`])(--[a-zA-Z0-9-]+)["'`]\s*[,:)]/gm;
 const AT_PROPERTY_RE = /@property\s+(--[a-zA-Z0-9-]+)/gm;
