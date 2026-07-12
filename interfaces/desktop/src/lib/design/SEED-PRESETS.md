@@ -133,9 +133,58 @@ exists is a review-rejectable offense.
 
 Component `@defaults` doc-headers (the `--style-*` tier) keep their
 literal seeds for now — they are per-kind, not family-scale; converting
-them rides the Phase 3 consumption sweep. The effects library contract
-(glow/bevel/keyframes/SVG parameterization) is being authored from the
-Pass-2 effects audit and lands as its own section when complete.
+them rides the Phase 3 consumption sweep.
+
+### A7. Effects composition contract (from the Pass-2 effects audit, 2026-07-11)
+
+Ground truth: **there is no effect abstraction today.** RenderForge's
+effect-relevant axes are only `--box-shadow` / `--backdrop-filter` /
+`--animation` / transitions / `--gradient` / `--opacity`; glow and bevel
+are hand-inlined as extra box-shadow layers inside each preset, while the
+`shadow/glow` + `shadow/bevel` token families duplicate the same pixels
+and never meet the presets. Axis-count truth: `visual/axes.ts` declares 11
+(+backgroundImage), `render.ts` resolves 20 — no file declares ~36 (an
+earlier audit figure; wrong).
+
+Effects become FIRST-CLASS AXES with knob-sets, derived at build time:
+
+- **glow** `{ hueRef, intensity: off|sm|md|lg, spread }` — hueRef is a
+  role/palette ref, NEVER a literal; intensity drives alpha (0/0.35/0.55/
+  0.7) + blur; spread reuses `--glow-spread-*`. Absorbs the 8 glow tokens,
+  glow-dot (spread=0), the ~56 `diagonal-blends.css` glow/blend classes,
+  and every inline orb/Glass* shadow.
+- **bevel** `{ depth: off|subtle|soft|medium|pronounced|deep }` — the
+  N-layer light/dark stack is a monotonic ramp; ONE depth scalar derives
+  both the CSS stack and the SVG filter variant (surfaceScale already
+  co-located in the token's svgFilter extension). Fix the L>1 highlight
+  seed (`oklch(1.0032 …)` → `oklch(1 0 0 / a)`).
+- **blur/glass** `{ tier }` — restore the glass↔blur 1:1 pairing (5 accent
+  glass tiers have no blur; `glass-blur` currently emits to NO var).
+- **gradient** `{ kind, angle, stops: [{roleRef, position, alpha}] }` —
+  stops reference roles; folds `gradient/{accent,glow,surface}` +
+  `diagonal-blends.css` (the largest raw-literal pool in the system).
+- **animation** — `generated/keyframes.css` becomes GENERATED from
+  `semantic/motion/animation.tokens.json` (its header already promises
+  this): fixes the `cl-` name drift (token `breathe` vs keyframe
+  `cl-breathe`), the broken `cl-fade-in` reference in LoadingContentCard,
+  the 2 in-keyframe out-of-gamut literals (→ `currentColor` + accent var),
+  and retires the 12 dead keyframes (12 of 28; the "51" figure counts ~13
+  component-authored @keyframes blocks that violate the no-component-
+  keyframes law and get absorbed).
+
+Emission fixes that ride along: shadow-family tokens emit **oklch, once**
+(today: hex, twice — `--glow-*` plus a semantically-wrong `--drop-shadow-*`
+Tailwind namespace mis-map that cannot carry spread). Registry work:
+add glow/bevel/blur to `visual/axes.ts`, consumers to `render-base.css`,
+resolver chain entries in `render.ts` — presets then declare
+`glow: { hueRef: "{accent.main}", intensity: "md" }` instead of five
+hand-typed shadow layers.
+
+Phantom-var cleanup (corroborates the css-var audit's UNDEFINED list):
+`--bevel-raised`, `--bevel-raised-deep`, `--border-rise-*`,
+`--glass-standard-blur` are consumed by the ui-demo Glass* one-offs and
+defined nowhere — those components duplicate `Card preset="glass-*"` and
+are deletion candidates once the glow/gradient axes land.
 
 ---
 
