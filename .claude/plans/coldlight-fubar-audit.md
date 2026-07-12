@@ -274,20 +274,67 @@ Gate battery per slice unless noted: `pnpm ds:tokens:build` (token slices) →
   quartet as real tokens). Gate adds: visual spot-check the ~20 ΔE 5–6
   NEAR bindings; `Card.test.ts` computed-style assertions may legitimately
   shift — update WITH evidence, never loosen.
-- **P2.3**: sd.config `col()` oklch-before-hex + retire the `--drop-shadow-*`
-  glow mis-emission. Gate: `audit:color` hex-leak count → 0 in styles/.
-- **P2.4**: svg-accent-defaults → `--accent-main`; delete app.css S1 button
-  shim; add semantic backdrop-primary tokens and retire S3 mirrors.
-- **P2.5**: state-derivation generator (new `derive-preset-states.mjs` in
-  the SD5 pipeline, formulas §A4) — strip hand-authored hover/active/
-  disabled entries; emitted names unchanged.
-- **P2.6**: layer the glue — render-base.css, diagonal-blends.css,
-  scrollbars.css into a layer ordered below `utilities` (W3C-audit fix;
-  Tailwind utilities must win on [data-kind] elements again).
-- **P2.7**: chroma envelope Option A in generate-scales.mjs + ramp regen.
-  Gate: `audit:color` out-of-gamut 406 → ~0. (Decision 5; A is the standing
-  recommendation — owner may override to B later without rework, the
-  envelope is one function.)
+- **P2.3 — shadow oklch + kill the drop-shadow mis-emission** (files:
+  `sd.config.mjs`, `build.mjs` + regen).
+  (a) `col()` in the shadowCssShorthand transform (~L409): check
+  `colorSpace === "oklch"` BEFORE `c.hex`, mirroring `gradientStopColor`
+  — converts all ~56 hex-emitting glow/bevel/depth/wizard/chat values to
+  oklch. (b) Remove `glow: "drop-shadow"` from `tw4Remap.topLevel` and
+  delete the `theme-glow` platform + the `./glow.css` line in build.mjs's
+  INDEX_THEME barrel — drop-shadow() cannot carry spread, so the whole
+  Tailwind registration is semantically wrong and (per the effects audit)
+  largely unused. ABSORB-check first: grep `--drop-shadow-` consumers in
+  src/ — rebind any hit to `--glow-*` before deleting.
+  Gate: build; grep emitted styles for `#[0-9a-f]` shadow values → 0;
+  `--drop-shadow-` in src/ → 0.
+- **P2.4 — button-primary INTENT rebind + last shims retired** (files:
+  `presets/button.tokens.json`, `semantic/backdrop/*.tokens.json`,
+  `src/app.css`, `svg/svg-accent-defaults.css` + regen).
+  (a) button-primary axes rebind from teal-nearest refs (P2.2) to the
+  ROLE: bg `{accent.primary.main}`; hover/active as the §A4 color-mix
+  forms (82%/12%, 66%/28% — lifted verbatim from the proven S1 shim);
+  box-shadow glow `{accent.primary.glow}` at 1rem/1.5rem spreads; border
+  color-mix 60/78%; **text `{primary.fg}`** (the shim never covered text
+  — it's still teal today). button-destructive rebinds to `{danger.*}`.
+  (b) Add `backdrop-glow.primary` / `backdrop-grid.primary` /
+  `backdrop-grid-size.primary` DTCG tokens (color-mix over
+  `{color.brand-blue.500}`, mirroring the S3 values). (c) Delete app.css
+  S1 + S3 blocks — app.css finally contains ZERO token definitions.
+  (d) svg-accent-defaults: teal trio → `var(--accent-main)` trio.
+  Gate: build; audit:cssvars (app.css definer count drops); THE visual:
+  buttons go BLUE — owner render-truth check.
+- **P2.5 — state-derivation generator** (2 sub-slices).
+  P2.5a (files: new `derive-preset-states.mjs`, `sd.config.mjs` preproc
+  registration, `presets/glass.tokens.json` stripped): an SD5
+  preprocessor synthesizes `{id}-hover/-active/-disabled` preset keys
+  from each base per §A4 formulas when the family's
+  `$extensions.seeds.deriveStates` is true; hand-authored state entries
+  deleted from glass as the pilot. Emitted names unchanged; VALUES
+  intentionally converge from hand-drift to formula (approved by A4).
+  Gate: diff emitted glass `-hover/-active` blocks against formula
+  expectations; Card test; visual.
+  P2.5b (files: remaining preset JSONs stripped, ≤5/slice): roll out to
+  neuro/stark/flat/chrome, then button/chat/retro/wizard.
+- **P2.6 — layer the glue** (files: `generated/render-base.css`,
+  `generated/diagonal-blends.css`, `generated/scrollbars.css`).
+  Wrap each file's rules in `@layer components { … }` — Tailwind's
+  components layer sits below `utilities`, so `bg-*`/`opacity-*`/
+  `animate-*` utilities beat the `[data-kind]` glue again (W3C-audit
+  fix). focus.css/typography.css already use `@utility` — untouched.
+  Gate: pnpm check; Card computed-style test (render-base still applies
+  where no utility competes); grep no unlayered top-level rules remain
+  in the three files.
+- **P2.7 — chroma envelope Option A** (files: `generate-scales.mjs` +
+  regenerated color sources + regen).
+  Per-stop `C = min(flatC, 0.95 × cusp(L, H))` using culori clampChroma
+  inside the ramp generator (replaces the flat-chroma model at ~L86);
+  hex fallbacks regenerate gamut-true (resolves Decision 6's
+  "regenerate gamut-mapped" arm). Rerun generate-scales → ds:tokens:build.
+  Gate: `audit:color` ramp-sourced out-of-gamut → 0 (remaining OOG =
+  keyframes/diagonal-blends/svg hand-authored values, owned by the A7
+  effects work); visual: electric/hotpink render ≈ what browsers already
+  clamped to. (Decision 5: Option A standing; B is a later one-function
+  swap.)
 
 ### Track P3 — binding sweep (start after P2.4; spec = coldlight-binding-map.md)
 
@@ -322,8 +369,12 @@ Gate battery per slice unless noted: `pnpm ds:tokens:build` (token slices) →
 
 Phase 5 sediment (586-file vs Sprint-02 reconciliation, coldlight.config.ts
 fate); Decision 7 (behaviors doc relabel — cheap, one doc slice when ruled);
-Sheet.test.ts pre-existing failure (own /debug pass); storybook a11y-error
-fallout triage on first storybook run.
+pre-existing test reds: Sheet.test.ts (renders nothing at mount, 5 fails) +
+Checkbox.test.ts (2 test-vs-hook contract disagreements) — both baseline-
+verified, ONE /debug pass together; Sonar React-hooks rule on *.svelte.ts =
+rule-scoping config action, never code contortion (memory:
+coldlight-known-reds-and-false-positives); storybook a11y-error fallout
+triage on first storybook run.
 
 **Order of fire: LB1 → LB2 → P2.1 → … → P2.7 → P3.1a → … (P4.1/P4.2 may
 interleave anytime).** ~26 slices total, each independently green.
