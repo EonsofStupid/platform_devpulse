@@ -273,7 +273,7 @@ function formatAge(createdAt: number): string {
 		padding: 0.0625rem 0.3125rem;
 		font-family: var(--font-mono, ui-monospace, monospace);
 		font-size: 0.8125rem;
-		color: var(--text-default);
+		color: var(--text-primary);
 		background: var(--surface-raised);
 		border-radius: 0.25rem;
 	}
