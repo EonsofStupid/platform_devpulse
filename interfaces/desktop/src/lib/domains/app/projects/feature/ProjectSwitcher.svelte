@@ -171,7 +171,7 @@ async function handleOpenInDevForge(): Promise<void> {
 		padding: 0.375rem 0.625rem;
 		border: 0.0625rem solid color-mix(in oklch, var(--accent-teal-main) 20%, var(--border-soft));
 		border-radius: 0.5rem;
-		background: color-mix(in oklch, var(--surface-glass-deep) 70%, transparent);
+		background: color-mix(in oklch, var(--glass-deep) 70%, transparent);
 		color: var(--text-primary);
 		cursor: pointer;
 		text-align: left;

@@ -120,7 +120,7 @@ function kindIcon(kind: string): typeof Folder {
 		padding: 0.75rem;
 		border: 0.0625rem solid var(--border-soft);
 		border-radius: 0.5rem;
-		background: color-mix(in oklch, var(--surface-glass-deep) 55%, transparent);
+		background: color-mix(in oklch, var(--glass-deep) 55%, transparent);
 	}
 	.pr-header {
 		display: flex;
@@ -211,7 +211,7 @@ function kindIcon(kind: string): typeof Folder {
 		color: var(--accent-violet-main, var(--accent-purple-main));
 	}
 	.pr-icon[data-kind="examples"] {
-		color: var(--accent-gold-main, var(--accent-warning));
+		color: var(--accent-gold-main, var(--accent-warning-main));
 	}
 	.pr-main {
 		display: flex;

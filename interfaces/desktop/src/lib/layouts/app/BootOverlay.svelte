@@ -211,7 +211,7 @@ $effect(() => {
 			<div
 				class={cn(
 					stack({ gap: "4", align: "start" }),
-					"w-full rounded-md border border-[var(--accent-red-main,oklch(0.62_0.22_25))] bg-[color-mix(in_oklch,var(--accent-red-main,oklch(0.62_0.22_25))_18%,var(--color-void-base,oklch(0.08_0.01_220)))] p-4",
+					"w-full rounded-md border border-[var(--accent-danger-main)] bg-[color-mix(in_oklch,var(--accent-danger-main)_18%,var(--color-void-base,oklch(0.08_0.01_220)))] p-4",
 				)}
 				role="alert"
 			>
