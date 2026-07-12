@@ -5763,7 +5763,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5835,7 +5835,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5895,7 +5895,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5907,7 +5907,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6003,7 +6003,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6075,7 +6075,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6135,7 +6135,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6147,7 +6147,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6243,7 +6243,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-stark-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6375,7 +6375,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-stark-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6483,7 +6483,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-flat-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6615,7 +6615,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-flat-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6723,7 +6723,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6795,7 +6795,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6855,7 +6855,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6867,7 +6867,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6963,7 +6963,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-default-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7011,7 +7011,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-default-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7035,7 +7035,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-default-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7095,7 +7095,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-default-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7203,7 +7203,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-glass-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7251,7 +7251,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-glass-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7275,7 +7275,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7335,7 +7335,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7347,7 +7347,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7443,7 +7443,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-stark-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7575,7 +7575,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-stark-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7683,7 +7683,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-flat-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7815,7 +7815,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-flat-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7923,7 +7923,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-matte-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7971,7 +7971,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-matte-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7995,7 +7995,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-matte-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -8055,7 +8055,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-matte-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
