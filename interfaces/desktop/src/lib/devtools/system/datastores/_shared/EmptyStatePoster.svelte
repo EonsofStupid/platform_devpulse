@@ -19,7 +19,7 @@
 	  title="No tables found yet"
 	  hint="If you expected rows here, check the log target below."
 	  logTarget="duckdb.lifecycle"
-	  accentVar="--accent-amber"
+	  accentVar="--accent-gold-main"
 	/>
 	```
 -->
@@ -41,7 +41,8 @@ interface Props {
 	hint?: string;
 	/** Scoped-log target the operator should grep when diagnosing. */
 	logTarget?: string;
-	/** Accent CSS variable, e.g. "--accent-amber" for DuckDB. */
+	/** Accent CSS variable (full token, with -main suffix),
+	 *  e.g. "--accent-gold-main" for DuckDB. */
 	accentVar?: string;
 }
 
@@ -50,7 +51,7 @@ let {
 	title,
 	hint = undefined,
 	logTarget = undefined,
-	accentVar = "--accent-electric",
+	accentVar = "--accent-electric-main",
 }: Props = $props();
 </script>
 

@@ -19,10 +19,12 @@
 	## Accent contract
 
 	`accentVar` drives the left-edge stripe, the icon tint, and the
-	subtle gradient on the background. Convention:
-	- `--accent-amber` — DuckDB (analytical / warm)
-	- `--accent-cyan` — libSQL (clean / relational)
-	- `--accent-purple` — SurrealDB (graph / vibrant)
+	subtle gradient on the background. It MUST be a full palette token
+	(with -main suffix — bare hue names don't exist and silently fall to
+	the fallback). Convention:
+	- `--accent-gold-main` — DuckDB (analytical / warm)
+	- `--accent-cyan-main` — libSQL (clean / relational)
+	- `--accent-purple-main` — SurrealDB (graph / vibrant)
 
 	The accent should match the store's devtool accent on
 	`ServiceDevtoolShell` so the hero card and the shell agree.
@@ -73,7 +75,7 @@ let {
 	latencyMs = null,
 	healthLabel = undefined,
 	activityTick = 0,
-	accentVar = "--accent-electric",
+	accentVar = "--accent-electric-main",
 	children = undefined,
 	syncChip = undefined,
 }: Props = $props();
