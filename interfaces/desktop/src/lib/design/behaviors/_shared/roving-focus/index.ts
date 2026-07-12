@@ -1,2 +1,2 @@
-export { useRovingFocus } from "./roving-focus.svelte.js";
-export type { RovingFocusConfig } from "./types.js";
+export { createRovingHandler, useRovingFocus } from "./roving-focus.svelte.js";
+export type { RovingFocusConfig, RovingHandlerConfig } from "./types.js";

@@ -7,6 +7,12 @@ export interface TypeaheadConfig {
 	timeout?: number;
 	/** Get text content from an item. Default: element.textContent. */
 	getItemText?: (item: HTMLElement) => string;
+	/**
+	 * Current anchor item the search continues from. Default:
+	 * document.activeElement — override for active-descendant widgets
+	 * (select) where focus stays on the trigger.
+	 */
+	getActiveItem?: () => HTMLElement | null;
 }
 
 export interface TypeaheadReturn {

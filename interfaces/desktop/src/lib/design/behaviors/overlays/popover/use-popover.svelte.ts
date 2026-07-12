@@ -10,6 +10,7 @@
 import { createIds } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_shared/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_shared/escape-layer/index.js";
+import { useFocusTrap } from "../../_shared/focus-trap/index.js";
 import { usePresence } from "../../_shared/presence/index.js";
 import { popoverAnatomy } from "./popover.anatomy.js";
 import type { UsePopoverProps, UsePopoverReturn } from "./popover.types.js";
@@ -18,6 +19,7 @@ export function usePopover(props: UsePopoverProps = {}): UsePopoverReturn {
 	const ids = createIds("popover", ["trigger", "content"] as const);
 	const closeOnEscape = props.closeOnEscape ?? true;
 	const closeOnOutsideClick = props.closeOnOutsideClick ?? true;
+	const modal = props.modal ?? false;
 
 	let isOpen = $state(props.open ?? false);
 	let contentEl: HTMLElement | null = null;
@@ -42,6 +44,9 @@ export function usePopover(props: UsePopoverProps = {}): UsePopoverReturn {
 		...popoverAnatomy.attrs.content,
 		id: ids.content,
 		role: "dialog" as const,
+		"aria-modal": modal ? ("true" as const) : undefined,
+		"aria-label": props["aria-labelledby"] ? undefined : props["aria-label"],
+		"aria-labelledby": props["aria-labelledby"],
 		"data-state": isOpen ? ("open" as const) : ("closed" as const),
 	});
 
@@ -58,6 +63,15 @@ export function usePopover(props: UsePopoverProps = {}): UsePopoverReturn {
 
 	function attachContent(node: HTMLElement): { destroy(): void } {
 		contentEl = node;
+
+		// Focus moves into the panel on open and restores to the invoker on
+		// close. Tab is contained only when modal — APG non-modal dialogs
+		// let Tab leave the panel.
+		useFocusTrap({
+			enabled: () => isOpen,
+			node: () => contentEl,
+			contain: modal,
+		});
 
 		if (closeOnEscape) {
 			useEscapeLayer({
