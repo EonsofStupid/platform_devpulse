@@ -1780,8 +1780,8 @@
   --preset-stark-muted-disabled-color: var(--color-neutral-700);
   --preset-stark-muted-disabled-opacity: 0.3;
   --preset-stark-muted-disabled-border-color: oklch(from var(--color-neutral-700) l c h / 0.12);
-  --preset-wizard-deep-background-color: var(--glass-blue);
-  --preset-wizard-deep-gradient: var(--gradient-surface-brand-blue);
+  --preset-wizard-deep-background-color: oklch(0.16 0.05 240 / 0.94);
+  --preset-wizard-deep-gradient: linear-gradient(180deg, oklch(0.19 0.055 240) 0%, oklch(0.12 0.05 240) 100%);
   --preset-wizard-deep-border-radius: var(--radius-lg);
   --preset-wizard-deep-box-shadow: var(--depth-z3), var(--glow-blue);
   --preset-wizard-deep-color: var(--text-primary);
@@ -1790,8 +1790,8 @@
   --preset-wizard-deep-backdrop-filter: blur(var(--blur-lg));
   --preset-wizard-deep-transition-duration: var(--duration-normal);
   --preset-wizard-deep-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  --preset-wizard-solid-background-color: var(--glass-purple);
-  --preset-wizard-solid-gradient: var(--gradient-surface-purple);
+  --preset-wizard-solid-background-color: oklch(0.2 0.045 300 / 0.96);
+  --preset-wizard-solid-gradient: linear-gradient(180deg, oklch(0.22 0.05 300) 0%, oklch(0.15 0.045 300) 100%);
   --preset-wizard-solid-border-radius: var(--radius-md);
   --preset-wizard-solid-box-shadow: var(--depth-z2), var(--glow-purple), var(--bevel-subtle);
   --preset-wizard-solid-color: var(--text-primary);
@@ -1799,8 +1799,8 @@
   --preset-wizard-solid-border-width: var(--border-width-hairline);
   --preset-wizard-solid-transition-duration: var(--duration-normal);
   --preset-wizard-solid-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  --preset-wizard-elevated-background-color: var(--glass-teal);
-  --preset-wizard-elevated-gradient: var(--gradient-surface-brand-cyan);
+  --preset-wizard-elevated-background-color: oklch(0.24 0.04 195 / 0.94);
+  --preset-wizard-elevated-gradient: linear-gradient(180deg, oklch(0.26 0.045 195) 0%, oklch(0.19 0.04 195) 100%);
   --preset-wizard-elevated-border-radius: var(--radius-md);
   --preset-wizard-elevated-box-shadow: var(--depth-z1), var(--glow-teal);
   --preset-wizard-elevated-color: var(--text-primary);

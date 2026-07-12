@@ -45891,7 +45891,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-deep-background-color",
-				"value": "var(--glass-blue)",
+				"value": "oklch(0.16 0.05 240 / 0.94)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45903,7 +45903,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-deep-gradient",
-				"value": "var(--gradient-surface-brand-blue)",
+				"value": "linear-gradient(180deg, oklch(0.19 0.055 240) 0%, oklch(0.12 0.05 240) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46011,7 +46011,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-solid-background-color",
-				"value": "var(--glass-purple)",
+				"value": "oklch(0.2 0.045 300 / 0.96)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46023,7 +46023,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-solid-gradient",
-				"value": "var(--gradient-surface-purple)",
+				"value": "linear-gradient(180deg, oklch(0.22 0.05 300) 0%, oklch(0.15 0.045 300) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46119,7 +46119,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-elevated-background-color",
-				"value": "var(--glass-teal)",
+				"value": "oklch(0.24 0.04 195 / 0.94)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46131,7 +46131,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-elevated-gradient",
-				"value": "var(--gradient-surface-brand-cyan)",
+				"value": "linear-gradient(180deg, oklch(0.26 0.045 195) 0%, oklch(0.19 0.04 195) 100%)",
 				"type": "string",
 				"extensions": null
 			},

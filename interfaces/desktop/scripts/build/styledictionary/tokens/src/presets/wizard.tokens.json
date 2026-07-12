@@ -8,13 +8,13 @@
 	},
 	"preset": {
 		"wizard-deep": {
-			"$description": "wizard-deep: Tier-2 onboarding shell — designed blue glass + brand-blue gradient field, depth z3 + blue glow (Lock #6 connect-blue identity)",
+			"$description": "wizard-deep: Tier-2 onboarding shell — blue glass identity (Lock #6), SEED lightness raised from the L0.11 glass primitive so the shell separates from the L~0.08 void backdrop (2026-07-12 black-wizard fix; hue 240 unchanged)",
 			"background-color": {
-				"$value": "var(--glass-blue)",
+				"$value": "oklch(0.16 0.05 240 / 0.94)",
 				"$type": "string"
 			},
 			"gradient": {
-				"$value": "var(--gradient-surface-brand-blue)",
+				"$value": "linear-gradient(180deg, oklch(0.19 0.055 240) 0%, oklch(0.12 0.05 240) 100%)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -51,13 +51,13 @@
 			}
 		},
 		"wizard-solid": {
-			"$description": "wizard-solid: Tier-3 onboarding content panel — designed purple glass + purple gradient field, depth z2 + purple glow + subtle bevel",
+			"$description": "wizard-solid: Tier-3 onboarding content panel — purple glass identity, SEED lightness raised one rung above wizard-deep (2026-07-12 black-wizard fix; hue 300 family unchanged)",
 			"background-color": {
-				"$value": "var(--glass-purple)",
+				"$value": "oklch(0.2 0.045 300 / 0.96)",
 				"$type": "string"
 			},
 			"gradient": {
-				"$value": "var(--gradient-surface-purple)",
+				"$value": "linear-gradient(180deg, oklch(0.22 0.05 300) 0%, oklch(0.15 0.045 300) 100%)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -90,13 +90,13 @@
 			}
 		},
 		"wizard-elevated": {
-			"$description": "wizard-elevated: Tier-4 onboarding wells (mode cards, address panel) — designed teal glass + brand-cyan gradient field, depth z1 + teal glow",
+			"$description": "wizard-elevated: Tier-4 onboarding wells (mode cards, address panel) — teal glass identity, SEED lightness at the top of the wizard ladder (2026-07-12 black-wizard fix; hue 195 unchanged). Ladder: void ~0.08 → deep 0.16 → solid 0.20 → elevated 0.24",
 			"background-color": {
-				"$value": "var(--glass-teal)",
+				"$value": "oklch(0.24 0.04 195 / 0.94)",
 				"$type": "string"
 			},
 			"gradient": {
-				"$value": "var(--gradient-surface-brand-cyan)",
+				"$value": "linear-gradient(180deg, oklch(0.26 0.045 195) 0%, oklch(0.19 0.04 195) 100%)",
 				"$type": "string"
 			},
 			"border-radius": {
