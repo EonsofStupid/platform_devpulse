@@ -12,15 +12,17 @@ verified emitted names (rulings §3.1).
 - Probe 2: `grep -n -- "--font-mono" interfaces/desktop/src/lib/design/styles/primitives/typography.css` → ≥1 (target exists).
 - Probe 3: `grep -n -- "--danger-fill\|--accent-fg" interfaces/desktop/src/lib/design/styles/semantic/role.css interfaces/desktop/src/lib/design/styles/semantic/accent.css` → ≥2 hits (targets exist).
 
-## FILES
+## FILES (REVISED 2026-07-12 after execution STOP — grep-verified actual paths)
 
 1. `interfaces/desktop/src/lib/design/debug/TokenDebugOverlay.svelte` (~:508, :563, :567–:593)
 2. `interfaces/desktop/src/lib/devtools/system/datastores/project-db/feature/ProjectDbDevtool.svelte`
-3. `interfaces/desktop/src/lib/domains/app/models/feature/downloader/ui/DownloaderConfirmPanel.svelte`
-4. `interfaces/desktop/src/lib/domains/app/models/feature/downloader/ui/DownloaderProgressPanel.svelte`
-5. `interfaces/desktop/src/lib/domains/app/models/feature/downloader/ui/DownloaderTokenPanel.svelte`
+3. `interfaces/desktop/src/lib/domains/app/models/feature/downloader/feature/DownloaderConfirmPanel.svelte`
+4. `interfaces/desktop/src/lib/domains/app/models/feature/downloader/feature/DownloaderProgressPanel.svelte`
+5. `interfaces/desktop/src/lib/domains/app/models/feature/downloader/feature/DownloaderTokenStrip.svelte`
 
-(If a Downloader panel path differs, locate it by `grep -rln -- "--font-family-mono" interfaces/desktop/src/lib/domains/app/models` — the batch is exactly the files that grep returns for the downloader area; report actual paths.)
+NOT in this slice (handled by slice 08): `downloader/ui/BundleFileRow.svelte` and
+`sys/ErrorOverlay.svelte` — both also carry `--font-family-mono` and are slice 08
+FILES rows; their hits are EXPECTED residuals in this slice's verify.
 
 ## STEPS
 
@@ -35,8 +37,8 @@ None.
 
 ## VERIFY
 
-- `grep -rn -- "--font-family-mono" interfaces/desktop/src --include="*.svelte" | grep -v "domains/app/ui-demo"` → 0 hits (ui-demo Glass* excluded — they retire in F8).
-- `grep -rn -- "--signal-error-fill\|--signal-error-main\|--text-on-accent" interfaces/desktop/src --include="*.svelte"` → 0 hits.
+- `--font-family-mono` across `interfaces/desktop/src/**/*.svelte` → EXACTLY 2 remaining files: `downloader/ui/BundleFileRow.svelte` and `sys/ErrorOverlay.svelte` (slice 08's rows). Any other residual → fail.
+- `--signal-error-fill|--signal-error-main|--text-on-accent` across `*.svelte` → 0 hits.
 - `cd interfaces/desktop && pnpm check` → 0 errors 0 warnings.
 
 ## KNOWN REDS
@@ -49,5 +51,7 @@ Sheet/Checkbox pre-broken; Sonar react-hooks on `*.svelte.ts` false positive.
 
 ## STOP CONDITIONS
 
-Downloader-panel grep returns ≠3 files in the models downloader area → STOP, report
-the actual list before editing anything. Expected string absent → STOP + report.
+Downloader-area grep (`--font-family-mono` under domains/app/models) returns a set
+other than {BundleFileRow, DownloaderConfirmPanel, DownloaderProgressPanel,
+DownloaderTokenStrip} → STOP, report the actual list. Expected string absent →
+STOP + report.

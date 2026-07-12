@@ -175,7 +175,7 @@ function formatSuffix(suffix: string | null): string {
 		border: 0.0625rem solid var(--border-subtle);
 		color: var(--text-primary);
 		font-size: var(--space-12);
-		font-family: var(--font-family-mono, monospace);
+		font-family: var(--font-mono);
 	}
 
 	.token-strip__input:focus-visible {
