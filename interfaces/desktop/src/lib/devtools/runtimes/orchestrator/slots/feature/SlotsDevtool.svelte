@@ -1194,7 +1194,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 	.picker-row:hover:not(:disabled) {
 		border-color: var(--accent-teal-main);
-		background: var(--surface-elevated);
+		background: var(--surface-raised);
 	}
 	.picker-row:disabled { cursor: not-allowed; opacity: 0.6; }
 	.picker-row--current { border-color: var(--accent-teal-main); }

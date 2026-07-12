@@ -149,7 +149,7 @@ const tooltip = $derived(activity.text.length > 0 ? activity.text : moodVisual.l
 	>
 		<div
 			class="rounded-full motion-reduce:animate-none
-				[background:radial-gradient(circle_at_35%_30%,oklch(1_0_0_/_0.4),var(--orb-accent)_45%,var(--surface-void)_100%)]
+				[background:radial-gradient(circle_at_35%_30%,oklch(1_0_0_/_0.4),var(--orb-accent)_45%,var(--surface-base)_100%)]
 				[box-shadow:var(--orb-glow),inset_0_0_0.5rem_var(--bevel-subtle)]
 				{sizeClasses.core} {moodVisual.coreAnim}"
 			data-slot="core"
