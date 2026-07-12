@@ -137,7 +137,9 @@ const layers = {
 const tw4Remap = {
 	topLevel: {
 		bevel: 'inset-shadow',
-		glow: 'drop-shadow',
+		// glow → 'drop-shadow' remap REMOVED (P2.3): drop-shadow() cannot
+		// carry spread, so the Tailwind registration was semantically wrong
+		// and had zero consumers. Glow emits only as --glow-* in styles/.
 		textSize: 'text',
 		space: 'spacing',
 		zIndex: 'z',
@@ -405,20 +407,27 @@ StyleDictionary.registerTransform({
 			}
 			return pxToRem(d);
 		};
-		// DTCG color object → hex(+alpha)
+		// DTCG color object → oklch() (hex is the FALLBACK, not the value —
+		// checking hex first silently dropped every shadow/glow/bevel color
+		// out of the OKLCH system; audit 2026-07-11, fixed P2.3).
 		const col = (c) => {
 			if (isPlainObj(c)) {
+				if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
+					const [l, ch, h] = c.components;
+					const alpha = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
+					return `oklch(${l} ${ch} ${h}${alpha})`;
+				}
+				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+					const [r, g, b] = c.components;
+					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+					return `#${h(r)}${h(g)}${h(b)}`;
+				}
 				if (typeof c.hex === 'string') {
 					if (typeof c.alpha === 'number' && c.alpha < 1) {
 						const a = Math.round(c.alpha * 255);
 						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
 					}
 					return c.hex;
-				}
-				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
-					const [r, g, b] = c.components;
-					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
-					return `#${h(r)}${h(g)}${h(b)}`;
 				}
 			}
 			return c;
@@ -1078,7 +1087,6 @@ const config = {
 		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('shadow.css', pathFilter('shadow', 'depth'))] },
 		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
 		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
-		'theme-glow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('glow.css', pathFilter('glow', 'glowSpread'))] },
 		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
 		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
 		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
