@@ -28618,7 +28618,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-background-color",
-				"value": "oklch(0.55 0.14 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.12,
+						170
+					],
+					"hex": "#048568"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -28642,7 +28650,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-box-shadow",
-				"value": "0 0 1rem 0 oklch(0.55 0.14 180 / 0.35)",
+				"value": "0 0 1rem 0 oklch(from [object Object] l c h / 0.35)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28654,7 +28662,15 @@
 					"color"
 				],
 				"cssVar": "--preset-button-primary-color",
-				"value": "oklch(0.97 0.01 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0.01,
+						220
+					],
+					"hex": "#eef7fa"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -28850,7 +28866,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-hover-background-color",
-				"value": "oklch(0.48 0.13 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.46,
+						0.12,
+						170
+					],
+					"hex": "#0c6750"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -28862,7 +28886,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-hover-box-shadow",
-				"value": "0 0 1.5rem 0.125rem oklch(0.55 0.14 180 / 0.5)",
+				"value": "0 0 1.5rem 0.125rem oklch(from [object Object] l c h / 0.5)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28874,7 +28898,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-hover-border-color",
-				"value": "oklch(0.65 0.12 180 / 0.5)",
+				"value": "oklch(from [object Object] l c h / 0.5)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28910,7 +28934,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-secondary-background-color",
-				"value": "oklch(0.2 0.01 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0.01,
+						220
+					],
+					"hex": "#0f1517"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -28934,7 +28966,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-secondary-box-shadow",
-				"value": "0 0 0.5rem 0 oklch(0 0 0 / 0.3)",
+				"value": "0 0 0.5rem 0 oklch(from [object Object] l c h / 0.3)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28946,7 +28978,15 @@
 					"color"
 				],
 				"cssVar": "--preset-button-secondary-color",
-				"value": "oklch(0.8 0.01 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.01,
+						220
+					],
+					"hex": "#bac2c5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -28958,7 +28998,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-secondary-border-color",
-				"value": "oklch(0.3 0.01 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29142,7 +29190,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-secondary-hover-background-color",
-				"value": "oklch(0.25 0.015 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29154,7 +29210,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-ghost-background-color",
-				"value": "oklch(0 0 0 / 0)",
+				"value": "oklch(from [object Object] l c h / 0)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29190,7 +29246,15 @@
 					"color"
 				],
 				"cssVar": "--preset-button-ghost-color",
-				"value": "oklch(0.65 0.01 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.01,
+						220
+					],
+					"hex": "#899193"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29202,7 +29266,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-ghost-border-color",
-				"value": "oklch(0 0 0 / 0)",
+				"value": "oklch(from [object Object] l c h / 0)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29386,7 +29450,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-ghost-hover-background-color",
-				"value": "oklch(0.2 0.01 240 / 0.5)",
+				"value": "oklch(from [object Object] l c h / 0.5)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29398,7 +29462,15 @@
 					"color"
 				],
 				"cssVar": "--preset-button-ghost-hover-color",
-				"value": "oklch(0.88 0.01 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.01,
+						220
+					],
+					"hex": "#d4dcdf"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29446,7 +29518,15 @@
 					"color"
 				],
 				"cssVar": "--preset-button-destructive-color",
-				"value": "oklch(0.97 0.01 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0,
+						0
+					],
+					"hex": "#f5f5f5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29458,7 +29538,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-destructive-border-color",
-				"value": "oklch(0.55 0.2 25 / 0.4)",
+				"value": "oklch(from [object Object] l c h / 0.4)",
 				"type": "color",
 				"extensions": null
 			},
@@ -32706,7 +32786,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chat-frame-shell-box-shadow",
-				"value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 0.5rem 0 var(--accent-teal-glow), inset 0 0.0625rem 0 0 oklch(1 0 0 / 0.06)",
+				"value": "0 0.25rem 1rem 0 oklch(from [object Object] l c h / 0.45), 0 0 0.5rem 0 var(--accent-teal-glow), inset 0 0.0625rem 0 0 oklch(from [object Object] l c h / 0.06)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -32914,7 +32994,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-elevated-background-color",
-				"value": "oklch(0.3 0.01 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -32938,7 +33026,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-elevated-box-shadow",
-				"value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.5), 0 0.0625rem 0.125rem 0 oklch(0 0 0 / 0.25)",
+				"value": "0 0.25rem 1rem 0 oklch(from [object Object] l c h / 0.5), 0 0.0625rem 0.125rem 0 oklch(from [object Object] l c h / 0.25)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -32950,7 +33038,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-elevated-color",
-				"value": "oklch(0.92 0.015 240)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.95,
+						0.01,
+						220
+					],
+					"hex": "#e8f0f3"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33046,7 +33142,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-chrome-elevated-gradient",
-				"value": "linear-gradient(135deg, oklch(0.4 0.01 250) 0%, oklch(0.25 0.008 250) 50%, oklch(0.35 0.01 250) 100%)",
+				"value": "linear-gradient(135deg, [object Object] 0%, [object Object] 50%, [object Object] 100%)",
 				"type": "gradient",
 				"extensions": null
 			},
@@ -33146,7 +33242,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-elevated-hover-background-color",
-				"value": "oklch(0.33 0.012 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.35,
+						0.01,
+						220
+					],
+					"hex": "#353c3e"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33158,7 +33262,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-chrome-elevated-hover-gradient",
-				"value": "linear-gradient(135deg, oklch(0.43 0.012 250) 0%, oklch(0.28 0.01 250) 50%, oklch(0.38 0.012 250) 100%)",
+				"value": "linear-gradient(135deg, [object Object] 0%, [object Object] 50%, [object Object] 100%)",
 				"type": "gradient",
 				"extensions": null
 			},
@@ -33170,7 +33274,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-elevated-hover-box-shadow",
-				"value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.28)",
+				"value": "0 0.375rem 1.25rem 0 oklch(from [object Object] l c h / 0.55), 0 0.0625rem 0.25rem 0 oklch(from [object Object] l c h / 0.28)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33182,7 +33286,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-elevated-hover-border-color",
-				"value": "oklch(0.65 0.025 250 / 0.5)",
+				"value": "oklch(from [object Object] l c h / 0.5)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33194,7 +33298,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-elevated-active-background-color",
-				"value": "oklch(0.27 0.008 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33206,7 +33318,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-chrome-elevated-active-gradient",
-				"value": "linear-gradient(135deg, oklch(0.35 0.008 250) 0%, oklch(0.22 0.006 250) 50%, oklch(0.3 0.008 250) 100%)",
+				"value": "linear-gradient(135deg, [object Object] 0%, [object Object] 50%, [object Object] 100%)",
 				"type": "gradient",
 				"extensions": null
 			},
@@ -33218,7 +33330,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-elevated-active-box-shadow",
-				"value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.45)",
+				"value": "0 0.125rem 0.5rem 0 oklch(from [object Object] l c h / 0.45)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33230,7 +33342,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-elevated-disabled-background-color",
-				"value": "oklch(0.22 0.004 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33266,7 +33386,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-elevated-disabled-border-color",
-				"value": "oklch(0.45 0.005 250 / 0.2)",
+				"value": "oklch(from [object Object] l c h / 0.2)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33290,7 +33410,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-deep-background-color",
-				"value": "oklch(0.15 0.008 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.01,
+						220
+					],
+					"hex": "#030608"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33314,7 +33442,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-deep-box-shadow",
-				"value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.6), inset 0 -0.0625rem 0 0 oklch(0.5 0.01 260 / 0.1)",
+				"value": "0 0.375rem 1.25rem 0 oklch(from [object Object] l c h / 0.6), inset 0 -0.0625rem 0 0 oklch(from [object Object] l c h / 0.1)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33326,7 +33454,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-deep-color",
-				"value": "oklch(0.8 0.01 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.01,
+						220
+					],
+					"hex": "#bac2c5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33338,7 +33474,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-deep-border-color",
-				"value": "oklch(0.45 0.01 260 / 0.3)",
+				"value": "oklch(from [object Object] l c h / 0.3)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33422,7 +33558,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-chrome-deep-gradient",
-				"value": "linear-gradient(160deg, oklch(0.22 0.01 260) 0%, oklch(0.12 0.005 260) 100%)",
+				"value": "linear-gradient(160deg, [object Object] 0%, [object Object] 100%)",
 				"type": "gradient",
 				"extensions": null
 			},
@@ -33522,7 +33658,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-deep-hover-background-color",
-				"value": "oklch(0.18 0.01 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0.01,
+						220
+					],
+					"hex": "#0f1517"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33534,7 +33678,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-deep-hover-box-shadow",
-				"value": "0 0.5rem 1.5rem 0 oklch(0 0 0 / 0.65), inset 0 -0.0625rem 0 0 oklch(0.55 0.012 260 / 0.15)",
+				"value": "0 0.5rem 1.5rem 0 oklch(from [object Object] l c h / 0.65), inset 0 -0.0625rem 0 0 oklch(from [object Object] l c h / 0.15)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33546,7 +33690,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-deep-hover-border-color",
-				"value": "oklch(0.5 0.012 260 / 0.4)",
+				"value": "oklch(from [object Object] l c h / 0.4)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33558,7 +33702,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-deep-active-background-color",
-				"value": "oklch(0.12 0.006 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0,
+						0
+					],
+					"hex": "#060606"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33570,7 +33722,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-deep-active-box-shadow",
-				"value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.5)",
+				"value": "0 0.125rem 0.5rem 0 oklch(from [object Object] l c h / 0.5)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33582,7 +33734,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-deep-disabled-background-color",
-				"value": "oklch(0.12 0.003 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0,
+						0
+					],
+					"hex": "#060606"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33618,7 +33778,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-deep-disabled-border-color",
-				"value": "oklch(0.35 0.005 260 / 0.15)",
+				"value": "oklch(from [object Object] l c h / 0.15)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33630,7 +33790,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-minimal-background-color",
-				"value": "oklch(0.25 0.005 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0,
+						0
+					],
+					"hex": "#292929"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33654,7 +33822,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-minimal-box-shadow",
-				"value": "0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.3)",
+				"value": "0 0.0625rem 0.25rem 0 oklch(from [object Object] l c h / 0.3)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33666,7 +33834,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-minimal-color",
-				"value": "oklch(0.8 0.008 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.01,
+						220
+					],
+					"hex": "#bac2c5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33678,7 +33854,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-minimal-border-color",
-				"value": "oklch(0.5 0.005 250 / 0.2)",
+				"value": "oklch(from [object Object] l c h / 0.2)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33862,7 +34038,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-minimal-hover-background-color",
-				"value": "oklch(0.28 0.007 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33874,7 +34058,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-minimal-hover-box-shadow",
-				"value": "0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.35)",
+				"value": "0 0.125rem 0.375rem 0 oklch(from [object Object] l c h / 0.35)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33886,7 +34070,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-minimal-hover-border-color",
-				"value": "oklch(0.55 0.007 250 / 0.28)",
+				"value": "oklch(from [object Object] l c h / 0.28)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33898,7 +34082,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-minimal-active-background-color",
-				"value": "oklch(0.22 0.004 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33910,7 +34102,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-minimal-active-box-shadow",
-				"value": "0 0.0625rem 0.125rem 0 oklch(0 0 0 / 0.25)",
+				"value": "0 0.0625rem 0.125rem 0 oklch(from [object Object] l c h / 0.25)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -33922,7 +34114,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-minimal-disabled-background-color",
-				"value": "oklch(0.2 0.003 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33934,7 +34134,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-minimal-disabled-color",
-				"value": "oklch(0.55 0.004 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0,
+						0
+					],
+					"hex": "#717171"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33958,7 +34166,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-minimal-disabled-border-color",
-				"value": "oklch(0.4 0.003 250 / 0.12)",
+				"value": "oklch(from [object Object] l c h / 0.12)",
 				"type": "color",
 				"extensions": null
 			},
@@ -33970,7 +34178,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-solid-background-color",
-				"value": "oklch(0.28 0.01 255)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -33994,7 +34210,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-solid-box-shadow",
-				"value": "0 0.25rem 0.75rem 0 oklch(0 0 0 / 0.5), 0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.3)",
+				"value": "0 0.25rem 0.75rem 0 oklch(from [object Object] l c h / 0.5), 0 0.0625rem 0.25rem 0 oklch(from [object Object] l c h / 0.3)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34006,7 +34222,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-solid-color",
-				"value": "oklch(0.9 0.01 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.01,
+						220
+					],
+					"hex": "#d4dcdf"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34018,7 +34242,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-solid-border-color",
-				"value": "oklch(0.5 0.015 255 / 0.35)",
+				"value": "oklch(from [object Object] l c h / 0.35)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34202,7 +34426,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-solid-hover-background-color",
-				"value": "oklch(0.31 0.012 255)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.01,
+						220
+					],
+					"hex": "#242a2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34214,7 +34446,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-solid-hover-box-shadow",
-				"value": "0 0.375rem 1rem 0 oklch(0 0 0 / 0.55), 0 0.0625rem 0.375rem 0 oklch(0 0 0 / 0.32)",
+				"value": "0 0.375rem 1rem 0 oklch(from [object Object] l c h / 0.55), 0 0.0625rem 0.375rem 0 oklch(from [object Object] l c h / 0.32)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34226,7 +34458,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-solid-hover-border-color",
-				"value": "oklch(0.55 0.018 255 / 0.45)",
+				"value": "oklch(from [object Object] l c h / 0.45)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34238,7 +34470,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-solid-active-background-color",
-				"value": "oklch(0.25 0.008 255)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0,
+						0
+					],
+					"hex": "#292929"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34250,7 +34490,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-solid-active-box-shadow",
-				"value": "0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.4)",
+				"value": "0 0.0625rem 0.25rem 0 oklch(from [object Object] l c h / 0.4)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34262,7 +34502,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-solid-disabled-background-color",
-				"value": "oklch(0.2 0.004 255)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34274,7 +34522,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-solid-disabled-color",
-				"value": "oklch(0.6 0.005 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0,
+						0
+					],
+					"hex": "#8f8f8f"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34298,7 +34554,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-solid-disabled-border-color",
-				"value": "oklch(0.4 0.005 255 / 0.18)",
+				"value": "oklch(from [object Object] l c h / 0.18)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34310,7 +34566,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-glow-background-color",
-				"value": "oklch(0.2 0.02 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.06,
+						220
+					],
+					"hex": "#00070b"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34334,7 +34598,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-glow-box-shadow",
-				"value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 0.75rem 0 oklch(0.7 0.12 240 / 0.2), 0 0 2rem 0 oklch(0.7 0.12 240 / 0.08)",
+				"value": "0 0.25rem 1rem 0 oklch(from [object Object] l c h / 0.45), 0 0 0.75rem 0 oklch(from [object Object] l c h / 0.2), 0 0 2rem 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34358,7 +34622,16 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-glow-border-color",
-				"value": "oklch(0.7 0.12 240 / 0.35)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.68,
+						0.14,
+						240
+					],
+					"alpha": 0.35,
+					"hex": "#2ea2e5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34442,7 +34715,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-chrome-glow-gradient",
-				"value": "linear-gradient(135deg, oklch(0.3 0.02 250) 0%, oklch(0.18 0.015 240) 100%)",
+				"value": "linear-gradient(135deg, [object Object] 0%, [object Object] 100%)",
 				"type": "gradient",
 				"extensions": null
 			},
@@ -34542,7 +34815,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-glow-hover-background-color",
-				"value": "oklch(0.22 0.025 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.06,
+						220
+					],
+					"hex": "#00070b"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34554,7 +34835,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-glow-hover-box-shadow",
-				"value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.5), 0 0 1rem 0 oklch(0.7 0.12 240 / 0.28), 0 0 2.5rem 0 oklch(0.7 0.12 240 / 0.12)",
+				"value": "0 0.375rem 1.25rem 0 oklch(from [object Object] l c h / 0.5), 0 0 1rem 0 oklch(from [object Object] l c h / 0.28), 0 0 2.5rem 0 oklch(from [object Object] l c h / 0.12)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34566,7 +34847,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-glow-hover-border-color",
-				"value": "oklch(0.75 0.14 240 / 0.45)",
+				"value": "oklch(from [object Object] l c h / 0.45)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34578,7 +34859,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-glow-active-background-color",
-				"value": "oklch(0.17 0.018 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.06,
+						220
+					],
+					"hex": "#00070b"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34590,7 +34879,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-glow-active-box-shadow",
-				"value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.4), 0 0 0.5rem 0 oklch(0.7 0.12 240 / 0.12)",
+				"value": "0 0.125rem 0.5rem 0 oklch(from [object Object] l c h / 0.4), 0 0 0.5rem 0 oklch(from [object Object] l c h / 0.12)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34602,7 +34891,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-glow-disabled-background-color",
-				"value": "oklch(0.16 0.005 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.01,
+						220
+					],
+					"hex": "#030608"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34638,7 +34935,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-glow-disabled-border-color",
-				"value": "oklch(0.5 0.03 240 / 0.15)",
+				"value": "oklch(from [object Object] l c h / 0.15)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34662,7 +34959,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-muted-background-color",
-				"value": "oklch(0.2 0.003 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34686,7 +34991,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-chrome-muted-box-shadow",
-				"value": "0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.3)",
+				"value": "0 0.0625rem 0.25rem 0 oklch(from [object Object] l c h / 0.3)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -34698,7 +35003,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-muted-color",
-				"value": "oklch(0.6 0.005 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0,
+						0
+					],
+					"hex": "#8f8f8f"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34710,7 +35023,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-muted-border-color",
-				"value": "oklch(0.4 0.003 250 / 0.2)",
+				"value": "oklch(from [object Object] l c h / 0.2)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34894,7 +35207,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-muted-hover-background-color",
-				"value": "oklch(0.22 0.005 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34918,7 +35239,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-chrome-muted-hover-border-color",
-				"value": "oklch(0.45 0.005 250 / 0.28)",
+				"value": "oklch(from [object Object] l c h / 0.28)",
 				"type": "color",
 				"extensions": null
 			},
@@ -34930,7 +35251,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-muted-active-background-color",
-				"value": "oklch(0.18 0.003 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34954,7 +35283,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-chrome-muted-disabled-background-color",
-				"value": "oklch(0.17 0.002 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.19,
+						0,
+						0
+					],
+					"hex": "#141414"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -34966,7 +35303,15 @@
 					"color"
 				],
 				"cssVar": "--preset-chrome-muted-disabled-color",
-				"value": "oklch(0.45 0.003 250)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.46,
+						0,
+						0
+					],
+					"hex": "#585858"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41030,7 +41375,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-elevated-box-shadow",
-				"value": "0.25rem 0.25rem 0 0 oklch(0 0 0 / 0.8), 0 0 1rem 0 oklch(0.65 0.2 300 / 0.15)",
+				"value": "0.25rem 0.25rem 0 0 oklch(from [object Object] l c h / 0.8), 0 0 1rem 0 oklch(from [object Object] l c h / 0.15)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -41054,7 +41399,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-elevated-border-color",
-				"value": "oklch(0.75 0.18 300)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.73,
+						0.17,
+						300
+					],
+					"hex": "#b78ff9"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41238,7 +41591,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-elevated-hover-background-color",
-				"value": "oklch(0.3 0.1 280)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.28,
+						0.12,
+						280
+					],
+					"hex": "#211a61"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41250,7 +41611,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-elevated-hover-box-shadow",
-				"value": "0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 1.25rem 0 oklch(0.65 0.2 300 / 0.25)",
+				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 1.25rem 0 oklch(from [object Object] l c h / 0.25)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -41262,7 +41623,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-elevated-hover-border-color",
-				"value": "oklch(0.85 0.2 300)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.17,
+						300
+					],
+					"hex": "#ccb0ff"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41286,7 +41655,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-elevated-active-box-shadow",
-				"value": "0.0625rem 0.0625rem 0 0 oklch(0 0 0 / 0.9)",
+				"value": "0.0625rem 0.0625rem 0 0 oklch(from [object Object] l c h / 0.9)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -41334,7 +41703,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-deep-background-color",
-				"value": "oklch(0.08 0.02 150)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.08,
+						0.01,
+						220
+					],
+					"hex": "#000203"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41358,7 +41735,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-deep-box-shadow",
-				"value": "inset 0.125rem 0.125rem 0 0 oklch(0 0 0 / 0.9), inset -0.0625rem -0.0625rem 0 0 oklch(0.3 0.05 150 / 0.3)",
+				"value": "inset 0.125rem 0.125rem 0 0 oklch(from [object Object] l c h / 0.9), inset -0.0625rem -0.0625rem 0 0 oklch(0.3 0.05 150 / 0.3)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -41370,7 +41747,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-deep-color",
-				"value": "oklch(0.8 0.2 150)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.16,
+						150
+					],
+					"hex": "#6add88"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41382,7 +41767,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-deep-border-color",
-				"value": "oklch(0.6 0.2 150)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.18,
+						145
+					],
+					"hex": "#31aa40"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41590,7 +41983,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-deep-active-background-color",
-				"value": "oklch(0.06 0.025 150)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.08,
+						0.01,
+						220
+					],
+					"hex": "#000203"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41602,7 +42003,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-deep-disabled-color",
-				"value": "oklch(0.4 0.08 150)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.1,
+						160
+					],
+					"hex": "#054c30"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41638,7 +42047,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-minimal-background-color",
-				"value": "oklch(0.2 0.03 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.06,
+						220
+					],
+					"hex": "#00070b"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41882,7 +42299,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-minimal-hover-border-color",
-				"value": "oklch(0.7 0.12 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.73,
+						0.16,
+						265
+					],
+					"hex": "#80a5f9"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41894,7 +42319,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-minimal-active-background-color",
-				"value": "oklch(0.15 0.02 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.01,
+						220
+					],
+					"hex": "#030608"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41906,7 +42339,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-minimal-disabled-color",
-				"value": "oklch(0.5 0.02 260)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.5,
+						0.02,
+						220
+					],
+					"hex": "#57666b"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41930,7 +42371,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-solid-background-color",
-				"value": "oklch(0.55 0.2 160)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.17,
+						155
+					],
+					"hex": "#1f8650"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41954,7 +42403,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-solid-box-shadow",
-				"value": "0.25rem 0.25rem 0 0 oklch(0.1 0.05 160)",
+				"value": "0.25rem 0.25rem 0 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -41966,7 +42415,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-solid-color",
-				"value": "oklch(0.98 0.01 90)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0,
+						0
+					],
+					"hex": "#f5f5f5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -41978,7 +42435,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-solid-border-color",
-				"value": "oklch(0.35 0.15 160)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.14,
+						155
+					],
+					"hex": "#0f4c2c"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42174,7 +42639,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-solid-hover-box-shadow",
-				"value": "0.1875rem 0.1875rem 0 0 oklch(0.1 0.05 160)",
+				"value": "0.1875rem 0.1875rem 0 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42186,7 +42651,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-solid-active-background-color",
-				"value": "oklch(0.45 0.18 160)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.46,
+						0.17,
+						155
+					],
+					"hex": "#066a3b"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42198,7 +42671,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-solid-active-box-shadow",
-				"value": "0.0625rem 0.0625rem 0 0 oklch(0.1 0.05 160)",
+				"value": "0.0625rem 0.0625rem 0 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42234,7 +42707,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-glow-background-color",
-				"value": "oklch(0.06 0.01 280)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0,
+						0,
+						0
+					],
+					"hex": "#000000"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42258,7 +42739,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-glow-box-shadow",
-				"value": "0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 0.5rem 0 oklch(0.75 0.25 330 / 0.4), 0 0 1.5rem 0 oklch(0.75 0.25 330 / 0.15)",
+				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 0.5rem 0 oklch(0.75 0.25 330 / 0.4), 0 0 1.5rem 0 oklch(0.75 0.25 330 / 0.15)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42270,7 +42751,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-glow-color",
-				"value": "oklch(0.9 0.2 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.14,
+						330
+					],
+					"hex": "#fec5f8"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42478,7 +42967,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-glow-hover-box-shadow",
-				"value": "0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
+				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42502,7 +42991,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-glow-active-background-color",
-				"value": "oklch(0.1 0.03 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0,
+						0
+					],
+					"hex": "#060606"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42550,7 +43047,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-retro-muted-background-color",
-				"value": "oklch(0.15 0.01 200)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.12,
+						0.01,
+						220
+					],
+					"hex": "#030608"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42574,7 +43079,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-muted-box-shadow",
-				"value": "0.125rem 0.125rem 0 0 oklch(0 0 0 / 0.5)",
+				"value": "0.125rem 0.125rem 0 0 oklch(from [object Object] l c h / 0.5)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42586,7 +43091,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-muted-color",
-				"value": "oklch(0.55 0.02 200)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.01,
+						220
+					],
+					"hex": "#6b7376"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42598,7 +43111,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-muted-border-color",
-				"value": "oklch(0.4 0.02 200 / 0.5)",
+				"value": "oklch(from [object Object] l c h / 0.5)",
 				"type": "color",
 				"extensions": null
 			},
@@ -42806,7 +43319,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-muted-disabled-color",
-				"value": "oklch(0.35 0.01 200)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.35,
+						0.01,
+						220
+					],
+					"hex": "#353c3e"
+				},
 				"type": "color",
 				"extensions": null
 			},
