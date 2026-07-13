@@ -7,15 +7,22 @@
 
 ## AUDIT (all evidence read this session, file:line)
 
-### A1 — The double component (component inside component)
+### A1 — FOUR chromes nested (operator's count confirmed from code)
 
-`OverlayShell.svelte:82-103`: `<Card preset="wizard-deep" class="shell-card">`
-(Tier 2 chrome: border + shadow stack + blur) DIRECTLY wraps
-`<Card preset="wizard-solid" class="shell-body">` (Tier 3: its OWN border +
-shadow stack + bevel). Two full chromes nested with zero content between them —
-the boxed-card-inside-boxed-card seam visible in the operator's screenshot.
-The `:global(.shell-body)` rules (OverlayShell:185-191) are pure layout
-(flex/gap 0.75rem/pad 1rem/min-height 9rem) and survive on any element.
+The endpoint screen renders four boxed layers inside each other:
+
+| Depth | Element | Chrome it wears | Evidence |
+| --- | --- | --- | --- |
+| 1 | `[data-layout="setup"]` window backdrop panel | circuit-board field | app.css:36-55 |
+| 2 | `<Card preset="wizard-deep" class="shell-card">` | border + depth-z3 + BLUE HALO + blur | OverlayShell:82 |
+| 3 | `<Card preset="wizard-solid" class="shell-body">` | border + depth-z2 + PURPLE HALO + bevel | OverlayShell:96 |
+| 4 | 2× `<Card as="button" preset="wizard-elevated" class="mode-card">` | border + depth-z1 + TEAL HALO each | EndpointView:152,166 |
+
+Plus found-cards (also wizard-elevated) when discovery returns. RULING: flatten
+to **exactly TWO chromes** — the shell, and the interactive wells. The body panel
+dies; text flows directly on the shell. The `:global(.shell-body)` rules
+(OverlayShell:185-191) are pure layout (flex/gap/pad/min-height) and survive on
+a plain div.
 
 ### A2 — The glow inventory (wizard scope)
 
@@ -92,5 +99,31 @@ that scanning is happening ("does nothing to show you are even trying").
 
 Mode-card functional modes (04/C4) · wizard forward-flow C1 (landed `62c61d50`) ·
 chat window W1 · MP4→WebM W2 · cortex-vocabulary purge B8.
+
+## OPERATOR RULINGS CHECKLIST — every box needs its evidence before "done"
+
+- [ ] **ONE outer shell, content flows on it** — grep proof: zero `wizard-solid`
+      in OverlayShell; template tree re-read shows shell → content → wells only
+- [ ] **Max TWO chromes on screen** (shell + interactive wells) — nesting table
+      re-derived from code after the change
+- [ ] **CRISP EDGES — zero glow halos in the wizard** — grep proof: no `glow-`
+      term in any emitted `--preset-wizard-*` box-shadow
+- [ ] **ColdLight tokens rendering** — operator's eyes: CTA reads BLUE, wells
+      read teal glass, shell reads blue glass on the ladder; if not, next probe
+      is computed-styles in the running webview (documented, not guessed)
+- [ ] **Discovery visibly scans** — operator clicks Find my Clyffy and watches
+      per-rung lines appear live
+- [ ] **Zero new hardcoded English** — all new strings via wizard_copy SSOT
+      (grep the diff for literals)
+- [ ] **Zero new raw values** — `no-raw-values` exit 0 on every commit
+- [ ] **Blue identity + MP4 backdrop untouched** — diff scope contains no hue or
+      backdrop change
+- [ ] **Every slice committed + pushed individually** — git log shows one commit
+      per slice with verify lines in the message
+- [ ] **Diff never exceeds the plan's FILES list** — `git diff --stat` compared
+      against the slice spec before each commit
+
+Failing ANY box = the slice is NOT done and gets reported as failed, per the
+chain's no-partial-progress law.
 
 APPROVED BY OPERATOR: ____________
