@@ -87,3 +87,16 @@ git diff --stat ⊆ FILES list · commit + push each slice · operator's eyes at
 
 APPROVED BY OPERATOR: ____________ ("go" executes R1→R7 in order, reporting
 each slice; any deviation stops and reports.)
+
+## TRACK: agent popup subsystem (operator direction 2026-07-13 — own charter, after core wizard slices)
+
+DevPulse popup surface running HEADLESS coding agents with dynamic UI: Claude
+Code first (`claude -p` stream-json), extending to Cursor + Codex through one
+config-driven adapter REGISTRY (binary, spawn args, stream parser,
+privilege-flag mapping — never hardcoded). Agents start with ZERO privileges;
+the popup requests **operator** (act/execute) and/or **generator**
+(author/write) grants, and only explicit user approval translates them into
+each CLI's permission flags. Every agent action emits the strict signals —
+UI/log claim only what provably happened (no-mock law). First consumer: the
+wizard's "Ask Claude to help" troubleshooting popup fed by the real scan
+signals; the bring-your-Claude-key step becomes the enable-assist moment.
