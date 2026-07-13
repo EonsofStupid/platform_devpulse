@@ -37,7 +37,9 @@ types English in a view.
    `WizardCopy`; find where `[connect]` maps.
 2. Extend `ConnectCopy` with these fields (all `pub … : String`, one
    doc-comment each, grouped with section comments like the existing file):
-   tooltips — `mode_local_tooltip`, `mode_gb10_tooltip`, `discover_tooltip`,
+   third mode card — `mode_network_label`, `mode_network_hint`;
+   tooltips — `mode_local_tooltip`, `mode_network_tooltip`,
+   `mode_gb10_tooltip`, `discover_tooltip`,
    `manual_tooltip`, `skip_tooltip`, `continue_tooltip`, `back_tooltip`,
    `confirm_tooltip`, `url_tooltip`;
    scan surface — `scan_title`, `scan_subtitle`, `scan_rung_persisted`,
@@ -54,9 +56,15 @@ types English in a view.
 4. Append to `[connect]` in `wizard_copy.default.toml`, verbatim:
 
 ```toml
+# ── Third mode card (charter: local / network / gb10 — C4 wires the
+#    real ConnectionMode; the copy lands NOW so C4 never touches copy) ──
+mode_network_label = "Another machine on my network"
+mode_network_hint = "Clyffy runs on a different computer in your home or office."
+
 # ── Tooltips (mouseover, layman verbatim) ────────────────────────
-mode_local_tooltip = "Pick this if Clyffy runs on this computer or another machine in your home or office — the search checks both automatically."
-mode_gb10_tooltip = "Pick this if you have a GB10 box on your private mesh (Tailscale or Headscale). The search checks your mesh too."
+mode_local_tooltip = "Pick this if Clyffy runs right here on this computer — the search checks this machine first."
+mode_network_tooltip = "Pick this if Clyffy runs on another machine in your home or office — the search asks your network (mDNS) and your mesh."
+mode_gb10_tooltip = "Pick this if you have a GB10 box on your private mesh (Tailscale or Headscale). The search checks your mesh and your config."
 discover_tooltip = "Searches five places in order: your saved endpoint, your config file, this machine, your home network, and your private mesh. Everything you see really happened."
 manual_tooltip = "Already know the address? Type it in yourself — like http://clyffy.local:8080."
 skip_tooltip = "DevPulse keeps working without AI. The badge in the corner brings you back here whenever you're ready."

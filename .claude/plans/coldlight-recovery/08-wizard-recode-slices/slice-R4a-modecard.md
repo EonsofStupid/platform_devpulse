@@ -96,14 +96,16 @@ export interface ModeCardProps {
 </Tooltip>
 ```
 
-   - Scoped CSS (layout + sanctioned overlay + motion, tokens only):
+   - Hover/active MOTION comes from the PRESET STATE LEAVES landed in R3a
+     (`wizard-elevated-hover` = depth pop + brighter edge;
+     `wizard-elevated-active` = press-in) — the universal mechanism, ZERO
+     scoped effect CSS in this component. Verify on HMR that hovering a mode
+     card visibly lifts via the emitted leaf; if the leaf mechanism requires
+     a prop/attr on Card (per R3a's step-0 probe record), wire exactly that.
+   - Scoped CSS (LAYOUT ONLY + the one sanctioned overlay):
      - `:global(.mode-card)` — column flex, `gap: clamp(0.375rem, 0.8cqi, 0.5rem)`,
        `padding: clamp(0.875rem, 1.6cqi, 1.125rem)`, `text-align: left`,
-       `cursor: pointer`, `width: 100%`,
-       `transition: transform var(--duration-fast) ease`.
-     - `:global(.mode-card:hover:not(:disabled))` —
-       `transform: translateY(-0.125rem);` (the motion requirement — lift,
-       not glow).
+       `cursor: pointer`, `width: 100%`.
      - `:global(.mode-card[data-selected])` — MOVE the existing Lock #6
        overlay VERBATIM from EndpointView.svelte:349-354 (blue-tinted glass
        `var(--glass-blue)`, `color-mix` CTA edge, the token-bound shadow

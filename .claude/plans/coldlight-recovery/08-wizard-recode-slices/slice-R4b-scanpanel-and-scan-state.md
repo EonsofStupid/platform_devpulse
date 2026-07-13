@@ -134,19 +134,28 @@ export interface ScanPanelProps {
 </Card>
 ```
 
-   - The sweep animation (the "cool scanning" motion — REAL-state-gated):
-     a `.scan-sweep` disc in the header — scoped CSS,
+   - The sweep animation (the "cool scanning" motion — REAL-state-gated,
+     UNIVERSAL effect): a `.scan-sweep` disc in the header binding the
+     `cl-radar-sweep` keyframe landed in R3a via the keyframes SSOT's OWN
+     documented consumption pattern (keyframes.css header:
+     `class="animate-[cl-radar-sweep_2s_linear_infinite]"` — the 2s/linear
+     mirror the `radar-sweep` animation token verbatim). ZERO scoped
+     `@keyframes` — the keyframe lives in the SSOT, usable by any surface.
+     Disc paint = tokens only:
      `background: conic-gradient(from 0deg, var(--cta-main), transparent 70%)`,
-     `border-radius: 50%`, size `clamp(1rem, 2cqi, 1.5rem)`,
-     `animation: sweep var(--duration-slower, 2s) linear infinite` with
-     `@keyframes sweep { to { transform: rotate(360deg); } }` —
-     RENDERED ONLY inside `{#if phase === "searching"}`. When done it is
+     `border-radius: 50%`, size `clamp(1rem, 2cqi, 1.5rem)`.
+     RENDERED ONLY inside `{#if phase === "searching"}` — when done it is
      REPLACED by a static state dot (`Badge` or token-colored dot). The
-     animation cannot outlive the real scan. Honor reduced motion:
-     `@media (prefers-reduced-motion: reduce) { .scan-sweep { animation: none; } }`.
+     animation cannot outlive the real scan. Reduced motion: probe for a
+     global reduced-motion guard over the `animate-[…]` utilities
+     (`grep -rn "prefers-reduced-motion" src/app.css src/lib/design/generated/ src/styles/ | head`);
+     if none exists, the component adds the one a11y guard
+     `@media (prefers-reduced-motion: reduce) { .scan-sweep { animation: none; } }`
+     (an a11y override, not an effect definition — BackgroundScene precedent).
    - Row status transitions animate via
      `transition: color var(--duration-fast) ease` — motion, no glow.
-   - All scoped CSS: layout + tokens only; rem + cqi.
+   - All scoped CSS: layout + tokens only; rem + cqi. NO `@keyframes` in this
+     file — verify step greps for it.
 4. Rewire `EndpointView.svelte`:
    - Delete local `discovery`/`found`/`discoverError` runes and the
      found-only `onMount` listener.
@@ -179,7 +188,9 @@ wizard.types.ts.
 ## VERIFY
 
 Step 5 output · diff-stat = 4 files · the repoint grep · grep ScanPanel.svelte
-for `setTimeout|setInterval|Math.random` → ZERO (no fabricated progress).
+for `setTimeout|setInterval|Math.random` → ZERO (no fabricated progress) ·
+grep ScanPanel.svelte for `@keyframes` → ZERO (effects are universal — the
+keyframe lives in the SSOT).
 
 ## KNOWN REDS
 

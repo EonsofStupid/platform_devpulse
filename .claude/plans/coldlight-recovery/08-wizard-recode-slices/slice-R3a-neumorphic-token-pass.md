@@ -1,11 +1,16 @@
-# R3a — neumorphic token pass: stark bevel depth on the wizard family + wizard-inset
+# R3a — universal-effects token pass: stark neumorphic wizard family with STATE LEAVES
 
 ## GOAL
 
-Give the wizard presets STARK NEUMORPHISM — crisp hairline edges + the
-hand-authored bevel relief stacks (zero glow) — and add the `wizard-inset`
-preset (pressed/inset well) for input fields and the scan surface interior.
-All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
+Give the wizard presets STARK NEUMORPHISM the way the system already does it
+UNIVERSALLY: crisp hairline edges + the hand-authored bevel relief stacks
+(zero glow), interaction STATE LEAVES mirroring the neuro family's mechanism
+(`-hover` / `-active`), the `wizard-inset` pressed well, and the ONE new
+universal keyframe the scan surface needs (`cl-radar-sweep`) added to the
+keyframes SSOT + animation token mirror. All in SD5 TOKEN SOURCES + the
+keyframes SSOT; the build emits; components ONLY wear presets/utilities.
+**OPERATOR LAW (2026-07-14): effects, colors, design are UNIVERSALLY
+available — NO wizard-scoped effect CSS, ever.**
 
 ## Why this is bind-not-invent (audit facts)
 
@@ -15,6 +20,20 @@ All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
   `src/lib/design/styles/primitives/bevel.css:8-12+` as `--bevel-*`.
 - Depth stacks: `--depth-z1/z2/z3` emitted at
   `src/lib/design/styles/primitives/shadow.css:8+`.
+- **The universal state-leaf mechanism ALREADY EXISTS**:
+  `tokens/src/presets/neuro.tokens.json` declares `neuro-{deep,elevated,glow,
+  minimal,muted,solid}` each with `-hover/-active/-disabled` override leaves.
+  The wizard family gets the SAME mechanism — probe how the build emits the
+  neuro `-hover` leaves (grep `components.generated.css` for `neuro-elevated`
+  and record whether it becomes a `:hover` rule, a `[data-state]` rule, or a
+  var overlay) and mirror THAT mechanism exactly for wizard leaves.
+- **The keyframes SSOT + its law ALREADY EXIST**:
+  `src/lib/design/generated/keyframes.css` header — "No component `<style>`
+  blocks. No hand-rolled keyframes in components." New keyframes are added
+  THERE (prefixed `cl-`) and mirrored into
+  `tokens/src/semantic/motion/animation.tokens.json` (its documented rule).
+  Existing entrance animations (`fade-in`, `slide-up`, `scale-in`) already
+  cover the found-card entrance — R4c reuses them, no new keyframe.
 - `CardPreset = SemanticIntent | PresetId | (string & {})`
   (`components/card/card.types.ts:11`) — open string; NO type edit needed for
   a new preset name.
@@ -36,8 +55,15 @@ All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
 ## FILES
 
 1. `interfaces/desktop/scripts/build/styledictionary/tokens/src/presets/wizard.tokens.json`
-   — box-shadow rebinds + the new `wizard-inset` preset entry.
-2. Regenerated artifacts (exempt from file budget, must be committed):
+   — box-shadow rebinds + `wizard-inset` + STATE LEAVES
+   (`wizard-elevated-hover`, `wizard-elevated-active`, `wizard-inset-hover`)
+   mirroring the neuro leaf mechanism.
+2. `interfaces/desktop/src/lib/design/generated/keyframes.css` — add
+   `cl-radar-sweep` (this file IS the hand-authored SSOT per its own header;
+   "generated/" is its pending-generator location, not a ban).
+3. `interfaces/desktop/scripts/build/styledictionary/tokens/src/semantic/motion/animation.tokens.json`
+   — mirror entry `radar-sweep` (per the keyframes SSOT rule).
+4. Regenerated artifacts (exempt from file budget, must be committed):
    `src/lib/design/styles/components/components.generated.css`,
    `src/lib/design/renderforge/generated/kind-families.ts`, and whatever else
    `ds:tokens:build` stamps (`git status` after build tells the truth —
@@ -46,6 +72,14 @@ All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
 
 ## STEPS
 
+0. MECHANISM PROBE (before any edit): the neuro family's state leaves are the
+   template. Run
+   `grep -n "neuro-elevated-hover\|neuro-elevated:hover\|data-preset=\"neuro-elevated\"" src/lib/design/styles/components/components.generated.css | head`
+   and read the surrounding emitted block. Record EXACTLY how a `-hover` leaf
+   reaches the DOM (`:hover` selector on the preset attribute, `[data-state]`
+   overlay, or var swap). Every wizard state leaf below is authored so the
+   BUILD emits the identical mechanism. If neuro leaves emit NOTHING (dead
+   tokens), STOP and report — do not invent a mechanism.
 1. Read `wizard.tokens.json` in full (137 lines).
 2. Edit box-shadow values ONLY (hues, gradients, ladder untouched):
    - `wizard-deep.box-shadow.$value`:
@@ -56,6 +90,18 @@ All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
    - `wizard-elevated.box-shadow.$value`:
      `"var(--depth-z1)"` → `"var(--depth-z2), var(--bevel-soft)"`
      (interactive wells: raised relief, 3-layer soft bevel)
+2b. Add STATE LEAVES for the interactive presets, mirroring the neuro leaf
+   naming + the step-0 mechanism (values compose ONLY existing primitives):
+   - `wizard-elevated-hover`: box-shadow
+     `"var(--depth-z3), var(--bevel-medium)"` + border-color
+     `"color-mix(in oklch, var(--accent-cyan-main) 60%, transparent)"`
+     (the perceived LIFT on hover — deeper drop + stronger relief + brighter
+     edge; motion-feel via the preset chain, NOT a scoped transform)
+   - `wizard-elevated-active`: box-shadow `"var(--bevel-pressed)"`
+     (press-in on click — the inverted relief)
+   - `wizard-inset-hover`: border-color
+     `"color-mix(in oklch, var(--accent-blue-main) 45%, transparent)"`
+     (focus-invitation on the well edge; shadow unchanged)
 3. Append the fourth preset inside the same `"preset"` object, verbatim:
 
 ```json
@@ -99,6 +145,33 @@ All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
    (Lightness 0.13 sits between the 0.08 void and the 0.16 shell — the
    carved-in rung of the established ladder. It is a SEED value in the token
    SOURCE, same legitimacy as the W0 ladder seeds.)
+3b. UNIVERSAL KEYFRAME — the scan sweep. In `keyframes.css` (read its header
+   first; follow its rules exactly), append:
+
+```css
+@keyframes cl-radar-sweep {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+```
+
+   And mirror in `animation.tokens.json` (same shape as the existing
+   `pulse-glow` entry, verbatim):
+
+```json
+"radar-sweep": {
+	"$value": { "value": 2, "unit": "s" },
+	"$description": "Radar sweep rotation — infinite linear; scanning/searching surfaces.",
+	"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-radar-sweep", "easing": [0, 0, 1, 1], "iterationCount": "infinite" } } }
+}
+```
+
+   NO found-card entrance keyframe is added — `fade-in` / `slide-up` already
+   exist in this file (R4c reuses them).
 4. `cd interfaces/desktop && pnpm ds:tokens:build` → exit 0.
 5. Emitted-truth probes (paste raw output):
    - `grep -n "preset-wizard-deep-box-shadow" src/lib/design/styles/components/components.generated.css`
@@ -107,12 +180,15 @@ All in the SD5 TOKEN SOURCE; the build emits; components just wear presets.
      → contains `var(--depth-z2), var(--bevel-soft)`
    - `grep -n "preset-wizard-inset" …components.generated.css` → the new
      preset's full axis block emitted
+   - `grep -n "wizard-elevated-hover\|wizard-elevated-active\|wizard-inset-hover" …components.generated.css`
+     → emitted via the SAME mechanism the step-0 probe recorded for neuro
    - `grep -n "wizard-inset" src/lib/design/renderforge/generated/kind-families.ts`
      → one auto-registered row
+   - `grep -n "cl-radar-sweep" src/lib/design/generated/keyframes.css` → 1 hit
    - `grep -n "glow" …components.generated.css | grep "preset-wizard"` → ZERO
      hits (crisp-edges ruling holds)
 6. `pnpm check` → 0/0.
-7. Commit + push: `feat(coldlight): stark neumorphic wizard family — bevel relief + wizard-inset well (zero glow)`.
+7. Commit + push: `feat(coldlight): stark neumorphic wizard family — state leaves, wizard-inset, cl-radar-sweep (universal, zero glow)`.
 
 ## IMPORT REPOINTS
 

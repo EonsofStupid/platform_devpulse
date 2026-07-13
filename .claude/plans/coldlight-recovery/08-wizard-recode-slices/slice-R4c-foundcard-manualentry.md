@@ -68,12 +68,17 @@ export interface ManualEntryProps {
    - Confirm `<Button preset="primary" size="sm">` wrapped in the Tooltip
      trio (confirmTooltip), `disabled={working}`,
      `onclick={() => onConfirm(endpoint.url)}`.
-   - Entrance motion (real event → motion): the card animates in with a
-     one-shot scoped `@keyframes found-in { from { opacity: 0; transform:
-     translateY(0.375rem); } }` bound as `animation: found-in
-     var(--duration-normal) ease both;` — fires exactly when a VERIFIED
-     endpoint materializes (mount = a real `found` signal). Reduced-motion
-     media rule disables it.
+   - Entrance motion (real event → motion, UNIVERSAL effect): the card
+     animates in with the EXISTING universal `slide-up` animation
+     (keyframes.css + animation.tokens.json — 300ms, one-shot forwards),
+     bound via the SSOT's documented utility pattern
+     (`class="animate-[slide-up_300ms_cubic-bezier(0,0,0.2,1)_forwards]"` —
+     read keyframes.css first for the keyframe's EXACT emitted name
+     (`slide-up` vs `cl-slide-up`) and mirror the token's duration/easing
+     verbatim). ZERO scoped `@keyframes`. Fires exactly when a VERIFIED
+     endpoint materializes (mount = a real `found` signal). Reduced-motion:
+     same global-guard probe as R4b — add the one a11y `animation: none`
+     media override only if no global guard exists.
    - Move `.found-meta`/`.found-badges` layout rules in.
 3. `ui/ManualEntry.svelte`:
    - `<Card preset="wizard-inset" class="manual-panel">` — the carved-in well
@@ -112,7 +117,9 @@ New components consumed only by EndpointView (grep-verified as in R4a/R4b).
 
 ## VERIFY
 
-Step 5 · diff-stat = 4 files · `grep -c "Card preset=\"wizard-elevated\"" EndpointView.svelte` → 0 (all wells are variants now).
+Step 5 · diff-stat = 4 files · `grep -c "Card preset=\"wizard-elevated\"" EndpointView.svelte` → 0 (all wells are variants now) ·
+`grep -c "@keyframes" ui/FoundEndpointCard.svelte ui/ManualEntry.svelte` → 0
+(effects are universal).
 
 ## KNOWN REDS
 

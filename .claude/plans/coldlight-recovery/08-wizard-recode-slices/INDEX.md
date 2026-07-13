@@ -55,15 +55,25 @@ operator fires each slice (`/coldlight-execute` semantics — never auto-chain).
   pre-broken baseline; 106 pre-existing vitest failures (V1-F1); Sonar
   React-hook rule on `*.svelte.ts` is rule-scoping noise.
 
-## OPEN questions (operator answers with the approval — defaults stated)
+## RULED by the operator (2026-07-14 — no longer open)
 
-1. **Q-1 (old Q-C1)** — `clyffy-collab` view in the forward flow? Default
-   (recommended): OUT of `VIEW_ORDER` (stays on disk, reachable by `goTo`,
-   becomes the agent-popup "enable assist" moment per 07's popup track). R6
-   executes whichever you rule.
-2. **Q-2 (old Q-C4)** — mode cards in THIS family stay layman guidance
-   (tooltip-explained, discovery covers all modes); real `ConnectionMode`
-   rung-filtering remains 04/C4 later. Default (recommended): yes, guidance.
+1. **Q-1 — RULED: "yes enable assist."** `clyffy-collab` leaves `VIEW_ORDER`
+   (stays on disk, reachable by `goTo`) and becomes the agent-popup
+   "enable assist" moment per 07's popup track. R6 executes this.
+2. **Q-2 — RULED: plan 04 happens in full.** Modes become REAL
+   (`ConnectionMode` local / network / gb10 filtering discovery rungs) —
+   planned as slice C4 in `../09-connection-slices/`. R2 carries the third
+   mode card's copy so C4 never touches copy; R4a builds ModeCard so C4 only
+   adds the third instance + the mode wire.
+3. **UNIVERSAL EFFECTS LAW (operator, 2026-07-14)** — effects, colors, and
+   design live in the UNIVERSAL pipeline only: keyframes SSOT
+   (`generated/keyframes.css` + `animation.tokens.json` mirror), preset state
+   leaves (neuro-family mechanism), primitives (bevel/depth). Wizard
+   components carry ZERO scoped effect CSS — scoped `<style>` = layout + the
+   one sanctioned Lock #6 overlay + a11y reduced-motion guards ONLY. Every R4
+   slice verifies `@keyframes`-in-component = 0. The flow is: runtime styles
+   folder (build-emitted) → component WEARS it by preset reference →
+   colocated typed variant in the domain — plug-n-play.
 
 ## What this family does NOT touch (planned elsewhere, deferred ≠ retired)
 
