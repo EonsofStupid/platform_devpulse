@@ -45927,7 +45927,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-deep-box-shadow",
-				"value": "var(--depth-z3), var(--glow-blue)",
+				"value": "var(--depth-z3)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46047,7 +46047,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-solid-box-shadow",
-				"value": "var(--depth-z2), var(--glow-purple), var(--bevel-subtle)",
+				"value": "var(--depth-z2), var(--bevel-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46155,7 +46155,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-elevated-box-shadow",
-				"value": "var(--depth-z1), var(--glow-teal)",
+				"value": "var(--depth-z1)",
 				"type": "string",
 				"extensions": null
 			},

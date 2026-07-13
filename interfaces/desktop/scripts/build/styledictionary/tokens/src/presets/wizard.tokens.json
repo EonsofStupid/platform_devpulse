@@ -22,7 +22,7 @@
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "var(--depth-z3), var(--glow-blue)",
+				"$value": "var(--depth-z3)",
 				"$type": "string"
 			},
 			"color": {
@@ -65,7 +65,7 @@
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "var(--depth-z2), var(--glow-purple), var(--bevel-subtle)",
+				"$value": "var(--depth-z2), var(--bevel-subtle)",
 				"$type": "string"
 			},
 			"color": {
@@ -104,7 +104,7 @@
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "var(--depth-z1), var(--glow-teal)",
+				"$value": "var(--depth-z1)",
 				"$type": "string"
 			},
 			"color": {

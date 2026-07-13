@@ -92,10 +92,12 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 			</Text>
 		</header>
 
-		<!-- Tier 3: inner content panel — wizard violet tint. -->
-		<Card preset="wizard-solid" class="shell-body">
+		<!-- Content field — flows directly on the ONE shell. The nested
+		     wizard-solid Card wrapper died 2026-07-13 (operator ruling:
+		     max two chromes — shell + interactive wells; crisp edges). -->
+		<div class="shell-body">
 			{@render children()}
-		</Card>
+		</div>
 
 		<footer class="shell-foot">
 			{@render footer()}
