@@ -86,7 +86,7 @@ function dismiss() {
 	}
 	.dismiss:hover {
 		color: var(--text-primary);
-		background: var(--surface-pressed, color-mix(in oklch, var(--text-primary) 10%, transparent));
+		background: var(--interaction-active);
 	}
 	.event-card[data-tone="success"] { border-color: color-mix(in oklch, var(--signal-success) 35%, var(--border-subtle)); }
 	.event-card[data-tone="warning"] { border-color: color-mix(in oklch, var(--signal-warning) 35%, var(--border-subtle)); }

@@ -335,7 +335,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							step="512"
 							bind:value={cfgDraft.context_size}
 							class="w-full max-w-80"
-							style="accent-color: var(--accent-teal-main);"
+							style="accent-color: var(--accent-primary-main);"
 						/>
 						<Text size="xs" color="muted">Clamped to [512, 131,072].</Text>
 					</div>
@@ -502,7 +502,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			{#if error}
 				<div
 					class="p-3 rounded-lg text-sm"
-					style="background: var(--signal-error-subtle, #3b1a1a); border: 1px solid var(--signal-error); color: var(--text-primary); max-width: 30rem;"
+					style="background: color-mix(in oklch, var(--signal-error) 18%, transparent); border: 1px solid var(--signal-error); color: var(--text-primary); max-width: 30rem;"
 				>
 					{error}
 				</div>

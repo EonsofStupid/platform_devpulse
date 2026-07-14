@@ -5763,7 +5763,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5835,7 +5835,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5895,7 +5895,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5907,7 +5907,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6003,7 +6003,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6075,7 +6075,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6135,7 +6135,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6147,7 +6147,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6243,7 +6243,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-stark-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6375,7 +6375,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-stark-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6483,7 +6483,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-flat-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6615,7 +6615,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-flat-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6723,7 +6723,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6795,7 +6795,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6855,7 +6855,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6867,7 +6867,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6963,7 +6963,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-default-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7011,7 +7011,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-default-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7035,7 +7035,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-default-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7095,7 +7095,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-default-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7203,7 +7203,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-glass-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7251,7 +7251,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-glass-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7275,7 +7275,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7335,7 +7335,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7347,7 +7347,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7443,7 +7443,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-stark-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7575,7 +7575,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-stark-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7683,7 +7683,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-flat-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7815,7 +7815,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-flat-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7923,7 +7923,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-matte-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7971,7 +7971,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-matte-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7995,7 +7995,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-matte-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -8055,7 +8055,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-matte-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -22382,6 +22382,17 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "backdrop-glow-primary",
+				"path": [
+					"backdrop-glow",
+					"primary"
+				],
+				"cssVar": "--backdrop-glow-primary",
+				"value": "color-mix(in oklch, [object Object] 35%, transparent)",
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "backdrop-glow-teal",
 				"path": [
 					"backdrop-glow",
@@ -22507,6 +22518,17 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "backdrop-grid-primary",
+				"path": [
+					"backdrop-grid",
+					"primary"
+				],
+				"cssVar": "--backdrop-grid-primary",
+				"value": "color-mix(in oklch, [object Object] 8%, transparent)",
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "backdrop-grid-teal",
 				"path": [
 					"backdrop-grid",
@@ -22611,6 +22633,20 @@
 	"backdrop-grid-size": {
 		"extensions": {},
 		"tokens": [
+			{
+				"name": "backdrop-grid-size-primary",
+				"path": [
+					"backdrop-grid-size",
+					"primary"
+				],
+				"cssVar": "--backdrop-grid-size-primary",
+				"value": {
+					"value": 3,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
 			{
 				"name": "backdrop-grid-size-neural",
 				"path": [
@@ -28622,10 +28658,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.55,
-						0.12,
-						170
+						0.14,
+						240
 					],
-					"hex": "#048568"
+					"hex": "#2079ad"
 				},
 				"type": "color",
 				"extensions": null
@@ -28650,7 +28686,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-box-shadow",
-				"value": "0 0 1rem 0 oklch(from [object Object] l c h / 0.35)",
+				"value": "0 0 1rem 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28665,11 +28701,11 @@
 				"value": {
 					"colorSpace": "oklch",
 					"components": [
-						0.97,
+						0.95,
 						0.01,
 						220
 					],
-					"hex": "#eef7fa"
+					"hex": "#e8f0f3"
 				},
 				"type": "color",
 				"extensions": null
@@ -28682,7 +28718,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-border-color",
-				"value": "oklch(0.6 0.12 180 / 0.4)",
+				"value": "color-mix(in oklch, [object Object] 60%, transparent)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28866,15 +28902,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-hover-background-color",
-				"value": {
-					"colorSpace": "oklch",
-					"components": [
-						0.46,
-						0.12,
-						170
-					],
-					"hex": "#0c6750"
-				},
+				"value": "color-mix(in oklch, [object Object] 82%, black 12%)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28886,7 +28914,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-hover-box-shadow",
-				"value": "0 0 1.5rem 0.125rem oklch(from [object Object] l c h / 0.5)",
+				"value": "0 0 1.5rem 0.125rem [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28898,7 +28926,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-hover-border-color",
-				"value": "oklch(from [object Object] l c h / 0.5)",
+				"value": "color-mix(in oklch, [object Object] 78%, transparent)",
 				"type": "color",
 				"extensions": null
 			},
@@ -28910,7 +28938,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-active-background-color",
-				"value": "oklch(0.42 0.12 180)",
+				"value": "color-mix(in oklch, [object Object] 66%, black 28%)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29482,7 +29510,15 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-destructive-background-color",
-				"value": "oklch(0.45 0.18 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.6,
+						0.2,
+						25
+					],
+					"hex": "#de3b3d"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -29506,7 +29542,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-destructive-box-shadow",
-				"value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+				"value": "0 0 1rem 0 [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -29722,7 +29758,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-destructive-hover-background-color",
-				"value": "oklch(0.4 0.17 25)",
+				"value": "color-mix(in oklch, [object Object] 82%, black 12%)",
 				"type": "color",
 				"extensions": null
 			},
@@ -29734,7 +29770,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-destructive-hover-box-shadow",
-				"value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+				"value": "0 0 1.5rem 0.125rem [object Object]",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42955,7 +42991,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-glow-hover-color",
-				"value": "oklch(0.95 0.25 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.97,
+						0.16,
+						340
+					],
+					"hex": "#f5f5f5"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -42967,7 +43011,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-retro-glow-hover-box-shadow",
-				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
+				"value": "0.1875rem 0.1875rem 0 0 oklch(from [object Object] l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(from [object Object] l c h / 0.5), 0 0 2rem 0 oklch(from [object Object] l c h / 0.2)",
 				"type": "shadow",
 				"extensions": null
 			},
@@ -42979,7 +43023,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-retro-glow-hover-border-color",
-				"value": "oklch(0.85 0.28 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.81,
+						0.16,
+						340
+					],
+					"hex": "#fe9ade"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43011,7 +43063,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-glow-disabled-color",
-				"value": "oklch(0.4 0.05 330)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.14,
+						330
+					],
+					"hex": "#651962"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43295,7 +43355,15 @@
 					"color"
 				],
 				"cssVar": "--preset-retro-muted-hover-color",
-				"value": "oklch(0.65 0.03 200)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.06,
+						220
+					],
+					"hex": "#6598a9"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -43827,7 +43895,15 @@
 					"color"
 				],
 				"cssVar": "--preset-stark-deep-color",
-				"value": "oklch(0.92 0.04 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.08,
+						173
+					],
+					"hex": "#a3edd6"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -44187,7 +44263,15 @@
 					"border-color"
 				],
 				"cssVar": "--preset-stark-deep-disabled-border-color",
-				"value": "oklch(0.4 0.02 180)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.37,
+						0.01,
+						220
+					],
+					"hex": "#3a4143"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -45051,7 +45135,15 @@
 					"color"
 				],
 				"cssVar": "--preset-stark-glow-color",
-				"value": "oklch(0.92 0.08 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.89,
+						0.12,
+						25
+					],
+					"hex": "#ffcdc8"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -45279,7 +45371,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-stark-glow-hover-border-color",
-				"value": "oklch(0.7 0.25 25 / 0.7)",
+				"value": "oklch(from [object Object] l c h / 0.7)",
 				"type": "color",
 				"extensions": null
 			},
@@ -45355,7 +45447,15 @@
 					"color"
 				],
 				"cssVar": "--preset-stark-glow-disabled-color",
-				"value": "oklch(0.55 0.02 25)",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0,
+						0
+					],
+					"hex": "#717171"
+				},
 				"type": "color",
 				"extensions": null
 			},
@@ -45379,7 +45479,7 @@
 					"border-color"
 				],
 				"cssVar": "--preset-stark-glow-disabled-border-color",
-				"value": "oklch(0.4 0.05 25 / 0.25)",
+				"value": "oklch(from [object Object] l c h / 0.25)",
 				"type": "color",
 				"extensions": null
 			},
@@ -45791,7 +45891,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-deep-background-color",
-				"value": "var(--glass-blue)",
+				"value": "oklch(0.16 0.05 240 / 0.94)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45803,7 +45903,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-deep-gradient",
-				"value": "var(--gradient-surface-brand-blue)",
+				"value": "linear-gradient(180deg, oklch(0.19 0.055 240) 0%, oklch(0.12 0.05 240) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45827,7 +45927,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-deep-box-shadow",
-				"value": "var(--depth-z3), var(--glow-blue)",
+				"value": "var(--depth-z3)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45911,7 +46011,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-solid-background-color",
-				"value": "var(--glass-purple)",
+				"value": "oklch(0.2 0.045 300 / 0.96)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45923,7 +46023,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-solid-gradient",
-				"value": "var(--gradient-surface-purple)",
+				"value": "linear-gradient(180deg, oklch(0.22 0.05 300) 0%, oklch(0.15 0.045 300) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45947,7 +46047,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-solid-box-shadow",
-				"value": "var(--depth-z2), var(--glow-purple), var(--bevel-subtle)",
+				"value": "var(--depth-z2), var(--bevel-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46019,7 +46119,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-elevated-background-color",
-				"value": "var(--glass-teal)",
+				"value": "oklch(0.24 0.04 195 / 0.94)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46031,7 +46131,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-elevated-gradient",
-				"value": "var(--gradient-surface-brand-cyan)",
+				"value": "linear-gradient(180deg, oklch(0.26 0.045 195) 0%, oklch(0.19 0.04 195) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46055,7 +46155,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-elevated-box-shadow",
-				"value": "var(--depth-z1), var(--glow-teal)",
+				"value": "var(--depth-z1)",
 				"type": "string",
 				"extensions": null
 			},

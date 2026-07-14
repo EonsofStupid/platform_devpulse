@@ -200,7 +200,7 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 		border: 0.0625rem solid var(--border-subtle);
 		border-radius: var(--radius-md, 0.375rem);
 		background: var(--surface-raised);
-		color: var(--text-default);
+		color: var(--text-primary);
 		font: inherit;
 		text-align: left;
 		cursor: pointer;

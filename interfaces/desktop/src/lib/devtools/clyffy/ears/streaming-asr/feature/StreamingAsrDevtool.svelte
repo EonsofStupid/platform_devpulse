@@ -125,7 +125,7 @@ async function stopMic(): Promise<void> {
 			{#if sherpaState.compileInfo && !sherpaState.featureEnabled}
 				<div
 					class="p-4 rounded-lg"
-					style="background: var(--signal-warn-subtle, #3b2a1a); border: 1px solid var(--signal-warn, #d97706); color: var(--text-primary);"
+					style="background: color-mix(in oklch, var(--signal-warning) 18%, transparent); border: 1px solid var(--signal-warning); color: var(--text-primary);"
 				>
 					<Text size="sm" weight="bold">
 						Not available in this build

@@ -154,7 +154,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.92 0.04 180)",
+				"$value": "{color.teal.100}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -264,7 +264,7 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(0.4 0.02 180)",
+				"$value": "{color.void.700}",
 				"$type": "color"
 			}
 		},
@@ -530,7 +530,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.92 0.08 25)",
+				"$value": "{color.ember.100}",
 				"$type": "color"
 			},
 			"border-color": {
@@ -606,7 +606,7 @@
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "oklch(0.7 0.25 25 / 0.7)",
+				"$value": "oklch(from {accent.salmon.glow} l c h / 0.7)",
 				"$type": "color"
 			}
 		},
@@ -632,7 +632,7 @@
 				"$type": "color"
 			},
 			"color": {
-				"$value": "oklch(0.55 0.02 25)",
+				"$value": "{color.neutral.500}",
 				"$type": "color"
 			},
 			"opacity": {
@@ -640,7 +640,7 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(0.4 0.05 25 / 0.25)",
+				"$value": "oklch(from {color.ember.700} l c h / 0.25)",
 				"$type": "color"
 			},
 			"animation": {

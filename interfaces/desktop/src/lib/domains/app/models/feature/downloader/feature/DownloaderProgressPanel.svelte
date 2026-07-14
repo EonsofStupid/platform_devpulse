@@ -139,8 +139,8 @@ async function handleCancel(): Promise<void> {
 	.progress-panel__repo {
 		margin: 0;
 		font-size: var(--space-12);
-		font-family: var(--font-family-mono, monospace);
-		color: var(--accent-teal-main);
+		font-family: var(--font-mono);
+		color: var(--accent-primary-main);
 		text-align: center;
 	}
 

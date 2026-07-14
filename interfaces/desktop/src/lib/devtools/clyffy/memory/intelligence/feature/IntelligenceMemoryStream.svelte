@@ -273,7 +273,7 @@ function formatAge(createdAt: number): string {
 		padding: 0.0625rem 0.3125rem;
 		font-family: var(--font-mono, ui-monospace, monospace);
 		font-size: 0.8125rem;
-		color: var(--text-default);
+		color: var(--text-primary);
 		background: var(--surface-raised);
 		border-radius: 0.25rem;
 	}
@@ -304,7 +304,7 @@ function formatAge(createdAt: number): string {
 		border-color: color-mix(in oklch, var(--accent-teal-main) 40%, var(--border-subtle));
 	}
 	.card[data-state="saved"] {
-		border-color: color-mix(in oklch, var(--accent-positive-main, var(--accent-teal-main)) 50%, var(--border-subtle));
+		border-color: color-mix(in oklch, var(--accent-success-main) 50%, var(--border-subtle));
 	}
 
 	.card-strip {
@@ -318,7 +318,7 @@ function formatAge(createdAt: number): string {
 		background: var(--accent-teal-main);
 	}
 	.card[data-state="saved"] .card-strip {
-		background: var(--accent-positive-main, var(--accent-teal-main));
+		background: var(--accent-success-main);
 	}
 
 	.card-body {

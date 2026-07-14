@@ -261,6 +261,6 @@ let {
 		--accent-strip: var(--accent-hotpink-main);
 	}
 	.knowledge-card[data-accent="positive"] {
-		--accent-strip: var(--accent-positive-main, var(--accent-teal-main));
+		--accent-strip: var(--accent-success-main);
 	}
 </style>

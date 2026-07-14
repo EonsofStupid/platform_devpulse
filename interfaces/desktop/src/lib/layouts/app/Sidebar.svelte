@@ -115,7 +115,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 						<span
 							aria-label="Update available"
 							class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full"
-							style="background: var(--accent-positive-main)"
+							style="background: var(--accent-success-main)"
 						></span>
 					{/if}
 				</Button>

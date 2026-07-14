@@ -45,3 +45,17 @@ export type ScrollbarRecord = {
 	thumb: string;
 	"thumb-hover": string;
 };
+
+export const ScrollbarSizeTokens = ["width", "height", "radius"] as const;
+export type ScrollbarSizeToken = (typeof ScrollbarSizeTokens)[number];
+
+export type ScrollbarSizeCSSVar =
+	| "--scrollbar-size-width"
+	| "--scrollbar-size-height"
+	| "--scrollbar-size-radius";
+
+export type ScrollbarSizeRecord = {
+	width: string;
+	height: string;
+	radius: string;
+};

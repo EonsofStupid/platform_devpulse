@@ -1,11 +1,12 @@
 /**
- * SVG accent root fallbacks — teal as default brand accent.
- * Per-widget resolveSvgMacro() overrides these inline.
- * These ensure SVG preset tokens that reference --svg-accent-*
- * resolve to visible colors even before the resolver runs.
+ * SVG accent root fallbacks — the ACCENT ROLE, not a hue (P2.4: the old
+ * teal pin was audit finding F4, one of the four mechanisms behind the
+ * monochrome-teal wash). Per-widget resolveSvgMacro() overrides inline;
+ * these keep --svg-accent-* visible before the resolver runs, following
+ * whatever the accent role is bound to (primary/blue by default).
  */
 :root {
-  --svg-accent-main: var(--accent-teal-main, currentColor);
-  --svg-accent-glow: var(--accent-teal-glow, transparent);
-  --svg-accent-fill: var(--accent-teal-fill, transparent);
+  --svg-accent-main: var(--accent-main, currentColor);
+  --svg-accent-glow: var(--accent-glow, transparent);
+  --svg-accent-fill: var(--accent-fill, transparent);
 }

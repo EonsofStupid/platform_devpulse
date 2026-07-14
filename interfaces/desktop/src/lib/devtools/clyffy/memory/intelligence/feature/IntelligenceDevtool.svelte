@@ -152,7 +152,7 @@ onMount(refresh);
 							class="rounded-lg border border-[var(--border-subtle)] overflow-hidden"
 						>
 							<table class="w-full text-sm">
-								<thead class="bg-[var(--surface-muted)]">
+								<thead class="bg-[var(--surface-subtle)]">
 									<tr>
 										<th class="text-left px-3 py-2 font-medium">Slug</th>
 										<th class="text-right px-3 py-2 font-medium">Memories</th>
@@ -261,7 +261,7 @@ onMount(refresh);
 						bind:value={probeFilename}
 						type="text"
 						placeholder="bge-reranker-v2-m3.gguf"
-						class="flex-1 px-2 py-1 rounded border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-sm font-mono"
+						class="flex-1 px-2 py-1 rounded border border-[var(--border-subtle)] bg-[var(--surface-raised)] text-sm font-mono"
 					/>
 					<Button onclick={probe} preset="primary" size="sm">Probe</Button>
 				</div>

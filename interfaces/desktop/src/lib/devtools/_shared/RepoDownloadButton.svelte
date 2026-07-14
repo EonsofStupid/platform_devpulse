@@ -266,7 +266,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 		>
 			<!-- Header -->
 			<div class="flex items-center gap-2">
-				<FileArchive size={18} style="color: var(--accent-teal-main);" />
+				<FileArchive size={18} style="color: var(--accent-primary-main);" />
 				<Text size="sm" weight="bold">
 					{slotId ? `Install to ${slotId}` : "Download repo"}
 				</Text>
@@ -345,7 +345,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 			{/if}
 
 			{#if stage === "done"}
-				<div class="rounded p-2 border" style="background: color-mix(in oklch, var(--accent-teal-fill) 40%, transparent); border-color: var(--accent-teal-main);">
+				<div class="rounded p-2 border" style="background: color-mix(in oklch, var(--accent-primary-fill) 40%, transparent); border-color: var(--accent-primary-main);">
 					<Text size="xs">
 						{slotId
 							? `Installing into ${slotId} — download → assign → load runs in the background. Watch the install lifecycle events for progress.`

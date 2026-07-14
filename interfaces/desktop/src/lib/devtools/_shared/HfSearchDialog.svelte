@@ -117,7 +117,7 @@ function onInstallStarted(ok: boolean): void {
 		>
 			<!-- Header -->
 			<div class="flex items-center gap-2">
-				<Search size={18} style="color: var(--accent-teal-main);" />
+				<Search size={18} style="color: var(--accent-primary-main);" />
 				<Text size="sm" weight="bold">Find a model for {slotId}</Text>
 				<button
 					type="button"

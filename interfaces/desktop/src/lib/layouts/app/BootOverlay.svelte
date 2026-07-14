@@ -211,7 +211,7 @@ $effect(() => {
 			<div
 				class={cn(
 					stack({ gap: "4", align: "start" }),
-					"w-full rounded-md border border-[var(--accent-red-main,oklch(0.62_0.22_25))] bg-[color-mix(in_oklch,var(--accent-red-main,oklch(0.62_0.22_25))_18%,var(--color-void-base,oklch(0.08_0.01_220)))] p-4",
+					"w-full rounded-md border border-[var(--accent-danger-main)] bg-[color-mix(in_oklch,var(--accent-danger-main)_18%,var(--color-void-base,oklch(0.08_0.01_220)))] p-4",
 				)}
 				role="alert"
 			>
@@ -225,7 +225,7 @@ $effect(() => {
 				>{bootFailureMessage}</pre>
 				<button
 					type="button"
-					class="pointer-events-auto rounded border border-[var(--accent-teal-main)] bg-[color-mix(in_oklch,var(--accent-teal-main)_18%,transparent)] px-3 py-1.5 text-xs hover:bg-[color-mix(in_oklch,var(--accent-teal-main)_28%,transparent)]"
+					class="pointer-events-auto rounded border border-[var(--accent-primary-main)] bg-[color-mix(in_oklch,var(--accent-primary-main)_18%,transparent)] px-3 py-1.5 text-xs hover:bg-[color-mix(in_oklch,var(--accent-primary-main)_28%,transparent)]"
 					onclick={openLogsFolder}
 				>
 					Open logs folder
@@ -237,7 +237,7 @@ $effect(() => {
 				<Text size="lg" weight="bold">DevPulse</Text>
 				<div class={hstack({ gap: "8", align: "center", justify: "center" })}>
 					<span
-						class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-teal-main)] shrink-0 animate-pulse"
+						class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-primary-main)] shrink-0 animate-pulse"
 					></span>
 					<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
 				</div>

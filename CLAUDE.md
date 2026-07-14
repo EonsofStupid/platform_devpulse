@@ -38,7 +38,7 @@ Pre-release — aggressive reauthoring, no shims.
 - `systems/infra/{devpulse-telemetry, devpulse-telemetry-macros}/` — peer
   infrastructure crates (upward-only dependency direction)
 - `interfaces/desktop/` — Tauri 2 + SvelteKit 5 app
-  - Devtool taxonomy SSOT: `src/lib/domains/platform/_shared/devtool-registry.ts`
+  - Devtool taxonomy SSOT: `src/lib/devtools/registry.ts`
     drives `/devtools/{tier}/{bucket}/{id}` — three tiers (System / Clyffy /
     Runtimes), each bucketed. Add a devtool = one registry entry + one route
     folder under that path.

@@ -512,7 +512,7 @@ function formatError(): string {
 	:global(.downloader-dialog__complete-icon) {
 		width: var(--space-48);
 		height: var(--space-48);
-		color: var(--accent-teal-main);
+		color: var(--accent-primary-main);
 	}
 
 	.downloader-dialog__phase-heading {
@@ -545,9 +545,9 @@ function formatError(): string {
 	}
 
 	.downloader-dialog__action--primary {
-		background: var(--accent-teal-fill);
-		border: 0.0625rem solid var(--accent-teal-main);
-		color: var(--accent-teal-main);
+		background: var(--accent-primary-fill);
+		border: 0.0625rem solid var(--accent-primary-main);
+		color: var(--accent-primary-main);
 	}
 
 	.downloader-dialog__action--primary:hover {
