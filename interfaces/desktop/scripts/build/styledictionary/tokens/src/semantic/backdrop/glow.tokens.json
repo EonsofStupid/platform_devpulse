@@ -2,7 +2,11 @@
 	"$description": "Hand-authored backdrop glow colours — radial/linear gradient centres per hub colour, used as page-level backdrop accents behind the circuit-board grid.",
 	"backdrop-glow": {
 		"$type": "color",
-		"$description": "Background glow colours keyed by hub accent.",
+		"$description": "Background glow colours keyed by hub accent, plus the semantic primary mirror (rebinds with the role).",
+		"primary": {
+			"$value": "color-mix(in oklch, {color.brand-blue.500} 35%, transparent)",
+			"$description": "Semantic-primary backdrop glow — promoted from the retired app.css S3 mirror (P2.4)."
+		},
 		"teal": {
 			"$value": { "colorSpace": "oklch", "components": [0.308, 0.0382, 190.54], "alpha": 0.302, "hex": "#163634" },
 			"$description": "DevPulse teal backdrop glow."

@@ -80,7 +80,6 @@ const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./color.css";
 @import "./shadow.css";
 @import "./bevel.css";
-@import "./glow.css";
 @import "./blur.css";
 @import "./surface.css";
 @import "./radius.css";
