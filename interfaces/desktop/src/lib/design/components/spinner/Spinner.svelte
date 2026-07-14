@@ -50,7 +50,7 @@ const SIZE: Record<SpinnerSize, string> = {
 const TONE_VAR: Record<SpinnerTone, string> = {
 	default: "var(--text-primary)",
 	muted: "var(--text-muted)",
-	accent: "var(--accent-primary-main)",
+	accent: "var(--accent-teal-main)",
 	success: "var(--signal-success)",
 	warning: "var(--signal-warning)",
 	error: "var(--signal-error)",

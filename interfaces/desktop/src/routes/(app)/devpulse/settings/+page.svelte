@@ -149,7 +149,7 @@ $effect(() => {
 		width: 100%;
 	}
 	.settings-input:focus {
-		border-color: var(--accent-primary-main);
+		border-color: var(--accent-teal-main);
 	}
 	.settings-input::placeholder {
 		color: var(--text-muted);
@@ -166,12 +166,12 @@ $effect(() => {
 		transition: all 150ms ease-out;
 	}
 	.level-btn:hover {
-		border-color: var(--accent-primary-main);
+		border-color: var(--accent-teal-main);
 		color: var(--text-secondary);
 	}
 	.level-active {
-		border-color: var(--accent-primary-main);
-		background: color-mix(in oklch, var(--accent-primary-main) 15%, transparent);
-		color: var(--accent-primary-main);
+		border-color: var(--accent-teal-main);
+		background: color-mix(in oklch, var(--accent-teal-main) 15%, transparent);
+		color: var(--accent-teal-main);
 	}
 </style>

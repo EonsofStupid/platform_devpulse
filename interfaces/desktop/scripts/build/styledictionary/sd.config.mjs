@@ -137,9 +137,7 @@ const layers = {
 const tw4Remap = {
 	topLevel: {
 		bevel: 'inset-shadow',
-		// glow → 'drop-shadow' remap REMOVED (P2.3): drop-shadow() cannot
-		// carry spread, so the Tailwind registration was semantically wrong
-		// and had zero consumers. Glow emits only as --glow-* in styles/.
+		glow: 'drop-shadow',
 		textSize: 'text',
 		space: 'spacing',
 		zIndex: 'z',
@@ -407,27 +405,20 @@ StyleDictionary.registerTransform({
 			}
 			return pxToRem(d);
 		};
-		// DTCG color object → oklch() (hex is the FALLBACK, not the value —
-		// checking hex first silently dropped every shadow/glow/bevel color
-		// out of the OKLCH system; audit 2026-07-11, fixed P2.3).
+		// DTCG color object → hex(+alpha)
 		const col = (c) => {
 			if (isPlainObj(c)) {
-				if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
-					const [l, ch, h] = c.components;
-					const alpha = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
-					return `oklch(${l} ${ch} ${h}${alpha})`;
-				}
-				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
-					const [r, g, b] = c.components;
-					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
-					return `#${h(r)}${h(g)}${h(b)}`;
-				}
 				if (typeof c.hex === 'string') {
 					if (typeof c.alpha === 'number' && c.alpha < 1) {
 						const a = Math.round(c.alpha * 255);
 						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
 					}
 					return c.hex;
+				}
+				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+					const [r, g, b] = c.components;
+					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+					return `#${h(r)}${h(g)}${h(b)}`;
 				}
 			}
 			return c;
@@ -1009,7 +1000,7 @@ const config = {
 				// vars — reconciled 2026-07-07. Do not remove without re-checking
 				// `var(--border-width-` / `var(--outline-offset-` consumers.
 				cssFile('border-width.css', pathFilter('borderWidth', 'outlineOffset'), layers.primitives),
-				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index'), layers.primitives),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion', 'duration', 'easing'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
@@ -1028,7 +1019,7 @@ const config = {
 				cssFile('transition.css', pathFilter('transition'), layers.semantic),
 				cssFile('interaction.css', pathFilter('interaction'), layers.semantic),
 				cssFile('overlay.css', pathFilter('overlay'), layers.semantic),
-				cssFile('scrollbar.css', pathFilter('scrollbar', 'scrollbar-size'), layers.semantic),
+				cssFile('scrollbar.css', pathFilter('scrollbar'), layers.semantic),
 				cssFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'), layers.semantic),
 				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
 			cssFile('text.css', pathFilter('text'), layers.semantic),
@@ -1087,6 +1078,7 @@ const config = {
 		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('shadow.css', pathFilter('shadow', 'depth'))] },
 		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
 		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
+		'theme-glow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('glow.css', pathFilter('glow', 'glowSpread'))] },
 		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
 		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
 		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
@@ -1107,7 +1099,7 @@ const config = {
 		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
 		'theme-interaction': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('interaction.css', pathFilter('interaction'))] },
 		'theme-overlay': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('overlay.css', pathFilter('overlay'))] },
-		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar', 'scrollbar-size'))] },
+		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
 		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'))] },
 		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
 		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
@@ -1136,7 +1128,7 @@ const config = {
 			files: [
 				typesFile('elevation.d.ts', pathFilter('elevation')),
 				typesFile('border.d.ts', pathFilter('border', 'borderPreset')),
-				typesFile('interaction.d.ts', pathFilter('interaction', 'overlay', 'scrollbar', 'scrollbar-size')),
+				typesFile('interaction.d.ts', pathFilter('interaction', 'overlay', 'scrollbar')),
 				typesFile('backdrop.d.ts', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line')),
 				typesFile('text.d.ts', pathFilter('text')),
 				typesFile('signal.d.ts', pathFilter('signal')),

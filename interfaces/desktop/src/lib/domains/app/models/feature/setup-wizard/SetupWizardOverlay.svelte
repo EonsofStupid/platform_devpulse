@@ -476,23 +476,6 @@ async function skipConnect(): Promise<void> {
 	}
 }
 
-/**
- * Cortex "Continue" — the connect flow is TWO steps (endpoint → cortex,
- * the shells label them "step 1 of 2 / 2 of 2"). With no local installs
- * dispatched (installsTotal === 0, the connect-first path), advancing
- * into `installing` strands the user on an empty view with no footer —
- * the auto-advance effect early-returns at zero installs (04 plan, B1).
- * Finish the flow at `complete` instead; the legacy preset→install path
- * (installsTotal > 0) keeps its original walk through `installing`.
- */
-function cortexContinue(): void {
-	if (installsTotal === 0) {
-		wizardState.goTo("complete");
-		return;
-	}
-	wizardState.next();
-}
-
 const callbacks: WizardCallbacks = {
 	onNext: () => wizardState.next(),
 	onBack: () => wizardState.back(),
@@ -541,7 +524,7 @@ const callbacks: WizardCallbacks = {
 			slotSaves={slotSaveEntries}
 			{busy}
 			onApplySlot={goToEndpoint}
-			callbacks={{ ...callbacks, onNext: cortexContinue }}
+			{callbacks}
 		/>
 	{:else if wizardState.view === "installing"}
 		<InstallingView

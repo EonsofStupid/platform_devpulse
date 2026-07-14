@@ -159,7 +159,7 @@ const dim = $derived(SIZE_REM[size]);
 		flex-shrink: 0;
 		overflow: hidden;
 		border-radius: var(--radius-full);
-		background: var(--surface-inset);
+		background: var(--surface-inset, transparent);
 	}
 
 	.clyffy-headshot__frame {

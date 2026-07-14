@@ -308,7 +308,7 @@ function handleKeydown(e: KeyboardEvent): void {
 								<div class="flex flex-col gap-1 rounded p-2" style="background: var(--surface-base); border: 1px solid var(--border-soft);">
 									<div class="flex items-center justify-between gap-2">
 										<div class="flex items-center gap-2 min-w-0">
-											<Globe size={14} style="color: var(--accent-purple-main); flex-shrink: 0;" />
+											<Globe size={14} style="color: var(--accent-purple); flex-shrink: 0;" />
 											<Text size="xs" weight="semibold" class="truncate">{ns.namespace}</Text>
 										</div>
 										<span

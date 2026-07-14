@@ -134,8 +134,8 @@ function formatCount(n: number): string {
 	}
 
 	.result-card__role[data-confidence="exact"] {
-		background: var(--accent-primary-fill);
-		color: var(--accent-primary-main);
+		background: var(--accent-teal-fill);
+		color: var(--accent-teal-main);
 	}
 
 	.result-card__role[data-confidence="high"] {

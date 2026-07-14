@@ -546,15 +546,15 @@
 		"retro-glow-hover": {
 			"$description": "retro-glow hover overrides",
 			"color": {
-				"$value": "{color.rose.50}",
+				"$value": "oklch(0.95 0.25 330)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0.1875rem 0.1875rem 0 0 oklch(from {color.black} l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(from {color.rose.200} l c h / 0.5), 0 0 2rem 0 oklch(from {color.rose.200} l c h / 0.2)",
+				"$value": "0.1875rem 0.1875rem 0 0 oklch(from {color.black} l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "{color.rose.200}",
+				"$value": "oklch(0.85 0.28 330)",
 				"$type": "color"
 			}
 		},
@@ -568,7 +568,7 @@
 		"retro-glow-disabled": {
 			"$description": "retro-glow disabled overrides",
 			"color": {
-				"$value": "{color.magenta.700}",
+				"$value": "oklch(0.4 0.05 330)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -662,7 +662,7 @@
 		"retro-muted-hover": {
 			"$description": "retro-muted hover overrides",
 			"color": {
-				"$value": "{color.frost.400}",
+				"$value": "oklch(0.65 0.03 200)",
 				"$type": "color"
 			},
 			"opacity": {

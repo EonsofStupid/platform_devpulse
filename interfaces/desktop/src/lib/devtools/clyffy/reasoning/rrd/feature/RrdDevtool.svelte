@@ -275,7 +275,7 @@ function fmtTime(ms: number): string {
 	}
 	:global(.phase-detail-tech) {
 		font-family: var(--font-mono);
-		color: var(--text-muted);
+		color: var(--text-tertiary);
 		opacity: 0.7;
 	}
 </style>

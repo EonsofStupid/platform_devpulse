@@ -78,7 +78,7 @@ async function onInstall(): Promise<void> {
 	class={cn(
 		"relative w-full rounded-[var(--radius-lg,0.75rem)]",
 		"border border-[var(--border-soft,oklch(0.4234_0.081_173.37_/_0.22))]",
-		"bg-[var(--surface-base,oklch(0.0901_0.017_224.61_/_0.8))]",
+		"bg-[var(--surface-1,oklch(0.0901_0.017_224.61_/_0.8))]",
 		"shadow-[0_0.0625rem_0.1875rem_oklch(0_0_0_/_0.12),0_0.0625rem_0.125rem_oklch(0_0_0_/_0.24)]",
 		"p-[clamp(1rem,2.5vw,1.75rem)]",
 		stack({ gap: "4" }),
@@ -90,7 +90,7 @@ async function onInstall(): Promise<void> {
 	<div
 		aria-hidden="true"
 		class="absolute left-0 top-0 h-full w-1 rounded-l-[var(--radius-lg,0.75rem)]"
-		style="background: var(--accent-primary-main, oklch(0.65 0.18 240))"
+		style="background: var(--accent-blue-main, oklch(0.65 0.18 240))"
 	></div>
 
 	<!-- Header: current version + channel -->
@@ -114,7 +114,7 @@ async function onInstall(): Promise<void> {
 	{#if phase === "available" && info?.available}
 		<div
 			class={cn(stack({ gap: "3" }), "rounded-md border p-4")}
-			style="background: color-mix(in oklch, var(--accent-primary-main) 18%, transparent); border-color: var(--accent-primary-main)"
+			style="background: color-mix(in oklch, var(--accent-blue-main) 18%, transparent); border-color: var(--accent-blue-main)"
 		>
 			<div class="flex items-center gap-2">
 				<Sparkles size={16} aria-hidden="true" />
@@ -153,11 +153,11 @@ async function onInstall(): Promise<void> {
 				aria-valuemax={100}
 				aria-valuenow={downloadPercent ?? undefined}
 				aria-valuetext={downloadPercent === null ? "downloading" : `${downloadPercent} percent`}
-				class="h-2 w-full overflow-hidden rounded-full bg-[var(--surface-raised,oklch(0.16_0.03_224_/_0.6))]"
+				class="h-2 w-full overflow-hidden rounded-full bg-[var(--surface-2,oklch(0.16_0.03_224_/_0.6))]"
 			>
 				<div
 					class="h-full transition-[width] duration-150 ease-out"
-					style="width: {downloadPercent ?? 30}%; background: var(--accent-primary-main, oklch(0.65 0.18 240));"
+					style="width: {downloadPercent ?? 30}%; background: var(--accent-blue-main, oklch(0.65 0.18 240));"
 				></div>
 			</div>
 			{#if progress}

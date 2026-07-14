@@ -418,7 +418,7 @@ async function connect(url: string): Promise<void> {
 		padding: 0.5rem 0.75rem;
 		font-family: var(--font-mono, ui-monospace, monospace);
 		font-size: var(--font-size-sm);
-		color: var(--text-primary);
+		color: var(--text-default);
 		background: var(--surface-inset);
 		border: var(--border-width-hairline) solid var(--border-subtle);
 		border-radius: 0.375rem;

@@ -3,20 +3,17 @@
  */
 
 @theme {
-  --backdrop-glow-primary: color-mix(in oklch, oklch(0.55 0.14 240) 35%, transparent);
   --backdrop-glow-teal: oklch(0.308 0.0382 190.54 / 0.302);
   --backdrop-glow-purple: oklch(0.2075 0.1083 225.17 / 0.251);
   --backdrop-glow-purple-fade: oklch(0.1974 0.0364 209.13 / 0.102);
   --backdrop-glow-ember: oklch(0.1929 0.0595 15.58 / 0.251);
   --backdrop-glow-cyber: oklch(0.2669 0.0305 144.73 / 0.251);
   --backdrop-glow-magenta: oklch(0.206 0.0483 310.37 / 0.251);
-  --backdrop-grid-primary: color-mix(in oklch, oklch(0.55 0.14 240) 8%, transparent);
   --backdrop-grid-teal: oklch(0.322 0.032 179.71 / 0.078);
   --backdrop-grid-purple: oklch(0.2139 0.1089 222.07 / 0.059);
   --backdrop-grid-ember: oklch(0.1999 0.0551 18.59 / 0.059);
   --backdrop-grid-cyber: oklch(0.3068 0.0385 135.71 / 0.059);
   --backdrop-grid-magenta: oklch(0.206 0.0483 310.37 / 0.059);
-  --backdrop-grid-size-primary: 3rem;
   --backdrop-grid-size-neural: 1.75rem;
   --backdrop-grid-size-magenta: 2rem;
   --backdrop-grid-size-purple: 2.25rem;
