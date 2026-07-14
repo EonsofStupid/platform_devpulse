@@ -24,6 +24,6 @@
   --chat-mode-image: oklch(0.7 0.15 60); /** Image mode accent colour — orange. */
   --chat-mode-general: oklch(0.6 0.02 224); /** General mode accent colour — muted. */
   --chat-voice-active: oklch(0.7 0.18 145); /** Voice-active indicator colour. */
-  --chat-voice-pulse: 0rem 0rem 0.75rem 0rem oklch(0.7 0.18 145); /** Voice-active pulse glow. */
+  --chat-voice-pulse: 0rem 0rem 0.75rem 0rem #45ba50; /** Voice-active pulse glow. */
   }
 }

@@ -131,7 +131,7 @@ function formatSuffix(suffix: string | null): string {
 		align-items: center;
 		gap: var(--space-8);
 		font-size: var(--space-12);
-		color: var(--accent-primary-main);
+		color: var(--accent-teal-main);
 	}
 
 	.token-strip__check {
@@ -175,7 +175,7 @@ function formatSuffix(suffix: string | null): string {
 		border: 0.0625rem solid var(--border-subtle);
 		color: var(--text-primary);
 		font-size: var(--space-12);
-		font-family: var(--font-mono);
+		font-family: var(--font-family-mono, monospace);
 	}
 
 	.token-strip__input:focus-visible {

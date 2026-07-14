@@ -58,7 +58,7 @@ const kindVariant = $derived.by(() => {
 {#if entry}
 	<div
 		class="flex items-start gap-3 p-4 rounded-lg motion-reduce:animate-none animate-[cl-fade-in_0.4s_ease-out_forwards]
-			[background:var(--glass-deep)]
+			[background:var(--surface-glass-deep)]
 			[box-shadow:var(--glow-teal),inset_0_0_0.5rem_var(--bevel-subtle)]
 			border border-[var(--border-subtle)]
 			{className}"

@@ -450,7 +450,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 
 	.project-db__code {
-		font-family: var(--font-mono);
+		font-family: var(--font-family-mono);
 		font-size: var(--font-size-xs);
 	}
 
@@ -466,7 +466,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 
 	.project-db__kv-value {
-		font-family: var(--font-mono);
+		font-family: var(--font-family-mono);
 		color: var(--text-primary);
 	}
 
@@ -480,7 +480,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	.project-db__pre {
 		overflow-x: auto;
 		white-space: pre-wrap;
-		font-family: var(--font-mono);
+		font-family: var(--font-family-mono);
 		font-size: var(--font-size-xs);
 		color: var(--text-primary);
 		margin: 0;

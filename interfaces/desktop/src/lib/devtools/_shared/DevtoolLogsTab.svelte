@@ -143,7 +143,7 @@ const entries = $derived(logsQuery.data ?? []);
 						{entry.level}
 					</span>
 					<span
-						style="color: var(--accent-primary-main); min-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+						style="color: var(--accent-teal-main); min-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
 					>
 						{entry.target}
 					</span>

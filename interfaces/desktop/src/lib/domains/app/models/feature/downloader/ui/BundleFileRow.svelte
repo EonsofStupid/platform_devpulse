@@ -89,7 +89,7 @@ let { entry, isPrimary = false, class: className }: Props = $props();
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		font-family: var(--font-mono);
+		font-family: var(--font-family-mono, monospace);
 	}
 
 	.bundle-row__size {
@@ -103,8 +103,8 @@ let { entry, isPrimary = false, class: className }: Props = $props();
 		gap: var(--space-4);
 		padding: var(--space-3) var(--space-7);
 		border-radius: var(--radius-sm);
-		background: var(--accent-primary-fill);
-		color: var(--accent-primary-main);
+		background: var(--accent-teal-fill);
+		color: var(--accent-teal-main);
 		font-size: var(--space-10);
 	}
 

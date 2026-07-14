@@ -40,7 +40,7 @@ function formatScore(s: Suggestion): string {
 			shadow-lg backdrop-blur-sm"
 	>
 		{#if suggestState.error}
-			<div class="px-3 py-2 text-xs text-[var(--signal-error)]">
+			<div class="px-3 py-2 text-xs text-[var(--text-error,_oklch(0.7_0.15_25))]">
 				{suggestState.error}
 			</div>
 		{:else if suggestState.loading && suggestState.suggestions.length === 0}
@@ -52,9 +52,9 @@ function formatScore(s: Suggestion): string {
 					role="option"
 					aria-selected={i === suggestState.highlight}
 					class="flex w-full items-start gap-2 px-3 py-2 text-left text-sm
-						hover:bg-[var(--interaction-hover)]
+						hover:bg-[var(--surface-hover,_oklch(0.18_0.02_224))]
 						{i === suggestState.highlight
-						? 'bg-[var(--interaction-hover)]'
+						? 'bg-[var(--surface-hover,_oklch(0.18_0.02_224))]'
 						: ''}"
 					onclick={() => pick(i)}
 				>
@@ -66,7 +66,7 @@ function formatScore(s: Suggestion): string {
 					>
 						{formatScore(s)}
 						{#if s.accepted}
-							<span class="ml-1 text-[var(--accent-primary-main)]" title="Previously accepted">★</span>
+							<span class="ml-1 text-[var(--accent-primary)]" title="Previously accepted">★</span>
 						{/if}
 					</span>
 				</button>

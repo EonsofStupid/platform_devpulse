@@ -14,8 +14,11 @@
  *   Edit Settings). `role="dialog"`. Submit + Cancel footer.
  * - `PickerDialog` — "pick one of many" generic list overlay with
  *   search input. Generic over the item type via Svelte `generics`.
+ * - `WizardDialog` — multi-step wizard chrome. Always non-dismissible
+ *   by default — wizard navigation lives in the footer slot.
  */
 
 export { default as ConfirmDialog } from "./ConfirmDialog.svelte";
 export { default as FormDialog } from "./FormDialog.svelte";
 export { default as PickerDialog } from "./PickerDialog.svelte";
+export { default as WizardDialog } from "./WizardDialog.svelte";

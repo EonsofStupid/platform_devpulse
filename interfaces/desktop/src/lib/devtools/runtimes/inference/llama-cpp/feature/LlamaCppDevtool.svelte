@@ -398,7 +398,7 @@ const badge = $derived<HealthBadge>(
 							step="512"
 							bind:value={cfgDraft.context_size}
 							class="w-full max-w-80"
-							style="accent-color: var(--accent-primary-main);"
+							style="accent-color: var(--accent-teal-main);"
 						/>
 					</div>
 
@@ -439,7 +439,7 @@ const badge = $derived<HealthBadge>(
 							step="1"
 							bind:value={cfgDraft.n_batch}
 							class="w-full max-w-80"
-							style="accent-color: var(--accent-primary-main);"
+							style="accent-color: var(--accent-teal-main);"
 						/>
 					</div>
 

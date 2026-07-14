@@ -199,7 +199,7 @@ function statusTone(
 	.progress-fill {
 		height: 100%;
 		border-radius: 62.4375rem;
-		background: var(--accent-primary-main);
+		background: var(--accent-teal-main);
 		transition: width 300ms ease-out;
 	}
 
