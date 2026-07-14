@@ -8,7 +8,8 @@ process.stdin.on('data', chunk => input += chunk);
 process.stdin.on('end', () => {
   try {
     const parsed = JSON.parse(input);
-    const message = parsed.user_prompt || '';
+    // Claude Code's UserPromptSubmit hook sends `prompt`; keep user_prompt as fallback.
+    const message = parsed.prompt || parsed.user_prompt || '';
 
     const frustrated = /\b(wtf|wth|ffs|omfg|shit(ty|tiest)?|dumbass|horrible|awful|piss(ed|ing)?\s*off|piece\s+of\s+(shit|crap|junk)|what\s+the\s+(fuck|hell)|fuck(ing)?\s*(broken|useless|terrible|awful|horrible)|fuck\s*you|screw\s+(this|you)|so\s+frustrating|this\s+sucks|damn\s*it)\b/i;
 

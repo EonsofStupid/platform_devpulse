@@ -14,7 +14,11 @@
 	"preset": {
 		"button-primary": {
 			"background-color": {
+<<<<<<< HEAD
 				"$value": "{accent.primary.main}",
+=======
+				"$value": "{color.mint.500}",
+>>>>>>> origin/main
 				"$type": "color"
 			},
 			"border-radius": {
@@ -22,6 +26,7 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
+<<<<<<< HEAD
 				"$value": "0 0 1rem 0 {accent.primary.glow}",
 				"$type": "shadow"
 			},
@@ -31,6 +36,17 @@
 			},
 			"border-color": {
 				"$value": "color-mix(in oklch, {accent.primary.main} 60%, transparent)",
+=======
+				"$value": "0 0 1rem 0 oklch(from {color.mint.500} l c h / 0.35)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "{color.void.50}",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.6 0.12 180 / 0.4)",
+>>>>>>> origin/main
 				"$type": "color"
 			},
 			"border-width": {
@@ -89,6 +105,7 @@
 				"$value": "1",
 				"$type": "number"
 			},
+<<<<<<< HEAD
 			"$description": "button-primary: Primary CTA — bound to the primary ROLE (blue per locked requirement #6); rebind the role, never this preset"
 		},
 		"button-primary-hover": {
@@ -103,13 +120,35 @@
 			},
 			"border-color": {
 				"$value": "color-mix(in oklch, {accent.primary.main} 78%, transparent)",
+=======
+			"$description": "button-primary: Teal CTA — high contrast, visible glow on dark backgrounds"
+		},
+		"button-primary-hover": {
+			"$description": "button-primary hover overrides",
+			"background-color": {
+				"$value": "{color.mint.600}",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0 1.5rem 0.125rem oklch(from {color.mint.500} l c h / 0.5)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(from {color.mint.400} l c h / 0.5)",
+>>>>>>> origin/main
 				"$type": "color"
 			}
 		},
 		"button-primary-active": {
+<<<<<<< HEAD
 			"$description": "button-primary active overrides — §A4 derivation formula",
 			"background-color": {
 				"$value": "color-mix(in oklch, {accent.primary.main} 66%, black 28%)",
+=======
+			"$description": "button-primary active overrides",
+			"background-color": {
+				"$value": "oklch(0.42 0.12 180)",
+>>>>>>> origin/main
 				"$type": "color"
 			}
 		},
@@ -298,7 +337,11 @@
 		},
 		"button-destructive": {
 			"background-color": {
+<<<<<<< HEAD
 				"$value": "{accent.danger.main}",
+=======
+				"$value": "oklch(0.45 0.18 25)",
+>>>>>>> origin/main
 				"$type": "color"
 			},
 			"border-radius": {
@@ -306,7 +349,11 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
+<<<<<<< HEAD
 				"$value": "0 0 1rem 0 {accent.danger.glow}",
+=======
+				"$value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+>>>>>>> origin/main
 				"$type": "shadow"
 			},
 			"color": {
@@ -376,6 +423,7 @@
 			"$description": "button-destructive: Red danger button — visible warning glow"
 		},
 		"button-destructive-hover": {
+<<<<<<< HEAD
 			"$description": "button-destructive hover overrides — §A4 derivation formula",
 			"background-color": {
 				"$value": "color-mix(in oklch, {accent.danger.main} 82%, black 12%)",
@@ -383,6 +431,15 @@
 			},
 			"box-shadow": {
 				"$value": "0 0 1.5rem 0.125rem {accent.danger.glow}",
+=======
+			"$description": "button-destructive hover overrides",
+			"background-color": {
+				"$value": "oklch(0.4 0.17 25)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+>>>>>>> origin/main
 				"$type": "shadow"
 			}
 		}

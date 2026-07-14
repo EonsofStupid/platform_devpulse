@@ -28658,10 +28658,17 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.55,
+<<<<<<< HEAD
 						0.14,
 						240
 					],
 					"hex": "#2079ad"
+=======
+						0.12,
+						170
+					],
+					"hex": "#048568"
+>>>>>>> origin/main
 				},
 				"type": "color",
 				"extensions": null
@@ -28686,7 +28693,11 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-box-shadow",
+<<<<<<< HEAD
 				"value": "0 0 1rem 0 [object Object]",
+=======
+				"value": "0 0 1rem 0 oklch(from [object Object] l c h / 0.35)",
+>>>>>>> origin/main
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28701,11 +28712,19 @@
 				"value": {
 					"colorSpace": "oklch",
 					"components": [
+<<<<<<< HEAD
 						0.95,
 						0.01,
 						220
 					],
 					"hex": "#e8f0f3"
+=======
+						0.97,
+						0.01,
+						220
+					],
+					"hex": "#eef7fa"
+>>>>>>> origin/main
 				},
 				"type": "color",
 				"extensions": null
@@ -28718,7 +28737,11 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-border-color",
+<<<<<<< HEAD
 				"value": "color-mix(in oklch, [object Object] 60%, transparent)",
+=======
+				"value": "oklch(0.6 0.12 180 / 0.4)",
+>>>>>>> origin/main
 				"type": "color",
 				"extensions": null
 			},
@@ -28902,7 +28925,19 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-hover-background-color",
+<<<<<<< HEAD
 				"value": "color-mix(in oklch, [object Object] 82%, black 12%)",
+=======
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.46,
+						0.12,
+						170
+					],
+					"hex": "#0c6750"
+				},
+>>>>>>> origin/main
 				"type": "color",
 				"extensions": null
 			},
@@ -28914,7 +28949,11 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-primary-hover-box-shadow",
+<<<<<<< HEAD
 				"value": "0 0 1.5rem 0.125rem [object Object]",
+=======
+				"value": "0 0 1.5rem 0.125rem oklch(from [object Object] l c h / 0.5)",
+>>>>>>> origin/main
 				"type": "shadow",
 				"extensions": null
 			},
@@ -28926,7 +28965,11 @@
 					"border-color"
 				],
 				"cssVar": "--preset-button-primary-hover-border-color",
+<<<<<<< HEAD
 				"value": "color-mix(in oklch, [object Object] 78%, transparent)",
+=======
+				"value": "oklch(from [object Object] l c h / 0.5)",
+>>>>>>> origin/main
 				"type": "color",
 				"extensions": null
 			},
@@ -28938,7 +28981,11 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-primary-active-background-color",
+<<<<<<< HEAD
 				"value": "color-mix(in oklch, [object Object] 66%, black 28%)",
+=======
+				"value": "oklch(0.42 0.12 180)",
+>>>>>>> origin/main
 				"type": "color",
 				"extensions": null
 			},
@@ -29510,6 +29557,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-destructive-background-color",
+<<<<<<< HEAD
 				"value": {
 					"colorSpace": "oklch",
 					"components": [
@@ -29519,6 +29567,9 @@
 					],
 					"hex": "#de3b3d"
 				},
+=======
+				"value": "oklch(0.45 0.18 25)",
+>>>>>>> origin/main
 				"type": "color",
 				"extensions": null
 			},
@@ -29542,7 +29593,11 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-destructive-box-shadow",
+<<<<<<< HEAD
 				"value": "0 0 1rem 0 [object Object]",
+=======
+				"value": "0 0 1rem 0 oklch(0.5 0.2 25 / 0.3)",
+>>>>>>> origin/main
 				"type": "shadow",
 				"extensions": null
 			},
@@ -29758,7 +29813,11 @@
 					"background-color"
 				],
 				"cssVar": "--preset-button-destructive-hover-background-color",
+<<<<<<< HEAD
 				"value": "color-mix(in oklch, [object Object] 82%, black 12%)",
+=======
+				"value": "oklch(0.4 0.17 25)",
+>>>>>>> origin/main
 				"type": "color",
 				"extensions": null
 			},
@@ -29770,7 +29829,11 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-button-destructive-hover-box-shadow",
+<<<<<<< HEAD
 				"value": "0 0 1.5rem 0.125rem [object Object]",
+=======
+				"value": "0 0 1.5rem 0.125rem oklch(0.5 0.2 25 / 0.45)",
+>>>>>>> origin/main
 				"type": "shadow",
 				"extensions": null
 			},
