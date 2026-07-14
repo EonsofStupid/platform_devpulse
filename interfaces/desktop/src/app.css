@@ -2,7 +2,6 @@
 @import "$lib/design/index.css";
 
 /* ═══════════════════════════════════════════════════════
-<<<<<<< HEAD
    NO TOKEN DEFINITIONS LIVE HERE (P2.4, 2026-07-12).
    The role vocabulary, the backdrop-primary mirrors, and the
    button-primary retarget were all promoted into SD5 source
@@ -10,57 +9,6 @@
    inside @layer tokens.* — rebind in the token sources, never
    in this file. app.css owns only base styles + route backdrops.
    ═══════════════════════════════════════════════════════ */
-=======
-   Semantic role vocabulary (--accent-{role}-{main,glow,fill})
-   is GENERATED — SD5 emits it in @layer tokens.semantic from
-   tokens/src/semantic/accent/accent.tokens.json, aliased onto
-   the role tier (semantic/role/role.tokens.json = the binding
-   SSOT). The hand-authored copy that lived here was retired
-   2026-07-11 (FUBAR audit, shim S2). Rebind roles in the role
-   SSOT, never here.
-
-   Remaining shims below (backdrop mirrors, button-primary
-   preset retarget) die in Phase 2 when the preset tier is
-   re-sourced as palette references.
-   ═══════════════════════════════════════════════════════ */
-:root {
-	/* Backdrop mirrors for semantic primary — used by full-viewport
-	   background variants (DynamicBackground, app.css route overrides). */
-	--backdrop-glow-primary: color-mix(in oklch, var(--color-brand-blue-500) 35%, transparent);
-	--backdrop-grid-primary: color-mix(in oklch, var(--color-brand-blue-500) 8%, transparent);
-	--backdrop-grid-size-primary: 3rem;
-
-	/* ── Preset shim ─────────────────────────────────────────
-	   The SD5-generated button-primary preset currently emits
-	   raw oklch() at hue 180 (teal) instead of palette refs.
-	   Retarget it here so components/button-primary consumes
-	   the semantic primary layer above. When the SD5 source
-	   is updated to palette refs, this shim can be deleted. */
-	--preset-button-primary-background-color: var(--accent-primary-main);
-	--preset-button-primary-hover-background-color: color-mix(
-		in oklch,
-		var(--accent-primary-main) 82%,
-		black 12%
-	);
-	--preset-button-primary-active-background-color: color-mix(
-		in oklch,
-		var(--accent-primary-main) 66%,
-		black 28%
-	);
-	--preset-button-primary-box-shadow: 0 0 1rem 0 var(--accent-primary-glow);
-	--preset-button-primary-hover-box-shadow: 0 0 1.5rem 0.125rem var(--accent-primary-glow);
-	--preset-button-primary-border-color: color-mix(
-		in oklch,
-		var(--accent-primary-main) 60%,
-		transparent
-	);
-	--preset-button-primary-hover-border-color: color-mix(
-		in oklch,
-		var(--accent-primary-main) 78%,
-		transparent
-	);
-}
->>>>>>> origin/main
 
 /*
  * Global base styles — ColdLight dark theme defaults.
