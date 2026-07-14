@@ -3,7 +3,7 @@
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/views/clyffy-collab
 
 	Wizard step where the customer brings their own Claude API key
-	(or notes their existing Claude Code subscription) so the cortex
+	(or notes their existing Claude Code subscription) so Clyffy
 	reasoning router can escalate hard turns to Claude alongside the
 	local llama.cpp brain.
 
@@ -22,7 +22,7 @@
 	   detected — convenience, not a hard dependency.
 
 	Skippable. Customer can move through without setting a key —
-	the cortex reasoning router will simply never escalate to Claude
+	Clyffy's reasoning router will simply never escalate to Claude
 	and will route every turn through the local brain.
 
 	## Token + design discipline
@@ -30,7 +30,7 @@
 	  - Mirrors the other view files (`OverlayShell` + scoped style)
 	  - Surface gradient blends an accent against
 	    `--surface-raised`; uses `--accent-blue-main` to harmonise
-	    with the Cortex brain tile (both "deep thinking" surfaces)
+	    with the Brain tile (both "deep thinking" surfaces)
 	  - All sizing via `clamp()` — no inline values
 	  - Layman copy throughout, no "API" jargon in primary text
 -->

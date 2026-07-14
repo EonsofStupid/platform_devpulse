@@ -259,5 +259,9 @@ export const PRESET_FAMILIES: Record<string, CssFamily[]> = {
 	"stark-solid-hover": ["surface"],
 	"wizard-deep": ["frame", "overlay", "surface", "text"],
 	"wizard-elevated": ["frame", "overlay", "surface", "text"],
+	"wizard-elevated-active": ["surface"],
+	"wizard-elevated-hover": ["surface"],
+	"wizard-inset": ["frame", "surface", "text"],
+	"wizard-inset-hover": ["surface"],
 	"wizard-solid": ["frame", "surface", "text"],
 };

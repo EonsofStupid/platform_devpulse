@@ -84,6 +84,12 @@ pub struct WizardCopy {
     /// keeps older user overrides parsing without `[connect]`.
     #[serde(default)]
     pub connect: ConnectCopy,
+    /// Copy for the capability confirm step (wizard step 2) — the
+    /// connected Clyffy's advertised senses, wire-truth only.
+    /// `#[serde(default)]` keeps older overrides parsing without
+    /// `[capability]`.
+    #[serde(default)]
+    pub capability: CapabilityCopy,
 }
 
 /// Welcome screen — Clyffy greeting and CTA.
@@ -940,6 +946,121 @@ pub struct ConnectCopy {
     pub degraded_hint: String,
     /// Reveal label for the manual address entry fallback.
     pub manual_reveal: String,
+
+    // ── Third mode card (charter: local / network / gb10) ──────────
+    /// Visible label on the Network mode card (another box on the LAN).
+    pub mode_network_label: String,
+    /// One-line layman hint under the Network mode label.
+    pub mode_network_hint: String,
+
+    // ── Tooltips (mouseover, layman verbatim — every interactive
+    //    element on the connect step carries one) ────────────────────
+    /// Tooltip on the Local mode card.
+    pub mode_local_tooltip: String,
+    /// Tooltip on the Network mode card.
+    pub mode_network_tooltip: String,
+    /// Tooltip on the GB10 mode card.
+    pub mode_gb10_tooltip: String,
+    /// Tooltip on the discover (Find my Clyffy) button.
+    pub discover_tooltip: String,
+    /// Tooltip on the manual-entry reveal button.
+    pub manual_tooltip: String,
+    /// Tooltip on the footer Skip button.
+    pub skip_tooltip: String,
+    /// Tooltip on the footer Continue button.
+    pub continue_tooltip: String,
+    /// Tooltip on the footer Back button.
+    pub back_tooltip: String,
+    /// Tooltip on a found-endpoint card's confirm button.
+    pub confirm_tooltip: String,
+    /// Tooltip on the manual address input.
+    pub url_tooltip: String,
+
+    // ── Live scan surface (renders ONLY what the signals prove) ─────
+    /// Heading on the live scan panel.
+    pub scan_title: String,
+    /// Supporting line under the scan heading.
+    pub scan_subtitle: String,
+    /// Rung label: the operator's persisted last endpoint.
+    pub scan_rung_persisted: String,
+    /// Rung label: the configured `base_url`.
+    pub scan_rung_configured: String,
+    /// Rung label: loopback probe on this machine.
+    pub scan_rung_localhost: String,
+    /// Rung label: mDNS browse on the local network.
+    pub scan_rung_mdns: String,
+    /// Rung label: enumerated private-mesh peers.
+    pub scan_rung_mesh: String,
+    /// Rung tooltip: persisted endpoint.
+    pub scan_rung_persisted_tip: String,
+    /// Rung tooltip: configured base_url.
+    pub scan_rung_configured_tip: String,
+    /// Rung tooltip: loopback.
+    pub scan_rung_localhost_tip: String,
+    /// Rung tooltip: mDNS.
+    pub scan_rung_mdns_tip: String,
+    /// Rung tooltip: mesh peers.
+    pub scan_rung_mesh_tip: String,
+    /// Rung status while no signal has arrived yet.
+    pub scan_rung_waiting: String,
+    /// Rung status: enumerated, zero candidates. 
+    pub scan_rung_done_none: String,
+    /// Rung status template: `{count}` candidates answered.
+    pub scan_rung_done_some: String,
+    /// Rung status after the stream finished without this rung speaking.
+    pub scan_rung_not_run: String,
+    /// Tooltip explaining a skipped rung.
+    pub scan_rung_not_run_tip: String,
+    /// Probe line template: `{url}` was tried.
+    pub scan_probe_trying: String,
+    /// Probe outcome suffix: the handshake answered.
+    pub scan_probe_answered: String,
+    /// Probe outcome suffix: no answer.
+    pub scan_probe_silent: String,
+    /// Finish line template: `{found}` found, `{probed}` checked.
+    pub scan_finished_some: String,
+    /// Finish line template when nothing answered: `{probed}` checked.
+    pub scan_finished_none: String,
+    /// Error line template: the search failed with `{error}`.
+    pub scan_error: String,
+}
+
+/// Capability confirm step — presents the CONNECTED Clyffy's advertised
+/// slots as layman sense tiles. Everything rendered is a pure function
+/// of the live capability handshake — honest empty when standalone.
+/// There is no embedded kernel; Clyffy is reached over the wire.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
+pub struct CapabilityCopy {
+    /// Heading for the capability confirm step.
+    pub title: String,
+    /// Supporting line — states the wire-truth deal.
+    pub subtitle: String,
+    /// Shown while standalone: the tiles light up on connect.
+    pub standalone_hint: String,
+    /// Tooltip on the Brain tile (deep reasoner).
+    pub tile_brain_tip: String,
+    /// Tooltip on the Sparkles tile (indexing helper).
+    pub tile_sparkles_tip: String,
+    /// Tooltip on the Eyes tile (vision).
+    pub tile_eyes_tip: String,
+    /// Tooltip on the Ears tile (speech-to-text).
+    pub tile_ears_tip: String,
+    /// Tooltip on the Mouth tile (text-to-speech).
+    pub tile_mouth_tip: String,
+    /// Caption above the knowledge term strip.
+    pub terms_caption: String,
+    /// Visible label on the footer Back button (returns to connect).
+    pub back_label: String,
+    /// Tooltip on the footer Back button.
+    pub back_tooltip: String,
+    /// Visible label on the footer Skip button.
+    pub skip_label: String,
+    /// Tooltip on the footer Skip button.
+    pub skip_tooltip: String,
+    /// Visible label on the footer Continue button.
+    pub continue_label: String,
+    /// Tooltip on the footer Continue button.
+    pub continue_tooltip: String,
 }
 
 impl WizardCopy {

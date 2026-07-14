@@ -2949,6 +2949,18 @@ export const PresetTokens = [
 	"wizard-elevated-backdrop-filter",
 	"wizard-elevated-transition-duration",
 	"wizard-elevated-transition-timing-function",
+	"wizard-elevated-hover-box-shadow",
+	"wizard-elevated-hover-border-color",
+	"wizard-elevated-active-box-shadow",
+	"wizard-inset-background-color",
+	"wizard-inset-border-radius",
+	"wizard-inset-box-shadow",
+	"wizard-inset-color",
+	"wizard-inset-border-color",
+	"wizard-inset-border-width",
+	"wizard-inset-transition-duration",
+	"wizard-inset-transition-timing-function",
+	"wizard-inset-hover-border-color",
 ] as const;
 export type PresetToken = (typeof PresetTokens)[number];
 
@@ -4278,7 +4290,19 @@ export type PresetCSSVar =
 	| "--preset-wizard-elevated-border-width"
 	| "--preset-wizard-elevated-backdrop-filter"
 	| "--preset-wizard-elevated-transition-duration"
-	| "--preset-wizard-elevated-transition-timing-function";
+	| "--preset-wizard-elevated-transition-timing-function"
+	| "--preset-wizard-elevated-hover-box-shadow"
+	| "--preset-wizard-elevated-hover-border-color"
+	| "--preset-wizard-elevated-active-box-shadow"
+	| "--preset-wizard-inset-background-color"
+	| "--preset-wizard-inset-border-radius"
+	| "--preset-wizard-inset-box-shadow"
+	| "--preset-wizard-inset-color"
+	| "--preset-wizard-inset-border-color"
+	| "--preset-wizard-inset-border-width"
+	| "--preset-wizard-inset-transition-duration"
+	| "--preset-wizard-inset-transition-timing-function"
+	| "--preset-wizard-inset-hover-border-color";
 
 export type PresetRecord = {
 	"button-primary": {
@@ -5944,5 +5968,25 @@ export type PresetRecord = {
 		"backdrop-filter": string;
 		"transition-duration": string;
 		"transition-timing-function": string;
+	};
+	"wizard-elevated-hover": {
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"wizard-elevated-active": {
+		"box-shadow": string;
+	};
+	"wizard-inset": {
+		"background-color": string;
+		"border-radius": string;
+		"box-shadow": string;
+		color: string;
+		"border-color": string;
+		"border-width": string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+	};
+	"wizard-inset-hover": {
+		"border-color": string;
 	};
 };

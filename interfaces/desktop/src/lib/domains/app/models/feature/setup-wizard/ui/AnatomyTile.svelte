@@ -2,7 +2,7 @@
 	@component AnatomyTile
 	@module @devpulse/domains/app/models/feature/setup-wizard/ui
 
-	A single anatomy slot in the wizard's cortex view. Composes
+	A single anatomy slot in the wizard's capability view. Composes
 	`<Card preset="neuro-elevated" variant="elevated">` for the
 	deep-saturated surface and consumes ColdLight primitives for
 	every piece of content. No surface CSS authored here.
@@ -37,7 +37,7 @@
 	## Signal pairing
 
 	The `onApply` handler is just a callback; the parent
-	(`CortexView`) is responsible for emitting the dual-observability
+	(`CapabilityView`) is responsible for emitting the dual-observability
 	pair (`tracing::info!` on `wizard.lifecycle.apply_started` AND
 	`InternalEvent::WizardTileApplied` broadcast) when this tile's
 	Apply fires. See [[feedback-dual-observability]].

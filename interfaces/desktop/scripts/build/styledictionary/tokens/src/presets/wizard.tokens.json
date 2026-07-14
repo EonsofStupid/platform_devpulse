@@ -22,7 +22,7 @@
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "var(--depth-z3)",
+				"$value": "var(--depth-z3), var(--bevel-subtle)",
 				"$type": "string"
 			},
 			"color": {
@@ -104,7 +104,7 @@
 				"$type": "string"
 			},
 			"box-shadow": {
-				"$value": "var(--depth-z1)",
+				"$value": "var(--depth-z2), var(--bevel-soft)",
 				"$type": "string"
 			},
 			"color": {
@@ -130,6 +130,66 @@
 			"transition-timing-function": {
 				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
 				"$type": "cubicBezier"
+			}
+		},
+		"wizard-elevated-hover": {
+			"$description": "wizard-elevated hover overrides — perceived lift: deeper drop + stronger relief + brighter cyan edge. Universal state leaf (neuro mechanism); consumed via renderForge state chain.",
+			"box-shadow": {
+				"$value": "var(--depth-z3), var(--bevel-medium)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "color-mix(in oklch, var(--accent-cyan-main) 60%, transparent)",
+				"$type": "string"
+			}
+		},
+		"wizard-elevated-active": {
+			"$description": "wizard-elevated active overrides — press-in: inverted bevel relief.",
+			"box-shadow": {
+				"$value": "var(--bevel-pressed)",
+				"$type": "string"
+			}
+		},
+		"wizard-inset": {
+			"$description": "wizard-inset: pressed/inset wizard well — input fields, scan-surface interior. Stark neumorphism: inverted bevel relief (bevel-pressed), one rung darker than the shell (ladder: void 0.08 → inset 0.13 → deep 0.16) so wells read carved-in. Blue family (Lock #6), zero glow.",
+			"background-color": {
+				"$value": "oklch(0.13 0.045 240 / 0.92)",
+				"$type": "string"
+			},
+			"border-radius": {
+				"$value": "var(--radius-md)",
+				"$type": "string"
+			},
+			"box-shadow": {
+				"$value": "var(--bevel-pressed)",
+				"$type": "string"
+			},
+			"color": {
+				"$value": "var(--text-primary)",
+				"$type": "string"
+			},
+			"border-color": {
+				"$value": "color-mix(in oklch, var(--accent-blue-main) 30%, transparent)",
+				"$type": "string"
+			},
+			"border-width": {
+				"$value": "var(--border-width-hairline)",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "var(--duration-fast)",
+				"$type": "string"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			}
+		},
+		"wizard-inset-hover": {
+			"$description": "wizard-inset hover overrides — focus-invitation on the well edge; relief unchanged.",
+			"border-color": {
+				"$value": "color-mix(in oklch, var(--accent-blue-main) 45%, transparent)",
+				"$type": "string"
 			}
 		}
 	}

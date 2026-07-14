@@ -20,7 +20,7 @@
 	```
 
 	Brain is up top because the deep-reasoning model is the apex of
-	the cortex stack. Sparkles centers because the minion is the
+	the capability stack. Sparkles centers because the minion is the
 	thing that talks to everything else. Eyes/Ears flank as the
 	input senses. Mouth sits below as the output.
 
@@ -61,7 +61,7 @@ interface Props {
 let { brain, eyes, sparkles, ears, mouth }: Props = $props();
 </script>
 
-<div class="constellation" role="group" aria-label="Cortex anatomy slots">
+<div class="constellation" role="group" aria-label="Clyffy anatomy slots">
 	<div class="cell cell-brain">{@render brain()}</div>
 	<div class="cell cell-sparkles">{@render sparkles()}</div>
 	<div class="cell cell-eyes">{@render eyes()}</div>

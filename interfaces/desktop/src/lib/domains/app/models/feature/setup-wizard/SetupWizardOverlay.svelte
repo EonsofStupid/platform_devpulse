@@ -28,6 +28,7 @@
 <script lang="ts">
 import { goto } from "$app/navigation";
 import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
+import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 import { clyffyConnection } from "$lib/domains/clyffy/index.js";
 import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
 import {
@@ -39,9 +40,9 @@ import {
 import type { SlotStatus, TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
+import CapabilityView from "./feature/views/CapabilityView.svelte";
 import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
 import CompleteView from "./feature/views/CompleteView.svelte";
-import CortexView from "./feature/views/CortexView.svelte";
 import EndpointView from "./feature/views/EndpointView.svelte";
 import HardwareView from "./feature/views/HardwareView.svelte";
 import InstallingView from "./feature/views/InstallingView.svelte";
@@ -53,21 +54,6 @@ import type {
 	WizardCallbacks,
 } from "./util/wizard.types.js";
 import { wizardState } from "./wizard.state.svelte.js";
-
-/**
- * Animated MP4 backdrop for the wizard. Bundled with the desktop
- * binary — Tauri serves `static/` at the app root so this URL
- * resolves locally without a network round-trip.
- *
- * Optimization pipeline lands in a separate batch:
- * `cargo xtask optimize-media` will scan
- * `interfaces/desktop/static/imgs/backgrounds/` and emit per-source
- * AV1/WebM + H.264/MP4 variants (`ffmpeg` system-detected with a
- * portable fallback under `deps/ffmpeg-prebuilt/`). When that ships
- * the `<video>` below switches to a multi-source element so modern
- * WebView2 picks AV1 and falls back to H.264 on older runtimes.
- */
-const MP4_BACKDROP_URL = "/imgs/backgrounds/bganimation_loop.mp4";
 
 interface AutoConfigPayload {
 	tier: string;
@@ -308,7 +294,7 @@ const slotSaveEntries = $derived<SlotSaveEntryProps[]>(
 );
 
 /**
- * Cortex tile action — the tile CTA reads "Connect / Connecting… /
+ * Capability tile action — the tile CTA reads "Connect / Connecting… /
  * Live / Retry", and its honest target is the endpoint step: the
  * tiles LIGHT UP from the connected endpoint's capability, they don't
  * install anything (the old `saveOneSlot` → `installToSlot` chain is
@@ -325,14 +311,14 @@ $effect(() => {
 	void loadCopy();
 });
 
-// Live wire capability — the PRIMARY source for the cortex tiles.
+// Live wire capability — the PRIMARY source for the capability tiles.
 $effect(() => {
 	if (!wizardState.isOpen) return;
 	return clyffyConnection.subscribe();
 });
 
 /**
- * Cortex view used to call `autoConfigure()` here to pre-fill local
+ * The step-2 view used to call `autoConfigure()` here to pre-fill local
  * hardware-based recommendations. Under the preconfigured-capabilities
  * lock ([[devpulse-preconfigured-capabilities]]) the tiles render
  * anatomy-only by default and populate from the configured backend's
@@ -477,15 +463,16 @@ async function skipConnect(): Promise<void> {
 }
 
 /**
- * Cortex "Continue" — the connect flow is TWO steps (endpoint → cortex,
- * the shells label them "step 1 of 2 / 2 of 2"). With no local installs
- * dispatched (installsTotal === 0, the connect-first path), advancing
- * into `installing` strands the user on an empty view with no footer —
- * the auto-advance effect early-returns at zero installs (04 plan, B1).
- * Finish the flow at `complete` instead; the legacy preset→install path
- * (installsTotal > 0) keeps its original walk through `installing`.
+ * Capability "Continue" — the connect flow is TWO steps (endpoint →
+ * capability, the shells label them "step 1 of 2 / 2 of 2"). With no
+ * local installs dispatched (installsTotal === 0, the connect-first
+ * path), advancing into `installing` strands the user on an empty view
+ * with no footer — the auto-advance effect early-returns at zero
+ * installs (04 plan, B1). Finish the flow at `complete` instead; the
+ * legacy preset→install path (installsTotal > 0) keeps its original
+ * walk through `installing`.
  */
-function cortexContinue(): void {
+function capabilityContinue(): void {
 	if (installsTotal === 0) {
 		wizardState.goTo("complete");
 		return;
@@ -534,14 +521,14 @@ const callbacks: WizardCallbacks = {
 			{busy}
 			callbacks={{ ...callbacks, onSkip: skipConnect }}
 		/>
-	{:else if wizardState.view === "cortex"}
-		<CortexView
-			title="Clyffy's cortex — five preconfigured senses"
-			subtitle="Eyes, ears, mouth, indexing, and brain ship preconfigured. Each lights up once your backend (this workstation or a networked Clyffy host like clyffy.local) reports it online."
+	{:else if wizardState.view === "capability"}
+		<CapabilityView
+			copy={copy?.capability ?? null}
+			connected={clyffyConnection.state.state === "connected"}
 			slotSaves={slotSaveEntries}
 			{busy}
 			onApplySlot={goToEndpoint}
-			callbacks={{ ...callbacks, onNext: cortexContinue }}
+			callbacks={{ ...callbacks, onNext: capabilityContinue }}
 		/>
 	{:else if wizardState.view === "installing"}
 		<InstallingView
@@ -584,25 +571,25 @@ const callbacks: WizardCallbacks = {
 		</div>
 	{/key}
 
-	{#if MP4_BACKDROP_URL}
-		<!--
-			Supabase-hosted MP4 backdrop. The video element lives at the
-			document root so it draws once and persists across view
-			switches — DOM-cheap, no decode restart on every navigation.
-			z-index sits below the OverlayShell card (z 9000) and above
-			the body bg so the grid pattern still reads through.
-		-->
-		<video
-			class="dispatcher-backdrop"
-			src={MP4_BACKDROP_URL}
-			autoplay
-			loop
-			muted
-			playsinline
-			preload="auto"
-			aria-hidden="true"
-		></video>
-	{/if}
+	<!--
+		Animated backdrop — the design library's VARIATION system
+		(design/components/background-scene), operator requirement #1.
+		Layer 1: the bundled MP4 loop (loop-video — same asset as before,
+		now owned by the library component). Layer 2: the frost
+		void-breathe variation breathing blue over it. Both layers are
+		reduced-motion aware inside BackgroundScene (WCAG 2.3.3). W2
+		later lands multi-source AV1/WebM inside the component — this
+		file won't change. Draws once at the document root, below the
+		shell (z 9000), above the body bg.
+	-->
+	<!-- ONE scene layer. The void-breathe overlay died 2026-07-14: its
+	     animated hue-rotate filter over a full-viewport video forced a
+	     repaint every frame in WebView2 — the freeze the operator hit.
+	     The MP4 loop carries the motion; color variation returns via
+	     W2's optimized re-encode, not via runtime filters. -->
+	<div class="dispatcher-backdrop" aria-hidden="true">
+		<BackgroundScene variation="loop-video" intensity="strong" motion="on" />
+	</div>
 {/if}
 
 <style>
@@ -624,11 +611,29 @@ const callbacks: WizardCallbacks = {
 		position: fixed;
 		inset: 0;
 		z-index: 8999;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		opacity: 0.35;
 		pointer-events: none;
+		/* Opaque void floor — the scene layers above are translucent
+		   (0.6 / 0.4); without this floor the app UI underneath the
+		   wizard ghosts through the animation. Found on full re-read
+		   2026-07-14 (check-your-work pass). */
+		background: var(--color-void-base);
+	}
+
+	/* End-of-cascade PRESENCE overwrites (operator law 2026-07-14:
+	   scoped final overwrites binding/tuning universal pieces are
+	   sanctioned). BackgroundScene's intensity scale tops out at 0.18
+	   opacity — ambient-dashboard values that render the wizard's MP4
+	   invisible over the ~L0.08 void (the black-wizard value bug,
+	   backdrop edition). The wizard backdrop is ATMOSPHERE, not
+	   ambience: the loop must clearly read. */
+	.dispatcher-backdrop :global(.bg-scene.bg-loop-video) {
+		opacity: 0.6;
+	}
+	/* The library's bg-video fades its bottom 40% out — right for a
+	   page header, wrong for a full-viewport wizard backdrop. */
+	.dispatcher-backdrop :global(.bg-video) {
+		mask-image: none;
+		-webkit-mask-image: none;
 	}
 
 	/* Per-phase knowledge chip. Pinned bottom-right above the
