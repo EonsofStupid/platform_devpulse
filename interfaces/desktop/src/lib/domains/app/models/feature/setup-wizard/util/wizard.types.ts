@@ -15,14 +15,17 @@
  */
 
 import type {
+	CapabilityCopy,
 	CompletionCopy,
 	ConnectCopy,
+	DiscoveredEndpoint,
 	DownloadsCopy,
 	GreetingCopy,
 	HardwareCopy,
 	ProfileCopy,
 	TierDisplay,
 } from "$lib/sys/generated/bindings.js";
+import type { ProbeLine, RungId, RungStatus } from "../scan.state.svelte.js";
 
 /**
  * One row of the engine's `AutoConfig.recommendations` JSON. Mirrors
@@ -170,38 +173,8 @@ export interface SlotSaveViewProps {
 	callbacks: WizardCallbacks;
 }
 
-/**
- * Props for the cortex view — anatomy-tile constellation
- * (Brain / Sparkles / Eyes / Ears / Mouth). Same shape as
- * `SlotSaveViewProps` so the existing handlers in
- * `SetupWizardOverlay.svelte` plug in without rewiring; the
- * difference is the wrapping component renders an
- * `AnatomyConstellation` instead of a vertical card list.
- */
-export interface CortexViewProps {
-	/** Header title. */
-	title: string;
-	/** Subtitle / tagline. */
-	subtitle: string;
-	/** One entry per anatomy tile to render. The cortex view picks
-	 *  out the entries matching its anatomy → tile-key table
-	 *  (`brain` → `chat.brain`, `sparkles` → `rag.embedder`,
-	 *  `eyes` → `vision.embedder`, `ears` → `voice.stt`,
-	 *  `mouth` → `voice.tts`). (Reconciled 2026-07-08: this doc
-	 *  previously said `sparkles` → `minion.shared`, drifted from the
-	 *  code.) Extra entries are ignored. */
-	slotSaves: SlotSaveEntryProps[];
-	/** Whether any apply is currently in flight. */
-	busy: boolean;
-	/** Apply callback per slot — routes to the endpoint (connect)
-	 *  step. Tiles light up from the connected endpoint's capability
-	 *  (`clyffyConnection.slots`); they do not install anything. */
-	onApplySlot: (kernelSlotId: string) => void | Promise<void>;
-	/** Optional: open model picker overlay for one slot. */
-	onPickDifferent?: (kernelSlotId: string) => void;
-	/** Standard nav callbacks. */
-	callbacks: WizardCallbacks;
-}
+// The pre-severance step-2 props struct died 2026-07-14 (R5) — the
+// confirm step is CapabilityViewProps (wire-truth tiles, SSOT copy).
 
 export interface CompleteViewProps {
 	copy: CompletionCopy | null;
@@ -212,7 +185,7 @@ export interface CompleteViewProps {
 /**
  * Props for the Clyffy Collab view — the step where the customer
  * brings their Claude API key (or notes their existing Claude Code
- * subscription) so the cortex reasoning router can escalate hard
+ * subscription) so Clyffy's reasoning router can escalate hard
  * turns to Claude alongside the local llama.cpp brain.
  *
  * Skippable like every other wizard step. State lives in the view
@@ -239,6 +212,93 @@ export interface EndpointViewProps {
 	callbacks: WizardCallbacks;
 }
 
+// ── Connect-step colocated components (ui/) — typed variants off the
+//    base design blocks; props in, callback out, zero owned English ──
+
+/** Props for the wizard's connection-mode card (ui/ModeCard.svelte) —
+ *  layman guidance; discovery covers every mode. Copy arrives
+ *  pre-resolved from the [connect] SSOT. */
+export interface ModeCardProps {
+	/** Lucide icon component (resolved by the view). lucide-svelte's
+	 *  generics fight Svelte typing — same precedent as AnatomyTile. */
+	// biome-ignore lint/suspicious/noExplicitAny: lucide icons share a well-known props shape; narrow typing fights Svelte's generics.
+	icon: any;
+	/** Visible mode label (copy.mode_*_label). */
+	label: string;
+	/** One-line layman hint (copy.mode_*_hint). */
+	hint: string;
+	/** Mouseover tooltip body (copy.mode_*_tooltip). */
+	tooltip: string;
+	/** Whether this card is the highlighted mode. */
+	selected: boolean;
+	/** Disable during busy/searching. */
+	disabled?: boolean;
+	/** Selection callback. */
+	onselect: () => void;
+}
+
+/** Props for the live scan surface (ui/ScanPanel.svelte). Pure render —
+ *  every row/line is a fold of REAL DiscoveryEvents (no-mock law); the
+ *  panel reads the model and calls nothing. */
+export interface ScanPanelProps {
+	copy: ConnectCopy | null;
+	phase: "idle" | "searching" | "done";
+	rungs: Record<RungId, RungStatus>;
+	probes: ProbeLine[];
+	probedTotal: number | null;
+	foundTotal: number | null;
+	error: string | null;
+}
+
+/** Props for one verified endpoint's capability card
+ *  (ui/FoundEndpointCard.svelte). Everything shown is COMPUTED from the
+ *  live handshake (kind/version/slots) — never assumed. */
+export interface FoundEndpointCardProps {
+	endpoint: DiscoveredEndpoint;
+	/** Connect in flight (this card or globally busy). */
+	working: boolean;
+	confirmLabel: string;
+	confirmTooltip: string;
+	onConfirm: (url: string) => void | Promise<void>;
+}
+
+/** Props for the manual address well (ui/ManualEntry.svelte) — always
+ *  reachable, never the front door. The input buffer lives inside the
+ *  component (view-model, not app state). */
+export interface ManualEntryProps {
+	label: string;
+	placeholder: string;
+	inputAria: string;
+	inputTooltip: string;
+	connectLabel: string;
+	connectAria: string;
+	working: boolean;
+	disabled: boolean;
+	/** Real command error text or null — never fabricated. */
+	errorText: string | null;
+	/** True failed-status: attempted && settled && disconnected. */
+	showFailed: boolean;
+	failedHint: string;
+	onConnect: (url: string) => void | Promise<void>;
+}
+
+/**
+ * Props for the capability confirm view (step 2) — renders the
+ * CONNECTED Clyffy's advertised slots as layman sense tiles. Copy =
+ * [capability] SSOT. Pure function of the wire capability — honest
+ * empty when standalone. There is no embedded kernel.
+ */
+export interface CapabilityViewProps {
+	copy: CapabilityCopy | null;
+	/** True while a live endpoint is connected (drives standalone_hint). */
+	connected: boolean;
+	slotSaves: SlotSaveEntryProps[];
+	busy: boolean;
+	/** Tile CTA — routes to the endpoint step (tiles never install). */
+	onApplySlot: (kernelSlotId: string) => void | Promise<void>;
+	callbacks: WizardCallbacks;
+}
+
 /**
  * Discriminated union of every view's typed prop struct. The
  * dispatcher matches on the active view ID and renders the
@@ -251,7 +311,7 @@ export type ViewProps =
 	| { view: "hardware"; props: HardwareViewProps }
 	| { view: "preset"; props: PresetViewProps }
 	| { view: "endpoint"; props: EndpointViewProps }
-	| { view: "cortex"; props: CortexViewProps }
+	| { view: "capability"; props: CapabilityViewProps }
 	| { view: "slot-save"; props: SlotSaveViewProps }
 	| { view: "installing"; props: InstallingViewProps }
 	| { view: "clyffy-collab"; props: ClyffyCollabViewProps }

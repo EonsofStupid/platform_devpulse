@@ -30,38 +30,36 @@ export type WizardView =
 	| "hardware"
 	| "preset"
 	| "endpoint"
-	| "cortex"
+	| "capability"
 	| "slot-save"
 	| "installing"
 	| "clyffy-collab"
 	| "complete";
 
 /**
- * Order in which views advance via `next()` / `back()`. `cortex`
- * replaces `slot-save` as the primary per-slot step (anatomy-tile
- * constellation). `slot-save` stays in the type union so the older
- * `SlotSaveView.svelte` file still type-checks against direct
- * `goTo("slot-save")` callers, but it's no longer reachable through
- * `next()`/`back()` — the cortex view is the wizard surface customers
- * actually see. `clyffy-collab` sits between installing and complete
- * so the customer sees the Claude collab option AFTER models have
- * finished landing — easier to make the "do you also want Claude?"
- * decision when the local setup is visibly in place.
- */
-/**
- * `endpoint` (the connect step — Local / GB10 address entry) sits
- * before `cortex` so the sense tiles light up from the freshly
- * connected endpoint's capability instead of rendering empty first.
- * Skip on the endpoint step leaves the app standalone (Tier-1) — a
- * mode, never an error — and the tiles render their honest
- * awaiting-backend framing.
+ * Order in which views advance via `next()` / `back()`. The customer
+ * walk is `endpoint` (find/confirm a Clyffy) → `capability` (the
+ * connected Clyffy's advertised senses — anatomy-tile constellation,
+ * wire truth) → `complete`. `endpoint` sits first so the sense tiles
+ * light up from the freshly connected endpoint's capability instead
+ * of rendering empty. Skip on the endpoint step leaves the app
+ * standalone (Tier-1) — a mode, never an error — and the tiles render
+ * their honest awaiting-backend framing.
+ *
+ * `slot-save` stays in the type union so the older `SlotSaveView`
+ * still type-checks against direct `goTo("slot-save")` callers, but
+ * it's unreachable through `next()`/`back()` (retirement = 08/R6).
+ * `clyffy-collab` sits between installing and complete so the Claude
+ * collab option appears AFTER models finish landing; per the operator
+ * ruling 2026-07-14 it becomes the "enable assist" surface and leaves
+ * the forward walk in R6.
  */
 const VIEW_ORDER: readonly WizardView[] = [
 	"welcome",
 	"hardware",
 	"preset",
 	"endpoint",
-	"cortex",
+	"capability",
 	"installing",
 	"clyffy-collab",
 	"complete",
@@ -73,14 +71,14 @@ class WizardState {
 	/**
 	 * Current step.
 	 *
-	 * The wizard collapses to a single-screen experience anchored on the
-	 * `cortex` view — five anatomy tiles + Clyffy mascot, per the locked
-	 * "one clear screen" customer requirement. The welcome / hardware /
-	 * preset / installing / clyffy-collab / complete views remain in the
-	 * codebase as reachable destinations (per-step `goTo()`) but the
-	 * auto-open flow lands the customer on cortex directly.
+	 * The connect flow is TWO steps: `endpoint` (find/confirm a Clyffy)
+	 * → `capability` (the connected Clyffy's advertised senses, wire
+	 * truth) → `complete`. The wizard opens on `endpoint` — step 1 of 2.
+	 * The legacy local-install views (welcome / hardware / preset /
+	 * installing) remain reachable destinations (per-step `goTo()`),
+	 * not the front door.
 	 */
-	view = $state<WizardView>("cortex");
+	view = $state<WizardView>("endpoint");
 	/** Whether the platform reports this is the user's first launch. */
 	firstRun = $state<boolean | null>(null);
 

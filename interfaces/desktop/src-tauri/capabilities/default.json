@@ -12,6 +12,7 @@
 		"shell:allow-kill",
 		"shell:allow-stdin-write",
 		"global-shortcut:allow-register",
-		"updater:default"
+		"updater:default",
+		"core:window:allow-start-dragging"
 	]
 }

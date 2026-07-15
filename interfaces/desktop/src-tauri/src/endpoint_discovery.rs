@@ -75,6 +75,16 @@ pub enum DiscoveryEvent {
         /// Candidates contributed (pre-verification).
         candidates: u32,
     },
+    /// A candidate URL was actually probed — true attempt telemetry.
+    /// No-mock law: the UI may only render attempts that happened.
+    CandidateProbed {
+        /// The URL that was probed.
+        url: String,
+        /// Which rung enumerated it.
+        source: DiscoverySource,
+        /// Whether the capability handshake answered.
+        reached: bool,
+    },
     /// A candidate answered the capability handshake.
     Found {
         /// The verified endpoint.
@@ -323,11 +333,28 @@ pub async fn discover(
     };
 
     let probed = candidates.len() as u32;
+    // Per-attempt telemetry: every probe emits CandidateProbed + a scoped
+    // trace, success or not — the scan UI renders ONLY these true events.
+    let on_event_ref = &on_event;
     let found: Vec<DiscoveredEndpoint> = stream::iter(candidates)
         .map(|(url, source)| {
             let client = client.clone();
             async move {
-                match client.probe_capability(&url).await {
+                let result = client.probe_capability(&url).await;
+                let reached = result.is_ok();
+                tracing::debug!(
+                    target: "clyffy.discovery",
+                    url = %url,
+                    source = ?source,
+                    reached,
+                    "candidate probed"
+                );
+                on_event_ref(DiscoveryEvent::CandidateProbed {
+                    url: url.clone(),
+                    source,
+                    reached,
+                });
+                match result {
                     Ok(capability) => Some(DiscoveredEndpoint {
                         url,
                         source,

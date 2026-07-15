@@ -2,34 +2,25 @@
 	@file OverlayShell.svelte
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/overlay-shell
 
-	Shared overlay shell composed from ColdLight primitives. Visual
-	styling comes from preset chains via renderForge — this file
-	NEVER authors color / border / shadow CSS directly.
+	SEPARATE CRISP CARDS — operator ruling 2026-07-14: there is NO
+	enclosing shell box. The ENTIRE window is the animation (the
+	dispatcher's fixed BackgroundScene layers); floating directly on it,
+	as INDIVIDUAL crisp surfaces:
 
-	## 4 surface tiers — depth-stacked via the `wizard-*` preset family
+	  header card   (mascot · title · step)        — wizard-deep, slim
+	  …children…    (the view's own separate cards) — each owns its chrome
+	  footer card   (Back / Skip / primary CTA)     — wizard-deep, slim
 
-	Brand-hued tiers (tokens/src/presets/wizard.tokens.json — composed
-	from the designed token library: glass surfaces, gradient fields,
-	depth + glow stacks): blue glass shell → violet content panel → cyan
-	wells. Color IS the requirement — the achromatic glass/stark tiers
-	read as black boxes and are retired here.
+	This file is a pure ARRANGER: it owns the column rhythm, fluid XY
+	clamping (cqi for X, cqb for Y — root is container-type: size), and
+	the two slim header/footer cards. Zero color/border/shadow CSS —
+	chrome flows from the preset chains.
 
-	| Tier         | Where                          | Composition                  |
-	|--------------|--------------------------------|------------------------------|
-	| 1 (deepest)  | wizard backdrop                | `.shell-root` (layout only — backdrop glow lives in app.css `[data-layout="setup"]`) |
-	| 2            | card outer shell               | `<Card preset="wizard-deep">` — blue glass + glow halo |
-	| 3            | card inner content panel       | `<Card preset="wizard-solid">` — violet tint + purple glow |
-	| 4 (top)      | nested wells (consumer-owned)  | `<Card preset="wizard-elevated">` in views — cyan raised glass |
-
-	Layout-only CSS in this file: positioning, sizing, gap. No colors,
-	no borders, no shadows — those flow from the Card preset chain.
-
-	## Optional snippet slots
-
-	- `mascot`  — Clyffy mascot in the header (pose changes per view).
-	- `backdrop` — MP4 / animated video. Rendered behind the card.
-	- `children` — view body content. Required.
-	- `footer`  — Back / Skip / primary CTA buttons. Required.
+	## Snippet slots
+	- `mascot`   — Clyffy mascot in the header card (pose per view).
+	- `backdrop` — optional extra per-view animated layer.
+	- `children` — the view's separate floating surfaces. Required.
+	- `footer`   — Back / Skip / primary CTA. Required.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
@@ -44,13 +35,13 @@ interface Props {
 	step: number;
 	/** Total steps for the header indicator. */
 	totalSteps: number;
-	/** Heading text for the card header. */
+	/** Heading text for the header card. */
 	title: string;
-	/** Optional Clyffy mascot snippet — rendered in the header. */
+	/** Optional Clyffy mascot snippet — rendered in the header card. */
 	mascot?: Snippet;
-	/** Optional MP4 / animated backdrop video. */
+	/** Optional extra animated backdrop layer. */
 	backdrop?: Snippet;
-	/** View body content. */
+	/** View body content — separate floating surfaces. */
 	children: Snippet;
 	/** Footer actions (Back / Skip / primary CTA). */
 	footer: Snippet;
@@ -60,14 +51,13 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 </script>
 
 <!--
-	Tier 1: backdrop layer. `data-layout="setup"` picks up the radial
-	glow + grid pattern declared in app.css for full-viewport setup
-	shells. Position + size only — visuals come from the layout
-	attribute.
+	Root layer — TRANSPARENT: the dispatcher's fixed BackgroundScene
+	layers (z 8999) own the full viewport; nothing here paints over
+	them. The old `data-layout="setup"` circuit-board field died
+	2026-07-14 — it had covered the MP4 since the beginning.
 -->
 <div
 	class="shell-root"
-	data-layout="setup"
 	role="dialog"
 	aria-modal="true"
 	aria-label={label}
@@ -78,9 +68,9 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		</div>
 	{/if}
 
-	<!-- Tier 2: card outer shell — wizard blue glass (glow halo + blur). -->
-	<Card preset="wizard-deep" class="shell-card">
-		<header class="shell-head">
+	<div class="shell-stack">
+		<!-- Header — its own slim crisp card floating on the animation. -->
+		<Card preset="wizard-deep" class="shell-head-card">
 			<div class="shell-head-left">
 				{#if mascot}
 					<div class="shell-mascot">{@render mascot()}</div>
@@ -90,23 +80,22 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 			<Text size="xs" class="text-frost-500">
 				Step {step} of {totalSteps}
 			</Text>
-		</header>
-
-		<!-- Tier 3: inner content panel — wizard violet tint. -->
-		<Card preset="wizard-solid" class="shell-body">
-			{@render children()}
 		</Card>
 
-		<footer class="shell-foot">
+		<!-- The view's surfaces — each a SEPARATE card owning its chrome;
+		     no wrapper paints anything between them and the animation. -->
+		{@render children()}
+
+		<!-- Footer — its own slim crisp card. -->
+		<Card preset="wizard-deep" class="shell-foot-card">
 			{@render footer()}
-		</footer>
-	</Card>
+		</Card>
+	</div>
 </div>
 
 <style>
-	/* Layout-only. Visual styling (border / shadow / background) lives
-	   in the Card preset chain (glass for outer, stark for body) and
-	   the `[data-layout="setup"]` backdrop in app.css. */
+	/* PURE ARRANGER — layout + fluid XY only. Chrome lives in the
+	   preset chains the cards wear. */
 	.shell-root {
 		position: fixed;
 		inset: 0;
@@ -114,21 +103,20 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		/* Container context — the wizard overlay is a `fixed` sibling of
-		   the shell grid zones, so this is its only container seam for
-		   container-fluid (cqi) tokens. See S1.C in S1-FLUID-TOKENS.md. */
-		container-type: inline-size;
+		/* Container seam for container-fluid tokens (S1.C). `size`,
+		   not inline-size: the root is inset-0 fixed with a definite
+		   height, so BOTH axes are queryable — cqi for X, cqb for Y
+		   (fluid XY clamping, operator ruling 2026-07-14). */
+		container-type: size;
 		container-name: setup-overlay;
 	}
 
-	/* MP4 / animated backdrop slot — sits below the card, above the
-	   layout backdrop. Layout-only positioning. */
+	/* Optional per-view animated layer — under the cards. */
 	.shell-backdrop-video {
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
 		overflow: hidden;
-		opacity: 0.35;
 	}
 	.shell-backdrop-video :global(video) {
 		width: 100%;
@@ -136,63 +124,49 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		object-fit: cover;
 	}
 
-	/* The Card primitive provides the visual chrome. Only set sizing /
-	   spacing concerns here that Card's preset doesn't own. `:global()`
-	   because the class is passed to a child component (`<Card>`); the
-	   class lands on Card's rendered root but Svelte's per-file scoper
-	   can't track classes across component boundaries. */
-	:global(.shell-card) {
+	/* The floating column — fluid XY: width clamps on cqi, height and
+	   rhythm clamp on cqb. Scrolls itself if a view outgrows the
+	   window; the animation never scrolls. */
+	.shell-stack {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		/* Container-fluid (cqi resolves against .shell-root, declared a
-		   container in this file — S1.C): the card's rhythm scales with
-		   the overlay, not the OS window. */
-		gap: clamp(0.75rem, 1.5cqi, 1rem);
-		padding: clamp(1rem, 2.5cqi, 1.5rem);
-		/* min/max widths so child grids (AnatomyConstellation uses
-		   max-width: 64rem) get their intended room; min() keeps the
-		   card inside narrow windows instead of overflowing them.
-		   40rem was crushing the cortex constellation's 3-column row
-		   to ~183px per cell, which forced single-word title wrap. */
-		min-width: min(30rem, 92cqi);
-		max-width: 64rem;
-		width: 100%;
+		gap: clamp(0.75rem, 1.8cqb, 1.5rem);
+		width: min(64rem, 92cqi);
+		max-height: 94cqb;
+		overflow-y: auto;
+		padding: clamp(0.25rem, 0.8cqb, 0.75rem);
 	}
 
-	.shell-head {
-		display: flex;
-		justify-content: space-between;
+	/* Header/footer — slim row cards. `:global()` because the classes
+	   land on child <Card> roots across the component boundary. */
+	:global(.shell-head-card) {
+		flex-direction: row;
 		align-items: center;
-		gap: 1rem;
+		justify-content: space-between;
+		gap: clamp(0.5rem, 1cqi, 1rem);
+		padding: clamp(0.625rem, 1.2cqb, 1rem) clamp(0.875rem, 1.8cqi, 1.5rem);
 	}
 
 	.shell-head-left {
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
+		gap: clamp(0.5rem, 1cqi, 0.75rem);
+		min-width: 0;
 	}
 
 	.shell-mascot {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2.25rem;
-		height: 2.25rem;
+		width: clamp(2rem, 3.5cqb, 2.5rem);
+		height: clamp(2rem, 3.5cqb, 2.5rem);
 	}
 
-	/* `:global()` — class is passed to a child `<Card>` component. */
-	:global(.shell-body) {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		min-height: 9rem;
-		padding: 1rem;
-	}
-
-	.shell-foot {
-		display: flex;
-		gap: 0.5rem;
+	:global(.shell-foot-card) {
+		flex-direction: row;
 		align-items: center;
+		gap: clamp(0.375rem, 0.8cqi, 0.625rem);
+		padding: clamp(0.5rem, 1cqb, 0.875rem) clamp(0.875rem, 1.8cqi, 1.5rem);
 	}
 </style>

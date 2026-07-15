@@ -2,41 +2,29 @@
 	@file EndpointView.svelte
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/views/endpoint
 
-	Wizard connect step — links standalone DevPulse (Tier-1) to a Clyffy
-	endpoint so the AI layer lights up. DISCOVERY-FIRST: the primary
-	action runs the turnkey candidate ladder (`discover_clyffy` — this
-	machine, the local network via mDNS, the private mesh via peer
-	enumeration; every answer verified by the live capability handshake).
-	Verified endpoints render as capability cards the operator CONFIRMS —
-	connecting is never automatic. Manual address entry stays one tap
-	away behind `manual_reveal`, never the front door.
+	Wizard connect step — THIN composition, zero chrome of its own.
+	Recoded 2026-07-14 (08/R4): every surface is a typed colocated
+	variant from ../../ui/ wearing the build-generated runtime CSS by
+	preset reference; this file owns layout divs, the command calls,
+	and nothing else (Rust = brain, Svelte = dumb UI).
 
-	The mode cards remain layman guidance for the charter's connection
-	modes (local / network / gb10) — discovery covers all of them.
+	Render story (two chrome tiers total, operator ruling):
+	  shell (OverlayShell, wizard-deep)
+	    ├─ mode row        → 2× ModeCard          (wizard-elevated wells)
+	    ├─ discover row    → Button + live badges
+	    ├─ scan surface    → ScanPanel            (wizard-inset well) —
+	    │                    pops on scan start, renders ONLY
+	    │                    signal-proven attempts (NO-MOCK LAW)
+	    ├─ found list      → FoundEndpointCard(s) (wizard-elevated) —
+	    │                    wire-truth capability, Confirm fires the
+	    │                    real connectClyffy
+	    └─ manual fallback → ManualEntry           (wizard-inset well)
 
-	## Parse-from-connection
-
-	Confirm fires the real `connectClyffy(url)` command (re-points the
-	probe loop, no restart); every status cue then reads the
-	`clyffyConnection` rune — `connecting` / `connected` / back to
-	`disconnected` — exactly what the probe computed from the live
-	capability handshake. Nothing in this view fabricates a state:
-	discovery is READ-ONLY and the probe loop stays the sole
-	connection-state writer.
-
-	Skip is a first-class choice: the app stays standalone (a mode,
-	never an error) and the no-AI indicators stay on. `skip_hint` tells
-	the customer the badge brings them back here anytime.
-
-	## Token + design discipline
-
-	  - Zero hardcoded strings — every visible string is `copy.*`
-	    ([connect] table in wizard_copy.default.toml, Rust SSOT)
-	  - Composes OverlayShell + Card/Badge/Button/Heading/Spinner/Text;
-	    surfaces wear the wizard-elevated preset (designed token
-	    composition) — scoped CSS is layout + the one sanctioned
-	    selected/focus accent overlay (Lock #6 connect-blue)
-	  - Fluid via cqi (inside .shell-root's container context, S1.C)
+	Discovery is READ-ONLY; the probe loop stays the sole
+	connection-state writer. Skip is a first-class choice (standalone
+	is a mode, never an error). Zero hardcoded English — every string
+	is `copy.*` ([connect] table, Rust SSOT). Tooltips on every
+	interactive element. Fluid via cqi (container = .shell-root, S1.C).
 -->
 <script lang="ts">
 import { Check, Home, Radar, Server } from "lucide-svelte";
@@ -44,30 +32,27 @@ import { onMount } from "svelte";
 import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import { clyffyConnection } from "$lib/domains/clyffy/index.js";
-import type { DiscoveredEndpoint } from "$lib/sys/generated/bindings.js";
 import { commands, events } from "$lib/sys/generated/bindings.js";
+import { scanState } from "../../scan.state.svelte.js";
+import FoundEndpointCard from "../../ui/FoundEndpointCard.svelte";
+import ManualEntry from "../../ui/ManualEntry.svelte";
+import ModeCard from "../../ui/ModeCard.svelte";
+import ScanPanel from "../../ui/ScanPanel.svelte";
 import type { EndpointViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
 
 let { copy, busy, callbacks }: EndpointViewProps = $props();
 
-/** Which mode card is highlighted — guidance only; discovery covers all modes. */
+/** Which mode card is highlighted — guidance only; discovery covers all
+ *  modes today. 09/C4 makes this a real ConnectionMode filter. */
 let mode = $state<"local" | "gb10">("local");
-
-// ── Turnkey discovery ─────────────────────────────────────────────
-type DiscoveryPhase = "idle" | "searching" | "done";
-let discovery = $state<DiscoveryPhase>("idle");
-let found = $state<DiscoveredEndpoint[]>([]);
-let discoverError = $state<string | null>(null);
 
 // ── Manual fallback ───────────────────────────────────────────────
 let manualOpen = $state(false);
-let urlInput = $state("");
 let working = $state(false);
 let errorMessage = $state<string | null>(null);
 /** Set once a connect was attempted — gates the failed-status hint so we
@@ -80,16 +65,14 @@ $effect(() => clyffyConnection.subscribe());
 const connectionState = $derived(clyffyConnection.state.state);
 const showFailed = $derived(attempted && !working && connectionState === "disconnected");
 
-// Found endpoints stream in live via the typed discovery event; the
-// command's return is the authoritative final list (dedup by URL).
+// Every discovery signal folds into scanState — the panel renders only
+// what these REAL events prove (source_scanned / candidate_probed /
+// found / finished).
 onMount(() => {
 	let unlisten: (() => void) | undefined;
 	void events.clyffyDiscoveryProgress
 		.listen(({ payload }) => {
-			const e = payload.event;
-			if (e.kind === "found" && !found.some((f) => f.url === e.endpoint.url)) {
-				found = [...found, e.endpoint];
-			}
+			scanState.ingest(payload.event);
 		})
 		.then((un) => {
 			unlisten = un;
@@ -98,17 +81,14 @@ onMount(() => {
 });
 
 async function discover(): Promise<void> {
-	discovery = "searching";
-	discoverError = null;
-	found = [];
+	scanState.begin();
 	const r = await commands.discoverClyffy();
 	if (r.status === "ok") {
-		// Authoritative final list (events already streamed most of it in).
-		found = r.data;
+		// Authoritative final list — union with the streamed truth.
+		scanState.reconcile(r.data);
 	} else {
-		discoverError = String(r.error);
+		scanState.fail(String(r.error));
 	}
-	discovery = "done";
 }
 
 async function connect(url: string): Promise<void> {
@@ -146,56 +126,54 @@ async function connect(url: string): Promise<void> {
 	<div class="endpoint-view">
 		<Text size="base" color="muted">{copy?.subtitle ?? ""}</Text>
 
-		<!-- Exclusive toggle pair (aria-pressed) — layman guidance for the
-		     charter's connection modes; discovery searches all of them. -->
+		<!-- Mode guidance — typed ModeCard variants (aria-pressed pair). -->
 		<div class="mode-row">
-			<Card
-				as="button"
-				preset="wizard-elevated"
-				class="mode-card"
-				aria-pressed={mode === "local"}
-				data-selected={mode === "local" ? "true" : undefined}
-				onclick={() => {
+			<ModeCard
+				icon={Home}
+				label={copy?.mode_local_label ?? ""}
+				hint={copy?.mode_local_hint ?? ""}
+				tooltip={copy?.mode_local_tooltip ?? ""}
+				selected={mode === "local"}
+				disabled={busy}
+				onselect={() => {
 					mode = "local";
 				}}
-			>
-				<Home size={18} class="mode-icon" />
-				<Heading level={3} size="sm">{copy?.mode_local_label ?? ""}</Heading>
-				<Text size="xs" color="muted">{copy?.mode_local_hint ?? ""}</Text>
-			</Card>
-			<Card
-				as="button"
-				preset="wizard-elevated"
-				class="mode-card"
-				aria-pressed={mode === "gb10"}
-				data-selected={mode === "gb10" ? "true" : undefined}
-				onclick={() => {
+			/>
+			<ModeCard
+				icon={Server}
+				label={copy?.mode_gb10_label ?? ""}
+				hint={copy?.mode_gb10_hint ?? ""}
+				tooltip={copy?.mode_gb10_tooltip ?? ""}
+				selected={mode === "gb10"}
+				disabled={busy}
+				onselect={() => {
 					mode = "gb10";
 				}}
-			>
-				<Server size={18} class="mode-icon" />
-				<Heading level={3} size="sm">{copy?.mode_gb10_label ?? ""}</Heading>
-				<Text size="xs" color="muted">{copy?.mode_gb10_hint ?? ""}</Text>
-			</Card>
+			/>
 		</div>
 
 		<!-- ── Turnkey discovery — the primary path ─────────────────── -->
 		<div class="discover-row">
-			<Button
-				preset="primary"
-				size="md"
-				aria-label={copy?.discover_aria ?? ""}
-				onclick={discover}
-				disabled={busy || discovery === "searching"}
-			>
-				{#if discovery === "searching"}
-					<Spinner size="xs" tone="accent" />
-					{copy?.discovering ?? ""}
-				{:else}
-					<Radar size={16} />
-					{copy?.discover_cta ?? ""}
-				{/if}
-			</Button>
+			<Tooltip>
+				<TooltipTrigger>
+					<Button
+						preset="primary"
+						size="md"
+						aria-label={copy?.discover_aria ?? ""}
+						onclick={discover}
+						disabled={busy || scanState.phase === "searching"}
+					>
+						{#if scanState.phase === "searching"}
+							<Spinner size="xs" tone="accent" />
+							{copy?.discovering ?? ""}
+						{:else}
+							<Radar size={16} />
+							{copy?.discover_cta ?? ""}
+						{/if}
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent preset="stark">{copy?.discover_tooltip ?? ""}</TooltipContent>
+			</Tooltip>
 			{#if connectionState === "connected"}
 				<Badge variant="positive" size="sm">
 					<Check size={12} />
@@ -209,37 +187,31 @@ async function connect(url: string): Promise<void> {
 			{/if}
 		</div>
 
-		{#if discoverError}
-			<Text size="xs" class="error-line">{discoverError}</Text>
-		{/if}
+		<!-- The live scan surface — pops on scan start, truth only. -->
+		<ScanPanel
+			{copy}
+			phase={scanState.phase}
+			rungs={scanState.rungs}
+			probes={scanState.probes}
+			probedTotal={scanState.probedTotal}
+			foundTotal={scanState.foundTotal}
+			error={scanState.error}
+		/>
 
-		{#if found.length > 0}
+		{#if scanState.found.length > 0}
 			<section class="found-list" aria-label={copy?.found_title ?? ""}>
-				<Heading level={3} size="sm">{copy?.found_title ?? ""}</Heading>
-				{#each found as endpoint (endpoint.url)}
-					<!-- Capability card — everything shown is COMPUTED from the
-					     live handshake (kind/version/slots), never assumed. -->
-					<Card preset="wizard-elevated" class="found-card">
-						<div class="found-meta">
-							<Heading level={4} size="sm">{endpoint.capability.kind}</Heading>
-							<Text size="xs" color="muted">{endpoint.url}</Text>
-							<div class="found-badges">
-								<Badge variant="neutral" size="sm">{endpoint.capability.version}</Badge>
-								<Badge variant="neutral" size="sm">{endpoint.capability.slots.length}</Badge>
-							</div>
-						</div>
-						<Button
-							preset="primary"
-							size="sm"
-							onclick={() => connect(endpoint.url)}
-							disabled={working || busy}
-						>
-							{copy?.confirm_cta ?? ""}
-						</Button>
-					</Card>
+				<Text size="sm">{copy?.found_title ?? ""}</Text>
+				{#each scanState.found as endpoint (endpoint.url)}
+					<FoundEndpointCard
+						{endpoint}
+						working={working || busy}
+						confirmLabel={copy?.confirm_cta ?? ""}
+						confirmTooltip={copy?.confirm_tooltip ?? ""}
+						onConfirm={connect}
+					/>
 				{/each}
 			</section>
-		{:else if discovery === "done" && !discoverError}
+		{:else if scanState.phase === "done" && !scanState.error}
 			<Text size="xs" color="muted">{copy?.none_found ?? ""}</Text>
 			<Text size="xs" color="muted">{copy?.degraded_hint ?? ""}</Text>
 		{/if}
@@ -247,80 +219,80 @@ async function connect(url: string): Promise<void> {
 		<!-- ── Manual fallback — always reachable, never the front door ── -->
 		{#if !manualOpen}
 			<div>
-				<Button
-					preset="ghost"
-					size="sm"
-					onclick={() => {
-						manualOpen = true;
-					}}
-					disabled={busy}
-				>
-					{copy?.manual_reveal ?? ""}
-				</Button>
+				<Tooltip>
+					<TooltipTrigger>
+						<Button
+							preset="ghost"
+							size="sm"
+							onclick={() => {
+								manualOpen = true;
+							}}
+							disabled={busy}
+						>
+							{copy?.manual_reveal ?? ""}
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent preset="stark">{copy?.manual_tooltip ?? ""}</TooltipContent>
+				</Tooltip>
 			</div>
 		{:else}
-			<Card preset="wizard-elevated" class="address-panel">
-				<div class="address-head">
-					<Heading level={3} size="sm">{copy?.url_label ?? ""}</Heading>
-				</div>
-				<div class="address-row">
-					<input
-						class="address-input"
-						type="text"
-						placeholder={copy?.url_placeholder ?? ""}
-						aria-label={copy?.url_aria ?? ""}
-						bind:value={urlInput}
-						disabled={working || busy}
-						autocomplete="off"
-						spellcheck="false"
-					/>
-					<Button
-						preset="primary"
-						size="md"
-						aria-label={copy?.connect_aria ?? ""}
-						onclick={() => connect(urlInput)}
-						disabled={working || busy || urlInput.trim().length === 0}
-					>
-						{#if working || connectionState === "connecting"}<Spinner size="xs" tone="accent" />{/if}
-						{copy?.connect_cta ?? ""}
-					</Button>
-				</div>
-				{#if errorMessage}
-					<Text size="xs" class="error-line">{errorMessage}</Text>
-				{/if}
-				{#if showFailed}
-					<Text size="xs" color="muted">{copy?.status_failed ?? ""}</Text>
-				{/if}
-			</Card>
+			<ManualEntry
+				label={copy?.url_label ?? ""}
+				placeholder={copy?.url_placeholder ?? ""}
+				inputAria={copy?.url_aria ?? ""}
+				inputTooltip={copy?.url_tooltip ?? ""}
+				connectLabel={copy?.connect_cta ?? ""}
+				connectAria={copy?.connect_aria ?? ""}
+				{working}
+				disabled={busy}
+				errorText={errorMessage}
+				{showFailed}
+				failedHint={copy?.status_failed ?? ""}
+				onConnect={connect}
+			/>
 		{/if}
 
 		<Text size="xs" color="muted">{copy?.skip_hint ?? ""}</Text>
 	</div>
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
-			{copy?.back_label ?? ""}
-		</Button>
-		<Button
-			preset="ghost"
-			size="sm"
-			aria-label={copy?.skip_aria ?? ""}
-			onclick={callbacks.onSkip}
-			disabled={busy}
-		>
-			{copy?.skip_label ?? ""}
-		</Button>
+		<Tooltip>
+			<TooltipTrigger>
+				<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
+					{copy?.back_label ?? ""}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent preset="stark">{copy?.back_tooltip ?? ""}</TooltipContent>
+		</Tooltip>
+		<Tooltip>
+			<TooltipTrigger>
+				<Button
+					preset="ghost"
+					size="sm"
+					aria-label={copy?.skip_aria ?? ""}
+					onclick={callbacks.onSkip}
+					disabled={busy}
+				>
+					{copy?.skip_label ?? ""}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent preset="stark">{copy?.skip_tooltip ?? ""}</TooltipContent>
+		</Tooltip>
 		<div class="footer-spacer"></div>
-		<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
-			{copy?.continue_label ?? ""}
-		</Button>
+		<Tooltip>
+			<TooltipTrigger>
+				<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
+					{copy?.continue_label ?? ""}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent preset="stark">{copy?.continue_tooltip ?? ""}</TooltipContent>
+		</Tooltip>
 	{/snippet}
 </OverlayShell>
 
 <style>
-	/* Layout-only; fluid via cqi (container = .shell-root, S1.C).
-	   Surface chrome lives on the wizard-elevated preset — scoped CSS
-	   adds layout + the ONE sanctioned selected/focus accent overlay. */
+	/* LAYOUT ONLY — every chrome/effect lives in the preset chains the
+	   colocated variants wear. Fluid via cqi (S1.C). */
 	.endpoint-view {
 		display: flex;
 		flex-direction: column;
@@ -336,30 +308,6 @@ async function connect(url: string): Promise<void> {
 		gap: clamp(0.75rem, 1.4cqi, 1rem);
 	}
 
-	/* `:global()` — classes land on child <Card> roots. Layout + accent
-	   overlay only; bg/border/shadow/radius come from wizard-elevated. */
-	.endpoint-view :global(.mode-card) {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: clamp(0.375rem, 0.8cqi, 0.5rem);
-		padding: clamp(0.875rem, 1.6cqi, 1.125rem);
-		text-align: left;
-		cursor: pointer;
-	}
-	.endpoint-view :global(.mode-card[data-selected]) {
-		/* Blue-tinted glass + CTA-blue edge — Lock #6 connect identity. */
-		background-color: var(--glass-blue);
-		border-color: color-mix(in oklch, var(--cta-main) 55%, var(--border-subtle));
-		box-shadow: 0 0.1875rem 0.75rem 0 oklch(0 0 0 / 0.4), 0 0 1.25rem 0 var(--accent-blue-glow, oklch(0.68 0.14 240 / 0.35));
-	}
-	.endpoint-view :global(.mode-card:focus-visible) {
-		outline: var(--border-width-thin) solid var(--cta-main);
-		outline-offset: var(--outline-offset-md);
-	}
-	.endpoint-view :global(.mode-icon) {
-		color: var(--cta-main);
-	}
-
 	.discover-row {
 		display: flex;
 		align-items: center;
@@ -371,66 +319,6 @@ async function connect(url: string): Promise<void> {
 		flex-direction: column;
 		gap: clamp(0.5rem, 1cqi, 0.75rem);
 		min-width: 0;
-	}
-
-	.endpoint-view :global(.found-card) {
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		gap: clamp(0.5rem, 1cqi, 0.75rem);
-		padding: clamp(0.75rem, 1.4cqi, 1rem);
-	}
-
-	.found-meta {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		min-width: 0;
-	}
-
-	.found-badges {
-		display: flex;
-		gap: 0.375rem;
-	}
-
-	.endpoint-view :global(.address-panel) {
-		flex-direction: column;
-		gap: clamp(0.5rem, 1cqi, 0.75rem);
-		padding: clamp(0.875rem, 1.6cqi, 1.125rem);
-	}
-
-	.address-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-	}
-
-	.address-row {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.address-input {
-		flex: 1;
-		min-width: 0;
-		padding: 0.5rem 0.75rem;
-		font-family: var(--font-mono, ui-monospace, monospace);
-		font-size: var(--font-size-sm);
-		color: var(--text-default);
-		background: var(--surface-inset);
-		border: var(--border-width-hairline) solid var(--border-subtle);
-		border-radius: 0.375rem;
-		transition: border-color 120ms ease;
-	}
-	.address-input:focus {
-		outline: none;
-		border-color: var(--cta-main);
-	}
-
-	.endpoint-view :global(.error-line) {
-		color: var(--accent-danger-main);
 	}
 
 	.footer-spacer {

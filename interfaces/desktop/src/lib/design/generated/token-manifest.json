@@ -45827,7 +45827,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-deep-background-color",
-				"value": "var(--glass-blue)",
+				"value": "oklch(0.16 0.05 240 / 0.94)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45839,7 +45839,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-deep-gradient",
-				"value": "var(--gradient-surface-brand-blue)",
+				"value": "linear-gradient(180deg, oklch(0.19 0.055 240) 0%, oklch(0.12 0.05 240) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45863,7 +45863,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-deep-box-shadow",
-				"value": "var(--depth-z3), var(--glow-blue)",
+				"value": "var(--depth-z3), var(--bevel-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45947,7 +45947,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-solid-background-color",
-				"value": "var(--glass-purple)",
+				"value": "oklch(0.2 0.045 300 / 0.96)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45959,7 +45959,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-solid-gradient",
-				"value": "var(--gradient-surface-purple)",
+				"value": "linear-gradient(180deg, oklch(0.22 0.05 300) 0%, oklch(0.15 0.045 300) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -45983,7 +45983,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-solid-box-shadow",
-				"value": "var(--depth-z2), var(--glow-purple), var(--bevel-subtle)",
+				"value": "var(--depth-z2), var(--bevel-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46055,7 +46055,7 @@
 					"background-color"
 				],
 				"cssVar": "--preset-wizard-elevated-background-color",
-				"value": "var(--glass-teal)",
+				"value": "oklch(0.24 0.04 195 / 0.94)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46067,7 +46067,7 @@
 					"gradient"
 				],
 				"cssVar": "--preset-wizard-elevated-gradient",
-				"value": "var(--gradient-surface-brand-cyan)",
+				"value": "linear-gradient(180deg, oklch(0.26 0.045 195) 0%, oklch(0.19 0.04 195) 100%)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46091,7 +46091,7 @@
 					"box-shadow"
 				],
 				"cssVar": "--preset-wizard-elevated-box-shadow",
-				"value": "var(--depth-z1), var(--glow-teal)",
+				"value": "var(--depth-z2), var(--bevel-soft)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46165,6 +46165,150 @@
 				"cssVar": "--preset-wizard-elevated-transition-timing-function",
 				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
 				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-hover-box-shadow",
+				"path": [
+					"preset",
+					"wizard-elevated-hover",
+					"box-shadow"
+				],
+				"cssVar": "--preset-wizard-elevated-hover-box-shadow",
+				"value": "var(--depth-z3), var(--bevel-medium)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-hover-border-color",
+				"path": [
+					"preset",
+					"wizard-elevated-hover",
+					"border-color"
+				],
+				"cssVar": "--preset-wizard-elevated-hover-border-color",
+				"value": "color-mix(in oklch, var(--accent-cyan-main) 60%, transparent)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-elevated-active-box-shadow",
+				"path": [
+					"preset",
+					"wizard-elevated-active",
+					"box-shadow"
+				],
+				"cssVar": "--preset-wizard-elevated-active-box-shadow",
+				"value": "var(--bevel-pressed)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-background-color",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"background-color"
+				],
+				"cssVar": "--preset-wizard-inset-background-color",
+				"value": "oklch(0.13 0.045 240 / 0.92)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-border-radius",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"border-radius"
+				],
+				"cssVar": "--preset-wizard-inset-border-radius",
+				"value": "var(--radius-md)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-box-shadow",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"box-shadow"
+				],
+				"cssVar": "--preset-wizard-inset-box-shadow",
+				"value": "var(--bevel-pressed)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-color",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"color"
+				],
+				"cssVar": "--preset-wizard-inset-color",
+				"value": "var(--text-primary)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-border-color",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"border-color"
+				],
+				"cssVar": "--preset-wizard-inset-border-color",
+				"value": "color-mix(in oklch, var(--accent-blue-main) 30%, transparent)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-border-width",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"border-width"
+				],
+				"cssVar": "--preset-wizard-inset-border-width",
+				"value": "var(--border-width-hairline)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-transition-duration",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"transition-duration"
+				],
+				"cssVar": "--preset-wizard-inset-transition-duration",
+				"value": "var(--duration-fast)",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-transition-timing-function",
+				"path": [
+					"preset",
+					"wizard-inset",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-wizard-inset-transition-timing-function",
+				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-wizard-inset-hover-border-color",
+				"path": [
+					"preset",
+					"wizard-inset-hover",
+					"border-color"
+				],
+				"cssVar": "--preset-wizard-inset-hover-border-color",
+				"value": "color-mix(in oklch, var(--accent-blue-main) 45%, transparent)",
+				"type": "string",
 				"extensions": null
 			}
 		]
