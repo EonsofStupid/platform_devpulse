@@ -1003,7 +1003,7 @@ pub struct ConnectCopy {
     pub scan_rung_mesh_tip: String,
     /// Rung status while no signal has arrived yet.
     pub scan_rung_waiting: String,
-    /// Rung status: enumerated, zero candidates. 
+    /// Rung status: enumerated, zero candidates.
     pub scan_rung_done_none: String,
     /// Rung status template: `{count}` candidates answered.
     pub scan_rung_done_some: String,

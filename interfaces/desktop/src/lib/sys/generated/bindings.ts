@@ -5296,6 +5296,73 @@ gpu_layers: number;
  */
 dtype: string }
 /**
+ * Capability confirm step — presents the CONNECTED Clyffy's advertised
+ * slots as layman sense tiles. Everything rendered is a pure function
+ * of the live capability handshake — honest empty when standalone.
+ * There is no embedded kernel; Clyffy is reached over the wire.
+ */
+export type CapabilityCopy = { 
+/**
+ * Heading for the capability confirm step.
+ */
+title: string; 
+/**
+ * Supporting line — states the wire-truth deal.
+ */
+subtitle: string; 
+/**
+ * Shown while standalone: the tiles light up on connect.
+ */
+standalone_hint: string; 
+/**
+ * Tooltip on the Brain tile (deep reasoner).
+ */
+tile_brain_tip: string; 
+/**
+ * Tooltip on the Sparkles tile (indexing helper).
+ */
+tile_sparkles_tip: string; 
+/**
+ * Tooltip on the Eyes tile (vision).
+ */
+tile_eyes_tip: string; 
+/**
+ * Tooltip on the Ears tile (speech-to-text).
+ */
+tile_ears_tip: string; 
+/**
+ * Tooltip on the Mouth tile (text-to-speech).
+ */
+tile_mouth_tip: string; 
+/**
+ * Caption above the knowledge term strip.
+ */
+terms_caption: string; 
+/**
+ * Visible label on the footer Back button (returns to connect).
+ */
+back_label: string; 
+/**
+ * Tooltip on the footer Back button.
+ */
+back_tooltip: string; 
+/**
+ * Visible label on the footer Skip button.
+ */
+skip_label: string; 
+/**
+ * Tooltip on the footer Skip button.
+ */
+skip_tooltip: string; 
+/**
+ * Visible label on the footer Continue button.
+ */
+continue_label: string; 
+/**
+ * Tooltip on the footer Continue button.
+ */
+continue_tooltip: string }
+/**
  * One capturable window reported by xcap.
  * 
  * Filtered to "real" windows by the lister: title non-empty AND not
@@ -5924,7 +5991,147 @@ degraded_hint: string;
 /**
  * Reveal label for the manual address entry fallback.
  */
-manual_reveal: string }
+manual_reveal: string; 
+/**
+ * Visible label on the Network mode card (another box on the LAN).
+ */
+mode_network_label: string; 
+/**
+ * One-line layman hint under the Network mode label.
+ */
+mode_network_hint: string; 
+/**
+ * Tooltip on the Local mode card.
+ */
+mode_local_tooltip: string; 
+/**
+ * Tooltip on the Network mode card.
+ */
+mode_network_tooltip: string; 
+/**
+ * Tooltip on the GB10 mode card.
+ */
+mode_gb10_tooltip: string; 
+/**
+ * Tooltip on the discover (Find my Clyffy) button.
+ */
+discover_tooltip: string; 
+/**
+ * Tooltip on the manual-entry reveal button.
+ */
+manual_tooltip: string; 
+/**
+ * Tooltip on the footer Skip button.
+ */
+skip_tooltip: string; 
+/**
+ * Tooltip on the footer Continue button.
+ */
+continue_tooltip: string; 
+/**
+ * Tooltip on the footer Back button.
+ */
+back_tooltip: string; 
+/**
+ * Tooltip on a found-endpoint card's confirm button.
+ */
+confirm_tooltip: string; 
+/**
+ * Tooltip on the manual address input.
+ */
+url_tooltip: string; 
+/**
+ * Heading on the live scan panel.
+ */
+scan_title: string; 
+/**
+ * Supporting line under the scan heading.
+ */
+scan_subtitle: string; 
+/**
+ * Rung label: the operator's persisted last endpoint.
+ */
+scan_rung_persisted: string; 
+/**
+ * Rung label: the configured `base_url`.
+ */
+scan_rung_configured: string; 
+/**
+ * Rung label: loopback probe on this machine.
+ */
+scan_rung_localhost: string; 
+/**
+ * Rung label: mDNS browse on the local network.
+ */
+scan_rung_mdns: string; 
+/**
+ * Rung label: enumerated private-mesh peers.
+ */
+scan_rung_mesh: string; 
+/**
+ * Rung tooltip: persisted endpoint.
+ */
+scan_rung_persisted_tip: string; 
+/**
+ * Rung tooltip: configured base_url.
+ */
+scan_rung_configured_tip: string; 
+/**
+ * Rung tooltip: loopback.
+ */
+scan_rung_localhost_tip: string; 
+/**
+ * Rung tooltip: mDNS.
+ */
+scan_rung_mdns_tip: string; 
+/**
+ * Rung tooltip: mesh peers.
+ */
+scan_rung_mesh_tip: string; 
+/**
+ * Rung status while no signal has arrived yet.
+ */
+scan_rung_waiting: string; 
+/**
+ * Rung status: enumerated, zero candidates.
+ */
+scan_rung_done_none: string; 
+/**
+ * Rung status template: `{count}` candidates answered.
+ */
+scan_rung_done_some: string; 
+/**
+ * Rung status after the stream finished without this rung speaking.
+ */
+scan_rung_not_run: string; 
+/**
+ * Tooltip explaining a skipped rung.
+ */
+scan_rung_not_run_tip: string; 
+/**
+ * Probe line template: `{url}` was tried.
+ */
+scan_probe_trying: string; 
+/**
+ * Probe outcome suffix: the handshake answered.
+ */
+scan_probe_answered: string; 
+/**
+ * Probe outcome suffix: no answer.
+ */
+scan_probe_silent: string; 
+/**
+ * Finish line template: `{found}` found, `{probed}` checked.
+ */
+scan_finished_some: string; 
+/**
+ * Finish line template when nothing answered: `{probed}` checked.
+ */
+scan_finished_none: string; 
+/**
+ * Error line template: the search failed with `{error}`.
+ */
+scan_error: string }
 /**
  * Connection lifecycle from DevPulse's perspective. Drives the no-AI indicator
  * and every Tier-2 feature gate; the capability is always **computed** from the
@@ -6275,6 +6482,11 @@ export type DiscoveryEvent =
  * A rung finished enumerating; `candidates` is how many it contributed.
  */
 { kind: "source_scanned"; source: DiscoverySource; candidates: number } | 
+/**
+ * A candidate URL was actually probed — true attempt telemetry.
+ * No-mock law: the UI may only render attempts that happened.
+ */
+{ kind: "candidate_probed"; url: string; source: DiscoverySource; reached: boolean } | 
 /**
  * A candidate answered the capability handshake.
  */
@@ -11796,7 +12008,14 @@ runtime_picker?: RuntimePickerCopy;
  * the layman framing around that choice. `#[serde(default)]`
  * keeps older user overrides parsing without `[connect]`.
  */
-connect?: ConnectCopy }
+connect?: ConnectCopy; 
+/**
+ * Copy for the capability confirm step (wizard step 2) — the
+ * connected Clyffy's advertised senses, wire-truth only.
+ * `#[serde(default)]` keeps older overrides parsing without
+ * `[capability]`.
+ */
+capability?: CapabilityCopy }
 
 /** tauri-specta globals **/
 
