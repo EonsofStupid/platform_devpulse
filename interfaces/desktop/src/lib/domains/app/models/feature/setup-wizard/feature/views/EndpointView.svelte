@@ -65,6 +65,19 @@ $effect(() => clyffyConnection.subscribe());
 const connectionState = $derived(clyffyConnection.state.state);
 const showFailed = $derived(attempted && !working && connectionState === "disconnected");
 
+/** The operator confirmed an endpoint and the probe loop settled it to
+ *  `connected` — their intent completed, so the step completes: advance to
+ *  the capability view (wire truth renders there). Gated to fire ONCE per
+ *  attempt; never fires for a pre-existing connection the operator didn't
+ *  just make (attempted stays false until their click). */
+let autoAdvanced = $state(false);
+$effect(() => {
+	if (attempted && !autoAdvanced && connectionState === "connected") {
+		autoAdvanced = true;
+		callbacks.onNext();
+	}
+});
+
 // Every discovery signal folds into scanState — the panel renders only
 // what these REAL events prove (source_scanned / candidate_probed /
 // found / finished).
@@ -210,6 +223,11 @@ async function connect(url: string): Promise<void> {
 						onConfirm={connect}
 					/>
 				{/each}
+				<!-- Confirm-path failures were only visible in ManualEntry before —
+				     honest feedback belongs beside the card that failed too. -->
+				{#if errorMessage && !manualOpen}
+					<Text size="xs" class="error-line">{errorMessage}</Text>
+				{/if}
 			</section>
 		{:else if scanState.phase === "done" && !scanState.error}
 			<Text size="xs" color="muted">{copy?.none_found ?? ""}</Text>
