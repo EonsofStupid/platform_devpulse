@@ -25,5 +25,9 @@ thiserror = { workspace = true }
 reqwest = { version = "0.12", default-features = false, features = ["json", "native-tls"] }
 specta = { workspace = true, optional = true }
 
+[dev-dependencies]
+# Test fixtures parse captured live daemon payloads verbatim.
+serde_json = { workspace = true }
+
 [lints]
 workspace = true
