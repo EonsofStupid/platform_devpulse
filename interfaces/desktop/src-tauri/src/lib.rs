@@ -504,8 +504,6 @@ async fn clyffy_probe_loop(
         .emit(&app);
     };
 
-    let mut last = app.state::<ClyffyConnectionState>().current();
-
     loop {
         // Re-read the target endpoint every tick — it is re-pointable at runtime
         // via `connect_clyffy` / `disconnect_clyffy` with no restart. `None` is
@@ -519,9 +517,20 @@ async fn clyffy_probe_loop(
                 Err(_) => ConnectionState::Disconnected,
             },
         };
-        if next != last {
+        // Dedupe against the SHARED state, never a loop-local cache: commands
+        // (`connect_clyffy` emits `Connecting`) also write this state, and a
+        // stale local baseline swallowed the settle transition — the operator
+        // stayed on "Connecting…" forever after confirming while a connection
+        // was already live (the B2 stale-Connecting defect).
+        let current = app.state::<ClyffyConnectionState>().current();
+        if next != current {
+            tracing::info!(
+                target: "clyffy.connection",
+                from = ?current,
+                to = ?next,
+                "probe settled — connection transition"
+            );
             publish(&next);
-            last = next;
         }
         tokio::time::sleep(interval).await;
     }
