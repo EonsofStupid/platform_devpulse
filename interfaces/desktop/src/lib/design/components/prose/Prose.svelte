@@ -16,7 +16,7 @@
 		"background-color": "transparent",
 		"box-shadow": "none",
 		"border-width": "0",
-		"color": "oklch(0.9319 0.015 224)"
+		"color": "var(--text-primary)"
 }
 -->
 <script lang="ts">

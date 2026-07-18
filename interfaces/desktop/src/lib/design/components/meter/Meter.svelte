@@ -13,9 +13,9 @@
 	@requiredAxes backgroundColor, border, borderRadius, color
 	@slots root:all, track:none, fill:none, label:none
 	@defaults {
-		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"background-color": "var(--surface-base)",
 		"border-radius": "0.75rem",
-		"color": "oklch(0.9319 0.015 224)"
+		"color": "var(--text-primary)"
 }
 -->
 <script lang="ts">

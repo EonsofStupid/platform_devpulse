@@ -13,8 +13,8 @@
 	@requiredAxes backgroundColor, color, opacity
 	@slots root:all
 	@defaults {
-		"background-color": "oklch(0.0601 0.012 224.61 / 0.4)",
-		"color": "oklch(0.9319 0.015 224)"
+		"background-color": "var(--surface-base)",
+		"color": "var(--text-primary)"
 	}
 -->
 <script lang="ts">

@@ -12,9 +12,9 @@
 	@requiredAxes backgroundColor, border, color, opacity
 	@slots root:all
 	@defaults {
-		"background-color": "oklch(0.0901 0.017 224.61 / 0.6)",
-		"color": "oklch(0.9319 0.015 224)",
-		"border-color": "oklch(0.5106 0.0979 173.17 / 0.15)",
+		"background-color": "var(--surface-base)",
+		"color": "var(--text-primary)",
+		"border-color": "var(--border-subtle)",
 		"border-width": "0 0 0.0625rem 0"
 	}
 -->

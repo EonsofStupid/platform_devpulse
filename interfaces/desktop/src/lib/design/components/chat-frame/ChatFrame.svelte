@@ -13,11 +13,11 @@
 	@requiredAxes backgroundColor, border, borderRadius, shadow, color, opacity
 	@slots root:all
 	@defaults {
-		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"background-color": "var(--surface-base)",
 		"border-radius": "0.75rem",
 		"box-shadow": "0 0.25rem 1rem oklch(0 0 0 / 0.3), 0 0 2rem oklch(0.5106 0.0979 173.17 / 0.08)",
-		"color": "oklch(0.9319 0.015 224)",
-		"border-color": "oklch(0.5106 0.0979 173.17 / 0.22)",
+		"color": "var(--text-primary)",
+		"border-color": "var(--border-subtle)",
 		"border-width": "0.0625rem",
 		"backdrop-filter": "blur(1rem)"
 }

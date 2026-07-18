@@ -660,6 +660,36 @@ function toTw4VarName(token) {
 	return `--${token.name}`;
 }
 
+/**
+ * Tailwind v4 theme namespaces (tailwindcss.com/docs/theme). A `@theme` var only
+ * mints a utility if its name begins with one of these; anything else is inert.
+ */
+const TW4_NAMESPACES = [
+	'--color-',
+	'--font-weight-',
+	'--font-',
+	'--text-',
+	'--tracking-',
+	'--leading-',
+	'--tab-size-',
+	'--breakpoint-',
+	'--container-',
+	'--spacing-',
+	'--radius-',
+	'--inset-shadow-',
+	'--drop-shadow-',
+	'--shadow-',
+	'--blur-',
+	'--perspective-',
+	'--zoom-',
+	'--aspect-',
+	'--ease-',
+	'--animate-',
+];
+
+/** True if `name` lands on a real Tailwind v4 theme namespace. */
+const isTw4Namespace = (name) => TW4_NAMESPACES.some((p) => name.startsWith(p));
+
 // ═══════════════════════════════════════════════════════════════
 // CUSTOM FORMAT: coldlight/css
 //
@@ -716,6 +746,13 @@ StyleDictionary.registerFormat({
 			if (isComponent(token)) continue;
 
 			const name = toTw4VarName(token);
+
+			// F9 namespace guard: theme/ registers Tailwind utilities ONLY. A name
+			// that is not a Tailwind v4 namespace mints no utility and would place an
+			// UNLAYERED copy over the layered styles/ value — the 644-collision
+			// cascade bug (audit:cssvars CONTESTED). Skip; it lives in styles/ alone.
+			if (!isTw4Namespace(name)) continue;
+
 			const original = token.original?.$value ?? token.original?.value;
 
 			if (

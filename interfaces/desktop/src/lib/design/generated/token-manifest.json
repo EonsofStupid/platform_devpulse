@@ -10,7 +10,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-accordion-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -46,7 +46,7 @@
 					"color"
 				],
 				"cssVar": "--style-accordion-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -58,7 +58,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-accordion-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -82,7 +82,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-alert-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -118,7 +118,7 @@
 					"color"
 				],
 				"cssVar": "--style-alert-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -130,7 +130,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-alert-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -154,7 +154,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-alert-dialog-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -190,7 +190,7 @@
 					"color"
 				],
 				"cssVar": "--style-alert-dialog-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -202,7 +202,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-alert-dialog-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -226,7 +226,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-avatar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -262,7 +262,7 @@
 					"color"
 				],
 				"cssVar": "--style-avatar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -274,7 +274,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-avatar-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -298,7 +298,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-avatar-group-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -334,7 +334,7 @@
 					"color"
 				],
 				"cssVar": "--style-avatar-group-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -346,7 +346,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-avatar-group-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -370,7 +370,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-badge-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -406,7 +406,7 @@
 					"color"
 				],
 				"cssVar": "--style-badge-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -418,7 +418,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-badge-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -442,7 +442,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-banner-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -478,7 +478,7 @@
 					"color"
 				],
 				"cssVar": "--style-banner-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -490,7 +490,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-banner-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -514,7 +514,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-button-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -550,7 +550,7 @@
 					"color"
 				],
 				"cssVar": "--style-button-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -562,7 +562,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-button-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -586,7 +586,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-calendar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -622,7 +622,7 @@
 					"color"
 				],
 				"cssVar": "--style-calendar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -634,7 +634,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-calendar-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -658,7 +658,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-callout-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -694,7 +694,7 @@
 					"color"
 				],
 				"cssVar": "--style-callout-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -706,7 +706,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-callout-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -730,7 +730,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-card-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -766,7 +766,7 @@
 					"color"
 				],
 				"cssVar": "--style-card-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -778,7 +778,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-card-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -802,7 +802,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-bubble-ai-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -838,7 +838,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-bubble-ai-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -850,7 +850,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-chat-bubble-ai-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -874,7 +874,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-context-panel-default-background-color",
-				"value": "oklch(0.0601 0.012 224.61 / 0.5)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -886,7 +886,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-context-panel-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -898,7 +898,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-chat-context-panel-default-border-color",
-				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -922,7 +922,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-dashboard-default-background-color",
-				"value": "oklch(0.0601 0.012 224.61 / 0.4)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -934,7 +934,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-dashboard-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -946,7 +946,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-footer-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -958,7 +958,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-footer-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -970,7 +970,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-chat-footer-default-border-color",
-				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -994,7 +994,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-frame-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1030,7 +1030,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-frame-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1042,7 +1042,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-chat-frame-default-border-color",
-				"value": "oklch(0.5106 0.0979 173.17 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1078,7 +1078,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-sidebar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.5)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1090,7 +1090,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-sidebar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1102,7 +1102,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-chat-sidebar-default-border-color",
-				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1126,7 +1126,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-chat-topbar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1138,7 +1138,7 @@
 					"color"
 				],
 				"cssVar": "--style-chat-topbar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1150,7 +1150,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-chat-topbar-default-border-color",
-				"value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1174,7 +1174,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-checkbox-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1210,7 +1210,7 @@
 					"color"
 				],
 				"cssVar": "--style-checkbox-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1222,7 +1222,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-checkbox-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1246,7 +1246,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-collapsible-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1282,7 +1282,7 @@
 					"color"
 				],
 				"cssVar": "--style-collapsible-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1294,7 +1294,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-collapsible-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1318,7 +1318,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-color-area-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1354,7 +1354,7 @@
 					"color"
 				],
 				"cssVar": "--style-color-area-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1366,7 +1366,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-color-area-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1390,7 +1390,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-color-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1426,7 +1426,7 @@
 					"color"
 				],
 				"cssVar": "--style-color-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1438,7 +1438,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-color-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1462,7 +1462,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-color-slider-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1498,7 +1498,7 @@
 					"color"
 				],
 				"cssVar": "--style-color-slider-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1510,7 +1510,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-color-slider-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1534,7 +1534,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-color-swatch-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1570,7 +1570,7 @@
 					"color"
 				],
 				"cssVar": "--style-color-swatch-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1582,7 +1582,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-color-swatch-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1606,7 +1606,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-color-swatch-picker-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1642,7 +1642,7 @@
 					"color"
 				],
 				"cssVar": "--style-color-swatch-picker-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1654,7 +1654,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-color-swatch-picker-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1678,7 +1678,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-color-wheel-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1714,7 +1714,7 @@
 					"color"
 				],
 				"cssVar": "--style-color-wheel-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1726,7 +1726,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-color-wheel-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1750,7 +1750,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-combobox-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1786,7 +1786,7 @@
 					"color"
 				],
 				"cssVar": "--style-combobox-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1798,7 +1798,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-combobox-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1822,7 +1822,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-contextual-help-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1858,7 +1858,7 @@
 					"color"
 				],
 				"cssVar": "--style-contextual-help-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1870,7 +1870,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-contextual-help-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1894,7 +1894,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-data-table-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1930,7 +1930,7 @@
 					"color"
 				],
 				"cssVar": "--style-data-table-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1942,7 +1942,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-data-table-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -1966,7 +1966,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-date-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2002,7 +2002,7 @@
 					"color"
 				],
 				"cssVar": "--style-date-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2014,7 +2014,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-date-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2038,7 +2038,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-date-picker-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2074,7 +2074,7 @@
 					"color"
 				],
 				"cssVar": "--style-date-picker-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2086,7 +2086,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-date-picker-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2110,7 +2110,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-date-range-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2146,7 +2146,7 @@
 					"color"
 				],
 				"cssVar": "--style-date-range-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2158,7 +2158,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-date-range-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2182,7 +2182,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-date-range-picker-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2218,7 +2218,7 @@
 					"color"
 				],
 				"cssVar": "--style-date-range-picker-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2230,7 +2230,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-date-range-picker-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2254,7 +2254,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-description-list-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2290,7 +2290,7 @@
 					"color"
 				],
 				"cssVar": "--style-description-list-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2302,7 +2302,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-description-list-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2326,7 +2326,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-dialog-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2362,7 +2362,7 @@
 					"color"
 				],
 				"cssVar": "--style-dialog-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2374,7 +2374,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-dialog-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2398,7 +2398,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-dynamic-background-boot-background-color",
-				"value": "oklch(0.05 0.015 224)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2410,7 +2410,7 @@
 					"color"
 				],
 				"cssVar": "--style-dynamic-background-boot-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2434,7 +2434,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-empty-state-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2470,7 +2470,7 @@
 					"color"
 				],
 				"cssVar": "--style-empty-state-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2482,7 +2482,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-empty-state-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2506,7 +2506,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2530,7 +2530,7 @@
 					"color"
 				],
 				"cssVar": "--style-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2542,7 +2542,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-file-upload-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2578,7 +2578,7 @@
 					"color"
 				],
 				"cssVar": "--style-file-upload-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2590,7 +2590,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-file-upload-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2614,7 +2614,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-form-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2650,7 +2650,7 @@
 					"color"
 				],
 				"cssVar": "--style-form-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2662,7 +2662,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-form-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2686,7 +2686,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-form-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2722,7 +2722,7 @@
 					"color"
 				],
 				"cssVar": "--style-form-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2734,7 +2734,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-form-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2794,7 +2794,7 @@
 					"color"
 				],
 				"cssVar": "--style-heading-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2842,7 +2842,7 @@
 					"color"
 				],
 				"cssVar": "--style-inline-message-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2854,7 +2854,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-input-group-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2890,7 +2890,7 @@
 					"color"
 				],
 				"cssVar": "--style-input-group-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2902,7 +2902,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-input-group-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2926,7 +2926,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-kbd-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2962,7 +2962,7 @@
 					"color"
 				],
 				"cssVar": "--style-kbd-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -2974,7 +2974,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-kbd-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3034,7 +3034,7 @@
 					"color"
 				],
 				"cssVar": "--style-label-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3046,7 +3046,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-link-preview-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3082,7 +3082,7 @@
 					"color"
 				],
 				"cssVar": "--style-link-preview-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3094,7 +3094,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-link-preview-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3118,7 +3118,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-list-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3154,7 +3154,7 @@
 					"color"
 				],
 				"cssVar": "--style-list-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3166,7 +3166,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-list-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3190,7 +3190,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-loading-overlay-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3226,7 +3226,7 @@
 					"color"
 				],
 				"cssVar": "--style-loading-overlay-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3238,7 +3238,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-loading-overlay-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3262,7 +3262,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-menubar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3298,7 +3298,7 @@
 					"color"
 				],
 				"cssVar": "--style-menubar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3310,7 +3310,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-menubar-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3334,7 +3334,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-meter-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3358,7 +3358,7 @@
 					"color"
 				],
 				"cssVar": "--style-meter-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3370,7 +3370,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-nav-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3406,7 +3406,7 @@
 					"color"
 				],
 				"cssVar": "--style-nav-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3418,7 +3418,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-nav-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3442,7 +3442,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-navigation-menu-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3478,7 +3478,7 @@
 					"color"
 				],
 				"cssVar": "--style-navigation-menu-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3490,7 +3490,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-navigation-menu-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3514,7 +3514,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-notification-center-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3550,7 +3550,7 @@
 					"color"
 				],
 				"cssVar": "--style-notification-center-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3562,7 +3562,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-notification-center-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3586,7 +3586,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-number-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3622,7 +3622,7 @@
 					"color"
 				],
 				"cssVar": "--style-number-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3634,7 +3634,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-number-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3658,7 +3658,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-pagination-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3694,7 +3694,7 @@
 					"color"
 				],
 				"cssVar": "--style-pagination-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3706,7 +3706,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-pagination-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3730,7 +3730,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-pin-input-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3766,7 +3766,7 @@
 					"color"
 				],
 				"cssVar": "--style-pin-input-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3778,7 +3778,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-pin-input-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3802,7 +3802,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-popover-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3838,7 +3838,7 @@
 					"color"
 				],
 				"cssVar": "--style-popover-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3850,7 +3850,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-popover-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3874,7 +3874,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-progress-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3910,7 +3910,7 @@
 					"color"
 				],
 				"cssVar": "--style-progress-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3922,7 +3922,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-progress-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3982,7 +3982,7 @@
 					"color"
 				],
 				"cssVar": "--style-prose-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -3994,7 +3994,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-radio-group-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4030,7 +4030,7 @@
 					"color"
 				],
 				"cssVar": "--style-radio-group-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4042,7 +4042,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-radio-group-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4066,7 +4066,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-range-calendar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4102,7 +4102,7 @@
 					"color"
 				],
 				"cssVar": "--style-range-calendar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4114,7 +4114,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-range-calendar-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4138,7 +4138,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-scroll-area-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4174,7 +4174,7 @@
 					"color"
 				],
 				"cssVar": "--style-scroll-area-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4186,7 +4186,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-scroll-area-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4210,7 +4210,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-search-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4246,7 +4246,7 @@
 					"color"
 				],
 				"cssVar": "--style-search-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4258,7 +4258,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-search-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4330,7 +4330,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-select-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4366,7 +4366,7 @@
 					"color"
 				],
 				"cssVar": "--style-select-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4378,7 +4378,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-select-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4402,7 +4402,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-separator-default-background-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4438,7 +4438,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-sheet-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4474,7 +4474,7 @@
 					"color"
 				],
 				"cssVar": "--style-sheet-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4486,7 +4486,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-sheet-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4510,7 +4510,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-sidebar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4546,7 +4546,7 @@
 					"color"
 				],
 				"cssVar": "--style-sidebar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4558,7 +4558,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-sidebar-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4582,7 +4582,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-skeleton-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4618,7 +4618,7 @@
 					"color"
 				],
 				"cssVar": "--style-skeleton-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4630,7 +4630,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-skeleton-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4654,7 +4654,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-skip-link-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4690,7 +4690,7 @@
 					"color"
 				],
 				"cssVar": "--style-skip-link-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4702,7 +4702,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-skip-link-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4726,7 +4726,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-slider-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4762,7 +4762,7 @@
 					"color"
 				],
 				"cssVar": "--style-slider-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4774,7 +4774,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-slider-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4846,7 +4846,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-steps-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4882,7 +4882,7 @@
 					"color"
 				],
 				"cssVar": "--style-steps-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4894,7 +4894,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-steps-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4918,7 +4918,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-switch-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4954,7 +4954,7 @@
 					"color"
 				],
 				"cssVar": "--style-switch-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4966,7 +4966,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-switch-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -4990,7 +4990,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-table-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5026,7 +5026,7 @@
 					"color"
 				],
 				"cssVar": "--style-table-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5038,7 +5038,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-table-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5062,7 +5062,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-table-of-contents-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5098,7 +5098,7 @@
 					"color"
 				],
 				"cssVar": "--style-table-of-contents-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5110,7 +5110,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-table-of-contents-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5134,7 +5134,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-tabs-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5170,7 +5170,7 @@
 					"color"
 				],
 				"cssVar": "--style-tabs-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5182,7 +5182,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-tabs-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5242,7 +5242,7 @@
 					"color"
 				],
 				"cssVar": "--style-text-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5254,7 +5254,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-text-field-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5290,7 +5290,7 @@
 					"color"
 				],
 				"cssVar": "--style-text-field-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5302,7 +5302,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-text-field-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5326,7 +5326,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-textarea-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5362,7 +5362,7 @@
 					"color"
 				],
 				"cssVar": "--style-textarea-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5374,7 +5374,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-textarea-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5398,7 +5398,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-toaster-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5434,7 +5434,7 @@
 					"color"
 				],
 				"cssVar": "--style-toaster-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5446,7 +5446,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-toaster-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5470,7 +5470,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-toggle-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5506,7 +5506,7 @@
 					"color"
 				],
 				"cssVar": "--style-toggle-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5518,7 +5518,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-toggle-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5542,7 +5542,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-toggle-group-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5578,7 +5578,7 @@
 					"color"
 				],
 				"cssVar": "--style-toggle-group-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5590,7 +5590,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-toggle-group-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5614,7 +5614,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-toolbar-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5650,7 +5650,7 @@
 					"color"
 				],
 				"cssVar": "--style-toolbar-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5662,7 +5662,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-toolbar-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5686,7 +5686,7 @@
 					"background-color"
 				],
 				"cssVar": "--style-tooltip-default-background-color",
-				"value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"value": "var(--surface-base)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5722,7 +5722,7 @@
 					"color"
 				],
 				"cssVar": "--style-tooltip-default-color",
-				"value": "oklch(0.9319 0.015 224)",
+				"value": "var(--text-primary)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5734,7 +5734,7 @@
 					"border-color"
 				],
 				"cssVar": "--style-tooltip-default-border-color",
-				"value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"value": "var(--border-subtle)",
 				"type": "string",
 				"extensions": null
 			},
@@ -5763,7 +5763,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5835,7 +5835,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5895,7 +5895,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -5907,7 +5907,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-default-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6003,7 +6003,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6075,7 +6075,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6135,7 +6135,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6147,7 +6147,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-glass-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6243,7 +6243,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-stark-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6375,7 +6375,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-stark-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6483,7 +6483,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-flat-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6615,7 +6615,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-flat-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6723,7 +6723,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6795,7 +6795,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6855,7 +6855,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6867,7 +6867,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-radial-gauge-matte-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -6963,7 +6963,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-default-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7011,7 +7011,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-default-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7035,7 +7035,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-default-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7095,7 +7095,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-default-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7203,7 +7203,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-glass-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7251,7 +7251,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-glass-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7275,7 +7275,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7335,7 +7335,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7347,7 +7347,7 @@
 					"text-glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-glass-text-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7443,7 +7443,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-stark-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7575,7 +7575,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-stark-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7683,7 +7683,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-flat-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7815,7 +7815,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-flat-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7923,7 +7923,7 @@
 					"stroke"
 				],
 				"cssVar": "--svg-style-spark-line-matte-stroke",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7971,7 +7971,7 @@
 					"fill"
 				],
 				"cssVar": "--svg-style-spark-line-matte-fill",
-				"value": "var(--cl-svg-accent-fill)",
+				"value": "var(--svg-accent-fill)",
 				"type": "color",
 				"extensions": null
 			},
@@ -7995,7 +7995,7 @@
 					"glow-color"
 				],
 				"cssVar": "--svg-style-spark-line-matte-glow-color",
-				"value": "var(--cl-svg-accent-glow)",
+				"value": "var(--svg-accent-glow)",
 				"type": "color",
 				"extensions": null
 			},
@@ -8055,7 +8055,7 @@
 					"text-color"
 				],
 				"cssVar": "--svg-style-spark-line-matte-text-color",
-				"value": "var(--cl-svg-accent-main)",
+				"value": "var(--svg-accent-main)",
 				"type": "color",
 				"extensions": null
 			},

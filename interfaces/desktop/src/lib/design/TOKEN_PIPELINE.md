@@ -17,7 +17,8 @@ tokens/src/** (DTCG 2025.10, ~129 files: primitives/ + semantic/ + presets/ + co
       → coldlight/tailwind-theme → theme/*.css                                     (@theme + @theme inline)
       → coldlight/types          → types/*.d.ts
       → coldlight/manifest       → generated/token-manifest.json
-  → build.mjs writes barrels: styles/index.css, theme/index.css, types/index.d.ts
+  → build.mjs DERIVES barrels from emitted files (styles/index.css, theme/index.css,
+      types/index.d.ts) + prunes F9-skipped empty theme files — never hand-listed
 ```
 
 **Command**: `pnpm ds:tokens:build`
@@ -67,7 +68,7 @@ Tier routing (`sd.config.mjs` `tiers`): `path[0]` ∈ primitives list → `token
 ∈ semantic list → `tokens.semantic`; everything else (`style.*`, `preset.*`) →
 `tokens.components`.
 
-## @theme reference contract (audit finding F5)
+## @theme reference contract (audit finding F5 + F9 namespace guard)
 
 `coldlight/tailwind-theme` emits **two blocks per domain**:
 
@@ -78,6 +79,23 @@ Tier routing (`sd.config.mjs` `tiers`): `path[0]` ∈ primitives list → `token
 
 Never flatten a reference-valued token into a literal in `@theme` — that freezes
 the binding and silently breaks role rebinds.
+
+**Namespace guard (F9, 2026-07-17).** `theme/`'s ONLY job is to register Tailwind
+utilities. A token is emitted to `theme/` **only if `toTw4VarName(token)` lands on a
+real Tailwind v4 theme namespace** (`--color-*`, `--font-*`, `--text-*`,
+`--font-weight-*`, `--tracking-*`, `--leading-*`, `--tab-size-*`, `--breakpoint-*`,
+`--container-*`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--inset-shadow-*`,
+`--drop-shadow-*`, `--blur-*`, `--perspective-*`, `--zoom-*`, `--aspect-*`,
+`--ease-*`, `--animate-*`). Anything else (`--gradient-*`, `--transition-*`,
+`--surface-*`, `--elevation-*`, `--accent-*`, `--border-*`, `--backdrop-*`,
+`--{role}-*`, `--signal-*`, `--interaction-*`, `--overlay-*`, `--scrollbar-*`)
+generates **no utility** and is skipped entirely — it lives ONLY in `styles/`
+(layered). Emitting it to `theme/` would put an **unlayered** copy on top of the
+layered `styles/` value, and unlayered always outranks `@layer` — the exact
+mechanism behind the 644 cascade collisions (`audit:cssvars` CONTESTED). The
+namespace-valid domains that *do* collide (`--color-*`, `--radius-*`, `--shadow-*`,
+`--blur-*`, `--spacing-*`, font/text sizes) are BENIGN: same value from the same
+source, and Tailwind v4 requires the `@theme` copy to mint the utility.
 
 ## Role vocabulary (CANONICAL — audit F7 resolution)
 

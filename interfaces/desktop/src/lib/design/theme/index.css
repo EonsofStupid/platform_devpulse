@@ -1,29 +1,12 @@
-/* AUTO-GENERATED — DO NOT EDIT */
-/* Per-domain @theme files — import individually for composable presets */
+/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */
+/* Tailwind-namespace @theme domains only — F9 guard in sd.config.mjs */
 
-/* ── Primitives ──────────────────────────────────────────── */
-@import "./color.css";
-@import "./shadow.css";
 @import "./bevel.css";
 @import "./blur.css";
-@import "./surface.css";
+@import "./color.css";
 @import "./radius.css";
 @import "./spacing.css";
-@import "./typography.css";
-@import "./motion.css";
-@import "./gradient.css";
-
-/* ── Semantic ────────────────────────────────────────────── */
-@import "./elevation.css";
-@import "./text-style.css";
-@import "./transition.css";
-@import "./border.css";
-@import "./interaction.css";
-@import "./overlay.css";
-@import "./scrollbar.css";
-@import "./backdrop.css";
-@import "./text.css";
-@import "./signal.css";
-@import "./accent.css";
-@import "./role.css";
 @import "./text-composed.css";
+@import "./text-style.css";
+@import "./text.css";
+@import "./typography.css";

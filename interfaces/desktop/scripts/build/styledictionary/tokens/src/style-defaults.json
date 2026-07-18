@@ -2,7 +2,7 @@
 	"style": {
 		"accordion-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -14,11 +14,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -28,7 +28,7 @@
 		},
 		"alert-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -40,11 +40,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -54,7 +54,7 @@
 		},
 		"alert-dialog-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -66,11 +66,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -80,7 +80,7 @@
 		},
 		"avatar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -92,11 +92,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -106,7 +106,7 @@
 		},
 		"avatar-group-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -118,11 +118,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -132,7 +132,7 @@
 		},
 		"badge-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -144,11 +144,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -158,7 +158,7 @@
 		},
 		"banner-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -170,11 +170,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -184,7 +184,7 @@
 		},
 		"button-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -196,11 +196,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -210,7 +210,7 @@
 		},
 		"calendar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -222,11 +222,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -236,7 +236,7 @@
 		},
 		"callout-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -248,11 +248,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -262,7 +262,7 @@
 		},
 		"card-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -274,11 +274,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -288,7 +288,7 @@
 		},
 		"chat-bubble-ai": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -300,11 +300,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -314,15 +314,15 @@
 		},
 		"chat-context-panel-default": {
 			"background-color": {
-				"$value": "oklch(0.0601 0.012 224.61 / 0.5)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -332,25 +332,25 @@
 		},
 		"chat-dashboard-default": {
 			"background-color": {
-				"$value": "oklch(0.0601 0.012 224.61 / 0.4)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"chat-footer-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -360,7 +360,7 @@
 		},
 		"chat-frame-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -372,11 +372,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.5106 0.0979 173.17 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -390,15 +390,15 @@
 		},
 		"chat-sidebar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.5)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -408,15 +408,15 @@
 		},
 		"chat-topbar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.6)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.5106 0.0979 173.17 / 0.15)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -426,7 +426,7 @@
 		},
 		"checkbox-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -438,11 +438,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -452,7 +452,7 @@
 		},
 		"collapsible-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -464,11 +464,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -478,7 +478,7 @@
 		},
 		"color-area-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -490,11 +490,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -504,7 +504,7 @@
 		},
 		"color-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -516,11 +516,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -530,7 +530,7 @@
 		},
 		"color-slider-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -542,11 +542,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -556,7 +556,7 @@
 		},
 		"color-swatch-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -568,11 +568,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -582,7 +582,7 @@
 		},
 		"color-swatch-picker-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -594,11 +594,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -608,7 +608,7 @@
 		},
 		"color-wheel-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -620,11 +620,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -634,7 +634,7 @@
 		},
 		"combobox-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -646,11 +646,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -660,7 +660,7 @@
 		},
 		"contextual-help-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -672,11 +672,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -686,7 +686,7 @@
 		},
 		"data-table-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -698,11 +698,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -712,7 +712,7 @@
 		},
 		"date-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -724,11 +724,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -738,7 +738,7 @@
 		},
 		"date-picker-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -750,11 +750,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -764,7 +764,7 @@
 		},
 		"date-range-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -776,11 +776,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -790,7 +790,7 @@
 		},
 		"date-range-picker-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -802,11 +802,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -816,7 +816,7 @@
 		},
 		"description-list-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -828,11 +828,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -842,7 +842,7 @@
 		},
 		"dialog-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -854,11 +854,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -868,11 +868,11 @@
 		},
 		"dynamic-background-boot": {
 			"background-color": {
-				"$value": "oklch(0.05 0.015 224)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"opacity": {
@@ -882,7 +882,7 @@
 		},
 		"empty-state-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -894,11 +894,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -908,7 +908,7 @@
 		},
 		"field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -916,13 +916,13 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"file-upload-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -934,11 +934,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -948,7 +948,7 @@
 		},
 		"form-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -960,11 +960,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -974,7 +974,7 @@
 		},
 		"form-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -986,11 +986,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1012,7 +1012,7 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
@@ -1030,13 +1030,13 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"input-group-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1048,11 +1048,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1062,7 +1062,7 @@
 		},
 		"kbd-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1074,11 +1074,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1100,13 +1100,13 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"link-preview-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1118,11 +1118,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1132,7 +1132,7 @@
 		},
 		"list-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1144,11 +1144,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1158,7 +1158,7 @@
 		},
 		"loading-overlay-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1170,11 +1170,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1184,7 +1184,7 @@
 		},
 		"menubar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1196,11 +1196,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1210,7 +1210,7 @@
 		},
 		"meter-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1218,13 +1218,13 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"nav-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1236,11 +1236,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1250,7 +1250,7 @@
 		},
 		"navigation-menu-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1262,11 +1262,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1276,7 +1276,7 @@
 		},
 		"notification-center-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1288,11 +1288,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1302,7 +1302,7 @@
 		},
 		"number-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1314,11 +1314,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1328,7 +1328,7 @@
 		},
 		"pagination-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1340,11 +1340,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1354,7 +1354,7 @@
 		},
 		"pin-input-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1366,11 +1366,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1380,7 +1380,7 @@
 		},
 		"popover-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1392,11 +1392,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1406,7 +1406,7 @@
 		},
 		"progress-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1418,11 +1418,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1444,13 +1444,13 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"radio-group-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1462,11 +1462,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1476,7 +1476,7 @@
 		},
 		"range-calendar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1488,11 +1488,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1502,7 +1502,7 @@
 		},
 		"scroll-area-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1514,11 +1514,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1528,7 +1528,7 @@
 		},
 		"search-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1540,11 +1540,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1572,7 +1572,7 @@
 		},
 		"select-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1584,11 +1584,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1598,7 +1598,7 @@
 		},
 		"separator-default": {
 			"background-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"box-shadow": {
@@ -1612,7 +1612,7 @@
 		},
 		"sheet-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1624,11 +1624,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1638,7 +1638,7 @@
 		},
 		"sidebar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1650,11 +1650,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1664,7 +1664,7 @@
 		},
 		"skeleton-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1676,11 +1676,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1690,7 +1690,7 @@
 		},
 		"skip-link-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1702,11 +1702,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1716,7 +1716,7 @@
 		},
 		"slider-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1728,11 +1728,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1760,7 +1760,7 @@
 		},
 		"steps-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1772,11 +1772,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1786,7 +1786,7 @@
 		},
 		"switch-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1798,11 +1798,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1812,7 +1812,7 @@
 		},
 		"table-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1824,11 +1824,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1838,7 +1838,7 @@
 		},
 		"table-of-contents-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1850,11 +1850,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1864,7 +1864,7 @@
 		},
 		"tabs-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1876,11 +1876,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1902,13 +1902,13 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			}
 		},
 		"text-field-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1920,11 +1920,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1934,7 +1934,7 @@
 		},
 		"textarea-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1946,11 +1946,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1960,7 +1960,7 @@
 		},
 		"toaster-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1972,11 +1972,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -1986,7 +1986,7 @@
 		},
 		"toggle-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -1998,11 +1998,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -2012,7 +2012,7 @@
 		},
 		"toggle-group-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -2024,11 +2024,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -2038,7 +2038,7 @@
 		},
 		"toolbar-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -2050,11 +2050,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {
@@ -2064,7 +2064,7 @@
 		},
 		"tooltip-default": {
 			"background-color": {
-				"$value": "oklch(0.0901 0.017 224.61 / 0.8)",
+				"$value": "var(--surface-base)",
 				"$type": "string"
 			},
 			"border-radius": {
@@ -2076,11 +2076,11 @@
 				"$type": "string"
 			},
 			"color": {
-				"$value": "oklch(0.9319 0.015 224)",
+				"$value": "var(--text-primary)",
 				"$type": "string"
 			},
 			"border-color": {
-				"$value": "oklch(0.4234 0.081 173.37 / 0.22)",
+				"$value": "var(--border-subtle)",
 				"$type": "string"
 			},
 			"border-width": {

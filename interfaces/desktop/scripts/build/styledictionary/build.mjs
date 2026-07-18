@@ -22,110 +22,83 @@
  */
 
 import { execSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import config from './sd.config.mjs';
 
 const OUT = 'src/lib/design';
 
-// ─── Barrel: CSS imports with layer order ────────────────────────────
+const HAS_DECL = /^\s*--[a-z0-9-]+\s*:/im;
 
-const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
+/** .css files in `${OUT}/${dir}` that hold ≥1 custom-property decl, sorted. */
+function cssFilesWithDecls(dir) {
+	const abs = `${OUT}/${dir}`;
+	return readdirSync(abs)
+		.filter((f) => f.endsWith('.css') && f !== 'index.css')
+		.filter((f) => HAS_DECL.test(readFileSync(`${abs}/${f}`, 'utf8')))
+		.sort();
+}
 
-/* ── Layer order declaration ─────────────────────────────── */
-@layer tokens.primitives, tokens.semantic, tokens.components;
+/**
+ * Delete theme/*.css the F9 namespace guard emitted empty (skipped, non-namespace
+ * domains). SD5 leaves stale empties on disk; without this they linger and the
+ * derived barrel would re-import an unlayered collision.
+ */
+function pruneEmptyThemeFiles() {
+	const abs = `${OUT}/theme`;
+	const removed = [];
+	for (const f of readdirSync(abs)) {
+		if (!f.endsWith('.css') || f === 'index.css') continue;
+		if (!HAS_DECL.test(readFileSync(`${abs}/${f}`, 'utf8'))) {
+			unlinkSync(`${abs}/${f}`);
+			removed.push(f);
+		}
+	}
+	return removed;
+}
 
-/* ── Primitives ──────────────────────────────────────────── */
-@import "./primitives/color.css";
-@import "./primitives/shadow.css";
-@import "./primitives/bevel.css";
-@import "./primitives/glow.css";
-@import "./primitives/blur.css";
-@import "./primitives/surface.css";
-@import "./primitives/radius.css";
-@import "./primitives/border-width.css";
-@import "./primitives/spacing.css";
-@import "./primitives/typography.css";
-@import "./primitives/motion.css";
-@import "./primitives/gradient.css";
-@import "./primitives/layout.css";
+/**
+ * Barrels are DERIVED from what SD5 actually emitted — never hand-listed. A file
+ * emitted but omitted from a hand-typed barrel is dead on arrival (the claude.css
+ * bug); a file removed but left in the barrel is a broken import. Deriving makes
+ * both impossible.
+ */
+function deriveIndexCss() {
+	const tiers = ['primitives', 'semantic', 'components'];
+	const blocks = tiers.map((tier) => {
+		const imports = cssFilesWithDecls(`styles/${tier}`)
+			.map((f) => `@import "./${tier}/${f}";`)
+			.join('\n');
+		return `/* ── ${tier} ──────────────────────────────────────── */\n${imports}`;
+	});
+	return (
+		`/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */\n\n` +
+		`@layer tokens.primitives, tokens.semantic, tokens.components;\n\n` +
+		`${blocks.join('\n\n')}\n`
+	);
+}
 
-/* ── Semantic ────────────────────────────────────────────── */
-@import "./semantic/elevation.css";
-@import "./semantic/surface.css";
-@import "./semantic/border.css";
-@import "./semantic/transition.css";
-@import "./semantic/interaction.css";
-@import "./semantic/overlay.css";
-@import "./semantic/scrollbar.css";
-@import "./semantic/backdrop.css";
-@import "./semantic/text-styles.css";
-@import "./semantic/text.css";
-@import "./semantic/signal.css";
-@import "./semantic/accent.css";
-@import "./semantic/role.css";
-@import "./semantic/chat.css";
-@import "./semantic/wizard.css";
+function deriveIndexTheme() {
+	const imports = cssFilesWithDecls('theme')
+		.map((f) => `@import "./${f}";`)
+		.join('\n');
+	return (
+		`/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */\n` +
+		`/* Tailwind-namespace @theme domains only — F9 guard in sd.config.mjs */\n\n` +
+		`${imports}\n`
+	);
+}
 
-/* ── Components ──────────────────────────────────────────── */
-@import "./components/components.generated.css";
-`;
-
-// ─── Barrel: Theme imports (per-domain composable) ───────────────────
-
-const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
-/* Per-domain @theme files — import individually for composable presets */
-
-/* ── Primitives ──────────────────────────────────────────── */
-@import "./color.css";
-@import "./shadow.css";
-@import "./bevel.css";
-@import "./blur.css";
-@import "./surface.css";
-@import "./radius.css";
-@import "./spacing.css";
-@import "./typography.css";
-@import "./motion.css";
-@import "./gradient.css";
-
-/* ── Semantic ────────────────────────────────────────────── */
-@import "./elevation.css";
-@import "./text-style.css";
-@import "./transition.css";
-@import "./border.css";
-@import "./interaction.css";
-@import "./overlay.css";
-@import "./scrollbar.css";
-@import "./backdrop.css";
-@import "./text.css";
-@import "./signal.css";
-@import "./accent.css";
-@import "./role.css";
-@import "./text-composed.css";
-`;
-
-// ─── Barrel: TypeScript re-exports ───────────────────────────────────
-
-const INDEX_DTS = `/* AUTO-GENERATED — DO NOT EDIT */
-
-export * from './color.js';
-export * from './shadow.js';
-export * from './blur.js';
-export * from './surface.js';
-export * from './spacing.js';
-export * from './typography.js';
-export * from './motion.js';
-export * from './elevation.js';
-export * from './border.js';
-export * from './interaction.js';
-export * from './backdrop.js';
-export * from './component.js';
-export * from './gradient.js';
-export * from './text.js';
-export * from './signal.js';
-export * from './accent.js';
-export * from './role.js';
-`;
+function deriveIndexDts() {
+	const abs = `${OUT}/types`;
+	const exports = readdirSync(abs)
+		.filter((f) => f.endsWith('.d.ts') && f !== 'index.d.ts')
+		.filter((f) => /export/.test(readFileSync(`${abs}/${f}`, 'utf8')))
+		.sort()
+		.map((f) => `export * from './${f.replace(/\.d\.ts$/, '.js')}';`)
+		.join('\n');
+	return `/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */\n\n${exports}\n`;
+}
 
 // ─── Build ───────────────────────────────────────────────────────────
 
@@ -157,9 +130,17 @@ async function build() {
 	const sd = new StyleDictionary(config);
 	await sd.buildAllPlatforms();
 
-	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
-	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);
-	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);
+	// SD5 leaves empty files on disk for F9-skipped theme domains; drop them so
+	// the derived barrel imports only what was actually emitted.
+	const pruned = pruneEmptyThemeFiles();
+	if (pruned.length) {
+		console.log(`[SD5] Pruned ${pruned.length} empty theme file(s): ${pruned.join(', ')}`);
+	}
+
+	// Barrels are DERIVED from emitted files — never hand-listed (see helpers).
+	writeFileSync(`${OUT}/styles/index.css`, deriveIndexCss());
+	writeFileSync(`${OUT}/theme/index.css`, deriveIndexTheme());
+	writeFileSync(`${OUT}/types/index.d.ts`, deriveIndexDts());
 
 	// Format generated .d.ts files to pass biome checks
 	try {
