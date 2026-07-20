@@ -79,6 +79,41 @@ Blocks layer (compositions of primitives that ship as-is):
 `blocks/widgets/`. Use these BEFORE composing primitives directly
 when the block matches.
 
+## Block placement law — generic vs domain (LOCKED)
+
+`design/blocks/` holds **generic, domain-agnostic** compositions ONLY —
+units that compose primitives and ship as-is to ANY domain. A block MUST
+NOT import `$lib/domains/*` or `$lib/devtools/*` state, services, or types.
+The generic set is exactly: `blocks/chat/`, `blocks/dialogs/`,
+`blocks/governance/`, `blocks/widgets/`.
+
+A "block" that imports domain state/services is **not a block** — it is a
+**domain feature mis-filed in the generic pool**. It belongs under
+`domains/<domain>/feature/<name>/`, composed FROM generic blocks +
+primitives (the RRO colocation pattern below). A block that reaches into a
+domain can never be reused by another domain — it is domain-coupled by
+definition, and leaving it in `design/blocks/` lies about the boundary and
+lets domain logic leak into the design system. The design boundary stays
+domain-agnostic or it is not a design system.
+
+**The test the curator runs (any hit = mis-scoped, relocate the whole dir):**
+
+```bash
+grep -rl '\$lib/domains' interfaces/desktop/src/lib/design/blocks/<x>/
+```
+
+**Current violations — RULED, relocate:**
+
+| Mis-scoped block | Imports | → Destination |
+|---|---|---|
+| `blocks/latest/` (1 file) | `app/updates` | `domains/app/devpulse/feature/latest/` |
+| `blocks/knowledge/` (14) | `app/knowledge` | `domains/app/knowledge/feature/` |
+| `blocks/clyffy/` (3) | `app/knowledge` | `domains/clyffy/feature/` |
+| `blocks/community/` (1) | `app/community` | `domains/app/community/feature/` |
+
+Empty scaffold dirs (`carousels, cta, dashboards, features, heroes,
+navigation`) stay generic or get deleted — they never become a domain home.
+
 ## The colocation pattern (RRO reference)
 
 [`interfaces/desktop/src/lib/devtools/clyffy/reasoning/rro/`](../devtools/clyffy/reasoning/rro/)

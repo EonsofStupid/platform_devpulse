@@ -118,6 +118,7 @@ The view templates (Svelte files) take `{copy, hardware, recommendations, callba
 | Skill-level cards with 3 different accents | "Locked req #6: blue CTAs, not multi-accent." |
 | `#[allow(dead_code)]` or `#[allow(unused)]` to silence a warning | "feedback_unused_imports_signal_incomplete_work: finish the missing code, don't allow." |
 | Stub UI ("Coming soon", disabled toggle that does nothing) | "feedback_no_stubs: feature-gate optional work; don't fake progress." |
+| Domain feature in `design/blocks/` (any `$lib/domains/*` import) | "COMPOSITION-CONTRACT block-placement law: `design/blocks/` is generic-only; relocate the whole dir to `domains/<domain>/feature/`. Grep test: `grep -rl '$lib/domains' design/blocks/<x>/`." |
 | Reverting a locked decision because "it's hard right now" | Cite the lock; offer the structurally correct path. |
 
 ## How you author when authoring is asked
