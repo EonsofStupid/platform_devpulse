@@ -23,10 +23,13 @@
 	- `footer`   — Back / Skip / primary CTA. Required.
 -->
 <script lang="ts">
+import { X } from "lucide-svelte";
 import type { Snippet } from "svelte";
+import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { wizardState } from "../wizard.state.svelte.js";
 
 interface Props {
 	/** `aria-label` describing this overlay. */
@@ -77,9 +80,26 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 				{/if}
 				<Heading level={2} size="lg">{title}</Heading>
 			</div>
-			<Text size="xs" class="text-frost-500">
-				Step {step} of {totalSteps}
-			</Text>
+			<div class="shell-head-right">
+				<Text size="xs" class="text-frost-500">
+					Step {step} of {totalSteps}
+				</Text>
+				<!--
+					Universal escape hatch — closes the wizard back to the
+					dashboard from ANY step. The overlay is a fixed layer over
+					the app shell (Frame), so closing simply reveals the
+					dashboard beneath; a live wire connection is untouched.
+					Re-entry stays available from the top-bar AI chip.
+				-->
+				<Button
+					preset="ghost"
+					size="sm"
+					aria-label="Close setup and return to the dashboard"
+					onclick={() => wizardState.close()}
+				>
+					<X size={16} />
+				</Button>
+			</div>
 		</Card>
 
 		<!-- The view's surfaces — each a SEPARATE card owning its chrome;
@@ -153,6 +173,13 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 		align-items: center;
 		gap: clamp(0.5rem, 1cqi, 0.75rem);
 		min-width: 0;
+	}
+
+	.shell-head-right {
+		display: flex;
+		align-items: center;
+		gap: clamp(0.5rem, 1cqi, 0.75rem);
+		flex-shrink: 0;
 	}
 
 	.shell-mascot {

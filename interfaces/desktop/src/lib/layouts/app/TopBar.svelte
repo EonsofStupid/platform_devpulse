@@ -125,7 +125,7 @@ function onKey(e: KeyboardEvent): void {
 			>
 				<Badge variant="neutral" size="sm" class="gap-1.5">
 					<span class="status-dot h-1.5 w-1.5 rounded-full" data-subsystem-state="pending" style="background: currentColor; opacity: 0.55;"></span>
-					<span class="text-xs">AI: Standalone</span>
+					<span class="text-xs">AI</span>
 				</Badge>
 			</Button>
 		{/if}

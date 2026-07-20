@@ -1121,7 +1121,7 @@ async fn boot_task(
             #[cfg(debug_assertions)]
             {
                 if let Err(e) = seed_dev_data(&platform).await {
-                    tracing::warn!(error = %e, "Dev seed failed (non-fatal)");
+                    tracing::warn!("Dev seed failed (non-fatal): {e:#}");
                 }
             }
 
@@ -1505,8 +1505,12 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         }
     }
 
-    // Seed DuckDB daily_stats
-    if let Some(svc) = platform.analytics() {
+    // Seed DuckDB daily_stats — MUST use user_analytics(): the `daily_stats`
+    // table exists only in USER_ANALYTICS_SCHEMA, and `fetch_dashboard` reads
+    // it from user_analytics() too. Seeding via analytics() (system) queried a
+    // table that doesn't exist there, silently failed, and left the dashboard
+    // permanently empty.
+    if let Some(svc) = platform.user_analytics() {
         let adapter = svc.adapter();
 
         let rows = adapter
@@ -1524,7 +1528,11 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
             let mut data = Vec::new();
             for i in 0..20 {
                 data.push(serde_json::json!({
-                    "date": format!("2026-02-{:02}", 16 + (i % 13)),
+                    // `date` is the PRIMARY KEY — every seeded row must be unique.
+                    // The old `16 + (i % 13)` wrapped at i=13 back to day 16, so the
+                    // 14th INSERT hit a duplicate-key violation ("Failed to append
+                    // data") and aborted the seed after 13 rows. Days 01..20 are unique.
+                    "date": format!("2026-02-{:02}", 1 + i),
                     "total_model_calls": 20 + (i * 5) % 30,
                     "total_sessions": 3 + (i * 2) % 8,
                     "total_messages": 10 + (i * 3) % 25,

@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
 import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
+import { untrack } from "svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -24,6 +25,7 @@ import {
 	hardwareState,
 	VramGauge,
 } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { groupHealthSubsystems } from "$lib/layouts/app/StatusBar.types.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -35,9 +37,9 @@ const langColors: Record<string, string> = {
 };
 
 const healthColors: Record<string, string> = {
-	Healthy: "var(--accent-teal-main)",
-	Degraded: "var(--accent-ember-main)",
-	Down: "var(--accent-ember-main)",
+	Healthy: "var(--accent-success-main)",
+	Degraded: "var(--accent-warning-main)",
+	Down: "var(--accent-danger-main)",
 	Unknown: "var(--text-muted)",
 };
 
@@ -50,10 +52,14 @@ const healthGroups = $derived(
 // other active subscribers (StatusBar, ModelLoaderPanel, wizard).
 $effect(() => hardwareState.subscribe("devpulse-dashboard"));
 
-// Fetch dashboard data only after platform boot completes
+// Re-fetch on boot AND whenever the active project changes. Tracks only
+// `isReady` + `activeProjectId`; `refresh()` is fenced in `untrack` so its
+// internal `loading` writes never feed back into this effect (the prior
+// 1300+ refresh() self-trigger loop lived exactly here).
 $effect(() => {
-	if (platformState.isReady && devpulseState.loading) {
-		devpulseState.refresh();
+	const _activeProjectId = projectsState.activeProjectId;
+	if (platformState.isReady) {
+		untrack(() => void devpulseState.refresh());
 	}
 });
 </script>
@@ -151,7 +157,7 @@ $effect(() => {
 						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.activeBranches}</Text>
 					</div>
 				</div>
-				<Card preset="neuro-deep" class="flex items-center gap-2 px-3 py-2">
+				<Card preset="neuro-deep" orientation="horizontal" class="items-center gap-2 px-3 py-2">
 					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--accent-teal-main); box-shadow: var(--glow-dot-md);"></span>
 					<Text size="sm" weight="semibold" preset="default">{devpulseState.data.user.streak}d streak</Text>
 					<Text size="xs" preset="default">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
@@ -257,7 +263,7 @@ $effect(() => {
 						<div class={stack({ gap: "1" })}>
 							<Text size="xs" weight="semibold" preset="default" class="uppercase tracking-wider opacity-60 px-1">{group.label}</Text>
 							{#each group.subs as sub}
-								<Card preset="neuro-minimal" class="flex items-center justify-between px-3 py-2">
+								<Card preset="neuro-minimal" orientation="horizontal" class="items-center justify-between px-3 py-2">
 									<div class={stack({ gap: "0" })}>
 										<Text size="sm" weight="semibold" preset="default">{sub.name}</Text>
 										{#if sub.latency_us != null}

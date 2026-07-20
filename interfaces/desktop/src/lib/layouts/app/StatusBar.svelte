@@ -124,7 +124,7 @@ $effect(() => clyffyConnection.subscribe());
 					data-subsystem-state={clyffyConnection.tier2Available ? "ready" : "pending"}
 					aria-hidden="true"
 				></span>
-				<Text size="xs" color="secondary">AI: {clyffyConnection.tier2Available ? "Clyffy" : "Standalone"}</Text>
+				<Text size="xs" color="secondary">{clyffyConnection.tier2Available ? "AI: Clyffy" : "AI"}</Text>
 			</Badge>
 			<!-- Endpoint-metadata chip — surfaces what the live handshake
 			     reported (kind/version/short sha). Renders only while

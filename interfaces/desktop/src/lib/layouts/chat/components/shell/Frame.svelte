@@ -63,7 +63,7 @@ function openModelLoader(): void {
 			<!-- No-AI indicator (chat surface). Subtle absence cue — renders
 			     only while standalone; a mode, never an error. -->
 			{#if clyffyConnection.tier === "tier1"}
-				<Badge variant="neutral" size="sm">AI: Standalone</Badge>
+				<Badge variant="neutral" size="sm">AI</Badge>
 			{/if}
 			<Button preset="ghost" size="sm" onclick={openConnectomeViewer} title="Connectome Viewer" aria-label="Open Connectome Viewer">
 				<Brain size={14} />
