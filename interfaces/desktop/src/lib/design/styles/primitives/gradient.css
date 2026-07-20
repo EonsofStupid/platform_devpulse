@@ -47,6 +47,14 @@
   --gradient-surface-magenta: linear-gradient(180deg, oklch(0.13 0.03 330) 0%, oklch(0.07 0.03 330) 100%); /** magenta surface depth gradient — subtle top-to-bottom lightness shift. */
   --gradient-surface-purple: linear-gradient(180deg, oklch(0.13 0.03 280) 0%, oklch(0.07 0.03 280) 100%); /** purple surface depth gradient — subtle top-to-bottom lightness shift. */
   --gradient-surface-teal: linear-gradient(180deg, oklch(0.13 0.02 173) 0%, oklch(0.07 0.02 173) 100%); /** teal surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-blend-cyan-green: linear-gradient(135deg, oklch(0.82 0.14 195 / 0.8) 0%, oklch(0.74 0.155 175 / 0.5) 35%, oklch(0.66 0.17 155 / 0.3) 50%, oklch(0.66 0.17 155 / 0.5) 65%, oklch(0.66 0.17 155 / 0.8) 100%); /** cyan → green diagonal blend (full). */
+  --gradient-blend-magenta-hotpink: linear-gradient(135deg, oklch(0.62 0.26 340 / 0.8) 0%, oklch(0.635 0.24 355 / 0.5) 35%, oklch(0.65 0.22 10 / 0.3) 50%, oklch(0.65 0.22 10 / 0.5) 65%, oklch(0.65 0.22 10 / 0.8) 100%); /** magenta → hotpink diagonal blend (full). */
+  --gradient-blend-coral-blue: linear-gradient(135deg, oklch(0.72 0.16 15 / 0.8) 0%, oklch(0.7 0.15 308 / 0.5) 35%, oklch(0.68 0.14 240 / 0.3) 50%, oklch(0.68 0.14 240 / 0.5) 65%, oklch(0.68 0.14 240 / 0.8) 100%); /** coral → blue diagonal blend (full). */
+  --gradient-blend-salmon-gold: linear-gradient(135deg, oklch(0.68 0.18 20 / 0.8) 0%, oklch(0.755 0.17 60 / 0.5) 35%, oklch(0.83 0.16 100 / 0.3) 50%, oklch(0.83 0.16 100 / 0.5) 65%, oklch(0.83 0.16 100 / 0.8) 100%); /** salmon → gold diagonal blend (full). */
+  --gradient-blend-cyan-green-subtle: linear-gradient(135deg, oklch(0.82 0.14 195 / 0.12) 0%, oklch(0.74 0.155 175 / 0.06) 50%, oklch(0.66 0.17 155 / 0.12) 100%); /** cyan → green diagonal blend (subtle card background). */
+  --gradient-blend-magenta-hotpink-subtle: linear-gradient(135deg, oklch(0.62 0.26 340 / 0.12) 0%, oklch(0.635 0.24 355 / 0.06) 50%, oklch(0.65 0.22 10 / 0.12) 100%); /** magenta → hotpink diagonal blend (subtle card background). */
+  --gradient-blend-coral-blue-subtle: linear-gradient(135deg, oklch(0.72 0.16 15 / 0.12) 0%, oklch(0.7 0.15 308 / 0.06) 50%, oklch(0.68 0.14 240 / 0.12) 100%); /** coral → blue diagonal blend (subtle card background). */
+  --gradient-blend-salmon-gold-subtle: linear-gradient(135deg, oklch(0.68 0.18 20 / 0.12) 0%, oklch(0.755 0.17 60 / 0.06) 50%, oklch(0.83 0.16 100 / 0.12) 100%); /** salmon → gold diagonal blend (subtle card background). */
   --gradient-animated-1: oklch(0.1407 0.0433 220.15 / 0.6); /** Primary gradient layer — slow 25s ease-in-out infinite shift. */
   --gradient-animated-2: oklch(0.1206 0.0595 280.32 / 0.4); /** Secondary gradient layer — reverse shift, mix-blend-mode overlay. */
   --gradient-teal-purple: oklch(0.1149 0.0423 190.54 / 0.702); /** Teal-to-purple gradient midpoint for button primary. */

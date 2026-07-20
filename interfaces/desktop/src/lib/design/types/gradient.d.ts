@@ -48,6 +48,14 @@ export const GradientTokens = [
 	"surface-magenta",
 	"surface-purple",
 	"surface-teal",
+	"blend-cyan-green",
+	"blend-magenta-hotpink",
+	"blend-coral-blue",
+	"blend-salmon-gold",
+	"blend-cyan-green-subtle",
+	"blend-magenta-hotpink-subtle",
+	"blend-coral-blue-subtle",
+	"blend-salmon-gold-subtle",
 	"animated-1",
 	"animated-2",
 	"teal-purple",
@@ -106,6 +114,14 @@ export type GradientCSSVar =
 	| "--gradient-surface-magenta"
 	| "--gradient-surface-purple"
 	| "--gradient-surface-teal"
+	| "--gradient-blend-cyan-green"
+	| "--gradient-blend-magenta-hotpink"
+	| "--gradient-blend-coral-blue"
+	| "--gradient-blend-salmon-gold"
+	| "--gradient-blend-cyan-green-subtle"
+	| "--gradient-blend-magenta-hotpink-subtle"
+	| "--gradient-blend-coral-blue-subtle"
+	| "--gradient-blend-salmon-gold-subtle"
 	| "--gradient-animated-1"
 	| "--gradient-animated-2"
 	| "--gradient-teal-purple"
@@ -169,6 +185,16 @@ export type GradientRecord = {
 		magenta: string;
 		purple: string;
 		teal: string;
+	};
+	blend: {
+		"cyan-green": string;
+		"magenta-hotpink": string;
+		"coral-blue": string;
+		"salmon-gold": string;
+		"cyan-green-subtle": string;
+		"magenta-hotpink-subtle": string;
+		"coral-blue-subtle": string;
+		"salmon-gold-subtle": string;
 	};
 	"animated-1": string;
 	"animated-2": string;

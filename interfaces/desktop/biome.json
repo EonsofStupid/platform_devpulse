@@ -209,13 +209,14 @@
 			"!**/src/lib/design/css",
 			"!**/src/lib/design/theme",
 			"!**/src/lib/design/generated",
+			"!**/src/lib/design/glue",
+			"!**/src/lib/design/manifest",
 			"!**/src/lib/design/svg",
 			"!**/src/lib/design/plugins",
 			"!**/src/lib/design/primitives/_archive",
 			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
 			"!**/src-tauri/resources/devforge",
-			"!**/src-tauri/gen",
-			"!**/taxonomy/.generated/coldlight.manifest.json"
+			"!**/src-tauri/gen"
 		]
 	}
 }

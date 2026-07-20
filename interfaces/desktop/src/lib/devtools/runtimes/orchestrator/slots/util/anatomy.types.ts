@@ -84,6 +84,6 @@ export interface SlotSaveEntry {
 	iconName: "Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit";
 	/** CSS variable name for the per-slot accent. Must resolve to a
 	 *  generated `--accent-*-main` token in
-	 *  `lib/design/generated/token-manifest.json`. */
+	 *  `lib/design/manifest/token-manifest.json`. */
 	accentVar: string;
 }

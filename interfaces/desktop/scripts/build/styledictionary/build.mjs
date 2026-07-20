@@ -16,8 +16,8 @@
  * - src/lib/design/styles/  — token custom properties (@layer tokens.*)
  * - src/lib/design/theme/   — Tailwind @theme blocks
  * - src/lib/design/types/   — generated .d.ts unions
- * - src/lib/design/generated/token-manifest.json — VPB manifest
- * Non-token CSS (generated/*.css outside SD5, svg glue) is authored separately
+ * - src/lib/design/manifest/token-manifest.json — VPB manifest (JSON, isolated from CSS)
+ * Non-token CSS (generated/keyframes, glue/*, svg glue) is authored separately
  * and imported from src/lib/design/index.css — not emitted here.
  */
 

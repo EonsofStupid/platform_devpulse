@@ -1,25 +1,9 @@
 /**
- * ColdLight keyframes — authoring source (pending SD5 generator).
- *
- * This file is the SSOT for all CSS keyframes in ColdLight. A future
- * SD5 generator will rebuild it from the motion token JSON at
- * `scripts/build/styledictionary/tokens/src/semantic/motion/animation.tokens.json`,
- * but today no generator exists, so keyframes are hand-authored here
- * AND mirrored into the token JSON so the eventual generator produces
- * identical output.
- *
- * Rules:
- * - All keyframes are prefixed `cl-` to stay collision-free across projects.
- * - Consumers reference by name via Tailwind arbitrary utilities:
- *   `class="animate-[cl-breathe_4s_ease-in-out_infinite]"`
- * - No component `<style>` blocks. No hand-rolled keyframes in components.
- * - To add a keyframe: add it here, add matching token in animation.tokens.json,
- *   and use it via the Tailwind utility pattern above.
+ * Do not edit directly, this file was auto-generated.
  */
 
 @keyframes pulse-glow {
-	0%,
-	100% {
+	0%, 100% {
 		opacity: 1;
 	}
 	50% {
@@ -28,8 +12,7 @@
 }
 
 @keyframes cl-breathe {
-	0%,
-	100% {
+	0%, 100% {
 		opacity: 1;
 		transform: scale(1);
 	}
@@ -49,8 +32,7 @@
 }
 
 @keyframes cl-drift {
-	0%,
-	100% {
+	0%, 100% {
 		transform: translateY(0) translateX(0);
 	}
 	25% {
@@ -65,8 +47,7 @@
 }
 
 @keyframes cl-pulse {
-	0%,
-	100% {
+	0%, 100% {
 		box-shadow: 0 0 0 0 currentColor;
 	}
 	50% {
@@ -148,9 +129,15 @@
 }
 
 @keyframes cl-shake {
-	0%, 100% { transform: translateX(0); }
-	10%, 50%, 90% { transform: translateX(-0.25rem); }
-	30%, 70% { transform: translateX(0.25rem); }
+	0%, 100% {
+		transform: translateX(0);
+	}
+	10%, 50%, 90% {
+		transform: translateX(-0.25rem);
+	}
+	30%, 70% {
+		transform: translateX(0.25rem);
+	}
 }
 
 @keyframes cl-float {
@@ -172,8 +159,6 @@
 		opacity: 1;
 	}
 }
-
-/* ── Preset family animations ──────────────────────────── */
 
 @keyframes cl-glow-pulse {
 	0%, 100% {
@@ -238,11 +223,6 @@
 		border-color: oklch(0.65 0.22 25 / 0.7);
 	}
 }
-
-/* ── Presence / being animations ───────────────────────── */
-/* Used by `ClyffyStatusOrb` and any other "being" indicator.
- * Each pair consists of a container halo animation and an inner
- * core animation so two layers can compose without clashing. */
 
 @keyframes cl-presence-breathe {
 	0%, 100% {
@@ -338,5 +318,41 @@
 	75% {
 		transform: scale(1.08);
 		filter: brightness(1.3) saturate(1.35);
+	}
+}
+
+@keyframes cl-ink-creep {
+	0%, 100% {
+		color: oklch(75% 0.2 191);
+		text-shadow: 2px 2px 0 oklch(0.1722 0.0382 224.31), -1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25), 3px 3px 0 oklch(0.1549 0.023 227.75), 4px 4px 0 oklch(0.1357 0.012 230.63), 0 0 12px oklch(0.8262 0.113 201.54 / 0.7), 0 0 24px oklch(0.8262 0.113 201.54 / 0.4), 0 0 48px oklch(0.8262 0.113 201.54 / 0.2);
+	}
+	25% {
+		color: oklch(68% 0.24 320);
+		text-shadow: 2px 2px 0 oklch(0.1722 0.0382 224.31), -1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25), 3px 3px 0 oklch(0.1549 0.023 227.75), 4px 4px 0 oklch(0.1357 0.012 230.63), 0 0 12px oklch(0.6849 0.1882 350.07 / 0.7), 0 0 24px oklch(0.6849 0.1882 350.07 / 0.4), 0 0 48px oklch(0.6849 0.1882 350.07 / 0.2);
+	}
+	50% {
+		color: oklch(72% 0.22 267);
+		text-shadow: 2px 2px 0 oklch(0.1722 0.0382 224.31), -1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25), 3px 3px 0 oklch(0.1549 0.023 227.75), 4px 4px 0 oklch(0.1357 0.012 230.63), 0 0 12px oklch(0.5716 0.1741 245.41 / 0.7), 0 0 24px oklch(0.5716 0.1741 245.41 / 0.4), 0 0 48px oklch(0.5716 0.1741 245.41 / 0.2);
+	}
+	75% {
+		color: oklch(78% 0.18 220);
+		text-shadow: 2px 2px 0 oklch(0.1722 0.0382 224.31), -1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25), 3px 3px 0 oklch(0.1549 0.023 227.75), 4px 4px 0 oklch(0.1357 0.012 230.63), 0 0 12px oklch(0.6062 0.216 218.94 / 0.7), 0 0 24px oklch(0.6062 0.216 218.94 / 0.4), 0 0 48px oklch(0.6062 0.216 218.94 / 0.2);
+	}
+}
+
+@keyframes cl-neon-pulse {
+	0% {
+		opacity: 0;
+		transform: scale(0.9);
+		filter: blur(8px);
+	}
+	50% {
+		opacity: 0.9;
+		filter: blur(4px);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.1);
+		filter: blur(12px);
 	}
 }

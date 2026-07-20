@@ -1,0 +1,15 @@
+/**
+ * ColdLight glue — HAND-AUTHORED (not generated).
+ * Scrollbar @utility classes that CONSUME generated surface/matte
+ * tokens (var(--matte-*)). Lives in design/glue/; imported by design/index.css.
+ */
+
+@utility scrollbar-thin {
+	scrollbar-width: thin;
+	scrollbar-color: var(--matte-medium) transparent;
+}
+
+@utility scrollbar-hidden {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}

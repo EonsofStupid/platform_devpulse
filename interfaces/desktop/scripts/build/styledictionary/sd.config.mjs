@@ -41,6 +41,7 @@ const clFormats = {
 	tailwindTheme: 'coldlight/tailwind-theme',
 	types: 'coldlight/types',
 	manifest: 'coldlight/manifest',
+	keyframes: 'coldlight/keyframes',
 };
 
 /** Custom transform names */
@@ -109,7 +110,7 @@ const tiers = {
 		'zIndex', 'font', 'fontFeatureSettings', 'fontVariationSettings',
 		'textSize', 'leading', 'tracking',
 		'motion', 'gradient', 'layout',
-		'font-size', 'depth', 'duration', 'easing', 'animation',
+		'font-size', 'depth', 'duration', 'easing', 'animation', 'keyframes',
 		'opacity', 'outlineOffset', 'borderWidth', 'borderRise',
 		'z-index',
 	],
@@ -152,7 +153,7 @@ const tw4Remap = {
 
 /**
  * Build paths (relative to CWD = interfaces/desktop/).
- * Token CSS only → design/styles + design/theme + design/types + generated/token-manifest.json.
+ * Token CSS only → design/styles + design/theme + design/types + manifest/token-manifest.json.
  * SVG preset vars → design/svg/presets. Do not emit non-token glue here.
  */
 const paths = {
@@ -968,6 +969,39 @@ StyleDictionary.registerFormat({
 });
 
 // ═══════════════════════════════════════════════════════════════
+// CUSTOM FORMAT: coldlight/keyframes
+//
+// @keyframes blocks emitted from the keyframes step-map tokens.
+// $value = { "<offset>": { "<css-prop>": "<value>" } }. Declarations
+// are written verbatim (already kebab-case in source) — property
+// order is source order. Keyframe name = token path minus the root.
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerFormat({
+	name: clFormats.keyframes,
+	format: async ({ dictionary, file }) => {
+		const header = await fileHeader({ file });
+		const blocks = dictionary.allTokens
+			.filter((token) => token.path[0] === 'keyframes')
+			.map((token) => {
+				const name = token.path.slice(1).join('-');
+				const steps = token.$value ?? token.value;
+				const stepBlocks = Object.entries(steps)
+					.map(([offset, decls]) => {
+						const declLines = Object.entries(decls)
+							.map(([prop, val]) => `\t\t${prop}: ${val};`)
+							.join('\n');
+						return `\t${offset} {\n${declLines}\n\t}`;
+					})
+					.join('\n');
+				return `@keyframes ${name} {\n${stepBlocks}\n}`;
+			});
+
+		return `${header}${blocks.join('\n\n')}\n`;
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
 // FILE DEFINITION HELPERS
 // ═══════════════════════════════════════════════════════════════
 
@@ -1015,6 +1049,9 @@ const config = {
 		if (type === 'color') return false;
 		if (type === 'cubicBezier') return false;
 		if (type === 'gradient') return false;
+		// keyframes carry a step-map object as $value; expanding would split the
+		// offsets/declarations into sibling sub-tokens and break the emitter.
+		if (type === 'keyframes') return false;
 		// typography, transition, border still expand into sub-properties.
 		return true;
 	},
@@ -1091,6 +1128,20 @@ const config = {
 			files: [
 				cssFile('components.generated.css', isComponent, layers.components),
 			],
+		},
+
+		// ── CSS: Keyframes ────────────────────────────────────────
+		// @keyframes bodies from the keyframes step-map tokens. Unlayered
+		// (keyframes cannot live in @layer) — emitted to generated/ and
+		// imported by design/index.css.
+		'css-keyframes': {
+			transforms: TYPE_TRANSFORMS,
+			buildPath: `${paths.design}/generated/`,
+			files: [{
+				destination: 'keyframes.generated.css',
+				format: clFormats.keyframes,
+				filter: pathFilter('keyframes'),
+			}],
 		},
 
 		// ── CSS: SVG Presets ──────────────────────────────────────
@@ -1190,7 +1241,7 @@ const config = {
 		// ── Manifest: VPB token metadata ─────────────────────────
 		manifest: {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/generated/`,
+			buildPath: `${paths.design}/manifest/`,
 			files: [{
 				destination: 'token-manifest.json',
 				format: clFormats.manifest,

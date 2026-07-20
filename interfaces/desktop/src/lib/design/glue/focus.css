@@ -1,0 +1,17 @@
+/**
+ * ColdLight glue — HAND-AUTHORED (not generated).
+ * Focus-ring @utility classes that CONSUME generated border/outline
+ * tokens (var(--border-*)). Lives in design/glue/; imported by design/index.css.
+ */
+
+@utility focus-ring {
+	outline: 2px solid var(--border-focus);
+	outline-offset: 2px;
+}
+
+@utility focus-glow {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--border-focus),
+		var(--glow-teal);
+}

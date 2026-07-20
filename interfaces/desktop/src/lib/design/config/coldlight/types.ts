@@ -92,10 +92,6 @@ export type ColdLightConfig = Readonly<{
 
 	generation: Readonly<{
 		categories: Readonly<Record<CategoryId, { enabled: boolean }>>;
-		outputs: Readonly<{
-			manifestJson: string;
-			importsTs: string;
-		}>;
 	}>;
 
 	enforcement: Readonly<{

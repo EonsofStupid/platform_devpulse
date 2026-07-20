@@ -17,7 +17,7 @@ No `ui/` folder. No middle layer. Component IS the product.
 ## Config
 - Master Plan: `MASTER-PLAN.md`
 - Config: `coldlight.config.ts` — declares everything, build tools read config
-- Manifest: `coldlight.manifest.json` — scanner-generated from taxonomy
+- Manifest: `manifest/token-manifest.json` — VPB metadata emitted by the SD5 generator (`pnpm ds:tokens:build`). The old `coldlight.manifest.json` taxonomy scanner is retired.
 
 ## Rules
 - Config-driven. `coldlight.config.ts` is SSOT. Read it before generating.

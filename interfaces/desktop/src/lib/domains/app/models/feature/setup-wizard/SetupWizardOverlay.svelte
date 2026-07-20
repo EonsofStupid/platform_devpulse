@@ -95,7 +95,7 @@ let dispatchErrors = $state<Record<string, string>>({});
  *
  * Slot ids MUST match the engine's `config/slots.default.toml`
  * verbatim. `accentVar` must reference a generated token from
- * `interfaces/desktop/src/lib/design/generated/token-manifest.json`
+ * `interfaces/desktop/src/lib/design/manifest/token-manifest.json`
  * (the real names carry `-main` / `-fill` / `-glow` suffixes; cards
  * point at `-main` because the surface gradient mixes the main hue).
  */

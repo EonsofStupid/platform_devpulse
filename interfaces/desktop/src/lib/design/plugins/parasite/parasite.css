@@ -87,59 +87,11 @@
 	animation-delay: 3.6s;
 }
 
-/* =============================================
-   INK CREEP ANIMATION - OKLCH Cyber Palette
-   ============================================= */
-@keyframes ink-creep {
-	0%,
-	100% {
-		color: oklch(75% 0.2 191); /* Cyan */
-		text-shadow:
-			2px 2px 0 oklch(0.1722 0.0382 224.31),
-			-1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25),
-			3px 3px 0 oklch(0.1549 0.023 227.75),
-			4px 4px 0 oklch(0.1357 0.012 230.63),
-			0 0 12px oklch(0.8262 0.113 201.54 / 0.7),
-			0 0 24px oklch(0.8262 0.113 201.54 / 0.4),
-			0 0 48px oklch(0.8262 0.113 201.54 / 0.2);
-	}
-	25% {
-		color: oklch(68% 0.24 320); /* Pink/Magenta */
-		text-shadow:
-			2px 2px 0 oklch(0.1722 0.0382 224.31),
-			-1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25),
-			3px 3px 0 oklch(0.1549 0.023 227.75),
-			4px 4px 0 oklch(0.1357 0.012 230.63),
-			0 0 12px oklch(0.6849 0.1882 350.07 / 0.7),
-			0 0 24px oklch(0.6849 0.1882 350.07 / 0.4),
-			0 0 48px oklch(0.6849 0.1882 350.07 / 0.2);
-	}
-	50% {
-		color: oklch(72% 0.22 267); /* Purple */
-		text-shadow:
-			2px 2px 0 oklch(0.1722 0.0382 224.31),
-			-1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25),
-			3px 3px 0 oklch(0.1549 0.023 227.75),
-			4px 4px 0 oklch(0.1357 0.012 230.63),
-			0 0 12px oklch(0.5716 0.1741 245.41 / 0.7),
-			0 0 24px oklch(0.5716 0.1741 245.41 / 0.4),
-			0 0 48px oklch(0.5716 0.1741 245.41 / 0.2);
-	}
-	75% {
-		color: oklch(78% 0.18 220); /* Electric Blue */
-		text-shadow:
-			2px 2px 0 oklch(0.1722 0.0382 224.31),
-			-1px -1px 0 oklch(1.0032 0.0305 28.88 / 0.25),
-			3px 3px 0 oklch(0.1549 0.023 227.75),
-			4px 4px 0 oklch(0.1357 0.012 230.63),
-			0 0 12px oklch(0.6062 0.216 218.94 / 0.7),
-			0 0 24px oklch(0.6062 0.216 218.94 / 0.4),
-			0 0 48px oklch(0.6062 0.216 218.94 / 0.2);
-	}
-}
-
+/* Ink-creep keyframes now live in the SSOT — keyframes.tokens.json →
+   generated/keyframes.generated.css as `cl-ink-creep` (Universal effects
+   law: zero scoped @keyframes). */
 .parasite[data-animate="true"] .parasite-letter {
-	animation: ink-creep 12s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+	animation: cl-ink-creep 12s cubic-bezier(0.33, 1, 0.68, 1) infinite;
 }
 
 /* =============================================
@@ -162,25 +114,11 @@
 }
 
 .parasite[data-pulse="true"]::after {
-	animation: neon-pulse 600ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+	animation: cl-neon-pulse 600ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
 
-@keyframes neon-pulse {
-	0% {
-		opacity: 0;
-		transform: scale(0.9);
-		filter: blur(8px);
-	}
-	50% {
-		opacity: 0.9;
-		filter: blur(4px);
-	}
-	100% {
-		opacity: 0;
-		transform: scale(1.1);
-		filter: blur(12px);
-	}
-}
+/* neon-pulse keyframes now live in the SSOT — keyframes.tokens.json →
+   generated/keyframes.generated.css as `cl-neon-pulse`. */
 
 /* =============================================
    SIZE VARIANTS

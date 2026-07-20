@@ -42,6 +42,8 @@ const ALLOW_LIST = [
 	"interfaces/desktop/src/lib/design/style/",
 	"interfaces/desktop/src/lib/design/styles/",
 	"interfaces/desktop/src/lib/design/generated/",
+	"interfaces/desktop/src/lib/design/glue/",
+	"interfaces/desktop/src/lib/design/manifest/",
 	"interfaces/desktop/src/lib/design/svg/",
 	"interfaces/desktop/src/lib/design/plugins/",
 	"interfaces/desktop/src/lib/design/.cowlevel/",

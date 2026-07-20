@@ -4,9 +4,10 @@
  * Run: pnpm ds:tokens:build
  *
  * Runtime CSS boundary (single pipeline: scripts/build/styledictionary/build.mjs):
- * - styles/ — SD5-generated token custom properties only (@layer tokens.*)
- * - theme/  — SD5-generated Tailwind v4 @theme registrations
- * - generated/, svg/ — non-token glue (utilities, RenderForge, filters, presets)
+ * - styles/, theme/, types/ — SD5-generated tokens (@layer + Tailwind @theme + .d.ts)
+ * - generated/ — SD5-generated keyframes; manifest/ — SD5 VPB JSON
+ * - glue/ — HAND-AUTHORED non-token glue (@utility classes, RenderForge base)
+ * - svg/  — SD5 preset vars (presets/) + hand-authored SVG glue
  */
 
 /* 1. SD5-generated token CSS — 3-tier @layer (primitives, semantic, components) */
@@ -15,32 +16,29 @@
 /* 2. SD5-generated Tailwind @theme registrations */
 @import "./theme/index.css";
 
-/* 3. Non-token: typography utilities */
-@import "./generated/typography.css";
+/* 3. Glue (hand-authored): typography utilities */
+@import "./glue/typography.css";
 
-/* 4. Non-token: focus ring styles */
-@import "./generated/focus.css";
+/* 4. Glue (hand-authored): focus ring styles */
+@import "./glue/focus.css";
 
-/* 5. Non-token: scrollbar theming */
-@import "./generated/scrollbars.css";
+/* 5. Glue (hand-authored): scrollbar theming */
+@import "./glue/scrollbars.css";
 
-/* 6. Non-token: animation keyframes */
-@import "./generated/keyframes.css";
+/* 6. SD5-generated animation keyframes */
+@import "./generated/keyframes.generated.css";
 
-/* 7. Non-token: brand diagonal blends + multi-color utilities */
-@import "./generated/diagonal-blends.css";
-
-/* 8. Non-token: SVG Filters (neumorphism) */
+/* 7. Glue (hand-authored): SVG Filters (neumorphism) */
 @import "./svg/filters/filters.css";
 
-/* 9. Non-token: RenderForge glue — maps canonical vars to CSS properties on [data-kind] */
-@import "./generated/render-base.css";
+/* 8. Glue (hand-authored): RenderForge — maps canonical vars to CSS properties on [data-kind] */
+@import "./glue/render-base.css";
 
-/* 10. Non-token: SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
+/* 9. Non-token: SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
 @import "./svg/svg-macro-base.css";
 
-/* 11. Non-token: SVG accent root fallbacks — teal default, overridden per-widget */
+/* 10. Non-token: SVG accent root fallbacks — teal default, overridden per-widget */
 @import "./svg/svg-accent-defaults.css";
 
-/* 12. SD5-generated SVG preset vars (emitted under svg/presets/) */
+/* 11. SD5-generated SVG preset vars (emitted under svg/presets/) */
 @import "./svg/presets/svg-presets.generated.css";
